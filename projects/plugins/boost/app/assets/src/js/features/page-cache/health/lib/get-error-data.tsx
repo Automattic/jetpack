@@ -204,13 +204,9 @@ type FormattedError = {
 	title: string;
 	message: React.ReactNode;
 };
-function getErrorData( status?: PageCacheError ): FormattedError {
-	// Fall back to unknown error if no status
+function getErrorData( status?: PageCacheError ): false | FormattedError {
 	if ( ! status ) {
-		return {
-			title: __( 'Unknown error', 'jetpack-boost' ),
-			message: __( 'An unknown error occurred.', 'jetpack-boost' ),
-		};
+		return false;
 	}
 
 	// Try to find a message based on status code

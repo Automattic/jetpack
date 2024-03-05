@@ -127,9 +127,9 @@ class Users extends Module {
 		add_action( 'jetpack_removed_user_from_blog', $callable, 10, 2 );
 
 		// User roles.
-		add_action( 'add_user_role', array( $this, 'save_user_role_handler' ), 10, 2 );
+		add_action( 'add_user_role', array( $this, 'add_user_role_handler' ), 10, 2 );
 		add_action( 'set_user_role', array( $this, 'save_user_role_handler' ), 10, 3 );
-		add_action( 'remove_user_role', array( $this, 'save_user_role_handler' ), 10, 2 );
+		add_action( 'remove_user_role', array( $this, 'remove_user_role_handler' ), 10, 2 );
 
 		// User capabilities.
 		add_action( 'added_user_meta', array( $this, 'maybe_save_user_meta' ), 10, 4 );
@@ -512,6 +512,9 @@ class Users extends Module {
 			if ( false === $user->has_prop( $user_field ) ) {
 				continue;
 			}
+			if ( 'ID' === $user_field ) {
+				continue;
+			}
 			if ( $user->$user_field !== $field_value ) {
 				if ( 'user_email' === $user_field ) {
 					/**
@@ -545,6 +548,44 @@ class Users extends Module {
 			do_action( 'jetpack_sync_save_user', $user_id, $this->get_flags( $user_id ) );
 			$this->clear_flags( $user_id );
 		}
+	}
+
+	/**
+	 * Handler for add user role change.
+	 *
+	 * @access public
+	 *
+	 * @param int    $user_id   ID of the user.
+	 * @param string $role      New user role.
+	 */
+	public function add_user_role_handler( $user_id, $role ) {
+		$this->add_flags(
+			$user_id,
+			array(
+				'role_added' => $role,
+			)
+		);
+
+		$this->save_user_role_handler( $user_id, $role );
+	}
+
+	/**
+	 * Handler for remove user role change.
+	 *
+	 * @access public
+	 *
+	 * @param int    $user_id   ID of the user.
+	 * @param string $role      Removed user role.
+	 */
+	public function remove_user_role_handler( $user_id, $role ) {
+		$this->add_flags(
+			$user_id,
+			array(
+				'role_removed' => $role,
+			)
+		);
+
+		$this->save_user_role_handler( $user_id, $role );
 	}
 
 	/**

@@ -39,7 +39,8 @@ class Filesystem_Utils {
 					if ( $file->isDir() ) {
 						Logger::debug( 'rmdir: ' . $file->getPathname() );
 						@rmdir( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
-					} else {
+					} elseif ( $file->getFilename() !== 'index.html' ) {
+						// Delete all files except index.html. index.html is used to prevent directory listing.
 						Logger::debug( 'unlink: ' . $file->getPathname() );
 						@unlink( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
 					}
@@ -47,7 +48,8 @@ class Filesystem_Utils {
 				@rmdir( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged,
 				break;
 			case self::DELETE_FILES: // delete all files in the given directory.
-				$files = array_diff( scandir( $path ), array( '.', '..' ) );
+				// Files to delete are all files in the given directory, except index.html. index.html is used to prevent directory listing.
+				$files = array_diff( scandir( $path ), array( '.', '..', 'index.html' ) );
 				foreach ( $files as $file ) {
 					$file = $path . '/' . $file;
 					if ( is_file( $file ) ) {
@@ -102,7 +104,7 @@ class Filesystem_Utils {
 
 		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 		while ( false !== ( $file = readdir( $handle ) ) ) {
-			if ( $file === '.' || $file === '..' ) {
+			if ( $file === '.' || $file === '..' || $file === 'index.html' ) {
 				// Skip and continue to next file
 				continue;
 			}
@@ -140,6 +142,9 @@ class Filesystem_Utils {
 		}
 
 		if ( $is_dir_empty === true ) {
+			// Directory is considered empty even if it has an index.html file. Delete it it first.
+			self::delete_file( $directory . '/index.html' );
+
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
 			@rmdir( $directory );
 		}
@@ -155,10 +160,29 @@ class Filesystem_Utils {
 	public static function create_directory( $path ) {
 		if ( ! is_dir( $path ) ) {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.dir_mkdir_dirname, WordPress.WP.AlternativeFunctions.file_system_operations_mkdir, WordPress.PHP.NoSilencedErrors.Discouraged
-			return @mkdir( $path, 0755, true );
+			$dir_created = @mkdir( $path, 0755, true );
+
+			if ( $dir_created ) {
+				self::create_empty_index_files( $path );
+			}
+
+			return $dir_created;
 		}
 
 		return true;
+	}
+
+	/**
+	 * Create an empty index.html file in the given directory.
+	 * This is done to prevent directory listing.
+	 */
+	private static function create_empty_index_files( $path ) {
+		if ( self::is_boost_cache_directory( $path ) ) {
+			self::write_to_file( $path . '/index.html', '' );
+
+			// Create an empty index.html file in the parent directory as well.
+			self::create_empty_index_files( dirname( $path ) );
+		}
 	}
 
 	/**
@@ -189,7 +213,8 @@ class Filesystem_Utils {
 			return new Boost_Cache_Error( 'directory_not_readable', 'Directory is not readable' );
 		}
 
-		return ( count( scandir( $dir ) ) === 2 ); // All directories have '.' and '..'
+		$files = array_diff( scandir( $dir ), array( '.', '..', 'index.html' ) );
+		return empty( $files );
 	}
 
 	/**

@@ -54,13 +54,22 @@ class Jetpack_Google_Font_Face {
 	 * Print fonts that are used in global styles or block-level settings.
 	 */
 	public function print_font_faces() {
-		$fonts          = $this->get_fonts();
-		$fonts_to_print = array();
+		$fonts             = WP_Font_Face_Resolver::get_fonts_from_theme_json();
+		$font_slug_aliases = $this->get_font_slug_aliases();
+		$fonts_to_print    = array();
 
 		$this->collect_global_styles_fonts();
-		$this->fonts_in_use = array_values( array_unique( $this->fonts_in_use, SORT_STRING ) );
-		foreach ( $fonts as $font_family => $font_faces ) {
-			if ( in_array( $this->format_font( $font_family ), $this->fonts_in_use, true ) ) {
+		$fonts_in_use = array_values( array_unique( $this->fonts_in_use, SORT_STRING ) );
+		$fonts_in_use = array_map(
+			function ( $font_slug ) use ( $font_slug_aliases ) {
+				return $font_slug_aliases[ $font_slug ] ?? $font_slug;
+			},
+			$this->fonts_in_use
+		);
+
+		foreach ( $fonts as $font_faces ) {
+			$font_family = $font_faces[0]['font-family'] ?? '';
+			if ( in_array( $this->format_font( $font_family ), $fonts_in_use, true ) ) {
 				$fonts_to_print[ $font_family ] = $font_faces;
 			}
 		}
@@ -141,26 +150,27 @@ class Jetpack_Google_Font_Face {
 	}
 
 	/**
-	 * Get all font definitions from theme json.
+	 * Get the font slug aliases that maps the font slug to the font family if they are different.
+	 *
+	 * The font definition may define an alias slug name, so we have to add the map from the slug name to the font family.
+	 * See https://github.com/WordPress/twentytwentyfour/blob/df92472089ede6fae5924c124a93c843b84e8cbd/theme.json#L215.
 	 */
-	public function get_fonts() {
-		$fonts = WP_Font_Face_Resolver::get_fonts_from_theme_json();
+	public function get_font_slug_aliases() {
+		$font_slug_aliases = array();
 
-		// The font definition might define an alias slug name, so we have to add the map from the slug name to font faces.
-		// See https://github.com/WordPress/twentytwentyfour/blob/df92472089ede6fae5924c124a93c843b84e8cbd/theme.json#L215.
 		$theme_json = WP_Theme_JSON_Resolver::get_theme_data();
 		$raw_data   = $theme_json->get_data();
 		if ( ! empty( $raw_data['settings']['typography']['fontFamilies'] ) ) {
 			foreach ( $raw_data['settings']['typography']['fontFamilies'] as $font ) {
-				$font_family_name = $this->get_font_family_name( $font );
+				$font_family_name = $this->format_font( $this->get_font_family_name( $font ) );
 				$font_slug        = $font['slug'] ?? '';
-				if ( $font_slug && ! array_key_exists( $font_slug, $fonts ) && array_key_exists( $font_family_name, $fonts ) ) {
-					$fonts[ $font_slug ] = $fonts[ $font_family_name ];
+				if ( $font_slug && $font_slug !== $font_family_name && ! array_key_exists( $font_slug, $font_slug_aliases ) ) {
+					$font_slug_aliases[ $font_slug ] = $font_family_name;
 				}
 			}
 		}
 
-		return $fonts;
+		return $font_slug_aliases;
 	}
 
 	/**
