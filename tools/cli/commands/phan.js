@@ -8,6 +8,7 @@ import UpdateRenderer from 'listr-update-renderer';
 import VerboseRenderer from 'listr-verbose-renderer';
 import { getInstallArgs, projectDir } from '../helpers/install.js';
 import { coerceConcurrency } from '../helpers/normalizeArgv.js';
+import PrefixStream from '../helpers/prefix-stream.js';
 import { allProjects } from '../helpers/projectHelpers.js';
 import promptForProject from '../helpers/promptForProject.js';
 
@@ -207,7 +208,7 @@ export async function handler( argv ) {
 	if ( ! argv.v ) {
 		phanArgs.push( '--progress-bar' );
 	} else if ( new Set( argv.project ).size > 1 && argv.concurrency > 1 ) {
-		phanArgs.push( '--no-progress-bar' );
+		phanArgs.push( '--long-progress-bar' );
 	} else if ( ! process.stderr.isTTY ) {
 		phanArgs.push( '--long-progress-bar' );
 	} else {
@@ -233,7 +234,8 @@ export async function handler( argv ) {
 	}
 
 	const issues = [];
-	for ( const project of new Set( argv.project ) ) {
+	const projects = new Set( argv.project );
+	for ( const project of projects ) {
 		// Does the project even exist?
 		if (
 			( await fs.access( projectDir( project, 'composer.json' ) ).catch( () => false ) ) === false
@@ -246,6 +248,16 @@ export async function handler( argv ) {
 			? [ ...phanArgs, '--include-analysis-file-list', checkFilesByProject[ project ].join( ',' ) ]
 			: phanArgs;
 
+		let sstdout = process.stdout,
+			sstderr = process.stderr;
+		if ( argv.v && argv.concurrency > 1 && projects.size > 1 ) {
+			const streamArgs = { prefix: project, time: true };
+			sstdout = new PrefixStream( streamArgs );
+			sstderr = new PrefixStream( streamArgs );
+			sstdout.pipe( process.stdout, { end: false } );
+			sstderr.pipe( process.stderr, { end: false } );
+		}
+
 		// Composer install.
 		tasks.push( {
 			title: `Checking ${ project }`,
@@ -256,11 +268,17 @@ export async function handler( argv ) {
 				if ( project !== 'monorepo' ) {
 					subtasks.push( {
 						title: 'Installing composer dependencies',
-						task: async () =>
-							execa( 'composer', await getInstallArgs( project, 'composer', argv ), {
+						task: async () => {
+							const proc = execa( 'composer', await getInstallArgs( project, 'composer', argv ), {
 								cwd: projectDir( project ),
-								stdio: composerStdio,
-							} ),
+								stdio: [ 'ignore', argv.v ? 'pipe' : 'ignore', argv.v ? 'pipe' : 'ignore' ],
+							} );
+							if ( argv.v ) {
+								proc.stdout.pipe( sstdout, { end: false } );
+								proc.stderr.pipe( sstderr, { end: false } );
+							}
+							await proc;
+						},
 					} );
 				}
 
@@ -270,15 +288,17 @@ export async function handler( argv ) {
 						let stdout = '';
 						try {
 							if ( argv.v ) {
-								console.log( `Executing ${ phanPath } ${ projectPhanArgs.join( ' ' ) }` );
+								sstdout.write( `Executing ${ phanPath } ${ projectPhanArgs.join( ' ' ) }\n` );
 							}
 							const proc = execa( phanPath, projectPhanArgs, {
 								cwd: projectDir( project ),
 								buffer: false,
-								stdio: [ 'ignore', 'pipe', argv.v ? 'inherit' : 'pipe' ],
+								stdio: [ 'ignore', 'pipe', 'pipe' ],
 							} );
 							proc.stdout.on( 'data', v => ( stdout += v ) );
-							if ( ! argv.v ) {
+							if ( argv.v ) {
+								proc.stderr.pipe( sstderr, { end: false } );
+							} else {
 								let stderr = '';
 								proc.stderr.on( 'data', v => {
 									stderr += v;
@@ -296,13 +316,13 @@ export async function handler( argv ) {
 								json = JSON.parse( stdout );
 								if ( ! Array.isArray( json ) ) {
 									if ( argv.v ) {
-										console.error( 'Output is JSON but not an array' );
+										sstderr.write( 'Output is JSON but not an array\n' );
 									}
 									throw new Error( 'Output is JSON but not an array' );
 								}
 							} catch ( e2 ) {
 								if ( argv.v ) {
-									console.log( stdout );
+									sstdout.write( stdout );
 								}
 								throw e;
 							}
