@@ -30,11 +30,7 @@ const useJetpackApiQuery = < T >(
 	} );
 
 	const { isError, isLoading } = queryResult;
-	useFetchingErrorNotice( {
-		infoName: name,
-		isError: ! isLoading && isError,
-		overrideMessage: errorMessage,
-	} );
+	useFetchingErrorNotice( name, ! isLoading && isError, errorMessage );
 
 	return queryResult;
 };
