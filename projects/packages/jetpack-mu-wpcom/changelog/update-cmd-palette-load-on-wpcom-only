@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Load the cmd palatte only on wpcom platforms.
+
+
