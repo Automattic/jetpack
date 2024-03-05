@@ -3399,6 +3399,9 @@ importers:
       '@types/wordpress__block-editor':
         specifier: 11.5.11
         version: 11.5.11(react-dom@18.2.0)(react@18.2.0)
+      '@types/wordpress__editor':
+        specifier: 13.6.7
+        version: 13.6.7(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/api-fetch':
         specifier: 6.49.0
         version: 6.49.0
@@ -10898,8 +10901,52 @@ packages:
       - react-dom
     dev: true
 
+  /@types/wordpress__editor@13.6.7(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-3iiPWC8AjMGMMTImqCOkJiTbRmpfkjP8RljeL6cmtIVkrOrI5m5dizmq3hrtdB041rNTrPsItwRhchZO1EQVIw==}
+    dependencies:
+      '@types/react': 18.2.61
+      '@types/wordpress__block-editor': 11.5.11(react-dom@18.2.0)(react@18.2.0)
+      '@types/wordpress__blocks': 12.5.13(react-dom@18.2.0)(react@18.2.0)
+      '@types/wordpress__components': 23.0.11(react-dom@18.2.0)(react@18.2.0)
+      '@types/wordpress__media-utils': 4.14.4(@types/react@18.2.61)(react-dom@18.2.0)(react@18.2.0)
+      '@wordpress/core-data': 6.29.0(@types/react@18.2.61)(react-dom@18.2.0)(react@18.2.0)
+      '@wordpress/data': 9.22.0(react@18.2.0)
+      '@wordpress/element': 5.29.0
+    transitivePeerDependencies:
+      - '@babel/helper-module-imports'
+      - '@babel/types'
+      - aslemammad-vite-plugin-macro
+      - babel-plugin-macros
+      - bufferutil
+      - react
+      - react-dom
+      - supports-color
+      - utf-8-validate
+      - vite
+    dev: true
+
   /@types/wordpress__keycodes@2.3.3:
     resolution: {integrity: sha512-jOI0L5NbLc0Ht/vkbZwgBfgWZbPKexXS+nxlYZ0kHQCjVCM7tdSwptItksCY3Qc9IV2nRc1pTnj/UJC2E2cUQw==}
+    dev: true
+
+  /@types/wordpress__media-utils@4.14.4(@types/react@18.2.61)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-qAqvuljgN+bM+EWydj82+78qwoW3XgDtTrla6MW6uZ4Dj7aGgcmmwuNPtCghfLvBadCyC9jYOSBfASGJDXxeag==}
+    dependencies:
+      '@types/wordpress__block-editor': 11.5.11(react-dom@18.2.0)(react@18.2.0)
+      '@wordpress/core-data': 6.29.0(@types/react@18.2.61)(react-dom@18.2.0)(react@18.2.0)
+      '@wordpress/element': 5.29.0
+    transitivePeerDependencies:
+      - '@babel/helper-module-imports'
+      - '@babel/types'
+      - '@types/react'
+      - aslemammad-vite-plugin-macro
+      - babel-plugin-macros
+      - bufferutil
+      - react
+      - react-dom
+      - supports-color
+      - utf-8-validate
+      - vite
     dev: true
 
   /@types/wordpress__notices@3.27.6(react@18.2.0):
