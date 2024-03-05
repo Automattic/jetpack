@@ -126,15 +126,10 @@ function render_block( $attributes ) {
 	}
 
 	if ( Jetpack_Memberships::is_current_user_subscribed() ) {
-		$subscription_id             = Abstract_Token_Subscription_Service::get_token_property( 'sub' );
-		$subscription_management_url = ! empty( $subscription_id )
-			? 'https://wordpress.com/read/subscriptions/' . $subscription_id
-			: 'https://wordpress.com/read/subscriptions?s=' . get_site_url();
-
 		return sprintf(
 			$block_template,
 			get_block_wrapper_attributes(),
-			$subscription_management_url,
+			'https://wordpress.com/read/subscriptions?s=' . get_site_url(),
 			$manage_subscriptions_label
 		);
 	}
