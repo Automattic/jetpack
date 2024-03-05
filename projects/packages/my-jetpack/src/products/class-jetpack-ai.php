@@ -103,7 +103,7 @@ class Jetpack_Ai extends Product {
 	 * @return int
 	 */
 	public static function get_next_usage_tier() {
-		if ( ! self::is_site_connected() ) {
+		if ( ! self::is_site_connected() || ! self::has_required_plan() ) {
 			return 100;
 		}
 
