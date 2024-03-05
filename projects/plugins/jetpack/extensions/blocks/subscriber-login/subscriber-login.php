@@ -126,12 +126,10 @@ function render_block( $attributes ) {
 	}
 
 	if ( Jetpack_Memberships::is_current_user_subscribed() ) {
-		$blog_id = Jetpack_Options::get_option( 'id' );
-
 		return sprintf(
 			$block_template,
 			get_block_wrapper_attributes(),
-			'https://wordpress.com/read/site/subscription/' . $blog_id,
+			'https://wordpress.com/read/site/subscription/' . Jetpack_Memberships::get_blog_id(),
 			$manage_subscriptions_label
 		);
 	}
