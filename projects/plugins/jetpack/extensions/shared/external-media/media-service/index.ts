@@ -197,6 +197,7 @@ const isMediaSourceConnected = async ( source: MediaSource ) =>
  */
 const isInserterOpened = (): boolean =>
 	select( 'core/edit-post' )?.isInserterOpened() ||
+	select( 'core/editor' )?.isInserterOpened() ||
 	select( 'core/edit-site' )?.isInserterOpened() ||
 	select( 'core/edit-widgets' )?.isInserterOpened?.();
 
