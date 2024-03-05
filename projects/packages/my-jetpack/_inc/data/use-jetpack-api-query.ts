@@ -14,7 +14,7 @@ const useJetpackApiQuery = < T >(
 	name: string,
 	queryFn: ( api: typeof restApi ) => Promise< T >,
 	explicitKey?: string
-): ReturnType< typeof useQuery > => {
+) => {
 	const queryResult = useQuery( {
 		queryKey: [ name, explicitKey ],
 		queryFn: () => {
@@ -28,6 +28,7 @@ const useJetpackApiQuery = < T >(
 	} );
 
 	const { isError, isLoading } = queryResult;
+	// TODO: error message customization as in #35994
 	useFetchingErrorNotice( name, ! isLoading && isError );
 
 	return queryResult;

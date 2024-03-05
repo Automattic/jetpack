@@ -4,7 +4,7 @@
 import { AdminPage, Container, Col } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { ActivationScreen } from '@automattic/jetpack-licensing';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 /*
  * Internal dependencies
  */
@@ -19,14 +19,9 @@ import GoBackLink from '../go-back-link';
  */
 export default function AddLicenseScreen() {
 	const { recordEvent } = useAnalytics();
-	const { data: availableLicenses = [], isLoading } = useJetpackApiQuery(
+	const { data: licenses = [], isLoading } = useJetpackApiQuery(
 		'available licenses',
-		async api => {
-			const result = await api.getUserLicenses();
-			return result?.items?.filter(
-				( { attached_at, revoked_at } ) => attached_at === null && revoked_at === null
-			);
-		}
+		async api => ( await api.getUserLicenses() )?.items
 	);
 	const { userConnectionData } = useConnection();
 	const [ hasActivatedLicense, setHasActivatedLicense ] = useState( false );
@@ -44,6 +39,14 @@ export default function AddLicenseScreen() {
 	const handleActivationSuccess = useCallback( () => {
 		setHasActivatedLicense( true );
 	}, [] );
+
+	const availableLicenses = useMemo(
+		() =>
+			licenses.filter(
+				( { attached_at, revoked_at } ) => attached_at === null && revoked_at === null
+			),
+		[ licenses ]
+	);
 
 	return (
 		<AdminPage showHeader={ false } showBackground={ false }>
