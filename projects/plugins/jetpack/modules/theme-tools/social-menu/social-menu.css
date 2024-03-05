@@ -160,6 +160,11 @@ Genericons
 	content: "\f220";
 }
 
+/* Skype */
+.jetpack-social-navigation-genericons a[href*="sms:"]:before {
+	content: "\f110";
+}
+
 /* Spotify */
 .jetpack-social-navigation-genericons a[href*="spotify.com"]:before {
 	content: "\f515";

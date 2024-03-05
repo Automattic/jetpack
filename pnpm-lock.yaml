@@ -301,8 +301,8 @@ importers:
         specifier: 2.0.5
         version: 2.0.5(@babel/runtime@7.24.0)(react@18.2.0)
       social-logos:
-        specifier: 2.5.6
-        version: 2.5.6(react@18.2.0)
+        specifier: 2.5.9
+        version: 2.5.9(react@18.2.0)
       uplot:
         specifier: 1.6.24
         version: 1.6.24
@@ -3320,8 +3320,8 @@ importers:
         specifier: 7.5.2
         version: 7.5.2
       social-logos:
-        specifier: 2.5.8
-        version: 2.5.8(react@18.2.0)
+        specifier: 2.5.9
+        version: 2.5.9(react@18.2.0)
       swiper:
         specifier: 6.7.0
         version: 6.7.0
@@ -22174,17 +22174,8 @@ packages:
       dot-case: 3.0.4
       tslib: 2.5.0
 
-  /social-logos@2.5.6(react@18.2.0):
-    resolution: {integrity: sha512-i6/lafcegSau6G5JXqbUyUF/FLrNQgh9yd3wAe/VItsg/CAb5iGaP4kNtAQxf+fRBzC6UZpXmUsU8N7AbUN/vw==}
-    peerDependencies:
-      react: 15 - 18
-    dependencies:
-      prop-types: 15.8.1
-      react: 18.2.0
-    dev: false
-
-  /social-logos@2.5.8(react@18.2.0):
-    resolution: {integrity: sha512-NqHmubqls14MUjsquYbkQIygTVdq1UZ9ogEbIqPbkRkF1iiAQXqiw2XC1/5+Ra0VQv3hxb7l9J9UmOCUACnbbw==}
+  /social-logos@2.5.9(react@18.2.0):
+    resolution: {integrity: sha512-Wvrwqylbe1wDn/Nr8Se7vmgEKYeKPY3DDEinhPyWQkc30brA/ECX0i/DgPL/4HQxQr5Iel14D0pzF8xq4gi+Vg==}
     peerDependencies:
       react: 15 - 18
     dependencies:
