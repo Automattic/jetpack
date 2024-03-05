@@ -33,6 +33,13 @@ export default function JetpackAiInterstitial() {
 
 	const { tiers, hasRequiredPlan } = detail;
 
+	// The user has a plan and there is not a next tier
+	if ( isRegistered && hasRequiredPlan && ! nextTier ) {
+		debug( 'user is on top tier' );
+		// When tiers, this is handled on the pricing table and the product page
+		return <JetpackAIInterstitialMoreRequests onClickGoBack={ onClickGoBack } />;
+	}
+
 	// Default to 100 requests if the site is not registered/connected.
 	const nextTierValue = isRegistered ? nextTier?.value : 100;
 	// Decide the quantity value for the upgrade, but ignore the unlimited tier.
