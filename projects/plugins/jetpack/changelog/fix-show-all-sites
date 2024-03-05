@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Fix All Sites to show when wp-admin interface and not proxied or early access
+Show Browse sites when wp-admin interface is selected and using nav unification
