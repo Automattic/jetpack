@@ -114,7 +114,7 @@ function render_block( $attributes ) {
 	$redirect_url               = ! empty( $attributes['redirectToCurrent'] ) ? get_current_url() : get_site_url();
 	$log_in_label               = ! empty( $attributes['logInLabel'] ) ? sanitize_text_field( $attributes['logInLabel'] ) : esc_html__( 'Log in', 'jetpack' );
 	$log_out_label              = ! empty( $attributes['logOutLabel'] ) ? sanitize_text_field( $attributes['logOutLabel'] ) : esc_html__( 'Log out', 'jetpack' );
-	$manage_subscriptions_label = ! empty( $attributes['manageSubscriptionsLabel'] ) ? sanitize_text_field( $attributes['manageSubscriptionsLabel'] ) : esc_html__( 'Manage subscriptions', 'jetpack' );
+	$manage_subscriptions_label = ! empty( $attributes['manageSubscriptionsLabel'] ) ? sanitize_text_field( $attributes['manageSubscriptionsLabel'] ) : esc_html__( 'Manage subscription', 'jetpack' );
 
 	if ( ! is_subscriber_logged_in() ) {
 		return sprintf(
@@ -126,10 +126,15 @@ function render_block( $attributes ) {
 	}
 
 	if ( Jetpack_Memberships::is_current_user_subscribed() ) {
+		$subscription_id             = Abstract_Token_Subscription_Service::get_token_property( 'sub' );
+		$subscription_management_url = ! empty( $subscription_id )
+			? 'https://wordpress.com/read/subscriptions/' . $subscription_id
+			: 'https://wordpress.com/read/subscriptions?s=' . get_site_url();
+
 		return sprintf(
 			$block_template,
 			get_block_wrapper_attributes(),
-			'https://wordpress.com/read/subscriptions?s=' . get_site_url(),
+			$subscription_management_url,
 			$manage_subscriptions_label
 		);
 	}
