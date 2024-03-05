@@ -84,6 +84,17 @@ class REST_Connector {
 			)
 		);
 
+		// Authorize a remote user.
+		register_rest_route(
+			'jetpack/v4',
+			'/remote_register',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'remote_register' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+
 		// Get current connection status of Jetpack.
 		register_rest_route(
 			'jetpack/v4',
@@ -279,6 +290,24 @@ class REST_Connector {
 	public static function remote_authorize( $request ) {
 		$xmlrpc_server = new Jetpack_XMLRPC_Server();
 		$result        = $xmlrpc_server->remote_authorize( $request );
+
+		if ( is_a( $result, 'IXR_Error' ) ) {
+			$result = new WP_Error( $result->code, $result->message );
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Register the site so that a plan can be provisioned.
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 *
+	 * @return WP_Error|array
+	 */
+	public function remote_register( WP_REST_Request $request ) {
+		$xmlrpc_server = new Jetpack_XMLRPC_Server();
+		$result        = $xmlrpc_server->remote_register( $request );
 
 		if ( is_a( $result, 'IXR_Error' ) ) {
 			$result = new WP_Error( $result->code, $result->message );
