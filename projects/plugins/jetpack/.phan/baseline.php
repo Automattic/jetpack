@@ -9,7 +9,7 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredClassMethod : 680+ occurrences
+    // PhanUndeclaredClassMethod : 670+ occurrences
     // PhanTypeMismatchArgument : 640+ occurrences
     // PhanUndeclaredConstant : 410+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 370+ occurrences
@@ -369,7 +369,6 @@ return [
         'modules/custom-css/csstidy/class.csstidy-print.php' => ['PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanUndeclaredMethod'],
         'modules/custom-css/csstidy/class.csstidy.php' => ['PhanCompatibleNegativeStringOffset', 'PhanInfiniteRecursion', 'PhanParamTooMany', 'PhanTypeMismatchArgument', 'PhanUnextractableAnnotationSuffix'],
         'modules/custom-css/custom-css.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanUndeclaredConstant'],
-        'modules/custom-css/custom-css/preprocessors.php' => ['PhanUndeclaredClassMethod'],
         'modules/custom-post-types/comics.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgument', 'PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable'],
         'modules/custom-post-types/nova.php' => ['PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanUndeclaredFunction'],
         'modules/custom-post-types/portfolios.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeSuspiciousEcho', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeReturnType'],
