@@ -2,6 +2,12 @@ import SocialIcon from 'social-logos';
 
 export const variations = [
 	{
+		name: 'bluesky',
+		attributes: { service: 'bluesky', label: 'Bluesky' },
+		title: 'Bluesky',
+		icon: <SocialIcon icon={ 'bluesky' } size={ 24 } />,
+	},
+	{
 		name: 'print',
 		attributes: { service: 'print', label: 'Print' },
 		title: 'Print',
