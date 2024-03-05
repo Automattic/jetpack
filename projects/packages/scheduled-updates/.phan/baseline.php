@@ -9,7 +9,10 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredConstant : 4 occurrences
+    // PhanUndeclaredProperty : 25+ occurrences
+    // PhanUndeclaredConstant : 6 occurrences
+    // PhanTypeArraySuspiciousNullable : 2 occurrences
+    // PhanCompatibleAccessMethodOnTraitDefinition : 1 occurrence
     // PhanNoopNew : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanTypeMismatchDimFetch : 1 occurrence
@@ -17,6 +20,8 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-scheduled-updates.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDimFetch', 'PhanUndeclaredConstant'],
+        'src/pluggable.php' => ['PhanTypeArraySuspiciousNullable'],
+        'tests/php/class-scheduled-updates-test.php' => ['PhanCompatibleAccessMethodOnTraitDefinition', 'PhanUndeclaredConstant', 'PhanUndeclaredProperty'],
         'tests/php/class-wpcom-rest-api-v2-endpoint-update-schedules-test.php' => ['PhanNoopNew', 'PhanUndeclaredConstant'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

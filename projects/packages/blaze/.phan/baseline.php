@@ -11,7 +11,7 @@ return [
     // # Issue statistics:
     // PhanUndeclaredTypeParameter : 25+ occurrences
     // PhanUndeclaredFunction : 8 occurrences
-    // PhanUndeclaredClassMethod : 6 occurrences
+    // PhanUndeclaredClassMethod : 7 occurrences
     // PhanUndeclaredClassProperty : 4 occurrences
     // PhanTypeArraySuspicious : 3 occurrences
     // PhanTypeMismatchArgument : 3 occurrences
@@ -20,12 +20,13 @@ return [
     // PhanTypeMismatchArgumentProbablyReal : 2 occurrences
     // PhanParamTooMany : 1 occurrence
     // PhanTypeMismatchReturn : 1 occurrence
+    // PhanTypeMismatchReturnProbablyReal : 1 occurrence
     // PhanUndeclaredClassInstanceof : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-blaze.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassProperty', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeParameter'],
-        'src/class-dashboard-rest-controller.php' => ['PhanTypeArraySuspicious', 'PhanTypeArrayUnsetSuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeParameter'],
+        'src/class-dashboard-rest-controller.php' => ['PhanTypeArraySuspicious', 'PhanTypeArrayUnsetSuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeParameter'],
         'src/class-dashboard.php' => ['PhanUndeclaredConstant'],
         'src/class-rest-controller.php' => ['PhanParamTooMany'],
     ],
