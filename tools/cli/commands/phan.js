@@ -168,7 +168,7 @@ export async function handler( argv ) {
 	const tasks = [];
 
 	// Need to composer install in the monorepo root first.
-	const rootInstall = execa( 'pnpm', await getInstallArgs( 'monorepo', 'pnpm', argv ), {
+	const rootInstall = execa( 'composer', await getInstallArgs( 'monorepo', 'composer', argv ), {
 		cwd: process.cwd(),
 		stdio: composerStdio,
 	} );
