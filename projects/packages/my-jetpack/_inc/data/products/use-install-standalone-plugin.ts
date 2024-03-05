@@ -13,9 +13,7 @@ const useInstallStandalonePlugin = ( productId: string ) => {
 			method: 'POST',
 		},
 		{
-			onSuccess: async () => {
-				await refetch();
-			},
+			onSuccess: refetch,
 		},
 		null,
 		sprintf(

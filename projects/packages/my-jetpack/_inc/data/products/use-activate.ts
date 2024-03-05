@@ -13,10 +13,7 @@ const useActivate = ( productId: string ) => {
 			method: 'POST',
 		},
 		{
-			onSuccess: async () => {
-				// Await the refetch so the loading state is pending until this returns
-				await refetch();
-			},
+			onSuccess: refetch,
 		},
 		null,
 		sprintf(
