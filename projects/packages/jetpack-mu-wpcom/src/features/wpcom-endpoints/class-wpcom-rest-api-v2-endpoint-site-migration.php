@@ -73,7 +73,7 @@ class WPCOM_REST_API_V2_Endpoint_Site_Migration extends WP_REST_Controller {
 	 */
 	public function get_data() {
 		return array(
-			'migration_key' => array( $this, 'get_migration_key' ),
+			'migration_key' => $this->get_migration_key(),
 		);
 	}
 }
