@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { REST_API_SITE_PRODUCTS_ENDPOINT } from '../constants';
 import useSimpleQuery from '../use-simple-query';
 import mapObjectKeysToCamel from '../utils/to-camel';
-import type { ProductCamelCase, ProductSnakeCase } from '../types';
+import type { ProductCamelCase, ProductSnakeCase, WP_Error } from '../types';
 import type { RefetchOptions, QueryObserverResult } from '@tanstack/react-query';
 
 const getFullPricePerMonth = ( product: ProductCamelCase ) => {
@@ -40,7 +40,9 @@ const useFetchProduct = ( productId: string ) => {
 // Fetch the product data from the server and update the global state
 const refetchProduct = async (
 	productId: string,
-	refetch: ( options?: RefetchOptions ) => Promise< QueryObserverResult< ProductSnakeCase, Error > >
+	refetch: (
+		options?: RefetchOptions
+	) => Promise< QueryObserverResult< ProductSnakeCase, WP_Error > >
 ) => {
 	const { data: refetchedProduct } = await refetch();
 
