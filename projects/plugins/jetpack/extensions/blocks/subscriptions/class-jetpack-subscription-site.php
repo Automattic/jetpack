@@ -72,9 +72,36 @@ class Jetpack_Subscription_Site {
 	}
 
 	/**
+	 * Returns post end placement hooked block attributes.
+	 *
+	 * @param array $anchor_block The anchor block, in parsed block array format.
+	 *
+	 * @return array
+	 */
+	protected function get_post_end_placement_block_attributes( $anchor_block ) {
+		if ( ! empty( $anchor_block['attrs']['layout']['type'] ) ) {
+			return array(
+				'layout' => array(
+					'type' => $anchor_block['attrs']['layout']['type'],
+				),
+			);
+		}
+
+		if ( ! empty( $anchor_block['attrs']['layout']['inherit'] ) ) {
+			return array(
+				'layout' => array(
+					'inherit' => $anchor_block['attrs']['layout']['inherit'],
+				),
+			);
+		}
+
+		return array();
+	}
+
+	/**
 	 * Handles Subscribe block placement at the end of each post.
 	 *
-	 * @return viod
+	 * @return void
 	 */
 	protected function handle_subscribe_block_post_end_placement() {
 		$subscribe_post_end_enabled = get_option( 'jetpack_subscriptions_subscribe_post_end_enabled', false );
@@ -149,13 +176,7 @@ HTML;
 			function ( $hooked_block, $hooked_block_type, $relative_position, $anchor_block ) {
 				$is_post_content_anchor_block = isset( $anchor_block['blockName'] ) && $anchor_block['blockName'] === 'core/post-content';
 				if ( $is_post_content_anchor_block && ( $relative_position === 'after' || $relative_position === 'before' ) ) {
-					$attrs = isset( $anchor_block['attrs']['layout']['type'] )
-						? array(
-							'layout' => array(
-								'type' => $anchor_block['attrs']['layout']['type'],
-							),
-						)
-						: array();
+					$attrs = $this->get_post_end_placement_block_attributes( $anchor_block );
 
 					// translators: %s is the name of the site.
 					$discover_more_from_text = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
