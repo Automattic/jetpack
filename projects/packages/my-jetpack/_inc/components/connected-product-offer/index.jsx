@@ -1,13 +1,13 @@
 import { ProductOffer } from '@automattic/jetpack-components';
 import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
+import useProduct from '../../data/products/use-product';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
-import { useProduct } from '../../hooks/use-product';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 
 /**
  * Product Detail component.
- * ToDo: rename event handler properties.
+ * ToDo: Remove this component, it is not being used
  *
  * @param {object} props                    - Component props.
  * @param {string} props.slug               - Product slug
@@ -16,7 +16,7 @@ import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
  * @returns {object}                          ConnectedProductOffer react component.
  */
 const ConnectedProductOffer = ( { slug, onClick, trackButtonClick, ...rest } ) => {
-	const { detail, isFetching } = useProduct( slug );
+	const { detail } = useProduct( slug );
 	const {
 		title,
 		longDescription,
@@ -67,7 +67,7 @@ const ConnectedProductOffer = ( { slug, onClick, trackButtonClick, ...rest } ) =
 			hasRequiredPlan={ hasRequiredPlan }
 			onAdd={ clickHandler }
 			addProductUrl={ onClick ? undefined : addProductUrl }
-			isLoading={ isFetching }
+			isLoading={ false }
 			{ ...rest }
 		/>
 	);
