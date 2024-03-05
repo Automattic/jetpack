@@ -20,7 +20,7 @@ add_action( 'media_buttons', 'grunion_media_button', 999 );
 /**
  * Build contact form button.
  *
- * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_media_button
  * @return void
  */
 function grunion_media_button() {
