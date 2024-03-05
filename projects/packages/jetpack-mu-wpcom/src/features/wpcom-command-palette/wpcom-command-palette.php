@@ -11,6 +11,11 @@
  * @return bool
  */
 function should_load_wpcom_command_palette() {
+	// Only load on the WPcom platform.
+	if ( ! class_exists( 'Automattic\Jetpack\Status\Host' ) ) {
+		return false;
+	}
+
 	global $pagenow;
 	$excluded_pages = array(
 		'post.php',
