@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed scheduled updates returning is_managed = true for non-root symlinks to /wordpress directory.

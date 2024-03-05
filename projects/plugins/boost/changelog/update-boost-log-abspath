@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Boost: remove the ABSPATH from log messages in case the logs are made public
