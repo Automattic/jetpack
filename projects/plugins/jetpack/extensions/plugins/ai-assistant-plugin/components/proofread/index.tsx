@@ -14,12 +14,20 @@ import TurndownService from 'turndown';
  * Internal dependencies
  */
 import './style.scss';
+/**
+ * Types
+ */
+import type * as BlockEditorSelectors from '@wordpress/block-editor/store/selectors';
+import type * as EditorSelectors from '@wordpress/editor/store/selectors';
 
 // Turndown instance
 const turndownService = new TurndownService();
 
 const usePostContent = () => {
-	const blocks = useSelect( select => select( 'core/block-editor' ).getBlocks(), [] );
+	const blocks = useSelect(
+		select => ( select( 'core/block-editor' ) as typeof BlockEditorSelectors ).getBlocks(),
+		[]
+	);
 	return blocks?.length ? turndownService.turndown( serialize( blocks ) ) : '';
 };
 
@@ -48,7 +56,10 @@ export default function Proofread( {
 	const [ suggestion, setSuggestion ] = useState( null );
 	const { tracks } = useAnalytics();
 
-	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
+	const postId = useSelect(
+		select => ( select( 'core/editor' ) as typeof EditorSelectors ).getCurrentPostId(),
+		[]
+	);
 	const postContent = usePostContent();
 
 	const toggleProofreadModal = () => {
@@ -87,7 +98,7 @@ export default function Proofread( {
 		// Message to request a backend prompt for this feature
 		const messages = [
 			{
-				role: 'jetpack-ai',
+				role: 'jetpack-ai' as const,
 				context: {
 					type: 'proofread-plugin',
 					content: postContent,
