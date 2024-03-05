@@ -5,10 +5,10 @@ const defaultNotice = {
 	message: '',
 	options: {
 		status: '',
-	},
-	actions: {
-		label: '',
-		onClick: () => {},
+		actions: {
+			label: '',
+			onClick: () => {},
+		},
 	},
 };
 
