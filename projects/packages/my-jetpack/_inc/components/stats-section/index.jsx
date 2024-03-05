@@ -19,7 +19,7 @@ const StatsSection = () => {
 		path: getStatsHighlightsEndpoint( blogID ),
 	} );
 	const counts = statsCounts?.past_seven_days || {};
-	const previousCounts = {};
+	const previousCounts = statsCounts?.between_past_eight_and_fifteen_days || {};
 	const { recordEvent } = useAnalytics();
 
 	/**
