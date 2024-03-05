@@ -262,7 +262,7 @@ export async function handler( argv ) {
 		tasks.push( {
 			title: `Checking ${ project }`,
 			skip: skipFunction,
-			task: () => {
+			task: async () => {
 				const subtasks = [];
 
 				if ( project !== 'monorepo' ) {
@@ -280,6 +280,28 @@ export async function handler( argv ) {
 							await proc;
 						},
 					} );
+				}
+
+				try {
+					await fs.access( projectDir( project, '.phan/pre-run' ), fs.constants.X_OK );
+					subtasks.push( {
+						title: 'Executing pre-run script',
+						task: async () => {
+							const proc = execa( projectDir( project, '.phan/pre-run' ), projectPhanArgs, {
+								cwd: projectDir( project ),
+								stdio: [ 'ignore', argv.v ? 'pipe' : 'ignore', argv.v ? 'pipe' : 'ignore' ],
+							} );
+							if ( argv.v ) {
+								proc.stdout.pipe( sstdout, { end: false } );
+								proc.stderr.pipe( sstderr, { end: false } );
+							}
+							await proc;
+						},
+					} );
+				} catch ( e ) {
+					if ( e.code !== 'ENOENT' ) {
+						throw e;
+					}
 				}
 
 				subtasks.push( {
