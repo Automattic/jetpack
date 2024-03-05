@@ -3,9 +3,9 @@ import { useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { useEffect, useCallback, useState } from 'react';
-import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
+import useWelcomeBanner from '../../hooks/use-welcome-banner';
 import { CardWrapper } from '../card';
 import styles from './style.module.scss';
 
@@ -17,10 +17,10 @@ import styles from './style.module.scss';
 const WelcomeBanner = () => {
 	const isNewUser = window.myJetpackInitialState.userIsNewToJetpack === '1';
 	const { recordEvent } = useAnalytics();
-	const { isDismissed, dismissWelcomeBanner } = useWelcomeBanner();
+	const { hasBeenDismissed, dismissWelcomeBanner } = useWelcomeBanner();
 	const { isRegistered, isUserConnected } = useConnection();
 	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
-	const [ bannerVisible, setBannerVisible ] = useState( ! isDismissed && isNewUser );
+	const [ bannerVisible, setBannerVisible ] = useState( ! hasBeenDismissed && isNewUser );
 	const shouldDisplayConnectionButton = ! isRegistered || ! isUserConnected;
 
 	useEffect( () => {
