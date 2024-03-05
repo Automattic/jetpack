@@ -278,6 +278,27 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
+	 * Test that the Waf_Request class returns $_GET data correctly decoded from JSON via Waf_Request::get_get_vars(),
+	 */
+	public function testGetVarsGetWithJson() {
+		$_SERVER['CONTENT_TYPE'] = 'application/json';
+
+		$_GET['get_var'] = 'test_value';
+		$_GET['get_num'] = array( 'value1' );
+		$_GET['get_2']   = array( 'child' => 'value' );
+		$_GET['json']    = json_encode( array( 'json' => 'value' ) );
+		$request         = new Waf_Request();
+		$value           = $request->get_get_vars( true );
+		$this->assertIsArray( $value );
+		$this->assertContains( array( 'json[get_var]', 'test_value' ), $value );
+		$this->assertContains( array( 'json[get_2][child]', 'value' ), $value );
+		$this->assertContains( array( 'json[get_num][0]', 'value1' ), $value );
+		$this->assertContains( array( 'json[json][json]', 'value' ), $value );
+
+		unset( $_SERVER['CONTENT_TYPE'] );
+	}
+
+	/**
 	 * Test that the Waf_Request class returns $_POST data correctly via Waf_Request::get_post_vars().
 	 */
 	public function testGetVarsPost() {
@@ -290,6 +311,27 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 		$this->assertContains( array( 'test_var', 'test_value' ), $value );
 		$this->assertContains( array( 'test_2[child]', 'value' ), $value );
 		$this->assertContains( array( 'test_num[0]', 'value1' ), $value );
+	}
+
+	/**
+	 * Test that the Waf_Request class returns $_POST data correctly decoded from JSON via Waf_Request::get_post_vars().
+	 */
+	public function testGetVarsPostWithJson() {
+		$_SERVER['CONTENT_TYPE'] = 'application/json';
+
+		$_POST['test_var'] = 'test_value';
+		$_POST['test_num'] = array( 'value1' );
+		$_POST['test_2']   = array( 'child' => 'value' );
+		$_POST['json']     = json_encode( array( 'json' => 'value' ) );
+		$request           = new Waf_Request();
+		$value             = $request->get_post_vars();
+		$this->assertIsArray( $value );
+		$this->assertContains( array( 'json[test_var]', 'test_value' ), $value );
+		$this->assertContains( array( 'json[test_2][child]', 'value' ), $value );
+		$this->assertContains( array( 'json[test_num][0]', 'value1' ), $value );
+		$this->assertContains( array( 'json[json][json]', 'value' ), $value );
+
+		unset( $_SERVER['CONTENT_TYPE'] );
 	}
 
 	/**

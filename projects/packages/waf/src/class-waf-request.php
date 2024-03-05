@@ -147,6 +147,22 @@ class Waf_Request {
 	}
 
 	/**
+	 * Returns the value of a specific header that was sent with this request
+	 *
+	 * @param string $name The name of the header to retrieve.
+	 * @return string
+	 */
+	public function get_header( $name ) {
+		$name = $this->normalize_header_name( $name );
+		foreach ( $this->get_headers() as list( $header_name, $header_value ) ) {
+			if ( $header_name === $name ) {
+				return $header_value;
+			}
+		}
+		return '';
+	}
+
+	/**
 	 * Change a header name to all-lowercase and replace spaces and underscores with dashes.
 	 *
 	 * @param string $name The header name to normalize.
@@ -305,7 +321,8 @@ class Waf_Request {
 	 * @return array<string, mixed|array>
 	 */
 	public function get_get_vars() {
-		return flatten_array( $_GET );
+		$decode_json = $this->get_header( 'content-type' ) === 'application/json';
+		return flatten_array( $_GET, $decode_json ? 'json' : '', $decode_json );
 	}
 
 	/**
@@ -314,7 +331,8 @@ class Waf_Request {
 	 * @return array<string, mixed|array>
 	 */
 	public function get_post_vars() {
-		return flatten_array( $_POST );
+		$decode_json = $this->get_header( 'content-type' ) === 'application/json';
+		return flatten_array( $_POST, $decode_json ? 'json' : '', $decode_json );
 	}
 
 	/**

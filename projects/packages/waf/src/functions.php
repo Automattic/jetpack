@@ -50,9 +50,11 @@ function wp_unslash( $value ) {
  * @param array  $array       An array that resembles one of the PHP superglobals like $_GET or $_POST.
  * @param string $key_prefix  String that should be prepended to the keys output by this function.
  *                             Usually only used internally as part of recursion when flattening a nested array.
+ * @param bool   $decode_json If true, will attempt to decode JSON strings into arrays.
+ *
  * @return array{ 0: string, 1: scalar }[]  $key_prefix  An array of key/value tuples, one for each distinct value in the input array.
  */
-function flatten_array( $array, $key_prefix = '' ) {
+function flatten_array( $array, $key_prefix = '', $decode_json = false ) {
 	$return = array();
 	foreach ( $array as $source_key => $source_value ) {
 		$key = ( '' === $key_prefix )
@@ -60,6 +62,14 @@ function flatten_array( $array, $key_prefix = '' ) {
 			? $source_key
 			// for every level after the first, enclose the key name in brackets.
 			: $key_prefix . '[' . $source_key . ']';
+
+		if ( $decode_json && is_string( $source_value ) ) {
+			$decoded_value = json_decode( $source_value, true );
+			if ( null !== $decoded_value ) {
+				$source_value = $decoded_value;
+			}
+		}
+
 		if ( ! is_array( $source_value ) ) {
 			$return[] = array( $key, $source_value );
 		} else {
