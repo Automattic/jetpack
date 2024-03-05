@@ -24,7 +24,7 @@ add_action( 'media_buttons', 'grunion_media_button', 999 );
  * @return void
  */
 function grunion_media_button() {
-	_deprecated_function( __FUNCTION__, '$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Admin->' );
+	_deprecated_function( __FUNCTION__, '$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Admin->grunion_media_button' );
 
 	global $post_ID, $temp_ID, $pagenow;// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
