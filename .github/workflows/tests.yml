@@ -256,7 +256,7 @@ jobs:
   phan:
     name: Static analysis
     runs-on: ubuntu-latest
-    timeout-minutes: 10  # 2024-03-05: Wild guess
+    timeout-minutes: 15  # 2024-03-05: Takes about 5 minutes.
     steps:
       - uses: actions/checkout@v4
       - name: Setup tools
