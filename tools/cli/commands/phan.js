@@ -365,7 +365,14 @@ export async function handler( argv ) {
 			break;
 		case 'github':
 			for ( const issue of issues ) {
-				let msg = '::error file=' + path.relative( process.cwd(), issue.location.path );
+				let msg =
+					path.relative( process.cwd(), issue.location.path ) + ':' + issue.location.lines.begin;
+				if ( issue.location.lines.begin_column !== undefined ) {
+					msg += ':' + issue.location.lines.begin_column;
+				}
+				console.log( msg );
+
+				msg = '::error file=' + path.relative( process.cwd(), issue.location.path );
 				msg += ',line=' + issue.location.lines.begin;
 				if ( issue.location.lines.begin_column !== undefined ) {
 					msg += ',col=' + issue.location.lines.begin_column;
