@@ -4,7 +4,7 @@
  * Add a contact form to any post, page or text widget.
  * Emails will be sent to the post's author by default, or any email address you choose.
  *
- * @deprecated jetpack-$$next-version$$ Use automattic/jetpack-forms
+ * @deprecated $$next-version$$ Use automattic/jetpack-forms
  * @package automattic/jetpack
  */
 
@@ -26,7 +26,7 @@ add_action( 'rest_api_init', 'grunion_contact_form_require_endpoint' );
 /**
  * Require the Grunion endpoint.
  *
- * @deprecated jetpack-$$next-version$$
+ * @deprecated $$next-version$$
  */
 function grunion_contact_form_require_endpoint() {
 	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
@@ -43,7 +43,7 @@ function grunion_contact_form_require_endpoint() {
  *
  * This fixes Contact Form Blocks added to FSE _templates_ (e.g. Single or 404).
  *
- * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_set_block_template_attribute
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_set_block_template_attribute
  * @param string $template Template to be loaded.
  */
 function grunion_contact_form_set_block_template_attribute( $template ) {
@@ -69,7 +69,7 @@ add_filter( 'template_include', 'grunion_contact_form_set_block_template_attribu
  * This is part of the fix for Contact Form Blocks added to FSE _template parts_ (e.g footer).
  * The global is processed in Grunion_Contact_Form::parse().
  *
- * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_set_block_template_part_id_global
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_set_block_template_part_id_global
  * @param string $template_part_id ID for the currently rendered template part.
  */
 function grunion_contact_form_set_block_template_part_id_global( $template_part_id ) {
@@ -87,7 +87,7 @@ add_action( 'gutenberg_render_block_core_template_part_none', 'grunion_contact_f
 /**
  * Unsets the global when block is done rendering.
  *
- * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_unset_block_template_part_id_global
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_unset_block_template_part_id_global
  * @param string $content Rendered block content.
  * @param array  $block   The full block, including name and attributes.
  * @return string
@@ -107,7 +107,7 @@ add_filter( 'render_block', 'grunion_contact_form_unset_block_template_part_id_g
 /**
  * Sets the 'widget' attribute on all instances of the contact form in the widget block.
  *
- * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_filter_widget_block_content
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_filter_widget_block_content
  * @param string          $content  Existing widget block content.
  * @param array           $instance Array of settings for the current widget.
  * @param WP_Widget_Block $widget   Current Block widget instance.
@@ -130,7 +130,7 @@ add_filter( 'widget_block_content', 'grunion_contact_form_filter_widget_block_co
 /**
  * Adds a given attribute to all instances of the Contact Form block.
  *
- * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_apply_block_attribute
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_apply_block_attribute
  * @param string $content  Existing content to process.
  * @param array  $new_attr New attributes to add.
  * @return string
@@ -172,7 +172,7 @@ function grunion_contact_form_apply_block_attribute( $content, $new_attr ) {
 /**
  * Sets up various actions, filters, post types, post statuses, shortcodes.
  *
- * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin
  */
 class Grunion_Contact_Form_Plugin {
 
@@ -180,7 +180,7 @@ class Grunion_Contact_Form_Plugin {
 	 *
 	 * The Widget ID of the widget currently being processed.  Used to build the unique contact-form ID for forms embedded in widgets.
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin
 	 * @var string
 	 */
 	public $current_widget_id;
@@ -188,7 +188,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * If the contact form field is being used.
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin
 	 * @var bool
 	 */
 	public static $using_contact_form_field = false;
@@ -214,7 +214,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Initializing function.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::init
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::init
 	 */
 	public static function init() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::init' );
@@ -234,7 +234,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Runs daily to clean up spam detection metadata after 15 days.  Keeps your DB squeaky clean.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->daily_akismet_meta_cleanup
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->daily_akismet_meta_cleanup
 	 */
 	public function daily_akismet_meta_cleanup() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->daily_akismet_meta_cleanup' );
@@ -276,7 +276,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Strips HTML tags from input.  Output is NOT HTML safe.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::strip_tags
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::strip_tags
 	 * @param mixed $data_with_tags - data we're stripping HTML tags from.
 	 * @return mixed
 	 */
@@ -438,7 +438,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Prevent 'contact-form-styles' script from being concatenated.
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm
 	 * @param array  $do_concat - the concatenation flag.
 	 * @param string $handle - script name.
 	 */
@@ -552,7 +552,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Render the gutenblock form.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\ontact_Form_Block::gutenblock_render_form
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\ontact_Form_Block::gutenblock_render_form
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
@@ -579,7 +579,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Turn block attribute to shortcode attributes.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::block_attributes_to_shortcode_attributes
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::block_attributes_to_shortcode_attributes
 	 * @param array  $atts - the block attributes.
 	 * @param string $type - the type.
 	 *
@@ -605,7 +605,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Render the text field.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_text
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_text
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
@@ -621,7 +621,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Render the name field.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_name
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_name
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
@@ -637,7 +637,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Render the email field.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_email
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_email
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
@@ -653,7 +653,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Render the url field.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_url
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_url
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
@@ -669,7 +669,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Render the date field.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_date
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_date
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
@@ -685,7 +685,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Render the telephone field.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_telephone
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_telephone
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
@@ -701,7 +701,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Render the text area field.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_textarea
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_textarea
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
@@ -717,7 +717,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Render the checkbox field.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_checkbox
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_checkbox
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
@@ -733,7 +733,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Render the multiple checkbox field.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::Contact_Form_Plugin::gutenblock_render_field_checkbox_multiple
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::Contact_Form_Plugin::gutenblock_render_field_checkbox_multiple
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
@@ -749,7 +749,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Render the multiple choice field option.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_option
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_option
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
@@ -765,7 +765,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Render the radio button field.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_radio
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_radio
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
@@ -781,7 +781,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Render the select field.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_select
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_select
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
@@ -797,7 +797,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Render the consent field.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_consent
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::gutenblock_render_field_consent
 	 * @param string $atts consent attributes.
 	 * @param string $content html content.
 	 */
@@ -820,7 +820,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Add the 'Form Responses' menu item as a submenu of Feedback.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->admin_menu
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->admin_menu
 	 */
 	public function admin_menu() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->admin_menu' );
@@ -856,7 +856,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Add to REST API post type allowed list.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->allow_feedback_rest_api_type
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->allow_feedback_rest_api_type
 	 * @param array $post_types - the post types.
 	 */
 	public function allow_feedback_rest_api_type( $post_types ) {
@@ -870,7 +870,7 @@ class Grunion_Contact_Form_Plugin {
 	 * Display the count of new feedback entries received. It's reset when user visits the Feedback screen.
 	 *
 	 * @since 4.1.0
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->unread_count
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->unread_count
 	 * @param object $screen Information about the current screen.
 	 */
 	public function unread_count( $screen ) {
@@ -902,7 +902,7 @@ class Grunion_Contact_Form_Plugin {
 	 *
 	 * Conditionally attached to `template_redirect`
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->process_form_submission
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->process_form_submission
 	 */
 	public function process_form_submission() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->process_form_submission' );
@@ -1073,7 +1073,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Handle the ajax request.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->ajax_request
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->ajax_request
 	 */
 	public function ajax_request() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->ajax_request' );
@@ -1108,7 +1108,7 @@ class Grunion_Contact_Form_Plugin {
 	 * Ensure the post author is always zero for contact-form feedbacks
 	 * Attached to `wp_insert_post_data`
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->insert_feedback_filter
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->insert_feedback_filter
 	 * @see Grunion_Contact_Form::process_submission()
 	 * @param array $data the data to insert.
 	 * @param array $postarr the data sent to wp_insert_post().
@@ -1128,7 +1128,7 @@ class Grunion_Contact_Form_Plugin {
 	 * Adds our contact-form shortcode
 	 * The "child" contact-field shortcode is enabled as needed by the contact-form shortcode handler
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->add_shortcode
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->add_shortcode
 	 */
 	public function add_shortcode() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->add_shortcode' );
@@ -1144,7 +1144,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Tokenize the label.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->tokenize_label
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->tokenize_label
 	 * @param string $label - the label.
 	 * @return string
 	 */
@@ -1157,7 +1157,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Sanitize the value.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->sanitize_value
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->sanitize_value
 	 * @param string $value - the value to sanitize.
 	 * @return string
 	 */
@@ -1174,7 +1174,7 @@ class Grunion_Contact_Form_Plugin {
 	 * Replaces tokens like {city} or {City} (case insensitive) with the value
 	 * of an input field of that name
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->replace_tokens_with_input
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->replace_tokens_with_input
 	 * @param string $subject - the subject.
 	 * @param array  $field_values Array with field label => field value associations.
 	 * @return string The filtered $subject with the tokens replaced.
@@ -1202,7 +1202,7 @@ class Grunion_Contact_Form_Plugin {
 	 * Tracks the widget currently being processed.
 	 * Attached to `dynamic_sidebar`
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->track_current_widget
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->track_current_widget
 	 * @see $current_widget_id - the current widget ID.
 	 * @param array $widget The widget data.
 	 */
@@ -1217,7 +1217,7 @@ class Grunion_Contact_Form_Plugin {
 	 * Used to tell the difference between post-embedded contact-forms and widget-embedded contact-forms
 	 * Attached to `widget_text`
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->widget_atts
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->widget_atts
 	 * @param string $text The widget text.
 	 * @return string The filtered widget text.
 	 */
@@ -1233,7 +1233,7 @@ class Grunion_Contact_Form_Plugin {
 	 * For sites where text widgets are not processed for shortcodes, we add this hack to process just our shortcode
 	 * Attached to `widget_text`
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->widget_shortcode_hack
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->widget_shortcode_hack
 	 * @param string $text The widget text.
 	 * @return string The contact-form filtered widget text
 	 */
@@ -1264,7 +1264,7 @@ class Grunion_Contact_Form_Plugin {
 	 * removed from the public discussion.
 	 * Attached to `jetpack_contact_form_is_spam`
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->is_spam_blocklist
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->is_spam_blocklist
 	 * @param bool  $is_spam - if the submission is spam.
 	 * @param array $form - the form data.
 	 * @return bool TRUE => spam, FALSE => not spam
@@ -1283,7 +1283,7 @@ class Grunion_Contact_Form_Plugin {
 	 * Check if a submission matches the comment disallowed list.
 	 * Attached to `jetpack_contact_form_in_comment_disallowed_list`.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->is_in_disallowed_list
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->is_in_disallowed_list
 	 * @param boolean $in_disallowed_list Whether the feedback is in the disallowed list.
 	 * @param array   $form The form array.
 	 * @return bool Returns true if the form submission matches the disallowed list and false if it doesn't.
@@ -1315,7 +1315,7 @@ class Grunion_Contact_Form_Plugin {
 	 * Populate an array with all values necessary to submit a NEW contact-form feedback to Akismet.
 	 * Note that this includes the current user_ip etc, so this should only be called when accepting a new item via $_POST
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->prepare_for_akismet
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->prepare_for_akismet
 	 * @param array $form - contact form feedback array.
 	 * @return array feedback array with additional data ready for submission to Akismet.
 	 */
@@ -1362,7 +1362,7 @@ class Grunion_Contact_Form_Plugin {
 	 * If you're accepting a new item via $_POST, run it Grunion_Contact_Form_Plugin::prepare_for_akismet() first
 	 * Attached to `jetpack_contact_form_is_spam`
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->is_spam_akismet
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->is_spam_akismet
 	 * @param bool  $is_spam - if the submission is spam.
 	 * @param array $form - the form data.
 	 * @return bool|WP_Error TRUE => spam, FALSE => not spam, WP_Error => stop processing entirely
@@ -1420,7 +1420,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Submit a feedback as either spam or ham
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->akismet_submit
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->akismet_submit
 	 * @param string $as - Either 'spam' or 'ham'.
 	 * @param array  $form - the contact-form data.
 	 * @return bool|string
@@ -1450,7 +1450,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Prints a dropdown of posts with forms.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::form_posts_dropdown
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::form_posts_dropdown
 	 * @param int $selected_id Currently selected post ID.
 	 * @return void
 	 */
@@ -1468,7 +1468,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Fetch post content for a post and extract just the comment.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->get_post_content_for_csv_export
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->get_post_content_for_csv_export
 	 * @param int $post_id The post id to fetch the content for.
 	 * @return string Trimmed post comment.
 	 *
@@ -1486,7 +1486,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Get `_feedback_extra_fields` field from post meta data.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->get_post_meta_for_csv_export
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->get_post_meta_for_csv_export
 	 * @param int $post_id Id of the post to fetch meta data for.
 	 * @return mixed
 	 */
@@ -1530,7 +1530,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Get parsed feedback post fields.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->get_parsed_field_contents_of_post
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->get_parsed_field_contents_of_post
 	 * @param int $post_id Id of the post to fetch parsed contents for.
 	 * @return array
 	 *
@@ -1546,7 +1546,7 @@ class Grunion_Contact_Form_Plugin {
 	 * Properly maps fields that are missing from the post meta data
 	 * to names, that are similar to those of the post meta.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->map_parsed_field_contents_of_post_to_field_names
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->map_parsed_field_contents_of_post_to_field_names
 	 * @param array $parsed_post_content Parsed post content.
 	 * @see parse_fields_from_content for how the input data is generated.
 	 * @return array Mapped fields.
@@ -1581,7 +1581,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Registers the personal data exporter.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->register_personal_data_exporter
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->register_personal_data_exporter
 	 * @since 6.1.1
 	 * @param  array $exporters An array of personal data exporters.
 	 * @return array $exporters An array of personal data exporters.
@@ -1600,7 +1600,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Registers the personal data eraser.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->register_personal_data_eraser
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->register_personal_data_eraser
 	 * @since 6.1.1
 	 * @param  array $erasers An array of personal data erasers.
 	 * @return array $erasers An array of personal data erasers.
@@ -1619,7 +1619,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Exports personal data.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->personal_data_exporter
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->personal_data_exporter
 	 * @since 6.1.1
 	 * @param  string $email  Email address.
 	 * @param  int    $page   Page to export.
@@ -1637,7 +1637,7 @@ class Grunion_Contact_Form_Plugin {
 	 * Allows us to have a different signature than core expects
 	 * while protecting against future core API changes.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->internal_personal_data_exporter
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->internal_personal_data_exporter
 	 * @internal
 	 * @since 6.5
 	 * @param  string $email    Email address.
@@ -1696,7 +1696,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Erases personal data.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->personal_data_eraser
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->personal_data_eraser
 	 * @since 6.1.1
 	 * @param  string $email Email address.
 	 * @param  int    $page  Page to erase.
@@ -1714,7 +1714,7 @@ class Grunion_Contact_Form_Plugin {
 	 * Allows us to have a different signature than core expects
 	 * while protecting against future core API changes.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->_internal_personal_data_eraser
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->_internal_personal_data_eraser
 	 * @internal
 	 * @since 6.5
 	 * @param  string $email    Email address.
@@ -1792,7 +1792,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Queries personal data by email address.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->personal_data_post_ids_by_email
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->personal_data_post_ids_by_email
 	 * @since 6.1.1
 	 * @param  string $email        Email address.
 	 * @param  int    $per_page     Post IDs per page. Default is `250`.
@@ -1835,7 +1835,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Filters searches by email address.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->personal_data_search_filter
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->personal_data_search_filter
 	 * @since 6.1.1
 	 * @param  string $search SQL where clause.
 	 * @return array          Filtered SQL where clause.
@@ -1871,7 +1871,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Prepares feedback post data for CSV export.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->get_export_data_for_posts
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->get_export_data_for_posts
 	 * @param array $post_ids Post IDs to fetch the data for. These need to be Feedback posts.
 	 * @return array
 	 */
@@ -2008,7 +2008,7 @@ class Grunion_Contact_Form_Plugin {
 	 * - Positive values render AFTER any form field/value column: 1, 30, 93...
 	 *   Mind using high numbering on these ones as the prefix is used on regular inputs: 1_Name, 2_Email, etc
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->get_well_known_column_names
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->get_well_known_column_names
 	 * @return array
 	 */
 	public function get_well_known_column_names() {
@@ -2026,7 +2026,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Extracts feedback entries based on POST data.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->get_feedback_entries_from_post
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->get_feedback_entries_from_post
 	 */
 	public function get_feedback_entries_from_post() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->get_feedback_entries_from_post' );
@@ -2101,7 +2101,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Download exported data as CSV
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->download_feedback_as_csv
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->download_feedback_as_csv
 	 */
 	public function download_feedback_as_csv() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->download_feedback_as_csv' );
@@ -2181,7 +2181,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Send an event to Tracks
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->record_tracks_event
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->record_tracks_event
 	 * @param string $event_name - the name of the event.
 	 * @param array  $event_props - event properties to send.
 	 * @return null|void
@@ -2235,7 +2235,7 @@ class Grunion_Contact_Form_Plugin {
 	 *
 	 * Additionally, Excel exposes the ability to launch arbitrary commands through the DDE protocol.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->esc_csv
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->esc_csv
 	 * @see https://www.contextis.com/en/blog/comma-separated-vulnerabilities
 	 * @param string $field - the CSV field.
 	 * @return string
@@ -2318,7 +2318,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Parse the contact form fields.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->parse_fields_from_content
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->parse_fields_from_content
 	 * @param int $post_id - the post ID.
 	 * @return array Fields.
 	 */
@@ -2434,7 +2434,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Get the IP address.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->get_ip_address
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->get_ip_address
 	 * @return string|null IP address.
 	 */
 	public static function get_ip_address() {
@@ -2446,7 +2446,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Disable Block Editor for feedbacks.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->use_block_editor_for_post_type
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->use_block_editor_for_post_type
 	 * @param bool   $can_edit Whether the post type can be edited or not.
 	 * @param string $post_type The post type being checked.
 	 * @return bool
@@ -2464,7 +2464,7 @@ class Grunion_Contact_Form_Plugin {
 	 * - p1675781140892129-slack-C01CSBEN0QZ
 	 * - https://www.php.net/manual/en/function.print-r.php#93529
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::reverse_that_print
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::reverse_that_print
 	 * @param string $print_r_output The array string to be reverted. Needs to being with 'Array'.
 	 * @param bool   $parse_html Whether to run html_entity_decode on each line.
 	 *                           As strings are stored right now, they are all escaped, so '=>' are '&gt;'.
@@ -2542,7 +2542,7 @@ class Grunion_Contact_Form_Plugin {
  *
  * Not very general - specific to Grunion.
  *
- * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode
  *
  * // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
@@ -2550,7 +2550,7 @@ class Crunion_Contact_Form_Shortcode {
 	/**
 	 * The name of the shortcode: [$shortcode_name /].
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode
 	 * @var string
 	 */
 	public $shortcode_name;
@@ -2558,7 +2558,7 @@ class Crunion_Contact_Form_Shortcode {
 	/**
 	 * Key => value pairs for the shortcode's attributes: [$shortcode_name key="value" ... /]
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode
 	 * @var array
 	 */
 	public $attributes;
@@ -2566,7 +2566,7 @@ class Crunion_Contact_Form_Shortcode {
 	/**
 	 * Key => value pair for attribute defaults.
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode
 	 * @var array
 	 */
 	public $defaults = array();
@@ -2574,7 +2574,7 @@ class Crunion_Contact_Form_Shortcode {
 	/**
 	 * The inner content of otherwise: [$shortcode_name]$content[/$shortcode_name]. Null for selfclosing shortcodes.
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode
 	 * @var null|string
 	 */
 	public $content;
@@ -2582,7 +2582,7 @@ class Crunion_Contact_Form_Shortcode {
 	/**
 	 * Associative array of inner "child" shortcodes equivalent to the $content: [$shortcode_name][child 1/][child 2/][/$shortcode_name]
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode
 	 * @var array
 	 */
 	public $fields;
@@ -2590,7 +2590,7 @@ class Crunion_Contact_Form_Shortcode {
 	/**
 	 * The HTML of the parsed inner "child" shortcodes".  Null for selfclosing shortcodes.
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode
 	 * @var null|string
 	 */
 	public $body;
@@ -2598,7 +2598,7 @@ class Crunion_Contact_Form_Shortcode {
 	/**
 	 * Constructor function.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode->__construct
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode->__construct
 	 * @param array       $attributes An associative array of shortcode attributes.  @see shortcode_atts().
 	 * @param null|string $content Null for selfclosing shortcodes.  The inner content otherwise.
 	 */
@@ -2623,7 +2623,7 @@ class Crunion_Contact_Form_Shortcode {
 	/**
 	 * Processes the shortcode's inner content for "child" shortcodes.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode->parse_content
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode->parse_content
 	 * @param string $content The shortcode's inner content: [shortcode]$content[/shortcode].
 	 */
 	public function parse_content( $content ) {
@@ -2639,7 +2639,7 @@ class Crunion_Contact_Form_Shortcode {
 	/**
 	 * Returns the value of the requested attribute.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode->get_attribute
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode->get_attribute
 	 * @param string $key The attribute to retrieve.
 	 * @return mixed
 	 */
@@ -2652,7 +2652,7 @@ class Crunion_Contact_Form_Shortcode {
 	/**
 	 * Escape attributes.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode->esc_attr
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode->esc_attr
 	 * @param array $value - the value we're escaping.
 	 * @return array
 	 */
@@ -2685,7 +2685,7 @@ class Crunion_Contact_Form_Shortcode {
 	/**
 	 * Unescape attributes.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode->unesc_attr
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode->unesc_attr
 	 * @param array $value - the value we're escaping.
 	 * @return array
 	 */
@@ -2715,7 +2715,7 @@ class Crunion_Contact_Form_Shortcode {
 	/**
 	 * Generates the shortcode
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode->__toString
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode->__toString
 	 */
 	public function __toString() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode->__toString' );
@@ -2777,14 +2777,14 @@ class Crunion_Contact_Form_Shortcode {
  * Parses shortcode to output the contact form as HTML
  * Sends email and stores the contact form response (a.k.a. "feedback")
  *
- * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form
  */
 class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 	/**
 	 * The shortcode name.
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form
 	 * @var string
 	 */
 	public $shortcode_name = 'contact-form';
@@ -2793,7 +2793,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 *
 	 * Stores form submission errors.
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form
 	 * @var WP_Error
 	 */
 	public $errors;
@@ -2801,7 +2801,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * The SHA1 hash of the attributes that comprise the form.
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form
 	 * @var string
 	 */
 	public $hash;
@@ -2809,7 +2809,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * The most recent (inclusive) contact-form shortcode processed.
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form
 	 * @var Grunion_Contact_Form
 	 */
 	public static $last;
@@ -2817,7 +2817,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Form we are currently looking at. If processed, will become $last
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form
 	 * @var Whatever
 	 */
 	public static $current_form;
@@ -2825,7 +2825,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * All found forms, indexed by hash.
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form
 	 * @var array
 	 */
 	public static $forms = array();
@@ -2833,7 +2833,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Whether to print the grunion.css style when processing the contact-form shortcode
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form
 	 * @var bool
 	 */
 	public static $style = false;
@@ -2841,7 +2841,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * When printing the submit button, what tags are allowed
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form
 	 * @var array
 	 */
 	public static $allowed_html_tags_for_submit_button = array( 'br' => array() );
@@ -2849,7 +2849,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Construction function.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form->__construct
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form->__construct
 	 * @param array  $attributes - the attributes.
 	 * @param string $content - the content.
 	 */
@@ -2956,7 +2956,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * Store shortcode content for recall later
 	 *  - used to receate shortcode when user uses do_shortcode
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::store_shortcode
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::store_shortcode
 	 * @param string $content - the content.
 	 * @param array  $attributes - the attributes.
 	 * @param string $hash - the hash.
@@ -2984,7 +2984,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Toggle for printing the grunion.css stylesheet
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::style
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::style
 	 * @param bool $style - the CSS style.
 	 * @return bool
 	 */
@@ -2999,7 +2999,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Turn on printing of grunion.css stylesheet
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::style_on
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::style_on
 	 * @see ::style()
 	 * @internal
 	 * @return bool
@@ -3013,7 +3013,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * The contact-form shortcode processor
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::parse
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::parse
 	 * @param array       $attributes Key => Value pairs as parsed by shortcode_parse_atts().
 	 * @param string|null $content The shortcode's inner content: [contact-form]$content[/contact-form].
 	 * @return string HTML for the concat form.
@@ -3222,7 +3222,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Returns a success message to be returned if the form is sent via AJAX.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::success_message
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::success_message
 	 * @param int                         $feedback_id - the feedback ID.
 	 * @param object Grunion_Contact_Form $form - the contact form.
 	 * @return string $message
@@ -3277,7 +3277,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * Returns a compiled form with labels and values in a form of  an array
 	 * of lines.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::get_compiled_form
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::get_compiled_form
 	 * @param int                         $feedback_id - the feedback ID.
 	 * @param object Grunion_Contact_Form $form - the form.
 	 * @return array $lines
@@ -3372,7 +3372,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * Returns a compiled form with labels and values formatted for the email response
 	 * in a form of an array of lines.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::get_compiled_form_for_email
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::get_compiled_form_for_email
 	 * @param int                         $feedback_id - the feedback ID.
 	 * @param object Grunion_Contact_Form $form - the form.
 	 * @return array $lines
@@ -3489,7 +3489,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Escape and sanitize the field value.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::escape_and_sanitize_field_value
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::escape_and_sanitize_field_value
 	 * @param string $value - the value we're escaping and sanitizing.
 	 * @return string
 	 */
@@ -3503,7 +3503,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Only strip out empty string values and keep all the other values as they are.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::remove_empty
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::remove_empty
 	 * @param string $single_value - the single value.
 	 * @return bool
 	 */
@@ -3545,7 +3545,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * The contact-field shortcode processor.
 	 * We use an object method here instead of a static Grunion_Contact_Form_Field class method to parse contact-field shortcodes so that we can tie them to the contact-form object.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::parse_contact_field
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::parse_contact_field
 	 * @param array       $attributes Key => Value pairs as parsed by shortcode_parse_atts().
 	 * @param string|null $content The shortcode's inner content: [contact-field]$content[/contact-field].
 	 * @return string HTML for the contact form field
@@ -3641,7 +3641,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Get the default label from type.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::get_default_label_from_type
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::get_default_label_from_type
 	 * @param string $type - the type of label.
 	 * @return string
 	 */
@@ -3730,7 +3730,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 *  - admin.php / grunion_manage_post_columns - add the field to the render logic.
 	 *      Otherwise it will be missing from the admin Feedback view.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form->get_field_ids
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form->get_field_ids
 	 * @return array
 	 */
 	public function get_field_ids() {
@@ -3797,7 +3797,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * Process the contact form's POST submission
 	 * Stores feedback.  Sends email.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form->process_submission
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form->process_submission
 	 */
 	public function process_submission() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Contact_Form->process_submission' );
@@ -4398,7 +4398,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Wrapper for wp_mail() that enables HTML messages with text alternatives
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::wp_mail
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::wp_mail
 	 * @param string|array $to          Array or comma-separated list of email addresses to send message.
 	 * @param string       $subject     Email subject.
 	 * @param string       $message     Message contents.
@@ -4426,7 +4426,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * SpamAssassin doesn't like addresses in HTML messages that are missing display names (e.g., `foo@bar.org`
 	 * instead of `Foo Bar <foo@bar.org>`.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form->add_name_to_address
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form->add_name_to_address
 	 * @param string $address - the email address.
 	 * @return string
 	 */
@@ -4452,7 +4452,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Get the content type that should be assigned to outbound emails
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::get_mail_content_type
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::get_mail_content_type
 	 * @return string
 	 */
 	public static function get_mail_content_type() {
@@ -4466,7 +4466,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 *
 	 * This helps to ensure correct parsing by clients, and also helps avoid triggering spam filtering rules
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::wrap_message_in_html_tags
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::wrap_message_in_html_tags
 	 * @param string $title - title of the email.
 	 * @param string $body - the message body.
 	 * @param string $footer - the footer containing meta information.
@@ -4516,7 +4516,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * This makes the message more accessible to mail clients that aren't HTML-aware, and decreases the likelihood
 	 * that the message will be flagged as spam.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::add_plain_text_alternative
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::add_plain_text_alternative
 	 * @param PHPMailer $phpmailer - the phpmailer.
 	 */
 	public static function add_plain_text_alternative( $phpmailer ) {
@@ -4544,7 +4544,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Add deepslashes.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Block->addslashes_deep
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Block->addslashes_deep
 	 * @param array $value - the value.
 	 * @return array The value, with slashes added.
 	 */
@@ -4569,7 +4569,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * Only allowin "wide" and "full" as "center", "left" and "right" don't
 	 * make much sense for the form.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Block::get_block_alignment_class
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Block::get_block_alignment_class
 	 * @param array $attributes Block attributes.
 	 * @return string The CSS alignment class: alignfull | alignwide.
 	 */
@@ -4593,14 +4593,14 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
  * Parses shortcode to output the contact form field as HTML.
  * Validates input.
  *
- * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
  */
 class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 
 	/**
 	 * The shortcode name.
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
 	 * @var string
 	 */
 	public $shortcode_name = 'contact-field';
@@ -4608,7 +4608,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * The parent form.
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
 	 * @var Grunion_Contact_Form
 	 */
 	public $form;
@@ -4616,7 +4616,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Default or POSTed value.
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
 	 * @var string
 	 */
 	public $value;
@@ -4624,7 +4624,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Is the input valid?
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
 	 * @var bool
 	 */
 	public $error = false;
@@ -4632,7 +4632,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Styles to be applied to the field
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
 	 * @var string
 	 */
 	public $block_styles = '';
@@ -4640,7 +4640,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Styles to be applied to the field
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
 	 * @var string
 	 */
 	public $field_styles = '';
@@ -4648,7 +4648,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Styles to be applied to the field option
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
 	 * @var string
 	 */
 	public $option_styles = '';
@@ -4656,7 +4656,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Styles to be applied to the field
 	 *
-	 * @deprecated jetpack-$$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
+	 * @deprecated $$next-version$$ See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
 	 * @var string
 	 */
 	public $label_styles = '';
@@ -4664,7 +4664,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Constructor function.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->__construct
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->__construct
 	 * @param array                $attributes An associative array of shortcode attributes.  @see shortcode_atts().
 	 * @param null|string          $content Null for selfclosing shortcodes.  The inner content otherwise.
 	 * @param Grunion_Contact_Form $form The parent form.
@@ -4766,7 +4766,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * This field's input is invalid.  Flag as invalid and add an error to the parent form
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->add_error
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->add_error
 	 * @param string $message The error message to display on the form.
 	 */
 	public function add_error( $message ) {
@@ -4784,7 +4784,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Is the field input invalid?
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->is_error
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->is_error
 	 * @see $error
 	 * @return bool
 	 */
@@ -4797,7 +4797,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Validates the form input
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->validate
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->validate
 	 */
 	public function validate() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->validate' );
@@ -4857,7 +4857,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Check the default value for options field
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->get_option_value
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->get_option_value
 	 * @param string $value - the value we're checking.
 	 * @param int    $index - the index.
 	 * @param string $options - default field option.
@@ -4875,7 +4875,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Outputs the HTML for this form field
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render
 	 * @return string HTML
 	 */
 	public function render() {
@@ -5012,7 +5012,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Return the HTML for the label.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_label
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_label
 	 * @param string $type - the field type.
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
@@ -5055,7 +5055,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Return the HTML for the input field.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_input_field
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_input_field
 	 * @param string $type - the field type.
 	 * @param int    $id - the ID.
 	 * @param string $value - the value of the field.
@@ -5093,7 +5093,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Return the HTML for the email field.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_email_field
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_email_field
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
 	 * @param string $value - the value of the field.
@@ -5114,7 +5114,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Return the HTML for the telephone field.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_telephone_field
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_telephone_field
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
 	 * @param string $value - the value of the field.
@@ -5135,7 +5135,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Return the HTML for the URL field.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_url_field
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_url_field
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
 	 * @param string $value - the value of the field.
@@ -5165,7 +5165,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Return the HTML for the text area field.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_textarea_field
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_textarea_field
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
 	 * @param string $value - the value of the field.
@@ -5195,7 +5195,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Return the HTML for the radio field.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_radio_field
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_radio_field
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
 	 * @param string $value - the value of the field.
@@ -5234,7 +5234,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Return the HTML for the checkbox field.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_checkbox_field
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_checkbox_field
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
 	 * @param string $value - the value of the field.
@@ -5280,7 +5280,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Return the HTML for the multiple checkbox field.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_checkbox_multiple_field
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_checkbox_multiple_field
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
 	 * @param string $value - the value of the field.
@@ -5313,7 +5313,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Return the HTML for the select field.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_select_field
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_select_field
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
 	 * @param string $value - the value of the field.
@@ -5367,7 +5367,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Return the HTML for the email field.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_date_field
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_date_field
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
 	 * @param string $value - the value of the field.
@@ -5413,7 +5413,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Return the HTML for the default field.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_default_field
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_default_field
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
 	 * @param string $value - the value of the field.
@@ -5435,7 +5435,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Return the HTML for the outlined label.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_outline_label
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_outline_label
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
 	 * @param bool   $required - if the field is marked as required.
@@ -5465,7 +5465,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Return the HTML for the animated label.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_animated_label
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_animated_label
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
 	 * @param bool   $required - if the field is marked as required.
@@ -5489,7 +5489,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Return the HTML for the below label.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_below_label
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_below_label
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
 	 * @param bool   $required - if the field is marked as required.
@@ -5512,7 +5512,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Return the HTML for the email field.
 	 *
-	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_field
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field->render_field
 	 * @param string $type - the type.
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
@@ -5679,7 +5679,7 @@ add_action( 'grunion_scheduled_delete', 'grunion_delete_old_spam' );
 /**
  * Deletes old spam feedbacks to keep the posts table size under control
  *
- * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Util::grunion_delete_old_spam'
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Util::grunion_delete_old_spam'
  */
 function grunion_delete_old_spam() {
 	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Util::grunion_delete_old_spam' );
@@ -5733,7 +5733,7 @@ function grunion_delete_old_spam() {
 /**
  * Send an event to Tracks on form submission.
  *
- * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Util::jetpack_tracks_record_grunion_pre_message_sent
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Util::jetpack_tracks_record_grunion_pre_message_sent
  * @param int $post_id - the post_id for the CPT that is created.
  * @return null|void
  */
