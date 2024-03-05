@@ -11,13 +11,8 @@ const statsCountsSelectors = {
 	isFetchingStatsCounts,
 };
 
-const getWelcomeBannerHasBeenDismissed = state => {
-	return state.welcomeBanner?.hasBeenDismissed;
-};
-
 const selectors = {
 	...statsCountsSelectors,
-	getWelcomeBannerHasBeenDismissed,
 };
 
 export default selectors;
