@@ -73,6 +73,10 @@ export function builder( yargs ) {
 			type: 'boolean',
 			description: "Force Phan's polyfill parser. May cause false positives.",
 		} )
+		.option( 'debug', {
+			type: 'boolean',
+			description: 'Pass --debug to Phan.',
+		} )
 		.option( 'include-analysis-file-list', {
 			type: 'string',
 			description: 'Comma-separated list of files to analyze.',
@@ -202,7 +206,12 @@ export async function handler( argv ) {
 	if ( argv.updateBaseline ) {
 		phanArgs.push( '--save-baseline=.phan/baseline.php' );
 	}
-	for ( const arg of [ 'automatic-fix', 'allow-polyfill-parser', 'force-polyfill-parser' ] ) {
+	for ( const arg of [
+		'automatic-fix',
+		'allow-polyfill-parser',
+		'force-polyfill-parser',
+		'debug',
+	] ) {
 		if ( typeof argv[ arg ] === 'string' ) {
 			phanArgs.push( '--' + arg, argv[ arg ] );
 		} else if ( argv[ arg ] === true ) {
@@ -247,6 +256,9 @@ export async function handler( argv ) {
 					task: async ( ctx, task ) => {
 						let stdout = '';
 						try {
+							if ( argv.v ) {
+								console.log( `Executing ${ phanPath } ${ projectPhanArgs.join( ' ' ) }` );
+							}
 							const proc = execa( phanPath, projectPhanArgs, {
 								cwd: projectDir( project ),
 								buffer: false,
