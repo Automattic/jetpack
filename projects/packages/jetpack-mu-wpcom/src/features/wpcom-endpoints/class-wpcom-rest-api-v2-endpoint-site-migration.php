@@ -49,6 +49,11 @@ class WPCOM_REST_API_V2_Endpoint_Site_Migration extends WP_REST_Controller {
 		return current_user_can( 'manage_options' );
 	}
 
+	/**
+	 * Returns the migration key.
+	 *
+	 * @return string
+	 */
 	private function get_migration_key() {
 		// Only fetch the key if we have the classes.
 		if ( class_exists( 'MGWPSettings' ) && class_exists( 'MGInfo' ) ) {
@@ -63,8 +68,6 @@ class WPCOM_REST_API_V2_Endpoint_Site_Migration extends WP_REST_Controller {
 
 	/**
 	 * Returns Launchpad-related options.
-	 *
-	 * @param WP_REST_Request $request Full data about the request.
 	 *
 	 * @return array Associative array with `migration_key`.
 	 */
