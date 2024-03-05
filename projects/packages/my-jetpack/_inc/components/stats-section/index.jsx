@@ -1,20 +1,25 @@
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
+import { getStatsHighlightsEndpoint } from '../../data/constants';
 import useProduct from '../../data/products/use-product';
+import useSimpleQuery from '../../data/use-simple-query';
 import useAnalytics from '../../hooks/use-analytics';
-import useStatsCounts from '../../hooks/use-stats-counts';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import ProductCard from '../connected-product-card';
 import { PRODUCT_STATUSES } from '../product-card/action-button';
 import StatsCards from './cards';
 
 const StatsSection = () => {
 	const slug = 'stats';
+	const { blogID } = useMyJetpackConnection();
 	const { detail } = useProduct( slug );
 	const { status } = detail;
 	const isAdmin = !! window?.myJetpackInitialState?.userIsAdmin;
-	const { statsCounts } = useStatsCounts();
+	const { data: statsCounts } = useSimpleQuery( 'stats', {
+		path: getStatsHighlightsEndpoint( blogID ),
+	} );
 	const counts = statsCounts?.past_seven_days || {};
-	const previousCounts = statsCounts?.between_past_eight_and_fifteen_days || {};
+	const previousCounts = {};
 	const { recordEvent } = useAnalytics();
 
 	/**

@@ -1,6 +1,5 @@
 import actions from './actions';
 import reducer from './reducers';
-import resolvers from './resolvers';
 import selectors from './selectors';
 import storeHolder from './store-holder';
 
@@ -15,7 +14,6 @@ function initStore() {
 		reducer,
 		actions,
 		selectors,
-		resolvers,
 		initialState: window.myJetpackInitialState || {},
 	} );
 }
