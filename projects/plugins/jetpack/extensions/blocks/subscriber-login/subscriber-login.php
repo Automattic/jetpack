@@ -114,7 +114,7 @@ function render_block( $attributes ) {
 	$redirect_url               = ! empty( $attributes['redirectToCurrent'] ) ? get_current_url() : get_site_url();
 	$log_in_label               = ! empty( $attributes['logInLabel'] ) ? sanitize_text_field( $attributes['logInLabel'] ) : esc_html__( 'Log in', 'jetpack' );
 	$log_out_label              = ! empty( $attributes['logOutLabel'] ) ? sanitize_text_field( $attributes['logOutLabel'] ) : esc_html__( 'Log out', 'jetpack' );
-	$manage_subscriptions_label = ! empty( $attributes['manageSubscriptionsLabel'] ) ? sanitize_text_field( $attributes['manageSubscriptionsLabel'] ) : esc_html__( 'Manage subscriptions', 'jetpack' );
+	$manage_subscriptions_label = ! empty( $attributes['manageSubscriptionsLabel'] ) ? sanitize_text_field( $attributes['manageSubscriptionsLabel'] ) : esc_html__( 'Manage subscription', 'jetpack' );
 
 	if ( ! is_subscriber_logged_in() ) {
 		return sprintf(
@@ -129,7 +129,7 @@ function render_block( $attributes ) {
 		return sprintf(
 			$block_template,
 			get_block_wrapper_attributes(),
-			'https://wordpress.com/read/subscriptions',
+			'https://wordpress.com/read/subscriptions?s=' . get_site_url(),
 			$manage_subscriptions_label
 		);
 	}
