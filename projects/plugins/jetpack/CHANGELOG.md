@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 13.2 - 2024-03-05
+## [13.2] - 2024-03-05
 ### Enhancements
 - Blog Stats block: Add message on the frontend when the Stats module is disabled. [#36108]
 - Dashboard: link to Odyssey Stats for Atomic sites [#36049]
@@ -9921,7 +9921,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 ## [1.1] - 2011-03-09
 
 - Initial release
-
+[13.2]: https://wp.me/p1moTy-15UC
 [13.1]: https://wp.me/p1moTy-12e0
 [13.0]: https://wp.me/p1moTy-10Xp
 [12.9]: https://wp.me/p1moTy-YJA
