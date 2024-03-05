@@ -1,5 +1,8 @@
 _The versioning refers to the React component build._
 
+### v2.5.9 (2024-03-05)
+* Added SMS icon.
+
 ### v2.5.8 (2023-12-20)
 * Added Bluesky icon.
 
