@@ -9,7 +9,7 @@ const useNotice = ( { message, options, shouldShow = true }: NoticeType ) => {
 		if ( shouldShow ) {
 			setCurrentNotice?.( { message, options } );
 		}
-		// We only want to update the notice if isError changes
+		// We only want to update the notice if isError or message changes
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ shouldShow, message ] );
 };
