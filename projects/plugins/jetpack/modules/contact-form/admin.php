@@ -2,7 +2,7 @@
 /**
  * Contact form elements in the admin area. Used with Classic Editor.
  *
- * @deprecated $$next-version$$ Use automattic/jetpack-forms
+ * @deprecated jetpack-$$next-version$$ Use automattic/jetpack-forms
  * @package automattic/jetpack
  */
 
@@ -48,7 +48,7 @@ add_action( 'wp_ajax_grunion_form_builder', 'grunion_display_form_view' );
 /**
  * Display edit form view.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_display_form_view
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_display_form_view
  * @return void
  */
 function grunion_display_form_view() {
@@ -65,7 +65,7 @@ add_action( 'admin_print_styles', 'grunion_admin_css' );
 /**
  * Enqueue styles.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_admin_css
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_admin_css
  * @return void
  */
 function grunion_admin_css() {
@@ -92,7 +92,7 @@ add_action( 'admin_print_scripts', 'grunion_admin_js' );
 /**
  * Enqueue scripts.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_admin_js
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_admin_js
  * @return void
  */
 function grunion_admin_js() {
@@ -118,7 +118,7 @@ add_action( 'admin_head', 'grunion_add_bulk_edit_option' );
  * There isn't a better way to do this until
  * https://core.trac.wordpress.org/changeset/17297 is resolved
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_add_bulk_edit_option
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_add_bulk_edit_option
  */
 function grunion_add_bulk_edit_option() {
 	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Admin->grunion_add_bulk_edit_option' );
@@ -161,7 +161,7 @@ add_action( 'admin_init', 'grunion_handle_bulk_spam' );
 /**
  * Handle a bulk spam report
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_handle_bulk_spam
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_handle_bulk_spam
  */
 function grunion_handle_bulk_spam() {
 	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Admin->grunion_handle_bulk_spam' );
@@ -225,7 +225,7 @@ function grunion_handle_bulk_spam() {
 /**
  * Display spam message.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_message_bulk_spam
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_message_bulk_spam
  * @return void
  */
 function grunion_message_bulk_spam() {
@@ -238,7 +238,7 @@ add_filter( 'bulk_actions-edit-feedback', 'grunion_admin_bulk_actions' );
 /**
  * Unset edit option when bulk editing.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_admin_bulk_actions
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_admin_bulk_actions
  * @param array $actions List of actions available.
  * @return array $actions
  */
@@ -261,7 +261,7 @@ add_filter( 'views_edit-feedback', 'grunion_admin_view_tabs' );
 /**
  * Unset publish button when editing feedback.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_admin_view_tabs
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_admin_view_tabs
  * @param array $views List of post views.
  * @return array $views
  */
@@ -290,7 +290,7 @@ add_filter( 'manage_feedback_posts_columns', 'grunion_post_type_columns_filter' 
 /**
  * Build Feedback admin page columns.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_post_type_columns_filter
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_post_type_columns_filter
  * @param array $cols List of available columns.
  * @return array
  */
@@ -309,7 +309,7 @@ function grunion_post_type_columns_filter( $cols ) { // phpcs:ignore VariableAna
 /**
  * Displays the value for the source column. (This function runs within the loop.)
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_manage_post_column_date
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_manage_post_column_date
  * @return void
  */
 function grunion_manage_post_column_date() {
@@ -321,7 +321,7 @@ function grunion_manage_post_column_date() {
 /**
  * Displays the value for the from column.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_manage_post_column_from
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_manage_post_column_from
  * @param  \WP_Post $post Current post.
  * @return void
  */
@@ -355,7 +355,7 @@ function grunion_manage_post_column_from( $post ) {
 /**
  * Displays the value for the response column.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_manage_post_column_response
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_manage_post_column_response
  * @param  \WP_Post $post Current post.
  * @return void
  */
@@ -429,7 +429,7 @@ function grunion_manage_post_column_response( $post ) {
 /**
  * Displays the value for the source column.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_manage_post_column_source
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_manage_post_column_source
  * @param  \WP_Post $post Current post.
  * @return void
  */
@@ -454,7 +454,7 @@ add_action( 'manage_posts_custom_column', 'grunion_manage_post_columns', 10, 2 )
 /**
  * Parse message content and display in appropriate columns.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_manage_post_columns
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_manage_post_columns
  * @param array $col List of columns available on admin page.
  * @param int   $post_id The current post ID.
  * @return void
@@ -491,7 +491,7 @@ add_action( 'restrict_manage_posts', 'grunion_source_filter' );
 /**
  * Add a post filter dropdown at the top of the admin page.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_source_filter
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_source_filter
  * @return void
  */
 function grunion_source_filter() {
@@ -511,7 +511,7 @@ add_action( 'pre_get_posts', 'grunion_source_filter_results' );
 /**
  * Filter feedback posts by parent_id if present.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_source_filter_results
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_source_filter_results
  * @param WP_Query $query Current query.
  * @return void
  */
@@ -536,7 +536,7 @@ add_filter( 'post_row_actions', 'grunion_manage_post_row_actions', 10, 2 );
 /**
  * Add actions to feedback response rows in WP Admin.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_manage_post_row_actions
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_manage_post_row_actions
  * @param string[] $actions Default actions.
  * @return string[]
  */
@@ -598,7 +598,7 @@ function grunion_manage_post_row_actions( $actions ) {
 /**
  * Escape grunion attributes.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_esc_attr
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_esc_attr
  * @param string $attr - the attribute we're escaping.
  * @return string
  */
@@ -616,7 +616,7 @@ function grunion_esc_attr( $attr ) {
 /**
  * Sort grunion items.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_sort_objects
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_sort_objects
  * @param array $a - the first item we're sorting.
  * @param array $b - the second item we're sorting.
  * @return string
@@ -634,7 +634,7 @@ function grunion_sort_objects( $a, $b ) {
  * Take an array of field types from the form builder, and construct a shortcode form.
  * returns both the shortcode form, and HTML markup representing a preview of the form
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_ajax_shortcode
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_ajax_shortcode
  */
 function grunion_ajax_shortcode() {
 	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Admin->grunion_ajax_shortcode' );
@@ -686,7 +686,7 @@ function grunion_ajax_shortcode() {
  * Takes a post_id, extracts the contact-form shortcode from that post (if there is one), parses it,
  * and constructs a json object representing its contents and attributes.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_ajax_shortcode_to_json
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_ajax_shortcode_to_json
  */
 function grunion_ajax_shortcode_to_json() {
 	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Admin->grunion_ajax_shortcode_to_json' );
@@ -748,7 +748,7 @@ add_action( 'wp_ajax_grunion_ajax_spam', 'grunion_ajax_spam' );
 /**
  * Handle marking feedback as spam.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_ajax_spam
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_ajax_spam
  */
 function grunion_ajax_spam() {
 	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Admin->grunion_ajax_spam' );
@@ -927,7 +927,7 @@ function grunion_ajax_spam() {
 /**
  * Add the scripts that will add the "Check for Spam" button to the Feedbacks dashboard page.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_enable_spam_recheck
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_enable_spam_recheck
  */
 function grunion_enable_spam_recheck() {
 	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Admin->grunion_enable_spam_recheck' );
@@ -952,7 +952,7 @@ add_action( 'admin_enqueue_scripts', 'grunion_enable_spam_recheck' );
 /**
  * Add the JS and CSS necessary for the Feedback admin page to function.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_add_admin_scripts
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_add_admin_scripts
  */
 function grunion_add_admin_scripts() {
 	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Admin->grunion_add_admin_scripts' );
@@ -1008,7 +1008,7 @@ add_action( 'admin_enqueue_scripts', 'grunion_add_admin_scripts' );
 /**
  * Adds the 'Export' button to the feedback dashboard page.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_export_button
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_export_button
  * @return void
  */
 function grunion_export_button() {
@@ -1053,7 +1053,7 @@ function grunion_export_button() {
 /**
  * Add the "Check for Spam" button to the Feedbacks dashboard page.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_check_for_spam_button
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_check_for_spam_button
  */
 function grunion_check_for_spam_button() {
 	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Admin->grunion_check_for_spam_button' );
@@ -1087,7 +1087,7 @@ function grunion_check_for_spam_button() {
 /**
  * Recheck all approved feedbacks for spam.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_recheck_queue
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_recheck_queue
  */
 function grunion_recheck_queue() {
 	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Admin->grunion_recheck_queue' );
@@ -1171,7 +1171,7 @@ add_action( 'wp_ajax_grunion_recheck_queue', 'grunion_recheck_queue' );
 /**
  * Delete a number of spam feedbacks via an AJAX request.
  * 
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_delete_spam_feedbacks
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_delete_spam_feedbacks
  */
 function grunion_delete_spam_feedbacks() {
 	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Admin->grunion_delete_spam_feedbacks' );
@@ -1242,7 +1242,7 @@ add_action( 'wp_ajax_jetpack_delete_spam_feedbacks', 'grunion_delete_spam_feedba
 /**
  * Show an admin notice if the "Empty Spam" or "Check Spam" process was unable to complete, probably due to a permissions error.
  * 
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_feedback_admin_notice
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_feedback_admin_notice
  */
 function grunion_feedback_admin_notice() {
 	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Admin->grunion_feedback_admin_notice' );
@@ -1260,7 +1260,7 @@ add_action( 'admin_notices', 'grunion_feedback_admin_notice' );
  *
  * Singleton for Grunion admin area support.
  * 
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin
  */
 class Grunion_Admin {
 	/**
@@ -1280,7 +1280,7 @@ class Grunion_Admin {
 	/**
 	 * Instantiates this singleton class
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin::init
+	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin::init
 	 * @return Grunion_Admin The Grunion Admin class instance.
 	 */
 	public static function init() {
@@ -1298,7 +1298,7 @@ class Grunion_Admin {
 	/**
 	 * Grunion_Admin constructor
 	 * 
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->__construct
+	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->__construct
 	 */
 	public function __construct() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Admin->__construct' );
@@ -1313,7 +1313,7 @@ class Grunion_Admin {
 	/**
 	 * Hook handler for admin_enqueue_scripts hook
 	 * 
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->admin_enqueue_scripts
+	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->admin_enqueue_scripts
 	 */
 	public function admin_enqueue_scripts() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Admin->admin_enqueue_scripts' );
@@ -1333,7 +1333,7 @@ class Grunion_Admin {
 	/**
 	 * Prints the modal markup with export buttons/content.
 	 * 
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->print_export_modal
+	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->print_export_modal
 	 */
 	public function print_export_modal() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Admin->print_export_modal' );
@@ -1403,7 +1403,7 @@ class Grunion_Admin {
 	 * Ajax handler for wp_ajax_grunion_export_to_gdrive.
 	 * Exports data to Google Drive, based on POST data.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->export_to_gdrive
+	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->export_to_gdrive
 	 * @see Grunion_Contact_Form_Plugin::get_feedback_entries_from_post
 	 */
 	public function export_to_gdrive() {
@@ -1473,7 +1473,7 @@ class Grunion_Admin {
 	/**
 	 * Return HTML markup for the CSV download button.
 	 * 
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->get_csv_export_section
+	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->get_csv_export_section
 	 */
 	public function get_csv_export_section() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Admin->get_csv_export_section' );
@@ -1514,7 +1514,7 @@ class Grunion_Admin {
 	 * Render/output HTML markup for the export to gdrive section.
 	 * If the user doesn't hold a Google Drive connection a button to connect will render (See grunion-admin.js).
 	 * 
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->get_gdrive_export_section
+	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->get_gdrive_export_section
 	 */
 	public function get_gdrive_export_section() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Admin->get_gdrive_export_section' );
@@ -1584,7 +1584,7 @@ class Grunion_Admin {
 	 * Ajax handler. Sends a payload with connection status and html to replace
 	 * the Connect button with the Export button using get_gdrive_export_button
 	 * 
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->test_gdrive_connection
+	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->test_gdrive_connection
 	 */
 	public function test_gdrive_connection() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Admin->test_gdrive_connection' );
@@ -1626,7 +1626,7 @@ class Grunion_Admin {
 	/**
 	 * Markup helper so we DRY, returns the button markup for the export to GDrive feature.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->get_gdrive_export_button_markup
+	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->get_gdrive_export_button_markup
 	 * @return string The HTML button markup
 	 */
 	public function get_gdrive_export_button_markup() {
@@ -1644,7 +1644,7 @@ class Grunion_Admin {
 	/**
 	 * Get a filename for export tasks
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->get_export_filename
+	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Admin->get_export_filename
 	 * @param string $source The filtered source for exported data.
 	 * @return string The filename without source nor date suffix.
 	 */
