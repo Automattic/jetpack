@@ -129,7 +129,7 @@ function render_block( $attributes ) {
 		return sprintf(
 			$block_template,
 			get_block_wrapper_attributes(),
-			'https://wordpress.com/read/subscriptions',
+			'https://wordpress.com/read/subscriptions?s=' . get_site_url(),
 			$manage_subscriptions_label
 		);
 	}
