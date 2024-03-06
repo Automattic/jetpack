@@ -1,11 +1,14 @@
+import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
 import ProductCard from '../connected-product-card';
+import { PRODUCT_STATUSES } from '../product-card/action-button';
 
 const AiCard = ( { admin } ) => {
 	const overrides = {
-		can_upgrade: {
+		[ PRODUCT_STATUSES.CAN_UPGRADE ]: {
 			href: '#/jetpack-ai',
+			label: __( 'View', 'jetpack-my-jetpack' ),
 		},
 	};
 	return (
