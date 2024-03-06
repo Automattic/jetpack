@@ -1114,6 +1114,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
         global $ZBSCRM_t,$wpdb,$zbs;  
         $wheres = array('direct'=>array()); $whereStr = ''; $additionalWhere = ''; $params = array(); $res = array(); $joinQ = ''; $extraSelect = '';
 
+				$join_sql = '';
+
         #} ============= PRE-QUERY ============
 
             #} Capitalise this
@@ -1362,9 +1364,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
         #} ============ / PRE-QUERY ===========
 
 			if ( ! empty( $additional_joins ) ) {
-				list( $joinQ, $join_params ) = $this->DAL()->build_joins( $additional_joins, $whereCase === 'AND' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-
-				$params = array_merge( $params, $join_params );
+				list( $join_sql, $join_params ) = $this->DAL()->build_joins( $additional_joins, $whereCase === 'AND' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 			}
 
         #} Build query
@@ -1667,9 +1667,10 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                                         //$wheres = array_merge_recursive($wheres,$contactGetArgs['additionalWhereArr']);
                                         // -----------------------
 
-                                    }
+						} elseif ( ! empty( $contactGetArgs['additional_joins'] ) && is_array( $contactGetArgs['additional_joins'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,
 
-
+							list( $join_sql, $join_params ) = $this->DAL()->build_joins( $contactGetArgs['additional_joins'], $matchType === 'all' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						}
 					} else {
 
                                 // normal/hardtyped
@@ -1860,6 +1861,12 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
         $params = array_merge($params,$this->ownershipQueryVars($ignoreowner)); // merges in any req.
         $ownQ = $this->ownershipSQL($ignoreowner,'contact'); if (!empty($ownQ)) $additionalWhere = $this->spaceAnd($additionalWhere).$ownQ; // adds str to query
         #} / Ownership
+
+				$query .= $join_sql;
+
+				if ( ! empty( $join_sql ) ) {
+					$params = array_merge( $params, $join_params );
+				}
 
         #} Append to sql (this also automatically deals with sortby and paging)
         $query .= $this->buildWhereStr($whereStr,$additionalWhere) . $this->buildSort($sortByField,$sortOrder) . $this->buildPaging($page,$perPage);    
