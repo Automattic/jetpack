@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Untangle: always use the wpcom_is_nav_redesign_enabled() function as release toggle

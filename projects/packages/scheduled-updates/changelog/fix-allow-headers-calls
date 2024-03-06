@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Moved schedule validation into its own callbacks so permission callbacks just check permissions.

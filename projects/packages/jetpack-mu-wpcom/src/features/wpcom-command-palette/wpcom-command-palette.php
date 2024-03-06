@@ -11,6 +11,11 @@
  * @return bool
  */
 function should_load_wpcom_command_palette() {
+	// Only load on the WPcom platform.
+	if ( ! class_exists( 'Automattic\Jetpack\Status\Host' ) ) {
+		return false;
+	}
+
 	global $pagenow;
 	$excluded_pages = array(
 		'post.php',
@@ -36,7 +41,18 @@ function wpcom_load_command_palette() {
 	wp_enqueue_script(
 		$command_palette_js_handle,
 		'//widgets.wp.com/command-palette/build.min.js',
-		array(),
+		array(
+			'react',
+			'react-dom',
+			'wp-components',
+			'wp-compose',
+			'wp-dom-ready',
+			'wp-element',
+			'wp-i18n',
+			'wp-polyfill',
+			'wp-primitives',
+			'wp-url',
+		),
 		$version,
 		array(
 			'strategy'  => 'defer',
@@ -69,7 +85,7 @@ function wpcom_load_command_palette() {
 	wp_enqueue_style(
 		'command-palette-styles',
 		'//widgets.wp.com/command-palette/build.css',
-		array(),
+		array( 'wp-components' ),
 		$version
 	);
 }
