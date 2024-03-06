@@ -40,11 +40,7 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_block_theme_previews' ) );
-
-		// This feature runs only on simple sites.
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
-		}
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
 
 		// Unified navigation fix for changes in WordPress 6.2.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
@@ -228,7 +224,7 @@ class Jetpack_Mu_Wpcom {
 		$is_forums = str_contains( get_stylesheet(), 'a8c/supportforums' ); // Not in /forums.
 
 		// Don't load any comment experience in the Reader, GlotPress, wp-admin, or P2.
-		return ( 1 === $blog_id || TRANSLATE_BLOG_ID === $blog_id || is_admin() || $is_p2 || $is_forums );
+		return ( 1 === $blog_id || ( defined( 'TRANSLATE_BLOG_ID' ) && TRANSLATE_BLOG_ID === $blog_id ) || is_admin() || $is_p2 || $is_forums );
 	}
 
 	/**
@@ -242,8 +238,8 @@ class Jetpack_Mu_Wpcom {
 			// Jetpack loads Verbum though an iframe from jetpack.wordpress.com.
 			// So we need to check the GET request for the blogid.
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			if ( isset( $_GET['blogid'] ) ) {
-				$blog_id = intval( $_GET['blogid'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( ! empty( \Jetpack_Options::get_option( 'id' ) ) ) {
+				$blog_id = \Jetpack_Options::get_option( 'id' );
 			}
 			if ( self::should_disable_comment_experience( $blog_id ) ) {
 				return;
