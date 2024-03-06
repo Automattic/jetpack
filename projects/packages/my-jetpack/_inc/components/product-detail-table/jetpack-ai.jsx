@@ -21,9 +21,9 @@ import React, { useCallback, useMemo, useEffect } from 'react';
 /**
  * Internal dependencies
  */
+import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
-import { useProduct } from '../../hooks/use-product';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 
 const debug = debugFactory( 'my-jetpack:product-detail-table:jetpack-ai' );

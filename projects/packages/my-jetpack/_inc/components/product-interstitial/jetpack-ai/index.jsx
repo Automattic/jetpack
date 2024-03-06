@@ -15,6 +15,7 @@ import { useGoBack } from '../../../hooks/use-go-back';
 import GoBackLink from '../../go-back-link';
 import AiTierDetailTable from '../../product-detail-table/jetpack-ai';
 import jetpackAiImage from '../jetpack-ai.png';
+import { JetpackAIInterstitialMoreRequests } from './more-requests';
 import styles from './style.module.scss';
 
 const debug = debugFactory( 'my-jetpack:product-interstitial:jetpack-ai' );
@@ -28,6 +29,7 @@ export default function JetpackAiInterstitial() {
 	const { detail } = useProduct( slug );
 	const { onClickGoBack } = useGoBack( { slug } );
 	const { isRegistered } = useConnection();
+	debug( useProduct( slug ) );
 	debug( detail );
 	const nextTier = detail?.aiAssistantFeature?.nextTier || null;
 
