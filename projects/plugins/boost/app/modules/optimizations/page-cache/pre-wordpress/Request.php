@@ -84,7 +84,18 @@ class Request {
 		}
 
 		$bypass_patterns = Boost_Cache_Settings::get_instance()->get_bypass_patterns();
-		$bypass_patterns = apply_filters( 'boost_cache_bypass_patterns', $bypass_patterns );
+
+		/**
+		 * Filters the bypass patterns for the Jetpack Boost cache.
+		 *
+		 * Allows developers to modify the list of patterns used to bypass the cache. This could be used to add
+		 * new patterns or remove existing ones depending on specific needs.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $bypass_patterns An array of regex patterns that define URLs to be bypassed from caching.
+		 */
+		$bypass_patterns = apply_filters( 'jetpack_boost_cache_bypass_patterns', $bypass_patterns );
 
 		$bypass_patterns[] = 'wp-.*\.php';
 		foreach ( $bypass_patterns as $expr ) {
@@ -106,7 +117,17 @@ class Request {
 	 * @return bool
 	 */
 	public function is_cacheable() {
-		if ( ! apply_filters( 'boost_cache_cacheable', $this->request_uri ) ) {
+		/**
+		 * Determines if the request is considered cacheable by Jetpack Boost.
+		 *
+		 * This filter allows developers to override the default cacheability logic of Jetpack Boost. It can be
+		 * used to make a request cacheable that would otherwise not be, or to prevent a request from being cached.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $request_uri The request URI to be evaluated for cacheability.
+		 */
+		if ( ! apply_filters( 'jetpack_boost_cache_cacheable', $this->request_uri ) ) {
 			return false;
 		}
 
@@ -152,7 +173,18 @@ class Request {
 			return false;
 		}
 
-		$accept_headers = apply_filters( 'boost_accept_headers', array( 'application/json', 'application/activity+json', 'application/ld+json' ) );
+		/**
+		 * Filters the accept headers to determine if the request should be cached.
+		 *
+		 * This filter allows modification of the accepted headers for cacheable requests. Requests with headers
+		 * matching any in the filtered list will not be cached. This can be used to exclude certain types of
+		 * requests based on their Accept header value.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $accept_headers An array of header values that should prevent a request from being cached.
+		 */
+		$accept_headers = apply_filters( 'jetpack_boost_accept_headers', array( 'application/json', 'application/activity+json', 'application/ld+json' ) );
 		$accept_headers = array_map( 'strtolower', $accept_headers );
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- $accept is checked and set below.
