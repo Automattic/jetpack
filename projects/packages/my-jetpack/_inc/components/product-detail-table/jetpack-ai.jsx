@@ -185,7 +185,6 @@ AiTierDetailTableColumn.propTypes = {
 	onProductButtonClick: PropTypes.func.isRequired,
 	detail: PropTypes.object.isRequired,
 	tier: PropTypes.string.isRequired,
-	trackProductButtonClick: PropTypes.func.isRequired,
 };
 
 /**

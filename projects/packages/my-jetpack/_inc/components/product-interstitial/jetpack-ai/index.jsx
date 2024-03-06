@@ -51,12 +51,7 @@ export default function JetpackAiInterstitial() {
 
 	return tiers && tiers.length ? (
 		<AdminPage showHeader={ false } showBackground={ true }>
-			<Container
-				fluid
-				horizontalSpacing={ 3 }
-				horizontalGap={ 3 }
-				className={ styles[ 'product-interstitial__container' ] }
-			>
+			<Container fluid horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col className={ styles[ 'product-interstitial__section' ] }>
 					<div className={ styles[ 'product-interstitial__section-wrapper-wide' ] }>
 						<GoBackLink onClick={ onClickGoBack } />
