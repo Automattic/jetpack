@@ -4,7 +4,6 @@ import { commentParent } from '../state';
 import { classNames, serviceData } from '../utils';
 import { EmailForm } from './EmailForm';
 
-const { mustLogIn, requireNameEmail, commentRegistration } = VerbumComments;
 interface LoggedOutProps {
 	login: ( service: string ) => void;
 	canWeAccessCookies: boolean;
@@ -12,6 +11,8 @@ interface LoggedOutProps {
 }
 
 const getLoginCommentText = () => {
+	const { requireNameEmail, commentRegistration } = VerbumComments;
+
 	let defaultText = translate( 'Log in to leave a comment.' );
 	let optionalText = translate( 'Leave a comment. (log in optional)' );
 	let nameAndEmailRequired = translate(
@@ -38,6 +39,7 @@ const getLoginCommentText = () => {
 };
 
 export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOutProps ) => {
+	const { mustLogIn, requireNameEmail, commentRegistration } = VerbumComments;
 	const [ activeService, setActiveService ] = useState( '' );
 	const closeLoginPopupService = requireNameEmail && ! mustLogIn ? 'mail' : '';
 

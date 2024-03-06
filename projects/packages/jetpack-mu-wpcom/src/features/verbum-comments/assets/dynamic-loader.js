@@ -1,5 +1,8 @@
 /* global WP_Enqueue_Dynamic_Script VerbumComments */
 window.addEventListener( 'DOMContentLoaded', function () {
+	if ( ! window.WP_Enqueue_Dynamic_Script ) {
+		return;
+	}
 	// Lazy load the comment form when clicking the comment field
 	const commentForm = document.querySelector( '#commentform' );
 	if ( commentForm ) {

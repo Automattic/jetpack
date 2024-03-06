@@ -242,8 +242,10 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 	);
 };
 
-const { siteId } = {
-	...VerbumComments,
-};
+document.addEventListener( 'DOMContentLoaded', () => {
+	const { siteId } = {
+		...VerbumComments,
+	};
 
-render( <Verbum siteId={ siteId } />, document.getElementById( 'comment-form__verbum' ) );
+	render( <Verbum siteId={ siteId } />, document.getElementById( 'comment-form__verbum' ) );
+} );
