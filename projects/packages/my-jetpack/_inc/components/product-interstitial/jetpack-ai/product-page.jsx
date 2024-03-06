@@ -122,12 +122,7 @@ export default function () {
 
 	return (
 		<AdminPage showHeader={ false } showBackground={ true }>
-			<Container
-				fluid
-				horizontalSpacing={ 3 }
-				horizontalGap={ 2 }
-				className={ styles[ 'product-interstitial__container' ] }
-			>
+			<Container fluid horizontalSpacing={ 3 } horizontalGap={ 2 }>
 				<Col className={ classnames( styles[ 'product-interstitial__section' ] ) }>
 					<div className={ styles[ 'product-interstitial__section-wrapper-wide' ] }>
 						<GoBackLink onClick={ onClickGoBack } />
