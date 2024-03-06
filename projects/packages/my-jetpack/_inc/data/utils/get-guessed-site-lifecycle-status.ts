@@ -1,6 +1,6 @@
-type lifecycleStatsType = Window[ 'myJetpackInitialState' ][ 'lifecycleStats' ];
-
-const getGuessedSiteLifecycleStatus = ( lifecycleStats: lifecycleStatsType ) => {
+const getGuessedSiteLifecycleStatus = (
+	lifecycleStats: Window[ 'myJetpackInitialState' ][ 'lifecycleStats' ]
+) => {
 	if ( ! lifecycleStats ) {
 		return 'unknown';
 	}
