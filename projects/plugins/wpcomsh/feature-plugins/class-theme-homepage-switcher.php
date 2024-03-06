@@ -41,6 +41,9 @@ class Theme_Homepage_Switcher {
 	 * Registers hook.
 	 */
 	public function register_hooks() {
+		if ( wpcom_is_nav_redesign_enabled() ) {
+			return;
+		}
 		add_action( 'switch_theme', array( $this, 'switch_theme_homepage' ), 10, 3 );
 	}
 
