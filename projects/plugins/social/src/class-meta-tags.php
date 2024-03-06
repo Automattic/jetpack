@@ -277,7 +277,7 @@ class Meta_Tags {
 	 * @param array $tags The array of OG tags so far.
 	 */
 	public function get_note_title( $tags ) {
-		if ( empty( trim( $tags['og:title'] ) ) ) {
+		if ( ! isset( $tags['og:title'] ) || empty( trim( $tags['og:title'] ) ) ) {
 			$tags['og:title'] = $this->get_og_title_for_social_notes();
 		}
 		return $tags;
