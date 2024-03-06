@@ -32,7 +32,7 @@ export default function JetpackAiInterstitial() {
 	debug( detail );
 	const nextTier = detail?.aiAssistantFeature?.nextTier || null;
 
-	const { tiers, hasRequiredPlan } = detail;
+	const { tiers } = detail;
 
 	// Default to 100 requests if the site is not registered/connected.
 	const nextTierValue = isRegistered ? nextTier?.value : 100;
@@ -75,7 +75,7 @@ export default function JetpackAiInterstitial() {
 			imageContainerClassName={ styles.aiImageContainer }
 			hideTOS={ true }
 			quantity={ quantity }
-			directCheckout={ hasRequiredPlan }
+			directCheckout={ false }
 			highlightLastFeature={ highlightLastFeature }
 		>
 			<img src={ jetpackAiImage } alt="Search" />
