@@ -463,7 +463,7 @@ class Actions {
 		 * @param array $query_args associative array of query parameters.
 		 */
 		$query_args = apply_filters( 'jetpack_sync_send_data_query_args', $query_args );
-		if ( Settings::is_wpcom_rest_api_enabled() ) {
+		if ( true || Settings::is_wpcom_rest_api_enabled() ) {
 			$jsonl_data            = implode(
 				"\n",
 				array_map(
@@ -475,7 +475,7 @@ class Actions {
 				)
 			);
 			$wpcom_blog_id         = \Jetpack_Options::get_option( 'id' );
-			$url                   = add_query_arg( $query_args, '/sites/' . $wpcom_blog_id . '/jetpack-sync-actions?' );
+			$url                   = add_query_arg( $query_args, '/sites/' . $wpcom_blog_id . '/jetpack-sync-actions' );
 			$result                = Client::wpcom_json_api_request_as_blog(
 				$url,
 				'2',
