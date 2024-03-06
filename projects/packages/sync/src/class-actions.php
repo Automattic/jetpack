@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Identity_Crisis;
@@ -433,6 +434,7 @@ class Actions {
 	public static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration, $queue_size = null, $buffer_id = null ) {
 
 		$query_args = array(
+
 			'sync'           => '1',             // Add an extra parameter to the URL so we can tell it's a sync action.
 			'codec'          => $codec_name,
 			'timestamp'      => $sent_timestamp,
@@ -461,30 +463,60 @@ class Actions {
 		 * @param array $query_args associative array of query parameters.
 		 */
 		$query_args = apply_filters( 'jetpack_sync_send_data_query_args', $query_args );
-
-		$connection = new Jetpack_Connection();
-		$url        = add_query_arg( $query_args, $connection->xmlrpc_api_url() );
-
-		// If we're currently updating to Jetpack 7.7, the IXR client may be missing briefly
-		// because since 7.7 it's being autoloaded with Composer.
-		if ( ! class_exists( '\\Jetpack_IXR_Client' ) ) {
-			return new WP_Error(
-				'ixr_client_missing',
-				esc_html__( 'Sync has been aborted because the IXR client is missing.', 'jetpack-sync' )
+		if ( Settings::is_wpcom_rest_api_enabled() ) {
+			$jsonl_data            = implode(
+				"\n",
+				array_map(
+					function ( $key, $value ) {
+						return wp_json_encode( array( $key => $value ) );
+					},
+					array_keys( (array) $data ),
+					array_values( (array) $data )
+				)
 			);
+			$wpcom_blog_id         = \Jetpack_Options::get_option( 'id' );
+			$url                   = add_query_arg( $query_args, '/sites/' . $wpcom_blog_id . '/jetpack-sync-actions?' );
+			$result                = Client::wpcom_json_api_request_as_blog(
+				$url,
+				'2',
+				array(
+					'method' => 'POST',
+					'format' => 'jsonl',
+				),
+				$jsonl_data,
+				'wpcom'
+			);
+			$retry_after           = wp_remote_retrieve_header( $result, 'Retry-After' ) ? wp_remote_retrieve_header( $result, 'Retry-After' ) : false;
+			$dedicated_sync_header = wp_remote_retrieve_header( $result, 'Jetpack-Dedicated-Sync' ) ? wp_remote_retrieve_header( $result, 'Jetpack-Dedicated-Sync' ) : false;
+			$response              = json_decode( wp_remote_retrieve_body( $result ), ARRAY_N );
+		} else {
+			$connection = new Jetpack_Connection();
+			$url        = add_query_arg( $query_args, $connection->xmlrpc_api_url() );
+
+			// If we're currently updating to Jetpack 7.7, the IXR client may be missing briefly
+			// because since 7.7 it's being autoloaded with Composer.
+			if ( ! class_exists( '\\Jetpack_IXR_Client' ) ) {
+				return new WP_Error(
+					'ixr_client_missing',
+					esc_html__( 'Sync has been aborted because the IXR client is missing.', 'jetpack-sync' )
+				);
+			}
+
+			$rpc = new \Jetpack_IXR_Client(
+				array(
+					'url'     => $url,
+					'timeout' => $query_args['timeout'],
+				)
+			);
+
+			$retry_after           = $rpc->get_response_header( 'Retry-After' );
+			$dedicated_sync_header = $rpc->get_response_header( 'Jetpack-Dedicated-Sync' );
+			$result                = $rpc->query( 'jetpack.syncActions', $data );
+			// TODO
+			$result && $response = $rpc->getResponse();// phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found 
 		}
 
-		$rpc = new \Jetpack_IXR_Client(
-			array(
-				'url'     => $url,
-				'timeout' => $query_args['timeout'],
-			)
-		);
-
-		$result = $rpc->query( 'jetpack.syncActions', $data );
-
-		// Adhere to Retry-After headers.
-		$retry_after = $rpc->get_response_header( 'Retry-After' );
+			// Adhere to Retry-After headers.
 		if ( false !== $retry_after ) {
 			if ( (int) $retry_after > 0 ) {
 				update_option( self::RETRY_AFTER_PREFIX . $queue_id, microtime( true ) + (int) $retry_after, false );
@@ -495,12 +527,11 @@ class Actions {
 		}
 
 		// Enable/Disable Dedicated Sync flow via response headers.
-		$dedicated_sync_header = $rpc->get_response_header( 'Jetpack-Dedicated-Sync' );
 		if ( false !== $dedicated_sync_header ) {
 			Dedicated_Sender::maybe_change_dedicated_sync_status_from_wpcom_header( $dedicated_sync_header );
 		}
 
-		if ( ! $result ) {
+		if ( ! $result || is_wp_error( $result ) ) {
 			if ( false === $retry_after ) {
 				// We received a non standard response from WP.com, lets backoff from sending requests for 1 minute.
 				update_option( self::RETRY_AFTER_PREFIX . $queue_id, microtime( true ) + 60, false );
@@ -515,17 +546,17 @@ class Actions {
 				$error_log = array_slice( $error_log, -4, null, true );
 			}
 			// Add new error indexed to time.
-			$error = $rpc->get_jetpack_error();
-			$error->add_data( $rpc->get_last_response() );
-			$error_log[ (string) microtime( true ) ] = $error;
+			if ( Settings::is_wpcom_rest_api_enabled() ) {
+				$error_log[ (string) microtime( true ) ] = $result;
+			} else {
+				$error                                   = $rpc->get_jetpack_error();
+				$error_with_last_response                = $error->add_data( $rpc->get_last_response() );
+				$error_log[ (string) microtime( true ) ] = $error_with_last_response;
+			}
 			// Update the error log.
 			update_option( self::ERROR_LOG_PREFIX . $queue_id, $error_log );
-
-			// return request error.
-			return $rpc->get_jetpack_error();
+			return $error;
 		}
-
-		$response = $rpc->getResponse();
 
 		// Check if WordPress.com IDC mitigation blocked the sync request.
 		if ( Identity_Crisis::init()->check_response_for_idc( $response ) ) {
