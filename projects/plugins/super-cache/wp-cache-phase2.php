@@ -1297,9 +1297,12 @@ foreach ( $debug_log as $t => $line ) {
 		}
 	}
 }
+echo "<pre>";
 foreach( $debug_log as $line ) {
-	echo htmlspecialchars( $line ) . "<br />";
-}';
+	echo htmlspecialchars( $line );
+}
+echo "</pre>";
+';
 		fwrite( $fp, $msg );
 		fclose( $fp );
 	}
@@ -1512,14 +1515,17 @@ function wp_cache_phase2() {
 		return false;
 	}
 
-	if ( ob_get_level() > 0 ) {
+	if ( ob_get_level() > 1 ) {
 		global $wp_super_cache_late_init;
-		$ob_warning = 'Already in an output buffer. Check your plugins, themes, mu-plugins, and other custom code. Exit.';
+		wp_cache_debug( '***********************************************************************************' );
+		wp_cache_debug( '* An extra output buffer has been detected. Check your plugins, themes,           *' );
+		wp_cache_debug( '* mu-plugins, and other custom code as this may interfere with caching.           *' );
+
 		if ( isset( $wp_super_cache_late_init ) && $wp_super_cache_late_init ) {
-			$ob_warning = 'Late init enabled. Disable it. ' . $ob_warning;
+			wp_cache_debug( '* Late init is enabled. This allows third-party code to run before WP Super Cache *' );
+			wp_cache_debug( '* sets up an output buffer. That code may have set up the output buffer.          *' );
 		}
-		wp_cache_debug( 'wp_cache_phase2: ' . $ob_warning );
-		return;
+		wp_cache_debug( '***********************************************************************************' );
 	}
 
 	wp_cache_debug( 'In WP Cache Phase 2', 5 );
