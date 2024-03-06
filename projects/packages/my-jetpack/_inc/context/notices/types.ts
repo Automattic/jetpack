@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
 
-export type NoticeType = {
+export type Notice = {
 	message: string;
 	options: {
 		status: string;
@@ -10,10 +10,9 @@ export type NoticeType = {
 			noDefaultClasses?: boolean;
 		};
 	};
-	shouldShow?: boolean;
 };
 
-export type NoticeContextType< T = NoticeType > = {
+export type NoticeContextType< T = Notice > = {
 	currentNotice: T;
-	setCurrentNotice: Dispatch< SetStateAction< T > > | null;
+	setNotice: Dispatch< SetStateAction< T > > | null;
 };

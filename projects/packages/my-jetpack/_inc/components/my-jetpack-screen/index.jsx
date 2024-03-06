@@ -161,9 +161,7 @@ export default function MyJetpackScreen() {
 						</Col>
 					) }
 					{ message && ( welcomeBannerHasBeenDismissed || ! isNewUser ) && (
-						<Col>
-							<GlobalNotice message={ message } options={ options } />
-						</Col>
+						<Col>{ <GlobalNotice message={ message } options={ options } /> }</Col>
 					) }
 					{ showJetpackStatsCard && (
 						<Col

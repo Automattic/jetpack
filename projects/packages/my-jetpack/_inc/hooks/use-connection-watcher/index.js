@@ -1,6 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { useEffect, useState } from 'react';
-import useNotice from '../../data/notices/use-notice';
+import { useEffect, useContext } from 'react';
+import { NoticeContext } from '../../context/notices/noticeContext';
 import { useAllProducts } from '../../data/products/use-product';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
@@ -12,10 +12,7 @@ import useMyJetpackNavigate from '../use-my-jetpack-navigate';
  * the hook dispatches an action to populate the global notice.
  */
 export default function useConnectionWatcher() {
-	const [ notice, setNotice ] = useState( {
-		message: '',
-		options: {},
-	} );
+	const { setNotice } = useContext( NoticeContext );
 	const navToConnection = useMyJetpackNavigate( '/connection' );
 	const products = useAllProducts();
 	const productSlugsThatRequireUserConnection =
@@ -42,8 +39,6 @@ export default function useConnectionWatcher() {
 					'jetpack-my-jetpack'
 			  );
 
-	useNotice( notice );
-
 	useEffect( () => {
 		if ( ! isSiteConnected || requiresUserConnection ) {
 			setNotice( {
@@ -60,5 +55,11 @@ export default function useConnectionWatcher() {
 				},
 			} );
 		}
-	}, [ isSiteConnected, needsUserConnectionMessage, requiresUserConnection, navToConnection ] );
+	}, [
+		isSiteConnected,
+		needsUserConnectionMessage,
+		requiresUserConnection,
+		navToConnection,
+		setNotice,
+	] );
 }
