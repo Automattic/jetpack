@@ -25,11 +25,11 @@ import {
 	REST_API_CHAT_AUTHENTICATION_ENDPOINT,
 	REST_API_CHAT_AVAILABILITY_ENDPOINT,
 } from '../../data/constants';
+import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
 import useAnalytics from '../../hooks/use-analytics';
 import useConnectionWatcher from '../../hooks/use-connection-watcher';
 import useGlobalNotice from '../../hooks/use-notice';
-import { useProduct } from '../../hooks/use-product';
 import ConnectionsSection from '../connections-section';
 import IDCModal from '../idc-modal';
 import JetpackManageBanner from '../jetpack-manage-banner';

@@ -5,12 +5,31 @@
  * @package automattic/scheduled-updates
  */
 
+namespace Automattic\Jetpack;
+
 /**
  * Test class for Scheduled_Updates.
  *
  * @coversDefaultClass Scheduled_Updates
  */
 class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
+
+	/**
+	 * Used to mock global functions inside a namespace.
+	 *
+	 * @see https://github.com/php-mock/php-mock-phpunit
+	 */
+	use \phpmock\phpunit\PHPMock;
+
+	/**
+	 * Set up before class.
+	 *
+	 * @see Restrictions here: https://github.com/php-mock/php-mock-phpunit?tab=readme-ov-file#restrictions
+	 * @beforeClass
+	 */
+	public static function set_up_before_class() {
+		\phpmock\phpunit\PHPMock::defineFunctionMock( 'Automattic\Jetpack', 'realpath' );
+	}
 
 	/**
 	 * Set up.
@@ -75,7 +94,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		// make sure the directory exists
 		$this->assertTrue( $this->wp_filesystem->is_dir( "$this->plugin_dir/direct-plugin" ) );
 
-		$request       = new WP_REST_Request( 'GET', '/wp/v2/plugins' );
+		$request       = new \WP_REST_Request( 'GET', '/wp/v2/plugins' );
 		$result        = rest_do_request( $request );
 		$plugin_result = $result->get_data()[0];
 
@@ -84,12 +103,13 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Simulate and test managed plugins
+	 * Managed plugins should be linked from a root /wordpress directory,
+	 * other paths should be ignored.
 	 *
 	 * @covers ::add_is_managed_extension_field
 	 */
-	public function test_managed_plugins() {
-		// managed, we simulate a symlink to a subdirectory inside a wp directory
+	public function test_unmanaged_plugins_not_in_root_directory() {
+		// we simulate a symlink to a subdirectory inside a wp directory
 		$plugin_name = 'managed-plugin';
 		$target_dir  = "$this->plugin_dir/wordpress";
 		$this->wp_filesystem->mkdir( $target_dir );
@@ -101,7 +121,38 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( $this->wp_filesystem->is_dir( "$this->plugin_dir/direct-plugin" ) );
 		$this->assertTrue( is_link( "$this->plugin_dir/managed-plugin" ) );
 
-		$request       = new WP_REST_Request( 'GET', '/wp/v2/plugins' );
+		$request       = new \WP_REST_Request( 'GET', '/wp/v2/plugins' );
+		$result        = rest_do_request( $request );
+		$plugin_result = $result->get_data()[0];
+
+		$this->assertSame( 'managed-plugin', $plugin_result['textdomain'] );
+		$this->assertSame( false, $plugin_result['is_managed'] );
+	}
+
+	/**
+	 * Simulate managed plugins linked from a root /wordpress directory.
+	 *
+	 * @group failing
+	 * @covers ::add_is_managed_extension_field
+	 */
+	public function test_managed_plugins() {
+		// we simulate a symlink to a subdirectory inside a wp directory
+		$plugin_name = 'managed-plugin';
+		$target_dir  = "$this->plugin_dir/wordpress";
+		$this->wp_filesystem->mkdir( $target_dir );
+		$this->wp_filesystem->mkdir( "$target_dir/$plugin_name" );
+		$this->populate_file_with_plugin_header( "$target_dir/$plugin_name/$plugin_name.php", 'managed-plugin' );
+		symlink( "$target_dir/$plugin_name", "$this->plugin_dir/$plugin_name" );
+
+		// make sure the symlink exists
+		$this->assertFalse( $this->wp_filesystem->is_dir( "$this->plugin_dir/direct-plugin" ) );
+		$this->assertTrue( is_link( "$this->plugin_dir/managed-plugin" ) );
+
+		// tweak realpath so that it returns `/wordpress/...`
+		$realpath = $this->getFunctionMock( __NAMESPACE__, 'realpath' );
+		$realpath->expects( $this->once() )->willReturn( "/wordpress/plugins/$plugin_name" );
+
+		$request       = new \WP_REST_Request( 'GET', '/wp/v2/plugins' );
 		$result        = rest_do_request( $request );
 		$plugin_result = $result->get_data()[0];
 
