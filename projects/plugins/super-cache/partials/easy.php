@@ -166,6 +166,6 @@ if ( is_multisite() && wpsupercache_site_admin() ) {
 <li><?php printf( esc_html__( 'Advanced users only: Install an object cache like %s.', 'wp-super-cache' ), '<a href="https://wordpress.org/plugins/memcached/">Memcached</a>' ); ?></li>
 <li><?php printf( __( '<a href="%s">WP Crontrol</a> is a useful plugin to use when trying to debug garbage collection and preload problems.', 'wp-super-cache' ), 'https://wordpress.org/plugins/wp-crontrol/' ); ?></li>
 </ul>
-<p><?php esc_html__( "* The links above (apart from Jetpack and Jetpack Boost) go to websites outside the author's control. Caution is advised when testing any new software.", 'wp-super-cache' ); ?></p>
+<p><?php esc_html_e( "* The links above (apart from Jetpack and Jetpack Boost) go to websites outside the author's control. Caution is advised when testing any new software.", 'wp-super-cache' ); ?></p>
 </div>
 </div>
