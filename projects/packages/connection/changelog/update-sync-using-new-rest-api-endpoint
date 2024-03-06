@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Sync:Now Sync uses rest api endpoint for enabled sites
