@@ -196,8 +196,11 @@ const isMediaSourceConnected = async ( source: MediaSource ) =>
  * @returns {boolean} True if the inserter is opened false otherwise.
  */
 const isInserterOpened = (): boolean =>
+	// @to-do: remove exception when Jetpack requires WordPress 6.5.
+	// eslint-disable-next-line
+	// @ts-ignore
+	select( 'core/editor' )?.isInserterOpened?.() ||
 	select( 'core/edit-post' )?.isInserterOpened() ||
-	select( 'core/editor' )?.isInserterOpened() ||
 	select( 'core/edit-site' )?.isInserterOpened() ||
 	select( 'core/edit-widgets' )?.isInserterOpened?.();
 
