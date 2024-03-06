@@ -75,8 +75,8 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		 *
 		 * @param array $jetpack_comments_loaded First element in array of type Jetpack_Comments
 		 */
-		do_action_ref_array( 'jetpack_comments_loaded', array( $this ) );
-		add_action( 'after_setup_theme', array( $this, 'set_default_color_theme_based_on_theme_settings' ), 100 );
+		// do_action_ref_array( 'jetpack_comments_loaded', array( $this ) );
+		// add_action( 'after_setup_theme', array( $this, 'set_default_color_theme_based_on_theme_settings' ), 100 );
 	}
 
 	/**
@@ -129,18 +129,18 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		parent::setup_actions();
 
 		// Selfishly remove everything from the existing comment form.
-		remove_all_actions( 'comment_form_before' );
-
+		// remove_all_actions( 'comment_form_before' );
+		//
 		// Selfishly add only our actions back to the comment form.
-		add_action( 'comment_form_before', array( $this, 'manage_post_cookie' ) );
-		add_action( 'comment_form_before', array( $this, 'comment_form_before' ) );
-		add_action( 'comment_form_after', array( $this, 'comment_form_after' ), 1 ); // Set very early since we remove everything outputed before our action.
-
+		// add_action( 'comment_form_before', array( $this, 'manage_post_cookie' ) );
+		// add_action( 'comment_form_before', array( $this, 'comment_form_before' ) );
+		// add_action( 'comment_form_after', array( $this, 'comment_form_after' ), 1 ); // Set very early since we remove everything outputed before our action.
+		//
 		// Before a comment is posted.
-		add_action( 'pre_comment_on_post', array( $this, 'pre_comment_on_post' ), 1 );
-
+		// add_action( 'pre_comment_on_post', array( $this, 'pre_comment_on_post' ), 1 );
+		//
 		// After a comment is posted.
-		add_action( 'comment_post', array( $this, 'add_comment_meta' ) );
+		// add_action( 'comment_post', array( $this, 'add_comment_meta' ) );
 	}
 
 	/**
@@ -150,12 +150,12 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 */
 	protected function setup_filters() {
 		parent::setup_filters();
-
-		add_filter( 'comment_post_redirect', array( $this, 'capture_comment_post_redirect_to_reload_parent_frame' ), 100 );
-		add_filter( 'comment_duplicate_trigger', array( $this, 'capture_comment_duplicate_trigger' ), 100 );
-		add_filter( 'get_avatar', array( $this, 'get_avatar' ), 10, 4 );
+		//
+		// add_filter( 'comment_post_redirect', array( $this, 'capture_comment_post_redirect_to_reload_parent_frame' ), 100 );
+		// add_filter( 'comment_duplicate_trigger', array( $this, 'capture_comment_duplicate_trigger' ), 100 );
+		// add_filter( 'get_avatar', array( $this, 'get_avatar' ), 10, 4 );
 		// Fix comment reply link when `comment_registration` is required.
-		add_filter( 'comment_reply_link', array( $this, 'comment_reply_link' ), 10, 4 );
+		// add_filter( 'comment_reply_link', array( $this, 'comment_reply_link' ), 10, 4 );
 	}
 
 	/**

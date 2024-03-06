@@ -16,9 +16,9 @@ class Highlander_Comments_Base {
 	 * Constructor
 	 */
 	public function __construct() {
-		$this->setup_globals();
-		$this->setup_actions();
-		$this->setup_filters();
+//		$this->setup_globals();
+//		$this->setup_actions();
+//		$this->setup_filters();
 	}
 
 	/**
