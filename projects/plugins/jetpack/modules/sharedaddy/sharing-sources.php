@@ -3410,4 +3410,11 @@ class Share_Bluesky extends Sharing_Source {
 
 		parent::redirect_request( $url );
 	}
+
+	/**
+	 * Add content specific to a service in the footer.
+	 */
+	public function display_footer() {
+		$this->js_dialog( $this->shortname );
+	}
 }
