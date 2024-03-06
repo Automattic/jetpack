@@ -789,7 +789,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * @return array
 		 */
 		public function jetpack_user_connected_th( $columns ) {
-			wp_enqueue_script( 'jetpack-sso-users', plugins_url( 'modules/sso/jetpack-sso-users.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), time(), false );
+			wp_enqueue_script( 'jetpack-sso-users', plugins_url( 'modules/sso/jetpack-sso-users.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION, false );
 
 			$columns['user_jetpack'] = sprintf(
 				'<span class="jetpack-sso-invitation-tooltip-icon">%2$s [?]<span class="jetpack-sso-invitation-tooltip jetpack-sso-th-tooltip">%1$s</span></span>',
