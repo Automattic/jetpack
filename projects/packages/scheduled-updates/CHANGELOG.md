@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2024-03-05
+### Added
+- Adds plugins to and removes them from aut-updates when creating and deleting update schedules. [#36125]
+
+### Fixed
+- Fixed scheduled updates returning is_managed = true for non-root symlinks to /wordpress directory. [#36170]
+
 ## [0.3.0] - 2024-03-04
 ### Added
 - Added a Cron API function to retrieve all events scheduled for a specified hook. [#36071]
@@ -34,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Generate initial package for Scheduled Updates [#35796]
 
+[0.3.1]: https://github.com/Automattic/scheduled-updates/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/Automattic/scheduled-updates/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/Automattic/scheduled-updates/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Automattic/scheduled-updates/compare/v0.1.0...v0.2.0

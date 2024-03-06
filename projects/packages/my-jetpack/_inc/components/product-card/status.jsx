@@ -22,10 +22,10 @@ const getStatusClassName = status => {
 	}
 };
 
-const Status = ( { status, isFetching, isInstallingStandalone, isDeactivatingStandalone } ) => {
+const Status = ( { status, isFetching, isInstallingStandalone } ) => {
 	const flagLabel = PRODUCT_STATUSES_LABELS[ status ];
 	const statusClassName = classNames( styles.status, getStatusClassName( status ), {
-		[ styles[ 'is-fetching' ] ]: isFetching || isInstallingStandalone || isDeactivatingStandalone,
+		[ styles[ 'is-fetching' ] ]: isFetching || isInstallingStandalone,
 	} );
 
 	return (

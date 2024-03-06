@@ -4,12 +4,14 @@
 import { Text } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import PropTypes from 'prop-types';
-import React, { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
+import useActivate from '../../data/products/use-activate';
+import useInstallStandalonePlugin from '../../data/products/use-install-standalone-plugin';
+import useProduct from '../../data/products/use-product';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
-import { useProduct } from '../../hooks/use-product';
 import ProductCard from '../product-card';
 
 const ConnectedProductCard = ( {
@@ -25,17 +27,11 @@ const ConnectedProductCard = ( {
 } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
 
-	const {
-		detail,
-		activate,
-		deactivate,
-		isFetching,
-		installStandalonePlugin,
-		deactivateStandalonePlugin,
-	} = useProduct( slug );
+	const { install: installStandalonePlugin, isPending: isInstalling } =
+		useInstallStandalonePlugin( slug );
+	const { activate, isPending: isActivating } = useActivate( slug );
+	const { detail } = useProduct( slug );
 	const { name, description: defaultDescription, requiresUserConnection, status } = detail;
-	const [ installingStandalone, setInstallingStandalone ] = useState( false );
-	const [ deactivatingStandalone, setDeactivatingStandalone ] = useState( false );
 
 	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
 
@@ -57,30 +53,6 @@ const ConnectedProductCard = ( {
 		navigateToConnectionPage,
 	] );
 
-	const handleInstallStandalone = useCallback( () => {
-		setInstallingStandalone( true );
-
-		installStandalonePlugin()
-			.then( () => {
-				setInstallingStandalone( false );
-			} )
-			.catch( () => {
-				setInstallingStandalone( false );
-			} );
-	}, [ installStandalonePlugin ] );
-
-	const handleDeactivateStandalone = useCallback( () => {
-		setDeactivatingStandalone( true );
-
-		deactivateStandalonePlugin()
-			.then( () => {
-				window?.location?.reload();
-			} )
-			.catch( () => {
-				setDeactivatingStandalone( false );
-			} );
-	}, [ deactivateStandalonePlugin ] );
-
 	const DefaultDescription = () => {
 		// Replace the last space with a non-breaking space to prevent widows
 		const cardDescription = defaultDescription.replace( /\s(?=[^\s]*$)/, '\u00A0' );
@@ -98,19 +70,16 @@ const ConnectedProductCard = ( {
 			Description={ Description ? Description : DefaultDescription }
 			status={ status }
 			admin={ admin }
-			isFetching={ isFetching }
+			isFetching={ isActivating || isInstalling }
 			isDataLoading={ isDataLoading }
-			isInstallingStandalone={ installingStandalone }
-			isDeactivatingStandalone={ deactivatingStandalone }
-			onDeactivate={ deactivate }
+			isInstallingStandalone={ isInstalling }
 			additionalActions={ additionalActions }
 			primaryActionOverride={ primaryActionOverride }
 			secondaryAction={ secondaryAction }
 			slug={ slug }
 			onActivate={ handleActivate }
-			onInstallStandalone={ handleInstallStandalone }
-			onActivateStandalone={ handleInstallStandalone }
-			onDeactivateStandalone={ handleDeactivateStandalone }
+			onInstallStandalone={ installStandalonePlugin }
+			onActivateStandalone={ installStandalonePlugin }
 			upgradeInInterstitial={ upgradeInInterstitial }
 		>
 			{ children }
