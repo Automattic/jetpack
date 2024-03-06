@@ -1,4 +1,5 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Tracking;
@@ -51,10 +52,26 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			add_action( 'admin_post_jetpack_revoke_invite_user_to_wpcom', array( $this, 'handle_request_revoke_invite' ) );
 			add_action( 'admin_post_jetpack_resend_invite_user_to_wpcom', array( $this, 'handle_request_resend_invite' ) );
 			add_action( 'admin_print_styles-users.php', array( $this, 'jetpack_user_table_styles' ) );
-			add_action( 'admin_print_styles-user-new.php', array( $this, 'jetpack_user_new_form_styles' ) );
 			add_filter( 'users_list_table_query_args', array( $this, 'set_user_query' ), 100, 1 );
+			add_action( 'admin_print_styles-user-new.php', array( $this, 'jetpack_new_users_styles' ) );
 
 			self::$tracking = new Tracking();
+		}
+
+		/**
+		 * Enqueue assets for user-new.php.
+		 */
+		public function jetpack_new_users_styles() {
+			Assets::register_script(
+				'jetpack-sso-admin-create-user',
+				'modules/sso/jetpack-sso-admin-create-user.js',
+				JETPACK__PLUGIN_FILE,
+				array(
+					'strategy'  => 'defer',
+					'in_footer' => true,
+				)
+			);
+			Assets::enqueue_script( 'jetpack-sso-admin-create-user' );
 		}
 
 		/**
@@ -648,7 +665,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				<table class="form-table">
 					<tr class="form-field">
 						<th scope="row">
-							<label for="invite_user_wpcom"><?php esc_html_e( 'Invite user:', 'jetpack' ); ?></label>
+							<label for="invite_user_wpcom"><?php esc_html_e( 'Invite user', 'jetpack' ); ?></label>
 						</th>
 						<td>
 							<fieldset>
@@ -656,7 +673,12 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 									<span><?php esc_html_e( 'Invite user', 'jetpack' ); ?></span>
 								</legend>
 								<label for="invite_user_wpcom">
-									<input name="invite_user_wpcom" type="checkbox" id="invite_user_wpcom" checked>
+									<input 
+										name="invite_user_wpcom" 
+										type="checkbox" 
+										id="invite_user_wpcom" 
+										<?php checked( ! class_exists( 'WooCommerce' ) ); ?>
+										>
 									<?php esc_html_e( 'Invite user to WordPress.com', 'jetpack' ); ?>
 								</label>
 							</fieldset>
@@ -700,11 +722,17 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		/**
 		 * Conditionally disable the core invitation email.
 		 * It should be sent when SSO is disabled or when admins opt-out of WordPress.com invites intentionally.
+		 * If the "Send User Notification" checkbox is checked, the core invitation email should be sent.
+		 *
+		 * @param boolean $send_wp_email Whether the core invitation email should be sent.
 		 *
 		 * @return boolean Indicating if the core invitation main should be sent.
 		 */
-		public function should_send_wp_mail_new_user() {
-			return empty( $_POST['invite_user_wpcom'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		public function should_send_wp_mail_new_user( $send_wp_email ) {
+			if ( ! isset( $_POST['invite_user_wpcom'] ) && isset( $_POST['send_user_notification'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+				return $send_wp_email;
+			}
+			return false;
 		}
 
 		/**
@@ -719,7 +747,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			if ( ! $update ) {
 				$valid_nonce = isset( $_POST['_wpnonce_create-user'] ) ? wp_verify_nonce( $_POST['_wpnonce_create-user'], 'create-user' ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
 
-				if ( $this->should_send_wp_mail_new_user() ) {
+				if ( ! isset( $_POST['invite_user_wpcom'] ) ) {
 					return $errors;
 				}
 
@@ -1035,14 +1063,6 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 
 		</style>
 			<?php
-		}
-
-		/**
-		 * Enqueue style for the Jetpack user new form.
-		 */
-		public function jetpack_user_new_form_styles() {
-			// Enqueue the CSS for the admin create user page.
-			wp_enqueue_style( 'jetpack-sso-admin-create-user', plugins_url( 'modules/sso/jetpack-sso-admin-create-user.css', JETPACK__PLUGIN_FILE ), array(), time() );
 		}
 	}
 endif;
