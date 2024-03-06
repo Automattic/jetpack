@@ -61,7 +61,7 @@
 		&.share-pinterest { background: var( --color-pinterest ); }
 		&.share-pocket { background: var( --color-pocket ); }
 		&.share-telegram { background: var( --color-telegram ); }
-		&.share-threads { background: #000; }
+		&.share-threads { background: var( --color-threads ); }
 		&.share-whatsapp { background: var( --color-whatsapp ); }
 		&.share-mastodon { background: var( --color-mastodon ); }
 		&.share-nextdoor { background: var( --color-nextdoor ); }
