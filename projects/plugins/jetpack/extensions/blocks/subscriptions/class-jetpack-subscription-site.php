@@ -146,7 +146,11 @@ class Jetpack_Subscription_Site {
 	<p class="has-text-align-center" style="margin-top:10px;margin-bottom:10px;font-size:15px">$subscribe_text</p>
 	<!-- /wp:paragraph -->
 
-	<!-- wp:jetpack/subscriptions /-->
+	<!-- wp:group {"layout":{"type":"constrained","contentSize":"480px"}} -->
+	<div class="wp-block-group">
+		<!-- wp:jetpack/subscriptions /-->
+	</div>
+	<!-- /wp:group -->
 </div>
 <!-- /wp:group -->
 HTML;
@@ -217,8 +221,15 @@ HTML;
 	<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"15px"},"spacing":{"margin":{"top":"4px","bottom":"0px"}}}} -->
 	<p class="has-text-align-center" style="margin-top:4px;margin-bottom:0px;font-size:15px">$subscribe_text</p>
 	<!-- /wp:paragraph -->
+
+	<!-- wp:group {"layout":{"type":"constrained","contentSize":"480px"}} -->
+	<div class="wp-block-group">
 HTML;
-					$inner_content_end       = '</div>';
+					$inner_content_end       = <<<HTML
+	</div>
+	<!-- /wp:group -->
+</div>
+HTML;
 
 					return array(
 						'blockName'    => 'core/group',
