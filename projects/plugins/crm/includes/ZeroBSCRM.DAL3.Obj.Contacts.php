@@ -1883,7 +1883,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             // Totals override
             if ( $onlyObjTotals ){
 
-                $contact_query = "SELECT contact.ID FROM " . $ZBSCRM_t['contacts'] . " AS contact" . $this->buildWhereStr( $whereStr, $additionalWhere );
+						$contact_query = 'SELECT contact.ID FROM ' . $ZBSCRM_t['contacts'] . ' AS contact' . $joinQ . $join_sql . $this->buildWhereStr( $whereStr, $additionalWhere ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                 $contact_query = $this->prepare($contact_query,$params);
 
                 $query = "SELECT ";
