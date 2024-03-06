@@ -15,7 +15,7 @@ const StatsSection = () => {
 	const { detail } = useProduct( slug );
 	const { status } = detail;
 	const isAdmin = !! window?.myJetpackInitialState?.userIsAdmin;
-	const { data: statsCounts } = useSimpleQuery( 'statsCounts', {
+	const { data: statsCounts } = useSimpleQuery( 'stats counts', {
 		path: getStatsHighlightsEndpoint( blogID ),
 	} );
 	const counts = statsCounts?.past_seven_days || {};
