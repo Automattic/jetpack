@@ -1,5 +1,9 @@
-const getGuessedSiteLifecycleStatus = () => {
-	const lifecycleStats = window?.myJetpackInitialState?.lifecycleStats;
+type lifecycleStatsType = Window[ 'myJetpackInitialState' ][ 'lifecycleStats' ];
+
+const getGuessedSiteLifecycleStatus = ( lifecycleStats: lifecycleStatsType ) => {
+	if ( ! lifecycleStats ) {
+		return 'unknown';
+	}
 
 	const {
 		modules,
