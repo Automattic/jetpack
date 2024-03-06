@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Intersitital tables were not visibly loading when pressed
