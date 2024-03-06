@@ -462,8 +462,7 @@ class Actions {
 		 *
 		 * @param array $query_args associative array of query parameters.
 		 */
-		$query_args = apply_filters( 'jetpack_sync_send_data_query_args', $query_args );
-		if ( true || Settings::is_wpcom_rest_api_enabled() ) {
+		$query_args = apply_filters( 'jetpack_sync_send_data_query_args', $query_args );        if ( Settings::is_wpcom_rest_api_enabled() ) {
 			$jsonl_data            = implode(
 				"\n",
 				array_map(
