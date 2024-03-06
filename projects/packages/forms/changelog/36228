@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Performance: avoid querying for posts on all pages of the dashboard, and only do so on Feedback admin pages.
