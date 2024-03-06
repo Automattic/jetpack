@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Moved lifecycle stats function out of redux
