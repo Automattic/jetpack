@@ -11,10 +11,6 @@
 use Automattic\Jetpack\Forms\ContactForm\Admin;
 
 /**
- * Add a contact form button to the post composition screen
- */
-add_action( 'media_buttons', 'grunion_media_button', 999 );
-/**
  * Build contact form button.
  *
  * @deprecated 13.3 Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_media_button
@@ -26,7 +22,6 @@ function grunion_media_button() {
 	Grunion_Admin::$instance->grunion_media_button();
 }
 
-add_action( 'wp_ajax_grunion_form_builder', 'grunion_display_form_view' );
 /**
  * Display edit form view.
  *
@@ -39,8 +34,6 @@ function grunion_display_form_view() {
 	Grunion_Admin::$instance->grunion_display_form_view();
 }
 
-// feedback specific css items
-add_action( 'admin_print_styles', 'grunion_admin_css' );
 /**
  * Enqueue styles.
  *
@@ -52,8 +45,6 @@ function grunion_admin_css() {
 
 	Grunion_Admin::$instance->grunion_admin_css();
 }
-
-add_action( 'admin_print_scripts', 'grunion_admin_js' );
 
 /**
  * Enqueue scripts.
@@ -67,7 +58,6 @@ function grunion_admin_js() {
 	Grunion_Admin::$instance->grunion_admin_js();
 }
 
-add_action( 'admin_head', 'grunion_add_bulk_edit_option' );
 /**
  * Hack a 'Bulk Spam' option for bulk edit in other than spam view
  * Hack a 'Bulk Delete' option for bulk edit in spam view
@@ -83,7 +73,6 @@ function grunion_add_bulk_edit_option() {
 	return Grunion_Admin::$instance->grunion_add_bulk_edit_option();
 }
 
-add_action( 'admin_init', 'grunion_handle_bulk_spam' );
 /**
  * Handle a bulk spam report
  *
@@ -94,6 +83,7 @@ function grunion_handle_bulk_spam() {
 
 	return Grunion_Admin::$instance->grunion_handle_bulk_spam();
 }
+
 /**
  * Display spam message.
  *
@@ -106,7 +96,6 @@ function grunion_message_bulk_spam() {
 	Grunion_Admin::$instance->grunion_message_bulk_spam();
 }
 
-add_filter( 'bulk_actions-edit-feedback', 'grunion_admin_bulk_actions' );
 /**
  * Unset edit option when bulk editing.
  *
@@ -120,7 +109,6 @@ function grunion_admin_bulk_actions( $actions ) {
 	return Grunion_Admin::$instance->grunion_admin_bulk_actions( $actions );
 }
 
-add_filter( 'views_edit-feedback', 'grunion_admin_view_tabs' );
 /**
  * Unset publish button when editing feedback.
  *
@@ -134,7 +122,6 @@ function grunion_admin_view_tabs( $views ) {
 	return Grunion_Admin::$instance->grunion_admin_view_tabs( $views );
 }
 
-add_filter( 'manage_feedback_posts_columns', 'grunion_post_type_columns_filter' );
 /**
  * Build Feedback admin page columns.
  *
@@ -199,7 +186,6 @@ function grunion_manage_post_column_source( $post ) {
 	Grunion_Admin::$instance->grunion_manage_post_column_source( $post );
 }
 
-add_action( 'manage_posts_custom_column', 'grunion_manage_post_columns', 10, 2 );
 /**
  * Parse message content and display in appropriate columns.
  *
@@ -214,7 +200,6 @@ function grunion_manage_post_columns( $col, $post_id ) { // phpcs:ignore Variabl
 	Grunion_Admin::$instance->grunion_manage_post_columns( $col, $post_id );
 }
 
-add_action( 'restrict_manage_posts', 'grunion_source_filter' );
 /**
  * Add a post filter dropdown at the top of the admin page.
  *
@@ -227,7 +212,6 @@ function grunion_source_filter() {
 	Grunion_Admin::$instance->grunion_source_filter();
 }
 
-add_action( 'pre_get_posts', 'grunion_source_filter_results' );
 /**
  * Filter feedback posts by parent_id if present.
  *
@@ -241,7 +225,6 @@ function grunion_source_filter_results( $query ) {
 	Grunion_Admin::$instance->grunion_source_filter_results( $query );
 }
 
-add_filter( 'post_row_actions', 'grunion_manage_post_row_actions', 10, 2 );
 /**
  * Add actions to feedback response rows in WP Admin.
  *
@@ -306,12 +289,6 @@ function grunion_ajax_shortcode_to_json() {
 	return Grunion_Admin::$instance->grunion_ajax_shortcode_to_json();
 }
 
-add_action( 'wp_ajax_grunion_shortcode', 'grunion_ajax_shortcode' );
-add_action( 'wp_ajax_grunion_shortcode_to_json', 'grunion_ajax_shortcode_to_json' );
-
-// process row-action spam/not spam clicks
-add_action( 'wp_ajax_grunion_ajax_spam', 'grunion_ajax_spam' );
-
 /**
  * Handle marking feedback as spam.
  *
@@ -334,8 +311,6 @@ function grunion_enable_spam_recheck() {
 	return Grunion_Admin::$instance->grunion_enable_spam_recheck();
 }
 
-add_action( 'admin_enqueue_scripts', 'grunion_enable_spam_recheck' );
-
 /**
  * Add the JS and CSS necessary for the Feedback admin page to function.
  *
@@ -346,8 +321,6 @@ function grunion_add_admin_scripts() {
 
 	return Grunion_Admin::$instance->grunion_add_admin_scripts();
 }
-
-add_action( 'admin_enqueue_scripts', 'grunion_add_admin_scripts' );
 
 /**
  * Adds the 'Export' button to the feedback dashboard page.
@@ -383,8 +356,6 @@ function grunion_recheck_queue() {
 	return Grunion_Admin::$instance->grunion_recheck_queue();
 }
 
-add_action( 'wp_ajax_grunion_recheck_queue', 'grunion_recheck_queue' );
-
 /**
  * Delete a number of spam feedbacks via an AJAX request.
  * 
@@ -395,7 +366,6 @@ function grunion_delete_spam_feedbacks() {
 
 	return Grunion_Admin::$instance->grunion_delete_spam_feedbacks();
 }
-add_action( 'wp_ajax_jetpack_delete_spam_feedbacks', 'grunion_delete_spam_feedbacks' );
 
 /**
  * Show an admin notice if the "Empty Spam" or "Check Spam" process was unable to complete, probably due to a permissions error.
@@ -407,7 +377,6 @@ function grunion_feedback_admin_notice() {
 
 	return Grunion_Admin::$instance->grunion_feedback_admin_notice();
 }
-add_action( 'admin_notices', 'grunion_feedback_admin_notice' );
 
 /**
  * Class Grunion_Admin
@@ -558,5 +527,3 @@ class Grunion_Admin {
 		return self::$instance->get_export_filename( $source );
 	}
 }
-
-Grunion_admin::init();
