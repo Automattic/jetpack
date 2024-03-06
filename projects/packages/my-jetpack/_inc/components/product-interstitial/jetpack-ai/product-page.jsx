@@ -10,6 +10,7 @@ import {
 	getRedirectUrl,
 	Notice,
 } from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
 import { Button, Card } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, plus, help, check } from '@wordpress/icons';
@@ -37,6 +38,7 @@ export default function () {
 	const { detail } = useProduct( 'jetpack-ai' );
 	const { description, aiAssistantFeature } = detail;
 	const [ showNotice, setShowNotice ] = useState( false );
+	const { isRegistered } = useConnection();
 
 	const videoTitle1 = __(
 		'Generate and edit content faster with Jetpack AI Assistant',
@@ -62,7 +64,16 @@ export default function () {
 	const showCurrentUsage = hasPaidTier && ! isFree && usage;
 	const showAllTimeUsage = hasPaidTier || hasUnlimited;
 	const contactHref = getRedirectUrl( 'jetpack-ai-tiers-more-requests-contact' );
-	const newPostURL = 'post-new.php?use_ai_block=1&_wpnonce=' + window?.jetpackAi?.nonce;
+
+	// isRegistered works as a flag to know if the page can link to a post creation or not
+	const newPostURL = isRegistered
+		? 'post-new.php?use_ai_block=1&_wpnonce=' + window?.jetpackAi?.nonce
+		: '#/connection';
+	const newPostCta = __( 'Create new post', 'jetpack-my-jetpack' );
+	const installCta = __(
+		'Connect to Jetpack to start using the AI Assistant',
+		'jetpack-my-jetpack'
+	);
 
 	const showRenewalNotice = isOverLimit && hasPaidTier;
 	const showUpgradeNotice = isOverLimit && isFree;
@@ -264,7 +275,7 @@ export default function () {
 										icon={ plus }
 										href={ newPostURL }
 									>
-										{ __( 'Create new post', 'jetpack-my-jetpack' ) }
+										{ isRegistered ? newPostCta : installCta }
 									</Button>
 								</div>
 							</div>
