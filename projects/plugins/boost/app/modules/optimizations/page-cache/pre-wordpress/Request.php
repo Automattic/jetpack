@@ -127,7 +127,7 @@ class Request {
 		 *
 		 * @param string $request_uri The request URI to be evaluated for cacheability.
 		 */
-		if ( ! apply_filters( 'jetpack_boost_cache_cacheable', $this->request_uri ) ) {
+		if ( ! apply_filters( 'jetpack_boost_cache_request_cacheable', $this->request_uri ) ) {
 			return false;
 		}
 
@@ -184,7 +184,7 @@ class Request {
 		 *
 		 * @param array $accept_headers An array of header values that should prevent a request from being cached.
 		 */
-		$accept_headers = apply_filters( 'jetpack_boost_accept_headers', array( 'application/json', 'application/activity+json', 'application/ld+json' ) );
+		$accept_headers = apply_filters( 'jetpack_boost_cache_accept_headers', array( 'application/json', 'application/activity+json', 'application/ld+json' ) );
 		$accept_headers = array_map( 'strtolower', $accept_headers );
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- $accept is checked and set below.
