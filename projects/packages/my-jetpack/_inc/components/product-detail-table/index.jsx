@@ -14,8 +14,8 @@ import {
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { sprintf, __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React, { useCallback, useMemo } from 'react';
-import { useProduct } from '../../hooks/use-product';
+import { useCallback, useMemo } from 'react';
+import useProduct from '../../data/products/use-product';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 
 /**
@@ -213,12 +213,18 @@ ProductDetailTableColumn.propTypes = {
  * @param {string}   props.slug                    - Product slug.
  * @param {Function} props.onProductButtonClick    - Click handler for the product button.
  * @param {Function} props.trackProductButtonClick - Tracks click event for the product button.
+ * @param {boolean}  props.isFetching              - True if there is a pending request to load the product.
  * @returns {object} - ProductDetailTable react component.
  */
-const ProductDetailTable = ( { slug, onProductButtonClick, trackProductButtonClick } ) => {
+const ProductDetailTable = ( {
+	slug,
+	onProductButtonClick,
+	trackProductButtonClick,
+	isFetching,
+} ) => {
 	const { fileSystemWriteAccess } = window?.myJetpackInitialState ?? {};
 
-	const { detail, isFetching } = useProduct( slug );
+	const { detail } = useProduct( slug );
 	const { description, featuresByTier = [], pluginSlug, status, tiers = [], title } = detail;
 
 	// If the plugin can not be installed automatically, the user will have to take extra steps.
@@ -291,6 +297,7 @@ ProductDetailTable.propTypes = {
 	slug: PropTypes.string.isRequired,
 	onProductButtonClick: PropTypes.func.isRequired,
 	trackProductButtonClick: PropTypes.func.isRequired,
+	isFetching: PropTypes.bool.isRequired,
 };
 
 export default ProductDetailTable;

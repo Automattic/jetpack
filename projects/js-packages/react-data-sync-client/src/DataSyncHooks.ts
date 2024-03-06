@@ -349,10 +349,12 @@ export function useDataSyncAction<
 
 type SubsetMutation< T > = {
 	mutate: ( newValue: T ) => void;
+	isIdle: boolean;
 	isSuccess: boolean;
 	isPending: boolean;
 	isError: boolean;
 	error: Error | null;
+	reset: () => void;
 };
 
 export function useDataSyncSubset<
@@ -364,18 +366,30 @@ export function useDataSyncSubset<
 	const [ isPending, setIsPending ] = React.useState( false );
 	const [ isError, setIsError ] = React.useState( false );
 	const [ isSuccess, setIsSuccess ] = React.useState( false );
+	const [ isIdle, setIsIdle ] = React.useState( true );
 	const [ error, setError ] = React.useState< unknown >( null );
 
-	const mutate = ( newValue: Value[ K ] ) => {
-		if ( ! query.data ) {
-			return;
-		}
-		setIsPending( true );
-		mutation.mutate( {
-			...query.data,
-			[ key ]: newValue,
-		} );
-	};
+	const mutate = React.useCallback(
+		( newValue: Value[ K ] ) => {
+			if ( ! query.data ) {
+				return;
+			}
+			setIsPending( true );
+			mutation.mutate( {
+				...query.data,
+				[ key ]: newValue,
+			} );
+		},
+		[ query.data, mutation, key ]
+	);
+
+	const reset = React.useCallback( () => {
+		setIsPending( false );
+		setIsError( false );
+		setIsSuccess( false );
+		setIsIdle( true );
+		setError( null );
+	}, [] );
 
 	useEffect( () => {
 		if ( ! isPending ) {
@@ -392,11 +406,13 @@ export function useDataSyncSubset<
 	return [
 		query.data?.[ key ],
 		{
+			isIdle,
 			isSuccess,
 			isPending,
 			isError,
 			error,
 			mutate,
+			reset,
 		},
 	];
 }

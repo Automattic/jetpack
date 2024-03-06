@@ -12,6 +12,7 @@ export const PageCacheError = z
 	.object( {
 		code: z.string(),
 		message: z.string(),
+		dismissed: z.boolean().optional(),
 	} )
 	.nullable();
 

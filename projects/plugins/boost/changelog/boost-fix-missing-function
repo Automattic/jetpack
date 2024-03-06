@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Avoid errors if getmypid unavailable
-
-

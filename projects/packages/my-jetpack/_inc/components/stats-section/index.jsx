@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
+import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
-import { useProduct } from '../../hooks/use-product';
 import useStatsCounts from '../../hooks/use-stats-counts';
 import ProductCard from '../connected-product-card';
 import { PRODUCT_STATUSES } from '../product-card/action-button';
