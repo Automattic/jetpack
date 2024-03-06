@@ -1,49 +1,15 @@
 import { __ } from '@wordpress/i18n';
-import React, { useMemo } from 'react';
-import { REST_API_SITE_PURCHASES_ENDPOINT } from '../../../data/constants';
-import { Purchase } from '../../../data/types';
-import useSimpleQuery from '../../../data/use-simple-query';
-import { useProduct } from '../../../hooks/use-product';
+import useProduct from '../../../data/products/use-product';
 
-const JETPACK_BOOST_PRODUCTS = [
-	'jetpack_boost_bi_yearly',
-	'jetpack_boost_yearly',
-	'jetpack_boost_monthly',
-];
-
-/**
- * Gets the tooltip copy based on the Boost letter grade and other factors.
- *
- * @param {string} speedLetterGrade - The Boost speed letter grade.
- * @returns {React.ReactElement | string} A translated JSX Element or string.
- */
-export function useBoostTooltipCopy( { speedLetterGrade } ) {
+export const useBoostTooltipCopy = ( { speedLetterGrade } ): string => {
 	const slug = 'boost';
-	const { data: purchases, isLoading }: { data: Array< Purchase >; isLoading: boolean } =
-		useSimpleQuery( 'purchases', {
-			path: REST_API_SITE_PURCHASES_ENDPOINT,
-		} );
-	const hasBoostPaidPlan = useMemo( () => {
-		if ( isLoading ) {
-			return false;
-		}
-		if ( ! purchases?.length ) {
-			return false;
-		}
-
-		return (
-			purchases.filter( purchase => JETPACK_BOOST_PRODUCTS.includes( purchase.product_slug ) )
-				.length > 0
-		);
-	}, [ isLoading, purchases ] );
-
 	const { detail } = useProduct( slug );
-	const { isPluginActive } = detail;
+	const { isPluginActive, hasPaidPlanForProduct } = detail;
 
 	// Boost plugin is active
 	if ( isPluginActive ) {
 		//  Has a paid Boost plan
-		if ( hasBoostPaidPlan ) {
+		if ( hasPaidPlanForProduct ) {
 			switch ( speedLetterGrade ) {
 				case 'A':
 					return __(
@@ -104,4 +70,4 @@ export function useBoostTooltipCopy( { speedLetterGrade } ) {
 				'jetpack-my-jetpack'
 			);
 	}
-}
+};

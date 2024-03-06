@@ -152,23 +152,20 @@ if ( is_multisite() && wpsupercache_site_admin() ) {
 
 	<li>
 		<?php
-			echo \wp_kses(
-				\printf(
-					/* translators: %s: Link URL for Jetpack. */
-					__( '<a href="%s">Jetpack</a> provides everything you need to build a successful WordPress website including an image/photo CDN (free) and a video hosting service (paid).', 'wp-super-cache' ),
-					$wpsc_promo_links['jetpack']
-				),
-				'a'
-			);
-			?>
+		printf(
+			/* translators: %s: HTML Link to Jetpack website. */
+			esc_html__( '%s provides everything you need to build a successful WordPress website including an image/photo CDN (free) and a video hosting service (paid).', 'wp-super-cache' ),
+			'<a href="' . esc_url( $wpsc_promo_links['jetpack'] ) . '">Jetpack</a>'
+		);
+		?>
 	</li>
 
-<li><?php printf( __( '<a href="%s">Yahoo! Yslow</a> analyzes web pages and suggests ways to improve their performance based on a set of rules for high performance web pages. Also try the performance tools online at <a href="%s">GTMetrix</a>.', 'wp-super-cache' ), 'http://yslow.org/', 'https://gtmetrix.com/' ); ?></li>
-<li><?php printf( __( '<a href="%s">Use Google Libraries</a> allows you to load some commonly used Javascript libraries from Google webservers. Ironically, it may reduce your Yslow score.', 'wp-super-cache' ), 'https://wordpress.org/plugins/use-google-libraries/' ); ?></li>
-<li><?php printf( __( '<a href="%s">commonWP</a> does the same job as "Use Google Libraries" and offloads some commonly used static files to an external CDN.', 'wp-super-cache' ), 'https://wordpress.org/plugins/commonwp/' ); ?></li>
-<li><?php printf( __( '<strong>Advanced users only:</strong> Install an object cache. Choose from <a href="%s">Memcached</a>, <a href="%s">XCache</a>, <a href="%s">eAcccelerator</a> and others.', 'wp-super-cache' ), 'https://wordpress.org/plugins/memcached/', 'https://neosmart.net/WP/XCache/', 'https://neosmart.net/WP/eAccelerator/' ); ?></li>
+<?php // translators: this is a html link to the GTMetrix website. ?>
+<li><?php printf( esc_html__( 'See how your site performs by doing a %s analysis of it.', 'wp-super-cache' ), '<a href="https://gtmetrix.com/">GTMetrix</a>' ); ?></li>
+<?php // translators: this is a html link to the Memcached plugin. ?>
+<li><?php printf( esc_html__( 'Advanced users only: Install an object cache like %s.', 'wp-super-cache' ), '<a href="https://wordpress.org/plugins/memcached/">Memcached</a>' ); ?></li>
 <li><?php printf( __( '<a href="%s">WP Crontrol</a> is a useful plugin to use when trying to debug garbage collection and preload problems.', 'wp-super-cache' ), 'https://wordpress.org/plugins/wp-crontrol/' ); ?></li>
 </ul>
-<p><?php _e( "* The links above (apart from Jetpack) go to websites outside the author's control. Caution is advised when testing any new software.", 'wp-super-cache' ); ?></p>
+<p><?php esc_html_e( "* The links above (apart from Jetpack and Jetpack Boost) go to websites outside the author's control. Caution is advised when testing any new software.", 'wp-super-cache' ); ?></p>
 </div>
 </div>

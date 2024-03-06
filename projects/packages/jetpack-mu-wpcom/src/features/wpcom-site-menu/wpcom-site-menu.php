@@ -61,7 +61,7 @@ function wpcom_add_wpcom_menu_item() {
 
 	add_menu_page(
 		esc_attr__( 'Hosting', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Hosting', 'jetpack-mu-wpcom' ) . ' <span class="dashicons dashicons-external" style="float: right;"></span>',
+		esc_attr__( 'Hosting', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		$parent_slug,
 		null,
@@ -87,14 +87,16 @@ function wpcom_add_wpcom_menu_item() {
 		null
 	);
 
-	add_submenu_page(
-		$parent_slug,
-		esc_attr__( 'Add-ons', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Add-ons', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/add-ons/$domain" ),
-		null
-	);
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		add_submenu_page(
+			$parent_slug,
+			esc_attr__( 'Add-ons', 'jetpack-mu-wpcom' ),
+			esc_attr__( 'Add-ons', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			esc_url( "https://wordpress.com/add-ons/$domain" ),
+			null
+		);
+	}
 
 	add_submenu_page(
 		$parent_slug,

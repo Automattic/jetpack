@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.15.1] - 2024-03-05
+### Changed
+- Internal updates.
+
+## [5.15.0] - 2024-03-04
+### Added
+- Added a Command Palette loader on the jetpack-mu-wpcom plugin. [#35635]
+
+### Changed
+- Add-Ons: Hide the menu on atomic sites [#36065]
+- Scheduled Updates: Load API endpoints on WP.com so it works with public-api passthrough. [#35999]
+- Show gutenberg in verbum to 80% of users [#36121]
+- The Command Palette loads the script with a `defer` strategy now to improve the performance. [#36076]
+- Updated package dependencies.
+
+### Fixed
+- Add blog id and post id to connection params [#36152]
+- Untangle: fix launchpad links to go to wp-admin pages on classic view [#36014]
+
 ## [5.14.1] - 2024-02-26
 ### Changed
 - Verbum: Ensure colour contrast for disabled button is a11y-friendly. [#35929]
@@ -611,6 +630,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.15.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.15.0...v5.15.1
+[5.15.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.14.1...v5.15.0
 [5.14.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.14.0...v5.14.1
 [5.14.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.13.1...v5.14.0
 [5.13.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.13.0...v5.13.1
