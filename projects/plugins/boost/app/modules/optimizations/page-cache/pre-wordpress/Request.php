@@ -90,7 +90,7 @@ class Request {
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param array $bypass_patterns An array of regex patterns that define URLs to be bypassed from caching.
+		 * @param array $bypass_patterns An array of regex patterns that define URLs that bypass caching.
 		 */
 		$bypass_patterns = apply_filters( 'jetpack_boost_cache_bypass_patterns', $bypass_patterns );
 
