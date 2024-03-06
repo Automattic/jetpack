@@ -28,11 +28,3 @@ export type ProductCamelCase = ToCamelCase< ProductSnakeCase > & {
 		discountPricePerMonth: number;
 	};
 };
-
-export type WP_Error = {
-	code: string;
-	message: 'not_connected' | string;
-	data: {
-		status: number;
-	};
-};
