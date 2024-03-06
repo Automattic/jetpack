@@ -2,10 +2,6 @@ const getStatsCounts = state => {
 	return state.statsCounts?.data;
 };
 
-const noticeSelectors = {
-	getGlobalNotice: state => state.notices?.global,
-};
-
 const isFetchingStatsCounts = state => {
 	return state.statsCounts?.isFetching || false;
 };
@@ -21,7 +17,6 @@ const getWelcomeBannerHasBeenDismissed = state => {
 
 const selectors = {
 	...statsCountsSelectors,
-	...noticeSelectors,
 	getWelcomeBannerHasBeenDismissed,
 };
 
