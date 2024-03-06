@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 
-use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Error;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
@@ -27,12 +26,10 @@ class Page_Cache_Setup {
 			$result = self::$step();
 
 			if ( $result instanceof Boost_Cache_Error ) {
-				Analytics::record_user_event( 'cache_setup_error', array( 'error_message' => $result->get_error_code() ) );
 				return $result->to_wp_error();
 			}
 
 			if ( is_wp_error( $result ) ) {
-				Analytics::record_user_event( 'cache_setup_error', array( 'error_message' => $result->get_error_code() ) );
 				return $result;
 			}
 		}
