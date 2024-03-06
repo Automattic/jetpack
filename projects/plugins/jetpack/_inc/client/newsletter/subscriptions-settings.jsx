@@ -63,6 +63,13 @@ function SubscriptionsSettings( props ) {
 			  } )
 			: null;
 
+	const singlePostTemplateEditorUrl = siteAdminUrl
+		? addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
+				postType: 'wp_template',
+				postId: `${ themeStylesheet }//single`,
+		  } )
+		: null;
+
 	const handleSubscribeToBlogToggleChange = useCallback( () => {
 		updateFormStateModuleOption( SUBSCRIPTIONS_MODULE_NAME, 'stb_enabled' );
 	}, [ updateFormStateModuleOption ] );
@@ -170,9 +177,11 @@ function SubscriptionsSettings( props ) {
 								{ isBlockTheme && subscribeModalEditorUrl && (
 									<>
 										{ ' ' }
+										(
 										<ExternalLink href={ subscribeModalEditorUrl }>
-											{ __( 'Preview and edit the pop-up', 'jetpack' ) }
+											{ __( 'preview and edit', 'jetpack' ) }
 										</ExternalLink>
+										)
 									</>
 								) }
 							</p>
@@ -186,10 +195,24 @@ function SubscriptionsSettings( props ) {
 											'jetpack_subscriptions_subscribe_post_end_enabled',
 										] ) }
 										onChange={ handleSubscribePostEndToggleChange }
-										label={ __(
-											'Enable automatic insertion of the Subscribe block into the theme at the end of each post',
-											'jetpack'
-										) }
+										label={
+											<>
+												{ __(
+													'Enable automatic insertion of the Subscribe block into the theme at the end of each post',
+													'jetpack'
+												) }
+												{ isBlockTheme && singlePostTemplateEditorUrl && (
+													<>
+														{ ' ' }
+														(
+														<ExternalLink href={ singlePostTemplateEditorUrl }>
+															{ __( 'preview and edit', 'jetpack' ) }
+														</ExternalLink>
+														)
+													</>
+												) }
+											</>
+										}
 									/>
 								</>
 							) }
