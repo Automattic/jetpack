@@ -1,3 +1,4 @@
+// API
 const REST_API_NAMESPACE = 'my-jetpack/v1';
 const ODYSSEY_STATS_API_NAMESPACE = 'jetpack/v4/stats-app';
 
@@ -12,3 +13,9 @@ export const REST_API_SITE_DISMISS_BANNER = `${ REST_API_NAMESPACE }/site/dismis
 
 export const getStatsHighlightsEndpoint = ( blogId: string ) =>
 	`${ ODYSSEY_STATS_API_NAMESPACE }/sites/${ blogId }/stats/highlights`;
+
+// Query names
+export const QUERY_PRODUCT_KEY = 'product';
+export const QUERY_ACTIVATE_PRODUCT_KEY = 'activate product';
+export const QUERY_INSTALL_PRODUCT_KEY = 'install product';
+export const QUERY_VIDEOPRESS_STATS_KEY = 'videopress stats';

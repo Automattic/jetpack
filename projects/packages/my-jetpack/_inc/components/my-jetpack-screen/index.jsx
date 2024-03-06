@@ -107,6 +107,7 @@ export default function MyJetpackScreen() {
 		}
 	);
 	const { detail: statsDetails } = useProduct( 'stats' );
+
 	const { data: authData, isLoading: isJwtLoading } = useSimpleQuery( 'chat authentication', {
 		path: REST_API_CHAT_AUTHENTICATION_ENDPOINT,
 	} );
