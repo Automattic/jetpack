@@ -74,28 +74,35 @@ class Jetpack_Subscription_Site {
 	/**
 	 * Returns post end placement hooked block attributes.
 	 *
+	 * @param array $default_attrs Deafult attributes.
 	 * @param array $anchor_block The anchor block, in parsed block array format.
 	 *
 	 * @return array
 	 */
-	protected function get_post_end_placement_block_attributes( $anchor_block ) {
+	protected function get_post_end_placement_block_attributes( $default_attrs, $anchor_block ) {
 		if ( ! empty( $anchor_block['attrs']['layout']['type'] ) ) {
-			return array(
-				'layout' => array(
-					'type' => $anchor_block['attrs']['layout']['type'],
-				),
+			return array_merge(
+				$default_attrs,
+				array(
+					'layout' => array(
+						'type' => $anchor_block['attrs']['layout']['type'],
+					),
+				)
 			);
 		}
 
 		if ( ! empty( $anchor_block['attrs']['layout']['inherit'] ) ) {
-			return array(
-				'layout' => array(
-					'inherit' => $anchor_block['attrs']['layout']['inherit'],
-				),
+			return array_merge(
+				$default_attrs,
+				array(
+					'layout' => array(
+						'inherit' => $anchor_block['attrs']['layout']['inherit'],
+					),
+				)
 			);
 		}
 
-		return array();
+		return $default_attrs;
 	}
 
 	/**
@@ -127,8 +134,8 @@ class Jetpack_Subscription_Site {
 						return $content . <<<HTML
 <!-- wp:group {"style":{"spacing":{"padding":{"top":"0px","bottom":"0px","left":"0px","right":"0px"},"margin":{"top":"32px","bottom":"32px"}},"border":{"width":"0px","style":"none"}},"className":"has-border-color","layout":{"type":"default"}} -->
 <div class="wp-block-group has-border-color" style="border-style:none;border-width:0px;margin-top:32px;margin-bottom:32px;padding-top:0px;padding-right:0px;padding-bottom:0px;padding-left:0px">
-	<!-- wp:separator {"className":"is-style-wide"} -->
-	<hr class="wp-block-separator has-alpha-channel-opacity is-style-wide" />
+	<!-- wp:separator {"style":{"spacing":{"margin":{"bottom":"24px"}}},"className":"is-style-wide"} -->
+	<hr class="wp-block-separator has-alpha-channel-opacity is-style-wide" style="margin-bottom:24px"/>
 	<!-- /wp:separator -->
 
 	<!-- wp:heading {"textAlign":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"26px"},"layout":{"selfStretch":"fit","flexSize":null},"spacing":{"margin":{"top":"4px","bottom":"10px"}}}} -->
@@ -176,15 +183,31 @@ HTML;
 			function ( $hooked_block, $hooked_block_type, $relative_position, $anchor_block ) {
 				$is_post_content_anchor_block = isset( $anchor_block['blockName'] ) && $anchor_block['blockName'] === 'core/post-content';
 				if ( $is_post_content_anchor_block && ( $relative_position === 'after' || $relative_position === 'before' ) ) {
-					$attrs = $this->get_post_end_placement_block_attributes( $anchor_block );
+					$attrs = $this->get_post_end_placement_block_attributes(
+						array(
+							'style' => array(
+								'spacing' => array(
+									'margin'  => array(
+										'top'    => '48px',
+										'bottom' => '48px',
+									),
+									'padding' => array(
+										'top'    => '5px',
+										'bottom' => '5px',
+									),
+								),
+							),
+						),
+						$anchor_block
+					);
 
 					// translators: %s is the name of the site.
 					$discover_more_from_text = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
 					$subscribe_text          = __( 'Subscribe to get the latest posts to your email.', 'jetpack' );
 					$inner_content_begin     = <<<HTML
-<div class="wp-block-group">
-	<!-- wp:separator {"style":{"spacing":{"margin":{"top":"var:preset|spacing|40","bottom":"48px"}}},"className":"is-style-wide"} -->
-	<hr class="wp-block-separator has-alpha-channel-opacity is-style-wide" style="margin-top:var(--wp--preset--spacing--40);margin-bottom:48px"/>
+<div class="wp-block-group" style="margin-top:48px;margin-bottom:48px;padding-top:5px;padding-bottom:5px">
+	<!-- wp:separator {"style":{"spacing":{"margin":{"bottom":"36px"}}},"className":"is-style-wide"} -->
+	<hr class="wp-block-separator has-alpha-channel-opacity is-style-wide" style="margin-bottom:36px"/>
 	<!-- /wp:separator -->
 
 	<!-- wp:heading {"textAlign":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"26px"},"layout":{"selfStretch":"fit","flexSize":null},"spacing":{"margin":{"top":"4px","bottom":"10px"}}}} -->
