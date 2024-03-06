@@ -432,6 +432,13 @@ class Grunion_Admin {
 	private $export_nonce_field_gdrive = 'feedback_export_nonce_gdrive';
 
 	/**
+	 * Singleton class instance
+	 *
+	 * @var Grunion_Admin Class instance.
+	 */
+	public static $instance;
+
+	/**
 	 * Instantiates this singleton class
 	 *
 	 * @deprecated 13.3 Use Automattic\Jetpack\Forms\ContactForm\Admin::init
@@ -440,13 +447,11 @@ class Grunion_Admin {
 	public static function init() {
 		_deprecated_function( __METHOD__, 'jetpack-13.3', 'Automattic\Jetpack\Forms\ContactForm\Admin::init' );
 
-		static $instance = false;
-
-		if ( ! $instance ) {
-			$instance = new Admin();
+		if ( ! isset( self::$instance ) ) {
+			self::$instance = new Admin();
 		}
 
-		return $instance;
+		return self::$instance;
 	}
 
 	/**
