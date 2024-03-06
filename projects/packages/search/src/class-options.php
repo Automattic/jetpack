@@ -16,7 +16,7 @@ class Options {
 	/**
 	 * The search widget's base ID.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 * @var string
 	 */
 	const FILTER_WIDGET_BASE = 'jetpack-search-filters';
@@ -24,7 +24,7 @@ class Options {
 	/**
 	 * Prefix for options in DB.
 	 *
-	 * @since 8.3.0
+	 * @since 8.3.0​
 	 * @var string
 	 */
 	const OPTION_PREFIX = 'jetpack_search_';
@@ -60,7 +60,7 @@ class Options {
 	/**
 	 * Returns a boolean for whether instant search is enabled.
 	 *
-	 * @since 8.3.0
+	 * @since 8.3.0​
 	 *
 	 * @return bool
 	 */
@@ -71,7 +71,7 @@ class Options {
 	/**
 	 * Returns a boolean for whether the current site has a VIP index.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @return bool
 	 */
@@ -86,7 +86,7 @@ class Options {
 		 *
 		 * @module search
 		 *
-		 * @since  5.8.0
+		 * @since 5.8.0​
 		 *
 		 * @param bool $has_vip_index Whether the current site has a VIP index.
 		 */

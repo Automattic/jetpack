@@ -38,7 +38,7 @@ function jetpack_bbpress_compat() {
 	 * Enable Markdown support for bbpress post types.
 	 *
 	 * @author Brandon Kraft
-	 * @since 6.0.0
+	 * @since 6.0.0​
 	 */
 	if ( function_exists( 'bbp_get_topic_post_type' ) ) {
 		add_post_type_support( bbp_get_topic_post_type(), 'wpcom-markdown' );
@@ -49,7 +49,7 @@ function jetpack_bbpress_compat() {
 	/**
 	 * Use Photon for all images in Topics and replies.
 	 *
-	 * @since 4.9.0
+	 * @since 4.9.0​
 	 */
 	if ( class_exists( Image_CDN::class ) && Image_CDN::is_enabled() ) {
 		add_filter( 'bbp_get_topic_content', array( Image_CDN::class, 'filter_the_content' ), 999999 );

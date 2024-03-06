@@ -154,7 +154,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 			/**
 			 * Filters the display of the EU Cookie Law widget.
 			 *
-			 * @since 6.1.1
+			 * @since 6.1.1​
 			 *
 			 * @param bool true Should the EU Cookie Law widget be disabled. Default to false.
 			 */

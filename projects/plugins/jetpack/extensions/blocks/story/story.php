@@ -2,7 +2,7 @@
 /**
  * Story Block.
  *
- * @since 8.6.1
+ * @since 8.6.1​
  *
  * @package automattic/jetpack
  */

@@ -11,7 +11,7 @@ class Jetpack_Components {
 	/**
 	 * Load and display a pre-rendered component
 	 *
-	 * @since 7.7.0
+	 * @since 7.7.0​
 	 *
 	 * @param string $name  Component name.
 	 * @param array  $props Component properties.
@@ -64,7 +64,7 @@ class Jetpack_Components {
 	/**
 	 * Load and display a pre-rendered component
 	 *
-	 * @since 7.7.0
+	 * @since 7.7.0​
 	 *
 	 * @param array $props Component properties.
 	 *

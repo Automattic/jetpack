@@ -2,7 +2,7 @@
 /**
  * Ads Block.
  *
- * @since 7.1.0
+ * @since 7.1.0​
  *
  * @package automattic/jetpack
  */
@@ -17,7 +17,7 @@ use Jetpack_Gutenberg;
 /**
  * Jetpack's Ads Block class.
  *
- * @since 7.1.0
+ * @since 7.1.0​
  */
 class WordAds {
 	/**

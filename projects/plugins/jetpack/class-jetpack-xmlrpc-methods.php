@@ -91,7 +91,7 @@ class Jetpack_XMLRPC_Methods {
 		/**
 		 * Fired when we want to log an event to the Jetpack event log.
 		 *
-		 * @since 7.7.0
+		 * @since 7.7.0​
 		 *
 		 * @param string $code Unique name for the event.
 		 * @param string $data Optional data about the event.

@@ -312,7 +312,7 @@ class The_Neverending_Home_Page {
 		 *
 		 * @module infinite-scroll
 		 *
-		 * @since 6.0.0
+		 * @since 6.0.0​
 		 *
 		 * @param int $posts_per_page The number of posts to display per page.
 		 */
@@ -365,7 +365,7 @@ class The_Neverending_Home_Page {
 		 *
 		 * @module infinite-scroll
 		 *
-		 * @since 4.8.0
+		 * @since 4.8.0​
 		 *
 		 * @param bool|null null                 Bool if value should be overridden, null to determine from query
 		 * @param object    self::wp_query()     WP_Query object for current request
@@ -538,7 +538,7 @@ class The_Neverending_Home_Page {
 	/**
 	 * Initialize the Customizer logic separately from the main JS.
 	 *
-	 * @since 8.4.0
+	 * @since 8.4.0​
 	 */
 	public function init_customizer_assets() {
 		// Add our scripts.
@@ -1460,7 +1460,7 @@ class The_Neverending_Home_Page {
 				 *
 				 * @module infinite-scroll
 				 *
-				 * @since 6.0.0
+				 * @since 6.0.0​
 				 */
 				$callbacks = apply_filters(
 					'infinite_scroll_render_callbacks',
@@ -1802,7 +1802,7 @@ class The_Neverending_Home_Page {
 	 *
 	 * @param array $scripts_data New scripts exposed to the infinite scroll.
 	 *
-	 * @since 8.4.0
+	 * @since 8.4.0​
 	 */
 	public function add_mejs_config( $scripts_data ) {
 		foreach ( $scripts_data as $key => $data ) {

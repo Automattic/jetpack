@@ -59,7 +59,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 			 *
 			 * @module widgets
 			 *
-			 * @since 8.8.0
+			 * @since 8.8.0​
 			 *
 			 * @param int $max_columns maximum number of columns.
 			 */
@@ -328,7 +328,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 				 *
 				 * @module widgets
 				 *
-				 * @since 8.8.0
+				 * @since 8.8.0​
 				 *
 				 * @param string $target Target attribute.
 				 */

@@ -72,7 +72,7 @@ BODY;
 	/**
 	 * Verify that [tweet] exists.
 	 *
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_tweet_exists() {
 		$this->assertTrue( shortcode_exists( 'tweet' ) );
@@ -81,7 +81,7 @@ BODY;
 	/**
 	 * Verify that calling do_shortcode with the shortcode doesn't return the same content.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_tweet() {
 		$content = '[tweet]';
@@ -95,7 +95,7 @@ BODY;
 	/**
 	 * Verify that rendering the shortcode returns a tweet card.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_tweet_card() {
 		$content = '[tweet https://twitter.com/jetpack/status/759034293385502721]';
@@ -109,7 +109,7 @@ BODY;
 	/**
 	 * Verify that rendering the shortcode with custom parameters adds them to the tweet card.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_tweet_card_parameters() {
 		$content = '[tweet https://twitter.com/jetpack/status/759034293385502721 align=right lang=es]';
@@ -123,7 +123,7 @@ BODY;
 	/**
 	 * Verify that rendering the shortcode with only the tweet ID produces a correct output.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_tweet_id_only() {
 		$content = '[tweet 759034293385502721]';
@@ -137,7 +137,7 @@ BODY;
 	/**
 	 * Verify that rendering the shortcode contains Jetpack's partner ID
 	 *
-	 * @since 4.6.0
+	 * @since 4.6.0​
 	 */
 	public function test_shortcode_tweet_partner_id() {
 		$content = '[tweet 759034293385502721]';
@@ -151,7 +151,7 @@ BODY;
 	 * Verify that rendering the shortcode returns a tweet card.
 	 *
 	 * @group external-http
-	 * @since 7.4.0
+	 * @since 7.4.0​
 	 */
 	public function test_shortcodes_tweet_card_via_oembed_http_request() {
 		$content = '[tweet https://twitter.com/jetpack/status/759034293385502721]';
@@ -204,7 +204,7 @@ BODY;
 	 * Test the AMP-compatible [tweet] shortcode on an AMP endpoint.
 	 *
 	 * @dataProvider get_tweet_amp_data
-	 * @since 8.0.0
+	 * @since 8.0.0​
 	 *
 	 * @param string $shortcode_content The shortcode, like [tweet 1234].
 	 * @param string $expected The expected return value of the function.
@@ -223,7 +223,7 @@ BODY;
 	 * Test that the AMP [tweet] shortcode logic doesn't run on a non-AMP endpoint.
 	 *
 	 * @dataProvider get_tweet_amp_data
-	 * @since 8.0.0
+	 * @since 8.0.0​
 	 *
 	 * @param string $shortcode_content The shortcode as entered in the editor.
 	 */

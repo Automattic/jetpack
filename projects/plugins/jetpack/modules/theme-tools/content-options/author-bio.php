@@ -52,7 +52,7 @@ function jetpack_author_bio() {
 			 *
 			 * @module theme-tools
 			 *
-			 * @since 4.5.0
+			 * @since 4.5.0​
 			 */
 			$author_bio_avatar_size = apply_filters( 'jetpack_author_bio_avatar_size', 48 );
 

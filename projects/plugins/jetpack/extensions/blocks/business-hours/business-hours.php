@@ -2,7 +2,7 @@
 /**
  * Business Hours Block.
  *
- * @since 7.1.0
+ * @since 7.1.0​
  *
  * @package automattic/jetpack
  */
@@ -160,7 +160,7 @@ function render( $attributes ) {
 	/**
 	 * Allows folks to filter the HTML content for the Business Hours block
 	 *
-	 * @since 7.1.0
+	 * @since 7.1.0​
 	 *
 	 * @param string $content The default HTML content set by `jetpack_business_hours_render`
 	 * @param array $attributes Attributes generated in the block editor for the Business Hours block

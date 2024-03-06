@@ -12,7 +12,7 @@ require_once __DIR__ . '/publicize-connections.php';
  *
  * All the same data as the Publicize Connections Endpoint, plus test results.
  *
- * @since 6.8
+ * @since 6.8​
  */
 class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections {
 	/**

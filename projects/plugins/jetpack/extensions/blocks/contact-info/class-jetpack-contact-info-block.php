@@ -9,7 +9,7 @@
  * Helper class that lets us add schema attributes dynamically because they are not something that is store with the content.
  * Due to the limitations of wp_kses.
  *
- * @since 7.1.0
+ * @since 7.1.0​
  */
 class Jetpack_Contact_Info_Block {
 

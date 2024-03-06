@@ -398,7 +398,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		 *
 		 * @module widgets
 		 *
-		 * @since 6.4.0
+		 * @since 6.4.0​
 		 *
 		 * @param string $layout layout of the Top Posts Widget (empty string).
 		 * @param array $posts IDs of the posts to be displayed.
@@ -478,7 +478,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 						 *
 						 * @module widgets
 						 *
-						 * @since 4.4.0
+						 * @since 4.4.0​
 						 *
 						 * @param string $post['permalink'] Post permalink.
 						 * @param array  $post              Post array.

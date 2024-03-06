@@ -277,7 +277,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	/**
 	 * Create a post with an image block containing a large image attached to another post.
 	 *
-	 * @since 6.9.0
+	 * @since 6.9.0​
 	 *
 	 * @return array $post_info {
 	 * An array of information about our post.
@@ -331,7 +331,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * Test if an array of images can be extracted from Image blocks in the new block editor.
 	 *
 	 * @covers Jetpack_PostImages::from_blocks
-	 * @since 6.9.0
+	 * @since 6.9.0​
 	 */
 	public function test_from_image_block_from_post_id_is_array() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
@@ -350,7 +350,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * Test if the array extracted from Image blocks include the image URL and alt text.
 	 *
 	 * @covers Jetpack_PostImages::from_blocks
-	 * @since 6.9.0
+	 * @since 6.9.0​
 	 */
 	public function test_from_image_block_from_post_id_is_correct_array() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
@@ -372,7 +372,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * Test if an image block with an externally hosted image is not extracted by Post Images.
 	 *
 	 * @covers Jetpack_PostImages::from_blocks
-	 * @since 6.9.0
+	 * @since 6.9.0​
 	 */
 	public function test_from_image_block_from_html_is_empty_array() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
@@ -390,7 +390,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	/**
 	 * Create a post with a gallery block containing a few images attached to another post.
 	 *
-	 * @since 6.9.0
+	 * @since 6.9.0​
 	 *
 	 * @return array $post_info {
 	 * An array of information about our post.
@@ -458,7 +458,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * Test if the array extracted from Gallery blocks include the image URL.
 	 *
 	 * @covers Jetpack_PostImages::from_blocks
-	 * @since 6.9.0
+	 * @since 6.9.0​
 	 */
 	public function test_from_gallery_block_from_post_id_is_correct_array() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
@@ -480,7 +480,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * Test if the array extracted from Gallery blocks include the image URL.
 	 *
 	 * @covers Jetpack_PostImages::get_attachment_data
-	 * @since 6.9.0
+	 * @since 6.9.0​
 	 */
 	public function test_get_attachment_data_returns_false_on_unavailable_data() {
 		$this->assertFalse( Jetpack_PostImages::get_attachment_data( PHP_INT_MAX, '', 200, 200 ) );
@@ -497,7 +497,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	/**
 	 * Create a post with a columns block that includes an image block, and some text.
 	 *
-	 * @since 7.8.0
+	 * @since 7.8.0​
 	 *
 	 * @return array $post_info {
 	 * An array of information about our post.
@@ -552,7 +552,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_PostImages::from_blocks
 	 *
-	 * @since 7.8.0
+	 * @since 7.8.0​
 	 */
 	public function test_from_columns_block_from_post_id_is_array() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
@@ -572,7 +572,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_PostImages::from_blocks
 	 *
-	 * @since 7.8.0
+	 * @since 7.8.0​
 	 */
 	public function test_from_columns_block_from_post_id_is_correct_array() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
@@ -594,7 +594,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * Test if a Colunms block with an externally hosted image is not extracted by Post Images.
 	 *
 	 * @covers Jetpack_PostImages::from_blocks
-	 * @since 6.9.0
+	 * @since 6.9.0​
 	 */
 	public function test_from_columns_block_from_html_is_empty_array() {
 		if ( ! function_exists( 'parse_blocks' ) ) {

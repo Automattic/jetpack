@@ -233,7 +233,7 @@ class Jetpack_Comment_Likes {
 		 *
 		 * @module comment-likes
 		 *
-		 * @since 5.1.0
+		 * @since 5.1.0​
 		 *
 		 * @param string $html Comment Likes button content.
 		 */

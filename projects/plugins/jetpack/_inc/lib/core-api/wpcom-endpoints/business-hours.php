@@ -8,7 +8,7 @@
 /**
  * Business Hours: Localized week
  *
- * @since 7.1
+ * @since 7.1​
  */
 class WPCOM_REST_API_V2_Endpoint_Business_Hours extends WP_REST_Controller {
 	/**

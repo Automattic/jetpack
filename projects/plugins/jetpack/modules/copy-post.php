@@ -110,7 +110,7 @@ class Jetpack_Copy_Post {
 		 *
 		 * @module copy-post
 		 *
-		 * @since 7.0.0
+		 * @since 7.0.0​
 		 *
 		 * @param WP_Post $source_post Post object that was copied.
 		 * @param int     $target_post_id Target post ID.
@@ -155,7 +155,7 @@ class Jetpack_Copy_Post {
 		 *
 		 * @module copy-post
 		 *
-		 * @since 7.0.0
+		 * @since 7.0.0​
 		 *
 		 * @param array $data Post data with which to update the target (new) post.
 		 * @param WP_Post $source_post Post object being copied.
@@ -299,7 +299,7 @@ class Jetpack_Copy_Post {
 		 *
 		 * @module copy-post
 		 *
-		 * @since 7.0.0
+		 * @since 7.0.0​
 		 *
 		 * @param array   Post types supported by default.
 		 * @param WP_Post $post Post object of current post in listing.
@@ -364,7 +364,7 @@ class Jetpack_Copy_Post {
 		 *
 		 * @module copy-post
 		 *
-		 * @since 7.0.0
+		 * @since 7.0.0​
 		 *
 		 * @param array   $updated_actions Updated row actions with the Copy Post action.
 		 * @param array   $actions Original row actions passed to this filter.

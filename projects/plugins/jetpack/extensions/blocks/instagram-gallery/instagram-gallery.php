@@ -2,7 +2,7 @@
 /**
  * Instagram Gallery Block.
  *
- * @since 8.5.0
+ * @since 8.5.0​
  *
  * @package automattic/jetpack
  */

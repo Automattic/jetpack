@@ -17,7 +17,7 @@
  *   ...
  * ]
  *
- * @since 6.9
+ * @since 6.9​
  */
 class WPCOM_REST_API_V2_Endpoint_Gutenberg_Available_Extensions extends WP_REST_Controller {
 	/**

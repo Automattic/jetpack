@@ -65,7 +65,7 @@ jetpack_load_widgets();
 /**
  * Enqueue utilities to work with widgets in Customizer.
  *
- * @since 4.4.0
+ * @since 4.4.0​
  */
 function jetpack_widgets_customizer_assets_preview() {
 	wp_enqueue_script(
@@ -81,7 +81,7 @@ add_action( 'customize_preview_init', 'jetpack_widgets_customizer_assets_preview
 /**
  * Enqueue styles to stylize widgets in Customizer.
  *
- * @since 4.4.0
+ * @since 4.4.0​
  */
 function jetpack_widgets_customizer_assets_controls() {
 	wp_enqueue_style(

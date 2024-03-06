@@ -20,13 +20,13 @@ use Automattic\Jetpack\Sync\Sender;
  *
  * Collect and return debug data for Jetpack.
  *
- * @since 7.3.0
+ * @since 7.3.0​
  */
 class Jetpack_Debug_Data {
 	/**
 	 * Determine the active plan and normalize it for the debugger results.
 	 *
-	 * @since 7.3.0
+	 * @since 7.3.0​
 	 *
 	 * @return string The plan slug.
 	 */
@@ -40,7 +40,7 @@ class Jetpack_Debug_Data {
 	 *
 	 * A dedication function instead of using Core functionality to allow for output in seconds.
 	 *
-	 * @since 7.3.0
+	 * @since 7.3.0​
 	 *
 	 * @param int $seconds Number of seconds to convert to human time.
 	 *
@@ -74,7 +74,7 @@ class Jetpack_Debug_Data {
 	/**
 	 * Return debug data in the format expected by Core's Site Health Info tab.
 	 *
-	 * @since 7.3.0
+	 * @since 7.3.0​
 	 *
 	 * @param array $debug {
 	 *     The debug information already compiled by Core.
@@ -125,7 +125,7 @@ class Jetpack_Debug_Data {
 	/**
 	 * Compile and return array of debug information.
 	 *
-	 * @since 7.3.0
+	 * @since 7.3.0​
 	 *
 	 * @return array $args {
 	 *          Associated array of arrays with the following.

@@ -113,7 +113,7 @@ if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' )
 	/**
 	 * Outputs for an admin notice about running Jetpack on outdated WordPress.
 	 *
-	 * @since 7.2.0
+	 * @since 7.2.0​
 	 */
 	function jetpack_admin_unsupported_wp_notice() {
 		?>
@@ -159,7 +159,7 @@ if ( is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings
 	/**
 	 * Outputs an admin notice for folks running Jetpack without having run composer install.
 	 *
-	 * @since 7.4.0
+	 * @since 7.4.0​
 	 */
 	function jetpack_admin_missing_files() {
 		?>

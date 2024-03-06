@@ -3,7 +3,7 @@
  * Unit test for Inline PDF embeds.
  *
  * @package automattic/jetpack
- * @since   8.4
+ * @since 8.4​
  */
 
 // Dummy comment so phpcs sees the above as a file doc comment.
@@ -28,7 +28,7 @@ class WP_Test_Jetpack_Shortcodes_Inline_Pdfs extends WP_UnitTestCase {
 	 *
 	 * @author lancewillett
 	 * @covers ::jetpack_inline_pdf_embed_handler
-	 * @since  8.4.0
+	 * @since 8.4.0​
 	 */
 	public function test_shortcodes_inline_pdf() {
 		global $post;

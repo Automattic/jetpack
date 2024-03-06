@@ -10,7 +10,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 	/**
 	 * A collection of helper functions used in the SSO module.
 	 *
-	 * @since 4.1.0
+	 * @since 4.1.0​
 	 */
 	class Jetpack_SSO_Helpers {
 		/**
@@ -90,7 +90,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		/**
 		 * Returns a boolean value for whether two-step authentication is required for SSO.
 		 *
-		 * @since 4.1.0
+		 * @since 4.1.0​
 		 *
 		 * @return bool
 		 */
@@ -130,7 +130,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 * Returns a boolean for whether the SSO login form should be displayed as the default
 		 * when both the default and SSO login form allowed.
 		 *
-		 * @since 4.1.0
+		 * @since 4.1.0​
 		 *
 		 * @return bool
 		 */
@@ -144,7 +144,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 			 *
 			 * @module sso
 			 *
-			 * @since 4.1.0
+			 * @since 4.1.0​
 			 *
 			 * @param bool true Should the SSO login form be displayed by default when the default login form is also enabled?
 			 */
@@ -154,7 +154,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		/**
 		 * Returns a boolean for whether the two step required checkbox, displayed on the Jetpack admin page, should be disabled.
 		 *
-		 * @since 4.1.0
+		 * @since 4.1.0​
 		 *
 		 * @return bool
 		 */
@@ -165,7 +165,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		/**
 		 * Returns a boolean for whether the match by email checkbox, displayed on the Jetpack admin page, should be disabled.
 		 *
-		 * @since 4.1.0
+		 * @since 4.1.0​
 		 *
 		 * @return bool
 		 */
@@ -179,7 +179,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 * Instead of accessing JETPACK__API_BASE within the method directly, we set it as the
 		 * default for $api_base due to restrictions with testing constants in our tests.
 		 *
-		 * @since 4.3.0
+		 * @since 4.3.0​
 		 * @since 4.6.0 Added public-api.wordpress.com as an allowed redirect
 		 *
 		 * @param array  $hosts Allowed redirect hosts.
@@ -219,7 +219,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 			 *
 			 * @module sso
 			 *
-			 * @since 4.3.2
+			 * @since 4.3.2​
 			 *
 			 * @param int 5 By default, SSO will attempt to random generate a user up to 5 times.
 			 */
@@ -267,7 +267,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 			 *
 			 * @module sso
 			 *
-			 * @since 4.4.0
+			 * @since 4.4.0​
 			 * @since 6.1.0 Fixed a typo. Filter was previously jetpack_sso_auth_cookie_expirtation.
 			 *
 			 * @param int YEAR_IN_SECONDS
@@ -278,7 +278,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		/**
 		 * Determines if the SSO form should be displayed for the current action.
 		 *
-		 * @since 4.6.0
+		 * @since 4.6.0​
 		 *
 		 * @param string $action SSO action being performed.
 		 *
@@ -290,7 +290,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 			 *
 			 * @module sso
 			 *
-			 * @since 4.6.0
+			 * @since 4.6.0​
 			 *
 			 * @param array $allowed_actions_for_sso
 			 */
@@ -309,7 +309,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 * This method returns an environment array that is meant to simulate `$_REQUEST` when the initial
 		 * JSON API auth request was made.
 		 *
-		 * @since 4.6.0
+		 * @since 4.6.0​
 		 *
 		 * @return array|bool
 		 */

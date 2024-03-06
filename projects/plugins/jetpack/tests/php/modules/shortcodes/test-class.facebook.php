@@ -40,7 +40,7 @@ class WP_Test_Jetpack_Shortcodes_Facebook extends WP_UnitTestCase {
 	 *
 	 * @covers ::jetpack_facebook_embed_handler
 	 *
-	 * @since 7.5.0
+	 * @since 7.5.0​
 	 */
 	public function test_shortcodes_facebook_video_old() {
 		global $post;
@@ -69,7 +69,7 @@ class WP_Test_Jetpack_Shortcodes_Facebook extends WP_UnitTestCase {
 	 *
 	 * @covers ::jetpack_facebook_embed_handler
 	 *
-	 * @since 7.5.0
+	 * @since 7.5.0​
 	 */
 	public function test_shortcodes_facebook_video_watch_format() {
 		global $post;
@@ -98,7 +98,7 @@ class WP_Test_Jetpack_Shortcodes_Facebook extends WP_UnitTestCase {
 	 *
 	 * @covers ::jetpack_facebook_embed_handler
 	 *
-	 * @since 7.5.0
+	 * @since 7.5.0​
 	 */
 	public function test_shortcodes_facebook_video_alternate() {
 		global $post;

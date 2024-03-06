@@ -12,14 +12,14 @@ use Automattic\Jetpack\CRM\Entities\Factories\Contact_Factory;
 /**
  * Contact Event class.
  *
- * @since 6.2.0
+ * @since 6.2.0​
  */
 class Contact_Event implements Event {
 
 	/**
 	 * The Contact_Event instance.
 	 *
-	 * @since 6.2.0
+	 * @since 6.2.0​
 	 * @var Contact_Event
 	 */
 	private static $instance = null;
@@ -27,7 +27,7 @@ class Contact_Event implements Event {
 	/**
 	 * Properties that should not be notified.
 	 *
-	 * @since 6.2.0
+	 * @since 6.2.0​
 	 * @var string[]
 	 */
 	private $not_notifiable_props = array(
@@ -39,7 +39,7 @@ class Contact_Event implements Event {
 	/**
 	 * Get the singleton instance of this class.
 	 *
-	 * @since 6.2.0
+	 * @since 6.2.0​
 	 *
 	 * @return Contact_Event The Contact_Event instance.
 	 */
@@ -54,7 +54,7 @@ class Contact_Event implements Event {
 	/**
 	 * A new contact was created.
 	 *
-	 * @since 6.2.0
+	 * @since 6.2.0​
 	 *
 	 * @param array $contact_data The created contact data.
 	 * @return void
@@ -68,7 +68,7 @@ class Contact_Event implements Event {
 	/**
 	 * The contact was updated.
 	 *
-	 * @since 6.2.0
+	 * @since 6.2.0​
 	 *
 	 * @param array $contact_data The updated contact data.
 	 * @param array $old_contact_data The old contact data.
@@ -125,7 +125,7 @@ class Contact_Event implements Event {
 	/**
 	 * A contact was deleted.
 	 *
-	 * @since 6.2.0
+	 * @since 6.2.0​
 	 *
 	 * @param int $contact_id The contact ID.
 	 * @return void
@@ -137,7 +137,7 @@ class Contact_Event implements Event {
 	/**
 	 * A contact is about to be deleted.
 	 *
-	 * @since 6.2.0
+	 * @since 6.2.0​
 	 *
 	 * @param int $contact_id The contact ID.
 	 * @return void

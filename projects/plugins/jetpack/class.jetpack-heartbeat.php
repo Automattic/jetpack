@@ -24,7 +24,7 @@ class Jetpack_Heartbeat {
 	/**
 	 * Holds the singleton instance of the proxied class
 	 *
-	 * @since 8.9.0
+	 * @since 8.9.0​
 	 * @var Automattic\Jetpack\Heartbeat
 	 */
 	private static $proxied_instance = false;
@@ -127,7 +127,7 @@ class Jetpack_Heartbeat {
 	/**
 	 * Add Jetpack Stats array to Heartbeat if Jetpack is connected
 	 *
-	 * @since 8.9.0
+	 * @since 8.9.0​
 	 *
 	 * @param array $stats Jetpack Heartbeat stats.
 	 * @return array $stats

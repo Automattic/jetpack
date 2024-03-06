@@ -17,7 +17,7 @@ class WP_Test_Jetpack_RelatedPosts extends WP_UnitTestCase {
 	/**
 	 * Verify that 'enabled' remains the same if it's true.
 	 *
-	 * @since  4.7.0
+	 * @since 4.7.0​
 	 */
 	public function test_options_ok() {
 		$options_after_parse = array(
@@ -38,7 +38,7 @@ class WP_Test_Jetpack_RelatedPosts extends WP_UnitTestCase {
 	/**
 	 * Verify that if 'enabled' is somehow not passed to saving request, it's set to true.
 	 *
-	 * @since  4.7.0
+	 * @since 4.7.0​
 	 */
 	public function test_options_enabled_true_if_not_set() {
 		$options_after_parse = array(
@@ -62,7 +62,7 @@ class WP_Test_Jetpack_RelatedPosts extends WP_UnitTestCase {
 	/**
 	 * Verify that 'enabled' is set to true if one of the keys saved by Customizer are passed.
 	 *
-	 * @since  4.7.0
+	 * @since 4.7.0​
 	 */
 	public function test_options_enabled_false_if_has_customizer_key() {
 		$options_after_parse = array(
@@ -100,7 +100,7 @@ class WP_Test_Jetpack_RelatedPosts extends WP_UnitTestCase {
 	/**
 	 * Verify that 'enabled' can be saved as false if it's explicitly set to false.
 	 *
-	 * @since  4.7.0
+	 * @since 4.7.0​
 	 */
 	public function test_options_enabled_false_if_not_customizer_key() {
 		$options = array(

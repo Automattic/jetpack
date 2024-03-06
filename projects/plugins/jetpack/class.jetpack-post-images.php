@@ -416,7 +416,7 @@ class Jetpack_PostImages {
 	/**
 	 * Get images from Gutenberg Image blocks.
 	 *
-	 * @since 6.9.0
+	 * @since 6.9.0​
 	 *
 	 * @param mixed $html_or_id The HTML string to parse for images, or a post id.
 	 * @param int   $width      Minimum Image width.
@@ -550,7 +550,7 @@ class Jetpack_PostImages {
 			 * to add custom logic to image dimensions, like only enforcing one of the dimensions,
 			 * or disabling it entirely.
 			 *
-			 * @since 6.4.0
+			 * @since 6.4.0​
 			 *
 			 * @param bool $ignore Should the image dimensions be ignored?
 			 * @param array $meta Array containing image dimensions parsed from the markup.
@@ -907,7 +907,7 @@ class Jetpack_PostImages {
 	/**
 	 * Get HTML from given post content.
 	 *
-	 * @since 6.9.0
+	 * @since 6.9.0​
 	 *
 	 * @param mixed $html_or_id The HTML string to parse for images, or a post id.
 	 *
@@ -940,7 +940,7 @@ class Jetpack_PostImages {
 	/**
 	 * Get info about a WordPress attachment.
 	 *
-	 * @since 6.9.0
+	 * @since 6.9.0​
 	 *
 	 * @param int    $attachment_id Attachment ID.
 	 * @param string $post_url      URL of the post, if we have one.
@@ -1001,7 +1001,7 @@ class Jetpack_PostImages {
 	/**
 	 * Get the alt text for an image or other media from the Media Library.
 	 *
-	 * @since 7.1
+	 * @since 7.1​
 	 *
 	 * @param int $attachment_id The Post ID of the media.
 	 * @return string The alt text value or an empty string.
@@ -1013,7 +1013,7 @@ class Jetpack_PostImages {
 	/**
 	 * Get an image from a block.
 	 *
-	 * @since 7.8.0
+	 * @since 7.8.0​
 	 *
 	 * @param array $images    Images found.
 	 * @param array $block     Block and its attributes.
@@ -1071,7 +1071,7 @@ class Jetpack_PostImages {
 	/**
 	 * Check if a block has inner blocks.
 	 *
-	 * @since 7.8.0
+	 * @since 7.8.0​
 	 *
 	 * @param array $block Block and its attributes.
 	 *

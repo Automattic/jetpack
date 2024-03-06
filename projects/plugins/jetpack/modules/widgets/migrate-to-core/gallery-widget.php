@@ -2,7 +2,7 @@
 /**
  * Migration from Jetpack's Gallery Widget to WordPress' Core Gallery Widget.
  *
- * @since 5.5
+ * @since 5.5​
  *
  * @package automattic/jetpack
  */

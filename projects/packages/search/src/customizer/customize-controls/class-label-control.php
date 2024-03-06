@@ -3,7 +3,7 @@
  * A label-only Customizer control for use with Jetpack Search configuration
  *
  * @package automattic/jetpack
- * @since 8.6.0
+ * @since 8.6.0​
  */
 
 namespace Automattic\Jetpack\Search;

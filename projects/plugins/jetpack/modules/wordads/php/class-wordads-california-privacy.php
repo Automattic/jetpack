@@ -222,7 +222,7 @@ class WordAds_California_Privacy {
 		 *
 		 * @module wordads
 		 *
-		 * @since 8.7.0
+		 * @since 8.7.0​
 		 *
 		 * @param string Default CCPA disclosure for WordAds.
 		 */

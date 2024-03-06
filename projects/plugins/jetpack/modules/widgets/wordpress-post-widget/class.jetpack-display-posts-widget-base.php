@@ -54,7 +54,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 	/**
 	 * Enqueue CSS and JavaScript.
 	 *
-	 * @since 4.0.0
+	 * @since 4.0.0​
 	 */
 	public function enqueue_scripts() {
 		wp_enqueue_style(
@@ -193,7 +193,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		 *
 		 * @module widgets
 		 *
-		 * @since 4.7.0
+		 * @since 4.7.0​
 		 *
 		 * @param string $content Widget content.
 		 */

@@ -4,7 +4,7 @@
  * sitemap related URIs.
  *
  * @package automattic/jetpack
- * @since 4.8.0
+ * @since 4.8.0​
  * @author Automattic
  */
 
@@ -12,7 +12,7 @@
  * The Jetpack_Sitemap_Finder object deals with constructing
  * sitemap URIs.
  *
- * @since 4.8.0
+ * @since 4.8.0​
  */
 class Jetpack_Sitemap_Finder {
 
@@ -21,7 +21,7 @@ class Jetpack_Sitemap_Finder {
 	 * permalink settings.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 * @since 4.8.1 Call jetpack_sitemap_uri()
 	 *
 	 * @param string $filename The filename of the sitemap.
@@ -44,7 +44,7 @@ class Jetpack_Sitemap_Finder {
 	 * settings.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @return string The path+query prefix.
 	 */
@@ -78,7 +78,7 @@ class Jetpack_Sitemap_Finder {
 	 * Examine a path+query URI fragment looking for a sitemap request.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @param string $raw_uri A URI (path+query only) to test for sitemap-ness.
 	 *

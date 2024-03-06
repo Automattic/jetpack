@@ -3,7 +3,7 @@
  * First posts stream helpers
  *
  * @package automattic/jetpack-mu-wpcom
- * @since 4.11.0
+ * @since 4.11.0​
  */
 
 /**

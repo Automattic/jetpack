@@ -2,7 +2,7 @@
 /**
  * Image Compare Block.
  *
- * @since 8.6
+ * @since 8.6​
  *
  * @package automattic/jetpack
  */

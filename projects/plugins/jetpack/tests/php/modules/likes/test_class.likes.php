@@ -6,7 +6,7 @@ class WP_Test_Likes extends WP_UnitTestCase {
 	/**
 	 * Test that the actions are not added if likes are not visible.
 	 *
-	 * @since 8.4.0
+	 * @since 8.4.0​
 	 */
 	public function test_action_init_likes_not_visible() {
 		$instance = new Jetpack_Likes();
@@ -19,7 +19,7 @@ class WP_Test_Likes extends WP_UnitTestCase {
 	/**
 	 * Test that the actions are added if likes are visible.
 	 *
-	 * @since 8.4.0
+	 * @since 8.4.0​
 	 */
 	public function test_action_init_likes_visible() {
 		$this->go_to( get_permalink( self::factory()->post->create() ) );
@@ -35,7 +35,7 @@ class WP_Test_Likes extends WP_UnitTestCase {
 	/**
 	 * Test if likes are rendered correctly.
 	 *
-	 * @since 4.6.0
+	 * @since 4.6.0​
 	 */
 	public function test_post_likes() {
 
@@ -65,7 +65,7 @@ class WP_Test_Likes extends WP_UnitTestCase {
 	/**
 	 * Test Likes visibility.
 	 *
-	 * @since 4.6.0
+	 * @since 4.6.0​
 	 */
 	public function test_is_likes_visible() {
 		$post_id = self::factory()->post->create( array( 'post_content' => 'Some content.' ) );
@@ -97,7 +97,7 @@ class WP_Test_Likes extends WP_UnitTestCase {
 	/**
 	 * Check that Likes are properly added to admin bar.
 	 *
-	 * @since 4.6.0
+	 * @since 4.6.0​
 	 */
 	public function test_admin_bar_likes() {
 		$post_id = self::factory()->post->create( array( 'post_content' => 'Some content.' ) );

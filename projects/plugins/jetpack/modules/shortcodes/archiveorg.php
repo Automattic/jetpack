@@ -15,7 +15,7 @@
 /**
  * Get ID of requested archive.org embed.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  *
  * @param array $atts Shortcode attributes.
  *
@@ -37,7 +37,7 @@ function jetpack_shortcode_get_archiveorg_id( $atts ) {
 /**
  * Convert an archive.org shortcode into an embed code.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  *
  * @param array $atts An array of shortcode attributes.
  * @return string The embed code for the archive.org video.
@@ -104,7 +104,7 @@ add_shortcode( 'archiveorg', 'jetpack_archiveorg_shortcode' );
 /**
  * Compose shortcode from archive.org iframe.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  *
  * @param string $content Post content.
  *

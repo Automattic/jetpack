@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<psalm xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://getpsalm.org/schema/config" xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+	phpVersion="7.0"
+	errorLevel="7"
+	resolveFromConfigFile="true"
+	findUnusedBaselineEntry="true"
+	findUnusedCode="true"
+	errorBaseline="tools/psalm-baseline.xml"
+	threads="1"
+>
+	<projectFiles>
+		<directory name="." />
+		<ignoreFiles allowMissingFiles="true">
+			<!-- Unfortunately we can't just do like `**/vendor`, because that makes it recursively scan and it gets lost in a symlink loop. -->
+			<directory name="projects/*/*/jetpack_vendor" />
+			<directory name="projects/*/*/node_modules" />
+			<directory name="projects/*/*/vendor" />
+			<directory name="projects/*/*/wordpress" />
+			<directory name="tools/**/vendor" />
+			<!-- Other dirs to ignore -->
+			<directory name="projects/packages/autoloader/tests/php/tmp" />
+			<directory name="tools/docker" />
+			<directory name="node_modules" />
+			<directory name="vendor" />
+			<!-- Igor says all these fallbacks should go away. For now, at least don't scan them so psalm doesn't get confused. -->
+			<file name="projects/plugins/jetpack/modules/sitemaps/sitemap-buffer-*-fallback.php" />
+		</ignoreFiles>
+	</projectFiles>
+	<plugins>
+		<pluginClass class="PsalmWordPress\Plugin" />
+	</plugins>
+</psalm>

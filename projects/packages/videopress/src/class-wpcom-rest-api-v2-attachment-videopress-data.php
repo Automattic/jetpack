@@ -18,7 +18,7 @@ namespace Automattic\Jetpack\VideoPress;
  *   ...
  * }
  *
- * @since 7.1.0
+ * @since 7.1.0​
  */
 class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 	/**

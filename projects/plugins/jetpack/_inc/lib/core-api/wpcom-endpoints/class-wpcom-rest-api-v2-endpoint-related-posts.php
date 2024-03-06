@@ -116,7 +116,7 @@ class WPCOM_REST_API_V2_Endpoint_Related_Posts extends WP_REST_Controller {
 	/**
 	 * Checks if a given request has access to get the related posts.
 	 *
-	 * @since 4.7.0
+	 * @since 4.7.0​
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return bool|WP_Error True if the request has read access for the related posts, WP_Error object or false otherwise.

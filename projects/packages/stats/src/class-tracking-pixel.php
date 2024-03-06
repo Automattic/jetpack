@@ -280,7 +280,7 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 		/**
 		 * Returns true if the current request should return valid AMP content.
 		 *
-		 * @since 6.2.0
+		 * @since 6.2.0​
 		 *
 		 * @param boolean $is_amp_request Is this request supposed to return valid AMP content?
 		 */

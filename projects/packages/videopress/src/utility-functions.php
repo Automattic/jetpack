@@ -68,7 +68,7 @@ function videopress_get_video_details( $guid ) {
 	 * about a given video.  It may involve swapping some data out or
 	 * adding new parameters.
 	 *
-	 * @since 4.0.0
+	 * @since 4.0.0​
 	 *
 	 * @param object $data The data returned by the WPCOM API. See: https://developer.wordpress.com/docs/api/1.1/get/videos/%24guid/
 	 * @param string $guid The GUID of the VideoPress video in question.
@@ -215,7 +215,7 @@ function videopress_cdn_file_url( $guid, $filename ) {
 /**
  * Get an array of the transcoding status for the given video post.
  *
- * @since 4.4
+ * @since 4.4​
  * @param int $post_id Post ID.
  * @return array|bool Returns an array of statuses if this is a VideoPress post, otherwise it returns false.
  */
@@ -242,7 +242,7 @@ function videopress_get_transcoding_status( $post_id ) {
 /**
  * Get the direct url to the video.
  *
- * @since 4.4
+ * @since 4.4​
  * @param string $guid VideoPress GUID.
  * @return string
  */
@@ -260,7 +260,7 @@ function videopress_build_url( $guid ) {
  * Create an empty videopress media item that will be filled out later by an xmlrpc
  * callback from the VideoPress servers.
  *
- * @since 4.4
+ * @since 4.4​
  * @param string $title The post_title.
  * @param string $guid The VideoPress guid.
  * @return int|WP_Error
@@ -326,7 +326,7 @@ function videopress_merge_file_status( $current_status, $new_meta ) {
 /**
  * Check to see if a video has completed processing.
  *
- * @since 4.4
+ * @since 4.4​
  * @param int $post_id Post ID.
  * @return bool
  */
@@ -348,7 +348,7 @@ function videopress_is_finished_processing( $post_id ) {
 /**
  * Update the meta information  status for the given video post.
  *
- * @since 4.4
+ * @since 4.4​
  * @param int $post_id Post ID.
  * @return bool
  */
@@ -428,7 +428,7 @@ function is_videopress_attachment( $post_id ) {
 /**
  * Get the video update path
  *
- * @since 4.4
+ * @since 4.4​
  * @param string $guid VideoPress GUID.
  * @return string
  */
@@ -444,7 +444,7 @@ function videopress_make_video_get_path( $guid ) {
 /**
  * Get the upload api path.
  *
- * @since 4.4
+ * @since 4.4​
  * @param int $blog_id The id of the blog we're uploading to.
  * @return string
  */
@@ -459,7 +459,7 @@ function videopress_make_media_upload_path( $blog_id ) {
 /**
  * Get the resumable upload api path.
  *
- * @since 4.4
+ * @since 4.4​
  * @param int $blog_id The id of the blog we're uploading to.
  * @return string
  */
@@ -629,7 +629,7 @@ function videopress_get_post_by_guid( $guid ) {
 /**
  * Using a GUID, find the associated post ID.
  *
- * @since 8.4.0
+ * @since 8.4.0​
  * @param string $guid The guid to look for the post ID of.
  * @return int|false The post ID for that guid, or false if none is found.
  */

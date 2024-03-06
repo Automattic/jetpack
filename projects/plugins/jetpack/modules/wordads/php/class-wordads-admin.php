@@ -13,7 +13,7 @@ class WordAds_Admin {
 	/**
 	 * WordAds_Admin Constructor.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function __construct() {
 		if ( current_user_can( 'manage_options' ) && isset( $_GET['ads_debug'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -25,7 +25,7 @@ class WordAds_Admin {
 	/**
 	 * Output the API connection debug
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function debug_output() {
 		global $wordads, $wordads_status_response;

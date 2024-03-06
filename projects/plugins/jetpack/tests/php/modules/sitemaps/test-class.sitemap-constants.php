@@ -3,7 +3,7 @@
  * Tests for the sitemap constants.
  *
  * @package automattic/jetpack
- * @since 4.7.0
+ * @since 4.7.0​
  */
 
 require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-constants.php';
@@ -11,7 +11,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-constants.php';
 /**
  * Test class for Jetpack sitemap constants.
  *
- * @since 4.7.0
+ * @since 4.7.0​
  */
 class WP_Test_Jetpack_Sitemap_Constants extends WP_UnitTestCase {
 
@@ -24,7 +24,7 @@ class WP_Test_Jetpack_Sitemap_Constants extends WP_UnitTestCase {
 	 * @link https://support.google.com/news/publisher/answer/74288?hl=en News sitemap extension.
 	 *
 	 * @group jetpack-sitemap
-	 * @since 4.7.0
+	 * @since 4.7.0​
 	 */
 	public function test_sitemap_builder_capacity_constants() {
 		// Test range of JP_SITEMAP_MAX_BYTES.
@@ -47,7 +47,7 @@ class WP_Test_Jetpack_Sitemap_Constants extends WP_UnitTestCase {
 	 * Sitemap type constants are all distinct.
 	 *
 	 * @group jetpack-sitemap
-	 * @since 4.7.0
+	 * @since 4.7.0​
 	 */
 	public function test_sitemap_librarian_type_constants_distinct() {
 		$this->assertNotEquals(

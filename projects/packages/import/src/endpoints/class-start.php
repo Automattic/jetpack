@@ -50,7 +50,7 @@ class Start extends \WP_REST_Controller {
 	/**
 	 * Retrieves main informations.
 	 *
-	 * @since 4.7.0
+	 * @since 4.7.0​
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.

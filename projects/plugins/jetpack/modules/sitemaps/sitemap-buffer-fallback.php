@@ -2,14 +2,14 @@
 /**
  * The fallback buffer for users with no XML support.
  *
- * @since 5.3.0
+ * @since 5.3.0​
  * @package automattic/jetpack
  */
 
 /**
  * A buffer for constructing master sitemap xml files.
  *
- * @since 5.1.0
+ * @since 5.1.0​
  */
 abstract class Jetpack_Sitemap_Buffer_Fallback extends Jetpack_Sitemap_Buffer {
 
@@ -17,7 +17,7 @@ abstract class Jetpack_Sitemap_Buffer_Fallback extends Jetpack_Sitemap_Buffer {
 	 * The buffer contents.
 	 *
 	 * @access protected
-	 * @since 5.3.0
+	 * @since 5.3.0​
 	 * @var string The buffer contents.
 	 */
 	protected $buffer;
@@ -46,7 +46,7 @@ abstract class Jetpack_Sitemap_Buffer_Fallback extends Jetpack_Sitemap_Buffer {
 	 * we set is_full_flag to true. If $item is null,
 	 * don't do anything and report success.
 	 *
-	 * @since 5.3.0
+	 * @since 5.3.0​
 	 *
 	 * @param array $array The item to be added.
 	 *
@@ -81,7 +81,7 @@ abstract class Jetpack_Sitemap_Buffer_Fallback extends Jetpack_Sitemap_Buffer {
 	/**
 	 * Detect whether the buffer is empty.
 	 *
-	 * @since 5.3.0
+	 * @since 5.3.0​
 	 *
 	 * @return bool True if the buffer is empty, false otherwise.
 	 */
@@ -92,7 +92,7 @@ abstract class Jetpack_Sitemap_Buffer_Fallback extends Jetpack_Sitemap_Buffer {
 	/**
 	 * Retrieve the contents of the buffer.
 	 *
-	 * @since 5.3.0
+	 * @since 5.3.0​
 	 *
 	 * @return string The contents of the buffer (with the footer included).
 	 */
@@ -135,7 +135,7 @@ abstract class Jetpack_Sitemap_Buffer_Fallback extends Jetpack_Sitemap_Buffer {
 	 * Render an associative array of XML attribute key/value pairs.
 	 *
 	 * @access public
-	 * @since 5.3.0
+	 * @since 5.3.0​
 	 *
 	 * @param array $array Key/value array of attributes.
 	 *

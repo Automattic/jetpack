@@ -109,7 +109,7 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 	/**
 	 * @author mathildes
 	 * @covers ::dailymotion_shortcode
-	 * @since 4.2.0
+	 * @since 4.2.0​
 	 */
 	public function test_shortcodes_dailymotion_width_height() {
 		$video_id = 'x8oma9';
@@ -127,7 +127,7 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 		/**
 		 * @author mathildes
 		 * @covers ::dailymotion_shortcode
-		 * @since 4.2.0
+		 * @since 4.2.0​
 		 */
 	public function test_shortcodes_dailymotion_params() {
 		// only testing a subset of params
@@ -196,7 +196,7 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 	 * Test the AMP-compatible [dailymotion] shortcode on an AMP endpoint.
 	 *
 	 * @dataProvider get_dailymotion_amp_data
-	 * @since 8.0.0
+	 * @since 8.0.0​
 	 *
 	 * @param string $shortcode_content The shortcode, like [dailymotion 1234].
 	 * @param string $expected The expected return value of the function.
@@ -218,7 +218,7 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 	 * Test that the AMP [dailymotion] shortcode logic doesn't run on a non-AMP endpoint.
 	 *
 	 * @dataProvider get_dailymotion_amp_data
-	 * @since 8.0.0
+	 * @since 8.0.0​
 	 *
 	 * @param string $shortcode_content The shortcode as entered in the editor.
 	 */

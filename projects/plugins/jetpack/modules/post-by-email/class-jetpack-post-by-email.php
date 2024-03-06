@@ -214,7 +214,7 @@ class Jetpack_Post_By_Email {
 	/**
 	 * Calls WPCOM through authenticated request to create, regenerate or delete the Post by Email address.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 *
 	 * @param string $endpoint Process to call on WPCOM to create, regenerate or delete the Post by Email address.
 	 * @param string $error    Error message to return.

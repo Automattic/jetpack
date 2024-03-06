@@ -48,7 +48,7 @@ if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 /**
  * Governs the generation, storage, and serving of sitemaps.
  *
- * @since 4.8.0
+ * @since 4.8.0​
  */
 class Jetpack_Sitemap_Manager {
 
@@ -56,7 +56,7 @@ class Jetpack_Sitemap_Manager {
 	 * Librarian object for storing and retrieving sitemap data.
 	 *
 	 * @see Jetpack_Sitemap_Librarian
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 * @var Jetpack_Sitemap_Librarian $librarian Librarian object for storing and retrieving sitemap data.
 	 */
 	private $librarian;
@@ -65,7 +65,7 @@ class Jetpack_Sitemap_Manager {
 	 * Logger object for reporting debug messages.
 	 *
 	 * @see Jetpack_Sitemap_Logger
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 * @var Jetpack_Sitemap_Logger $logger Logger object for reporting debug messages.
 	 */
 	private $logger;
@@ -74,7 +74,7 @@ class Jetpack_Sitemap_Manager {
 	 * Finder object for handling sitemap URIs.
 	 *
 	 * @see Jetpack_Sitemap_Finder
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 * @var Jetpack_Sitemap_Finder $finder Finder object for handling with sitemap URIs.
 	 */
 	private $finder;
@@ -83,7 +83,7 @@ class Jetpack_Sitemap_Manager {
 	 * Construct a new Jetpack_Sitemap_Manager.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 */
 	public function __construct() {
 		$this->librarian = new Jetpack_Sitemap_Librarian();
@@ -143,7 +143,7 @@ class Jetpack_Sitemap_Manager {
 	 * Echo a raw string of given content-type.
 	 *
 	 * @access private
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @param string $the_content_type The content type to be served.
 	 * @param string $the_content The string to be echoed.
@@ -181,7 +181,7 @@ class Jetpack_Sitemap_Manager {
 	 * Callback to intercept sitemap url requests and serve sitemap files.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 */
 	public function callback_action_catch_sitemap_urls() {
 		// Regular expressions for sitemap URL routing.
@@ -365,7 +365,7 @@ class Jetpack_Sitemap_Manager {
 	 * Callback for adding sitemap-interval to the list of schedules.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @param array $schedules The array of WP_Cron schedules.
 	 *
@@ -394,7 +394,7 @@ class Jetpack_Sitemap_Manager {
 	 * Should only be called once, in the constructor.
 	 *
 	 * @access private
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 */
 	private function schedule_sitemap_generation() {
 		// Add cron schedule.
@@ -413,7 +413,7 @@ class Jetpack_Sitemap_Manager {
 			 * lot of sites over time. By default, it will be randomly done over 15 minutes.
 			 *
 			 * @module sitemaps
-			 * @since 6.6.1
+			 * @since 6.6.1​
 			 *
 			 * @param int $delay Time to delay in seconds.
 			 */
@@ -430,7 +430,7 @@ class Jetpack_Sitemap_Manager {
 	 * Callback to add sitemap to robots.txt.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 */
 	public function callback_action_do_robotstxt() {
 
@@ -449,7 +449,7 @@ class Jetpack_Sitemap_Manager {
 		 * Filter whether to make the default sitemap discoverable to robots or not. Default true.
 		 *
 		 * @module sitemaps
-		 * @since 7.4.0
+		 * @since 7.4.0​
 		 *
 		 * @param bool $discover_sitemap Make default sitemap discoverable to robots.
 		 */
@@ -475,7 +475,7 @@ class Jetpack_Sitemap_Manager {
 		 * Filter whether to make the news sitemap discoverable to robots or not. Default true.
 		 *
 		 * @module sitemaps
-		 * @since 7.4.0
+		 * @since 7.4.0​
 		 *
 		 * @param bool $discover_news_sitemap Make default news sitemap discoverable to robots.
 		 */
@@ -491,7 +491,7 @@ class Jetpack_Sitemap_Manager {
 	 * Callback to delete the news sitemap cache.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 */
 	public function callback_action_flush_news_sitemap_cache() {
 		delete_transient( 'jetpack_news_sitemap_xml' );
@@ -501,7 +501,7 @@ class Jetpack_Sitemap_Manager {
 	 * Callback for resetting stored sitemap data.
 	 *
 	 * @access public
-	 * @since 5.3.0
+	 * @since 5.3.0​
 	 * @since 6.7.0 Schedules a regeneration.
 	 */
 	public function callback_action_purge_data() {
@@ -516,7 +516,7 @@ class Jetpack_Sitemap_Manager {
 	 * Callback to set the sitemap location.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 */
 	public function callback_action_filter_sitemap_location() {
 		update_option(
@@ -550,7 +550,7 @@ class Jetpack_Sitemap_Manager {
 			 * @link https://tools.ietf.org/html/rfc3986#section-3.3 RFC 3986
 			 * @link https://www.sitemaps.org/ The sitemap protocol
 			 *
-			 * @since 4.8.0
+			 * @since 4.8.0​
 			 */
 			apply_filters(
 				'jetpack_sitemap_location',

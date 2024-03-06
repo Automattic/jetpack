@@ -2,7 +2,7 @@
 /**
  * Podcast Player Block.
  *
- * @since 8.4.0
+ * @since 8.4.0​
  *
  * @package automattic/jetpack
  */

@@ -118,7 +118,7 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 			 * Setting to false disallows you to manage your site remotely from WordPress.com
 			 * and disallows plugin auto-updates.
 			 *
-			 * @since 7.3.0
+			 * @since 7.3.0​
 			 *
 			 * @param bool $check_validation Whether to allow API requests to manage the site
 			 */

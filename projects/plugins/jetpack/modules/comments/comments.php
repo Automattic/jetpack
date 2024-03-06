@@ -456,7 +456,7 @@ HTML;
 		 *
 		 * @module comments
 		 *
-		 * @since  4.7.0
+		 * @since 4.7.0​
 		 *
 		 * @param bool $show Can the comment be displayed? Default to true.
 		 */

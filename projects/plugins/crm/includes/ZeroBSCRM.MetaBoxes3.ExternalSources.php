@@ -27,7 +27,7 @@
 	/**
 	 * The object type ID using this metabox.
 	 *
-	 * @since 6.2.0
+	 * @since 6.2.0​
 	 * @var int
 	 */
 	private $objTypeID; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase

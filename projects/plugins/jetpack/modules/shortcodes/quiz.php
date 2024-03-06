@@ -22,7 +22,7 @@ class Quiz_Shortcode {
 	/**
 	 * Parameters admitted by [quiz] shortcode.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @var array
 	 */
@@ -40,7 +40,7 @@ class Quiz_Shortcode {
 	/**
 	 * Whether the scripts were enqueued.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @var bool
 	 */
@@ -49,7 +49,7 @@ class Quiz_Shortcode {
 	/**
 	 * In a8c training, store user currently logged in.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @var null
 	 */
@@ -58,7 +58,7 @@ class Quiz_Shortcode {
 	/**
 	 * Whether the noscript tag was already printed.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @var bool
 	 */
@@ -67,7 +67,7 @@ class Quiz_Shortcode {
 	/**
 	 * Whether JavaScript is available.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @var null
 	 */
@@ -76,7 +76,7 @@ class Quiz_Shortcode {
 	/**
 	 * Register all shortcodes.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public static function init() {
 		add_shortcode( 'quiz-wrapper', array( __CLASS__, 'shortcode_wrapper' ) );
@@ -90,7 +90,7 @@ class Quiz_Shortcode {
 	/**
 	 * Enqueue assets needed by the quiz,
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	private static function enqueue_scripts() {
 		wp_enqueue_style( 'quiz', plugins_url( 'css/quiz.css', __FILE__ ), array(), JETPACK__VERSION );
@@ -106,7 +106,7 @@ class Quiz_Shortcode {
 	/**
 	 * Check if this is a feed and thus JS is unavailable.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @return bool|null
 	 */
@@ -127,7 +127,7 @@ class Quiz_Shortcode {
 	/**
 	 * Display message when JS is not available.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @return string
 	 */
@@ -142,7 +142,7 @@ class Quiz_Shortcode {
 	/**
 	 * Check if we're in WordPress.com.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @return bool
 	 */
@@ -153,7 +153,7 @@ class Quiz_Shortcode {
 	/**
 	 * Parse shortcode arguments and render its output.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @param array  $atts    Shortcode parameters.
 	 * @param string $content Content enclosed by shortcode tags.
@@ -238,7 +238,7 @@ class Quiz_Shortcode {
 	/**
 	 * Strip line breaks, restrict allowed HTML to a few allowed tags and execute nested shortcodes.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @param string $content Post content.
 	 *
@@ -287,7 +287,7 @@ class Quiz_Shortcode {
 	/**
 	 * Render question.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @param array $atts    Shortcode attributes.
 	 * @param null  $content Post content.
@@ -303,7 +303,7 @@ class Quiz_Shortcode {
 	/**
 	 * Render correct answer.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @param array $atts    Shortcode attributes.
 	 * @param null  $content Post content.
@@ -323,7 +323,7 @@ class Quiz_Shortcode {
 	/**
 	 * Render wrong response.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @param array $atts    Shortcode attributes.
 	 * @param null  $content Post content.
@@ -343,7 +343,7 @@ class Quiz_Shortcode {
 	/**
 	 * Render explanation for wrong or right answer.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @param array $atts    Shortcode attributes.
 	 * @param null  $content Post content.

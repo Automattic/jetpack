@@ -8,7 +8,7 @@ class WP_Test_Jetpack_Shortcodes_Sitemap extends WP_UnitTestCase {
 	/**
 	 * Verify that [sitemap] exists.
 	 *
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_sitemap_exists() {
 		$this->assertTrue( shortcode_exists( 'sitemap' ) );
@@ -17,7 +17,7 @@ class WP_Test_Jetpack_Shortcodes_Sitemap extends WP_UnitTestCase {
 	/**
 	 * Verify that calling do_shortcode with the shortcode doesn't return the same content and that its output is '' because we have no pages.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_sitemap() {
 		$content = '[sitemap]';
@@ -31,7 +31,7 @@ class WP_Test_Jetpack_Shortcodes_Sitemap extends WP_UnitTestCase {
 	/**
 	 * Verify that rendering the shortcode returns tree of pages since we now have pages.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_sitemap_image() {
 		$content = '[sitemap]';

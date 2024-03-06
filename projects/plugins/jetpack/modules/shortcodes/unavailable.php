@@ -64,7 +64,7 @@ class Jetpack_Shortcode_Unavailable {
 		 *
 		 * @module shortcodes
 		 *
-		 * @since 4.5.0
+		 * @since 4.5.0​
 		 *
 		 * @param string $str The html displayed in lieu of the shortcode.
 		 * @param array $atts The attributes (numeric or named) passed to the shortcode.

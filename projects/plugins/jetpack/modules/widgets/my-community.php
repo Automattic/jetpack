@@ -220,7 +220,7 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 	/**
 	 * Initiate request and render the response.
 	 *
-	 * @since 4.0
+	 * @since 4.0​
 	 *
 	 * @param array $query Saved widget values from database.
 	 *
@@ -265,7 +265,7 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 	/**
 	 * Request community members to WordPress.com endpoint.
 	 *
-	 * @since 4.0
+	 * @since 4.0​
 	 *
 	 * @param array $query Saved widget values from database.
 	 *
@@ -302,7 +302,7 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 /**
  * If site is connected to WordPress.com, register the widget.
  *
- * @since 4.0
+ * @since 4.0​
  */
 function jetpack_my_community_init() {
 	if ( Jetpack::is_connection_ready() ) {

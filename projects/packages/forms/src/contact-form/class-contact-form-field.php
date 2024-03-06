@@ -352,7 +352,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 *
 		 * @module contact-form
 		 *
-		 * @since 6.6.0
+		 * @since 6.6.0​
 		 *
 		 * @param string $class Additional CSS classes for input class attribute.
 		 */

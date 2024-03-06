@@ -8,7 +8,7 @@
 /**
  * Load routines only if WPML is loaded.
  *
- * @since 4.4.0
+ * @since 4.4.0​
  */
 function wpml_jetpack_init() {
 	add_action( 'jetpack_widget_get_top_posts', 'wpml_jetpack_widget_get_top_posts', 10, 3 );

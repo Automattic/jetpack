@@ -8,7 +8,7 @@ class WP_Test_Jetpack_Shortcodes_Medium extends WP_UnitTestCase {
 	/**
 	 * Verify that [medium] exists.
 	 *
-	 * @since  7.4.0
+	 * @since 7.4.0​
 	 */
 	public function test_shortcodes_medium_exists() {
 		$this->assertTrue( shortcode_exists( 'medium' ) );
@@ -17,7 +17,7 @@ class WP_Test_Jetpack_Shortcodes_Medium extends WP_UnitTestCase {
 	/**
 	 * Verify that calling do_shortcode with the shortcode doesn't return the same content.
 	 *
-	 * @since 7.4.0
+	 * @since 7.4.0​
 	 */
 	public function test_shortcodes_medium_empty() {
 		$content = '[medium]';
@@ -31,7 +31,7 @@ class WP_Test_Jetpack_Shortcodes_Medium extends WP_UnitTestCase {
 	/**
 	 * Verify that a post with a link to a Profile page displays profile markup.
 	 *
-	 * @since 7.4.0
+	 * @since 7.4.0​
 	 */
 	public function test_shortcode_medium_faux_embed_profile() {
 		$profile_url = 'https://medium.com/@jeherve';
@@ -47,7 +47,7 @@ class WP_Test_Jetpack_Shortcodes_Medium extends WP_UnitTestCase {
 	/**
 	 * Verify that a post with a link to a Medium story displays story markup.
 	 *
-	 * @since 7.4.0
+	 * @since 7.4.0​
 	 */
 	public function test_shortcode_medium_faux_embed_story() {
 		$story_url = 'https://medium.com/@jeherve/this-is-a-story-19f582daaf5b';
@@ -63,7 +63,7 @@ class WP_Test_Jetpack_Shortcodes_Medium extends WP_UnitTestCase {
 	/**
 	 * Verify that a post with a link to a Medium collection displays link (collection embeds are not supported anymore).
 	 *
-	 * @since 7.4.0
+	 * @since 7.4.0​
 	 */
 	public function test_shortcode_medium_faux_embed_collection() {
 		$collection_url = 'https://medium.com/s/user-friendly';

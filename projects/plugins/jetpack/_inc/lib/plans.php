@@ -13,7 +13,7 @@ class Jetpack_Plans {
 	/**
 	 * Get a list of all available plans from WordPress.com
 	 *
-	 * @since 7.7.0
+	 * @since 7.7.0​
 	 *
 	 * @return array The plans list
 	 */
@@ -54,7 +54,7 @@ class Jetpack_Plans {
 	/**
 	 * Get plan information for a plan given its slug
 	 *
-	 * @since 7.7.0
+	 * @since 7.7.0​
 	 *
 	 * @param string $plan_slug Plan slug.
 	 *

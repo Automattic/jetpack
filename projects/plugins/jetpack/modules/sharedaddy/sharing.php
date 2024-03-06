@@ -62,7 +62,7 @@ class Sharing_Admin {
 		 * Filters the switch that if set to true allows Jetpack to use minified assets. Defaults to true
 		 * if the SCRIPT_DEBUG constant is not set or set to false. The filter overrides it.
 		 *
-		 * @since 6.2.0
+		 * @since 6.2.0​
 		 *
 		 * @param boolean $var should Jetpack use minified assets.
 		 */

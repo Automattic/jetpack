@@ -14,7 +14,7 @@ add_filter( 'pre_kses', 'jetpack_kickstarter_embed_to_shortcode' );
 /**
  * Parse shortcode arguments and render its output.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  *
  * @param array $atts Shortcode parameters.
  *
@@ -39,7 +39,7 @@ function jetpack_kickstarter_shortcode( $atts ) {
  *
  * EG: <iframe width="480" height="360" src="http://www.kickstarter.com/projects/deweymac/dewey-mac-kid-detective-book-make-diy-and-stem-spy/widget/video.html" frameborder="0" scrolling="no"> </iframe>
  *
- * @since 4.5.0
+ * @since 4.5.0​
  *
  * @param string $content Entry content that possibly includes a Kickstarter embed.
  *

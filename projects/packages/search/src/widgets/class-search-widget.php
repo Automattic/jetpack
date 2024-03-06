@@ -17,7 +17,7 @@ use Automattic\Jetpack\Tracking;
 /**
  * Provides a widget to show available/selected filters on searches.
  *
- * @since 5.0.0
+ * @since 5.0.0​
  *
  * @see   WP_Widget
  */
@@ -26,21 +26,21 @@ class Search_Widget extends \WP_Widget {
 	/**
 	 * Number of aggregations (filters) to show by default.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 * @var int
 	 */
 	const DEFAULT_FILTER_COUNT = 5;
 	/**
 	 * Default sort order for search results.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 * @var string
 	 */
 	const DEFAULT_SORT = 'relevance_desc';
 	/**
 	 * The Jetpack_Search instance.
 	 *
-	 * @since 5.7.0
+	 * @since 5.7.0​
 	 * @var Jetpack_Search
 	 */
 	protected $jetpack_search;
@@ -55,7 +55,7 @@ class Search_Widget extends \WP_Widget {
 	 * Search_Widget constructor.
 	 *
 	 * @param string $name Widget name.
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 */
 	public function __construct( $name = null ) {
 		if ( empty( $name ) ) {
@@ -95,7 +95,7 @@ class Search_Widget extends \WP_Widget {
 	/**
 	 * Check whether search is currently active
 	 *
-	 * @since 6.3
+	 * @since 6.3​
 	 */
 	public function is_search_active() {
 		return $this->module_control->is_active();
@@ -104,7 +104,7 @@ class Search_Widget extends \WP_Widget {
 	/**
 	 * Activate search
 	 *
-	 * @since 6.3
+	 * @since 6.3​
 	 */
 	public function activate_search() {
 		return $this->module_control->activate();
@@ -113,7 +113,7 @@ class Search_Widget extends \WP_Widget {
 	/**
 	 * Enqueues the scripts and styles needed for the customizer.
 	 *
-	 * @since 5.7.0
+	 * @since 5.7.0​
 	 */
 	public function widget_admin_setup() {
 		// Register jp-tracks and jp-tracks-functions.
@@ -160,7 +160,7 @@ class Search_Widget extends \WP_Widget {
 	/**
 	 * Enqueue scripts and styles for the frontend.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 */
 	public function enqueue_frontend_scripts() {
 		if ( ! is_active_widget( false, false, $this->id_base, true ) || Options::is_instant_enabled() ) {
@@ -186,7 +186,7 @@ class Search_Widget extends \WP_Widget {
 	 * Get the list of valid sort types/orders.
 	 *
 	 * @return array The sort orders.
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 */
 	private function get_sort_types() {
 		return array(
@@ -204,7 +204,7 @@ class Search_Widget extends \WP_Widget {
 	 * @return bool Whether the current filter item is for the current widget.
 	 * @see   Search_Widget::widget()
 	 *
-	 * @since 5.7.0
+	 * @since 5.7.0​
 	 */
 	public function is_for_current_widget( $item ) {
 		return isset( $item['widget_id'] ) && $this->id == $item['widget_id']; // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
@@ -217,7 +217,7 @@ class Search_Widget extends \WP_Widget {
 	 * configured filters via `Automattic\Jetpack\Search\Classic_Search::set_filters()`.
 	 *
 	 * @return bool Whether the widget should display site-wide filters or not.
-	 * @since 5.7.0
+	 * @since 5.7.0​
 	 */
 	public function should_display_sitewide_filters() {
 		$filter_widgets = get_option( 'widget_jetpack-search-filters' );
@@ -264,7 +264,7 @@ class Search_Widget extends \WP_Widget {
 	 *
 	 * @param array $instance Previously saved values from database.
 	 * @return array Instance array with default values approprate for instant search
-	 * @since 8.6.0
+	 * @since 8.6.0​
 	 */
 	public function populate_defaults_for_instant_search( $instance ) {
 		return wp_parse_args(
@@ -281,7 +281,7 @@ class Search_Widget extends \WP_Widget {
 	 *
 	 * @param array $args     Widgets args supplied by the theme.
 	 * @param array $instance The current widget instance.
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 */
 	public function widget( $args, $instance ) {
 		$instance = $this->jetpack_search_populate_defaults( $instance );
@@ -316,7 +316,7 @@ class Search_Widget extends \WP_Widget {
 	 *
 	 * @param array $args     Widgets args supplied by the theme.
 	 * @param array $instance The current widget instance.
-	 * @since 8.3.0
+	 * @since 8.3.0​
 	 */
 	public function widget_non_instant( $args, $instance ) {
 		$display_filters = false;
@@ -361,7 +361,7 @@ class Search_Widget extends \WP_Widget {
 			 * @param string $title                The widget's title
 			 * @param string $args['before_title'] The HTML tag to display before the title
 			 * @param string $args['after_title']  The HTML tag to display after the title
-			 *@since  5.7.0
+			 *@since 5.7.0​
 			 */
 			do_action( 'jetpack_search_render_filters_widget_title', $title, $args['before_title'], $args['after_title'] );
 		}
@@ -401,7 +401,7 @@ class Search_Widget extends \WP_Widget {
 			 *
 			 * @param array $filters    The possible filters for the current query.
 			 * @param array $post_types An array of post types to limit filtering to.
-			 *@since  5.8.0
+			 *@since 5.8.0​
 			 */
 			do_action(
 				'jetpack_search_render_filters',
@@ -421,7 +421,7 @@ class Search_Widget extends \WP_Widget {
 	 *
 	 * @param array $args     Widgets args supplied by the theme.
 	 * @param array $instance The current widget instance.
-	 * @since 8.3.0
+	 * @since 8.3.0​
 	 */
 	public function widget_instant( $args, $instance ) {
 		// Exit early if search instance has not been initialized.
@@ -459,7 +459,7 @@ class Search_Widget extends \WP_Widget {
 			 * @param string $title                The widget's title
 			 * @param string $args['before_title'] The HTML tag to display before the title
 			 * @param string $args['after_title']  The HTML tag to display after the title
-			 *@since  5.7.0
+			 *@since 5.7.0​
 			 */
 			do_action( 'jetpack_search_render_filters_widget_title', $title, $args['before_title'], $args['after_title'] );
 		}
@@ -474,7 +474,7 @@ class Search_Widget extends \WP_Widget {
 			 *
 			 * @param array $filters    The possible filters for the current query.
 			 * @param array $post_types An array of post types to limit filtering to.
-			 *@since  5.8.0
+			 *@since 5.8.0​
 			 */
 			do_action(
 				'jetpack_search_render_filters',
@@ -492,7 +492,7 @@ class Search_Widget extends \WP_Widget {
 	 *
 	 * @param array $args     Widgets args supplied by the theme.
 	 * @param array $instance The current widget instance.
-	 * @since 8.3.0
+	 * @since 8.3.0​
 	 */
 	public function widget_empty_instant( $args, $instance ) {
 		$title = isset( $instance['title'] ) ? $instance['title'] : '';
@@ -518,7 +518,7 @@ class Search_Widget extends \WP_Widget {
 			 * @param string $title                The widget's title
 			 * @param string $args['before_title'] The HTML tag to display before the title
 			 * @param string $args['after_title']  The HTML tag to display after the title
-			 *@since  5.7.0
+			 *@since 5.7.0​
 			 */
 			do_action( 'jetpack_search_render_filters_widget_title', $title, $args['before_title'], $args['after_title'] );
 		}
@@ -538,7 +538,7 @@ class Search_Widget extends \WP_Widget {
 	 * @param array  $instance The current widget instance.
 	 * @param string $order    The order to initialize the select with.
 	 * @param string $orderby  The orderby to initialize the select with.
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 */
 	private function maybe_render_sort_javascript( $instance, $order, $orderby ) {
 		if ( Options::is_instant_enabled() ) {
@@ -599,7 +599,7 @@ class Search_Widget extends \WP_Widget {
 	 * @param string $sort A sort string.
 	 *
 	 * @return array Order by and order.
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 */
 	private function sorting_to_wp_query_param( $sort ) {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
@@ -624,7 +624,7 @@ class Search_Widget extends \WP_Widget {
 	 * @param array $old_instance Old settings for this instance.
 	 *
 	 * @return array Settings to save.
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 */
 	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$new_instance = $this->maybe_reformat_widget( $new_instance );
@@ -734,7 +734,7 @@ class Search_Widget extends \WP_Widget {
 	 * Outputs the settings update form.
 	 *
 	 * @param array $instance Previously saved values from database.
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 */
 	public function form( $instance ) {
 		if ( Options::is_instant_enabled() ) {
@@ -860,7 +860,7 @@ class Search_Widget extends \WP_Widget {
 	 * Outputs the widget update form to be used in the Customizer for Instant Search.
 	 *
 	 * @param array $instance Previously saved values from database.
-	 * @since 8.6.0
+	 * @since 8.6.0​
 	 */
 	private function form_for_instant_search( $instance ) {
 		$instance = $this->populate_defaults_for_instant_search( $instance );
@@ -915,7 +915,7 @@ class Search_Widget extends \WP_Widget {
 	 * @param string $name        Attribute name.
 	 * @param string $value       Attribute value.
 	 * @param bool   $is_template Whether this is for an Underscore template or not.
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 */
 	private function render_widget_attr( $name, $value, $is_template ) {
 		echo $is_template ? "<%= $name %>" : esc_attr( $value ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -930,7 +930,7 @@ class Search_Widget extends \WP_Widget {
 	 * @param string $value       Attribute value.
 	 * @param string $compare     Value to compare to the attribute value to decide if it should be selected.
 	 * @param bool   $is_template Whether this is for an Underscore template or not.
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 */
 	private function render_widget_option_selected( $name, $value, $compare, $is_template ) {
 		$compare_js = rawurlencode( $compare );
@@ -945,7 +945,7 @@ class Search_Widget extends \WP_Widget {
 	 * @param array $filter      The filter to render.
 	 * @param bool  $is_template Whether this is for an Underscore template or not.
 	 * @param bool  $is_instant_search Whether this site enables Instant Search or not.
-	 * @since 5.7.0
+	 * @since 5.7.0​
 	 */
 	public function render_widget_edit_filter( $filter, $is_template = false, $is_instant_search = false ) {
 		$args = wp_parse_args(

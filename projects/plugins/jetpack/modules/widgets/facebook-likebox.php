@@ -155,7 +155,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		 *
 		 * @module widgets
 		 *
-		 * @since 8.4.0
+		 * @since 8.4.0​
 		 *
 		 * @param bool True value hides the call to action button
 		 */

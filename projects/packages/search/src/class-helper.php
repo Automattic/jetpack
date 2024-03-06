@@ -19,7 +19,7 @@ class Helper {
 	/**
 	 * The search widget's base ID.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 * @var string
 	 */
 	const FILTER_WIDGET_BASE = 'jetpack-search-filters';
@@ -27,7 +27,7 @@ class Helper {
 	/**
 	 * Create a URL for the current search that doesn't include the "paged" parameter.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @return string The search URL.
 	 */
@@ -54,7 +54,7 @@ class Helper {
 	 *
 	 * @see   add_query_arg()
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param string|array $key   Either a query variable key, or an associative array of query variables.
 	 * @param string       $value Optional. A query variable value.
@@ -76,7 +76,7 @@ class Helper {
 	 *
 	 * @see   remove_query_arg()
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param string|array $key   Query key or keys to remove.
 	 * @param bool|string  $url Optional. A URL to act upon.  Defaults to the current search URL.
@@ -92,7 +92,7 @@ class Helper {
 	/**
 	 * Returns the name of the search widget's option.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @return string The search widget option name.
 	 */
@@ -103,7 +103,7 @@ class Helper {
 	/**
 	 * Returns the search widget instances from the widget's option.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @return array The widget options.
 	 */
@@ -134,7 +134,7 @@ class Helper {
 	 *
 	 * @see   is_active_widget()
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param int $widget_id Widget ID.
 	 *
@@ -147,7 +147,7 @@ class Helper {
 	/**
 	 * Returns an array of the filters from all active search widgets.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param array|null $allowed_widget_ids array of allowed widget IDs.
 	 *
@@ -190,7 +190,7 @@ class Helper {
 	/**
 	 * Get the localized default label for a date filter.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param string $type       Date type, either year or month.
 	 * @param bool   $is_updated Whether the filter was updated or not (adds "Updated" to the end).
@@ -218,7 +218,7 @@ class Helper {
 	/**
 	 * Creates a default name for a filter. Used when the filter label is blank.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param array $widget_filter The filter to generate the title for.
 	 *
@@ -286,7 +286,7 @@ class Helper {
 	/**
 	 * Whether we should rerun a search in the customizer preview or not.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @return bool
 	 */
@@ -302,7 +302,7 @@ class Helper {
 	 * Since PHP's built-in array_diff() works by comparing the values that are in array 1 to the other arrays,
 	 * if there are less values in array 1, it's possible to get an empty diff where one might be expected.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param array $array_1 The first array.
 	 * @param array $array_2 The second array.
@@ -326,7 +326,7 @@ class Helper {
 	/**
 	 * Given the widget instance, will return true when selected post types differ from searchable post types.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param array $post_types An array of post types.
 	 *
@@ -346,7 +346,7 @@ class Helper {
 	/**
 	 * Given the array of post types, will return true when these differ from the current search query.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param array $post_types An array of post types.
 	 *
@@ -378,7 +378,7 @@ class Helper {
 	/**
 	 * Determine what Tracks value should be used when updating a widget.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param mixed $old_value The old option value.
 	 * @param mixed $new_value The new option value.
@@ -472,7 +472,7 @@ class Helper {
 	/**
 	 * Creates the widget properties for sending to Tracks.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param array $widget The widget instance.
 	 *
@@ -503,7 +503,7 @@ class Helper {
 	/**
 	 * Creates the filter properties for sending to Tracks.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param array $filters An array of filters.
 	 *
@@ -537,7 +537,7 @@ class Helper {
 	/**
 	 * Gets the active post types given a set of filters.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param array $filters The active filters for the current query.
 	 *
@@ -558,7 +558,7 @@ class Helper {
 	/**
 	 * Sets active to false on all post type buckets.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param array $filters The available filters for the current query.
 	 *
@@ -581,7 +581,7 @@ class Helper {
 	/**
 	 * Given a url and an array of post types, will ensure that the post types are properly applied to the URL as args.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param string $url        The URL to add post types to.
 	 * @param array  $post_types An array of post types that should be added to the URL.
@@ -608,7 +608,7 @@ class Helper {
 	 * active filters, if removing a post type filter would result in there no longer be post_type args in the URL,
 	 * we need to be sure to add them back.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param array $filters    An array of possible filters for the current query.
 	 * @param array $post_types The post types to ensure are on the link.
@@ -656,7 +656,7 @@ class Helper {
 	 * developers to disable filters supplied by the search widget. Useful if filters are
 	 * being defined at the code level.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @return bool
 	 */
@@ -667,7 +667,7 @@ class Helper {
 		 *
 		 * @module search
 		 *
-		 * @since  5.7.0
+		 * @since 5.7.0​
 		 *
 		 * @param bool false
 		 */
@@ -677,7 +677,7 @@ class Helper {
 	/**
 	 * Returns the maximum posts per page for a search query.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @return int
 	 */
@@ -688,7 +688,7 @@ class Helper {
 	/**
 	 * Returns the maximum offset for a search query.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @return int
 	 */
@@ -699,7 +699,7 @@ class Helper {
 	/**
 	 * Returns the maximum offset for a search query.
 	 *
-	 * @since 8.4.0
+	 * @since 8.4.0​
 	 * @param string $locale    A potentially valid locale string.
 	 *
 	 * @return bool
@@ -715,7 +715,7 @@ class Helper {
 	/**
 	 * Get the version number to use when loading the file. Allows us to bypass cache when developing.
 	 *
-	 * @since 8.6.0
+	 * @since 8.6.0​
 	 * @param string $file Path of the file we are looking for.
 	 * @return string $script_version Version number.
 	 */
@@ -728,7 +728,7 @@ class Helper {
 	/**
 	 * Generates a customizer settings ID for a given post type.
 	 *
-	 * @since 8.8.0
+	 * @since 8.8.0​
 	 * @param object $post_type Post type object returned from get_post_types.
 	 * @return string $customizer_id Customizer setting ID.
 	 */
@@ -739,7 +739,7 @@ class Helper {
 	/**
 	 * Generates an array of post types associated with their customizer IDs.
 	 *
-	 * @since 8.8.0
+	 * @since 8.8.0​
 	 * @return array $ids Post type => post type customizer ID object.
 	 */
 	public static function generate_post_type_customizer_ids() {
@@ -752,7 +752,7 @@ class Helper {
 	/**
 	 * Sanitizes a checkbox value for writing to the database.
 	 *
-	 * @since 8.9.0
+	 * @since 8.9.0​
 	 *
 	 * @param any $value from the customizer form.
 	 * @return string either '0' or '1'.
@@ -764,7 +764,7 @@ class Helper {
 	/**
 	 * Sanitizes a checkbox value for rendering the Customizer.
 	 *
-	 * @since 8.9.0
+	 * @since 8.9.0​
 	 *
 	 * @param any $value from the database.
 	 * @return boolean
@@ -903,7 +903,7 @@ class Helper {
 		 *
 		 * @module search
 		 *
-		 * @since 7.7.0
+		 * @since 7.7.0​
 		 *
 		 * @param array $options Array of parameters used in Instant Search queries.
 		 */

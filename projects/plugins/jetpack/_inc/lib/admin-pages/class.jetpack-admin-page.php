@@ -58,7 +58,7 @@ abstract class Jetpack_Admin_Page {
 	/**
 	 * Function called after admin_styles to load any additional needed styles.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 */
 	public function additional_styles() {}
 
@@ -183,7 +183,7 @@ abstract class Jetpack_Admin_Page {
 	/**
 	 * Checks if REST API is enabled.
 	 *
-	 * @since 4.4.2
+	 * @since 4.4.2​
 	 *
 	 * @return bool
 	 */
@@ -197,7 +197,7 @@ abstract class Jetpack_Admin_Page {
 	/**
 	 * Checks the site plan and deactivates modules that were active but are no longer included in the plan.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 *
 	 * @param WP_Screen $page Current WP_Screen object.
 	 *

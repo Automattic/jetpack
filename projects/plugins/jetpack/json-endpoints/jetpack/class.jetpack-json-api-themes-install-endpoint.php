@@ -52,7 +52,7 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 			 *
 			 * @module json-api
 			 *
-			 * @since 4.4.2
+			 * @since 4.4.2​
 			 *
 			 * @param bool   $use_alternative_install_method Whether to use the alternative method of installing
 			 *                                               a WPCom theme.
@@ -126,7 +126,7 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 			 *
 			 * @module json-api
 			 *
-			 * @since 4.4.2
+			 * @since 4.4.2​
 			 *
 			 * @param bool   $skip_download_filter_result Whether to skip the standard method of downloading
 			 *                                            and validating a WPCom theme.

@@ -2,7 +2,7 @@
 /**
  * Class for REST API endpoints testing.
  *
- * @since 4.4.0
+ * @since 4.4.0​
  * @package automattic/jetpack
  */
 
@@ -20,7 +20,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Used to store an instance of the WP_REST_Server.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 *
 	 * @var WP_REST_Server
 	 */
@@ -29,7 +29,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Setup environment for REST API endpoints test.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 */
 	public function set_up() {
 
@@ -44,7 +44,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Clean environment for REST API endpoints test.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 */
 	public function tear_down() {
 		parent::tear_down();
@@ -56,7 +56,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Loads the REST API endpoints to test their methods directly.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 */
 	protected function load_rest_endpoints_direct() {
 		require_once __DIR__ . '/../../../../_inc/lib/class.core-rest-api-endpoints.php';
@@ -65,7 +65,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Get Jetpack connection status.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 *
 	 * @return array
 	 */
@@ -77,7 +77,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Create and get a user using WP factory.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 *
 	 * @param string $role
 	 *
@@ -94,7 +94,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Creates a WP_REST_Request and returns it.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 *
 	 * @param string $route       REST API path to be appended to /jetpack/v4/.
 	 * @param array  $json_params When present, parameters are added to request in JSON format.
@@ -154,7 +154,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Check response status code.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 *
 	 * @param integer          $status
 	 * @param WP_REST_Response $response
@@ -166,7 +166,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Check response data.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 *
 	 * @param array            $data
 	 * @param WP_REST_Response $response
@@ -187,7 +187,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test permission to see if users can view Jetpack admin screen.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 */
 	public function test_jetpack_admin_page_permission() {
 
@@ -233,7 +233,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test permission to connect Jetpack site or link user.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 */
 	public function test_connection_permission() {
 
@@ -276,7 +276,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test permission to disconnect Jetpack site.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 */
 	public function test_disconnection_permission() {
 
@@ -310,7 +310,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test permission to activate plugins.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 */
 	public function test_plugin_activation_permission() {
 
@@ -348,7 +348,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test permission to disconnect Jetpack site for a user that is connected.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 */
 	public function test_admin_user_unlink_permission() {
 
@@ -379,7 +379,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test permission to manage and configure Jetpack modules.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 */
 	public function test_manage_configure_modules_permission() {
 
@@ -416,7 +416,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test information about connection status.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 */
 	public function test_jetpack_connection_status() {
 
@@ -448,7 +448,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test information about connection status in staging mode.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 */
 	public function test_jetpack_connection_status_staging() {
 
@@ -485,7 +485,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test information about connection status in dev mode.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 */
 	public function test_jetpack_connection_status_dev() {
 
@@ -523,7 +523,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test site disconnection with authenticated user and disconnected site
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 */
 	public function test_disconnect_site_auth_param_notconnected() {
 
@@ -542,7 +542,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test site disconnection with authenticated user and connected site
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 */
 	public function test_disconnect_site_auth_param_connected() {
 
@@ -567,7 +567,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test connection url build when there's no blog token or id.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 */
 	public function test_build_connect_url_no_blog_token_id() {
 
@@ -611,7 +611,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test onboarding token and make sure it's a network option.
 	 *
-	 * @since 5.4.0
+	 * @since 5.4.0​
 	 */
 	public function test_check_onboarding_token() {
 		$this->assertFalse( Jetpack_Options::get_option( 'onboarding' ) );
@@ -626,7 +626,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test connection url build when there's a blog token or id.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 */
 	public function test_build_connect_url_blog_token_and_id() {
 
@@ -665,7 +665,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test unlink user.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 */
 	public function test_unlink_user() {
 
@@ -711,7 +711,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 	/** Test unlinking a user will also remove related cached data.
 	 *
-	 * @since 8.8.0
+	 * @since 8.8.0​
 	 */
 	public function test_unlink_user_cache_data_removal() {
 
@@ -741,7 +741,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test that a setting using 'enum' property is saved correctly.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 */
 	public function test_setting_enum_save() {
 
@@ -771,7 +771,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test that an arg with array type can be saved.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 */
 	public function test_setting_array_type() {
 
@@ -803,7 +803,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * - module settings
 	 * - module activation state
 	 *
-	 * @since 4.6.0
+	 * @since 4.6.0​
 	 */
 	public function test_settings_retrieve() {
 
@@ -830,7 +830,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test fetching milestone widget data.
 	 *
-	 * @since 5.5.0
+	 * @since 5.5.0​
 	 */
 	public function test_fetch_milestone_widget_data() {
 		jetpack_register_widget_milestone();
@@ -909,7 +909,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test fetching a widget that does not exist.
 	 *
-	 * @since 5.5.0
+	 * @since 5.5.0​
 	 */
 	public function test_fetch_nonexistent_widget_data() {
 		jetpack_register_widget_milestone();
@@ -925,7 +925,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test fetching a nonexistent instance of an existing widget.
 	 *
-	 * @since 5.5.0
+	 * @since 5.5.0​
 	 */
 	public function test_fetch_nonexistent_widget_instance_data() {
 		jetpack_register_widget_milestone();
@@ -941,7 +941,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test fetching a widget that exists but has not been registered.
 	 *
-	 * @since 5.5.0
+	 * @since 5.5.0​
 	 */
 	public function test_fetch_not_registered_widget_data() {
 		update_option(

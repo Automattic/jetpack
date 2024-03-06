@@ -6,7 +6,7 @@ class WP_Test_Jetpack_Verification_Tools_Utils extends WP_UnitTestCase {
 	/**
 	 * @author cbauerman
 	 * @covers ::jetpack_verification_validate
-	 * @since 6.5.0
+	 * @since 6.5.0​
 	 */
 	public function test_jetpack_verification_validate_google_raw_code() {
 		$this->assertEquals(
@@ -19,7 +19,7 @@ class WP_Test_Jetpack_Verification_Tools_Utils extends WP_UnitTestCase {
 	/**
 	 * @author cbauerman
 	 * @covers ::jetpack_verification_validate
-	 * @since 6.5.0
+	 * @since 6.5.0​
 	 */
 	public function test_jetpack_verification_validate_google_code_in_meta_double_quotes() {
 		$this->assertEquals(
@@ -32,7 +32,7 @@ class WP_Test_Jetpack_Verification_Tools_Utils extends WP_UnitTestCase {
 	/**
 	 * @author cbauerman
 	 * @covers ::jetpack_verification_validate
-	 * @since 6.5.0
+	 * @since 6.5.0​
 	 */
 	public function test_jetpack_verification_validate_google_code_in_meta_single_quotes() {
 		$this->assertEquals(

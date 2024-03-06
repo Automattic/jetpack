@@ -317,7 +317,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		 * Used to signal that the callables await transient should be cleared. Clearing the await transient is useful
 		 * in cases where we need to sync values to WordPress.com sooner than the default wait time.
 		 *
-		 * @since 4.4.0
+		 * @since 4.4.0​
 		 */
 		do_action( 'jetpack_sync_unlock_sync_callable' );
 

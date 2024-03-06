@@ -126,7 +126,7 @@ class Jetpack_Core_API_Site_Endpoint {
 	/**
 	 * Check that the current user has permissions to request information about this site.
 	 *
-	 * @since 5.1.0
+	 * @since 5.1.0​
 	 *
 	 * @return bool
 	 */
@@ -137,7 +137,7 @@ class Jetpack_Core_API_Site_Endpoint {
 	/**
 	 * Gets an array of data that show how Jetpack is currently being used to benefit the site.
 	 *
-	 * @since 7.7
+	 * @since 7.7​
 	 *
 	 * @return WP_REST_Response
 	 */

@@ -8,7 +8,7 @@ class WP_Test_Jetpack_Shortcodes_MailChimp extends WP_UnitTestCase {
 	/**
 	 * Verify that [mailchimp] exists.
 	 *
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_mailchimp_exists() {
 		$this->assertTrue( shortcode_exists( 'mailchimp_subscriber_popup' ) );
@@ -17,7 +17,7 @@ class WP_Test_Jetpack_Shortcodes_MailChimp extends WP_UnitTestCase {
 	/**
 	 * Verify that calling do_shortcode with the shortcode doesn't return the same content.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_mailchimp() {
 		$content = '[mailchimp_subscriber_popup]';
@@ -31,7 +31,7 @@ class WP_Test_Jetpack_Shortcodes_MailChimp extends WP_UnitTestCase {
 	/**
 	 * Verify that rendering the shortcode returns a MailChimp image.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_mailchimp_form() {
 		$uuid    = '1ca7856462585a934b8674c71';

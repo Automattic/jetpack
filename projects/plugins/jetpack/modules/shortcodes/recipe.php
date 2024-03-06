@@ -36,7 +36,7 @@ class Jetpack_Recipes {
 	/**
 	 * Returns KSES tags with Schema-specific attributes.
 	 *
-	 * @since 8.0.0
+	 * @since 8.0.0​
 	 *
 	 * @return array Array to be used by KSES.
 	 */

@@ -16,7 +16,7 @@ add_shortcode( 'gravatar_profile', 'jetpack_gravatar_profile_shortcode' );
 /**
  * Get gravatar using the email provided at the specified size.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  *
  * @param array $atts Shortcode attributes.
  *
@@ -46,7 +46,7 @@ function jetpack_gravatar_shortcode( $atts ) {
 /**
  * Display Gravatar profile
  *
- * @since 4.5.0
+ * @since 4.5.0​
  *
  * @param array $atts Shortcode attributes.
  *

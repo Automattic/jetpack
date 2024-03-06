@@ -19,7 +19,7 @@ class Classic_Search {
 	/**
 	 * The singleton instance of this class.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 * @var Classic_Search
 	 */
 	private static $instance;
@@ -27,7 +27,7 @@ class Classic_Search {
 	/**
 	 * The number of found posts.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 * @var int
 	 */
 	protected $found_posts = 0;
@@ -35,7 +35,7 @@ class Classic_Search {
 	/**
 	 * The search result, as returned by the WordPress.com REST API.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 * @var array
 	 */
 	protected $search_result;
@@ -43,7 +43,7 @@ class Classic_Search {
 	/**
 	 * This site's blog ID on WordPress.com.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 * @var int
 	 */
 	protected $jetpack_blog_id;
@@ -51,7 +51,7 @@ class Classic_Search {
 	/**
 	 * The Elasticsearch aggregations (filters).
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 * @var array
 	 */
 	protected $aggregations = array();
@@ -59,7 +59,7 @@ class Classic_Search {
 	/**
 	 * The maximum number of aggregations allowed.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 * @var int
 	 */
 	protected $max_aggregations_count = 100;
@@ -67,7 +67,7 @@ class Classic_Search {
 	/**
 	 * Statistics about the last Elasticsearch query.
 	 *
-	 * @since 5.6.0
+	 * @since 5.6.0​
 	 * @var array
 	 */
 	protected $last_query_info = array();
@@ -75,7 +75,7 @@ class Classic_Search {
 	/**
 	 * Statistics about the last Elasticsearch query failure.
 	 *
-	 * @since 5.6.0
+	 * @since 5.6.0​
 	 * @var array
 	 */
 	protected $last_query_failure_info = array();
@@ -83,7 +83,7 @@ class Classic_Search {
 	/**
 	 * Languages with custom analyzers. Other languages are supported, but are analyzed with the default analyzer.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 * @var array
 	 */
 	public static $analyzed_langs = array( 'ar', 'bg', 'ca', 'cs', 'da', 'de', 'el', 'en', 'es', 'eu', 'fa', 'fi', 'fr', 'he', 'hi', 'hu', 'hy', 'id', 'it', 'ja', 'ko', 'nl', 'no', 'pt', 'ro', 'ru', 'sv', 'tr', 'zh' );
@@ -135,7 +135,7 @@ class Classic_Search {
 	/**
 	 * Prevent __clone()'ing of this class.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 */
 	public function __clone() {
 		wp_die( "Please don't __clone Classic_Search" );
@@ -144,7 +144,7 @@ class Classic_Search {
 	/**
 	 * Prevent __wakeup()'ing of this class.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 */
 	public function __wakeup() {
 		wp_die( "Please don't __wakeup Classic_Search" );
@@ -153,7 +153,7 @@ class Classic_Search {
 	/**
 	 * Setup the various hooks needed for the plugin to take over search duties.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 */
 	public function init_hooks() {
 		if ( ! is_admin() ) {
@@ -178,7 +178,7 @@ class Classic_Search {
 	 * Does this site have a VIP index
 	 * Get the version number to use when loading the file. Allows us to bypass cache when developing.
 	 *
-	 * @since 6.0
+	 * @since 6.0​
 	 * @return string $script_version Version number.
 	 */
 	public function has_vip_index() {
@@ -188,7 +188,7 @@ class Classic_Search {
 	/**
 	 * When an Elasticsearch query fails, this stores it and enqueues some debug information in the footer.
 	 *
-	 * @since 5.6.0
+	 * @since 5.6.0​
 	 *
 	 * @param array $meta Information about the failure.
 	 */
@@ -200,7 +200,7 @@ class Classic_Search {
 	/**
 	 * Outputs information about the last Elasticsearch failure.
 	 *
-	 * @since 5.6.0
+	 * @since 5.6.0​
 	 */
 	public function print_query_failure() {
 		if ( $this->last_query_failure_info ) {
@@ -216,7 +216,7 @@ class Classic_Search {
 	/**
 	 * Stores information about the last Elasticsearch query and enqueues some debug information in the footer.
 	 *
-	 * @since 5.6.0
+	 * @since 5.6.0​
 	 *
 	 * @param array $meta Information about the query.
 	 */
@@ -228,7 +228,7 @@ class Classic_Search {
 	/**
 	 * Outputs information about the last Elasticsearch search.
 	 *
-	 * @since 5.6.0
+	 * @since 5.6.0​
 	 */
 	public function print_query_success() {
 		if ( $this->last_query_info ) {
@@ -250,7 +250,7 @@ class Classic_Search {
 	/**
 	 * Returns the last query information, or false if no information was stored.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @return bool|array
 	 */
@@ -261,7 +261,7 @@ class Classic_Search {
 	/**
 	 * Returns the last query failure information, or false if no failure information was stored.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @return bool|array
 	 */
@@ -274,7 +274,7 @@ class Classic_Search {
 	 * developers to disable filters supplied by the search widget. Useful if filters are
 	 * being defined at the code level.
 	 *
-	 * @since      5.7.0
+	 * @since 5.7.0​
 	 * @deprecated 5.8.0 Use Helper::are_filters_by_widget_disabled() directly.
 	 *
 	 * @return bool
@@ -287,7 +287,7 @@ class Classic_Search {
 	 * Retrieves a list of known Jetpack search filters widget IDs, gets the filters for each widget,
 	 * and applies those filters to this Classic_Search object.
 	 *
-	 * @since 5.7.0
+	 * @since 5.7.0​
 	 */
 	public function set_filters_from_widgets() {
 		if ( Helper::are_filters_by_widget_disabled() ) {
@@ -304,7 +304,7 @@ class Classic_Search {
 	/**
 	 * Restricts search results to certain post types via a GET argument.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param WP_Query $query A WP_Query instance.
 	 */
@@ -330,7 +330,7 @@ class Classic_Search {
 	/**
 	 * Run a search on the WordPress.com public API.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 *
 	 * @param array $es_args Args conforming to the WP.com /sites/<blog_id>/search endpoint.
 	 *
@@ -417,7 +417,7 @@ class Classic_Search {
 		 *
 		 * @module search
 		 *
-		 * @since  5.0.0
+		 * @since 5.0.0​
 		 * @since  5.8.0 This action now fires on all queries instead of just successful queries.
 		 *
 		 * @param array $query Array of information about the query performed
@@ -430,7 +430,7 @@ class Classic_Search {
 			 *
 			 * @module search
 			 *
-			 * @since  5.6.0
+			 * @since 5.6.0​
 			 *
 			 * @param array Array containing the response code and response from the failed search query
 			 */
@@ -453,7 +453,7 @@ class Classic_Search {
 	 *
 	 * This is the main hook of the plugin and is responsible for returning the posts that match the search query.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 *
 	 * @param array    $posts Current array of posts (still pre-query).
 	 * @param WP_Query $query The WP_Query being filtered.
@@ -510,7 +510,7 @@ class Classic_Search {
 	/**
 	 * Build up the search, then run it against the Jetpack servers.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 *
 	 * @param WP_Query $query The original WP_Query to use for the parameters of our search.
 	 */
@@ -561,7 +561,7 @@ class Classic_Search {
 		 *
 		 * @module search
 		 *
-		 * @since  5.0.0
+		 * @since 5.0.0​
 		 *
 		 * @param array    $es_wp_query_args The current query args, in WP_Query format.
 		 * @param WP_Query $query            The original WP_Query object.
@@ -599,7 +599,7 @@ class Classic_Search {
 		 *
 		 * @module search
 		 *
-		 * @since  5.0.0
+		 * @since 5.0.0​
 		 *
 		 * @param array    $es_query_args The raw Elasticsearch query args.
 		 * @param WP_Query $query         The original WP_Query object.
@@ -630,7 +630,7 @@ class Classic_Search {
 	 *
 	 * This is especially useful for supporting widget management in the customizer.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @return bool Whether the query was successful or not.
 	 */
@@ -652,7 +652,7 @@ class Classic_Search {
 	/**
 	 * Given a WP_Query, convert its WP_Tax_Query (if present) into the WP-style Elasticsearch term arguments for the search.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 *
 	 * @param WP_Query $query The original WP_Query object for which to parse the taxonomy query.
 	 *
@@ -696,7 +696,7 @@ class Classic_Search {
 	 *
 	 * Only allows post types that are not marked as 'exclude_from_search'.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 *
 	 * @param WP_Query $query Original WP_Query object.
 	 *
@@ -757,7 +757,7 @@ class Classic_Search {
 	/**
 	 * Get the Elasticsearch result.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 *
 	 * @param bool $raw If true, does not check for WP_Error or return the 'results' array - the JSON decoded HTTP response.
 	 *
@@ -774,7 +774,7 @@ class Classic_Search {
 	/**
 	 * Add the date portion of a WP_Query onto the query args.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 *
 	 * @param array    $es_wp_query_args The Elasticsearch query arguments in WordPress form.
 	 * @param WP_Query $query            The original WP_Query.
@@ -817,7 +817,7 @@ class Classic_Search {
 	/**
 	 * Converts WP_Query style args to Elasticsearch args.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 *
 	 * @param array $args Array of WP_Query style arguments.
 	 *
@@ -858,7 +858,7 @@ class Classic_Search {
 			 *
 			 * @module search
 			 *
-			 * @since  7.9.0
+			 * @since 7.9.0​
 			 *
 			 * @param array $languages The array of languages. Default is value of get_locale().
 			 */
@@ -996,7 +996,7 @@ class Classic_Search {
 		 *
 		 * @module search
 		 *
-		 * @since  5.8.0
+		 * @since 5.8.0​
 		 *
 		 * @param array $decay_params The decay parameters.
 		 * @param array $args         The WP query parameters.
@@ -1217,7 +1217,7 @@ class Classic_Search {
 	/**
 	 * Given an array of aggregations, parse and add them onto the query builder object for use in Elasticsearch.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 *
 	 * @param array                                        $aggregations Array of aggregations (filters) to add to the query builder.
 	 * @param Automattic\Jetpack\Search\WPES\Query_Builder $builder      The builder instance that is creating the Elasticsearch query.
@@ -1254,7 +1254,7 @@ class Classic_Search {
 	/**
 	 * Given an individual taxonomy aggregation, add it to the query builder object for use in Elasticsearch.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 *
 	 * @param array                                        $aggregation The aggregation to add to the query builder.
 	 * @param string                                       $label       The 'label' (unique id) for this aggregation.
@@ -1291,7 +1291,7 @@ class Classic_Search {
 	/**
 	 * Given an individual post_type aggregation, add it to the query builder object for use in Elasticsearch.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 *
 	 * @param array                                        $aggregation The aggregation to add to the query builder.
 	 * @param string                                       $label       The 'label' (unique id) for this aggregation.
@@ -1333,7 +1333,7 @@ class Classic_Search {
 	/**
 	 * Given an individual date_histogram aggregation, add it to the query builder object for use in Elasticsearch.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 *
 	 * @param array                                        $aggregation The aggregation to add to the query builder.
 	 * @param string                                       $label       The 'label' (unique id) for this aggregation.
@@ -1364,7 +1364,7 @@ class Classic_Search {
 	 *
 	 * Attempts to optimize the filters somewhat.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 *
 	 * @param array $curr_filter The existing filters to build upon.
 	 * @param array $filters     The new filters to add.
@@ -1399,7 +1399,7 @@ class Classic_Search {
 	 *
 	 * @see    https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html
 	 *
-	 * @since  5.0.0
+	 * @since 5.0.0​
 	 *
 	 * @param array $aggregations Array of filters (aggregations) to apply to the search.
 	 */
@@ -1415,7 +1415,7 @@ class Classic_Search {
 	/**
 	 * Get the raw Aggregation results from the Elasticsearch response.
 	 *
-	 * @since  5.0.0
+	 * @since 5.0.0​
 	 *
 	 * @see    https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html
 	 *
@@ -1442,7 +1442,7 @@ class Classic_Search {
 	 * NOTE - if this is called before the search is performed, an empty array will be returned. Use the $aggregations class
 	 * member if you need to access the raw filters set in Classic_Search::set_filters().
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 *
 	 * @param WP_Query $query The optional original WP_Query to use for determining which filters are active. Defaults to the main query.
 	 *
@@ -1726,7 +1726,7 @@ class Classic_Search {
 		 *
 		 * @module search
 		 *
-		 * @since  6.9.0
+		 * @since 6.9.0​
 		 *
 		 * @param array    $aggregation_data The array of filters keyed on label.
 		 * @param WP_Query $query            The WP_Query object.
@@ -1737,7 +1737,7 @@ class Classic_Search {
 	/**
 	 * Get the filters that are currently applied to this search.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 *
 	 * @return array Array of filters that were applied.
 	 */
@@ -1768,7 +1768,7 @@ class Classic_Search {
 	 *
 	 * Allows custom code to modify the GET var that is used to represent a given taxonomy, via the jetpack_search_taxonomy_query_var filter.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 *
 	 * @param string $taxonomy_name The name of the taxonomy for which to get the query var.
 	 *
@@ -1786,7 +1786,7 @@ class Classic_Search {
 		 *
 		 * @module search
 		 *
-		 * @since  5.0.0
+		 * @since 5.0.0​
 		 *
 		 * @param string $query_var     The current query_var for the taxonomy
 		 * @param string $taxonomy_name The taxonomy name
@@ -1801,7 +1801,7 @@ class Classic_Search {
 	 * Necessary because ES does not always return aggregations in the same order that you pass them in,
 	 * and it should be possible to control the display order easily.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 *
 	 * @param array $aggregations Aggregation results to be reordered.
 	 * @param array $desired      Array with keys representing the desired ordering.
@@ -1827,7 +1827,7 @@ class Classic_Search {
 	/**
 	 * Sends events to Tracks when a search filters widget is updated.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param string $option    The option name. Only "widget_jetpack-search-filters" is cared about.
 	 * @param array  $old_value The old option value.
@@ -1854,7 +1854,7 @@ class Classic_Search {
 	/**
 	 * Moves any active search widgets to the inactive category.
 	 *
-	 * @since 5.9.0
+	 * @since 5.9.0​
 	 */
 	public function move_search_widgets_to_inactive() {
 		if ( ! is_active_widget( false, false, Helper::FILTER_WIDGET_BASE, true ) ) {
@@ -1904,7 +1904,7 @@ class Classic_Search {
 		 *
 		 * @module search
 		 *
-		 * @since  5.6.0
+		 * @since 5.6.0​
 		 *
 		 * @param bool     $should_handle Should be handled by Jetpack Search.
 		 * @param WP_Query $query         The WP_Query object.

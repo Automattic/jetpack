@@ -35,7 +35,7 @@ class Jetpack_Tweet {
 	/**
 	 * Parse shortcode arguments and render its output.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @param array $atts Shortcode parameters.
 	 *
@@ -115,7 +115,7 @@ class Jetpack_Tweet {
 	/**
 	 * Adds parameters to URL used to fetch the tweet.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @param string $provider URL of provider that supplies the tweet we're requesting.
 	 * @param string $url      URL of tweet to embed.
@@ -146,7 +146,7 @@ class Jetpack_Tweet {
 		 *
 		 * @module shortcodes
 		 *
-		 * @since 4.6.0
+		 * @since 4.6.0​
 		 *
 		 * @param string $partner_id Twitter partner ID.
 		 */
@@ -163,7 +163,7 @@ class Jetpack_Tweet {
 	/**
 	 * Enqueue front end assets.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public static function jetpack_tweet_shortcode_script() {
 		if ( ! wp_script_is( 'twitter-widgets', 'registered' ) ) {

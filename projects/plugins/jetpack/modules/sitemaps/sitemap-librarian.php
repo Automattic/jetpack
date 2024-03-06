@@ -6,7 +6,7 @@
  * also includes the SQL used to retrieve posts and images to be included
  * in the sitemaps.
  *
- * @since 4.8.0
+ * @since 4.8.0​
  * @package automattic/jetpack
  */
 
@@ -17,7 +17,7 @@ require_once __DIR__ . '/sitemap-constants.php';
  * This object handles any database interaction required
  * for sitemap generation.
  *
- * @since 4.8.0
+ * @since 4.8.0​
  */
 class Jetpack_Sitemap_Librarian {
 
@@ -26,7 +26,7 @@ class Jetpack_Sitemap_Librarian {
 	 * Returns null if no such sitemap exists.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @param string $name Name of the sitemap to be retrieved.
 	 * @param string $type Type of the sitemap to be retrieved.
@@ -72,7 +72,7 @@ class Jetpack_Sitemap_Librarian {
 	 * If a sitemap with that type and name does exist, update it.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @param string $index     Index of the sitemap to be stored.
 	 * @param string $type      Type of the sitemap to be stored.
@@ -112,7 +112,7 @@ class Jetpack_Sitemap_Librarian {
 	 * Delete a sitemap by name and type.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @param string $name Row name.
 	 * @param string $type Row type.
@@ -136,7 +136,7 @@ class Jetpack_Sitemap_Librarian {
 	 * returned string is run through wp_specialchars_decode.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @param string $name Row name.
 	 * @param string $type Row type.
@@ -158,7 +158,7 @@ class Jetpack_Sitemap_Librarian {
 	 * until the first nonexistent sitemap is found.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @param int    $position Number before the first sitemap to be deleted.
 	 * @param string $type Sitemap type.
@@ -177,7 +177,7 @@ class Jetpack_Sitemap_Librarian {
 	 * Deletes all stored sitemap data.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 */
 	public function delete_all_stored_sitemap_data() {
 		$this->delete_sitemap_type_data( JP_MASTER_SITEMAP_TYPE );
@@ -193,7 +193,7 @@ class Jetpack_Sitemap_Librarian {
 	 * Deletes all sitemap data of specific type
 	 *
 	 * @access protected
-	 * @since 5.3.0
+	 * @since 5.3.0​
 	 *
 	 * @param String $type Type of sitemap.
 	 */
@@ -218,7 +218,7 @@ class Jetpack_Sitemap_Librarian {
 	 * of the given type which are larger than $from_id.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @param string $type Type of the sitemap rows to retrieve.
 	 * @param int    $from_id Greatest lower bound of retrieved sitemap post IDs.
@@ -254,7 +254,7 @@ class Jetpack_Sitemap_Librarian {
 	 * (measured by ID) which are larger than $from_id.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @param int $from_id Greatest lower bound of retrieved post IDs.
 	 * @param int $num_posts Largest number of posts to retrieve.
@@ -295,7 +295,7 @@ class Jetpack_Sitemap_Librarian {
 	 * Get the most recent timestamp among approved comments for the given post_id.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @param int $post_id Post identifier.
 	 *
@@ -321,7 +321,7 @@ class Jetpack_Sitemap_Librarian {
 	 * (measured by ID) which are larger than $from_id.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @param int $from_id Greatest lower bound of retrieved image post IDs.
 	 * @param int $num_posts Largest number of image posts to retrieve.
@@ -354,7 +354,7 @@ class Jetpack_Sitemap_Librarian {
 	 * (measured by ID) which are larger than $from_id.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @param int $from_id Greatest lower bound of retrieved video post IDs.
 	 * @param int $num_posts Largest number of video posts to retrieve.
@@ -384,7 +384,7 @@ class Jetpack_Sitemap_Librarian {
 	 * Retrieve an array of published posts from the last 2 days.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @param int $num_posts Largest number of posts to retrieve.
 	 *

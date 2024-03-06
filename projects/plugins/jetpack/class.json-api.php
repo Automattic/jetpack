@@ -1055,7 +1055,7 @@ class WPCOM_JSON_API {
 		/**
 		* Exclude certain comment types from comment counts in the REST API.
 		*
-		* @since 6.9.0
+		* @since 6.9.0​
 		* @deprecated 11.1
 		* @module json-api
 		*

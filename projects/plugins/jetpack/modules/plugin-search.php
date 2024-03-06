@@ -36,7 +36,7 @@ add_action( 'rest_api_init', array( 'Jetpack_Plugin_Search', 'register_endpoints
  * Class that includes cards in the plugin search results when users enter terms that match some Jetpack feature.
  * Card can be dismissed and includes a title, description, button to enable the feature and a link for more information.
  *
- * @since 7.1.0
+ * @since 7.1.0​
  */
 class Jetpack_Plugin_Search {
 
@@ -74,7 +74,7 @@ class Jetpack_Plugin_Search {
 	 *
 	 * @param object $screen WP SCreen object.
 	 *
-	 * @since 7.1.0
+	 * @since 7.1.0​
 	 */
 	public function start( $screen ) {
 		if ( 'plugin-install' === $screen->base && ( ! isset( $_GET['paged'] ) || 1 === intval( $_GET['paged'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -90,7 +90,7 @@ class Jetpack_Plugin_Search {
 	 *
 	 * @param string $url URL to load in dialog pulling the plugin page from wporg.
 	 *
-	 * @since 7.1.0
+	 * @since 7.1.0​
 	 *
 	 * @return string The URL with 'jetpack' instead of 'jetpack-plugin-search'.
 	 */
@@ -103,7 +103,7 @@ class Jetpack_Plugin_Search {
 	/**
 	 * Register REST API endpoints.
 	 *
-	 * @since 7.1.0
+	 * @since 7.1.0​
 	 */
 	public static function register_endpoints() {
 		register_rest_route(
@@ -129,7 +129,7 @@ class Jetpack_Plugin_Search {
 	 * A WordPress REST API permission callback method that accepts a request object and
 	 * decides if the current user has enough privileges to act.
 	 *
-	 * @since 7.1.0
+	 * @since 7.1.0​
 	 *
 	 * @return bool does a current user have enough privileges.
 	 */
@@ -140,7 +140,7 @@ class Jetpack_Plugin_Search {
 	/**
 	 * Validates that the ID of the hint to dismiss is a string.
 	 *
-	 * @since 7.1.0
+	 * @since 7.1.0​
 	 *
 	 * @param string|bool     $value Value to check.
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
@@ -164,7 +164,7 @@ class Jetpack_Plugin_Search {
 	 *     @type string $hint Slug of card to dismiss.
 	 * }
 	 *
-	 * @since 7.1.0
+	 * @since 7.1.0​
 	 *
 	 * @return bool|array|WP_Error a resulting value or object, or an error.
 	 */
@@ -177,7 +177,7 @@ class Jetpack_Plugin_Search {
 	/**
 	 * Returns a list of previously dismissed hints.
 	 *
-	 * @since 7.1.0
+	 * @since 7.1.0​
 	 *
 	 * @return array List of dismissed hints.
 	 */
@@ -191,7 +191,7 @@ class Jetpack_Plugin_Search {
 	/**
 	 * Save the hint in the list of dismissed hints.
 	 *
-	 * @since 7.1.0
+	 * @since 7.1.0​
 	 *
 	 * @param string $hint The hint id, which is a Jetpack module slug.
 	 *
@@ -206,7 +206,7 @@ class Jetpack_Plugin_Search {
 	 *
 	 * A feature hint will be displayed if it has not been dismissed before or if 2 or fewer other hints have been dismissed.
 	 *
-	 * @since 7.2.1
+	 * @since 7.2.1​
 	 *
 	 * @param string $hint The hint id, which is a Jetpack module slug.
 	 *
@@ -294,7 +294,7 @@ class Jetpack_Plugin_Search {
 	/**
 	 * Create a list with additional features for those we don't have a module, like Akismet.
 	 *
-	 * @since 7.1.0
+	 * @since 7.1.0​
 	 *
 	 * @return array List of features.
 	 */
@@ -442,7 +442,7 @@ class Jetpack_Plugin_Search {
 	/**
 	 * Remove cards for Jetpack plugins since we don't want duplicates.
 	 *
-	 * @since 7.1.0
+	 * @since 7.1.0​
 	 * @since 7.2.0 Only remove Jetpack.
 	 * @since 7.4.0 Simplify for WordPress 5.1+.
 	 *
@@ -506,7 +506,7 @@ class Jetpack_Plugin_Search {
 	 * @param string $configure_url URL to configure feature.
 	 *
 	 * @return string
-	 * @since 7.1.0
+	 * @since 7.1.0​
 	 */
 	private function get_configure_url( $feature, $configure_url ) {
 		switch ( $feature ) {
@@ -632,7 +632,7 @@ class Jetpack_Plugin_Search {
 /**
  * Master control that checks if Plugin search hints is active.
  *
- * @since 7.1.1
+ * @since 7.1.1​
  *
  * @return bool True if PSH is active.
  */
@@ -640,7 +640,7 @@ function jetpack_is_psh_active() {
 	/**
 	 * Disables the Plugin Search Hints feature found when searching the plugins page.
 	 *
-	 * @since 8.7.0
+	 * @since 8.7.0​
 	 *
 	 * @param bool Set false to disable the feature.
 	 */

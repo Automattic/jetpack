@@ -153,7 +153,7 @@ function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url = null ) {
 /**
  * Remove the Jetpack Responsive video wrapper in embed blocks.
  *
- * @since 7.0.0
+ * @since 7.0.0​
  *
  * @param string $block_content The block content about to be appended.
  * @param array  $block         The full block, including name and attributes.

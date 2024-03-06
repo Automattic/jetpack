@@ -36,7 +36,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		/**
 		 * Fires after loading default Jetpack Connection tests.
 		 *
-		 * @since 7.1.0
+		 * @since 7.1.0​
 		 * @since 8.3.0 Passes the Jetpack_Cxn_Tests instance.
 		 */
 		do_action( 'jetpack_connection_tests_loaded', $this );
@@ -44,7 +44,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		/**
 		 * Determines if the WP.com testing suite should be included.
 		 *
-		 * @since 7.1.0
+		 * @since 7.1.0​
 		 * @since 8.1.0 Default false.
 		 *
 		 * @param bool $run_test To run the WP.com testing suite. Default false.
@@ -762,7 +762,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 *
 	 * Intentionally added last as it will be skipped if any local failed conditions exist.
 	 *
-	 * @since 7.1.0
+	 * @since 7.1.0​
 	 * @since 7.9.0 Timeout waiting for a WP.com response no longer fails the test. Test is marked skipped instead.
 	 *
 	 * @return array Test results.

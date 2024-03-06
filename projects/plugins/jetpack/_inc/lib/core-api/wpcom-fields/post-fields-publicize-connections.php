@@ -30,7 +30,7 @@
  *   ...
  * }
  *
- * @since 6.8.0
+ * @since 6.8.0​
  */
 class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_V2_Field_Controller {
 	/**

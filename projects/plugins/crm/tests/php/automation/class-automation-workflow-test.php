@@ -20,7 +20,7 @@ require_once __DIR__ . '/tools/class-automation-faker.php';
 /**
  * Test Automation Workflow functionalities.
  *
- * @since 6.2.0
+ * @since 6.2.0​
  *
  * @covers Automattic\Jetpack\CRM\Automation
  */

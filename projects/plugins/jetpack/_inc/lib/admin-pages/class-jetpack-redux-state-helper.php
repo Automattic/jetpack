@@ -120,7 +120,7 @@ class Jetpack_Redux_State_Helper {
 			 * Filter to add connection errors
 			 * Format: array( array( 'code' => '...', 'message' => '...', 'action' => '...' ), ... )
 			 *
-			 * @since 8.7.0
+			 * @since 8.7.0​
 			 *
 			 * @param array $errors Connection errors.
 			 */
@@ -180,7 +180,7 @@ class Jetpack_Redux_State_Helper {
 				/**
 				 * Whether promotions are visible or not.
 				 *
-				 * @since 4.8.0
+				 * @since 4.8.0​
 				 *
 				 * @param bool $are_promotions_active Status of promotions visibility. True by default.
 				 */
@@ -494,7 +494,7 @@ class Jetpack_Redux_State_Helper {
 /**
  * Gather data about the current user.
  *
- * @since 4.1.0
+ * @since 4.1.0​
  *
  * @return array
  */

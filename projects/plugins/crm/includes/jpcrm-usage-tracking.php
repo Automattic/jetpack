@@ -5,7 +5,7 @@
  * is only included if the setting
  * is enabled
  * 
- * @since 4.3.0
+ * @since 4.3.0​
  * 
  */
 

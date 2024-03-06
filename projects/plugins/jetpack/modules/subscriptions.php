@@ -36,7 +36,7 @@ function jetpack_subscriptions_load() {
 /**
  * Cherry picks keys from `$_SERVER` array.
  *
- * @since 6.0.0
+ * @since 6.0.0​
  *
  * @return array An array of server data.
  */
@@ -513,7 +513,7 @@ class Jetpack_Subscriptions {
 	/**
 	 * Someone subscribes to my blog section
 	 *
-	 * @since 8.1
+	 * @since 8.1​
 	 */
 	public function social_notifications_subscribe_section() {
 		// Atypical usage here. We emit jquery to move subscribe notification checkbox to be with the rest of the email notification settings.
@@ -539,7 +539,7 @@ class Jetpack_Subscriptions {
 	/**
 	 * Someone subscribes to my blog Toggle
 	 *
-	 * @since 8.1
+	 * @since 8.1​
 	 */
 	public function social_notifications_subscribe_field() {
 		$checked = (int) ( 'on' === get_option( 'social_notifications_subscribe', 'on' ) );
@@ -558,7 +558,7 @@ class Jetpack_Subscriptions {
 	/**
 	 * Validate "Someone subscribes to my blog" option
 	 *
-	 * @since 8.1
+	 * @since 8.1​
 	 *
 	 * @param String $input the input string to be validated.
 	 * @return string on|off
@@ -978,7 +978,7 @@ class Jetpack_Subscriptions {
 		 *
 		 * @module subscriptions
 		 *
-		 * @since 5.5.0
+		 * @since 5.5.0​
 		 *
 		 * @param NULL|WP_Error $result Result of form submission: NULL on success, WP_Error otherwise.
 		 * @param array $post_ids An array of post IDs that the user subscribed to, 0 means blog subscription.
@@ -1039,7 +1039,7 @@ class Jetpack_Subscriptions {
 	/**
 	 * Set the social_notifications_subscribe option to `off` when the Subscriptions module is activated in the first time.
 	 *
-	 * @since 8.1
+	 * @since 8.1​
 	 *
 	 * @return void
 	 */

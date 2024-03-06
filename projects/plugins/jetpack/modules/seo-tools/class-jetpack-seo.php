@@ -25,7 +25,7 @@ class Jetpack_SEO {
 		 *
 		 * @module seo-tools
 		 *
-		 * @since 4.4.0
+		 * @since 4.4.0​
 		 *
 		 * @param bool true Should Jetpack's SEO Meta Tags be enabled. Defaults to true.
 		 */
@@ -41,7 +41,7 @@ class Jetpack_SEO {
 		 *
 		 * @module seo-tools
 		 *
-		 * @since 4.4.0
+		 * @since 4.4.0​
 		 *
 		 * @param bool true Should Jetpack SEO modify site titles. Defaults to true.
 		 */
@@ -127,7 +127,7 @@ class Jetpack_SEO {
 		 *
 		 * @module seo-tools
 		 *
-		 * @since 4.4.0
+		 * @since 4.4.0​
 		 *
 		 * @param array List of conflicted theme names. Defaults to empty array.
 		 */
@@ -237,7 +237,7 @@ class Jetpack_SEO {
 		 *
 		 * @module seo-tools
 		 *
-		 * @since 4.4.0
+		 * @since 4.4.0​
 		 *
 		 * @param array Array that consists of meta name and meta content pairs.
 		 */

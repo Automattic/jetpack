@@ -21,7 +21,7 @@ use Automattic\Jetpack\Redirect;
  *
  * Notify an author (and/or others) of a comment/trackback/pingback on a post.
  *
- * @since 5.8.0
+ * @since 5.8.0​
  * @since 9.3.0 Switched from pluggable function to filter callback
  *
  * @param array          $emails List of recipients.
@@ -229,7 +229,7 @@ function jetpack_notify_postauthor( $emails, $comment_id ) {
  *
  * Notifies the moderator of the site about a new comment that is awaiting approval.
  *
- * @since 5.8.0
+ * @since 5.8.0​
  * @since 9.2.0 Switched from pluggable function to filter callback
  * @since 9.5.0 Updated the passing condition to call get_option( 'moderation_notify' ); directly.
  *

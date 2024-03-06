@@ -8,7 +8,7 @@ class WP_Test_Jetpack_Shortcodes_VR extends WP_UnitTestCase {
 	/**
 	 * @author mkaz
 	 * @covers ::jetpack_vr_viewer_shortcode
-	 * @since 4.5
+	 * @since 4.5​
 	 */
 	public function test_shortcodes_vr_exists() {
 		$this->assertTrue( shortcode_exists( 'vr' ) );
@@ -17,7 +17,7 @@ class WP_Test_Jetpack_Shortcodes_VR extends WP_UnitTestCase {
 	/**
 	 * @author mkaz
 	 * @covers ::jetpack_vr_viewer_shortcode
-	 * @since 4.5
+	 * @since 4.5​
 	 */
 	public function test_shortcodes_vr() {
 		$content = '[vr]';
@@ -30,7 +30,7 @@ class WP_Test_Jetpack_Shortcodes_VR extends WP_UnitTestCase {
 	/**
 	 * @author mkaz
 	 * @covers ::jetpack_vr_viewer_shortcode
-	 * @since 4.5
+	 * @since 4.5​
 	 */
 	public function test_shortcodes_vr_url() {
 		$img     = 'https://en-blog.files.wordpress.com/2016/12/regents_park.jpg';
@@ -44,7 +44,7 @@ class WP_Test_Jetpack_Shortcodes_VR extends WP_UnitTestCase {
 	/**
 	 * @author mkaz
 	 * @covers ::jetpack_vr_viewer_shortcode
-	 * @since 4.5
+	 * @since 4.5​
 	 */
 	public function test_shortcodes_vr_url_missing() {
 		$content           = '[vr]';

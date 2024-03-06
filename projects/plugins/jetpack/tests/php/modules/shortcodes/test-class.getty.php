@@ -73,7 +73,7 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 	/**
 	 * Verify that [getty] exists.
 	 *
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_getty_exists() {
 		$this->assertTrue( shortcode_exists( 'getty' ) );
@@ -152,7 +152,7 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 	/**
 	 * Verify that rendering the shortcode returns a Getty image.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_getty_image() {
 		$image_id = '82278805';
@@ -169,7 +169,7 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 	 *
 	 * @group external-http
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_getty_image_via_oembed_http_request() {
 		$image_id = '82278805';

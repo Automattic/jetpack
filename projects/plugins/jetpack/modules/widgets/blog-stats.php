@@ -2,7 +2,7 @@
 /**
  * Blog Stats Widget.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  *
  * @package automattic/jetpack
  */
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Displays all time stats for that site.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  */
 class Jetpack_Blog_Stats_Widget extends WP_Widget {
 
@@ -181,7 +181,7 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 /**
  * If the Stats module is active in a recent version of Jetpack, register the widget.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  */
 function jetpack_blog_stats_widget_init() {
 	if ( Jetpack::is_module_active( 'stats' ) ) {

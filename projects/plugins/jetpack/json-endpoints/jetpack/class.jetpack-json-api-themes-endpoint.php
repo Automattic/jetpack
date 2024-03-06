@@ -168,7 +168,7 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 		 *
 		 * @module json-api
 		 *
-		 * @since 4.7.0
+		 * @since 4.7.0​
 		 *
 		 * @param array $formatted_theme The theme info array.
 		 */

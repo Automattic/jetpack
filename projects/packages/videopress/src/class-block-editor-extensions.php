@@ -51,7 +51,7 @@ class Block_Editor_Extensions {
 		/**
 		* Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
 		*
-		* @since 6.9.0
+		* @since 6.9.0​
 		* @deprecated Jetpack 11.8.0 Use jetpack_blocks_variation filter instead.
 		*
 		* @param boolean

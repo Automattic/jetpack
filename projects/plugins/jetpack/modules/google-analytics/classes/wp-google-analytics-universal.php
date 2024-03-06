@@ -71,7 +71,7 @@ class Jetpack_Google_Analytics_Universal {
 		/**
 		 * Allow for additional elements to be added to the universal Google Analytics queue (ga) array
 		 *
-		 * @since 5.6.0
+		 * @since 5.6.0​
 		 *
 		 * @param array $custom_vars Array of universal Google Analytics queue elements
 		 */

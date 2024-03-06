@@ -38,7 +38,7 @@ class WP_Test_Jetpack_Shortcodes_TwitterTimeline extends WP_UnitTestCase {
 	/**
 	 * Verify that rendering the shortcode contains Jetpack's partner ID
 	 *
-	 * @since 4.6.0
+	 * @since 4.6.0​
 	 */
 	public function test_shortcode_tweet_partner_id() {
 		$content = '[twitter-timeline username=automattic]';

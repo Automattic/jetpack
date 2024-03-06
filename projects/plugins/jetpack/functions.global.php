@@ -26,7 +26,7 @@ require_once __DIR__ . '/functions.is-mobile.php';
  * Hook into Core's _deprecated_function
  * Add more details about when a deprecated function will be removed.
  *
- * @since 8.8.0
+ * @since 8.8.0​
  *
  * @param string $function    The function that was called.
  * @param string $replacement Optional. The function that should have been called. Default null.
@@ -65,7 +65,7 @@ add_action( 'deprecated_function_run', 'jetpack_deprecated_function', 10, 3 );
  * Hook into Core's _deprecated_file
  * Add more details about when a deprecated file will be removed.
  *
- * @since 8.8.0
+ * @since 8.8.0​
  *
  * @param string $file        The file that was called.
  * @param string $replacement The file that should have been included based on ABSPATH.
@@ -105,7 +105,7 @@ add_action( 'deprecated_file_included', 'jetpack_deprecated_file', 10, 4 );
  * Get the major version number of Jetpack 6 months after provided version.
  * Useful to indicate when a deprecated function will be removed from Jetpack.
  *
- * @since 8.8.0
+ * @since 8.8.0​
  *
  * @param string $version The version of WordPress that deprecated the function.
  *
@@ -145,7 +145,7 @@ function jetpack_get_future_removed_version( $version ) {
 /**
  * Determine if this site is an WoA site or not by looking for presence of the wpcomsh plugin.
  *
- * @since 4.8.1
+ * @since 4.8.1​
  * @deprecated 10.3.0
  *
  * @return bool
@@ -158,7 +158,7 @@ function jetpack_is_atomic_site() {
 /**
  * Register post type for migration.
  *
- * @since 5.2
+ * @since 5.2​
  */
 function jetpack_register_migration_post_type() {
 	register_post_type(
@@ -208,7 +208,7 @@ function jetpack_migration_post_exists( $option_name ) {
 /**
  * Stores migration data in the database.
  *
- * @since 5.2
+ * @since 5.2​
  *
  * @param string $option_name  Option name.
  * @param bool   $option_value Option value.
@@ -236,7 +236,7 @@ function jetpack_store_migration_data( $option_name, $option_value ) {
 /**
  * Retrieves legacy image widget data.
  *
- * @since 5.2
+ * @since 5.2​
  *
  * @param string $option_name Option name.
  *
@@ -253,7 +253,7 @@ function jetpack_get_migration_data( $option_name ) {
  *
  * Note: custom ToS messages are also defined in Jetpack_Pre_Connection_JITMs->get_raw_messages()
  *
- * @since 5.3
+ * @since 5.3​
  *
  * @echo string
  */
@@ -279,7 +279,7 @@ function jetpack_render_tos_blurb() {
 /**
  * Intervene upgrade process so Jetpack themes are downloaded with credentials.
  *
- * @since 5.3
+ * @since 5.3​
  *
  * @param bool   $preempt Whether to preempt an HTTP request's return value. Default false.
  * @param array  $r       HTTP request arguments.
@@ -317,7 +317,7 @@ function jetpack_theme_update( $preempt, $r, $url ) {
 /**
  * Add the filter when a upgrade is going to be downloaded.
  *
- * @since 5.3
+ * @since 5.3​
  *
  * @param bool $reply Whether to bail without returning the package. Default false.
  *
@@ -333,7 +333,7 @@ add_filter( 'upgrader_pre_download', 'jetpack_upgrader_pre_download' );
 /**
  * Wraps data in a way so that we can distinguish between objects and array and also prevent object recursion.
  *
- * @since 6.1.0
+ * @since 6.1.0​
 
  * @deprecated Automattic\Jetpack\Sync\Functions::json_wrap
  *
@@ -355,7 +355,7 @@ function jetpack_json_wrap( &$any, $seen_nodes = array() ) {
  * enforce this via composer.json, but that won't be checked in majority of cases where
  * this would be happening.
  *
- * @since 7.8.0
+ * @since 7.8.0​
  *
  * @param string $file File location.
  *
@@ -372,7 +372,7 @@ function jetpack_mime_content_type( $file ) {
 /**
  * Checks that the mime type of the specified file is among those in a filterable list of mime types.
  *
- * @since 7.8.0
+ * @since 7.8.0​
  *
  * @param string $file Path to file to get its mime type.
  *
@@ -388,7 +388,7 @@ function jetpack_is_file_supported_for_sideloading( $file ) {
 	/**
 	 * Filter the list of supported mime types for media sideloading.
 	 *
-	 * @since 4.0.0
+	 * @since 4.0.0​
 	 *
 	 * @module json-api
 	 *

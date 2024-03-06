@@ -70,7 +70,7 @@ function sharing_email_send_post( $data ) {
 	 *
 	 * @module sharedaddy
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param string $var Sharing Email Send Post Subject. Default is "Shared Post".
 	 */

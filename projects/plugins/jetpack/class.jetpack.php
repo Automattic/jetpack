@@ -475,7 +475,7 @@ class Jetpack {
 	 * Constant for login redirect key.
 	 *
 	 * @var string
-	 * @since 8.4.0
+	 * @since 8.4.0​
 	 */
 	public static $jetpack_redirect_login = 'jetpack_connect_login_redirect';
 
@@ -988,7 +988,7 @@ class Jetpack {
 		 * Fires when Jetpack is fully loaded and ready. This is the point where it's safe
 		 * to instantiate classes from packages and namespaces that are managed by the Jetpack Autoloader.
 		 *
-		 * @since 8.1.0
+		 * @since 8.1.0​
 		 *
 		 * @param Jetpack $jetpack the main plugin class object.
 		 */
@@ -1399,7 +1399,7 @@ class Jetpack {
 	 * If a user has been promoted to or demoted from admin, we need to clear the
 	 * jetpack_other_linked_admins transient.
 	 *
-	 * @since 4.3.2
+	 * @since 4.3.2​
 	 * @since 4.4.0  $old_roles is null by default and if it's not passed, the transient is cleared.
 	 *
 	 * @param int    $user_id   The user ID whose role changed.
@@ -1653,7 +1653,7 @@ class Jetpack {
 	 * Whether the site is currently onboarding or not.
 	 * A site is considered as being onboarded if it currently has an onboarding token.
 	 *
-	 * @since 5.8
+	 * @since 5.8​
 	 * @deprecated Use \Automattic\Jetpack\Status()->is_onboarding()
 	 *
 	 * @access public
@@ -1738,7 +1738,7 @@ class Jetpack {
 		 *
 		 * This filter is especially useful for tests.
 		 *
-		 * @since 4.3.0
+		 * @since 4.3.0​
 		 *
 		 * @param bool $development_version Is this a develoment version of Jetpack?
 		 */
@@ -2739,7 +2739,7 @@ class Jetpack {
 		/**
 		 * Allows to modify configure_url of specific module to be able to redirect to some custom location.
 		 *
-		 * @since 6.9.0
+		 * @since 6.9.0​
 		 *
 		 * @param string $default_url Default url, which redirects to jetpack settings page.
 		 */
@@ -3908,7 +3908,7 @@ p {
 						/**
 						 * Jetpack registration Error.
 						 *
-						 * @since 7.5.0
+						 * @since 7.5.0​
 						 *
 						 * @param string|int $error The error code.
 						 * @param \WP_Error $registered The error object.
@@ -3922,7 +3922,7 @@ p {
 					/**
 					 * Jetpack registration Success.
 					 *
-					 * @since 7.5.0
+					 * @since 7.5.0​
 					 *
 					 * @param string $from 'from' GET parameter;
 					 */
@@ -4430,7 +4430,7 @@ endif;
 		/**
 		 * Filter the URL used when connecting a user to a WordPress.com account.
 		 *
-		 * @since 8.1.0
+		 * @since 8.1.0​
 		 *
 		 * @param string $url Connection URL.
 		 * @param bool   $raw If true, URL will not be escaped.
@@ -4462,7 +4462,7 @@ endif;
 		/**
 		 * Filter the URL used when authorizing a user to a WordPress.com account.
 		 *
-		 * @since 8.9.0
+		 * @since 8.9.0​
 		 *
 		 * @param string $url Connection URL.
 		 */
@@ -5368,7 +5368,7 @@ endif;
 			/**
 			 * Jetpack authorisation request Error.
 			 *
-			 * @since 7.5.0
+			 * @since 7.5.0​
 			 */
 			do_action( 'jetpack_verify_api_authorization_request_error_double_encode' );
 			$die_error = sprintf(
@@ -5597,7 +5597,7 @@ endif;
 	 *  - Strips www
 	 *  - Adds a trailing slash
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 * @param string $url URL.
 	 * @return WP_Error|string
 	 */
@@ -6338,7 +6338,7 @@ endif;
 	 * that implied usage of methods present since more recent version.
 	 * See https://github.com/Automattic/jetpack/pull/9585
 	 *
-	 * @since  5.1.0
+	 * @since 5.1.0​
 	 *
 	 * @return bool True = Akismet available. False = Aksimet not available.
 	 */
@@ -6385,7 +6385,7 @@ endif;
 	 * Both `$min_base` and `$non_min_base` are expected to be relative to the
 	 * root Jetpack directory.
 	 *
-	 * @since 5.6.0
+	 * @since 5.6.0​
 	 *
 	 * @param string $min_path Minimized path.
 	 * @param string $non_min_path Non-minimized path.
@@ -6438,7 +6438,7 @@ endif;
 	 * Returns the hostname with protocol for Calypso.
 	 * Used for developing Jetpack with Calypso.
 	 *
-	 * @since 8.4.0
+	 * @since 8.4.0​
 	 *
 	 * @return string Calypso host.
 	 */
@@ -6502,7 +6502,7 @@ endif;
 		/**
 		 * Whether UI for backups should be displayed.
 		 *
-		 * @since 6.5.0
+		 * @since 6.5.0​
 		 *
 		 * @param bool $show_backups Should UI for backups be displayed? True by default.
 		 */
@@ -6514,7 +6514,7 @@ endif;
 	 *
 	 * Delete Jetpack-related user meta when it is no longer needed.
 	 *
-	 * @since 7.3.0
+	 * @since 7.3.0​
 	 *
 	 * @param int $user_id User ID being updated.
 	 */
@@ -6539,7 +6539,7 @@ endif;
 	 *
 	 * This is a DRY function to avoid repeating `Jetpack::is_connection_ready && ! Automattic\Jetpack\Status->is_offline_mode`.
 	 *
-	 * @since 8.8.0
+	 * @since 8.8.0​
 	 *
 	 * @return bool True if Jetpack is active and not in offline mode.
 	 */

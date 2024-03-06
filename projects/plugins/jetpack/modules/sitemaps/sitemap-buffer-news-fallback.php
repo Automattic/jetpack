@@ -6,14 +6,14 @@
  * extends the Jetpack_Sitemap_Buffer class to represent the single news sitemap
  * buffer.
  *
- * @since 5.3.0
+ * @since 5.3.0​
  * @package automattic/jetpack
  */
 
 /**
  * A buffer for constructing sitemap news xml files for users without libxml support.
  *
- * @since 5.3.0
+ * @since 5.3.0​
  */
 class Jetpack_Sitemap_Buffer_News extends Jetpack_Sitemap_Buffer_Fallback {
 	/**
@@ -27,7 +27,7 @@ class Jetpack_Sitemap_Buffer_News extends Jetpack_Sitemap_Buffer_Fallback {
 			 *
 			 * @module sitemaps
 			 *
-			 * @since 4.8.0
+			 * @since 4.8.0​
 			 *
 			 * @param array $namespaces Associative array with namespaces and namespace URIs.
 			 */

@@ -118,7 +118,7 @@ abstract class Jetpack_Tiled_Gallery_Layout {
 		 * Filters the Tiled Gallery template path
 		 *
 		 * @module tiled-gallery
-		 * @since 4.4.0
+		 * @since 4.4.0​
 		 *
 		 * @param string $path Template path.
 		 * @param string $path Template name.
@@ -142,7 +142,7 @@ abstract class Jetpack_Tiled_Gallery_Layout {
 		 * Filters the Tiled Gallery partial path
 		 *
 		 * @module tiled-gallery
-		 * @since 4.4.0
+		 * @since 4.4.0​
 		 *
 		 * @param string $path Partial path.
 		 * @param string $path Partial name.

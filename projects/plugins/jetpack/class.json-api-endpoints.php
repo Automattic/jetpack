@@ -1647,7 +1647,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 					 *
 					 * @module json-api
 					 *
-					 * @since 7.1.0
+					 * @since 7.1.0​
 					 *
 					 * @param array $metadata['sizes'] Array with thumbnail sizes as keys and URLs as values.
 					 */

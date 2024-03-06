@@ -1663,7 +1663,7 @@ class Nova_Restaurant {
 		 *
 		 * @module custom-content-types
 		 *
-		 * @since 4.4.0
+		 * @since 4.4.0​
 		 *
 		 * @param string       $tag    Menu item's element opening tag.
 		 * @param string       $field  Menu Item Markup settings field.
@@ -1693,7 +1693,7 @@ class Nova_Restaurant {
 		 *
 		 * @module custom-content-types
 		 *
-		 * @since 4.4.0
+		 * @since 4.4.0​
 		 *
 		 * @param string       $tag    Menu item's element closing tag.
 		 * @param string       $field  Menu Item Markup settings field.
@@ -1726,7 +1726,7 @@ class Nova_Restaurant {
 		 *
 		 * @module custom-content-types
 		 *
-		 * @since 4.4.0
+		 * @since 4.4.0​
 		 *
 		 * @param string       $tag    Menu Item Markup element's class attribute.
 		 * @param string       $class  Menu Item Class name.

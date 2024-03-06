@@ -69,7 +69,7 @@ class Jetpack_Publicize {
 					 *
 					 * @module publicize
 					 *
-					 * @since 8.5.0
+					 * @since 8.5.0​
 					 *
 					 * @param array $options Array of Publicize options.
 					 */

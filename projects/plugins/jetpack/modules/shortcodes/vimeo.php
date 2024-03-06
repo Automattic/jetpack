@@ -40,7 +40,7 @@ function jetpack_shortcode_get_vimeo_id( $atts ) {
 /**
  * Get video dimensions.
  *
- * @since 8.0.0
+ * @since 8.0.0​
  *
  * @param array $attr     The attributes of the shortcode.
  * @param array $old_attr Optional array of attributes from the old shortcode format.

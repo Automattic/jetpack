@@ -73,7 +73,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 *
 	 * Works in Dev Mode or when user is connected.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 */
 	public function jetpack_add_dashboard_sub_nav_item() {
 		if ( ( new Status() )->is_offline_mode() || Jetpack::is_connection_ready() ) {
@@ -151,7 +151,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	/**
 	 * Jetpack Settings sub-link.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 * @since 9.7.0 If Connection does not have an owner, restrict it to admins
 	 */
 	public function jetpack_add_settings_sub_nav_item() {

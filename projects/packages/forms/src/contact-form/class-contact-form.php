@@ -380,7 +380,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				 *
 				 * @module contact-form
 				 *
-				 * @since 6.6.0
+				 * @since 6.6.0​
 				 *
 				 * @param string $class Additional CSS classes for button attribute.
 				 */
@@ -1193,7 +1193,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 *
 		 * @module contact-form
 		 *
-		 * @since 8.9.0
+		 * @since 8.9.0​
 		 *
 		 * @param bool  $result         Is the submitted feedback in the disallowed list.
 		 * @param array $akismet_values Feedack values returned by the Akismet plugin.
@@ -1362,7 +1362,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 *
 		 * @module contact-form
 		 *
-		 * @since 8.6.0
+		 * @since 8.6.0​
 		 *
 		 * @param integer $post_id The post id that contains the contact form data.
 		 * @param array   $this->fields An array containg the form's Grunion_Contact_Form_Field objects.
@@ -1508,7 +1508,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 *
 		 * @module contact-form
 		 *
-		 * @since 7.3.0
+		 * @since 7.3.0​
 		 *
 		 * @param int $post_id Post contact form lives on.
 		 * @param string|array $to Array of valid email addresses, or single email address.

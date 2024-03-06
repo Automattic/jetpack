@@ -21,7 +21,7 @@ class Delete_Contact_Test extends JPCRM_Base_Integration_Test_Case {
 	/**
 	 * A helper class to generate data for the automation tests.
 	 *
-	 * @since 6.2.0
+	 * @since 6.2.0​
 	 *
 	 * @var Automation_Faker
 	 */

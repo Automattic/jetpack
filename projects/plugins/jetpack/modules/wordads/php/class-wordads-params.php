@@ -74,7 +74,7 @@ class WordAds_Params {
 	/**
 	 * Setup parameters for serving the ads
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function __construct() {
 		// WordAds setting => default.
@@ -142,7 +142,7 @@ class WordAds_Params {
 	 *
 	 * @return boolean true if the user is browsing on a mobile device (iPad not included)
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function is_mobile() {
 		return ! empty( $this->mobile_device );
@@ -153,7 +153,7 @@ class WordAds_Params {
 	 *
 	 * @return boolean true if site is being served via CloudFlare
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public static function is_cloudflare() {
 		if (
@@ -173,7 +173,7 @@ class WordAds_Params {
 	 *
 	 * @return boolean true if user is browsing in iOS device
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function is_ios() {
 		return in_array( $this->get_device(), array( 'ipad', 'iphone', 'ipod' ), true );
@@ -184,7 +184,7 @@ class WordAds_Params {
 	 *
 	 * @return string user device
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function get_device() {
 		global $agent_info;
@@ -205,7 +205,7 @@ class WordAds_Params {
 	 *
 	 * @return string The type of page that is being loaded
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function get_page_type() {
 		if ( ! empty( $this->page_type ) ) {
@@ -238,7 +238,7 @@ class WordAds_Params {
 	 *
 	 * @return int The page type code for ipw config
 	 *
-	 * @since 5.6.0
+	 * @since 5.6.0​
 	 */
 	public function get_page_type_ipw() {
 		if ( ! empty( $this->page_type_ipw ) ) {
@@ -269,7 +269,7 @@ class WordAds_Params {
 	 *
 	 * @return boolean true if page is static home
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public static function is_static_home() {
 		return is_front_page() &&
@@ -280,7 +280,7 @@ class WordAds_Params {
 	/**
 	 * Logic for if we should show an ad
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function should_show() {
 		global $wp_query;

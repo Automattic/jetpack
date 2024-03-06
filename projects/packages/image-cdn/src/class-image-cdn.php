@@ -122,7 +122,7 @@ final class Image_CDN {
 		 *
 		 * @module photon
 		 *
-		 * @since 7.1.0
+		 * @since 7.1.0​
 		 *
 		 * @param bool false Should Photon enable noresize mode. Default to false.
 		 */
@@ -698,7 +698,7 @@ final class Image_CDN {
 			 *
 			 * @module photon
 			 *
-			 * @since 4.8.0
+			 * @since 4.8.0​
 			 *
 			 * @param bool false Stop Photon from being run on the Dashboard. Default to false.
 			 * @param array $args {
@@ -968,7 +968,7 @@ final class Image_CDN {
 		 *
 		 * @module photon
 		 *
-		 * @since 4.0.4
+		 * @since 4.0.4​
 		 *
 		 * @param array|bool $multipliers Array of multipliers to use or false to bypass.
 		 */

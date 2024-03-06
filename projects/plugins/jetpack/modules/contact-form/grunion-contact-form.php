@@ -220,7 +220,7 @@ class Grunion_Contact_Form_Plugin {
 		 *
 		 * @module contact-form
 		 *
-		 * @since 6.1.0
+		 * @since 6.1.0​
 		 *
 		 * @param array $feedback_ids list of feedback post ID
 		 */
@@ -234,7 +234,7 @@ class Grunion_Contact_Form_Plugin {
 		 *
 		 * @module contact-form
 		 *
-		 * @since 6.1.0
+		 * @since 6.1.0​
 		 *
 		 * @param array $feedback_ids list of feedback post ID
 		 */
@@ -779,7 +779,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Display the count of new feedback entries received. It's reset when user visits the Feedback screen.
 	 *
-	 * @since 4.1.0
+	 * @since 4.1.0​
 	 *
 	 * @param object $screen Information about the current screen.
 	 */
@@ -1443,7 +1443,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Registers the personal data exporter.
 	 *
-	 * @since 6.1.1
+	 * @since 6.1.1​
 	 *
 	 * @param  array $exporters An array of personal data exporters.
 	 *
@@ -1461,7 +1461,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Registers the personal data eraser.
 	 *
-	 * @since 6.1.1
+	 * @since 6.1.1​
 	 *
 	 * @param  array $erasers An array of personal data erasers.
 	 *
@@ -1479,7 +1479,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Exports personal data.
 	 *
-	 * @since 6.1.1
+	 * @since 6.1.1​
 	 *
 	 * @param  string $email  Email address.
 	 * @param  int    $page   Page to export.
@@ -1497,7 +1497,7 @@ class Grunion_Contact_Form_Plugin {
 	 * while protecting against future core API changes.
 	 *
 	 * @internal
-	 * @since 6.5
+	 * @since 6.5​
 	 *
 	 * @param  string $email    Email address.
 	 * @param  int    $page     Page to export.
@@ -1554,7 +1554,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Erases personal data.
 	 *
-	 * @since 6.1.1
+	 * @since 6.1.1​
 	 *
 	 * @param  string $email Email address.
 	 * @param  int    $page  Page to erase.
@@ -1572,7 +1572,7 @@ class Grunion_Contact_Form_Plugin {
 	 * while protecting against future core API changes.
 	 *
 	 * @internal
-	 * @since 6.5
+	 * @since 6.5​
 	 *
 	 * @param  string $email    Email address.
 	 * @param  int    $page     Page to erase.
@@ -1593,7 +1593,7 @@ class Grunion_Contact_Form_Plugin {
 			/**
 			 * Filters whether to erase a particular Feedback post.
 			 *
-			 * @since 6.3.0
+			 * @since 6.3.0​
 			 *
 			 * @param bool|string $prevention_message Whether to apply erase the Feedback post (bool).
 			 *                                        Custom prevention message (string). Default true.
@@ -1648,7 +1648,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Queries personal data by email address.
 	 *
-	 * @since 6.1.1
+	 * @since 6.1.1​
 	 *
 	 * @param  string $email        Email address.
 	 * @param  int    $per_page     Post IDs per page. Default is `250`.
@@ -1690,7 +1690,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Filters searches by email address.
 	 *
-	 * @since 6.1.1
+	 * @since 6.1.1​
 	 *
 	 * @param  string $search SQL where clause.
 	 *
@@ -2939,7 +2939,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				 *
 				 * @module contact-form
 				 *
-				 * @since 6.6.0
+				 * @since 6.6.0​
 				 *
 				 * @param string $class Additional CSS classes for button attribute.
 				 */
@@ -3775,7 +3775,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 *
 		 * @module contact-form
 		 *
-		 * @since 8.9.0
+		 * @since 8.9.0​
 		 *
 		 * @param bool  $result         Is the submitted feedback in the disallowed list.
 		 * @param array $akismet_values Feedack values returned by the Akismet plugin.
@@ -3944,7 +3944,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 *
 		 * @module contact-form
 		 *
-		 * @since 8.6.0
+		 * @since 8.6.0​
 		 *
 		 * @param integer $post_id The post id that contains the contact form data.
 		 * @param array   $this->fields An array containg the form's Grunion_Contact_Form_Field objects.
@@ -4090,7 +4090,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 *
 		 * @module contact-form
 		 *
-		 * @since 7.3.0
+		 * @since 7.3.0​
 		 *
 		 * @param int $post_id Post contact form lives on.
 		 * @param string|array $to Array of valid email addresses, or single email address.
@@ -4659,7 +4659,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		 *
 		 * @module contact-form
 		 *
-		 * @since 6.6.0
+		 * @since 6.6.0​
 		 *
 		 * @param string $class Additional CSS classes for input class attribute.
 		 */

@@ -244,7 +244,7 @@ class Jetpack_Provision {
 		/**
 		 * Auto-enable SSO module for new Jetpack Start connections
 		 *
-		 * @since 5.0.0
+		 * @since 5.0.0​
 		 *
 		 * @param bool $enable_sso Whether to enable the SSO module. Default to true.
 		 */

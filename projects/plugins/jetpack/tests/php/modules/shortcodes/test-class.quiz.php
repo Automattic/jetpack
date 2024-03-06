@@ -8,7 +8,7 @@ class WP_Test_Jetpack_Shortcodes_Quiz extends WP_UnitTestCase {
 	/**
 	 * Verify that [quiz] exists.
 	 *
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_quiz_exists() {
 		$this->assertTrue( shortcode_exists( 'quiz' ) );
@@ -17,7 +17,7 @@ class WP_Test_Jetpack_Shortcodes_Quiz extends WP_UnitTestCase {
 	/**
 	 * Verify that calling shortcode doesn't return the same content and since it doesn't have content, return nothing.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_quiz() {
 		$content = '[quiz][/quiz]';
@@ -31,7 +31,7 @@ class WP_Test_Jetpack_Shortcodes_Quiz extends WP_UnitTestCase {
 	/**
 	 * Verify [quiz] writes the correct track id when passed as attribute.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_quiz_id() {
 		$shortcode_content = do_shortcode( '[quiz trackid="the-quiz"][question]What is the right answer?[/question][/quiz]' );
@@ -41,7 +41,7 @@ class WP_Test_Jetpack_Shortcodes_Quiz extends WP_UnitTestCase {
 	/**
 	 * Verify that a [question] is not rendered when they're outside a [quiz].
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_question() {
 		$shortcode_content = do_shortcode( '[question]What is the right answer?[/question]' );
@@ -54,7 +54,7 @@ class WP_Test_Jetpack_Shortcodes_Quiz extends WP_UnitTestCase {
 	/**
 	 * Verify that an [answer] is not rendered when they're outside a [quiz].
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_answer() {
 		$shortcode_content = do_shortcode( '[answer]This is the right answer![/answer]' );
@@ -67,7 +67,7 @@ class WP_Test_Jetpack_Shortcodes_Quiz extends WP_UnitTestCase {
 	/**
 	 * Verify that a [wrong] is not rendered when they're outside a [quiz].
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_wrong() {
 		$shortcode_content = do_shortcode( '[wrong]This is so wrong...[/wrong]' );
@@ -80,7 +80,7 @@ class WP_Test_Jetpack_Shortcodes_Quiz extends WP_UnitTestCase {
 	/**
 	 * Verify that a [explanation] is not rendered when they're outside a [quiz].
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_explanation() {
 		$shortcode_content = do_shortcode( '[explanation]This is why this is right or wrong.[/explanation]' );
@@ -93,7 +93,7 @@ class WP_Test_Jetpack_Shortcodes_Quiz extends WP_UnitTestCase {
 	/**
 	 * Verify the shortcode renders correctly when it's correctly written.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_complete() {
 		$shortcode_content = do_shortcode( '[quiz][question]What is the right answer?[/question][wrong]This is so wrong...[explanation]This is why this is wrong.[/explanation][/wrong][answer]Yes, this is right![explanation]Yay![/explanation][/answer][/quiz]' );

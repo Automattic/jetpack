@@ -15,7 +15,7 @@
 /**
  * Get ID of requested archive.org book embed.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  *
  * @param array $atts Shortcode attributes.
  *
@@ -37,7 +37,7 @@ function jetpack_shortcode_get_archiveorg_book_id( $atts ) {
 /**
  * Convert an archive.org book shortcode into an embed code.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  *
  * @param array $atts An array of shortcode attributes.
  * @return string The embed code for the Archive.org book
@@ -90,7 +90,7 @@ add_shortcode( 'archiveorg-book', 'jetpack_archiveorg_book_shortcode' );
 /**
  * Compose shortcode from archive.org book iframe.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  *
  * @param string $content Post content.
  *

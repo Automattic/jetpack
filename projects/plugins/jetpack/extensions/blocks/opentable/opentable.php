@@ -2,7 +2,7 @@
 /**
  * OpenTable Block.
  *
- * @since 8.2
+ * @since 8.2​
  *
  * @package automattic/jetpack
  */
@@ -215,7 +215,7 @@ function build_embed_url( $attributes ) {
 	/**
 	 * Filter the OpenTable URL used to embed a widget.
 	 *
-	 * @since 8.2.0
+	 * @since 8.2.0​
 	 *
 	 * @param string $url        OpenTable embed URL.
 	 * @param array  $attributes Array of block attributes.
