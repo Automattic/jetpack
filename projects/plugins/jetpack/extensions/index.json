@@ -64,7 +64,8 @@
 		"ai-content-lens",
 		"blog-stats",
 		"top-posts",
-		"goodreads"
+		"goodreads",
+		"voice-to-content"
 	],
 	"beta": [
 		"google-docs-embed",
@@ -72,7 +73,6 @@
 		"recipe",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
-		"voice-to-content",
 		"ai-assistant-backend-prompts",
 		"ai-logo-generator"
 	],
