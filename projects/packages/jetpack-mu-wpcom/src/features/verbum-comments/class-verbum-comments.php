@@ -15,6 +15,35 @@ require_once __DIR__ . '/assets/class-wpcom-rest-api-v2-verbum-oembed.php';
 require_once __DIR__ . '/assets/class-verbum-gutenberg-editor.php';
 require_once __DIR__ . '/assets/class-verbum-block-utils.php';
 
+$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
+
+if ( ! $is_wpcom && ! function_exists( 'is_jetpack_comments' ) ) {
+	function is_jetpack_comments() {
+		return true;
+	}
+}
+
+if ( ! $is_wpcom && ! function_exists( 'is_jetpack_comments_user_logged_in' ) ) {
+	/**
+	 * Is the current user posting as a jetpack user as identified by:
+	 * - Jetpack_Renderer::remote_comment()
+	 *
+	 * @return boolean True if client user is logged in, false if not
+	 * @since Jetpack (1.3)
+	 */
+	function is_jetpack_comments_user_logged_in() {
+		// Default to false
+		$retval = false;
+
+		// Set to true if sig is not empty and hc_post_as === jetpack
+		if ( ! empty( $_GET['sig'] ) && ! empty( $_GET['hc_post_as'] ) && ( 'jetpack' === $_GET['hc_post_as'] ) ) {
+			$retval = true;
+		}
+
+		return $retval;
+	}
+}
+
 /**
  * Verbum Comments Experience
  *
@@ -78,16 +107,21 @@ class Verbum_Comments {
 	 * Get the comment form action url
 	 */
 	public function get_form_action() {
-		return is_jetpack_comments() ?
-			wp_json_encode( esc_url_raw( http() . '://' . JETPACK_SERVER__DOMAIN . '/jetpack-comment/' ) ) : site_url( '/wp-comments-post.php' );
+		return site_url( '/wp-comments-post.php' );
 	}
 
 	/**
 	 * Load the div where Verbum app is rendered.
 	 */
 	public function verbum_render_element() {
-		$color_scheme = get_blog_option( $this->blog_id, 'jetpack_comment_form_color_scheme' );
-		$comment_url  = $this->get_form_action();
+
+		if ( is_multisite() ) {
+			$color_scheme = get_blog_option( $this->blog_id, 'jetpack_comment_form_color_scheme' );
+		} else {
+			$color_scheme = get_option( 'jetpack_comment_form_color_scheme' );
+		}
+
+		$comment_url = $this->get_form_action();
 
 		if ( ! $color_scheme || '' === $color_scheme ) {
 			// Default to transparent because it is more adaptable than white or dark.
@@ -117,8 +151,8 @@ class Verbum_Comments {
 			return;
 		}
 
-		$connect_url      = site_url( '/public.api/connect/?action=request' );
-		$primary_redirect = get_primary_redirect();
+		$primary_redirect = function_exists( 'get_primary_redirect' ) ? get_primary_redirect() : 'https://jetpack.wordpress.com';
+		$connect_url      = $primary_redirect . '/public.api/connect/?action=request';
 
 		if ( strpos( $primary_redirect, '.wordpress.com' ) === false ) {
 			$connect_url = add_query_arg( 'domain', $primary_redirect, $connect_url );
@@ -136,7 +170,6 @@ class Verbum_Comments {
 		);
 
 		wp_enqueue_style( 'verbum' );
-		\WP_Enqueue_Dynamic_Script::enqueue_script( 'verbum' );
 
 		// Enqueue settings separately since the main script is dynamic.
 		// We need the VerbumComments object to be available before the main script is loaded.
@@ -151,9 +184,25 @@ class Verbum_Comments {
 			)
 		);
 
-		$blog_details    = get_blog_details( $this->blog_id );
-		$is_blog_atomic  = is_blog_atomic( $blog_details );
-		$is_blog_jetpack = is_blog_jetpack( $blog_details );
+		if ( class_exists( 'WP_Enqueue_Dynamic_Script' ) ) {
+			\WP_Enqueue_Dynamic_Script::enqueue_script( 'verbum' );
+		} else {
+			Assets::enqueue_script( 'verbum' );
+		}
+
+		// $blog_details    = get_blog_details( $this->blog_id );
+		// $is_blog_atomic  = is_blog_atomic( $blog_details );
+		// $is_blog_jetpack = is_blog_jetpack( $blog_details );
+		$is_blog_atomic  = true;
+		$is_blog_jetpack = true;
+
+		if ( is_multisite() ) {
+			$require_name_email           = get_blog_option( $this->blog_id, 'require_name_email' );
+			$comment_registration_enabled = get_blog_option( $this->blog_id, 'comment_registration' );
+		} else {
+			$require_name_email           = get_option( 'require_name_email' );
+			$comment_registration_enabled = get_option( 'comment_registration' );
+		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$subscribe_to_blog = isset( $_GET['stb_enabled'] ) ? boolval( $_GET['stb_enabled'] ) : false;
@@ -168,13 +217,17 @@ class Verbum_Comments {
 
 		// Jetpack Comments client side logged in user data
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$__get                        = stripslashes_deep( $_GET );
-		$email_hash                   = isset( $__get['hc_useremail'] ) && is_string( $__get['hc_useremail'] ) ? $__get['hc_useremail'] : '';
-		$jetpack_username             = isset( $__get['hc_username'] ) && is_string( $__get['hc_username'] ) ? $__get['hc_username'] : '';
-		$jetpack_user_id              = isset( $__get['hc_userid'] ) && is_numeric( $__get['hc_userid'] ) ? (int) $__get['hc_userid'] : 0;
-		$jetpack_signature            = isset( $__get['sig'] ) && is_string( $__get['sig'] ) ? $__get['sig'] : '';
-		list( $jetpack_avatar )       = wpcom_get_avatar_url( "$email_hash@md5.gravatar.com" );
-		$comment_registration_enabled = boolval( get_blog_option( $this->blog_id, 'comment_registration' ) );
+		$__get             = stripslashes_deep( $_GET );
+		$email_hash        = isset( $__get['hc_useremail'] ) && is_string( $__get['hc_useremail'] ) ? $__get['hc_useremail'] : '';
+		$jetpack_username  = isset( $__get['hc_username'] ) && is_string( $__get['hc_username'] ) ? $__get['hc_username'] : '';
+		$jetpack_user_id   = isset( $__get['hc_userid'] ) && is_numeric( $__get['hc_userid'] ) ? (int) $__get['hc_userid'] : 0;
+		$jetpack_signature = isset( $__get['sig'] ) && is_string( $__get['sig'] ) ? $__get['sig'] : '';
+		// list( $jetpack_avatar )       = wpcom_get_avatar_url( "$email_hash@md5.gravatar.com" );
+		// TODO fix avatar
+		list( $jetpack_avatar ) = array(
+			'url'   => '',
+			'class' => '',
+		);
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$post_id = isset( $_GET['postid'] ) ? intval( $_GET['postid'] ) : get_queried_object_id();
 		$locale  = get_locale();
@@ -232,7 +285,7 @@ class Verbum_Comments {
 					'siteId'                             => $this->blog_id,
 					'postId'                             => $post_id,
 					'mustLogIn'                          => $comment_registration_enabled && ! is_user_logged_in(),
-					'requireNameEmail'                   => boolval( get_blog_option( $this->blog_id, 'require_name_email' ) ),
+					'requireNameEmail'                   => $require_name_email,
 					'commentRegistration'                => $comment_registration_enabled,
 					'connectURL'                         => $connect_url,
 					'logoutURL'                          => html_entity_decode( wp_logout_url(), ENT_COMPAT ),
@@ -488,7 +541,7 @@ HTML;
 				break;
 
 			case 'wordpress': // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
-				if ( 'wpcom' === wpcom_blog_site_id_label() ) {
+				if ( function_exists( 'wpcom_blog_site_id_label' ) && 'wpcom' === wpcom_blog_site_id_label() ) {
 					do_action( 'highlander_wpcom_post_comment_bump_stat', $comment_id ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 				}
 				bump_stats_extras( 'verbum-comment-posted', 'wordpress' ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
