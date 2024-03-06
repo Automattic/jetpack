@@ -40,7 +40,7 @@ const useFetchProduct = ( productId: string ) => {
 // Fetch the product data from the server and update the global state
 const refetchProduct = async (
 	productId: string,
-	refetch: ( options?: RefetchOptions ) => Promise< QueryObserverResult< ProductSnakeCase > >
+	refetch: ( options?: RefetchOptions ) => Promise< QueryObserverResult< ProductSnakeCase, Error > >
 ) => {
 	const { data: refetchedProduct } = await refetch();
 
