@@ -91,7 +91,7 @@ class REST_Connector {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'remote_register' ),
-				'permission_callback' => '__return_true',
+				'permission_callback' => array( $this, 'remote_register_permission_check' ),
 			)
 		);
 
@@ -314,6 +314,21 @@ class REST_Connector {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Remote register endpoint permission check.
+	 *
+	 * @return true|WP_Error
+	 */
+	public function remote_register_permission_check() {
+		if ( $this->connection->has_connected_owner() ) {
+			return Rest_Authentication::is_signed_with_blog_token()
+				? true
+				: new WP_Error( 'already_registered', __( 'Blog is already registered', 'jetpack-connection' ), 400 );
+		}
+
+		return true;
 	}
 
 	/**
