@@ -843,7 +843,13 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					);
 
 					if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
-						$body                 = json_decode( $response['body'], true );
+						$body = json_decode( $response['body'], true );
+
+						// ensure array_merge happens with the right parameters
+						if ( empty( $body ) ) {
+							$body = array();
+						}
+
 						self::$cached_invites = array_merge( self::$cached_invites, $body );
 					}
 				}
