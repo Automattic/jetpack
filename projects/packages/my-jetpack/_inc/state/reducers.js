@@ -75,19 +75,11 @@ const welcomeBanner = ( state = {}, action ) => {
 	}
 };
 
-const lifecycleStats = ( state = {}, action ) => {
-	switch ( action.type ) {
-		default:
-			return state;
-	}
-};
-
 const reducers = combineReducers( {
 	notices,
 	plugins,
 	statsCounts,
 	welcomeBanner,
-	lifecycleStats,
 } );
 
 export default reducers;
