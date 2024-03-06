@@ -331,7 +331,7 @@ class Waf_Request {
 	 */
 	public function get_post_vars() {
 		// Attempt to decode JSON requests.
-		if ( $this->get_header( 'content-type' ) === 'application/json' ) {
+		if ( str_contains( $this->get_header( 'content-type' ), 'application/json' ) ) {
 			$decoded_json = json_decode( $this->get_body(), true ) ?? array();
 			return flatten_array( $decoded_json, 'json', true );
 		}
