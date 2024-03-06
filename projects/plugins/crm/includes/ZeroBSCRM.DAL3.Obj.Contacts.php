@@ -1881,9 +1881,10 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             if ( $count ) return $wpdb->get_var( $queryObj );
 
             // Totals override
-            if ( $onlyObjTotals ){
+						// This is non-performant, and shouldn't run when we've got extra joins (e.g. from segments).
+					if ( $onlyObjTotals && empty( $join_sql ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
-						$contact_query = 'SELECT contact.ID FROM ' . $ZBSCRM_t['contacts'] . ' AS contact' . $joinQ . $join_sql . $this->buildWhereStr( $whereStr, $additionalWhere ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						$contact_query = 'SELECT contact.ID FROM ' . $ZBSCRM_t['contacts'] . ' AS contact' . $joinQ . $this->buildWhereStr( $whereStr, $additionalWhere ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                 $contact_query = $this->prepare($contact_query,$params);
 
                 $query = "SELECT ";
