@@ -1,16 +1,15 @@
 /*
  * External dependencies
  */
-import restApi from '@automattic/jetpack-api';
 import { AdminPage, Container, Col } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { ActivationScreen } from '@automattic/jetpack-licensing';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 /*
  * Internal dependencies
  */
+import useJetpackApiQuery from '../../data/use-jetpack-api-query';
 import useAnalytics from '../../hooks/use-analytics';
-import useAvailableLicenses from '../../hooks/use-available-licenses';
 import GoBackLink from '../go-back-link';
 
 /**
@@ -19,14 +18,11 @@ import GoBackLink from '../go-back-link';
  * @returns {object} The AddLicenseScreen component.
  */
 export default function AddLicenseScreen() {
-	useEffect( () => {
-		const { apiRoot, apiNonce } = window?.myJetpackRest || {};
-		restApi.setApiRoot( apiRoot );
-		restApi.setApiNonce( apiNonce );
-	}, [] );
-
 	const { recordEvent } = useAnalytics();
-	const { availableLicenses, fetchingAvailableLicenses } = useAvailableLicenses();
+	const { data: licenses = [], isLoading: fetchingAvailableLicenses } = useJetpackApiQuery(
+		'available licenses',
+		async api => ( await api.getUserLicenses() )?.items
+	);
 	const { userConnectionData } = useConnection();
 	const [ hasActivatedLicense, setHasActivatedLicense ] = useState( false );
 
@@ -43,6 +39,14 @@ export default function AddLicenseScreen() {
 	const handleActivationSuccess = useCallback( () => {
 		setHasActivatedLicense( true );
 	}, [] );
+
+	const availableLicenses = useMemo(
+		() =>
+			licenses.filter(
+				( { attached_at, revoked_at } ) => attached_at === null && revoked_at === null
+			),
+		[ licenses ]
+	);
 
 	return (
 		<AdminPage showHeader={ false } showBackground={ false }>

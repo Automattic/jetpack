@@ -9,10 +9,11 @@ import React, { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
  */
+import useActivate from '../../data/products/use-activate';
+import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
-import { useProduct } from '../../hooks/use-product';
 import GoBackLink from '../go-back-link';
 import ProductDetailCard from '../product-detail-card';
 import ProductDetailTable from '../product-detail-table';
@@ -59,7 +60,9 @@ export default function ProductInterstitial( {
 	directCheckout = false,
 	highlightLastFeature = false,
 } ) {
-	const { activate, detail } = useProduct( slug );
+	const { detail } = useProduct( slug );
+	const { activate, isPending: isActivating } = useActivate( slug );
+
 	const { isUpgradableByBundle, tiers, pricingForUi } = detail;
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
@@ -119,50 +122,48 @@ export default function ProductInterstitial( {
 				return;
 			}
 
-			activate()
-				// After product activation, we'll re-check the post-checkout redirect
-				// If the product is active, it may (very likely is) different
-				.then( activatedProduct => {
-					postCheckoutUrl = activatedProduct?.post_checkout_url
-						? activatedProduct.post_checkout_url
-						: myJetpackCheckoutUri;
-				} )
-				.finally( () => {
-					const postActivationUrl = product?.postActivationUrl;
-					const hasRequiredPlan = tier
-						? product?.hasRequiredTier?.[ tier ]
-						: product?.hasRequiredPlan;
-					const isFree = tier
-						? product?.pricingForUi?.tiers?.[ tier ]?.isFree
-						: product?.pricingForUi?.isFree;
-					const needsPurchase = ! isFree && ! hasRequiredPlan;
+			activate(
+				{ productId: slug },
+				{
+					onSettled: ( { productId: activatedProduct } ) => {
+						postCheckoutUrl = activatedProduct?.post_checkout_url
+							? activatedProduct.post_checkout_url
+							: myJetpackCheckoutUri;
+						const postActivationUrl = product?.postActivationUrl;
+						const hasRequiredPlan = tier
+							? product?.hasRequiredTier?.[ tier ]
+							: product?.hasRequiredPlan;
+						const isFree = tier
+							? product?.pricingForUi?.tiers?.[ tier ]?.isFree
+							: product?.pricingForUi?.isFree;
+						const needsPurchase = ! isFree && ! hasRequiredPlan;
 
-					// If the product is CRM, redirect the user to the Jetpack CRM pricing page.
-					// This is done because CRM is not part of the WP billing system
-					// and we can't send them to checkout like we can with the rest of the products
-					if ( product?.pluginSlug === 'zero-bs-crm' && ! hasRequiredPlan ) {
-						window.location.href = 'https://jetpackcrm.com/pricing/';
-						return;
-					}
-
-					// If no purchase is needed, redirect the user to the product screen.
-					if ( ! needsPurchase ) {
-						if ( postActivationUrl ) {
-							window.location.href = postActivationUrl;
+						// If the product is CRM, redirect the user to the Jetpack CRM pricing page.
+						// This is done because CRM is not part of the WP billing system
+						// and we can't send them to checkout like we can with the rest of the products
+						if ( product.pluginSlug === 'zero-bs-crm' && ! hasRequiredPlan ) {
+							window.location.href = 'https://jetpackcrm.com/pricing/';
 							return;
 						}
 
-						// Fall back to the My Jetpack overview page.
-						return navigateToMyJetpackOverviewPage();
-					}
+						// If no purchase is needed, redirect the user to the product screen.
+						if ( ! needsPurchase ) {
+							if ( postActivationUrl ) {
+								window.location.href = postActivationUrl;
+								return;
+							}
 
-					// Redirect to the checkout page.
-					// First parameter is an event placeholder
-					// We pass the redirect URL directly here to avoid needing to update the useProductCheckoutWorkflow state
-					checkout?.( null, postCheckoutUrl );
-				} );
+							// Fall back to the My Jetpack overview page.
+							return navigateToMyJetpackOverviewPage();
+						}
+
+						// Redirect to the checkout page.
+						checkout?.( null, postCheckoutUrl );
+					},
+				}
+			);
 		},
-		[ directCheckout, activate, navigateToMyJetpackOverviewPage, myJetpackCheckoutUri ]
+		[ directCheckout, activate, navigateToMyJetpackOverviewPage, slug, myJetpackCheckoutUri ]
 	);
 
 	return (
@@ -217,6 +218,7 @@ export default function ProductInterstitial( {
 									hideTOS={ hideTOS }
 									quantity={ quantity }
 									highlightLastFeature={ highlightLastFeature }
+									isFetching={ isActivating }
 								/>
 							</Col>
 							<Col
@@ -233,6 +235,7 @@ export default function ProductInterstitial( {
 										className={ isUpgradableByBundle ? styles.container : null }
 										quantity={ quantity }
 										highlightLastFeature={ highlightLastFeature }
+										isFetching={ isActivating }
 									/>
 								) : (
 									children
