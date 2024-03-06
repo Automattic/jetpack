@@ -502,16 +502,15 @@ class Actions {
 				);
 			}
 
-			$rpc = new \Jetpack_IXR_Client(
+			$rpc                   = new \Jetpack_IXR_Client(
 				array(
 					'url'     => $url,
 					'timeout' => $query_args['timeout'],
 				)
 			);
-
+			$result                = $rpc->query( 'jetpack.syncActions', $data );
 			$retry_after           = $rpc->get_response_header( 'Retry-After' );
 			$dedicated_sync_header = $rpc->get_response_header( 'Jetpack-Dedicated-Sync' );
-			$result                = $rpc->query( 'jetpack.syncActions', $data );
 			// TODO
 			$result && $response = $rpc->getResponse();// phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found 
 		}
