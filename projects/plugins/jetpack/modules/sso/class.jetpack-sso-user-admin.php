@@ -792,9 +792,10 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			wp_enqueue_script( 'jetpack-sso-users', plugins_url( 'modules/sso/jetpack-sso-users.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION, false );
 
 			$columns['user_jetpack'] = sprintf(
-				'<span class="jetpack-sso-invitation-tooltip-icon">%2$s [?]<span class="jetpack-sso-invitation-tooltip jetpack-sso-th-tooltip">%1$s</span></span>',
+				'<span class="jetpack-sso-invitation-tooltip-icon" role="tooltip" aria-label="%3$s: %1$s">%2$s [?]<span class="jetpack-sso-invitation-tooltip jetpack-sso-th-tooltip">%1$s</span></span>',
 				esc_attr__( 'Jetpack SSO allows a seamless and secure experience on WordPress.com. Join millions of WordPress users who trust us to keep their accounts safe.', 'jetpack' ),
-				esc_html__( 'SSO Status', 'jetpack' )
+				esc_html__( 'SSO Status', 'jetpack' ),
+				esc_attr__( 'Tooltip', 'jetpack' )
 			);
 			return $columns;
 		}
@@ -946,7 +947,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					$nonce           = wp_create_nonce( 'jetpack-sso-invite-user' );
 					$connection_html = sprintf(
 					// Using formmethod and formaction because we can't nest forms and have to submit using the main form.
-						'<a href="%1$s" class="jetpack-sso-invitation sso-disconnected-user">%2$s</a><span class="sso-disconnected-user-icon dashicons dashicons-warning jetpack-sso-invitation-tooltip-icon">
+						'<a href="%1$s" class="jetpack-sso-invitation sso-disconnected-user">%2$s</a><span role="tooltip" aria-label="%4$s: %3$s" class="sso-disconnected-user-icon dashicons dashicons-warning jetpack-sso-invitation-tooltip-icon">
 							<span class="jetpack-sso-invitation-tooltip jetpack-sso-td-tooltip">%3$s</span>
 						</span>',
 						add_query_arg(
@@ -958,7 +959,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 							admin_url( 'admin-post.php' )
 						),
 						esc_html__( 'Send invite', 'jetpack' ),
-						esc_attr__( 'This user doesn&#8217;t have an SSO connection to WordPress.com. Invite them to the site to increase security and improve their experience.', 'jetpack' )
+						esc_attr__( 'This user doesn&#8217;t have an SSO connection to WordPress.com. Invite them to the site to increase security and improve their experience.', 'jetpack' ),
+						esc_attr__( 'Tooltip', 'jetpack' )
 					);
 					return $connection_html;
 				}
