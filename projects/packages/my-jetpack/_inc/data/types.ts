@@ -31,7 +31,7 @@ export type ProductCamelCase = ToCamelCase< ProductSnakeCase > & {
 
 export type WP_Error = {
 	code: string;
-	message: string;
+	message: 'not_connected' | string;
 	data: {
 		status: number;
 	};
