@@ -8,7 +8,7 @@ This will allow a developer to use this functionality without needing to check i
 
 ## Accessing the API
 
-Use the `do_action` command to fire the hook you want. The actions are loaded early, but it's safer to wait until after "init" to use them.
+The API uses actions and filters to access or modify the behavior of the cache. Use the `do_action` or `apply_filters` commands to fire the hook you want. They are loaded early, but it's safer to wait until after "init" to use them.
 
 ## Actions
 
@@ -50,4 +50,39 @@ Parameter: the post_id of the post to clear
 Usage:
 ```php
 do_action( 'jetpack_boost_clear_page_cache_post', 15 );
+```
+
+## Filters
+
+### Modify the cache bypass filters
+
+Filter hook: `boost_cache_bypass_patterns`
+
+Parameter: an array of regex patterns that define URLs that bypass caching
+
+Usage:
+```php
+apply_filters( 'boost_cache_bypass_patterns', array( '/shop', '/checkout', '/200?/(.*)' ) );
+```
+
+### Override if the current request is cacheable
+
+Filter hook: `boost_cache_cacheable`
+
+Parameter: bool
+
+Usage:
+```php
+apply_filters( 'boost_cache_cacheable', true );
+```
+
+### Modify the list of content types the plugin should not cache
+
+Action hook: boost_accept_headers
+
+Parameter: An array of content types in type/subtype format. If a browser accepts a content type listed here the page will not be cached
+
+Usage:
+```php
+apply_filters( 'boost_accept_headers', array( 'application/json', 'application/activity+json', 'application/ld+json' ) );
 ```
