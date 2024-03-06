@@ -8,7 +8,10 @@ domReady( function () {
 		try {
 			if ( blockRoot.getAttribute( 'data-map-provider' ) === 'mapkit' ) {
 				const block = new MapkitBlock( blockRoot );
-				block.init();
+				block.init().catch( () => {
+					const fallback = new MapBoxBlock( blockRoot );
+					fallback.init();
+				} );
 			} else {
 				const block = new MapBoxBlock( blockRoot );
 				block.init();
