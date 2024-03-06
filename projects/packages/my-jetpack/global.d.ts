@@ -53,6 +53,7 @@ interface Window {
 					description: string;
 					disclaimers: Array< string[] >;
 					features: string[];
+					has_paid_plan_for_product: boolean;
 					features_by_tier: Array< string >;
 					has_required_plan: boolean;
 					has_required_tier: Array< string >;
@@ -229,5 +230,9 @@ interface Window {
 		wpVersion: string;
 		siteSuffix: string;
 		connectionErrors: Array< string | object >;
+	};
+	myJetpackRest?: {
+		apiRoot: string;
+		apiNonce: string;
 	};
 }
