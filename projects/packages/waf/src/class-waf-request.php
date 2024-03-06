@@ -321,8 +321,7 @@ class Waf_Request {
 	 * @return array<string, mixed|array>
 	 */
 	public function get_get_vars() {
-		$decode_json = $this->get_header( 'content-type' ) === 'application/json';
-		return flatten_array( $_GET, $decode_json ? 'json' : '', $decode_json );
+		return flatten_array( $_GET );
 	}
 
 	/**
@@ -331,8 +330,13 @@ class Waf_Request {
 	 * @return array<string, mixed|array>
 	 */
 	public function get_post_vars() {
-		$decode_json = $this->get_header( 'content-type' ) === 'application/json';
-		return flatten_array( $_POST, $decode_json ? 'json' : '', $decode_json );
+		// Attempt to decode JSON requests.
+		if ( $this->get_header( 'content-type' ) === 'application/json' ) {
+			$decoded_json = json_decode( $this->get_body(), true ) ?? array();
+			return flatten_array( $decoded_json, 'json', true );
+		}
+
+		return flatten_array( $_POST );
 	}
 
 	/**
