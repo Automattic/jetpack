@@ -887,7 +887,11 @@ class Test_REST_Endpoints extends TestCase {
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/remote_register' );
 		$request->set_header( 'Content-Type', 'application/json' );
 
-		$request->set_body( wp_json_encode( array( 'local_user' => static::$user_id, 'nonce' => 'foobar' ) ) );
+		$body = array(
+			'local_user' => static::$user_id,
+			'nonce' => 'foobar'
+		);
+		$request->set_body( wp_json_encode( $body ) );
 
 		// Mock full connection established.
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
@@ -911,7 +915,11 @@ class Test_REST_Endpoints extends TestCase {
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/remote_register' );
 		$request->set_header( 'Content-Type', 'application/json' );
 
-		$request->set_body( wp_json_encode( array( 'local_user' => -1, 'nonce' => 'foobar' ) ) );
+		$body = array(
+			'local_user' => -1,
+			'nonce' => 'foobar'
+		);
+		$request->set_body( wp_json_encode( $body ) );
 
 		$response      = $this->server->dispatch( $request );
 		$response_data = $response->get_data();
@@ -966,7 +974,11 @@ class Test_REST_Endpoints extends TestCase {
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/remote_register' );
 		$request->set_header( 'Content-Type', 'application/json' );
 
-		$request->set_body( wp_json_encode( array( 'local_user' => -1, 'nonce' => 'foobar' ) ) );
+		$body = array(
+			'local_user' => -1,
+			'nonce' => 'foobar'
+		);
+		$request->set_body( wp_json_encode( $body ) );
 
 		$response      = $this->server->dispatch( $request );
 		$response_data = $response->get_data();
