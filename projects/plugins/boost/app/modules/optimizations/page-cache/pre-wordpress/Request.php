@@ -86,10 +86,7 @@ class Request {
 		$bypass_patterns = Boost_Cache_Settings::get_instance()->get_bypass_patterns();
 
 		/**
-		 * Filters the bypass patterns for the Jetpack Boost cache.
-		 *
-		 * Allows developers to modify the list of patterns used to bypass the cache. This could be used to add
-		 * new patterns or remove existing ones depending on specific needs.
+		 * Filters the bypass patterns for the page cache.
 		 *
 		 * @since $$next-version$$
 		 *
@@ -118,10 +115,9 @@ class Request {
 	 */
 	public function is_cacheable() {
 		/**
-		 * Determines if the request is considered cacheable by Jetpack Boost.
+		 * Determines if the request is considered cacheable.
 		 *
-		 * This filter allows developers to override the default cacheability logic of Jetpack Boost. It can be
-		 * used to make a request cacheable that would otherwise not be, or to prevent a request from being cached.
+		 * Can be used to prevent a request from being cached.
 		 *
 		 * @since $$next-version$$
 		 *
@@ -176,9 +172,10 @@ class Request {
 		/**
 		 * Filters the accept headers to determine if the request should be cached.
 		 *
-		 * This filter allows modification of the accepted headers for cacheable requests. Requests with headers
-		 * matching any in the filtered list will not be cached. This can be used to exclude certain types of
-		 * requests based on their Accept header value.
+		 * This filter allows modification of the content types that browsers send
+		 * to the server during a request. If the acceptable browser content type header (HTTP_ACCEPT)
+		 * matches one of these content types the request will not be cached,
+		 * or a cached file served to this visitor.
 		 *
 		 * @since $$next-version$$
 		 *
