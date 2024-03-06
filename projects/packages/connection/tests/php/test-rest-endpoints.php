@@ -889,7 +889,7 @@ class Test_REST_Endpoints extends TestCase {
 
 		$body = array(
 			'local_user' => static::$user_id,
-			'nonce' => 'foobar'
+			'nonce'      => 'foobar',
 		);
 		$request->set_body( wp_json_encode( $body ) );
 
@@ -917,7 +917,7 @@ class Test_REST_Endpoints extends TestCase {
 
 		$body = array(
 			'local_user' => -1,
-			'nonce' => 'foobar'
+			'nonce'      => 'foobar',
 		);
 		$request->set_body( wp_json_encode( $body ) );
 
@@ -976,7 +976,7 @@ class Test_REST_Endpoints extends TestCase {
 
 		$body = array(
 			'local_user' => -1,
-			'nonce' => 'foobar'
+			'nonce'      => 'foobar',
 		);
 		$request->set_body( wp_json_encode( $body ) );
 
