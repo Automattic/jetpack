@@ -1,7 +1,7 @@
 import { createContext, useState } from 'react';
 import { NoticeContextType, Notice } from './types';
 
-export const defaultNotice = {
+const defaultNotice = {
 	message: '',
 	options: {
 		status: '',
