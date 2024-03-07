@@ -29,10 +29,7 @@ import {
 } from './components/product-interstitial';
 import RedeemTokenScreen from './components/redeem-token-screen';
 import NoticeContextProvider from './context/notices/noticeContext';
-import { initStore } from './state/store';
 import './style.module.scss';
-
-initStore();
 
 /**
  * Component to scroll window to top on route change.

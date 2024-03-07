@@ -1,9 +1,5 @@
-import React from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
-import { initStore } from '../../../state/store';
 import WelcomeBanner from '../index.jsx';
-
-initStore();
 
 export default {
 	title: 'Packages/My Jetpack/Welcome Banner',
