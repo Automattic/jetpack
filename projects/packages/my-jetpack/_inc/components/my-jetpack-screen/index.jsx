@@ -27,6 +27,7 @@ import {
 } from '../../data/constants';
 import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
+import useWindowStateQuery from '../../data/use-window-state-query';
 import useAnalytics from '../../hooks/use-analytics';
 import useConnectionWatcher from '../../hooks/use-connection-watcher';
 import ConnectionsSection from '../connections-section';
@@ -92,10 +93,11 @@ const GlobalNotice = ( { message, options } ) => {
 export default function MyJetpackScreen() {
 	useConnectionWatcher();
 	// Check using the global state instead of Redux so it only has effect after refreshing the page
-	const welcomeBannerHasBeenDismissed =
-		window?.myJetpackInitialState?.welcomeBanner.hasBeenDismissed;
-	const { showJetpackStatsCard = false } = window.myJetpackInitialState?.myJetpackFlags ?? {};
-	const jetpackManage = window?.myJetpackInitialState?.jetpackManage;
+	const { hasBeenDismissed: welcomeBannerHasBeenDismissed = false } =
+		useWindowStateQuery( 'welcome banner', 'welcomeBanner' ) || {};
+	const { showJetpackStatsCard = false } =
+		useWindowStateQuery( 'ui information', 'myJetpackFlags' ) || {};
+	const jetpackManage = useWindowStateQuery( 'jetpack manage', 'jetpackManage' );
 
 	const { currentNotice } = useContext( NoticeContext );
 	const { message, options } = currentNotice || {};
