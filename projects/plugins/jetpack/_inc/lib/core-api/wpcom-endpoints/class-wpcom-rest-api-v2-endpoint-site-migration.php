@@ -11,7 +11,6 @@
  *
  * @hide-in-jetpack
  */
-
 class WPCOM_REST_API_V2_Endpoint_Site_Migration {
 	/**
 	 * Class constructor
