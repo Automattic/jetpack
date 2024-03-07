@@ -624,7 +624,12 @@ class Initializer {
 		$red_bubble_alerts = self::get_red_bubble_alerts();
 
 		// The Jetpack menu item should be on index 3
-		if ( ! empty( $red_bubble_alerts ) && isset( $menu[3] ) && $menu[3][0] === 'Jetpack' ) {
+		if (
+			! empty( $red_bubble_alerts ) &&
+			is_countable( $red_bubble_alerts ) &&
+			isset( $menu[3] ) &&
+			$menu[3][0] === 'Jetpack'
+		) {
 			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			$menu[3][0] .= sprintf( ' <span class="awaiting-mod">%d</span>', count( $red_bubble_alerts ) );
 		}
