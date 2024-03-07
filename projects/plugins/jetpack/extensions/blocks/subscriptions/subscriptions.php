@@ -120,6 +120,19 @@ function register_block() {
 		)
 	);
 
+	register_post_meta(
+		'post',
+		META_NAME_CONTAINS_PAYWALLED_CONTENT,
+		array(
+			'show_in_rest'  => true,
+			'single'        => true,
+			'type'          => 'boolean',
+			'auth_callback' => function () {
+				return wp_get_current_user()->has_cap( 'edit_posts' );
+			},
+		)
+	);
+
 	// This ensures Jetpack will sync this post meta to WPCOM.
 	add_filter(
 		'jetpack_sync_post_meta_whitelist',
@@ -129,6 +142,7 @@ function register_block() {
 				array(
 					META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
 					META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
+					META_NAME_CONTAINS_PAYWALLED_CONTENT,
 				)
 			);
 		}

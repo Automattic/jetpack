@@ -41,6 +41,32 @@ function register_block() {
 		)
 	);
 
+	register_post_meta(
+		'post',
+		META_NAME_CONTAINS_PAID_CONTENT,
+		array(
+			'show_in_rest'  => true,
+			'single'        => true,
+			'type'          => 'boolean',
+			'auth_callback' => function () {
+				return wp_get_current_user()->has_cap( 'edit_posts' );
+			},
+		)
+	);
+
+	// This ensures Jetpack will sync this post meta to WPCOM.
+	add_filter(
+		'jetpack_sync_post_meta_whitelist',
+		function ( $allowed_meta ) {
+			return array_merge(
+				$allowed_meta,
+				array(
+					META_NAME_CONTAINS_PAID_CONTENT,
+				)
+			);
+		}
+	);
+
 	add_action( 'save_post_post', __NAMESPACE__ . '\maybe_add_paid_content_post_meta', 99, 2 );
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
