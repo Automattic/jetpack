@@ -80,13 +80,15 @@ function register_block() {
 		return;
 	}
 
-	register_block_bindings_source(
-		'jetpack/subscribers',
-		array(
-			'label'              => __( 'Jetpack Newsletter subscribers', 'jetpack' ),
-			'get_value_callback' => __NAMESPACE__ . '\bindings_subscribers_callback',
-		)
-	);
+	if ( function_exists( 'register_block_bindings_source' ) ) {
+		register_block_bindings_source(
+			'jetpack/subscribers',
+			array(
+				'label'              => __( 'Jetpack Newsletter subscribers', 'jetpack' ),
+				'get_value_callback' => __NAMESPACE__ . '\bindings_subscribers_callback',
+			)
+		);
+	}
 
 	register_post_meta(
 		'post',
