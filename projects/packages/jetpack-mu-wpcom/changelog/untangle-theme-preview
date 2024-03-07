@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Untangle: correctly show the current homepage when live-previewing another block theme
