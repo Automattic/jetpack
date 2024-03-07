@@ -10,18 +10,20 @@ const useWelcomeBanner = () => {
 	const hasBeenDismissed = window?.myJetpackInitialState?.welcomeBanner?.hasBeenDismissed;
 	const [ isDismissed, setIsDismissed ] = useState( hasBeenDismissed );
 
-	const { mutate: dismissWelcomeBanner } = useSimpleMutation(
-		QUERY_DISMISS_WELCOME_BANNER_KEY,
-		{
+	const { mutate: dismissWelcomeBanner } = useSimpleMutation( {
+		name: QUERY_DISMISS_WELCOME_BANNER_KEY,
+		query: {
 			path: REST_API_SITE_DISMISS_BANNER,
 			method: 'POST',
 		},
-		{
+		options: {
 			onSuccess: () => setIsDismissed( true ),
 		},
-		null,
-		__( 'Failed to dismiss the welcome banner. Please try again', 'jetpack-my-jetpack' )
-	);
+		errorMessage: __(
+			'Failed to dismiss the welcome banner. Please try again',
+			'jetpack-my-jetpack'
+		),
+	} );
 
 	return {
 		dismissWelcomeBanner,

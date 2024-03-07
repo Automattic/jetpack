@@ -20,10 +20,10 @@ import GoBackLink from '../go-back-link';
  */
 export default function AddLicenseScreen() {
 	const { recordEvent } = useAnalytics();
-	const { data: licenses = [], isLoading: fetchingAvailableLicenses } = useJetpackApiQuery(
-		QUERY_LICENSES_KEY,
-		async api => ( await api.getUserLicenses() )?.items
-	);
+	const { data: licenses = [], isLoading: fetchingAvailableLicenses } = useJetpackApiQuery( {
+		name: QUERY_LICENSES_KEY,
+		queryFn: async api => ( await api.getUserLicenses() )?.items,
+	} );
 	const { userConnectionData } = useConnection();
 	const [ hasActivatedLicense, setHasActivatedLicense ] = useState( false );
 

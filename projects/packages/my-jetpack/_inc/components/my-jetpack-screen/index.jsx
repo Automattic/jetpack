@@ -29,6 +29,7 @@ import {
 } from '../../data/constants';
 import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
+import getMyJetpackWindowState from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import useConnectionWatcher from '../../hooks/use-connection-watcher';
 import ConnectionsSection from '../connections-section';
@@ -94,28 +95,27 @@ const GlobalNotice = ( { message, options } ) => {
 export default function MyJetpackScreen() {
 	useConnectionWatcher();
 	// Check using the global state instead of Redux so it only has effect after refreshing the page
-	const welcomeBannerHasBeenDismissed =
-		window?.myJetpackInitialState?.welcomeBanner.hasBeenDismissed;
-	const { showJetpackStatsCard = false } = window.myJetpackInitialState?.myJetpackFlags ?? {};
-	const jetpackManage = window?.myJetpackInitialState?.jetpackManage;
+	const { hasBeenDismissed: welcomeBannerHasBeenDismissed } = getMyJetpackWindowState(
+		'welcomeBanner',
+		{ hasBeenDismissed: false }
+	);
+	const { showJetpackStatsCard } = getMyJetpackWindowState( 'myJetpackFlags', {
+		showJetpackStatsCard: false,
+	} );
+	const jetpackManage = getMyJetpackWindowState( 'jetpackManage', {} );
 
 	const { currentNotice } = useContext( NoticeContext );
 	const { message, options } = currentNotice || {};
 	const { hasConnectionError } = useConnectionErrorNotice();
-	const { data: availabilityData, isLoading: isChatAvailabilityLoading } = useSimpleQuery(
-		QUERY_CHAT_AVAILABILITY_KEY,
-		{
-			path: REST_API_CHAT_AVAILABILITY_ENDPOINT,
-		}
-	);
+	const { data: availabilityData, isLoading: isChatAvailabilityLoading } = useSimpleQuery( {
+		name: QUERY_CHAT_AVAILABILITY_KEY,
+		query: { path: REST_API_CHAT_AVAILABILITY_ENDPOINT },
+	} );
 	const { detail: statsDetails } = useProduct( 'stats' );
-
-	const { data: authData, isLoading: isJwtLoading } = useSimpleQuery(
-		QUERY_CHAT_AUTHENTICATION_KEY,
-		{
-			path: REST_API_CHAT_AUTHENTICATION_ENDPOINT,
-		}
-	);
+	const { data: authData, isLoading: isJwtLoading } = useSimpleQuery( {
+		name: QUERY_CHAT_AUTHENTICATION_KEY,
+		query: { path: REST_API_CHAT_AUTHENTICATION_ENDPOINT },
+	} );
 
 	const isAvailable = availabilityData?.is_available;
 	const jwt = authData?.user?.jwt;
