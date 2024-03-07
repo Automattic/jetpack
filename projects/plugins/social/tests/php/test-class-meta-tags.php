@@ -250,4 +250,93 @@ class Meta_Tags_Test extends BaseTestCase {
 			),
 		);
 	}
+
+	/**
+	 * Test the logic to create a title for Social Notes from the content.
+	 *
+	 * @dataProvider get_note_title_data_provider
+	 *
+	 * @param string $content Post content.
+	 * @param string $note_title The expected note title.
+	 */
+	public function test_get_social_note_title( $content, $note_title ) {
+		global $post;
+
+		wp_update_post(
+			array(
+				'ID'           => self::$post,
+				'post_type'    => Automattic\Jetpack\Social\Note::JETPACK_SOCIAL_NOTE_CPT,
+				'post_title'   => '',
+				'post_content' => $content,
+			)
+		);
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$post = get_post( self::$post );
+		setup_postdata( $post );
+
+		$this->assertEquals( $note_title, $this->meta_tags->get_og_title_for_social_notes() );
+	}
+
+	/**
+	 * Provides the test cases for the note titles.
+	 *
+	 * @return array An array of test case tuples. Input and expected title.
+	 */
+	public function get_note_title_data_provider() {
+		$ellipsis = "\u{2026}";
+		return array(
+			'standard_content'                   => array(
+				'This is a test of the title logic to see at what point it will cut it off',
+				'This is a test of the title logic to see at what point' . $ellipsis,
+			),
+			'55_chars'                           => array(
+				'This is a test of the title logic where it is 55 charss',
+				'This is a test of the title logic where it is 55 charss',
+			),
+			'56_chars'                           => array(
+				'This is a test of the title logic where it is 56 charsss',
+				'This is a test of the title logic where it is 56' . $ellipsis,
+			),
+			'long_word_55'                       => array(
+				'Thisisatestofthetitlelogicwhereitis55wordbutthatsoktooo',
+				'Thisisatestofthetitlelogicwhereitis55wordbutthatsoktooo',
+			),
+			'long_word_56'                       => array(
+				'Thisisatestofthetitlelogicwhereitisfiftysixcharacterslon',
+				'Thisisatestofthetitlelogicwhereitisfiftysixcharacterslo' . $ellipsis,
+			),
+			'leading_non_word_55_whitespace'     => array(
+				'@#$#$@%#$%@#$%@#$%                    Thisisatestofthe',
+				'@#$#$@%#$%@#$%@#$% Thisisatestofthe',
+			),
+			'leading_non_word_56_whitespace'     => array(
+				'@#$#$@%#$%@#$%@#$%                    Thisisatestoftheuo',
+				'@#$#$@%#$%@#$%@#$% Thisisatestoftheuo',
+			),
+			'leading_55_non_word_multiple_space' => array(
+				'@#$#$@%#$%@#$%@#$%                    Thisisatestofthoentuh aoestuhaoeusth',
+				'@#$#$@%#$%@#$%@#$% Thisisatestofthoentuh aoestuhaoeusth',
+			),
+			'leading_56_non_word_multiple_space' => array(
+				'@#$#$@%#$%@#$%@#$%                    Thisisatestofthoentuh aoestuhaoeusthu',
+				'@#$#$@%#$%@#$%@#$% Thisisatestofthoentuh' . $ellipsis,
+			),
+			'leading_non_word_55_multiple'       => array(
+				'@#$#$@%#$%@#$%@#$%#$%#$%#$^#$^%#$%#$%#$%#$%#$%%This isa',
+				'@#$#$@%#$%@#$%@#$%#$%#$%#$^#$^%#$%#$%#$%#$%#$%%This isa',
+			),
+			'leading_non_word_56_multiple'       => array(
+				'@#$#$@%#$%@#$%@#$%#$%#$%#$^#$^%#$%#$%#$%#$%#$%%This isat',
+				'@#$#$@%#$%@#$%@#$%#$%#$%#$^#$^%#$%#$%#$%#$%#$%%This' . $ellipsis,
+			),
+			'leading_non_word_55'                => array(
+				'@#$#$@%#$%@#$%@#$%#$%#$%#$^#$^%#$%#$%#$%#$%#$%%Thisisat',
+				'@#$#$@%#$%@#$%@#$%#$%#$%#$^#$^%#$%#$%#$%#$%#$%%Thisisat',
+			),
+			'leading_non_word_56'                => array(
+				'@#$#$@%#$%@#$%@#$%#$%#$%#$^#$^%#$%#$%#$%#$%#$%%Thisisate',
+				'@#$#$@%#$%@#$%@#$%#$%#$%#$^#$^%#$%#$%#$%#$%#$%%Thisisat' . $ellipsis,
+			),
+		);
+	}
 }

@@ -2,7 +2,6 @@ import { getCurrencyObject } from '@automattic/format-currency';
 import { __, sprintf } from '@wordpress/i18n';
 import RightArrow from '$svg/right-arrow';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import { useEffect } from 'react';
 import styles from './upgrade-cta.module.scss';
 import { usePricing } from '$lib/stores/pricing';
 import { useNavigate } from 'react-router-dom';
@@ -18,10 +17,6 @@ const UpgradeCTA = ( { description }: UpgradeCTAProps ) => {
 		recordBoostEvent( 'upsell_cta_from_settings_page_in_plugin', {} );
 		navigate( '/upgrade' );
 	};
-
-	useEffect( () => {
-		recordBoostEvent( 'view_upsell_cta_in_settings_page_in_plugin', {} );
-	}, [] );
 
 	const pricing = usePricing();
 	const currencyObjectAfter = ! pricing

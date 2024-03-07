@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.50.0] - 2024-03-07
+### Added
+- Fix typescript errors [#35904]
+
 ## [0.49.2] - 2024-03-04
 ### Changed
 - Updated package dependencies.
@@ -967,6 +971,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.50.0]: https://github.com/Automattic/jetpack-components/compare/0.49.2...0.50.0
 [0.49.2]: https://github.com/Automattic/jetpack-components/compare/0.49.1...0.49.2
 [0.49.1]: https://github.com/Automattic/jetpack-components/compare/0.49.0...0.49.1
 [0.49.0]: https://github.com/Automattic/jetpack-components/compare/0.48.4...0.49.0
