@@ -157,6 +157,8 @@ function register_block() {
 
 	add_action( 'init', __NAMESPACE__ . '\maybe_prevent_super_cache_caching' );
 
+	add_action( 'save_post_post', __NAMESPACE__ . '\maybe_add_paywalled_content_post_meta', 99, 1 );
+
 	Jetpack_Subscription_Site::init()->handle_subscribe_block_placements();
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
@@ -184,6 +186,25 @@ function register_newsletter_access_column( $columns ) {
 		$new_column,
 		array_slice( $columns, $position, null, true )
 	);
+}
+
+/**
+ * Add a meta to prevent publication on firehose, ES AI or Reader
+ *
+ * @param int $post_id Post id being saved.
+ * @return void
+ */
+function maybe_add_paywalled_content_post_meta( int $post_id ) {
+	$access_level = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+
+	$is_paywalled = false;
+	switch ( $access_level ) {
+		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS:
+		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS:
+		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS:
+			$is_paywalled = true;
+	}
+	update_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, $is_paywalled );
 }
 
 /**
@@ -1213,14 +1234,6 @@ function get_paywall_simple() {
 	return '
 <!-- wp:columns -->
 <div class="wp-block-columns" style="display: inline-block; width: 90%">
-    <!-- wp:column -->
-    <div class="wp-block-column" style="background-color: #F6F7F7; padding: 32px; 24px;">
-        <!-- wp:paragraph -->
-        <p class="has-text-align-center"
-           style="text-align: center;
-                  color: #50575E;
-                  font-weight: 400;
-                  font-size: 16px;
                   font-family: \'SF Pro Text\', sans-serif;
                   line-height: 28.8px;">
         ' . $access_heading . '
