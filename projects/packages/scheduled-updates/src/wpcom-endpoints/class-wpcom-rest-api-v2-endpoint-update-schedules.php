@@ -296,6 +296,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return $result;
 		}
 
+		if ( false === $result ) {
+			return new WP_Error( 'unschedule_event_error', __( 'Error during unschedule of the event.', 'jetpack-scheduled-updates' ), array( 'status' => 500 ) );
+		}
+
 		require_once ABSPATH . 'wp-admin/includes/update.php';
 
 		if ( wp_is_auto_update_enabled_for_type( 'plugin' ) ) {
