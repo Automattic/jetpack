@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add whitelist to show errors only for certain queries
