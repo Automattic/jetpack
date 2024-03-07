@@ -633,7 +633,7 @@ class Initializer {
 	/**
 	 * Collect all possible alerts that we might use a red bubble notification for
 	 *
-	 * @return array|mixed|null
+	 * @return array
 	 */
 	public static function get_red_bubble_alerts() {
 		static $red_bubble_alerts = array();
