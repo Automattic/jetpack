@@ -80,6 +80,14 @@ function register_block() {
 		return;
 	}
 
+	register_block_bindings_source(
+		'jetpack/subscribers',
+		array(
+			'label'              => __( 'Jetpack Newsletter subscribers', 'jetpack' ),
+			'get_value_callback' => __NAMESPACE__ . '\bindings_subscribers_callback',
+		)
+	);
+
 	register_post_meta(
 		'post',
 		META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
@@ -204,6 +212,28 @@ add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
  */
 function is_wpcom() {
 	return defined( 'IS_WPCOM' ) && IS_WPCOM;
+}
+
+/**
+ * Gets values for subscriber counts
+ *
+ * @param array $source_attrs Array containing source arguments used to look up the value
+ *                            Examples: array( "key" => "count" ), array( "key" => "count-with-social-followers" ).
+ * @return mixed The value or null
+ */
+function bindings_subscribers_callback( $source_attrs ) {
+	if ( ! isset( $source_attrs['key'] ) ) {
+		return null;
+	}
+
+	if ( $source_attrs['key'] === 'count' || $source_attrs['key'] === 'count-with-social-followers' ) {
+		$with_social_followers = $source_attrs['key'] === 'count-with-social-followers';
+		$count                 = get_subscriber_count( $with_social_followers );
+
+		return esc_html( Jetpack_Memberships::get_join_others_text( $count ) );
+	}
+
+	return null;
 }
 
 /**
