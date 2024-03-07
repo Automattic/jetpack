@@ -279,8 +279,8 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 				return new WP_Error( 'unauthorized', 'User cannot edit post', 403 );
 			}
 
-			if ( ! empty( $input['if_not_modified_since'] ) ) {
-				if ( mysql2date( 'U', $post->post_modified_gmt ) > mysql2date( 'U', $input['if_not_modified_since'] ) ) {
+			if ( ! empty( $input['if_not_modified_since_gmt'] ) ) {
+				if ( mysql2date( 'U', $post->post_modified_gmt ) > mysql2date( 'U', $input['if_not_modified_since_gmt'] ) ) {
 					return new WP_Error( 'old-revision', 'There is a revision of this post that is more recent.', 409 );
 				}
 			}
