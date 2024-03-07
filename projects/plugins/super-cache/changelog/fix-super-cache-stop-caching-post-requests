@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WP Super Cache: fixed serving a cached page on POST with late init enabled.

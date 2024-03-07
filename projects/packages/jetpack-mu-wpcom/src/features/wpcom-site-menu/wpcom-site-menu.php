@@ -61,7 +61,7 @@ function wpcom_add_wpcom_menu_item() {
 
 	add_menu_page(
 		esc_attr__( 'Hosting', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Hosting', 'jetpack-mu-wpcom' ) . ' <span class="dashicons dashicons-external" style="float: right;"></span>',
+		esc_attr__( 'Hosting', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		$parent_slug,
 		null,
