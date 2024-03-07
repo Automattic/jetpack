@@ -127,9 +127,6 @@ function fetchMapkitKey( mapkitObj, blogId, currentWindow ) {
 					}
 				},
 			} );
-			mapkitObj.addEventListener( 'error', function ( event ) {
-				reject( event );
-			} );
 		}
 	} );
 }

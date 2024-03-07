@@ -8,10 +8,13 @@ domReady( function () {
 		try {
 			if ( blockRoot.getAttribute( 'data-map-provider' ) === 'mapkit' ) {
 				const block = new MapkitBlock( blockRoot );
-				block.init().catch( () => {
+				block.onError = () => {
+					// remove the mapkit container
+					blockRoot.innerHtml = '';
 					const fallback = new MapBoxBlock( blockRoot );
 					fallback.init();
-				} );
+				};
+				block.init();
 			} else {
 				const block = new MapBoxBlock( blockRoot );
 				block.init();
