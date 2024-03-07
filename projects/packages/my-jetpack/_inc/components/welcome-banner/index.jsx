@@ -8,7 +8,7 @@ import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { CardWrapper } from '../card';
-import styles from './style.module.scssz';
+import styles from './style.module.scss';
 
 /**
  * Component that renders the Welcome banner on My Jetpack.
