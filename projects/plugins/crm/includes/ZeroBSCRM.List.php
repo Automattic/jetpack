@@ -701,9 +701,29 @@ class zeroBSCRM_list{
 		);
 
 		$current_quickfilter       = ( ! empty( $listview_filters['quickfilters'][0] ) ? $listview_filters['quickfilters'][0] : '' );
-		$current_quickfilter_label = ( ! empty( $all_quickfilters[ $current_quickfilter ][0] ) ? $all_quickfilters[ $current_quickfilter ][0] : '' );
-		$current_tag               = ( ! empty( $listview_filters['tags'][0] ) ? $listview_filters['tags'][0]['name'] : '' );
-		$current_search            = ( ! empty( $listview_filters['s'] ) ? $listview_filters['s'] : '' );
+		$current_quickfilter_label = '';
+
+		if ( $quickfilter_category_count > 0 ) {
+			$quickfilter_html = '<option disabled selected>' . esc_html__( 'Select filter', 'zero-bs-crm' ) . '</option>';
+			foreach ( $all_quickfilters as $category => $filters ) {
+				if ( $quickfilter_category_count > 1 ) {
+					$category_label    = array_key_exists( $category, $quickfilter_categories ) ? $quickfilter_categories[ $category ] : $category;
+					$quickfilter_html .= '<optgroup label="' . esc_attr( $category_label ) . '">';
+				}
+				foreach ( $filters as $filter_slug => $filter_label ) {
+					if ( $current_quickfilter === $filter_slug ) {
+						$current_quickfilter_label = $filter_label;
+					}
+					$quickfilter_html .= '<option value="' . esc_attr( $filter_slug ) . '">' . esc_html( $filter_label ) . '</option>';
+				}
+				if ( $quickfilter_category_count > 1 ) {
+					$quickfilter_html .= '</optgroup>';
+				}
+			}
+		}
+
+		$current_tag    = ( ! empty( $listview_filters['tags'][0] ) ? $listview_filters['tags'][0]['name'] : '' );
+		$current_search = ( ! empty( $listview_filters['s'] ) ? $listview_filters['s'] : '' );
 		?>
 
 		<jpcrm-listview-header id="jpcrm-listview-header">
@@ -717,20 +737,8 @@ class zeroBSCRM_list{
 				<?php
 				// add quickfilters filter if current object has quickfilters
 				if ( $quickfilter_category_count > 0 ) {
-					echo '<select class="filter-dropdown' . ( ! empty( $current_quickfilter_label ) ? ' hidden' : '' ) . '" data-filtertype="quickfilters">';
-					echo '<option disabled selected>' . esc_html__( 'Select filter', 'zero-bs-crm' ) . '</option>';
-					foreach ( $all_quickfilters as $category => $filters ) {
-						if ( $quickfilter_category_count > 1 ) {
-							$category_label = array_key_exists( $category, $quickfilter_categories ) ? $quickfilter_categories[ $category ] : $category;
-							echo '<optgroup label="' . esc_attr( $category_label ) . '">';
-						}
-						foreach ( $filters as $filter_slug => $filter_label ) {
-							echo '<option value="' . esc_attr( $filter_slug ) . '">' . esc_html( $filter_label ) . '</option>';
-						}
-						if ( $quickfilter_category_count > 1 ) {
-							echo '</optgroup>';
-						}
-					}
+					echo '<select class="filter-dropdown' . esc_attr( ! empty( $current_quickfilter_label ) ? ' hidden' : '' ) . '" data-filtertype="quickfilters">';
+					echo $quickfilter_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					echo '</select>';
 					echo '<div class="jpcrm-current-filter' . ( empty( $current_quickfilter_label ) ? ' hidden' : '' ) . '">';
 					echo '<button class="dashicons dashicons-remove" title="' . esc_attr__( 'Remove filter', 'zero-bs-crm' ) . '"></button>';
