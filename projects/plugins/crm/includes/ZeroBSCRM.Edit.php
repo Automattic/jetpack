@@ -170,35 +170,57 @@ class zeroBSCRM_Edit{
           $is_malformed_obj = false;
 
           if (is_array($this->obj) && isset($this->obj['owner'])){
-            $objOwner = (int)$this->obj['owner'];
+				$obj_owner = (int) $this->obj['owner'];
+
+				// This check covers the case where the contact or company is the owner of the transaction or quote
+				if ( isset( $this->obj['contact'][0]['owner'] ) ) {
+					$trans_quote_owner = (int) $this->obj['contact'][0]['owner'];
+
+				} elseif ( isset( $this->obj['company'][0]['owner'] ) ) {
+					$trans_quote_owner = (int) $this->obj['company'][0]['owner'];
+				// phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact,Generic.WhiteSpace.ScopeIndent.Incorrect -- this sniff is incorrectly reporting spacing issues.
+				}
+
+				// This check covers the case where the contact or company is the owner of the invoice
+				if ( $this->objTypeID === 4 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$data = zeroBSCRM_invoicing_getInvoiceData( $this->objID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					if ( ! empty( $data['invoiceObj']['contact'] ) ) {
+						$obj_invoice_owner = (int) $data['invoiceObj']['contact'][0]['owner'];
+					} else {
+						$obj_invoice_owner = (int) $data['invoiceObj']['company'][0]['owner'];
+					}
+				}
           } else {
+			// phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact,Generic.WhiteSpace.ScopeIndent.Incorrect
             // if $this->obj is not an array, somehow it's not been loaded properly (probably perms)
             // get owner info anyway
             $is_malformed_obj = true;
-            $objOwner = $zbs->DAL->getObjectOwner(array(
-              'objID'           => $this->objID,
-              'objTypeID'       => $this->objTypeID
-            ));
+				$obj_owner    = $zbs->DAL->getObjectOwner( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					array(
+						'objID'     => $this->objID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						'objTypeID' => $this->objTypeID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					)
+				);
           }
           // get current user
-          $currentUserID = get_current_user_id();
+			$current_user_id = get_current_user_id();
 
-          if ($objOwner > 0 && $objOwner != $currentUserID){
-            // not current user
-            // does user have perms to edit?
-            $canEditAllContacts = current_user_can('admin_zerobs_customers') && $zbs->settings->get('perusercustomers') == 0;
-            $canGiveOwnership = $zbs->settings->get('usercangiveownership') == 1;
-            $canChangeOwner = ($canGiveOwnership || current_user_can('administrator') || $canEditAllContacts);
+			if ( $obj_owner > 0 && $obj_owner !== $current_user_id && $trans_quote_owner !== $current_user_id && $obj_invoice_owner !== $current_user_id ) {
+				// not current user
+				// does user have perms to edit?
+				$can_edit_all_contacts = current_user_can( 'admin_zerobs_customers' ) && $zbs->settings->get( 'perusercustomers' ) === 0; // phpcs:ignore WordPress.WP.Capabilities.Unknown  -- this was defined in ZeroBSCRM.Permissions.php
+				$can_give_ownership    = $zbs->settings->get( 'usercangiveownership' ) === 1;
+				$can_change_owner      = ( $can_give_ownership || current_user_can( 'administrator' ) || $can_edit_all_contacts ); // phpcs:ignore WordPress.WP.Capabilities.RoleFound
 
-            if (!$canChangeOwner){
+				if ( ! $can_change_owner ) {
 
-              // owners can't be changed with user's perms, so denied msg
-              $this->preCheckFail( sprintf( __( 'You do not have permission to edit this %s.', 'zero-bs-crm' ), $zbs->DAL->typeStr( $this->objTypeID ) ) );
-              return false;
+					// owners can't be changed with user's perms, so denied msg
+					// Translators: %s is the object type (for example transaction, quote, invoice).
+					$this->preCheckFail( sprintf( __( 'You do not have permission to edit this %s.', 'zero-bs-crm' ), $zbs->DAL->typeStr( $this->objTypeID ) ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					return false;
 
             }
             if ( !$this->has_permissions_to_edit ){
-
               // user does not have a role which can edit this object type
               $this->preCheckFail( sprintf( __( 'You do not have permission to edit this %s.', 'zero-bs-crm' ), $zbs->DAL->typeStr( $this->objTypeID ) ) );
               return false;
