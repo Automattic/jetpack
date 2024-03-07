@@ -63,9 +63,8 @@ const Meta = () => {
 	const updatePatterns = ( newValue: string ) => {
 		const newPatterns = newValue.split( '\n' ).map( line => line.trim() );
 
-		recordBoostEvent( 'page_cache_update_bypass_patterns', {
-			previous_patterns: bypassPatterns.join( ',' ),
-			new_patterns: newPatterns.join( ',' ),
+		recordBoostEvent( 'page_cache_bypass_patterns', {
+			total: newPatterns.length,
 		} );
 		mutateBypassPatterns.mutate( newPatterns );
 	};
