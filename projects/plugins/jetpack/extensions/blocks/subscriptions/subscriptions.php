@@ -84,7 +84,7 @@ function register_block() {
 		register_block_bindings_source(
 			'jetpack/subscribers',
 			array(
-				'label'              => __( 'Jetpack Newsletter subscribers', 'jetpack' ),
+				'label'              => _x( 'Jetpack Newsletter subscribers', 'Block bindings source label', 'jetpack' ),
 				'get_value_callback' => __NAMESPACE__ . '\bindings_subscribers_callback',
 			)
 		);
@@ -217,10 +217,10 @@ function is_wpcom() {
 }
 
 /**
- * Gets values for subscriber counts
+ * Gets values for subscriber count
  *
  * @param array $source_attrs Array containing source arguments used to look up the value
- *                            Examples: array( "key" => "count" ), array( "key" => "count-with-social-followers" ).
+ *                            Examples: array( "key" => "count" ).
  * @return mixed The value or null
  */
 function bindings_subscribers_callback( $source_attrs ) {
@@ -228,10 +228,8 @@ function bindings_subscribers_callback( $source_attrs ) {
 		return null;
 	}
 
-	if ( $source_attrs['key'] === 'count' || $source_attrs['key'] === 'count-with-social-followers' ) {
-		$with_social_followers = $source_attrs['key'] === 'count-with-social-followers';
-		$count                 = get_subscriber_count( $with_social_followers );
-
+	if ( $source_attrs['key'] === 'count' ) {
+		$count = get_subscriber_count( false );
 		return esc_html( Jetpack_Memberships::get_join_others_text( $count ) );
 	}
 
