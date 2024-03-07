@@ -654,7 +654,7 @@ class Initializer {
 	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
 	 * @return array
 	 */
-	public static function alert_if_missing_site_connection( $red_bubble_slugs ) {
+	public static function alert_if_missing_site_connection( array $red_bubble_slugs ) {
 		if ( ! ( new Connection_Manager() )->is_connected() ) {
 			$red_bubble_slugs[] = self::MISSING_SITE_CONNECTION_NOTIFICATION_KEY;
 		}
