@@ -326,6 +326,8 @@ class Speed_Score {
 
 			$response['scores']['isStale'] = $history->is_stale();
 
+			do_action( 'jetpack_boost_speed_score_response_success', $response, $url );
+
 		} elseif ( ( $score_request && $score_request->is_error() ) || ( $score_request_no_boost && $score_request_no_boost->is_error() ) ) {
 			// If either request ended up in error, we can just return the one with error so front-end can take action. The relevent url is available on the serialized object.
 			if ( $score_request->is_error() ) {
