@@ -1,17 +1,14 @@
 <?php
-/**
- * Site Migration API endpoint
- *
- * @package automattic/jetpack-mu-wpcom
- * @since 1.1.0
- */
+declare( strict_types = 1 );
 
 /**
- * Fetches site migration data.
+ * WARNING: This file is distributed verbatim in Jetpack.
+ * There should be nothing WordPress.com specific in this file.
  *
- * @since 1.1.0
+ * @hide-in-jetpack
  */
-class WPCOM_REST_API_V2_Endpoint_Site_Migration extends WP_REST_Controller {
+
+class WPCOM_REST_API_V2_Endpoint_Site_Migration {
 
 	/**
 	 * Class constructor
