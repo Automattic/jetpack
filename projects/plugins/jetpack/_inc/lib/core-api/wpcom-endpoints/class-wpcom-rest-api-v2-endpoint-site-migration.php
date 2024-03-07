@@ -1,5 +1,9 @@
 <?php
-declare( strict_types = 1 );
+/**
+ * Allow us to access the Migrate Guru site migration key via API.
+ *
+ * @package automattic/jetpack
+ */
 
 /**
  * WARNING: This file is distributed verbatim in Jetpack.
@@ -9,7 +13,6 @@ declare( strict_types = 1 );
  */
 
 class WPCOM_REST_API_V2_Endpoint_Site_Migration {
-
 	/**
 	 * Class constructor
 	 */
