@@ -6,7 +6,7 @@ import useMyJetpackConnection from '../use-my-jetpack-connection';
 const useAnalytics = () => {
 	const { isUserConnected, connectedPlugins, userConnectionData = {} } = useMyJetpackConnection();
 	const { login, ID } = userConnectionData.currentUser?.wpcomUser || {};
-	const myJetpackVersion = getMyJetpackWindowState( 'myJetpackVersion', '' );
+	const { myJetpackVersion = '' } = getMyJetpackWindowState();
 
 	/**
 	 * Initialize tracks with user data.

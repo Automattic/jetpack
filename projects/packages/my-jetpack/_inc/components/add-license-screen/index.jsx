@@ -50,8 +50,7 @@ export default function AddLicenseScreen() {
 		[ licenses ]
 	);
 
-	const siteSuffix = getMyJetpackWindowState( 'siteSuffix', '' );
-	const adminUrl = getMyJetpackWindowState( 'adminUrl', '' );
+	const { siteSuffix = '', adminUrl = '' } = getMyJetpackWindowState();
 
 	return (
 		<AdminPage showHeader={ false } showBackground={ false }>

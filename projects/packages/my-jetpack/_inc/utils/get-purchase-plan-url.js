@@ -10,9 +10,7 @@ import getMyJetpackWindowState from '../data/utils/get-my-jetpack-window-state';
  * @returns {string}            the redirect URL
  */
 export default function () {
-	const site = getMyJetpackWindowState( 'siteSuffix', '' );
-	const blogID = getMyJetpackWindowState( 'blogID', '' );
-	const myJetpackCheckoutUri = getMyJetpackWindowState( 'myJetpackCheckoutUri', '' );
+	const { siteSuffix: site = '', blogID, myJetpackCheckoutUri } = getMyJetpackWindowState();
 
 	const query = myJetpackCheckoutUri ? `redirect_to=${ myJetpackCheckoutUri }` : null;
 	return getRedirectUrl( MY_JETPACK_MY_PLANS_PURCHASE_SOURCE, { site: blogID ?? site, query } );

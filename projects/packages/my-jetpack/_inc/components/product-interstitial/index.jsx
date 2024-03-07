@@ -67,7 +67,7 @@ export default function ProductInterstitial( {
 	const { isUpgradableByBundle, tiers, pricingForUi } = detail;
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
-	const { myJetpackCheckoutUri } = getMyJetpackWindowState( 'myJetpackCheckoutUri', '' );
+	const { myJetpackCheckoutUri = '' } = getMyJetpackWindowState();
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );

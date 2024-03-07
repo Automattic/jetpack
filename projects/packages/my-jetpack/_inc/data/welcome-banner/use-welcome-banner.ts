@@ -8,10 +8,8 @@ import useSimpleMutation from '../use-simple-mutation';
 import getMyJetpackWindowState from '../utils/get-my-jetpack-window-state';
 
 const useWelcomeBanner = () => {
-	const { hasBeenDismissed: welcomeBannerHasBeenDismissed } = getMyJetpackWindowState(
-		'welcomeBanner',
-		{ hasBeenDismissed: false }
-	);
+	const { hasBeenDismissed: welcomeBannerHasBeenDismissed } =
+		getMyJetpackWindowState( 'welcomeBanner' );
 
 	const [ isDismissed, setIsDismissed ] = useState( welcomeBannerHasBeenDismissed );
 

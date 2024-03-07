@@ -38,8 +38,7 @@ const ProductDetailTableColumn = ( {
 	tier,
 	trackProductButtonClick,
 } ) => {
-	const siteSuffix = getMyJetpackWindowState( 'siteSuffix', '' );
-	const myJetpackCheckoutUri = getMyJetpackWindowState( 'myJetpackCheckoutUri', '' );
+	const { siteSuffix = '', myJetpackCheckoutUri = '' } = getMyJetpackWindowState();
 
 	// Extract the product details.
 	const {
@@ -221,7 +220,7 @@ const ProductDetailTable = ( {
 	trackProductButtonClick,
 	isFetching,
 } ) => {
-	const fileSystemWriteAccess = getMyJetpackWindowState( 'fileSystemWriteAccess', 'no' );
+	const { fileSystemWriteAccess = 'no' } = getMyJetpackWindowState();
 
 	const { detail } = useProduct( slug );
 	const { description, featuresByTier = [], pluginSlug, status, tiers = [], title } = detail;

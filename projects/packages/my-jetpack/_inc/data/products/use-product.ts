@@ -20,7 +20,7 @@ const getDiscountPricePerMonth = ( product: ProductCamelCase ) => {
 };
 
 export const useAllProducts = () => {
-	const { items: products } = getMyJetpackWindowState( 'products', { items: {} } );
+	const { items: products } = getMyJetpackWindowState( 'products' );
 
 	return products;
 };

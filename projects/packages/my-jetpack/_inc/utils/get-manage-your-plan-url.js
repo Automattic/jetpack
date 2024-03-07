@@ -11,7 +11,7 @@ import getMyJetpackWindowState from '../data/utils/get-my-jetpack-window-state';
  * @returns {string}            the redirect URL
  */
 export default function () {
-	const site = getMyJetpackWindowState( 'siteSuffix', '' );
-	const blogID = getMyJetpackWindowState( 'blogID', '' );
+	const { siteSuffix: site = '', blogID } = getMyJetpackWindowState();
+
 	return getRedirectUrl( MY_JETPACK_MY_PLANS_MANAGE_SOURCE, { site: blogID ?? site } );
 }

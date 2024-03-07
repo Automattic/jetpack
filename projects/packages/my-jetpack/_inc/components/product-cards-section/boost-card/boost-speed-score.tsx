@@ -25,8 +25,7 @@ const BoostSpeedScore: FC = () => {
 	const [ isTooltipVisible, setIsTooltipVisible ] = useState( false );
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
-	const siteUrl = getMyJetpackWindowState( 'siteSuffix', '' );
-	const latestBoostSpeedScores = getMyJetpackWindowState( 'latestBoostSpeedScores', null );
+	const { siteSuffix: siteUrl = '', latestBoostSpeedScores } = getMyJetpackWindowState();
 	const { apiRoot, apiNonce, isSiteConnected } = useMyJetpackConnection();
 
 	const getAverageSpeedScore = ( mobileScore, desktopScore ) => {

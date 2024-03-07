@@ -15,7 +15,7 @@ const StatsSection = () => {
 	const { blogID } = useMyJetpackConnection();
 	const { detail } = useProduct( slug );
 	const { status } = detail;
-	const isAdmin = !! getMyJetpackWindowState( 'userIsAdmin', '' );
+	const isAdmin = !! getMyJetpackWindowState( 'userIsAdmin' );
 	const { data: statsCounts } = useSimpleQuery( {
 		name: QUERY_STATS_COUNTS_KEY,
 		query: {

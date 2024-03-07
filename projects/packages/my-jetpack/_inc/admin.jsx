@@ -46,7 +46,7 @@ function ScrollToTop() {
 
 const MyJetpack = () => {
 	const queryClient = new QueryClient();
-	const loadAddLicenseScreen = getMyJetpackWindowState( 'loadAddLicenseScreen', false );
+	const { loadAddLicenseScreen } = getMyJetpackWindowState();
 
 	return (
 		<ThemeProvider>

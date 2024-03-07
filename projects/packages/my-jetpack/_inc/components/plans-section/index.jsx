@@ -123,8 +123,7 @@ function PlanSectionFooter( { numberOfPurchases } ) {
 		);
 	}
 
-	const loadAddLicenseScreen = getMyJetpackWindowState( 'loadAddLicenseScreen', '' );
-	const adminUrl = getMyJetpackWindowState( 'adminUrl', '' );
+	const { loadAddLicenseScreen = '', adminUrl = '' } = getMyJetpackWindowState();
 
 	return (
 		<ul>
@@ -163,7 +162,7 @@ function PlanSectionFooter( { numberOfPurchases } ) {
  * @returns {object} PlansSection React component.
  */
 export default function PlansSection() {
-	const userIsAdmin = !! getMyJetpackWindowState( 'userIsAdmin', '' );
+	const userIsAdmin = !! getMyJetpackWindowState( 'userIsAdmin' );
 	const {
 		data: purchases,
 		isLoading,

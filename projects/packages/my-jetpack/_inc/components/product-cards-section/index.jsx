@@ -19,8 +19,7 @@ import VideopressCard from './videopress-card';
  * @returns {object} ProductCardsSection React component.
  */
 const ProductCardsSection = () => {
-	const isAtomic = getMyJetpackWindowState( 'isAtomic', false );
-	const userIsAdmin = getMyJetpackWindowState( 'userIsAdmin', false );
+	const { isAtomic = false, userIsAdmin = false } = getMyJetpackWindowState();
 
 	const items = {
 		backups: BackupCard,

@@ -145,7 +145,7 @@ const WithBackupsValueSection = ( { admin, slug } ) => {
 	const lastRewindableEventTime = lastRewindableEvent?.published;
 	const undoBackupId = data?.undo_backup_id;
 	const { recordEvent } = useAnalytics();
-	const siteSuffix = getMyJetpackWindowState( 'siteSuffix', '' );
+	const { siteSuffix = '' } = getMyJetpackWindowState();
 
 	const handleUndoClick = () => {
 		recordEvent( 'jetpack_myjetpack_backup_card_undo_click', {

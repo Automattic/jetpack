@@ -84,10 +84,12 @@ const ProductDetailCard = ( {
 	highlightLastFeature = false,
 	isFetching = false,
 } ) => {
-	const fileSystemWriteAccess = getMyJetpackWindowState( 'fileSystemWriteAccess', 'no' );
-	const siteSuffix = getMyJetpackWindowState( 'siteSuffix', '' );
-	const adminUrl = getMyJetpackWindowState( 'adminUrl', '' );
-	const myJetpackCheckoutUri = getMyJetpackWindowState( 'myJetpackCheckoutUri', '' );
+	const {
+		fileSystemWriteAccess = 'no',
+		siteSuffix = '',
+		adminUrl = '',
+		myJetpackCheckoutUri = '',
+	} = getMyJetpackWindowState();
 
 	const { detail } = useProduct( slug );
 
