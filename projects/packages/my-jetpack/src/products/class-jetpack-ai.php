@@ -452,12 +452,39 @@ class Jetpack_Ai extends Product {
 	}
 
 	/**
+	 * Get the URL the user is taken after activating the product through the checkout
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_activation_url() {
+		return '/wp-admin/admin.php?page=my-jetpack#/jetpack-ai';
+	}
+
+	/**
 	 * Get the URL where the user manages the product
 	 *
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
 		return '/wp-admin/admin.php?page=my-jetpack#/add-jetpack-ai';
+	}
+
+	/**
+	 * Checks whether the plugin is installed
+	 *
+	 * @return boolean
+	 */
+	public static function is_plugin_installed() {
+		return self::is_jetpack_plugin_installed();
+	}
+
+	/**
+	 * Checks whether the plugin is active
+	 *
+	 * @return boolean
+	 */
+	public static function is_plugin_active() {
+		return (bool) static::is_jetpack_plugin_active();
 	}
 
 	/**
