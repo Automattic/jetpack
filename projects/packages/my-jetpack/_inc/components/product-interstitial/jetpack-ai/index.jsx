@@ -15,7 +15,6 @@ import { useGoBack } from '../../../hooks/use-go-back';
 import GoBackLink from '../../go-back-link';
 import AiTierDetailTable from '../../product-detail-table/jetpack-ai';
 import jetpackAiImage from '../jetpack-ai.png';
-import { JetpackAIInterstitialMoreRequests } from './more-requests';
 import styles from './style.module.scss';
 
 const debug = debugFactory( 'my-jetpack:product-interstitial:jetpack-ai' );
@@ -33,14 +32,7 @@ export default function JetpackAiInterstitial() {
 	debug( detail );
 	const nextTier = detail?.aiAssistantFeature?.nextTier || null;
 
-	const { tiers, hasRequiredPlan } = detail;
-
-	// The user has a plan and there is not a next tier
-	if ( isRegistered && hasRequiredPlan && ! nextTier ) {
-		debug( 'user is on top tier' );
-		// When tiers, this is handled on the pricing table and the product page
-		return <JetpackAIInterstitialMoreRequests onClickGoBack={ onClickGoBack } />;
-	}
+	const { tiers } = detail;
 
 	// Default to 100 requests if the site is not registered/connected.
 	const nextTierValue = isRegistered ? nextTier?.value : 100;
@@ -50,9 +42,9 @@ export default function JetpackAiInterstitial() {
 	// Highlight the last feature in the table for all the tiers except the unlimited one.
 	const highlightLastFeature = nextTier?.value !== 1;
 
-	return tiers && tiers.length ? (
+	return tiers && tiers.length && ! detail ? (
 		<AdminPage showHeader={ false } showBackground={ true }>
-			<Container fluid horizontalSpacing={ 3 } horizontalGap={ 3 }>
+			<Container fluid horizontalSpacing={ 3 } horizontalGap={ 2 }>
 				<Col className={ styles[ 'product-interstitial__section' ] }>
 					<div className={ styles[ 'product-interstitial__section-wrapper-wide' ] }>
 						<GoBackLink onClick={ onClickGoBack } />
@@ -83,7 +75,7 @@ export default function JetpackAiInterstitial() {
 			imageContainerClassName={ styles.aiImageContainer }
 			hideTOS={ true }
 			quantity={ quantity }
-			directCheckout={ hasRequiredPlan }
+			directCheckout={ false }
 			highlightLastFeature={ highlightLastFeature }
 		>
 			<img src={ jetpackAiImage } alt="Search" />
