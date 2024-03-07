@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Migrate Stats counts out of redux and into tanstack queries
