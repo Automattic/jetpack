@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add action to allow hooking after speed score success response is received.
