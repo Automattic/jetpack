@@ -56,33 +56,49 @@ do_action( 'jetpack_boost_clear_page_cache_post', 15 );
 
 ### Modify the cache bypass filters
 
-Filter hook: `boost_cache_bypass_patterns`
+Filter hook: `jetpack_boost_cache_bypass_patterns`
 
 Parameter: an array of regex patterns that define URLs that bypass caching
 
 Usage:
 ```php
-apply_filters( 'boost_cache_bypass_patterns', array( '/shop', '/checkout', '/200?/(.*)' ) );
+add_filter( 'jetpack_boost_cache_bypass_patterns', function( $patterns ) {
+    array_walk( $patterns, function( &$item ) {
+        $item = strtolower( $item );
+    };
+    return $patterns;
+}
 ```
 
 ### Override if the current request is cacheable
 
-Filter hook: `boost_cache_cacheable`
+Filter hook: `jetpack_boost_cache_request_cacheable`
 
-Parameter: bool
+Parameter: URL
 
 Usage:
 ```php
-apply_filters( 'boost_cache_cacheable', true );
+add_filter( 'jetpack_boost_cache_request_cacheable', function( $url )
+    if ( is_bool( $url ) ) {
+        return $url;
+    }
+    // some custom code that sets $cacheable to true or false
+    return $cacheable;
+);
 ```
 
 ### Modify the list of content types the plugin should not cache
 
-Action hook: boost_accept_headers
+Filter hook: `jetpack_boost_cache_accept_headers`
 
 Parameter: An array of content types in type/subtype format. If a browser accepts a content type listed here the page will not be cached
 
 Usage:
 ```php
-apply_filters( 'boost_accept_headers', array( 'application/json', 'application/activity+json', 'application/ld+json' ) );
+add_filter( 'jetpack_boost_cache_accept_headers', function( $accept_headers ) {
+    array_walk( $accept_headers, function( &$item ) {
+        $item = strtolower( $item );
+    };
+    return $accept_headers;
+}
 ```
