@@ -377,3 +377,6 @@ jetpack_boost_register_option(
 );
 
 jetpack_boost_register_action( 'page_cache', 'clear-page-cache', Schema::as_void(), new Clear_Page_Cache() );
+
+// Tracks the change in speed scores.
+jetpack_boost_register_option( 'speed_scores_change', Schema::as_number()->fallback( 0 ) );

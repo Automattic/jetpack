@@ -26,6 +26,7 @@ use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
+use Automattic\Jetpack_Boost\Lib\Page_Speed_Change_Tracker;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Site_Health;
 use Automattic\Jetpack_Boost\Lib\Status;
@@ -126,6 +127,8 @@ class Jetpack_Boost {
 
 		// Setup Site Health panel functionality.
 		Site_Health::init();
+
+		Page_Speed_Change_Tracker::init();
 	}
 
 	/**
