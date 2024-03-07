@@ -53,7 +53,7 @@ class MapkitBlock {
 			loadMapkitLibrary( document, window ).then( mapkit => {
 				this.mapkit = mapkit;
 				this.mapkit.addEventListener( 'error', event => {
-					// because Apple uses an event listener for errors, we need to jump through some hoops to catch them
+					// because Apple uses an event listener for errors, we can't just throw here
 					this.onError( event );
 				} );
 				resolve();
