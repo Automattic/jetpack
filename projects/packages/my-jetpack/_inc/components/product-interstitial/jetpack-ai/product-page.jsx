@@ -66,7 +66,7 @@ export default function () {
 	const contactHref = getRedirectUrl( 'jetpack-ai-tiers-more-requests-contact' );
 
 	// isRegistered works as a flag to know if the page can link to a post creation or not
-	const newPostURL = isRegistered
+	const ctaURL = isRegistered
 		? 'post-new.php?use_ai_block=1&_wpnonce=' + window?.jetpackAi?.nonce
 		: '#/connection';
 	const newPostCta = __( 'Create new post', 'jetpack-my-jetpack' );
@@ -273,7 +273,7 @@ export default function () {
 									<Button
 										className={ styles[ 'product-interstitial__usage-videos-link' ] }
 										icon={ plus }
-										href={ newPostURL }
+										href={ ctaURL }
 									>
 										{ isRegistered ? newPostCta : installCta }
 									</Button>
