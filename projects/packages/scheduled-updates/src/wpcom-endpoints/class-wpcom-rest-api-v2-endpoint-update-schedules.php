@@ -9,6 +9,7 @@
 
 // Load dependencies.
 require_once dirname( __DIR__ ) . '/pluggable.php';
+require_once dirname( __DIR__ ) . '/class-scheduled-updates.php';
 
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Update_Schedules
@@ -62,6 +63,18 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 					'args'                => $this->get_object_params(),
 				),
 				'schema' => array( $this, 'get_public_item_schema' ),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/capabilities',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_capabilities' ),
+					'permission_callback' => array( $this, 'get_capabilities_permissions_check' ),
+				),
 			)
 		);
 
@@ -169,6 +182,15 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return $event;
 		}
 
+		require_once ABSPATH . 'wp-admin/includes/update.php';
+
+		if ( wp_is_auto_update_enabled_for_type( 'plugin' ) ) {
+			// Remove the plugins that are now updated on a schedule from the auto-update list.
+			$auto_update_plugins = get_option( 'auto_update_plugins', array() );
+			$auto_update_plugins = array_diff( $auto_update_plugins, $plugins );
+			update_option( 'auto_update_plugins', $auto_update_plugins );
+		}
+
 		return rest_ensure_response( $this->generate_schedule_id( $plugins ) );
 	}
 
@@ -274,6 +296,28 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return $result;
 		}
 
+		if ( false === $result ) {
+			return new WP_Error( 'unschedule_event_error', __( 'Error during unschedule of the event.', 'jetpack-scheduled-updates' ), array( 'status' => 500 ) );
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/update.php';
+
+		if ( wp_is_auto_update_enabled_for_type( 'plugin' ) ) {
+			unset( $events[ $request['schedule_id'] ] );
+
+			// Find the plugins that are not part of any other schedule.
+			$plugins = $event->args;
+			foreach ( wp_list_pluck( $events, 'args' ) as $args ) {
+				$plugins = array_diff( $plugins, $args );
+			}
+
+			// Add the plugins that are no longer updated on a schedule to the auto-update list.
+			$auto_update_plugins = get_option( 'auto_update_plugins', array() );
+			$auto_update_plugins = array_unique( array_merge( $auto_update_plugins, $plugins ) );
+			usort( $auto_update_plugins, 'strnatcasecmp' );
+			update_option( 'auto_update_plugins', $auto_update_plugins );
+		}
+
 		return rest_ensure_response( true );
 	}
 
@@ -348,6 +392,32 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Permission check for retrieving capabilities.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return bool|WP_Error
+	 */
+	public function get_capabilities_permissions_check( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
+		}
+
+		return current_user_can( 'update_plugins' );
+	}
+
+	/**
+	 * Returns a list of capabilities for updating plugins, and errors if those capabilities are not met.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public function get_capabilities( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$file_mod_capabilities = \Automattic\Jetpack\Scheduled_Updates::get_file_mod_capabilities();
+
+		return rest_ensure_response( $file_mod_capabilities );
 	}
 
 	/**
