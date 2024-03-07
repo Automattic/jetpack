@@ -152,11 +152,61 @@ Check out the inline documentation in the [Module class](https://github.com/Auto
 
 # Hooks and filters
 
+## Config
+
+### Filter the path to the distributed assets folder.
+
+Filter hook: `jetpack_boost_asset_internal_path`
+
+* Parameter string `$path`: the path, "app/assets/dist/".
+
+### Filters the URL to the distributed assets folder.
+
+Filter hook: `jetpack_boost_asset_url`
+
+* Parameter string `$url`: the URL to the file.
+* Parameter string `$min_path`: the minified path.
+* Parameter string `$non_min_path`: the non-minified path.
+
+## Menu
+
+### Filter the number of problems set in the Boost menu item.
+
+Filter hook: `jetpack_boost_total_problem_count`
+
+* Parameter int `$total_problems`: the problem count.
+
+## Connection
+
+### Bypass the connection to WordPress.com
+
+Filter hook: `jetpack_boost_connection_bypass`
+
+* Paramter int false: not connected by default
+
 ## Critical CSS
 
--   `jetpack_boost_critical_css_skip_url`: Skip generating critical CSS for a URL. By default, we skip URLs that are 404 pages.
+### Filter the loading method for each stylesheet. It's either async or deferred.
+
+Filter hook: `jetpack_boost_async_style`:
+
+* Parameter string `$method`: async or deferred.
+* Parameter string `$handle`: the stylesheet's registered handle.
+* Parameter string `$media`:  the stylesheet's media attribute.
+
+### Filter the post types that need critical css.
+
+Filter hook: `jetpack_boost_critical_css_post_types`
+
+* Parameter array `$post_types`: the post types to be filtered.
 
 ## Render Blocking JS
+
+### Set up the ignore attribute
+
+Filter hook: `jetpack_boost_render_blocking_js_ignore_attribute`
+
+* Parameter string `$attribute`: the attribute used to ignore blocking. Default value: "data-jetpack-boost"
 
 -   `jetpack_boost_render_blocking_js_exclude_handles`: Provide an array of registered script handles that should not be moved to the end of the document.
 -   `jetpack_boost_render_blocking_js_exclude_scripts`: Alter the array and remove any scripts that should not be moved to the end of the document.
