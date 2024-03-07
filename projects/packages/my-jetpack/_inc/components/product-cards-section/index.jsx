@@ -27,7 +27,7 @@ const ProductCardsSection = () => {
 		videopress: VideopressCard,
 		// Stats card is shown in the <StatsSection/> component.
 		crm: CrmCard,
-		creator: CreatorCard,
+		creator: ! window?.myJetpackInitialState?.isAtomic ? CreatorCard : null,
 		social: SocialCard,
 		ai: AiCard,
 	};

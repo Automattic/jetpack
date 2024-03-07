@@ -1,6 +1,6 @@
 <?php
 /**
- * Boost product
+ * AI product
  *
  * @package my-jetpack
  */
@@ -103,7 +103,7 @@ class Jetpack_Ai extends Product {
 	 * @return int
 	 */
 	public static function get_next_usage_tier() {
-		if ( ! self::is_site_connected() ) {
+		if ( ! self::is_site_connected() || ! self::has_required_plan() ) {
 			return 100;
 		}
 
@@ -310,24 +310,7 @@ class Jetpack_Ai extends Product {
 	 * @return boolean
 	 */
 	public static function has_required_plan() {
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return false;
-		}
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				if ( str_starts_with( $purchase->product_slug, static::get_wpcom_product_slug() ) ) {
-					return true;
-				}
-				if ( str_starts_with( $purchase->product_slug, static::get_wpcom_monthly_product_slug() ) ) {
-					return true;
-				}
-				if ( str_starts_with( $purchase->product_slug, static::get_wpcom_bi_yearly_product_slug() ) ) {
-					return true;
-				}
-			}
-		}
-		return false;
+		return static::does_site_have_feature( 'ai-assistant' );
 	}
 
 	/**

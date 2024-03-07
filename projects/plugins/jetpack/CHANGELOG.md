@@ -2,6 +2,47 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## [13.2] - 2024-03-05
+### Enhancements
+- Blog Stats block: Add message on the frontend when the Stats module is disabled. [#36108]
+- Dashboard: link to Odyssey Stats for Atomic sites [#36049]
+- Goodreads Block: Add transform from Legacy Widget. [#36061]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Adding tracking for user management events [#35773]
+- Better handle categories input click/focus. [#35916]
+- Blog Stats block: fix translation string format. [#36127]
+- Goodreads Block: Fix block inheriting styles from Legacy Widget. [#36059]
+- Google Fonts: Update the implement of print_font_faces as the value of WP_Font_Face_Resolver::get_fonts_from_theme_json may be an indexed array [#35986]
+- Hides the Customizer menu items for block themes [#36017]
+- Jetpack Comments: Wrap iframe related script in IIFE to prevent declaration of global variables [#36123]
+- Lazy Images: remove module now that it has been deprecated for a few releases. [#36155]
+- Move blocks from beta to production: blog-stats, top-posts, goodreads [#36057]
+- Move Jetpack_Boost_Modules class to the boost-score-api package. [#36080]
+- RNMobile: Ensure playsInline setting always conforms to Video block schema. [#35981]
+- RNMobile: Revert change to the way playsInline attribute is saved, prevent regression on web. [#36030]
+- Sal: add is_commercial_reasons to options [#36006]
+- Scheduled updates: Introduced a new body parameter `scheduled_update` to the `POST /sites/%s/plugins/%s` endpoint.
+- Setup state for handling backup preflight checks [#36044]
+- Stats: enable Odyssey Stats for WoA sites [#35528]
+- Stats: link to Odyssey Stats from admin bar [#36050]
+- Subscription Site: Allow to add add Subscribe block at the end of each post [#35458]
+- Subscription Site: Prevent the Subscribe block from rendering when the Paywall block is visible [#36045]
+- Sync:Add feature flag for enabling the use of rest api for sending the sync data [#36118]
+- The features in Customizer should appear when users directly visit the Customizer link [#36146]
+- Untangle: add site option wpcom_classic_early_release [#36111]
+- Untangle: always use the wpcom_is_nav_redesign_enabled() function as release toggle [#35894]
+- Updated package dependencies.
+- Update VideoPress card styles. [#35968]
+- Voice to Content: Cancel transcription on modal close and disable close on click outside [#36082]
+- Voice to Content: change the way the processing and error states are handled, and ensure proper error handling. [#36001]
+- Voice to Content: Clear preceding empty paragraph when transcription is ready [#36132]
+- Voice to Content: Fix transcription check on post-processing failure [#36002]
+- Voice to Content: include validation and validation state when an audio is recorded or uploaded. [#36043]
+- Voice to Content: move transcription to a dedicated hook so the block code becomes more simple [#36033]
+- Voice to Content: Track transcription started event. [#36094]
+- When `POST /sites/%s/plugins/%s` endpoint is called with the `scheduled_update` parameter, we validate the request and modify the auto update plugins allowed list to include the ones in the scheduled updates option. [#35941]
+
 ## 13.2-a.11 - 2024-02-27
 ### Enhancements
 - Real time backups: Add endpoints orders to be used in real-time backups jetpack [#35649]
@@ -9880,7 +9921,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 ## [1.1] - 2011-03-09
 
 - Initial release
-
+[13.2]: https://wp.me/p1moTy-15UC
 [13.1]: https://wp.me/p1moTy-12e0
 [13.0]: https://wp.me/p1moTy-10Xp
 [12.9]: https://wp.me/p1moTy-YJA

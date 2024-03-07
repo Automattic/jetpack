@@ -109,6 +109,7 @@ if ( isset( $_SERVER['REQUEST_URI'] ) ) { // Cache this in case any plugin modif
 
 // don't cache in wp-admin
 if ( wpsc_is_backend() ) {
+	define( 'DONOTCACHEPAGE', 1 );
 	return true;
 }
 
@@ -122,6 +123,7 @@ if ( wpsc_is_rejected_cookie() ) {
 
 if ( wpsc_is_caching_user_disabled() ) {
 	wp_cache_debug( 'Caching disabled for logged in users on settings page.' );
+	define( 'DONOTCACHEPAGE', 1 );
 	return true;
 }
 
@@ -133,8 +135,20 @@ if ( isset( $wp_cache_make_known_anon ) && $wp_cache_make_known_anon ) {
 // an init action wpsc plugins can hook on to.
 do_cacheaction( 'cache_init' );
 
+if ( ! $cache_enabled ) {
+	return true;
+}
+
 // don't cache or serve cached files for various URLs, including the Customizer.
-if ( ! $cache_enabled || ( isset( $_SERVER['REQUEST_METHOD'] ) && in_array( $_SERVER['REQUEST_METHOD'], array( 'POST', 'PUT', 'DELETE' ) ) ) || isset( $_GET['customize_changeset_uuid'] ) ) {
+if ( isset( $_SERVER['REQUEST_METHOD'] ) && in_array( $_SERVER['REQUEST_METHOD'], array( 'POST', 'PUT', 'DELETE' ), true ) ) {
+	wp_cache_debug( 'Caching disabled for non GET request.' );
+	define( 'DONOTCACHEPAGE', 1 );
+	return true;
+}
+
+if ( isset( $_GET['customize_changeset_uuid'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	wp_cache_debug( 'Caching disabled for customizer.' );
+	define( 'DONOTCACHEPAGE', 1 );
 	return true;
 }
 

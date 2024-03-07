@@ -4,13 +4,12 @@
 import {
 	useMediaRecording,
 	useAudioValidation,
-	RecordingState,
 	TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT,
-	TranscriptionState,
 } from '@automattic/jetpack-ai-client';
 import { ThemeProvider } from '@automattic/jetpack-components';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Modal, Icon } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
@@ -21,6 +20,15 @@ import ActionButtons from './components/action-buttons';
 import AudioStatusPanel from './components/audio-status-panel';
 import useTranscriptionCreator from './hooks/use-transcription-creator';
 import useTranscriptionInserter from './hooks/use-transcription-inserter';
+/**
+ * Types
+ */
+import type { Block } from '../ai-assistant/lib/utils/compare-blocks';
+import type {
+	RecordingState,
+	TranscriptionState,
+	ValidatedAudioInformation,
+} from '@automattic/jetpack-ai-client';
 
 /**
  * Helper to determine the state of the transcription.
@@ -49,20 +57,23 @@ const transcriptionStateHelper = (
 export default function VoiceToContentEdit( { clientId } ) {
 	const [ audio, setAudio ] = useState< Blob >( null );
 
-	const dispatch: {
-		removeBlock: ( id: number ) => void;
-	} = useDispatch( 'core/block-editor' );
+	const { removeBlock } = useDispatch( 'core/block-editor' ) as {
+		removeBlock: ( id: string ) => void;
+	};
+
+	const { getBlocks } = useSelect( select => select( 'core/editor' ), [] ) as {
+		getBlocks: () => Block[];
+	};
 
 	const destroyBlock = useCallback( () => {
 		// Remove the block from the editor
 		setTimeout( () => {
-			dispatch.removeBlock( clientId );
+			removeBlock( clientId );
 		}, 100 );
-	}, [ dispatch, clientId ] );
+	}, [ removeBlock, clientId ] );
 
-	const handleClose = () => {
-		destroyBlock();
-	};
+	// Track the usage of the feature
+	const { tracks } = useAnalytics();
 
 	const { isValidatingAudio, validateAudio } = useAudioValidation();
 
@@ -72,6 +83,17 @@ export default function VoiceToContentEdit( { clientId } ) {
 			onReady: ( content: string ) => {
 				// When transcription is ready, insert it into the editor
 				upsertTranscription( content );
+
+				// Then check if there is a single empty paragraph block before the transcription and remove it
+				// This is to ensure the P2 title is correct as it's based on the first block
+				const blocks = getBlocks();
+				// One block is the voice-to-content block itself, so we check the first two blocks
+				for ( let i = 0; i < 2; i++ ) {
+					if ( blocks[ i ].name === 'core/paragraph' && blocks[ i ].attributes.content === '' ) {
+						removeBlock( blocks[ i ].clientId );
+					}
+				}
+
 				handleClose();
 			},
 			onUpdate: ( content: string ) => {
@@ -83,6 +105,11 @@ export default function VoiceToContentEdit( { clientId } ) {
 				onError( error );
 			},
 		} );
+
+	const handleClose = () => {
+		cancelTranscription();
+		destroyBlock();
+	};
 
 	const { state, controls, error, onError, duration, analyser } = useMediaRecording( {
 		onDone: lastBlob => {
@@ -108,13 +135,21 @@ export default function VoiceToContentEdit( { clientId } ) {
 		if ( audio ) {
 			validateAudio(
 				audio,
-				() => {
+				( audioInfo: ValidatedAudioInformation ) => {
+					// Track the transcription event
+					tracks.recordEvent( 'jetpack_ai_voice_to_content_transcription_started', {
+						post_processing_action: TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT,
+						type: audioInfo.isFile ? 'upload' : 'record',
+						audio_duration: audioInfo.duration,
+						audio_file_size: audioInfo.size,
+					} );
+
 					createTranscription( audio, TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT );
 				},
 				onError
 			);
 		}
-	}, [ audio, validateAudio, createTranscription, onError ] );
+	}, [ audio, tracks, validateAudio, createTranscription, onError ] );
 
 	// Destructure controls
 	const {
@@ -170,6 +205,8 @@ export default function VoiceToContentEdit( { clientId } ) {
 			onRequestClose={ handleClose }
 			title={ __( 'Jetpack AI Voice to content', 'jetpack' ) }
 			className="jetpack-ai-voice-to-content__modal"
+			shouldCloseOnEsc={ false }
+			shouldCloseOnClickOutside={ false }
 		>
 			<ThemeProvider>
 				<div className="jetpack-ai-voice-to-content__wrapper">

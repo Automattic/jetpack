@@ -1,6 +1,6 @@
 import { Text, H3, Title, Button } from '@automattic/jetpack-components';
 import { __, _n } from '@wordpress/i18n';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
 import useSimpleQuery from '../../data/use-simple-query';
 import useAnalytics from '../../hooks/use-analytics';

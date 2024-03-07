@@ -1,8 +1,30 @@
-import React from 'react';
+import { useEffect } from 'react';
 import { Snackbar } from '@wordpress/components';
-import { useNotices } from './context';
+import { MutationNotice, useNotices } from './context';
 import styles from './manager.module.scss';
 import classNames from 'classnames';
+
+type NoticeProps = {
+	notice: MutationNotice;
+	onDismiss: () => void;
+};
+const Notice = ( { notice, onDismiss }: NoticeProps ) => {
+	useEffect( () => {
+		const timer = setTimeout( () => {
+			if ( notice.type !== 'pending' ) {
+				onDismiss();
+			}
+		}, 5000 );
+
+		return () => clearTimeout( timer );
+	}, [ onDismiss, notice ] );
+
+	return (
+		<Snackbar type={ notice.type } key={ notice.id } onDismiss={ onDismiss }>
+			{ notice.message }
+		</Snackbar>
+	);
+};
 
 const NoticeManager = () => {
 	const { notices, removeNotice } = useNotices();
@@ -11,13 +33,11 @@ const NoticeManager = () => {
 		Object.keys( notices ).length > 0 && (
 			<div className={ classNames( 'stackable-snackbars', styles.wrapper ) }>
 				{ Object.values( notices ).map( notice => (
-					<Snackbar
-						type={ notice.type }
+					<Notice
 						key={ notice.id }
+						notice={ notice }
 						onDismiss={ () => removeNotice( notice.id ) }
-					>
-						{ notice.message }
-					</Snackbar>
+					/>
 				) ) }
 			</div>
 		)

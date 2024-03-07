@@ -84,7 +84,15 @@ class Request {
 		}
 
 		$bypass_patterns = Boost_Cache_Settings::get_instance()->get_bypass_patterns();
-		$bypass_patterns = apply_filters( 'boost_cache_bypass_patterns', $bypass_patterns );
+
+		/**
+		 * Filters the bypass patterns for the page cache.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $bypass_patterns An array of regex patterns that define URLs that bypass caching.
+		 */
+		$bypass_patterns = apply_filters( 'jetpack_boost_cache_bypass_patterns', $bypass_patterns );
 
 		$bypass_patterns[] = 'wp-.*\.php';
 		foreach ( $bypass_patterns as $expr ) {
@@ -106,7 +114,16 @@ class Request {
 	 * @return bool
 	 */
 	public function is_cacheable() {
-		if ( ! apply_filters( 'boost_cache_cacheable', $this->request_uri ) ) {
+		/**
+		 * Determines if the request is considered cacheable.
+		 *
+		 * Can be used to prevent a request from being cached.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $request_uri The request URI to be evaluated for cacheability.
+		 */
+		if ( ! apply_filters( 'jetpack_boost_cache_request_cacheable', $this->request_uri ) ) {
 			return false;
 		}
 
@@ -139,6 +156,10 @@ class Request {
 			return false;
 		}
 
+		if ( $this->is_bypassed_extension() ) {
+			return false;
+		}
+
 		if ( isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] !== 'GET' ) {
 			return false;
 		}
@@ -148,7 +169,19 @@ class Request {
 			return false;
 		}
 
-		$accept_headers = apply_filters( 'boost_accept_headers', array( 'application/json', 'application/activity+json', 'application/ld+json' ) );
+		/**
+		 * Filters the accept headers to determine if the request should be cached.
+		 *
+		 * This filter allows modification of the content types that browsers send
+		 * to the server during a request. If the acceptable browser content type header (HTTP_ACCEPT)
+		 * matches one of these content types the request will not be cached,
+		 * or a cached file served to this visitor.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $accept_headers An array of header values that should prevent a request from being cached.
+		 */
+		$accept_headers = apply_filters( 'jetpack_boost_cache_accept_headers', array( 'application/json', 'application/activity+json', 'application/ld+json' ) );
 		$accept_headers = array_map( 'strtolower', $accept_headers );
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- $accept is checked and set below.
@@ -163,6 +196,31 @@ class Request {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Returns true if the request appears to be for something with a known file extension that is not
+	 * usually HTML. e.g.:
+	 * - *.txt (including robots.txt, license.txt)
+	 * - *.ico (favicon.ico)
+	 * - *.jpg, *.png, *.webm (image files).
+	 */
+	public function is_bypassed_extension() {
+		$file_extension = pathinfo( $this->request_uri, PATHINFO_EXTENSION );
+
+		return in_array(
+			$file_extension,
+			array(
+				'txt',
+				'ico',
+				'jpg',
+				'jpeg',
+				'png',
+				'webp',
+				'gif',
+			),
+			true
+		);
 	}
 
 	/**
