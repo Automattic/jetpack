@@ -9,6 +9,7 @@
 
 // Load dependencies.
 require_once dirname( __DIR__ ) . '/pluggable.php';
+require_once dirname( __DIR__ ) . '/class-scheduled-updates.php';
 
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Update_Schedules
@@ -62,6 +63,18 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 					'args'                => $this->get_object_params(),
 				),
 				'schema' => array( $this, 'get_public_item_schema' ),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/capabilities',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_capabilities' ),
+					'permission_callback' => array( $this, 'get_capabilities_permissions_check' ),
+				),
 			)
 		);
 
@@ -375,6 +388,32 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Permission check for retrieving capabilities.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return bool|WP_Error
+	 */
+	public function get_capabilities_permissions_check( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
+		}
+
+		return current_user_can( 'update_plugins' );
+	}
+
+	/**
+	 * Returns a list of capabilities for updating plugins, and errors if those capabilities are not met.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public function get_capabilities( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$file_mod_capabilities = \Automattic\Jetpack\Scheduled_Updates::get_file_mod_capabilities();
+
+		return rest_ensure_response( $file_mod_capabilities );
 	}
 
 	/**
