@@ -156,8 +156,8 @@ class zeroBSCRM_list{
             // set it whether legit? what'll this do on error urls people make up?
             // v2.2+ hone this + add multi-filter
             // v2.99.5 - ALWAYS lowercase :) 
-            $possibleQuickFilters = strtolower(sanitize_text_field($_GET['quickfilters']));
-            $listViewFilters['quickfilters'] = array($possibleQuickFilters);
+					$possible_quick_filters          = sanitize_text_field( $_GET['quickfilters'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+					$listViewFilters['quickfilters'] = array( $possible_quick_filters ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
         }
 
