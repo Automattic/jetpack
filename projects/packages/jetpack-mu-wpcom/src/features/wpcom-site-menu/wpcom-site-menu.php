@@ -292,3 +292,28 @@ function wpcom_site_menu_handle_dismiss_notice() {
 	wp_die();
 }
 add_action( 'wp_ajax_dismiss_wpcom_site_menu_intro_notice', 'wpcom_site_menu_handle_dismiss_notice' );
+
+/**
+ * Ensures customizer menu and adminbar items are not visible on a block theme for atomic sites.
+ */
+function hide_customizer_menu_on_block_theme() {
+	$is_wpcom = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
+	if ( ! $is_wpcom && wp_is_block_theme() && ! is_customize_preview() ) {
+		remove_action( 'customize_register', 'add_logotool_button', 20 );
+		remove_action( 'customize_register', 'footercredits_register', 99 );
+		remove_action( 'customize_register', 'wpcom_disable_customizer_site_icon', 20 );
+
+		if ( class_exists( '\Jetpack_Fonts' ) ) {
+			$jetpack_fonts_instance = \Jetpack_Fonts::get_instance();
+			remove_action( 'customize_register', array( $jetpack_fonts_instance, 'register_controls' ) );
+			remove_action( 'customize_register', array( $jetpack_fonts_instance, 'maybe_prepopulate_option' ), 0 );
+		}
+
+		remove_action( 'customize_register', array( 'Jetpack_Fonts_Typekit', 'maybe_override_for_advanced_mode' ), 20 );
+
+		remove_action( 'customize_register', 'Automattic\Jetpack\Dashboard_Customizations\register_css_nudge_control' );
+
+		remove_action( 'customize_register', array( 'Jetpack_Custom_CSS_Enhancements', 'customize_register' ) );
+	}
+}
+add_action( 'init', 'hide_customizer_menu_on_block_theme' );
