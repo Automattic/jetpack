@@ -88,6 +88,38 @@ function register_block() {
 				'get_value_callback' => __NAMESPACE__ . '\bindings_subscribers_callback',
 			)
 		);
+
+		register_block_pattern_category(
+			'jetpack/newsletter',
+			array(
+				'label'       => __( 'Newsletter', 'jetpack' ),
+				'description' => __( 'Jetpack Newsletter patterns', 'jetpack' ),
+			)
+		);
+
+		$pattern_content = Jetpack_Memberships::get_join_others_text( 10 );
+
+		// Paragraph pattern
+		register_block_pattern(
+			'jetpack/subscribers-count-paragraph',
+			array(
+				'title'       => __( 'Subscribers count paragraph', 'jetpack' ),
+				'description' => _x( 'Show newsletter subscribers count.', 'Block pattern description', 'jetpack' ),
+				'categories'  => array( 'jetpack/newsletter' ),
+				'content'     => '<!-- wp:paragraph {"metadata":{"bindings":{"content":{"source":"jetpack/subscribers","args":{"key":"count"}}}}} --><p>' . esc_html( $pattern_content ) . '</p><!-- /wp:paragraph -->',
+			)
+		);
+
+		// Heading pattern
+		register_block_pattern(
+			'jetpack/subscribers-count-heading',
+			array(
+				'title'       => __( 'Subscribers count heading', 'jetpack' ),
+				'description' => _x( 'Show newsletter subscribers count.', 'Block pattern description', 'jetpack' ),
+				'categories'  => array( 'jetpack/newsletter' ),
+				'content'     => '<!-- wp:heading {"metadata":{"bindings":{"content":{"source":"jetpack/subscribers","args":{"key":"count"}}}}} --><h2 class="wp-block-heading">' . esc_html( $pattern_content ) . '</h2><!-- /wp:heading -->',
+			)
+		);
 	}
 
 	register_post_meta(
