@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Refactor My Jetpack's backup related redux state to react query.
