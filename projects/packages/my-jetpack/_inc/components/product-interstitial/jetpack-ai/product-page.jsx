@@ -11,7 +11,7 @@ import {
 	Notice,
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { Button, Card } from '@wordpress/components';
+import { Button, Card, ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, plus, help, check } from '@wordpress/icons';
 import classnames from 'classnames';
@@ -64,6 +64,7 @@ export default function () {
 	const showCurrentUsage = hasPaidTier && ! isFree && usage;
 	const showAllTimeUsage = hasPaidTier || hasUnlimited;
 	const contactHref = getRedirectUrl( 'jetpack-ai-tiers-more-requests-contact' );
+	const feedbackURL = getRedirectUrl( 'jetpack-ai-feedback' );
 
 	// isRegistered works as a flag to know if the page can link to a post creation or not
 	const ctaURL = isRegistered
@@ -357,9 +358,9 @@ export default function () {
 								'Help us improving the accuracy of our results and feel free to give us ideas for future implementations and improvements.',
 								'jetpack-my-jetpack'
 							) }{ ' ' }
-							<a href="#" target="_blank" rel="noreferer noopener">
+							<ExternalLink href={ feedbackURL }>
 								{ __( 'Share your feedback!', 'jetpack-my-jetpack' ) }
-							</a>
+							</ExternalLink>
 						</p>
 					</div>
 				</Col>
