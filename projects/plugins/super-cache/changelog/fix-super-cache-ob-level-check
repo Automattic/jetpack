@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WP Super Cache: fix the output buffer check, and make debug logs pre-formatted.

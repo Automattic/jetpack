@@ -13,12 +13,15 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
  * @see https://github.com/Automattic/wp-calypso/issues/79221
  * @since 12.4
  */
-add_filter(
-	'option_show_on_front',
-	function () {
-		return 'posts';
-	}
-);
+
+if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
+	add_filter(
+		'option_show_on_front',
+		function () {
+			return 'posts';
+		}
+	);
+}
 
 /**
  * Enqueue JS and CSS assets for this feature.

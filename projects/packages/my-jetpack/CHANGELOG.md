@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.15.0] - 2024-03-07
+### Added
+- Refactor My Jetpack's backup related redux state to react query. [#35982]
+
+### Changed
+- Migrate dismiss welcome banner to tanstack [#36199]
+- Migrate global notices to context [#36201]
+- Migrate My Jetpack's licenses query and state to react-query [#36029]
+- Moved lifecycle stats function out of redux [#36205]
+- Updating purchase related redux data to tanstack/react [#35994]
+
+### Removed
+- Connected Product offer is not being used, removing it to clean up a bit [#36203]
+
+### Fixed
+- fix a few My Jetpack bugs when main plugin is not installed [#36139]
+- Intersitital tables were not visibly loading when pressed [#36236]
+
 ## [4.14.0] - 2024-03-04
 ### Changed
 - Migrate My Jetpack zendesk state to react-query [#36028]
@@ -1307,6 +1325,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.15.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.14.0...4.15.0
 [4.14.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.13.0...4.14.0
 [4.13.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.12.1...4.13.0
 [4.12.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.12.0...4.12.1
