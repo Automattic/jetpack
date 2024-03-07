@@ -1,6 +1,9 @@
 import { __ } from '@wordpress/i18n';
 import { useState } from 'react';
-import { REST_API_SITE_DISMISS_BANNER } from '../../data/constants';
+import {
+	QUERY_DISMISS_WELCOME_BANNER_KEY,
+	REST_API_SITE_DISMISS_BANNER,
+} from '../../data/constants';
 import useSimpleMutation from '../use-simple-mutation';
 
 const useWelcomeBanner = () => {
@@ -8,7 +11,7 @@ const useWelcomeBanner = () => {
 	const [ isDismissed, setIsDismissed ] = useState( hasBeenDismissed );
 
 	const { mutate: dismissWelcomeBanner } = useSimpleMutation(
-		'dismissWelcomeBanner',
+		QUERY_DISMISS_WELCOME_BANNER_KEY,
 		{
 			path: REST_API_SITE_DISMISS_BANNER,
 			method: 'POST',

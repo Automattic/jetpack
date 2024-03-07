@@ -24,6 +24,8 @@ import { NoticeContext } from '../../context/notices/noticeContext';
 import {
 	REST_API_CHAT_AUTHENTICATION_ENDPOINT,
 	REST_API_CHAT_AVAILABILITY_ENDPOINT,
+	QUERY_CHAT_AVAILABILITY_KEY,
+	QUERY_CHAT_AUTHENTICATION_KEY,
 } from '../../data/constants';
 import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
@@ -101,15 +103,19 @@ export default function MyJetpackScreen() {
 	const { message, options } = currentNotice || {};
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const { data: availabilityData, isLoading: isChatAvailabilityLoading } = useSimpleQuery(
-		'chat availability',
+		QUERY_CHAT_AVAILABILITY_KEY,
 		{
 			path: REST_API_CHAT_AVAILABILITY_ENDPOINT,
 		}
 	);
 	const { detail: statsDetails } = useProduct( 'stats' );
-	const { data: authData, isLoading: isJwtLoading } = useSimpleQuery( 'chat authentication', {
-		path: REST_API_CHAT_AUTHENTICATION_ENDPOINT,
-	} );
+
+	const { data: authData, isLoading: isJwtLoading } = useSimpleQuery(
+		QUERY_CHAT_AUTHENTICATION_KEY,
+		{
+			path: REST_API_CHAT_AUTHENTICATION_ENDPOINT,
+		}
+	);
 
 	const isAvailable = availabilityData?.is_available;
 	const jwt = authData?.user?.jwt;

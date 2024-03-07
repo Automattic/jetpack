@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { REST_API_SITE_PRODUCTS_ENDPOINT } from '../constants';
+import { QUERY_PRODUCT_KEY } from '../constants';
 import useSimpleQuery from '../use-simple-query';
 import mapObjectKeysToCamel from '../utils/to-camel';
 import type { ProductCamelCase, ProductSnakeCase } from '../types';
@@ -27,7 +28,7 @@ export const useAllProducts = () => {
 // Create query to fetch new product data from the server
 const useFetchProduct = ( productId: string ) => {
 	const queryResult = useSimpleQuery< ProductSnakeCase >(
-		'product',
+		QUERY_PRODUCT_KEY,
 		{
 			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/${ productId }`,
 		},
