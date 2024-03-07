@@ -8,6 +8,7 @@ import React, { useCallback, useState, useMemo } from 'react';
 /*
  * Internal dependencies
  */
+import { QUERY_LICENSES_KEY } from '../../data/constants';
 import useJetpackApiQuery from '../../data/use-jetpack-api-query';
 import useAnalytics from '../../hooks/use-analytics';
 import GoBackLink from '../go-back-link';
@@ -20,7 +21,7 @@ import GoBackLink from '../go-back-link';
 export default function AddLicenseScreen() {
 	const { recordEvent } = useAnalytics();
 	const { data: licenses = [], isLoading: fetchingAvailableLicenses } = useJetpackApiQuery(
-		'available licenses',
+		QUERY_LICENSES_KEY,
 		async api => ( await api.getUserLicenses() )?.items
 	);
 	const { userConnectionData } = useConnection();
