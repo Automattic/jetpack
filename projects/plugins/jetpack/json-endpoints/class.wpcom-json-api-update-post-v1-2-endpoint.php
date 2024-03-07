@@ -280,18 +280,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			}
 
 			if ( ! empty( $input['if_not_modified_since'] ) ) {
-				$post_modified_date = date_create( $post->post_modified_gmt );
-				$if_modified_date   = date_create( $input['if_not_modified_since'] );
-
-				if ( $post_modified_date === false ) {
-					return new WP_Error( 'unknown_last_modified_date', 'There is a revision of this post that is more recent.', 404 );
-				}
-
-				if ( $if_modified_date === false ) {
-					return new WP_Error( 'if_not_modified_since_error', 'Please send if_not_modified_since in the (ISO 8601 datetime) format', 400 );
-				}
-
-				if ( $post_modified_date->getTimestamp() > $if_modified_date->getTimestamp() ) {
+				if ( mysql2date( 'U', $post->post_modified_gmt ) > mysql2date( 'U', $input['if_not_modified_since'] ) ) {
 					return new WP_Error( 'old-revision', 'There is a revision of this post that is more recent.', 409 );
 				}
 			}
