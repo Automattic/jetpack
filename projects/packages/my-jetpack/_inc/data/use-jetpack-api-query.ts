@@ -12,24 +12,17 @@ import type { UseQueryResult } from '@tanstack/react-query';
  * @param {object} params - The parameters for configuring the API query.
  * @param {string} params.name - The unique name for the query. This name, along with the optional `explicitKey`, forms the cache key for the query's result.
  * @param {Function} params.queryFn - The function to fetch data from the API. It receives a configured instance of `restApi` and must return a promise that resolves to the data of type `T`.
- * @param {string} [params.explicitKey] - Optional. An additional key segment used to uniquely identify and cache the query result. Useful for differentiating between queries with the same name but different parameters.
  * @param {string} [params.errorMessage] - Optional. A custom error message to be displayed in case the query fails. This message overrides the default error handling behavior.
  * @returns {UseQueryResult<T>} The result object from the useQuery hook, containing data and state information about the query (e.g., isLoading, isError).
  */
 type QueryParams< T > = {
 	name: string;
 	queryFn: ( api: typeof restApi ) => Promise< T >;
-	explicitKey?: string;
 	errorMessage?: string;
 };
-const useJetpackApiQuery = < T >( {
-	name,
-	queryFn,
-	explicitKey,
-	errorMessage,
-}: QueryParams< T > ) => {
+const useJetpackApiQuery = < T >( { name, queryFn, errorMessage }: QueryParams< T > ) => {
 	const queryResult = useQuery( {
-		queryKey: [ name, explicitKey ],
+		queryKey: [ name ],
 		queryFn: () => {
 			const { apiRoot, apiNonce } = window?.myJetpackRest || {};
 			restApi.setApiRoot( apiRoot );

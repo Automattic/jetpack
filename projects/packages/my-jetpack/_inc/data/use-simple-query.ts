@@ -17,7 +17,6 @@ import type { APIFetchOptions } from '@wordpress/api-fetch';
  * @param {string} params.name - A unique name for the query, used as part of the query key.
  * @param {APIFetchOptions} params.query - The options to be passed to the API fetch function.
  * @param {Pick<UseQueryOptions, 'enabled'>} [params.options] - Optional. Query options from react-query, currently supports only the 'enabled' option.
- * @param {string} [params.explicitKey] - Optional. An explicit key to be used alongside the name for the query key. Useful for creating more specific query keys.
  * @param {string} [params.errorMessage] - Optional. A custom error message that can be displayed if the query fails.
  * @returns {UseQueryResult<T>} The result object from the useQuery hook, containing data and state information about the query (e.g., isLoading, isError).
  */
@@ -25,18 +24,11 @@ type QueryParams = {
 	name: string;
 	query: APIFetchOptions;
 	options?: Pick< UseQueryOptions, 'enabled' >;
-	explicitKey?: string;
 	errorMessage?: string;
 };
-const useSimpleQuery = < T >( {
-	name,
-	query,
-	options,
-	explicitKey,
-	errorMessage,
-}: QueryParams ) => {
+const useSimpleQuery = < T >( { name, query, options, errorMessage }: QueryParams ) => {
 	const queryResult = useQuery< T, WP_Error >( {
-		queryKey: [ name, explicitKey ],
+		queryKey: [ name ],
 		queryFn: () => apiFetch< T >( query ),
 		refetchOnWindowFocus: false,
 		refetchIntervalInBackground: false,
