@@ -6,22 +6,21 @@ import useProduct from './use-product';
 const useActivate = ( productId: string ) => {
 	const { detail, refetch } = useProduct( productId );
 
-	const { mutate: activate, isPending } = useSimpleMutation(
-		'activateProduct',
-		{
+	const { mutate: activate, isPending } = useSimpleMutation( {
+		name: 'activateProduct',
+		query: {
 			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/${ productId }`,
 			method: 'POST',
 		},
-		{
+		options: {
 			onSuccess: refetch,
 		},
-		null,
-		sprintf(
+		errorMessage: sprintf(
 			// translators: %$1s: Jetpack Product name
 			__( 'Failed to activate %1$s. Please try again', 'jetpack-my-jetpack' ),
 			detail.name
-		)
-	);
+		),
+	} );
 
 	return {
 		activate,

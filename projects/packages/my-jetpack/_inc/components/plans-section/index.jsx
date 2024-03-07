@@ -166,7 +166,7 @@ export default function PlansSection() {
 		data: purchases,
 		isLoading,
 		isError,
-	} = useSimpleQuery( 'purchases', { path: REST_API_SITE_PURCHASES_ENDPOINT } );
+	} = useSimpleQuery( { name: 'purchases', query: { path: REST_API_SITE_PURCHASES_ENDPOINT } } );
 
 	const isDataLoaded = purchases && ! isLoading && ! isError;
 	const numberOfPurchases = isDataLoaded ? purchases.length : 0;

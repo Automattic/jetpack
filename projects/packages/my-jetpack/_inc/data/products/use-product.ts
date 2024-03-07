@@ -26,13 +26,13 @@ export const useAllProducts = () => {
 
 // Create query to fetch new product data from the server
 const useFetchProduct = ( productId: string ) => {
-	const queryResult = useSimpleQuery< ProductSnakeCase >(
-		'product',
-		{
+	const queryResult = useSimpleQuery< ProductSnakeCase >( {
+		name: 'product',
+		query: {
 			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/${ productId }`,
 		},
-		{ enabled: false }
-	);
+		options: { enabled: false },
+	} );
 
 	return queryResult;
 };

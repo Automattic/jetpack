@@ -1,22 +1,33 @@
 import restApi from '@automattic/jetpack-api';
 import { useQuery } from '@tanstack/react-query';
 import { useFetchingErrorNotice } from './notices/use-fetching-error-notice';
+import type { UseQueryResult } from '@tanstack/react-query';
 
 /**
- * A hook to fetch data from the Jetpack API using react-query
+ * Custom hook for fetching data from the Jetpack API, utilizing the react-query library for data fetching and caching.
+ * This hook abstracts the common setup needed for calling the Jetpack API, such as setting the API root and nonce,
+ * and provides react-query's powerful features like caching and automatic refetching.
  *
- * @param {string} name - The name of the query.
- * @param {Function} queryFn - The function that fetches the data.
- * @param {string} explicitKey - An optional key to use for the query cache.
- * @param {string} errorMessage - An optional custom error message to display.
- * @returns {Array} The result of the query.
+ * @template T The type of data expected to be returned by the query function.
+ * @param {object} params - The parameters for configuring the API query.
+ * @param {string} params.name - The unique name for the query. This name, along with the optional `explicitKey`, forms the cache key for the query's result.
+ * @param {Function} params.queryFn - The function to fetch data from the API. It receives a configured instance of `restApi` and must return a promise that resolves to the data of type `T`.
+ * @param {string} [params.explicitKey] - Optional. An additional key segment used to uniquely identify and cache the query result. Useful for differentiating between queries with the same name but different parameters.
+ * @param {string} [params.errorMessage] - Optional. A custom error message to be displayed in case the query fails. This message overrides the default error handling behavior.
+ * @returns {UseQueryResult<T>} The result object from the useQuery hook, containing data and state information about the query (e.g., isLoading, isError).
  */
-const useJetpackApiQuery = < T >(
-	name: string,
-	queryFn: ( api: typeof restApi ) => Promise< T >,
-	explicitKey?: string,
-	errorMessage?: string
-) => {
+type QueryParams< T > = {
+	name: string;
+	queryFn: ( api: typeof restApi ) => Promise< T >;
+	explicitKey?: string;
+	errorMessage?: string;
+};
+const useJetpackApiQuery = < T >( {
+	name,
+	queryFn,
+	explicitKey,
+	errorMessage,
+}: QueryParams< T > ) => {
 	const queryResult = useQuery( {
 		queryKey: [ name, explicitKey ],
 		queryFn: () => {

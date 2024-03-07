@@ -105,15 +105,14 @@ export default function MyJetpackScreen() {
 	const { currentNotice } = useContext( NoticeContext );
 	const { message, options } = currentNotice || {};
 	const { hasConnectionError } = useConnectionErrorNotice();
-	const { data: availabilityData, isLoading: isChatAvailabilityLoading } = useSimpleQuery(
-		'chat availability',
-		{
-			path: REST_API_CHAT_AVAILABILITY_ENDPOINT,
-		}
-	);
+	const { data: availabilityData, isLoading: isChatAvailabilityLoading } = useSimpleQuery( {
+		name: 'chat availability',
+		query: { path: REST_API_CHAT_AVAILABILITY_ENDPOINT },
+	} );
 	const { detail: statsDetails } = useProduct( 'stats' );
-	const { data: authData, isLoading: isJwtLoading } = useSimpleQuery( 'chat authentication', {
-		path: REST_API_CHAT_AUTHENTICATION_ENDPOINT,
+	const { data: authData, isLoading: isJwtLoading } = useSimpleQuery( {
+		name: 'chat authentication',
+		query: { path: REST_API_CHAT_AUTHENTICATION_ENDPOINT },
 	} );
 
 	const isAvailable = availabilityData?.is_available;

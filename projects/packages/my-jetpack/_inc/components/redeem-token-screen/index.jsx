@@ -18,8 +18,11 @@ export default function RedeemTokenScreen() {
 		userConnectionData?.currentUser?.wpcomUser?.display_name ||
 		userConnectionData?.currentUser?.wpcomUser?.login ||
 		userConnectionData?.currentUser?.username;
-	const { isLoading, data: purchases } = useSimpleQuery( 'purchases', {
-		path: REST_API_SITE_PURCHASES_ENDPOINT,
+	const { isLoading, data: purchases } = useSimpleQuery( {
+		name: 'purchases',
+		query: {
+			path: REST_API_SITE_PURCHASES_ENDPOINT,
+		},
 	} );
 
 	const tokenRedeemed = includesLifetimePurchase( purchases );
