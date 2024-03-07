@@ -2,7 +2,7 @@ import { useConnection } from '@automattic/jetpack-connection';
 import { GoldenTokenModal } from '@automattic/jetpack-licensing';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
-import { REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
+import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
 import useSimpleQuery from '../../data/use-simple-query';
 import { includesLifetimePurchase } from '../../utils/is-lifetime-purchase';
 
@@ -19,7 +19,7 @@ export default function RedeemTokenScreen() {
 		userConnectionData?.currentUser?.wpcomUser?.login ||
 		userConnectionData?.currentUser?.username;
 	const { isLoading, data: purchases } = useSimpleQuery( {
-		name: 'purchases',
+		name: QUERY_PURCHASES_KEY,
 		query: {
 			path: REST_API_SITE_PURCHASES_ENDPOINT,
 		},

@@ -4,7 +4,10 @@
 import { numberFormat } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import { REST_API_VIDEOPRESS_FEATURED_STATS } from '../../data/constants';
+import {
+	REST_API_VIDEOPRESS_FEATURED_STATS,
+	QUERY_VIDEOPRESS_STATS_KEY,
+} from '../../data/constants';
 import useSimpleQuery from '../../data/use-simple-query';
 /**
  * Internal dependencies
@@ -18,7 +21,7 @@ const useVideoPressStats = () => {
 		isLoading,
 		isError,
 	} = useSimpleQuery( {
-		name: 'videopress stats',
+		name: QUERY_VIDEOPRESS_STATS_KEY,
 		query: { path: REST_API_VIDEOPRESS_FEATURED_STATS },
 	} );
 

@@ -1,7 +1,7 @@
 import { Text, H3, Title, Button } from '@automattic/jetpack-components';
 import { __, _n } from '@wordpress/i18n';
 import { useCallback } from 'react';
-import { REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
+import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
 import useSimpleQuery from '../../data/use-simple-query';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -166,7 +166,10 @@ export default function PlansSection() {
 		data: purchases,
 		isLoading,
 		isError,
-	} = useSimpleQuery( { name: 'purchases', query: { path: REST_API_SITE_PURCHASES_ENDPOINT } } );
+	} = useSimpleQuery( {
+		name: QUERY_PURCHASES_KEY,
+		query: { path: REST_API_SITE_PURCHASES_ENDPOINT },
+	} );
 
 	const isDataLoaded = purchases && ! isLoading && ! isError;
 	const numberOfPurchases = isDataLoaded ? purchases.length : 0;

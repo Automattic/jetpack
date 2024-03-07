@@ -1,5 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { REST_API_SITE_PRODUCTS_ENDPOINT } from '../constants';
+import { QUERY_ACTIVATE_PRODUCT_KEY } from '../constants';
 import useSimpleMutation from '../use-simple-mutation';
 import useProduct from './use-product';
 
@@ -7,7 +8,7 @@ const useActivate = ( productId: string ) => {
 	const { detail, refetch } = useProduct( productId );
 
 	const { mutate: activate, isPending } = useSimpleMutation( {
-		name: 'activateProduct',
+		name: QUERY_ACTIVATE_PRODUCT_KEY,
 		query: {
 			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/${ productId }`,
 			method: 'POST',

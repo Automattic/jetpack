@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
-import { getStatsHighlightsEndpoint } from '../../data/constants';
+import { QUERY_STATS_COUNTS_KEY, getStatsHighlightsEndpoint } from '../../data/constants';
 import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
 import useAnalytics from '../../hooks/use-analytics';
@@ -16,7 +16,7 @@ const StatsSection = () => {
 	const { status } = detail;
 	const isAdmin = !! window?.myJetpackInitialState?.userIsAdmin;
 	const { data: statsCounts } = useSimpleQuery( {
-		name: 'stats counts',
+		name: QUERY_STATS_COUNTS_KEY,
 		query: {
 			path: getStatsHighlightsEndpoint( blogID ),
 		},

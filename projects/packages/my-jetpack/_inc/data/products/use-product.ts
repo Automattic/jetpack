@@ -1,8 +1,9 @@
 import { useCallback } from 'react';
 import { REST_API_SITE_PRODUCTS_ENDPOINT } from '../constants';
+import { QUERY_PRODUCT_KEY } from '../constants';
 import useSimpleQuery from '../use-simple-query';
 import mapObjectKeysToCamel from '../utils/to-camel';
-import type { ProductCamelCase, ProductSnakeCase } from '../types';
+import type { ProductCamelCase, ProductSnakeCase, WP_Error } from '../types';
 import type { RefetchOptions, QueryObserverResult } from '@tanstack/react-query';
 
 const getFullPricePerMonth = ( product: ProductCamelCase ) => {
@@ -27,7 +28,7 @@ export const useAllProducts = () => {
 // Create query to fetch new product data from the server
 const useFetchProduct = ( productId: string ) => {
 	const queryResult = useSimpleQuery< ProductSnakeCase >( {
-		name: 'product',
+		name: QUERY_PRODUCT_KEY,
 		query: {
 			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/${ productId }`,
 		},
@@ -40,7 +41,9 @@ const useFetchProduct = ( productId: string ) => {
 // Fetch the product data from the server and update the global state
 const refetchProduct = async (
 	productId: string,
-	refetch: ( options?: RefetchOptions ) => Promise< QueryObserverResult< ProductSnakeCase, Error > >
+	refetch: (
+		options?: RefetchOptions
+	) => Promise< QueryObserverResult< ProductSnakeCase, WP_Error > >
 ) => {
 	const { data: refetchedProduct } = await refetch();
 

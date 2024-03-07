@@ -24,6 +24,8 @@ import { NoticeContext } from '../../context/notices/noticeContext';
 import {
 	REST_API_CHAT_AUTHENTICATION_ENDPOINT,
 	REST_API_CHAT_AVAILABILITY_ENDPOINT,
+	QUERY_CHAT_AVAILABILITY_KEY,
+	QUERY_CHAT_AUTHENTICATION_KEY,
 } from '../../data/constants';
 import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
@@ -106,12 +108,12 @@ export default function MyJetpackScreen() {
 	const { message, options } = currentNotice || {};
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const { data: availabilityData, isLoading: isChatAvailabilityLoading } = useSimpleQuery( {
-		name: 'chat availability',
+		name: QUERY_CHAT_AVAILABILITY_KEY,
 		query: { path: REST_API_CHAT_AVAILABILITY_ENDPOINT },
 	} );
 	const { detail: statsDetails } = useProduct( 'stats' );
 	const { data: authData, isLoading: isJwtLoading } = useSimpleQuery( {
-		name: 'chat authentication',
+		name: QUERY_CHAT_AUTHENTICATION_KEY,
 		query: { path: REST_API_CHAT_AUTHENTICATION_ENDPOINT },
 	} );
 
