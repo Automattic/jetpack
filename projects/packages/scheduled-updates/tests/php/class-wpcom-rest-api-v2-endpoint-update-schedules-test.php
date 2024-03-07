@@ -505,6 +505,31 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	}
 
 	/**
+	 * Make sure unauthorized users can't get in to capabilities.
+	 *
+	 * @covers ::get_capabilities
+	 */
+	public function test_non_admin_user_capabilities() {
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/capabilities' );
+		$result  = rest_do_request( $request );
+
+		$this->assertSame( 401, $result->get_status() );
+	}
+
+	/**
+	 * Make sure authorized users can see data for capabilities
+	 *
+	 * @covers ::get_capabilities
+	 */
+	public function test_admin_user_capabilities() {
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/capabilities' );
+		wp_set_current_user( $this->admin_id );
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+	}
+
+	/**
 	 * Generates a unique schedule ID.
 	 *
 	 * @see wp_schedule_event()
