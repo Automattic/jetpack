@@ -914,9 +914,9 @@ function jetpack_do_subscription_form( $instance ) {
 	if ( isset( $instance['custom_padding'] ) && 'undefined' !== $instance['custom_padding'] ) {
 		$style = 'padding: ' .
 			$instance['custom_padding'] . 'px ' .
-			round( $instance['custom_padding'] * 1.5 ) . 'px ' .
+			round( floatval( $instance['custom_padding'] ) * 1.5 ) . 'px ' .
 			$instance['custom_padding'] . 'px ' .
-			round( $instance['custom_padding'] * 1.5 ) . 'px; ';
+			round( floatval( $instance['custom_padding'] ) * 1.5 ) . 'px; ';
 
 		$submit_button_styles .= $style;
 		$email_field_styles   .= $style;

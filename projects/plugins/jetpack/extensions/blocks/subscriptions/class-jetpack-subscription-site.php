@@ -72,9 +72,43 @@ class Jetpack_Subscription_Site {
 	}
 
 	/**
+	 * Returns post end placement hooked block attributes.
+	 *
+	 * @param array $default_attrs Deafult attributes.
+	 * @param array $anchor_block The anchor block, in parsed block array format.
+	 *
+	 * @return array
+	 */
+	protected function get_post_end_placement_block_attributes( $default_attrs, $anchor_block ) {
+		if ( ! empty( $anchor_block['attrs']['layout']['type'] ) ) {
+			return array_merge(
+				$default_attrs,
+				array(
+					'layout' => array(
+						'type' => $anchor_block['attrs']['layout']['type'],
+					),
+				)
+			);
+		}
+
+		if ( ! empty( $anchor_block['attrs']['layout']['inherit'] ) ) {
+			return array_merge(
+				$default_attrs,
+				array(
+					'layout' => array(
+						'inherit' => $anchor_block['attrs']['layout']['inherit'],
+					),
+				)
+			);
+		}
+
+		return $default_attrs;
+	}
+
+	/**
 	 * Handles Subscribe block placement at the end of each post.
 	 *
-	 * @return viod
+	 * @return void
 	 */
 	protected function handle_subscribe_block_post_end_placement() {
 		$subscribe_post_end_enabled = get_option( 'jetpack_subscriptions_subscribe_post_end_enabled', false );
@@ -93,17 +127,33 @@ class Jetpack_Subscription_Site {
 						is_main_query() &&
 						$this->user_can_view_post()
 					) {
-						return $content . '
-	<!-- wp:group {"className":"wp-block-jetpack-subscriptions__subscribe_post_end","layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
-	<div class="wp-block-group wp-block-jetpack-subscriptions__subscribe_post_end">
-		<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"300"}},"className":"has-text-align-center"} -->
-		<p class="has-text-align-center" style="font-style:normal;font-weight:300">
-			<em>Aliquam a ullamcorper lorem<br>Integer at tempus nibh</em>
-		</p>
-		<!-- /wp:paragraph -->
+						// translators: %s is the name of the site.
+						$discover_more_from_text = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
+						$subscribe_text          = __( 'Subscribe to get the latest posts to your email.', 'jetpack' );
+
+						return $content . <<<HTML
+<!-- wp:group {"style":{"spacing":{"padding":{"top":"0px","bottom":"0px","left":"0px","right":"0px"},"margin":{"top":"32px","bottom":"32px"}},"border":{"width":"0px","style":"none"}},"className":"has-border-color","layout":{"type":"default"}} -->
+<div class="wp-block-group has-border-color" style="border-style:none;border-width:0px;margin-top:32px;margin-bottom:32px;padding-top:0px;padding-right:0px;padding-bottom:0px;padding-left:0px">
+	<!-- wp:separator {"style":{"spacing":{"margin":{"bottom":"24px"}}},"className":"is-style-wide"} -->
+	<hr class="wp-block-separator has-alpha-channel-opacity is-style-wide" style="margin-bottom:24px"/>
+	<!-- /wp:separator -->
+
+	<!-- wp:heading {"textAlign":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"26px"},"layout":{"selfStretch":"fit","flexSize":null},"spacing":{"margin":{"top":"4px","bottom":"10px"}}}} -->
+	<h2 class="wp-block-heading has-text-align-center" style="margin-top:4px;margin-bottom:10px;font-size:26px;font-style:normal;font-weight:600">$discover_more_from_text</h2>
+	<!-- /wp:heading -->
+
+	<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"15px"},"spacing":{"margin":{"top":"10px","bottom":"10px"}}}} -->
+	<p class="has-text-align-center" style="margin-top:10px;margin-bottom:10px;font-size:15px">$subscribe_text</p>
+	<!-- /wp:paragraph -->
+
+	<!-- wp:group {"layout":{"type":"constrained","contentSize":"480px"}} -->
+	<div class="wp-block-group">
 		<!-- wp:jetpack/subscriptions /-->
 	</div>
-	<!-- /wp:group -->';
+	<!-- /wp:group -->
+</div>
+<!-- /wp:group -->
+HTML;
 					}
 
 					return $content;
@@ -137,30 +187,58 @@ class Jetpack_Subscription_Site {
 			function ( $hooked_block, $hooked_block_type, $relative_position, $anchor_block ) {
 				$is_post_content_anchor_block = isset( $anchor_block['blockName'] ) && $anchor_block['blockName'] === 'core/post-content';
 				if ( $is_post_content_anchor_block && ( $relative_position === 'after' || $relative_position === 'before' ) ) {
-					$attrs = array(
-						'layout' => array(
-							'type'           => 'flex',
-							'orientation'    => 'vertical',
-							'justifyContent' => 'stretch',
+					$attrs = $this->get_post_end_placement_block_attributes(
+						array(
+							'style' => array(
+								'spacing' => array(
+									'margin'  => array(
+										'top'    => '48px',
+										'bottom' => '48px',
+									),
+									'padding' => array(
+										'top'    => '5px',
+										'bottom' => '5px',
+									),
+								),
+							),
 						),
+						$anchor_block
 					);
-					if ( ! empty( $anchor_block['attrs']['layout']['type'] ) ) {
-						$attrs['layout']['type'] = $anchor_block['attrs']['layout']['type'];
-					}
+
+					// translators: %s is the name of the site.
+					$discover_more_from_text = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
+					$subscribe_text          = __( 'Subscribe to get the latest posts to your email.', 'jetpack' );
+					$inner_content_begin     = <<<HTML
+<div class="wp-block-group" style="margin-top:48px;margin-bottom:48px;padding-top:5px;padding-bottom:5px">
+	<!-- wp:separator {"style":{"spacing":{"margin":{"bottom":"36px"}}},"className":"is-style-wide"} -->
+	<hr class="wp-block-separator has-alpha-channel-opacity is-style-wide" style="margin-bottom:36px"/>
+	<!-- /wp:separator -->
+
+	<!-- wp:heading {"textAlign":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"26px"},"layout":{"selfStretch":"fit","flexSize":null},"spacing":{"margin":{"top":"4px","bottom":"10px"}}}} -->
+	<h2 class="wp-block-heading has-text-align-center" style="margin-top:4px;margin-bottom:10px;font-size:26px;font-style:normal;font-weight:600">$discover_more_from_text</h2>
+	<!-- /wp:heading -->
+
+	<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"15px"},"spacing":{"margin":{"top":"4px","bottom":"0px"}}}} -->
+	<p class="has-text-align-center" style="margin-top:4px;margin-bottom:0px;font-size:15px">$subscribe_text</p>
+	<!-- /wp:paragraph -->
+
+	<!-- wp:group {"layout":{"type":"constrained","contentSize":"480px"}} -->
+	<div class="wp-block-group">
+HTML;
+					$inner_content_end       = <<<HTML
+	</div>
+	<!-- /wp:group -->
+</div>
+HTML;
 
 					return array(
 						'blockName'    => 'core/group',
 						'attrs'        => $attrs,
 						'innerBlocks'  => array( $hooked_block ),
 						'innerContent' => array(
-							'<div class="wp-block-group">
-								<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"300"}},"className":"has-text-align-center"} -->
-								<p class="has-text-align-center" style="font-style:normal;font-weight:300">
-									<em>Aliquam a ullamcorper lorem<br>Integer at tempus nibh</em>
-								</p>
-								<!-- /wp:paragraph -->',
+							$inner_content_begin,
 							null,
-							'</div>',
+							$inner_content_end,
 						),
 					);
 				}
