@@ -32,7 +32,9 @@ function JetpackAppMedia( props ) {
 		[ insertMedia ]
 	);
 	useEffect( () => {
-		if ( media.length === 1 && ! multiple ) {
+		// In most cases media.length here should === 1, but when that is not the case the first image gets inserted.
+		// Since otherwise we end up in a situation where the user is presented with multiple images and they can only insert one.
+		if ( media.length && ! multiple ) {
 			// replace the media right away if there's only one item and we're not in multiple mode.
 			onCopy( media );
 		}

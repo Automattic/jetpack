@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.0] - 2024-03-04
+### Added
+- Add support for running DSP Campaign Creation API endpoint v1.1 from DSP widget [#36120]
+
+### Changed
+- Updated package dependencies.
+
+## [0.18.1] - 2024-02-27
+### Changed
+- Update dependencies. [#35170]
+
+## [0.18.0] - 2024-02-26
+### Changed
+- Blaze: Enable the Dashboard behind the feature flag [#35724]
+
+### Fixed
+- added a "use WC_Product" to include this in the post fetching endpoint for blaze [#35870]
+- Changes to use the user's locale to render the dashboard [#35832]
+
+## [0.17.0] - 2024-02-19
+### Added
+- Added price in blaze/posts endpoint [#35066]
+
+### Changed
+- Changes the Blaze Dashboard entry points to be compatible with Woo Blaze [#34964]
+- Post Links: allow third-parties to toggle them depending on post type. [#35730]
+
+## [0.16.0] - 2024-02-13
+### Added
+- Blaze: Whiteliste /media/new WPCOM REST API call for image uploading [#34790]
+- Quick Action Links: introduce new filter allowing to disable quick links in the Posts screen. [#35586]
+
+### Changed
+- Updated package dependencies. [#35608]
+
 ## [0.15.3] - 2024-02-05
 ### Changed
 - Updated package dependencies. [#35384]
@@ -277,6 +312,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.19.0]: https://github.com/automattic/jetpack-blaze/compare/v0.18.1...v0.19.0
+[0.18.1]: https://github.com/automattic/jetpack-blaze/compare/v0.18.0...v0.18.1
+[0.18.0]: https://github.com/automattic/jetpack-blaze/compare/v0.17.0...v0.18.0
+[0.17.0]: https://github.com/automattic/jetpack-blaze/compare/v0.16.0...v0.17.0
+[0.16.0]: https://github.com/automattic/jetpack-blaze/compare/v0.15.3...v0.16.0
 [0.15.3]: https://github.com/automattic/jetpack-blaze/compare/v0.15.2...v0.15.3
 [0.15.2]: https://github.com/automattic/jetpack-blaze/compare/v0.15.1...v0.15.2
 [0.15.1]: https://github.com/automattic/jetpack-blaze/compare/v0.15.0...v0.15.1

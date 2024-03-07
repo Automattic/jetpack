@@ -39,12 +39,8 @@ class Jetpack_Redux_State_Helper {
 	 */
 	public static function get_minimal_state() {
 		return array(
-			'pluginBaseUrl'        => plugins_url( '', JETPACK__PLUGIN_FILE ),
-			/* This filter is documented in class.jetpack-connection-banner.php */
-			'preConnectionHelpers' => apply_filters( 'jetpack_pre_connection_prompt_helpers', false ),
-			'registrationNonce'    => wp_create_nonce( 'jetpack-registration-nonce' ),
-			'WP_API_root'          => esc_url_raw( rest_url() ),
-			'WP_API_nonce'         => wp_create_nonce( 'wp_rest' ),
+			'WP_API_root'  => esc_url_raw( rest_url() ),
+			'WP_API_nonce' => wp_create_nonce( 'wp_rest' ),
 		);
 	}
 
@@ -53,6 +49,7 @@ class Jetpack_Redux_State_Helper {
 	 */
 	public static function get_initial_state() {
 		global $is_safari;
+		global $wp_version;
 
 		// Load API endpoint base classes and endpoints for getting the module list fed into the JS Admin Page.
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php';
@@ -249,6 +246,7 @@ class Jetpack_Redux_State_Helper {
 			'isBlazeDashboardEnabled'     => Blaze::is_dashboard_enabled(),
 			'socialInitialState'          => self::get_publicize_initial_state(),
 			'gutenbergInitialState'       => self::get_gutenberg_initial_state(),
+			'isSubscriptionSiteEnabled'   => apply_filters( 'jetpack_subscription_site_enabled', false ) && version_compare( $wp_version, '6.5-beta2', '>=' ),
 		);
 	}
 

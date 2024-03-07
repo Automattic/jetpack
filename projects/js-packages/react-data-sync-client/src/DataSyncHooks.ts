@@ -9,7 +9,7 @@ import {
 	QueryClientProvider,
 } from '@tanstack/react-query';
 import React from 'react';
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { z } from 'zod';
 import { DataSync } from './DataSync';
 import { DataSyncError } from './DataSyncError';
@@ -19,6 +19,10 @@ import { DataSyncError } from './DataSyncError';
  * All of the functions below will have to be moved to a factory wrapper
  */
 export const queryClient = new QueryClient();
+
+export function invalidateQuery( key: string ) {
+	queryClient.invalidateQueries( { queryKey: [ key ] } );
+}
 
 /**
  * React Query Provider for DataSync.
@@ -46,7 +50,7 @@ type DataSyncConfig< Schema extends z.ZodSchema, Value extends z.infer< Schema >
  */
 type DataSyncHook< Schema extends z.ZodSchema, Value extends z.infer< Schema > > = [
 	UseQueryResult< Value >,
-	UseMutationResult< Value >,
+	UseMutationResult< Value, DataSyncError | Error, Value >,
 ];
 
 /**
@@ -161,7 +165,7 @@ export function useDataSync<
 			return { previousValue, optimisticValue: value };
 		},
 		onError: ( err, _, context ) => {
-			if ( err instanceof DataSyncError && err.info.status === 'aborted' ) {
+			if ( err instanceof DataSyncError && err.isAborted() ) {
 				// If the request was aborted, this means that another mutation
 				// has already been dispatched and has already updated
 				// the optimistic value, so there's nothing to revert.
@@ -175,7 +179,7 @@ export function useDataSync<
 		},
 		onSettled: ( _, error ) => {
 			// Clear the abortController on either success or failure that is not an abort
-			if ( ! error || ( error instanceof DataSyncError && error.info.status !== 'aborted' ) ) {
+			if ( ! error || ( error instanceof DataSyncError && ! error.isAborted() ) ) {
 				abortController.current = null;
 			}
 		},
@@ -190,7 +194,6 @@ export function useDataSync<
 /**
  * Use React Query mutations to dispatch custom DataSync Actions.
  */
-
 export type DataSyncActionConfig<
 	ActionRequestSchema extends z.ZodSchema,
 	ActionRequestData extends z.infer< ActionRequestSchema >,
@@ -283,7 +286,7 @@ export function useDataSyncAction<
 	ActionResult,
 	CurrentState
 > ) {
-	const mutationKey = buildQueryKey( key, params );
+	const queryKey = buildQueryKey( key, params );
 	const datasync = new DataSync( namespace, key, schema.state );
 	const mutationConfigDefaults: UseMutationOptions<
 		ActionResult,
@@ -293,7 +296,7 @@ export function useDataSyncAction<
 			previousValue: CurrentState;
 		}
 	> = {
-		mutationKey,
+		mutationKey: queryKey,
 		mutationFn: async ( value: ActionRequestData ) => {
 			const result = await datasync.ACTION(
 				action_name,
@@ -301,40 +304,40 @@ export function useDataSyncAction<
 				schema.action_response
 			);
 			try {
-				const currentValue = queryClient.getQueryData< CurrentState >( mutationKey );
+				const currentValue = queryClient.getQueryData< CurrentState >( queryKey );
 				const processedResult = await callbacks.onResult( result, currentValue );
 
 				const data =
 					processedResult === undefined ? currentValue : schema.state.parse( processedResult );
 				if ( processedResult !== undefined ) {
-					queryClient.setQueryData( mutationKey, data );
+					queryClient.setQueryData( queryKey, data );
 				}
 				return data;
 			} catch ( e ) {
-				return queryClient.getQueryData( mutationKey );
+				return queryClient.getQueryData( queryKey );
 			}
 		},
 		onMutate: async ( requestData: ActionRequestData ) => {
 			// Cancel any outgoing refetches
 			// (so they don't overwrite our optimistic update)
-			await queryClient.cancelQueries( { queryKey: mutationKey } );
+			await queryClient.cancelQueries( { queryKey: queryKey } );
 
 			// Snapshot the previous value
-			const previousValue = queryClient.getQueryData< CurrentState >( mutationKey );
+			const previousValue = queryClient.getQueryData< CurrentState >( queryKey );
 
 			if ( callbacks.optimisticUpdate ) {
 				const value = await callbacks.optimisticUpdate( requestData, previousValue );
-				queryClient.setQueryData( mutationKey, value );
+				queryClient.setQueryData( queryKey, value );
 			}
 
 			// Return a context object with the snapshotted value
 			return { previousValue };
 		},
 		onError: ( _, __, context ) => {
-			queryClient.setQueryData( mutationKey, context.previousValue );
+			queryClient.setQueryData( queryKey, context.previousValue );
 		},
 		onSettled: () => {
-			queryClient.invalidateQueries( { queryKey: mutationKey } );
+			queryClient.invalidateQueries( { queryKey } );
 		},
 	};
 
@@ -342,4 +345,74 @@ export function useDataSyncAction<
 		...mutationConfigDefaults,
 		...mutationOptions,
 	} );
+}
+
+type SubsetMutation< T > = {
+	mutate: ( newValue: T ) => void;
+	isIdle: boolean;
+	isSuccess: boolean;
+	isPending: boolean;
+	isError: boolean;
+	error: Error | null;
+	reset: () => void;
+};
+
+export function useDataSyncSubset<
+	Schema extends z.ZodSchema,
+	Value extends z.infer< Schema >,
+	K extends keyof Value,
+>( hook: DataSyncHook< Schema, Value >, key: K ): [ Value[ K ], SubsetMutation< Value[ K ] > ] {
+	const [ query, mutation ] = hook;
+	const [ isPending, setIsPending ] = React.useState( false );
+	const [ isError, setIsError ] = React.useState( false );
+	const [ isSuccess, setIsSuccess ] = React.useState( false );
+	const [ isIdle, setIsIdle ] = React.useState( true );
+	const [ error, setError ] = React.useState< unknown >( null );
+
+	const mutate = React.useCallback(
+		( newValue: Value[ K ] ) => {
+			if ( ! query.data ) {
+				return;
+			}
+			setIsPending( true );
+			mutation.mutate( {
+				...query.data,
+				[ key ]: newValue,
+			} );
+		},
+		[ query.data, mutation, key ]
+	);
+
+	const reset = React.useCallback( () => {
+		setIsPending( false );
+		setIsError( false );
+		setIsSuccess( false );
+		setIsIdle( true );
+		setError( null );
+	}, [] );
+
+	useEffect( () => {
+		if ( ! isPending ) {
+			return;
+		}
+		setIsError( mutation.isError );
+		setIsSuccess( mutation.isSuccess );
+		setError( mutation.error );
+		if ( mutation.isSuccess || mutation.isError ) {
+			setIsPending( false );
+		}
+	}, [ mutation.isError, mutation.error, mutation.isSuccess, isPending ] );
+
+	return [
+		query.data?.[ key ],
+		{
+			isIdle,
+			isSuccess,
+			isPending,
+			isError,
+			error,
+			mutate,
+			reset,
+		},
+	];
 }

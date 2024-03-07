@@ -20,6 +20,12 @@ $box-shadow-color: rgba( 0, 0, 0, 0.1 );
 	flex-wrap: wrap;
 }
 
+.buttons {
+	display: flex;
+	justify-content: flex-start;
+	gap: var( --spacing-base );
+}
+
 .title {
 	width: 100%;
 	display: flex;
@@ -85,7 +91,7 @@ $box-shadow-color: rgba( 0, 0, 0, 0.1 );
 			background-color: var( --jp-gray-0 );
 		}
 	}
-	
+
 	.dropdown-item-label {
 		display: flex;
 		align-items: center;
@@ -126,6 +132,7 @@ $box-shadow-color: rgba( 0, 0, 0, 0.1 );
 	$statuses: (
 		"active": "--jp-green-50",
 		"inactive": "--jp-gray-50",
+		"warning": "--jp-yellow-40",
 		"error": "--jp-red-60"
 	);
 

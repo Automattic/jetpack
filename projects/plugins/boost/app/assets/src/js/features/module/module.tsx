@@ -2,6 +2,8 @@ import { ToggleControl } from '@automattic/jetpack-components';
 import { useEffect } from 'react';
 import { useSingleModuleState } from './lib/stores';
 import styles from './module.module.scss';
+import ErrorBoundary from '$features/error-boundary/error-boundary';
+import { __ } from '@wordpress/i18n';
 
 type ModuleProps = {
 	title: React.ReactNode;
@@ -10,6 +12,7 @@ type ModuleProps = {
 	slug: string;
 	toggle?: boolean;
 	onEnable?: () => void;
+	onBeforeToggle?: ( newStatus: boolean ) => void;
 	onDisable?: () => void;
 	onMountEnable?: () => void;
 };
@@ -21,6 +24,7 @@ const Module = ( {
 	slug,
 	toggle = true,
 	onEnable,
+	onBeforeToggle,
 	onDisable,
 	onMountEnable,
 }: ModuleProps ) => {
@@ -35,6 +39,9 @@ const Module = ( {
 	const isModuleAvailable = status?.available ?? false;
 
 	const handleToggle = () => {
+		if ( onBeforeToggle ) {
+			onBeforeToggle( ! isModuleActive );
+		}
 		setStatus( ! isModuleActive );
 	};
 
@@ -46,7 +53,7 @@ const Module = ( {
 	}, [] );
 
 	// Don't show unavailable modules
-	if ( ! isModuleAvailable ) {
+	if ( ! isModuleAvailable && slug !== 'page_cache' ) {
 		return null;
 	}
 
@@ -75,4 +82,22 @@ const Module = ( {
 	);
 };
 
-export default Module;
+export default ( props: ModuleProps ) => {
+	return (
+		<ErrorBoundary
+			fallback={
+				<div>
+					<div className={ styles.content }>
+						<h3>{ props.title }</h3>
+
+						<div className={ styles.description }>
+							{ __( `Failed to load module.`, 'jetpack-boost' ) }
+						</div>
+					</div>
+				</div>
+			}
+		>
+			<Module { ...props } />
+		</ErrorBoundary>
+	);
+};

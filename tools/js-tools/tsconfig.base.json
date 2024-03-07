@@ -3,16 +3,20 @@
 		"allowJs": true,
 		"customConditions": [ "jetpack:src" ],
 		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
 		"isolatedModules": true,
 		"jsx": "react-jsx",
-		"lib": [ "DOM", "ESNext" ],
-		"module": "esnext",
-		"moduleResolution": "bundler",
-		"noEmit": true,
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
 		"strict": false,
-		"target": "ESNext"
+		"target": "esnext",
+		// By default we assume webpack and @babel/preset-typescript are being used to output the JS, and tsc (if run at all) is only for linting.
+		// If you want to use tsc to produce the JS from TS files, extend tsconfig.tsc.json instead of overriding noEmit and such yourself.
+		// If using tsc only to generate `.d.ts` files (or fork-ts-checker-webpack-plugin to generate them), extend tsconfig.tsc-declaration-only.json.
+		// Note that when using tsc directly you'll probably also have to manually handle @wordpress/* packages and i18n if necessary.
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"noEmit": true
 	},
-	"files": [ "./global.d.ts" ]
+	"files": [ "./types/global.d.ts" ]
 }

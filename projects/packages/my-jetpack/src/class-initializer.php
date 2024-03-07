@@ -9,6 +9,9 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Boost_Speed_Score\Jetpack_Boost_Modules;
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
@@ -34,7 +37,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.9.1-alpha';
+	const PACKAGE_VERSION = '4.15.0-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -51,6 +54,15 @@ class Initializer {
 		'jetpack-videopress',
 		'jetpack-search',
 	);
+
+	const MY_JETPACK_SITE_INFO_TRANSIENT_KEY = 'my-jetpack-site-info';
+
+	/**
+	 * Holds info/data about the site (from the /sites/%d endpoint)
+	 *
+	 * @var stdClass Object
+	 */
+	public static $site_info;
 
 	/**
 	 * Initialize My Jetpack
@@ -71,6 +83,10 @@ class Initializer {
 		if ( self::is_licensing_ui_enabled() ) {
 			Licensing::instance()->initialize();
 		}
+
+		// Initialize Boost Speed Score
+		$boost_modules = Jetpack_Boost_Modules::init();
+		new Speed_Score( $boost_modules, 'jetpack-my-jetpack' );
 
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
@@ -142,6 +158,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_init() {
+		self::$site_info = self::get_site_info();
 		add_filter( 'identity_crisis_container_id', array( static::class, 'get_idc_container_id' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 		// Product statuses are constantly changing, so we never want to cache the page.
@@ -177,40 +194,52 @@ class Initializer {
 				'textdomain' => 'jetpack-my-jetpack',
 			)
 		);
-		$modules = new Modules();
+		$modules             = new Modules();
+		$connection          = new Connection_Manager();
+		$speed_score_history = new Speed_Score_History( wp_parse_url( get_site_url(), PHP_URL_HOST ) );
 		wp_localize_script(
 			'my_jetpack_main_app',
 			'myJetpackInitialState',
 			array(
-				'products'              => array(
+				'products'               => array(
 					'items' => Products::get_products(),
 				),
-				'purchases'             => array(
+				'purchases'              => array(
 					'items' => array(),
 				),
-				'plugins'               => Plugins_Installer::get_plugins(),
-				'myJetpackUrl'          => admin_url( 'admin.php?page=my-jetpack' ),
-				'myJetpackCheckoutUri'  => 'admin.php?page=my-jetpack',
-				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
-				'siteSuffix'            => ( new Status() )->get_site_suffix(),
-				'blogID'                => Connection_Manager::get_site_id( true ),
-				'myJetpackVersion'      => self::PACKAGE_VERSION,
-				'myJetpackFlags'        => self::get_my_jetpack_flags(),
-				'fileSystemWriteAccess' => self::has_file_system_write_access(),
-				'loadAddLicenseScreen'  => self::is_licensing_ui_enabled(),
-				'adminUrl'              => esc_url( admin_url() ),
-				'IDCContainerID'        => static::get_idc_container_id(),
-				'userIsAdmin'           => current_user_can( 'manage_options' ),
-				'userIsNewToJetpack'    => self::is_jetpack_user_new(),
-				'isStatsModuleActive'   => $modules->is_active( 'stats' ),
-				'isUserFromKnownHost'   => self::is_user_from_known_host(),
-				'welcomeBanner'         => array(
+				'plugins'                => Plugins_Installer::get_plugins(),
+				'myJetpackUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
+				'myJetpackCheckoutUri'   => admin_url( 'admin.php?page=my-jetpack' ),
+				'topJetpackMenuItemUrl'  => Admin_Menu::get_top_level_menu_item_url(),
+				'siteSuffix'             => ( new Status() )->get_site_suffix(),
+				'blogID'                 => Connection_Manager::get_site_id( true ),
+				'myJetpackVersion'       => self::PACKAGE_VERSION,
+				'myJetpackFlags'         => self::get_my_jetpack_flags(),
+				'fileSystemWriteAccess'  => self::has_file_system_write_access(),
+				'loadAddLicenseScreen'   => self::is_licensing_ui_enabled(),
+				'adminUrl'               => esc_url( admin_url() ),
+				'IDCContainerID'         => static::get_idc_container_id(),
+				'userIsAdmin'            => current_user_can( 'manage_options' ),
+				'userIsNewToJetpack'     => self::is_jetpack_user_new(),
+				'lifecycleStats'         => array(
+					'jetpackPlugins'  => self::get_installed_jetpack_plugins(),
+					'isSiteConnected' => $connection->is_connected(),
+					'isUserConnected' => $connection->is_user_connected(),
+					'purchases'       => self::get_purchases(),
+					'modules'         => self::get_active_modules(),
+				),
+				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
+				'isUserFromKnownHost'    => self::is_user_from_known_host(),
+				'isCommercial'           => self::is_commercial_site(),
+				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
+				'welcomeBanner'          => array(
 					'hasBeenDismissed' => \Jetpack_Options::get_option( 'dismissed_welcome_banner', false ),
 				),
-				'jetpackManage'         => array(
+				'jetpackManage'          => array(
 					'isEnabled'       => Jetpack_Manage::could_use_jp_manage(),
 					'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
 				),
+				'latestBoostSpeedScores' => $speed_score_history->latest(),
 			)
 		);
 
@@ -230,6 +259,63 @@ class Initializer {
 		if ( self::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
+	}
+
+	/**
+	 * Get product slugs of the active purchases
+	 *
+	 * @return array
+	 */
+	public static function get_purchases() {
+		$purchases = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases ) ) {
+			return array();
+		}
+
+		return array_map(
+			function ( $purchase ) {
+				return $purchase->product_slug;
+			},
+			$purchases
+		);
+	}
+
+	/**
+	 * Get installed Jetpack plugins
+	 *
+	 * @return array
+	 */
+	public static function get_installed_jetpack_plugins() {
+		$plugin_slugs = array_keys( Plugins_Installer::get_plugins() );
+		$plugin_slugs = array_map(
+			static function ( $slug ) {
+				$parts = explode( '/', $slug );
+				if ( empty( $parts ) ) {
+					return '';
+				}
+				// Return the last segment of the filepath without the PHP extension
+				return str_replace( '.php', '', $parts[ count( $parts ) - 1 ] );
+			},
+			$plugin_slugs
+		);
+
+		return array_values( array_intersect( self::JETPACK_PLUGIN_SLUGS, $plugin_slugs ) );
+	}
+
+	/**
+	 * Get active modules (except ones enabled by default)
+	 *
+	 * @return array
+	 */
+	public static function get_active_modules() {
+		$modules        = new Modules();
+		$active_modules = $modules->get_active();
+
+		// if the Jetpack plugin is active, filter out the modules that are active by default
+		if ( class_exists( 'Jetpack' ) && ! empty( $active_modules ) ) {
+			$active_modules = array_diff( $active_modules, Jetpack::get_default_modules() );
+		}
+		return $active_modules;
 	}
 
 	/**
@@ -376,6 +462,11 @@ class Initializer {
 			$should = false;
 		}
 
+		// All options presented in My Jetpack require a connection to WordPress.com.
+		if ( ( new Status() )->is_offline_mode() ) {
+			$should = false;
+		}
+
 		/**
 		 * Allows filtering whether My Jetpack should be initialized.
 		 *
@@ -404,6 +495,56 @@ class Initializer {
 		}
 
 		return rest_ensure_response( $body, 200 );
+	}
+
+	/**
+	 * Populates the self::$site_info var with site data from the /sites/%d endpoint
+	 *
+	 * @return Object|WP_Error
+	 */
+	public static function get_site_info() {
+		static $site_info = null;
+
+		if ( $site_info !== null ) {
+			return $site_info;
+		}
+
+		// Check for a cached value before doing lookup
+		$stored_site_info = get_transient( self::MY_JETPACK_SITE_INFO_TRANSIENT_KEY );
+		if ( $stored_site_info !== false ) {
+			return $stored_site_info;
+		}
+
+		$response = self::get_site();
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+		$site_info = $response->data;
+		set_transient( self::MY_JETPACK_SITE_INFO_TRANSIENT_KEY, $site_info, DAY_IN_SECONDS );
+
+		return $site_info;
+	}
+
+	/**
+	 * Returns whether a site has been determined "commercial" or not.
+	 *
+	 * @return bool
+	 */
+	public static function is_commercial_site() {
+		if ( is_wp_error( self::$site_info ) ) {
+			return null;
+		}
+
+		return empty( self::$site_info->options->is_commercial ) ? false : self::$site_info->options->is_commercial;
+	}
+
+	/**
+	 * Check if site is registered (has been connected before).
+	 *
+	 * @return bool
+	 */
+	public static function is_registered() {
+		return (bool) \Jetpack_Options::get_option( 'id' );
 	}
 
 	/**

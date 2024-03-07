@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.2] - 2024-03-04
+### Fixed
+- Fixed base64 transforms to better conform with the modsecurity runtime [#35693]
+
+## [0.14.1] - 2024-02-27
+### Changed
+- Internal updates.
+
+## [0.14.0] - 2024-02-12
+### Added
+- Add standalone mode status to WAF config [#34840]
+
 ## [0.13.0] - 2024-02-05
 ### Added
 - Run the WAF on JN environments [#35341]
@@ -261,6 +273,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.14.2]: https://github.com/Automattic/jetpack-waf/compare/v0.14.1...v0.14.2
+[0.14.1]: https://github.com/Automattic/jetpack-waf/compare/v0.14.0...v0.14.1
+[0.14.0]: https://github.com/Automattic/jetpack-waf/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/Automattic/jetpack-waf/compare/v0.12.4...v0.13.0
 [0.12.4]: https://github.com/Automattic/jetpack-waf/compare/v0.12.3...v0.12.4
 [0.12.3]: https://github.com/Automattic/jetpack-waf/compare/v0.12.2...v0.12.3

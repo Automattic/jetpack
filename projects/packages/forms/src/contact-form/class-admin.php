@@ -109,13 +109,13 @@ class Admin {
 			return;
 		}
 
-		// if there aren't any feedbacks, bail out
-		if ( ! (int) wp_count_posts( 'feedback' )->publish ) {
+		$current_screen = get_current_screen();
+		if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'feedback_page_feedback-export' ), true ) ) {
 			return;
 		}
 
-		$current_screen = get_current_screen();
-		if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'feedback_page_feedback-export' ), true ) ) {
+		// if there aren't any feedbacks, bail out
+		if ( ! (int) wp_count_posts( 'feedback' )->publish ) {
 			return;
 		}
 

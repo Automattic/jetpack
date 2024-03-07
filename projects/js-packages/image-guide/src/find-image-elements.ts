@@ -1,4 +1,4 @@
-import { FetchFn, MeasurableImage } from './MeasurableImage';
+import { FetchFn, MeasurableImage } from './MeasurableImage.js';
 
 /**
  * Get elements that either are image tags or have a background image.

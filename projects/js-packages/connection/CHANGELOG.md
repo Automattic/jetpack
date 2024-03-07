@@ -2,6 +2,30 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [0.33.1] - 2024-03-04
+### Changed
+- Updated package dependencies.
+
+## [0.33.0] - 2024-03-01
+### Changed
+- allow post-checkout URL to be updated as run-time [#35908]
+
+## [0.32.4] - 2024-02-27
+### Changed
+- Update dependencies.
+
+## [0.32.3] - 2024-02-22
+### Changed
+- Updated package dependencies. [#35793]
+
+## [0.32.2] - 2024-02-19
+### Added
+- Add connection indicator for screen readers [#35714]
+
+## [0.32.1] - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
 ## [0.32.0] - 2024-02-05
 ### Changed
 - Allow using blog ID instead of site suffix in checkout URL. [#34996]
@@ -698,6 +722,12 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[0.33.1]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.0...v0.33.1
+[0.33.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.32.4...v0.33.0
+[0.32.4]: https://github.com/Automattic/jetpack-connection-js/compare/v0.32.3...v0.32.4
+[0.32.3]: https://github.com/Automattic/jetpack-connection-js/compare/v0.32.2...v0.32.3
+[0.32.2]: https://github.com/Automattic/jetpack-connection-js/compare/v0.32.1...v0.32.2
+[0.32.1]: https://github.com/Automattic/jetpack-connection-js/compare/v0.32.0...v0.32.1
 [0.32.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.31.2...v0.32.0
 [0.31.2]: https://github.com/Automattic/jetpack-connection-js/compare/v0.31.1...v0.31.2
 [0.31.1]: https://github.com/Automattic/jetpack-connection-js/compare/v0.31.0...v0.31.1

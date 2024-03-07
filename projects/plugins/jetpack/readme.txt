@@ -1,16 +1,30 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
-Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jasmussen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
-Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 13.1.1
+Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
+Tags: Security, backup, Woo, malware, scan, performance
+Stable tag: 13.2
 Requires at least: 6.3
 Requires PHP: 7.0
-Tested up to: 6.4
+Tested up to: 6.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Improve your WP security with powerful one-click tools like backup, WAF, and malware scan. Get essential free tools including stats, CDN and social sharing.
+Improve your WP security with powerful one-click tools like backup, WAF, and malware scan. Includes free tools like stats, CDN and social sharing.
 
 == Description ==
+
+### JETPACK - THE BEST WORDPRESS PLUGIN ###
+
+https://videopress.com/v/bEKlywPj
+
+Jetpack is a WordPress plugin that helps you create better content, grow your subscribers, earn money from your website and keep it safe, fast, and secure. You can grow and keep track of your website traffic with Jetpack stats, and create better content with Jetpack AI. You can start a newsletter and grow your audience, turning fans into paying subscribers. Create beautiful content with Jetpack Creator and keep your site fast with Jetpack Boost.
+
+= HOW TO GET STARTED WITH JETPACK =
+Installation is free, quick, and easy. [Set up Jetpack](https://jetpack.com/install?from=wporg) in minutes. Take advantage of more robust features like WordPress site security and design and growth tools by [upgrading to a paid plan](http://jetpack.com/pricing).
+
+= NEED EXPERT SUPPORT? =
+We have a global team of Happiness Engineers ready to provide incredible support. Ask your questions in the support forum or [contact support](https://jetpack.com/contact-support).
+
+### WHY USE JETPACK ON YOUR SITE ###
 
 = Safer. Faster. More traffic. =
 
@@ -107,6 +121,32 @@ Jetpack is updated monthly to ensure seamless integration with top WordPress plu
 * Contact form: Anti-spam (Powered by Akismet) blocks spam comments for Jetpack forms, Contact Form 7, Ninja Forms, Gravity Forms, Formidable Forms, and more.
 * Other tech integrations: Instagram, Creative Mail, Mailchimp, Calendly, Whatsapp, Pinterest, Revue, and more.
 
+= EXPLORE MORE OF JETPACK =
+If you like Jetpack, consider checking out our other products and bundles
+
+* [Jetpack Complete](https://jetpack.com/redirect?source=org-complete) - The Complete bundle with real‑time security, top performance, and everything you need to grow your business.
+* [Jetpack Security](https://jetpack.com/redirect?source=org-security) - Our Security bundle provides easy‑to‑use, comprehensive WordPress site security, including real‑time backups, a web application firewall, malware scanning, and spam protection.
+* [Jetpack Backup](https://jetpack.com/redirect?source=org-backup) - Save every change and get back online quickly with one‑click restores from Jetpack VaultPress Backup.
+* [Jetpack Scan](https://jetpack.com/redirect?source=org-scan) - Protect your site from bad actors around‑the‑clock ‑ with our web application firewall (WAF) and automated malware scanning with one‑click fixes.
+* [Jetpack Search](https://jetpack.com/redirect?source=org-search) - Instantly deliver the most relevant results to your visitors with Jetpack Search. No coding required, no ads, and no tracking.
+* [Jetpack Boost](https://jetpack.com/redirect?source=org-boost) - Increase your website speed.  Enjoy the same performance advantages as the world’s leading websites, no developer required.
+* [Jetpack VideoPress](https://jetpack.com/redirect?source=org-video) - Display stunning‑quality video with none of the hassle. Drag and drop videos through the WordPress editor and keep the focus on your content, not the ads.
+* [Jetpack AI](https://jetpack.com/redirect?source=org-ai) - Turn your ideas into ready‑to‑publish content at lightspeed.
+* [Jetpack Stats](https://jetpack.com/redirect?source=org-stats) - Keep track of your website visits, popular posts, newsletter subscribers and more.
+* [Jetpack Social](https://jetpack.com/redirect?source=org-social) - Automatically share your website content to your favorite social media platforms, from one place.
+* [Jetpack CRM](https://jetpack.com/redirect?source=org-crm) - Jetpack CRM has all of the tools you need to grow your business. It’s also modular, so you can customize it to suit your needs.
+* [Jetpack Creator](https://jetpack.com/redirect?source=org-creator) - Craft stunning content, boost your subscriber base, and monetize your online presence.
+* [Jetpack  Newsletter](https://jetpack.com/redirect?source=org-newsletter) - Transform your blog posts into newsletters to easily reach your subscribers. Offer paid subscriptions and earn from your content.
+
+= KEEP SPAM OFF YOUR WEBSITE =
+* [Akismet Anti-spam](https://jetpack.com/redirect?source=org-spam) - Automatically clear spam from comments and forms. Save time, get more responses, give your visitors a better experience - all without lifting a finger.
+
+= PROMOTE YOUR CONTENT FOR MORE VIEWS =
+* [Blaze](https://jetpack.com/redirect?source=org-blaze) - Find new fans by promoting your posts and pages across millions of sites in the WordPress.com and Tumblr ad network.
+
+= MANAGE MORE THAN ONE SITE? =
+* [Jetpack Manage](https://jetpack.com/manage/) - All the tools you need to manage multiple WordPress sites. Monitor site security, performance, and traffic, and get alerted if a site needs attention.
+
 = FLY HIGHER WITH INDIVIDUAL PLUGINS =
 Ever wish you could have just one feature of Jetpack in its own plugin? Now you can. Check out our individual plugins and install only what you need.
 
@@ -120,13 +160,6 @@ Ever wish you could have just one feature of Jetpack in its own plugin? Now you 
 * [Akismet Anti-Spam](https://wordpress.org/plugins/akismet/)
 * [WP Super Cache](https://wordpress.org/plugins/wp-super-cache/)
 
-
-= EXPERT SUPPORT =
-We have a global team of Happiness Engineers ready to provide incredible support. Ask your questions in the support forum or [contact us directly](https://jetpack.com/contact-support).
-
-= GET STARTED =
-
-Installation is free, quick, and easy. [Set up Jetpack](https://jetpack.com/install?from=wporg) in minutes. Take advantage of more robust features like WordPress site security and design and growth tools by [upgrading to a paid plan](http://jetpack.com/pricing).
 
 == Installation ==
 
@@ -293,9 +326,32 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.1.1 - 2024-02-06
-#### Bug fixes
-- WooCommerce Analytics: resolve warning when enqueuing analytics script.
+### 13.2 - 2024-03-05
+### Enhancements
+- Three legacy Jetpack widgets are now available as new blocks:
+	- Blog Stats block: easily display visitor stats data on a global or per post basis.
+	- Top Posts and Pages block: provides a quick way to display the most popular content on your site.
+	- Goodreads block: showcase books from the shelves of a Goodreads profile.
+- Jetpack mobile app: now provides a seamless way to upload images from your mobile device while publishing on the web. [#35583]
+- Jetpack SSO: various improvements made to enhance inviting and managing users. [#35277]
+
+### Improved compatibility
+- Blaze: remove "Promote with Blaze" links appearing in the Posts list when the Blaze feature is enabled. You can still go to Tools > Advertising to create and manage Blaze campaigns on your site. [#35586]
+- General: the plugin is now compatible with the upcoming WordPress release, version 6.5. [#35820]
+- Subscriptions block: add support for WP Super Cache and Boost Cache. [#35598]
+- WordAds: add additional states to US Privacy law opt-out. [#35765]
+- WordAds: include option to toggle GDPR Consent Banner. [#35205]
+- WPcom API: add 'if_not_modified_since' to the update post endpoint which will help clients determine if the post has been updated since last retrieved. [#35526]
+
+### Bug fixes
+- Carousel: don't open carousel if no images are found in the gallery. [#35788]
+- Jetpack Google Fonts: fix bug where some Google fonts aren't displayed correctly on front end. [#35706]
+- Memberships: disable scroll to top when memberships subscribe popup is opened. [#35553]
+- Sharing block: only enqueue extra JavaScript when a Sharing Block is inserted on the page. [#35955]
+- Sharing buttons: small adjustments to default button styles. [#35521]
+- Subscribe block: improve disabled placeholder state theme colour compatibility. [#35813]
+- WooCommerce Analytics: avoid error when trying to pay for a deleted product. [#35566]
+- WPcom i18n: fix mixed translations after WordPress.com user locale switch. [#35750]
 
 --------
 

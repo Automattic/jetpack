@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2024-02-26
+### Added
+- Add new method to convert stats data for external consumption. [#35865]
+
+## [0.10.1] - 2024-02-19
+### Fixed
+- Avoid Fatal errors when saved stats data is a WP_Error object [#35746]
+
 ## [0.10.0] - 2024-02-05
 ### Added
 - Stats fetching mechanism: add filter allowing one to customize how long we cache results. [#35421]
@@ -129,6 +137,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing static method which was called without self reference. [#26640]
 
+[0.11.0]: https://github.com/Automattic/jetpack-stats/compare/v0.10.1...v0.11.0
+[0.10.1]: https://github.com/Automattic/jetpack-stats/compare/v0.10.0...v0.10.1
 [0.10.0]: https://github.com/Automattic/jetpack-stats/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/Automattic/jetpack-stats/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/Automattic/jetpack-stats/compare/v0.7.2...v0.8.0

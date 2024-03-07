@@ -196,11 +196,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			return;
 		}
 
-		// Unnecessary because "My Sites" always links to the Sites page.
-		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
-			return;
-		}
-
 		// Add the menu item.
 		add_menu_page( __( 'site-switcher', 'jetpack' ), __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/sites', null, 'dashicons-arrow-left-alt2', 0 );
 		add_filter( 'add_menu_classes', array( $this, 'set_browse_sites_link_class' ) );
@@ -458,10 +453,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		add_submenu_page( 'tools.php', esc_attr__( 'Site Monitoring', 'jetpack' ), __( 'Site Monitoring', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-monitoring/' . $this->domain, null, 7 );
 
 		/**
-		 * Adds the WordPress.com Github Deployments submenu under the main Tools menu.
+		 * Adds the WordPress.com GitHub Deployments submenu under the main Tools menu.
 		 */
 		if ( apply_filters( 'jetpack_show_wpcom_github_deployments_menu', false ) ) {
-			add_submenu_page( 'tools.php', esc_attr__( 'Github Deployments', 'jetpack' ), __( 'Github Deployments', 'jetpack' ), 'manage_options', 'https://wordpress.com/github-deployments/' . $this->domain, null, 7 );
+			add_submenu_page( 'tools.php', esc_attr__( 'GitHub Deployments', 'jetpack' ), __( 'GitHub Deployments', 'jetpack' ), 'manage_options', 'https://wordpress.com/github-deployments/' . $this->domain, null, 7 );
 		}
 	}
 

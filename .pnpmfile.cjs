@@ -11,6 +11,15 @@
  * @returns {object} Modified pkg.
  */
 function fixDeps( pkg ) {
+	// Outdated dep. Already fixed upstream, just waiting on a release.
+	// https://github.com/Automattic/wp-calypso/pull/87350
+	if (
+		pkg.name === '@automattic/social-previews' &&
+		pkg.dependencies?.[ '@wordpress/components' ] === '^26.0.1'
+	) {
+		pkg.dependencies[ '@wordpress/components' ] = '>=26.0.1';
+	}
+
 	// Missing dep or peer dep on react.
 	// https://github.com/WordPress/gutenberg/issues/55171
 	if (
@@ -59,12 +68,6 @@ function fixDeps( pkg ) {
 		pkg.dependencies.cssnano = '^5.0.1 || ^6';
 	}
 
-	// Outdated dependency.
-	// No upstream bug link yet.
-	if ( pkg.name === 'svelte-navigator' && pkg.dependencies.svelte2tsx === '^0.1.151' ) {
-		pkg.dependencies.svelte2tsx = '^0.6.10';
-	}
-
 	// Missing dep or peer dep on @babel/runtime
 	// https://github.com/zillow/react-slider/issues/296
 	if (
@@ -73,6 +76,25 @@ function fixDeps( pkg ) {
 		! pkg.peerDependencies?.[ '@babel/runtime' ]
 	) {
 		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
+	}
+
+	// Apparently this package tried to switch from a dep to a peer dep, but screwed it up.
+	// The screwed-up-ness makes pnpm 8.15.2 behave differently from earlier versions.
+	// https://github.com/ajv-validator/ajv-formats/issues/80
+	if ( pkg.name === 'ajv-formats' && pkg.dependencies?.ajv && pkg.peerDependencies?.ajv ) {
+		delete pkg.dependencies.ajv;
+		delete pkg.peerDependenciesMeta?.ajv;
+	}
+
+	// Types packages have outdated deps. Reset all their `@wordpress/*` deps to star-version,
+	// which pnpm should 🤞 dedupe to match whatever is in use elsewhere in the monorepo.
+	// https://github.com/Automattic/jetpack/pull/35904#discussion_r1508681777
+	if ( pkg.name.startsWith( '@types/wordpress__' ) && pkg.dependencies ) {
+		for ( const k of Object.keys( pkg.dependencies ) ) {
+			if ( k.startsWith( '@wordpress/' ) ) {
+				pkg.dependencies[ k ] = '*';
+			}
+		}
 	}
 
 	return pkg;
@@ -91,12 +113,6 @@ function fixPeerDeps( pkg ) {
 	const reactOldPkgs = new Set( [
 		// Still on 16.
 		'react-autosize-textarea', // @wordpress/block-editor <https://github.com/WordPress/gutenberg/issues/39619>
-
-		// Still on 17.
-		'reakit', // @wordpress/components <https://github.com/WordPress/gutenberg/issues/53278>
-		'reakit-system', // @wordpress/components → reakit
-		'reakit-utils', // @wordpress/components → reakit
-		'reakit-warning', // @wordpress/components → reakit
 	] );
 	if ( reactOldPkgs.has( pkg.name ) ) {
 		for ( const p of [ 'react', 'react-dom' ] ) {

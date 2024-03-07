@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.23.7] - 2024-03-04
+### Changed
+- Updated package dependencies.
+
+## [0.23.6] - 2024-03-01
+### Fixed
+- Block: display the right message when user is not connected on a site using the standalone plugin. [#35995]
+
+## [0.23.5] - 2024-02-27
+### Changed
+- Update dependencies.
+
+## [0.23.4] - 2024-02-22
+### Changed
+- Updated package dependencies. [#35793]
+
+## [0.23.3] - 2024-02-19
+### Changed
+- Internal updates.
+
+## [0.23.2] - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+## [0.23.1] - 2024-02-12
+### Fixed
+- Fixed various PHP warnings in PHP 8.1+ [#35551]
+
 ## [0.23.0] - 2024-02-05
 ### Changed
 - Updated package dependencies.
@@ -1251,6 +1279,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.23.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.6...v0.23.7
+[0.23.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.5...v0.23.6
+[0.23.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.4...v0.23.5
+[0.23.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.3...v0.23.4
+[0.23.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.2...v0.23.3
+[0.23.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.1...v0.23.2
+[0.23.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.22.4...v0.23.0
 [0.22.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.22.3...v0.22.4
 [0.22.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.22.2...v0.22.3

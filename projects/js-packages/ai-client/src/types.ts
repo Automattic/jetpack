@@ -31,8 +31,30 @@ export type PromptProp = PromptMessagesProp | string;
 /*
  * Data Flow types
  */
-export type { UseAiContextOptions } from './data-flow/use-ai-context';
-export type { RequestingErrorProps } from './hooks/use-ai-suggestions';
+export type { UseAiContextOptions } from './data-flow/use-ai-context.js';
+
+/*
+ * Hook types
+ */
+export type { RequestingErrorProps } from './hooks/use-ai-suggestions/index.js';
+export type {
+	UseAudioTranscriptionProps,
+	UseAudioTranscriptionReturn,
+} from './hooks/use-audio-transcription/index.js';
+export type {
+	UseTranscriptionPostProcessingProps,
+	UseTranscriptionPostProcessingReturn,
+	PostProcessingAction,
+} from './hooks/use-transcription-post-processing/index.js';
+export type {
+	UseAudioValidationReturn,
+	ValidatedAudioInformation,
+} from './hooks/use-audio-validation/index.js';
+
+/*
+ * Hook constants
+ */
+export { TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT } from './hooks/use-transcription-post-processing/index.js';
 
 /*
  * Requests types
@@ -61,19 +83,17 @@ export const AI_MODEL_GPT_4 = 'gpt-4' as const;
 
 export type AiModelTypeProp = typeof AI_MODEL_GPT_3_5_Turbo_16K | typeof AI_MODEL_GPT_4;
 
-// Connection initial state
-// @todo: it should be provided by the connection package
-interface JPConnectionInitialState {
-	apiNonce: string;
-	siteSuffix: string;
-	connectionStatus: {
-		isActive: boolean;
-	};
-}
+/*
+ * Media recording types
+ */
+export type { RecordingState } from './hooks/use-media-recording/index.js';
 
-// Global
-declare global {
-	interface Window {
-		JP_CONNECTION_INITIAL_STATE: JPConnectionInitialState;
-	}
-}
+/*
+ * Utility types
+ */
+export type CancelablePromise< T = void > = Promise< T > & { canceled?: boolean };
+
+/*
+ * Transcription types
+ */
+export type TranscriptionState = RecordingState | 'validating' | 'processing' | 'error';

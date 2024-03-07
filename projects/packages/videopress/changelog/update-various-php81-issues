@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed various PHP warnings in PHP 8.1+

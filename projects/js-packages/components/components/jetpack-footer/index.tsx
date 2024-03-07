@@ -16,6 +16,18 @@ const JetpackIcon: React.FC = () => (
 	<JetpackLogo logoColor="#000" showText={ false } height={ 16 } aria-hidden="true" />
 );
 
+const ExternalIcon: React.FC = () => (
+	<>
+		<Icon icon={ external } size={ 16 } />
+		<span className="jp-dashboard-footer__accessible-external-link">
+			{
+				/* translators: accessibility text */
+				__( '(opens in a new tab)', 'jetpack' )
+			}
+		</span>
+	</>
+);
+
 /**
  * JetpackFooter component displays a tiny Jetpack logo with the product name on the left and the Automattic Airline "by line" on the right.
  *
@@ -139,7 +151,7 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 								tabIndex={ isButton ? 0 : undefined }
 							>
 								{ item.label }
-								{ isExternalLink && <Icon icon={ external } size={ 16 } /> }
+								{ isExternalLink && <ExternalIcon /> }
 							</a>
 						</li>
 					);

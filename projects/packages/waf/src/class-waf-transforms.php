@@ -11,14 +11,33 @@ namespace Automattic\Jetpack\Waf;
  * Waf_Transforms class
  */
 class Waf_Transforms {
+
 	/**
-	 * Decode a Base64-encoded string.
+	 * Decode a Base64-encoded string. This runs the decode without strict mode, to match Modsecurity's 'base64DecodeExt' transform function.
+	 *
+	 * @param string $value value to be decoded.
+	 * @return string
+	 */
+	public function base64_decode_ext( $value ) {
+		return base64_decode( $value );
+	}
+
+	/**
+	 * Characters to match when trimming a string.
+	 * Emulates `std::isspace` used by ModSecurity.
+	 *
+	 * @see https://en.cppreference.com/w/cpp/string/byte/isspace
+	 */
+	const TRIM_CHARS = " \n\r\t\v\f";
+
+	/**
+	 * Decode a Base64-encoded string. This runs the decode with strict mode, to match Modsecurity's 'base64Decode' transform function.
 	 *
 	 * @param string $value value to be decoded.
 	 * @return string
 	 */
 	public function base64_decode( $value ) {
-		return base64_decode( $value );
+		return base64_decode( $value, true );
 	}
 
 	/**
@@ -307,7 +326,7 @@ class Waf_Transforms {
 	 * @return string
 	 */
 	public function trim_left( $value ) {
-		return ltrim( $value );
+		return ltrim( $value, self::TRIM_CHARS );
 	}
 
 	/**
@@ -317,7 +336,7 @@ class Waf_Transforms {
 	 * @return string
 	 */
 	public function trim_right( $value ) {
-		return rtrim( $value );
+		return rtrim( $value, self::TRIM_CHARS );
 	}
 
 	/**
@@ -327,7 +346,7 @@ class Waf_Transforms {
 	 * @return string
 	 */
 	public function trim( $value ) {
-		return trim( $value );
+		return trim( $value, self::TRIM_CHARS );
 	}
 
 	/**

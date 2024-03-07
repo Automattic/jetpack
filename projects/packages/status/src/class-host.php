@@ -139,12 +139,15 @@ class Host {
 	 * Returns an array of nameservers for the current site.
 	 *
 	 * @param string $domain The domain of the site to check.
-	 * @return string
+	 * @return array
 	 */
 	public function get_nameserver_dns_records( $domain ) {
+		if ( ! function_exists( 'dns_get_record' ) ) {
+			return array();
+		}
+
 		$dns_records = dns_get_record( $domain, DNS_NS ); // Fetches the DNS records of type NS (Name Server)
 		$nameservers = array();
-
 		foreach ( $dns_records as $record ) {
 			if ( isset( $record['target'] ) ) {
 				$nameservers[] = $record['target']; // Adds the nameserver to the array

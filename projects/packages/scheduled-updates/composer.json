@@ -1,0 +1,64 @@
+{
+	"name": "automattic/scheduled-updates",
+	"description": "Runs plugin and (eventually) theme updates on a set schedule.",
+	"type": "jetpack-library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"php": ">=7.0"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.1.0",
+		"automattic/jetpack-changelogger": "@dev",
+		"automattic/wordbless": "@dev",
+		"automattic/jetpack-plans": "@dev",
+		"php-mock/php-mock-phpunit": "^2.10"
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-php": [
+			"@composer phpunit"
+		],
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/scheduled-updates",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/scheduled-updates/compare/v${old}...v${new}"
+		},
+		"autotagger": true,
+		"branch-alias": {
+			"dev-trunk": "0.3.x-dev"
+		},
+		"textdomain": "jetpack-scheduled-updates",
+		"version-constants": {
+			"::PACKAGE_VERSION": "src/class-scheduled-updates.php"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
+		}
+	}
+}

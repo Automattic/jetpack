@@ -1,4 +1,3 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelRow } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
@@ -13,7 +12,7 @@ import './editor.scss';
 import BlazeIcon from './icon';
 
 const BlazePostPublishPanel = () => {
-	const { adminUrl, isDashboardEnabled, siteFragment } = window?.blazeInitialState || {};
+	const { blazeUrlTemplate } = window?.blazeInitialState || {};
 	const { tracks } = useAnalytics();
 
 	// Tracks event when clicking on the Blaze link.
@@ -43,16 +42,7 @@ const BlazePostPublishPanel = () => {
 		initialOpen: true,
 	};
 
-	const blazeUrl = () => {
-		if ( isDashboardEnabled ) {
-			return `${ adminUrl }tools.php?page=advertising#!/advertising/posts/promote/post-${ postId }/${ siteFragment }`;
-		}
-
-		return getRedirectUrl( 'jetpack-blaze', {
-			site: siteFragment,
-			query: `blazepress-widget=post-${ postId }`,
-		} );
-	};
+	const blazeUrl = blazeUrlTemplate.link.replace( '__POST_ID__', postId );
 
 	// Decide when the panel should appear, and be tracked.
 	const shouldDisplayPanel = () => {
@@ -107,13 +97,13 @@ const BlazePostPublishPanel = () => {
 				onClick={ trackClick }
 				onKeyDown={ trackClick }
 			>
-				<Button variant="secondary" href={ blazeUrl() } target="_top">
+				<Button variant="secondary" href={ blazeUrl } target="_top">
 					{ sprintf(
 						/* translators: %s is the post type (e.g. Post, Page, Product). */
 						__( 'Blaze this %s', 'jetpack-blaze' ),
 						postTypeLabel.toLowerCase()
 					) }
-					{ ! isDashboardEnabled && (
+					{ blazeUrlTemplate.external && (
 						<Icon icon={ external } className="blaze-panel-outbound-link__external_icon" />
 					) }
 				</Button>

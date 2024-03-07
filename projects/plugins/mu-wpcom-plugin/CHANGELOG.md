@@ -5,6 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.1 - 2024-03-05
+### Fixed
+- Updated dependencies. [#36170]
+
+## 2.1.0 - 2024-03-04
+### Added
+- Added a Command Palette loader on the jetpack-mu-wpcom plugin. [#35635]
+
+### Changed
+- Update dev dependencies. [#35999]
+
+## 2.0.26 - 2024-02-27
+### Changed
+- Internal updates.
+
+## 2.0.25 - 2024-02-26
+### Changed
+- Internal updates.
+
+## 2.0.24 - 2024-02-26
+### Changed
+- Internal updates.
+
+## 2.0.23 - 2024-02-21
+### Changed
+- Internal updates.
+
+## 2.0.22 - 2024-02-19
+### Changed
+- Internal updates.
+
+## 2.0.21 - 2024-02-14
+### Changed
+- Internal updates.
+
+## 2.0.20 - 2024-02-13
+### Changed
+- Updated package dependencies. [#35591]
+
+## 2.0.19 - 2024-02-12
+### Changed
+- Internal updates.
+
 ## 2.0.18 - 2024-02-05
 ### Changed
 - Internal updates.

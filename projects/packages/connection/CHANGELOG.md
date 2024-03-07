@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.4] - 2024-03-04
+### Changed
+- Updated package dependencies. [#36095]
+
+## [2.3.3] - 2024-03-01
+### Fixed
+- Webhook class: avoid PHP warning with PHP 8.2 [#35996]
+
+## [2.3.2] - 2024-02-26
+### Removed
+- Remove legacy options that are not needed anymore. [#35873]
+
+## [2.3.1] - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
 ## [2.3.0] - 2024-02-05
 ### Added
 - Add rate limiter to the package versions endpoint calls. [#35379]
@@ -960,6 +976,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[2.3.4]: https://github.com/Automattic/jetpack-connection/compare/v2.3.3...v2.3.4
+[2.3.3]: https://github.com/Automattic/jetpack-connection/compare/v2.3.2...v2.3.3
+[2.3.2]: https://github.com/Automattic/jetpack-connection/compare/v2.3.1...v2.3.2
+[2.3.1]: https://github.com/Automattic/jetpack-connection/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/Automattic/jetpack-connection/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/Automattic/jetpack-connection/compare/v2.1.1...v2.2.0
 [2.1.1]: https://github.com/Automattic/jetpack-connection/compare/v2.1.0...v2.1.1

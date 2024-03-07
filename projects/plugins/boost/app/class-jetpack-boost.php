@@ -28,7 +28,11 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Site_Health;
+use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Site_Urls;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
@@ -139,6 +143,11 @@ class Jetpack_Boost {
 		// Make sure user sees the "Get Started" when first time opening.
 		( new Getting_Started_Entry() )->set( true );
 		Analytics::record_user_event( 'activate_plugin' );
+
+		$page_cache_status = new Status( Page_Cache::get_slug() );
+		if ( $page_cache_status->is_enabled() && Boost_Cache_Settings::get_instance()->get_enabled() ) {
+			Page_Cache_Setup::run_setup();
+		}
 	}
 
 	/**
@@ -148,6 +157,7 @@ class Jetpack_Boost {
 		do_action( 'jetpack_boost_deactivate' );
 		Regenerate_Admin_Notice::dismiss();
 		Analytics::record_user_event( 'deactivate_plugin' );
+		Page_Cache_Setup::deactivate();
 	}
 
 	/**
@@ -251,5 +261,7 @@ class Jetpack_Boost {
 
 		// Clear getting started value
 		( new Getting_Started_Entry() )->set( false );
+
+		Page_Cache_Setup::uninstall();
 	}
 }

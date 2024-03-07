@@ -566,8 +566,8 @@ HTML;
 		$has_blocks_flag = function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'verbum-block-comments', $blog_id );
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$gutenberg_query_param = isset( $_GET['verbum_gutenberg'] ) ? intval( $_GET['verbum_gutenberg'] ) : null;
-		// This will release to 50% of sites.
-		$blog_in_10_percent = $blog_id % 100 >= 50;
+		// This will release to 80% of sites.
+		$blog_in_80_percent = $blog_id % 100 >= 20;
 		// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$is_proxied = isset( $_SERVER['A8C_PROXIED_REQUEST'] )
 			? sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) )
@@ -578,22 +578,13 @@ HTML;
 			return $gutenberg_query_param === 1;
 		}
 
-		return $has_blocks_flag || $e2e_tests || $blog_in_10_percent;
+		return $has_blocks_flag || $e2e_tests || $blog_in_80_percent;
 	}
 
 	/**
 	 * Check if we should show the subscription modal.
 	 */
 	public function should_show_subscription_modal() {
-		// Do not display subscription modal for WordPress.com subdomain sites.
-		if ( defined( 'WPCOM_SUBDIR_SUBDOMAIN_BLOG_IDS_TO_REDIRECT' ) && defined( 'JETPACKCOM_BLOG_BLOG_IDS' ) ) {
-			$blogs_to_redirect = array_merge( WPCOM_SUBDIR_SUBDOMAIN_BLOG_IDS_TO_REDIRECT, JETPACKCOM_BLOG_BLOG_IDS );
-
-			if ( in_array( get_current_blog_id(), $blogs_to_redirect, true ) ) {
-				return false;
-			}
-		}
-
 		$modal_enabled = get_option( 'jetpack_verbum_subscription_modal', true );
 		return ! is_user_member_of_blog( '', $this->blog_id ) && $modal_enabled;
 	}
