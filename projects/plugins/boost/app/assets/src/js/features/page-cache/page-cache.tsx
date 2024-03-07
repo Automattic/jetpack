@@ -13,6 +13,7 @@ import { useMutationNotice } from '$features/ui';
 import { useDataSyncSubset } from '@automattic/jetpack-react-data-sync-client';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import ErrorNotice from '$features/error-notice/error-notice';
+import { recordBoostEvent } from '$lib/utils/analytics';
 
 const Meta = () => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
@@ -57,6 +58,20 @@ const Meta = () => {
 				{ ! logging && __( 'No logging.', 'jetpack-boost' ) }
 			</>
 		);
+	};
+
+	const updatePatterns = ( newValue: string ) => {
+		const newPatterns = newValue.split( '\n' ).map( line => line.trim() );
+
+		recordBoostEvent( 'page_cache_bypass_patterns', {
+			total: newPatterns.length,
+		} );
+		mutateBypassPatterns.mutate( newPatterns );
+	};
+
+	const toggleLogging = ( event: React.ChangeEvent< HTMLInputElement > ) => {
+		recordBoostEvent( 'page_cache_toggle_logging', {} );
+		mutateLogging.mutate( event.target.checked );
 	};
 
 	const loggingEnabledMessage = __( 'Logging enabled.', 'jetpack-boost' );
@@ -106,9 +121,7 @@ const Meta = () => {
 						<>
 							<BypassPatterns
 								patterns={ bypassPatterns.join( '\n' ) }
-								setPatterns={ patterns =>
-									mutateBypassPatterns.mutate( patterns.split( '\n' ).map( item => item.trim() ) )
-								}
+								setPatterns={ updatePatterns }
 								showErrorNotice={ mutateBypassPatterns.isError }
 							/>
 							<div className={ styles.section }>
@@ -118,7 +131,7 @@ const Meta = () => {
 										type="checkbox"
 										id="cache-logging"
 										checked={ logging }
-										onChange={ event => mutateLogging.mutate( event.target.checked ) }
+										onChange={ toggleLogging }
 									/>{ ' ' }
 									{ __( 'Activate logging to track all your cache events.', 'jetpack-boost' ) }
 								</label>
