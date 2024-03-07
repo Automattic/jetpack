@@ -463,33 +463,33 @@ class Actions {
 		 * @param array $query_args associative array of query parameters.
 		 */
 		$query_args = apply_filters( 'jetpack_sync_send_data_query_args', $query_args );
+
+		$retry_after_header    = false;
+		$dedicated_sync_header = false;
+		$result                = true;
+
+		// If REST API is enabled, use it.
+
 		if ( Settings::is_wpcom_rest_api_enabled() ) {
-			$jsonl_data            = implode(
-				"\n",
-				array_map(
-					function ( $key, $value ) {
-						return wp_json_encode( array( $key => $value ) );
-					},
-					array_keys( (array) $data ),
-					array_values( (array) $data )
-				)
+			$jsonl_data = self::prepare_jsonl_data( $data );
+			$url        = '/sites/' . \Jetpack_Options::get_option( 'id' ) . '/jetpack-sync-actions';
+			$url        = add_query_arg( $query_args, $url );
+			$args       = array(
+				'method' => 'POST',
+				'format' => 'jsonl',
 			);
-			$wpcom_blog_id         = \Jetpack_Options::get_option( 'id' );
-			$url                   = add_query_arg( $query_args, '/sites/' . $wpcom_blog_id . '/jetpack-sync-actions' );
-			$result                = Client::wpcom_json_api_request_as_blog(
-				$url,
-				'2',
-				array(
-					'method' => 'POST',
-					'format' => 'jsonl',
-				),
-				$jsonl_data,
-				'wpcom'
-			);
-			$retry_after           = wp_remote_retrieve_header( $result, 'Retry-After' ) ? wp_remote_retrieve_header( $result, 'Retry-After' ) : false;
-			$dedicated_sync_header = wp_remote_retrieve_header( $result, 'Jetpack-Dedicated-Sync' ) ? wp_remote_retrieve_header( $result, 'Jetpack-Dedicated-Sync' ) : false;
-			$response              = json_decode( wp_remote_retrieve_body( $result ), ARRAY_N );
-		} else {
+
+			$response              = Client::wpcom_json_api_request_as_blog( $url, '2', $args, $jsonl_data, 'wpcom' );
+			$retry_after_header    = wp_remote_retrieve_header( $response, 'Retry-After' ) ? wp_remote_retrieve_header( $response, 'Retry-After' ) : false;
+			$dedicated_sync_header = wp_remote_retrieve_header( $response, 'Jetpack-Dedicated-Sync' ) ? wp_remote_retrieve_header( $response, 'Jetpack-Dedicated-Sync' ) : false;
+			$response_code         = wp_remote_retrieve_response_code( $response );
+			$response_body         = wp_remote_retrieve_body( $response );
+			if ( is_wp_error( $response ) || 200 !== $response_code ) {
+				$result = false;
+			}
+			// If result is true we can decode the response if not we return a WP_Error.
+			$response = $result ? json_decode( $response_body, ARRAY_N ) : new WP_Error( $response_code, 'Sync REST API request failed', $response_body );
+		} else { // Use XML-RPC.
 			$connection = new Jetpack_Connection();
 			$url        = add_query_arg( $query_args, $connection->xmlrpc_api_url() );
 
@@ -509,16 +509,17 @@ class Actions {
 				)
 			);
 			$result                = $rpc->query( 'jetpack.syncActions', $data );
-			$retry_after           = $rpc->get_response_header( 'Retry-After' );
+			$retry_after_header    = $rpc->get_response_header( 'Retry-After' );
 			$dedicated_sync_header = $rpc->get_response_header( 'Jetpack-Dedicated-Sync' );
-			// TODO
-			$result && $response = $rpc->getResponse();// phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found 
+			if ( $result ) {
+				$response = $rpc->getResponse();
+			}
 		}
 
 			// Adhere to Retry-After headers.
-		if ( false !== $retry_after ) {
-			if ( (int) $retry_after > 0 ) {
-				update_option( self::RETRY_AFTER_PREFIX . $queue_id, microtime( true ) + (int) $retry_after, false );
+		if ( false !== $retry_after_header ) {
+			if ( (int) $retry_after_header > 0 ) {
+				update_option( self::RETRY_AFTER_PREFIX . $queue_id, microtime( true ) + (int) $retry_after_header, false );
 			} else {
 				// if unexpected value default to 3 minutes.
 				update_option( self::RETRY_AFTER_PREFIX . $queue_id, microtime( true ) + 180, false );
@@ -530,8 +531,8 @@ class Actions {
 			Dedicated_Sender::maybe_change_dedicated_sync_status_from_wpcom_header( $dedicated_sync_header );
 		}
 
-		if ( ! $result || is_wp_error( $result ) ) {
-			if ( false === $retry_after ) {
+		if ( ! $result ) {
+			if ( false === $retry_after_header ) {
 				// We received a non standard response from WP.com, lets backoff from sending requests for 1 minute.
 				update_option( self::RETRY_AFTER_PREFIX . $queue_id, microtime( true ) + 60, false );
 			}
@@ -546,7 +547,8 @@ class Actions {
 			}
 			// Add new error indexed to time.
 			if ( Settings::is_wpcom_rest_api_enabled() ) {
-				$error_log[ (string) microtime( true ) ] = $result;
+				$error                                   = $response;
+				$error_log[ (string) microtime( true ) ] = $error;
 			} else {
 				$error                                   = $rpc->get_jetpack_error();
 				$error_with_last_response                = $error->add_data( $rpc->get_last_response() );
@@ -1128,5 +1130,26 @@ class Actions {
 			$full_sync_queue = new Queue( 'full_sync' );
 			$full_sync_queue->unlock();
 		}
+	}
+
+	/**
+	 * Prepare JSONL data.
+	 *
+	 * @param mixed $data The data to be prepared.
+	 *
+	 * @return string The prepared JSONL data.
+	 */
+	private static function prepare_jsonl_data( $data ) {
+		$jsonl_data = implode(
+			"\n",
+			array_map(
+				function ( $key, $value ) {
+					return wp_json_encode( array( $key => $value ) );
+				},
+				array_keys( (array) $data ),
+				array_values( (array) $data )
+			)
+		);
+		return $jsonl_data;
 	}
 }
