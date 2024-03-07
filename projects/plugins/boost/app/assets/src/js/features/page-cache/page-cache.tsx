@@ -63,7 +63,7 @@ const Meta = () => {
 	const updatePatterns = ( newValue: string ) => {
 		const newPatterns = newValue.split( '\n' ).map( line => line.trim() );
 
-		recordBoostEvent( 'update_cache_bypass_patterns', {
+		recordBoostEvent( 'page_cache_update_bypass_patterns', {
 			previous_patterns: bypassPatterns.join( ',' ),
 			new_patterns: newPatterns.join( ',' ),
 		} );
@@ -71,7 +71,7 @@ const Meta = () => {
 	};
 
 	const toggleLogging = ( event: React.ChangeEvent< HTMLInputElement > ) => {
-		recordBoostEvent( 'toggle_cache_logging', {} );
+		recordBoostEvent( 'page_cache_toggle_logging', {} );
 		mutateLogging.mutate( event.target.checked );
 	};
 
