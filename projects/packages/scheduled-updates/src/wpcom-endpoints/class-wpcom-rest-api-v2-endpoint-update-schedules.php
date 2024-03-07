@@ -322,6 +322,37 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	}
 
 	/**
+	 * Checks that the "plugins" parameter is a valid path.
+	 *
+	 * @param array $plugins List of plugins to update.
+	 * @return bool|WP_Error
+	 */
+	public function validate_plugins_param( $plugins ) {
+		foreach ( $plugins as $plugin ) {
+			if ( ! $this->validate_plugin_param( $plugin ) ) {
+				return new WP_Error(
+					'rest_invalid_plugin',
+					/* translators: %s: plugin file */
+					sprintf( __( 'The plugin "%s" is not a valid plugin file.', 'jetpack-scheduled-updates' ), $plugin ),
+					array( 'status' => 400 )
+				);
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Sanitizes the plugin slugs contained in the "plugins" parameter.
+	 *
+	 * @param array $plugins List of plugins to update.
+	 * @return array
+	 */
+	public function sanitize_plugins_param( $plugins ) {
+		return array_map( array( $this, 'sanitize_plugin_param' ), $plugins );
+	}
+
+	/**
 	 * Checks that the "plugin" parameter is a valid path.
 	 *
 	 * @param string $file The plugin file parameter.
@@ -342,7 +373,11 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return string
 	 */
 	public function sanitize_plugin_param( $file ) {
-		return plugin_basename( sanitize_text_field( $file . '.php' ) );
+		if ( ! str_ends_with( $file, '.php' ) ) {
+			$file .= '.php';
+		}
+
+		return plugin_basename( sanitize_text_field( $file ) );
 	}
 
 	/**
@@ -474,15 +509,13 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	public function get_object_params() {
 		return array(
 			'plugins'  => array(
-				'description' => 'List of plugin slugs to update.',
-				'type'        => 'array',
-				'required'    => false,
-				'items'       => array(
-					'type'              => 'string',
-					'pattern'           => self::PATTERN,
-					'validate_callback' => array( $this, 'validate_plugin_param' ),
-					'sanitize_callback' => array( $this, 'sanitize_plugin_param' ),
+				'description'       => 'List of plugin slugs to update.',
+				'type'              => 'array',
+				'items'             => array(
+					'type' => 'string',
 				),
+				'validate_callback' => array( $this, 'validate_plugins_param' ),
+				'sanitize_callback' => array( $this, 'sanitize_plugins_param' ),
 			),
 			'themes'   => array(
 				'description'       => 'List of theme slugs to update.',
