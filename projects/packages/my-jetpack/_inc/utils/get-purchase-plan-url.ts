@@ -1,6 +1,3 @@
-// eslint-disable-next-line no-unused-vars
-/* global myJetpackInitialState */
-
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { MY_JETPACK_MY_PLANS_PURCHASE_SOURCE } from '../constants';
 import getMyJetpackWindowState from '../data/utils/get-my-jetpack-window-state';
@@ -9,9 +6,11 @@ import getMyJetpackWindowState from '../data/utils/get-my-jetpack-window-state';
  *
  * @returns {string}            the redirect URL
  */
-export default function () {
+const getPurchasePlanUrl = () => {
 	const { siteSuffix: site = '', blogID, myJetpackCheckoutUri } = getMyJetpackWindowState();
 
 	const query = myJetpackCheckoutUri ? `redirect_to=${ myJetpackCheckoutUri }` : null;
 	return getRedirectUrl( MY_JETPACK_MY_PLANS_PURCHASE_SOURCE, { site: blogID ?? site, query } );
-}
+};
+
+export default getPurchasePlanUrl;
