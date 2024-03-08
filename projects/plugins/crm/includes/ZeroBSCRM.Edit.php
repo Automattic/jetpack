@@ -172,7 +172,7 @@ class zeroBSCRM_Edit{
           if (is_array($this->obj) && isset($this->obj['owner'])){
 				$obj_owner = (int) $this->obj['owner'];
 
-				// This check covers the case where the contact or company is the owner of the transaction or quote
+				// Transactions can have a contact or company assigned, and quotes just a contact. This covers checking owners for both.
 				if ( isset( $this->obj['contact'][0]['owner'] ) ) {
 					$trans_quote_owner = (int) $this->obj['contact'][0]['owner'];
 
@@ -181,7 +181,7 @@ class zeroBSCRM_Edit{
 				// phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact,Generic.WhiteSpace.ScopeIndent.Incorrect -- this sniff is incorrectly reporting spacing issues.
 				}
 
-				// This check covers the case where the contact or company is the owner of the invoice
+				// This covers checking owners for assigned contacts or companies in invoices.
 				if ( $this->objTypeID === 4 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 					$data = zeroBSCRM_invoicing_getInvoiceData( $this->objID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 					if ( ! empty( $data['invoiceObj']['contact'] ) ) {
