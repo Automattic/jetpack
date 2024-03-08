@@ -6,6 +6,7 @@ import { useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import debugFactory from 'debug';
+import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
@@ -26,21 +27,25 @@ const debug = debugFactory( 'my-jetpack:product-interstitial:jetpack-ai' );
 export default function JetpackAiInterstitial() {
 	const slug = 'jetpack-ai';
 	const { detail } = useProduct( slug );
-	const { onClickGoBack } = useGoBack( { slug } );
-	const { isRegistered } = useConnection();
-	debug( useProduct( slug ) );
 	debug( detail );
-	const nextTier = detail?.aiAssistantFeature?.nextTier || null;
+
+	const { onClickGoBack } = useGoBack( { slug } );
+	const { userConnectionData } = useConnection();
+	const { currentUser } = userConnectionData;
+	const { wpcomUser } = currentUser;
+	const userId = currentUser?.id || 0;
+	const blogId = currentUser?.blogId || 0;
+	const wpcomUserId = wpcomUser?.ID || 0;
+	const userOptKey = `jetpack_ai_optfree_${ userId }_${ blogId }_${ wpcomUserId }`;
 
 	const { tiers } = detail;
 
-	// Default to 100 requests if the site is not registered/connected.
-	const nextTierValue = isRegistered ? nextTier?.value : 100;
-	// Decide the quantity value for the upgrade, but ignore the unlimited tier.
-	const quantity = nextTierValue !== 1 ? nextTierValue : null;
-
-	// Highlight the last feature in the table for all the tiers except the unlimited one.
-	const highlightLastFeature = nextTier?.value !== 1;
+	const ctaClickHandler = useCallback(
+		( { tier } ) => {
+			tier === 'free' && localStorage.setItem( userOptKey, true );
+		},
+		[ userOptKey ]
+	);
 
 	return tiers && tiers.length && ! detail ? (
 		<AdminPage showHeader={ false } showBackground={ true }>
@@ -74,9 +79,8 @@ export default function JetpackAiInterstitial() {
 			installsPlugin={ true }
 			imageContainerClassName={ styles.aiImageContainer }
 			hideTOS={ true }
-			quantity={ quantity }
 			directCheckout={ false }
-			highlightLastFeature={ highlightLastFeature }
+			ctaCallback={ ctaClickHandler }
 		>
 			<img src={ jetpackAiImage } alt="Search" />
 		</ProductInterstitial>
