@@ -6,7 +6,6 @@ import ProductCard from '../connected-product-card';
 import { PRODUCT_STATUSES } from '../product-card/action-button';
 
 const AiCard = ( { admin } ) => {
-	// const [ userOverrides, setUserOverrides ] = useState( {} );
 	const { userConnectionData } = useConnection();
 	const { currentUser } = userConnectionData;
 	const { wpcomUser } = currentUser;
