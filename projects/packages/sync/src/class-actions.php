@@ -561,6 +561,10 @@ class Actions {
 			);
 		}
 
+		if ( Settings::is_wpcom_rest_api_enabled() ) { // Return only processed items.
+			$response = $response['processed_items'];
+		}
+
 		// Record last successful sync.
 		update_option( self::LAST_SUCCESS_PREFIX . $queue_id, microtime( true ), false );
 
@@ -1177,7 +1181,7 @@ class Actions {
 				return new WP_Error( $response_code, 'Sync REST API request failed', $response_body );
 			}
 		} else {
-			return $decoded_response['processed_items'];
+			return $decoded_response;
 		}
 	}
 }
