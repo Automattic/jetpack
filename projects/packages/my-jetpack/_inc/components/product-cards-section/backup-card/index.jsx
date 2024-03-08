@@ -8,6 +8,8 @@ import { useEffect, useState, useMemo } from 'react';
 import {
 	REST_API_REWINDABLE_BACKUP_EVENTS_ENDPOINT,
 	REST_API_COUNT_BACKUP_ITEMS_ENDPOINT,
+	QUERY_BACKUP_HISTORY_KEY,
+	QUERY_BACKUP_STATS_KEY,
 } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import useSimpleQuery from '../../../data/use-simple-query';
@@ -132,8 +134,11 @@ const BackupCard = ( { admin } ) => {
 };
 
 const WithBackupsValueSection = ( { admin, slug } ) => {
-	const { data, isLoading } = useSimpleQuery( 'backup history', {
-		path: REST_API_REWINDABLE_BACKUP_EVENTS_ENDPOINT,
+	const { data, isLoading } = useSimpleQuery( {
+		name: QUERY_BACKUP_HISTORY_KEY,
+		query: {
+			path: REST_API_REWINDABLE_BACKUP_EVENTS_ENDPOINT,
+		},
 	} );
 	const lastRewindableEvent = data?.last_rewindable_event;
 	const lastRewindableEventTime = lastRewindableEvent?.published;
@@ -190,8 +195,11 @@ const WithBackupsValueSection = ( { admin, slug } ) => {
 
 const NoBackupsValueSection = ( { admin, slug } ) => {
 	const [ itemsToShow, setItemsToShow ] = useState( 3 );
-	const { data: backupStats, isLoading } = useSimpleQuery( 'backup stats', {
-		path: REST_API_COUNT_BACKUP_ITEMS_ENDPOINT,
+	const { data: backupStats, isLoading } = useSimpleQuery( {
+		name: QUERY_BACKUP_STATS_KEY,
+		query: {
+			path: REST_API_COUNT_BACKUP_ITEMS_ENDPOINT,
+		},
 	} );
 
 	const sortedStats = useMemo( () => {

@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix critical css tooltip showing off screen on mobile.
+
+

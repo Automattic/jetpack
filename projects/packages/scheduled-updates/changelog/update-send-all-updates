@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Sends update requests even if there are no plugins to be updated, so WP.com can keep track of that outcome of a schedule execution.

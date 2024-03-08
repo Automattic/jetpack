@@ -5,8 +5,6 @@
  * It has all the code for caching and serving requests.
  */
 
-define( 'WPSC_PRELOAD_POST_COUNT', 10 );
-
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- TODO: Fix or determine for sure that these should not be fixed.
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- TODO: Fix or determine for sure that these should not be fixed.
 
