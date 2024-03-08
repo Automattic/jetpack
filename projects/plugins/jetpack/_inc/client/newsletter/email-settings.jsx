@@ -49,8 +49,9 @@ const EmailSetting = props => {
 	);
 
 	const disabled = unavailableInOfflineMode || unavailableInSiteConnectionMode;
-	const featuredImageDisabled = disabled || isSavingAnyOption( [ FEATURED_IMAGE_IN_EMAIL_OPTION ] );
-	const excerptDisabled =
+	const featuredImageInputDisabled =
+		disabled || isSavingAnyOption( [ FEATURED_IMAGE_IN_EMAIL_OPTION ] );
+	const excerptInputDisabled =
 		disabled || isSavingAnyOption( [ SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION ] );
 
 	return (
@@ -75,7 +76,7 @@ const EmailSetting = props => {
 				} }
 			>
 				<ToggleControl
-					disabled={ featuredImageDisabled }
+					disabled={ featuredImageInputDisabled }
 					checked={ isFeaturedImageInEmailEnabled }
 					toogling={ isSavingAnyOption( [ FEATURED_IMAGE_IN_EMAIL_OPTION ] ) }
 					label={ __( 'Enable featured image on your new post emails', 'jetpack' ) }
@@ -101,7 +102,7 @@ const EmailSetting = props => {
 				</FormLegend>
 
 				<ToggleControl
-					disabled={ excerptDisabled }
+					disabled={ excerptInputDisabled }
 					checked={ ! subscriptionEmailsUseExcerpt }
 					toogling={ isSavingAnyOption( [ SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION ] ) }
 					label={ __( 'Full text', 'jetpack' ) }
@@ -109,7 +110,7 @@ const EmailSetting = props => {
 				/>
 
 				<ToggleControl
-					disabled={ excerptDisabled }
+					disabled={ excerptInputDisabled }
 					checked={ subscriptionEmailsUseExcerpt }
 					toogling={ isSavingAnyOption( [ SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION ] ) }
 					label={ __( 'Excerpt', 'jetpack' ) }
