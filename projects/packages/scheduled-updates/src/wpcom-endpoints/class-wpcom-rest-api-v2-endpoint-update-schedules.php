@@ -88,6 +88,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'update_last_status' ),
 					'permission_callback' => array( $this, 'update_last_status_permissions_check' ),
+					'args'                => $this->get_last_status_params(),
 				),
 			)
 		);
@@ -307,7 +308,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$last_run = get_site_transient( 'jetpack_scheduled_update_last_run' );
 
 		if ( false === $last_run || ! isset( $events[ $last_run ] ) ) {
-			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
+			return new WP_Error( 'rest_invalid_schedule', __( 'The last schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
 		}
 
 		$last_statuses = get_option( 'jetpack_scheduled_update_last_statuses', array() );
@@ -328,8 +329,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 
 		// Update the last status for the schedule.
 		$option[ $last_run ] = array(
-			'last_run_timestamp' => $request['timestamp'],
-			'last_run_status'    => $request['status'],
+			'last_run_timestamp' => $request['last_run_timestamp'],
+			'last_run_status'    => $request['last_run_status'],
 		);
 
 		update_option( 'jetpack_scheduled_update_last_statuses', $option );
@@ -653,6 +654,27 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 						'required'    => true,
 					),
 				),
+			),
+		);
+	}
+
+	/**
+	 * Retrieves the query params for last status update.
+	 *
+	 * @return array[] Array of query parameters.
+	 */
+	public function get_last_status_params() {
+		return array(
+			'last_run_timestamp' => array(
+				'description' => 'Unix timestamp (UTC) for when the last run occurred.',
+				'type'        => 'integer',
+				'required'    => true,
+			),
+			'last_run_status'    => array(
+				'description' => 'Status of last run.',
+				'type'        => 'string',
+				'enum'        => array( 'success', 'failure-and-rollback', 'failure-and-rollback-fail' ),
+				'required'    => true,
 			),
 		);
 	}
