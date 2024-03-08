@@ -25,6 +25,13 @@ interface Window {
 			showJetpackStatsCard: boolean;
 			videoPressStats: boolean;
 		};
+		lifecycleStats: {
+			isSiteConnected: boolean;
+			isUserConnected: boolean;
+			jetpackPlugins: Array< string >;
+			modules: Array< string >;
+			purchases: Array< string >;
+		};
 		myJetpackUrl: string;
 		myJetpackVersion: string;
 		plugins: {
