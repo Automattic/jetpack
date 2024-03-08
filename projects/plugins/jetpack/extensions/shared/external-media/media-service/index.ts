@@ -195,14 +195,22 @@ const isMediaSourceConnected = async ( source: MediaSource ) =>
  *
  * @returns {boolean} True if the inserter is opened false otherwise.
  */
-const isInserterOpened = (): boolean =>
+const isInserterOpened = (): boolean => {
+	// Prior to WP 6.5, the isInserterOpened selector was available in core/edit-post.
+	// In WP 6.5, it was moved to core/editor. This check is to support both versions of WordPress.
 	// @to-do: remove exception when Jetpack requires WordPress 6.5.
 	// eslint-disable-next-line
 	// @ts-ignore
-	select( 'core/editor' )?.isInserterOpened?.() ||
-	select( 'core/edit-post' )?.isInserterOpened() ||
-	select( 'core/edit-site' )?.isInserterOpened() ||
-	select( 'core/edit-widgets' )?.isInserterOpened?.();
+	const editorIsInserterOpened = select( 'core/editor' )?.isInserterOpened?.();
+	const editPostIsInserterOpened = select( 'core/edit-post' )?.isInserterOpened();
+
+	return (
+		editorIsInserterOpened ||
+		editPostIsInserterOpened ||
+		select( 'core/edit-site' )?.isInserterOpened() ||
+		select( 'core/edit-widgets' )?.isInserterOpened()
+	);
+};
 
 const registerInInserter = ( mediaCategoryProvider: () => object ) =>
 	// Remove as soon @types/wordpress__block-editor is up to date
