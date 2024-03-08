@@ -193,7 +193,7 @@ class Jetpack_Notifications {
 				'id'     => 'notes',
 				'title'  => '<span id="wpnt-notes-unread-count" class="' . esc_attr( $classes ) . '">
 					<span class="screen-reader-text">' . esc_html__( 'Notifications', 'jetpack' ) . '</span>
-					<span class="noticon noticon-notification"></span>
+					<span class="noticon noticon-bell"></span>
 					</span>',
 				'meta'   => array(
 					'html'  => '<div id="wpnt-notes-panel2" class="intrinsic-ignore" style="display:none" lang="' . esc_attr( $wpcom_locale ) . '" dir="' . ( is_rtl() ? 'rtl' : 'ltr' ) . '"><div class="wpnt-notes-panel-header"><span class="wpnt-notes-header">' . __( 'Notifications', 'jetpack' ) . '</span><span class="wpnt-notes-panel-link"></span></div></div>' . $third_party_cookie_check_iframe,
