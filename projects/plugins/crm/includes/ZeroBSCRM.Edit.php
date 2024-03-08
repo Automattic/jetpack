@@ -174,10 +174,10 @@ class zeroBSCRM_Edit{
 
 				// Transactions can have a contact or company assigned, and quotes just a contact. This covers checking owners for both.
 				if ( isset( $this->obj['contact'][0]['owner'] ) ) {
-					$trans_quote_owner = (int) $this->obj['contact'][0]['owner'];
+					$obj_owner = (int) $this->obj['contact'][0]['owner'];
 
 				} elseif ( isset( $this->obj['company'][0]['owner'] ) ) {
-					$trans_quote_owner = (int) $this->obj['company'][0]['owner'];
+					$obj_owner = (int) $this->obj['company'][0]['owner'];
 				// phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact,Generic.WhiteSpace.ScopeIndent.Incorrect -- this sniff is incorrectly reporting spacing issues.
 				}
 
@@ -185,9 +185,9 @@ class zeroBSCRM_Edit{
 				if ( $this->objTypeID === 4 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 					$data = zeroBSCRM_invoicing_getInvoiceData( $this->objID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 					if ( ! empty( $data['invoiceObj']['contact'] ) ) {
-						$obj_invoice_owner = (int) $data['invoiceObj']['contact'][0]['owner'];
-					} else {
-						$obj_invoice_owner = (int) $data['invoiceObj']['company'][0]['owner'];
+						$obj_owner = (int) $data['invoiceObj']['contact'][0]['owner'];
+					} elseif ( ! empty( $data['invoiceObj']['contact'] ) ) {
+						$obj_owner = (int) $data['invoiceObj']['company'][0]['owner'];
 					}
 				}
           } else {
@@ -205,7 +205,7 @@ class zeroBSCRM_Edit{
           // get current user
 			$current_user_id = get_current_user_id();
 
-			if ( $obj_owner > 0 && $obj_owner !== $current_user_id && $trans_quote_owner !== $current_user_id && $obj_invoice_owner !== $current_user_id ) {
+			if ( $obj_owner > 0 && $obj_owner !== $current_user_id ) {
 				// not current user
 				// does user have perms to edit?
 				$can_edit_all_contacts = current_user_can( 'admin_zerobs_customers' ) && (int) $zbs->settings->get( 'perusercustomers' ) === 0; // phpcs:ignore WordPress.WP.Capabilities.Unknown  -- this was defined in ZeroBSCRM.Permissions.php
