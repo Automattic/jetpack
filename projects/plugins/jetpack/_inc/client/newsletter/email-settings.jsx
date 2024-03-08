@@ -1,7 +1,6 @@
 import { ToggleControl } from '@automattic/jetpack-components';
-import { ExternalLink, RadioControl } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { FormLegend } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -16,8 +15,6 @@ const subscriptionsAndNewslettersSupportUrl =
 	'https://wordpress.com/support/subscriptions-and-newsletters/';
 const FEATURED_IMAGE_IN_EMAIL_OPTION = 'wpcom_featured_image_in_email';
 const SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION = 'wpcom_subscription_emails_use_excerpt';
-const FULL_TEXT_VALUE = 'full_text';
-const EXCERPT_VALUE = 'excerpt';
 
 const EmailSetting = props => {
 	const {
@@ -36,12 +33,16 @@ const EmailSetting = props => {
 		);
 	}, [ isFeaturedImageInEmailEnabled, updateFormStateAndSaveOptionValue ] );
 
+	const handleSubscriptionEmailsUseFullTextChange = useCallback(
+		value => {
+			updateFormStateAndSaveOptionValue( SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION, ! value );
+		},
+		[ updateFormStateAndSaveOptionValue ]
+	);
+
 	const handleSubscriptionEmailsUseExcerptChange = useCallback(
 		value => {
-			updateFormStateAndSaveOptionValue(
-				SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION,
-				value === EXCERPT_VALUE
-			);
+			updateFormStateAndSaveOptionValue( SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION, value );
 		},
 		[ updateFormStateAndSaveOptionValue ]
 	);
@@ -51,7 +52,7 @@ const EmailSetting = props => {
 	return (
 		<SettingsCard
 			{ ...props }
-			header={ __( 'Email', 'jetpack' ) }
+			header={ __( 'Email configuration', 'jetpack' ) }
 			hideButton
 			module={ SUBSCRIPTIONS_MODULE_NAME }
 			saveDisabled={ disabled }
@@ -61,6 +62,13 @@ const EmailSetting = props => {
 				disableInOfflineMode
 				disableInSiteConnectionMode
 				module={ subscriptionsModule }
+				support={ {
+					link: featuredImageInEmailSupportUrl,
+					text: __(
+						"Includes your post's featured image in the email sent out to your readers.",
+						'jetpack'
+					),
+				} }
 			>
 				<ToggleControl
 					disabled={ disabled }
@@ -69,18 +77,6 @@ const EmailSetting = props => {
 					label={ __( 'Enable featured image on your new post emails', 'jetpack' ) }
 					onChange={ handleEnableFeaturedImageInEmailToggleChange }
 				/>
-
-				<p className="jp-form-setting-explanation">
-					{ createInterpolateElement(
-						__(
-							"Includes your post's featured image in the email sent out to your readers. <a>Learn more about the featured image</a>",
-							'jetpack'
-						),
-						{
-							a: <ExternalLink href={ featuredImageInEmailSupportUrl } />,
-						}
-					) }
-				</p>
 			</SettingsGroup>
 
 			<SettingsGroup
@@ -88,29 +84,33 @@ const EmailSetting = props => {
 				disableInOfflineMode
 				disableInSiteConnectionMode
 				module={ subscriptionsModule }
+				support={ {
+					link: subscriptionsAndNewslettersSupportUrl,
+					text: __(
+						'Sets whether email subscribers can read full posts in emails or just an excerpt and link to the full version of the post.',
+						'jetpack'
+					),
+				} }
 			>
-				<RadioControl
+				<FormLegend className="jp-form-label-wide">
+					{ __( 'For each new post email, include', 'jetpack' ) }
+				</FormLegend>
+
+				<ToggleControl
 					disabled={ disabled }
-					selected={ subscriptionEmailsUseExcerpt ? EXCERPT_VALUE : FULL_TEXT_VALUE }
-					label={ __( 'For each new post email, include', 'jetpack' ) }
-					options={ [
-						{ label: __( 'Full text', 'jetpack' ), value: FULL_TEXT_VALUE },
-						{ label: __( 'Excerpt', 'jetpack' ), value: EXCERPT_VALUE },
-					] }
-					onChange={ handleSubscriptionEmailsUseExcerptChange }
+					checked={ ! subscriptionEmailsUseExcerpt }
+					toogling={ isSavingAnyOption( [ SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION ] ) }
+					label={ __( 'Full text', 'jetpack' ) }
+					onChange={ handleSubscriptionEmailsUseFullTextChange }
 				/>
 
-				<p className="jp-form-setting-explanation">
-					{ createInterpolateElement(
-						__(
-							'Sets whether email subscribers can read full posts in emails or just an excerpt and link to the full version of the post. <a>Learn more about sending emails</a>',
-							'jetpack'
-						),
-						{
-							a: <ExternalLink href={ subscriptionsAndNewslettersSupportUrl } />,
-						}
-					) }
-				</p>
+				<ToggleControl
+					disabled={ disabled }
+					checked={ subscriptionEmailsUseExcerpt }
+					toogling={ isSavingAnyOption( [ SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION ] ) }
+					label={ __( 'Excerpt', 'jetpack' ) }
+					onChange={ handleSubscriptionEmailsUseExcerptChange }
+				/>
 			</SettingsGroup>
 		</SettingsCard>
 	);
