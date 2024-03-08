@@ -8,7 +8,7 @@ import { useDismissibleAlertState } from '$features/performance-history/lib/hook
 import { getRedirectUrl } from '@automattic/jetpack-components';
 
 type Props = {
-	scoreChange: number | false; // Speed score shift to show, or false if none.
+	scoreChange: number; // How many times the score has changed.
 };
 
 /**
@@ -55,9 +55,9 @@ const slowerMessage: ScoreChangeMessage = {
 
 function PopOut( { scoreChange }: Props ) {
 	/*
-	 * Determine if the score has changed enough to show the alert.
+	 * Determine if the score has changed enough times to show the alert.
 	 */
-	const hasScoreChanged = scoreChange !== false && Math.abs( scoreChange ) > 5;
+	const hasScoreChanged = scoreChange !== 0 && Math.abs( scoreChange ) >= 2;
 
 	/*
 	 * Determine which message to show based on the direction of score change.

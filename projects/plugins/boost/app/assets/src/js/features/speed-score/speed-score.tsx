@@ -8,13 +8,14 @@ import ErrorNotice from '$features/error-notice/error-notice';
 import classNames from 'classnames';
 import { useEffect, useMemo, useCallback } from 'react';
 import { useDebouncedRefreshScore, useSpeedScores } from './lib/hooks';
-
+import { useSpeedScoresChange } from './lib/stores';
 import styles from './speed-score.module.scss';
 import { useModulesState } from '$features/module/lib/stores';
 import { useCriticalCssState } from '$features/critical-css/lib/stores/critical-css-state';
 import { useLocalCriticalCssGeneratorStatus } from '$features/critical-css/local-generator/local-generator-provider';
 import { queryClient } from '@automattic/jetpack-react-data-sync-client';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
+import PopOut from './pop-out/pop-out';
 
 const SpeedScore = () => {
 	const { site } = Jetpack_Boost;
@@ -24,6 +25,7 @@ const SpeedScore = () => {
 	const [ { data } ] = useModulesState();
 	const [ cssState ] = useCriticalCssState();
 	const { isGenerating: criticalCssIsGenerating } = useLocalCriticalCssGeneratorStatus();
+	const [ scoreChange ] = useSpeedScoresChange();
 
 	// Construct an array of current module states
 	const moduleStates = useMemo(
@@ -141,6 +143,8 @@ const SpeedScore = () => {
 				</div>
 				{ site.online && <PerformanceHistory /> }
 			</div>
+
+			<PopOut scoreChange={ scoreChange?.data || 0 } />
 		</>
 	);
 };
