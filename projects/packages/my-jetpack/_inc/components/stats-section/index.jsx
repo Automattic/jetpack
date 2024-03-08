@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 import { QUERY_STATS_COUNTS_KEY, getStatsHighlightsEndpoint } from '../../data/constants';
 import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
+import getMyJetpackWindowState from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import ProductCard from '../connected-product-card';
@@ -14,7 +15,7 @@ const StatsSection = () => {
 	const { blogID } = useMyJetpackConnection();
 	const { detail } = useProduct( slug );
 	const { status } = detail;
-	const isAdmin = !! window?.myJetpackInitialState?.userIsAdmin;
+	const isAdmin = !! getMyJetpackWindowState( 'userIsAdmin' );
 	const { data: statsCounts } = useSimpleQuery( {
 		name: QUERY_STATS_COUNTS_KEY,
 		query: {
