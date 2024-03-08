@@ -1162,7 +1162,11 @@ class Actions {
 		}
 		$decoded_response = json_decode( $response_body, true );
 
-		if ( $response_code !== 200 || null === $decoded_response ) {
+		if ( $decoded_response === null ) {
+			return new WP_Error( 'sync_rest_api_response_decoding_failed', 'Sync REST API response decoding failed', $response_body );
+		}
+
+		if ( $response_code !== 200 ) {
 			if ( is_array( $decoded_response ) && isset( $decoded_response['code'] ) && isset( $decoded_response['message'] ) ) {
 				return new WP_Error(
 					$decoded_response['code'],
