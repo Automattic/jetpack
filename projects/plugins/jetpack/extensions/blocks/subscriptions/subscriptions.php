@@ -171,7 +171,7 @@ function register_block() {
 
 	add_action( 'init', __NAMESPACE__ . '\maybe_prevent_super_cache_caching' );
 
-	add_action( 'save_post_post', __NAMESPACE__ . '\maybe_add_paywalled_content_post_meta', 99, 1 );
+	add_action( 'save_post_post', __NAMESPACE__ . '\add_paywalled_content_post_meta', 99, 1 );
 
 	Jetpack_Subscription_Site::init()->handle_subscribe_block_placements();
 }
@@ -208,7 +208,7 @@ function register_newsletter_access_column( $columns ) {
  * @param int $post_id Post id being saved.
  * @return void
  */
-function maybe_add_paywalled_content_post_meta( int $post_id ) {
+function add_paywalled_content_post_meta( int $post_id ) {
 	$access_level = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
 
 	$is_paywalled = false;

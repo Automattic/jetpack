@@ -67,7 +67,7 @@ function register_block() {
 		}
 	);
 
-	add_action( 'save_post_post', __NAMESPACE__ . '\maybe_add_paid_content_post_meta', 99, 2 );
+	add_action( 'save_post_post', __NAMESPACE__ . '\add_paid_content_post_meta', 99, 2 );
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
@@ -150,7 +150,7 @@ function stripe_nudge( $checkout_url, $description, $button_text ) {
  * @param WP_Post $post Post being saved.
  * @return void
  */
-function maybe_add_paid_content_post_meta( int $post_id, WP_Post $post ) {
+function add_paid_content_post_meta( int $post_id, WP_Post $post ) {
 	$contains_paid_content = has_block( 'premium-content/container', $post );
 	update_post_meta(
 		$post_id,
