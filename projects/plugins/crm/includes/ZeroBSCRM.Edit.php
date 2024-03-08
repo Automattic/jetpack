@@ -208,9 +208,9 @@ class zeroBSCRM_Edit{
 			if ( $obj_owner > 0 && $obj_owner !== $current_user_id && $trans_quote_owner !== $current_user_id && $obj_invoice_owner !== $current_user_id ) {
 				// not current user
 				// does user have perms to edit?
-				$can_edit_all_contacts = current_user_can( 'admin_zerobs_customers' ) && $zbs->settings->get( 'perusercustomers' ) === 0; // phpcs:ignore WordPress.WP.Capabilities.Unknown  -- this was defined in ZeroBSCRM.Permissions.php
-				$can_give_ownership    = $zbs->settings->get( 'usercangiveownership' ) === 1;
-				$can_change_owner      = ( $can_give_ownership || current_user_can( 'administrator' ) || $can_edit_all_contacts ); // phpcs:ignore WordPress.WP.Capabilities.RoleFound
+				$can_edit_all_contacts = current_user_can( 'admin_zerobs_customers' ) && (int) $zbs->settings->get( 'perusercustomers' ) === 0; // phpcs:ignore WordPress.WP.Capabilities.Unknown  -- this was defined in ZeroBSCRM.Permissions.php
+				$can_give_ownership    = (int) $zbs->settings->get( 'usercangiveownership' ) === 1;
+				$can_change_owner      = ( $can_give_ownership || current_user_can( 'manage_options' ) || $can_edit_all_contacts );
 
 				if ( ! $can_change_owner ) {
 
