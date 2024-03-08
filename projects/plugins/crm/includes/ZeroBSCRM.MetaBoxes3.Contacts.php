@@ -333,8 +333,8 @@
 			// Only allow an existing contact to change owners if they have permission to do so.
 			if ( $contact_id > -1 ) {
 
-				$can_edit_all_contacts = current_user_can( 'admin_zerobs_customers' ) && (int) $zbs->settings->get( 'perusercustomers' ) === 0; // phpcs:ignore WordPress.WP.Capabilities.Unknown  -- this was defined in ZeroBSCRM.Permissions.php
-				$can_give_ownership    = (int) $zbs->settings->get( 'usercangiveownership' ) === 1;
+				$can_edit_all_contacts = current_user_can( 'admin_zerobs_customers' ) && $zbs->settings->get( 'perusercustomers' ) == 0; // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual,WordPress.WP.Capabilities.Unknown  -- capability was defined in ZeroBSCRM.Permissions.php
+				$can_give_ownership    = $zbs->settings->get( 'usercangiveownership' ) == 1; // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- also above, there is the chance the numbers could be strings here, as expected elsewhere in the plugin.
 				$can_change_owner      = ( $can_give_ownership || current_user_can( 'manage_options' ) || $can_edit_all_contacts );
 				if ( $can_change_owner ) {
 
