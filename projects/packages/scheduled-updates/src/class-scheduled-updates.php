@@ -90,10 +90,13 @@ class Scheduled_Updates {
 	 */
 	public static function allowlist_scheduled_plugins( $update, $item ) {
 		if ( Constants::get_constant( 'SCHEDULED_AUTOUPDATE' ) ) {
-			$schedules = get_option( 'jetpack_update_schedules', array() );
+			if ( ! function_exists( 'wp_get_scheduled_events' ) ) {
+				require_once __DIR__ . '/pluggable.php';
+			}
 
-			foreach ( $schedules as $plugins ) {
-				if ( isset( $item->plugin ) && in_array( $item->plugin, $plugins, true ) ) {
+			$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+			foreach ( $events as $event ) {
+				if ( isset( $item->plugin ) && in_array( $item->plugin, $event->args, true ) ) {
 					return true;
 				}
 			}
