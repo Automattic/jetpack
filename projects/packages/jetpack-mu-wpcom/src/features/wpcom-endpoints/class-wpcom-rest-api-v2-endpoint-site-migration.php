@@ -17,7 +17,7 @@ class WPCOM_REST_API_V2_Endpoint_Site_Migration {
 	 */
 	public function __construct() {
 		$this->namespace = 'wpcom/v2';
-		$this->rest_base = 'site-migration';
+		$this->rest_base = 'site-migration-migrate-guru-key';
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
@@ -45,7 +45,27 @@ class WPCOM_REST_API_V2_Endpoint_Site_Migration {
 	 * @return boolean
 	 */
 	public function can_access() {
-		return current_user_can( 'manage_options' );
+		if ( ! class_exists( 'Automattic\Jetpack\Status\Host' ) ) {
+			return false;
+		}
+
+		if ( ! ( new Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
+			return false;
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		if ( ! is_plugin_active( 'migrate-guru' ) ) {
+			return false;
+		}
+
+		if ( ! class_exists( 'MGWPSettings' ) || ! class_exists( 'MGInfo' ) ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -54,15 +74,10 @@ class WPCOM_REST_API_V2_Endpoint_Site_Migration {
 	 * @return string
 	 */
 	private function get_migration_key() {
-		// Only fetch the key if we have the classes.
-		if ( class_exists( 'MGWPSettings' ) && class_exists( 'MGInfo' ) ) {
-			$migrate_guru_settings = new MGWPSettings();
-			$migrate_guru_info     = new MGInfo( $migrate_guru_settings );
+		$migrate_guru_settings = new MGWPSettings();
+		$migrate_guru_info     = new MGInfo( $migrate_guru_settings );
 
-			return $migrate_guru_info->getConnectionKey();
-		}
-
-		return '';
+		return $migrate_guru_info->getConnectionKey();
 	}
 
 	/**
@@ -77,4 +92,4 @@ class WPCOM_REST_API_V2_Endpoint_Site_Migration {
 	}
 }
 
-wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Site_Migration' );
+wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Site_Migration_Migrate_Guru_Key' );
