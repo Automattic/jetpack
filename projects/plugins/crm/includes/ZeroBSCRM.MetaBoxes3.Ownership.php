@@ -92,9 +92,7 @@ class zeroBS__Metabox_Ownership extends zeroBS__Metabox {
 				// simple unchangable
 				?>
 				<div style="text-align:center">
-					<select class="" id="zerobscrm-owner" name="zerobscrm-owner">
-						<?php echo '<option value="' . esc_attr( $zbsThisOwner['ID'] ) . '"selected="selected">' . esc_html( $zbsThisOwner['OBJ']->display_name ) . '</option>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>
-					</select>
+				<?php echo esc_html( $zbsThisOwner['OBJ']->display_name ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>
 					</div>
 				<?php
 
