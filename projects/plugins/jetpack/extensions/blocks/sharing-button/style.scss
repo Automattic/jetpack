@@ -1,5 +1,10 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
+a.jetpack-sharing-button__button {
+	color: var(--color-neutral-80);
+	color: inherit;
+}
+
 .jetpack-sharing-button__button {
 	display: flex;
 	flex-direction: row;
@@ -18,7 +23,6 @@
 	height: auto;
 	align-items: center;
 	color: inherit;
-
 
 	& svg {
 		width: 1.5em;
