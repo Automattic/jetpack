@@ -1,4 +1,4 @@
-import { unregisterBlockType } from '@wordpress/blocks';
+import { unregisterBlockType, getBlockType } from '@wordpress/blocks';
 import { subscribe, select } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
@@ -17,7 +17,7 @@ const unsubscribe = subscribe( () => {
 	}
 	unsubscribe();
 	// If postType is defined and not 'post', unregister the block.
-	if ( postType && postType !== 'post' ) {
+	if ( postType && postType !== 'post' && undefined !== getBlockType( metadata.name ) ) {
 		unregisterBlockType( metadata.name );
 	}
 } );
