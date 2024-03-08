@@ -13,6 +13,14 @@
  */
 class WPCOM_REST_API_V2_Endpoint_Site_Migration {
 	/**
+	 * Option name that tracks wether the key has been read or not.
+	 * The only possible value for the option is 'read'.
+	 *
+	 * @var string
+	 */
+	protected $key_is_read_option_name = 'wpcom_site_migration_migrate_guru_key_read';
+
+	/**
 	 * Class constructor
 	 */
 	public function __construct() {
@@ -65,6 +73,10 @@ class WPCOM_REST_API_V2_Endpoint_Site_Migration {
 			return false;
 		}
 
+		if ( 'read' === get_option( $this->key_is_read_option_name, false ) ) {
+			return false;
+		}
+
 		return true;
 	}
 
@@ -76,6 +88,8 @@ class WPCOM_REST_API_V2_Endpoint_Site_Migration {
 	private function get_migration_key() {
 		$migrate_guru_settings = new MGWPSettings();
 		$migrate_guru_info     = new MGInfo( $migrate_guru_settings );
+
+		update_option( $this->key_is_read_option_name, 'read' );
 
 		return $migrate_guru_info->getConnectionKey();
 	}
