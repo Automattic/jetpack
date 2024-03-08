@@ -541,6 +541,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		if ( is_array( $last_statuses ) && ! empty( $last_statuses[ $schedule_id ] ) ) {
 			$event->last_run_timestamp = $last_statuses[ $schedule_id ]['last_run_timestamp'];
 			$event->last_run_status    = $last_statuses[ $schedule_id ]['last_run_status'];
+		} else {
+			$event->last_run_timestamp = null;
+			$event->last_run_status    = null;
 		}
 
 		return $event;
