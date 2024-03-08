@@ -114,21 +114,43 @@ class Scheduled_Updates {
 	 * @param string $plugin_file Path to the plugin file relative to the plugin directory.
 	 */
 	public static function show_scheduled_updates( $html, $plugin_file ) {
-		$schedules = get_option( 'jetpack_update_schedules', array() );
+		if ( ! function_exists( 'wp_get_scheduled_events' ) ) {
+			require_once __DIR__ . '/pluggable.php';
+		}
 
-		$schedule = false;
-		foreach ( $schedules as $plugins ) {
-			if ( in_array( $plugin_file, $plugins, true ) ) {
-				$schedule = wp_get_scheduled_event( 'jetpack_scheduled_update', $plugins );
-				break;
+		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+
+		$schedules = false;
+		foreach ( $events as $event ) {
+			if ( in_array( $plugin_file, $event->args, true ) ) {
+				$schedules[] = $event;
 			}
 		}
 
 		// Plugin is not part of an update schedule.
-		if ( ! $schedule ) {
+		if ( empty( $schedules ) ) {
 			return $html;
 		}
 
+		$text = array_map( array( __CLASS__, 'get_scheduled_update_text' ), $schedules );
+
+		$html  = '<p style="margin: 0 0 8px">' . implode( '<br>', $text ) . '</p>';
+		$html .= sprintf(
+			'<a href="%1$s">%2$s</a>',
+			esc_url( 'https://wordpress.com/plugins/scheduled-updates/' . ( new Status() )->get_site_suffix() ),
+			esc_html__( 'Edit', 'jetpack-scheduled-updates' )
+		);
+
+		return $html;
+	}
+
+	/**
+	 * Get the text for a scheduled update.
+	 *
+	 * @param object $schedule The scheduled update.
+	 * @return string
+	 */
+	public static function get_scheduled_update_text( $schedule ) {
 		if ( DAY_IN_SECONDS === $schedule->interval ) {
 			$html = sprintf(
 				/* translators: %s is the time of day. Daily at 10 am. */
@@ -159,9 +181,6 @@ class Scheduled_Updates {
 				date_i18n( get_option( 'time_format' ), $schedule->timestamp )
 			);
 		}
-
-		$html  = '<p style="margin: 0 0 8px">' . $html . '</p>';
-		$html .= '<a href="' . esc_url( admin_url( 'admin.php?page=jetpack#jetpack-autoupdates' ) ) . '">' . esc_html__( 'Edit', 'jetpack-scheduled-updates' ) . '</a>';
 
 		return $html;
 	}
