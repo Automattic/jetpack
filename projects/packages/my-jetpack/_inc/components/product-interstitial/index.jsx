@@ -43,6 +43,7 @@ import videoPressImage from './videopress.png';
  * @param {number} [props.quantity]              - The quantity of the product to purchase
  * @param {number} [props.directCheckout]        - Whether to go straight to the checkout page, e.g. for products with usage tiers
  * @param {boolean} [props.highlightLastFeature] - Whether to highlight the last feature in the list of features
+ * @param {object} [props.ctaCallback]           - Callback when the product CTA is clicked. Triggered before any activation/checkout process occurs
  * @returns {object}                               ProductInterstitial react component.
  */
 export default function ProductInterstitial( {
@@ -59,6 +60,7 @@ export default function ProductInterstitial( {
 	quantity = null,
 	directCheckout = false,
 	highlightLastFeature = false,
+	ctaCallback = null,
 } ) {
 	const { detail } = useProduct( slug );
 	const { activate, isPending: isActivating } = useActivate( slug );
@@ -116,6 +118,8 @@ export default function ProductInterstitial( {
 				? product?.postCheckoutUrl
 				: myJetpackCheckoutUri;
 
+			ctaCallback?.( { slug, product, tier } );
+
 			if ( product?.isBundle || directCheckout ) {
 				// Get straight to the checkout page.
 				checkout?.();
@@ -163,7 +167,14 @@ export default function ProductInterstitial( {
 				}
 			);
 		},
-		[ directCheckout, activate, navigateToMyJetpackOverviewPage, slug, myJetpackCheckoutUri ]
+		[
+			directCheckout,
+			activate,
+			navigateToMyJetpackOverviewPage,
+			slug,
+			myJetpackCheckoutUri,
+			ctaCallback,
+		]
 	);
 
 	return (
