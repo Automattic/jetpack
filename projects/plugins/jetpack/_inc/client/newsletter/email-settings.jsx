@@ -22,33 +22,25 @@ const EXCERPT_VALUE = 'excerpt';
 const EmailSetting = props => {
 	const {
 		isSavingAnyOption,
-		isSubscriptionsActive,
 		subscriptionsModule,
 		unavailableInOfflineMode,
 		isFeaturedImageInEmailEnabled,
 		subscriptionEmailsUseExcerpt,
-		updateFormStateModuleOption,
+		updateFormStateOptionValue,
 	} = props;
 
 	const handleEnableFeaturedImageInEmailToggleChange = useCallback( () => {
-		updateFormStateModuleOption( SUBSCRIPTIONS_MODULE_NAME, FEATURED_IMAGE_IN_EMAIL_OPTION );
-	}, [ updateFormStateModuleOption ] );
+		updateFormStateOptionValue( FEATURED_IMAGE_IN_EMAIL_OPTION, ! isFeaturedImageInEmailEnabled );
+	}, [ isFeaturedImageInEmailEnabled, updateFormStateOptionValue ] );
 
 	const handleSubscriptionEmailsUseExcerptChange = useCallback(
 		value => {
-			updateFormStateModuleOption(
-				SUBSCRIPTIONS_MODULE_NAME,
-				SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION,
-				value === EXCERPT_VALUE
-			);
+			updateFormStateOptionValue( SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION, value === EXCERPT_VALUE );
 		},
-		[ updateFormStateModuleOption ]
+		[ updateFormStateOptionValue ]
 	);
 
-	const disabled =
-		! isSubscriptionsActive ||
-		unavailableInOfflineMode ||
-		isSavingAnyOption( [ SUBSCRIPTIONS_MODULE_NAME ] );
+	const disabled = unavailableInOfflineMode || isSavingAnyOption( [ SUBSCRIPTIONS_MODULE_NAME ] );
 
 	return (
 		<SettingsCard
@@ -123,7 +115,6 @@ export default withModuleSettingsFormHelpers(
 		return {
 			moduleName: ownProps.moduleName,
 			subscriptionsModule: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
-			isSubscriptionsActive: ownProps.getOptionValue( SUBSCRIPTIONS_MODULE_NAME ),
 			isSavingAnyOption: ownProps.isSavingAnyOption,
 			isFeaturedImageInEmailEnabled: ownProps.getOptionValue( FEATURED_IMAGE_IN_EMAIL_OPTION ),
 			subscriptionEmailsUseExcerpt: ownProps.getOptionValue(
