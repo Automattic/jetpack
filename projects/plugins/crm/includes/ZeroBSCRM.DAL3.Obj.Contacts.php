@@ -1589,11 +1589,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                         // USE hasStatus above now...
 					if ( str_starts_with( $qFilter, 'status_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-                            $qFilterStatus = substr($qFilter,7);
-                            $qFilterStatus = str_replace('_',' ',$qFilterStatus);
-
-                            // check status
-                            $wheres['quickfilterstatus'] = array('zbsc_status','LIKE','%s',ucwords($qFilterStatus));
+						$quick_filter_status         = substr( $qFilter, 7 ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						$wheres['quickfilterstatus'] = array( 'zbsc_status', '=', 'convert(%s using utf8mb4) collate utf8mb4_bin', $quick_filter_status );
 
 					} elseif ( $qFilter === 'assigned_to_me' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                             $wheres['assigned_to_me'] = array( 'zbs_owner', '=', zeroBSCRM_user() );

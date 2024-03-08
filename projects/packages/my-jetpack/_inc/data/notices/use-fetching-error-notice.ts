@@ -1,12 +1,24 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { useContext, useEffect } from 'react';
 import { NoticeContext } from '../../context/notices/noticeContext';
+import {
+	QUERY_ACTIVATE_PRODUCT_KEY,
+	QUERY_INSTALL_PRODUCT_KEY,
+	QUERY_PURCHASES_KEY,
+} from '../constants';
 
 type ErrorNotice = {
 	infoName: string;
 	isError: boolean;
 	overrideMessage?: string;
 };
+
+// We only want to show error notices for certain queries.
+const errorNoticeWhitelist = [
+	QUERY_PURCHASES_KEY,
+	QUERY_ACTIVATE_PRODUCT_KEY,
+	QUERY_INSTALL_PRODUCT_KEY,
+];
 
 export const useFetchingErrorNotice = ( { infoName, isError, overrideMessage }: ErrorNotice ) => {
 	const { setNotice } = useContext( NoticeContext );
@@ -22,11 +34,11 @@ export const useFetchingErrorNotice = ( { infoName, isError, overrideMessage }: 
 		);
 
 	useEffect( () => {
-		if ( isError ) {
+		if ( isError && errorNoticeWhitelist.includes( infoName ) ) {
 			setNotice( {
 				message,
 				options: { status: 'error' },
 			} );
 		}
-	}, [ message, setNotice, isError ] );
+	}, [ message, setNotice, isError, infoName ] );
 };
