@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed a bug where individual plugin slugs were not actually validated and sanitized.

@@ -44,7 +44,7 @@ const ConnectionScreenFooter = () => {
 };
 
 const ConnectionScreen = () => {
-	const { apiRoot, apiNonce } = useMyJetpackConnection();
+	const { apiRoot, apiNonce, registrationNonce } = useMyJetpackConnection();
 	const returnToPage = useMyJetpackReturnToPage();
 
 	return (
@@ -66,6 +66,7 @@ const ConnectionScreen = () => {
 						loadingLabel={ __( 'Connecting your account…', 'jetpack-my-jetpack' ) }
 						apiRoot={ apiRoot }
 						apiNonce={ apiNonce }
+						registrationNonce={ registrationNonce }
 						images={ [ connectImage ] }
 						footer={ <ConnectionScreenFooter /> }
 						from="my-jetpack"

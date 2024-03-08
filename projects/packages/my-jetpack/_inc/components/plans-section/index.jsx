@@ -1,8 +1,9 @@
 import { Text, H3, Title, Button } from '@automattic/jetpack-components';
 import { __, _n } from '@wordpress/i18n';
-import React, { useCallback } from 'react';
-import { REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
+import { useCallback } from 'react';
+import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
 import useSimpleQuery from '../../data/use-simple-query';
+import getMyJetpackWindowState from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
@@ -122,6 +123,8 @@ function PlanSectionFooter( { numberOfPurchases } ) {
 		);
 	}
 
+	const { loadAddLicenseScreen = '', adminUrl = '' } = getMyJetpackWindowState();
+
 	return (
 		<ul>
 			<li className={ styles[ 'actions-list-item' ] }>
@@ -135,14 +138,12 @@ function PlanSectionFooter( { numberOfPurchases } ) {
 					{ planLinkDescription }
 				</Button>
 			</li>
-			{ window?.myJetpackInitialState?.loadAddLicenseScreen && (
+			{ loadAddLicenseScreen && (
 				<li className={ styles[ 'actions-list-item' ] }>
 					<Button
 						onClick={ activateLicenseClickHandler }
 						href={
-							isUserConnected
-								? `${ window?.myJetpackInitialState?.adminUrl }admin.php?page=my-jetpack#/add-license`
-								: undefined
+							isUserConnected ? `${ adminUrl }admin.php?page=my-jetpack#/add-license` : undefined
 						}
 						variant="link"
 						weight="regular"
@@ -161,12 +162,15 @@ function PlanSectionFooter( { numberOfPurchases } ) {
  * @returns {object} PlansSection React component.
  */
 export default function PlansSection() {
-	const userIsAdmin = !! window?.myJetpackInitialState?.userIsAdmin;
+	const userIsAdmin = !! getMyJetpackWindowState( 'userIsAdmin' );
 	const {
 		data: purchases,
 		isLoading,
 		isError,
-	} = useSimpleQuery( 'purchases', { path: REST_API_SITE_PURCHASES_ENDPOINT } );
+	} = useSimpleQuery( {
+		name: QUERY_PURCHASES_KEY,
+		query: { path: REST_API_SITE_PURCHASES_ENDPOINT },
+	} );
 
 	const isDataLoaded = purchases && ! isLoading && ! isError;
 	const numberOfPurchases = isDataLoaded ? purchases.length : 0;

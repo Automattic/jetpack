@@ -176,31 +176,26 @@ function SubscriptionsSettings( props ) {
 									</>
 								) }
 							</p>
+							{ isSubscriptionSiteFeatureEnabled && (
+								<>
+									<br />
+									<ToggleControl
+										checked={ isSubscriptionsActive && isSubscribePostEndEnabled }
+										disabled={ isDisabled }
+										toggling={ isSavingAnyOption( [
+											'jetpack_subscriptions_subscribe_post_end_enabled',
+										] ) }
+										onChange={ handleSubscribePostEndToggleChange }
+										label={ __(
+											'Enable automatic insertion of the Subscribe block into the theme at the end of each post',
+											'jetpack'
+										) }
+									/>
+								</>
+							) }
 						</FormFieldset>
 					}
 				</SettingsGroup>
-
-				{ isSubscriptionsActive && isSubscriptionSiteFeatureEnabled && (
-					<SettingsGroup
-						hasChild
-						disableInOfflineMode
-						disableInSiteConnectionMode
-						module={ subscriptions }
-					>
-						<p>Enable automatic insertion of the Subscribe block into the theme</p>
-						<FormFieldset>
-							<ToggleControl
-								checked={ isSubscriptionsActive && isSubscribePostEndEnabled }
-								disabled={ isDisabled }
-								toggling={ isSavingAnyOption( [
-									'jetpack_subscriptions_subscribe_post_end_enabled',
-								] ) }
-								onChange={ handleSubscribePostEndToggleChange }
-								label="End of each post"
-							/>
-						</FormFieldset>
-					</SettingsGroup>
-				) }
 
 				{ getSubClickableCard() }
 

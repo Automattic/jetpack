@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Boost_Speed_Score\Jetpack_Boost_Modules;
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
@@ -35,7 +37,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.13.0-alpha';
+	const PACKAGE_VERSION = '4.16.0-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -54,6 +56,8 @@ class Initializer {
 	);
 
 	const MY_JETPACK_SITE_INFO_TRANSIENT_KEY = 'my-jetpack-site-info';
+
+	const MISSING_SITE_CONNECTION_NOTIFICATION_KEY = 'missing-site-connection';
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
@@ -82,6 +86,10 @@ class Initializer {
 			Licensing::instance()->initialize();
 		}
 
+		// Initialize Boost Speed Score
+		$boost_modules = Jetpack_Boost_Modules::init();
+		new Speed_Score( $boost_modules, 'jetpack-my-jetpack' );
+
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
 
@@ -95,6 +103,8 @@ class Initializer {
 		);
 
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+		// This is later than the admin-ui package, which runs on 1000
+		add_action( 'admin_init', array( __CLASS__, 'maybe_show_red_bubble' ), 1001 );
 
 		// Sets up JITMS.
 		JITM::configure();
@@ -222,9 +232,11 @@ class Initializer {
 					'purchases'       => self::get_purchases(),
 					'modules'         => self::get_active_modules(),
 				),
+				'redBubbleAlerts'        => self::get_red_bubble_alerts(),
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
 				'isUserFromKnownHost'    => self::is_user_from_known_host(),
 				'isCommercial'           => self::is_commercial_site(),
+				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
 				'welcomeBanner'          => array(
 					'hasBeenDismissed' => \Jetpack_Options::get_option( 'dismissed_welcome_banner', false ),
 				),
@@ -384,8 +396,8 @@ class Initializer {
 	 */
 	public static function get_my_jetpack_flags() {
 		$flags = array(
-			'videoPressStats'      => Jetpack_Constants::is_true( 'JETPACK_MY_JETPACK_VIDEOPRESS_STATS_ENABLED' ),
-			'showJetpackStatsCard' => class_exists( 'Jetpack' ),
+			'videoPressStats'          => Jetpack_Constants::is_true( 'JETPACK_MY_JETPACK_VIDEOPRESS_STATS_ENABLED' ),
+			'showFullJetpackStatsCard' => class_exists( 'Jetpack' ),
 		);
 
 		return $flags;
@@ -598,5 +610,60 @@ class Initializer {
 	 */
 	public static function get_idc_container_id() {
 		return static::IDC_CONTAINER_ID;
+	}
+
+	/**
+	 * Conditionally append the red bubble notification to the "Jetpack" menu item if there are alerts to show
+	 *
+	 * @return void
+	 */
+	public static function maybe_show_red_bubble() {
+		global $menu;
+		// filters for the items in this file
+		add_filter( 'my_jetpack_red_bubble_notification_slugs', array( __CLASS__, 'alert_if_missing_site_connection' ) );
+		$red_bubble_alerts = self::get_red_bubble_alerts();
+
+		// The Jetpack menu item should be on index 3
+		if (
+			! empty( $red_bubble_alerts ) &&
+			is_countable( $red_bubble_alerts ) &&
+			isset( $menu[3] ) &&
+			$menu[3][0] === 'Jetpack'
+		) {
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$menu[3][0] .= sprintf( ' <span class="awaiting-mod">%d</span>', count( $red_bubble_alerts ) );
+		}
+	}
+
+	/**
+	 * Collect all possible alerts that we might use a red bubble notification for
+	 *
+	 * @return array
+	 */
+	public static function get_red_bubble_alerts() {
+		static $red_bubble_alerts = array();
+
+		// using a static cache since we call this function more than once in the class
+		if ( ! empty( $red_bubble_alerts ) ) {
+			return $red_bubble_alerts;
+		}
+		// go find the alerts
+		$red_bubble_alerts = apply_filters( 'my_jetpack_red_bubble_notification_slugs', $red_bubble_alerts );
+
+		return $red_bubble_alerts;
+	}
+
+	/**
+	 * Add an alert slug if the site is missing a site connection
+	 *
+	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
+	 * @return array
+	 */
+	public static function alert_if_missing_site_connection( array $red_bubble_slugs ) {
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
+			$red_bubble_slugs[] = self::MISSING_SITE_CONNECTION_NOTIFICATION_KEY;
+		}
+
+		return $red_bubble_slugs;
 	}
 }

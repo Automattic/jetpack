@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+unregisters unnecessary items from the customizer for atomic sites on block theme
