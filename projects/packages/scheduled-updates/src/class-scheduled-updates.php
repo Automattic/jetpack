@@ -69,6 +69,9 @@ class Scheduled_Updates {
 			return;
 		}
 
+		// Save the last run schedule ID.
+		set_transient( 'jetpack_scheduled_update_last_run', self::generate_schedule_id( $plugins ) );
+
 		( new Connection\Client() )->wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/hosting/scheduled-update', \Jetpack_Options::get_option( 'id' ) ),
 			'2',
@@ -282,6 +285,18 @@ class Scheduled_Updates {
 		}
 
 		return $file_mod_capabilities;
+	}
+
+	/**
+	 * Generates a unique schedule ID.
+	 *
+	 * @see wp_schedule_event()
+	 *
+	 * @param array $args Schedule arguments.
+	 * @return string
+	 */
+	public static function generate_schedule_id( $args ) {
+		return md5( serialize( $args ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 	}
 
 	/**

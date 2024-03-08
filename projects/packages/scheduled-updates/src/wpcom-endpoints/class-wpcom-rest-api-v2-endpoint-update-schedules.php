@@ -11,6 +11,8 @@
 require_once dirname( __DIR__ ) . '/pluggable.php';
 require_once dirname( __DIR__ ) . '/class-scheduled-updates.php';
 
+use Automattic\Jetpack\Scheduled_Updates;
+
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Update_Schedules
  */
@@ -80,6 +82,18 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
+			'/' . $this->rest_base . '/last-status',
+			array(
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'update_last_status' ),
+					'permission_callback' => array( $this, 'update_last_status_permissions_check' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			'/' . $this->rest_base . '/(?P<schedule_id>[\w]+)/',
 			array(
 				array(
@@ -115,18 +129,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 					'permission_callback' => array( $this, 'delete_item_permissions_check' ),
 				),
 				'schema' => array( $this, 'get_public_item_schema' ),
-			)
-		);
-
-		register_rest_route(
-			$this->namespace,
-			'/' . $this->rest_base . '/(?P<schedule_id>[\w]+)/last-status',
-			array(
-				array(
-					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => array( $this, 'update_last_status' ),
-					'permission_callback' => array( $this, 'update_last_status_permissions_check' ),
-				),
 			)
 		);
 	}
@@ -211,7 +213,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			update_option( 'auto_update_plugins', $auto_update_plugins );
 		}
 
-		return rest_ensure_response( $this->generate_schedule_id( $plugins ) );
+		return rest_ensure_response( Scheduled_Updates::generate_schedule_id( $plugins ) );
 	}
 
 	/**
@@ -301,9 +303,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error The updated event or a WP_Error if the schedule could not be found.
 	 */
 	public function update_last_status( $request ) {
-		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+		$events   = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+		$last_run = get_site_transient( 'jetpack_scheduled_update_last_run' );
 
-		if ( ! isset( $events[ $request['schedule_id'] ] ) ) {
+		if ( false === $last_run || ! isset( $events[ $last_run ] ) ) {
 			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
 		}
 
@@ -324,14 +327,15 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		}
 
 		// Update the last status for the schedule.
-		$option[ $request['schedule_id'] ] = array(
+		$option[ $last_run ] = array(
 			'last_run_timestamp' => $request['timestamp'],
 			'last_run_status'    => $request['status'],
 		);
 
 		update_option( 'jetpack_scheduled_update_last_statuses', $option );
+		delete_site_transient( 'jetpack_scheduled_update_last_run' );
 
-		return rest_ensure_response( $option[ $request['schedule_id'] ] );
+		return rest_ensure_response( $option[ $schedule_id ] );
 	}
 
 	/**
@@ -531,7 +535,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public function get_capabilities( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$file_mod_capabilities = \Automattic\Jetpack\Scheduled_Updates::get_file_mod_capabilities();
+		$file_mod_capabilities = Scheduled_Updates::get_file_mod_capabilities();
 
 		return rest_ensure_response( $file_mod_capabilities );
 	}
@@ -651,18 +655,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 				),
 			),
 		);
-	}
-
-	/**
-	 * Generates a unique schedule ID.
-	 *
-	 * @see wp_schedule_event()
-	 *
-	 * @param array $args Schedule arguments.
-	 * @return string
-	 */
-	private function generate_schedule_id( $args ) {
-		return md5( serialize( $args ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 	}
 }
 
