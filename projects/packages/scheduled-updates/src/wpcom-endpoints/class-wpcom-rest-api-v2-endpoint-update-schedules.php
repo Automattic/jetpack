@@ -243,12 +243,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 
 		$last_statuses = get_option( 'jetpack_scheduled_update_last_statuses', array() );
 
-		if ( is_array( $last_statuses ) && ! empty( $last_statuses[ $request['schedule_id'] ] ) ) {
-			$last_status = $last_statuses[ $request['schedule_id'] ];
-			$events[ $request['schedule_id'] ]->last_run_timestamp = $last_status['last_run_timestamp'];
-			$events[ $request['schedule_id'] ]->last_run_status    = $last_status['last_run_status'];
-		}
-
 		return rest_ensure_response( $this->get_scheduled_event_with_status( $request['schedule_id'], $events, $last_statuses ) );
 	}
 
