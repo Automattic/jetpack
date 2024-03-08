@@ -160,7 +160,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			$output[ $schedule_id ] = $this->get_scheduled_event_with_status( $schedule_id, $events, $last_statuses );
 		}
 
-		return rest_ensure_response( wp_get_scheduled_events( 'jetpack_scheduled_update' ) );
+		return rest_ensure_response( $output );
 	}
 
 	/**
