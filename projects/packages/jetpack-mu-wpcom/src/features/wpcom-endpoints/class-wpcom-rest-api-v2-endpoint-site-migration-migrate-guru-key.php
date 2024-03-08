@@ -25,7 +25,7 @@ class WPCOM_REST_API_V2_Endpoint_Site_Migration_Migrate_Guru_Key extends WP_REST
 	 */
 	public function __construct() {
 		$this->namespace = 'wpcom/v2';
-		$this->rest_base = 'site-migration-migrate-guru-key';
+		$this->rest_base = 'atomic-migration-status/migrate-guru-key';
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
