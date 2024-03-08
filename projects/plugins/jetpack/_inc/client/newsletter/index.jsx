@@ -14,6 +14,7 @@ import SubscriptionsSettings from './subscriptions-settings';
 const urlParams = new URLSearchParams( window.location.search );
 const isNewsletterCategoriesEnabled = urlParams.get( 'enable-newsletter-categories' ) === 'true';
 const isEmailSettingsEnabled = urlParams.get( 'enable-email-settings' ) === 'true';
+
 /**
  * Newsletter Section.
  *
@@ -47,11 +48,13 @@ function Subscriptions( props ) {
 					  ) }
 			</h2>
 			{ foundSubscriptions && (
-				<SubscriptionsSettings siteRawUrl={ siteRawUrl } blogID={ blogID } />
+				<>
+					<SubscriptionsSettings siteRawUrl={ siteRawUrl } blogID={ blogID } />
+					{ isEmailSettingsEnabled && <EmailSettings /> }
+					{ isNewsletterCategoriesEnabled && <NewsletterCategories /> }
+					<MessagesSetting { ...props } />
+				</>
 			) }
-			{ isEmailSettingsEnabled && <EmailSettings /> }
-			{ isNewsletterCategoriesEnabled && <NewsletterCategories /> }
-			<MessagesSetting { ...props } />
 		</div>
 	);
 }

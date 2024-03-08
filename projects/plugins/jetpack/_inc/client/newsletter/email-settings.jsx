@@ -6,7 +6,7 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
-import { isUnavailableInOfflineMode } from 'state/connection';
+import { isUnavailableInOfflineMode, isUnavailableInSiteConnectionMode } from 'state/connection';
 import { getModule } from 'state/modules';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 
@@ -24,6 +24,7 @@ const EmailSetting = props => {
 		isFeaturedImageInEmailEnabled,
 		subscriptionEmailsUseExcerpt,
 		updateFormStateAndSaveOptionValue,
+		unavailableInSiteConnectionMode,
 	} = props;
 
 	const handleEnableFeaturedImageInEmailToggleChange = useCallback( () => {
@@ -47,7 +48,11 @@ const EmailSetting = props => {
 		[ updateFormStateAndSaveOptionValue ]
 	);
 
-	const disabled = unavailableInOfflineMode || isSavingAnyOption( [ SUBSCRIPTIONS_MODULE_NAME ] );
+	const disabled = unavailableInOfflineMode || unavailableInSiteConnectionMode;
+	const featuredImageInputDisabled =
+		disabled || isSavingAnyOption( [ FEATURED_IMAGE_IN_EMAIL_OPTION ] );
+	const excerptInputDisabled =
+		disabled || isSavingAnyOption( [ SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION ] );
 
 	return (
 		<SettingsCard
@@ -71,7 +76,7 @@ const EmailSetting = props => {
 				} }
 			>
 				<ToggleControl
-					disabled={ disabled }
+					disabled={ featuredImageInputDisabled }
 					checked={ isFeaturedImageInEmailEnabled }
 					toogling={ isSavingAnyOption( [ FEATURED_IMAGE_IN_EMAIL_OPTION ] ) }
 					label={ __( 'Enable featured image on your new post emails', 'jetpack' ) }
@@ -97,7 +102,7 @@ const EmailSetting = props => {
 				</FormLegend>
 
 				<ToggleControl
-					disabled={ disabled }
+					disabled={ excerptInputDisabled }
 					checked={ ! subscriptionEmailsUseExcerpt }
 					toogling={ isSavingAnyOption( [ SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION ] ) }
 					label={ __( 'Full text', 'jetpack' ) }
@@ -105,7 +110,7 @@ const EmailSetting = props => {
 				/>
 
 				<ToggleControl
-					disabled={ disabled }
+					disabled={ excerptInputDisabled }
 					checked={ subscriptionEmailsUseExcerpt }
 					toogling={ isSavingAnyOption( [ SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION ] ) }
 					label={ __( 'Excerpt', 'jetpack' ) }
@@ -127,6 +132,10 @@ export default withModuleSettingsFormHelpers(
 				SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION
 			),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
+			unavailableInSiteConnectionMode: isUnavailableInSiteConnectionMode(
+				state,
+				SUBSCRIPTIONS_MODULE_NAME
+			),
 		};
 	} )( EmailSetting )
 );
