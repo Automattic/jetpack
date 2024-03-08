@@ -1163,12 +1163,11 @@ class Actions {
 		$decoded_response = json_decode( $response_body, true );
 
 		if ( $response_code !== 200 || null === $decoded_response ) {
-			// Using true for associative array.
 			if ( is_array( $decoded_response ) && isset( $decoded_response['code'] ) && isset( $decoded_response['message'] ) ) {
 				return new WP_Error(
 					$decoded_response['code'],
 					$decoded_response['message'],
-					$decoded_response['data'] ?? null // Safely access 'data' with null coalescing operator.
+					$decoded_response['data'] ?? null
 				);
 			} else {
 				return new WP_Error( $response_code, 'Sync REST API request failed', $response_body );
