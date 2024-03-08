@@ -326,10 +326,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$last_statuses = get_option( 'jetpack_scheduled_update_last_statuses', array() );
 		$option        = array();
 
-		if ( ! is_array( $last_statuses ) ) {
-			$last_statuses = array();
-		}
-
 		// Reset the last statuses for the schedule.
 		foreach ( array_keys( $events ) as $schedule_id ) {
 			if ( ! empty( $last_statuses[ $schedule_id ] ) ) {
