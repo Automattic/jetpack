@@ -95,7 +95,7 @@ const GlobalNotice = ( { message, options } ) => {
 export default function MyJetpackScreen() {
 	useConnectionWatcher();
 	const { hasBeenDismissed = false } = getMyJetpackWindowState( 'welcomeBanner' );
-	const { showJetpackStatsCard = false } = getMyJetpackWindowState( 'myJetpackFlags' );
+	const { showFullJetpackStatsCard = false } = getMyJetpackWindowState( 'myJetpackFlags' );
 	const { jetpackManage = {}, adminUrl } = getMyJetpackWindowState();
 
 	const { currentNotice } = useContext( NoticeContext );
@@ -163,7 +163,7 @@ export default function MyJetpackScreen() {
 					{ message && ( hasBeenDismissed || ! isNewUser ) && (
 						<Col>{ <GlobalNotice message={ message } options={ options } /> }</Col>
 					) }
-					{ showJetpackStatsCard && (
+					{ showFullJetpackStatsCard && (
 						<Col
 							className={ classnames( {
 								[ styles.stats ]: statsDetails?.status !== PRODUCT_STATUSES.ERROR,
