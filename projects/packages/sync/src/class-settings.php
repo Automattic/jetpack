@@ -303,6 +303,7 @@ class Settings {
 			}
 
 			// Do not enable wpcom rest api if we cannot send a test request.
+
 			if ( 'wpcom_rest_api_enabled' === $setting && $updated && (bool) $value ) {
 				$sender = Sender::get_instance();
 				$data   = array(
@@ -315,7 +316,7 @@ class Settings {
 					$data = array(
 						'timestamp'     => microtime( true ),
 						'response_code' => $items->get_error_code(),
-						'response_body' => trim( $items->get_error_data() ),
+						'response_body' => $items->get_error_data() ? trim( $items->get_error_data() ) : '',
 					);
 					$sender->send_action( 'jetpack_sync_wpcom_rest_api_enable_error', $data );
 				}
