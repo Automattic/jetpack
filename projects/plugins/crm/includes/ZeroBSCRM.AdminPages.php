@@ -1721,12 +1721,12 @@ function zeroBSCRM_html_datatools() {
 						<p><a class="ui button black primary" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['csvlite'] ) ); ?>"><?php esc_html_e( 'CSV Importer Lite', 'zero-bs-crm' ); ?></a></p>
 						<?php
 					}
-					##WLREMOVE
-					?>
-					<p><a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['extensions'] ) ); ?>" class="ui button black primary"><?php esc_html_e( 'View all extensions', 'zero-bs-crm' ); ?></a></p>
-					<?php
-					##/WLREMOVE
 				}
+				##WLREMOVE
+				?>
+				<p><a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['extensions'] ) ); ?>" class="ui button black primary"><?php esc_html_e( 'View all extensions', 'zero-bs-crm' ); ?></a></p>
+				<?php
+				##/WLREMOVE
 				?>
 				<br>
 			</div>
