@@ -416,7 +416,7 @@ class Actions {
 	}
 
 	/**
-	 * Sends data to WordPress.com via an XMLRPC request.
+	 * Sends data to WordPress.com via an XMLRPC or a REST API request based on the settings.
 	 *
 	 * @access public
 	 * @static
@@ -466,10 +466,8 @@ class Actions {
 
 		$retry_after_header    = false;
 		$dedicated_sync_header = false;
-		$result                = true;
 
 		// If REST API is enabled, use it.
-
 		if ( Settings::is_wpcom_rest_api_enabled() ) {
 			$jsonl_data = self::prepare_jsonl_data( $data );
 			$url        = '/sites/' . \Jetpack_Options::get_option( 'id' ) . '/jetpack-sync-actions';
@@ -482,13 +480,7 @@ class Actions {
 			$response              = Client::wpcom_json_api_request_as_blog( $url, '2', $args, $jsonl_data, 'wpcom' );
 			$retry_after_header    = wp_remote_retrieve_header( $response, 'Retry-After' ) ? wp_remote_retrieve_header( $response, 'Retry-After' ) : false;
 			$dedicated_sync_header = wp_remote_retrieve_header( $response, 'Jetpack-Dedicated-Sync' ) ? wp_remote_retrieve_header( $response, 'Jetpack-Dedicated-Sync' ) : false;
-			$response_code         = wp_remote_retrieve_response_code( $response );
-			$response_body         = wp_remote_retrieve_body( $response );
-			if ( is_wp_error( $response ) || 200 !== $response_code ) {
-				$result = false;
-			}
-			// If result is true we can decode the response if not we return a WP_Error.
-			$response = $result ? json_decode( $response_body, ARRAY_N ) : new WP_Error( $response_code, 'Sync REST API request failed', $response_body );
+			$response              = self::process_rest_api_response( $response );
 		} else { // Use XML-RPC.
 			$connection = new Jetpack_Connection();
 			$url        = add_query_arg( $query_args, $connection->xmlrpc_api_url() );
@@ -513,6 +505,8 @@ class Actions {
 			$dedicated_sync_header = $rpc->get_response_header( 'Jetpack-Dedicated-Sync' );
 			if ( $result ) {
 				$response = $rpc->getResponse();
+			} else {
+				$response = $rpc->get_jetpack_error();
 			}
 		}
 
@@ -531,7 +525,8 @@ class Actions {
 			Dedicated_Sender::maybe_change_dedicated_sync_status_from_wpcom_header( $dedicated_sync_header );
 		}
 
-		if ( ! $result ) {
+		if ( is_wp_error( $response ) ) {
+			$error = $response;
 			if ( false === $retry_after_header ) {
 				// We received a non standard response from WP.com, lets backoff from sending requests for 1 minute.
 				update_option( self::RETRY_AFTER_PREFIX . $queue_id, microtime( true ) + 60, false );
@@ -547,11 +542,10 @@ class Actions {
 			}
 			// Add new error indexed to time.
 			if ( Settings::is_wpcom_rest_api_enabled() ) {
-				$error                                   = $response;
 				$error_log[ (string) microtime( true ) ] = $error;
 			} else {
-				$error                                   = $rpc->get_jetpack_error();
-				$error_with_last_response                = $error->add_data( $rpc->get_last_response() );
+				$error_with_last_response = clone $error;
+				$error_with_last_response->add_data( $rpc->get_last_response() );
 				$error_log[ (string) microtime( true ) ] = $error_with_last_response;
 			}
 			// Update the error log.
@@ -1151,5 +1145,36 @@ class Actions {
 			)
 		);
 		return $jsonl_data;
+	}
+
+	/**
+	 * Helper method to process the API response.
+	 *
+	 * @param  mixed $response The response from the API.
+	 * @return array|Wp_Error Array  for successful response or a WP_Error object.
+	 */
+	private static function process_rest_api_response( $response ) {
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+		$response_body = wp_remote_retrieve_body( $response );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		if ( $response_code !== 200 ) {
+			$decoded_response = json_decode( $response_body, true ); // Using true for associative array.
+
+			if ( is_array( $decoded_response ) && isset( $decoded_response['code'] ) && isset( $decoded_response['message'] ) ) {
+				return new WP_Error(
+					$decoded_response['code'],
+					$decoded_response['message'],
+					$decoded_response['data'] ?? null // Safely access 'data' with null coalescing operator.
+				);
+			} else {
+				return new WP_Error( $response_code, 'Sync REST API request failed', $response_body );
+			}
+		} else {
+			return json_decode( $response_body, ARRAY_N ); // Decode successful response.
+		}
 	}
 }
