@@ -2,6 +2,11 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useCallback, useEffect } from 'react';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
 
+type TracksRecordEvent = (
+	event: `jetpack_${ string }`, // Enforces the event name to start with "jetpack_"
+	properties: Record< string, unknown >
+) => void;
+
 const useAnalytics = () => {
 	const { isUserConnected, connectedPlugins, userConnectionData = {} } = useMyJetpackConnection();
 	const { login, ID } = userConnectionData.currentUser?.wpcomUser || {};
@@ -22,26 +27,14 @@ const useAnalytics = () => {
 		.join( ',' )
 		.replaceAll( 'jetpack-', '' );
 
-	const {
-		clearedIdentity,
-		ga,
-		mc,
-		pageView,
-		purchase,
-		setGoogleAnalyticsEnabled,
-		setMcAnalyticsEnabled,
-		setProperties,
-		tracks,
-	} = jetpackAnalytics;
-
 	/**
 	 * Like tracks.recordEvent but provides specifics to My Jetpack
 	 *
 	 * @param {string} event       - event name
 	 * @param {object} properties  - event propeties
 	 */
-	const recordMyJetpackEvent = useCallback( ( event, properties ) => {
-		tracks.recordEvent( event, {
+	const recordEvent = useCallback< TracksRecordEvent >( ( event, properties ) => {
+		jetpackAnalytics.tracks.recordEvent( event, {
 			...properties,
 			version: window?.myJetpackInitialState?.myJetpackVersion,
 			referring_plugins: connectedPluginsSlugs,
@@ -49,18 +42,7 @@ const useAnalytics = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
-	return {
-		clearedIdentity,
-		ga,
-		mc,
-		pageView,
-		purchase,
-		recordEvent: recordMyJetpackEvent,
-		setGoogleAnalyticsEnabled,
-		setMcAnalyticsEnabled,
-		setProperties,
-		tracks,
-	};
+	return { recordEvent };
 };
 
 export default useAnalytics;

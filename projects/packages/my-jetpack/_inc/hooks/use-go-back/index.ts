@@ -13,11 +13,11 @@ import useAnalytics from '../use-analytics';
  * @param {string} slug - My Jetpack product slug.
  * @returns {object}      Object with back link click handler with analytics.
  */
-export function useGoBack( { slug } ) {
+export function useGoBack( { slug }: { slug: string } ) {
 	const { recordEvent } = useAnalytics();
 
 	const onClickGoBack = useCallback(
-		event => {
+		( event: MouseEvent ) => {
 			if ( slug ) {
 				recordEvent( 'jetpack_myjetpack_product_interstitial_back_link_click', { product: slug } );
 			}
