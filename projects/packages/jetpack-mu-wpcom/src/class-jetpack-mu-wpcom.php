@@ -41,6 +41,7 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_block_theme_previews' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_command_palette' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_color_schema' ) );
 
 		// This feature runs only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -261,5 +262,27 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_wpcom_command_palette() {
 		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
+	}
+
+	/**
+	 * Load WPCOM Color Schema for nav redesign.
+	 *
+	 * @return void
+	 */
+	public static function load_wpcom_color_schema() {
+		if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
+			return;
+		}
+
+		$core_color_schemes = array( 'blue', 'coffee', 'ectoplasm', 'fresh', 'light', 'midnight', 'modern', 'ocean', 'sunrise' );
+		$color_scheme       = get_user_option( 'admin_color' );
+		if ( in_array( $color_scheme, $core_color_schemes, true ) ) {
+			wp_enqueue_style(
+				'jetpack-core-color-schemes-overrides',
+				plugins_url( '_inc/build/masterbar/admin-color-schemes/colors/' . $color_scheme . '/colors.css', JETPACK__PLUGIN_FILE ),
+				array(),
+				JETPACK__VERSION
+			);
+		}
 	}
 }
