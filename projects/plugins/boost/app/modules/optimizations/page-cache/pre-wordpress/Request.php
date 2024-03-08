@@ -121,9 +121,10 @@ class Request {
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param string $request_uri The request URI to be evaluated for cacheability.
+		 * @param bool $default_status The default cacheability status (true for cacheable).
+		 * @param string $request_uri  The request URI to be evaluated for cacheability.
 		 */
-		if ( ! apply_filters( 'jetpack_boost_cache_request_cacheable', $this->request_uri ) ) {
+		if ( ! apply_filters( 'jetpack_boost_cache_request_cacheable', true, $this->request_uri ) ) {
 			return false;
 		}
 
