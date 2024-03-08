@@ -7,8 +7,8 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import ProductInterstitial from '../';
+import useProduct from '../../../data/products/use-product';
 import { useGoBack } from '../../../hooks/use-go-back';
-import { useProduct } from '../../../hooks/use-product';
 import jetpackAiImage from '../jetpack-ai.png';
 import { JetpackAIInterstitialMoreRequests } from './more-requests';
 import styles from './style.module.scss';
@@ -25,15 +25,16 @@ export default function JetpackAiInterstitial() {
 	const { onClickGoBack } = useGoBack( { slug } );
 	const { isRegistered } = useConnection();
 	debug( detail );
-	const nextTier = detail?.[ 'ai-assistant-feature' ]?.[ 'next-tier' ] || null;
+	const nextTier = detail?.aiAssistantFeature?.nextTier || null;
 
-	if ( isRegistered && ! nextTier ) {
+	const { hasRequiredPlan } = detail;
+
+	// The user has a plan and there is not a next tier
+	if ( isRegistered && hasRequiredPlan && ! nextTier ) {
 		debug( 'user is on top tier' );
 		// TODO: handle this on the pricing table and the product page
 		return <JetpackAIInterstitialMoreRequests onClickGoBack={ onClickGoBack } />;
 	}
-
-	const { hasRequiredPlan } = detail;
 
 	// Default to 100 requests if the site is not registered/connected.
 	const nextTierValue = isRegistered ? nextTier?.value : 100;

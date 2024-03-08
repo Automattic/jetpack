@@ -30,6 +30,22 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	const POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS = 'paid_subscribers_all_tiers';
 
 	/**
+	 * An optional user_id to query against (omitting this will use either the token or current user id)
+	 *
+	 * @var int|null
+	 */
+	protected $user_id = null;
+
+	/**
+	 * Constructor
+	 *
+	 * @param int|null $user_id An optional user_id to query subscriptions against. Uses token from request/cookie or logged-in user information if omitted.
+	 */
+	public function __construct( $user_id = null ) {
+		$this->user_id = $user_id;
+	}
+
+	/**
 	 * Initialize the token subscription service.
 	 *
 	 * @inheritDoc
@@ -451,16 +467,22 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	/**
 	 * Clear the auth cookie.
 	 *
+	 * @param string $cookie_domain Domain to remove cookie from.
+	 *
 	 * @return void
 	 */
-	public static function clear_token_cookie() {
+	public static function clear_token_cookie( $cookie_domain = '' ) {
 		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
 			return;
 		}
 
 		if ( self::has_token_from_cookie() ) {
 			unset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
-			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', time() - DAY_IN_SECONDS, '/', COOKIE_DOMAIN, is_ssl(), true );
+			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', 1, '/', COOKIE_DOMAIN, is_ssl(), true );
+
+			if ( ! empty( $cookie_domain ) ) {
+				setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', 1, '/', $cookie_domain, is_ssl(), true );
+			}
 		}
 	}
 
