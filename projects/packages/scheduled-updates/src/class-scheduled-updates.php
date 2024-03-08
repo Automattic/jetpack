@@ -62,23 +62,22 @@ class Scheduled_Updates {
 	 */
 	public static function run_scheduled_update( ...$plugins ) {
 		$available_updates = get_site_transient( 'update_plugins' );
-		$plugins_to_update = array();
-
-		foreach ( $plugins as $plugin ) {
-			if ( isset( $available_updates->response[ $plugin ] ) ) {
-				$plugins_to_update[ $plugin ]              = $available_updates->response[ $plugin ];
-				$plugins_to_update[ $plugin ]->old_version = $available_updates->checked[ $plugin ];
+		$plugins           = array_filter(
+			$plugins,
+			function ( $plugin ) use ( $available_updates ) {
+				return isset( $available_updates->response[ $plugin ] );
 			}
-		}
+		);
 
-		if ( ! empty( $plugins_to_update ) ) {
-			( new Connection\Client() )->wpcom_json_api_request_as_user(
-				sprintf( '/sites/%d/hosting/scheduled-update', \Jetpack_Options::get_option( 'id' ) ),
-				'2',
-				array( 'method' => 'POST' ),
-				array( 'plugins' => $plugins_to_update )
-			);
-		}
+		$body = empty( $plugins ) ? null : array( 'plugins' => $plugins );
+
+		( new Connection\Client() )->wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%d/hosting/scheduled-update', \Jetpack_Options::get_option( 'id' ) ),
+			'2',
+			array( 'method' => 'POST' ),
+			$body,
+			'wpcom'
+		);
 	}
 
 	/**

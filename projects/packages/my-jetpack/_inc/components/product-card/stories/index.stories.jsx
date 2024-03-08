@@ -1,13 +1,10 @@
 /* eslint-disable react/react-in-jsx-scope */
 import { arrowUp } from '@wordpress/icons';
 import React from 'react';
-import { initStore } from '../../../state/store';
 import ProductCard, { PRODUCT_STATUSES } from '../index.jsx';
 
 // Set myJetpackRest global var.
 window.myJetpackRest = {};
-
-initStore();
 
 export default {
 	title: 'Packages/My Jetpack/Product Card',

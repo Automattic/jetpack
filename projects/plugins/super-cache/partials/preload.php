@@ -1,5 +1,7 @@
 <div class="wpsc-settings-inner">
 <?php
+global $wp_cache_preload_posts;
+
 echo '<a name="preload"></a>';
 if ( ! $cache_enabled || ! $super_cache_enabled || true === defined( 'DISABLESUPERCACHEPRELOADING' ) ) {
 	echo '<div class="notice notice-warning"><p>' . __( 'Preloading of cache disabled. Please make sure simple or expert mode is enabled or talk to your host administrator.', 'wp-super-cache' ) . '</p></div>';
@@ -37,12 +39,21 @@ if ( $count > 100 ) {
 	}
 	$select .= "{$checked}>" . __( 'all', 'wp-super-cache' ) . "</option>";
 
+	$options = array();
 	for( $c = $step; $c < $count; $c += $step ) {
 		$checked = ' ';
 		if ( $best == $c )
 			$checked = 'selected=1 ';
-		$select .= "<option value='$c'{$checked}>$c</option>";
+
+		$options[ $c ] = "<option value='$c'{$checked}>$c</option>";
 	}
+
+	if ( ! isset( $options[ $wp_cache_preload_posts ] ) ) {
+		$options[ $wp_cache_preload_posts ] = "<option value='$wp_cache_preload_posts' selected=1>$wp_cache_preload_posts</option>";
+	}
+	ksort( $options );
+	$select .= implode( "\n", $options );
+
 	$checked = ' ';
 	if ( $best == $count )
 		$checked = 'selected=1 ';
