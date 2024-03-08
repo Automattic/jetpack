@@ -301,6 +301,8 @@ class REST_Connector {
 	/**
 	 * Register the site so that a plan can be provisioned.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param WP_REST_Request $request The request object.
 	 *
 	 * @return WP_Error|array
