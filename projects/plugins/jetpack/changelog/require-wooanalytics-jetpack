@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+WooCommerce Anlytics: require package instead of using the classes that ship with the Jetpack plugin.
