@@ -187,7 +187,7 @@ class Test_Actions extends BaseTestCase {
 						'status_code' => 200,
 						'body'        => wp_json_encode(
 							array(
-								'dummy',
+								'processed_items' => array( 'dummy' ),
 							)
 						),
 					);

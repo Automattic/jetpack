@@ -1177,7 +1177,7 @@ class Actions {
 				return new WP_Error( $response_code, 'Sync REST API request failed', $response_body );
 			}
 		} else {
-			return $decoded_response;
+			return $decoded_response['processed_items'];
 		}
 	}
 }
