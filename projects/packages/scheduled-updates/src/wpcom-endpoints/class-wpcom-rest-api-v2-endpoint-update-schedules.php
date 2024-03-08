@@ -117,6 +117,18 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 				'schema' => array( $this, 'get_public_item_schema' ),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<schedule_id>[\w]+)/last-status',
+			array(
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'update_last_status' ),
+					'permission_callback' => array( $this, 'update_last_status_permissions_check' ),
+				),
+			)
+		);
 	}
 
 	/**
@@ -140,6 +152,14 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public function get_items( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$events        = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+		$last_statuses = get_option( 'jetpack_scheduled_update_last_statuses', array() );
+		$output        = array();
+
+		foreach ( array_keys( $events ) as $schedule_id ) {
+			$output[ $schedule_id ] = $this->get_scheduled_event_with_status( $schedule_id, $events, $last_statuses );
+		}
+
 		return rest_ensure_response( wp_get_scheduled_events( 'jetpack_scheduled_update' ) );
 	}
 
@@ -221,7 +241,15 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
 		}
 
-		return rest_ensure_response( $events[ $request['schedule_id'] ] );
+		$last_statuses = get_option( 'jetpack_scheduled_update_last_statuses', array() );
+
+		if ( is_array( $last_statuses ) && ! empty( $last_statuses[ $request['schedule_id'] ] ) ) {
+			$last_status = $last_statuses[ $request['schedule_id'] ];
+			$events[ $request['schedule_id'] ]->last_run_timestamp = $last_status['last_run_timestamp'];
+			$events[ $request['schedule_id'] ]->last_run_status    = $last_status['last_run_status'];
+		}
+
+		return rest_ensure_response( $this->get_scheduled_event_with_status( $request['schedule_id'], $events, $last_statuses ) );
 	}
 
 	/**
@@ -260,6 +288,56 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		}
 
 		return $this->create_item( $request );
+	}
+
+	/**
+	 * Permission check for updating last status.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return bool|WP_Error
+	 */
+	public function update_last_status_permissions_check( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return $this->update_item_permissions_check( $request );
+	}
+
+	/**
+	 * Updates last status of an existing update schedule.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error The updated event or a WP_Error if the schedule could not be found.
+	 */
+	public function update_last_status( $request ) {
+		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+
+		if ( ! isset( $events[ $request['schedule_id'] ] ) ) {
+			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
+		}
+
+		$last_statuses = get_option( 'jetpack_scheduled_update_last_statuses', array() );
+		$option        = array();
+
+		if ( ! is_array( $last_statuses ) ) {
+			$last_statuses = array();
+		}
+
+		// Reset the last statuses for the schedule.
+		foreach ( array_keys( $events ) as $schedule_id ) {
+			if ( ! empty( $last_statuses[ $schedule_id ] ) ) {
+				$option[ $schedule_id ] = $last_statuses[ $schedule_id ];
+			} else {
+				$option[ $schedule_id ] = null;
+			}
+		}
+
+		// Update the last status for the schedule.
+		$option[ $request['schedule_id'] ] = array(
+			'last_run_timestamp' => $request['timestamp'],
+			'last_run_status'    => $request['status'],
+		);
+
+		update_option( 'jetpack_scheduled_update_last_statuses', $option );
+
+		return rest_ensure_response( $option[ $request['schedule_id'] ] );
 	}
 
 	/**
@@ -465,6 +543,25 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	}
 
 	/**
+	 * Retrieves a schedule event with its last status.
+	 *
+	 * @param string $schedule_id    Schedule ID.
+	 * @param array  $events        List of scheduled events.
+	 * @param array  $last_statuses List of last statuses.
+	 * @return object The scheduled event with its last status.
+	 */
+	public function get_scheduled_event_with_status( $schedule_id, $events, $last_statuses ) {
+		$event = $events[ $schedule_id ];
+
+		if ( is_array( $last_statuses ) && ! empty( $last_statuses[ $schedule_id ] ) ) {
+			$event->last_run_timestamp = $last_statuses[ $schedule_id ]['last_run_timestamp'];
+			$event->last_run_status    = $last_statuses[ $schedule_id ]['last_run_status'];
+		}
+
+		return $event;
+	}
+
+	/**
 	 * Retrieves the update schedule's schema, conforming to JSON Schema.
 	 *
 	 * @return array Item schema data.
@@ -479,28 +576,37 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			'title'      => 'update-schedule',
 			'type'       => 'object',
 			'properties' => array(
-				'hook'      => array(
+				'hook'               => array(
 					'description' => 'The hook name.',
 					'type'        => 'string',
 					'readonly'    => true,
 				),
-				'timestamp' => array(
+				'timestamp'          => array(
 					'description' => 'Unix timestamp (UTC) for when to next run the event.',
 					'type'        => 'integer',
 					'readonly'    => true,
 				),
-				'schedule'  => array(
+				'schedule'           => array(
 					'description' => 'How often the event should subsequently recur.',
 					'type'        => 'string',
 					'enum'        => array( 'daily', 'weekly' ),
 				),
-				'args'      => array(
+				'args'               => array(
 					'description' => 'The plugins to be updated on this schedule.',
 					'type'        => 'array',
 				),
-				'interval'  => array(
+				'interval'           => array(
 					'description' => 'The interval time in seconds for the schedule.',
 					'type'        => 'integer',
+				),
+				'last_run_timestamp' => array(
+					'description' => 'Unix timestamp (UTC) for when the last run occurred.',
+					'type'        => 'integer',
+				),
+				'last_run_status'    => array(
+					'description' => 'Status of last run.',
+					'type'        => 'string',
+					'enum'        => array( 'success', 'failure-and-rollback', 'failure-and-rollback-fail' ),
 				),
 			),
 		);
