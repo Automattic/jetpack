@@ -116,18 +116,22 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertEquals(
 			array(
 				Scheduled_Updates::generate_schedule_id( array( 'hello-dolly/hello-dolly.php' ) ) => (object) array(
-					'hook'      => 'jetpack_scheduled_update',
-					'args'      => array( 'hello-dolly/hello-dolly.php' ),
-					'timestamp' => strtotime( 'next Tuesday 9:00' ),
-					'schedule'  => 'daily',
-					'interval'  => DAY_IN_SECONDS,
+					'hook'               => 'jetpack_scheduled_update',
+					'args'               => array( 'hello-dolly/hello-dolly.php' ),
+					'timestamp'          => strtotime( 'next Tuesday 9:00' ),
+					'schedule'           => 'daily',
+					'interval'           => DAY_IN_SECONDS,
+					'last_run_timestamp' => null,
+					'last_run_status'    => null,
 				),
 				Scheduled_Updates::generate_schedule_id( $plugins ) => (object) array(
-					'hook'      => 'jetpack_scheduled_update',
-					'args'      => $plugins,
-					'timestamp' => strtotime( 'next Monday 8:00' ),
-					'schedule'  => 'weekly',
-					'interval'  => WEEK_IN_SECONDS,
+					'hook'               => 'jetpack_scheduled_update',
+					'args'               => $plugins,
+					'timestamp'          => strtotime( 'next Monday 8:00' ),
+					'schedule'           => 'weekly',
+					'interval'           => WEEK_IN_SECONDS,
+					'last_run_timestamp' => null,
+					'last_run_status'    => null,
 				),
 			),
 			$result->get_data()
@@ -362,11 +366,13 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertEquals(
 			(object) array(
-				'hook'      => 'jetpack_scheduled_update',
-				'args'      => $plugins,
-				'timestamp' => strtotime( 'next Monday 8:00' ),
-				'schedule'  => 'weekly',
-				'interval'  => WEEK_IN_SECONDS,
+				'hook'               => 'jetpack_scheduled_update',
+				'args'               => $plugins,
+				'timestamp'          => strtotime( 'next Monday 8:00' ),
+				'schedule'           => 'weekly',
+				'interval'           => WEEK_IN_SECONDS,
+				'last_run_timestamp' => null,
+				'last_run_status'    => null,
 			),
 			$result->get_data()
 		);
