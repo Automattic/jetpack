@@ -2,10 +2,7 @@
 .jetpack-sso-admin-create-user-invite-message {
 	width: 550px;
 }
-/* Hide the checkbox to send WP core invitation emails when SSO is on */
-#createuser .form-table tr:has( #send_user_notification )  {
-	display: none;
-}
+
 .jetpack-sso-admin-create-user-invite-message-link-sso {
     text-decoration: none;
 }

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Avoid issues when the dns_get_record function is not defined

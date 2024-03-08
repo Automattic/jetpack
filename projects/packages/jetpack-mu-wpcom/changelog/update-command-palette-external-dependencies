@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+External dependencies of the Command Palette are now explicitly declared.

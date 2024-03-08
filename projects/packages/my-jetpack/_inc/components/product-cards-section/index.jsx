@@ -1,5 +1,6 @@
 import { Container, Col } from '@automattic/jetpack-components';
 import React from 'react';
+import getMyJetpackWindowState from '../../data/utils/get-my-jetpack-window-state';
 import AiCard from './ai-card';
 import AntiSpamCard from './anti-spam-card';
 import BackupCard from './backup-card';
@@ -18,6 +19,8 @@ import VideopressCard from './videopress-card';
  * @returns {object} ProductCardsSection React component.
  */
 const ProductCardsSection = () => {
+	const { isAtomic = false, userIsAdmin = false } = getMyJetpackWindowState();
+
 	const items = {
 		backups: BackupCard,
 		protect: ProtectCard,
@@ -27,7 +30,7 @@ const ProductCardsSection = () => {
 		videopress: VideopressCard,
 		// Stats card is shown in the <StatsSection/> component.
 		crm: CrmCard,
-		creator: CreatorCard,
+		creator: ! isAtomic ? CreatorCard : null,
 		social: SocialCard,
 		ai: AiCard,
 	};
@@ -47,7 +50,7 @@ const ProductCardsSection = () => {
 
 				return (
 					<Col tagName="li" sm={ 4 } md={ 4 } lg={ 4 } key={ key }>
-						<Item admin={ !! window?.myJetpackInitialState?.userIsAdmin } />
+						<Item admin={ !! userIsAdmin } />
 					</Col>
 				);
 			} ) }

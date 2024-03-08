@@ -678,17 +678,17 @@ class REST_Controller {
 
 		if ( method_exists( OrdersTableDataStore::class, 'get_addresses_table_name' ) ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
-			$order_addresses = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM `' . OrdersTableDataStore::get_addresses_table_name() . '` WHERE order_id = %s', $order_id ) );
+			$order_addresses = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM `' . OrdersTableDataStore::get_addresses_table_name() . '` WHERE order_id = %s', $order_id ) );
 		}
 
 		if ( method_exists( OrdersTableDataStore::class, 'get_operational_data_table_name' ) ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
-			$order_operational_data = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM `' . OrdersTableDataStore::get_operational_data_table_name() . '` WHERE order_id = %s', $order_id ) );
+			$order_operational_data = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM `' . OrdersTableDataStore::get_operational_data_table_name() . '` WHERE order_id = %s', $order_id ) );
 		}
 
 		if ( method_exists( OrdersTableDataStore::class, 'get_meta_table_name' ) ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
-			$order_meta = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM `' . OrdersTableDataStore::get_meta_table_name() . '` WHERE order_id = %s', $order_id ) );
+			$order_meta = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM `' . OrdersTableDataStore::get_meta_table_name() . '` WHERE order_id = %s', $order_id ) );
 		}
 
 		return array(
