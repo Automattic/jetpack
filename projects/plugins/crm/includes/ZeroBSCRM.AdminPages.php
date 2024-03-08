@@ -1716,7 +1716,6 @@ function zeroBSCRM_html_datatools() {
 					?>
 					<p><?php esc_html_e( 'You do not have any pro data tool extensions installed.', 'zero-bs-crm' ); ?></p>
 					<?php
-					##/WLREMOVE
 					if ( ! zeroBSCRM_isExtensionInstalled( 'csvpro' ) ) {
 						?>
 						<p><a class="ui button black primary" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['csvlite'] ) ); ?>"><?php esc_html_e( 'CSV Importer Lite', 'zero-bs-crm' ); ?></a></p>
