@@ -1,10 +1,12 @@
 type MyJetpackState = Window[ 'myJetpackInitialState' ];
 
-type ReturnType< A extends keyof MyJetpackState > = A extends null
+type ReturnType< A > = A extends undefined
 	? MyJetpackState
-	: MyJetpackState[ A ];
+	: MyJetpackState[ A extends keyof MyJetpackState ? A : never ];
 
-const getMyJetpackWindowState = < A extends keyof MyJetpackState >( key?: A ): ReturnType< A > => {
+const getMyJetpackWindowState = < A extends keyof MyJetpackState | undefined = undefined >(
+	key?: A
+): ReturnType< A > => {
 	if ( ! key ) {
 		return window?.myJetpackInitialState as ReturnType< A >;
 	}
