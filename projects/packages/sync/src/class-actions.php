@@ -1160,10 +1160,10 @@ class Actions {
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
+		$decoded_response = json_decode( $response_body, true );
 
-		if ( $response_code !== 200 ) {
-			$decoded_response = json_decode( $response_body, true ); // Using true for associative array.
-
+		if ( $response_code !== 200 || null === $decoded_response ) {
+			// Using true for associative array.
 			if ( is_array( $decoded_response ) && isset( $decoded_response['code'] ) && isset( $decoded_response['message'] ) ) {
 				return new WP_Error(
 					$decoded_response['code'],
@@ -1174,7 +1174,7 @@ class Actions {
 				return new WP_Error( $response_code, 'Sync REST API request failed', $response_body );
 			}
 		} else {
-			return json_decode( $response_body, ARRAY_N ); // Decode successful response.
+			return $decoded_response;
 		}
 	}
 }
