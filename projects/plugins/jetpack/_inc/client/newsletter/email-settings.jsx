@@ -26,18 +26,24 @@ const EmailSetting = props => {
 		unavailableInOfflineMode,
 		isFeaturedImageInEmailEnabled,
 		subscriptionEmailsUseExcerpt,
-		updateFormStateOptionValue,
+		updateFormStateAndSaveOptionValue,
 	} = props;
 
 	const handleEnableFeaturedImageInEmailToggleChange = useCallback( () => {
-		updateFormStateOptionValue( FEATURED_IMAGE_IN_EMAIL_OPTION, ! isFeaturedImageInEmailEnabled );
-	}, [ isFeaturedImageInEmailEnabled, updateFormStateOptionValue ] );
+		updateFormStateAndSaveOptionValue(
+			FEATURED_IMAGE_IN_EMAIL_OPTION,
+			! isFeaturedImageInEmailEnabled
+		);
+	}, [ isFeaturedImageInEmailEnabled, updateFormStateAndSaveOptionValue ] );
 
 	const handleSubscriptionEmailsUseExcerptChange = useCallback(
 		value => {
-			updateFormStateOptionValue( SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION, value === EXCERPT_VALUE );
+			updateFormStateAndSaveOptionValue(
+				SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION,
+				value === EXCERPT_VALUE
+			);
 		},
-		[ updateFormStateOptionValue ]
+		[ updateFormStateAndSaveOptionValue ]
 	);
 
 	const disabled = unavailableInOfflineMode || isSavingAnyOption( [ SUBSCRIPTIONS_MODULE_NAME ] );
