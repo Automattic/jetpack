@@ -65,7 +65,7 @@ class WPCOM_REST_API_V2_Endpoint_Site_Migration_Migrate_Guru_Key extends WP_REST
 			return false;
 		}
 
-		if ( ! is_plugin_active( 'migrate-guru' ) ) {
+		if ( ! is_plugin_active( 'migrate-guru/migrateguru.php' ) ) {
 			return false;
 		}
 
