@@ -15,6 +15,7 @@ import { useEffect } from '@wordpress/element';
 import { _n, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { isEqual } from 'lodash';
+import { getActiveStyleName } from '../../shared/block-styles';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { isNewsletterFeatureEnabled } from '../../shared/memberships/edit';
 import GetAddPaidPlanButton from '../../shared/memberships/utils';
@@ -27,6 +28,7 @@ import {
 	DEFAULT_PADDING_VALUE,
 	DEFAULT_SPACING_VALUE,
 	DEFAULT_FONTSIZE_VALUE,
+	BUTTON_STYLE_NAME,
 } from './constants';
 import SubscriptionControls from './controls';
 import { SubscriptionsPlaceholder } from './subscription-placeholder';
@@ -91,6 +93,8 @@ export function SubscriptionEdit( props ) {
 		buttonOnNewLine,
 		successMessage,
 	} = validatedAttributes;
+
+	const activeStyleName = getActiveStyleName( metadata.styles, validatedAttributes.className );
 
 	const { subscriberCount, subscriberCountString } = useSelect( select => {
 		if ( ! isModuleActive ) {
@@ -197,11 +201,16 @@ export function SubscriptionEdit( props ) {
 		...( ! buttonBackgroundColor.color && buttonGradient.gradientValue
 			? { background: buttonGradient.gradientValue }
 			: { backgroundColor: buttonBackgroundColor.color } ),
-		...( buttonOnNewLine
-			? { marginTop: getSpacingStyleValue( spacing ) + 'px' }
-			: { marginLeft: getSpacingStyleValue( spacing ) + 'px' } ),
 		width: buttonWidth,
 	};
+
+	if ( activeStyleName !== BUTTON_STYLE_NAME ) {
+		if ( buttonOnNewLine ) {
+			buttonStyles.marginTop = getSpacingStyleValue( spacing ) + 'px';
+		} else {
+			buttonStyles.marginLeft = getSpacingStyleValue( spacing ) + 'px';
+		}
+	}
 
 	const getBlockClassName = () => {
 		return classnames(
@@ -291,15 +300,17 @@ export function SubscriptionEdit( props ) {
 				<div className="wp-block-jetpack-subscriptions__container is-not-subscriber">
 					<div className="wp-block-jetpack-subscriptions__form" role="form">
 						<div className="wp-block-jetpack-subscriptions__form-elements">
-							<TextControl
-								placeholder={ subscribePlaceholder }
-								disabled={ true }
-								className={ classnames(
-									emailFieldClasses,
-									'wp-block-jetpack-subscriptions__textfield'
-								) }
-								style={ emailFieldStyles }
-							/>
+							{ activeStyleName !== BUTTON_STYLE_NAME && (
+								<TextControl
+									placeholder={ subscribePlaceholder }
+									disabled={ true }
+									className={ classnames(
+										emailFieldClasses,
+										'wp-block-jetpack-subscriptions__textfield'
+									) }
+									style={ emailFieldStyles }
+								/>
+							) }
 							<RichText
 								className={ classnames(
 									buttonClasses,

@@ -428,12 +428,16 @@ function get_element_styles_from_attributes( $attributes ) {
 	$submit_button_styles .= $style;
 	$email_field_styles   .= $style;
 
-	$button_spacing = get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE );
-	if ( true === get_attribute( $attributes, 'buttonOnNewLine' ) ) {
-		$submit_button_styles .= sprintf( 'margin-top: %dpx;', $button_spacing );
-	} else {
-		$submit_button_styles .= 'margin: 0px; '; // Reset Safari's 2px default margin for buttons affecting input and button union
-		$submit_button_styles .= sprintf( 'margin-left: %dpx;', $button_spacing );
+	$is_button_only_style = get_attribute( $attributes, 'className' ) === BUTTON_ONLY_CLASS_NAME;
+
+	if ( ! $is_button_only_style ) {
+		$button_spacing = get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE );
+		if ( true === get_attribute( $attributes, 'buttonOnNewLine' ) ) {
+			$submit_button_styles .= sprintf( 'margin-top: %dpx;', $button_spacing );
+		} else {
+			$submit_button_styles .= 'margin: 0px; '; // Reset Safari's 2px default margin for buttons affecting input and button union
+			$submit_button_styles .= sprintf( 'margin-left: %dpx;', $button_spacing );
+		}
 	}
 
 	if ( has_attribute( $attributes, 'borderColor' ) ) {
@@ -610,6 +614,7 @@ function render_block( $attributes ) {
 		),
 		'source'                        => 'subscribe-block',
 		'app_source'                    => get_attribute( $attributes, 'appSource', null ),
+		'class_name'                    => get_attribute( $attributes, 'className' ),
 	);
 
 	if ( ! jetpack_is_frontend() ) {
@@ -631,6 +636,25 @@ function get_post_access_level_for_current_post() {
 	}
 
 	return Jetpack_Memberships::get_post_access_level();
+}
+
+/**
+ * Get the subscription form action.
+ *
+ * @param array $data Array containing block view data.
+ *
+ * @return string
+ */
+function get_subscription_form_action( $data ) {
+	if ( is_top_subscription() ) {
+		return 'subscribed';
+	}
+
+	if ( $data['class_name'] === BUTTON_ONLY_CLASS_NAME && empty( $data['subscribe_email'] ) ) {
+		return 'get_email';
+	}
+
+	return 'subscribe';
 }
 
 /**
@@ -660,10 +684,11 @@ function render_for_website( $data, $classes, $styles ) {
 		$post_id = get_option( 'page_on_front' );
 	}
 
-	$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field' . $widget_id_suffix, $data['widget_id'] );
-	$tier_id            = get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true );
-	$is_subscribed      = Jetpack_Memberships::is_current_user_subscribed();
-	$button_text        = get_submit_button_text( $data );
+	$subscribe_field_id   = apply_filters( 'subscribe_field_id', 'subscribe-field' . $widget_id_suffix, $data['widget_id'] );
+	$tier_id              = get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true );
+	$is_subscribed        = Jetpack_Memberships::is_current_user_subscribed();
+	$is_button_only_style = $data['class_name'] === BUTTON_ONLY_CLASS_NAME;
+	$button_text          = get_submit_button_text( $data );
 
 	ob_start();
 
@@ -685,7 +710,7 @@ function render_for_website( $data, $classes, $styles ) {
 				id="<?php echo esc_attr( $form_id ); ?>"
 			>
 				<div class="wp-block-jetpack-subscriptions__form-elements">
-					<?php if ( ! $is_subscribed ) : ?>
+					<?php if ( ! $is_subscribed && ! $is_button_only_style ) : ?>
 					<p id="subscribe-email">
 						<label
 							id="<?php echo esc_attr( $subscribe_field_id . '-label' ); ?>"
@@ -731,7 +756,7 @@ function render_for_website( $data, $classes, $styles ) {
 							style="<?php echo esc_attr( $styles['submit_button_wrapper'] ); ?>"
 						<?php endif; ?>
 					>
-						<input type="hidden" name="action" value="<?php echo is_top_subscription() ? 'subscribed' : 'subscribe'; ?>"/>
+						<input type="hidden" name="action" value="<?php echo esc_attr( get_subscription_form_action( $data ) ); ?>"/>
 						<input type="hidden" name="blog_id" value="<?php echo (int) $blog_id; ?>"/>
 						<input type="hidden" name="source" value="<?php echo esc_url( $data['referer'] ); ?>"/>
 						<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
@@ -747,6 +772,10 @@ function render_for_website( $data, $classes, $styles ) {
 
 						if ( ! empty( $tier_id ) ) {
 							echo '<input type="hidden" name="tier_id" value="' . esc_attr( $tier_id ) . '"/>';
+						}
+
+						if ( $is_button_only_style && ! empty( $data['subscribe_email'] ) ) {
+							echo '<input type="hidden" name="email" value="' . esc_attr( $data['subscribe_email'] ) . '"/>';
 						}
 						?>
 						<button type="submit"

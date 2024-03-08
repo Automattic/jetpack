@@ -13,3 +13,4 @@ const NEWSLETTER_COLUMN_ID                     = 'newsletter_access';
 const META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS = '_jetpack_newsletter_access';
 const META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS    = '_jetpack_dont_email_post_to_subs';
 const META_NAME_FOR_POST_TIER_ID_SETTINGS      = '_jetpack_newsletter_tier_id';
+const BUTTON_ONLY_CLASS_NAME                   = 'is-style-button';
