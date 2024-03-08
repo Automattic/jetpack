@@ -65,26 +65,27 @@ Usage:
 add_filter( 'jetpack_boost_cache_bypass_patterns', function( $patterns ) {
     array_walk( $patterns, function( &$item ) {
         $item = strtolower( $item );
-    };
+    } );
+
     return $patterns;
-}
+} );
 ```
 
 ### Override if the current request is cacheable
 
 Filter hook: `jetpack_boost_cache_request_cacheable`
 
-Parameter: URL
+Parameters: cacheable, URL
 
 Usage:
 ```php
-add_filter( 'jetpack_boost_cache_request_cacheable', function( $url )
-    if ( is_bool( $url ) ) {
-        return $url;
+add_filter( 'jetpack_boost_cache_request_cacheable', function( $cacheable, $url ) {
+    if ( stripos( $url, 'shop' ) !== false ) {
+        $cacheable = false;
     }
-    // some custom code that sets $cacheable to true or false
+
     return $cacheable;
-);
+}, 10, 2 );
 ```
 
 ### Modify the list of content types the plugin should not cache
@@ -98,7 +99,8 @@ Usage:
 add_filter( 'jetpack_boost_cache_accept_headers', function( $accept_headers ) {
     array_walk( $accept_headers, function( &$item ) {
         $item = strtolower( $item );
-    };
+    } );
+
     return $accept_headers;
-}
+} );
 ```
