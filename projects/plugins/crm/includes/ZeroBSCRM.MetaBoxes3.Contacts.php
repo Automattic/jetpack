@@ -330,7 +330,7 @@
 
                 // owner - saved here now, rather than ownership box, to allow for pre-hook update. (as tags)
                 $owner = -1;
-			//Only allow an existing contact to change owners if they have permission to do so.
+			// Only allow an existing contact to change owners if they have permission to do so.
 			if ( $contact_id > -1 ) {
 
 				$can_edit_all_contacts = current_user_can( 'admin_zerobs_customers' ) && (int) $zbs->settings->get( 'perusercustomers' ) === 0; // phpcs:ignore WordPress.WP.Capabilities.Unknown  -- this was defined in ZeroBSCRM.Permissions.php
