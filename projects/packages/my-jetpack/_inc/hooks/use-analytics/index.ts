@@ -4,7 +4,7 @@ import useMyJetpackConnection from '../use-my-jetpack-connection';
 
 type TracksRecordEvent = (
 	event: `jetpack_${ string }`, // Enforces the event name to start with "jetpack_"
-	properties: Record< string, unknown >
+	properties?: Record< string, unknown >
 ) => void;
 
 const useAnalytics = () => {
