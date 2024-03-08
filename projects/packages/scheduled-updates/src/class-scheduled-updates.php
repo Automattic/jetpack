@@ -70,7 +70,7 @@ class Scheduled_Updates {
 		}
 
 		// Save the last run schedule ID.
-		set_transient( 'jetpack_scheduled_update_last_run', self::generate_schedule_id( $plugins ) );
+		set_site_transient( 'jetpack_scheduled_update_last_run', self::generate_schedule_id( $plugins ) );
 
 		( new Connection\Client() )->wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/hosting/scheduled-update', \Jetpack_Options::get_option( 'id' ) ),
