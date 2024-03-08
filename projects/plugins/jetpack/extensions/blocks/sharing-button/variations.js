@@ -1,6 +1,5 @@
 import { __ } from '@wordpress/i18n';
 import SocialIcon from 'social-logos';
-import SMSIcon from './components/sms-icon';
 
 export const variations = [
 	{
@@ -96,7 +95,7 @@ export const variations = [
 		/* translators: sms sharing button label*/
 		attributes: { service: 'sms', label: __( 'SMS', 'jetpack' ) },
 		title: 'SMS',
-		icon: <SMSIcon />,
+		icon: <SocialIcon icon={ 'sms' } />,
 	},
 ];
 
