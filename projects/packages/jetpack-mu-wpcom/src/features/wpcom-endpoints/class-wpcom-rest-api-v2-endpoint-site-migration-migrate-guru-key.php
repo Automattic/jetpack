@@ -11,7 +11,7 @@
  *
  * @hide-in-jetpack
  */
-class WPCOM_REST_API_V2_Endpoint_Site_Migration {
+class WPCOM_REST_API_V2_Endpoint_Site_Migration_Migrate_Guru_Key extends WP_REST_Controller {
 	/**
 	 * Option name that tracks wether the key has been read or not.
 	 * The only possible value for the option is 'read'.
