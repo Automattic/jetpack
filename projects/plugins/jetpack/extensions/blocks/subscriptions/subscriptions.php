@@ -1118,7 +1118,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		$sign_in         = <<<HTML
 <!-- wp:group {"style":{"typography":{"fontSize":"14px"}},"layout":{"type":"flex","justifyContent":"center"}} -->
 <div class="wp-block-group" style="font-size:14px">
-	<!-- wp:jetpack/subscriber-login {"logInLabel":"$access_question","align":"center"} /-->
+	<!-- wp:jetpack/subscriber-login {"logInLabel":"$access_question"} /-->
 </div>
 <!-- /wp:group -->
 HTML;
