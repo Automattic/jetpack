@@ -86,6 +86,17 @@ function wpsc_admin_bar_delete_cache_ajax() {
 		if ( defined( 'WPSCDELETEERROR' ) ) {
 			return json_decode( constant( 'WPSCDELETEERROR' ) );
 		} else {
+			$req_path = isset( $_POST['path'] ) ? sanitize_text_field( stripslashes( $_POST['path'] ) ) : '';
+			$referer = wp_get_referer();
+			/**
+			 * Hook into the cache deletion process after a successful cache deletion from the admin bar button.
+			 *
+			 * @since 1.12
+			 *
+			 * @param string $req_path Path of the page where the cache flush was requested.
+			 * @param string $referer  Referer URL.
+			 */
+			do_action( 'wpsc_after_delete_cache_admin_bar', $req_path, $referer );
 			return json_decode( false );
 		}
 	}
