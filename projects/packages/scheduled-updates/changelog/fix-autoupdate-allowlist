@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed a bug where plugin autoupdates were no longer allowlisted after switching away from the jetpack_update_schedules option.
