@@ -97,7 +97,11 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Field {
 			return array();
 		}
 
-		$blog_id         = Jetpack_Connection::get_site_id();
+		$blog_id = Jetpack_Connection::get_site_id();
+		if ( ! is_int( $blog_id ) ) {
+			return array();
+		}
+
 		$videopress_guid = $this->get_videopress_guid( (int) $attachment['id'], $blog_id );
 
 		if ( ! $videopress_guid ) {
