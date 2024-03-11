@@ -115,7 +115,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			return null;
 		}
 		if ( self::is_jetpack() &&
-			/** This filter is documented in modules/contact-form/grunion-contact-form.php */
+			/** This filter is documented in \Automattic\Jetpack\Forms\ContactForm\Contact_Form */
 			false === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
 		) {
 			$subscribe_email = '';
