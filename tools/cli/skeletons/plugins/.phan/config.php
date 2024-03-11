@@ -4,7 +4,7 @@
  * default configuration. Command-line arguments will be applied
  * after this file is read.
  *
- * @package automattic/jetpack-analytics
+ * @package automattic/package-name
  */
 
 // Require base config.
