@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-WP Super Cache: if the preload number of posts is not in the list, then add it
