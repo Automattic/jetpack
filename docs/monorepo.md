@@ -225,6 +225,7 @@ This assumes you have PHP installed via Homebrew, e.g. you've done `brew install
 2. You may need to `brew install pkg-config zlib` to install some necessary dependencies.
 3. Update the list of available extensions: `pecl channel-update pecl.php.net`
 4. Build the extension: `pecl install ast`
+   - If the build process fails due to mkdir errors with the pecl directory, you might try `mkdir -p /opt/homebrew/lib/php/pecl` and running the install again.
 5. You may also need to tell PHP where to find the newly-installed extension.
    1. Run `pecl config-get ext_dir` to find where pecl installs extensions.
    2. Run `php -r 'echo ini_get( "extension_dir" ) . "\n";'` to find where PHP currently expects extensions to live.
