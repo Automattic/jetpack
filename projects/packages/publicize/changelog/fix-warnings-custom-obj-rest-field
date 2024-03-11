@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+REST requests: avoid potential warnings with custom objects.

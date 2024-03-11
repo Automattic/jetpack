@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sharing: avoid PHP warnings when using custom post types.
