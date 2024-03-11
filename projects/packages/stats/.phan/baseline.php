@@ -14,17 +14,21 @@ return [
     // PhanUnextractableAnnotationSuffix : 5 occurrences
     // PhanTypeVoidAssignment : 4 occurrences
     // PhanUndeclaredTypeProperty : 3 occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
+    // PhanPluginDuplicateConditionalNullCoalescing : 2 occurrences
     // PhanTypeMismatchProperty : 2 occurrences
     // PhanUndeclaredConstant : 2 occurrences
     // PhanUndeclaredFunction : 2 occurrences
     // PhanDeprecatedFunction : 1 occurrence
+    // PhanRedundantCondition : 1 occurrence
     // PhanTypeMismatchReturn : 1 occurrence
     // PhanUndeclaredClassInCallable : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
         'src/class-options.php' => ['PhanUnextractableAnnotationSuffix'],
-        'src/class-tracking-pixel.php' => ['PhanUndeclaredFunction', 'PhanUnextractableAnnotationSuffix'],
+        'src/class-tracking-pixel.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanUndeclaredFunction', 'PhanUnextractableAnnotationSuffix'],
         'src/class-wpcom-stats.php' => ['PhanTypeMismatchReturn', 'PhanUndeclaredConstant', 'PhanUnextractableAnnotationSuffix'],
         'tests/php/test-main.php' => ['PhanParamTooMany', 'PhanTypeVoidAssignment', 'PhanUndeclaredTypeProperty'],
         'tests/php/test-options.php' => ['PhanTypeVoidAssignment'],

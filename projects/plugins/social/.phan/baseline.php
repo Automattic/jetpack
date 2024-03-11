@@ -12,14 +12,17 @@ return [
     // PhanUndeclaredProperty : 20+ occurrences
     // PhanTypeMismatchArgument : 4 occurrences
     // PhanUndeclaredTypeParameter : 3 occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
     // PhanMisspelledAnnotation : 2 occurrences
     // PhanUndeclaredClassMethod : 2 occurrences
     // PhanDeprecatedFunction : 1 occurrence
     // PhanNoopNew : 1 occurrence
+    // PhanRedundantCondition : 1 occurrence
     // PhanTypeMismatchReturnProbablyReal : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
         'jetpack-social.php' => ['PhanNoopNew'],
         'src/class-jetpack-social.php' => ['PhanMisspelledAnnotation', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-meta-tags.php' => ['PhanUndeclaredTypeParameter'],

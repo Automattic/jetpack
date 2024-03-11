@@ -8,9 +8,13 @@
  * (can be combined with --load-baseline)
  */
 return [
-    // This baseline has no suppressions
+    // # Issue statistics:
+    // PhanCoalescingNeverNull : 2 occurrences
+    // PhanRedundantCondition : 1 occurrence
+
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

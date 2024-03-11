@@ -10,12 +10,15 @@
 return [
     // # Issue statistics:
     // PhanUndeclaredProperty : 10+ occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
     // PhanUndeclaredTypeReturnType : 2 occurrences
     // PhanDeprecatedFunction : 1 occurrence
+    // PhanRedundantCondition : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
         'src/class-abtest.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredTypeReturnType'],
         'tests/php/test-abtest.php' => ['PhanDeprecatedFunction', 'PhanUndeclaredProperty'],
     ],

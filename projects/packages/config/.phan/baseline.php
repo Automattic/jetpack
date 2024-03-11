@@ -10,11 +10,14 @@
 return [
     // # Issue statistics:
     // PhanUndeclaredClassMethod : 15+ occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
+    // PhanRedundantCondition : 1 occurrence
     // PhanUndeclaredClassReference : 1 occurrence
     // PhanUndeclaredClassStaticProperty : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
         'src/class-config.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredClassStaticProperty'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

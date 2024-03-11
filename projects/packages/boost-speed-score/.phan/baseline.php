@@ -12,12 +12,14 @@ return [
     // PhanTypeExpectedObjectPropAccess : 4 occurrences
     // PhanUndeclaredTypeParameter : 3 occurrences
     // PhanUndeclaredTypeProperty : 3 occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
     // PhanTypeMismatchArgumentNullable : 2 occurrences
     // PhanTypeMismatchProperty : 2 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
     // PhanUndeclaredClassMethod : 2 occurrences
     // PhanRedefineFunction : 1 occurrence
     // PhanRedefinedExtendedClass : 1 occurrence
+    // PhanRedundantCondition : 1 occurrence
     // PhanTypeMismatchPropertyDefault : 1 occurrence
     // PhanTypeMismatchPropertyProbablyReal : 1 occurrence
     // PhanTypeMismatchReturnNullable : 1 occurrence
@@ -25,6 +27,7 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
         'src/class-jetpack-boost-modules.php' => ['PhanTypeMismatchPropertyDefault'],
         'src/class-speed-score-graph-history-request.php' => ['PhanTypeMismatchProperty', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty'],
         'src/class-speed-score-history.php' => ['PhanUndeclaredConstant'],

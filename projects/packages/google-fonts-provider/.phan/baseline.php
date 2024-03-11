@@ -12,12 +12,16 @@ return [
     // PhanUndeclaredClassMethod : 5 occurrences
     // PhanUndeclaredFunction : 4 occurrences
     // PhanTypeVoidArgument : 3 occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
     // PhanTypeMismatchProperty : 2 occurrences
     // PhanUndeclaredTypeProperty : 2 occurrences
+    // PhanPluginMixedKeyNoKey : 1 occurrence
+    // PhanRedundantCondition : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-utils.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
+        'src/class-utils.php' => ['PhanPluginMixedKeyNoKey', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
         'src/introspectors/class-blocks.php' => ['PhanUndeclaredFunction'],
         'src/introspectors/class-global-styles.php' => ['PhanUndeclaredFunction'],
         'tests/php/test-blocks-font-introspector.php' => ['PhanTypeMismatchProperty', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeProperty'],

@@ -9,10 +9,13 @@
  */
 return [
     // # Issue statistics:
+    // PhanCoalescingNeverNull : 2 occurrences
     // PhanParamSignatureRealMismatchHasNoParamType : 1 occurrence
+    // PhanRedundantCondition : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
         'src/class-manager.php' => ['PhanParamSignatureRealMismatchHasNoParamType'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

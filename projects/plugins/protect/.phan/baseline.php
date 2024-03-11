@@ -9,25 +9,30 @@
  */
 return [
     // # Issue statistics:
+    // PhanPluginDuplicateConditionalNullCoalescing : 45+ occurrences
     // PhanTypeArraySuspicious : 8 occurrences
     // PhanParamTooMany : 6 occurrences
     // PhanTypeMismatchArgument : 5 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 5 occurrences
     // PhanUndeclaredTypeParameter : 5 occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
+    // PhanRedundantCondition : 2 occurrences
     // PhanTypeMismatchProperty : 2 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
     // PhanUndeclaredConstant : 2 occurrences
     // PhanNoopNew : 1 occurrence
+    // PhanPluginSimplifyExpressionBool : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
         'jetpack-protect.php' => ['PhanNoopNew'],
-        'src/class-credentials.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/class-credentials.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-plan.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredConstant'],
-        'src/class-protect-status.php' => ['PhanTypeMismatchArgumentProbablyReal'],
+        'src/class-protect-status.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentProbablyReal'],
         'src/class-rest-controller.php' => ['PhanParamTooMany', 'PhanTypeArraySuspicious', 'PhanUndeclaredTypeParameter'],
-        'src/class-scan-status.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchProperty'],
-        'src/class-status.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredConstant'],
+        'src/class-scan-status.php' => ['PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchProperty'],
+        'src/class-status.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchArgument', 'PhanUndeclaredConstant'],
         'src/class-threats.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/test-scan-status.php' => ['PhanTypeMismatchArgument'],
         'tests/php/test-status.php' => ['PhanTypeMismatchArgument'],

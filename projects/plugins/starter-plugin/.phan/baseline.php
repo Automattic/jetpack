@@ -10,10 +10,13 @@
 return [
     // # Issue statistics:
     // PhanNoopNew : 3 occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
+    // PhanRedundantCondition : 1 occurrence
     // PhanUndeclaredProperty : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
         'jetpack-starter-plugin.php' => ['PhanNoopNew'],
         'tests/php/test-class-jetpack-starter-plugin.php' => ['PhanNoopNew', 'PhanUndeclaredProperty'],
     ],

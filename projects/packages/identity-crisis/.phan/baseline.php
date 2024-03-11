@@ -13,10 +13,13 @@ return [
     // PhanTypeMismatchArgument : 5 occurrences
     // PhanUndeclaredConstant : 4 occurrences
     // PhanUndeclaredClassMethod : 3 occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
+    // PhanRedundantCondition : 2 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
     // PhanUndeclaredTypeReturnType : 2 occurrences
     // PhanNoopNew : 1 occurrence
     // PhanParamTooMany : 1 occurrence
+    // PhanPluginRedundantAssignment : 1 occurrence
     // PhanTypeMismatchArgumentInternal : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
@@ -25,7 +28,8 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-identity-crisis.php' => ['PhanDeprecatedFunction', 'PhanUndeclaredConstant', 'PhanUndeclaredTypeProperty'],
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
+        'src/class-identity-crisis.php' => ['PhanDeprecatedFunction', 'PhanPluginRedundantAssignment', 'PhanRedundantCondition', 'PhanUndeclaredConstant', 'PhanUndeclaredTypeProperty'],
         'src/class-rest-endpoints.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'src/class-url-secret.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchReturnNullable', 'PhanUndeclaredClassMethod'],
         'tests/php/bootstrap.php' => ['PhanUndeclaredConstant'],

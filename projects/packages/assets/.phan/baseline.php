@@ -11,17 +11,21 @@ return [
     // # Issue statistics:
     // PhanTypeMismatchArgument : 10+ occurrences
     // PhanDeprecatedFunction : 5 occurrences
+    // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
     // PhanRedefinedUsedTrait : 3 occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
     // PhanParamTooFewUnpack : 2 occurrences
     // PhanImpossibleTypeComparison : 1 occurrence
     // PhanParamTooMany : 1 occurrence
+    // PhanRedundantCondition : 1 occurrence
     // PhanTypeInvalidLeftOperandOfNumericOp : 1 occurrence
     // PhanTypeInvalidRightOperandOfNumericOp : 1 occurrence
     // PhanUndeclaredClassReference : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-assets.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgument'],
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
+        'src/class-assets.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
         'src/class-semver.php' => ['PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeInvalidRightOperandOfNumericOp'],
         'tests/php/test-assets.php' => ['PhanDeprecatedFunction', 'PhanImpossibleTypeComparison', 'PhanParamTooFewUnpack', 'PhanParamTooMany', 'PhanRedefinedUsedTrait', 'PhanTypeMismatchArgument', 'PhanUndeclaredClassReference'],
         'tests/php/test-semver.php' => ['PhanRedefinedUsedTrait'],

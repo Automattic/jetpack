@@ -9,11 +9,14 @@
  */
 return [
     // # Issue statistics:
+    // PhanCoalescingNeverNull : 2 occurrences
     // PhanRedefineClass : 1 occurrence
     // PhanRedefinedExtendedClass : 1 occurrence
+    // PhanRedundantCondition : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
         'src/class-error.php' => ['PhanRedefinedExtendedClass'],
         'tests/php/test-error.php' => ['PhanRedefineClass'],
     ],

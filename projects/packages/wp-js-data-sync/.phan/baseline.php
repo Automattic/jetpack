@@ -14,12 +14,18 @@ return [
     // PhanCommentParamWithoutRealParam : 6 occurrences
     // PhanTypeMismatchArgument : 4 occurrences
     // PhanUndeclaredMethod : 4 occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
+    // PhanPluginDuplicateConditionalNullCoalescing : 2 occurrences
+    // PhanRedundantCondition : 2 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 2 occurrences
     // PhanTypeMismatchReturn : 2 occurrences
     // PhanUndeclaredTypeParameter : 2 occurrences
     // PhanUnreferencedUseNormal : 2 occurrences
+    // PhanImpossibleCondition : 1 occurrence
+    // PhanImpossibleTypeComparison : 1 occurrence
     // PhanParamTooFew : 1 occurrence
     // PhanParamTooMany : 1 occurrence
+    // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanTypeMismatchArgumentNullable : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
     // PhanTypeMissingReturn : 1 occurrence
@@ -27,14 +33,17 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
         'src/class-data-sync-entry-adapter.php' => ['PhanUndeclaredMethod', 'PhanUnextractableAnnotation', 'PhanUnreferencedUseNormal'],
         'src/class-data-sync.php' => ['PhanCommentParamWithoutRealParam', 'PhanParamTooFew', 'PhanTypeMissingReturn', 'PhanUndeclaredMethod'],
+        'src/class-ds-utils.php' => ['PhanImpossibleCondition', 'PhanRedundantCondition'],
         'src/class-registry.php' => ['PhanUndeclaredTypeParameter'],
         'src/contracts/interface-lazy-entry.php' => ['PhanUnreferencedUseNormal'],
-        'src/endpoints/class-action-endpoint.php' => ['PhanCommentParamWithoutRealParam', 'PhanTypeMismatchProperty'],
-        'src/endpoints/class-endpoint.php' => ['PhanCommentParamWithoutRealParam'],
+        'src/endpoints/class-action-endpoint.php' => ['PhanCommentParamWithoutRealParam', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchProperty'],
+        'src/endpoints/class-endpoint.php' => ['PhanCommentParamWithoutRealParam', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool'],
         'src/schema/class-schema.php' => ['PhanParamTooMany'],
         'src/schema/types/class-type-assoc-array.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturn'],
+        'src/schema/types/class-type-string.php' => ['PhanImpossibleTypeComparison'],
         'tests/php/schema/integration/test-integration-fallback-values.php' => ['PhanNonClassMethodCall'],
         'tests/php/schema/integration/test-integration-parsing-errors.php' => ['PhanNonClassMethodCall', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
         'tests/php/schema/type/test-type-assoc-array.php' => ['PhanTypeMismatchArgumentProbablyReal'],

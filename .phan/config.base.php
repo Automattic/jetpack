@@ -18,15 +18,19 @@
  *   - is_wordpress: (bool) Set false to not include WordPress stubs and other WordPress-specific configuration.
  *   - exclude_file_regex: (array) Additional regexes to exclude. Will be anchored at the start.
  *   - exclude_file_list: (array) Individual files to exclude.
+ *   - suppress_issue_types: (array) Issues to suppress for the entire project.
+ *   - unsuppress_issue_types: (array) Default-suppressed issues to unsuppress for the project.
  * @return array Phan config.
  */
 function make_phan_config( $dir, $options = array() ) {
 	$options += array(
-		'directory_list'     => array( '.' ),
-		'file_list'          => array(),
-		'is_wordpress'       => true,
-		'exclude_file_regex' => array(),
-		'exclude_file_list'  => array(),
+		'directory_list'         => array( '.' ),
+		'file_list'              => array(),
+		'is_wordpress'           => true,
+		'exclude_file_regex'     => array(),
+		'exclude_file_list'      => array(),
+		'suppress_issue_types'   => array(),
+		'unsuppress_issue_types' => array(),
 	);
 
 	$root = dirname( __DIR__ );
@@ -35,9 +39,41 @@ function make_phan_config( $dir, $options = array() ) {
 		// Apparently this is only useful when upgrading from php 5, not for 7-to-8.
 		'backward_compatibility_checks'   => false,
 
+		// If we start depending on class_alias, we might need this true. For now we don't.
+		'enable_class_alias_support'      => false,
+
+		// Seems worthwhile to have these flagged for attention.
+		// Probably either the type inference is wrong or the code could be simplified.
+		'redundant_condition_detection'   => true,
+
 		// Plugins to enable.
 		'plugins'                         => array(
+			'AddNeverReturnTypePlugin',
+			'DuplicateArrayKeyPlugin',
+			'DuplicateExpressionPlugin',
+			'LoopVariableReusePlugin',
 			'PHPUnitNotDeadCodePlugin',
+			'PregRegexCheckerPlugin',
+			'RedundantAssignmentPlugin',
+			'SimplifyExpressionPlugin',
+			'UnreachableCodePlugin',
+			'UnusedSuppressionPlugin',
+			'UseReturnValuePlugin',
+			// Others to consider:
+			// https://github.com/wikimedia/mediawiki-tools-phan/blob/master/src/Plugin/RedundantExistenceChecksPlugin.php
+			// https://packagist.org/packages/mediawiki/phan-taint-check-plugin
+		),
+
+		// Issues to disable globally.
+		'suppress_issue_types'            => array_merge(
+			array_diff(
+				array(
+					// WordPress coding standards do not allow the `?:` operator.
+					'PhanPluginDuplicateConditionalTernaryDuplication',
+				),
+				$options['unsuppress_issue_types']
+			),
+			$options['suppress_issue_types']
 		),
 
 		// Directories and individual files to parse (and, by default, analyze).
@@ -64,9 +100,12 @@ function make_phan_config( $dir, $options = array() ) {
 			'|',
 			array_merge(
 				array(
-					// Ignore any `test`, `tests`, `Test`, `Tests`, `wordpress`, `jetpack_vendor`, `vendor`, and `node_modules` inside `vendor` and `jetpack_vendor`.
+					// Ignore any `test`, `tests`, `Test`, and `Tests` inside `vendor` and `jetpack_vendor`.
+					// Phan includes this by default, probably because various random packages don't exclude their test dirs.
+					'(?:jetpack_)?vendor/.*/[tT]ests?/',
+					// Ignore any `wordpress`, `jetpack_vendor`, `vendor`, and `node_modules` inside `vendor` and `jetpack_vendor`.
 					// Most of these are probably from our intra-monorepo symlinks.
-					'(?:jetpack_)?vendor/.*/(tests?|Tests?|wordpress|(?:jetpack_)?vendor|node_modules)/',
+					'(?:jetpack_)?vendor/.*/(?:wordpress|(?:jetpack_)?vendor|node_modules)/',
 					// Other stuff to ignore.
 					'node_modules/',
 					'tests/e2e/node_modules/',
@@ -83,9 +122,9 @@ function make_phan_config( $dir, $options = array() ) {
 		// List directories that will be excluded from analysis (but will still be parsed).
 		// Note anything here needs to be listed in `directory_list` or `file_list` to be parsed in the first place.
 		'exclude_analysis_directory_list' => array(
-			'jetpack_vendor',
-			'vendor',
-			"$root/vendor",
+			'jetpack_vendor/',
+			'vendor/',
+			"$root/vendor/",
 		),
 	);
 

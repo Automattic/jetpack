@@ -10,14 +10,16 @@
 return [
     // # Issue statistics:
     // PhanUndeclaredMethod : 10+ occurrences
+    // PhanTypeArraySuspicious : 7 occurrences
     // PhanUndeclaredTypeParameter : 7 occurrences
-    // PhanTypeArraySuspicious : 6 occurrences
     // PhanUndeclaredClassMethod : 6 occurrences
     // PhanUndeclaredTypeReturnType : 4 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 3 occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
     // PhanTypeMismatchArgument : 2 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
     // PhanUndeclaredConstant : 2 occurrences
+    // PhanRedundantCondition : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
     // PhanTypeMismatchPropertyDefault : 1 occurrence
     // PhanTypeMismatchReturn : 1 occurrence
@@ -27,6 +29,7 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
         'src/class-endpoints.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType'],
         'src/class-licensing.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyDefault', 'PhanTypeSuspiciousNonTraversableForeach'],
         'tests/php/bootstrap.php' => ['PhanUndeclaredConstant'],

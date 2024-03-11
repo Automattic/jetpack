@@ -9,14 +9,17 @@
  */
 return [
     // # Issue statistics:
+    // PhanCoalescingNeverNull : 2 occurrences
     // PhanTypeMismatchArgument : 2 occurrences
     // PhanParamTooMany : 1 occurrence
     // PhanRedefinedUsedTrait : 1 occurrence
+    // PhanRedundantCondition : 1 occurrence
     // PhanTypeMismatchPropertyProbablyReal : 1 occurrence
     // PhanUndeclaredFunction : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
         'src/lazy-images.php' => ['PhanTypeMismatchPropertyProbablyReal', 'PhanUndeclaredFunction'],
         'tests/php/test_class.lazy-images.php' => ['PhanParamTooMany', 'PhanRedefinedUsedTrait', 'PhanTypeMismatchArgument'],
     ],

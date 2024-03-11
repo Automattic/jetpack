@@ -11,21 +11,25 @@ return [
     // # Issue statistics:
     // PhanUndeclaredClassMethod : 5 occurrences
     // PhanParamTooMany : 3 occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
     // PhanCommentParamWithoutRealParam : 2 occurrences
     // PhanUndeclaredConstant : 2 occurrences
     // PhanUndeclaredProperty : 2 occurrences
     // PhanUndeclaredTypeParameter : 2 occurrences
     // PhanAccessMethodInternal : 1 occurrence
+    // PhanImpossibleCondition : 1 occurrence
+    // PhanRedundantCondition : 1 occurrence
     // PhanTypeMismatchReturn : 1 occurrence
     // PhanUndeclaredInvokeInCallable : 1 occurrence
     // PhanUndeclaredMethodInCallable : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
         'app/Monitor.php' => ['PhanUndeclaredMethodInCallable'],
         'app/Options/Monitor_Status.php' => ['PhanTypeMismatchReturn'],
         'app/Options/Observer_Settings.php' => ['PhanUndeclaredConstant'],
-        'app/REST_API/Endpoints/Send_Request.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredInvokeInCallable', 'PhanUndeclaredTypeParameter'],
+        'app/REST_API/Endpoints/Send_Request.php' => ['PhanImpossibleCondition', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredInvokeInCallable', 'PhanUndeclaredTypeParameter'],
         'app/REST_API/Permissions/Nonce.php' => ['PhanParamTooMany'],
         'functions.php' => ['PhanAccessMethodInternal'],
         'packages/Async_Option/Async_Option.php' => ['PhanParamTooMany'],

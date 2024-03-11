@@ -14,18 +14,22 @@ return [
     // PhanTypeMismatchReturn : 8 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 6 occurrences
     // PhanUndeclaredConstant : 5 occurrences
+    // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
+    // PhanRedundantCondition : 1 occurrence
     // PhanTypeMismatchArgument : 1 occurrence
     // PhanTypeMismatchReturnNullable : 1 occurrence
     // PhanUndeclaredStaticProperty : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
         'src/class-main.php' => ['PhanTypeMismatchArgument'],
         'src/class-notices.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanUndeclaredConstant'],
         'src/class-odyssey-assets.php' => ['PhanUndeclaredConstant'],
-        'src/class-rest-controller.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
-        'src/class-wpcom-client.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredConstant'],
+        'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
+        'src/class-wpcom-client.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredConstant'],
         'tests/php/test-stats-dashboard.php' => ['PhanUndeclaredStaticProperty'],
         'tests/php/test-stats-notices.php' => ['PhanUndeclaredConstant'],
     ],

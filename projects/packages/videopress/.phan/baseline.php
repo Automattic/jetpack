@@ -9,8 +9,10 @@
  */
 return [
     // # Issue statistics:
+    // PhanPluginDuplicateConditionalNullCoalescing : 20+ occurrences
     // PhanUndeclaredClassMethod : 20+ occurrences
     // PhanUndeclaredTypeParameter : 15+ occurrences
+    // PhanTypeArraySuspicious : 10+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 10+ occurrences
     // PhanTypeMismatchReturn : 10+ occurrences
     // PhanUndeclaredClassProperty : 10+ occurrences
@@ -18,7 +20,6 @@ return [
     // PhanTypeMismatchArgument : 8 occurrences
     // PhanUndeclaredProperty : 8 occurrences
     // PhanUndeclaredConstant : 7 occurrences
-    // PhanTypeArraySuspicious : 6 occurrences
     // PhanTypeMismatchReturnProbablyReal : 5 occurrences
     // PhanUnextractableAnnotation : 5 occurrences
     // PhanCommentOverrideOnNonOverrideMethod : 4 occurrences
@@ -28,7 +29,9 @@ return [
     // PhanParamTooMany : 3 occurrences
     // PhanUndeclaredMethod : 3 occurrences
     // PhanUndeclaredTypeReturnType : 3 occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
     // PhanPossiblyUndeclaredVariable : 2 occurrences
+    // PhanRedundantCondition : 2 occurrences
     // PhanTypeInvalidDimOffset : 2 occurrences
     // PhanUndeclaredClassConstant : 2 occurrences
     // PhanUndeclaredExtendedClass : 2 occurrences
@@ -36,6 +39,8 @@ return [
     // PhanUndeclaredTypeProperty : 2 occurrences
     // PhanUndeclaredTypeThrowsType : 2 occurrences
     // PhanAccessMethodInternal : 1 occurrence
+    // PhanPluginSimplifyExpressionBool : 1 occurrence
+    // PhanPluginUnreachableCode : 1 occurrence
     // PhanTypeMismatchArgumentInternal : 1 occurrence
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
@@ -46,15 +51,16 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-access-control.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeParameter'],
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
+        'src/class-access-control.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeParameter'],
         'src/class-admin-ui.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredClassMethod'],
         'src/class-ajax.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredFunction'],
         'src/class-attachment-handler.php' => ['PhanNonClassMethodCall', 'PhanTypeArraySuspicious', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassProperty', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType'],
-        'src/class-block-editor-content.php' => ['PhanUndeclaredClassProperty', 'PhanUndeclaredTypeParameter'],
-        'src/class-block-editor-extensions.php' => ['PhanTypeMismatchReturnProbablyReal'],
-        'src/class-data.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchReturn', 'PhanUndeclaredFunction'],
+        'src/class-block-editor-content.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanUndeclaredClassProperty', 'PhanUndeclaredTypeParameter'],
+        'src/class-block-editor-extensions.php' => ['PhanRedundantCondition', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/class-data.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious', 'PhanTypeMismatchReturn', 'PhanUndeclaredFunction'],
         'src/class-divi.php' => ['PhanUndeclaredProperty'],
-        'src/class-initializer.php' => ['PhanNoopNew', 'PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredClassProperty', 'PhanUndeclaredMethod', 'PhanUndeclaredTypeParameter'],
+        'src/class-initializer.php' => ['PhanNoopNew', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredClassProperty', 'PhanUndeclaredMethod', 'PhanUndeclaredTypeParameter'],
         'src/class-jwt-token-bridge.php' => ['PhanTypeMismatchReturn'],
         'src/class-plan.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredConstant', 'PhanUnextractableAnnotation'],
         'src/class-site.php' => ['PhanTypeMismatchArgumentProbablyReal'],
@@ -69,12 +75,12 @@ return [
         'src/class-wpcom-rest-api-v2-attachment-field-videopress.php' => ['PhanTypeMismatchReturn', 'PhanUndeclaredClassProperty', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeParameter'],
         'src/class-wpcom-rest-api-v2-attachment-videopress-data.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassProperty', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeParameter'],
         'src/class-wpcom-rest-api-v2-endpoint-videopress.php' => ['PhanAccessMethodInternal', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeParameter'],
-        'src/class-xmlrpc.php' => ['PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassProperty', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty'],
+        'src/class-xmlrpc.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassProperty', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty'],
         'src/tus/class-transient-store.php' => ['PhanParamTooMany'],
         'src/tus/class-tus-abstract-cache.php' => ['PhanTypeMismatchArgumentInternal'],
         'src/tus/class-tus-client.php' => ['PhanNonClassMethodCall', 'PhanTypeMismatchArgument', 'PhanTypeMismatchProperty', 'PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeProperty', 'PhanUndeclaredTypeReturnType'],
-        'src/tus/class-tus-file.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeThrowsType'],
-        'src/utility-functions.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredConstant'],
+        'src/tus/class-tus-file.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeThrowsType'],
+        'src/utility-functions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginUnreachableCode', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredConstant'],
         'src/videopress-divi/class-videopress-divi-extension.php' => ['PhanCommentOverrideOnNonOverrideMethod', 'PhanUndeclaredClass', 'PhanUndeclaredClassMethod', 'PhanUndeclaredExtendedClass', 'PhanUndeclaredMethod', 'PhanUndeclaredMethodInCallable', 'PhanUndeclaredProperty'],
         'src/videopress-divi/class-videopress-divi-module.php' => ['PhanUndeclaredExtendedClass', 'PhanUndeclaredProperty'],
         'tests/php/test-class-initializer.php' => ['PhanTypeMismatchArgumentProbablyReal'],

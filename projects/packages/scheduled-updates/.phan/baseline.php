@@ -11,6 +11,9 @@ return [
     // # Issue statistics:
     // PhanUndeclaredProperty : 25+ occurrences
     // PhanUndeclaredConstant : 6 occurrences
+    // PhanRedundantCondition : 3 occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
+    // PhanPluginMixedKeyNoKey : 2 occurrences
     // PhanTypeArraySuspiciousNullable : 2 occurrences
     // PhanUndeclaredClassMethod : 2 occurrences
     // PhanCompatibleAccessMethodOnTraitDefinition : 1 occurrence
@@ -21,8 +24,10 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-scheduled-updates.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDimFetch', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant'],
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
+        'src/class-scheduled-updates.php' => ['PhanRedundantCondition', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDimFetch', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant'],
         'src/pluggable.php' => ['PhanTypeArraySuspiciousNullable'],
+        'src/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-update-schedules.php' => ['PhanPluginMixedKeyNoKey'],
         'tests/php/class-scheduled-updates-test.php' => ['PhanCompatibleAccessMethodOnTraitDefinition', 'PhanUndeclaredConstant', 'PhanUndeclaredProperty'],
         'tests/php/class-wpcom-rest-api-v2-endpoint-update-schedules-test.php' => ['PhanNoopNew', 'PhanUndeclaredConstant'],
     ],

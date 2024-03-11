@@ -10,11 +10,16 @@
 return [
     // # Issue statistics:
     // PhanTypeMismatchReturn : 10+ occurrences
+    // PhanRedundantCondition : 5 occurrences
+    // PhanPluginSimplifyExpressionBool : 3 occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
     // PhanTypeMismatchProperty : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-user-agent-info.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchReturn'],
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
+        'src/class-device-detection.php' => ['PhanRedundantCondition'],
+        'src/class-user-agent-info.php' => ['PhanPluginSimplifyExpressionBool', 'PhanRedundantCondition', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturn'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

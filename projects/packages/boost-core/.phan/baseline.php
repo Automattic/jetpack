@@ -11,11 +11,14 @@ return [
     // # Issue statistics:
     // PhanAbstractStaticMethodCallInStatic : 3 occurrences
     // PhanUndeclaredConstant : 3 occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
     // PhanParamTooMany : 2 occurrences
     // PhanUndeclaredClassMethod : 2 occurrences
+    // PhanRedundantCondition : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
         'src/lib/class-boost-api.php' => ['PhanParamTooMany'],
         'src/lib/class-cacheable.php' => ['PhanAbstractStaticMethodCallInStatic'],
         'src/lib/class-transient.php' => ['PhanUndeclaredConstant'],

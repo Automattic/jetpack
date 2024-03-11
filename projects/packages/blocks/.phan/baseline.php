@@ -10,9 +10,12 @@
 return [
     // # Issue statistics:
     // PhanUndeclaredClassProperty : 7 occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
     // PhanTypeMismatchArgument : 2 occurrences
     // PhanUndeclaredClassMethod : 2 occurrences
+    // PhanPluginDuplicateConditionalNullCoalescing : 1 occurrence
     // PhanRedefinedUsedTrait : 1 occurrence
+    // PhanRedundantCondition : 1 occurrence
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
     // PhanUndeclaredClassInCallable : 1 occurrence
     // PhanUndeclaredClassReference : 1 occurrence
@@ -21,7 +24,8 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-blocks.php' => ['PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredClassInCallable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeReturnType'],
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
+        'src/class-blocks.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredClassInCallable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeReturnType'],
         'tests/php/test-blocks.php' => ['PhanRedefinedUsedTrait', 'PhanTypeMismatchArgument', 'PhanUndeclaredClassProperty'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

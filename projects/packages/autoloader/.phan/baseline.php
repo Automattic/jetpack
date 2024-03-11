@@ -20,6 +20,7 @@ return [
     // PhanTypeMismatchReturnProbablyReal : 3 occurrences
     // PhanTypePossiblyInvalidDimOffset : 3 occurrences
     // PhanDeprecatedFunction : 2 occurrences
+    // PhanPluginDuplicateConditionalNullCoalescing : 2 occurrences
     // PhanRedefinedUsedTrait : 2 occurrences
     // PhanTypeMismatchArgumentNullableInternal : 2 occurrences
     // PhanUndeclaredInterface : 2 occurrences
@@ -35,11 +36,12 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/AutoloadFileWriter.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
+        'src/AutoloadFileWriter.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
         'src/AutoloadGenerator.php' => ['PhanPossiblyNullTypeMismatchProperty', 'PhanTypeMismatchArgument', 'PhanTypeMismatchDeclaredParamNullable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty'],
         'src/AutoloadProcessor.php' => ['PhanTypeMismatchForeach', 'PhanTypeMismatchReturnProbablyReal'],
         'src/CustomAutoloaderPlugin.php' => ['PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod', 'PhanUndeclaredInterface', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty'],
         'src/class-php-autoloader.php' => ['PhanTypeMismatchReturnProbablyReal'],
+        'src/class-version-loader.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'tests/php/bootstrap.php' => ['PhanTypeMismatchArgumentInternal'],
         'tests/php/lib/class-acceptance-test-case.php' => ['PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod'],
         'tests/php/lib/class-test-container.php' => ['PhanUndeclaredExtendedClass', 'PhanUndeclaredProperty'],

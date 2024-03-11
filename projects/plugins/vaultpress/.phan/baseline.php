@@ -14,17 +14,23 @@ return [
     // PhanUndeclaredProperty : 20+ occurrences
     // PhanUndeclaredClassMethod : 15+ occurrences
     // PhanTypeMismatchArgumentNullableInternal : 10+ occurrences
+    // PhanPluginSimplifyExpressionBool : 8 occurrences
     // PhanPossiblyUndeclaredVariable : 6 occurrences
     // PhanTypePossiblyInvalidDimOffset : 6 occurrences
+    // PhanPluginUnreachableCode : 5 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 5 occurrences
+    // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
     // PhanTypeMismatchArgument : 4 occurrences
     // PhanUndeclaredVariableDim : 4 occurrences
     // PhanCommentParamWithoutRealParam : 3 occurrences
     // PhanTypeArraySuspiciousNullable : 3 occurrences
     // PhanTypeMismatchDimFetch : 3 occurrences
     // PhanUndeclaredFunction : 3 occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
     // PhanDeprecatedFunction : 2 occurrences
+    // PhanPluginNeverReturnMethod : 2 occurrences
     // PhanRedefineFunction : 2 occurrences
+    // PhanRedundantCondition : 2 occurrences
     // PhanTypeExpectedObjectPropAccessButGotNull : 2 occurrences
     // PhanTypeNonVarPassByRef : 2 occurrences
     // PhanTypeSuspiciousStringExpression : 2 occurrences
@@ -33,6 +39,7 @@ return [
     // PhanAccessMethodProtected : 1 occurrence
     // PhanParamSpecial1 : 1 occurrence
     // PhanParamTooMany : 1 occurrence
+    // PhanPluginDuplicateExpressionAssignment : 1 occurrence
     // PhanTypeInvalidDimOffset : 1 occurrence
     // PhanTypeInvalidRightOperandOfNumericOp : 1 occurrence
     // PhanTypeObjectUnsetDeclaredProperty : 1 occurrence
@@ -41,13 +48,14 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
         'class.vaultpress-cli.php' => ['PhanUndeclaredFunctionInCallable'],
-        'class.vaultpress-database.php' => ['PhanParamSpecial1', 'PhanPossiblyUndeclaredVariable', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeNonVarPassByRef', 'PhanTypeObjectUnsetDeclaredProperty', 'PhanUndeclaredConstant', 'PhanUndeclaredProperty', 'PhanUndeclaredVariableDim'],
-        'class.vaultpress-filesystem.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeNonVarPassByRef', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredConstant', 'PhanUndeclaredVariable'],
-        'class.vaultpress-hotfixes.php' => ['PhanDeprecatedFunction', 'PhanParamTooMany', 'PhanRedefineFunction', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredConstant'],
+        'class.vaultpress-database.php' => ['PhanParamSpecial1', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeNonVarPassByRef', 'PhanTypeObjectUnsetDeclaredProperty', 'PhanUndeclaredConstant', 'PhanUndeclaredProperty', 'PhanUndeclaredVariableDim'],
+        'class.vaultpress-filesystem.php' => ['PhanPluginNeverReturnMethod', 'PhanPluginSimplifyExpressionBool', 'PhanPluginUnreachableCode', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeNonVarPassByRef', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredConstant', 'PhanUndeclaredVariable'],
+        'class.vaultpress-hotfixes.php' => ['PhanDeprecatedFunction', 'PhanParamTooMany', 'PhanPluginSimplifyExpressionBool', 'PhanRedefineFunction', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredConstant'],
         'class.vaultpress-ixr-ssl-client.php' => ['PhanUndeclaredConstant'],
         'cron-tasks.php' => ['PhanRedefineFunction', 'PhanUndeclaredConstant'],
-        'vaultpress.php' => ['PhanAccessMethodProtected', 'PhanDeprecatedFunction', 'PhanPossiblyUndeclaredVariable', 'PhanTypeArraySuspiciousNullable', 'PhanTypeExpectedObjectPropAccessButGotNull', 'PhanTypeInvalidRightOperandOfNumericOp', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDimFetch', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredMethod', 'PhanUndeclaredProperty', 'PhanUndeclaredVariable'],
+        'vaultpress.php' => ['PhanAccessMethodProtected', 'PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginDuplicateExpressionAssignment', 'PhanPluginNeverReturnMethod', 'PhanPluginSimplifyExpressionBool', 'PhanPluginUnreachableCode', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeArraySuspiciousNullable', 'PhanTypeExpectedObjectPropAccessButGotNull', 'PhanTypeInvalidRightOperandOfNumericOp', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDimFetch', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredMethod', 'PhanUndeclaredProperty', 'PhanUndeclaredVariable'],
         'vp-scanner.php' => ['PhanCommentParamWithoutRealParam', 'PhanPossiblyUndeclaredVariable', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredFunction'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

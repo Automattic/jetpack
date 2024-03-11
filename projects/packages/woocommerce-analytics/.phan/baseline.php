@@ -13,16 +13,20 @@ return [
     // PhanUndeclaredClassMethod : 20+ occurrences
     // PhanUndeclaredClassInstanceof : 10+ occurrences
     // PhanUndeclaredConstant : 5 occurrences
+    // PhanPluginRedundantAssignment : 4 occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
     // PhanUndeclaredTypeParameter : 2 occurrences
+    // PhanRedundantCondition : 1 occurrence
     // PhanTypeSuspiciousNonTraversableForeach : 1 occurrence
     // PhanUndeclaredMethod : 1 occurrence
     // PhanUnextractableAnnotationSuffix : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-checkout-flow.php' => ['PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
+        'src/class-checkout-flow.php' => ['PhanPluginRedundantAssignment', 'PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
         'src/class-my-account.php' => ['PhanUndeclaredFunction'],
-        'src/class-universal.php' => ['PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction', 'PhanUnextractableAnnotationSuffix'],
+        'src/class-universal.php' => ['PhanPluginRedundantAssignment', 'PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction', 'PhanUnextractableAnnotationSuffix'],
         'src/class-woo-analytics-trait.php' => ['PhanTypeSuspiciousNonTraversableForeach', 'PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredMethod', 'PhanUndeclaredTypeParameter'],
         'src/class-woocommerce-analytics.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction'],
     ],

@@ -10,7 +10,10 @@
 return [
     // # Issue statistics:
     // PhanTypeMismatchArgument : 3 occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
     // PhanNoopNew : 2 occurrences
+    // PhanPluginDuplicateConditionalNullCoalescing : 1 occurrence
+    // PhanRedundantCondition : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanTypeMismatchReturn : 1 occurrence
     // PhanUndeclaredTypeParameter : 1 occurrence
@@ -18,7 +21,8 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-rest-controller.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType'],
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
+        'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType'],
         'src/class-wpcom-migration.php' => ['PhanNoopNew', 'PhanTypeMismatchArgument'],
         'wpcom-migration.php' => ['PhanNoopNew'],
     ],

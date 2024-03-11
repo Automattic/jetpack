@@ -9,11 +9,14 @@
  */
 return [
     // # Issue statistics:
+    // PhanCoalescingNeverNull : 2 occurrences
     // PhanUndeclaredClassInCallable : 2 occurrences
+    // PhanRedundantCondition : 1 occurrence
     // PhanTypeMismatchDefault : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
         'src/class-admin-menu.php' => ['PhanTypeMismatchDefault', 'PhanUndeclaredClassInCallable'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

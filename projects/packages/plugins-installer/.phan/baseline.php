@@ -11,16 +11,19 @@ return [
     // # Issue statistics:
     // PhanUndeclaredConstant : 7 occurrences
     // PhanUndeclaredClassMethod : 4 occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
     // PhanTypeMismatchArgument : 2 occurrences
     // PhanUndeclaredMethod : 2 occurrences
     // PhanUndeclaredTypeParameter : 2 occurrences
     // PhanCompatibleAttributeGroupOnSameLine : 1 occurrence
     // PhanParamSignatureMismatch : 1 occurrence
+    // PhanRedundantCondition : 1 occurrence
     // PhanTypeMismatchArgumentNullable : 1 occurrence
     // PhanTypeMismatchReturnProbablyReal : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
         'src/class-automatic-install-skin.php' => ['PhanCompatibleAttributeGroupOnSameLine', 'PhanParamSignatureMismatch', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredTypeParameter'],
         'src/class-plugins-installer.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredConstant', 'PhanUndeclaredMethod'],
     ],

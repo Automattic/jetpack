@@ -9,11 +9,14 @@
  */
 return [
     // # Issue statistics:
+    // PhanCoalescingNeverNull : 2 occurrences
     // PhanTypeMismatchArgumentInternal : 2 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 2 occurrences
+    // PhanRedundantCondition : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
         'src/class-utils.php' => ['PhanTypeMismatchArgumentInternal'],
         'tests/php/test-utils.php' => ['PhanTypeMismatchArgumentProbablyReal'],
     ],

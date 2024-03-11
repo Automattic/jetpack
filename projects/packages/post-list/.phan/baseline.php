@@ -10,8 +10,10 @@
 return [
     // # Issue statistics:
     // PhanUndeclaredClassProperty : 4 occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
     // PhanTypeMismatchArgument : 2 occurrences
     // PhanUndeclaredTypeParameter : 2 occurrences
+    // PhanRedundantCondition : 1 occurrence
     // PhanTypeArraySuspicious : 1 occurrence
     // PhanTypeMismatchArgumentNullable : 1 occurrence
     // PhanTypeMismatchReturnNullable : 1 occurrence
@@ -19,6 +21,7 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
         'src/class-post-list.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredClassProperty', 'PhanUndeclaredTypeParameter'],
         'src/class-post-thumbnail.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal'],
     ],

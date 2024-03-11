@@ -15,14 +15,17 @@ return [
     // PhanUndeclaredClassMethod : 6 occurrences
     // PhanUndeclaredClassReference : 5 occurrences
     // PhanTypeMismatchArgument : 3 occurrences
+    // PhanCoalescingNeverNull : 2 occurrences
     // PhanTypeArraySuspicious : 2 occurrences
     // PhanUndeclaredStaticMethod : 2 occurrences
     // PhanPossiblyUndeclaredVariable : 1 occurrence
+    // PhanRedundantCondition : 1 occurrence
     // PhanUndeclaredConstant : 1 occurrence
     // PhanUndeclaredTypeParameter : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        '/usr/local/src/automattic/jetpack/.phan/config.base.php' => ['PhanCoalescingNeverNull', 'PhanRedundantCondition'],
         'src/class-jetpack-backup.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredStaticMethod', 'PhanUndeclaredTypeParameter'],
         'src/class-rest-controller.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference'],
         'tests/php/test-storage-addon-upsell.php' => ['PhanUndeclaredConstant'],
