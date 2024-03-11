@@ -1,4 +1,4 @@
-import { Button, IconTooltip, Notice } from '@automattic/jetpack-components';
+import { Button, IconTooltip, Notice, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import ChevronDown from '$svg/chevron-down';
@@ -151,10 +151,9 @@ const BypassPatterns = ( {
 	const [ inputValue, setInputValue ] = useState( patterns );
 	const [ showNotice, setShowNotice ] = useState( showErrorNotice );
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const [ inputInvalid, setInputInvalid ] = useState( false ); // @todo - implement this
+	const [ inputInvalid, setInputInvalid ] = useState( false );
 
-	// @todo - add proper link.
-	const exclusionsLink = 'https://jetpack.com';
+	const exclusionsLink = getRedirectUrl( 'jetpack-boost-cache-how-to-exclude' );
 
 	const validateInputValue = ( value: string ) => {
 		setInputValue( value );
