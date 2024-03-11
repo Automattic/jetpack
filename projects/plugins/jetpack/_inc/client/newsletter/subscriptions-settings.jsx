@@ -9,6 +9,7 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import SupportInfo from 'components/support-info';
 import analytics from 'lib/analytics';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
@@ -162,55 +163,64 @@ function SubscriptionsSettings( props ) {
 									'jetpack'
 								) }
 							/>
-							<ToggleControl
-								checked={ isSubscriptionsActive && isSmEnabled }
-								disabled={ isDisabled }
-								toggling={ isSavingAnyOption( [ 'sm_enabled' ] ) }
-								onChange={ handleSubscribeModalToggleChange }
-								label={ __( 'Enable subscription pop-up', 'jetpack' ) }
-							/>
-							<p className="jp-form-setting-explanation">
-								{ __(
-									'Automatically add a subscription form pop-up to every post and turn visitors into subscribers. It will appear as readers scroll through your posts',
-									'jetpack'
-								) }
-								{ isBlockTheme && subscribeModalEditorUrl && (
-									<>
-										{ '. ' }
-										<ExternalLink href={ subscribeModalEditorUrl }>
-											{ __( 'Preview and edit', 'jetpack' ) }
-										</ExternalLink>
-									</>
-								) }
-							</p>
+							<div className="jp-toggle-set">
+								<ToggleControl
+									checked={ isSubscriptionsActive && isSmEnabled }
+									disabled={ isDisabled }
+									toggling={ isSavingAnyOption( [ 'sm_enabled' ] ) }
+									onChange={ handleSubscribeModalToggleChange }
+									label={
+										<>
+											{ __( 'Enable subscription pop-up when scrolling a post', 'jetpack' ) }
+											{ isBlockTheme && subscribeModalEditorUrl && (
+												<>
+													{ '. ' }
+													<ExternalLink href={ subscribeModalEditorUrl }>
+														{ __( 'Preview and edit', 'jetpack' ) }
+													</ExternalLink>
+												</>
+											) }
+										</>
+									}
+								/>
+								<SupportInfo
+									text={ __(
+										'Automatically add a subscription form pop-up to every post and turn visitors into subscribers. It will appear as readers scroll through your posts.',
+										'jetpack'
+									) }
+									link={ getRedirectUrl( 'jetpack-support-subscriptions', {
+										anchor: 'enable-a-subscriber-pop-up-for-your-posts',
+									} ) }
+									privacyLink={ getRedirectUrl( 'jetpack-support-subscriptions', {
+										anchor: 'privacy',
+									} ) }
+								/>
+							</div>
 							{ isSubscriptionSiteFeatureEnabled && (
-								<>
-									<br />
-									<ToggleControl
-										checked={ isSubscriptionsActive && isSubscribePostEndEnabled }
-										disabled={ isDisabled }
-										toggling={ isSavingAnyOption( [
-											'jetpack_subscriptions_subscribe_post_end_enabled',
-										] ) }
-										onChange={ handleSubscribePostEndToggleChange }
-										label={
-											<>
-												{ __(
-													'Enable automatic insertion of the Subscribe block into the theme at the end of each post',
-													'jetpack'
-												) }
-												{ isBlockTheme && singlePostTemplateEditorUrl && (
-													<>
-														{ '. ' }
-														<ExternalLink href={ singlePostTemplateEditorUrl }>
-															{ __( 'Preview and edit', 'jetpack' ) }
-														</ExternalLink>
-													</>
-												) }
-											</>
-										}
-									/>
-								</>
+								<ToggleControl
+									checked={ isSubscriptionsActive && isSubscribePostEndEnabled }
+									disabled={ isDisabled }
+									toggling={ isSavingAnyOption( [
+										'jetpack_subscriptions_subscribe_post_end_enabled',
+									] ) }
+									onChange={ handleSubscribePostEndToggleChange }
+									label={
+										<>
+											{ __(
+												'Enable automatic insertion of the Subscribe block into the theme at the end of each post',
+												'jetpack'
+											) }
+											{ isBlockTheme && singlePostTemplateEditorUrl && (
+												<>
+													{ '. ' }
+													<ExternalLink href={ singlePostTemplateEditorUrl }>
+														{ __( 'Preview and edit', 'jetpack' ) }
+													</ExternalLink>
+												</>
+											) }
+										</>
+									}
+								/>
 							) }
 						</FormFieldset>
 					}
