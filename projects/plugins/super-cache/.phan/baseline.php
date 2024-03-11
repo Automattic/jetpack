@@ -15,11 +15,11 @@ return [
     // PhanTypeMismatchArgumentNullableInternal : 25+ occurrences
     // PhanPossiblyUndeclaredVariable : 20+ occurrences
     // PhanUndeclaredVariable : 20+ occurrences
-    // PhanTypeMismatchArgument : 10+ occurrences
     // PhanTypeNonVarPassByRef : 10+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 10+ occurrences
     // PhanTypeSuspiciousStringExpression : 10+ occurrences
     // PhanUndeclaredFunctionInCallable : 10+ occurrences
+    // PhanTypeMismatchArgument : 9 occurrences
     // PhanUndeclaredFunction : 9 occurrences
     // PhanTypeInvalidDimOffset : 8 occurrences
     // PhanTypeArraySuspiciousNull : 7 occurrences
@@ -41,6 +41,7 @@ return [
     // PhanTypeInvalidRightOperandOfAdd : 1 occurrence
     // PhanTypeInvalidRightOperandOfBitwiseOp : 1 occurrence
     // PhanTypeMismatchArgumentNullable : 1 occurrence
+    // PhanTypeMismatchDimAssignment : 1 occurrence
     // PhanTypeMissingReturn : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
@@ -49,9 +50,9 @@ return [
         'ossdl-cdn.php' => ['PhanUndeclaredClassMethod'],
         'partials/advanced.php' => ['PhanPossiblyUndeclaredGlobalVariable', 'PhanTypeMismatchArgument', 'PhanTypeNonVarPassByRef', 'PhanUndeclaredConstant', 'PhanUndeclaredGlobalVariable'],
         'partials/debug.php' => ['PhanTypeNonVarPassByRef', 'PhanUndeclaredGlobalVariable'],
-        'partials/easy.php' => ['PhanTypeArraySuspiciousNull', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternalReal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredConstant', 'PhanUndeclaredGlobalVariable'],
+        'partials/easy.php' => ['PhanTypeArraySuspiciousNull', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgumentInternalReal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredConstant', 'PhanUndeclaredGlobalVariable'],
         'partials/lockdown.php' => ['PhanUndeclaredConstant', 'PhanUndeclaredGlobalVariable'],
-        'partials/preload.php' => ['PhanPossiblyUndeclaredGlobalVariable', 'PhanUndeclaredGlobalVariable'],
+        'partials/preload.php' => ['PhanPossiblyUndeclaredGlobalVariable', 'PhanTypeMismatchDimAssignment', 'PhanUndeclaredGlobalVariable'],
         'partials/rejected_user_agents.php' => ['PhanUndeclaredGlobalVariable'],
         'partials/tracking_parameters.php' => ['PhanUndeclaredGlobalVariable'],
         'plugins/badbehaviour.php' => ['PhanUndeclaredConstant'],

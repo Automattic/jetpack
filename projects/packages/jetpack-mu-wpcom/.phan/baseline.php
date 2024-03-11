@@ -9,19 +9,20 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredFunction : 70+ occurrences
+    // PhanUndeclaredFunction : 75+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 55+ occurrences
-    // PhanUndeclaredClassMethod : 50+ occurrences
+    // PhanUndeclaredClassMethod : 55+ occurrences
     // PhanTypeMismatchArgument : 40+ occurrences
     // PhanTypeArraySuspicious : 20+ occurrences
     // PhanUndeclaredTypeParameter : 15+ occurrences
     // PhanUndeclaredConstant : 10+ occurrences
+    // PhanUndeclaredFunctionInCallable : 10+ occurrences
     // PhanUndeclaredTypeReturnType : 9 occurrences
     // PhanUndeclaredClassConstant : 8 occurrences
     // PhanTypeMismatchReturn : 7 occurrences
     // PhanTypeMismatchReturnProbablyReal : 7 occurrences
-    // PhanUndeclaredFunctionInCallable : 6 occurrences
     // PhanUndeclaredTypeProperty : 4 occurrences
+    // PhanUndeclaredClassInCallable : 3 occurrences
     // PhanUndeclaredClassReference : 3 occurrences
     // PhanEmptyFQSENInCallable : 2 occurrences
     // PhanNoopNew : 2 occurrences
@@ -40,7 +41,6 @@ return [
     // PhanTypeMismatchReturnNullable : 1 occurrence
     // PhanTypeNonVarPassByRef : 1 occurrence
     // PhanTypeVoidArgument : 1 occurrence
-    // PhanUndeclaredClassInCallable : 1 occurrence
     // PhanUnextractableAnnotationSuffix : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
@@ -51,6 +51,7 @@ return [
         'src/features/block-patterns/block-patterns.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredTypeParameter'],
         'src/features/block-patterns/class-wpcom-block-patterns-from-api.php' => ['PhanUndeclaredConstant'],
         'src/features/block-patterns/class-wpcom-block-patterns-utils.php' => ['PhanTypeMismatchReturnNullable', 'PhanUndeclaredFunction'],
+        'src/features/block-theme-previews/block-theme-previews.php' => ['PhanUndeclaredFunction'],
         'src/features/coming-soon/coming-soon.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchArgumentInternal', 'PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable'],
         'src/features/coming-soon/fallback-coming-soon-page.php' => ['PhanTypeMismatchArgument', 'PhanTypeVoidArgument', 'PhanUndeclaredFunction'],
         'src/features/error-reporting/error-reporting.php' => ['PhanUndeclaredFunction'],
@@ -63,7 +64,8 @@ return [
         'src/features/verbum-comments/assets/class-wpcom-rest-api-v2-verbum-auth.php' => ['PhanUndeclaredFunction'],
         'src/features/verbum-comments/class-verbum-comments.php' => ['PhanNoopNew', 'PhanParamTooMany', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable', 'PhanUndeclaredTypeReturnType'],
         'src/features/wpcom-command-palette/wpcom-command-palette.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
-        'src/features/wpcom-site-menu/wpcom-site-menu.php' => ['PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredFunction'],
+        'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-site-migration-migrate-guru-key.php' => ['PhanUndeclaredClassMethod'],
+        'src/features/wpcom-site-menu/wpcom-site-menu.php' => ['PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassInCallable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable'],
         'src/utils.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference'],
         'tests/lib/functions-wordpress.php' => ['PhanRedefineFunction'],
         'tests/php/features/block-patterns/class-wpcom-block-patterns-from-api-test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredTypeReturnType'],

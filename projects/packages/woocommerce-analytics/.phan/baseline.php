@@ -12,7 +12,7 @@ return [
     // PhanUndeclaredFunction : 65+ occurrences
     // PhanUndeclaredClassMethod : 20+ occurrences
     // PhanUndeclaredClassInstanceof : 10+ occurrences
-    // PhanUndeclaredConstant : 4 occurrences
+    // PhanUndeclaredConstant : 5 occurrences
     // PhanUndeclaredTypeParameter : 2 occurrences
     // PhanTypeSuspiciousNonTraversableForeach : 1 occurrence
     // PhanUndeclaredMethod : 1 occurrence

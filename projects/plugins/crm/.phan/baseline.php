@@ -197,7 +197,7 @@ return [
         'includes/ZeroBSCRM.InvoiceBuilder.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredConstant', 'PhanUndeclaredTypeReturnType', 'PhanUndeclaredVariable'],
         'includes/ZeroBSCRM.List.Tasks.php' => ['PhanTypeMismatchArgument'],
         'includes/ZeroBSCRM.List.Views.php' => ['PhanTypeMismatchArgument'],
-        'includes/ZeroBSCRM.List.php' => ['PhanTypeArraySuspicious', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal'],
+        'includes/ZeroBSCRM.List.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeArraySuspicious', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal'],
         'includes/ZeroBSCRM.Mail.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentInternalReal', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredClassCatch', 'PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant', 'PhanUndeclaredVariable', 'PhanUnreferencedUseNormal'],
         'includes/ZeroBSCRM.MailTracking.php' => ['PhanTypeArraySuspiciousNullable', 'PhanUndeclaredConstant'],
         'includes/ZeroBSCRM.MetaBox.php' => ['PhanTypeConversionFromArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousStringExpression'],
