@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-The plugin list now accounts for all schedules a plugin might be a part of.

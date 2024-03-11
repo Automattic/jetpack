@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Pass API parameter to indicate when deleting a memberships product should cancel subscriptions
