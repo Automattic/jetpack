@@ -5,8 +5,6 @@
  * It has all the code for caching and serving requests.
  */
 
-define( 'WPSC_PRELOAD_POST_COUNT', 10 );
-
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- TODO: Fix or determine for sure that these should not be fixed.
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- TODO: Fix or determine for sure that these should not be fixed.
 
@@ -389,6 +387,11 @@ function wp_cache_get_legacy_cache( $cache_file ) {
 function wp_cache_postload() {
 	global $cache_enabled, $wp_super_cache_late_init;
 	global $wp_cache_request_uri;
+
+	if ( defined( 'DONOTCACHEPAGE' ) && DONOTCACHEPAGE ) {
+		wp_cache_debug( 'wp_cache_postload: DONOTCACHEPAGE defined. Not running.' );
+		return false;
+	}
 
 	if ( empty( $wp_cache_request_uri ) ) {
 		wp_cache_debug( 'wp_cache_postload: no request uri configured. Not running.' );

@@ -10,7 +10,7 @@ import { useConnection } from '@automattic/jetpack-connection';
  */
 export default function useMyJetpackConnection() {
 	const { apiRoot, apiNonce } = myJetpackRest;
-	const { topJetpackMenuItemUrl } = myJetpackInitialState;
+	const { topJetpackMenuItemUrl, blogID } = myJetpackInitialState;
 	const connectionData = useConnection( { apiRoot, apiNonce } );
 	const { registrationNonce } = JP_CONNECTION_INITIAL_STATE;
 
@@ -20,6 +20,7 @@ export default function useMyJetpackConnection() {
 	return {
 		apiNonce,
 		apiRoot,
+		blogID,
 		registrationNonce,
 		...connectionData,
 		isSiteConnected,
