@@ -1205,8 +1205,10 @@ function get_paywall_blocks_subscribe_pending() {
 
 	/** This filter is documented in modules/contact-form/grunion-contact-form.php */
 	if ( is_wpcom() || false !== apply_filters( 'jetpack_auto_fill_logged_in_user', false ) ) {
-		$current_user    = wp_get_current_user();
-		$subscribe_email = ! empty( $current_user->user_email ) ? $current_user->user_email : '';
+		$current_user = wp_get_current_user();
+		if ( ! empty( $current_user->user_email ) ) {
+			$subscribe_email = $current_user->user_email;
+		}
 	}
 
 	$access_heading = esc_html__( 'Confirm your subscription to continue reading', 'jetpack' );
