@@ -50,8 +50,6 @@ function Subscriptions( props ) {
 					<MessagesSetting { ...props } />
 				</>
 			) }
-			<NewsletterCategories />
-			<MessagesSetting { ...props } />
 		</div>
 	);
 }
