@@ -5,10 +5,13 @@ import {
 	REST_API_SITE_DISMISS_BANNER,
 } from '../../data/constants';
 import useSimpleMutation from '../use-simple-mutation';
+import getMyJetpackWindowState from '../utils/get-my-jetpack-window-state';
 
 const useWelcomeBanner = () => {
-	const hasBeenDismissed = window?.myJetpackInitialState?.welcomeBanner?.hasBeenDismissed;
-	const [ isDismissed, setIsDismissed ] = useState( hasBeenDismissed );
+	const { hasBeenDismissed: welcomeBannerHasBeenDismissed } =
+		getMyJetpackWindowState( 'welcomeBanner' );
+
+	const [ isDismissed, setIsDismissed ] = useState( welcomeBannerHasBeenDismissed );
 
 	const { mutate: dismissWelcomeBanner } = useSimpleMutation( {
 		name: QUERY_DISMISS_WELCOME_BANNER_KEY,

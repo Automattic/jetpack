@@ -12,6 +12,7 @@ import React, { useCallback, useEffect } from 'react';
 import { MyJetpackRoutes } from '../../constants';
 import useActivate from '../../data/products/use-activate';
 import useProduct from '../../data/products/use-product';
+import getMyJetpackWindowState from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
@@ -67,7 +68,7 @@ export default function ProductInterstitial( {
 	const { isUpgradableByBundle, tiers, pricingForUi } = detail;
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
-	const { myJetpackCheckoutUri } = window?.myJetpackInitialState ?? {};
+	const { myJetpackCheckoutUri = '' } = getMyJetpackWindowState();
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );

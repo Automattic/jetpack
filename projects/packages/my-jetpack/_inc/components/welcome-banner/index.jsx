@@ -17,7 +17,7 @@ import styles from './style.module.scss';
  * @returns {object} The WelcomeBanner component.
  */
 const WelcomeBanner = () => {
-	const isNewUser = getMyJetpackWindowState( 'userIsNewToJetpack', '0' ) === '1';
+	const isNewUser = getMyJetpackWindowState( 'userIsNewToJetpack' ) === '1';
 	const { recordEvent } = useAnalytics();
 	const { isDismissed, dismissWelcomeBanner } = useWelcomeBanner();
 	const { isRegistered, isUserConnected } = useConnection();

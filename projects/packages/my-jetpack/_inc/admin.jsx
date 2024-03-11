@@ -30,6 +30,7 @@ import {
 import RedeemTokenScreen from './components/redeem-token-screen';
 import { MyJetpackRoutes } from './constants';
 import NoticeContextProvider from './context/notices/noticeContext';
+import getMyJetpackWindowState from './data/utils/get-my-jetpack-window-state';
 
 import './style.module.scss';
 
@@ -47,6 +48,7 @@ function ScrollToTop() {
 
 const MyJetpack = () => {
 	const queryClient = new QueryClient();
+	const { loadAddLicenseScreen } = getMyJetpackWindowState();
 
 	return (
 		<ThemeProvider>
@@ -78,7 +80,7 @@ const MyJetpack = () => {
 								element={ <VideoPressInterstitial /> }
 							/>
 							<Route path={ MyJetpackRoutes.AddStats } element={ <StatsInterstitial /> } />
-							{ window?.myJetpackInitialState?.loadAddLicenseScreen && (
+							{ loadAddLicenseScreen && (
 								<Route path={ MyJetpackRoutes.AddLicense } element={ <AddLicenseScreen /> } />
 							) }
 							<Route path={ MyJetpackRoutes.RedeemToken } element={ <RedeemTokenScreen /> } />
