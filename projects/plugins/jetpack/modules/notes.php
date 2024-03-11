@@ -202,16 +202,15 @@ class Jetpack_Notifications {
 		);
 	}
 
+	/**
+	 * Returns the HTML markup for used by notification in top bar
+	 *
+	 * @return string
+	 */
 	private static function get_notes_markup() {
-		$last_unseen_noticon = null;
-		$user_id = absint( get_current_user_id() );
-		if ( $user_id && function_exists( 'notes_get_last_unseen_noticon' ) ) {
-			//TODO: May need to replace this with an API call to figure out if there are any unread notifications.
-			$last_unseen_noticon = notes_get_last_unseen_noticon( $user_id );
-		}
-		$classes = 'wpnt-loading';
-		$classes .= $last_unseen_noticon ? ' wpn-unread' : ' wpn-read';
-		return '<span id="wpnt-notes-unread-count" class="' . esc_attr( $classes ) . '"></span><span class="noticon noticon-bell"></span><span class="screen-reader-text">' . __( 'Notifications' ) . '</span>';
+		return '<span id="wpnt-notes-unread-count" class="wpnt-loading wpn-read"></span>
+<span class="noticon noticon-bell"></span>
+<span class="screen-reader-text">' . __( 'Notifications', 'jetpack' ) . '</span>';
 	}
 
 	/**
