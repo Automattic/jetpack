@@ -26,6 +26,32 @@ function should_load_wpcom_command_palette() {
 }
 
 /**
+ * Checks if GitHub Deployments is available for a site.
+ *
+ * @param int $site_id Site id to check.
+ *
+ * @return bool True if GitHub Deployments is available for the site, false otherwise.
+ */
+function is_gh_deployments_available( $site_id ) {
+	$automattician_check = false;
+	if ( function_exists( 'wpcom_get_blog_owner' ) ) {
+		$site_owner          = wpcom_get_blog_owner( $site_id );
+		$automattician_check = is_automattician( $site_owner );
+	}
+
+	$has_sticker = false;
+	if ( function_exists( 'has_blog_sticker' ) ) {
+		$has_sticker = has_blog_sticker( 'wpcom-github-deployments', $site_id );
+	}
+
+	if ( function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+		$has_sticker = wpcomsh_is_site_sticker_active( 'wpcom-github-deployments', $site_id );
+	}
+
+	return $automattician_check || $has_sticker;
+}
+
+/**
  * Load the WPCom Command Palette.
  */
 function wpcom_load_command_palette() {
@@ -59,14 +85,8 @@ function wpcom_load_command_palette() {
 			'in_footer' => true,
 		)
 	);
-	$site_id             = Jetpack_Options::get_option( 'id' );
-	$is_p2_site          = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( $site_id );
-	$automattician_check = false;
-	if ( function_exists( 'wpcom_get_blog_owner' ) ) {
-		$site_owner          = wpcom_get_blog_owner( $site_id );
-		$automattician_check = is_automattician( $site_owner );
-	}
-	$site_owner = wpcom_get_blog_owner( $site_id );
+	$site_id    = Jetpack_Options::get_option( 'id' );
+	$is_p2_site = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( $site_id );
 	$data       = wp_json_encode(
 		array(
 			'siteId'              => $site_id,
@@ -81,7 +101,7 @@ function wpcom_load_command_palette() {
 			'shouldUseWpAdmin'    => 'wp-admin' === get_option( 'wpcom_admin_interface' ),
 			'siteHostname'        => wpcom_get_site_slug(),
 			'isWpcomStore'        => $host->is_woa_site() && is_plugin_active( 'woocommerce/woocommerce.php' ),
-			'isGHDeployAvailable' => $automattician_check || has_blog_sticker( 'wpcom-github-deployments', $site_id ),
+			'isGHDeployAvailable' => is_gh_deployments_available( $site_id ),
 		)
 	);
 	wp_add_inline_script(
