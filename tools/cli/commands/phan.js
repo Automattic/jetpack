@@ -235,6 +235,13 @@ export async function handler( argv ) {
 
 	const issues = [];
 	const projects = new Set( argv.project );
+
+	// Avoid a node warning about too many event listeners.
+	if ( argv.v ) {
+		process.stdout.setMaxListeners( projects.size + 10 );
+		process.stderr.setMaxListeners( projects.size + 10 );
+	}
+
 	for ( const project of projects ) {
 		// Does the project even exist?
 		if (
