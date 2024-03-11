@@ -16,8 +16,9 @@ export default function useConnectionWatcher() {
 	const { setNotice } = useContext( NoticeContext );
 	const navToConnection = useMyJetpackNavigate( MyJetpackRoutes.Connection );
 	const products = useAllProducts();
-	const productSlugsThatRequireUserConnection =
-		getProductSlugsThatRequireUserConnection( products );
+	const productSlugsThatRequireUserConnection = getProductSlugsThatRequireUserConnection(
+		Object.values( products )
+	);
 
 	const { isSiteConnected, hasConnectedOwner, isUserConnected } = useMyJetpackConnection();
 	const requiresUserConnection =
@@ -46,13 +47,11 @@ export default function useConnectionWatcher() {
 				message: needsUserConnectionMessage,
 				options: {
 					status: 'warning',
-					actions: [
-						{
-							label: __( 'Connect your user account to fix this', 'jetpack-my-jetpack' ),
-							onClick: navToConnection,
-							noDefaultClasses: true,
-						},
-					],
+					actions: {
+						label: __( 'Connect your user account to fix this', 'jetpack-my-jetpack' ),
+						onClick: navToConnection,
+						noDefaultClasses: true,
+					},
 				},
 			} );
 		}
