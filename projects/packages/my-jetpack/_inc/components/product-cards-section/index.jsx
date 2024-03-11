@@ -10,6 +10,7 @@ import CrmCard from './crm-card';
 import ProtectCard from './protect-card';
 import SearchCard from './search-card';
 import SocialCard from './social-card';
+import StatsCard from './stats-card';
 import styles from './style.module.scss';
 import VideopressCard from './videopress-card';
 
@@ -20,6 +21,7 @@ import VideopressCard from './videopress-card';
  */
 const ProductCardsSection = () => {
 	const { isAtomic = false, userIsAdmin = false } = getMyJetpackWindowState();
+	const { showFullJetpackStatsCard = false } = getMyJetpackWindowState( 'myJetpackFlags' );
 
 	const items = {
 		backups: BackupCard,
@@ -28,7 +30,8 @@ const ProductCardsSection = () => {
 		boost: BoostCard,
 		search: SearchCard,
 		videopress: VideopressCard,
-		// Stats card is shown in the <StatsSection/> component.
+		// If we aren't showing the big stats card, we show the smaller one with the rest.
+		stats: ! showFullJetpackStatsCard ? StatsCard : null,
 		crm: CrmCard,
 		creator: ! isAtomic ? CreatorCard : null,
 		social: SocialCard,
