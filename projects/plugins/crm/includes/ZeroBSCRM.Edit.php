@@ -164,19 +164,16 @@ class zeroBSCRM_Edit{
 
         global $zbs;
 
-        // only do this stuff v3.0+
-        if ($zbs->isDAL3()){
-
           $is_malformed_obj = false;
 
           if (is_array($this->obj) && isset($this->obj['owner'])){
 				$obj_owner = (int) $this->obj['owner'];
 
 				// Transactions can have a contact or company assigned, and quotes just a contact. This covers checking owners for both.
-				if ( isset( $this->obj['contact'][0]['owner'] ) ) {
+			if ( isset( $this->obj['contact'][0]['owner'] ) ) {
 					$obj_owner = (int) $this->obj['contact'][0]['owner'];
 
-				} elseif ( isset( $this->obj['company'][0]['owner'] ) ) {
+			} elseif ( isset( $this->obj['company'][0]['owner'] ) ) {
 					$obj_owner = (int) $this->obj['company'][0]['owner'];
 				// phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact,Generic.WhiteSpace.ScopeIndent.Incorrect -- this sniff is incorrectly reporting spacing issues.
 				}
@@ -205,14 +202,14 @@ class zeroBSCRM_Edit{
           // get current user
 			$current_user_id = get_current_user_id();
 
-			if ( $obj_owner > 0 && $obj_owner != $current_user_id ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- as below, there is the chance the numbers could be strings here, as expected elsewhere in the plugin.
+		if ( $obj_owner > 0 && $obj_owner != $current_user_id ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- as below, there is the chance the numbers could be strings here, as expected elsewhere in the plugin.
 				// not current user
 				// does user have perms to edit?
 				$can_edit_all_contacts = current_user_can( 'admin_zerobs_customers' ) && $zbs->settings->get( 'perusercustomers' ) == 0; // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual,WordPress.WP.Capabilities.Unknown  -- this was defined in ZeroBSCRM.Permissions.php.
 				$can_give_ownership    = $zbs->settings->get( 'usercangiveownership' ) == 1; // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- also above, there is the chance the numbers could be strings here, as expected elsewhere in the plugin.
 				$can_change_owner      = ( $can_give_ownership || current_user_can( 'manage_options' ) || $can_edit_all_contacts );
 
-				if ( ! $can_change_owner ) {
+			if ( ! $can_change_owner ) {
 
 					// owners can't be changed with user's perms, so denied msg
 					// Translators: %s is the object type (for example transaction, quote, invoice).
@@ -234,8 +231,6 @@ class zeroBSCRM_Edit{
 
           }
 
-        }
-        
         //load if is legit
         return true;
     }
