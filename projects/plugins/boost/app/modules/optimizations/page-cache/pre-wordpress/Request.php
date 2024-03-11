@@ -84,11 +84,9 @@ class Request {
 		}
 
 		// Check if the query parameters `jb-disable-modules` or `jb-generate-critical-css` exist.
-		if ( isset( $this->request_parameters['get'] ) &&
-			(
-				isset( $this->request_parameters['get']['jb-disable-modules'] ) ||
-				isset( $this->request_parameters['get']['jb-generate-critical-css'] )
-			)
+		$query_params = isset( $this->request_parameters['get'] ) ? $this->request_parameters['get'] : array();
+		if ( isset( $query_params ) &&
+			( isset( $query_params['jb-disable-modules'] ) || isset( $query_params['jb-generate-critical-css'] ) )
 		) {
 			return true;
 		}
