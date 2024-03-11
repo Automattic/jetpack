@@ -30,6 +30,22 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	const POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS = 'paid_subscribers_all_tiers';
 
 	/**
+	 * An optional user_id to query against (omitting this will use either the token or current user id)
+	 *
+	 * @var int|null
+	 */
+	protected $user_id = null;
+
+	/**
+	 * Constructor
+	 *
+	 * @param int|null $user_id An optional user_id to query subscriptions against. Uses token from request/cookie or logged-in user information if omitted.
+	 */
+	public function __construct( $user_id = null ) {
+		$this->user_id = $user_id;
+	}
+
+	/**
 	 * Initialize the token subscription service.
 	 *
 	 * @inheritDoc
@@ -444,7 +460,8 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 		}
 
 		if ( ! empty( $token ) && false === headers_sent() ) {
-			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, 0, '/', COOKIE_DOMAIN, is_ssl(), true ); // httponly -- used by visitor_can_view_content() within the PHP context.
+			// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
+			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, strtotime( '+1 month' ), '/', COOKIE_DOMAIN, is_ssl(), false );
 		}
 	}
 

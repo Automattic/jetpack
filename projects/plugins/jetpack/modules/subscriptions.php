@@ -135,6 +135,14 @@ class Jetpack_Subscriptions {
 
 		// Add Subscribers menu to Jetpack navigation.
 		add_action( 'jetpack_admin_menu', array( $this, 'add_subscribers_menu' ) );
+
+		// Customize the configuration URL to lead to the Subscriptions settings.
+		add_filter(
+			'jetpack_module_configuration_url_subscriptions',
+			function () {
+				return Jetpack::admin_url( array( 'page' => 'jetpack#/newsletter' ) );
+			}
+		);
 	}
 
 	/**

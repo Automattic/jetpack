@@ -1,6 +1,3 @@
-// eslint-disable-next-line no-unused-vars
-/* global myJetpackInitialState */
-
 import {
 	Button,
 	Notice,
@@ -16,6 +13,7 @@ import { sprintf, __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import { useCallback, useMemo } from 'react';
 import useProduct from '../../data/products/use-product';
+import getMyJetpackWindowState from '../../data/utils/get-my-jetpack-window-state';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 
 /**
@@ -40,7 +38,7 @@ const ProductDetailTableColumn = ( {
 	tier,
 	trackProductButtonClick,
 } ) => {
-	const { siteSuffix, myJetpackCheckoutUri } = window?.myJetpackInitialState ?? {};
+	const { siteSuffix = '', myJetpackCheckoutUri = '' } = getMyJetpackWindowState();
 
 	// Extract the product details.
 	const {
@@ -222,7 +220,7 @@ const ProductDetailTable = ( {
 	trackProductButtonClick,
 	isFetching,
 } ) => {
-	const { fileSystemWriteAccess } = window?.myJetpackInitialState ?? {};
+	const { fileSystemWriteAccess = 'no' } = getMyJetpackWindowState();
 
 	const { detail } = useProduct( slug );
 	const { description, featuresByTier = [], pluginSlug, status, tiers = [], title } = detail;

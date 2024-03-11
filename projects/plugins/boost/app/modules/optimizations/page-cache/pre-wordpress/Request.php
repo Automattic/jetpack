@@ -83,6 +83,14 @@ class Request {
 			$request_uri = $this->request_uri;
 		}
 
+		// Check if the query parameters `jb-disable-modules` or `jb-generate-critical-css` exist.
+		$query_params = isset( $this->request_parameters['get'] ) ? $this->request_parameters['get'] : array();
+		if ( isset( $query_params ) &&
+			( isset( $query_params['jb-disable-modules'] ) || isset( $query_params['jb-generate-critical-css'] ) )
+		) {
+			return true;
+		}
+
 		$bypass_patterns = Boost_Cache_Settings::get_instance()->get_bypass_patterns();
 
 		/**

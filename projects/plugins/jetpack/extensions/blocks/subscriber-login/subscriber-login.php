@@ -73,7 +73,6 @@ function get_current_url() {
 function get_subscriber_login_url( $redirect ) {
 	$redirect = ! empty( $redirect ) ? $redirect : get_site_url();
 
-	// Taken from projects/plugins/jetpack/extensions/blocks/subscriptions/subscriptions.php and simplified a bit
 	if ( ( new Host() )->is_wpcom_simple() ) {
 		// On WPCOM we will redirect immediately
 		return wpcom_logmein_redirect_url( $redirect, false, null, 'link', get_current_blog_id() );
@@ -88,7 +87,7 @@ function get_subscriber_login_url( $redirect ) {
 			'site_id'      => intval( Jetpack_Options::get_option( 'id' ) ),
 			'redirect_url' => rawurlencode( $redirect_url ),
 		),
-		'https://subscribe.wordpress.com/memberships/jwt'
+		'https://subscribe.wordpress.com/memberships/jwt/'
 	);
 }
 
