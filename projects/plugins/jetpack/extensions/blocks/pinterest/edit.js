@@ -1,10 +1,8 @@
-import { BlockControls } from '@wordpress/block-editor';
 import { SandBox, withNotices } from '@wordpress/components';
 import { useState, useEffect, useCallback } from '@wordpress/element';
 import EditUrlForm from './components/edit-url-form';
 import ErrorNotice from './components/error-notice';
 import LoadingContainer from './components/loading-container';
-import { PinterestBlockControls } from './controls';
 import useTestPinterestEmbedUrl from './hooks/use-test-pinterest-embed-url';
 import { pinType } from './utils';
 
@@ -119,9 +117,6 @@ export function PinterestEdit( {
 	/* eslint-disable jsx-a11y/no-static-element-interactions */
 	return (
 		<div className={ className }>
-			<BlockControls>
-				<PinterestBlockControls setEditingState={ setIsEditing } />
-			</BlockControls>
 			<div>
 				<SandBox
 					html={ sandBoxHTML }
