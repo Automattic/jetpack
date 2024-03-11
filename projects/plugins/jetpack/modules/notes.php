@@ -124,7 +124,7 @@ class Jetpack_Notifications {
 		}
 
 		if ( ! $is_rtl ) {
-			wp_enqueue_style( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-v2.css' ), array( 'admin-bar' ), JETPACK_NOTES__CACHE_BUSTER );
+			wp_enqueue_style( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-v2.css' ), array( 'admin-bar' ), JETPACK_NOTES__CACHE_BUSTER . '-' . time() );
 		} else {
 			wp_enqueue_style( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/rtl/admin-bar-v2-rtl.css' ), array( 'admin-bar' ), JETPACK_NOTES__CACHE_BUSTER );
 		}
@@ -187,14 +187,11 @@ class Jetpack_Notifications {
 
 		$third_party_cookie_check_iframe = '<span style="display:none;"><iframe class="jetpack-notes-cookie-check" src="https://widgets.wp.com/3rd-party-cookie-check/index.html"></iframe></span>';
 
-		$classes = 'wpnt-loading wpn-read';
+		$title = self::get_notes_markup();
 		$wp_admin_bar->add_menu(
 			array(
 				'id'     => 'notes',
-				'title'  => '<span id="wpnt-notes-unread-count" class="' . esc_attr( $classes ) . '">
-					<span class="screen-reader-text">' . esc_html__( 'Notifications', 'jetpack' ) . '</span>
-					<span class="noticon noticon-bell"></span>
-					</span>',
+				'title'  => $title,
 				'meta'   => array(
 					'html'  => '<div id="wpnt-notes-panel2" class="intrinsic-ignore" style="display:none" lang="' . esc_attr( $wpcom_locale ) . '" dir="' . ( is_rtl() ? 'rtl' : 'ltr' ) . '"><div class="wpnt-notes-panel-header"><span class="wpnt-notes-header">' . __( 'Notifications', 'jetpack' ) . '</span><span class="wpnt-notes-panel-link"></span></div></div>' . $third_party_cookie_check_iframe,
 					'class' => 'menupop',
@@ -203,6 +200,17 @@ class Jetpack_Notifications {
 				'href'   => 'https://wordpress.com/notifications',
 			)
 		);
+	}
+
+	private static function get_notes_markup() {
+		$last_unseen_noticon = null;
+		$user_id = absint( get_current_user_id() );
+		if ( $user_id && function_exists( 'notes_get_last_unseen_noticon' ) ) {
+			$last_unseen_noticon = notes_get_last_unseen_noticon( $user_id );
+		}
+		$classes = 'wpnt-loading';
+		$classes .= $last_unseen_noticon ? ' wpn-unread' : ' wpn-read';
+		return '<span id="wpnt-notes-unread-count" class="' . esc_attr( $classes ) . '"></span><span class="noticon noticon-bell"></span><span class="ab-text">' . __( 'Notifications' ) . '</span>';
 	}
 
 	/**
