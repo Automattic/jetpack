@@ -163,6 +163,15 @@ function wpcom_add_wpcom_menu_item() {
 
 	add_submenu_page(
 		$parent_slug,
+		esc_attr__( 'Connections', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Connections', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		esc_url( "https://wordpress.com/marketing/connections/$domain" ),
+		null
+	);
+
+	add_submenu_page(
+		$parent_slug,
 		esc_attr__( 'Settings', 'jetpack-mu-wpcom' ),
 		esc_attr__( 'Settings', 'jetpack-mu-wpcom' ),
 		'manage_options',
