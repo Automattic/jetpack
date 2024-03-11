@@ -179,7 +179,7 @@ class zeroBSCRM_Edit{
 				}
 
 				// This covers checking owners for assigned contacts or companies in invoices.
-				if ( $this->objTypeID === 4 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				if ( $this->objTypeID === ZBS_TYPE_INVOICE ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 					$data = zeroBSCRM_invoicing_getInvoiceData( $this->objID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 					if ( ! empty( $data['invoiceObj']['contact'] ) ) {
 						$obj_owner = (int) $data['invoiceObj']['contact'][0]['owner'];
