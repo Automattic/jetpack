@@ -1,24 +1,32 @@
 import { __ } from '@wordpress/i18n';
 import { useState } from 'react';
-import { REST_API_SITE_DISMISS_BANNER } from '../../data/constants';
+import {
+	QUERY_DISMISS_WELCOME_BANNER_KEY,
+	REST_API_SITE_DISMISS_BANNER,
+} from '../../data/constants';
 import useSimpleMutation from '../use-simple-mutation';
+import getMyJetpackWindowState from '../utils/get-my-jetpack-window-state';
 
 const useWelcomeBanner = () => {
-	const hasBeenDismissed = window?.myJetpackInitialState?.welcomeBanner?.hasBeenDismissed;
-	const [ isDismissed, setIsDismissed ] = useState( hasBeenDismissed );
+	const { hasBeenDismissed: welcomeBannerHasBeenDismissed } =
+		getMyJetpackWindowState( 'welcomeBanner' );
 
-	const { mutate: dismissWelcomeBanner } = useSimpleMutation(
-		'dismissWelcomeBanner',
-		{
+	const [ isDismissed, setIsDismissed ] = useState( welcomeBannerHasBeenDismissed );
+
+	const { mutate: dismissWelcomeBanner } = useSimpleMutation( {
+		name: QUERY_DISMISS_WELCOME_BANNER_KEY,
+		query: {
 			path: REST_API_SITE_DISMISS_BANNER,
 			method: 'POST',
 		},
-		{
+		options: {
 			onSuccess: () => setIsDismissed( true ),
 		},
-		null,
-		__( 'Failed to dismiss the welcome banner. Please try again', 'jetpack-my-jetpack' )
-	);
+		errorMessage: __(
+			'Failed to dismiss the welcome banner. Please try again',
+			'jetpack-my-jetpack'
+		),
+	} );
 
 	return {
 		dismissWelcomeBanner,

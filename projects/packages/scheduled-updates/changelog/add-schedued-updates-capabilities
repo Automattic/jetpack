@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Added a new endpoint /plugins/capabilities that returns whether we can update plugins.

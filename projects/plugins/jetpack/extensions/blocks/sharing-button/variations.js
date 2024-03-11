@@ -64,6 +64,12 @@ export const variations = [
 		icon: <SocialIcon icon={ 'telegram' } size={ 24 } />,
 	},
 	{
+		name: 'threads',
+		attributes: { service: 'threads', label: 'Threads' },
+		title: 'Threads',
+		icon: <SocialIcon icon={ 'threads' } size={ 24 } />,
+	},
+	{
 		name: 'tumblr',
 		attributes: { service: 'tumblr', label: 'Tumblr' },
 		title: 'Tumblr',

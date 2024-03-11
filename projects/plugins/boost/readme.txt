@@ -1,11 +1,11 @@
 === Jetpack Boost - Website Speed, Performance and Critical CSS  ===
-Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dilirity, ebinnion, exelero, jeherve, jpolakovic, karthikbhatb, kraftbj, luchad0res, pyronaur, rheinardkorf, scruffian, thingalon
+Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dilirity, donncha, ebinnion, exelero, jeherve, jpolakovic, karthikbhatb, kraftbj, luchad0res, pyronaur, rheinardkorf, scruffian, thingalon
 Donate link: https://automattic.com
-Tags: performance, speed, pagespeed, web vitals, critical css, optimize, defer
+Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 5.5
 Tested up to: 6.5
 Requires PHP: 7.0
-Stable tag: 3.0.2
+Stable tag: 3.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,26 +183,26 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.1.1-beta - 2024-03-01
+### 3.1.1 - 2024-03-11
 #### Added
 - Cache: Added a Page Cache module.
 - Defer JS: Automatically exclude JSON-LD schemas.
 - Speed Scores: Added support for annotating points of time in the speed score history graph.
 
 #### Changed
-- Image Guide: Removed beta flag
 - General: Better error handling for invalid data when running wp-admin pages.
+- General: Enabled React.StrictMode for development.
 - General: Improved error handling.
 - General: Indicate compatibility with the upcoming version of WordPress, 6.5.
-- General: Enabled React.StrictMode for development.
 - General: Switch to using Blog ID links instead of site slugs in checkout flow.
+- Image Guide: Removed beta flag
 
 #### Fixed
 - Critical CSS: Prevent errors when page_for_posts misconfigured.
 - Critical CSS: Prevent missing archive pages from breaking the generation process.
 - General: Prevent missing pricing information from affecting the getting started flow.
 - Image Size Analysis: Update summary groups to align with status icons.
-- JS and CSS concat: Ensure minification is enabled.
+- Concatenate JS/CSS: Ensure minification is enabled.
 
 --------
 

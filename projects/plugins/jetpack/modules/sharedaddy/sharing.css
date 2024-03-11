@@ -340,6 +340,22 @@ body .sd-content ul li.share-custom.no-icon a span {
 .sd-social-official .sd-content li.share-telegram a:before {
 	color: #0088cc;
 }
+
+.sd-social-icon .sd-content ul li.share-threads a:before,
+.sd-social-text .sd-content ul li.share-threads a:before,
+.sd-content ul li.share-threads div.option.option-smart-off a:before,
+.sd-social-icon-text .sd-content li.share-threads a:before,
+.sd-social-official .sd-content li.share-threads a:before {
+	content: '\f10d';
+}
+.sd-social-official .sd-content li.share-threads a:before {
+	color: #000;
+}
+.sd-social-icon .sd-content ul li[class*='share-'].share-threads a.sd-button {
+	background: #000;
+	color: #fff !important;
+}
+
 .sd-social-icon .sd-content ul li.share-mastodon a:before,
 .sd-social-text .sd-content ul li.share-mastodon a:before,
 .sd-content ul li.share-mastodon div.option.option-smart-off a:before,
