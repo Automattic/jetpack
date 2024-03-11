@@ -4809,7 +4809,11 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
         if ($inCompany) $whereArr['incompany'] = array('ID','IN','(SELECT DISTINCT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_CONTACT." AND zbsol_objtype_to = ".ZBS_TYPE_COMPANY." AND zbsol_objid_to = %d)",$inCompany);
 
-        if ($withStatus !== false && !empty($withStatus)) $whereArr['status'] = array('zbsc_status','=','%s',$withStatus);
+			// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			if ( $withStatus !== false && ! empty( $withStatus ) ) {
+				$whereArr['status'] = array( 'zbsc_status', '=', 'convert(%s using utf8mb4) collate utf8mb4_bin', $withStatus );
+			}
+			// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
         return $this->DAL()->getFieldByWHERE(array(
             'objtype' => ZBS_TYPE_CONTACT,
