@@ -251,6 +251,14 @@ export async function handler( argv ) {
 			continue;
 		}
 
+		// Does the project have a phan config?
+		if ( ( await fs.access( projectDir( project, '.phan' ) ).catch( () => false ) ) === false ) {
+			if ( ! argv.all ) {
+				console.error( chalk.yellow( `Project ${ project } has no phan config, skipping` ) );
+			}
+			continue;
+		}
+
 		const projectPhanArgs = checkFilesByProject[ project ]
 			? [ ...phanArgs, '--include-analysis-file-list', checkFilesByProject[ project ].join( ',' ) ]
 			: phanArgs;
