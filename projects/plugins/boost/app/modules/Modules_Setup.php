@@ -9,8 +9,6 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Regenerate;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
@@ -81,7 +79,6 @@ class Modules_Setup implements Has_Setup {
 	 */
 	public function setup() {
 		add_action( 'plugins_loaded', array( $this, 'init_modules' ) );
-		add_filter( 'plugins_loaded', array( $this, 'disable_caching_if_module_disabled' ), 11, 2 );
 		add_action( 'jetpack_boost_module_status_updated', array( $this, 'on_module_status_update' ), 10, 2 );
 	}
 
@@ -108,21 +105,6 @@ class Modules_Setup implements Has_Setup {
 
 		if ( $module_slug === Cloud_CSS::get_slug() && $is_activated ) {
 			( new Regenerate() )->start();
-		}
-	}
-
-	/**
-	 * Disable caching if the module is disabled.
-	 * Cache is a special case because it starts working before WordPress and module setup happens.
-	 * So, we need to tell it to not cache the page if we find the module is disabled.
-	 */
-	public function disable_caching_if_module_disabled() {
-		// Check if the module is disabled via query parameter.
-		if ( ! array_key_exists( Page_Cache::get_slug(), $this->available_modules ) ) {
-			if ( ! defined( 'DONOTCACHEPAGE' ) ) {
-				define( 'DONOTCACHEPAGE', true );
-			}
-			Logger::debug( 'Page Cache module is disabled via query string, caching disabled' );
 		}
 	}
 }
