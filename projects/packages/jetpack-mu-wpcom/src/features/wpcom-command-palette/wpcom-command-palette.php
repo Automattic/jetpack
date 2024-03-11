@@ -59,8 +59,13 @@ function wpcom_load_command_palette() {
 			'in_footer' => true,
 		)
 	);
-	$site_id    = Jetpack_Options::get_option( 'id' );
-	$is_p2_site = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( $site_id );
+	$site_id             = Jetpack_Options::get_option( 'id' );
+	$is_p2_site          = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( $site_id );
+	$automattician_check = false;
+	if ( function_exists( 'wpcom_get_blog_owner' ) ) {
+		$site_owner          = wpcom_get_blog_owner( $site_id );
+		$automattician_check = is_automattician( $site_owner );
+	}
 	$site_owner = wpcom_get_blog_owner( $site_id );
 	$data       = wp_json_encode(
 		array(
@@ -76,7 +81,7 @@ function wpcom_load_command_palette() {
 			'shouldUseWpAdmin'    => 'wp-admin' === get_option( 'wpcom_admin_interface' ),
 			'siteHostname'        => wpcom_get_site_slug(),
 			'isWpcomStore'        => $host->is_woa_site() && is_plugin_active( 'woocommerce/woocommerce.php' ),
-			'isGHDeployAvailable' => is_automattician( $site_owner ) || has_blog_sticker( 'wpcom-github-deployments', $site_id ),
+			'isGHDeployAvailable' => $automattician_check || has_blog_sticker( 'wpcom-github-deployments', $site_id ),
 		)
 	);
 	wp_add_inline_script(
