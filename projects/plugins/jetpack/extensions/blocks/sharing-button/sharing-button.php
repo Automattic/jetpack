@@ -66,8 +66,22 @@ function render_block( $attr, $content, $block ) {
 	);
 
 	$services = get_services();
-	$service  = new $services[ $service_name ]( $service_name, array() );
+	if ( ! array_key_exists( $service_name, $services ) ) {
+		return $content;
+	}
 
+	$service         = new $services[ $service_name ]( $service_name, array() );
+	$link_props      = $service->get_link(
+		$post_id,
+		'share=' . esc_attr( $service_name ) . '&nb=1',
+		esc_attr( $data_shared )
+	);
+	$link_url        = $link_props['url'];
+	$link_classes    = sprintf(
+		'jetpack-sharing-button__button style-%1$s share-%2$s',
+		$style_type,
+		$service_name
+	);
 	$link_aria_label = sprintf(
 		/* translators: %s refers to a string representation of sharing service, e.g. Facebook  */
 		esc_html__( 'Share on %s', 'jetpack' ),
@@ -156,6 +170,7 @@ function get_services() {
 		'pinterest' => Share_Pinterest_Block::class,
 		'pocket'    => Share_Pocket_Block::class,
 		'telegram'  => Share_Telegram_Block::class,
+		'threads'   => Share_Threads_Block::class,
 		'whatsapp'  => Jetpack_Share_WhatsApp_Block::class,
 		'mastodon'  => Share_Mastodon_Block::class,
 		'nextdoor'  => Share_Nextdoor_Block::class,

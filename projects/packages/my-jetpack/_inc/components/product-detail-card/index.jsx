@@ -1,6 +1,3 @@
-// eslint-disable-next-line no-unused-vars
-/* global myJetpackInitialState */
-
 import { getCurrencyObject } from '@automattic/format-currency';
 import {
 	CheckmarkIcon,
@@ -17,8 +14,9 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, plus } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useCallback } from 'react';
+import useProduct from '../../data/products/use-product';
+import getMyJetpackWindowState from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
-import { useProduct } from '../../hooks/use-product';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 import ProductDetailButton from '../product-detail-button';
 import styles from './style.module.scss';
@@ -70,6 +68,7 @@ function Price( { value, currency, isOld } ) {
  * @param {boolean} [props.hideTOS]              - Whether to hide the Terms of Service text
  * @param {number} [props.quantity]              - The quantity of the product to purchase
  * @param {boolean} [props.highlightLastFeature] - Whether to highlight the last feature of the list of features
+ * @param {boolean} [props.isFetching]           - Whether the product is being fetched
  * @returns {object}                               ProductDetailCard react component.
  */
 const ProductDetailCard = ( {
@@ -83,11 +82,17 @@ const ProductDetailCard = ( {
 	hideTOS = false,
 	quantity = null,
 	highlightLastFeature = false,
+	isFetching = false,
 } ) => {
-	const { fileSystemWriteAccess, siteSuffix, adminUrl, myJetpackCheckoutUri } =
-		window?.myJetpackInitialState ?? {};
+	const {
+		fileSystemWriteAccess = 'no',
+		siteSuffix = '',
+		adminUrl = '',
+		myJetpackCheckoutUri = '',
+	} = getMyJetpackWindowState();
 
-	const { detail, isFetching } = useProduct( slug );
+	const { detail } = useProduct( slug );
+
 	const {
 		name,
 		title,

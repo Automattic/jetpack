@@ -159,6 +159,9 @@ li.service.share-press-this span:before {	/* Fixme: remove this button in favor 
 li.service.share-telegram span:before {
 	content: '\f606';
 }
+li.service.share-threads span:before {
+	content: '\f10d';
+}
 li.service.share-jetpack-whatsapp span:before {
 	content: '\f608';
 }

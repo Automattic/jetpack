@@ -116,7 +116,7 @@ type AiAssistantDropdownContentProps = {
 function AiAssistantDropdownContent( {
 	onClose,
 	blockType,
-}: AiAssistantDropdownContentProps ): React.ReactNode {
+}: AiAssistantDropdownContentProps ): React.JSX.Element {
 	// Set the state for the no content info.
 	const [ noContent, setNoContent ] = useState( false );
 

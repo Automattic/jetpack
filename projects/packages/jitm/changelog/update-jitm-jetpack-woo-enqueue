@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Performance: only enqueue the JITM JavaScript on pages where it will be used.
