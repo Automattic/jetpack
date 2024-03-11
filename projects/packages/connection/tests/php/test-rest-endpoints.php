@@ -906,7 +906,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * Testing the `remote_connect` endpoint with proper authentication.
 	 * Response: `already_connected`, meaning that the REST endpoint passed the data to the handler.
 	 */
-	public function test_remote_provision_authenticated() {
+	public function test_remote_connect_authenticated() {
 		wp_set_current_user( 0 );
 
 		// Mock full connection established.
