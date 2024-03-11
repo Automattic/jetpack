@@ -60,7 +60,7 @@ class Grunion_Editor_View {
 	public static function mce_external_plugins( $plugin_array ) {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::mce_external_plugins' );
 
-		return Editor_View::grunion_media_button( $plugin_array );
+		return Editor_View::mce_external_plugins( $plugin_array );
 	}
 
 	/**
