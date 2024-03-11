@@ -489,7 +489,7 @@ export default function VideoPressEdit( {
 						}
 					} }
 					icon={ captionIcon }
-					isPressed={ showCaption }
+					aria-pressed={ showCaption }
 					label={ showCaption ? removeCaptionLabel : addCaptionLabel }
 				/>
 
