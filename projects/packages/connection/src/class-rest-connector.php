@@ -319,7 +319,7 @@ class REST_Connector {
 	}
 
 	/**
-	 * Remote register endpoint permission check.
+	 * Remote provision endpoint permission check.
 	 *
 	 * @return true|WP_Error
 	 */
