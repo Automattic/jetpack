@@ -8,7 +8,9 @@ import React, { useCallback, useState, useMemo } from 'react';
 /*
  * Internal dependencies
  */
+import { QUERY_LICENSES_KEY } from '../../data/constants';
 import useJetpackApiQuery from '../../data/use-jetpack-api-query';
+import getMyJetpackWindowState from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import GoBackLink from '../go-back-link';
 
@@ -19,10 +21,10 @@ import GoBackLink from '../go-back-link';
  */
 export default function AddLicenseScreen() {
 	const { recordEvent } = useAnalytics();
-	const { data: licenses = [], isLoading: fetchingAvailableLicenses } = useJetpackApiQuery(
-		'available licenses',
-		async api => ( await api.getUserLicenses() )?.items
-	);
+	const { data: licenses = [], isLoading: fetchingAvailableLicenses } = useJetpackApiQuery( {
+		name: QUERY_LICENSES_KEY,
+		queryFn: async api => ( await api.getUserLicenses() )?.items,
+	} );
 	const { userConnectionData } = useConnection();
 	const [ hasActivatedLicense, setHasActivatedLicense ] = useState( false );
 
@@ -48,6 +50,8 @@ export default function AddLicenseScreen() {
 		[ licenses ]
 	);
 
+	const { siteSuffix = '', adminUrl = '' } = getMyJetpackWindowState();
+
 	return (
 		<AdminPage showHeader={ false } showBackground={ false }>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
@@ -60,8 +64,8 @@ export default function AddLicenseScreen() {
 						availableLicenses={ availableLicenses }
 						fetchingAvailableLicenses={ fetchingAvailableLicenses }
 						onActivationSuccess={ handleActivationSuccess }
-						siteAdminUrl={ window?.myJetpackInitialState?.adminUrl }
-						siteRawUrl={ window?.myJetpackInitialState?.siteSuffix }
+						siteAdminUrl={ adminUrl }
+						siteRawUrl={ siteSuffix }
 						displayName={ displayName }
 					/>
 				</Col>
