@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Cache: Disable caching when boost query parameters are present.
