@@ -45,8 +45,8 @@ function Subscriptions( props ) {
 			{ foundSubscriptions && (
 				<>
 					<SubscriptionsSettings siteRawUrl={ siteRawUrl } blogID={ blogID } />
-					{ isEmailSettingsEnabled && <EmailSettings /> }
-					{ isNewsletterCategoriesEnabled && <NewsletterCategories /> }
+					<EmailSettings />
+					<NewsletterCategories />
 					<MessagesSetting { ...props } />
 				</>
 			) }
