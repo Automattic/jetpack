@@ -13,6 +13,7 @@ import {
 } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import useSimpleQuery from '../../../data/use-simple-query';
+import getMyJetpackWindowState from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
 import ProductCard from '../../connected-product-card';
 import { PRODUCT_STATUSES } from '../../product-card/action-button';
@@ -144,6 +145,7 @@ const WithBackupsValueSection = ( { admin, slug } ) => {
 	const lastRewindableEventTime = lastRewindableEvent?.published;
 	const undoBackupId = data?.undo_backup_id;
 	const { recordEvent } = useAnalytics();
+	const { siteSuffix = '' } = getMyJetpackWindowState();
 
 	const handleUndoClick = () => {
 		recordEvent( 'jetpack_myjetpack_backup_card_undo_click', {
@@ -155,7 +157,7 @@ const WithBackupsValueSection = ( { admin, slug } ) => {
 	const undoAction = {
 		href: getRedirectUrl( 'jetpack-backup-undo-cta', {
 			path: undoBackupId,
-			site: window?.myJetpackInitialState?.siteSuffix,
+			site: siteSuffix,
 		} ),
 		size: 'small',
 		variant: 'primary',

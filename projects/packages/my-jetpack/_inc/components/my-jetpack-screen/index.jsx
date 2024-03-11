@@ -94,15 +94,9 @@ const GlobalNotice = ( { message, options } ) => {
  */
 export default function MyJetpackScreen() {
 	useConnectionWatcher();
-	// Check using the global state instead of Redux so it only has effect after refreshing the page
-	const { hasBeenDismissed: welcomeBannerHasBeenDismissed } = getMyJetpackWindowState(
-		'welcomeBanner',
-		{ hasBeenDismissed: false }
-	);
-	const { showJetpackStatsCard } = getMyJetpackWindowState( 'myJetpackFlags', {
-		showJetpackStatsCard: false,
-	} );
-	const jetpackManage = getMyJetpackWindowState( 'jetpackManage', {} );
+	const { hasBeenDismissed = false } = getMyJetpackWindowState( 'welcomeBanner' );
+	const { showFullJetpackStatsCard = false } = getMyJetpackWindowState( 'myJetpackFlags' );
+	const { jetpackManage = {}, adminUrl } = getMyJetpackWindowState();
 
 	const { currentNotice } = useContext( NoticeContext );
 	const { message, options } = currentNotice || {};
@@ -122,7 +116,7 @@ export default function MyJetpackScreen() {
 
 	const shouldShowZendeskChatWidget =
 		! isJwtLoading && ! isChatAvailabilityLoading && isAvailable && jwt;
-	const isNewUser = window?.myJetpackInitialState?.userIsNewToJetpack === '1';
+	const isNewUser = getMyJetpackWindowState( 'userIsNewToJetpack' ) === '1';
 
 	const { recordEvent } = useAnalytics();
 	const [ reloading, setReloading ] = useState( false );
@@ -144,7 +138,7 @@ export default function MyJetpackScreen() {
 	}
 
 	return (
-		<AdminPage siteAdminUrl={ window?.myJetpackInitialState?.adminUrl }>
+		<AdminPage siteAdminUrl={ adminUrl }>
 			<IDCModal />
 			<AdminSectionHero>
 				{ ! isNewUser && (
@@ -161,15 +155,15 @@ export default function MyJetpackScreen() {
 							{ __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' ) }
 						</Text>
 					</Col>
-					{ hasConnectionError && ( welcomeBannerHasBeenDismissed || ! isNewUser ) && (
+					{ hasConnectionError && ( hasBeenDismissed || ! isNewUser ) && (
 						<Col>
 							<ConnectionError />
 						</Col>
 					) }
-					{ message && ( welcomeBannerHasBeenDismissed || ! isNewUser ) && (
+					{ message && ( hasBeenDismissed || ! isNewUser ) && (
 						<Col>{ <GlobalNotice message={ message } options={ options } /> }</Col>
 					) }
-					{ showJetpackStatsCard && (
+					{ showFullJetpackStatsCard && (
 						<Col
 							className={ classnames( {
 								[ styles.stats ]: statsDetails?.status !== PRODUCT_STATUSES.ERROR,

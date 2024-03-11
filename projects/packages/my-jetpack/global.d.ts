@@ -22,7 +22,7 @@ interface Window {
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;
 		myJetpackFlags: {
-			showJetpackStatsCard: boolean;
+			showFullJetpackStatsCard: boolean;
 			videoPressStats: boolean;
 		};
 		lifecycleStats: {

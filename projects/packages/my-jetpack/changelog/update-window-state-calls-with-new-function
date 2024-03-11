@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Replace window state calls with util function

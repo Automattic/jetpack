@@ -3,7 +3,7 @@
  * Plugin Name: WP Super Cache
  * Plugin URI: https://wordpress.org/plugins/wp-super-cache/
  * Description: Very fast caching plugin for WordPress.
- * Version: 2.0.0-alpha
+ * Version: 1.12.0
  * Author: Automattic
  * Author URI: https://automattic.com/
  * License: GPL2+
@@ -43,6 +43,27 @@ if ( ! defined( 'PHP_VERSION_ID' ) ) {
 	$wpsc_php_version = explode( '.', PHP_VERSION );
 	define( 'PHP_VERSION_ID', intval( $wpsc_php_version[0] * 10000 + $wpsc_php_version[1] * 100 + $wpsc_php_version[2] ) );
 	unset( $wpsc_php_version );
+}
+
+/**
+ * Defines how many posts to preload per loop.
+ */
+if ( ! defined( 'WPSC_PRELOAD_POST_COUNT' ) ) {
+	define( 'WPSC_PRELOAD_POST_COUNT', 10 );
+}
+
+/**
+ * Defines the interval in seconds between preloading pages.
+ */
+if ( ! defined( 'WPSC_PRELOAD_POST_INTERVAL' ) ) {
+	define( 'WPSC_PRELOAD_POST_INTERVAL', 1 );
+}
+
+/**
+ * Defines the interval in seconds between preloading loops.
+ */
+if ( ! defined( 'WPSC_PRELOAD_LOOP_INTERVAL' ) ) {
+	define( 'WPSC_PRELOAD_LOOP_INTERVAL', 0 );
 }
 
 function wpsc_init() {
@@ -3470,7 +3491,7 @@ function wp_cron_preload_cache() {
 						)
 					);
 					wp_cache_debug( "wp_cron_preload_cache: fetched $url" );
-					sleep( 1 );
+					sleep( WPSC_PRELOAD_POST_INTERVAL );
 
 					if ( ! wpsc_is_preload_active() ) {
 						wp_cache_debug( 'wp_cron_preload_cache: cancelling preload process.' );
@@ -3505,6 +3526,7 @@ function wp_cron_preload_cache() {
 
 		if ( $preload_more_taxonomies === true ) {
 			wpsc_schedule_next_preload();
+			sleep( WPSC_PRELOAD_LOOP_INTERVAL );
 			return true;
 		}
 	} elseif ( $c === 0 && $wp_cache_preload_email_me ) {
@@ -3594,7 +3616,7 @@ function wp_cron_preload_cache() {
 			wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
 			wp_cache_debug( "wp_cron_preload_cache: fetched $url", 5 );
 			++$count;
-			sleep( 1 );
+			sleep( WPSC_PRELOAD_POST_INTERVAL );
 		}
 
 		if ( $wp_cache_preload_email_me && ( $wp_cache_preload_email_volume === 'medium' || $wp_cache_preload_email_volume === 'many' ) ) {
@@ -3603,8 +3625,8 @@ function wp_cron_preload_cache() {
 		}
 
 		wpsc_schedule_next_preload();
-
 		wpsc_delete_files( get_supercache_dir() );
+		sleep( WPSC_PRELOAD_LOOP_INTERVAL );
 	} else {
 		$msg = '';
 		wpsc_reset_preload_counter();
