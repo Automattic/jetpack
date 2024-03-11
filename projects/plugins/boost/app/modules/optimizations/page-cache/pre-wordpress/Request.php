@@ -83,6 +83,17 @@ class Request {
 			$request_uri = $this->request_uri;
 		}
 
+		// Check if the URL contains query parameters `jb-disable-modules` or `jb-generate-critical-css`
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+		$query_string = parse_url( $request_uri, PHP_URL_QUERY );
+		if ( is_string( $query_string ) ) {
+			$query = array();
+			parse_str( $query_string, $query );
+			if ( isset( $query['jb-disable-modules'] ) || isset( $query['jb-generate-critical-css'] ) ) {
+				return true;
+			}
+		}
+
 		$bypass_patterns = Boost_Cache_Settings::get_instance()->get_bypass_patterns();
 
 		/**
