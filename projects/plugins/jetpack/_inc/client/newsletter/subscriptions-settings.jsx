@@ -171,17 +171,15 @@ function SubscriptionsSettings( props ) {
 							/>
 							<p className="jp-form-setting-explanation">
 								{ __(
-									'Automatically add a subscription form pop-up to every post and turn visitors into subscribers. It will appear as readers scroll through your posts.',
+									'Automatically add a subscription form pop-up to every post and turn visitors into subscribers. It will appear as readers scroll through your posts',
 									'jetpack'
 								) }
 								{ isBlockTheme && subscribeModalEditorUrl && (
 									<>
-										{ ' ' }
-										(
+										{ '. ' }
 										<ExternalLink href={ subscribeModalEditorUrl }>
-											{ __( 'preview and edit', 'jetpack' ) }
+											{ __( 'Preview and edit', 'jetpack' ) }
 										</ExternalLink>
-										)
 									</>
 								) }
 							</p>
@@ -203,12 +201,10 @@ function SubscriptionsSettings( props ) {
 												) }
 												{ isBlockTheme && singlePostTemplateEditorUrl && (
 													<>
-														{ ' ' }
-														(
+														{ '. ' }
 														<ExternalLink href={ singlePostTemplateEditorUrl }>
-															{ __( 'preview and edit', 'jetpack' ) }
+															{ __( 'Preview and edit', 'jetpack' ) }
 														</ExternalLink>
-														)
 													</>
 												) }
 											</>
