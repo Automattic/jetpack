@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Adds plugins to and removes them from aut-updates when creating and deleting update schedules.

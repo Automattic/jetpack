@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.15.2] - 2024-03-11
+### Changed
+- External dependencies of the Command Palette are now explicitly declared. [#36184]
+- Jetpack MU WPCOM: Added Bytespider robots.txt [#36260]
+- Remove external-icon from Hosting menu [#36221]
+
+### Fixed
+- unregisters unnecessary items from the customizer for atomic sites on block theme [#36161]
+- Untangle: correctly show the current homepage when live-previewing another block theme [#36178]
+
+## [5.15.1] - 2024-03-05
+### Changed
+- Internal updates.
+
 ## [5.15.0] - 2024-03-04
 ### Added
 - Added a Command Palette loader on the jetpack-mu-wpcom plugin. [#35635]
@@ -626,6 +640,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.15.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.15.1...v5.15.2
+[5.15.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.15.0...v5.15.1
 [5.15.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.14.1...v5.15.0
 [5.14.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.14.0...v5.14.1
 [5.14.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.13.1...v5.14.0
