@@ -33,22 +33,15 @@ function should_load_wpcom_command_palette() {
  * @return bool True if GitHub Deployments is available for the site, false otherwise.
  */
 function is_gh_deployments_available( $site_id ) {
-	$automattician_check = false;
-	if ( function_exists( 'wpcom_get_blog_owner' ) ) {
-		$site_owner          = wpcom_get_blog_owner( $site_id );
-		$automattician_check = is_automattician( $site_owner );
-	}
-
-	$has_sticker = false;
-	if ( function_exists( 'has_blog_sticker' ) ) {
-		$has_sticker = has_blog_sticker( 'wpcom-github-deployments', $site_id );
-	}
-
 	if ( function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
-		$has_sticker = wpcomsh_is_site_sticker_active( 'wpcom-github-deployments', $site_id );
+		return wpcomsh_is_site_sticker_active( 'wpcom-github-deployments', $site_id );
 	}
 
-	return $automattician_check || $has_sticker;
+	if ( function_exists( 'has_blog_sticker' ) ) {
+		return has_blog_sticker( 'wpcom-github-deployments', $site_id );
+	}
+
+	return false;
 }
 
 /**
