@@ -27,7 +27,7 @@ if ( class_exists( 'WP_REST_Posts_Controller' ) ) {
 		public function get_items_permissions_check( $request ) {
 			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Endpoint->get_items_permissions_check' );
 
-			return ( new Contact_Form_Endpoint() )->get_items_permissions_check( $request );
+			return ( new Contact_Form_Endpoint( $this->post_type ) )->get_items_permissions_check( $request );
 		}
 
 		/**
@@ -40,7 +40,7 @@ if ( class_exists( 'WP_REST_Posts_Controller' ) ) {
 		public function get_item_permissions_check( $request ) {
 			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Endpoint->get_item_permissions_check' );
 
-			return ( new Contact_Form_Endpoint() )->get_item_permissions_check( $request );
+			return ( new Contact_Form_Endpoint( $this->post_type ) )->get_item_permissions_check( $request );
 		}
 	}
 
