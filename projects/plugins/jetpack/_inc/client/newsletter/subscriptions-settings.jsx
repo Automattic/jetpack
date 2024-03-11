@@ -143,26 +143,32 @@ function SubscriptionsSettings( props ) {
 					</ModuleToggle>
 					{
 						<FormFieldset>
-							<ToggleControl
-								checked={ isSubscriptionsActive && isStbEnabled }
-								disabled={ isDisabled }
-								toggling={ isSavingAnyOption( [ 'stb_enabled' ] ) }
-								onChange={ handleSubscribeToBlogToggleChange }
-								label={ __(
-									'Enable the “subscribe to site” option on your comment form',
-									'jetpack'
-								) }
-							/>
-							<ToggleControl
-								checked={ isSubscriptionsActive && isStcEnabled }
-								disabled={ isDisabled }
-								toggling={ isSavingAnyOption( [ 'stc_enabled' ] ) }
-								onChange={ handleSubscribeToCommentToggleChange }
-								label={ __(
-									'Enable the “subscribe to comments” option on your comment form',
-									'jetpack'
-								) }
-							/>
+							{ isSubscriptionSiteFeatureEnabled && (
+								<ToggleControl
+									checked={ isSubscriptionsActive && isSubscribePostEndEnabled }
+									disabled={ isDisabled }
+									toggling={ isSavingAnyOption( [
+										'jetpack_subscriptions_subscribe_post_end_enabled',
+									] ) }
+									onChange={ handleSubscribePostEndToggleChange }
+									label={
+										<>
+											{ __(
+												'Enable automatic insertion of the Subscribe block into the theme at the end of each post',
+												'jetpack'
+											) }
+											{ isBlockTheme && singlePostTemplateEditorUrl && (
+												<>
+													{ '. ' }
+													<ExternalLink href={ singlePostTemplateEditorUrl }>
+														{ __( 'Preview and edit', 'jetpack' ) }
+													</ExternalLink>
+												</>
+											) }
+										</>
+									}
+								/>
+							) }
 							<div className="jp-toggle-set">
 								<ToggleControl
 									checked={ isSubscriptionsActive && isSmEnabled }
@@ -196,32 +202,26 @@ function SubscriptionsSettings( props ) {
 									} ) }
 								/>
 							</div>
-							{ isSubscriptionSiteFeatureEnabled && (
-								<ToggleControl
-									checked={ isSubscriptionsActive && isSubscribePostEndEnabled }
-									disabled={ isDisabled }
-									toggling={ isSavingAnyOption( [
-										'jetpack_subscriptions_subscribe_post_end_enabled',
-									] ) }
-									onChange={ handleSubscribePostEndToggleChange }
-									label={
-										<>
-											{ __(
-												'Enable automatic insertion of the Subscribe block into the theme at the end of each post',
-												'jetpack'
-											) }
-											{ isBlockTheme && singlePostTemplateEditorUrl && (
-												<>
-													{ '. ' }
-													<ExternalLink href={ singlePostTemplateEditorUrl }>
-														{ __( 'Preview and edit', 'jetpack' ) }
-													</ExternalLink>
-												</>
-											) }
-										</>
-									}
-								/>
-							) }
+							<ToggleControl
+								checked={ isSubscriptionsActive && isStbEnabled }
+								disabled={ isDisabled }
+								toggling={ isSavingAnyOption( [ 'stb_enabled' ] ) }
+								onChange={ handleSubscribeToBlogToggleChange }
+								label={ __(
+									'Enable the “subscribe to site” option on your comment form',
+									'jetpack'
+								) }
+							/>
+							<ToggleControl
+								checked={ isSubscriptionsActive && isStcEnabled }
+								disabled={ isDisabled }
+								toggling={ isSavingAnyOption( [ 'stc_enabled' ] ) }
+								onChange={ handleSubscribeToCommentToggleChange }
+								label={ __(
+									'Enable the “subscribe to comments” option on your comment form',
+									'jetpack'
+								) }
+							/>
 						</FormFieldset>
 					}
 				</SettingsGroup>
