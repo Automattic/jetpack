@@ -407,45 +407,6 @@ class Jetpack_Subscriptions {
 			'social_notifications_subscribe',
 			array( $this, 'social_notifications_subscribe_validate' )
 		);
-
-		/** Subscription Messaging Options */
-
-		register_setting(
-			'reading',
-			'subscription_options',
-			array( $this, 'validate_settings' )
-		);
-
-		add_settings_section(
-			'email_settings',
-			__( 'Follower Settings', 'jetpack' ),
-			array( $this, 'reading_section' ),
-			'reading'
-		);
-
-		add_settings_field(
-			'invitation',
-			__( 'Blog follow email text', 'jetpack' ),
-			array( $this, 'setting_invitation' ),
-			'reading',
-			'email_settings'
-		);
-
-		add_settings_field(
-			'comment-follow',
-			__( 'Comment follow email text', 'jetpack' ),
-			array( $this, 'setting_comment_follow' ),
-			'reading',
-			'email_settings'
-		);
-
-		add_settings_field(
-			'welcome',
-			__( 'Welcome email text', 'jetpack' ),
-			array( $this, 'setting_welcome' ),
-			'reading',
-			'email_settings'
-		);
 	}
 
 	/**
@@ -582,67 +543,6 @@ class Jetpack_Subscriptions {
 
 		// Otherwise we return 'on'.
 		return 'on';
-	}
-
-	/**
-	 * Validate settings for the Subscriptions module.
-	 *
-	 * @param array $settings Settings to be validated.
-	 */
-	public function validate_settings( $settings ) {
-		global $allowedposttags;
-
-		$default = $this->get_default_settings();
-
-		// Blog Follow.
-		$settings['invitation'] = trim( wp_kses( $settings['invitation'], $allowedposttags ) );
-		if ( empty( $settings['invitation'] ) ) {
-			$settings['invitation'] = $default['invitation'];
-		}
-
-		// Comments Follow (single post).
-		$settings['comment_follow'] = trim( wp_kses( $settings['comment_follow'], $allowedposttags ) );
-		if ( empty( $settings['comment_follow'] ) ) {
-			$settings['comment_follow'] = $default['comment_follow'];
-		}
-
-		return $settings;
-	}
-
-	/**
-	 * HTML output helper for Reading section.
-	 */
-	public function reading_section() {
-		echo '<p id="follower-settings">';
-		esc_html_e( 'These settings change emails sent from your blog to followers.', 'jetpack' );
-		echo '</p>';
-	}
-
-	/**
-	 * HTML output helper for Invitation section.
-	 */
-	public function setting_invitation() {
-		$settings = $this->get_settings();
-		echo '<textarea name="subscription_options[invitation]" class="large-text" cols="50" rows="5">' . esc_textarea( $settings['invitation'] ) . '</textarea>';
-		echo '<p><span class="description">' . esc_html__( 'Introduction text sent when someone follows your blog. (Site and confirmation details will be automatically added for you.)', 'jetpack' ) . '</span></p>';
-	}
-
-	/**
-	 * HTML output helper for Comment Follow section.
-	 */
-	public function setting_comment_follow() {
-		$settings = $this->get_settings();
-		echo '<textarea name="subscription_options[comment_follow]" class="large-text" cols="50" rows="5">' . esc_textarea( $settings['comment_follow'] ) . '</textarea>';
-		echo '<p><span class="description">' . esc_html__( 'Introduction text sent when someone follows a post on your blog. (Site and confirmation details will be automatically added for you.)', 'jetpack' ) . '</span></p>';
-	}
-
-	/**
-	 * HTML output helper for Welcome section.
-	 */
-	public function setting_welcome() {
-		$settings = $this->get_settings();
-		echo '<textarea name="subscription_options[welcome]" class="large-text" cols="50" rows="5">' . esc_textarea( $settings['welcome'] ) . '</textarea>';
-		echo '<p><span class="description">' . esc_html__( 'Welcome text sent when someone follows your blog.', 'jetpack' ) . '</span></p>';
 	}
 
 	/**
