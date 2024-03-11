@@ -24,9 +24,12 @@ import { NoticeContext } from '../../context/notices/noticeContext';
 import {
 	REST_API_CHAT_AUTHENTICATION_ENDPOINT,
 	REST_API_CHAT_AVAILABILITY_ENDPOINT,
+	QUERY_CHAT_AVAILABILITY_KEY,
+	QUERY_CHAT_AUTHENTICATION_KEY,
 } from '../../data/constants';
 import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
+import getMyJetpackWindowState from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import useConnectionWatcher from '../../hooks/use-connection-watcher';
 import ConnectionsSection from '../connections-section';
@@ -91,24 +94,21 @@ const GlobalNotice = ( { message, options } ) => {
  */
 export default function MyJetpackScreen() {
 	useConnectionWatcher();
-	// Check using the global state instead of Redux so it only has effect after refreshing the page
-	const welcomeBannerHasBeenDismissed =
-		window?.myJetpackInitialState?.welcomeBanner.hasBeenDismissed;
-	const { showJetpackStatsCard = false } = window.myJetpackInitialState?.myJetpackFlags ?? {};
-	const jetpackManage = window?.myJetpackInitialState?.jetpackManage;
+	const { hasBeenDismissed = false } = getMyJetpackWindowState( 'welcomeBanner' );
+	const { showFullJetpackStatsCard = false } = getMyJetpackWindowState( 'myJetpackFlags' );
+	const { jetpackManage = {}, adminUrl } = getMyJetpackWindowState();
 
 	const { currentNotice } = useContext( NoticeContext );
 	const { message, options } = currentNotice || {};
 	const { hasConnectionError } = useConnectionErrorNotice();
-	const { data: availabilityData, isLoading: isChatAvailabilityLoading } = useSimpleQuery(
-		'chat availability',
-		{
-			path: REST_API_CHAT_AVAILABILITY_ENDPOINT,
-		}
-	);
+	const { data: availabilityData, isLoading: isChatAvailabilityLoading } = useSimpleQuery( {
+		name: QUERY_CHAT_AVAILABILITY_KEY,
+		query: { path: REST_API_CHAT_AVAILABILITY_ENDPOINT },
+	} );
 	const { detail: statsDetails } = useProduct( 'stats' );
-	const { data: authData, isLoading: isJwtLoading } = useSimpleQuery( 'chat authentication', {
-		path: REST_API_CHAT_AUTHENTICATION_ENDPOINT,
+	const { data: authData, isLoading: isJwtLoading } = useSimpleQuery( {
+		name: QUERY_CHAT_AUTHENTICATION_KEY,
+		query: { path: REST_API_CHAT_AUTHENTICATION_ENDPOINT },
 	} );
 
 	const isAvailable = availabilityData?.is_available;
@@ -116,7 +116,7 @@ export default function MyJetpackScreen() {
 
 	const shouldShowZendeskChatWidget =
 		! isJwtLoading && ! isChatAvailabilityLoading && isAvailable && jwt;
-	const isNewUser = window?.myJetpackInitialState?.userIsNewToJetpack === '1';
+	const isNewUser = getMyJetpackWindowState( 'userIsNewToJetpack' ) === '1';
 
 	const { recordEvent } = useAnalytics();
 	const [ reloading, setReloading ] = useState( false );
@@ -138,7 +138,7 @@ export default function MyJetpackScreen() {
 	}
 
 	return (
-		<AdminPage siteAdminUrl={ window?.myJetpackInitialState?.adminUrl }>
+		<AdminPage siteAdminUrl={ adminUrl }>
 			<IDCModal />
 			<AdminSectionHero>
 				{ ! isNewUser && (
@@ -155,15 +155,15 @@ export default function MyJetpackScreen() {
 							{ __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' ) }
 						</Text>
 					</Col>
-					{ hasConnectionError && ( welcomeBannerHasBeenDismissed || ! isNewUser ) && (
+					{ hasConnectionError && ( hasBeenDismissed || ! isNewUser ) && (
 						<Col>
 							<ConnectionError />
 						</Col>
 					) }
-					{ message && ( welcomeBannerHasBeenDismissed || ! isNewUser ) && (
+					{ message && ( hasBeenDismissed || ! isNewUser ) && (
 						<Col>{ <GlobalNotice message={ message } options={ options } /> }</Col>
 					) }
-					{ showJetpackStatsCard && (
+					{ showFullJetpackStatsCard && (
 						<Col
 							className={ classnames( {
 								[ styles.stats ]: statsDetails?.status !== PRODUCT_STATUSES.ERROR,
