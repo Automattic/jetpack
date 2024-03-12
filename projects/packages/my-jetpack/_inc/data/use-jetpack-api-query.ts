@@ -1,7 +1,7 @@
 import restApi from '@automattic/jetpack-api';
 import { useQuery } from '@tanstack/react-query';
 import { useFetchingErrorNotice } from './notices/use-fetching-error-notice';
-import type { UseQueryResult } from '@tanstack/react-query';
+import { getMyJetpackWindowRestState } from './utils/get-my-jetpack-window-state';
 
 /**
  * Custom hook for fetching data from the Jetpack API, utilizing the react-query library for data fetching and caching.
@@ -13,7 +13,6 @@ import type { UseQueryResult } from '@tanstack/react-query';
  * @param {string} params.name - The unique name for the query. This name, along with the optional `explicitKey`, forms the cache key for the query's result.
  * @param {Function} params.queryFn - The function to fetch data from the API. It receives a configured instance of `restApi` and must return a promise that resolves to the data of type `T`.
  * @param {string} [params.errorMessage] - Optional. A custom error message to be displayed in case the query fails. This message overrides the default error handling behavior.
- * @returns {UseQueryResult<T>} The result object from the useQuery hook, containing data and state information about the query (e.g., isLoading, isError).
  */
 type QueryParams< T > = {
 	name: string;
@@ -24,7 +23,7 @@ const useJetpackApiQuery = < T >( { name, queryFn, errorMessage }: QueryParams< 
 	const queryResult = useQuery( {
 		queryKey: [ name ],
 		queryFn: () => {
-			const { apiRoot, apiNonce } = window?.myJetpackRest || {};
+			const { apiRoot, apiNonce } = getMyJetpackWindowRestState();
 			restApi.setApiRoot( apiRoot );
 			restApi.setApiNonce( apiNonce );
 			return queryFn( restApi );
