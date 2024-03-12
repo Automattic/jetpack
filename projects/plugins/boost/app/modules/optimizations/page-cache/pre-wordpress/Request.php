@@ -304,8 +304,8 @@ class Request {
 
 	/**
 	 * Return true if the Page Cache module is disabled.
-	 * If Status and Page_Cache are not available, it means we are in a
-	 * pre-WordPress environment, so we assume the module is active.
+	 *
+	 * If Status and Page_Cache are not available, it means the plugin is not loaded.
 	 * This function will be called later when writing a cache file to disk.
 	 * It's then that we can check if the module is active.
 	 *
