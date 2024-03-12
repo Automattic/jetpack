@@ -1,4 +1,5 @@
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
+import { useEffect, useState } from 'react';
 import { z } from 'zod';
 
 /**
@@ -11,4 +12,28 @@ export function useDebugLog() {
 			refetchInterval: 10000,
 		},
 	} );
+}
+
+// Use this hook to check if the cache engine not loading error notice should be shown.
+export function useShowCacheEngineErrorNotice( moduleIsReady: boolean ) {
+	const [ { data: cacheEngineLoading, refetch: recheckCacheEngine } ] = useDataSync(
+		'jetpack_boost_ds',
+		'cache_engine_loading',
+		z.boolean()
+	);
+
+	const [ showCacheEngineErrorNotice, setShowCacheEngineErrorNotice ] = useState( false );
+
+	useEffect( () => {
+		( async () => {
+			if ( moduleIsReady ) {
+				await recheckCacheEngine();
+				setShowCacheEngineErrorNotice( cacheEngineLoading === false );
+			} else {
+				setShowCacheEngineErrorNotice( false );
+			}
+		} )();
+	}, [ moduleIsReady, cacheEngineLoading, recheckCacheEngine ] );
+
+	return showCacheEngineErrorNotice;
 }
