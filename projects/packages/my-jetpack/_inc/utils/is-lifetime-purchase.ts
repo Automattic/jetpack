@@ -3,7 +3,7 @@ import type { Purchase } from '../data/types';
 /**
  * Check if a purchase is considered "Lifetime".
  *
- * @param {object} purchase - A WPCOM purchase object.
+ * @param {Purchase} purchase - A WPCOM purchase object.
  * @param {string} purchase.partner_slug - A partner that issued the purchase.
  * @returns {boolean} Returns true if a purchase is considered a lifetime purchase.
  */
