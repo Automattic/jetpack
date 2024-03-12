@@ -1173,7 +1173,7 @@ class Actions {
 		if ( $response_code !== 200 || false === isset( $decoded_response['processed_items'] ) ) {
 			if ( is_array( $decoded_response ) && isset( $decoded_response['code'] ) && isset( $decoded_response['message'] ) ) {
 				return new WP_Error(
-					$decoded_response['code'],
+					'jetpack_sync_send_error_' . $decoded_response['code'],
 					$decoded_response['message'],
 					$decoded_response['data'] ?? null
 				);
