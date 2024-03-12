@@ -14,7 +14,7 @@ export const getMyJetpackWindowInitialState = <
 		return window?.myJetpackInitialState as StateReturnType< InitialState, A >;
 	}
 
-	return ( window?.myJetpackInitialState?.[ key ] ?? null ) as StateReturnType< InitialState, A >;
+	return ( window?.myJetpackInitialState?.[ key ] ?? {} ) as StateReturnType< InitialState, A >;
 };
 
 export const getMyJetpackWindowRestState = () => {
@@ -30,7 +30,7 @@ export const getMyJetpackWindowConnectionState = <
 		return window?.JP_CONNECTION_INITIAL_STATE as StateReturnType< ConnectionState, A >;
 	}
 
-	return ( window?.JP_CONNECTION_INITIAL_STATE?.[ key ] ?? null ) as StateReturnType<
+	return ( window?.JP_CONNECTION_INITIAL_STATE?.[ key ] ?? {} ) as StateReturnType<
 		ConnectionState,
 		A
 	>;
