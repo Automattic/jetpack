@@ -473,8 +473,9 @@ class Actions {
 			$url        = '/sites/' . \Jetpack_Options::get_option( 'id' ) . '/jetpack-sync-actions';
 			$url        = add_query_arg( $query_args, $url );
 			$args       = array(
-				'method' => 'POST',
-				'format' => 'jsonl',
+				'method'  => 'POST',
+				'format'  => 'jsonl',
+				'timeout' => $query_args['timeout'],
 			);
 
 			$response              = Client::wpcom_json_api_request_as_blog( $url, '2', $args, $jsonl_data, 'wpcom' );
