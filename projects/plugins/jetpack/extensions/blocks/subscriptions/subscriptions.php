@@ -1086,7 +1086,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		// translators: %s is the name of the site.
 		: esc_html__( 'Subscribe to get access to the rest of this post and other subscriber-only content.', 'jetpack' );
 
-	$log_in_block = '';
+	$login_block = '';
 
 	if ( is_user_auth() ) {
 		if ( ( new Host() )->is_wpcom_simple() ) {
@@ -1099,7 +1099,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 				'https://wordpress.com/log-in/link'
 			);
 			$switch_accounts_link = wp_logout_url( $login_link );
-			$log_in_block         = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
+			$login_block          = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
 <p class="has-text-align-center" style="font-size:14px">
 	<a href="' . $switch_accounts_link . '">' . __( 'Switch accounts', 'jetpack' ) . '</a>
 </p>
@@ -1107,7 +1107,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		}
 	} else {
 		$access_question = get_paywall_access_question( $newsletter_access_level );
-		$log_in_block    = '<!-- wp:group {"style":{"typography":{"fontSize":"14px"}},"layout":{"type":"flex","justifyContent":"center"}} -->
+		$login_block     = '<!-- wp:group {"style":{"typography":{"fontSize":"14px"}},"layout":{"type":"flex","justifyContent":"center"}} -->
 <div class="wp-block-group" style="font-size:14px">
 	<!-- wp:jetpack/subscriber-login {"logInLabel":"' . $access_question . '"} /-->
 </div>
@@ -1132,7 +1132,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 <!-- /wp:paragraph -->
 
 <!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact","isPaidSubscriber":' . ( $is_paid_subscriber ? 'true' : 'false' ) . '} /-->
-' . $log_in_block . '
+' . $login_block . '
 </div>
 <!-- /wp:group -->
 ';
