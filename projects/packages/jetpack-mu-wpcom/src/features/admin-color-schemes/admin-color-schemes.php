@@ -145,7 +145,7 @@ function reenqueue_core_color_scheme() {
 	$color_scheme       = get_user_option( 'admin_color' );
 	if ( in_array( $color_scheme, $core_color_schemes, true ) ) {
 		// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
-		wp_enqueue_style( 'jetpack-core-color-scheme', "https://s0.wp.com/wp-admin/css/colors/$color_scheme/colors.min.css" );
+		wp_enqueue_style( 'jetpack-core-color-scheme', "/wp-admin/css/colors/$color_scheme/colors.min.css" );
 	}
 }
 
