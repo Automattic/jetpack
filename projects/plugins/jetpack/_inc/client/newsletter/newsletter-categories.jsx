@@ -141,7 +141,7 @@ function NewsletterCategories( props ) {
 				<Card
 					compact
 					className="jp-settings-card__configure-link"
-					href="/wp-admin/edit-tags.php?taxonomy=category"
+					href="/wp-admin/edit-tags.php?taxonomy=category&referer=newsletter-categories"
 					target="_blank"
 				>
 					{ __( 'Add New Category', 'jetpack' ) }
