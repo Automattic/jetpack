@@ -37,7 +37,6 @@ const Index = () => {
 	const premiumFeatures = usePremiumFeatures();
 
 	const pageCacheSetup = usePageCacheSetup();
-	const pageCacheSetupCheck = usePageCacheSetupCheck();
 	const [ pageCacheError, pageCacheErrorMutation ] = usePageCacheError();
 	const [ isPageCacheSettingUp, setIsPageCacheSettingUp ] = useState( false );
 
@@ -55,10 +54,10 @@ const Index = () => {
 	);
 
 	useEffect( () => {
-		if ( pageCacheSetup.isPending || pageCacheSetupCheck.isPending ) {
+		if ( pageCacheSetup.isPending ) {
 			setIsPageCacheSettingUp( false );
 		}
-	}, [ pageCacheSetup.isPending, pageCacheSetupCheck.isPending ] );
+	}, [ pageCacheSetup.isPending ] );
 
 	return (
 		<div className="jb-container--narrow">
