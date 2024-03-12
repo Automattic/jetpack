@@ -15,44 +15,78 @@ class Page_Cache_Setup {
 	 * @return bool|\WP_Error
 	 */
 	public static function run_setup() {
-		$steps = array(
+		// Steps that are only for cache system verification. They don't change anything.
+		$verification_steps = array(
 			'verify_wp_content_writable',
 			'verify_permalink_setting',
+		);
+
+		foreach ( $verification_steps as $step ) {
+			$result = self::run_step( $step );
+
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+		}
+
+		/*
+		 * Steps that may change something to setup the cache system.
+		 * Each of them should return the result in following format:
+		 * - true if the step was successful and changes were made
+		 * - false if the step was successful but no changes were made
+		 * - WP_Error if the step failed
+		 */
+		$setup_steps = array(
 			'create_settings_file',
 			'create_advanced_cache',
 			'add_wp_cache_define',
 			'enable_caching',
 		);
 
-		foreach ( $steps as $step ) {
-			$result = self::$step();
-
-			if ( $result instanceof Boost_Cache_Error ) {
-				Analytics::record_user_event( 'page_cache_setup_failed', array( 'error_code' => $result->get_error_code() ) );
-				return $result->to_wp_error();
-			}
+		$changes_made = false;
+		foreach ( $setup_steps as $step ) {
+			$result = self::run_step( $step );
 
 			if ( is_wp_error( $result ) ) {
-				Analytics::record_user_event( 'page_cache_setup_failed', array( 'error_code' => $result->get_error_code() ) );
 				return $result;
+			}
+
+			if ( $result === true ) {
+				$changes_made = true;
 			}
 		}
 
-		Analytics::record_user_event( 'page_cache_setup_succeeded' );
+		if ( $changes_made === true ) {
+			Analytics::record_user_event( 'page_cache_setup_succeeded' );
+		}
 		return true;
+	}
+
+	private static function run_step( $step ) {
+		$result = self::$step();
+
+		if ( $result instanceof Boost_Cache_Error ) {
+			Analytics::record_user_event( 'page_cache_setup_failed', array( 'error_code' => $result->get_error_code() ) );
+			return $result->to_wp_error();
+		}
+
+		if ( is_wp_error( $result ) ) {
+			Analytics::record_user_event( 'page_cache_setup_failed', array( 'error_code' => $result->get_error_code() ) );
+			return $result;
+		}
 	}
 
 	/**
 	 * Enable caching step of setup.
 	 *
-	 * @return Boost_Cache_Error|true - True on success, error otherwise.
+	 * @return Boost_Cache_Error|bool - True on success, false if it was already enabled, error otherwise.
 	 */
 	private static function enable_caching() {
 		$settings       = Boost_Cache_Settings::get_instance();
 		$previous_value = $settings->get_enabled();
 
 		if ( $previous_value === true ) {
-			return true;
+			return false;
 		}
 
 		$enabled_result = $settings->set( array( 'enabled' => true ) );
@@ -93,7 +127,7 @@ class Page_Cache_Setup {
 	/**
 	 * Create a settings file, if one does not already exist.
 	 *
-	 * @return bool|\WP_Error
+	 * @return bool|\WP_Error - True if the file was created, WP_Error if there was a problem, or false if the file already exists.
 	 */
 	private static function create_settings_file() {
 		$result = Boost_Cache_Settings::get_instance()->create_settings_file();
@@ -122,8 +156,8 @@ class Page_Cache_Setup {
 			}
 
 			if ( strpos( $content, Page_Cache::ADVANCED_CACHE_VERSION ) !== false ) {
-				// The version and signature match.
-				return true;
+				// The version and signature match, nothing needed to be changed.
+				return false;
 			}
 		}
 
@@ -177,7 +211,7 @@ $boost_cache->serve();
 				return new \WP_Error( 'wp-cache-defined-not-true' );
 			}
 
-			return true; // WP_CACHE already added.
+			return false; // WP_CACHE already added.
 		}
 		$content = preg_replace(
 			'#^<\?php#',

@@ -45,20 +45,22 @@ class Boost_Cache_Settings {
 
 	/**
 	 * Ensure a settings file exists, if one isn't there already.
-	 * @return mixed - True on success, or a Boost_Cache_Error on failure.
+	 * @return Boost_Cache_Error|bool - True if it was changed, or a Boost_Cache_Error on failure, false if it was already created.
 	 */
 	public function create_settings_file() {
+		if ( file_exists( $this->config_file ) ) {
+			return false;
+		}
+
 		if ( ! file_exists( $this->config_file_path ) ) {
 			if ( ! Filesystem_Utils::create_directory( $this->config_file_path ) ) {
 				return new Boost_Cache_Error( 'failed-settings-write', 'Failed to create settings directory at ' . $this->config_file_path );
 			}
 		}
 
-		if ( ! file_exists( $this->config_file ) ) {
-			$write_result = $this->set( $this->default_settings );
-			if ( $write_result instanceof Boost_Cache_Error ) {
-				return $write_result;
-			}
+		$write_result = $this->set( $this->default_settings );
+		if ( $write_result instanceof Boost_Cache_Error ) {
+			return $write_result;
 		}
 
 		return true;
