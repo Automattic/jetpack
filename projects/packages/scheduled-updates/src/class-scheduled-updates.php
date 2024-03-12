@@ -61,9 +61,7 @@ class Scheduled_Updates {
 	 * @param string ...$plugins List of plugins to update.
 	 */
 	public static function run_scheduled_update( ...$plugins ) {
-		// Save the last run schedule ID.
-		set_site_transient( 'jetpack_scheduled_update_last_run', self::generate_schedule_id( $plugins ) );
-
+		$schedule_id       = self::generate_schedule_id( $plugins );
 		$available_updates = get_site_transient( 'update_plugins' );
 		$plugins_to_update = $available_updates->response ?? array();
 		$plugins_to_update = array_intersect_key( $plugins_to_update, array_flip( $plugins ) );
@@ -73,7 +71,7 @@ class Scheduled_Updates {
 		}
 
 		( new Connection\Client() )->wpcom_json_api_request_as_blog(
-			sprintf( '/sites/%d/hosting/scheduled-update', \Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/hosting/scheduled-update/%s', \Jetpack_Options::get_option( 'id' ), $schedule_id ),
 			'2',
 			array( 'method' => 'POST' ),
 			array( 'plugins' => $plugins_to_update ),
