@@ -312,6 +312,12 @@ class Request {
 	 * @return bool
 	 */
 	public function is_module_disabled() {
+
+		// A simple check to make sure we're in the output buffer callback.
+		if ( ! function_exists( '\is_feed' ) ) {
+			return false;
+		}
+
 		if (
 			class_exists( '\Automattic\Jetpack_Boost\Lib\Status' ) &&
 			class_exists( '\Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache' )
@@ -321,7 +327,7 @@ class Request {
 			);
 			return ! $page_cache_status->is_enabled();
 		} else {
-			return false; // If the classes are not available, assume the module is active.
+			return true; // if the classes aren't available, the plugin isn't loaded.
 		}
 	}
 }
