@@ -326,9 +326,23 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.2.1 - 2024-03-12
-### Security
-- Subscriptions: improve security checks when displaying a Subscription form via a shortcode.
+### 13.3-a.1 - 2024-03-12
+#### Enhancements
+- Display Email settings on Newsletter settings page
+- Login block: Link to subscription management page with site URL as search query.
+- Member login block: link to individual subscription management page
+- Pass API parameter to indicate when deleting a memberships product should cancel subscriptions
+- Sharing: add a Threads sharing button and a Threads sharing button block.
+- Social Menu & Social Media Icons: Add support for an SMS button.
+- Uncheck users-new.php Invite user on load if WooCommerce plugin is activated
+
+#### Improved compatibility
+- Add metadata to the post to better diagnose need for Reader and Firehose
+
+#### Bug fixes
+- Sharing: avoid PHP warnings when using custom post types.
+- Sharing: fix the display of the sharing block in some classic themes.
+
 --------
 
 [See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/CHANGELOG.md#changelog)
