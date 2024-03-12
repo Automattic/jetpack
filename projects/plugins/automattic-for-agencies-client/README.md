@@ -16,5 +16,5 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-Jetpack Automattic For Agencies Client is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
+Automattic For Agencies Client is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
 

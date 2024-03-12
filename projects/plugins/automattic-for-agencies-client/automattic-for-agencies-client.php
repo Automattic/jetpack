@@ -65,7 +65,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 				printf(
 					wp_kses(
 						/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Automattic For Agencies Client is incomplete. If you installed Automattic For Agencies Client from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Automattic For Agencies Client must have Composer dependencies installed and built via the build command.', 'automattic-for-agencies-client' ),
+						__( 'Your installation of Automattic For Agencies Client is incomplete. If you installed Automattic For Agencies Client from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Automattic For Agencies Client must have Composer dependencies installed and built via the build command.', 'automattic-for-agencies-client' ),
 						array(
 							'a' => array(
 								'href'   => array(),
