@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed a bug where only plugin slugs were send to the update handler instead of full update objects.

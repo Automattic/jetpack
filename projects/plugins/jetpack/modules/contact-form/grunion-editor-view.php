@@ -12,18 +12,18 @@ use Automattic\Jetpack\Forms\ContactForm\Editor_View;
 /**
  * Grunion editor view class.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Editor_View
+ * @deprecated 13.3 Use Automattic\Jetpack\Forms\ContactForm\Editor_View
  */
 class Grunion_Editor_View {
 
 	/**
 	 * Add hooks according to screen.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Editor_View::add_hooks
+	 * @deprecated 13.3 Use Automattic\Jetpack\Forms\ContactForm\Editor_View::add_hooks
 	 * @param WP_Screen $screen Data about current screen.
 	 */
 	public static function add_hooks( $screen ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::add_hooks' );
+		_deprecated_function( __METHOD__, 'jetpack-13.3', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::add_hooks' );
 
 		return Editor_View::add_hooks( $screen );
 	}
@@ -31,10 +31,10 @@ class Grunion_Editor_View {
 	/**
 	 * Admin header.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Editor_View::admin_head
+	 * @deprecated 13.3 Use Automattic\Jetpack\Forms\ContactForm\Editor_View::admin_head
 	 */
 	public static function admin_head() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::admin_head' );
+		_deprecated_function( __METHOD__, 'jetpack-13.3', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::admin_head' );
 
 		return Editor_View::admin_head();
 	}
@@ -42,10 +42,10 @@ class Grunion_Editor_View {
 	/**
 	 * Render the grunion media button.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Editor_View::grunion_media_button
+	 * @deprecated 13.3 Use Automattic\Jetpack\Forms\ContactForm\Editor_View::grunion_media_button
 	 */
 	public static function grunion_media_button() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::grunion_media_button' );
+		_deprecated_function( __METHOD__, 'jetpack-13.3', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::grunion_media_button' );
 
 		return Editor_View::grunion_media_button();
 	}
@@ -53,12 +53,12 @@ class Grunion_Editor_View {
 	/**
 	 * Get external plugins.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Editor_View::mce_external_plugins
+	 * @deprecated 13.3 Use Automattic\Jetpack\Forms\ContactForm\Editor_View::mce_external_plugins
 	 * @param array $plugin_array - the plugin array.
 	 * @return array
 	 */
 	public static function mce_external_plugins( $plugin_array ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::mce_external_plugins' );
+		_deprecated_function( __METHOD__, 'jetpack-13.3', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::mce_external_plugins' );
 
 		return Editor_View::mce_external_plugins( $plugin_array );
 	}
@@ -66,12 +66,12 @@ class Grunion_Editor_View {
 	/**
 	 * MCE buttons.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Editor_View::mce_buttons
+	 * @deprecated 13.3 Use Automattic\Jetpack\Forms\ContactForm\Editor_View::mce_buttons
 	 * @param array $buttons - the buttons.
 	 * @return array
 	 */
 	public static function mce_buttons( $buttons ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::mce_buttons' );
+		_deprecated_function( __METHOD__, 'jetpack-13.3', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::mce_buttons' );
 
 		return Editor_View::mce_buttons( $buttons );
 	}
@@ -79,10 +79,10 @@ class Grunion_Editor_View {
 	/**
 	 * WordPress Shortcode Editor View JS Code
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Editor_View::handle_editor_view_js
+	 * @deprecated 13.3 Use Automattic\Jetpack\Forms\ContactForm\Editor_View::handle_editor_view_js
 	 */
 	public static function handle_editor_view_js() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::handle_editor_view_js' );
+		_deprecated_function( __METHOD__, 'jetpack-13.3', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::handle_editor_view_js' );
 
 		return Editor_View::handle_editor_view_js();
 	}
@@ -90,10 +90,10 @@ class Grunion_Editor_View {
 	/**
 	 * JS Templates.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Editor_View::editor_view_js_templates
+	 * @deprecated 13.3 Use Automattic\Jetpack\Forms\ContactForm\Editor_View::editor_view_js_templates
 	 */
 	public static function editor_view_js_templates() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::editor_view_js_templates' );
+		_deprecated_function( __METHOD__, 'jetpack-13.3', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::editor_view_js_templates' );
 
 		return Editor_View::editor_view_js_templates();
 	}

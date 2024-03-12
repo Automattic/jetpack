@@ -2394,14 +2394,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'settings',
 			),
 			'jetpack_waf_share_data'                => array(
-				'description'       => esc_html__( 'Share basic data with Jetpack.', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'waf',
-			),
-			'jetpack_waf_share_debug_data'          => array(
-				'description'       => esc_html__( 'Share detailed data with Jetpack.', 'jetpack' ),
+				'description'       => esc_html__( 'Share data with Jetpack.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
