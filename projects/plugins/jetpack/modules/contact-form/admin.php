@@ -358,7 +358,7 @@ function grunion_recheck_queue() {
 
 /**
  * Delete a number of spam feedbacks via an AJAX request.
- * 
+ *
  * @deprecated 13.3 Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_delete_spam_feedbacks
  */
 function grunion_delete_spam_feedbacks() {
@@ -369,7 +369,7 @@ function grunion_delete_spam_feedbacks() {
 
 /**
  * Show an admin notice if the "Empty Spam" or "Check Spam" process was unable to complete, probably due to a permissions error.
- * 
+ *
  * @deprecated 13.3 Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_feedback_admin_notice
  */
 function grunion_feedback_admin_notice() {
@@ -382,7 +382,7 @@ function grunion_feedback_admin_notice() {
  * Class Grunion_Admin
  *
  * Singleton for Grunion admin area support.
- * 
+ *
  * @deprecated 13.3 Use Automattic\Jetpack\Forms\ContactForm\Admin
  */
 class Grunion_Admin {
@@ -425,7 +425,7 @@ class Grunion_Admin {
 
 	/**
 	 * Grunion_Admin constructor
-	 * 
+	 *
 	 * @deprecated 13.3 Use Automattic\Jetpack\Forms\ContactForm\Admin->__construct
 	 */
 	public function __construct() {
@@ -434,7 +434,7 @@ class Grunion_Admin {
 
 	/**
 	 * Hook handler for admin_enqueue_scripts hook
-	 * 
+	 *
 	 * @deprecated 13.3 Use Automattic\Jetpack\Forms\ContactForm\Admin->admin_enqueue_scripts
 	 */
 	public function admin_enqueue_scripts() {
@@ -445,7 +445,7 @@ class Grunion_Admin {
 
 	/**
 	 * Prints the modal markup with export buttons/content.
-	 * 
+	 *
 	 * @deprecated 13.3 Use Automattic\Jetpack\Forms\ContactForm\Admin->print_export_modal
 	 */
 	public function print_export_modal() {
@@ -469,7 +469,7 @@ class Grunion_Admin {
 
 	/**
 	 * Return HTML markup for the CSV download button.
-	 * 
+	 *
 	 * @deprecated 13.3 Use Automattic\Jetpack\Forms\ContactForm\Admin->get_csv_export_section
 	 */
 	public function get_csv_export_section() {
@@ -481,7 +481,7 @@ class Grunion_Admin {
 	/**
 	 * Render/output HTML markup for the export to gdrive section.
 	 * If the user doesn't hold a Google Drive connection a button to connect will render (See grunion-admin.js).
-	 * 
+	 *
 	 * @deprecated 13.3 Use Automattic\Jetpack\Forms\ContactForm\Admin->get_gdrive_export_section
 	 */
 	public function get_gdrive_export_section() {
@@ -493,7 +493,7 @@ class Grunion_Admin {
 	/**
 	 * Ajax handler. Sends a payload with connection status and html to replace
 	 * the Connect button with the Export button using get_gdrive_export_button
-	 * 
+	 *
 	 * @deprecated 13.3 Use Automattic\Jetpack\Forms\ContactForm\Admin->test_gdrive_connection
 	 */
 	public function test_gdrive_connection() {
