@@ -178,6 +178,10 @@ class Request {
 			return false;
 		}
 
+		if ( $this->is_module_disabled() ) {
+			return false;
+		}
+
 		/**
 		 * Filters the accept headers to determine if the request should be cached.
 		 *
@@ -296,5 +300,23 @@ class Request {
 		}
 
 		return \is_feed();
+	}
+
+	/**
+	 * Return true if the Page Cache module is disabled.
+	 * If Status and Page_Cache are not available, it means we are in a
+	 * pre-WordPress environment, so we assume the module is active.
+	 * This function will be called later when writing a cache file to disk.
+	 * It's then that we can check if the module is active.
+	 *
+	 * @return bool
+	 */
+	public function is_module_disabled() {
+		if ( class_exists( '\Automattic\Jetpack_Boost\Lib\Status' ) && class_exists( '\Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache' ) ) {
+			$page_cache_status = new \Automattic\Jetpack_Boost\Lib\Status( \Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache::get_slug() );
+			return ! $page_cache_status->is_enabled();
+		} else {
+			return false; // If the classes are not available, assume the module is active.
+		}
 	}
 }
