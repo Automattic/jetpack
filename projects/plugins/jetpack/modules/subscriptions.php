@@ -135,6 +135,17 @@ class Jetpack_Subscriptions {
 
 		// Add Subscribers menu to Jetpack navigation.
 		add_action( 'jetpack_admin_menu', array( $this, 'add_subscribers_menu' ) );
+
+		// Customize the configuration URL to lead to the Subscriptions settings.
+		add_filter(
+			'jetpack_module_configuration_url_subscriptions',
+			function () {
+				return Jetpack::admin_url( array( 'page' => 'jetpack#/newsletter' ) );
+			}
+		);
+
+		// Track categories created through the category editor page
+		add_action( 'wp_ajax_add-tag', array( $this, 'track_newsletter_category_creation' ), 1 );
 	}
 
 	/**
@@ -1141,6 +1152,36 @@ class Jetpack_Subscriptions {
 			esc_url( $link ),
 			null
 		);
+	}
+
+	/**
+	 * Record tracks event if categories is created when user enters
+	 * the edit category page through the newsletter settings page.
+	 *
+	 * @return void
+	 */
+	public function track_newsletter_category_creation() {
+
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
+		if ( empty( $_POST['_wp_http_referer'] ) ) {
+			return;
+		}
+
+		if ( strpos( sanitize_url( wp_unslash( $_POST['_wp_http_referer'] ) ), 'referer=newsletter-categories' ) > -1 ) {
+
+			$parent = filter_var( empty( $_POST['parent'] ) ? 0 : wp_unslash( $_POST['parent'] ), FILTER_SANITIZE_NUMBER_INT );
+
+			$is_child_category = $parent > 0;
+
+			$tracking = new Automattic\Jetpack\Tracking();
+			$tracking->tracks_record_event(
+				wp_get_current_user(),
+				'jetpack_newsletter_add_category',
+				array(
+					'is_child_category' => $is_child_category,
+				)
+			);
+		}
 	}
 }
 
