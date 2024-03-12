@@ -202,7 +202,7 @@ class zeroBSCRM_Edit{
           // get current user
 			$current_user_id = get_current_user_id();
 
-		if ( $obj_owner > 0 && $obj_owner != $current_user_id ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- as below, there is the chance the numbers could be strings here, as expected elsewhere in the plugin.
+		if ( $obj_owner > 0 && $obj_owner != $current_user_id || $obj_owner == -1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual,Universal.Operators.StrictComparisons.LooseEqual -- see below.
 				// not current user
 				// does user have perms to edit?
 				$can_edit_all_contacts = current_user_can( 'admin_zerobs_customers' ) && $zbs->settings->get( 'perusercustomers' ) == 0; // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual,WordPress.WP.Capabilities.Unknown  -- this was defined in ZeroBSCRM.Permissions.php.
