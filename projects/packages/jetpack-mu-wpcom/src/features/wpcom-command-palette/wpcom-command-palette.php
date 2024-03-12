@@ -33,6 +33,7 @@ function should_load_wpcom_command_palette() {
  * @return bool True if GitHub Deployments is available for the site, false otherwise.
  */
 function is_gh_deployments_available( $site_id ) {
+	// On Atomic sites we can't read the sticker since it isn't in the allow list.
 	if ( function_exists( 'request_github_deployments_available' ) ) {
 		return request_github_deployments_available();
 	}
