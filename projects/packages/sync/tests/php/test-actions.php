@@ -237,7 +237,7 @@ class Test_Actions extends BaseTestCase {
 						),
 					);
 				},
-				'expected' => new \WP_Error( 'rest_invalid_param', 'Invalid parameter(s): sync', array( 'status' => 400 ) ),
+				'expected' => new \WP_Error( 'jetpack_sync_send_error_rest_invalid_param', 'Invalid parameter(s): sync', array( 'status' => 400 ) ),
 			),
 		);
 	}
