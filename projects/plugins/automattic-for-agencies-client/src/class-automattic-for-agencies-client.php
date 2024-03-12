@@ -78,7 +78,7 @@ class Automattic_For_Agencies_Client {
 	 */
 	public static function add_submenu() {
 		add_submenu_page(
-			'options-general.php',
+			'',
 			AUTOMATTIC_FOR_AGENCIES_CLIENT_NAME,
 			__( 'Automattic for Agencies', 'automattic-for-agencies-client' ),
 			'manage_options',
