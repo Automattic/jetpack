@@ -15,7 +15,7 @@ import { Icon, check, plus } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useCallback } from 'react';
 import useProduct from '../../data/products/use-product';
-import getMyJetpackWindowState from '../../data/utils/get-my-jetpack-window-state';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 import ProductDetailButton from '../product-detail-button';
@@ -89,7 +89,7 @@ const ProductDetailCard = ( {
 		siteSuffix = '',
 		adminUrl = '',
 		myJetpackCheckoutUri = '',
-	} = getMyJetpackWindowState();
+	} = getMyJetpackWindowInitialState();
 
 	const { detail } = useProduct( slug );
 

@@ -2,7 +2,7 @@
 /**
  * Jetpack_WooCommerce_Analytics_My_Account
  *
- * @deprecated $$next-version$$
+ * @deprecated 13.3
  *
  * @package automattic/jetpack
  * @author  Automattic
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Class Jetpack_WooCommerce_Analytics_My_Account
  * Filters and Actions added to My Account pages to perform analytics
  *
- * @deprecated $$next-version$$
+ * @deprecated 13.3
  */
 class Jetpack_WooCommerce_Analytics_My_Account {
 
@@ -28,7 +28,7 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 	/**
 	 * Jetpack_WooCommerce_Analytics_My_Account constructor.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.3
 	 */
 	public function __construct() {
 
@@ -52,7 +52,7 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 	 * We also track other events here, like order number clicks, order action clicks,
 	 * address clicks, payment method add and delete.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.3
 	 */
 	public function track_tabs() {
 		global $wp;
@@ -145,7 +145,7 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 	/**
 	 * Track address save events, this can only come from the my account page.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.3
 	 *
 	 * @param int    $customer_id The customer id.
 	 * @param string $load_address The address type (billing, shipping).
@@ -157,7 +157,7 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 	/**
 	 * Track payment method add events, this can only come from the my account page.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.3
 	 */
 	public function track_add_payment_method() {
 		if ( isset( $_POST['woocommerce_add_payment_method'] ) && isset( $_POST['payment_method'] ) ) {
@@ -176,7 +176,7 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 	/**
 	 * Track payment method delete events.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.3
 	 */
 	public function track_delete_payment_method() {
 		global $wp;
@@ -189,7 +189,7 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 	/**
 	 * Track order cancel events.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.3
 	 */
 	public function track_order_cancel_event() {
 		if ( isset( $_GET['_wca_initiator'] ) && ( isset( $_GET['_wpnonce'] ) && wp_verify_nonce( wp_unslash( $_GET['_wpnonce'] ), 'woocommerce-cancel_order' ) ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -200,7 +200,7 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 	/**
 	 * Track order pay events.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.3
 	 */
 	public function track_order_pay_event() {
 		if ( isset( $_GET['_wca_initiator'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Recommended
@@ -211,7 +211,7 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 	/**
 	 * Track account details save events, this can only come from the my account page.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.3
 	 */
 	public function track_save_account_details() {
 		$this->queue_event( 'woocommerceanalytics_my_account_details_save' );
@@ -220,7 +220,7 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 	/**
 	 * Track logout events.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.3
 	 */
 	public function track_logouts() {
 		$common_props = $this->render_properties_as_js(
@@ -246,7 +246,7 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 	/**
 	 * Add referrer prop to my account action links
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.3
 	 *
 	 * @param array $actions My account action links.
 	 * @return array
@@ -275,7 +275,7 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 	 * The get_view_order_url is used in a lot of places,
 	 * so we want to limit it just to my account page.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.3
 	 */
 	public function add_initiator_prop_to_order_urls() {
 		add_filter(
@@ -303,7 +303,7 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 	/**
 	 * Add initiator to query vars
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.3
 	 *
 	 * @param array $query_vars Query vars.
 	 * @return array
@@ -318,7 +318,7 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 	 *
 	 * This is called on every page load, and will record all events that were queued up in session.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.3
 	 */
 	public function trigger_queued_events() {
 		if ( is_object( WC()->session ) ) {
@@ -340,7 +340,7 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 	/**
 	 * Queue an event in session to be recorded later on next page load.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.3
 	 *
 	 * @param string $event_name The event name.
 	 * @param array  $event_props The event properties.

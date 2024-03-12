@@ -170,6 +170,7 @@
 							! $( this ).hasClass( 'preview-print' ) &&
 							! $( this ).hasClass( 'preview-reddit' ) &&
 							! $( this ).hasClass( 'preview-telegram' ) &&
+							! $( this ).hasClass( 'preview-threads' ) &&
 							! $( this ).hasClass( 'preview-jetpack-whatsapp' ) &&
 							! $( this ).hasClass( 'share-custom' ) &&
 							! $( this ).hasClass( 'share-deprecated' )
