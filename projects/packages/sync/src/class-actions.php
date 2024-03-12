@@ -1170,7 +1170,7 @@ class Actions {
 			return new WP_Error( 'sync_rest_api_response_decoding_failed', 'Sync REST API response decoding failed', $response_body );
 		}
 
-		if ( $response_code !== 200 ) {
+		if ( $response_code !== 200 || false === isset( $decoded_response['processed_items'] ) ) {
 			if ( is_array( $decoded_response ) && isset( $decoded_response['code'] ) && isset( $decoded_response['message'] ) ) {
 				return new WP_Error(
 					$decoded_response['code'],
