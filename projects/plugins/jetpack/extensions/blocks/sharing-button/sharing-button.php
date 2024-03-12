@@ -100,7 +100,7 @@ function render_block( $attr, $content, $block ) {
 	if ( $service_name === 'share' ) {
 		$block_class_name .= ' tooltip';
 		/* translators: aria label for SMS sharing button */
-		$link_aria_label = esc_html__( 'Share using Native tools', 'jetpack' );
+		$link_aria_label = esc_attr__( 'Share using Native tools', 'jetpack' );
 		$link_props      = $service->get_link( $post_id );
 	}
 
@@ -131,7 +131,7 @@ function render_block( $attr, $content, $block ) {
 
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
-	$component  = '<li class="' . esc_html( $block_class_name ) . '">';
+	$component  = '<li class="' . esc_attr( $block_class_name ) . '">';
 	$component .= sprintf(
 		'<a href="%1$s" target="_blank" rel="nofollow noopener noreferrer" class="%2$s" style="%3$s" data-service="%4$s" data-shared="%5$s" aria-label="%6$s">',
 		esc_url( $link_url ),
@@ -145,7 +145,7 @@ function render_block( $attr, $content, $block ) {
 	$component .= $style_type !== 'text' ? $icon : '';
 	$component .= '<span class="jetpack-sharing-button__service-label" aria-hidden="true">' . esc_html( $title ) . '</span>';
 	if ( $service_name === 'share' ) {
-		$component .= '<span class="tooltiptext" aria-live="assertive">' . esc_html__( 'Copied to clipboard', 'jetpack' ) . '</span>';
+		$component .= '<span class="tooltiptext" aria-live="assertive">' . esc_attr__( 'Copied to clipboard', 'jetpack' ) . '</span>';
 	}
 	$component .= '</a>';
 	$component .= '</li>';
