@@ -10,6 +10,7 @@ import { docsDefine } from './commands/docs.js';
 import { draftDefine } from './commands/draft.js';
 import { generateDefine } from './commands/generate.js';
 import * as installCommand from './commands/install.js';
+import * as phanCommand from './commands/phan.js';
 import { releaseDefine } from './commands/release.js';
 import { rsyncDefine } from './commands/rsync.js';
 import { testDefine } from './commands/test.js';
@@ -42,6 +43,7 @@ export async function cli() {
 	argv = draftDefine( argv );
 	argv = generateDefine( argv );
 	argv.command( installCommand );
+	argv.command( phanCommand );
 	argv = releaseDefine( argv );
 	argv = rsyncDefine( argv );
 	argv = testDefine( argv );

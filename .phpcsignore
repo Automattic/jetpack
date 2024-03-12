@@ -3,3 +3,6 @@
 
 # Same for changelog directories.
 **/changelog/
+
+# Phan baselines shouldn't be phpcs-ed.
+**/.phan/baseline.php
