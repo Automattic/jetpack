@@ -118,7 +118,12 @@ function SubscriptionsSettings( props ) {
 
 	return (
 		<>
-			<SettingsCard { ...props } hideButton module={ SUBSCRIPTIONS_MODULE_NAME }>
+			<SettingsCard
+				{ ...props }
+				hideButton
+				module={ SUBSCRIPTIONS_MODULE_NAME }
+				header={ __( 'Subscriptions', 'jetpack' ) }
+			>
 				<SettingsGroup
 					hasChild
 					disableInOfflineMode

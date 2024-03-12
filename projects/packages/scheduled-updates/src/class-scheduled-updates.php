@@ -17,7 +17,7 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.3.2';
+	const PACKAGE_VERSION = '0.3.3';
 
 	/**
 	 * Initialize the class.
@@ -120,7 +120,7 @@ class Scheduled_Updates {
 
 		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
 
-		$schedules = false;
+		$schedules = array();
 		foreach ( $events as $event ) {
 			if ( in_array( $plugin_file, $event->args, true ) ) {
 				$schedules[] = $event;
@@ -155,7 +155,7 @@ class Scheduled_Updates {
 			$html = sprintf(
 				/* translators: %s is the time of day. Daily at 10 am. */
 				esc_html__( 'Daily at %s.', 'jetpack-scheduled-updates' ),
-				date_i18n( get_option( 'time_format' ), $schedule->timestamp )
+				get_date_from_gmt( gmdate( 'Y-m-d H:i:s', $schedule->timestamp ), get_option( 'time_format' ) )
 			);
 		} else {
 			// Not getting smart about passing in weekdays makes it easier to translate.
@@ -178,7 +178,7 @@ class Scheduled_Updates {
 
 			$html = sprintf(
 				$weekdays[ date_i18n( 'N', $schedule->timestamp ) ],
-				date_i18n( get_option( 'time_format' ), $schedule->timestamp )
+				get_date_from_gmt( gmdate( 'Y-m-d H:i:s', $schedule->timestamp ), get_option( 'time_format' ) )
 			);
 		}
 

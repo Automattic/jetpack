@@ -90,10 +90,6 @@ class Waf_Constants {
 			$share_data_option = get_option( Waf_Runner::SHARE_DATA_OPTION_NAME, false );
 			define( 'JETPACK_WAF_SHARE_DATA', $share_data_option );
 		}
-		if ( ! defined( 'JETPACK_WAF_SHARE_DEBUG_DATA' ) ) {
-			$share_debug_data_option = get_option( Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME, false );
-			define( 'JETPACK_WAF_SHARE_DEBUG_DATA', $share_debug_data_option );
-		}
 	}
 
 	/**
