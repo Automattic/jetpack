@@ -20,7 +20,7 @@ use Automattic\Jetpack\Status;
  */
 class JITM {
 
-	const PACKAGE_VERSION = '3.1.0-alpha';
+	const PACKAGE_VERSION = '3.1.1-alpha';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -134,7 +134,7 @@ class JITM {
 	 * Check if the current page is a Jetpack or WooCommerce admin page.
 	 * Noting that this is a very basic check, and pages from other plugins may also match.
 	 *
-	 * @since $$next-version$$
+	 * @since 3.1.0
 	 *
 	 * @return bool True if the current page is a Jetpack or WooCommerce admin page, else false.
 	 */
@@ -199,10 +199,10 @@ class JITM {
 	 * @since 1.1.0
 	 * @since-jetpack 8.0.0
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 3.1.0
 	 */
 	public function is_gutenberg_page() {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '3.1.0' );
 		$current_screen = get_current_screen();
 		return ( method_exists( $current_screen, 'is_block_editor' ) && $current_screen->is_block_editor() );
 	}
