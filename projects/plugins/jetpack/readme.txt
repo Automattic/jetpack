@@ -326,33 +326,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.2 - 2024-03-05
-### Enhancements
-- Three legacy Jetpack widgets are now available as new blocks:
-	- Blog Stats block: easily display visitor stats data on a global or per post basis.
-	- Top Posts and Pages block: provides a quick way to display the most popular content on your site.
-	- Goodreads block: showcase books from the shelves of a Goodreads profile.
-- Jetpack mobile app: now provides a seamless way to upload images from your mobile device while publishing on the web. [#35583]
-- Jetpack SSO: various improvements made to enhance inviting and managing users. [#35277]
-
-### Improved compatibility
-- Blaze: remove "Promote with Blaze" links appearing in the Posts list when the Blaze feature is enabled. You can still go to Tools > Advertising to create and manage Blaze campaigns on your site. [#35586]
-- General: the plugin is now compatible with the upcoming WordPress release, version 6.5. [#35820]
-- Subscriptions block: add support for WP Super Cache and Boost Cache. [#35598]
-- WordAds: add additional states to US Privacy law opt-out. [#35765]
-- WordAds: include option to toggle GDPR Consent Banner. [#35205]
-- WPcom API: add 'if_not_modified_since' to the update post endpoint which will help clients determine if the post has been updated since last retrieved. [#35526]
-
-### Bug fixes
-- Carousel: don't open carousel if no images are found in the gallery. [#35788]
-- Jetpack Google Fonts: fix bug where some Google fonts aren't displayed correctly on front end. [#35706]
-- Memberships: disable scroll to top when memberships subscribe popup is opened. [#35553]
-- Sharing block: only enqueue extra JavaScript when a Sharing Block is inserted on the page. [#35955]
-- Sharing buttons: small adjustments to default button styles. [#35521]
-- Subscribe block: improve disabled placeholder state theme colour compatibility. [#35813]
-- WooCommerce Analytics: avoid error when trying to pay for a deleted product. [#35566]
-- WPcom i18n: fix mixed translations after WordPress.com user locale switch. [#35750]
-
+### 13.2.1 - 2024-03-12
+### Security
+- Subscriptions: improve security checks when displaying a Subscription form via a shortcode.
 --------
 
 [See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/CHANGELOG.md#changelog)
