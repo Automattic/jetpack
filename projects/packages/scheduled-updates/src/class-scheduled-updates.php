@@ -17,7 +17,7 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.3.3';
+	const PACKAGE_VERSION = '0.3.4-alpha';
 
 	/**
 	 * Initialize the class.
@@ -62,20 +62,18 @@ class Scheduled_Updates {
 	 */
 	public static function run_scheduled_update( ...$plugins ) {
 		$available_updates = get_site_transient( 'update_plugins' );
-		$plugins           = array_filter(
-			$plugins,
-			function ( $plugin ) use ( $available_updates ) {
-				return isset( $available_updates->response[ $plugin ] );
-			}
-		);
+		$plugins_to_update = $available_updates->response ?? array();
+		$plugins_to_update = array_intersect_key( $plugins_to_update, array_flip( $plugins ) );
 
-		$body = empty( $plugins ) ? null : array( 'plugins' => $plugins );
+		if ( empty( $plugins_to_update ) ) {
+			return;
+		}
 
 		( new Connection\Client() )->wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/hosting/scheduled-update', \Jetpack_Options::get_option( 'id' ) ),
 			'2',
 			array( 'method' => 'POST' ),
-			$body,
+			array( 'plugins' => $plugins_to_update ),
 			'wpcom'
 		);
 	}
