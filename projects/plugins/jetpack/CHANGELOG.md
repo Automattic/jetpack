@@ -4,10 +4,10 @@
 
 ## 13.2.1 - 2024-03-12
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Subscriptions: improve security by better checks when displaying a Subscription form via a shortcode. [#36347]
-- This fixes a minor bug in a recently shipped feature that makes it work more like expected [#36262]
+- Subscriptions: improve security checks when displaying a Subscription form via a shortcode. [#36347]
+- WPcom API: fixes a minor bug in a recently shipped endpoint that makes it work more like expected. [#36262]
 
-## 13.2 - 2024-03-05
+## [13.2] - 2024-03-05
 ### Enhancements
 - Blog Stats block: Add message on the frontend when the Stats module is disabled. [#36108]
 - Dashboard: link to Odyssey Stats for Atomic sites [#36049]
