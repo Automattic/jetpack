@@ -17,7 +17,7 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.3.2';
+	const PACKAGE_VERSION = '0.3.3-alpha';
 
 	/**
 	 * Initialize the class.
@@ -120,7 +120,7 @@ class Scheduled_Updates {
 
 		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
 
-		$schedules = false;
+		$schedules = array();
 		foreach ( $events as $event ) {
 			if ( in_array( $plugin_file, $event->args, true ) ) {
 				$schedules[] = $event;
