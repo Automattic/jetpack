@@ -162,15 +162,35 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		if ( self::is_wpcom() && ! $show_only_email_and_button ) {
 			if ( self::is_current_user_subscribed() ) {
 				if ( ! empty( $instance['title_following'] ) ) {
-					echo $before_title . '<label for="subscribe-field' . ( self::$instance_count > 1 ? '-' . self::$instance_count : '' ) . '">' . esc_attr( $instance['title_following'] ) . '</label>' . $after_title . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					printf(
+						'%1$s<label for="subscribe-field%2$s">%3$s</label>%4$s%5$s',
+						$before_title, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						( self::$instance_count > 1 ? '-' . (int) self::$instance_count : '' ),
+						esc_html( $instance['title_following'] ),
+						$after_title, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						"\n"
+					);
 				}
 			} elseif ( ! empty( $instance['title'] ) ) {
-				echo $before_title . '<label for="subscribe-field' . ( self::$instance_count > 1 ? '-' . self::$instance_count : '' ) . '">' . $instance['title'] . '</label>' . $after_title . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				printf(
+					'%1$s<label for="subscribe-field%2$s">%3$s</label>%4$s%5$s',
+					$before_title, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					( self::$instance_count > 1 ? '-' . (int) self::$instance_count : '' ),
+					esc_html( $instance['title'] ),
+					$after_title, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					"\n"
+				);
 			}
 		}
 
 		if ( self::is_jetpack() && empty( $instance['show_only_email_and_button'] ) ) {
-			echo $args['before_title'] . $instance['title'] . $args['after_title'] . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			printf(
+				'%1$s%2$s%3$s%4$s',
+				$before_title, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				esc_html( $instance['title'] ),
+				$after_title, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				"\n"
+			);
 		}
 	}
 
@@ -338,7 +358,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$show_subscribers_total       = (bool) $instance['show_subscribers_total'];
 		$subscribers_total            = self::fetch_subscriber_count();
 		$subscribe_text               = empty( $instance['show_only_email_and_button'] ) ?
-			stripslashes( $instance['subscribe_text'] ) :
+			wp_kses_post( $instance['subscribe_text'] ) :
 			false;
 		$referer                      = esc_url_raw( ( is_ssl() ? 'https' : 'http' ) . '://' . ( isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : '' ) . ( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' ) );
 		$source                       = 'widget';

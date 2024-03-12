@@ -16,10 +16,9 @@ use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
  */
 class Waf_Runner {
 
-	const WAF_MODULE_NAME              = 'waf';
-	const MODE_OPTION_NAME             = 'jetpack_waf_mode';
-	const SHARE_DATA_OPTION_NAME       = 'jetpack_waf_share_data';
-	const SHARE_DEBUG_DATA_OPTION_NAME = 'jetpack_waf_share_debug_data';
+	const WAF_MODULE_NAME        = 'waf';
+	const MODE_OPTION_NAME       = 'jetpack_waf_mode';
+	const SHARE_DATA_OPTION_NAME = 'jetpack_waf_share_data';
 
 	/**
 	 * Run the WAF
@@ -31,11 +30,7 @@ class Waf_Runner {
 			return;
 		}
 		Waf_Constants::define_mode();
-
-		if ( ! self::get_standalone_mode_status() ) {
-			Waf_Constants::define_share_data();
-		}
-
+		Waf_Constants::define_share_data();
 		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
 			return;
 		}
@@ -168,7 +163,6 @@ class Waf_Runner {
 			Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME => get_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME ),
 			Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME => get_option( Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME ),
 			self::SHARE_DATA_OPTION_NAME                 => get_option( self::SHARE_DATA_OPTION_NAME ),
-			self::SHARE_DEBUG_DATA_OPTION_NAME           => get_option( self::SHARE_DEBUG_DATA_OPTION_NAME ),
 			'bootstrap_path'                             => self::get_bootstrap_file_path(),
 			'standalone_mode'                            => self::get_standalone_mode_status(),
 			'automatic_rules_available'                  => (bool) self::automatic_rules_available(),
