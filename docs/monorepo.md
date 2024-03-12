@@ -204,7 +204,7 @@ We use eslint and phpcs to lint JavaScript and PHP code. Projects should comply 
   ```
 * We're using a fork of phpcs and a custom filter that adds support for per-directory configuration (`.phpcs.dir.xml`) and use of `.gitignore` and `.phpcsignore` files. Again, try to keep to the spirit of things.
 
-### Static Analysts
+### Static Analysis
 
 We use Phan for PHP static analysis.[^1] Configuration for a project resides in the `.phan/config.php` within the project, which should generally build on top of the `.phan/config.base.php` from the monorepo root. A baseline file also resides at `.phan/baseline.php` to allow for incremental fixing of errors.
 
