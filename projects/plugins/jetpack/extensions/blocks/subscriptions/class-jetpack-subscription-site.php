@@ -131,7 +131,8 @@ class Jetpack_Subscription_Site {
 						$discover_more_from_text = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
 						$subscribe_text          = __( 'Subscribe to get the latest posts to your email.', 'jetpack' );
 
-						return $content . <<<HTML
+						return $content . do_blocks(
+							<<<HTML
 <!-- wp:group {"style":{"spacing":{"padding":{"top":"0px","bottom":"0px","left":"0px","right":"0px"},"margin":{"top":"32px","bottom":"32px"}},"border":{"width":"0px","style":"none"}},"className":"has-border-color","layout":{"type":"default"}} -->
 <div class="wp-block-group has-border-color" style="border-style:none;border-width:0px;margin-top:32px;margin-bottom:32px;padding-top:0px;padding-right:0px;padding-bottom:0px;padding-left:0px">
 	<!-- wp:separator {"style":{"spacing":{"margin":{"bottom":"24px"}}},"className":"is-style-wide"} -->
@@ -153,12 +154,13 @@ class Jetpack_Subscription_Site {
 	<!-- /wp:group -->
 </div>
 <!-- /wp:group -->
-HTML;
+HTML
+						);
 					}
 
 					return $content;
 				},
-				8, // TODO use 10 and do_blocks instead?
+				100, // To insert it after the sharing blocks.
 				1
 			);
 
