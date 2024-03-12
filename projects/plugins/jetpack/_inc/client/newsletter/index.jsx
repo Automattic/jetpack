@@ -10,11 +10,6 @@ import MessagesSetting from './messages-setting';
 import NewsletterCategories from './newsletter-categories';
 import SubscriptionsSettings from './subscriptions-settings';
 
-//Check for feature flag
-const urlParams = new URLSearchParams( window.location.search );
-const isNewsletterCategoriesEnabled = urlParams.get( 'enable-newsletter-categories' ) === 'true';
-const isEmailSettingsEnabled = urlParams.get( 'enable-email-settings' ) === 'true';
-
 /**
  * Newsletter Section.
  *
@@ -50,8 +45,8 @@ function Subscriptions( props ) {
 			{ foundSubscriptions && (
 				<>
 					<SubscriptionsSettings siteRawUrl={ siteRawUrl } blogID={ blogID } />
-					{ isEmailSettingsEnabled && <EmailSettings /> }
-					{ isNewsletterCategoriesEnabled && <NewsletterCategories /> }
+					<EmailSettings />
+					<NewsletterCategories />
 					<MessagesSetting { ...props } />
 				</>
 			) }

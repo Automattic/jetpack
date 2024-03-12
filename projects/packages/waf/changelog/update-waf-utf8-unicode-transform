@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Improved accuracy of the WAF utf8_to_unicode transform.
+
+

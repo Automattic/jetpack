@@ -36,7 +36,7 @@ class Admin {
 	/**
 	 * Instantiates this singleton class
 	 *
-	 * @return Grunion_Admin The Grunion Admin class instance.
+	 * @return Admin The Admin class instance.
 	 */
 	public static function init() {
 		static $instance = false;
@@ -49,7 +49,7 @@ class Admin {
 	}
 
 	/**
-	 * Grunion_Admin constructor
+	 * Admin constructor
 	 */
 	public function __construct() {
 		add_action( 'media_buttons', array( $this, 'grunion_media_button' ), 999 );
@@ -1086,13 +1086,13 @@ class Admin {
 			$post->post_status = 'spam';
 			$status            = wp_insert_post( $post );
 
-			/** This action is already documented in modules/contact-form/admin.php */
+			/** This action is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 			do_action( 'contact_form_akismet', 'spam', $akismet_values );
 		} elseif ( $_POST['make_it'] === 'ham' ) {
 			$post->post_status = 'publish';
 			$status            = wp_insert_post( $post );
 
-			/** This action is already documented in modules/contact-form/admin.php */
+			/** This action is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 			do_action( 'contact_form_akismet', 'ham', $akismet_values );
 
 			$comment_author_email = false;
@@ -1432,7 +1432,7 @@ class Admin {
 						'post_status' => 'spam',
 					)
 				);
-				/** This action is already documented in modules/contact-form/admin.php */
+				/** This action is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 				do_action( 'contact_form_akismet', 'spam', $meta );
 			}
 		}

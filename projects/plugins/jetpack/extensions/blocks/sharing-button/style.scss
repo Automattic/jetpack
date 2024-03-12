@@ -1,5 +1,9 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
+a.jetpack-sharing-button__button {
+	color: inherit;
+}
+
 .jetpack-sharing-button__button {
 	display: flex;
 	flex-direction: row;
@@ -18,7 +22,6 @@
 	height: auto;
 	align-items: center;
 	color: inherit;
-
 
 	& svg {
 		width: 1.5em;
@@ -61,6 +64,7 @@
 		&.share-pinterest { background: var( --color-pinterest ); }
 		&.share-pocket { background: var( --color-pocket ); }
 		&.share-telegram { background: var( --color-telegram ); }
+		&.share-threads { background: var( --color-threads ); }
 		&.share-whatsapp { background: var( --color-whatsapp ); }
 		&.share-mastodon { background: var( --color-mastodon ); }
 		&.share-nextdoor { background: var( --color-nextdoor ); }
