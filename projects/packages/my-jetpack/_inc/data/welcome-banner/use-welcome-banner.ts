@@ -5,11 +5,11 @@ import {
 	REST_API_SITE_DISMISS_BANNER,
 } from '../../data/constants';
 import useSimpleMutation from '../use-simple-mutation';
-import getMyJetpackWindowState from '../utils/get-my-jetpack-window-state';
+import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
 
 const useWelcomeBanner = () => {
 	const { hasBeenDismissed: welcomeBannerHasBeenDismissed } =
-		getMyJetpackWindowState( 'welcomeBanner' );
+		getMyJetpackWindowInitialState( 'welcomeBanner' );
 
 	const [ isDismissed, setIsDismissed ] = useState( welcomeBannerHasBeenDismissed );
 

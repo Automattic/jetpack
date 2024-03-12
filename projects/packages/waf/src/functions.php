@@ -47,23 +47,25 @@ function wp_unslash( $value ) {
  *       [ "field2[2]", "f" ],
  * ]
  *
- * @param array  $array       An array that resembles one of the PHP superglobals like $_GET or $_POST.
- * @param string $key_prefix  String that should be prepended to the keys output by this function.
- *                             Usually only used internally as part of recursion when flattening a nested array.
+ * @param array     $array         An array that resembles one of the PHP superglobals like $_GET or $_POST.
+ * @param string    $key_prefix    String that should be prepended to the keys output by this function.
+ *                                 Usually only used internally as part of recursion when flattening a nested array.
+ * @param bool|null $dot_notation  Whether to use dot notation instead of bracket notation.
+ *
  * @return array{ 0: string, 1: scalar }[]  $key_prefix  An array of key/value tuples, one for each distinct value in the input array.
  */
-function flatten_array( $array, $key_prefix = '' ) {
+function flatten_array( $array, $key_prefix = '', $dot_notation = null ) {
 	$return = array();
 	foreach ( $array as $source_key => $source_value ) {
-		$key = ( '' === $key_prefix )
-			// if this is the first level, the key name isn't enclosed in brackets
-			? $source_key
-			// for every level after the first, enclose the key name in brackets.
-			: $key_prefix . '[' . $source_key . ']';
+		$key = $source_key;
+		if ( ! empty( $key_prefix ) ) {
+			$key = $dot_notation ? "$key_prefix.$source_key" : $key_prefix . "[$source_key]";
+		}
+
 		if ( ! is_array( $source_value ) ) {
 			$return[] = array( $key, $source_value );
 		} else {
-			$return = array_merge( $return, flatten_array( $source_value, $key ) );
+			$return = array_merge( $return, flatten_array( $source_value, $key, $dot_notation ) );
 		}
 	}
 	return $return;
