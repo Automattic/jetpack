@@ -26,7 +26,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.17.2';
+	const PACKAGE_VERSION = '0.17.3-alpha';
 
 	/**
 	 * Persistent WPCOM blog ID that stays in the options after disconnect.
