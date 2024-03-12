@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed a bug where timezone difference where not taken into account when displaying schedule run times in wp-admin.
