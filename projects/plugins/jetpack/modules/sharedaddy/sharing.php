@@ -724,7 +724,7 @@ class Sharing_Admin {
 			new Share_Reddit( 'reddit', array() ),
 		);
 		?>
-		
+
 		<div class="share_manage_options">
 			<br class="clearing" />
 			<h2><?php esc_html_e( 'Sharing Buttons', 'jetpack' ); ?></h2>
@@ -785,6 +785,10 @@ class Sharing_Admin {
  * @return bool
  */
 function jetpack_post_sharing_get_value( array $post ) {
+	if ( ! isset( $post['id'] ) ) {
+		return false;
+	}
+
 	// if sharing IS disabled on this post, enabled=false, so negate the meta
 	return (bool) ! get_post_meta( $post['id'], 'sharing_disabled', true );
 }
