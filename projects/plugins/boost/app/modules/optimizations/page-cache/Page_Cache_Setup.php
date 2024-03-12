@@ -6,6 +6,7 @@ use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Error;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
 
 class Page_Cache_Setup {
 
@@ -47,8 +48,20 @@ class Page_Cache_Setup {
 	 * @return Boost_Cache_Error|true - True on success, error otherwise.
 	 */
 	private static function enable_caching() {
-		$settings = Boost_Cache_Settings::get_instance();
-		return $settings->set( array( 'enabled' => true ) );
+		$settings       = Boost_Cache_Settings::get_instance();
+		$previous_value = $settings->get_enabled();
+
+		if ( $previous_value === true ) {
+			return true;
+		}
+
+		$enabled_result = $settings->set( array( 'enabled' => true ) );
+
+		if ( $enabled_result ) {
+			Logger::debug( 'Caching enabled in cache config' );
+		}
+
+		return $enabled_result;
 	}
 
 	/**
@@ -136,6 +149,8 @@ $boost_cache->serve();
 		}
 		self::clear_opcache( $advanced_cache_filename );
 
+		Logger::debug( 'Advanced cache file created' );
+
 		return true;
 	}
 
@@ -176,6 +191,8 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 			return new \WP_Error( 'wp-config-not-writable' );
 		}
 		self::clear_opcache( $config_file );
+
+		Logger::debug( 'WP_CACHE constant added to wp-config.php' );
 
 		return true;
 	}
