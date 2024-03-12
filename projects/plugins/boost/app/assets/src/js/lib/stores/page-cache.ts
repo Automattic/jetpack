@@ -70,6 +70,41 @@ export function usePageCacheSetup() {
 }
 
 /**
+ * Hook which creates a callable action for checking Page Cache setup.
+ */
+export function usePageCacheSetupCheck() {
+	const [ , pageCacheErrorMutation ] = usePageCacheError();
+	const setError = pageCacheErrorMutation.mutate;
+
+	const pageCacheSetup = useDataSyncAction( {
+		namespace: 'jetpack_boost_ds',
+		key: 'page_cache',
+		action_name: 'check-setup',
+		schema: {
+			state: PageCache,
+			action_request: z.void(),
+			action_response: PageCacheError.or( z.literal( true ) ),
+		},
+		mutationOptions: {
+			onError: error => {
+				if ( error instanceof DataSyncError ) {
+					return setError( error.info() );
+				}
+				const standardizedError = standardizeError( error );
+				setError( {
+					code: 'unknown_error',
+					message: standardizedError.message || __( 'Unknown error occurred.', 'jetpack-boost' ),
+				} );
+			},
+			onSuccess: () => {
+				setError( null );
+			},
+		},
+	} );
+	return pageCacheSetup;
+}
+
+/**
  * Hook which creates a callable action for clearing Page Cache.
  */
 export function useClearPageCacheAction() {

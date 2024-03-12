@@ -16,7 +16,11 @@ import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/store
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import PageCache from '$features/page-cache/page-cache';
-import { usePageCacheError, usePageCacheSetup } from '$lib/stores/page-cache';
+import {
+	usePageCacheError,
+	usePageCacheSetup,
+	usePageCacheSetupCheck,
+} from '$lib/stores/page-cache';
 import Health from '$features/page-cache/health/health';
 import { useMutationNotice } from '$features/ui';
 
@@ -37,6 +41,7 @@ const Index = () => {
 	const premiumFeatures = usePremiumFeatures();
 
 	const pageCacheSetup = usePageCacheSetup();
+	const pageCacheSetupCheck = usePageCacheSetupCheck();
 	const [ pageCacheError, pageCacheErrorMutation ] = usePageCacheError();
 	const [ isPageCacheSettingUp, setIsPageCacheSettingUp ] = useState( false );
 
@@ -54,10 +59,10 @@ const Index = () => {
 	);
 
 	useEffect( () => {
-		if ( pageCacheSetup.isPending ) {
+		if ( pageCacheSetup.isPending || pageCacheSetupCheck.isPending ) {
 			setIsPageCacheSettingUp( false );
 		}
-	}, [ pageCacheSetup.isPending ] );
+	}, [ pageCacheSetup.isPending, pageCacheSetupCheck.isPending ] );
 
 	return (
 		<div className="jb-container--narrow">
@@ -164,6 +169,9 @@ const Index = () => {
 							dismissed: true,
 						} );
 					}
+				} }
+				onMountEnable={ () => {
+					pageCacheSetupCheck.mutate();
 				} }
 				onEnable={ () => {
 					pageCacheSetup.mutate();
