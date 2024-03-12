@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Fix disable state for newsletter setting inputs. Components under feature flag.
-
-

@@ -204,7 +204,7 @@ We use eslint and phpcs to lint JavaScript and PHP code. Projects should comply 
   ```
 * We're using a fork of phpcs and a custom filter that adds support for per-directory configuration (`.phpcs.dir.xml`) and use of `.gitignore` and `.phpcsignore` files. Again, try to keep to the spirit of things.
 
-### Static Analysts
+### Static Analysis
 
 We use Phan for PHP static analysis.[^1] Configuration for a project resides in the `.phan/config.php` within the project, which should generally build on top of the `.phan/config.base.php` from the monorepo root. A baseline file also resides at `.phan/baseline.php` to allow for incremental fixing of errors.
 
@@ -225,6 +225,7 @@ This assumes you have PHP installed via Homebrew, e.g. you've done `brew install
 2. You may need to `brew install pkg-config zlib` to install some necessary dependencies.
 3. Update the list of available extensions: `pecl channel-update pecl.php.net`
 4. Build the extension: `pecl install ast`
+   - If the build process fails due to mkdir errors with the pecl directory, you might try `mkdir -p /opt/homebrew/lib/php/pecl` and running the install again.
 5. You may also need to tell PHP where to find the newly-installed extension.
    1. Run `pecl config-get ext_dir` to find where pecl installs extensions.
    2. Run `php -r 'echo ini_get( "extension_dir" ) . "\n";'` to find where PHP currently expects extensions to live.
