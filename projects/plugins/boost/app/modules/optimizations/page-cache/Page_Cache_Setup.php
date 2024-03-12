@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 
 use Automattic\Jetpack_Boost\Lib\Analytics;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Error;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
@@ -39,39 +38,6 @@ class Page_Cache_Setup {
 		}
 
 		Analytics::record_user_event( 'page_cache_setup_succeeded' );
-		return true;
-	}
-
-	/**
-	 * Check if setup is still working.
-	 */
-	public static function is_setup_working() {
-		$steps = array(
-			'verify_wp_content_writable',
-			'verify_permalink_setting',
-			'verify_cache_system_loaded',
-		);
-
-		foreach ( $steps as $step ) {
-			$result = self::$step();
-
-			if ( $result instanceof Boost_Cache_Error ) {
-				return $result->to_wp_error();
-			}
-
-			if ( is_wp_error( $result ) ) {
-				return $result;
-			}
-		}
-
-		return true;
-	}
-
-	private static function verify_cache_system_loaded() {
-		if ( ! Boost_Cache::is_loaded() ) {
-			return new \WP_Error( 'cache-system-not-loading' );
-		}
-
 		return true;
 	}
 

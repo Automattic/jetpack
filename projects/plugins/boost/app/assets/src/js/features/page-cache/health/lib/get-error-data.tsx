@@ -198,25 +198,6 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 			}
 		),
 	},
-	'cache-system-not-loading': {
-		title: __( 'The cache engine is not loading', 'jetpack-boost' ),
-		message: createInterpolateElement(
-			__(
-				'It appears that the cache engine is not loading. Something may have changed after the last time you activated caching. Try re-installing Jetpack Boost. If the issue persists, contact support for help. <link>Learn More.</link>',
-				'jetpack-boost'
-			),
-			{
-				link: (
-					// eslint-disable-next-line jsx-a11y/anchor-has-content
-					<a
-						href={ cacheIssuesLink( 'cache-system-not-loaded' ) }
-						target="_blank"
-						rel="noopener noreferrer"
-					/>
-				),
-			}
-		),
-	},
 };
 
 type FormattedError = {
