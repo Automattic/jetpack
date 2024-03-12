@@ -312,8 +312,13 @@ class Request {
 	 * @return bool
 	 */
 	public function is_module_disabled() {
-		if ( class_exists( '\Automattic\Jetpack_Boost\Lib\Status' ) && class_exists( '\Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache' ) ) {
-			$page_cache_status = new \Automattic\Jetpack_Boost\Lib\Status( \Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache::get_slug() );
+		if (
+			class_exists( '\Automattic\Jetpack_Boost\Lib\Status' ) &&
+			class_exists( '\Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache' )
+		) {
+			$page_cache_status = new \Automattic\Jetpack_Boost\Lib\Status(
+				\Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache::get_slug()
+			);
 			return ! $page_cache_status->is_enabled();
 		} else {
 			return false; // If the classes are not available, assume the module is active.
