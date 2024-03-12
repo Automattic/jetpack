@@ -350,12 +350,54 @@ class Waf_Transforms {
 	}
 
 	/**
-	 * Convert utf-8 characters to unicode characters
+	 * Convert UTF-8 characters to Unicode characters.
 	 *
-	 * @param string $value value to be encoded.
-	 * @return string
+	 * This function iterates through each character of the input string, checks the ASCII value,
+	 * and converts it to its corresponding Unicode representation. It handles characters that are
+	 * represented with 1 to 4 bytes in UTF-8.
+	 *
+	 * @param string $str The string value to be encoded from UTF-8 to Unicode.
+	 * @return string The converted string with Unicode representation.
 	 */
-	public function utf8_to_unicode( $value ) {
-		return preg_replace( '/\\\u(?=[a-f0-9]{4})/', '%u', substr( json_encode( $value ), 1, -1 ) );
+	public function utf8_to_unicode( $str ) {
+		$unicodeStr = '';
+		$strLen     = strlen( $str );
+		$i          = 0;
+
+		// Iterate through each character of the input string.
+		while ( $i < $strLen ) {
+			// Get the ASCII value of the current character.
+			$value = ord( $str[ $i ] );
+
+			if ( $value < 128 ) {
+				// If the character is in the ASCII range (0-127), directly add it to the Unicode string.
+				$unicodeStr .= chr( $value );
+				++$i;
+			} else {
+				// For characters outside the ASCII range, determine the number of bytes in the UTF-8 representation.
+				$unicodeValue = '';
+				if ( $value >= 192 && $value <= 223 ) {
+					// For characters represented with 2 bytes in UTF-8.
+					$unicodeValue = ( ord( $str[ $i ] ) & 0x1F ) << 6 | ( ord( $str[ $i + 1 ] ) & 0x3F );
+					$i           += 2;
+				} elseif ( $value >= 224 && $value <= 239 ) {
+					// For characters represented with 3 bytes in UTF-8.
+					$unicodeValue = ( ord( $str[ $i ] ) & 0x0F ) << 12 | ( ord( $str[ $i + 1 ] ) & 0x3F ) << 6 | ( ord( $str[ $i + 2 ] ) & 0x3F );
+					$i           += 3;
+				} elseif ( $value >= 240 && $value <= 247 ) {
+					// For characters represented with 4 bytes in UTF-8.
+					$unicodeValue = ( ord( $str[ $i ] ) & 0x07 ) << 18 | ( ord( $str[ $i + 1 ] ) & 0x3F ) << 12 | ( ord( $str[ $i + 2 ] ) & 0x3F ) << 6 | ( ord( $str[ $i + 3 ] ) & 0x3F );
+					$i           += 4;
+				} else {
+					// If the sequence does not match any known UTF-8 pattern, skip to the next character.
+					++$i;
+					continue;
+				}
+				// Convert the Unicode value to a formatted string and append it to the Unicode string.
+				$unicodeStr .= sprintf( '%%u%04X', $unicodeValue );
+			}
+		}
+
+		return strtolower( $unicodeStr );
 	}
 }
