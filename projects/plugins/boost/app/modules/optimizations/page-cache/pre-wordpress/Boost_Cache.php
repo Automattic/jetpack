@@ -93,7 +93,7 @@ class Boost_Cache {
 	 *
 	 * @return bool - True if the cache engine has been loaded, false otherwise.
 	 */
-	public static function is_loaded() {
+	public static function is_loading() {
 		return self::$cache_engine_loaded;
 	}
 
