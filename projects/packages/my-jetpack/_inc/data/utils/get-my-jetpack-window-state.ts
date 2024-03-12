@@ -18,7 +18,7 @@ export const getMyJetpackWindowInitialState = <
 };
 
 export const getMyJetpackWindowRestState = () => {
-	return ( window?.myJetpackRest ?? null ) as RestState;
+	return ( window?.myJetpackRest ?? {} ) as RestState;
 };
 
 export const getMyJetpackWindowConnectionState = <
