@@ -1166,7 +1166,7 @@ class Actions {
 		}
 		$decoded_response = json_decode( $response_body, true );
 
-		if ( $decoded_response === null ) {
+		if ( false === is_array( $decoded_response ) ) {
 			return new WP_Error( 'sync_rest_api_response_decoding_failed', 'Sync REST API response decoding failed', $response_body );
 		}
 
