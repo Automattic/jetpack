@@ -39,12 +39,15 @@ const Index = () => {
 	const pageCacheSetup = usePageCacheSetup();
 	const [ pageCacheError, pageCacheErrorMutation ] = usePageCacheError();
 	const [ isPageCacheSettingUp, setIsPageCacheSettingUp ] = useState( false );
+	const [ runningFreshSetup, setRunningFreshSetup ] = useState( false );
 
 	const [ removePageCacheNotice ] = useMutationNotice(
 		'page-cache-setup',
 		{
 			...pageCacheSetup,
-			isPending: isPageCacheSettingUp || pageCacheSetup.isPending,
+			isSuccess: runningFreshSetup && pageCacheSetup.isSuccess,
+			isPending: runningFreshSetup && ( isPageCacheSettingUp || pageCacheSetup.isPending ),
+			isIdle: runningFreshSetup && pageCacheSetup.isIdle,
 		},
 		{
 			savingMessage: __( 'Setting up cache…', 'jetpack-boost' ),
@@ -169,6 +172,7 @@ const Index = () => {
 					pageCacheSetup.mutate();
 				} }
 				onEnable={ () => {
+					setRunningFreshSetup( true );
 					pageCacheSetup.mutate();
 				} }
 				description={
