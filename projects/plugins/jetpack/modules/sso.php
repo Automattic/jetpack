@@ -42,7 +42,10 @@ class Jetpack_SSO {
 	private function __construct() {
 
 		self::$instance = $this;
-		new Jetpack_SSO_User_Admin();
+
+		if ( Jetpack_SSO_Helpers::should_enable_sso_user_admin() ) {
+			new Jetpack_SSO_User_Admin();
+		}
 
 		add_action( 'admin_init', array( $this, 'maybe_authorize_user_after_sso' ), 1 );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
