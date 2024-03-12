@@ -38,7 +38,7 @@ class Scheduled_Updates {
 			return;
 		}
 
-		add_action( 'jetpack_scheduled_update', array( __CLASS__, 'run_scheduled_update' ) );
+		add_action( 'jetpack_scheduled_update', array( __CLASS__, 'run_scheduled_update' ), 10, 10 );
 		add_action( 'rest_api_init', array( __CLASS__, 'add_is_managed_extension_field' ) );
 		add_filter( 'auto_update_plugin', array( __CLASS__, 'allowlist_scheduled_plugins' ), 10, 2 );
 		add_filter( 'plugin_auto_update_setting_html', array( __CLASS__, 'show_scheduled_updates' ), 10, 2 );
