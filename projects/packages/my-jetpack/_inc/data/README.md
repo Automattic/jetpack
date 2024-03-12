@@ -42,6 +42,13 @@ const { mutate: doSomething, isPending } = useSimpleMutation( {
 doSomething( null, {
     onSettled: () => {
         // do something on settled
+        // onSettled runs regardless of the outcome of the query
+        // In our current use-case we are sending the user to checkout
+        // which we want to happen regardless of the outcome of the query
+    },
+    onSuccess: () => {
+        // do something on success
+        // only runs if query is successful
     }
 } );
 
