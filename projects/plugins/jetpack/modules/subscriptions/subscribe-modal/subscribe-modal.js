@@ -22,7 +22,7 @@ domReady( function () {
 			if ( ! hasLoaded ) {
 				openModal();
 			}
-		}, Jetpack_Subscriptions.loadTime );
+		}, Jetpack_Subscriptions.modalLoadTime );
 	};
 
 	// User can edit modal, and could remove close link.
