@@ -378,3 +378,18 @@ add_filter( 'jetpack_boost_pick_viewport', function( $best_size, $width, $height
     return $best_size;
 }, 10, 4 );
 ```
+
+## Features
+
+### Filter the "has feature" check to enable or disable a feature
+
+Filter hook: `jetpack_boost_has_feature_{$feature}`
+
+* Parameter bool `$has_feature`: true if feature available
+
+Usage:
+```php
+add_filter( 'jetpack_boost_has_feature_' . $feature, function( $has_feature ) {
+    return $has_feature;
+} );
+```
