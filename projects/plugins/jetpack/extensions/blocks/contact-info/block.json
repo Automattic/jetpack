@@ -29,6 +29,12 @@
 		"attributes": {},
 		"innerBlocks": [
 			{
+				"name": "jetpack/name",
+				"attributes": {
+					"name": "Your Organization Name"
+				}
+			},
+			{
 				"name": "jetpack/email",
 				"attributes": {
 					"email": "hello@yourjetpack.blog"

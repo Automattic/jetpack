@@ -83,6 +83,21 @@ class Jetpack_Contact_Info_Block {
 	}
 
 	/**
+	 * Adds name schema attributes.
+	 *
+	 * @param array  $attr    Array containing the name block attributes.
+	 * @param string $content String containing the name block content.
+	 *
+	 * @return string
+	 */
+	public static function render_name( $attr, $content ) {
+		$content = self::has_attributes( $attr, array( 'className' ) ) ?
+			str_replace( 'class="wp-block-jetpack-name"', 'itemprop="name" class="wp-block-jetpack-name"', $content ) :
+			'';
+		return $content;
+	}
+
+	/**
 	 * Adds email schema attributes.
 	 *
 	 * @param array  $attr    Array containing the email block attributes.

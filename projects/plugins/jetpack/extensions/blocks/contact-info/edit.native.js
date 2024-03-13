@@ -5,13 +5,19 @@ import styles from './editor.scss';
 const ALLOWED_BLOCKS = [
 	'jetpack/address',
 	'jetpack/email',
+	'jetpack/name',
 	'jetpack/phone',
 	'core/heading',
 	'core/separator',
 	'core/spacer',
 ];
 
-const TEMPLATE = [ [ 'jetpack/email' ], [ 'jetpack/phone' ], [ 'jetpack/address' ] ];
+const TEMPLATE = [
+	[ 'jetpack/name' ],
+	[ 'jetpack/email' ],
+	[ 'jetpack/phone' ],
+	[ 'jetpack/address' ],
+];
 
 const ContactInfoEdit = () => {
 	return (
