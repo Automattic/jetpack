@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 import { MyJetpackRoutes } from '../../constants';
 import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
 import useSimpleQuery from '../../data/use-simple-query';
-import getMyJetpackWindowState from '../../data/utils/get-my-jetpack-window-state';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
@@ -124,7 +124,7 @@ function PlanSectionFooter( { numberOfPurchases } ) {
 		);
 	}
 
-	const { loadAddLicenseScreen = '', adminUrl = '' } = getMyJetpackWindowState();
+	const { loadAddLicenseScreen = '', adminUrl = '' } = getMyJetpackWindowInitialState();
 
 	return (
 		<ul>
@@ -163,7 +163,7 @@ function PlanSectionFooter( { numberOfPurchases } ) {
  * @returns {object} PlansSection React component.
  */
 export default function PlansSection() {
-	const userIsAdmin = !! getMyJetpackWindowState( 'userIsAdmin' );
+	const userIsAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
 	const {
 		data: purchases,
 		isLoading,

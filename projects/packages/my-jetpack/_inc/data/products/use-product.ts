@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { REST_API_SITE_PRODUCTS_ENDPOINT } from '../constants';
 import { QUERY_PRODUCT_KEY } from '../constants';
 import useSimpleQuery from '../use-simple-query';
-import getMyJetpackWindowState from '../utils/get-my-jetpack-window-state';
+import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
 import mapObjectKeysToCamel from '../utils/to-camel';
 import type { ProductCamelCase, ProductSnakeCase, WP_Error } from '../types';
 import type { RefetchOptions, QueryObserverResult } from '@tanstack/react-query';
@@ -20,7 +20,7 @@ const getDiscountPricePerMonth = ( product: ProductCamelCase ) => {
 };
 
 export const useAllProducts = (): { [ key: string ]: ProductCamelCase } => {
-	const { items: products } = getMyJetpackWindowState( 'products' );
+	const { items: products } = getMyJetpackWindowInitialState( 'products' );
 
 	return Object.entries( products ).reduce(
 		( acc, [ key, product ] ) => ( { ...acc, [ key ]: prepareProductData( product ) } ),

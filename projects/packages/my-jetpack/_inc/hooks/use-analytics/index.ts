@@ -1,6 +1,6 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useCallback, useEffect } from 'react';
-import getMyJetpackWindowState from '../../data/utils/get-my-jetpack-window-state';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
 
 type TracksRecordEvent = (
@@ -11,7 +11,7 @@ type TracksRecordEvent = (
 const useAnalytics = () => {
 	const { isUserConnected, connectedPlugins, userConnectionData = {} } = useMyJetpackConnection();
 	const { login, ID } = userConnectionData.currentUser?.wpcomUser || {};
-	const { myJetpackVersion = '' } = getMyJetpackWindowState();
+	const { myJetpackVersion = '' } = getMyJetpackWindowInitialState();
 
 	/**
 	 * Initialize tracks with user data.

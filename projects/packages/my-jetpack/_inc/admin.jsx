@@ -30,8 +30,7 @@ import {
 import RedeemTokenScreen from './components/redeem-token-screen';
 import { MyJetpackRoutes } from './constants';
 import NoticeContextProvider from './context/notices/noticeContext';
-import getMyJetpackWindowState from './data/utils/get-my-jetpack-window-state';
-
+import { getMyJetpackWindowInitialState } from './data/utils/get-my-jetpack-window-state';
 import './style.module.scss';
 
 /**
@@ -48,7 +47,7 @@ function ScrollToTop() {
 
 const MyJetpack = () => {
 	const queryClient = new QueryClient();
-	const { loadAddLicenseScreen } = getMyJetpackWindowState();
+	const { loadAddLicenseScreen } = getMyJetpackWindowInitialState();
 
 	return (
 		<ThemeProvider>
