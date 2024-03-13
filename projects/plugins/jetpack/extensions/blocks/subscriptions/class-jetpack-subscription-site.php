@@ -51,11 +51,8 @@ class Jetpack_Subscription_Site {
 	 * @return bool
 	 */
 	protected function is_subscription_site_feature_enabled() {
-		// It's temporary. Allows to enable the Subscription Site feature.
-		$subscription_site_enabled = (bool) apply_filters( 'jetpack_subscription_site_enabled', false );
-
 		global $wp_version;
-		return $subscription_site_enabled && version_compare( $wp_version, '6.5-beta2', '>=' );
+		return version_compare( $wp_version, '6.5-beta2', '>=' );
 	}
 
 	/**
