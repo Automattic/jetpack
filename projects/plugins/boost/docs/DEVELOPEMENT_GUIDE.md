@@ -160,6 +160,14 @@ Filter hook: `jetpack_boost_asset_internal_path`
 
 * Parameter string `$path`: the path, "app/assets/dist/".
 
+Usage:
+```php
+add_filter( 'jetpack_boost_asset_internal_path', function( $path ) {
+        return $path;
+    }
+);
+```
+
 ### Filters the URL to the distributed assets folder.
 
 Filter hook: `jetpack_boost_asset_url`
@@ -168,21 +176,28 @@ Filter hook: `jetpack_boost_asset_url`
 * Parameter string `$min_path`: the minified path.
 * Parameter string `$non_min_path`: the non-minified path.
 
+Usage:
+```php
+add_filter( 'jetpack_boost_asset_url', function( $url, $min_path, $non_min_path ) {
+    return $url;
+}, 10, 3);
+```
+
 ## Menu
 
-### Filter the number of problems set in the Boost menu item.
+### Modify the number of problems shown in the Boost sidebar menu
 
 Filter hook: `jetpack_boost_total_problem_count`
 
-* Parameter int `$total_problems`: the problem count.
+* Parameter: integer `$count`, the count of problems
 
-## Connection
-
-### Bypass the connection to WordPress.com
-
-Filter hook: `jetpack_boost_connection_bypass`
-
-* Paramter int false: not connected by default
+Usage:
+```php
+add_filter( 'jetpack_boost_total_problem_count', function( $count ) {
+        return $count;
+    }
+);
+```
 
 ## Critical CSS
 
@@ -194,11 +209,26 @@ Filter hook: `jetpack_boost_async_style`:
 * Parameter string `$handle`: the stylesheet's registered handle.
 * Parameter string `$media`:  the stylesheet's media attribute.
 
+Usage:
+```php
+add_filter( 'jetpack_boost_async_style', function( $method, $handle, $media ) {
+    return $method;
+}, 10, 3 );
+```
+
 ### Filter the post types that need critical css.
 
 Filter hook: `jetpack_boost_critical_css_post_types`
 
 * Parameter array `$post_types`: the post types to be filtered.
+
+Usage:
+```php
+add_filter( 'jetpack_boost_critical_css_post_types', function( $types) {
+        return $types;
+    }
+);
+```
 
 ## Render Blocking JS
 
@@ -208,46 +238,66 @@ Filter hook: `jetpack_boost_render_blocking_js_ignore_attribute`
 
 * Parameter string `$attribute`: the attribute used to ignore blocking. Default value: "data-jetpack-boost"
 
--   `jetpack_boost_render_blocking_js_exclude_handles`: Provide an array of registered script handles that should not be moved to the end of the document.
--   `jetpack_boost_render_blocking_js_exclude_scripts`: Alter the array and remove any scripts that should not be moved to the end of the document.
+Usage:
+```php
+add_filter( 'jetpack_boost_render_blocking_js_ignore_attribute', function( $attribute ) {
+        return $attribute;
+    }
+);
+```
+
+### Filter to provide an array of registered script handles that should not be moved to the end of the document.
+
+Filter hook: `jetpack_boost_render_blocking_js_exclude_handles`
+
+* Parameter array `$handles`: an array of script handles
+
+Usage:
+```php
+add_filter( 'jetpack_boost_render_blocking_js_exclude_handles', function( $handles ) {
+        return $handles;
+    }
+);
+```
+
+### Filter to remove any scripts that should not be moved to the end of the document.
+
+Filter hook: `jetpack_boost_render_blocking_js_exclude_scripts`
+
+* Parameter array: Alter the array and remove any scripts that should not be moved to the end of the document.
+
+Usage:
+```php
+add_filter( 'jetpack_boost_render_blocking_js_exclude_scripts', function( $scripts ) {
+        return $scripts;
+    }
+);
+```
 
 ## Enabling/disabling modules and modules availability
 
-- `jetpack_boost_module_enabled` provides a default status, true/false, and feature slug (e.g. `critical-css`). Returning `true` will force a module on, `false` will force it off, regardless of the configuration variable.
-
-```php
-	// force critical CSS on
-	add_filter( 'jetpack_boost_module_enabled', function( $status, $feature ) {
-		if ( 'critical-css' === $feature ) {
-			return true;
-		}
-		return $status;
-	}, 10, 2 );
-```
-
-- `jetpack_boost_modules` filters the available list of modules.
-
-```php
-	// exclude minify module from available modules
-	add_filter( 'jetpack_boost_modules', function( $modules ) {
-		if (($key = array_search('minify' , $modules)) !== false) {
-			unset($modules[$key]);
-		}
-		return $modules;
-	} );
-```
-
 ## Bypassing the Jetpack connection
 
-Filtering `jetpack_boost_connection_bypass` and returning `true` will fake a connected state. This is useful for debugging, and also on WordPress.com.
+Filter hook: `jetpack_boost_connection_bypass`
 
-Filtering `jetpack_boost_connection_user_data` and returning an object with the following shape can help fake out user data, or provide an alternative user identity, e.g. on WordPress.com.
+* Paramter integer `$connected`: return true to fake a connected state. This is useful for debugging and also on WordPress.com
 
+Usage:
+```php
+add_filter( 'jetpack_boost_connection_bypass', function( $connected ) {
+        return $connected;
+    }
+);
+```
+
+Filter hook: `jetpack_boost_connection_user_data`
+
+* Parameter object `$user_data`: return an object with the following shape can help fake out user data, or provide an alternative user identity, e.g. on WordPress.com.
+
+Usage:
 ```php
 // provide local user data and don't allow disconnecting
-add_filter(
-	'jetpack_boost_connection_user_data',
-	function ( $user ) {
+add_filter( 'jetpack_boost_connection_user_data', function ( $user ) {
 		$wpcomUser = array(
 			'ID' => 1234,
 			'login' => 'fakewpcomuser',
@@ -265,4 +315,5 @@ add_filter(
 			'canDisconnect' => false,
 		];
 	}
-);```
+);
+```
