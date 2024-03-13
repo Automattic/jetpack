@@ -46,11 +46,13 @@ export default function useConnectionWatcher() {
 				message: needsUserConnectionMessage,
 				options: {
 					status: 'warning',
-					actions: {
-						label: __( 'Connect your user account to fix this', 'jetpack-my-jetpack' ),
-						onClick: navToConnection,
-						noDefaultClasses: true,
-					},
+					actions: [
+						{
+							label: __( 'Connect your user account to fix this', 'jetpack-my-jetpack' ),
+							onClick: navToConnection,
+							noDefaultClasses: true,
+						},
+					],
 				},
 			} );
 		}
