@@ -62,6 +62,19 @@ class Jetpack_Subscribe_Modal {
 		if ( $this->should_user_see_modal() ) {
 			wp_enqueue_style( 'subscribe-modal-css', plugins_url( 'subscribe-modal.css', __FILE__ ), array(), JETPACK__VERSION );
 			wp_enqueue_script( 'subscribe-modal-js', plugins_url( 'subscribe-modal.js', __FILE__ ), array( 'wp-dom-ready' ), JETPACK__VERSION, true );
+
+			/**
+			 * Filter how many milliseconds a user must scroll for until the Subscribe Modal appears.
+			 *
+			 * @module subscriptions
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param int 300 Time in milliseconds for the Subscribe Modal to appear upon scrolling.
+			 */
+			$load_time = absint( apply_filters( 'jetpack_subscribe_modal_load_time', 300 ) );
+
+			wp_localize_script( 'subscribe-modal-js', 'Jetpack_Subscriptions', array( 'loadTime' => $load_time ) );
 		}
 	}
 
