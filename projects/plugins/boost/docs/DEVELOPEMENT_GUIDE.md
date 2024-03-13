@@ -180,7 +180,7 @@ Usage:
 ```php
 add_filter( 'jetpack_boost_asset_url', function( $url, $min_path, $non_min_path ) {
     return $url;
-}, 10, 3);
+}, 10, 3 );
 ```
 
 ## Menu
@@ -316,4 +316,65 @@ add_filter( 'jetpack_boost_connection_user_data', function ( $user ) {
 		];
 	}
 );
+```
+
+## Critical CSS Viewport Filters
+
+These filters are used for testing purposes.
+
+### Filter the viewport size
+
+Filter hook: `jetpack_boost_viewport_size`
+
+* Parameter: array `$data`: array containing the width and height of the view port
+* Parameter: string `$cookie_name`: Name of the viewport cookie
+* Parameter: string `$cookie_value`: value of the viewport cookie
+
+Usage:
+```php
+add_filter( 'jetpack_boost_viewport_size', function( $data, $cookie_name, $cookie_value ) {
+    return $data;
+}, 10, 3 );
+```
+
+### Filter the default viewport sizes
+
+Filter hook: `jetpack_boost_critical_css_viewport_sizes`
+
+* Parameter: array `$viewport_sizes`: supported viewport sizes
+
+Usage:
+```php
+add_filter( 'jetpack_boost_critical_css_viewport_sizes', function( $sizes ) {
+    return $sizes;
+} );
+```
+
+### Filter the default viewport devices
+
+Filter hook: `jetpack_boost_critical_css_default_viewports`
+
+* Parameter: array `$viewport_devices`: supported viewport devices
+
+Usage:
+```php
+add_filter( 'jetpack_boost_critical_css_default_viewports', function( $devices ) {
+    return $devices;
+} );
+```
+
+### Filter the best viewport
+
+Filter hook: `jetpack_boost_pick_viewport`
+
+* Parameter: array `$best_size`: the narrowest defined viewport that is equal or wider than the passed width.
+* Parameter: integer `$width`: the width of the viewport
+* Parameter: integer `$height`: the height of the viewport
+* Parameter: array `$viewport_sizes`: an array of viewport sizes
+
+Usage:
+```php
+add_filter( 'jetpack_boost_pick_viewport', function( $best_size, $width, $height, $viewport_sizes ) {
+    return $best_size;
+}, 10, 4 );
 ```
