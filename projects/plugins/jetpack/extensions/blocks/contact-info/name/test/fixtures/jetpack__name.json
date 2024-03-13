@@ -1,0 +1,21 @@
+[
+	{
+		"clientId": "_clientId_0",
+		"name": "jetpack/contact-info",
+		"isValid": true,
+		"attributes": {},
+		"innerBlocks": [
+			{
+				"clientId": "_clientId_0",
+				"name": "jetpack/name",
+				"isValid": true,
+				"attributes": {
+					"name": "Acme Corporation"
+				},
+				"innerBlocks": [],
+				"originalContent": "<div class=\"wp-block-jetpack-name\">Acme Corporation</div>"
+			}
+		],
+		"originalContent": "<div class=\"wp-block-jetpack-contact-info\">\n\t\n</div>"
+	}
+]

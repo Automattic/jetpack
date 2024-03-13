@@ -1,0 +1,19 @@
+[
+	{
+		"blockName": "jetpack/contact-info",
+		"attrs": {},
+		"innerBlocks": [
+			{
+				"blockName": "jetpack/name",
+				"attrs": {
+					"name": "Acme Corporation"
+				},
+				"innerBlocks": [],
+				"innerHTML": "\n\t<div class=\"wp-block-jetpack-name\">Acme Corporation</div>\n\t",
+				"innerContent": [ "\n\t<div class=\"wp-block-jetpack-name\">Acme Corporation</div>\n\t" ]
+			}
+		],
+		"innerHTML": "\n<div class=\"wp-block-jetpack-contact-info\">\n\t\n</div>\n",
+		"innerContent": [ "\n<div class=\"wp-block-jetpack-contact-info\">\n\t", null, "\n</div>\n" ]
+	}
+]
