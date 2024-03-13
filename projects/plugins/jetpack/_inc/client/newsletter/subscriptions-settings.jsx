@@ -118,7 +118,12 @@ function SubscriptionsSettings( props ) {
 
 	return (
 		<>
-			<SettingsCard { ...props } hideButton module={ SUBSCRIPTIONS_MODULE_NAME }>
+			<SettingsCard
+				{ ...props }
+				hideButton
+				module={ SUBSCRIPTIONS_MODULE_NAME }
+				header={ __( 'Subscriptions', 'jetpack' ) }
+			>
 				<SettingsGroup
 					hasChild
 					disableInOfflineMode
@@ -139,7 +144,9 @@ function SubscriptionsSettings( props ) {
 						toggling={ isSavingAnyOption( SUBSCRIPTIONS_MODULE_NAME ) }
 						toggleModule={ toggleModuleNow }
 					>
-						<span className="jp-form-toggle-explanation">{ subscriptions.description }</span>
+						<span className="jp-form-toggle-explanation">
+							{ __( 'Allow visitors to subscribe to your site', 'jetpack' ) }
+						</span>
 					</ModuleToggle>
 					{
 						<FormFieldset>
@@ -153,10 +160,7 @@ function SubscriptionsSettings( props ) {
 									onChange={ handleSubscribePostEndToggleChange }
 									label={
 										<>
-											{ __(
-												'Enable automatic insertion of the Subscribe block into the theme at the end of each post',
-												'jetpack'
-											) }
+											{ __( 'Add the Subscribe Block at the of each post', 'jetpack' ) }
 											{ isBlockTheme && singlePostTemplateEditorUrl && (
 												<>
 													{ '. ' }
@@ -177,7 +181,7 @@ function SubscriptionsSettings( props ) {
 									onChange={ handleSubscribeModalToggleChange }
 									label={
 										<>
-											{ __( 'Enable subscription pop-up when scrolling a post', 'jetpack' ) }
+											{ __( 'Show subscription pop-up when scrolling a post', 'jetpack' ) }
 											{ isBlockTheme && subscribeModalEditorUrl && (
 												<>
 													{ '. ' }

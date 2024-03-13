@@ -1,6 +1,6 @@
 import { Container, Col } from '@automattic/jetpack-components';
 import React from 'react';
-import getMyJetpackWindowState from '../../data/utils/get-my-jetpack-window-state';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import AiCard from './ai-card';
 import AntiSpamCard from './anti-spam-card';
 import BackupCard from './backup-card';
@@ -20,8 +20,8 @@ import VideopressCard from './videopress-card';
  * @returns {object} ProductCardsSection React component.
  */
 const ProductCardsSection = () => {
-	const { isAtomic = false, userIsAdmin = false } = getMyJetpackWindowState();
-	const { showFullJetpackStatsCard = false } = getMyJetpackWindowState( 'myJetpackFlags' );
+	const { isAtomic = false, userIsAdmin = false } = getMyJetpackWindowInitialState();
+	const { showFullJetpackStatsCard = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 
 	const items = {
 		backups: BackupCard,

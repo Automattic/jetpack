@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use `jetpack:src` condition when building, so all deps don't have to be built first.
