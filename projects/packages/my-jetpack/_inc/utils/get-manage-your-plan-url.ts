@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { MY_JETPACK_MY_PLANS_MANAGE_SOURCE } from '../constants';
-import getMyJetpackWindowState from '../data/utils/get-my-jetpack-window-state';
+import { getMyJetpackWindowInitialState } from '../data/utils/get-my-jetpack-window-state';
 
 /**
  * Return the redurect URL, according to the Jetpack redurects source.
@@ -8,7 +8,7 @@ import getMyJetpackWindowState from '../data/utils/get-my-jetpack-window-state';
  * @returns {string}            the redirect URL
  */
 const getManageYourPlanUrl = () => {
-	const { siteSuffix: site = '', blogID } = getMyJetpackWindowState();
+	const { siteSuffix: site = '', blogID } = getMyJetpackWindowInitialState();
 
 	return getRedirectUrl( MY_JETPACK_MY_PLANS_MANAGE_SOURCE, { site: blogID ?? site } );
 };
