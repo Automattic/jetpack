@@ -31,10 +31,7 @@ class Waf_Runner {
 			return;
 		}
 		Waf_Constants::define_mode();
-
-		if ( ! self::get_standalone_mode_status() ) {
-			Waf_Constants::define_share_data();
-		}
+		Waf_Constants::define_share_data();
 
 		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
 			return;
