@@ -1,10 +1,12 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useCallback, useEffect } from 'react';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
 
 const useAnalytics = () => {
 	const { isUserConnected, connectedPlugins, userConnectionData = {} } = useMyJetpackConnection();
 	const { login, ID } = userConnectionData.currentUser?.wpcomUser || {};
+	const { myJetpackVersion = '' } = getMyJetpackWindowInitialState();
 
 	/**
 	 * Initialize tracks with user data.
@@ -43,7 +45,7 @@ const useAnalytics = () => {
 	const recordMyJetpackEvent = useCallback( ( event, properties ) => {
 		tracks.recordEvent( event, {
 			...properties,
-			version: window?.myJetpackInitialState?.myJetpackVersion,
+			version: myJetpackVersion,
 			referring_plugins: connectedPluginsSlugs,
 		} );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
