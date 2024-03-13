@@ -215,6 +215,20 @@ add_filter( 'jetpack_boost_total_problem_count', function( $count ) {
 
 ## Critical CSS
 
+### Filter the Critical CSS URLs
+
+Filter hook: `jetpack_boost_critical_css_urls`
+
+* Parameter array `$urls`: array of URLs
+
+Usage:
+```php
+add_filter( 'jetpack_boost_critical_css_urls', function( $urls) {
+        return $urls;
+    }
+);
+```
+
 ### Filter the loading method for each stylesheet. It's either async or deferred.
 
 Filter hook: `jetpack_boost_async_style`:
@@ -240,6 +254,20 @@ Usage:
 ```php
 add_filter( 'jetpack_boost_critical_css_post_types', function( $types) {
         return $types;
+    }
+);
+```
+
+### Filter the WP_Query parameters users to gather sample posts
+
+Filter hook: `jetpack_boost_critical_css_post_type_query`
+
+* Parameter array `$args`: The arguments that will be used by WP_Query
+
+Usage:
+```php
+add_filter( 'jetpack_boost_critical_css_post_type_query', function( $args ) {
+        return $args;
     }
 );
 ```
