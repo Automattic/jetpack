@@ -262,6 +262,7 @@ function generateApiQueryString( {
 	adminQueryFilter,
 	isInCustomizer = false,
 	additionalBlogIds = [],
+	customResults = [],
 } ) {
 	if ( query === null ) {
 		query = '';
@@ -331,6 +332,12 @@ function generateApiQueryString( {
 		// `blog_id` is required when additional_blog_ids is set.
 		params.fields = fields.concat( [ 'author', 'blog_name', 'blog_icon_url', 'blog_id' ] );
 		params.additional_blog_ids = additionalBlogIds;
+	}
+
+	// Support customized search results by promoting certain documents to the top for specific queries
+	if ( customResults?.length > 0 ) {
+		// `blog_id` is required when additional_blog_ids is set.
+		params.custom_results = customResults;
 	}
 
 	if ( staticFilters && Object.keys( staticFilters ).length > 0 ) {
