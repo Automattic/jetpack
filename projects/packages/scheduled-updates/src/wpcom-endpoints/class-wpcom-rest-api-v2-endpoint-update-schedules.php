@@ -328,12 +328,13 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return bool|WP_Error
 	 */
 	public function validate_plugins_param( $plugins ) {
-		if ( count( $plugins ) > 10 ) {
-			return new WP_Error(
-				'rest_invalid_param',
-				__( 'You can schedule a maximum of 10 plugins at one time.', 'jetpack-scheduled-updates' ),
-				array( 'status' => 400 )
-			);
+		$schema            = array(
+			'items'    => array( 'type' => 'string' ),
+			'maxItems' => 10,
+		);
+		$validated_plugins = rest_validate_array_value_from_schema( $plugins, $schema, 'plugins' );
+		if ( is_wp_error( $validated_plugins ) ) {
+			return $validated_plugins;
 		}
 
 		foreach ( $plugins as $plugin ) {
@@ -519,9 +520,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			'plugins'  => array(
 				'description'       => 'List of plugin slugs to update.',
 				'type'              => 'array',
-				'items'             => array(
-					'type' => 'string',
-				),
 				'validate_callback' => array( $this, 'validate_plugins_param' ),
 				'sanitize_callback' => array( $this, 'sanitize_plugins_param' ),
 			),
