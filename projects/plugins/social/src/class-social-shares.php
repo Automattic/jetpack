@@ -28,7 +28,7 @@ class Social_Shares {
 		$shares = get_post_meta( $post_id, self::SOCIAL_SHARES_POST_META_KEY );
 
 		if ( empty( $shares ) ) {
-			return null;
+			return array();
 		}
 
 		return array_filter(
@@ -48,19 +48,34 @@ class Social_Shares {
 	 */
 	public static function get_the_social_shares( $post_id ) {
 		$shares = self::get_social_shares( $post_id );
+
 		if ( empty( $shares ) ) {
-			return '<div></div>';
+			return '<span></span>';
 		}
 
-		$html = '';
+		$shares_by_service = array();
+
 		foreach ( $shares as $share ) {
-			$timestamp = gmdate( 'Y-m-d H:i:s', $share['timestamp'] );
-			$html     .= '<p>';
-			$html     .= 'Shared to ' . $share['service'] . ' at ' . $timestamp . ' - ';
-			$html     .= '<a href="' . $share['message'] . '" target="_blank">View</a>.';
-			$html     .= '</p>';
+			$service   = $share['service'];
+			$timestamp = $share['timestamp'];
+
+			// If service doesn't exist in $mostRecentItems or the current timestamp is more recent, update $mostRecentItems
+			if ( ! isset( $shares_by_service[ $service ] ) || $timestamp > $shares_by_service[ $service ]['timestamp'] ) {
+				$shares_by_service[ $service ] = $share;
+			}
 		}
-		return $html;
+
+		$links = array();
+		foreach ( $shares_by_service as $service => $item ) {
+			$links[] = '<a href="' . $item['message'] . '">' . $service . '</a>';
+		}
+
+		$text = implode( ', ', $links );
+		if ( count( $links ) > 1 ) {
+			$last_link = array_pop( $links );
+			return 'Also on ' . implode( ', ', $links ) . " and $last_link";
+		}
+		return "Also on $text";
 	}
 
 	/**
@@ -69,6 +84,6 @@ class Social_Shares {
 	 * @param int $post_id The Post ID.
 	 */
 	public static function the_social_shares( $post_id ) {
-		echo wp_kses_post( self::get_the_social_shares( $post_id ) );
+		return self::get_the_social_shares( $post_id );
 	}
 }

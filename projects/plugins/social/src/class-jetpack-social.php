@@ -124,9 +124,7 @@ class Jetpack_Social {
 
 		add_filter( 'plugin_action_links_' . JETPACK_SOCIAL_PLUGIN_FOLDER . '/jetpack-social.php', array( $this, 'add_settings_link' ) );
 
-		add_action( 'manage_posts_custom_column', array( $this, 'display_shares_in_post_list_screen' ), 10, 2 );
-
-		add_filter( 'manage_posts_columns', array( $this, 'add_shares_column_to_post_list_screen' ) );
+		add_shortcode( 'jp_shares_shortcode', array( $this, 'add_shares_shortcode' ) );
 	}
 
 	/**
@@ -511,24 +509,9 @@ class Jetpack_Social {
 	}
 
 	/**
-	 * Display share urls in the post list screen.
-	 *
-	 * @param string $column_name The name of the column.
-	 * @param int    $post_id The post ID.
+	 * Adds the shares shortcode.
 	 */
-	public function display_shares_in_post_list_screen( $column_name, $post_id ) {
-		if ( $column_name === 'social_shares' ) {
-			echo wp_kses_post( Automattic\Jetpack\Social\Social_Shares::the_social_shares( $post_id ), 'jetpack-social' );
-		}
-	}
-
-	/**
-	 * Add a column to the post list screen.
-	 *
-	 * @param array $columns The list of the columns.
-	 */
-	public function add_shares_column_to_post_list_screen( $columns ) {
-		$columns['social_shares'] = 'Social Shares';
-		return $columns;
+	public function add_shares_shortcode() {
+		return Automattic\Jetpack\Social\Social_Shares::the_social_shares( get_the_ID() );
 	}
 }
