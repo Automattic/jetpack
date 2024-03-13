@@ -189,7 +189,7 @@ add_filter( 'jetpack_boost_asset_url', function( $url, $min_path, $non_min_path 
 
 Filter hook: `jetpack_boost_total_problem_count`
 
-* Parameter: integer `$count`, the count of problems
+* Parameter integer `$count`: the number of problems
 
 Usage:
 ```php
@@ -326,9 +326,9 @@ These filters are used for testing purposes.
 
 Filter hook: `jetpack_boost_viewport_size`
 
-* Parameter: array `$data`: array containing the width and height of the view port
-* Parameter: string `$cookie_name`: Name of the viewport cookie
-* Parameter: string `$cookie_value`: value of the viewport cookie
+* Parameter array `$data`: array containing the width and height of the view port
+* Parameter string `$cookie_name`: Name of the viewport cookie
+* Parameter string `$cookie_value`: value of the viewport cookie
 
 Usage:
 ```php
@@ -341,7 +341,7 @@ add_filter( 'jetpack_boost_viewport_size', function( $data, $cookie_name, $cooki
 
 Filter hook: `jetpack_boost_critical_css_viewport_sizes`
 
-* Parameter: array `$viewport_sizes`: supported viewport sizes
+* Parameter array `$viewport_sizes`: supported viewport sizes
 
 Usage:
 ```php
@@ -354,7 +354,7 @@ add_filter( 'jetpack_boost_critical_css_viewport_sizes', function( $sizes ) {
 
 Filter hook: `jetpack_boost_critical_css_default_viewports`
 
-* Parameter: array `$viewport_devices`: supported viewport devices
+* Parameter array `$viewport_devices`: supported viewport devices
 
 Usage:
 ```php
@@ -367,10 +367,10 @@ add_filter( 'jetpack_boost_critical_css_default_viewports', function( $devices )
 
 Filter hook: `jetpack_boost_pick_viewport`
 
-* Parameter: array `$best_size`: the narrowest defined viewport that is equal or wider than the passed width.
-* Parameter: integer `$width`: the width of the viewport
-* Parameter: integer `$height`: the height of the viewport
-* Parameter: array `$viewport_sizes`: an array of viewport sizes
+* Parameter array `$best_size`: the narrowest defined viewport that is equal or wider than the passed width.
+* Parameter integer `$width`: the width of the viewport
+* Parameter integer `$height`: the height of the viewport
+* Parameter array `$viewport_sizes`: an array of viewport sizes
 
 Usage:
 ```php
