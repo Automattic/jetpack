@@ -400,7 +400,7 @@ add_filter( 'jetpack_boost_has_feature_' . $feature, function( $has_feature ) {
 
 Filter hook: `jetpack_boost_debug`
 
-Parameter bool `$debug`: true if enabled.
+* Parameter bool `$debug`: true if enabled.
 
 Usage:
 ```php
