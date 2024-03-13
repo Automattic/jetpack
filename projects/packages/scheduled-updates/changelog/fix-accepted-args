@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed a bug where the cron callback did not accept more than one plugin to update.
