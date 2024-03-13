@@ -335,8 +335,18 @@ function generateApiQueryString( {
 	}
 
 	// Support customized search results by promoting certain documents to the top for specific queries
-	for ( const [ customQuery, postIds ] of Object.entries( customResults ) ) {
-		if ( customQuery === query ) {
+	// By default we do exact matches, but also allow for regex, if the pattern
+	// starts with "regex:". For regex, we anchor the pattern to the start and
+	// end of the query. If the user really wants to match anywhere within the
+	// query, they can use for example ".*hello.*"
+	for ( const [ queryPattern, postIds ] of Object.entries( customResults ) ) {
+		if ( queryPattern.startsWith( 'regex:' ) ) {
+			const pattern = '^' + queryPattern.replace( 'regex:', '' ) + '$';
+			if ( query.match( pattern ) ) {
+				params.custom_results = postIds;
+				break;
+			}
+		} else if ( query === queryPattern ) {
 			params.custom_results = postIds;
 			break;
 		}
