@@ -540,8 +540,14 @@ class Jetpack_Likes {
  * When it is set to 1, we enable likes on the post, regardless of the global setting.
  *
  * @param array $post - post data we're checking.
+ *
+ * @return bool
  */
 function jetpack_post_likes_get_value( array $post ) {
+	if ( ! isset( $post['id'] ) ) {
+		return false;
+	}
+
 	$post_likes_switched = get_post_meta( $post['id'], 'switch_like_status', true );
 
 	/** This filter is documented in modules/jetpack-likes-settings.php */
