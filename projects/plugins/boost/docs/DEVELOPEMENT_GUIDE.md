@@ -393,3 +393,18 @@ add_filter( 'jetpack_boost_has_feature_' . $feature, function( $has_feature ) {
     return $has_feature;
 } );
 ```
+
+## Debug Mode
+
+### Fitler the debug mode setting
+
+Filter hook: `jetpack_boost_debug`
+
+Parameter bool `$debug`: true if enabled.
+
+Usage:
+```php
+add_filter( 'jetpack_boost_debug', function( $debug ) {
+    return $debug;
+} );
+```
