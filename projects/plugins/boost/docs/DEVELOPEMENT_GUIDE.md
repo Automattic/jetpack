@@ -526,11 +526,11 @@ Filter hook: `jetpack_boost_output_filtering_last_buffer`
 
 * Parameter string `$joint_buffer`: The entire output buffer
 * Parameter string `$buffer_start`: The top half of the buffer
-* Parameter string `$biffer_end`: The bottom half of the buffer
+* Parameter string `$buffer_end`: The bottom half of the buffer
 
 Usage:
 ```php
-add_filter( 'jetpack_boost_output_filtering_last_buffer', function( $tag, $handles, $href, $media ) {
-    return $tag;
+add_filter( 'jetpack_boost_output_filtering_last_buffer', function( $joint_buffer, $buffer_start, $buffer_end ) {
+    return $joint_buffer;
 }, 10, 3 );
 ```
