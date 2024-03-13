@@ -74,7 +74,7 @@ class Jetpack_Subscribe_Modal {
 			 */
 			$load_time = absint( apply_filters( 'jetpack_subscribe_modal_load_time', 300 ) );
 
-			wp_localize_script( 'subscribe-modal-js', 'Jetpack_Subscriptions', array( 'loadTime' => $load_time ) );
+			wp_localize_script( 'subscribe-modal-js', 'Jetpack_Subscriptions', array( 'modalLoadTime' => $load_time ) );
 		}
 	}
 
