@@ -7,6 +7,7 @@ const ALLOWED_BLOCKS = [
 	'jetpack/email',
 	'jetpack/phone',
 	'jetpack/map',
+	'jetpack/name',
 	'jetpack/business-hours',
 	'core/paragraph',
 	'core/image',
@@ -25,7 +26,12 @@ const ALLOWED_BLOCKS = [
 	'core/video',
 ];
 
-const TEMPLATE = [ [ 'jetpack/email' ], [ 'jetpack/phone' ], [ 'jetpack/address' ] ];
+const TEMPLATE = [
+	[ 'jetpack/name' ],
+	[ 'jetpack/email' ],
+	[ 'jetpack/phone' ],
+	[ 'jetpack/address' ],
+];
 
 const ContactInfoEdit = props => {
 	const { isSelected } = props;
