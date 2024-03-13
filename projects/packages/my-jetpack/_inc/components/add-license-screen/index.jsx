@@ -10,7 +10,7 @@ import React, { useCallback, useState, useMemo } from 'react';
  */
 import { QUERY_LICENSES_KEY } from '../../data/constants';
 import useJetpackApiQuery from '../../data/use-jetpack-api-query';
-import getMyJetpackWindowState from '../../data/utils/get-my-jetpack-window-state';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import GoBackLink from '../go-back-link';
 
@@ -50,7 +50,7 @@ export default function AddLicenseScreen() {
 		[ licenses ]
 	);
 
-	const { siteSuffix = '', adminUrl = '' } = getMyJetpackWindowState();
+	const { siteSuffix = '', adminUrl = '' } = getMyJetpackWindowInitialState();
 
 	return (
 		<AdminPage showHeader={ false } showBackground={ false }>

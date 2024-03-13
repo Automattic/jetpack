@@ -30,7 +30,7 @@ import {
 import RedeemTokenScreen from './components/redeem-token-screen';
 import NoticeContextProvider from './context/notices/noticeContext';
 import './style.module.scss';
-import getMyJetpackWindowState from './data/utils/get-my-jetpack-window-state';
+import { getMyJetpackWindowInitialState } from './data/utils/get-my-jetpack-window-state';
 
 /**
  * Component to scroll window to top on route change.
@@ -46,7 +46,7 @@ function ScrollToTop() {
 
 const MyJetpack = () => {
 	const queryClient = new QueryClient();
-	const { loadAddLicenseScreen } = getMyJetpackWindowState();
+	const { loadAddLicenseScreen } = getMyJetpackWindowInitialState();
 
 	return (
 		<ThemeProvider>

@@ -13,7 +13,7 @@ import { sprintf, __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import { useCallback, useMemo } from 'react';
 import useProduct from '../../data/products/use-product';
-import getMyJetpackWindowState from '../../data/utils/get-my-jetpack-window-state';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 
 /**
@@ -38,7 +38,7 @@ const ProductDetailTableColumn = ( {
 	tier,
 	trackProductButtonClick,
 } ) => {
-	const { siteSuffix = '', myJetpackCheckoutUri = '' } = getMyJetpackWindowState();
+	const { siteSuffix = '', myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
 
 	// Extract the product details.
 	const {
@@ -220,7 +220,7 @@ const ProductDetailTable = ( {
 	trackProductButtonClick,
 	isFetching,
 } ) => {
-	const { fileSystemWriteAccess = 'no' } = getMyJetpackWindowState();
+	const { fileSystemWriteAccess = 'no' } = getMyJetpackWindowInitialState();
 
 	const { detail } = useProduct( slug );
 	const { description, featuresByTier = [], pluginSlug, status, tiers = [], title } = detail;
