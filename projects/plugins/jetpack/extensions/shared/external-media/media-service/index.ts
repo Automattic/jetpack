@@ -199,14 +199,14 @@ const isInserterOpened = (): boolean => {
 	// Prior to WP 6.5, the isInserterOpened selector was available in core/edit-post.
 	// In WP 6.5, it was moved to core/editor. This check is to support both versions of WordPress.
 	// @to-do: remove exception when Jetpack requires WordPress 6.5.
-	// eslint-disable-next-line
-	// @ts-ignore
-	const editorIsInserterOpened = select( 'core/editor' )?.isInserterOpened?.();
-	const editPostIsInserterOpened = select( 'core/edit-post' )?.isInserterOpened();
+	/* eslint-disable @typescript-eslint/no-explicit-any */
+	const editorIsInserterOpened = ( select( 'core/editor' ) as any )?.isInserterOpened?.()
+		? ( select( 'core/editor' ) as any )?.isInserterOpened?.()
+		: select( 'core/edit-post' )?.isInserterOpened();
+	/* eslint-enable @typescript-eslint/no-explicit-any */
 
 	return (
 		editorIsInserterOpened ||
-		editPostIsInserterOpened ||
 		select( 'core/edit-site' )?.isInserterOpened() ||
 		select( 'core/edit-widgets' )?.isInserterOpened()
 	);
