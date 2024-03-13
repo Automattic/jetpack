@@ -154,6 +154,20 @@ Check out the inline documentation in the [Module class](https://github.com/Auto
 
 ## Config
 
+### Filter the JavaScript constants
+
+Filter hook: `jetpack_boost_js_constants`
+
+* Parameter array `$constants`: Constants defined by the plugin in the Config class constructor
+
+Usage:
+```php
+add_filter( 'jetpack_boost_js_constants', function( $constants ) {
+        return $constants;
+    }
+);
+```
+
 ### Filter the path to the distributed assets folder.
 
 Filter hook: `jetpack_boost_asset_internal_path`
@@ -502,4 +516,21 @@ Usage:
 add_filter( 'style_loader_tag', function( $tag, $handles, $href, $media ) {
     return $tag;
 }, 10, 4 );
+```
+
+## Output Filter
+
+### Filter the output buffer (Critical CSS)
+
+Filter hook: `jetpack_boost_output_filtering_last_buffer`
+
+* Parameter string `$joint_buffer`: The entire output buffer
+* Parameter string `$buffer_start`: The top half of the buffer
+* Parameter string `$biffer_end`: The bottom half of the buffer
+
+Usage:
+```php
+add_filter( 'jetpack_boost_output_filtering_last_buffer', function( $tag, $handles, $href, $media ) {
+    return $tag;
+}, 10, 3 );
 ```
