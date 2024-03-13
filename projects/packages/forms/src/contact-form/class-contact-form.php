@@ -41,7 +41,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * The most recent (inclusive) contact-form shortcode processed.
 	 *
-	 * @var Grunion_Contact_Form
+	 * @var Contact_Form
 	 */
 	public static $last;
 
@@ -126,9 +126,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'to'                     => $default_to,
 			'subject'                => $default_subject,
 			'show_subject'           => 'no', // only used in back-compat mode
-			'widget'                 => 0,    // Not exposed to the user. Works with Grunion_Contact_Form_Plugin::widget_atts()
+			'widget'                 => 0,    // Not exposed to the user. Works with Contact_Form_Plugin::widget_atts()
 			'block_template'         => null, // Not exposed to the user. Works with template_loader
-			'block_template_part'    => null, // Not exposed to the user. Works with Grunion_Contact_Form::parse()
+			'block_template_part'    => null, // Not exposed to the user. Works with Contact_Form::parse()
 			'id'                     => null, // Not exposed to the user. Set above.
 			'submit_button_text'     => __( 'Submit', 'jetpack-forms' ),
 			// These attributes come from the block editor, so use camel case instead of snake case.
@@ -251,7 +251,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$attributes['block_template_part'] = $GLOBALS['grunion_block_template_part_id'];
 			}
 		}
-		// Create a new Grunion_Contact_Form object (this class)
+		// Create a new Contact_Form object (this class)
 		$form = new Contact_Form( $attributes, $content );
 
 		$id = $form->get_attribute( 'id' );
@@ -445,8 +445,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * Returns a success message to be returned if the form is sent via AJAX.
 	 *
-	 * @param int                         $feedback_id - the feedback ID.
-	 * @param object Grunion_Contact_Form $form - the contact form.
+	 * @param int                 $feedback_id - the feedback ID.
+	 * @param object Contact_Form $form - the contact form.
 	 *
 	 * @return string $message
 	 */
@@ -475,8 +475,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Returns a compiled form with labels and values in a form of  an array
 	 * of lines.
 	 *
-	 * @param int                         $feedback_id - the feedback ID.
-	 * @param object Grunion_Contact_Form $form - the form.
+	 * @param int                 $feedback_id - the feedback ID.
+	 * @param object Contact_Form $form - the form.
 	 *
 	 * @return array $lines
 	 */
@@ -568,8 +568,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Returns a compiled form with labels and values formatted for the email response
 	 * in a form of an array of lines.
 	 *
-	 * @param int                         $feedback_id - the feedback ID.
-	 * @param object Grunion_Contact_Form $form - the form.
+	 * @param int                 $feedback_id - the feedback ID.
+	 * @param object Contact_Form $form - the form.
 	 *
 	 * @return array $lines
 	 */
@@ -733,7 +733,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 	/**
 	 * The contact-field shortcode processor.
-	 * We use an object method here instead of a static Grunion_Contact_Form_Field class method to parse contact-field shortcodes so that we can tie them to the contact-form object.
+	 * We use an object method here instead of a static Contact_Form_Field class method to parse contact-field shortcodes so that we can tie them to the contact-form object.
 	 *
 	 * @param array       $attributes Key => Value pairs as parsed by shortcode_parse_atts().
 	 * @param string|null $content The shortcode's inner content: [contact-field]$content[/contact-field].
@@ -889,7 +889,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * other places where they accessed/used/saved.
 	 *
 	 * The safest way to add new fields is to add them to the dropdown and the
-	 * HTML list ( @see Grunion_Contact_Form_Field::render ) and don't add them
+	 * HTML list ( @see Contact_Form_Field::render ) and don't add them
 	 * to the list of allowed fields. This way they will become a part of the
 	 * `extra fields` which are saved in the post meta and will be properly
 	 * handled by the admin Feedback view and the CSV Export without any extra
@@ -900,15 +900,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 *
 	 *  - Below in the switch statement - so the field is recognized as allowed.
 	 *
-	 *  - Grunion_Contact_Form::process_submission - validation and logic.
+	 *  - Contact_Form::process_submission - validation and logic.
 	 *
-	 *  - Grunion_Contact_Form::process_submission - add the field as an additional
+	 *  - Contact_Form::process_submission - add the field as an additional
 	 *      field in the `post_content` when saving the feedback content.
 	 *
-	 *  - Grunion_Contact_Form_Plugin::parse_fields_from_content - add mapping
+	 *  - Contact_Form_Plugin::parse_fields_from_content - add mapping
 	 *      for the field, defined in the above method.
 	 *
-	 *  - Grunion_Contact_Form_Plugin::map_parsed_field_contents_of_post_to_field_names -
+	 *  - Contact_Form_Plugin::map_parsed_field_contents_of_post_to_field_names -
 	 *      add mapping of the field for the CSV Export. Otherwise it will be missing
 	 *      from the exported data.
 	 *
@@ -1180,7 +1180,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$akismet_values = $plugin->prepare_for_akismet( $akismet_vars );
 
 		// Is it spam?
-		/** This filter is already documented in modules/contact-form/admin.php */
+		/** This filter is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 		$is_spam = apply_filters( 'jetpack_contact_form_is_spam', false, $akismet_values );
 		if ( is_wp_error( $is_spam ) ) { // WP_Error to abort
 			return $is_spam; // abort
@@ -1279,7 +1279,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$all_values = array_merge( $all_values, $entry_values );
 
-		/** This filter is already documented in modules/contact-form/admin.php */
+		/** This filter is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 		$subject = apply_filters( 'contact_form_subject', $contact_form_subject, $all_values );
 
 		/*
@@ -1365,7 +1365,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @since 8.6.0
 		 *
 		 * @param integer $post_id The post id that contains the contact form data.
-		 * @param array   $this->fields An array containg the form's Grunion_Contact_Form_Field objects.
+		 * @param array   $this->fields An array containg the form's Contact_Form_Field objects.
 		 * @param boolean $is_spam Whether the form submission has been identified as spam.
 		 * @param array   $entry_values The feedback entry values.
 		 */

@@ -29,10 +29,8 @@ import {
 } from './components/product-interstitial';
 import RedeemTokenScreen from './components/redeem-token-screen';
 import NoticeContextProvider from './context/notices/noticeContext';
-import { initStore } from './state/store';
 import './style.module.scss';
-
-initStore();
+import { getMyJetpackWindowInitialState } from './data/utils/get-my-jetpack-window-state';
 
 /**
  * Component to scroll window to top on route change.
@@ -48,6 +46,7 @@ function ScrollToTop() {
 
 const MyJetpack = () => {
 	const queryClient = new QueryClient();
+	const { loadAddLicenseScreen } = getMyJetpackWindowInitialState();
 
 	return (
 		<ThemeProvider>
@@ -73,7 +72,7 @@ const MyJetpack = () => {
 							<Route path="/add-search" element={ <SearchInterstitial /> } />
 							<Route path="/add-videopress" element={ <VideoPressInterstitial /> } />
 							<Route path="/add-stats" element={ <StatsInterstitial /> } />
-							{ window?.myJetpackInitialState?.loadAddLicenseScreen && (
+							{ loadAddLicenseScreen && (
 								<Route path="/add-license" element={ <AddLicenseScreen /> } />
 							) }
 							<Route path="/redeem-token" element={ <RedeemTokenScreen /> } />

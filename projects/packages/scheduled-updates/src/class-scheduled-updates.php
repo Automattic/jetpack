@@ -17,7 +17,7 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.3.2-alpha';
+	const PACKAGE_VERSION = '0.3.4';
 
 	/**
 	 * Initialize the class.
@@ -38,7 +38,7 @@ class Scheduled_Updates {
 			return;
 		}
 
-		add_action( 'jetpack_scheduled_update', array( __CLASS__, 'run_scheduled_update' ) );
+		add_action( 'jetpack_scheduled_update', array( __CLASS__, 'run_scheduled_update' ), 10, 10 );
 		add_action( 'rest_api_init', array( __CLASS__, 'add_is_managed_extension_field' ) );
 		add_filter( 'auto_update_plugin', array( __CLASS__, 'allowlist_scheduled_plugins' ), 10, 2 );
 		add_filter( 'plugin_auto_update_setting_html', array( __CLASS__, 'show_scheduled_updates' ), 10, 2 );
@@ -62,23 +62,20 @@ class Scheduled_Updates {
 	 */
 	public static function run_scheduled_update( ...$plugins ) {
 		$available_updates = get_site_transient( 'update_plugins' );
-		$plugins_to_update = array();
+		$plugins_to_update = $available_updates->response ?? array();
+		$plugins_to_update = array_intersect_key( $plugins_to_update, array_flip( $plugins ) );
 
-		foreach ( $plugins as $plugin ) {
-			if ( isset( $available_updates->response[ $plugin ] ) ) {
-				$plugins_to_update[ $plugin ]              = $available_updates->response[ $plugin ];
-				$plugins_to_update[ $plugin ]->old_version = $available_updates->checked[ $plugin ];
-			}
+		if ( empty( $plugins_to_update ) ) {
+			return;
 		}
 
-		if ( ! empty( $plugins_to_update ) ) {
-			( new Connection\Client() )->wpcom_json_api_request_as_user(
-				sprintf( '/sites/%d/hosting/scheduled-update', \Jetpack_Options::get_option( 'id' ) ),
-				'2',
-				array( 'method' => 'POST' ),
-				array( 'plugins' => $plugins_to_update )
-			);
-		}
+		( new Connection\Client() )->wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%d/hosting/scheduled-update', \Jetpack_Options::get_option( 'id' ) ),
+			'2',
+			array( 'method' => 'POST' ),
+			array( 'plugins' => $plugins_to_update ),
+			'wpcom'
+		);
 	}
 
 	/**
@@ -91,10 +88,13 @@ class Scheduled_Updates {
 	 */
 	public static function allowlist_scheduled_plugins( $update, $item ) {
 		if ( Constants::get_constant( 'SCHEDULED_AUTOUPDATE' ) ) {
-			$schedules = get_option( 'jetpack_update_schedules', array() );
+			if ( ! function_exists( 'wp_get_scheduled_events' ) ) {
+				require_once __DIR__ . '/pluggable.php';
+			}
 
-			foreach ( $schedules as $plugins ) {
-				if ( isset( $item->plugin ) && in_array( $item->plugin, $plugins, true ) ) {
+			$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+			foreach ( $events as $event ) {
+				if ( isset( $item->plugin ) && in_array( $item->plugin, $event->args, true ) ) {
 					return true;
 				}
 			}
@@ -112,26 +112,48 @@ class Scheduled_Updates {
 	 * @param string $plugin_file Path to the plugin file relative to the plugin directory.
 	 */
 	public static function show_scheduled_updates( $html, $plugin_file ) {
-		$schedules = get_option( 'jetpack_update_schedules', array() );
+		if ( ! function_exists( 'wp_get_scheduled_events' ) ) {
+			require_once __DIR__ . '/pluggable.php';
+		}
 
-		$schedule = false;
-		foreach ( $schedules as $plugins ) {
-			if ( in_array( $plugin_file, $plugins, true ) ) {
-				$schedule = wp_get_scheduled_event( 'jetpack_scheduled_update', $plugins );
-				break;
+		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+
+		$schedules = array();
+		foreach ( $events as $event ) {
+			if ( in_array( $plugin_file, $event->args, true ) ) {
+				$schedules[] = $event;
 			}
 		}
 
 		// Plugin is not part of an update schedule.
-		if ( ! $schedule ) {
+		if ( empty( $schedules ) ) {
 			return $html;
 		}
 
+		$text = array_map( array( __CLASS__, 'get_scheduled_update_text' ), $schedules );
+
+		$html  = '<p style="margin: 0 0 8px">' . implode( '<br>', $text ) . '</p>';
+		$html .= sprintf(
+			'<a href="%1$s">%2$s</a>',
+			esc_url( 'https://wordpress.com/plugins/scheduled-updates/' . ( new Status() )->get_site_suffix() ),
+			esc_html__( 'Edit', 'jetpack-scheduled-updates' )
+		);
+
+		return $html;
+	}
+
+	/**
+	 * Get the text for a scheduled update.
+	 *
+	 * @param object $schedule The scheduled update.
+	 * @return string
+	 */
+	public static function get_scheduled_update_text( $schedule ) {
 		if ( DAY_IN_SECONDS === $schedule->interval ) {
 			$html = sprintf(
 				/* translators: %s is the time of day. Daily at 10 am. */
 				esc_html__( 'Daily at %s.', 'jetpack-scheduled-updates' ),
-				date_i18n( get_option( 'time_format' ), $schedule->timestamp )
+				get_date_from_gmt( gmdate( 'Y-m-d H:i:s', $schedule->timestamp ), get_option( 'time_format' ) )
 			);
 		} else {
 			// Not getting smart about passing in weekdays makes it easier to translate.
@@ -154,12 +176,9 @@ class Scheduled_Updates {
 
 			$html = sprintf(
 				$weekdays[ date_i18n( 'N', $schedule->timestamp ) ],
-				date_i18n( get_option( 'time_format' ), $schedule->timestamp )
+				get_date_from_gmt( gmdate( 'Y-m-d H:i:s', $schedule->timestamp ), get_option( 'time_format' ) )
 			);
 		}
-
-		$html  = '<p style="margin: 0 0 8px">' . $html . '</p>';
-		$html .= '<a href="' . esc_url( admin_url( 'admin.php?page=jetpack#jetpack-autoupdates' ) ) . '">' . esc_html__( 'Edit', 'jetpack-scheduled-updates' ) . '</a>';
 
 		return $html;
 	}

@@ -65,7 +65,11 @@ function render_block( $attr, $content, $block ) {
 		$post_id
 	);
 
-	$services        = get_services();
+	$services = get_services();
+	if ( ! array_key_exists( $service_name, $services ) ) {
+		return $content;
+	}
+
 	$service         = new $services[ $service_name ]( $service_name, array() );
 	$link_props      = $service->get_link(
 		$post_id,
@@ -139,6 +143,7 @@ function get_services() {
 		'pinterest' => Share_Pinterest_Block::class,
 		'pocket'    => Share_Pocket_Block::class,
 		'telegram'  => Share_Telegram_Block::class,
+		'threads'   => Share_Threads_Block::class,
 		'whatsapp'  => Jetpack_Share_WhatsApp_Block::class,
 		'mastodon'  => Share_Mastodon_Block::class,
 		'nextdoor'  => Share_Nextdoor_Block::class,
