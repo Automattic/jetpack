@@ -272,6 +272,20 @@ add_filter( 'jetpack_boost_critical_css_post_type_query', function( $args ) {
 );
 ```
 
+### Filter the WP_Term_Query args to get a sample of terms for a taxonomy
+
+Filter hook: `jetpack_boost_critical_css_terms_query`
+
+* Parameter array `$args`: The arguments that will be used by WP_Term_Query
+
+Usage:
+```php
+add_filter( 'jetpack_boost_critical_css_terms_query', function( $args ) {
+        return $args;
+    }
+);
+```
+
 ## Render Blocking JS
 
 ### Set up the ignore attribute
