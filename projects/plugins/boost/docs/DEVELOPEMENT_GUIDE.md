@@ -408,3 +408,98 @@ add_filter( 'jetpack_boost_debug', function( $debug ) {
     return $debug;
 } );
 ```
+
+## Concatenation Filters
+
+### Filter the URL of the site the plugin will be concatenating CSS or JS on.
+
+Filter hook: `page_optimize_site_url`
+
+* Parameter string `$url`: URL of the page with CSS or JS to concatonate
+
+Usage:
+```php
+add_filter( 'page_optimize_site_url', function( $url ) {
+    return $url;
+} );
+```
+
+### Disable concatenation of a particular JS file
+
+Filter hook: `js_do_concat`
+
+* Parameter bool `$do_concat`: if true, then perform concatenation
+* Parameter string `$handle`: handle to JSS file
+
+Usage:
+```php
+add_filter( 'js_do_concat', function( $do_concat, $handle ) {
+    return $do_concat;
+}, 10, 2 );
+```
+
+### Disable concatenation of a particular CSS file
+
+Filter hook: `css_do_concat`
+
+* Parameter bool `$do_concat`: if true, then perform concatenation
+* Parameter string `$handle`: handle to CSS file
+
+Usage:
+```php
+add_filter( 'css_do_concat', function( $do_concat, $handle ) {
+    return $do_concat;
+}, 10, 2 );
+```
+
+### Filters the HTML script tag of an enqueued script
+
+Filter hook: `script_loader_tag`
+
+A copy of the core filter of the same name. https://developer.wordpress.org/reference/hooks/script_loader_tag/
+
+### Filters the style source URL
+
+Filter hook: `style_loader_src`
+
+* Parameter string `$src`: URL of style sheet
+* Parameter string `$handle`: handle to CSS file
+
+Usage:
+```php
+add_filter( 'style_loader_src', function( $src, $handle ) {
+    return $src;
+}, 10, 2 );
+```
+
+### Filters the style loader HTML tag
+
+Filter hook: `page_optimize_style_loader_tag`
+
+* Parameter string `$tag`: style loader tag
+* Parameter array `$handles`: handles of CSS files
+* Parameter string `$href`: link to CSS file
+* Parameter string `$media`: media attribute of the link.
+
+Usage:
+```php
+add_filter( 'page_optimize_style_loader_tag', function( $tag, $handles, $href, $media ) {
+    return $tag;
+}, 10, 4 );
+```
+
+### Filters the style HTML loader tag
+
+Filter hook: `style_loader_tag`
+
+* Parameter string `$tag`: style loader tag
+* Parameter string `$handles`: handles of CSS files
+* Parameter string `$href`: link to CSS file
+* Parameter string `$media`: media attribute of the link.
+
+Usage:
+```php
+add_filter( 'style_loader_tag', function( $tag, $handles, $href, $media ) {
+    return $tag;
+}, 10, 4 );
+```
