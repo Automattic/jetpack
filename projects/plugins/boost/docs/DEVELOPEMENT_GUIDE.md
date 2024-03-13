@@ -396,7 +396,7 @@ add_filter( 'jetpack_boost_has_feature_' . $feature, function( $has_feature ) {
 
 ## Debug Mode
 
-### Fitler the debug mode setting
+### Filter the debug mode setting
 
 Filter hook: `jetpack_boost_debug`
 
