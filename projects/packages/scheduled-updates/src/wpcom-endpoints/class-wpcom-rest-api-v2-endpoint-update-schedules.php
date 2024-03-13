@@ -328,6 +328,14 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return bool|WP_Error
 	 */
 	public function validate_plugins_param( $plugins ) {
+		if ( count( $plugins ) > 10 ) {
+			return new WP_Error(
+				'rest_invalid_param',
+				__( 'You can schedule a maximum of 10 plugins at one time.', 'jetpack-scheduled-updates' ),
+				array( 'status' => 400 )
+			);
+		}
+
 		foreach ( $plugins as $plugin ) {
 			if ( ! $this->validate_plugin_param( $plugin ) ) {
 				return new WP_Error(
