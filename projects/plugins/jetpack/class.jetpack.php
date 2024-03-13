@@ -6734,7 +6734,10 @@ endif;
 			return $plugin_meta;
 		}
 
-		$plugin_meta[] = '<a href="https://wordpress.org/support/plugin/jetpack/reviews/?filter=5" target="_blank" rel="noopener noreferrer" title="' . esc_attr__( 'Rate Jetpack on WordPress.org', 'jetpack' ) . '" style="color: #ffb900">'
+		$u    = get_current_user_id();
+		$site = get_site_url();
+
+		$plugin_meta[] = '<a href="https://jetpack.com/redirect?source=jetpack-plugin-review&site=' . esc_attr( $site ) . '&u=' . esc_attr( $u ) . '" target="_blank" rel="noopener noreferrer" title="' . esc_attr__( 'Rate Jetpack on WordPress.org', 'jetpack' ) . '" style="color: #ffb900">'
 			. str_repeat( '<span class="dashicons dashicons-star-filled" style="font-size: 16px; width:16px; height: 16px"></span>', 5 )
 			. '</a>';
 

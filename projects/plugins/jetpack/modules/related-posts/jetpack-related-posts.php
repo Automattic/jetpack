@@ -2051,6 +2051,10 @@ EOT;
 	 * @return array
 	 */
 	public function rest_get_related_posts( $object ) {
+		if ( ! isset( $object['id'] ) ) {
+			return array();
+		}
+
 		// If the Related Posts option is turned off, don't get the related posts.
 		$options = \Jetpack_Options::get_option( 'relatedposts', array() );
 		if ( empty( $options['enabled'] ) || ! $options['enabled'] ) {
