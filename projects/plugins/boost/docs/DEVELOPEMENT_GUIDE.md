@@ -302,6 +302,20 @@ add_filter( 'jetpack_boost_render_blocking_js_ignore_attribute', function( $attr
 );
 ```
 
+### Filter to disable defer blocking JS
+
+Filter hook: `jetpack_boost_should_defer_js`
+
+* Parameter bool `$defer`: return false to disable defer blocking
+
+Usage:
+```php
+add_filter( 'jetpack_boost_should_defer_js', function( $defer ) {
+        return $defer;
+    }
+);
+```
+
 ### Filter to provide an array of registered script handles that should not be moved to the end of the document.
 
 Filter hook: `jetpack_boost_render_blocking_js_exclude_handles`
