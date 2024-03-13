@@ -1,6 +1,7 @@
 import { Text, H3, Title, Button } from '@automattic/jetpack-components';
 import { __, _n } from '@wordpress/i18n';
 import { useCallback } from 'react';
+import { MyJetpackRoutes } from '../../constants';
 import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
@@ -107,7 +108,7 @@ function PlanSectionFooter( { numberOfPurchases } ) {
 		recordEvent( event );
 	}, [ numberOfPurchases, recordEvent ] );
 
-	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
+	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.Connection );
 	const activateLicenseClickHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_activate_license_click' );
 		if ( ! isUserConnected ) {

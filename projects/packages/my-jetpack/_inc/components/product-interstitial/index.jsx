@@ -9,6 +9,7 @@ import React, { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
  */
+import { MyJetpackRoutes } from '../../constants';
 import useActivate from '../../data/products/use-activate';
 import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
@@ -109,7 +110,7 @@ export default function ProductInterstitial( {
 		[ recordEvent, bundle, getProductSlugForTrackEvent ]
 	);
 
-	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
+	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( MyJetpackRoutes.Home );
 
 	const clickHandler = useCallback(
 		( checkout, product, tier ) => {
