@@ -38,21 +38,7 @@ class Jetpack_Subscription_Site {
 	 * @return void
 	 */
 	public function handle_subscribe_block_placements() {
-		if ( ! $this->is_subscription_site_feature_enabled() ) {
-			return;
-		}
-
 		$this->handle_subscribe_block_post_end_placement();
-	}
-
-	/**
-	 * Returns true if Subscription Site feature is enabled.
-	 *
-	 * @return bool
-	 */
-	protected function is_subscription_site_feature_enabled() {
-		global $wp_version;
-		return version_compare( $wp_version, '6.5-beta2', '>=' );
 	}
 
 	/**
