@@ -262,7 +262,7 @@ function generateApiQueryString( {
 	adminQueryFilter,
 	isInCustomizer = false,
 	additionalBlogIds = [],
-	customResults = [],
+	customResults = {},
 } ) {
 	if ( query === null ) {
 		query = '';
@@ -335,9 +335,11 @@ function generateApiQueryString( {
 	}
 
 	// Support customized search results by promoting certain documents to the top for specific queries
-	if ( customResults?.length > 0 ) {
-		// `blog_id` is required when additional_blog_ids is set.
-		params.custom_results = customResults;
+	for ( const [ customQuery, postIds ] of Object.entries( customResults ) ) {
+		if ( customQuery === query ) {
+			params.custom_results = postIds;
+			break;
+		}
 	}
 
 	if ( staticFilters && Object.keys( staticFilters ).length > 0 ) {
