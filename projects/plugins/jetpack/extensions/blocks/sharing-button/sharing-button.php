@@ -147,6 +147,7 @@ function get_services() {
 		'whatsapp'  => Jetpack_Share_WhatsApp_Block::class,
 		'mastodon'  => Share_Mastodon_Block::class,
 		'nextdoor'  => Share_Nextdoor_Block::class,
+		'bluesky'   => Share_Bluesky_Block::class,
 		'x'         => Share_X_Block::class,
 	);
 
