@@ -45,6 +45,7 @@ class Jetpack_Mu_Wpcom {
 		// This feature runs only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
+			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 		}
 
 		// Unified navigation fix for changes in WordPress 6.2.
@@ -228,6 +229,12 @@ class Jetpack_Mu_Wpcom {
 		$is_p2     = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( $blog_id );
 		$is_forums = str_contains( get_stylesheet(), 'a8c/supportforums' ); // Not in /forums.
 
+		$verbum_option_enabled = get_blog_option( $blog_id, 'enable_verbum_commenting', true );
+
+		if ( empty( $verbum_option_enabled ) ) {
+			return true;
+		}
+
 		// Don't load any comment experience in the Reader, GlotPress, wp-admin, or P2.
 		return ( 1 === $blog_id || TRANSLATE_BLOG_ID === $blog_id || is_admin() || $is_p2 || $is_forums );
 	}
@@ -252,6 +259,14 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/verbum-comments/class-verbum-comments.php';
 			new \Automattic\Jetpack\Verbum_Comments();
 		}
+	}
+
+	/**
+	 * Load Verbum Comments Settings.
+	 */
+	public static function load_verbum_comments_admin() {
+		require_once __DIR__ . '/features/verbum-comments/assets/class-verbum-admin.php';
+		new \Automattic\Jetpack\Verbum_Admin();
 	}
 
 	/**
