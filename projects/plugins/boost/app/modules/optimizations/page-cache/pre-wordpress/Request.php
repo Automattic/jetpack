@@ -303,19 +303,19 @@ class Request {
 	}
 
 	/**
-	 * Return true if the Page Cache module is disabled.
+	 * Return true if the Page Cache module is disabled, or null if we don't know yet.
 	 *
 	 * If Status and Page_Cache are not available, it means the plugin is not loaded.
 	 * This function will be called later when writing a cache file to disk.
 	 * It's then that we can check if the module is active.
 	 *
-	 * @return bool
+	 * @return null|bool
 	 */
 	public function is_module_disabled() {
 
 		// A simple check to make sure we're in the output buffer callback.
 		if ( ! function_exists( '\is_feed' ) ) {
-			return false;
+			return null;
 		}
 
 		if (
