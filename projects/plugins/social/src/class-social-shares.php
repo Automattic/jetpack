@@ -59,7 +59,6 @@ class Social_Shares {
 			$service   = $share['service'];
 			$timestamp = $share['timestamp'];
 
-			// If service doesn't exist in $mostRecentItems or the current timestamp is more recent, update $mostRecentItems
 			if ( ! isset( $shares_by_service[ $service ] ) || $timestamp > $shares_by_service[ $service ]['timestamp'] ) {
 				$shares_by_service[ $service ] = $share;
 			}
