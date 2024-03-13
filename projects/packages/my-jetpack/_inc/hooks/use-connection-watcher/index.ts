@@ -16,9 +16,8 @@ export default function useConnectionWatcher() {
 	const { setNotice } = useContext( NoticeContext );
 	const navToConnection = useMyJetpackNavigate( MyJetpackRoutes.Connection );
 	const products = useAllProducts();
-	const productSlugsThatRequireUserConnection = getProductSlugsThatRequireUserConnection(
-		Object.values( products )
-	);
+	const productSlugsThatRequireUserConnection =
+		getProductSlugsThatRequireUserConnection( products );
 
 	const { isSiteConnected, hasConnectedOwner, isUserConnected } = useMyJetpackConnection();
 	const requiresUserConnection =
