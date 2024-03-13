@@ -113,6 +113,11 @@ function wpcomsh_admin_color_scheme_picker_disabled() {
  * This applies only to WPCOM connected users.
  **/
 function wpcomsh_hide_color_schemes() {
+	// Do nothing if the admin interface is wp-admin.
+	if ( wpcom_is_nav_redesign_enabled() ) {
+		return false;
+	}
+
 	// Do nothing if we can't tell whether the User is connected.
 	if ( ! class_exists( 'Automattic\Jetpack\Connection\Manager' ) ) {
 		return false;
@@ -153,7 +158,7 @@ function wpcomsh_set_connected_user_data_as_user_options( $transient, $value ) {
 		return;
 	}
 
-	if ( isset( $value['color_scheme'] ) ) {
+	if ( isset( $value['color_scheme'] ) && ! wpcom_is_nav_redesign_enabled() ) {
 		update_user_option( get_current_user_id(), 'admin_color', $value['color_scheme'] );
 	}
 
@@ -323,3 +328,49 @@ function wpcomsh_get_wpcom_admin_interface_option() {
 }
 // This pre_option_{$option} hook runs before the option is retrieved from the database with get_option().
 add_filter( 'pre_option_wpcom_admin_interface', 'wpcomsh_get_wpcom_admin_interface_option' );
+
+
+/**
+ * Color scheme from Calypso (/me/account) is stored as user option,
+ * while color scheme from /wp-admin/profile.php is stored as user meta.
+ *
+ * When saving the color scheme from /wp-admin/profile.php, we want to unsync them:
+ *
+ * 1. Read the current color scheme from Calypso (if there's still any).
+ * 2. Delete the color scheme from Calypso, effectively only using color scheme
+ *    from wp-admin going forward.
+ */
+function wpcomsh_unsync_color_schemes_on_save() {
+	if ( ! wpcom_is_nav_redesign_enabled() ) {
+		return;
+	}
+
+	// Returns Calypso color scheme (if still exists),
+	// or wp-admin color scheme otherwise.
+	$maybe_synced_color_scheme = get_user_option( 'admin_color' );
+
+	// Always return the (maybe) synced color scheme above.
+	add_filter(
+		'get_user_metadata',
+		function ( $value, $user_id, $meta_key ) use ( $maybe_synced_color_scheme ) {
+			if ( $meta_key === 'admin_color' ) {
+				return $maybe_synced_color_scheme;
+			}
+		},
+		999999,
+		3
+	);
+
+	// Delete the synced color scheme.
+	add_filter(
+		'update_user_metadata',
+		function ( $check, $user_id, $meta_key ) {
+			if ( $meta_key === 'admin_color' ) {
+				delete_user_option( $user_id, 'admin_color' );
+			}
+		},
+		10,
+		3
+	);
+}
+add_action( 'wp_ajax_save-user-color-scheme', 'wpcomsh_unsync_color_schemes_on_save', 1 );
