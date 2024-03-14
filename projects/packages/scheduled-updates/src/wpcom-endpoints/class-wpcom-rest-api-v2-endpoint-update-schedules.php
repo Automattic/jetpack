@@ -217,7 +217,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			update_option( 'auto_update_plugins', $auto_update_plugins );
 		}
 
-		return rest_ensure_response( Scheduled_Updates::generate_schedule_id( $plugins ) );
+		$id = Scheduled_Updates::generate_schedule_id( $plugins );
+
+		// Set an empty status of a schedule on creation/modify.
+		Scheduled_Updates::set_scheduled_update_status( $id, null, null );
+
+		return rest_ensure_response( $id );
 	}
 
 	/**
