@@ -82,6 +82,7 @@ const quickActionsList = [
 export type AiAssistantDropdownOnChangeOptionsArgProps = {
 	tone?: ToneProp;
 	language?: string;
+	userPrompt?: string;
 };
 
 type AiAssistantControlComponentProps = {
@@ -247,7 +248,7 @@ function AiAssistantDropdownContent( {
 						iconPosition="left"
 						key={ `key-${ quickAction.key }` }
 						onClick={ () => {
-							requestSuggestion( quickAction.aiSuggestion, {} );
+							requestSuggestion( quickAction.aiSuggestion, { ...( quickAction.options ?? {} ) } );
 						} }
 						disabled={ noContent }
 					>
