@@ -98,7 +98,7 @@ class Boost_Health {
 			return false;
 		}
 
-		if ( Boost_Cache::is_loading() ) {
+		if ( Boost_Cache::is_loaded() ) {
 			return false;
 		}
 
