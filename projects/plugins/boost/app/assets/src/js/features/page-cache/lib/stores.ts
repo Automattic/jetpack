@@ -26,11 +26,12 @@ export function useShowCacheEngineErrorNotice( moduleIsReady: boolean ) {
 
 	useEffect( () => {
 		( async () => {
+			// By default, the notice should always be hidden.
+			setShowCacheEngineErrorNotice( false );
+
 			if ( moduleIsReady ) {
 				await recheckCacheEngine();
 				setShowCacheEngineErrorNotice( cacheEngineLoading === false );
-			} else {
-				setShowCacheEngineErrorNotice( false );
 			}
 		} )();
 	}, [ moduleIsReady, cacheEngineLoading, recheckCacheEngine ] );
