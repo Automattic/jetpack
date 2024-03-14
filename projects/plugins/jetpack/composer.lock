@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "459ff71654a9a8c879a806a316461236",
+	"content-hash": "bdeb5cccf3e311425a4e30905fba9ca5",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -173,6 +173,63 @@
 				"GPL-2.0-or-later"
 			],
 			"description": "Generic Jetpack wp-admin UI elements",
+			"transport-options": {
+				"relative": true
+			}
+		},
+		{
+			"name": "automattic/jetpack-ai-crawler-control",
+			"version": "dev-trunk",
+			"dist": {
+				"type": "path",
+				"url": "../../packages/ai-crawler-control",
+				"reference": "93fb24bd826cd6bedc080b58636a71c9c59d4607"
+			},
+			"require": {
+				"php": ">=7.0"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"yoast/phpunit-polyfills": "1.1.0"
+			},
+			"suggest": {
+				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+			},
+			"type": "jetpack-library",
+			"extra": {
+				"autotagger": true,
+				"branch-alias": {
+					"dev-trunk": "0.1.x-dev"
+				},
+				"changelogger": {
+					"link-template": "https://github.com/Automattic/jetpack-ai-crawler-control/compare/v${old}...v${new}"
+				},
+				"mirror-repo": "Automattic/jetpack-ai-crawler-control",
+				"textdomain": "jetpack-ai-crawler-control"
+			},
+			"autoload": {
+				"classmap": [
+					"src/"
+				]
+			},
+			"scripts": {
+				"build-development": [
+					"echo 'Add your build step to composer.json, please!'"
+				],
+				"build-production": [
+					"echo 'Add your build step to composer.json, please!'"
+				],
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"description": "Indicate to AI crawlers that they should not index your site’s content.",
 			"transport-options": {
 				"relative": true
 			}
@@ -5683,6 +5740,7 @@
 		"automattic/jetpack-a8c-mc-stats": 20,
 		"automattic/jetpack-abtest": 20,
 		"automattic/jetpack-admin-ui": 20,
+		"automattic/jetpack-ai-crawler-control": 20,
 		"automattic/jetpack-assets": 20,
 		"automattic/jetpack-autoloader": 20,
 		"automattic/jetpack-backup": 20,
