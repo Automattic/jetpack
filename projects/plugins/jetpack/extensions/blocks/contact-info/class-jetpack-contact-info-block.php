@@ -108,12 +108,12 @@ class Jetpack_Contact_Info_Block {
 	public static function render_image( $attr, $content ) {
 		$image = $attr['image'];
 
-		if ( isset( $image ) ) {
+		if ( isset( $image ) && isset( $image['url'] ) ) {
 			return str_replace(
-				'</div>',
+				'<div class="wp-block-jetpack-image"></div>',
 				sprintf(
-					'<img itemprop="image" src="%1$s" alt="%2$s"/></div>',
-					isset( $image['url'] ) ? esc_attr( $image['url'] ) : '',
+					'<div class="wp-block-jetpack-image"><img itemprop="image" src="%1$s" alt="%2$s"/></div>',
+					esc_attr( $image['url'] ),
 					isset( $image['alt'] ) ? esc_attr( $image['alt'] ) : ''
 				),
 				$content
