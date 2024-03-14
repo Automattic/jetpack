@@ -67,6 +67,9 @@ class Scheduled_Updates {
 		$plugins_to_update = array_intersect_key( $plugins_to_update, array_flip( $plugins ) );
 
 		if ( empty( $plugins_to_update ) ) {
+			// No updates available. Update the status to 'success' and return.
+			self::set_scheduled_update_status( $schedule_id, time(), 'success' );
+
 			return;
 		}
 
@@ -77,6 +80,99 @@ class Scheduled_Updates {
 			array( 'plugins' => $plugins_to_update ),
 			'wpcom'
 		);
+	}
+
+	/**
+	 * Updates last status of a scheduled update.
+	 *
+	 * @param string $schedule_id Request ID.
+	 * @param int    $timestamp   Timestamp of the last run.
+	 * @param string $status      Status of the last run.
+	 * @return bool|mixed Updated schedule or false if not found.
+	 */
+	public static function set_scheduled_update_status( $schedule_id, $timestamp, $status ) {
+		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+
+		if ( empty( $events[ $schedule_id ] ) ) {
+			// Scheduled update not found.
+			return false;
+		}
+
+		$statuses = get_option( 'jetpack_scheduled_update_statuses', array() );
+		$option   = array();
+
+		// Reset the last statuses for the schedule.
+		foreach ( array_keys( $events ) as $schedule_id ) {
+			if ( ! empty( $statuses[ $schedule_id ] ) ) {
+				$option[ $schedule_id ] = $statuses[ $schedule_id ];
+			} else {
+				$option[ $schedule_id ] = null;
+			}
+		}
+
+		// Update the last status for the schedule.
+		$option[ $schedule_id ] = array(
+			'last_run_timestamp' => $timestamp,
+			'last_run_status'    => $status,
+		);
+
+		update_option( 'jetpack_scheduled_update_statuses', $option );
+
+		return $option[ $schedule_id ];
+	}
+
+	/**
+	 * Get the last statuses of a scheduled updates.
+	 *
+	 * @return array|null Last statuses of the scheduled updates.
+	 */
+	public static function get_scheduled_update_statuses() {
+		return get_option( 'jetpack_scheduled_update_statuses', array() );
+	}
+
+	/**
+	 * Retrieves a list of schedule events with their last statuses.
+	 *
+	 * @return array The scheduled events with their last statuses.
+	 */
+	public static function get_scheduled_events_with_statuses() {
+		$events   = $events ?? wp_get_scheduled_events( 'jetpack_scheduled_update' );
+		$statuses = self::get_scheduled_update_statuses();
+		$output   = array();
+
+		foreach ( array_keys( $events ) as $schedule_id ) {
+			$output[ $schedule_id ] = self::get_scheduled_event_with_status( $schedule_id, $events, $statuses );
+		}
+
+		return $output;
+	}
+
+	/**
+	 * Retrieves a schedule event with its last status.
+	 *
+	 * @param string $schedule_id Schedule ID.
+	 * @param array  $events      Optional. List of scheduled events.
+	 * @param array  $statuses    Optional. List of statuses.
+	 * @return object The scheduled event with its last status.
+	 */
+	public static function get_scheduled_event_with_status( $schedule_id, $events = null, $statuses = null ) {
+		$events   = $events ?? wp_get_scheduled_events( 'jetpack_scheduled_update' );
+		$statuses = $statuses ?? self::get_scheduled_update_statuses();
+		$event    = $events[ $schedule_id ];
+
+		if ( empty( $event ) ) {
+			return false;
+		}
+
+		if ( is_array( $statuses ) && ! empty( $statuses[ $schedule_id ] ) ) {
+			$event->last_run_timestamp = $statuses[ $schedule_id ]['last_run_timestamp'];
+			$event->last_run_status    = $statuses[ $schedule_id ]['last_run_status'];
+		} else {
+			$event->last_run_timestamp = null;
+			$event->last_run_status    = null;
+		}
+
+		return $event;
 	}
 
 	/**

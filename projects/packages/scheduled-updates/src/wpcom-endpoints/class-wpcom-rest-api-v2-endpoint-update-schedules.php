@@ -167,15 +167,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public function get_items( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$events   = wp_get_scheduled_events( 'jetpack_scheduled_update' );
-		$statuses = get_option( 'jetpack_scheduled_update_statuses', array() );
-		$output   = array();
-
-		foreach ( array_keys( $events ) as $schedule_id ) {
-			$output[ $schedule_id ] = $this->get_scheduled_event_with_status( $schedule_id, $events, $statuses );
-		}
-
-		return rest_ensure_response( $output );
+		return rest_ensure_response( Scheduled_Updates::get_scheduled_events_with_statuses() );
 	}
 
 	/**
@@ -250,15 +242,13 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error The scheduled event or a WP_Error if the schedule could not be found.
 	 */
 	public function get_item( $request ) {
-		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+		$event = Scheduled_Updates::get_scheduled_event_with_status( $request['schedule_id'] );
 
-		if ( empty( $events[ $request['schedule_id'] ] ) ) {
+		if ( ! $event ) {
 			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
 		}
 
-		$statuses = get_option( 'jetpack_scheduled_update_statuses', array() );
-
-		return rest_ensure_response( $this->get_scheduled_event_with_status( $request['schedule_id'], $events, $statuses ) );
+		return rest_ensure_response( $event );
 	}
 
 	/**
@@ -316,34 +306,17 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error The updated event or a WP_Error if the schedule could not be found.
 	 */
 	public function update_status( $request ) {
-		$events      = wp_get_scheduled_events( 'jetpack_scheduled_update' );
-		$schedule_id = $request['schedule_id'];
+		$updated_schedule = Scheduled_Updates::set_scheduled_update_status(
+			$request['schedule_id'],
+			$request['last_run_timestamp'],
+			$request['last_run_status']
+		);
 
-		if ( empty( $events[ $schedule_id ] ) ) {
+		if ( ! $updated_schedule ) {
 			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
 		}
 
-		$statuses = get_option( 'jetpack_scheduled_update_statuses', array() );
-		$option   = array();
-
-		// Reset the last statuses for the schedule.
-		foreach ( array_keys( $events ) as $schedule_id ) {
-			if ( ! empty( $statuses[ $schedule_id ] ) ) {
-				$option[ $schedule_id ] = $statuses[ $schedule_id ];
-			} else {
-				$option[ $schedule_id ] = null;
-			}
-		}
-
-		// Update the last status for the schedule.
-		$option[ $schedule_id ] = array(
-			'last_run_timestamp' => $request['last_run_timestamp'],
-			'last_run_status'    => $request['last_run_status'],
-		);
-
-		update_option( 'jetpack_scheduled_update_statuses', $option );
-
-		return rest_ensure_response( $option[ $schedule_id ] );
+		return rest_ensure_response( $updated_schedule );
 	}
 
 	/**
@@ -546,28 +519,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$file_mod_capabilities = Scheduled_Updates::get_file_mod_capabilities();
 
 		return rest_ensure_response( $file_mod_capabilities );
-	}
-
-	/**
-	 * Retrieves a schedule event with its last status.
-	 *
-	 * @param string $schedule_id   Schedule ID.
-	 * @param array  $events        List of scheduled events.
-	 * @param array  $statuses      List of statuses.
-	 * @return object The scheduled event with its last status.
-	 */
-	public function get_scheduled_event_with_status( $schedule_id, $events, $statuses ) {
-		$event = $events[ $schedule_id ];
-
-		if ( is_array( $statuses ) && ! empty( $statuses[ $schedule_id ] ) ) {
-			$event->last_run_timestamp = $statuses[ $schedule_id ]['last_run_timestamp'];
-			$event->last_run_status    = $statuses[ $schedule_id ]['last_run_status'];
-		} else {
-			$event->last_run_timestamp = null;
-			$event->last_run_status    = null;
-		}
-
-		return $event;
 	}
 
 	/**
