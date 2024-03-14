@@ -187,7 +187,7 @@ if ( is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings
 				?>
 			</p>
 		</div>
-			<?php
+		<?php
 	}
 
 	add_action( 'admin_notices', 'jetpack_admin_missing_files' );
