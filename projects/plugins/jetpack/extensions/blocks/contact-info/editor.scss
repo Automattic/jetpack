@@ -19,6 +19,12 @@
 		border-radius: 4px;
 		resize: none;
 	}
+
+	.components-placeholder.block-editor-media-placeholder {
+		margin-bottom: 1.5rem;
+
+		box-shadow: none;
+	}
 }
 
 // Overrides to make the preview look good

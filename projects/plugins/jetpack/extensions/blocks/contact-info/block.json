@@ -35,6 +35,16 @@
 				}
 			},
 			{
+				"name": "jetpack/image",
+				"attributes": {
+					"image": {
+						"id": 123,
+						"url": "https://example.com/image.jpg",
+						"alt": "Your Organization Name"
+					}
+				}
+			},
+			{
 				"name": "jetpack/email",
 				"attributes": {
 					"email": "hello@yourjetpack.blog"

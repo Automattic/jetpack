@@ -4,6 +4,7 @@ import { name as addressName, settings as addressSettings } from './address/';
 import metadata from './block.json';
 import edit from './edit';
 import { name as emailName, settings as emailSettings } from './email/';
+import { name as imageName, settings as imageSettings } from './image';
 import { name, settings as nameSettings } from './name';
 import { name as phoneName, settings as phoneSettings } from './phone/';
 import save from './save';
@@ -70,6 +71,7 @@ registerJetpackBlockFromMetadata(
 		},
 	},
 	[
+		{ name: imageName, settings: imageSettings },
 		{ name, settings: nameSettings },
 		{ name: addressName, settings: addressSettings },
 		{ name: emailName, settings: emailSettings },
