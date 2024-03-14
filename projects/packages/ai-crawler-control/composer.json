@@ -45,10 +45,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-ai-crawler-control/compare/v${old}...v${new}"
 		},
 		"mirror-repo": "Automattic/jetpack-ai-crawler-control",
-		"textdomain": "jetpack-ai-crawler-control",
-		"version-constants": {
-			"::PACKAGE_VERSION": "src/class-ai-crawler-control.php"
-		}
+		"textdomain": "jetpack-ai-crawler-control"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."

@@ -11,9 +11,6 @@ namespace Automattic\Jetpack;
  * AI Crawler Control tools.
  */
 class Ai_Crawler_Control {
-
-	const PACKAGE_VERSION = '1.0.0-alpha';
-
 	/**
 	 * Initializer.
 	 * Used to configure the package, eg when called via the Config package.
