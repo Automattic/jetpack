@@ -69,6 +69,9 @@ if ( is_readable( $jetpack_beta_autoloader ) ) {
 	 * @since 3.0.0
 	 */
 	function jetpack_beta_admin_missing_autoloader() {
+		if ( get_current_screen()->id !== 'plugins' ) {
+			return;
+		}
 		?>
 		<div class="notice notice-error is-dismissible">
 			<p>
@@ -90,7 +93,7 @@ if ( is_readable( $jetpack_beta_autoloader ) ) {
 				?>
 			</p>
 		</div>
-		<?php
+			<?php
 	}
 
 	add_action( 'admin_notices', 'jetpack_beta_admin_missing_autoloader' );

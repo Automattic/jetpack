@@ -4129,7 +4129,6 @@ p {
 	 * @return void
 	 */
 	public function admin_notices() {
-
 		if ( $this->error ) {
 			?>
 <div id="message" class="jetpack-message jetpack-err">

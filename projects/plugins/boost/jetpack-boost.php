@@ -91,6 +91,9 @@ if ( is_readable( $boost_packages_path ) ) {
 	 * @since 1.2.0
 	 */
 	function jetpack_boost_admin_missing_files() {
+		if ( get_current_screen()->id !== 'plugins' ) {
+			return;
+		}
 		?>
 		<div class="notice notice-error is-dismissible">
 			<p>
