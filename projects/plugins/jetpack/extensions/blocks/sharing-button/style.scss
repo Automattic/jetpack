@@ -95,6 +95,12 @@ a.jetpack-sharing-button__button {
 	flex-direction: row;
 	flex-wrap: wrap;
 	gap: 5px;
+
+	&:first-child {
+		.jetpack-sharing-button__button {
+			margin-inline-start: 0px;
+		}
+	}
 }
 
 .style-icon-text .jetpack-sharing-button__service-label {
