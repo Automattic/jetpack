@@ -31,13 +31,15 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: monorepo
-      - run: mv monorepo /tmp/monorepo
+      - run: |
+          mv monorepo /tmp/monorepo
+          sudo chown -R runneradmin:root /tmp/monorepo/
       - name: Check rate limit pre-run
         env:
           TOKEN: ${{ secrets.RENOVATE_TOKEN }}
         run: |
           curl --no-progress-meter --header "Authorization: Bearer $TOKEN" https://api.github.com/rate_limit
-      - uses: renovatebot/github-action@v40.0.2
+      - uses: renovatebot/github-action@v40.1.5
         with:
           configurationFile: /tmp/monorepo/.github/renovate-config.js
           token: ${{ secrets.RENOVATE_TOKEN }}
