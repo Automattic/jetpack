@@ -160,7 +160,7 @@ function SubscriptionsSettings( props ) {
 									onChange={ handleSubscribePostEndToggleChange }
 									label={
 										<>
-											{ __( 'Add the Subscribe Block at the of each post', 'jetpack' ) }
+											{ __( 'Add the Subscribe Block at the end of each post', 'jetpack' ) }
 											{ isBlockTheme && singlePostTemplateEditorUrl && (
 												<>
 													{ '. ' }
