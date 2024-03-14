@@ -9,7 +9,7 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredClassMethod : 50+ occurrences
+    // PhanUndeclaredClassMethod : 55+ occurrences
     // PhanTypeMismatchArgument : 45+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 35+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 30+ occurrences
@@ -22,16 +22,16 @@ return [
     // PhanTypeMismatchProperty : 10+ occurrences
     // PhanUndeclaredTypeParameter : 10+ occurrences
     // PhanUndeclaredTypeReturnType : 10+ occurrences
-    // PhanPluginSimplifyExpressionBool : 7 occurrences
-    // PhanPossiblyUndeclaredVariable : 7 occurrences
+    // PhanPluginSimplifyExpressionBool : 9 occurrences
+    // PhanPossiblyUndeclaredVariable : 9 occurrences
     // PhanUndeclaredTypeProperty : 7 occurrences
     // PhanPluginDuplicateSwitchCaseLooseEquality : 6 occurrences
     // PhanUndeclaredMethod : 6 occurrences
     // PhanUndeclaredFunction : 5 occurrences
+    // PhanRedundantCondition : 4 occurrences
     // PhanTypeExpectedObjectPropAccess : 4 occurrences
     // PhanUndeclaredClassInCallable : 4 occurrences
     // PhanNonClassMethodCall : 3 occurrences
-    // PhanRedundantCondition : 3 occurrences
     // PhanTypeArraySuspicious : 3 occurrences
     // PhanTypeArraySuspiciousNullable : 3 occurrences
     // PhanTypeMismatchArgumentInternal : 3 occurrences
@@ -61,7 +61,7 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-actions.php' => ['PhanPluginSimplifyExpressionBool', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchProperty', 'PhanUndeclaredClassInCallable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeProperty'],
+        'src/class-actions.php' => ['PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchProperty', 'PhanUndeclaredClassInCallable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeProperty'],
         'src/class-data-settings.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-dedicated-sender.php' => ['PhanTypeInvalidLeftOperandOfNumericOp', 'PhanUndeclaredConstant'],
         'src/class-defaults.php' => ['PhanUndeclaredConstant'],
@@ -76,7 +76,7 @@ return [
         'src/class-rest-sender.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassMethod'],
         'src/class-sender.php' => ['PhanNonClassMethodCall', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredConstant', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty', 'PhanUndeclaredTypeReturnType'],
         'src/class-server.php' => ['PhanTypeMismatchDeclaredParam', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassInCallable', 'PhanUndeclaredTypeProperty'],
-        'src/class-settings.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentProbablyReal'],
+        'src/class-settings.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassMethod'],
         'src/class-utils.php' => ['PhanTypeExpectedObjectPropAccess'],
         'src/modules/class-callables.php' => ['PhanParamSignatureMismatch', 'PhanParamTooMany', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredConstant', 'PhanUndeclaredMethod'],
         'src/modules/class-comments.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod'],

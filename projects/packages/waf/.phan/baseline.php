@@ -16,7 +16,7 @@ return [
     // PhanTypeMismatchArgumentProbablyReal : 10+ occurrences
     // PhanUnextractableAnnotationSuffix : 10+ occurrences
     // PhanDeprecatedFunction : 9 occurrences
-    // PhanTypeMismatchReturn : 7 occurrences
+    // PhanTypeMismatchReturn : 8 occurrences
     // PhanNoopNew : 6 occurrences
     // PhanTypeMismatchDefault : 5 occurrences
     // PhanTypeMismatchReturnProbablyReal : 5 occurrences
@@ -72,7 +72,7 @@ return [
         'tests/php/integration/test-waf-unsupported-environment.php' => ['PhanTypeMismatchArgument'],
         'tests/php/unit/functions-wordpress.php' => ['PhanRedefineFunction'],
         'tests/php/unit/test-waf-operators.php' => ['PhanTypeMismatchArgumentInternal'],
-        'tests/php/unit/test-waf-request.php' => ['PhanRedefinedUsedTrait'],
+        'tests/php/unit/test-waf-request.php' => ['PhanRedefinedUsedTrait', 'PhanTypeMismatchReturn'],
         'tests/php/unit/test-waf-runtime-targets.php' => ['PhanPluginRedundantAssignment', 'PhanRedefinedUsedTrait', 'PhanTypeMismatchReturn', 'PhanUnextractableAnnotationElementName', 'PhanUnextractableAnnotationSuffix'],
         'tests/php/unit/test-waf-runtime.php' => ['PhanImpossibleTypeComparison', 'PhanTypeMismatchArgument'],
         'tests/php/unit/test-waf-standalone-bootstrap.php' => ['PhanDeprecatedFunction', 'PhanNoopNew', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredMethod'],
