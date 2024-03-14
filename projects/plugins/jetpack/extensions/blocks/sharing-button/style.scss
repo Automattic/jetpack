@@ -69,6 +69,7 @@ a.jetpack-sharing-button__button {
 		&.share-whatsapp { background: var( --color-whatsapp ); }
 		&.share-mastodon { background: var( --color-mastodon ); }
 		&.share-nextdoor { background: var( --color-nextdoor ); }
+		&.share-share { background: #000; }
 	}
 
 	&.style-icon.is-custom {
