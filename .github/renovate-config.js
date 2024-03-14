@@ -95,7 +95,7 @@ module.exports = {
 			const ret = {};
 			const { stdout } = child_process.spawnSync(
 				'git',
-				[ '-c', 'core.quotepath=off', 'ls-files', '*/composer.json' ],
+				[ '-c', 'core.quotepath=off', 'ls-files', 'composer.json', '*/composer.json' ],
 				{
 					cwd: monorepoBase,
 					stdio: [ 'ignore', 'pipe', 'ignore' ],
@@ -106,7 +106,9 @@ module.exports = {
 				if ( filepath === '' ) {
 					continue;
 				}
-				const json = JSON.parse( fs.readFileSync( filepath, 'utf8' ) );
+				const json = JSON.parse(
+					fs.readFileSync( path.resolve( monorepoBase, filepath ), 'utf8' )
+				);
 				if ( json.require?.php && json.require.php !== `>=${ versions.MIN_PHP_VERSION }` ) {
 					if ( ! ret[ json.require.php ] ) {
 						ret[ json.require.php ] = {
