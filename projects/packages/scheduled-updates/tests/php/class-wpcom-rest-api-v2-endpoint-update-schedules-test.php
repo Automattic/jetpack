@@ -289,6 +289,43 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	}
 
 	/**
+	 * Include over 10 plugins when creating a schedule.
+	 *
+	 * @covers ::create_item
+	 */
+	public function test_creating_schedule_with_more_than_ten_plugins() {
+		$plugins = array(
+			'plugin-1/plugin-1.php',
+			'plugin-2/plugin-2.php',
+			'plugin-3/plugin-3.php',
+			'plugin-4/plugin-4.php',
+			'plugin-5/plugin-5.php',
+			'plugin-6/plugin-6.php',
+			'plugin-7/plugin-7.php',
+			'plugin-8/plugin-8.php',
+			'plugin-9/plugin-9.php',
+			'plugin-10/plugin-10.php',
+			'plugin-11/plugin-11.php',
+		);
+
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$request->set_body_params(
+			array(
+				'plugins'  => $plugins,
+				'schedule' => array(
+					'timestamp' => strtotime( 'next Monday 8:00' ),
+					'interval'  => 'weekly',
+				),
+			)
+		);
+
+		wp_set_current_user( $this->admin_id );
+		$result = rest_do_request( $request );
+		$this->assertSame( 400, $result->get_status() );
+		$this->assertSame( 'rest_invalid_param', $result->get_data()['code'] );
+	}
+
+	/**
 	 * Test get item.
 	 *
 	 * @covers ::get_item

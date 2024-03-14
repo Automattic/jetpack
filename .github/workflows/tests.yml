@@ -303,3 +303,36 @@ jobs:
 
           echo "Running tools/check-plugin-monorepo-deps.sh ${ARGS[@]}"
           tools/check-plugin-monorepo-deps.sh "${ARGS[@]}"
+
+  # Probably this should be a linting test too, but we don't run linting on trunk or release branches.
+  phan:
+    name: Static analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 15  # 2024-03-05: Takes about 5 minutes.
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+      - name: Pnpm install
+        run: pnpm install
+      - name: Run phan
+        run: pnpm jetpack phan --all -v --update-baseline --format github
+      - name: Check baselines
+        run: |
+          # Anything changed (with a side of printing the diff)
+          if git diff --exit-code .phan/baseline.php 'projects/*/*/.phan/baseline.php'; then
+            exit 0
+          fi
+
+          # Collect which projects changed to suggest the right command.
+          PROJECTS=()
+          if ! git diff --exit-code --name-only .phan/baseline.php &>/dev/null; then
+            PROJECTS+=( 'monorepo' )
+          fi
+          for f in $( git -c core.quotepath=off diff --name-only 'projects/*/*/.phan/baseline.php' ); do
+            SLUG=${f%/.phan/baseline.php}
+            SLUG=${SLUG#projects/}
+            PROJECTS+=( "$SLUG" )
+          done
+          echo "::error::Phan baselines have changed (good job!). Run \`jetpack phan --update-baseline ${PROJECTS[*]}\` to update them."
+          exit 1

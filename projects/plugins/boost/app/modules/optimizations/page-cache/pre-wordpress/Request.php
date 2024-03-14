@@ -178,6 +178,10 @@ class Request {
 			return false;
 		}
 
+		if ( $this->is_module_disabled() ) {
+			return false;
+		}
+
 		/**
 		 * Filters the accept headers to determine if the request should be cached.
 		 *
@@ -296,5 +300,34 @@ class Request {
 		}
 
 		return \is_feed();
+	}
+
+	/**
+	 * Return true if the Page Cache module is disabled, or null if we don't know yet.
+	 *
+	 * If Status and Page_Cache are not available, it means the plugin is not loaded.
+	 * This function will be called later when writing a cache file to disk.
+	 * It's then that we can check if the module is active.
+	 *
+	 * @return null|bool
+	 */
+	public function is_module_disabled() {
+
+		// A simple check to make sure we're in the output buffer callback.
+		if ( ! function_exists( '\is_feed' ) ) {
+			return null;
+		}
+
+		if (
+			class_exists( '\Automattic\Jetpack_Boost\Lib\Status' ) &&
+			class_exists( '\Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache' )
+		) {
+			$page_cache_status = new \Automattic\Jetpack_Boost\Lib\Status(
+				\Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache::get_slug()
+			);
+			return ! $page_cache_status->is_enabled();
+		} else {
+			return true; // if the classes aren't available, the plugin isn't loaded.
+		}
 	}
 }
