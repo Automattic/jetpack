@@ -88,7 +88,7 @@ module.exports = {
 			matchDepTypes: [ 'require' ],
 			constraintsFiltering: 'strict',
 			constraints: {
-				php: `>=${ versions.MIN_PHP_VERSION }`,
+				php: `~${ versions.MIN_PHP_VERSION }.0`,
 			},
 		},
 		...( () => {
@@ -110,17 +110,26 @@ module.exports = {
 					fs.readFileSync( path.resolve( monorepoBase, filepath ), 'utf8' )
 				);
 				if ( json.require?.php && json.require.php !== `>=${ versions.MIN_PHP_VERSION }` ) {
-					if ( ! ret[ json.require.php ] ) {
-						ret[ json.require.php ] = {
+					let req = json.require.php;
+
+					// Renovate is very cautious, ">=7.4" won't match "^7.0 || ^8.0" because 9.0 could exist.
+					// Rewrite it to "~7.4.0", since if it supports 7.4 it's probably ok with 8.0 (minus perhaps some deprecation warnings).
+					const m = json.require.php.match( /^>=(\d+\.\d+)$/ );
+					if ( m ) {
+						req = `~${ m[ 1 ] }.0`;
+					}
+
+					if ( ! ret[ req ] ) {
+						ret[ req ] = {
 							matchFileNames: [],
 							matchDatasources: [ 'packagist' ],
 							matchDepTypes: [ 'require' ],
 							constraints: {
-								php: json.require.php,
+								php: req,
 							},
 						};
 					}
-					ret[ json.require.php ].matchFileNames.push( filepath );
+					ret[ req ].matchFileNames.push( filepath );
 				}
 			}
 			return Object.values( ret );
