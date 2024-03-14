@@ -108,6 +108,30 @@ export function builder( yargs ) {
  * @param {object} argv - The argv for the command line.
  */
 export async function handler( argv ) {
+	if ( ! argv[ 'allow-polyfill-parser' ] && ! argv[ 'force-polyfill-parser' ] ) {
+		try {
+			await execa( 'php', [ '-r', 'exit( extension_loaded( "ast" ) ? 42 : 41 );' ], {
+				stdio: 'ignore',
+			} );
+		} catch ( e ) {
+			if ( e.exitCode === 41 ) {
+				console.error(
+					chalk.red(
+						'PHP ast extension is not loaded! You should install it; see the Static analysis section in docs/monorepo.md for details'
+					)
+				);
+				console.error(
+					chalk.yellow(
+						'You might run with --allow-polyfill-parser or --force-polyfill-parser in the mean time, but note that may report false positives.'
+					)
+				);
+				process.exit( 1 );
+			} else if ( e.exitCode !== 42 ) {
+				throw e;
+			}
+		}
+	}
+
 	if ( argv.project.length === 1 && argv.project[ 0 ] !== 'monorepo' ) {
 		if ( argv.project[ 0 ].indexOf( '/' ) < 0 ) {
 			argv.type = argv.project[ 0 ];
