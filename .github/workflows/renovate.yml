@@ -31,7 +31,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: monorepo
-      - run: mv monorepo /tmp/monorepo
+      - run: |
+          mv monorepo /tmp/monorepo
+          sudo chown -R runneradmin:root /tmp/monorepo/
       - name: Check rate limit pre-run
         env:
           TOKEN: ${{ secrets.RENOVATE_TOKEN }}
