@@ -11,7 +11,6 @@ const ALLOWED_BLOCKS = [
 	'jetpack/name',
 	'jetpack/business-hours',
 	'core/paragraph',
-	'core/image',
 	'core/heading',
 	'core/gallery',
 	'core/list',
