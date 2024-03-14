@@ -105,11 +105,11 @@ class Scheduled_Updates {
 		$option   = array();
 
 		// Reset the last statuses for the schedule.
-		foreach ( array_keys( $events ) as $schedule_id ) {
-			if ( ! empty( $statuses[ $schedule_id ] ) ) {
-				$option[ $schedule_id ] = $statuses[ $schedule_id ];
+		foreach ( array_keys( $events ) as $status_id ) {
+			if ( ! empty( $statuses[ $status_id ] ) ) {
+				$option[ $status_id ] = $statuses[ $status_id ];
 			} else {
-				$option[ $schedule_id ] = null;
+				$option[ $status_id ] = null;
 			}
 		}
 
