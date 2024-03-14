@@ -15,4 +15,3 @@ const META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS    = '_jetpack_dont_email_post_to_su
 const META_NAME_FOR_POST_TIER_ID_SETTINGS      = '_jetpack_newsletter_tier_id';
 const META_NAME_CONTAINS_PAYWALLED_CONTENT     = '_jetpack_memberships_contains_paywalled_content';
 const META_NAME_CONTAINS_PAID_CONTENT          = '_jetpack_memberships_contains_paid_content';
-const SUBSCRIBE_POST_END_SETTING               = 'jetpack_subscriptions_subscribe_post_end_enabled';

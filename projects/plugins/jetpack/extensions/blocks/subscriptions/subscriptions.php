@@ -176,7 +176,7 @@ function register_block() {
 	add_filter(
 		'jetpack_options_whitelist',
 		function ( $options ) {
-			$options[] = SUBSCRIBE_POST_END_SETTING;
+			$options[] = 'jetpack_subscriptions_subscribe_post_end_enabled';
 
 			return $options;
 		}
