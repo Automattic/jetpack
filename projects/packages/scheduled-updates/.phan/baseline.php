@@ -17,13 +17,12 @@ return [
     // PhanUndeclaredClassMethod : 2 occurrences
     // PhanCompatibleAccessMethodOnTraitDefinition : 1 occurrence
     // PhanNoopNew : 1 occurrence
-    // PhanTypeArraySuspicious : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanTypeMismatchDimFetch : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-scheduled-updates.php' => ['PhanRedundantCondition', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDimFetch', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant'],
+        'src/class-scheduled-updates.php' => ['PhanRedundantCondition', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDimFetch', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant'],
         'src/pluggable.php' => ['PhanTypeArraySuspiciousNullable'],
         'src/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-update-schedules.php' => ['PhanPluginMixedKeyNoKey'],
         'tests/php/class-scheduled-updates-test.php' => ['PhanCompatibleAccessMethodOnTraitDefinition', 'PhanUndeclaredConstant', 'PhanUndeclaredProperty'],
