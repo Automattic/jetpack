@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\Extensions\Subscriptions;
 
 use Jetpack_Memberships;
 
+require_once __DIR__ . '/constants.php';
+
 /**
  * Jetpack_Subscription_Site class.
  */
@@ -111,7 +113,7 @@ class Jetpack_Subscription_Site {
 	 * @return void
 	 */
 	protected function handle_subscribe_block_post_end_placement() {
-		$subscribe_post_end_enabled = get_option( 'jetpack_subscriptions_subscribe_post_end_enabled', false );
+		$subscribe_post_end_enabled = get_option( SUBSCRIBE_POST_END_SETTING, false );
 		if ( ! $subscribe_post_end_enabled ) {
 			return;
 		}
