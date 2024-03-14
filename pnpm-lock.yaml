@@ -1515,6 +1515,8 @@ importers:
 
   projects/packages/admin-ui: {}
 
+  projects/packages/ai-crawler-control: {}
+
   projects/packages/assets:
     devDependencies:
       '@automattic/jetpack-webpack-config':
