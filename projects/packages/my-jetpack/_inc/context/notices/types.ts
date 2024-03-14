@@ -8,7 +8,7 @@ export type Notice = {
 			label: string;
 			onClick: () => void;
 			noDefaultClasses?: boolean;
-		};
+		}[];
 	};
 };
 

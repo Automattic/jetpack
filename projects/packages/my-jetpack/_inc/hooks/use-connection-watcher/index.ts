@@ -1,5 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect, useContext } from 'react';
+import { MyJetpackRoutes } from '../../constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import { useAllProducts } from '../../data/products/use-product';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
@@ -13,7 +14,7 @@ import useMyJetpackNavigate from '../use-my-jetpack-navigate';
  */
 export default function useConnectionWatcher() {
 	const { setNotice } = useContext( NoticeContext );
-	const navToConnection = useMyJetpackNavigate( '/connection' );
+	const navToConnection = useMyJetpackNavigate( MyJetpackRoutes.Connection );
 	const products = useAllProducts();
 	const productSlugsThatRequireUserConnection =
 		getProductSlugsThatRequireUserConnection( products );
