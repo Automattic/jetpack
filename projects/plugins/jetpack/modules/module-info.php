@@ -919,3 +919,19 @@ function jetpack_more_info_blaze() {
 	esc_html_e( 'Grow your audience by promoting your content across Tumblr and WordPress.com.', 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_blaze', 'jetpack_more_info_blaze' );
+
+/**
+ * AI Crawler Control support link.
+ */
+function jetpack_ai_control_more_link() {
+	echo esc_url( Redirect::get_url( 'jetpack-support-ai-crawler-control' ) );
+}
+add_action( 'jetpack_learn_more_button_ai-crawler-control', 'jetpack_ai_control_more_link' );
+
+/**
+ * AI Crawler Control description.
+ */
+function jetpack_more_info_ai_control() {
+	esc_html_e( 'Indicate to AI crawlers that they should not index your site’s content.', 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_ai-crawler-control', 'jetpack_more_info_ai_control' );
