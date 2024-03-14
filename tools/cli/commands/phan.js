@@ -82,6 +82,11 @@ export function builder( yargs ) {
 			type: 'string',
 			description: 'Comma-separated list of files to analyze.',
 		} )
+		.option( 'filter-issues', {
+			type: 'string',
+			description:
+				'Comma-separated list of issue codes to filter for. Only these issues will be reported.',
+		} )
 		.check( argv => {
 			if (
 				argv.updateBaseline &&
@@ -236,6 +241,8 @@ export async function handler( argv ) {
 	const issues = [];
 	const projects = new Set( argv.project );
 
+	const filterIssues = argv.filterIssues ? new Set( argv.filterIssues.split( ',' ) ) : null;
+
 	// Avoid a node warning about too many event listeners.
 	if ( argv.v ) {
 		process.stdout.setMaxListeners( projects.size + 10 );
@@ -363,12 +370,17 @@ export async function handler( argv ) {
 								}
 								throw e;
 							}
-							issues.push( ...json );
-							throw new Error(
-								json.length === 1
-									? 'Phan reported 1 issue'
-									: `Phan reported ${ json.length } issues`
-							);
+							if ( filterIssues ) {
+								json = json.filter( i => filterIssues.has( i.check_name ) );
+							}
+							if ( json.length ) {
+								issues.push( ...json );
+								throw new Error(
+									json.length === 1
+										? 'Phan reported 1 issue'
+										: `Phan reported ${ json.length } issues`
+								);
+							}
 						}
 					},
 				} );
