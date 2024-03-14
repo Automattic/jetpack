@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack;
 
+// Load dependencies.
+require_once __DIR__ . '/pluggable.php';
+
 /**
  * Scheduled Updates class.
  */
@@ -136,7 +139,7 @@ class Scheduled_Updates {
 	 * @return array The scheduled events with their last statuses.
 	 */
 	public static function get_scheduled_events_with_statuses() {
-		$events   = $events ?? wp_get_scheduled_events( 'jetpack_scheduled_update' );
+		$events   = wp_get_scheduled_events( 'jetpack_scheduled_update' );
 		$statuses = self::get_scheduled_update_statuses();
 		$output   = array();
 
@@ -158,21 +161,20 @@ class Scheduled_Updates {
 	public static function get_scheduled_event_with_status( $schedule_id, $events = null, $statuses = null ) {
 		$events   = $events ?? wp_get_scheduled_events( 'jetpack_scheduled_update' );
 		$statuses = $statuses ?? self::get_scheduled_update_statuses();
-		$event    = $events[ $schedule_id ];
 
-		if ( empty( $event ) ) {
+		if ( empty( $events[ $schedule_id ] ) ) {
 			return false;
 		}
 
 		if ( is_array( $statuses ) && ! empty( $statuses[ $schedule_id ] ) ) {
-			$event->last_run_timestamp = $statuses[ $schedule_id ]['last_run_timestamp'];
-			$event->last_run_status    = $statuses[ $schedule_id ]['last_run_status'];
+			$events[ $schedule_id ]->last_run_timestamp = $statuses[ $schedule_id ]['last_run_timestamp'];
+			$events[ $schedule_id ]->last_run_status    = $statuses[ $schedule_id ]['last_run_status'];
 		} else {
-			$event->last_run_timestamp = null;
-			$event->last_run_status    = null;
+			$events[ $schedule_id ]->last_run_timestamp = null;
+			$events[ $schedule_id ]->last_run_status    = null;
 		}
 
-		return $event;
+		return $events[ $schedule_id ];
 	}
 
 	/**

@@ -295,6 +295,73 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	}
 
 	/**
+	 * Removes plugins from the autoupdate list when creating a schedule.
+	 *
+	 * @covers ::create_item
+	 */
+	public function test_update_event_status() {
+		$plugins = array(
+			'custom-plugin/custom-plugin.php',
+			'gutenberg/gutenberg.php',
+		);
+		$id_1    = Scheduled_Updates::generate_schedule_id( $plugins );
+		$body    = array(
+			'last_run_timestamp' => 1,
+			'last_run_status'    => 'success',
+		);
+
+		wp_schedule_event( strtotime( 'next Tuesday 0:00' ), 'daily', 'jetpack_scheduled_update', $plugins );
+
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules/' . $id_1 . '/status' );
+		$request->set_body_params( $body );
+
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules/abc/status' );
+		$request->set_body_params( $body );
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 404, $result->get_status() );
+
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules/' . $id_1 . '/status' );
+		$request->set_body_params( $body );
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( 1, $result->get_data()['last_run_timestamp'] );
+		$this->assertSame( 'success', $result->get_data()['last_run_status'] );
+
+		$events = Scheduled_Updates::get_scheduled_events_with_statuses();
+
+		$this->assertIsArray( $events );
+		$this->arrayHasKey( $id_1, $events );
+		$this->assertSame( 1, $events[ $id_1 ]->last_run_timestamp );
+		$this->assertSame( 'success', $events[ $id_1 ]->last_run_status );
+
+		$plugins = array(
+			'hello-dolly/hello.php',
+		);
+		$id_2    = Scheduled_Updates::generate_schedule_id( $plugins );
+		$body    = array(
+			'last_run_timestamp' => 2,
+			'last_run_status'    => 'failure-and-rollback',
+		);
+
+		wp_schedule_event( strtotime( 'next Tuesday 09:00' ), 'daily', 'jetpack_scheduled_update', $plugins );
+
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules/' . $id_2 . '/status' );
+		$request->set_body_params( $body );
+		$result = rest_do_request( $request );
+		$events = Scheduled_Updates::get_scheduled_events_with_statuses();
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( 1, $events[ $id_1 ]->last_run_timestamp );
+		$this->assertSame( 2, $events[ $id_2 ]->last_run_timestamp );
+		$this->assertSame( 'success', $events[ $id_1 ]->last_run_status );
+		$this->assertSame( 'failure-and-rollback', $events[ $id_2 ]->last_run_status );
+	}
+
+	/**
 	 * Include over 10 plugins when creating a schedule.
 	 *
 	 * @covers ::create_item
