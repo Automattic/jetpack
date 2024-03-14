@@ -13,6 +13,7 @@ import { getLastPostUrl, currentThemeIsBlockTheme, getSiteId } from 'state/initi
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
+import AiControl from './ai-control';
 import Blaze from './blaze';
 import { GoogleAnalytics } from './google-analytics';
 import { RelatedPosts } from './related-posts';
@@ -47,7 +48,8 @@ export class Traffic extends React.Component {
 			foundVerification = this.props.isModuleFound( 'verification-tools' ),
 			foundSitemaps = this.props.isModuleFound( 'sitemaps' ),
 			foundAnalytics = this.props.isModuleFound( 'google-analytics' ),
-			foundBlaze = this.props.isModuleFound( 'blaze' );
+			foundBlaze = this.props.isModuleFound( 'blaze' ),
+			foundAiControl = this.props.isModuleFound( 'ai-crawler-control' );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
@@ -61,7 +63,8 @@ export class Traffic extends React.Component {
 			! foundVerification &&
 			! foundSitemaps &&
 			! foundAnalytics &&
-			! foundBlaze
+			! foundBlaze &&
+			! foundAiControl
 		) {
 			return null;
 		}
@@ -88,6 +91,7 @@ export class Traffic extends React.Component {
 						} ) }
 					/>
 				) }
+				{ foundAiControl && <AiControl { ...commonProps } /> }
 				{ foundStats && <SiteStats { ...commonProps } /> }
 				{ foundAnalytics && (
 					<GoogleAnalytics
