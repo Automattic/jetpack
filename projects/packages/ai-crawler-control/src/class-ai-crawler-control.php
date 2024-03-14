@@ -21,11 +21,7 @@ class Ai_Crawler_Control {
 		// Robots.txt additions.
 		add_filter( 'robots_txt', array( __CLASS__, 'discourage_crawling' ) );
 
-		/*
-		 * ai.txt generation.
-		 */
-		add_action( 'init', array( __CLASS__, 'generate_rewrite_rules' ) );
-		add_filter( 'query_vars', array( __CLASS__, 'add_query_vars' ) );
+		// ai.txt generation.
 		add_action( 'parse_request', array( __CLASS__, 'do_ai_txt' ) );
 	}
 
@@ -52,32 +48,6 @@ class Ai_Crawler_Control {
 	}
 
 	/**
-	 * Generate rewrite rule for the ai.txt page.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return void
-	 */
-	public static function generate_rewrite_rules() {
-		add_rewrite_rule( '^ai\\.txt', 'index.php?ai.txt', 'top' );
-	}
-
-	/**
-	 * Add query vars
-	 *
-	 * @param array $vars The array of allowed query variable names.
-	 *
-	 * @return array
-	 */
-	public static function add_query_vars( $vars ) {
-		if ( ! in_array( 'ai.txt', $vars, true ) ) {
-			$vars[] = 'ai.txt';
-		}
-
-		return $vars;
-	}
-
-	/**
 	 * Build an ai.txt file,
 	 * listing file extensions that should not be indexed by AI crawlers.
 	 * This is built using Spawning AI.
@@ -85,18 +55,28 @@ class Ai_Crawler_Control {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param \WP $wp WordPress request context.
+	 * @param \WP $wp The WordPress request object.
 	 *
 	 * @return void
 	 */
 	public static function do_ai_txt( $wp ) {
-		// Only proceed if this is a request for ai.txt.
-		if ( ! array_key_exists( 'ai.txt', $wp->query_vars ) ) {
+		if (
+			! is_a( $wp, '\WP' )
+			|| 'ai.txt' !== $wp->request
+		) {
 			return;
 		}
 
 		$file_extensions = static::get_file_extensions();
 
+		/**
+		 * Fired when the template loader determines an ai.txt request.
+		 *
+		 * @since $$next-version$$
+		 */
+		do_action( 'jetpack_ai_control_do_ai_txt' );
+
+		status_header( 200 );
 		header( 'Content-Type: text/plain; charset=utf-8' );
 
 		$output  = "# Jetpack AI Crawler Control tools.\n";
@@ -121,7 +101,8 @@ class Ai_Crawler_Control {
 		 * @param string $output          The ai.txt output.
 		 * @param array  $file_extensions List of extensions that we do not want to be crawled by AI agents.
 		 */
-		echo apply_filters( 'jetpack_ai_control_ai_txt', $output, $file_extensions ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo apply_filters( 'jetpack_ai_control_ai_txt_output', $output, $file_extensions ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		exit;
 	}
 
 	/**
