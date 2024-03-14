@@ -59,6 +59,7 @@ class Automattic_For_Agencies_Client {
 		// Sync package.
 		$must_sync_data = Data_Settings::MUST_SYNC_DATA_SETTINGS;
 		// Add additional modules.
+		$must_sync_data['jetpack_sync_modules'][] = 'Automattic\\Jetpack\\Sync\\Modules\\Plugins';
 		$must_sync_data['jetpack_sync_modules'][] = 'Automattic\\Jetpack\\Sync\\Modules\\Users';
 		$must_sync_data['jetpack_sync_modules'][] = 'Automattic\\Jetpack\\Sync\\Modules\\Meta';
 		$must_sync_data['jetpack_sync_modules'][] = 'Automattic\\Jetpack\\Sync\\Modules\\Stats';
