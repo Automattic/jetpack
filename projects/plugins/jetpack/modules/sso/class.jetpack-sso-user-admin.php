@@ -577,7 +577,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		public function render_invitation_email_message() {
 			$message = wp_kses(
 				__(
-					'New users will receive an invite to join WordPress.com, so they can log in securely using <a class="jetpack-sso-admin-create-user-invite-message-link-sso" rel="noopener noreferrer" target="_blank" href="https://jetpack.com/support/sso/">Secure Sign On</a>.',
+					'We highly recommend inviting users to join WordPress.com and log in securely using <a class="jetpack-sso-admin-create-user-invite-message-link-sso" rel="noopener noreferrer" target="_blank" href="https://jetpack.com/support/sso/">Secure Sign On</a> to ensure maximum security and efficiency.',
 					'jetpack'
 				),
 				array(
