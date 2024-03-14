@@ -1,3 +1,4 @@
+const child_process = require( 'child_process' );
 const fs = require( 'fs' );
 const path = require( 'path' );
 
@@ -87,8 +88,40 @@ module.exports = {
 			matchDepTypes: [ 'require' ],
 			constraintsFiltering: 'strict',
 			constraints: {
-				php: `~${ versions.MIN_PHP_VERSION }.0`,
+				php: `>=${ versions.MIN_PHP_VERSION }`,
 			},
 		},
+		...( () => {
+			const ret = {};
+			const { stdout } = child_process.spawnSync(
+				'git',
+				[ '-c', 'core.quotepath=off', 'ls-files', '*/composer.json' ],
+				{
+					cwd: monorepoBase,
+					stdio: [ 'ignore', 'pipe', 'ignore' ],
+					encoding: 'utf-8',
+				}
+			);
+			for ( const filepath of stdout.split( /\n/ ) ) {
+				if ( filepath === '' ) {
+					continue;
+				}
+				const json = JSON.parse( fs.readFileSync( filepath, 'utf8' ) );
+				if ( json.require?.php && json.require.php !== `>=${ versions.MIN_PHP_VERSION }` ) {
+					if ( ! ret[ json.require.php ] ) {
+						ret[ json.require.php ] = {
+							matchFileNames: [],
+							matchDatasources: [ 'packagist' ],
+							matchDepTypes: [ 'require' ],
+							constraints: {
+								php: json.require.php,
+							},
+						};
+					}
+					ret[ json.require.php ].matchFileNames.push( filepath );
+				}
+			}
+			return Object.values( ret );
+		} )(),
 	],
 };
