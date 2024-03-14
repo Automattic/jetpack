@@ -570,6 +570,27 @@ class Share_Print_Block extends Sharing_Source_Block {
 }
 
 /**
+ * Native Share button (relying on the Web Share API).
+ */
+class Share_Native_Block extends Sharing_Source_Block {
+	/**
+	 * Service short name.
+	 *
+	 * @var string
+	 */
+	public $shortname = 'native';
+
+	/**
+	 * Service name.
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return __( 'Web Share', 'jetpack' );
+	}
+}
+
+/**
  * Tumblr sharing service.
  */
 class Share_Tumblr_Block extends Sharing_Source_Block {
