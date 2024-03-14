@@ -49,6 +49,12 @@ const Index = () => {
 		'page-cache-setup',
 		{
 			...pageCacheSetup,
+
+			/*
+			 * We run page cache setup on both onMountEnabled and onEnable.
+			 * However, the mutation notice should only show when the user is responsible for the action.
+			 * So, we only show the notice if `runningFreshSetup`, unless it's an error.
+			 */
 			isSuccess: runningFreshSetup && pageCacheSetup.isSuccess,
 			isPending: runningFreshSetup && ( isPageCacheSettingUp || pageCacheSetup.isPending ),
 			isIdle: runningFreshSetup && pageCacheSetup.isIdle,
