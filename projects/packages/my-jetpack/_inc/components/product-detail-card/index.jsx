@@ -108,7 +108,7 @@ const ProductDetailCard = ( {
 		postCheckoutUrl,
 	} = detail;
 
-	const cantInstallPlugin = status === 'plugin_absent' && 'yes' === fileSystemWriteAccess;
+	const cantInstallPlugin = status === 'plugin_absent' && 'no' === fileSystemWriteAccess;
 
 	const {
 		isFree,
