@@ -5,6 +5,7 @@ import styles from './editor.scss';
 const ALLOWED_BLOCKS = [
 	'jetpack/address',
 	'jetpack/email',
+	'jetpack/image',
 	'jetpack/name',
 	'jetpack/phone',
 	'core/heading',
@@ -13,6 +14,7 @@ const ALLOWED_BLOCKS = [
 ];
 
 const TEMPLATE = [
+	[ 'jetpack/image' ],
 	[ 'jetpack/name' ],
 	[ 'jetpack/email' ],
 	[ 'jetpack/phone' ],

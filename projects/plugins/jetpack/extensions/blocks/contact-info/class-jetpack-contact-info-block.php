@@ -98,6 +98,32 @@ class Jetpack_Contact_Info_Block {
 	}
 
 	/**
+	 * Adds name schema attributes.
+	 *
+	 * @param array  $attr    Array containing the image block attributes.
+	 * @param string $content String containing the image block content.
+	 *
+	 * @return string
+	 */
+	public static function render_image( $attr, $content ) {
+		$image = $attr['image'];
+
+		if ( isset( $image ) ) {
+			return str_replace(
+				'</div>',
+				sprintf(
+					'<img itemprop="image" src="%1$s" alt="%2$s"/></div>',
+					isset( $image['url'] ) ? esc_attr( $image['url'] ) : '',
+					isset( $image['alt'] ) ? esc_attr( $image['alt'] ) : ''
+				),
+				$content
+			);
+		}
+
+		return '';
+	}
+
+	/**
 	 * Adds email schema attributes.
 	 *
 	 * @param array  $attr    Array containing the email block attributes.

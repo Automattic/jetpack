@@ -5,6 +5,7 @@ const ALLOWED_BLOCKS = [
 	'jetpack/markdown',
 	'jetpack/address',
 	'jetpack/email',
+	'jetpack/image',
 	'jetpack/phone',
 	'jetpack/map',
 	'jetpack/name',
@@ -27,6 +28,7 @@ const ALLOWED_BLOCKS = [
 ];
 
 const TEMPLATE = [
+	[ 'jetpack/image' ],
 	[ 'jetpack/name' ],
 	[ 'jetpack/email' ],
 	[ 'jetpack/phone' ],

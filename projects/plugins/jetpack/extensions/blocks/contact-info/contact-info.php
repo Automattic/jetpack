@@ -25,6 +25,14 @@ Blocks::jetpack_register_block(
 );
 
 Blocks::jetpack_register_block(
+	'jetpack/image',
+	array(
+		'parent'          => array( 'jetpack/contact-info' ),
+		'render_callback' => array( 'Jetpack_Contact_Info_Block', 'render_image' ),
+	)
+);
+
+Blocks::jetpack_register_block(
 	'jetpack/address',
 	array(
 		'parent'          => array( 'jetpack/contact-info' ),
