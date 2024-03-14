@@ -93,7 +93,7 @@ if ( is_readable( $jetpack_beta_autoloader ) ) {
 				?>
 			</p>
 		</div>
-			<?php
+		<?php
 	}
 
 	add_action( 'admin_notices', 'jetpack_beta_admin_missing_autoloader' );
