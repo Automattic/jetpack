@@ -75,7 +75,7 @@
 		"videopress/video-chapters",
 		"ai-assistant-backend-prompts",
 		"ai-logo-generator",
-		"jetpack-ai-featured-image-generator"
+		"ai-featured-image-generator"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [
