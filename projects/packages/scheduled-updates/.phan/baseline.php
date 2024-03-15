@@ -10,7 +10,7 @@
 return [
     // # Issue statistics:
     // PhanUndeclaredProperty : 25+ occurrences
-    // PhanUndeclaredConstant : 6 occurrences
+    // PhanUndeclaredConstant : 7 occurrences
     // PhanPluginMixedKeyNoKey : 2 occurrences
     // PhanRedundantCondition : 2 occurrences
     // PhanTypeArraySuspiciousNullable : 2 occurrences

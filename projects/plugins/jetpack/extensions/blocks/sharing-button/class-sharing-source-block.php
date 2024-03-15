@@ -366,6 +366,7 @@ abstract class Sharing_Source_Block {
 	 * Redirect to an external social network site to finish sharing.
 	 *
 	 * @param string $url Sharing URL for a given service.
+	 * @return never
 	 */
 	public function redirect_request( $url ) {
 		wp_redirect( $url ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- We allow external redirects here; we define them ourselves.
