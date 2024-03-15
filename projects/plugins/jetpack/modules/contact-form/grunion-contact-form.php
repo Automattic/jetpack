@@ -1059,7 +1059,7 @@ class Crunion_Contact_Form_Shortcode {
 	 * @deprecated 13.3 See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode
 	 * @var string
 	 */
-	public $shortcode_name;
+	private $shortcode_name;
 
 	/**
 	 * Key => value pairs for the shortcode's attributes: [$shortcode_name key="value" ... /]
@@ -1067,7 +1067,7 @@ class Crunion_Contact_Form_Shortcode {
 	 * @deprecated 13.3 See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode
 	 * @var array
 	 */
-	public $attributes;
+	private $attributes;
 
 	/**
 	 * Key => value pair for attribute defaults.
@@ -1075,7 +1075,7 @@ class Crunion_Contact_Form_Shortcode {
 	 * @deprecated 13.3 See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode
 	 * @var array
 	 */
-	public $defaults = array();
+	private $defaults = array();
 
 	/**
 	 * The inner content of otherwise: [$shortcode_name]$content[/$shortcode_name]. Null for selfclosing shortcodes.
@@ -1083,7 +1083,7 @@ class Crunion_Contact_Form_Shortcode {
 	 * @deprecated 13.3 See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode
 	 * @var null|string
 	 */
-	public $content;
+	private $content;
 
 	/**
 	 * Associative array of inner "child" shortcodes equivalent to the $content: [$shortcode_name][child 1/][child 2/][/$shortcode_name]
@@ -1091,7 +1091,7 @@ class Crunion_Contact_Form_Shortcode {
 	 * @deprecated 13.3 See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode
 	 * @var array
 	 */
-	public $fields;
+	private $fields;
 
 	/**
 	 * The HTML of the parsed inner "child" shortcodes".  Null for selfclosing shortcodes.
@@ -1099,7 +1099,15 @@ class Crunion_Contact_Form_Shortcode {
 	 * @deprecated 13.3 See Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode
 	 * @var null|string
 	 */
-	public $body;
+	private $body;
+
+	/**
+	 * We're using object composition to call code from the `forms` package.
+	 * This holds the reference to the Contact_Form_Shortcode instance.
+	 *
+	 * @var Contact_Form_Shortcode
+	 */
+	private $shortcode;
 
 	/**
 	 * Constructor function.
@@ -1111,19 +1119,27 @@ class Crunion_Contact_Form_Shortcode {
 	public function __construct( $attributes, $content = null ) {
 		_deprecated_function( __METHOD__, 'jetpack-13.3', 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode->__construct' );
 
-		$this->attributes = $this->unesc_attr( $attributes );
-		if ( is_array( $content ) ) {
-			$string_content = '';
-			foreach ( $content as $field ) {
-				$string_content .= (string) $field;
-			}
+		$this->shortcode = new Contact_Form_Shortcode( $attributes, $content );
+	}
 
-			$this->content = $string_content;
-		} else {
-			$this->content = $content;
-		}
+	/**
+	 * Set properties on the Contact_Form_Shortcode instance.
+	 *
+	 * @param string $name Name of the property.
+	 * @param mixed  $value Value of the property.
+	 */
+	public function __set( $name, $value ) {
+		$this->shortcode->{ $name } = $value;
+	}
 
-		$this->parse_content( $this->content );
+	/**
+	 * Get properties from the Contact_Form_Shortcode instance.
+	 *
+	 * @param string $name Name of the property.
+	 * @return mixed
+	 */
+	public function __get( $name ) {
+		return $this->shortcode->{ $name };
 	}
 
 	/**
@@ -1135,11 +1151,7 @@ class Crunion_Contact_Form_Shortcode {
 	public function parse_content( $content ) {
 		_deprecated_function( __METHOD__, 'jetpack-13.3', 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode->parse_content' );
 
-		if ( $content === null ) {
-			$this->body = null;
-		} else {
-			$this->body = do_shortcode( $content );
-		}
+		return $this->shortcode->parse_content( $content );
 	}
 
 	/**
@@ -1152,7 +1164,7 @@ class Crunion_Contact_Form_Shortcode {
 	public function get_attribute( $key ) {
 		_deprecated_function( __METHOD__, 'jetpack-13.3', 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode->get_attribute' );
 
-		return isset( $this->attributes[ $key ] ) ? $this->attributes[ $key ] : null;
+		return $this->shortcode->get_attribute( $key );
 	}
 
 	/**
@@ -1165,27 +1177,7 @@ class Crunion_Contact_Form_Shortcode {
 	public function esc_attr( $value ) {
 		_deprecated_function( __METHOD__, 'jetpack-13.3', 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode->esc_attr' );
 
-		if ( is_array( $value ) ) {
-			return array_map( array( $this, 'esc_attr' ), $value );
-		}
-
-		$value = Grunion_Contact_Form_Plugin::strip_tags( $value );
-		$value = _wp_specialchars( $value, ENT_QUOTES, false, true );
-
-		// Shortcode attributes can't contain "]"
-		$value = str_replace( ']', '', $value );
-		$value = str_replace( ',', '&#x002c;', $value ); // store commas encoded
-		$value = strtr(
-			$value,
-			array(
-				'%' => '%25',
-				'&' => '%26',
-			)
-		);
-
-		// shortcode_parse_atts() does stripcslashes() so we have to do it here.
-		$value = addslashes( $value );
-		return $value;
+		return $this->shortcode->esc_attr( $value );
 	}
 
 	/**
@@ -1198,24 +1190,7 @@ class Crunion_Contact_Form_Shortcode {
 	public function unesc_attr( $value ) {
 		_deprecated_function( __METHOD__, 'jetpack-13.3', 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode->unesc_attr' );
 
-		if ( is_array( $value ) ) {
-			return array_map( array( $this, 'unesc_attr' ), $value );
-		}
-
-		// For back-compat with old Grunion encoding
-		// Also, unencode commas
-		$value = strtr(
-			(string) $value,
-			array(
-				'%26' => '&',
-				'%25' => '%',
-			)
-		);
-		$value = preg_replace( array( '/&#x0*22;/i', '/&#x0*27;/i', '/&#x0*26;/i', '/&#x0*2c;/i' ), array( '"', "'", '&', ',' ), $value );
-		$value = htmlspecialchars_decode( $value, ENT_QUOTES );
-		$value = Grunion_Contact_Form_Plugin::strip_tags( $value );
-
-		return $value;
+		return $this->shortcode->unesc_attr( $value );
 	}
 
 	/**
@@ -1226,55 +1201,7 @@ class Crunion_Contact_Form_Shortcode {
 	public function __toString() {
 		_deprecated_function( __METHOD__, 'jetpack-13.3', 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode->__toString' );
 
-		$r = "[{$this->shortcode_name} ";
-
-		foreach ( $this->attributes as $key => $value ) {
-			if ( ! $value ) {
-				continue;
-			}
-
-			if ( isset( $this->defaults[ $key ] ) && $this->defaults[ $key ] === $value ) {
-				continue;
-			}
-
-			if ( 'id' === $key ) {
-				continue;
-			}
-
-			$value = $this->esc_attr( $value );
-
-			if ( is_array( $value ) ) {
-				$value = implode( ',', $value );
-			}
-
-			if ( ! str_contains( $value, "'" ) ) {
-				$value = "'$value'";
-			} elseif ( ! str_contains( $value, '"' ) ) {
-				$value = '"' . $value . '"';
-			} else {
-				// Shortcodes can't contain both '"' and "'".  Strip one.
-				$value = str_replace( "'", '', $value );
-				$value = "'$value'";
-			}
-
-			$r .= "{$key}={$value} ";
-		}
-
-		$r = rtrim( $r );
-
-		if ( $this->fields ) {
-			$r .= ']';
-
-			foreach ( $this->fields as $field ) {
-				$r .= (string) $field;
-			}
-
-			$r .= "[/{$this->shortcode_name}]";
-		} else {
-			$r .= '/]';
-		}
-
-		return $r;
+		return $this->shortcode->__toString();
 	}
 }
 
