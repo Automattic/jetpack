@@ -204,6 +204,41 @@ We use eslint and phpcs to lint JavaScript and PHP code. Projects should comply 
   ```
 * We're using a fork of phpcs and a custom filter that adds support for per-directory configuration (`.phpcs.dir.xml`) and use of `.gitignore` and `.phpcsignore` files. Again, try to keep to the spirit of things.
 
+### Static Analysis
+
+We use Phan for PHP static analysis.[^1] Configuration for a project resides in the `.phan/config.php` within the project, which should generally build on top of the `.phan/config.base.php` from the monorepo root. A baseline file also resides at `.phan/baseline.php` to allow for incremental fixing of errors.
+
+Phan in the monorepo should be run locally via [Jetpack's CLI tool](#first-time) as `jetpack phan`. Note that Phan soft-requires the [PHP ast extension](https://pecl.php.net/package/ast); while on Linux installing this is likely as easy as `sudo apt-get install php8.2-ast`, Mac users have reported having trouble.
+
+<details><summary>Instructions for Mac users</summary>
+
+This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.2`.
+
+1. First, check whether ast is already installed by running `php --ri ast`. If it prints something like this, you should already be good (unless you need a newer version; see [Phan's README](https://github.com/phan/phan#getting-started) for version requirements):
+   ```
+   ast
+
+   ast support => enabled
+   extension version => 1.1.1
+   AST version => Current version is 90. All versions (including experimental): {50, 60, 70, 80, 85, 90, 100}
+   ```
+2. You may need to `brew install pkg-config zlib` to install some necessary dependencies.
+3. Update the list of available extensions: `pecl channel-update pecl.php.net`
+4. Build the extension: `pecl install ast`
+   - If the build process fails due to mkdir errors with the pecl directory, you might try `mkdir -p /opt/homebrew/lib/php/pecl` and running the install again.
+5. You may also need to tell PHP where to find the newly-installed extension.
+   1. Run `pecl config-get ext_dir` to find where pecl installs extensions.
+   2. Run `php -r 'echo ini_get( "extension_dir" ) . "\n";'` to find where PHP currently expects extensions to live.
+   3. If those are the same, great! If not, you have two options:
+      * If PHP's current directory is empty, you could find your `php.ini` file (`php --ini`) and change `extension_dir` to pecl's location.
+      * Or else, pecl probably added `extension=ast.so` to an ini file somewhere. You could change the `ast.so` value to be the full path inside pecl's directory.
+
+</details>
+
+Alternatives, if you can't install the ast extension, include running Phan with the `--allow-polyfill-parser` option (note this may cause false positives and cannot be used to update baseline files) or running Phan inside the [Docker development environment](../tools/docker/README.md).
+
+[^1]: In 2024 we evaluated Phan, Psalm, and PHPStan. Psalm was unable to produce a consistent baseline. PHPStan was confused about which constants were defined, and would have needed a bootstrapping file re-defining them all to work. Thus we settled on Phan. Details in pdWQjU-IH-p2.
+
 ### PHP tests
 
 If a project contains PHP tests (typically PHPUnit), it must define `.scripts.test-php` in `composer.json` to run the tests. The CI environment will run `pnpm install` and `composer install` beforehand, but if a build step is required before running tests the necessary commands for that should also be included in `.scripts.test-php`.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+WPCOM_JSON_API_List_Comments_Endpoint: Remove update_comment_cache() that is no longer needed

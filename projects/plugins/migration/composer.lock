@@ -633,7 +633,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "3f9a903de20b3f0ed6414839beeaf17a21a86960"
+                "reference": "14b2704544fb37a87d1da1a73c1990fe669ca64c"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -665,7 +665,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.3.x-dev"
+                    "dev-trunk": "2.4.x-dev"
                 }
             },
             "autoload": {
@@ -1122,7 +1122,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "7f7f6c9d874aecbeb4f1a822171a7deaa0818a9d"
+                "reference": "55100b13a25e8143d9f231fc2d1c74582304e729"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1156,7 +1156,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.16.x-dev"
+                    "dev-trunk": "4.17.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1544,7 +1544,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "86e9c73cf42f93dc2834162700676d8f5dc2393f"
+                "reference": "fef540b80efa9abea56562486e0ee296305cee66"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1576,7 +1576,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.9.x-dev"
+                    "dev-trunk": "2.10.x-dev"
                 }
             },
             "autoload": {
