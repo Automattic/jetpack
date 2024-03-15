@@ -153,7 +153,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			$object_type,
 			'last_run_timestamp',
 			array(
-				'get_callback'    => array( $this, 'add_last_run_field' ),
+				'get_callback'    => array( $this, 'get_last_run_field' ),
 				'update_callback' => null,
 				'schema'          => array(
 					'description' => 'Unix timestamp (UTC) for when the last run occurred.',
@@ -166,7 +166,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			$object_type,
 			'last_run_status',
 			array(
-				'get_callback'    => array( $this, 'add_last_run_field' ),
+				'get_callback'    => array( $this, 'get_last_run_field' ),
 				'update_callback' => null,
 				'schema'          => array(
 					'description' => 'Status of last run.',
@@ -380,7 +380,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @param string          $object_type Object type.
 	 * @return object|null
 	 */
-	public function add_last_run_field( $item, $field_name, $request, $object_type ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function get_last_run_field( $item, $field_name, $request, $object_type ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$option = get_option( 'jetpack_scheduled_update_statuses', array() );
 
 		if ( ! empty( $option[ $item['schedule_id'] ] ) ) {
