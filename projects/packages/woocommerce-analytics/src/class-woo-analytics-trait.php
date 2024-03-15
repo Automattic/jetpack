@@ -8,11 +8,12 @@
 namespace Automattic\Woocommerce_Analytics;
 
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
+use Automattic\WooCommerce\Blocks\Domain\Services\CheckoutFields;
+use Automattic\WooCommerce\Blocks\Package;
 use WC_Order_Item;
 use WC_Order_Item_Product;
 use WC_Payment_Gateway;
 use WC_Product;
-
 /**
  * Common functionality for WooCommerce Analytics classes.
  */
@@ -572,5 +573,39 @@ trait Woo_Analytics_Trait {
 		);
 
 		return ( '0' !== $result ) ? 1 : 0;
+	}
+
+	/**
+	 * Get additional fields data for Checkout and Post-Checkout events.
+	 *
+	 * @return array Additional fields data.
+	 */
+	public function get_additional_fields_data() {
+		$data = array();
+		if ( class_exists( 'Automattic\WooCommerce\Blocks\Package' ) && class_exists( 'Automattic\WooCommerce\Blocks\Domain\Services\CheckoutFields' ) ) {
+			$additional_fields_controller = Package::container()->get( CheckoutFields::class );
+			$additional_fields            = $additional_fields_controller->get_additional_fields();
+			$fields_count                 = count( $additional_fields );
+			$fields_data                  = array_map(
+				function ( $field_key, $field ) use ( $additional_fields_controller ) {
+					return array(
+						'key'      => $field_key,
+						'location' => $additional_fields_controller->get_field_location( $field_key ),
+						'type'     => $field['type'],
+						'required' => $field['required'] ? '1' : '0',
+						'label'    => $field['label'],
+					);
+				},
+				array_keys( $additional_fields ),
+				$additional_fields
+			);
+
+			$data = array(
+				'fields_count' => $fields_count,
+				'fields'       => wp_json_encode( $fields_data ),
+			);
+		}
+
+		return $data;
 	}
 }

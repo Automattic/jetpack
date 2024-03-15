@@ -95,24 +95,33 @@ class Checkout_Flow {
 			$checkout_page_used = 'No';
 		}
 
+		$fields_data = $this->get_additional_fields_data();
+
+		$data = array(
+			'coupon_used'                               => $coupon_used,
+			'create_account'                            => $create_account,
+			'express_checkout'                          => 'null', // TODO: not solved yet.
+			'guest_checkout'                            => $order->get_customer_id() ? 'No' : 'Yes',
+			'oi'                                        => $order->get_id(),
+			'order_value'                               => $order->get_total(),
+			'payment_option'                            => $order->get_payment_method(),
+			'products_count'                            => $order->get_item_count(),
+			'products'                                  => $this->format_items_to_json( $order->get_items() ),
+			'order_note'                                => $order->get_customer_note(),
+			'shipping_option'                           => $order->get_shipping_method(),
+			'from_checkout'                             => $checkout_page_used,
+			'checkout_page_contains_checkout_block'     => $checkout_page_contains_checkout_block,
+			'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
+		);
+
+		$data = array_merge(
+			$data,
+			$fields_data
+		);
+
 		$this->record_event(
 			'woocommerceanalytics_order_confirmation_view',
-			array(
-				'coupon_used'                           => $coupon_used,
-				'create_account'                        => $create_account,
-				'express_checkout'                      => 'null', // TODO: not solved yet.
-				'guest_checkout'                        => $order->get_customer_id() ? 'No' : 'Yes',
-				'oi'                                    => $order->get_id(),
-				'order_value'                           => $order->get_total(),
-				'payment_option'                        => $order->get_payment_method(),
-				'products_count'                        => $order->get_item_count(),
-				'products'                              => $this->format_items_to_json( $order->get_items() ),
-				'order_note'                            => $order->get_customer_note(),
-				'shipping_option'                       => $order->get_shipping_method(),
-				'from_checkout'                         => $checkout_page_used,
-				'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
-				'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
-			)
+			$data
 		);
 	}
 
@@ -151,6 +160,11 @@ class Checkout_Flow {
 			return;
 		}
 
+		// Order received page is also a checkout page, so we need to bail out if we are on that page.
+		if ( is_order_received_page() ) {
+			return;
+		}
+
 		$is_in_checkout_page                       = $checkout_page_id === $post->ID ? 'Yes' : 'No';
 		$checkout_page_contains_checkout_block     = '0';
 		$checkout_page_contains_checkout_shortcode = '1';
@@ -166,10 +180,7 @@ class Checkout_Flow {
 			}
 		}
 
-		// Order received page is also a checkout page, so we need to bail out if we are on that page.
-		if ( is_order_received_page() ) {
-			return;
-		}
+		$fields_data = $this->get_additional_fields_data();
 
 		$this->record_event(
 			'woocommerceanalytics_checkout_view',
@@ -179,7 +190,8 @@ class Checkout_Flow {
 					'from_checkout' => $is_in_checkout_page,
 					'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
 					'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
-				)
+				),
+				$fields_data
 			)
 		);
 	}

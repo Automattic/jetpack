@@ -203,6 +203,8 @@ class Universal {
 			$session->save_data();
 		}
 
+		$fields_data = $this->get_additional_fields_data();
+
 		foreach ( $cart as $cart_item_key => $cart_item ) {
 			/**
 			* This filter is already documented in woocommerce/templates/cart/cart.php
@@ -214,6 +216,8 @@ class Universal {
 			}
 
 			$data = $this->get_cart_checkout_shared_data();
+
+			$data = array_merge( $data, $fields_data );
 
 			$data['from_checkout'] = $is_in_checkout_page;
 
@@ -339,6 +343,8 @@ class Universal {
 			$checkout_page_contains_checkout_shortcode = '1';
 		}
 
+		$fields_data = $this->get_additional_fields_data();
+
 		// loop through products in the order and queue a purchase event.
 		foreach ( $order->get_items() as $order_item ) {
 			$product_id = is_callable( array( $order_item, 'get_product_id' ) ) ? $order_item->get_product_id() : -1;
@@ -353,22 +359,27 @@ class Universal {
 			if ( is_array( $order_coupons ) ) {
 				$order_coupons_count = count( $order_coupons );
 			}
+
+			$data = array(
+				'oi'                                    => $order->get_order_number(),
+				'pq'                                    => $order_item->get_quantity(),
+				'payment_option'                        => $payment_option,
+				'create_account'                        => $create_account,
+				'guest_checkout'                        => $guest_checkout,
+				'express_checkout'                      => $express_checkout,
+				'products_count'                        => $order_items_count,
+				'coupon_used'                           => $order_coupons_count,
+				'order_value'                           => $order->get_total(),
+				'from_checkout'                         => $checkout_page_used,
+				'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
+				'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
+			);
+
+			$data = array_merge( $data, $fields_data );
+
 			$this->record_event(
 				'woocommerceanalytics_product_purchase',
-				array(
-					'oi'               => $order->get_order_number(),
-					'pq'               => $order_item->get_quantity(),
-					'payment_option'   => $payment_option,
-					'create_account'   => $create_account,
-					'guest_checkout'   => $guest_checkout,
-					'express_checkout' => $express_checkout,
-					'products_count'   => $order_items_count,
-					'coupon_used'      => $order_coupons_count,
-					'order_value'      => $order->get_total(),
-					'from_checkout'    => $checkout_page_used,
-					'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
-					'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
-				),
+				$data,
 				$product_id
 			);
 		}
