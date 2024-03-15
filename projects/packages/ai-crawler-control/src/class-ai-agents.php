@@ -26,7 +26,6 @@ class AI_Agents {
 			'Bytespider', // https://www.bytedance.com/
 			'CCBot', // https://commoncrawl.org/ccbot
 			'ClaudeBot', // https://claude.ai/
-			'ChatGPT-User', // https://platform.openai.com/docs/plugins/bot/chatgpt-user
 			'cohere-ai', // https://cohere.com/
 			'Google-Extended', // https://blog.google/technology/ai/an-update-on-web-publisher-controls/
 			'FacebookBot', // https://developers.facebook.com/docs/sharing/bot
