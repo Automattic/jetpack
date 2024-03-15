@@ -578,8 +578,8 @@ class Jetpack_Ai extends Product {
 	 *
 	 * Used only from the link on the product page, the filter will insert an AI Assistant block in the post content.
 	 *
-	 * @param string  $content The post content.
-	 * @param WP_Post $post The post object.
+	 * @param string   $content The post content.
+	 * @param \WP_Post $post The post object.
 	 * @return string
 	 */
 	public static function add_ai_block( $content, $post ) {
