@@ -1,14 +1,10 @@
 import { createContext, useState } from 'react';
 import { NoticeContextType, Notice } from './types';
 
-const defaultNotice = {
+const defaultNotice: Notice = {
 	message: '',
 	options: {
 		status: '',
-		actions: {
-			label: '',
-			onClick: () => {},
-		},
 	},
 };
 
