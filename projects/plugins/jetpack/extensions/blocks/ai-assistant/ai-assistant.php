@@ -132,6 +132,8 @@ add_action(
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
-		\Jetpack_Gutenberg::set_extension_available( 'jetpack-ai-featured-image-generator' );
+		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
+			\Jetpack_Gutenberg::set_extension_available( 'jetpack-ai-featured-image-generator' );
+		}
 	}
 );
