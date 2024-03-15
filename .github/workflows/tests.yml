@@ -320,7 +320,7 @@ jobs:
       - name: Check baselines
         run: |
           # Anything changed (with a side of printing the diff)
-          if git diff --exit-code .phan/baseline.php 'projects/*/*/.phan/baseline.php'; then
+          if git diff --exit-code --ignore-matching-lines='^    // ' .phan/baseline.php 'projects/*/*/.phan/baseline.php'; then
             exit 0
           fi
 
