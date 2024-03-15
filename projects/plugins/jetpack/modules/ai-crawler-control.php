@@ -4,7 +4,7 @@
  * Module Description: Indicate to AI crawlers that they should not index your site’s content.
  * Sort Order: 23
  * Recommendation Order: 12
- * First Introduced: $$next-version$$
+ * First Introduced: 13.3
  * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Traffic, Social
