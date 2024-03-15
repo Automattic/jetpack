@@ -315,10 +315,6 @@ function jetpack_boost_minify_setup() {
 	}
 	$setup_done = true;
 
-	// Hook up deactivation and uninstall cleanup paths.
-	add_action( 'jetpack_boost_deactivate', 'jetpack_boost_page_optimize_deactivate' );
-	add_action( 'jetpack_boost_uninstall', 'jetpack_boost_page_optimize_uninstall' );
-
 	// Schedule cache cleanup.
 	add_action( 'jetpack_boost_minify_cron_cache_cleanup', 'jetpack_boost_page_optimize_cache_cleanup' );
 	jetpack_boost_page_optimize_schedule_cache_cleanup();
