@@ -77,10 +77,13 @@ class Scheduled_Updates {
 		}
 
 		( new Connection\Client() )->wpcom_json_api_request_as_blog(
-			sprintf( '/sites/%d/hosting/scheduled-update/%s', \Jetpack_Options::get_option( 'id' ), $schedule_id ),
+			sprintf( '/sites/%d/hosting/scheduled-update', \Jetpack_Options::get_option( 'id' ) ),
 			'2',
 			array( 'method' => 'POST' ),
-			array( 'plugins' => $plugins_to_update ),
+			array(
+				'plugins'     => $plugins_to_update,
+				'schedule_id' => $schedule_id,
+			),
 			'wpcom'
 		);
 	}
