@@ -228,14 +228,14 @@ function wpcom_site_menu_should_show_notice() {
 	 * as they don't have access to the `Hosting` menu.
 	 */
 	if ( ! current_user_has_wpcom_account() ) {
-		return;
+		return false;
 	}
 
 	/**
 	 * Only administrators can access to the links in the `Hosting` menu.
 	 */
 	if ( ! current_user_can( 'manage_options' ) ) {
-		return;
+		return false;
 	}
 
 	if ( get_option( 'wpcom_site_menu_notice_dismissed' ) ) {
