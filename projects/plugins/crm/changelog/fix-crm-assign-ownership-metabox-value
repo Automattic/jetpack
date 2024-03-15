@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Users: Make sure assigned users are not removed from contacts upon edit.

@@ -37,6 +37,9 @@ Disallow: /
 User-agent: anthropic-ai
 Disallow: /
 
+User-agent: Bytespider
+Disallow: /
+
 User-agent: CCBot
 Disallow: /
 

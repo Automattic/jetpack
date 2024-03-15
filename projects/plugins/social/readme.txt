@@ -100,19 +100,31 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 4.0.0 - 2024-01-18
+### 4.1.0 - 2024-03-07
+#### Added
+- Added a template lock to our Social Note CPT
+- Added endpoint to update post meta
+- Added feature support for the new CPT to support activitypub.
+- Added fix for the post list screen for social notes.
+- Added toggle to Social admin page for the Social Notes
+- Implemented titless permalink fixes.
+- New setting in /sties/$site/settings that is not relevant to this plugin.
+- Register CPT for Social Notes.
+- Social: Added archive page support to notes
+
 #### Changed
-- Changed dismissed notices endpoint to be a core endpoint
-- Social: Changed the illustration on the admin page
-- Social: Refactored storing of feature options to use core functions
-- Split PublicizeForm component into smaller ones
-- Updated Jetpack Social activation landing page
-- Updated package dependencies. [#34559] [#34815]
-- Updated the design for Quick Share buttons and fixed its a11y
+- Changed the admin page 'Write a post' button to primary if the site has connections
+- General: indicate compatibility with the upcoming version of WordPress, 6.5.
+- Social Notes: Added the post list enhancements
+- Tailored editor for social notes
+- Updated package dependencies. [#35384, #35385, #35591, #35608, #35819, #36095, #36097, #36142, #36143]
+- Update package lock
+- Update to the most recent version of the @automattic/calypso-color-schemes package.
+- Use Blog ID in links to WPCOM instead of site slug.
 
 #### Fixed
-- Fixed a bug with the initial state script
-- Fixed Jetpack Social scheduled post messaging
+- Fixed no title from showing up in og:title
+- Fixed og:title having word-breaks.
 
 == Upgrade Notice ==
 
