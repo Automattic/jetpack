@@ -11,7 +11,6 @@ return [
     // # Issue statistics:
     // PhanRedefinedClassReference : 4 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 2 occurrences
-    // PhanRedefinedUsedTrait : 2 occurrences
     // PhanUnextractableAnnotationSuffix : 2 occurrences
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanRedefineClass : 1 occurrence
@@ -24,8 +23,7 @@ return [
         'Jetpack/Sniffs/Functions/I18nSniff.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanUnextractableAnnotationSuffix'],
         'Jetpack/Sniffs/Functions/SetCookieSniff.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool'],
         'hacks/PHPUnitTestTrait.php' => ['PhanRedefineClass', 'PhanRedefinedClassReference', 'UnusedPluginSuppression'],
-        'tests/php/tests/test-jetpack-compat.php' => ['PhanRedefinedUsedTrait', 'PhanTypeMismatchReturn'],
-        'tests/php/tests/test-jetpackstandard.php' => ['PhanRedefinedUsedTrait'],
+        'tests/php/tests/test-jetpack-compat.php' => ['PhanTypeMismatchReturn'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

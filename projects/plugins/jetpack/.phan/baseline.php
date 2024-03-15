@@ -22,8 +22,8 @@ return [
     // PhanUndeclaredMethod : 130+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 110+ occurrences
     // PhanDeprecatedProperty : 95+ occurrences
-    // PhanRedefinedClassReference : 95+ occurrences
     // PhanTypeArraySuspiciousNullable : 95+ occurrences
+    // PhanRedefinedClassReference : 90+ occurrences
     // PhanRedundantCondition : 75+ occurrences
     // PhanUndeclaredThis : 70+ occurrences
     // PhanPossiblyUndeclaredVariable : 65+ occurrences
@@ -80,7 +80,6 @@ return [
     // PhanUnextractableAnnotationElementName : 6 occurrences
     // PhanImpossibleCondition : 5 occurrences
     // PhanPluginUnreachableCode : 5 occurrences
-    // PhanRedefinedExtendedClass : 5 occurrences
     // PhanTypeConversionFromArray : 5 occurrences
     // PhanTypeMismatchDimAssignment : 5 occurrences
     // PhanTypeSuspiciousEcho : 5 occurrences
@@ -96,6 +95,7 @@ return [
     // PhanTypeInvalidRightOperandOfNumericOp : 4 occurrences
     // PhanDeprecatedFunctionInternal : 3 occurrences
     // PhanDeprecatedTrait : 3 occurrences
+    // PhanRedefinedExtendedClass : 3 occurrences
     // PhanTypeMismatchArgumentReal : 3 occurrences
     // PhanTypeObjectUnsetDeclaredProperty : 3 occurrences
     // PhanUndeclaredStaticMethod : 3 occurrences
@@ -739,8 +739,7 @@ return [
         'tests/php/sync/test_class.jetpack-sync-woocommerce.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
         'tests/php/sync/test_class.jetpack-sync-wp_super_cache.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspiciousNullable'],
         'tests/php/sync/test_class.jetpack_sync_backward_compatibility.php' => ['PhanParamTooMany'],
-        'tests/php/sync/test_interface.jetpack-sync-codec.php' => ['PhanRedefinedExtendedClass'],
-        'tests/php/sync/test_interface.jetpack-sync-replicastore.php' => ['PhanRedefinedClassReference', 'PhanRedefinedExtendedClass', 'PhanRedundantConditionInLoop', 'PhanTypeObjectUnsetDeclaredProperty', 'PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant'],
+        'tests/php/sync/test_interface.jetpack-sync-replicastore.php' => ['PhanRedundantConditionInLoop', 'PhanTypeObjectUnsetDeclaredProperty', 'PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant'],
         'tests/php/test_class.functions.opengraph.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/test_deprecation.php' => ['PhanDeprecatedFunction', 'PhanUndeclaredMethodInCallable'],
         'tests/php/trait-woo-tests.php' => ['PhanUndeclaredClassMethod'],
