@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Initializer;
 use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use WP_Post;
 
 /**
  * Class responsible for handling the Jetpack AI product
@@ -578,11 +579,11 @@ class Jetpack_Ai extends Product {
 	 *
 	 * Used only from the link on the product page, the filter will insert an AI Assistant block in the post content.
 	 *
-	 * @param string   $content The post content.
-	 * @param \WP_Post $post The post object.
+	 * @param string  $content The post content.
+	 * @param WP_Post $post The post object.
 	 * @return string
 	 */
-	public static function add_ai_block( $content, $post ) {
+	public static function add_ai_block( $content, WP_Post $post ) {
 		if ( isset( $_GET['use_ai_block'] ) && isset( $_GET['_wpnonce'] )
 			&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'ai-assistant-content-nonce' )
 			&& current_user_can( 'edit_post', $post->ID )
