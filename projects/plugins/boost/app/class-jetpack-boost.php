@@ -238,6 +238,9 @@ class Jetpack_Boost {
 		// When uninstalling, make sure all deactivation cleanups have run as well.
 		$this->deactivate();
 
+		// Give other parts of Jetpack Boost a chance to hook into uninstallation.
+		do_action( 'jetpack_boost_uninstall' );
+
 		// Delete all Jetpack Boost options.
 		//phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$option_names = $wpdb->get_col(
