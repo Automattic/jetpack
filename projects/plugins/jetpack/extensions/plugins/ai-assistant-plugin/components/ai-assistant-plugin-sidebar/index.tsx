@@ -28,7 +28,7 @@ const isUsagePanelAvailable =
 		?.available || false;
 // Determine if the AI Featured Image feature is available
 const isAIFeaturedImageAvailable =
-	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'jetpack-ai-featured-image-generator' ]
+	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'ai-featured-image-generator' ]
 		?.available || false;
 
 const Upgrade = ( {
