@@ -29,7 +29,6 @@ return [
     // PhanInfiniteLoop : 2 occurrences
     // PhanNoopNew : 2 occurrences
     // PhanParamSignatureRealMismatchHasNoParamType : 2 occurrences
-    // PhanPluginNeverReturnFunction : 2 occurrences
     // PhanTypeArraySuspiciousNullable : 2 occurrences
     // PhanTypeInvalidDimOffset : 2 occurrences
     // PhanUndeclaredMethodInCallable : 2 occurrences
@@ -72,7 +71,7 @@ return [
         'tests/php/tests/lib/ChangelogTest.php' => ['PhanRedefinedUsedTrait', 'PhanTypeMismatchArgument'],
         'tests/php/tests/lib/ParserTest.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredMethod'],
         'tests/php/tests/src/AddCommandTest.php' => ['PhanRedefinedUsedTrait'],
-        'tests/php/tests/src/ApplicationTest.php' => ['PhanPluginNeverReturnFunction', 'PhanRedefinedUsedTrait', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument'],
+        'tests/php/tests/src/ApplicationTest.php' => ['PhanRedefinedUsedTrait', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument'],
         'tests/php/tests/src/CommandLoaderTest.php' => ['PhanRedefinedUsedTrait'],
         'tests/php/tests/src/ConfigTest.php' => ['PhanPluginMixedKeyNoKey', 'PhanRedefinedUsedTrait', 'PhanUndeclaredClassReference'],
         'tests/php/tests/src/PluginTraitTest.php' => ['PhanUndeclaredMethod'],
