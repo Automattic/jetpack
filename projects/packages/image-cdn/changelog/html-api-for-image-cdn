@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Rely on WordPress HTML API to parse HTML instead of Regex Patterns.
