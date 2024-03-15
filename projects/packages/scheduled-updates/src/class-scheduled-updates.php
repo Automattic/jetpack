@@ -98,7 +98,6 @@ class Scheduled_Updates {
 
 		if ( empty( $events[ $schedule_id ] ) ) {
 			// Scheduled update not found.
-			echo "not found\n";
 			return false;
 		}
 

@@ -46,6 +46,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 */
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+		add_action( 'rest_api_init', array( $this, 'add_status_fields' ) );
 	}
 
 	/**
@@ -145,6 +146,40 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 					'permission_callback' => array( $this, 'delete_item_permissions_check' ),
 				),
 				'schema' => array( $this, 'get_public_item_schema' ),
+			)
+		);
+	}
+
+	/**
+	 * Add status fields to the jetpack_scheduled_update object.
+	 */
+	public function add_status_fields() {
+		$object_type = $this->get_object_type();
+
+		register_rest_field(
+			$object_type,
+			'last_run_timestamp',
+			array(
+				'get_callback'    => array( $this, 'add_last_run_field' ),
+				'update_callback' => null,
+				'schema'          => array(
+					'description' => 'Unix timestamp (UTC) for when the last run occurred.',
+					'type'        => 'integer',
+				),
+			)
+		);
+
+		register_rest_field(
+			$object_type,
+			'last_run_status',
+			array(
+				'get_callback'    => array( $this, 'add_last_run_field' ),
+				'update_callback' => null,
+				'schema'          => array(
+					'description' => 'Status of last run.',
+					'type'        => 'string',
+					'enum'        => array( 'success', 'failure-and-rollback', 'failure-and-rollback-fail' ),
+				),
 			)
 		);
 	}
@@ -340,10 +375,26 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			$request['last_run_status']
 		);
 
-		// Cache the option to avoid multiple calls to get_option.
-		$this->scheduled_update_statuses = $option;
-
 		return rest_ensure_response( $option[ $request['schedule_id'] ] );
+	}
+
+	/**
+	 * Get the last run value of a schedule.
+	 *
+	 * @param object          $item        Prepared response object.
+	 * @param string          $field_name  Field name.
+	 * @param WP_REST_Request $request     Full details about the request.
+	 * @param string          $object_type Object type.
+	 * @return object|null
+	 */
+	public function add_last_run_field( $item, $field_name, $request, $object_type ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$option = get_option( 'jetpack_scheduled_update_statuses', array() );
+
+		if ( ! empty( $option[ $item['schedule_id'] ] ) ) {
+			return $option[ $item['schedule_id'] ][ $field_name ];
+		}
+
+		return null;
 	}
 
 	/**
@@ -413,21 +464,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return WP_REST_Response Response object on success.
 	 */
 	public function prepare_item_for_response( $item, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Get all statuses from the option.
-		if ( ! $this->scheduled_update_statuses ) {
-			$this->scheduled_update_statuses = get_option( 'jetpack_scheduled_update_statuses', array() );
-		}
-
-		if ( ! empty( $this->scheduled_update_statuses[ $item->schedule_id ] ) ) {
-			$item->last_run_timestamp = $this->scheduled_update_statuses[ $item->schedule_id ]['last_run_timestamp'];
-			$item->last_run_status    = $this->scheduled_update_statuses[ $item->schedule_id ]['last_run_status'];
-		} else {
-			$item->last_run_timestamp = null;
-			$item->last_run_status    = null;
-		}
+		$item = $this->add_additional_fields_to_object( (array) $item, $request );
 
 		// Remove schedule ID, not needed in the response.
-		unset( $item->schedule_id );
+		unset( $item['schedule_id'] );
 
 		return rest_ensure_response( $item );
 	}

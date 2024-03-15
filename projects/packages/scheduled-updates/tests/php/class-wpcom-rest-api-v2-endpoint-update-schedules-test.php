@@ -116,7 +116,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertEquals(
 			array(
-				Scheduled_Updates::generate_schedule_id( array( 'hello-dolly/hello-dolly.php' ) ) => (object) array(
+				Scheduled_Updates::generate_schedule_id( array( 'hello-dolly/hello-dolly.php' ) ) => array(
 					'hook'               => 'jetpack_scheduled_update',
 					'args'               => array( 'hello-dolly/hello-dolly.php' ),
 					'timestamp'          => strtotime( 'next Tuesday 9:00' ),
@@ -125,7 +125,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 					'last_run_timestamp' => null,
 					'last_run_status'    => null,
 				),
-				Scheduled_Updates::generate_schedule_id( $plugins ) => (object) array(
+				Scheduled_Updates::generate_schedule_id( $plugins ) => array(
 					'hook'               => 'jetpack_scheduled_update',
 					'args'               => $plugins,
 					'timestamp'          => strtotime( 'next Monday 8:00' ),
@@ -324,7 +324,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertEquals(
 			array(
-				Scheduled_Updates::generate_schedule_id( $plugins ) => (object) array(
+				Scheduled_Updates::generate_schedule_id( $plugins ) => array(
 					'hook'               => 'jetpack_scheduled_update',
 					'args'               => $plugins,
 					'timestamp'          => strtotime( 'next Wednesday 10:00' ),
@@ -384,8 +384,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		$this->assertIsArray( $events );
 		$this->arrayHasKey( $id_1, $events );
-		$this->assertSame( 1, $events[ $id_1 ]->last_run_timestamp );
-		$this->assertSame( 'success', $events[ $id_1 ]->last_run_status );
+		$this->assertSame( 1, $events[ $id_1 ]['last_run_timestamp'] );
+		$this->assertSame( 'success', $events[ $id_1 ]['last_run_status'] );
 
 		$plugins = array(
 			'hello-dolly/hello.php',
@@ -411,10 +411,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		$events = $result->get_data();
 
-		$this->assertSame( 1, $events[ $id_1 ]->last_run_timestamp );
-		$this->assertSame( 2, $events[ $id_2 ]->last_run_timestamp );
-		$this->assertSame( 'success', $events[ $id_1 ]->last_run_status );
-		$this->assertSame( 'failure-and-rollback', $events[ $id_2 ]->last_run_status );
+		$this->assertSame( 1, $events[ $id_1 ]['last_run_timestamp'] );
+		$this->assertSame( 2, $events[ $id_2 ]['last_run_timestamp'] );
+		$this->assertSame( 'success', $events[ $id_1 ]['last_run_status'] );
+		$this->assertSame( 'failure-and-rollback', $events[ $id_2 ]['last_run_status'] );
 	}
 
 	/**
@@ -488,7 +488,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertEquals(
-			(object) array(
+			array(
 				'hook'               => 'jetpack_scheduled_update',
 				'args'               => $plugins,
 				'timestamp'          => strtotime( 'next Monday 8:00' ),
