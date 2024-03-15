@@ -5,6 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=7.0",
+		"automattic/jetpack-ai-crawler-control": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/scheduled-updates": "@dev"
 	},

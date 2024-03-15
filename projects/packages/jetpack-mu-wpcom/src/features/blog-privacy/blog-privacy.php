@@ -15,6 +15,8 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Blog_Privacy;
 
+use Automattic\Jetpack\AI_Agents;
+
 /**
  * Filters the robots.txt contents based on the value of the wpcom_data_sharing_opt_out option.
  *
@@ -34,20 +36,7 @@ function robots_txt( string $output, $public ): string {
 	// Always add Disallow blocks for blog_public=0 even on WP.com where it may be redundant.
 	// An option oddly named because of history.
 	if ( 0 === $public || get_option( 'wpcom_data_sharing_opt_out' ) ) {
-		$ai_bots = array(
-			'Amazonbot',
-			'anthropic-ai',
-			'Bytespider',
-			'CCBot',
-			'ClaudeBot',
-			'FacebookBot',
-			'Google-Extended',
-			'GPTBot',
-			'omgili',
-			'omgilibot',
-			'SentiBot',
-			'sentibot',
-		);
+		$ai_bots = AI_Agents::agent_list();
 
 		foreach ( $ai_bots as $ai_bot ) {
 			$output .= "\nUser-agent: {$ai_bot}\n";
