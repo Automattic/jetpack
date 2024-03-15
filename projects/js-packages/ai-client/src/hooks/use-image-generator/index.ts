@@ -10,7 +10,11 @@ import requestJwt from '../../jwt/index.js';
 const debug = debugFactory( 'ai-client:use-image-generator' );
 
 const useImageGenerator = () => {
-	const generateImage = async function (): Promise< { data: Array< { url: string } > } > {
+	const generateImage = async function ( {
+		feature,
+	}: {
+		feature: string;
+	} ): Promise< { data: Array< { url: string } > } > {
 		let token = '';
 
 		try {
@@ -30,8 +34,8 @@ const useImageGenerator = () => {
 
 			const body = {
 				prompt: imageGenerationPrompt,
-				feature: 'jetpack-ai-image-generator',
 				response_format: 'url',
+				feature,
 			};
 
 			const headers = {
