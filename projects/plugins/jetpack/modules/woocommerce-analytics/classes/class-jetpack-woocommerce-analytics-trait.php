@@ -617,6 +617,7 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 		$data = array();
 
 		if ( class_exists( 'Automattic\WooCommerce\Blocks\Package' ) && class_exists( 'Automattic\WooCommerce\Blocks\Domain\Services\CheckoutFields' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassReference
 			$additional_fields_controller = Automattic\WooCommerce\Blocks\Package::container()->get( Automattic\WooCommerce\Blocks\Domain\Services\CheckoutFields::class );
 			$additional_fields            = $additional_fields_controller->get_additional_fields();
 			$fields_count                 = count( $additional_fields );
