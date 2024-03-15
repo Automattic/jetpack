@@ -46,6 +46,9 @@ Disallow: /
 User-agent: ClaudeBot
 Disallow: /
 
+User-agent: cohere-ai
+Disallow: /
+
 User-agent: FacebookBot
 Disallow: /
 

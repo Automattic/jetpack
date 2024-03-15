@@ -27,8 +27,8 @@ class AI_Agents {
 			'CCBot', // https://commoncrawl.org/ccbot
 			'ClaudeBot', // https://claude.ai/
 			'cohere-ai', // https://cohere.com/
-			'Google-Extended', // https://blog.google/technology/ai/an-update-on-web-publisher-controls/
 			'FacebookBot', // https://developers.facebook.com/docs/sharing/bot
+			'Google-Extended', // https://blog.google/technology/ai/an-update-on-web-publisher-controls/
 			'GPTBot', // https://platform.openai.com/docs/gptbot
 			'omgili', // https://webz.io/blog/web-data/what-is-the-omgili-bot-and-why-is-it-crawling-your-website/
 			'omgilibot', // https://webz.io/blog/web-data/what-is-the-omgili-bot-and-why-is-it-crawling-your-website/
