@@ -28,7 +28,6 @@ return [
     // PhanUndeclaredClassProperty : 3 occurrences
     // PhanUndeclaredTypeReturnType : 3 occurrences
     // PhanUnextractableAnnotationElementName : 3 occurrences
-    // PhanPluginNeverReturnMethod : 2 occurrences
     // PhanPluginRedundantAssignment : 2 occurrences
     // PhanRedefinedUsedTrait : 2 occurrences
     // PhanStaticCallToNonStatic : 2 occurrences
@@ -51,7 +50,7 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'cli.php' => ['PhanUndeclaredFunctionInCallable'],
-        'src/brute-force-protection/class-blocked-login-page.php' => ['PhanNonClassMethodCall', 'PhanPluginNeverReturnMethod', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault'],
+        'src/brute-force-protection/class-blocked-login-page.php' => ['PhanNonClassMethodCall', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault'],
         'src/brute-force-protection/class-math-fallback.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredConstant', 'PhanUndeclaredTypeThrowsType'],
         'src/brute-force-protection/class-shared-functions.php' => ['PhanTypeComparisonToArray', 'PhanTypeMismatchReturnProbablyReal', 'PhanUnextractableAnnotationSuffix'],
         'src/class-brute-force-protection.php' => ['PhanNoopNew', 'PhanStaticCallToNonStatic', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanUndeclaredConstant', 'PhanUnextractableAnnotationSuffix'],
@@ -63,7 +62,7 @@ return [
         'src/class-waf-request.php' => ['PhanGenericConstructorTypes', 'PhanUnextractableAnnotationSuffix'],
         'src/class-waf-rules-manager.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredMethod'],
         'src/class-waf-runner.php' => ['PhanUndeclaredMethod'],
-        'src/class-waf-runtime.php' => ['PhanGenericConstructorTypes', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginNeverReturnMethod', 'PhanTypeArraySuspiciousNullable', 'PhanUndeclaredConstant', 'PhanUnextractableAnnotationElementName', 'PhanUnextractableAnnotationSuffix'],
+        'src/class-waf-runtime.php' => ['PhanGenericConstructorTypes', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable', 'PhanUndeclaredConstant', 'PhanUnextractableAnnotationElementName', 'PhanUnextractableAnnotationSuffix'],
         'src/class-waf-standalone-bootstrap.php' => ['PhanUndeclaredMethod'],
         'src/class-waf-transforms.php' => ['PhanPluginInvalidPregRegex', 'PhanTypeInvalidDimOffset'],
         'src/functions.php' => ['PhanUnextractableAnnotationSuffix'],
