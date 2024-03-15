@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2024-03-15
+### Added
+- Add scheduled updates option with last statuses. [#36277]
+
+### Changed
+- Scheduled Updates: limit plugins up to ten per schedule [#36375]
+
 ## [0.3.4] - 2024-03-12
 ### Fixed
 - Fixed a bug where only plugin slugs were send to the update handler instead of full update objects. [#36355]
@@ -63,6 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Generate initial package for Scheduled Updates [#35796]
 
+[0.4.0]: https://github.com/Automattic/scheduled-updates/compare/v0.3.4...v0.4.0
 [0.3.4]: https://github.com/Automattic/scheduled-updates/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/Automattic/scheduled-updates/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/Automattic/scheduled-updates/compare/v0.3.1...v0.3.2
