@@ -1,8 +1,8 @@
 <?php
 /**
- * Create a new request for site urls.
+ * Create a new request for source providers.
  *
- * Handler for GET '/list-site-urls'.
+ * Handler for GET '/list-source-providers'.
  */
 
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
