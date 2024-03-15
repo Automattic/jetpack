@@ -14,6 +14,8 @@ function jetpack_boost_page_optimize_types() {
 
 /**
  * Handle serving a minified / concatenated file from the virtual _jb_static dir.
+ *
+ * @return never
  */
 function jetpack_boost_page_optimize_service_request() {
 	$use_wp = defined( 'JETPACK_BOOST_CONCAT_USE_WP' ) && JETPACK_BOOST_CONCAT_USE_WP;
