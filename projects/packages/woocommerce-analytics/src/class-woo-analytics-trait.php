@@ -8,8 +8,6 @@
 namespace Automattic\Woocommerce_Analytics;
 
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
-use Automattic\WooCommerce\Blocks\Domain\Services\CheckoutFields;
-use Automattic\WooCommerce\Blocks\Package;
 use WC_Order_Item;
 use WC_Order_Item_Product;
 use WC_Payment_Gateway;
@@ -583,7 +581,7 @@ trait Woo_Analytics_Trait {
 	public function get_additional_fields_data() {
 		$data = array();
 		if ( class_exists( 'Automattic\WooCommerce\Blocks\Package' ) && class_exists( 'Automattic\WooCommerce\Blocks\Domain\Services\CheckoutFields' ) ) {
-			$additional_fields_controller = Package::container()->get( CheckoutFields::class );
+			$additional_fields_controller = \Automattic\WooCommerce\Blocks\Package::container()->get( \Automattic\WooCommerce\Blocks\Domain\Services\CheckoutFields::class );
 			$additional_fields            = $additional_fields_controller->get_additional_fields();
 			$fields_count                 = count( $additional_fields );
 			$fields_data                  = array_map(
