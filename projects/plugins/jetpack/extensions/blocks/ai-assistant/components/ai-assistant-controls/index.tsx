@@ -84,7 +84,7 @@ const quickActionsList = {
 	],
 	'core/list': [
 		{
-			name: 'Turn list into a table',
+			name: __( 'Turn list into a table', 'jetpack' ),
 			key: 'turn-into-table',
 			aiSuggestion: PROMPT_TYPE_USER_PROMPT,
 			icon: blockTable,
@@ -93,7 +93,7 @@ const quickActionsList = {
 			},
 		},
 		{
-			name: 'Write a post from this list',
+			name: __( 'Write a post from this list', 'jetpack' ),
 			key: 'write-post-from-list',
 			aiSuggestion: PROMPT_TYPE_USER_PROMPT,
 			icon: post,
