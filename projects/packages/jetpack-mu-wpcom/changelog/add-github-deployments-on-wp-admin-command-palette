@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Added information regarding if github deployments is active to the wp-admin command palette config.
