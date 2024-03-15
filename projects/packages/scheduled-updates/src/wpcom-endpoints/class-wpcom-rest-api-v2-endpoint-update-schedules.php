@@ -381,7 +381,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	/**
 	 * Get the last run value of a schedule.
 	 *
-	 * @param object          $item        Prepared response object.
+	 * @param array           $item        Prepared response object.
 	 * @param string          $field_name  Field name.
 	 * @param WP_REST_Request $request     Full details about the request.
 	 * @param string          $object_type Object type.

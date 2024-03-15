@@ -383,7 +383,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$events = $result->get_data();
 
 		$this->assertIsArray( $events );
-		$this->arrayHasKey( $id_1, $events );
+		$this->assertArrayHasKey( $id_1, $events );
 		$this->assertSame( 1, $events[ $id_1 ]['last_run_timestamp'] );
 		$this->assertSame( 'success', $events[ $id_1 ]['last_run_status'] );
 
@@ -411,7 +411,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		$events = $result->get_data();
 
+		$this->assertArrayHasKey( $id_1, $events );
 		$this->assertSame( 1, $events[ $id_1 ]['last_run_timestamp'] );
+		$this->assertArrayHasKey( $id_2, $events );
 		$this->assertSame( 2, $events[ $id_2 ]['last_run_timestamp'] );
 		$this->assertSame( 'success', $events[ $id_1 ]['last_run_status'] );
 		$this->assertSame( 'failure-and-rollback', $events[ $id_2 ]['last_run_status'] );

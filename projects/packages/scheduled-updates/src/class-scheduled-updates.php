@@ -91,9 +91,9 @@ class Scheduled_Updates {
 	/**
 	 * Updates last status of a scheduled update.
 	 *
-	 * @param string $schedule_id Request ID.
-	 * @param int    $timestamp   Timestamp of the last run.
-	 * @param string $status      Status of the last run.
+	 * @param string      $schedule_id Request ID.
+	 * @param int|null    $timestamp   Timestamp of the last run.
+	 * @param string|null $status      Status of the last run.
 	 * @return false|array Updated statuses or false if not found.
 	 */
 	public static function set_scheduled_update_status( $schedule_id, $timestamp, $status ) {
