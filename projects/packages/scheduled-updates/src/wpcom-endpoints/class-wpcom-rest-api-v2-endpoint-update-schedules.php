@@ -35,13 +35,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	public $rest_base = 'update-schedules';
 
 	/**
-	 * Statuses saved in the 'jetpack_scheduled_update_statuses' option.
-	 *
-	 * @var array|null
-	 */
-	private $scheduled_update_statuses = null;
-
-	/**
 	 * WPCOM_REST_API_V2_Endpoint_Atomic_Hosting_Update_Schedule constructor.
 	 */
 	public function __construct() {
