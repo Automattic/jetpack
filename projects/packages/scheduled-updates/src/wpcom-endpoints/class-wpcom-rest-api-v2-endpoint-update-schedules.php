@@ -7,9 +7,6 @@
  * @package automattic/scheduled-updates
  */
 
-// Load dependencies.
-require_once dirname( __DIR__ ) . '/class-scheduled-updates.php';
-
 use Automattic\Jetpack\Scheduled_Updates;
 
 /**
