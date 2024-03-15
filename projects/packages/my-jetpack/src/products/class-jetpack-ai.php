@@ -282,10 +282,14 @@ class Jetpack_Ai extends Product {
 	/**
 	 * Get the product pricing details by tier
 	 *
-	 * @param int $tier The usage tier.
+	 * @param int|null $tier The usage tier.
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui_by_usage_tier( $tier ) {
+		if ( $tier === null ) {
+			return array();
+		}
+
 		$product = Wpcom_Products::get_product( static::get_wpcom_product_slug() );
 
 		if ( empty( $product ) ) {
