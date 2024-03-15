@@ -62,22 +62,6 @@ function jetpack_boost_page_optimize_deactivate() {
 }
 
 /**
- * Plugin uninstall hook - cleanup options.
- */
-function jetpack_boost_page_optimize_uninstall() {
-	// Run cleanup on uninstall. You can uninstall an active plugin w/o deactivation.
-	jetpack_boost_page_optimize_deactivate();
-
-	// JS
-	delete_option( 'page_optimize-js' );
-	delete_option( 'page_optimize-load-mode' );
-	delete_option( 'page_optimize-js-exclude' );
-	// CSS
-	delete_option( 'page_optimize-css' );
-	delete_option( 'page_optimize-css-exclude' );
-}
-
-/**
  * Convert enqueued home-relative URLs to absolute ones.
  *
  * Enqueued script URLs which start with / are relative to WordPress' home URL.

@@ -243,10 +243,6 @@ class Jetpack_Boost {
 		// When uninstalling, make sure all deactivation cleanups have run as well.
 		$this->deactivate();
 
-		// Tell Minify JS/CSS to clean up.
-		require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-helpers.php';
-		jetpack_boost_page_optimize_uninstall();
-
 		// Delete all Jetpack Boost options.
 		//phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$option_names = $wpdb->get_col(
