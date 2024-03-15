@@ -71,6 +71,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		wp_delete_user( $this->editor_id );
 
 		wp_clear_scheduled_hook( 'jetpack_scheduled_update' );
+		delete_option( 'jetpack_scheduled_update_statuses' );
 	}
 
 	/**
@@ -295,9 +296,52 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	}
 
 	/**
-	 * Removes plugins from the autoupdate list when creating a schedule.
+	 * Can't have more than two schedules.
 	 *
-	 * @covers ::create_item
+	 * @covers ::create
+	 */
+	public function test_empty_last_run() {
+		$plugins = array( 'gutenberg/gutenberg.php' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$request->set_body_params(
+			array(
+				'plugins'  => $plugins,
+				'schedule' => array(
+					'timestamp' => strtotime( 'next Wednesday 10:00' ),
+					'interval'  => 'daily',
+				),
+			)
+		);
+
+		wp_set_current_user( $this->admin_id );
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules' );
+		$result  = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertEquals(
+			array(
+				Scheduled_Updates::generate_schedule_id( $plugins ) => (object) array(
+					'hook'               => 'jetpack_scheduled_update',
+					'args'               => $plugins,
+					'timestamp'          => strtotime( 'next Wednesday 10:00' ),
+					'schedule'           => 'daily',
+					'interval'           => DAY_IN_SECONDS,
+					'last_run_timestamp' => null,
+					'last_run_status'    => null,
+				),
+			),
+			$result->get_data()
+		);
+	}
+
+	/**
+	 * Update event status.
+	 *
+	 * @covers ::update_status
 	 */
 	public function test_update_event_status() {
 		$plugins = array(
@@ -331,7 +375,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 1, $result->get_data()['last_run_timestamp'] );
 		$this->assertSame( 'success', $result->get_data()['last_run_status'] );
 
-		$events = Scheduled_Updates::get_scheduled_events_with_statuses();
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules' );
+		$result  = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+
+		$events = $result->get_data();
 
 		$this->assertIsArray( $events );
 		$this->arrayHasKey( $id_1, $events );
@@ -352,9 +401,16 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules/' . $id_2 . '/status' );
 		$request->set_body_params( $body );
 		$result = rest_do_request( $request );
-		$events = Scheduled_Updates::get_scheduled_events_with_statuses();
 
 		$this->assertSame( 200, $result->get_status() );
+
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules' );
+		$result  = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+
+		$events = $result->get_data();
+
 		$this->assertSame( 1, $events[ $id_1 ]->last_run_timestamp );
 		$this->assertSame( 2, $events[ $id_2 ]->last_run_timestamp );
 		$this->assertSame( 'success', $events[ $id_1 ]->last_run_status );

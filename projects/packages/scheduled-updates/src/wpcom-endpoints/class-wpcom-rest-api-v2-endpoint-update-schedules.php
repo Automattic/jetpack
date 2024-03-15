@@ -35,6 +35,13 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	public $rest_base = 'update-schedules';
 
 	/**
+	 * Statuses saved in the 'jetpack_scheduled_update_statuses' option.
+	 *
+	 * @var array|null
+	 */
+	private $scheduled_update_statuses = null;
+
+	/**
 	 * WPCOM_REST_API_V2_Endpoint_Atomic_Hosting_Update_Schedule constructor.
 	 */
 	public function __construct() {
@@ -160,10 +167,21 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * Returns a list of update schedules.
 	 *
 	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
-	public function get_items( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return rest_ensure_response( Scheduled_Updates::get_scheduled_events_with_statuses() );
+	public function get_items( $request ) {
+		$events   = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+		$response = array();
+
+		foreach ( array_keys( $events ) as $schedule_id ) {
+			// Add the schedule_id to the object.
+			$events[ $schedule_id ]->schedule_id = $schedule_id;
+
+			// Run through the prepare_item_for_response method to add the last run status.
+			$response[ $schedule_id ] = $this->prepare_item_for_response( $events[ $schedule_id ], $request )->data;
+		}
+
+		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -243,13 +261,16 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error The scheduled event or a WP_Error if the schedule could not be found.
 	 */
 	public function get_item( $request ) {
-		$event = Scheduled_Updates::get_scheduled_event_with_status( $request['schedule_id'] );
+		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
 
-		if ( ! $event ) {
+		if ( empty( $events[ $request['schedule_id'] ] ) ) {
 			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
 		}
 
-		return rest_ensure_response( $event );
+		// Add the schedule_id to the object.
+		$events[ $request['schedule_id'] ]->schedule_id = $request['schedule_id'];
+
+		return $this->prepare_item_for_response( $events[ $request['schedule_id'] ], $request );
 	}
 
 	/**
@@ -307,17 +328,22 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error The updated event or a WP_Error if the schedule could not be found.
 	 */
 	public function update_status( $request ) {
-		$updated_schedule = Scheduled_Updates::set_scheduled_update_status(
+		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+
+		if ( empty( $events[ $request['schedule_id'] ] ) ) {
+			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
+		}
+
+		$option = Scheduled_Updates::set_scheduled_update_status(
 			$request['schedule_id'],
 			$request['last_run_timestamp'],
 			$request['last_run_status']
 		);
 
-		if ( ! $updated_schedule ) {
-			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
-		}
+		// Cache the option to avoid multiple calls to get_option.
+		$this->scheduled_update_statuses = $option;
 
-		return rest_ensure_response( $updated_schedule );
+		return rest_ensure_response( $option[ $request['schedule_id'] ] );
 	}
 
 	/**
@@ -377,6 +403,33 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		}
 
 		return rest_ensure_response( true );
+	}
+
+	/**
+	 * Prepares the scheduled update for the REST response.
+	 *
+	 * @param mixed           $item    WordPress representation of the item.
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response object on success.
+	 */
+	public function prepare_item_for_response( $item, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Get all statuses from the option.
+		if ( ! $this->scheduled_update_statuses ) {
+			$this->scheduled_update_statuses = get_option( 'jetpack_scheduled_update_statuses', array() );
+		}
+
+		if ( ! empty( $this->scheduled_update_statuses[ $item->schedule_id ] ) ) {
+			$item->last_run_timestamp = $this->scheduled_update_statuses[ $item->schedule_id ]['last_run_timestamp'];
+			$item->last_run_status    = $this->scheduled_update_statuses[ $item->schedule_id ]['last_run_status'];
+		} else {
+			$item->last_run_timestamp = null;
+			$item->last_run_status    = null;
+		}
+
+		// Remove schedule ID, not needed in the response.
+		unset( $item->schedule_id );
+
+		return rest_ensure_response( $item );
 	}
 
 	/**

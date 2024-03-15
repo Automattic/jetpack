@@ -164,59 +164,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test valid statuses.
-	 *
-	 * @covers ::get_scheduled_events_with_statuses
-	 */
-	public function test_get_scheduled_events_with_statuses() {
-		$plugins = array( 'gutenberg/gutenberg.php' );
-		$id      = Scheduled_Updates::generate_schedule_id( $plugins );
-		$events  = $this->schedule_event( strtotime( 'next Monday 8:00' ), $plugins );
-
-		$this->assertIsArray( $events );
-		$this->arrayHasKey( $id, $events );
-		$this->assertNull( $events[ $id ]->last_run_timestamp );
-		$this->assertNull( $events[ $id ]->last_run_status );
-	}
-
-	/**
-	 * Test set scheduled update status.
-	 *
-	 * @covers ::set_scheduled_update_status
-	 */
-	public function test_set_scheduled_update_status() {
-		$this->assertFalse( Scheduled_Updates::set_scheduled_update_status( 'test', 0, '' ) );
-
-		$plugins = array( 'gutenberg/gutenberg.php' );
-		$id_1    = Scheduled_Updates::generate_schedule_id( $plugins );
-
-		$this->schedule_event( strtotime( 'next Monday 8:00' ), $plugins );
-
-		$updated_schedule = Scheduled_Updates::set_scheduled_update_status( $id_1, 1, 'success' );
-
-		$this->assertIsArray( $updated_schedule );
-		$this->assertSame( 1, $updated_schedule['last_run_timestamp'] );
-		$this->assertSame( 'success', $updated_schedule['last_run_status'] );
-
-		$plugins = array( 'hello-dolly/hello.php' );
-		$id_2    = Scheduled_Updates::generate_schedule_id( $plugins );
-
-		$this->schedule_event( strtotime( 'next Monday 9:00' ), $plugins );
-		$updated_schedule = Scheduled_Updates::set_scheduled_update_status( $id_2, 2, 'failure-and-rollback' );
-
-		$this->assertIsArray( $updated_schedule );
-		$this->assertSame( 2, $updated_schedule['last_run_timestamp'] );
-		$this->assertSame( 'failure-and-rollback', $updated_schedule['last_run_status'] );
-
-		$events = Scheduled_Updates::get_scheduled_events_with_statuses();
-
-		$this->arrayHasKey( $id_1, $events );
-		$this->arrayHasKey( $id_2, $events );
-		$this->assertSame( 1, $events[ $id_1 ]->last_run_timestamp );
-		$this->assertSame( 2, $events[ $id_2 ]->last_run_timestamp );
-	}
-
-	/**
 	 * Populates the plugin file with a plugin header so get_plugins() can find it.
 	 *
 	 * @param string $plugin_file Path to plugin file.
@@ -235,19 +182,5 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 				* Text Domain: $plugin_name
 				*/"
 		);
-	}
-
-	/**
-	 * Schedule an event.
-	 *
-	 * @param int    $timestamp  The timestamp to schedule the event.
-	 * @param array  $plugins    The plugins to schedule the event for.
-	 * @param string $recurrence The recurrence of the event.
-	 * @return array The scheduled events.
-	 */
-	private function schedule_event( $timestamp, $plugins, $recurrence = 'weekly' ) {
-		wp_schedule_event( $timestamp, $recurrence, 'jetpack_scheduled_update', $plugins );
-
-		return Scheduled_Updates::get_scheduled_events_with_statuses();
 	}
 }

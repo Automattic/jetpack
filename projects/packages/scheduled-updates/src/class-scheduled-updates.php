@@ -91,13 +91,14 @@ class Scheduled_Updates {
 	 * @param string $schedule_id Request ID.
 	 * @param int    $timestamp   Timestamp of the last run.
 	 * @param string $status      Status of the last run.
-	 * @return bool|mixed Updated schedule or false if not found.
+	 * @return false|array Updated statuses or false if not found.
 	 */
 	public static function set_scheduled_update_status( $schedule_id, $timestamp, $status ) {
 		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
 
 		if ( empty( $events[ $schedule_id ] ) ) {
 			// Scheduled update not found.
+			echo "not found\n";
 			return false;
 		}
 
@@ -121,51 +122,7 @@ class Scheduled_Updates {
 
 		update_option( 'jetpack_scheduled_update_statuses', $option );
 
-		return $option[ $schedule_id ];
-	}
-
-	/**
-	 * Retrieves a list of schedule events with their last statuses.
-	 *
-	 * @return array The scheduled events with their last statuses.
-	 */
-	public static function get_scheduled_events_with_statuses() {
-		$events   = wp_get_scheduled_events( 'jetpack_scheduled_update' );
-		$statuses = get_option( 'jetpack_scheduled_update_statuses', array() );
-		$output   = array();
-
-		foreach ( array_keys( $events ) as $schedule_id ) {
-			$output[ $schedule_id ] = self::get_scheduled_event_with_status( $schedule_id, $events, $statuses );
-		}
-
-		return $output;
-	}
-
-	/**
-	 * Retrieves a schedule event with its last status.
-	 *
-	 * @param string $schedule_id Schedule ID.
-	 * @param array  $events      Optional. List of scheduled events.
-	 * @param array  $statuses    Optional. List of statuses.
-	 * @return object The scheduled event with its last status.
-	 */
-	public static function get_scheduled_event_with_status( $schedule_id, $events = null, $statuses = null ) {
-		$events   = $events ?? wp_get_scheduled_events( 'jetpack_scheduled_update' );
-		$statuses = $statuses ?? get_option( 'jetpack_scheduled_update_statuses', array() );
-
-		if ( empty( $events[ $schedule_id ] ) ) {
-			return false;
-		}
-
-		if ( is_array( $statuses ) && ! empty( $statuses[ $schedule_id ] ) ) {
-			$events[ $schedule_id ]->last_run_timestamp = $statuses[ $schedule_id ]['last_run_timestamp'];
-			$events[ $schedule_id ]->last_run_status    = $statuses[ $schedule_id ]['last_run_status'];
-		} else {
-			$events[ $schedule_id ]->last_run_timestamp = null;
-			$events[ $schedule_id ]->last_run_status    = null;
-		}
-
-		return $events[ $schedule_id ];
+		return $option;
 	}
 
 	/**
