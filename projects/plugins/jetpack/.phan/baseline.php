@@ -10,37 +10,38 @@
 return [
     // # Issue statistics:
     // PhanUndeclaredClassMethod : 670+ occurrences
-    // PhanTypeMismatchArgument : 640+ occurrences
+    // PhanTypeMismatchArgument : 630+ occurrences
     // PhanUndeclaredConstant : 410+ occurrences
-    // PhanDeprecatedFunction : 390+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 360+ occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 300+ occurrences
-    // PhanUndeclaredFunction : 300+ occurrences
+    // PhanDeprecatedFunction : 310+ occurrences
+    // PhanPluginDuplicateConditionalNullCoalescing : 290+ occurrences
+    // PhanUndeclaredFunction : 290+ occurrences
     // PhanNoopNew : 210+ occurrences
-    // PhanTypeMismatchReturn : 190+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 190+ occurrences
-    // PhanDeprecatedProperty : 130+ occurrences
+    // PhanTypeMismatchReturn : 180+ occurrences
+    // PhanUndeclaredMethod : 130+ occurrences
+    // PhanDeprecatedProperty : 120+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 110+ occurrences
-    // PhanTypeArraySuspiciousNullable : 100+ occurrences
-    // PhanUndeclaredMethod : 100+ occurrences
     // PhanRedefinedClassReference : 95+ occurrences
+    // PhanTypeArraySuspiciousNullable : 95+ occurrences
     // PhanRedundantCondition : 75+ occurrences
     // PhanUndeclaredThis : 70+ occurrences
     // PhanPossiblyUndeclaredVariable : 65+ occurrences
-    // PhanTypeMismatchArgumentInternal : 55+ occurrences
     // PhanTypeMismatchArgumentNullable : 55+ occurrences
+    // PhanUndeclaredClassProperty : 55+ occurrences
     // PhanUndeclaredGlobalVariable : 55+ occurrences
+    // PhanUndeclaredTypeParameter : 55+ occurrences
     // PhanParamTooMany : 50+ occurrences
     // PhanTypeExpectedObjectPropAccess : 50+ occurrences
-    // PhanUndeclaredClassProperty : 50+ occurrences
+    // PhanTypeMismatchArgumentInternal : 50+ occurrences
     // PhanUndeclaredProperty : 50+ occurrences
-    // PhanUndeclaredTypeParameter : 50+ occurrences
     // PhanPluginDuplicateAdjacentStatement : 40+ occurrences
+    // PhanUndeclaredStaticProperty : 40+ occurrences
     // PhanUndeclaredTypeReturnType : 40+ occurrences
     // PhanTypeInvalidDimOffset : 35+ occurrences
+    // PhanTypeMismatchPropertyProbablyReal : 35+ occurrences
     // PhanParamSignatureMismatch : 30+ occurrences
     // PhanTypeMismatchDefault : 30+ occurrences
-    // PhanTypeMismatchPropertyProbablyReal : 30+ occurrences
     // PhanUndeclaredFunctionInCallable : 30+ occurrences
     // PhanPluginSimplifyExpressionBool : 25+ occurrences
     // PhanTypeArraySuspicious : 25+ occurrences
@@ -52,7 +53,6 @@ return [
     // PhanTypeMismatchArgumentNullableInternal : 20+ occurrences
     // PhanTypeMismatchDimFetch : 20+ occurrences
     // PhanTypeSuspiciousNonTraversableForeach : 20+ occurrences
-    // PhanDeprecatedClass : 15+ occurrences
     // PhanPluginDuplicateExpressionAssignmentOperation : 15+ occurrences
     // PhanPluginMixedKeyNoKey : 15+ occurrences
     // PhanRedefineClass : 15+ occurrences
@@ -60,24 +60,23 @@ return [
     // PhanTypeExpectedObjectPropAccessButGotNull : 15+ occurrences
     // PhanTypeMismatchProperty : 15+ occurrences
     // PhanTypeMismatchPropertyDefault : 15+ occurrences
-    // PhanPluginRedundantAssignment : 10+ occurrences
+    // PhanDeprecatedClass : 10+ occurrences
     // PhanRedundantConditionInLoop : 10+ occurrences
     // PhanTypeComparisonToArray : 10+ occurrences
     // PhanTypeInvalidLeftOperandOfNumericOp : 10+ occurrences
     // PhanTypeMismatchReturnNullable : 10+ occurrences
     // PhanUndeclaredClassInstanceof : 10+ occurrences
-    // PhanUndeclaredClassReference : 10+ occurrences
     // PhanUndeclaredMethodInCallable : 10+ occurrences
     // PhanCommentParamWithoutRealParam : 9 occurrences
     // PhanNonClassMethodCall : 9 occurrences
+    // PhanPluginRedundantAssignment : 9 occurrences
     // PhanUndeclaredTypeProperty : 9 occurrences
-    // PhanPluginNeverReturnFunction : 7 occurrences
+    // PhanUndeclaredClassReference : 8 occurrences
     // PhanRedefineFunction : 7 occurrences
     // PhanTypeArraySuspiciousNull : 7 occurrences
     // PhanTypeMismatchArgumentInternalReal : 7 occurrences
     // PhanUndeclaredClassInCallable : 7 occurrences
     // PhanCommentAbstractOnInheritedMethod : 6 occurrences
-    // PhanTypeSuspiciousStringExpression : 6 occurrences
     // PhanUndeclaredVariableDim : 6 occurrences
     // PhanUnextractableAnnotationElementName : 6 occurrences
     // PhanImpossibleCondition : 5 occurrences
@@ -86,10 +85,11 @@ return [
     // PhanTypeConversionFromArray : 5 occurrences
     // PhanTypeMismatchDimAssignment : 5 occurrences
     // PhanTypeSuspiciousEcho : 5 occurrences
-    // PhanUndeclaredStaticProperty : 5 occurrences
+    // PhanTypeSuspiciousStringExpression : 5 occurrences
     // PhanAccessMethodInternal : 4 occurrences
     // PhanContextNotObject : 4 occurrences
     // PhanImpossibleTypeComparison : 4 occurrences
+    // PhanPluginNeverReturnFunction : 4 occurrences
     // PhanPossiblyUndeclaredGlobalVariable : 4 occurrences
     // PhanStaticPropIsStaticType : 4 occurrences
     // PhanTypeInvalidLeftOperandOfAdd : 4 occurrences
@@ -391,8 +391,10 @@ return [
         'modules/comments/base.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredConstant', 'PhanUndeclaredProperty'],
         'modules/comments/comments.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginNeverReturnMethod', 'PhanRedundantCondition', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction'],
         'modules/comments/subscription-modal-on-comment/class-jetpack-subscription-modal-on-comment.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturnNullable'],
-        'modules/contact-form/admin.php' => ['PhanDeprecatedClass', 'PhanDeprecatedFunction', 'PhanDeprecatedProperty', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginNeverReturnFunction', 'PhanPluginRedundantAssignment', 'PhanRedundantCondition', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredConstant'],
-        'modules/contact-form/grunion-contact-form.php' => ['PhanDeprecatedClass', 'PhanDeprecatedFunction', 'PhanDeprecatedProperty', 'PhanPluginDuplicateAdjacentStatement', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginNeverReturnMethod', 'PhanPluginRedundantAssignment', 'PhanPossiblyNullTypeMismatchProperty', 'PhanRedundantCondition', 'PhanTypeConversionFromArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredClassReference', 'PhanUndeclaredFunction', 'PhanUndeclaredProperty', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty', 'PhanUnextractableAnnotationElementName'],
+        'modules/contact-form/admin.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchPropertyProbablyReal', 'PhanUndeclaredMethod'],
+        'modules/contact-form/class-grunion-contact-form-endpoint.php' => ['PhanTypeMismatchArgument'],
+        'modules/contact-form/grunion-contact-form.php' => ['PhanDeprecatedClass', 'PhanDeprecatedFunction', 'PhanDeprecatedProperty', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginRedundantAssignment', 'PhanPossiblyNullTypeMismatchProperty', 'PhanRedundantCondition', 'PhanTypeConversionFromArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredProperty', 'PhanUndeclaredStaticProperty', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty', 'PhanUnextractableAnnotationElementName'],
+        'modules/contact-form/grunion-editor-view.php' => ['PhanTypeMismatchArgument'],
         'modules/copy-post.php' => ['PhanNoopNew'],
         'modules/custom-css/csstidy/class.csstidy-ctype.php' => ['PhanRedefineFunctionInternal'],
         'modules/custom-css/csstidy/class.csstidy-optimise.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanPluginSimplifyExpressionBool', 'PhanTypeComparisonFromArray', 'PhanTypeConversionFromArray', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeInvalidRightOperandOfNumericOp', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchReturnProbablyReal'],
@@ -514,7 +516,7 @@ return [
         'modules/stats/class-jetpack-stats-upgrade-nudges.php' => ['PhanTypeMismatchArgument'],
         'modules/subscriptions.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanUndeclaredConstant', 'PhanUndeclaredFunctionInCallable'],
         'modules/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.php' => ['PhanTypeMismatchReturnNullable'],
-        'modules/subscriptions/views.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMissingReturn', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
+        'modules/subscriptions/views.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMissingReturn', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
         'modules/theme-tools/compat/twentysixteen.php' => ['PhanParamTooMany'],
         'modules/theme-tools/compat/twentytwenty.php' => ['PhanParamTooMany'],
         'modules/theme-tools/content-options/author-bio.php' => ['PhanTypeMismatchArgument'],

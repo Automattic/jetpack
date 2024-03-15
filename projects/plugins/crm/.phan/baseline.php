@@ -10,7 +10,7 @@
 return [
     // # Issue statistics:
     // PhanUndeclaredVariable : 770+ occurrences
-    // PhanTypeArraySuspiciousNullable : 410+ occurrences
+    // PhanTypeArraySuspiciousNullable : 420+ occurrences
     // PhanRedundantCondition : 380+ occurrences
     // PhanUndeclaredConstant : 350+ occurrences
     // PhanTypeMismatchReturn : 310+ occurrences
@@ -216,7 +216,7 @@ return [
         'includes/ZeroBSCRM.DataIOValidation.php' => ['PhanTypeMismatchArgument'],
         'includes/ZeroBSCRM.Database.php' => ['PhanImpossibleCondition', 'PhanRedundantCondition', 'PhanSuspiciousValueComparison', 'PhanUndeclaredConstant'],
         'includes/ZeroBSCRM.Delete.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanUndeclaredProperty'],
-        'includes/ZeroBSCRM.Edit.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal'],
+        'includes/ZeroBSCRM.Edit.php' => ['PhanPluginDuplicateIfCondition', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal'],
         'includes/ZeroBSCRM.Encryption.php' => ['PhanUndeclaredConstant'],
         'includes/ZeroBSCRM.ExternalSources.php' => ['PhanPluginMixedKeyNoKey', 'PhanPluginUnreachableCode'],
         'includes/ZeroBSCRM.FileUploads.php' => ['PhanTypeComparisonFromArray', 'PhanTypeMismatchDimFetch', 'PhanUndeclaredConstant'],
