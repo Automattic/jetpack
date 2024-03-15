@@ -125,22 +125,13 @@ class Scheduled_Updates {
 	}
 
 	/**
-	 * Get the last statuses of a scheduled updates.
-	 *
-	 * @return array|null Last statuses of the scheduled updates.
-	 */
-	public static function get_scheduled_update_statuses() {
-		return get_option( 'jetpack_scheduled_update_statuses', array() );
-	}
-
-	/**
 	 * Retrieves a list of schedule events with their last statuses.
 	 *
 	 * @return array The scheduled events with their last statuses.
 	 */
 	public static function get_scheduled_events_with_statuses() {
 		$events   = wp_get_scheduled_events( 'jetpack_scheduled_update' );
-		$statuses = self::get_scheduled_update_statuses();
+		$statuses = get_option( 'jetpack_scheduled_update_statuses', array() );
 		$output   = array();
 
 		foreach ( array_keys( $events ) as $schedule_id ) {
@@ -160,7 +151,7 @@ class Scheduled_Updates {
 	 */
 	public static function get_scheduled_event_with_status( $schedule_id, $events = null, $statuses = null ) {
 		$events   = $events ?? wp_get_scheduled_events( 'jetpack_scheduled_update' );
-		$statuses = $statuses ?? self::get_scheduled_update_statuses();
+		$statuses = $statuses ?? get_option( 'jetpack_scheduled_update_statuses', array() );
 
 		if ( empty( $events[ $schedule_id ] ) ) {
 			return false;

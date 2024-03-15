@@ -164,16 +164,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test no statuses.
-	 *
-	 * @covers ::get_scheduled_update_statuses
-	 */
-	public function test_empty_scheduled_update_statuses() {
-		$this->assertSame( array(), Scheduled_Updates::get_scheduled_update_statuses() );
-		$this->assertFalse( Scheduled_Updates::get_scheduled_event_with_status( 'test' ) );
-	}
-
-	/**
 	 * Test valid statuses.
 	 *
 	 * @covers ::get_scheduled_events_with_statuses
