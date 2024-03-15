@@ -7,9 +7,7 @@
  * @package automattic/scheduled-updates
  */
 
-// Load dependencies.
-require_once dirname( __DIR__ ) . '/pluggable.php';
-require_once dirname( __DIR__ ) . '/class-scheduled-updates.php';
+use Automattic\Jetpack\Scheduled_Updates;
 
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Update_Schedules
@@ -41,6 +39,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 */
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+		add_action( 'rest_api_init', array( $this, 'add_status_fields' ) );
 	}
 
 	/**
@@ -80,7 +79,32 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base . '/(?P<schedule_id>[\w]+)/',
+			'/' . $this->rest_base . '/(?P<schedule_id>[\w]+)/status',
+			array(
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'update_status' ),
+					'permission_callback' => array( $this, 'update_status_permissions_check' ),
+					'args'                => array(
+						'last_run_timestamp' => array(
+							'description' => 'Unix timestamp (UTC) for when the last run occurred.',
+							'type'        => 'integer',
+							'required'    => true,
+						),
+						'last_run_status'    => array(
+							'description' => 'Status of last run.',
+							'type'        => 'string',
+							'enum'        => array( 'success', 'failure-and-rollback', 'failure-and-rollback-fail' ),
+							'required'    => true,
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<schedule_id>[\w]+)',
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
@@ -120,6 +144,40 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	}
 
 	/**
+	 * Add status fields to the jetpack_scheduled_update object.
+	 */
+	public function add_status_fields() {
+		$object_type = $this->get_object_type();
+
+		register_rest_field(
+			$object_type,
+			'last_run_timestamp',
+			array(
+				'get_callback'    => array( $this, 'get_last_run_field' ),
+				'update_callback' => null,
+				'schema'          => array(
+					'description' => 'Unix timestamp (UTC) for when the last run occurred.',
+					'type'        => 'integer',
+				),
+			)
+		);
+
+		register_rest_field(
+			$object_type,
+			'last_run_status',
+			array(
+				'get_callback'    => array( $this, 'get_last_run_field' ),
+				'update_callback' => null,
+				'schema'          => array(
+					'description' => 'Status of last run.',
+					'type'        => 'string',
+					'enum'        => array( 'success', 'failure-and-rollback', 'failure-and-rollback-fail' ),
+				),
+			)
+		);
+	}
+
+	/**
 	 * Permission check for retrieving schedules.
 	 *
 	 * @param WP_REST_Request $request Request object.
@@ -137,10 +195,21 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * Returns a list of update schedules.
 	 *
 	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
-	public function get_items( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return rest_ensure_response( wp_get_scheduled_events( 'jetpack_scheduled_update' ) );
+	public function get_items( $request ) {
+		$events   = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+		$response = array();
+
+		foreach ( array_keys( $events ) as $schedule_id ) {
+			// Add the schedule_id to the object.
+			$events[ $schedule_id ]->schedule_id = $schedule_id;
+
+			// Run through the prepare_item_for_response method to add the last run status.
+			$response[ $schedule_id ] = $this->prepare_item_for_response( $events[ $schedule_id ], $request )->data;
+		}
+
+		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -191,7 +260,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			update_option( 'auto_update_plugins', $auto_update_plugins );
 		}
 
-		return rest_ensure_response( $this->generate_schedule_id( $plugins ) );
+		$id = Scheduled_Updates::generate_schedule_id( $plugins );
+
+		// Set an empty status of a schedule on creation/modify.
+		Scheduled_Updates::set_scheduled_update_status( $id, null, null );
+
+		return rest_ensure_response( $id );
 	}
 
 	/**
@@ -221,7 +295,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
 		}
 
-		return rest_ensure_response( $events[ $request['schedule_id'] ] );
+		// Add the schedule_id to the object.
+		$events[ $request['schedule_id'] ]->schedule_id = $request['schedule_id'];
+
+		return $this->prepare_item_for_response( $events[ $request['schedule_id'] ], $request );
 	}
 
 	/**
@@ -260,6 +337,57 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		}
 
 		return $this->create_item( $request );
+	}
+
+	/**
+	 * Permission check for updating last status.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return bool|WP_Error
+	 */
+	public function update_status_permissions_check( $request ) {
+		return $this->update_item_permissions_check( $request );
+	}
+
+	/**
+	 * Updates last status of an existing update schedule.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error The updated event or a WP_Error if the schedule could not be found.
+	 */
+	public function update_status( $request ) {
+		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+
+		if ( empty( $events[ $request['schedule_id'] ] ) ) {
+			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
+		}
+
+		$option = Scheduled_Updates::set_scheduled_update_status(
+			$request['schedule_id'],
+			$request['last_run_timestamp'],
+			$request['last_run_status']
+		);
+
+		return rest_ensure_response( $option[ $request['schedule_id'] ] );
+	}
+
+	/**
+	 * Get the last run value of a schedule.
+	 *
+	 * @param array           $item        Prepared response object.
+	 * @param string          $field_name  Field name.
+	 * @param WP_REST_Request $request     Full details about the request.
+	 * @param string          $object_type Object type.
+	 * @return object|null
+	 */
+	public function get_last_run_field( $item, $field_name, $request, $object_type ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$option = get_option( 'jetpack_scheduled_update_statuses', array() );
+
+		if ( ! empty( $option[ $item['schedule_id'] ] ) ) {
+			return $option[ $item['schedule_id'] ][ $field_name ];
+		}
+
+		return null;
 	}
 
 	/**
@@ -319,6 +447,22 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		}
 
 		return rest_ensure_response( true );
+	}
+
+	/**
+	 * Prepares the scheduled update for the REST response.
+	 *
+	 * @param mixed           $item    WordPress representation of the item.
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response object on success.
+	 */
+	public function prepare_item_for_response( $item, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$item = $this->add_additional_fields_to_object( (array) $item, $request );
+
+		// Remove schedule ID, not needed in the response.
+		unset( $item['schedule_id'] );
+
+		return rest_ensure_response( $item );
 	}
 
 	/**
@@ -459,7 +603,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public function get_capabilities( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$file_mod_capabilities = \Automattic\Jetpack\Scheduled_Updates::get_file_mod_capabilities();
+		$file_mod_capabilities = Scheduled_Updates::get_file_mod_capabilities();
 
 		return rest_ensure_response( $file_mod_capabilities );
 	}
@@ -479,28 +623,37 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			'title'      => 'update-schedule',
 			'type'       => 'object',
 			'properties' => array(
-				'hook'      => array(
+				'hook'               => array(
 					'description' => 'The hook name.',
 					'type'        => 'string',
 					'readonly'    => true,
 				),
-				'timestamp' => array(
+				'timestamp'          => array(
 					'description' => 'Unix timestamp (UTC) for when to next run the event.',
 					'type'        => 'integer',
 					'readonly'    => true,
 				),
-				'schedule'  => array(
+				'schedule'           => array(
 					'description' => 'How often the event should subsequently recur.',
 					'type'        => 'string',
 					'enum'        => array( 'daily', 'weekly' ),
 				),
-				'args'      => array(
+				'args'               => array(
 					'description' => 'The plugins to be updated on this schedule.',
 					'type'        => 'array',
 				),
-				'interval'  => array(
+				'interval'           => array(
 					'description' => 'The interval time in seconds for the schedule.',
 					'type'        => 'integer',
+				),
+				'last_run_timestamp' => array(
+					'description' => 'Unix timestamp (UTC) for when the last run occurred.',
+					'type'        => 'integer',
+				),
+				'last_run_status'    => array(
+					'description' => 'Status of last run.',
+					'type'        => 'string',
+					'enum'        => array( 'success', 'failure-and-rollback', 'failure-and-rollback-fail' ),
 				),
 			),
 		);
@@ -548,18 +701,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 				),
 			),
 		);
-	}
-
-	/**
-	 * Generates a unique schedule ID.
-	 *
-	 * @see wp_schedule_event()
-	 *
-	 * @param array $args Schedule arguments.
-	 * @return string
-	 */
-	private function generate_schedule_id( $args ) {
-		return md5( serialize( $args ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 	}
 }
 
