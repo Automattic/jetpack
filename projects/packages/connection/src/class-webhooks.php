@@ -86,11 +86,11 @@ class Webhooks {
 			case 'authorize':
 				$this->handle_authorize();
 				$this->do_exit();
-				break;
+				break; // @phan-suppress-current-line PhanPluginUnreachableCode -- Safer to include it even though do_exit never returns.
 			case 'authorize_redirect':
 				$this->handle_authorize_redirect();
 				$this->do_exit();
-				break;
+				break; // @phan-suppress-current-line PhanPluginUnreachableCode -- Safer to include it even though do_exit never returns.
 			// Class Jetpack::admin_page_load() still handles other cases.
 		}
 	}
