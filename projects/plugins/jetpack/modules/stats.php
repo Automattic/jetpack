@@ -1216,7 +1216,7 @@ function stats_jetpack_dashboard_widget() {
  * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
  *
  * @access public
- * @return void
+ * @return never
  */
 function stats_dashboard_widget_content() {
 	$width  = isset( $_GET['width'] ) ? intval( $_GET['width'] ) / 2 : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended

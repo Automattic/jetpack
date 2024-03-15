@@ -57,7 +57,7 @@ class Throw_On_Errors {
 		 * @param int|null $errline Line number where the error was raised.
 		 * @param array|null $errcontext Deprecated, unused.
 		 *
-		 * @return mixed
+		 * @return never
 		 * @throws Exception
 		 */
 			// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable

@@ -159,6 +159,8 @@ class Webhooks {
 
 	/**
 	 * The `exit` is wrapped into a method so we could mock it.
+	 *
+	 * @return never
 	 */
 	protected function do_exit() {
 		exit;

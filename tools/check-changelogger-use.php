@@ -12,6 +12,8 @@ chdir( __DIR__ . '/../' );
 
 /**
  * Display usage information and exit.
+ *
+ * @return never
  */
 function usage() {
 	global $argv;
