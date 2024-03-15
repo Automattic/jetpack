@@ -86,9 +86,6 @@ class Jetpack_Ai extends Product {
 	 * @return string[] Slugs of the available tiers
 	 */
 	public static function get_tiers() {
-		if ( ! apply_filters( 'my_jetpack_use_new_ai_page', false ) ) {
-			return array();
-		}
 		return array(
 			self::UPGRADED_TIER_SLUG,
 			self::CURRENT_TIER_SLUG,
@@ -101,9 +98,6 @@ class Jetpack_Ai extends Product {
 	 * @return array[] Protect features comparison
 	 */
 	public static function get_features_by_tier() {
-		if ( ! apply_filters( 'my_jetpack_use_new_ai_page', false ) ) {
-			return array();
-		}
 		$current_tier        = self::get_current_usage_tier();
 		$current_description = $current_tier === 0
 			? __( 'Up to 20 requests', 'jetpack-my-jetpack' )
@@ -352,18 +346,7 @@ class Jetpack_Ai extends Product {
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
-		$next_tier = self::get_next_usage_tier();
-
-		if ( ! apply_filters( 'my_jetpack_use_new_ai_page', false ) ) {
-			return array_merge(
-				array(
-					'available'          => true,
-					'wpcom_product_slug' => static::get_wpcom_product_slug(),
-				),
-				self::get_pricing_for_ui_by_usage_tier( $next_tier )
-			);
-		}
-
+		$next_tier              = self::get_next_usage_tier();
 		$current_tier           = self::get_current_usage_tier();
 		$current_call_to_action = $current_tier === 0
 			? __( 'Continue for free', 'jetpack-my-jetpack' )
