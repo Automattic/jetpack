@@ -48,7 +48,11 @@ class Setup_Prompt implements Has_Setup {
 		return get_option( self::OPTION_KEY, false );
 	}
 
-	// hides the boost promo banner on dismiss
+	/**
+	 * Hides the boost promo banner on dismiss
+	 *
+	 * @return never
+	 */
 	public function dismiss_setup_banner() {
 		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
 		update_option( self::OPTION_KEY, true, 'no' );

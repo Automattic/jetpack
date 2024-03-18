@@ -102,6 +102,8 @@ class Jetpack_Custom_CSS_Enhancements {
 
 	/**
 	 * Print the current Custom CSS. This is for linking instead of printing directly.
+	 *
+	 * @return never
 	 */
 	public static function print_linked_custom_css() {
 		header( 'Content-type: text/css' );

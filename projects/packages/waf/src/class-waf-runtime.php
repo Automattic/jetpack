@@ -359,6 +359,7 @@ class Waf_Runtime {
 	 *
 	 * @param string $rule_id Rule id.
 	 * @param string $url Url.
+	 * @return never
 	 */
 	public function redirect( $rule_id, $url ) {
 		error_log( "Jetpack WAF Redirected Request.\tRule:$rule_id\t$url" );

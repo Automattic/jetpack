@@ -29,7 +29,9 @@ require WPCACHEHOME . 'wp-cache-base.php';
 if ( '/' === $cache_path || empty( $cache_path ) ) {
 	define( 'WPSCSHUTDOWNMESSAGE', 'WARNING! Caching disabled. Configuration corrupted. Reset configuration on Advanced Settings page.' );
 	add_action( 'wp_footer', 'wpsc_shutdown_message' );
-	define( 'DONOTCACHEPAGE', 1 );
+	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+		define( 'DONOTCACHEPAGE', 1 );
+	}
 	return;
 }
 
@@ -55,7 +57,9 @@ if ( ! isset( $wp_cache_plugins_dir ) ) {
 // from the secret shown on the Advanced settings page.
 if ( isset( $_GET['donotcachepage'] ) && isset( $cache_page_secret ) && $_GET['donotcachepage'] == $cache_page_secret ) {
 	$cache_enabled = false;
-	define( 'DONOTCACHEPAGE', 1 );
+	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+		define( 'DONOTCACHEPAGE', 1 );
+	}
 }
 
 // Load wp-super-cache plugins
@@ -109,13 +113,17 @@ if ( isset( $_SERVER['REQUEST_URI'] ) ) { // Cache this in case any plugin modif
 
 // don't cache in wp-admin
 if ( wpsc_is_backend() ) {
-	define( 'DONOTCACHEPAGE', 1 );
+	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+		define( 'DONOTCACHEPAGE', 1 );
+	}
 	return true;
 }
 
 // if a cookie is found that we don't like then don't serve/cache the page
 if ( wpsc_is_rejected_cookie() ) {
-	define( 'DONOTCACHEPAGE', 1 );
+	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+		define( 'DONOTCACHEPAGE', 1 );
+	}
 	$cache_enabled = false;
 	wp_cache_debug( 'Caching disabled because rejected cookie found.' );
 	return true;
@@ -123,7 +131,9 @@ if ( wpsc_is_rejected_cookie() ) {
 
 if ( wpsc_is_caching_user_disabled() ) {
 	wp_cache_debug( 'Caching disabled for logged in users on settings page.' );
-	define( 'DONOTCACHEPAGE', 1 );
+	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+		define( 'DONOTCACHEPAGE', 1 );
+	}
 	return true;
 }
 
@@ -142,13 +152,17 @@ if ( ! $cache_enabled ) {
 // don't cache or serve cached files for various URLs, including the Customizer.
 if ( isset( $_SERVER['REQUEST_METHOD'] ) && in_array( $_SERVER['REQUEST_METHOD'], array( 'POST', 'PUT', 'DELETE' ), true ) ) {
 	wp_cache_debug( 'Caching disabled for non GET request.' );
-	define( 'DONOTCACHEPAGE', 1 );
+	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+		define( 'DONOTCACHEPAGE', 1 );
+	}
 	return true;
 }
 
 if ( isset( $_GET['customize_changeset_uuid'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	wp_cache_debug( 'Caching disabled for customizer.' );
-	define( 'DONOTCACHEPAGE', 1 );
+	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+		define( 'DONOTCACHEPAGE', 1 );
+	}
 	return true;
 }
 

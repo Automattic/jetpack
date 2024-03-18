@@ -1094,6 +1094,9 @@ EXPECTED;
 	public function test_login_init_redirect() {
 		tests_add_filter(
 			'wp_redirect',
+			/**
+			 * @return never
+			 */
 			function ( $location ) {
 				$expected_location = add_query_arg(
 					array(

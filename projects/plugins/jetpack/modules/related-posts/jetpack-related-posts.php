@@ -1162,6 +1162,7 @@ EOT;
 	 *
 	 * @param array $excludes array of post_ids to exclude.
 	 * @uses send_nosniff_header, self::get_for_post_id, get_the_ID
+	 * @return never
 	 */
 	protected function action_frontend_init_ajax( array $excludes ) {
 		define( 'DOING_AJAX', true );
