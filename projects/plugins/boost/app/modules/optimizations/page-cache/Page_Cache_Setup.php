@@ -76,7 +76,7 @@ class Page_Cache_Setup {
 		}
 	}
 
-	/**
+	/*
 	 * Enable caching step of setup.
 	 *
 	 * @return Boost_Cache_Error|bool - True on success, false if it was already enabled, error otherwise.
@@ -91,7 +91,7 @@ class Page_Cache_Setup {
 
 		$enabled_result = $settings->set( array( 'enabled' => true ) );
 
-		if ( $enabled_result ) {
+		if ( $enabled_result === true ) {
 			Logger::debug( 'Caching enabled in cache config' );
 		}
 
