@@ -16,7 +16,7 @@ namespace Automattic\Jetpack\Transport_Helper;
  */
 class Package_Version {
 
-	const PACKAGE_VERSION = '0.2.1';
+	const PACKAGE_VERSION = '0.2.2-alpha';
 
 	const PACKAGE_SLUG = 'transport-helper';
 
@@ -33,3 +33,7 @@ class Package_Version {
 		return $package_versions;
 	}
 }
+
+// For compatibility with plugins that had a broken version of the package, this file needs to define the "V0001"-namespaced class
+// because this filename is what the old plugins' autoloader will be loading. So load the file that defines that class now.
+require __DIR__ . '/class-package-version-compat.php';
