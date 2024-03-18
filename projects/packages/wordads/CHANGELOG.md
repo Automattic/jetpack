@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.11] - 2024-03-12
+### Changed
+- Updated package dependencies. [#36325]
+- Update to the most recent version of the @automattic/calypso-color-schemes package. [#36187]
+- Update to the most recent version of the @automattic/calypso-color-schemes package. [#36227]
+
 ## [0.3.10] - 2024-03-04
 ### Changed
 - Update dependencies. [#36113]
@@ -316,6 +322,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput`
 - Updated package dependencies.
 
+[0.3.11]: https://github.com/Automattic/jetpack-wordads/compare/v0.3.10...v0.3.11
 [0.3.10]: https://github.com/Automattic/jetpack-wordads/compare/v0.3.9...v0.3.10
 [0.3.9]: https://github.com/Automattic/jetpack-wordads/compare/v0.3.8...v0.3.9
 [0.3.8]: https://github.com/Automattic/jetpack-wordads/compare/v0.3.7...v0.3.8

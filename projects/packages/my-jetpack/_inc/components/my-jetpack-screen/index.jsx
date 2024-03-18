@@ -29,7 +29,7 @@ import {
 } from '../../data/constants';
 import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
-import getMyJetpackWindowState from '../../data/utils/get-my-jetpack-window-state';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import useConnectionWatcher from '../../hooks/use-connection-watcher';
 import ConnectionsSection from '../connections-section';
@@ -94,9 +94,9 @@ const GlobalNotice = ( { message, options } ) => {
  */
 export default function MyJetpackScreen() {
 	useConnectionWatcher();
-	const { hasBeenDismissed = false } = getMyJetpackWindowState( 'welcomeBanner' );
-	const { showFullJetpackStatsCard = false } = getMyJetpackWindowState( 'myJetpackFlags' );
-	const { jetpackManage = {}, adminUrl } = getMyJetpackWindowState();
+	const { hasBeenDismissed = false } = getMyJetpackWindowInitialState( 'welcomeBanner' );
+	const { showFullJetpackStatsCard = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
+	const { jetpackManage = {}, adminUrl } = getMyJetpackWindowInitialState();
 
 	const { currentNotice } = useContext( NoticeContext );
 	const { message, options } = currentNotice || {};
@@ -116,7 +116,7 @@ export default function MyJetpackScreen() {
 
 	const shouldShowZendeskChatWidget =
 		! isJwtLoading && ! isChatAvailabilityLoading && isAvailable && jwt;
-	const isNewUser = getMyJetpackWindowState( 'userIsNewToJetpack' ) === '1';
+	const isNewUser = getMyJetpackWindowInitialState( 'userIsNewToJetpack' ) === '1';
 
 	const { recordEvent } = useAnalytics();
 	const [ reloading, setReloading ] = useState( false );

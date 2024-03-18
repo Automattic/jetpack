@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack;
 
+// Load dependencies.
+require_once __DIR__ . '/pluggable.php';
+
 /**
  * Scheduled Updates class.
  */
@@ -17,7 +20,7 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.3.2';
+	const PACKAGE_VERSION = '0.4.1-alpha';
 
 	/**
 	 * Initialize the class.
@@ -38,7 +41,7 @@ class Scheduled_Updates {
 			return;
 		}
 
-		add_action( 'jetpack_scheduled_update', array( __CLASS__, 'run_scheduled_update' ) );
+		add_action( 'jetpack_scheduled_update', array( __CLASS__, 'run_scheduled_update' ), 10, 10 );
 		add_action( 'rest_api_init', array( __CLASS__, 'add_is_managed_extension_field' ) );
 		add_filter( 'auto_update_plugin', array( __CLASS__, 'allowlist_scheduled_plugins' ), 10, 2 );
 		add_filter( 'plugin_auto_update_setting_html', array( __CLASS__, 'show_scheduled_updates' ), 10, 2 );
@@ -61,23 +64,67 @@ class Scheduled_Updates {
 	 * @param string ...$plugins List of plugins to update.
 	 */
 	public static function run_scheduled_update( ...$plugins ) {
+		$schedule_id       = self::generate_schedule_id( $plugins );
 		$available_updates = get_site_transient( 'update_plugins' );
-		$plugins           = array_filter(
-			$plugins,
-			function ( $plugin ) use ( $available_updates ) {
-				return isset( $available_updates->response[ $plugin ] );
-			}
-		);
+		$plugins_to_update = $available_updates->response ?? array();
+		$plugins_to_update = array_intersect_key( $plugins_to_update, array_flip( $plugins ) );
 
-		$body = empty( $plugins ) ? null : array( 'plugins' => $plugins );
+		if ( empty( $plugins_to_update ) ) {
+			// No updates available. Update the status to 'success' and return.
+			self::set_scheduled_update_status( $schedule_id, time(), 'success' );
+
+			return;
+		}
 
 		( new Connection\Client() )->wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/hosting/scheduled-update', \Jetpack_Options::get_option( 'id' ) ),
 			'2',
 			array( 'method' => 'POST' ),
-			$body,
+			array(
+				'plugins'     => $plugins_to_update,
+				'schedule_id' => $schedule_id,
+			),
 			'wpcom'
 		);
+	}
+
+	/**
+	 * Updates last status of a scheduled update.
+	 *
+	 * @param string      $schedule_id Request ID.
+	 * @param int|null    $timestamp   Timestamp of the last run.
+	 * @param string|null $status      Status of the last run.
+	 * @return false|array Updated statuses or false if not found.
+	 */
+	public static function set_scheduled_update_status( $schedule_id, $timestamp, $status ) {
+		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+
+		if ( empty( $events[ $schedule_id ] ) ) {
+			// Scheduled update not found.
+			return false;
+		}
+
+		$statuses = get_option( 'jetpack_scheduled_update_statuses', array() );
+		$option   = array();
+
+		// Reset the last statuses for the schedule.
+		foreach ( array_keys( $events ) as $status_id ) {
+			if ( ! empty( $statuses[ $status_id ] ) ) {
+				$option[ $status_id ] = $statuses[ $status_id ];
+			} else {
+				$option[ $status_id ] = null;
+			}
+		}
+
+		// Update the last status for the schedule.
+		$option[ $schedule_id ] = array(
+			'last_run_timestamp' => $timestamp,
+			'last_run_status'    => $status,
+		);
+
+		update_option( 'jetpack_scheduled_update_statuses', $option );
+
+		return $option;
 	}
 
 	/**
@@ -120,7 +167,7 @@ class Scheduled_Updates {
 
 		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
 
-		$schedules = false;
+		$schedules = array();
 		foreach ( $events as $event ) {
 			if ( in_array( $plugin_file, $event->args, true ) ) {
 				$schedules[] = $event;
@@ -155,7 +202,7 @@ class Scheduled_Updates {
 			$html = sprintf(
 				/* translators: %s is the time of day. Daily at 10 am. */
 				esc_html__( 'Daily at %s.', 'jetpack-scheduled-updates' ),
-				date_i18n( get_option( 'time_format' ), $schedule->timestamp )
+				get_date_from_gmt( gmdate( 'Y-m-d H:i:s', $schedule->timestamp ), get_option( 'time_format' ) )
 			);
 		} else {
 			// Not getting smart about passing in weekdays makes it easier to translate.
@@ -178,7 +225,7 @@ class Scheduled_Updates {
 
 			$html = sprintf(
 				$weekdays[ date_i18n( 'N', $schedule->timestamp ) ],
-				date_i18n( get_option( 'time_format' ), $schedule->timestamp )
+				get_date_from_gmt( gmdate( 'Y-m-d H:i:s', $schedule->timestamp ), get_option( 'time_format' ) )
 			);
 		}
 
@@ -284,6 +331,18 @@ class Scheduled_Updates {
 		}
 
 		return $file_mod_capabilities;
+	}
+
+	/**
+	 * Generates a unique schedule ID.
+	 *
+	 * @see wp_schedule_event()
+	 *
+	 * @param array $args Schedule arguments.
+	 * @return string
+	 */
+	public static function generate_schedule_id( $args ) {
+		return md5( serialize( $args ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 	}
 
 	/**

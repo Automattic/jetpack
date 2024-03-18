@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Try adding support for `@storybook/test-runner`.

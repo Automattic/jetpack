@@ -36,7 +36,7 @@ class Admin {
 	/**
 	 * Instantiates this singleton class
 	 *
-	 * @return Grunion_Admin The Grunion Admin class instance.
+	 * @return Admin The Admin class instance.
 	 */
 	public static function init() {
 		static $instance = false;
@@ -49,7 +49,7 @@ class Admin {
 	}
 
 	/**
-	 * Grunion_Admin constructor
+	 * Admin constructor
 	 */
 	public function __construct() {
 		add_action( 'media_buttons', array( $this, 'grunion_media_button' ), 999 );
@@ -433,7 +433,7 @@ class Admin {
 	/**
 	 * Display edit form view.
 	 *
-	 * @return void
+	 * @return never
 	 */
 	public function grunion_display_form_view() {
 		if ( current_user_can( 'edit_posts' ) ) {
@@ -951,6 +951,8 @@ class Admin {
 	/**
 	 * Take an array of field types from the form builder, and construct a shortcode form.
 	 * returns both the shortcode form, and HTML markup representing a preview of the form
+	 *
+	 * @return never
 	 */
 	public function grunion_ajax_shortcode() {
 		check_ajax_referer( 'grunion_shortcode' );
@@ -998,6 +1000,8 @@ class Admin {
 	/**
 	 * Takes a post_id, extracts the contact-form shortcode from that post (if there is one), parses it,
 	 * and constructs a json object representing its contents and attributes.
+	 *
+	 * @return never
 	 */
 	public function grunion_ajax_shortcode_to_json() {
 		global $post;
@@ -1086,13 +1090,13 @@ class Admin {
 			$post->post_status = 'spam';
 			$status            = wp_insert_post( $post );
 
-			/** This action is already documented in modules/contact-form/admin.php */
+			/** This action is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 			do_action( 'contact_form_akismet', 'spam', $akismet_values );
 		} elseif ( $_POST['make_it'] === 'ham' ) {
 			$post->post_status = 'publish';
 			$status            = wp_insert_post( $post );
 
-			/** This action is already documented in modules/contact-form/admin.php */
+			/** This action is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 			do_action( 'contact_form_akismet', 'ham', $akismet_values );
 
 			$comment_author_email = false;
@@ -1432,7 +1436,7 @@ class Admin {
 						'post_status' => 'spam',
 					)
 				);
-				/** This action is already documented in modules/contact-form/admin.php */
+				/** This action is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 				do_action( 'contact_form_akismet', 'spam', $meta );
 			}
 		}
