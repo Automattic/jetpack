@@ -213,8 +213,7 @@ class Jetpack_Memberships {
 	 * Logs the subscriber out by clearing out the premium content cookie.
 	 */
 	public function subscriber_logout() {
-		$cookie_domain = wp_parse_url( get_site_url(), PHP_URL_HOST );
-		Abstract_Token_Subscription_Service::clear_token_cookie( $cookie_domain );
+		Abstract_Token_Subscription_Service::clear_token_cookie();
 	}
 
 	/**
