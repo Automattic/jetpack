@@ -3,7 +3,7 @@ import Configstore from 'configstore';
 import enquirer from 'enquirer';
 
 const configStore = new Configstore( 'automattic/jetpack-cli/cli' );
-const baseEventName = 'jetpack_test_cli_'; // Todo: remove 'test' prefix before merging and after testing.
+const baseEventName = 'jetpack_cli_'; // Please use 'jetpack_test_cli_' when testing new Tracks events.
 
 /**
  * Checks if:
