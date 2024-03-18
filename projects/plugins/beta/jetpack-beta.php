@@ -63,6 +63,20 @@ if ( is_readable( $jetpack_beta_autoloader ) ) {
 		);
 	}
 
+	// Add a red bubble notification to My Jetpack if the installation is bad.
+	add_filter(
+		'my_jetpack_red_bubble_notification_slugs',
+		function ( $slugs ) {
+			$bad_installation_slug = array( 'jetpack_beta_plugin_bad_installation' );
+
+			if ( ! is_array( $slugs ) ) {
+				return $bad_installation_slug;
+			}
+
+			return array_merge( $slugs, $bad_installation_slug );
+		}
+	);
+
 	/**
 	 * Outputs an admin notice for folks running Jetpack Beta without having run composer install.
 	 *

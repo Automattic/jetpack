@@ -39,6 +39,21 @@ if ( is_readable( $loader ) ) {
 			)
 		);
 	}
+
+	// Add a red bubble notification to My Jetpack if the installation is bad.
+	add_filter(
+		'my_jetpack_red_bubble_notification_slugs',
+		function ( $slugs ) {
+			$bad_installation_slug = array( 'vaultpress_plugin_bad_installation' );
+
+			if ( ! is_array( $slugs ) ) {
+				return $bad_installation_slug;
+			}
+
+			return array_merge( $slugs, $bad_installation_slug );
+		}
+	);
+
 	/**
 	 * Outputs an admin notice for folks running VaultPress without having run `composer install`.
 	 */

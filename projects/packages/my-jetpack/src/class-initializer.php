@@ -649,6 +649,7 @@ class Initializer {
 		}
 		// go find the alerts
 		$red_bubble_alerts = apply_filters( 'my_jetpack_red_bubble_notification_slugs', $red_bubble_alerts );
+		l( $red_bubble_alerts );
 
 		return $red_bubble_alerts;
 	}
