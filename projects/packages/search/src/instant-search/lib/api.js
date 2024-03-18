@@ -353,6 +353,7 @@ function generateApiQueryString( {
 			params.custom_results = postIds;
 			return false;
 		}
+		return true;
 	} );
 
 	if ( staticFilters && Object.keys( staticFilters ).length > 0 ) {
