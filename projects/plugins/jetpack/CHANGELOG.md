@@ -23,7 +23,7 @@
 - Fix minor UI issues in premium-content block editor [#36398]
 - Jetpack_Portfolio: Prevent a division by 0 fatal when a user uses the shortcode with columns=0 [#36433]
 - Publicize: prevent panel from jumping after activation [#36362]
-- Sharing Block: remove extra margin previously added to the first button. [#36386]
+- Sharing Block: Remove extra margin previously added to the first button. [#36386]
 - SSO: Add error log on SSO invite. [#36416]
 - SSO: Update copy when inviting users. [#36385]
 - Subscriptions: Add Subscribe block post end placement setting to Sync [#36381]
