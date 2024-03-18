@@ -1,11 +1,9 @@
 <?php
 /**
- * Register the Social note custom post type.
+ * Class for the Social Shares.
  *
  * @package automattic/jetpack-social-plugin
  */
-
-namespace Automattic\Jetpack\Social;
 
 /**
  * Register the Jetpack Social Shares Class.
@@ -31,12 +29,24 @@ class Social_Shares {
 			return array();
 		}
 
-		return array_filter(
+		$succesful_shares = array_filter(
 			$shares[0],
 			function ( $share ) {
 				return isset( $share['status'] ) && $share['status'] === 'success';
 			}
 		);
+
+		$shares_by_service = array();
+
+		foreach ( $succesful_shares as $share ) {
+			$service   = $share['service'];
+			$timestamp = $share['timestamp'];
+
+			if ( ! isset( $shares_by_service[ $service ] ) || $timestamp > $shares_by_service[ $service ]['timestamp'] ) {
+				$shares_by_service[ $service ] = $share;
+			}
+		}
+		return $shares_by_service;
 	}
 
 	/**
@@ -49,32 +59,34 @@ class Social_Shares {
 	public static function get_the_social_shares( $post_id ) {
 		$shares = self::get_social_shares( $post_id );
 
+		$html = '<span>';
+
 		if ( empty( $shares ) ) {
-			return '<span></span>';
-		}
-
-		$shares_by_service = array();
-
-		foreach ( $shares as $share ) {
-			$service   = $share['service'];
-			$timestamp = $share['timestamp'];
-
-			if ( ! isset( $shares_by_service[ $service ] ) || $timestamp > $shares_by_service[ $service ]['timestamp'] ) {
-				$shares_by_service[ $service ] = $share;
+			$html .= '</span>';
+		} else {
+			$links = array();
+			foreach ( $shares as $service => $item ) {
+				$links[] = '<a href="' . $item['message'] . '">' . $service . '</a>';
 			}
+
+			$text = implode( ', ', $links );
+			if ( count( $links ) > 1 ) {
+				$last_link = array_pop( $links );
+				$html     .= 'Also on ' . implode( ', ', $links ) . " and $last_link";
+			} else {
+				$html .= "Also on $text";
+			}
+
+			$html .= '</span>';
 		}
 
-		$links = array();
-		foreach ( $shares_by_service as $service => $item ) {
-			$links[] = '<a href="' . $item['message'] . '">' . $service . '</a>';
-		}
-
-		$text = implode( ', ', $links );
-		if ( count( $links ) > 1 ) {
-			$last_link = array_pop( $links );
-			return 'Also on ' . implode( ', ', $links ) . " and $last_link";
-		}
-		return "Also on $text";
+		return apply_filters(
+			'jp_social_shares',
+			array(
+				'shares' => $shares,
+				'html'   => $html,
+			)
+		);
 	}
 
 	/**
@@ -83,6 +95,7 @@ class Social_Shares {
 	 * @param int $post_id The Post ID.
 	 */
 	public static function the_social_shares( $post_id ) {
-		return self::get_the_social_shares( $post_id );
+		$args = self::get_the_social_shares( $post_id );
+		return $args['html'];
 	}
 }

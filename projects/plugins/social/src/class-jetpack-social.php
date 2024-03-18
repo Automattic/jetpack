@@ -512,6 +512,6 @@ class Jetpack_Social {
 	 * Adds the shares shortcode.
 	 */
 	public function add_shares_shortcode() {
-		return Automattic\Jetpack\Social\Social_Shares::the_social_shares( get_the_ID() );
+		return Social_Shares::the_social_shares( get_the_ID() );
 	}
 }
