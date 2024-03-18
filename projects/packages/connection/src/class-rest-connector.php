@@ -322,7 +322,7 @@ class REST_Connector {
 	/**
 	 * Initiate the site provisioning process.
 	 *
-	 * @since $$next-version$$
+	 * @since 2.5.0
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -362,7 +362,7 @@ class REST_Connector {
 	/**
 	 * Register the site so that a plan can be provisioned.
 	 *
-	 * @since $$next-version$$
+	 * @since 2.5.0
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 *
