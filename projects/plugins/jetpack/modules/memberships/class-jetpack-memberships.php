@@ -149,7 +149,7 @@ class Jetpack_Memberships {
 	public static function get_instance() {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
-			self::$instance->register_init_hook();
+			self::$instance->register_initialization_hooks();
 			// Yes, `pro-plan` with a dash, `jetpack_personal` with an underscore. Check the v1.5 endpoint to verify.
 			$wpcom_plan_slug     = defined( 'ENABLE_PRO_PLAN' ) ? 'pro-plan' : 'personal-bundle';
 			self::$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? $wpcom_plan_slug : 'jetpack_personal';
@@ -189,11 +189,15 @@ class Jetpack_Memberships {
 	}
 
 	/**
-	 * Inits further hooks on init hook.
+	 * Registers initialization hooks.
 	 */
-	private function register_init_hook() {
+	private function register_initialization_hooks() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
 		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_gutenberg_block' ) );
+
+		if ( Jetpack::is_module_active( 'subscriptions' ) ) {
+			add_action( 'wp_logout', array( $this, 'subscriber_logout' ) );
+		}
 	}
 
 	/**
@@ -203,6 +207,14 @@ class Jetpack_Memberships {
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_rest_api_types' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'allow_sync_post_meta' ) );
 		$this->setup_cpts();
+	}
+
+	/**
+	 * Logs the subscriber out by clearing out the premium content cookie.
+	 */
+	public function subscriber_logout() {
+		$cookie_domain = wp_parse_url( get_site_url(), PHP_URL_HOST );
+		Abstract_Token_Subscription_Service::clear_token_cookie( $cookie_domain );
 	}
 
 	/**
