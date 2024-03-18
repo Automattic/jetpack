@@ -14,6 +14,10 @@ const baseEventName = 'jetpack_test_cli_'; // Todo: remove 'test' prefix before 
  * @returns {boolean} Whether analytics tracking is enabled.
  */
 async function checkAnalyticsEnabled() {
+	if ( process.env.CI ) {
+		return false;
+	}
+
 	if ( configStore.get( 'askedToEnableAnalytics' ) === undefined ) {
 		const prompt = await enquirer.prompt( [
 			{
