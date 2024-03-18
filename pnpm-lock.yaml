@@ -718,6 +718,9 @@ importers:
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../components
+      '@wordpress/api-fetch':
+        specifier: 6.50.0
+        version: 6.50.0
       '@wordpress/components':
         specifier: 27.1.0
         version: 27.1.0(react-dom@18.2.0)(react@18.2.0)
