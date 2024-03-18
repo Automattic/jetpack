@@ -9,6 +9,7 @@ namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
+use Automattic\Jetpack_Boost\REST_API\Permissions\Signed_With_Blog_Token;
 
 class List_Source_Providers implements Endpoint {
 
@@ -22,7 +23,9 @@ class List_Source_Providers implements Endpoint {
 	}
 
 	public function permissions() {
-		return array();
+		return array(
+			new Signed_With_Blog_Token(),
+		);
 	}
 
 	public function name() {
