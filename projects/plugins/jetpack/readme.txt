@@ -328,19 +328,14 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 13.3-a.3 - 2024-03-18
 #### Enhancements
-- Add error log on ssh invite
-- Adding Native (Web Share) button to Sharing Buttons block
-- AI Assistant: provide per block quick actions
-- Blog Stats and Top Posts & Pages block: ensure blocks do not render in email newsletters.
-- Only show installation errors on plugins page
-- Share buttons: Add a Bluesky sharing button
-- Update sso copy when inviting users
+- AI Assistant: Provide per-block quick actions to make them more relevant.
+- General: Only show installation errors on plugins page.
+- Newsletters: Ensure blog stats and top posts blocks do not render in email newsletters.
+- Sharing: Add a Bluesky sharing button.
+- Sharing: Add Native (Web Share) button to Sharing Buttons block.
 
 #### Improved compatibility
 - Subscriptions: Remove subscription settings from reading options page.
-
-#### Bug fixes
-- Sharing Block: remove extra margin previously added to the first button.
 
 --------
 
