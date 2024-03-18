@@ -269,7 +269,7 @@ class Jetpack_XMLRPC_Server {
 	 * This XML-RPC method is called from the /jpphp/provision endpoint on WPCOM in order to
 	 * register this site so that a plan can be provisioned.
 	 *
-	 * @param array $request An array containing at minimum nonce and local_user keys.
+	 * @param array|ArrayAccess $request An array containing at minimum nonce and local_user keys.
 	 *
 	 * @return \WP_Error|array
 	 */
@@ -373,7 +373,7 @@ class Jetpack_XMLRPC_Server {
 	 * This XML-RPC method is called from the /jpphp/provision endpoint on WPCOM in order to
 	 * register this site so that a plan can be provisioned.
 	 *
-	 * @param array $request An array containing at minimum a nonce key and a local_username key.
+	 * @param array|ArrayAccess $request An array containing at minimum a nonce key and a local_username key.
 	 *
 	 * @return \WP_Error|array
 	 */
