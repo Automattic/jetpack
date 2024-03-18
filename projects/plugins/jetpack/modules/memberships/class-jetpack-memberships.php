@@ -195,7 +195,7 @@ class Jetpack_Memberships {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
 		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_gutenberg_block' ) );
 
-		if ( Jetpack::is_module_active( 'subscriptions' ) ) {
+		if ( Jetpack::is_module_active( 'subscriptions' ) && jetpack_is_frontend() ) {
 			add_action( 'wp_logout', array( $this, 'subscriber_logout' ) );
 		}
 	}
