@@ -46,7 +46,6 @@ return [
     // PhanPluginNeverReturnFunction : 1 occurrence
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanRedefineFunction : 1 occurrence
-    // PhanRedefinedExtendedClass : 1 occurrence
     // PhanTypeComparisonToArray : 1 occurrence
     // PhanTypeInvalidUnaryOperandIncOrDec : 1 occurrence
     // PhanTypeMismatchArgumentNullable : 1 occurrence
@@ -126,7 +125,6 @@ return [
         'compatibility/wp-super-cache.php' => ['PhanUndeclaredFunction'],
         'jetpack-boost.php' => ['PhanNoopNew'],
         'tests/bootstrap.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturnProbablyReal'],
-        'tests/php/class-base-test-case.php' => ['PhanRedefinedExtendedClass'],
         'wp-js-data-sync.php' => ['PhanParamTooMany'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
