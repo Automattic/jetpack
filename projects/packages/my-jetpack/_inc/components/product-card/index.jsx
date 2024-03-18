@@ -2,7 +2,7 @@ import { Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
 import Card from '../card';
 import ActionButton, { PRODUCT_STATUSES } from './action-button';
@@ -171,6 +171,16 @@ const ProductCard = props => {
 		},
 		[ slug, onActivateStandalone, recordEvent ]
 	);
+
+	/**
+	 * Sends an event when the card loads
+	 */
+	useEffect( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_loaded', {
+			product: slug,
+			status: status,
+		} );
+	}, [ recordEvent, slug, status ] );
 
 	return (
 		<Card
