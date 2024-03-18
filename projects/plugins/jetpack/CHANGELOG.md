@@ -4,7 +4,7 @@
 
 ## 13.3-a.3 - 2024-03-18
 ### Enhancements
-- AI Assistant: provide per block quick actions to make them more relevant. [#36393]
+- AI Assistant: Provide per-block quick actions to make them more relevant. [#36393]
 - General: Only show installation errors on plugins page. [#36390]
 - Newsletters: ensure blog stats and top posts blocks do not render in email newsletters. [#36372]
 - Sharing: Add a Bluesky sharing button. [#36181]
