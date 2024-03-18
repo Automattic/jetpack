@@ -66,15 +66,17 @@ class Social_Shares {
 		} else {
 			$links = array();
 			foreach ( $shares as $service => $item ) {
-				$links[] = '<a href="' . $item['message'] . '">' . $service . '</a>';
+				$message = esc_url( $item['message'] );
+				$links[] = '<a href="' . $message . '">' . $service . '</a>';
 			}
 
-			$text = implode( ', ', $links );
+			$text         = implode( ', ', $links );
+			$also_on_text = __( 'Also on', 'jetpack-social' );
 			if ( count( $links ) > 1 ) {
 				$last_link = array_pop( $links );
-				$html     .= 'Also on ' . implode( ', ', $links ) . " and $last_link";
+				$html     .= $also_on_text . ' ' . implode( ', ', $links ) . ' ' . __( 'and', 'jetpack-social' ) . " $last_link";
 			} else {
-				$html .= "Also on $text";
+				$html .= $also_on_text . " $text";
 			}
 
 			$html .= '</span>';
