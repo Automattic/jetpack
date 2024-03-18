@@ -152,14 +152,14 @@ class Boost_Cache_Settings {
 		return $this->get( 'logging', false );
 	}
 
-	/*
+	/**
 	 * Sets the given settings, and saves them to the config file.
 	 * @param array $settings - The settings to set in a key => value associative
 	 * array. This will be merged with the existing settings.
 	 * Example:
 	 * $result = $this->set( array( 'enabled' => true ) );
 	 *
-	 * @return mixed - true if the settings were saved, Boost_Cache_Error otherwise.
+	 * @return Boost_Cache_Error|true - true if the settings were saved, Boost_Cache_Error otherwise.
 	 */
 	public function set( $settings ) {
 		// If the settings file does not exist, attempt to create one.

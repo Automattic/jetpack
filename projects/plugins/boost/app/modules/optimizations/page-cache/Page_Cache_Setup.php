@@ -56,7 +56,7 @@ class Page_Cache_Setup {
 			}
 		}
 
-		if ( $changes_made === true ) {
+		if ( $changes_made ) {
 			Analytics::record_user_event( 'page_cache_setup_succeeded' );
 		}
 		return true;
