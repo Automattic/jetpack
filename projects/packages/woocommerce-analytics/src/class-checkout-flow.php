@@ -21,6 +21,7 @@ class Checkout_Flow {
 	 * Constructor.
 	 */
 	public function init_hooks() {
+error_log("TEST");
 		$this->find_cart_checkout_content_sources();
 		$this->additional_blocks_on_cart_page     = $this->get_additional_blocks_on_page( 'cart' );
 		$this->additional_blocks_on_checkout_page = $this->get_additional_blocks_on_page( 'checkout' );
