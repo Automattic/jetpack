@@ -46,7 +46,7 @@
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Add metadata to the post to better diagnose need for Reader and Firehose. [#36254]
 - Add site migration endpoint. [#36253]
-- Compile typescript extensions in Jetpack. [#35904]
+- Compile TypeScript extensions in Jetpack. [#35904]
 - Contact Form: add deprecation warnings to Contact Form module codebase. [#36040]
 - Contact Form: refactor editor to use forms package. [#36089]
 - Contact Form: refactor endpoints to use forms package. [#36087]
