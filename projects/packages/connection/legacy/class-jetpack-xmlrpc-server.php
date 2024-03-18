@@ -440,8 +440,8 @@ class Jetpack_XMLRPC_Server {
 	 * Given an array containing a local user identifier and a nonce, will attempt to fetch and set
 	 * an access token for the given user.
 	 *
-	 * @param array       $request    An array containing local_user and nonce keys at minimum.
-	 * @param \IXR_Client $ixr_client The client object, optional.
+	 * @param array|ArrayAccess $request An array containing local_user and nonce keys at minimum.
+	 * @param \IXR_Client       $ixr_client The client object, optional.
 	 * @return mixed
 	 */
 	public function remote_connect( $request, $ixr_client = false ) {

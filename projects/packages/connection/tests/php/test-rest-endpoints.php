@@ -1072,6 +1072,87 @@ class Test_REST_Endpoints extends TestCase {
 	}
 
 	/**
+	 * Testing the `remote_connect` endpoint without authentication.
+	 * Response: failed authorization.
+	 */
+	public function test_remote_connect_unauthenticated() {
+		wp_set_current_user( 0 );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/remote_connect' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		$body = array( 'local_user' => static::$user_id );
+		$request->set_body( wp_json_encode( $body ) );
+
+		// Mock full connection established.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+
+		$response      = $this->server->dispatch( $request );
+		$response_data = $response->get_data();
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
+
+		static::assertEquals( 'invalid_permission_remote_connect', $response_data['code'] );
+		static::assertEquals( 401, $response_data['data']['status'] );
+	}
+
+	/**
+	 * Testing the `remote_connect` endpoint with proper authentication.
+	 * Response: `already_connected`, meaning that the REST endpoint passed the data to the handler.
+	 */
+	public function test_remote_connect_authenticated() {
+		wp_set_current_user( 0 );
+
+		// Mock full connection established.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+
+		$_GET['_for']      = 'jetpack';
+		$_GET['token']     = 'new:1:0';
+		$_GET['timestamp'] = (string) time();
+		$_GET['nonce']     = 'testing123';
+		$_GET['body-hash'] = '';
+		// This is intentionally using base64_encode().
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$_GET['signature'] = base64_encode(
+			hash_hmac(
+				'sha1',
+				implode(
+					"\n",
+					$data  = array(
+						$_GET['token'],
+						$_GET['timestamp'],
+						$_GET['nonce'],
+						$_GET['body-hash'],
+						'POST',
+						'anything.example',
+						'80',
+						'',
+					)
+				) . "\n",
+				'blogtoken',
+				true
+			)
+		);
+
+		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/remote_connect' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		$body = array( 'local_user' => -1 );
+		$request->set_body( wp_json_encode( $body ) );
+
+		$response      = $this->server->dispatch( $request );
+		$response_data = $response->get_data();
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
+
+		static::assertTrue( false !== strpos( $response_data['message'], '[already_connected]' ) );
+		static::assertEquals( 400, $response_data['code'] );
+	}
+
+	/**
 	 * This filter callback allows us to skip the database query by `Jetpack_Options` to retrieve the option.
 	 *
 	 * @param array $options List of options already skipping the database request.
