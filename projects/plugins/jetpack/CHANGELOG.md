@@ -47,9 +47,9 @@
 - Add metadata to the post to better diagnose need for Reader and Firehose. [#36254]
 - Add site migration endpoint. [#36253]
 - Compile TypeScript extensions in Jetpack. [#35904]
-- Contact Form: add deprecation warnings to Contact Form module codebase. [#36040]
-- Contact Form: refactor editor to use forms package. [#36089]
-- Contact Form: refactor endpoints to use forms package. [#36087]
+- Contact Form: Add deprecation warnings to Contact Form module codebase. [#36040]
+- Contact Form: Refactor editor to use Forms package. [#36089]
+- Contact Form: Refactor endpoints to use Forms package. [#36087]
 - Editor: Update to the most recent version of the @automattic/calypso-color-schemes package. [#36227]
 - General: update to the most recent version of @automattic/calypso-color-schemes. [#36187]
 - Login block: Link to subscription management page with site URL as search query.
