@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import SocialIcon from 'social-logos';
 import { getNameBySite } from './utils';
 import './style.scss';
+
 const SharingButtonEdit = ( { attributes, context } ) => {
 	const { service, label } = attributes;
 	const { styleType, iconColorValue, iconBackgroundColorValue } = context;

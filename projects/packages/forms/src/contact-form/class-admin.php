@@ -433,7 +433,7 @@ class Admin {
 	/**
 	 * Display edit form view.
 	 *
-	 * @return void
+	 * @return never
 	 */
 	public function grunion_display_form_view() {
 		if ( current_user_can( 'edit_posts' ) ) {
@@ -951,6 +951,8 @@ class Admin {
 	/**
 	 * Take an array of field types from the form builder, and construct a shortcode form.
 	 * returns both the shortcode form, and HTML markup representing a preview of the form
+	 *
+	 * @return never
 	 */
 	public function grunion_ajax_shortcode() {
 		check_ajax_referer( 'grunion_shortcode' );
@@ -998,6 +1000,8 @@ class Admin {
 	/**
 	 * Takes a post_id, extracts the contact-form shortcode from that post (if there is one), parses it,
 	 * and constructs a json object representing its contents and attributes.
+	 *
+	 * @return never
 	 */
 	public function grunion_ajax_shortcode_to_json() {
 		global $post;

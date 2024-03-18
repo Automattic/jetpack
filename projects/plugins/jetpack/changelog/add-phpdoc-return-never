@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Updated php docs to use `@return never` where appropriate. No change to functionality.
+
+
