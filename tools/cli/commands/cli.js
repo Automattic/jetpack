@@ -101,17 +101,19 @@ function cliUnlink( options ) {
 }
 
 /**
- * Toggles the analytics tracking preference for the CLI.
+ * Sets the analytics tracking preference for the CLI.
+ *
+ * @param {string} preference - The state to set the analytics tracking to, 'on' or 'off'.
  */
-function cliAnalytics() {
-	const analyticsEnabled = ! configStore.get( 'analyticsEnabled' );
+function cliAnalytics( preference = null ) {
+	const analyticsEnabled = preference === 'on';
 	configStore.set( 'analyticsEnabled', analyticsEnabled );
 	console.log(
 		`Analytics tracking for Jetpack CLI is now ${ analyticsEnabled ? 'enabled' : 'disabled' }.`,
 		`\n\nAnalytics tracking helps improve the Jetpack CLI by sending usage data. ${
 			analyticsEnabled
 				? 'Thank you for helping us improve!'
-				: "\nWe appreciate your privacy. If you'd like to enable analytics tracking in the future, run: jetpack cli analytics"
+				: "\nWe appreciate your privacy. If you'd like to enable analytics tracking in the future, run: jetpack cli analytics on"
 		}`
 	);
 }
@@ -159,11 +161,17 @@ export function cliDefine( yargs ) {
 				}
 			)
 			.command(
-				'analytics',
-				'Toggle analytics tracking for the CLI',
-				() => {},
+				'analytics <preference>',
+				'Set analytics tracking preference',
+				() => {
+					return yargs.positional( 'preference', {
+						describe: 'Turn on or off analytics tracking',
+						type: 'string',
+						choices: [ 'on', 'off' ],
+					} );
+				},
 				argv => {
-					cliAnalytics();
+					cliAnalytics( argv.preference );
 					if ( argv.v ) {
 						console.log( argv );
 					}

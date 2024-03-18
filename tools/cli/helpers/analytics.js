@@ -33,7 +33,7 @@ export async function checkAnalyticsEnabled() {
 		console.log(
 			prompt.analyticsEnabled
 				? 'Thank you for helping us improve Jetpack CLI!'
-				: "We appreciate your privacy. If you'd like to enable analytics tracking in the future, run: jetpack cli analytics"
+				: "We appreciate your privacy. If you'd like to enable analytics tracking in the future, run: jetpack cli analytics on"
 		);
 	}
 
