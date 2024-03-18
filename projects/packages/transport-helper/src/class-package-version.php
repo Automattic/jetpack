@@ -36,4 +36,6 @@ class Package_Version {
 
 // For compatibility with plugins that had a broken version of the package, this file needs to define the "V0001"-namespaced class
 // because this filename is what the old plugins' autoloader will be loading. So load the file that defines that class now.
-require __DIR__ . '/class-package-version-compat.php';
+if ( ! class_exists( \Automattic\Jetpack\Transport_Helper\V0001\Package_Version::class, false ) ) {
+	require __DIR__ . '/class-package-version-compat.php';
+}
