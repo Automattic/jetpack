@@ -718,6 +718,9 @@ importers:
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../components
+      '@wordpress/api-fetch':
+        specifier: 6.50.0
+        version: 6.50.0
       '@wordpress/components':
         specifier: 27.1.0
         version: 27.1.0(react-dom@18.2.0)(react@18.2.0)
@@ -740,9 +743,15 @@ importers:
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../base-styles
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../webpack-config
       '@babel/core':
         specifier: 7.24.0
         version: 7.24.0
+      '@babel/plugin-transform-react-jsx':
+        specifier: 7.23.4
+        version: 7.23.4(@babel/core@7.24.0)
       '@babel/preset-react':
         specifier: 7.23.3
         version: 7.23.3(@babel/core@7.24.0)
@@ -755,6 +764,12 @@ importers:
       '@testing-library/user-event':
         specifier: 14.5.2
         version: 14.5.2(@testing-library/dom@9.3.4)
+      '@wordpress/babel-plugin-import-jsx-pragma':
+        specifier: 4.36.0
+        version: 4.36.0(@babel/core@7.24.0)
+      babel-jest:
+        specifier: 29.7.0
+        version: 29.7.0(@babel/core@7.24.0)
       jest:
         specifier: 29.7.0
         version: 29.7.0
