@@ -12,6 +12,10 @@
  * @package Automattic/jetpack
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
+
 add_action( 'rss_head', 'jetpack_wpcomreader_feed_id' );
 add_action( 'rss_item', 'jetpack_wpcomreader_post_id' );
 add_action( 'rss1_head', 'jetpack_wpcomreader_feed_id' );
@@ -19,10 +23,19 @@ add_action( 'rss1_item', 'jetpack_wpcomreader_post_id' );
 
 /**
  * Output feed identifier based on blog ID.
+ *
+ * @return string|void XML output or void if not connected.
  */
 function jetpack_wpcomreader_feed_id() {
-	$id = (int) Jetpack_Options::get_option( 'id' );
-	if ( $id > -1 ) {
+	if ( ( new Status() )->is_offline_mode() ) {
+		return;
+	}
+	$connection = new Connection_Manager();
+	if ( ( new Host() )->is_wpcom_simple() || $connection->is_connected() ) {
+		$id = $connection->get_site_id( true ); // Silence since we're not wanting to handle the error state.
+		if ( ! $id ) {
+			return;
+		}
 		$output = sprintf( '<site xmlns="com-wordpress:feed-additions:0">%d</site>', $id );
 		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
