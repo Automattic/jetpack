@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Jetpack_Portfolio: Prevent a division by 0 fatal when a user uses the shortcode with columns=0
