@@ -5,6 +5,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.17.0] - 2024-03-15
+### Added
+- Added information regarding if github deployments is active to the wp-admin command palette config. [#36324]
+- Untangle: Enable both Calypso & Core admin color schemes in Users -> Profile [#36341]
+
+## [5.16.1] - 2024-03-12
+### Changed
+- Internal updates.
+
+## [5.16.0] - 2024-03-12
+### Added
+- Added Connections to the Hosting menu [#36302]
+
+### Changed
+- Updated package dependencies. [#36325]
+
+## [5.15.2] - 2024-03-11
+### Changed
+- External dependencies of the Command Palette are now explicitly declared. [#36184]
+- Jetpack MU WPCOM: Added Bytespider robots.txt [#36260]
+- Remove external-icon from Hosting menu [#36221]
+
+### Fixed
+- unregisters unnecessary items from the customizer for atomic sites on block theme [#36161]
+- Untangle: correctly show the current homepage when live-previewing another block theme [#36178]
+
+## [5.15.1] - 2024-03-05
+### Changed
+- Internal updates.
+
+## [5.15.0] - 2024-03-04
+### Added
+- Added a Command Palette loader on the jetpack-mu-wpcom plugin. [#35635]
+
+### Changed
+- Add-Ons: Hide the menu on atomic sites [#36065]
+- Scheduled Updates: Load API endpoints on WP.com so it works with public-api passthrough. [#35999]
+- Show gutenberg in verbum to 80% of users [#36121]
+- The Command Palette loads the script with a `defer` strategy now to improve the performance. [#36076]
+- Updated package dependencies.
+
+### Fixed
+- Add blog id and post id to connection params [#36152]
+- Untangle: fix launchpad links to go to wp-admin pages on classic view [#36014]
+
 ## [5.14.1] - 2024-02-26
 ### Changed
 - Verbum: Ensure colour contrast for disabled button is a11y-friendly. [#35929]
@@ -611,6 +656,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.17.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.16.1...v5.17.0
+[5.16.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.16.0...v5.16.1
+[5.16.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.15.2...v5.16.0
+[5.15.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.15.1...v5.15.2
+[5.15.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.15.0...v5.15.1
+[5.15.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.14.1...v5.15.0
 [5.14.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.14.0...v5.14.1
 [5.14.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.13.1...v5.14.0
 [5.13.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.13.0...v5.13.1

@@ -67,7 +67,8 @@ class Jetpack_Google_Font_Face {
 			$this->fonts_in_use
 		);
 
-		foreach ( $fonts as $font_family => $font_faces ) {
+		foreach ( $fonts as $font_faces ) {
+			$font_family = $font_faces[0]['font-family'] ?? '';
 			if ( in_array( $this->format_font( $font_family ), $fonts_in_use, true ) ) {
 				$fonts_to_print[ $font_family ] = $font_faces;
 			}
@@ -161,7 +162,7 @@ class Jetpack_Google_Font_Face {
 		$raw_data   = $theme_json->get_data();
 		if ( ! empty( $raw_data['settings']['typography']['fontFamilies'] ) ) {
 			foreach ( $raw_data['settings']['typography']['fontFamilies'] as $font ) {
-				$font_family_name = $this->get_font_family_name( $font );
+				$font_family_name = $this->format_font( $this->get_font_family_name( $font ) );
 				$font_slug        = $font['slug'] ?? '';
 				if ( $font_slug && $font_slug !== $font_family_name && ! array_key_exists( $font_slug, $font_slug_aliases ) ) {
 					$font_slug_aliases[ $font_slug ] = $font_family_name;

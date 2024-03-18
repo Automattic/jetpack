@@ -33,7 +33,7 @@ export const mediaSources = [
 	},
 	{
 		id: SOURCE_JETPACK_APP_MEDIA,
-		label: __( 'Jetpack Mobile App', 'jetpack' ),
+		label: __( 'Your Phone', 'jetpack' ),
 		icon: <JetpackMobileAppIcon className="components-menu-items__item-icon" />,
 		keyword: 'jetpack mobile app',
 	},

@@ -18,6 +18,7 @@ use Jetpack_Gutenberg;
 use Jetpack_Memberships;
 use Jetpack_Subscriptions_Widget;
 
+require_once __DIR__ . '/class-jetpack-subscription-site.php';
 require_once __DIR__ . '/constants.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 
@@ -119,6 +120,19 @@ function register_block() {
 		)
 	);
 
+	register_post_meta(
+		'post',
+		META_NAME_CONTAINS_PAYWALLED_CONTENT,
+		array(
+			'show_in_rest'  => true,
+			'single'        => true,
+			'type'          => 'boolean',
+			'auth_callback' => function () {
+				return wp_get_current_user()->has_cap( 'edit_posts' );
+			},
+		)
+	);
+
 	// This ensures Jetpack will sync this post meta to WPCOM.
 	add_filter(
 		'jetpack_sync_post_meta_whitelist',
@@ -128,6 +142,7 @@ function register_block() {
 				array(
 					META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
 					META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
+					META_NAME_CONTAINS_PAYWALLED_CONTENT,
 				)
 			);
 		}
@@ -155,6 +170,19 @@ function register_block() {
 	}
 
 	add_action( 'init', __NAMESPACE__ . '\maybe_prevent_super_cache_caching' );
+
+	add_action( 'save_post_post', __NAMESPACE__ . '\add_paywalled_content_post_meta', 99, 1 );
+
+	add_filter(
+		'jetpack_options_whitelist',
+		function ( $options ) {
+			$options[] = 'jetpack_subscriptions_subscribe_post_end_enabled';
+
+			return $options;
+		}
+	);
+
+	Jetpack_Subscription_Site::init()->handle_subscribe_block_placements();
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
 
@@ -181,6 +209,25 @@ function register_newsletter_access_column( $columns ) {
 		$new_column,
 		array_slice( $columns, $position, null, true )
 	);
+}
+
+/**
+ * Add a meta to prevent publication on firehose, ES AI or Reader
+ *
+ * @param int $post_id Post id being saved.
+ * @return void
+ */
+function add_paywalled_content_post_meta( int $post_id ) {
+	$access_level = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+
+	$is_paywalled = false;
+	switch ( $access_level ) {
+		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS:
+		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS:
+		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS:
+			$is_paywalled = true;
+	}
+	update_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, $is_paywalled );
 }
 
 /**
@@ -562,7 +609,7 @@ function render_block( $attributes ) {
 
 	$subscribe_email = Jetpack_Memberships::get_current_user_email();
 
-	/** This filter is documented in modules/contact-form/grunion-contact-form.php */
+	/** This filter is documented in \Automattic\Jetpack\Forms\ContactForm\Contact_Form */
 	if ( is_wpcom() || false !== apply_filters( 'jetpack_auto_fill_logged_in_user', false ) ) {
 		$current_user    = wp_get_current_user();
 		$subscribe_email = ! empty( $current_user->user_email ) ? $current_user->user_email : '';
@@ -1076,14 +1123,12 @@ function get_paywall_blocks( $newsletter_access_level ) {
 
 		}
 	} else {
-		if ( ( new Host() )->is_wpcom_simple() ) {
-			// custom domain
-			$sign_in_link = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link', get_current_blog_id() );
-		}
 		$access_question = get_paywall_access_question( $newsletter_access_level );
-		$sign_in         = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
-<p class="has-text-align-center" style="font-size:14px"><a href="' . $sign_in_link . '">' . $access_question . '</a></p>
-<!-- /wp:paragraph -->';
+		$sign_in         = '<!-- wp:group {"style":{"typography":{"fontSize":"14px"}},"layout":{"type":"flex","justifyContent":"center"}} -->
+<div class="wp-block-group" style="font-size:14px">
+	<!-- wp:jetpack/subscriber-login {"logInLabel":"' . $access_question . '"} /-->
+</div>
+<!-- /wp:group -->';
 	}
 
 	$lock_svg = plugins_url( 'images/lock-paywall.svg', JETPACK__PLUGIN_FILE );
@@ -1165,10 +1210,12 @@ function is_user_auth(): bool {
 function get_paywall_blocks_subscribe_pending() {
 	$subscribe_email = Jetpack_Memberships::get_current_user_email();
 
-	/** This filter is documented in modules/contact-form/grunion-contact-form.php */
+	/** This filter is documented in \Automattic\Jetpack\Forms\ContactForm\Contact_Form */
 	if ( is_wpcom() || false !== apply_filters( 'jetpack_auto_fill_logged_in_user', false ) ) {
-		$current_user    = wp_get_current_user();
-		$subscribe_email = ! empty( $current_user->user_email ) ? $current_user->user_email : '';
+		$current_user = wp_get_current_user();
+		if ( ! empty( $current_user->user_email ) ) {
+			$subscribe_email = $current_user->user_email;
+		}
 	}
 
 	$access_heading = esc_html__( 'Confirm your subscription to continue reading', 'jetpack' );
@@ -1210,14 +1257,6 @@ function get_paywall_simple() {
 	return '
 <!-- wp:columns -->
 <div class="wp-block-columns" style="display: inline-block; width: 90%">
-    <!-- wp:column -->
-    <div class="wp-block-column" style="background-color: #F6F7F7; padding: 32px; 24px;">
-        <!-- wp:paragraph -->
-        <p class="has-text-align-center"
-           style="text-align: center;
-                  color: #50575E;
-                  font-weight: 400;
-                  font-size: 16px;
                   font-family: \'SF Pro Text\', sans-serif;
                   line-height: 28.8px;">
         ' . $access_heading . '

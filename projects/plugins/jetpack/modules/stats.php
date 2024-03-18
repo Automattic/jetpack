@@ -27,7 +27,6 @@ use Automattic\Jetpack\Stats\XMLRPC_Provider as Stats_XMLRPC;
 use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
 use Automattic\Jetpack\Stats_Admin\Main as Stats_Main;
 use Automattic\Jetpack\Stats_Admin\Notices as Stats_Notices;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 
@@ -243,9 +242,8 @@ function stats_admin_menu() {
 	}
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	if ( ( new Host() )->is_woa_site() || ! Stats_Options::get_option( 'enable_odyssey_stats' ) || isset( $_GET['noheader'] ) ) {
+	if ( ! Stats_Options::get_option( 'enable_odyssey_stats' ) || isset( $_GET['noheader'] ) ) {
 		// Show old Jetpack Stats interface for:
-		// - Atomic sites.
 		// - When the "enable_odyssey_stats" option is disabled.
 		// - When being shown in the adminbar outside of wp-admin.
 		$hook = Admin_Menu::add_menu( __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', 'jetpack_admin_ui_stats_report_page_wrapper' );
@@ -421,7 +419,8 @@ function jetpack_admin_ui_stats_report_page_wrapper() {
  */
 function stats_reports_page( $main_chart_only = false ) {
 	if ( isset( $_GET['dashboard'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		return stats_dashboard_widget_content();
+		stats_dashboard_widget_content();
+		exit; // @phan-suppress-current-line PhanPluginUnreachableCode -- Safer to include it even though stats_dashboard_widget_content() never returns.
 	}
 
 	$blog_id = Stats_Options::get_option( 'blog_id' );
@@ -1003,11 +1002,10 @@ function stats_admin_bar_menu( &$wp_admin_bar ) {
 	$img_src_2x = esc_attr( stats_get_image_chart_src( 'admin-bar-hours-scale-2x' ) );
 	$alt        = esc_attr( __( 'Stats', 'jetpack' ) );
 	$title      = esc_attr( __( 'Views over 48 hours. Click for more Jetpack Stats.', 'jetpack' ) );
-	$site_slug  = ( new Status() )->get_site_suffix();
 
 	$menu = array(
 		'id'    => 'stats',
-		'href'  => esc_url( 'https://wordpress.com/stats/day/' . $site_slug ),
+		'href'  => add_query_arg( 'page', 'stats', admin_url( 'admin.php' ) ), // no menu_page_url() blog-side.
 		'title' => "<div><img src='$img_src' srcset='$img_src 1x, $img_src_2x 2x' width='112' height='24' alt='$alt' title='$title'></div>",
 	);
 
@@ -1219,7 +1217,7 @@ function stats_jetpack_dashboard_widget() {
  * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
  *
  * @access public
- * @return void
+ * @return never
  */
 function stats_dashboard_widget_content() {
 	$width  = isset( $_GET['width'] ) ? intval( $_GET['width'] ) / 2 : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended

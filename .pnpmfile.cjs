@@ -15,9 +15,9 @@ function fixDeps( pkg ) {
 	// https://github.com/Automattic/wp-calypso/pull/87350
 	if (
 		pkg.name === '@automattic/social-previews' &&
-		pkg.dependencies?.[ '@wordpress/components' ] === '^25.10.0'
+		pkg.dependencies?.[ '@wordpress/components' ] === '^26.0.1'
 	) {
-		pkg.dependencies[ '@wordpress/components' ] = '^26.0.0';
+		pkg.dependencies[ '@wordpress/components' ] = '>=26.0.1';
 	}
 
 	// Missing dep or peer dep on react.
@@ -84,6 +84,24 @@ function fixDeps( pkg ) {
 	if ( pkg.name === 'ajv-formats' && pkg.dependencies?.ajv && pkg.peerDependencies?.ajv ) {
 		delete pkg.dependencies.ajv;
 		delete pkg.peerDependenciesMeta?.ajv;
+	}
+
+	// Missing deps.
+	// https://github.com/storybookjs/test-runner/issues/414
+	if ( pkg.name === '@storybook/test-runner' ) {
+		pkg.dependencies.semver ??= '*';
+		pkg.dependencies[ 'detect-package-manager' ] ??= '*';
+	}
+
+	// Types packages have outdated deps. Reset all their `@wordpress/*` deps to star-version,
+	// which pnpm should 🤞 dedupe to match whatever is in use elsewhere in the monorepo.
+	// https://github.com/Automattic/jetpack/pull/35904#discussion_r1508681777
+	if ( pkg.name.startsWith( '@types/wordpress__' ) && pkg.dependencies ) {
+		for ( const k of Object.keys( pkg.dependencies ) ) {
+			if ( k.startsWith( '@wordpress/' ) ) {
+				pkg.dependencies[ k ] = '*';
+			}
+		}
 	}
 
 	return pkg;

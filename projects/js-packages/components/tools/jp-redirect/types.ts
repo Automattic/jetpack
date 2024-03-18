@@ -38,11 +38,6 @@ export type QueryVars = {
 };
 
 declare global {
-	interface Window {
-		JP_CONNECTION_INITIAL_STATE: {
-			calypsoEnv?: string;
-		};
-	}
 	const jetpack_redirects: {
 		currentSiteRawUrl?: string;
 		currentBlogID?: string;
