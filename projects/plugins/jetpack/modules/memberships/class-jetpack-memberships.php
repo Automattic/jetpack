@@ -149,7 +149,7 @@ class Jetpack_Memberships {
 	public static function get_instance() {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
-			self::$instance->register_initialization_hooks();
+			self::$instance->register_init_hook();
 			// Yes, `pro-plan` with a dash, `jetpack_personal` with an underscore. Check the v1.5 endpoint to verify.
 			$wpcom_plan_slug     = defined( 'ENABLE_PRO_PLAN' ) ? 'pro-plan' : 'personal-bundle';
 			self::$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? $wpcom_plan_slug : 'jetpack_personal';
@@ -189,15 +189,11 @@ class Jetpack_Memberships {
 	}
 
 	/**
-	 * Registers initialization hooks.
+	 * Inits further hooks on init hook.
 	 */
-	private function register_initialization_hooks() {
+	private function register_init_hook() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
 		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_gutenberg_block' ) );
-
-		if ( Jetpack::is_module_active( 'subscriptions' ) && jetpack_is_frontend() ) {
-			add_action( 'wp_logout', array( $this, 'subscriber_logout' ) );
-		}
 	}
 
 	/**
@@ -207,6 +203,10 @@ class Jetpack_Memberships {
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_rest_api_types' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'allow_sync_post_meta' ) );
 		$this->setup_cpts();
+
+		if ( Jetpack::is_module_active( 'subscriptions' ) && jetpack_is_frontend() ) {
+			add_action( 'wp_logout', array( $this, 'subscriber_logout' ) );
+		}
 	}
 
 	/**
