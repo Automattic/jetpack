@@ -109,7 +109,7 @@ class Note {
 			),
 			'show_in_rest'  => true,
 			'has_archive'   => true,
-			'supports'      => array( 'editor', 'thumbnail', 'publicize', 'enhanced_post_list', 'activitypub' ),
+			'supports'      => array( 'editor', 'comments', 'thumbnail', 'publicize', 'enhanced_post_list', 'activitypub' ),
 			'menu_icon'     => 'dashicons-welcome-write-blog',
 			'rewrite'       => array( 'slug' => 'sn' ),
 			'template'      => array(
