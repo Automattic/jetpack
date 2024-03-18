@@ -59,7 +59,7 @@ export async function tracks( eventName = 'uncategorized' ) {
 		await fetch( 'https://public-api.wordpress.com/rest/v1.1/tracks/record?http_envelope=1', {
 			method: 'POST',
 			headers: {
-				'User-Agent': 'Node.js Jetpack CLI',
+				'User-Agent': 'Jetpack-CLI',
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify( {
