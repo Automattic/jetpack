@@ -2,6 +2,8 @@
 /**
  * Jetpack_WooCommerce_Analytics_Universal
  *
+ * @deprecated 13.3
+ *
  * @package automattic/jetpack
  * @author Automattic
  */
@@ -16,6 +18,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class Jetpack_WooCommerce_Analytics_Universal
  * Filters and Actions added to Store pages to perform analytics
+ *
+ * @deprecated 13.3
  */
 class Jetpack_WooCommerce_Analytics_Universal {
 
@@ -26,6 +30,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 	/**
 	 * Jetpack_WooCommerce_Analytics_Universal constructor.
+	 *
+	 * @deprecated 13.3
 	 */
 	public function __construct() {
 		$this->find_cart_checkout_content_sources();
@@ -60,6 +66,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 	/**
 	 * On product lists or other non-product pages, add an event listener to "Add to Cart" button click
+	 *
+	 * @deprecated 13.3
 	 */
 	public function loop_session_events() {
 		// Check for previous events queued in session data.
@@ -83,6 +91,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 	/**
 	 * On the cart page, add an event listener for removal of product click
+	 *
+	 * @deprecated 13.3
 	 */
 	public function remove_from_cart() {
 		$common_props = $this->render_properties_as_js(
@@ -113,6 +123,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	/**
 	 * Adds the product ID to the remove product link (for use by remove_from_cart above) if not present
 	 *
+	 * @deprecated 13.3
+	 *
 	 * @param string $url Full HTML a tag of the link to remove an item from the cart.
 	 * @param string $key Unique Key ID for a cart item.
 	 *
@@ -138,6 +150,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	/**
 	 * Get the selected shipping option for a cart item. If the name cannot be found in the options table, the method's
 	 * ID will be used.
+	 *
+	 * @deprecated 13.3
 	 *
 	 * @param string $cart_item_key the cart item key.
 	 *
@@ -181,6 +195,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 	/**
 	 * On the Checkout page, trigger an event for each product in the cart
+	 *
+	 * @deprecated 13.3
 	 */
 	public function checkout_process() {
 		global $post;
@@ -294,6 +310,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	/**
 	 * After the checkout process, fire an event for each item in the order
 	 *
+	 * @deprecated 13.3
+	 *
 	 * @param string $order_id Order Id.
 	 */
 	public function order_process( $order_id ) {
@@ -381,6 +399,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	/**
 	 * Listen for clicks on the "Update Cart" button to know if an item has been removed by
 	 * updating its quantity to zero
+	 *
+	 * @deprecated 13.3
 	 */
 	public function remove_from_cart_via_quantity() {
 		$common_props = $this->render_properties_as_js(
@@ -409,6 +429,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	/**
 	 * Gets the inner blocks of a block.
 	 *
+	 * @deprecated 13.3
+	 *
 	 * @param array $inner_blocks The inner blocks.
 	 *
 	 * @return array
@@ -426,6 +448,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 	/**
 	 * Track adding items to the cart.
+	 *
+	 * @deprecated 13.3
 	 *
 	 * @param string $cart_item_key Cart item key.
 	 * @param int    $product_id Product added to cart.
@@ -448,6 +472,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 	/**
 	 * Track in-session data.
+	 *
+	 * @deprecated 13.3
 	 *
 	 * @param int    $product_id Product ID.
 	 * @param int    $quantity Quantity.
@@ -488,6 +514,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	/**
 	 * Save createaccount post data to be used in $this->order_process.
 	 *
+	 * @deprecated 13.3
+	 *
 	 * @param array $data post data from the checkout page.
 	 *
 	 * @return array
@@ -505,6 +533,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 	/**
 	 * Capture the create account event. Similar to save_checkout_post_data but works with Store API.
+	 *
+	 * @deprecated 13.3
 	 *
 	 * @param int   $customer_id Customer ID.
 	 * @param array $new_customer_data New customer data.

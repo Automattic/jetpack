@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Listviews: Status filters are now case-sensitive.

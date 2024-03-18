@@ -2,6 +2,17 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.50.2] - 2024-03-14
+### Added
+- Add Bluesky color [#36181]
+
+## [0.50.1] - 2024-03-12
+### Added
+- Social Logos: add new SMS icon. [#36176]
+
+### Changed
+- Updated package dependencies. [#36325]
+
 ## [0.50.0] - 2024-03-07
 ### Added
 - Fix typescript errors [#35904]
@@ -971,6 +982,8 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.50.2]: https://github.com/Automattic/jetpack-components/compare/0.50.1...0.50.2
+[0.50.1]: https://github.com/Automattic/jetpack-components/compare/0.50.0...0.50.1
 [0.50.0]: https://github.com/Automattic/jetpack-components/compare/0.49.2...0.50.0
 [0.49.2]: https://github.com/Automattic/jetpack-components/compare/0.49.1...0.49.2
 [0.49.1]: https://github.com/Automattic/jetpack-components/compare/0.49.0...0.49.1
