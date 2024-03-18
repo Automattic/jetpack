@@ -173,6 +173,15 @@ function register_block() {
 
 	add_action( 'save_post_post', __NAMESPACE__ . '\add_paywalled_content_post_meta', 99, 1 );
 
+	add_filter(
+		'jetpack_options_whitelist',
+		function ( $options ) {
+			$options[] = 'jetpack_subscriptions_subscribe_post_end_enabled';
+
+			return $options;
+		}
+	);
+
 	Jetpack_Subscription_Site::init()->handle_subscribe_block_placements();
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );

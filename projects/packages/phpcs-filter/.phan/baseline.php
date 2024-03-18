@@ -12,7 +12,6 @@ return [
     // PhanUndeclaredFunction : 10+ occurrences
     // PhanPossiblyUndeclaredVariable : 3 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 2 occurrences
-    // PhanRedefinedUsedTrait : 2 occurrences
     // PhanTypeMismatchReturnNullable : 2 occurrences
     // PhanUndeclaredMethod : 2 occurrences
     // PhanUndeclaredTypeParameter : 2 occurrences
@@ -36,8 +35,8 @@ return [
         'tests/fixtures/perdir/excludedfile.php' => ['PhanUndeclaredFunction'],
         'tests/fixtures/perdir/file.php' => ['PhanUndeclaredFunction'],
         'tests/fixtures/perdir/severity-to-0/file.php' => ['PhanUndeclaredFunction'],
-        'tests/php/PhpcsFilterTest.php' => ['PhanPluginLoopVariableReuse', 'PhanPossiblyUndeclaredVariable', 'PhanRedefinedUsedTrait'],
-        'tests/php/StdinBootstrapTest.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedefinedUsedTrait', 'PhanTypeArraySuspiciousNullable', 'PhanUndeclaredClassMethod'],
+        'tests/php/PhpcsFilterTest.php' => ['PhanPluginLoopVariableReuse', 'PhanPossiblyUndeclaredVariable'],
+        'tests/php/StdinBootstrapTest.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable', 'PhanUndeclaredClassMethod'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

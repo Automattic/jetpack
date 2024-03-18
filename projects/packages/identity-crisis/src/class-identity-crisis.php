@@ -26,7 +26,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.17.3';
+	const PACKAGE_VERSION = '0.17.4-alpha';
 
 	/**
 	 * Persistent WPCOM blog ID that stays in the options after disconnect.
@@ -1138,6 +1138,7 @@ class Identity_Crisis {
 	 * @param array $response The endpoint response that we're modifying.
 	 *
 	 * @return array
+	 *
 	 * phpcs:ignore Squiz.Commenting.FunctionCommentThrowTag -- The exception is being caught, false positive.
 	 */
 	public static function add_secret_to_url_validation_response( array $response ) {

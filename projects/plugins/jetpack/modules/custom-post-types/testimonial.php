@@ -3,6 +3,7 @@
  * Register a Testimonial post type and handle displaying it anywhere on the site.
  *
  * @package automattic/jetpack
+ *
  * @phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  * @phpcs:disable MediaWiki.Usage.NestedFunctions.NestedFunction
  */
