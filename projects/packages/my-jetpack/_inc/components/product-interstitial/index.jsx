@@ -9,8 +9,10 @@ import React, { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
  */
+import { MyJetpackRoutes } from '../../constants';
 import useActivate from '../../data/products/use-activate';
 import useProduct from '../../data/products/use-product';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
@@ -66,7 +68,7 @@ export default function ProductInterstitial( {
 	const { isUpgradableByBundle, tiers, pricingForUi } = detail;
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
-	const { myJetpackCheckoutUri } = window?.myJetpackInitialState ?? {};
+	const { myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
@@ -108,7 +110,7 @@ export default function ProductInterstitial( {
 		[ recordEvent, bundle, getProductSlugForTrackEvent ]
 	);
 
-	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
+	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( MyJetpackRoutes.Home );
 
 	const clickHandler = useCallback(
 		( checkout, product, tier ) => {
@@ -198,6 +200,7 @@ export default function ProductInterstitial( {
 							clickHandler={ clickHandler }
 							onProductButtonClick={ clickHandler }
 							trackProductButtonClick={ trackProductClick }
+							isFetching={ isActivating }
 						/>
 					) : (
 						<Container

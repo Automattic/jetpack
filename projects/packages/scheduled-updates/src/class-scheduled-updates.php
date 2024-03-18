@@ -2,10 +2,13 @@
 /**
  * Scheduled Updates
  *
- * @package automattic/jetpack-scheduled-updates
+ * @package automattic/scheduled-updates
  */
 
 namespace Automattic\Jetpack;
+
+// Load dependencies.
+require_once __DIR__ . '/pluggable.php';
 
 /**
  * Scheduled Updates class.
@@ -17,7 +20,7 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.3.1';
+	const PACKAGE_VERSION = '0.4.1-alpha';
 
 	/**
 	 * Initialize the class.
@@ -38,7 +41,7 @@ class Scheduled_Updates {
 			return;
 		}
 
-		add_action( 'jetpack_scheduled_update', array( __CLASS__, 'run_scheduled_update' ) );
+		add_action( 'jetpack_scheduled_update', array( __CLASS__, 'run_scheduled_update' ), 10, 10 );
 		add_action( 'rest_api_init', array( __CLASS__, 'add_is_managed_extension_field' ) );
 		add_filter( 'auto_update_plugin', array( __CLASS__, 'allowlist_scheduled_plugins' ), 10, 2 );
 		add_filter( 'plugin_auto_update_setting_html', array( __CLASS__, 'show_scheduled_updates' ), 10, 2 );
@@ -61,24 +64,67 @@ class Scheduled_Updates {
 	 * @param string ...$plugins List of plugins to update.
 	 */
 	public static function run_scheduled_update( ...$plugins ) {
+		$schedule_id       = self::generate_schedule_id( $plugins );
 		$available_updates = get_site_transient( 'update_plugins' );
-		$plugins_to_update = array();
+		$plugins_to_update = $available_updates->response ?? array();
+		$plugins_to_update = array_intersect_key( $plugins_to_update, array_flip( $plugins ) );
 
-		foreach ( $plugins as $plugin ) {
-			if ( isset( $available_updates->response[ $plugin ] ) ) {
-				$plugins_to_update[ $plugin ]              = $available_updates->response[ $plugin ];
-				$plugins_to_update[ $plugin ]->old_version = $available_updates->checked[ $plugin ];
+		if ( empty( $plugins_to_update ) ) {
+			// No updates available. Update the status to 'success' and return.
+			self::set_scheduled_update_status( $schedule_id, time(), 'success' );
+
+			return;
+		}
+
+		( new Connection\Client() )->wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%d/hosting/scheduled-update', \Jetpack_Options::get_option( 'id' ) ),
+			'2',
+			array( 'method' => 'POST' ),
+			array(
+				'plugins'     => $plugins_to_update,
+				'schedule_id' => $schedule_id,
+			),
+			'wpcom'
+		);
+	}
+
+	/**
+	 * Updates last status of a scheduled update.
+	 *
+	 * @param string      $schedule_id Request ID.
+	 * @param int|null    $timestamp   Timestamp of the last run.
+	 * @param string|null $status      Status of the last run.
+	 * @return false|array Updated statuses or false if not found.
+	 */
+	public static function set_scheduled_update_status( $schedule_id, $timestamp, $status ) {
+		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+
+		if ( empty( $events[ $schedule_id ] ) ) {
+			// Scheduled update not found.
+			return false;
+		}
+
+		$statuses = get_option( 'jetpack_scheduled_update_statuses', array() );
+		$option   = array();
+
+		// Reset the last statuses for the schedule.
+		foreach ( array_keys( $events ) as $status_id ) {
+			if ( ! empty( $statuses[ $status_id ] ) ) {
+				$option[ $status_id ] = $statuses[ $status_id ];
+			} else {
+				$option[ $status_id ] = null;
 			}
 		}
 
-		if ( ! empty( $plugins_to_update ) ) {
-			( new Connection\Client() )->wpcom_json_api_request_as_user(
-				sprintf( '/sites/%d/hosting/scheduled-update', \Jetpack_Options::get_option( 'id' ) ),
-				'2',
-				array( 'method' => 'POST' ),
-				array( 'plugins' => $plugins_to_update )
-			);
-		}
+		// Update the last status for the schedule.
+		$option[ $schedule_id ] = array(
+			'last_run_timestamp' => $timestamp,
+			'last_run_status'    => $status,
+		);
+
+		update_option( 'jetpack_scheduled_update_statuses', $option );
+
+		return $option;
 	}
 
 	/**
@@ -91,10 +137,13 @@ class Scheduled_Updates {
 	 */
 	public static function allowlist_scheduled_plugins( $update, $item ) {
 		if ( Constants::get_constant( 'SCHEDULED_AUTOUPDATE' ) ) {
-			$schedules = get_option( 'jetpack_update_schedules', array() );
+			if ( ! function_exists( 'wp_get_scheduled_events' ) ) {
+				require_once __DIR__ . '/pluggable.php';
+			}
 
-			foreach ( $schedules as $plugins ) {
-				if ( isset( $item->plugin ) && in_array( $item->plugin, $plugins, true ) ) {
+			$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+			foreach ( $events as $event ) {
+				if ( isset( $item->plugin ) && in_array( $item->plugin, $event->args, true ) ) {
 					return true;
 				}
 			}
@@ -112,26 +161,48 @@ class Scheduled_Updates {
 	 * @param string $plugin_file Path to the plugin file relative to the plugin directory.
 	 */
 	public static function show_scheduled_updates( $html, $plugin_file ) {
-		$schedules = get_option( 'jetpack_update_schedules', array() );
+		if ( ! function_exists( 'wp_get_scheduled_events' ) ) {
+			require_once __DIR__ . '/pluggable.php';
+		}
 
-		$schedule = false;
-		foreach ( $schedules as $plugins ) {
-			if ( in_array( $plugin_file, $plugins, true ) ) {
-				$schedule = wp_get_scheduled_event( 'jetpack_scheduled_update', $plugins );
-				break;
+		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+
+		$schedules = array();
+		foreach ( $events as $event ) {
+			if ( in_array( $plugin_file, $event->args, true ) ) {
+				$schedules[] = $event;
 			}
 		}
 
 		// Plugin is not part of an update schedule.
-		if ( ! $schedule ) {
+		if ( empty( $schedules ) ) {
 			return $html;
 		}
 
+		$text = array_map( array( __CLASS__, 'get_scheduled_update_text' ), $schedules );
+
+		$html  = '<p style="margin: 0 0 8px">' . implode( '<br>', $text ) . '</p>';
+		$html .= sprintf(
+			'<a href="%1$s">%2$s</a>',
+			esc_url( 'https://wordpress.com/plugins/scheduled-updates/' . ( new Status() )->get_site_suffix() ),
+			esc_html__( 'Edit', 'jetpack-scheduled-updates' )
+		);
+
+		return $html;
+	}
+
+	/**
+	 * Get the text for a scheduled update.
+	 *
+	 * @param object $schedule The scheduled update.
+	 * @return string
+	 */
+	public static function get_scheduled_update_text( $schedule ) {
 		if ( DAY_IN_SECONDS === $schedule->interval ) {
 			$html = sprintf(
 				/* translators: %s is the time of day. Daily at 10 am. */
 				esc_html__( 'Daily at %s.', 'jetpack-scheduled-updates' ),
-				date_i18n( get_option( 'time_format' ), $schedule->timestamp )
+				get_date_from_gmt( gmdate( 'Y-m-d H:i:s', $schedule->timestamp ), get_option( 'time_format' ) )
 			);
 		} else {
 			// Not getting smart about passing in weekdays makes it easier to translate.
@@ -154,12 +225,9 @@ class Scheduled_Updates {
 
 			$html = sprintf(
 				$weekdays[ date_i18n( 'N', $schedule->timestamp ) ],
-				date_i18n( get_option( 'time_format' ), $schedule->timestamp )
+				get_date_from_gmt( gmdate( 'Y-m-d H:i:s', $schedule->timestamp ), get_option( 'time_format' ) )
 			);
 		}
-
-		$html  = '<p style="margin: 0 0 8px">' . $html . '</p>';
-		$html .= '<a href="' . esc_url( admin_url( 'admin.php?page=jetpack#jetpack-autoupdates' ) ) . '">' . esc_html__( 'Edit', 'jetpack-scheduled-updates' ) . '</a>';
 
 		return $html;
 	}
@@ -195,5 +263,99 @@ class Scheduled_Updates {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Return file and update modification capabilities for the site.
+	 *
+	 * @see Jetpack_JSON_API_Plugins_Endpoint::file_mod_capabilities
+	 */
+	public static function get_file_mod_capabilities() {
+		$reasons_can_not_autoupdate   = array();
+		$reasons_can_not_modify_files = array();
+
+		$has_file_system_write_access = self::file_system_write_access();
+		if ( ! $has_file_system_write_access ) {
+			$reasons_can_not_modify_files['has_no_file_system_write_access'] = __( 'The file permissions on this host prevent editing files.', 'jetpack-scheduled-updates' );
+		}
+
+		$disallow_file_mods = \Automattic\Jetpack\Constants::get_constant( 'DISALLOW_FILE_MODS' );
+		if ( $disallow_file_mods ) {
+			$reasons_can_not_modify_files['disallow_file_mods'] = __( 'File modifications are explicitly disabled by a site administrator.', 'jetpack-scheduled-updates' );
+		}
+
+		$automatic_updater_disabled = \Automattic\Jetpack\Constants::get_constant( 'AUTOMATIC_UPDATER_DISABLED' );
+		if ( $automatic_updater_disabled ) {
+			$reasons_can_not_autoupdate['automatic_updater_disabled'] = __( 'Any autoupdates are explicitly disabled by a site administrator.', 'jetpack-scheduled-updates' );
+		}
+
+		if ( is_multisite() ) {
+			// is it the main network ? is really is multi network
+			if ( Jetpack::is_multi_network() ) {
+				$reasons_can_not_modify_files['is_multi_network'] = __( 'Multi network install are not supported.', 'jetpack-scheduled-updates' );
+			}
+			// Is the site the main site here.
+			if ( ! is_main_site() ) {
+				$reasons_can_not_modify_files['is_sub_site'] = __( 'The site is not the main network site', 'jetpack-scheduled-updates' );
+			}
+		}
+
+		$file_mod_capabilities = array(
+			'modify_files'     => (bool) empty( $reasons_can_not_modify_files ), // install, remove, update
+			'autoupdate_files' => (bool) empty( $reasons_can_not_modify_files ) && empty( $reasons_can_not_autoupdate ), // enable autoupdates
+		);
+
+		$errors = array();
+
+		if ( ! empty( $reasons_can_not_modify_files ) ) {
+			foreach ( $reasons_can_not_modify_files as $error_code => $error_message ) {
+					$errors[] = array(
+						'code'    => $error_code,
+						'message' => $error_message,
+					);
+			}
+		}
+
+		if ( ! $file_mod_capabilities['autoupdate_files'] ) {
+			foreach ( $reasons_can_not_autoupdate as $error_code => $error_message ) {
+				$errors[] = array(
+					'code'    => $error_code,
+					'message' => $error_message,
+				);
+			}
+		}
+
+		$errors = array_unique( $errors );
+		if ( ! empty( $errors ) ) {
+			$file_mod_capabilities['errors'] = $errors;
+		}
+
+		return $file_mod_capabilities;
+	}
+
+	/**
+	 * Generates a unique schedule ID.
+	 *
+	 * @see wp_schedule_event()
+	 *
+	 * @param array $args Schedule arguments.
+	 * @return string
+	 */
+	public static function generate_schedule_id( $args ) {
+		return md5( serialize( $args ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+	}
+
+	/**
+	 * Returns if the file system is writeable.
+	 * Used mostly for mocking during tests.
+	 *
+	 * @see Automattic\Jetpack\Sync\Functions::file_system_write_access
+	 */
+	private static function file_system_write_access() {
+		if ( ! class_exists( 'Automattic\Jetpack\Sync\Functions' ) ) {
+			return false;
+		}
+
+		return \Automattic\Jetpack\Sync\Functions::file_system_write_access();
 	}
 }

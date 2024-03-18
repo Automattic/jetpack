@@ -22,8 +22,15 @@ interface Window {
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;
 		myJetpackFlags: {
-			showJetpackStatsCard: boolean;
+			showFullJetpackStatsCard: boolean;
 			videoPressStats: boolean;
+		};
+		lifecycleStats: {
+			isSiteConnected: boolean;
+			isUserConnected: boolean;
+			jetpackPlugins: Array< string >;
+			modules: Array< string >;
+			purchases: Array< string >;
 		};
 		myJetpackUrl: string;
 		myJetpackVersion: string;

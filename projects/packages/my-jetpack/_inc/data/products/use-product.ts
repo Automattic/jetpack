@@ -1,8 +1,10 @@
 import { useCallback } from 'react';
 import { REST_API_SITE_PRODUCTS_ENDPOINT } from '../constants';
+import { QUERY_PRODUCT_KEY } from '../constants';
 import useSimpleQuery from '../use-simple-query';
+import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
 import mapObjectKeysToCamel from '../utils/to-camel';
-import type { ProductCamelCase, ProductSnakeCase } from '../types';
+import type { ProductCamelCase, ProductSnakeCase, WP_Error } from '../types';
 import type { RefetchOptions, QueryObserverResult } from '@tanstack/react-query';
 
 const getFullPricePerMonth = ( product: ProductCamelCase ) => {
@@ -17,22 +19,24 @@ const getDiscountPricePerMonth = ( product: ProductCamelCase ) => {
 		: product.pricingForUi.discountPrice;
 };
 
-export const useAllProducts = () => {
-	const initialState = window?.myJetpackInitialState;
-	const products = initialState?.products?.items || {};
+export const useAllProducts = (): { [ key: string ]: ProductCamelCase } => {
+	const { items: products } = getMyJetpackWindowInitialState( 'products' );
 
-	return products;
+	return Object.entries( products ).reduce(
+		( acc, [ key, product ] ) => ( { ...acc, [ key ]: prepareProductData( product ) } ),
+		{}
+	);
 };
 
 // Create query to fetch new product data from the server
 const useFetchProduct = ( productId: string ) => {
-	const queryResult = useSimpleQuery< ProductSnakeCase >(
-		'product',
-		{
+	const queryResult = useSimpleQuery< ProductSnakeCase >( {
+		name: QUERY_PRODUCT_KEY,
+		query: {
 			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/${ productId }`,
 		},
-		{ enabled: false }
-	);
+		options: { enabled: false },
+	} );
 
 	return queryResult;
 };
@@ -40,7 +44,9 @@ const useFetchProduct = ( productId: string ) => {
 // Fetch the product data from the server and update the global state
 const refetchProduct = async (
 	productId: string,
-	refetch: ( options?: RefetchOptions ) => Promise< QueryObserverResult< ProductSnakeCase, Error > >
+	refetch: (
+		options?: RefetchOptions
+	) => Promise< QueryObserverResult< ProductSnakeCase, WP_Error > >
 ) => {
 	const { data: refetchedProduct } = await refetch();
 
@@ -65,11 +71,10 @@ const prepareProductData = ( product: ProductSnakeCase ) => {
 const useProduct = ( productId: string ) => {
 	const allProducts = useAllProducts();
 	const product = allProducts?.[ productId ];
-	const camelProduct = prepareProductData( product );
 	const { refetch, isLoading } = useFetchProduct( productId );
 
 	return {
-		detail: camelProduct,
+		detail: product,
 		refetch: useCallback( () => refetchProduct( productId, refetch ), [ productId, refetch ] ),
 		isLoading,
 	};

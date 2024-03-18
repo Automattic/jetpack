@@ -769,10 +769,6 @@ class Jetpack {
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
-		require_once JETPACK__PLUGIN_DIR . 'class-jetpack-pre-connection-jitms.php';
-		$jetpack_jitm_messages = ( new Jetpack_Pre_Connection_JITMs() );
-		add_filter( 'jetpack_pre_connection_jitms', array( $jetpack_jitm_messages, 'add_pre_connection_jitms' ) );
-
 		/*
 		 * If enabled, point edit post, page, and comment links to Calypso instead of WP-Admin.
 		 * We should make sure to only do this for front end links.
@@ -2756,7 +2752,7 @@ class Jetpack {
 	 * @param string $message Error message.
 	 * @param bool   $deactivate Deactivate Jetpack or not.
 	 *
-	 * @return void
+	 * @return never
 	 */
 	public static function bail_on_activation( $message, $deactivate = true ) {
 		?>
@@ -3480,6 +3476,7 @@ p {
 	 * Handler for Jetpack remote file uploads.
 	 *
 	 * @access public
+	 * @return never
 	 */
 	public function remote_request_handlers() {
 		switch ( current_filter() ) {
@@ -6739,7 +6736,10 @@ endif;
 			return $plugin_meta;
 		}
 
-		$plugin_meta[] = '<a href="https://wordpress.org/support/plugin/jetpack/reviews/?filter=5" target="_blank" rel="noopener noreferrer" title="' . esc_attr__( 'Rate Jetpack on WordPress.org', 'jetpack' ) . '" style="color: #ffb900">'
+		$u    = get_current_user_id();
+		$site = get_site_url();
+
+		$plugin_meta[] = '<a href="https://jetpack.com/redirect?source=jetpack-plugin-review&site=' . esc_attr( $site ) . '&u=' . esc_attr( $u ) . '" target="_blank" rel="noopener noreferrer" title="' . esc_attr__( 'Rate Jetpack on WordPress.org', 'jetpack' ) . '" style="color: #ffb900">'
 			. str_repeat( '<span class="dashicons dashicons-star-filled" style="font-size: 16px; width:16px; height: 16px"></span>', 5 )
 			. '</a>';
 

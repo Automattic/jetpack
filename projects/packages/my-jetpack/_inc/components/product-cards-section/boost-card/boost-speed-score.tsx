@@ -8,6 +8,7 @@ import { Popover } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useEffect, useState } from 'react';
+import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import { useBoostTooltipCopy } from './use-boost-tooltip-copy';
@@ -24,7 +25,7 @@ const BoostSpeedScore: FC = () => {
 	const [ isTooltipVisible, setIsTooltipVisible ] = useState( false );
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
-	const { siteSuffix: siteUrl = '', latestBoostSpeedScores } = window?.myJetpackInitialState ?? {};
+	const { siteSuffix: siteUrl = '', latestBoostSpeedScores } = getMyJetpackWindowInitialState();
 	const { apiRoot, apiNonce, isSiteConnected } = useMyJetpackConnection();
 
 	const getAverageSpeedScore = ( mobileScore, desktopScore ) => {

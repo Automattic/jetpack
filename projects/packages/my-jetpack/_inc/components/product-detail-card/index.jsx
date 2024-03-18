@@ -1,6 +1,3 @@
-// eslint-disable-next-line no-unused-vars
-/* global myJetpackInitialState */
-
 import { getCurrencyObject } from '@automattic/format-currency';
 import {
 	CheckmarkIcon,
@@ -18,6 +15,7 @@ import { Icon, check, plus } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useCallback } from 'react';
 import useProduct from '../../data/products/use-product';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 import ProductDetailButton from '../product-detail-button';
@@ -86,8 +84,12 @@ const ProductDetailCard = ( {
 	highlightLastFeature = false,
 	isFetching = false,
 } ) => {
-	const { fileSystemWriteAccess, siteSuffix, adminUrl, myJetpackCheckoutUri } =
-		window?.myJetpackInitialState ?? {};
+	const {
+		fileSystemWriteAccess = 'no',
+		siteSuffix = '',
+		adminUrl = '',
+		myJetpackCheckoutUri = '',
+	} = getMyJetpackWindowInitialState();
 
 	const { detail } = useProduct( slug );
 
