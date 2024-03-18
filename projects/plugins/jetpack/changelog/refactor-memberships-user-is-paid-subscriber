@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Refactor user_is_paid_subscriber to compare against tiers

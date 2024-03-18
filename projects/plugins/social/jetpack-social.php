@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack Social
  * Plugin URI: https://wordpress.org/plugins/jetpack-social
  * Description: Share your site’s posts on several social media networks automatically when you publish a new post.
- * Version: 4.1.1-alpha
+ * Version: 4.2.0-alpha
  * Author: Automattic - Jetpack Social team
  * Author URI: https://jetpack.com/social/
  * License: GPLv2 or later
@@ -58,6 +58,9 @@ if ( is_readable( $jetpack_autoloader ) ) {
 	add_action(
 		'admin_notices',
 		function () {
+			if ( get_current_screen()->id !== 'plugins' ) {
+				return;
+			}
 			?>
 		<div class="notice notice-error is-dismissible">
 			<p>

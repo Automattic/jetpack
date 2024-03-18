@@ -5,6 +5,7 @@
  * @package automattic/jetpack-device-detection
  *
  * We don't want to rename public members.
+ *
  * @phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
  * @phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
  * @phpcs:disable WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase

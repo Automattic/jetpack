@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.17.0] - 2024-03-14
+### Changed
+- Rewrite My Jetpack hooks to Typescript [#36288]
+
+## [4.16.0] - 2024-03-12
+### Added
+- Add a red bubble notification that shows if the site is disconnected [#36263]
+- Add README to data directory [#36301]
+- Add whitelist to show errors only for certain queries [#36261]
+
+### Changed
+- Migrate Stats counts out of redux and into tanstack queries [#36195]
+- Replace window state calls with util function [#36271]
+- Rewrite My Jetpack utils to typescript [#36296]
+- Show small stats card in table if large stats card isn't showing [#36136]
+- Updated package dependencies. [#36325]
+- Update query hooks for my-jetpack data" [#36257]
+- Update useMyJetpackConnection hook to TypeScript [#36300]
+
+### Removed
+- Removing redux store [#36256]
+
 ## [4.15.0] - 2024-03-07
 ### Added
 - Refactor My Jetpack's backup related redux state to react query. [#35982]
@@ -1325,6 +1347,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.17.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.16.0...4.17.0
+[4.16.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.15.0...4.16.0
 [4.15.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.14.0...4.15.0
 [4.14.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.13.0...4.14.0
 [4.13.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.12.1...4.13.0
