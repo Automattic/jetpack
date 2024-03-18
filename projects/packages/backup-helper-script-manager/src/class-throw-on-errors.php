@@ -8,7 +8,7 @@
 // order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
 // to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
 // are installed, or in some other cases).
-namespace Automattic\Jetpack\Backup\V0002;
+namespace Automattic\Jetpack\Backup\V0003;
 
 use Exception;
 use Throwable;
@@ -57,7 +57,7 @@ class Throw_On_Errors {
 		 * @param int|null $errline Line number where the error was raised.
 		 * @param array|null $errcontext Deprecated, unused.
 		 *
-		 * @return mixed
+		 * @return never
 		 * @throws Exception
 		 */
 			// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable

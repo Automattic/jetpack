@@ -3,6 +3,7 @@
  * Generic tests for Jetpack_JSON_API_Endpoint accessibility.
  *
  * @package automattic/jetpack
+ *
  * @phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
 

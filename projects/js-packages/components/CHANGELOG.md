@@ -2,6 +2,43 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.50.2] - 2024-03-14
+### Added
+- Add Bluesky color [#36181]
+
+## [0.50.1] - 2024-03-12
+### Added
+- Social Logos: add new SMS icon. [#36176]
+
+### Changed
+- Updated package dependencies. [#36325]
+
+## [0.50.0] - 2024-03-07
+### Added
+- Fix typescript errors [#35904]
+
+## [0.49.2] - 2024-03-04
+### Changed
+- Updated package dependencies.
+
+## [0.49.1] - 2024-03-01
+### Changed
+- Update ProgressBar styles. [#35968]
+
+## [0.49.0] - 2024-02-27
+### Added
+- Components: add AI icon [#35965]
+
+## [0.48.4] - 2024-02-22
+### Added
+- Adding accesible text for external links on connection page and footer [#35733]
+
+### Changed
+- Updated package dependencies. [#35793]
+
+### Fixed
+- Jetpack Logo: prevent VoiceOver on Safari from reading SVG content [#35752]
+
 ## [0.48.3] - 2024-02-19
 ### Added
 - Added support for annotations in graph [#34978]
@@ -945,6 +982,13 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.50.2]: https://github.com/Automattic/jetpack-components/compare/0.50.1...0.50.2
+[0.50.1]: https://github.com/Automattic/jetpack-components/compare/0.50.0...0.50.1
+[0.50.0]: https://github.com/Automattic/jetpack-components/compare/0.49.2...0.50.0
+[0.49.2]: https://github.com/Automattic/jetpack-components/compare/0.49.1...0.49.2
+[0.49.1]: https://github.com/Automattic/jetpack-components/compare/0.49.0...0.49.1
+[0.49.0]: https://github.com/Automattic/jetpack-components/compare/0.48.4...0.49.0
+[0.48.4]: https://github.com/Automattic/jetpack-components/compare/0.48.3...0.48.4
 [0.48.3]: https://github.com/Automattic/jetpack-components/compare/0.48.2...0.48.3
 [0.48.2]: https://github.com/Automattic/jetpack-components/compare/0.48.1...0.48.2
 [0.48.1]: https://github.com/Automattic/jetpack-components/compare/0.48.0...0.48.1

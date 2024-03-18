@@ -15,7 +15,8 @@
 		"automattic/jetpack-my-jetpack": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-status": "@dev",
-		"automattic/jetpack-plans": "@dev"
+		"automattic/jetpack-plans": "@dev",
+		"automattic/jetpack-post-list": "@dev"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
@@ -81,6 +82,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_socialⓥ4_1_0_alpha"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_socialⓥ4_2_0_alpha"
 	}
 }

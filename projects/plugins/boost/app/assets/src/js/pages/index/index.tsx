@@ -3,7 +3,7 @@ import { useSingleModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
 import { Notice, getRedirectUrl } from '@automattic/jetpack-components';
-import { createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
@@ -16,7 +16,9 @@ import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/store
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import PageCache from '$features/page-cache/page-cache';
-import { invalidatePageCacheError } from '$lib/stores/page-cache';
+import { usePageCacheError, usePageCacheSetup } from '$lib/stores/page-cache';
+import Health from '$features/page-cache/health/health';
+import { useMutationNotice } from '$features/ui';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -24,14 +26,38 @@ const Index = () => {
 
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
+	const [ pageCache ] = useSingleModuleState( 'page_cache' );
 
 	const regenerateCssAction = useRegenerateCriticalCssAction();
 	const requestRegenerateCriticalCss = () => {
 		regenerateCssAction.mutate();
 	};
-	const { canResizeImages } = Jetpack_Boost;
+	const { canResizeImages, site } = Jetpack_Boost;
 
 	const premiumFeatures = usePremiumFeatures();
+
+	const pageCacheSetup = usePageCacheSetup();
+	const [ pageCacheError, pageCacheErrorMutation ] = usePageCacheError();
+	const [ isPageCacheSettingUp, setIsPageCacheSettingUp ] = useState( false );
+
+	const [ removePageCacheNotice ] = useMutationNotice(
+		'page-cache-setup',
+		{
+			...pageCacheSetup,
+			isPending: isPageCacheSettingUp || pageCacheSetup.isPending,
+		},
+		{
+			savingMessage: __( 'Setting up cache…', 'jetpack-boost' ),
+			errorMessage: __( 'An error occurred while setting up cache.', 'jetpack-boost' ),
+			successMessage: __( 'Cache setup complete.', 'jetpack-boost' ),
+		}
+	);
+
+	useEffect( () => {
+		if ( pageCacheSetup.isPending ) {
+			setIsPageCacheSettingUp( false );
+		}
+	}, [ pageCacheSetup.isPending ] );
 
 	return (
 		<div className="jb-container--narrow">
@@ -120,19 +146,59 @@ const Index = () => {
 			</Module>
 			<Module
 				slug="page_cache"
-				title={ __( 'Cache Site Pages', 'jetpack-boost' ) }
-				description={
-					<p>
-						{ __(
-							'Store and serve preloaded content to reduce load times and enhance your site performance and user experience.',
-							'jetpack-boost'
-						) }
-					</p>
+				title={
+					<>
+						{ __( 'Cache Site Pages', 'jetpack-boost' ) }
+						<span className={ styles.beta }>Beta</span>
+					</>
 				}
-				onEnable={ invalidatePageCacheError }
-				onDisable={ invalidatePageCacheError }
+				onBeforeToggle={ status => {
+					setIsPageCacheSettingUp( status );
+					if ( status === false ) {
+						removePageCacheNotice();
+						pageCacheSetup.reset();
+					}
+					if ( pageCacheError.data && pageCacheError.data.dismissed !== true ) {
+						pageCacheErrorMutation.mutate( {
+							...pageCacheError.data,
+							dismissed: true,
+						} );
+					}
+				} }
+				onEnable={ () => {
+					pageCacheSetup.mutate();
+				} }
+				description={
+					<>
+						<p>
+							{ __(
+								'Store and serve preloaded content to reduce load times and enhance your site performance and user experience.',
+								'jetpack-boost'
+							) }
+						</p>
+						{ site.isAtomic && (
+							<Notice
+								level="warning"
+								title={ __( 'Page Cache is unavailable', 'jetpack-boost' ) }
+								hideCloseButton={ true }
+							>
+								<p>
+									{ __(
+										'Your website already has a page cache running on it powered by WordPress.com.',
+										'jetpack-boost'
+									) }
+								</p>
+							</Notice>
+						) }
+						<Health
+							error={ pageCacheError.data }
+							setError={ pageCacheErrorMutation.mutate }
+							setup={ pageCacheSetup }
+						/>
+					</>
+				}
 			>
-				<PageCache />
+				{ ! pageCacheError.data && ! pageCacheSetup.isError && <PageCache /> }
 			</Module>
 			<Module
 				slug="render_blocking_js"
@@ -211,12 +277,7 @@ const Index = () => {
 			<div className={ styles.settings }>
 				<Module
 					slug="image_guide"
-					title={
-						<>
-							{ __( 'Image Guide', 'jetpack-boost' ) }
-							<span className={ styles.beta }>Beta</span>
-						</>
-					}
+					title={ __( 'Image Guide', 'jetpack-boost' ) }
 					description={
 						<>
 							<p>
@@ -286,7 +347,7 @@ const Index = () => {
 				</Module>
 			</div>
 
-			<SuperCacheInfo />
+			{ ! pageCache?.active && <SuperCacheInfo /> }
 		</div>
 	);
 };

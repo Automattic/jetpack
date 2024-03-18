@@ -118,10 +118,14 @@ export default function useProductCheckoutWorkflow( {
 	debug( 'connectAfterCheckout is %s', connectAfterCheckout );
 	debug( 'checkoutUrl is %s', checkoutUrl );
 
-	const handleAfterRegistration = () => {
+	const handleAfterRegistration = ( redirect = null ) => {
 		return Promise.resolve(
 			siteProductAvailabilityHandler && siteProductAvailabilityHandler()
 		).then( siteHasWpcomProduct => {
+			if ( redirect ) {
+				checkoutUrl.searchParams.set( 'redirect_to', redirect );
+			}
+
 			if ( siteHasWpcomProduct ) {
 				debug( 'handleAfterRegistration: Site has a product associated' );
 				return handleConnectUser();
@@ -134,7 +138,11 @@ export default function useProductCheckoutWorkflow( {
 		} );
 	};
 
-	const connectAfterCheckoutFlow = () => {
+	const connectAfterCheckoutFlow = ( redirect = null ) => {
+		if ( redirect ) {
+			checkoutUrl.searchParams.set( 'redirect_to', redirect );
+		}
+
 		debug( 'Redirecting to connectAfterCheckout flow: %s', checkoutUrl );
 
 		window.location.href = checkoutUrl;
@@ -144,19 +152,20 @@ export default function useProductCheckoutWorkflow( {
 	 * Handler to run the checkout workflow.
 	 *
 	 * @param {Event} [event] - Event that dispatched run
+	 * @param {string} redirect - A possible redirect URL to go to after the checkout
 	 * @returns {void}          Nothing.
 	 */
-	const run = event => {
+	const run = ( event, redirect = null ) => {
 		event && event.preventDefault();
 		setCheckoutStarted( true );
 		// By default we will connect first prior to checkout unless `props.connectAfterCheckout`
 		// is set (true), in which we will connect after purchase is completed.
 		if ( connectAfterCheckout ) {
-			return connectAfterCheckoutFlow();
+			return connectAfterCheckoutFlow( redirect );
 		}
 
 		if ( isRegistered ) {
-			return handleAfterRegistration();
+			return handleAfterRegistration( redirect );
 		}
 
 		registerSite( { registrationNonce, redirectUri: redirectUrl } ).then( handleAfterRegistration );

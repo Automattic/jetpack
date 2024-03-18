@@ -5,6 +5,99 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.17.0] - 2024-03-14
+### Changed
+- Rewrite My Jetpack hooks to Typescript [#36288]
+
+## [4.16.0] - 2024-03-12
+### Added
+- Add a red bubble notification that shows if the site is disconnected [#36263]
+- Add README to data directory [#36301]
+- Add whitelist to show errors only for certain queries [#36261]
+
+### Changed
+- Migrate Stats counts out of redux and into tanstack queries [#36195]
+- Replace window state calls with util function [#36271]
+- Rewrite My Jetpack utils to typescript [#36296]
+- Show small stats card in table if large stats card isn't showing [#36136]
+- Updated package dependencies. [#36325]
+- Update query hooks for my-jetpack data" [#36257]
+- Update useMyJetpackConnection hook to TypeScript [#36300]
+
+### Removed
+- Removing redux store [#36256]
+
+## [4.15.0] - 2024-03-07
+### Added
+- Refactor My Jetpack's backup related redux state to react query. [#35982]
+
+### Changed
+- Migrate dismiss welcome banner to tanstack [#36199]
+- Migrate global notices to context [#36201]
+- Migrate My Jetpack's licenses query and state to react-query [#36029]
+- Moved lifecycle stats function out of redux [#36205]
+- Updating purchase related redux data to tanstack/react [#35994]
+
+### Removed
+- Connected Product offer is not being used, removing it to clean up a bit [#36203]
+
+### Fixed
+- fix a few My Jetpack bugs when main plugin is not installed [#36139]
+- Intersitital tables were not visibly loading when pressed [#36236]
+
+## [4.14.0] - 2024-03-04
+### Changed
+- Migrate My Jetpack zendesk state to react-query [#36028]
+- Updated package dependencies.
+
+### Fixed
+- Add registration nonce to connect screen in My Jetpack [#36133]
+
+## [4.13.0] - 2024-03-01
+### Added
+- Add site lifecycle status guess to My Jetpack [#35815]
+
+### Changed
+- Changed product plan checks on My Jetpack cards [#36046]
+- Display different Boost card tooltip content based on score letter grade. [#35863]
+- Improve consistency and fix bugs in product start and checkout flows [#35908]
+- Instanciate the Boost Score API (new Speed_Score()) in My Jetpack. [#36080]
+- My Jetpack: add Tracks events to connection section [#35804]
+- Refactor react-query to reduce code repetition [#35990]
+
+### Fixed
+- fixed the purchase query for the boost card [#36004]
+
+## [4.12.1] - 2024-02-27
+### Added
+- My Jetpack: Add an info popover in the Boost product card. [#35731]
+
+## [4.12.0] - 2024-02-26
+### Changed
+- My Jetpack: decouple Jetpack AI insterstitial component [#35836]
+- Remove translation of product names [#35830]
+- Updating purchases state to use data query instead of redux [#35697]
+
+### Removed
+- Remove kebab menu on My Jetpack cards [#35829]
+
+## [4.11.0] - 2024-02-22
+### Added
+- Adding accesible text for external links on connection page and footer [#35733]
+
+### Changed
+- change status and action of My Jetpack cards when plugin is missing [#35718]
+- ESlint: disabled redundant role rule [#35800]
+- My Jetpack: add product slugs to click events on interstitials [#35740]
+- My Jetpack: let tier data pass on quantity data to checkout process for proper checkout URL crafting [#35817]
+- Updated package dependencies. [#35793]
+
+### Fixed
+- Backup Card: made stats readable by screen readers [#35786]
+- Connection Screen: make VoiceOver announce lists as such [#35736]
+- Do not initialize My Jetpack when in Offline mode. [#35807]
+- Fix wrong prop type passed to ConnectedProductCard [#35789]
+
 ## [4.10.0] - 2024-02-19
 ### Added
 - Add Boost Speed Score into My Jetpack Boost product card [#35606]
@@ -1254,6 +1347,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.17.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.16.0...4.17.0
+[4.16.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.15.0...4.16.0
+[4.15.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.14.0...4.15.0
+[4.14.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.13.0...4.14.0
+[4.13.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.12.1...4.13.0
+[4.12.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.12.0...4.12.1
+[4.12.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.11.0...4.12.0
+[4.11.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.10.0...4.11.0
 [4.10.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.9.2...4.10.0
 [4.9.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.9.1...4.9.2
 [4.9.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.9.0...4.9.1

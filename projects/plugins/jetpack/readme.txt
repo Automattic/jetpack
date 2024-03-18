@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, performance
-Stable tag: 13.1.2
+Stable tag: 13.2.1
 Requires at least: 6.3
 Requires PHP: 7.0
 Tested up to: 6.5
@@ -326,26 +326,22 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.2-a.7 - 2024-02-19
+### 13.3-a.1 - 2024-03-12
 #### Enhancements
-- Added custom message textarea to send a message via email when adding new users
-- Add images while publishing on the web via the jetpack app
-- Add some extra margin around Stats settings toggles
-- Add support for Email stats
-- Comment: Add Goodreads embed block in Gutenberg.
-- SSO: Add user invite revoke row action in users table
-- SSO: improve messaging and account binding between local and wp.com users
-- SSO: Updated column heading and row background color when invitation is pending.
-- SSO: When creating a new users, mail the users with an invitation to WPCom.
-- We added the Welcome Email Message setting to Newsletter settings
+- Display Email settings on Newsletter settings page
+- Login block: Link to subscription management page with site URL as search query.
+- Member login block: link to individual subscription management page
+- Pass API parameter to indicate when deleting a memberships product should cancel subscriptions
+- Sharing: add a Threads sharing button and a Threads sharing button block.
+- Social Menu & Social Media Icons: Add support for an SMS button.
+- Uncheck users-new.php Invite user on load if WooCommerce plugin is activated
 
 #### Improved compatibility
-- Add 'if_not_modified_since' to the update post endpoints this will help clients fails if the post has been updated since last retrieved
-- Add support for WP Super Cache and Boost Cache
+- Add metadata to the post to better diagnose need for Reader and Firehose
 
 #### Bug fixes
-- Jetpack Google Fonts: Fix some Google fonts aren't displayed correctly on front end
-- Scan: ensure the Admin notice resources are always properly loaded.
+- Sharing: avoid PHP warnings when using custom post types.
+- Sharing: fix the display of the sharing block in some classic themes.
 
 --------
 

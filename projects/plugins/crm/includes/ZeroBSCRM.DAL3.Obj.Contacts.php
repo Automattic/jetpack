@@ -392,8 +392,61 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
         #} =========== / LOAD ARGS =============
 
 			$this->events_manager = new Events_Manager();
-
+			add_filter( 'jpcrm_listview_filters', array( $this, 'add_listview_filters' ) );
     }
+
+		/**
+		 * Adds items to listview filter using `jpcrm_listview_filters` hook.
+		 *
+		 * @param array $listview_filters Listview filters.
+		 */
+		public function add_listview_filters( $listview_filters ) {
+			global $zbs;
+
+			// Add "assigned"/"not assigned" filters.
+			$listview_filters[ ZBS_TYPE_CONTACT ]['general']['assigned_to_me'] = __( 'Assigned to me', 'zero-bs-crm' );
+			$listview_filters[ ZBS_TYPE_CONTACT ]['general']['not_assigned']   = __( 'Not assigned', 'zero-bs-crm' );
+
+			$quick_filter_settings = $zbs->settings->get( 'quickfiltersettings' );
+
+			// Add 'not-contacted-in-x-days'.
+			if ( ! empty( $quick_filter_settings['notcontactedinx'] ) && $quick_filter_settings['notcontactedinx'] > 0 ) {
+				$days = (int) $quick_filter_settings['notcontactedinx'];
+				$listview_filters[ ZBS_TYPE_CONTACT ]['general'][ 'notcontactedin' . $days ] = sprintf(
+					// translators: %s is the number of days
+					__( 'Not Contacted in %s days', 'zero-bs-crm' ),
+					$days
+				);
+			}
+
+			// Add 'olderthan-x-days'.
+			if ( ! empty( $quick_filter_settings['olderthanx'] ) && $quick_filter_settings['olderthanx'] > 0 ) {
+				$days = (int) $quick_filter_settings['olderthanx'];
+				$listview_filters[ ZBS_TYPE_CONTACT ]['general'][ 'olderthan' . $days ] = sprintf(
+					// translators: %s is the number of days
+					__( 'Older than %s days', 'zero-bs-crm' ),
+					$days
+				);
+			}
+
+			// Add statuses if enabled.
+			if ( $zbs->settings->get( 'filtersfromstatus' ) === 1 ) {
+				$statuses = zeroBSCRM_getCustomerStatuses( true );
+				foreach ( $statuses as $status ) {
+					$listview_filters[ ZBS_TYPE_CONTACT ]['status'][ 'status_' . $status ] = $status;
+				}
+			}
+
+			// Add segments if enabled.
+			if ( $zbs->settings->get( 'filtersfromsegments' ) === 1 ) {
+				$segments = $zbs->DAL->segments->getSegments( -1, 100, 0, false, '', '', 'zbsseg_name', 'ASC' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				foreach ( $segments as $segment ) {
+					$listview_filters[ ZBS_TYPE_CONTACT ]['segment'][ 'segment_' . $segment['slug'] ] = $segment['name'];
+				}
+			}
+
+			return $listview_filters;
+		}
 
     // generic get Company (by ID)
     // Super simplistic wrapper used by edit page etc. (generically called via dal->contacts->getSingle etc.)
@@ -1536,11 +1589,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                         // USE hasStatus above now...
 					if ( str_starts_with( $qFilter, 'status_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-                            $qFilterStatus = substr($qFilter,7);
-                            $qFilterStatus = str_replace('_',' ',$qFilterStatus);
-
-                            // check status
-                            $wheres['quickfilterstatus'] = array('zbsc_status','LIKE','%s',ucwords($qFilterStatus));
+						$quick_filter_status         = substr( $qFilter, 7 ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						$wheres['quickfilterstatus'] = array( 'zbsc_status', '=', 'convert(%s using utf8mb4) collate utf8mb4_bin', $quick_filter_status );
 
 					} elseif ( $qFilter === 'assigned_to_me' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                             $wheres['assigned_to_me'] = array( 'zbs_owner', '=', zeroBSCRM_user() );
@@ -4759,7 +4809,11 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
         if ($inCompany) $whereArr['incompany'] = array('ID','IN','(SELECT DISTINCT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_CONTACT." AND zbsol_objtype_to = ".ZBS_TYPE_COMPANY." AND zbsol_objid_to = %d)",$inCompany);
 
-        if ($withStatus !== false && !empty($withStatus)) $whereArr['status'] = array('zbsc_status','=','%s',$withStatus);
+			// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			if ( $withStatus !== false && ! empty( $withStatus ) ) {
+				$whereArr['status'] = array( 'zbsc_status', '=', 'convert(%s using utf8mb4) collate utf8mb4_bin', $withStatus );
+			}
+			// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
         return $this->DAL()->getFieldByWHERE(array(
             'objtype' => ZBS_TYPE_CONTACT,

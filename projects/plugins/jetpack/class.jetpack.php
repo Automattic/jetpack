@@ -8,10 +8,10 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Boost_Speed_Score\Jetpack_Boost_Modules;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Nonce_Handler;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
@@ -750,9 +750,6 @@ class Jetpack {
 		// Returns HTTPS support status.
 		add_action( 'wp_ajax_jetpack-recheck-ssl', array( $this, 'ajax_recheck_ssl' ) );
 
-		// TODO: the conneciton banner has been deprecated - this can be removed in 13.1+
-		add_action( 'wp_ajax_jetpack_connection_banner', array( $this, 'jetpack_connection_banner_callback' ) );
-
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 
 		/**
@@ -771,10 +768,6 @@ class Jetpack {
 
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
-
-		require_once JETPACK__PLUGIN_DIR . 'class-jetpack-pre-connection-jitms.php';
-		$jetpack_jitm_messages = ( new Jetpack_Pre_Connection_JITMs() );
-		add_filter( 'jetpack_pre_connection_jitms', array( $jetpack_jitm_messages, 'add_pre_connection_jitms' ) );
 
 		/*
 		 * If enabled, point edit post, page, and comment links to Calypso instead of WP-Admin.
@@ -1147,26 +1140,6 @@ class Jetpack {
 	public function jetpack_track_last_sync_callback( $params ) {
 		_deprecated_function( __METHOD__, 'jetpack-9.8', '\Automattic\Jetpack\JITMS\JITM->jetpack_track_last_sync_callback' );
 		return Automattic\Jetpack\JITMS\JITM::get_instance()->jetpack_track_last_sync_callback( $params );
-	}
-
-	/**
-	 * Jetpack Connection banner callback function.
-	 *
-	 * @return void
-	 */
-	public function jetpack_connection_banner_callback() {
-		check_ajax_referer( 'jp-connection-banner-nonce', 'nonce' );
-
-		// Disable the banner dismiss functionality if the pre-connection prompt helpers filter is set.
-		if (
-			isset( $_REQUEST['dismissBanner'] ) &&
-			! Jetpack_Connection_Banner::force_display()
-		) {
-			Jetpack_Options::update_option( 'dismissed_connection_banner', 1 );
-			wp_send_json_success();
-		}
-
-		wp_die();
 	}
 
 	/**
@@ -2320,6 +2293,7 @@ class Jetpack {
 			'wpcc'             => 'sso', // Closed out in 2.6 -- SSO provides the same functionality.
 			'gplus-authorship' => null,  // Closed out in 3.2 -- Google dropped support.
 			'minileven'        => null,  // Closed out in 8.3 -- Responsive themes are common now, and so is AMP.
+			'lazy-images'      => null, // Closed out in 12.8 -- WordPress core now has native lazy loading.
 		);
 
 		// Don't activate SSO if they never completed activating WPCC.
@@ -2777,7 +2751,7 @@ class Jetpack {
 	 * @param string $message Error message.
 	 * @param bool   $deactivate Deactivate Jetpack or not.
 	 *
-	 * @return void
+	 * @return never
 	 */
 	public static function bail_on_activation( $message, $deactivate = true ) {
 		?>
@@ -2968,7 +2942,6 @@ p {
 		self::load_modules();
 
 		Jetpack_Options::delete_option( 'do_activate' );
-		Jetpack_Options::delete_option( 'dismissed_connection_banner' );
 	}
 
 	/**
@@ -3502,6 +3475,7 @@ p {
 	 * Handler for Jetpack remote file uploads.
 	 *
 	 * @access public
+	 * @return never
 	 */
 	public function remote_request_handlers() {
 		switch ( current_filter() ) {
@@ -3750,15 +3724,6 @@ p {
 	}
 
 	/**
-	 * Enqueues the jetpack-icons style.
-	 *
-	 * @return void
-	 */
-	public function admin_menu_css() {
-		wp_enqueue_style( 'jetpack-icons' );
-	}
-
-	/**
 	 * Add action links for the Jetpack plugin.
 	 *
 	 * @param array $actions Plugin actions.
@@ -3774,51 +3739,6 @@ p {
 		}
 
 		return $actions;
-	}
-
-	/**
-	 * Add an activation modal to the plugins page and the main dashboard.
-	 *
-	 * @param string $hook The current admin page.
-	 *
-	 * @return void
-	 */
-	public function activate_dialog( $hook ) {
-		/*
-		 * We do not need it on other plugin pages,
-		 * or when Jetpack is already connected.
-		 */
-		if (
-			! in_array( $hook, array( 'plugins.php', 'index.php' ), true )
-			|| self::is_connection_ready()
-		) {
-			return;
-		}
-
-		// add an activation script that will pick up deactivation actions for the Jetpack plugin.
-		Assets::register_script(
-			'jetpack-full-activation-modal-js',
-			'_inc/build/activation-modal.js',
-			JETPACK__PLUGIN_FILE,
-			array(
-				'enqueue'      => true,
-				'in_footer'    => true,
-				'textdomain'   => 'jetpack',
-				'dependencies' => array(
-					'wp-polyfill',
-					'wp-components',
-				),
-			)
-		);
-
-		// Add objects to be passed to the initial state of the app.
-		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
-		wp_add_inline_script( 'jetpack-full-activation-modal-js', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Redux_State_Helper::get_minimal_state() ) ) . '"));', 'before' );
-
-		// Adds Connection package initial state.
-		Connection_Initial_State::render_script( 'jetpack-full-activation-modal-js' );
-
-		add_action( 'admin_notices', array( $this, 'jetpack_plugin_portal_containers' ) );
 	}
 
 	/**
@@ -6029,6 +5949,10 @@ endif;
 				'replacement' => null,
 				'version'     => 'jetpack-12.7.0',
 			),
+			'jetpack_pre_connection_prompt_helpers'        => array(
+				'replacement' => null,
+				'version'     => 'jetpack-13.2.0',
+			),
 		);
 
 		foreach ( $filter_deprecated_list as $tag => $args ) {
@@ -6811,7 +6735,10 @@ endif;
 			return $plugin_meta;
 		}
 
-		$plugin_meta[] = '<a href="https://wordpress.org/support/plugin/jetpack/reviews/?filter=5" target="_blank" rel="noopener noreferrer" title="' . esc_attr__( 'Rate Jetpack on WordPress.org', 'jetpack' ) . '" style="color: #ffb900">'
+		$u    = get_current_user_id();
+		$site = get_site_url();
+
+		$plugin_meta[] = '<a href="https://jetpack.com/redirect?source=jetpack-plugin-review&site=' . esc_attr( $site ) . '&u=' . esc_attr( $u ) . '" target="_blank" rel="noopener noreferrer" title="' . esc_attr__( 'Rate Jetpack on WordPress.org', 'jetpack' ) . '" style="color: #ffb900">'
 			. str_repeat( '<span class="dashicons dashicons-star-filled" style="font-size: 16px; width:16px; height: 16px"></span>', 5 )
 			. '</a>';
 

@@ -2,6 +2,178 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.3-a.1 - 2024-03-12
+### Enhancements
+- Display Email settings on Newsletter settings page [#36290]
+- Login block: Link to subscription management page with site URL as search query.
+- Member login block: link to individual subscription management page [#36200]
+- Pass API parameter to indicate when deleting a memberships product should cancel subscriptions [#35735]
+- Sharing: add a Threads sharing button and a Threads sharing button block. [#36220]
+- Social Menu & Social Media Icons: Add support for an SMS button. [#36176]
+- Uncheck users-new.php Invite user on load if WooCommerce plugin is activated [#36140]
+
+### Improved compatibility
+- Add metadata to the post to better diagnose need for Reader and Firehose [#36254]
+
+### Bug fixes
+- Sharing: avoid PHP warnings when using custom post types. [#36315]
+- Sharing: fix the display of the sharing block in some classic themes. [#36283]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add site migration endpoint [#36253]
+- Compile typescript extensions in Jetpack [#35904]
+- Contact Form: add deprecation warnings to Contact Form module codebase [#36040]
+- Contact Form: refactor editor to use forms package [#36089]
+- Contact Form: refactor endpoints to use forms package [#36087]
+- Editor: Update to the most recent version of the @automattic/calypso-color-schemes package. [#36227]
+- General: update to the most recent version of @automattic/calypso-color-schemes [#36187]
+- Newsletter settings: update section title to "subscriptions" [#36343]
+- Paywall: Use Subscriber Login block for the login link [#36308]
+- Pinterest Block: deprecate in favor of the Core Pinterest embed block. [#36075]
+- Refactor user_is_paid_subscriber to compare against tiers [#35587]
+- Removed the feature flag for newsletter categories settings. [#36073]
+- RNMobile: Remove code associated with Story block for the mobile native version. [#36151]
+- Show Browse sites when wp-admin interface is selected and using nav unification [#36198]
+- Subscriber Login: Prevent the HTTP 301 redirection for Atomic sites [#36311]
+- Subscriber Login: Remove the premium content cookie specified for the blog on logging out [#35441]
+- Subscriptions: fix empty email for pending confirm paywall on .com [#36321]
+- Subscriptions: Track newsletter category creation. [#36326]
+- Subscriptions: update the settings screen URL. [#36323]
+- Subscription Site: Polishing Newsletter settings [#36218]
+- Subscription Site: Polishing the Subscribe block toggle [#36177]
+- Subscription Site: Update Subscribe block after the post nudge [#36107]
+- Update code references in docs and comments [#36234]
+- Updated package dependencies. [#36309]
+- Updated package dependencies. [#36325]
+- Update lockfiles [#36195]
+- Use JS and CSS tooltips instead of HTML title. [#36222]
+- Voice to Content: Fix file upload file type selection for iOS devices, listing all the extensions allowed. [#36165]
+- Voice to Content: restrict block to internal P2 sites and open it to non-proxied connections. [#36163]
+- WooCommerce Anlytics: require package instead of using the classes that ship with the Jetpack plugin. [#35758]
+- WPCOM_JSON_API_Upload_Media_v1_1_Endpoint: Fix errors on invalid post data [#36291]
+
+## 13.2.1 - 2024-03-12
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Subscriptions: improve security checks when displaying a Subscription form via a shortcode. [#36347]
+- WPcom API: fixes a minor bug in a recently shipped endpoint that makes it work more like expected. [#36262]
+
+## [13.2] - 2024-03-05
+### Enhancements
+- Blog Stats block: Add message on the frontend when the Stats module is disabled. [#36108]
+- Dashboard: link to Odyssey Stats for Atomic sites [#36049]
+- Goodreads Block: Add transform from Legacy Widget. [#36061]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Adding tracking for user management events [#35773]
+- Better handle categories input click/focus. [#35916]
+- Blog Stats block: fix translation string format. [#36127]
+- Goodreads Block: Fix block inheriting styles from Legacy Widget. [#36059]
+- Google Fonts: Update the implement of print_font_faces as the value of WP_Font_Face_Resolver::get_fonts_from_theme_json may be an indexed array [#35986]
+- Hides the Customizer menu items for block themes [#36017]
+- Jetpack Comments: Wrap iframe related script in IIFE to prevent declaration of global variables [#36123]
+- Lazy Images: remove module now that it has been deprecated for a few releases. [#36155]
+- Move blocks from beta to production: blog-stats, top-posts, goodreads [#36057]
+- Move Jetpack_Boost_Modules class to the boost-score-api package. [#36080]
+- RNMobile: Ensure playsInline setting always conforms to Video block schema. [#35981]
+- RNMobile: Revert change to the way playsInline attribute is saved, prevent regression on web. [#36030]
+- Sal: add is_commercial_reasons to options [#36006]
+- Scheduled updates: Introduced a new body parameter `scheduled_update` to the `POST /sites/%s/plugins/%s` endpoint.
+- Setup state for handling backup preflight checks [#36044]
+- Stats: enable Odyssey Stats for WoA sites [#35528]
+- Stats: link to Odyssey Stats from admin bar [#36050]
+- Subscription Site: Allow to add add Subscribe block at the end of each post [#35458]
+- Subscription Site: Prevent the Subscribe block from rendering when the Paywall block is visible [#36045]
+- Sync:Add feature flag for enabling the use of rest api for sending the sync data [#36118]
+- The features in Customizer should appear when users directly visit the Customizer link [#36146]
+- Untangle: add site option wpcom_classic_early_release [#36111]
+- Untangle: always use the wpcom_is_nav_redesign_enabled() function as release toggle [#35894]
+- Updated package dependencies.
+- Update VideoPress card styles. [#35968]
+- Voice to Content: Cancel transcription on modal close and disable close on click outside [#36082]
+- Voice to Content: change the way the processing and error states are handled, and ensure proper error handling. [#36001]
+- Voice to Content: Clear preceding empty paragraph when transcription is ready [#36132]
+- Voice to Content: Fix transcription check on post-processing failure [#36002]
+- Voice to Content: include validation and validation state when an audio is recorded or uploaded. [#36043]
+- Voice to Content: move transcription to a dedicated hook so the block code becomes more simple [#36033]
+- Voice to Content: Track transcription started event. [#36094]
+- When `POST /sites/%s/plugins/%s` endpoint is called with the `scheduled_update` parameter, we validate the request and modify the auto update plugins allowed list to include the ones in the scheduled updates option. [#35941]
+
+## 13.2-a.11 - 2024-02-27
+### Enhancements
+- Real time backups: Add endpoints orders to be used in real-time backups jetpack [#35649]
+
+### Bug fixes
+- Atomic i18n: Fix mixed translations after WordPress.com user locale switch [#35750]
+- Goodreads Block: fix error when adding multiple blocks to the same page. [#35876]
+- Revert 35890 to resolve the font display issue [#35983]
+- Sharing: only enqueue extra JavaScript when a Sharing Block is inserted on the page. [#35955]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add slide up/down animation to categories. [#35887]
+- Copy Post: Add Jetpack Logo to row action link [#35552]
+- RNMobile: Detect and avoid invalid media URLs in VideoPress v5 block [#35961]
+- RNMobile: Fix edge case where block could sometimes mistakenly appear empty. [#35957]
+- Voice to Content: refactor hook usage and handle request canceling [#35923]
+
+## 13.2-a.9 - 2024-02-26
+### Enhancements
+- Ads Settings: Include option to toggle GDPR Consent Banner [#35205]
+- Blaze: Enable the Dashboard behind the feature flag [#35724]
+- Blog Stats Block: Remove check that prevented testing on WP.com sites. [#35751]
+- Improve SSO send invite hover copy [#35879]
+- Privacy: Add preliminary support for WordAds Consent Management Provider [#35165]
+- Sharing: automatically add the Sharing Buttons block to the single post and page templates on sites using a block-based theme. [#35542]
+- WordAds: Add additional states to US Privacy law opt-out [#35765]
+
+### Improved compatibility
+- General: the plugin is now compatible with the upcoming WordPress release, version 6.5. [#35820]
+
+### Bug fixes
+- Carousel: don't open if no images are found in the gallery. [#35788]
+- Subscribe block: improve disabled placeholder state theme colour compatibility [#35813]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add a button to allow admins to re-send invites [#35833]
+- Add checkbox for opting out of inviting users to WordPress [#35902]
+- Add link to newsletter settings, still under feature flag. [#35825]
+- Add save button to newsletter settings. Still under feature flag. [#35861]
+- Add upgrade message for free tier [#35794]
+- Changed SSO heading tooltip [#35948]
+- Changes newsletter paid subscriber label to nowrap [#35690]
+- Connection flow: remove deprecated files, functions, and images that are not needed anymore now that we do not display connection banners outside of the Jetpack connection screen. [#35873]
+- Connection Screen: make VoiceOver announce lists as such [#35736]
+- Contact Form: deprecate temporary tmp_grunion_allow_editor_view filter. [#35584]
+- ESlint: disable redundant role rule [#35800]
+- Extracted Subscription Welcome Email into its own component [#35774]
+- Fix a bug in showing custom columns in the users table [#35882]
+- Fix spelling error on validation message. [#35909]
+- Google Fonts: Update the implement of print_font_faces as the value of WP_Font_Face_Resolver::get_fonts_from_theme_json may be an indexed array [#35890]
+- Improve SSO invite user error handling [#35850]
+- Interaction on newsletter categories. Work in progress under feature flag. [#35799]
+- Remove Settings > Sharing menu item registered by Publicize, and Likes. [#35810]
+- Remove unstable post editor check in AI Excerpt [#35875]
+- RNMobile: Enable support for editing v5 of the VideoPress block in the Jetpack app. [#35637]
+- Security Monitor: remove link to notifications and add link to wordpress account [#35769]
+- Sharing Block: only hook block on WordPress 6.5+ [#35905]
+- Social: Changed name of the social settings card [#35812]
+- SSO user invitation checkbox css change [#35907]
+- Stats: switch our stats fetching methods to use data conversion method from package. [#35865]
+- Subscriptions: Prevents the HTTP 301 redirection in Paywall block [#35852]
+- Top Posts Block: make available on WordPress.com Simple. [#35866]
+- TreeSelector: Added tree selector component. [#35749]
+- Update SSO users table pending invite icon styling [#35878]
+- Voice to Content: Add hook to handle transcription insertion into the editor. [#35761]
+- Voice to Content: avoid replacing blocks when inserting transcription into editor. [#35790]
+- Voice to Content: Make transcriptions cancelable and link upload button to processing state [#35737]
+- Voice to Content: refactor ActionButtons component to not handle logic on it, relying just on state and events [#35914]
+- Voice to Content: Update oscilloscope component [#35877]
+- WordAds: ensure the new CMP banner can be loaded in production environments. [#35791]
+- Wordpress.com Tools Menu: Update Github Deployments submenu copy [#35759]
+
+## 13.1.3 - 2024-02-20
+### Bug fixes
+- Backup: write helper script to ABSPATH by default to avoid backup failures. [#35508]
+
 ## 13.2-a.7 - 2024-02-19
 ### Enhancements
 - Added custom message textarea to send a message via email when adding new users [#35277]
@@ -9805,6 +9977,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[13.2]: https://wp.me/p1moTy-15UC
 [13.1]: https://wp.me/p1moTy-12e0
 [13.0]: https://wp.me/p1moTy-10Xp
 [12.9]: https://wp.me/p1moTy-YJA

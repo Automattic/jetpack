@@ -36,7 +36,10 @@ function robots_txt( string $output, $public ): string {
 	if ( 0 === $public || get_option( 'wpcom_data_sharing_opt_out' ) ) {
 		$ai_bots = array(
 			'Amazonbot',
+			'anthropic-ai',
+			'Bytespider',
 			'CCBot',
+			'ClaudeBot',
 			'FacebookBot',
 			'Google-Extended',
 			'GPTBot',

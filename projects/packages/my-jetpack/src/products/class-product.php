@@ -7,8 +7,10 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Plugins_Installer;
+use Jetpack_Options;
 use WP_Error;
 
 /**
@@ -125,44 +127,91 @@ abstract class Product {
 			throw new \Exception( 'Product classes must declare the $slug attribute.' );
 		}
 		return array(
-			'slug'                     => static::$slug,
-			'plugin_slug'              => static::$plugin_slug,
-			'name'                     => static::get_name(),
-			'title'                    => static::get_title(),
-			'description'              => static::get_description(),
-			'long_description'         => static::get_long_description(),
-			'tiers'                    => static::get_tiers(),
-			'features'                 => static::get_features(),
-			'features_by_tier'         => static::get_features_by_tier(),
-			'disclaimers'              => static::get_disclaimers(),
-			'status'                   => static::get_status(),
-			'pricing_for_ui'           => static::get_pricing_for_ui(),
-			'is_bundle'                => static::is_bundle_product(),
-			'is_plugin_active'         => static::is_plugin_active(),
-			'is_upgradable_by_bundle'  => static::is_upgradable_by_bundle(),
-			'supported_products'       => static::get_supported_products(),
-			'wpcom_product_slug'       => static::get_wpcom_product_slug(),
-			'requires_user_connection' => static::$requires_user_connection,
-			'has_required_plan'        => static::has_required_plan(),
-			'has_required_tier'        => static::has_required_tier(),
-			'manage_url'               => static::get_manage_url(),
-			'purchase_url'             => static::get_purchase_url(),
-			'post_activation_url'      => static::get_post_activation_url(),
-			'standalone_plugin_info'   => static::get_standalone_info(),
-			'class'                    => static::class,
-			'post_checkout_url'        => static::get_post_checkout_url(),
+			'slug'                      => static::$slug,
+			'plugin_slug'               => static::$plugin_slug,
+			'name'                      => static::get_name(),
+			'title'                     => static::get_title(),
+			'description'               => static::get_description(),
+			'long_description'          => static::get_long_description(),
+			'tiers'                     => static::get_tiers(),
+			'features'                  => static::get_features(),
+			'features_by_tier'          => static::get_features_by_tier(),
+			'disclaimers'               => static::get_disclaimers(),
+			'status'                    => static::get_status(),
+			'pricing_for_ui'            => static::get_pricing_for_ui(),
+			'is_bundle'                 => static::is_bundle_product(),
+			'is_plugin_active'          => static::is_plugin_active(),
+			'is_upgradable_by_bundle'   => static::is_upgradable_by_bundle(),
+			'supported_products'        => static::get_supported_products(),
+			'wpcom_product_slug'        => static::get_wpcom_product_slug(),
+			'requires_user_connection'  => static::$requires_user_connection,
+			'has_required_plan'         => static::has_required_plan(),
+			'has_paid_plan_for_product' => static::has_paid_plan_for_product(),
+			'has_required_tier'         => static::has_required_tier(),
+			'manage_url'                => static::get_manage_url(),
+			'purchase_url'              => static::get_purchase_url(),
+			'post_activation_url'       => static::get_post_activation_url(),
+			'standalone_plugin_info'    => static::get_standalone_info(),
+			'class'                     => static::class,
+			'post_checkout_url'         => static::get_post_checkout_url(),
 		);
 	}
 
 	/**
-	 * Get the internationalized product name
+	 * Collect the site's active features
+	 *
+	 * @return WP_Error|array
+	 */
+	private static function get_site_features_from_wpcom() {
+		static $features = null;
+
+		if ( $features !== null ) {
+			return $features;
+		}
+
+		$site_id  = Jetpack_Options::get_option( 'id' );
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/features', $site_id ), '1.1' );
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return new WP_Error( 'site_features_fetch_failed' );
+		}
+
+		$body           = wp_remote_retrieve_body( $response );
+		$feature_return = json_decode( $body );
+		$features       = $feature_return->active;
+
+		return $features;
+	}
+
+	/**
+	 * Check to see if the site has a feature
+	 * This will check the features provided by the site plans and products (including free ones)
+	 *
+	 * @param string $feature - the feature to check for.
+	 * @return bool
+	 */
+	public static function does_site_have_feature( $feature ) {
+		if ( ! $feature ) {
+			return false;
+		}
+
+		$features = self::get_site_features_from_wpcom();
+		if ( is_wp_error( $features ) ) {
+			return false;
+		}
+
+		return in_array( $feature, $features, true );
+	}
+
+	/**
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	abstract public static function get_name();
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
@@ -474,7 +523,8 @@ abstract class Product {
 			return true;
 		}
 
-		if ( ! static::is_plugin_installed() ) {
+		// Default to installing the standalone plugin for the product
+		if ( ! self::is_plugin_installed() ) {
 			$installed = Plugins_Installer::install_plugin( static::get_plugin_slug() );
 			if ( is_wp_error( $installed ) ) {
 				return $installed;

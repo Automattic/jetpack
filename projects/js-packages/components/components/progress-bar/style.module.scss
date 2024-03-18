@@ -8,10 +8,11 @@
 	&.small {
 		height: 3px;
 	}
-	
+
 	.progress {
 		height: 100%;
 		border-radius: calc( var( --spacing-base ) * 3 );
-		background-color: var(--jp-green-50 );
+		background-color: var( --jp-black );
+		min-width: 12px;
 	}
 }

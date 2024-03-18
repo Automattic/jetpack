@@ -46,7 +46,8 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return void
  */
 function subscriber_logout() {
-	Abstract_Token_Subscription_Service::clear_token_cookie();
+	$cookie_domain = wp_parse_url( get_site_url(), PHP_URL_HOST );
+	Abstract_Token_Subscription_Service::clear_token_cookie( $cookie_domain );
 }
 
 /**
@@ -72,7 +73,6 @@ function get_current_url() {
 function get_subscriber_login_url( $redirect ) {
 	$redirect = ! empty( $redirect ) ? $redirect : get_site_url();
 
-	// Taken from projects/plugins/jetpack/extensions/blocks/subscriptions/subscriptions.php and simplified a bit
 	if ( ( new Host() )->is_wpcom_simple() ) {
 		// On WPCOM we will redirect immediately
 		return wpcom_logmein_redirect_url( $redirect, false, null, 'link', get_current_blog_id() );
@@ -87,7 +87,7 @@ function get_subscriber_login_url( $redirect ) {
 			'site_id'      => intval( Jetpack_Options::get_option( 'id' ) ),
 			'redirect_url' => rawurlencode( $redirect_url ),
 		),
-		'https://subscribe.wordpress.com/memberships/jwt'
+		'https://subscribe.wordpress.com/memberships/jwt/'
 	);
 }
 
@@ -114,7 +114,7 @@ function render_block( $attributes ) {
 	$redirect_url               = ! empty( $attributes['redirectToCurrent'] ) ? get_current_url() : get_site_url();
 	$log_in_label               = ! empty( $attributes['logInLabel'] ) ? sanitize_text_field( $attributes['logInLabel'] ) : esc_html__( 'Log in', 'jetpack' );
 	$log_out_label              = ! empty( $attributes['logOutLabel'] ) ? sanitize_text_field( $attributes['logOutLabel'] ) : esc_html__( 'Log out', 'jetpack' );
-	$manage_subscriptions_label = ! empty( $attributes['manageSubscriptionsLabel'] ) ? sanitize_text_field( $attributes['manageSubscriptionsLabel'] ) : esc_html__( 'Manage subscriptions', 'jetpack' );
+	$manage_subscriptions_label = ! empty( $attributes['manageSubscriptionsLabel'] ) ? sanitize_text_field( $attributes['manageSubscriptionsLabel'] ) : esc_html__( 'Manage subscription', 'jetpack' );
 
 	if ( ! is_subscriber_logged_in() ) {
 		return sprintf(
@@ -129,7 +129,7 @@ function render_block( $attributes ) {
 		return sprintf(
 			$block_template,
 			get_block_wrapper_attributes(),
-			'https://wordpress.com/read/subscriptions',
+			'https://wordpress.com/read/site/subscription/' . Jetpack_Memberships::get_blog_id(),
 			$manage_subscriptions_label
 		);
 	}
