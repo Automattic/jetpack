@@ -1,0 +1,28 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-settings",
+	"version": "0.1.0-alpha",
+	"description": "Jetpack Settings",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/settings/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Settings"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/settings"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"test": "jest tests"
+	},
+	"devDependencies": {
+		"jest": "29.7.0"
+	},
+	"exports": {
+		".": "./src/index.jsx",
+		"./state": "./src/state",
+		"./action-types": "./src/state/action-types"
+	}
+}
