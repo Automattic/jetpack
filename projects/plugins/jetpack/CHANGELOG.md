@@ -51,7 +51,7 @@
 - Contact Form: Refactor editor to use Forms package. [#36089]
 - Contact Form: Refactor endpoints to use Forms package. [#36087]
 - Editor: Update to the most recent version of the @automattic/calypso-color-schemes package. [#36227]
-- General: update to the most recent version of @automattic/calypso-color-schemes. [#36187]
+- General: Update to the most recent version of @automattic/calypso-color-schemes. [#36187]
 - Login block: Link to subscription management page with site URL as search query.
 - Member login block: link to individual subscription management page. [#36200]
 - Newsletter settings: update section title to "subscriptions" [#36343]
