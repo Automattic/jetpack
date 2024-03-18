@@ -64,7 +64,7 @@
 - Show Browse sites when wp-admin interface is selected and using nav unification. [#36198]
 - Subscriber Login: Prevent the HTTP 301 redirection for Atomic sites. [#36311]
 - Subscriber Login: Remove the premium content cookie specified for the blog on logging out. [#35441]
-- Subscriptions: fix empty email for pending confirm paywall on .com. [#36321]
+- Subscriptions: Fix empty email for pending confirm paywall on .com. [#36321]
 - Subscriptions: Track newsletter category creation. [#36326]
 - Subscriptions: update the settings screen URL. [#36323]
 - Subscription Site: Polishing Newsletter settings. [#36218]
