@@ -92,7 +92,7 @@ class Social_Shares {
 	}
 
 	/**
-	 * Echo the html of social shares.
+	 * Return the html for the social shares.
 	 *
 	 * @param int $post_id The Post ID.
 	 */
