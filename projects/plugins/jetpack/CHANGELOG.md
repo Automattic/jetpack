@@ -6,7 +6,7 @@
 ### Enhancements
 - AI Assistant: Provide per-block quick actions to make them more relevant. [#36393]
 - General: Only show installation errors on Plugins page. [#36390]
-- Newsletters: ensure blog stats and top posts blocks do not render in email newsletters. [#36372]
+- Newsletters: Ensure blog stats and top posts blocks do not render in email newsletters. [#36372]
 - Sharing: Add a Bluesky sharing button. [#36181]
 - Sharing: Add Native (Web Share) button to Sharing Buttons block. [#35967]
 
