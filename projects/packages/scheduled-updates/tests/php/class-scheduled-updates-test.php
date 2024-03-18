@@ -77,7 +77,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		// Clean up the plugins cache created by get_plugins()
 		wp_cache_delete( 'plugins', 'plugins' );
 
-		wp_clear_scheduled_hook( 'jetpack_scheduled_update' );
+		wp_clear_scheduled_hook( 'jetpack_scheduled_plugins_update' );
 		delete_option( 'jetpack_scheduled_update_statuses' );
 
 		parent::tear_down_wordbless();
