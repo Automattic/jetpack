@@ -41,7 +41,7 @@ class Scheduled_Updates {
 			return;
 		}
 
-		add_action( 'jetpack_scheduled_update', array( __CLASS__, 'run_scheduled_update' ), 10, 10 );
+		add_action( 'jetpack_scheduled_plugins_update', array( __CLASS__, 'run_scheduled_update' ), 10, 10 );
 		add_action( 'rest_api_init', array( __CLASS__, 'add_is_managed_extension_field' ) );
 		add_filter( 'auto_update_plugin', array( __CLASS__, 'allowlist_scheduled_plugins' ), 10, 2 );
 		add_filter( 'plugin_auto_update_setting_html', array( __CLASS__, 'show_scheduled_updates' ), 10, 2 );
@@ -97,7 +97,7 @@ class Scheduled_Updates {
 	 * @return false|array Updated statuses or false if not found.
 	 */
 	public static function set_scheduled_update_status( $schedule_id, $timestamp, $status ) {
-		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+		$events = wp_get_scheduled_events( 'jetpack_scheduled_plugins_update' );
 
 		if ( empty( $events[ $schedule_id ] ) ) {
 			// Scheduled update not found.
@@ -141,7 +141,7 @@ class Scheduled_Updates {
 				require_once __DIR__ . '/pluggable.php';
 			}
 
-			$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+			$events = wp_get_scheduled_events( 'jetpack_scheduled_plugins_update' );
 			foreach ( $events as $event ) {
 				if ( isset( $item->plugin ) && in_array( $item->plugin, $event->args, true ) ) {
 					return true;
@@ -165,7 +165,7 @@ class Scheduled_Updates {
 			require_once __DIR__ . '/pluggable.php';
 		}
 
-		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+		$events = wp_get_scheduled_events( 'jetpack_scheduled_plugins_update' );
 
 		$schedules = array();
 		foreach ( $events as $event ) {
