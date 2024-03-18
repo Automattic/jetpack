@@ -6,6 +6,7 @@ const defaultNotice: Notice = {
 	options: {
 		status: '',
 	},
+	priority: 0,
 };
 
 export const NoticeContext = createContext< NoticeContextType >( {
@@ -19,7 +20,7 @@ const NoticeContextProvider = ( { children } ) => {
 	const [ currentNotice, setCurrentNotice ] = useState< Notice >( defaultNotice );
 
 	const setNotice = ( notice: Notice ) => {
-		if ( ! currentNotice.message ) {
+		if ( ! currentNotice.message || notice.priority > currentNotice.priority ) {
 			setCurrentNotice( notice );
 		}
 	};
