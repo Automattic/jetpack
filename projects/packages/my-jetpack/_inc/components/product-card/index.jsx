@@ -2,7 +2,7 @@ import { Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
 import Card from '../card';
 import ActionButton, { PRODUCT_STATUSES } from './action-button';
@@ -68,7 +68,6 @@ const ProductCard = props => {
 		isFetching,
 		isDataLoading,
 		isInstallingStandalone,
-		isDeactivatingStandalone,
 		slug,
 		additionalActions,
 		primaryActionOverride,
@@ -76,7 +75,6 @@ const ProductCard = props => {
 		children,
 		onInstallStandalone,
 		onActivateStandalone,
-		onDeactivateStandalone,
 	} = props;
 
 	const isError = status === PRODUCT_STATUSES.ERROR;
@@ -175,15 +173,14 @@ const ProductCard = props => {
 	);
 
 	/**
-	 * Use a Tracks event to count a standalone plugin deactivation click
+	 * Sends an event when the card loads
 	 */
-	// eslint-disable-next-line no-unused-vars
-	const deactivateStandaloneHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_deactivate_standalone_plugin_click', {
+	useEffect( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_loaded', {
 			product: slug,
+			status: status,
 		} );
-		onDeactivateStandalone();
-	}, [ slug, onDeactivateStandalone, recordEvent ] );
+	}, [ recordEvent, slug, status ] );
 
 	return (
 		<Card
@@ -222,9 +219,8 @@ const ProductCard = props => {
 				</div>
 				<Status
 					status={ status }
-					isFetching={ isDeactivatingStandalone }
+					isFetching={ isFetching }
 					isInstallingStandalone={ isInstallingStandalone }
-					isDeactivatingStandalone={ isFetching }
 				/>
 			</div>
 		</Card>
@@ -238,7 +234,6 @@ ProductCard.propTypes = {
 	admin: PropTypes.bool.isRequired,
 	isFetching: PropTypes.bool,
 	isInstallingStandalone: PropTypes.bool,
-	isDeactivatingStandalone: PropTypes.bool,
 	isManageDisabled: PropTypes.bool,
 	onActivate: PropTypes.func,
 	slug: PropTypes.string.isRequired,
@@ -247,7 +242,6 @@ ProductCard.propTypes = {
 	secondaryAction: PropTypes.object,
 	onInstallStandalone: PropTypes.func,
 	onActivateStandalone: PropTypes.func,
-	onDeactivateStandalone: PropTypes.func,
 	status: PropTypes.oneOf( [
 		PRODUCT_STATUSES.ACTIVE,
 		PRODUCT_STATUSES.INACTIVE,
@@ -263,7 +257,6 @@ ProductCard.propTypes = {
 ProductCard.defaultProps = {
 	isFetching: false,
 	isInstallingStandalone: false,
-	isDeactivatingStandalone: false,
 	onActivate: () => {},
 };
 

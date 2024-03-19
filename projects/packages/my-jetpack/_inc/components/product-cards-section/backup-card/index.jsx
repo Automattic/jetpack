@@ -5,10 +5,16 @@ import classNames from 'classnames';
 import Gridicon from 'gridicons';
 import PropTypes from 'prop-types';
 import { useEffect, useState, useMemo } from 'react';
+import {
+	REST_API_REWINDABLE_BACKUP_EVENTS_ENDPOINT,
+	REST_API_COUNT_BACKUP_ITEMS_ENDPOINT,
+	QUERY_BACKUP_HISTORY_KEY,
+	QUERY_BACKUP_STATS_KEY,
+} from '../../../data/constants';
+import useProduct from '../../../data/products/use-product';
+import useSimpleQuery from '../../../data/use-simple-query';
+import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
-import useBackupRewindableEvents from '../../../hooks/use-backup-rewindable-events';
-import useCountBackupItems from '../../../hooks/use-count-backup-items';
-import { useProduct } from '../../../hooks/use-product';
 import ProductCard from '../../connected-product-card';
 import { PRODUCT_STATUSES } from '../../product-card/action-button';
 import styles from './style.module.scss';
@@ -129,11 +135,17 @@ const BackupCard = ( { admin } ) => {
 };
 
 const WithBackupsValueSection = ( { admin, slug } ) => {
-	const { backupRewindableEvents, fetchingBackupRewindableEvents } = useBackupRewindableEvents();
-	const lastRewindableEventTime = backupRewindableEvents?.last_rewindable_event?.published;
-	const lastRewindableEvent = backupRewindableEvents?.last_rewindable_event;
-	const undoBackupId = backupRewindableEvents?.undo_backup_id;
+	const { data, isLoading } = useSimpleQuery( {
+		name: QUERY_BACKUP_HISTORY_KEY,
+		query: {
+			path: REST_API_REWINDABLE_BACKUP_EVENTS_ENDPOINT,
+		},
+	} );
+	const lastRewindableEvent = data?.last_rewindable_event;
+	const lastRewindableEventTime = lastRewindableEvent?.published;
+	const undoBackupId = data?.undo_backup_id;
 	const { recordEvent } = useAnalytics();
+	const { siteSuffix = '' } = getMyJetpackWindowInitialState();
 
 	const handleUndoClick = () => {
 		recordEvent( 'jetpack_myjetpack_backup_card_undo_click', {
@@ -145,7 +157,7 @@ const WithBackupsValueSection = ( { admin, slug } ) => {
 	const undoAction = {
 		href: getRedirectUrl( 'jetpack-backup-undo-cta', {
 			path: undoBackupId,
-			site: window?.myJetpackInitialState?.siteSuffix,
+			site: siteSuffix,
 		} ),
 		size: 'small',
 		variant: 'primary',
@@ -169,7 +181,7 @@ const WithBackupsValueSection = ( { admin, slug } ) => {
 			admin={ admin }
 			slug={ slug }
 			showMenu
-			isDataLoading={ fetchingBackupRewindableEvents }
+			isDataLoading={ isLoading }
 			Description={ lastRewindableEvent ? WithBackupsDescription : null }
 			additionalActions={ lastRewindableEvent ? [ undoAction ] : [] }
 		>
@@ -185,19 +197,27 @@ const WithBackupsValueSection = ( { admin, slug } ) => {
 
 const NoBackupsValueSection = ( { admin, slug } ) => {
 	const [ itemsToShow, setItemsToShow ] = useState( 3 );
-	const { countBackupItems: siteData, fetchingCountBackupItems: isFetching } =
-		useCountBackupItems();
+	const { data: backupStats, isLoading } = useSimpleQuery( {
+		name: QUERY_BACKUP_STATS_KEY,
+		query: {
+			path: REST_API_COUNT_BACKUP_ITEMS_ENDPOINT,
+		},
+	} );
 
-	const sortedData = useMemo( () => {
+	const sortedStats = useMemo( () => {
 		const data = [];
 
-		Object.keys( siteData ).forEach( key => {
+		if ( ! backupStats ) {
+			return data;
+		}
+
+		Object.keys( backupStats ).forEach( key => {
 			// We can safely filter out any values that are 0
-			if ( siteData[ key ] === 0 ) {
+			if ( backupStats[ key ] === 0 ) {
 				return;
 			}
 
-			data.push( [ key, siteData[ key ] ] );
+			data.push( [ key, backupStats[ key ] ] );
 		} );
 
 		data.sort( ( a, b ) => {
@@ -205,7 +225,7 @@ const NoBackupsValueSection = ( { admin, slug } ) => {
 		} );
 
 		return data;
-	}, [ siteData ] );
+	}, [ backupStats ] );
 
 	// Only show 2 data points on certain screen widths where the cards are squished
 	useEffect( () => {
@@ -222,16 +242,16 @@ const NoBackupsValueSection = ( { admin, slug } ) => {
 		};
 	}, [] );
 
-	const moreValue = sortedData.length > itemsToShow ? sortedData.length - itemsToShow : 0;
+	const moreValue = sortedStats.length > itemsToShow ? sortedStats.length - itemsToShow : 0;
 	const shortenedNumberConfig = { maximumFractionDigits: 1, notation: 'compact' };
 
 	return (
-		<ProductCard admin={ admin } slug={ slug } showMenu isDataLoading={ isFetching }>
+		<ProductCard admin={ admin } slug={ slug } showMenu isDataLoading={ isLoading }>
 			<div className={ styles[ 'no-backup-stats' ] }>
 				{ /* role="list" is required for VoiceOver on Safari */ }
 				{ /* eslint-disable-next-line jsx-a11y/no-redundant-roles */ }
 				<ul className={ styles[ 'main-stats' ] } role="list">
-					{ sortedData.map( ( item, i ) => {
+					{ sortedStats.map( ( item, i ) => {
 						const itemSlug = item[ 0 ].split( '_' )[ 1 ];
 						const value = item[ 1 ];
 

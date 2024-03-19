@@ -83,8 +83,24 @@ class Request {
 			$request_uri = $this->request_uri;
 		}
 
+		// Check if the query parameters `jb-disable-modules` or `jb-generate-critical-css` exist.
+		$query_params = isset( $this->request_parameters['get'] ) ? $this->request_parameters['get'] : array();
+		if ( isset( $query_params ) &&
+			( isset( $query_params['jb-disable-modules'] ) || isset( $query_params['jb-generate-critical-css'] ) )
+		) {
+			return true;
+		}
+
 		$bypass_patterns = Boost_Cache_Settings::get_instance()->get_bypass_patterns();
-		$bypass_patterns = apply_filters( 'boost_cache_bypass_patterns', $bypass_patterns );
+
+		/**
+		 * Filters the bypass patterns for the page cache.
+		 *
+		 * @since 3.2.0
+		 *
+		 * @param array $bypass_patterns An array of regex patterns that define URLs that bypass caching.
+		 */
+		$bypass_patterns = apply_filters( 'jetpack_boost_cache_bypass_patterns', $bypass_patterns );
 
 		$bypass_patterns[] = 'wp-.*\.php';
 		foreach ( $bypass_patterns as $expr ) {
@@ -106,7 +122,17 @@ class Request {
 	 * @return bool
 	 */
 	public function is_cacheable() {
-		if ( ! apply_filters( 'boost_cache_cacheable', $this->request_uri ) ) {
+		/**
+		 * Determines if the request is considered cacheable.
+		 *
+		 * Can be used to prevent a request from being cached.
+		 *
+		 * @since 3.2.0
+		 *
+		 * @param bool $default_status The default cacheability status (true for cacheable).
+		 * @param string $request_uri  The request URI to be evaluated for cacheability.
+		 */
+		if ( ! apply_filters( 'jetpack_boost_cache_request_cacheable', true, $this->request_uri ) ) {
 			return false;
 		}
 
@@ -139,6 +165,10 @@ class Request {
 			return false;
 		}
 
+		if ( $this->is_bypassed_extension() ) {
+			return false;
+		}
+
 		if ( isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] !== 'GET' ) {
 			return false;
 		}
@@ -148,7 +178,23 @@ class Request {
 			return false;
 		}
 
-		$accept_headers = apply_filters( 'boost_accept_headers', array( 'application/json', 'application/activity+json', 'application/ld+json' ) );
+		if ( $this->is_module_disabled() ) {
+			return false;
+		}
+
+		/**
+		 * Filters the accept headers to determine if the request should be cached.
+		 *
+		 * This filter allows modification of the content types that browsers send
+		 * to the server during a request. If the acceptable browser content type header (HTTP_ACCEPT)
+		 * matches one of these content types the request will not be cached,
+		 * or a cached file served to this visitor.
+		 *
+		 * @since 3.2.0
+		 *
+		 * @param array $accept_headers An array of header values that should prevent a request from being cached.
+		 */
+		$accept_headers = apply_filters( 'jetpack_boost_cache_accept_headers', array( 'application/json', 'application/activity+json', 'application/ld+json' ) );
 		$accept_headers = array_map( 'strtolower', $accept_headers );
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- $accept is checked and set below.
@@ -163,6 +209,31 @@ class Request {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Returns true if the request appears to be for something with a known file extension that is not
+	 * usually HTML. e.g.:
+	 * - *.txt (including robots.txt, license.txt)
+	 * - *.ico (favicon.ico)
+	 * - *.jpg, *.png, *.webm (image files).
+	 */
+	public function is_bypassed_extension() {
+		$file_extension = pathinfo( $this->request_uri, PATHINFO_EXTENSION );
+
+		return in_array(
+			$file_extension,
+			array(
+				'txt',
+				'ico',
+				'jpg',
+				'jpeg',
+				'png',
+				'webp',
+				'gif',
+			),
+			true
+		);
 	}
 
 	/**
@@ -229,5 +300,34 @@ class Request {
 		}
 
 		return \is_feed();
+	}
+
+	/**
+	 * Return true if the Page Cache module is disabled, or null if we don't know yet.
+	 *
+	 * If Status and Page_Cache are not available, it means the plugin is not loaded.
+	 * This function will be called later when writing a cache file to disk.
+	 * It's then that we can check if the module is active.
+	 *
+	 * @return null|bool
+	 */
+	public function is_module_disabled() {
+
+		// A simple check to make sure we're in the output buffer callback.
+		if ( ! function_exists( '\is_feed' ) ) {
+			return null;
+		}
+
+		if (
+			class_exists( '\Automattic\Jetpack_Boost\Lib\Status' ) &&
+			class_exists( '\Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache' )
+		) {
+			$page_cache_status = new \Automattic\Jetpack_Boost\Lib\Status(
+				\Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache::get_slug()
+			);
+			return ! $page_cache_status->is_enabled();
+		} else {
+			return true; // if the classes aren't available, the plugin isn't loaded.
+		}
 	}
 }

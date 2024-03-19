@@ -20,6 +20,7 @@ class Run_Setup implements Data_Sync_Action {
 	 */
 	public function handle( $_data, $_request ) {
 		$setup_result = Page_Cache_Setup::run_setup();
+
 		if ( is_wp_error( $setup_result ) ) {
 			return $setup_result;
 		}

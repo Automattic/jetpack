@@ -1,6 +1,3 @@
-// eslint-disable-next-line no-unused-vars
-/* global myJetpackInitialState */
-
 import {
 	Button,
 	Notice,
@@ -14,8 +11,10 @@ import {
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { sprintf, __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React, { useCallback, useMemo } from 'react';
-import { useProduct } from '../../hooks/use-product';
+import { useCallback, useMemo } from 'react';
+import useProduct from '../../data/products/use-product';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 
 /**
  * Product Detail Table Column component.
@@ -26,6 +25,7 @@ import { useProduct } from '../../hooks/use-product';
  * @param {boolean}  props.cantInstallPlugin       - True when the plugin cannot be automatically installed.
  * @param {Function} props.onProductButtonClick    - Click handler for the product button.
  * @param {object}   props.detail                  - Product detail object.
+ * @param {boolean}  props.isFetching              - True if there is a pending request to load the product.
  * @param {string}   props.tier                    - Product tier slug, i.e. 'free' or 'upgraded'.
  * @param {Function} props.trackProductButtonClick - Tracks click event for the product button.
  * @returns {object} - ProductDetailTableColumn component.
@@ -34,17 +34,18 @@ const ProductDetailTableColumn = ( {
 	cantInstallPlugin,
 	onProductButtonClick,
 	detail,
+	isFetching,
 	tier,
 	trackProductButtonClick,
 } ) => {
-	const { siteSuffix, myJetpackCheckoutUri } = window?.myJetpackInitialState ?? {};
+	const { siteSuffix = '', myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
 
 	// Extract the product details.
 	const {
 		featuresByTier = [],
 		pricingForUi: { tiers: tiersPricingForUi },
 		title,
-		postActivationUrl,
+		postCheckoutUrl,
 	} = detail;
 
 	// Extract the pricing details for the provided tier.
@@ -58,11 +59,34 @@ const ProductDetailTableColumn = ( {
 		quantity = null,
 	} = tiersPricingForUi[ tier ];
 
+	// Redirect to the referrer URL when the `redirect_to_referrer` query param is present.
+	const referrerURL = useRedirectToReferrer();
+
+	/*
+	 * Function to handle the redirect URL selection.
+	 * - postCheckoutUrl is the URL provided by the product API and is the preferred URL
+	 * - referrerURL is the referrer URL, in case the redirect_to_referrer flag was provided
+	 * - myJetpackCheckoutUri is the default URL
+	 */
+	const getCheckoutRedirectUrl = useCallback( () => {
+		if ( postCheckoutUrl ) {
+			return postCheckoutUrl;
+		}
+
+		if ( referrerURL ) {
+			return referrerURL;
+		}
+
+		return myJetpackCheckoutUri;
+	}, [ postCheckoutUrl, referrerURL, myJetpackCheckoutUri ] );
+
+	const checkoutRedirectUrl = getCheckoutRedirectUrl();
+
 	// Set up the checkout workflow hook.
 	const { run: runCheckout, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		from: 'my-jetpack',
 		productSlug: wpcomProductSlug,
-		redirectUrl: postActivationUrl.replace( /(^.*\/wp-admin\/)/i, '' ) || myJetpackCheckoutUri,
+		redirectUrl: checkoutRedirectUrl,
 		connectAfterCheckout: true,
 		siteSuffix,
 		useBlogIdSuffix: true,
@@ -126,8 +150,8 @@ const ProductDetailTableColumn = ( {
 					fullWidth
 					variant={ isFree ? 'secondary' : 'primary' }
 					onClick={ onClick }
-					isLoading={ hasCheckoutStarted }
-					disabled={ hasCheckoutStarted || cantInstallPlugin }
+					isLoading={ hasCheckoutStarted || isFetching }
+					disabled={ hasCheckoutStarted || cantInstallPlugin || isFetching }
 				>
 					{ callToAction }
 				</Button>
@@ -187,10 +211,16 @@ ProductDetailTableColumn.propTypes = {
  * @param {string}   props.slug                    - Product slug.
  * @param {Function} props.onProductButtonClick    - Click handler for the product button.
  * @param {Function} props.trackProductButtonClick - Tracks click event for the product button.
+ * @param {boolean}  props.isFetching              - True if there is a pending request to load the product.
  * @returns {object} - ProductDetailTable react component.
  */
-const ProductDetailTable = ( { slug, onProductButtonClick, trackProductButtonClick } ) => {
-	const { fileSystemWriteAccess } = window?.myJetpackInitialState ?? {};
+const ProductDetailTable = ( {
+	slug,
+	onProductButtonClick,
+	trackProductButtonClick,
+	isFetching,
+} ) => {
+	const { fileSystemWriteAccess = 'no' } = getMyJetpackWindowInitialState();
 
 	const { detail } = useProduct( slug );
 	const { description, featuresByTier = [], pluginSlug, status, tiers = [], title } = detail;
@@ -249,6 +279,7 @@ const ProductDetailTable = ( { slug, onProductButtonClick, trackProductButtonCli
 						key={ index }
 						tier={ tier }
 						detail={ detail }
+						isFetching={ isFetching }
 						onProductButtonClick={ onProductButtonClick }
 						trackProductButtonClick={ trackProductButtonClick }
 						primary={ index === 0 }
@@ -264,6 +295,7 @@ ProductDetailTable.propTypes = {
 	slug: PropTypes.string.isRequired,
 	onProductButtonClick: PropTypes.func.isRequired,
 	trackProductButtonClick: PropTypes.func.isRequired,
+	isFetching: PropTypes.bool.isRequired,
 };
 
 export default ProductDetailTable;

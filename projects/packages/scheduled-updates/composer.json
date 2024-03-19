@@ -10,7 +10,8 @@
 		"yoast/phpunit-polyfills": "1.1.0",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "@dev",
-		"automattic/jetpack-plans": "@dev"
+		"automattic/jetpack-plans": "@dev",
+		"php-mock/php-mock-phpunit": "^2.10"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -48,7 +49,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.2.x-dev"
+			"dev-trunk": "0.4.x-dev"
 		},
 		"textdomain": "jetpack-scheduled-updates",
 		"version-constants": {

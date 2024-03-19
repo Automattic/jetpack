@@ -73,7 +73,7 @@ export function AIControl(
 		bannerComponent = null,
 		errorComponent = null,
 	}: AiControlProps,
-	ref: React.MutableRefObject< null >
+	ref: React.MutableRefObject< HTMLInputElement >
 ): ReactElement {
 	const promptUserInputRef = useRef( null );
 	const loading = state === 'requesting' || state === 'suggesting';

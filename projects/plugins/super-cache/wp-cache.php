@@ -3,7 +3,7 @@
  * Plugin Name: WP Super Cache
  * Plugin URI: https://wordpress.org/plugins/wp-super-cache/
  * Description: Very fast caching plugin for WordPress.
- * Version: 2.0.0-alpha
+ * Version: 1.12.1-alpha
  * Author: Automattic
  * Author URI: https://automattic.com/
  * License: GPL2+
@@ -43,6 +43,27 @@ if ( ! defined( 'PHP_VERSION_ID' ) ) {
 	$wpsc_php_version = explode( '.', PHP_VERSION );
 	define( 'PHP_VERSION_ID', intval( $wpsc_php_version[0] * 10000 + $wpsc_php_version[1] * 100 + $wpsc_php_version[2] ) );
 	unset( $wpsc_php_version );
+}
+
+/**
+ * Defines how many posts to preload per loop.
+ */
+if ( ! defined( 'WPSC_PRELOAD_POST_COUNT' ) ) {
+	define( 'WPSC_PRELOAD_POST_COUNT', 10 );
+}
+
+/**
+ * Defines the interval in seconds between preloading pages.
+ */
+if ( ! defined( 'WPSC_PRELOAD_POST_INTERVAL' ) ) {
+	define( 'WPSC_PRELOAD_POST_INTERVAL', 1 );
+}
+
+/**
+ * Defines the interval in seconds between preloading loops.
+ */
+if ( ! defined( 'WPSC_PRELOAD_LOOP_INTERVAL' ) ) {
+	define( 'WPSC_PRELOAD_LOOP_INTERVAL', 0 );
 }
 
 function wpsc_init() {
@@ -2289,28 +2310,32 @@ function wp_cache_create_advanced_cache() {
 function wpsc_check_advanced_cache() {
 	global $wpsc_advanced_cache_filename;
 
-	$ret = true;
-	$boost_advanced_cache = false;
+	$ret                  = false;
 	$other_advanced_cache = false;
 	if ( file_exists( $wpsc_advanced_cache_filename ) ) {
 		$file = file_get_contents( $wpsc_advanced_cache_filename );
 		if ( strpos( $file, "WP SUPER CACHE 0.8.9.1" ) || strpos( $file, "WP SUPER CACHE 1.2" ) ) {
 			return true;
-		} elseif ( strpos( $file, 'Boost Cache Plugin' ) ) {
-			$boost_advanced_cache = true;
-			$ret                  = false;
+		} elseif ( strpos( $file, 'Boost Cache Plugin' ) !== false ) {
+			$other_advanced_cache = 'BOOST';
 		} else {
 			$other_advanced_cache = true;
-			$ret = wp_cache_create_advanced_cache();
 		}
 	} else {
 		$ret = wp_cache_create_advanced_cache();
 	}
 
 	if ( false == $ret ) {
-		if ( $boost_advanced_cache ) {
-			echo '<div style="width: 50%" class="notice notice-error"><h2>' . esc_html__( 'You are using Page Caching on Jetpack Boost', 'wp-super-cache' ) . '</h2>';
-			echo '<p>' . esc_html__( 'It appears that Jetpack Boost Cache is currently enabled. If you wish to use WP Super Cache, please deactivate Jetpack Boost first, activate caching with WP Super Cache, and then reactivate Jetpack Boost.', 'wp-super-cache' ) . '</p>';
+		if ( $other_advanced_cache === 'BOOST' ) {
+			echo '<div style="width: 50%" class="notice notice-error"><h2>' . esc_html__( 'Warning! Jetpack Boost Cache Detected', 'wp-super-cache' ) . '</h2>';
+			// translators: %s is the filename of the advanced-cache.php file
+			echo '<p>' . sprintf( esc_html__( 'The file %s was created by the Jetpack Boost plugin.', 'wp-super-cache' ), esc_html( $wpsc_advanced_cache_filename ) ) . '</p>';
+			echo '<p>' . esc_html__( 'You can use Jetpack Boost and WP Super Cache at the same time but only if the Cache Site Pages module in Boost is disabled. To use WP Super Cache for caching:', 'wp-super-cache' ) . '</p>';
+			// translators: %s is a html link to the plugins page
+			echo '<ol><li>' . sprintf( esc_html__( 'Deactivate Jetpack Boost on the %s page.', 'wp-super-cache' ), '<a href="' . esc_url( admin_url( 'plugins.php' ) ) . '">' . esc_html__( 'Plugins', 'wp-super-cache' ) . '</a>' ) . '</li>';
+			echo '<li>' . esc_html__( 'Reload this page to configure WP Super Cache.', 'wp-super-cache' ) . '</li>';
+			echo '<li>' . esc_html__( 'Activate the Jetpack Boost plugin again.', 'wp-super-cache' ) . '</li>';
+			echo '</ol>';
 		} elseif ( $other_advanced_cache ) {
 			echo '<div style="width: 50%" class="notice notice-error"><h2>' . __( 'Warning! You may not be allowed to use this plugin on your site.', 'wp-super-cache' ) . "</h2>";
 			echo '<p>' .
@@ -3466,7 +3491,7 @@ function wp_cron_preload_cache() {
 						)
 					);
 					wp_cache_debug( "wp_cron_preload_cache: fetched $url" );
-					sleep( 1 );
+					sleep( WPSC_PRELOAD_POST_INTERVAL );
 
 					if ( ! wpsc_is_preload_active() ) {
 						wp_cache_debug( 'wp_cron_preload_cache: cancelling preload process.' );
@@ -3501,6 +3526,7 @@ function wp_cron_preload_cache() {
 
 		if ( $preload_more_taxonomies === true ) {
 			wpsc_schedule_next_preload();
+			sleep( WPSC_PRELOAD_LOOP_INTERVAL );
 			return true;
 		}
 	} elseif ( $c === 0 && $wp_cache_preload_email_me ) {
@@ -3590,7 +3616,7 @@ function wp_cron_preload_cache() {
 			wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
 			wp_cache_debug( "wp_cron_preload_cache: fetched $url", 5 );
 			++$count;
-			sleep( 1 );
+			sleep( WPSC_PRELOAD_POST_INTERVAL );
 		}
 
 		if ( $wp_cache_preload_email_me && ( $wp_cache_preload_email_volume === 'medium' || $wp_cache_preload_email_volume === 'many' ) ) {
@@ -3599,8 +3625,8 @@ function wp_cron_preload_cache() {
 		}
 
 		wpsc_schedule_next_preload();
-
 		wpsc_delete_files( get_supercache_dir() );
+		sleep( WPSC_PRELOAD_LOOP_INTERVAL );
 	} else {
 		$msg = '';
 		wpsc_reset_preload_counter();

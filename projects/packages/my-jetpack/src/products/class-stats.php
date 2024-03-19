@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\My_Jetpack\Initializer;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
 /**
@@ -176,6 +177,11 @@ class Stats extends Module_Product {
 	 * @return boolean
 	 */
 	public static function is_upgradable() {
+		// For now, atomic sites with stats are not in a position to upgrade
+		if ( ( new Host() )->is_woa_site() ) {
+			return false;
+		}
+
 		$purchases_data = Wpcom_Products::get_site_current_purchases();
 		if ( ! is_wp_error( $purchases_data ) && is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {

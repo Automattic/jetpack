@@ -30,6 +30,12 @@ const GoodreadsEdit = props => {
 				setErrorNotice();
 			}
 
+			// Applies when transforming from Legacy Widget,
+			// in which case goodreadsId is already known.
+			if ( attributes.goodreadsId ) {
+				setRequestLink();
+			}
+
 			if ( goodreadsUserId && ! isError ) {
 				setAttributes( { goodreadsId: goodreadsUserId } );
 				setRequestLink();

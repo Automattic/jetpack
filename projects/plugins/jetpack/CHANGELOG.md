@@ -2,6 +2,147 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.3-a.3 - 2024-03-18
+### Enhancements
+- AI Assistant: Provide per-block quick actions to make them more relevant. [#36393]
+- General: Only show installation errors on Plugins page. [#36390]
+- Newsletters: Ensure blog stats and top posts blocks do not render in email newsletters. [#36372]
+- Sharing: Add a Bluesky sharing button. [#36181]
+- Sharing: Add Native (Web Share) button to Sharing Buttons block. [#35967]
+
+### Improved compatibility
+- Subscriptions: Remove subscription settings from reading options page. [#36314]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add tracking to Jetpack review link on plugins page [#36348]
+- AI Assistant: Register ai-assistant-form-support beta flag to control the form extension we are working on. [#36413]
+- AI Featured Image: Add sidebar entry [#36414]
+- Contact Form: refactor admin to use forms package [#36224]
+- Contact Form: refactor plugin to use forms package [#36092]
+- Contact Form: refactor shortcode to use forms package [#36135]
+- Fix minor UI issues in premium-content block editor [#36398]
+- Jetpack_Portfolio: Prevent a division by 0 fatal when a user uses the shortcode with columns=0 [#36433]
+- Publicize: prevent panel from jumping after activation [#36362]
+- Sharing Block: Remove extra margin previously added to the first button. [#36386]
+- SSO: Add error log on SSO invite. [#36416]
+- SSO: Update copy when inviting users. [#36385]
+- Subscriptions: Add Subscribe block post end placement setting to Sync [#36381]
+- Subscriptions: Fix the Subscribe block insertion toggle label [#36384]
+- Subscription Site: Polishing stuff before the release [#36240]
+- Untangle: explicitly use Core admin bar color in Calypso color schemes [#36341]
+- Updated package dependencies. [#36401]
+- WPCOM_JSON_API_List_Comments_Endpoint: Remove update_comment_cache() that is no longer needed [#36363]
+
+## 13.3-a.1 - 2024-03-12
+### Enhancements
+- Newsletters: Display Email settings on Newsletter settings page. [#36290]
+- Sharing: add a Threads sharing button and a Threads sharing button block. [#36220]
+- Social: Add support for an SMS button. [#36176]
+
+### Bug fixes
+- Sharing: avoid PHP warnings when using custom post types. [#36315]
+- Sharing: fix the display of the sharing block in some classic themes. [#36283]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add metadata to the post to better diagnose need for Reader and Firehose. [#36254]
+- Add site migration endpoint. [#36253]
+- Compile TypeScript extensions in Jetpack. [#35904]
+- Contact Form: Add deprecation warnings to Contact Form module codebase. [#36040]
+- Contact Form: Refactor editor to use Forms package. [#36089]
+- Contact Form: Refactor endpoints to use Forms package. [#36087]
+- Editor: Update to the most recent version of the @automattic/calypso-color-schemes package. [#36227]
+- General: Update to the most recent version of @automattic/calypso-color-schemes. [#36187]
+- Login block: Link to subscription management page with site URL as search query.
+- Member login block: link to individual subscription management page. [#36200]
+- Newsletter settings: update section title to "subscriptions" [#36343]
+- Paywall: Use Subscriber Login block for the login link. [#36308]
+- Pass API parameter to indicate when deleting a memberships product should cancel subscriptions. [#35735]
+- Pinterest Block: deprecate in favor of the Core Pinterest embed block. [#36075]
+- Refactor user_is_paid_subscriber to compare against tiers. [#35587]
+- Removed the feature flag for newsletter categories settings. [#36073]
+- RNMobile: Remove code associated with Story block for the mobile native version. [#36151]
+- Show Browse sites when wp-admin interface is selected and using nav unification. [#36198]
+- SSO: Updated user invitation logic if WooCommerce plugin is activated. [#36140]
+- Subscriber Login: Prevent the HTTP 301 redirection for Atomic sites. [#36311]
+- Subscriber Login: Remove the premium content cookie specified for the blog on logging out. [#35441]
+- Subscriptions: Fix empty email for pending confirm paywall on .com. [#36321]
+- Subscriptions: Track newsletter category creation. [#36326]
+- Subscriptions: update the settings screen URL. [#36323]
+- Subscription Site: Polishing Newsletter settings. [#36218]
+- Subscription Site: Polishing the Subscribe block toggle. [#36177]
+- Subscription Site: Update Subscribe block after the post nudge. [#36107]
+- Update code references in docs and comments. [#36234]
+- Updated package dependencies. [#36309, #36325]
+- Update lockfiles. [#36195]
+- Use JS and CSS tooltips instead of HTML title. [#36222]
+- Voice to Content: Fix file upload file type selection for iOS devices, listing all the extensions allowed. [#36165]
+- Voice to Content: restrict block to internal P2 sites and open it to non-proxied connections. [#36163]
+- WooCommerce Anlytics: require package instead of using the classes that ship with the Jetpack plugin. [#35758]
+- WPCOM_JSON_API_Upload_Media_v1_1_Endpoint: Fix errors on invalid post data. [#36291]
+
+## 13.2.1 - 2024-03-12
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Subscriptions: improve security checks when displaying a Subscription form via a shortcode. [#36347]
+- WPcom API: fixes a minor bug in a recently shipped endpoint that makes it work more like expected. [#36262]
+
+## [13.2] - 2024-03-05
+### Enhancements
+- Blog Stats block: Add message on the frontend when the Stats module is disabled. [#36108]
+- Dashboard: link to Odyssey Stats for Atomic sites [#36049]
+- Goodreads Block: Add transform from Legacy Widget. [#36061]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Adding tracking for user management events [#35773]
+- Better handle categories input click/focus. [#35916]
+- Blog Stats block: fix translation string format. [#36127]
+- Goodreads Block: Fix block inheriting styles from Legacy Widget. [#36059]
+- Google Fonts: Update the implement of print_font_faces as the value of WP_Font_Face_Resolver::get_fonts_from_theme_json may be an indexed array [#35986]
+- Hides the Customizer menu items for block themes [#36017]
+- Jetpack Comments: Wrap iframe related script in IIFE to prevent declaration of global variables [#36123]
+- Lazy Images: remove module now that it has been deprecated for a few releases. [#36155]
+- Move blocks from beta to production: blog-stats, top-posts, goodreads [#36057]
+- Move Jetpack_Boost_Modules class to the boost-score-api package. [#36080]
+- RNMobile: Ensure playsInline setting always conforms to Video block schema. [#35981]
+- RNMobile: Revert change to the way playsInline attribute is saved, prevent regression on web. [#36030]
+- Sal: add is_commercial_reasons to options [#36006]
+- Scheduled updates: Introduced a new body parameter `scheduled_update` to the `POST /sites/%s/plugins/%s` endpoint.
+- Setup state for handling backup preflight checks [#36044]
+- Stats: enable Odyssey Stats for WoA sites [#35528]
+- Stats: link to Odyssey Stats from admin bar [#36050]
+- Subscription Site: Allow to add add Subscribe block at the end of each post [#35458]
+- Subscription Site: Prevent the Subscribe block from rendering when the Paywall block is visible [#36045]
+- Sync:Add feature flag for enabling the use of rest api for sending the sync data [#36118]
+- The features in Customizer should appear when users directly visit the Customizer link [#36146]
+- Untangle: add site option wpcom_classic_early_release [#36111]
+- Untangle: always use the wpcom_is_nav_redesign_enabled() function as release toggle [#35894]
+- Updated package dependencies.
+- Update VideoPress card styles. [#35968]
+- Voice to Content: Cancel transcription on modal close and disable close on click outside [#36082]
+- Voice to Content: change the way the processing and error states are handled, and ensure proper error handling. [#36001]
+- Voice to Content: Clear preceding empty paragraph when transcription is ready [#36132]
+- Voice to Content: Fix transcription check on post-processing failure [#36002]
+- Voice to Content: include validation and validation state when an audio is recorded or uploaded. [#36043]
+- Voice to Content: move transcription to a dedicated hook so the block code becomes more simple [#36033]
+- Voice to Content: Track transcription started event. [#36094]
+- When `POST /sites/%s/plugins/%s` endpoint is called with the `scheduled_update` parameter, we validate the request and modify the auto update plugins allowed list to include the ones in the scheduled updates option. [#35941]
+
+## 13.2-a.11 - 2024-02-27
+### Enhancements
+- Real time backups: Add endpoints orders to be used in real-time backups jetpack [#35649]
+
+### Bug fixes
+- Atomic i18n: Fix mixed translations after WordPress.com user locale switch [#35750]
+- Goodreads Block: fix error when adding multiple blocks to the same page. [#35876]
+- Revert 35890 to resolve the font display issue [#35983]
+- Sharing: only enqueue extra JavaScript when a Sharing Block is inserted on the page. [#35955]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add slide up/down animation to categories. [#35887]
+- Copy Post: Add Jetpack Logo to row action link [#35552]
+- RNMobile: Detect and avoid invalid media URLs in VideoPress v5 block [#35961]
+- RNMobile: Fix edge case where block could sometimes mistakenly appear empty. [#35957]
+- Voice to Content: refactor hook usage and handle request canceling [#35923]
+
 ## 13.2-a.9 - 2024-02-26
 ### Enhancements
 - Ads Settings: Include option to toggle GDPR Consent Banner [#35205]
@@ -9864,6 +10005,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[13.2]: https://wp.me/p1moTy-15UC
 [13.1]: https://wp.me/p1moTy-12e0
 [13.0]: https://wp.me/p1moTy-10Xp
 [12.9]: https://wp.me/p1moTy-YJA

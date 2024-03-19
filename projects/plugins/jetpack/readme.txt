@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, performance
-Stable tag: 13.1.3
+Stable tag: 13.2.1
 Requires at least: 6.3
 Requires PHP: 7.0
 Tested up to: 6.5
@@ -326,22 +326,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.2-a.9 - 2024-02-26
+### 13.3-a.3 - 2024-03-18
 #### Enhancements
-- Ads Settings: Include option to toggle GDPR Consent Banner
-- Blaze: Enable the Dashboard behind the feature flag
-- Blog Stats Block: Remove check that prevented testing on WP.com sites.
-- Improve SSO send invite hover copy
-- Privacy: Add preliminary support for WordAds Consent Management Provider
-- Sharing: automatically add the Sharing Buttons block to the single post and page templates on sites using a block-based theme.
-- WordAds: Add additional states to US Privacy law opt-out
+- AI Assistant: Provide per-block quick actions to make them more relevant.
+- General: Only show installation errors on plugins page.
+- Newsletters: Ensure blog stats and top posts blocks do not render in email newsletters.
+- Sharing: Add a Bluesky sharing button.
+- Sharing: Add Native (Web Share) button to Sharing Buttons block.
 
 #### Improved compatibility
-- General: the plugin is now compatible with the upcoming WordPress release, version 6.5.
-
-#### Bug fixes
-- Carousel: don't open if no images are found in the gallery.
-- Subscribe block: improve disabled placeholder state theme colour compatibility
+- Subscriptions: Remove subscription settings from reading options page.
 
 --------
 

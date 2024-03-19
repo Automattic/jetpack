@@ -22,6 +22,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync\Page_Cache_Entry;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync_Actions\Clear_Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync_Actions\Run_Setup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
 
 if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
@@ -348,6 +349,7 @@ jetpack_boost_register_readonly_option( 'pricing', array( Premium_Pricing::class
 jetpack_boost_register_readonly_option( 'premium_features', array( Premium_Features::class, 'get_features' ) );
 jetpack_boost_register_readonly_option( 'super_cache', array( Super_Cache_Info::class, 'get_info' ) );
 jetpack_boost_register_readonly_option( 'cache_debug_log', array( Logger::class, 'read' ) );
+jetpack_boost_register_readonly_option( 'cache_engine_loading', array( Boost_Cache::class, 'is_loaded' ) );
 
 jetpack_boost_register_option( 'getting_started', Schema::as_boolean()->fallback( false ), new Getting_Started_Entry() );
 
@@ -356,8 +358,9 @@ jetpack_boost_register_option(
 	'page_cache_error',
 	Schema::as_assoc_array(
 		array(
-			'code'    => Schema::as_string(),
-			'message' => Schema::as_string(),
+			'code'      => Schema::as_string(),
+			'message'   => Schema::as_string(),
+			'dismissed' => Schema::as_boolean()->fallback( false ),
 		)
 	)->nullable()
 );

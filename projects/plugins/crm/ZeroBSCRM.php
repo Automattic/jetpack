@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack CRM
  * Plugin URI: https://jetpackcrm.com
  * Description: Jetpack CRM is the simplest CRM for WordPress. Self host your own Customer Relationship Manager using WP.
- * Version: 6.4.1-alpha
+ * Version: 6.4.2-alpha
  * Author: Automattic - Jetpack CRM team
  * Author URI: https://jetpackcrm.com
  * Text Domain: zero-bs-crm
@@ -55,6 +55,9 @@ if ( is_readable( $jetpack_autoloader ) ) {
 	add_action(
 		'admin_notices',
 		function () {
+			if ( get_current_screen()->id !== 'plugins' ) {
+				return;
+			}
 			?>
 			<div class="notice notice-error is-dismissible">
 				<p>
