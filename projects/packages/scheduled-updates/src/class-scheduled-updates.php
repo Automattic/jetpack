@@ -353,7 +353,7 @@ class Scheduled_Updates {
 			return;
 		}
 
-		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+		$events = wp_get_scheduled_events( self::PLUGIN_CRON_HOOK );
 
 		if ( ! count( $events ) ) {
 			return;
@@ -366,7 +366,7 @@ class Scheduled_Updates {
 			}
 
 			// Remove the schedule.
-			$result = wp_unschedule_event( $event->timestamp, 'jetpack_scheduled_update', $event->args, true );
+			$result = wp_unschedule_event( $event->timestamp, self::PLUGIN_CRON_HOOK, $event->args, true );
 
 			if ( is_wp_error( $result ) || false === $result ) {
 				return;
@@ -380,7 +380,7 @@ class Scheduled_Updates {
 
 			if ( count( $event->args ) ) {
 				// There are still plugins to update. Schedule a new event.
-				$result = wp_schedule_event( $event->timestamp, $event->interval, 'jetpack_scheduled_update', $event->args, true );
+				$result = wp_schedule_event( $event->timestamp, $event->interval, self::PLUGIN_CRON_HOOK, $event->args, true );
 
 				if ( is_wp_error( $result ) || false === $result ) {
 					return;
