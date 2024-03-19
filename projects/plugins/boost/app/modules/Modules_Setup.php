@@ -50,7 +50,7 @@ class Modules_Setup implements Has_Setup {
 	 * Used to register endpoints that will be available even
 	 * if the module is not enabled.
 	 *
-	 * @param Has_Always_Available_Endpoints $feature
+	 * @param Pluggable $feature
 	 *
 	 * @return bool|void
 	 */
