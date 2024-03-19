@@ -113,6 +113,7 @@ class Speed_Score_Request extends Cacheable {
 		$performance_modules = array(
 			'cloud_css',
 			'critical_css',
+			'page_cache',
 			'image_cdn',
 			'minify_css',
 			'minify_js',
