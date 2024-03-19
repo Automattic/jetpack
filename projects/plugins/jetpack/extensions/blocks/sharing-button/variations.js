@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n';
 import SocialIcon from 'social-logos';
 
 export const variations = [
@@ -100,6 +101,18 @@ export const variations = [
 		attributes: { service: 'nextdoor', label: 'Nextdoor' },
 		title: 'Nextdoor',
 		icon: <SocialIcon icon={ 'nextdoor' } size={ 24 } />,
+	},
+	{
+		name: 'native-share',
+		attributes: { service: 'share', label: 'Share' },
+		/* translators: Sharing Button title */
+		title: __( 'Native Share', 'jetpack' ),
+		icon: <SocialIcon icon={ 'share' } size={ 24 } />,
+		//TODO: we can add link in the future to proper documentation
+		description: __(
+			'Share with native tools on users device or copy to clipboard otherwise',
+			'jetpack'
+		),
 	},
 ];
 

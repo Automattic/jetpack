@@ -1902,6 +1902,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * Log and exit on a partner provision error.
 	 *
 	 * @param WP_Error $error Error.
+	 * @return never
 	 */
 	private function partner_provision_error( $error ) {
 		WP_CLI::log(

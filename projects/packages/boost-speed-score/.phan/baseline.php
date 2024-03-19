@@ -17,7 +17,6 @@ return [
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
     // PhanUndeclaredClassMethod : 2 occurrences
     // PhanRedefineFunction : 1 occurrence
-    // PhanRedefinedExtendedClass : 1 occurrence
     // PhanTypeMismatchPropertyDefault : 1 occurrence
     // PhanTypeMismatchPropertyProbablyReal : 1 occurrence
     // PhanTypeMismatchReturnNullable : 1 occurrence
@@ -31,7 +30,6 @@ return [
         'src/class-speed-score-request.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-speed-score.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturnNullable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty'],
         'tests/bootstrap.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturnProbablyReal'],
-        'tests/php/class-base-test-case.php' => ['PhanRedefinedExtendedClass'],
         'tests/php/lib/test-class-speed-score-history.php' => ['PhanTypeExpectedObjectPropAccess'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

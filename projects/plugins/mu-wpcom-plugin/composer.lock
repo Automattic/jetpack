@@ -198,7 +198,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/scheduled-updates",
-                "reference": "650b442ad8357bd4353970a2014a40e126d180d8"
+                "reference": "547990a79f495469469a4799e10f950ce4f4fc16"
             },
             "require": {
                 "php": ">=7.0"
@@ -221,7 +221,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.3.x-dev"
+                    "dev-trunk": "0.4.x-dev"
                 },
                 "textdomain": "jetpack-scheduled-updates",
                 "version-constants": {
