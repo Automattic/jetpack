@@ -46,15 +46,15 @@ $white: #ffffff;
 			height: 0;
 			border-left: 8px solid transparent;
 			border-right: 8px solid transparent;
-			border-bottom: 8px solid $black;
+			border-top: 8px solid $black;
 			position: absolute;
-			top: -7px;
+			bottom: -7px;
 			left: 50%;
 			transform: translateX(-50%);
 		}
 
 		display: none;
-		top: 100%;
+		bottom: 100%;
 		background-color: $black;
 		color: $white;
 		width: fit-content;
