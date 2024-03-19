@@ -538,7 +538,6 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		$media_files      = array();
 		$media_urls       = array();
 		$media_attrs      = array();
-		$media_results    = array();
 		$media_id_string  = '';
 
 		if ( $has_media || $has_media_by_url ) {
