@@ -19,6 +19,7 @@ import PageCache from '$features/page-cache/page-cache';
 import { usePageCacheError, usePageCacheSetup } from '$lib/stores/page-cache';
 import Health from '$features/page-cache/health/health';
 import { useMutationNotice } from '$features/ui';
+import { useShowCacheEngineErrorNotice } from '$features/page-cache/lib/stores';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -39,12 +40,24 @@ const Index = () => {
 	const pageCacheSetup = usePageCacheSetup();
 	const [ pageCacheError, pageCacheErrorMutation ] = usePageCacheError();
 	const [ isPageCacheSettingUp, setIsPageCacheSettingUp ] = useState( false );
+	const [ runningFreshSetup, setRunningFreshSetup ] = useState( false );
+	const showCacheEngineErrorNotice = useShowCacheEngineErrorNotice(
+		pageCacheSetup.isSuccess && !! pageCache?.active
+	);
 
 	const [ removePageCacheNotice ] = useMutationNotice(
 		'page-cache-setup',
 		{
 			...pageCacheSetup,
-			isPending: isPageCacheSettingUp || pageCacheSetup.isPending,
+
+			/*
+			 * We run page cache setup on both onMountEnabled and onEnable.
+			 * However, the mutation notice should only show when the user is responsible for the action.
+			 * So, we only show the notice if `runningFreshSetup`, unless it's an error.
+			 */
+			isSuccess: runningFreshSetup && pageCacheSetup.isSuccess,
+			isPending: runningFreshSetup && ( isPageCacheSettingUp || pageCacheSetup.isPending ),
+			isIdle: runningFreshSetup && pageCacheSetup.isIdle,
 		},
 		{
 			savingMessage: __( 'Setting up cache…', 'jetpack-boost' ),
@@ -165,7 +178,11 @@ const Index = () => {
 						} );
 					}
 				} }
+				onMountEnable={ () => {
+					pageCacheSetup.mutate();
+				} }
 				onEnable={ () => {
+					setRunningFreshSetup( true );
 					pageCacheSetup.mutate();
 				} }
 				description={
@@ -198,7 +215,23 @@ const Index = () => {
 					</>
 				}
 			>
-				{ ! pageCacheError.data && ! pageCacheSetup.isError && <PageCache /> }
+				{ showCacheEngineErrorNotice && (
+					<Notice
+						level="warning"
+						title={ __( 'Page Cache is not working', 'jetpack-boost' ) }
+						hideCloseButton={ true }
+					>
+						<p>
+							{ __(
+								'It appears that the cache engine is not loading. Please try re-installing Jetpack Boost. If the issue persists, please contact support.',
+								'jetpack-boost'
+							) }
+						</p>
+					</Notice>
+				) }
+				{ ! showCacheEngineErrorNotice && ! pageCacheError.data && ! pageCacheSetup.isError && (
+					<PageCache />
+				) }
 			</Module>
 			<Module
 				slug="render_blocking_js"
