@@ -21,17 +21,15 @@ const BlazePostPublishPanel = () => {
 		[ tracks ]
 	);
 
-	const { isPostPublished, isPublishingPost, postId, postType, postTypeLabel, postVisibility } =
-		useSelect( selector => ( {
+	const { isPostPublished, isPublishingPost, postId, postType, postVisibility } = useSelect(
+		selector => ( {
 			isPostPublished: selector( editorStore ).isCurrentPostPublished(),
 			isPublishingPost: selector( editorStore ).isPublishingPost(),
 			postId: selector( editorStore ).getCurrentPostId(),
 			postType: selector( editorStore ).getCurrentPostType(),
-			postTypeLabel:
-				// Translators: default post type label.
-				selector( editorStore ).getPostTypeLabel() || _x( 'Post', 'noun', 'jetpack-blaze' ),
 			postVisibility: selector( editorStore ).getEditedPostVisibility(),
-		} ) );
+		} )
+	);
 	const wasPublishing = usePrevious( isPublishingPost );
 
 	const panelBodyProps = {
@@ -80,6 +78,12 @@ const BlazePostPublishPanel = () => {
 		return null;
 	}
 
+	const blazeThisLabel = ({
+		page: __( 'Blaze this page', 'jetpack-blaze' ),
+		post: __( 'Blaze this post', 'jetpack-blaze' ),
+		product: __( 'Blaze this product', 'jetpack-blaze' ),
+	})[ postType ];
+
 	return (
 		<PluginPostPublishPanel { ...panelBodyProps }>
 			<PanelRow>
@@ -98,11 +102,7 @@ const BlazePostPublishPanel = () => {
 				onKeyDown={ trackClick }
 			>
 				<Button variant="secondary" href={ blazeUrl } target="_top">
-					{ sprintf(
-						/* translators: %s is the post type (e.g. Post, Page, Product). */
-						__( 'Blaze this %s', 'jetpack-blaze' ),
-						postTypeLabel.toLowerCase()
-					) }
+					{ blazeThisLabel }
 					{ blazeUrlTemplate.external && (
 						<Icon icon={ external } className="blaze-panel-outbound-link__external_icon" />
 					) }
