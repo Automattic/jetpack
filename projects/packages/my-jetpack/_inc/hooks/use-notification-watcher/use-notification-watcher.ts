@@ -49,18 +49,20 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 						'jetpack-my-jetpack'
 				  );
 
+		const noticeOptions = {
+			status: 'warning',
+			actions: [
+				{
+					label: __( 'Connect your user account to fix this', 'jetpack-my-jetpack' ),
+					onClick: navToConnection,
+					noDefaultClasses: true,
+				},
+			],
+		};
+
 		setNotice( {
 			message: needsUserConnectionMessage,
-			options: {
-				status: 'warning',
-				actions: [
-					{
-						label: __( 'Connect your user account to fix this', 'jetpack-my-jetpack' ),
-						onClick: navToConnection,
-						noDefaultClasses: true,
-					},
-				],
-			},
+			options: noticeOptions,
 			priority: NOTICE_PRIORITY_HIGH,
 		} );
 	}, [ navToConnection, products, redBubbleAlerts, setNotice ] );
