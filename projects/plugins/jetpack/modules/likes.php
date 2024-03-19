@@ -101,8 +101,6 @@ class Jetpack_Likes {
 
 		add_action( 'admin_init', array( $this, 'admin_discussion_likes_settings_init' ) ); // Likes notifications.
 
-		add_action( 'admin_bar_menu', array( $this, 'admin_bar_likes' ), 60 );
-
 		add_action( 'wp_enqueue_scripts', array( $this, 'load_styles_register_scripts' ) );
 
 		add_action( 'save_post', array( $this->settings, 'meta_box_save' ) );
