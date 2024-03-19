@@ -51,6 +51,7 @@ class Scheduled_Updates {
 		add_action( 'rest_api_init', array( __CLASS__, 'add_is_managed_extension_field' ) );
 		add_filter( 'auto_update_plugin', array( __CLASS__, 'allowlist_scheduled_plugins' ), 10, 2 );
 		add_filter( 'plugin_auto_update_setting_html', array( __CLASS__, 'show_scheduled_updates' ), 10, 2 );
+		add_action( 'deleted_plugin', array( __CLASS__, 'deleted_plugin' ), 10, 2 );
 	}
 
 	/**
@@ -337,6 +338,63 @@ class Scheduled_Updates {
 		}
 
 		return $file_mod_capabilities;
+	}
+
+	/**
+	 * Hook run when a plugin is deleted.
+	 *
+	 * @param string $plugin_file Path to the plugin file relative to the plugins directory.
+	 * @param bool   $deleted     Whether the plugin deletion was successful.
+	 */
+	public function deleted_plugin( $plugin_file, $deleted ) {
+		require_once ABSPATH . 'wp-admin/includes/update.php';
+
+		if ( ! $deleted ) {
+			return;
+		}
+
+		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+
+		if ( ! count( $events ) ) {
+			return;
+		}
+
+		foreach ( $events as $event ) {
+			// Continue if the plugin is not part of the schedule.
+			if ( ! in_array( $plugin_file, $event->args, true ) ) {
+				continue;
+			}
+
+			// Remove the schedule.
+			$result = wp_unschedule_event( $event->timestamp, 'jetpack_scheduled_update', $event->args, true );
+
+			if ( is_wp_error( $result ) || false === $result ) {
+				return;
+			}
+
+			$index = array_search( $plugin_file, $event->args, true );
+
+			if ( false !== $index ) {
+				unset( $event->args[ $index ] );
+			}
+
+			if ( count( $event->args ) ) {
+				// There are still plugins to update. Schedule a new event.
+				$result = wp_schedule_event( $event->timestamp, $event->interval, 'jetpack_scheduled_update', $event->args, true );
+
+				if ( is_wp_error( $result ) || false === $result ) {
+					return;
+				}
+			}
+		}
+
+		if ( wp_is_auto_update_enabled_for_type( 'plugin' ) ) {
+			$auto_update_plugins   = get_option( 'auto_update_plugins', array() );
+			$auto_update_plugins[] = $plugin_file;
+			$auto_update_plugins   = array_unique( $auto_update_plugins );
+			usort( $auto_update_plugins, 'strnatcasecmp' );
+			update_option( 'auto_update_plugins', $auto_update_plugins );
+		}
 	}
 
 	/**
