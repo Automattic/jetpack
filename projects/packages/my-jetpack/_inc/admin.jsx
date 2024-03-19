@@ -21,6 +21,7 @@ import {
 	ExtrasInterstitial,
 	JetpackAiInterstitial,
 	ProtectInterstitial,
+	FirewallInterstitial,
 	ScanInterstitial,
 	SocialInterstitial,
 	SearchInterstitial,
@@ -71,6 +72,7 @@ const MyJetpack = () => {
 							<Route path={ MyJetpackRoutes.AddJetpackAI } element={ <JetpackAiInterstitial /> } />
 							<Route path={ MyJetpackRoutes.AddExtras } element={ <ExtrasInterstitial /> } />
 							<Route path={ MyJetpackRoutes.AddProtect } element={ <ProtectInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddFirewall } element={ <FirewallInterstitial /> } />
 							<Route path={ MyJetpackRoutes.AddScan } element={ <ScanInterstitial /> } />
 							<Route path={ MyJetpackRoutes.AddSocial } element={ <SocialInterstitial /> } />
 							<Route path={ MyJetpackRoutes.AddSearch } element={ <SearchInterstitial /> } />

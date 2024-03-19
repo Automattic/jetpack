@@ -516,7 +516,11 @@ export const isFeatureActive = ( state, featureSlug ) => {
 		case 'woocommerce':
 			return !! isPluginActive( state, 'woocommerce/woocommerce.php' );
 		case 'protect':
-			return !! isPluginActive( state, 'jetpack-protect/jetpack-protect.php' );
+			return (
+				!! isPluginActive( state, 'jetpack-protect/jetpack-protect.php' ) ||
+				!! isPluginActive( state, 'protect/jetpack-protect.php' ) ||
+				!! isPluginActive( state, 'jetpack-protect-dev/jetpack-protect.php' )
+			);
 		case 'publicize':
 			return !! getSetting( state, 'publicize' );
 		case 'videopress-activated':

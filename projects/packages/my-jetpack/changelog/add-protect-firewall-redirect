@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Products: add Protect activation flow that redirects users to the firewall settings after activation.

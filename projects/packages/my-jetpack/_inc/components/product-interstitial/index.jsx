@@ -45,6 +45,7 @@ import videoPressImage from './videopress.png';
  * @param {number} [props.quantity]              - The quantity of the product to purchase
  * @param {number} [props.directCheckout]        - Whether to go straight to the checkout page, e.g. for products with usage tiers
  * @param {boolean} [props.highlightLastFeature] - Whether to highlight the last feature in the list of features
+ * @param {string} [props.customRedirectUrl]     - Overrides the product's post-activation and post-checkout URLs
  * @returns {object}                               ProductInterstitial react component.
  */
 export default function ProductInterstitial( {
@@ -61,6 +62,7 @@ export default function ProductInterstitial( {
 	quantity = null,
 	directCheckout = false,
 	highlightLastFeature = false,
+	customRedirectUrl = null,
 } ) {
 	const { detail } = useProduct( slug );
 	const { activate, isPending: isActivating } = useActivate( slug );
@@ -114,9 +116,9 @@ export default function ProductInterstitial( {
 
 	const clickHandler = useCallback(
 		( checkout, product, tier ) => {
-			let postCheckoutUrl = product?.postCheckoutUrl
-				? product?.postCheckoutUrl
-				: myJetpackCheckoutUri;
+			// let postCheckoutUrl = product?.postCheckoutUrl
+			// 	? product?.postCheckoutUrl
+			// 	: myJetpackCheckoutUri;
 
 			if ( product?.isBundle || directCheckout ) {
 				// Get straight to the checkout page.
@@ -128,10 +130,9 @@ export default function ProductInterstitial( {
 				{ productId: slug },
 				{
 					onSettled: ( { productId: activatedProduct } ) => {
-						postCheckoutUrl = activatedProduct?.post_checkout_url
-							? activatedProduct.post_checkout_url
-							: myJetpackCheckoutUri;
-						const postActivationUrl = product?.postActivationUrl;
+						const postCheckoutUrl =
+							customRedirectUrl || activatedProduct?.post_checkout_url || myJetpackCheckoutUri;
+						const postActivationUrl = customRedirectUrl || product?.postActivationUrl;
 						const hasRequiredPlan = tier
 							? product?.hasRequiredTier?.[ tier ]
 							: product?.hasRequiredPlan;
@@ -165,7 +166,14 @@ export default function ProductInterstitial( {
 				}
 			);
 		},
-		[ directCheckout, activate, navigateToMyJetpackOverviewPage, slug, myJetpackCheckoutUri ]
+		[
+			directCheckout,
+			activate,
+			navigateToMyJetpackOverviewPage,
+			slug,
+			myJetpackCheckoutUri,
+			customRedirectUrl,
+		]
 	);
 
 	return (
@@ -344,6 +352,23 @@ export { default as JetpackAiInterstitial } from './jetpack-ai';
  */
 export function ProtectInterstitial() {
 	return <ProductInterstitial slug="protect" installsPlugin={ true } />;
+}
+
+/**
+ * FirewallInterstitial component
+ *
+ * @returns {object} FirewallInterstitial react component.
+ */
+export function FirewallInterstitial() {
+	const { detail } = useProduct( 'protect' );
+
+	return (
+		<ProductInterstitial
+			slug="protect"
+			installsPlugin={ true }
+			customRedirectUrl={ detail.postActivationUrl + '#/firewall' }
+		/>
+	);
 }
 
 /**
