@@ -62,7 +62,7 @@ const SSOSurveyNotice = () => {
 					</div>
 					<div className="modal-survey-notice__popup-content-buttons">
 						<Button
-							className="dmodal-survey-notice__popup-content-buttons-cancel"
+							className="modal-survey-notice__popup-content-buttons-cancel"
 							onClick={ onClose } // eslint-disable-line react/jsx-no-bind
 						>
 							{ __( 'Remind later', 'jetpack' ) }
