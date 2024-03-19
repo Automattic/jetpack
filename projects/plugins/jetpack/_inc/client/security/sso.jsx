@@ -59,7 +59,7 @@ const SSOSurveyNotice = connect( state => {
 					</div>
 					<div className="modal-survey-notice__popup-content-description">
 						{ __(
-							" Spare a moment? We'd love to hear why you want to disable SSO in a quick survey.",
+							"Spare a moment? We'd love to hear why you want to disable SSO in a quick survey.",
 							'jetpack'
 						) }
 					</div>
@@ -68,7 +68,7 @@ const SSOSurveyNotice = connect( state => {
 							className="dmodal-survey-notice__popup-content-buttons-cancel"
 							onClick={ onClose } // eslint-disable-line react/jsx-no-bind
 						>
-							{ __( 'Maybe later', 'jetpack' ) }
+							{ __( 'Remind later', 'jetpack' ) }
 						</Button>
 						<Button
 							className="modal-survey-notice__popup-content-buttons-ok"
