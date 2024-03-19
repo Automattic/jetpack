@@ -32,12 +32,7 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 			'startDate'   => $result['data']['_meta']['start'],
 			'endDate'     => $result['data']['_meta']['end'],
 			'periods'     => $result['data']['periods'],
-			'annotations' => array(
-				array(
-					'timestamp' => strtotime( 'yesterday' ) * 1000,
-					'text'      => 'Yesterday was a <a href="https://example.com">great day</a>!',
-				),
-			),
+			'annotations' => isset( $result['data']['annotations'] ) ? $result['data']['annotations'] : array(),
 		);
 	}
 
