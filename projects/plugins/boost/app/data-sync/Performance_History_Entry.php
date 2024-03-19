@@ -32,7 +32,8 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 		// Sanitize the annotations
 		foreach ( $annotations as $key => $annotation ) {
 			$annotations[ $key ] = array(
-				'text' => wp_kses_post( $annotation['text'] ),
+				'timestamp' => $annotation['timestamp'],
+				'text'      => wp_kses_post( $annotation['text'] ),
 			);
 		}
 
