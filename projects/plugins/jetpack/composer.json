@@ -54,7 +54,7 @@
 		"scssphp/scssphp": "1.12.0"
 	},
 	"require-dev": {
-		"antecedent/patchwork": "2.1.25",
+		"antecedent/patchwork": "^2.1.28",
 		"automattic/jetpack-changelogger": "@dev",
 		"johnkary/phpunit-speedtrap": "^4.0.0 || ^2.0.0",
 		"yoast/phpunit-polyfills": "1.1.0"
@@ -102,7 +102,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ13_3_a_0",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ13_3_a_4",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

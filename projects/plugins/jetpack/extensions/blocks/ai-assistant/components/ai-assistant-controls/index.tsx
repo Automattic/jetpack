@@ -8,7 +8,7 @@ import { MenuItem, MenuGroup, ToolbarButton, Dropdown, Notice } from '@wordpress
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { post, postContent, postExcerpt, termDescription } from '@wordpress/icons';
+import { post, postContent, postExcerpt, termDescription, blockTable } from '@wordpress/icons';
 import debugFactory from 'debug';
 import React from 'react';
 /**
@@ -22,6 +22,7 @@ import {
 	PROMPT_TYPE_SIMPLIFY,
 	PROMPT_TYPE_SUMMARIZE,
 	PROMPT_TYPE_CHANGE_LANGUAGE,
+	PROMPT_TYPE_USER_PROMPT,
 } from '../../lib/prompt';
 import { getRawTextFromHTML } from '../../lib/utils/block-content';
 import { transformToAIAssistantBlock } from '../../transforms';
@@ -52,36 +53,61 @@ const QUICK_EDIT_KEY_MAKE_LONGER = 'make-longer' as const;
 // Ask AI Assistant option
 export const KEY_ASK_AI_ASSISTANT = 'ask-ai-assistant' as const;
 
-const quickActionsList = [
-	{
-		name: __( 'Correct spelling and grammar', 'jetpack' ),
-		key: QUICK_EDIT_KEY_CORRECT_SPELLING,
-		aiSuggestion: PROMPT_TYPE_CORRECT_SPELLING,
-		icon: termDescription,
-	},
-	{
-		name: __( 'Simplify', 'jetpack' ),
-		key: QUICK_EDIT_KEY_SIMPLIFY,
-		aiSuggestion: PROMPT_TYPE_SIMPLIFY,
-		icon: post,
-	},
-	{
-		name: __( 'Summarize', 'jetpack' ),
-		key: QUICK_EDIT_KEY_SUMMARIZE,
-		aiSuggestion: PROMPT_TYPE_SUMMARIZE,
-		icon: postExcerpt,
-	},
-	{
-		name: __( 'Expand', 'jetpack' ),
-		key: QUICK_EDIT_KEY_MAKE_LONGER,
-		aiSuggestion: PROMPT_TYPE_MAKE_LONGER,
-		icon: postContent,
-	},
-];
+const quickActionsList = {
+	default: [
+		{
+			name: __( 'Correct spelling and grammar', 'jetpack' ),
+			key: QUICK_EDIT_KEY_CORRECT_SPELLING,
+			aiSuggestion: PROMPT_TYPE_CORRECT_SPELLING,
+			icon: termDescription,
+		},
+	],
+	'core/paragraph': [
+		{
+			name: __( 'Simplify', 'jetpack' ),
+			key: QUICK_EDIT_KEY_SIMPLIFY,
+			aiSuggestion: PROMPT_TYPE_SIMPLIFY,
+			icon: post,
+		},
+		{
+			name: __( 'Summarize', 'jetpack' ),
+			key: QUICK_EDIT_KEY_SUMMARIZE,
+			aiSuggestion: PROMPT_TYPE_SUMMARIZE,
+			icon: postExcerpt,
+		},
+		{
+			name: __( 'Expand', 'jetpack' ),
+			key: QUICK_EDIT_KEY_MAKE_LONGER,
+			aiSuggestion: PROMPT_TYPE_MAKE_LONGER,
+			icon: postContent,
+		},
+	],
+	'core/list': [
+		{
+			name: __( 'Turn list into a table', 'jetpack' ),
+			key: 'turn-into-table',
+			aiSuggestion: PROMPT_TYPE_USER_PROMPT,
+			icon: blockTable,
+			options: {
+				userPrompt: 'make a table from this list, do not enclose the response in a code block',
+			},
+		},
+		{
+			name: __( 'Write a post from this list', 'jetpack' ),
+			key: 'write-post-from-list',
+			aiSuggestion: PROMPT_TYPE_USER_PROMPT,
+			icon: post,
+			options: {
+				userPrompt: 'Write a post based on the list items. Try to use a heading for each entry',
+			},
+		},
+	],
+};
 
 export type AiAssistantDropdownOnChangeOptionsArgProps = {
 	tone?: ToneProp;
 	language?: string;
+	userPrompt?: string;
 };
 
 type AiAssistantControlComponentProps = {
@@ -220,6 +246,8 @@ function AiAssistantDropdownContent( {
 		tracks.recordEvent( 'jetpack_ai_assistant_prompt_show', { block_type: blockType } );
 	};
 
+	const blockQuickActions = quickActionsList[ blockType ] ?? [];
+
 	return (
 		<>
 			{ noContent && (
@@ -241,13 +269,13 @@ function AiAssistantDropdownContent( {
 					</div>
 				</MenuItem>
 
-				{ quickActionsList.map( quickAction => (
+				{ [ ...quickActionsList.default, ...blockQuickActions ].map( quickAction => (
 					<MenuItem
 						icon={ quickAction?.icon }
 						iconPosition="left"
 						key={ `key-${ quickAction.key }` }
 						onClick={ () => {
-							requestSuggestion( quickAction.aiSuggestion, {} );
+							requestSuggestion( quickAction.aiSuggestion, { ...( quickAction.options ?? {} ) } );
 						} }
 						disabled={ noContent }
 					>

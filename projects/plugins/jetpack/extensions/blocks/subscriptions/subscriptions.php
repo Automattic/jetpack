@@ -173,6 +173,15 @@ function register_block() {
 
 	add_action( 'save_post_post', __NAMESPACE__ . '\add_paywalled_content_post_meta', 99, 1 );
 
+	add_filter(
+		'jetpack_options_whitelist',
+		function ( $options ) {
+			$options[] = 'jetpack_subscriptions_subscribe_post_end_enabled';
+
+			return $options;
+		}
+	);
+
 	Jetpack_Subscription_Site::init()->handle_subscribe_block_placements();
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
@@ -600,7 +609,7 @@ function render_block( $attributes ) {
 
 	$subscribe_email = Jetpack_Memberships::get_current_user_email();
 
-	/** This filter is documented in modules/contact-form/grunion-contact-form.php */
+	/** This filter is documented in \Automattic\Jetpack\Forms\ContactForm\Contact_Form */
 	if ( is_wpcom() || false !== apply_filters( 'jetpack_auto_fill_logged_in_user', false ) ) {
 		$current_user    = wp_get_current_user();
 		$subscribe_email = ! empty( $current_user->user_email ) ? $current_user->user_email : '';
@@ -1114,14 +1123,12 @@ function get_paywall_blocks( $newsletter_access_level ) {
 
 		}
 	} else {
-		if ( ( new Host() )->is_wpcom_simple() ) {
-			// custom domain
-			$sign_in_link = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link', get_current_blog_id() );
-		}
 		$access_question = get_paywall_access_question( $newsletter_access_level );
-		$sign_in         = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
-<p class="has-text-align-center" style="font-size:14px"><a href="' . $sign_in_link . '">' . $access_question . '</a></p>
-<!-- /wp:paragraph -->';
+		$sign_in         = '<!-- wp:group {"style":{"typography":{"fontSize":"14px"}},"layout":{"type":"flex","justifyContent":"center"}} -->
+<div class="wp-block-group" style="font-size:14px">
+	<!-- wp:jetpack/subscriber-login {"logInLabel":"' . $access_question . '"} /-->
+</div>
+<!-- /wp:group -->';
 	}
 
 	$lock_svg = plugins_url( 'images/lock-paywall.svg', JETPACK__PLUGIN_FILE );
@@ -1203,10 +1210,12 @@ function is_user_auth(): bool {
 function get_paywall_blocks_subscribe_pending() {
 	$subscribe_email = Jetpack_Memberships::get_current_user_email();
 
-	/** This filter is documented in modules/contact-form/grunion-contact-form.php */
+	/** This filter is documented in \Automattic\Jetpack\Forms\ContactForm\Contact_Form */
 	if ( is_wpcom() || false !== apply_filters( 'jetpack_auto_fill_logged_in_user', false ) ) {
-		$current_user    = wp_get_current_user();
-		$subscribe_email = ! empty( $current_user->user_email ) ? $current_user->user_email : '';
+		$current_user = wp_get_current_user();
+		if ( ! empty( $current_user->user_email ) ) {
+			$subscribe_email = $current_user->user_email;
+		}
 	}
 
 	$access_heading = esc_html__( 'Confirm your subscription to continue reading', 'jetpack' );

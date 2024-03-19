@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.42.6] - 2024-03-18
+### Changed
+- Internal updates.
+
+## [0.42.5] - 2024-03-12
+### Changed
+- Updated package dependencies. [#36325]
+
+### Fixed
+- REST requests: avoid potential warnings with custom objects. [#36315]
+
 ## [0.42.4] - 2024-03-04
 ### Security
 - Added new tests for the OG image optimization logic [#35987]
@@ -491,6 +502,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.42.6]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.5...v0.42.6
+[0.42.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.4...v0.42.5
 [0.42.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.3...v0.42.4
 [0.42.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.2...v0.42.3
 [0.42.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.1...v0.42.2

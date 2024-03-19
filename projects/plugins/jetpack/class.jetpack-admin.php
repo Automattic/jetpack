@@ -163,6 +163,8 @@ class Jetpack_Admin {
 	 * There is a core patch in trac that would make this unnecessary.
 	 *
 	 * @link https://core.trac.wordpress.org/ticket/39050
+	 *
+	 * @return never
 	 */
 	public static function customizer_redirect() {
 		wp_safe_redirect(
@@ -179,6 +181,8 @@ class Jetpack_Admin {
 	 * Handle the Additional CSS redirect to the Jetpack settings Theme Enhancements section.
 	 *
 	 * @since 11.0
+	 *
+	 * @return never
 	 */
 	public static function theme_enhancements_redirect() {
 		wp_safe_redirect(
