@@ -105,5 +105,14 @@ add_action( 'activated_plugin', 'jetpack_launchpad_activation' );
 
 register_deactivation_hook( __FILE__, array( 'Jetpack_Launchpad', 'plugin_deactivation' ) );
 
-// Main plugin class.
-new Jetpack_Launchpad();
+/**
+ * Main plugin class.
+ *
+ * @since $$next-version$$
+ *
+ * @return void
+ */
+function jetpack_launchpad_init() {
+	Jetpack_Launchpad::init();
+}
+add_action( 'plugins_loaded', 'jetpack_launchpad_init' );

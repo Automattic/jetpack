@@ -18,11 +18,10 @@ use Automattic\Jetpack\Sync\Data_Settings;
  * Class Jetpack_Launchpad
  */
 class Jetpack_Launchpad {
-
 	/**
-	 * Constructor.
+	 * Initialize the plugin.
 	 */
-	public function __construct() {
+	public static function init() {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
