@@ -54,7 +54,7 @@ function jetpack_wpcomreader_feed_id() {
  * @return void
  */
 function jetpack_wpcomreader_post_id() {
-	$id = (int) get_the_ID();
+	$id = get_the_ID();
 	if ( ! $id ) {
 		return;
 	}
