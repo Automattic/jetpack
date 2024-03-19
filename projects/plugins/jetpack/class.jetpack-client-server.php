@@ -105,6 +105,7 @@ class Jetpack_Client_Server {
 	 * No longer used.
 	 *
 	 * @deprecated since Jetpack 9.5.0
+	 * @return never
 	 */
 	public function do_exit() {
 		_deprecated_function( __METHOD__, 'jetpack-9.5.0' );

@@ -3,6 +3,7 @@
  * Display the Pay with PayPal Form.
  *
  * @package automattic/jetpack
+ *
  * @phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
  */
 
