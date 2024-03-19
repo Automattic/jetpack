@@ -476,7 +476,11 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 		if ( self::has_token_from_cookie() ) {
 			unset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
 			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', 1, '/', COOKIE_DOMAIN, is_ssl(), true );
-			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', 1, '/', '', is_ssl(), true );
+
+			if ( ! empty( COOKIE_DOMAIN ) ) {
+				// On Simple COOKIE_DOMAIN is set to .wordpress.com but we need to remove the cookie from the actual blog hostname.
+				setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', 1, '/', '', is_ssl(), true );
+			}
 		}
 	}
 
