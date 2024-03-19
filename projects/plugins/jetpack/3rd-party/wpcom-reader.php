@@ -26,30 +26,41 @@ foreach ( array( 'rss_item', 'rss1_item', 'rss2_item' ) as $rss_item_action ) {
 /**
  * Output feed identifier based on blog ID.
  *
- * @return string|void XML output or void if not connected.
+ * @return void
  */
 function jetpack_wpcomreader_feed_id() {
-	if ( ( new Status() )->is_offline_mode() ) {
-		return;
-	}
-	$connection = new Connection_Manager();
-	if ( ( new Host() )->is_wpcom_simple() || $connection->is_connected() ) {
-		$id = $connection->get_site_id( true ); // Silence since we're not wanting to handle the error state.
-		if ( ! $id ) {
+	if (
+		( new Host() )->is_wpcom_simple()
+		|| (
+			( new Connection_Manager() )->is_connected()
+			&& ! ( new Status() )->is_offline_mode()
+		)
+	) {
+		$blog_id = Connection_Manager::get_site_id( true ); // Silence since we're not wanting to handle the error state.
+		if ( ! $blog_id ) {
 			return;
 		}
-		$output = sprintf( '<site xmlns="com-wordpress:feed-additions:0">%d</site>', $id );
-		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+		printf(
+			'<site xmlns="com-wordpress:feed-additions:1">%d</site>',
+			(int) $blog_id
+		);
 	}
 }
 
 /**
  * Output feed item identifier based on current post ID.
+ *
+ * @return void
  */
 function jetpack_wpcomreader_post_id() {
 	$id = (int) get_the_ID();
-	if ( $id ) {
-		$output = sprintf( '<post-id xmlns="com-wordpress:feed-additions:0">%d</post-id>', $id );
-		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	if ( ! $id ) {
+		return;
 	}
+
+	printf(
+		'<post-id xmlns="com-wordpress:feed-additions:1">%d</post-id>',
+		(int) $id
+	);
 }
