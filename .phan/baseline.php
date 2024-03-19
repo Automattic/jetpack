@@ -10,15 +10,13 @@
 return [
     // # Issue statistics:
     // PhanTypeMismatchArgumentProbablyReal : 50+ occurrences
-    // PhanUndeclaredTypeParameter : 15+ occurrences
-    // PhanUndeclaredClassMethod : 10+ occurrences
+    // PhanUndeclaredTypeParameter : 8 occurrences
     // PhanTypeMismatchReturn : 5 occurrences
+    // PhanUndeclaredClassMethod : 5 occurrences
     // PhanRedefineFunction : 4 occurrences
     // PhanTypeMismatchArgument : 3 occurrences
     // PhanUndeclaredConstant : 3 occurrences
     // PhanTypeConversionFromArray : 2 occurrences
-    // PhanUndeclaredClassConstant : 2 occurrences
-    // PhanUndeclaredInterface : 2 occurrences
     // PhanMisspelledAnnotation : 1 occurrence
     // PhanNoopNew : 1 occurrence
     // PhanParamTooFewInternalUnpack : 1 occurrence
@@ -26,11 +24,9 @@ return [
     // PhanTypeMismatchArgumentInternal : 1 occurrence
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
     // PhanUndeclaredProperty : 1 occurrence
-    // PhanUndeclaredTypeProperty : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        '.github/actions/tool-setup/composer-plugin/src/Plugin.php' => ['PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod', 'PhanUndeclaredInterface', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty'],
         '.github/files/generate-ci-matrix.php' => ['PhanMisspelledAnnotation', 'PhanParamTooFewInternalUnpack', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal'],
         '.github/files/test-plugin-update/mu-plugin.php' => ['PhanRedefineFunction'],
         'tools/check-changelogger-use.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedefineFunction', 'PhanTypeConversionFromArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal'],
