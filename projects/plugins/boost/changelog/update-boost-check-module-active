@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-WP Super Cache: only save a cached file if the Page_Cache module is enabled

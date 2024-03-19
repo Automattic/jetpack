@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2024-03-15
+### Fixed
+- Cache: Verify cache enabled on current site before saving cached data [#36350]
+- General: Added filter documentation [#36226]
+- General: Removed duplicate uninstall hook, fixing unnecessary database writes [#36403]
+
 ## [3.1.1] - 2024-03-11
 ### Added
 - Cache: Added a Page Cache module. [#35042]
@@ -397,6 +403,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[3.2.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.1.1...3.2.0
 [3.1.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.0.2...3.1.1
 [3.0.2]: https://github.com/Automattic/jetpack-boost-production/compare/3.0.1...3.0.2
 [3.0.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.0.0...3.0.1

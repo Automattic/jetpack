@@ -7,6 +7,23 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+
+/**
+ * Check if the current user has a WordPress.com account connected.
+ *
+ * @return bool
+ */
+function current_user_has_wpcom_account() {
+	$user_id            = get_current_user_id();
+	$connection_manager = new Connection_Manager();
+	$wpcom_user_data    = $connection_manager->get_connected_user_data( $user_id );
+	if ( ! isset( $wpcom_user_data['ID'] ) ) {
+		return false;
+	}
+	return true;
+}
+
 /**
  * Add a WordPress.com menu item to the wp-admin sidebar menu.
  *
@@ -26,6 +43,14 @@ function wpcom_add_wpcom_menu_item() {
 		return;
 	}
 
+	/**
+	 * Don't show `All Sites` and `Hosting` to administrators without a WordPress.com account being attached,
+	 * as they don't have access to any of the pages.
+	 */
+	if ( ! current_user_has_wpcom_account() ) {
+		return;
+	}
+
 	global $menu;
 
 	$parent_slug = 'wpcom-hosting-menu';
@@ -34,18 +59,19 @@ function wpcom_add_wpcom_menu_item() {
 	add_menu_page(
 		esc_attr__( 'All Sites', 'jetpack-mu-wpcom' ),
 		esc_attr__( 'All Sites', 'jetpack-mu-wpcom' ),
-		'manage_options',
+		// We should show `All Sites` for all users roles if they have a WordPress.com account connected.
+		'read',
 		'https://wordpress.com/sites',
 		null,
 		'dashicons-arrow-left-alt2',
 		0
 	);
 
-	// Position a separator below the WordPress.com menu item.
+	// Position a separator below the `All Sites` menu item.
 	// Inspired by https://github.com/Automattic/jetpack/blob/b6b6e86c5491869782857141ca48168dfa195635/projects/plugins/jetpack/modules/masterbar/admin-menu/class-base-admin-menu.php#L239
 	$separator = array(
 		'',
-		'manage_options',
+		'read',
 		wp_unique_id( 'separator-custom-' ),
 		'',
 		'wp-menu-separator',
@@ -196,6 +222,22 @@ function wpcom_site_menu_should_show_notice() {
 	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
 		return false;
 	}
+
+	/**
+	 * Don't show the notice to administrators without a WordPress.com account being attached,
+	 * as they don't have access to the `Hosting` menu.
+	 */
+	if ( ! current_user_has_wpcom_account() ) {
+		return false;
+	}
+
+	/**
+	 * Only administrators can access to the links in the `Hosting` menu.
+	 */
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return false;
+	}
+
 	if ( get_option( 'wpcom_site_menu_notice_dismissed' ) ) {
 		return false;
 	}
