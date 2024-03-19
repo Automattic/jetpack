@@ -10,8 +10,8 @@
 return [
     // # Issue statistics:
     // PhanUndeclaredFunction : 75+ occurrences
+    // PhanUndeclaredClassMethod : 60+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 55+ occurrences
-    // PhanUndeclaredClassMethod : 55+ occurrences
     // PhanTypeMismatchArgument : 40+ occurrences
     // PhanTypeArraySuspicious : 30+ occurrences
     // PhanUndeclaredTypeParameter : 15+ occurrences
