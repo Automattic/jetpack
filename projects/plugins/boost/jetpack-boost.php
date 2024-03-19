@@ -68,7 +68,7 @@ if ( ! defined( 'JETPACK_BOOST_PLUGINS_DIR_URL' ) ) {
  * Setup autoloading
  */
 $boost_packages_path = JETPACK_BOOST_DIR_PATH . '/vendor/autoload_packages.php';
-if ( ! is_readable( $boost_packages_path ) ) {
+if ( is_readable( $boost_packages_path ) ) {
 	require_once $boost_packages_path;
 	if ( method_exists( \Automattic\Jetpack\Assets::class, 'alias_textdomains_from_file' ) ) {
 		\Automattic\Jetpack\Assets::alias_textdomains_from_file( JETPACK_BOOST_DIR_PATH . '/jetpack_vendor/i18n-map.php' );
