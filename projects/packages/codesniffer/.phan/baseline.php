@@ -9,11 +9,9 @@
  */
 return [
     // # Issue statistics:
-    // PhanRedefinedClassReference : 4 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 2 occurrences
     // PhanUnextractableAnnotationSuffix : 2 occurrences
     // PhanPluginSimplifyExpressionBool : 1 occurrence
-    // PhanRedefineClass : 1 occurrence
     // PhanTypeMismatchReturn : 1 occurrence
     // UnusedPluginSuppression : 1 occurrence
 
@@ -22,7 +20,7 @@ return [
         'Jetpack/Sniffs/Constants/MasterUserConstantSniff.php' => ['PhanUnextractableAnnotationSuffix'],
         'Jetpack/Sniffs/Functions/I18nSniff.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanUnextractableAnnotationSuffix'],
         'Jetpack/Sniffs/Functions/SetCookieSniff.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool'],
-        'hacks/PHPUnitTestTrait.php' => ['PhanRedefineClass', 'PhanRedefinedClassReference', 'UnusedPluginSuppression'],
+        'hacks/PHPUnitTestTrait.php' => ['UnusedPluginSuppression'],
         'tests/php/tests/test-jetpack-compat.php' => ['PhanTypeMismatchReturn'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
