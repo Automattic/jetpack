@@ -14,10 +14,10 @@ return [
     // PhanUndeclaredMethod : 35+ occurrences
     // PhanUndeclaredClassMethod : 25+ occurrences
     // PhanUndeclaredConstant : 25+ occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 20+ occurrences
     // PhanTypeMismatchReturn : 20+ occurrences
     // PhanDeprecatedFunction : 15+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 15+ occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 15+ occurrences
     // PhanUndeclaredTypeReturnType : 10+ occurrences
     // PhanTypeMismatchProperty : 9 occurrences
     // PhanTypeMismatchPropertyProbablyReal : 9 occurrences
