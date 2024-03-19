@@ -25,7 +25,7 @@ class Jetpack_Launchpad_Test extends BaseTestCase {
 	 * Initialize tests
 	 */
 	public function set_up() {
-		$this->starter = new Jetpack_Launchpad();
+		$this->starter = Jetpack_Launchpad::init();
 	}
 
 	/**
@@ -69,11 +69,11 @@ class Jetpack_Launchpad_Test extends BaseTestCase {
 	 */
 	public function test_my_jetpack_initialized_once() {
 
-		new Jetpack_Launchpad();
+		Jetpack_Launchpad::init();
 		$this->assertSame( 1, did_action( ( 'my_jetpack_init' ) ) );
 
 		// Check that `my_jetpack_init` is only triggered once.
-		new Jetpack_Launchpad();
+		Jetpack_Launchpad::init();
 		$this->assertSame( 1, did_action( ( 'my_jetpack_init' ) ) );
 	}
 }
