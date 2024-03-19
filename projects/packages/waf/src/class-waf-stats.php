@@ -15,6 +15,18 @@ use Automattic\Jetpack\IP\Utils as IP_Utils;
 class Waf_Stats {
 
 	/**
+	 * Retrieve blocked requests from database
+	 *
+	 * @return array
+	 */
+	public static function get_blocked_requests() {
+		return array(
+			'one_day_stats'    => Waf_Blocklog_Manager::get_today_stats(),
+			'thirty_day_stats' => Waf_Blocklog_Manager::get_current_month_stats(),
+		);
+	}
+
+	/**
 	 * Get IP allow list count
 	 *
 	 * @return int The number of valid IP addresses in the allow list
