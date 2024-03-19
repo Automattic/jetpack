@@ -454,12 +454,12 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	 * @param  string $token Auth token.
 	 * @return void
 	 */
-	private function set_token_cookie( $token ) {
+	public static function set_token_cookie( $token ) {
 		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
 			return;
 		}
 
-		if ( ! empty( $token ) && false === headers_sent() ) {
+		if ( false === headers_sent() ) {
 			// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
 			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, strtotime( '+1 month' ), '/', COOKIE_DOMAIN, is_ssl(), false );
 		}
@@ -475,12 +475,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 
 		if ( self::has_token_from_cookie() ) {
 			unset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
-			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', 1, '/', COOKIE_DOMAIN, is_ssl(), true );
-
-			if ( ! empty( COOKIE_DOMAIN ) ) {
-				// On Simple COOKIE_DOMAIN is set to .wordpress.com but we need to remove the cookie from the actual blog hostname.
-				setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', 1, '/', '', is_ssl(), true );
-			}
+			self::set_token_cookie( '' );
 		}
 	}
 
