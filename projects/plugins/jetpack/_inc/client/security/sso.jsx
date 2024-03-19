@@ -18,7 +18,7 @@ const SSOSurveyNotice = connect( state => {
 		userId: getUserId( state ),
 	};
 } )( ( { userId } ) => {
-	const href = `https://wordpressdotcom.survey.fm/sso-disable-survey?initiated-from=jetpack&user-id=${ userId }`;
+	const href = `https://wordpressdotcom.survey.fm/disable-sso-survey?initiated-from=jetpack&user-id=${ userId }`;
 	const [ hideNotice, setHideNotice ] = useState(
 		'dismissed' === cookie.parse( document.cookie )?.sso_disable
 	);
