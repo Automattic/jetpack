@@ -59,13 +59,19 @@ if ( is_readable( $jetpack_autoloader ) ) {
 	add_filter(
 		'my_jetpack_red_bubble_notification_slugs',
 		function ( $slugs ) {
-			$bad_installation_slug = array( 'move_to_wordpress_plugin_bad_installation' );
+			$red_bubble_notificationd_data = array(
+				'move-to-wordpress-plugin-bad-installation' => array(
+					'data' => array(
+						'plugin' => 'Move to Wordpress.com',
+					),
+				),
+			);
 
 			if ( ! is_array( $slugs ) ) {
-				return $bad_installation_slug;
+				return $red_bubble_notificationd_data;
 			}
 
-			return array_merge( $slugs, $bad_installation_slug );
+			return array_merge( $slugs, $red_bubble_notificationd_data );
 		}
 	);
 

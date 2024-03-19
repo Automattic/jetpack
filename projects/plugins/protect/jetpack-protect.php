@@ -44,7 +44,7 @@ define( 'JETPACK_PROTECT_BASE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 // Jetpack Autoloader.
 $jetpack_autoloader = JETPACK_PROTECT_DIR . 'vendor/autoload_packages.php';
-if ( is_readable( $jetpack_autoloader ) ) {
+if ( ! is_readable( $jetpack_autoloader ) ) {
 	require_once $jetpack_autoloader;
 	if ( method_exists( \Automattic\Jetpack\Assets::class, 'alias_textdomains_from_file' ) ) {
 		\Automattic\Jetpack\Assets::alias_textdomains_from_file( JETPACK_PROTECT_DIR . 'jetpack_vendor/i18n-map.php' );
@@ -60,13 +60,19 @@ if ( is_readable( $jetpack_autoloader ) ) {
 	add_filter(
 		'my_jetpack_red_bubble_notification_slugs',
 		function ( $slugs ) {
-			$bad_installation_slug = array( 'jetpack_protect_plugin_bad_installation' );
+			$red_bubble_notificationd_data = array(
+				'jetpack-protect-plugin-bad-installation' => array(
+					'data' => array(
+						'plugin' => 'Jetpack Protect',
+					),
+				),
+			);
 
 			if ( ! is_array( $slugs ) ) {
-				return $bad_installation_slug;
+				return $red_bubble_notificationd_data;
 			}
 
-			return array_merge( $slugs, $bad_installation_slug );
+			return array_merge( $slugs, $red_bubble_notificationd_data );
 		}
 	);
 

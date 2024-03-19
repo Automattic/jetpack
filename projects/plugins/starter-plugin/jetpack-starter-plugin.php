@@ -59,13 +59,19 @@ if ( is_readable( $jetpack_autoloader ) ) {
 	add_filter(
 		'my_jetpack_red_bubble_notification_slugs',
 		function ( $slugs ) {
-			$bad_installation_slug = array( 'jetpack_starter_plugin_bad_installation' );
+			$red_bubble_notificationd_data = array(
+				'jetpack-starter-plugin-bad-installation' => array(
+					'data' => array(
+						'plugin' => 'Jetpack Starter',
+					),
+				),
+			);
 
 			if ( ! is_array( $slugs ) ) {
-				return $bad_installation_slug;
+				return $red_bubble_notificationd_data;
 			}
 
-			return array_merge( $slugs, $bad_installation_slug );
+			return array_merge( $slugs, $red_bubble_notificationd_data );
 		}
 	);
 
@@ -82,7 +88,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 				printf(
 					wp_kses(
 						/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Jetpack Starter Plugin is incomplete. If you installed Jetpack Starter Plugin from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Starter Plugin must have Composer dependencies installed and built via the build command.', 'jetpack-starter-plugin' ),
+						__( 'Your installation of Jetpack Starter is incomplete. If you installed Jetpack Starter Plugin from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Starter Plugin must have Composer dependencies installed and built via the build command.', 'jetpack-starter-plugin' ),
 						array(
 							'a' => array(
 								'href'   => array(),

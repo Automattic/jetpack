@@ -140,7 +140,7 @@ if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' )
  */
 $jetpack_autoloader           = JETPACK__PLUGIN_DIR . 'vendor/autoload_packages.php';
 $jetpack_module_headings_file = JETPACK__PLUGIN_DIR . 'modules/module-headings.php'; // This file is loaded later in load-jetpack.php, but let's check here to pause before half-loading Jetpack.
-if ( is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings_file ) ) {
+if ( ! is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings_file ) ) {
 	require_once $jetpack_autoloader;
 	if ( method_exists( '\Automattic\Jetpack\Assets', 'alias_textdomains_from_file' ) ) {
 		\Automattic\Jetpack\Assets::alias_textdomains_from_file( JETPACK__PLUGIN_DIR . 'jetpack_vendor/i18n-map.php' );
@@ -160,13 +160,19 @@ if ( is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings
 	add_filter(
 		'my_jetpack_red_bubble_notification_slugs',
 		function ( $slugs ) {
-			$bad_installation_slug = array( 'jetpack_plugin_bad_installation' );
+			$red_bubble_notificationd_data = array(
+				'jetpack-plugin-bad-installation' => array(
+					'data' => array(
+						'plugin' => 'Jetpack',
+					),
+				),
+			);
 
 			if ( ! is_array( $slugs ) ) {
-				return $bad_installation_slug;
+				return $red_bubble_notificationd_data;
 			}
 
-			return array_merge( $slugs, $bad_installation_slug );
+			return array_merge( $slugs, $red_bubble_notificationd_data );
 		}
 	);
 

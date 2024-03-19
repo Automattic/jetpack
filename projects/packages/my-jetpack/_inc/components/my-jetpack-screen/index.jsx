@@ -31,7 +31,7 @@ import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
-import useConnectionWatcher from '../../hooks/use-connection-watcher';
+import useNotificationWatcher from '../../hooks/use-notification-watcher/use-notification-watcher';
 import ConnectionsSection from '../connections-section';
 import IDCModal from '../idc-modal';
 import JetpackManageBanner from '../jetpack-manage-banner';
@@ -93,7 +93,7 @@ const GlobalNotice = ( { message, options } ) => {
  * @returns {object} The MyJetpackScreen component.
  */
 export default function MyJetpackScreen() {
-	useConnectionWatcher();
+	useNotificationWatcher();
 	const { hasBeenDismissed = false } = getMyJetpackWindowInitialState( 'welcomeBanner' );
 	const { showFullJetpackStatsCard = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	const { jetpackManage = {}, adminUrl } = getMyJetpackWindowInitialState();
