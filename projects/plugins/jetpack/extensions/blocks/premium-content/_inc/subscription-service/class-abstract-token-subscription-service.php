@@ -454,14 +454,14 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	 * @param  string $token Auth token.
 	 * @return void
 	 */
-	public static function set_token_cookie( $token ) {
+	private function set_token_cookie( $token ) {
 		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
 			return;
 		}
 
-		if ( false === headers_sent() ) {
+		if ( ! empty( $token ) && ! headers_sent() ) {
 			// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
-			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, strtotime( '+1 month' ), '/', COOKIE_DOMAIN, is_ssl(), false );
+			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, strtotime( '+1 month' ), '/', '', is_ssl(), false );
 		}
 	}
 
@@ -473,9 +473,15 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 			return;
 		}
 
-		if ( self::has_token_from_cookie() ) {
-			unset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
-			self::set_token_cookie( '' );
+		if ( ! self::has_token_from_cookie() ) {
+			return;
+		}
+
+		unset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
+
+		if ( ! headers_sent() ) {
+			// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
+			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', 1, '/', '', is_ssl(), false );
 		}
 	}
 
