@@ -4,7 +4,7 @@
  * default configuration. Command-line arguments will be applied
  * after this file is read.
  *
- * @package automattic/jetpack-starter-plugin
+ * @package automattic/jetpack-launchpad
  */
 
 // Require base config.
