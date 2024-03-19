@@ -28,7 +28,11 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 * @beforeClass
 	 */
 	public static function set_up_before_class() {
+		parent::set_up_before_class();
 		\phpmock\phpunit\PHPMock::defineFunctionMock( 'Automattic\Jetpack', 'realpath' );
+
+		Scheduled_Updates::init();
+		Scheduled_Updates::load_rest_api_endpoints();
 	}
 
 	/**
@@ -161,6 +165,119 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( 'managed-plugin', $plugin_result['textdomain'] );
 		$this->assertSame( true, $plugin_result['is_managed'] );
+	}
+
+	/**
+	 * Test no scheduled events are created on plugin deletion and base checks.
+	 *
+	 * @covers ::deleted_plugin
+	 */
+	public function a_test_base_deleted_plugin_checks() {
+		$plugin_name = 'deleted-plugin';
+		$plugin_file = "$plugin_name/$plugin_name.php";
+		$is_deleted  = false;
+
+		$this->wp_filesystem->mkdir( "$this->plugin_dir/$plugin_name" );
+		$this->populate_file_with_plugin_header( "$this->plugin_dir/$plugin_file", $plugin_name );
+
+		$delete_hook = function ( $plugin_file, $deleted ) use ( &$is_deleted ) {
+			$is_deleted = $deleted;
+		};
+
+		add_action( 'deleted_plugin', $delete_hook, 10, 2 );
+
+		$this->assertTrue( delete_plugins( array( $plugin_file ) ) );
+
+		$this->assertTrue( $is_deleted );
+		$this->assertFalse( $this->wp_filesystem->is_dir( "$this->plugin_dir/$plugin_name" ) );
+		$this->assertCount( 0, wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
+
+		remove_action( 'deleted_plugin', $delete_hook );
+	}
+
+	/**
+	 * Test single event is deleted if a plugin is deleted.
+	 *
+	 * @covers ::deleted_plugin
+	 */
+	public function a_test_event_is_deleted_on_plugin_deletion() {
+		$plugin_name = 'deleted-plugin';
+		$plugin_file = "$plugin_name/$plugin_name.php";
+
+		$this->wp_filesystem->mkdir( "$this->plugin_dir/$plugin_name" );
+		$this->populate_file_with_plugin_header( "$this->plugin_dir/$plugin_file", $plugin_name );
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$request->set_body_params(
+			array(
+				'plugins'  => array( $plugin_file ),
+				'schedule' => array(
+					'timestamp' => strtotime( 'next Monday 8:00' ),
+					'interval'  => 'weekly',
+				),
+			)
+		);
+
+		wp_set_current_user( $this->admin_id );
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertCount( 1, wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
+		$this->assertTrue( delete_plugins( array( $plugin_file ) ) );
+		$this->assertCount( 0, wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
+	}
+
+	/**
+	 * Test single event is not deleted if a plugin of a list is deleted.
+	 *
+	 * @covers ::deleted_plugin
+	 */
+	public function test_event_is_not_deleted_on_plugin_list_deletion() {
+		$plugins = array();
+		echo "test_event_is_not_deleted_on_plugin_list_deletion\n";
+
+		for ( $i = 0; $i < 3; ++$i ) {
+			$plugin_name = 'deleted-plugin-' . $i;
+			$plugin_file = "$plugin_name/$plugin_name.php";
+			$plugins[]   = $plugin_file;
+
+			$this->wp_filesystem->mkdir( "$this->plugin_dir/$plugin_name" );
+			$this->populate_file_with_plugin_header( "$this->plugin_dir/$plugin_file", $plugin_name );
+		}
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$request->set_body_params(
+			array(
+				'plugins'  => $plugins,
+				'schedule' => array(
+					'timestamp' => strtotime( 'next Monday 8:00' ),
+					'interval'  => 'weekly',
+				),
+			)
+		);
+		wp_set_current_user( $this->admin_id );
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+
+		// Check that the events are scheduled.
+		$pre_events = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
+		$this->assertCount( 1, $pre_events );
+
+		// Delete the first plugin.
+		$this->assertTrue( delete_plugins( array( $plugins[1] ) ) );
+
+		// Check that the event is still scheduled.
+		$post_events = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
+		$this->assertCount( 1, $post_events );
+
+		$pre_event  = reset( $pre_events );
+		$post_event = reset( $post_events );
+
+		$this->assertSame( $pre_event->timestamp, $post_event->timestamp );
+		$this->assertSame( $pre_event->schedule, $post_event->schedule );
+		$this->assertSame( $pre_event->interval, $post_event->interval );
+		$this->assertSame( array( $plugins[0], $plugins[2] ), $post_event->args );
 	}
 
 	/**

@@ -346,7 +346,7 @@ class Scheduled_Updates {
 	 * @param string $plugin_file Path to the plugin file relative to the plugins directory.
 	 * @param bool   $deleted     Whether the plugin deletion was successful.
 	 */
-	public function deleted_plugin( $plugin_file, $deleted ) {
+	public static function deleted_plugin( $plugin_file, $deleted ) {
 		require_once ABSPATH . 'wp-admin/includes/update.php';
 
 		if ( ! $deleted ) {
@@ -380,7 +380,7 @@ class Scheduled_Updates {
 
 			if ( count( $event->args ) ) {
 				// There are still plugins to update. Schedule a new event.
-				$result = wp_schedule_event( $event->timestamp, $event->interval, self::PLUGIN_CRON_HOOK, $event->args, true );
+				$result = wp_schedule_event( $event->timestamp, $event->schedule, self::PLUGIN_CRON_HOOK, array_values( $event->args ), true );
 
 				if ( is_wp_error( $result ) || false === $result ) {
 					return;
