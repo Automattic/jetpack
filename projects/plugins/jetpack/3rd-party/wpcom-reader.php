@@ -16,10 +16,12 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
-add_action( 'rss_head', 'jetpack_wpcomreader_feed_id' );
-add_action( 'rss_item', 'jetpack_wpcomreader_post_id' );
-add_action( 'rss1_head', 'jetpack_wpcomreader_feed_id' );
-add_action( 'rss1_item', 'jetpack_wpcomreader_post_id' );
+foreach ( array( 'rss_head', 'rss1_head', 'rss2_head' ) as $rss_head_action ) {
+	add_action( $rss_head_action, 'jetpack_wpcomreader_feed_id' );
+}
+foreach ( array( 'rss_item', 'rss1_item', 'rss2_item' ) as $rss_item_action ) {
+	add_action( $rss_item_action, 'jetpack_wpcomreader_post_id' );
+}
 
 /**
  * Output feed identifier based on blog ID.
