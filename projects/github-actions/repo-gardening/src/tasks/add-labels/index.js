@@ -138,6 +138,12 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 			}
 		}
 
+		// The WooCommerce Analytics feature now lives in both a package and a Jetpack module.
+		const wooCommerceAnalytics = file.match( /^projects\/packages\/woocommerce-analytics\// );
+		if ( wooCommerceAnalytics !== null ) {
+			keywords.add( '[Feature] WooCommerce Analytics' );
+		}
+
 		// Docker.
 		const docker = file.match( /^(projects\/plugins\/boost\/docker|tools\/docker)\// );
 		if ( docker !== null ) {

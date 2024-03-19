@@ -774,7 +774,7 @@ HTML;
 	/**
 	 * Catch the duplicated comment error and show a custom error page
 	 *
-	 * @return void
+	 * @return never
 	 */
 	public function capture_comment_duplicate_trigger() {
 		if ( ! isset( $_GET['for'] ) || 'jetpack' !== $_GET['for'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended

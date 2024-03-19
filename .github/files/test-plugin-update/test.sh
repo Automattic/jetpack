@@ -40,6 +40,10 @@ for SLUG in "${SLUGS[@]}"; do
 			FAILED=
 			printf '\n\e[1mTest upgrade of %s from %s via %s\e[0m\n' "$SLUG" "$FROM" "$HOW"
 
+			echo "::group::Restoring database from backup"
+			mysql < "$GITHUB_WORKSPACE/db.sql"
+			echo "::endgroup::"
+
 			ERRMSG=
 			echo "::group::Installing $SLUG $FROM"
 			: > /var/www/html/wp-content/debug.log
@@ -56,7 +60,26 @@ for SLUG in "${SLUGS[@]}"; do
 				continue
 			fi
 
-			# TODO: Connect Jetpack, since most upgrades will happen while connected.
+			# Cron running asynchronously seems to like to stomp on the `jetpack_options` being set for the fake connection.
+			# Run it manually to avoid that.
+			echo "::group::Prophylactic cron run"
+			wp --allow-root cron event run --due-now
+			echo "::endgroup::"
+
+			# Mock a connection.
+			wp --allow-root eval-file - "$SLUG" <<-'EOF'
+			<?php
+			if ( class_exists( \Jetpack_Options::class ) && class_exists( \Automattic\Jetpack\Connection\Manager::class ) ) {
+				echo "Faking connection... ";
+				\Jetpack_Options::update_option( 'id', '12345' );
+				$m = new \Automattic\Jetpack\Connection\Manager( $args[0] );
+				$m->get_tokens()->update_blog_token( 'blog.token' );
+				$m->get_tokens()->update_user_token( 1, 'user.token.1', true );
+				echo "Done!\n";
+			} else {
+				echo "Not faking connection, connection package does not seem to be present.\n";
+			}
+			EOF
 
 			ERRMSG=
 			echo "::group::Upgrading $SLUG via $HOW"
