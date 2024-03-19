@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Handle upgrades from plugins embedding version 0.2.0 of the package.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Dashboard: avoid JS errors when content disposition is not set.

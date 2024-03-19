@@ -223,7 +223,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Turn on printing of grunion.css stylesheet
 	 *
 	 * @see ::style()
-	 * @internal
 	 *
 	 * @return bool
 	 */
@@ -715,7 +714,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @param string $val Value to escape.
 	 * @return string
 	 */
-	private static function esc_shortcode_val( $val ) {
+	public static function esc_shortcode_val( $val ) {
 		return strtr(
 			esc_html( $val ),
 			array(

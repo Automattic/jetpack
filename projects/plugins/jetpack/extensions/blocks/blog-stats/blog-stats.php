@@ -47,6 +47,11 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 function load_assets( $attributes ) {
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
+	// For outside the front-end, such as within emails or the API.
+	if ( ! jetpack_is_frontend() ) {
+		return;
+	}
+
 	// For when Stats has been disabled subsequent to inserting the block.
 	if ( ! \Jetpack::is_module_active( 'stats' ) ) {
 		if ( current_user_can( 'edit_theme_options' ) ) {

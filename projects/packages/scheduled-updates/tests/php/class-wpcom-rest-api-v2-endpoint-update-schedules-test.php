@@ -70,7 +70,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		wp_delete_user( $this->admin_id );
 		wp_delete_user( $this->editor_id );
 
-		wp_clear_scheduled_hook( 'jetpack_scheduled_update' );
+		wp_clear_scheduled_hook( Scheduled_Updates::PLUGIN_CRON_HOOK );
 		delete_option( 'jetpack_scheduled_update_statuses' );
 	}
 
@@ -107,8 +107,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 			'gutenberg/gutenberg.php',
 			'custom-plugin/custom-plugin.php',
 		);
-		wp_schedule_event( strtotime( 'next Tuesday 9:00' ), 'daily', 'jetpack_scheduled_update', array( 'hello-dolly/hello-dolly.php' ) );
-		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', 'jetpack_scheduled_update', $plugins );
+		wp_schedule_event( strtotime( 'next Tuesday 9:00' ), 'daily', Scheduled_Updates::PLUGIN_CRON_HOOK, array( 'hello-dolly/hello-dolly.php' ) );
+		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins );
 
 		// Successful request.
 		$result = rest_do_request( $request );
@@ -117,7 +117,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertEquals(
 			array(
 				Scheduled_Updates::generate_schedule_id( array( 'hello-dolly/hello-dolly.php' ) ) => array(
-					'hook'               => 'jetpack_scheduled_update',
+					'hook'               => Scheduled_Updates::PLUGIN_CRON_HOOK,
 					'args'               => array( 'hello-dolly/hello-dolly.php' ),
 					'timestamp'          => strtotime( 'next Tuesday 9:00' ),
 					'schedule'           => 'daily',
@@ -126,7 +126,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 					'last_run_status'    => null,
 				),
 				Scheduled_Updates::generate_schedule_id( $plugins ) => array(
-					'hook'               => 'jetpack_scheduled_update',
+					'hook'               => Scheduled_Updates::PLUGIN_CRON_HOOK,
 					'args'               => $plugins,
 					'timestamp'          => strtotime( 'next Monday 8:00' ),
 					'schedule'           => 'weekly',
@@ -211,7 +211,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 			'gutenberg/gutenberg.php',
 		);
 
-		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', 'jetpack_scheduled_update', $plugins );
+		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins );
 
 		// Can't create a schedule for the same time again.
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
@@ -239,8 +239,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	 */
 	public function test_creating_more_than_two_schedules() {
 		// Create two schedules.
-		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', 'jetpack_scheduled_update', array( 'gutenberg/gutenberg.php' ) );
-		wp_schedule_event( strtotime( 'next Tuesday 9:00' ), 'daily', 'jetpack_scheduled_update', array( 'custom-plugin/custom-plugin.php' ) );
+		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', Scheduled_Updates::PLUGIN_CRON_HOOK, array( 'gutenberg/gutenberg.php' ) );
+		wp_schedule_event( strtotime( 'next Tuesday 9:00' ), 'daily', Scheduled_Updates::PLUGIN_CRON_HOOK, array( 'custom-plugin/custom-plugin.php' ) );
 
 		// Number 3.
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
@@ -325,7 +325,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertEquals(
 			array(
 				Scheduled_Updates::generate_schedule_id( $plugins ) => array(
-					'hook'               => 'jetpack_scheduled_update',
+					'hook'               => Scheduled_Updates::PLUGIN_CRON_HOOK,
 					'args'               => $plugins,
 					'timestamp'          => strtotime( 'next Wednesday 10:00' ),
 					'schedule'           => 'daily',
@@ -354,7 +354,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 			'last_run_status'    => 'success',
 		);
 
-		wp_schedule_event( strtotime( 'next Tuesday 0:00' ), 'daily', 'jetpack_scheduled_update', $plugins );
+		wp_schedule_event( strtotime( 'next Tuesday 0:00' ), 'daily', Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins );
 
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules/' . $id_1 . '/status' );
 		$request->set_body_params( $body );
@@ -396,7 +396,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 			'last_run_status'    => 'failure-and-rollback',
 		);
 
-		wp_schedule_event( strtotime( 'next Tuesday 09:00' ), 'daily', 'jetpack_scheduled_update', $plugins );
+		wp_schedule_event( strtotime( 'next Tuesday 09:00' ), 'daily', Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins );
 
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules/' . $id_2 . '/status' );
 		$request->set_body_params( $body );
@@ -468,7 +468,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		);
 		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
 
-		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', 'jetpack_scheduled_update', $plugins );
+		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins );
 
 		// Unauthenticated request.
 		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/' . $schedule_id );
@@ -491,7 +491,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertEquals(
 			array(
-				'hook'               => 'jetpack_scheduled_update',
+				'hook'               => Scheduled_Updates::PLUGIN_CRON_HOOK,
 				'args'               => $plugins,
 				'timestamp'          => strtotime( 'next Monday 8:00' ),
 				'schedule'           => 'weekly',
@@ -530,7 +530,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		);
 		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
 
-		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', 'jetpack_scheduled_update', $plugins );
+		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins );
 
 		// Unauthenticated request.
 		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . $schedule_id );
@@ -599,7 +599,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		);
 		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
 
-		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', 'jetpack_scheduled_update', $plugins );
+		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins );
 
 		// Unauthenticated request.
 		wp_set_current_user( 0 );
@@ -623,7 +623,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertTrue( $result->get_data() );
 
-		$this->assertFalse( wp_get_scheduled_event( 'jetpack_scheduled_update', $plugins ) );
+		$this->assertFalse( wp_get_scheduled_event( Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins ) );
 	}
 
 	/**
@@ -662,8 +662,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins_2 );
 
-		wp_schedule_event( strtotime( 'next Tuesday 8:00' ), 'weekly', 'jetpack_scheduled_update', $plugins_1 );
-		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', 'jetpack_scheduled_update', $plugins_2 );
+		wp_schedule_event( strtotime( 'next Tuesday 8:00' ), 'weekly', Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins_1 );
+		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins_2 );
 
 		update_option( 'auto_update_plugins', $auto_update );
 

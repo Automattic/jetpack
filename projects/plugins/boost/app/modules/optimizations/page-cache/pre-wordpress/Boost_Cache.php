@@ -41,6 +41,11 @@ class Boost_Cache {
 	private $request = null;
 
 	/**
+	 * @var bool - Indicates whether the cache engine has been loaded.
+	 */
+	private static $cache_engine_loaded = false;
+
+	/**
 	 * @param $storage - Optionally provide a Boost_Cache_Storage subclass to handle actually storing and retrieving cached content. Defaults to a new instance of File_Storage.
 	 */
 	public function __construct( $storage = null ) {
@@ -67,13 +72,29 @@ class Boost_Cache {
 	 * Serve the cached page if it exists, otherwise start output buffering.
 	 */
 	public function serve() {
-		if ( ! $this->settings->get_enabled() || ! $this->request->is_cacheable() ) {
+		if ( ! $this->settings->get_enabled() ) {
+			return;
+		}
+
+		// Indicate that the cache engine has been loaded.
+		self::$cache_engine_loaded = true;
+
+		if ( ! $this->request->is_cacheable() ) {
 			return;
 		}
 
 		if ( ! $this->serve_cached() ) {
 			$this->ob_start();
 		}
+	}
+
+	/**
+	 * Check if the cache engine has been loaded.
+	 *
+	 * @return bool - True if the cache engine has been loaded, false otherwise.
+	 */
+	public static function is_loaded() {
+		return self::$cache_engine_loaded;
 	}
 
 	/**

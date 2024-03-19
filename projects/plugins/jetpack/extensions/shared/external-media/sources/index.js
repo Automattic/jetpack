@@ -12,7 +12,16 @@ import JetpackAppMedia from './jetpack-app-media';
 import OpenverseMedia from './openverse';
 import PexelsMedia from './pexels';
 
-export const mediaSources = [
+export const internalMediaSources = [
+	{
+		id: SOURCE_JETPACK_APP_MEDIA,
+		label: __( 'Your Phone', 'jetpack' ),
+		icon: <JetpackMobileAppIcon className="components-menu-items__item-icon" />,
+		keyword: 'jetpack mobile app',
+	},
+];
+
+export const externalMediaSources = [
 	{
 		id: SOURCE_GOOGLE_PHOTOS,
 		label: __( 'Google Photos', 'jetpack' ),
@@ -31,13 +40,9 @@ export const mediaSources = [
 		icon: <OpenverseIcon className="components-menu-items__item-icon" />,
 		keyword: 'openverse',
 	},
-	{
-		id: SOURCE_JETPACK_APP_MEDIA,
-		label: __( 'Your Phone', 'jetpack' ),
-		icon: <JetpackMobileAppIcon className="components-menu-items__item-icon" />,
-		keyword: 'jetpack mobile app',
-	},
 ];
+
+export const mediaSources = externalMediaSources.concat( internalMediaSources );
 
 export function canDisplayPlaceholder( props ) {
 	const { disableMediaButtons, dropZoneUIOnly } = props;

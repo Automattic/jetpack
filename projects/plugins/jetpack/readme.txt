@@ -326,22 +326,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.3-a.1 - 2024-03-12
+### 13.3-a.3 - 2024-03-18
 #### Enhancements
-- Display Email settings on Newsletter settings page
-- Login block: Link to subscription management page with site URL as search query.
-- Member login block: link to individual subscription management page
-- Pass API parameter to indicate when deleting a memberships product should cancel subscriptions
-- Sharing: add a Threads sharing button and a Threads sharing button block.
-- Social Menu & Social Media Icons: Add support for an SMS button.
-- Uncheck users-new.php Invite user on load if WooCommerce plugin is activated
+- AI Assistant: Provide per-block quick actions to make them more relevant.
+- General: Only show installation errors on plugins page.
+- Newsletters: Ensure blog stats and top posts blocks do not render in email newsletters.
+- Sharing: Add a Bluesky sharing button.
+- Sharing: Add Native (Web Share) button to Sharing Buttons block.
 
 #### Improved compatibility
-- Add metadata to the post to better diagnose need for Reader and Firehose
-
-#### Bug fixes
-- Sharing: avoid PHP warnings when using custom post types.
-- Sharing: fix the display of the sharing block in some classic themes.
+- Subscriptions: Remove subscription settings from reading options page.
 
 --------
 

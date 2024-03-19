@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed a bug where locked mode was applied to all sites in /me/sites that followed a site with locked mode enabled.

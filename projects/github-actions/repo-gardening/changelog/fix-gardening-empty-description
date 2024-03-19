@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Check description task: Handle empty PR body.

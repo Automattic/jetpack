@@ -10,7 +10,18 @@
 // Require base config.
 require __DIR__ . '/../../../../.phan/config.base.php';
 
-$config = make_phan_config( dirname( __DIR__ ) );
+$config = make_phan_config(
+	dirname( __DIR__ ),
+	array(
+		'exclude_file_list' => array(
+			// Mocks of core classes.
+			'tests/php/_inc/lib/mocks/class-simplepie-file.php',
+			'tests/php/_inc/lib/mocks/class-simplepie-item.php',
+			'tests/php/_inc/lib/mocks/class-simplepie-locator.php',
+			'tests/php/_inc/lib/mocks/class-simplepie.php',
+		),
+	)
+);
 
 // This file breaks analysis, Phan gets lost recursing in trying to figure out some types.
 // @todo Add type declarations so Phan won't have to do it itself. Or update to a modern less lib.

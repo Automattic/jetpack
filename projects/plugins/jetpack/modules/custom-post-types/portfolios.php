@@ -963,6 +963,7 @@ class Jetpack_Portfolio {
 	 * @return string
 	 */
 	private static function get_project_class( $portfolio_index_number, $columns ) {
+		$columns       = is_numeric( $columns ) ? max( 1, $columns ) : 1;
 		$project_types = wp_get_object_terms( get_the_ID(), self::CUSTOM_TAXONOMY_TYPE, array( 'fields' => 'slugs' ) );
 		$class         = array();
 
