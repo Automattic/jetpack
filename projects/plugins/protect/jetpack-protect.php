@@ -44,7 +44,7 @@ define( 'JETPACK_PROTECT_BASE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 // Jetpack Autoloader.
 $jetpack_autoloader = JETPACK_PROTECT_DIR . 'vendor/autoload_packages.php';
-if ( ! is_readable( $jetpack_autoloader ) ) {
+if ( is_readable( $jetpack_autoloader ) ) {
 	require_once $jetpack_autoloader;
 	if ( method_exists( \Automattic\Jetpack\Assets::class, 'alias_textdomains_from_file' ) ) {
 		\Automattic\Jetpack\Assets::alias_textdomains_from_file( JETPACK_PROTECT_DIR . 'jetpack_vendor/i18n-map.php' );
