@@ -18,6 +18,7 @@ import {
 	currentThemeIsBlockTheme,
 	currentThemeStylesheet,
 	getSiteAdminUrl,
+	subscriptionSiteEditSupported,
 } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
@@ -42,6 +43,7 @@ function SubscriptionsSettings( props ) {
 		isStcEnabled,
 		isSmEnabled,
 		isSubscribePostEndEnabled,
+		isSubscriptionSiteEditSupported,
 		isSubscriptionsActive,
 		siteRawUrl,
 		subscriptions,
@@ -158,7 +160,7 @@ function SubscriptionsSettings( props ) {
 								label={
 									<>
 										{ __( 'Add the Subscribe Block at the end of each post', 'jetpack' ) }
-										{ isBlockTheme && singlePostTemplateEditorUrl && (
+										{ isSubscriptionSiteEditSupported && singlePostTemplateEditorUrl && (
 											<>
 												{ '. ' }
 												<ExternalLink href={ singlePostTemplateEditorUrl }>
@@ -254,6 +256,7 @@ export default withModuleSettingsFormHelpers(
 			isSubscribePostEndEnabled: ownProps.getOptionValue(
 				'jetpack_subscriptions_subscribe_post_end_enabled'
 			),
+			isSubscriptionSiteEditSupported: subscriptionSiteEditSupported( state ),
 			isBlockTheme: currentThemeIsBlockTheme( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			themeStylesheet: currentThemeStylesheet( state ),

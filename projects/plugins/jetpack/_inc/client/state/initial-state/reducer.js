@@ -730,3 +730,13 @@ export function isSharingBlockAvailable( state ) {
 export function getJetpackManageInfo( state ) {
 	return state.jetpack.initialState.jetpackManage;
 }
+
+/**
+ * Returns true if Subscription Site editing feature is supported.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if Subscription Site editing feature is supported.
+ */
+export function subscriptionSiteEditSupported( state ) {
+	return !! state.jetpack.initialState.subscriptionSiteEditSupported;
+}

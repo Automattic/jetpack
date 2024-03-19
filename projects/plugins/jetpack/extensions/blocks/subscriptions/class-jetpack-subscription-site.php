@@ -94,12 +94,14 @@ class Jetpack_Subscription_Site {
 	 * @return void
 	 */
 	protected function handle_subscribe_block_post_end_placement() {
+		global $wp_version;
+
 		$subscribe_post_end_enabled = get_option( 'jetpack_subscriptions_subscribe_post_end_enabled', false );
 		if ( ! $subscribe_post_end_enabled ) {
 			return;
 		}
 
-		if ( ! wp_is_block_theme() ) { // Fallback for classic themes.
+		if ( ! wp_is_block_theme() || version_compare( $wp_version, '6.5-beta2', '<' ) ) { // Fallback for classic themes and wp core < 6.5-beta2.
 			add_filter(
 				'the_content',
 				function ( $content ) {
