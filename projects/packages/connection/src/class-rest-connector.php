@@ -116,6 +116,17 @@ class REST_Connector {
 			)
 		);
 
+		// The endpoint verifies blog connection and blog token validity.
+		register_rest_route(
+			'jetpack/v4',
+			'/test_connection',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'test_connection' ),
+				'permission_callback' => array( $this, 'test_connection_permission_check' ),
+			)
+		);
+
 		// Get current connection status of Jetpack.
 		register_rest_route(
 			'jetpack/v4',
@@ -975,5 +986,38 @@ class REST_Connector {
 		}
 
 		return new WP_Error( 'invalid_user_permission_set_connection_owner', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * The endpoint verifies blog connection and blog token validity.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return mixed|null
+	 */
+	public function test_connection() {
+		/**
+		 * Filters the successful response of the XMLRPC test_connection method
+		 *
+		 * @param string $response The response string.
+		 */
+		$status = apply_filters( 'jetpack_xmlrpc_test_connection_response', 'success' );
+
+		return rest_ensure_response(
+			array(
+				'status' => $status,
+			)
+		);
+	}
+
+	/**
+	 * Remote connect endpoint permission check.
+	 *
+	 * @return true|WP_Error
+	 */
+	public function test_connection_permission_check() {
+		return Rest_Authentication::is_signed_with_blog_token()
+			? true
+			: new WP_Error( 'invalid_permission_test_connection', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
 	}
 }
