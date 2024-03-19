@@ -263,10 +263,10 @@ async function getStatusChecks( payload, octokit ) {
 	const { name: repo, owner } = payload.repository;
 	const ownerLogin = owner.login;
 
-	const hasLongDescription = body.length > 200;
+	const hasLongDescription = body?.length > 200;
 	const isLabeled = await hasStatusLabels( octokit, ownerLogin, repo, number );
-	const hasTesting = body.includes( 'Testing instructions' );
-	const hasPrivacy = body.includes( 'data or activity we track or use' );
+	const hasTesting = !! body?.includes( 'Testing instructions' );
+	const hasPrivacy = !! body?.includes( 'data or activity we track or use' );
 	const projectsWithoutChangelog = await getChangelogEntries( octokit, ownerLogin, repo, number );
 	const isFromContributor = head.repo.full_name === base.repo.full_name;
 

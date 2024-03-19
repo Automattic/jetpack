@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2024-03-18
+### Added
+- Add image generator hook [#36415]
+
+## [0.9.0] - 2024-03-12
+### Changed
+- Fix typescript errors [#35904]
+- Updated package dependencies. [#36325]
+
+### Fixed
+- AI Client: Fix audio recording where WebM is not supported (iOS for example). [#36160]
+
 ## [0.8.2] - 2024-03-04
 ### Added
 - AI Client: add audio validation hook. [#36043]
@@ -247,6 +259,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies. [#31659]
 - Updated package dependencies. [#31785]
 
+[0.10.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.9.0...v0.10.0
+[0.9.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.8.2...v0.9.0
 [0.8.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.7.0...v0.8.0

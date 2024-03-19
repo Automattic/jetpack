@@ -5,13 +5,10 @@ import { connect } from 'react-redux';
 import { getModule } from 'state/modules';
 import { isModuleFound as isModuleFoundSelector } from 'state/search';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
+import EmailSettings from './email-settings';
 import MessagesSetting from './messages-setting';
 import NewsletterCategories from './newsletter-categories';
 import SubscriptionsSettings from './subscriptions-settings';
-
-//Check for feature flag
-const urlParams = new URLSearchParams( window.location.search );
-const isNewsletterCategoriesEnabled = urlParams.get( 'enable-newsletter-categories' ) === 'true';
 
 /**
  * Newsletter Section.
@@ -46,10 +43,13 @@ function Subscriptions( props ) {
 					  ) }
 			</h2>
 			{ foundSubscriptions && (
-				<SubscriptionsSettings siteRawUrl={ siteRawUrl } blogID={ blogID } />
+				<>
+					<SubscriptionsSettings siteRawUrl={ siteRawUrl } blogID={ blogID } />
+					<NewsletterCategories />
+					<EmailSettings />
+					<MessagesSetting { ...props } />
+				</>
 			) }
-			{ isNewsletterCategoriesEnabled && <NewsletterCategories /> }
-			<MessagesSetting { ...props } />
 		</div>
 	);
 }
