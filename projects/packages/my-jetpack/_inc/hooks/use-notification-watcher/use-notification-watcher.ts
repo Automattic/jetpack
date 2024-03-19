@@ -6,6 +6,7 @@ import { NoticeContext } from '../../context/notices/noticeContext';
 import { useAllProducts } from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
+import useAnalytics from '../use-analytics';
 import useMyJetpackNavigate from '../use-my-jetpack-navigate';
 
 type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
@@ -70,6 +71,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 
 const useBadInstallNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const { setNotice } = useContext( NoticeContext );
+	const { recordEvent } = useAnalytics();
 
 	useEffect( () => {
 		const badInstallAlerts = Object.keys( redBubbleAlerts ).filter( key =>
@@ -94,14 +96,19 @@ const useBadInstallNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			plugin
 		);
 
+		const onCtaClick = () => {
+			window.open( devEnvUrl );
+			recordEvent( 'jetpack_my_jetpack_bad_installation_notice_cta_click', {
+				plugin,
+			} );
+		};
+
 		const noticeOptions = {
 			status: 'error',
 			actions: [
 				{
 					label: __( 'See documentation', 'jetpack-my-jetpack' ),
-					onClick: () => {
-						window.open( devEnvUrl );
-					},
+					onClick: onCtaClick,
 					noDefaultClasses: true,
 				},
 			],
@@ -112,5 +119,5 @@ const useBadInstallNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			options: noticeOptions,
 			priority: NOTICE_PRIORITY_MEDIUM,
 		} );
-	}, [ redBubbleAlerts, setNotice ] );
+	}, [ redBubbleAlerts, setNotice, recordEvent ] );
 };
