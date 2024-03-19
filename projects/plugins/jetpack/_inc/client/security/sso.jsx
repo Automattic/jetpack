@@ -1,4 +1,5 @@
 import { getRedirectUrl, ToggleControl, Gridicon } from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
 import { Button } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import ConnectUserBar from 'components/connect-user-bar';
@@ -8,16 +9,12 @@ import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import cookie from 'cookie';
-import React, { useState, Component } from 'react';
+import { useState, Component } from 'react';
 import ReactDOM from 'react-dom';
-import { connect } from 'react-redux';
-import { getUserId } from 'state/initial-state';
 
-const SSOSurveyNotice = connect( state => {
-	return {
-		userId: getUserId( state ),
-	};
-} )( ( { userId } ) => {
+const SSOSurveyNotice = () => {
+	const { userConnectionData } = useConnection();
+	const userId = userConnectionData?.currentUser?.wpcomUser?.ID;
 	const href = `https://wordpressdotcom.survey.fm/disable-sso-survey?initiated-from=jetpack&user-id=${ userId }`;
 	const [ hideNotice, setHideNotice ] = useState(
 		'dismissed' === cookie.parse( document.cookie )?.sso_disable
@@ -84,7 +81,7 @@ const SSOSurveyNotice = connect( state => {
 			</div>
 		</div>
 	);
-} );
+};
 
 export const SSO = withModuleSettingsFormHelpers(
 	class extends Component {
