@@ -19,11 +19,10 @@ use Automattic\Jetpack\Sync\Data_Settings;
  * Class Automattic_For_Agencies_Client
  */
 class Automattic_For_Agencies_Client {
-
 	/**
-	 * Constructor.
+	 * Initialize the plugin.
 	 */
-	public function __construct() {
+	public static function init() {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 

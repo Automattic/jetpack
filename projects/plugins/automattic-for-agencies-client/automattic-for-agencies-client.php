@@ -117,14 +117,5 @@ function jetpack_starter_plugin_activation( $plugin ) {
 
 register_deactivation_hook( __FILE__, array( 'Automattic_For_Agencies_Client', 'plugin_deactivation' ) );
 
-/**
- * Initialize the plugin's main class.
- *
- * @since $$next-version$$
- *
- * @return void
- */
-function automattic_for_agencies_run_plugin() {
-	new Automattic_For_Agencies_Client();
-}
-add_action( 'plugins_loaded', 'automattic_for_agencies_run_plugin', 1 );
+// Initialize the plugin's main class.
+Automattic_For_Agencies_Client::init();
