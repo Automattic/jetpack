@@ -208,7 +208,8 @@ class Jetpack_Notifications {
 	 * @return string
 	 */
 	private static function get_notes_markup() {
-		return '<span class="noticon noticon-bell"></span>
+		return '<span id="wpnt-notes-unread-count" class="wpnt-loading wpn-read wpn-hide"></span>
+<span class="noticon noticon-bell"></span>
 <span class="screen-reader-text">' . esc_html__( 'Notifications', 'jetpack' ) . '</span>';
 	}
 
