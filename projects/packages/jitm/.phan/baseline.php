@@ -19,7 +19,6 @@ return [
     // PhanTypeInvalidDimOffset : 1 occurrence
     // PhanTypeMismatchArgument : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
-    // PhanUndeclaredConstant : 1 occurrence
     // PhanUndeclaredFunction : 1 occurrence
     // PhanUndeclaredMethod : 1 occurrence
     // PhanUndeclaredTypeProperty : 1 occurrence
@@ -28,7 +27,6 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-jitm.php' => ['PhanUndeclaredConstant'],
         'src/class-post-connection-jitm.php' => ['PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeProperty'],
         'src/class-rest-api-endpoints.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspicious', 'PhanTypeMismatchReturn', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType'],
         'tests/php/test_JITM.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUnreferencedUseNormal'],

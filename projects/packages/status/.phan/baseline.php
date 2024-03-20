@@ -11,7 +11,7 @@ return [
     // # Issue statistics:
     // PhanUndeclaredClassMethod : 30+ occurrences
     // PhanTypeMismatchArgument : 10+ occurrences
-    // PhanUndeclaredConstant : 8 occurrences
+    // PhanUndeclaredConstant : 6 occurrences
     // PhanUndeclaredProperty : 6 occurrences
     // PhanUndeclaredMethod : 5 occurrences
     // PhanTypeMismatchArgumentInternal : 4 occurrences
@@ -39,7 +39,7 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-cache.php' => ['PhanMisspelledAnnotation'],
-        'src/class-cookiestate.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginRedundantAssignment', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredConstant'],
+        'src/class-cookiestate.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginRedundantAssignment', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullableInternal'],
         'src/class-errors.php' => ['PhanTypeMismatchArgumentInternal', 'PhanUndeclaredClassInCallable'],
         'src/class-host.php' => ['PhanTypeMismatchArgumentNullable', 'PhanUnextractableAnnotationSuffix'],
         'src/class-modules.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUnextractableAnnotation'],
