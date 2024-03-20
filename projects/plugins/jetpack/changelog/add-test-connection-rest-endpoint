@@ -1,5 +1,5 @@
 Significance: patch
 Type: other
-Comment: Switch to the 'jetpack_api_test_connection_response' filter from the XMLRPC-based one.
+Comment: Hook into the `jetpack_rest_test_connection_response` filter to provide Jetpack version.
 
 

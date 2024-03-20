@@ -20,7 +20,7 @@ class Jetpack_XMLRPC_Methods {
 	 */
 	public static function init() {
 		add_filter( 'jetpack_xmlrpc_unauthenticated_methods', array( __CLASS__, 'xmlrpc_methods' ) );
-		add_filter( 'jetpack_api_test_connection_response', array( __CLASS__, 'test_connection' ) );
+		add_filter( 'jetpack_xmlrpc_test_connection_response', array( __CLASS__, 'test_connection' ) );
 		add_filter( 'jetpack_remote_xmlrpc_provision_response', array( __CLASS__, 'remote_provision_response' ), 10, 2 );
 		add_action( 'jetpack_xmlrpc_server_event', array( __CLASS__, 'jetpack_xmlrpc_server_event' ), 10, 4 );
 		add_action( 'jetpack_remote_connect_end', array( __CLASS__, 'remote_connect_end' ) );
