@@ -234,7 +234,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_event_is_not_deleted_on_plugin_list_deletion() {
 		$plugins = array();
-		echo "test_event_is_not_deleted_on_plugin_list_deletion\n";
 
 		for ( $i = 0; $i < 3; ++$i ) {
 			$plugin_name = 'deleted-plugin-' . $i;
