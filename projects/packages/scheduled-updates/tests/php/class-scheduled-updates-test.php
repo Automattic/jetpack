@@ -320,6 +320,132 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test deleting a plugin in multiple events delete a single event but not the others.
+	 *
+	 * @covers ::deleted_plugin
+	 */
+	public function test_delete_plugin_in_multiple_single_and_list_events() {
+		$plugins = $this->create_plugins_for_deletion( 3 );
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$request->set_body_params(
+			array(
+				'plugins'  => array( $plugins[2] ),
+				'schedule' => array(
+					'timestamp' => strtotime( 'next Monday 8:00' ),
+					'interval'  => 'weekly',
+				),
+			)
+		);
+
+		$result = rest_do_request( $request );
+		$this->assertSame( 200, $result->get_status() );
+
+		$request->set_body_params(
+			array(
+				'plugins'  => array( $plugins[0], $plugins[1], $plugins[2] ),
+				'schedule' => array(
+					'timestamp' => strtotime( 'next Monday 9:00' ),
+					'interval'  => 'weekly',
+				),
+			)
+		);
+
+		$result = rest_do_request( $request );
+		$this->assertSame( 200, $result->get_status() );
+
+		// Check that the events are scheduled.
+		$pre_events = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
+		$this->assertCount( 2, $pre_events );
+
+		// Delete third plugin, that appears in both events.
+		$this->assertTrue( delete_plugins( array( $plugins[2] ) ) );
+
+		// Check that the events are still scheduled.
+		$post_events = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
+		$this->assertCount( 1, $post_events );
+
+		$pre_events  = array_values( $pre_events );
+		$post_events = array_values( $post_events );
+		$this->assertSame( $pre_events[1]->timestamp, $post_events[0]->timestamp );
+		$this->assertSame( $pre_events[1]->schedule, $post_events[0]->schedule );
+		$this->assertSame( $pre_events[1]->interval, $post_events[0]->interval );
+		$this->assertSame( array( $plugins[0], $plugins[1] ), $post_events[0]->args );
+	}
+
+	/**
+	 * Test multiple deleting plugins.
+	 *
+	 * @covers ::deleted_plugin
+	 */
+	public function test_multiple_deleted_plugins() {
+		$plugins = $this->create_plugins_for_deletion( 2 );
+
+		for ( $i = 0; $i < 2; ++$i ) {
+			$hour    = $i + 8;
+			$request = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+			$request->set_body_params(
+				array(
+					'plugins'  => array( $plugins[ $i ] ),
+					'schedule' => array(
+						'timestamp' => strtotime( "next Monday {$hour}:00" ),
+						'interval'  => 'weekly',
+					),
+				)
+			);
+
+			$result = rest_do_request( $request );
+			$this->assertSame( 200, $result->get_status() );
+		}
+
+		// Check that the events are scheduled.
+		$this->assertCount( 2, wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
+
+		for ( $i = 0; $i < 2; ++$i ) {
+			// Delete first plugin, that appears in both events.
+			$this->assertTrue( delete_plugins( array( $plugins[ $i ] ) ) );
+		}
+
+		// Check no more events are scheduled.
+		$this->assertCount( 0, wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
+	}
+
+	/**
+	 * Test multiple deleting plugins in parallel.
+	 *
+	 * @covers ::deleted_plugin
+	 */
+	public function test_multiple_deleted_plugins_in_parallel() {
+		$plugins = $this->create_plugins_for_deletion( 2 );
+
+		for ( $i = 0; $i < 2; ++$i ) {
+			$hour    = $i + 8;
+			$request = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+			$request->set_body_params(
+				array(
+					'plugins'  => array( $plugins[ $i ] ),
+					'schedule' => array(
+						'timestamp' => strtotime( "next Monday {$hour}:00" ),
+						'interval'  => 'weekly',
+					),
+				)
+			);
+
+			$result = rest_do_request( $request );
+			$this->assertSame( 200, $result->get_status() );
+		}
+
+		// Check that the events are scheduled.
+		$this->assertCount( 2, wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
+
+		// Delete all plugins in parallel.
+		$this->assertTrue( delete_plugins( $plugins ) );
+
+		// Check no more events are scheduled.
+		$this->assertCount( 0, wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
+	}
+
+	/**
 	 * Create a list of plugins to be deleted.
 	 *
 	 * @param int $count The number of plugins to create.
