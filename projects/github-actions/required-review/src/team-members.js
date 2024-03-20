@@ -24,8 +24,17 @@ async function fetchTeamMembers( team ) {
 		// Handle @singleuser virtual teams. Fetch the correct username case from GitHub
 		// to avoid having to worry about edge cases and Unicode versions and such.
 		try {
-			const res = await octokit.rest.users.getByUsername( { username: team.slice( 1 ) } );
-			members.push( res.data.login );
+			try {
+				const res = await octokit.rest.users.getByUsername( { username: team.slice( 1 ) } );
+				members.push( res.data.login );
+			} catch ( error ) {
+				if ( error.message.includes( 'Not Found' ) ) {
+					const res = await octokit.rest.apps.getBySlug( { app_slug: team.slice( 1 ) } );
+					members.push( res.data.slug );
+				} else {
+					throw error;
+				}
+			}
 		} catch ( error ) {
 			throw new WError(
 				// prettier-ignore
