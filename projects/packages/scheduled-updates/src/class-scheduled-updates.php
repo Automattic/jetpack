@@ -20,7 +20,7 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.4.2-alpha';
+	const PACKAGE_VERSION = '0.5.0-alpha';
 	/**
 	 * The cron event hook for the scheduled plugins update.
 	 *
@@ -51,6 +51,7 @@ class Scheduled_Updates {
 		add_action( 'rest_api_init', array( __CLASS__, 'add_is_managed_extension_field' ) );
 		add_filter( 'auto_update_plugin', array( __CLASS__, 'allowlist_scheduled_plugins' ), 10, 2 );
 		add_filter( 'plugin_auto_update_setting_html', array( __CLASS__, 'show_scheduled_updates' ), 10, 2 );
+		add_action( 'deleted_plugin', array( __CLASS__, 'deleted_plugin' ), 10, 2 );
 	}
 
 	/**
@@ -131,6 +132,18 @@ class Scheduled_Updates {
 		update_option( 'jetpack_scheduled_update_statuses', $option );
 
 		return $option;
+	}
+
+	/**
+	 * Get the last status of a scheduled update.
+	 *
+	 * @param string $schedule_id Request ID.
+	 * @return array|null Last status of the scheduled update or null if not found.
+	 */
+	public static function get_scheduled_update_status( $schedule_id ) {
+		$statuses = get_option( 'jetpack_scheduled_update_statuses', array() );
+
+		return $statuses[ $schedule_id ] ?? null;
 	}
 
 	/**
@@ -337,6 +350,63 @@ class Scheduled_Updates {
 		}
 
 		return $file_mod_capabilities;
+	}
+
+	/**
+	 * Hook run when a plugin is deleted.
+	 *
+	 * @param string $plugin_file Path to the plugin file relative to the plugins directory.
+	 * @param bool   $deleted     Whether the plugin deletion was successful.
+	 */
+	public static function deleted_plugin( $plugin_file, $deleted ) {
+		if ( ! $deleted ) {
+			return;
+		}
+
+		$events = wp_get_scheduled_events( self::PLUGIN_CRON_HOOK );
+
+		if ( ! count( $events ) ) {
+			return;
+		}
+
+		foreach ( $events as $id => $event ) {
+			// Continue if the plugin is not part of the schedule.
+			if ( ! in_array( $plugin_file, $event->args, true ) ) {
+				continue;
+			}
+
+			// Remove the schedule.
+			$result = wp_unschedule_event( $event->timestamp, self::PLUGIN_CRON_HOOK, $event->args, true );
+
+			if ( is_wp_error( $result ) || false === $result ) {
+				continue;
+			}
+
+			$plugins = array_values( array_diff( $event->args, array( $plugin_file ) ) );
+
+			if ( ! count( $plugins ) ) {
+				continue;
+			}
+
+			// There are still plugins to update. Schedule a new event.
+			$result = wp_schedule_event( $event->timestamp, $event->schedule, self::PLUGIN_CRON_HOOK, $plugins, true );
+
+			if ( is_wp_error( $result ) || false === $result ) {
+				continue;
+			}
+
+			$schedule_id = self::generate_schedule_id( $plugins );
+			$status      = self::get_scheduled_update_status( $id );
+
+			// Inherit the status from the previous schedule.
+			if ( $status ) {
+				self::set_scheduled_update_status(
+					$schedule_id,
+					$status['last_run_timestamp'],
+					$status['last_run_status']
+				);
+			}
+		}
 	}
 
 	/**
