@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add a new plugin deletion hook that remove the plugin from the scheduled updates.
