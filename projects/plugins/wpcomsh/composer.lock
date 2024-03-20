@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2cb8632817ccf16d4d50c67803c2e7bc",
+    "content-hash": "35fd31d8aac1271d22ba15e1dbcb3fbc",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -66,16 +66,16 @@
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "v2.1.4",
+            "version": "v2.1.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-assets.git",
-                "reference": "06614b6daf1229002ca80dae982421c74c351a83"
+                "reference": "eea9623e3f8c4877a7d613e626221b3f1d5b11a5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-assets/zipball/06614b6daf1229002ca80dae982421c74c351a83",
-                "reference": "06614b6daf1229002ca80dae982421c74c351a83",
+                "url": "https://api.github.com/repos/Automattic/jetpack-assets/zipball/eea9623e3f8c4877a7d613e626221b3f1d5b11a5",
+                "reference": "eea9623e3f8c4877a7d613e626221b3f1d5b11a5",
                 "shasum": ""
             },
             "require": {
@@ -83,7 +83,7 @@
                 "php": ">=7.0"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^4.1.1",
+                "automattic/jetpack-changelogger": "^4.1.2",
                 "brain/monkey": "2.6.1",
                 "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
                 "yoast/phpunit-polyfills": "1.1.0"
@@ -117,9 +117,9 @@
             ],
             "description": "Asset management utilities for Jetpack ecosystem packages",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-assets/tree/v2.1.4"
+                "source": "https://github.com/Automattic/jetpack-assets/tree/v2.1.5"
             },
-            "time": "2024-03-12T22:01:21+00:00"
+            "time": "2024-03-18T17:11:04+00:00"
         },
         {
             "name": "automattic/jetpack-config",
@@ -218,25 +218,25 @@
         },
         {
             "name": "automattic/jetpack-mu-wpcom",
-            "version": "v5.17.0",
+            "version": "v5.18.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-mu-wpcom.git",
-                "reference": "758080afdbdda4ecbc9589188827b15e1f0e2685"
+                "reference": "f97d436ee972f3504b19daef865040bfea977660"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/758080afdbdda4ecbc9589188827b15e1f0e2685",
-                "reference": "758080afdbdda4ecbc9589188827b15e1f0e2685",
+                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/f97d436ee972f3504b19daef865040bfea977660",
+                "reference": "f97d436ee972f3504b19daef865040bfea977660",
                 "shasum": ""
             },
             "require": {
-                "automattic/jetpack-assets": "^2.1.4",
-                "automattic/scheduled-updates": "^0.4.0",
+                "automattic/jetpack-assets": "^2.1.5",
+                "automattic/scheduled-updates": "^0.5.0",
                 "php": ">=7.0"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^4.1.1",
+                "automattic/jetpack-changelogger": "^4.1.2",
                 "automattic/wordbless": "0.4.2",
                 "yoast/phpunit-polyfills": "1.1.0"
             },
@@ -251,7 +251,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.17.x-dev"
+                    "dev-trunk": "5.18.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -269,9 +269,9 @@
             ],
             "description": "Enhances your site with features powered by WordPress.com",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v5.17.0"
+                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v5.18.0"
             },
-            "time": "2024-03-15T14:42:49+00:00"
+            "time": "2024-03-20T16:45:51+00:00"
         },
         {
             "name": "automattic/jetpack-post-list",
@@ -331,23 +331,23 @@
         },
         {
             "name": "automattic/scheduled-updates",
-            "version": "v0.4.0",
+            "version": "v0.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/scheduled-updates.git",
-                "reference": "963921d75f7b36e8e5a942fcda9b13f326029884"
+                "reference": "c6dafd9aac3fe4036e05dd4fd921f95dd4e3dfa6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/scheduled-updates/zipball/963921d75f7b36e8e5a942fcda9b13f326029884",
-                "reference": "963921d75f7b36e8e5a942fcda9b13f326029884",
+                "url": "https://api.github.com/repos/Automattic/scheduled-updates/zipball/c6dafd9aac3fe4036e05dd4fd921f95dd4e3dfa6",
+                "reference": "c6dafd9aac3fe4036e05dd4fd921f95dd4e3dfa6",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.0"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^4.1.1",
+                "automattic/jetpack-changelogger": "^4.1.2",
                 "automattic/jetpack-plans": "^0.4.3",
                 "automattic/wordbless": "@dev",
                 "php-mock/php-mock-phpunit": "^2.10",
@@ -364,7 +364,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.4.x-dev"
+                    "dev-trunk": "0.5.x-dev"
                 },
                 "textdomain": "jetpack-scheduled-updates",
                 "version-constants": {
@@ -382,9 +382,9 @@
             ],
             "description": "Runs plugin and (eventually) theme updates on a set schedule.",
             "support": {
-                "source": "https://github.com/Automattic/scheduled-updates/tree/v0.4.0"
+                "source": "https://github.com/Automattic/scheduled-updates/tree/v0.5.0"
             },
-            "time": "2024-03-15T14:42:40+00:00"
+            "time": "2024-03-20T16:45:37+00:00"
         },
         {
             "name": "automattic/text-media-widget-styles",
