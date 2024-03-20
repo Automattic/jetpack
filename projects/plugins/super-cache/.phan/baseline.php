@@ -9,9 +9,9 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredConstant : 95+ occurrences
     // PhanPluginSimplifyExpressionBool : 85+ occurrences
     // PhanUndeclaredGlobalVariable : 55+ occurrences
+    // PhanUndeclaredConstant : 40+ occurrences
     // PhanTypeMismatchArgumentInternal : 30+ occurrences
     // PhanTypeMismatchArgumentNullableInternal : 25+ occurrences
     // PhanPossiblyUndeclaredVariable : 20+ occurrences
@@ -65,7 +65,7 @@ return [
         'partials/advanced.php' => ['PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredGlobalVariable', 'PhanRedundantConditionInGlobalScope', 'PhanTypeMismatchArgument', 'PhanTypeNonVarPassByRef', 'PhanUndeclaredConstant', 'PhanUndeclaredGlobalVariable'],
         'partials/debug.php' => ['PhanTypeNonVarPassByRef', 'PhanUndeclaredGlobalVariable'],
         'partials/easy.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspiciousNull', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgumentInternalReal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredConstant', 'PhanUndeclaredGlobalVariable'],
-        'partials/lockdown.php' => ['PhanUndeclaredConstant', 'PhanUndeclaredGlobalVariable'],
+        'partials/lockdown.php' => ['PhanUndeclaredGlobalVariable'],
         'partials/preload.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredGlobalVariable', 'PhanTypeMismatchDimAssignment', 'PhanUndeclaredGlobalVariable'],
         'partials/rejected_user_agents.php' => ['PhanUndeclaredGlobalVariable'],
         'partials/tracking_parameters.php' => ['PhanUndeclaredGlobalVariable'],
@@ -75,7 +75,7 @@ return [
         'plugins/wptouch.php' => ['PhanPluginSimplifyExpressionBool', 'PhanUndeclaredFunction'],
         'rest/class.wp-super-cache-rest-get-cache.php' => ['PhanPluginSimplifyExpressionBool'],
         'rest/class.wp-super-cache-rest-get-settings.php' => ['PhanPluginSimplifyExpressionBool', 'PhanSuspiciousValueComparison', 'PhanTypeMismatchReturn', 'PhanUndeclaredConstant', 'PhanUndeclaredFunctionInCallable', 'PhanUndeclaredVariable'],
-        'rest/class.wp-super-cache-rest-get-status.php' => ['PhanPluginSimplifyExpressionBool', 'PhanSuspiciousValueComparison', 'PhanTypeNonVarPassByRef', 'PhanUndeclaredConstant', 'PhanUndeclaredVariable'],
+        'rest/class.wp-super-cache-rest-get-status.php' => ['PhanPluginSimplifyExpressionBool', 'PhanSuspiciousValueComparison', 'PhanTypeNonVarPassByRef', 'PhanUndeclaredVariable'],
         'rest/class.wp-super-cache-rest-test-cache.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeConversionFromArray', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredVariableDim'],
         'rest/class.wp-super-cache-rest-update-settings.php' => ['PhanCommentParamWithoutRealParam', 'PhanPluginRedundantAssignment', 'PhanPluginSimplifyExpressionBool', 'PhanTypeMissingReturn', 'PhanUndeclaredConstant'],
         'tests/e2e/tools/mu-test-helpers.php' => ['PhanTypeMismatchArgument'],
