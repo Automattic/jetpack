@@ -105,6 +105,17 @@ class REST_Connector {
 			)
 		);
 
+		// Connect a remote user.
+		register_rest_route(
+			'jetpack/v4',
+			'/remote_connect',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'remote_connect' ),
+				'permission_callback' => array( $this, 'remote_connect_permission_check' ),
+			)
+		);
+
 		// Get current connection status of Jetpack.
 		register_rest_route(
 			'jetpack/v4',
@@ -311,7 +322,7 @@ class REST_Connector {
 	/**
 	 * Initiate the site provisioning process.
 	 *
-	 * @since $$next-version$$
+	 * @since 2.5.0
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -329,9 +340,29 @@ class REST_Connector {
 	}
 
 	/**
-	 * Register the site so that a plan can be provisioned.
+	 * Connect a remote user.
 	 *
 	 * @since $$next-version$$
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return WP_Error|array
+	 */
+	public static function remote_connect( WP_REST_Request $request ) {
+		$xmlrpc_server = new Jetpack_XMLRPC_Server();
+		$result        = $xmlrpc_server->remote_connect( $request );
+
+		if ( is_a( $result, 'IXR_Error' ) ) {
+			$result = new WP_Error( $result->code, $result->message );
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Register the site so that a plan can be provisioned.
+	 *
+	 * @since 2.5.0
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 *
@@ -357,6 +388,17 @@ class REST_Connector {
 		return Rest_Authentication::is_signed_with_blog_token()
 			? true
 			: new WP_Error( 'invalid_permission_remote_provision', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Remote connect endpoint permission check.
+	 *
+	 * @return true|WP_Error
+	 */
+	public function remote_connect_permission_check() {
+		return Rest_Authentication::is_signed_with_blog_token()
+			? true
+			: new WP_Error( 'invalid_permission_remote_connect', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**
