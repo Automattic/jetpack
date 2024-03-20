@@ -379,7 +379,7 @@ class Scheduled_Updates {
 			$result = wp_unschedule_event( $event->timestamp, self::PLUGIN_CRON_HOOK, $event->args, true );
 
 			if ( is_wp_error( $result ) || false === $result ) {
-				return;
+				continue;
 			}
 
 			$plugins = array_values( array_diff( $event->args, array( $plugin_file ) ) );
@@ -392,7 +392,7 @@ class Scheduled_Updates {
 			$result = wp_schedule_event( $event->timestamp, $event->schedule, self::PLUGIN_CRON_HOOK, $plugins, true );
 
 			if ( is_wp_error( $result ) || false === $result ) {
-				return;
+				continue;
 			}
 
 			$schedule_id = self::generate_schedule_id( $plugins );

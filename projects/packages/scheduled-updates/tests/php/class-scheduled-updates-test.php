@@ -446,6 +446,50 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test unschedule error do not interrupt the deletion hook.
+	 *
+	 * @covers ::deleted_plugin
+	 */
+	public function test_unschedule_error_do_not_interrupt_deletion_hook() {
+		$plugins = $this->create_plugins_for_deletion( 2 );
+
+		for ( $i = 0; $i < 2; ++$i ) {
+			$hour    = $i + 8;
+			$request = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+			$request->set_body_params(
+				array(
+					'plugins'  => array( $plugins[ $i ] ),
+					'schedule' => array(
+						'timestamp' => strtotime( "next Monday {$hour}:00" ),
+						'interval'  => 'weekly',
+					),
+				)
+			);
+
+			$result = rest_do_request( $request );
+			$this->assertSame( 200, $result->get_status() );
+		}
+
+		$unschedule_error = function ( $pre, $timestamp ) {
+			// Simulate the first event unschedule error.
+			return $timestamp === strtotime( 'next Monday 8:00' ) ? new \WP_Error() : $pre;
+		};
+
+		add_filter( 'pre_unschedule_event', $unschedule_error, 10, 2 );
+
+		// Check that the events are scheduled.
+		$this->assertCount( 2, wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
+
+		// Delete first plugin.
+		$this->assertTrue( delete_plugins( array( $plugins[0] ) ) );
+
+		// Check that both events are still scheduled.
+		$this->assertCount( 2, wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
+
+		remove_filter( 'pre_unschedule_event', $unschedule_error, 10, 2 );
+	}
+
+	/**
 	 * Test deleting a plugin in multiple events generate new events that inherit the previous statuses.
 	 *
 	 * @covers ::deleted_plugin
