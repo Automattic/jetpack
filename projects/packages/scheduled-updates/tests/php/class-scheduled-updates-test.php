@@ -486,7 +486,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		// Check that both events are still scheduled.
 		$this->assertCount( 2, wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
 
-		remove_filter( 'pre_unschedule_event', $unschedule_error, 10, 2 );
+		remove_filter( 'pre_unschedule_event', $unschedule_error, 10 );
 	}
 
 	/**
