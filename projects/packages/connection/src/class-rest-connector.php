@@ -1016,6 +1016,10 @@ class REST_Connector {
 	 * @return true|WP_Error
 	 */
 	public function test_connection_permission_check() {
+		if ( current_user_can( 'jetpack_connect' ) ) {
+			return true;
+		}
+
 		return Rest_Authentication::is_signed_with_blog_token()
 			? true
 			: new WP_Error( 'invalid_permission_test_connection', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
