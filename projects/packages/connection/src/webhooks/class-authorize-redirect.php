@@ -38,6 +38,8 @@ class Authorize_Redirect {
 	 * Handle the webhook
 	 *
 	 * This method implements what's in Jetpack::admin_page_load when the Jetpack plugin is not present
+	 *
+	 * @return never
 	 */
 	public function handle() {
 

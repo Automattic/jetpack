@@ -84,6 +84,38 @@ class REST_Connector {
 			)
 		);
 
+		// Authorize a remote user.
+		register_rest_route(
+			'jetpack/v4',
+			'/remote_provision',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'remote_provision' ),
+				'permission_callback' => array( $this, 'remote_provision_permission_check' ),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/remote_register',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'remote_register' ),
+				'permission_callback' => array( $this, 'remote_register_permission_check' ),
+			)
+		);
+
+		// Connect a remote user.
+		register_rest_route(
+			'jetpack/v4',
+			'/remote_connect',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'remote_connect' ),
+				'permission_callback' => array( $this, 'remote_connect_permission_check' ),
+			)
+		);
+
 		// Get current connection status of Jetpack.
 		register_rest_route(
 			'jetpack/v4',
@@ -285,6 +317,103 @@ class REST_Connector {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Initiate the site provisioning process.
+	 *
+	 * @since 2.5.0
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return WP_Error|array
+	 */
+	public static function remote_provision( WP_REST_Request $request ) {
+		$xmlrpc_server = new Jetpack_XMLRPC_Server();
+		$result        = $xmlrpc_server->remote_provision( $request );
+
+		if ( is_a( $result, 'IXR_Error' ) ) {
+			$result = new WP_Error( $result->code, $result->message );
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Connect a remote user.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return WP_Error|array
+	 */
+	public static function remote_connect( WP_REST_Request $request ) {
+		$xmlrpc_server = new Jetpack_XMLRPC_Server();
+		$result        = $xmlrpc_server->remote_connect( $request );
+
+		if ( is_a( $result, 'IXR_Error' ) ) {
+			$result = new WP_Error( $result->code, $result->message );
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Register the site so that a plan can be provisioned.
+	 *
+	 * @since 2.5.0
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 *
+	 * @return WP_Error|array
+	 */
+	public function remote_register( WP_REST_Request $request ) {
+		$xmlrpc_server = new Jetpack_XMLRPC_Server();
+		$result        = $xmlrpc_server->remote_register( $request );
+
+		if ( is_a( $result, 'IXR_Error' ) ) {
+			$result = new WP_Error( $result->code, $result->message );
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Remote provision endpoint permission check.
+	 *
+	 * @return true|WP_Error
+	 */
+	public function remote_provision_permission_check() {
+		return Rest_Authentication::is_signed_with_blog_token()
+			? true
+			: new WP_Error( 'invalid_permission_remote_provision', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Remote connect endpoint permission check.
+	 *
+	 * @return true|WP_Error
+	 */
+	public function remote_connect_permission_check() {
+		return Rest_Authentication::is_signed_with_blog_token()
+			? true
+			: new WP_Error( 'invalid_permission_remote_connect', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Remote register endpoint permission check.
+	 *
+	 * @return true|WP_Error
+	 */
+	public function remote_register_permission_check() {
+		if ( $this->connection->has_connected_owner() ) {
+			return Rest_Authentication::is_signed_with_blog_token()
+				? true
+				: new WP_Error( 'already_registered', __( 'Blog is already registered', 'jetpack-connection' ), 400 );
+		}
+
+		return true;
 	}
 
 	/**

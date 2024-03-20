@@ -278,9 +278,9 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			if ( ! current_user_can( 'edit_post', $post->ID ) ) {
 				return new WP_Error( 'unauthorized', 'User cannot edit post', 403 );
 			}
-
-			if ( ! empty( $input['if_not_modified_since'] ) ) {
-				if ( mysql2date( 'U', $post->post_modified_gmt ) > mysql2date( 'U', $input['if_not_modified_since'] ) ) {
+			// The input `if_not_modified_since` input is the format ISO 8601 datetime and get converted to `if_not_modified_since_gmt` and `if_not_modified_since`
+			if ( ! empty( $input['if_not_modified_since_gmt'] ) ) {
+				if ( mysql2date( 'U', $post->post_modified_gmt ) > mysql2date( 'U', $input['if_not_modified_since_gmt'] ) ) {
 					return new WP_Error( 'old-revision', 'There is a revision of this post that is more recent.', 409 );
 				}
 			}
@@ -535,8 +535,11 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 
 		$has_media        = ! empty( $input['media'] ) ? count( $input['media'] ) : false;
 		$has_media_by_url = ! empty( $input['media_urls'] ) ? count( $input['media_urls'] ) : false;
+		$media_files      = array();
+		$media_urls       = array();
+		$media_attrs      = array();
+		$media_id_string  = '';
 
-		$media_id_string = '';
 		if ( $has_media || $has_media_by_url ) {
 			$media_files     = ! empty( $input['media'] ) ? $input['media'] : array();
 			$media_urls      = ! empty( $input['media_urls'] ) ? $input['media_urls'] : array();

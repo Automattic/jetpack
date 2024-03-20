@@ -8,9 +8,12 @@ import { useEffect, useState, useMemo } from 'react';
 import {
 	REST_API_REWINDABLE_BACKUP_EVENTS_ENDPOINT,
 	REST_API_COUNT_BACKUP_ITEMS_ENDPOINT,
+	QUERY_BACKUP_HISTORY_KEY,
+	QUERY_BACKUP_STATS_KEY,
 } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import useSimpleQuery from '../../../data/use-simple-query';
+import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
 import ProductCard from '../../connected-product-card';
 import { PRODUCT_STATUSES } from '../../product-card/action-button';
@@ -132,13 +135,17 @@ const BackupCard = ( { admin } ) => {
 };
 
 const WithBackupsValueSection = ( { admin, slug } ) => {
-	const { data, isLoading } = useSimpleQuery( 'backup history', {
-		path: REST_API_REWINDABLE_BACKUP_EVENTS_ENDPOINT,
+	const { data, isLoading } = useSimpleQuery( {
+		name: QUERY_BACKUP_HISTORY_KEY,
+		query: {
+			path: REST_API_REWINDABLE_BACKUP_EVENTS_ENDPOINT,
+		},
 	} );
 	const lastRewindableEvent = data?.last_rewindable_event;
 	const lastRewindableEventTime = lastRewindableEvent?.published;
 	const undoBackupId = data?.undo_backup_id;
 	const { recordEvent } = useAnalytics();
+	const { siteSuffix = '' } = getMyJetpackWindowInitialState();
 
 	const handleUndoClick = () => {
 		recordEvent( 'jetpack_myjetpack_backup_card_undo_click', {
@@ -150,7 +157,7 @@ const WithBackupsValueSection = ( { admin, slug } ) => {
 	const undoAction = {
 		href: getRedirectUrl( 'jetpack-backup-undo-cta', {
 			path: undoBackupId,
-			site: window?.myJetpackInitialState?.siteSuffix,
+			site: siteSuffix,
 		} ),
 		size: 'small',
 		variant: 'primary',
@@ -190,8 +197,11 @@ const WithBackupsValueSection = ( { admin, slug } ) => {
 
 const NoBackupsValueSection = ( { admin, slug } ) => {
 	const [ itemsToShow, setItemsToShow ] = useState( 3 );
-	const { data: backupStats, isLoading } = useSimpleQuery( 'backup stats', {
-		path: REST_API_COUNT_BACKUP_ITEMS_ENDPOINT,
+	const { data: backupStats, isLoading } = useSimpleQuery( {
+		name: QUERY_BACKUP_STATS_KEY,
+		query: {
+			path: REST_API_COUNT_BACKUP_ITEMS_ENDPOINT,
+		},
 	} );
 
 	const sortedStats = useMemo( () => {

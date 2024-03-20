@@ -4,8 +4,12 @@
 import { numberFormat } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import { REST_API_VIDEOPRESS_FEATURED_STATS } from '../../data/constants';
+import {
+	REST_API_VIDEOPRESS_FEATURED_STATS,
+	QUERY_VIDEOPRESS_STATS_KEY,
+} from '../../data/constants';
 import useSimpleQuery from '../../data/use-simple-query';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 /**
  * Internal dependencies
  */
@@ -17,7 +21,10 @@ const useVideoPressStats = () => {
 		data: stats,
 		isLoading,
 		isError,
-	} = useSimpleQuery( 'videopress stats', { path: REST_API_VIDEOPRESS_FEATURED_STATS } );
+	} = useSimpleQuery( {
+		name: QUERY_VIDEOPRESS_STATS_KEY,
+		query: { path: REST_API_VIDEOPRESS_FEATURED_STATS },
+	} );
 
 	const views = stats?.data?.views ?? {};
 	const { previous = null, current = null } = views;
@@ -48,7 +55,7 @@ const useVideoPressStats = () => {
 };
 
 const VideopressCard = ( { admin } ) => {
-	const { videoPressStats = false } = window.myJetpackInitialState?.myJetpackFlags ?? {};
+	const { videoPressStats = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	const { loading, hasError, change, currentFormatted, changePercentage } = useVideoPressStats();
 
 	if ( ! videoPressStats || hasError ) {

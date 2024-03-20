@@ -68,19 +68,18 @@ class Test_Jetpack_JITM extends TestCase {
 	public function test_prepare_jitms_enqueues_assets() {
 		$mockAssets = \Mockery::mock( 'alias:Automattic\Jetpack\Assets' );
 
+		// Assume we're on a Jetpack page.
+		$screen_id = 'jetpack_foo';
+		get_current_screen()->id = $screen_id;
+
 		// mock the static method and return a dummy value
 		$mockAssets
 			->shouldReceive( 'register_script' )
 			->withSomeOfArgs( 'jetpack-jitm', '../build/index.js' )
 			->once();
 
-		$mockAssets
-			->shouldReceive( 'enqueue_script' )
-			->withArgs( array( 'jetpack-jitm' ) )
-			->once();
-
 		$jitm = new JITM();
-		$screen = (object) array( 'id' => 'jetpack_foo' ); // fake screen object
+		$screen = (object) array( 'id' => $screen_id ); // fake screen object
 		$jitm->prepare_jitms( $screen );
 
 		// Set up mocks for a bunch of methods called by the hook.
@@ -97,6 +96,21 @@ class Test_Jetpack_JITM extends TestCase {
 
 		// Do the action that we asserted was added.
 		$jitm->jitm_enqueue_files();
+	}
+
+	/**
+	 * Test to ensure that the JITM is not enqueued on non-A8C admin pages.
+	 *
+	 * @dataProvider data_test_is_a8c_admin_page
+	 *
+	 * @param string $screen_id The screen ID to test.
+	 * @param bool   $expected  Whether the JITM should be enqueued.
+	 */
+	public function test_is_a8c_admin_page( $screen_id, $expected ) {
+		$jitm = new JITM();
+
+		get_current_screen()->id = $screen_id;
+		$this->assertSame( $expected, $jitm->is_a8c_admin_page() );
 	}
 
 	/**
@@ -123,4 +137,21 @@ class Test_Jetpack_JITM extends TestCase {
 		$this->assertSame( 1, did_action( 'jetpack_registered_jitms' ) );
 	}
 
+	/**
+	 * Test data to ensure we enqueue the JITM scripts only on specific screens.
+	 *
+	 * @return array
+	 */
+	public function data_test_is_a8c_admin_page() {
+		return array(
+			'Jetpack main dashboard'         => array( 'toplevel_page_jetpack', true ),
+			'Jetpack about page'             => array( 'admin_page_jetpack_about', true ),
+			'My Jetpack'                     => array( 'jetpack_page_my-jetpack', true ),
+			'Posts List'                     => array( 'edit-post', false ),
+			'Main dashboard'                 => array( 'dashboard', false ),
+			'WooCommerce admin page'         => array( 'woocommerce_page_wc-admin', true ),
+			'WooCommerce order management'   => array( 'edit-shop_order', true ),
+			'WooCommerce product management' => array( 'edit-product', true ),
+		);
+	}
 }
