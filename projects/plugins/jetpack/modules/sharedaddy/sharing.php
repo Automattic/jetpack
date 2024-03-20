@@ -122,21 +122,22 @@ class Sharing_Admin {
 	}
 
 	/**
-	 * Register Sharing settings menu page in offline mode.
+	 * Register Sharing settings menu page in offline mode or when nav redesign is enabled.
 	 */
 	public function subscription_menu() {
-		if ( ! ( new Status() )->is_offline_mode() ) {
-			return;
+		if (
+			( new Status() )->is_offline_mode() ||
+			( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() )
+		) {
+			add_submenu_page(
+				'options-general.php',
+				__( 'Sharing Settings', 'jetpack' ),
+				__( 'Sharing', 'jetpack' ),
+				'manage_options',
+				'sharing',
+				array( $this, 'wrapper_admin_page' )
+			);
 		}
-
-		add_submenu_page(
-			'options-general.php',
-			__( 'Sharing Settings', 'jetpack' ),
-			__( 'Sharing', 'jetpack' ),
-			'manage_options',
-			'sharing',
-			array( $this, 'wrapper_admin_page' )
-		);
 	}
 
 	/**
