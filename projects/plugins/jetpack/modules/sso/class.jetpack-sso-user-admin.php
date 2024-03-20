@@ -41,7 +41,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			add_filter( 'wp_send_new_user_notification_to_user', array( $this, 'should_send_wp_mail_new_user' ) );
 			add_action( 'user_new_form', array( $this, 'render_invitation_email_message' ) );
 			add_action( 'user_new_form', array( $this, 'render_wpcom_invite_checkbox' ), 1 );
-			add_action( 'user_new_form', array( $this, 'render_wpcom_checkbox_external' ), 1 );
+			add_action( 'user_new_form', array( $this, 'render_wpcom_external_user_checkbox' ), 1 );
 			add_action( 'user_new_form', array( $this, 'render_custom_email_message_form_field' ), 1 );
 			add_action( 'delete_user_form', array( $this, 'render_invitations_notices_for_deleted_users' ) );
 			add_action( 'delete_user', array( $this, 'revoke_user_invite' ) );
@@ -695,7 +695,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 *
 		 * @param string $type The type of new user form the hook follows.
 		 */
-		public function render_wpcom_checkbox_external( $type ) {
+		public function render_wpcom_external_user_checkbox( $type ) {
 			if ( $type === 'add-new-user' ) {
 				?>
 				<table class="form-table">
