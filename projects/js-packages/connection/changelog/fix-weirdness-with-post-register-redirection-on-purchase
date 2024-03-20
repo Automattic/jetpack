@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix some redirect after purchase behavior when site is not connected

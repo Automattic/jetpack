@@ -366,6 +366,7 @@ abstract class Sharing_Source_Block {
 	 * Redirect to an external social network site to finish sharing.
 	 *
 	 * @param string $url Sharing URL for a given service.
+	 * @return never
 	 */
 	public function redirect_request( $url ) {
 		wp_redirect( $url ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- We allow external redirects here; we define them ourselves.
@@ -566,6 +567,27 @@ class Share_Print_Block extends Sharing_Source_Block {
 	 */
 	public function get_name() {
 		return __( 'Print', 'jetpack' );
+	}
+}
+
+/**
+ * Native Share button (relying on the Web Share API).
+ */
+class Share_Native_Block extends Sharing_Source_Block {
+	/**
+	 * Service short name.
+	 *
+	 * @var string
+	 */
+	public $shortname = 'native';
+
+	/**
+	 * Service name.
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return __( 'Web Share', 'jetpack' );
 	}
 }
 

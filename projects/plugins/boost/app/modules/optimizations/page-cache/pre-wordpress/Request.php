@@ -96,7 +96,7 @@ class Request {
 		/**
 		 * Filters the bypass patterns for the page cache.
 		 *
-		 * @since $$next-version$$
+		 * @since 3.2.0
 		 *
 		 * @param array $bypass_patterns An array of regex patterns that define URLs that bypass caching.
 		 */
@@ -127,7 +127,7 @@ class Request {
 		 *
 		 * Can be used to prevent a request from being cached.
 		 *
-		 * @since $$next-version$$
+		 * @since 3.2.0
 		 *
 		 * @param bool $default_status The default cacheability status (true for cacheable).
 		 * @param string $request_uri  The request URI to be evaluated for cacheability.
@@ -190,7 +190,7 @@ class Request {
 		 * matches one of these content types the request will not be cached,
 		 * or a cached file served to this visitor.
 		 *
-		 * @since $$next-version$$
+		 * @since 3.2.0
 		 *
 		 * @param array $accept_headers An array of header values that should prevent a request from being cached.
 		 */

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: new AI interstitial margin on admin page was messing with correct top spacing

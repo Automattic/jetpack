@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Cache: Check cache engine status on Settings page load

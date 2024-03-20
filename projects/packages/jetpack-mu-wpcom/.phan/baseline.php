@@ -10,8 +10,8 @@
 return [
     // # Issue statistics:
     // PhanUndeclaredFunction : 75+ occurrences
+    // PhanUndeclaredClassMethod : 60+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 55+ occurrences
-    // PhanUndeclaredClassMethod : 55+ occurrences
     // PhanTypeMismatchArgument : 40+ occurrences
     // PhanTypeArraySuspicious : 30+ occurrences
     // PhanUndeclaredTypeParameter : 15+ occurrences
@@ -54,6 +54,7 @@ return [
         'src/class-jetpack-mu-wpcom.php' => ['PhanNoopNew', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction'],
         'src/features/100-year-plan/enhanced-ownership.php' => ['PhanEmptyFQSENInCallable', 'PhanUndeclaredClassConstant', 'PhanUndeclaredFunction'],
         'src/features/100-year-plan/locked-mode.php' => ['PhanEmptyFQSENInCallable', 'PhanUndeclaredClassConstant', 'PhanUndeclaredFunction'],
+        'src/features/admin-color-schemes/admin-color-schemes.php' => ['PhanUndeclaredConstant', 'PhanUndeclaredFunction'],
         'src/features/block-patterns/block-patterns.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredTypeParameter'],
         'src/features/block-patterns/class-wpcom-block-patterns-from-api.php' => ['PhanRedundantConditionInLoop', 'PhanUndeclaredConstant'],
         'src/features/block-patterns/class-wpcom-block-patterns-utils.php' => ['PhanTypeMismatchReturnNullable', 'PhanUndeclaredFunction'],
