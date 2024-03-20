@@ -43,6 +43,7 @@ function SubscriptionsSettings( props ) {
 		isStcEnabled,
 		isSmEnabled,
 		isSubscribePostEndEnabled,
+		isLoginNavigationEnabled,
 		isSubscriptionSiteFeatureEnabled,
 		isSubscriptionsActive,
 		siteRawUrl,
@@ -87,6 +88,13 @@ function SubscriptionsSettings( props ) {
 		updateFormStateModuleOption(
 			SUBSCRIPTIONS_MODULE_NAME,
 			'jetpack_subscriptions_subscribe_post_end_enabled'
+		);
+	}, [ updateFormStateModuleOption ] );
+
+	const handleLoginNavigationToggleChange = useCallback( () => {
+		updateFormStateModuleOption(
+			SUBSCRIPTIONS_MODULE_NAME,
+			'jetpack_subscriptions_login_navigation_enabled'
 		);
 	}, [ updateFormStateModuleOption ] );
 
@@ -226,6 +234,27 @@ function SubscriptionsSettings( props ) {
 									'jetpack'
 								) }
 							/>
+							<ToggleControl
+								checked={ isSubscriptionsActive && isLoginNavigationEnabled }
+								disabled={ isDisabled }
+								toggling={ isSavingAnyOption( [
+									'jetpack_subscriptions_login_navigation_enabled',
+								] ) }
+								onChange={ handleLoginNavigationToggleChange }
+								label={
+									<>
+										{ __( 'Add the Subscriber Login Block to the navigation', 'jetpack' ) }
+										{ isBlockTheme && singlePostTemplateEditorUrl && (
+											<>
+												{ '. ' }
+												<ExternalLink href={ singlePostTemplateEditorUrl }>
+													{ __( 'Preview and edit', 'jetpack' ) }
+												</ExternalLink>
+											</>
+										) }
+									</>
+								}
+							/>
 						</FormFieldset>
 					}
 				</SettingsGroup>
@@ -257,6 +286,9 @@ export default withModuleSettingsFormHelpers(
 			isSmEnabled: ownProps.getOptionValue( 'sm_enabled' ),
 			isSubscribePostEndEnabled: ownProps.getOptionValue(
 				'jetpack_subscriptions_subscribe_post_end_enabled'
+			),
+			isLoginNavigationEnabled: ownProps.getOptionValue(
+				'jetpack_subscriptions_login_navigation_enabled'
 			),
 			isSubscriptionSiteFeatureEnabled: isSubscriptionSiteEnabled( state ),
 			isBlockTheme: currentThemeIsBlockTheme( state ),
