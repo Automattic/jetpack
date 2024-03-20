@@ -96,7 +96,7 @@ export default function ProductInterstitial( {
 		( isFreePlan = false, customSlug = null ) => {
 			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
 				product: customSlug ?? slug,
-				productSlug: getProductSlugForTrackEvent( isFreePlan ),
+				product_slug: getProductSlugForTrackEvent( isFreePlan ),
 			} );
 		},
 		[ recordEvent, slug, getProductSlugForTrackEvent ]
@@ -106,7 +106,7 @@ export default function ProductInterstitial( {
 		( isFreePlan = false ) => {
 			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
 				product: bundle,
-				productSlug: getProductSlugForTrackEvent( isFreePlan ),
+				product_slug: getProductSlugForTrackEvent( isFreePlan ),
 			} );
 		},
 		[ recordEvent, bundle, getProductSlugForTrackEvent ]
