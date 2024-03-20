@@ -228,7 +228,7 @@ class Verbum_Admin {
 		// Delete if empty or the default.
 		if ( empty( $val ) || ( $this->default_greeting === $val ) ) {
 			delete_option( 'highlander_comment_form_prompt' );
-			return false;
+			return wp_kses( $this->default_greeting, array() );
 		}
 
 		return wp_kses( $val, array() );
@@ -276,6 +276,7 @@ class Verbum_Admin {
 			$val === $this->default_color_scheme
 		) {
 			delete_option( 'jetpack_comment_form_color_scheme' );
+			return $this->default_color_scheme;
 		}
 
 		return $val;
