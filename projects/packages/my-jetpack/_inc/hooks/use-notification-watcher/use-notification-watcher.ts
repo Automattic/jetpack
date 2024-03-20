@@ -76,7 +76,7 @@ const useBadInstallNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	useEffect( () => {
 		const badInstallAlerts = Object.keys( redBubbleAlerts ).filter( key =>
 			key.endsWith( '-bad-installation' )
-		) as Array< ` ${ string }-bad-installation` >;
+		) as Array< `${ string }-bad-installation` >;
 
 		if ( badInstallAlerts.length === 0 ) {
 			return;
@@ -87,7 +87,7 @@ const useBadInstallNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		const devEnvUrl =
 			'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md';
 
-		const errorMessagae = sprintf(
+		const errorMessage = sprintf(
 			// translators: %s is the name of the plugin that has a bad installation.
 			__(
 				'Your installation of %1$s is incomplete. If you installed %1$s from GitHub, please refer to the developer documentation to set up your development environment.',
@@ -115,7 +115,7 @@ const useBadInstallNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		};
 
 		setNotice( {
-			message: errorMessagae,
+			message: errorMessage,
 			options: noticeOptions,
 			priority: NOTICE_PRIORITY_MEDIUM,
 		} );

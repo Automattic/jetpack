@@ -59,19 +59,13 @@ if ( is_readable( $jetpack_autoloader ) ) {
 	add_filter(
 		'my_jetpack_red_bubble_notification_slugs',
 		function ( $slugs ) {
-			$red_bubble_notificationd_data = array(
-				'jetpack-starter-plugin-bad-installation' => array(
-					'data' => array(
-						'plugin' => 'Jetpack Starter',
-					),
+			$slugs['jetpack-starter-plugin-bad-installation'] = array(
+				'data' => array(
+					'plugin' => 'Jetpack Starter',
 				),
 			);
 
-			if ( ! is_array( $slugs ) ) {
-				return $red_bubble_notificationd_data;
-			}
-
-			return array_merge( $slugs, $red_bubble_notificationd_data );
+			return $slugs;
 		}
 	);
 

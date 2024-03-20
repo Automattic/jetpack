@@ -89,19 +89,13 @@ if ( is_readable( $boost_packages_path ) ) {
 	add_filter(
 		'my_jetpack_red_bubble_notification_slugs',
 		function ( $slugs ) {
-			$red_bubble_notificationd_data = array(
-				'jetpack-boost-plugin-bad-installation' => array(
-					'data' => array(
-						'plugin' => 'Jetpack Boost',
-					),
+			$slugs['jetpack-boost-plugin-bad-installation'] = array(
+				'data' => array(
+					'plugin' => 'Jetpack Boost',
 				),
 			);
 
-			if ( ! is_array( $slugs ) ) {
-				return $red_bubble_notificationd_data;
-			}
-
-			return array_merge( $slugs, $red_bubble_notificationd_data );
+			return $slugs;
 		}
 	);
 

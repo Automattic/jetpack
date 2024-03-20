@@ -67,19 +67,13 @@ if ( is_readable( $jetpack_beta_autoloader ) ) {
 	add_filter(
 		'my_jetpack_red_bubble_notification_slugs',
 		function ( $slugs ) {
-			$red_bubble_notificationd_data = array(
-				'jetpack-beta-plugin-bad-installation' => array(
-					'data' => array(
-						'plugin' => 'Jetpack Beta',
-					),
+			$slugs['jetpack-beta-plugin-bad-installation'] = array(
+				'data' => array(
+					'plugin' => 'Jetpack Beta',
 				),
 			);
 
-			if ( ! is_array( $slugs ) ) {
-				return $red_bubble_notificationd_data;
-			}
-
-			return array_merge( $slugs, $red_bubble_notificationd_data );
+			return $slugs;
 		}
 	);
 
