@@ -999,9 +999,18 @@ class REST_Connector {
 		/**
 		 * Filters the successful response of the XMLRPC test_connection method
 		 *
+		 * @deprecated since $$next-version$$
+		 *
 		 * @param string $response The response string.
 		 */
 		$status = apply_filters( 'jetpack_xmlrpc_test_connection_response', 'success' );
+
+		/**
+		 * Filters the successful response of the API test_connection method
+		 *
+		 * @param string $response The response string.
+		 */
+		$status = apply_filters( 'jetpack_api_test_connection_response', $status );
 
 		return rest_ensure_response(
 			array(
