@@ -224,7 +224,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test other sevent are not deleted if a plugin of a list is deleted.
+	 * Test other events are not deleted if a plugin of a list is deleted.
 	 *
 	 * @covers ::deleted_plugin
 	 */
@@ -446,7 +446,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test deleting a plugin in multiple events do not delete the events.
+	 * Test deleting a plugin in multiple events generate new events that inherit the previous statuses.
 	 *
 	 * @covers ::deleted_plugin
 	 */
