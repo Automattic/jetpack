@@ -101,8 +101,6 @@ class Jetpack_Likes {
 
 		add_action( 'admin_init', array( $this, 'admin_discussion_likes_settings_init' ) ); // Likes notifications.
 
-		add_action( 'admin_bar_menu', array( $this, 'admin_bar_likes' ), 60 );
-
 		add_action( 'wp_enqueue_scripts', array( $this, 'load_styles_register_scripts' ) );
 
 		add_action( 'save_post', array( $this->settings, 'meta_box_save' ) );
@@ -460,74 +458,6 @@ class Jetpack_Likes {
 		wp_enqueue_script( 'jetpack_likes_queuehandler' );
 
 		return $content . $html;
-	}
-
-	/** Checks if admin bar is visible.*/
-	public function is_admin_bar_button_visible() {
-		global $wp_admin_bar;
-
-		if ( ! is_object( $wp_admin_bar ) ) {
-			return false;
-		}
-
-		if ( ( ! is_singular( 'post' ) && ! is_attachment() && ! is_page() ) ) {
-			return false;
-		}
-
-		if ( ! $this->settings->is_likes_visible() ) {
-			return false;
-		}
-
-		if ( ! $this->settings->is_post_likeable() ) {
-			return false;
-		}
-
-		/**
-		 * Filters whether the Like button is enabled in the admin bar.
-		 *
-		 * @module likes
-		 *
-		 * @since 2.2.0
-		 *
-		 * @param bool true Should the Like button be visible in the Admin bar. Default to true.
-		 */
-		return (bool) apply_filters( 'jetpack_admin_bar_likes_enabled', true );
-	}
-
-	/** Adds like section in admin bar. */
-	public function admin_bar_likes() {
-		global $wp_admin_bar;
-
-		$post_id = get_the_ID();
-
-		if ( ! is_numeric( $post_id ) || ! $this->is_admin_bar_button_visible() ) {
-			return;
-		}
-
-		$protocol = 'http';
-		if ( is_ssl() ) {
-			$protocol = 'https';
-		}
-		$blog_id   = Jetpack_Options::get_option( 'id' );
-		$url       = home_url();
-		$url_parts = wp_parse_url( $url );
-		$domain    = $url_parts['host'];
-
-		// Make sure to include the scripts before the iframe otherwise weird things happen.
-		add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
-
-		$src = sprintf( 'https://widgets.wp.com/likes/?ver=%1$s#blog_id=%3$d&amp;post_id=%4$d&amp;origin=%2$s://%5$s', rawurlencode( JETPACK__VERSION ), $protocol, $blog_id, $post_id, $domain );
-
-		$html = "<iframe class='admin-bar-likes-widget jetpack-likes-widget' scrolling='no' frameBorder='0' name='admin-bar-likes-widget' src='$src'></iframe>";
-
-		$node = array(
-			'id'   => 'admin-bar-likes-widget',
-			'meta' => array(
-				'html' => $html,
-			),
-		);
-
-		$wp_admin_bar->add_node( $node );
 	}
 }
 

@@ -11,11 +11,11 @@ return [
     // # Issue statistics:
     // PhanUndeclaredMethod : 25+ occurrences
     // PhanTypeMismatchArgument : 15+ occurrences
-    // PhanUndeclaredConstant : 15+ occurrences
     // PhanTypeArraySuspicious : 10+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 10+ occurrences
     // PhanUnextractableAnnotationSuffix : 10+ occurrences
     // PhanDeprecatedFunction : 9 occurrences
+    // PhanUndeclaredConstant : 9 occurrences
     // PhanTypeMismatchReturn : 8 occurrences
     // PhanNoopNew : 6 occurrences
     // PhanTypeMismatchDefault : 5 occurrences

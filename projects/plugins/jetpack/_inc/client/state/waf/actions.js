@@ -55,6 +55,7 @@ export const updateWafIpAllowList = allowList => {
  * @param {string}  newSettings.ipAllowList        - The IP allow list.
  * @param {string}  newSettings.ipBlockList        - The IP block list.
  * @param {boolean} newSettings.shareData          - Whether to share data.
+ * @param {boolean} newSettings.shareDebugData     - Whether to share detailed data.
  * @returns {Function} - The action.
  */
 export const updateWafSettings = newSettings => {
@@ -69,6 +70,7 @@ export const updateWafSettings = newSettings => {
 				jetpack_waf_ip_allow_list: newSettings.ipAllowList,
 				jetpack_waf_ip_block_list: newSettings.ipBlockList,
 				jetpack_waf_share_data: newSettings.shareData,
+				jetpack_waf_share_debug_data: newSettings.shareDebugData,
 			} )
 			.then( settings => {
 				dispatch( {
