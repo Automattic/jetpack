@@ -21,7 +21,7 @@ class Critical_CSS_Invalidator {
 	 */
 	public static function init() {
 		add_action( 'jetpack_boost_deactivate', array( __CLASS__, 'clear_data' ) );
-		add_action( 'jetpack_boost_ccss_environment_changed', array( __CLASS__, 'handle_environment_change' ) );
+		add_action( 'jetpack_boost_critical_css_environment_changed', array( __CLASS__, 'handle_environment_change' ) );
 		add_filter( 'jetpack_boost_total_problem_count', array( __CLASS__, 'update_boost_problem_count' ) );
 	}
 
