@@ -228,11 +228,11 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test single event is not deleted if a plugin of a list is deleted.
+	 * Test other sevent are not deleted if a plugin of a list is deleted.
 	 *
 	 * @covers ::deleted_plugin
 	 */
-	public function test_event_is_not_deleted_on_plugin_list_deletion() {
+	public function test_events_are_not_deleted_on_plugin_list_deletion() {
 		$plugins = array();
 
 		for ( $i = 0; $i < 3; ++$i ) {
@@ -277,6 +277,68 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( $pre_event->schedule, $post_event->schedule );
 		$this->assertSame( $pre_event->interval, $post_event->interval );
 		$this->assertSame( array( $plugins[0], $plugins[2] ), $post_event->args );
+	}
+
+	/**
+	 * Test deleting a plugin in multiple events do not delete the events.
+	 *
+	 * @covers ::deleted_plugin
+	 */
+	public function test_delete_plugin_in_multiple_events() {
+		$plugins = array();
+
+		for ( $i = 0; $i < 3; ++$i ) {
+			$plugin_name = 'deleted-plugin-' . $i;
+			$plugin_file = "$plugin_name/$plugin_name.php";
+			$plugins[]   = $plugin_file;
+
+			$this->wp_filesystem->mkdir( "$this->plugin_dir/$plugin_name" );
+			$this->populate_file_with_plugin_header( "$this->plugin_dir/$plugin_file", $plugin_name );
+		}
+
+		// Create two events at 08:00 and 09:00 with plugins 0 and 1, and 1 and 2.
+		for ( $i = 0; $i < 2; ++$i ) {
+			$hour    = $i + 8;
+			$request = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+			$request->set_body_params(
+				array(
+					'plugins'  => array( $plugins[ $i ], $plugins[ $i + 1 ] ),
+					'schedule' => array(
+						'timestamp' => strtotime( "next Monday {$hour}:00" ),
+						'interval'  => 'weekly',
+					),
+				)
+			);
+			$result = rest_do_request( $request );
+
+			$this->assertSame( 200, $result->get_status() );
+		}
+
+		// Check that the events are scheduled.
+		$pre_events = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
+		$this->assertCount( 2, $pre_events );
+
+		// Delete second plugin, that appears in both events.
+		$this->assertTrue( delete_plugins( array( $plugins[1] ) ) );
+
+		// Check that the events are still scheduled.
+		$post_events = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
+		$this->assertCount( 2, $post_events );
+
+		$pre_events  = array_values( $pre_events );
+		$post_events = array_values( $post_events );
+		$map_event   = function ( $event ) {
+			$new_event            = new \stdClass();
+			$new_event->timestamp = $event->timestamp;
+			$new_event->schedule  = $event->schedule;
+			$new_event->interval  = $event->interval;
+
+			return $new_event;
+		};
+
+		$this->assertCount( 2, $pre_events );
+		$this->assertCount( 2, $post_events );
+		$this->assertEquals( array_map( $map_event, $pre_events ), array_map( $map_event, $post_events ) );
 	}
 
 	/**
