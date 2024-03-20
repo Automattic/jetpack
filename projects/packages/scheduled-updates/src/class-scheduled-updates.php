@@ -387,14 +387,6 @@ class Scheduled_Updates {
 				}
 			}
 		}
-
-		if ( wp_is_auto_update_enabled_for_type( 'plugin' ) ) {
-			$auto_update_plugins   = get_option( 'auto_update_plugins', array() );
-			$auto_update_plugins[] = $plugin_file;
-			$auto_update_plugins   = array_unique( $auto_update_plugins );
-			usort( $auto_update_plugins, 'strnatcasecmp' );
-			update_option( 'auto_update_plugins', $auto_update_plugins );
-		}
 	}
 
 	/**

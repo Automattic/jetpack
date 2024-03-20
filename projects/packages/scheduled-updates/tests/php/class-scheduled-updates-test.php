@@ -83,6 +83,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 		wp_clear_scheduled_hook( Scheduled_Updates::PLUGIN_CRON_HOOK );
 		delete_option( 'jetpack_scheduled_update_statuses' );
+		delete_option( 'auto_update_plugins' );
 
 		parent::tear_down_wordbless();
 	}
@@ -172,7 +173,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @covers ::deleted_plugin
 	 */
-	public function a_test_base_deleted_plugin_checks() {
+	public function test_base_deleted_plugin_checks() {
 		$plugin_name = 'deleted-plugin';
 		$plugin_file = "$plugin_name/$plugin_name.php";
 		$is_deleted  = false;
@@ -200,17 +201,12 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @covers ::deleted_plugin
 	 */
-	public function a_test_event_is_deleted_on_plugin_deletion() {
-		$plugin_name = 'deleted-plugin';
-		$plugin_file = "$plugin_name/$plugin_name.php";
-
-		$this->wp_filesystem->mkdir( "$this->plugin_dir/$plugin_name" );
-		$this->populate_file_with_plugin_header( "$this->plugin_dir/$plugin_file", $plugin_name );
-
+	public function test_event_is_deleted_on_plugin_deletion() {
+		$plugins = $this->create_plugins_for_deletion( 1 );
 		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
 		$request->set_body_params(
 			array(
-				'plugins'  => array( $plugin_file ),
+				'plugins'  => $plugins,
 				'schedule' => array(
 					'timestamp' => strtotime( 'next Monday 8:00' ),
 					'interval'  => 'weekly',
@@ -223,7 +219,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertCount( 1, wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
-		$this->assertTrue( delete_plugins( array( $plugin_file ) ) );
+		$this->assertTrue( delete_plugins( array( $plugins[0] ) ) );
 		$this->assertCount( 0, wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
 	}
 
@@ -233,16 +229,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 * @covers ::deleted_plugin
 	 */
 	public function test_events_are_not_deleted_on_plugin_list_deletion() {
-		$plugins = array();
-
-		for ( $i = 0; $i < 3; ++$i ) {
-			$plugin_name = 'deleted-plugin-' . $i;
-			$plugin_file = "$plugin_name/$plugin_name.php";
-			$plugins[]   = $plugin_file;
-
-			$this->wp_filesystem->mkdir( "$this->plugin_dir/$plugin_name" );
-			$this->populate_file_with_plugin_header( "$this->plugin_dir/$plugin_file", $plugin_name );
-		}
+		$plugins = $this->create_plugins_for_deletion( 3 );
 
 		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
 		$request->set_body_params(
@@ -285,16 +272,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 * @covers ::deleted_plugin
 	 */
 	public function test_delete_plugin_in_multiple_events() {
-		$plugins = array();
-
-		for ( $i = 0; $i < 3; ++$i ) {
-			$plugin_name = 'deleted-plugin-' . $i;
-			$plugin_file = "$plugin_name/$plugin_name.php";
-			$plugins[]   = $plugin_file;
-
-			$this->wp_filesystem->mkdir( "$this->plugin_dir/$plugin_name" );
-			$this->populate_file_with_plugin_header( "$this->plugin_dir/$plugin_file", $plugin_name );
-		}
+		$plugins = $this->create_plugins_for_deletion( 3 );
 
 		// Create two events at 08:00 and 09:00 with plugins 0 and 1, and 1 and 2.
 		for ( $i = 0; $i < 2; ++$i ) {
@@ -339,6 +317,27 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		$this->assertCount( 2, $pre_events );
 		$this->assertCount( 2, $post_events );
 		$this->assertEquals( array_map( $map_event, $pre_events ), array_map( $map_event, $post_events ) );
+	}
+
+	/**
+	 * Create a list of plugins to be deleted.
+	 *
+	 * @param int $count The number of plugins to create.
+	 * @return array The list of plugins to be deleted.
+	 */
+	private function create_plugins_for_deletion( $count ) {
+		$plugins = array();
+
+		for ( $i = 0; $i < $count; ++$i ) {
+			$plugin_name = 'deleted-plugin-' . $i;
+			$plugin_file = "$plugin_name/$plugin_name.php";
+			$plugins[]   = $plugin_file;
+
+			$this->wp_filesystem->mkdir( "$this->plugin_dir/$plugin_name" );
+			$this->populate_file_with_plugin_header( "$this->plugin_dir/$plugin_file", $plugin_name );
+		}
+
+		return $plugins;
 	}
 
 	/**
