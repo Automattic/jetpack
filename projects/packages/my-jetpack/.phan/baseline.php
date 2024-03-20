@@ -10,7 +10,6 @@
 return [
     // # Issue statistics:
     // PhanTypeMismatchArgumentNullable : 60+ occurrences
-    // PhanUndeclaredConstant : 45+ occurrences
     // PhanTypeMismatchPropertyDefault : 15+ occurrences
     // PhanParamTooMany : 10+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 10+ occurrences
@@ -35,6 +34,7 @@ return [
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
     // PhanUndeclaredClassProperty : 1 occurrence
     // PhanUndeclaredClassStaticProperty : 1 occurrence
+    // PhanUndeclaredConstant : 1 occurrence
     // PhanUndeclaredFunction : 1 occurrence
     // PhanUndeclaredTypeProperty : 1 occurrence
     // PhanUnextractableAnnotationSuffix : 1 occurrence
@@ -42,14 +42,14 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-activitylog.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'src/class-initializer.php' => ['PhanImpossibleCondition', 'PhanNoopNew', 'PhanParamTooMany', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredConstant', 'PhanUndeclaredTypeProperty', 'PhanUndeclaredTypeReturnType'],
-        'src/class-jetpack-manage.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredConstant'],
+        'src/class-initializer.php' => ['PhanImpossibleCondition', 'PhanNoopNew', 'PhanParamTooMany', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredTypeProperty', 'PhanUndeclaredTypeReturnType'],
+        'src/class-jetpack-manage.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'src/class-products.php' => ['PhanNonClassMethodCall'],
         'src/class-rest-product-data.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn'],
         'src/class-rest-products.php' => ['PhanParamTooMany', 'PhanPluginMixedKeyNoKey', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-rest-purchases.php' => ['PhanParamTooMany', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredTypeReturnType'],
-        'src/class-rest-zendesk-chat.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUnextractableAnnotationSuffix'],
-        'src/class-wpcom-products.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredConstant', 'PhanUnextractableAnnotation'],
+        'src/class-rest-zendesk-chat.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredFunction', 'PhanUnextractableAnnotationSuffix'],
+        'src/class-wpcom-products.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUnextractableAnnotation'],
         'src/products/class-anti-spam.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
         'src/products/class-backup.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyDefault'],
         'src/products/class-boost.php' => ['PhanTypeMismatchPropertyDefault', 'PhanUndeclaredTypeParameter'],
@@ -62,22 +62,21 @@ return [
         'src/products/class-product.php' => ['PhanAbstractStaticMethodCallInStatic', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
         'src/products/class-protect.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyDefault'],
         'src/products/class-scan.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal'],
-        'src/products/class-search-stats.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredConstant'],
+        'src/products/class-search-stats.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'src/products/class-search.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchReturnNullable', 'PhanUndeclaredClassMethod'],
         'src/products/class-security.php' => ['PhanTypeMismatchArgumentNullable'],
         'src/products/class-social.php' => ['PhanTypeMismatchPropertyDefault'],
         'src/products/class-starter.php' => ['PhanTypeMismatchArgumentNullable'],
         'src/products/class-stats.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal'],
         'src/products/class-videopress.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
-        'tests/php/test-backup-product.php' => ['PhanTypeMismatchArgumentNullable', 'PhanUndeclaredConstant'],
-        'tests/php/test-hybrid-product.php' => ['PhanTypeMismatchArgumentNullable', 'PhanUndeclaredConstant'],
+        'tests/php/test-backup-product.php' => ['PhanTypeMismatchArgumentNullable'],
+        'tests/php/test-hybrid-product.php' => ['PhanTypeMismatchArgumentNullable'],
         'tests/php/test-module-product.php' => ['PhanUndeclaredClassStaticProperty', 'PhanUndeclaredConstant'],
-        'tests/php/test-product-multiple-filenames.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault', 'PhanUndeclaredConstant'],
-        'tests/php/test-products-rest.php' => ['PhanUndeclaredConstant'],
+        'tests/php/test-product-multiple-filenames.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
         'tests/php/test-products.php' => ['PhanNonClassMethodCall', 'PhanTypeArraySuspicious', 'PhanUndeclaredTypeParameter'],
-        'tests/php/test-search-product.php' => ['PhanTypeMismatchArgumentNullable', 'PhanUndeclaredConstant'],
-        'tests/php/test-social-product.php' => ['PhanTypeMismatchArgumentNullable', 'PhanUndeclaredConstant'],
-        'tests/php/test-videopress-product.php' => ['PhanTypeMismatchArgumentNullable', 'PhanUndeclaredConstant'],
+        'tests/php/test-search-product.php' => ['PhanTypeMismatchArgumentNullable'],
+        'tests/php/test-social-product.php' => ['PhanTypeMismatchArgumentNullable'],
+        'tests/php/test-videopress-product.php' => ['PhanTypeMismatchArgumentNullable'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)
