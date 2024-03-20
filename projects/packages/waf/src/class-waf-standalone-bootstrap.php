@@ -140,9 +140,10 @@ class Waf_Standalone_Bootstrap {
 
 		$autoloader_file = $this->locate_autoloader_file();
 
-		$bootstrap_file    = $this->get_bootstrap_file_path();
-		$mode_option       = get_option( Waf_Runner::MODE_OPTION_NAME, false );
-		$share_data_option = get_option( Waf_Runner::SHARE_DATA_OPTION_NAME, false );
+		$bootstrap_file          = $this->get_bootstrap_file_path();
+		$mode_option             = get_option( Waf_Runner::MODE_OPTION_NAME, false );
+		$share_data_option       = get_option( Waf_Runner::SHARE_DATA_OPTION_NAME, false );
+		$share_debug_data_option = get_option( Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME, false );
 
 		// phpcs:disable WordPress.PHP.DevelopmentFunctions
 		$code = "<?php\n"
@@ -150,6 +151,7 @@ class Waf_Standalone_Bootstrap {
 			. "if ( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF ) return;\n"
 			. sprintf( "define( 'JETPACK_WAF_MODE', %s );\n", var_export( $mode_option ? $mode_option : 'silent', true ) )
 			. sprintf( "define( 'JETPACK_WAF_SHARE_DATA', %s );\n", var_export( $share_data_option, true ) )
+			. sprintf( "define( 'JETPACK_WAF_SHARE_DEBUG_DATA', %s );\n", var_export( $share_debug_data_option, true ) )
 			. sprintf( "define( 'JETPACK_WAF_DIR', %s );\n", var_export( JETPACK_WAF_DIR, true ) )
 			. sprintf( "define( 'JETPACK_WAF_WPCONFIG', %s );\n", var_export( JETPACK_WAF_WPCONFIG, true ) )
 			. 'require_once ' . var_export( $autoloader_file, true ) . ";\n"
