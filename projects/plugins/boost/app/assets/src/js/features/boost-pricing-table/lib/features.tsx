@@ -130,7 +130,7 @@ export const boostFeatureList: FeatureItem[] = [
 		premium: (
 			<PricingTableItem
 				isIncluded={ true }
-				label={ <strong>{ __( 'Automatically updated', 'jetpack-boost' ) }</strong> }
+				label={ <strong>{ __( 'Included', 'jetpack-boost' ) }</strong> }
 				tooltipTitle={ __( 'Automatic Critical CSS regeneration', 'jetpack-boost' ) }
 				tooltipInfo={ automaticallyUpdatedContext }
 				tooltipClassName="wide-tooltip"
