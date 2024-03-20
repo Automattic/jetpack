@@ -8,8 +8,7 @@
  *
  * But he does have a bit of a point. Before adding a constant here, please
  * consider whether you could use a function instead. This includes things like
- * cookie-related constants (you can probably use core's cookie-setting methods
- * instead) and things like DB_HOST (use `$wpdb` instead).
+ * DB_HOST (use `$wpdb` instead).
  *
  * Note the actual values shouldn't matter here, but getting the types right is
  * probably a good idea. Avoid `true` and `false`, as those are distinct from
@@ -24,11 +23,15 @@
 define( 'ABSPATH', './' );
 define( 'WP_DEBUG', (bool) $v );
 define( 'WP_DEBUG_LOG', (bool) $v );
-define( 'WP_PLUGIN_DIR', './' );
-define( 'WPMU_PLUGIN_DIR', './' );
-define( 'EMPTY_TRASH_DAYS', 30 * 86400 );
 define( 'SCRIPT_DEBUG', (bool) $v );
-define( 'WP_LANG_DIR', './' );
+define( 'WPINC', 'wp-includes' );
+define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
+define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins' );
+define( 'WPMU_PLUGIN_DIR', WP_CONTENT_DIR . '/mu-plugins' );
+define( 'WP_LANG_DIR', WP_CONTENT_DIR . '/languages' );
+define( 'WP_CONTENT_URL', 'http://example.com/wp-content' );
+define( 'WP_PLUGIN_URL', WP_CONTENT_URL . '/plugins' );
+define( 'WPMU_PLUGIN_URL', WP_CONTENT_URL . '/mu-plugins' );
 
 // Constants for expressing human-readable intervals.
 define( 'MINUTE_IN_SECONDS', 60 );
@@ -47,6 +50,27 @@ define( 'PB_IN_BYTES', 1024 * TB_IN_BYTES );
 define( 'EB_IN_BYTES', 1024 * PB_IN_BYTES );
 define( 'ZB_IN_BYTES', 1024 * EB_IN_BYTES );
 define( 'YB_IN_BYTES', 1024 * ZB_IN_BYTES );
+
+// Limits and defaults.
+define( 'EMPTY_TRASH_DAYS', 30 );
+define( 'WP_CRON_LOCK_TIMEOUT', MINUTE_IN_SECONDS );
+define( 'WP_MAX_MEMORY_LIMIT', '256M' );
+define( 'WP_MEMORY_LIMIT', '64M' );
+
+// Cookie-related constants, see `wp_cookie_constants()`.
+define( 'COOKIEHASH', md5( site_url() ) );
+define( 'USER_COOKIE', 'wordpressuser_' . COOKIEHASH );
+define( 'PASS_COOKIE', 'wordpresspass_' . COOKIEHASH );
+define( 'AUTH_COOKIE', 'wordpress_' . COOKIEHASH );
+define( 'SECURE_AUTH_COOKIE', 'wordpress_sec_' . COOKIEHASH );
+define( 'LOGGED_IN_COOKIE', 'wordpress_logged_in_' . COOKIEHASH );
+define( 'TEST_COOKIE', 'wordpress_test_cookie' );
+define( 'COOKIEPATH', preg_replace( '|https?://[^/]+|i', '', get_option( 'home' ) . '/' ) );
+define( 'SITECOOKIEPATH', preg_replace( '|https?://[^/]+|i', '', get_option( 'siteurl' ) . '/' ) );
+define( 'ADMIN_COOKIE_PATH', SITECOOKIEPATH . 'wp-admin' );
+define( 'PLUGINS_COOKIE_PATH', preg_replace( '|https?://[^/]+|i', '', WP_PLUGIN_URL ) );
+define( 'COOKIE_DOMAIN', $multisite ? '.example.com' : false );
+define( 'RECOVERY_MODE_COOKIE', 'wordpress_rec_' . COOKIEHASH );
 
 // wpdb method parameters.
 define( 'OBJECT', 'OBJECT' );
@@ -80,3 +104,6 @@ define( 'EP_ALL', EP_PERMALINK | EP_ATTACHMENT | EP_ROOT | EP_COMMENTS | EP_SEAR
 
 // Templating-related WordPress constants.
 define( 'WP_DEFAULT_THEME', 'twentytwentywhenever' );
+
+// Testing constants.
+define( 'WP_TESTS_DOMAIN', 'example.org' );

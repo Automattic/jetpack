@@ -22,7 +22,6 @@ return [
     // PhanPossiblyUndeclaredVariable : 6 occurrences
     // PhanUndeclaredClassMethod : 6 occurrences
     // PhanUndeclaredTypeParameter : 6 occurrences
-    // PhanUndeclaredConstant : 5 occurrences
     // PhanUndeclaredTypeReturnType : 5 occurrences
     // PhanCommentParamOnEmptyParamList : 3 occurrences
     // PhanPluginUseReturnValueInternalKnown : 3 occurrences
@@ -30,6 +29,7 @@ return [
     // PhanTypeMismatchPropertyDefault : 3 occurrences
     // PhanTypePossiblyInvalidDimOffset : 3 occurrences
     // PhanUndeclaredClassConstant : 3 occurrences
+    // PhanUndeclaredConstant : 3 occurrences
     // PhanNoopNew : 2 occurrences
     // PhanRedundantCondition : 2 occurrences
     // PhanTypeMismatchReturn : 2 occurrences
@@ -86,7 +86,6 @@ return [
         'app/lib/critical-css/source-providers/providers/WP_Core_Provider.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'app/lib/minify/Concatenate_CSS.php' => ['PhanPluginUseReturnValueInternalKnown', 'PhanTypeMismatchArgument'],
         'app/lib/minify/Concatenate_JS.php' => ['PhanPluginUseReturnValueInternalKnown', 'PhanPossiblyUndeclaredVariable', 'PhanTypeInvalidUnaryOperandIncOrDec', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypePossiblyInvalidDimOffset'],
-        'app/lib/minify/Dependency_Path_Mapping.php' => ['PhanUndeclaredConstant'],
         'app/lib/minify/functions-helpers.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchDefault', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant'],
         'app/lib/minify/functions-service.php' => ['PhanImpossibleTypeComparison', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginNeverReturnFunction', 'PhanPluginUseReturnValueInternalKnown', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullableInternal'],
         'app/modules/Modules_Index.php' => ['PhanCommentObjectInClassConstantType'],
