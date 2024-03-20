@@ -48,9 +48,7 @@ export function tooltipsPlugin( periods ) {
 		}
 
 		container.addEventListener( 'mouseleave', () => {
-			if ( ! u.cursor._lock ) {
-				hideTips();
-			}
+			hideTips();
 		} );
 
 		container.addEventListener( 'mouseenter', () => {
