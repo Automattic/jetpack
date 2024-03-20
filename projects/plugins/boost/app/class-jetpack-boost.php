@@ -112,7 +112,7 @@ class Jetpack_Boost {
 
 		add_action( 'init', array( $this, 'init_textdomain' ) );
 
-		add_action( 'handle_environment_change', array( $this, 'handle_environment_change' ), 10, 2 );
+		add_action( 'jetpack_boost_ccss_environment_changed', array( $this, 'handle_environment_change' ), 10, 2 );
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
