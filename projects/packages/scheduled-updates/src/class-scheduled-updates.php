@@ -359,8 +359,6 @@ class Scheduled_Updates {
 	 * @param bool   $deleted     Whether the plugin deletion was successful.
 	 */
 	public static function deleted_plugin( $plugin_file, $deleted ) {
-		require_once ABSPATH . 'wp-admin/includes/update.php';
-
 		if ( ! $deleted ) {
 			return;
 		}
@@ -384,31 +382,29 @@ class Scheduled_Updates {
 				return;
 			}
 
-			$index = array_search( $plugin_file, $event->args, true );
+			$plugins = array_values( array_diff( $event->args, array( $plugin_file ) ) );
 
-			if ( false !== $index ) {
-				unset( $event->args[ $index ] );
+			if ( ! count( $plugins ) ) {
+				continue;
 			}
 
-			if ( count( $event->args ) ) {
-				// There are still plugins to update. Schedule a new event.
-				$plugins     = array_values( $event->args );
-				$result      = wp_schedule_event( $event->timestamp, $event->schedule, self::PLUGIN_CRON_HOOK, $plugins, true );
-				$schedule_id = self::generate_schedule_id( $plugins );
-				$status      = self::get_scheduled_update_status( $id );
+			// There are still plugins to update. Schedule a new event.
+			$result = wp_schedule_event( $event->timestamp, $event->schedule, self::PLUGIN_CRON_HOOK, $plugins, true );
 
-				if ( is_wp_error( $result ) || false === $result ) {
-					return;
-				}
+			if ( is_wp_error( $result ) || false === $result ) {
+				return;
+			}
 
-				// Inherit the status from the previous schedule.
-				if ( $status ) {
-					self::set_scheduled_update_status(
-						$schedule_id,
-						$status['last_run_timestamp'],
-						$status['last_run_status']
-					);
-				}
+			$schedule_id = self::generate_schedule_id( $plugins );
+			$status      = self::get_scheduled_update_status( $id );
+
+			// Inherit the status from the previous schedule.
+			if ( $status ) {
+				self::set_scheduled_update_status(
+					$schedule_id,
+					$status['last_run_timestamp'],
+					$status['last_run_status']
+				);
 			}
 		}
 	}
