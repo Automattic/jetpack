@@ -176,15 +176,16 @@ class Connections_Post_Field {
 	public function get( $post_array, $field_name, $request, $object_type ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $publicize;
 
+		$post_id          = $post_array['id'] ?? 0;
 		$full_schema      = $this->get_schema();
-		$permission_check = $this->permission_check( empty( $post_array['id'] ) ? 0 : $post_array['id'] );
+		$permission_check = $this->permission_check( $post_id );
 		if ( is_wp_error( $permission_check ) ) {
 			return $full_schema['default'];
 		}
 
 		$schema      = $full_schema['items'];
 		$properties  = array_keys( $schema['properties'] );
-		$connections = $publicize->get_filtered_connection_data( $post_array['id'] );
+		$connections = $publicize->get_filtered_connection_data( $post_id );
 
 		$output_connections = array();
 		foreach ( $connections as $connection ) {

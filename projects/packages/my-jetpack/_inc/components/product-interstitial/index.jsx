@@ -9,8 +9,10 @@ import React, { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
  */
+import { MyJetpackRoutes } from '../../constants';
 import useActivate from '../../data/products/use-activate';
 import useProduct from '../../data/products/use-product';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
@@ -43,6 +45,7 @@ import videoPressImage from './videopress.png';
  * @param {number} [props.quantity]              - The quantity of the product to purchase
  * @param {number} [props.directCheckout]        - Whether to go straight to the checkout page, e.g. for products with usage tiers
  * @param {boolean} [props.highlightLastFeature] - Whether to highlight the last feature in the list of features
+ * @param {object} [props.ctaCallback]           - Callback when the product CTA is clicked. Triggered before any activation/checkout process occurs
  * @returns {object}                               ProductInterstitial react component.
  */
 export default function ProductInterstitial( {
@@ -59,6 +62,7 @@ export default function ProductInterstitial( {
 	quantity = null,
 	directCheckout = false,
 	highlightLastFeature = false,
+	ctaCallback = null,
 } ) {
 	const { detail } = useProduct( slug );
 	const { activate, isPending: isActivating } = useActivate( slug );
@@ -66,7 +70,7 @@ export default function ProductInterstitial( {
 	const { isUpgradableByBundle, tiers, pricingForUi } = detail;
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
-	const { myJetpackCheckoutUri } = window?.myJetpackInitialState ?? {};
+	const { myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
@@ -108,13 +112,15 @@ export default function ProductInterstitial( {
 		[ recordEvent, bundle, getProductSlugForTrackEvent ]
 	);
 
-	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
+	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( MyJetpackRoutes.Home );
 
 	const clickHandler = useCallback(
 		( checkout, product, tier ) => {
 			let postCheckoutUrl = product?.postCheckoutUrl
 				? product?.postCheckoutUrl
 				: myJetpackCheckoutUri;
+
+			ctaCallback?.( { slug, product, tier } );
 
 			if ( product?.isBundle || directCheckout ) {
 				// Get straight to the checkout page.
@@ -163,7 +169,14 @@ export default function ProductInterstitial( {
 				}
 			);
 		},
-		[ directCheckout, activate, navigateToMyJetpackOverviewPage, slug, myJetpackCheckoutUri ]
+		[
+			directCheckout,
+			activate,
+			navigateToMyJetpackOverviewPage,
+			slug,
+			myJetpackCheckoutUri,
+			ctaCallback,
+		]
 	);
 
 	return (
@@ -198,6 +211,7 @@ export default function ProductInterstitial( {
 							clickHandler={ clickHandler }
 							onProductButtonClick={ clickHandler }
 							trackProductButtonClick={ trackProductClick }
+							isFetching={ isActivating }
 						/>
 					) : (
 						<Container

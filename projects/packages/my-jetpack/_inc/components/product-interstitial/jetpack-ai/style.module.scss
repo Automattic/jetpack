@@ -1,5 +1,6 @@
 @import '../style.module.scss';
 
+/* More requests */
 .card {
 	background-color: var( --jp-white );
 	height: 100%;
@@ -10,4 +11,239 @@
 .buttons-row {
 	display: flex;
 	gap: calc( var( --spacing-base ) * 2 );
+}
+
+/* Interstitial */
+.product-interstitial__product-header {
+	display: flex;
+	flex-wrap: nowrap;
+	padding-top: calc( var( --spacing-base ) * 3 );
+	padding-bottom: calc( var( --spacing-base ) * 3 );
+	// margin-top: -24px; // if nothing above, this compensates container's padding
+	align-items: center;
+	font-size: 22px;
+
+	.product-interstitial__product-header-name {
+		padding-left: var( --spacing-base );
+		padding-bottom: calc( var( --spacing-base ) / 3 );
+	}
+}
+
+
+.product-interstitial__hero-section {
+	display: flex;
+	justify-content: space-between;
+	max-width: 1128px;
+	margin: 0 auto;
+	flex-wrap: wrap;
+	gap: calc( var( --spacing-base ) * 6 );
+
+	@media only screen and (max-width: 1366px) {
+		padding-left: calc( var( --spacing-base ) * 3 );
+		padding-right: calc( var( --spacing-base ) * 3 );
+	}
+
+	.product-interstitial__hero-content {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+
+		@media screen and ( min-width: 960px ) {
+			max-width: 70%;
+		}
+
+		.product-interstitial__hero-heading {
+			font-size: 36px;
+			line-height: 40px;
+			font-weight: 700;
+		}
+
+		.product-interstitial__hero-sub-heading {
+			font-weight: normal;
+			margin: calc( var( --spacing-base ) * 3 ) 0;
+		}
+
+		.product-interstitial__hero-cta {
+			font-size: 16px;
+			font-weight: 500;
+			letter-spacing: -0.01em;
+			line-height: 24px;
+			padding: var( --spacing-base ) calc( var( --spacing-base ) * 3 );
+			align-self: flex-start;
+		}
+	}
+
+	.product-interstitial__hero-side {
+		display: flex;
+		gap: calc(var(--spacing-base)* 3);
+		align-items: center;
+		flex-wrap: wrap;
+		justify-content: flex-end;
+
+		@media only screen and (max-width: 430px) {
+			flex: 1;
+		}
+	}
+
+	// stolen from stats-section
+	.stats-card {
+		flex-grow: 0;
+		border-color: var(--jp-gray-5);
+		border-radius: 5px;
+		padding: calc( var( --spacing-base ) * 2 ) calc( var( --spacing-base ) * 3 );
+		margin-bottom: 0;
+		height: 168px;
+		width: 168px;
+
+		@media only screen and (max-width: 960px) {
+			width: 30vw;
+		}
+
+		@media only screen and (max-width: 430px) {
+			width: 100%;
+			min-width: 168px;
+		}
+
+		// the card uses an internal wrapper for the content
+		& > div:first-child {
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+		}
+
+		.stats-card-icon-check {
+			fill: var( --jp-green );
+		}
+
+		.product-interstitial__stats-card-text {
+			margin-bottom: var( --spacing-base );
+		}
+
+		.product-interstitial__stats-card-value {
+			font-size: 36px;
+			font-weight: 700;
+		}
+	}
+}
+
+.product-interstitial__section {
+	font-size: 16px;
+	line-height: 24px;
+	padding-top: calc( var( --spacing-base ) * 6 );
+	padding-bottom: calc( var( --spacing-base ) * 6 );
+
+	&:first-child {
+		// exception for the header section
+		padding-top: 0;
+		padding-bottom: 0;
+	}
+
+	&:nth-child(even) {
+		background-color: var( --jp-white-off );
+		padding-top: calc( var( --spacing-base ) * 8 );
+		padding-bottom: calc( var( --spacing-base ) * 8 );
+
+		@media only screen and (max-width: 960px) {
+			padding-top: calc( var( --spacing-base ) * 6 );
+			padding-bottom: calc( var( --spacing-base ) * 6 );
+		}
+	}
+
+	a {
+		color: inherit;
+	}
+
+	.product-interstitial__section-wrapper {
+		max-width: 744px;
+		margin: 0 auto;
+
+		@media only screen and (max-width: 1366px) {
+			padding-left: calc( var( --spacing-base ) * 3 );
+			padding-right: calc( var( --spacing-base ) * 3 );
+		}
+	}
+
+	.product-interstitial__section-wrapper-wide {
+		max-width: 1128px;
+		margin: 0 auto;
+
+		@media only screen and (max-width: 1366px) {
+			padding-left: calc( var( --spacing-base ) * 3 );
+			padding-right: calc( var( --spacing-base ) * 3 );
+		}
+	}
+
+	.product-interstitial__section-heading {
+		font-size: 34px;
+		font-weight: normal;
+		margin: 0;
+		line-height: 40px;
+	}
+
+	.product-interstitial__section-sub-heading {
+		font-size: 16px;
+	}
+
+	.product-interstitial__section-emoji {
+		font-size: 48px;
+		line-height: 24px;
+		margin-bottom: calc(var(--spacing-base)* 6);
+	}
+}
+
+.product-interstitial__usage-videos {
+	display: flex;
+	gap: calc( var( --spacing-base ) * 3 );
+	padding: calc( var( --spacing-base ) * 2 ) 0;
+	flex-direction: column;
+
+	.product-interstitial__usage-videos-item {
+		display: flex;
+		gap: calc( var( --spacing-base ) * 3 );
+		min-height: 190px;
+		padding: calc( var( --spacing-base ) * 2 ) 0;
+		flex-wrap: wrap;
+	}
+
+	.product-interstitial__usage-videos-video {
+		width: 280px;
+		height: 157.5px;
+		background-color: var( --jp-white-off );
+		border-radius: calc( var( --spacing-base ) / 2 );
+
+		iframe { border-radius: inherit; } // so VP embeds also take it
+	}
+
+	.product-interstitial__usage-videos-content {
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-base);
+		flex: 1;
+		min-width: 280px;
+
+		.product-interstitial__usage-videos-heading {
+			font-size: 20px;
+			line-height: 22px;
+			font-weight: 500;
+		}
+
+		.product-interstitial__usage-videos-text {
+			font-size: 16px;
+			line-height: 24px;
+			font-weight: 400;
+			color: var( --jp-gray-60 );
+			flex-grow: 1;
+		}
+
+		.product-interstitial__usage-videos-link {
+			padding-left: 0;
+			font-size: 15px;
+			text-decoration: underline;
+		}
+	}
+}
+
+.product-interstitial__ai-notice {
+	margin-bottom: calc( var( --spacing-base ) * 8 );
 }

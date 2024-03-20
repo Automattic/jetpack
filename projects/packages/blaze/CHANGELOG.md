@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.2] - 2024-03-18
+### Changed
+- Internal updates.
+
+## [0.19.1] - 2024-03-12
+### Changed
+- Updated package dependencies. [#36325]
+
+### Fixed
+- Fixes the response body for the errors returned by the Blaze controller [#36134]
+
 ## [0.19.0] - 2024-03-04
 ### Added
 - Add support for running DSP Campaign Creation API endpoint v1.1 from DSP widget [#36120]
@@ -312,6 +323,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.19.2]: https://github.com/automattic/jetpack-blaze/compare/v0.19.1...v0.19.2
+[0.19.1]: https://github.com/automattic/jetpack-blaze/compare/v0.19.0...v0.19.1
 [0.19.0]: https://github.com/automattic/jetpack-blaze/compare/v0.18.1...v0.19.0
 [0.18.1]: https://github.com/automattic/jetpack-blaze/compare/v0.18.0...v0.18.1
 [0.18.0]: https://github.com/automattic/jetpack-blaze/compare/v0.17.0...v0.18.0

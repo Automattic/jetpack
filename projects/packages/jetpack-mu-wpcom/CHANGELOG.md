@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.18.0] - 2024-03-20
+### Changed
+- The GitHub deployments feature check has been removed. [#36383]
+- Updated copy by replacing "subscribers" with "emails" [#36450]
+
+### Fixed
+- Fixed a bug where locked mode was applied to all sites in /me/sites that followed a site with locked mode enabled. [#36388]
+- Hosting menu is only available to admin with a wpcom account [#36405]
+- Wrong text in the editor placeholder. It was not translated [#36454]
+
+## [5.17.0] - 2024-03-15
+### Added
+- Added information regarding if github deployments is active to the wp-admin command palette config. [#36324]
+- Untangle: Enable both Calypso & Core admin color schemes in Users -> Profile [#36341]
+
+## [5.16.1] - 2024-03-12
+### Changed
+- Internal updates.
+
+## [5.16.0] - 2024-03-12
+### Added
+- Added Connections to the Hosting menu [#36302]
+
+### Changed
+- Updated package dependencies. [#36325]
+
+## [5.15.2] - 2024-03-11
+### Changed
+- External dependencies of the Command Palette are now explicitly declared. [#36184]
+- Jetpack MU WPCOM: Added Bytespider robots.txt [#36260]
+- Remove external-icon from Hosting menu [#36221]
+
+### Fixed
+- unregisters unnecessary items from the customizer for atomic sites on block theme [#36161]
+- Untangle: correctly show the current homepage when live-previewing another block theme [#36178]
+
 ## [5.15.1] - 2024-03-05
 ### Changed
 - Internal updates.
@@ -630,6 +666,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.18.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.17.0...v5.18.0
+[5.17.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.16.1...v5.17.0
+[5.16.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.16.0...v5.16.1
+[5.16.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.15.2...v5.16.0
+[5.15.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.15.1...v5.15.2
 [5.15.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.15.0...v5.15.1
 [5.15.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.14.1...v5.15.0
 [5.14.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.14.0...v5.14.1

@@ -17,7 +17,7 @@ const CSVExport = ( { onExport } ) => {
 			const a = document.createElement( 'a' );
 			a.href = window.URL.createObjectURL( blob );
 
-			const contentDispositionHeader = response.headers.get( 'Content-Disposition' );
+			const contentDispositionHeader = response.headers.get( 'Content-Disposition' ) ?? '';
 			a.download =
 				contentDispositionHeader.split( 'filename=' )[ 1 ] || 'Jetpack Form Responses.csv';
 

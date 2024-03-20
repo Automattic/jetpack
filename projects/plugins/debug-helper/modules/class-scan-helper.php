@@ -3,6 +3,7 @@
  * Jetpack Scan helper class.
  *
  * @package automattic/jetpack-debug-helper
+ *
  * @phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
  */
 

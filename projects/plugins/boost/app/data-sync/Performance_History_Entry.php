@@ -28,11 +28,20 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 			);
 		}
 
+		$annotations = isset( $result['data']['annotations'] ) ? $result['data']['annotations'] : array();
+		// Sanitize the annotations
+		foreach ( $annotations as $key => $annotation ) {
+			$annotations[ $key ] = array(
+				'timestamp' => $annotation['timestamp'],
+				'text'      => wp_kses_post( $annotation['text'] ),
+			);
+		}
+
 		return array(
 			'startDate'   => $result['data']['_meta']['start'],
 			'endDate'     => $result['data']['_meta']['end'],
 			'periods'     => $result['data']['periods'],
-			'annotations' => isset( $result['data']['annotations'] ) ? $result['data']['annotations'] : array(),
+			'annotations' => $annotations,
 		);
 	}
 

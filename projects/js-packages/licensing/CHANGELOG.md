@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.12.7 - 2024-03-18
+### Fixed
+- Fixed how we check if a plugin is active [#35420]
+
+## 0.12.6 - 2024-03-12
+### Changed
+- Updated package dependencies. [#36325]
+
+## 0.12.5 - 2024-03-07
+### Changed
+- Update dependencies.
+
 ## 0.12.4 - 2024-03-04
 ### Changed
 - Updated package dependencies.
