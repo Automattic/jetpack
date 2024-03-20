@@ -446,6 +446,71 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test deleting a plugin in multiple events do not delete the events.
+	 *
+	 * @covers ::deleted_plugin
+	 */
+	public function test_delete_plugin_new_events_inherit_statuses() {
+		$plugins  = $this->create_plugins_for_deletion( 3 );
+		$ids      = array();
+		$statuses = array( 'success', 'failure-and-rollback' );
+
+		// Create two events at 08:00 and 09:00 with plugins 0 and 1, and 1 and 2.
+		for ( $i = 0; $i < 2; ++$i ) {
+			$hour              = $i + 8;
+			$request           = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+			$scheduled_plugins = array( $plugins[ $i ], $plugins[ $i + 1 ] );
+			$request->set_body_params(
+				array(
+					'plugins'  => $scheduled_plugins,
+					'schedule' => array(
+						'timestamp' => strtotime( "next Monday {$hour}:00" ),
+						'interval'  => 'weekly',
+					),
+				)
+			);
+
+			$result = rest_do_request( $request );
+			$this->assertSame( 200, $result->get_status() );
+
+			$id      = Scheduled_Updates::generate_schedule_id( $scheduled_plugins );
+			$request = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules/' . $id . '/status' );
+			$request->set_body_params(
+				array(
+					'last_run_timestamp' => time() + $i,
+					'last_run_status'    => $statuses[ $i ],
+				)
+			);
+
+			$result = rest_do_request( $request );
+			$this->assertSame( 200, $result->get_status() );
+
+			$ids[] = $id;
+		}
+
+		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/update-schedules' );
+		$result  = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$pre_events = array_values( $result->get_data() );
+
+		// Delete second plugin, that appears in both events.
+		$this->assertTrue( delete_plugins( array( $plugins[1] ) ) );
+
+		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/update-schedules' );
+		$result  = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$post_events = array_values( $result->get_data() );
+
+		// Check previous last run statuses are inherited.
+		for ( $i = 0; $i < 2; ++$i ) {
+			$this->assertSame( $pre_events[ $i ]['last_run_timestamp'], $post_events[ $i ]['last_run_timestamp'] );
+			$this->assertSame( $pre_events[ $i ]['last_run_status'], $post_events[ $i ]['last_run_status'] );
+		}
+	}
+
+	/**
 	 * Create a list of plugins to be deleted.
 	 *
 	 * @param int $count The number of plugins to create.
