@@ -279,16 +279,40 @@ class Waf_Runtime {
 	}
 
 	/**
+	 * Get the headers for logging purposes.
+	 */
+	public function get_request_headers() {
+		$all_headers     = getallheaders();
+		$exclude_headers = array( 'Authorization', 'Cookie', 'Proxy-Authorization', 'Set-Cookie' );
+
+		foreach ( $exclude_headers as $header ) {
+			unset( $all_headers[ $header ] );
+		}
+
+		return $all_headers;
+	}
+
+	/**
 	 * Write block logs. We won't write to the file if it exceeds 100 mb.
 	 *
 	 * @param string $rule_id Rule id.
 	 * @param string $reason Block reason.
 	 */
 	public function write_blocklog( $rule_id, $reason ) {
-		$log_data              = array();
-		$log_data['rule_id']   = $rule_id;
-		$log_data['reason']    = $reason;
-		$log_data['timestamp'] = gmdate( 'Y-m-d H:i:s' );
+		$log_data                 = array();
+		$log_data['rule_id']      = $rule_id;
+		$log_data['reason']       = $reason;
+		$log_data['timestamp']    = gmdate( 'Y-m-d H:i:s' );
+		$log_data['request_uri']  = isset( $_SERVER['REQUEST_URI'] ) ? \stripslashes( $_SERVER['REQUEST_URI'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		$log_data['user_agent']   = isset( $_SERVER['HTTP_USER_AGENT'] ) ? \stripslashes( $_SERVER['HTTP_USER_AGENT'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		$log_data['referer']      = isset( $_SERVER['HTTP_REFERER'] ) ? \stripslashes( $_SERVER['HTTP_REFERER'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		$log_data['content_type'] = isset( $_SERVER['CONTENT_TYPE'] ) ? \stripslashes( $_SERVER['CONTENT_TYPE'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		$log_data['get_params']   = json_encode( $_GET );
+
+		if ( defined( 'JETPACK_WAF_SHARE_DEBUG_DATA' ) && JETPACK_WAF_SHARE_DEBUG_DATA ) {
+			$log_data['post_params'] = json_encode( $_POST );
+			$log_data['headers']     = $this->get_request_headers();
+		}
 
 		if ( defined( 'JETPACK_WAF_SHARE_DATA' ) && JETPACK_WAF_SHARE_DATA ) {
 			$file_path   = JETPACK_WAF_DIR . '/waf-blocklog';

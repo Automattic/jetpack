@@ -16,7 +16,7 @@ const subscriptionsAndNewslettersSupportUrl =
 const FEATURED_IMAGE_IN_EMAIL_OPTION = 'wpcom_featured_image_in_email';
 const SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION = 'wpcom_subscription_emails_use_excerpt';
 
-const EmailSetting = props => {
+const EmailSettings = props => {
 	const {
 		isSavingAnyOption,
 		subscriptionsModule,
@@ -137,5 +137,5 @@ export default withModuleSettingsFormHelpers(
 				SUBSCRIPTIONS_MODULE_NAME
 			),
 		};
-	} )( EmailSetting )
+	} )( EmailSettings )
 );
