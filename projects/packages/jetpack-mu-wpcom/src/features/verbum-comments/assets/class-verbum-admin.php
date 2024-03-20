@@ -100,7 +100,7 @@ class Verbum_Admin {
 		register_setting(
 			'discussion',
 			'enable_verbum_commenting',
-			'intval'
+			array( $this, 'enable_verbum_commenting_sanitize' )
 		);
 
 		add_settings_field(
@@ -113,7 +113,7 @@ class Verbum_Admin {
 		register_setting(
 			'discussion',
 			'enable_blocks_comments',
-			'intval'
+			array( $this, 'allow_blocks_sanitize' )
 		);
 
 		/**
@@ -273,12 +273,31 @@ class Verbum_Admin {
 		if (
 			empty( $val ) || ! array_key_exists( $val, $this->color_schemes )
 			||
-			$val === $this->jetpack_comments->default_color_scheme
+			$val === $this->default_color_scheme
 		) {
 			delete_option( 'jetpack_comment_form_color_scheme' );
-			return false;
 		}
 
 		return $val;
+	}
+
+	/**
+	 * Sanitize the allow blocks in comments setting
+	 *
+	 * @param string $val The allow blocks in comments string.
+	 * @return string
+	 */
+	public function allow_blocks_sanitize( $val ) {
+		return $val ? '1' : '0';
+	}
+
+	/**
+	 * Sanitize the verbum commenting setting
+	 *
+	 * @param string $val The verbum commenting string.
+	 * @return string
+	 */
+	public function enable_verbum_commenting_sanitize( $val ) {
+		return $val ? '1' : '0';
 	}
 }
