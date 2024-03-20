@@ -17,7 +17,7 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 if ( ! defined( 'JETPACK_NOTES__CACHE_BUSTER' ) ) {
-	define( 'JETPACK_NOTES__CACHE_BUSTER', JETPACK__VERSION . '-' . gmdate( 'oW' ) . '-lite' );
+	define( 'JETPACK_NOTES__CACHE_BUSTER', JETPACK__VERSION . '-' . gmdate( 'oW' ) );
 }
 
 /**
