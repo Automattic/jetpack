@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Scheduled Updates: Update cron event name from jetpack_scheduled_update to jetpack_scheduled_plugins_update

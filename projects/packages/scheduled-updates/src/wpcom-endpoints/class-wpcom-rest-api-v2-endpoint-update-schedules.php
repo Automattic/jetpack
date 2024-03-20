@@ -144,7 +144,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	}
 
 	/**
-	 * Add status fields to the jetpack_scheduled_update object.
+	 * Add status fields to the jetpack_scheduled_plugins_update object.
 	 */
 	public function add_status_fields() {
 		$object_type = $this->get_object_type();
@@ -198,7 +198,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_items( $request ) {
-		$events   = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+		$events   = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
 		$response = array();
 
 		foreach ( array_keys( $events ) as $schedule_id ) {
@@ -246,7 +246,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$plugins  = $request['plugins'];
 		usort( $plugins, 'strnatcasecmp' );
 
-		$event = wp_schedule_event( $schedule['timestamp'], $schedule['interval'], 'jetpack_scheduled_update', $plugins, true );
+		$event = wp_schedule_event( $schedule['timestamp'], $schedule['interval'], Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins, true );
 		if ( is_wp_error( $event ) ) {
 			return $event;
 		}
@@ -289,7 +289,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error The scheduled event or a WP_Error if the schedule could not be found.
 	 */
 	public function get_item( $request ) {
-		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+		$events = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
 
 		if ( empty( $events[ $request['schedule_id'] ] ) ) {
 			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
@@ -356,7 +356,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error The updated event or a WP_Error if the schedule could not be found.
 	 */
 	public function update_status( $request ) {
-		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+		$events = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
 
 		if ( empty( $events[ $request['schedule_id'] ] ) ) {
 			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
@@ -411,7 +411,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function delete_item( $request ) {
-		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+		$events = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
 
 		if ( ! isset( $events[ $request['schedule_id'] ] ) ) {
 			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
@@ -419,7 +419,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 
 		$event = $events[ $request['schedule_id'] ];
 
-		$result = wp_unschedule_event( $event->timestamp, 'jetpack_scheduled_update', $event->args, true );
+		$result = wp_unschedule_event( $event->timestamp, Scheduled_Updates::PLUGIN_CRON_HOOK, $event->args, true );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
@@ -554,7 +554,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return bool|WP_Error
 	 */
 	public function validate_schedule( $request ) {
-		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+		$events = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
 
 		$plugins = $request['plugins'];
 		usort( $plugins, 'strnatcasecmp' );

@@ -5,6 +5,8 @@ namespace Automattic\Jetpack_Boost\Lib;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
 
 /**
  * Class Boost_Health
@@ -30,6 +32,10 @@ class Boost_Health {
 
 		if ( self::critical_css_has_errors() ) {
 			$this->issues[] = __( 'Failed to generate Critical CSS', 'jetpack-boost' );
+		}
+
+		if ( self::cache_engine_not_loading() ) {
+			$this->issues[] = __( 'Cache engine is not loading', 'jetpack-boost' );
 		}
 	}
 
@@ -80,5 +86,22 @@ class Boost_Health {
 			return false;
 		}
 		return ( new Critical_CSS_State() )->has_errors();
+	}
+
+	/**
+	 * Check if the cache engine is not loading.
+	 *
+	 * @return bool True if the cache engine is not loading, false otherwise.
+	 */
+	public static function cache_engine_not_loading() {
+		if ( ! ( new Status( Page_Cache::get_slug() ) )->is_enabled() ) {
+			return false;
+		}
+
+		if ( Boost_Cache::is_loaded() ) {
+			return false;
+		}
+
+		return true;
 	}
 }
