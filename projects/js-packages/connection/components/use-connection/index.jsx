@@ -38,6 +38,15 @@ export default ( {
 	} ) );
 
 	/**
+	 * Calls the registerSite action to register the site.
+	 *
+	 * @returns {Promise} - Promise which resolves when the product status is activated.
+	 */
+	const registerSiteOnly = () => {
+		return registerSite( { registrationNonce, redirectUri } );
+	};
+
+	/**
 	 * User register process handler.
 	 *
 	 * @returns {Promise} - Promise which resolves when the product status is activated.
@@ -56,11 +65,9 @@ export default ( {
 	/**
 	 * Site register process handler.
 	 *
-	 * It handles the process to register the site,
-	 * considering also the user registration status.
-	 * When they are registered, it will try to only register the site.
-	 * Otherwise, will try to register the user right after
-	 * the site was successfully registered.
+	 * It handles the process to register the site, considering also the site registration status.
+	 * When the site is registered, it will try to only register the user.
+	 * Otherwise, will try to register the user right after the site was successfully registered.
 	 *
 	 * @param {Event} [e] - Event that dispatched handleRegisterSite
 	 * @returns {Promise}   Promise when running the registration process. Otherwise, nothing.
@@ -72,9 +79,28 @@ export default ( {
 			return handleConnectUser();
 		}
 
-		return registerSite( { registrationNonce, redirectUri } ).then( () => {
+		return registerSiteOnly().then( () => {
 			return handleConnectUser();
 		} );
+	};
+
+	/**
+	 * Site register process handler.
+	 *
+	 * It handles the process to register only the site.
+	 * When the site is registered, it will return a fulfilled promise.
+	 *
+	 * @param {Event} [e] - Event that dispatched handleRegisterSiteOnly
+	 * @returns {Promise}   Promise when running the registration process. Otherwise, nothing.
+	 */
+	const handleRegisterSiteOnly = e => {
+		e && e.preventDefault();
+
+		if ( isRegistered ) {
+			return Promise.resolve();
+		}
+
+		return registerSiteOnly();
 	};
 
 	/**
@@ -96,6 +122,7 @@ export default ( {
 
 	return {
 		handleRegisterSite,
+		handleRegisterSiteOnly,
 		handleConnectUser,
 		refreshConnectedPlugins,
 		isRegistered,

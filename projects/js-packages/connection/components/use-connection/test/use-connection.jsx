@@ -120,4 +120,15 @@ describe( 'useConnection', () => {
 		expect( stubConnectUser ).toHaveBeenCalledTimes( 1 );
 		expect( stubConnectUser ).toHaveBeenCalledWith( { from: 'JETPACK', redirectUri: undefined } );
 	} );
+
+	it( 'calls only registerSite after registerSiteOnly', () => {
+		setupStubs();
+		stubGetConnectionStatus.mockReturnValue( { isRegistered: false } );
+		const { result } = renderHook( props => useConnection( props ), {
+			initialProps: { from: 'JETPACK' },
+		} );
+		result.current.handleRegisterSiteOnly();
+		expect( stubRegisterSite ).toHaveBeenCalled();
+		expect( stubConnectUser ).not.toHaveBeenCalled();
+	} );
 } );
