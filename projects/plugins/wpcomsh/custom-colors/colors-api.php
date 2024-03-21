@@ -98,7 +98,7 @@ class Colors_API {
 			)
 		);
 
-		return Jetpack_Client::remote_request( $validated_args, $body );
+		return Automattic\Jetpack\Connection\Client::remote_request( $validated_args, $body );
 	}
 }
 

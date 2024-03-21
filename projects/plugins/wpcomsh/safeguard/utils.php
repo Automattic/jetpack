@@ -13,7 +13,7 @@ use RecursiveIteratorIterator;
 use WP_Error;
 use WPCOMSH_Log;
 use Jetpack_Options;
-use Jetpack_Client;
+use Automattic\Jetpack\Connection\Client as Jetpack_Client;
 
 const DOTORG_API_HOST             = 'https://api.wordpress.org';
 const DOTORG_PLUGINS_HOST         = DOTORG_API_HOST . '/plugins';

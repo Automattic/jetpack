@@ -300,7 +300,7 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 			'blog_id' => (int) Jetpack_Options::get_option( 'id' ),
 		);
 
-		$response = Jetpack_Client::remote_request( $args );
+		$response = Automattic\Jetpack\Connection\Client::remote_request( $args );
 
 		if ( is_wp_error( $response ) || 200 !== $response['response']['code'] || empty( $response['body'] ) ) {
 			return array();
