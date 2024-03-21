@@ -30,7 +30,7 @@ async function fetchTeamMembers( team ) {
 			} catch ( error ) {
 				if ( error.message.includes( 'Not Found' ) ) {
 					const res = await octokit.rest.apps.getBySlug( { app_slug: team.slice( 1 ) } );
-					members.push( res.data.slug );
+					members.push( `${ res.data.slug }[bot]` );
 				} else {
 					throw error;
 				}
