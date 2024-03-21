@@ -136,6 +136,11 @@ export default class JetpackBoostPage extends WpPage {
 		return this.waitForElementToBeVisible( selector, 3 * 60 * 1000 );
 	}
 
+	async waitForPageCachePermalinksErrorVisibility() {
+		const selector = '[data-testid="module-page_cache"] >> text=Permalink settings must be updated';
+		return this.waitForElementToBeVisible( selector, 3 * 60 * 1000 );
+	}
+
 	async navigateToMainSettingsPage() {
 		await this.page.click( 'text=Go back' );
 	}

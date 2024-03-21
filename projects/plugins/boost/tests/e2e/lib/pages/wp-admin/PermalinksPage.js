@@ -7,6 +7,13 @@ export default class PermalinksPage extends WpPage {
 		super( page, { expectedSelectors: [ '.permalink-structure' ], url } );
 	}
 
+	async usePlainStructure() {
+		const selector = '[id="permalink-input-plain"]';
+		await this.page.click( selector );
+		await this.page.click( '[id="submit"]' );
+		await this.waitForLoad();
+	}
+
 	async useDayNameStructure() {
 		const selector = '[id="permalink-input-day-name"]';
 		await this.page.click( selector );
