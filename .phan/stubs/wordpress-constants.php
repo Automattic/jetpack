@@ -7,8 +7,11 @@
  * wants people to use PHPStan, which needs a bootstrap file for constants.
  *
  * But he does have a bit of a point. Before adding a constant here, please
- * consider whether you could use a function instead. This includes things like
- * DB_HOST (use `$wpdb` instead).
+ * consider whether you could use a function instead. Of particular note:
+ *  - WP_CONTENT_URL → content_url()
+ *  - WP_PLUGIN_URL → plugins_url()
+ *  - WPMU_PLUGIN_URL → plugins_url()
+ *  - DB_HOST, DB_NAME, DB_USER, DB_PASSWORD → $wpdb
  *
  * Note the actual values shouldn't matter here, but getting the types right is
  * probably a good idea. Avoid `true` and `false`, as those are distinct from
@@ -25,13 +28,13 @@ define( 'WP_DEBUG', (bool) $v );
 define( 'WP_DEBUG_LOG', (bool) $v );
 define( 'SCRIPT_DEBUG', (bool) $v );
 define( 'WPINC', 'wp-includes' );
-define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
-define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins' );
-define( 'WPMU_PLUGIN_DIR', WP_CONTENT_DIR . '/mu-plugins' );
 define( 'WP_LANG_DIR', WP_CONTENT_DIR . '/languages' );
-define( 'WP_CONTENT_URL', 'http://example.com/wp-content' );
-define( 'WP_PLUGIN_URL', WP_CONTENT_URL . '/plugins' );
-define( 'WPMU_PLUGIN_URL', WP_CONTENT_URL . '/mu-plugins' );
+
+// Core specifically discourages these at https://codex.wordpress.org/Determining_Plugin_and_Content_Directories
+// but doesn't seem to provide alternatives.
+define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
+define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins' ); // Use plugin_dir_path() if possible, but it may not be.
+define( 'WPMU_PLUGIN_DIR', WP_CONTENT_DIR . '/mu-plugins' ); // Same.
 
 // Constants for expressing human-readable intervals.
 define( 'MINUTE_IN_SECONDS', 60 );
