@@ -64,40 +64,53 @@ class Social_Shares {
 		if ( empty( $shares ) ) {
 			$html .= '</span>';
 		} else {
-			$links = array();
+			$html .= '<h5 style="margin: 0;font-weight: normal;font-size: inherit;">' . __( 'Also on:', 'jetpack-social' ) . '</h5><ul style="list-style-type: none;margin-top: 0px; padding-left: 10px;">';
 			foreach ( $shares as $service => $item ) {
 				$message = esc_url( $item['message'] );
-				$links[] = '<a href="' . $message . '">' . $service . '</a>';
+				$html   .= '<li><a href="' . $message . '">' . self::get_service_display_name( $service ) . '</a></li>';
 			}
-
-			$text         = implode( ', ', $links );
-			$also_on_text = __( 'Also on', 'jetpack-social' );
-			if ( count( $links ) > 1 ) {
-				$last_link = array_pop( $links );
-				$html     .= $also_on_text . ' ' . implode( ', ', $links ) . ' ' . __( 'and', 'jetpack-social' ) . " $last_link";
-			} else {
-				$html .= $also_on_text . " $text";
-			}
-
+			$html .= '</ul>';
 			$html .= '</span>';
 		}
 
+		/**
+		 * Apply filters to the social shares data.
+		 *
+		 * @param string $html The html markup to display the shares.
+		 * @param array  $shares  The social shares data.
+		 * @param int    $post_id The ID of the post being shared.
+		 * @return array The modified $html markup.
+		*/
 		return apply_filters(
 			'jp_social_shares',
-			array(
-				'shares' => $shares,
-				'html'   => $html,
-			)
+			$html,
+			$shares,
+			$post_id
 		);
 	}
 
 	/**
-	 * Return the html for the social shares.
+	 * Adds the shares shortcode.
 	 *
-	 * @param int $post_id The Post ID.
+	 * @param string $service The name of the social connection provider in small case.
+	 * @return string The display name of the social connection provider such as LinkedIn for linkein.
 	 */
-	public static function the_social_shares( $post_id ) {
-		$args = self::get_the_social_shares( $post_id );
-		return $args['html'];
+	public static function get_service_display_name( $service ) {
+		switch ( $service ) {
+			case 'facebook':
+				return 'Facebook';
+			case 'linkedin':
+				return 'LinkedIn ';
+			case 'instagram-business':
+				return 'Instagram ';
+			case 'nextdoor':
+				return 'Nextdoor';
+			case 'mastodon':
+				return 'Mastodon';
+			case 'tumblr':
+				return 'Tumblr';
+			default:
+				return $service;
+		}
 	}
 }
