@@ -137,7 +137,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		public function handle_invitation_results() {
 			$valid_nonce = isset( $_GET['_wpnonce'] ) ? wp_verify_nonce( $_GET['_wpnonce'], 'jetpack-sso-invite-user' ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
 
-			if ( ! $valid_nonce || ! isset( $_GET['jetpack-sso-invite-user'] ) ) {
+			if ( ! $valid_nonce || ! isset( $_GET['jetpack-sso-invite-user'] ) || ! function_exists( 'wp_admin_notice' ) ) {
 				return;
 			}
 			if ( $_GET['jetpack-sso-invite-user'] === 'success' ) {
@@ -575,6 +575,9 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * Render the invitation email message.
 		 */
 		public function render_invitation_email_message() {
+			if ( ! function_exists( 'wp_admin_notice' ) ) {
+				return;
+			}
 			$message = wp_kses(
 				__(
 					'We highly recommend inviting users to join WordPress.com and log in securely using <a class="jetpack-sso-admin-create-user-invite-message-link-sso" rel="noopener noreferrer" target="_blank" href="https://jetpack.com/support/sso/">Secure Sign On</a> to ensure maximum security and efficiency.',
@@ -604,6 +607,9 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * Render a note that wp.com invites will be automatically revoked.
 		 */
 		public function render_invitations_notices_for_deleted_users() {
+			if ( ! function_exists( 'wp_admin_notice' ) ) {
+				return;
+			}
 			check_admin_referer( 'bulk-users' );
 
 			// When one user is deleted, the param is `user`, when multiple users are deleted, the param is `users`.
