@@ -26,6 +26,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 				blogID = this.props.blogID,
 				siteAdminUrl = this.props.siteAdminUrl,
 				isOfflineMode = this.props.isOfflineMode,
+				siteUsesWpAdminInterface = this.props.siteUsesWpAdminInterface,
 				hasSharingBlock = this.props.hasSharingBlock,
 				isBlockTheme = this.props.isBlockTheme,
 				isActive = this.props.getOptionValue( 'sharedaddy' );
@@ -54,7 +55,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 
 				if ( shouldShowSharingBlock ) {
 					cardProps.href = `${ siteAdminUrl }site-editor.php?path=%2Fwp_template`;
-				} else if ( isLinked && ! isOfflineMode ) {
+				} else if ( isLinked && ! isOfflineMode && ! siteUsesWpAdminInterface ) {
 					cardProps.href = getRedirectUrl( 'calypso-marketing-sharing-buttons', {
 						site: blogID ?? siteRawUrl,
 					} );
