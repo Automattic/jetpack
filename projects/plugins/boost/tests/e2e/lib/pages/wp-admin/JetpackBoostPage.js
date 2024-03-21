@@ -126,6 +126,11 @@ export default class JetpackBoostPage extends WpPage {
 		return this.waitForElementToBeVisible( selector );
 	}
 
+	async isThePageCacheMetaInformationVisible() {
+		const selector = '[data-testid="page-cache-meta"]';
+		return this.page.isVisible( selector );
+	}
+
 	async navigateToMainSettingsPage() {
 		await this.page.click( 'text=Go back' );
 	}
