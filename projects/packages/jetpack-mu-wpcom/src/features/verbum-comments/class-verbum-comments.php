@@ -278,6 +278,8 @@ class Verbum_Comments {
 	 * @param  array $args - The default comment form arguments.
 	 */
 	public function comment_form_defaults( $args ) {
+		$title_reply = get_option( 'highlander_comment_form_prompt', __( 'Leave a comment', 'jetpack-mu-wpcom' ) );
+
 		return array_merge(
 			$args,
 			array(
@@ -286,7 +288,7 @@ class Verbum_Comments {
 				'logged_in_as'         => '',
 				'comment_notes_before' => '',
 				'comment_notes_after'  => '',
-				'title_reply'          => __( 'Leave a comment', 'jetpack-mu-wpcom' ),
+				'title_reply'          => $title_reply,
 				/* translators: % is the original posters name */
 				'title_reply_to'       => __( 'Leave a reply to %s', 'jetpack-mu-wpcom' ),
 				'cancel_reply_link'    => __( 'Cancel reply', 'jetpack-mu-wpcom' ),
@@ -558,6 +560,11 @@ HTML;
 		// Don't load when jetpack or atomic for now, it does not look cool on dark themes.
 		$is_jetpack_site = 522232 === get_current_blog_id();
 		if ( $is_jetpack_site ) {
+			return false;
+		}
+
+		// Blocks in comments have been disabled on a simple site
+		if ( empty( get_option( 'enable_blocks_comments', true ) ) ) {
 			return false;
 		}
 
