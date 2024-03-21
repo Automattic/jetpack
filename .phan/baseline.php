@@ -10,15 +10,10 @@
 return [
     // # Issue statistics:
     // PhanTypeMismatchArgumentProbablyReal : 50+ occurrences
-    // PhanUndeclaredTypeParameter : 8 occurrences
-    // PhanTypeMismatchReturn : 5 occurrences
-    // PhanUndeclaredClassMethod : 5 occurrences
     // PhanRedefineFunction : 4 occurrences
     // PhanTypeMismatchArgument : 3 occurrences
-    // PhanUndeclaredConstant : 3 occurrences
     // PhanTypeConversionFromArray : 2 occurrences
     // PhanMisspelledAnnotation : 1 occurrence
-    // PhanNoopNew : 1 occurrence
     // PhanParamTooFewInternalUnpack : 1 occurrence
     // PhanPluginDuplicateConditionalNullCoalescing : 1 occurrence
     // PhanTypeMismatchArgumentInternal : 1 occurrence
@@ -31,12 +26,6 @@ return [
         '.github/files/test-plugin-update/mu-plugin.php' => ['PhanRedefineFunction'],
         'tools/check-changelogger-use.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedefineFunction', 'PhanTypeConversionFromArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal'],
         'tools/class-jetpack-phpcs-exclude-filter.php' => ['PhanUndeclaredProperty'],
-        'tools/e2e-commons/plugins/e2e-beta-autoupdate-api.php' => ['PhanNoopNew', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant'],
-        'tools/e2e-commons/plugins/e2e-plan-data-interceptor.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
-        'tools/e2e-commons/plugins/e2e-plugin-updater.php' => ['PhanTypeMismatchReturn', 'PhanUndeclaredConstant'],
-        'tools/e2e-commons/plugins/e2e-search-test-helper.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
-        'tools/e2e-commons/plugins/e2e-waf-data-interceptor.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
-        'tools/e2e-commons/plugins/e2e-wpcom-request-interceptor.php' => ['PhanUndeclaredTypeParameter'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)
