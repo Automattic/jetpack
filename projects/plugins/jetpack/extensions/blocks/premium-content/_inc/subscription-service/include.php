@@ -81,4 +81,4 @@ function default_service( $service, $user_id = null ) {
 	// Return an Unconfigured Subscription Service if this is not a WPCOM or Jetpack site or if both of those services are not available.
 	return new Unconfigured_Subscription_Service();
 }
-add_filter( PAYWALL_FILTER, 'Automattic\Jetpack\Extensions\Premium_Content\default_service' );
+add_filter( PAYWALL_FILTER, 'Automattic\Jetpack\Extensions\Premium_Content\default_service', 10, 2 );
