@@ -87,6 +87,10 @@ export function builder( yargs ) {
 			description:
 				'Comma-separated list of issue codes to filter for. Only these issues will be reported.',
 		} )
+		.option( 'report-file', {
+			type: 'string',
+			description: 'Write the report to this file instead of to standard output.',
+		} )
 		.check( argv => {
 			if (
 				argv.updateBaseline &&
@@ -441,9 +445,22 @@ export async function handler( argv ) {
 		}
 		return 0;
 	} );
+
+	const reportStream = argv.reportFile
+		? ( await fs.open( argv.reportFile, 'w' ) ).createWriteStream()
+		: process.stdout;
+	const writeln = async v => {
+		if ( v !== '' && ! reportStream.write( v ) ) {
+			await new Promise( r => reportStream.once( 'drain', r ) );
+		}
+		if ( ! reportStream.write( '\n' ) ) {
+			await new Promise( r => reportStream.once( 'drain', r ) );
+		}
+	};
+
 	switch ( argv.format ) {
 		case 'json':
-			console.log( JSON.stringify( issues ) );
+			await writeln( JSON.stringify( issues ) );
 			break;
 		case 'emacs':
 			for ( const issue of issues ) {
@@ -453,7 +470,7 @@ export async function handler( argv ) {
 					msg += ':' + issue.location.lines.begin_column;
 				}
 				msg += ': ' + issue.description.replace( /\s+/g, ' ' );
-				console.log( msg );
+				await writeln( msg );
 			}
 			break;
 		case 'github':
@@ -463,7 +480,7 @@ export async function handler( argv ) {
 				if ( issue.location.lines.begin_column !== undefined ) {
 					msg += ':' + issue.location.lines.begin_column;
 				}
-				console.log( msg );
+				await writeln( msg );
 
 				msg = '::error file=' + path.relative( process.cwd(), issue.location.path );
 				msg += ',line=' + issue.location.lines.begin;
@@ -480,7 +497,7 @@ export async function handler( argv ) {
 						'%0A%0ASuggestion: ' +
 						issue.suggestion.replace( /[%\r\n]/g, m => encodeURIComponent( m[ 0 ] ) );
 				}
-				console.log( msg );
+				await writeln( msg );
 			}
 			break;
 		default:
@@ -509,16 +526,26 @@ export async function handler( argv ) {
 					}
 				}
 				const sep = '-'.repeat( argv.width === Infinity ? 80 : argv.width );
+				const suggestionPrefix = argv.reportFile
+					? '\nSuggestion: '
+					: `\n${ chalk.green( 'Suggestion:' ) } `;
+				const colorizeIssue = argv.reportFile
+					? v => v
+					: v =>
+							v.replace(
+								/^([^ ]*) ([^ ]*)/,
+								`${ chalk.yellow( '$1' ) } ${ chalk.yellow( '$2' ) }`
+							);
 				for ( const file of Object.keys( files ) ) {
-					console.log( '' );
-					console.log( `FILE: ${ path.relative( process.cwd(), file ) }` );
-					console.log( sep );
-					console.log(
+					await writeln( '' );
+					await writeln( `FILE: ${ path.relative( process.cwd(), file ) }` );
+					await writeln( sep );
+					await writeln(
 						files[ file ].issues.length === 1
 							? 'FOUND 1 ISSUE'
 							: `FOUND ${ files[ file ].issues.length } ISSUES`
 					);
-					console.log( sep );
+					await writeln( sep );
 					const lw = String( files[ file ].l ).length;
 					const cw = files[ file ].c < 0 ? -1 : String( files[ file ].c ).length;
 					const ww = Math.max( argv.width - lw - cw - 3, 50 );
@@ -536,11 +563,8 @@ export async function handler( argv ) {
 						let first = true;
 						let l = 0;
 						for ( const line of (
-							issue.description.replace(
-								/^([^ ]*) ([^ ]*)/,
-								`${ chalk.yellow( '$1' ) } ${ chalk.yellow( '$2' ) }`
-							) +
-							( issue.suggestion ? `\n${ chalk.green( 'Suggestion:' ) } ` + issue.suggestion : '' )
+							colorizeIssue( issue.description ) +
+							( issue.suggestion ? suggestionPrefix + issue.suggestion : '' )
 						).split( /\n/ ) ) {
 							if ( ! first ) {
 								msg += nl;
@@ -558,15 +582,19 @@ export async function handler( argv ) {
 								l += wl + 1;
 							}
 						}
-						console.log( msg );
+						await writeln( msg );
 					}
-					console.log( sep );
+					await writeln( sep );
 				}
-				console.log( '' );
-				console.log(
+				await writeln( '' );
+				await writeln(
 					issues.length === 1 ? 'FOUND 1 ISSUE TOTAL' : `FOUND ${ issues.length } ISSUES TOTAL`
 				);
 			}
 			break;
+	}
+	if ( argv.reportFile ) {
+		reportStream.end();
+		console.log( `Report written to ${ argv.reportFile }` );
 	}
 }

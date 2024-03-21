@@ -9,7 +9,6 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredConstant : 7 occurrences
     // PhanUndeclaredClassMethod : 4 occurrences
     // PhanTypeMismatchArgument : 2 occurrences
     // PhanUndeclaredMethod : 2 occurrences
@@ -18,11 +17,12 @@ return [
     // PhanParamSignatureMismatch : 1 occurrence
     // PhanTypeMismatchArgumentNullable : 1 occurrence
     // PhanTypeMismatchReturnProbablyReal : 1 occurrence
+    // PhanUndeclaredConstant : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-automatic-install-skin.php' => ['PhanCompatibleAttributeGroupOnSameLine', 'PhanParamSignatureMismatch', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredTypeParameter'],
-        'src/class-plugins-installer.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredConstant', 'PhanUndeclaredMethod'],
+        'src/class-plugins-installer.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredMethod'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

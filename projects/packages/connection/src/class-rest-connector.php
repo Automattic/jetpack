@@ -342,7 +342,7 @@ class REST_Connector {
 	/**
 	 * Connect a remote user.
 	 *
-	 * @since $$next-version$$
+	 * @since 2.6.0
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
