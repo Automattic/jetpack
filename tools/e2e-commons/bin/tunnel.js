@@ -8,7 +8,6 @@ import { getReusableUrlFromFile } from '../helpers/utils-helper.js';
 import axios from 'axios';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import localtunnel from 'localtunnel';
 
 const tunnelConfig = config.get( 'tunnel' );
 
@@ -90,19 +89,25 @@ async function tunnelChild() {
 	const subdomain = await getTunnelSubdomain();
 
 	if ( ! ( await isTunnelOn( subdomain ) ) ) {
+		const tunnelUrl = 'FIGURE ME OUT'; // @todo - figure it out
+
 		console.log( `Opening tunnel. Subdomain: '${ subdomain }'` );
-		const tunnel = await localtunnel( {
-			host: tunnelConfig.host,
-			port: tunnelConfig.port,
-			subdomain,
-		} );
+		const token = 'TOKEN'; // @todo - add proper token somehow
+		const domain = 'DOMAIN'; // @todo - figure this out as well
+		const tunnel = childProcess( 'ngrok', [
+			'http',
+			'8889',
+			'--authtoken',
+			token,
+			`--domain=${ domain }`,
+		] );
 
 		tunnel.on( 'close', () => {
-			console.log( `${ tunnel.clientId } tunnel closed` );
+			console.log( `Tunnel closed` );
 		} );
 
-		fs.writeFileSync( config.get( 'temp.tunnels' ), tunnel.url );
-		console.log( `Opened tunnel '${ tunnel.url }'` );
+		fs.writeFileSync( config.get( 'temp.tunnels' ), tunnelUrl );
+		console.log( `Opened tunnel '${ tunnelUrl }'` );
 		fs.writeFileSync( config.get( 'temp.pid' ), `${ process.pid }` );
 	}
 
@@ -150,12 +155,12 @@ async function tunnelOff() {
 			fs.unlinkSync( pidfile );
 		}
 
-		try {
-			const res = await axios.get( `${ tunnelConfig.host }/api/tunnels/${ subdomain }/delete` );
-			console.log( JSON.stringify( res.data ) );
-		} catch ( error ) {
-			console.error( error.message );
-		}
+		// try {
+		// 	const res = await axios.get( `${ tunnelConfig.host }/api/tunnels/${ subdomain }/delete` );
+		// 	console.log( JSON.stringify( res.data ) );
+		// } catch ( error ) {
+		// 	console.error( error.message );
+		// }
 	}
 }
 
