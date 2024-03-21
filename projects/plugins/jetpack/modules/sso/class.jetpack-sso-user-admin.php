@@ -816,7 +816,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			$response = Client::wpcom_json_api_request_as_user(
 				sprintf(
 					'/sites/%d/invites/new',
-					$site_id
+					(int) $site_id
 				),
 				'2', // Api version
 				array(
