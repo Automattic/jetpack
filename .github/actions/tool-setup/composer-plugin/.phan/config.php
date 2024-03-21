@@ -8,4 +8,4 @@
 // Require base config.
 require dirname( __DIR__, 5 ) . '/.phan/config.base.php';
 
-return make_phan_config( dirname( __DIR__ ) );
+return make_phan_config( dirname( __DIR__ ), array( 'is_wordpress' => false ) );
