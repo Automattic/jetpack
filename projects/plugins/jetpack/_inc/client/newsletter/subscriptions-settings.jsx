@@ -98,7 +98,7 @@ function SubscriptionsSettings( props ) {
 		}
 
 		const source = isWpAdminInterface
-			? 'jetpack-menu-jetpack-manage-subscribers'
+			? 'jetpack-settings-jetpack-manage-subscribers'
 			: 'calypso-subscribers';
 
 		return (
