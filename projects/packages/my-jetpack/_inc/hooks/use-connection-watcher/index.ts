@@ -1,6 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect, useContext } from 'react';
 import { MyJetpackRoutes } from '../../constants';
+import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import { useAllProducts } from '../../data/products/use-product';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
@@ -54,6 +55,7 @@ export default function useConnectionWatcher() {
 						},
 					],
 				},
+				priority: NOTICE_PRIORITY_HIGH,
 			} );
 		}
 	}, [

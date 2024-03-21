@@ -129,6 +129,13 @@ export default function () {
 	const onNoticeClose = useCallback( () => setShowNotice( false ), [] );
 
 	useEffect( () => {
+		recordEvent( 'jetpack_ai_myjetpack_product_page_view', {
+			current_tier_slug: currentTier?.slug || '',
+			requests_count: allTimeRequests,
+		} );
+	}, [ allTimeRequests, currentTier?.slug, recordEvent ] );
+
+	useEffect( () => {
 		setShowNotice( showRenewalNotice || showUpgradeNotice );
 	}, [ showRenewalNotice, showUpgradeNotice ] );
 
