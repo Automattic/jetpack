@@ -430,7 +430,7 @@ class Throw_On_Errors {
 
 		// PHP 5.x won't complain about parameter being unset, so let's do it ourselves.
 		if ( ! $filename ) {
-			throw new Exception( 'Filename for file_put_contents() is unset' );
+			throw new Exception( 'Filename for f_p_c() is unset' );
 		}
 		if ( $data === null ) {
 			throw new Exception( 'Data to write is null' );
@@ -475,13 +475,13 @@ class Throw_On_Errors {
 
 		// PHP 5.x won't complain about parameter being unset, so let's do it ourselves.
 		if ( ! $filename ) {
-			throw new Exception( 'Filename for file_get_contents() is unset' );
+			throw new Exception( 'Filename for f_g_c() is unset' );
 		}
 
 		// Weird label is intentional, otherwise security scanners find this label suspicious.
 		$label = "f_g_c( '$filename' )";
 
-		$file_get_contents_result = static::throw_on_warnings(
+		$fgc_result = static::throw_on_warnings(
 			function () use ( $filename ) {
 				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 				return file_get_contents( $filename );
@@ -489,10 +489,10 @@ class Throw_On_Errors {
 			$label
 		);
 
-		if ( false === $file_get_contents_result ) {
+		if ( false === $fgc_result ) {
 			throw new Exception( "Unable to $label" );
 		}
 
-		return $file_get_contents_result;
+		return $fgc_result;
 	}
 }

@@ -457,7 +457,7 @@ class Test_Throw_On_Errors extends TestCase {
 	 */
 	public function testFilePutContentsNullParams() {
 		$this->expectException( Exception::class );
-		$this->expectExceptionMessage( 'Filename for file_put_contents() is unset' );
+		$this->expectExceptionMessage( 'Filename for f_p_c() is unset' );
 		/** @noinspection PhpParamsInspection */
 		Throw_On_Errors::t_file_put_contents( null, null );
 	}
@@ -467,7 +467,7 @@ class Test_Throw_On_Errors extends TestCase {
 	 */
 	public function testFilePutContentsEmptyParams() {
 		$this->expectException( Exception::class );
-		$this->expectExceptionMessage( 'Filename for file_put_contents() is unset' );
+		$this->expectExceptionMessage( 'Filename for f_p_c() is unset' );
 		/** @noinspection PhpParamsInspection */
 		Throw_On_Errors::t_file_put_contents( '', null );
 	}
@@ -491,7 +491,7 @@ class Test_Throw_On_Errors extends TestCase {
 	 */
 	public function testFileGetContentsNullParams() {
 		$this->expectException( Exception::class );
-		$this->expectExceptionMessage( 'Filename for file_get_contents() is unset' );
+		$this->expectExceptionMessage( 'Filename for f_g_c() is unset' );
 		/** @noinspection PhpParamsInspection */
 		Throw_On_Errors::t_file_get_contents( null );
 	}
@@ -501,7 +501,7 @@ class Test_Throw_On_Errors extends TestCase {
 	 */
 	public function testFileGetContentsEmptyParams() {
 		$this->expectException( Exception::class );
-		$this->expectExceptionMessage( 'Filename for file_get_contents() is unset' );
+		$this->expectExceptionMessage( 'Filename for f_g_c() is unset' );
 		/** @noinspection PhpParamsInspection */
 		Throw_On_Errors::t_file_get_contents( '' );
 	}
