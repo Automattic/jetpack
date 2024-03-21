@@ -108,5 +108,5 @@ define( 'EP_ALL', EP_PERMALINK | EP_ATTACHMENT | EP_ROOT | EP_COMMENTS | EP_SEAR
 // Templating-related WordPress constants.
 define( 'WP_DEFAULT_THEME', 'twentytwentywhenever' );
 
-// Testing constants.
+// Constants used in PHPUnit tests.
 define( 'WP_TESTS_DOMAIN', 'example.org' );
