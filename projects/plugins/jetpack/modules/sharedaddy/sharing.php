@@ -122,12 +122,12 @@ class Sharing_Admin {
 	}
 
 	/**
-	 * Register Sharing settings menu page in offline mode or when Classic nav redesign is enabled.
+	 * Register Sharing settings menu page in offline mode or when wp-admin interface is enabled.
 	 */
 	public function subscription_menu() {
-		// @phan-suppress-next-line PhanUndeclaredFunction -- Defined in wpcomsh, which Phan doesn't know about.
-		$wpcom_is_nav_redesign_enabled = function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled();
-		if ( ( new Status() )->is_offline_mode() || $wpcom_is_nav_redesign_enabled ) {
+		$wpcom_is_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+
+		if ( ( new Status() )->is_offline_mode() || $wpcom_is_wp_admin_interface ) {
 			add_submenu_page(
 				'options-general.php',
 				__( 'Sharing Settings', 'jetpack' ),
