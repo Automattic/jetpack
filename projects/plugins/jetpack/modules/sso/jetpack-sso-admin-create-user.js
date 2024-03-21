@@ -22,5 +22,10 @@ jQuery( document ).ready( function ( $ ) {
 			sendUserNotificationCheckbox.prop( 'disabled', true );
 			sendUserNotificationCheckbox.prop( 'checked', false );
 		}
+
+		// On load, disable External Contractor checkbox if Invite User checkbox is unchecked
+		if ( ! inviteUserWpcomCheckbox.prop( 'checked' ) ) {
+			userExternalContractorCheckbox.prop( 'disabled', true );
+		}
 	}
 } );
