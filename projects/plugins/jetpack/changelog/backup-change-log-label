@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Backup: change some error messages to not trigger security scanners
