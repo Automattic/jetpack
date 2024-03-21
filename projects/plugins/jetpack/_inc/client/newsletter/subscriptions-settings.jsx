@@ -18,6 +18,7 @@ import {
 	currentThemeIsBlockTheme,
 	currentThemeStylesheet,
 	getSiteAdminUrl,
+	isSubscriptionSiteEnabled,
 	subscriptionSiteEditSupported,
 } from 'state/initial-state';
 import { getModule } from 'state/modules';
@@ -256,6 +257,7 @@ export default withModuleSettingsFormHelpers(
 			isSubscribePostEndEnabled: ownProps.getOptionValue(
 				'jetpack_subscriptions_subscribe_post_end_enabled'
 			),
+			isSubscriptionSiteFeatureEnabled: isSubscriptionSiteEnabled( state ),
 			isSubscriptionSiteEditSupported: subscriptionSiteEditSupported( state ),
 			isBlockTheme: currentThemeIsBlockTheme( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),

@@ -246,6 +246,7 @@ class Jetpack_Redux_State_Helper {
 			'isBlazeDashboardEnabled'       => Blaze::is_dashboard_enabled(),
 			'socialInitialState'            => self::get_publicize_initial_state(),
 			'gutenbergInitialState'         => self::get_gutenberg_initial_state(),
+			'isSubscriptionSiteEnabled'     => apply_filters( 'jetpack_subscription_site_enabled', false ),
 			'subscriptionSiteEditSupported' => $current_theme->is_block_theme() && version_compare( $wp_version, '6.5-beta2', '>=' ),
 		);
 	}
