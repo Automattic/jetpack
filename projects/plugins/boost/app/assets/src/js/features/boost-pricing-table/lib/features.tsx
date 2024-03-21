@@ -120,7 +120,7 @@ export const boostFeatureList: FeatureItem[] = [
 		},
 		free: (
 			<PricingTableItem
-				isIncluded={ true }
+				isIncluded={ false }
 				label={ __( 'Manual', 'jetpack-boost' ) }
 				tooltipTitle={ __( 'Manual Critical CSS regeneration', 'jetpack-boost' ) }
 				tooltipInfo={ manuallyUpdatedContext }
