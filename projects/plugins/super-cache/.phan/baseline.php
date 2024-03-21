@@ -30,12 +30,12 @@ return [
     // PhanTypeMismatchArgumentProbablyReal : 5 occurrences
     // PhanTypeMismatchArgumentInternalProbablyReal : 4 occurrences
     // PhanTypeMismatchArgumentInternalReal : 4 occurrences
+    // PhanUndeclaredConstant : 4 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 3 occurrences
     // PhanPluginRedundantAssignment : 3 occurrences
     // PhanTypeInvalidLeftOperandOfNumericOp : 3 occurrences
     // PhanTypeSuspiciousNonTraversableForeach : 3 occurrences
     // PhanUndeclaredClassMethod : 3 occurrences
-    // PhanUndeclaredConstant : 3 occurrences
     // PhanImpossibleCondition : 2 occurrences
     // PhanPluginDuplicateAdjacentStatement : 2 occurrences
     // PhanPluginDuplicateExpressionAssignmentOperation : 2 occurrences
@@ -64,7 +64,7 @@ return [
         'ossdl-cdn.php' => ['PhanUndeclaredClassMethod'],
         'partials/advanced.php' => ['PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredGlobalVariable', 'PhanRedundantConditionInGlobalScope', 'PhanTypeMismatchArgument', 'PhanTypeNonVarPassByRef', 'PhanUndeclaredGlobalVariable'],
         'partials/debug.php' => ['PhanTypeNonVarPassByRef', 'PhanUndeclaredGlobalVariable'],
-        'partials/easy.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspiciousNull', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgumentInternalReal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredGlobalVariable'],
+        'partials/easy.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspiciousNull', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgumentInternalReal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredConstant', 'PhanUndeclaredGlobalVariable'],
         'partials/lockdown.php' => ['PhanUndeclaredGlobalVariable'],
         'partials/preload.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredGlobalVariable', 'PhanTypeMismatchDimAssignment', 'PhanUndeclaredGlobalVariable'],
         'partials/rejected_user_agents.php' => ['PhanUndeclaredGlobalVariable'],
