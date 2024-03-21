@@ -20,7 +20,13 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.4.1';
+	const PACKAGE_VERSION = '0.5.0';
+	/**
+	 * The cron event hook for the scheduled plugins update.
+	 *
+	 * @var string
+	 */
+	const PLUGIN_CRON_HOOK = 'jetpack_scheduled_plugins_update';
 
 	/**
 	 * Initialize the class.
@@ -41,10 +47,11 @@ class Scheduled_Updates {
 			return;
 		}
 
-		add_action( 'jetpack_scheduled_update', array( __CLASS__, 'run_scheduled_update' ), 10, 10 );
+		add_action( self::PLUGIN_CRON_HOOK, array( __CLASS__, 'run_scheduled_update' ), 10, 10 );
 		add_action( 'rest_api_init', array( __CLASS__, 'add_is_managed_extension_field' ) );
 		add_filter( 'auto_update_plugin', array( __CLASS__, 'allowlist_scheduled_plugins' ), 10, 2 );
 		add_filter( 'plugin_auto_update_setting_html', array( __CLASS__, 'show_scheduled_updates' ), 10, 2 );
+		add_action( 'deleted_plugin', array( __CLASS__, 'deleted_plugin' ), 10, 2 );
 	}
 
 	/**
@@ -97,7 +104,7 @@ class Scheduled_Updates {
 	 * @return false|array Updated statuses or false if not found.
 	 */
 	public static function set_scheduled_update_status( $schedule_id, $timestamp, $status ) {
-		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+		$events = wp_get_scheduled_events( self::PLUGIN_CRON_HOOK );
 
 		if ( empty( $events[ $schedule_id ] ) ) {
 			// Scheduled update not found.
@@ -128,6 +135,18 @@ class Scheduled_Updates {
 	}
 
 	/**
+	 * Get the last status of a scheduled update.
+	 *
+	 * @param string $schedule_id Request ID.
+	 * @return array|null Last status of the scheduled update or null if not found.
+	 */
+	public static function get_scheduled_update_status( $schedule_id ) {
+		$statuses = get_option( 'jetpack_scheduled_update_statuses', array() );
+
+		return $statuses[ $schedule_id ] ?? null;
+	}
+
+	/**
 	 * Allow plugins that are part of scheduled updates to be updated automatically.
 	 *
 	 * @param bool|null $update Whether to update. The value of null is internally used
@@ -141,7 +160,7 @@ class Scheduled_Updates {
 				require_once __DIR__ . '/pluggable.php';
 			}
 
-			$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+			$events = wp_get_scheduled_events( self::PLUGIN_CRON_HOOK );
 			foreach ( $events as $event ) {
 				if ( isset( $item->plugin ) && in_array( $item->plugin, $event->args, true ) ) {
 					return true;
@@ -165,7 +184,7 @@ class Scheduled_Updates {
 			require_once __DIR__ . '/pluggable.php';
 		}
 
-		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+		$events = wp_get_scheduled_events( self::PLUGIN_CRON_HOOK );
 
 		$schedules = array();
 		foreach ( $events as $event ) {
@@ -331,6 +350,63 @@ class Scheduled_Updates {
 		}
 
 		return $file_mod_capabilities;
+	}
+
+	/**
+	 * Hook run when a plugin is deleted.
+	 *
+	 * @param string $plugin_file Path to the plugin file relative to the plugins directory.
+	 * @param bool   $deleted     Whether the plugin deletion was successful.
+	 */
+	public static function deleted_plugin( $plugin_file, $deleted ) {
+		if ( ! $deleted ) {
+			return;
+		}
+
+		$events = wp_get_scheduled_events( self::PLUGIN_CRON_HOOK );
+
+		if ( ! count( $events ) ) {
+			return;
+		}
+
+		foreach ( $events as $id => $event ) {
+			// Continue if the plugin is not part of the schedule.
+			if ( ! in_array( $plugin_file, $event->args, true ) ) {
+				continue;
+			}
+
+			// Remove the schedule.
+			$result = wp_unschedule_event( $event->timestamp, self::PLUGIN_CRON_HOOK, $event->args, true );
+
+			if ( is_wp_error( $result ) || false === $result ) {
+				continue;
+			}
+
+			$plugins = array_values( array_diff( $event->args, array( $plugin_file ) ) );
+
+			if ( ! count( $plugins ) ) {
+				continue;
+			}
+
+			// There are still plugins to update. Schedule a new event.
+			$result = wp_schedule_event( $event->timestamp, $event->schedule, self::PLUGIN_CRON_HOOK, $plugins, true );
+
+			if ( is_wp_error( $result ) || false === $result ) {
+				continue;
+			}
+
+			$schedule_id = self::generate_schedule_id( $plugins );
+			$status      = self::get_scheduled_update_status( $id );
+
+			// Inherit the status from the previous schedule.
+			if ( $status ) {
+				self::set_scheduled_update_status(
+					$schedule_id,
+					$status['last_run_timestamp'],
+					$status['last_run_status']
+				);
+			}
+		}
 	}
 
 	/**

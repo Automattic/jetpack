@@ -644,8 +644,8 @@ importers:
         specifier: 5.3.1
         version: 5.3.1(@babel/core@7.24.0)(rollup@2.79.1)
       '@rollup/plugin-commonjs':
-        specifier: 19.0.2
-        version: 19.0.2(rollup@2.79.1)
+        specifier: 25.0.7
+        version: 25.0.7(rollup@2.79.1)
       '@rollup/plugin-json':
         specifier: 4.1.0
         version: 4.1.0(rollup@2.79.1)
@@ -2849,6 +2849,97 @@ importers:
         specifier: 4.9.1
         version: 4.9.1(webpack@5.76.0)
 
+  projects/plugins/automattic-for-agencies-client:
+    dependencies:
+      '@automattic/jetpack-base-styles':
+        specifier: workspace:*
+        version: link:../../js-packages/base-styles
+      '@automattic/jetpack-components':
+        specifier: workspace:*
+        version: link:../../js-packages/components
+      '@automattic/jetpack-connection':
+        specifier: workspace:*
+        version: link:../../js-packages/connection
+      '@wordpress/data':
+        specifier: 9.23.0
+        version: 9.23.0(react@18.2.0)
+      '@wordpress/date':
+        specifier: 4.53.0
+        version: 4.53.0
+      '@wordpress/element':
+        specifier: 5.30.0
+        version: 5.30.0
+      '@wordpress/i18n':
+        specifier: 4.53.0
+        version: 4.53.0
+      react:
+        specifier: 18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: 18.2.0
+        version: 18.2.0(react@18.2.0)
+    devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
+      '@babel/core':
+        specifier: 7.24.0
+        version: 7.24.0
+      '@babel/preset-env':
+        specifier: 7.24.0
+        version: 7.24.0(@babel/core@7.24.0)
+      '@babel/runtime':
+        specifier: 7.24.0
+        version: 7.24.0
+      '@testing-library/dom':
+        specifier: 9.3.4
+        version: 9.3.4
+      '@testing-library/react':
+        specifier: 14.2.1
+        version: 14.2.1(react-dom@18.2.0)(react@18.2.0)
+      '@wordpress/browserslist-config':
+        specifier: 5.36.0
+        version: 5.36.0
+      babel-jest:
+        specifier: 29.4.3
+        version: 29.4.3(@babel/core@7.24.0)
+      concurrently:
+        specifier: 7.6.0
+        version: 7.6.0
+      jest:
+        specifier: 29.7.0
+        version: 29.7.0
+      jest-environment-jsdom:
+        specifier: 29.7.0
+        version: 29.7.0
+      sass:
+        specifier: 1.64.1
+        version: 1.64.1
+      sass-loader:
+        specifier: 12.4.0
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
+      webpack:
+        specifier: 5.76.0
+        version: 5.76.0(webpack-cli@4.9.1)
+      webpack-cli:
+        specifier: 4.9.1
+        version: 4.9.1(webpack@5.76.0)
+
+  projects/plugins/automattic-for-agencies-client/tests/e2e:
+    devDependencies:
+      '@playwright/test':
+        specifier: 1.39.0
+        version: 1.39.0
+      allure-playwright:
+        specifier: 2.9.2
+        version: 2.9.2
+      config:
+        specifier: 3.3.7
+        version: 3.3.7
+      jetpack-e2e-commons:
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
+
   projects/plugins/boost:
     dependencies:
       '@automattic/format-currency':
@@ -3116,8 +3207,8 @@ importers:
         specifier: 7.24.0
         version: 7.24.0(@babel/core@7.24.0)
       '@rollup/plugin-commonjs':
-        specifier: 19.0.2
-        version: 19.0.2(rollup@2.79.1)
+        specifier: 25.0.7
+        version: 25.0.7(rollup@2.79.1)
       '@rollup/plugin-node-resolve':
         specifier: 13.3.0
         version: 13.3.0(rollup@2.79.1)
@@ -3968,8 +4059,8 @@ importers:
         specifier: ^29.0.0
         version: 29.7.0
       axios:
-        specifier: 1.6.2
-        version: 1.6.2
+        specifier: 1.6.8
+        version: 1.6.8
       cheerio:
         specifier: 1.0.0-rc.12
         version: 1.0.0-rc.12
@@ -4159,8 +4250,8 @@ importers:
         specifier: 2.9.2
         version: 2.9.2
       axios:
-        specifier: 1.6.2
-        version: 1.6.2
+        specifier: 1.6.8
+        version: 1.6.8
       chalk:
         specifier: 5.0.1
         version: 5.0.1
@@ -8817,19 +8908,21 @@ packages:
       rollup: 2.79.1
     dev: true
 
-  /@rollup/plugin-commonjs@19.0.2(rollup@2.79.1):
-    resolution: {integrity: sha512-gBjarfqlC7qs0AutpRW/hrFNm+cd2/QKxhwyFa+srbg1oX7rDsEU3l+W7LAUhsAp9mPJMAkXDhLbQaVwEaE8bA==}
-    engines: {node: '>= 8.0.0'}
+  /@rollup/plugin-commonjs@25.0.7(rollup@2.79.1):
+    resolution: {integrity: sha512-nEvcR+LRjEjsaSsc4x3XZfCCvZIaSMenZu/OiwOKGN2UhQpAYI7ru7czFvyWbErlpoGjnSX3D5Ch5FcMA3kRWQ==}
+    engines: {node: '>=14.0.0'}
     peerDependencies:
-      rollup: ^2.38.3
+      rollup: ^2.68.0||^3.0.0||^4.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
     dependencies:
-      '@rollup/pluginutils': 3.1.0(rollup@2.79.1)
+      '@rollup/pluginutils': 5.1.0(rollup@2.79.1)
       commondir: 1.0.1
       estree-walker: 2.0.2
-      glob: 7.1.6
+      glob: 8.1.0
       is-reference: 1.2.1
-      magic-string: 0.25.9
-      resolve: 1.22.8
+      magic-string: 0.30.8
       rollup: 2.79.1
     dev: true
 
@@ -9099,7 +9192,7 @@ packages:
       '@slack/types': 2.11.0
       '@types/is-stream': 1.1.0
       '@types/node': 20.11.25
-      axios: 1.6.2
+      axios: 1.6.8
       eventemitter3: 3.1.2
       form-data: 2.5.1
       is-electron: 2.2.2
@@ -13769,19 +13862,19 @@ packages:
     engines: {node: '>=4'}
     dev: true
 
-  /axios@1.6.2:
-    resolution: {integrity: sha512-7i24Ri4pmDRfJTR7LDBhsOTtcm+9kjX5WiY1X3wIisx6G9So3pfMkEiU7emUBe46oceVImccTEM3k6C5dbVW8A==}
+  /axios@1.6.8:
+    resolution: {integrity: sha512-v/ZHtJDU39mDpyBoFVkETcd/uNdxrWRrg3bKpOKzXFA6Bvqopts6ALSMU3y6ijYxbw2B+wPrIv46egTzJXCLGQ==}
     dependencies:
-      follow-redirects: 1.15.5
+      follow-redirects: 1.15.6
       form-data: 4.0.0
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
 
-  /axios@1.6.2(debug@4.3.4):
-    resolution: {integrity: sha512-7i24Ri4pmDRfJTR7LDBhsOTtcm+9kjX5WiY1X3wIisx6G9So3pfMkEiU7emUBe46oceVImccTEM3k6C5dbVW8A==}
+  /axios@1.6.8(debug@4.3.4):
+    resolution: {integrity: sha512-v/ZHtJDU39mDpyBoFVkETcd/uNdxrWRrg3bKpOKzXFA6Bvqopts6ALSMU3y6ijYxbw2B+wPrIv46egTzJXCLGQ==}
     dependencies:
-      follow-redirects: 1.15.5(debug@4.3.4)
+      follow-redirects: 1.15.6(debug@4.3.4)
       form-data: 4.0.0
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -16839,8 +16932,8 @@ packages:
       tabbable: 5.3.3
     dev: false
 
-  /follow-redirects@1.15.5:
-    resolution: {integrity: sha512-vSFWUON1B+yAw1VN4xMfxgn5fTUiaOzAJCKBwIIgT/+7CuGy9+r+5gITvP62j3RmaD5Ph65UaERdOSRGUzZtgw==}
+  /follow-redirects@1.15.6:
+    resolution: {integrity: sha512-wWN62YITEaOpSK584EZXJafH1AGpO8RVgElfkuXbTOrPX4fIfOyEpW/CsiNd8JdYrAoOvafRTOEnvsO++qCqFA==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -16848,8 +16941,8 @@ packages:
       debug:
         optional: true
 
-  /follow-redirects@1.15.5(debug@4.3.4):
-    resolution: {integrity: sha512-vSFWUON1B+yAw1VN4xMfxgn5fTUiaOzAJCKBwIIgT/+7CuGy9+r+5gITvP62j3RmaD5Ph65UaERdOSRGUzZtgw==}
+  /follow-redirects@1.15.6(debug@4.3.4):
+    resolution: {integrity: sha512-wWN62YITEaOpSK584EZXJafH1AGpO8RVgElfkuXbTOrPX4fIfOyEpW/CsiNd8JdYrAoOvafRTOEnvsO++qCqFA==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -19194,7 +19287,7 @@ packages:
     engines: {node: '>=8.3.0'}
     hasBin: true
     dependencies:
-      axios: 1.6.2(debug@4.3.4)
+      axios: 1.6.8(debug@4.3.4)
       debug: 4.3.4
       openurl: 1.1.1
       yargs: 17.6.2
@@ -19363,12 +19456,6 @@ packages:
   /lz-string@1.5.0:
     resolution: {integrity: sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==}
     hasBin: true
-    dev: true
-
-  /magic-string@0.25.9:
-    resolution: {integrity: sha512-RmF0AsMzgt25qzqqLc1+MbHmhdx0ojF2Fvs4XnOqz2ZOBXzzkEwc/dJQZCYHAn7v1jbVOjAZfK8msRn4BxO4VQ==}
-    dependencies:
-      sourcemap-codec: 1.4.8
     dev: true
 
   /magic-string@0.27.0:
@@ -21684,6 +21771,7 @@ packages:
   /react-remove-scroll-bar@2.3.5(@types/react@18.2.61)(react@18.2.0):
     resolution: {integrity: sha512-3cqjOqg6s0XbOjWvmasmqHch+RLxIEk2r/70rzGXuz3iIGQsQheEQyqYCBb5EECoD01Vo2SIbDqW4paLeLTASw==}
     engines: {node: '>=10'}
+    deprecated: please update to the following version as this contains a bug (https://github.com/theKashey/react-remove-scroll-bar/issues/57)
     peerDependencies:
       '@types/react': ^16.8.0 || ^17.0.0 || ^18.0.0
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -21699,6 +21787,7 @@ packages:
   /react-remove-scroll-bar@2.3.5(react@18.2.0):
     resolution: {integrity: sha512-3cqjOqg6s0XbOjWvmasmqHch+RLxIEk2r/70rzGXuz3iIGQsQheEQyqYCBb5EECoD01Vo2SIbDqW4paLeLTASw==}
     engines: {node: '>=10'}
+    deprecated: please update to the following version as this contains a bug (https://github.com/theKashey/react-remove-scroll-bar/issues/57)
     peerDependencies:
       '@types/react': ^16.8.0 || ^17.0.0 || ^18.0.0
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -22908,11 +22997,6 @@ packages:
   /source-map@0.7.4:
     resolution: {integrity: sha512-l3BikUxvPOcn5E74dZiq5BGsTb5yEwhaTSzccU6t4sDOH8NWJCstKO5QT2CvtFoK6F0saL7p9xHAqHOlCPJygA==}
     engines: {node: '>= 8'}
-    dev: true
-
-  /sourcemap-codec@1.4.8:
-    resolution: {integrity: sha512-9NykojV5Uih4lgo5So5dtw+f0JgJX30KCNI8gwhz2J9A15wD0Ml6tjHKwf6fTSa6fAdVBdZeNOs9eJ71qCk8vA==}
-    deprecated: Please use @jridgewell/sourcemap-codec instead
     dev: true
 
   /space-separated-tokens@1.1.5:
@@ -24354,7 +24438,7 @@ packages:
     engines: {node: '>=12.0.0'}
     hasBin: true
     dependencies:
-      axios: 1.6.2
+      axios: 1.6.8
       joi: 17.12.2
       lodash: 4.17.21
       minimist: 1.2.8
