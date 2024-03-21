@@ -34,14 +34,12 @@ return [
     // PhanPluginRedundantAssignment : 1 occurrence
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanPossiblyUndeclaredVariable : 1 occurrence
-    // PhanRedefinedUsedTrait : 1 occurrence
     // PhanTypeComparisonToArray : 1 occurrence
     // PhanTypeInvalidDimOffset : 1 occurrence
     // PhanTypeMismatchDeclaredParamNullable : 1 occurrence
     // PhanTypeMismatchDefault : 1 occurrence
     // PhanTypeMismatchDimAssignment : 1 occurrence
     // PhanUndeclaredClassReference : 1 occurrence
-    // PhanUndeclaredConstant : 1 occurrence
     // PhanUndeclaredFunction : 1 occurrence
     // PhanUndeclaredTypeReturnType : 1 occurrence
 
@@ -62,12 +60,12 @@ return [
         'src/dashboard/class-dashboard.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty', 'PhanUnextractableAnnotation'],
         'src/dashboard/class-initial-state.php' => ['PhanTypeMismatchArgument'],
         'src/initializers/class-initializer.php' => ['PhanNoopNew', 'PhanUndeclaredFunctionInCallable'],
-        'src/instant-search/class-instant-search.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassProperty', 'PhanUndeclaredConstant', 'PhanUndeclaredTypeParameter', 'PhanUnextractableAnnotation'],
+        'src/instant-search/class-instant-search.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassProperty', 'PhanUndeclaredTypeParameter', 'PhanUnextractableAnnotation'],
         'src/widgets/class-search-widget.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeSuspiciousEcho', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeProperty'],
         'src/wpes/class-query-builder.php' => ['PhanImpossibleCondition', 'PhanRedundantCondition', 'PhanTypeMismatchDimAssignment', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredProperty'],
         'src/wpes/class-query-parser.php' => ['PhanUndeclaredProperty'],
         'tests/php/test-get-ios-version.php' => ['PhanUndeclaredFunctionInCallable'],
-        'tests/php/test-helpers.php' => ['PhanPluginMixedKeyNoKey', 'PhanRedefinedUsedTrait', 'PhanTypeMismatchArgument', 'PhanTypeMismatchProperty', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredTypeProperty', 'PhanUnextractableAnnotation'],
+        'tests/php/test-helpers.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchArgument', 'PhanTypeMismatchProperty', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredTypeProperty', 'PhanUnextractableAnnotation'],
         'tests/php/test-module-control.php' => ['PhanTypeMismatchArgument'],
         'tests/php/test-plan.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/test-rest-controller.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeReturnType'],

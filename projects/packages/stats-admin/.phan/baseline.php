@@ -9,11 +9,10 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredClassMethod : 55+ occurrences
+    // PhanUndeclaredClassMethod : 60+ occurrences
     // PhanUndeclaredTypeParameter : 20+ occurrences
     // PhanTypeMismatchReturn : 8 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 6 occurrences
-    // PhanUndeclaredConstant : 5 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
     // PhanTypeMismatchArgument : 1 occurrence
@@ -23,12 +22,10 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-main.php' => ['PhanTypeMismatchArgument'],
-        'src/class-notices.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanUndeclaredConstant'],
-        'src/class-odyssey-assets.php' => ['PhanUndeclaredConstant'],
+        'src/class-notices.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn'],
         'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
-        'src/class-wpcom-client.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredConstant'],
+        'src/class-wpcom-client.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
         'tests/php/test-stats-dashboard.php' => ['PhanUndeclaredStaticProperty'],
-        'tests/php/test-stats-notices.php' => ['PhanUndeclaredConstant'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

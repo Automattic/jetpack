@@ -793,6 +793,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						$event,
 						array(
 							'success' => 'false',
+							'error'   => wp_remote_retrieve_body( $response ), // Get as much information as possible.
 						)
 					);
 				} else {

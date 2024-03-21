@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.17.1] - 2024-03-18
+### Added
+- Add a loaded event for My Jetpack product cards [#36397]
+
+## [4.17.0] - 2024-03-14
+### Changed
+- Rewrite My Jetpack hooks to Typescript [#36288]
+
 ## [4.16.0] - 2024-03-12
 ### Added
 - Add a red bubble notification that shows if the site is disconnected [#36263]
@@ -1343,6 +1351,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.17.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.17.0...4.17.1
+[4.17.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.16.0...4.17.0
 [4.16.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.15.0...4.16.0
 [4.15.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.14.0...4.15.0
 [4.14.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.13.0...4.14.0

@@ -455,9 +455,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		/**
 		 * Adds the WordPress.com GitHub Deployments submenu under the main Tools menu.
 		 */
-		if ( apply_filters( 'jetpack_show_wpcom_github_deployments_menu', false ) ) {
-			add_submenu_page( 'tools.php', esc_attr__( 'GitHub Deployments', 'jetpack' ), __( 'GitHub Deployments', 'jetpack' ), 'manage_options', 'https://wordpress.com/github-deployments/' . $this->domain, null, 7 );
-		}
+		add_submenu_page( 'tools.php', esc_attr__( 'GitHub Deployments', 'jetpack' ), __( 'GitHub Deployments', 'jetpack' ), 'manage_options', 'https://wordpress.com/github-deployments/' . $this->domain, null, 8 );
 	}
 
 	/**

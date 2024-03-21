@@ -3,17 +3,16 @@
  */
 import { useConnection } from '@automattic/jetpack-connection';
 import debugFactory from 'debug';
+import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
 import ProductInterstitial from '../';
 import useProduct from '../../../data/products/use-product';
-import { useGoBack } from '../../../hooks/use-go-back';
 import jetpackAiImage from '../jetpack-ai.png';
-import { JetpackAIInterstitialMoreRequests } from './more-requests';
 import styles from './style.module.scss';
 
-const debug = debugFactory( 'my-jetpack:jetpack-ai-interstitial' );
+const debug = debugFactory( 'my-jetpack:product-interstitial:jetpack-ai' );
 /**
  * JetpackAiInterstitial component
  *
@@ -22,27 +21,22 @@ const debug = debugFactory( 'my-jetpack:jetpack-ai-interstitial' );
 export default function JetpackAiInterstitial() {
 	const slug = 'jetpack-ai';
 	const { detail } = useProduct( slug );
-	const { onClickGoBack } = useGoBack( { slug } );
-	const { isRegistered } = useConnection();
 	debug( detail );
-	const nextTier = detail?.aiAssistantFeature?.nextTier || null;
 
-	const { hasRequiredPlan } = detail;
+	const { userConnectionData } = useConnection();
+	const { currentUser } = userConnectionData;
+	const { wpcomUser } = currentUser;
+	const userId = currentUser?.id || 0;
+	const blogId = currentUser?.blogId || 0;
+	const wpcomUserId = wpcomUser?.ID || 0;
+	const userOptKey = `jetpack_ai_optfree_${ userId }_${ blogId }_${ wpcomUserId }`;
 
-	// The user has a plan and there is not a next tier
-	if ( isRegistered && hasRequiredPlan && ! nextTier ) {
-		debug( 'user is on top tier' );
-		// TODO: handle this on the pricing table and the product page
-		return <JetpackAIInterstitialMoreRequests onClickGoBack={ onClickGoBack } />;
-	}
-
-	// Default to 100 requests if the site is not registered/connected.
-	const nextTierValue = isRegistered ? nextTier?.value : 100;
-	// Decide the quantity value for the upgrade, but ignore the unlimited tier.
-	const quantity = nextTierValue !== 1 ? nextTierValue : null;
-
-	// Highlight the last feature in the table for all the tiers except the unlimited one.
-	const highlightLastFeature = nextTier?.value !== 1;
+	const ctaClickHandler = useCallback(
+		( { tier } ) => {
+			tier === 'free' && localStorage.setItem( userOptKey, true );
+		},
+		[ userOptKey ]
+	);
 
 	return (
 		<ProductInterstitial
@@ -50,9 +44,8 @@ export default function JetpackAiInterstitial() {
 			installsPlugin={ true }
 			imageContainerClassName={ styles.aiImageContainer }
 			hideTOS={ true }
-			quantity={ quantity }
-			directCheckout={ hasRequiredPlan }
-			highlightLastFeature={ highlightLastFeature }
+			directCheckout={ false }
+			ctaCallback={ ctaClickHandler }
 		>
 			<img src={ jetpackAiImage } alt="Search" />
 		</ProductInterstitial>
