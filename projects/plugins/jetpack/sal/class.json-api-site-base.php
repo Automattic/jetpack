@@ -410,6 +410,18 @@ abstract class SAL_Site {
 	abstract public function get_user_interactions();
 
 	/**
+	 * Return the user interactions with a site. Not used in Jetpack.
+	 *
+	 * @param string $role The capability to check.
+	 * @param mixed  ...$args Optional further parameters, typically starting with an object ID.
+	 * @return bool
+	 * @see class.json-api-site-jetpack.php for implementation.
+	 * @see class.json-api-site-wpcom.php (on WPCOM) for Simple-site implementation.
+	 * @see class.json-api-site-jetpack-shadow.php (on WPCOM) for Atomic-site implementation.
+	 */
+	abstract public function current_user_can( $role, ...$args );
+
+	/**
 	 * Defines a filter to set whether a site is an automated_transfer site or not.
 	 *
 	 * Default is false.
