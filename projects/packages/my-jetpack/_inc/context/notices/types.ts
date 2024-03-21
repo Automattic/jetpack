@@ -10,6 +10,7 @@ export type Notice = {
 			noDefaultClasses?: boolean;
 		}[];
 	};
+	priority: number;
 };
 
 export type NoticeContextType< T = Notice > = {
