@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Jetpack Connection: add a new method to the connection hook that is responsible for performing only the site connection (not user connection)
