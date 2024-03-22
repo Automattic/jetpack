@@ -54,6 +54,7 @@ class Jetpack_Google_Font_Face {
 	 * Print fonts that are used in global styles or block-level settings.
 	 */
 	public function print_font_faces() {
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- This file is only loaded (via modules/google-fonts/load.php) when core's new Font library exists.
 		$fonts             = WP_Font_Face_Resolver::get_fonts_from_theme_json();
 		$font_slug_aliases = $this->get_font_slug_aliases();
 		$fonts_to_print    = array();
@@ -75,6 +76,7 @@ class Jetpack_Google_Font_Face {
 		}
 
 		if ( ! empty( $fonts_to_print ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- This file is only loaded (via modules/google-fonts/load.php) when core's new Font library exists.
 			wp_print_font_faces( $fonts_to_print );
 		}
 	}

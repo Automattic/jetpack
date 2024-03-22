@@ -140,6 +140,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 
 		/**
 		 * Renders invitations errors/success messages in users.php.
+		 *
+		 * @phan-suppress PhanUndeclaredFunction,UnusedSuppression -- Existence of wp_admin_notice (added in WP 6.4) is checked inline.
 		 */
 		public function handle_invitation_results() {
 			$valid_nonce = isset( $_GET['_wpnonce'] ) ? wp_verify_nonce( $_GET['_wpnonce'], 'jetpack-sso-invite-user' ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
