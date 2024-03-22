@@ -114,14 +114,14 @@ type FeatureItem = {
 export const boostFeatureList: FeatureItem[] = [
 	{
 		description: {
-			name: __( 'Optimize CSS Loading', 'jetpack-boost' ),
+			name: __( 'Auto CSS Optimization', 'jetpack-boost' ),
 			tooltipInfo: cssOptimizationContext,
 			tooltipPlacement: 'bottom-start',
 		},
 		free: (
 			<PricingTableItem
-				isIncluded={ true }
-				label={ __( 'Must be done manually', 'jetpack-boost' ) }
+				isIncluded={ false }
+				label={ __( 'Manual', 'jetpack-boost' ) }
 				tooltipTitle={ __( 'Manual Critical CSS regeneration', 'jetpack-boost' ) }
 				tooltipInfo={ manuallyUpdatedContext }
 				tooltipClassName="wide-tooltip"
@@ -130,36 +130,12 @@ export const boostFeatureList: FeatureItem[] = [
 		premium: (
 			<PricingTableItem
 				isIncluded={ true }
-				label={ <strong>{ __( 'Automatically updated', 'jetpack-boost' ) }</strong> }
+				label={ <strong>{ __( 'Included', 'jetpack-boost' ) }</strong> }
 				tooltipTitle={ __( 'Automatic Critical CSS regeneration', 'jetpack-boost' ) }
 				tooltipInfo={ automaticallyUpdatedContext }
 				tooltipClassName="wide-tooltip"
 			/>
 		),
-	},
-	{
-		description: {
-			name: __( 'Image CDN', 'jetpack-boost' ),
-			tooltipInfo: imageCdnContext,
-			tooltipPlacement: 'bottom-start',
-		},
-		free: <PricingTableItem isIncluded={ true } />,
-		premium: (
-			<PricingTableItem
-				isIncluded={ true }
-				label={ <strong>{ __( 'Included + quality settings', 'jetpack-boost' ) }</strong> }
-				tooltipInfo={ __( 'Fine-tune image quality settings to your liking.', 'jetpack-boost' ) }
-			/>
-		),
-	},
-	{
-		description: {
-			name: __( 'Page Cache', 'jetpack-boost' ),
-			tooltipInfo: pageCacheContext,
-			tooltipPlacement: 'bottom-start',
-		},
-		free: <PricingTableItem isIncluded={ true } />,
-		premium: <PricingTableItem isIncluded={ true } />,
 	},
 	{
 		description: {
@@ -181,8 +157,35 @@ export const boostFeatureList: FeatureItem[] = [
 	},
 	{
 		description: {
-			name: __( 'Defer non-essential JavaScript', 'jetpack-boost' ),
-			tooltipInfo: deferJSContext,
+			name: __( 'Dedicated email support', 'jetpack-boost' ),
+			tooltipInfo: <span dangerouslySetInnerHTML={ { __html: supportContext } }></span>,
+			tooltipPlacement: 'bottom-start',
+		},
+		free: <PricingTableItem isIncluded={ false } label={ __( 'Not included', 'jetpack-boost' ) } />,
+		premium: <PricingTableItem isIncluded={ true } />,
+	},
+	{
+		description: {
+			name: __( 'Page Cache', 'jetpack-boost' ),
+			tooltipInfo: pageCacheContext,
+			tooltipPlacement: 'bottom-start',
+		},
+		free: <PricingTableItem isIncluded={ true } />,
+		premium: <PricingTableItem isIncluded={ true } />,
+	},
+	{
+		description: {
+			name: __( 'Image CDN Quality Settings', 'jetpack-boost' ),
+			tooltipInfo: __( 'Fine-tune image quality settings to your liking.', 'jetpack-boost' ),
+			tooltipPlacement: 'bottom-start',
+		},
+		free: <PricingTableItem isIncluded={ true } />,
+		premium: <PricingTableItem isIncluded={ true } label={ __( 'Included', 'jetpack-boost' ) } />,
+	},
+	{
+		description: {
+			name: __( 'Image CDN', 'jetpack-boost' ),
+			tooltipInfo: imageCdnContext,
 			tooltipPlacement: 'bottom-start',
 		},
 		free: <PricingTableItem isIncluded={ true } />,
@@ -199,8 +202,8 @@ export const boostFeatureList: FeatureItem[] = [
 	},
 	{
 		description: {
-			name: __( 'Concatenate JS and CSS', 'jetpack-boost' ),
-			tooltipInfo: concatenateContext,
+			name: __( 'Defer non-essential JavaScript', 'jetpack-boost' ),
+			tooltipInfo: deferJSContext,
 			tooltipPlacement: 'bottom-start',
 		},
 		free: <PricingTableItem isIncluded={ true } />,
@@ -208,11 +211,11 @@ export const boostFeatureList: FeatureItem[] = [
 	},
 	{
 		description: {
-			name: __( 'Dedicated email support', 'jetpack-boost' ),
-			tooltipInfo: <span dangerouslySetInnerHTML={ { __html: supportContext } }></span>,
+			name: __( 'Concatenate JS and CSS', 'jetpack-boost' ),
+			tooltipInfo: concatenateContext,
 			tooltipPlacement: 'bottom-start',
 		},
-		free: <PricingTableItem isIncluded={ false } label={ __( 'Not included', 'jetpack-boost' ) } />,
+		free: <PricingTableItem isIncluded={ true } />,
 		premium: <PricingTableItem isIncluded={ true } />,
 	},
 ];

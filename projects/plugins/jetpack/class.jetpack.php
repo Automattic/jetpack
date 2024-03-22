@@ -2289,11 +2289,12 @@ class Jetpack {
 	 */
 	public function handle_deprecated_modules( $modules ) {
 		$deprecated_modules = array(
-			'debug'            => null,  // Closed out and moved to the debugger library.
-			'wpcc'             => 'sso', // Closed out in 2.6 -- SSO provides the same functionality.
-			'gplus-authorship' => null,  // Closed out in 3.2 -- Google dropped support.
-			'minileven'        => null,  // Closed out in 8.3 -- Responsive themes are common now, and so is AMP.
-			'lazy-images'      => null, // Closed out in 12.8 -- WordPress core now has native lazy loading.
+			'debug'                 => null,  // Closed out and moved to the debugger library.
+			'wpcc'                  => 'sso', // Closed out in 2.6 -- SSO provides the same functionality.
+			'gplus-authorship'      => null,  // Closed out in 3.2 -- Google dropped support.
+			'minileven'             => null,  // Closed out in 8.3 -- Responsive themes are common now, and so is AMP.
+			'lazy-images'           => null, // Closed out in 12.8 -- WordPress core now has native lazy loading.
+			'enhanced-distribution' => null, // Closed out in 13.3 -- WP.com is winding down the firehose.
 		);
 
 		// Don't activate SSO if they never completed activating WPCC.
