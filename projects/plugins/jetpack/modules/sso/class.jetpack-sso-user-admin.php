@@ -133,6 +133,9 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 
 		/**
 		 * Renders invitations errors/success messages in users.php.
+		 *
+		 * @phan-suppress PhanUndeclaredFunction
+		 * @todo When WordPress 6.4 is the minimum version, remove the suppression above and function_exists check.
 		 */
 		public function handle_invitation_results() {
 			$valid_nonce = isset( $_GET['_wpnonce'] ) ? wp_verify_nonce( $_GET['_wpnonce'], 'jetpack-sso-invite-user' ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
@@ -573,6 +576,9 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 
 		/**
 		 * Render the invitation email message.
+		 *
+		 * @phan-suppress PhanUndeclaredFunction
+		 * @todo When WordPress 6.4 is the minimum version, remove the suppression above and function_exists check.
 		 */
 		public function render_invitation_email_message() {
 			if ( ! function_exists( 'wp_admin_notice' ) ) {
@@ -605,6 +611,9 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 
 		/**
 		 * Render a note that wp.com invites will be automatically revoked.
+		 *
+		 * @phan-suppress PhanUndeclaredFunction
+		 * @todo When WordPress 6.4 is the minimum version, remove the suppression above and function_exists check.
 		 */
 		public function render_invitations_notices_for_deleted_users() {
 			if ( ! function_exists( 'wp_admin_notice' ) ) {
@@ -679,10 +688,10 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 									<span><?php esc_html_e( 'Invite user', 'jetpack' ); ?></span>
 								</legend>
 								<label for="invite_user_wpcom">
-									<input 
-										name="invite_user_wpcom" 
-										type="checkbox" 
-										id="invite_user_wpcom" 
+									<input
+										name="invite_user_wpcom"
+										type="checkbox"
+										id="invite_user_wpcom"
 										<?php checked( ! class_exists( 'WooCommerce' ) ); ?>
 										>
 									<?php esc_html_e( 'Invite user to WordPress.com', 'jetpack' ); ?>
