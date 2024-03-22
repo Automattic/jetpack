@@ -71,10 +71,7 @@ class Jetpack_Subscription_Site {
 		add_filter(
 			'hooked_block_types',
 			function ( $hooked_blocks, $relative_position, $anchor_block ) {
-				if (
-					$anchor_block === 'core/navigation' &&
-					$relative_position === 'last_child'
-				) {
+				if ( $anchor_block === 'core/navigation' && $relative_position === 'last_child' ) {
 					$hooked_blocks[] = 'jetpack/subscriber-login';
 				}
 
