@@ -14,6 +14,7 @@ return [
     // PhanTypeMismatchReturn : 3 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 2 occurrences
     // PhanUndeclaredClassMethod : 2 occurrences
+    // PhanUndeclaredMethod : 2 occurrences
     // PhanUndeclaredTypeParameter : 2 occurrences
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanTypeInvalidDimOffset : 1 occurrence
@@ -21,7 +22,6 @@ return [
     // PhanTypeMismatchProperty : 1 occurrence
     // PhanUndeclaredConstant : 1 occurrence
     // PhanUndeclaredFunction : 1 occurrence
-    // PhanUndeclaredMethod : 1 occurrence
     // PhanUndeclaredTypeProperty : 1 occurrence
     // PhanUndeclaredTypeReturnType : 1 occurrence
     // PhanUnreferencedUseNormal : 1 occurrence
