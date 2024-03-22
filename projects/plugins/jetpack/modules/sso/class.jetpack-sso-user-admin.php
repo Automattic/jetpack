@@ -585,6 +585,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * Render the invitation email message.
 		 */
 		public function render_invitation_email_message() {
+			// @todo Remove function_exists check (and phan suppression below) when we drop support for WP 6.3.
 			if ( ! function_exists( 'wp_admin_notice' ) ) {
 				return;
 			}
@@ -602,6 +603,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					),
 				)
 			);
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Existence of wp_admin_notice (added in WP 6.4) is checked above. @phan-suppress-current-line UnusedPluginSuppression
 			wp_admin_notice(
 				$message,
 				array(
@@ -617,6 +619,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * Render a note that wp.com invites will be automatically revoked.
 		 */
 		public function render_invitations_notices_for_deleted_users() {
+			// @todo Remove function_exists check (and phan suppression below) when we drop support for WP 6.3.
 			if ( ! function_exists( 'wp_admin_notice' ) ) {
 				return;
 			}
@@ -658,6 +661,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					),
 					array( 'strong' => true )
 				);
+				// @phan-suppress-next-line PhanUndeclaredFunction -- Existence of wp_admin_notice (added in WP 6.4) is checked above. @phan-suppress-current-line UnusedPluginSuppression
 				wp_admin_notice(
 					$message,
 					array(
