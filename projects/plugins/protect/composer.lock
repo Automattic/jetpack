@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8513e2df8528d56b670179584a4f4af9",
+    "content-hash": "b5064b2bfb4cc546e06dfe6c6e95cd3f",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1448,16 +1448,16 @@
         },
         {
             "name": "automattic/jetpack-waf",
-            "version": "v0.15.1",
+            "version": "v0.16.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-waf.git",
-                "reference": "7c1fb33651bfeefea44b0864b67849785f899b0e"
+                "reference": "06b87d410129d170c4d28ef670859822b48abb1f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-waf/zipball/7c1fb33651bfeefea44b0864b67849785f899b0e",
-                "reference": "7c1fb33651bfeefea44b0864b67849785f899b0e",
+                "url": "https://api.github.com/repos/Automattic/jetpack-waf/zipball/06b87d410129d170c4d28ef670859822b48abb1f",
+                "reference": "06b87d410129d170c4d28ef670859822b48abb1f",
                 "shasum": ""
             },
             "require": {
@@ -1502,9 +1502,9 @@
             ],
             "description": "Tools to assist with the Jetpack Web Application Firewall",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-waf/tree/v0.15.1"
+                "source": "https://github.com/Automattic/jetpack-waf/tree/v0.16.0"
             },
-            "time": "2024-03-14T20:43:22+00:00"
+            "time": "2024-03-22T17:48:39+00:00"
         },
         {
             "name": "wikimedia/aho-corasick",
