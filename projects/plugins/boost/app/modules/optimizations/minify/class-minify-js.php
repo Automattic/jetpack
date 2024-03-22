@@ -26,6 +26,13 @@ class Minify_JS implements Pluggable, Changes_Page_Output {
 		return 'minify_js';
 	}
 
+	/**
+	 * The module starts serving as soon as it's enabled.
+	 */
+	public function is_working() {
+		return true;
+	}
+
 	public static function is_available() {
 		return true;
 	}

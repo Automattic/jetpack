@@ -63,6 +63,13 @@ class Render_Blocking_JS implements Pluggable, Changes_Page_Output {
 		add_action( 'template_redirect', array( $this, 'start_output_filtering' ), -999999 );
 	}
 
+	/**
+	 * The module starts serving as soon as it's enabled.
+	 */
+	public function is_working() {
+		return true;
+	}
+
 	public static function is_available() {
 		return true;
 	}

@@ -80,6 +80,13 @@ class Page_Cache implements Pluggable, Has_Deactivate {
 		Boost_Cache_Settings::get_instance()->set( array( 'enabled' => false ) );
 	}
 
+	/**
+	 * The module is active if cache engine is loaded.
+	 */
+	public function is_working() {
+		return Boost_Cache::is_loaded();
+	}
+
 	public static function is_available() {
 		// Disable Page Cache on Atomic.
 		// It already has caching enabled.

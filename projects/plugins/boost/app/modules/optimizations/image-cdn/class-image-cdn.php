@@ -21,6 +21,13 @@ class Image_CDN implements Pluggable, Changes_Page_Output {
 		return 'image_cdn';
 	}
 
+	/**
+	 * The module starts serving as soon as it's enabled.
+	 */
+	public function is_working() {
+		return true;
+	}
+
 	public static function is_available() {
 		return true;
 	}

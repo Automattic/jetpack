@@ -38,6 +38,13 @@ class Critical_CSS implements Pluggable, Changes_Page_Output {
 		$this->paths   = new Source_Providers();
 	}
 
+	/**
+	 * Check if the module is ready and already serving critical CSS.
+	 */
+	public function is_working() {
+		return ( new Critical_CSS_State() )->is_generated();
+	}
+
 	public static function is_available() {
 		return true !== Premium_Features::has_feature( Premium_Features::CLOUD_CSS );
 	}

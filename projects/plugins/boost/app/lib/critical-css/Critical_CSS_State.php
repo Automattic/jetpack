@@ -157,6 +157,10 @@ class Critical_CSS_State {
 		return isset( $this->state['status_error'] ) ? $this->state['status_error'] : null;
 	}
 
+	public function is_generated() {
+		return self::GENERATION_STATES['generated'] === $this->state['status'];
+	}
+
 	public function is_requesting() {
 		return self::GENERATION_STATES['pending'] === $this->state['status'];
 	}
