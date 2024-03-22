@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\IdentityCrisis;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Jetpack_Options;
+use Jetpack_XMLRPC_Server;
 use WP_Error;
 use WP_REST_Server;
 
@@ -61,6 +62,17 @@ class REST_Endpoints {
 						'type'        => 'string',
 					),
 				),
+			)
+		);
+
+		// Fetch URL and secret for IDC check.
+		register_rest_route(
+			'jetpack/v4',
+			'/identity-crisis/idc-url-validation',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( static::class, 'validate_urls_and_set_secret' ),
+				'permission_callback' => array( static::class, 'url_secret_permission_check' ),
 			)
 		);
 
@@ -212,6 +224,22 @@ class REST_Endpoints {
 		);
 
 		return new WP_Error( 'invalid_user_permission_identity_crisis', $error_msg, array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Endpoint for URL validation and creating a secret.
+	 *
+	 * @return WP_Error|\WP_REST_Response
+	 */
+	public static function validate_urls_and_set_secret() {
+		$xmlrpc_server = new Jetpack_XMLRPC_Server();
+		$result        = $xmlrpc_server->validate_urls_for_idc_mitigation();
+
+		if ( is_a( $result, 'IXR_Error' ) ) {
+			$result = new WP_Error( $result->code, $result->message );
+		}
+
+		return $result;
 	}
 
 	/**
