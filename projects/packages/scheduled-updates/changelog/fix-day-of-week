@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed a bug where the weekday index was not properly accounted for in list of weekdays.
