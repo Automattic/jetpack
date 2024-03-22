@@ -572,7 +572,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @return array[]
 	 */
-	private function update_text_provider() {
+	public function update_text_provider() {
 		return array(
 			array(
 				(object) array(
