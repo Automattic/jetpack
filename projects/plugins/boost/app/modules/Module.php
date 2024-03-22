@@ -30,7 +30,7 @@ class Module {
 	 * Check if the module is active and ready to serve optimized output.
 	 */
 	public function is_optimizing() {
-		if ( $this->feature instanceof Changes_Page_Output && $this->feature->is_active() ) {
+		if ( $this->feature instanceof Changes_Page_Output && $this->feature->is_working() ) {
 			return true;
 		}
 	}
