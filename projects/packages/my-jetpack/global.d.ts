@@ -186,6 +186,7 @@ interface Window {
 		};
 		redBubbleAlerts: {
 			'missing-site-connection'?: null;
+			'welcome-banner-active'?: null;
 			[ key: `${ string }-bad-installation` ]: {
 				data: {
 					plugin: string;

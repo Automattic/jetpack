@@ -3,6 +3,7 @@
 }
 
 .notice {
+	position: relative;
 	margin: 0;
     padding: calc( var( --spacing-base ) * 2 ) calc( var( --spacing-base ) * 3 ) calc( var( --spacing-base ) * 2 ) calc( var( --spacing-base ) * 3 ); // 16px | 24px | 16px | 24px
 	font-size: 16px;
@@ -67,6 +68,22 @@
 		& :global(.components-notice__content) {
 			flex-direction: row;
 			align-items: center;
+		}
+	}
+
+	&.is-red-bubble {
+		border-left: 1px solid var(--jp-gray);
+
+		::before {
+			content: '';
+			position: absolute;
+			top: -11px;
+			left: -11px;
+			width: 18px;
+			height: 18px;
+			border-radius: 50%;
+			background-color: var( --jp-red-50 );
+			border: 2px solid var(--jp-white-off);
 		}
 	}
 }

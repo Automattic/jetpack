@@ -49,12 +49,13 @@ const useBadInstallNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 					noDefaultClasses: true,
 				},
 			],
+			priority: NOTICE_PRIORITY_MEDIUM,
+			isRedBubble: true,
 		};
 
 		setNotice( {
 			message: errorMessage,
 			options: noticeOptions,
-			priority: NOTICE_PRIORITY_MEDIUM,
 		} );
 	}, [ redBubbleAlerts, setNotice, recordEvent ] );
 };

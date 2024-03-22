@@ -77,7 +77,9 @@ const GlobalNotice = ( { message, options } ) => {
 			isDismissible={ false }
 			{ ...options }
 			className={
-				styles.notice + ( isBiggerThanMedium ? ' ' + styles[ 'bigger-than-medium' ] : '' )
+				styles.notice +
+				( isBiggerThanMedium && ' ' + styles[ 'bigger-than-medium' ] ) +
+				( options.isRedBubble && ' ' + styles[ 'is-red-bubble' ] )
 			}
 		>
 			<div className={ styles.message }>
@@ -161,9 +163,7 @@ export default function MyJetpackScreen() {
 							<ConnectionError />
 						</Col>
 					) }
-					{ message && ( hasBeenDismissed || ! isNewUser ) && (
-						<Col>{ <GlobalNotice message={ message } options={ options } /> }</Col>
-					) }
+					{ message && <Col>{ <GlobalNotice message={ message } options={ options } /> }</Col> }
 					{ showFullJetpackStatsCard && (
 						<Col
 							className={ classnames( {
