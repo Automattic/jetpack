@@ -564,6 +564,50 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	}
 
 	/**
+	 * Test update item.
+	 *
+	 * @covers ::update_item
+	 */
+	public function test_update_item_with_status() {
+		$plugins   = array(
+			'custom-plugin/custom-plugin.php',
+			'gutenberg/gutenberg.php',
+		);
+		$timestamp = strtotime( 'last Monday 8:00' );
+		$status    = 'success';
+
+		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
+
+		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins );
+
+		Scheduled_Updates::set_scheduled_update_status( $schedule_id, $timestamp, $status );
+
+		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . $schedule_id );
+		$request->set_body_params(
+			array(
+				'plugins'  => $plugins,
+				'schedule' => array(
+					'timestamp' => strtotime( 'next Tuesday 9:00' ),
+					'interval'  => 'daily',
+				),
+			)
+		);
+
+		// Successful request.
+		wp_set_current_user( $this->admin_id );
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$schedule_id = $result->get_data();
+
+		// Get the updated status
+		$updated_status = Scheduled_Updates::get_scheduled_update_status( $schedule_id );
+
+		$this->assertSame( $timestamp, $updated_status['last_run_timestamp'] );
+		$this->assertSame( $status, $updated_status['last_run_status'] );
+	}
+
+	/**
 	 * Test update_item with invalid schedule ID.
 	 *
 	 * @covers ::update_item
