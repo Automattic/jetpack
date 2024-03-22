@@ -602,9 +602,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		// Get the updated status
 		$updated_status = Scheduled_Updates::get_scheduled_update_status( $schedule_id );
-
-		$this->assertSame( $timestamp, $updated_status['last_run_timestamp'] );
-		$this->assertSame( $status, $updated_status['last_run_status'] );
+		if ( $updated_status === null ) {
+			$this->fail( 'Scheduled_Updates::get_scheduled_update_status() returned null.' );
+		} else {
+			$this->assertSame( $timestamp, $updated_status['last_run_timestamp'] );
+			$this->assertSame( $status, $updated_status['last_run_status'] );
+		}
 	}
 
 	/**
