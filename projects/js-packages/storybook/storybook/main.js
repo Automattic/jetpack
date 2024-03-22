@@ -38,6 +38,7 @@ const sbconfig = {
 		'@storybook/addon-a11y',
 		'@storybook/addon-essentials',
 		'storybook-addon-mock',
+		'@storybook/addon-webpack5-compiler-babel',
 	],
 	// Workaround:
 	// https://github.com/storybookjs/storybook/issues/12270
