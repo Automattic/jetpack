@@ -241,26 +241,6 @@ function jetpack_subscriptions_more_info() {
 add_action( 'jetpack_module_more_info_subscriptions', 'jetpack_subscriptions_more_info' );
 
 /**
- * Enhanced Distribution support link.
- */
-function jetpack_enhanced_distribution_more_link() {
-	echo esc_url( Redirect::get_url( 'jetpack-support-enhanced-distribution' ) );
-}
-add_action( 'jetpack_learn_more_button_enhanced-distribution', 'jetpack_enhanced_distribution_more_link' );
-
-/**
- * Enhanced Distribution description.
- */
-function jetpack_enhanced_distribution_more_info() {
-	esc_html_e(
-		'Jetpack will automatically take your great published content and share it instantly with third-party services
-		like search engines, increasing your reach and traffic.',
-		'jetpack'
-	);
-}
-add_action( 'jetpack_module_more_info_enhanced-distribution', 'jetpack_enhanced_distribution_more_info' );
-
-/**
  * Protect support link.
  */
 function jetpack_protect_more_link() {

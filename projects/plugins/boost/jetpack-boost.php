@@ -85,6 +85,20 @@ if ( is_readable( $boost_packages_path ) ) {
 		);
 	}
 
+	// Add a red bubble notification to My Jetpack if the installation is bad.
+	add_filter(
+		'my_jetpack_red_bubble_notification_slugs',
+		function ( $slugs ) {
+			$slugs['jetpack-boost-plugin-bad-installation'] = array(
+				'data' => array(
+					'plugin' => 'Jetpack Boost',
+				),
+			);
+
+			return $slugs;
+		}
+	);
+
 	/**
 	 * Outputs an admin notice for folks running Jetpack Boost without having run composer install.
 	 *
