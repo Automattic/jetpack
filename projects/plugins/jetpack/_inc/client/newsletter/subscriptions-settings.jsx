@@ -72,6 +72,13 @@ function SubscriptionsSettings( props ) {
 		  } )
 		: null;
 
+	const headerTemplateEditorUrl = siteAdminUrl
+		? addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
+				postType: 'wp_template_part',
+				postId: `${ themeStylesheet }//header`,
+		  } )
+		: null;
+
 	const handleSubscribeToBlogToggleChange = useCallback( () => {
 		updateFormStateModuleOption( SUBSCRIPTIONS_MODULE_NAME, 'stb_enabled' );
 	}, [ updateFormStateModuleOption ] );
@@ -245,10 +252,10 @@ function SubscriptionsSettings( props ) {
 									label={
 										<>
 											{ __( 'Add the Subscriber Login Block to the navigation', 'jetpack' ) }
-											{ isBlockTheme && singlePostTemplateEditorUrl && (
+											{ isBlockTheme && headerTemplateEditorUrl && (
 												<>
 													{ '. ' }
-													<ExternalLink href={ singlePostTemplateEditorUrl }>
+													<ExternalLink href={ headerTemplateEditorUrl }>
 														{ __( 'Preview and edit', 'jetpack' ) }
 													</ExternalLink>
 												</>
