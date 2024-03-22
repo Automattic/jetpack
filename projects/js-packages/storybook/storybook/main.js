@@ -24,12 +24,9 @@ const sbconfig = {
 		{
 			name: '@storybook/addon-docs',
 			options: {
-				configureJSX: true,
 				mdxPluginOptions: {
 					mdxCompileOptions: {
 						remarkPlugins: [ remarkGfm ],
-						// Workaround https://github.com/storybookjs/storybook/issues/23217
-						providerImportSource: require.resolve( '@storybook/addon-docs/mdx-react-shim' ),
 					},
 				},
 			},
@@ -138,5 +135,8 @@ const sbconfig = {
 		autodocs: true,
 	},
 	staticDirs: [ '../public' ],
+	typescript: {
+		reactDocgen: 'react-docgen-typescript',
+	},
 };
 export default sbconfig;
