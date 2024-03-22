@@ -8,6 +8,8 @@
 
 namespace Activitypub;
 
+// phpcs:disable Squiz.Commenting.FunctionComment.InvalidNoReturn -- Just stubs in this file.
+
 /**
  * Stub for is_activitypub_request function.
  *
