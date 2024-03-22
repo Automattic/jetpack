@@ -40,7 +40,7 @@ class Jetpack_SEO_Utils {
 		}
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			return \wpcom_site_has_feature( 'advanced-seo', get_current_blog_id() );
+			return wpcom_site_has_feature( 'advanced-seo', get_current_blog_id() );
 		}
 
 		return true;
