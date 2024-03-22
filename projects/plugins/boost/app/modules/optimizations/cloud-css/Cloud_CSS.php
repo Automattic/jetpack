@@ -13,10 +13,10 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
-use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
+use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Always_Available_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_Cloud_CSS;
 
-class Cloud_CSS implements Pluggable, Has_Endpoints, Changes_Page_Output {
+class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Page_Output {
 
 	/**
 	 * Critical CSS storage class instance.
@@ -59,7 +59,7 @@ class Cloud_CSS implements Pluggable, Has_Endpoints, Changes_Page_Output {
 		return 'cloud_css';
 	}
 
-	public function get_endpoints() {
+	public function get_always_available_endpoints() {
 		return array(
 			new Update_Cloud_CSS(),
 		);

@@ -1,3 +1,8 @@
+declare module '*.png';
+declare module '*.svg';
+declare module '*.jpeg';
+declare module '*.jpg';
+declare module '*.scss';
 interface Window {
 	myJetpackInitialState?: {
 		siteSuffix: string;
@@ -178,6 +183,14 @@ interface Window {
 				total_refund_text: string;
 				check_dns: boolean;
 			} >;
+		};
+		redBubbleAlerts: {
+			'missing-site-connection'?: null;
+			[ key: `${ string }-bad-installation` ]: {
+				data: {
+					plugin: string;
+				};
+			};
 		};
 		topJetpackMenuItemUrl: string;
 		userIsAdmin: string;

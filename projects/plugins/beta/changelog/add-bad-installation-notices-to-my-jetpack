@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Hook into red bubble notification when bad installation is detected

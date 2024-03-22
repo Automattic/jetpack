@@ -1035,7 +1035,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "55100b13a25e8143d9f231fc2d1c74582304e729"
+                "reference": "29af345affe249b27eceffa31c219057d111e529"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1069,7 +1069,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.17.x-dev"
+                    "dev-trunk": "4.18.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1404,7 +1404,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "462582ef61f3f6be46574acb34c8d7f59adcdae9"
+                "reference": "90b8d62a2a976c5a39114c1e6f295faaa5ebb2d0"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -1427,7 +1427,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.1.x-dev"
+                    "dev-trunk": "2.2.x-dev"
                 }
             },
             "autoload": {
@@ -1597,7 +1597,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/waf",
-                "reference": "12dc480f05fd60239d1aaa7d01d5c9c9ec1bb1bb"
+                "reference": "7c30728a366806da71f9eb62fb015980ae79ebb2"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1624,7 +1624,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.15.x-dev"
+                    "dev-trunk": "0.16.x-dev"
                 }
             },
             "autoload": {

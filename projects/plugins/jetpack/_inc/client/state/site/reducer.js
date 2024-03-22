@@ -345,6 +345,18 @@ export function siteHasFeature( state, featureId ) {
 }
 
 /**
+ * Check if the site's admin interface style is set to wp-admin.
+ *
+ * @param  {object}  state     - Global state tree
+ * @returns {boolean}            Whether the admin interface style is set to wp-admin.
+ */
+export function siteUsesWpAdminInterface( state ) {
+	return (
+		get( state.jetpack.siteData, [ 'data', 'options', 'wpcom_admin_interface' ] ) === 'wp-admin'
+	);
+}
+
+/**
  * Returns the purchase data for a site
  *
  * @param {object} state - Global state tree

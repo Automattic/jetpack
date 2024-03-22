@@ -381,10 +381,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return object|null
 	 */
 	public function get_last_run_field( $item, $field_name, $request, $object_type ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$option = get_option( 'jetpack_scheduled_update_statuses', array() );
+		$status = Scheduled_Updates::get_scheduled_update_status( $item['schedule_id'] );
 
-		if ( ! empty( $option[ $item['schedule_id'] ] ) ) {
-			return $option[ $item['schedule_id'] ][ $field_name ];
+		if ( $status ) {
+			return $status[ $field_name ];
 		}
 
 		return null;
