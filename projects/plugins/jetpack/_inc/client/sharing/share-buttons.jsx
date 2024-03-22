@@ -43,6 +43,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 			 * - Do you use a block-based theme and is the sharing block available?
 			 * - Is the site connected to WordPress.com?
 			 * - Is the site in offline mode?
+			 * - Is the site using the classic admin interface?
 			 *
 			 * @returns {React.ReactNode} A card with the sharing configuration link.
 			 */
