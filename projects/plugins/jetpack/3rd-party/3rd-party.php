@@ -21,6 +21,8 @@ function load_3rd_party_compat_filters() {
 	// @todo This one probably makes more sense to move to the Forms package (and the module until it is fully deprecated).
 	require_once JETPACK__PLUGIN_DIR . '/3rd-party/class-salesforce-lead-form.php'; // not a module but the handler for Salesforce forms
 
+	wp_admin_notice( 'this is a test' );
+
 	// bbPress
 	if ( function_exists( 'bbpress' ) ) {
 		require_once JETPACK__PLUGIN_DIR . '/3rd-party/bbpress.php';
