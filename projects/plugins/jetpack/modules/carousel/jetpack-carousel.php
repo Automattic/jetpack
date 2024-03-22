@@ -1171,6 +1171,8 @@ class Jetpack_Carousel {
 
 	/**
 	 * Adds a new comment to the database
+	 *
+	 * @return never
 	 */
 	public function post_attachment_comment() {
 		if ( ! headers_sent() ) {

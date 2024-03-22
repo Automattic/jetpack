@@ -239,6 +239,8 @@ class Manager {
 	 * from /xmlrpc.php so that we're replicating it as closely as possible.
 	 *
 	 * @todo Tighten $wp_xmlrpc_server_class a bit to make sure it doesn't do bad things.
+	 *
+	 * @return never
 	 */
 	public function alternate_xmlrpc() {
 		// Some browser-embedded clients send cookies. We don't want them.

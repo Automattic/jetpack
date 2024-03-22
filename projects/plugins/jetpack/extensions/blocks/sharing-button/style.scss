@@ -7,7 +7,7 @@ a.jetpack-sharing-button__button {
 .jetpack-sharing-button__button {
 	display: flex;
 	flex-direction: row;
-	margin: 4px 8px 4px 0px;
+	margin: 4px 4px 0px;
 	cursor: default;
 	font-size: inherit;
 	font-weight: 500;
@@ -16,7 +16,7 @@ a.jetpack-sharing-button__button {
 	background: #fff;
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.12);
 	line-height: 23px;
-	padding: 4px 11px 3px 9px;
+	padding: 4px 9px 3px;
 	justify-content: center;
 	text-decoration: none;
 	height: auto;
@@ -52,6 +52,7 @@ a.jetpack-sharing-button__button {
 		margin-bottom: 0;
 		color: #fff;
 
+		&.share-bluesky { background: var( --color-bluesky ); }
 		&.share-x { background: #000; }
 		&.share-print { background: #c5c2c2; }
 		&.share-reddit { background: var( --color-reddit ); }
@@ -68,11 +69,17 @@ a.jetpack-sharing-button__button {
 		&.share-whatsapp { background: var( --color-whatsapp ); }
 		&.share-mastodon { background: var( --color-mastodon ); }
 		&.share-nextdoor { background: var( --color-nextdoor ); }
+		&.share-share { background: #000; }
 	}
 
 	&.style-icon.is-custom {
 		padding: 8px;
 		top: 2px;
+	}
+
+	&.style-icon-text {
+		margin-inline-end: 4px;
+		padding-inline-end: 11px;
 	}
 }
 
@@ -82,14 +89,6 @@ a.jetpack-sharing-button__button {
 	display: none;
 }
 
-.jetpack-sharing-buttons__service-label.style-icon {
-	display: none;
-}
-
-.jetpack-sharing-button__service-label {
-	margin-inline-start: 5px;
-}
-
 .jetpack-sharing-button__list-item {
 	list-style-type: none;
 	padding: 0;
@@ -97,4 +96,14 @@ a.jetpack-sharing-button__button {
 	flex-direction: row;
 	flex-wrap: wrap;
 	gap: 5px;
+
+	&:first-child {
+		.jetpack-sharing-button__button {
+			margin-inline-start: 0px;
+		}
+	}
+}
+
+.style-icon-text .jetpack-sharing-button__service-label {
+	margin-inline-start: 5px;
 }

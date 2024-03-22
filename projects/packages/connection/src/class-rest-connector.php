@@ -84,6 +84,17 @@ class REST_Connector {
 			)
 		);
 
+		// Authorize a remote user.
+		register_rest_route(
+			'jetpack/v4',
+			'/remote_register',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'remote_register' ),
+				'permission_callback' => array( $this, 'remote_register_permission_check' ),
+			)
+		);
+
 		// Get current connection status of Jetpack.
 		register_rest_route(
 			'jetpack/v4',
@@ -285,6 +296,41 @@ class REST_Connector {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Register the site so that a plan can be provisioned.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 *
+	 * @return WP_Error|array
+	 */
+	public function remote_register( WP_REST_Request $request ) {
+		$xmlrpc_server = new Jetpack_XMLRPC_Server();
+		$result        = $xmlrpc_server->remote_register( $request );
+
+		if ( is_a( $result, 'IXR_Error' ) ) {
+			$result = new WP_Error( $result->code, $result->message );
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Remote register endpoint permission check.
+	 *
+	 * @return true|WP_Error
+	 */
+	public function remote_register_permission_check() {
+		if ( $this->connection->has_connected_owner() ) {
+			return Rest_Authentication::is_signed_with_blog_token()
+				? true
+				: new WP_Error( 'already_registered', __( 'Blog is already registered', 'jetpack-connection' ), 400 );
+		}
+
+		return true;
 	}
 
 	/**

@@ -106,6 +106,10 @@ function make_phan_config( $dir, $options = array() ) {
 					// Ignore any `wordpress`, `jetpack_vendor`, `vendor`, and `node_modules` inside `vendor` and `jetpack_vendor`.
 					// Most of these are probably from our intra-monorepo symlinks.
 					'(?:jetpack_)?vendor/.*/(?:wordpress|(?:jetpack_)?vendor|node_modules)/',
+					// Yoast/phpunit-polyfills triggers a lot of PhanRedefinedXXX errors.
+					// Avoid that by excluding certain files.
+					'vendor/yoast/phpunit-polyfills/src/Polyfills/.*_Empty\.php',
+					'vendor/yoast/phpunit-polyfills/src/TestCases/TestCasePHPUnitGte8\.php',
 					// Other stuff to ignore.
 					'node_modules/',
 					'tests/e2e/node_modules/',

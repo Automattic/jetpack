@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\Dashboard;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
@@ -19,6 +20,12 @@ use Automattic\Jetpack\Status\Host;
  * Handles the Jetpack Forms dashboard.
  */
 class Dashboard {
+	/**
+	 * Script handle for the JS file we enqueue in the Feedback admin page.
+	 *
+	 * @var string
+	 */
+	const SCRIPT_HANDLE = 'jp-forms-dashboard';
 
 	/**
 	 * Priority for the dashboard menu.
@@ -65,7 +72,7 @@ class Dashboard {
 		}
 
 		Assets::register_script(
-			'jp-forms-dashboard',
+			self::SCRIPT_HANDLE,
 			'../../dist/dashboard/jetpack-forms-dashboard.js',
 			__FILE__,
 			array(
@@ -76,12 +83,15 @@ class Dashboard {
 			)
 		);
 
+		// Adds Connection package initial state.
+		Connection_Initial_State::render_script( self::SCRIPT_HANDLE );
+
 		$api_root = defined( 'IS_WPCOM' ) && IS_WPCOM
 			? sprintf( '/wpcom/v2/sites/%s/', esc_url_raw( rest_url() ) )
 			: '/wp-json/wpcom/v2/';
 
 		wp_add_inline_script(
-			'jp-forms-dashboard',
+			self::SCRIPT_HANDLE,
 			'window.jetpackFormsData = ' . wp_json_encode( array( 'apiRoot' => $api_root ) ) . ';',
 			'before'
 		);
@@ -95,7 +105,7 @@ class Dashboard {
 					'in_footer'    => true,
 					'textdomain'   => 'jetpack-forms',
 					'enqueue'      => true,
-					'dependencies' => array( 'jp-forms-dashboard' ),
+					'dependencies' => array( self::SCRIPT_HANDLE ),
 				)
 			);
 		}

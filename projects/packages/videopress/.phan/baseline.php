@@ -20,7 +20,7 @@ return [
     // PhanTypeMismatchArgument : 8 occurrences
     // PhanUndeclaredProperty : 8 occurrences
     // PhanUndeclaredConstant : 7 occurrences
-    // PhanTypeMismatchReturnProbablyReal : 5 occurrences
+    // PhanTypeMismatchReturnProbablyReal : 6 occurrences
     // PhanUnextractableAnnotation : 5 occurrences
     // PhanCommentOverrideOnNonOverrideMethod : 4 occurrences
     // PhanNonClassMethodCall : 4 occurrences
@@ -70,8 +70,8 @@ return [
         'src/class-videopress-rest-api-v1-settings.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
         'src/class-videopress-rest-api-v1-site.php' => ['PhanTypeMismatchReturn', 'PhanUndeclaredTypeReturnType'],
         'src/class-videopresstoken.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod'],
-        'src/class-wpcom-rest-api-v2-attachment-field-videopress.php' => ['PhanTypeMismatchReturn', 'PhanUndeclaredClassProperty', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeParameter'],
-        'src/class-wpcom-rest-api-v2-attachment-videopress-data.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassProperty', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeParameter'],
+        'src/class-wpcom-rest-api-v2-attachment-field-videopress.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassProperty', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeParameter'],
+        'src/class-wpcom-rest-api-v2-attachment-videopress-data.php' => ['PhanTypeArraySuspicious', 'PhanUndeclaredClassProperty', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeParameter'],
         'src/class-wpcom-rest-api-v2-endpoint-videopress.php' => ['PhanAccessMethodInternal', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeParameter'],
         'src/class-xmlrpc.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassProperty', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty'],
         'src/tus/class-transient-store.php' => ['PhanParamTooMany'],

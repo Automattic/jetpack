@@ -407,6 +407,20 @@ body .sd-content ul li.share-custom.no-icon a span {
 	color: #fff !important;
 }
 
+.sd-social-icon .sd-content ul li.share-bluesky a:before,
+.sd-social-text .sd-content ul li.share-bluesky a:before,
+.sd-content ul li.share-bluesky div.option.option-smart-off a:before,
+.sd-social-icon-text .sd-content li.share-bluesky a:before,
+.sd-social-official .sd-content li.share-bluesky a:before {
+	content: '\f10f';
+}
+.sd-social-official .sd-content li.share-bluesky a:before {
+	color: #0085ff;
+}
+.sd-social-icon .sd-content ul li[class*='share-'].share-bluesky a.sd-button {
+	background: #0085ff;
+	color: #fff !important;
+}
 
 .sd-social-icon .sd-content ul li.share-deprecated a:before,
 .sd-social-icon-text .sd-content li.share-deprecated a:before,

@@ -14,10 +14,10 @@ return [
     // PhanUndeclaredMethod : 35+ occurrences
     // PhanUndeclaredClassMethod : 25+ occurrences
     // PhanUndeclaredConstant : 25+ occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 20+ occurrences
     // PhanTypeMismatchReturn : 20+ occurrences
     // PhanDeprecatedFunction : 15+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 15+ occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 15+ occurrences
     // PhanUndeclaredTypeReturnType : 10+ occurrences
     // PhanTypeMismatchProperty : 9 occurrences
     // PhanTypeMismatchPropertyProbablyReal : 9 occurrences
@@ -25,14 +25,12 @@ return [
     // PhanUndeclaredProperty : 8 occurrences
     // PhanUndeclaredTypeParameter : 8 occurrences
     // PhanNoopNew : 6 occurrences
-    // PhanRedefinedUsedTrait : 6 occurrences
     // PhanTypeArraySuspiciousNullable : 5 occurrences
     // PhanTypeMismatchDefault : 5 occurrences
     // PhanUndeclaredTypeThrowsType : 5 occurrences
     // PhanRedundantCondition : 4 occurrences
     // PhanTypeMismatchArgumentInternal : 4 occurrences
     // PhanTypeMismatchArgumentNullable : 4 occurrences
-    // PhanPluginNeverReturnMethod : 3 occurrences
     // PhanTypeObjectUnsetDeclaredProperty : 3 occurrences
     // PhanUndeclaredMethodInCallable : 3 occurrences
     // PhanCommentParamWithoutRealParam : 2 occurrences
@@ -66,7 +64,7 @@ return [
         'src/class-client.php' => ['PhanImpossibleCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType'],
         'src/class-error-handler.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredConstant'],
         'src/class-heartbeat.php' => ['PhanTypeMismatchPropertyDefault', 'PhanUndeclaredConstant'],
-        'src/class-manager.php' => ['PhanImpossibleCondition', 'PhanNoopNew', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginNeverReturnMethod', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDeclaredParamNullable', 'PhanTypeMismatchDefault', 'PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredTypeProperty', 'PhanUndeclaredTypeReturnType'],
+        'src/class-manager.php' => ['PhanImpossibleCondition', 'PhanNoopNew', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDeclaredParamNullable', 'PhanTypeMismatchDefault', 'PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredTypeProperty', 'PhanUndeclaredTypeReturnType'],
         'src/class-nonce-handler.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchReturnNullable', 'PhanUndeclaredConstant'],
         'src/class-package-version-tracker.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredConstant'],
         'src/class-partner-coupon.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanUndeclaredConstant'],
@@ -79,28 +77,28 @@ return [
         'src/class-tokens.php' => ['PhanImpossibleTypeComparison', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant'],
         'src/class-tracking.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredConstant', 'PhanUndeclaredTypeParameter'],
         'src/class-urls.php' => ['PhanTypeSuspiciousStringExpression', 'PhanUndeclaredFunctionInCallable'],
-        'src/class-webhooks.php' => ['PhanPluginNeverReturnMethod', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
+        'src/class-webhooks.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'src/class-xmlrpc-connector.php' => ['PhanUndeclaredConstant', 'PhanUndeclaredTypeReturnType'],
-        'src/webhooks/class-authorize-redirect.php' => ['PhanPluginNeverReturnMethod', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchProperty', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty'],
+        'src/webhooks/class-authorize-redirect.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchProperty', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty'],
         'tests/php/bootstrap.php' => ['PhanUndeclaredConstant'],
         'tests/php/test-class-nonce-handler.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanTypeMismatchArgument'],
         'tests/php/test-class-plugin.php' => ['PhanUndeclaredTypeThrowsType'],
         'tests/php/test-class-webhooks.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgument', 'PhanUndeclaredMethod', 'PhanUndeclaredTypeThrowsType'],
-        'tests/php/test-partner-coupon.php' => ['PhanDeprecatedFunction', 'PhanRedefinedUsedTrait', 'PhanUndeclaredMethodInCallable'],
+        'tests/php/test-partner-coupon.php' => ['PhanDeprecatedFunction', 'PhanUndeclaredMethodInCallable'],
         'tests/php/test-partner.php' => ['PhanUndeclaredTypeThrowsType'],
-        'tests/php/test-rest-endpoints.php' => ['PhanNoopNew', 'PhanRedefinedUsedTrait', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredMethodInCallable', 'PhanUndeclaredTypeReturnType'],
+        'tests/php/test-rest-endpoints.php' => ['PhanNoopNew', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredMethodInCallable', 'PhanUndeclaredTypeReturnType'],
         'tests/php/test-terms-of-service.php' => ['PhanTypeMismatchProperty', 'PhanUndeclaredMethod'],
         'tests/php/test-tracking.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgument', 'PhanTypeMismatchProperty', 'PhanUndeclaredMethod'],
-        'tests/php/test_Error_Handler.php' => ['PhanParamTooMany', 'PhanRedefinedUsedTrait', 'PhanTypeMismatchArgument', 'PhanUndeclaredConstant'],
+        'tests/php/test_Error_Handler.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgument', 'PhanUndeclaredConstant'],
         'tests/php/test_Jetpack_IXR_ClientMulticall.php' => ['PhanUndeclaredConstant'],
         'tests/php/test_Manager_integration.php' => ['PhanParamTooMany'],
-        'tests/php/test_Manager_unit.php' => ['PhanDeprecatedFunction', 'PhanParamTooMany', 'PhanRedefinedUsedTrait', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchProperty', 'PhanTypeObjectUnsetDeclaredProperty', 'PhanUndeclaredMethod'],
+        'tests/php/test_Manager_unit.php' => ['PhanDeprecatedFunction', 'PhanParamTooMany', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchProperty', 'PhanTypeObjectUnsetDeclaredProperty', 'PhanUndeclaredMethod'],
         'tests/php/test_Rest_Authentication.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgument', 'PhanTypeMismatchProperty', 'PhanUndeclaredMethod'],
         'tests/php/test_Server_Sandbox.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument'],
         'tests/php/test_Signature.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'tests/php/test_Tokens.php' => ['PhanDeprecatedFunction', 'PhanRedefinedUsedTrait', 'PhanTypeMismatchProperty', 'PhanTypeObjectUnsetDeclaredProperty', 'PhanUndeclaredConstant', 'PhanUndeclaredMethod'],
+        'tests/php/test_Tokens.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchProperty', 'PhanTypeObjectUnsetDeclaredProperty', 'PhanUndeclaredConstant', 'PhanUndeclaredMethod'],
         'tests/php/test_XMLPC_Async_Call.php' => ['PhanUndeclaredConstant'],
-        'tests/php/test_jetpack_xmlrpc_server.php' => ['PhanDeprecatedFunction', 'PhanPluginSimplifyExpressionBool', 'PhanRedefinedUsedTrait', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanUndeclaredMethodInCallable'],
+        'tests/php/test_jetpack_xmlrpc_server.php' => ['PhanDeprecatedFunction', 'PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanUndeclaredMethodInCallable'],
         'tests/php/test_package_version_tracker.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredMethod'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

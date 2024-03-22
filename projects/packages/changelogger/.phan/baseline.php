@@ -12,7 +12,6 @@ return [
     // PhanTypeMismatchArgument : 30+ occurrences
     // PhanUndeclaredClassMethod : 25+ occurrences
     // PhanUndeclaredMethod : 25+ occurrences
-    // PhanRedefinedUsedTrait : 20+ occurrences
     // PhanMisspelledAnnotation : 10+ occurrences
     // PhanParamTooMany : 10+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 10+ occurrences
@@ -29,7 +28,6 @@ return [
     // PhanInfiniteLoop : 2 occurrences
     // PhanNoopNew : 2 occurrences
     // PhanParamSignatureRealMismatchHasNoParamType : 2 occurrences
-    // PhanPluginNeverReturnFunction : 2 occurrences
     // PhanTypeArraySuspiciousNullable : 2 occurrences
     // PhanTypeInvalidDimOffset : 2 occurrences
     // PhanUndeclaredMethodInCallable : 2 occurrences
@@ -65,24 +63,20 @@ return [
         'src/ValidateCommand.php' => ['PhanImpossibleCondition', 'PhanTypeArraySuspiciousNullable', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredProperty'],
         'src/VersionCommand.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeThrowsType'],
         'src/WriteCommand.php' => ['PhanParamTooMany', 'PhanTypeMismatchProperty', 'PhanUndeclaredClassMethod', 'PhanUndeclaredMethod'],
-        'tests/php/includes/lib/ParserTestCase.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedefinedUsedTrait', 'PhanTypePossiblyInvalidDimOffset'],
+        'tests/php/includes/lib/ParserTestCase.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypePossiblyInvalidDimOffset'],
         'tests/php/includes/src/CommandTestCase.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanUndeclaredTypeReturnType'],
-        'tests/php/tests/lib/ChangeEntryTest.php' => ['PhanNoopNew', 'PhanRedefinedUsedTrait', 'PhanTypeMismatchArgument'],
-        'tests/php/tests/lib/ChangelogEntryTest.php' => ['PhanNoopNew', 'PhanRedefinedUsedTrait', 'PhanTypeMismatchArgument'],
-        'tests/php/tests/lib/ChangelogTest.php' => ['PhanRedefinedUsedTrait', 'PhanTypeMismatchArgument'],
+        'tests/php/tests/lib/ChangeEntryTest.php' => ['PhanNoopNew', 'PhanTypeMismatchArgument'],
+        'tests/php/tests/lib/ChangelogEntryTest.php' => ['PhanNoopNew', 'PhanTypeMismatchArgument'],
+        'tests/php/tests/lib/ChangelogTest.php' => ['PhanTypeMismatchArgument'],
         'tests/php/tests/lib/ParserTest.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredMethod'],
-        'tests/php/tests/src/AddCommandTest.php' => ['PhanRedefinedUsedTrait'],
-        'tests/php/tests/src/ApplicationTest.php' => ['PhanPluginNeverReturnFunction', 'PhanRedefinedUsedTrait', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument'],
-        'tests/php/tests/src/CommandLoaderTest.php' => ['PhanRedefinedUsedTrait'],
-        'tests/php/tests/src/ConfigTest.php' => ['PhanPluginMixedKeyNoKey', 'PhanRedefinedUsedTrait', 'PhanUndeclaredClassReference'],
+        'tests/php/tests/src/ApplicationTest.php' => ['PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument'],
+        'tests/php/tests/src/ConfigTest.php' => ['PhanPluginMixedKeyNoKey', 'PhanUndeclaredClassReference'],
         'tests/php/tests/src/PluginTraitTest.php' => ['PhanUndeclaredMethod'],
-        'tests/php/tests/src/Plugins/SemverVersioningTest.php' => ['PhanDeprecatedFunction', 'PhanParamTooMany', 'PhanPluginMixedKeyNoKey', 'PhanRedefinedUsedTrait', 'PhanTypeMismatchArgument', 'PhanUndeclaredMethod'],
-        'tests/php/tests/src/Plugins/WordpressVersioningTest.php' => ['PhanDeprecatedFunction', 'PhanParamTooMany', 'PhanPluginMixedKeyNoKey', 'PhanRedefinedUsedTrait', 'PhanTypeMismatchArgument', 'PhanUndeclaredMethod'],
-        'tests/php/tests/src/SquashCommandTest.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedefinedUsedTrait', 'PhanTypeMismatchArgument', 'PhanUndeclaredClassMethod', 'PhanUndeclaredMethod'],
-        'tests/php/tests/src/UtilsTest.php' => ['PhanDeprecatedFunction', 'PhanRedefinedUsedTrait', 'PhanTypeMismatchArgument', 'PhanUndeclaredProperty'],
-        'tests/php/tests/src/ValidateCommandTest.php' => ['PhanRedefinedUsedTrait'],
-        'tests/php/tests/src/VersionCommandTest.php' => ['PhanRedefinedUsedTrait'],
-        'tests/php/tests/src/WriteCommandTest.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginMixedKeyNoKey', 'PhanRedefinedUsedTrait', 'PhanTypeMismatchArgument', 'PhanUndeclaredClassMethod', 'PhanUndeclaredMethod'],
+        'tests/php/tests/src/Plugins/SemverVersioningTest.php' => ['PhanDeprecatedFunction', 'PhanParamTooMany', 'PhanPluginMixedKeyNoKey', 'PhanTypeMismatchArgument', 'PhanUndeclaredMethod'],
+        'tests/php/tests/src/Plugins/WordpressVersioningTest.php' => ['PhanDeprecatedFunction', 'PhanParamTooMany', 'PhanPluginMixedKeyNoKey', 'PhanTypeMismatchArgument', 'PhanUndeclaredMethod'],
+        'tests/php/tests/src/SquashCommandTest.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanUndeclaredClassMethod', 'PhanUndeclaredMethod'],
+        'tests/php/tests/src/UtilsTest.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgument', 'PhanUndeclaredProperty'],
+        'tests/php/tests/src/WriteCommandTest.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginMixedKeyNoKey', 'PhanTypeMismatchArgument', 'PhanUndeclaredClassMethod', 'PhanUndeclaredMethod'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

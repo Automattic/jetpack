@@ -164,7 +164,7 @@ class Sharing_Admin {
 	/**
 	 * Create a new custom sharing service via AJAX.
 	 *
-	 * @return void
+	 * @return never
 	 */
 	public function ajax_new_service() {
 		if (

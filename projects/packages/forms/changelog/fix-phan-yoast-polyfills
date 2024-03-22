@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Don't try to manually polyfill for `assertStringContainsString`, the WorDBless base class already includes a polyfill.
+
+

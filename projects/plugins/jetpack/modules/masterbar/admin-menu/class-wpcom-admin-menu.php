@@ -417,6 +417,8 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 	/**
 	 * Saves the sidebar state ( expanded / collapsed ) via an ajax request.
+	 *
+	 * @return never
 	 */
 	public function ajax_sidebar_state() {
 		$expanded    = isset( $_REQUEST['expanded'] ) ? filter_var( wp_unslash( $_REQUEST['expanded'] ), FILTER_VALIDATE_BOOLEAN ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended

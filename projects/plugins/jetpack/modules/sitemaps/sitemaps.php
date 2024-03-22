@@ -147,6 +147,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @param string $the_content_type The content type to be served.
 	 * @param string $the_content The string to be echoed.
+	 * @return never
 	 */
 	private function serve_raw_and_die( $the_content_type, $the_content ) {
 		header( 'Content-Type: ' . $the_content_type . '; charset=UTF-8' );

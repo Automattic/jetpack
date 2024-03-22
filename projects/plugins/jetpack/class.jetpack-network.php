@@ -582,6 +582,7 @@ class Jetpack_Network {
 	 * Fires when the Jetpack > Settings page is saved.
 	 *
 	 * @since 2.9
+	 * @return never
 	 */
 	public function save_network_settings_page() {
 

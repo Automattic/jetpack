@@ -1,3 +1,4 @@
+import { MyJetpackRoutes } from '../../constants';
 import { useAllProducts } from '../../data/products/use-product';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -11,7 +12,7 @@ import ConnectionStatusCard from '../connection-status-card';
  */
 export default function ConnectionsSection() {
 	const { apiRoot, apiNonce, topJetpackMenuItemUrl, connectedPlugins } = useMyJetpackConnection();
-	const navigate = useMyJetpackNavigate( '/connection' );
+	const navigate = useMyJetpackNavigate( MyJetpackRoutes.Connection );
 	const products = useAllProducts();
 	const onDisconnected = () => document?.location?.reload( true ); // TODO: replace with a better experience.
 	const productsThatRequireUserConnection = getProductSlugsThatRequireUserConnection( products );

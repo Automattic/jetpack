@@ -43,6 +43,9 @@ if ( is_readable( $loader ) ) {
 	 * Outputs an admin notice for folks running VaultPress without having run `composer install`.
 	 */
 	function vaultpress_admin_missing_autoloader() {
+		if ( get_current_screen()->id !== 'plugins' ) {
+			return;
+		}
 		?>
 		<div class="notice notice-error is-dismissible">
 			<p>

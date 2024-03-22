@@ -113,6 +113,9 @@ class ApplicationTest extends TestCase {
 	 */
 	public function testDoRun_ConfigException() {
 		$tester = $this->runApplication(
+			/** Test.
+			 *
+			 * @return never */
 			function () {
 				throw new ConfigException( 'Test config exception' );
 			}
@@ -126,6 +129,9 @@ class ApplicationTest extends TestCase {
 	 */
 	public function testDoRun_RuntimeException() {
 		$tester = $this->runApplication(
+			/** Test.
+			 *
+			 * @return never */
 			function () {
 				throw new RuntimeException( 'Test runtime exception' );
 			},

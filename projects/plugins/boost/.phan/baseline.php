@@ -25,13 +25,11 @@ return [
     // PhanUndeclaredTypeParameter : 6 occurrences
     // PhanUndeclaredTypeReturnType : 5 occurrences
     // PhanCommentParamOnEmptyParamList : 3 occurrences
-    // PhanPluginNeverReturnMethod : 3 occurrences
     // PhanPluginUseReturnValueInternalKnown : 3 occurrences
     // PhanTypeMismatchPropertyDefault : 3 occurrences
     // PhanTypePossiblyInvalidDimOffset : 3 occurrences
     // PhanUndeclaredClassConstant : 3 occurrences
     // PhanNoopNew : 2 occurrences
-    // PhanPluginNeverReturnFunction : 2 occurrences
     // PhanRedundantCondition : 2 occurrences
     // PhanTypeMismatchArgumentInternal : 2 occurrences
     // PhanTypeMismatchReturn : 2 occurrences
@@ -45,9 +43,9 @@ return [
     // PhanCommentVarInsteadOfParam : 1 occurrence
     // PhanImpossibleTypeComparison : 1 occurrence
     // PhanImpossibleTypeComparisonInGlobalScope : 1 occurrence
+    // PhanPluginNeverReturnFunction : 1 occurrence
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanRedefineFunction : 1 occurrence
-    // PhanRedefinedExtendedClass : 1 occurrence
     // PhanTypeComparisonToArray : 1 occurrence
     // PhanTypeInvalidUnaryOperandIncOrDec : 1 occurrence
     // PhanTypeMismatchArgumentNullable : 1 occurrence
@@ -68,7 +66,7 @@ return [
         'app/admin/class-config.php' => ['PhanTypeMismatchArgument'],
         'app/data-sync/Minify_Excludes_State_Entry.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'app/data-sync/Performance_History_Entry.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument'],
-        'app/features/setup-prompt/Setup_Prompt.php' => ['PhanPluginNeverReturnMethod', 'PhanTypeMissingReturn'],
+        'app/features/setup-prompt/Setup_Prompt.php' => ['PhanTypeMissingReturn'],
         'app/lib/Environment_Change_Detector.php' => ['PhanCommentParamOutOfOrder'],
         'app/lib/Premium_Features.php' => ['PhanUndeclaredConstant'],
         'app/lib/Status.php' => ['PhanTypeArraySuspiciousNullable', 'PhanUndeclaredMethodInCallable'],
@@ -96,11 +94,11 @@ return [
         'app/modules/Modules_Index.php' => ['PhanCommentObjectInClassConstantType'],
         'app/modules/Modules_Setup.php' => ['PhanTypeMismatchPropertyDefault', 'PhanTypeMissingReturn', 'PhanUndeclaredStaticMethod'],
         'app/modules/image-guide/Image_Guide.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeMissingReturn'],
-        'app/modules/image-guide/Image_Guide_Proxy.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginNeverReturnMethod'],
+        'app/modules/image-guide/Image_Guide_Proxy.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'app/modules/image-size-analysis/Image_Size_Analysis.php' => ['PhanTypeMissingReturn'],
         'app/modules/image-size-analysis/data-sync/Image_Size_Analysis_Action_Fix.php' => ['PhanCommentParamWithoutRealParam', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition'],
         'app/modules/optimizations/cloud-css/Cloud_CSS_Followup.php' => ['PhanCommentParamOnEmptyParamList', 'PhanUndeclaredConstant'],
-        'app/modules/optimizations/critical-css/CSS_Proxy.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginNeverReturnMethod'],
+        'app/modules/optimizations/critical-css/CSS_Proxy.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'app/modules/optimizations/image-cdn/class-image-cdn.php' => ['PhanTypeMissingReturn'],
         'app/modules/optimizations/minify/class-minify-css.php' => ['PhanTypeMissingReturn'],
         'app/modules/optimizations/minify/class-minify-js.php' => ['PhanTypeMissingReturn'],
@@ -127,7 +125,6 @@ return [
         'compatibility/wp-super-cache.php' => ['PhanUndeclaredFunction'],
         'jetpack-boost.php' => ['PhanNoopNew'],
         'tests/bootstrap.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturnProbablyReal'],
-        'tests/php/class-base-test-case.php' => ['PhanRedefinedExtendedClass'],
         'wp-js-data-sync.php' => ['PhanParamTooMany'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

@@ -9,7 +9,7 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredClassMethod : 55+ occurrences
+    // PhanUndeclaredClassMethod : 60+ occurrences
     // PhanUndeclaredTypeParameter : 20+ occurrences
     // PhanTypeMismatchReturn : 8 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 6 occurrences

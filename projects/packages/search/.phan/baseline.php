@@ -34,7 +34,6 @@ return [
     // PhanPluginRedundantAssignment : 1 occurrence
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanPossiblyUndeclaredVariable : 1 occurrence
-    // PhanRedefinedUsedTrait : 1 occurrence
     // PhanTypeComparisonToArray : 1 occurrence
     // PhanTypeInvalidDimOffset : 1 occurrence
     // PhanTypeMismatchDeclaredParamNullable : 1 occurrence
@@ -67,7 +66,7 @@ return [
         'src/wpes/class-query-builder.php' => ['PhanImpossibleCondition', 'PhanRedundantCondition', 'PhanTypeMismatchDimAssignment', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredProperty'],
         'src/wpes/class-query-parser.php' => ['PhanUndeclaredProperty'],
         'tests/php/test-get-ios-version.php' => ['PhanUndeclaredFunctionInCallable'],
-        'tests/php/test-helpers.php' => ['PhanPluginMixedKeyNoKey', 'PhanRedefinedUsedTrait', 'PhanTypeMismatchArgument', 'PhanTypeMismatchProperty', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredTypeProperty', 'PhanUnextractableAnnotation'],
+        'tests/php/test-helpers.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchArgument', 'PhanTypeMismatchProperty', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredTypeProperty', 'PhanUnextractableAnnotation'],
         'tests/php/test-module-control.php' => ['PhanTypeMismatchArgument'],
         'tests/php/test-plan.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/test-rest-controller.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeReturnType'],

@@ -736,6 +736,8 @@ class Contact_Form_Plugin {
 
 	/**
 	 * Handle the ajax request.
+	 *
+	 * @return never
 	 */
 	public function ajax_request() {
 		$submission_result = self::process_form_submission();

@@ -155,6 +155,11 @@ class Jetpack_Boost {
 	 */
 	public function deactivate() {
 		do_action( 'jetpack_boost_deactivate' );
+
+		// Tell Minify JS/CSS to clean up.
+		require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-helpers.php';
+		jetpack_boost_page_optimize_deactivate();
+
 		Regenerate_Admin_Notice::dismiss();
 		Analytics::record_user_event( 'deactivate_plugin' );
 		Page_Cache_Setup::deactivate();

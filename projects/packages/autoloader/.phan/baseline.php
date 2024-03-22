@@ -21,7 +21,6 @@ return [
     // PhanTypePossiblyInvalidDimOffset : 3 occurrences
     // PhanDeprecatedFunction : 2 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 2 occurrences
-    // PhanRedefinedUsedTrait : 2 occurrences
     // PhanTypeMismatchArgumentNullableInternal : 2 occurrences
     // PhanUndeclaredInterface : 2 occurrences
     // PhanPossiblyNullTypeMismatchProperty : 1 occurrence
@@ -59,8 +58,8 @@ return [
         'tests/php/tests/unit/ManifestReaderTest.php' => ['PhanTypeInvalidDimOffset', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredTypeProperty'],
         'tests/php/tests/unit/PHPAutoloaderTest.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassInCallable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference'],
         'tests/php/tests/unit/PathProcessorTest.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredTypeProperty'],
-        'tests/php/tests/unit/PluginLocatorTest.php' => ['PhanRedefinedUsedTrait', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredTypeProperty'],
-        'tests/php/tests/unit/PluginsHandlerTest.php' => ['PhanRedefinedUsedTrait', 'PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredTypeProperty'],
+        'tests/php/tests/unit/PluginLocatorTest.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredTypeProperty'],
+        'tests/php/tests/unit/PluginsHandlerTest.php' => ['PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredTypeProperty'],
         'tests/php/tests/unit/ShutdownHandlerTest.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredTypeProperty'],
         'tests/php/tests/unit/VersionLoaderTest.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference'],
         'tests/php/tests/unit/VersionSelectorTest.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredTypeProperty'],

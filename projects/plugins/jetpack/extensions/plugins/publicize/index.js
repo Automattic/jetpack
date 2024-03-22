@@ -12,7 +12,7 @@ import { PostTypeSupportCheck } from '@wordpress/editor';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import { PublicizePlaceholder } from './components/placeholder';
 import PublicizeSkeletonLoader from './components/skeleton-loader';
-import { Settings } from './settings';
+import Settings from './settings';
 
 import './editor.scss';
 
@@ -22,31 +22,27 @@ const PublicizeSettings = () => {
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( name );
 
+	let children = null;
+
 	if ( isLoadingModules ) {
-		return (
-			<PostTypeSupportCheck supportKeys="publicize">
-				<JetpackPluginSidebar>
-					<PublicizeSkeletonLoader />
-				</JetpackPluginSidebar>
-			</PostTypeSupportCheck>
+		children = <PublicizeSkeletonLoader />;
+	} else if ( ! isModuleActive ) {
+		children = (
+			<PublicizePlaceholder
+				changeStatus={ changeStatus }
+				isModuleActive={ isModuleActive }
+				isLoading={ isChangingStatus }
+			/>
 		);
+	} else {
+		children = <Settings />;
 	}
 
-	if ( ! isModuleActive ) {
-		return (
-			<PostTypeSupportCheck supportKeys="publicize">
-				<JetpackPluginSidebar>
-					<PublicizePlaceholder
-						changeStatus={ changeStatus }
-						isModuleActive={ isModuleActive }
-						isLoading={ isChangingStatus }
-					/>
-				</JetpackPluginSidebar>
-			</PostTypeSupportCheck>
-		);
-	}
-
-	return <Settings />;
+	return (
+		<PostTypeSupportCheck supportKeys="publicize">
+			<JetpackPluginSidebar>{ children }</JetpackPluginSidebar>
+		</PostTypeSupportCheck>
+	);
 };
 
 export const settings = {

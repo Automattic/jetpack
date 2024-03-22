@@ -162,6 +162,9 @@ if ( is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings
 	 * @since 7.4.0
 	 */
 	function jetpack_admin_missing_files() {
+		if ( get_current_screen()->id !== 'plugins' ) {
+			return;
+		}
 		?>
 		<div class="notice notice-error is-dismissible">
 			<p>

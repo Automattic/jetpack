@@ -12,6 +12,8 @@ chdir( __DIR__ . '/../' );
 
 /**
  * Display usage information and exit.
+ *
+ * @return never
  */
 function usage() {
 	global $argv;
@@ -63,7 +65,7 @@ for ( $i = 1; $i < $argc; $i++ ) {
 		case '-h':
 		case '--help':
 			usage();
-			break;
+			break; // @phan-suppress-current-line PhanPluginUnreachableCode -- Safer to include it even though usage() never returns.
 		default:
 			if ( ! str_starts_with( $argv[ $i ], '-' ) ) {
 				switch ( $idx++ ) {

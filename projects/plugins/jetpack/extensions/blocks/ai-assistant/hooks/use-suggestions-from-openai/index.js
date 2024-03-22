@@ -189,7 +189,7 @@ const useSuggestionsFromOpenAI = ( {
 				postContentAbove: getPartialContentToBlock( clientId ),
 				currentPostTitle,
 				options,
-				userPrompt,
+				userPrompt: options?.userPrompt || userPrompt,
 				type,
 				isGeneratingTitle: attributes.promptType === 'generateTitle',
 				useGutenbergSyntax: !! attributes?.useGutenbergSyntax,

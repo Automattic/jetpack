@@ -2751,7 +2751,7 @@ class Jetpack {
 	 * @param string $message Error message.
 	 * @param bool   $deactivate Deactivate Jetpack or not.
 	 *
-	 * @return void
+	 * @return never
 	 */
 	public static function bail_on_activation( $message, $deactivate = true ) {
 		?>
@@ -3475,6 +3475,7 @@ p {
 	 * Handler for Jetpack remote file uploads.
 	 *
 	 * @access public
+	 * @return never
 	 */
 	public function remote_request_handlers() {
 		switch ( current_filter() ) {

@@ -15,14 +15,20 @@ import React from 'react';
 import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
+import FeaturedImage from '../featured-image';
 import Proofread from '../proofread';
 import UsagePanel from '../usage-panel';
 import { USAGE_PANEL_PLACEMENT_JETPACK_SIDEBAR } from '../usage-panel/types';
+import './style.scss';
 
 const debug = debugFactory( 'jetpack-ai-assistant-plugin:sidebar' );
 // Determine if the usage panel is enabled or not
 const isUsagePanelAvailable =
 	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'ai-assistant-usage-panel' ]
+		?.available || false;
+// Determine if the AI Featured Image feature is available
+const isAIFeaturedImageAvailable =
+	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'ai-featured-image-generator' ]
 		?.available || false;
 
 const Upgrade = ( {
@@ -90,14 +96,18 @@ export default function AiAssistantPluginSidebar() {
 						isOpen && panelToggleTracker( 'jetpack-sidebar' );
 					} }
 				>
-					<PanelRow>
-						<BaseControl
-							className="jetpack-ai-proofread-control__header"
-							label={ __( 'AI feedback on post', 'jetpack' ) }
-						>
+					<PanelRow className="jetpack-ai-proofread-control__header">
+						<BaseControl label={ __( 'AI feedback on post', 'jetpack' ) }>
 							<Proofread busy={ isRedirecting } disabled={ requireUpgrade } />
 						</BaseControl>
 					</PanelRow>
+					{ isAIFeaturedImageAvailable && (
+						<PanelRow className="jetpack-ai-featured-image-control__header">
+							<BaseControl label={ __( 'Create Featured Post Image', 'jetpack' ) }>
+								<FeaturedImage busy={ isRedirecting } disabled={ requireUpgrade } />
+							</BaseControl>
+						</PanelRow>
+					) }
 					{ requireUpgrade && ! isUsagePanelAvailable && (
 						<PanelRow>
 							<Upgrade

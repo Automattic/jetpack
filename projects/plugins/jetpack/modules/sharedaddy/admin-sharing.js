@@ -167,6 +167,7 @@
 							! $( this ).hasClass( 'preview-email' ) &&
 							! $( this ).hasClass( 'preview-mastodon' ) &&
 							! $( this ).hasClass( 'preview-nextdoor' ) &&
+							! $( this ).hasClass( 'preview-bluesky' ) &&
 							! $( this ).hasClass( 'preview-print' ) &&
 							! $( this ).hasClass( 'preview-reddit' ) &&
 							! $( this ).hasClass( 'preview-telegram' ) &&
