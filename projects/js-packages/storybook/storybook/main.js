@@ -138,5 +138,8 @@ const sbconfig = {
 	typescript: {
 		reactDocgen: 'react-docgen-typescript',
 	},
+	babel: {
+		presets: [ [ require.resolve( '@automattic/jetpack-webpack-config/babel/preset' ), {} ] ],
+	},
 };
 export default sbconfig;
