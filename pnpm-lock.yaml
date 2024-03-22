@@ -1254,8 +1254,8 @@ importers:
         specifier: 8.0.4
         version: 8.0.4
       '@storybook/test-runner':
-        specifier: 0.16.0
-        version: 0.16.0
+        specifier: 0.17.0
+        version: 0.17.0
       '@storybook/theming':
         specifier: 8.0.4
         version: 8.0.4(react-dom@18.2.0)(react@18.2.0)
@@ -9526,8 +9526,8 @@ packages:
       - supports-color
     dev: true
 
-  /@storybook/test-runner@0.16.0:
-    resolution: {integrity: sha512-LDmNbKFoEDW/VS9o6KR8e1r5MnbCc5ZojUfi5yqLdq80gFD7BvilgKgV0lUh/xWHryzoy+Ids5LYgrPJZmU2dQ==}
+  /@storybook/test-runner@0.17.0:
+    resolution: {integrity: sha512-4mt822j0VF1H/c0//OWSST9eWV0wboncJUQ+hBm5N4wmyuObvwsiMh4pmgXw8Y82wF7g1RIofjEQqAGLa7NjgQ==}
     engines: {node: ^16.10.0 || ^18.0.0 || >=20.0.0}
     hasBin: true
     dependencies:
@@ -9536,17 +9536,14 @@ packages:
       '@babel/template': 7.24.0
       '@babel/types': 7.24.0
       '@jest/types': 29.6.3
-      '@storybook/core-common': 7.6.17
+      '@storybook/core-common': 8.0.4
       '@storybook/csf': 0.1.2
-      '@storybook/csf-tools': 7.6.17
-      '@storybook/preview-api': 7.6.17
+      '@storybook/csf-tools': 8.0.4
+      '@storybook/preview-api': 8.0.4
       '@swc/core': 1.4.6
       '@swc/jest': 0.2.36(@swc/core@1.4.6)
-      can-bind-to-host: 1.1.2
-      commander: 9.3.0
       detect-package-manager: 2.0.1
       expect-playwright: 0.8.0
-      glob: 10.3.10
       jest: 29.7.0
       jest-circus: 29.7.0
       jest-environment-node: 29.7.0
@@ -9555,12 +9552,8 @@ packages:
       jest-runner: 29.7.0
       jest-serializer-html: 7.1.0
       jest-watch-typeahead: 2.2.2(jest@29.7.0)
-      node-fetch: 2.6.7
       playwright: 1.39.0
-      read-pkg-up: 7.0.1
       semver: 7.5.2
-      tempy: 1.0.1
-      ts-dedent: 2.2.0
     transitivePeerDependencies:
       - '@swc/helpers'
       - '@types/node'
@@ -13752,11 +13745,6 @@ packages:
   /camelize@1.0.1:
     resolution: {integrity: sha512-dU+Tx2fsypxTgtLoE36npi3UqcjSSMNYfkqgmoEhtZrraP5VWq0K7FkWVTYa8eMPtnU/G2txVsfdCJTn9uzpuQ==}
     dev: false
-
-  /can-bind-to-host@1.1.2:
-    resolution: {integrity: sha512-CqsgmaqiyFRNtP17Ihqa/uHbZxRirntNVNl/kJz31DLKuNRfzvzionkLoUSkElQ6Cz+cpXKA3mhHq4tjbieujA==}
-    hasBin: true
-    dev: true
 
   /caniuse-api@3.0.0:
     resolution: {integrity: sha512-bsTwuIg/BZZK/vreVTYYbSWoe2F+71P7K5QGEX+pT250DZbfU1MQ5prOKpPR+LL6uWKK3KMwMCAS74QB3Um1uw==}
