@@ -234,27 +234,29 @@ function SubscriptionsSettings( props ) {
 									'jetpack'
 								) }
 							/>
-							<ToggleControl
-								checked={ isSubscriptionsActive && isLoginNavigationEnabled }
-								disabled={ isDisabled }
-								toggling={ isSavingAnyOption( [
-									'jetpack_subscriptions_login_navigation_enabled',
-								] ) }
-								onChange={ handleLoginNavigationToggleChange }
-								label={
-									<>
-										{ __( 'Add the Subscriber Login Block to the navigation', 'jetpack' ) }
-										{ isBlockTheme && singlePostTemplateEditorUrl && (
-											<>
-												{ '. ' }
-												<ExternalLink href={ singlePostTemplateEditorUrl }>
-													{ __( 'Preview and edit', 'jetpack' ) }
-												</ExternalLink>
-											</>
-										) }
-									</>
-								}
-							/>
+							{ isSubscriptionSiteFeatureEnabled && (
+								<ToggleControl
+									checked={ isSubscriptionsActive && isLoginNavigationEnabled }
+									disabled={ isDisabled }
+									toggling={ isSavingAnyOption( [
+										'jetpack_subscriptions_login_navigation_enabled',
+									] ) }
+									onChange={ handleLoginNavigationToggleChange }
+									label={
+										<>
+											{ __( 'Add the Subscriber Login Block to the navigation', 'jetpack' ) }
+											{ isBlockTheme && singlePostTemplateEditorUrl && (
+												<>
+													{ '. ' }
+													<ExternalLink href={ singlePostTemplateEditorUrl }>
+														{ __( 'Preview and edit', 'jetpack' ) }
+													</ExternalLink>
+												</>
+											) }
+										</>
+									}
+								/>
+							) }
 						</FormFieldset>
 					}
 				</SettingsGroup>
