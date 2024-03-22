@@ -200,6 +200,14 @@ class Jetpack_Comment_Likes {
 			return $content;
 		}
 
+		// Do not output Likes on requests for ActivityPub requests.
+		if (
+			function_exists( '\Activitypub\is_activitypub_request' )
+			&& \Activitypub\is_activitypub_request()
+		) {
+			return $content;
+		}
+
 		$comment_id = get_comment_ID();
 		if ( empty( $comment_id ) && ! empty( $comment->comment_ID ) ) {
 			$comment_id = $comment->comment_ID;

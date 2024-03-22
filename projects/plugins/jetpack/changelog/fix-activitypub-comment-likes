@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Comment Likes: do not display Likes within posts published via the ActivityPub plugin.
