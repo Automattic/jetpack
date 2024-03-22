@@ -42,7 +42,7 @@ const settings = {
 		foreground: getIconColor(),
 	},
 
-	category: 'earn',
+	category: 'monetize',
 
 	keywords: [
 		_x( 'buy', 'block search term', 'jetpack' ),

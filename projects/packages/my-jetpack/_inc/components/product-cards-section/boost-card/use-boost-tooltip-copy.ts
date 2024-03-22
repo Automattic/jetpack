@@ -37,12 +37,12 @@ export const useBoostTooltipCopy = ( { speedLetterGrade } ): string => {
 		switch ( speedLetterGrade ) {
 			case 'A':
 				return __(
-					'Your site is fast! But maintaining a high speed isn’t easy. Upgrade Boost to use automated CCS and image optimization tools to improve your performance on the go.',
+					'Your site is fast! But maintaining a high speed isn’t easy. Upgrade Boost to use automated CSS and image optimization tools to improve your performance on the go.',
 					'jetpack-my-jetpack'
 				);
 			case 'B':
 				return __(
-					'You are one step away from making your site blazing fast. Upgrade Boost to use automated CCS and image optimization tools to improve your performance.',
+					'You are one step away from making your site blazing fast. Upgrade Boost to use automated CSS and image optimization tools to improve your performance.',
 					'jetpack-my-jetpack'
 				);
 			default:
