@@ -41,6 +41,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			add_filter( 'wp_send_new_user_notification_to_user', array( $this, 'should_send_wp_mail_new_user' ) );
 			add_action( 'user_new_form', array( $this, 'render_invitation_email_message' ) );
 			add_action( 'user_new_form', array( $this, 'render_wpcom_invite_checkbox' ), 1 );
+			add_action( 'user_new_form', array( $this, 'render_wpcom_external_user_checkbox' ), 1 );
 			add_action( 'user_new_form', array( $this, 'render_custom_email_message_form_field' ), 1 );
 			add_action( 'delete_user_form', array( $this, 'render_invitations_notices_for_deleted_users' ) );
 			add_action( 'delete_user', array( $this, 'revoke_user_invite' ) );
@@ -125,6 +126,12 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					}
 
 					return $response;
+				} else {
+					// Delete external contributor if it exists.
+					$wpcom_user_data = Jetpack::connection()->get_connected_user_data( $user_id );
+					if ( isset( $wpcom_user_data['ID'] ) ) {
+						return self::delete_external_contributor( $wpcom_user_data['ID'] );
+					}
 				}
 			} catch ( Exception $e ) {
 				return false;
@@ -696,6 +703,40 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		}
 
 		/**
+		 * Render a checkbox to differentiate if a user is external.
+		 *
+		 * @param string $type The type of new user form the hook follows.
+		 */
+		public function render_wpcom_external_user_checkbox( $type ) {
+			if ( $type === 'add-new-user' ) {
+				?>
+				<table class="form-table">
+					<tr class="form-field">
+						<th scope="row">
+							<label for="user_external_contractor"><?php esc_html_e( 'External User', 'jetpack' ); ?></label>
+						</th>
+						<td>
+							<fieldset>
+								<legend class="screen-reader-text">
+									<span><?php esc_html_e( 'Invite user', 'jetpack' ); ?></span>
+								</legend>
+								<label for="user_external_contractor">
+									<input 
+										name="user_external_contractor" 
+										type="checkbox" 
+										id="user_external_contractor" 
+										>
+									<?php esc_html_e( 'This user is a contractor, freelancer, consultant, or agency.', 'jetpack' ); ?>
+								</label>
+							</fieldset>
+						</td>
+					</tr>
+				</table>
+				<?php
+			}
+		}
+
+		/**
 		 * Render the custom email message form field for new user registration.
 		 *
 		 * @param string $type The type of new user form the hook follows.
@@ -777,6 +818,10 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 
 				if ( $valid_nonce && isset( $_POST['custom_email_message'] ) && strlen( sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) ) > 0 ) ) {
 					$new_user_request['message'] = sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) );
+				}
+
+				if ( $valid_nonce && isset( $_POST['user_external_contractor'] ) ) {
+					$new_user_request['is_external'] = true;
 				}
 
 				$response = Client::wpcom_json_api_request_as_user(
@@ -955,6 +1000,37 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			}
 
 			return json_decode( $response['body'], true )['invite_code'];
+		}
+
+		/**
+		 * Delete an external contributor from the site.
+		 *
+		 * @access private
+		 * @static
+		 * @param int $user_id The user ID.
+		 *
+		 * @return bool Returns true if the user was successfully deleted, false otherwise.
+		 */
+		private static function delete_external_contributor( $user_id ) {
+			$blog_id  = Jetpack_Options::get_option( 'id' );
+			$url      = '/sites/' . $blog_id . '/external-contributors/remove';
+			$response = Client::wpcom_json_api_request_as_user(
+				$url,
+				'v2',
+				array(
+					'method' => 'POST',
+				),
+				array(
+					'user_id' => $user_id,
+				),
+				'wpcom'
+			);
+
+			if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+				return false;
+			}
+
+			return true;
 		}
 
 		/**
