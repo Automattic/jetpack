@@ -34,7 +34,7 @@
 		"@babel/core": "7.24.0",
 		"@babel/preset-env": "7.24.0",
 		"@babel/preset-react": "7.23.3",
-		"@storybook/react": "7.6.17",
+		"@storybook/react": "8.0.4",
 		"@types/jquery": "3.5.29",
 		"@wordpress/i18n": "4.53.0",
 		"concurrently": "7.6.0",
