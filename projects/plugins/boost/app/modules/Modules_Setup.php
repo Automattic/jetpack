@@ -38,6 +38,19 @@ class Modules_Setup implements Has_Setup {
 		return false;
 	}
 
+	/**
+	 * Get modules that are currently active and optimizing the site.
+	 */
+	public function get_active_optimization_modules() {
+		$working_modules = array();
+		foreach ( $this->available_modules as $slug => $module ) {
+			if ( $module->is_optimizing() ) {
+				$working_modules[ $slug ] = $module;
+			}
+		}
+		return $working_modules;
+	}
+
 	public function get_status() {
 		$status = array();
 		foreach ( $this->available_modules as $slug => $module ) {

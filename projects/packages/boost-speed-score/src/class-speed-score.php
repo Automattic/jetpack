@@ -139,7 +139,7 @@ class Speed_Score {
 		}
 
 		// Create and store the Speed Score request.
-		$active_modules = array_keys( array_filter( $this->modules->get_status(), 'strlen' ) );
+		$active_modules = array_keys( array_filter( $this->modules->get_active_optimization_modules(), 'strlen' ) );
 		$score_request  = new Speed_Score_Request( $url, $active_modules, null, 'pending', null, $this->client );
 		$score_request->store( 1800 ); // Keep the request for 30 minutes even if no one access the results.
 
