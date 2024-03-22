@@ -90,6 +90,9 @@ function load_3rd_party_compat_filters() {
 		require_once JETPACK__PLUGIN_DIR . '/3rd-party/atomic.php';
 	}
 
+	// WordPress.com Reader
+	require_once JETPACK__PLUGIN_DIR . '/3rd-party/wpcom-reader.php';
+
 	// WPML
 	if ( defined( 'ICL_SITEPRESS_VERSION' ) ) {
 		require_once JETPACK__PLUGIN_DIR . '/3rd-party/wpml.php';
