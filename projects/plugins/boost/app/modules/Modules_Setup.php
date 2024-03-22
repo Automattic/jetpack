@@ -45,7 +45,7 @@ class Modules_Setup implements Has_Setup {
 		$working_modules = array();
 		foreach ( $this->available_modules as $slug => $module ) {
 			if ( $module->is_optimizing() ) {
-				$working_modules[ $slug ] = $module;
+				$working_modules[] = $slug;
 			}
 		}
 		return $working_modules;
