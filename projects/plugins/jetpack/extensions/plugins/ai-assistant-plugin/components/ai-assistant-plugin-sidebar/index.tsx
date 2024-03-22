@@ -63,7 +63,7 @@ const Upgrade = ( {
 	const tierLimitUpgradePrompt = sprintf(
 		/* translators: number is the request limit for the current tier/plan */
 		__(
-			'You have reached the limit of <strong>%d requests</strong>. <button>Upgrade to continue generating feedback.',
+			'You have reached the limit of <strong>%d requests</strong>. <button>Upgrade to continue generating feedback.</button>',
 			'jetpack'
 		),
 		requestLimit
