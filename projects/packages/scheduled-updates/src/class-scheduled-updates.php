@@ -227,23 +227,23 @@ class Scheduled_Updates {
 			// Not getting smart about passing in weekdays makes it easier to translate.
 			$weekdays = array(
 				/* translators: %s is the time of day. Mondays at 10 am. */
-				__( 'Mondays at %s.', 'jetpack-scheduled-updates' ),
+				1 => __( 'Mondays at %s.', 'jetpack-scheduled-updates' ),
 				/* translators: %s is the time of day. Tuesdays at 10 am. */
-				__( 'Tuesdays at %s.', 'jetpack-scheduled-updates' ),
+				2 => __( 'Tuesdays at %s.', 'jetpack-scheduled-updates' ),
 				/* translators: %s is the time of day. Wednesdays at 10 am. */
-				__( 'Wednesdays at %s.', 'jetpack-scheduled-updates' ),
+				3 => __( 'Wednesdays at %s.', 'jetpack-scheduled-updates' ),
 				/* translators: %s is the time of day. Thursdays at 10 am. */
-				__( 'Thursdays at %s.', 'jetpack-scheduled-updates' ),
+				4 => __( 'Thursdays at %s.', 'jetpack-scheduled-updates' ),
 				/* translators: %s is the time of day. Fridays at 10 am. */
-				__( 'Fridays at %s.', 'jetpack-scheduled-updates' ),
+				5 => __( 'Fridays at %s.', 'jetpack-scheduled-updates' ),
 				/* translators: %s is the time of day. Saturdays at 10 am. */
-				__( 'Saturdays at %s.', 'jetpack-scheduled-updates' ),
+				6 => __( 'Saturdays at %s.', 'jetpack-scheduled-updates' ),
 				/* translators: %s is the time of day. Sundays at 10 am. */
-				__( 'Sundays at %s.', 'jetpack-scheduled-updates' ),
+				7 => __( 'Sundays at %s.', 'jetpack-scheduled-updates' ),
 			);
 
 			$html = sprintf(
-				$weekdays[ date_i18n( 'N', $schedule->timestamp ) - 1 ],
+				$weekdays[ date_i18n( 'N', $schedule->timestamp ) ],
 				get_date_from_gmt( gmdate( 'Y-m-d H:i:s', $schedule->timestamp ), get_option( 'time_format' ) )
 			);
 		}

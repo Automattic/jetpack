@@ -63,7 +63,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		// Ensure plugin directory exists.
 		$this->wp_filesystem->mkdir( $this->plugin_dir );
 
-		// init the hook
+		// Init the hook.
 		add_action( 'rest_api_init', array( 'Automattic\Jetpack\Scheduled_Updates', 'add_is_managed_extension_field' ) );
 
 		do_action( 'rest_api_init' );
@@ -75,10 +75,10 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 * @after
 	 */
 	protected function tear_down() {
-		// Clean up the temporary plugin directory
+		// Clean up the temporary plugin directory.
 		$this->wp_filesystem->rmdir( $this->plugin_dir, true );
 
-		// Clean up the plugins cache created by get_plugins()
+		// Clean up the plugins cache created by get_plugins().
 		wp_cache_delete( 'plugins', 'plugins' );
 
 		wp_clear_scheduled_hook( Scheduled_Updates::PLUGIN_CRON_HOOK );
@@ -94,12 +94,12 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 * @covers ::add_is_managed_extension_field
 	 */
 	public function test_unmanaged_plugins() {
-		// direct
+		// Direct.
 		$plugin_name = 'direct-plugin';
 		$this->wp_filesystem->mkdir( "$this->plugin_dir/$plugin_name" );
 		$this->populate_file_with_plugin_header( "$this->plugin_dir/$plugin_name/$plugin_name.php", 'direct-plugin' );
 
-		// make sure the directory exists
+		// Make sure the directory exists.
 		$this->assertTrue( $this->wp_filesystem->is_dir( "$this->plugin_dir/direct-plugin" ) );
 
 		$request       = new \WP_REST_Request( 'GET', '/wp/v2/plugins' );
@@ -117,7 +117,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 * @covers ::add_is_managed_extension_field
 	 */
 	public function test_unmanaged_plugins_not_in_root_directory() {
-		// we simulate a symlink to a subdirectory inside a wp directory
+		// We simulate a symlink to a subdirectory inside a wp directory.
 		$plugin_name = 'managed-plugin';
 		$target_dir  = "$this->plugin_dir/wordpress";
 		$this->wp_filesystem->mkdir( $target_dir );
@@ -125,7 +125,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		$this->populate_file_with_plugin_header( "$target_dir/$plugin_name/$plugin_name.php", 'managed-plugin' );
 		symlink( "$target_dir/$plugin_name", "$this->plugin_dir/$plugin_name" );
 
-		// make sure the symlink exists
+		// Make sure the symlink exists.
 		$this->assertFalse( $this->wp_filesystem->is_dir( "$this->plugin_dir/direct-plugin" ) );
 		$this->assertTrue( is_link( "$this->plugin_dir/managed-plugin" ) );
 
@@ -144,7 +144,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 * @covers ::add_is_managed_extension_field
 	 */
 	public function test_managed_plugins() {
-		// we simulate a symlink to a subdirectory inside a wp directory
+		// We simulate a symlink to a subdirectory inside a wp directory.
 		$plugin_name = 'managed-plugin';
 		$target_dir  = "$this->plugin_dir/wordpress";
 		$this->wp_filesystem->mkdir( $target_dir );
@@ -152,11 +152,11 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		$this->populate_file_with_plugin_header( "$target_dir/$plugin_name/$plugin_name.php", 'managed-plugin' );
 		symlink( "$target_dir/$plugin_name", "$this->plugin_dir/$plugin_name" );
 
-		// make sure the symlink exists
+		// Make sure the symlink exists.
 		$this->assertFalse( $this->wp_filesystem->is_dir( "$this->plugin_dir/direct-plugin" ) );
 		$this->assertTrue( is_link( "$this->plugin_dir/managed-plugin" ) );
 
-		// tweak realpath so that it returns `/wordpress/...`
+		// Tweak realpath so that it returns `/wordpress/...`.
 		$realpath = $this->getFunctionMock( __NAMESPACE__, 'realpath' );
 		$realpath->expects( $this->once() )->willReturn( "/wordpress/plugins/$plugin_name" );
 
