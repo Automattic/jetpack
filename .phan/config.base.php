@@ -57,7 +57,6 @@ function make_phan_config( $dir, $options = array() ) {
 			'RedundantAssignmentPlugin',
 			'SimplifyExpressionPlugin',
 			'UnreachableCodePlugin',
-			'UnusedSuppressionPlugin',
 			'UseReturnValuePlugin',
 			// Others to consider:
 			// https://github.com/wikimedia/mediawiki-tools-phan/blob/master/src/Plugin/RedundantExistenceChecksPlugin.php
@@ -133,6 +132,11 @@ function make_phan_config( $dir, $options = array() ) {
 			"$root/.phan/",
 		),
 	);
+
+	// Only use UnusedSuppressionPlugin if we're not doing the CI run with old core stubs.
+	if ( ! getenv( 'NO_PHAN_UNUSED_SUPPRESSION' ) ) {
+		$config['plugins'][] = 'UnusedSuppressionPlugin';
+	}
 
 	// Read default PHP versions to check against.
 	$versions = file_get_contents( "$root/.github/versions.sh" );
