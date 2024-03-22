@@ -1229,12 +1229,6 @@ importers:
       '@storybook/addon-storysource':
         specifier: 8.0.4
         version: 8.0.4
-      '@storybook/addons':
-        specifier: 7.6.17
-        version: 7.6.17(react-dom@18.2.0)(react@18.2.0)
-      '@storybook/api':
-        specifier: 7.6.17
-        version: 7.6.17(react-dom@18.2.0)(react@18.2.0)
       '@storybook/blocks':
         specifier: 8.0.4
         version: 8.0.4(react-dom@18.2.0)(react@18.2.0)
@@ -2559,9 +2553,9 @@ importers:
       '@storybook/blocks':
         specifier: 8.0.4
         version: 8.0.4(@types/react@18.2.61)(react-dom@18.2.0)(react@18.2.0)
-      '@storybook/client-api':
-        specifier: 7.6.17
-        version: 7.6.17
+      '@storybook/preview-api':
+        specifier: 8.0.4
+        version: 8.0.4
       '@storybook/react':
         specifier: 8.0.4
         version: 8.0.4(react-dom@18.2.0)(react@18.2.0)(typescript@5.0.4)
@@ -8452,16 +8446,6 @@ packages:
       - react-dom
     dev: true
 
-  /@storybook/api@7.6.17(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-l92PI+5XL4zB/o4IBWFCKQWTXvPg9hR45DCJqlPHrLZStiR6Xj1mbrtOjUlgIOH+nYb/SZFZqO53hhrs7X4Nvg==}
-    dependencies:
-      '@storybook/client-logger': 7.6.17
-      '@storybook/manager-api': 7.6.17(react-dom@18.2.0)(react@18.2.0)
-    transitivePeerDependencies:
-      - react
-      - react-dom
-    dev: true
-
   /@storybook/blocks@7.6.17(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-PsNVoe0bX1mMn4Kk3nbKZ0ItDZZ0YJnYAFJ6toAbsyBAbgzg1sce88sQinzvbn58/RT9MPKeWMPB45ZS7ggiNg==}
     peerDependencies:
@@ -8805,13 +8789,6 @@ packages:
       - react-dom
       - supports-color
       - utf-8-validate
-    dev: true
-
-  /@storybook/client-api@7.6.17:
-    resolution: {integrity: sha512-rsxKBRLtUmBXbxG79Pf1GzUuMDMsFdhNR/a5k7kIA/mlEsvWD8are/aH/zk1oLr7+5QOqEkiXLL6+Erry7dzXA==}
-    dependencies:
-      '@storybook/client-logger': 7.6.17
-      '@storybook/preview-api': 7.6.17
     dev: true
 
   /@storybook/client-logger@7.6.17:
