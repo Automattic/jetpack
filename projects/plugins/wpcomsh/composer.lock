@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "35fd31d8aac1271d22ba15e1dbcb3fbc",
+    "content-hash": "ad7e974ac6d1fc630f5d10985db0a7d9",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -218,21 +218,21 @@
         },
         {
             "name": "automattic/jetpack-mu-wpcom",
-            "version": "v5.18.0",
+            "version": "v5.19.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-mu-wpcom.git",
-                "reference": "f97d436ee972f3504b19daef865040bfea977660"
+                "reference": "4ad8b9a7ba79c32cef76cc99b6fde5e6d7cd226f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/f97d436ee972f3504b19daef865040bfea977660",
-                "reference": "f97d436ee972f3504b19daef865040bfea977660",
+                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/4ad8b9a7ba79c32cef76cc99b6fde5e6d7cd226f",
+                "reference": "4ad8b9a7ba79c32cef76cc99b6fde5e6d7cd226f",
                 "shasum": ""
             },
             "require": {
                 "automattic/jetpack-assets": "^2.1.5",
-                "automattic/scheduled-updates": "^0.5.0",
+                "automattic/scheduled-updates": "^0.5.1",
                 "php": ">=7.0"
             },
             "require-dev": {
@@ -251,7 +251,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.18.x-dev"
+                    "dev-trunk": "5.19.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -269,9 +269,9 @@
             ],
             "description": "Enhances your site with features powered by WordPress.com",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v5.18.0"
+                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v5.19.0"
             },
-            "time": "2024-03-20T16:45:51+00:00"
+            "time": "2024-03-22T13:30:29+00:00"
         },
         {
             "name": "automattic/jetpack-post-list",
@@ -331,16 +331,16 @@
         },
         {
             "name": "automattic/scheduled-updates",
-            "version": "v0.5.0",
+            "version": "v0.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/scheduled-updates.git",
-                "reference": "c6dafd9aac3fe4036e05dd4fd921f95dd4e3dfa6"
+                "reference": "80ff606bbfb87aebce743da0d7076c6a2919ae03"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/scheduled-updates/zipball/c6dafd9aac3fe4036e05dd4fd921f95dd4e3dfa6",
-                "reference": "c6dafd9aac3fe4036e05dd4fd921f95dd4e3dfa6",
+                "url": "https://api.github.com/repos/Automattic/scheduled-updates/zipball/80ff606bbfb87aebce743da0d7076c6a2919ae03",
+                "reference": "80ff606bbfb87aebce743da0d7076c6a2919ae03",
                 "shasum": ""
             },
             "require": {
@@ -382,9 +382,9 @@
             ],
             "description": "Runs plugin and (eventually) theme updates on a set schedule.",
             "support": {
-                "source": "https://github.com/Automattic/scheduled-updates/tree/v0.5.0"
+                "source": "https://github.com/Automattic/scheduled-updates/tree/v0.5.1"
             },
-            "time": "2024-03-20T16:45:37+00:00"
+            "time": "2024-03-22T13:30:09+00:00"
         },
         {
             "name": "automattic/text-media-widget-styles",
