@@ -14,5 +14,4 @@ namespace Activitypub;
  * @return bool
  */
 function is_activitypub_request() {
-	return false;
 }
