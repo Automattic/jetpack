@@ -11,29 +11,28 @@ return [
     // # Issue statistics:
     // PhanUndeclaredClassMethod : 700+ occurrences
     // PhanTypeMismatchArgument : 610+ occurrences
-    // PhanUndeclaredConstant : 410+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 360+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 290+ occurrences
     // PhanUndeclaredFunction : 290+ occurrences
     // PhanNoopNew : 210+ occurrences
-    // PhanTypeMismatchReturnProbablyReal : 190+ occurrences
     // PhanTypeMismatchReturn : 180+ occurrences
+    // PhanTypeMismatchReturnProbablyReal : 180+ occurrences
+    // PhanUndeclaredConstant : 150+ occurrences
     // PhanDeprecatedFunction : 140+ occurrences
     // PhanUndeclaredMethod : 130+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 110+ occurrences
     // PhanTypeArraySuspiciousNullable : 95+ occurrences
-    // PhanRedefinedClassReference : 90+ occurrences
     // PhanRedundantCondition : 70+ occurrences
     // PhanUndeclaredThis : 70+ occurrences
     // PhanPossiblyUndeclaredVariable : 65+ occurrences
     // PhanTypeMismatchArgumentNullable : 55+ occurrences
     // PhanUndeclaredGlobalVariable : 55+ occurrences
     // PhanUndeclaredTypeParameter : 55+ occurrences
-    // PhanParamTooMany : 50+ occurrences
     // PhanTypeExpectedObjectPropAccess : 50+ occurrences
     // PhanTypeMismatchArgumentInternal : 50+ occurrences
     // PhanUndeclaredClassProperty : 50+ occurrences
     // PhanUndeclaredProperty : 50+ occurrences
+    // PhanParamTooMany : 45+ occurrences
     // PhanPluginDuplicateAdjacentStatement : 40+ occurrences
     // PhanUndeclaredStaticProperty : 40+ occurrences
     // PhanUndeclaredTypeReturnType : 40+ occurrences
@@ -94,7 +93,6 @@ return [
     // PhanTypeInvalidRightOperandOfNumericOp : 4 occurrences
     // PhanDeprecatedFunctionInternal : 3 occurrences
     // PhanDeprecatedTrait : 3 occurrences
-    // PhanRedefinedExtendedClass : 3 occurrences
     // PhanTypeConversionFromArray : 3 occurrences
     // PhanTypeMismatchArgumentReal : 3 occurrences
     // PhanTypeObjectUnsetDeclaredProperty : 3 occurrences
@@ -148,7 +146,7 @@ return [
         '_inc/lib/admin-pages/class-jetpack-about-page.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         '_inc/lib/admin-pages/class-jetpack-redux-state-helper.php' => ['PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDimAssignment'],
         '_inc/lib/admin-pages/class.jetpack-admin-page.php' => ['PhanDeprecatedProperty', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredProperty'],
-        '_inc/lib/class-jetpack-ai-helper.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyDefault', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction'],
+        '_inc/lib/class-jetpack-ai-helper.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyDefault', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction'],
         '_inc/lib/class-jetpack-currencies.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal'],
         '_inc/lib/class-jetpack-google-drive-helper.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
         '_inc/lib/class-jetpack-instagram-gallery-helper.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],

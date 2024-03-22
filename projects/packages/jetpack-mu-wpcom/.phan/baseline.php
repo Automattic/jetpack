@@ -9,7 +9,7 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredFunction : 75+ occurrences
+    // PhanUndeclaredFunction : 70+ occurrences
     // PhanUndeclaredClassMethod : 60+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 55+ occurrences
     // PhanTypeMismatchArgument : 40+ occurrences
@@ -23,10 +23,10 @@ return [
     // PhanTypeMismatchReturnProbablyReal : 7 occurrences
     // PhanUndeclaredConstant : 5 occurrences
     // PhanUndeclaredTypeProperty : 4 occurrences
+    // PhanNoopNew : 3 occurrences
     // PhanUndeclaredClassInCallable : 3 occurrences
     // PhanUndeclaredClassReference : 3 occurrences
     // PhanEmptyFQSENInCallable : 2 occurrences
-    // PhanNoopNew : 2 occurrences
     // PhanParamTooMany : 2 occurrences
     // PhanTypeMismatchArgumentInternal : 2 occurrences
     // PhanTypeMismatchDefault : 2 occurrences
