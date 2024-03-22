@@ -1161,9 +1161,6 @@ class Test_REST_Endpoints extends TestCase {
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/test_connection' );
 		$request->set_header( 'Content-Type', 'application/json' );
 
-		$body = array( 'local_user' => static::$user_id );
-		$request->set_body( wp_json_encode( $body ) );
-
 		// Mock full connection established.
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
 
