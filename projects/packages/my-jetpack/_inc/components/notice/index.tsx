@@ -16,10 +16,6 @@ type NoticeButtonAction = NoticeAction & { isLoading?: boolean; isDisabled?: boo
 
 const noop = () => {};
 
-/**
- *
- * @param status
- */
 function getStatusLabel( status: NoticeProps[ 'status' ] ): string {
 	switch ( status ) {
 		case 'warning':
@@ -34,17 +30,6 @@ function getStatusLabel( status: NoticeProps[ 'status' ] ): string {
 	}
 }
 
-/**
- *
- * @param root0
- * @param root0.className
- * @param root0.status
- * @param root0.children
- * @param root0.onRemove
- * @param root0.isDismissible
- * @param root0.actions
- * @param root0.onDismiss
- */
 function Notice( {
 	className,
 	status = 'info',
