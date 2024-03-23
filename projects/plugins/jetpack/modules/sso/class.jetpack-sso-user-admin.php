@@ -1,6 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Tracking;
 
@@ -36,11 +37,17 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 */
 		public function __construct() {
 			add_action( 'delete_user', array( 'Jetpack_SSO_Helpers', 'delete_connection_for_user' ) );
-			// If the user has no errors on creation, send an invite to WordPress.com.
-			add_filter( 'user_profile_update_errors', array( $this, 'send_wpcom_mail_user_invite' ), 10, 3 );
-			add_filter( 'wp_send_new_user_notification_to_user', array( $this, 'should_send_wp_mail_new_user' ) );
 			add_action( 'user_new_form', array( $this, 'render_invitation_email_message' ) );
-			add_action( 'user_new_form', array( $this, 'render_wpcom_invite_checkbox' ), 1 );
+
+			// Only enable the WPCOM invitation functionality if the user is connected to WPCOM.
+			if ( $this->can_send_wpcom_invitation() ) {
+				add_filter( 'wp_send_new_user_notification_to_user', array( $this, 'should_send_wp_mail_new_user' ) );
+				add_action( 'user_new_form', array( $this, 'render_wpcom_invite_checkbox' ), 1 );
+
+				// If the user has no errors on creation, send an invite to WordPress.com.
+				add_filter( 'user_profile_update_errors', array( $this, 'send_wpcom_mail_user_invite' ), 10, 3 );
+			}
+
 			add_action( 'user_new_form', array( $this, 'render_wpcom_external_user_checkbox' ), 1 );
 			add_action( 'user_new_form', array( $this, 'render_custom_email_message_form_field' ), 1 );
 			add_action( 'delete_user_form', array( $this, 'render_invitations_notices_for_deleted_users' ) );
@@ -693,10 +700,10 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 									<span><?php esc_html_e( 'Invite user', 'jetpack' ); ?></span>
 								</legend>
 								<label for="invite_user_wpcom">
-									<input 
-										name="invite_user_wpcom" 
-										type="checkbox" 
-										id="invite_user_wpcom" 
+									<input
+										name="invite_user_wpcom"
+										type="checkbox"
+										id="invite_user_wpcom"
 										<?php checked( ! class_exists( 'WooCommerce' ) ); ?>
 										>
 									<?php esc_html_e( 'Invite user to WordPress.com', 'jetpack' ); ?>
@@ -728,10 +735,10 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 									<span><?php esc_html_e( 'Invite user', 'jetpack' ); ?></span>
 								</legend>
 								<label for="user_external_contractor">
-									<input 
-										name="user_external_contractor" 
-										type="checkbox" 
-										id="user_external_contractor" 
+									<input
+										name="user_external_contractor"
+										type="checkbox"
+										id="user_external_contractor"
 										>
 									<?php esc_html_e( 'This user is a contractor, freelancer, consultant, or agency.', 'jetpack' ); ?>
 								</label>
@@ -1185,6 +1192,16 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 
 		</style>
 			<?php
+		}
+
+		/**
+		 * Check if the current user is able to send out wpcom invitations.
+		 *
+		 * @return bool
+		 */
+		private function can_send_wpcom_invitation() {
+			$manager = new Connection_Manager( 'jetpack' );
+			return $manager->is_user_connected();
 		}
 	}
 endif;
