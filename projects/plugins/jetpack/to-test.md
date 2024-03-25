@@ -43,14 +43,14 @@ This release enables us to gather more data on the reasons why users are disabli
 
 #### Jetpack sites
 
-- Apply this PR to your JT site
-- Go to the Newsletter Settings page with both flags enabled wp-admin/admin.php?enable-email-settings=true&enable-newsletter-categories=true&page=jetpack#/newsletter
-- Perform tests on all cards and check if the disable state is consistent
+- Apply this PR to your Jurassic Tube site.
+- Go to the Newsletter Settings page with both flags enabled: `wp-admin/admin.php?enable-email-settings=true&enable-newsletter-categories=true&page=jetpack#/newsletter`
+- Perform tests on all cards and verify the disabled state is consistent.
 
-- Go to the Newsletter settings page with the feature flag enabled: {your-site}/wp-admin/admin.php?enable-email-settings=true&page=jetpack#/newsletter
-- The Email settings module should be displayed
-- Perform tests on both Featured Image and Excerpt inputs, verify if the data is correctly synced with the settings on wpcom
-- Remove the feature flag to make sure it is not displayed without the flag
+- Go to the Newsletter settings page with the feature flag enabled: `/wp-admin/admin.php?enable-email-settings=true&page=jetpack#/newsletter`
+- The Email Settings module should be displayed.
+- Perform tests on both Featured Image and Excerpt inputs, verifying the data is correctly synced with the settings on WP.com.
+- Remove the feature flag to make sure the Email Settings module is not displayed without the flag.
 
 #### Contact Forms
 
