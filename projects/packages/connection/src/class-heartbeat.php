@@ -265,11 +265,11 @@ class Heartbeat {
 	public function initialize_rest_api() {
 		register_rest_route(
 			'jetpack/v4',
-			'/get_heartbeat_data',
+			'/heartbeat/data',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'rest_get_heartbeat_data' ),
-				'permission_callback' => array( $this, 'rest_get_heartbeat_data_permission_check' ),
+				'callback'            => array( $this, 'rest_heartbeat_data' ),
+				'permission_callback' => array( $this, 'rest_heartbeat_data_permission_check' ),
 				'args'                => array(
 					'prefix' => array(
 						'description' => __( 'Prefix to add before the stats identifiers.', 'jetpack-connection' ),
@@ -289,7 +289,7 @@ class Heartbeat {
 	 *
 	 * @return array
 	 */
-	public function rest_get_heartbeat_data( WP_REST_Request $request ) {
+	public function rest_heartbeat_data( WP_REST_Request $request ) {
 		return static::generate_stats_array( $request->get_param( 'prefix' ) );
 	}
 
@@ -298,13 +298,13 @@ class Heartbeat {
 	 *
 	 * @return true|WP_Error
 	 */
-	public function rest_get_heartbeat_data_permission_check() {
+	public function rest_heartbeat_data_permission_check() {
 		if ( current_user_can( 'jetpack_connect' ) ) {
 			return true;
 		}
 
 		return Rest_Authentication::is_signed_with_blog_token()
 			? true
-			: new WP_Error( 'invalid_permission_get_heartbeat_data', REST_Connector::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+			: new WP_Error( 'invalid_permission_heartbeat_data', REST_Connector::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
 	}
 }

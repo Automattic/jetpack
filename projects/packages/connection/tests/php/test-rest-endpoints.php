@@ -1155,12 +1155,12 @@ class Test_REST_Endpoints extends TestCase {
 	}
 
 	/**
-	 * Testing the `get_heartbeat_data` endpoint without authentication.
+	 * Testing the `heartbeat_data` endpoint without authentication.
 	 * Response: failed authorization.
 	 */
-	public function test_get_heartbeat_data_unauthenticated() {
+	public function test_heartbeat_data_unauthenticated() {
 		wp_set_current_user( 0 );
-		$request = new WP_REST_Request( 'GET', '/jetpack/v4/get_heartbeat_data' );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/heartbeat/data' );
 		$request->set_header( 'Content-Type', 'application/json' );
 
 		// Mock full connection established.
@@ -1171,14 +1171,14 @@ class Test_REST_Endpoints extends TestCase {
 
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
 
-		static::assertEquals( 'invalid_permission_get_heartbeat_data', $response_data['code'] );
+		static::assertEquals( 'invalid_permission_heartbeat_data', $response_data['code'] );
 		static::assertEquals( 401, $response_data['data']['status'] );
 	}
 
 	/**
-	 * Testing the `get_heartbeat_data` endpoint with proper authentication.
+	 * Testing the `heartbeat_data` endpoint with proper authentication.
 	 */
-	public function test_get_heartbeat_data_authenticated() {
+	public function test_heartbeat_data_authenticated() {
 		wp_set_current_user( 0 );
 
 		$data_filter = function () {
@@ -1226,7 +1226,7 @@ class Test_REST_Endpoints extends TestCase {
 
 		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
 
-		$request = new WP_REST_Request( 'GET', '/jetpack/v4/get_heartbeat_data' );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/heartbeat/data' );
 		$request->set_header( 'Content-Type', 'application/json' );
 
 		$response      = $this->server->dispatch( $request );
