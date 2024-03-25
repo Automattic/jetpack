@@ -50,15 +50,15 @@ class Test_Device_Detection extends TestCase {
 	/**
 	 * The get_browser tests.
 	 *
-	 * @param string      $ua User agent string.
-	 * @param array       $expected_types Not used.
-	 * @param string|bool $expected_ua_returned Not used.
-	 * @param string      $expected_browser Expected value for browser returned by the method.
+	 * @param string $ua User agent string.
+	 * @param array  $expected_types Not used.
+	 * @param bool   $expected_ua_returned Not used.
+	 * @param string $expected_browser Expected value for browser returned by the method.
 	 * @return void
 	 *
 	 * @dataProvider ua_provider
 	 */
-	public function test_get_browser( string $ua, array $expected_types, string|bool $expected_ua_returned, string $expected_browser ) {
+	public function test_get_browser( string $ua, array $expected_types, $expected_ua_returned, string $expected_browser ) {
 		$_SERVER['HTTP_USER_AGENT'] = $ua;
 
 		$device_info    = Device_Detection::get_info( $ua );

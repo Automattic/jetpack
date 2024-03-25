@@ -280,12 +280,12 @@ class User_Agent_Info {
 	/**
 	 * A simple pattern matching method for extracting the browser from the user agent.
 	 *
-	 * @return false|string
+	 * @return string
 	 */
 	public function get_browser() {
 		$ua = $this->useragent;
 		if ( empty( $ua ) ) {
-			return false;
+			return 'other';
 		}
 
 		if ( strpos( $ua, 'Opera' ) || strpos( $ua, 'OPR/' ) ) {
