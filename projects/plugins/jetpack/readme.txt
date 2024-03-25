@@ -327,19 +327,19 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 13.3-a.7 - 2024-03-25
 #### Enhancements
-- Block category "Earn" renamed to "Monetize"
-- Jetpack AI: when response includes a title and post title is empty, use provided title as post title
-- Removed Like button from master bar
-- Reorder newsletter settings cards to improve hierarchy
-- Trigger red bubble notifiction on My Jetpack when bad install is detected
-- Use radio controls instead of toggles on Email Settings
+- Blocks: "Earn" category renamed to "Monetize".
+- Jetpack AI: When the response includes a title and post title is empty, use provided title as post title.
+- My Jetpack: Trigger red bubble notification when a broken installation is detected.
+- Newsletters: Reorder settings cards to improve hierarchy.
+- Newsletters: Use radio buttons instead of toggles on Email Settings.
+- Sharing: Remove Like button from master bar.
 
 #### Improved compatibility
-- General: remove methods that were deprecated before the release of Jetpack 10.0, in 2021.
+- General: Remove methods that were deprecated before the release of Jetpack 10.0, in 2021.
 
 #### Bug fixes
-- Dashboard: update the sharing button settings to clarify the available options (block or legacy sharing buttons).
-- Enhanced Distribution: begin deprecation process as the Firehose is winding down
+- Dashboard: Update the sharing button settings to clarify the available options (block or legacy sharing buttons).
+- Enhanced Distribution: begin deprecation process as the Firehose is winding down.
 
 --------
 
