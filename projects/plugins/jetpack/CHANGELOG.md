@@ -4,19 +4,19 @@
 
 ## 13.3-a.7 - 2024-03-25
 ### Enhancements
-- Block category "Earn" renamed to "Monetize" [#36480]
-- Jetpack AI: when response includes a title and post title is empty, use provided title as post title [#36500]
-- Removed Like button from master bar [#36456]
-- Reorder newsletter settings cards to improve hierarchy [#36465]
-- Trigger red bubble notifiction on My Jetpack when bad install is detected [#36449]
-- Use radio controls instead of toggles on Email Settings [#36532]
+- Blocks: "Earn" category renamed to "Monetize". [#36480]
+- Jetpack AI: When the response includes a title and post title is empty, use provided title as post title. [#36500]
+- My Jetpack: Trigger red bubble notification when a broken installation is detected. [#36449]
+- Newsletters: Reorder settings cards to improve hierarchy. [#36465]
+- Newsletters: Use radio buttons instead of toggles on Email Settings. [#36532]
+- Sharing: Remove Like button from master bar. [#36456]
 
 ### Improved compatibility
-- General: remove methods that were deprecated before the release of Jetpack 10.0, in 2021. [#36157]
+- General: Remove methods that were deprecated before the release of Jetpack 10.0, in 2021. [#36157]
 
 ### Bug fixes
-- Dashboard: update the sharing button settings to clarify the available options (block or legacy sharing buttons). [#36473]
-- Enhanced Distribution: begin deprecation process as the Firehose is winding down [#36168]
+- Dashboard: Update the sharing button settings to clarify the available options (block or legacy sharing buttons). [#36473]
+- Enhanced Distribution: begin deprecation process as the Firehose is winding down. [#36168]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Added the possibility of stating if a new invited user is a contractor. [#36479]
