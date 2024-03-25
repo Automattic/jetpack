@@ -325,16 +325,21 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.3-a.3 - 2024-03-18
+### 13.3-a.7 - 2024-03-25
 #### Enhancements
-- AI Assistant: Provide per-block quick actions to make them more relevant.
-- General: Only show installation errors on plugins page.
-- Newsletters: Ensure blog stats and top posts blocks do not render in email newsletters.
-- Sharing: Add a Bluesky sharing button.
-- Sharing: Add Native (Web Share) button to Sharing Buttons block.
+- Block category "Earn" renamed to "Monetize"
+- Jetpack AI: when response includes a title and post title is empty, use provided title as post title
+- Removed Like button from master bar
+- Reorder newsletter settings cards to improve hierarchy
+- Trigger red bubble notifiction on My Jetpack when bad install is detected
+- Use radio controls instead of toggles on Email Settings
 
 #### Improved compatibility
-- Subscriptions: Remove subscription settings from reading options page.
+- General: remove methods that were deprecated before the release of Jetpack 10.0, in 2021.
+
+#### Bug fixes
+- Dashboard: update the sharing button settings to clarify the available options (block or legacy sharing buttons).
+- Enhanced Distribution: begin deprecation process as the Firehose is winding down
 
 --------
 
