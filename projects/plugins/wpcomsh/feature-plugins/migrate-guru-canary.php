@@ -20,6 +20,7 @@ function wpcomsh_check_for_migrate_guru_request_params() {
 		isset( $_SERVER['REQUEST_METHOD'] ) &&
 		$_SERVER['REQUEST_METHOD'] === 'POST' &&
 		isset( $_REQUEST['bvplugname'] ) &&
+		$_REQUEST['bvplugname'] === 'migrateguru' &&
 		isset( $_REQUEST['wing'] ) &&
 		$_REQUEST['wing'] === 'fswrt' &&
 		isset( $_REQUEST['bvMethod'] ) &&
