@@ -34,7 +34,6 @@ class Critical_CSS_Invalidator {
 
 		$state = new Critical_CSS_State();
 		$state->clear();
-		do_action( 'jetpack_boost_critical_css_invalidated' );
 
 		Cloud_CSS_Followup::unschedule();
 	}
@@ -45,6 +44,9 @@ class Critical_CSS_Invalidator {
 	public static function handle_environment_change( $is_major_change ) {
 		if ( $is_major_change ) {
 			self::clear_data();
+
+			// Let other parts of the system know that critical CSS has been invalidated.
+			do_action( 'jetpack_boost_critical_css_invalidated' );
 		}
 	}
 
