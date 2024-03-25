@@ -77,6 +77,16 @@ export default ( {
 		} );
 	};
 
+	const handleRegisterSiteOnly = e => {
+		e && e.preventDefault();
+
+		if ( isRegistered ) {
+			return new Promise( resolve => resolve() );
+		}
+
+		return registerSite( { registrationNonce, redirectUri } );
+	};
+
 	/**
 	 * Initialize/Setup the REST API.
 	 */
@@ -96,6 +106,7 @@ export default ( {
 
 	return {
 		handleRegisterSite,
+		handleRegisterSiteOnly,
 		handleConnectUser,
 		refreshConnectedPlugins,
 		isRegistered,

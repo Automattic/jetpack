@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { AdminPage, Button, Col, Container, Text } from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
@@ -71,6 +72,7 @@ export default function ProductInterstitial( {
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
 	const { myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
+	const { siteIsRegistering, handleRegisterSiteOnly } = useConnection();
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
@@ -154,13 +156,18 @@ export default function ProductInterstitial( {
 
 						// If no purchase is needed, redirect the user to the product screen.
 						if ( ! needsPurchase ) {
-							if ( postActivationUrl ) {
-								window.location.href = postActivationUrl;
-								return;
-							}
+							// for free products, we still initiate the site connection
+							handleRegisterSiteOnly().then( () => {
+								if ( postActivationUrl ) {
+									window.location.href = postActivationUrl;
+									return;
+								}
 
-							// Fall back to the My Jetpack overview page.
-							return navigateToMyJetpackOverviewPage();
+								// Fall back to the My Jetpack overview page.
+								return navigateToMyJetpackOverviewPage();
+							} );
+
+							return;
 						}
 
 						// Redirect to the checkout page.
@@ -176,6 +183,7 @@ export default function ProductInterstitial( {
 			slug,
 			myJetpackCheckoutUri,
 			ctaCallback,
+			handleRegisterSiteOnly,
 		]
 	);
 
@@ -211,7 +219,7 @@ export default function ProductInterstitial( {
 							clickHandler={ clickHandler }
 							onProductButtonClick={ clickHandler }
 							trackProductButtonClick={ trackProductClick }
-							isFetching={ isActivating }
+							isFetching={ isActivating || siteIsRegistering }
 						/>
 					) : (
 						<Container
@@ -232,7 +240,7 @@ export default function ProductInterstitial( {
 									hideTOS={ hideTOS }
 									quantity={ quantity }
 									highlightLastFeature={ highlightLastFeature }
-									isFetching={ isActivating }
+									isFetching={ isActivating || siteIsRegistering }
 								/>
 							</Col>
 							<Col
