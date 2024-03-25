@@ -11,7 +11,7 @@
 
 ### The usual stuff
 
-We have made changes to the connection flow, deprecated some old methods, and did some general cleanup. Please test the connection flow, be creative - try stopping half-way, try plans, try disconnecting, etc. Bonus points for trying it in different locales. Good places to test locales: Jetpack Notifications, Facebook sharing buttons, Instant Search, etc.
+We have made changes to the connection flow, deprecated some old methods, and did some general cleanup. Please test the connection flow. Be creative - try stopping half-way, try plans, try disconnecting, etc. Bonus points for trying it in different locales. Good places to test locales: Jetpack Notifications, Facebook sharing buttons, Instant Search, etc.
 
 ### Newsletters
 
