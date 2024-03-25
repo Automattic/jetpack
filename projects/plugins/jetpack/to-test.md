@@ -22,12 +22,12 @@ We have made changes to the connection flow, deprecated some old methods, and di
 
 This release changes the way AI quick actions work for supported block types. To test:
 
-- Go to the editor, create a list with some items.
+- Go to the editor and create a list with some items.
 - Click on the toolbar's AI icon.
-- See that the list doesn't offer "Summarize", "Expand" or "Simplify". It should only offer "Turn into a table" and "Write a post from this list".
+- Confirm that the dropdown doesn't offer "Summarize", "Expand", or "Simplify". It should only offer "Turn into a table" and "Write a post from this list".
 - Test both quick actions.
 - Verify expected output (be mindful that not all lists would make sense as a table, try using some shared data between items, like "Africa, 200 people" and "Europe, 100 people").
-- Test the paragraph's quick actions still work as expected.
+- Confirm that the paragraph's quick actions still work as expected.
 
 ### SSO Survey 
 
