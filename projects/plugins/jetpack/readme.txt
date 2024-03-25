@@ -329,10 +329,10 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 #### Enhancements
 - Blocks: "Earn" category renamed to "Monetize".
 - Jetpack AI: When the response includes a title and post title is empty, use provided title as post title.
-- My Jetpack: Trigger red bubble notifiction when a broken installation is detected.
+- My Jetpack: Trigger red bubble notification when a broken installation is detected.
 - Newsletters: Reorder settings cards to improve hierarchy.
-- Newsletters: Use radio controls instead of toggles on Email Settings.
-- Sharing: Removed Like button from master bar.
+- Newsletters: Use radio buttons instead of toggles on Email Settings.
+- Sharing: Remove Like button from master bar.
 
 #### Improved compatibility
 - General: Remove methods that were deprecated before the release of Jetpack 10.0, in 2021.
