@@ -58,7 +58,7 @@ The Contact Forms module has been refactored to use the new package instead of t
 
 ### Sharing
 
-This release enables the "Sharing Settings" wp-admin page in offline mode or when Classic (wp-admin) interface is enabled. The "Sharing Settings" page appears different depending on if your site has a blocks or classic theme enabled.
+This release enables the "Sharing Settings" wp-admin page in offline mode or when the Classic (wp-admin) interface is enabled. The "Sharing Settings" page should look different depending on whether your site has a blocks or classic theme enabled.
 
 The link in Jetpack > Settings > Sharing > "Configure your sharing buttons" now directs you to the "Sharing Settings" wp-admin page when Classic (wp-admin) interface is enabled.
 
