@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import fs from 'fs';
-import childProcess from 'child_process';
+import childProcess, { spawn } from 'child_process';
 import { fileURLToPath } from 'url';
 import config from 'config';
 import { getReusableUrlFromFile } from '../helpers/utils-helper.js';
@@ -89,12 +89,13 @@ async function tunnelChild() {
 	const subdomain = await getTunnelSubdomain();
 
 	if ( ! ( await isTunnelOn( subdomain ) ) ) {
-		const tunnelUrl = 'FIGURE ME OUT'; // @todo - figure it out
+		const token = 'TOKEN'; // @todo - add proper token somehow
+		const domain = 'DOMAIN'; // @todo - example blabla.ngrok.dev
+		const tunnelUrl = `https://${ domain }`;
 
 		console.log( `Opening tunnel. Subdomain: '${ subdomain }'` );
-		const token = 'TOKEN'; // @todo - add proper token somehow
-		const domain = 'DOMAIN'; // @todo - figure this out as well
-		const tunnel = childProcess( 'ngrok', [
+
+		const tunnel = spawn( 'ngrok', [
 			'http',
 			'8889',
 			'--authtoken',
@@ -108,7 +109,7 @@ async function tunnelChild() {
 
 		fs.writeFileSync( config.get( 'temp.tunnels' ), tunnelUrl );
 		console.log( `Opened tunnel '${ tunnelUrl }'` );
-		fs.writeFileSync( config.get( 'temp.pid' ), `${ process.pid }` );
+		fs.writeFileSync( config.get( 'temp.pid' ), `${ tunnel.pid }` );
 	}
 
 	process.send?.( 'ok' );
