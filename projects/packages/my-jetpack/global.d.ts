@@ -184,6 +184,14 @@ interface Window {
 				check_dns: boolean;
 			} >;
 		};
+		redBubbleAlerts: {
+			'missing-site-connection'?: null;
+			[ key: `${ string }-bad-installation` ]: {
+				data: {
+					plugin: string;
+				};
+			};
+		};
 		topJetpackMenuItemUrl: string;
 		userIsAdmin: string;
 		userIsNewToJetpack: string;
