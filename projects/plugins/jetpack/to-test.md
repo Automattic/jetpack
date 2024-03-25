@@ -31,7 +31,7 @@ This release changes the way AI quick actions work for supported block types. To
 
 ### SSO Survey 
 
-This release enables us to gather more data on the reasons why users are disabling the SSO module. When a user disables the SSO module, we show a modal that leads to a crowsignal survey.
+This release enables us to gather more data on the reasons why users are disabling the SSO module. When a user disables the SSO module, we show a modal that leads to a Crowdsignal survey.
 
 - Go to /wp-admin/admin.php?page=jetpack#/settings
 - A modal should show when you disable the SSO module.
