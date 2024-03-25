@@ -1,4 +1,0 @@
-Significance: major
-Type: removed
-
-General: remove past compatibility layer that is not being used anywhere anymore.
