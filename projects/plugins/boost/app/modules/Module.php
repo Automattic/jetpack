@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules;
 
-use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
+use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Status;
 
@@ -30,7 +30,7 @@ class Module {
 	 * Check if the module is active and ready to serve optimized output.
 	 */
 	public function is_optimizing() {
-		if ( $this->feature instanceof Changes_Page_Output && $this->is_enabled() && $this->feature->is_ready() ) {
+		if ( $this->feature instanceof Optimization && $this->is_enabled() && $this->feature->is_ready() ) {
 			return true;
 		}
 	}

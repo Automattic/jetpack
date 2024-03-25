@@ -3,10 +3,11 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Minify;
 
 use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
+use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Minify\Concatenate_CSS;
 
-class Minify_CSS implements Pluggable, Changes_Page_Output {
+class Minify_CSS implements Pluggable, Changes_Page_Output, Optimization {
 
 	public static $default_excludes = array( 'admin-bar', 'dashicons', 'elementor-app' );
 
