@@ -45,7 +45,6 @@ class Critical_CSS_Invalidator {
 		if ( $is_major_change ) {
 			self::clear_data();
 
-			// Let other parts of the system know that critical CSS has been invalidated.
 			do_action( 'jetpack_boost_critical_css_invalidated' );
 		}
 	}
