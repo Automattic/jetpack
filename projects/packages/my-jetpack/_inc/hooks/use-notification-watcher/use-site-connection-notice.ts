@@ -45,6 +45,20 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 
 			handleRegisterSite().then( () => {
 				resetNotice();
+				setNotice( {
+					message: __( 'Your site has been successfully connected.', 'jetpack-my-jetpack' ),
+					options: {
+						status: 'success',
+						actions: [
+							{
+								label: __( 'Close', 'jetpack-my-jetpack' ),
+								onClick: resetNotice,
+								noDefaultClasses: true,
+							},
+						],
+					},
+					priority: NOTICE_PRIORITY_HIGH,
+				} );
 			} );
 		};
 
