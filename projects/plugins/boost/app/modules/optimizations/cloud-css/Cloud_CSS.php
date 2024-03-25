@@ -18,10 +18,17 @@ use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_Cloud_CSS;
 
 class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Page_Output {
 
+	/** User has requested regeneration manually or through activating the module. */
 	const REGENERATE_REASON_USER_REQUEST = 'user_request';
-	const REGENERATE_REASON_SAVE_POST    = 'save_post';
-	const REGENERATE_REASON_INVALIDATED  = 'invalidated';
-	const REGENERATE_REASON_FOLLOWUP     = 'followup';
+
+	/** A post was updated/created. */
+	const REGENERATE_REASON_SAVE_POST = 'save_post';
+
+	/** Existing critical CSS invalidated because of a significant change, e.g. Theme changed. */
+	const REGENERATE_REASON_INVALIDATED = 'invalidated';
+
+	/** Requesting a regeneration because the previous request had failed and this is a followup attempt to regenerate Critical CSS. */
+	const REGENERATE_REASON_FOLLOWUP = 'followup';
 
 	/**
 	 * Critical CSS storage class instance.
