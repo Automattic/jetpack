@@ -19,6 +19,12 @@ export async function checkAnalyticsEnabled() {
 	}
 
 	if ( configStore.get( 'askedToEnableAnalytics' ) === undefined ) {
+		// Skip asking if they're trying to run `jetpack cli analytics` itself.
+		const args = process.argv.filter( arg => ! arg.startsWith( '-' ) );
+		if ( args[ 2 ] === 'cli' && args[ 3 ] === 'analytics' ) {
+			return false;
+		}
+
 		const prompt = await enquirer.prompt( [
 			{
 				type: 'confirm',
@@ -28,20 +34,32 @@ export async function checkAnalyticsEnabled() {
 			},
 		] );
 
-		configStore.set( 'askedToEnableAnalytics', true );
-		configStore.set( 'analyticsEnabled', prompt.analyticsEnabled );
-		console.log(
-			prompt.analyticsEnabled
-				? 'Thank you for helping us improve Jetpack CLI!'
-				: "We appreciate your privacy. If you'd like to enable analytics tracking in the future, run: jetpack cli analytics on"
-		);
+		setAnalyticsEnabled( prompt.analyticsEnabled );
 	}
+
+	return configStore.get( 'analyticsEnabled' );
+}
+
+/**
+ * Set the analytics preference and logs a message.
+ * @param {boolean} analyticsEnabled - Whether analytics tracking is enabled.
+ */
+export async function setAnalyticsEnabled( analyticsEnabled ) {
+	configStore.set( 'askedToEnableAnalytics', true ); // If preference is being set, we don't need to ask again.
+	configStore.set( 'analyticsEnabled', analyticsEnabled );
 
 	if ( ! configStore.get( 'uuid' ) ) {
 		configStore.set( 'uuid', crypto.randomUUID() );
 	}
 
-	return configStore.get( 'analyticsEnabled' );
+	console.log(
+		`Analytics tracking for Jetpack CLI is now ${ analyticsEnabled ? 'enabled' : 'disabled' }.`,
+		`\n\nAnalytics tracking helps improve the Jetpack CLI by sending usage data. ${
+			analyticsEnabled
+				? 'Thank you for helping us improve!'
+				: "\nWe appreciate your privacy. If you'd like to enable analytics tracking in the future, run: jetpack cli analytics on"
+		}`
+	);
 }
 
 /**

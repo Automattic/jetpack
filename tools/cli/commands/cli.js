@@ -1,14 +1,12 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
-import Configstore from 'configstore';
 import { execaCommand, execaCommandSync } from 'execa';
 import Listr from 'listr';
 import UpdateRenderer from 'listr-update-renderer';
 import VerboseRenderer from 'listr-verbose-renderer';
 import PATH from 'path-name';
+import { setAnalyticsEnabled } from '../helpers/analytics.js';
 import { chalkJetpackGreen } from '../helpers/styling.js';
-
-const configStore = new Configstore( 'automattic/jetpack-cli/cli' );
 
 /**
  * Show us the status of the cli, such as the currenet linked directory.
@@ -106,16 +104,7 @@ function cliUnlink( options ) {
  * @param {string} preference - The state to set the analytics tracking to, 'on' or 'off'.
  */
 function cliAnalytics( preference ) {
-	const analyticsEnabled = preference === 'on';
-	configStore.set( 'analyticsEnabled', analyticsEnabled );
-	console.log(
-		`Analytics tracking for Jetpack CLI is now ${ analyticsEnabled ? 'enabled' : 'disabled' }.`,
-		`\n\nAnalytics tracking helps improve the Jetpack CLI by sending usage data. ${
-			analyticsEnabled
-				? 'Thank you for helping us improve!'
-				: "\nWe appreciate your privacy. If you'd like to enable analytics tracking in the future, run: jetpack cli analytics on"
-		}`
-	);
+	setAnalyticsEnabled( preference === 'on' );
 }
 
 /**
