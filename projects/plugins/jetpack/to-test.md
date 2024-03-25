@@ -15,8 +15,8 @@ We have made changes to the connection flow, deprecated some old methods, and di
 
 ### Newsletters
 
-- Go to Settings > Reading Options.
-- You should not see Follower Settings and all the settings (Blog follow email text, Comment follow email text, Welcome email text) as seen here: pdDOJh-3a8-p2.
+- Go to Settings > Newsletter.
+- You should not see the "Follower Settings" section, and the other settings ("Blog follow email text", "Comment follow email text", "Welcome email text") should match this post: pdDOJh-3a8-p2.
 
 ### Gutenberg blocks
 
