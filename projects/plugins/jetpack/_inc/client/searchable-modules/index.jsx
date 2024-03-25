@@ -36,7 +36,7 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 			}
 
 			// Only should be features that don't already have a UI, and we want to reveal in search.
-			const safelist = [ 'contact-form', 'enhanced-distribution', 'json-api', 'notes' ];
+			const safelist = [ 'contact-form', 'json-api', 'notes' ];
 
 			const allModules = this.props.modules,
 				results = [];

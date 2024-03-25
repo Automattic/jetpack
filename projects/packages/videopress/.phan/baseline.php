@@ -19,7 +19,6 @@ return [
     // PhanUndeclaredFunction : 10+ occurrences
     // PhanTypeMismatchArgument : 8 occurrences
     // PhanUndeclaredProperty : 8 occurrences
-    // PhanUndeclaredConstant : 7 occurrences
     // PhanTypeMismatchReturnProbablyReal : 6 occurrences
     // PhanUnextractableAnnotation : 5 occurrences
     // PhanCommentOverrideOnNonOverrideMethod : 4 occurrences
@@ -32,6 +31,7 @@ return [
     // PhanPossiblyUndeclaredVariable : 2 occurrences
     // PhanTypeInvalidDimOffset : 2 occurrences
     // PhanUndeclaredClassConstant : 2 occurrences
+    // PhanUndeclaredConstant : 2 occurrences
     // PhanUndeclaredExtendedClass : 2 occurrences
     // PhanUndeclaredMethodInCallable : 2 occurrences
     // PhanUndeclaredTypeProperty : 2 occurrences
@@ -60,7 +60,7 @@ return [
         'src/class-divi.php' => ['PhanUndeclaredProperty'],
         'src/class-initializer.php' => ['PhanNoopNew', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredClassProperty', 'PhanUndeclaredMethod', 'PhanUndeclaredTypeParameter'],
         'src/class-jwt-token-bridge.php' => ['PhanTypeMismatchReturn'],
-        'src/class-plan.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredConstant', 'PhanUnextractableAnnotation'],
+        'src/class-plan.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUnextractableAnnotation'],
         'src/class-site.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'src/class-stats.php' => ['PhanTypeArraySuspiciousNullable'],
         'src/class-status.php' => ['PhanUndeclaredClassMethod'],

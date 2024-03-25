@@ -18,19 +18,21 @@
  *   - is_wordpress: (bool) Set false to not include WordPress stubs and other WordPress-specific configuration.
  *   - exclude_file_regex: (array) Additional regexes to exclude. Will be anchored at the start.
  *   - exclude_file_list: (array) Individual files to exclude.
+ *   - exclude_analysis_directory_list: (array) Directories to exclude from analysis.
  *   - suppress_issue_types: (array) Issues to suppress for the entire project.
  *   - unsuppress_issue_types: (array) Default-suppressed issues to unsuppress for the project.
  * @return array Phan config.
  */
 function make_phan_config( $dir, $options = array() ) {
 	$options += array(
-		'directory_list'         => array( '.' ),
-		'file_list'              => array(),
-		'is_wordpress'           => true,
-		'exclude_file_regex'     => array(),
-		'exclude_file_list'      => array(),
-		'suppress_issue_types'   => array(),
-		'unsuppress_issue_types' => array(),
+		'directory_list'                  => array( '.' ),
+		'file_list'                       => array(),
+		'is_wordpress'                    => true,
+		'exclude_analysis_directory_list' => array(),
+		'exclude_file_regex'              => array(),
+		'exclude_file_list'               => array(),
+		'suppress_issue_types'            => array(),
+		'unsuppress_issue_types'          => array(),
 	);
 
 	$root = dirname( __DIR__ );
@@ -57,7 +59,6 @@ function make_phan_config( $dir, $options = array() ) {
 			'RedundantAssignmentPlugin',
 			'SimplifyExpressionPlugin',
 			'UnreachableCodePlugin',
-			'UnusedSuppressionPlugin',
 			'UseReturnValuePlugin',
 			// Others to consider:
 			// https://github.com/wikimedia/mediawiki-tools-phan/blob/master/src/Plugin/RedundantExistenceChecksPlugin.php
@@ -91,6 +92,7 @@ function make_phan_config( $dir, $options = array() ) {
 				"$root/vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php",
 				"$root/vendor/php-stubs/wp-cli-stubs/wp-cli-commands-stubs.php",
 				"$root/vendor/php-stubs/wp-cli-stubs/wp-cli-i18n-stubs.php",
+				"$root/.phan/stubs/wordpress-constants.php",
 			) : array(),
 			$options['file_list']
 		),
@@ -125,13 +127,22 @@ function make_phan_config( $dir, $options = array() ) {
 
 		// List directories that will be excluded from analysis (but will still be parsed).
 		// Note anything here needs to be listed in `directory_list` or `file_list` to be parsed in the first place.
-		'exclude_analysis_directory_list' => array(
-			'jetpack_vendor/',
-			'vendor/',
-			"$root/vendor/",
-			"$root/.phan/",
+		'exclude_analysis_directory_list' => array_merge(
+			array(
+				'jetpack_vendor/',
+				'vendor/',
+				'.phan/stubs/',
+				"$root/vendor/",
+				"$root/.phan/",
+			),
+			$options['exclude_analysis_directory_list']
 		),
 	);
+
+	// Only use UnusedSuppressionPlugin if we're not doing the CI run with old core stubs.
+	if ( ! getenv( 'NO_PHAN_UNUSED_SUPPRESSION' ) ) {
+		$config['plugins'][] = 'UnusedSuppressionPlugin';
+	}
 
 	// Read default PHP versions to check against.
 	$versions = file_get_contents( "$root/.github/versions.sh" );

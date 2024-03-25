@@ -180,15 +180,6 @@ function wpcom_add_wpcom_menu_item() {
 
 	add_submenu_page(
 		$parent_slug,
-		esc_attr__( 'Subscribers', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Subscribers', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/subscribers/$domain" ),
-		null
-	);
-
-	add_submenu_page(
-		$parent_slug,
 		esc_attr__( 'Connections', 'jetpack-mu-wpcom' ),
 		esc_attr__( 'Connections', 'jetpack-mu-wpcom' ),
 		'manage_options',
@@ -303,7 +294,7 @@ function wpcom_add_hosting_menu_intro_notice() {
 		<div>
 			<span class="title"><?php esc_html_e( 'WordPress.com', 'jetpack-mu-wpcom' ); ?></span><br />
 			<span>
-				<?php esc_html_e( 'To access settings for plans, domains, subscribers, etc., click "Hosting" in the sidebar.', 'jetpack-mu-wpcom' ); ?>
+				<?php esc_html_e( 'To access settings for plans, domains, emails, etc., click "Hosting" in the sidebar.', 'jetpack-mu-wpcom' ); ?>
 			</span>
 		</div>
 		<a href="#" class="close-button" aria-label=<?php echo esc_attr__( 'Dismiss', 'jetpack-mu-wpcom' ); ?>>
