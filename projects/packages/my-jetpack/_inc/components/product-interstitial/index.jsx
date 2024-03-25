@@ -136,18 +136,17 @@ export default function ProductInterstitial( {
 							? activatedProduct.post_checkout_url
 							: myJetpackCheckoutUri;
 						const postActivationUrl = product?.postActivationUrl;
-						const hasRequiredPlan = tier
-							? product?.hasRequiredTier?.[ tier ]
-							: product?.hasRequiredPlan;
+						// there is a separate hasRequiredTier, but it is not implemented
+						const hasPaidPlanForProduct = product?.hasPaidPlanForProduct;
 						const isFree = tier
 							? product?.pricingForUi?.tiers?.[ tier ]?.isFree
 							: product?.pricingForUi?.isFree;
-						const needsPurchase = ! isFree && ! hasRequiredPlan;
+						const needsPurchase = ! isFree && ! hasPaidPlanForProduct;
 
 						// If the product is CRM, redirect the user to the Jetpack CRM pricing page.
 						// This is done because CRM is not part of the WP billing system
 						// and we can't send them to checkout like we can with the rest of the products
-						if ( product.pluginSlug === 'zero-bs-crm' && ! hasRequiredPlan ) {
+						if ( product.pluginSlug === 'zero-bs-crm' && ! hasPaidPlanForProduct ) {
 							window.location.href = 'https://jetpackcrm.com/pricing/';
 							return;
 						}
@@ -212,6 +211,7 @@ export default function ProductInterstitial( {
 							onProductButtonClick={ clickHandler }
 							trackProductButtonClick={ trackProductClick }
 							isFetching={ isActivating }
+							preferProductName={ preferProductName }
 						/>
 					) : (
 						<Container
