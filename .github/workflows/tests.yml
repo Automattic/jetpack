@@ -317,6 +317,14 @@ jobs:
         run: pnpm install
       - name: Run phan
         run: pnpm jetpack phan --all -v --update-baseline --format github
+      - name: Run phan for previous WP version too
+        env:
+          # Don't bother complaining about unused suppressions that may be used with the newer stubs. See .phan/config.base.php for how this gets applied.
+          NO_PHAN_UNUSED_SUPPRESSION: 1
+        run: |
+          composer update --prefer-lowest php-stubs/wordpress-stubs php-stubs/wordpress-tests-stubs
+          # Don't re-update baselines here, only check.
+          pnpm jetpack phan --all -v --format github
       - name: Check baselines
         run: |
           # Anything changed (with a side of printing the diff)

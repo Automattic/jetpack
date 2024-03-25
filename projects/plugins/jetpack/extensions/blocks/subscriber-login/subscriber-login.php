@@ -35,20 +35,8 @@ function register_block() {
 		__DIR__,
 		array( 'render_callback' => __NAMESPACE__ . '\render_block' )
 	);
-
-	add_action( 'wp_logout', __NAMESPACE__ . '\subscriber_logout' );
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
-
-/**
- * Logs the subscriber out by clearing out the premium content cookie.
- *
- * @return void
- */
-function subscriber_logout() {
-	$cookie_domain = wp_parse_url( get_site_url(), PHP_URL_HOST );
-	Abstract_Token_Subscription_Service::clear_token_cookie( $cookie_domain );
-}
 
 /**
  * Returns current URL.

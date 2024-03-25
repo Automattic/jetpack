@@ -203,6 +203,17 @@ class Jetpack_Memberships {
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_rest_api_types' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'allow_sync_post_meta' ) );
 		$this->setup_cpts();
+
+		if ( Jetpack::is_module_active( 'subscriptions' ) && jetpack_is_frontend() ) {
+			add_action( 'wp_logout', array( $this, 'subscriber_logout' ) );
+		}
+	}
+
+	/**
+	 * Logs the subscriber out by clearing out the premium content cookie.
+	 */
+	public function subscriber_logout() {
+		Abstract_Token_Subscription_Service::clear_token_cookie();
 	}
 
 	/**

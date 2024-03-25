@@ -55,6 +55,20 @@ if ( ! is_readable( $autoload_packages_path ) ) {
 		);
 	}
 
+	// Add a red bubble notification to My Jetpack if the installation is bad.
+	add_filter(
+		'my_jetpack_red_bubble_notification_slugs',
+		function ( $slugs ) {
+			$slugs['jetpack-search-plugin-bad-installation'] = array(
+				'data' => array(
+					'plugin' => 'Jetpack Search',
+				),
+			);
+
+			return $slugs;
+		}
+	);
+
 	/**
 	 * Outputs an admin notice for folks running Jetpack Search without having run composer install.
 	 *

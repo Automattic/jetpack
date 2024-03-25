@@ -12,14 +12,7 @@
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
-	"autoload": {
-		"files": [
-			"functions.php"
-		],
-		"classmap": [
-			"legacy"
-		]
-	},
+	"autoload": {},
 	"repositories": [
 		{
 			"type": "path",
@@ -39,7 +32,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-compat/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "2.0.x-dev"
+			"dev-trunk": "3.0.x-dev"
 		}
 	}
 }
