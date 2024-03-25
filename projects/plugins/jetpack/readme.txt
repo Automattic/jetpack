@@ -216,7 +216,6 @@ Jetpack is the ultimate toolkit for WP for both the classic editor and the block
 * Custom CSS — Customize the appearance of your theme without creating a child theme or worrying about updates overwriting your customizations.
 * Custom Content Types — Adds custom post types (CPTs) to your site.
 * Downtime Monitor — Alerts you via electronic mail if your site goes down to ensure you keep uptime.
-* Enhanced Distribution — Increase your reach by allowing your content to be included in the WordPress.com “firehose” of public blog content.
 * Extra Sidebar Widgets — Extra widgets you can add to your blog, including RSS Links and Facebook Like Boxes.
 * Gravatar Hovercards — Make your Gravatar profile visible to those viewing your blog.
 * Google Analytics (GA) — Track your WordPress site statistics thanks to Google Analytics.
@@ -326,22 +325,21 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.3-a.1 - 2024-03-12
+### 13.3-a.7 - 2024-03-25
 #### Enhancements
-- Display Email settings on Newsletter settings page
-- Login block: Link to subscription management page with site URL as search query.
-- Member login block: link to individual subscription management page
-- Pass API parameter to indicate when deleting a memberships product should cancel subscriptions
-- Sharing: add a Threads sharing button and a Threads sharing button block.
-- Social Menu & Social Media Icons: Add support for an SMS button.
-- Uncheck users-new.php Invite user on load if WooCommerce plugin is activated
+- Blocks: "Earn" category renamed to "Monetize".
+- Jetpack AI: When the response includes a title and post title is empty, use provided title as post title.
+- My Jetpack: Trigger red bubble notification when a broken installation is detected.
+- Newsletters: Reorder settings cards to improve hierarchy.
+- Newsletters: Use radio buttons instead of toggles on Email Settings.
+- Sharing: Remove Like button from master bar.
 
 #### Improved compatibility
-- Add metadata to the post to better diagnose need for Reader and Firehose
+- General: Remove methods that were deprecated before the release of Jetpack 10.0, in 2021.
 
 #### Bug fixes
-- Sharing: avoid PHP warnings when using custom post types.
-- Sharing: fix the display of the sharing block in some classic themes.
+- Dashboard: Update the sharing button settings to clarify the available options (block or legacy sharing buttons).
+- Enhanced Distribution: begin deprecation process as the Firehose is winding down.
 
 --------
 

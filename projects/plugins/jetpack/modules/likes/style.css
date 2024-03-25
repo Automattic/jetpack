@@ -33,20 +33,6 @@ div.sharedaddy h3.sd-title:before {
 
 
 /* Toolbar */
-#wpadminbar li#wp-admin-bar-admin-bar-likes-widget {
-	width: 61px;
-	overflow: hidden;
-}
-
-#wpadminbar iframe.admin-bar-likes-widget {
-	width: 61px;
-	height: 28px;
-	min-height: 28px;
-	border-width: 0px;
-	position: absolute;
-	top: 0;
-}
-
 div.jetpack-likes-widget-wrapper {
 	width: 100%;
 	min-height: 50px;	/* Previous height, 60px */
