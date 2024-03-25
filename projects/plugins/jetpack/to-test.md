@@ -67,11 +67,11 @@ The link in Jetpack > Settings > Sharing > "Configure your sharing buttons" now 
 On a "Default" admin interface (non wp-admin) nothing should have changed.
 On a "Classic" admin interface (wp-admin) the "Sharing settings" wp-admin page should be registered. To test this:
 
-- Go to Appearance > Themes and install / activate a classic theme, e.g.: "Classic"
+- Go to Appearance > Themes and install / activate a classic theme (e.g. "Classic").
 - Go to Jetpack > Settings > Sharing and enable sharing buttons.
-- Click the the "Configure your sharing buttons" link that appears at the bottom of the "Sharing buttons" panel.
+- Click the "Configure your sharing buttons" link that appears at the bottom of the "Sharing buttons" panel.
 - It should direct you to the "Sharing Settings" wp-admin page located here: /wp-admin/options-general.php?page=sharing
-- If your site is using a block theme the "Configure your sharing buttons" will link you to the site editor.
+- If your site is using a block theme the "Configure your sharing buttons" link will go to the site editor.
 
 #### Jetpack Sites
 
