@@ -278,6 +278,34 @@ class User_Agent_Info {
 	}
 
 	/**
+	 * A simple pattern matching method for extracting the browser from the user agent.
+	 *
+	 * @return false|string
+	 */
+	public function get_browser() {
+		$ua = $this->useragent;
+		if ( empty( $ua ) ) {
+			return false;
+		}
+
+		if ( strpos( $ua, 'Opera' ) || strpos( $ua, 'OPR/' ) ) {
+			return 'opera';
+		} elseif ( strpos( $ua, 'Edge' ) ) {
+			return 'edge';
+		} elseif ( strpos( $ua, 'Chrome' ) ) {
+			return 'chrome';
+		} elseif ( strpos( $ua, 'Safari' ) ) {
+			return 'safari';
+		} elseif ( strpos( $ua, 'Firefox' ) ) {
+			return 'firefox';
+		} elseif ( strpos( $ua, 'MSIE' ) || strpos( $ua, 'Trident/7' ) ) {
+			return 'ie';
+		}
+
+		return 'other';
+	}
+
+	/**
 	 * This method detects for UA which can display iPhone-optimized web content.
 	 * Includes iPhone, iPod Touch, Android, WebOS, Fennec (Firefox mobile), etc.
 	 */

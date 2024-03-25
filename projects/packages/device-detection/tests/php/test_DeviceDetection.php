@@ -48,6 +48,25 @@ class Test_Device_Detection extends TestCase {
 	}
 
 	/**
+	 * The get_browser tests.
+	 *
+	 * @param string      $ua User agent string.
+	 * @param array       $expected_types Not used.
+	 * @param string|bool $expected_ua_returned Not used.
+	 * @param string      $expected_browser Expected value for browser returned by the method.
+	 * @return void
+	 *
+	 * @dataProvider ua_provider
+	 */
+	public function test_get_browser( string $ua, array $expected_types, string|bool $expected_ua_returned, string $expected_browser ) {
+		$_SERVER['HTTP_USER_AGENT'] = $ua;
+
+		$device_info    = Device_Detection::get_info( $ua );
+		$actual_browser = $device_info['browser'];
+		$this->assertEquals( $expected_browser, $actual_browser );
+	}
+
+	/**
 	 * Data provider for test_is_mobile.
 	 *
 	 * @return array
@@ -63,6 +82,7 @@ class Test_Device_Detection extends TestCase {
 					'is_handheld',
 				),
 				'nokia',
+				'other',
 			),
 
 			// Samsung Galaxy S8 smart phone.
@@ -74,6 +94,7 @@ class Test_Device_Detection extends TestCase {
 					'is_handheld',
 				),
 				'android',
+				'chrome',
 			),
 
 			// iPhone X smart phone.
@@ -85,6 +106,7 @@ class Test_Device_Detection extends TestCase {
 					'is_handheld',
 				),
 				'iphone',
+				'safari',
 			),
 
 			// iPad 2 10.5 tablet.
@@ -95,6 +117,7 @@ class Test_Device_Detection extends TestCase {
 					'is_handheld',
 				),
 				false,
+				'other',
 			),
 
 			// Kindle 3.
@@ -107,6 +130,7 @@ class Test_Device_Detection extends TestCase {
 					'is_handheld',
 				),
 				'android',
+				'safari',
 			),
 
 			// Huawei p20 smartphone.
@@ -118,6 +142,7 @@ class Test_Device_Detection extends TestCase {
 					'is_handheld',
 				),
 				'android',
+				'chrome',
 			),
 
 			// Googlebot smartphone.
@@ -129,6 +154,7 @@ class Test_Device_Detection extends TestCase {
 					'is_handheld',
 				),
 				'android',
+				'chrome',
 			),
 
 			// Googlebot desktop.
@@ -138,6 +164,7 @@ class Test_Device_Detection extends TestCase {
 					'is_desktop',
 				),
 				false,
+				'other',
 			),
 		);
 	}
