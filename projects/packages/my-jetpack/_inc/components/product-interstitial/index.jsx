@@ -159,9 +159,11 @@ export default function ProductInterstitial( {
 						// If no purchase is needed, redirect the user to the product screen.
 						if ( ! needsPurchase ) {
 							// for free products, we still initiate the site connection
-							handleRegisterSite().catch( () => {
-								// Fall back to the My Jetpack overview page.
-								return navigateToMyJetpackOverviewPage();
+							handleRegisterSite().then( redirectUri => {
+								if ( ! redirectUri ) {
+									// Fall back to the My Jetpack overview page.
+									return navigateToMyJetpackOverviewPage();
+								}
 							} );
 
 							return;
