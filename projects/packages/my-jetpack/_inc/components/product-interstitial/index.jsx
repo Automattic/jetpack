@@ -72,7 +72,10 @@ export default function ProductInterstitial( {
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
 	const { myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
-	const { siteIsRegistering, handleRegisterSite } = useConnection( { skipUserConnection: true } );
+	const { siteIsRegistering, handleRegisterSite } = useConnection( {
+		skipUserConnection: true,
+		redirectUri: detail.postActivationUrl ? detail.postActivationUrl : null,
+	} );
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
@@ -137,7 +140,6 @@ export default function ProductInterstitial( {
 						postCheckoutUrl = activatedProduct?.post_checkout_url
 							? activatedProduct.post_checkout_url
 							: myJetpackCheckoutUri;
-						const postActivationUrl = product?.postActivationUrl;
 						const hasRequiredPlan = tier
 							? product?.hasRequiredTier?.[ tier ]
 							: product?.hasRequiredPlan;
@@ -157,12 +159,7 @@ export default function ProductInterstitial( {
 						// If no purchase is needed, redirect the user to the product screen.
 						if ( ! needsPurchase ) {
 							// for free products, we still initiate the site connection
-							handleRegisterSite().then( () => {
-								if ( postActivationUrl ) {
-									window.location.href = postActivationUrl;
-									return;
-								}
-
+							handleRegisterSite().catch( () => {
 								// Fall back to the My Jetpack overview page.
 								return navigateToMyJetpackOverviewPage();
 							} );
