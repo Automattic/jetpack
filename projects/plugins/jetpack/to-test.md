@@ -85,7 +85,7 @@ Nothing should have changed for WP.com-connected Jetpack sites, meaning the "Sha
 - Add a Bluesky sharing button to your site.
 - After saving, it should look good on your site.
 - Try using different button styles (official, icon, icon+text, text).
-- Next, go to Appearance > Themes and switch to a block-based theme like Twenty Twenty Four.
+- Next, go to Appearance > Themes and switch to a block-based theme like Twenty Twenty-Four.
 - Go to Jetpack > Settings > Sharing and disable the sharing feature.
 - Go to Apperance > Site Editor > Templates > Single Posts.
 - Add a sharing buttons block to your template, and add a Threads button.
