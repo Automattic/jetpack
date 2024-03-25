@@ -136,26 +136,26 @@ class Jetpack_Redux_State_Helper {
 		$block_availability = Jetpack_Gutenberg::get_cached_availability();
 
 		return array(
-			'WP_API_root'                 => esc_url_raw( rest_url() ),
-			'WP_API_nonce'                => wp_create_nonce( 'wp_rest' ),
-			'registrationNonce'           => wp_create_nonce( 'jetpack-registration-nonce' ),
-			'purchaseToken'               => self::get_purchase_token(),
-			'partnerCoupon'               => Jetpack_Partner_Coupon::get_coupon(),
-			'pluginBaseUrl'               => plugins_url( '', JETPACK__PLUGIN_FILE ),
-			'connectionStatus'            => $connection_status,
-			'connectedPlugins'            => Connection_Plugin_Storage::get_all(),
-			'connectUrl'                  => false == $current_user_data['isConnected'] // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			'WP_API_root'                   => esc_url_raw( rest_url() ),
+			'WP_API_nonce'                  => wp_create_nonce( 'wp_rest' ),
+			'registrationNonce'             => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'purchaseToken'                 => self::get_purchase_token(),
+			'partnerCoupon'                 => Jetpack_Partner_Coupon::get_coupon(),
+			'pluginBaseUrl'                 => plugins_url( '', JETPACK__PLUGIN_FILE ),
+			'connectionStatus'              => $connection_status,
+			'connectedPlugins'              => Connection_Plugin_Storage::get_all(),
+			'connectUrl'                    => false == $current_user_data['isConnected'] // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 				? Jetpack::init()->build_connect_url( true, false, false )
 				: '',
-			'dismissedNotices'            => self::get_dismissed_jetpack_notices(),
-			'isDevVersion'                => Jetpack::is_development_version(),
-			'currentVersion'              => JETPACK__VERSION,
-			'is_gutenberg_available'      => true,
-			'getModules'                  => $modules,
-			'rawUrl'                      => ( new Status() )->get_site_suffix(),
-			'adminUrl'                    => esc_url( admin_url() ),
-			'siteTitle'                   => (string) htmlspecialchars_decode( get_option( 'blogname' ), ENT_QUOTES ),
-			'stats'                       => array(
+			'dismissedNotices'              => self::get_dismissed_jetpack_notices(),
+			'isDevVersion'                  => Jetpack::is_development_version(),
+			'currentVersion'                => JETPACK__VERSION,
+			'is_gutenberg_available'        => true,
+			'getModules'                    => $modules,
+			'rawUrl'                        => ( new Status() )->get_site_suffix(),
+			'adminUrl'                      => esc_url( admin_url() ),
+			'siteTitle'                     => (string) htmlspecialchars_decode( get_option( 'blogname' ), ENT_QUOTES ),
+			'stats'                         => array(
 				// data is populated asynchronously on page load.
 				'data'  => array(
 					'general' => false,
@@ -165,13 +165,13 @@ class Jetpack_Redux_State_Helper {
 				),
 				'roles' => $stats_roles,
 			),
-			'aff'                         => Partner::init()->get_partner_code( Partner::AFFILIATE_CODE ),
-			'partnerSubsidiaryId'         => Partner::init()->get_partner_code( Partner::SUBSIDIARY_CODE ),
-			'settings'                    => self::get_flattened_settings(),
-			'userData'                    => array(
+			'aff'                           => Partner::init()->get_partner_code( Partner::AFFILIATE_CODE ),
+			'partnerSubsidiaryId'           => Partner::init()->get_partner_code( Partner::SUBSIDIARY_CODE ),
+			'settings'                      => self::get_flattened_settings(),
+			'userData'                      => array(
 				'currentUser' => $current_user_data,
 			),
-			'siteData'                    => array(
+			'siteData'                      => array(
 				'blog_id'                    => Jetpack_Options::get_option( 'id', 0 ),
 				'icon'                       => has_site_icon()
 					? apply_filters( 'jetpack_photon_url', get_site_icon_url(), array( 'w' => 64 ) )
@@ -199,7 +199,7 @@ class Jetpack_Redux_State_Helper {
 				'isSharingBlockAvailable'    => (bool) isset( $block_availability['sharing-buttons'] )
 					&& $block_availability['sharing-buttons']['available'],
 			),
-			'themeData'                   => array(
+			'themeData'                     => array(
 				'name'         => $current_theme->get( 'Name' ),
 				'stylesheet'   => $current_theme->get_stylesheet(),
 				'hasUpdate'    => (bool) get_theme_update_available( $current_theme ),
@@ -211,42 +211,43 @@ class Jetpack_Redux_State_Helper {
 						&& ( function_exists( 'wp_register_webfont_provider' ) || function_exists( 'wp_register_webfonts' ) ),
 				),
 			),
-			'jetpackStateNotices'         => array(
+			'jetpackStateNotices'           => array(
 				'messageCode'      => Jetpack::state( 'message' ),
 				'errorCode'        => Jetpack::state( 'error' ),
 				'errorDescription' => Jetpack::state( 'error_description' ),
 				'messageContent'   => Jetpack::state( 'display_update_modal' ) ? self::get_update_modal_data() : null,
 			),
-			'tracksUserData'              => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
-			'currentIp'                   => IP_Utils::get_ip(),
-			'lastPostUrl'                 => esc_url( $last_post ),
-			'externalServicesConnectUrls' => self::get_external_services_connect_urls(),
-			'calypsoEnv'                  => ( new Host() )->get_calypso_env(),
-			'products'                    => Jetpack::get_products_for_purchase(),
-			'recommendationsStep'         => Jetpack_Core_Json_Api_Endpoints::get_recommendations_step()['step'],
-			'isSafari'                    => $is_safari || User_Agent_Info::is_opera_desktop(), // @todo Rename isSafari everywhere.
-			'doNotUseConnectionIframe'    => Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ),
-			'licensing'                   => array(
+			'tracksUserData'                => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
+			'currentIp'                     => IP_Utils::get_ip(),
+			'lastPostUrl'                   => esc_url( $last_post ),
+			'externalServicesConnectUrls'   => self::get_external_services_connect_urls(),
+			'calypsoEnv'                    => ( new Host() )->get_calypso_env(),
+			'products'                      => Jetpack::get_products_for_purchase(),
+			'recommendationsStep'           => Jetpack_Core_Json_Api_Endpoints::get_recommendations_step()['step'],
+			'isSafari'                      => $is_safari || User_Agent_Info::is_opera_desktop(), // @todo Rename isSafari everywhere.
+			'doNotUseConnectionIframe'      => Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ),
+			'licensing'                     => array(
 				'error'                   => Licensing::instance()->last_error(),
 				'showLicensingUi'         => Licensing::instance()->is_licensing_input_enabled(),
 				'userCounts'              => Licensing_Endpoints::get_user_license_counts(),
 				'activationNoticeDismiss' => Licensing::instance()->get_license_activation_notice_dismiss(),
 			),
-			'jetpackManage'               => array(
+			'jetpackManage'                 => array(
 				'isEnabled'       => Jetpack_Manage::could_use_jp_manage(),
 				'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
 			),
-			'hasSeenWCConnectionModal'    => Jetpack_Options::get_option( 'has_seen_wc_connection_modal', false ),
-			'newRecommendations'          => Jetpack_Recommendations::get_new_conditional_recommendations(),
+			'hasSeenWCConnectionModal'      => Jetpack_Options::get_option( 'has_seen_wc_connection_modal', false ),
+			'newRecommendations'            => Jetpack_Recommendations::get_new_conditional_recommendations(),
 			// Check if WooCommerce plugin is active (based on https://docs.woocommerce.com/document/create-a-plugin/).
-			'isWooCommerceActive'         => in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ), true ),
-			'useMyJetpackLicensingUI'     => My_Jetpack_Initializer::is_licensing_ui_enabled(),
-			'isOdysseyStatsEnabled'       => Stats_Options::get_option( 'enable_odyssey_stats' ),
-			'shouldInitializeBlaze'       => Blaze::should_initialize(),
-			'isBlazeDashboardEnabled'     => Blaze::is_dashboard_enabled(),
-			'socialInitialState'          => self::get_publicize_initial_state(),
-			'gutenbergInitialState'       => self::get_gutenberg_initial_state(),
-			'isSubscriptionSiteEnabled'   => apply_filters( 'jetpack_subscription_site_enabled', false ) && version_compare( $wp_version, '6.5-beta2', '>=' ),
+			'isWooCommerceActive'           => in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ), true ),
+			'useMyJetpackLicensingUI'       => My_Jetpack_Initializer::is_licensing_ui_enabled(),
+			'isOdysseyStatsEnabled'         => Stats_Options::get_option( 'enable_odyssey_stats' ),
+			'shouldInitializeBlaze'         => Blaze::should_initialize(),
+			'isBlazeDashboardEnabled'       => Blaze::is_dashboard_enabled(),
+			'socialInitialState'            => self::get_publicize_initial_state(),
+			'gutenbergInitialState'         => self::get_gutenberg_initial_state(),
+			'isSubscriptionSiteEnabled'     => apply_filters( 'jetpack_subscription_site_enabled', false ),
+			'subscriptionSiteEditSupported' => $current_theme->is_block_theme() && version_compare( $wp_version, '6.5-beta2', '>=' ),
 		);
 	}
 

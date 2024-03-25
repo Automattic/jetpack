@@ -15,12 +15,12 @@ return [
     // PhanTypeMismatchArgumentProbablyReal : 10+ occurrences
     // PhanUnextractableAnnotationSuffix : 10+ occurrences
     // PhanDeprecatedFunction : 9 occurrences
-    // PhanUndeclaredConstant : 9 occurrences
     // PhanTypeMismatchReturn : 8 occurrences
     // PhanNoopNew : 6 occurrences
     // PhanTypeMismatchDefault : 5 occurrences
     // PhanTypeMismatchReturnProbablyReal : 5 occurrences
     // PhanUndeclaredClassMethod : 5 occurrences
+    // PhanUndeclaredConstant : 5 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
     // PhanRedefineFunction : 4 occurrences
     // PhanTypeMismatchArgumentInternal : 4 occurrences
@@ -50,9 +50,9 @@ return [
     'file_suppressions' => [
         'cli.php' => ['PhanUndeclaredFunctionInCallable'],
         'src/brute-force-protection/class-blocked-login-page.php' => ['PhanNonClassMethodCall', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault'],
-        'src/brute-force-protection/class-math-fallback.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredConstant', 'PhanUndeclaredTypeThrowsType'],
+        'src/brute-force-protection/class-math-fallback.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredTypeThrowsType'],
         'src/brute-force-protection/class-shared-functions.php' => ['PhanTypeComparisonToArray', 'PhanTypeMismatchReturnProbablyReal', 'PhanUnextractableAnnotationSuffix'],
-        'src/class-brute-force-protection.php' => ['PhanNoopNew', 'PhanStaticCallToNonStatic', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanUndeclaredConstant', 'PhanUnextractableAnnotationSuffix'],
+        'src/class-brute-force-protection.php' => ['PhanNoopNew', 'PhanStaticCallToNonStatic', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanUnextractableAnnotationSuffix'],
         'src/class-compatibility.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal'],
         'src/class-rest-controller.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType'],
         'src/class-waf-constants.php' => ['PhanCoalescingNeverNull', 'PhanUndeclaredConstant'],
