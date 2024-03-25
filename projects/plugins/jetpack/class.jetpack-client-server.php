@@ -29,7 +29,7 @@ class Jetpack_Client_Server {
 			return;
 		}
 
-		add_filter( 'jetpack_rest_test_connection_response', array( static::class, 'test_connection' ) );
+		add_filter( 'jetpack_rest_connection_check_response', array( static::class, 'connection_check' ) );
 
 		static::$did_init = true;
 	}
@@ -104,7 +104,7 @@ class Jetpack_Client_Server {
 	 *
 	 * @return string The current Jetpack version number
 	 */
-	public static function test_connection() {
+	public static function connection_check() {
 		return JETPACK__VERSION;
 	}
 }

@@ -1156,9 +1156,9 @@ class Test_REST_Endpoints extends TestCase {
 	 * Testing the `test_connection` endpoint without authentication.
 	 * Response: failed authorization.
 	 */
-	public function test_test_connection_unauthenticated() {
+	public function test_connection_check_unauthenticated() {
 		wp_set_current_user( 0 );
-		$request = new WP_REST_Request( 'GET', '/jetpack/v4/test_connection' );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/check' );
 		$request->set_header( 'Content-Type', 'application/json' );
 
 		// Mock full connection established.
@@ -1176,7 +1176,7 @@ class Test_REST_Endpoints extends TestCase {
 	/**
 	 * Testing the `remote_connect` endpoint with proper authentication.
 	 */
-	public function test_test_connection_authenticated() {
+	public function test_connection_check_authenticated() {
 		wp_set_current_user( 0 );
 
 		// Mock full connection established.
@@ -1214,7 +1214,7 @@ class Test_REST_Endpoints extends TestCase {
 
 		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
 
-		$request = new WP_REST_Request( 'GET', '/jetpack/v4/test_connection' );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/check' );
 		$request->set_header( 'Content-Type', 'application/json' );
 
 		$response      = $this->server->dispatch( $request );

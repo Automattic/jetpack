@@ -119,11 +119,11 @@ class REST_Connector {
 		// The endpoint verifies blog connection and blog token validity.
 		register_rest_route(
 			'jetpack/v4',
-			'/test_connection',
+			'/connection/check',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'test_connection' ),
-				'permission_callback' => array( $this, 'test_connection_permission_check' ),
+				'callback'            => array( $this, 'connection_check' ),
+				'permission_callback' => array( $this, 'connection_check_permission_check' ),
 			)
 		);
 
@@ -995,13 +995,13 @@ class REST_Connector {
 	 *
 	 * @return mixed|null
 	 */
-	public function test_connection() {
+	public function connection_check() {
 		/**
 		 * Filters the successful response of the REST API test_connection method
 		 *
 		 * @param string $response The response string.
 		 */
-		$status = apply_filters( 'jetpack_rest_test_connection_response', 'success' );
+		$status = apply_filters( 'jetpack_rest_connection_check_response', 'success' );
 
 		return rest_ensure_response(
 			array(
@@ -1015,7 +1015,7 @@ class REST_Connector {
 	 *
 	 * @return true|WP_Error
 	 */
-	public function test_connection_permission_check() {
+	public function connection_check_permission_check() {
 		if ( current_user_can( 'jetpack_connect' ) ) {
 			return true;
 		}
