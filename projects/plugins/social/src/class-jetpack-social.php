@@ -294,7 +294,7 @@ class Jetpack_Social {
 	 * @returns boolean True if the criteria are met.
 	 */
 	public function should_enqueue_block_editor_scripts() {
-		return $this->is_connected() && self::is_publicize_active() && $this->is_supported_post();
+		return is_admin() && $this->is_connected() && self::is_publicize_active() && $this->is_supported_post();
 	}
 
 	/**
