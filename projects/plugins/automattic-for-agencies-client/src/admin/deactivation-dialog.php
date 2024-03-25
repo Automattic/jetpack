@@ -43,17 +43,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		align-items: start;
 
-		padding: 1rem 1rem 0;
+		padding: 2rem 2rem 0;
 	}
 
 	#jp-plugin-deactivation-automattic-for-agencies-client .jp-plugin-deactivation__dialog__content h1 {
 		font-size: 20px;
-		line-height: 24px
+		line-height: 24px;
+
+		margin: 0;
 	}
 
 	#jp-plugin-deactivation-automattic-for-agencies-client .jp-plugin-deactivation__dialog__content p {
 		font-size: 14px;
-		line-height: 20px
+		line-height: 20px;
+
+		margin: 2rem 0;
 	}
 
 	#jp-plugin-deactivation-automattic-for-agencies-client footer {
@@ -62,7 +66,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		text-align: right;
 		border: none;
 
-		padding: 0 1rem 1rem;
+		padding: 0 2rem 2rem;
 	}
 
 	#jp-plugin-deactivation-automattic-for-agencies-client footer .jp-plugin-deactivation__button:first-child {
