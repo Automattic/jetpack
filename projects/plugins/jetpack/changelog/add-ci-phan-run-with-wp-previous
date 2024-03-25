@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Add Phan suppressions for new-in-WP-6.4 functions that are checked at runtime. No change to functionality.
+
+

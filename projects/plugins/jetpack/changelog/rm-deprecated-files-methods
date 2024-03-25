@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+General: remove methods that were deprecated before the release of Jetpack 10.0, in 2021.
