@@ -174,7 +174,7 @@ class Contact_Form_Block {
 		$data = array(
 			'defaults' => array(
 				'to'      => wp_get_current_user()->user_email,
-				'subject' => '[' . get_bloginfo( 'name' ) . ']' . ( isset( $post ) ? ' ' . $post->post_title : '' ),
+				'subject' => '[' . get_bloginfo( 'name' ) . ']' . ( isset( $post ) ? ' ' . esc_html( $post->post_title ) : '' ),
 			),
 		);
 
