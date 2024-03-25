@@ -53,11 +53,7 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/build/verbum-comments/assets/class-verbum-gutenberg-editor.php' => ['PhanRedefineClass', 'PhanRedefinedClassReference'],
-        'src/build/verbum-comments/assets/class-wpcom-rest-api-v2-verbum-auth.php' => ['PhanRedefineClass', 'PhanRedefinedClassReference', 'PhanUndeclaredFunction'],
-        'src/build/verbum-comments/assets/class-wpcom-rest-api-v2-verbum-oembed.php' => ['PhanRedefineClass'],
-        'src/build/verbum-comments/class-verbum-comments.php' => ['PhanImpossibleTypeComparison', 'PhanNoopNew', 'PhanParamTooMany', 'PhanRedefineClass', 'PhanRedefinedClassReference', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable', 'PhanUndeclaredTypeReturnType'],
-        'src/class-jetpack-mu-wpcom.php' => ['PhanNoopNew', 'PhanRedefinedClassReference', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction'],
+        'src/class-jetpack-mu-wpcom.php' => ['PhanNoopNew', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction'],
         'src/features/100-year-plan/enhanced-ownership.php' => ['PhanEmptyFQSENInCallable', 'PhanUndeclaredClassConstant', 'PhanUndeclaredFunction'],
         'src/features/100-year-plan/locked-mode.php' => ['PhanEmptyFQSENInCallable', 'PhanUndeclaredClassConstant', 'PhanUndeclaredFunction'],
         'src/features/admin-color-schemes/admin-color-schemes.php' => ['PhanUndeclaredConstant', 'PhanUndeclaredFunction'],
@@ -74,10 +70,8 @@ return [
         'src/features/launchpad/launchpad.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType'],
         'src/features/marketplace-products-updater/class-marketplace-products-updater.php' => ['PhanTypeMismatchDimFetch', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUnextractableAnnotationSuffix'],
         'src/features/media/heif-support.php' => ['PhanPluginSimplifyExpressionBool', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
-        'src/features/verbum-comments/assets/class-verbum-gutenberg-editor.php' => ['PhanRedefineClass'],
-        'src/features/verbum-comments/assets/class-wpcom-rest-api-v2-verbum-auth.php' => ['PhanRedefineClass', 'PhanRedefinedClassReference', 'PhanUndeclaredFunction'],
-        'src/features/verbum-comments/assets/class-wpcom-rest-api-v2-verbum-oembed.php' => ['PhanRedefineClass'],
-        'src/features/verbum-comments/class-verbum-comments.php' => ['PhanImpossibleTypeComparison', 'PhanNoopNew', 'PhanParamTooMany', 'PhanRedefineClass', 'PhanRedefinedClassReference', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable', 'PhanUndeclaredTypeReturnType'],
+        'src/features/verbum-comments/assets/class-wpcom-rest-api-v2-verbum-auth.php' => ['PhanUndeclaredFunction'],
+        'src/features/verbum-comments/class-verbum-comments.php' => ['PhanImpossibleTypeComparison', 'PhanNoopNew', 'PhanParamTooMany', 'PhanTypeMismatchArgumentProbablyReal',  'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable', 'PhanUndeclaredTypeReturnType'],
         'src/features/wpcom-command-palette/wpcom-command-palette.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-launchpad.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-site-migration-migrate-guru-key.php' => ['PhanUndeclaredClassMethod'],
