@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 13.3-a.3 - 2024-03-18
+## 13.3-a.5 - 2024-03-19
 ### Enhancements
 - AI Assistant: Provide per-block quick actions to make them more relevant. [#36393]
 - General: Only show installation errors on Plugins page. [#36390]
