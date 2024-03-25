@@ -6,7 +6,7 @@ import { Button, VisuallyHidden, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import classnames from 'classnames';
-import { useCallback } from 'react';
+import React, { useCallback } from 'react';
 /**
  * Internal dependencies
  */
@@ -16,6 +16,13 @@ type NoticeButtonAction = NoticeAction & { isLoading?: boolean; isDisabled?: boo
 
 const noop = () => {};
 
+/**
+ *	Returns the label for the notice based on the status.
+ *
+ * @param {string} status - The status of the notice.
+ *
+ * @returns {string} The label based on the status.
+ */
 function getStatusLabel( status: NoticeProps[ 'status' ] ): string {
 	switch ( status ) {
 		case 'warning':
@@ -30,6 +37,20 @@ function getStatusLabel( status: NoticeProps[ 'status' ] ): string {
 	}
 }
 
+/**
+ * Notice component based on the one from @wordpress/components.
+ *
+ * @param {object} props                   - The properties.
+ * @param {string} props.className         - The class name.
+ * @param {string} props.status            - The message status: 'warning' | 'success' | 'error' | 'info'.
+ * @param {React.ReactNode} props.children - Children element
+ * @param {Function} props.onRemove        - The function to call when the notice is removed.
+ * @param {boolean} props.isDismissible    - Whether the notice can be dismissed.
+ * @param {Array} props.actions            - An array of actions (buttons) to display in the notice.
+ * @param {Function} props.onDismiss       - The function to call when the notice is dismissed.
+ *
+ * @returns {React.Component} The `Notice` component.
+ */
 function Notice( {
 	className,
 	status = 'info',
