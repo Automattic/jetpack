@@ -57,6 +57,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	}
 
 	#jp-plugin-deactivation-automattic-for-agencies-client footer {
+		font-weight: 600;
+
 		text-align: right;
 		border: none;
 
