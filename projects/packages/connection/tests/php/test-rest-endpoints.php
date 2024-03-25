@@ -1169,7 +1169,7 @@ class Test_REST_Endpoints extends TestCase {
 
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
 
-		static::assertEquals( 'invalid_permission_test_connection', $response_data['code'] );
+		static::assertEquals( 'invalid_permission_connection_check', $response_data['code'] );
 		static::assertEquals( 401, $response_data['data']['status'] );
 	}
 

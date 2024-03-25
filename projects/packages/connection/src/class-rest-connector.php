@@ -1022,6 +1022,6 @@ class REST_Connector {
 
 		return Rest_Authentication::is_signed_with_blog_token()
 			? true
-			: new WP_Error( 'invalid_permission_test_connection', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+			: new WP_Error( 'invalid_permission_connection_check', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
 	}
 }
