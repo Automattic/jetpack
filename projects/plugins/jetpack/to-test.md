@@ -75,7 +75,7 @@ On a "Classic" admin interface (wp-admin) the "Sharing settings" wp-admin page s
 
 #### Jetpack Sites
 
-Nothing should have changed for WPCOM connected Jetpack sites. Meaning the "Sharing Settings" wp-admin page should not be registered and the "Configure your sharing buttons" should link you to Calypso here: /marketing/sharing-buttons/[site_slug]
+Nothing should have changed for WP.com-connected Jetpack sites, meaning the "Sharing Settings" wp-admin page should not be registered and "Configure your sharing buttons" should link to Calypso here: /marketing/sharing-buttons/[site_slug]
 
 ### New Sharing Buttons
 
