@@ -22,6 +22,7 @@ import {
 	subscriptionSiteEditSupported,
 } from 'state/initial-state';
 import { getModule } from 'state/modules';
+import { siteUsesWpAdminInterface } from 'state/site';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 
 const trackViewSubsClick = () => {
@@ -39,6 +40,7 @@ function SubscriptionsSettings( props ) {
 		unavailableInOfflineMode,
 		isLinked,
 		isOffline,
+		isWpAdminInterface,
 		isSavingAnyOption,
 		isStbEnabled,
 		isStcEnabled,
@@ -96,12 +98,16 @@ function SubscriptionsSettings( props ) {
 			return '';
 		}
 
+		const source = isWpAdminInterface
+			? 'jetpack-settings-jetpack-manage-subscribers'
+			: 'calypso-subscribers';
+
 		return (
 			<Card
 				compact
 				className="jp-settings-card__configure-link"
 				onClick={ trackViewSubsClick }
-				href={ getRedirectUrl( 'calypso-subscribers', {
+				href={ getRedirectUrl( source, {
 					site: blogID ?? siteRawUrl,
 				} ) }
 				target="_blank"
@@ -248,6 +254,7 @@ export default withModuleSettingsFormHelpers(
 		return {
 			isLinked: isCurrentUserLinked( state ),
 			isOffline: isOfflineMode( state ),
+			isWpAdminInterface: siteUsesWpAdminInterface( state ),
 			isSubscriptionsActive: ownProps.getOptionValue( SUBSCRIPTIONS_MODULE_NAME ),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
 			subscriptions: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
