@@ -1,15 +1,15 @@
 import Button from '../../button';
 import ProductPrice from '../../product-price';
 import PricingTable, { PricingTableColumn, PricingTableHeader, PricingTableItem } from '../index';
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'JS Packages/Components/Pricing Table',
 	component: PricingTable,
 	subcomponents: { PricingTableColumn, PricingTableHeader, PricingTableItem },
-} as ComponentMeta< typeof PricingTable >;
+} as Meta< typeof PricingTable >;
 
-const Template: ComponentStory< typeof PricingTable > = args => {
+const Template: StoryFn< typeof PricingTable > = args => {
 	return (
 		<PricingTable { ...args }>
 			<PricingTableColumn primary>

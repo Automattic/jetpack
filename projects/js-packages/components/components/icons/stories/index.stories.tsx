@@ -1,12 +1,12 @@
 import * as allIcons from '../index';
 import styles from './style.module.scss';
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'JS Packages/Components/Icons',
 	component: allIcons,
 	parameters: {},
-} as ComponentMeta< typeof allIcons >;
+} as Meta< typeof allIcons >;
 
 const sizes = [
 	{
@@ -58,7 +58,7 @@ function IconsStory() {
 	);
 }
 
-const Template: ComponentStory< typeof allIcons > = args => <IconsStory { ...args } />;
+const Template: StoryFn< typeof allIcons > = args => <IconsStory { ...args } />;
 
 const DefaultArgs = {};
 export const Default = Template.bind( {} );

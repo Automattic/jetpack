@@ -1,14 +1,12 @@
 import VideoStorageMeter from '..';
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'Packages/VideoPress/Video Storage Meter',
 	component: VideoStorageMeter,
-} as ComponentMeta< typeof VideoStorageMeter >;
+} as Meta< typeof VideoStorageMeter >;
 
-const Template: ComponentStory< typeof VideoStorageMeter > = args => (
-	<VideoStorageMeter { ...args } />
-);
+const Template: StoryFn< typeof VideoStorageMeter > = args => <VideoStorageMeter { ...args } />;
 
 export const _default = Template.bind( {} );
 _default.args = {
