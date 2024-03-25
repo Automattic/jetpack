@@ -52,7 +52,7 @@ class Speed_Score {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'jetpack_boost_deactivate', array( $this, 'clear_speed_score_request_cache' ) );
 
-		add_action( 'handle_environment_change', array( Speed_Score_History::class, 'mark_stale' ) );
+		add_action( 'jetpack_boost_critical_css_environment_changed', array( Speed_Score_History::class, 'mark_stale' ) );
 		add_action( 'jetpack_boost_deactivate', array( Speed_Score_History::class, 'mark_stale' ) );
 	}
 
