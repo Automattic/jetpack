@@ -6,10 +6,10 @@
 ### Enhancements
 - Blocks: "Earn" category renamed to "Monetize". [#36480]
 - Jetpack AI: When the response includes a title and post title is empty, use provided title as post title. [#36500]
-- My Jetpack: Trigger red bubble notifiction when a broken installation is detected. [#36449]
+- My Jetpack: Trigger red bubble notification when a broken installation is detected. [#36449]
 - Newsletters: Reorder settings cards to improve hierarchy. [#36465]
-- Newsletters: Use radio controls instead of toggles on Email Settings. [#36532]
-- Sharing: Removed Like button from master bar. [#36456]
+- Newsletters: Use radio buttons instead of toggles on Email Settings. [#36532]
+- Sharing: Remove Like button from master bar. [#36456]
 
 ### Improved compatibility
 - General: Remove methods that were deprecated before the release of Jetpack 10.0, in 2021. [#36157]
