@@ -109,6 +109,19 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
+	const contentRef = useRef( null );
+
+	const getScrollParent = useCallback( node => {
+		if ( node == null ) {
+			return null;
+		}
+
+		if ( node.scrollTop > 0 ) {
+			return node;
+		}
+		return getScrollParent( node.parentNode );
+	}, [] );
+
 	const {
 		isLoadingCategories,
 		isLoadingCompletion,
@@ -122,6 +135,11 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		wholeContent,
 		requestingState,
 	} = useSuggestionsFromOpenAI( {
+		onSuggestionPartial: useCallback( () => {
+			contentRef.current?.scrollIntoView( false );
+			// extra scroll to scroll past the AI Assistant block
+			getScrollParent( contentRef.current?.parentNode )?.scrollBy( 0, 94 );
+		}, [ contentRef, getScrollParent ] ),
 		onSuggestionDone: useCallback( () => {
 			focusOnPrompt();
 			increaseRequestsCount();
@@ -499,13 +517,14 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		>
 			<div { ...blockProps }>
 				{ contentIsLoaded && ! useGutenbergSyntax && (
-					<div className="jetpack-ai-assistant__content">
+					<div ref={ contentRef } className="jetpack-ai-assistant__content">
 						<RawHTML>{ markdownConverter.render( attributes.content ) }</RawHTML>
 					</div>
 				) }
 
 				{ contentIsLoaded && useGutenbergSyntax && (
 					<div
+						ref={ contentRef }
 						className="jetpack-ai-assistant__content is-layout-building-mode"
 						{ ...innerBlocks }
 					/>
