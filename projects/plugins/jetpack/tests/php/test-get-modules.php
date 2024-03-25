@@ -39,7 +39,6 @@ class WP_Test_Get_Modules extends WP_UnitTestCase {
 			'copy-post',
 			'custom-content-types',
 			'custom-css',
-			'enhanced-distribution',
 			'google-analytics',
 			'gravatar-hovercards',
 			'infinite-scroll',

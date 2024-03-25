@@ -98,7 +98,8 @@ const quickActionsList = {
 			aiSuggestion: PROMPT_TYPE_USER_PROMPT,
 			icon: post,
 			options: {
-				userPrompt: 'Write a post based on the list items. Try to use a heading for each entry',
+				userPrompt:
+					'Write a post based on the list items. Include a title as first order heading and try to use secondary headings for each entry',
 			},
 		},
 	],
