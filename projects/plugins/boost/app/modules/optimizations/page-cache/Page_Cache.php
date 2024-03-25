@@ -82,8 +82,10 @@ class Page_Cache implements Pluggable, Has_Deactivate {
 
 	/**
 	 * The module is active if cache engine is loaded.
+	 *
+	 * @return bool
 	 */
-	public function is_working() {
+	public function is_ready() {
 		return Boost_Cache::is_loaded();
 	}
 

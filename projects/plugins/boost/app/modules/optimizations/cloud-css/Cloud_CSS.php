@@ -53,8 +53,10 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 
 	/**
 	 * Check if the module is ready and already serving critical CSS.
+	 *
+	 * @return bool
 	 */
-	public function is_working() {
+	public function is_ready() {
 		return ( new Critical_CSS_State() )->is_generated();
 	}
 

@@ -8,7 +8,7 @@ namespace Automattic\Jetpack_Boost\Contracts;
 interface Changes_Page_Output {
 	/**
 	 * Check if the module is ready and already changing the page output.
-	 * This is for modules that need preparation before they can start serving the optimized output. E.g. Critical CSS.
+	 * This is useful for modules that need preparation before they can start serving the optimized output. E.g. Critical CSS.
 	 */
-	public function is_working();
+	public function is_ready();
 }

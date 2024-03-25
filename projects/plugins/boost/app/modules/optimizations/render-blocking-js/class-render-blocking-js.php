@@ -65,8 +65,10 @@ class Render_Blocking_JS implements Pluggable, Changes_Page_Output {
 
 	/**
 	 * The module starts serving as soon as it's enabled.
+	 *
+	 * @return bool
 	 */
-	public function is_working() {
+	public function is_ready() {
 		return true;
 	}
 

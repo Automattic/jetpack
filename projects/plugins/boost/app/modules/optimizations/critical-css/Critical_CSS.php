@@ -40,8 +40,10 @@ class Critical_CSS implements Pluggable, Changes_Page_Output {
 
 	/**
 	 * Check if the module is ready and already serving critical CSS.
+	 *
+	 * @return bool
 	 */
-	public function is_working() {
+	public function is_ready() {
 		return ( new Critical_CSS_State() )->is_generated();
 	}
 
