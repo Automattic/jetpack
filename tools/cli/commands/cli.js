@@ -105,7 +105,7 @@ function cliUnlink( options ) {
  *
  * @param {string} preference - The state to set the analytics tracking to, 'on' or 'off'.
  */
-function cliAnalytics( preference = null ) {
+function cliAnalytics( preference ) {
 	const analyticsEnabled = preference === 'on';
 	configStore.set( 'analyticsEnabled', analyticsEnabled );
 	console.log(
