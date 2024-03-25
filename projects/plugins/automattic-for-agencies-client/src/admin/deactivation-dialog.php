@@ -29,7 +29,49 @@ if ( ! defined( 'ABSPATH' ) ) {
 </footer>
 
 <style>
+	#jp-plugin-deactivation-automattic-for-agencies-client .jp-plugin-deactivation__dialog {
+		height: fit-content;
+		width: calc(100% - 32px);
+		
+		max-width: 512px;
+
+		border-radius: 12px;
+	}
+	
+	#jp-plugin-deactivation-automattic-for-agencies-client .jp-plugin-deactivation__dialog__content {
+		background: none;
+
+		align-items: start;
+
+		padding: 1rem 1rem 0;
+	}
+
+	#jp-plugin-deactivation-automattic-for-agencies-client .jp-plugin-deactivation__dialog__content h1 {
+		font-size: 20px;
+		line-height: 24px
+	}
+
+	#jp-plugin-deactivation-automattic-for-agencies-client .jp-plugin-deactivation__dialog__content p {
+		font-size: 14px;
+		line-height: 20px
+	}
+
 	#jp-plugin-deactivation-automattic-for-agencies-client footer {
-		text-align: center;
+		text-align: right;
+		border: none;
+
+		padding: 0 1rem 1rem;
+	}
+
+	#jp-plugin-deactivation-automattic-for-agencies-client footer .jp-plugin-deactivation__button:first-child {
+		color: var(--btn-color);
+		background: none;
+		border: 1px solid var(--Gray-Gray-5, #DCDCDE);
+		border-radius: 4px;
+	}
+
+	#jp-plugin-deactivation-automattic-for-agencies-client footer .jp-plugin-deactivation__button:last-child {
+		border-radius: 4px;
+		background: var(--Red-Red-60, #B32D2E);
 	}
 </style>
