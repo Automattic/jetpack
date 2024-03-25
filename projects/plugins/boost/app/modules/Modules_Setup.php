@@ -40,6 +40,8 @@ class Modules_Setup implements Has_Setup {
 
 	/**
 	 * Get modules that are currently active and optimizing the site.
+	 *
+	 * @return string[] Slugs of optimization modules that are currently active and serving.
 	 */
 	public function get_active_optimization_modules() {
 		$working_modules = array();
