@@ -180,15 +180,6 @@ function wpcom_add_wpcom_menu_item() {
 
 	add_submenu_page(
 		$parent_slug,
-		esc_attr__( 'Subscribers', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Subscribers', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/subscribers/$domain" ),
-		null
-	);
-
-	add_submenu_page(
-		$parent_slug,
 		esc_attr__( 'Connections', 'jetpack-mu-wpcom' ),
 		esc_attr__( 'Connections', 'jetpack-mu-wpcom' ),
 		'manage_options',
