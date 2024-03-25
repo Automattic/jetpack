@@ -24,12 +24,9 @@ const sbconfig = {
 		{
 			name: '@storybook/addon-docs',
 			options: {
-				configureJSX: true,
 				mdxPluginOptions: {
 					mdxCompileOptions: {
 						remarkPlugins: [ remarkGfm ],
-						// Workaround https://github.com/storybookjs/storybook/issues/23217
-						providerImportSource: require.resolve( '@storybook/addon-docs/mdx-react-shim' ),
 					},
 				},
 			},
@@ -38,6 +35,7 @@ const sbconfig = {
 		'@storybook/addon-a11y',
 		'@storybook/addon-essentials',
 		'storybook-addon-mock',
+		'@storybook/addon-webpack5-compiler-babel',
 	],
 	// Workaround:
 	// https://github.com/storybookjs/storybook/issues/12270
@@ -137,5 +135,16 @@ const sbconfig = {
 		autodocs: true,
 	},
 	staticDirs: [ '../public' ],
+	typescript: {
+		reactDocgen: 'react-docgen-typescript',
+	},
+	babel: {
+		presets: [
+			[
+				require.resolve( '@automattic/jetpack-webpack-config/babel/preset' ),
+				{ presetReact: { runtime: 'automatic' } },
+			],
+		],
+	},
 };
 export default sbconfig;
