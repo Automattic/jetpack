@@ -23,7 +23,7 @@ if ( ! defined( 'JETPACK_BOOST_REST_PREFIX' ) ) {
  */
 class Speed_Score {
 
-	const PACKAGE_VERSION = '0.3.8';
+	const PACKAGE_VERSION = '0.3.9-alpha';
 
 	/**
 	 * An instance of Automatic\Jetpack_Boost\Modules\Modules_Setup passed to the constructor
@@ -139,7 +139,7 @@ class Speed_Score {
 		}
 
 		// Create and store the Speed Score request.
-		$active_modules = array_keys( array_filter( $this->modules->get_status(), 'strlen' ) );
+		$active_modules = $this->modules->get_ready_active_optimization_modules();
 		$score_request  = new Speed_Score_Request( $url, $active_modules, null, 'pending', null, $this->client );
 		$score_request->store( 1800 ); // Keep the request for 30 minutes even if no one access the results.
 
@@ -320,7 +320,7 @@ class Speed_Score {
 			);
 
 			// Only include noBoost scores if at least one module is enabled.
-			if ( $score_request && ! empty( $score_request->get_active_performance_modules() ) ) {
+			if ( $score_request && ! empty( $score_request->get_active_modules() ) ) {
 				$response['scores']['noBoost'] = $history_no_boost->latest_scores();
 			}
 
