@@ -16,7 +16,7 @@
 - Clicking it should take you to a pricing table.
 - Choosing to "Continue for free" should take a moment and land you on the product page.
 - The first feature should have a link that reads "Connect to Jetpack to start using the AI Assistant"
-- Click on the connect link, you'll be directed to the connection page, connect. Where you'll land after the connection is still a mystery to me, I've landed on different places on my tests. Hopefully it's just me.
+- Click on the connect link, you'll be directed to the connection page, connect
 - Back to My Jetpack, the AI card should still read "Learn more" and clicking it will still take you to the pricing table since you just connected to Jetpack. Choose "free" once more to land on the product page.
 - The product page's first link should now be a "Create new post", clicking it should land you on the editor with a AI block inserted and ready to use.
 - Back to My Jetpack, the AI card should now get you straight into the product page.
