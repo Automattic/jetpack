@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the 'get_heartbeat_data' REST endpoint.
