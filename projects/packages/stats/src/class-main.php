@@ -75,6 +75,8 @@ class Main {
 		add_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_caps' ), 10, 3 );
 
 		XMLRPC_Provider::init();
+
+		new REST_Provider();
 	}
 
 	/**
