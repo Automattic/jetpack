@@ -42,6 +42,9 @@ class Page_Cache implements Pluggable, Has_Deactivate {
 		add_action( 'jetpack_boost_module_status_updated', array( $this, 'handle_module_status_updated' ), 10, 2 );
 		add_action( 'jetpack_boost_critical_css_invalidated', array( $this, 'invalidate_cache' ) );
 		add_action( 'jetpack_boost_critical_css_generated', array( $this, 'invalidate_cache' ) );
+		add_action( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_minify_js_excludes', array( $this, 'invalidate_cache' ) );
+		add_action( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_minify_css_excludes', array( $this, 'invalidate_cache' ) );
+		add_action( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_image_cdn_quality', array( $this, 'invalidate_cache' ) );
 	}
 
 	/**
