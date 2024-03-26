@@ -19,25 +19,34 @@ use WP_REST_Server;
  */
 class REST_Provider {
 	/**
-	 * Make sure the hooks are only initialized once.
+	 * Singleton instance.
 	 *
-	 * @var bool
-	 */
-	private static $did_initialize = false;
+	 * @var static
+	 **/
+	private static $instance = null;
 
 	/**
-	 * Private class constructor.
+	 * Private constructor.
 	 *
-	 * Use the REST_Provider::init() method to get an instance.
-	 *
-	 * @param bool $force_init Allow multiple initialization.
+	 * Use the static::init() method to get an instance.
 	 */
-	public function __construct( $force_init = false ) {
-		if ( ! static::$did_initialize || $force_init ) {
-			static::$did_initialize = true;
+	private function __construct() {
+		add_action( 'rest_api_init', array( $this, 'initialize_rest_api' ) );
+	}
 
-			add_action( 'rest_api_init', array( $this, 'initialize_rest_api' ) );
+	/**
+	 * Initialize class and get back a singleton instance.
+	 *
+	 * @param bool $new_instance Force create new instance.
+	 *
+	 * @return static
+	 */
+	public static function init( $new_instance = false ) {
+		if ( null === self::$instance || $new_instance ) {
+			self::$instance = new static();
 		}
+
+		return self::$instance;
 	}
 
 	/**

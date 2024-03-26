@@ -35,7 +35,7 @@ class Test_REST_Provider extends TestCase {
 		$wp_rest_server = new WP_REST_Server();
 		$this->server   = $wp_rest_server;
 
-		new REST_Provider( true );
+		REST_Provider::init( true );
 		do_action( 'rest_api_init' );
 	}
 
@@ -153,7 +153,6 @@ class Test_REST_Provider extends TestCase {
 			'tag_base'                 => false,
 		);
 
-		static::assertIsArray( $response_data );
 		$this->assertSame( $expected_stats_blog, $response_data );
 	}
 
