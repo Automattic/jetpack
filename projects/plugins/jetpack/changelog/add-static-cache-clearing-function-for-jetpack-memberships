@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Add a function to clear the static cache for Jetpack_Memberships.

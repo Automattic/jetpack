@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-WPCOM_JSON_API_List_Comments_Endpoint: Do not prefetch comment meta for large hierarchical threads
