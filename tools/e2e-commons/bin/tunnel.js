@@ -87,24 +87,35 @@ async function tunnelChild() {
 	};
 	console.log = wrap( console.log );
 	console.error = wrap( console.error );
-
+	console.log("[TUNA] Origins");
 	let tunnelUrl;
 
 	// So everything depends on the auth token.
 	const authtoken = process.env.TEST_ENV_TOKEN || tunnelConfig.authtoken;
 
+	console.log("[TUNA] Ready");
 	if ( ! tunnelUrl && process.env.TEST_ENV_URL ) {
+		console.log("[TUNA] Custom ENV URL");
 		tunnelUrl = process.env.TEST_ENV_URL;
 	}
 
+
 	if ( ! tunnelUrl && authtoken ) {
-		tunnelUrl = await ngrok.connect( {
-			proto: 'http',
-			addr: tunnelConfig.port,
-			authtoken,
-			// Use the domain if it's provided
-			domain: process.env.TEST_ENV_DOMAIN ?? '',
-		} );
+		console.log("[TUNA] Conencting to ngrok");
+		try {
+			tunnelUrl = await ngrok.connect( {
+				proto: 'http',
+				addr: tunnelConfig.port,
+				authtoken,
+				// Use the domain if it's provided
+				domain: process.env.TEST_ENV_DOMAIN ?? '',
+			} );
+			console.log("[TUNA] ngrok is happy");
+		} catch (e) {
+			console.log("[TUNA] ngrok is sad");
+			console.error(e);
+		}
+
 	}
 
 	if ( ! tunnelUrl ) {
