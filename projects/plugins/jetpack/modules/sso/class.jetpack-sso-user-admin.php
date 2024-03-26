@@ -147,7 +147,9 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * @todo Remove suppression and function_exists check when we drop support for WP 6.3.
 		 */
 		public function handle_invitation_results() {
-			$valid_nonce = isset( $_GET['_wpnonce'] ) ? wp_verify_nonce( $_GET['_wpnonce'], 'jetpack-sso-invite-user' ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
+			$valid_nonce = isset( $_GET['_wpnonce'] )
+				? wp_verify_nonce( sanitize_key( $_GET['_wpnonce'] ), 'jetpack-sso-invite-user' )
+				: false;
 
 			if ( ! $valid_nonce || ! isset( $_GET['jetpack-sso-invite-user'] ) || ! function_exists( 'wp_admin_notice' ) ) {
 				return;
@@ -763,7 +765,9 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 */
 		public function render_custom_email_message_form_field( $type ) {
 			if ( $type === 'add-new-user' ) {
-				$valid_nonce          = isset( $_POST['_wpnonce_create-user'] ) ? wp_verify_nonce( $_POST['_wpnonce_create-user'], 'create-user' ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
+				$valid_nonce          = isset( $_POST['_wpnonce_create-user'] )
+					? wp_verify_nonce( sanitize_key( $_POST['_wpnonce_create-user'] ), 'create-user' )
+					: false;
 				$custom_email_message = ( $valid_nonce && isset( $_POST['custom_email_message'] ) ) ? sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) ) : '';
 				?>
 			<table class="form-table">
