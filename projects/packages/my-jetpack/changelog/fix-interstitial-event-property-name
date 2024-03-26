@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-My Jetpack: fix interstitial event property malformed name productSlug -> product_slug
