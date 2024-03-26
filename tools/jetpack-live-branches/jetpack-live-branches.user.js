@@ -173,6 +173,13 @@
 									name: 'dev-pool',
 								},
 								{
+									checked: true,
+									label: 'Drop-in Cache Plugins',
+									name: 'cache-drop-in',
+									invert: true,
+									value: 'false',
+								},
+								{
 									label: 'Multisite based on subdirectories',
 									name: 'subdir_multisite',
 								},
