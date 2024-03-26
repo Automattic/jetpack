@@ -1,7 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Roles;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 
 if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
@@ -41,6 +43,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			add_filter( 'wp_send_new_user_notification_to_user', array( $this, 'should_send_wp_mail_new_user' ) );
 			add_action( 'user_new_form', array( $this, 'render_invitation_email_message' ) );
 			add_action( 'user_new_form', array( $this, 'render_wpcom_invite_checkbox' ), 1 );
+			add_action( 'user_new_form', array( $this, 'render_wpcom_external_user_checkbox' ), 1 );
 			add_action( 'user_new_form', array( $this, 'render_custom_email_message_form_field' ), 1 );
 			add_action( 'delete_user_form', array( $this, 'render_invitations_notices_for_deleted_users' ) );
 			add_action( 'delete_user', array( $this, 'revoke_user_invite' ) );
@@ -125,6 +128,12 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					}
 
 					return $response;
+				} else {
+					// Delete external contributor if it exists.
+					$wpcom_user_data = Jetpack::connection()->get_connected_user_data( $user_id );
+					if ( isset( $wpcom_user_data['ID'] ) ) {
+						return self::delete_external_contributor( $wpcom_user_data['ID'] );
+					}
 				}
 			} catch ( Exception $e ) {
 				return false;
@@ -133,11 +142,14 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 
 		/**
 		 * Renders invitations errors/success messages in users.php.
+		 *
+		 * @phan-suppress PhanUndeclaredFunction,UnusedSuppression -- Existence of wp_admin_notice (added in WP 6.4) is checked inline.
+		 * @todo Remove suppression and function_exists check when we drop support for WP 6.3.
 		 */
 		public function handle_invitation_results() {
 			$valid_nonce = isset( $_GET['_wpnonce'] ) ? wp_verify_nonce( $_GET['_wpnonce'], 'jetpack-sso-invite-user' ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
 
-			if ( ! $valid_nonce || ! isset( $_GET['jetpack-sso-invite-user'] ) ) {
+			if ( ! $valid_nonce || ! isset( $_GET['jetpack-sso-invite-user'] ) || ! function_exists( 'wp_admin_notice' ) ) {
 				return;
 			}
 			if ( $_GET['jetpack-sso-invite-user'] === 'success' ) {
@@ -575,6 +587,10 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * Render the invitation email message.
 		 */
 		public function render_invitation_email_message() {
+			// @todo Remove function_exists check (and phan suppression below) when we drop support for WP 6.3.
+			if ( ! function_exists( 'wp_admin_notice' ) ) {
+				return;
+			}
 			$message = wp_kses(
 				__(
 					'We highly recommend inviting users to join WordPress.com and log in securely using <a class="jetpack-sso-admin-create-user-invite-message-link-sso" rel="noopener noreferrer" target="_blank" href="https://jetpack.com/support/sso/">Secure Sign On</a> to ensure maximum security and efficiency.',
@@ -589,6 +605,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					),
 				)
 			);
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Existence of wp_admin_notice (added in WP 6.4) is checked above. @phan-suppress-current-line UnusedPluginSuppression
 			wp_admin_notice(
 				$message,
 				array(
@@ -604,6 +621,10 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * Render a note that wp.com invites will be automatically revoked.
 		 */
 		public function render_invitations_notices_for_deleted_users() {
+			// @todo Remove function_exists check (and phan suppression below) when we drop support for WP 6.3.
+			if ( ! function_exists( 'wp_admin_notice' ) ) {
+				return;
+			}
 			check_admin_referer( 'bulk-users' );
 
 			// When one user is deleted, the param is `user`, when multiple users are deleted, the param is `users`.
@@ -642,6 +663,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					),
 					array( 'strong' => true )
 				);
+				// @phan-suppress-next-line PhanUndeclaredFunction -- Existence of wp_admin_notice (added in WP 6.4) is checked above. @phan-suppress-current-line UnusedPluginSuppression
 				wp_admin_notice(
 					$message,
 					array(
@@ -660,6 +682,12 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * @param string $type The type of new user form the hook follows.
 		 */
 		public function render_wpcom_invite_checkbox( $type ) {
+			/*
+			 * Only check this box by default on WordPress.com sites
+			 * that do not use the WooCommerce plugin.
+			 */
+			$is_checked = ( new Host() )->is_wpcom_platform() && ! class_exists( 'WooCommerce' );
+
 			if ( $type === 'add-new-user' ) {
 				?>
 				<table class="form-table">
@@ -673,13 +701,52 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 									<span><?php esc_html_e( 'Invite user', 'jetpack' ); ?></span>
 								</legend>
 								<label for="invite_user_wpcom">
-									<input 
-										name="invite_user_wpcom" 
-										type="checkbox" 
-										id="invite_user_wpcom" 
-										<?php checked( ! class_exists( 'WooCommerce' ) ); ?>
+									<input
+										name="invite_user_wpcom"
+										type="checkbox"
+										id="invite_user_wpcom"
+										<?php checked( $is_checked ); ?>
 										>
 									<?php esc_html_e( 'Invite user to WordPress.com', 'jetpack' ); ?>
+								</label>
+							</fieldset>
+						</td>
+					</tr>
+				</table>
+				<?php
+			}
+		}
+
+		/**
+		 * Render a checkbox to differentiate if a user is external.
+		 *
+		 * @param string $type The type of new user form the hook follows.
+		 */
+		public function render_wpcom_external_user_checkbox( $type ) {
+			// Only enable this feature on WordPress.com sites.
+			if ( ! ( new Host() )->is_wpcom_platform() ) {
+				return;
+			}
+
+			if ( $type === 'add-new-user' ) {
+				?>
+				<table class="form-table">
+					<tr class="form-field">
+						<th scope="row">
+							<label for="user_external_contractor"><?php esc_html_e( 'External User', 'jetpack' ); ?></label>
+						</th>
+						<td>
+							<fieldset>
+								<legend class="screen-reader-text">
+									<span><?php esc_html_e( 'Invite user', 'jetpack' ); ?></span>
+								</legend>
+								<label for="user_external_contractor">
+									<input
+										name="user_external_contractor"
+										type="checkbox"
+										id="user_external_contractor"
+										>
+									<?php esc_html_e( 'This user is a contractor, freelancer, consultant, or agency.', 'jetpack' ); ?>
 								</label>
 							</fieldset>
 						</td>
@@ -744,67 +811,120 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * @return WP_Error The modified or not WP_Error object.
 		 */
 		public function send_wpcom_mail_user_invite( $errors, $update, $user ) {
-			if ( ! $update ) {
-				$valid_nonce = isset( $_POST['_wpnonce_create-user'] ) ? wp_verify_nonce( $_POST['_wpnonce_create-user'], 'create-user' ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
+			// Only admins should be able to invite new users.
+			if ( ! current_user_can( 'create_users' ) ) {
+				return $errors;
+			}
 
-				if ( ! isset( $_POST['invite_user_wpcom'] ) ) {
-					return $errors;
-				}
+			if ( $update ) {
+				return $errors;
+			}
 
-				if ( $valid_nonce && ! empty( $_POST['custom_email_message'] ) && strlen( sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) ) ) > 500 ) {
-					$errors->add( 'custom_email_message', __( '<strong>Error</strong>: The custom message is too long. Please keep it under 500 characters.', 'jetpack' ) );
-				}
+			// check for a valid nonce.
+			if (
+				! isset( $_POST['_wpnonce_create-user'] )
+				|| ! wp_verify_nonce( sanitize_key( $_POST['_wpnonce_create-user'] ), 'create-user' )
+			) {
+				return $errors;
+			}
 
-				if ( $errors->has_errors() ) {
-					return $errors;
-				}
+			// Check if the user is being invited to WordPress.com.
+			if ( ! isset( $_POST['invite_user_wpcom'] ) ) {
+				return $errors;
+			}
 
-				$email   = $user->user_email;
-				$role    = $user->role;
-				$blog_id = Jetpack_Options::get_option( 'id' );
-				$url     = '/sites/' . $blog_id . '/invites/new';
-
-				$new_user_request = array(
-					'email_or_username' => $email,
-					'role'              => $role,
-				);
-
-				if ( $valid_nonce && isset( $_POST['custom_email_message'] ) && strlen( sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) ) > 0 ) ) {
-					$new_user_request['message'] = sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) );
-				}
-
-				$response = Client::wpcom_json_api_request_as_user(
-					$url,
-					'2', // Api version
-					array(
-						'method' => 'POST',
-					),
-					array(
-						'invitees' => array( $new_user_request ),
+			// check if the custom email message is too long.
+			if (
+				! empty( $_POST['custom_email_message'] )
+				&& strlen( sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) ) ) > 500
+			) {
+				$errors->add(
+					'custom_email_message',
+					wp_kses(
+						__( '<strong>Error</strong>: The custom message is too long. Please keep it under 500 characters.', 'jetpack' ),
+						array(
+							'strong' => array(),
+						)
 					)
 				);
+			}
 
-				$event               = 'sso_new_user_invite_sent';
-				$custom_message_sent = isset( $new_user_request['message'] ) ? 'true' : 'false';
+			$site_id = Manager::get_site_id( true );
+			if ( ! $site_id ) {
+				$errors->add(
+					'invalid_site_id',
+					wp_kses(
+						__( '<strong>Error</strong>: Invalid site ID.', 'jetpack' ),
+						array(
+							'strong' => array(),
+						)
+					)
+				);
+			}
 
-				if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-					$errors->add( 'invitation_not_sent', __( '<strong>Error</strong>: The user invitation email could not be sent, the user account was not created.', 'jetpack' ) );
-					self::$tracking->record_user_event(
-						$event,
+			// Bail if there are any errors.
+			if ( $errors->has_errors() ) {
+				return $errors;
+			}
+
+			$new_user_request = array(
+				'email_or_username' => sanitize_email( $user->user_email ),
+				'role'              => sanitize_key( $user->role ),
+			);
+
+			if (
+				isset( $_POST['custom_email_message'] )
+				&& strlen( sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) ) > 0 )
+			) {
+				$new_user_request['message'] = sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) );
+			}
+
+			if ( isset( $_POST['user_external_contractor'] ) ) {
+					$new_user_request['is_external'] = true;
+			}
+
+			$response = Client::wpcom_json_api_request_as_user(
+				sprintf(
+					'/sites/%d/invites/new',
+					(int) $site_id
+				),
+				'2', // Api version
+				array(
+					'method' => 'POST',
+				),
+				array(
+					'invitees' => array( $new_user_request ),
+				)
+			);
+
+			$event_name          = 'sso_new_user_invite_sent';
+			$custom_message_sent = isset( $new_user_request['message'] ) ? 'true' : 'false';
+
+			if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+				$errors->add(
+					'invitation_not_sent',
+					wp_kses(
+						__( '<strong>Error</strong>: The user invitation email could not be sent, the user account was not created.', 'jetpack' ),
 						array(
-							'success' => 'false',
-							'error'   => wp_remote_retrieve_body( $response ), // Get as much information as possible.
+							'strong' => array(),
 						)
-					);
-				} else {
-					self::$tracking->record_user_event(
-						$event,
-						array(
-							'success'             => 'true',
-							'custom_message_sent' => $custom_message_sent,
-						)
-					);
-				}
+					)
+				);
+				self::$tracking->record_user_event(
+					$event_name,
+					array(
+						'success' => 'false',
+						'error'   => wp_remote_retrieve_body( $response ), // Get as much information as possible.
+					)
+				);
+			} else {
+				self::$tracking->record_user_event(
+					$event_name,
+					array(
+						'success'             => 'true',
+						'custom_message_sent' => $custom_message_sent,
+					)
+				);
 			}
 
 			return $errors;
@@ -949,6 +1069,37 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			}
 
 			return json_decode( $response['body'], true )['invite_code'];
+		}
+
+		/**
+		 * Delete an external contributor from the site.
+		 *
+		 * @access private
+		 * @static
+		 * @param int $user_id The user ID.
+		 *
+		 * @return bool Returns true if the user was successfully deleted, false otherwise.
+		 */
+		private static function delete_external_contributor( $user_id ) {
+			$blog_id  = Jetpack_Options::get_option( 'id' );
+			$url      = '/sites/' . $blog_id . '/external-contributors/remove';
+			$response = Client::wpcom_json_api_request_as_user(
+				$url,
+				'v2',
+				array(
+					'method' => 'POST',
+				),
+				array(
+					'user_id' => $user_id,
+				),
+				'wpcom'
+			);
+
+			if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+				return false;
+			}
+
+			return true;
 		}
 
 		/**

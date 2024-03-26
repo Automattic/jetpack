@@ -331,12 +331,21 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return $result;
 		}
 
+		$previous_schedule_status = Scheduled_Updates::get_scheduled_update_status( $request['schedule_id'] );
+
 		$deleted = $this->delete_item( $request );
 		if ( is_wp_error( $deleted ) ) {
 			return $deleted;
 		}
 
-		return $this->create_item( $request );
+		$item = $this->create_item( $request );
+
+		// Sets the previous status
+		if ( $previous_schedule_status ) {
+			Scheduled_Updates::set_scheduled_update_status( $item->data, $previous_schedule_status['last_run_timestamp'], $previous_schedule_status['last_run_status'] );
+		}
+
+		return $item;
 	}
 
 	/**
@@ -381,10 +390,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return object|null
 	 */
 	public function get_last_run_field( $item, $field_name, $request, $object_type ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$option = get_option( 'jetpack_scheduled_update_statuses', array() );
+		$status = Scheduled_Updates::get_scheduled_update_status( $item['schedule_id'] );
 
-		if ( ! empty( $option[ $item['schedule_id'] ] ) ) {
-			return $option[ $item['schedule_id'] ][ $field_name ];
+		if ( $status ) {
+			return $status[ $field_name ];
 		}
 
 		return null;

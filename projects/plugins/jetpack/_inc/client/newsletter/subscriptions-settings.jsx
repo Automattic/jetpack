@@ -19,8 +19,10 @@ import {
 	currentThemeStylesheet,
 	getSiteAdminUrl,
 	isSubscriptionSiteEnabled,
+	subscriptionSiteEditSupported,
 } from 'state/initial-state';
 import { getModule } from 'state/modules';
+import { siteUsesWpAdminInterface } from 'state/site';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 
 const trackViewSubsClick = () => {
@@ -38,12 +40,13 @@ function SubscriptionsSettings( props ) {
 		unavailableInOfflineMode,
 		isLinked,
 		isOffline,
+		isWpAdminInterface,
 		isSavingAnyOption,
 		isStbEnabled,
 		isStcEnabled,
 		isSmEnabled,
 		isSubscribePostEndEnabled,
-		isSubscriptionSiteFeatureEnabled,
+		isSubscriptionSiteEditSupported,
 		isSubscriptionsActive,
 		siteRawUrl,
 		subscriptions,
@@ -95,12 +98,16 @@ function SubscriptionsSettings( props ) {
 			return '';
 		}
 
+		const source = isWpAdminInterface
+			? 'jetpack-settings-jetpack-manage-subscribers'
+			: 'calypso-subscribers';
+
 		return (
 			<Card
 				compact
 				className="jp-settings-card__configure-link"
 				onClick={ trackViewSubsClick }
-				href={ getRedirectUrl( 'calypso-subscribers', {
+				href={ getRedirectUrl( source, {
 					site: blogID ?? siteRawUrl,
 				} ) }
 				target="_blank"
@@ -150,29 +157,27 @@ function SubscriptionsSettings( props ) {
 					</ModuleToggle>
 					{
 						<FormFieldset>
-							{ isSubscriptionSiteFeatureEnabled && (
-								<ToggleControl
-									checked={ isSubscriptionsActive && isSubscribePostEndEnabled }
-									disabled={ isDisabled }
-									toggling={ isSavingAnyOption( [
-										'jetpack_subscriptions_subscribe_post_end_enabled',
-									] ) }
-									onChange={ handleSubscribePostEndToggleChange }
-									label={
-										<>
-											{ __( 'Add the Subscribe Block at the end of each post', 'jetpack' ) }
-											{ isBlockTheme && singlePostTemplateEditorUrl && (
-												<>
-													{ '. ' }
-													<ExternalLink href={ singlePostTemplateEditorUrl }>
-														{ __( 'Preview and edit', 'jetpack' ) }
-													</ExternalLink>
-												</>
-											) }
-										</>
-									}
-								/>
-							) }
+							<ToggleControl
+								checked={ isSubscriptionsActive && isSubscribePostEndEnabled }
+								disabled={ isDisabled }
+								toggling={ isSavingAnyOption( [
+									'jetpack_subscriptions_subscribe_post_end_enabled',
+								] ) }
+								onChange={ handleSubscribePostEndToggleChange }
+								label={
+									<>
+										{ __( 'Add the Subscribe Block at the end of each post', 'jetpack' ) }
+										{ isSubscriptionSiteEditSupported && singlePostTemplateEditorUrl && (
+											<>
+												{ '. ' }
+												<ExternalLink href={ singlePostTemplateEditorUrl }>
+													{ __( 'Preview and edit', 'jetpack' ) }
+												</ExternalLink>
+											</>
+										) }
+									</>
+								}
+							/>
 							<div className="jp-toggle-set">
 								<ToggleControl
 									checked={ isSubscriptionsActive && isSmEnabled }
@@ -249,6 +254,7 @@ export default withModuleSettingsFormHelpers(
 		return {
 			isLinked: isCurrentUserLinked( state ),
 			isOffline: isOfflineMode( state ),
+			isWpAdminInterface: siteUsesWpAdminInterface( state ),
 			isSubscriptionsActive: ownProps.getOptionValue( SUBSCRIPTIONS_MODULE_NAME ),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
 			subscriptions: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
@@ -259,6 +265,7 @@ export default withModuleSettingsFormHelpers(
 				'jetpack_subscriptions_subscribe_post_end_enabled'
 			),
 			isSubscriptionSiteFeatureEnabled: isSubscriptionSiteEnabled( state ),
+			isSubscriptionSiteEditSupported: subscriptionSiteEditSupported( state ),
 			isBlockTheme: currentThemeIsBlockTheme( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			themeStylesheet: currentThemeStylesheet( state ),

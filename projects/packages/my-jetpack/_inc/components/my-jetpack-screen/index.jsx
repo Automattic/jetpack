@@ -12,7 +12,7 @@ import {
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
-import { Icon, Notice, Path, SVG } from '@wordpress/components';
+import { Icon, Path, SVG } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
 import classnames from 'classnames';
@@ -31,10 +31,11 @@ import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
-import useConnectionWatcher from '../../hooks/use-connection-watcher';
+import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import ConnectionsSection from '../connections-section';
 import IDCModal from '../idc-modal';
 import JetpackManageBanner from '../jetpack-manage-banner';
+import Notice from '../notice';
 import PlansSection from '../plans-section';
 import { PRODUCT_STATUSES } from '../product-card';
 import ProductCardsSection from '../product-cards-section';
@@ -93,7 +94,7 @@ const GlobalNotice = ( { message, options } ) => {
  * @returns {object} The MyJetpackScreen component.
  */
 export default function MyJetpackScreen() {
-	useConnectionWatcher();
+	useNotificationWatcher();
 	const { hasBeenDismissed = false } = getMyJetpackWindowInitialState( 'welcomeBanner' );
 	const { showFullJetpackStatsCard = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	const { jetpackManage = {}, adminUrl } = getMyJetpackWindowInitialState();

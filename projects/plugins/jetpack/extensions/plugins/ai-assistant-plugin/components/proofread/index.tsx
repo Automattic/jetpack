@@ -66,7 +66,7 @@ export default function Proofread( {
 		setIsProofreadModalVisible( ! isProofreadModalVisible );
 	};
 
-	const { increaseAiAssistantRequestsCount, dequeueAiAssistantFeatureAyncRequest } =
+	const { increaseAiAssistantRequestsCount, dequeueAiAssistantFeatureAsyncRequest } =
 		useDispatch( 'wordpress-com/plans' );
 
 	const handleSuggestion = ( content: string ) => {
@@ -111,7 +111,7 @@ export default function Proofread( {
 		 * in case there is one pending,
 		 * when performing a new AI suggestion request.
 		 */
-		dequeueAiAssistantFeatureAyncRequest();
+		dequeueAiAssistantFeatureAsyncRequest();
 
 		request( messages, { feature: 'jetpack-ai-proofread-plugin' } );
 		toggleProofreadModal();

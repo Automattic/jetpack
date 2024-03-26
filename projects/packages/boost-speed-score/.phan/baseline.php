@@ -14,20 +14,18 @@ return [
     // PhanUndeclaredTypeProperty : 3 occurrences
     // PhanTypeMismatchArgumentNullable : 2 occurrences
     // PhanTypeMismatchProperty : 2 occurrences
-    // PhanTypeMismatchReturnProbablyReal : 2 occurrences
     // PhanUndeclaredClassMethod : 2 occurrences
     // PhanRedefineFunction : 1 occurrence
     // PhanTypeMismatchPropertyDefault : 1 occurrence
     // PhanTypeMismatchPropertyProbablyReal : 1 occurrence
     // PhanTypeMismatchReturnNullable : 1 occurrence
-    // PhanUndeclaredConstant : 1 occurrence
+    // PhanTypeMismatchReturnProbablyReal : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-jetpack-boost-modules.php' => ['PhanTypeMismatchPropertyDefault'],
         'src/class-speed-score-graph-history-request.php' => ['PhanTypeMismatchProperty', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty'],
-        'src/class-speed-score-history.php' => ['PhanUndeclaredConstant'],
-        'src/class-speed-score-request.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/class-speed-score-request.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyProbablyReal'],
         'src/class-speed-score.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturnNullable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty'],
         'tests/bootstrap.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturnProbablyReal'],
         'tests/php/lib/test-class-speed-score-history.php' => ['PhanTypeExpectedObjectPropAccess'],

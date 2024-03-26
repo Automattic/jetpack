@@ -37,7 +37,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.17.1';
+	const PACKAGE_VERSION = '4.19.0-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -661,7 +661,7 @@ class Initializer {
 	 */
 	public static function alert_if_missing_site_connection( array $red_bubble_slugs ) {
 		if ( ! ( new Connection_Manager() )->is_connected() ) {
-			$red_bubble_slugs[] = self::MISSING_SITE_CONNECTION_NOTIFICATION_KEY;
+			$red_bubble_slugs[ self::MISSING_SITE_CONNECTION_NOTIFICATION_KEY ] = null;
 		}
 
 		return $red_bubble_slugs;
