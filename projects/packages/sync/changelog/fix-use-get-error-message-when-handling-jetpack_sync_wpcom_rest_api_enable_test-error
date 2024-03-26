@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix handling of error message when sync wpcom rest api could not be enabled

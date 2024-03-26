@@ -13,6 +13,28 @@
 class Jetpack_Client_Server {
 
 	/**
+	 * Whether the class has been initialized.
+	 *
+	 * @var bool
+	 */
+	private static $did_init = false;
+
+	/**
+	 * Initialize the hooks, but only once.
+	 *
+	 * @return void
+	 */
+	public static function init() {
+		if ( static::$did_init ) {
+			return;
+		}
+
+		add_filter( 'jetpack_rest_connection_check_response', array( static::class, 'connection_check' ) );
+
+		static::$did_init = true;
+	}
+
+	/**
 	 * Handle the client authorization error.
 	 *
 	 * @param WP_Error $error The error object.
@@ -75,5 +97,14 @@ class Jetpack_Client_Server {
 		}
 
 		return 0;
+	}
+
+	/**
+	 * Filters the result of test_connection REST method
+	 *
+	 * @return string The current Jetpack version number
+	 */
+	public static function connection_check() {
+		return JETPACK__VERSION;
 	}
 }
