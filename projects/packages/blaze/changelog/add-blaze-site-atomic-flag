@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Adds the atomic flag to the Jetpack Blaze base site's configuration
