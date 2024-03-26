@@ -196,9 +196,6 @@ interface Window {
 		topJetpackMenuItemUrl: string;
 		userIsAdmin: string;
 		userIsNewToJetpack: string;
-		welcomeBanner: {
-			hasBeenDismissed: boolean;
-		};
 	};
 	JP_CONNECTION_INITIAL_STATE: {
 		apiRoot: string;
