@@ -21,7 +21,7 @@ class REST_Provider {
 	/**
 	 * Singleton instance.
 	 *
-	 * @var static
+	 * @var REST_Provider
 	 **/
 	private static $instance = null;
 
