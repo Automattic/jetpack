@@ -51,6 +51,7 @@ jobs:
         working-directory: tools/e2e-commons
         env:
           CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+          TEST_ENV_DOMAIN: ${{ secrets.TEST_ENV_DOMAIN }}
         run: |
           # Gutenberg Performance tests require disable-animations.php test
           # plugin to be available on a site. Below we inject the mapping for

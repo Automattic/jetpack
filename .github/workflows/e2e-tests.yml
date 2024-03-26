@@ -213,6 +213,7 @@ jobs:
           CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
           SUITE: ${{ matrix.suite }}
           PROJECT_NAME: ${{ matrix.project }}
+          TEST_ENV_DOMAIN: ${{ secrets.TEST_ENV_DOMAIN }}
         run: |
           echo "::group::Decrypt config"
           pnpm run config:decrypt
