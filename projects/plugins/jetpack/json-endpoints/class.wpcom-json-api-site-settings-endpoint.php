@@ -462,8 +462,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'page_for_posts'                   => (string) get_option( 'page_for_posts' ),
 						'subscription_options'             => (array) get_option( 'subscription_options' ),
 						'jetpack_verbum_subscription_modal' => (bool) get_option( 'jetpack_verbum_subscription_modal', true ),
-						'enable_verbum_commenting'         => (bool) get_option( 'enable_verbum_commenting' ),
-						'enable_blocks_comments'           => (bool) get_option( 'enable_blocks_comments' ),
+						'enable_verbum_commenting'         => (bool) get_option( 'enable_verbum_commenting', true ),
+						'enable_blocks_comments'           => (bool) get_option( 'enable_blocks_comments', true ),
 						'highlander_comment_form_prompt'   => $this->get_highlander_comment_form_prompt_option(),
 						'jetpack_comment_form_color_scheme' => (string) get_option( 'jetpack_comment_form_color_scheme' ),
 					);
