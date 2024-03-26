@@ -584,6 +584,22 @@ class Jetpack_Memberships {
 	}
 
 	/**
+	 * Clears the static cache for all users or for a given user.
+	 *
+	 * @param int|null $user_id The user_id to unset in the cache, otherwise the entire static cache is cleared.
+	 * @return void
+	 */
+	public static function clear_cache( int $user_id = null ) {
+		if ( empty( $user_id ) ) {
+			self::$user_is_paid_subscriber_cache = array();
+			self::$user_can_view_post_cache      = array();
+			return;
+		}
+		unset( self::$user_is_paid_subscriber_cache[ $user_id ] );
+		unset( self::$user_can_view_post_cache[ $user_id ] );
+	}
+
+	/**
 	 * Determines whether the current user is a paid subscriber and caches the result.
 	 *
 	 * @param array    $valid_plan_ids An array of valid plan ids that the user could be subscribed to which would make the user able to view this content. Defaults to an empty array which will be filled with all newsletter plan IDs.
