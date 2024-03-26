@@ -88,23 +88,34 @@ async function tunnelChild() {
 	console.log = wrap( console.log );
 	console.error = wrap( console.error );
 
-	const customTunnelUrl = process.env.TEST_ENV_URL;
-	const customAuthToken = process.env.TEST_ENV_TOKEN || tunnelConfig.authtoken;
 	let tunnelUrl;
 
-	if ( customTunnelUrl ) {
-		console.log( `Using provided tunnel URL '${ customTunnelUrl }'` );
-		tunnelUrl = customTunnelUrl;
-	} else {
-		tunnelUrl = await ngrok.connect( {
-			proto: 'http', // http|tcp|tls, defaults to http
-			addr: tunnelConfig.port, // port or network address, defaults to 80
-			authtoken: customAuthToken, // your authtoken from ngrok.com or TEST_ENV_TOKEN
-		} );
-		console.log( `Opened tunnel '${ tunnelUrl }'` );
+	// So everything depends on the auth token.
+	const authtoken = process.env.TEST_ENV_TOKEN || tunnelConfig.authtoken;
+
+	if ( ! tunnelUrl && process.env.TEST_ENV_URL ) {
+		tunnelUrl = process.env.TEST_ENV_URL;
 	}
 
+	if ( ! tunnelUrl && authtoken ) {
+		tunnelUrl = await ngrok.connect( {
+			proto: 'http',
+			addr: tunnelConfig.port,
+			authtoken,
+			// Use the domain if it's provided
+			domain: process.env.TEST_ENV_DOMAIN ?? '',
+		} );
+	}
+
+	if ( ! tunnelUrl ) {
+		throw new Error( 'Failed to find an URL to use for the tunnel' );
+	}
+
+	console.log( `Opened tunnel '${ tunnelUrl }'` );
+
+	console.log( '[TUNA] Writing to', config.get( 'temp.tunnels' ), tunnelUrl );
 	fs.writeFileSync( config.get( 'temp.tunnels' ), tunnelUrl );
+	console.log( '[TUNA] Writing to', config.get( 'temp.pid' ), process.pid );
 	fs.writeFileSync( config.get( 'temp.pid' ), `${ process.pid }` );
 
 	process.send?.( 'ok' );
