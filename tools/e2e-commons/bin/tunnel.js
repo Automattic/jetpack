@@ -113,9 +113,9 @@ async function tunnelChild() {
 
 	console.log( `Opened tunnel '${ tunnelUrl }'` );
 
-	console.log( '[TUNA] Writing to', config.get( 'temp.tunnels' ), tunnelUrl );
+	console.log( '[TUNA] Writing to' + config.get( 'temp.tunnels' ) + ' ' + tunnelUrl );
 	fs.writeFileSync( config.get( 'temp.tunnels' ), tunnelUrl );
-	console.log( '[TUNA] Writing to', config.get( 'temp.pid' ), process.pid );
+	console.log( '[TUNA] Writing to'+ ' ' + config.get( 'temp.pid' )+ ' ' + process.pid );
 	fs.writeFileSync( config.get( 'temp.pid' ), `${ process.pid }` );
 
 	process.send?.( 'ok' );
