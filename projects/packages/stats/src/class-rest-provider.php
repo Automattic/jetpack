@@ -23,16 +23,18 @@ class REST_Provider {
 	 *
 	 * @var bool
 	 */
-	private $did_initialize = false;
+	private static $did_initialize = false;
 
 	/**
 	 * Private class constructor.
 	 *
 	 * Use the REST_Provider::init() method to get an instance.
+	 *
+	 * @param bool $force_init Allow multiple initialization.
 	 */
-	public function __construct() {
-		if ( ! $this->did_initialize ) {
-			$this->did_initialize = true;
+	public function __construct( $force_init = false ) {
+		if ( ! static::$did_initialize || $force_init ) {
+			static::$did_initialize = true;
 
 			add_action( 'rest_api_init', array( $this, 'initialize_rest_api' ) );
 		}

@@ -35,7 +35,7 @@ class Test_REST_Provider extends TestCase {
 		$wp_rest_server = new WP_REST_Server();
 		$this->server   = $wp_rest_server;
 
-		new REST_Provider();
+		new REST_Provider( true );
 		do_action( 'rest_api_init' );
 	}
 
