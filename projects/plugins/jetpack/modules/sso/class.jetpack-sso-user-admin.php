@@ -40,14 +40,11 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			add_action( 'delete_user', array( 'Jetpack_SSO_Helpers', 'delete_connection_for_user' ) );
 			add_action( 'user_new_form', array( $this, 'render_invitation_email_message' ) );
 
-			// Only enable the WPCOM invitation functionality if the user is connected to WPCOM.
-			if ( $this->can_send_wpcom_invitation() ) {
-				add_filter( 'wp_send_new_user_notification_to_user', array( $this, 'should_send_wp_mail_new_user' ) );
-				add_action( 'user_new_form', array( $this, 'render_wpcom_invite_checkbox' ), 1 );
+			add_filter( 'wp_send_new_user_notification_to_user', array( $this, 'should_send_wp_mail_new_user' ) );
+			add_action( 'user_new_form', array( $this, 'render_wpcom_invite_checkbox' ), 1 );
 
-				// If the user has no errors on creation, send an invite to WordPress.com.
-				add_filter( 'user_profile_update_errors', array( $this, 'send_wpcom_mail_user_invite' ), 10, 3 );
-			}
+			// If the user has no errors on creation, send an invite to WordPress.com.
+			add_filter( 'user_profile_update_errors', array( $this, 'send_wpcom_mail_user_invite' ), 10, 3 );
 
 			add_action( 'user_new_form', array( $this, 'render_wpcom_external_user_checkbox' ), 1 );
 			add_action( 'user_new_form', array( $this, 'render_custom_email_message_form_field' ), 1 );
@@ -1253,16 +1250,6 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 
 		</style>
 			<?php
-		}
-
-		/**
-		 * Check if the current user is able to send out wpcom invitations.
-		 *
-		 * @return bool
-		 */
-		private function can_send_wpcom_invitation() {
-			$manager = new Manager( 'jetpack' );
-			return $manager->is_user_connected();
 		}
 	}
 endif;

@@ -5,7 +5,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -42,7 +41,6 @@ class Jetpack_SSO {
 	private function __construct() {
 
 		self::$instance = $this;
-		new Jetpack_SSO_User_Admin();
 
 		add_action( 'admin_init', array( $this, 'maybe_authorize_user_after_sso' ), 1 );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
@@ -82,6 +80,28 @@ class Jetpack_SSO {
 			// Checking for the class to avoid collisions with existing standalone Jetpack Force 2FA plugin and break out if so.
 			require_once JETPACK__PLUGIN_DIR . 'modules/sso/class-jetpack-force-2fa.php';
 			new Jetpack_Force_2FA();
+		}
+
+		/*
+		 * Allow admins to invite new users to create a WordPress.com account
+		 * as they are added to the site.
+		 *
+		 * This is a feature that is only available when the admin is connected to WordPress.com.
+		 */
+		if (
+			Jetpack_SSO_Helpers::is_user_connected() &&
+			/**
+			 * Toggle the ability to invite new users to create a WordPress.com account.
+			 *
+			 * @module sso
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param bool true Whether to allow admins to invite new users to create a WordPress.com account.
+			 */
+			apply_filters( 'jetpack_sso_invite_new_users_wpcom', true )
+		) {
+			new Jetpack_SSO_User_Admin();
 		}
 	}
 
@@ -900,7 +920,7 @@ class Jetpack_SSO {
 			$json_api_auth_environment = Jetpack_SSO_Helpers::get_json_api_auth_environment();
 
 			$is_json_api_auth  = ! empty( $json_api_auth_environment );
-			$is_user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $user->ID );
+			$is_user_connected = Jetpack_SSO_Helpers::is_user_connected( $user->ID );
 			$roles             = new Roles();
 			$tracking->record_user_event(
 				'sso_user_logged_in',
@@ -1172,11 +1192,13 @@ class Jetpack_SSO {
 	 * stored when the user logs out, and then deleted when the user logs in.
 	 */
 	public function store_wpcom_profile_cookies_on_logout() {
-		if ( ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() ) ) {
+		$user_id = get_current_user_id();
+
+		if ( ! Jetpack_SSO_Helpers::is_user_connected( $user_id ) ) {
 			return;
 		}
 
-		$user_data = $this->get_user_data( get_current_user_id() );
+		$user_data = $this->get_user_data( $user_id );
 		if ( ! $user_data ) {
 			return;
 		}
