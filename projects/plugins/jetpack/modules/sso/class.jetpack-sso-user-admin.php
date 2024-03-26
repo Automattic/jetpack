@@ -580,7 +580,13 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				);
 			}
 
-			if ( current_user_can( 'promote_users' ) && $has_pending_invite ) {
+			if (
+				current_user_can( 'promote_users' )
+				&& (
+					$has_pending_invite
+					|| Jetpack::connection()->is_user_connected( $user_id )
+				)
+			) {
 				unset( $actions['resetpassword'] );
 			}
 
