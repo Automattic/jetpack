@@ -62,15 +62,15 @@ test.describe( 'Cache module', () => {
 		).toBeTruthy();
 	} );
 
+	// Make sure there's an error message when trying to enable Page Cache with plain permalinks.
 	test( 'Page Cache should show error notice when plain permalinks are enabled', async () => {
 		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'page_cache' ] ).build();
 
 		const permalinksPage = await PermalinksPage.visit( page );
 		await permalinksPage.usePlainStructure();
 
-		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'page_cache' ] ).build();
-
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
+		await jetpackBoostPage.toggleModule( 'page_cache' );
 		expect(
 			await jetpackBoostPage.waitForPageCachePermalinksErrorVisibility(),
 			'Page Cache should show permalink error message when using plain permalink structure'
@@ -78,27 +78,22 @@ test.describe( 'Cache module', () => {
 	} );
 
 	// Make sure there's a cache header when module is enabled.
-	// test ( 'Page Cache header should be present when module is active', async () => {
-	// 	await boostPrerequisitesBuilder( page ).withActiveModules( [ 'page_cache' ] ).build();
-	// 	const postFrontendPage = await PostFrontendPage.visit( page );
-	// 	console.log('postFrontendPage - ' + postFrontendPage.url);
-	// 	// need a logged out browser context to test the cache header
-	// 	await postFrontendPage.logout();
+	test( 'Page Cache header should be present when module is active', async () => {
+		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'page_cache' ] ).build();
+		const postFrontendPage = await PostFrontendPage.visit( page );
+		// Cache is only available to logged out users.
+		await postFrontendPage.logout();
 
-	// 	page.on( 'response', response => {
-	// 		// Not sure why there's a trailing slash, but it's messing up the test.
-	// 		if ( response.url().replace(/\/$/, '') !== postFrontendPage.url ) {
-	// 			return;
-	// 		}
+		page.on( 'response', response => {
+			// Not sure why there's a trailing slash, but it's messing up the test.
+			if ( response.url().replace( /\/$/, '' ) !== postFrontendPage.url ) {
+				return;
+			}
 
-	// 		console.log(response.headers());
-
-	// 		expect(
-	// 			response.headers().hasOwnProperty( 'X-Jetpack-Boost-Cache' ),
-	// 			'Page Cache header should be present'
-	// 		).toBeTruthy();
-	// 	} );
-
-	// 	await PostFrontendPage.visit( page );
-	// } );
+			expect(
+				response.headers().hasOwnProperty( 'X-Jetpack-Boost-Cache'.toLowerCase() ),
+				'Page Cache header should be present'
+			).toBeTruthy();
+		} );
+	} );
 } );
