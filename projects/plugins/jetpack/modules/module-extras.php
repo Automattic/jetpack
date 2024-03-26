@@ -41,6 +41,7 @@ $tools = array(
 $connected_tools = array(
 	'calypsoify/class-jetpack-calypsoify.php',
 	'cloudflare-analytics/cloudflare-analytics.php',
+	'header-code.php',
 	'plugin-search.php',
 	'scan/scan.php', // Shows Jetpack Scan alerts in the admin bar if threats found.
 	'simple-payments/simple-payments.php',
