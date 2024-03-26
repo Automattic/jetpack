@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+SSO: fix PHP notices and remove unnecessary PHPCS ignores.
