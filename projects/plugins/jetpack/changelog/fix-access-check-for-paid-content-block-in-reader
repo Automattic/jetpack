@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix paid content block subscriber view content not rendering in WordPress.com reader.
