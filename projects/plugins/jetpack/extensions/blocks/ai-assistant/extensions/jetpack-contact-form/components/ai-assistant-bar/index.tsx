@@ -87,7 +87,7 @@ export default function AiAssistantBar( {
 	const { inputValue, setInputValue, isVisible, assistantAnchor } =
 		useContext( AiAssistantUiContext );
 
-	const { dequeueAiAssistantFeatureAyncRequest } = useDispatch( 'wordpress-com/plans' );
+	const { dequeueAiAssistantFeatureAsyncRequest } = useDispatch( 'wordpress-com/plans' );
 
 	const focusOnPrompt = () => {
 		// Small delay to avoid focus crash
@@ -133,7 +133,7 @@ export default function AiAssistantBar( {
 		 * in case there is one pending,
 		 * when performing a new AI suggestion request.
 		 */
-		dequeueAiAssistantFeatureAyncRequest();
+		dequeueAiAssistantFeatureAsyncRequest();
 
 		requestSuggestion( prompt, { feature: 'jetpack-form-ai-extension' } );
 		tracks.recordEvent( 'jetpack_ai_assistant_block_generate', {
@@ -142,7 +142,7 @@ export default function AiAssistantBar( {
 		wrapperRef?.current?.focus();
 	}, [
 		clientId,
-		dequeueAiAssistantFeatureAyncRequest,
+		dequeueAiAssistantFeatureAsyncRequest,
 		inputValue,
 		removeNotice,
 		requestSuggestion,
