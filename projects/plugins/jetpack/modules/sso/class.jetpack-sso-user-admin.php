@@ -1027,7 +1027,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				self::rebuild_invite_cache();
 			}
 
-			if ( ! empty( self::$cached_invites ) ) {
+			if ( ! empty( self::$cached_invites ) && is_array( self::$cached_invites ) ) {
 				$index = array_search( $email, array_column( self::$cached_invites, 'email_or_username' ), true );
 				if ( $index !== false ) {
 					return self::$cached_invites[ $index ];
