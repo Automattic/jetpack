@@ -107,7 +107,7 @@ class Doc_Parser {
 		// Extract PHPDoc.
 		ob_start();
 		$output = \WP_Parser\parse_files( $files, $path );
-		ob_get_clean();
+		ob_end_clean();
 
 		if ( 'json' === $format ) {
 			$output = json_encode( $output, JSON_PRETTY_PRINT );
