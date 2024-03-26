@@ -1239,6 +1239,79 @@ class Test_REST_Endpoints extends TestCase {
 	}
 
 	/**
+	 * Testing the `test_connection` endpoint without authentication.
+	 * Response: failed authorization.
+	 */
+	public function test_connection_check_unauthenticated() {
+		wp_set_current_user( 0 );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/check' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		// Mock full connection established.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+
+		$response      = $this->server->dispatch( $request );
+		$response_data = $response->get_data();
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
+
+		static::assertEquals( 'invalid_permission_connection_check', $response_data['code'] );
+		static::assertEquals( 401, $response_data['data']['status'] );
+	}
+
+	/**
+	 * Testing the `remote_connect` endpoint with proper authentication.
+	 */
+	public function test_connection_check_authenticated() {
+		wp_set_current_user( 0 );
+
+		// Mock full connection established.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+
+		$_GET['_for']      = 'jetpack';
+		$_GET['token']     = 'new:1:0';
+		$_GET['timestamp'] = (string) time();
+		$_GET['nonce']     = 'testing123';
+		$_GET['body-hash'] = '';
+		// This is intentionally using base64_encode().
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$_GET['signature'] = base64_encode(
+			hash_hmac(
+				'sha1',
+				implode(
+					"\n",
+					array(
+						$_GET['token'],
+						$_GET['timestamp'],
+						$_GET['nonce'],
+						$_GET['body-hash'],
+						'POST',
+						'anything.example',
+						'80',
+						'',
+					)
+				) . "\n",
+				'blogtoken',
+				true
+			)
+		);
+
+		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/check' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		$response      = $this->server->dispatch( $request );
+		$response_data = $response->get_data();
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
+
+		static::assertEquals( 'success', $response_data['status'] );
+	}
+
+	/**
 	 * This filter callback allows us to skip the database query by `Jetpack_Options` to retrieve the option.
 	 *
 	 * @param array $options List of options already skipping the database request.

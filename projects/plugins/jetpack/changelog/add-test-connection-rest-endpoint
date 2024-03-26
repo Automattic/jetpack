@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Hook into the `jetpack_rest_test_connection_response` filter to provide Jetpack version.
+
+
