@@ -3,6 +3,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Roles;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 
 if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
@@ -681,6 +682,12 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * @param string $type The type of new user form the hook follows.
 		 */
 		public function render_wpcom_invite_checkbox( $type ) {
+			/*
+			 * Only check this box by default on WordPress.com sites
+			 * that do not use the WooCommerce plugin.
+			 */
+			$is_checked = ( new Host() )->is_wpcom_platform() && ! class_exists( 'WooCommerce' );
+
 			if ( $type === 'add-new-user' ) {
 				?>
 				<table class="form-table">
@@ -698,7 +705,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 										name="invite_user_wpcom"
 										type="checkbox"
 										id="invite_user_wpcom"
-										<?php checked( ! class_exists( 'WooCommerce' ) ); ?>
+										<?php checked( $is_checked ); ?>
 										>
 									<?php esc_html_e( 'Invite user to WordPress.com', 'jetpack' ); ?>
 								</label>
@@ -716,6 +723,11 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * @param string $type The type of new user form the hook follows.
 		 */
 		public function render_wpcom_external_user_checkbox( $type ) {
+			// Only enable this feature on WordPress.com sites.
+			if ( ! ( new Host() )->is_wpcom_platform() ) {
+				return;
+			}
+
 			if ( $type === 'add-new-user' ) {
 				?>
 				<table class="form-table">

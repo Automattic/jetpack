@@ -9,8 +9,8 @@
  */
 return [
     // # Issue statistics:
+    // PhanTypeArraySuspiciousNullable : 20+ occurrences
     // PhanTypeMismatchArgument : 20+ occurrences
-    // PhanTypeArraySuspiciousNullable : 15+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 10+ occurrences
     // PhanTypeMismatchArgumentNullableInternal : 10+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 10+ occurrences
