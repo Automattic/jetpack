@@ -27,7 +27,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		private static $cached_invites = null;
 
 		/**
-		 * Instance of JetPack Tracking.
+		 * Instance of Jetpack Tracking.
 		 *
 		 * @var $instance
 		 */
