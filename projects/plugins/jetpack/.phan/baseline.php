@@ -9,41 +9,40 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredClassMethod : 680+ occurrences
-    // PhanTypeMismatchArgument : 630+ occurrences
+    // PhanUndeclaredClassMethod : 700+ occurrences
+    // PhanTypeMismatchArgument : 610+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 360+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 290+ occurrences
     // PhanUndeclaredFunction : 290+ occurrences
-    // PhanDeprecatedFunction : 240+ occurrences
     // PhanNoopNew : 210+ occurrences
     // PhanTypeMismatchReturn : 180+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 180+ occurrences
-    // PhanUndeclaredConstant : 150+ occurrences
+    // PhanDeprecatedFunction : 140+ occurrences
     // PhanUndeclaredMethod : 130+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 110+ occurrences
     // PhanTypeArraySuspiciousNullable : 95+ occurrences
-    // PhanDeprecatedProperty : 70+ occurrences
     // PhanRedundantCondition : 70+ occurrences
     // PhanUndeclaredThis : 70+ occurrences
     // PhanPossiblyUndeclaredVariable : 65+ occurrences
     // PhanTypeMismatchArgumentNullable : 55+ occurrences
     // PhanUndeclaredGlobalVariable : 55+ occurrences
     // PhanUndeclaredTypeParameter : 55+ occurrences
-    // PhanParamTooMany : 50+ occurrences
     // PhanTypeExpectedObjectPropAccess : 50+ occurrences
     // PhanTypeMismatchArgumentInternal : 50+ occurrences
     // PhanUndeclaredClassProperty : 50+ occurrences
     // PhanUndeclaredProperty : 50+ occurrences
+    // PhanParamTooMany : 45+ occurrences
     // PhanPluginDuplicateAdjacentStatement : 40+ occurrences
     // PhanUndeclaredStaticProperty : 40+ occurrences
     // PhanUndeclaredTypeReturnType : 40+ occurrences
     // PhanTypeInvalidDimOffset : 35+ occurrences
-    // PhanTypeMismatchPropertyProbablyReal : 35+ occurrences
     // PhanParamSignatureMismatch : 30+ occurrences
-    // PhanTypeMismatchDefault : 30+ occurrences
+    // PhanTypeMismatchPropertyProbablyReal : 30+ occurrences
     // PhanUndeclaredFunctionInCallable : 30+ occurrences
+    // PhanDeprecatedProperty : 25+ occurrences
     // PhanPluginSimplifyExpressionBool : 25+ occurrences
     // PhanTypeArraySuspicious : 25+ occurrences
+    // PhanTypeMismatchDefault : 25+ occurrences
     // PhanTypeMissingReturn : 25+ occurrences
     // PhanUnextractableAnnotation : 25+ occurrences
     // PhanUnextractableAnnotationSuffix : 25+ occurrences
@@ -51,6 +50,7 @@ return [
     // PhanTypeMismatchArgumentNullableInternal : 20+ occurrences
     // PhanTypeMismatchDimFetch : 20+ occurrences
     // PhanTypeSuspiciousNonTraversableForeach : 20+ occurrences
+    // PhanUndeclaredConstant : 20+ occurrences
     // PhanPluginDuplicateExpressionAssignmentOperation : 15+ occurrences
     // PhanPluginMixedKeyNoKey : 15+ occurrences
     // PhanSuspiciousMagicConstant : 15+ occurrences
@@ -79,7 +79,6 @@ return [
     // PhanUnextractableAnnotationElementName : 6 occurrences
     // PhanImpossibleCondition : 5 occurrences
     // PhanPluginUnreachableCode : 5 occurrences
-    // PhanTypeConversionFromArray : 5 occurrences
     // PhanTypeMismatchDimAssignment : 5 occurrences
     // PhanTypeSuspiciousEcho : 5 occurrences
     // PhanTypeSuspiciousStringExpression : 5 occurrences
@@ -94,6 +93,7 @@ return [
     // PhanTypeInvalidRightOperandOfNumericOp : 4 occurrences
     // PhanDeprecatedFunctionInternal : 3 occurrences
     // PhanDeprecatedTrait : 3 occurrences
+    // PhanTypeConversionFromArray : 3 occurrences
     // PhanTypeMismatchArgumentReal : 3 occurrences
     // PhanTypeObjectUnsetDeclaredProperty : 3 occurrences
     // PhanUndeclaredStaticMethod : 3 occurrences
@@ -113,11 +113,9 @@ return [
     // PhanDeprecatedPartiallySupportedCallable : 1 occurrence
     // PhanEmptyForeach : 1 occurrence
     // PhanInfiniteRecursion : 1 occurrence
-    // PhanParamTooFew : 1 occurrence
     // PhanPluginDuplicateSwitchCase : 1 occurrence
     // PhanPluginInvalidPregRegex : 1 occurrence
     // PhanPluginRedundantAssignmentInLoop : 1 occurrence
-    // PhanPossiblyNullTypeMismatchProperty : 1 occurrence
     // PhanSuspiciousValueComparison : 1 occurrence
     // PhanTypeComparisonFromArray : 1 occurrence
     // PhanTypeInstantiateAbstract : 1 occurrence
@@ -140,14 +138,14 @@ return [
         '3rd-party/qtranslate-x.php' => ['PhanTypeMismatchReturn'],
         '3rd-party/woocommerce.php' => ['PhanParamTooMany', 'PhanUndeclaredFunction'],
         '3rd-party/wpml.php' => ['PhanUndeclaredFunction'],
-        '_inc/blogging-prompts.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant'],
+        '_inc/blogging-prompts.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassMethod'],
         '_inc/class.jetpack-provision.php' => ['PhanAccessMethodInternal', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnNullable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeReturnType'],
         '_inc/genericons.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         '_inc/jetpack-server-sandbox.php' => ['PhanSuspiciousMagicConstant', 'PhanUndeclaredClassMethod'],
         '_inc/lib/admin-pages/class-jetpack-about-page.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         '_inc/lib/admin-pages/class-jetpack-redux-state-helper.php' => ['PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDimAssignment'],
         '_inc/lib/admin-pages/class.jetpack-admin-page.php' => ['PhanDeprecatedProperty', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredProperty'],
-        '_inc/lib/class-jetpack-ai-helper.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyDefault', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction'],
+        '_inc/lib/class-jetpack-ai-helper.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyDefault', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
         '_inc/lib/class-jetpack-currencies.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal'],
         '_inc/lib/class-jetpack-google-drive-helper.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
         '_inc/lib/class-jetpack-instagram-gallery-helper.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
@@ -160,7 +158,7 @@ return [
         '_inc/lib/class.core-rest-api-endpoints.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUnextractableAnnotationSuffix'],
         '_inc/lib/class.jetpack-keyring-service-helper.php' => ['PhanEmptyForeach', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanUndeclaredMethod', 'PhanUndeclaredTypeReturnType'],
         '_inc/lib/class.jetpack-password-checker.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchDefault', 'PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredTypeReturnType'],
-        '_inc/lib/class.media-extractor.php' => ['PhanImpossibleCondition', 'PhanPluginDuplicateExpressionAssignmentOperation', 'PhanTypeMismatchDefault', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredConstant'],
+        '_inc/lib/class.media-extractor.php' => ['PhanImpossibleCondition', 'PhanPluginDuplicateExpressionAssignmentOperation', 'PhanTypeMismatchDefault', 'PhanTypePossiblyInvalidDimOffset'],
         '_inc/lib/class.media-summary.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanRedundantCondition', 'PhanTypeArraySuspiciousNull', 'PhanTypeMismatchArgument', 'PhanUndeclaredFunction'],
         '_inc/lib/class.media.php' => ['PhanTypeMismatchArgument', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredTypeParameter', 'PhanUnextractableAnnotation'],
         '_inc/lib/core-api/class-wpcom-rest-field-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn'],
@@ -183,7 +181,7 @@ return [
         '_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-resolve-redirect.php' => ['PhanPluginMixedKeyNoKey', 'PhanUndeclaredClassProperty', 'PhanUndeclaredTypeParameter'],
         '_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-send-email-preview.php' => ['PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod'],
         '_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-template-loader.php' => ['PhanTypeMismatchReturnProbablyReal'],
-        '_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v3-endpoint-blogging-prompts.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginMixedKeyNoKey', 'PhanTypeInvalidLeftOperandOfAdd', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction'],
+        '_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v3-endpoint-blogging-prompts.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginMixedKeyNoKey', 'PhanTypeInvalidLeftOperandOfAdd', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
         '_inc/lib/core-api/wpcom-endpoints/gutenberg-available-extensions.php' => ['PhanPluginMixedKeyNoKey'],
         '_inc/lib/core-api/wpcom-endpoints/memberships.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginUnreachableCode', 'PhanTypeArraySuspicious', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredClassConstant', 'PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
         '_inc/lib/core-api/wpcom-endpoints/publicize-connection-test-results.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchArgument', 'PhanUndeclaredClassMethod'],
@@ -200,8 +198,8 @@ return [
         '_inc/lib/functions.wp-notify.php' => ['PhanTypeMismatchReturn'],
         '_inc/lib/icalendar-reader.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginDuplicateExpressionAssignmentOperation', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchDimFetch', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredProperty'],
         '_inc/lib/markdown/extra.php' => ['PhanImpossibleConditionInLoop', 'PhanPossiblyUndeclaredVariable', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchReturn', 'PhanUndeclaredProperty', 'PhanUndeclaredVariableDim'],
-        '_inc/lib/plans.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant'],
-        '_inc/lib/tonesque.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredConstant'],
+        '_inc/lib/plans.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod'],
+        '_inc/lib/tonesque.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal'],
         '_inc/lib/widgets.php' => ['PhanRedundantConditionInLoop', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturn', 'PhanUnextractableAnnotationElementName'],
         '_inc/social-logos.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'class-jetpack-gallery-settings.php' => ['PhanNoopNew'],
@@ -209,10 +207,9 @@ return [
         'class-jetpack-xmlrpc-methods.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition'],
         'class.frame-nonce-preview.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'class.jetpack-admin.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassInCallable', 'PhanUndeclaredConstant'],
-        'class.jetpack-autoupdate.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredConstant'],
+        'class.jetpack-autoupdate.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'class.jetpack-cli.php' => ['PhanAccessMethodInternal', 'PhanParamTooMany', 'PhanParamTooManyCallable', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunctionInCallable'],
-        'class.jetpack-client-server.php' => ['PhanParamTooFew'],
-        'class.jetpack-gutenberg.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredConstant', 'PhanUndeclaredTypeParameter'],
+        'class.jetpack-gutenberg.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredTypeParameter'],
         'class.jetpack-heartbeat.php' => ['PhanTypeMismatchPropertyDefault'],
         'class.jetpack-modules-list-table.php' => ['PhanCommentAbstractOnInheritedMethod'],
         'class.jetpack-network-sites-list-table.php' => ['PhanCommentAbstractOnInheritedMethod'],
@@ -220,7 +217,7 @@ return [
         'class.jetpack-post-images.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredFunction'],
         'class.jetpack-twitter-cards.php' => ['PhanPluginSimplifyExpressionBool', 'PhanRedundantCondition', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredFunction'],
         'class.jetpack-user-agent.php' => ['PhanUndeclaredStaticMethod'],
-        'class.jetpack.php' => ['PhanAccessMethodInternal', 'PhanDeprecatedFunction', 'PhanNoopNew', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantConditionInLoop', 'PhanTypeArraySuspiciousNullable', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant', 'PhanUndeclaredFunctionInCallable', 'PhanUndeclaredTypeReturnType', 'PhanUnextractableAnnotation', 'PhanUnextractableAnnotationSuffix'],
+        'class.jetpack.php' => ['PhanAccessMethodInternal', 'PhanDeprecatedFunction', 'PhanNoopNew', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantConditionInLoop', 'PhanTypeArraySuspiciousNullable', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredFunctionInCallable', 'PhanUndeclaredTypeReturnType', 'PhanUnextractableAnnotation', 'PhanUnextractableAnnotationSuffix'],
         'class.json-api-endpoints.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeComparisonToArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredClassStaticProperty', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable', 'PhanUndeclaredMethod', 'PhanUndeclaredProperty', 'PhanUnextractableAnnotationElementName', 'PhanUnextractableAnnotationSuffix'],
         'class.json-api.php' => ['PhanPluginDuplicateSwitchCaseLooseEquality', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeArraySuspicious', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredFunction'],
         'enhanced-open-graph.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
@@ -248,7 +245,7 @@ return [
         'extensions/blocks/premium-content/_inc/subscription-service/class-abstract-token-subscription-service.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanUndeclaredClassProperty', 'PhanUndeclaredMethod', 'PhanUndeclaredTypeParameter', 'PhanUnextractableAnnotationSuffix'],
         'extensions/blocks/premium-content/_inc/subscription-service/class-jetpack-token-subscription-service.php' => ['PhanTypeMismatchReturn'],
         'extensions/blocks/premium-content/_inc/subscription-service/class-jwt.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnNullable'],
-        'extensions/blocks/premium-content/_inc/subscription-service/class-wpcom-online-subscription-service.php' => ['PhanParamSignatureMismatch', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant'],
+        'extensions/blocks/premium-content/_inc/subscription-service/class-wpcom-online-subscription-service.php' => ['PhanParamSignatureMismatch', 'PhanUndeclaredClassMethod'],
         'extensions/blocks/premium-content/_inc/subscription-service/include.php' => ['PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType'],
         'extensions/blocks/premium-content/login-button/login-button.php' => ['PhanUndeclaredClassMethod'],
         'extensions/blocks/premium-content/premium-content.php' => ['PhanUndeclaredFunction'],
@@ -302,7 +299,7 @@ return [
         'json-endpoints/class.wpcom-json-api-get-term-endpoint.php' => ['PhanNoopNew', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable'],
         'json-endpoints/class.wpcom-json-api-list-comments-endpoint.php' => ['PhanCommentAbstractOnInheritedMethod', 'PhanNoopNew', 'PhanParamSignatureMismatch', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturn'],
         'json-endpoints/class.wpcom-json-api-list-dropdown-pages-endpoint.php' => ['PhanNoopNew', 'PhanTypeMismatchDimFetch', 'PhanTypeMismatchReturn', 'PhanTypeSuspiciousNonTraversableForeach'],
-        'json-endpoints/class.wpcom-json-api-list-embeds-endpoint.php' => ['PhanNoopNew', 'PhanTypeMismatchReturn', 'PhanUndeclaredConstant'],
+        'json-endpoints/class.wpcom-json-api-list-embeds-endpoint.php' => ['PhanNoopNew', 'PhanTypeMismatchReturn'],
         'json-endpoints/class.wpcom-json-api-list-media-endpoint.php' => ['PhanNoopNew', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn'],
         'json-endpoints/class.wpcom-json-api-list-media-v1-1-endpoint.php' => ['PhanNoopNew', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn'],
         'json-endpoints/class.wpcom-json-api-list-media-v1-2-endpoint.php' => ['PhanImpossibleTypeComparison', 'PhanNoopNew', 'PhanTypeComparisonToArray', 'PhanTypeMismatchDefault'],
@@ -323,7 +320,7 @@ return [
         'json-endpoints/class.wpcom-json-api-render-endpoint.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchArgument'],
         'json-endpoints/class.wpcom-json-api-render-shortcode-endpoint.php' => ['PhanNoopNew', 'PhanTypeMismatchReturn'],
         'json-endpoints/class.wpcom-json-api-sharing-buttons-endpoint.php' => ['PhanNoopNew', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypePossiblyInvalidDimOffset'],
-        'json-endpoints/class.wpcom-json-api-site-settings-endpoint.php' => ['PhanNoopNew', 'PhanParamTooMany', 'PhanRedundantCondition', 'PhanRedundantConditionInLoop', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredConstantOfClass', 'PhanUndeclaredFunction'],
+        'json-endpoints/class.wpcom-json-api-site-settings-endpoint.php' => ['PhanNoopNew', 'PhanParamTooMany', 'PhanRedundantCondition', 'PhanRedundantConditionInLoop', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstantOfClass', 'PhanUndeclaredFunction'],
         'json-endpoints/class.wpcom-json-api-site-settings-v1-2-endpoint.php' => ['PhanNoopNew', 'PhanUndeclaredFunction'],
         'json-endpoints/class.wpcom-json-api-site-settings-v1-3-endpoint.php' => ['PhanNoopNew'],
         'json-endpoints/class.wpcom-json-api-site-settings-v1-4-endpoint.php' => ['PhanNoopNew'],
@@ -346,7 +343,7 @@ return [
         'json-endpoints/jetpack/class-jetpack-json-api-install-backup-helper-script-endpoint.php' => ['PhanParamSignatureMismatch'],
         'json-endpoints/jetpack/class.jetpack-json-api-check-capabilities-endpoint.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredTypeParameter'],
         'json-endpoints/jetpack/class.jetpack-json-api-core-modify-endpoint.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
-        'json-endpoints/jetpack/class.jetpack-json-api-cron-endpoint.php' => ['PhanTypeComparisonToArray', 'PhanTypeMismatchArgument', 'PhanUndeclaredConstant'],
+        'json-endpoints/jetpack/class.jetpack-json-api-cron-endpoint.php' => ['PhanTypeComparisonToArray', 'PhanTypeMismatchArgument'],
         'json-endpoints/jetpack/class.jetpack-json-api-endpoint.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'json-endpoints/jetpack/class.jetpack-json-api-get-comment-backup-endpoint.php' => ['PhanParamSignatureMismatch'],
         'json-endpoints/jetpack/class.jetpack-json-api-get-database-object-backup-endpoint.php' => ['PhanTypeMismatchDimFetch'],
@@ -370,7 +367,7 @@ return [
         'json-endpoints/jetpack/class.jetpack-json-api-themes-endpoint.php' => ['PhanParamSignatureMismatch', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchProperty'],
         'json-endpoints/jetpack/class.jetpack-json-api-themes-modify-endpoint.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'json-endpoints/jetpack/class.jetpack-json-api-themes-new-endpoint.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn', 'PhanUndeclaredMethod'],
-        'json-endpoints/jetpack/class.jetpack-json-api-updates-status-endpoint.php' => ['PhanImpossibleCondition', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanUndeclaredConstant'],
+        'json-endpoints/jetpack/class.jetpack-json-api-updates-status-endpoint.php' => ['PhanImpossibleCondition', 'PhanPluginDuplicateConditionalNullCoalescing'],
         'json-endpoints/jetpack/class.jetpack-json-api-user-connect-endpoint.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument'],
         'json-endpoints/jetpack/class.jetpack-json-api-user-create-endpoint.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturnNullable'],
         'json-endpoints/jetpack/class.wpcom-json-api-get-option-endpoint.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
@@ -379,12 +376,12 @@ return [
         'modules/calypsoify/class-jetpack-calypsoify.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyDefault'],
         'modules/carousel/jetpack-carousel.php' => ['PhanDeprecatedProperty', 'PhanNoopNew', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType'],
         'modules/comments/admin.php' => ['PhanTypeMismatchReturn', 'PhanUndeclaredProperty'],
-        'modules/comments/base.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredConstant', 'PhanUndeclaredProperty'],
-        'modules/comments/comments.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction'],
+        'modules/comments/base.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredProperty'],
+        'modules/comments/comments.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanUndeclaredFunction'],
         'modules/comments/subscription-modal-on-comment/class-jetpack-subscription-modal-on-comment.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturnNullable'],
         'modules/contact-form/admin.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchPropertyProbablyReal', 'PhanUndeclaredMethod'],
         'modules/contact-form/class-grunion-contact-form-endpoint.php' => ['PhanTypeMismatchArgument'],
-        'modules/contact-form/grunion-contact-form.php' => ['PhanDeprecatedClass', 'PhanDeprecatedFunction', 'PhanDeprecatedProperty', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyNullTypeMismatchProperty', 'PhanTypeConversionFromArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredStaticProperty', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty', 'PhanUnextractableAnnotationElementName'],
+        'modules/contact-form/grunion-contact-form.php' => ['PhanDeprecatedClass', 'PhanDeprecatedFunction', 'PhanDeprecatedProperty', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredStaticProperty', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty', 'PhanUnextractableAnnotationElementName'],
         'modules/contact-form/grunion-editor-view.php' => ['PhanTypeMismatchArgument'],
         'modules/copy-post.php' => ['PhanNoopNew'],
         'modules/custom-css/csstidy/class.csstidy-ctype.php' => ['PhanRedefineFunctionInternal'],
@@ -407,14 +404,14 @@ return [
         'modules/google-fonts/current/class-jetpack-google-font-face.php' => ['PhanUndeclaredFunctionInCallable'],
         'modules/google-fonts/current/load-google-fonts.php' => ['PhanNoopNew', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/google-fonts/wordpress-6.3/load-google-fonts.php' => ['PhanUndeclaredFunction'],
-        'modules/gravatar-hovercards.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredConstant', 'PhanUndeclaredTypeParameter', 'PhanUnextractableAnnotationSuffix'],
+        'modules/gravatar-hovercards.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredTypeParameter', 'PhanUnextractableAnnotationSuffix'],
         'modules/infinite-scroll.php' => ['PhanUndeclaredClassMethod'],
         'modules/infinite-scroll/infinity.php' => ['PhanNoopNew', 'PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanRedundantCondition', 'PhanTypeComparisonToArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredFunction'],
         'modules/latex.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'modules/likes.php' => ['PhanPluginRedundantAssignment', 'PhanUndeclaredFunction'],
         'modules/likes/jetpack-likes-master-iframe.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'modules/likes/jetpack-likes-settings.php' => ['PhanDeprecatedFunction', 'PhanRedundantCondition'],
-        'modules/markdown/easy-markdown.php' => ['PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanUndeclaredConstant', 'PhanUndeclaredProperty'],
+        'modules/markdown/easy-markdown.php' => ['PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanUndeclaredProperty'],
         'modules/masterbar.php' => ['PhanNoopNew', 'PhanUndeclaredFunction'],
         'modules/masterbar/admin-menu/class-admin-menu.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'modules/masterbar/admin-menu/class-atomic-admin-menu.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMissingReturn', 'PhanUndeclaredFunctionInCallable'],
@@ -424,7 +421,7 @@ return [
         'modules/masterbar/admin-menu/class-jetpack-admin-menu.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgumentProbablyReal'],
         'modules/masterbar/admin-menu/class-p2-admin-menu.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable'],
         'modules/masterbar/admin-menu/class-wpcom-admin-menu.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMissingReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
-        'modules/masterbar/admin-menu/load.php' => ['PhanUndeclaredClassInCallable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable'],
+        'modules/masterbar/admin-menu/load.php' => ['PhanUndeclaredClassInCallable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable'],
         'modules/masterbar/inline-help/class-inline-help.php' => ['PhanTypeSuspiciousEcho'],
         'modules/masterbar/inline-help/inline-help-template.php' => ['PhanUndeclaredGlobalVariable'],
         'modules/masterbar/masterbar/class-masterbar.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
@@ -435,7 +432,7 @@ return [
         'modules/photon-cdn.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredConstant'],
         'modules/plugin-search.php' => ['PhanTypePossiblyInvalidDimOffset'],
         'modules/post-by-email/class-jetpack-post-by-email.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredMethodInCallable'],
-        'modules/publicize.php' => ['PhanNoopNew', 'PhanPluginSimplifyExpressionBool', 'PhanRedefineFunction', 'PhanTypeMismatchProperty', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredTypeProperty', 'PhanUndeclaredTypeReturnType'],
+        'modules/publicize.php' => ['PhanNoopNew', 'PhanPluginSimplifyExpressionBool', 'PhanRedefineFunction', 'PhanTypeMismatchProperty', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeProperty', 'PhanUndeclaredTypeReturnType'],
         'modules/related-posts/class.related-posts-customize.php' => ['PhanNoopNew', 'PhanPluginDuplicateConditionalNullCoalescing'],
         'modules/related-posts/jetpack-related-posts.php' => ['PhanMisspelledAnnotation', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredFunction'],
         'modules/scan/class-admin-bar-notice.php' => ['PhanRedundantCondition', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
@@ -499,13 +496,13 @@ return [
         'modules/sitemaps/sitemap-librarian.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/sitemaps/sitemap-logger.php' => ['PhanTypeMismatchProperty'],
         'modules/sitemaps/sitemaps.php' => ['PhanNoopNew', 'PhanTypeMismatchArgument'],
-        'modules/sso.php' => ['PhanNonClassMethodCall', 'PhanNoopNew', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredConstant', 'PhanUndeclaredProperty'],
+        'modules/sso.php' => ['PhanNonClassMethodCall', 'PhanNoopNew', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredProperty'],
         'modules/sso/class-jetpack-force-2fa.php' => ['PhanDeprecatedFunction'],
-        'modules/sso/class.jetpack-sso-helpers.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanUndeclaredConstant'],
+        'modules/sso/class.jetpack-sso-helpers.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn'],
         'modules/sso/class.jetpack-sso-user-admin.php' => ['PhanPluginUnreachableCode', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUnextractableAnnotation'],
-        'modules/stats.php' => ['PhanDeprecatedFunction', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn', 'PhanUndeclaredConstant', 'PhanUnextractableAnnotationSuffix'],
+        'modules/stats.php' => ['PhanDeprecatedFunction', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn', 'PhanUnextractableAnnotationSuffix'],
         'modules/stats/class-jetpack-stats-upgrade-nudges.php' => ['PhanTypeMismatchArgument'],
-        'modules/subscriptions.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanUndeclaredConstant', 'PhanUndeclaredFunctionInCallable'],
+        'modules/subscriptions.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanUndeclaredFunctionInCallable'],
         'modules/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.php' => ['PhanTypeMismatchReturnNullable'],
         'modules/subscriptions/views.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMissingReturn', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
         'modules/theme-tools/compat/twentysixteen.php' => ['PhanParamTooMany'],
@@ -547,7 +544,7 @@ return [
         'modules/widget-visibility/widget-conditions.php' => ['PhanCommentParamWithoutRealParam', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanTypeComparisonToArray', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousNonTraversableForeach'],
         'modules/widgets/authors.php' => ['PhanTypeMismatchArgument', 'PhanTypeMissingReturn'],
         'modules/widgets/blog-stats.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument'],
-        'modules/widgets/class-jetpack-eu-cookie-law-widget.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMissingReturn', 'PhanUndeclaredConstant'],
+        'modules/widgets/class-jetpack-eu-cookie-law-widget.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMissingReturn'],
         'modules/widgets/class-jetpack-instagram-widget.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
         'modules/widgets/contact-info.php' => ['PhanParamSignatureMismatch', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
         'modules/widgets/eu-cookie-law/form.php' => ['PhanUndeclaredGlobalVariable', 'PhanUndeclaredThis'],
@@ -588,20 +585,19 @@ return [
         'modules/wordads/php/class-wordads-api.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/wordads/php/class-wordads-params.php' => ['PhanTypeMismatchReturn'],
         'modules/wordads/php/class-wordads-sidebar-widget.php' => ['PhanTypeExpectedObjectPropAccessButGotNull', 'PhanTypeMismatchArgument'],
-        'modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php' => ['PhanPluginUseReturnValueInternalKnown', 'PhanUndeclaredConstant'],
+        'modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php' => ['PhanPluginUseReturnValueInternalKnown'],
         'modules/wpcom-block-editor/functions.editor-type.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredClassProperty', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeParameter'],
         'modules/wpcom-tos/wpcom-tos.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'sal/class.json-api-date.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanRedundantCondition', 'PhanTypeMismatchArgumentInternalProbablyReal'],
         'sal/class.json-api-links.php' => ['PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
-        'sal/class.json-api-platform.php' => ['PhanUndeclaredConstant'],
         'sal/class.json-api-post-base.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanUndeclaredFunction'],
         'sal/class.json-api-site-base.php' => ['PhanParamTooMany', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredFunction'],
         'sal/class.json-api-site-jetpack-base.php' => ['PhanRedundantCondition', 'PhanTypeMismatchReturnProbablyReal'],
-        'sal/class.json-api-site-jetpack.php' => ['PhanParamSignatureMismatch', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction'],
+        'sal/class.json-api-site-jetpack.php' => ['PhanParamSignatureMismatch', 'PhanUndeclaredFunction'],
         'sal/class.json-api-token.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanSuspiciousValueComparison', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanUndeclaredVariable'],
         'src/class-jetpack-crm-data.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeReturnType'],
         'src/class-jetpack-modules-overrides.php' => ['PhanRedundantCondition'],
-        'src/class-tracking.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredConstant', 'PhanUndeclaredTypeParameter'],
+        'src/class-tracking.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredTypeParameter'],
         'tests/php/3rd-party/test__atomic.php' => ['PhanTypeMismatchArgument'],
         'tests/php/3rd-party/test_class-domain-mapping.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgument', 'PhanUndeclaredMethod'],
         'tests/php/3rd-party/test_class.jetpack-amp-support.php' => ['PhanTypeMismatchArgumentProbablyReal'],
@@ -618,7 +614,7 @@ return [
         'tests/php/core-api/wpcom-endpoints/test-class-wpcom-rest-api-v2-endpoint-publicize-share-post.php' => ['PhanTypeMismatchArgument'],
         'tests/php/core-api/wpcom-fields/class-test-wpcom-rest-api-v2-attachment-videopress-data.php' => ['PhanDeprecatedFunction', 'PhanUndeclaredClassMethod', 'PhanUndeclaredMethod'],
         'tests/php/core-api/wpcom-fields/test-attachment-fields-videopress.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgument', 'PhanUndeclaredMethod'],
-        'tests/php/core-api/wpcom-fields/test-post-fields-publicize-connections.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeComparisonToArray', 'PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredConstant', 'PhanUndeclaredTypeProperty'],
+        'tests/php/core-api/wpcom-fields/test-post-fields-publicize-connections.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeComparisonToArray', 'PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredTypeProperty'],
         'tests/php/extensions/blocks/premium-content/test_class.jetpack-premium-content.php' => ['PhanDeprecatedProperty', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMissingReturn', 'PhanUndeclaredClassMethod'],
         'tests/php/extensions/blocks/test-repeat-visitor.php' => ['PhanTypeMismatchPropertyProbablyReal', 'PhanUndeclaredTypeProperty'],
         'tests/php/extensions/blocks/test-story.php' => ['PhanUndeclaredMethodInCallable'],
@@ -636,9 +632,8 @@ return [
         'tests/php/json-api/test-class.wpcom-json-api-site-settings-v1-4-endpoint.php' => ['PhanUnextractableAnnotationSuffix'],
         'tests/php/json-api/test_class.json-api-jetpack-base-endpoint.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/json-api/test_class.json-api-platform-jetpack.php' => ['PhanTypeMismatchArgument'],
-        'tests/php/media/test-class.jetpack-media-extractor.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredConstant'],
-        'tests/php/media/test-class.jetpack-media-summary.php' => ['PhanUndeclaredConstant'],
-        'tests/php/media/test-class.jetpack-post-images.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredConstant'],
+        'tests/php/media/test-class.jetpack-media-extractor.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
+        'tests/php/media/test-class.jetpack-post-images.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/modules/contact-form/test-class.grunion-contact-form.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchReturnSuperType', 'PhanUndeclaredMethod'],
         'tests/php/modules/geo-location/test_class.jetpack-geo-location.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeReturnType'],
         'tests/php/modules/google-analytics/test-class.google-analytics.php' => ['PhanDeprecatedFunction', 'PhanUndeclaredMethod'],
@@ -646,17 +641,13 @@ return [
         'tests/php/modules/masterbar/data/admin-menu.php' => ['PhanTypeMismatchReturn', 'PhanUndeclaredTypeReturnType'],
         'tests/php/modules/masterbar/test-class-admin-color-schemes.php' => ['PhanNoopNew'],
         'tests/php/modules/masterbar/test-class-admin-menu.php' => ['PhanTypeArraySuspiciousNull', 'PhanTypeArraySuspiciousNullable', 'PhanTypeInvalidDimOffset', 'PhanTypePossiblyInvalidDimOffset'],
-        'tests/php/modules/masterbar/test-class-atomic-additional-css-manager.php' => ['PhanUndeclaredConstant'],
         'tests/php/modules/masterbar/test-class-atomic-admin-menu.php' => ['PhanRedefineFunction', 'PhanTypeArraySuspiciousNull', 'PhanTypeInvalidDimOffset'],
         'tests/php/modules/masterbar/test-class-base-admin-menu.php' => ['PhanTypeInvalidDimOffset', 'PhanTypeMismatchReturn'],
-        'tests/php/modules/masterbar/test-class-css-customizer-nudge.php' => ['PhanUndeclaredConstant'],
-        'tests/php/modules/masterbar/test-class-css-nudge-customize-control.php' => ['PhanUndeclaredConstant'],
         'tests/php/modules/masterbar/test-class-dashboard-switcher-tracking.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/modules/masterbar/test-class-domain-only-admin-menu.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgument'],
         'tests/php/modules/masterbar/test-class-jetpack-admin-menu.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypePossiblyInvalidDimOffset'],
         'tests/php/modules/masterbar/test-class-masterbar.php' => ['PhanDeprecatedFunction', 'PhanUndeclaredMethod'],
         'tests/php/modules/masterbar/test-class-posts-list-page-notification.php' => ['PhanTypeMismatchArgument'],
-        'tests/php/modules/masterbar/test-class-wpcom-additional-css-manager.php' => ['PhanUndeclaredConstant'],
         'tests/php/modules/masterbar/test-class-wpcom-admin-menu.php' => ['PhanDeprecatedFunction', 'PhanTypeArraySuspiciousNull', 'PhanTypeInvalidDimOffset', 'PhanUndeclaredStaticMethod'],
         'tests/php/modules/masterbar/test-class-wpcom-user-profile-fields-revert.php' => ['PhanTypeMismatchArgument'],
         'tests/php/modules/photon/test_class.jetpack-photon-static-asset-cdn.php' => ['PhanTypeMismatchProperty'],
@@ -672,7 +663,6 @@ return [
         'tests/php/modules/shortcodes/test-class.ted.php' => ['PhanTypeMismatchArgument'],
         'tests/php/modules/shortcodes/test-class.tweet.php' => ['PhanTypeMismatchArgument'],
         'tests/php/modules/shortcodes/test-class.vimeo.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'tests/php/modules/shortcodes/test-class.vine.php' => ['PhanUndeclaredConstant'],
         'tests/php/modules/shortcodes/test-oembed-pocketcasts.php' => ['PhanTypeMismatchArgument'],
         'tests/php/modules/shortcodes/trait.http-request-cache.php' => ['PhanTypeMismatchArgumentInternal', 'PhanUndeclaredMethod', 'PhanUndeclaredStaticProperty'],
         'tests/php/modules/sitemaps/test-class.sitemap-buffer.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyProbablyReal'],
@@ -712,12 +702,11 @@ return [
         'tests/php/sync/test_class.jetpack-sync-sender.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassMethod'],
         'tests/php/sync/test_class.jetpack-sync-term-relationships.php' => ['PhanPluginUnreachableCode', 'PhanUndeclaredClassMethod'],
         'tests/php/sync/test_class.jetpack-sync-terms.php' => ['PhanUndeclaredClassMethod'],
-        'tests/php/sync/test_class.jetpack-sync-themes.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant'],
+        'tests/php/sync/test_class.jetpack-sync-themes.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanUndeclaredClassMethod'],
         'tests/php/sync/test_class.jetpack-sync-updates.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredClassInCallable', 'PhanUndeclaredClassMethod'],
         'tests/php/sync/test_class.jetpack-sync-users.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredClassMethod'],
         'tests/php/sync/test_class.jetpack-sync-woocommerce.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
         'tests/php/sync/test_class.jetpack-sync-wp_super_cache.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspiciousNullable'],
-        'tests/php/sync/test_class.jetpack_sync_backward_compatibility.php' => ['PhanParamTooMany'],
         'tests/php/sync/test_interface.jetpack-sync-replicastore.php' => ['PhanRedundantConditionInLoop', 'PhanTypeObjectUnsetDeclaredProperty', 'PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassMethod'],
         'tests/php/test_class.functions.opengraph.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/test_deprecation.php' => ['PhanDeprecatedFunction', 'PhanUndeclaredMethodInCallable'],
