@@ -278,6 +278,27 @@ class User_Agent_Info {
 	}
 
 	/**
+	 * Returns the platform for desktops
+	 *
+	 * @return string
+	 */
+	public function get_desktop_platform() {
+		$ua       = $this->useragent;
+		$platform = 'other';
+
+		if ( preg_match( '/linux/i', $ua ) ) {
+			$platform = 'linux';
+		} elseif ( preg_match( '/macintosh|mac os x/i', $ua ) ) {
+			$platform = 'mac';
+		} elseif ( preg_match( '/windows|win32/i', $ua ) ) {
+			$platform = 'windows';
+		} elseif ( preg_match( '/chrome/i', $ua ) ) {
+			$platform = 'chrome';
+		}
+		return $platform;
+	}
+
+	/**
 	 * A simple pattern matching method for extracting the browser from the user agent.
 	 *
 	 * @return string

@@ -49,6 +49,7 @@ class Device_Detection {
 			'is_smartphone'       => self::is_mobile( 'smart', false, $ua_info ),
 			'is_tablet'           => $ua_info->is_tablet(),
 			'platform'            => $ua_info->get_platform(),
+			'desktop_platform'    => $ua_info->get_desktop_platform(),
 			'browser'             => $ua_info->get_browser(),
 		);
 

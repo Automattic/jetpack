@@ -67,6 +67,23 @@ class Test_Device_Detection extends TestCase {
 	}
 
 	/**
+	 * The get_desktop_platform tests.
+	 *
+	 * @param string $ua User agent string.
+	 * @param string $expected_platform Expected value for platform returned by the method.
+	 * @return void
+	 *
+	 * @dataProvider ua_desktop_provider
+	 */
+	public function test_get_desktop_platform( string $ua, string $expected_platform ) {
+		$_SERVER['HTTP_USER_AGENT'] = $ua;
+
+		$device_info     = Device_Detection::get_info( $ua );
+		$actual_platform = $device_info['desktop_platform'];
+		$this->assertEquals( $expected_platform, $actual_platform );
+	}
+
+	/**
 	 * Data provider for test_is_mobile.
 	 *
 	 * @return array
@@ -165,6 +182,46 @@ class Test_Device_Detection extends TestCase {
 				),
 				false,
 				'other',
+			),
+		);
+	}
+
+	/**
+	 * Data provider for get_desktop_platform.
+	 *
+	 * @return array
+	 */
+	public function ua_desktop_provider() {
+		return array(
+
+			// Windows 10-based PC using Edge browser.
+			array(
+				'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246',
+				'windows',
+			),
+
+			// Chrome OS-based laptop using Chrome browser (Chromebook)
+			array(
+				'Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36',
+				'chrome',
+			),
+
+			// Mac OS X-based computer using a Safari browser
+			array(
+				'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/601.3.9 (KHTML, like Gecko) Version/9.0.2 Safari/601.3.9',
+				'mac',
+			),
+
+			// Windows 7-based PC using a Chrome browser
+			array(
+				'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36',
+				'windows',
+			),
+
+			// Linux-based PC using a Firefox browser
+			array(
+				'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/15.0.1',
+				'linux',
 			),
 		);
 	}
