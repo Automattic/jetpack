@@ -237,9 +237,6 @@ class Initializer {
 				'isUserFromKnownHost'    => self::is_user_from_known_host(),
 				'isCommercial'           => self::is_commercial_site(),
 				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
-				'welcomeBanner'          => array(
-					'hasBeenDismissed' => \Jetpack_Options::get_option( 'dismissed_welcome_banner', false ),
-				),
 				'jetpackManage'          => array(
 					'isEnabled'       => Jetpack_Manage::could_use_jp_manage(),
 					'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
@@ -620,7 +617,7 @@ class Initializer {
 	public static function maybe_show_red_bubble() {
 		global $menu;
 		// filters for the items in this file
-		add_filter( 'my_jetpack_red_bubble_notification_slugs', array( __CLASS__, 'alert_if_missing_site_connection' ) );
+		add_filter( 'my_jetpack_red_bubble_notification_slugs', array( __CLASS__, 'add_red_bubble_alerts' ) );
 		$red_bubble_alerts = self::get_red_bubble_alerts();
 
 		// The Jetpack menu item should be on index 3
@@ -651,6 +648,22 @@ class Initializer {
 		$red_bubble_alerts = apply_filters( 'my_jetpack_red_bubble_notification_slugs', $red_bubble_alerts );
 
 		return $red_bubble_alerts;
+	}
+
+	/**
+	 *  Add relevant red bubble notifications
+	 *
+	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
+	 * @return array
+	 */
+	public static function add_red_bubble_alerts( array $red_bubble_slugs ) {
+		$welcome_banner_dismissed = \Jetpack_Options::get_option( 'dismissed_welcome_banner', false );
+		if ( self::is_jetpack_user_new() && ! $welcome_banner_dismissed ) {
+			$red_bubble_slugs['welcome-banner-active'] = null;
+			return $red_bubble_slugs;
+		} else {
+			return self::alert_if_missing_site_connection( $red_bubble_slugs );
+		}
 	}
 
 	/**

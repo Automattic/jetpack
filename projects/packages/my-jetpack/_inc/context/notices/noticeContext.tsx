@@ -5,8 +5,9 @@ const defaultNotice: Notice = {
 	message: '',
 	options: {
 		status: '',
+		priority: 0,
+		isRedBubble: false,
 	},
-	priority: 0,
 };
 
 export const NoticeContext = createContext< NoticeContextType >( {
@@ -21,7 +22,7 @@ const NoticeContextProvider = ( { children } ) => {
 
 	const setNotice = ( notice: Notice ) => {
 		// Only update notice if there is not already a notice or the new notice has a higher priority
-		if ( ! currentNotice.message || notice.priority > currentNotice.priority ) {
+		if ( ! currentNotice.message || notice.options.priority > currentNotice.options.priority ) {
 			setCurrentNotice( notice );
 		}
 	};
