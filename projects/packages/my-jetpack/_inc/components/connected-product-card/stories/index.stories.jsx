@@ -5,6 +5,7 @@ import { getAllMockData, getProductSlugs } from '../../product-detail-card/stori
 
 // Set myJetpackRest global var.
 window.myJetpackRest = {};
+window.myJetpackInitialState = {};
 
 const mockData = getAllMockData();
 

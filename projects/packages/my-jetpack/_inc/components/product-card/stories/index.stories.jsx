@@ -5,6 +5,7 @@ import ProductCard, { PRODUCT_STATUSES } from '../index.jsx';
 
 // Set myJetpackRest global var.
 window.myJetpackRest = {};
+window.myJetpackInitialState = {};
 
 export default {
 	title: 'Packages/My Jetpack/Product Card',

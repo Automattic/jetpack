@@ -1,6 +1,8 @@
-import React from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import StatsCards from '../cards.jsx';
+
+// Set myJetpackInitialState global var.
+window.myJetpackInitialState = {};
 
 export default {
 	title: 'Packages/My Jetpack/Stats Cards',
