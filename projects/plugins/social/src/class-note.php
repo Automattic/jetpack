@@ -130,8 +130,8 @@ class Note {
 	/**
 	 * Restrict the blocks for the Social Note CPT.
 	 *
-	 * @param array $allowed_blocks The allowed blocks.
-	 * @param array $post The post.
+	 * @param array   $allowed_blocks The allowed blocks.
+	 * @param WP_Post $post The post.
 	 * @return array The allowed blocks.
 	 */
 	public function restrict_blocks_for_social_note( $allowed_blocks, $post ) {
