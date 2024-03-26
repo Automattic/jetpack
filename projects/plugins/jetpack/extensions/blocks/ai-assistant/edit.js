@@ -109,9 +109,11 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
+	// useMagicScroll code chunk begins
 	const contentRef = useRef( null );
 	const scrollElementRef = useRef( null );
-	const [ magicScrollEnabled, setMagicScrollEnabled ] = useState( true );
+	const magicScrollEnabled = useRef( true );
+	const ignoreScroll = useRef( false );
 
 	const getScrollParent = useCallback( node => {
 		// if we have it on ref already, don't scavenge the dom, just return it
@@ -131,45 +133,76 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	}, [] );
 
 	const userScrollHandler = useCallback( () => {
+		if ( ignoreScroll.current ) {
+			// eslint-disable-next-line no-console
+			console.log( 'scroll event skipped' );
+			return;
+		}
 		// eslint-disable-next-line no-console
 		console.log( 'scroll, disabling magic' );
 		// as the user scrolls, disable magic scroll
 		// Note: need to dupe disableMagicScroll as both callbacks cannot depend on each other
-		setMagicScrollEnabled( false );
+		magicScrollEnabled.current = false;
 		scrollElementRef.current?.removeEventListener( 'scroll', userScrollHandler );
 	}, [] );
 
-	const disableMagicScroll = useCallback( () => {
-		setMagicScrollEnabled( false );
-		scrollElementRef.current?.removeEventListener( 'scroll', userScrollHandler );
-	}, [ userScrollHandler ] );
+	const enableMagicScroll = useCallback( () => {
+		magicScrollEnabled.current = true;
+		ignoreScroll.current = true;
+		getScrollParent( contentRef.current )?.addEventListener( 'scroll', userScrollHandler );
+		// eslint-disable-next-line no-console
+		console.log( 'enabling magic scroll' );
+		// eslint-disable-next-line no-console
+		console.log( getScrollParent( contentRef.current ) );
+	}, [ userScrollHandler, getScrollParent ] );
 
-	const suggestionPartialHandler = useCallback( () => {
+	const disableMagicScroll = useCallback( () => {
+		magicScrollEnabled.current = false;
+		getScrollParent( contentRef.current )?.removeEventListener( 'scroll', userScrollHandler );
+		// eslint-disable-next-line no-console
+		console.log( 'disabling magic scroll' );
+	}, [ userScrollHandler, getScrollParent ] );
+
+	const preSuggestionPartialHandler = useCallback( () => {
 		// bail early if we're not in magic scroll mode
-		if ( ! magicScrollEnabled ) {
+		if ( ! magicScrollEnabled.current ) {
 			// eslint-disable-next-line no-console
 			console.log( 'bailing early' );
-			scrollElementRef.current?.removeEventListener( 'scroll', userScrollHandler );
+			return;
+		}
+		// eslint-disable-next-line no-console
+		console.log( 'pre suggestion partial, ignore next scroll event' );
+		ignoreScroll.current = true;
+	}, [] );
+
+	const postSuggestionPartialHandler = useCallback( () => {
+		// bail early if we're not in magic scroll mode
+		if ( ! magicScrollEnabled.current ) {
+			// eslint-disable-next-line no-console
+			console.log( 'bailing early' );
 			return;
 		}
 
-		// get/set the scroll element
-		const scrollElement = getScrollParent( contentRef.current );
-		// remove the scroll listener since this is not triggered by the user
-		// eslint-disable-next-line no-console
-		console.log( 'removing scroll listener' );
-		scrollElement?.removeEventListener( 'scroll', userScrollHandler );
+		// if scrollElementRef has failed to be found earlier, try to set it again
+		if ( ! scrollElementRef.current ) {
+			// eslint-disable-next-line no-console
+			console.log( 'setting scroll element' );
+			getScrollParent( contentRef.current )?.addEventListener( 'scroll', userScrollHandler );
+		}
 
+		// eslint-disable-next-line no-console
+		console.log( 'post suggestion partial, perform magic scrolling' );
 		// do the magic scroll
 		contentRef.current?.scrollIntoView( false );
 		// extra pixels to scroll past the AI Assistant block
-		scrollElement?.scrollBy( 0, 94 );
-
-		// re-enable user scroll listener
-		// eslint-disable-next-line no-console
-		console.log( 'adding scroll listener' );
-		scrollElement?.addEventListener( 'scroll', userScrollHandler );
-	}, [ magicScrollEnabled, userScrollHandler, getScrollParent ] );
+		getScrollParent( contentRef.current )?.scrollBy( 0, 94 );
+		setTimeout( () => {
+			// eslint-disable-next-line no-console
+			console.log( 're-enabling magic scroll' );
+			ignoreScroll.current = false;
+		}, 10 );
+	}, [ getScrollParent, userScrollHandler ] );
+	// /useMagicScroll code chunk ends
 
 	const {
 		isLoadingCategories,
@@ -184,7 +217,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		wholeContent,
 		requestingState,
 	} = useSuggestionsFromOpenAI( {
-		onSuggestionPartial: suggestionPartialHandler,
+		onPreSuggestionPartial: preSuggestionPartialHandler,
+		onPostSuggestionPartial: postSuggestionPartialHandler,
 		onSuggestionDone: useCallback( () => {
 			disableMagicScroll();
 			focusOnPrompt();
@@ -372,7 +406,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const handleGetSuggestion = ( ...args ) => {
 		// enable magic scroll every time we request a new suggestion
-		setMagicScrollEnabled( true );
+		enableMagicScroll();
 		getSuggestionFromOpenAI( ...args );
 		focusOnBlock();
 		return;

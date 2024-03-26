@@ -28,7 +28,8 @@ const useSuggestionsFromOpenAI = ( {
 	setError,
 	tracks,
 	userPrompt,
-	onSuggestionPartial,
+	onPreSuggestionPartial,
+	onPostSuggestionPartial,
 	onSuggestionDone,
 	onUnclearPrompt,
 	onModeration,
@@ -434,8 +435,9 @@ const useSuggestionsFromOpenAI = ( {
 			// replaceInnerBlocks( clientId, validBlocks );
 
 			// Remove the delimiter from the suggestion and update the block.
+			onPreSuggestionPartial?.( clientId, e?.detail );
 			updateBlockAttributes( clientId, { content: e?.detail?.replaceAll( delimiter, '' ) } );
-			onSuggestionPartial?.( clientId, e?.detail );
+			onPostSuggestionPartial?.( clientId, e?.detail );
 		};
 
 		source?.current?.addEventListener( 'function_done', onFunctionDone );
