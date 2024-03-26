@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add 'test_connection' endpoint to check for blog token validity.
