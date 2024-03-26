@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
+use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Admin_Bar_Compatibility;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
@@ -14,7 +15,7 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 
-class Critical_CSS implements Pluggable, Changes_Page_Output {
+class Critical_CSS implements Pluggable, Changes_Page_Output, Optimization {
 
 	/**
 	 * Critical CSS storage class instance.
@@ -36,6 +37,15 @@ class Critical_CSS implements Pluggable, Changes_Page_Output {
 	public function __construct() {
 		$this->storage = new Critical_CSS_Storage();
 		$this->paths   = new Source_Providers();
+	}
+
+	/**
+	 * Check if the module is ready and already serving critical CSS.
+	 *
+	 * @return bool
+	 */
+	public function is_ready() {
+		return ( new Critical_CSS_State() )->is_generated();
 	}
 
 	public static function is_available() {
