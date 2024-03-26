@@ -1,8 +1,6 @@
 import { RichText } from '@wordpress/block-editor';
-import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
-import { isNil } from 'lodash';
 import { FORM_STYLE } from '../util/form';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
@@ -42,7 +40,7 @@ const FieldLabel = ( {
 			{ required && (
 				<RichText
 					tagName="span"
-					value={ requiredText }
+					value={ requiredText || __( '(required)', 'jetpack-forms' ) }
 					className="required"
 					onChange={ value => {
 						setAttributes( { requiredText: value } );
@@ -56,20 +54,13 @@ const FieldLabel = ( {
 };
 
 const JetpackFieldLabel = props => {
-	const { setAttributes, requiredText, style } = props;
+	const { style } = props;
 
 	const classes = classnames( {
 		'notched-label__label': style === FORM_STYLE.OUTLINED,
 		'animated-label__label': style === FORM_STYLE.ANIMATED,
 		'below-label__label': style === FORM_STYLE.BELOW,
 	} );
-
-	useEffect( () => {
-		if ( isNil( requiredText ) ) {
-			setAttributes( { requiredText: __( '(required)', 'jetpack-forms' ) } );
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
 
 	if ( style === FORM_STYLE.OUTLINED ) {
 		return (
