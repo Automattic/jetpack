@@ -11,7 +11,7 @@ import {
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { sprintf, __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
@@ -39,6 +39,7 @@ const ProductDetailTableColumn = ( {
 	trackProductButtonClick,
 } ) => {
 	const { siteSuffix = '', myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
+	const [ clicked, setClicked ] = useState( false );
 
 	// Extract the product details.
 	const {
@@ -93,11 +94,27 @@ const ProductDetailTableColumn = ( {
 		quantity,
 	} );
 
+	// Once the checkout process starts, reset the "clicked" flag
+	useEffect( () => {
+		if ( clicked && ! isFetching && hasCheckoutStarted ) {
+			setClicked( false );
+		}
+	}, [ clicked, setClicked, isFetching, hasCheckoutStarted ] );
+
 	// Register the click handler for the product button.
 	const onClick = useCallback( () => {
 		trackProductButtonClick( isFree );
 		onProductButtonClick?.( runCheckout, detail, tier );
-	}, [ trackProductButtonClick, onProductButtonClick, runCheckout, detail, tier, isFree ] );
+		setClicked( true );
+	}, [
+		trackProductButtonClick,
+		onProductButtonClick,
+		runCheckout,
+		detail,
+		tier,
+		isFree,
+		setClicked,
+	] );
 
 	// Compute the price per month.
 	const price = fullPrice ? Math.round( ( fullPrice / 12 ) * 100 ) / 100 : null;
@@ -150,7 +167,7 @@ const ProductDetailTableColumn = ( {
 					fullWidth
 					variant={ isFree ? 'secondary' : 'primary' }
 					onClick={ onClick }
-					isLoading={ hasCheckoutStarted || isFetching }
+					isLoading={ clicked && ( hasCheckoutStarted || isFetching ) }
 					disabled={ hasCheckoutStarted || cantInstallPlugin || isFetching }
 				>
 					{ callToAction }
