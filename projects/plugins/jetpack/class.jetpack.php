@@ -6601,6 +6601,10 @@ endif;
 				$redirect_url = static::admin_url( 'page=jetpack' );
 			} elseif ( is_network_admin() ) {
 				$redirect_url = admin_url( 'network/admin.php?page=jetpack' );
+			} elseif ( get_transient( 'my_jetpack_product_activated' ) ) {
+				// don't redirect if this is an activation that just came from My Jetpack
+				// My Jetpack has its own set of post-activation redirects
+				return;
 			} elseif ( My_Jetpack_Initializer::should_initialize() ) {
 				$redirect_url = static::admin_url( 'page=my-jetpack' );
 			} else {
