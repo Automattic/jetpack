@@ -3,7 +3,7 @@ import JetpackLogo from '../../jetpack-logo/index';
 import Text from '../../text/index';
 import AdminPage from '../index';
 import styles from './style.module.scss';
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'JS Packages/Components/Admin Page',
@@ -14,10 +14,10 @@ export default {
 		showFooter: { control: 'boolean', defaultValue: true },
 		showBackground: { control: 'boolean', defaultValue: true },
 	},
-} as ComponentMeta< typeof AdminPage >;
+} as Meta< typeof AdminPage >;
 
 // Export additional stories using pre-defined values
-const Template: ComponentStory< typeof AdminPage > = args => <AdminPage { ...args } />;
+const Template: StoryFn< typeof AdminPage > = args => <AdminPage { ...args } />;
 
 // Export Default story
 export const _default = Template.bind( {} );

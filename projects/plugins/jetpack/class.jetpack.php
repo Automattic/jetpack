@@ -17,7 +17,6 @@ use Automattic\Jetpack\Connection\Nonce_Handler;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Connection\Secrets;
 use Automattic\Jetpack\Connection\Tokens;
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\CookieState;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
@@ -1130,19 +1129,6 @@ class Jetpack {
 	}
 
 	/**
-	 * Deprecated
-	 * Please use Automattic\Jetpack\JITMS\JITM::jetpack_track_last_sync_callback instead.
-	 *
-	 * @param array $params The action parameters.
-	 *
-	 * @deprecated since 9.8.
-	 */
-	public function jetpack_track_last_sync_callback( $params ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.8', '\Automattic\Jetpack\JITMS\JITM->jetpack_track_last_sync_callback' );
-		return Automattic\Jetpack\JITMS\JITM::get_instance()->jetpack_track_last_sync_callback( $params );
-	}
-
-	/**
 	 * If there are any stats that need to be pushed, but haven't been, push them now.
 	 */
 	public function push_stats() {
@@ -1631,21 +1617,6 @@ class Jetpack {
 	}
 
 	/**
-	 * Deprecated: Is Jetpack in development (offline) mode?
-	 *
-	 * This static method is being left here intentionally without the use of _deprecated_function(), as other plugins
-	 * and themes still use it, and we do not want to flood them with notices.
-	 *
-	 * Please use Automattic\Jetpack\Status()->is_offline_mode() instead.
-	 *
-	 * @deprecated since 8.0.
-	 */
-	public static function is_development_mode() {
-		_deprecated_function( __METHOD__, 'jetpack-8.0', '\Automattic\Jetpack\Status->is_offline_mode' );
-		return ( new Status() )->is_offline_mode();
-	}
-
-	/**
 	 * Whether the site is currently onboarding or not.
 	 * A site is considered as being onboarded if it currently has an onboarding token.
 	 *
@@ -1742,26 +1713,6 @@ class Jetpack {
 			'jetpack_development_version',
 			! preg_match( '/^\d+(\.\d+)+$/', Constants::get_constant( 'JETPACK__VERSION' ) )
 		);
-	}
-
-	/**
-	 * Is a given user (or the current user if none is specified) linked to a WordPress.com user?
-	 *
-	 * @param int $user_id User ID or will use get_current_user_id if false/not provided.
-	 */
-	public static function is_user_connected( $user_id = false ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Manager\\is_user_connected' );
-		return self::connection()->is_user_connected( $user_id );
-	}
-
-	/**
-	 * Get the wpcom user data of the current|specified connected user.
-	 *
-	 * @param null|int $user_id User ID or will use get_current_user_id if null.
-	 */
-	public static function get_connected_user_data( $user_id = null ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Manager\\get_connected_user_data' );
-		return self::connection()->get_connected_user_data( $user_id );
 	}
 
 	/**
@@ -3063,19 +3014,6 @@ p {
 	 */
 	public function disconnect_user( $user_id ) {
 		$this->connection_manager->disconnect_user( $user_id );
-	}
-
-	/**
-	 * Attempts Jetpack registration.  If it fail, a state flag is set: @see ::admin_page_load()
-	 *
-	 * @deprecated since Jetpack 9.7.0
-	 * @see Automattic\Jetpack\Connection\Manager::try_registration()
-	 *
-	 * @return bool|WP_Error
-	 */
-	public static function try_registration() {
-		_deprecated_function( __METHOD__, 'jetpack-9.7', 'Automattic\\Jetpack\\Connection\\Manager::try_registration' );
-		return static::connection()->try_registration();
 	}
 
 	/**
@@ -4540,22 +4478,6 @@ endif;
 	}
 
 	/**
-	 * Filters the URL that will process the connection data. It can be different from the URL
-	 * that we send the user to after everything is done.
-	 *
-	 * @param String $processing_url the default redirect URL used by the package.
-	 * @return String the modified URL.
-	 *
-	 * @deprecated since Jetpack 9.5.0
-	 */
-	public static function filter_connect_processing_url( $processing_url ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5' );
-
-		$processing_url = admin_url( 'admin.php?page=jetpack' ); // Making PHPCS happy.
-		return $processing_url;
-	}
-
-	/**
 	 * Filters the redirection URL that is used for connect requests. The redirect
 	 * URL should return the user back to the Jetpack console.
 	 *
@@ -5013,24 +4935,6 @@ endif;
 	}
 
 	/**
-	 * Creates two secret tokens and the end of life timestamp for them.
-	 *
-	 * Note these tokens are unique per call, NOT static per site for connecting.
-	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Secrets->generate() instead.
-	 *
-	 * @since 2.6
-	 * @param String  $action  The action name.
-	 * @param Integer $user_id The user identifier.
-	 * @param Integer $exp     Expiration time in seconds.
-	 * @return array
-	 */
-	public static function generate_secrets( $action, $user_id = false, $exp = 600 ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Secrets->generate' );
-		return self::connection()->generate_secrets( $action, $user_id, $exp );
-	}
-
-	/**
 	 * Get verification secrets.
 	 *
 	 * @param string $action Action name.
@@ -5050,33 +4954,6 @@ endif;
 		}
 
 		return $secrets;
-	}
-
-	/**
-	 * Register a connection.
-	 *
-	 * @deprecated Jetpack 9.7.0
-	 * @see Automattic\Jetpack\Connection\Manager::try_registration()
-	 *
-	 * @return bool|WP_Error
-	 */
-	public static function register() {
-		_deprecated_function( __METHOD__, 'jetpack-9.7', 'Automattic\\Jetpack\\Connection\\Manager::try_registration' );
-		return static::connection()->try_registration( false );
-	}
-
-	/**
-	 * Filters the registration request body to include tracking properties.
-	 *
-	 * @deprecated Jetpack 9.7.0
-	 * @see Automattic\Jetpack\Connection\Utils::filter_register_request_body()
-	 *
-	 * @param array $properties Token request properties.
-	 * @return array amended properties.
-	 */
-	public static function filter_register_request_body( $properties ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.7', 'Automattic\\Jetpack\\Connection\\Utils::filter_register_request_body' );
-		return Connection_Utils::filter_register_request_body( $properties );
 	}
 
 	/**
@@ -5120,19 +4997,6 @@ endif;
 	}
 
 	/* Client Server API */
-
-	/**
-	 * Loads the Jetpack XML-RPC client.
-	 * No longer necessary, as the XML-RPC client will be automagically loaded.
-	 *
-	 * Note: we cannot remove this function yet as it is used in this plugin:
-	 * https://wordpress.org/plugins/jetpack-subscription-form/
-	 *
-	 * @deprecated since 7.7.0
-	 */
-	public static function load_xml_rpc_client() {
-		_deprecated_function( __METHOD__, 'jetpack-7.7' );
-	}
 
 	/**
 	 * State is passed via cookies from one request to the next, but never to subsequent requests.
@@ -5208,18 +5072,6 @@ endif;
 		}
 
 		self::state( 'privacy_checks', $privacy_checks );
-	}
-
-	/**
-	 * Serve a WordPress.com static resource via a randomized wp.com subdomain.
-	 *
-	 * @deprecated 9.3.0 Use Assets::staticize_subdomain.
-	 *
-	 * @param string $url WordPress.com static resource URL.
-	 */
-	public static function staticize_subdomain( $url ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.3.0', 'Automattic\Jetpack\Assets::staticize_subdomain' );
-		return Assets::staticize_subdomain( $url );
 	}
 
 	/* JSON API Authorization */
@@ -6281,21 +6133,6 @@ endif;
 	 */
 	public static function get_jetpack_options_for_reset() {
 		return Jetpack_Options::get_options_for_reset();
-	}
-
-	/**
-	 * Strip http:// or https:// from a url, replaces forward slash with ::,
-	 * so we can bring them directly to their site in calypso.
-	 *
-	 * @deprecated 9.2.0 Use Automattic\Jetpack\Status::get_site_suffix
-	 *
-	 * @param string $url URL.
-	 * @return string url without the guff.
-	 */
-	public static function build_raw_urls( $url ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.2.0', 'Automattic\Jetpack\Status::get_site_suffix' );
-
-		return ( new Status() )->get_site_suffix( $url );
 	}
 
 	/**

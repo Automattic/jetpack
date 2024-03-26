@@ -21,11 +21,11 @@ return [
     // PhanUndeclaredClassConstant : 8 occurrences
     // PhanTypeMismatchReturn : 7 occurrences
     // PhanTypeMismatchReturnProbablyReal : 7 occurrences
-    // PhanUndeclaredConstant : 5 occurrences
     // PhanUndeclaredTypeProperty : 4 occurrences
     // PhanNoopNew : 3 occurrences
     // PhanUndeclaredClassInCallable : 3 occurrences
     // PhanUndeclaredClassReference : 3 occurrences
+    // PhanUndeclaredConstant : 3 occurrences
     // PhanEmptyFQSENInCallable : 2 occurrences
     // PhanParamTooMany : 2 occurrences
     // PhanTypeMismatchArgumentInternal : 2 occurrences

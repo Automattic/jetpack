@@ -7,9 +7,11 @@
  * wants people to use PHPStan, which needs a bootstrap file for constants.
  *
  * But he does have a bit of a point. Before adding a constant here, please
- * consider whether you could use a function instead. This includes things like
- * cookie-related constants (you can probably use core's cookie-setting methods
- * instead) and things like DB_HOST (use `$wpdb` instead).
+ * consider whether you could use a function instead. Of particular note:
+ *  - WP_CONTENT_URL → content_url()
+ *  - WP_PLUGIN_URL → plugins_url()
+ *  - WPMU_PLUGIN_URL → plugins_url()
+ *  - DB_HOST, DB_NAME, DB_USER, DB_PASSWORD → $wpdb
  *
  * Note the actual values shouldn't matter here, but getting the types right is
  * probably a good idea. Avoid `true` and `false`, as those are distinct from
@@ -24,11 +26,15 @@
 define( 'ABSPATH', './' );
 define( 'WP_DEBUG', (bool) $v );
 define( 'WP_DEBUG_LOG', (bool) $v );
-define( 'WP_PLUGIN_DIR', './' );
-define( 'WPMU_PLUGIN_DIR', './' );
-define( 'EMPTY_TRASH_DAYS', 30 * 86400 );
 define( 'SCRIPT_DEBUG', (bool) $v );
-define( 'WP_LANG_DIR', './' );
+define( 'WPINC', 'wp-includes' );
+define( 'WP_LANG_DIR', WP_CONTENT_DIR . '/languages' );
+
+// Core specifically discourages these at https://codex.wordpress.org/Determining_Plugin_and_Content_Directories
+// but doesn't seem to provide alternatives.
+define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
+define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins' ); // Use plugin_dir_path() if possible, but it may not be.
+define( 'WPMU_PLUGIN_DIR', WP_CONTENT_DIR . '/mu-plugins' ); // Same.
 
 // Constants for expressing human-readable intervals.
 define( 'MINUTE_IN_SECONDS', 60 );
@@ -47,6 +53,27 @@ define( 'PB_IN_BYTES', 1024 * TB_IN_BYTES );
 define( 'EB_IN_BYTES', 1024 * PB_IN_BYTES );
 define( 'ZB_IN_BYTES', 1024 * EB_IN_BYTES );
 define( 'YB_IN_BYTES', 1024 * ZB_IN_BYTES );
+
+// Limits and defaults.
+define( 'EMPTY_TRASH_DAYS', 30 );
+define( 'WP_CRON_LOCK_TIMEOUT', MINUTE_IN_SECONDS );
+define( 'WP_MAX_MEMORY_LIMIT', '256M' );
+define( 'WP_MEMORY_LIMIT', '64M' );
+
+// Cookie-related constants, see `wp_cookie_constants()`.
+define( 'COOKIEHASH', md5( site_url() ) );
+define( 'USER_COOKIE', 'wordpressuser_' . COOKIEHASH );
+define( 'PASS_COOKIE', 'wordpresspass_' . COOKIEHASH );
+define( 'AUTH_COOKIE', 'wordpress_' . COOKIEHASH );
+define( 'SECURE_AUTH_COOKIE', 'wordpress_sec_' . COOKIEHASH );
+define( 'LOGGED_IN_COOKIE', 'wordpress_logged_in_' . COOKIEHASH );
+define( 'TEST_COOKIE', 'wordpress_test_cookie' );
+define( 'COOKIEPATH', preg_replace( '|https?://[^/]+|i', '', get_option( 'home' ) . '/' ) );
+define( 'SITECOOKIEPATH', preg_replace( '|https?://[^/]+|i', '', get_option( 'siteurl' ) . '/' ) );
+define( 'ADMIN_COOKIE_PATH', SITECOOKIEPATH . 'wp-admin' );
+define( 'PLUGINS_COOKIE_PATH', preg_replace( '|https?://[^/]+|i', '', WP_PLUGIN_URL ) );
+define( 'COOKIE_DOMAIN', $multisite ? '.example.com' : false );
+define( 'RECOVERY_MODE_COOKIE', 'wordpress_rec_' . COOKIEHASH );
 
 // wpdb method parameters.
 define( 'OBJECT', 'OBJECT' );
@@ -80,3 +107,6 @@ define( 'EP_ALL', EP_PERMALINK | EP_ATTACHMENT | EP_ROOT | EP_COMMENTS | EP_SEAR
 
 // Templating-related WordPress constants.
 define( 'WP_DEFAULT_THEME', 'twentytwentywhenever' );
+
+// Constants used in PHPUnit tests.
+define( 'WP_TESTS_DOMAIN', 'example.org' );

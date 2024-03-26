@@ -6,8 +6,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Connection\Webhooks;
-
 /**
  * Client = Plugin
  * Client Server = API Methods the Plugin must respond to
@@ -53,17 +51,6 @@ class Jetpack_Client_Server {
 	}
 
 	/**
-	 * Authorization handler.
-	 *
-	 * @deprecated since Jetpack 9.5.0
-	 * @see Webhooks::handle_authorize()
-	 */
-	public function client_authorize() {
-		_deprecated_function( __METHOD__, 'jetpack-9.5.0', 'Automattic\\Jetpack\\Connection\\Webhooks::handle_authorize' );
-		( new Webhooks() )->handle_authorize();
-	}
-
-	/**
 	 * Deactivate a plugin.
 	 *
 	 * @param string $probable_file Expected plugin file.
@@ -88,27 +75,5 @@ class Jetpack_Client_Server {
 		}
 
 		return 0;
-	}
-
-	/**
-	 * Get the Jetpack instance.
-	 *
-	 * @deprecated since Jetpack 9.5.0
-	 * @see Jetpack::init()
-	 */
-	public function get_jetpack() {
-		_deprecated_function( __METHOD__, 'jetpack-9.5.0', 'Jetpack::init' );
-		return Jetpack::init();
-	}
-
-	/**
-	 * No longer used.
-	 *
-	 * @deprecated since Jetpack 9.5.0
-	 * @return never
-	 */
-	public function do_exit() {
-		_deprecated_function( __METHOD__, 'jetpack-9.5.0' );
-		exit;
 	}
 }
