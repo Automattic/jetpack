@@ -235,7 +235,7 @@ class REST_Endpoints {
 		$xmlrpc_server = new Jetpack_XMLRPC_Server();
 		$result        = $xmlrpc_server->validate_urls_for_idc_mitigation();
 
-		if ( is_a( $result, 'IXR_Error' ) ) {
+		if ( is_object( $result ) && is_a( $result, 'IXR_Error' ) ) {
 			$result = new WP_Error( $result->code, $result->message );
 		}
 
