@@ -84,15 +84,17 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			'jetpack-my-jetpack'
 		);
 
-		const buttonLabel = requiresUserConnection
-			? __( 'Connect your user account to fix this', 'jetpack-my-jetpack' )
-			: __( 'Connect your site to fix this', 'jetpack-my-jetpack' );
+		const userConnectionButtonLabel = __(
+			'Connect your user account to fix this',
+			'jetpack-my-jetpack'
+		);
+		const siteConnectionButtonLabel = __( 'Connect your site to fix this', 'jetpack-my-jetpack' );
 
 		const noticeOptions = {
 			status: 'warning',
 			actions: [
 				{
-					label: buttonLabel,
+					label: requiresUserConnection ? userConnectionButtonLabel : siteConnectionButtonLabel,
 					isLoading: siteIsRegistering,
 					onClick: onActionButtonClick,
 					noDefaultClasses: true,
