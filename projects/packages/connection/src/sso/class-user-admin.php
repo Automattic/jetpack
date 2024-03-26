@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Connection\SSO;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Connection\Package_Version;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
@@ -74,14 +75,14 @@ class User_Admin {
 	public function jetpack_new_users_styles() {
 		Assets::register_script(
 			'jetpack-sso-admin-create-user',
-			'modules/sso/jetpack-sso-admin-create-user.js',
-			JETPACK__PLUGIN_FILE,
+			'jetpack-sso-admin-create-user.js',
+			__FILE__,
 			array(
 				'strategy'  => 'defer',
 				'in_footer' => true,
+				'enqueue'   => true,
 			)
 		);
-		Assets::enqueue_script( 'jetpack-sso-admin-create-user' );
 	}
 
 	/**
@@ -945,7 +946,13 @@ class User_Admin {
 	 * @return array
 	 */
 	public function jetpack_user_connected_th( $columns ) {
-		wp_enqueue_script( 'jetpack-sso-users', plugins_url( 'modules/sso/jetpack-sso-users.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION, false );
+		wp_enqueue_script(
+			'jetpack-sso-users',
+			plugin_dir_url( __FILE__ ) . 'jetpack-sso-users.js',
+			array( 'jquery' ),
+			Package_Version::PACKAGE_VERSION,
+			false
+		);
 
 		$columns['user_jetpack'] = sprintf(
 			'<span class="jetpack-sso-invitation-tooltip-icon" role="tooltip" aria-label="%3$s: %1$s" tabindex="0">%2$s [?]<span class="jetpack-sso-invitation-tooltip jetpack-sso-th-tooltip">%1$s</span></span>',
