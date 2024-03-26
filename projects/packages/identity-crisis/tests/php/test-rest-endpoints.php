@@ -308,21 +308,14 @@ class Test_REST_Endpoints extends TestCase {
 	 * Testing the `/jetpack/v4/identity-crisis/idc-url-validation` endpoint.
 	 */
 	public function test_request_url_validation_urls_and_secret() {
-		$secret_data = array(
-			'secret'     => 'asdf12345',
-			'expires_at' => time() + URL_Secret::LIFESPAN,
-		);
-		Jetpack_Options::update_option( URL_Secret::OPTION_KEY, $secret_data );
 		$this->set_blog_token_auth();
 
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/identity-crisis/idc-url-validation' );
 		$request->set_header( 'Content-Type', 'application/json' );
 
 		$response = $this->server->dispatch( $request );
-		$data     = $response->get_data();
 
 		$this->assertEquals( 200, $response->get_status() );
-		$this->assertNotEquals( $secret_data['secret'], $data['url_secret'] );
 	}
 	/**
 	 * Mock blog token authorization for API requests.

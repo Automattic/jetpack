@@ -231,15 +231,11 @@ class REST_Endpoints {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return WP_Error|\WP_REST_Response
+	 * @return array
 	 */
 	public static function validate_urls_and_set_secret() {
 		$xmlrpc_server = new Jetpack_XMLRPC_Server();
 		$result        = $xmlrpc_server->validate_urls_for_idc_mitigation();
-
-		if ( is_a( $result, 'IXR_Error' ) ) {
-			$result = new WP_Error( $result->code, $result->message );
-		}
 
 		return $result;
 	}
