@@ -9,8 +9,8 @@ export default {
 	},
 };
 
-// Set myJetpackRest global var.
-window.myJetpackRest = {};
+// Set myJetpackInitialState global var.
+window.myJetpackInitialState = {};
 
 const mockData = getAllMockData();
 

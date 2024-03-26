@@ -17,6 +17,9 @@ export default {
 	component: ProductInterstitial,
 };
 
+// Set myJetpackInitialState global var.
+window.myJetpackInitialState = {};
+
 const DefaultArgs = {};
 
 const DefaultBackupDetailCard = args => (
