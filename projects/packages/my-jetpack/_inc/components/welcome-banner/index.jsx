@@ -45,6 +45,7 @@ const WelcomeBanner = () => {
 	const onFinishConnectionClick = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_welcome_banner_finish_connection_click' );
 		handleRegisterSite().then( () => {
+			onDismissClick( true );
 			setNotice( {
 				message: __( 'Your site has been successfully connected.', 'jetpack-my-jetpack' ),
 				options: {
@@ -54,7 +55,6 @@ const WelcomeBanner = () => {
 							label: __( 'Close', 'jetpack-my-jetpack' ),
 							onClick: () => {
 								resetNotice();
-								onDismissClick( true );
 							},
 							noDefaultClasses: true,
 						},
