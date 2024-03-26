@@ -7,6 +7,8 @@
 
 namespace Private_Site;
 
+use Automattic\Jetpack\Status;
+
 /**
  * Shows the logged-in banner.
  */
@@ -61,7 +63,7 @@ function show_logged_in_banner() {
 
 	$current_user = wp_get_current_user();
 	$blog_id      = get_current_blog_id();
-	$blog_domain  = \Jetpack::build_raw_urls( get_home_url() );
+	$blog_domain  = ( new Status() )->get_site_suffix();
 
 	$my_home_url      = 'https://wordpress.com/home/' . $blog_domain;
 	$change_theme_url = 'https://wordpress.com/themes/' . $blog_domain;

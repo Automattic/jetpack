@@ -10,6 +10,7 @@ namespace Private_Site;
 
 use Jetpack;
 use Automattic\Jetpack\Connection\Rest_Authentication;
+use Automattic\Jetpack\Status;
 use WP_Error;
 use WP_REST_Request;
 use function get_home_url;
@@ -169,10 +170,11 @@ function privatize_blog_priv_selector() {
 
 	if ( ! $has_jetpack_connection && site_is_private() ) {
 		$escaped_content = __( 'Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings.', 'wpcomsh' );
-	} elseif ( ! $has_jetpack_connection || ! is_callable( 'Jetpack::build_raw_urls' ) ) {
+	} elseif ( ! $has_jetpack_connection || ! class_exists( 'Status' ) ) {
 		return;
 	} else {
-		$site_slug       = Jetpack::build_raw_urls( get_home_url() );
+		$status          = new Status();
+		$site_slug       = $status->get_site_suffix();
 		$settings_url    = esc_url_raw( sprintf( 'https://wordpress.com/settings/general/%s#site-privacy-settings', $site_slug ) );
 		$manage_label    = __( 'Manage your site visibility settings', 'wpcomsh' );
 		$escaped_content = '<a target="_blank" href="' . esc_url( $settings_url ) . '">' . esc_html( $manage_label ) . '</a>';
