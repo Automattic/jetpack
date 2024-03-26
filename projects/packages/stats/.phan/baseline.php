@@ -16,7 +16,6 @@ return [
     // PhanUndeclaredTypeProperty : 3 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 2 occurrences
     // PhanTypeMismatchProperty : 2 occurrences
-    // PhanUndeclaredConstant : 2 occurrences
     // PhanUndeclaredFunction : 2 occurrences
     // PhanDeprecatedFunction : 1 occurrence
     // PhanTypeMismatchReturn : 1 occurrence
@@ -26,7 +25,7 @@ return [
     'file_suppressions' => [
         'src/class-options.php' => ['PhanUnextractableAnnotationSuffix'],
         'src/class-tracking-pixel.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanUndeclaredFunction', 'PhanUnextractableAnnotationSuffix'],
-        'src/class-wpcom-stats.php' => ['PhanTypeMismatchReturn', 'PhanUndeclaredConstant', 'PhanUnextractableAnnotationSuffix'],
+        'src/class-wpcom-stats.php' => ['PhanTypeMismatchReturn', 'PhanUnextractableAnnotationSuffix'],
         'tests/php/test-main.php' => ['PhanParamTooMany', 'PhanTypeVoidAssignment', 'PhanUndeclaredTypeProperty'],
         'tests/php/test-options.php' => ['PhanTypeVoidAssignment'],
         'tests/php/test-wpcom-stats.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchProperty', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeProperty'],

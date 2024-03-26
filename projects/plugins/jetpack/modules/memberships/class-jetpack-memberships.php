@@ -203,6 +203,17 @@ class Jetpack_Memberships {
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_rest_api_types' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'allow_sync_post_meta' ) );
 		$this->setup_cpts();
+
+		if ( Jetpack::is_module_active( 'subscriptions' ) && jetpack_is_frontend() ) {
+			add_action( 'wp_logout', array( $this, 'subscriber_logout' ) );
+		}
+	}
+
+	/**
+	 * Logs the subscriber out by clearing out the premium content cookie.
+	 */
+	public function subscriber_logout() {
+		Abstract_Token_Subscription_Service::clear_token_cookie();
 	}
 
 	/**
@@ -570,6 +581,22 @@ class Jetpack_Memberships {
 		$user = wp_get_current_user();
 		// phpcs:ignore ImportDetection.Imports.RequireImports.Symbol
 		return 0 !== $user->ID && current_user_can( 'edit_post', get_the_ID() );
+	}
+
+	/**
+	 * Clears the static cache for all users or for a given user.
+	 *
+	 * @param int|null $user_id The user_id to unset in the cache, otherwise the entire static cache is cleared.
+	 * @return void
+	 */
+	public static function clear_cache( int $user_id = null ) {
+		if ( empty( $user_id ) ) {
+			self::$user_is_paid_subscriber_cache = array();
+			self::$user_can_view_post_cache      = array();
+			return;
+		}
+		unset( self::$user_is_paid_subscriber_cache[ $user_id ] );
+		unset( self::$user_can_view_post_cache[ $user_id ] );
 	}
 
 	/**
