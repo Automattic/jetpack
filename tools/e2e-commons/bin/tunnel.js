@@ -70,6 +70,8 @@ async function tunnelOn( argv ) {
  * If a valid url is saved in the file configured to store it the subdomain will be reused
  * Otherwise ngrok will create randomly assigned subdomain
  * Once the tunnel is created its url will be written in the file
+ * If TEST_ENV_URL is provided, use that URL instead of creating a new one.
+ * If TEST_ENV_TOKEN is provided, use that as the authtoken.
  *
  * @return {Promise<void>}
  */
@@ -86,13 +88,22 @@ async function tunnelChild() {
 	console.log = wrap( console.log );
 	console.error = wrap( console.error );
 
-	const tunnelUrl = await ngrok.connect( {
-		proto: 'http', // http|tcp|tls, defaults to http
-		addr: tunnelConfig.port, // port or network address, defaults to 80
-		authtoken: tunnelConfig.authtoken, // your authtoken from ngrok.com
-	} );
+	const customTunnelUrl = process.env.TEST_ENV_URL;
+	const customAuthToken = process.env.TEST_ENV_TOKEN || tunnelConfig.authtoken;
+	let tunnelUrl;
 
-	console.log( `Opened tunnel '${ tunnelUrl }'` );
+	if ( customTunnelUrl ) {
+		console.log( `Using provided tunnel URL '${ customTunnelUrl }'` );
+		tunnelUrl = customTunnelUrl;
+	} else {
+		tunnelUrl = await ngrok.connect( {
+			proto: 'http', // http|tcp|tls, defaults to http
+			addr: tunnelConfig.port, // port or network address, defaults to 80
+			authtoken: customAuthToken, // your authtoken from ngrok.com or TEST_ENV_TOKEN
+		} );
+		console.log( `Opened tunnel '${ tunnelUrl }'` );
+	}
+
 	fs.writeFileSync( config.get( 'temp.tunnels' ), tunnelUrl );
 	fs.writeFileSync( config.get( 'temp.pid' ), `${ process.pid }` );
 
@@ -136,7 +147,7 @@ async function tunnelOff() {
 	}
 
 	const tunnelUrl = getReusableUrlFromFile();
-	if ( tunnelUrl ) {
+	if ( tunnelUrl && ! process.env.TEST_ENV_URL ) {
 		await ngrok.disconnect( tunnelUrl ); // stops one
 		console.log( `Tunnel ${ tunnelUrl } disconnected` );
 	}
