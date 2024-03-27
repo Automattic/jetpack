@@ -6,6 +6,16 @@
  */
 
 // Require base config.
-require dirname( __DIR__, 3 ) . '/.phan/config.base.php';
+$root = dirname( __DIR__, 3 );
+// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath -- It's absolute just above.
+require "$root/.phan/config.base.php";
 
-return make_phan_config( dirname( __DIR__ ) );
+return make_phan_config(
+	dirname( __DIR__ ),
+	array(
+		'parse_file_list' => array(
+			"$root/projects/packages/connection/legacy/class-jetpack-options.php",
+			"$root/projects/plugins/beta/src/class-utils.php",
+		),
+	)
+);
