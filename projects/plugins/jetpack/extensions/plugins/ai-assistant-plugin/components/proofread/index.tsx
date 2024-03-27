@@ -1,19 +1,19 @@
 /**
  * External dependencies
  */
-import { AiStatusIndicator, useAiSuggestions } from '@automattic/jetpack-ai-client';
+import { useAiSuggestions } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { serialize } from '@wordpress/blocks';
-import { Modal, Button } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { close } from '@wordpress/icons';
 import TurndownService from 'turndown';
 /**
  * Internal dependencies
  */
 import './style.scss';
+import AiAssistantModal from '../modal';
 /**
  * Types
  */
@@ -29,20 +29,6 @@ const usePostContent = () => {
 		[]
 	);
 	return blocks?.length ? turndownService.turndown( serialize( blocks ) ) : '';
-};
-
-const ModalHeader = ( { requestingState, onClose } ) => {
-	return (
-		<div className="ai-assistant-post-feedback__modal-header">
-			<div className="ai-assistant-post-feedback__modal-title-wrapper">
-				<AiStatusIndicator state={ requestingState } />
-				<h1 className="ai-assistant-post-feedback__modal-title">
-					{ __( 'AI Assistant', 'jetpack' ) }
-				</h1>
-			</div>
-			<Button icon={ close } label={ __( 'Close', 'jetpack' ) } onClick={ onClose } />
-		</div>
-	);
 };
 
 export default function Proofread( {
@@ -123,13 +109,9 @@ export default function Proofread( {
 	return (
 		<div>
 			{ isProofreadModalVisible && (
-				<Modal __experimentalHideHeader>
-					<div className="ai-assistant-post-feedback__modal-content">
-						<ModalHeader requestingState={ requestingState } onClose={ toggleProofreadModal } />
-						<hr className="ai-assistant-post-feedback__modal-divider" />
-						<div className="ai-assistant-post-feedback__suggestion">{ suggestion }</div>
-					</div>
-				</Modal>
+				<AiAssistantModal requestingState={ requestingState } handleClose={ toggleProofreadModal }>
+					<div className="ai-assistant-post-feedback__suggestion">{ suggestion }</div>
+				</AiAssistantModal>
 			) }
 			<p>
 				{ __(
