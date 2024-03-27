@@ -58,7 +58,7 @@ class Social_Shares {
 	 * Return a html to display the social shares.
 	 *
 	 * @param int $post_id The Post ID.
-	 * @return array
+	 * @return string Markup representing the social share links.
 	 */
 	public static function get_the_social_shares( $post_id = 0 ) {
 		$shares = self::get_social_shares( $post_id );
