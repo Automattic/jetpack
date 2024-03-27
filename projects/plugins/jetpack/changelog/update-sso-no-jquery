@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+SSO: remove jQuery dependency for improved performance.

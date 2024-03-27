@@ -53,6 +53,7 @@
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-licensing": "workspace:*",
+		"@automattic/jetpack-my-jetpack": "workspace:4.19.1-alpha",
 		"@automattic/jetpack-partner-coupon": "workspace:*",
 		"@automattic/jetpack-publicize-components": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
