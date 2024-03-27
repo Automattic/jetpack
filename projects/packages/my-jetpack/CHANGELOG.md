@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.19.0] - 2024-03-27
+### Added
+- Add red bubble to notices tied to red bubble notifications [#36543]
+- My Jetpack: add a version of WordPress' Notice component to My Jetpack considering the context of how we use notices on that screen [#36551]
+
+### Changed
+- Updated package dependencies. [#36539, #36585]
+
+### Fixed
+- Fixed Jetpack Creator going to the wrong screen when the free version is selected" [#36547]
+- Fixes some pricing showing twice by connecting sites that select a free option [#36533]
+
+## [4.18.0] - 2024-03-25
+### Added
+- Hook into red bubble notification when bad installation is detected [#36449]
+- Jetpack AI: add notices on product page for exhausted requests [#35910]
+- Jetpack AI: add plans/tier information on product page and corresponding CTAs [#35910]
+- Jetpack AI: add support and create post links on product page [#35910]
+- My Jetpack: add AI product page view event [#36488]
+- My Jetpack: add feedback link on Jetpack AI product page [#35910]
+- My Jetpack: AI pricing table is skipped once the user has opted for the free version [#35910]
+- My Jetpack: change AI product for tiered pricing table display [#35910]
+
+### Changed
+- Add notice priorities to My Jetpack [#36438]
+- Jetpack AI: address responsive issues on the styles [#35910]
+- My Jetpack: AI product page styles update and responsive fixes [#35910]
+- My Jetpack: change AI card action button target for upgraded users, point to product page [#35910]
+
+### Removed
+- My Jetpack: remove Jetpack AI code added throughout the new product page project [#35910]
+- Removed reference to Creator Network, which is being deprecated. [#36168]
+
+### Fixed
+- Boost tooltips: fix typo in string. [#36520]
+- My Jetpack: fix AI interstitial "remain free" flow [#35910]
+- My Jetpack: fix interstitial event property malformed name productSlug -> product_slug [#36486]
+- My Jetpack: fix spacing issues on the new product page [#35910]
+- My Jetpack: new AI interstitial margin on admin page was messing with correct top spacing [#35910]
+
 ## [4.17.1] - 2024-03-18
 ### Added
 - Add a loaded event for My Jetpack product cards [#36397]
@@ -1351,6 +1391,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.19.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.18.0...4.19.0
+[4.18.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.17.1...4.18.0
 [4.17.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.17.0...4.17.1
 [4.17.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.16.0...4.17.0
 [4.16.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.15.0...4.16.0

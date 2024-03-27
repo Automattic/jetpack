@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.20.0] - 2024-03-27
+### Added
+- Adds the atomic flag to the Jetpack Blaze base site's configuration [#36562]
+
+### Changed
+- Updated package dependencies. [#36585]
+
+## [0.19.3] - 2024-03-25
+### Changed
+- Internal updates.
+
 ## [0.19.2] - 2024-03-18
 ### Changed
 - Internal updates.
@@ -323,6 +334,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.20.0]: https://github.com/automattic/jetpack-blaze/compare/v0.19.3...v0.20.0
+[0.19.3]: https://github.com/automattic/jetpack-blaze/compare/v0.19.2...v0.19.3
 [0.19.2]: https://github.com/automattic/jetpack-blaze/compare/v0.19.1...v0.19.2
 [0.19.1]: https://github.com/automattic/jetpack-blaze/compare/v0.19.0...v0.19.1
 [0.19.0]: https://github.com/automattic/jetpack-blaze/compare/v0.18.1...v0.19.0

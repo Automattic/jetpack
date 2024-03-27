@@ -325,16 +325,10 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.3-a.3 - 2024-03-18
-#### Enhancements
-- AI Assistant: Provide per-block quick actions to make them more relevant.
-- General: Only show installation errors on plugins page.
-- Newsletters: Ensure blog stats and top posts blocks do not render in email newsletters.
-- Sharing: Add a Bluesky sharing button.
-- Sharing: Add Native (Web Share) button to Sharing Buttons block.
-
-#### Improved compatibility
-- Subscriptions: Remove subscription settings from reading options page.
+### 13.3-a.9 - 2024-03-27
+#### Bug fixes
+- Paid Content Block: Fix subscriber view content not rendering in WordPress.com reader.
+- SSO: Disable WordPress.com invitation functionality for non-connected users.
 
 --------
 

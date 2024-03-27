@@ -48,12 +48,13 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 					noDefaultClasses: true,
 				},
 			],
+			priority: NOTICE_PRIORITY_HIGH,
+			isRedBubble: true,
 		};
 
 		setNotice( {
 			message: needsUserConnectionMessage,
 			options: noticeOptions,
-			priority: NOTICE_PRIORITY_HIGH,
 		} );
 	}, [ navToConnection, products, redBubbleAlerts, setNotice ] );
 };

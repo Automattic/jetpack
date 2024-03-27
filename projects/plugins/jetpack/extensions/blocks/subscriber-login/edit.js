@@ -43,7 +43,7 @@ function SubscriberLoginEdit( { attributes, setAttributes, className } ) {
 						id={ manageSubscriptionsInputId }
 					>
 						<TextControl
-							placeholder={ __( 'Manage subscriptions', 'jetpack' ) }
+							placeholder={ __( 'Manage subscription', 'jetpack' ) }
 							onChange={ value => setAttributes( { manageSubscriptionsLabel: value } ) }
 							value={ manageSubscriptionsLabel }
 							id={ manageSubscriptionsInputId }
