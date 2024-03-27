@@ -30,6 +30,7 @@ import {
 import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
 import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import ConnectionsSection from '../connections-section';
@@ -79,6 +80,7 @@ const GlobalNotice = ( { message, options } ) => {
 			className={
 				styles.notice + ( isBiggerThanMedium ? ' ' + styles[ 'bigger-than-medium' ] : '' )
 			}
+			isRedBubble={ options.isRedBubble }
 		>
 			<div className={ styles.message }>
 				{ iconMap?.[ options.status ] && <Icon icon={ iconMap[ options.status ] } /> }
@@ -95,10 +97,10 @@ const GlobalNotice = ( { message, options } ) => {
  */
 export default function MyJetpackScreen() {
 	useNotificationWatcher();
-	const { hasBeenDismissed = false } = getMyJetpackWindowInitialState( 'welcomeBanner' );
 	const { showFullJetpackStatsCard = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	const { jetpackManage = {}, adminUrl } = getMyJetpackWindowInitialState();
 
+	const { isWelcomeBannerVisible } = useWelcomeBanner();
 	const { currentNotice } = useContext( NoticeContext );
 	const { message, options } = currentNotice || {};
 	const { hasConnectionError } = useConnectionErrorNotice();
@@ -156,12 +158,12 @@ export default function MyJetpackScreen() {
 							{ __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' ) }
 						</Text>
 					</Col>
-					{ hasConnectionError && ( hasBeenDismissed || ! isNewUser ) && (
+					{ hasConnectionError && ! isWelcomeBannerVisible && (
 						<Col>
 							<ConnectionError />
 						</Col>
 					) }
-					{ message && ( hasBeenDismissed || ! isNewUser ) && (
+					{ message && ! isWelcomeBannerVisible && (
 						<Col>{ <GlobalNotice message={ message } options={ options } /> }</Col>
 					) }
 					{ showFullJetpackStatsCard && (
