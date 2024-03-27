@@ -133,6 +133,7 @@ class Critical_CSS_State {
 
 		if ( $is_done ) {
 			$this->state['status'] = self::GENERATION_STATES['generated'];
+			do_action( 'jetpack_boost_critical_css_generated' );
 		}
 	}
 
@@ -154,6 +155,10 @@ class Critical_CSS_State {
 
 	public function get_error_message() {
 		return isset( $this->state['status_error'] ) ? $this->state['status_error'] : null;
+	}
+
+	public function is_generated() {
+		return self::GENERATION_STATES['generated'] === $this->state['status'];
 	}
 
 	public function is_requesting() {

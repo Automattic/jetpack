@@ -4,7 +4,6 @@ import {
 	Button,
 	Flex,
 	FlexBlock,
-	PanelRow,
 	RadioControl,
 	Spinner,
 	VisuallyHidden,
@@ -155,8 +154,8 @@ export function NewsletterAccessRadioButtons( {
 	} );
 
 	return (
-		<fieldset className="editor-post-visibility__fieldset jetpack-newsletter-access-radio-buttons">
-			<VisuallyHidden as="legend">{ __( 'Audience', 'jetpack' ) } </VisuallyHidden>
+		<fieldset className="jetpack-newsletter-access-radio-buttons">
+			<VisuallyHidden as="legend">{ __( 'Access', 'jetpack' ) } </VisuallyHidden>
 			<RadioControl
 				onChange={ value => {
 					if (
@@ -276,27 +275,23 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 							</div>
 						</>
 					) }
-					<PanelRow className="edit-post-post-visibility">
-						<Flex direction="column">
-							{ showMisconfigurationWarning && <MisconfigurationWarning /> }
-							<FlexBlock direction="row" justify="flex-start">
-								{ canEdit && (
-									<div className="editor-post-visibility">
-										<NewsletterAccessRadioButtons
-											isEditorPanel={ true }
-											accessLevel={ _accessLevel }
-											stripeConnectUrl={ stripeConnectUrl }
-											hasTierPlans={ hasTierPlans }
-											postHasPaywallBlock={ foundPaywallBlock }
-										/>
-									</div>
-								) }
+					<Flex direction="column">
+						{ showMisconfigurationWarning && <MisconfigurationWarning /> }
+						<FlexBlock direction="row" justify="flex-start">
+							{ canEdit && (
+								<NewsletterAccessRadioButtons
+									isEditorPanel={ true }
+									accessLevel={ _accessLevel }
+									stripeConnectUrl={ stripeConnectUrl }
+									hasTierPlans={ hasTierPlans }
+									postHasPaywallBlock={ foundPaywallBlock }
+								/>
+							) }
 
-								{ /* Display the uneditable access level when the user doesn't have edit privileges*/ }
-								{ ! canEdit && <span>{ accessLabel }</span> }
-							</FlexBlock>
-						</Flex>
-					</PanelRow>
+							{ /* Display the uneditable access level when the user doesn't have edit privileges*/ }
+							{ ! canEdit && <span>{ accessLabel }</span> }
+						</FlexBlock>
+					</Flex>
 				</>
 			) }
 		/>

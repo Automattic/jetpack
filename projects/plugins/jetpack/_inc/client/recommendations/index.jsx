@@ -145,6 +145,15 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.WELCOME__SCAN:
 			redirectPath = '/welcome-scan';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__SOCIAL_BASIC:
+			redirectPath = '/welcome-social-basic';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__SOCIAL_ADVANCED:
+			redirectPath = '/welcome-social-advanced';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__SOCIAL_IMAGE_GENERATOR:
+			redirectPath = 'welcome-social-image-generator';
+			break;
 		case RECOMMENDATION_WIZARD_STEP.WELCOME__GOLDEN_TOKEN:
 			redirectPath = '/welcome-golden-token';
 			break;
@@ -156,6 +165,12 @@ const RecommendationsComponent = props => {
 			break;
 		case RECOMMENDATION_WIZARD_STEP.SCAN_ACTIVATED:
 			redirectPath = '/scan-activated';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.UNLIMITED_SHARING_ACTIVATED:
+			redirectPath = '/unlimited-sharing-activated';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.SOCIAL_ADVANCED_ACTIVATED:
+			redirectPath = '/social-advanced-activated';
 			break;
 		case RECOMMENDATION_WIZARD_STEP.ANTISPAM_ACTIVATED:
 			redirectPath = '/antispam-activated';
@@ -277,6 +292,15 @@ const RecommendationsComponent = props => {
 					<Route path="/recommendations/welcome-scan">
 						<ResourcePrompt stepSlug="welcome__scan" />
 					</Route>
+					<Route path="/recommendations/welcome-social-basic">
+						<ResourcePrompt stepSlug="welcome__social_basic" />
+					</Route>
+					<Route path="/recommendations/welcome-social-advanced">
+						<ResourcePrompt stepSlug="welcome__social_advanced" />
+					</Route>
+					<Route path="/recommendations/welcome-social-image-generator">
+						<ResourcePrompt stepSlug="welcome__social_image_generator" />
+					</Route>
 					<Route path="/recommendations/welcome-golden-token">
 						<ResourcePrompt stepSlug="welcome__golden_token" />
 					</Route>
@@ -285,6 +309,12 @@ const RecommendationsComponent = props => {
 					</Route>
 					<Route path="/recommendations/scan-activated">
 						<ResourcePrompt stepSlug="scan-activated" />
+					</Route>
+					<Route path="/recommendations/unlimited-sharing-activated">
+						<ResourcePrompt stepSlug="unlimited-sharing-activated" />
+					</Route>
+					<Route path="/recommendations/social-advanced-activated">
+						<ResourcePrompt stepSlug="social-advanced-activated" />
 					</Route>
 					<Route path="/recommendations/antispam-activated">
 						<ResourcePrompt stepSlug="antispam-activated" />

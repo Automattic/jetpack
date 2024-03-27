@@ -454,6 +454,8 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
+		$response['categories'] = get_categories( array( 'get' => 'all' ) );
+
 		foreach ( $settings as $setting => $properties ) {
 			switch ( $setting ) {
 				case 'lang_id':
@@ -981,6 +983,10 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'stb_enabled':
 				case 'stc_enabled':
 				case 'sm_enabled':
+				case 'wpcom_newsletter_categories_enabled':
+				case 'wpcom_featured_image_in_email':
+				case 'wpcom_subscription_emails_use_excerpt':
+				case 'jetpack_subscriptions_subscribe_post_end_enabled':
 					// Convert the false value to 0. This allows the option to be updated if it doesn't exist yet.
 					$sub_value = $value ? $value : 0;
 					$updated   = (string) get_option( $option ) !== (string) $sub_value ? update_option( $option, $sub_value ) : true;
@@ -988,6 +994,49 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 				case 'jetpack_blocks_disabled':
 					$updated = (bool) get_option( $option ) !== (bool) $value ? update_option( $option, (bool) $value ) : true;
+					break;
+
+				case 'subscription_options':
+					if ( ! is_array( $value ) ) {
+						break;
+					}
+
+					$allowed_keys   = array( 'invitation', 'comment_follow', 'welcome' );
+					$filtered_value = array_filter(
+						$value,
+						function ( $key ) use ( $allowed_keys ) {
+							return in_array( $key, $allowed_keys, true );
+						},
+						ARRAY_FILTER_USE_KEY
+					);
+
+					if ( empty( $filtered_value ) ) {
+						break;
+					}
+
+					array_walk_recursive(
+						$filtered_value,
+						function ( &$value ) {
+							$value = wp_kses(
+								$value,
+								array(
+									'a' => array(
+										'href' => array(),
+									),
+								)
+							);
+						}
+					);
+
+					$old_subscription_options = get_option( 'subscription_options' );
+					if ( ! is_array( $old_subscription_options ) ) {
+						$old_subscription_options = array();
+					}
+					$new_subscription_options = array_merge( $old_subscription_options, $filtered_value );
+
+					if ( update_option( $option, $new_subscription_options ) ) {
+						$updated[ $option ] = true;
+					}
 					break;
 
 				default:
@@ -1576,16 +1625,12 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 			$range = 'day';
 		}
 
-		if ( ! function_exists( 'convert_stats_array_to_object' ) ) {
-			require_once JETPACK__PLUGIN_DIR . 'modules/stats.php';
-		}
-
 		$wpcom_stats = new WPCOM_Stats();
 		switch ( $range ) {
 
 			// This is always called first on page load.
 			case 'day':
-				$initial_stats = convert_stats_array_to_object( $wpcom_stats->get_stats() );
+				$initial_stats = $wpcom_stats->convert_stats_array_to_object( $wpcom_stats->get_stats() );
 				return rest_ensure_response(
 					array(
 						'general' => $initial_stats,
@@ -1599,7 +1644,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 			case 'week':
 				return rest_ensure_response(
 					array(
-						'week' => convert_stats_array_to_object(
+						'week' => $wpcom_stats->convert_stats_array_to_object(
 							$wpcom_stats->get_visits(
 								array(
 									'unit'     => 'week',
@@ -1612,7 +1657,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 			case 'month':
 				return rest_ensure_response(
 					array(
-						'month' => convert_stats_array_to_object(
+						'month' => $wpcom_stats->convert_stats_array_to_object(
 							$wpcom_stats->get_visits(
 								array(
 									'unit'     => 'month',

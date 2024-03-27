@@ -931,10 +931,10 @@ function zbscrm_JS_Bind_Typeaheads_Customers() {
 							var name = r.name.trim()
 								? r.name
 								: zeroBSCRMJS_globViewLang( 'contact' ) + ' #' + r.id;
-							var email = r.email ? r.email : '<i>no email</i>';
+							var email = r.email ? jpcrm.esc_html(r.email) : '<i>no email</i>';
 							sug =
 								'<div class="sug-wrap"><div class="name">' +
-								name +
+								jpcrm.esc_html(name) +
 								'</div><div class="email">' +
 								email +
 								'</div></div><div class="clear"></div>';

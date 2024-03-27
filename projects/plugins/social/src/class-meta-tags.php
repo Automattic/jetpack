@@ -238,30 +238,75 @@ class Meta_Tags {
 	}
 
 	/**
+	 * To set a custom OG:title for social notes.
+	 */
+	public function get_og_title_for_social_notes() {
+		$text     = wp_strip_all_tags( get_the_excerpt() );
+		$length   = 55;
+		$ellipsis = "\u{2026}";
+
+		if ( strlen( $text ) <= $length ) {
+			return $text;
+		}
+
+		$words   = str_word_count( $text, 2 );
+		$indices = array_keys( $words );
+
+		// There is only one word, or the first word plus initial non-word characters, is longer than 55 characters.
+		if ( count( $indices ) === 1 || $indices[0] + strlen( $words[ $indices[0] ] ) > $length ) {
+			return substr( $text, 0, $length ) . $ellipsis;
+		}
+
+		$substring_index = 0;
+		foreach ( $indices as $current_index ) {
+			$current_length = $current_index + strlen( $words[ $current_index ] );
+			if ( $current_length > $length ) {
+				$substring_index = $current_index - 1;
+				break;
+			}
+			$substring_index = $current_length;
+		}
+		return substr( $text, 0, $substring_index ) . $ellipsis;
+	}
+
+	/**
+	 * Filters the OG tags when we are displaying a Social Note,
+	 * and adjusts the title. This allows us to adjust the title
+	 * when Jetpack is active as well as social.
+	 *
+	 * @param array $tags The array of OG tags so far.
+	 */
+	public function get_note_title( $tags ) {
+		if ( ! isset( $tags['og:title'] ) || empty( trim( $tags['og:title'] ) ) ) {
+			$tags['og:title'] = $this->get_og_title_for_social_notes();
+		}
+		return $tags;
+	}
+
+	/**
 	 * Render meta tags in head.
 	 *
 	 * @param WP_Post|null $post The post to render the tags for.
 	 */
 	public function render_tags( $post = null ) {
-		if ( ! $this->should_render_meta_tags() ) {
-			return;
-		}
-
 		$data = get_post( $post );
 		if ( empty( $data ) ) {
 			return;
 		}
 
-		$tags = array();
-
-		if ( empty( $data->post_title ) ) {
-			$tags['og:title'] = __( '(no title)', 'jetpack-social' );
-		} else {
-			/** This filter is documented in core/src/wp-includes/post-template.php */
-			$tags['og:title'] = wp_kses( apply_filters( 'the_title', $data->post_title, $data->ID ), array() );
+		if ( $data->post_type === Note::JETPACK_SOCIAL_NOTE_CPT ) {
+			add_filter( 'jetpack_open_graph_tags', array( $this, 'get_note_title' ) );
 		}
 
-		$tags['og:url'] = get_permalink( $data->ID );
+		if ( ! $this->should_render_meta_tags() ) {
+			return;
+		}
+
+		$tags = array();
+
+		/** This filter is documented in core/src/wp-includes/post-template.php */
+		$tags['og:title'] = wp_kses( apply_filters( 'the_title', $data->post_title, $data->ID ), array() );
+		$tags['og:url']   = get_permalink( $data->ID );
 		if ( ! post_password_required( $data ) ) {
 			$excerpt = '';
 
@@ -294,6 +339,9 @@ class Meta_Tags {
 
 		// Add SIG image if enabled.
 		$tags = apply_filters( 'jetpack_open_graph_tags', $tags );
+		if ( empty( trim( $tags['og:title'] ) ) ) {
+				$tags['og:title'] = __( '(no title)', 'jetpack-social' );
+		}
 
 		if ( ! empty( $tags['og:image'] ) && $this->should_render_twitter_cards_tags() ) {
 			$tags = array_merge(

@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2024-02-07
+### Added
+- Add "Jetpack-NoWP" ruleset. [#33287]
+- Added rulesets `Jetpack-Compat-*` to disable PHPCompatibility rules that trigger with `testVersion` 5.6 but don't apply to various later PHP versions. [#31711]
+- Add `Jetpack-Compat-83` ruleset. [#34346]
+- Add `Jetpack-Compat-NoWP` ruleset. [#33287]
+- Declare requirement of PHP >= 7.4. [#34192]
+- Enable `MediaWiki.AlternativeSyntax.UnicodeEscape` sniff. [#34194]
+- Enable `MediaWiki.PHPUnit.MockBoilerplate` sniff. [#34338]
+- Enable `Modernize.FunctionCalls.Dirname.Nested` sniff that is currently being disabled by WordPress-Extra. [#34218]
+
+### Changed
+- BREAKING: Drop support for PHP 5.6. `testVersion` should be set to `7.0-`. [#34126]
+- Updated package dependencies. [#31609]
+- Updated package dependencies. [#32605]
+- Updated package dependencies. [#34338]
+- Update to WordPress-Coding-Standards 3.0. [#32608]
+- Update `Jetpack-Compat-*` rulesets against PHPCompatibility develop branch. [#33112]
+
+### Removed
+- Exclude new `WordPress.Security.EscapeOutput.ExceptionNotEscaped` sniff. https://core.trac.wordpress.org/ticket/59282 is the correct way to fix the underlying issue it's trying to avoid, this would cause other problems. [#32608]
+- Remove `MediaWiki.WhiteSpace.SpaceAfterClosure`, as `Squiz.Functions.MultiLineFunctionDeclaration` now catches the same thing and more. [#32608]
+
 ## [2.8.0] - 2023-06-06
 ### Added
 - Added MediaWiki.Usage.ForbiddenFunctions rule to use preferred functions
@@ -124,6 +147,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Codesniffer: Add a package to hold our coding standard
 
+[3.0.0]: https://github.com/Automattic/jetpack-codesniffer/compare/v2.8.0...v3.0.0
 [2.8.0]: https://github.com/Automattic/jetpack-codesniffer/compare/v2.7.0...v2.8.0
 [2.7.0]: https://github.com/Automattic/jetpack-codesniffer/compare/v2.6.1...v2.7.0
 [2.6.1]: https://github.com/Automattic/jetpack-codesniffer/compare/v2.6.0...v2.6.1

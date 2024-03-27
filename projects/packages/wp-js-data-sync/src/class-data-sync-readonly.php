@@ -12,7 +12,7 @@ final class Data_Sync_Readonly implements Entry_Can_Get {
 
 	public function get( $fallback_value = false ) {
 		$result = call_user_func( $this->callback );
-		if ( empty( $result ) ) {
+		if ( false !== $fallback_value && empty( $result ) ) {
 			return $fallback_value;
 		}
 		return $result;

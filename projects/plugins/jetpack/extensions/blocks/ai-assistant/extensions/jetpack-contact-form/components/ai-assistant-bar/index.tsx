@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { useAiContext, AIControl, ERROR_QUOTA_EXCEEDED } from '@automattic/jetpack-ai-client';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { serialize } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
@@ -26,7 +27,7 @@ import ConnectPrompt from '../../../../components/connect-prompt';
 import UpgradePrompt from '../../../../components/upgrade-prompt';
 import useAiFeature from '../../../../hooks/use-ai-feature';
 import { isUserConnected } from '../../../../lib/connection';
-import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
+import { getJetpackFormCustomPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
 import { AI_ASSISTANT_JETPACK_FORM_NOTICE_ID } from '../../ui-handler/with-ui-handler-data-provider';
 import './style.scss';
@@ -79,13 +80,14 @@ export default function AiAssistantBar( {
 } ) {
 	const wrapperRef = useRef< HTMLDivElement >( null );
 	const inputRef = useRef< HTMLInputElement >( null );
+	const { tracks } = useAnalytics();
 
 	const connected = isUserConnected();
 
 	const { inputValue, setInputValue, isVisible, assistantAnchor } =
 		useContext( AiAssistantUiContext );
 
-	const { dequeueAiAssistantFeatureAyncRequest } = useDispatch( 'wordpress-com/plans' );
+	const { dequeueAiAssistantFeatureAsyncRequest } = useDispatch( 'wordpress-com/plans' );
 
 	const focusOnPrompt = () => {
 		// Small delay to avoid focus crash
@@ -121,7 +123,7 @@ export default function AiAssistantBar( {
 		// Remove previous error notice.
 		removeNotice( AI_ASSISTANT_JETPACK_FORM_NOTICE_ID );
 
-		const prompt = getPrompt( PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, {
+		const prompt = getJetpackFormCustomPrompt( {
 			request: inputValue,
 			content: getSerializedContentFromBlock( clientId ),
 		} );
@@ -131,22 +133,29 @@ export default function AiAssistantBar( {
 		 * in case there is one pending,
 		 * when performing a new AI suggestion request.
 		 */
-		dequeueAiAssistantFeatureAyncRequest();
+		dequeueAiAssistantFeatureAsyncRequest();
 
 		requestSuggestion( prompt, { feature: 'jetpack-form-ai-extension' } );
+		tracks.recordEvent( 'jetpack_ai_assistant_block_generate', {
+			feature: 'jetpack-form-ai-extension',
+		} );
 		wrapperRef?.current?.focus();
 	}, [
 		clientId,
-		dequeueAiAssistantFeatureAyncRequest,
+		dequeueAiAssistantFeatureAsyncRequest,
 		inputValue,
 		removeNotice,
 		requestSuggestion,
+		tracks,
 	] );
 
 	const handleStopSuggestion = useCallback( () => {
 		stopSuggestion();
 		focusOnPrompt();
-	}, [ stopSuggestion ] );
+		tracks.recordEvent( 'jetpack_ai_assistant_block_stop', {
+			feature: 'jetpack-form-ai-extension',
+		} );
+	}, [ stopSuggestion, tracks ] );
 
 	/*
 	 * Fix the assistant bar when the viewport is mobile,
@@ -201,6 +210,14 @@ export default function AiAssistantBar( {
 		};
 	}, [ isAssistantBarFixed, isVisible ] );
 
+	useEffect( () => {
+		if ( isVisible ) {
+			tracks.recordEvent( 'jetpack_ai_assistant_prompt_show', {
+				block_type: 'jetpack/contact-form',
+			} );
+		}
+	}, [ isVisible, tracks ] );
+
 	// focus input on first render only (for a11y reasons, toggling on/off should not focus the input)
 	useEffect( () => {
 		/*
@@ -250,7 +267,7 @@ export default function AiAssistantBar( {
 					} ) }
 					tabIndex={ -1 }
 				>
-					{ siteRequireUpgrade && <UpgradePrompt /> }
+					{ siteRequireUpgrade && <UpgradePrompt placement="jetpack-form-block" /> }
 					{ ! connected && <ConnectPrompt /> }
 					<AIControl
 						ref={ inputRef }

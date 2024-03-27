@@ -40,7 +40,7 @@
         width: 180px;
         margin: 0 0 1.25rem;
     }
-    
+
     &__content {
         display: inline-flex;
         flex-direction: column;
@@ -58,12 +58,12 @@
 
     &__image-container {
         position: relative;
-        background-image: url( '../static/images/jetpack-colors.svg' );
+        background-image: url( '$images/jetpack-colors.svg' );
         background-size: cover;
         max-width: 40%;
         overflow: hidden;
     }
-    
+
     &__image-container img {
         position: relative;
         left: 50%;
@@ -71,7 +71,7 @@
         transform: translate(-50%, -50%);
         width: 100%;
     }
-    
+
     &__text {
         font-size: 1rem;
         line-height: 1.5;

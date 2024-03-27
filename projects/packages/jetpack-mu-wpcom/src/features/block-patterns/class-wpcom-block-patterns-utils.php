@@ -118,6 +118,38 @@ class Wpcom_Block_Patterns_Utils {
 	}
 
 	/**
+	 * Using the pattern categories, generate the `blockTypes` property for
+	 * registering the pattern via `register_block_pattern`.
+	 *
+	 * @param array $pattern A pattern with categories.
+	 *
+	 * @return array         An array of block types.
+	 */
+	public function get_block_types_from_categories( $pattern ) {
+		$block_types = array();
+
+		if ( ! isset( $pattern['categories'] ) || empty( $pattern['categories'] ) ) {
+			return $block_types;
+		}
+
+		foreach ( $pattern['categories'] as $key => $value ) {
+			switch ( $key ) {
+				case 'header':
+					$block_types[] = 'core/template-part/header';
+					break;
+				case 'footer':
+					$block_types[] = 'core/template-part/footer';
+					break;
+				case 'posts':
+					$block_types[] = 'core/query';
+					break;
+			}
+		}
+
+		return $block_types;
+	}
+
+	/**
 	 * Return pattern post types based on the pattern's blockTypes.
 	 *
 	 * @param array $pattern A pattern array such as is passed to `register_block_pattern`.

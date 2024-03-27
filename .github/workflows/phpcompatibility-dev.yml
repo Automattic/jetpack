@@ -23,7 +23,7 @@ jobs:
       misc: ${{ steps.filter.outputs.misc }}
 
     steps:
-      - uses: dorny/paths-filter@v2
+      - uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
@@ -52,7 +52,7 @@ jobs:
     timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute.
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup

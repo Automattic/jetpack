@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Prevent refetching Critical CSS state when off

@@ -87,11 +87,11 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'task_ids'            => array(
 				'setup_newsletter',
 				'plan_selected',
-				'subscribers_added',
 				'verify_email',
+				'subscribers_added',
+				'migrate_content',
 				'set_up_payments',
 				'newsletter_plan_created',
-				'migrate_content',
 				'first_post_published_newsletter',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
@@ -1093,4 +1093,34 @@ function wpcom_get_launchpad_checklist_title_by_checklist_slug( $checklist_slug 
 	}
 
 	return wpcom_launchpad_checklists()->get_task_list_title( $checklist_slug );
+}
+
+/**
+ * Gets a launchpad config option.
+ *
+ * @param string $option The option to get.
+ * @param mixed  $default The default value to return if the option is not set.
+ */
+function wpcom_get_launchpad_config_option( $option, $default = null ) {
+	$wpcom_launchpad_config = get_option( 'wpcom_launchpad_config', array() );
+
+	if ( ! is_array( $wpcom_launchpad_config ) || ! isset( $wpcom_launchpad_config[ $option ] ) ) {
+		return $default;
+	}
+
+	return $wpcom_launchpad_config[ $option ];
+}
+
+/**
+ * Sets a launchpad config option.
+ *
+ * @param string $option The option to set.
+ * @param mixed  $value The value to set.
+ */
+function wpcom_set_launchpad_config_option( $option, $value ) {
+	$wpcom_launchpad_config = get_option( 'wpcom_launchpad_config', array() );
+
+	$wpcom_launchpad_config[ $option ] = $value;
+
+	return update_option( 'wpcom_launchpad_config', $wpcom_launchpad_config );
 }

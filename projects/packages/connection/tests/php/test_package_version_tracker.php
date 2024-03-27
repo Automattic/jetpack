@@ -54,9 +54,16 @@ class Test_Package_Version_Tracker extends TestCase {
 	 * @after
 	 */
 	public function tear_down() {
+		global $wp_actions;
+		// Restore `init` in global $wp_actions.
+		$wp_actions['init'] = true;
+
 		$this->http_request_attempted = false;
 		Constants::clear_constants();
 		WorDBless_Options::init()->clear_options();
+
+		delete_transient( Package_Version_Tracker::CACHED_FAILED_REQUEST_KEY );
+		delete_transient( Package_Version_Tracker::RATE_LIMITER_KEY );
 	}
 
 	/**
@@ -234,9 +241,66 @@ class Test_Package_Version_Tracker extends TestCase {
 	}
 
 	/**
-	 * Tests the maybe_update_package_versions method when the HTTP request to WPCOM succeeds.
+	 * Tests the maybe_update_package_versions method with rate limit applied.
 	 */
-	public function test_maybe_update_package_versions_success() {
+	public function test_maybe_update_package_versions_with_rate_limit() {
+		// Rate limit.
+		set_transient( Package_Version_Tracker::RATE_LIMITER_KEY, time() );
+
+		$tracker = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Package_Version_Tracker' )
+			->setMethods( array( 'update_package_versions_option' ) )
+			->getMock();
+
+		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, self::PACKAGE_VERSIONS );
+
+		add_filter(
+			'jetpack_package_versions',
+			function () {
+				return self::CHANGED_VERSIONS;
+			}
+		);
+
+		$tracker->expects( $this->never() )
+			->method( 'update_package_versions_option' );
+
+		$tracker->maybe_update_package_versions();
+
+		$this->assertSame( self::PACKAGE_VERSIONS, get_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION ) );
+	}
+
+		/**
+		 * Tests the maybe_update_package_versions method when the `init` hook is not fired.
+		 */
+	public function test_maybe_update_package_versions_with_init_hook_not_fired() {
+		global $wp_actions;
+		// Remove `init` from global $wp_actions.
+		unset( $wp_actions['init'] );
+
+		$tracker = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Package_Version_Tracker' )
+			->setMethods( array( 'update_package_versions_option' ) )
+			->getMock();
+
+		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, self::PACKAGE_VERSIONS );
+
+		add_filter(
+			'jetpack_package_versions',
+			function () {
+				return self::CHANGED_VERSIONS;
+			}
+		);
+
+		$tracker->expects( $this->never() )
+			->method( 'update_package_versions_option' );
+
+		$tracker->maybe_update_package_versions();
+
+		$this->assertSame( self::PACKAGE_VERSIONS, get_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION ) );
+	}
+
+	/**
+	 * Tests the maybe_update_package_versions method with Sync disabled when the HTTP request to WPCOM succeeds.
+	 */
+	public function test_maybe_update_package_versions_with_sync_disabled_remote_request_success() {
 		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
 		\Jetpack_Options::update_option( 'id', 1234 );
 
@@ -261,9 +325,9 @@ class Test_Package_Version_Tracker extends TestCase {
 	}
 
 	/**
-	 * Tests the maybe_update_package_versions method when the site is not connected.
+	 * Tests the maybe_update_package_versions method with Sync disabled when the site is not connected.
 	 */
-	public function test_maybe_update_package_versions_not_connected() {
+	public function test_maybe_update_package_versions_with_sync_disabled_not_connected() {
 		add_filter( 'pre_http_request', array( $this, 'intercept_http_request_failure' ) );
 
 		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, self::PACKAGE_VERSIONS );
@@ -289,9 +353,9 @@ class Test_Package_Version_Tracker extends TestCase {
 	}
 
 	/**
-	 * Tests the maybe_update_package_versions method when the HTTP request to WPCOM fails.
+	 * Tests the maybe_update_package_versions method with Sync disabled when the HTTP request to WPCOM fails.
 	 */
-	public function test_maybe_update_package_versions_failure() {
+	public function test_maybe_update_package_versions_with_sync_disabled_remote_request_failure() {
 		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
 		\Jetpack_Options::update_option( 'id', 1234 );
 
@@ -317,9 +381,6 @@ class Test_Package_Version_Tracker extends TestCase {
 		$failed_request_cached = get_transient( Package_Version_Tracker::CACHED_FAILED_REQUEST_KEY );
 
 		$this->assertNotFalse( $failed_request_cached );
-
-		// Clean-up.
-		delete_transient( Package_Version_Tracker::CACHED_FAILED_REQUEST_KEY );
 	}
 
 	/**
@@ -349,9 +410,35 @@ class Test_Package_Version_Tracker extends TestCase {
 		$this->assertFalse( $this->http_request_attempted );
 
 		$this->assertSame( self::PACKAGE_VERSIONS, get_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION ) );
+	}
 
-		// Clean-up.
-		delete_transient( Package_Version_Tracker::CACHED_FAILED_REQUEST_KEY );
+	/**
+	 * Tests the maybe_update_package_versions method with Sync disabled when the HTTP request to WPCOM succeeds.
+	 */
+	public function test_maybe_update_package_versions_with_sync_enabled() {
+		$tracker = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Package_Version_Tracker' )
+			->setMethods( array( 'update_package_versions_via_remote_request', 'is_sync_enabled' ) )
+			->getMock();
+
+		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, self::PACKAGE_VERSIONS );
+
+		add_filter(
+			'jetpack_package_versions',
+			function () {
+				return self::CHANGED_VERSIONS;
+			}
+		);
+
+		$tracker->expects( $this->once() )
+			->method( 'is_sync_enabled' )
+			->willReturn( true );
+
+		$tracker->expects( $this->never() )
+			->method( 'update_package_versions_via_remote_request' );
+
+		$tracker->maybe_update_package_versions();
+
+		$this->assertSame( self::CHANGED_VERSIONS, get_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION ) );
 	}
 
 	/**

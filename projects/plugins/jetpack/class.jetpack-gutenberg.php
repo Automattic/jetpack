@@ -12,29 +12,11 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Dismissed_Notices;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move the functions and such to some other file.
-
-/**
- * Wrapper function to safely register a gutenberg block type
- *
- * @deprecated 9.1.0 Use Automattic\\Jetpack\\Blocks::jetpack_register_block instead
- *
- * @see register_block_type
- *
- * @since 6.7.0
- *
- * @param string $slug Slug of the block.
- * @param array  $args Arguments that are passed into register_block_type.
- *
- * @return WP_Block_Type|false The registered block type on success, or false on failure.
- */
-function jetpack_register_block( $slug, $args = array() ) {
-	_deprecated_function( __METHOD__, '9.1.0', 'Automattic\\Jetpack\\Blocks::jetpack_register_block' );
-	return Blocks::jetpack_register_block( $slug, $args );
-}
 
 /**
  * General Gutenberg editor specific functionality
@@ -700,6 +682,9 @@ class Jetpack_Gutenberg {
 			$is_current_user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected();
 		}
 
+		if ( $blocks_variation === 'beta' && $is_current_user_connected ) {
+			wp_enqueue_style( 'recoleta-font', '//s1.wp.com/i/fonts/recoleta/css/400.min.css', array(), Constants::get_constant( 'JETPACK__VERSION' ) );
+		}
 		// AI Assistant
 		$ai_assistant_state = array(
 			'is-enabled'            => apply_filters( 'jetpack_ai_enabled', true ),
@@ -719,6 +704,7 @@ class Jetpack_Gutenberg {
 
 		$initial_state = array(
 			'available_blocks' => self::get_availability(),
+			'blocks_variation' => $blocks_variation,
 			'modules'          => $modules,
 			'jetpack'          => array(
 				'is_active'                     => Jetpack::is_connection_ready(),
@@ -754,6 +740,7 @@ class Jetpack_Gutenberg {
 			'siteLocale'       => str_replace( '_', '-', get_locale() ),
 			'ai-assistant'     => $ai_assistant_state,
 			'screenBase'       => $screen_base,
+			'pluginBasePath'   => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
 		);
 
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
@@ -767,7 +754,7 @@ class Jetpack_Gutenberg {
 				'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
 				'isSocialImageGeneratorAvailable' => $settings['socialImageGeneratorSettings']['available'],
 				'isSocialImageGeneratorEnabled'   => $settings['socialImageGeneratorSettings']['enabled'],
-				'dismissedNotices'                => $publicize->get_dismissed_notices(),
+				'dismissedNotices'                => Dismissed_Notices::get_dismissed_notices(),
 				'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
 				'autoConversionSettings'          => $settings['autoConversionSettings'],
 				'jetpackSharingSettingsUrl'       => esc_url_raw( admin_url( 'admin.php?page=jetpack#/sharing' ) ),
@@ -841,22 +828,6 @@ class Jetpack_Gutenberg {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Get CSS classes for a block.
-	 *
-	 * @since 7.7.0
-	 *
-	 * @param string $slug  Block slug.
-	 * @param array  $attr  Block attributes.
-	 * @param array  $extra Potential extra classes you may want to provide.
-	 *
-	 * @return string $classes List of CSS classes for a block.
-	 */
-	public static function block_classes( $slug, $attr, $extra = array() ) {
-		_deprecated_function( __METHOD__, '9.0.0', 'Automattic\\Jetpack\\Blocks::classes' );
-		return Blocks::classes( $slug, $attr, $extra );
 	}
 
 	/**

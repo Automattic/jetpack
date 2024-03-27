@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-
-System Assistant: Fix broken links on some tasks.
-Migrations: task_offset_fix migration would not mark as complete on some timezones

@@ -20,6 +20,11 @@ const sortThreats = ( a, b ) => b.severity - a.severity;
  * @returns {object[]} Array of threats with additional properties from the threat category and function argument.
  */
 const flattenThreats = ( data, newData ) => {
+	// If "data" is an empty object
+	if ( typeof data === 'object' && Object.keys( data ).length === 0 ) {
+		return [];
+	}
+
 	// If "data" has multiple entries, recursively flatten each one.
 	if ( Array.isArray( data ) ) {
 		return data.map( extension => flattenThreats( extension, newData ) ).flat();
@@ -45,9 +50,9 @@ const flattenThreats = ( data, newData ) => {
  * @returns {UseThreatsList} useThreatsList hook.
  */
 const useThreatsList = () => {
-	const { plugins, themes, core, files, database } = useProtectData();
-
 	const [ selected, setSelected ] = useState( 'all' );
+
+	const { plugins, themes, core, files, database } = useProtectData();
 
 	const { unsortedList, item } = useMemo( () => {
 		// If a specific threat category is selected, filter for and flatten the category's threats.
@@ -106,7 +111,7 @@ const useThreatsList = () => {
 	}, [ core, database, files, plugins, selected, themes ] );
 
 	const list = useMemo( () => {
-		return unsortedList.sort( sortThreats );
+		return [ ...unsortedList ].sort( sortThreats );
 	}, [ unsortedList ] );
 
 	return {

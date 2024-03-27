@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack Starter Plugin
  * Plugin URI: https://wordpress.org/plugins/jetpack-starter-plugin
  * Description: plugin--description.
- * Version: 0.4.0-alpha
+ * Version: 0.5.0-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -55,9 +55,26 @@ if ( is_readable( $jetpack_autoloader ) ) {
 		);
 	}
 
+	// Add a red bubble notification to My Jetpack if the installation is bad.
+	add_filter(
+		'my_jetpack_red_bubble_notification_slugs',
+		function ( $slugs ) {
+			$slugs['jetpack-starter-plugin-bad-installation'] = array(
+				'data' => array(
+					'plugin' => 'Jetpack Starter',
+				),
+			);
+
+			return $slugs;
+		}
+	);
+
 	add_action(
 		'admin_notices',
 		function () {
+			if ( get_current_screen()->id !== 'plugins' ) {
+				return;
+			}
 			?>
 		<div class="notice notice-error is-dismissible">
 			<p>
@@ -65,7 +82,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 				printf(
 					wp_kses(
 						/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Jetpack Starter Plugin is incomplete. If you installed Jetpack Starter Plugin from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Starter Plugin must have Composer dependencies installed and built via the build command.', 'jetpack-starter-plugin' ),
+						__( 'Your installation of Jetpack Starter is incomplete. If you installed Jetpack Starter Plugin from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Starter Plugin must have Composer dependencies installed and built via the build command.', 'jetpack-starter-plugin' ),
 						array(
 							'a' => array(
 								'href'   => array(),

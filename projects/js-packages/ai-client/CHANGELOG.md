@@ -5,6 +5,82 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.1] - 2024-03-27
+### Changed
+- Updated package dependencies. [#36539, #36585]
+
+## [0.10.0] - 2024-03-18
+### Added
+- Add image generator hook [#36415]
+
+## [0.9.0] - 2024-03-12
+### Changed
+- Fix typescript errors [#35904]
+- Updated package dependencies. [#36325]
+
+### Fixed
+- AI Client: Fix audio recording where WebM is not supported (iOS for example). [#36160]
+
+## [0.8.2] - 2024-03-04
+### Added
+- AI Client: add audio validation hook. [#36043]
+- Voice to Content: Close audio stream on hook destruction [#36086]
+
+### Changed
+- AI Client: change loading and error state handling on media recording hook. [#36001]
+- AI Client: publish audio information on the validation success callback of the audio validation hook. [#36094]
+- Updated package dependencies. [#36095]
+- Updated package dependencies. [#36143]
+
+### Fixed
+- AI Client: fixed transcription request from P2 editor [#36081]
+
+## [0.8.1] - 2024-02-27
+### Changed
+- AI Client: support audio transcription and transcription post-processing canceling. [#35923]
+
+## [0.8.0] - 2024-02-26
+### Added
+- Add upgrade message for free tier [#35794]
+
+### Changed
+- Updated package dependencies. [#35793]
+- Voice to Content: Add audio analyser to media recording hook [#35877]
+- Voice to Content: Make transcriptions cancelable and add onProcess callback [#35737]
+
+## [0.7.0] - 2024-02-19
+### Added
+- AI Client: add support for audio transcriptions. [#35691]
+- AI Client: add support for transcription post-processing. [#35734]
+
+### Changed
+- AI Client: Update voice to content feature [#35698]
+- Make build usable in projects using tsc with `moduleResolution` set to 'nodenext'. [#35453]
+- Voice to Content: Add states and refactor duration calculation [#35717]
+
+## [0.6.1] - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+## [0.6.0] - 2024-02-05
+### Added
+- Jetpack AI: Support floating error messaging on the AI Control component. [#35322]
+
+### Changed
+- Updated package dependencies. [#35384]
+
+## [0.5.1] - 2024-01-29
+### Changed
+- Update dependencies. [#35170]
+
+## [0.5.0] - 2024-01-25
+### Changed
+- AI Control: Do not call onAccept from the discard handler. A fix has been put in place on #35236. [#35238]
+
+## [0.4.1] - 2024-01-22
+### Changed
+- Update dependencies. [#35117]
+
 ## [0.4.0] - 2024-01-15
 ### Added
 - AI Client: introduce bannerComponent prop, React.Element, to render on top of the AI Control [#34918]
@@ -187,6 +263,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies. [#31659]
 - Updated package dependencies. [#31785]
 
+[0.10.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.10.0...v0.10.1
+[0.10.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.9.0...v0.10.0
+[0.9.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.8.2...v0.9.0
+[0.8.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.8.1...v0.8.2
+[0.8.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.8.0...v0.8.1
+[0.8.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.7.0...v0.8.0
+[0.7.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.6.1...v0.7.0
+[0.6.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.6.0...v0.6.1
+[0.6.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.5.1...v0.6.0
+[0.5.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.4.1...v0.5.0
+[0.4.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.2.1...v0.3.0

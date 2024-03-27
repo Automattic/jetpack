@@ -117,7 +117,7 @@ class Speed_Score_Graph_History_Request extends Cacheable {
 	 * @return true|\WP_Error True on success, WP_Error on failure.
 	 */
 	public function execute() {
-		$response = $this->get_client()->get(
+		$response = Boost_API::get(
 			'speed-scores-history',
 			array(
 				'start' => $this->start,
@@ -134,14 +134,5 @@ class Speed_Score_Graph_History_Request extends Cacheable {
 		}
 
 		return $response;
-	}
-
-	/**
-	 * Instantiate the API client.
-	 *
-	 * @return Boost_API_Client
-	 */
-	private function get_client() {
-		return Boost_API::get_client();
 	}
 }

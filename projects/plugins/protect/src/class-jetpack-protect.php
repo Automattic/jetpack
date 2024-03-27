@@ -19,6 +19,7 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Protect\Onboarding;
 use Automattic\Jetpack\Protect\Plan;
 use Automattic\Jetpack\Protect\REST_Controller;
 use Automattic\Jetpack\Protect\Site_Health;
@@ -206,18 +207,20 @@ class Jetpack_Protect {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$refresh_status_from_wpcom = isset( $_GET['checkPlan'] );
 		$initial_state             = array(
-			'apiRoot'           => esc_url_raw( rest_url() ),
-			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
-			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
-			'status'            => Status::get_status( $refresh_status_from_wpcom ),
-			'installedPlugins'  => Plugins_Installer::get_plugins(),
-			'installedThemes'   => Sync_Functions::get_themes(),
-			'wpVersion'         => $wp_version,
-			'adminUrl'          => 'admin.php?page=jetpack-protect',
-			'siteSuffix'        => ( new Jetpack_Status() )->get_site_suffix(),
-			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
-			'hasRequiredPlan'   => Plan::has_required_plan(),
-			'waf'               => array(
+			'apiRoot'            => esc_url_raw( rest_url() ),
+			'apiNonce'           => wp_create_nonce( 'wp_rest' ),
+			'registrationNonce'  => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'status'             => Status::get_status( $refresh_status_from_wpcom ),
+			'installedPlugins'   => Plugins_Installer::get_plugins(),
+			'installedThemes'    => Sync_Functions::get_themes(),
+			'wpVersion'          => $wp_version,
+			'adminUrl'           => 'admin.php?page=jetpack-protect',
+			'siteSuffix'         => ( new Jetpack_Status() )->get_site_suffix(),
+			'blogID'             => Connection_Manager::get_site_id( true ),
+			'jetpackScan'        => My_Jetpack_Products::get_product( 'scan' ),
+			'hasRequiredPlan'    => Plan::has_required_plan(),
+			'onboardingProgress' => Onboarding::get_current_user_progress(),
+			'waf'                => array(
 				'wafSupported'        => Waf_Runner::is_supported_environment(),
 				'currentIp'           => IP_Utils::get_ip(),
 				'isSeen'              => self::get_waf_seen_status(),

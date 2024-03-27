@@ -5,6 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.17.6] - 2024-03-27
+### Changed
+- Updated package dependencies. [#36585]
+
+## [0.17.5] - 2024-03-25
+### Changed
+- Internal updates.
+
+## [0.17.4] - 2024-03-18
+### Changed
+- Internal updates.
+
+## [0.17.3] - 2024-03-14
+### Changed
+- Internal updates.
+
+## [0.17.2] - 2024-03-12
+### Changed
+- Updated package dependencies. [#36325]
+
+## [0.17.1] - 2024-03-04
+### Changed
+- Updated package dependencies.
+
+## [0.17.0] - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+### Deprecated
+- Deprecating unused methods for IDC handling [#35444]
+
+## [0.16.0] - 2024-02-07
+### Deprecated
+- Removing old and previously deprecated code. [#35048]
+
+## [0.15.1] - 2024-02-05
+### Changed
+- Updated package dependencies. [#35384]
+
+### Fixed
+- Minor change in method response [#35336]
+
+## [0.15.0] - 2024-01-18
+### Added
+- Adding support for IDC when site URL is an IP address. [#34753]
+
 ## [0.14.1] - 2024-01-04
 ### Changed
 - Updated package dependencies. [#34815]
@@ -469,6 +515,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Connection/Urls for home_url and site_url functions migrated from Sync.
 
+[0.17.6]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.17.5...v0.17.6
+[0.17.5]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.17.4...v0.17.5
+[0.17.4]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.17.3...v0.17.4
+[0.17.3]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.17.2...v0.17.3
+[0.17.2]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.17.1...v0.17.2
+[0.17.1]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.17.0...v0.17.1
+[0.17.0]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.16.0...v0.17.0
+[0.16.0]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.15.1...v0.16.0
+[0.15.1]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.15.0...v0.15.1
+[0.15.0]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.14.1...v0.15.0
 [0.14.1]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.12.1...v0.13.0

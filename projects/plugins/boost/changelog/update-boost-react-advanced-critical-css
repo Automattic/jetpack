@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Migrate AdvancedCriticalCss and several other components to react.

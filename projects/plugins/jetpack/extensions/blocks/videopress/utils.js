@@ -2,8 +2,9 @@
  * The code below is pulled from Gutenberg embed block, until we can use it directly from Gutenberg
  * https://github.com/WordPress/gutenberg/blob/e4b6d70f129a745a0cc7dc556d41a44bdab7b0ca/packages/block-library/src/embed/util.js#L177
  */
+import { createBlock, getBlockType } from '@wordpress/blocks';
 import classnames from 'classnames';
-import { ASPECT_RATIOS } from './constants';
+import { ASPECT_RATIOS, DEFAULT_EMBED_BLOCK } from './constants';
 
 /**
  * Removes all previously set aspect ratio related classes and return the rest
@@ -107,4 +108,34 @@ export const isVideoPressBlockBasedOnAttributes = attributes => {
 	}
 
 	return true;
+};
+
+/**
+ * Creates an embed block if a VideoPress URL is passed.
+ *
+ * @param {object} props - The block's props.
+ * @returns {object|undefined} The embed block, if appropriate.
+ */
+export const createVideoPressEmbedBlock = props => {
+	const { attributes = {} } = props;
+	const { url, ...restAttributes } = attributes;
+
+	if ( ! url || ! getBlockType( DEFAULT_EMBED_BLOCK ) ) {
+		return;
+	}
+
+	const isVideoPress = /^https?:\/\/videopress\.com\/.+/i.test( url );
+
+	if ( isVideoPress ) {
+		const matchedAttributes = {
+			providerNameSlug: 'videopress',
+			responsive: true,
+		};
+
+		return createBlock( DEFAULT_EMBED_BLOCK, {
+			url,
+			...restAttributes,
+			...matchedAttributes,
+		} );
+	}
 };

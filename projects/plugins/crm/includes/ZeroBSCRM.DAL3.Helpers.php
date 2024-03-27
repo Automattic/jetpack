@@ -1227,27 +1227,6 @@ function zeroBS_setOwner($objID=-1,$ownerID=-1,$objTypeID=false){
         // here we check that the potential owner CAN even own
         if (!user_can($ownerID,'admin_zerobs_usr')) return false;
 
-        /* DAL3 simplifies this
-
-		// BECAUSE db2 doesn't have all objects as tables, find out the type + then switch here
-		// ... we need to pass object really to third param, until we switch DB over
-		if (!$objType) $objType = get_post_type($postID);
-
-		// if not new db2:
-		if ($objType !== false && $objType !== 'zerobs_customer'){
-
-			return update_post_meta($postID, 'zbs_owner', (int)$ownerID);
-
-		} else {
-
-			global $zbs;
-
-			return $zbs->DAL->contacts->addUpdateContact(array(
-					'id'			=>	$postID,
-					'limitedFields'	=>array(
-						array('key'=>'zbs_owner','val'=>$ownerID,'type'=>'%d')
-						)));
-		} */
 		global $zbs;
 
 		return $zbs->DAL->setFieldByID(array(
@@ -1897,73 +1876,65 @@ function zeroBS_addUpdateCustomer(
 			#} Build using centralised func below, passing any existing meta (updates not overwrites)
 			$zbsCustomerMeta = zeroBS_buildCustomerMeta($cFields,$existingMeta,$metaBuilderPrefix,'',true);
 
-			/* dealt with in DAL2 now :)
-			// log any change of status
-			if (!empty($zbsCustomerMeta['status']) && !empty($originalStatus) && $zbsCustomerMeta['status'] != $originalStatus){
+		$we_have_tags = false; // set to false.. duh..
 
-				// status change
-				$statusChange = array(
-					'from' => $originalStatus,
-					'to' => $zbsCustomerMeta['status']
+		// TAG customer (if exists) - clean etc here too
+		if ( ! empty( $cFields['tags'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$tags = $cFields['tags']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			// Sanitize tags
+			if ( is_array( $tags ) ) {
+				$customer_tags = filter_var_array( $tags, FILTER_UNSAFE_RAW );
+				// Formerly this used FILTER_SANITIZE_STRING, which is now deprecated as it was fairly broken. This is basically equivalent.
+				// @todo Replace this with something more correct.
+				foreach ( $customer_tags as $k => $v ) {
+					$customer_tags[ $k ] = strtr(
+						strip_tags( $v ), // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags
+						array(
+							"\0" => '',
+							'"'  => '&#34;',
+							"'"  => '&#39;',
+							'<'  => '',
+						)
 					);
-			} */
-
-
-			/* dealt with in DAL2 now :)
-			#} If no status, and default is specified in settings, add that in :)
-			if (is_null($zbsCustomerMeta['status']) || !isset($zbsCustomerMeta['status']) || empty($zbsCustomerMeta['status'])){
-
-				$defaultStatusStr = zeroBSCRM_getSetting('defaultstatus');
-
-				// allow "empties" if (!empty($defaultStatusStr)) 
-				$zbsCustomerMeta['status'] = $defaultStatusStr;
-
+				}
+				$we_have_tags = true;
 			}
-			*/
 
+			if ( $we_have_tags ) {
 
-            $we_have_tags = false; //set to false.. duh..
+				$zbsCustomerMeta['tags'] = array(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				foreach ( $customer_tags as $tag_name ) {
 
-            # TAG customer (if exists) - clean etc here too 
-            if(!empty($cFields['tags'])){
-				$tags 		= $cFields['tags'];
-				#} Santize tags
-				if(is_array($tags)){
-					$customer_tags = filter_var_array($tags,FILTER_UNSAFE_RAW); 
-					// Formerly this used FILTER_SANITIZE_STRING, which is now deprecated as it was fairly broken. This is basically equivalent.
-					// @todo Replace this with something more correct.
-					foreach ( $customer_tags as $k => $v ) {
-						$customer_tags[$k] = strtr(
-							strip_tags( $v ),
+					// Check for existing tag under this name.
+					$tag_id = $zbs->DAL->getTag( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						-1,
+						array(
+							'objtype' => ZBS_TYPE_CONTACT,
+							'name'    => $tag_name,
+							'onlyID'  => true,
+						)
+					);
+
+					// If tag doesn't exist, create one.
+					if ( empty( $tag_id ) ) {
+						$tag_id = $zbs->DAL->addUpdateTag( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 							array(
-								"\0" => '',
-								'"' => '&#34;',
-								"'" => '&#39;',
-								"<" => '',
+								'data' => array(
+									'objtype' => ZBS_TYPE_CONTACT,
+									'name'    => $tag_name,
+								),
 							)
 						);
 					}
-					$we_have_tags = true;
-				}
 
-                if($we_have_tags){
-
-                	$zbsCustomerMeta['tags'] = array();
-					foreach($customer_tags as $cTag){
-
-						// find/add tag
-						//wp_set_object_terms($postID , $cTag, 'zerobscrm_customertag', true );
-						$tagID = $zbs->DAL->addUpdateTag(array(
-							'data'=>array(
-								'objtype' 		=> ZBS_TYPE_CONTACT,
-								'name' 			=> $cTag
-								)));
-
-						if (!empty($tagID)) $zbsCustomerMeta['tags'][] = $tagID;
-
+					// Add tag to list.
+					if ( ! empty( $tag_id ) ) {
+						$zbsCustomerMeta['tags'][] = $tag_id; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					}
+
 				}
 			}
+		}
 
 
 			#} Add external source/externalid
@@ -2435,7 +2406,7 @@ function zeroBS_addUpdateLog(
 		}
 
 		// no TYPE
-		zeroBSCRM_DEPRECATEDMSG('zeroBS_addUpdateLog has been replaced by DAL3 logging. Please do no use, or at least pass an object type');
+		zeroBSCRM_DEPRECATEDMSG( 'zeroBS_addUpdateLog has been replaced by DAL3 logging. Please do not use, or at least pass an object type.' );
 		return false;
 
 
@@ -2523,7 +2494,7 @@ function zeroBS_addUpdateObjLog(
 // still used in bulk-tagger and groove-connect extensions as of 9 May 1923
 function zeroBSCRM_DAL2_set_post_terms($cID=-1,$tags=array(),$taxonomy='zerobscrm_customertag',$append=true,$usingTagIDS=true){
 
-	zeroBSCRM_DEPRECATEDMSG('zeroBSCRM_DAL2_set_post_terms has been replaced by DAL3 tagging. Please do no use');		
+	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_DAL2_set_post_terms has been replaced by DAL3 tagging. Please do not use.' );
 	
 	global $zbs;
 
@@ -2555,7 +2526,7 @@ function zeroBSCRM_DAL2_set_post_terms($cID=-1,$tags=array(),$taxonomy='zerobscr
 // still used in several extensions as of 9 May 1923
 function zeroBSCRM_DAL2_set_object_terms($cID=-1,$tags=array(),$taxonomy='zerobscrm_customertag',$append=true,$usingTagIDS=true){
 
-	zeroBSCRM_DEPRECATEDMSG('zeroBSCRM_DAL2_set_object_terms has been replaced by DAL3 tagging. Please do no use');		
+	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_DAL2_set_object_terms has been replaced by DAL3 tagging. Please do not use.' );
 	
 	global $zbs;
 
@@ -2610,7 +2581,7 @@ function zeroBSCRM_DAL2_set_object_terms($cID=-1,$tags=array(),$taxonomy='zerobs
 // still used in csv-importer-pro as of 9 May 1923
 function zeroBSCRM_DAL2_remove_object_terms($cID=-1,$tags=array(),$taxonomy='zerobscrm_customertag',$usingTagIDS=true){
 
-	zeroBSCRM_DEPRECATEDMSG('zeroBSCRM_DAL2_remove_object_terms has been replaced by DAL3 tagging. Please do no use');		
+	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_DAL2_remove_object_terms has been replaced by DAL3 tagging. Please do not use.' );
 	
 	global $zbs;
 
@@ -3696,24 +3667,40 @@ function zeroBS_getCompanyIDWithName( $company_name = '' ) {
 						$we_have_tags = true;
 					}
 
-	                if ($we_have_tags){
+			if ( $we_have_tags ) {
 
-	                	$zbsCompanyMeta['tags'] = array();
-						foreach($company_tags as $cTag){
+				$zbsCompanyMeta['tags'] = array(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				foreach ( $company_tags as $tag_name ) {
 
-							// find/add tag
-							$tagID = $zbs->DAL->addUpdateTag(array(
-								'data'=>array(
-									'objtype' 		=> ZBS_TYPE_COMPANY,
-									'name' 			=> $cTag
-									)));
+					// Check for existing tag under this name.
+					$tag_id = $zbs->DAL->getTag( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						-1,
+						array(
+							'objtype' => ZBS_TYPE_COMPANY,
+							'name'    => $tag_name,
+							'onlyID'  => true,
+						)
+					);
 
-							if (!empty($tagID)) $zbsCompanyMeta['tags'][] = $tagID;
+					// If tag doesn't exist, create one.
+					if ( empty( $tag_id ) ) {
+						$tag_id = $zbs->DAL->addUpdateTag( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+							array(
+								'data' => array(
+									'objtype' => ZBS_TYPE_COMPANY,
+									'name'    => $tag_name,
+								),
+							)
+						);
+					}
 
-						}
-
+					// Add tag to list.
+					if ( ! empty( $tag_id ) ) {
+						$zbsCompanyMeta['tags'][] = $tag_id; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					}
 				}
+			}
+		}
 
 
 				#} Add external source/externalid
@@ -5766,31 +5753,44 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 										);
 									}
 
-				                	$args['data']['tags'] = array();
-									foreach($transactionTags as $tTag){
+				$args['data']['tags'] = array();
+				foreach ( $transactionTags as $tag_name ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-										// find/add tag
-										//wp_set_object_terms($postID , $cTag, 'zerobscrm_customertag', true );
-										$tagID = $zbs->DAL->addUpdateTag(array(
-											'data'=>array(
-												'objtype' 		=> ZBS_TYPE_TRANSACTION,
-												'name' 			=> $tTag
-												)));
+					// Check for existing tag under this name.
+					$tag_id = $zbs->DAL->getTag( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						-1,
+						array(
+							'objtype' => ZBS_TYPE_TRANSACTION,
+							'name'    => $tag_name,
+							'onlyID'  => true,
+						)
+					);
 
-										if (!empty($tagID)) $args['data']['tags'][] = $tagID;
+					// If tag doesn't exist, create one.
+					if ( empty( $tag_id ) ) {
+						$tag_id = $zbs->DAL->addUpdateTag( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+							array(
+								'data' => array(
+									'objtype' => ZBS_TYPE_TRANSACTION,
+									'name'    => $tag_name,
+								),
+							)
+						);
+					}
 
-									}
-							}
-
-				#} Update record (All IA is now fired intrinsicaly)
-				return $zbs->DAL->transactions->addUpdateTransaction($args);
-
+					// Add tag to list.
+					if ( ! empty( $tag_id ) ) {
+						$args['data']['tags'][] = $tag_id;
+					}
+				}
 			}
 
-
-		return false;
+			// Update record (All IA is now fired intrinsicaly)
+			return $zbs->DAL->transactions->addUpdateTransaction( $args ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 
+	return false;
+}
 
 	// Please use direct dal calls in future work, not this.
 	#} Quick wrapper to future-proof.
@@ -6044,75 +6044,6 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 
    // Add an event
    function zeroBS_addUpdateEvent($eventID = -1, $eventFields = array(), $reminders=array()){
-
-		/*
-		
-			-EVENT FIELDS ARE
-
-			v2....
-			$event_fields = array(
-
-				'title' => event title
-				'customer' => ID of the customer the event is for (if any)
-				'notes' => customer notes string
-				'to' => to date, format date('m/d/Y H') . ":00:00";
-				'from' => from date, format date('m/d/Y H') . ":00:00";
-				'notify' => 0 or 24 (never or 24 hours before)
-				'complete' => 0 or 1 (boolean),
-				'owner' => who owns the event (-1 for no one),
-				'event_id' => the event ID
-
-
-			);
-
-
-			v3....
-			$event_fields = array(
-
-
-                'title' => '',
-                'desc' => '',
-                'start' => '',
-                'end' => '',
-                'complete' => '',
-                'show_on_portal' => '',
-                'show_on_cal' => '',
-
-                // obj links:
-                'contacts' => false, // array of id's
-                'companies' => false, // array of id's
-
-                // reminders:
-                'reminders'     => false, 
-                // will be an array of eventreminder lines (as per matching eventreminder database model)
-                // note:    if no change desired, pass "false"
-                //          if removal of all/change, pass array
-
-                // Note Custom fields may be passed here, but will not have defaults so check isset()
-
-                'tags' => -1, // if this is an array of ID's, they'll REPLACE existing tags against contact
-
-                'externalSources' => -1, // if this is an array(array('source'=>src,'uid'=>uid),multiple()) it'll add :)
-
-                // allow this to be set for MS sync etc.
-                'created' => -1,
-                'lastupdated' => '',
-
-
-			);
-
-		*/
-		/*
-		
-			-Reminder fields are (WH added in MS style for DAL3, and modified in events save )
-			$event_fields = array(
-
-	        'remind_at' => +- event time (e.g. -86400 for 1 day before)
-	        'sent' => has reminder been sent?
-
-			);
-
-		*/
 
 		// if using 'from' and 'to', probably using v1 dal, so translate dates:
 		if (isset($eventFields['from'])) $eventFields['from'] = strtotime($eventFields['from']);
@@ -6554,6 +6485,43 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 /* ======================================================
   	Value Calculator / helpers
    ====================================================== */
+
+/**
+ * Calculates the total value associated with a contact or company entity.
+ *
+ * This function sums the total of invoices and transactions associated with a given entity.
+ * It also accounts for the 'jpcrm_total_value_fields' settings to determine whether to include
+ * invoices and transactions in the total value. Additionally, if both invoices and transactions
+ * are included, and the 'transactions_paid_total' is set and greater than 0, it subtracts this
+ * value from the total.
+ *
+ * @param array $entity The entity array containing 'invoices_total', 'transactions_total', and optionally 'transactions_paid_total'.
+ *
+ * @return float The calculated total value. It includes the invoices and transactions totals based on the settings,
+ *               and adjusts for 'transactions_paid_total' if applicable.
+ */
+function jpcrm_get_total_value_from_contact_or_company( $entity ) {
+	global $zbs;
+	$total_value        = 0.0;
+	$invoices_total     = isset( $entity['invoices_total'] ) ? $entity['invoices_total'] : 0.0;
+	$transactions_total = isset( $entity['transactions_total'] ) ? $entity['transactions_total'] : 0.0;
+	// For compatibility reasons we include all values if the jpcrm_total_value_fields setting is inexistent.
+	$settings                     = $zbs->settings->getAll();
+	$include_invoices_in_total    = true;
+	$include_transations_in_total = true;
+	if ( isset( $settings['jpcrm_total_value_fields'] ) ) {
+				$include_invoices_in_total    = isset( $settings['jpcrm_total_value_fields']['invoices'] ) && $settings['jpcrm_total_value_fields']['invoices'] === 1;
+				$include_transations_in_total = isset( $settings['jpcrm_total_value_fields']['transactions'] ) && $settings['jpcrm_total_value_fields']['transactions'] === 1;
+	}
+	$total_value  = 0;
+	$total_value += $include_invoices_in_total ? $invoices_total : 0;
+	$total_value += $include_transations_in_total ? $transactions_total : 0;
+	if ( $include_invoices_in_total && $include_transations_in_total && isset( $entity['transactions_paid_total'] ) && $entity['transactions_paid_total'] > 0 ) {
+				$total_value -= $entity['transactions_paid_total'];
+	}
+
+	return $total_value;
+}
 
    // evolved for dal3.0
    // left in place + translated, but FAR better to just use 'withValues' => true on a getContact call directly.

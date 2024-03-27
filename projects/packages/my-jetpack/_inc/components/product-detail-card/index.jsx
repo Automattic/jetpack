@@ -1,6 +1,3 @@
-// eslint-disable-next-line no-unused-vars
-/* global myJetpackInitialState */
-
 import { getCurrencyObject } from '@automattic/format-currency';
 import {
 	CheckmarkIcon,
@@ -17,8 +14,10 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, plus } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useCallback } from 'react';
+import useProduct from '../../data/products/use-product';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
-import { useProduct } from '../../hooks/use-product';
+import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 import ProductDetailButton from '../product-detail-button';
 import styles from './style.module.scss';
 
@@ -69,6 +68,7 @@ function Price( { value, currency, isOld } ) {
  * @param {boolean} [props.hideTOS]              - Whether to hide the Terms of Service text
  * @param {number} [props.quantity]              - The quantity of the product to purchase
  * @param {boolean} [props.highlightLastFeature] - Whether to highlight the last feature of the list of features
+ * @param {boolean} [props.isFetching]           - Whether the product is being fetched
  * @returns {object}                               ProductDetailCard react component.
  */
 const ProductDetailCard = ( {
@@ -82,11 +82,17 @@ const ProductDetailCard = ( {
 	hideTOS = false,
 	quantity = null,
 	highlightLastFeature = false,
+	isFetching = false,
 } ) => {
-	const { fileSystemWriteAccess, siteSuffix, adminUrl, myJetpackCheckoutUri } =
-		window?.myJetpackInitialState ?? {};
+	const {
+		fileSystemWriteAccess = 'no',
+		siteSuffix = '',
+		adminUrl = '',
+		myJetpackCheckoutUri = '',
+	} = getMyJetpackWindowInitialState();
 
-	const { detail, isFetching } = useProduct( slug );
+	const { detail } = useProduct( slug );
+
 	const {
 		name,
 		title,
@@ -96,7 +102,7 @@ const ProductDetailCard = ( {
 		pricingForUi,
 		isBundle,
 		supportedProducts,
-		hasRequiredPlan,
+		hasPaidPlanForProduct,
 		status,
 		pluginSlug,
 		postCheckoutUrl,
@@ -126,9 +132,30 @@ const ProductDetailCard = ( {
 	 * Or when:
 	 * - it's a quantity-based product
 	 */
-	const needsPurchase = ( ! isFree && ! hasRequiredPlan ) || quantity != null;
+	const needsPurchase = ( ! isFree && ! hasPaidPlanForProduct ) || quantity != null;
 
-	const checkoutRedirectUrl = postCheckoutUrl ? postCheckoutUrl : myJetpackCheckoutUri;
+	// Redirect to the referrer URL when the `redirect_to_referrer` query param is present.
+	const referrerURL = useRedirectToReferrer();
+
+	/*
+	 * Function to handle the redirect URL selection.
+	 * - postCheckoutUrl is the URL provided by the product API and is the preferred URL
+	 * - referrerURL is the referrer URL, in case the redirect_to_referrer flag was provided
+	 * - myJetpackCheckoutUri is the default URL
+	 */
+	const getCheckoutRedirectUrl = useCallback( () => {
+		if ( postCheckoutUrl ) {
+			return postCheckoutUrl;
+		}
+
+		if ( referrerURL ) {
+			return referrerURL;
+		}
+
+		return myJetpackCheckoutUri;
+	}, [ postCheckoutUrl, referrerURL, myJetpackCheckoutUri ] );
+
+	const checkoutRedirectUrl = getCheckoutRedirectUrl();
 
 	const { run: mainCheckoutRedirect, hasCheckoutStarted: hasMainCheckoutStarted } =
 		useProductCheckoutWorkflow( {
@@ -145,8 +172,10 @@ const ProductDetailCard = ( {
 	const { run: trialCheckoutRedirect, hasCheckoutStarted: hasTrialCheckoutStarted } =
 		useProductCheckoutWorkflow( {
 			productSlug: wpcomFreeProductSlug,
-			redirectUrl: myJetpackCheckoutUri,
+			redirectUrl: checkoutRedirectUrl,
 			siteSuffix,
+			adminUrl,
+			connectAfterCheckout: true,
 			from: 'my-jetpack',
 			quantity,
 			useBlogIdSuffix: true,
@@ -196,9 +225,9 @@ const ProductDetailCard = ( {
 	}, [ onClick, trackButtonClick, mainCheckoutRedirect, detail ] );
 
 	const trialClickHandler = useCallback( () => {
-		trackButtonClick( wpcomFreeProductSlug );
-		onClick?.( trialCheckoutRedirect );
-	}, [ onClick, trackButtonClick, trialCheckoutRedirect, wpcomFreeProductSlug ] );
+		trackButtonClick( true, wpcomFreeProductSlug, detail );
+		onClick?.( trialCheckoutRedirect, detail );
+	}, [ onClick, trackButtonClick, trialCheckoutRedirect, wpcomFreeProductSlug, detail ] );
 
 	const disclaimerClickHandler = useCallback(
 		id => {
@@ -232,12 +261,13 @@ const ProductDetailCard = ( {
 		);
 	}
 
-	const hasTrialButton = ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && trialAvailable;
+	const hasTrialButton =
+		( ! isBundle || ( isBundle && ! hasPaidPlanForProduct ) ) && trialAvailable;
 
 	// If we prefer the product name, use that everywhere instead of the title
 	const productMoniker = name && preferProductName ? name : title;
 	const defaultCtaLabel =
-		! isBundle && hasRequiredPlan
+		! isBundle && hasPaidPlanForProduct
 			? sprintf(
 					/* translators: placeholder is product name. */
 					__( 'Install %s', 'jetpack-my-jetpack' ),
@@ -286,10 +316,10 @@ const ProductDetailCard = ( {
 				{ needsPurchase && discountPrice && (
 					<>
 						<div className={ styles[ 'price-container' ] }>
+							<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
 							{ discountPrice < price && (
 								<Price value={ price } currency={ currencyCode } isOld={ true } />
 							) }
-							<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
 						</div>
 						<Text className={ styles[ 'price-description' ] }>{ priceDescription }</Text>
 					</>
@@ -332,7 +362,7 @@ const ProductDetailCard = ( {
 					</div>
 				) }
 
-				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
+				{ ( ! isBundle || ( isBundle && ! hasPaidPlanForProduct ) ) && (
 					<Text
 						component={ ProductDetailButton }
 						onClick={ clickHandler }
@@ -346,7 +376,7 @@ const ProductDetailCard = ( {
 					</Text>
 				) }
 
-				{ ! isBundle && trialAvailable && ! hasRequiredPlan && (
+				{ ! isBundle && trialAvailable && ! hasPaidPlanForProduct && (
 					<Text
 						component={ ProductDetailButton }
 						onClick={ trialClickHandler }
@@ -386,7 +416,7 @@ const ProductDetailCard = ( {
 					</div>
 				) }
 
-				{ isBundle && hasRequiredPlan && (
+				{ isBundle && hasPaidPlanForProduct && (
 					<div className={ styles[ 'product-has-required-plan' ] }>
 						<CheckmarkIcon size={ 36 } />
 						<Text>{ __( 'Active on your site', 'jetpack-my-jetpack' ) }</Text>

@@ -1,0 +1,22 @@
+
+.jetpack-sso-admin-create-user-invite-message {
+	width: 550px;
+}
+
+.jetpack-sso-admin-create-user-invite-message-link-sso {
+    text-decoration: none;
+}
+
+#createuser .form-field textarea {
+	width: 25em;
+}
+
+#createuser .form-field [type=checkbox] {
+	width: 1rem;
+}
+
+#custom_email_message_description {
+	max-width: 25rem;
+	color: #646970;
+	font-size: 12px;
+}

@@ -17,6 +17,10 @@ p {
 	--font-headline-medium: 48px;
 	--font-title-medium: 24px;
 	--font-body-small: 14px;
+
+	// Jetpack component uses this variable
+	--font-body-extra-small: 14px;
+	
 	--spacing-base: 8px;
 
 	font-size: 16px;

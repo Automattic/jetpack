@@ -10,18 +10,19 @@ import React, { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
  */
+import { MyJetpackRoutes } from '../../constants';
+import useActivate from '../../data/products/use-activate';
+import useProduct from '../../data/products/use-product';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
-import { useProduct } from '../../hooks/use-product';
 import GoBackLink from '../go-back-link';
 import ProductDetailCard from '../product-detail-card';
 import ProductDetailTable from '../product-detail-table';
 import boostImage from './boost.png';
 import crmImage from './crm.png';
 import extrasImage from './extras.png';
-import { JetpackAIInterstitialMoreRequests } from './jetpack-ai/more-requests';
-import jetpackAiImage from './jetpack-ai.png';
 import searchImage from './search.png';
 import socialImage from './social.png';
 import statsImage from './stats.png';
@@ -45,6 +46,7 @@ import videoPressImage from './videopress.png';
  * @param {number} [props.quantity]              - The quantity of the product to purchase
  * @param {number} [props.directCheckout]        - Whether to go straight to the checkout page, e.g. for products with usage tiers
  * @param {boolean} [props.highlightLastFeature] - Whether to highlight the last feature in the list of features
+ * @param {object} [props.ctaCallback]           - Callback when the product CTA is clicked. Triggered before any activation/checkout process occurs
  * @returns {object}                               ProductInterstitial react component.
  */
 export default function ProductInterstitial( {
@@ -61,66 +63,126 @@ export default function ProductInterstitial( {
 	quantity = null,
 	directCheckout = false,
 	highlightLastFeature = false,
+	ctaCallback = null,
 } ) {
-	const { activate, detail } = useProduct( slug );
-	const { isUpgradableByBundle, tiers } = detail;
+	const { detail } = useProduct( slug );
+	const { activate, isPending: isActivating } = useActivate( slug );
 
+	const { isUpgradableByBundle, tiers, pricingForUi } = detail;
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
+	const { myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
+	const { siteIsRegistering, handleRegisterSite } = useConnection( {
+		skipUserConnection: true,
+		redirectUri: detail.postActivationUrl ? detail.postActivationUrl : null,
+	} );
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
 	}, [ recordEvent, slug ] );
 
-	const trackProductClick = useCallback(
-		( customSlug = null ) => {
-			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
-				product: customSlug ?? slug,
-			} );
+	const getProductSlugForTrackEvent = useCallback(
+		( isFree = false ) => {
+			if ( isFree ) {
+				return '';
+			}
+			if ( slug === 'crm' ) {
+				return 'jetpack-crm';
+			}
+			if ( pricingForUi?.tiers?.upgraded?.wpcomProductSlug ) {
+				return pricingForUi.tiers.upgraded.wpcomProductSlug;
+			}
+			return pricingForUi.wpcomProductSlug;
 		},
-		[ recordEvent, slug ]
+		[ slug, pricingForUi ]
 	);
 
-	const trackBundleClick = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', { product: bundle } );
-	}, [ recordEvent, bundle ] );
+	const trackProductClick = useCallback(
+		( isFreePlan = false, customSlug = null ) => {
+			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
+				product: customSlug ?? slug,
+				product_slug: getProductSlugForTrackEvent( isFreePlan ),
+			} );
+		},
+		[ recordEvent, slug, getProductSlugForTrackEvent ]
+	);
 
-	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
+	const trackBundleClick = useCallback(
+		( isFreePlan = false ) => {
+			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
+				product: bundle,
+				product_slug: getProductSlugForTrackEvent( isFreePlan ),
+			} );
+		},
+		[ recordEvent, bundle, getProductSlugForTrackEvent ]
+	);
+
+	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( MyJetpackRoutes.Home );
 
 	const clickHandler = useCallback(
 		( checkout, product, tier ) => {
+			let postCheckoutUrl = product?.postCheckoutUrl
+				? product?.postCheckoutUrl
+				: myJetpackCheckoutUri;
+
+			ctaCallback?.( { slug, product, tier } );
+
 			if ( product?.isBundle || directCheckout ) {
 				// Get straight to the checkout page.
 				checkout?.();
 				return;
 			}
 
-			activate().finally( () => {
-				const postActivationUrl = product?.postActivationUrl;
-				const hasRequiredPlan = tier
-					? product?.hasRequiredTier?.[ tier ]
-					: product?.hasRequiredPlan;
-				const isFree = tier
-					? product?.pricingForUi?.tiers?.[ tier ]?.isFree
-					: product?.pricingForUi?.isFree;
-				const needsPurchase = ! isFree && ! hasRequiredPlan;
+			activate(
+				{ productId: slug },
+				{
+					onSettled: ( { productId: activatedProduct } ) => {
+						postCheckoutUrl = activatedProduct?.post_checkout_url
+							? activatedProduct.post_checkout_url
+							: myJetpackCheckoutUri;
+						// there is a separate hasRequiredTier, but it is not implemented
+						const hasPaidPlanForProduct = product?.hasPaidPlanForProduct;
+						const isFree = tier
+							? product?.pricingForUi?.tiers?.[ tier ]?.isFree
+							: product?.pricingForUi?.isFree;
+						const needsPurchase = ! isFree && ! hasPaidPlanForProduct;
 
-				// If no purchase is needed, redirect the user to the product screen.
-				if ( ! needsPurchase ) {
-					if ( postActivationUrl ) {
-						window.location.href = postActivationUrl;
-						return;
-					}
+						// If the product is CRM, redirect the user to the Jetpack CRM pricing page.
+						// This is done because CRM is not part of the WP billing system
+						// and we can't send them to checkout like we can with the rest of the products
+						if ( product.pluginSlug === 'zero-bs-crm' && ! hasPaidPlanForProduct ) {
+							window.location.href = 'https://jetpackcrm.com/pricing/';
+							return;
+						}
 
-					// Fall back to the My Jetpack overview page.
-					return navigateToMyJetpackOverviewPage();
+						// If no purchase is needed, redirect the user to the product screen.
+						if ( ! needsPurchase ) {
+							// for free products, we still initiate the site connection
+							handleRegisterSite().then( redirectUri => {
+								if ( ! redirectUri ) {
+									// Fall back to the My Jetpack overview page.
+									return navigateToMyJetpackOverviewPage();
+								}
+							} );
+
+							return;
+						}
+
+						// Redirect to the checkout page.
+						checkout?.( null, postCheckoutUrl );
+					},
 				}
-
-				// Redirect to the checkout page.
-				checkout?.();
-			} );
+			);
 		},
-		[ directCheckout, activate, navigateToMyJetpackOverviewPage ]
+		[
+			directCheckout,
+			activate,
+			navigateToMyJetpackOverviewPage,
+			slug,
+			myJetpackCheckoutUri,
+			ctaCallback,
+			handleRegisterSite,
+		]
 	);
 
 	return (
@@ -155,6 +217,8 @@ export default function ProductInterstitial( {
 							clickHandler={ clickHandler }
 							onProductButtonClick={ clickHandler }
 							trackProductButtonClick={ trackProductClick }
+							preferProductName={ preferProductName }
+							isFetching={ isActivating || siteIsRegistering }
 						/>
 					) : (
 						<Container
@@ -175,6 +239,7 @@ export default function ProductInterstitial( {
 									hideTOS={ hideTOS }
 									quantity={ quantity }
 									highlightLastFeature={ highlightLastFeature }
+									isFetching={ isActivating || siteIsRegistering }
 								/>
 							</Col>
 							<Col
@@ -191,6 +256,7 @@ export default function ProductInterstitial( {
 										className={ isUpgradableByBundle ? styles.container : null }
 										quantity={ quantity }
 										highlightLastFeature={ highlightLastFeature }
+										isFetching={ isActivating }
 									/>
 								) : (
 									children
@@ -283,48 +349,11 @@ export function ExtrasInterstitial() {
 }
 
 /**
- * JetpackAIInterstitial component
+ * JetpackAiInterstitial component
  *
- * @returns {object} JetpackAIInterstitial react component.
+ * @returns {object} JetpackAiInterstitial react component.
  */
-export function JetpackAIInterstitial() {
-	const slug = 'jetpack-ai';
-	const { detail } = useProduct( slug );
-	const { onClickGoBack } = useGoBack( { slug } );
-	const { isRegistered } = useConnection();
-
-	const nextTier = detail?.[ 'ai-assistant-feature' ]?.[ 'next-tier' ] || null;
-
-	if ( isRegistered && ! nextTier ) {
-		return <JetpackAIInterstitialMoreRequests onClickGoBack={ onClickGoBack } />;
-	}
-
-	const { hasRequiredPlan } = detail;
-	const ctaLabel = hasRequiredPlan ? __( 'Upgrade Jetpack AI', 'jetpack-my-jetpack' ) : null;
-
-	// Default to 100 requests if the site is not registered/connected.
-	const nextTierValue = isRegistered ? nextTier?.value : 100;
-	// Decide the quantity value for the upgrade, but ignore the unlimited tier.
-	const quantity = nextTierValue !== 1 ? nextTierValue : null;
-
-	// Highlight the last feature in the table for all the tiers except the unlimited one.
-	const highlightLastFeature = nextTier?.value !== 1;
-
-	return (
-		<ProductInterstitial
-			slug="jetpack-ai"
-			installsPlugin={ true }
-			imageContainerClassName={ styles.aiImageContainer }
-			ctaButtonLabel={ ctaLabel }
-			hideTOS={ true }
-			quantity={ quantity }
-			directCheckout={ hasRequiredPlan }
-			highlightLastFeature={ highlightLastFeature }
-		>
-			<img src={ jetpackAiImage } alt="Jetpack AI" />
-		</ProductInterstitial>
-	);
-}
+export { default as JetpackAiInterstitial } from './jetpack-ai';
 
 /**
  * ProtectInterstitial component
@@ -399,7 +428,12 @@ export function SearchInterstitial() {
  */
 export function StatsInterstitial() {
 	return (
-		<ProductInterstitial slug="stats" installsPlugin={ true }>
+		<ProductInterstitial
+			slug="stats"
+			directCheckout={ true }
+			installsPlugin={ true }
+			ctaButtonLabel={ __( 'Get Stats', 'jetpack-my-jetpack' ) }
+		>
 			<img
 				src={ statsImage }
 				alt={ __(

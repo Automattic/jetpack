@@ -325,6 +325,15 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 			return $response;
 		}
 
+		// Bail early if we do not have the necessary data.
+		if (
+			is_wp_error( $response )
+			|| ! isset( $response['posts'] )
+			|| ! is_array( $response['posts'] )
+		) {
+			return $response;
+		}
+
 		// Retrieve an array of field paths, such as: [`autosave.modified`, `autosave.post_ID`]
 		$fields = explode( ',', sanitize_text_field( wp_unslash( $_REQUEST['meta_fields'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- we're not making any changes to the site.
 

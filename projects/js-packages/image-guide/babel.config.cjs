@@ -1,10 +1,6 @@
 module.exports = {
 	presets: [
-		[
-			'@automattic/jetpack-webpack-config/babel/preset',
-			{
-				/* options */
-			},
-		],
+		[ '@babel/preset-env', { targets: { node: 'current' } } ],
+		'@babel/preset-typescript',
 	],
 };

@@ -9,6 +9,8 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
+
 /**
  * Add per-attachment VideoPress data.
  *
@@ -174,18 +176,19 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 	 * @param array           $attachment Response from the attachment endpoint.
 	 * @param WP_REST_Request $request Request to the attachment endpoint.
 	 *
-	 * @return string
+	 * @return array
 	 */
 	public function get( $attachment, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$blog_id = get_current_blog_id();
-		} else {
-			$blog_id = \Jetpack_Options::get_option( 'id' );
+		if ( ! isset( $attachment['id'] ) ) {
+			return array();
 		}
 
-		$post_id = absint( $attachment['id'] );
+		$blog_id = Jetpack_Connection::get_site_id();
+		if ( ! is_int( $blog_id ) ) {
+			return array();
+		}
 
-		$videopress = $this->get_videopress_data( $post_id, $blog_id );
+		$videopress = $this->get_videopress_data( (int) $attachment['id'], $blog_id );
 
 		if ( ! $videopress ) {
 			return array();
@@ -202,7 +205,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 	 * @param int $attachment_id Attachment ID.
 	 * @param int $blog_id Blog ID.
 	 *
-	 * @return string
+	 * @return array
 	 */
 	public function get_videopress_data( $attachment_id, $blog_id ) {
 		$info = video_get_info_by_blogpostid( $blog_id, $attachment_id );
@@ -233,8 +236,8 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 			'title'                    => $title,
 			'description'              => $description,
 			'caption'                  => $caption,
-			'guid'                     => $info->guid,
-			'rating'                   => $info->rating,
+			'guid'                     => $info->guid ?? null,
+			'rating'                   => $info->rating ?? null,
 			'allow_download'           =>
 				isset( $info->allow_download ) && $info->allow_download ? 1 : 0,
 			'display_embed'            =>

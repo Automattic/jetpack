@@ -25,6 +25,7 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 	const [ productInfo ] = useProductInfo();
 
 	const siteSuffix = useSelect( select => select( SOCIAL_STORE_ID ).getSiteSuffix() );
+	const blogID = useSelect( select => select( SOCIAL_STORE_ID ).getBlogID() );
 	const updateOptions = useDispatch( SOCIAL_STORE_ID ).updateJetpackSettings;
 
 	const [ isLarge ] = useBreakpointMatch( 'lg' );
@@ -122,8 +123,8 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 					) }
 					<Button
 						href={ getRedirectUrl( 'jetpack-social-advanced-plan-plugin-admin-page', {
-							site: siteSuffix,
-							query: 'redirect_to=' + window.location.href,
+							site: blogID ?? siteSuffix,
+							query: 'redirect_to=admin.php?page=jetpack-social',
 						} ) }
 						fullWidth
 					>
@@ -156,8 +157,8 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 					) }
 					<Button
 						href={ getRedirectUrl( 'jetpack-social-basic-plan-plugin-admin-page', {
-							site: siteSuffix,
-							query: 'redirect_to=' + window.location.href,
+							site: blogID ?? siteSuffix,
+							query: 'redirect_to=admin.php?page=jetpack-social',
 						} ) }
 						fullWidth
 					>

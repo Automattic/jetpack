@@ -5,6 +5,75 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.0] - 2024-03-27
+### Added
+- Add 'test_connection' endpoint to check for blog token validity. [#36471]
+- Add the 'get_heartbeat_data' REST endpoint. [#36553]
+
+### Changed
+- Updated package dependencies. [#36585]
+
+## [2.6.2] - 2024-03-25
+### Changed
+- Internal updates.
+
+## [2.6.1] - 2024-03-22
+### Changed
+- yUpdate Phan config. [#36353]
+
+## [2.6.0] - 2024-03-20
+### Added
+- Add the 'remote_connect' REST endpoint. [#36329]
+
+## [2.5.0] - 2024-03-18
+### Added
+- Add the 'remote_provision' REST endpoint. [#36275]
+- Add the 'remote_register' REST endpoint. [#36197]
+
+## [2.4.1] - 2024-03-12
+### Changed
+- Internal updates.
+
+## [2.4.0] - 2024-03-12
+### Added
+- Sync:Now Sync uses rest api endpoint for enabled sites [#36210]
+
+### Changed
+- Updated package dependencies. [#36325]
+
+## [2.3.4] - 2024-03-04
+### Changed
+- Updated package dependencies. [#36095]
+
+## [2.3.3] - 2024-03-01
+### Fixed
+- Webhook class: avoid PHP warning with PHP 8.2 [#35996]
+
+## [2.3.2] - 2024-02-26
+### Removed
+- Remove legacy options that are not needed anymore. [#35873]
+
+## [2.3.1] - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+## [2.3.0] - 2024-02-05
+### Added
+- Add rate limiter to the package versions endpoint calls. [#35379]
+
+### Changed
+- Adjust 'get_site_id()' method to return null if there's no blog ID. [#35004]
+- Adjust 'get_site_id()' method to return null if there's no blog ID. [#35006]
+- Jetpack Connection: Add jetpack_package_versions to Sync [#35409]
+- Updated package dependencies. [#35384]
+
+## [2.2.0] - 2024-01-18
+### Added
+- Adding support for IDC when site URL is an IP address. [#34753]
+
+### Changed
+- Adjust 'get_site_id()' method to return null if there's no blog ID. [#34976]
+
 ## [2.1.1] - 2024-01-04
 ### Changed
 - Updated package dependencies. [#34815]
@@ -943,6 +1012,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[2.7.0]: https://github.com/Automattic/jetpack-connection/compare/v2.6.2...v2.7.0
+[2.6.2]: https://github.com/Automattic/jetpack-connection/compare/v2.6.1...v2.6.2
+[2.6.1]: https://github.com/Automattic/jetpack-connection/compare/v2.6.0...v2.6.1
+[2.6.0]: https://github.com/Automattic/jetpack-connection/compare/v2.5.0...v2.6.0
+[2.5.0]: https://github.com/Automattic/jetpack-connection/compare/v2.4.1...v2.5.0
+[2.4.1]: https://github.com/Automattic/jetpack-connection/compare/v2.4.0...v2.4.1
+[2.4.0]: https://github.com/Automattic/jetpack-connection/compare/v2.3.4...v2.4.0
+[2.3.4]: https://github.com/Automattic/jetpack-connection/compare/v2.3.3...v2.3.4
+[2.3.3]: https://github.com/Automattic/jetpack-connection/compare/v2.3.2...v2.3.3
+[2.3.2]: https://github.com/Automattic/jetpack-connection/compare/v2.3.1...v2.3.2
+[2.3.1]: https://github.com/Automattic/jetpack-connection/compare/v2.3.0...v2.3.1
+[2.3.0]: https://github.com/Automattic/jetpack-connection/compare/v2.2.0...v2.3.0
+[2.2.0]: https://github.com/Automattic/jetpack-connection/compare/v2.1.1...v2.2.0
 [2.1.1]: https://github.com/Automattic/jetpack-connection/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/Automattic/jetpack-connection/compare/v2.0.3...v2.1.0
 [2.0.3]: https://github.com/Automattic/jetpack-connection/compare/v2.0.2...v2.0.3

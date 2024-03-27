@@ -65,7 +65,6 @@ class Jetpack_Options {
 					'sync_health_status',          // (bool|array) An array of data relating to Jetpack's sync health.
 					'safe_mode_confirmed',         // (bool) True if someone confirms that this site was correctly put into safe mode automatically after an identity crisis is discovered.
 					'migrate_for_idc',             // (bool) True if someone confirms that this site should migrate stats and subscribers from its previous URL
-					'dismissed_connection_banner', // (bool) True if the connection banner has been dismissed
 					'ab_connect_banner_green_bar', // (int) Version displayed of the A/B test for the green bar at the top of the connect banner.
 					'onboarding',                  // (string) Auth token to be used in the onboarding connection flow
 					'tos_agreed',                  // (bool)   Whether or not the TOS for connection has been agreed upon.
@@ -117,8 +116,6 @@ class Jetpack_Options {
 			'setup_wizard_questionnaire',          // (array)  (DEPRECATED) List of user choices from the setup wizard.
 			'setup_wizard_status',                 // (string) (DEPRECATED) Status of the setup wizard.
 			'licensing_error',                     // (string) Last error message occurred while attaching licenses that is yet to be surfaced to the user.
-			'recommendations_banner_dismissed',    // (bool) Determines if the recommendations dashboard banner is dismissed or not.
-			'recommendations_banner_enabled',      // (bool)   Whether the recommendations are enabled or not.
 			'recommendations_data',                // (array)  The user choice and other data for the recommendations.
 			'recommendations_step',                // (string) The current step of the recommendations.
 			'recommendations_conditional',         // (array)  An array of action-based recommendations.
@@ -129,6 +126,7 @@ class Jetpack_Options {
 			'dismissed_backup_review_restore',     // (bool) Determines if the component review request is dismissed for successful restore requests.
 			'dismissed_backup_review_backups',     // (bool) Determines if the component review request is dismissed for successful backup requests.
 			'identity_crisis_url_secret',          // (array) The IDC URL secret and its expiration date.
+			'identity_crisis_ip_requester',        // (array) The IDC IP address and its expiration date.
 			'dismissed_welcome_banner',            // (bool) Determines if the welcome banner has been dismissed or not.
 		);
 	}
@@ -631,7 +629,6 @@ class Jetpack_Options {
 			'jetpack_protect_key',
 			'jetpack_protect_blocked_attempts',
 			'jetpack_protect_activating',
-			'jetpack_connection_banner_ab',
 			'jetpack_active_plan',
 			'jetpack_activation_source',
 			'jetpack_site_products',

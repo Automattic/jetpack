@@ -16,7 +16,7 @@ type SpeedScores = {
 
 type SpeedScoresSet = {
 	current: SpeedScores;
-	noBoost: SpeedScores;
+	noBoost: SpeedScores | null;
 	isStale: boolean;
 };
 
@@ -280,4 +280,25 @@ export function getScoreMovementPercentage( scores: SpeedScoresSet ): number {
 		return Math.round( change * 100 );
 	}
 	return 0;
+}
+
+/**
+ * Determine the number of days since the last timestamp.
+ *
+ * @param {number} timestamp - the timestamp returned by the server.
+ * @returns {number} - The number of days.
+ */
+export function calculateDaysSince( timestamp: number ): number {
+	// Create Date objects for the provided timestamp and the current date
+	const providedDate = new Date( timestamp );
+	const currentDate = new Date();
+
+	// Calculate the difference in milliseconds between the two dates
+	const differenceInMilliseconds = currentDate.valueOf() - providedDate.valueOf();
+
+	// Convert milliseconds to days
+	const millisecondsInADay = 24 * 60 * 60 * 1000;
+	const differenceInDays = Math.floor( differenceInMilliseconds / millisecondsInADay );
+
+	return differenceInDays;
 }

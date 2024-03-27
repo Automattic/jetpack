@@ -5,6 +5,57 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.12.8 - 2024-03-27
+### Changed
+- Updated package dependencies. [#36585]
+
+## 0.12.7 - 2024-03-18
+### Fixed
+- Fixed how we check if a plugin is active [#35420]
+
+## 0.12.6 - 2024-03-12
+### Changed
+- Updated package dependencies. [#36325]
+
+## 0.12.5 - 2024-03-07
+### Changed
+- Update dependencies.
+
+## 0.12.4 - 2024-03-04
+### Changed
+- Updated package dependencies.
+
+## 0.12.3 - 2024-03-01
+### Changed
+- Update dependencies.
+
+## 0.12.2 - 2024-02-27
+### Changed
+- Update dependencies.
+
+## 0.12.1 - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+## 0.12.0 - 2024-02-05
+### Added
+- Added social specific success card on Jetpack Social license activation. [#35224]
+
+### Changed
+- Updated package dependencies.
+
+## 0.11.20 - 2024-01-29
+### Changed
+- Update dependencies.
+
+## 0.11.19 - 2024-01-18
+### Changed
+- Minor internal updates.
+
+## 0.11.18 - 2024-01-18
+### Changed
+- Update dependencies.
+
 ## 0.11.17 - 2024-01-04
 ### Changed
 - Updated package dependencies. [#34815] [#34816]

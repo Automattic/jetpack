@@ -8,7 +8,7 @@ import styles from './styles.module.scss';
 
 const CredentialsNeededModal = () => {
 	const { setModal } = useDispatch( STORE_ID );
-	const { siteSuffix } = window.jetpackProtectInitialState;
+	const { siteSuffix, blogID } = window.jetpackProtectInitialState;
 
 	const { checkCredentials } = useDispatch( STORE_ID );
 	const credentials = useSelect( select => select( STORE_ID ).getCredentials() );
@@ -68,7 +68,9 @@ const CredentialsNeededModal = () => {
 				<Button
 					isExternalLink={ true }
 					weight="regular"
-					href={ getRedirectUrl( 'jetpack-settings-security-credentials', { site: siteSuffix } ) }
+					href={ getRedirectUrl( 'jetpack-settings-security-credentials', {
+						site: blogID ?? siteSuffix,
+					} ) }
 				>
 					{ __( 'Enter server credentials', 'jetpack-protect' ) }
 				</Button>

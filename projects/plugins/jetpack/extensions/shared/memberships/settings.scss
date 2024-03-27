@@ -13,6 +13,10 @@
 }
 
 .jetpack-newsletter-access-radio-buttons {
+	input[type=radio] {
+		flex-shrink: 0;
+	}
+
 	label {
 		text-wrap: balance;
 	}
@@ -27,28 +31,6 @@
 			.components-notice__content {
 				margin-right: 0;
 			}
-		}
-	}
-
-	.edit-post-post-visibility {
-		display: block;
-		* {
-			text-wrap: pretty;
-		}
-
-		&__notice {
-			&.is-info {
-				background: #e9f0f5;
-				border-left-color: #e9f0f5;
-			}
-		}
-
-		.components-notice__content {
-			margin-right: 0;
-		}
-
-		.components-button {
-			margin-top: 10px;
 		}
 	}
 }

@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.2] - 2024-03-18
+### Changed
+- Internal updates.
+
+## [4.1.1] - 2024-03-12
+### Changed
+- Internal updates.
+
+## [4.1.0] - 2024-01-22
+### Changed
+- Default for `--deduplicate` is now 0, as 1 caused unexpected behavior for some cases and so should be opted in to. [#35138]
+
 ## [4.0.5] - 2023-12-11
 ### Changed
 - Updated package dependencies. [#34492]
@@ -204,6 +216,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - Initial version.
 
+[4.1.2]: https://github.com/Automattic/jetpack-changelogger/compare/4.1.1...4.1.2
+[4.1.1]: https://github.com/Automattic/jetpack-changelogger/compare/4.1.0...4.1.1
+[4.1.0]: https://github.com/Automattic/jetpack-changelogger/compare/4.0.5...4.1.0
 [4.0.5]: https://github.com/Automattic/jetpack-changelogger/compare/4.0.4...4.0.5
 [4.0.4]: https://github.com/Automattic/jetpack-changelogger/compare/4.0.3...4.0.4
 [4.0.3]: https://github.com/Automattic/jetpack-changelogger/compare/4.0.2...4.0.3

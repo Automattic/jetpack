@@ -5,6 +5,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import { OnboardingContext } from '../../hooks/use-onboarding';
 import useProtectData from '../../hooks/use-protect-data';
 import { STORE_ID } from '../../state/store';
 import AdminPage from '../admin-page';
@@ -15,6 +16,7 @@ import SeventyFiveLayout from '../seventy-five-layout';
 import Summary from '../summary';
 import ThreatsList from '../threats-list';
 import inProgressImage from './in-progress.png';
+import onboardingSteps from './onboarding-steps';
 import styles from './styles.module.scss';
 import useCredentials from './use-credentials';
 import useStatusPolling from './use-status-polling';
@@ -131,7 +133,9 @@ const ScanPage = () => {
 										<span>{ __( 'Scanning your site…', 'jetpack-protect' ) }</span>
 									</Col>
 									<Col>
-										<H3>{ __( 'Your results will be ready soon', 'jetpack-protect' ) }</H3>
+										<H3 style={ { textWrap: 'balance' } }>
+											{ __( 'Your results will be ready soon', 'jetpack-protect' ) }
+										</H3>
 										{ currentProgress !== null && currentProgress >= 0 && (
 											<ProgressBar value={ currentProgress } />
 										) }
@@ -159,29 +163,31 @@ const ScanPage = () => {
 	}
 
 	return (
-		<AdminPage>
-			<AdminSectionHero>
-				<Container horizontalSpacing={ 0 }>
-					{ hasConnectionError && (
-						<Col className={ styles[ 'connection-error-col' ] }>
-							<ConnectionError />
+		<OnboardingContext.Provider value={ onboardingSteps }>
+			<AdminPage>
+				<AdminSectionHero>
+					<Container horizontalSpacing={ 0 }>
+						{ hasConnectionError && (
+							<Col className={ styles[ 'connection-error-col' ] }>
+								<ConnectionError />
+							</Col>
+						) }
+						<Col>
+							<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
 						</Col>
-					) }
-					<Col>
-						<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
-					</Col>
-				</Container>
-				<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
-					<Col>
-						<Summary />
-					</Col>
-					<Col>
-						<ThreatsList />
-					</Col>
-				</Container>
-			</AdminSectionHero>
-			<ScanFooter />
-		</AdminPage>
+					</Container>
+					<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
+						<Col>
+							<Summary />
+						</Col>
+						<Col>
+							<ThreatsList />
+						</Col>
+					</Container>
+				</AdminSectionHero>
+				<ScanFooter />
+			</AdminPage>
+		</OnboardingContext.Provider>
 	);
 };
 

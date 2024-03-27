@@ -6,6 +6,27 @@
  */
 
 /**
+ * Returns whether the task link should point to wp-admin page
+ * instead of Calypso page.
+ *
+ * @return bool
+ */
+function wpcom_launchpad_should_use_wp_admin_link() {
+	return get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+}
+
+/**
+ * Returns whether the task link should point to Jetpack Cloud page
+ * instead of Calypso page.
+ *
+ * @return bool
+ */
+function wpcom_launchpad_should_use_jetpack_cloud_link() {
+	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+	return $is_atomic_site && get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+}
+
+/**
  * Get the task definitions for the Launchpad.
  *
  * @return array
@@ -21,8 +42,8 @@ function wpcom_launchpad_get_task_definitions() {
 			'add_listener_callback' => function () {
 				add_action( 'load-site-editor.php', 'wpcom_launchpad_track_edit_site_task' );
 			},
-			'get_calypso_path'      => function ( $task, $default, $data ) {
-				return '/site-editor/' . $data['site_slug_encoded'];
+			'get_calypso_path'      => function () {
+				return admin_url( 'site-editor.php' );
 			},
 		),
 		// design_completed checks for task completion while design_selected always returns true.
@@ -80,7 +101,9 @@ function wpcom_launchpad_get_task_definitions() {
 				add_action( 'publish_post', 'wpcom_launchpad_track_publish_first_post_task' );
 			},
 			'get_calypso_path'      => function ( $task, $default, $data ) {
-				$base_path = '/post/' . $data['site_slug_encoded'];
+				$base_path = wpcom_launchpad_should_use_wp_admin_link()
+					? admin_url( 'post-new.php' )
+					: '/post/' . $data['site_slug_encoded'];
 
 				// Add a new_prompt query param for Write sites.
 				if ( 'write' === get_option( 'site_intent' ) ) {
@@ -120,6 +143,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_disabled_callback' => '__return_true',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
+					return admin_url( 'options-general.php' );
+				}
 				return '/settings/general/' . $data['site_slug_encoded'];
 			},
 		),
@@ -151,6 +177,9 @@ function wpcom_launchpad_get_task_definitions() {
 				add_action( 'publish_post', 'wpcom_launchpad_track_publish_first_post_task' );
 			},
 			'get_calypso_path'      => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
+					return admin_url( 'post-new.php' );
+				}
 				return '/post/' . $data['site_slug_encoded'];
 			},
 		),
@@ -170,6 +199,9 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => '__return_true',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
+					return admin_url( 'options-general.php' );
+				}
 				return '/settings/general/' . $data['site_slug_encoded'];
 			},
 		),
@@ -197,6 +229,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_has_goal_import_subscribers',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_jetpack_cloud_link() ) {
+					return 'https://cloud.jetpack.com/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
+				}
 				return '/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
 			},
 		),
@@ -207,6 +242,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_has_goal_import_subscribers',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
+					return admin_url( 'import.php' );
+				}
 				return '/import/' . $data['site_slug_encoded'];
 			},
 		),
@@ -228,8 +266,8 @@ function wpcom_launchpad_get_task_definitions() {
 			'add_listener_callback' => function () {
 				add_action( 'load-site-editor.php', 'wpcom_launchpad_track_edit_site_task' );
 			},
-			'get_calypso_path'      => function ( $task, $default, $data ) {
-				return '/site-editor/' . $data['site_slug_encoded'];
+			'get_calypso_path'      => function () {
+				return admin_url( 'site-editor.php' );
 			},
 		),
 		'setup_link_in_bio'               => array(
@@ -269,9 +307,12 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_calypso_path'      => function ( $task, $default, $data ) {
 				$page_on_front = get_option( 'page_on_front', false );
 				if ( $page_on_front ) {
+					if ( wpcom_launchpad_should_use_wp_admin_link() ) {
+						return admin_url( 'post.php?post=' . $page_on_front . '&action=edit' );
+					}
 					return '/page/' . $data['site_slug_encoded'] . '/' . $page_on_front;
 				}
-				return '/site-editor/' . $data['site_slug_encoded'] . '?canvas=edit';
+				return admin_url( 'site-editor.php?canvas=edit' );
 			},
 		),
 
@@ -302,6 +343,9 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
+					return admin_url( 'options-general.php' );
+				}
 				return '/settings/general/' . $data['site_slug_encoded'];
 			},
 		),
@@ -323,6 +367,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_site_title_task_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
+					return admin_url( 'options-general.php' );
+				}
 				return '/settings/general/' . $data['site_slug_encoded'];
 			},
 		),
@@ -343,6 +390,9 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
+					return admin_url( 'post-new.php?post_type=page' );
+				}
 				return '/page/' . $data['site_slug_encoded'];
 			},
 		),
@@ -359,6 +409,9 @@ function wpcom_launchpad_get_task_definitions() {
 				);
 			},
 			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
+					return admin_url( 'post.php?post=' . wpcom_launchpad_get_site_about_page_id() . '&action=edit' );
+				}
 				return '/page/' . $data['site_slug_encoded'] . '/' . wpcom_launchpad_get_site_about_page_id();
 			},
 		),
@@ -370,6 +423,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_edit_page_task_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
+					return admin_url( 'edit.php?post_type=page' );
+				}
 				return '/pages/' . $data['site_slug_encoded'];
 			},
 		),
@@ -414,6 +470,9 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
+					return admin_url( 'admin.php?page=jetpack#/newsletter' );
+				}
 				return '/settings/newsletter/' . $data['site_slug_encoded'];
 			},
 		),
@@ -423,6 +482,9 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
+					return admin_url( 'admin.php?page=jetpack#/newsletter' );
+				}
 				return '/settings/newsletter/' . $data['site_slug_encoded'];
 			},
 		),
@@ -435,6 +497,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'target_repetitions'        => 10,
 			'repetition_count_callback' => 'wpcom_launchpad_get_newsletter_subscriber_count',
 			'get_calypso_path'          => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_jetpack_cloud_link() ) {
+					return 'https://cloud.jetpack.com/subscribers/' . $data['site_slug_encoded'];
+				}
 				return '/subscribers/' . $data['site_slug_encoded'];
 			},
 		),
@@ -445,6 +510,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'repetition_count_callback' => 'wpcom_launchpad_get_write_3_posts_repetition_count',
 			'target_repetitions'        => 3,
 			'get_calypso_path'          => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
+					return admin_url( 'post-new.php' );
+				}
 				return '/post/' . $data['site_slug_encoded'];
 			},
 		),
@@ -455,6 +523,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_has_goal_import_subscribers',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_jetpack_cloud_link() ) {
+					return 'https://cloud.jetpack.com/subscribers/' . $data['site_slug_encoded'];
+				}
 				return '/subscribers/' . $data['site_slug_encoded'];
 			},
 		),
@@ -484,6 +555,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_add_about_page_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
+					return admin_url( 'post-new.php?post_type=page' );
+				}
 				return '/page/' . $data['site_slug_encoded'];
 			},
 		),
@@ -524,6 +598,9 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
+					return admin_url( 'themes.php' );
+				}
 				return '/themes/' . $data['site_slug_encoded'];
 			},
 		),
@@ -533,6 +610,9 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
+					return admin_url( 'plugins.php' );
+				}
 				return '/plugins/' . $data['site_slug_encoded'];
 			},
 		),
@@ -562,6 +642,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => '__return_true',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_jetpack_cloud_link() ) {
+					return 'https://cloud.jetpack.com/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
+				}
 				return '/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
 			},
 		),
@@ -571,15 +654,15 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_add_subscribe_block_visible',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/site-editor/' . $data['site_slug_encoded'] . '/?canvas=edit&help-center=subscribe-block';
+			'get_calypso_path'     => function () {
+				return admin_url( 'site-editor.php?canvas=edit&help-center=subscribe-block' );
 			},
 		),
 		'mobile_app_installed'            => array(
 			'get_title'            => function () {
 				return __( 'Install the mobile app', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_mobile_app_installed',
 			'get_calypso_path'     => function () {
 				return '/me/get-apps';
 			},
@@ -602,9 +685,12 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				$page_on_front = get_option( 'page_on_front', false );
 				if ( $page_on_front ) {
+					if ( wpcom_launchpad_should_use_wp_admin_link() ) {
+						return admin_url( 'post.php?post=' . $page_on_front . '&action=edit' );
+					}
 					return '/page/' . $data['site_slug_encoded'] . '/' . $page_on_front;
 				}
-				return '/site-editor/' . $data['site_slug_encoded'] . '?canvas=edit';
+				return admin_url( 'site-editor.php?canvas=edit' );
 			},
 		),
 		'woocommerce_setup'               => array(
@@ -957,6 +1043,49 @@ function wpcom_launchpad_is_domain_upsell_task_visible() {
 }
 
 /**
+ * Verifies if the Mobile App is installed for the current user.
+ *
+ * @param array $task The task object.
+ * @param bool  $is_complete The current task status.
+ * @return bool True if the Mobile App is installed for the current user.
+ */
+function wpcom_launchpad_is_mobile_app_installed( $task, $is_complete ) {
+	if ( $is_complete ) {
+		return true;
+	}
+
+	$has_used_jetpack_app = null;
+	$is_atomic_site       = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+	if ( $is_atomic_site ) {
+		$user_attributes = wpcom_launchpad_request_user_attributes( array( 'has_used_jetpack_app' ) );
+		if ( is_wp_error( $user_attributes ) ) {
+			return false;
+		}
+
+		if ( ! isset( $user_attributes['has_used_jetpack_app'] ) ) {
+			return false;
+		}
+
+		$has_used_jetpack_app = $user_attributes['has_used_jetpack_app'];
+	} else {
+		if ( ! function_exists( 'get_user_attribute' ) ) {
+			return false;
+		}
+
+		$user_id              = get_current_user_id();
+		$has_used_jetpack_app = get_user_attribute( $user_id, 'jp_mobile_app_last_seen' );
+	}
+
+	if ( empty( $has_used_jetpack_app ) ) {
+		return false;
+	}
+
+	wpcom_mark_launchpad_task_complete( 'mobile_app_installed' );
+
+	return true;
+}
+
+/**
  * Determines whether or not the WooCommerce setup task should be visible.
  *
  * @return bool True if the site is a WOA site and WooCommerce is active.
@@ -1002,21 +1131,18 @@ function wpcom_launchpad_is_verify_domain_email_visible() {
 	// the public API.
 	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
 	if ( $is_atomic_site ) {
-		$domains = wpcom_request_domains_list();
+		$domains = wpcom_launchpad_request_domains_list();
 
 		if ( is_wp_error( $domains ) ) {
-			// logs the erro
 			return false;
 		}
 
 		$domains_pending_icann_verification = array_filter(
 			$domains,
 			function ( $domain ) {
-				return $domain->is_pending_icann_verification;
+				return isset( $domain->is_pending_icann_verification ) && $domain->is_pending_icann_verification;
 			}
 		);
-
-		return ! empty( $domains_pending_icann_verification );
 	} else {
 		if ( ! class_exists( 'Domain_Management' ) ) {
 			return false;
@@ -1032,7 +1158,28 @@ function wpcom_launchpad_is_verify_domain_email_visible() {
 		);
 	}
 
-	return ! empty( $domains_pending_icann_verification );
+	$has_domains_pending_icann_verification = ! empty( $domains_pending_icann_verification );
+
+	if ( ! $has_domains_pending_icann_verification && wpcom_launchpad_verify_domain_email_task_displayed() ) {
+		wpcom_mark_launchpad_task_complete( 'verify_domain_email' );
+		return true;
+	}
+
+	if ( $has_domains_pending_icann_verification ) {
+		if ( ! wpcom_launchpad_verify_domain_email_task_displayed() ) {
+			wpcom_set_launchpad_config_option( 'verify_domain_email_task_displayed', true );
+		}
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Checks if the Verify Email Domain task was displayed to the user.
+ */
+function wpcom_launchpad_verify_domain_email_task_displayed() {
+	return wpcom_get_launchpad_config_option( 'verify_domain_email_task_displayed', false );
 }
 
 /**
@@ -1040,7 +1187,19 @@ function wpcom_launchpad_is_verify_domain_email_visible() {
  *
  * @return array|WP_Error Array of domains and their verification status or WP_Error if the request fails.
  */
-function wpcom_request_domains_list() {
+function wpcom_launchpad_request_domains_list() {
+	// Use a static variable as a temporary in-memory cache to avoid multiple outbound
+	// HTTP requests within a single incoming request.
+	// We don't expect this to be triggered multiple times, but it's worth adding some
+	// light caching to avoid multiple, possibly slow HTTP requests where the underlying data
+	// is highly unlikely to change.
+	// The "cache" only lasts as long as the current request/memory space, so we don't need to invalidate it.
+	static $cached_domains = null;
+
+	if ( $cached_domains !== null ) {
+		return $cached_domains;
+	}
+
 	$site_id       = \Jetpack_Options::get_option( 'id' );
 	$request_path  = sprintf( '/sites/%d/domains', $site_id );
 	$wpcom_request = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
@@ -1069,14 +1228,89 @@ function wpcom_request_domains_list() {
 	$body         = wp_remote_retrieve_body( $wpcom_request );
 	$decoded_body = json_decode( $body );
 
-	if ( ! isset( $decoded_body->domains ) ) {
+	if ( ! isset( $decoded_body->domains ) || ! is_array( $decoded_body->domains ) ) {
 		return new \WP_Error(
 			'failed_to_fetch_data',
 			esc_html__( 'Unable to fetch the requested data.', 'jetpack-mu-wpcom' )
 		);
 	}
 
-	return $decoded_body->domains;
+	$cached_domains = $decoded_body->domains;
+
+	return $cached_domains;
+}
+
+/**
+ * Make a request to the WordPress.com API to get the values of the user
+ * attributes sent by the client.
+ *
+ * @param string[]                                  $attributes The attributes to request.
+ * @param Automattic\Jetpack\Connection\Client|null $client_wrapper Optional client wrapper to use, this is only used for testing.
+ * @return array|WP_Error Array of user attributes or WP_Error if the request fails.
+ */
+function wpcom_launchpad_request_user_attributes( $attributes, $client_wrapper = null ) {
+	if ( ! is_array( $attributes ) || $attributes === array() ) {
+		return array();
+	}
+	// Use a static variable as a temporary in-memory cache to avoid multiple outbound
+	// HTTP requests within a single incoming request.
+	// We don't expect this to be triggered multiple times, but it's worth adding some
+	// light caching to avoid multiple, possibly slow HTTP requests where the underlying data
+	// is highly unlikely to change.
+	// The "cache" only lasts as long as the current request/memory space, so we don't need to invalidate it.
+	static $cached_attributes = array();
+
+	// Check if all requested attributes are available in the cache
+	$resolved_values = array_intersect_key( $cached_attributes, array_flip( $attributes ) );
+	if ( count( $resolved_values ) === count( $attributes ) ) {
+		return $resolved_values;
+	}
+
+	$attributes_to_fetch = array_diff( $attributes, array_keys( $resolved_values ) );
+
+	$query_params  = build_query( array( 'attributes' => $attributes_to_fetch ) );
+	$client        = $client_wrapper ? $client_wrapper : new Automattic\Jetpack\Connection\Client();
+	$wpcom_request = $client->wpcom_json_api_request_as_user(
+		'/jetpack-user-attributes?' . $query_params,
+		'v2',
+		array(
+			'method'  => 'GET',
+			'headers' => array(
+				'X-Forwarded-For' => ( new Automattic\Jetpack\Status\Visitor() )->get_ip( true ),
+			),
+		)
+	);
+
+	$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+	if ( 200 !== $response_code ) {
+		return new \WP_Error(
+			'failed_to_fetch_data',
+			esc_html__( 'Unable to fetch the requested data.', 'jetpack-mu-wpcom' ),
+			array( 'status' => $response_code )
+		);
+	}
+
+	$body         = wp_remote_retrieve_body( $wpcom_request );
+	$decoded_body = json_decode( $body );
+
+	if ( ! isset( $decoded_body->user_attributes ) ) {
+		return new \WP_Error(
+			'failed_to_fetch_data',
+			esc_html__( 'Unable to fetch the requested data.', 'jetpack-mu-wpcom' )
+		);
+	}
+
+	$user_attributes = get_object_vars( $decoded_body->user_attributes );
+	if ( ! is_array( $user_attributes ) ) {
+		return new \WP_Error(
+			'failed_to_fetch_data',
+			esc_html__( 'Unable to fetch the requested data.', 'jetpack-mu-wpcom' )
+		);
+	}
+
+	$cached_attributes = array_merge( $cached_attributes, $user_attributes );
+
+	return $cached_attributes;
 }
 
 /**

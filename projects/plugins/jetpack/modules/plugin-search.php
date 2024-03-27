@@ -300,7 +300,7 @@ class Jetpack_Plugin_Search {
 	 */
 	public function get_extra_features() {
 		return array(
-			'akismet' => array(
+			'akismet'       => array(
 				'name'                => 'Akismet',
 				'search_terms'        => 'akismet, anti-spam, antispam, comments, spam, spam protection, form spam, captcha, no captcha, nocaptcha, recaptcha, phising, google',
 				'short_description'   => esc_html__( 'Keep your visitors and search engines happy by stopping comment and contact form spam with Akismet.', 'jetpack' ),
@@ -309,6 +309,16 @@ class Jetpack_Plugin_Search {
 				'sort'                => '16',
 				'learn_more_button'   => Redirect::get_url( 'plugin-hint-upgrade-akismet' ),
 				'configure_url'       => admin_url( 'admin.php?page=akismet-key-config' ),
+			),
+			'sharing-block' => array(
+				'name'                => esc_html__( 'Sharing buttons block', 'jetpack' ),
+				'search_terms'        => 'share, sharing, sharing block, sharing button, social buttons, buttons, share facebook, share twitter, social share, icons, email, facebook, twitter, x, linkedin, pinterest, pocket, social media',
+				'short_description'   => esc_html__( 'Add sharing buttons blocks anywhere on your website to help your visitors share your content.', 'jetpack' ),
+				'requires_connection' => false,
+				'module'              => 'sharing-block',
+				'sort'                => '13',
+				'learn_more_button'   => Redirect::get_url( 'jetpack-support-sharing-block' ),
+				'configure_url'       => admin_url( 'site-editor.php?path=%2Fwp_template' ),
 			),
 		);
 	}
@@ -331,26 +341,36 @@ class Jetpack_Plugin_Search {
 
 		// Looks like a search query; it's matching time.
 		if ( ! empty( $args->search ) ) {
+			$searchable_modules = array(
+				'contact-form',
+				'monitor',
+				'photon',
+				'photon-cdn',
+				'protect',
+				'publicize',
+				'related-posts',
+				'akismet',
+				'vaultpress',
+				'videopress',
+				'search',
+			);
+
+			/*
+			 * Let's handle the Sharing feature differently.
+			 * If we're using a block-based theme, we should suggest the sharing block.
+			 * If using a classic theme, we should suggest the old sharing module.
+			 */
+			if ( wp_is_block_theme() ) {
+				$searchable_modules[] = 'sharing-block';
+			} else {
+				$searchable_modules[] = 'sharedaddy';
+			}
+
 			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
 			$tracking             = new Tracking();
 			$jetpack_modules_list = array_intersect_key(
 				array_merge( $this->get_extra_features(), Jetpack_Admin::init()->get_modules() ),
-				array_flip(
-					array(
-						'contact-form',
-						'monitor',
-						'photon',
-						'photon-cdn',
-						'protect',
-						'publicize',
-						'related-posts',
-						'sharedaddy',
-						'akismet',
-						'vaultpress',
-						'videopress',
-						'search',
-					)
-				)
+				array_flip( $searchable_modules )
 			);
 			uasort( $jetpack_modules_list, array( $this, 'by_sorting_option' ) );
 
@@ -533,7 +553,15 @@ class Jetpack_Plugin_Search {
 
 		$links = array();
 
-		if ( 'akismet' === $plugin['module'] || 'vaultpress' === $plugin['module'] ) {
+		if ( 'sharing-block' === $plugin['module'] ) {
+			$links['jp_get_started'] = '<a
+				id="plugin-select-settings"
+				class="jetpack-plugin-search__primary jetpack-plugin-search__get-started button"
+				href="' . esc_url( admin_url( 'site-editor.php?path=%2Fwp_template' ) ) . '"
+				data-module="' . esc_attr( $plugin['module'] ) . '"
+				data-track="get_started"
+				>' . esc_html__( 'Add block', 'jetpack' ) . '</a>';
+		} elseif ( 'akismet' === $plugin['module'] || 'vaultpress' === $plugin['module'] ) {
 			$links['jp_get_started'] = '<a
 				id="plugin-select-settings"
 				class="jetpack-plugin-search__primary jetpack-plugin-search__get-started button"

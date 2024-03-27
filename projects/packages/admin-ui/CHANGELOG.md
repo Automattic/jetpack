@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2024-03-12
+### Changed
+- Internal updates.
+
+## [0.4.0] - 2024-03-01
+### Added
+- Register menus in network admin as well as regular admin. [#36058]
+
+## [0.3.2] - 2024-01-29
+### Fixed
+- Wait until 'admin_menu' action to call `add_menu()`, to avoid triggering the l10n load too early. [#35279]
+
 ## [0.3.1] - 2023-11-24
 
 ## [0.3.0] - 2023-11-20
@@ -132,6 +144,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing menu visibility issues.
 
+[0.4.1]: https://github.com/Automattic/jetpack-admin-ui/compare/0.4.0...0.4.1
+[0.4.0]: https://github.com/Automattic/jetpack-admin-ui/compare/0.3.2...0.4.0
+[0.3.2]: https://github.com/Automattic/jetpack-admin-ui/compare/0.3.1...0.3.2
 [0.3.1]: https://github.com/Automattic/jetpack-admin-ui/compare/0.3.0...0.3.1
 [0.3.0]: https://github.com/Automattic/jetpack-admin-ui/compare/0.2.25...0.3.0
 [0.2.25]: https://github.com/Automattic/jetpack-admin-ui/compare/0.2.24...0.2.25

@@ -3,7 +3,7 @@ Contributors: automattic,
 Tags: jetpack, stuff
 Requires at least: 6.3
 Requires PHP: 7.0
-Tested up to: 6.4
+Tested up to: 6.5
 Stable tag: 0.1.0-alpha
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -33,8 +33,18 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 2. This is the second screen shot
 
 == Changelog ==
-
-<!-- When you do a release, use the monorepo script tools/plugin-changelog-to-readme.sh to copy from CHANGELOG.md to here. -->
+### 0.4.0 - 2024-02-07
+#### Changed
+- General: indicate full compatibility with the latest version of WordPress, 6.3.
+- General: indicate full compatibility with the latest version of WordPress, 6.4.
+- General: remove WP 6.1 backwards compatibility checks
+- General: updated PHP requirement to PHP 7.0+
+- General: update WordPress version requirements to WordPress 6.2.
+- General: update WordPress version requirements to WordPress 6.3.
+- Updated Jetpack submenu sort order so individual features are alpha-sorted.
+- Updated package dependencies.
+- Update lockfile
+- Use the new method to render Connection initial state.
 
 == Arbitrary section ==
 

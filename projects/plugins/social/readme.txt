@@ -3,7 +3,7 @@ Contributors: automattic, pabline, siddarthan, gmjuhasz, manzoorwanijk, danielpo
 Tags: social-media, publicize, social-media-manager, social-networking, social marketing, social, social share,  social media scheduling, social media automation, auto post, auto- publish, social share
 Requires at least: 6.3
 Requires PHP: 7.0
-Tested up to: 6.4
+Tested up to: 6.5
 Stable tag: 2.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -100,28 +100,31 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 3.0.0 - 2023-12-06
+### 4.1.0 - 2024-03-07
 #### Added
-- Added a new post-publish panel for quick sharing
-- Added Nextdoor to Social Previews
-- Added traking for social sharing buttons
+- Added a template lock to our Social Note CPT
+- Added endpoint to update post meta
+- Added feature support for the new CPT to support activitypub.
+- Added fix for the post list screen for social notes.
+- Added toggle to Social admin page for the Social Notes
+- Implemented titless permalink fixes.
+- New setting in /sties/$site/settings that is not relevant to this plugin.
+- Register CPT for Social Notes.
+- Social: Added archive page support to notes
 
 #### Changed
-- Code Modernization: Replace usage of strpos() with str_contains()
-- General: updated PHP requirement to PHP 7.0+
-- General: update WordPress version requirements to WordPress 6.3 and compatible with 6.4. [#34127]
-- Updated package dependencies.
-- Updated screenshot to show the new connection toggles.
-- Updated Social admin pricing page
-
-#### Removed
-- Removed unused code [#34111]
+- Changed the admin page 'Write a post' button to primary if the site has connections
+- General: indicate compatibility with the upcoming version of WordPress, 6.5.
+- Social Notes: Added the post list enhancements
+- Tailored editor for social notes
+- Updated package dependencies. [#35384, #35385, #35591, #35608, #35819, #36095, #36097, #36142, #36143]
+- Update package lock
+- Update to the most recent version of the @automattic/calypso-color-schemes package.
+- Use Blog ID in links to WPCOM instead of site slug.
 
 #### Fixed
-- Fixed an issue where initial state is not in sync
-- Fixed broken connections UI
-- Fixed pre-publish UI reactivity for Jetpack Social
-- Fixed the issue of publicize remaining ON after the post is published
+- Fixed no title from showing up in og:title
+- Fixed og:title having word-breaks.
 
 == Upgrade Notice ==
 

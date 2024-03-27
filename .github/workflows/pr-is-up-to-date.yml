@@ -22,7 +22,7 @@ jobs:
       # First, the "PR or tag" job.
 
       - name: Checkout trunk for tag push or PR
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         if: github.event_name != 'push' || github.ref != 'refs/heads/trunk'
         with:
           ref: trunk
@@ -71,7 +71,7 @@ jobs:
       # Second, the "push to trunk" job.
 
       - name: Checkout push to trunk
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         if: github.event_name == 'push' && github.ref == 'refs/heads/trunk'
         with:
           # The "Check whether the tag needs updating for trunk commit" needs the previous commit for diffing.

@@ -22,7 +22,7 @@ jobs:
     if: ${{ github.repository == 'Automattic/jetpack' && github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.event != 'issues' && github.event.workflow_run.event != 'issue_comment' }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Generate message
         id: message
         run: |
@@ -144,7 +144,7 @@ jobs:
           ' <<<"$DATA" )"
 
       - name: Send message to alerts channel
-        uses: slackapi/slack-github-action@v1.24.0
+        uses: slackapi/slack-github-action@v1.25.0
         if: steps.message.outputs.branch == 'trunk'
         with:
           channel-id: ${{ secrets.SLACK_JP_ALERTS_CHANNEL }}
@@ -153,7 +153,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
 
       - name: Send message to releases channel
-        uses: slackapi/slack-github-action@v1.24.0
+        uses: slackapi/slack-github-action@v1.25.0
         if: contains( steps.message.outputs.branch, '/branch-' ) || steps.message.outputs.branch == 'prerelease'
         with:
           channel-id: ${{ secrets.SLACK_RELEASES_CHANNEL }}

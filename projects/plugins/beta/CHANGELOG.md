@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.0.0 - 2024-02-07
+### Changed
+- Code Modernization: Replace usage of substr() with str_starts_with() and str_ends_with(). [#34207]
+- General: updated PHP requirement to PHP 7.0+ [#34126]
+- Updated package dependencies.
+
 ## 3.1.6 - 2023-10-02
 ### Changed
 - General: remove backwards-compatibility function checks now that the package supports WP 6.2. [#32772]

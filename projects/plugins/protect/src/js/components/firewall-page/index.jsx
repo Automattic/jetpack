@@ -62,6 +62,7 @@ const FirewallPage = () => {
 	const { run: runCheckoutWorkflow } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN_SLUG,
 		redirectUrl: `${ ADMIN_URL }#/firewall`,
+		useBlogIdSuffix: true,
 	} );
 	const { recordEventHandler, recordEvent } = useAnalyticsTracks();
 

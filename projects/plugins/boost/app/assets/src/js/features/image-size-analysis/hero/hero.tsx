@@ -5,7 +5,6 @@ import styles from './hero.module.scss';
 import ImageCdnRecommendation from '$features/image-size-analysis/image-cdn-recommendation/image-cdn-recommendation';
 import { type IsaCounts } from '$features/image-size-analysis';
 
-// removed in:fade={{ duration: 300, easing: quadOut }} from .jb-hero
 const LastUpdated = ( { lastUpdated }: { lastUpdated: number } ) => {
 	const formatter = new Intl.DateTimeFormat( 'en-US', {
 		month: 'long',

@@ -3,9 +3,10 @@ import { useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { useEffect, useCallback, useState } from 'react';
+import { MyJetpackRoutes } from '../../constants';
+import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
-import useWelcomeBanner from '../../hooks/use-welcome-banner';
 import { CardWrapper } from '../card';
 import styles from './style.module.scss';
 
@@ -15,12 +16,11 @@ import styles from './style.module.scss';
  * @returns {object} The WelcomeBanner component.
  */
 const WelcomeBanner = () => {
-	const isNewUser = window.myJetpackInitialState.userIsNewToJetpack === '1';
 	const { recordEvent } = useAnalytics();
-	const { hasBeenDismissed, dismissWelcomeBanner } = useWelcomeBanner();
+	const { isWelcomeBannerVisible, dismissWelcomeBanner } = useWelcomeBanner();
 	const { isRegistered, isUserConnected } = useConnection();
-	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
-	const [ bannerVisible, setBannerVisible ] = useState( ! hasBeenDismissed && isNewUser );
+	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.Connection );
+	const [ bannerVisible, setBannerVisible ] = useState( isWelcomeBannerVisible );
 	const shouldDisplayConnectionButton = ! isRegistered || ! isUserConnected;
 
 	useEffect( () => {
@@ -80,8 +80,8 @@ const WelcomeBanner = () => {
 				</CardWrapper>
 				<Button
 					className={ styles.dismiss }
-					title={ __( 'Dismiss', 'jetpack-my-jetpack' ) }
 					variant="secondary"
+					aria-label={ __( 'Don’t show the welcome message again', 'jetpack-my-jetpack' ) }
 					size="small"
 					icon={ close }
 					onClick={ onDismissClick }

@@ -5,6 +5,71 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.30.13] - 2024-03-27
+### Changed
+- Updated package dependencies. [#36585]
+
+### Fixed
+- Enable undoing adding a contact form [#36485]
+
+## [0.30.12] - 2024-03-25
+### Changed
+- Made some Contact_Form methods publicly available [#36137]
+
+## [0.30.11] - 2024-03-18
+### Fixed
+- Dashboard: add missing Connection state to the page. [#36406]
+- Dashboard: avoid JS errors when content disposition is not set. [#36406]
+
+## [0.30.10] - 2024-03-12
+### Changed
+- Update code references in docs and comments [#36234]
+- Updated package dependencies. [#36325]
+
+## [0.30.9] - 2024-03-12
+### Fixed
+- Performance: avoid querying for posts on all pages of the dashboard, and only do so on Feedback admin pages. [#36230]
+
+## [0.30.8] - 2024-03-04
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Contact Form: make constrained inputs full-width on mobile [#36000]
+
+## [0.30.7] - 2024-02-27
+### Changed
+- Update dependencies.
+
+## [0.30.6] - 2024-02-26
+### Deprecated
+- Deprecate the temporary tmp_grunion_allow_editor_view filter. [#35584]
+
+## [0.30.5] - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+## [0.30.4] - 2024-02-12
+### Fixed
+- Dashboard: improve the display of the dashboard to non-admins. [#35571]
+- Forms: fix multiple and single choice fields button style [#35456]
+
+## [0.30.3] - 2024-02-05
+### Changed
+- Asset enqueuing: switch to enqueuing strategy introduced in WordPress 6.3. [#34072]
+- Updated package dependencies.
+
+### Fixed
+- Center submit button content horizontally [#35319]
+
+## [0.30.2] - 2024-01-29
+### Changed
+- Update dependencies.
+
+## [0.30.1] - 2024-01-22
+### Added
+- Contact Form: test setup for front end script [#35074]
+
 ## [0.30.0] - 2024-01-08
 ### Changed
 - Updated useModuleStatus hook to use module_status redux store. [#34845]
@@ -465,6 +530,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.30.13]: https://github.com/automattic/jetpack-forms/compare/v0.30.12...v0.30.13
+[0.30.12]: https://github.com/automattic/jetpack-forms/compare/v0.30.11...v0.30.12
+[0.30.11]: https://github.com/automattic/jetpack-forms/compare/v0.30.10...v0.30.11
+[0.30.10]: https://github.com/automattic/jetpack-forms/compare/v0.30.9...v0.30.10
+[0.30.9]: https://github.com/automattic/jetpack-forms/compare/v0.30.8...v0.30.9
+[0.30.8]: https://github.com/automattic/jetpack-forms/compare/v0.30.7...v0.30.8
+[0.30.7]: https://github.com/automattic/jetpack-forms/compare/v0.30.6...v0.30.7
+[0.30.6]: https://github.com/automattic/jetpack-forms/compare/v0.30.5...v0.30.6
+[0.30.5]: https://github.com/automattic/jetpack-forms/compare/v0.30.4...v0.30.5
+[0.30.4]: https://github.com/automattic/jetpack-forms/compare/v0.30.3...v0.30.4
+[0.30.3]: https://github.com/automattic/jetpack-forms/compare/v0.30.2...v0.30.3
+[0.30.2]: https://github.com/automattic/jetpack-forms/compare/v0.30.1...v0.30.2
+[0.30.1]: https://github.com/automattic/jetpack-forms/compare/v0.30.0...v0.30.1
 [0.30.0]: https://github.com/automattic/jetpack-forms/compare/v0.29.2...v0.30.0
 [0.29.2]: https://github.com/automattic/jetpack-forms/compare/v0.29.1...v0.29.2
 [0.29.1]: https://github.com/automattic/jetpack-forms/compare/v0.29.0...v0.29.1

@@ -4,6 +4,10 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { getModule } from 'state/modules';
 import { isModuleFound as isModuleFoundSelector } from 'state/search';
+import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
+import EmailSettings from './email-settings';
+import MessagesSetting from './messages-setting';
+import NewsletterCategories from './newsletter-categories';
 import SubscriptionsSettings from './subscriptions-settings';
 
 /**
@@ -15,7 +19,7 @@ import SubscriptionsSettings from './subscriptions-settings';
 function Subscriptions( props ) {
 	const { active, isModuleFound, searchTerm, siteRawUrl, blogID } = props;
 
-	const foundSubscriptions = isModuleFound( 'subscriptions' );
+	const foundSubscriptions = isModuleFound( SUBSCRIPTIONS_MODULE_NAME );
 
 	if ( ! searchTerm && ! active ) {
 		return null;
@@ -39,7 +43,12 @@ function Subscriptions( props ) {
 					  ) }
 			</h2>
 			{ foundSubscriptions && (
-				<SubscriptionsSettings siteRawUrl={ siteRawUrl } blogID={ blogID } />
+				<>
+					<SubscriptionsSettings siteRawUrl={ siteRawUrl } blogID={ blogID } />
+					<NewsletterCategories />
+					<EmailSettings />
+					<MessagesSetting { ...props } />
+				</>
 			) }
 		</div>
 	);

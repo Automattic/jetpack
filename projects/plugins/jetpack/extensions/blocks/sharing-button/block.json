@@ -17,7 +17,7 @@
 			"type": "string"
 		}
 	},
-	"usesContext": [ "styleType", "postId" ],
+	"usesContext": [ "styleType", "postId", "iconColorValue", "iconBackgroundColorValue" ],
 	"supports": {
 		"reusable": false,
 		"html": false

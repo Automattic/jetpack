@@ -5,8 +5,6 @@
  * It has all the code for caching and serving requests.
  */
 
-define( 'WPSC_PRELOAD_POST_COUNT', 10 );
-
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- TODO: Fix or determine for sure that these should not be fixed.
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- TODO: Fix or determine for sure that these should not be fixed.
 
@@ -389,6 +387,16 @@ function wp_cache_get_legacy_cache( $cache_file ) {
 function wp_cache_postload() {
 	global $cache_enabled, $wp_super_cache_late_init;
 	global $wp_cache_request_uri;
+
+	if ( defined( 'DONOTCACHEPAGE' ) && DONOTCACHEPAGE ) {
+		wp_cache_debug( 'wp_cache_postload: DONOTCACHEPAGE defined. Not running.' );
+		return false;
+	}
+
+	if ( empty( $wp_cache_request_uri ) ) {
+		wp_cache_debug( 'wp_cache_postload: no request uri configured. Not running.' );
+		return false;
+	}
 
 	// have to sanitize here because formatting.php is loaded after wp_cache_request_uri is set
 	$wp_cache_request_uri = esc_url_raw( wp_unslash( $wp_cache_request_uri ) );
@@ -1292,9 +1300,12 @@ foreach ( $debug_log as $t => $line ) {
 		}
 	}
 }
+echo "<pre>";
 foreach( $debug_log as $line ) {
-	echo htmlspecialchars( $line ) . "<br />";
-}';
+	echo htmlspecialchars( $line );
+}
+echo "</pre>";
+';
 		fwrite( $fp, $msg );
 		fclose( $fp );
 	}
@@ -1505,6 +1516,19 @@ function wp_cache_phase2() {
 	if ( wp_cache_user_agent_is_rejected() ) {
 		wp_cache_debug( 'wp_cache_phase2: No caching to do as user agent rejected.' );
 		return false;
+	}
+
+	if ( ob_get_level() > 1 ) {
+		global $wp_super_cache_late_init;
+		wp_cache_debug( '***********************************************************************************' );
+		wp_cache_debug( '* An extra output buffer has been detected. Check your plugins, themes,           *' );
+		wp_cache_debug( '* mu-plugins, and other custom code as this may interfere with caching.           *' );
+
+		if ( isset( $wp_super_cache_late_init ) && $wp_super_cache_late_init ) {
+			wp_cache_debug( '* Late init is enabled. This allows third-party code to run before WP Super Cache *' );
+			wp_cache_debug( '* sets up an output buffer. That code may have set up the output buffer.          *' );
+		}
+		wp_cache_debug( '***********************************************************************************' );
 	}
 
 	wp_cache_debug( 'In WP Cache Phase 2', 5 );
@@ -3127,6 +3151,11 @@ function wpsc_post_transition( $new_status, $old_status, $post ) {
 		return;
 	}
 
+	// Allow plugins to reject cache clears for specific posts.
+	if ( ! apply_filters( 'wp_super_cache_clear_post_cache', true, $post ) ) {
+		return;
+	}
+
 	if ( ( $old_status === 'private' || $old_status === 'publish' ) && $new_status !== 'publish' ) { // post unpublished
 		if ( ! function_exists( 'get_sample_permalink' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/post.php';
@@ -3232,6 +3261,11 @@ function wp_cache_post_change( $post_id ) {
 	$post  = get_post( $post_id );
 	$ptype = is_object( $post ) ? get_post_type_object( $post->post_type ) : null;
 	if ( empty( $ptype ) || ! $ptype->public ) {
+		return $post_id;
+	}
+
+	// Allow plugins to reject cache clears for specific posts.
+	if ( ! apply_filters( 'wp_super_cache_clear_post_cache', true, $post ) ) {
 		return $post_id;
 	}
 

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Class responsible for handling the Social product
@@ -55,21 +56,21 @@ class Social extends Hybrid_Product {
 	);
 
 	/**
-	 * Get the internationalized product name
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'Social', 'jetpack-my-jetpack' );
+		return 'Social';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack Social', 'jetpack-my-jetpack' );
+		return 'Jetpack Social';
 	}
 
 	/**
@@ -78,7 +79,7 @@ class Social extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Reach your audience on social media', 'jetpack-my-jetpack' );
+		return __( 'Auto-publish to social media', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -119,6 +120,15 @@ class Social extends Hybrid_Product {
 	}
 
 	/**
+	 * Get the URL the user is taken after purchasing the product through the checkout
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_checkout_url() {
+		return self::get_manage_url();
+	}
+
+	/**
 	 * Get the WPCOM product slug used to make the purchase
 	 *
 	 * @return string
@@ -133,6 +143,12 @@ class Social extends Hybrid_Product {
 	 * @return boolean
 	 */
 	public static function has_required_plan() {
+		// For atomic sites, do a feature check to see if the republicize feature is available
+		// This feature is available by default on all Jetpack sites
+		if ( ( new Host() )->is_woa_site() ) {
+			return static::does_site_have_feature( 'republicize' );
+		}
+
 		$purchases_data = Wpcom_Products::get_site_current_purchases();
 		if ( is_wp_error( $purchases_data ) ) {
 			return false;

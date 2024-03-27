@@ -12,26 +12,31 @@ import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-adva
 import GettingStarted from './pages/getting-started/getting-started';
 import PurchaseSuccess from './pages/purchase-success/purchase-success';
 import SettingsPage from '$layout/settings-page/settings-page';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { useGettingStarted } from '$lib/stores/getting-started';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import ImageSizeAnalysis from './pages/image-size-analysis/image-size-analysis';
 import { isaGroupKeys } from '$features/image-size-analysis/lib/isa-groups';
+import '../css/admin-style.scss';
+import CacheDebugLog from './pages/cache-debug-log/cache-debug-log';
 
 const useBoostRouter = () => {
 	const { shouldGetStarted } = useGettingStarted();
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
+
+	const checkForGettingStarted = () => {
+		if ( shouldGetStarted ) {
+			return redirect( '/getting-started' );
+		}
+		return null;
+	};
+
 	return createHashRouter( [
 		{
 			path: '*',
-			loader: () => {
-				if ( shouldGetStarted ) {
-					return redirect( '/getting-started' );
-				}
-				return null;
-			},
+			loader: checkForGettingStarted,
 			element: (
 				<SettingsPage>
 					<Tracks>
@@ -41,14 +46,17 @@ const useBoostRouter = () => {
 			),
 		},
 		{
+			path: '/cache-debug-log',
+			loader: checkForGettingStarted,
+			element: (
+				<Tracks>
+					<CacheDebugLog />
+				</Tracks>
+			),
+		},
+		{
 			path: '/critical-css-advanced',
-			loader: () => {
-				if ( shouldGetStarted ) {
-					return redirect( '/getting-started' );
-				}
-
-				return null;
-			},
+			loader: checkForGettingStarted,
 			element: (
 				<SettingsPage>
 					<Tracks>
@@ -140,8 +148,10 @@ const ISAPage = () => {
 
 export default () => {
 	return (
-		<DataSyncProvider>
-			<Main />
-		</DataSyncProvider>
+		<React.StrictMode>
+			<DataSyncProvider>
+				<Main />
+			</DataSyncProvider>
+		</React.StrictMode>
 	);
 };

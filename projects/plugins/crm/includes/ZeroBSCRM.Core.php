@@ -24,14 +24,14 @@ final class ZeroBSCRM {
 	 *
 	 * @var string
 	 */
-	public $version = '6.3.2';
+	public $version = '6.4.1';
 
 	/**
 	 * WordPress version tested with.
 	 *
 	 * @var string
 	 */
-	public $wp_tested = '6.3';
+	public $wp_tested = '6.5';
 
 	/**
 	 * WordPress update API version.
@@ -238,6 +238,13 @@ final class ZeroBSCRM {
 	public $external_sources = null;
 
 	/**
+	 * Listview filters
+	 *
+	 * @var array Jetpack CRM External Sources
+	 */
+	public $listview_filters = array();
+
+	/**
 	 * Settings Object
 	 *
 	 * @var Jetpack CRM Settings Object
@@ -365,6 +372,16 @@ final class ZeroBSCRM {
 	 * @var Jetpack CRM Acceptable mime types list
 	 */
 	public $acceptable_mime_types;
+
+	/**
+	 * Acceptable fields to be included in the Total Value of contacts and companies
+	 *
+	 * @var Jetpack CRM Acceptable fields to be included in the Total Value
+	 */
+	public $acceptable_total_value_fields = array(
+		'transactions' => 'Transactions',
+		'invoices'     => 'Invoices',
+	);
 
 	/**
 	 * Acceptable html array
@@ -1398,16 +1415,6 @@ final class ZeroBSCRM {
 
 		// remove dupes - even this doesn't seem to remove the dupes!
 		return array_unique( $extensions_array );
-
-		/*
-		WH wrote this in 2.97.7, but probs not neceessary, not adding to not break anything
-		// only apply filter if legit passed
-		if (is_array($extensions_array) && count($extensions_array) > 0)
-			$extensions_array = apply_filters('zbs_extensions_array', $extensions_array);
-		else // else pass it with empty:
-			$extensions_array = apply_filters('zbs_extensions_array', array());
-
-		return $extensions_array; */
 	}
 
 	// load initial external sources
@@ -1504,16 +1511,6 @@ final class ZeroBSCRM {
 		// ====================================================================
 	}
 
-	/*
-	Don't think we need this
-	#} thumbnail support - :)
-	private function add_thumbnail_support() {
-		if ( ! current_theme_supports( 'post-thumbnails' ) ) {
-			add_theme_support( 'post-thumbnails' );
-		}
-		add_post_type_support( 'product', 'thumbnail' );
-	} */
-
 	public function setup_environment() {
 		// Don't think we need this $this->add_thumbnail_support();  //add thumbnail support
 	}
@@ -1593,10 +1590,8 @@ final class ZeroBSCRM {
 		$this->DAL = new zbsDAL();
 
 		// } ASAP after DAL is initialised, need to run this, which DEFINES all DAL3.Obj.Models into old-style $globalFieldVars
-		// } #FIELDLOADING
-		if ( $this->isDAL3() ) {
-			zeroBSCRM_fields_initialise();
-		}
+		// } #FIELDLOADING'
+		zeroBSCRM_fields_initialise();
 
 		// } Setup Config (centralises version numbers temp)
 		global $zeroBSCRM_Conf_Setup;
@@ -1710,7 +1705,7 @@ final class ZeroBSCRM {
 		// If usage tracking is active - include the tracking code.
 		$this->load_usage_tracking();
 
-		if ( $this->isDAL3() && zeroBSCRM_isExtensionInstalled( 'jetpackforms' ) ) {
+		if ( zeroBSCRM_isExtensionInstalled( 'jetpackforms' ) ) {
 			// } Jetpack - can condition this include on detection of Jetpack - BUT the code in Jetpack.php only fires on actions so will be OK to just include
 			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Jetpack.php';
 		}
@@ -1911,6 +1906,9 @@ final class ZeroBSCRM {
 		// This action should replace after_zerobscrm_extsources_init when we refactor load order in this class.
 		// initially used by advanced segments to add custom field segment condition classes after the class is declared in jpcrm-segment-conditions.php
 		do_action( 'jpcrm_post_init' );
+
+		$default_listview_filters = array();
+		$this->listview_filters   = apply_filters( 'jpcrm_listview_filters', $default_listview_filters );
 
 		// this allows us to do stuff (e.g. redirect based on a condition) prior to headers being sent
 		$this->catch_preheader_interrupts();

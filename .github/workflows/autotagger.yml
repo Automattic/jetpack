@@ -12,13 +12,14 @@ jobs:
     name: Tag
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Fetch tags, shallowly and treeless
+      - name: Fetch tags, shallowly and blobless
         run: |
-          git fetch --depth=1 --filter=tree:0 origin 'refs/tags/*:refs/tags/*'
+          git fetch --depth=1 --filter=blob:none origin 'refs/tags/*:refs/tags/*'
 
-      - name: Tag projects
+      - name: Determine needed tags
+        id: get-tags
         run: |
           REF=${GITHUB_REF#refs/heads/}
           if [[ "$REF" == */branch-* ]]; then
@@ -27,6 +28,7 @@ jobs:
               echo "Branch $REF seems to be a release branch, checking matching projects."
             else
               echo "::notice::Branch $REF seems to be a release branch, but nothing uses that prefix so not checking any projects."
+              echo "any=false" >> "$GITHUB_OUTPUT"
               exit 0
             fi
           else
@@ -35,6 +37,7 @@ jobs:
               echo "Branch $REF is not a release branch, checking only projects without a release-branch-prefix."
             else
               echo "::notice::Branch $REF is not a release branch, but somehow no projects lack a release-branch-prefix?"
+              echo "any=false" >> "$GITHUB_OUTPUT"
               exit 0
             fi
           fi
@@ -53,8 +56,12 @@ jobs:
             VER=$(sed -nEe 's/^## \[?([^]]*)\]? - .*/\1/;T;p;q' CHANGELOG.md || true)
             echo " Version from changelog is ${VER:-<unknown>}"
             if [[ "$VER" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
-              echo " Version $VER ok to tag"
-              TAGS+=( "$SLUG@$VER" )
+              if [[ -n "$( git tag -l "$SLUG@$VER" )" ]]; then
+                echo " Version $VER is already tagged"
+              else
+                echo " Version $VER ok to tag"
+                TAGS+=( "$SLUG@$VER" )
+              fi
             else
               echo " Not tagging version $VER"
             fi
@@ -62,9 +69,28 @@ jobs:
 
           if [[ ${#TAGS[@]} -eq 0 ]]; then
             echo "::notice::Nothing to tag."
+            echo "any=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
+          printf "%s\n" "${TAGS[@]}" > "$GITHUB_WORKSPACE/to-tag.txt"
+          echo "any=true" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for prior instances of the workflow to finish
+        if: steps.get-tags.outputs.any == 'true'
+        uses: ./.github/actions/turnstile
+        with:
+          # Tagging should be reasonably quick, so poll more frequently.
+          poll-interval: 15
+
+      - name: Fetch tags, shallowly and blobless
+        if: steps.get-tags.outputs.any == 'true'
+        run: |
+          git fetch --depth=1 --filter=blob:none origin 'refs/tags/*:refs/tags/*'
+
+      - name: Tag projects
+        if: steps.get-tags.outputs.any == 'true'
+        run: |
           export GIT_AUTHOR_NAME=matticbot
           export GIT_AUTHOR_EMAIL=matticbot@users.noreply.github.com
           export GIT_COMMITTER_NAME=matticbot
@@ -73,14 +99,16 @@ jobs:
           EXIT=0
           echo "Creating tags..."
           TOPUSH=()
-          for T in "${TAGS[@]}"; do
+          while IFS= read -r T; do
             if git tag "$T"; then
               TOPUSH+=( "$T" )
             fi
-          done
+          done < "$GITHUB_WORKSPACE/to-tag.txt"
+
           if [[ ${#TOPUSH[@]} -gt 0 ]]; then
             echo "Pushing tags..."
             # GitHub has a limit on the number of tags that can be updated in a single push. So do them in batches.
+            # See https://github.blog/changelog/2022-06-15-block-potentially-destructive-git-pushes/
             DONE=()
             while [[ ${#TOPUSH[@]} -gt 0 ]]; do
               BATCH=( "${TOPUSH[@]:0:5}" )

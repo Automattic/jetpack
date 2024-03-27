@@ -1,27 +1,29 @@
 import { PricingCard } from '@automattic/jetpack-components';
-import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
-import ActivateLicense from '$features/activate-license/activate-license';
 import { getUpgradeURL, useConnection } from '$lib/stores/connection';
 import { recordBoostEventAndRedirect } from '$lib/utils/analytics';
-import BackButton from '$features/ui/back-button/back-button';
-import Footer from '$layout/footer/footer';
-import Header from '$layout/header/header';
-import JetpackLogo from '$svg/jetpack-green';
-import styles from './upgrade.module.scss';
-import { useConfig } from '$lib/stores/config-ds';
+import './upgrade.module.scss';
+import Forward from '$svg/forward';
+import { usePricing } from '$lib/stores/pricing';
+import CardPage from '$layout/card-page/card-page';
+import { createInterpolateElement } from '@wordpress/element';
 
 const Upgrade: React.FC = () => {
 	const {
-		pricing,
 		site: { domain: siteDomain },
-	} = useConfig();
+	} = Jetpack_Boost;
+
+	const pricing = usePricing();
 
 	const { connection } = useConnection();
 
 	const goToCheckout = () => {
 		recordBoostEventAndRedirect(
-			getUpgradeURL( siteDomain, connection.userConnected ),
+			getUpgradeURL(
+				siteDomain,
+				connection?.userConnected,
+				connection?.wpcomBlogId ? connection?.wpcomBlogId.toString() : null
+			),
 			'checkout_from_pricing_page_in_plugin'
 		);
 	};
@@ -31,83 +33,93 @@ const Upgrade: React.FC = () => {
 	}
 
 	return (
-		<div id="jb-dashboard" className="jb-dashboard">
-			<Header>
-				<ActivateLicense />
-			</Header>
-
-			<div className={ styles.body }>
-				<div
-					className={ classNames(
-						'jb-container jb-container--fixed mt-2',
-						styles[ 'container--fixed' ]
-					) }
-				>
-					<BackButton />
-					<div className="jb-card">
-						<div className="jb-card__content">
-							<JetpackLogo className="my-2" />
-							<h1 className="my-2">
-								{ __( "Optimize your website's performance", 'jetpack-boost' ) }
-							</h1>
-							<p className="jb-card__summary my-2">
-								{ __(
-									'Automatically regenerate critical CSS after site changes, and hunt down image issues with ease.',
-									'jetpack-boost'
-								) }
-							</p>
-							<ul className="jb-checklist my-2">
-								<li>{ __( 'Automatic critical CSS regeneration', 'jetpack-boost' ) }</li>
-								<li>
-									{ __( 'Performance scores are recalculated after each change', 'jetpack-boost' ) }
-								</li>
-								<li>
-									{ __( 'Automatically scan your site for image size issues', 'jetpack-boost' ) }
-								</li>
-								<li>
-									{ __(
-										'Historical performance scores with Core Web Vitals data',
-										'jetpack-boost'
-									) }
-								</li>
-								<li>
-									{ __(
-										'Fine-tune your CDN images with customizable quality settings.',
-										'jetpack-boost'
-									) }
-								</li>
-								<li>{ __( 'Dedicated email support', 'jetpack-boost' ) }</li>
-							</ul>
-						</div>
-
-						<div className="jb-card__cta px-2 my-4">
-							{ pricing && (
-								<PricingCard
-									title={ __( 'Jetpack Boost', 'jetpack-boost' ) }
-									icon={ `${ Jetpack_Boost.site.staticAssetPath }images/forward.svg` }
-									priceBefore={ pricing.priceBefore / 12 }
-									priceAfter={ pricing.priceAfter / 12 }
-									priceDetails={ __( '/month, paid yearly', 'jetpack-boost' ) }
-									currencyCode={ pricing.currencyCode }
-									ctaText={ __( 'Upgrade Jetpack Boost', 'jetpack-boost' ) }
-									onCtaClick={ goToCheckout }
-								/>
-							) }
-						</div>
-					</div>
-					<footer className="jb-footer-note">
-						{ __(
-							'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
+		<CardPage
+			sidebarItem={
+				pricing && (
+					<PricingCard
+						title={ __( 'Jetpack Boost', 'jetpack-boost' ) }
+						icon={ <Forward /> }
+						priceBefore={ pricing.priceBefore / 12 }
+						priceAfter={ pricing.priceAfter / 12 }
+						priceDetails={ __( '/month, paid yearly', 'jetpack-boost' ) }
+						currencyCode={ pricing.currencyCode }
+						ctaText={ __( 'Upgrade Jetpack Boost', 'jetpack-boost' ) }
+						onCtaClick={ goToCheckout }
+					/>
+				)
+			}
+			footerNote={ __(
+				'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
+				'jetpack-boost'
+			) }
+		>
+			<h1 className="my-3">
+				{ __( "Optimize your website's performance on the go", 'jetpack-boost' ) }
+			</h1>
+			<h3 className="my-2">
+				{ __(
+					'Unlock the full potential of Jetpack Boost with automated performance optimization tools and more.',
+					'jetpack-boost'
+				) }
+			</h3>
+			<ul className="my-2">
+				<li>
+					{ createInterpolateElement(
+						__(
+							"<strong>Automated Critical CSS Generation:</strong> Improve your site's load time. Say goodbye to manual tweaks and boost your speed scores with zero effort.",
 							'jetpack-boost'
-						) }
-					</footer>
-				</div>
-			</div>
-
-			<div className={ styles.footer }>
-				<Footer />
-			</div>
-		</div>
+						),
+						{
+							strong: <strong />,
+						}
+					) }
+				</li>
+				<li>
+					{ createInterpolateElement(
+						__(
+							'<strong>Automated Image Scanning:</strong> Always be on top of potential image size issues that might impact your site load time and SEO ranking.',
+							'jetpack-boost'
+						),
+						{
+							strong: <strong />,
+						}
+					) }
+				</li>
+				<li>
+					{ createInterpolateElement(
+						__(
+							'<strong>In-depth Performance Insights:</strong> Track your success with historical performance and Core Web Vitals scores to see how your site improves over time.',
+							'jetpack-boost'
+						),
+						{
+							strong: <strong />,
+						}
+					) }
+				</li>
+				<li>
+					{ createInterpolateElement(
+						__(
+							'<strong>Customizable Image Optimization:</strong> Control your image quality and loading speeds with customizable CDN settings, balancing aesthetics with efficiency.',
+							'jetpack-boost'
+						),
+						{
+							strong: <strong />,
+						}
+					) }
+				</li>
+				<li>
+					{ createInterpolateElement(
+						__(
+							'<strong>Expert Support With a Personal Touch:</strong> Enjoy dedicated email support from our Happiness Engineers, ensuring a smoother experience and peace of mind.',
+							'jetpack-boost'
+						),
+						{
+							strong: <strong />,
+						}
+					) }
+				</li>
+			</ul>
+		</CardPage>
 	);
 };
 

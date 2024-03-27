@@ -1,0 +1,564 @@
+@use "sass:meta";
+
+// Expanding Animation
+@mixin sliding-animation {
+	display: grid;
+	grid-template-rows: 0fr;
+	transition: all 0.3s ease-in-out;
+
+	&.open {
+		grid-template-rows: 1fr;
+		transition: all 0.3s ease-in-out;
+	}
+
+	>div {
+		overflow: hidden;
+	}
+}
+
+// Color Schemes
+@mixin color-schemes {
+	&.dark {
+		--verbum-font-color: rgba(255, 255, 255, 0.8);
+		--verbum-border-color: rgba(255, 255, 255, 0.2);
+		--verbum-background-color: rgba(0, 0, 0, 0.7);
+		--verbum-wrapper-background-color: rgba(255, 255, 255, 0.1);
+		--verbum-content-background-color: rgba(255, 255, 255, 0.1);
+		--verbum-element-opacity: 1;
+		--wp--preset--color--primary: var(--verbum-font-color);
+	}
+
+	&.transparent {
+		--verbum-font-color: rgba(0, 0, 0, 0.8);
+		--verbum-border-color: #DCDCDE;
+		--verbum-background-color: rgba(255, 255, 255, 0.6);
+		--verbum-wrapper-background-color: rgba(255, 255, 255, 0.6);
+		--verbum-content-background-color: rgba(255, 255, 255, 0.6);
+		--verbum-element-opacity: .9;
+		--wp--preset--color--primary: var(--verbum-font-color);
+	}
+
+	&.light {
+		--verbum-font-color: #3C434A;
+		--verbum-border-color: #DCDCDE;
+		--verbum-background-color: #FFFFFF;
+		--verbum-wrapper-background-color: #F9F9F9;
+		--verbum-content-background-color: #FFFFFF;
+		--verbum-element-opacity: 1;
+		--wp--preset--color--primary: var(--verbum-font-color);
+	}
+
+}
+
+/* This prevents images from overflowing the comment area. */
+.comment img {
+	max-width: 100%;
+}
+
+#respond {
+
+
+	&.comment-respond.wp-block-post-comments-form h3#reply-title.comment-reply-title {
+		margin-bottom: 0.5em;
+	}
+
+	h3 {
+		padding-top: 0;
+		padding-bottom: 0;
+		margin-top: 15px;
+		margin-bottom: 15px;
+		display: block;
+	}
+
+	&.comment-respond form#commentform {
+		background-color: transparent;
+
+		>p {
+			display: none;
+		}
+
+		#comment-form__verbum {
+			@include color-schemes;
+
+			background-color: var(--verbum-background-color);
+			border: 1px solid var(--verbum-border-color);
+			font-family: var(--wp--preset--font-family--system-font, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+					Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif);
+
+			// Fixes the alt text for the close button
+			.screen-reader-text {
+				clip: rect(1px 1px 1px 1px);
+				/* IE6, IE7 */
+				clip: rect(1px, 1px, 1px, 1px);
+				position: absolute !important;
+			}
+
+			/**
+			* Comment Form Textarea
+			*/
+			#comment-form-comment {
+				all: unset;
+				box-shadow: none;
+				border: none;
+				padding: 0;
+				display: grid;
+
+				&.verbum-text-area {
+
+					button,
+					form,
+					input {
+						all: unset;
+					}
+				}
+
+				textarea {
+					grid-area: 1/1;
+					all: initial;
+					color: var(--verbum-font-color);
+					display: block;
+					appearance: none;
+					border: none !important;
+					background: transparent !important;
+					font-size: 16px;
+					font-family: var(--jetpack-comments-font);
+					width: 100%;
+					max-width: 100%;
+					resize: none;
+					outline: none;
+					padding: 16px;
+					min-height: 96px;
+					box-sizing: border-box;
+					margin: 0;
+					box-shadow: none;
+					float: none;
+					line-height: 1.4;
+					border-radius: unset;
+					font-weight: 400;
+					white-space: pre-wrap;
+
+					&::placeholder {
+						color: var(--verbum-font-color);
+						opacity: 0.7;
+					}
+
+					&.editor-enabled {
+						display: none;
+					}
+				}
+
+				.verbum-editor-wrapper {
+					grid-area: 1/1;
+				}
+			}
+
+			.comment-form__subscription-options {
+				@include sliding-animation;
+
+				border-bottom: 1px solid var(--verbum-border-color);
+
+				.verbum-subscriptions {
+					.logout-link {
+						// protect the button from style leaks from the site; reset all.
+						all: unset;
+						cursor: pointer;
+						background: none;
+						border: 0;
+						border-radius: 0;
+						box-shadow: none;
+						color: var(--verbum-font-color);
+						margin: 0;
+						outline: none;
+						padding: 0;
+						text-align: left;
+						transition-duration: 0.05s;
+						transition-property: border, background, color;
+						transition-timing-function: ease-in-out;
+						font-size: 14px;
+
+						&:active,
+						&:focus {
+							box-shadow: 0 0 0 var(--wp-admin-border-width-focus) var(--wp-components-color-accent,
+									var(--wp-admin-theme-color, rgb(0, 124, 186)));
+						}
+					}
+
+					.verbum-email-frequency-select {
+						width: calc(100% - 50px);
+						padding: 3px;
+						border: 1px solid var(--verbum-border-color);
+						margin: 5px 0;
+						margin-left: 46px;
+					}
+
+					.verbum-subscriptions__wrapper {
+						color: var(--verbum-font-color);
+						background: var(--verbum-wrapper-background-color);
+						border-top: 1px solid var(--verbum-border-color);
+						padding: 16px;
+
+						p,
+						span {
+							color: var(--verbum-font-color);
+						}
+					}
+
+					/**
+					* Logged In
+					*/
+					&.logged-in {
+						.verbum-subscriptions__wrapper {
+							.verbum-subscriptions__content {
+								background-color: var(--verbum-content-background-color);
+								border: 1px solid var(--verbum-border-color);
+								border-radius: 4px;
+
+								.verbum-subscriptions__heading,
+								.verbum-subscriptions__options {
+									padding: 16px 21px;
+								}
+
+								.verbum-subscriptions__heading {
+									display: flex;
+									justify-content: space-between;
+									align-items: center;
+									padding-top: 16px;
+									padding-bottom: 13px;
+									font-size: 14px;
+
+									.verbum__user-name {
+										font-weight: 600;
+									}
+
+									.close-button {
+										all: unset;
+										background-color: transparent;
+										cursor: pointer;
+										border: none;
+										padding: 0;
+										height: 24px;
+										width: 24px;
+
+										svg {
+											fill: var(--verbum-font-color);
+										}
+
+										&:focus {
+											outline: 2px solid var(--wp-components-color-accent, var(--wp-admin-theme-color, #0675c4));
+										}
+									}
+								}
+
+								.verbum-subscriptions__options {
+									border-top: 1px solid var(--verbum-border-color);
+								}
+							}
+						}
+
+						// Styling when there are no subscription options visible.
+						&.no-options {
+							.verbum-subscriptions__wrapper {
+								border-top: 1px solid var(--verbum-border-color);
+								width: 100%;
+								padding: 0;
+
+								.verbum-subscriptions__content {
+									border: none;
+									border-radius: 0;
+									background-color: var(--verbum-wrapper-background-color);
+
+									.close-button {
+										display: none;
+									}
+								}
+							}
+						}
+					}
+
+					/**
+					* Logged Out
+					*/
+					&.logged-out {
+						.verbum-subscriptions__login-header {
+							font-size: 18px;
+							font-weight: 400;
+							padding-bottom: 16px;
+						}
+
+						.verbum-logins {
+							display: flex;
+							align-items: center;
+
+							&.logging-in {
+								.verbum-logins__social-buttons.show-form-content {
+									margin-bottom: 25px;
+								}
+
+								button.social-button {
+									&:not(.active) {
+										background-color: #5C5C5C;
+										opacity: .6;
+
+										svg {
+											opacity: .8;
+										}
+									}
+								}
+							}
+
+							button.social-button {
+								all: unset;
+								height: 36px;
+								width: 36px;
+								padding: 8px;
+								border-radius: 50%;
+								margin-right: 20px;
+								border: none;
+								cursor: pointer;
+								background: none;
+								font-size: 13px;
+								line-height: normal;
+								box-sizing: border-box;
+
+								&.wordpress {
+									background-color: #0675C4;
+								}
+
+								&.facebook {
+									background-color: #0F6FEA;
+								}
+
+								&.mail {
+									background-color: #3C97CE;
+								}
+							}
+
+							.verbum-login__social-loading {
+								display: flex;
+								align-self: center;
+								align-items: center;
+								margin-bottom: 25px;
+
+								&.must-login {
+									margin-bottom: 0;
+								}
+
+								p {
+									all: reset;
+									background: transparent;
+									border: 2px solid var(--verbum-border-color);
+									border-left-color: var(--wp-components-color-accent, var(--wp-admin-theme-color, #0675c4));
+									border-radius: 50%;
+									width: 15px;
+									height: 15px;
+									margin: 0 10px;
+									animation: spin 1s linear infinite;
+
+									@keyframes spin {
+										to {
+											transform: rotate(360deg);
+										}
+									}
+								}
+
+								button {
+									font-size: 14px;
+									text-decoration: none;
+								}
+							}
+						}
+
+						.verbum-form {
+							@include sliding-animation;
+						}
+					}
+				}
+			}
+
+			/**
+			* Comment form footer
+			*/
+			.verbum-footer {
+				display: flex;
+				padding: 16px;
+
+				&:not(.logged-in) {
+					justify-content: flex-end;
+				}
+
+				.verbum-footer__user {
+					display: flex;
+					justify-content: space-between;
+					width: 100%;
+
+					.user-settings-button {
+						all: unset;
+						align-items: center;
+						padding: 0;
+						display: flex;
+						height: 37px;
+						width: 74px;
+						border: 1px solid var(--verbum-border-color);
+						border-radius: 4px;
+						overflow: hidden;
+						background-color: var(--verbum-content-background-color);
+
+						img,
+						svg {
+							flex: 1;
+							height: 16px;
+						}
+
+						img {
+							height: 100%;
+						}
+
+						justify-content: center;
+						cursor: pointer;
+
+						svg path {
+							transition: transform 0.5s ease-in-out 0.2s;
+							transform-origin: center center;
+						}
+
+						&.no-subscriptions {
+							width: 37px;
+						}
+
+						&:focus {
+							outline: 2px solid var(--wp-components-color-accent, var(--wp-admin-theme-color, #0675c4));
+						}
+					}
+				}
+
+				.verbum-footer__submit {
+					@keyframes button__busy-animation {
+						0% {
+							background-position: 240px 0;
+						}
+					}
+
+					#comment-submit {
+						// protect the button from style leaks from the site; reset all.
+						all: unset;
+						display: inline-block;
+						padding: 7px 20px;
+						text-align: center;
+						font-size: 14px;
+						border-radius: 4px;
+						border: 1px solid transparent;
+						background: var(--wp-components-color-accent,
+								var(--wp-admin-theme-color, #0675c4));
+						color: var(--wp-components-color-accent-inverted, #fff);
+						text-decoration: none;
+						text-shadow: none;
+						white-space: nowrap;
+						cursor: default;
+
+						&:disabled {
+							background-color: var(--verbum-content-background-color);
+							border: 1px solid var(--verbum-border-color);
+							color: #a7aaad;
+						}
+
+						&.is-busy {
+							animation: button__busy-animation 3000ms infinite linear;
+							background-image: linear-gradient(-45deg, #a7aaad 28%, #c3c4c7 28%, #c3c4c7 72%, #a7aaad 72%);
+						}
+
+						&:not(:disabled) {
+							cursor: pointer;
+
+							&:focus,
+							&:active {
+								box-shadow:
+									inset 0 0 0 1px var(--wp-components-color-background, #fff),
+									0 0 0 var(--wp-admin-border-width-focus) var(--wp-components-color-accent,
+										var(--wp-admin-theme-color, #0675c4));
+							}
+
+							&:hover {
+								background: var(--wp-components-color-accent-darker-10,
+										var(--wp-admin-theme-color-darker-10, #055d9c));
+							}
+
+							&:focus-visible {
+								outline: none;
+							}
+						}
+					}
+				}
+			}
+
+			/**
+			* Comment form error messages
+			*/
+			.verbum-error-message {
+				display: flex;
+				padding: 16px;
+
+				p {
+					padding: 8px 12px;
+					margin: 0;
+					border-left: 4px solid #f0b849;
+					background-color: #fef8ee;
+					width: 100%;
+					font-size: 14px;
+				}
+			}
+
+			/**
+			* Comment form messages
+			*/
+			.verbum-message {
+				display: flex;
+				padding: 16px;
+
+				p {
+					padding: 8px 12px;
+					margin: 0;
+					border-left: 4px solid #4ab866;
+					background-color: #eff9f1;
+					color: #333;
+					width: 100%;
+					font-size: 14px;
+				}
+
+				&.is-error {
+					p {
+						border-left: 4px solid #f0b849;
+						background-color: #f9ecec;
+					}
+				}
+			}
+		}
+	}
+
+	.custom-loading-spinner {
+        border: 2px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 2px solid #3498db;
+        width: 16px;
+        height: 16px;
+        -webkit-animation: customLoadingSpinner 2s linear infinite;
+        animation: customLoadingSpinner 2s linear infinite;
+    }
+
+	@keyframes customLoadingSpinner {
+        to {
+          -webkit-transform: rotate(360deg);
+        }
+    }
+
+    @-webkit-keyframes customLoadingSpinner {
+        to {
+          -webkit-transform: rotate(360deg);
+        }
+    }
+}
+
+@keyframes button__busy-animation {
+	0% {
+		background-position: 240px 0;
+	}
+}

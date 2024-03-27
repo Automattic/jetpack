@@ -10,7 +10,7 @@ import classNames from 'classnames';
 import useEntityRecordState from 'hooks/use-entity-record-state';
 import useSiteLoadingState from 'hooks/use-loading-state';
 import useSearchOptions from 'hooks/use-search-options';
-import { SERVER_OBJECT_NAME } from 'instant-search/lib/constants';
+import { RESULT_FORMAT_PRODUCT, SERVER_OBJECT_NAME } from 'instant-search/lib/constants';
 import ColorControl from './color-control';
 import ExcludedPostTypesControl from './excluded-post-types-control';
 import ThemeControl from './theme-control';
@@ -56,6 +56,19 @@ export default function SidebarOptions() {
 	const { isLoading } = useSiteLoadingState();
 	const isDisabled = isSaving || isLoading;
 
+	const sortOptions = [
+		{ label: __( 'Relevance (recommended)', 'jetpack-search-pkg' ), value: 'relevance' },
+		{ label: __( 'Newest first', 'jetpack-search-pkg' ), value: 'newest' },
+		{ label: __( 'Oldest first', 'jetpack-search-pkg' ), value: 'oldest' },
+	];
+	if ( resultFormat === RESULT_FORMAT_PRODUCT ) {
+		sortOptions.push(
+			{ label: __( 'Rating', 'jetpack-search-pkg' ), value: 'rating_desc' },
+			{ label: __( 'Price: low to high', 'jetpack-search-pkg' ), value: 'price_asc' },
+			{ label: __( 'Price: high to low', 'jetpack-search-pkg' ), value: 'price_desc' }
+		);
+	}
+
 	// TODO: ask the user if they attempt to navigate away from the page with pending changes.
 
 	return (
@@ -89,11 +102,7 @@ export default function SidebarOptions() {
 					disabled={ isDisabled }
 					label={ __( 'Default sort', 'jetpack-search-pkg' ) }
 					value={ sort }
-					options={ [
-						{ label: __( 'Relevance (recommended)', 'jetpack-search-pkg' ), value: 'relevance' },
-						{ label: __( 'Newest first', 'jetpack-search-pkg' ), value: 'newest' },
-						{ label: __( 'Oldest first', 'jetpack-search-pkg' ), value: 'oldest' },
-					] }
+					options={ sortOptions }
 					onChange={ setSort }
 				/>
 				<SelectControl

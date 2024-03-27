@@ -20,7 +20,7 @@ runs:
 
         if [[ "${INPUT_PHP:-$PHP_VERSION}" == 7.[01] ]]; then
           printf "Downgrading composer for PHP %s\n\n" "${INPUT_PHP:-$PHP_VERSION}"
-          COMPOSER_VERSION=2.2.12
+          COMPOSER_VERSION=2.2.23
         fi
 
         printf "\n\e[1mSelected tool versions\e[0m\n"
@@ -80,7 +80,7 @@ runs:
         echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
     - name: Use composer cache
       if: steps.versions.outputs.php-version != 'false'
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -89,12 +89,12 @@ runs:
 
     - name: Setup pnpm
       if: steps.versions.outputs.node-version != 'false'
-      uses: pnpm/action-setup@v2.2.4
+      uses: pnpm/action-setup@v3.0.0
       with:
         version: ${{ steps.versions.outputs.pnpm-version }}
     - name: Setup Node
       if: steps.versions.outputs.node-version != 'false'
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         # Prefix the version with a caret as otherwise actions/setup-node will waste API calls finding where to download the exact version.
         node-version: ^${{ steps.versions.outputs.node-version }}

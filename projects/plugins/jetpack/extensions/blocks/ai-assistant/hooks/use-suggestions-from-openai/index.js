@@ -40,7 +40,7 @@ const useSuggestionsFromOpenAI = ( {
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ lastPrompt, setLastPrompt ] = useState( '' );
 	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
-	const { dequeueAiAssistantFeatureAyncRequest, setAiAssistantFeatureRequireUpgrade } =
+	const { dequeueAiAssistantFeatureAsyncRequest, setAiAssistantFeatureRequireUpgrade } =
 		useDispatch( 'wordpress-com/plans' );
 	const [ requestState, setRequestState ] = useState( requestingState || 'init' );
 	const source = useRef();
@@ -126,7 +126,7 @@ const useSuggestionsFromOpenAI = ( {
 		 * in case there is one pending,
 		 * when performing a new AI suggestion request.
 		 */
-		dequeueAiAssistantFeatureAyncRequest();
+		dequeueAiAssistantFeatureAsyncRequest();
 
 		const implementedFunctions = options?.functions?.reduce( ( acc, { name, implementation } ) => {
 			return {
@@ -189,7 +189,7 @@ const useSuggestionsFromOpenAI = ( {
 				postContentAbove: getPartialContentToBlock( clientId ),
 				currentPostTitle,
 				options,
-				userPrompt,
+				userPrompt: options?.userPrompt || userPrompt,
 				type,
 				isGeneratingTitle: attributes.promptType === 'generateTitle',
 				useGutenbergSyntax: !! attributes?.useGutenbergSyntax,

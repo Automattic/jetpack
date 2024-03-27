@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 use Automattic\Jetpack\Modules;
 use VIDEOPRESS_PRIVACY;
 
@@ -181,8 +180,6 @@ class Access_Control {
 			// Only paid subscribers should be granted access to the premium content.
 			if ( class_exists( Abstract_Token_Subscription_Service::class ) ) {
 				$access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS;
-			} else {
-				$access_level = Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS;
 			}
 
 			$can_view                          = $paywall->visitor_can_view_content( array( $selected_plan_id ), $access_level );

@@ -1,4 +1,3 @@
-/* global Jetpack_Boost */
 /**
  * Utility class for accessing the API
  */

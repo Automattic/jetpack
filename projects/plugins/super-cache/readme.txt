@@ -3,8 +3,8 @@ Contributors: donncha, automattic, adnan007, dilirity, mikemayhem3030, pyronaur,
 Tags: performance, caching, wp-cache, wp-super-cache, cache
 Requires at least: 6.3
 Requires PHP: 7.0
-Tested up to: 6.4
-Stable tag: 1.10.0
+Tested up to: 6.5
+Stable tag: 1.12.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -268,23 +268,33 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 == Changelog ==
-### 1.11.0 - 2023-11-08
+### 1.12.0 - 2024-03-11
 #### Added
-- Super Cache: fix "accept header" check, and add new "wpsc_accept_headers" filter on accept header list
+- Setup: Detect Jetpack Boost cache and suggest troubleshooting steps
+- WP Super Cache: added WPSC_PRELOAD_POST_INTERVAL and WPSC_PRELOAD_LOOP_INTERVAL to modify preload timings
 
 #### Changed
-- General: indicate full compatibility with the latest version of WordPress, 6.4.
-- General: update WordPress version requirements to WordPress 6.2.
-- Overhauled visual styling to match Jetpack branding
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
+- Code Modernization: Replace usage of strpos() with str_contains()
+- Code Modernization: Replace usage of strpos() with str_starts_with().
+- Code Modernization: Replace usage of substr() with str_starts_with() and str_ends_with().
+- Fix blurry Automattic logo.
+- General: avoid deprecation warnings when trying to get URLs in PHP 8.2
+- General: indicate compatibility with the upcoming version of WordPress, 6.5.
+- General: updated PHP requirement to PHP 7.0+
+- General: update WordPress version requirements to WordPress 6.3.
+- WP Super Cache: check for Boost Cache when creating advanced-cache.php
+- WP Super Cache: fixed labels on advanced settings page
+- WP Super Cache: remove notifications that preload started working again.
 
 #### Fixed
-- Caching: make sure $wp_cache_request_uri is defined to avoid warnings about "NULL" parameters.
-- super-cache: fixed null parameter warning when using $supercachedir
-- Super Cache: cancel the full preload job correctly.
+- Supercache: add "days" to "Next preload scheduled" message.
+- Super Cache: with rebuild enabled, apply that to subdirectories instead of deleting them.
+- WP Super Cache - fix the wp_super_cache_clear_post_cache filter so the homepage cache isn't deleted too.
+- WP Super Cache: bail if the request uri isn't set. It means the plugin isn't configured yet.
+- WP Super Cache: don't create an output buffer if there's already one active
+- WP Super Cache: fixed serving a cached page on POST with late init enabled.
+- WP Super Cache: fix the output buffer check, and make debug logs pre-formatted.
+- WP Super Cache: if the preload number of posts is not in the list, then add it
 
 --------
 

@@ -1,0 +1,91 @@
+#respond .verbum-toggle-control {
+    // protect the button from style leaks from the site; reset all.
+    all: unset;
+    display: inline-flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 5px 0;
+    cursor: pointer;
+
+    .verbum-toggle-control__label {
+        p {
+            // protect the button from style leaks from the site; reset all.
+            all: unset;
+            margin: 0;
+            line-height: 22px;
+        }
+
+        .primary {
+            font-size: 14px;
+            font-weight: 500;
+            color: #2C3338;
+            display: block;
+        }
+
+        .secondary {
+            font-size: 13px;
+            color: #50575e;
+            display: block;
+        }
+    }
+
+    input[type=checkbox] {
+        // protect the button from style leaks from the site; reset all.
+        all: unset;
+        opacity: 0;
+        position: absolute;
+        transform: scale(0);
+
+        &:checked+.verbum-toggle-control__button {
+            background: var(--wp-components-color-accent, var(--wp-admin-theme-color, #0675c4));
+            border-color: transparent;
+        }
+
+        &:focus+.verbum-toggle-control__button {
+            outline: 1px solid var(--wp-components-color-accent, var(--wp-admin-theme-color, #0675c4));
+        }
+
+        &:checked+.verbum-toggle-control__button:after {
+            left: calc(100% - 2px);
+            transform: translateX(-100%);
+            background: white;
+        }
+    }
+
+    .verbum-toggle-control__text {
+        display: block;
+        flex: 1;
+    }
+
+    .verbum-toggle-control__button {
+        // protect the button from style leaks from the site; reset all.
+        all: unset;
+        cursor: pointer;
+        width: 36px;
+        min-width: 36px;
+        height: 18px;
+        background: #fff;
+        display: block;
+        margin-top: 4px;
+        border-radius: 9px;
+        position: relative;
+        border: 1px solid black;
+        opacity: var(--verbum-element-opacity);
+
+        &:after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 14px;
+            height: 14px;
+            background: black;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        &:active:after {
+            width: 14px;
+        }
+    }
+}

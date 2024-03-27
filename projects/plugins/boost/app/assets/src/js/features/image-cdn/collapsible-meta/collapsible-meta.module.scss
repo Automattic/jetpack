@@ -1,4 +1,4 @@
-@use '../../../../css/main/variables.scss' as *;
+@use '$css/main/variables.scss' as *;
 
 .collapsible-meta {
 	margin-top: 2em;
@@ -13,16 +13,15 @@
 			align-items: flex-start;
 		}
 	}
-	
+
 	.edit-button {
-		font-size: 13px !important;
-		font-weight: 400;
+		font-size: 14px;
 	}
 
 	.edit-icon {
 		color: $jetpack_green_50;
 	}
-	
+
 	.summary {
 		color: $gray-40;
 		font-size: 14px;

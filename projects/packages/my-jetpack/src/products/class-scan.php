@@ -34,21 +34,21 @@ class Scan extends Module_Product {
 	public static $module_name = 'scan';
 
 	/**
-	 * Get the internationalized product name
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'Scan', 'jetpack-my-jetpack' );
+		return 'Scan';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack Scan', 'jetpack-my-jetpack' );
+		return 'Jetpack Scan';
 	}
 
 	/**
@@ -57,7 +57,7 @@ class Scan extends Module_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Stay one step ahead of threats', 'jetpack-my-jetpack' );
+		return __( 'Powerful, automated site security', 'jetpack-my-jetpack' );
 	}
 
 	/**

@@ -4,7 +4,7 @@
  * Plugin Name: Move to WordPress.com
  * Plugin URI: https://wordpress.org/plugins/wpcom-migration
  * Description: A WordPress plugin that helps users to migrate their sites to WordPress.com.
- * Version: 2.0.0-alpha
+ * Version: 2.1.0-alpha
  * Author: Automattic
  * Author URI: https://wordpress.com/
  * License: GPLv2 or later
@@ -55,9 +55,26 @@ if ( is_readable( $jetpack_autoloader ) ) {
 		);
 	}
 
+	// Add a red bubble notification to My Jetpack if the installation is bad.
+	add_filter(
+		'my_jetpack_red_bubble_notification_slugs',
+		function ( $slugs ) {
+			$slugs['move-to-wordpress-plugin-bad-installation'] = array(
+				'data' => array(
+					'plugin' => 'Move to WordPress.com',
+				),
+			);
+
+			return $slugs;
+		}
+	);
+
 	add_action(
 		'admin_notices',
 		function () {
+			if ( get_current_screen()->id !== 'plugins' ) {
+				return;
+			}
 			?>
 		<div class="notice notice-error is-dismissible">
 			<p>

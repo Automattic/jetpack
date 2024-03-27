@@ -10,6 +10,7 @@ import { useRegenerateCriticalCssAction } from '../lib/stores/critical-css-state
 import { getCriticalCssIssues, isFatalError } from '../lib/critical-css-errors';
 import ShowStopperError from '../show-stopper-error/show-stopper-error';
 import { Button } from '@automattic/jetpack-components';
+import styles from './status.module.scss';
 
 type StatusTypes = {
 	cssState: CriticalCssState;
@@ -47,40 +48,32 @@ const Status: React.FC< StatusTypes > = ( {
 		);
 	}
 
-	// If my parent has provided override text, show it.
-	if ( overrideText ) {
-		return (
-			<div className="jb-critical-css__meta">
-				<div className="summary">{ overrideText }</div>
-			</div>
-		);
-	}
-
-	// Otherwise, show the status.
 	return (
-		<div className="jb-critical-css__meta">
-			<div className="summary">
-				<div className="successes">
-					{ sprintf(
-						/* translators: %d is a number of CSS Files which were successfully generated */
-						_n( '%d file generated', '%d files generated', successCount, 'jetpack-boost' ),
-						successCount
-					) }
+		<div className={ styles.status } data-testid="critical-css-meta">
+			<div className={ styles.summary }>
+				{ overrideText || (
+					<div className={ styles.successes }>
+						{ sprintf(
+							/* translators: %d is a number of CSS Files which were successfully generated */
+							_n( '%d file generated', '%d files generated', successCount, 'jetpack-boost' ),
+							successCount
+						) }
 
-					{ cssState.updated && (
-						<>
-							{ ' ' }
-							<TimeAgo time={ new Date( cssState.updated * 1000 ) } />
-						</>
-					) }
+						{ !! cssState.updated && (
+							<>
+								{ ' ' }
+								<TimeAgo time={ new Date( cssState.updated * 1000 ) } />
+							</>
+						) }
 
-					{ '. ' }
+						{ '. ' }
 
-					{ extraText }
-				</div>
+						{ extraText }
+					</div>
+				) }
 
 				{ cssState.status !== 'pending' && issues.length > 0 && (
-					<div className="failures">
+					<div className={ classNames( 'failures', styles.failures ) }>
 						<InfoIcon />
 
 						<>
@@ -104,18 +97,17 @@ const Status: React.FC< StatusTypes > = ( {
 				) }
 			</div>
 
-			{ cssState.status !== 'pending' && (
-				<Button
-					className={ classNames( 'components-button', {
-						'is-link': ! highlightRegenerateButton,
-					} ) }
-					isPrimary={ highlightRegenerateButton }
-					onClick={ () => regenerateAction.mutate() }
-				>
-					{ ! highlightRegenerateButton && <RefreshIcon /> }
-					{ __( 'Regenerate', 'jetpack-boost' ) }
-				</Button>
-			) }
+			<Button
+				className={ styles[ 'regenerate-button' ] }
+				variant={ highlightRegenerateButton ? 'primary' : 'link' }
+				size="small"
+				weight="regular"
+				onClick={ () => regenerateAction.mutate() }
+				icon={ highlightRegenerateButton ? undefined : <RefreshIcon /> }
+				disabled={ cssState.status === 'pending' }
+			>
+				{ __( 'Regenerate', 'jetpack-boost' ) }
+			</Button>
 		</div>
 	);
 };

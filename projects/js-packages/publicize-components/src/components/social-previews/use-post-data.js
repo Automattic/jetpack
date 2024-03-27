@@ -2,7 +2,7 @@ import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { usePostMeta } from '../../hooks/use-post-meta';
 import { getSigImageUrl } from '../generated-image-preview/utils';
-import { getMediaSourceUrl } from './utils';
+import { getMediaSourceUrl, getPostImageUrl } from './utils';
 
 /**
  * Returns the post data.
@@ -15,7 +15,7 @@ export function usePostData() {
 	return useSelect(
 		select => {
 			const { getMedia } = select( 'core' );
-			const { getEditedPostAttribute } = select( 'core/editor' );
+			const { getEditedPostAttribute, getEditedPostContent } = select( 'core/editor' );
 
 			const featuredImageId = getEditedPostAttribute( 'featured_media' );
 
@@ -37,6 +37,15 @@ export function usePostData() {
 
 				if ( isImage && firstMedia.url ) {
 					image = firstMedia.url;
+				}
+			}
+
+			// If we still don't have an image, try to get it from the post content.
+			if ( ! image ) {
+				const postImageUrl = getPostImageUrl( getEditedPostContent() );
+
+				if ( postImageUrl ) {
+					image = postImageUrl;
 				}
 			}
 

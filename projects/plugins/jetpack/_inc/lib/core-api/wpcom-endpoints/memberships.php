@@ -169,6 +169,12 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::DELETABLE,
 					'callback'            => array( $this, 'delete_product' ),
 					'permission_callback' => array( $this, 'can_modify_products_permission_check' ),
+					'args'                => array(
+						'cancel_subscriptions' => array(
+							'type'     => 'boolean',
+							'required' => false,
+						),
+					),
 				),
 			)
 		);
@@ -337,17 +343,22 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 * @return array|WP_Error
 	 */
 	public function delete_product( \WP_REST_Request $request ) {
-		$product_id = $request->get_param( 'product_id' );
+		$product_id           = $request->get_param( 'product_id' );
+		$cancel_subscriptions = $request->get_param( 'cancel_subscriptions' );
 		if ( $this->is_wpcom() ) {
 			require_lib( 'memberships' );
 			try {
-				$this->delete_product_from_wpcom( $product_id );
+				$this->delete_product_from_wpcom( $product_id, $cancel_subscriptions );
 				return array( 'deleted' => true );
 			} catch ( \Exception $e ) {
 				return array( 'error' => $e->getMessage() );
 			}
 		} else {
-			return $this->proxy_request_to_wpcom( "product/$product_id", 'DELETE' );
+			return $this->proxy_request_to_wpcom(
+				"product/$product_id",
+				'DELETE',
+				array( 'cancel_subscriptions' => $cancel_subscriptions )
+			);
 		}
 	}
 
@@ -371,8 +382,31 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 
 		if ( $this->is_wpcom() ) {
 			require_lib( 'memberships' );
-			$blog_id = get_current_blog_id();
-			return (array) get_memberships_settings_for_site( $blog_id, $product_type, $is_editable, $source );
+			$blog_id             = get_current_blog_id();
+			$membership_settings = get_memberships_settings_for_site( $blog_id, $product_type, $is_editable, $source );
+
+			if ( is_wp_error( $membership_settings ) ) {
+				// Get error messages from the $membership_settings.
+				$error_codes    = $membership_settings->get_error_codes();
+				$error_messages = array();
+
+				foreach ( $error_codes as $code ) {
+					$messages = $membership_settings->get_error_messages( $code );
+					foreach ( $messages as $message ) {
+						// Sanitize error message
+						$error_messages[] = esc_html( $message );
+					}
+				}
+
+				$error_messages_string = implode( ' ', $error_messages );
+				// translators: %s is a list of error messages.
+				$base_message = __( 'Could not get the membership settings due to the following error(s): %s', 'jetpack' );
+				$full_message = sprintf( $base_message, $error_messages_string );
+
+				return new WP_Error( 'membership_settings_error', $full_message, array( 'status' => 404 ) );
+			}
+
+			return (array) $membership_settings;
 		} else {
 			$payload = array(
 				'type'   => $request['type'],
@@ -537,12 +571,13 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 * Delete a product via the WPCOM-specific Memberships_Product class.
 	 *
 	 * @param string|int $product_id The ID of the product being deleted.
+	 * @param bool       $cancel_subscriptions Whether to cancel subscriptions to the product as well.
 	 * @throws \Exception When there is a problem deleting the product.
 	 * @return void
 	 */
-	private function delete_product_from_wpcom( $product_id ) {
+	private function delete_product_from_wpcom( $product_id, $cancel_subscriptions = false ) {
 		$product = $this->find_product_from_wpcom( $product_id ); // prevents running outside of wpcom
-		$result  = $product->delete();
+		$result  = $product->delete( $cancel_subscriptions ? Memberships_Product::CANCEL_SUBSCRIPTIONS : Memberships_Product::KEEP_SUBSCRIPTIONS );
 		if ( is_wp_error( $result ) ) {
 			throw new \Exception( $result->get_error_message() );
 		}

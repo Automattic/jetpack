@@ -26,7 +26,7 @@ jobs:
       matrix: ${{ steps.evaluate.outputs.matrix }}
       build-matrix: ${{ steps.evaluate.outputs.build-matrix }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # For pull requests, list-changed-projects.sh needs the merge base.
       - name: Deepen to merge base
@@ -78,7 +78,7 @@ jobs:
     steps:
       - name: Ensure ${{ matrix.buildGroup }} build cache
         id: jetpack-build-cache
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           lookup-only: true
           path: |
@@ -88,7 +88,7 @@ jobs:
 
       - name: Checkout code
         if: steps.jetpack-build-cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup tools
         if: steps.jetpack-build-cache.outputs.cache-hit != 'true'
@@ -129,7 +129,7 @@ jobs:
       - name: Save ${{ matrix.buildGroup }} build cache
         if: steps.jetpack-build-cache.outputs.cache-hit != 'true'
         id: jetpack-build-cache-save
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: |
             .
@@ -150,12 +150,12 @@ jobs:
       matrix:
         include: ${{ fromJson( needs.create-test-matrix.outputs.matrix ) }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Restore ${{ matrix.buildGroup }} build cache
         id: jetpack-build-cache
         if: needs.build-projects.result == 'success' && ! startsWith( matrix.suite, 'atomic' )
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           path: |
             .
@@ -172,14 +172,14 @@ jobs:
 
       - name: Checkout jetpack-production
         if: github.event_name == 'repository_dispatch' && github.event.client_payload.repository != 'Automattic/jetpack-production'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: Automattic/jetpack-production
           path: build-output/build/Automattic/jetpack-production
 
       - name: Checkout mirror repo
         if: github.event_name == 'repository_dispatch'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: ${{ github.event.client_payload.repository }}
           ref: ${{ github.event.client_payload.ref_name }}
@@ -325,7 +325,7 @@ jobs:
           echo "CLIENT_PAYLOAD=$( jq -nrc --arg repository "$REPOSITORY" --arg branch "$BRANCH" --arg pr_title "$PR_TITLE" --arg pr_number "$PR_NUMBER" --arg run_id "$GITHUB_RUN_ID" '{ repository: $repository, branch: $branch, pr_title: $pr_title, pr_number: $pr_number, run_id: $run_id }' )" >> "$GITHUB_OUTPUT"
 
       - name: Trigger test report workflow
-        uses: peter-evans/repository-dispatch@v2
+        uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
           repository: automattic/jetpack-e2e-reports
@@ -339,7 +339,7 @@ jobs:
     needs: [e2e-tests]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up tools
         uses: ./.github/actions/tool-setup

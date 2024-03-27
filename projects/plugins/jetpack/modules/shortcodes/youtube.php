@@ -132,16 +132,23 @@ function youtube_link_callback( $matches ) {
 /**
  * Normalizes a YouTube URL to include a v= parameter and a query string free of encoded ampersands.
  *
- * @param string $url
- * @return string The normalized URL
+ * @param string|array $url Youtube URL.
+ * @return string|false The normalized URL or false if input is invalid.
  */
 if ( ! function_exists( 'youtube_sanitize_url' ) ) :
 	/**
 	 * Clean up Youtube URL to match a single format.
 	 *
-	 * @param string $url Youtube URL.
+	 * @param string|array $url Youtube URL.
 	 */
 	function youtube_sanitize_url( $url ) {
+		if ( is_array( $url ) && isset( $url['url'] ) ) {
+			$url = $url['url'];
+		}
+		if ( ! is_string( $url ) ) {
+			return false;
+		}
+
 		$url = trim( $url, ' "' );
 		$url = trim( $url );
 		$url = str_replace( array( 'youtu.be/', '/v/', '#!v=', '&amp;', '&#038;', 'playlist' ), array( 'youtu.be/?v=', '/?v=', '?v=', '&', '&', 'videoseries' ), $url );

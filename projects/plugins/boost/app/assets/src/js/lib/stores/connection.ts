@@ -1,6 +1,5 @@
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import api from '../api/api';
-import { configSchema } from './config-ds';
 import { useModulesState } from '$features/module/lib/stores';
 import { useCallback } from 'react';
 import { z } from 'zod';
@@ -9,22 +8,29 @@ import { z } from 'zod';
  * Get the URL to upgrade boost.
  *
  * Ideally this function should not exist and
- * `getRedirectUrl( 'boost-plugin-upgrade-default', { site: config.site.domain, query, anchor: 'purchased' } )`
+ * `getRedirectUrl( 'boost-plugin-upgrade-default', { site: domain, query, anchor: 'purchased' } )`
  * should be used instead. However, the redirect changes the redirect URL in a broken manner.
  *
  * @param domain
  * @param isUserConnected
+ * @param blogID
  */
-export function getUpgradeURL( domain: string, isUserConnected = false ) {
+export function getUpgradeURL(
+	domain: string,
+	isUserConnected = false,
+	blogID: string | null = null
+) {
 	const product = 'jetpack_boost_yearly';
 
-	const redirectUrl = new URL( window.location.href );
-	redirectUrl.hash = '#/purchase-successful';
-
-	const checkoutProductUrl = new URL( `https://wordpress.com/checkout/${ domain }/${ product }` );
+	const checkoutProductUrl = new URL(
+		`https://wordpress.com/checkout/${ blogID ?? domain }/${ product }`
+	);
 
 	// Add redirect_to parameter
-	checkoutProductUrl.searchParams.set( 'redirect_to', redirectUrl.toString() );
+	checkoutProductUrl.searchParams.set(
+		'redirect_to',
+		'admin.php?page=jetpack-boost#/purchase-successful'
+	);
 
 	// Add site to query string.
 	checkoutProductUrl.searchParams.set( 'site', domain );
@@ -37,15 +43,21 @@ export function getUpgradeURL( domain: string, isUserConnected = false ) {
 	return checkoutProductUrl.toString();
 }
 
+const ConnectionSchema = z.object( {
+	connected: z.boolean(),
+	userConnected: z.boolean(),
+	wpcomBlogId: z.number().nullable(),
+} );
+
+type ConnectionSchema = z.infer< typeof ConnectionSchema >;
+
 export const useConnection = () => {
-	const [ { data, refetch: reloadConfig } ] = useDataSync(
+	const [ { data: connection, refetch } ] = useDataSync(
 		'jetpack_boost_ds',
-		'config',
-		configSchema
+		'connection',
+		ConnectionSchema
 	);
 	const [ { refetch: reloadModules } ] = useModulesState();
-
-	const connection = data?.connection as z.infer< typeof configSchema >[ 'connection' ];
 
 	return {
 		connection,
@@ -55,10 +67,10 @@ export const useConnection = () => {
 			}
 			return api.post( '/connection' ).then( results => {
 				if ( results.connected ) {
-					reloadConfig();
+					refetch();
 					reloadModules();
 				}
 			} );
-		}, [ connection, reloadConfig, reloadModules ] ),
+		}, [ connection?.connected, refetch, reloadModules ] ),
 	};
 };

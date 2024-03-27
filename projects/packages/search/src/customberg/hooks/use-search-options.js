@@ -1,4 +1,5 @@
 import { useEntityProp } from '@wordpress/core-data';
+import { PRODUCT_SORT_OPTIONS, RELEVANCE_SORT_KEY } from 'instant-search/lib/constants';
 import { useMemo } from 'react';
 
 /* eslint-disable react/jsx-no-bind */
@@ -11,7 +12,7 @@ const VALID_POST_TYPES = global.JetpackInstantSearchOptions.postTypes;
  */
 export default function useSearchOptions() {
 	const [ theme, setTheme ] = useEntityProp( 'root', 'site', 'jetpack_search_color_theme' );
-	const [ resultFormat, setResultFormat ] = useEntityProp(
+	const [ resultFormat, setResultFormatRaw ] = useEntityProp(
 		'root',
 		'site',
 		'jetpack_search_result_format'
@@ -57,6 +58,18 @@ export default function useSearchOptions() {
 	);
 	const setExcludedPostTypes = postTypesArr =>
 		setExcludedPostTypesCsv( postTypesArr.filter( type => type in VALID_POST_TYPES ).join( ',' ) );
+
+	// Add special handling for product -> non-product result format changes.
+	const setResultFormat = format => {
+		const previousFormat = resultFormat;
+		setResultFormatRaw( format );
+
+		// If switching from product to non-product and the default sort is product-specific,
+		// reset to relevance sort.
+		if ( previousFormat === 'product' && PRODUCT_SORT_OPTIONS.has( sort ) ) {
+			setSort( RELEVANCE_SORT_KEY );
+		}
+	};
 
 	return {
 		color,

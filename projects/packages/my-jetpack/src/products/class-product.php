@@ -7,8 +7,10 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Plugins_Installer;
+use Jetpack_Options;
 use WP_Error;
 
 /**
@@ -47,12 +49,19 @@ abstract class Product {
 	/**
 	 * The Jetpack plugin filename
 	 *
-	 * @var string
+	 * @var array
 	 */
 	const JETPACK_PLUGIN_FILENAME = array(
 		'jetpack/jetpack.php',
 		'jetpack-dev/jetpack.php',
 	);
+
+	/**
+	 * Whether this product requires a site connection
+	 *
+	 * @var string
+	 */
+	public static $requires_site_connection = true;
 
 	/**
 	 * Whether this product requires a user connection
@@ -118,44 +127,91 @@ abstract class Product {
 			throw new \Exception( 'Product classes must declare the $slug attribute.' );
 		}
 		return array(
-			'slug'                     => static::$slug,
-			'plugin_slug'              => static::$plugin_slug,
-			'name'                     => static::get_name(),
-			'title'                    => static::get_title(),
-			'description'              => static::get_description(),
-			'long_description'         => static::get_long_description(),
-			'tiers'                    => static::get_tiers(),
-			'features'                 => static::get_features(),
-			'features_by_tier'         => static::get_features_by_tier(),
-			'disclaimers'              => static::get_disclaimers(),
-			'status'                   => static::get_status(),
-			'pricing_for_ui'           => static::get_pricing_for_ui(),
-			'is_bundle'                => static::is_bundle_product(),
-			'is_plugin_active'         => static::is_plugin_active(),
-			'is_upgradable_by_bundle'  => static::is_upgradable_by_bundle(),
-			'supported_products'       => static::get_supported_products(),
-			'wpcom_product_slug'       => static::get_wpcom_product_slug(),
-			'requires_user_connection' => static::$requires_user_connection,
-			'has_required_plan'        => static::has_required_plan(),
-			'has_required_tier'        => static::has_required_tier(),
-			'manage_url'               => static::get_manage_url(),
-			'purchase_url'             => static::get_purchase_url(),
-			'post_activation_url'      => static::get_post_activation_url(),
-			'standalone_plugin_info'   => static::get_standalone_info(),
-			'class'                    => static::class,
-			'post_checkout_url'        => static::get_post_checkout_url(),
+			'slug'                      => static::$slug,
+			'plugin_slug'               => static::$plugin_slug,
+			'name'                      => static::get_name(),
+			'title'                     => static::get_title(),
+			'description'               => static::get_description(),
+			'long_description'          => static::get_long_description(),
+			'tiers'                     => static::get_tiers(),
+			'features'                  => static::get_features(),
+			'features_by_tier'          => static::get_features_by_tier(),
+			'disclaimers'               => static::get_disclaimers(),
+			'status'                    => static::get_status(),
+			'pricing_for_ui'            => static::get_pricing_for_ui(),
+			'is_bundle'                 => static::is_bundle_product(),
+			'is_plugin_active'          => static::is_plugin_active(),
+			'is_upgradable_by_bundle'   => static::is_upgradable_by_bundle(),
+			'supported_products'        => static::get_supported_products(),
+			'wpcom_product_slug'        => static::get_wpcom_product_slug(),
+			'requires_user_connection'  => static::$requires_user_connection,
+			'has_required_plan'         => static::has_required_plan(),
+			'has_paid_plan_for_product' => static::has_paid_plan_for_product(),
+			'has_required_tier'         => static::has_required_tier(),
+			'manage_url'                => static::get_manage_url(),
+			'purchase_url'              => static::get_purchase_url(),
+			'post_activation_url'       => static::get_post_activation_url(),
+			'standalone_plugin_info'    => static::get_standalone_info(),
+			'class'                     => static::class,
+			'post_checkout_url'         => static::get_post_checkout_url(),
 		);
 	}
 
 	/**
-	 * Get the internationalized product name
+	 * Collect the site's active features
+	 *
+	 * @return WP_Error|array
+	 */
+	private static function get_site_features_from_wpcom() {
+		static $features = null;
+
+		if ( $features !== null ) {
+			return $features;
+		}
+
+		$site_id  = Jetpack_Options::get_option( 'id' );
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/features', $site_id ), '1.1' );
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return new WP_Error( 'site_features_fetch_failed' );
+		}
+
+		$body           = wp_remote_retrieve_body( $response );
+		$feature_return = json_decode( $body );
+		$features       = $feature_return->active;
+
+		return $features;
+	}
+
+	/**
+	 * Check to see if the site has a feature
+	 * This will check the features provided by the site plans and products (including free ones)
+	 *
+	 * @param string $feature - the feature to check for.
+	 * @return bool
+	 */
+	public static function does_site_have_feature( $feature ) {
+		if ( ! $feature ) {
+			return false;
+		}
+
+		$features = self::get_site_features_from_wpcom();
+		if ( is_wp_error( $features ) ) {
+			return false;
+		}
+
+		return in_array( $feature, $features, true );
+	}
+
+	/**
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	abstract public static function get_name();
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
@@ -290,6 +346,19 @@ abstract class Product {
 	}
 
 	/**
+	 * Checks whether the site has a paid plan for the product
+	 * This ignores free products, it only checks if there is a purchase that supports the product
+	 *
+	 * @return boolean
+	 */
+	public static function has_paid_plan_for_product() {
+		// TODO: this is not always the same.
+		// There should be checks on each individual product class for paid plans if the product has a free offering
+		// For products with no free offering, checking has_required_plan works fine
+		return static::has_required_plan();
+	}
+
+	/**
 	 * Checks whether the current plan (or purchases) of the site already supports the tiers
 	 *
 	 * @return array Key/value pairs of tier slugs and whether they are supported or not.
@@ -358,13 +427,15 @@ abstract class Product {
 	public static function get_status() {
 		if ( ! static::is_plugin_installed() ) {
 			$status = 'plugin_absent';
-			if ( static::has_required_plan() ) {
+			if ( static::has_paid_plan_for_product() ) {
 				$status = 'plugin_absent_with_plan';
 			}
 		} elseif ( static::is_active() ) {
 			$status = 'active';
-			// We only consider missing user connection an error when the Product is active.
-			if ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
+			// We only consider missing site & user connection an error when the Product is active.
+			if ( static::$requires_site_connection && ! ( new Connection_Manager() )->is_connected() ) {
+				$status = 'error';
+			} elseif ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
 				$status = 'error';
 			} elseif ( static::is_upgradable() ) {
 				// Upgradable plans should ignore whether or not they have the required plan.
@@ -452,7 +523,8 @@ abstract class Product {
 			return true;
 		}
 
-		if ( ! static::is_plugin_installed() ) {
+		// Default to installing the standalone plugin for the product
+		if ( ! self::is_plugin_installed() ) {
 			$installed = Plugins_Installer::install_plugin( static::get_plugin_slug() );
 			if ( is_wp_error( $installed ) ) {
 				return $installed;
@@ -537,15 +609,11 @@ abstract class Product {
 	}
 
 	/**
-	 * Extend the plugin action links.
+	 * Filter the action links for the plugins specified.
+	 *
+	 * @param string|string[] $filenames The plugin filename(s) to filter the action links for.
 	 */
-	public static function extend_plugin_action_links() {
-
-		$filenames = static::get_plugin_filename();
-		if ( ! is_array( $filenames ) ) {
-			$filenames = array( $filenames );
-		}
-
+	private static function filter_action_links( $filenames ) {
 		foreach ( $filenames as $filename ) {
 			$hook     = 'plugin_action_links_' . $filename;
 			$callback = array( static::class, 'get_plugin_actions_links' );
@@ -553,5 +621,66 @@ abstract class Product {
 				add_filter( $hook, $callback, 20, 2 );
 			}
 		}
+	}
+
+	/**
+	 * Extend the plugin action links.
+	 */
+	public static function extend_plugin_action_links() {
+		$filenames = static::get_plugin_filename();
+		if ( ! is_array( $filenames ) ) {
+			$filenames = array( $filenames );
+		}
+
+		self::filter_action_links( $filenames );
+	}
+
+	/**
+	 * Extend the Jetpack plugin action links.
+	 */
+	public static function extend_core_plugin_action_links() {
+		$filenames = self::JETPACK_PLUGIN_FILENAME;
+
+		self::filter_action_links( $filenames );
+	}
+
+	/**
+	 * Install and activate the standalone plugin in the case it's missing.
+	 *
+	 * @return boolean|WP_Error
+	 */
+	public static function install_and_activate_standalone() {
+		/**
+		 * Check for the presence of the standalone plugin, ignoring Jetpack presence.
+		 *
+		 * If the standalone plugin is not installed and the user can install plugins, proceed with the installation.
+		 */
+		if ( ! static::is_plugin_installed() ) {
+			/**
+			 * Check for permissions
+			 */
+			if ( ! current_user_can( 'install_plugins' ) ) {
+				return new WP_Error( 'not_allowed', __( 'You are not allowed to install plugins on this site.', 'jetpack-my-jetpack' ) );
+			}
+
+			/**
+			 * Install the plugin
+			 */
+			$installed = Plugins_Installer::install_plugin( static::get_plugin_slug() );
+			if ( is_wp_error( $installed ) ) {
+				return $installed;
+			}
+		}
+
+		/**
+		 * Activate the installed plugin
+		 */
+		$result = static::activate_plugin();
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return true;
 	}
 }

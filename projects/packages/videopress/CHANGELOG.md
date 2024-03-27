@@ -5,6 +5,78 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.23.12] - 2024-03-27
+### Changed
+- Updated package dependencies. [#36539, #36585]
+
+## [0.23.11] - 2024-03-25
+### Changed
+- Internal updates.
+
+## [0.23.10] - 2024-03-14
+### Changed
+- Internal updates.
+
+## [0.23.9] - 2024-03-12
+### Changed
+- Updated package dependencies. [#36325]
+
+### Fixed
+- REST requests: avoid potential warnings with custom objects. [#36315]
+
+## [0.23.8] - 2024-03-07
+### Changed
+- Update to the most recent version of the @automattic/calypso-color-schemes package. [#36187]
+
+## [0.23.7] - 2024-03-04
+### Changed
+- Updated package dependencies.
+
+## [0.23.6] - 2024-03-01
+### Fixed
+- Block: display the right message when user is not connected on a site using the standalone plugin. [#35995]
+
+## [0.23.5] - 2024-02-27
+### Changed
+- Update dependencies.
+
+## [0.23.4] - 2024-02-22
+### Changed
+- Updated package dependencies. [#35793]
+
+## [0.23.3] - 2024-02-19
+### Changed
+- Internal updates.
+
+## [0.23.2] - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+## [0.23.1] - 2024-02-12
+### Fixed
+- Fixed various PHP warnings in PHP 8.1+ [#35551]
+
+## [0.23.0] - 2024-02-05
+### Changed
+- Updated package dependencies.
+- Use blog ID instead of site slug in checkout URL. [#34996]
+
+## [0.22.4] - 2024-01-29
+### Changed
+- Update dependencies.
+
+## [0.22.3] - 2024-01-22
+### Fixed
+- Memberships: Removed the use of non-existent class Token_Subscription_Service [#34999]
+
+## [0.22.2] - 2024-01-18
+### Changed
+- Minor internal updates.
+
+## [0.22.1] - 2024-01-18
+### Changed
+- Update dependencies.
+
 ## [0.22.0] - 2024-01-08
 ### Changed
 - Remove unused logic from the modules store. [#34835]
@@ -1230,6 +1302,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.23.12]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.11...v0.23.12
+[0.23.11]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.10...v0.23.11
+[0.23.10]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.9...v0.23.10
+[0.23.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.8...v0.23.9
+[0.23.8]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.7...v0.23.8
+[0.23.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.6...v0.23.7
+[0.23.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.5...v0.23.6
+[0.23.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.4...v0.23.5
+[0.23.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.3...v0.23.4
+[0.23.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.2...v0.23.3
+[0.23.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.1...v0.23.2
+[0.23.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.0...v0.23.1
+[0.23.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.22.4...v0.23.0
+[0.22.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.22.3...v0.22.4
+[0.22.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.22.2...v0.22.3
+[0.22.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.22.1...v0.22.2
+[0.22.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.22.0...v0.22.1
 [0.22.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.21.7...v0.22.0
 [0.21.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.21.6...v0.21.7
 [0.21.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.21.5...v0.21.6

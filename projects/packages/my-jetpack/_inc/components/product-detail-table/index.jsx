@@ -1,6 +1,3 @@
-// eslint-disable-next-line no-unused-vars
-/* global myJetpackInitialState */
-
 import {
 	Button,
 	Notice,
@@ -14,8 +11,10 @@ import {
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { sprintf, __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React, { useCallback, useMemo } from 'react';
-import { useProduct } from '../../hooks/use-product';
+import { useCallback, useMemo } from 'react';
+import useProduct from '../../data/products/use-product';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 
 /**
  * Product Detail Table Column component.
@@ -26,25 +25,32 @@ import { useProduct } from '../../hooks/use-product';
  * @param {boolean}  props.cantInstallPlugin       - True when the plugin cannot be automatically installed.
  * @param {Function} props.onProductButtonClick    - Click handler for the product button.
  * @param {object}   props.detail                  - Product detail object.
+ * @param {boolean}  props.isFetching              - True if there is a pending request to load the product.
  * @param {string}   props.tier                    - Product tier slug, i.e. 'free' or 'upgraded'.
  * @param {Function} props.trackProductButtonClick - Tracks click event for the product button.
+ * @param {boolean}  props.preferProductName       - Whether to show the product name instead of the title.
  * @returns {object} - ProductDetailTableColumn component.
  */
 const ProductDetailTableColumn = ( {
 	cantInstallPlugin,
 	onProductButtonClick,
 	detail,
+	isFetching,
 	tier,
 	trackProductButtonClick,
+	preferProductName,
 } ) => {
-	const { siteSuffix, myJetpackCheckoutUri } = window?.myJetpackInitialState ?? {};
+	const { siteSuffix = '', myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
 
 	// Extract the product details.
 	const {
+		name,
 		featuresByTier = [],
 		pricingForUi: { tiers: tiersPricingForUi },
 		title,
-		postActivationUrl,
+		postCheckoutUrl,
+		isBundle,
+		hasPaidPlanForProduct,
 	} = detail;
 
 	// Extract the pricing details for the provided tier.
@@ -55,27 +61,53 @@ const ProductDetailTableColumn = ( {
 		introductoryOffer,
 		isFree,
 		wpcomProductSlug,
+		quantity = null,
 	} = tiersPricingForUi[ tier ];
+
+	// Redirect to the referrer URL when the `redirect_to_referrer` query param is present.
+	const referrerURL = useRedirectToReferrer();
+
+	/*
+	 * Function to handle the redirect URL selection.
+	 * - postCheckoutUrl is the URL provided by the product API and is the preferred URL
+	 * - referrerURL is the referrer URL, in case the redirect_to_referrer flag was provided
+	 * - myJetpackCheckoutUri is the default URL
+	 */
+	const getCheckoutRedirectUrl = useCallback( () => {
+		if ( postCheckoutUrl ) {
+			return postCheckoutUrl;
+		}
+
+		if ( referrerURL ) {
+			return referrerURL;
+		}
+
+		return myJetpackCheckoutUri;
+	}, [ postCheckoutUrl, referrerURL, myJetpackCheckoutUri ] );
+
+	const checkoutRedirectUrl = getCheckoutRedirectUrl();
 
 	// Set up the checkout workflow hook.
 	const { run: runCheckout, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		from: 'my-jetpack',
 		productSlug: wpcomProductSlug,
-		redirectUrl: postActivationUrl.replace( /(^.*\/wp-admin\/)/i, '' ) || myJetpackCheckoutUri,
+		redirectUrl: checkoutRedirectUrl,
+		connectAfterCheckout: true,
 		siteSuffix,
 		useBlogIdSuffix: true,
+		quantity,
 	} );
 
 	// Register the click handler for the product button.
 	const onClick = useCallback( () => {
-		trackProductButtonClick();
+		trackProductButtonClick( isFree );
 		onProductButtonClick?.( runCheckout, detail, tier );
-	}, [ trackProductButtonClick, onProductButtonClick, runCheckout, detail, tier ] );
+	}, [ trackProductButtonClick, onProductButtonClick, runCheckout, detail, tier, isFree ] );
 
 	// Compute the price per month.
-	const price = fullPrice ? Math.ceil( ( fullPrice / 12 ) * 100 ) / 100 : null;
+	const price = fullPrice ? Math.round( ( fullPrice / 12 ) * 100 ) / 100 : null;
 	const offPrice = introductoryOffer?.costPerInterval
-		? Math.ceil( ( introductoryOffer.costPerInterval / 12 ) * 100 ) / 100
+		? Math.round( ( introductoryOffer.costPerInterval / 12 ) * 100 ) / 100
 		: null;
 
 	const isOneMonthOffer =
@@ -93,16 +125,22 @@ const ProductDetailTableColumn = ( {
 				/* dummy arg to avoid bad minification */ 0
 		  );
 
-	const callToAction =
-		customCallToAction ||
-		( isFree
-			? __( 'Start for Free', 'jetpack-my-jetpack' )
+	const productMoniker = name && preferProductName ? name : title;
+	const defaultCtaLabel =
+		! isBundle && hasPaidPlanForProduct
+			? sprintf(
+					/* translators: placeholder is product name. */
+					__( 'Install %s', 'jetpack-my-jetpack' ),
+					productMoniker
+			  )
 			: sprintf(
 					/* translators: placeholder is product name. */
 					__( 'Get %s', 'jetpack-my-jetpack' ),
-					title,
-					/* dummy arg to avoid bad minification */ 0
-			  ) );
+					productMoniker
+			  );
+	const callToAction =
+		customCallToAction ||
+		( isFree ? __( 'Start for Free', 'jetpack-my-jetpack' ) : defaultCtaLabel );
 
 	return (
 		<PricingTableColumn primary={ ! isFree }>
@@ -110,21 +148,23 @@ const ProductDetailTableColumn = ( {
 				{ isFree ? (
 					<ProductPrice price={ 0 } legend={ '' } currency={ 'USD' } hidePriceFraction />
 				) : (
-					<ProductPrice
-						price={ price }
-						offPrice={ offPrice }
-						legend={ priceDescription }
-						currency={ currencyCode }
-						hideDiscountLabel={ isOneMonthOffer }
-						hidePriceFraction
-					/>
+					! hasPaidPlanForProduct && (
+						<ProductPrice
+							price={ price }
+							offPrice={ offPrice }
+							legend={ priceDescription }
+							currency={ currencyCode }
+							hideDiscountLabel={ isOneMonthOffer }
+							hidePriceFraction
+						/>
+					)
 				) }
 				<Button
 					fullWidth
 					variant={ isFree ? 'secondary' : 'primary' }
 					onClick={ onClick }
-					isLoading={ hasCheckoutStarted }
-					disabled={ hasCheckoutStarted || cantInstallPlugin }
+					isLoading={ hasCheckoutStarted || isFetching }
+					disabled={ hasCheckoutStarted || cantInstallPlugin || isFetching }
 				>
 					{ callToAction }
 				</Button>
@@ -173,6 +213,7 @@ ProductDetailTableColumn.propTypes = {
 	detail: PropTypes.object.isRequired,
 	tier: PropTypes.string.isRequired,
 	trackProductButtonClick: PropTypes.func.isRequired,
+	preferProductName: PropTypes.bool.isRequired,
 };
 
 /**
@@ -184,13 +225,30 @@ ProductDetailTableColumn.propTypes = {
  * @param {string}   props.slug                    - Product slug.
  * @param {Function} props.onProductButtonClick    - Click handler for the product button.
  * @param {Function} props.trackProductButtonClick - Tracks click event for the product button.
+ * @param {boolean}  props.isFetching              - True if there is a pending request to load the product.
+ * @param {boolean}  props.preferProductName       - Whether to show the product name instead of the title.
  * @returns {object} - ProductDetailTable react component.
  */
-const ProductDetailTable = ( { slug, onProductButtonClick, trackProductButtonClick } ) => {
-	const { fileSystemWriteAccess } = window?.myJetpackInitialState ?? {};
+const ProductDetailTable = ( {
+	slug,
+	onProductButtonClick,
+	trackProductButtonClick,
+	isFetching,
+	preferProductName,
+} ) => {
+	const { fileSystemWriteAccess = 'no' } = getMyJetpackWindowInitialState();
 
 	const { detail } = useProduct( slug );
-	const { description, featuresByTier = [], pluginSlug, status, tiers = [], title } = detail;
+	const {
+		description,
+		featuresByTier = [],
+		pluginSlug,
+		status,
+		tiers = [],
+		hasPaidPlanForProduct,
+		title,
+		pricingForUi: { tiers: tiersPricingForUi },
+	} = detail;
 
 	// If the plugin can not be installed automatically, the user will have to take extra steps.
 	const cantInstallPlugin = 'plugin_absent' === status && 'no' === fileSystemWriteAccess;
@@ -236,22 +294,36 @@ const ProductDetailTable = ( { slug, onProductButtonClick, trackProductButtonCli
 		[ featuresByTier ]
 	);
 
+	const tierIsFree = tier => {
+		const { isFree } = tiersPricingForUi[ tier ];
+		return isFree;
+	};
+
 	return (
 		<>
 			{ cantInstallPluginNotice }
 
 			<PricingTable title={ description } items={ pricingTableItems }>
-				{ tiers.map( ( tier, index ) => (
-					<ProductDetailTableColumn
-						key={ index }
-						tier={ tier }
-						detail={ detail }
-						onProductButtonClick={ onProductButtonClick }
-						trackProductButtonClick={ trackProductButtonClick }
-						primary={ index === 0 }
-						cantInstallPlugin={ cantInstallPlugin }
-					/>
-				) ) }
+				{ tiers.map( ( tier, index ) => {
+					// Don't show the column if this is a free offering and we already have a plan
+					if ( hasPaidPlanForProduct && tierIsFree( tier ) ) {
+						return null;
+					}
+
+					return (
+						<ProductDetailTableColumn
+							key={ index }
+							tier={ tier }
+							detail={ detail }
+							isFetching={ isFetching }
+							onProductButtonClick={ onProductButtonClick }
+							trackProductButtonClick={ trackProductButtonClick }
+							primary={ index === 0 }
+							cantInstallPlugin={ cantInstallPlugin }
+							preferProductName={ preferProductName }
+						/>
+					);
+				} ) }
 			</PricingTable>
 		</>
 	);
@@ -261,6 +333,8 @@ ProductDetailTable.propTypes = {
 	slug: PropTypes.string.isRequired,
 	onProductButtonClick: PropTypes.func.isRequired,
 	trackProductButtonClick: PropTypes.func.isRequired,
+	isFetching: PropTypes.bool.isRequired,
+	preferProductName: PropTypes.bool.isRequired,
 };
 
 export default ProductDetailTable;

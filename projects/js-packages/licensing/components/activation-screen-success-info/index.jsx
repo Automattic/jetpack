@@ -30,6 +30,7 @@ const ActivationSuccessInfo = props => {
 					currentRecommendationsStep={ currentRecommendationsStep }
 					siteAdminUrl={ siteAdminUrl }
 					siteRawUrl={ siteRawUrl }
+					productId={ productId }
 				/>
 				<ProductLink siteRawUrl={ siteRawUrl } productId={ productId } />
 			</div>

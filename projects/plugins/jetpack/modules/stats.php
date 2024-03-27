@@ -22,6 +22,7 @@ use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Stats\Main as Stats;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats\Tracking_Pixel as Stats_Tracking_Pixel;
+use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Stats\XMLRPC_Provider as Stats_XMLRPC;
 use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
 use Automattic\Jetpack\Stats_Admin\Main as Stats_Main;
@@ -241,9 +242,8 @@ function stats_admin_menu() {
 	}
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	if ( ( new Host() )->is_woa_site() || ! Stats_Options::get_option( 'enable_odyssey_stats' ) || isset( $_GET['noheader'] ) ) {
+	if ( ! Stats_Options::get_option( 'enable_odyssey_stats' ) || isset( $_GET['noheader'] ) ) {
 		// Show old Jetpack Stats interface for:
-		// - Atomic sites.
 		// - When the "enable_odyssey_stats" option is disabled.
 		// - When being shown in the adminbar outside of wp-admin.
 		$hook = Admin_Menu::add_menu( __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', 'jetpack_admin_ui_stats_report_page_wrapper' );
@@ -419,7 +419,8 @@ function jetpack_admin_ui_stats_report_page_wrapper() {
  */
 function stats_reports_page( $main_chart_only = false ) {
 	if ( isset( $_GET['dashboard'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		return stats_dashboard_widget_content();
+		stats_dashboard_widget_content();
+		exit; // @phan-suppress-current-line PhanPluginUnreachableCode -- Safer to include it even though stats_dashboard_widget_content() never returns.
 	}
 
 	$blog_id = Stats_Options::get_option( 'blog_id' );
@@ -1216,7 +1217,7 @@ function stats_jetpack_dashboard_widget() {
  * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
  *
  * @access public
- * @return void
+ * @return never
  */
 function stats_dashboard_widget_content() {
 	$width  = isset( $_GET['width'] ) ? intval( $_GET['width'] ) / 2 : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -1739,13 +1740,7 @@ function filter_stats_array_add_jp_version( $kvs ) {
  * @return WP_Error|Object|null
  */
 function convert_stats_array_to_object( $stats_array ) {
+	_deprecated_function( __FUNCTION__, 'jetpack-13.2', 'Automattic\Jetpack\Stats\WPCOM_Stats->convert_stats_array_to_object' );
 
-	if ( is_wp_error( $stats_array ) ) {
-		return $stats_array;
-	}
-	$encoded_array = wp_json_encode( $stats_array );
-	if ( ! $encoded_array ) {
-		return new WP_Error( 'stats_encoding_error', 'Failed to encode stats array' );
-	}
-	return json_decode( $encoded_array );
+	return ( new WPCOM_Stats() )->convert_stats_array_to_object( $stats_array );
 }

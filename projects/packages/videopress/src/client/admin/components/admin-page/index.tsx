@@ -318,14 +318,15 @@ const Admin = () => {
 export default Admin;
 
 const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) => {
-	const { adminUrl, siteSuffix } = window.jetpackVideoPressInitialState;
+	const { adminUri, siteSuffix } = window.jetpackVideoPressInitialState;
 
 	const { product, hasVideoPressPurchase, isFetchingPurchases } = usePlan();
 	const { run } = useProductCheckoutWorkflow( {
 		siteSuffix,
 		productSlug: product.productSlug,
-		redirectUrl: adminUrl,
+		redirectUrl: adminUri,
 		isFetchingPurchases,
+		useBlogIdSuffix: true,
 	} );
 
 	const { recordEventHandler } = useAnalyticsTracks( {} );

@@ -156,29 +156,15 @@ function zbscrmjs_build_custInv_dropdown( custID, preSelectedInvID ) {
 						var invStr = '',
 							invID = -1;
 
-						// 3.0
-						if ( zbscrm_JS_DAL() > 2 ) {
-							// translated from admin.view php
-							invID = ele.id;
+						// translated from admin.view php
+						invID = ele.id;
 
-							// id
-							invStr = '#' + ele.id;
+						// id
+						invStr = '#' + ele.id;
 
-							// if ref, that too
-							if ( typeof ele.id_override !== 'undefined' ) {
-								invStr += ' - ' + ele.id_override;
-							}
-						} else {
-							// <3.0
-							invID = ele.id; //  POST id
-
-							// #TRANSITIONTOMETANO
-							if ( typeof ele.zbsid !== 'undefined' ) {
-								invStr += '#' + ele.zbsid;
-							} else {
-								// forced to show post id as some kind of identifier..
-								invStr += '#PID:' + ele.id;
-							}
+						// if ref, that too
+						if ( typeof ele.id_override !== 'undefined' ) {
+							invStr += ' - ' + ele.id_override;
 						}
 
 						if ( typeof ele.meta !== 'undefined' ) {
@@ -199,7 +185,7 @@ function zbscrmjs_build_custInv_dropdown( custID, preSelectedInvID ) {
 							retHTML += ' selected="selected"';
 						}
 
-						retHTML += '>' + invStr + '</option>';
+						retHTML += '>' + jpcrm.esc_html(invStr) + '</option>';
 					} );
 				} else {
 					// no invs

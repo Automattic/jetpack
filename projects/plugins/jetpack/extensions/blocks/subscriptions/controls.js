@@ -231,7 +231,15 @@ export default function SubscriptionControls( {
 					label={ __( 'Show subscriber count', 'jetpack' ) }
 					checked={ showSubscribersTotal }
 					onChange={ () => {
-						setAttributes( { showSubscribersTotal: ! showSubscribersTotal } );
+						setAttributes( {
+							showSubscribersTotal: ! showSubscribersTotal,
+							// Don't do anything if set previously, but by default set to false. We want to disencourage including social count as it's misleading.
+							// We don't want to rely setting "default" in block.json to falsy, because the default value was previously "true".
+							// Hence users without this set will still get social counts included in the subscriber counter.
+							// Lowering the subscriber count on their behalf with code change would be controversial.
+							includeSocialFollowers:
+								typeof includeSocialFollowers === 'undefined' ? false : includeSocialFollowers,
+						} );
 					} }
 					help={ () => {
 						if ( ! subscriberCount || subscriberCount < 1 ) {
@@ -242,16 +250,21 @@ export default function SubscriptionControls( {
 						}
 					} }
 				/>
-				{ showSubscribersTotal && isPublicizeEnabled ? (
+				{ isPublicizeEnabled && (
 					<ToggleControl
 						disabled={ ! showSubscribersTotal }
 						label={ __( 'Include social followers in count', 'jetpack' ) }
-						checked={ includeSocialFollowers }
+						checked={
+							typeof includeSocialFollowers === 'undefined' ? true : includeSocialFollowers
+						}
 						onChange={ () => {
-							setAttributes( { includeSocialFollowers: ! includeSocialFollowers } );
+							setAttributes( {
+								includeSocialFollowers:
+									typeof includeSocialFollowers === 'undefined' ? false : ! includeSocialFollowers,
+							} );
 						} }
 					/>
-				) : null }
+				) }
 
 				<ToggleControl
 					label={ __( 'Place button on new line', 'jetpack' ) }

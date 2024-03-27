@@ -3,10 +3,9 @@ import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { ActivationScreen } from '@automattic/jetpack-licensing';
+import ConnectScreenBody from '@automattic/jetpack-my-jetpack/components/connection-screen/body';
 import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
-import { Dashicon } from '@wordpress/components';
 import { withDispatch } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import AtAGlance from 'at-a-glance/index.jsx';
 import AdminNotices from 'components/admin-notices';
@@ -72,6 +71,7 @@ import {
 	showMyJetpack,
 	isWooCommerceActive,
 	userIsSubscriber,
+	getJetpackManageInfo,
 } from 'state/initial-state';
 import {
 	updateLicensingActivationNoticeDismiss as updateLicensingActivationNoticeDismissAction,
@@ -89,7 +89,7 @@ import {
 	fetchSiteData as fetchSiteDataAction,
 	fetchSitePurchases as fetchSitePurchasesAction,
 } from 'state/site';
-import AgenciesCard from './components/agencies-card';
+import JetpackManageBanner from './components/jetpack-manage-banner';
 
 const recommendationsRoutes = [
 	'/recommendations',
@@ -120,9 +120,14 @@ const recommendationsRoutes = [
 	'/recommendations/welcome-videopress',
 	'/recommendations/welcome-search',
 	'/recommendations/welcome-scan',
+	'/recommendations/welcome-social-basic',
+	'/recommendations/welcome-social-advanced',
+	'/recommendations/welcome-social-image-generator',
 	'/recommendations/welcome-golden-token',
 	'/recommendations/backup-activated',
 	'/recommendations/scan-activated',
+	'/recommendations/unlimited-sharing-activated',
+	'/recommendations/social-advanced-activated',
 	'/recommendations/antispam-activated',
 	'/recommendations/videopress-activated',
 	'/recommendations/search-activated',
@@ -424,56 +429,22 @@ class Main extends React.Component {
 			const searchParams = new URLSearchParams( location.search.split( '?' )[ 1 ] );
 
 			return (
-				<ConnectScreen
+				<ConnectScreenBody
+					title={
+						this.props.connectingUserFeatureLabel &&
+						sprintf(
+							/* translators: placeholder is a feature label (e.g. SEO, Notifications) */
+							__( 'Unlock %s and more amazing features', 'jetpack' ),
+							this.props.connectingUserFeatureLabel
+						)
+					}
+					from={ ( searchParams && searchParams.get( 'from' ) ) || this.props.connectingUserFrom }
+					redirectUri="admin.php?page=jetpack"
+					apiRoot={ this.props.apiRoot }
 					apiNonce={ this.props.apiNonce }
 					registrationNonce={ this.props.registrationNonce }
-					apiRoot={ this.props.apiRoot }
-					images={ [ '/images/connect-right-secondary.png' ] }
-					assetBaseUrl={ this.props.pluginBaseUrl }
 					autoTrigger={ this.shouldAutoTriggerConnection() }
-					title={
-						this.props.connectingUserFeatureLabel
-							? sprintf(
-									/* translators: placeholder is a feature label (e.g. SEO, Notifications) */
-									__( 'Unlock %s and more amazing features', 'jetpack' ),
-									this.props.connectingUserFeatureLabel
-							  )
-							: __( 'Unlock all the amazing features of Jetpack by connecting now', 'jetpack' )
-					}
-					buttonLabel={ __( 'Connect your user account', 'jetpack' ) }
-					redirectUri="admin.php?page=jetpack"
-					from={ ( searchParams && searchParams.get( 'from' ) ) || this.props.connectingUserFrom }
-				>
-					<ul>
-						<li>{ __( 'Receive instant downtime alerts', 'jetpack' ) }</li>
-						<li>{ __( 'Automatically share your content on social media', 'jetpack' ) }</li>
-						<li>{ __( 'Let your subscribers know when you post', 'jetpack' ) }</li>
-						<li>{ __( 'Receive notifications about new likes and comments', 'jetpack' ) }</li>
-						<li>{ __( 'Let visitors share your content on social media', 'jetpack' ) }</li>
-						<li>
-							{ createInterpolateElement(
-								__( 'And more! <a>See all Jetpack features</a>', 'jetpack' ),
-								{
-									a: (
-										<a
-											href={ getRedirectUrl( 'jetpack-features' ) }
-											target="_blank"
-											rel="noreferrer"
-										/>
-									),
-								}
-							) }
-							<a
-								className="jp-connection-screen-icon"
-								href={ getRedirectUrl( 'jetpack-features' ) }
-								target="_blank"
-								rel="noreferrer"
-							>
-								<Dashicon icon="external" />
-							</a>
-						</li>
-					</ul>
-				</ConnectScreen>
+				/>
 			);
 		}
 
@@ -509,7 +480,11 @@ class Main extends React.Component {
 						) }
 					</p>
 
-					<ul>
+					{ /*
+					Since the list style type is set to none, `role=list` is required for VoiceOver (on Safari) to announce the list.
+					See: https://www.scottohara.me/blog/2019/01/12/lists-and-safari.html
+					*/ }
+					<ul role="list">
 						<li>{ __( 'Measure your impact with Jetpack Stats', 'jetpack' ) }</li>
 						<li>{ __( 'Speed up your site with optimized images', 'jetpack' ) }</li>
 						<li>{ __( 'Protect your site against bot attacks', 'jetpack' ) }</li>
@@ -623,9 +598,14 @@ class Main extends React.Component {
 			case '/recommendations/welcome-videopress':
 			case '/recommendations/welcome-search':
 			case '/recommendations/welcome-scan':
+			case '/recommendations/welcome-social-basic':
+			case '/recommendations/welcome-social-advanced':
 			case '/recommendations/welcome-golden-token':
 			case '/recommendations/backup-activated':
 			case '/recommendations/scan-activated':
+			case '/recommendations/unlimited-sharing-activated':
+			case '/recommendations/social-advanced-activated':
+			case '/recommendations/welcome-social-image-generator':
 			case '/recommendations/antispam-activated':
 			case '/recommendations/videopress-activated':
 			case '/recommendations/search-activated':
@@ -687,7 +667,7 @@ class Main extends React.Component {
 		);
 	}
 
-	shouldShowAgenciesCard() {
+	shouldShowJetpackManageBanner() {
 		const { site_count } = this.props.connectedWpComUser;
 
 		// Only show on dashboard when users are managing 2 or more sites
@@ -880,8 +860,11 @@ class Main extends React.Component {
 					/>
 
 					{ this.renderMainContent( this.props.location.pathname ) }
-					{ this.shouldShowAgenciesCard() && (
-						<AgenciesCard path={ this.props.location.pathname } discountPercentage={ 60 } />
+					{ this.shouldShowJetpackManageBanner() && (
+						<JetpackManageBanner
+							path={ this.props.location.pathname }
+							isAgencyAccount={ this.props.jetpackManage.isAgencyAccount }
+						/>
 					) }
 					{ this.shouldShowSupportCard() && <SupportCard path={ this.props.location.pathname } /> }
 					{ this.shouldShowAppsCard() && <AppsCard /> }
@@ -933,6 +916,7 @@ export default connect(
 			partnerCoupon: getPartnerCoupon( state ),
 			currentRecommendationsStep: getInitialRecommendationsStep( state ),
 			isSubscriber: userIsSubscriber( state ),
+			jetpackManage: getJetpackManageInfo( state ),
 		};
 	},
 	dispatch => ( {

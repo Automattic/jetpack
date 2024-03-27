@@ -1,6 +1,7 @@
 /*
  * External dependencies
  */
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import {
 	MenuItem,
 	MenuGroup,
@@ -83,6 +84,14 @@ export default function ImproveToolbarDropdownMenu( {
 	onChange,
 	disabled = false,
 }: ImproveToolbarDropdownMenuProps ) {
+	const { tracks } = useAnalytics();
+
+	const toggleHandler = isOpen => {
+		if ( isOpen ) {
+			tracks.recordEvent( 'jetpack_ai_assistant_block_toolbar_menu_show', { tool: 'improve' } );
+		}
+	};
+
 	return disabled ? (
 		<Tooltip text={ label }>
 			<Button disabled>
@@ -96,6 +105,7 @@ export default function ImproveToolbarDropdownMenu( {
 			popoverProps={ {
 				variant: 'toolbar',
 			} }
+			onToggle={ toggleHandler }
 		>
 			{ () => {
 				// Exclude quick edits from the list.

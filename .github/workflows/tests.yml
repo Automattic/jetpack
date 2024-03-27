@@ -19,7 +19,7 @@ jobs:
     outputs:
       matrix: ${{ steps.create-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - id: create-matrix
         run: |
           MATRIX="$(.github/files/generate-ci-matrix.php)"
@@ -52,7 +52,7 @@ jobs:
         include: ${{ fromJson( needs.create-matrix.outputs.matrix ) }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           # codecov.io requires a fetch depth > 1.
           fetch-depth: 2
@@ -213,13 +213,65 @@ jobs:
           path: artifacts
           retention-days: 7
 
+  storybook-test:
+    name: Storybook tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20 # 2024-02-23 Wild guess
+    continue-on-error: true # Until it passes
+    steps:
+      - uses: actions/checkout@v4
+
+      # For pull requests, list-changed-projects.sh needs the merge base.
+      # But it doesn't have to be checked out.
+      - name: Deepen to merge base
+        if: github.event_name == 'pull_request'
+        uses: ./.github/actions/deepen-to-merge-base
+        with:
+          checkout: false
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+
+      - name: Monorepo install
+        run: |
+          echo "::group::Pnpm"
+          pnpm install
+          echo "::endgroup::"
+
+      - name: Detect changed projects
+        id: changed
+        run: |
+          CHANGED=$( .github/files/list-changed-projects.sh )
+          PROJECTS=$( node -e 'const r = { "js-packages/storybook": true }; for ( const p of require( "./projects/js-packages/storybook/storybook/projects.js" ) ) { const m = p.match( /\/projects\/([^/]+\/[^/]+)(?:$|\/)/ ); m && ( r[ m[1] ] = true ); } console.log( JSON.stringify( r ) );' )
+
+          ANY=$( jq --argjson changed "$CHANGED" --argjson projects "$PROJECTS" -n '$changed | with_entries( select( $projects[ .key ] ) ) | any' )
+          echo "any=${ANY}" >> "$GITHUB_OUTPUT"
+
+      - name: Build storybook
+        if: steps.changed.outputs.any == 'true'
+        run: |
+          pnpm jetpack build -v js-packages/storybook
+
+      - name: Install playwright
+        if: steps.changed.outputs.any == 'true'
+        run: |
+          cd projects/js-packages/storybook
+          pnpm exec playwright install --with-deps chromium
+
+      - name: Test storybook
+        if: steps.changed.outputs.any == 'true'
+        run: |
+          cd projects/js-packages/storybook
+          node bin/webserver.mjs
+          REFERENCE_URL=https://automattic.github.io/jetpack-storybook/ pnpm exec test-storybook -c storybook --url 'http://127.0.0.1:6006/index.html'
+
   # Probably this should be a linting test, but we don't run linting on trunk or release branches.
   plugin-deps:
     name: Check plugin monorepo dep versions
     runs-on: ubuntu-latest
     timeout-minutes: 2  # 2022-09-08: Should only take a few seconds.
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup tools
         uses: ./.github/actions/tool-setup
         with:
@@ -251,3 +303,44 @@ jobs:
 
           echo "Running tools/check-plugin-monorepo-deps.sh ${ARGS[@]}"
           tools/check-plugin-monorepo-deps.sh "${ARGS[@]}"
+
+  # Probably this should be a linting test too, but we don't run linting on trunk or release branches.
+  phan:
+    name: Static analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 15  # 2024-03-05: Takes about 5 minutes.
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+      - name: Pnpm install
+        run: pnpm install
+      - name: Run phan
+        run: pnpm jetpack phan --all -v --update-baseline --format github
+      - name: Run phan for previous WP version too
+        env:
+          # Don't bother complaining about unused suppressions that may be used with the newer stubs. See .phan/config.base.php for how this gets applied.
+          NO_PHAN_UNUSED_SUPPRESSION: 1
+        run: |
+          composer update --prefer-lowest php-stubs/wordpress-stubs php-stubs/wordpress-tests-stubs
+          # Don't re-update baselines here, only check.
+          pnpm jetpack phan --all -v --format github
+      - name: Check baselines
+        run: |
+          # Anything changed (with a side of printing the diff)
+          if git diff --exit-code --ignore-matching-lines='^    // ' .phan/baseline.php 'projects/*/*/.phan/baseline.php'; then
+            exit 0
+          fi
+
+          # Collect which projects changed to suggest the right command.
+          PROJECTS=()
+          if ! git diff --exit-code --name-only .phan/baseline.php &>/dev/null; then
+            PROJECTS+=( 'monorepo' )
+          fi
+          for f in $( git -c core.quotepath=off diff --name-only 'projects/*/*/.phan/baseline.php' ); do
+            SLUG=${f%/.phan/baseline.php}
+            SLUG=${SLUG#projects/}
+            PROJECTS+=( "$SLUG" )
+          done
+          echo "::error::Phan baselines have changed (good job!). Run \`jetpack phan --update-baseline ${PROJECTS[*]}\` to update them."
+          exit 1

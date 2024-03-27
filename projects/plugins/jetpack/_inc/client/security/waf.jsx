@@ -1,4 +1,4 @@
-import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
+import { getRedirectUrl, ToggleControl, Status } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
@@ -44,6 +44,7 @@ export const Waf = class extends Component {
 		ipBlockList: this.props.settings?.ipBlockList,
 		ipAllowList: this.props.settings?.ipAllowList,
 		shareData: this.props.settings?.shareData,
+		shareDebugData: this.props.settings?.shareDebugData,
 	};
 
 	/**
@@ -61,6 +62,7 @@ export const Waf = class extends Component {
 				ipBlockList: this.props.settings?.ipBlockList,
 				ipAllowList: this.props.settings?.ipAllowList,
 				shareData: this.props.settings?.shareData,
+				shareDebugData: this.props.settings?.shareDebugData,
 			} );
 		}
 
@@ -172,13 +174,32 @@ export const Waf = class extends Component {
 	 * Toggle share data.
 	 */
 	toggleShareData = () => {
-		this.setState(
-			{
-				...this.state,
-				shareData: ! this.state.shareData,
-			},
-			this.onSubmit
-		);
+		const state = {
+			...this.state,
+			shareData: ! this.state.shareData,
+		};
+
+		if ( ! state.shareData ) {
+			state.shareDebugData = state.shareData;
+		}
+
+		this.setState( state, this.onSubmit );
+	};
+
+	/**
+	 * Toggle share debug data.
+	 */
+	toggleShareDebugData = () => {
+		const state = {
+			...this.state,
+			shareDebugData: ! this.state.shareDebugData,
+		};
+
+		if ( state.shareDebugData ) {
+			state.shareData = state.shareDebugData;
+		}
+
+		this.setState( state, this.onSubmit );
 	};
 
 	render() {
@@ -201,6 +222,13 @@ export const Waf = class extends Component {
 				>
 					{ _x( 'NEW', 'Settings header badge', 'jetpack' ) }
 				</a>
+				{ this.props.settings?.standaloneMode && (
+					<Status
+						className="waf__standalone__mode"
+						status="active"
+						label={ __( 'Standalone mode', 'jetpack' ) }
+					/>
+				) }
 			</div>
 		);
 
@@ -325,7 +353,7 @@ export const Waf = class extends Component {
 					onChange={ this.toggleShareData }
 					label={
 						<div className="waf__settings__toggle-setting__label">
-							<span>{ __( 'Share data with Jetpack', 'jetpack' ) }</span>
+							<span>{ __( 'Share basic data with Jetpack', 'jetpack' ) }</span>
 							<InfoPopover
 								position="right"
 								screenReaderText={ __( 'Learn more', 'jetpack' ) }
@@ -333,7 +361,46 @@ export const Waf = class extends Component {
 							>
 								{ createInterpolateElement(
 									__(
-										'Allow Jetpack to collect data to improve Firewall protection and rules. <ExternalLink>Learn more</ExternalLink> <hr /> <ExternalLink>Privacy Information</ExternalLink>',
+										'Allow Jetpack to collect basic data from blocked requests to improve firewall protection and accuracy. <ExternalLink>Learn more</ExternalLink> <hr /> <ExternalLink>Privacy Information</ExternalLink>',
+										'jetpack'
+									),
+									{
+										ExternalLink: (
+											<ExternalLink
+												href={ getRedirectUrl( 'jetpack-waf-settings-privacy-info' ) }
+											/>
+										),
+										hr: <hr />,
+									}
+								) }
+							</InfoPopover>
+						</div>
+					}
+				/>
+			</div>
+		);
+
+		const shareDebugDataSettings = (
+			<div className="waf__settings__toggle-setting">
+				<ToggleControl
+					checked={ this.props.settings?.shareDebugData }
+					disabled={ baseInputDisabledCase }
+					toggling={
+						this.props.isUpdatingWafSettings &&
+						this.state.shareDebugData !== this.props.settings?.shareDebugData
+					}
+					onChange={ this.toggleShareDebugData }
+					label={
+						<div className="waf__settings__toggle-setting__label">
+							<span>{ __( 'Share detailed data with Jetpack', 'jetpack' ) }</span>
+							<InfoPopover
+								position="right"
+								screenReaderText={ __( 'Learn more', 'jetpack' ) }
+								className="waf__settings__share-data-popover"
+							>
+								{ createInterpolateElement(
+									__(
+										'Allow Jetpack to collect detailed data from blocked requests to enhance firewall protection and accuracy. <ExternalLink>Learn more</ExternalLink> <hr /> <ExternalLink>Privacy Information</ExternalLink>',
 										'jetpack'
 									),
 									{
@@ -464,6 +531,7 @@ export const Waf = class extends Component {
 							{ automaticRulesSettings }
 							{ ipListSettings }
 							{ shareDataSettings }
+							{ shareDebugDataSettings }
 						</FormFieldset>
 					) }
 				</SettingsGroup>

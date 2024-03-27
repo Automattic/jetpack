@@ -53,9 +53,9 @@ jobs:
       excludelist: ${{ steps.filterExcludeList.outputs.excluded_files != '[]' || steps.filter.outputs.misc == 'true' || steps.filter.outputs.misc_php == 'true' || steps.filter.outputs.misc_js == 'true' || steps.filter.outputs.misc_excludelist == 'true' }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: dorny/paths-filter@v2
+      - uses: dorny/paths-filter@v3
         id: filter
         with:
           list-files: json
@@ -175,7 +175,7 @@ jobs:
         experimental: [ false ]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -189,7 +189,7 @@ jobs:
           composer install --ignore-platform-reqs
           # Remove stuff we don't need here that fails some platform reqs.
           # This will complain if we missed any.
-          composer remove --dev sirbrillig/phpcs-changed automattic/jetpack-codesniffer
+          composer remove --dev sirbrillig/phpcs-changed automattic/jetpack-codesniffer phan/phan
 
       - name: Run linter
         run: |
@@ -207,7 +207,7 @@ jobs:
     timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -233,7 +233,7 @@ jobs:
     timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -264,7 +264,7 @@ jobs:
 
     steps:
       # We don't need full git history, but phpcs-changed does need everything up to the merge-base.
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 10
@@ -299,7 +299,7 @@ jobs:
     timeout-minutes: 10  # 2021-03-05: Runs now take ~5 minutes due to now installing all php/js deps to ensure valid linting.
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -323,7 +323,7 @@ jobs:
 
     steps:
       # We don't need full git history, but eslint-changed does need everything up to the merge-base.
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 10
@@ -349,7 +349,7 @@ jobs:
     if: needs.changed_files.outputs.ghactionsfiles == 'true' || needs.changed_files.outputs.misc == 'true'
     timeout-minutes: 5  # 2021-03-24: Pnpm stuff takes about a minute.
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -368,7 +368,7 @@ jobs:
     timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds.
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: ./tools/check-copied-files.sh
 
   ### Runs tools/cleanup-excludelists.sh and checks for any changes
@@ -380,7 +380,7 @@ jobs:
     if: needs.changed_files.outputs.excludelist == 'true'
     timeout-minutes: 10  # 2022-05-11: The check itself takes 4 minutes.
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -402,7 +402,7 @@ jobs:
     timeout-minutes: 5  # 2021-03-24: Takes about a minute.
     steps:
       # We don't need full git history, but tools/check-changelogger-use.php does need everything up to the merge-base.
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 10
@@ -426,7 +426,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5  # 2021-03-24: Takes about a minute
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -446,7 +446,7 @@ jobs:
     if: needs.changed_files.outputs.lockfiles == 'true' || needs.changed_files.outputs.misc == 'true'
     timeout-minutes: 7  # 2021-03-17: Successful runs seem to take 3+ minutes, thanks to pnpm building stuff.
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -462,7 +462,7 @@ jobs:
     if: needs.changed_files.outputs.lockfiles == 'true' || needs.changed_files.outputs.misc == 'true'
     timeout-minutes: 5  # 2022-03-25: The pnpm install will probably take a minute or so.
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup tools
         uses: ./.github/actions/tool-setup
       - run: pnpm install
@@ -476,7 +476,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5  # 2021-03-24: Pnpm stuff takes about a minute.
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup

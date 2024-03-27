@@ -54,40 +54,35 @@ class Assets {
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
 			self::$instance = new Assets();
-			self::$instance->init_hooks();
 		}
 
 		return self::$instance;
 	}
 
 	/**
-	 * Initalize the hooks as needed.
-	 */
-	private function init_hooks() {
-		/*
-		 * Load some scripts asynchronously.
-		 */
-		add_filter( 'script_loader_tag', array( $this, 'script_add_async' ), 10, 2 );
-	}
-
-	/**
 	 * A public method for adding the async script.
+	 *
+	 * @deprecated Since 2.1.0, the `strategy` feature should be used instead, with the "defer" setting.
 	 *
 	 * @param string $script_handle Script handle.
 	 */
 	public static function add_async_script( $script_handle ) {
-		$assets_instance                         = self::instance();
-		$assets_instance->defer_script_handles[] = $script_handle;
+		_deprecated_function( __METHOD__, '2.1.0' );
+
+		wp_script_add_data( $script_handle, 'strategy', 'defer' );
 	}
 
 	/**
 	 * Add an async attribute to scripts that can be loaded deferred.
 	 * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script
 	 *
+	 * @deprecated Since 2.1.0, the `strategy` feature should be used instead.
+	 *
 	 * @param string $tag    The <script> tag for the enqueued script.
 	 * @param string $handle The script's registered handle.
 	 */
 	public function script_add_async( $tag, $handle ) {
+		_deprecated_function( __METHOD__, '2.1.0' );
 		if ( empty( $this->defer_script_handles ) ) {
 			return $tag;
 		}
@@ -103,6 +98,8 @@ class Assets {
 	/**
 	 * A helper function that lets you enqueue scripts in an async fashion.
 	 *
+	 * @deprecated Since 2.1.0 - use the strategy feature instead.
+	 *
 	 * @param string $handle        Name of the script. Should be unique.
 	 * @param string $min_path      Minimized script path.
 	 * @param string $non_min_path  Full Script path.
@@ -111,6 +108,7 @@ class Assets {
 	 * @param bool   $in_footer       Should the script be included in the footer.
 	 */
 	public static function enqueue_async_script( $handle, $min_path, $non_min_path, $deps = array(), $ver = false, $in_footer = true ) {
+		_deprecated_function( __METHOD__, '2.1.0' );
 		$assets_instance = self::instance();
 		$assets_instance->add_async_script( $handle );
 		wp_enqueue_script( $handle, self::get_file_url_for_environment( $min_path, $non_min_path ), $deps, $ver, $in_footer );
@@ -307,12 +305,13 @@ class Assets {
 	 * This wrapper handles all of that.
 	 *
 	 * @since 1.12.0
+	 * @since 2.1.0 Add a new `strategy` option to leverage WP >= 6.3 script strategy feature. The `async` option is deprecated.
 	 * @param string $handle      Name of the script. Should be unique across both scripts and styles.
 	 * @param string $path        Minimized script path.
 	 * @param string $relative_to File that `$path` is relative to. Pass `__FILE__`.
 	 * @param array  $options     Additional options:
 	 *  - `asset_path`:       (string|null) `.asset.php` to load. Default is to base it on `$path`.
-	 *  - `async`:            (bool) Set true to register the script as async, like `Assets::enqueue_async_script()`
+	 *  - `async`:            (bool) Set true to register the script as deferred, like `Assets::enqueue_async_script()`. Deprecated in favor of `strategy`.
 	 *  - `css_dependencies`: (string[]) Additional style dependencies to queue.
 	 *  - `css_path`:         (string|null) `.css` to load. Default is to base it on `$path`.
 	 *  - `dependencies`:     (string[]) Additional script dependencies to queue.
@@ -321,6 +320,7 @@ class Assets {
 	 *  - `media`:            (string) Media for the css file. Default 'all'.
 	 *  - `minify`:           (bool|null) Set true to pass `minify=true` in the query string, or `null` to suppress the normal `minify=false`.
 	 *  - `nonmin_path`:      (string) Non-minified script path.
+	 *  - `strategy`:         (string) Specify a script strategy to use, eg. `defer` or `async`. Default is `""`.
 	 *  - `textdomain`:       (string) Text domain for the script. Required if the script depends on wp-i18n.
 	 *  - `version`:          (string) Override the version from the `asset_path` file.
 	 * @throws \InvalidArgumentException If arguments are invalid.
@@ -328,6 +328,10 @@ class Assets {
 	public static function register_script( $handle, $path, $relative_to, array $options = array() ) {
 		if ( substr( $path, -3 ) !== '.js' ) {
 			throw new \InvalidArgumentException( '$path must end in ".js"' );
+		}
+
+		if ( isset( $options['async'] ) ) {
+			_deprecated_argument( __METHOD__, '2.1.0', 'The `async` option is deprecated in favor of `strategy`' );
 		}
 
 		$dir      = dirname( $relative_to );
@@ -342,6 +346,7 @@ class Assets {
 			'in_footer'        => false,
 			'media'            => 'all',
 			'minify'           => false,
+			'strategy'         => '',
 			'textdomain'       => null,
 		);
 
@@ -376,10 +381,20 @@ class Assets {
 			$ver = isset( $options['version'] ) ? $options['version'] : filemtime( "$dir/$path" );
 		}
 
-		wp_register_script( $handle, $url, $options['dependencies'], $ver, $options['in_footer'] );
-		if ( $options['async'] ) {
-			self::instance()->add_async_script( $handle );
+		if ( $options['async'] && '' === $options['strategy'] ) { // Handle the deprecated `async` option
+			$options['strategy'] = 'defer';
 		}
+		wp_register_script(
+			$handle,
+			$url,
+			$options['dependencies'],
+			$ver,
+			array(
+				'in_footer' => $options['in_footer'],
+				'strategy'  => $options['strategy'],
+			)
+		);
+
 		if ( $options['textdomain'] ) {
 			// phpcs:ignore Jetpack.Functions.I18n.DomainNotLiteral
 			wp_set_script_translations( $handle, $options['textdomain'] );

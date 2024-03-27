@@ -55,9 +55,26 @@ if ( is_readable( $jetpack_autoloader ) ) {
 		);
 	}
 
+	// Add a red bubble notification to My Jetpack if the installation is bad.
+	add_filter(
+		'my_jetpack_red_bubble_notification_slugs',
+		function ( $slugs ) {
+			$slugs['jetpack-videopress-plugin-bad-installation'] = array(
+				'data' => array(
+					'plugin' => 'Jetpack VideoPress',
+				),
+			);
+
+			return $slugs;
+		}
+	);
+
 	add_action(
 		'admin_notices',
 		function () {
+			if ( get_current_screen()->id !== 'plugins' ) {
+				return;
+			}
 			?>
 		<div class="notice notice-error is-dismissible">
 			<p>

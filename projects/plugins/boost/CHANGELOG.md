@@ -5,6 +5,64 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2024-03-15
+### Fixed
+- Cache: Verify cache enabled on current site before saving cached data [#36350]
+- General: Added filter documentation [#36226]
+- General: Removed duplicate uninstall hook, fixing unnecessary database writes [#36403]
+
+## [3.1.1] - 2024-03-11
+### Added
+- Cache: Added a Page Cache module. [#35042]
+- Defer JS: Automatically exclude JSON-LD schemas. [#35417]
+- Speed Scores: Added support for annotating points of time in the speed score history graph. [#34978]
+
+### Changed
+- General: Better error handling for invalid data when running wp-admin pages. [#35361]
+- General: Enabled React.StrictMode for development. [#35330]
+- General: Improved error handling. [#35543]
+- General: Indicate compatibility with the upcoming version of WordPress, 6.5. [#35820]
+- General: Switch to using Blog ID links instead of site slugs in checkout flow. [#35002]
+- Image Guide: Removed beta flag [#35846]
+
+### Fixed
+- Critical CSS: Prevent errors when page_for_posts misconfigured. [#36007]
+- Critical CSS: Prevent missing archive pages from breaking the generation process. [#35561]
+- General: Prevent missing pricing information from affecting the getting started flow. [#35347]
+- Image Size Analysis: Update summary groups to align with status icons. [#35419]
+- Concatenate JS/CSS: Ensure minification is enabled. [#35498]
+
+## [3.0.2] - 2024-01-31
+### Fixed
+- General: Fixed an issue with compatibility file [#35358]
+
+## [3.0.1] - 2024-01-30
+### Fixed
+- Fix pricing bug. [#35347]
+
+## [3.0.0] - 2024-01-30
+### Added
+- Cloud CSS: Improve reliability. [#35129]
+- General: Added Jetpack Sync to allow for better support. [#34825]
+
+### Changed
+- General: Migrated Admin UI from Svlete to React, for consistency with the rest of Jetpack.
+- General: Updated PHP requirement to PHP 7.0+ [#34126]
+- Update cloud css regenerate button to always be visible, but disable it when generation is running.
+- Update Purchase Successful page copy and layout.
+- Made various PHP code improvements.
+
+### Removed
+- Removed Boost setup prompt/banner on wp-admin plugins page. [#34771]
+- Removed lazy-loading module. [#35100]
+- Speed Scores: Temporarily removed the score change popout.
+
+### Fixed
+- Concatenate JS: Output inline before/after scripts for handles with `src` false. [#35121]
+- Critical CSS: Exclude @charset and @import statements from Critical CSS. [#34660]
+- Site Health: Fixed showing critical CSS issue in site-health if module is disabled
+- Speed Scores: Fix score auto-refresh
+
 ## [2.2.1] - 2023-12-21
 ### Fixed
 - Defer JS: added importmap to the exclusion list to fix compatibility issues. [#34746]
@@ -345,6 +403,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[3.2.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.1.1...3.2.0
+[3.1.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.0.2...3.1.1
+[3.0.2]: https://github.com/Automattic/jetpack-boost-production/compare/3.0.1...3.0.2
+[3.0.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.0.0...3.0.1
+[3.0.0]: https://github.com/Automattic/jetpack-boost-production/compare/2.2.1...3.0.0
 [2.2.1]: https://github.com/Automattic/jetpack-boost-production/compare/2.2.0...2.2.1
 [2.2.0]: https://github.com/Automattic/jetpack-boost-production/compare/2.1.1...2.2.0
 [2.1.1]: https://github.com/Automattic/jetpack-boost-production/compare/2.0.2...2.1.1

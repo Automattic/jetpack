@@ -41,6 +41,7 @@ export default function UpsellPage( { isLoading = false } ) {
 	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
 	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
+	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [] );
 	const adminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
 	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 
@@ -58,6 +59,7 @@ export default function UpsellPage( { isLoading = false } ) {
 			siteProductAvailabilityHandler: checkSiteHasSearchProduct,
 			from: 'jetpack-search',
 			siteSuffix: domain,
+			blogID,
 			isWpcom,
 		} );
 
@@ -69,6 +71,7 @@ export default function UpsellPage( { isLoading = false } ) {
 			siteProductAvailabilityHandler: checkSiteHasSearchProduct,
 			from: 'jetpack-search',
 			siteSuffix: domain,
+			blogID,
 			isWpcom,
 		} );
 

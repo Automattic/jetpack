@@ -37,4 +37,9 @@
 
 		}
 	}
+
+	.jetpack-ai-usage-panel__loading-placeholder {
+		background-color: var(--jp-gray-10);
+		margin-top: var( --spacing-base );
+	}
 }

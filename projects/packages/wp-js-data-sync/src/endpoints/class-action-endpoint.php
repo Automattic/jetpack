@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Endpoints;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Action;
+use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parser;
 
 class Action_Endpoint {
 
@@ -17,7 +19,7 @@ class Action_Endpoint {
 	private $action_class;
 
 	/**
-	 * @var string $request_schema - The schema for requests to this action.
+	 * @var Schema_Parser $request_schema - The schema for requests to this action.
 	 */
 	private $request_schema;
 
@@ -66,6 +68,25 @@ class Action_Endpoint {
 		);
 	}
 
+	private function response_error( $message, $code ) {
+		return rest_ensure_response(
+			array(
+				'status'  => 'error',
+				'message' => $message,
+				'code'    => $code,
+			)
+		);
+	}
+
+	private function response_success( $data ) {
+		return rest_ensure_response(
+			array(
+				'status' => 'success',
+				'JSON'   => $data,
+			)
+		);
+	}
+
 	public function handle_action( $request ) {
 		try {
 			$params      = $request->get_json_params();
@@ -75,22 +96,18 @@ class Action_Endpoint {
 			// Delegate to the action handler
 			$result = $this->action_class->handle( $parsed_data, $request );
 			if ( is_wp_error( $result ) ) {
-				throw new \RuntimeException( $result->get_error_message() );
+				return $this->response_error( $result->get_error_message(), $result->get_error_code() );
 			}
 
-			return rest_ensure_response(
-				array(
-					'status' => 'success',
-					'JSON'   => $result,
-				)
-			);
+			if ( true === DS_Utils::debug_disable( $this->route ) ) {
+				// This is a debug request - it's ok to return a different shape from the rest.
+				// Return 418 I'm a teapot if this is a debug request to the endpoint.
+				return rest_ensure_response( new \WP_Error( 'teapot', "I'm a teapot.", array( 'status' => 418 ) ) );
+			}
+
+			return $this->response_success( $result );
 		} catch ( \RuntimeException $e ) {
-			return rest_ensure_response(
-				array(
-					'status'  => 'error',
-					'message' => $e->getMessage(),
-				)
-			);
+			return $this->response_error( $e->getMessage(), 'runtime_error' );
 		}
 	}
 

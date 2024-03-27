@@ -1,16 +1,27 @@
 import { __ } from '@wordpress/i18n';
-import { GooglePhotosIcon, OpenverseIcon, PexelsIcon } from '../../icons';
+import { GooglePhotosIcon, OpenverseIcon, PexelsIcon, JetpackMobileAppIcon } from '../../icons';
 import {
 	SOURCE_WORDPRESS,
 	SOURCE_GOOGLE_PHOTOS,
 	SOURCE_OPENVERSE,
 	SOURCE_PEXELS,
+	SOURCE_JETPACK_APP_MEDIA,
 } from '../constants';
 import GooglePhotosMedia from './google-photos';
+import JetpackAppMedia from './jetpack-app-media';
 import OpenverseMedia from './openverse';
 import PexelsMedia from './pexels';
 
-export const mediaSources = [
+export const internalMediaSources = [
+	{
+		id: SOURCE_JETPACK_APP_MEDIA,
+		label: __( 'Your Phone', 'jetpack' ),
+		icon: <JetpackMobileAppIcon className="components-menu-items__item-icon" />,
+		keyword: 'jetpack mobile app',
+	},
+];
+
+export const externalMediaSources = [
 	{
 		id: SOURCE_GOOGLE_PHOTOS,
 		label: __( 'Google Photos', 'jetpack' ),
@@ -30,6 +41,8 @@ export const mediaSources = [
 		keyword: 'openverse',
 	},
 ];
+
+export const mediaSources = externalMediaSources.concat( internalMediaSources );
 
 export function canDisplayPlaceholder( props ) {
 	const { disableMediaButtons, dropZoneUIOnly } = props;
@@ -63,8 +76,9 @@ export function getExternalLibrary( type ) {
 		return GooglePhotosMedia;
 	} else if ( type === SOURCE_OPENVERSE ) {
 		return OpenverseMedia;
+	} else if ( type === SOURCE_JETPACK_APP_MEDIA ) {
+		return JetpackAppMedia;
 	}
-
 	return null;
 }
 

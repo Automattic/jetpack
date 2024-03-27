@@ -18,7 +18,7 @@ use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID
  */
 abstract class Abstract_Token_Subscription_Service implements Subscription_Service {
 
-	const JWT_AUTH_TOKEN_COOKIE_NAME                   = 'jp-premium-content-session';
+	const JWT_AUTH_TOKEN_COOKIE_NAME                   = 'wp-jp-premium-content-session'; // wp prefix helps with skipping batcache
 	const DECODE_EXCEPTION_FEATURE                     = 'memberships';
 	const DECODE_EXCEPTION_MESSAGE                     = 'Problem decoding provided token';
 	const REST_URL_ORIGIN                              = 'https://subscribe.wordpress.com/';
@@ -28,6 +28,22 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	const POST_ACCESS_LEVEL_SUBSCRIBERS                = 'subscribers';
 	const POST_ACCESS_LEVEL_PAID_SUBSCRIBERS           = 'paid_subscribers';
 	const POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS = 'paid_subscribers_all_tiers';
+
+	/**
+	 * An optional user_id to query against (omitting this will use either the token or current user id)
+	 *
+	 * @var int|null
+	 */
+	protected $user_id = null;
+
+	/**
+	 * Constructor
+	 *
+	 * @param int|null $user_id An optional user_id to query subscriptions against. Uses token from request/cookie or logged-in user information if omitted.
+	 */
+	public function __construct( $user_id = null ) {
+		$this->user_id = $user_id;
+	}
 
 	/**
 	 * Initialize the token subscription service.
@@ -443,8 +459,29 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 			return;
 		}
 
-		if ( ! empty( $token ) && false === headers_sent() ) {
-			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, 0, '/', COOKIE_DOMAIN, is_ssl(), true ); // httponly -- used by visitor_can_view_content() within the PHP context.
+		if ( ! empty( $token ) && ! headers_sent() ) {
+			// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
+			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, strtotime( '+1 month' ), '/', '', is_ssl(), false );
+		}
+	}
+
+	/**
+	 * Clear the auth cookie.
+	 */
+	public static function clear_token_cookie() {
+		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
+			return;
+		}
+
+		if ( ! self::has_token_from_cookie() ) {
+			return;
+		}
+
+		unset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
+
+		if ( ! headers_sent() ) {
+			// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
+			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', 1, '/', '', is_ssl(), false );
 		}
 	}
 
@@ -456,7 +493,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	private function token_from_request() {
 		$token = null;
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['token'] ) ) {
+		if ( isset( $_GET['token'] ) && is_string( $_GET['token'] ) ) {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 			if ( preg_match( '/^[a-zA-Z0-9\-_]+?\.[a-zA-Z0-9\-_]+?\.([a-zA-Z0-9\-_]+)?$/', $_GET['token'], $matches ) ) {
 				// token matches a valid JWT token pattern.

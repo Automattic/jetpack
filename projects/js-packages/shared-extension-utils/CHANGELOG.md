@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.8] - 2024-03-27
+### Changed
+- Updated package dependencies. [#36585]
+
+## [0.14.7] - 2024-03-12
+### Changed
+- Updated package dependencies. [#36325]
+
+## [0.14.6] - 2024-03-07
+### Changed
+- Update dependencies.
+
+## [0.14.5] - 2024-03-04
+### Changed
+- Updated package dependencies.
+
+## [0.14.4] - 2024-03-01
+### Changed
+- Update dependencies.
+
+## [0.14.3] - 2024-02-27
+### Changed
+- Update dependencies.
+
+## [0.14.2] - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+## [0.14.1] - 2024-02-05
+### Changed
+- Updated package dependencies.
+
+## [0.14.0] - 2024-01-29
+### Added
+- Adds new getJetpackBlocksVariation function [#34179]
+
+## [0.13.10] - 2024-01-18
+### Changed
+- Minor internal updates.
+
+## [0.13.9] - 2024-01-18
+### Changed
+- Update dependencies.
+
 ## [0.13.8] - 2024-01-08
 ### Added
 - Remove unused logic from the modules store and cover store with tests. [#34835]
@@ -320,6 +364,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[0.14.8]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.7...0.14.8
+[0.14.7]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.6...0.14.7
+[0.14.6]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.5...0.14.6
+[0.14.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.4...0.14.5
+[0.14.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.3...0.14.4
+[0.14.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.2...0.14.3
+[0.14.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.1...0.14.2
+[0.14.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.0...0.14.1
+[0.14.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.13.10...0.14.0
+[0.13.10]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.13.9...0.13.10
+[0.13.9]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.13.8...0.13.9
 [0.13.8]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.13.7...0.13.8
 [0.13.7]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.13.6...0.13.7
 [0.13.6]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.13.5...0.13.6

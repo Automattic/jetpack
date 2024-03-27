@@ -50,21 +50,21 @@ class Creator extends Product {
 	public static $requires_user_connection = false;
 
 	/**
-	 * Get the internationalized product name
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'Creator', 'jetpack-my-jetpack' );
+		return 'Creator';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack Creator', 'jetpack-my-jetpack' );
+		return 'Jetpack Creator';
 	}
 
 	/**
@@ -154,20 +154,6 @@ class Creator extends Product {
 						'included'    => true,
 						'description' => __( '2%', 'jetpack-my-jetpack' ),
 					),
-				),
-			),
-			array(
-				'name'  => __( 'Creator network', 'jetpack-my-jetpack' ),
-				'info'  => array(
-					'content' => __(
-						'<p>The creator network is the network of websites either hosted with WordPress.com or self-hosted and connected with Jetpack.</p>
-                        <p>Sites that are part of the creator network can gain exposure to new readers. Sites on the Creator plan have enhanced distribution to more areas of the Reader.</p>',
-						'jetpack-my-jetpack'
-					),
-				),
-				'tiers' => array(
-					self::FREE_TIER_SLUG     => array( 'included' => true ),
-					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
 				),
 			),
 			array(

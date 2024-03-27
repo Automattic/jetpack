@@ -5,6 +5,170 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.21.0] - 2024-03-27
+### Changed
+- Updated package dependencies. [#36585]
+- Updated Verbum Highlander Comment form prompt value [#36505]
+
+### Fixed
+- Untangle: update launchpad links for subscribers to go to Jetpack Cloud [#36573]
+
+## [5.20.0] - 2024-03-25
+### Removed
+- Removed Subscribers from Hosting menu [#36513]
+
+## [5.19.0] - 2024-03-22
+### Changed
+- Added additional settings for commenting on simple sites [#36367]
+- Releasing Gutenberg to all Verbum users. [#36476]
+
+### Fixed
+- Block Patterns: The modal of the starter patterns isn't shown when you're creating a new post [#36516]
+- Untangle: update launchpad links for newsletter setting to go to Jetpack's [#36495]
+
+## [5.18.0] - 2024-03-20
+### Changed
+- The GitHub deployments feature check has been removed. [#36383]
+- Updated copy by replacing "subscribers" with "emails" [#36450]
+
+### Fixed
+- Fixed a bug where locked mode was applied to all sites in /me/sites that followed a site with locked mode enabled. [#36388]
+- Hosting menu is only available to admin with a wpcom account [#36405]
+- Wrong text in the editor placeholder. It was not translated [#36454]
+
+## [5.17.0] - 2024-03-15
+### Added
+- Added information regarding if github deployments is active to the wp-admin command palette config. [#36324]
+- Untangle: Enable both Calypso & Core admin color schemes in Users -> Profile [#36341]
+
+## [5.16.1] - 2024-03-12
+### Changed
+- Internal updates.
+
+## [5.16.0] - 2024-03-12
+### Added
+- Added Connections to the Hosting menu [#36302]
+
+### Changed
+- Updated package dependencies. [#36325]
+
+## [5.15.2] - 2024-03-11
+### Changed
+- External dependencies of the Command Palette are now explicitly declared. [#36184]
+- Jetpack MU WPCOM: Added Bytespider robots.txt [#36260]
+- Remove external-icon from Hosting menu [#36221]
+
+### Fixed
+- unregisters unnecessary items from the customizer for atomic sites on block theme [#36161]
+- Untangle: correctly show the current homepage when live-previewing another block theme [#36178]
+
+## [5.15.1] - 2024-03-05
+### Changed
+- Internal updates.
+
+## [5.15.0] - 2024-03-04
+### Added
+- Added a Command Palette loader on the jetpack-mu-wpcom plugin. [#35635]
+
+### Changed
+- Add-Ons: Hide the menu on atomic sites [#36065]
+- Scheduled Updates: Load API endpoints on WP.com so it works with public-api passthrough. [#35999]
+- Show gutenberg in verbum to 80% of users [#36121]
+- The Command Palette loads the script with a `defer` strategy now to improve the performance. [#36076]
+- Updated package dependencies.
+
+### Fixed
+- Add blog id and post id to connection params [#36152]
+- Untangle: fix launchpad links to go to wp-admin pages on classic view [#36014]
+
+## [5.14.1] - 2024-02-26
+### Changed
+- Verbum: Ensure colour contrast for disabled button is a11y-friendly. [#35929]
+
+### Fixed
+- Fix comment form login for passwordless users [#35785]
+
+## [5.14.0] - 2024-02-26
+### Added
+- Adds a dismissible admin notice to inform users of the hosting menu [#35930]
+- Add Scheduled Updates package [#35796]
+
+### Changed
+- Add Anthropic UAs to list of crawlers to block. [#35924]
+- Change wpcom menu item to go to my sites instead of global site view. [#35928]
+- Update WordPress.com menu item to be a menu of links rather than one link. [#35925]
+
+## [5.13.1] - 2024-02-21
+### Changed
+- Ensure consistent robots.txt behavior between WP.com and WoA. [#35803]
+
+## [5.13.0] - 2024-02-19
+### Added
+- Blog Privacy: Add AI User Agents to robots.txt depending on blog setting. [#35704]
+- Don't override Site Editor's back button URL for sites with classic view enabled. [#35721]
+- jetpack-mu-wpcom: Added the wpcom-site-menu feature to add a WordPress.com sidebar menu item. [#35702]
+
+### Fixed
+- Create and use Preact signal for subscriptionModalStatus to fix issue of undefined value sent on comment submission. [#35741]
+
+## [5.12.2] - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+## [5.12.1] - 2024-02-12
+### Changed
+- Make the 'Install the mobile app' task visible to Simple and Atomic. [#35465]
+
+## [5.12.0] - 2024-02-05
+### Added
+- Adds the completion logic for the Install the mobile app task to Atomic sites" [#35261]
+- Import: adds a banner to wp-admin linking to the Calypso import tool [#35351]
+- Register wp_block patterns from Dotcompatterns with blockTypes [#35337]
+
+### Changed
+- Updated package dependencies. [#35384]
+- Updated Readme to include Verbum issue board and clarify code syncing steps [#35318]
+- Verbum: Minify dynamic-loader script. [#35323]
+- Verbum: Use jetpack-assets package to register scripts using `.asset.php` file data. [#35323]
+- Verbum Comments blocks rollout to 50% of sites [#35446]
+
+### Fixed
+- Esnsure the submit event is fired by the comments form [#35388]
+- Verbum: Avoid copying PHP files into `src/build/verbum-comments/`. [#35323]
+
+## [5.11.0] - 2024-01-29
+### Security
+- Allow users to post HTML when blocks are enabled [#35276]
+
+### Added
+- Cache the response of the Domain List request, and harden the code [#35070]
+
+### Changed
+- Change Verbum Blocks sample size to 30% [#35255]
+- Hides the "Install the mobile app" task while the completion logic is not fully implemented [#35302]
+- Update Verbum README [#35252]
+
+### Fixed
+- Verbum cache buster depended on build_meta, which is only updated on production builds. It doesn't refresh during development, giving you a stale block-editor bundle. [#35243]
+
+## [5.10.0] - 2024-01-25
+### Added
+- Add Verbum Comments in jetpack-mu-wpcom plugin. [#35196]
+
+## [5.9.0] - 2024-01-22
+### Added
+- Added the completion logic for the 'Install the mobile app' task [#35110]
+- Adds the completion logic for the Verify Domain Email task [#35068]
+- Block theme previews: show an education modal when previewing a theme. [#34935]
+- Launchpad: Enabled to temporary dismiss a dismissible launchpad [#34889]
+
+### Changed
+- Dotcom patterns: use assembler v2 patterns in editor [#35081]
+- Newsletter launchpad: move email verify task above subscriber task [#35084]
+
+### Fixed
+- jetpack-mu-wpcom: Prevent get_plugin_data indirectly calling wptexturize. [#35087]
+
 ## [5.8.2] - 2024-01-15
 ### Added
 - Add the completion logic for the `front_page_updated` task [#34837]
@@ -523,6 +687,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.21.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.20.0...v5.21.0
+[5.20.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.19.0...v5.20.0
+[5.19.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.18.0...v5.19.0
+[5.18.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.17.0...v5.18.0
+[5.17.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.16.1...v5.17.0
+[5.16.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.16.0...v5.16.1
+[5.16.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.15.2...v5.16.0
+[5.15.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.15.1...v5.15.2
+[5.15.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.15.0...v5.15.1
+[5.15.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.14.1...v5.15.0
+[5.14.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.14.0...v5.14.1
+[5.14.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.13.1...v5.14.0
+[5.13.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.13.0...v5.13.1
+[5.13.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.12.2...v5.13.0
+[5.12.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.12.1...v5.12.2
+[5.12.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.12.0...v5.12.1
+[5.12.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.11.0...v5.12.0
+[5.11.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.10.0...v5.11.0
+[5.10.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.9.0...v5.10.0
+[5.9.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.8.2...v5.9.0
 [5.8.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.8.1...v5.8.2
 [5.8.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.8.0...v5.8.1
 [5.8.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.7.0...v5.8.0

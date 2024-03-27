@@ -9,7 +9,7 @@ use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Image_Size_Analysis_Fix
 
 class Image_Size_Analysis_Summary implements Lazy_Entry, Entry_Can_Get {
 
-	public function get() {
+	public function get( $_fallback = false ) {
 		$fixes     = Image_Size_Analysis_Fixer::get_all_fixes();
 		$report_id = defined( 'JETPACK_BOOST_FORCE_REPORT_ID' ) ? JETPACK_BOOST_FORCE_REPORT_ID : 'latest';
 		$report    = Boost_API::get( 'image-guide/reports/' . $report_id );
@@ -17,9 +17,7 @@ class Image_Size_Analysis_Summary implements Lazy_Entry, Entry_Can_Get {
 		if ( is_wp_error( $report ) ) {
 			// If no report is found, return it as a status.
 			if ( $report->get_error_code() === 'report-not-found' ) {
-				return array(
-					'status' => 'not-found',
-				);
+				throw new \RuntimeException( 'Report not found' );
 			}
 
 			// Other kinds of errors are a problem.
@@ -37,13 +35,13 @@ class Image_Size_Analysis_Summary implements Lazy_Entry, Entry_Can_Get {
 			}
 
 			// add fixed group object to $report->groups
-			$report->groups->fixed                = new \stdClass();
-			$report->groups->fixed->issue_count   = $fixed_count;
-			$report->groups->fixed->scanned_pages = count( $fixes );
-			$report->groups->fixed->total_pages   = 1;
+			$report['groups']['fixed']                  = array();
+			$report['groups']['fixed']['issue_count']   = $fixed_count;
+			$report['groups']['fixed']['scanned_pages'] = count( $fixes );
+			$report['groups']['fixed']['total_pages']   = 1;
 		}
 		// disable the fixed group for now.
-		unset( $report->groups->fixed );
+		unset( $report['groups']['fixed'] );
 		return $report;
 	}
 }

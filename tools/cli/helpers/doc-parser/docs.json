@@ -5,6 +5,7 @@
 			"CODE-OF-CONDUCT.md",
 			"docs/coding-guidelines.md",
 			"docs/development-environment.md",
+			"docs/pull-request.md",
 			"docs/git-workflow.md",
 			"docs/monorepo.md",
 			"docs/quick-start.md",

@@ -5,6 +5,7 @@ import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import FirewallPage from './components/firewall-page';
 import Modal from './components/modal';
 import ScanPage from './components/scan-page';
+import { OnboardingRenderedContextProvider } from './hooks/use-onboarding';
 import { initStore } from './state/store';
 import './styles.module.scss';
 
@@ -35,14 +36,16 @@ function render() {
 
 	const component = (
 		<ThemeProvider>
-			<HashRouter>
-				<ScrollToTop />
-				<Routes>
-					<Route path="/" element={ <ScanPage /> } />
-					<Route path="/firewall" element={ <FirewallPage /> } />
-				</Routes>
-			</HashRouter>
-			<Modal />
+			<OnboardingRenderedContextProvider value={ { renderedSteps: [] } }>
+				<HashRouter>
+					<ScrollToTop />
+					<Routes>
+						<Route path="/" element={ <ScanPage /> } />
+						<Route path="/firewall" element={ <FirewallPage /> } />
+					</Routes>
+				</HashRouter>
+				<Modal />
+			</OnboardingRenderedContextProvider>
 		</ThemeProvider>
 	);
 	WPElement.createRoot( container ).render( component );

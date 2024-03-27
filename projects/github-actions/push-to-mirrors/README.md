@@ -16,7 +16,7 @@ jobs:
     name: Build all projects
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Build all projects
         id: build

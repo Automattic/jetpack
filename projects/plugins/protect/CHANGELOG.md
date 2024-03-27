@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.0-beta - 2024-03-14
+### Added
+- Added onboarding flows. [#34649]
+- Added firewall standalone mode indicator. [#34840]
+
+### Changed
+- General: indicate compatibility with the upcoming version of WordPress, 6.5. [#35820]
+- Use blog ID instead of site slug in checkout links. [#35004]
+- Updated package dependencies. [#36325]
+- Updated package lockfile. [#35672]
+
+### Fixed
+- Prevent text orphans in the site scanning header. [#35935]
+
+## 2.0.0 - 2024-01-18
+### Changed
+- Firewall: use datetime versioning for rules file updates. [#34698]
+- General: unify display of notifications across Scan and Firewall screens [#34702]
+- General: indicate full compatibility with the latest version of WordPress, 6.4. [#33776]
+- General: update PHP requirement to PHP 7.0+ [#34126]
+- General: update WordPress version requirements to WordPress 6.3. [#34127]
+- General: update package dependencies. [#34882]
+- General: update lockfile. [#33607]
+
+### Fixed
+- Fix Modal component overflow scrolling. [#34475]
+- Fix Popover component styling. [#34424]
+- Improved helper script installer logging. [#34297]
+
 ## 1.4.2 - 2023-10-19
 ### Changed
 - General: update WordPress version requirements to WordPress 6.2. [#32762] [#32772]

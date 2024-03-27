@@ -2,7 +2,8 @@
  * External dependencies
  */
 import { ThemeProvider } from '@automattic/jetpack-components';
-import * as WPElement from '@wordpress/element';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createRoot } from '@wordpress/element';
 import React, { useEffect } from 'react';
 import { HashRouter, Navigate, Routes, Route, useLocation } from 'react-router-dom';
 /**
@@ -18,7 +19,7 @@ import {
 	CRMInterstitial,
 	CreatorInterstitial,
 	ExtrasInterstitial,
-	JetpackAIInterstitial,
+	JetpackAiInterstitial,
 	ProtectInterstitial,
 	ScanInterstitial,
 	SocialInterstitial,
@@ -26,11 +27,12 @@ import {
 	VideoPressInterstitial,
 	StatsInterstitial,
 } from './components/product-interstitial';
+import JetpackAiProductPage from './components/product-interstitial/jetpack-ai/product-page';
 import RedeemTokenScreen from './components/redeem-token-screen';
-import { initStore } from './state/store';
+import { MyJetpackRoutes } from './constants';
+import NoticeContextProvider from './context/notices/noticeContext';
+import { getMyJetpackWindowInitialState } from './data/utils/get-my-jetpack-window-state';
 import './style.module.scss';
-
-initStore();
 
 /**
  * Component to scroll window to top on route change.
@@ -44,36 +46,53 @@ function ScrollToTop() {
 	return null;
 }
 
-const MyJetpack = () => (
-	<ThemeProvider>
-		<HashRouter>
-			<ScrollToTop />
-			<Routes>
-				<Route path="/" element={ <MyJetpackScreen /> } />
-				<Route path="/connection" element={ <ConnectionScreen /> } />
-				<Route path="/add-akismet" element={ <AntiSpamInterstitial /> } />
-				{ /* Redirect the old route for Anti Spam */ }
-				<Route path="/add-anti-spam" element={ <Navigate replace to="/add-akismet" /> } />
-				<Route path="/add-backup" element={ <BackupInterstitial /> } />
-				<Route path="/add-boost" element={ <BoostInterstitial /> } />
-				<Route path="/add-crm" element={ <CRMInterstitial /> } />
-				<Route path="/add-creator" element={ <CreatorInterstitial /> } />
-				<Route path="/add-jetpack-ai" element={ <JetpackAIInterstitial /> } />
-				<Route path="/add-extras" element={ <ExtrasInterstitial /> } />
-				<Route path="/add-protect" element={ <ProtectInterstitial /> } />
-				<Route path="/add-scan" element={ <ScanInterstitial /> } />
-				<Route path="/add-social" element={ <SocialInterstitial /> } />
-				<Route path="/add-search" element={ <SearchInterstitial /> } />
-				<Route path="/add-videopress" element={ <VideoPressInterstitial /> } />
-				<Route path="/add-stats" element={ <StatsInterstitial /> } />
-				{ window?.myJetpackInitialState?.loadAddLicenseScreen && (
-					<Route path="/add-license" element={ <AddLicenseScreen /> } />
-				) }
-				<Route path="/redeem-token" element={ <RedeemTokenScreen /> } />
-			</Routes>
-		</HashRouter>
-	</ThemeProvider>
-);
+const MyJetpack = () => {
+	const queryClient = new QueryClient();
+	const { loadAddLicenseScreen } = getMyJetpackWindowInitialState();
+
+	return (
+		<ThemeProvider>
+			<NoticeContextProvider>
+				<QueryClientProvider client={ queryClient }>
+					<HashRouter>
+						<ScrollToTop />
+						<Routes>
+							<Route path={ MyJetpackRoutes.Home } element={ <MyJetpackScreen /> } />
+							<Route path={ MyJetpackRoutes.Connection } element={ <ConnectionScreen /> } />
+							<Route path={ MyJetpackRoutes.AddAkismet } element={ <AntiSpamInterstitial /> } />
+							{ /* Redirect the old route for Anti Spam */ }
+							<Route
+								path={ MyJetpackRoutes.AddAntiSpam }
+								element={ <Navigate replace to={ MyJetpackRoutes.AddAkismet } /> }
+							/>
+							<Route path={ MyJetpackRoutes.AddBackup } element={ <BackupInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddBoost } element={ <BoostInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddCRM } element={ <CRMInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddCreator } element={ <CreatorInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddJetpackAI } element={ <JetpackAiInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddExtras } element={ <ExtrasInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddProtect } element={ <ProtectInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddScan } element={ <ScanInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddSocial } element={ <SocialInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddSearch } element={ <SearchInterstitial /> } />
+							<Route
+								path={ MyJetpackRoutes.AddVideoPress }
+								element={ <VideoPressInterstitial /> }
+							/>
+							<Route path={ MyJetpackRoutes.AddStats } element={ <StatsInterstitial /> } />
+							{ loadAddLicenseScreen && (
+								<Route path={ MyJetpackRoutes.AddLicense } element={ <AddLicenseScreen /> } />
+							) }
+							<Route path={ MyJetpackRoutes.RedeemToken } element={ <RedeemTokenScreen /> } />
+							<Route path="/redeem-token" element={ <RedeemTokenScreen /> } />
+							<Route path="/jetpack-ai" element={ <JetpackAiProductPage /> } />
+						</Routes>
+					</HashRouter>
+				</QueryClientProvider>
+			</NoticeContextProvider>
+		</ThemeProvider>
+	);
+};
 
 /**
  * The initial renderer function.
@@ -84,7 +103,7 @@ function render() {
 		return;
 	}
 
-	WPElement.createRoot( container ).render( <MyJetpack /> );
+	createRoot( container ).render( <MyJetpack /> );
 }
 
 render();

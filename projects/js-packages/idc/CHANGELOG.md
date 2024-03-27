@@ -2,6 +2,50 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 0.10.67 - 2024-03-27
+### Changed
+- Updated package dependencies. [#36585]
+
+## 0.10.66 - 2024-03-12
+### Changed
+- Updated package dependencies. [#36325]
+
+## 0.10.65 - 2024-03-07
+### Changed
+- Update dependencies.
+
+## 0.10.64 - 2024-03-04
+### Changed
+- Updated package dependencies.
+
+## 0.10.63 - 2024-03-01
+### Changed
+- Update dependencies.
+
+## 0.10.62 - 2024-02-27
+### Changed
+- Update dependencies.
+
+## 0.10.61 - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+## 0.10.60 - 2024-02-05
+### Changed
+- Updated package dependencies. [#35384]
+
+## 0.10.59 - 2024-01-29
+### Changed
+- Update dependencies.
+
+## 0.10.58 - 2024-01-18
+### Changed
+- Minor internal updates.
+
+## 0.10.57 - 2024-01-18
+### Changed
+- Update dependencies.
+
 ## 0.10.56 - 2024-01-04
 ### Changed
 - Updated package dependencies. [#34815]

@@ -146,6 +146,9 @@ class Jetpack_Media_Summary {
 						break;
 					case 'youtube':
 						if ( 0 === $return['count']['video'] ) {
+							if ( ! isset( $extract['shortcode']['youtube']['id'][0] ) ) {
+								break;
+							}
 							$return['type']            = 'video';
 							$return['video']           = esc_url_raw( 'http://www.youtube.com/watch?feature=player_embedded&v=' . $extract['shortcode']['youtube']['id'][0] );
 							$return['image']           = self::get_video_poster( 'youtube', $extract['shortcode']['youtube']['id'][0] );

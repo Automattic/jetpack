@@ -5,6 +5,59 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.43.8] - 2024-03-27
+### Changed
+- Updated package dependencies. [#36585]
+
+## [0.43.7] - 2024-03-25
+### Changed
+- Internal updates.
+
+## [0.43.6] - 2024-03-18
+### Changed
+- Internal updates.
+
+## [0.43.5] - 2024-03-12
+### Changed
+- Updated package dependencies. [#36325]
+- Update to the most recent version of the @automattic/calypso-color-schemes package. [#36187]
+- Update to the most recent version of the @automattic/calypso-color-schemes package. [#36227]
+
+## [0.43.4] - 2024-03-04
+### Changed
+- Update dependencies. [#36113]
+- Updated package dependencies.
+
+## [0.43.3] - 2024-02-27
+### Changed
+- Update dependencies. [#35170]
+
+## [0.43.2] - 2024-02-19
+### Changed
+- Internal updates.
+
+## [0.43.1] - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+## [0.43.0] - 2024-02-05
+### Changed
+- Updated package dependencies. [#35384]
+- Updated package dependencies. [#35385]
+- Use blog ID instead of site slug in checkout links. [#35000]
+
+## [0.42.1] - 2024-01-29
+### Changed
+- Update dependencies. [#35170]
+
+## [0.42.0] - 2024-01-25
+### Added
+- Add price and rating to default sort options. [#35167]
+
+## [0.41.1] - 2024-01-22
+### Changed
+- Update dependencies. [#35117]
+
 ## [0.41.0] - 2024-01-04
 ### Added
 - Search: Add a filter to prevent tracking cookie reset. [#34803]
@@ -872,6 +925,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.43.8]: https://github.com/Automattic/jetpack-search/compare/v0.43.7...v0.43.8
+[0.43.7]: https://github.com/Automattic/jetpack-search/compare/v0.43.6...v0.43.7
+[0.43.6]: https://github.com/Automattic/jetpack-search/compare/v0.43.5...v0.43.6
+[0.43.5]: https://github.com/Automattic/jetpack-search/compare/v0.43.4...v0.43.5
+[0.43.4]: https://github.com/Automattic/jetpack-search/compare/v0.43.3...v0.43.4
+[0.43.3]: https://github.com/Automattic/jetpack-search/compare/v0.43.2...v0.43.3
+[0.43.2]: https://github.com/Automattic/jetpack-search/compare/v0.43.1...v0.43.2
+[0.43.1]: https://github.com/Automattic/jetpack-search/compare/v0.43.0...v0.43.1
+[0.43.0]: https://github.com/Automattic/jetpack-search/compare/v0.42.1...v0.43.0
+[0.42.1]: https://github.com/Automattic/jetpack-search/compare/v0.42.0...v0.42.1
+[0.42.0]: https://github.com/Automattic/jetpack-search/compare/v0.41.1...v0.42.0
+[0.41.1]: https://github.com/Automattic/jetpack-search/compare/v0.41.0...v0.41.1
 [0.41.0]: https://github.com/Automattic/jetpack-search/compare/v0.40.4...v0.41.0
 [0.40.4]: https://github.com/Automattic/jetpack-search/compare/v0.40.3...v0.40.4
 [0.40.3]: https://github.com/Automattic/jetpack-search/compare/v0.40.2...v0.40.3

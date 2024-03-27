@@ -125,11 +125,13 @@ export function useSetProviderCssAction() {
  */
 export function useSetProviderErrorDismissedAction() {
 	return useCriticalCssAction(
-		'set-provider-error-dismissed',
-		z.object( {
-			key: z.string(),
-			dismissed: z.boolean(),
-		} )
+		'set-provider-errors-dismissed',
+		z.array(
+			z.object( {
+				key: z.string(),
+				dismissed: z.boolean(),
+			} )
+		)
 	);
 }
 

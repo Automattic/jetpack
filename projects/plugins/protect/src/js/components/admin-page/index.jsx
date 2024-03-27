@@ -30,6 +30,7 @@ const AdminPage = ( { children } ) => {
 				path: 'jetpack-protect/v1/check-plan',
 				method: 'GET',
 			} ).then( hasRequiredPlan => hasRequiredPlan ),
+		useBlogIdSuffix: true,
 	} );
 
 	useEffect( () => {

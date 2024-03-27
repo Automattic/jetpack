@@ -22,6 +22,16 @@ const ShowStopperError: React.FC< ShowStopperErrorTypes > = ( {
 	const showErrorDescription = primaryErrorSet && cssState.status === 'generated';
 	const showFoldingElement = showErrorDescription || cssState.status_error;
 
+	const firstTimeError = __(
+		'An unexpected error has occurred. As this error may be temporary, please try and refresh the Critical CSS.',
+		'jetpack-boost'
+	);
+
+	const secondTimeError = __(
+		"Hmm, looks like something went wrong. We're still seeing an unexpected error. Please reach out to our support to get help.",
+		'jetpack-boost'
+	);
+
 	return (
 		<ErrorNotice
 			title={ __( 'Failed to generate Critical CSS', 'jetpack-boost' ) }
@@ -43,17 +53,7 @@ const ShowStopperError: React.FC< ShowStopperErrorTypes > = ( {
 				)
 			}
 		>
-			<p>
-				{ showRetry
-					? __(
-							'An unexpected error has occurred. As this error may be temporary, please try and refresh the Critical CSS.',
-							'jetpack-boost'
-					  )
-					: __(
-							"Hmm, looks like something went wrong. We're still seeing an unexpected error. Please reach out to our support to get help.",
-							'jetpack-boost'
-					  ) }
-			</p>
+			<p>{ showRetry ? firstTimeError : secondTimeError }</p>
 			{ showFoldingElement && (
 				<FoldingElement
 					labelExpandedText={ __( 'See error message', 'jetpack-boost' ) }

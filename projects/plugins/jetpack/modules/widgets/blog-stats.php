@@ -33,6 +33,7 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 			'classname'                   => 'blog-stats',
 			'description'                 => esc_html__( 'Show a hit counter for your blog.', 'jetpack' ),
 			'customize_selective_refresh' => true,
+			'show_instance_in_rest'       => true,
 		);
 		parent::__construct(
 			'blog-stats',
@@ -41,6 +42,18 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 			$widget_ops
 		);
 		$this->alt_option_name = 'widget_statscounter';
+		add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_widget_in_block_editor' ) );
+	}
+
+	/**
+	 * Remove the "Blog Stats" widget from the Legacy Widget block
+	 *
+	 * @param array $widget_types List of widgets that are currently removed from the Legacy Widget block.
+	 * @return array $widget_types New list of widgets that will be removed.
+	 */
+	public function hide_widget_in_block_editor( $widget_types ) {
+		$widget_types[] = 'blog-stats';
+		return $widget_types;
 	}
 
 	/**
@@ -68,8 +81,9 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 	 * @return string|false $views All Time Stats for that blog.
 	 */
 	public function get_stats() {
+		$wpcom_stats = new WPCOM_Stats();
 		// Get data from the WordPress.com Stats REST API endpoint.
-		$stats = convert_stats_array_to_object( ( new WPCOM_Stats() )->get_stats( array( 'fields' => 'stats' ) ) );
+		$stats = $wpcom_stats->convert_stats_array_to_object( $wpcom_stats->get_stats( array( 'fields' => 'stats' ) ) );
 
 		if ( isset( $stats->stats->views ) ) {
 			return $stats->stats->views;
@@ -99,7 +113,7 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 			<label for="<?php echo esc_attr( $this->get_field_id( 'hits' ) ); ?>"><?php esc_html_e( 'Pageview Description:', 'jetpack' ); ?></label>
 			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'hits' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'hits' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['hits'] ); ?>" />
 		</p>
-		<p><?php esc_html_e( 'Hit counter is delayed by up to 60 seconds.', 'jetpack' ); ?></p>
+		<p><?php esc_html_e( 'Hit counter is delayed by up to 5 minutes.', 'jetpack' ); ?></p>
 
 		<?php
 	}

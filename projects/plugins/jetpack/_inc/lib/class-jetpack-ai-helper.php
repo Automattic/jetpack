@@ -381,6 +381,7 @@ class Jetpack_AI_Helper {
 				'next-tier'            => WPCOM\Jetpack_AI\Usage\Helper::get_next_tier( $blog_id ),
 				'tier-plans'           => WPCOM\Jetpack_AI\Usage\Helper::get_tier_plans_list(),
 				'tier-plans-enabled'   => WPCOM\Jetpack_AI\Usage\Helper::ai_tier_plans_enabled(),
+				'costs'                => WPCOM\Jetpack_AI\Usage\Helper::get_costs(),
 			);
 		}
 

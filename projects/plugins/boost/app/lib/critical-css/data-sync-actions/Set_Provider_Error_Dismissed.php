@@ -18,18 +18,21 @@ class Set_Provider_Error_Dismissed implements Data_Sync_Action {
 	public function handle( $data, $_request ) {
 		$state = new Critical_CSS_State();
 
-		if ( empty( $data['key'] ) ) {
-			return array(
-				'success' => false,
-				'state'   => $state->get(),
-				'error'   => 'Invalid data',
-			);
+		foreach ( $data as $item ) {
+			if ( empty( $item['key'] ) ) {
+				return array(
+					'success' => false,
+					'state'   => $state->get(),
+					'error'   => 'Invalid data',
+				);
+			}
+
+			$provider_key = sanitize_key( $item['key'] );
+			$dismissed    = ! empty( $item['dismissed'] );
+
+			$state->set_provider_error_dismissed( $provider_key, $dismissed );
 		}
 
-		$provider_key = sanitize_key( $data['key'] );
-		$dismissed    = ! empty( $data['dismissed'] );
-
-		$state->set_provider_error_dismissed( $provider_key, $dismissed );
 		$state->save();
 
 		return array(

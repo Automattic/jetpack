@@ -51,10 +51,20 @@ final class WafTransformsTest extends PHPUnit\Framework\TestCase {
 		yield array(
 			'base64_decode',
 			array(
-				''                 => '',
-				'VGVzdENhc2U='     => 'TestCase',
-				'VGVzdENhc2Ux'     => 'TestCase1',
-				'VGVzdENhc2UxMg==' => 'TestCase12',
+				''                       => '',
+				'VGVzdENhc2U='           => 'TestCase',
+				'VGVzdENhc2Ux'           => 'TestCase1',
+				'VGVzdENhc))((((2UxMg==' => false,
+			),
+		);
+
+		yield array(
+			'base64_decode_ext',
+			array(
+				''                       => '',
+				'VGVzdENhc2U='           => 'TestCase',
+				'VGVzdENhc2Ux'           => 'TestCase1',
+				'VGVzdENhc))((((2UxMg==' => 'TestCase12',
 			),
 		);
 
@@ -302,6 +312,7 @@ final class WafTransformsTest extends PHPUnit\Framework\TestCase {
 				'    Test   Case    '                  => 'Test   Case',
 				"    Test \0 Case    "                 => "Test \0 Case",
 				" 	   Test \0 Case 	  	   \r\n  " => "Test \0 Case",
+				"\n\r\t\v\f Test Case \n\r\t\v\f"      => 'Test Case',
 			),
 		);
 
@@ -317,6 +328,7 @@ final class WafTransformsTest extends PHPUnit\Framework\TestCase {
 				'    Test   Case    '                  => 'Test   Case    ',
 				"    Test \0 Case    "                 => "Test \0 Case    ",
 				" 	   Test \0 Case 	  	   \r\n  " => "Test \0 Case 	  	   \r\n  ",
+				"\n\r\t\v\f Test Case \n\r\t\v\f"      => "Test Case \n\r\t\v\f",
 			),
 		);
 
@@ -331,6 +343,7 @@ final class WafTransformsTest extends PHPUnit\Framework\TestCase {
 				'    Test   Case    '                  => '    Test   Case',
 				"    Test \0 Case    "                 => "    Test \0 Case",
 				" 	   Test \0 Case 	  	   \r\n  " => " 	   Test \0 Case",
+				"\n\r\t\v\f Test Case \n\r\t\v\f"      => "\n\r\t\v\f Test Case",
 			),
 		);
 
@@ -368,6 +381,7 @@ final class WafTransformsTest extends PHPUnit\Framework\TestCase {
 				' ✁ ✂ ✃ ✄ ✅ ✆ ✇ ✈ ✉ ✊ ✋ ✌ ✍ ✎ ✏ ✐ ✑ ✒ ✓ ✔ ✕ ✖ ✗ ✘ ✙ ✚ ✛ ✜ ✝ ✞ ✟ ✠ ✡ ✢ ✣ ✤ ✥ ✦ ✧ ✨ ✩ ✪ ✫ ✬ ✭ ✮ ✯ ✰ ✱ ✲ ✳ ✴ ✵ ✶ ✷ ✸ ✹ ✺ ✻ ✼ ✽ ✾ ✿ ❀ ❁ ❂ ❃ ❄ ❅ ❆ ❇ ❈ ❉ ❊ ❋ ❌ ❍ ❎ ❏ ❐ ❑ ❒ ❓ ❔ ❕ ❖ ❗ ❘ ❙ ❚ ❛ ❜ ❝ ❣ ❤ ❥ ❦ ❧ ❨ ❩ ❪ ❫ ❬ ❭ ❮ ❯ ❰ ❱ ❲ ❳ ❴ ❵ ❶ ❷ ❸ ❹ ❺ ❻ ❼ ❽ ❾ ❿ ➀ ➁ ➂ ➃ ➄ ➅ ➆ ➇ ➈ ➉ ➊ ➋ ➌ ➍ ➎ ➏ ➐ ➑ ➒ ➓ ➔ ➘ ➙ ➚ ➛ ➜ ➝ ➞ ➟ ➠ ➡ ➢ ➣ ➤ ➥ ➦ ➧ ➨ ➩ ➪ ➫ ➬ ➭ ➮ ➯ ➰ ➱ ➲ ➳ ➴ ➵ ➶ ➷ ➸ ➹ ➺ ➻ ➼ ➽ ➾ ➿' => ' %u2701 %u2702 %u2703 %u2704 %u2705 %u2706 %u2707 %u2708 %u2709 %u270a %u270b %u270c %u270d %u270e %u270f %u2710 %u2711 %u2712 %u2713 %u2714 %u2715 %u2716 %u2717 %u2718 %u2719 %u271a %u271b %u271c %u271d %u271e %u271f %u2720 %u2721 %u2722 %u2723 %u2724 %u2725 %u2726 %u2727 %u2728 %u2729 %u272a %u272b %u272c %u272d %u272e %u272f %u2730 %u2731 %u2732 %u2733 %u2734 %u2735 %u2736 %u2737 %u2738 %u2739 %u273a %u273b %u273c %u273d %u273e %u273f %u2740 %u2741 %u2742 %u2743 %u2744 %u2745 %u2746 %u2747 %u2748 %u2749 %u274a %u274b %u274c %u274d %u274e %u274f %u2750 %u2751 %u2752 %u2753 %u2754 %u2755 %u2756 %u2757 %u2758 %u2759 %u275a %u275b %u275c %u275d %u2763 %u2764 %u2765 %u2766 %u2767 %u2768 %u2769 %u276a %u276b %u276c %u276d %u276e %u276f %u2770 %u2771 %u2772 %u2773 %u2774 %u2775 %u2776 %u2777 %u2778 %u2779 %u277a %u277b %u277c %u277d %u277e %u277f %u2780 %u2781 %u2782 %u2783 %u2784 %u2785 %u2786 %u2787 %u2788 %u2789 %u278a %u278b %u278c %u278d %u278e %u278f %u2790 %u2791 %u2792 %u2793 %u2794 %u2798 %u2799 %u279a %u279b %u279c %u279d %u279e %u279f %u27a0 %u27a1 %u27a2 %u27a3 %u27a4 %u27a5 %u27a6 %u27a7 %u27a8 %u27a9 %u27aa %u27ab %u27ac %u27ad %u27ae %u27af %u27b0 %u27b1 %u27b2 %u27b3 %u27b4 %u27b5 %u27b6 %u27b7 %u27b8 %u27b9 %u27ba %u27bb %u27bc %u27bd %u27be %u27bf',
 				' ⟀ ⟁ ⟂ ⟃ ⟄ ⟅ ⟆ ⟇ ⟈ ⟉ ⟊ ⟌ ⟐ ⟑ ⟒ ⟓ ⟔ ⟕ ⟖ ⟗ ⟘ ⟙ ⟚ ⟛ ⟜ ⟝ ⟞ ⟟ ⟠ ⟡ ⟢ ⟣ ⟤ ⟥ ⟦ ⟧ ⟨ ⟩ ⟪ ⟫ ⟬ ⟭ ⟮ ⟯' => ' %u27c0 %u27c1 %u27c2 %u27c3 %u27c4 %u27c5 %u27c6 %u27c7 %u27c8 %u27c9 %u27ca %u27cc %u27d0 %u27d1 %u27d2 %u27d3 %u27d4 %u27d5 %u27d6 %u27d7 %u27d8 %u27d9 %u27da %u27db %u27dc %u27dd %u27de %u27df %u27e0 %u27e1 %u27e2 %u27e3 %u27e4 %u27e5 %u27e6 %u27e7 %u27e8 %u27e9 %u27ea %u27eb %u27ec %u27ed %u27ee %u27ef',
 				' ⟰ ⟱ ⟲ ⟳ ⟴ ⟵ ⟶ ⟷ ⟸ ⟹ ⟺ ⟻ ⟼ ⟽ ⟾ ⟿' => ' %u27f0 %u27f1 %u27f2 %u27f3 %u27f4 %u27f5 %u27f6 %u27f7 %u27f8 %u27f9 %u27fa %u27fb %u27fc %u27fd %u27fe %u27ff',
+				"\u{0101} %u0101 \u0101"           => '%u0101 %u0101 \u0101',
 			),
 		);
 	}

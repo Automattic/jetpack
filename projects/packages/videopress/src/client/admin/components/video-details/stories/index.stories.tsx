@@ -5,14 +5,14 @@ import VideoDetails from '..';
 /**
  * Types
  */
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'Packages/VideoPress/Video Details',
 	component: VideoDetails,
-} as ComponentMeta< typeof VideoDetails >;
+} as Meta< typeof VideoDetails >;
 
-const VideoDetailsTemplate: ComponentStory< typeof VideoDetails > = VideoDetails;
+const VideoDetailsTemplate: StoryFn< typeof VideoDetails > = VideoDetails;
 
 export const Default = VideoDetailsTemplate.bind( {} );
 Default.args = {

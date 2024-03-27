@@ -5,6 +5,208 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.19.0] - 2024-03-27
+### Added
+- Add red bubble to notices tied to red bubble notifications [#36543]
+- My Jetpack: add a version of WordPress' Notice component to My Jetpack considering the context of how we use notices on that screen [#36551]
+
+### Changed
+- Updated package dependencies. [#36539, #36585]
+
+### Fixed
+- Fixed Jetpack Creator going to the wrong screen when the free version is selected" [#36547]
+- Fixes some pricing showing twice by connecting sites that select a free option [#36533]
+
+## [4.18.0] - 2024-03-25
+### Added
+- Hook into red bubble notification when bad installation is detected [#36449]
+- Jetpack AI: add notices on product page for exhausted requests [#35910]
+- Jetpack AI: add plans/tier information on product page and corresponding CTAs [#35910]
+- Jetpack AI: add support and create post links on product page [#35910]
+- My Jetpack: add AI product page view event [#36488]
+- My Jetpack: add feedback link on Jetpack AI product page [#35910]
+- My Jetpack: AI pricing table is skipped once the user has opted for the free version [#35910]
+- My Jetpack: change AI product for tiered pricing table display [#35910]
+
+### Changed
+- Add notice priorities to My Jetpack [#36438]
+- Jetpack AI: address responsive issues on the styles [#35910]
+- My Jetpack: AI product page styles update and responsive fixes [#35910]
+- My Jetpack: change AI card action button target for upgraded users, point to product page [#35910]
+
+### Removed
+- My Jetpack: remove Jetpack AI code added throughout the new product page project [#35910]
+- Removed reference to Creator Network, which is being deprecated. [#36168]
+
+### Fixed
+- Boost tooltips: fix typo in string. [#36520]
+- My Jetpack: fix AI interstitial "remain free" flow [#35910]
+- My Jetpack: fix interstitial event property malformed name productSlug -> product_slug [#36486]
+- My Jetpack: fix spacing issues on the new product page [#35910]
+- My Jetpack: new AI interstitial margin on admin page was messing with correct top spacing [#35910]
+
+## [4.17.1] - 2024-03-18
+### Added
+- Add a loaded event for My Jetpack product cards [#36397]
+
+## [4.17.0] - 2024-03-14
+### Changed
+- Rewrite My Jetpack hooks to Typescript [#36288]
+
+## [4.16.0] - 2024-03-12
+### Added
+- Add a red bubble notification that shows if the site is disconnected [#36263]
+- Add README to data directory [#36301]
+- Add whitelist to show errors only for certain queries [#36261]
+
+### Changed
+- Migrate Stats counts out of redux and into tanstack queries [#36195]
+- Replace window state calls with util function [#36271]
+- Rewrite My Jetpack utils to typescript [#36296]
+- Show small stats card in table if large stats card isn't showing [#36136]
+- Updated package dependencies. [#36325]
+- Update query hooks for my-jetpack data" [#36257]
+- Update useMyJetpackConnection hook to TypeScript [#36300]
+
+### Removed
+- Removing redux store [#36256]
+
+## [4.15.0] - 2024-03-07
+### Added
+- Refactor My Jetpack's backup related redux state to react query. [#35982]
+
+### Changed
+- Migrate dismiss welcome banner to tanstack [#36199]
+- Migrate global notices to context [#36201]
+- Migrate My Jetpack's licenses query and state to react-query [#36029]
+- Moved lifecycle stats function out of redux [#36205]
+- Updating purchase related redux data to tanstack/react [#35994]
+
+### Removed
+- Connected Product offer is not being used, removing it to clean up a bit [#36203]
+
+### Fixed
+- fix a few My Jetpack bugs when main plugin is not installed [#36139]
+- Intersitital tables were not visibly loading when pressed [#36236]
+
+## [4.14.0] - 2024-03-04
+### Changed
+- Migrate My Jetpack zendesk state to react-query [#36028]
+- Updated package dependencies.
+
+### Fixed
+- Add registration nonce to connect screen in My Jetpack [#36133]
+
+## [4.13.0] - 2024-03-01
+### Added
+- Add site lifecycle status guess to My Jetpack [#35815]
+
+### Changed
+- Changed product plan checks on My Jetpack cards [#36046]
+- Display different Boost card tooltip content based on score letter grade. [#35863]
+- Improve consistency and fix bugs in product start and checkout flows [#35908]
+- Instanciate the Boost Score API (new Speed_Score()) in My Jetpack. [#36080]
+- My Jetpack: add Tracks events to connection section [#35804]
+- Refactor react-query to reduce code repetition [#35990]
+
+### Fixed
+- fixed the purchase query for the boost card [#36004]
+
+## [4.12.1] - 2024-02-27
+### Added
+- My Jetpack: Add an info popover in the Boost product card. [#35731]
+
+## [4.12.0] - 2024-02-26
+### Changed
+- My Jetpack: decouple Jetpack AI insterstitial component [#35836]
+- Remove translation of product names [#35830]
+- Updating purchases state to use data query instead of redux [#35697]
+
+### Removed
+- Remove kebab menu on My Jetpack cards [#35829]
+
+## [4.11.0] - 2024-02-22
+### Added
+- Adding accesible text for external links on connection page and footer [#35733]
+
+### Changed
+- change status and action of My Jetpack cards when plugin is missing [#35718]
+- ESlint: disabled redundant role rule [#35800]
+- My Jetpack: add product slugs to click events on interstitials [#35740]
+- My Jetpack: let tier data pass on quantity data to checkout process for proper checkout URL crafting [#35817]
+- Updated package dependencies. [#35793]
+
+### Fixed
+- Backup Card: made stats readable by screen readers [#35786]
+- Connection Screen: make VoiceOver announce lists as such [#35736]
+- Do not initialize My Jetpack when in Offline mode. [#35807]
+- Fix wrong prop type passed to ConnectedProductCard [#35789]
+
+## [4.10.0] - 2024-02-19
+### Added
+- Add Boost Speed Score into My Jetpack Boost product card [#35606]
+- Add connection indicator for screen readers [#35714]
+
+### Fixed
+- Improved accessibility of Dismiss button in Connection Banner [#35694]
+- My Jeptack Connection: Make footer logos a list for better screen readers interpretation. [#35667]
+- My Jetpack: add label for screen readers to connect page close button [#35712]
+
+## [4.9.2] - 2024-02-13
+### Changed
+- My Jetpack: various improvements to the Stats card. [#35355]
+- Updated package dependencies. [#35608]
+
+## [4.9.1] - 2024-02-12
+### Added
+- Add My Jetpack link to standalone plugins missing it [#35523]
+
+## [4.9.0] - 2024-02-07
+### Changed
+- Add pricing info for AI and CRM on My Jetpack [#35457]
+- Update the description of some cards to better describe the product on My Jetpack page [#35428]
+
+### Fixed
+- Fixes issue on My Jetpack interstitials where some prices are 1 cent off [#35492]
+
+## [4.8.0] - 2024-02-05
+### Added
+- Add tracking info to the Jetpack Manage Banner CTA [#35378]
+- My Jetpack: support redirect_to parameter on the product interstitial. [#35263]
+
+### Changed
+- Update CTA copy on the connection banner to make it clear which type of connection we are going to request [#35401]
+- Updated package dependencies.
+- Update product cards on My Jetpack to always display the status indidicator. [#35377]
+
+### Fixed
+- Fix issue where most products are not installing their standalone product upon purchase [#35399]
+
+## [4.7.0] - 2024-01-29
+### Changed
+- Update the UpsellBanner to use the Card component from WP components. [#35223]
+
+### Removed
+- UpsellBanner component moved to js-packages/components [#35228]
+
+## [4.6.2] - 2024-01-22
+### Added
+- My Jetpack: add contact us event for Jetpack AI [#35136]
+
+## [4.6.1] - 2024-01-22
+### Changed
+- Display Jetpack Protect product card for all users. [#35142]
+- Ensure that interstitial tables go straight to checkout just like insterstitial cards [#35049]
+
+## [4.6.0] - 2024-01-18
+### Added
+- Add hosting provider check. [#34864]
+- Add Jetpack Manage banner. [#35078]
+
+## [4.5.0] - 2024-01-18
+### Changed
+- Use blog ID instead of site slug in checkout URL. [#34976]
+
 ## [4.4.0] - 2024-01-15
 ### Changed
 - add plan check to My Jetpack Akismet product card [#34905]
@@ -1189,6 +1391,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.19.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.18.0...4.19.0
+[4.18.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.17.1...4.18.0
+[4.17.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.17.0...4.17.1
+[4.17.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.16.0...4.17.0
+[4.16.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.15.0...4.16.0
+[4.15.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.14.0...4.15.0
+[4.14.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.13.0...4.14.0
+[4.13.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.12.1...4.13.0
+[4.12.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.12.0...4.12.1
+[4.12.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.11.0...4.12.0
+[4.11.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.10.0...4.11.0
+[4.10.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.9.2...4.10.0
+[4.9.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.9.1...4.9.2
+[4.9.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.9.0...4.9.1
+[4.9.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.8.0...4.9.0
+[4.8.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.7.0...4.8.0
+[4.7.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.6.2...4.7.0
+[4.6.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.6.1...4.6.2
+[4.6.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.6.0...4.6.1
+[4.6.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.5.0...4.6.0
+[4.5.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.4.0...4.5.0
 [4.4.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.3.0...4.4.0
 [4.3.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.2.1...4.3.0
 [4.2.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.2.0...4.2.1
