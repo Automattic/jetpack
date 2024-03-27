@@ -1,39 +1,85 @@
 /**
  * External dependencies
  */
+import { useImageGenerator } from '@automattic/jetpack-ai-client';
+import { serialize } from '@wordpress/blocks';
 import { Button, Spinner } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import TurndownService from 'turndown';
 /**
  * Internal dependencies
  */
 import './style.scss';
-import { useState } from 'react';
 import AiAssistantModal from '../modal';
+/**
+ * Types
+ */
+import type * as BlockEditorSelectors from '@wordpress/block-editor/store/selectors';
+
+const FEATURED_IMAGE_FEATURE_NAME = 'featured-post-image';
+
+// Turndown instance
+const turndownService = new TurndownService();
+
+/*
+ * Simple helper to get the post content as markdown
+ */
+const usePostContent = () => {
+	const blocks = useSelect(
+		select => ( select( 'core/block-editor' ) as typeof BlockEditorSelectors ).getBlocks(),
+		[]
+	);
+
+	return blocks?.length ? turndownService.turndown( serialize( blocks ) ) : '';
+};
 
 export default function FeaturedImage() {
 	const [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] = useState( false );
 	const [ generating, setGenerating ] = useState( false );
+	const [ imageURL, setImageURL ] = useState( null );
+	const { generateImage } = useImageGenerator();
 
-	// TODO: Implement post content retrieval and block button click handling
-	// const postContent = '';
+	const postContent = usePostContent();
 
-	// TODO: Implement real generation
-	const fakeGeneration = () => {
+	/*
+	 * Function to generate a new image with the current value of the post content.
+	 */
+	const processImageGeneration = useCallback( () => {
 		setGenerating( true );
-		setTimeout( () => {
-			setGenerating( false );
-		}, 3000 );
-	};
+		generateImage( { feature: FEATURED_IMAGE_FEATURE_NAME, postContent } )
+			.then( result => {
+				if ( result.data.length > 0 ) {
+					const image = result.data[ 0 ].url;
+					setImageURL( image );
+				}
+			} )
+			.catch( error => {
+				// eslint-disable-next-line no-console
+				console.error( error );
+			} )
+			.finally( () => {
+				setGenerating( false );
+			} );
+	}, [ postContent, setGenerating, setImageURL, generateImage ] );
 
-	const toggleFeaturedImageModal = () => {
+	const toggleFeaturedImageModal = useCallback( () => {
 		setIsFeaturedImageModalVisible( ! isFeaturedImageModalVisible );
-	};
+	}, [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] );
 
-	const handleRequest = () => {
+	const handleGenerate = useCallback( () => {
 		toggleFeaturedImageModal();
-		//TODO: Implement image generation
-		fakeGeneration();
-	};
+		processImageGeneration();
+	}, [ toggleFeaturedImageModal, processImageGeneration ] );
+
+	const handleRegenerate = useCallback( () => {
+		processImageGeneration();
+	}, [ processImageGeneration ] );
+
+	const handleAccept = useCallback( () => {
+		toggleFeaturedImageModal();
+	}, [ toggleFeaturedImageModal ] );
 
 	return (
 		<div>
@@ -43,7 +89,7 @@ export default function FeaturedImage() {
 					'jetpack'
 				) }
 			</p>
-			<Button onClick={ handleRequest } variant="secondary">
+			<Button onClick={ handleGenerate } variant="secondary">
 				{ __( 'Generate image', 'jetpack' ) }
 			</Button>
 			{ isFeaturedImageModalVisible && (
@@ -59,16 +105,12 @@ export default function FeaturedImage() {
 						</div>
 					) : (
 						<div className="ai-assistant-featured-image__content">
-							<img
-								className="ai-assistant-featured-image__image"
-								src="https://images.pexels.com/photos/346529/pexels-photo-346529.jpeg"
-								alt={ __( 'Beatiful landscape', 'jetpack' ) }
-							/>
+							<img className="ai-assistant-featured-image__image" src={ imageURL } alt="" />
 							<div className="ai-assistant-featured-image__actions">
-								<Button onClick={ toggleFeaturedImageModal } variant="secondary">
-									{ __( 'Accept image', 'jetpack' ) }
+								<Button onClick={ handleAccept } variant="secondary">
+									{ __( 'Save and use image', 'jetpack' ) }
 								</Button>
-								<Button onClick={ fakeGeneration } variant="secondary">
+								<Button onClick={ handleRegenerate } variant="secondary">
 									{ __( 'Generate another image', 'jetpack' ) }
 								</Button>
 							</div>
