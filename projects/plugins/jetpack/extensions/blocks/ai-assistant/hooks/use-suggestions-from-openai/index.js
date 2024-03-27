@@ -11,6 +11,7 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import { DEFAULT_PROMPT_TONE } from '../../components/tone-dropdown-control';
+import useAutoScroll from '../../hooks/use-auto-scroll';
 import { buildPromptForBlock, delimiter } from '../../lib/prompt';
 import {
 	getContentFromBlocks,
@@ -28,13 +29,13 @@ const useSuggestionsFromOpenAI = ( {
 	setError,
 	tracks,
 	userPrompt,
-	onPreSuggestionPartial,
-	onPostSuggestionPartial,
 	onSuggestionDone,
 	onUnclearPrompt,
 	onModeration,
 	requireUpgrade,
 	requestingState,
+	blockRef,
+	contentRef,
 } ) => {
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
@@ -46,6 +47,15 @@ const useSuggestionsFromOpenAI = ( {
 		useDispatch( 'wordpress-com/plans' );
 	const [ requestState, setRequestState ] = useState( requestingState || 'init' );
 	const source = useRef();
+
+	const {
+		preSuggestionPartialHandler,
+		postSuggestionPartialHandler,
+		snapToBottom,
+		enableAutoScroll,
+		disableAutoScroll,
+		autoScrollEnabled,
+	} = useAutoScroll( blockRef, contentRef );
 
 	// Let's grab post data so that we can do something smart.
 	const currentPostTitle = useSelect( select =>
@@ -154,6 +164,7 @@ const useSuggestionsFromOpenAI = ( {
 		}
 
 		try {
+			enableAutoScroll();
 			setIsLoadingCompletion( true );
 			setWasCompletionJustRequested( true );
 			// debug all prompt items, one by one
@@ -187,6 +198,7 @@ const useSuggestionsFromOpenAI = ( {
 			setShowRetry( true );
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
+			disableAutoScroll();
 		}
 
 		const onFunctionDone = async e => {
@@ -276,6 +288,11 @@ const useSuggestionsFromOpenAI = ( {
 				content: assistantResponse,
 				messages: updatedMessages,
 			} );
+
+			if ( autoScrollEnabled.current ) {
+				snapToBottom( 10 );
+			}
+			disableAutoScroll();
 
 			if ( ! useGutenbergSyntax ) {
 				return;
@@ -435,9 +452,9 @@ const useSuggestionsFromOpenAI = ( {
 			// replaceInnerBlocks( clientId, validBlocks );
 
 			// Remove the delimiter from the suggestion and update the block.
-			onPreSuggestionPartial?.( clientId, e?.detail );
+			preSuggestionPartialHandler?.( clientId, e?.detail );
 			updateBlockAttributes( clientId, { content: e?.detail?.replaceAll( delimiter, '' ) } );
-			onPostSuggestionPartial?.( clientId, e?.detail );
+			postSuggestionPartialHandler?.( clientId, e?.detail );
 		};
 
 		source?.current?.addEventListener( 'function_done', onFunctionDone );
