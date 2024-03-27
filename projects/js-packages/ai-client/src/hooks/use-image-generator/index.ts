@@ -55,6 +55,7 @@ This is the post content:
 
 			const headers = {
 				Authorization: `Bearer ${ token }`,
+				'Content-Type': 'application/json',
 			};
 
 			const data = await fetch( URL, {
