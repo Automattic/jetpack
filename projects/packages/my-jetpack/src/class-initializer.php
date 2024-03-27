@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Boost_Speed_Score\Jetpack_Boost_Modules;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Connection\Client;
@@ -87,8 +86,7 @@ class Initializer {
 		}
 
 		// Initialize Boost Speed Score
-		$boost_modules = Jetpack_Boost_Modules::init();
-		new Speed_Score( $boost_modules, 'jetpack-my-jetpack' );
+		new Speed_Score( array(), 'jetpack-my-jetpack' );
 
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
