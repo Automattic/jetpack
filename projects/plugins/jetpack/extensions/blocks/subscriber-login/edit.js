@@ -44,7 +44,7 @@ function SubscriberLoginEdit( { attributes, setAttributes, className } ) {
 						/>
 					</BaseControl>
 					<ToggleControl
-						label={ __( 'Manage subscription link', 'jetpack' ) }
+						label={ __( 'Show manage subscription link', 'jetpack' ) }
 						checked={ showManageSubscriptionsLink }
 						onChange={ () =>
 							setAttributes( { showManageSubscriptionsLink: ! showManageSubscriptionsLink } )
