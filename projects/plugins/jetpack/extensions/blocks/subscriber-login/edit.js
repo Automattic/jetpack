@@ -44,19 +44,19 @@ function SubscriberLoginEdit( { attributes, setAttributes, className } ) {
 						/>
 					</BaseControl>
 					<ToggleControl
-						label={ __( 'Manage subscriptions link', 'jetpack' ) }
+						label={ __( 'Manage subscription link', 'jetpack' ) }
 						checked={ showLinkToManageSubscriptions }
 						onChange={ () =>
 							setAttributes( { showLinkToManageSubscriptions: ! showLinkToManageSubscriptions } )
 						}
 					/>
 					{ showLinkToManageSubscriptions && (
-						<BaseControl
-							label={ __( 'Manage subscriptions label', 'jetpack' ) }
-							id={ manageSubscriptionsInputId }
-						>
+					<BaseControl
+						label={ __( 'Manage subscription label', 'jetpack' ) }
+						id={ manageSubscriptionsInputId }
+					>
 							<TextControl
-								placeholder={ __( 'Manage subscriptions', 'jetpack' ) }
+								placeholder={ __( 'Manage subscription', 'jetpack' ) }
 								onChange={ value => setAttributes( { manageSubscriptionsLabel: value } ) }
 								value={ manageSubscriptionsLabel }
 								id={ manageSubscriptionsInputId }
