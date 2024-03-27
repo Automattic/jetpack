@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Disable WPCOM invitation functionality for non-connected users. 
