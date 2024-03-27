@@ -72,9 +72,9 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				array(
 					'strategy'  => 'defer',
 					'in_footer' => true,
+					'enqueue'   => true,
 				)
 			);
-			Assets::enqueue_script( 'jetpack-sso-admin-create-user' );
 		}
 
 		/**
@@ -584,7 +584,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				current_user_can( 'promote_users' )
 				&& (
 					$has_pending_invite
-					|| Jetpack::connection()->is_user_connected( $user_id )
+					|| Jetpack_SSO_Helpers::is_user_connected( $user_id )
 				)
 			) {
 				unset( $actions['resetpassword'] );
@@ -950,7 +950,13 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * @return array
 		 */
 		public function jetpack_user_connected_th( $columns ) {
-			wp_enqueue_script( 'jetpack-sso-users', plugins_url( 'modules/sso/jetpack-sso-users.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION, false );
+			wp_enqueue_script(
+				'jetpack-sso-users',
+				plugins_url( 'modules/sso/jetpack-sso-users.js', JETPACK__PLUGIN_FILE ),
+				array(),
+				JETPACK__VERSION,
+				false
+			);
 
 			$columns['user_jetpack'] = sprintf(
 				'<span class="jetpack-sso-invitation-tooltip-icon" role="tooltip" aria-label="%3$s: %1$s" tabindex="0">%2$s [?]<span class="jetpack-sso-invitation-tooltip jetpack-sso-th-tooltip">%1$s</span></span>',
