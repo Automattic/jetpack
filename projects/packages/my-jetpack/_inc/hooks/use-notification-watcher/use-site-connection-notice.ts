@@ -96,6 +96,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 				{
 					label: requiresUserConnection ? userConnectionButtonLabel : siteConnectionButtonLabel,
 					isLoading: siteIsRegistering,
+					loadingText: __( 'Conecting…', 'jetpack-my-jetpack' ),
 					onClick: onActionButtonClick,
 					noDefaultClasses: true,
 				},
