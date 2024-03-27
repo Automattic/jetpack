@@ -4,18 +4,18 @@
 
 ## 13.3-a.9 - 2024-03-27
 ### Bug fixes
-- Disable WPCOM invitation functionality for non-connected users. [#36572]
-- Fix paid content block subscriber view content not rendering in WordPress.com reader. [#36512]
+- Paid Content Block: Fix subscriber view content not rendering in WordPress.com reader. [#36512]
+- SSO: Disable WordPress.com invitation functionality for non-connected users. [#36572]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Add a function to clear the static cache for Jetpack_Memberships. [#36545]
-- Add instructions to test the new AI interstitial and product page [#36566]
-- Add Verbum options to site settings endpoint [#36505]
-- AI Assistant: remove "Experimental" label on block name [#36535]
-- AI Assistant: store function typo fix Aync -> Async [#36544]
-- AI Proofread: improve upgrade prompt format and translation according to current tier [#36542]
-- Fixed Jetpack Creator going to the wrong screen when the free version is selected [#36547]
-- Map Block: Fix styling in Row and Stack layout [#36447]
+- Add instructions to test the new AI interstitial and product page. [#36566]
+- Add Verbum options to site settings endpoint. [#36505]
+- AI Assistant: remove "Experimental" label on block name. [#36535]
+- AI Assistant: store function typo fix Aync -> Async. [#36544]
+- AI Proofread: improve upgrade prompt format and translation according to current tier. [#36542]
+- Fixed Jetpack Creator going to the wrong screen when the free version is selected. [#36547]
+- Map Block: Fix styling in Row and Stack layout. [#36447]
 - SSO: add filter allowing one to disable the WordPress.com invite interface. [#36572]
 - SSO: fix PHP notices and remove unnecessary PHPCS ignores. [#36589]
 - Updated package dependencies. [#36585]
