@@ -9,31 +9,29 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredFunction : 100+ occurrences
+    // PhanUndeclaredFunction : 70+ occurrences
     // PhanUndeclaredClassMethod : 60+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 55+ occurrences
     // PhanTypeMismatchArgument : 40+ occurrences
     // PhanTypeArraySuspicious : 30+ occurrences
     // PhanUndeclaredTypeParameter : 15+ occurrences
-    // PhanRedefinedClassReference : 10+ occurrences
     // PhanUndeclaredFunctionInCallable : 10+ occurrences
-    // PhanUndeclaredTypeReturnType : 10+ occurrences
-    // PhanTypeMismatchReturn : 9 occurrences
+    // PhanUndeclaredTypeReturnType : 9 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 8 occurrences
-    // PhanRedefineClass : 8 occurrences
     // PhanUndeclaredClassConstant : 8 occurrences
+    // PhanTypeMismatchReturn : 7 occurrences
     // PhanTypeMismatchReturnProbablyReal : 7 occurrences
-    // PhanUndeclaredConstant : 7 occurrences
-    // PhanNoopNew : 4 occurrences
-    // PhanParamTooMany : 4 occurrences
     // PhanUndeclaredTypeProperty : 4 occurrences
+    // PhanNoopNew : 3 occurrences
     // PhanUndeclaredClassInCallable : 3 occurrences
     // PhanUndeclaredClassReference : 3 occurrences
+    // PhanUndeclaredConstant : 3 occurrences
     // PhanEmptyFQSENInCallable : 2 occurrences
-    // PhanImpossibleTypeComparison : 2 occurrences
+    // PhanParamTooMany : 2 occurrences
     // PhanTypeMismatchArgumentInternal : 2 occurrences
     // PhanTypeMismatchDefault : 2 occurrences
     // PhanTypeMissingReturn : 2 occurrences
+    // PhanImpossibleTypeComparison : 1 occurrence
     // PhanNonClassMethodCall : 1 occurrence
     // PhanNoopArrayAccess : 1 occurrence
     // PhanPluginDuplicateExpressionAssignmentOperation : 1 occurrence
