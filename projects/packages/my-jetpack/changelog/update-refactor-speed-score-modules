@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Update Speed Score modules to be an array while keeping things backward compatible.
-
-
