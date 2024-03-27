@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Use `jetpack_boost_critical_css_environment_changed` hook instead of `handle_environment_change`

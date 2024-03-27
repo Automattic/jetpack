@@ -432,7 +432,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		/**
 		 * Check if a local user is already connected to WordPress.com.
 		 *
-		 * @since $$next-version$$
+		 * @since 13.3
 		 *
 		 * @param int $user_id Local User information.
 		 */

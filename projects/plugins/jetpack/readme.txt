@@ -325,21 +325,10 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.3-a.7 - 2024-03-25
-#### Enhancements
-- Blocks: "Earn" category renamed to "Monetize".
-- Jetpack AI: When the response includes a title and post title is empty, use provided title as post title.
-- My Jetpack: Trigger red bubble notification when a broken installation is detected.
-- Newsletters: Reorder settings cards to improve hierarchy.
-- Newsletters: Use radio buttons instead of toggles on Email Settings.
-- Sharing: Remove Like button from master bar.
-
-#### Improved compatibility
-- General: Remove methods that were deprecated before the release of Jetpack 10.0, in 2021.
-
+### 13.3-a.9 - 2024-03-27
 #### Bug fixes
-- Dashboard: Update the sharing button settings to clarify the available options (block or legacy sharing buttons).
-- Enhanced Distribution: begin deprecation process as the Firehose is winding down.
+- Disable WPCOM invitation functionality for non-connected users.
+- Fix paid content block subscriber view content not rendering in WordPress.com reader.
 
 --------
 
