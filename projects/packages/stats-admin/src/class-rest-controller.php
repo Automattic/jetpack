@@ -385,16 +385,9 @@ class REST_Controller {
 			static::$namespace,
 			sprintf( '/sites/%d/commercial-classification', Jetpack_Options::get_option( 'id' ) ),
 			array(
-				array(
-					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => array( $this, 'run_commercial_classification' ),
-					'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
-				),
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_commercial_classification_last_run' ),
-					'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
-				),
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'run_commercial_classification' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
 	}
@@ -1069,30 +1062,6 @@ class REST_Controller {
 			array(
 				'timeout' => 5,
 				'method'  => 'POST',
-			),
-			null,
-			'wpcom'
-		);
-	}
-
-	/**
-	 * Run commercial classification.
-	 *
-	 * @param WP_REST_Request $req The request object.
-	 * @return array
-	 */
-	public function get_commercial_classification_last_run( $req ) {
-		return WPCOM_Client::request_as_blog(
-			sprintf(
-				'/sites/%d/commercial-classification?%s',
-				Jetpack_Options::get_option( 'id' ),
-				$this->filter_and_build_query_string(
-					$req->get_query_params()
-				)
-			),
-			'v2',
-			array(
-				'timeout' => 5,
 			),
 			null,
 			'wpcom'
