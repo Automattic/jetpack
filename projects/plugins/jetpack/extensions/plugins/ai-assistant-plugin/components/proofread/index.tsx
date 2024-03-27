@@ -3,33 +3,20 @@
  */
 import { useAiSuggestions } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { serialize } from '@wordpress/blocks';
 import { Button } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import TurndownService from 'turndown';
 /**
  * Internal dependencies
  */
 import './style.scss';
+import usePostContent from '../../hooks/use-post-content';
 import AiAssistantModal from '../modal';
 /**
  * Types
  */
-import type * as BlockEditorSelectors from '@wordpress/block-editor/store/selectors';
 import type * as EditorSelectors from '@wordpress/editor/store/selectors';
-
-// Turndown instance
-const turndownService = new TurndownService();
-
-const usePostContent = () => {
-	const blocks = useSelect(
-		select => ( select( 'core/block-editor' ) as typeof BlockEditorSelectors ).getBlocks(),
-		[]
-	);
-	return blocks?.length ? turndownService.turndown( serialize( blocks ) ) : '';
-};
 
 export default function Proofread( {
 	disabled = false,
