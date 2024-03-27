@@ -3,7 +3,9 @@ interface Window {
 		siteLocale: string;
 		adminUrl: string;
 		available_blocks: {
-			'jetpack/ai-assistant-support': boolean;
+			[ key: string ]: {
+				available: boolean;
+			};
 		};
 		tracksUserData: {
 			userid: number;
@@ -11,8 +13,4 @@ interface Window {
 		};
 		wpcomBlogId: string;
 	};
-}
-
-interface String {
-	replaceAll( pattern: string, replacement: string ): string;
 }
