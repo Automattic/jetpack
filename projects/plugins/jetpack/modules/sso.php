@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
@@ -204,7 +205,16 @@ class Jetpack_SSO {
 			wp_enqueue_style( 'jetpack-sso-login', plugins_url( 'modules/sso/jetpack-sso-login.css', JETPACK__PLUGIN_FILE ), array( 'login', 'genericons' ), JETPACK__VERSION );
 		}
 
-		wp_enqueue_script( 'jetpack-sso-login', plugins_url( 'modules/sso/jetpack-sso-login.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION, false );
+		wp_enqueue_script(
+			'jetpack-sso-login',
+			Assets::get_file_url_for_environment(
+				'_inc/build/sso/jetpack-sso-login.min.js',
+				'modules/sso/jetpack-sso-login.js'
+			),
+			array( 'jquery' ),
+			JETPACK__VERSION,
+			false
+		);
 	}
 
 	/**
