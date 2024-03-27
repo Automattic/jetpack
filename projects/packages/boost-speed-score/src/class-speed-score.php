@@ -47,9 +47,9 @@ class Speed_Score {
 	 */
 	public function __construct( $modules, $client ) {
 		/*
-		 * Plugins using the old version of the package may pass an object instead of an array.
-		 * Keeping it backward compatible by converting the object to an array.
-		 * We will loose the module slugs in case of an object, but it is better than a fatal error.
+		 * Plugins using the old version of the package may pass an object instead of an array. Converting the
+		 * object to an array keeps it backward compatible. We will lose the module slugs in case of an object,
+		 * but it is better than a fatal error.
 		 */
 		if ( ! is_array( $modules ) ) {
 			$modules = array();
