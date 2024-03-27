@@ -42,6 +42,10 @@
 		"logOutLabel": {
 			"type": "string"
 		},
+		"showLinkToManageSubscriptions": {
+			"type": "boolean",
+			"default": true
+		},
 		"manageSubscriptionsLabel": {
 			"type": "string"
 		}
