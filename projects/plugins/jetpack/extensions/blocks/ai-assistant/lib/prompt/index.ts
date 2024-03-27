@@ -43,9 +43,6 @@ export const PROMPT_TYPE_LIST = [
 
 export type PromptTypeProp = ( typeof PROMPT_TYPE_LIST )[ number ];
 
-// Enable backend prompts for all sites
-export const areBackendPromptsEnabled: boolean = true;
-
 export type PromptItemProps = {
 	role: 'system' | 'user' | 'assistant' | 'jetpack-ai';
 	content?: string;
@@ -73,7 +70,7 @@ export function getInitialSystemPrompt( {
 	rules,
 	useGutenbergSyntax = false,
 	useMarkdown = true,
-	customSystemPrompt = null,
+	customSystemPrompt,
 }: {
 	context?: string;
 	rules?: Array< string >;
@@ -281,12 +278,12 @@ function getJetpackFormCustomPrompt( {
  */
 export const buildPromptTemplate = ( {
 	rules = [],
-	request = null,
-	relevantContent = null,
+	request,
+	relevantContent,
 	isContentGenerated = false,
 	isGeneratingTitle = false,
 	useGutenbergSyntax = false,
-	customSystemPrompt = null,
+	customSystemPrompt,
 }: {
 	rules?: Array< string >;
 	request?: string;
@@ -352,82 +349,6 @@ export type BuildPromptProps = {
 	options: BuildPromptOptionsProps;
 };
 
-type GetPromptOptionsProps = {
-	content?: string;
-	contentType?: 'generated' | string;
-	tone?: ToneProp;
-	language?: string;
-};
-
-export function promptTextFor(
-	type: PromptTypeProp,
-	isGeneratingTitle = false,
-	options: GetPromptOptionsProps
-): { request: string; rules?: string[] } {
-	const isGenerated = options?.contentType === 'generated';
-	let subject = 'the title';
-	if ( ! isGeneratingTitle ) {
-		subject = isGenerated ? 'your last answer' : 'the content';
-	}
-
-	const languageReminder = `. Do not switch to any language other than the language of ${ subject } in your response`;
-
-	switch ( type ) {
-		case PROMPT_TYPE_SUMMARY_BY_TITLE:
-			return {
-				request: `Write a short piece for a blog post based on ${ subject }, keeping the same language`,
-			};
-		case PROMPT_TYPE_CONTINUE:
-			return {
-				request: `Continue writing from ${ subject }${ languageReminder }.`,
-				rules: isGenerated
-					? []
-					: [ 'Only output the continuation of the content, without repeating it' ],
-			};
-		case PROMPT_TYPE_SIMPLIFY:
-			return {
-				request: `Simplify ${ subject }${ languageReminder }.`,
-				rules: [
-					'Use words and phrases that are easier to understand for non-technical people',
-					'Use as much of the original language as possible',
-				],
-			};
-		case PROMPT_TYPE_CORRECT_SPELLING:
-			return {
-				request: `Repeat ${ subject }, correcting any spelling and grammar mistakes, and do not add new content${ languageReminder }.`,
-			};
-		case PROMPT_TYPE_GENERATE_TITLE:
-			return {
-				request: 'Generate a new title for this blog post and only output the title.',
-				rules: [ 'Only output the raw title, without any prefix or quotes' ],
-			};
-		case PROMPT_TYPE_MAKE_LONGER:
-			return {
-				request: `Make ${ subject } longer${ languageReminder }.`,
-			};
-		case PROMPT_TYPE_MAKE_SHORTER:
-			return {
-				request: `Make ${ subject } shorter${ languageReminder }.`,
-			};
-		case PROMPT_TYPE_CHANGE_TONE:
-			return {
-				request: `Rewrite ${ subject } with ${
-					/^[aeiou]/i.test( options.tone as string ) ? 'an' : 'a'
-				} ${ options.tone } tone${ languageReminder }.`,
-			};
-		case PROMPT_TYPE_SUMMARIZE:
-			return {
-				request: `Summarize ${ subject }${ languageReminder }.`,
-			};
-		case PROMPT_TYPE_CHANGE_LANGUAGE:
-			return {
-				request: `Translate ${ subject } to the following language: ${ options.language }.`,
-			};
-		default:
-			return null;
-	}
-}
-
 /**
  * Builds a prompt based on the type of prompt.
  * Meant for use by the block, not the extensions.
@@ -445,84 +366,32 @@ export function buildPromptForBlock( {
 	type,
 	userPrompt,
 	isGeneratingTitle,
-	useGutenbergSyntax,
 	customSystemPrompt,
 }: BuildPromptProps ): Array< PromptItemProps > {
-	// Only generate backend messages if the feature is enabled.
-	if ( areBackendPromptsEnabled ) {
-		// Get the initial message to build the system prompt.
-		const initialMessage = buildInitialMessageForBackendPrompt( type, customSystemPrompt );
+	// Get the initial message to build the system prompt.
+	const initialMessage = buildInitialMessageForBackendPrompt( type, customSystemPrompt );
 
-		// Get the user messages to complete the prompt.
-		const userMessages = buildMessagesForBackendPrompt( {
-			generatedContent,
-			allPostContent,
-			postContentAbove,
-			currentPostTitle,
-			options,
-			type,
-			userPrompt,
-			isGeneratingTitle,
-		} );
-
-		return [ initialMessage, ...userMessages ];
-	}
-
-	const isContentGenerated = options?.contentType === 'generated';
-	const promptText = promptTextFor( type, isGeneratingTitle, options );
-
-	if ( type !== PROMPT_TYPE_USER_PROMPT ) {
-		let relevantContent;
-
-		switch ( type ) {
-			case PROMPT_TYPE_SUMMARY_BY_TITLE:
-				relevantContent = currentPostTitle;
-				break;
-			case PROMPT_TYPE_CONTINUE:
-			case PROMPT_TYPE_SIMPLIFY:
-			case PROMPT_TYPE_CORRECT_SPELLING:
-				relevantContent = postContentAbove;
-				break;
-			case PROMPT_TYPE_GENERATE_TITLE:
-				relevantContent = allPostContent;
-				break;
-			case PROMPT_TYPE_MAKE_LONGER:
-			case PROMPT_TYPE_MAKE_SHORTER:
-				relevantContent = generatedContent;
-				break;
-			case PROMPT_TYPE_CHANGE_TONE:
-			case PROMPT_TYPE_SUMMARIZE:
-			case PROMPT_TYPE_CHANGE_LANGUAGE:
-				relevantContent = isContentGenerated ? generatedContent : allPostContent;
-				break;
-		}
-
-		return buildPromptTemplate( {
-			...promptText,
-			relevantContent,
-			isContentGenerated,
-			isGeneratingTitle,
-			useGutenbergSyntax,
-			customSystemPrompt,
-		} );
-	}
-
-	return buildPromptTemplate( {
-		request: userPrompt,
-		relevantContent: generatedContent || allPostContent,
-		isContentGenerated: !! generatedContent?.length,
+	// Get the user messages to complete the prompt.
+	const userMessages = buildMessagesForBackendPrompt( {
+		generatedContent,
+		allPostContent,
+		postContentAbove,
+		currentPostTitle,
+		options,
+		type,
+		userPrompt,
 		isGeneratingTitle,
-		useGutenbergSyntax,
-		customSystemPrompt,
 	} );
+
+	return [ initialMessage, ...userMessages ];
 }
 
 /**
  * Returns a prompt based on the type and options
  *
- * @param {PromptTypeProp} type           - The type of prompt.
- * @param {GetPromptOptionsProps} options - The prompt options.
- * @returns {Array< PromptItemProps >}      The prompt.
+ * @param {PromptTypeProp} type        - The type of prompt.
+ * @param {PromptOptionsProps} options - The prompt options.
+ * @returns {Array< PromptItemProps >}   The prompt.
  */
 export function getPrompt(
 	type: PromptTypeProp,
