@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { useCallback, useRef } from '@wordpress/element';
 import debugFactory from 'debug';
 
