@@ -985,7 +985,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				$user_emails = array_reduce(
 					$results,
 					function ( $current, $item ) {
-						if ( ! Jetpack::connection()->is_user_connected( $item->ID ) ) {
+						if ( ! Jetpack_SSO_Helpers::is_user_connected( $item->ID ) ) {
 							$current[] = rawurlencode( $item->user_email );
 						} else {
 							self::$cached_invites[] = array(
@@ -1131,7 +1131,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 */
 		public function jetpack_show_connection_status( $val, $col, $user_id ) {
 			if ( 'user_jetpack' === $col ) {
-				if ( Jetpack::connection()->is_user_connected( $user_id ) ) {
+				if ( Jetpack_SSO_Helpers::is_user_connected( $user_id ) ) {
 					$connection_html = sprintf(
 						'<span title="%1$s" class="jetpack-sso-invitation">%2$s</span>',
 						esc_attr__( 'This user is connected and can log-in to this site.', 'jetpack' ),
