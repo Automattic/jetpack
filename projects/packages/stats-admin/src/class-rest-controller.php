@@ -379,6 +379,17 @@ class REST_Controller {
 				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
+
+		// Rerun commercial classificiation.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/commercial-classification', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'run_commercial_classification' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+			)
+		);
 	}
 
 	/**
@@ -1029,6 +1040,31 @@ class REST_Controller {
 			'wpcom',
 			true,
 			static::JETPACK_STATS_DASHBOARD_MODULE_SETTINGS_CACHE_KEY
+		);
+	}
+
+	/**
+	 * Run commercial classification.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function run_commercial_classification( $req ) {
+		return WPCOM_Client::request_as_blog(
+			sprintf(
+				'/sites/%d/commercial-classification?%s',
+				Jetpack_Options::get_option( 'id' ),
+				$this->filter_and_build_query_string(
+					$req->get_query_params()
+				)
+			),
+			'v2',
+			array(
+				'timeout' => 5,
+				'method'  => 'POST',
+			),
+			null,
+			'wpcom'
 		);
 	}
 
