@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.21.0] - 2024-03-27
+### Changed
+- Updated package dependencies. [#36585]
+- Updated Verbum Highlander Comment form prompt value [#36505]
+
+### Fixed
+- Untangle: update launchpad links for subscribers to go to Jetpack Cloud [#36573]
+
 ## [5.20.0] - 2024-03-25
 ### Removed
 - Removed Subscribers from Hosting menu [#36513]
@@ -679,6 +687,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.21.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.20.0...v5.21.0
 [5.20.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.19.0...v5.20.0
 [5.19.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.18.0...v5.19.0
 [5.18.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.17.0...v5.18.0

@@ -8,7 +8,6 @@
  */
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Boost_Speed_Score\Jetpack_Boost_Modules;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
@@ -822,6 +821,7 @@ class Jetpack {
 		add_action( 'jetpack_authorize_ending_linked', array( $this, 'authorize_ending_linked' ) );
 		add_action( 'jetpack_authorize_ending_authorized', array( $this, 'authorize_ending_authorized' ) );
 
+		Jetpack_Client_Server::init();
 		add_action( 'jetpack_client_authorize_error', array( Jetpack_Client_Server::class, 'client_authorize_error' ) );
 		add_filter( 'jetpack_client_authorize_already_authorized_url', array( Jetpack_Client_Server::class, 'client_authorize_already_authorized_url' ) );
 		add_action( 'jetpack_client_authorize_processing', array( Jetpack_Client_Server::class, 'client_authorize_processing' ) );
@@ -976,8 +976,7 @@ class Jetpack {
 		My_Jetpack_Initializer::init();
 
 		// Initialize Boost Speed Score
-		$modules = Jetpack_Boost_Modules::init();
-		new Speed_Score( $modules, 'jetpack-dashboard' );
+		new Speed_Score( array(), 'jetpack-dashboard' );
 
 		/**
 		 * Fires when Jetpack is fully loaded and ready. This is the point where it's safe
@@ -6600,6 +6599,10 @@ endif;
 				$redirect_url = static::admin_url( 'page=jetpack' );
 			} elseif ( is_network_admin() ) {
 				$redirect_url = admin_url( 'network/admin.php?page=jetpack' );
+			} elseif ( get_transient( 'my_jetpack_product_activated' ) ) {
+				// don't redirect if this is an activation that just came from My Jetpack
+				// My Jetpack has its own set of post-activation redirects
+				return;
 			} elseif ( My_Jetpack_Initializer::should_initialize() ) {
 				$redirect_url = static::admin_url( 'page=my-jetpack' );
 			} else {
