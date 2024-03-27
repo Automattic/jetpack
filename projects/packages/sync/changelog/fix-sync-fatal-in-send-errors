@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+ Jetpack Sync: Prevent Fatal on send upon failing to enable WPCOM REST API feature
