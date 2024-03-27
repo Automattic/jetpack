@@ -1,3 +1,4 @@
+import { Col, TermsOfService, Text } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { useContext, useEffect } from 'react';
@@ -5,10 +6,10 @@ import { MyJetpackRoutes } from '../../constants';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import { useAllProducts } from '../../data/products/use-product';
+import { getMyJetpackWindowRestState } from '../../data/utils/get-my-jetpack-window-state';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
 import useMyJetpackNavigate from '../use-my-jetpack-navigate';
-import { getMyJetpackWindowRestState } from './../../data/utils/get-my-jetpack-window-state';
 
 type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
 
@@ -56,8 +57,8 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 								noDefaultClasses: true,
 							},
 						],
+						priority: NOTICE_PRIORITY_HIGH,
 					},
-					priority: NOTICE_PRIORITY_HIGH,
 				} );
 			} );
 		};
@@ -88,7 +89,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			'Connect your user account to fix this',
 			'jetpack-my-jetpack'
 		);
-		const siteConnectionButtonLabel = __( 'Connect your site to fix this', 'jetpack-my-jetpack' );
+		const siteConnectionButtonLabel = __( 'Connect your site', 'jetpack-my-jetpack' );
 
 		const noticeOptions = {
 			status: 'warning',
@@ -106,8 +107,22 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			isRedBubble: true,
 		};
 
+		const messageContent = requiresUserConnection ? (
+			<Col>{ needsUserConnectionMessage }</Col>
+		) : (
+			<Col>
+				<Text variant="title-medium" mb={ 3 }>
+					{ __( 'Missing site connection', 'jetpack-my-jetpack' ) }
+				</Text>
+				<Text mb={ 2 }>{ needsSiteConnectionMessage }</Text>
+				<Text variant="body-extra-small">
+					<TermsOfService agreeButtonLabel={ siteConnectionButtonLabel } />
+				</Text>
+			</Col>
+		);
+
 		setNotice( {
-			message: requiresUserConnection ? needsUserConnectionMessage : needsSiteConnectionMessage,
+			message: messageContent,
 			options: noticeOptions,
 		} );
 	}, [
