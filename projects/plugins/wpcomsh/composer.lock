@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b48b12d13ff180c4b6992d27009a199a",
+    "content-hash": "0c6f069c38636517f07930d8f98bd7fc",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -66,16 +66,16 @@
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "v2.1.5",
+            "version": "v2.1.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-assets.git",
-                "reference": "eea9623e3f8c4877a7d613e626221b3f1d5b11a5"
+                "reference": "3a797a4e54280fd93b944daf81fb44a8d697bebe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-assets/zipball/eea9623e3f8c4877a7d613e626221b3f1d5b11a5",
-                "reference": "eea9623e3f8c4877a7d613e626221b3f1d5b11a5",
+                "url": "https://api.github.com/repos/Automattic/jetpack-assets/zipball/3a797a4e54280fd93b944daf81fb44a8d697bebe",
+                "reference": "3a797a4e54280fd93b944daf81fb44a8d697bebe",
                 "shasum": ""
             },
             "require": {
@@ -117,9 +117,9 @@
             ],
             "description": "Asset management utilities for Jetpack ecosystem packages",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-assets/tree/v2.1.5"
+                "source": "https://github.com/Automattic/jetpack-assets/tree/v2.1.6"
             },
-            "time": "2024-03-18T17:11:04+00:00"
+            "time": "2024-03-27T09:42:17+00:00"
         },
         {
             "name": "automattic/jetpack-config",
@@ -218,21 +218,21 @@
         },
         {
             "name": "automattic/jetpack-mu-wpcom",
-            "version": "v5.20.0",
+            "version": "v5.21.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-mu-wpcom.git",
-                "reference": "436d30bebeb7fc1a8d0c31cfa5dc6085767fbfb1"
+                "reference": "fe8ef49c53308f94a170426845bb7d1e871b0610"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/436d30bebeb7fc1a8d0c31cfa5dc6085767fbfb1",
-                "reference": "436d30bebeb7fc1a8d0c31cfa5dc6085767fbfb1",
+                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/fe8ef49c53308f94a170426845bb7d1e871b0610",
+                "reference": "fe8ef49c53308f94a170426845bb7d1e871b0610",
                 "shasum": ""
             },
             "require": {
-                "automattic/jetpack-assets": "^2.1.5",
-                "automattic/scheduled-updates": "^0.5.1",
+                "automattic/jetpack-assets": "^2.1.6",
+                "automattic/scheduled-updates": "^0.5.2",
                 "php": ">=7.0"
             },
             "require-dev": {
@@ -251,7 +251,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.20.x-dev"
+                    "dev-trunk": "5.21.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -269,9 +269,9 @@
             ],
             "description": "Enhances your site with features powered by WordPress.com",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v5.20.0"
+                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v5.21.0"
             },
-            "time": "2024-03-25T16:52:39+00:00"
+            "time": "2024-03-27T09:42:48+00:00"
         },
         {
             "name": "automattic/jetpack-post-list",
@@ -331,16 +331,16 @@
         },
         {
             "name": "automattic/scheduled-updates",
-            "version": "v0.5.1",
+            "version": "v0.5.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/scheduled-updates.git",
-                "reference": "80ff606bbfb87aebce743da0d7076c6a2919ae03"
+                "reference": "afcb193320da19e516fd071fcc3d8af863a3063a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/scheduled-updates/zipball/80ff606bbfb87aebce743da0d7076c6a2919ae03",
-                "reference": "80ff606bbfb87aebce743da0d7076c6a2919ae03",
+                "url": "https://api.github.com/repos/Automattic/scheduled-updates/zipball/afcb193320da19e516fd071fcc3d8af863a3063a",
+                "reference": "afcb193320da19e516fd071fcc3d8af863a3063a",
                 "shasum": ""
             },
             "require": {
@@ -382,9 +382,9 @@
             ],
             "description": "Runs plugin and (eventually) theme updates on a set schedule.",
             "support": {
-                "source": "https://github.com/Automattic/scheduled-updates/tree/v0.5.1"
+                "source": "https://github.com/Automattic/scheduled-updates/tree/v0.5.2"
             },
-            "time": "2024-03-22T13:30:09+00:00"
+            "time": "2024-03-27T09:42:28+00:00"
         },
         {
             "name": "automattic/text-media-widget-styles",
