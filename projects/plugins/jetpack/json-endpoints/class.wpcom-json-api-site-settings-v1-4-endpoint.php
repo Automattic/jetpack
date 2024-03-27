@@ -131,6 +131,10 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 			'subscription_options'                    => '(array) Array of three options used in subscription email templates: \'invitation\', \'welcome\' and \'comment_follow\' strings.',
 			'jetpack_verbum_subscription_modal'       => '(bool) Whether Subscription modal is enabled in Verbum comments',
 			'wpcom_ai_site_prompt'                    => '(string) User input in the AI site prompt',
+			'enable_verbum_commenting'                => '(bool) Whether Verbum commenting is enabled',
+			'enable_blocks_comments'                  => '(bool) Whether blocks comments are enabled',
+			'highlander_comment_form_prompt'          => '(string) The prompt for the comment form',
+			'jetpack_comment_form_color_scheme'       => '(string) The color scheme for the comment form',
 		),
 
 		'response_format' => array(

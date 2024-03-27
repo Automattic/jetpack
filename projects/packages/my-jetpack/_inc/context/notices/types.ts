@@ -9,8 +9,9 @@ export type Notice = {
 			onClick: () => void;
 			noDefaultClasses?: boolean;
 		}[];
+		priority: number;
+		isRedBubble?: boolean;
 	};
-	priority: number;
 };
 
 export type NoticeContextType< T = Notice > = {

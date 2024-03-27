@@ -21,7 +21,7 @@ class Critical_CSS_Invalidator {
 	 */
 	public static function init() {
 		add_action( 'jetpack_boost_deactivate', array( __CLASS__, 'clear_data' ) );
-		add_action( 'handle_environment_change', array( __CLASS__, 'handle_environment_change' ) );
+		add_action( 'jetpack_boost_critical_css_environment_changed', array( __CLASS__, 'handle_environment_change' ) );
 		add_filter( 'jetpack_boost_total_problem_count', array( __CLASS__, 'update_boost_problem_count' ) );
 	}
 
@@ -34,7 +34,6 @@ class Critical_CSS_Invalidator {
 
 		$state = new Critical_CSS_State();
 		$state->clear();
-		do_action( 'jetpack_boost_critical_css_invalidated' );
 
 		Cloud_CSS_Followup::unschedule();
 	}
@@ -45,6 +44,8 @@ class Critical_CSS_Invalidator {
 	public static function handle_environment_change( $is_major_change ) {
 		if ( $is_major_change ) {
 			self::clear_data();
+
+			do_action( 'jetpack_boost_critical_css_invalidated' );
 		}
 	}
 
