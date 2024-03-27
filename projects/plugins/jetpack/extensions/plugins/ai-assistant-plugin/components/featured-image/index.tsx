@@ -3,6 +3,8 @@
  */
 import { useImageGenerator } from '@automattic/jetpack-ai-client';
 import { Button, Spinner } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -10,15 +12,18 @@ import { __ } from '@wordpress/i18n';
  */
 import './style.scss';
 import usePostContent from '../../hooks/use-post-content';
+import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library';
 import AiAssistantModal from '../modal';
 
 const FEATURED_IMAGE_FEATURE_NAME = 'featured-post-image';
 
 export default function FeaturedImage() {
+	const { editPost } = useDispatch( editorStore );
 	const [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] = useState( false );
 	const [ generating, setGenerating ] = useState( false );
 	const [ imageURL, setImageURL ] = useState( null );
 	const { generateImage } = useImageGenerator();
+	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 
 	const postContent = usePostContent();
 
@@ -57,8 +62,11 @@ export default function FeaturedImage() {
 	}, [ processImageGeneration ] );
 
 	const handleAccept = useCallback( () => {
-		toggleFeaturedImageModal();
-	}, [ toggleFeaturedImageModal ] );
+		saveToMediaLibrary( imageURL ).then( image => {
+			editPost( { featured_media: image.id } );
+			toggleFeaturedImageModal();
+		} );
+	}, [ editPost, imageURL, saveToMediaLibrary, toggleFeaturedImageModal ] );
 
 	const modalTitleWhenGenerating = __( 'Generating featured image…', 'jetpack' );
 	const modalTitleWhenDone = __( 'Featured Image Generation', 'jetpack' );
