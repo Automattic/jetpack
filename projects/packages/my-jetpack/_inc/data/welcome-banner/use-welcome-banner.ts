@@ -4,7 +4,10 @@ import {
 	REST_API_SITE_DISMISS_BANNER,
 } from '../../data/constants';
 import useSimpleMutation from '../use-simple-mutation';
-import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
+import {
+	getMyJetpackWindowInitialState,
+	setMyJetpackRedBubbleAlerts,
+} from '../utils/get-my-jetpack-window-state';
 
 const useWelcomeBanner = () => {
 	const { redBubbleAlerts } = getMyJetpackWindowInitialState();
@@ -22,8 +25,19 @@ const useWelcomeBanner = () => {
 		),
 	} );
 
+	/**
+	 * Dismiss the welcome banner and remove it from the initial state.
+	 * Using a separate function instead of onSuccess so the frontend picks up the
+	 * change before the mutation is complete.
+	 */
+	const dismissWelcomeBannerAndRemoveFromState = () => {
+		delete redBubbleAlerts[ 'welcome-banner-active' ];
+		setMyJetpackRedBubbleAlerts( redBubbleAlerts );
+		dismissWelcomeBanner();
+	};
+
 	return {
-		dismissWelcomeBanner,
+		dismissWelcomeBanner: dismissWelcomeBannerAndRemoveFromState,
 		isWelcomeBannerVisible,
 	};
 };
