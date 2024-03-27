@@ -26,9 +26,11 @@ use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Site_Health;
 use Automattic\Jetpack_Boost\Lib\Status;
+use Automattic\Jetpack_Boost\Modules\Modules_Index;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
@@ -114,6 +116,8 @@ class Jetpack_Boost {
 
 		add_action( 'handle_environment_change', array( $this, 'handle_environment_change' ), 10, 2 );
 
+		add_filter( 'query_vars', array( self::class, 'whitelist_query_args' ) );
+
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
 
@@ -134,6 +138,20 @@ class Jetpack_Boost {
 	private function register_deactivation_hook() {
 		$plugin_file = trailingslashit( dirname( __DIR__ ) ) . 'jetpack-boost.php';
 		register_deactivation_hook( $plugin_file, array( $this, 'deactivate' ) );
+	}
+
+	/**
+	 * Add query args used by Boost to a list of allowed query args.
+	 *
+	 * @param array $allowed_query_args The list of allowed query args.
+	 *
+	 * @return array The modified list of allowed query args.
+
+	 */
+	public static function whitelist_query_args( $allowed_query_args ) {
+		$allowed_query_args[] = Generator::GENERATE_QUERY_ACTION;
+		$allowed_query_args[] = Modules_Index::DISABLE_MODULE_QUERY_VAR;
+		return $allowed_query_args;
 	}
 
 	/**
@@ -182,7 +200,7 @@ class Jetpack_Boost {
 				'jetpack_sync_callable_whitelist' => array(
 					'boost_modules'                => array( new Modules_Setup(), 'get_status' ),
 					'boost_latest_scores'          => array( new Speed_Score_History( get_home_url() ), 'latest' ),
-					'boost_latest_no_boost_scores' => array( new Speed_Score_History( add_query_arg( 'jb-disable-modules', 'all', get_home_url() ) ), 'latest' ),
+					'boost_latest_no_boost_scores' => array( new Speed_Score_History( add_query_arg( Modules_Index::DISABLE_MODULE_QUERY_VAR, 'all', get_home_url() ) ), 'latest' ),
 					'critical_css_state'           => array( new Critical_CSS_State(), 'get' ),
 				),
 			)
