@@ -1,3 +1,8 @@
+declare module '*.png';
+declare module '*.svg';
+declare module '*.jpeg';
+declare module '*.jpg';
+declare module '*.scss';
 interface Window {
 	myJetpackInitialState?: {
 		siteSuffix: string;
@@ -179,12 +184,18 @@ interface Window {
 				check_dns: boolean;
 			} >;
 		};
+		redBubbleAlerts: {
+			'missing-site-connection'?: null;
+			'welcome-banner-active'?: null;
+			[ key: `${ string }-bad-installation` ]: {
+				data: {
+					plugin: string;
+				};
+			};
+		};
 		topJetpackMenuItemUrl: string;
 		userIsAdmin: string;
 		userIsNewToJetpack: string;
-		welcomeBanner: {
-			hasBeenDismissed: boolean;
-		};
 	};
 	JP_CONNECTION_INITIAL_STATE: {
 		apiRoot: string;

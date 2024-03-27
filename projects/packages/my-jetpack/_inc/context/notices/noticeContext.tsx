@@ -5,6 +5,8 @@ const defaultNotice: Notice = {
 	message: '',
 	options: {
 		status: '',
+		priority: 0,
+		isRedBubble: false,
 	},
 };
 
@@ -19,7 +21,8 @@ const NoticeContextProvider = ( { children } ) => {
 	const [ currentNotice, setCurrentNotice ] = useState< Notice >( defaultNotice );
 
 	const setNotice = ( notice: Notice ) => {
-		if ( ! currentNotice.message ) {
+		// Only update notice if there is not already a notice or the new notice has a higher priority
+		if ( ! currentNotice.message || notice.options.priority > currentNotice.options.priority ) {
 			setCurrentNotice( notice );
 		}
 	};

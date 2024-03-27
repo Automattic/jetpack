@@ -9,6 +9,7 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Regenerate;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
+use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Always_Available_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
@@ -37,12 +38,45 @@ class Modules_Setup implements Has_Setup {
 		return false;
 	}
 
+	/**
+	 * Get modules that are currently active and optimizing the site.
+	 *
+	 * @return string[] Slugs of optimization modules that are currently active and serving.
+	 */
+	public function get_ready_active_optimization_modules() {
+		$working_modules = array();
+		foreach ( $this->available_modules as $slug => $module ) {
+			if ( $module->is_optimizing() ) {
+				$working_modules[] = $slug;
+			}
+		}
+		return $working_modules;
+	}
+
 	public function get_status() {
 		$status = array();
 		foreach ( $this->available_modules as $slug => $module ) {
 			$status[ $slug ] = $module->is_enabled();
 		}
 		return $status;
+	}
+
+	/**
+	 * Used to register endpoints that will be available even
+	 * if the module is not enabled.
+	 *
+	 * @return bool|void
+	 */
+	public function register_always_available_endpoints( $feature ) {
+		if ( ! $feature instanceof Has_Always_Available_Endpoints ) {
+			return false;
+		}
+
+		if ( empty( $feature->get_always_available_endpoints() ) ) {
+			return false;
+		}
+
+		REST_API::register( $feature->get_always_available_endpoints() );
 	}
 
 	public function register_endpoints( $feature ) {
@@ -60,6 +94,8 @@ class Modules_Setup implements Has_Setup {
 	public function init_modules() {
 
 		foreach ( $this->available_modules as $slug => $module ) {
+
+			$this->register_always_available_endpoints( $module->feature );
 
 			if ( ! $module->is_enabled() ) {
 				continue;

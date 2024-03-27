@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { AdminPage, Button, Col, Container, Text } from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
@@ -45,6 +46,7 @@ import videoPressImage from './videopress.png';
  * @param {number} [props.quantity]              - The quantity of the product to purchase
  * @param {number} [props.directCheckout]        - Whether to go straight to the checkout page, e.g. for products with usage tiers
  * @param {boolean} [props.highlightLastFeature] - Whether to highlight the last feature in the list of features
+ * @param {object} [props.ctaCallback]           - Callback when the product CTA is clicked. Triggered before any activation/checkout process occurs
  * @returns {object}                               ProductInterstitial react component.
  */
 export default function ProductInterstitial( {
@@ -61,6 +63,7 @@ export default function ProductInterstitial( {
 	quantity = null,
 	directCheckout = false,
 	highlightLastFeature = false,
+	ctaCallback = null,
 } ) {
 	const { detail } = useProduct( slug );
 	const { activate, isPending: isActivating } = useActivate( slug );
@@ -69,6 +72,10 @@ export default function ProductInterstitial( {
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
 	const { myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
+	const { siteIsRegistering, handleRegisterSite } = useConnection( {
+		skipUserConnection: true,
+		redirectUri: detail.postActivationUrl ? detail.postActivationUrl : null,
+	} );
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
@@ -94,7 +101,7 @@ export default function ProductInterstitial( {
 		( isFreePlan = false, customSlug = null ) => {
 			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
 				product: customSlug ?? slug,
-				productSlug: getProductSlugForTrackEvent( isFreePlan ),
+				product_slug: getProductSlugForTrackEvent( isFreePlan ),
 			} );
 		},
 		[ recordEvent, slug, getProductSlugForTrackEvent ]
@@ -104,7 +111,7 @@ export default function ProductInterstitial( {
 		( isFreePlan = false ) => {
 			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
 				product: bundle,
-				productSlug: getProductSlugForTrackEvent( isFreePlan ),
+				product_slug: getProductSlugForTrackEvent( isFreePlan ),
 			} );
 		},
 		[ recordEvent, bundle, getProductSlugForTrackEvent ]
@@ -117,6 +124,8 @@ export default function ProductInterstitial( {
 			let postCheckoutUrl = product?.postCheckoutUrl
 				? product?.postCheckoutUrl
 				: myJetpackCheckoutUri;
+
+			ctaCallback?.( { slug, product, tier } );
 
 			if ( product?.isBundle || directCheckout ) {
 				// Get straight to the checkout page.
@@ -131,7 +140,6 @@ export default function ProductInterstitial( {
 						postCheckoutUrl = activatedProduct?.post_checkout_url
 							? activatedProduct.post_checkout_url
 							: myJetpackCheckoutUri;
-						const postActivationUrl = product?.postActivationUrl;
 						const hasRequiredPlan = tier
 							? product?.hasRequiredTier?.[ tier ]
 							: product?.hasRequiredPlan;
@@ -150,13 +158,15 @@ export default function ProductInterstitial( {
 
 						// If no purchase is needed, redirect the user to the product screen.
 						if ( ! needsPurchase ) {
-							if ( postActivationUrl ) {
-								window.location.href = postActivationUrl;
-								return;
-							}
+							// for free products, we still initiate the site connection
+							handleRegisterSite().then( redirectUri => {
+								if ( ! redirectUri ) {
+									// Fall back to the My Jetpack overview page.
+									return navigateToMyJetpackOverviewPage();
+								}
+							} );
 
-							// Fall back to the My Jetpack overview page.
-							return navigateToMyJetpackOverviewPage();
+							return;
 						}
 
 						// Redirect to the checkout page.
@@ -165,7 +175,15 @@ export default function ProductInterstitial( {
 				}
 			);
 		},
-		[ directCheckout, activate, navigateToMyJetpackOverviewPage, slug, myJetpackCheckoutUri ]
+		[
+			directCheckout,
+			activate,
+			navigateToMyJetpackOverviewPage,
+			slug,
+			myJetpackCheckoutUri,
+			ctaCallback,
+			handleRegisterSite,
+		]
 	);
 
 	return (
@@ -200,7 +218,7 @@ export default function ProductInterstitial( {
 							clickHandler={ clickHandler }
 							onProductButtonClick={ clickHandler }
 							trackProductButtonClick={ trackProductClick }
-							isFetching={ isActivating }
+							isFetching={ isActivating || siteIsRegistering }
 						/>
 					) : (
 						<Container
@@ -221,7 +239,7 @@ export default function ProductInterstitial( {
 									hideTOS={ hideTOS }
 									quantity={ quantity }
 									highlightLastFeature={ highlightLastFeature }
-									isFetching={ isActivating }
+									isFetching={ isActivating || siteIsRegistering }
 								/>
 							</Col>
 							<Col

@@ -278,6 +278,13 @@ class Verbum_Comments {
 	 * @param  array $args - The default comment form arguments.
 	 */
 	public function comment_form_defaults( $args ) {
+		$title_reply_default = __( 'Leave a comment', 'jetpack-mu-wpcom' );
+		$title_reply         = get_option( 'highlander_comment_form_prompt', $title_reply_default );
+
+		if ( $title_reply === 'Leave a comment' || empty( $title_reply ) ) {
+			$title_reply = $title_reply_default;
+		}
+
 		return array_merge(
 			$args,
 			array(
@@ -286,7 +293,7 @@ class Verbum_Comments {
 				'logged_in_as'         => '',
 				'comment_notes_before' => '',
 				'comment_notes_after'  => '',
-				'title_reply'          => __( 'Leave a comment', 'jetpack-mu-wpcom' ),
+				'title_reply'          => $title_reply,
 				/* translators: % is the original posters name */
 				'title_reply_to'       => __( 'Leave a reply to %s', 'jetpack-mu-wpcom' ),
 				'cancel_reply_link'    => __( 'Cancel reply', 'jetpack-mu-wpcom' ),
@@ -561,24 +568,12 @@ HTML;
 			return false;
 		}
 
-		$blog_id         = $this->blog_id;
-		$e2e_tests       = function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'a8c-e2e-test-blog', $blog_id );
-		$has_blocks_flag = function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'verbum-block-comments', $blog_id );
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$gutenberg_query_param = isset( $_GET['verbum_gutenberg'] ) ? intval( $_GET['verbum_gutenberg'] ) : null;
-		// This will release to 80% of sites.
-		$blog_in_80_percent = $blog_id % 100 >= 20;
-		// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$is_proxied = isset( $_SERVER['A8C_PROXIED_REQUEST'] )
-			? sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) )
-			: defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST;
-
-		// Check if the parameter is set and its value is either 0 or 1, if any random value is passed, it is ignored.
-		if ( $gutenberg_query_param !== null ) {
-			return $gutenberg_query_param === 1;
+		// Blocks in comments have been disabled on a simple site
+		if ( empty( get_option( 'enable_blocks_comments', true ) ) ) {
+			return false;
 		}
 
-		return $has_blocks_flag || $e2e_tests || $blog_in_80_percent;
+		return true;
 	}
 
 	/**

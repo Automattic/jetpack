@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.2] - 2024-03-27
+### Changed
+- Internal updates.
+
+## [0.5.1] - 2024-03-22
+### Fixed
+- Fixed a bug where the weekday index was not properly accounted for in list of weekdays. [#36524]
+- Transfer status when editing a schedule. [#36521]
+
+## [0.5.0] - 2024-03-20
+### Added
+- Add a new plugin deletion hook that remove the plugin from the scheduled updates. [#36458]
+
+### Changed
+- Scheduled Updates: Update cron event name from jetpack_scheduled_update to jetpack_scheduled_plugins_update [#36427]
+
+## [0.4.1] - 2024-03-18
+### Changed
+- Internal updates.
+
 ## [0.4.0] - 2024-03-15
 ### Added
 - Add scheduled updates option with last statuses. [#36277]
@@ -70,6 +90,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Generate initial package for Scheduled Updates [#35796]
 
+[0.5.2]: https://github.com/Automattic/scheduled-updates/compare/v0.5.1...v0.5.2
+[0.5.1]: https://github.com/Automattic/scheduled-updates/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/Automattic/scheduled-updates/compare/v0.4.1...v0.5.0
+[0.4.1]: https://github.com/Automattic/scheduled-updates/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Automattic/scheduled-updates/compare/v0.3.4...v0.4.0
 [0.3.4]: https://github.com/Automattic/scheduled-updates/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/Automattic/scheduled-updates/compare/v0.3.2...v0.3.3

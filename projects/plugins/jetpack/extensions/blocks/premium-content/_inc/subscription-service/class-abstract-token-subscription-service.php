@@ -459,31 +459,29 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 			return;
 		}
 
-		if ( ! empty( $token ) && false === headers_sent() ) {
+		if ( ! empty( $token ) && ! headers_sent() ) {
 			// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
-			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, strtotime( '+1 month' ), '/', COOKIE_DOMAIN, is_ssl(), false );
+			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, strtotime( '+1 month' ), '/', '', is_ssl(), false );
 		}
 	}
 
 	/**
 	 * Clear the auth cookie.
-	 *
-	 * @param string $cookie_domain Domain to remove cookie from.
-	 *
-	 * @return void
 	 */
-	public static function clear_token_cookie( $cookie_domain = '' ) {
+	public static function clear_token_cookie() {
 		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
 			return;
 		}
 
-		if ( self::has_token_from_cookie() ) {
-			unset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
-			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', 1, '/', COOKIE_DOMAIN, is_ssl(), true );
+		if ( ! self::has_token_from_cookie() ) {
+			return;
+		}
 
-			if ( ! empty( $cookie_domain ) ) {
-				setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', 1, '/', $cookie_domain, is_ssl(), true );
-			}
+		unset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
+
+		if ( ! headers_sent() ) {
+			// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
+			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', 1, '/', '', is_ssl(), false );
 		}
 	}
 

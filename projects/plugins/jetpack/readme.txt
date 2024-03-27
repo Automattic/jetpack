@@ -216,7 +216,6 @@ Jetpack is the ultimate toolkit for WP for both the classic editor and the block
 * Custom CSS — Customize the appearance of your theme without creating a child theme or worrying about updates overwriting your customizations.
 * Custom Content Types — Adds custom post types (CPTs) to your site.
 * Downtime Monitor — Alerts you via electronic mail if your site goes down to ensure you keep uptime.
-* Enhanced Distribution — Increase your reach by allowing your content to be included in the WordPress.com “firehose” of public blog content.
 * Extra Sidebar Widgets — Extra widgets you can add to your blog, including RSS Links and Facebook Like Boxes.
 * Gravatar Hovercards — Make your Gravatar profile visible to those viewing your blog.
 * Google Analytics (GA) — Track your WordPress site statistics thanks to Google Analytics.
@@ -326,22 +325,10 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.3-a.1 - 2024-03-12
-#### Enhancements
-- Display Email settings on Newsletter settings page
-- Login block: Link to subscription management page with site URL as search query.
-- Member login block: link to individual subscription management page
-- Pass API parameter to indicate when deleting a memberships product should cancel subscriptions
-- Sharing: add a Threads sharing button and a Threads sharing button block.
-- Social Menu & Social Media Icons: Add support for an SMS button.
-- Uncheck users-new.php Invite user on load if WooCommerce plugin is activated
-
-#### Improved compatibility
-- Add metadata to the post to better diagnose need for Reader and Firehose
-
+### 13.3-a.9 - 2024-03-27
 #### Bug fixes
-- Sharing: avoid PHP warnings when using custom post types.
-- Sharing: fix the display of the sharing block in some classic themes.
+- Disable WPCOM invitation functionality for non-connected users.
+- Fix paid content block subscriber view content not rendering in WordPress.com reader.
 
 --------
 

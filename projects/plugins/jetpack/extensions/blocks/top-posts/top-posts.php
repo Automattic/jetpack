@@ -49,6 +49,11 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function load_assets( $attributes ) {
+	// Do not render in contexts outside the front-end (eg. emails, API).
+	if ( ! jetpack_is_frontend() ) {
+		return;
+	}
+
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	/*

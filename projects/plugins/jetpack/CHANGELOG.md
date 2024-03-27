@@ -2,55 +2,140 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 13.3-a.1 - 2024-03-12
+## 13.3-a.9 - 2024-03-27
+### Bug fixes
+- Disable WPCOM invitation functionality for non-connected users. [#36572]
+- Fix paid content block subscriber view content not rendering in WordPress.com reader. [#36512]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add a function to clear the static cache for Jetpack_Memberships. [#36545]
+- Add instructions to test the new AI interstitial and product page [#36566]
+- Add Verbum options to site settings endpoint [#36505]
+- AI Assistant: remove "Experimental" label on block name [#36535]
+- AI Assistant: store function typo fix Aync -> Async [#36544]
+- AI Proofread: improve upgrade prompt format and translation according to current tier [#36542]
+- Fixed Jetpack Creator going to the wrong screen when the free version is selected [#36547]
+- Map Block: Fix styling in Row and Stack layout [#36447]
+- SSO: add filter allowing one to disable the WordPress.com invite interface. [#36572]
+- SSO: fix PHP notices and remove unnecessary PHPCS ignores. [#36589]
+- Updated package dependencies. [#36585]
+
+## 13.3-a.7 - 2024-03-25
 ### Enhancements
-- Display Email settings on Newsletter settings page [#36290]
-- Login block: Link to subscription management page with site URL as search query.
-- Member login block: link to individual subscription management page [#36200]
-- Pass API parameter to indicate when deleting a memberships product should cancel subscriptions [#35735]
-- Sharing: add a Threads sharing button and a Threads sharing button block. [#36220]
-- Social Menu & Social Media Icons: Add support for an SMS button. [#36176]
-- Uncheck users-new.php Invite user on load if WooCommerce plugin is activated [#36140]
+- Blocks: "Earn" category renamed to "Monetize". [#36480]
+- Jetpack AI: When the response includes a title and post title is empty, use provided title as post title. [#36500]
+- My Jetpack: Trigger red bubble notification when a broken installation is detected. [#36449]
+- Newsletters: Reorder settings cards to improve hierarchy. [#36465]
+- Newsletters: Use radio buttons instead of toggles on Email Settings. [#36532]
+- Sharing: Remove Like button from master bar. [#36456]
 
 ### Improved compatibility
-- Add metadata to the post to better diagnose need for Reader and Firehose [#36254]
+- General: Remove methods that were deprecated before the release of Jetpack 10.0, in 2021. [#36157]
+
+### Bug fixes
+- Dashboard: Update the sharing button settings to clarify the available options (block or legacy sharing buttons). [#36473]
+- Enhanced Distribution: begin deprecation process as the Firehose is winding down. [#36168]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added the possibility of stating if a new invited user is a contractor. [#36479]
+- Add function exists check for wp_admin_notice [#36511]
+- Add my home menu to atomic sites in classic view using nav unification. [#36431]
+- Add share debug data toggle on WAF settings [#36377]
+- Add sso survey modal for users that disable the module [#36387]
+- Backup: change some error messages to not trigger security scanners [#36496]
+- Contact Form: refactor field to use forms package [#36138]
+- Contact Form: refactor form to use forms package [#36137]
+- Display Subscribers menu on wp-admin and update links to Jetpack Manage [#36510]
+- GitHub Deployments: remove feature flag [#36469]
+- minor change the the menu for selecting images [#36293]
+- Paywall: Switching accounts URL fix [#36337]
+- Register Sharing settings menu page in offline mode or when Classic wp-admin is enabled. [#36490]
+- SSO: only enable WordPress.com invite emails by default on the WordPress.com platform. [#36558]
+- SSO: simplify the logic when inviting new users to WordPress.com. [#36498]
+- Subscriptions: Apply the subscriber logout function globally [#36441]
+- Subscription Site: Release the Subscribe block after the post placement toggle [#36368]
+- Update notification icon in top bar [#36297]
+- Use correct links in Settings -> Traffic -> GA when admin interface is wp-admin [#36493]
+- WPCOM API: avoid PHP warnings when variables are not set. [#36455]
+- WPCOM_JSON_API_List_Comments_Endpoint: Do not prefetch comment meta for large hierarchical threads [#36460]
+
+## 13.3-a.3 - 2024-03-18
+### Enhancements
+- AI Assistant: Provide per-block quick actions to make them more relevant. [#36393]
+- General: Only show installation errors on Plugins page. [#36390]
+- Newsletters: Ensure blog stats and top posts blocks do not render in email newsletters. [#36372]
+- Sharing: Add a Bluesky sharing button. [#36181]
+- Sharing: Add Native (Web Share) button to Sharing Buttons block. [#35967]
+
+### Improved compatibility
+- Subscriptions: Remove subscription settings from reading options page. [#36314]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add tracking to Jetpack review link on plugins page [#36348]
+- AI Assistant: Register ai-assistant-form-support beta flag to control the form extension we are working on. [#36413]
+- AI Featured Image: Add sidebar entry [#36414]
+- Contact Form: refactor admin to use forms package [#36224]
+- Contact Form: refactor plugin to use forms package [#36092]
+- Contact Form: refactor shortcode to use forms package [#36135]
+- Fix minor UI issues in premium-content block editor [#36398]
+- Jetpack_Portfolio: Prevent a division by 0 fatal when a user uses the shortcode with columns=0 [#36433]
+- Publicize: prevent panel from jumping after activation [#36362]
+- Sharing Block: Remove extra margin previously added to the first button. [#36386]
+- SSO: Add error log on SSO invite. [#36416]
+- SSO: Update copy when inviting users. [#36385]
+- Subscriptions: Add Subscribe block post end placement setting to Sync [#36381]
+- Subscriptions: Fix the Subscribe block insertion toggle label [#36384]
+- Subscription Site: Polishing stuff before the release [#36240]
+- Untangle: explicitly use Core admin bar color in Calypso color schemes [#36341]
+- Updated package dependencies. [#36401]
+- WPCOM_JSON_API_List_Comments_Endpoint: Remove update_comment_cache() that is no longer needed [#36363]
+
+## 13.3-a.1 - 2024-03-12
+### Enhancements
+- Newsletters: Display Email settings on Newsletter settings page. [#36290]
+- Sharing: add a Threads sharing button and a Threads sharing button block. [#36220]
+- Social: Add support for an SMS button. [#36176]
 
 ### Bug fixes
 - Sharing: avoid PHP warnings when using custom post types. [#36315]
 - Sharing: fix the display of the sharing block in some classic themes. [#36283]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Add site migration endpoint [#36253]
-- Compile typescript extensions in Jetpack [#35904]
-- Contact Form: add deprecation warnings to Contact Form module codebase [#36040]
-- Contact Form: refactor editor to use forms package [#36089]
-- Contact Form: refactor endpoints to use forms package [#36087]
+- Add metadata to the post to better diagnose need for Reader and Firehose. [#36254]
+- Add site migration endpoint. [#36253]
+- Compile TypeScript extensions in Jetpack. [#35904]
+- Contact Form: Add deprecation warnings to Contact Form module codebase. [#36040]
+- Contact Form: Refactor editor to use Forms package. [#36089]
+- Contact Form: Refactor endpoints to use Forms package. [#36087]
 - Editor: Update to the most recent version of the @automattic/calypso-color-schemes package. [#36227]
-- General: update to the most recent version of @automattic/calypso-color-schemes [#36187]
+- General: Update to the most recent version of @automattic/calypso-color-schemes. [#36187]
+- Login block: Link to subscription management page with site URL as search query.
+- Member login block: link to individual subscription management page. [#36200]
 - Newsletter settings: update section title to "subscriptions" [#36343]
-- Paywall: Use Subscriber Login block for the login link [#36308]
+- Paywall: Use Subscriber Login block for the login link. [#36308]
+- Pass API parameter to indicate when deleting a memberships product should cancel subscriptions. [#35735]
 - Pinterest Block: deprecate in favor of the Core Pinterest embed block. [#36075]
-- Refactor user_is_paid_subscriber to compare against tiers [#35587]
+- Refactor user_is_paid_subscriber to compare against tiers. [#35587]
 - Removed the feature flag for newsletter categories settings. [#36073]
 - RNMobile: Remove code associated with Story block for the mobile native version. [#36151]
-- Show Browse sites when wp-admin interface is selected and using nav unification [#36198]
-- Subscriber Login: Prevent the HTTP 301 redirection for Atomic sites [#36311]
-- Subscriber Login: Remove the premium content cookie specified for the blog on logging out [#35441]
-- Subscriptions: fix empty email for pending confirm paywall on .com [#36321]
+- Show Browse sites when wp-admin interface is selected and using nav unification. [#36198]
+- SSO: Updated user invitation logic if WooCommerce plugin is activated. [#36140]
+- Subscriber Login: Prevent the HTTP 301 redirection for Atomic sites. [#36311]
+- Subscriber Login: Remove the premium content cookie specified for the blog on logging out. [#35441]
+- Subscriptions: Fix empty email for pending confirm paywall on .com. [#36321]
 - Subscriptions: Track newsletter category creation. [#36326]
 - Subscriptions: update the settings screen URL. [#36323]
-- Subscription Site: Polishing Newsletter settings [#36218]
-- Subscription Site: Polishing the Subscribe block toggle [#36177]
-- Subscription Site: Update Subscribe block after the post nudge [#36107]
-- Update code references in docs and comments [#36234]
-- Updated package dependencies. [#36309]
-- Updated package dependencies. [#36325]
-- Update lockfiles [#36195]
+- Subscription Site: Polishing Newsletter settings. [#36218]
+- Subscription Site: Polishing the Subscribe block toggle. [#36177]
+- Subscription Site: Update Subscribe block after the post nudge. [#36107]
+- Update code references in docs and comments. [#36234]
+- Updated package dependencies. [#36309, #36325]
+- Update lockfiles. [#36195]
 - Use JS and CSS tooltips instead of HTML title. [#36222]
 - Voice to Content: Fix file upload file type selection for iOS devices, listing all the extensions allowed. [#36165]
 - Voice to Content: restrict block to internal P2 sites and open it to non-proxied connections. [#36163]
 - WooCommerce Anlytics: require package instead of using the classes that ship with the Jetpack plugin. [#35758]
-- WPCOM_JSON_API_Upload_Media_v1_1_Endpoint: Fix errors on invalid post data [#36291]
+- WPCOM_JSON_API_Upload_Media_v1_1_Endpoint: Fix errors on invalid post data. [#36291]
 
 ## 13.2.1 - 2024-03-12
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->

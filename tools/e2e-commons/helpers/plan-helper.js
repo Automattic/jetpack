@@ -171,7 +171,6 @@ function getPlanData(
 				'contact-form',
 				'custom-content-types',
 				'custom-css',
-				'enhanced-distribution',
 				'gravatar-hovercards',
 				'json-api',
 				'latex',

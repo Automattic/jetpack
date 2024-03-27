@@ -9,6 +9,8 @@ export type Notice = {
 			onClick: () => void;
 			noDefaultClasses?: boolean;
 		}[];
+		priority: number;
+		isRedBubble?: boolean;
 	};
 };
 
