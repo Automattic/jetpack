@@ -114,7 +114,7 @@ class Jetpack_Boost {
 
 		add_action( 'init', array( $this, 'init_textdomain' ) );
 
-		add_action( 'handle_environment_change', array( $this, 'handle_environment_change' ), 10, 2 );
+		add_action( 'jetpack_boost_critical_css_environment_changed', array( $this, 'handle_environment_change' ), 10, 2 );
 
 		add_filter( 'query_vars', array( self::class, 'whitelist_query_args' ) );
 
