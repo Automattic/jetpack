@@ -542,13 +542,14 @@ class Actions {
 				$error_log = array_slice( $error_log, -4, null, true );
 			}
 			// Add new error indexed to time.
-			if ( Settings::is_wpcom_rest_api_enabled() ) {
-				$error_log[ (string) microtime( true ) ] = $error;
-			} else {
+			if ( isset( $rpc ) && ! empty( $rpc->get_last_response() ) ) {
 				$error_with_last_response = clone $error;
 				$error_with_last_response->add_data( $rpc->get_last_response() );
 				$error_log[ (string) microtime( true ) ] = $error_with_last_response;
+			} else {
+				$error_log[ (string) microtime( true ) ] = $error;
 			}
+
 			// Update the error log.
 			update_option( self::ERROR_LOG_PREFIX . $queue_id, $error_log );
 			return $error;
@@ -562,7 +563,7 @@ class Actions {
 			);
 		}
 
-		if ( Settings::is_wpcom_rest_api_enabled() ) { // Return only processed items.
+		if ( isset( $response['processed_items'] ) ) { // Return only processed items.
 			$response = $response['processed_items'];
 		}
 
