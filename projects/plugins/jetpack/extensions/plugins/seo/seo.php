@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Extensions\Seo;
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
+		\Jetpack_Gutenberg::set_availability_for_plan( 'advanced-seo' );
 		\Jetpack_Gutenberg::set_extension_available( 'jetpack-seo' );
 	}
 );
