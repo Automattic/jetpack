@@ -226,12 +226,28 @@ class Jetpack_SSO {
 		}
 
 		if ( is_rtl() ) {
-			wp_enqueue_style( 'jetpack-sso-login', plugins_url( 'modules/sso/jetpack-sso-login-rtl.css', JETPACK__PLUGIN_FILE ), array( 'login', 'genericons' ), JETPACK__VERSION );
+			wp_enqueue_style(
+				'jetpack-sso-login',
+				plugins_url( 'modules/sso/jetpack-sso-login-rtl.css', JETPACK__PLUGIN_FILE ),
+				array( 'login', 'genericons' ),
+				JETPACK__VERSION
+			);
 		} else {
-			wp_enqueue_style( 'jetpack-sso-login', plugins_url( 'modules/sso/jetpack-sso-login.css', JETPACK__PLUGIN_FILE ), array( 'login', 'genericons' ), JETPACK__VERSION );
+			wp_enqueue_style(
+				'jetpack-sso-login',
+				plugins_url( 'modules/sso/jetpack-sso-login.css', JETPACK__PLUGIN_FILE ),
+				array( 'login', 'genericons' ),
+				JETPACK__VERSION
+			);
 		}
 
-		wp_enqueue_script( 'jetpack-sso-login', plugins_url( 'modules/sso/jetpack-sso-login.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION, false );
+		wp_enqueue_script(
+			'jetpack-sso-login',
+			plugins_url( 'modules/sso/jetpack-sso-login.js', JETPACK__PLUGIN_FILE ),
+			array(),
+			JETPACK__VERSION,
+			false
+		);
 	}
 
 	/**
