@@ -3042,7 +3042,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 				$attr .= " class=\"$class\"";
 			}
 			if ($this->fn_link_title != "") {
-				$title = $this->fn_link_title;
+				$title = trim( wp_strip_all_tags($this->footnotes[$node_id], true) );
 				$title = $this->encodeAttribute($title);
 				$attr .= " title=\"$title\"";
 			}
