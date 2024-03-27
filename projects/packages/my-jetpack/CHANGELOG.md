@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.19.0] - 2024-03-27
+### Added
+- Add red bubble to notices tied to red bubble notifications [#36543]
+- My Jetpack: add a version of WordPress' Notice component to My Jetpack considering the context of how we use notices on that screen [#36551]
+
+### Changed
+- Updated package dependencies. [#36539, #36585]
+
+### Fixed
+- Fixed Jetpack Creator going to the wrong screen when the free version is selected" [#36547]
+- Fixes some pricing showing twice by connecting sites that select a free option [#36533]
+
 ## [4.18.0] - 2024-03-25
 ### Added
 - Hook into red bubble notification when bad installation is detected [#36449]
@@ -1379,6 +1391,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.19.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.18.0...4.19.0
 [4.18.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.17.1...4.18.0
 [4.17.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.17.0...4.17.1
 [4.17.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.16.0...4.17.0

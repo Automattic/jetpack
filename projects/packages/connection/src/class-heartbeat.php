@@ -285,7 +285,7 @@ class Heartbeat {
 	 *
 	 * @param WP_REST_Request $request The request data.
 	 *
-	 * @since $$next-version$$
+	 * @since 2.7.0
 	 *
 	 * @return array
 	 */
