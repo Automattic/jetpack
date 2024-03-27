@@ -10,11 +10,10 @@
 return [
     // # Issue statistics:
     // PhanTypeExpectedObjectPropAccess : 4 occurrences
-    // PhanUndeclaredTypeParameter : 3 occurrences
-    // PhanUndeclaredTypeProperty : 3 occurrences
     // PhanTypeMismatchArgumentNullable : 2 occurrences
     // PhanTypeMismatchProperty : 2 occurrences
-    // PhanUndeclaredClassMethod : 2 occurrences
+    // PhanUndeclaredTypeParameter : 2 occurrences
+    // PhanUndeclaredTypeProperty : 2 occurrences
     // PhanRedefineFunction : 1 occurrence
     // PhanTypeMismatchPropertyDefault : 1 occurrence
     // PhanTypeMismatchPropertyProbablyReal : 1 occurrence
@@ -26,7 +25,7 @@ return [
         'src/class-jetpack-boost-modules.php' => ['PhanTypeMismatchPropertyDefault'],
         'src/class-speed-score-graph-history-request.php' => ['PhanTypeMismatchProperty', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty'],
         'src/class-speed-score-request.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyProbablyReal'],
-        'src/class-speed-score.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturnNullable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty'],
+        'src/class-speed-score.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturnNullable'],
         'tests/bootstrap.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturnProbablyReal'],
         'tests/php/lib/test-class-speed-score-history.php' => ['PhanTypeExpectedObjectPropAccess'],
     ],
