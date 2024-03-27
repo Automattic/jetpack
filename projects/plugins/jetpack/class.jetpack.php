@@ -8,7 +8,6 @@
  */
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Boost_Speed_Score\Jetpack_Boost_Modules;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
@@ -977,8 +976,7 @@ class Jetpack {
 		My_Jetpack_Initializer::init();
 
 		// Initialize Boost Speed Score
-		$modules = Jetpack_Boost_Modules::init();
-		new Speed_Score( $modules, 'jetpack-dashboard' );
+		new Speed_Score( array(), 'jetpack-dashboard' );
 
 		/**
 		 * Fires when Jetpack is fully loaded and ready. This is the point where it's safe
