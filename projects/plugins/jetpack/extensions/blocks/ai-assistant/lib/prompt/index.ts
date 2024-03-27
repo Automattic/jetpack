@@ -1,8 +1,4 @@
 /**
- * External dependencies
- */
-import debugFactory from 'debug';
-/**
  * Internal dependencies
  */
 import { ToneProp } from '../../components/tone-dropdown-control';
@@ -48,8 +44,6 @@ export type PromptItemProps = {
 	content?: string;
 	context?: object;
 };
-
-const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
 export const delimiter = '````';
 
@@ -146,10 +140,6 @@ type PromptOptionsProps = {
 	request?: string;
 };
 
-export function getDelimitedContent( content: string ): string {
-	return `${ delimiter }${ content.replaceAll( delimiter, '' ) }${ delimiter }`;
-}
-
 export function getJetpackFormCustomPrompt( {
 	content,
 	request,
@@ -170,78 +160,6 @@ export function getJetpackFormCustomPrompt( {
 		},
 	];
 }
-
-/*
- * Builds a prompt template based on context, rules and content.
- *
- * By default, the first item of the prompt arrays is `system` role,
- * which provides the context and rules to the user.
- *
- * The last item of the prompt arrays is `user` role,
- * which provides the user request.
- *
- * @param {object} options                     - The prompt options.
- * @param {string} options.context             - The expected context to the prompt, e.g. "You are...".
- * @param {Array<string>} options.rules        - The rules to follow.
- * @param {string} options.request             - The request to the AI assistant.
- * @param {string} options.relevantContent     - The relevant content to the request.
- * @param {boolean} options.isContentGenerated - Whether the content is generated or not.
- * @param {boolean} options.isGeneratingTitle  - Whether the title is being generated or not.
- *
- * @return {Array<PromptItemProps>}
- */
-export const buildPromptTemplate = ( {
-	rules = [],
-	request,
-	relevantContent,
-	isContentGenerated = false,
-	isGeneratingTitle = false,
-	useGutenbergSyntax = false,
-	customSystemPrompt,
-}: {
-	rules?: Array< string >;
-	request?: string;
-	relevantContent?: string;
-	isContentGenerated?: boolean;
-	isGeneratingTitle?: boolean;
-	useGutenbergSyntax?: boolean;
-	customSystemPrompt?: string;
-} ): Array< PromptItemProps > => {
-	if ( ! request && ! relevantContent ) {
-		throw new Error( 'You must provide either a request or content' );
-	}
-
-	// Add initial system prompt.
-	const messages = [ getInitialSystemPrompt( { rules, useGutenbergSyntax, customSystemPrompt } ) ];
-
-	if ( relevantContent != null && relevantContent?.length ) {
-		const sanitizedContent = relevantContent.replaceAll( delimiter, '' );
-
-		if ( ! isContentGenerated ) {
-			messages.push( {
-				role: 'user',
-				content: `The specific relevant content for this request, if necessary, delimited with ${ delimiter } characters: ${ delimiter }${ sanitizedContent }${ delimiter }`,
-			} );
-		}
-	}
-
-	const lastUserRequest: PromptItemProps = {
-		role: 'user',
-		content: request,
-	};
-
-	if ( isGeneratingTitle ) {
-		lastUserRequest.content += ' Only output a title, do not generate body content.';
-	}
-
-	messages.push( lastUserRequest );
-
-	messages.forEach( message => {
-		debug( `Role: ${ message?.role }.\nMessage: ${ message?.content }\n---` );
-	} );
-
-	return messages;
-};
 
 export type BuildPromptOptionsProps = {
 	contentType?: 'generated' | string;
