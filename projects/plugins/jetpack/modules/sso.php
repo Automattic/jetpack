@@ -29,6 +29,13 @@ require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-user-admin.php
  */
 class Jetpack_SSO {
 	/**
+	 * WordPress.com User information.
+	 *
+	 * @var false|object
+	 */
+	private $user_data;
+
+	/**
 	 * Jetpack_SSO instance.
 	 *
 	 * @var Jetpack_SSO
@@ -721,6 +728,8 @@ class Jetpack_SSO {
 
 	/**
 	 * Retrieves nonce used for SSO form.
+	 *
+	 * @return string|WP_Error
 	 */
 	public static function request_initial_nonce() {
 		$nonce = ! empty( $_COOKIE['jetpack_sso_nonce'] )
@@ -1068,7 +1077,7 @@ class Jetpack_SSO {
 	 * Build WordPress.com SSO URL with appropriate query parameters.
 	 *
 	 * @param array $args Optional query parameters.
-	 * @return string WordPress.com SSO URL
+	 * @return string|WP_Error WordPress.com SSO URL
 	 */
 	public function build_sso_url( $args = array() ) {
 		$sso_nonce = ! empty( $args['sso_nonce'] ) ? $args['sso_nonce'] : self::request_initial_nonce();
@@ -1081,8 +1090,8 @@ class Jetpack_SSO {
 
 		$args = wp_parse_args( $args, $defaults );
 
-		if ( is_wp_error( $args['sso_nonce'] ) ) {
-			return $args['sso_nonce'];
+		if ( is_wp_error( $sso_nonce ) ) {
+			return $sso_nonce;
 		}
 
 		return add_query_arg( $args, 'https://wordpress.com/wp-login.php' );
@@ -1094,7 +1103,7 @@ class Jetpack_SSO {
 	 * on WordPress.com.
 	 *
 	 * @param array $args Optional query parameters.
-	 * @return string WordPress.com SSO URL
+	 * @return string|WP_Error WordPress.com SSO URL
 	 */
 	public function build_reauth_and_sso_url( $args = array() ) {
 		$sso_nonce = ! empty( $args['sso_nonce'] ) ? $args['sso_nonce'] : self::request_initial_nonce();
