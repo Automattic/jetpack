@@ -66,7 +66,7 @@ class Jetpack_SSO {
 
 		add_filter( 'wp_login_errors', array( $this, 'sso_reminder_logout_wpcom' ) );
 
-		// Add styling changes for button within in the user table.
+		// Add styling changes for "Login as User" and "Login as Customer" buttons within in the user table.
 		add_action( 'admin_print_styles-users.php', array( $this, 'jetpack_sso_user_table_button_styles' ) );
 
 		/**
