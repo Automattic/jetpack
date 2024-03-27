@@ -102,6 +102,7 @@ function render_block( $attributes ) {
 	$redirect_url               = ! empty( $attributes['redirectToCurrent'] ) ? get_current_url() : get_site_url();
 	$log_in_label               = ! empty( $attributes['logInLabel'] ) ? sanitize_text_field( $attributes['logInLabel'] ) : esc_html__( 'Log in', 'jetpack' );
 	$log_out_label              = ! empty( $attributes['logOutLabel'] ) ? sanitize_text_field( $attributes['logOutLabel'] ) : esc_html__( 'Log out', 'jetpack' );
+	$show_manage_link           = ! empty( $attributes['showManageSubscriptionsLink'] );
 	$manage_subscriptions_label = ! empty( $attributes['manageSubscriptionsLabel'] ) ? sanitize_text_field( $attributes['manageSubscriptionsLabel'] ) : esc_html__( 'Manage subscription', 'jetpack' );
 
 	if ( ! is_subscriber_logged_in() ) {
@@ -113,7 +114,7 @@ function render_block( $attributes ) {
 		);
 	}
 
-	if ( Jetpack_Memberships::is_current_user_subscribed() ) {
+	if ( $show_manage_link && Jetpack_Memberships::is_current_user_subscribed() ) {
 		return sprintf(
 			$block_template,
 			get_block_wrapper_attributes(),
