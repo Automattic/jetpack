@@ -1099,7 +1099,6 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * @return bool Returns true if the user was successfully deleted, false otherwise.
 		 */
 		private static function delete_external_contributor( $user_id ) {
-			l( 'delete_external_contributor' );
 			$blog_id  = Manager::get_site_id( true );
 			$url      = '/sites/' . $blog_id . '/external-contributors/remove';
 			$response = Client::wpcom_json_api_request_as_user(
