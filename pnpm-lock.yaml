@@ -3282,7 +3282,7 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/licensing
       '@automattic/jetpack-my-jetpack':
-        specifier: workspace:4.19.1-alpha
+        specifier: workspace:4.20.0-alpha
         version: link:../../packages/my-jetpack
       '@automattic/jetpack-partner-coupon':
         specifier: workspace:*
