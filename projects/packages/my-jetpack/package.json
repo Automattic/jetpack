@@ -45,6 +45,9 @@
 		"prop-types": "15.8.1",
 		"react-router-dom": "6.6.2"
 	},
+	"exports": {
+		"./components/*": "./_inc/components/*"
+	},
 	"sideEffects": [
 		"*.css",
 		"*.scss"
