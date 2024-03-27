@@ -130,7 +130,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					return $response;
 				} else {
 					// Delete external contributor if it exists.
-					$wpcom_user_data = Jetpack::connection()->get_connected_user_data( $user_id );
+					$wpcom_user_data = ( new Manager() )->get_connected_user_data( $user_id );
 					if ( isset( $wpcom_user_data['ID'] ) ) {
 						return self::delete_external_contributor( $wpcom_user_data['ID'] );
 					}
@@ -232,7 +232,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					return self::create_error_notice_and_redirect( $query_params );
 				}
 
-				$blog_id   = Jetpack_Options::get_option( 'id' );
+				$blog_id   = Manager::get_site_id( true );
 				$roles     = new Roles();
 				$user_role = $roles->translate_user_to_role( $user );
 
@@ -320,7 +320,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * @param string $invite_id The ID of the invite to revoke.
 		 */
 		public function send_revoke_wpcom_invite( $invite_id ) {
-			$blog_id = Jetpack_Options::get_option( 'id' );
+			$blog_id = Manager::get_site_id( true );
 
 			$url = '/sites/' . $blog_id . '/invites/delete';
 			return Client::wpcom_json_api_request_as_user(
@@ -465,7 +465,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				return self::create_error_notice_and_redirect( $query_params );
 			} elseif ( isset( $_GET['invite_id'] ) ) {
 				$invite_slug = sanitize_text_field( wp_unslash( $_GET['invite_id'] ) );
-				$blog_id     = Jetpack_Options::get_option( 'id' );
+				$blog_id     = Manager::get_site_id( true );
 				$url         = '/sites/' . $blog_id . '/invites/resend';
 				$response    = Client::wpcom_json_api_request_as_user(
 					$url,
@@ -974,7 +974,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * @return void
 		 */
 		private static function rebuild_invite_cache() {
-			$blog_id = Jetpack_Options::get_option( 'id' );
+			$blog_id = Manager::get_site_id( true );
 
 			if ( self::$cached_invites === null && self::$user_search !== null ) {
 
@@ -1059,7 +1059,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * @return {false|string} returns the user invite code if the user is invited, false otherwise.
 		 */
 		private static function has_pending_wpcom_invite( $user_id ) {
-			$blog_id       = Jetpack_Options::get_option( 'id' );
+			$blog_id       = Manager::get_site_id( true );
 			$user          = get_user_by( 'id', $user_id );
 			$cached_invite = self::get_pending_cached_wpcom_invite( $user->user_email );
 
@@ -1099,7 +1099,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * @return bool Returns true if the user was successfully deleted, false otherwise.
 		 */
 		private static function delete_external_contributor( $user_id ) {
-			$blog_id  = Jetpack_Options::get_option( 'id' );
+			l( 'delete_external_contributor' );
+			$blog_id  = Manager::get_site_id( true );
 			$url      = '/sites/' . $blog_id . '/external-contributors/remove';
 			$response = Client::wpcom_json_api_request_as_user(
 				$url,
