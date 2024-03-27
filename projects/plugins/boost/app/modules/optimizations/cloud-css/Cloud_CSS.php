@@ -19,6 +19,18 @@ use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_Cloud_CSS;
 
 class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Page_Output, Optimization {
 
+	/** User has requested regeneration manually or through activating the module. */
+	const REGENERATE_REASON_USER_REQUEST = 'user_request';
+
+	/** A post was updated/created. */
+	const REGENERATE_REASON_SAVE_POST = 'save_post';
+
+	/** Existing critical CSS invalidated because of a significant change, e.g. Theme changed. */
+	const REGENERATE_REASON_INVALIDATED = 'invalidated';
+
+	/** Requesting a regeneration because the previous request had failed and this is a followup attempt to regenerate Critical CSS. */
+	const REGENERATE_REASON_FOLLOWUP = 'followup';
+
 	/**
 	 * Critical CSS storage class instance.
 	 *
@@ -43,7 +55,6 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 		add_action( 'save_post', array( $this, 'handle_save_post' ), 10, 2 );
 		add_action( 'jetpack_boost_critical_css_invalidated', array( $this, 'handle_critical_css_invalidated' ) );
 		add_filter( 'jetpack_boost_total_problem_count', array( $this, 'update_total_problem_count' ) );
-		add_filter( 'query_vars', array( '\Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator', 'add_generate_query_action_to_list' ) );
 
 		Generator::init();
 		Critical_CSS_Invalidator::init();
@@ -121,7 +132,7 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 	 * Initialize the Cloud CSS request. Provide $post parameter to limit generating to provider groups only associated
 	 * with a specific post.
 	 */
-	public function generate_cloud_css( $providers = array() ) {
+	public function generate_cloud_css( $reason, $providers = array() ) {
 		$grouped_urls = array();
 
 		foreach ( $providers as $source ) {
@@ -132,6 +143,7 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 		// Send the request to the Cloud.
 		$payload              = array( 'providers' => $grouped_urls );
 		$payload['requestId'] = md5( wp_json_encode( $payload ) . time() );
+		$payload['reason']    = $reason;
 		return Boost_API::post( 'cloud-css', $payload );
 	}
 
@@ -143,11 +155,11 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 			return;
 		}
 
-		$this->regenerate_cloud_css();
+		$this->regenerate_cloud_css( self::REGENERATE_REASON_SAVE_POST );
 	}
 
-	public function regenerate_cloud_css() {
-		$result = $this->generate_cloud_css( $this->get_existing_sources() );
+	public function regenerate_cloud_css( $reason ) {
+		$result = $this->generate_cloud_css( $reason, $this->get_existing_sources() );
 		if ( is_wp_error( $result ) ) {
 			$state = new Critical_CSS_State();
 			$state->set_error( $result->get_error_message() )->save();
@@ -159,7 +171,7 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 	 * Called when stored Critical CSS has been invalidated. Triggers a new Cloud CSS request.
 	 */
 	public function handle_critical_css_invalidated() {
-		$this->regenerate_cloud_css();
+		$this->regenerate_cloud_css( self::REGENERATE_REASON_INVALIDATED );
 		Cloud_CSS_Followup::schedule();
 	}
 

@@ -8,7 +8,6 @@
  */
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Boost_Speed_Score\Jetpack_Boost_Modules;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
@@ -977,8 +976,7 @@ class Jetpack {
 		My_Jetpack_Initializer::init();
 
 		// Initialize Boost Speed Score
-		$modules = Jetpack_Boost_Modules::init();
-		new Speed_Score( $modules, 'jetpack-dashboard' );
+		new Speed_Score( array(), 'jetpack-dashboard' );
 
 		/**
 		 * Fires when Jetpack is fully loaded and ready. This is the point where it's safe
@@ -6601,6 +6599,10 @@ endif;
 				$redirect_url = static::admin_url( 'page=jetpack' );
 			} elseif ( is_network_admin() ) {
 				$redirect_url = admin_url( 'network/admin.php?page=jetpack' );
+			} elseif ( get_transient( 'my_jetpack_product_activated' ) ) {
+				// don't redirect if this is an activation that just came from My Jetpack
+				// My Jetpack has its own set of post-activation redirects
+				return;
 			} elseif ( My_Jetpack_Initializer::should_initialize() ) {
 				$redirect_url = static::admin_url( 'page=my-jetpack' );
 			} else {

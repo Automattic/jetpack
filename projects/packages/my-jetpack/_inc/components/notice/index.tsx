@@ -6,13 +6,17 @@ import { Button, VisuallyHidden, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import classnames from 'classnames';
-import React, { useCallback } from 'react';
-/**
- * Internal dependencies
- */
+import { useCallback } from 'react';
 import type { NoticeAction, NoticeProps } from '@wordpress/components/src/notice/types';
+import type { ReactNode, Component } from 'react';
+
+import './styles.scss';
 
 type NoticeButtonAction = NoticeAction & { isLoading?: boolean; isDisabled?: boolean };
+
+type MyJetpackNoticeProps = NoticeProps & {
+	isRedBubble: boolean;
+};
 
 const noop = () => {};
 
@@ -43,13 +47,14 @@ function getStatusLabel( status: NoticeProps[ 'status' ] ): string {
  * @param {object} props                   - The properties.
  * @param {string} props.className         - The class name.
  * @param {string} props.status            - The message status: 'warning' | 'success' | 'error' | 'info'.
- * @param {React.ReactNode} props.children - Children element
+ * @param {ReactNode} props.children - Children element
  * @param {Function} props.onRemove        - The function to call when the notice is removed.
  * @param {boolean} props.isDismissible    - Whether the notice can be dismissed.
+ * @param {boolean} props.isRedBubble      - Whether the notice is tied to the red bubble notification.
  * @param {Array} props.actions            - An array of actions (buttons) to display in the notice.
  * @param {Function} props.onDismiss       - The function to call when the notice is dismissed.
  *
- * @returns {React.Component} The `Notice` component.
+ * @returns {Component} The `Notice` component.
  */
 function Notice( {
 	className,
@@ -57,14 +62,16 @@ function Notice( {
 	children,
 	onRemove = noop,
 	isDismissible = true,
+	isRedBubble = false,
 	actions = [],
 	// onDismiss is a callback executed when the notice is dismissed.
 	// It is distinct from onRemove, which _looks_ like a callback but is
 	// actually the function to call to remove the notice from the UI.
 	onDismiss = noop,
-}: NoticeProps ): JSX.Element {
+}: MyJetpackNoticeProps ) {
 	const classes = classnames( className, 'components-notice', 'is-' + status, {
 		'is-dismissible': isDismissible,
+		'is-red-bubble': isRedBubble,
 	} );
 
 	const onDismissNotice = useCallback( () => {

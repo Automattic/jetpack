@@ -40,7 +40,6 @@ return [
     // PhanCommentObjectInClassConstantType : 1 occurrence
     // PhanCommentParamOutOfOrder : 1 occurrence
     // PhanCommentParamWithoutRealParam : 1 occurrence
-    // PhanCommentVarInsteadOfParam : 1 occurrence
     // PhanImpossibleTypeComparison : 1 occurrence
     // PhanImpossibleTypeComparisonInGlobalScope : 1 occurrence
     // PhanPluginNeverReturnFunction : 1 occurrence
@@ -58,11 +57,10 @@ return [
     // PhanUndeclaredConstantOfClass : 1 occurrence
     // PhanUndeclaredMethod : 1 occurrence
     // PhanUndeclaredTypeProperty : 1 occurrence
-    // PhanUnextractableAnnotation : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'app/admin/class-admin.php' => ['PhanNoopNew', 'PhanTypeMismatchArgument'],
+        'app/admin/class-admin.php' => ['PhanNoopNew'],
         'app/admin/class-config.php' => ['PhanTypeMismatchArgument'],
         'app/data-sync/Minify_Excludes_State_Entry.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'app/data-sync/Performance_History_Entry.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument'],
@@ -75,7 +73,6 @@ return [
         'app/lib/class-minify.php' => ['PhanTypeMismatchPropertyProbablyReal', 'PhanUndeclaredMethod'],
         'app/lib/class-viewport.php' => ['PhanTypeMismatchArgument'],
         'app/lib/critical-css/Critical_CSS_State.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchReturn', 'PhanUndeclaredTypeReturnType'],
-        'app/lib/critical-css/Generator.php' => ['PhanCommentVarInsteadOfParam', 'PhanUnextractableAnnotation'],
         'app/lib/critical-css/Regenerate.php' => ['PhanParamTooMany'],
         'app/lib/critical-css/source-providers/Source_Providers.php' => ['PhanCommentParamOnEmptyParamList'],
         'app/lib/critical-css/source-providers/providers/Archive_Provider.php' => ['PhanTypeMismatchReturnProbablyReal'],
