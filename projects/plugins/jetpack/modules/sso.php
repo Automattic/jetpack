@@ -1282,11 +1282,13 @@ class Jetpack_SSO {
 
 	/**
 	 * Add styling fix for buttons within the user table.
+	 * Targets the "Login as User" and "Login as Customer" plugin buttons.
 	 **/
 	public function jetpack_sso_user_table_button_styles() {
 		?>
 			<style>
-				.wp-list-table.users .button {
+				.wp-list-table.users .loginasuser_col .button,
+				.wp-list-table.users .login_as_customer .button {
 					max-width: 100%;
 					text-wrap: wrap;
 				}
