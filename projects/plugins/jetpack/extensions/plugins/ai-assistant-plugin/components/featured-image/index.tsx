@@ -66,7 +66,7 @@ export default function FeaturedImage() {
 							/>
 							<div className="ai-assistant-featured-image__actions">
 								<Button onClick={ toggleFeaturedImageModal } variant="secondary">
-									{ __( 'Use this image', 'jetpack' ) }
+									{ __( 'Accept image', 'jetpack' ) }
 								</Button>
 								<Button onClick={ fakeGeneration } variant="secondary">
 									{ __( 'Generate another image', 'jetpack' ) }
