@@ -66,6 +66,9 @@ class Jetpack_SSO {
 
 		add_filter( 'wp_login_errors', array( $this, 'sso_reminder_logout_wpcom' ) );
 
+		// Add styling changes for button within in the user table.
+		add_action( 'admin_print_styles-users.php', array( $this, 'jetpack_sso_user_table_button_styles' ) );
+
 		/**
 		 * Filter to include Force 2FA feature.
 		 *
@@ -1275,6 +1278,20 @@ class Jetpack_SSO {
 	 **/
 	public function get_user_data( $user_id ) {
 		return get_user_meta( $user_id, 'wpcom_user_data', true );
+	}
+
+	/**
+	 * Add styling fix for buttons within the user table.
+	 **/
+	public function jetpack_sso_user_table_button_styles() {
+		?>
+			<style>
+				.wp-list-table.users .button {
+					max-width: 100%;
+					text-wrap: wrap;
+				}
+			</style>
+		<?php
 	}
 }
 
