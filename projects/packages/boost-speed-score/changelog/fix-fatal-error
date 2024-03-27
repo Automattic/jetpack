@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Updated Jetpack_Boost_Modules placeholder class to match Boost interface
