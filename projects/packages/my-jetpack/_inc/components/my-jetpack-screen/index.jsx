@@ -127,7 +127,7 @@ export default function MyJetpackScreen() {
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_page_view', {
-			red_bubble_alerts: Object.keys( redBubbleAlerts ),
+			red_bubble_alerts: Object.keys( redBubbleAlerts ).join( ',' ),
 		} );
 	}, [ recordEvent, redBubbleAlerts ] );
 
