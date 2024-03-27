@@ -23,7 +23,7 @@ export default function FeaturedImage() {
 	const [ generating, setGenerating ] = useState( false );
 	const [ imageURL, setImageURL ] = useState( null );
 	const { generateImage } = useImageGenerator();
-	const { saveToMediaLibrary } = useSaveToMediaLibrary();
+	const { isLoading: isSavingToMediaLibrary, saveToMediaLibrary } = useSaveToMediaLibrary();
 
 	const postContent = usePostContent();
 
@@ -32,10 +32,14 @@ export default function FeaturedImage() {
 	 */
 	const processImageGeneration = useCallback( () => {
 		setGenerating( true );
-		generateImage( { feature: FEATURED_IMAGE_FEATURE_NAME, postContent } )
+		generateImage( {
+			feature: FEATURED_IMAGE_FEATURE_NAME,
+			postContent,
+			responseFormat: 'b64_json',
+		} )
 			.then( result => {
 				if ( result.data.length > 0 ) {
-					const image = result.data[ 0 ].url;
+					const image = 'data:image/png;base64,' + result.data[ 0 ].b64_json;
 					setImageURL( image );
 				}
 			} )
@@ -100,10 +104,19 @@ export default function FeaturedImage() {
 						<div className="ai-assistant-featured-image__content">
 							<img className="ai-assistant-featured-image__image" src={ imageURL } alt="" />
 							<div className="ai-assistant-featured-image__actions">
-								<Button onClick={ handleAccept } variant="secondary">
+								<Button
+									onClick={ handleAccept }
+									variant="secondary"
+									isBusy={ isSavingToMediaLibrary }
+									disabled={ isSavingToMediaLibrary }
+								>
 									{ __( 'Save and use image', 'jetpack' ) }
 								</Button>
-								<Button onClick={ handleRegenerate } variant="secondary">
+								<Button
+									onClick={ handleRegenerate }
+									variant="secondary"
+									disabled={ isSavingToMediaLibrary }
+								>
 									{ __( 'Generate another image', 'jetpack' ) }
 								</Button>
 							</div>
