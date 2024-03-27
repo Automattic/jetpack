@@ -83,7 +83,10 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_item( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		require_once JETPACK__PLUGIN_DIR . '/modules/masterbar/admin-menu/load.php';
+		/** This filter is documented in modules/masterbar.php */
+		if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
+			require_once JETPACK__PLUGIN_DIR . '/modules/masterbar/admin-menu/load.php';
+		}
 
 		// All globals need to be declared for menu items to properly register.
 		global $admin_page_hooks, $menu, $menu_order, $submenu, $_wp_menu_nopriv, $_wp_submenu_nopriv; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
