@@ -46,6 +46,15 @@ class Speed_Score {
 	 * @param string   $client  - A string representing the client making the request.
 	 */
 	public function __construct( $modules, $client ) {
+		/*
+		 * Plugins using the old version of the package may pass an object instead of an array.
+		 * Keeping it backward compatible by converting the object to an array.
+		 * We will loose the module slugs in case of an object, but it is better than a fatal error.
+		 */
+		if ( ! is_array( $modules ) ) {
+			$modules = array();
+		}
+
 		$this->modules = $modules;
 		$this->client  = $client;
 
