@@ -60,6 +60,9 @@ export default function FeaturedImage() {
 		toggleFeaturedImageModal();
 	}, [ toggleFeaturedImageModal ] );
 
+	const modalTitleWhenGenerating = __( 'Generating featured image…', 'jetpack' );
+	const modalTitleWhenDone = __( 'Featured Image Generation', 'jetpack' );
+
 	return (
 		<div>
 			<p>
@@ -72,7 +75,10 @@ export default function FeaturedImage() {
 				{ __( 'Generate image', 'jetpack' ) }
 			</Button>
 			{ isFeaturedImageModalVisible && (
-				<AiAssistantModal handleClose={ toggleFeaturedImageModal }>
+				<AiAssistantModal
+					handleClose={ toggleFeaturedImageModal }
+					title={ generating ? modalTitleWhenGenerating : modalTitleWhenDone }
+				>
 					{ generating ? (
 						<div className="ai-assistant-featured-image__loading">
 							<Spinner
