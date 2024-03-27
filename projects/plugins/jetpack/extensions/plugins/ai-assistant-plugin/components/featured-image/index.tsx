@@ -2,38 +2,17 @@
  * External dependencies
  */
 import { useImageGenerator } from '@automattic/jetpack-ai-client';
-import { serialize } from '@wordpress/blocks';
 import { Button, Spinner } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import TurndownService from 'turndown';
 /**
  * Internal dependencies
  */
 import './style.scss';
+import usePostContent from '../../hooks/use-post-content';
 import AiAssistantModal from '../modal';
-/**
- * Types
- */
-import type * as BlockEditorSelectors from '@wordpress/block-editor/store/selectors';
 
 const FEATURED_IMAGE_FEATURE_NAME = 'featured-post-image';
-
-// Turndown instance
-const turndownService = new TurndownService();
-
-/*
- * Simple helper to get the post content as markdown
- */
-const usePostContent = () => {
-	const blocks = useSelect(
-		select => ( select( 'core/block-editor' ) as typeof BlockEditorSelectors ).getBlocks(),
-		[]
-	);
-
-	return blocks?.length ? turndownService.turndown( serialize( blocks ) ) : '';
-};
 
 export default function FeaturedImage() {
 	const [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] = useState( false );
