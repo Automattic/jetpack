@@ -1,0 +1,6 @@
+// Monorepo pseudo-projects. These are things that have their own composer.json but aren't actual projects.
+{
+	"monorepo/actions-tool-setup-composer-plugin": ".github/actions/tool-setup/composer-plugin/",
+	"monorepo/cli-doc-parser": "tools/cli/helpers/doc-parser/",
+	"monorepo/e2e-commons": "tools/e2e-commons/"
+}

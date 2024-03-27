@@ -28,6 +28,8 @@ class Note {
 		if ( ! self::enabled() ) {
 			return;
 		}
+		add_filter( 'allowed_block_types', array( $this, 'restrict_blocks_for_social_note' ), 10, 2 );
+
 		self::register_cpt();
 		add_action( 'wp_insert_post_data', array( $this, 'set_empty_title' ), 10, 2 );
 		add_action( 'admin_init', array( $this, 'admin_init_actions' ) );
@@ -84,8 +86,8 @@ class Note {
 	 */
 	public function register_cpt() {
 		$args = array(
-			'public'        => true,
-			'labels'        => array(
+			'public'       => true,
+			'labels'       => array(
 				'name'                  => esc_html__( 'Social Notes', 'jetpack-social' ),
 				'singular_name'         => esc_html__( 'Social Note', 'jetpack-social' ),
 				'menu_name'             => esc_html__( 'Social Notes', 'jetpack-social' ),
@@ -107,12 +109,12 @@ class Note {
 				'items_list_navigation' => esc_html__( 'Notes list navigation', 'jetpack-social' ),
 				'items_list'            => esc_html__( 'Notes list', 'jetpack-social' ),
 			),
-			'show_in_rest'  => true,
-			'has_archive'   => true,
-			'supports'      => array( 'editor', 'comments', 'thumbnail', 'publicize', 'enhanced_post_list', 'activitypub' ),
-			'menu_icon'     => 'dashicons-welcome-write-blog',
-			'rewrite'       => array( 'slug' => 'sn' ),
-			'template'      => array(
+			'show_in_rest' => true,
+			'has_archive'  => true,
+			'supports'     => array( 'editor', 'comments', 'thumbnail', 'publicize', 'enhanced_post_list', 'activitypub' ),
+			'menu_icon'    => 'dashicons-welcome-write-blog',
+			'rewrite'      => array( 'slug' => 'sn' ),
+			'template'     => array(
 				array(
 					'core/paragraph',
 					array(
@@ -120,10 +122,27 @@ class Note {
 					),
 				),
 			),
-			'template_lock' => 'all',
 		);
 		register_post_type( self::JETPACK_SOCIAL_NOTE_CPT, $args );
 		self::maybe_flush_rewrite_rules();
+	}
+
+	/**
+	 * Restrict the blocks for the Social Note CPT.
+	 *
+	 * @param array    $allowed_blocks The allowed blocks.
+	 * @param \WP_Post $post The post.
+	 * @return array The allowed blocks.
+	 */
+	public function restrict_blocks_for_social_note( $allowed_blocks, $post ) {
+		if ( 'jetpack-social-note' === $post->post_type ) {
+			// Only allow paragraph block
+			$allowed_blocks = array(
+				'core/paragraph',
+			);
+		}
+
+		return $allowed_blocks;
 	}
 
 	/**

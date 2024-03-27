@@ -278,7 +278,12 @@ class Verbum_Comments {
 	 * @param  array $args - The default comment form arguments.
 	 */
 	public function comment_form_defaults( $args ) {
-		$title_reply = get_option( 'highlander_comment_form_prompt', __( 'Leave a comment', 'jetpack-mu-wpcom' ) );
+		$title_reply_default = __( 'Leave a comment', 'jetpack-mu-wpcom' );
+		$title_reply         = get_option( 'highlander_comment_form_prompt', $title_reply_default );
+
+		if ( $title_reply === 'Leave a comment' || empty( $title_reply ) ) {
+			$title_reply = $title_reply_default;
+		}
 
 		return array_merge(
 			$args,
