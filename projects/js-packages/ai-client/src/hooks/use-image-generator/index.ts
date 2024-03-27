@@ -51,6 +51,7 @@ This is the post content:
 				prompt: imageGenerationPrompt,
 				response_format: 'url',
 				feature,
+				size: '1792x1024',
 			};
 
 			const headers = {
