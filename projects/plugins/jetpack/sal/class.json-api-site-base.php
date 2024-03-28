@@ -1445,15 +1445,6 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * The site options for DIFM lite in the design picker step
-	 *
-	 * @return string
-	 */
-	public function get_difm_lite_site_options() {
-		return get_option( 'difm_lite_site_options' );
-	}
-
-	/**
 	 * Get the option of site intent which value is coming from the Hero Flow
 	 *
 	 * @return string
