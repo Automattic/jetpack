@@ -30,7 +30,7 @@ const shouldSendAuthRequest = computed( () => {
 		! userLoggedIn.value &&
 		shouldCheckAuth.value &&
 		canAccessCookies.value &&
-		( document.location.origin.includes( '.wordpress.com' ) || isPublicAPIReady.value )
+		( document.location.hostname.endsWith( '.wordpress.com' ) || isPublicAPIReady.value )
 	);
 } );
 
