@@ -1,8 +1,9 @@
+import { computed, signal } from '@preact/signals';
 import { useState, useEffect } from 'preact/hooks';
 import wpcomRequest from 'wpcom-proxy-request';
-import { userInfo } from '../state';
+import { userInfo, canAccessCookies, userLoggedIn, isPublicAPIReady } from '../state';
 import { UserInfo } from '../types';
-import { serviceData, setUserInfoCookie } from '../utils';
+import { canWeAccessCookies, serviceData, setUserInfoCookie } from '../utils';
 
 export const addIframe = ( src: string ) => {
 	const iframe = document.createElement( 'iframe' );
@@ -23,6 +24,16 @@ const addWordPressDomain = window.location.hostname.endsWith( '.wordpress.com' )
 	? ' Domain=.wordpress.com'
 	: '';
 
+const shouldCheckAuth = signal( true );
+const shouldSendAuthRequest = computed( () => {
+	return (
+		! userLoggedIn.value &&
+		shouldCheckAuth.value &&
+		canAccessCookies.value &&
+		( document.location.origin.includes( '.wordpress.com' ) || isPublicAPIReady.value )
+	);
+} );
+
 /**
  * Hook to retrieve user info from server, handle social login, and logout functionality.
  *
@@ -32,15 +43,29 @@ export default function useSocialLogin() {
 	const [ loginWindowRef, setLoginWindowRef ] = useState< Window >();
 
 	useEffect( () => {
-		wpcomRequest< UserInfo >( {
-			path: '/verbum/auth',
-			apiNamespace: 'wpcom/v2',
-		} ).then( res => {
-			userInfo.value = res;
+		if ( ! ( 'hasStorageAccess' in document ) ) {
+			canAccessCookies.value = canWeAccessCookies();
+		}
+
+		document.hasStorageAccess().then( hasAccess => {
+			canAccessCookies.value = hasAccess;
 		} );
 	}, [] );
 
-	if ( VerbumComments.isJetpackCommentsLoggedIn ) {
+	useEffect( () => {
+		if ( shouldSendAuthRequest.value ) {
+			shouldCheckAuth.value = false;
+			wpcomRequest< UserInfo >( {
+				path: '/verbum/auth',
+				apiNamespace: 'wpcom/v2',
+			} ).then( res => {
+				userInfo.value = res;
+			} );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ shouldSendAuthRequest.value ] );
+
+	if ( VerbumComments?.isJetpackCommentsLoggedIn ) {
 		userInfo.value = {
 			avatar: VerbumComments.jetpackAvatar,
 			name: VerbumComments.jetpackUsername,

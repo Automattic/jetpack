@@ -22,6 +22,8 @@ import {
 	commentUrl,
 	commentParent,
 	subscribeModalStatus,
+	canAccessCookies,
+	isPublicAPIReady,
 } from './state';
 import {
 	classNames,
@@ -45,6 +47,10 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 	const { login, loginWindowRef, logout } = useSocialLogin();
 	useFormMutations();
 
+	const requestPermissionFromIframe =
+		! VerbumComments.isJetpackComments && ! isPublicAPIReady.value;
+	const requestPermissionOnFormClick = VerbumComments.isJetpackComments && ! isPublicAPIReady.value;
+
 	const dispose = effect( () => {
 		// The tray, when there is no sub options, is pretty minimal.
 		// It's also needed to log out. Without this, the user will have to type to reveal the tray and they won't guess they need to type to logout.
@@ -62,8 +68,10 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 		formRef.current = document.getElementById( 'commentform' ) as HTMLFormElement | null;
 
 		if ( formRef.current ) {
+			formRef.current.addEventListener( 'click', handleCommentFormClick );
 			formRef.current.addEventListener( 'submit', handleCommentSubmit );
 			return () => {
+				formRef.current.removeEventListener( 'click', handleCommentFormClick );
 				formRef.current.removeEventListener( 'submit', handleCommentSubmit );
 			};
 		}
@@ -159,6 +167,20 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 		submitFormFunction.call( formRef.current );
 	};
 
+	const handleCommentFormClick = async () => {
+		if ( ! requestPermissionOnFormClick ) {
+			return;
+		}
+
+		if ( ! document.hasStorageAccess ) {
+			canAccessCookies.value = canWeAccessCookies();
+		}
+
+		document.requestStorageAccess().then( () => {
+			canAccessCookies.value = true;
+		} );
+	};
+
 	const handleCommentSubmit = async event => {
 		window.removeEventListener( 'beforeunload', handleBeforeUnload );
 		if ( userInfo.value?.service === 'guest' ) {
@@ -217,6 +239,13 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 
 	return (
 		<>
+			{ requestPermissionFromIframe && (
+				<iframe
+					title="placeholder"
+					className="placeholder-frame"
+					src={ `https://public-api.wordpress.com/wp-admin/rest-proxy/?v=2.0#${ VerbumComments.homeURL }` }
+				></iframe>
+			) }
 			<CommentInputField ref={ commentTextarea } handleOnKeyUp={ showTrayIfNewUser } />
 			<div
 				className={ classNames( 'comment-form__subscription-options', {
@@ -226,11 +255,7 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 				{ userLoggedIn.value ? (
 					<LoggedIn siteId={ siteId } toggleTray={ handleTrayToggle } logout={ logout } />
 				) : (
-					<LoggedOut
-						login={ login }
-						canWeAccessCookies={ canWeAccessCookies() }
-						loginWindow={ loginWindowRef }
-					/>
+					<LoggedOut login={ login } loginWindow={ loginWindowRef } />
 				) }
 			</div>
 			<CommentFooter toggleTray={ handleTrayToggle } />
@@ -245,5 +270,11 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 const { siteId } = {
 	...VerbumComments,
 };
+
+window.addEventListener( 'message', event => {
+	if ( event.origin === 'https://public-api.wordpress.com' && event.data === 'ready' ) {
+		isPublicAPIReady.value = true;
+	}
+} );
 
 render( <Verbum siteId={ siteId } />, document.getElementById( 'comment-form__verbum' ) );

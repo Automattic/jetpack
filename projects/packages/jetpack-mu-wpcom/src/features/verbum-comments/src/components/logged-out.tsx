@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'preact/hooks';
 import { translate } from '../i18n';
-import { commentParent } from '../state';
+import { canAccessCookies, commentParent } from '../state';
 import { classNames, serviceData } from '../utils';
 import { EmailForm } from './EmailForm';
 
 const { mustLogIn, requireNameEmail, commentRegistration } = VerbumComments;
 interface LoggedOutProps {
 	login: ( service: string ) => void;
-	canWeAccessCookies: boolean;
 	loginWindow: Window | null;
 }
 
@@ -37,7 +36,7 @@ const getLoginCommentText = () => {
 	return <span>{ defaultText }</span>;
 };
 
-export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOutProps ) => {
+export const LoggedOut = ( { login, loginWindow }: LoggedOutProps ) => {
 	const [ activeService, setActiveService ] = useState( '' );
 	const closeLoginPopupService = requireNameEmail && ! mustLogIn ? 'mail' : '';
 
@@ -83,7 +82,7 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 		<div className="verbum-subscriptions logged-out">
 			<div className="verbum-subscriptions__wrapper">
 				<div className="verbum-subscriptions__login">
-					{ canWeAccessCookies && (
+					{ canAccessCookies.value && (
 						<>
 							<div className="verbum-subscriptions__login-header">{ getLoginCommentText() }</div>
 							<div
@@ -139,7 +138,7 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 							</div>
 						</>
 					) }
-					<EmailForm shouldShowEmailForm={ activeService === 'mail' || ! canWeAccessCookies } />
+					<EmailForm shouldShowEmailForm={ activeService === 'mail' || ! canAccessCookies.value } />
 				</div>
 			</div>
 		</div>
