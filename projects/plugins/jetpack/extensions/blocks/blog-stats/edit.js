@@ -2,9 +2,10 @@ import { numberFormat } from '@automattic/jetpack-components';
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { InspectorControls, RichText } from '@wordpress/block-editor';
+import { Animate } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
-import { __, _n } from '@wordpress/i18n';
+import { _n } from '@wordpress/i18n';
 import { BlogStatsInspectorControls } from './controls';
 import { InactiveStatsPlaceholder } from './inactive-placeholder';
 
@@ -70,20 +71,30 @@ function BlogStatsEdit( { attributes, className, setAttributes } ) {
 			</InspectorControls>
 
 			<div className={ className }>
-				{ isLoadingModules || blogViews === null ? (
-					<p className="jetpack-blog-stats__loading">{ __( 'Loading stats…', 'jetpack' ) }</p>
-				) : (
-					<p>
-						<span>{ numberFormat( stats ) } </span>
-						<RichText
-							tagName="span"
-							placeholder={ statsData === 'visitors' ? visitorsPlaceholder : viewsPlaceholder }
-							value={ label }
-							allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
-							onChange={ newLabel => setAttributes( { label: newLabel } ) }
-						/>
-					</p>
-				) }
+				<p>
+					{ isLoadingModules || blogViews === null ? (
+						<Animate type="loading">
+							{ ( { className: animateClassName } ) => (
+								<span
+									aria-busy="true"
+									aria-live="polite"
+									className={ `jetpack-blog-stats__loading ${ animateClassName }` }
+								>
+									0
+								</span>
+							) }
+						</Animate>
+					) : (
+						<span>{ numberFormat( stats ) }</span>
+					) }{ ' ' }
+					<RichText
+						tagName="span"
+						placeholder={ statsData === 'visitors' ? visitorsPlaceholder : viewsPlaceholder }
+						value={ label }
+						allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
+						onChange={ newLabel => setAttributes( { label: newLabel } ) }
+					/>
+				</p>
 			</div>
 		</>
 	);
