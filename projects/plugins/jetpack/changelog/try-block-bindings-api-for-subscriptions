@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Jetpack subscriptions: add block binding data source for subscriber count.
