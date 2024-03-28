@@ -35,7 +35,7 @@ const SUBJECT_DEFAULT = null;
  */
 export function buildInitialMessageForBackendPrompt(
 	promptType: PromptTypeProp,
-	customSystemPrompt: string
+	customSystemPrompt?: string
 ): PromptItemProps {
 	// The basic template for the message.
 	return {
@@ -57,9 +57,9 @@ export function buildInitialMessageForBackendPrompt(
  */
 export function buildRelevantContentMessageForBackendPrompt(
 	isContentGenerated?: boolean,
-	relevantContent?: string
-): PromptItemProps {
-	if ( ! isContentGenerated && relevantContent?.length > 0 ) {
+	relevantContent?: string | null
+): PromptItemProps | null {
+	if ( ! isContentGenerated && relevantContent && relevantContent.length > 0 ) {
 		return {
 			role: 'jetpack-ai',
 			context: {
@@ -89,10 +89,10 @@ export function buildMessagesForBackendPrompt( {
 	userPrompt,
 	isGeneratingTitle,
 }: BuildPromptProps ): Array< PromptItemProps > {
-	const messages = [];
+	const messages: PromptItemProps[] = [];
 
 	const isContentGenerated = options?.contentType === 'generated';
-	let relevantContent: string | null = null;
+	let relevantContent: string | null | undefined = null;
 
 	switch ( type ) {
 		case PROMPT_TYPE_SUMMARY_BY_TITLE:
@@ -156,10 +156,10 @@ export function buildMessagesForBackendPrompt( {
  * @returns {string} The subject.
  */
 function getSubject(
-	isGeneratingTitle: boolean,
-	isContentGenerated: boolean,
-	isFromExtension: boolean
-): string {
+	isGeneratingTitle?: boolean,
+	isContentGenerated?: boolean,
+	isFromExtension?: boolean
+): string | null {
 	if ( isGeneratingTitle ) {
 		return SUBJECT_TITLE;
 	}

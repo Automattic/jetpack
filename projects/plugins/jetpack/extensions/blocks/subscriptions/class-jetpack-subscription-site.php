@@ -124,7 +124,7 @@ class Jetpack_Subscription_Site {
 	<hr class="wp-block-separator has-alpha-channel-opacity is-style-wide" style="margin-bottom:24px"/>
 	<!-- /wp:separator -->
 
-	<!-- wp:heading {"textAlign":"center","style":{"layout":{"selfStretch":"fit","flexSize":null},"spacing":{"margin":{"top":"4px","bottom":"10px"}}}} -->
+	<!-- wp:heading {"textAlign":"center","level":3,"style":{"layout":{"selfStretch":"fit","flexSize":null},"spacing":{"margin":{"top":"4px","bottom":"10px"}}}} -->
 	<h3 class="wp-block-heading has-text-align-center" style="margin-top:4px;margin-bottom:10px">$discover_more_from_text</h3>
 	<!-- /wp:heading -->
 
@@ -201,7 +201,7 @@ HTML
 	<hr class="wp-block-separator has-alpha-channel-opacity is-style-wide" style="margin-bottom:36px"/>
 	<!-- /wp:separator -->
 
-	<!-- wp:heading {"textAlign":"center","style":{"layout":{"selfStretch":"fit","flexSize":null},"spacing":{"margin":{"top":"4px","bottom":"10px"}}}} -->
+	<!-- wp:heading {"textAlign":"center","level":3,"style":{"layout":{"selfStretch":"fit","flexSize":null},"spacing":{"margin":{"top":"4px","bottom":"10px"}}}} -->
 	<h3 class="wp-block-heading has-text-align-center" style="margin-top:4px;margin-bottom:10px">$discover_more_from_text</h3>
 	<!-- /wp:heading -->
 
