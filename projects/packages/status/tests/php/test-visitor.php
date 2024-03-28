@@ -208,4 +208,17 @@ class Test_Visitor extends TestCase {
 			),
 		);
 	}
+
+	/**
+	 * Tests is_automattician_feature_flags_only method.
+	 */
+	public function test_is_automattician_feature_flags_only() {
+		$is_a11n = $this->visitor_obj->is_automattician_feature_flags_only();
+		$this->assertFalse( $is_a11n );
+
+		define( 'AT_PROXIED_REQUEST', true );
+
+		$is_a11n = $this->visitor_obj->is_automattician_feature_flags_only();
+		$this->assertTrue( $is_a11n );
+	}
 }

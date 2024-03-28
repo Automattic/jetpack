@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added is_automattician_feature_flags_only on Jetpack sites as an alternative to is_automattician present on simple sites.
