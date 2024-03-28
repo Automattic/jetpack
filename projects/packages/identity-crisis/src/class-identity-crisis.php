@@ -24,11 +24,6 @@ use WP_Error;
 class Identity_Crisis {
 
 	/**
-	 * Package Version
-	 */
-	const PACKAGE_VERSION = '0.18.0-alpha';
-
-	/**
 	 * Persistent WPCOM blog ID that stays in the options after disconnect.
 	 */
 	const PERSISTENT_BLOG_ID_OPTION_NAME = 'jetpack_persistent_blog_id';
