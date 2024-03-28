@@ -479,7 +479,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "225a1d0ce4cc3b7874c35ade6db5ad80ee869337"
+                "reference": "abd4079c124a2d3560838cf5370043763e81cccd"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -503,7 +503,7 @@
                 "mirror-repo": "Automattic/jetpack-identity-crisis",
                 "textdomain": "jetpack-idc",
                 "version-constants": {
-                    "::PACKAGE_VERSION": "src/class-package-version.php"
+                    "::PACKAGE_VERSION": "src/class-identity-crisis.php"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"

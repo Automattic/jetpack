@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\IdentityCrisis\Package_Version;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -17,11 +16,11 @@ class Test_Package_Version extends TestCase {
 	 * Package_Version_Tracker.
 	 */
 	public function test_send_package_version_to_tracker_empty_array() {
-		$expected = array(
-			Package_Version::PACKAGE_SLUG => Package_Version::PACKAGE_VERSION,
-		);
-
 		Identity_Crisis::init();
+
+		$expected = array(
+			Identity_Crisis::PACKAGE_SLUG => Identity_Crisis::PACKAGE_VERSION,
+		);
 
 		$this->assertSame( $expected, apply_filters( 'jetpack_package_versions', array() ) );
 	}
@@ -37,10 +36,10 @@ class Test_Package_Version extends TestCase {
 
 		$expected = array_merge(
 			$existing_array,
-			array( Package_Version::PACKAGE_SLUG => Package_Version::PACKAGE_VERSION )
+			array( Identity_Crisis::PACKAGE_SLUG => Identity_Crisis::PACKAGE_VERSION )
 		);
 
-		add_filter( 'jetpack_package_versions', 'Automattic\\Jetpack\\IdentityCrisis\\Package_Version::send_package_version_to_tracker' );
+		add_filter( 'jetpack_package_versions', 'Automattic\\Jetpack\\Identity_Crisis::send_package_version_to_tracker' );
 
 		$this->assertSame( $expected, apply_filters( 'jetpack_package_versions', $existing_array ) );
 	}

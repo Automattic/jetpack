@@ -24,6 +24,16 @@ use WP_Error;
 class Identity_Crisis {
 
 	/**
+	 * Package Version
+	 */
+	const PACKAGE_VERSION = '0.18.0-alpha';
+
+	/**
+	 * Package Slug
+	 */
+	const PACKAGE_SLUG = 'identity-crisis';
+
+	/**
 	 * Persistent WPCOM blog ID that stays in the options after disconnect.
 	 */
 	const PERSISTENT_BLOG_ID_OPTION_NAME = 'jetpack_persistent_blog_id';
@@ -94,7 +104,7 @@ class Identity_Crisis {
 		add_action( 'jetpack_site_registered', array( static::class, 'site_registered' ) );
 
 		// Set up package version hook.
-		add_filter( 'jetpack_package_versions', 'Automattic\\Jetpack\\IdentityCrisis\\Package_Version::send_package_version_to_tracker' );
+		add_filter( 'jetpack_package_versions', array( static::class, 'send_package_version_to_tracker' ) );
 
 		$urls_in_crisis = self::check_identity_crisis();
 		if ( false === $urls_in_crisis ) {
@@ -103,6 +113,19 @@ class Identity_Crisis {
 
 		self::$wpcom_home_url = $urls_in_crisis['wpcom_home'];
 		add_action( 'init', array( $this, 'wordpress_init' ) );
+	}
+
+	/**
+	 * Adds the package slug and version to the package version tracker's data.
+	 *
+	 * @param array $package_versions The package version array.
+	 *
+	 * @return array The package version array.
+	 */
+	public static function send_package_version_to_tracker( $package_versions ) {
+		$package_versions[ self::PACKAGE_SLUG ] = self::PACKAGE_VERSION;
+
+		return $package_versions;
 	}
 
 	/**
