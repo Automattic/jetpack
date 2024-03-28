@@ -586,7 +586,15 @@ class User_Admin {
 			);
 		}
 
-		unset( $actions['resetpassword'] );
+		if (
+			current_user_can( 'promote_users' )
+			&& (
+				$has_pending_invite
+				|| ( new Manager() )->is_user_connected( $user_id )
+			)
+		) {
+			unset( $actions['resetpassword'] );
+		}
 
 		return $actions;
 	}
@@ -698,7 +706,7 @@ class User_Admin {
 
 		if ( $type === 'add-new-user' ) {
 			?>
-			<table class="form-table">
+			<table class="form-table" id="custom_email_message_block">
 				<tr class="form-field">
 					<th scope="row">
 						<label for="invite_user_wpcom"><?php esc_html_e( 'Invite user', 'jetpack-connection' ); ?></label>
@@ -771,7 +779,9 @@ class User_Admin {
 	 */
 	public function render_custom_email_message_form_field( $type ) {
 		if ( $type === 'add-new-user' ) {
-			$valid_nonce          = isset( $_POST['_wpnonce_create-user'] ) ? wp_verify_nonce( $_POST['_wpnonce_create-user'], 'create-user' ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
+			$valid_nonce          = isset( $_POST['_wpnonce_create-user'] )
+					? wp_verify_nonce( sanitize_key( $_POST['_wpnonce_create-user'] ), 'create-user' )
+					: false;
 			$custom_email_message = ( $valid_nonce && isset( $_POST['custom_email_message'] ) ) ? sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) ) : '';
 			?>
 		<table class="form-table">
@@ -949,7 +959,7 @@ class User_Admin {
 		wp_enqueue_script(
 			'jetpack-sso-users',
 			plugin_dir_url( __FILE__ ) . 'jetpack-sso-users.js',
-			array( 'jquery' ),
+			array(),
 			Package_Version::PACKAGE_VERSION,
 			false
 		);

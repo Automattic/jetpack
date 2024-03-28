@@ -44,7 +44,6 @@ class SSO {
 	private function __construct() {
 
 		self::$instance = $this;
-		new User_Admin();
 
 		add_action( 'admin_init', array( $this, 'maybe_authorize_user_after_sso' ), 1 );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
@@ -84,6 +83,28 @@ class SSO {
 			&& apply_filters( 'jetpack_force_2fa', false )
 		) {
 			new Force_2FA();
+		}
+
+		/*
+		 * Allow admins to invite new users to create a WordPress.com account
+		 * as they are added to the site.
+		 *
+		 * This is a feature that is only available when the admin is connected to WordPress.com.
+		 */
+		if (
+			( new Manager() )->is_user_connected() &&
+			/**
+			 * Toggle the ability to invite new users to create a WordPress.com account.
+			 *
+			 * @module sso
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param bool true Whether to allow admins to invite new users to create a WordPress.com account.
+			 */
+			apply_filters( 'jetpack_sso_invite_new_users_wpcom', true )
+		) {
+			new User_Admin();
 		}
 	}
 
@@ -212,7 +233,7 @@ class SSO {
 		wp_enqueue_script(
 			'jetpack-sso-login',
 			plugin_dir_url( __FILE__ ) . 'jetpack-sso-login.js',
-			array( 'jquery' ),
+			array(),
 			Package_Version::PACKAGE_VERSION,
 			false
 		);
@@ -1188,11 +1209,12 @@ class SSO {
 	 * stored when the user logs out, and then deleted when the user logs in.
 	 */
 	public function store_wpcom_profile_cookies_on_logout() {
-		if ( ! ( new Manager( 'jetpack-connection' ) )->is_user_connected( get_current_user_id() ) ) {
+		$user_id = get_current_user_id();
+		if ( ! ( new Manager( 'jetpack-connection' ) )->is_user_connected( $user_id ) ) {
 			return;
 		}
 
-		$user_data = $this->get_user_data( get_current_user_id() );
+		$user_data = $this->get_user_data( $user_id );
 		if ( ! $user_data ) {
 			return;
 		}
