@@ -58,7 +58,6 @@ class Critical_CSS implements Pluggable, Changes_Page_Output, Optimization {
 	public function setup() {
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
 		add_filter( 'jetpack_boost_total_problem_count', array( $this, 'update_total_problem_count' ) );
-		add_filter( 'query_vars', array( '\Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator', 'add_generate_query_action_to_list' ) );
 
 		Generator::init();
 		Critical_CSS_Invalidator::init();

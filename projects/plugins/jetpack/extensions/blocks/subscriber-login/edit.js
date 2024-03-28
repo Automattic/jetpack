@@ -10,8 +10,13 @@ function SubscriberLoginEdit( { attributes, setAttributes, className } ) {
 	const logOutInputId = useInstanceId( TextControl, 'inspector-text-control' );
 	const manageSubscriptionsInputId = useInstanceId( TextControl, 'inspector-text-control' );
 	const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
-	const { redirectToCurrent, logInLabel, logOutLabel, manageSubscriptionsLabel } =
-		validatedAttributes;
+	const {
+		redirectToCurrent,
+		logInLabel,
+		logOutLabel,
+		showManageSubscriptionsLink,
+		manageSubscriptionsLabel,
+	} = validatedAttributes;
 
 	return (
 		<>
@@ -38,17 +43,26 @@ function SubscriberLoginEdit( { attributes, setAttributes, className } ) {
 							id={ logOutInputId }
 						/>
 					</BaseControl>
-					<BaseControl
-						label={ __( 'Manage subscriptions label', 'jetpack' ) }
-						id={ manageSubscriptionsInputId }
-					>
-						<TextControl
-							placeholder={ __( 'Manage subscriptions', 'jetpack' ) }
-							onChange={ value => setAttributes( { manageSubscriptionsLabel: value } ) }
-							value={ manageSubscriptionsLabel }
+					<ToggleControl
+						label={ __( 'Show "Manage subscription" link', 'jetpack' ) }
+						checked={ showManageSubscriptionsLink }
+						onChange={ () =>
+							setAttributes( { showManageSubscriptionsLink: ! showManageSubscriptionsLink } )
+						}
+					/>
+					{ showManageSubscriptionsLink && (
+						<BaseControl
+							label={ __( 'Manage subscription label', 'jetpack' ) }
 							id={ manageSubscriptionsInputId }
-						/>
-					</BaseControl>
+						>
+							<TextControl
+								placeholder={ __( 'Manage subscription', 'jetpack' ) }
+								onChange={ value => setAttributes( { manageSubscriptionsLabel: value } ) }
+								value={ manageSubscriptionsLabel }
+								id={ manageSubscriptionsInputId }
+							/>
+						</BaseControl>
+					) }
 				</PanelBody>
 			</InspectorControls>
 			<div className={ className }>

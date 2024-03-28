@@ -3281,6 +3281,9 @@ importers:
       '@automattic/jetpack-licensing':
         specifier: workspace:*
         version: link:../../js-packages/licensing
+      '@automattic/jetpack-my-jetpack':
+        specifier: workspace:*
+        version: link:../../packages/my-jetpack
       '@automattic/jetpack-partner-coupon':
         specifier: workspace:*
         version: link:../../js-packages/partner-coupon
