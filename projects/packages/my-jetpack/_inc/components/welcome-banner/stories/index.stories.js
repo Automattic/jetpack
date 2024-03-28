@@ -1,6 +1,9 @@
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import WelcomeBanner from '../index.jsx';
 
+// Set myJetpackInitialState global var.
+window.myJetpackInitialState = {};
+
 export default {
 	title: 'Packages/My Jetpack/Welcome Banner',
 	component: WelcomeBanner,

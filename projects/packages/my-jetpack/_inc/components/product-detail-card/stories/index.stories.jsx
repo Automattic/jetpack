@@ -1,5 +1,3 @@
-/* eslint-disable react/react-in-jsx-scope */
-import React from 'react';
 import ProductDetailCard from '../index.jsx';
 import { getAllMockData } from './utils.js';
 
@@ -10,6 +8,9 @@ export default {
 		layout: 'centered',
 	},
 };
+
+// Set myJetpackInitialState global var.
+window.myJetpackInitialState = {};
 
 const mockData = getAllMockData();
 
