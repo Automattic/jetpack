@@ -6,7 +6,7 @@ root_dir="$(dirname "${BASH_SOURCE[0]}")/.."
 cd "$root_dir"
 
 # Source some helper functions.
-. tools/includes/chalk-lite.sh
+source tools/includes/chalk-lite.sh
 
 # Print help and exit.
 function usage {
@@ -111,9 +111,9 @@ function do_nvm {
 		if [[ -f "$(brew --prefix nvm)/nvm.sh" ]]; then
 			# Sometimes nvm is installed via brew, which is an unsupported install
 			# route, and uses a wrapper helper script.
-			. "$(brew --prefix nvm)/nvm.sh"
+			source "$(brew --prefix nvm)/nvm.sh"
 		else
-			export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR"/nvm.sh --no-use
+			export NVM_DIR="$HOME/.nvm" && source "$NVM_DIR"/nvm.sh --no-use
 		fi
 
 		if [[ v$(nvm --version) != "$good_nvm_version" ]]; then
@@ -124,7 +124,7 @@ function do_nvm {
 			curl -s -o- "https://raw.githubusercontent.com/nvm-sh/nvm/$good_nvm_version/install.sh" | bash - &>/dev/null &&
 
 			# Source again to get latest shell functions
-			. "$NVM_DIR/nvm.sh" --no-use
+			source "$NVM_DIR/nvm.sh" --no-use
 
 			# Something's wrong, so abort.
 			if [[ "v$(nvm --version)" != "$good_nvm_version" ]]; then
@@ -138,7 +138,7 @@ function do_nvm {
 		curl -s -o- https://raw.githubusercontent.com/nvm-sh/nvm/$good_nvm_version/install.sh | bash - &>/dev/null &&
 
 		# Source to get latest shell functions
-		export NVM_DIR="$HOME"/.nvm && . "$NVM_DIR"/nvm.sh --no-use
+		export NVM_DIR="$HOME"/.nvm && source "$NVM_DIR"/nvm.sh --no-use
 
 		# Something's wrong, so abort.
 		if ! has_command nvm; then
@@ -305,7 +305,7 @@ do_jq
 do_pnpm
 
 # Get repo-preferred versions
-. .github/versions.sh
+source .github/versions.sh
 do_php
 do_composer
 
