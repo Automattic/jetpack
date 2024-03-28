@@ -274,7 +274,7 @@ const useMapkitAddressLookup = ( address, onSetPointsRef ) => {
 							latitude: place.coordinate.latitude,
 						},
 						// mapkit doesn't give us an id, so we'll make one containing the place name and coordinates
-						id: `${ title } ${ Number( place.coordinate.latitude ).toFixed( 5 ) } ${ Number(
+						id: `${ title } ${ Number( place.coordinate.latitude ).toFixed( 2 ) } ${ Number(
 							place.coordinate.longitude
 						).toFixed( 2 ) }`,
 					};
