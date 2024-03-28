@@ -121,6 +121,9 @@ class Note {
 						'placeholder' => __( "What's on your mind?", 'jetpack-social' ),
 					),
 				),
+				array(
+					'core/post-featured-image',
+				),
 			),
 		);
 		register_post_type( self::JETPACK_SOCIAL_NOTE_CPT, $args );
@@ -136,9 +139,10 @@ class Note {
 	 */
 	public function restrict_blocks_for_social_note( $allowed_blocks, $post ) {
 		if ( 'jetpack-social-note' === $post->post_type ) {
-			// Only allow paragraph block
+			// Only allow the paragraph block and the featured image block.
 			$allowed_blocks = array(
 				'core/paragraph',
+				'core/post-featured-image',
 			);
 		}
 
