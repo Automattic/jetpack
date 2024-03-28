@@ -17,6 +17,20 @@ export const getMyJetpackWindowInitialState = <
 	return ( window?.myJetpackInitialState?.[ key ] ?? {} ) as StateReturnType< InitialState, A >;
 };
 
+export const setMyJetpackWindowInitialState = (
+	key: keyof InitialState,
+	value: InitialState[ keyof InitialState ]
+) => {
+	window.myJetpackInitialState = {
+		...window.myJetpackInitialState,
+		[ key ]: value,
+	};
+};
+
+export const setMyJetpackRedBubbleAlerts = ( value: InitialState[ 'redBubbleAlerts' ] ) => {
+	setMyJetpackWindowInitialState( 'redBubbleAlerts', value );
+};
+
 export const getMyJetpackWindowRestState = () => {
 	return ( window?.myJetpackRest ?? {} ) as RestState;
 };

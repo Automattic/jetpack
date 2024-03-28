@@ -1,12 +1,12 @@
-import { Container, Col, Button, Text } from '@automattic/jetpack-components';
+import { Container, Col, Button, TermsOfService, Text } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
-import { useEffect, useCallback, useState } from 'react';
-import { MyJetpackRoutes } from '../../constants';
+import { useEffect, useCallback, useState, useContext } from 'react';
+import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
+import { NoticeContext } from '../../context/notices/noticeContext';
 import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
-import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { CardWrapper } from '../card';
 import styles from './style.module.scss';
 
@@ -18,10 +18,13 @@ import styles from './style.module.scss';
 const WelcomeBanner = () => {
 	const { recordEvent } = useAnalytics();
 	const { isWelcomeBannerVisible, dismissWelcomeBanner } = useWelcomeBanner();
-	const { isRegistered, isUserConnected } = useConnection();
-	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.Connection );
+	const { isRegistered, isUserConnected, handleRegisterSite, siteIsRegistering } = useConnection( {
+		skipUserConnection: true,
+	} );
 	const [ bannerVisible, setBannerVisible ] = useState( isWelcomeBannerVisible );
+	const { setNotice, resetNotice } = useContext( NoticeContext );
 	const shouldDisplayConnectionButton = ! isRegistered || ! isUserConnected;
+	const siteConnectionButtonLabel = __( 'Finish setting up Jetpack', 'jetpack-my-jetpack' );
 
 	useEffect( () => {
 		if ( bannerVisible ) {
@@ -29,16 +32,39 @@ const WelcomeBanner = () => {
 		}
 	}, [ bannerVisible, recordEvent ] );
 
-	const onDismissClick = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_welcome_banner_dismiss_click' );
-		setBannerVisible( false );
-		dismissWelcomeBanner();
-	}, [ recordEvent, dismissWelcomeBanner ] );
+	const onDismissClick = useCallback(
+		( isDismissFromConnectionButton = false ) => {
+			if ( ! isDismissFromConnectionButton ) {
+				recordEvent( 'jetpack_myjetpack_welcome_banner_dismiss_click' );
+			}
+			setBannerVisible( false );
+			dismissWelcomeBanner();
+		},
+		[ recordEvent, dismissWelcomeBanner ]
+	);
 
 	const onFinishConnectionClick = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_welcome_banner_finish_connection_click' );
-		navigateToConnectionPage();
-	}, [ recordEvent, navigateToConnectionPage ] );
+		handleRegisterSite().then( () => {
+			onDismissClick( true );
+			setNotice( {
+				message: __( 'Your site has been successfully connected.', 'jetpack-my-jetpack' ),
+				options: {
+					status: 'success',
+					actions: [
+						{
+							label: __( 'Close', 'jetpack-my-jetpack' ),
+							onClick: () => {
+								resetNotice();
+							},
+							noDefaultClasses: true,
+						},
+					],
+				},
+				priority: NOTICE_PRIORITY_HIGH,
+			} );
+		} );
+	}, [ recordEvent, handleRegisterSite, setNotice, resetNotice, onDismissClick ] );
 
 	if ( ! bannerVisible ) {
 		return null;
@@ -63,16 +89,23 @@ const WelcomeBanner = () => {
 									'jetpack-my-jetpack'
 								) }
 							</Text>
-							<Text variant="body" mb={ shouldDisplayConnectionButton ? 4 : 0 }>
+							<Text variant="body" mb={ shouldDisplayConnectionButton ? 2 : 0 }>
 								{ __(
 									'It’s the ultimate toolkit for best-in-class websites, with everything you need to grow your business. Choose a plan below to get started.',
 									'jetpack-my-jetpack'
 								) }
 							</Text>
 							{ shouldDisplayConnectionButton && (
-								<Button variant="primary" onClick={ onFinishConnectionClick }>
-									{ __( 'Finish setting up Jetpack', 'jetpack-my-jetpack' ) }
-								</Button>
+								<>
+									<Text variant="body" mb={ 4 }>
+										<TermsOfService agreeButtonLabel={ siteConnectionButtonLabel } />
+									</Text>
+									<Button variant="primary" onClick={ onFinishConnectionClick }>
+										{ siteIsRegistering
+											? __( 'Conecting…', 'jetpack-my-jetpack' )
+											: siteConnectionButtonLabel }
+									</Button>
+								</>
 							) }
 						</Col>
 						<Col sm={ 6 } md={ 8 } lg={ 6 } className={ styles[ 'banner-image' ] }></Col>
