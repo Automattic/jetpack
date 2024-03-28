@@ -238,7 +238,7 @@ function do_php {
 			echo "Linking already-installed PHP $PHP_VERSION..."
 		fi
 		brew link --overwrite php@"$PHP_VERSION" &>/dev/null
-		if ! has_command php || [[ $(php -r "echo version_compare(PHP_VERSION,'$PHP_VERSION');") -eq -1 ]]; then
+		if ! has_command php || php -r "exit( version_compare( PHP_VERSION, '$PHP_VERSION', '<' ) ? 0 : 1 );"; then
 			die "Unable to install PHP $PHP_VERSION!"
 		fi
 	fi
