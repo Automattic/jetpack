@@ -20,7 +20,7 @@ return [
     // PhanUndeclaredTypeReturnType : 10+ occurrences
     // PhanUndeclaredFunction : 9 occurrences
     // PhanTypeMismatchArgumentInternal : 7 occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 7 occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 6 occurrences
     // PhanDeprecatedFunction : 5 occurrences
     // PhanUndeclaredMethod : 5 occurrences
     // PhanRedundantCondition : 4 occurrences
@@ -59,7 +59,7 @@ return [
         'src/contact-form/class-util.php' => ['PhanUndeclaredClassProperty', 'PhanUndeclaredTypeParameter'],
         'src/dashboard/class-dashboard-view-switch.php' => ['PhanUnreferencedUseNormal'],
         'src/dashboard/class-dashboard.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredConstant'],
-        'src/service/class-google-drive.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
+        'src/service/class-google-drive.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
         'src/service/class-post-to-url.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType'],
         'tests/php/contact-form/test-class.contact-form-plugin.php' => ['PhanPluginMixedKeyNoKey'],
         'tests/php/contact-form/test-class.contact-form.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgument', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredMethod', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType'],

@@ -866,11 +866,12 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/connection",
-				"reference": "c8993518f67538ea9d7f898077aa597e4cdc0970"
+				"reference": "4b7d9b428cd74c5b33129e0712e3dd417b8268bf"
 			},
 			"require": {
 				"automattic/jetpack-a8c-mc-stats": "@dev",
 				"automattic/jetpack-admin-ui": "@dev",
+				"automattic/jetpack-assets": "@dev",
 				"automattic/jetpack-constants": "@dev",
 				"automattic/jetpack-redirect": "@dev",
 				"automattic/jetpack-roles": "@dev",

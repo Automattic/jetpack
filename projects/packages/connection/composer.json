@@ -7,6 +7,7 @@
 		"php": ">=7.0",
 		"automattic/jetpack-a8c-mc-stats": "@dev",
 		"automattic/jetpack-admin-ui": "@dev",
+		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-roles": "@dev",
 		"automattic/jetpack-status": "@dev",

@@ -11,9 +11,9 @@ return [
     // # Issue statistics:
     // PhanUndeclaredClassMethod : 35+ occurrences
     // PhanTypeMismatchArgument : 15+ occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 15+ occurrences
     // PhanUndeclaredClassProperty : 15+ occurrences
     // PhanUndeclaredTypeParameter : 15+ occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 10+ occurrences
     // PhanUndeclaredTypeReturnType : 10+ occurrences
     // PhanDeprecatedFunction : 9 occurrences
     // PhanTypeMismatchReturn : 9 occurrences
@@ -48,7 +48,7 @@ return [
         'src/class-publicize-setup.php' => ['PhanTypeMismatchArgument', 'PhanUnextractableAnnotationSuffix'],
         'src/class-publicize-ui.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod'],
         'src/class-publicize.php' => ['PhanParamSignatureMismatch', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMissingReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredFunction', 'PhanUndeclaredStaticMethod', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType'],
-        'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredMethod', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType'],
+        'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredMethod', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType'],
         'src/social-image-generator/class-post-settings.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/social-image-generator/class-rest-settings-controller.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeArraySuspicious', 'PhanTypeMismatchReturn', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType'],
         'src/social-image-generator/class-rest-token-controller.php' => ['PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
