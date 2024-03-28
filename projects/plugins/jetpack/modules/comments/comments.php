@@ -513,7 +513,7 @@ HTML;
 					<?php endif; ?>
 					class="jetpack_remote_comment"
 					id="jetpack_remote_comment"
-					sandbox="allow-same-origin allow-top-navigation allow-scripts allow-forms allow-popups"
+					sandbox="allow-same-origin allow-top-navigation allow-scripts allow-forms allow-popups allow-storage-access-by-user-activation"
 				>
 					<?php if ( $is_amp ) : ?>
 						<button overflow><?php esc_html_e( 'Show more', 'jetpack' ); ?></button>
