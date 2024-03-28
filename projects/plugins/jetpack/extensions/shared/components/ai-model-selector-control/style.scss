@@ -3,14 +3,12 @@
 		.components-base-control__field {
 			display: flex;
 			justify-content: space-between;
+			margin-bottom: 12px;
 		}
+
 		.components-base-control__label {
 			margin-bottom: 0;
 		}
-	}
-
-	.components-base-control {
-		margin-bottom: 12px;
 	}
 }
 
