@@ -284,6 +284,6 @@ class Jetpack_Mu_Wpcom {
 	 * Load Odyssey Stats in Simple sites.
 	 */
 	public static function load_wpcom_simple_odyssey_stats() {
-		require_once __DIR__ . '/features/wpcom-odyssey-stats/wpcom-odyssey-stats.php';
+		require_once __DIR__ . '/features/wpcom-simple-odyssey-stats/wpcom-simple-odyssey-stats.php';
 	}
 }
