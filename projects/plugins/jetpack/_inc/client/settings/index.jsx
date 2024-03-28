@@ -1,4 +1,5 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
+import HelloWorld from '@automattic/jetpack-settings';
 import { __, sprintf } from '@wordpress/i18n';
 import Discussion from 'discussion';
 import Earn from 'earn';
@@ -37,6 +38,7 @@ class Settings extends React.Component {
 
 		return (
 			<ThemeProvider>
+				<HelloWorld />
 				<div className="jp-settings-container">
 					<div className="jp-no-results">
 						{ searchTerm

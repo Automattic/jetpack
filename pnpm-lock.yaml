@@ -1114,6 +1114,12 @@ importers:
         specifier: 5.0.4
         version: 5.0.4
 
+  projects/js-packages/settings:
+    devDependencies:
+      jest:
+        specifier: 29.7.0
+        version: 29.7.0
+
   projects/js-packages/shared-extension-utils:
     dependencies:
       '@automattic/jetpack-analytics':
@@ -3290,6 +3296,9 @@ importers:
       '@automattic/jetpack-publicize-components':
         specifier: workspace:*
         version: link:../../js-packages/publicize-components
+      '@automattic/jetpack-settings':
+        specifier: workspace:*
+        version: link:../../js-packages/settings
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
