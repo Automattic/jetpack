@@ -10,6 +10,7 @@ namespace Automattic\Jetpack;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\IdentityCrisis\Exception;
+use Automattic\Jetpack\IdentityCrisis\Package_Version;
 use Automattic\Jetpack\IdentityCrisis\UI;
 use Automattic\Jetpack\IdentityCrisis\URL_Secret;
 use Jetpack_Options;
@@ -97,6 +98,9 @@ class Identity_Crisis {
 
 		add_filter( 'jetpack_register_request_body', array( static::class, 'register_request_body' ) );
 		add_action( 'jetpack_site_registered', array( static::class, 'site_registered' ) );
+
+		// Set up package version hook.
+		add_filter( 'jetpack_package_versions', 'Automattic\\Jetpack\\IdentityCrisis\\Package_Version::send_package_version_to_tracker' );
 
 		$urls_in_crisis = self::check_identity_crisis();
 		if ( false === $urls_in_crisis ) {
