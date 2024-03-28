@@ -131,7 +131,7 @@ const actions = {
 
 			const asyncCoundown = select.getAsyncRequestCountdownValue();
 			if ( asyncCoundown <= 0 ) {
-				dispatch( actions.enqueueAiAssistantFeatureAyncRequest() );
+				dispatch( actions.enqueueAiAssistantFeatureAsyncRequest() );
 			}
 		};
 	},
@@ -142,10 +142,10 @@ const actions = {
 	 *
 	 * @returns {Function} The thunk action.
 	 */
-	enqueueAiAssistantFeatureAyncRequest() {
+	enqueueAiAssistantFeatureAsyncRequest() {
 		return ( { dispatch } ) => {
 			// Check if there is already a timer running
-			dispatch.dequeueAiAssistantFeatureAyncRequest();
+			dispatch.dequeueAiAssistantFeatureAsyncRequest();
 
 			const contdownTimerId = setTimeout( () => {
 				dispatch( actions.fetchAiAssistantFeature() );
@@ -162,7 +162,7 @@ const actions = {
 	 *
 	 * @returns {Function} The thunk action.
 	 */
-	dequeueAiAssistantFeatureAyncRequest() {
+	dequeueAiAssistantFeatureAsyncRequest() {
 		return ( { dispatch, select } ) => {
 			dispatch( { type: ACTION_DEQUEUE_ASYNC_REQUEST, timerId: 0 } );
 
