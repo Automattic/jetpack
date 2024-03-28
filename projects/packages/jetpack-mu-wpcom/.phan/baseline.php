@@ -9,7 +9,7 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredFunction : 70+ occurrences
+    // PhanUndeclaredFunction : 65+ occurrences
     // PhanUndeclaredClassMethod : 60+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 55+ occurrences
     // PhanTypeMismatchArgument : 40+ occurrences
@@ -54,11 +54,10 @@ return [
         'src/class-jetpack-mu-wpcom.php' => ['PhanNoopNew', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction'],
         'src/features/100-year-plan/enhanced-ownership.php' => ['PhanEmptyFQSENInCallable', 'PhanUndeclaredClassConstant', 'PhanUndeclaredFunction'],
         'src/features/100-year-plan/locked-mode.php' => ['PhanEmptyFQSENInCallable', 'PhanUndeclaredClassConstant', 'PhanUndeclaredFunction'],
-        'src/features/admin-color-schemes/admin-color-schemes.php' => ['PhanUndeclaredConstant', 'PhanUndeclaredFunction'],
+        'src/features/admin-color-schemes/admin-color-schemes.php' => ['PhanUndeclaredConstant'],
         'src/features/block-patterns/block-patterns.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredTypeParameter'],
         'src/features/block-patterns/class-wpcom-block-patterns-from-api.php' => ['PhanRedundantConditionInLoop'],
         'src/features/block-patterns/class-wpcom-block-patterns-utils.php' => ['PhanTypeMismatchReturnNullable', 'PhanUndeclaredFunction'],
-        'src/features/block-theme-previews/block-theme-previews.php' => ['PhanUndeclaredFunction'],
         'src/features/coming-soon/coming-soon.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchArgumentInternal', 'PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable'],
         'src/features/coming-soon/fallback-coming-soon-page.php' => ['PhanTypeMismatchArgument', 'PhanTypeVoidArgument', 'PhanUndeclaredFunction'],
         'src/features/error-reporting/error-reporting.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanUndeclaredFunction'],
@@ -73,7 +72,7 @@ return [
         'src/features/wpcom-command-palette/wpcom-command-palette.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-launchpad.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-site-migration-migrate-guru-key.php' => ['PhanUndeclaredClassMethod'],
-        'src/features/wpcom-site-menu/wpcom-site-menu.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassInCallable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable'],
+        'src/features/wpcom-site-menu/wpcom-site-menu.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassInCallable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunctionInCallable'],
         'src/utils.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference'],
         'tests/lib/functions-wordpress.php' => ['PhanRedefineFunction'],
         'tests/php/features/block-patterns/class-wpcom-block-patterns-from-api-test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeReturnType'],
