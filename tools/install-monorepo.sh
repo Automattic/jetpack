@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -eo pipefail
 
 # Start in the monorepo root folder.
 root_dir="$(dirname "${BASH_SOURCE[0]}")/.."
