@@ -84,7 +84,7 @@ class Wpcom_Block_Patterns_From_Api {
 		}
 
 		// Register categories (and re-register existing categories).
-		foreach ( (array) $pattern_categories as $slug => &$category_properties ) {
+		foreach ( $pattern_categories as $slug => &$category_properties ) {
 			// Rename category labels.
 			if ( 'posts' === $slug ) {
 				$category_properties['label'] = __(
