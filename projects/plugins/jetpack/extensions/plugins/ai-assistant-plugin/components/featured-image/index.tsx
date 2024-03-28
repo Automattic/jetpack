@@ -96,7 +96,7 @@ export default function FeaturedImage() {
 		processImageGeneration();
 	}, [ processImageGeneration, recordEvent ] );
 
-	const triggerComplemenetaryArea = useCallback( () => {
+	const triggerComplementaryArea = useCallback( () => {
 		enableComplementaryArea( 'core/edit-post', 'edit-post/document' );
 	}, [ enableComplementaryArea ] );
 
@@ -115,10 +115,10 @@ export default function FeaturedImage() {
 				// If the panel is not opened, open it and then trigger the complementary area.
 				if ( ! isEditorPanelOpened( 'featured-image' ) ) {
 					toggleEditorPanelOpened?.( 'featured-image' ).then( () => {
-						triggerComplemenetaryArea();
+						triggerComplementaryArea();
 					} );
 				} else {
-					triggerComplemenetaryArea();
+					triggerComplementaryArea();
 				}
 			}, 500 );
 		} );
@@ -130,7 +130,7 @@ export default function FeaturedImage() {
 		saveToMediaLibrary,
 		toggleEditorPanelOpened,
 		toggleFeaturedImageModal,
-		triggerComplemenetaryArea,
+		triggerComplementaryArea,
 	] );
 
 	const modalTitleWhenGenerating = __( 'Generating featured image…', 'jetpack' );
