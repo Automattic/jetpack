@@ -202,7 +202,7 @@ function do_jq {
 		echo "Installing jq..."
 		brew install jq &>/dev/null
 		if ! has_command jq; then
-			die "Unable to install newer version of jq!"
+			die "Unable to install jq!"
 		fi
 		echo "Installed jq."
 	fi
