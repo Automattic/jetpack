@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Connection\SSO;
 
 use Automattic\Jetpack\Redirect;
+use WP_Error;
+use WP_User;
 
 /**
  * A collection of helper functions used in the SSO module.
@@ -127,7 +129,7 @@ class Notices {
 	 *
 	 * @param WP_User|WP_Error $user Either the user attempting to login or an existing authentication failure.
 	 *
-	 * @return \WP_Error
+	 * @return WP_Error
 	 */
 	public static function disable_default_login_form( $user ) {
 		if ( is_wp_error( $user ) ) {
@@ -139,7 +141,7 @@ class Notices {
 		 * informational "blue" notice.
 		 */
 		remove_filter( 'login_message', array( static::class, 'msg_login_by_jetpack' ) );
-		return new \WP_Error( 'jetpack_sso_required', self::get_sso_required_message() );
+		return new WP_Error( 'jetpack_sso_required', self::get_sso_required_message() );
 	}
 
 	/**

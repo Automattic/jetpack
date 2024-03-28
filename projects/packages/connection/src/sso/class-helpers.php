@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection\SSO;
 
+use Automattic\Jetpack\Constants;
 use Jetpack_IXR_Client;
 
 /**
@@ -59,7 +60,7 @@ class Helpers {
 	 * even though the site disallows normal registrations.
 	 *
 	 * @param object|null $user_data WordPress.com user information.
-	 * @return bool
+	 * @return bool|string
 	 */
 	public static function new_user_override( $user_data = null ) {
 		$new_user_override = defined( 'WPCC_NEW_USER_OVERRIDE' ) ? \WPCC_NEW_USER_OVERRIDE : false;
@@ -73,7 +74,7 @@ class Helpers {
 		 * @since jetpack-2.6.0
 		 * @since jetpack-4.6   $user_data object is now passed to the jetpack_sso_new_user_override filter
 		 *
-		 * @param bool        $new_user_override Allow users to register on your site with a WordPress.com account. Default to false.
+		 * @param bool|string $new_user_override Allow users to register on your site with a WordPress.com account. Default to false.
 		 * @param object|null $user_data         An object containing the user data returned from WordPress.com.
 		 */
 		$role = apply_filters( 'jetpack_sso_new_user_override', $new_user_override, $user_data );
@@ -189,7 +190,11 @@ class Helpers {
 	 *
 	 * @return array
 	 */
-	public static function allowed_redirect_hosts( $hosts, $api_base = JETPACK__API_BASE ) {
+	public static function allowed_redirect_hosts( $hosts, $api_base = '' ) {
+		if ( empty( $api_base ) ) {
+			$api_base = Constants::get_constant( 'JETPACK__API_BASE' );
+		}
+
 		if ( empty( $hosts ) ) {
 			$hosts = array();
 		}

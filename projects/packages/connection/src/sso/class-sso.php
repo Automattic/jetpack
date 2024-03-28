@@ -35,7 +35,7 @@ class SSO {
 	/**
 	 * Automattic\Jetpack\Connection\SSO instance.
 	 *
-	 * @var Automattic\Jetpack\Connection\SSO
+	 * @var \Automattic\Jetpack\Connection\SSO
 	 */
 	public static $instance = null;
 
@@ -113,8 +113,8 @@ class SSO {
 	 * Returns the single instance of the Automattic\Jetpack\Connection\SSO object
 	 *
 	 * @since jetpack-2.8
-	 * @return Automattic\Jetpack\Connection\SSO
-	 **/
+	 * @return \Automattic\Jetpack\Connection\SSO
+	 */
 	public static function get_instance() {
 		if ( self::$instance !== null ) {
 			return self::$instance;
@@ -369,7 +369,7 @@ class SSO {
 	 * @param bool $input The jetpack_sso_require_two_step option setting.
 	 *
 	 * @since jetpack-2.7
-	 * @return boolean
+	 * @return int
 	 **/
 	public function validate_jetpack_sso_require_two_step( $input ) {
 		return ( ! empty( $input ) ) ? 1 : 0;
@@ -401,7 +401,7 @@ class SSO {
 	 * @param bool $input The jetpack_sso_match_by_email option setting.
 	 *
 	 * @since jetpack-2.9
-	 * @return boolean
+	 * @return int
 	 **/
 	public function validate_jetpack_sso_match_by_email( $input ) {
 		return ( ! empty( $input ) ) ? 1 : 0;
@@ -613,7 +613,7 @@ class SSO {
 
 
 			<div id="jetpack-sso-wrap__action">
-					<?php echo $this->build_sso_button( array(), 'is_primary' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaping done in build_sso_button() ?>
+					<?php echo $this->build_sso_button( array(), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaping done in build_sso_button() ?>
 
 					<?php if ( $display_name && $gravatar ) : ?>
 					<a rel="nofollow" class="jetpack-sso-wrap__reauth" href="<?php echo esc_url( $this->build_sso_button_url( array( 'force_reauth' => '1' ) ) ); ?>">
@@ -943,7 +943,7 @@ class SSO {
 					'user_found_with'  => $user_found_with,
 					'user_connected'   => (bool) $is_user_connected,
 					'user_role'        => $roles->translate_current_user_to_role(),
-					'is_json_api_auth' => (bool) $is_json_api_auth,
+					'is_json_api_auth' => $is_json_api_auth,
 				)
 			);
 
@@ -1149,7 +1149,7 @@ class SSO {
 	 * @since jetpack-2.6.0
 	 *
 	 * @param int $wpcom_user_id User ID from WordPress.com.
-	 * @return object Local user object if found, null if not.
+	 * @return null|object Local user object if found, null if not.
 	 */
 	public static function get_user_by_wpcom_id( $wpcom_user_id ) {
 		$user_query = new WP_User_Query(

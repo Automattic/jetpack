@@ -15,6 +15,7 @@ use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 use WP_Error;
+use WP_User;
 use WP_User_Query;
 
 /**
@@ -45,7 +46,7 @@ class User_Admin {
 	 * Constructor function.
 	 */
 	public function __construct() {
-		add_action( 'delete_user', array( 'Helpers', 'delete_connection_for_user' ) );
+		add_action( 'delete_user', array( Helpers::class, 'delete_connection_for_user' ) );
 		// If the user has no errors on creation, send an invite to WordPress.com.
 		add_filter( 'user_profile_update_errors', array( $this, 'send_wpcom_mail_user_invite' ), 10, 3 );
 		add_filter( 'wp_send_new_user_notification_to_user', array( $this, 'should_send_wp_mail_new_user' ) );
@@ -278,8 +279,12 @@ class User_Admin {
 				return self::create_error_notice_and_redirect( $query_params );
 			}
 
+			$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
 			// access the first item since we're inviting one user.
-			$body = json_decode( $response['body'] )[0];
+			if ( is_array( $body ) && ! empty( $body ) ) {
+				$body = $body[0];
+			}
 
 			$query_params = array(
 				'jetpack-sso-invite-user' => $body->success ? 'success' : 'failed',
@@ -823,9 +828,9 @@ class User_Admin {
 	/**
 	 * Send user invitation to WordPress.com if user has no errors.
 	 *
-	 * @param WP_Error $errors The WP_Error object.
-	 * @param bool     $update Whether the user is being updated or not.
-	 * @param stdClass $user   The User object about to be created.
+	 * @param WP_Error  $errors The WP_Error object.
+	 * @param bool      $update Whether the user is being updated or not.
+	 * @param \stdClass $user   The User object about to be created.
 	 * @return WP_Error The modified or not WP_Error object.
 	 */
 	public function send_wpcom_mail_user_invite( $errors, $update, $user ) {
@@ -892,7 +897,7 @@ class User_Admin {
 
 		if (
 			isset( $_POST['custom_email_message'] )
-			&& strlen( sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) ) > 0 )
+			&& strlen( sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) ) ) > 0
 		) {
 			$new_user_request['message'] = sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) );
 		}
@@ -1062,7 +1067,7 @@ class User_Admin {
 	 * @static
 	 * @param int $user_id The user ID.
 	 *
-	 * @return {false|string} returns the user invite code if the user is invited, false otherwise.
+	 * @return false|string returns the user invite code if the user is invited, false otherwise.
 	 */
 	private static function has_pending_wpcom_invite( $user_id ) {
 		$blog_id       = Manager::get_site_id( true );
@@ -1092,7 +1097,17 @@ class User_Admin {
 			return false;
 		}
 
-		return json_decode( $response['body'], true )['invite_code'];
+		$body_response = wp_remote_retrieve_body( $response );
+		if ( empty( $body_response ) ) {
+			return false;
+		}
+
+		$body = json_decode( $body_response, true );
+		if ( ! empty( $body['invite_code'] ) ) {
+			return $body['invite_code'];
+		}
+
+		return false;
 	}
 
 	/**
