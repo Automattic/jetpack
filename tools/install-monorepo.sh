@@ -61,7 +61,7 @@ function do_homebrew {
 		HOMEBREW_PREFIX="/opt/homebrew"
 
 		# Add brew env to current script for use later.
-		eval "\$(${HOMEBREW_PREFIX}/bin/brew shellenv)"
+		eval "$(${HOMEBREW_PREFIX}/bin/brew shellenv)"
 
 		if ! has_command brew; then
 			die "Unable to install brew!"
