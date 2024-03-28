@@ -11,6 +11,10 @@ if [[ "$WITH_WOOCOMMERCE" == true ]]; then
 	exit 0
 fi
 
+if [[ "$WITH_WPCOMSH" == true ]]; then
+	export JETPACK_TEST_WPCOMSH=1
+fi
+
 echo "::group::Jetpack tests"
 phpunit
 echo "::endgroup::"
