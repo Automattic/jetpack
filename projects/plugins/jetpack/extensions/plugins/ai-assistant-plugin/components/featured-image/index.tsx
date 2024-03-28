@@ -3,8 +3,7 @@
  */
 import { useImageGenerator } from '@automattic/jetpack-ai-client';
 import { Button, Spinner } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -18,7 +17,12 @@ import AiAssistantModal from '../modal';
 const FEATURED_IMAGE_FEATURE_NAME = 'featured-post-image';
 
 export default function FeaturedImage() {
-	const { editPost } = useDispatch( editorStore );
+	const { toggleEditorPanelOpened: toggleEditorPanelOpenedFromEditPost } =
+		useDispatch( 'core/edit-post' );
+	const { editPost, toggleEditorPanelOpened: toggleEditorPanelOpenedFromEditor } =
+		useDispatch( 'core/editor' );
+
+	const { enableComplementaryArea } = useDispatch( 'core/interface' );
 	const [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] = useState( false );
 	const [ generating, setGenerating ] = useState( false );
 	const [ imageURL, setImageURL ] = useState( null );
@@ -26,6 +30,19 @@ export default function FeaturedImage() {
 	const { isLoading: isSavingToMediaLibrary, saveToMediaLibrary } = useSaveToMediaLibrary();
 
 	const postContent = usePostContent();
+
+	// Handle deprecation and move of toggle action from edit-post.
+	// https://github.com/WordPress/gutenberg/blob/fe4d8cb936df52945c01c1863f7b87b58b7cc69f/packages/edit-post/CHANGELOG.md?plain=1#L19
+	const toggleEditorPanelOpened =
+		toggleEditorPanelOpenedFromEditor ?? toggleEditorPanelOpenedFromEditPost;
+	const isEditorPanelOpened = useSelect( select => {
+		const isOpened =
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			( select( 'core/editor' ) as any ).isEditorPanelOpened ??
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			( select( 'core/edit-post' ) as any ).isEditorPanelOpened;
+		return isOpened;
+	}, [] );
 
 	/*
 	 * Function to generate a new image with the current value of the post content.
@@ -65,12 +82,36 @@ export default function FeaturedImage() {
 		processImageGeneration();
 	}, [ processImageGeneration ] );
 
+	const triggerComplemenetaryArea = useCallback( () => {
+		enableComplementaryArea( 'core/edit-post', 'edit-post/document' );
+	}, [ enableComplementaryArea ] );
+
 	const handleAccept = useCallback( () => {
 		saveToMediaLibrary( imageURL ).then( image => {
 			editPost( { featured_media: image.id } );
 			toggleFeaturedImageModal();
+
+			// Open the featured image panel for users to see the new image.
+			setTimeout( () => {
+				// If the panel is not opened, open it and then trigger the complementary area.
+				if ( ! isEditorPanelOpened( 'featured-image' ) ) {
+					toggleEditorPanelOpened?.( 'featured-image' ).then( () => {
+						triggerComplemenetaryArea();
+					} );
+				} else {
+					triggerComplemenetaryArea();
+				}
+			}, 500 );
 		} );
-	}, [ editPost, imageURL, saveToMediaLibrary, toggleFeaturedImageModal ] );
+	}, [
+		editPost,
+		imageURL,
+		isEditorPanelOpened,
+		saveToMediaLibrary,
+		toggleEditorPanelOpened,
+		toggleFeaturedImageModal,
+		triggerComplemenetaryArea,
+	] );
 
 	const modalTitleWhenGenerating = __( 'Generating featured image…', 'jetpack' );
 	const modalTitleWhenDone = __( 'Featured Image Generation', 'jetpack' );
