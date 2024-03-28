@@ -168,6 +168,9 @@ li.service.share-jetpack-whatsapp span:before {
 li.service.share-mastodon span:before {
 	content: '\f10a';
 }
+li.service.share-web-share span:before {
+	content: '\f415';
+}
 li.service.share-nextdoor span:before {
 	content: '\f10c';
 }
