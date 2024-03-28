@@ -56,17 +56,6 @@ function wpcom_add_wpcom_menu_item() {
 	$parent_slug = 'wpcom-hosting-menu';
 	$domain      = wp_parse_url( home_url(), PHP_URL_HOST );
 
-	add_menu_page(
-		esc_attr__( 'All Sites', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'All Sites', 'jetpack-mu-wpcom' ),
-		// We should show `All Sites` for all users roles if they have a WordPress.com account connected.
-		'read',
-		'https://wordpress.com/sites',
-		null,
-		'dashicons-arrow-left-alt2',
-		0
-	);
-
 	// Position a separator below the `All Sites` menu item.
 	// Inspired by https://github.com/Automattic/jetpack/blob/b6b6e86c5491869782857141ca48168dfa195635/projects/plugins/jetpack/modules/masterbar/admin-menu/class-base-admin-menu.php#L239
 	$separator = array(
