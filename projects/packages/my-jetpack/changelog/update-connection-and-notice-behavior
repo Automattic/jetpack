@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+My Jetpack: update Notice component to allow adding a loading text when an action is in a loading state. Add a new resetNotice action to NoticeContext

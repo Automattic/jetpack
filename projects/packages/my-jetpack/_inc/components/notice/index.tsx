@@ -7,12 +7,11 @@ import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import classnames from 'classnames';
 import { useCallback } from 'react';
-import type { NoticeAction, NoticeProps } from '@wordpress/components/src/notice/types';
+import type { NoticeButtonAction } from '../../context/notices/types';
+import type { NoticeProps } from '@wordpress/components/src/notice/types';
 import type { ReactNode, Component } from 'react';
 
 import './styles.scss';
-
-type NoticeButtonAction = NoticeAction & { isLoading?: boolean; isDisabled?: boolean };
 
 type MyJetpackNoticeProps = NoticeProps & {
 	isRedBubble: boolean;
@@ -44,15 +43,15 @@ function getStatusLabel( status: NoticeProps[ 'status' ] ): string {
 /**
  * Notice component based on the one from @wordpress/components.
  *
- * @param {object} props                   - The properties.
- * @param {string} props.className         - The class name.
- * @param {string} props.status            - The message status: 'warning' | 'success' | 'error' | 'info'.
- * @param {ReactNode} props.children - Children element
- * @param {Function} props.onRemove        - The function to call when the notice is removed.
- * @param {boolean} props.isDismissible    - Whether the notice can be dismissed.
- * @param {boolean} props.isRedBubble      - Whether the notice is tied to the red bubble notification.
- * @param {Array} props.actions            - An array of actions (buttons) to display in the notice.
- * @param {Function} props.onDismiss       - The function to call when the notice is dismissed.
+ * @param {object} props                - The properties.
+ * @param {string} props.className      - The class name.
+ * @param {string} props.status         - The message status: 'warning' | 'success' | 'error' | 'info'.
+ * @param {ReactNode} props.children    - Children element
+ * @param {Function} props.onRemove     - The function to call when the notice is removed.
+ * @param {boolean} props.isDismissible - Whether the notice can be dismissed.
+ * @param {boolean} props.isRedBubble   - Whether the notice is tied to the red bubble notification.
+ * @param {Array} props.actions         - An array of actions (buttons) to display in the notice.
+ * @param {Function} props.onDismiss    - The function to call when the notice is dismissed.
  *
  * @returns {Component} The `Notice` component.
  */
@@ -96,9 +95,11 @@ function Notice( {
 								url,
 								isLoading = false,
 								isDisabled = false,
+								loadingText,
 							}: NoticeButtonAction,
 							index
 						) => {
+							const loadingContent = loadingText || <Spinner />;
 							let computedVariant = variant;
 							if ( variant !== 'primary' && ! noDefaultClasses ) {
 								computedVariant = ! url ? 'secondary' : 'link';
@@ -116,7 +117,7 @@ function Notice( {
 									className={ classnames( 'components-notice__action', buttonCustomClasses ) }
 									disabled={ isLoading || isDisabled }
 								>
-									{ isLoading ? <Spinner /> : label }
+									{ isLoading ? loadingContent : label }
 								</Button>
 							);
 						}
