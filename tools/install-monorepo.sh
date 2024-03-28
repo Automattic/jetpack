@@ -109,7 +109,7 @@ function do_nvm {
 	good_nvm_version=$(basename $(curl -fs -o/dev/null -w %{redirect_url} https://github.com/nvm-sh/nvm/releases/latest))
 
 	if [[ -f "$HOME"/.nvm/nvm.sh ]] ; then
-		# Since nvm really several shell functions, and isn't in the environment
+		# Since nvm is really several shell functions, and isn't in the environment
 		# initially, we need to source it.
 		if [[ -f "$(brew --prefix nvm)/nvm.sh" ]]; then
 			# Sometimes nvm is installed via brew, which is an unsupported install
