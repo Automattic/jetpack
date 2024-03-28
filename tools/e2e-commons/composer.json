@@ -1,0 +1,5 @@
+{
+	"name": "automattic/e2e-commons",
+	"description": "Common files for E2E tests.",
+	"type": "dummy"
+}

@@ -918,11 +918,8 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
                         // USE hasStatus above now...
 					if ( str_starts_with( $qFilter, 'status_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-                            $qFilterStatus = substr($qFilter,7);
-                            $qFilterStatus = str_replace('_',' ',$qFilterStatus);
-
-                            // check status
-                            $wheres['quickfilterstatus'] = array('zbst_status','LIKE','%s',ucwords($qFilterStatus));
+						$quick_filter_status         = substr( $qFilter, 7 ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						$wheres['quickfilterstatus'] = array( 'zbst_status', '=', 'convert(%s using utf8mb4) collate utf8mb4_bin', $quick_filter_status );
 
 					} else {
 

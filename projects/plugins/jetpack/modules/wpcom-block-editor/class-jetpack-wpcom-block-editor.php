@@ -201,6 +201,8 @@ class Jetpack_WPCOM_Block_Editor {
 
 	/**
 	 * Does the redirect to the block editor.
+	 *
+	 * @return never
 	 */
 	public function do_redirect() {
 		wp_safe_redirect( $GLOBALS['redirect_to'] );

@@ -6,13 +6,33 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Connection\Webhooks;
-
 /**
  * Client = Plugin
  * Client Server = API Methods the Plugin must respond to
  */
 class Jetpack_Client_Server {
+
+	/**
+	 * Whether the class has been initialized.
+	 *
+	 * @var bool
+	 */
+	private static $did_init = false;
+
+	/**
+	 * Initialize the hooks, but only once.
+	 *
+	 * @return void
+	 */
+	public static function init() {
+		if ( static::$did_init ) {
+			return;
+		}
+
+		add_filter( 'jetpack_rest_connection_check_response', array( static::class, 'connection_check' ) );
+
+		static::$did_init = true;
+	}
 
 	/**
 	 * Handle the client authorization error.
@@ -53,17 +73,6 @@ class Jetpack_Client_Server {
 	}
 
 	/**
-	 * Authorization handler.
-	 *
-	 * @deprecated since Jetpack 9.5.0
-	 * @see Webhooks::handle_authorize()
-	 */
-	public function client_authorize() {
-		_deprecated_function( __METHOD__, 'jetpack-9.5.0', 'Automattic\\Jetpack\\Connection\\Webhooks::handle_authorize' );
-		( new Webhooks() )->handle_authorize();
-	}
-
-	/**
 	 * Deactivate a plugin.
 	 *
 	 * @param string $probable_file Expected plugin file.
@@ -91,23 +100,11 @@ class Jetpack_Client_Server {
 	}
 
 	/**
-	 * Get the Jetpack instance.
+	 * Filters the result of test_connection REST method
 	 *
-	 * @deprecated since Jetpack 9.5.0
-	 * @see Jetpack::init()
+	 * @return string The current Jetpack version number
 	 */
-	public function get_jetpack() {
-		_deprecated_function( __METHOD__, 'jetpack-9.5.0', 'Jetpack::init' );
-		return Jetpack::init();
-	}
-
-	/**
-	 * No longer used.
-	 *
-	 * @deprecated since Jetpack 9.5.0
-	 */
-	public function do_exit() {
-		_deprecated_function( __METHOD__, 'jetpack-9.5.0' );
-		exit;
+	public static function connection_check() {
+		return JETPACK__VERSION;
 	}
 }

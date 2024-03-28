@@ -1,6 +1,0 @@
-Significance: minor
-Type: other
-
-Scheduled updates: Introduced a new body parameter `scheduled_update` to the `POST /sites/%s/plugins/%s` endpoint.
-
-When `POST /sites/%s/plugins/%s` endpoint is called with the `scheduled_update` parameter, we validate the request and modify the auto update plugins allowed list to include the ones in the scheduled updates option.

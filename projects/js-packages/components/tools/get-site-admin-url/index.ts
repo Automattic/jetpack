@@ -1,4 +1,3 @@
-import './types.ts';
 /**
  * Returns the site admin URL.
  *

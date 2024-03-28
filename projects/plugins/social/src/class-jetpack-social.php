@@ -123,6 +123,8 @@ class Jetpack_Social {
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'social_filter_available_modules' ), 10, 1 );
 
 		add_filter( 'plugin_action_links_' . JETPACK_SOCIAL_PLUGIN_FOLDER . '/jetpack-social.php', array( $this, 'add_settings_link' ) );
+
+		add_shortcode( 'jp_shares_shortcode', array( $this, 'add_shares_shortcode' ) );
 	}
 
 	/**
@@ -294,7 +296,7 @@ class Jetpack_Social {
 	 * @returns boolean True if the criteria are met.
 	 */
 	public function should_enqueue_block_editor_scripts() {
-		return $this->is_connected() && self::is_publicize_active() && $this->is_supported_post();
+		return is_admin() && $this->is_connected() && self::is_publicize_active() && $this->is_supported_post();
 	}
 
 	/**
@@ -504,5 +506,12 @@ class Jetpack_Social {
 			array( '<a href="' . esc_url( admin_url( 'admin.php?page=' . JETPACK_SOCIAL_PLUGIN_SLUG ) ) . '">' . __( 'Settings', 'jetpack-social' ) . '</a>' ),
 			$actions
 		);
+	}
+
+	/**
+	 * Adds the shares shortcode.
+	 */
+	public function add_shares_shortcode() {
+		return Social_Shares::get_the_social_shares( get_the_ID() );
 	}
 }

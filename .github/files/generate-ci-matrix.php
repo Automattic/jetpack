@@ -104,15 +104,16 @@ $any_errors = false;
 /**
  * Output an error for GH Actions.
  *
- * @param array ...$args Arguments as for printf.
+ * @param string $fmt Format string for printf.
+ * @param mixed  ...$args Arguments as for printf.
  */
-function error( ...$args ) {
+function error( $fmt, ...$args ) {
 	global $any_errors;
 
 	$any_errors = true;
 
 	$msg = strtr(
-		sprintf( ...$args ),
+		sprintf( $fmt, ...$args ),
 		array(
 			"\r" => '',
 			"\n" => '%0A',
@@ -125,7 +126,7 @@ function error( ...$args ) {
  * Join an array with commas and "or".
  *
  * @param array $vals Values to join.
- * @returns string
+ * @return string
  */
 function join_or( $vals ) {
 	if ( count( $vals ) > 1 ) {

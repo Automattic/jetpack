@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add data to WAF logs and add toggle for users to opt-in to share more data with us if needed.

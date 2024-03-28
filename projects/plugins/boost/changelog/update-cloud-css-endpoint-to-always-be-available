@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Cloud CSS: Update REST API endpoint to be available even if the module is turned off.

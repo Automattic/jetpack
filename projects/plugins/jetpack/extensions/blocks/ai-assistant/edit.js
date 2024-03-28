@@ -338,11 +338,25 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 			 * - Get HTML code from markdown content
 			 * - Create blocks from HTML code
 			 */
-			const HTML = markdownConverter
+			let HTML = markdownConverter
 				.render( attributes.content || '' )
 				// Fix list indentation
 				.replace( /<li>\s+<p>/g, '<li>' )
 				.replace( /<\/p>\s+<\/li>/g, '</li>' );
+
+			const seemsToIncludeTitle =
+				HTML?.split( '\n' ).length > 1 && HTML?.split( '\n' )?.[ 0 ]?.match( /^<h1>.*<\/h1>$/ );
+
+			if ( seemsToIncludeTitle && ! postTitle ) {
+				// split HTML on new line characters
+				const htmlLines = HTML.split( '\n' );
+				// take the first line as title
+				const title = htmlLines.shift();
+				// rejoin the rest of the lines on HTML
+				HTML = htmlLines.join( '\n' );
+				// set the title as post title
+				editPost( { title: title.replace( /<[^>]*>/g, '' ) } );
+			}
 			newGeneratedBlocks = rawHandler( { HTML: HTML } );
 		} else {
 			/*

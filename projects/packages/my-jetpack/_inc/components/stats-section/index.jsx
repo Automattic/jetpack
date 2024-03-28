@@ -1,18 +1,27 @@
 import { __ } from '@wordpress/i18n';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
+import { QUERY_STATS_COUNTS_KEY, getStatsHighlightsEndpoint } from '../../data/constants';
+import useProduct from '../../data/products/use-product';
+import useSimpleQuery from '../../data/use-simple-query';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
-import { useProduct } from '../../hooks/use-product';
-import useStatsCounts from '../../hooks/use-stats-counts';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import ProductCard from '../connected-product-card';
 import { PRODUCT_STATUSES } from '../product-card/action-button';
 import StatsCards from './cards';
 
 const StatsSection = () => {
 	const slug = 'stats';
+	const { blogID } = useMyJetpackConnection();
 	const { detail } = useProduct( slug );
 	const { status } = detail;
-	const isAdmin = !! window?.myJetpackInitialState?.userIsAdmin;
-	const { statsCounts } = useStatsCounts();
+	const isAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
+	const { data: statsCounts } = useSimpleQuery( {
+		name: QUERY_STATS_COUNTS_KEY,
+		query: {
+			path: getStatsHighlightsEndpoint( blogID ),
+		},
+	} );
 	const counts = statsCounts?.past_seven_days || {};
 	const previousCounts = statsCounts?.between_past_eight_and_fifteen_days || {};
 	const { recordEvent } = useAnalytics();

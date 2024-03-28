@@ -209,6 +209,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_commercial',
 		'is_commercial_reasons',
 		'wpcom_admin_interface',
+		'wpcom_classic_early_release',
 	);
 
 	/**
@@ -281,6 +282,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_commercial',
 		'is_commercial_reasons',
 		'wpcom_admin_interface',
+		'wpcom_classic_early_release',
 	);
 
 	/**
@@ -923,6 +925,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'wpcom_admin_interface':
 					$options[ $key ] = $site->get_wpcom_admin_interface();
+					break;
+				case 'wpcom_classic_early_release':
+					$options[ $key ] = $site->get_wpcom_classic_early_release();
 					break;
 			}
 		}

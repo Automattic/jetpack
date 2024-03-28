@@ -1,3 +1,8 @@
+declare module '*.png';
+declare module '*.svg';
+declare module '*.jpeg';
+declare module '*.jpg';
+declare module '*.scss';
 interface Window {
 	myJetpackInitialState?: {
 		siteSuffix: string;
@@ -22,8 +27,15 @@ interface Window {
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;
 		myJetpackFlags: {
-			showJetpackStatsCard: boolean;
+			showFullJetpackStatsCard: boolean;
 			videoPressStats: boolean;
+		};
+		lifecycleStats: {
+			isSiteConnected: boolean;
+			isUserConnected: boolean;
+			jetpackPlugins: Array< string >;
+			modules: Array< string >;
+			purchases: Array< string >;
 		};
 		myJetpackUrl: string;
 		myJetpackVersion: string;
@@ -53,6 +65,7 @@ interface Window {
 					description: string;
 					disclaimers: Array< string[] >;
 					features: string[];
+					has_paid_plan_for_product: boolean;
 					features_by_tier: Array< string >;
 					has_required_plan: boolean;
 					has_required_tier: Array< string >;
@@ -171,12 +184,18 @@ interface Window {
 				check_dns: boolean;
 			} >;
 		};
+		redBubbleAlerts: {
+			'missing-site-connection'?: null;
+			'welcome-banner-active'?: null;
+			[ key: `${ string }-bad-installation` ]: {
+				data: {
+					plugin: string;
+				};
+			};
+		};
 		topJetpackMenuItemUrl: string;
 		userIsAdmin: string;
 		userIsNewToJetpack: string;
-		welcomeBanner: {
-			hasBeenDismissed: boolean;
-		};
 	};
 	JP_CONNECTION_INITIAL_STATE: {
 		apiRoot: string;
@@ -229,5 +248,9 @@ interface Window {
 		wpVersion: string;
 		siteSuffix: string;
 		connectionErrors: Array< string | object >;
+	};
+	myJetpackRest?: {
+		apiRoot: string;
+		apiNonce: string;
 	};
 }

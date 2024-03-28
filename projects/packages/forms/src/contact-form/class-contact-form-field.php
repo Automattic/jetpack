@@ -26,7 +26,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	/**
 	 * The parent form.
 	 *
-	 * @var Grunion_Contact_Form
+	 * @var Contact_Form
 	 */
 	public $form;
 
@@ -75,9 +75,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	/**
 	 * Constructor function.
 	 *
-	 * @param array                $attributes An associative array of shortcode attributes.  @see shortcode_atts().
-	 * @param null|string          $content Null for selfclosing shortcodes.  The inner content otherwise.
-	 * @param Grunion_Contact_Form $form The parent form.
+	 * @param array        $attributes An associative array of shortcode attributes.  @see shortcode_atts().
+	 * @param null|string  $content Null for selfclosing shortcodes.  The inner content otherwise.
+	 * @param Contact_Form $form The parent form.
 	 */
 	public function __construct( $attributes, $content = null, $form = null ) {
 		$attributes = shortcode_atts(

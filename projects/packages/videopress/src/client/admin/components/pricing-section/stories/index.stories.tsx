@@ -5,7 +5,7 @@ import PricingSection from '..';
 /**
  * Types
  */
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 window.jetpackVideoPressInitialState = {
 	allowedVideoExtensions: {},
@@ -56,8 +56,8 @@ window.jetpackVideoPressInitialState = {
 export default {
 	title: 'Packages/VideoPress/PricingSection',
 	component: PricingSection,
-} as ComponentMeta< typeof PricingSection >;
+} as Meta< typeof PricingSection >;
 
-const Template: ComponentStory< typeof PricingSection > = args => <PricingSection { ...args } />;
+const Template: StoryFn< typeof PricingSection > = args => <PricingSection { ...args } />;
 
 export const Default = Template.bind( {} );

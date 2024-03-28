@@ -322,7 +322,7 @@ class PhpcsFilter extends Filter {
 	/**
 	 * Returns an iterator for the current entry.
 	 *
-	 * @return \RecursiveIterator
+	 * @return static
 	 */
 	public function getChildren() {
 		$filePath                 = $this->getInnerIterator()->current();

@@ -1189,6 +1189,7 @@ class WPCOM_JSON_API {
 	 * @param string|WP_Error  $message As for `wp_die()`.
 	 * @param string|int       $title As for `wp_die()`.
 	 * @param string|array|int $args As for `wp_die()`.
+	 * @return never
 	 */
 	public function wp_die_handler( $message, $title = '', $args = array() ) {
 		// Allow wp_die calls to override HTTP status code...

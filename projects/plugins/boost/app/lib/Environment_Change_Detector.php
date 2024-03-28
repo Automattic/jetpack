@@ -70,7 +70,7 @@ class Environment_Change_Detector {
 	 * @param bool   $is_major_change Whether the change is major.
 	 */
 	public function do_action( $is_major_change, $change_type ) {
-		do_action( 'handle_environment_change', $is_major_change, $change_type );
+		do_action( 'jetpack_boost_critical_css_environment_changed', $is_major_change, $change_type );
 	}
 
 	public static function get_available_env_change_statuses() {

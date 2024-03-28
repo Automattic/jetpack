@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevent enqueuing of admin styles on the frontend

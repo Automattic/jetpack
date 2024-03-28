@@ -157,20 +157,6 @@ class Creator extends Product {
 				),
 			),
 			array(
-				'name'  => __( 'Creator network', 'jetpack-my-jetpack' ),
-				'info'  => array(
-					'content' => __(
-						'<p>The creator network is the network of websites either hosted with WordPress.com or self-hosted and connected with Jetpack.</p>
-                        <p>Sites that are part of the creator network can gain exposure to new readers. Sites on the Creator plan have enhanced distribution to more areas of the Reader.</p>',
-						'jetpack-my-jetpack'
-					),
-				),
-				'tiers' => array(
-					self::FREE_TIER_SLUG     => array( 'included' => true ),
-					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
-				),
-			),
-			array(
 				'name'  => __( 'Jetpack Blocks', 'jetpack-my-jetpack' ),
 				'info'  => array(
 					'content' => __(

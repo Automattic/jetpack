@@ -35,7 +35,6 @@ describe( 'SettingsGroup', () => {
 			'notes',
 			'subscriptions',
 			'protect',
-			'enhanced-distribution',
 			'comments',
 			'json-api',
 			'photon',

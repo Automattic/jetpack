@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Modules;
@@ -902,11 +903,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	public function test_remove_contact_form_shortcode_from_filtered_content() {
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
-		require_once JETPACK__PLUGIN_DIR . 'modules/contact-form/grunion-contact-form.php';
-
 		$this->post->post_content = '<p>This post has a contact form:[contact-form][contact-field label=\'Name\' type=\'name\' required=\'1\'/][/contact-form]</p>';
 
-		Grunion_Contact_Form_Plugin::init();
+		Contact_Form_Plugin::init();
 
 		wp_update_post( $this->post );
 

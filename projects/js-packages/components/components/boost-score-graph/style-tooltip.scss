@@ -2,6 +2,11 @@ $grey: #8e8e8e;
 $black: #101517;
 $white: #ffffff;
 
+.jb-score-tooltips-container {
+    width: 100%;
+    position: relative;
+}
+
 .jb-score-tooltip {
     background-color: $black;
     color: $white;

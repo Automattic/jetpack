@@ -9,12 +9,15 @@ namespace Automattic\Jetpack\Extensions\Premium_Content;
 
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
+use WP_Post;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_CONTAINS_PAID_CONTENT;
 
 require_once __DIR__ . '/_inc/access-check.php';
 require_once __DIR__ . '/logged-out-view/logged-out-view.php';
 require_once __DIR__ . '/subscriber-view/subscriber-view.php';
 require_once __DIR__ . '/buttons/buttons.php';
 require_once __DIR__ . '/login-button/login-button.php';
+require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/subscriptions/constants.php';
 
 /**
  * Registers the block for use in Gutenberg
@@ -37,6 +40,34 @@ function register_block() {
 			),
 		)
 	);
+
+	register_post_meta(
+		'post',
+		META_NAME_CONTAINS_PAID_CONTENT,
+		array(
+			'show_in_rest'  => true,
+			'single'        => true,
+			'type'          => 'boolean',
+			'auth_callback' => function () {
+				return wp_get_current_user()->has_cap( 'edit_posts' );
+			},
+		)
+	);
+
+	// This ensures Jetpack will sync this post meta to WPCOM.
+	add_filter(
+		'jetpack_sync_post_meta_whitelist',
+		function ( $allowed_meta ) {
+			return array_merge(
+				$allowed_meta,
+				array(
+					META_NAME_CONTAINS_PAID_CONTENT,
+				)
+			);
+		}
+	);
+
+	add_action( 'save_post_post', __NAMESPACE__ . '\add_paid_content_post_meta', 99, 2 );
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
@@ -109,5 +140,21 @@ function stripe_nudge( $checkout_url, $description, $button_text ) {
 			'description' => $description,
 			'buttonText'  => $button_text,
 		)
+	);
+}
+
+/**
+ * Add a meta to prevent publication on firehose, ES AI or Reader
+ *
+ * @param int     $post_id Post id.
+ * @param WP_Post $post Post being saved.
+ * @return void
+ */
+function add_paid_content_post_meta( int $post_id, WP_Post $post ) {
+	$contains_paid_content = has_block( 'premium-content/container', $post );
+	update_post_meta(
+		$post_id,
+		META_NAME_CONTAINS_PAID_CONTENT,
+		$contains_paid_content
 	);
 }

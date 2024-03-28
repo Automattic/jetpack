@@ -1,7 +1,7 @@
 import { action } from '@storybook/addon-actions';
 import { VideoCard as VideoCardComponent } from '..';
 import { postersArray, randomPoster } from '../../../mock';
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'Packages/VideoPress/Video Card',
@@ -15,9 +15,9 @@ export default {
 			options: [ ...postersArray, 'none' ],
 		},
 	},
-} as ComponentMeta< typeof VideoCardComponent >;
+} as Meta< typeof VideoCardComponent >;
 
-const Template: ComponentStory< typeof VideoCardComponent > = args => {
+const Template: StoryFn< typeof VideoCardComponent > = args => {
 	if ( args.thumbnail === 'none' ) {
 		args.thumbnail = null;
 	}

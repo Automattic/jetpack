@@ -190,6 +190,7 @@ class REST_Products {
 			$activate_product_result->add_data( array( 'status' => 400 ) );
 			return $activate_product_result;
 		}
+		set_transient( 'my_jetpack_product_activated', $product_slug, 10 );
 
 		return rest_ensure_response( Products::get_product( $product_slug ), 200 );
 	}

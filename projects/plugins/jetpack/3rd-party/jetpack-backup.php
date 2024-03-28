@@ -31,6 +31,8 @@ if ( isset( $_GET['jetpack-backup-action'] ) ) { // phpcs:ignore WordPress.Secur
  * Verify the intent to install Jetpack Backup, and kick off installation.
  *
  * This works in tandem with a JITM set up in the JITM package.
+ *
+ * @return never
  */
 function try_install() {
 	check_admin_referer( 'jetpack-backup-install' );

@@ -119,6 +119,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'rss_use_excerpt'                         => '(bool) Whether the RSS feed will use post excerpts',
 			'launchpad_screen'                        => '(string) Whether or not launchpad is presented and what size it will be',
 			'sm_enabled'                              => '(bool) Whether the newsletter subscribe modal is enabled',
+			'jetpack_subscriptions_subscribe_post_end_enabled' => '(bool) Whether the subscribe block at the end of each post is enabled',
 			'wpcom_ai_site_prompt'                    => '(string) User input in the AI site prompt',
 		),
 
@@ -452,6 +453,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'wpcom_newsletter_categories'      => $newsletter_category_ids,
 						'wpcom_newsletter_categories_enabled' => (bool) get_option( 'wpcom_newsletter_categories_enabled' ),
 						'sm_enabled'                       => (bool) get_option( 'sm_enabled' ),
+						'jetpack_subscriptions_subscribe_post_end_enabled' => (bool) get_option( 'jetpack_subscriptions_subscribe_post_end_enabled' ),
 						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
 						'wpcom_reader_views_enabled'       => (bool) get_option( 'wpcom_reader_views_enabled', true ),
 						'wpcom_subscription_emails_use_excerpt' => $this->get_wpcom_subscription_emails_use_excerpt_option(),
@@ -460,6 +462,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'page_for_posts'                   => (string) get_option( 'page_for_posts' ),
 						'subscription_options'             => (array) get_option( 'subscription_options' ),
 						'jetpack_verbum_subscription_modal' => (bool) get_option( 'jetpack_verbum_subscription_modal', true ),
+						'enable_verbum_commenting'         => (bool) get_option( 'enable_verbum_commenting', true ),
+						'enable_blocks_comments'           => (bool) get_option( 'enable_blocks_comments', true ),
+						'highlander_comment_form_prompt'   => $this->get_highlander_comment_form_prompt_option(),
+						'jetpack_comment_form_color_scheme' => (string) get_option( 'jetpack_comment_form_color_scheme' ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -1084,6 +1090,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$updated[ $key ] = (int) (bool) $value;
 					break;
 
+				case 'jetpack_subscriptions_subscribe_post_end_enabled':
+					update_option( 'jetpack_subscriptions_subscribe_post_end_enabled', (int) (bool) $value );
+					$updated[ $key ] = (int) (bool) $value;
+					break;
+
 				case 'show_on_front':
 					if ( in_array( $value, array( 'page', 'posts' ), true ) && update_option( $key, $value ) ) {
 							$updated[ $key ] = $value;
@@ -1236,5 +1247,21 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		return $valid_page_id;
+	}
+
+	/**
+	 * Get the value of the highlander_comment_form_prompt option.
+	 * When the option is not set, it will return the default value.
+	 *
+	 * @return string
+	 */
+	protected function get_highlander_comment_form_prompt_option() {
+		$highlander_comment_form_prompt_option = get_option( 'highlander_comment_form_prompt' );
+
+		if ( empty( $highlander_comment_form_prompt_option ) ) {
+			return (string) __( 'Leave a comment', 'jetpack' );
+		}
+
+		return (string) $highlander_comment_form_prompt_option;
 	}
 }

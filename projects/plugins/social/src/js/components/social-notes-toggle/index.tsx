@@ -54,7 +54,7 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 		>
 			<Text className={ styles.text }>
 				{ __(
-					'Do you want to quickly share whats on your mind? Turn on Social Notes to effortlessly jot down and share quick notes without the need for titles or formatting, enabling swift and spontaneous communication to your followers.',
+					"Do you want to quickly share what's on your mind? Turn on Social Notes to effortlessly jot down and share quick notes without the need for titles or formatting, enabling swift and spontaneous communication with your followers.",
 					'jetpack-social'
 				) }
 			</Text>

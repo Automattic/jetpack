@@ -127,7 +127,7 @@ class Host {
 	 */
 	public function get_source_query() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		$allowed_sources = array( 'jetpack-manage' );
+		$allowed_sources = array( 'jetpack-manage', 'a8c-for-agencies' );
 		if ( isset( $_GET['source'] ) && in_array( $_GET['source'], $allowed_sources, true ) ) {
 			return sanitize_key( $_GET['source'] );
 		}

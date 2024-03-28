@@ -9,7 +9,7 @@ import { FilterButton, FilterSection, CheckboxCheckmark } from '..';
 /**
  * Types
  */
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'Packages/VideoPress/Video Filter',
@@ -17,21 +17,20 @@ export default {
 	parameters: {
 		layout: 'centered',
 	},
-} as ComponentMeta< typeof FilterButton >;
+} as Meta< typeof FilterButton >;
 
-const VideoFilterSectionTemplate: ComponentStory< typeof FilterSection > = FilterSection;
+const VideoFilterSectionTemplate: StoryFn< typeof FilterSection > = FilterSection;
 export const filterSection = VideoFilterSectionTemplate.bind( {} );
 filterSection.args = {};
 
-const VideoFilterButtonTemplate: ComponentStory< typeof FilterButton > = FilterButton;
+const VideoFilterButtonTemplate: StoryFn< typeof FilterButton > = FilterButton;
 export const filterButton = VideoFilterButtonTemplate.bind( {} );
 filterButton.args = {
 	isActive: false,
 	onClick: action( 'onClick' ),
 };
 
-const CheckboxCheckmarkButtonTemplate: ComponentStory< typeof CheckboxCheckmark > =
-	CheckboxCheckmark;
+const CheckboxCheckmarkButtonTemplate: StoryFn< typeof CheckboxCheckmark > = CheckboxCheckmark;
 export const checkboxCheckmark = CheckboxCheckmarkButtonTemplate.bind( {} );
 checkboxCheckmark.args = {
 	label: 'Is it checked?',

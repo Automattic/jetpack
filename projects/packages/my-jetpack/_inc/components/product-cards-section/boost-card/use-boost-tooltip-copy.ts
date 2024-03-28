@@ -1,9 +1,9 @@
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useMemo } from 'react';
-import { REST_API_SITE_PURCHASES_ENDPOINT } from '../../../data/constants';
+import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../../data/constants';
+import useProduct from '../../../data/products/use-product';
 import { Purchase } from '../../../data/types';
 import useSimpleQuery from '../../../data/use-simple-query';
-import { useProduct } from '../../../hooks/use-product';
 
 const JETPACK_BOOST_PRODUCTS = [
 	'jetpack_boost_bi_yearly',
@@ -28,8 +28,9 @@ export function useBoostTooltipCopy( {
 } ): React.ReactElement | string {
 	const slug = 'boost';
 	const { data: purchases, isLoading }: { data: Array< Purchase >; isLoading: boolean } =
-		useSimpleQuery( 'purchases', {
-			path: REST_API_SITE_PURCHASES_ENDPOINT,
+		useSimpleQuery( {
+			name: QUERY_PURCHASES_KEY,
+			query: { path: REST_API_SITE_PURCHASES_ENDPOINT },
 		} );
 	const hasBoostPaidPlan = useMemo( () => {
 		if ( isLoading ) {
@@ -38,13 +39,11 @@ export function useBoostTooltipCopy( {
 		if ( ! purchases?.length ) {
 			return false;
 		}
-
 		return (
 			purchases.filter( purchase => JETPACK_BOOST_PRODUCTS.includes( purchase.product_slug ) )
 				.length > 0
 		);
 	}, [ isLoading, purchases ] );
-
 	const { detail } = useProduct( slug );
 	const { isPluginActive } = detail;
 
@@ -99,12 +98,12 @@ export function useBoostTooltipCopy( {
 		switch ( speedLetterGrade ) {
 			case 'A':
 				return __(
-					'Your site is fast! But maintaining a high speed isn’t easy. Upgrade Boost to use automated CCS and image optimization tools to improve your performance on the go.',
+					'Your site is fast! But maintaining a high speed isn’t easy. Upgrade Boost to use automated CSS and image optimization tools to improve your performance on the go.',
 					'jetpack-my-jetpack'
 				);
 			case 'B':
 				return __(
-					'You are one step away from making your site blazing fast. Upgrade Boost to use automated CCS and image optimization tools to improve your performance.',
+					'You are one step away from making your site blazing fast. Upgrade Boost to use automated CSS and image optimization tools to improve your performance.',
 					'jetpack-my-jetpack'
 				);
 			default:

@@ -9,9 +9,10 @@ import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { arrowUp, Icon } from '@wordpress/icons';
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import useProduct from '../../../data/products/use-product';
+import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
-import { useProduct } from '../../../hooks/use-product';
 import { PRODUCT_STATUSES } from '../../product-card/action-button';
 import { useBoostTooltipCopy } from './use-boost-tooltip-copy';
 import type { FC } from 'react';
@@ -27,7 +28,7 @@ const BoostSpeedScore: FC = () => {
 	const [ isTooltipVisible, setIsTooltipVisible ] = useState( false );
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
-	const { siteSuffix: siteUrl = '', latestBoostSpeedScores } = window?.myJetpackInitialState ?? {};
+	const { siteSuffix: siteUrl = '', latestBoostSpeedScores } = getMyJetpackWindowInitialState();
 	const { apiRoot, apiNonce, isSiteConnected } = useMyJetpackConnection();
 	const slug = 'boost';
 	const { detail } = useProduct( slug );

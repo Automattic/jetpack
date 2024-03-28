@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Super Cache: with rebuild enabled, apply that to subdirectories instead of deleting them.

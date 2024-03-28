@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-General: avoid deprecation warnings when trying to get URLs in PHP 8.2

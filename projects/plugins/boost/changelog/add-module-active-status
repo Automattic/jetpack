@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Speed Score: More accurately detect which modules are active when a speed score is requested.

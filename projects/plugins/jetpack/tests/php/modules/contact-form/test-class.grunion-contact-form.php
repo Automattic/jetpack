@@ -1,18 +1,22 @@
 <?php
+
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field;
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
+use Automattic\Jetpack\Forms\ContactForm\Util;
+
 /**
- * Unit Tests for Grunion_Contact_Form.
+ * Unit Tests for Contact_Form.
  *
  * @package automattic/jetpack
  */
 
-require_once JETPACK__PLUGIN_DIR . 'modules/contact-form/grunion-contact-form.php';
-
 /**
- * Test class for Grunion_Contact_Form
+ * Test class for Contact_Form
  *
- * @covers Grunion_Contact_Form
+ * @covers Contact_Form
  */
-class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
+class WP_Test_Contact_Form extends WP_UnitTestCase {
 
 	private $post;
 	private $plugin;
@@ -70,7 +74,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->post = $post;
 
 		// Initialize plugin.
-		$this->plugin = Grunion_Contact_Form_Plugin::init();
+		$this->plugin = Contact_Form_Plugin::init();
 		// Call to add tokenization hook.
 		$this->plugin->process_form_submission();
 	}
@@ -105,7 +109,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @author tonykova
 	 */
 	public function test_process_submission_will_store_a_feedback_correctly_with_default_form() {
-		$form   = new Grunion_Contact_Form( array() );
+		$form   = new Contact_Form( array() );
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
@@ -140,7 +144,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		// Initialize a form with name, dropdown and radiobutton (first, second
 		// and third option), text field.
-		$form   = new Grunion_Contact_Form( array(), "[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]" );
+		$form   = new Contact_Form( array(), "[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]" );
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
@@ -173,7 +177,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @author tonykova
 	 */
 	public function test_process_submission_will_store_subject_when_specified() {
-		$form   = new Grunion_Contact_Form( array( 'subject' => 'I\'m sorry, but the party\'s over' ) ); // Default form.
+		$form   = new Contact_Form( array( 'subject' => 'I\'m sorry, but the party\'s over' ) ); // Default form.
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
@@ -202,7 +206,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			)
 		);
 
-		$form = new Grunion_Contact_Form( array( 'subject' => 'Hello {name} from {state}!' ), "[contact-field label='Name' type='name' required='1'/][contact-field label='State' type='text'/]" );
+		$form = new Contact_Form( array( 'subject' => 'Hello {name} from {state}!' ), "[contact-field label='Name' type='name' required='1'/][contact-field label='State' type='text'/]" );
 
 		$result = $form->process_submission();
 
@@ -232,7 +236,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			)
 		);
 
-		$form   = new Grunion_Contact_Form( array( 'subject' => 'Hello {name} from {state}!' ), "[contact-field label='Name' type='name' required='1'/][contact-field label='State' type='radio' options='Kansas,California'/]" );
+		$form   = new Contact_Form( array( 'subject' => 'Hello {name} from {state}!' ), "[contact-field label='Name' type='name' required='1'/][contact-field label='State' type='radio' options='Kansas,California'/]" );
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
@@ -261,7 +265,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			)
 		);
 
-		$form   = new Grunion_Contact_Form( array( 'subject' => 'Hello {name} from {state}!' ), "[contact-field label='Name' type='name' required='1'/][contact-field label='State' type='select' options='Kansas,California'/]" );
+		$form   = new Contact_Form( array( 'subject' => 'Hello {name} from {state}!' ), "[contact-field label='Name' type='name' required='1'/][contact-field label='State' type='select' options='Kansas,California'/]" );
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
@@ -294,7 +298,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		// Initialize a form with name, dropdown and radiobutton (first, second
 		// and third option), text field.
-		$form   = new Grunion_Contact_Form( array(), "[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]" );
+		$form   = new Contact_Form( array(), "[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]" );
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
@@ -330,7 +334,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		// Initialize a form with name, dropdown and radiobutton (first, second
 		// and third option), text field.
-		$form   = new Grunion_Contact_Form( array(), "[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]" );
+		$form   = new Contact_Form( array(), "[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]" );
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
@@ -371,7 +375,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		// Initialize a form with name, dropdown and radiobutton (first, second
 		// and third option), text field.
-		$form   = new Grunion_Contact_Form(
+		$form   = new Contact_Form(
 			array(
 				'to'      => 'john <john@example.com>',
 				'subject' => 'Hello there!',
@@ -416,7 +420,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		// Initialize a form with name, dropdown and radiobutton (first, second
 		// and third option), text field.
-		$form = new Grunion_Contact_Form(
+		$form = new Contact_Form(
 			array(
 				'to'      => 'john@example.com, jane@example.com',
 				'subject' => 'Hello there!',
@@ -454,7 +458,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		// Initialize a form with name, dropdown and radiobutton (first, second
 		// and third option), text field.
-		$form = new Grunion_Contact_Form(
+		$form = new Contact_Form(
 			array(
 				'to'      => 'john@example.com, jane@example.com',
 				'subject' => 'Hello there!',
@@ -484,7 +488,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	public function test_process_submission_fails_if_spam_marked_with_WP_Error() {
 		add_filter( 'jetpack_contact_form_is_spam', array( $this, 'pre_test_process_submission_fails_if_spam_marked_with_WP_Error' ), 11 ); // Run after akismet filter.
 
-		$form   = new Grunion_Contact_Form( array() );
+		$form   = new Contact_Form( array() );
 		$result = $form->process_submission();
 
 		$this->assertInstanceOf( 'WP_Error', $result, 'When $is_spam contains a WP_Error, the result of process_submission should be a WP_Error' );
@@ -508,7 +512,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		add_filter( 'wp_mail', array( $this, 'pre_test_process_submission_wont_send_spam_if_marked_as_spam_with_true' ) );
 
-		$form   = new Grunion_Contact_Form( array( 'to' => 'john@example.com' ) );
+		$form   = new Contact_Form( array( 'to' => 'john@example.com' ) );
 		$result = $form->process_submission();
 		$this->assertNotNull( $result );
 	}
@@ -532,7 +536,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		add_filter( 'wp_mail', array( $this, 'pre_test_process_submission_labels_message_as_spam_in_subject_if_marked_as_spam_with_true_and_sending_spam' ) );
 
-		$form   = new Grunion_Contact_Form( array( 'to' => 'john@example.com' ) );
+		$form   = new Contact_Form( array( 'to' => 'john@example.com' ) );
 		$result = $form->process_submission();
 		$this->assertNotNull( $result );
 	}
@@ -562,7 +566,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			)
 		);
 
-		grunion_delete_old_spam();
+		Util::grunion_delete_old_spam();
 		$this->assertNull( get_post( $post_id ), 'An old spam feedback should be deleted' );
 	}
 
@@ -580,7 +584,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			)
 		);
 
-		grunion_delete_old_spam();
+		Util::grunion_delete_old_spam();
 		$this->assertEquals( $post_id, get_post( $post_id )->ID, 'A new spam feedback should be left intact when deleting old spam' );
 	}
 
@@ -588,10 +592,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * Tests that token is left intact when there is not matching field.
 	 *
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form_Plugin
+	 * @covers Contact_Form_Plugin
 	 */
 	public function test_token_left_intact_when_no_matching_field() {
-		$plugin       = Grunion_Contact_Form_Plugin::init();
+		$plugin       = Contact_Form_Plugin::init();
 		$subject      = 'Hello {name}!';
 		$field_values = array(
 			'City' => 'Chicago',
@@ -604,10 +608,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * Tests that token is replaced with an empty string when there is not value in field.
 	 *
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form_Plugin
+	 * @covers Contact_Form_Plugin
 	 */
 	public function test_replaced_with_empty_string_when_no_value_in_field() {
-		$plugin       = Grunion_Contact_Form_Plugin::init();
+		$plugin       = Contact_Form_Plugin::init();
 		$subject      = 'Hello {name}!';
 		$field_values = array(
 			'Name' => null,
@@ -620,10 +624,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * Tests that token in curly brackets is replaced with the value when the name has whitespace.
 	 *
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form_Plugin
+	 * @covers Contact_Form_Plugin
 	 */
 	public function test_token_can_replace_entire_subject_with_token_field_whose_name_has_whitespace() {
-		$plugin       = Grunion_Contact_Form_Plugin::init();
+		$plugin       = Contact_Form_Plugin::init();
 		$subject      = '{subject token}';
 		$field_values = array(
 			'Subject Token' => 'Chicago',
@@ -636,10 +640,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * Tests that token with curly brackets is replaced with value.
 	 *
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form_Plugin
+	 * @covers Contact_Form_Plugin
 	 */
 	public function test_token_with_curly_brackets_can_be_replaced() {
-		$plugin       = Grunion_Contact_Form_Plugin::init();
+		$plugin       = Contact_Form_Plugin::init();
 		$subject      = '{subject {token}}';
 		$field_values = array(
 			'Subject {Token}' => 'Chicago',
@@ -654,7 +658,12 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @author tonykova
 	 */
 	public function test_parse_contact_field_keeps_string_unchanged_when_no_escaping_necesssary() {
-		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
+		add_shortcode(
+			'contact-field',
+			function ( $attributes, $content ) {
+				return Contact_Form::parse_contact_field( $attributes, $content );
+			}
+		);
 
 		// @phpcs:ignore Squiz.Strings.DoubleQuoteUsage.NotRequired
 		$shortcode = "[contact-field label=\"Name\" type=\"name\" required=\"1\"/][contact-field label=\"Email\" type=\"email\" required=\"1\"/][contact-field label=\"asdasd\" type=\"text\"/][contact-field id=\"1\" required derp herp asd lkj]adsasd[/contact-field]";
@@ -667,7 +676,12 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * Tests that the default label is added when no label is present.
 	 */
 	public function test_make_sure_that_we_add_default_label_when_non_is_present() {
-		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
+		add_shortcode(
+			'contact-field',
+			function ( $attributes, $content ) {
+				return Contact_Form::parse_contact_field( $attributes, $content );
+			}
+		);
 		$shortcode = "[contact-field type='name' required='1' /]";
 		$html      = do_shortcode( $shortcode );
 		// @phpcs:ignore Squiz.Strings.DoubleQuoteUsage.NotRequired
@@ -678,7 +692,12 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * Tests the empty options are removed from form fields.
 	 */
 	public function test_make_sure_that_we_remove_empty_options_from_form_field() {
-		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
+		add_shortcode(
+			'contact-field',
+			function ( $attributes, $content ) {
+				return Contact_Form::parse_contact_field( $attributes, $content );
+			}
+		);
 		$shortcode = "[contact-field type='select' required='1' options='fun,,run' label='fun times' values='go,,have some fun'/]";
 		$html      = do_shortcode( $shortcode );
 		// @phpcs:ignore Squiz.Strings.DoubleQuoteUsage.NotRequired
@@ -688,10 +707,15 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Tests shortcode with commas and brackets.
 	 *
-	 * @covers Grunion_Contact_Form_Field
+	 * @covers Contact_Form_Field
 	 */
 	public function test_array_values_with_commas_and_brackets() {
-		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
+		add_shortcode(
+			'contact-field',
+			function ( $attributes, $content ) {
+				return Contact_Form::parse_contact_field( $attributes, $content );
+			}
+		);
 		$shortcode = "[contact-field type='radio' options='\"foo\",bar&#044; baz,&#091;b&#092;rackets&#093;' label='fun &#093;&#091; times'/]";
 		$html      = do_shortcode( $shortcode );
 		$this->assertEquals( '[contact-field type="radio" options="&quot;foo&quot;,bar&#044; baz,&#091;b&#092;rackets&#093;" label="fun &#093;&#091; times"/]', $html );
@@ -700,7 +724,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Tests Gutenblock input with commas and brackets.
 	 *
-	 * @covers Grunion_Contact_Form_Field
+	 * @covers Contact_Form_Field
 	 */
 	public function test_array_values_with_commas_and_brackets_from_gutenblock() {
 		$attr = array(
@@ -708,14 +732,14 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'options' => array( '"foo"', 'bar, baz', '[b\\rackets]' ),
 			'label'   => 'fun ][ times',
 		);
-		$html = Grunion_Contact_Form_Plugin::gutenblock_render_field_radio( $attr, '' );
+		$html = Contact_Form_Plugin::gutenblock_render_field_radio( $attr, '' );
 		$this->assertEquals( '[contact-field type="radio" options="&quot;foo&quot;,bar&#044; baz,&#091;b&#092;rackets&#093;" label="fun &#093;&#091; times"/]', $html );
 	}
 
 	/**
 	 * Test for text field_renders
 	 *
-	 * @covers Grunion_Contact_Form_Field
+	 * @covers Contact_Form_Field
 	 */
 	public function test_make_sure_text_field_renders_as_expected() {
 		$attributes = array(
@@ -734,7 +758,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test for email field_renders
 	 *
-	 * @covers Grunion_Contact_Form_Field
+	 * @covers Contact_Form_Field
 	 */
 	public function test_make_sure_email_field_renders_as_expected() {
 		$attributes = array(
@@ -753,7 +777,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test for url field_renders
 	 *
-	 * @covers Grunion_Contact_Form_Field
+	 * @covers Contact_Form_Field
 	 */
 	public function test_make_sure_url_field_renders_as_expected() {
 		$attributes = array(
@@ -772,7 +796,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test for telephone field_renders
 	 *
-	 * @covers Grunion_Contact_Form_Field
+	 * @covers Contact_Form_Field
 	 */
 	public function test_make_sure_telephone_field_renders_as_expected() {
 		$attributes = array(
@@ -791,7 +815,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test for date field_renders
 	 *
-	 * @covers Grunion_Contact_Form_Field
+	 * @covers Contact_Form_Field
 	 */
 	public function test_make_sure_date_field_renders_as_expected() {
 		$attributes = array(
@@ -801,6 +825,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'default'     => 'foo',
 			'placeholder' => 'PLACEHOLDTHIS!',
 			'id'          => 'funID',
+			'format'      => '(YYYY-MM-DD)',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'text' ) );
@@ -810,7 +835,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test for textarea field_renders
 	 *
-	 * @covers Grunion_Contact_Form_Field
+	 * @covers Contact_Form_Field
 	 */
 	public function test_make_sure_textarea_field_renders_as_expected() {
 		$attributes = array(
@@ -829,7 +854,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test for checkbox field_renders
 	 *
-	 * @covers Grunion_Contact_Form_Field
+	 * @covers Contact_Form_Field
 	 */
 	public function test_make_sure_checkbox_field_renders_as_expected() {
 		$attributes = array(
@@ -848,7 +873,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Multiple fields
 	 *
-	 * @covers Grunion_Contact_Form_Field
+	 * @covers Contact_Form_Field
 	 */
 	public function test_make_sure_checkbox_multiple_field_renders_as_expected() {
 		$attributes = array(
@@ -868,7 +893,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test for radio field_renders
 	 *
-	 * @covers Grunion_Contact_Form_Field
+	 * @covers Contact_Form_Field
 	 */
 	public function test_make_sure_radio_field_renders_as_expected() {
 		$attributes = array(
@@ -888,7 +913,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test for select field_renders
 	 *
-	 * @covers Grunion_Contact_Form_Field
+	 * @covers Contact_Form_Field
 	 */
 	public function test_make_sure_select_field_renders_as_expected() {
 		$attributes = array(
@@ -906,15 +931,15 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Renders a Grunion_Contact_Form_Field.
+	 * Renders a Contact_Form_Field.
 	 *
 	 * @param array $attributes An associative array of shortcode attributes.
 	 *
 	 * @return string The field html string.
 	 */
 	public function render_field( $attributes ) {
-		$form  = new Grunion_Contact_Form( array() );
-		$field = new Grunion_Contact_Form_Field( $attributes, '', $form );
+		$form  = new Contact_Form( array() );
+		$field = new Contact_Form_Field( $attributes, '', $form );
 		return $field->render();
 	}
 
@@ -976,6 +1001,43 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests whether the class attribute in the wrapper div matches the field's class attribute value.
+	 *
+	 * @param DOMElement $wrapper_div The wrapper div.
+	 * @param array      $attributes An associative array containing the field's attributes.
+	 */
+	public function assertFieldClasses( $wrapper_div, $attributes ) {
+		if ( 'date' === $attributes['type'] ) {
+			$attributes['class'] = 'jp-contact-form-date';
+		}
+
+		$css_class = "grunion-field-{$attributes['type']}-wrap {$attributes['class']}-wrap grunion-field-wrap";
+
+		$this->assertEquals(
+			$wrapper_div->getAttribute( 'class' ),
+			$css_class,
+			'div class attribute doesn\'t match'
+		);
+	}
+
+	/**
+	 * Tests whether the label in the wrapper div matches the field's label.
+	 *
+	 * @param DOMElement $wrapper_div The wrapper div.
+	 * @param array      $attributes An associative array containing the field's attributes.
+	 * @param string     $tag_name The tag used to label the field. Could be `legend` for checkboxes
+	 *                                                       and radio buttons.
+	 */
+	public function assertFieldLabel( $wrapper_div, $attributes, $tag_name = 'label' ) {
+		$type     = $attributes['type'];
+		$label    = $this->getFirstElement( $wrapper_div, $tag_name );
+		$expected = 'date' === $type ? $attributes['label'] . ' ' . $attributes['format'] : $attributes['label'];
+
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$this->assertEquals( $expected, trim( $label->nodeValue ), 'Label is not what we expect it to be...' );
+	}
+
+	/**
 	 * Tests whether a field is valid.
 	 *
 	 * @param string $html The html string.
@@ -984,7 +1046,8 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	public function assertValidField( $html, $attributes ) {
 
 		$wrapper_div = $this->getCommonDiv( $html );
-		$this->assertCommonValidHtml( $wrapper_div, $attributes );
+		$this->assertFieldClasses( $wrapper_div, $attributes );
+		$this->assertFieldLabel( $wrapper_div, $attributes );
 
 		// Get label.
 		$label = $this->getFirstElement( $wrapper_div, 'label' );
@@ -1047,10 +1110,11 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	public function assertValidCheckboxField( $html, $attributes ) {
 
 		$wrapper_div = $this->getCommonDiv( $html );
-		$this->assertCommonValidHtml( $wrapper_div, $attributes );
+		$this->assertFieldClasses( $wrapper_div, $attributes );
+		$this->assertFieldLabel( $wrapper_div, $attributes );
 
-		$label = $this->getFirstElement( $wrapper_div, 'label' );
-		$input = $this->getFirstElement( $label, 'input' );
+		$label = $wrapper_div->getElementsByTagName( 'label' )->item( 0 );
+		$input = $wrapper_div->getElementsByTagName( 'input' )->item( 0 );
 
 		$this->assertEquals( $label->getAttribute( 'class' ), 'grunion-field-label ' . $attributes['type'], 'label class doesn\'t match' );
 
@@ -1073,13 +1137,13 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	public function assertValidFieldMultiField( $html, $attributes ) {
 
 		$wrapper_div = $this->getCommonDiv( $html );
-		$this->assertCommonValidHtml( $wrapper_div, $attributes );
-
-		// Get label.
-		$label = $this->getFirstElement( $wrapper_div, 'label' );
+		$this->assertFieldClasses( $wrapper_div, $attributes );
 
 		// Inputs.
 		if ( 'select' === $attributes['type'] ) {
+			$label = $this->getFirstElement( $wrapper_div, 'label' );
+
+			$this->assertFieldLabel( $wrapper_div, $attributes );
 			$this->assertEquals( 'grunion-field-label select', $label->getAttribute( 'class' ), 'label class doesn\'t match' );
 
 			$select = $this->getFirstElement( $wrapper_div, 'select' );
@@ -1095,7 +1159,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				'label for does not equal input name!'
 			);
 
-			$this->assertEquals( $select->getAttribute( 'class' ), 'select ' . $attributes['class'] . ' grunion-field contact-form-dropdown', ' select class does not match expected' );
+			$this->assertEquals( $select->getAttribute( 'class' ), 'select ' . $attributes['class'] . ' grunion-field', ' select class does not match expected' );
 
 			// Options.
 			$options = $select->getElementsByTagName( 'option' );
@@ -1114,18 +1178,22 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				$this->assertEquals( $option->nodeValue, $attributes['options'][ $i ], 'Input does not match the option' );
 			}
 		} else {
+			$label = $this->getFirstElement( $wrapper_div, 'legend' );
+
+			$this->assertFieldLabel( $wrapper_div, $attributes, 'legend' );
 			$this->assertEquals( 'grunion-field-label', $label->getAttribute( 'class' ), 'label class doesn\'t match' );
 			// Radio and Checkboxes.
 			$labels = $wrapper_div->getElementsByTagName( 'label' );
-			$n      = $labels->length - 1;
+			$n      = $labels->length;
 			$this->assertCount( $n, $attributes['options'], 'Number of inputs doesn\'t match number of options' );
 			$this->assertCount( $n, $attributes['values'], 'Number of inputs doesn\'t match number of values' );
 			for ( $i = 0; $i < $n; $i++ ) {
-				$item_label = $labels->item( $i + 1 );
+				$item_label = $labels->item( $i );
 				//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				$this->assertEquals( $item_label->nodeValue, ' ' . $attributes['options'][ $i ] ); // extra space added for a padding.
+				$this->assertEquals( $item_label->nodeValue, $attributes['options'][ $i ] );
 
-				$input = $this->getFirstElement( $item_label, 'input' );
+				//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$input = $item_label->parentNode->getElementsByTagName( 'input' )->item( 0 );
 				$this->assertEquals( $input->getAttribute( 'type' ), $attributes['input_type'], 'Type doesn\'t match' );
 				if ( 'radio' === $attributes['input_type'] ) {
 					$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'], 'Input name doesn\'t match' );
@@ -1149,7 +1217,12 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @author tonykova
 	 */
 	public function test_parse_contact_field_escapes_things_inside_a_value_and_attribute_and_the_content() {
-		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
+		add_shortcode(
+			'contact-field',
+			function ( $attributes, $content ) {
+				return Contact_Form::parse_contact_field( $attributes, $content );
+			}
+		);
 
 		$shortcode = "[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type=''email'' req'uired='1'/][contact-field label='asdasd' type='text'/][contact-field id='1' required 'derp' herp asd lkj]adsasd[/contact-field]";
 		$html      = do_shortcode( $shortcode );
@@ -1164,22 +1237,23 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test get_export_data_for_posts with fully vaid data input.
 	 *
-	 * @covers Grunion_Contact_Form_Plugin
+	 * @covers Contact_Form_Plugin
 	 * @group csvexport
 	 */
 	public function test_get_export_data_for_posts_fully_valid_data() {
 		/**
-		 * Grunion_Contact_Form_Plugin mock object.
+		 * Contact_Form_Plugin mock object.
 		 *
-		 * @var Grunion_Contact_Form_Plugin $mock
+		 * @var Contact_Form_Plugin $mock
 		 */
-		$mock = $this->getMockBuilder( 'Grunion_Contact_Form_Plugin' )
+		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
 			->setMethods(
 				array(
 					'get_post_meta_for_csv_export',
 					'get_parsed_field_contents_of_post',
 					'get_post_content_for_csv_export',
 					'map_parsed_field_contents_of_post_to_field_names',
+					'has_json_data',
 				)
 			)
 			->disableOriginalConstructor()
@@ -1188,6 +1262,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$get_post_meta_for_csv_export_map = array(
 			array(
 				15,
+				false,
 				array(
 					'key1' => 'value1',
 					'key2' => 'value2',
@@ -1198,6 +1273,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			),
 			array(
 				16,
+				false,
 				array(
 					'key3' => 'value3',
 					'key4' => 'value4',
@@ -1223,6 +1299,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 					'_feedback_subject'      => 'subj1',
 					'_feedback_main_comment' => 'This is my test 15',
 				),
+				true,
 				array(
 					'Contact Form' => 'subj1',
 					'4_Comment'    => 'This is my test 15',
@@ -1233,6 +1310,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 					'_feedback_subject'      => 'subj2',
 					'_feedback_main_comment' => 'This is my test 16',
 				),
+				true,
 				array(
 					'Contact Form' => 'subj2',
 					'4_Comment'    => 'This is my test 16',
@@ -1256,6 +1334,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			->method( 'map_parsed_field_contents_of_post_to_field_names' )
 			->willReturnMap( $mapped_fields_contents_map );
 
+		$mock->expects( $this->exactly( 2 ) )
+			->method( 'has_json_data' )
+			->willReturn( false );
+
 		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
 
 		$expected_result = array(
@@ -1275,16 +1357,16 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test get_export_data_for_posts with single invalid entry for post meta
 	 *
-	 * @covers Grunion_Contact_Form_Plugin
+	 * @covers Contact_Form_Plugin
 	 * @group csvexport
 	 */
 	public function test_get_export_data_for_posts_invalid_single_entry_meta() {
 		/**
-		 * Grunion_Contact_Form_Plugin mock object.
+		 * Contact_Form_Plugin mock object.
 		 *
-		 * @var Grunion_Contact_Form_Plugin $mock
+		 * @var Contact_Form_Plugin $mock
 		 * */
-		$mock = $this->getMockBuilder( 'Grunion_Contact_Form_Plugin' )
+		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
 			->setMethods(
 				array(
 					'get_post_meta_for_csv_export',
@@ -1297,9 +1379,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			->getMock();
 
 		$get_post_meta_for_csv_export_map = array(
-			array( 15, null ),
+			array( 15, false, null ),
 			array(
 				16,
+				false,
 				array(
 					'key3' => 'value3',
 					'key4' => 'value4',
@@ -1325,6 +1408,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 					'_feedback_subject'      => 'subj1',
 					'_feedback_main_comment' => 'This is my test 15',
 				),
+				true,
 				array(
 					'Contact Form' => 'subj1',
 					'Comment'      => 'This is my test 15',
@@ -1335,6 +1419,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 					'_feedback_subject'      => 'subj2',
 					'_feedback_main_comment' => 'This is my test 16',
 				),
+				true,
 				array(
 					'Contact Form' => 'subj2',
 					'Comment'      => 'This is my test 16',
@@ -1377,16 +1462,16 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test get_export_data_for_posts with invalid all entries for post meta
 	 *
-	 * @covers Grunion_Contact_Form_Plugin
+	 * @covers Contact_Form_Plugin
 	 * @group csvexport
 	 */
 	public function test_get_export_data_for_posts_invalid_all_entries_meta() {
 		/**
-		 * Grunion_Contact_Form_Plugin mock object.
+		 * Contact_Form_Plugin mock object.
 		 *
-		 * @var Grunion_Contact_Form_Plugin $mock
+		 * @var Contact_Form_Plugin $mock
 		 */
-		$mock = $this->getMockBuilder( 'Grunion_Contact_Form_Plugin' )
+		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
 			->setMethods(
 				array(
 					'get_post_meta_for_csv_export',
@@ -1399,8 +1484,8 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			->getMock();
 
 		$get_post_meta_for_csv_export_map = array(
-			array( 15, null ),
-			array( 16, null ),
+			array( 15, false, null ),
+			array( 16, false, null ),
 		);
 
 		$get_parsed_field_contents_of_post_map = array(
@@ -1419,6 +1504,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 					'_feedback_subject'      => 'subj1',
 					'_feedback_main_comment' => 'This is my test 15',
 				),
+				true,
 				array(
 					'Contact Form' => 'subj1',
 					'Comment'      => 'This is my test 15',
@@ -1429,6 +1515,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 					'_feedback_subject'      => 'subj2',
 					'_feedback_main_comment' => 'This is my test 16',
 				),
+				true,
 				array(
 					'Contact Form' => 'subj2',
 					'Comment'      => 'This is my test 16',
@@ -1465,16 +1552,16 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test get_export_data_for_posts with single invalid entry for parsed fields.
 	 *
-	 * @covers Grunion_Contact_Form_Plugin
+	 * @covers Contact_Form_Plugin
 	 * @group csvexport
 	 */
 	public function test_get_export_data_for_posts_single_invalid_entry_for_parse_fields() {
 		/**
-		 * Grunion_Contact_Form_Plugin mock object.
+		 * Contact_Form_Plugin mock object.
 		 *
-		 * @var Grunion_Contact_Form_Plugin $mock
+		 * @var Contact_Form_Plugin $mock
 		 * */
-		$mock = $this->getMockBuilder( 'Grunion_Contact_Form_Plugin' )
+		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
 			->setMethods(
 				array(
 					'get_post_meta_for_csv_export',
@@ -1489,6 +1576,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$get_post_meta_for_csv_export_map = array(
 			array(
 				15,
+				false,
 				array(
 					'key1' => 'value1',
 					'key2' => 'value2',
@@ -1499,6 +1587,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			),
 			array(
 				16,
+				false,
 				array(
 					'key3' => 'value3',
 					'key4' => 'value4',
@@ -1524,6 +1613,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 					'_feedback_subject'      => 'subj1',
 					'_feedback_main_comment' => 'This is my test 15',
 				),
+				true,
 				array(
 					'Contact Form' => 'subj1',
 					'Comment'      => 'This is my test 15',
@@ -1534,6 +1624,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 					'_feedback_subject'      => 'subj2',
 					'_feedback_main_comment' => 'This is my test 16',
 				),
+				true,
 				array(
 					'Contact Form' => 'subj2',
 					'Comment'      => 'This is my test 16',
@@ -1574,16 +1665,16 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test get_export_data_for_posts with all entries for parsed fields invalid.
 	 *
-	 * @covers Grunion_Contact_Form_Plugin
+	 * @covers Contact_Form_Plugin
 	 * @group csvexport
 	 */
 	public function test_get_export_data_for_posts_all_entries_for_parse_fields_invalid() {
 		/**
-		 * Grunion_Contact_Form_Plugin mock object.
+		 * Contact_Form_Plugin mock object.
 		 *
-		 * @var Grunion_Contact_Form_Plugin $mock
+		 * @var Contact_Form_Plugin $mock
 		 */
-		$mock = $this->getMockBuilder( 'Grunion_Contact_Form_Plugin' )
+		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
 			->setMethods(
 				array(
 					'get_post_meta_for_csv_export',
@@ -1617,7 +1708,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test map_parsed_field_contents_of_post_to_field_names
 	 *
-	 * @covers Grunion_Contact_Form_Plugin
+	 * @covers Contact_Form_Plugin
 	 * @group csvexport
 	 */
 	public function test_map_parsed_field_contents_of_post_to_field_names() {
@@ -1632,7 +1723,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'another_field'          => 'thunderstruck',
 		);
 
-		$plugin = Grunion_Contact_Form_Plugin::init();
+		$plugin = Contact_Form_Plugin::init();
 
 		$result = $plugin->map_parsed_field_contents_of_post_to_field_names( $input_data );
 
@@ -1646,7 +1737,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the functionality of 'Grunion_Contact_Form_Plugin::personal_data_exporter'.
+	 * Tests the functionality of 'Contact_Form_Plugin::personal_data_exporter'.
 	 *
 	 * @author jaswrks
 	 */
@@ -1662,7 +1753,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		);
 
 		for ( $i = 1; $i <= 2; $i++ ) {
-			$form = new Grunion_Contact_Form(
+			$form = new Contact_Form(
 				array(
 					'to'      => '"john" <john@example.com>',
 					'subject' => 'Hello world! [ ' . wp_rand() . ' ]',
@@ -1696,7 +1787,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the functionality of 'Grunion_Contact_Form_Plugin::personal_data_eraser'.
+	 * Tests the functionality of 'Contact_Form_Plugin::personal_data_eraser'.
 	 *
 	 * @author jaswrks
 	 */
@@ -1709,7 +1800,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		);
 
 		for ( $i = 1; $i <= 2; $i++ ) {
-			$form = new Grunion_Contact_Form(
+			$form = new Contact_Form(
 				array(
 					'to'      => '"john" <john@example.com>',
 					'subject' => 'Hello world! [ ' . wp_rand() . ' ]',
@@ -1735,7 +1826,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the functionality of 'Grunion_Contact_Form_Plugin::personal_data_eraser' with pagination.
+	 * Tests the functionality of 'Contact_Form_Plugin::personal_data_eraser' with pagination.
 	 */
 	public function test_personal_data_eraser_pagination() {
 		$this->add_field_values(
@@ -1746,7 +1837,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		);
 
 		for ( $i = 1; $i <= 3; $i++ ) {
-			$form = new Grunion_Contact_Form(
+			$form = new Contact_Form(
 				array(
 					'to'      => '"jane" <jane_doe@example.com>',
 					'subject' => 'Hello world! [ ' . wp_rand() . ' ]',
@@ -1769,7 +1860,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			)
 		);
 
-		$form = new Grunion_Contact_Form(
+		$form = new Contact_Form(
 			array(
 				'to'      => '"jane" <jane@example.com>',
 				'subject' => 'Hello world! [ ' . wp_rand() . ' ]',
@@ -1853,7 +1944,7 @@ EOT;
 EOT;
 		$this->assertEquals(
 			$expected,
-			grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
+			Util::grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
 		);
 		// Contact form block without attributes.
 		$original = <<<EOT
@@ -1916,7 +2007,7 @@ EOT;
 EOT;
 		$this->assertEquals(
 			$expected,
-			grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
+			Util::grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
 		);
 		// Contact form block with attributes.
 		$original = <<<EOT
@@ -1979,7 +2070,7 @@ EOT;
 EOT;
 		$this->assertEquals(
 			$expected,
-			grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
+			Util::grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
 		);
 	}
 } // end class

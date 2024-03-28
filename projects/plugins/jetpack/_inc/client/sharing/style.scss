@@ -1,3 +1,5 @@
+@import '../scss/calypso-colors';
+
 .jp-settings-sharing__sig-toggle {
 	span  {
 		margin: 0 auto auto auto;
@@ -9,8 +11,8 @@
 }
 
 #jp-settings-sharing {
-	.jp-settings-sharing__block-theme-description {
-		font-style: italic;
+	.jp-settings-sharing__block-theme-description a {
+		color: $white;
 	}
 
 	.dops-card {

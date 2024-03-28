@@ -1,0 +1,76 @@
+{
+	"name": "automattic/automattic-for-agencies-client",
+	"description": "Easily connect your clients sites to the Automattic for Agencies portal and enable portal features like plugin updates, downtime monitoring, and more.",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-composer-plugin": "@dev",
+		"automattic/jetpack-config": "@dev",
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-identity-crisis": "@dev",
+		"automattic/jetpack-plugin-deactivation": "@dev",
+		"automattic/jetpack-plugins-installer": "@dev",
+		"automattic/jetpack-sync": "@dev"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.1.0",
+		"automattic/jetpack-changelogger": "@dev",
+		"automattic/wordbless": "0.4.2",
+		"brain/monkey": "2.6.1"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-php": [
+			"@composer phpunit"
+		],
+		"build-development": [
+			"pnpm run build"
+		],
+		"build-production": [
+			"pnpm run build-production-concurrently"
+		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		],
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/automattic-for-agencies-client",
+		"release-branch-prefix": "automattic-for-agencies-client",
+		"beta-plugin-slug": "automattic-for-agencies-client",
+		"wp-plugin-slug": "automattic-for-agencies-client",
+		"changelogger": {
+			"versioning": "semver"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true,
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true
+		},
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_automattic_for_agencies_clientⓥ0_1_0_alpha"
+	}
+}

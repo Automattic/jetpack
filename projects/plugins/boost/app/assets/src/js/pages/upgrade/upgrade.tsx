@@ -6,6 +6,7 @@ import './upgrade.module.scss';
 import Forward from '$svg/forward';
 import { usePricing } from '$lib/stores/pricing';
 import CardPage from '$layout/card-page/card-page';
+import { createInterpolateElement } from '@wordpress/element';
 
 const Upgrade: React.FC = () => {
 	const {
@@ -52,24 +53,71 @@ const Upgrade: React.FC = () => {
 				'jetpack-boost'
 			) }
 		>
-			<h1 className="my-3">{ __( "Optimize your website's performance", 'jetpack-boost' ) }</h1>
+			<h1 className="my-3">
+				{ __( "Optimize your website's performance on the go", 'jetpack-boost' ) }
+			</h1>
 			<h3 className="my-2">
 				{ __(
-					'Automatically regenerate critical CSS after site changes, and hunt down image issues with ease.',
+					'Unlock the full potential of Jetpack Boost with automated performance optimization tools and more.',
 					'jetpack-boost'
 				) }
 			</h3>
 			<ul className="my-2">
-				<li>{ __( 'Automatic critical CSS regeneration', 'jetpack-boost' ) }</li>
-				<li>{ __( 'Performance scores are recalculated after each change', 'jetpack-boost' ) }</li>
-				<li>{ __( 'Automatically scan your site for image size issues', 'jetpack-boost' ) }</li>
 				<li>
-					{ __( 'Historical performance scores with Core Web Vitals data', 'jetpack-boost' ) }
+					{ createInterpolateElement(
+						__(
+							"<strong>Automated Critical CSS Generation:</strong> Improve your site's load time. Say goodbye to manual tweaks and boost your speed scores with zero effort.",
+							'jetpack-boost'
+						),
+						{
+							strong: <strong />,
+						}
+					) }
 				</li>
 				<li>
-					{ __( 'Fine-tune your CDN images with customizable quality settings.', 'jetpack-boost' ) }
+					{ createInterpolateElement(
+						__(
+							'<strong>Automated Image Scanning:</strong> Always be on top of potential image size issues that might impact your site load time and SEO ranking.',
+							'jetpack-boost'
+						),
+						{
+							strong: <strong />,
+						}
+					) }
 				</li>
-				<li>{ __( 'Dedicated email support', 'jetpack-boost' ) }</li>
+				<li>
+					{ createInterpolateElement(
+						__(
+							'<strong>In-depth Performance Insights:</strong> Track your success with historical performance and Core Web Vitals scores to see how your site improves over time.',
+							'jetpack-boost'
+						),
+						{
+							strong: <strong />,
+						}
+					) }
+				</li>
+				<li>
+					{ createInterpolateElement(
+						__(
+							'<strong>Customizable Image Optimization:</strong> Control your image quality and loading speeds with customizable CDN settings, balancing aesthetics with efficiency.',
+							'jetpack-boost'
+						),
+						{
+							strong: <strong />,
+						}
+					) }
+				</li>
+				<li>
+					{ createInterpolateElement(
+						__(
+							'<strong>Expert Support With a Personal Touch:</strong> Enjoy dedicated email support from our Happiness Engineers, ensuring a smoother experience and peace of mind.',
+							'jetpack-boost'
+						),
+						{
+							strong: <strong />,
+						}
+					) }
+				</li>
 			</ul>
 		</CardPage>
 	);

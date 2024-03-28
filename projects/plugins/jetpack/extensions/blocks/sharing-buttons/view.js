@@ -3,6 +3,18 @@ import './style.scss';
 
 let sharingWindowOpen;
 
+function isWebShareAPIEnabled( data ) {
+	if (
+		! navigator ||
+		typeof navigator.share !== 'function' ||
+		typeof navigator.canShare !== 'function'
+	) {
+		return false;
+	}
+
+	return navigator.canShare( data );
+}
+
 if ( typeof window !== 'undefined' ) {
 	domReady( () => {
 		const containers = document.getElementsByClassName( 'wp-block-jetpack-sharing-buttons' );
@@ -22,6 +34,22 @@ if ( typeof window !== 'undefined' ) {
 
 				event.preventDefault();
 				event.stopPropagation();
+
+				if ( service === 'share' ) {
+					if ( link?.href && isWebShareAPIEnabled( { url: link.href } ) ) {
+						navigator.share( { url: link.href } );
+					} else {
+						const [ tooltip ] = document.getElementsByClassName( 'tooltiptext' );
+						if ( tooltip && tooltip.style ) {
+							tooltip.style.display = 'initial';
+							setTimeout( () => {
+								tooltip.style.display = 'none';
+							}, 2000 );
+						}
+						navigator?.clipboard?.writeText( link.href );
+					}
+					return;
+				}
 
 				if ( service === 'print' ) {
 					window.print();

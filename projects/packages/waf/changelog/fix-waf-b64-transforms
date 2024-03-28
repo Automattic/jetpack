@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed base64 transforms to better conform with the modsecurity runtime

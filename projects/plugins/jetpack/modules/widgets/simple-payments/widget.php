@@ -3,6 +3,7 @@
  * Display the Pay with PayPal Widget.
  *
  * @package automattic/jetpack
+ *
  * @phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
  */
 

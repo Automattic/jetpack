@@ -30,6 +30,22 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	const POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS = 'paid_subscribers_all_tiers';
 
 	/**
+	 * An optional user_id to query against (omitting this will use either the token or current user id)
+	 *
+	 * @var int|null
+	 */
+	protected $user_id = null;
+
+	/**
+	 * Constructor
+	 *
+	 * @param int|null $user_id An optional user_id to query subscriptions against. Uses token from request/cookie or logged-in user information if omitted.
+	 */
+	public function __construct( $user_id = null ) {
+		$this->user_id = $user_id;
+	}
+
+	/**
 	 * Initialize the token subscription service.
 	 *
 	 * @inheritDoc
@@ -443,24 +459,29 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 			return;
 		}
 
-		if ( ! empty( $token ) && false === headers_sent() ) {
-			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, 0, '/', COOKIE_DOMAIN, is_ssl(), true ); // httponly -- used by visitor_can_view_content() within the PHP context.
+		if ( ! empty( $token ) && ! headers_sent() ) {
+			// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
+			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, strtotime( '+1 month' ), '/', '', is_ssl(), false );
 		}
 	}
 
 	/**
 	 * Clear the auth cookie.
-	 *
-	 * @return void
 	 */
 	public static function clear_token_cookie() {
 		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
 			return;
 		}
 
-		if ( self::has_token_from_cookie() ) {
-			unset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
-			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', time() - DAY_IN_SECONDS, '/', COOKIE_DOMAIN, is_ssl(), true );
+		if ( ! self::has_token_from_cookie() ) {
+			return;
+		}
+
+		unset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
+
+		if ( ! headers_sent() ) {
+			// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
+			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', 1, '/', '', is_ssl(), false );
 		}
 	}
 

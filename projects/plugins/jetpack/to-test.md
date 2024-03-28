@@ -1,4 +1,4 @@
-## Jetpack 13.2
+## Jetpack 13.3
 
 ### Before you start:
 
@@ -9,57 +9,26 @@
   - Edit your `wp-config.php` file to include: `define( 'JETPACK_BLOCKS_VARIATION', 'beta' );`
   - Or add the following to something like a code snippet plugin: `add_filter( 'jetpack_blocks_variation', function () { return 'beta'; } );`
 
-### Stats Blocks
+### My Jetpack: AI interstitial and product page
 
-The `Top Posts & Pages` block and the `Blog Stats` block have been added which were previously available as legacy widgets
+- Go to My Jetpack
+- See the Jetpack AI card, its CTA should read "Learn more".
+- Clicking it should take you to a pricing table.
+- Choosing to "Continue for free" should take a moment and land you on the product page.
+- The first feature should have a link that reads "Connect to Jetpack to start using the AI Assistant"
+- Click on the connect link, you'll be directed to the connection page, connect
+- Back to My Jetpack, the AI card should still read "Learn more" and clicking it will still take you to the pricing table since you just connected to Jetpack. Choose "free" once more to land on the product page.
+- The product page's first link should now be a "Create new post", clicking it should land you on the editor with a AI block inserted and ready to use.
+- Back to My Jetpack, the AI card should now get you straight into the product page.
+- Use the "Get more requests" to go into the pricing table and get an upgrade this time. After checkout process you should be taken back to My Jetpack.
+- Now the AI card's CTA should read "View". Clicking it should get straight into the product page.
+- The product page should now show your current period's remaining requests and your all time requests.
+- Use the "Get more requests" to land back at the pricing table, test both remain free and upgrade flows
+- Continue upgrading until you get to the highest tier (1000). The product page should show a "Contact us" button instead of the upgrade one.
 
-Please remember that views are only counted when the Stats module is active and when you're logged out. They are also cached for five minutes.
+### Todo Section
 
-#### Top Posts and Pages Block
-
-While testing the block, consider the following:
-
-- Enable beta blocks as mentioned at the top of this file, then you can insert the block using the editor.
-- The block should prompt you to activate the Stats module if it's currently disabled.
-- There should be two layouts available from the Block Toolbar: the Grid layout and List layout.
-- The block settings should feel intuitive, and they should all function appropriately:
-  - Number of items: the number of posts displayed in the block.
-  - Stats period: the timeframe for which to check top posts. For example, "7 days" should return the posts with the most views across the last week.
-    - If you do not have enough content that has accumulated views in that timeframe, the block should draw on random posts.
-    - It should not include password-protected or private content.
-  - Items to display: filters out different content types (eg. posts or pages) depending on what you'd like the block to include.
-  - Metadata settings: control what the block shows, such as the date or post author.
-  - Style settings: the block should allow you to choose colours, margin, padding and fonts if your theme has opted in to that feature.
-- Confirm that all these settings work as expected, and that the block displays correctly on the front-end.
-
-#### Blog Stats Block
-
-While testing the block, consider the following:
-
-- Enable beta blocks as mentioned at the top of this file, then you can insert the block using the editor.
-- There are two options to available: Views and Visitors.
-  - These should match the statistics shown in your Dashboard.
-- Unlike the legacy widget, you can now also show stats data for individual posts.
-  - In order to test this, it's recommended that you insert the block into a template within the Site Editor.
-  - Visitor data is not collected for individual posts. As such, you shouldn't be able to select "Visitors" and "This individual post" when adding the block.
-- Confirm that the block correctly loads on the front-end and contains appropriate statistics.
-
-### Jetpack SSO Improvements
-
-There have been various improvements made to the Secure Sign On (SSO) feature. Since there was a considerable amount of refactoring, it's suggested to test the SSO feature overall. When testing, consider:
-
-- Inviting a new user to your site whose email matches an existing WordPress.com account.
-- Inviting a new user to your site whose email address has not been used yet to create a WordPress.com account.
-- If possible, try managing users from both the WP Admin (example.com wp-admin/users.php) view, and the "Calypso" view (wordpress.com/people/team/example.com).
-
-### Goodreads Block
-
-The existing legacy widget for Goodreads is now available as a beta block.
-
-- Enable beta blocks as mentioned at the top of this file, then you can insert the block using the editor.
-- If you don't have a Goodreads account, you can use the following profile to test:
-  - https://www.goodreads.com/author/show/1406384
-- Try the various block settings and verify the results on the front-end of your site.
+- Todo Content
 
 ### And More!
 

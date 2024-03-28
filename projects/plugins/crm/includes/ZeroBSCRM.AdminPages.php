@@ -1694,55 +1694,48 @@ function zeroBSCRM_html_datatools() {
 			
 		<div id="zero-bs-tools" class="ui segment" style="margin-right:20px;">
 			<h2 class="sbhomep"><?php esc_html_e( 'Welcome to Jetpack CRM Tools', 'zero-bs-crm' ); ?></h2>
-			<p class="sbhomep"><?php esc_html_e( 'This is the home for all of the different admin tools for Jetpack CRM which import data, excluding the Sync Extensions.', 'zero-bs-crm' ); ?></p>
-			<p class="sbhomep">
-			<strong><?php esc_html_e( 'Free Data Tools', 'zero-bs-crm' ); ?>:</strong><br />
-			<?php if ( ! zeroBSCRM_isExtensionInstalled( 'csvpro' ) ) { ?>
-			<a class="ui button black primary" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['csvlite'] ) ); ?>"><?php esc_html_e( 'Import from CSV', 'zero-bs-crm' ); ?></a>
-		<?php } ?>
-		</p>
-			<p class="sbhomep">
-			<strong><?php esc_html_e( 'Data Tool Extensions Installed', 'zero-bs-crm' ); ?>:</strong><br /><br />
+			<div class="sbhomep"><?php esc_html_e( 'This is the home for all of the different admin tools for Jetpack CRM which import and export data, excluding sync extensions.', 'zero-bs-crm' ); ?></div>
+			<br><br>
+			<div class="sbhomep">
+				<strong><?php esc_html_e( 'Import Tools', 'zero-bs-crm' ); ?>:</strong><br>
 				<?php
 
-				// } MVP
-				$zbsDataToolsInstalled = 0;
+				$has_pro_data_tools = false;
 				global $zeroBSCRM_CSVImporterslugs;
 				if ( zeroBSCRM_isExtensionInstalled( 'csvpro' ) && isset( $zeroBSCRM_CSVImporterslugs ) ) {
-
+					// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					?>
-					<button type="button" class="ui button primary" onclick="javascript:window.location='?page=<?php echo esc_attr( $zeroBSCRM_CSVImporterslugs['app'] ); ?>';" class="ui button primary" style="padding: 7px 16px;font-size: 16px;height: 46px;margin-bottom:8px;"><?php esc_html_e( 'CSV Importer', 'zero-bs-crm' ); ?></button><br />
+					<p><a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zeroBSCRM_CSVImporterslugs['app'] ) ); ?>" class="ui button black primary"><?php echo esc_html( 'CSV Importer Pro' ); ?></a></p>
+					<p><a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zeroBSCRM_CSVImporterslugs['tagger'] ) ); ?>" class="ui button black primary"><?php echo esc_html( 'CSV Tagger' ); ?></a></p>
 					<?php
-					// tagger post v1.1
-					if ( isset( $zeroBSCRM_CSVImporterslugs['tagger'] ) ) {
+					// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					$has_pro_data_tools = true;
+				}
+
+				if ( ! $has_pro_data_tools ) {
+					?>
+					<p><?php esc_html_e( 'You do not have any pro data tool extensions installed.', 'zero-bs-crm' ); ?></p>
+					<?php
+					if ( ! zeroBSCRM_isExtensionInstalled( 'csvpro' ) ) {
 						?>
-					<button type="button" class="ui button primary" onclick="javascript:window.location='?page=<?php echo esc_attr( $zeroBSCRM_CSVImporterslugs['tagger'] ); ?>';" class="ui button primary" style="padding: 7px 16px;font-size: 16px;height: 46px;margin-bottom:8px;"><?php esc_html_e( 'CSV Tagger', 'zero-bs-crm' ); ?></button><br />
+						<p><a class="ui button black primary" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['csvlite'] ) ); ?>"><?php esc_html_e( 'CSV Importer Lite', 'zero-bs-crm' ); ?></a></p>
 						<?php
 					}
-					++$zbsDataToolsInstalled;
-
 				}
-
-				if ( $zbsDataToolsInstalled == 0 ) {
-					##WLREMOVE
-					?>
-					<?php esc_html_e( 'You do not have any Pro Data Tools installed as of yet', 'zero-bs-crm' ); ?>! <a href="<?php echo esc_url( $zbs->urls['productsdatatools'] ); ?>" target="_blank"><?php esc_html_e( 'Get some now', 'zero-bs-crm' ); ?></a>
-					<?php
-					##/WLREMOVE
-				}
-
+				##WLREMOVE
 				?>
-							
-			</p><p class="sbhomep">
-				<!-- #datatoolsales -->
-			<strong><?php esc_html_e( 'Import Tools', 'zero-bs-crm' ); ?>:</strong><br /><br />
-				<a href="<?php echo esc_url( $zbs->urls['productsdatatools'] ); ?>" target="_blank" class="ui button black primary"><?php esc_html_e( 'View Available Import Tools', 'zero-bs-crm' ); ?></a>              
-			</p>
+				<p><a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['extensions'] ) ); ?>" class="ui button black primary"><?php esc_html_e( 'View all extensions', 'zero-bs-crm' ); ?></a></p>
+				<?php
+				##/WLREMOVE
+				?>
+				<br>
+			</div>
 			<div class="sbhomep">
 				<strong><?php esc_html_e( 'Export Tools', 'zero-bs-crm' ); ?>:</strong><br/>
-				<p><?php esc_html_e( 'Want to use the refined object exporter? ', 'zero-bs-crm' ); ?></p>
-				<p><a class="ui black button" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['export-tools'] ) ); ?>">Export Tools</a></p>
+				<p><?php esc_html_e( 'Use the button below to go to the object exporter.', 'zero-bs-crm' ); ?></p>
+				<p><a class="ui black button" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['export-tools'] ) ); ?>"><?php esc_html_e( 'Export objects', 'zero-bs-crm' ); ?></a></p>
 			</div>
+			<br>
 	</div>
 	<div class="ui grid">
 	<div class="eight wide column">

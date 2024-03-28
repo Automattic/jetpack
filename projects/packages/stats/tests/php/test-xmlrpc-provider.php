@@ -30,7 +30,7 @@ class Test_XMLRPC_Provider extends StatsBaseTestCase {
 	protected function set_up() {
 		parent::set_up();
 
-		$this->xmlrpc_instance = XMLRPC_Provider::init();
+		$this->xmlrpc_instance = XMLRPC_Provider::init( true );
 	}
 
 	/**

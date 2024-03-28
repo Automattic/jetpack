@@ -1102,7 +1102,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             // NOTE: this is ONLY for use where a sql query is 1 time use, otherwise add as argument
             // ... for later use, (above)
             // PLEASE do not use the or switch without discussing case with WH
-            'additionalWhereArr' => false, 
+			'additionalWhereArr'         => false,
+			'additional_joins'           => false,
             'whereCase'          => 'AND' // DEFAULT = AND
 
 
@@ -1112,6 +1113,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
         global $ZBSCRM_t,$wpdb,$zbs;  
         $wheres = array('direct'=>array()); $whereStr = ''; $additionalWhere = ''; $params = array(); $res = array(); $joinQ = ''; $extraSelect = '';
+
+				$join_sql = '';
 
         #} ============= PRE-QUERY ============
 
@@ -1360,6 +1363,10 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
         #} ============ / PRE-QUERY ===========
 
+			if ( ! empty( $additional_joins ) ) {
+				list( $join_sql, $join_params ) = $this->DAL()->build_joins( $additional_joins, $whereCase === 'AND' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			}
+
         #} Build query
         $query = "SELECT contact.*".$extraSelect." FROM ".$ZBSCRM_t['contacts'].' as contact'.$joinQ;
 
@@ -1589,11 +1596,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                         // USE hasStatus above now...
 					if ( str_starts_with( $qFilter, 'status_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-                            $qFilterStatus = substr($qFilter,7);
-                            $qFilterStatus = str_replace('_',' ',$qFilterStatus);
-
-                            // check status
-                            $wheres['quickfilterstatus'] = array('zbsc_status','LIKE','%s',ucwords($qFilterStatus));
+						$quick_filter_status         = substr( $qFilter, 7 ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						$wheres['quickfilterstatus'] = array( 'zbsc_status', '=', 'convert(%s using utf8mb4) collate utf8mb4_bin', $quick_filter_status );
 
 					} elseif ( $qFilter === 'assigned_to_me' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                             $wheres['assigned_to_me'] = array( 'zbs_owner', '=', zeroBSCRM_user() );
@@ -1660,9 +1664,10 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                                         //$wheres = array_merge_recursive($wheres,$contactGetArgs['additionalWhereArr']);
                                         // -----------------------
 
-                                    }
+						} elseif ( ! empty( $contactGetArgs['additional_joins'] ) && is_array( $contactGetArgs['additional_joins'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,
 
-
+							list( $join_sql, $join_params ) = $this->DAL()->build_joins( $contactGetArgs['additional_joins'], $matchType === 'all' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						}
 					} else {
 
                                 // normal/hardtyped
@@ -1854,6 +1859,12 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
         $ownQ = $this->ownershipSQL($ignoreowner,'contact'); if (!empty($ownQ)) $additionalWhere = $this->spaceAnd($additionalWhere).$ownQ; // adds str to query
         #} / Ownership
 
+				$query .= $join_sql;
+
+				if ( ! empty( $join_sql ) ) {
+					$params = array_merge( $params, $join_params );
+				}
+
         #} Append to sql (this also automatically deals with sortby and paging)
         $query .= $this->buildWhereStr($whereStr,$additionalWhere) . $this->buildSort($sortByField,$sortOrder) . $this->buildPaging($page,$perPage);    
 
@@ -1867,9 +1878,10 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             if ( $count ) return $wpdb->get_var( $queryObj );
 
             // Totals override
-            if ( $onlyObjTotals ){
+						// This is non-performant, and shouldn't run when we've got extra joins (e.g. from segments).
+					if ( $onlyObjTotals && empty( $join_sql ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
-                $contact_query = "SELECT contact.ID FROM " . $ZBSCRM_t['contacts'] . " AS contact" . $this->buildWhereStr( $whereStr, $additionalWhere );
+						$contact_query = 'SELECT contact.ID FROM ' . $ZBSCRM_t['contacts'] . ' AS contact' . $joinQ . $this->buildWhereStr( $whereStr, $additionalWhere ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                 $contact_query = $this->prepare($contact_query,$params);
 
                 $query = "SELECT ";
@@ -4812,7 +4824,11 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
         if ($inCompany) $whereArr['incompany'] = array('ID','IN','(SELECT DISTINCT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_CONTACT." AND zbsol_objtype_to = ".ZBS_TYPE_COMPANY." AND zbsol_objid_to = %d)",$inCompany);
 
-        if ($withStatus !== false && !empty($withStatus)) $whereArr['status'] = array('zbsc_status','=','%s',$withStatus);
+			// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			if ( $withStatus !== false && ! empty( $withStatus ) ) {
+				$whereArr['status'] = array( 'zbsc_status', '=', 'convert(%s using utf8mb4) collate utf8mb4_bin', $withStatus );
+			}
+			// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
         return $this->DAL()->getFieldByWHERE(array(
             'objtype' => ZBS_TYPE_CONTACT,

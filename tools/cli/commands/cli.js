@@ -5,6 +5,7 @@ import Listr from 'listr';
 import UpdateRenderer from 'listr-update-renderer';
 import VerboseRenderer from 'listr-verbose-renderer';
 import PATH from 'path-name';
+import { setAnalyticsEnabled } from '../helpers/analytics.js';
 import { chalkJetpackGreen } from '../helpers/styling.js';
 
 /**
@@ -98,7 +99,16 @@ function cliUnlink( options ) {
 }
 
 /**
- * Command definition for the build subcommand.
+ * Sets the analytics tracking preference for the CLI.
+ *
+ * @param {string} preference - The state to set the analytics tracking to, 'on' or 'off'.
+ */
+function cliAnalytics( preference ) {
+	setAnalyticsEnabled( preference === 'on' );
+}
+
+/**
+ * Command definition for the cli subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
  * @returns {object} Yargs with the CLI commands defined.
@@ -134,6 +144,23 @@ export function cliDefine( yargs ) {
 				() => {},
 				argv => {
 					cliStatus( argv );
+					if ( argv.v ) {
+						console.log( argv );
+					}
+				}
+			)
+			.command(
+				'analytics <preference>',
+				'Set analytics tracking preference',
+				() => {
+					return yargs.positional( 'preference', {
+						describe: 'Turn on or off analytics tracking',
+						type: 'string',
+						choices: [ 'on', 'off' ],
+					} );
+				},
+				argv => {
+					cliAnalytics( argv.preference );
 					if ( argv.v ) {
 						console.log( argv );
 					}

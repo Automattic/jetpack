@@ -1577,4 +1577,13 @@ abstract class SAL_Site {
 	public function get_wpcom_admin_interface() {
 		return (string) get_option( 'wpcom_admin_interface' );
 	}
+
+	/**
+	 * Returns whether the site is part of the classic view early release.
+	 *
+	 * @return bool
+	 **/
+	public function get_wpcom_classic_early_release() {
+		return ! empty( get_option( 'wpcom_classic_early_release' ) );
+	}
 }

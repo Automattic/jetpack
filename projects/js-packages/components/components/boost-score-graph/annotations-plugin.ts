@@ -35,12 +35,13 @@ export function annotationsPlugin( annotations: Annotation[] ) {
 				annotationEl.style.display = 'block';
 				annotationEl.style.left = u.valToPos( annotation.timestamp / 1000, 'x' ) + 'px';
 			} );
-			lineEl.addEventListener( 'mouseleave', () => {
-				annotationEl.style.display = 'none';
-			} );
 
 			annotation.line = lineEl;
 			annotationsContainer.appendChild( lineEl );
+		} );
+
+		annotationEl.addEventListener( 'mouseleave', () => {
+			annotationEl.style.display = 'none';
 		} );
 
 		containerEl.appendChild( annotationsContainer );

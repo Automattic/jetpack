@@ -57,7 +57,7 @@ class Jetpack_Phpcs_Exclude_Filter extends Automattic\Jetpack\PhpcsFilter {
 	/**
 	 * Returns an iterator for the current entry.
 	 *
-	 * @return \RecursiveIterator
+	 * @return static
 	 */
 	public function getChildren() {
 		$ret          = parent::getChildren();

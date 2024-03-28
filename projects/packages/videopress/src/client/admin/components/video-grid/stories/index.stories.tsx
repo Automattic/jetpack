@@ -1,13 +1,13 @@
 import VideoGrid from '..';
 import { videos } from '../../../mock';
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'Packages/VideoPress/Video Grid',
 	component: VideoGrid,
-} as ComponentMeta< typeof VideoGrid >;
+} as Meta< typeof VideoGrid >;
 
-const Template: ComponentStory< typeof VideoGrid > = VideoGrid;
+const Template: StoryFn< typeof VideoGrid > = VideoGrid;
 
 export const _default = Template.bind( {} );
 _default.args = {

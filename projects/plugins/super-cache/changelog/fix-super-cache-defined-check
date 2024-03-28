@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WP Super Cache: do not define DONOTCACHEPAGE if it is already defined

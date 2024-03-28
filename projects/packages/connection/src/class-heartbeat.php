@@ -7,8 +7,13 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Connection\Rest_Authentication;
+use Automattic\Jetpack\Connection\REST_Connector;
 use Jetpack_Options;
 use WP_CLI;
+use WP_Error;
+use WP_REST_Request;
+use WP_REST_Server;
 
 /**
  * Heartbeat sends a batch of stats to wp.com once a day
@@ -73,6 +78,8 @@ class Heartbeat {
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			WP_CLI::add_command( 'jetpack-heartbeat', array( $this, 'cli_callback' ) );
 		}
+
+		add_action( 'rest_api_init', array( $this, 'initialize_rest_api' ) );
 	}
 
 	/**
@@ -248,5 +255,56 @@ class Heartbeat {
 			/* translators: %s is the full datetime of the last heart beat e.g. 2020-01-01 12:21:23 */
 			WP_CLI::line( sprintf( __( 'Last heartbeat sent at: %s', 'jetpack-connection' ), $last_date ) );
 		}
+	}
+
+	/**
+	 * Initialize the heartbeat REST API.
+	 *
+	 * @return void
+	 */
+	public function initialize_rest_api() {
+		register_rest_route(
+			'jetpack/v4',
+			'/heartbeat/data',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'rest_heartbeat_data' ),
+				'permission_callback' => array( $this, 'rest_heartbeat_data_permission_check' ),
+				'args'                => array(
+					'prefix' => array(
+						'description' => __( 'Prefix to add before the stats identifiers.', 'jetpack-connection' ),
+						'type'        => 'string',
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Endpoint to retrieve the heartbeat data.
+	 *
+	 * @param WP_REST_Request $request The request data.
+	 *
+	 * @since 2.7.0
+	 *
+	 * @return array
+	 */
+	public function rest_heartbeat_data( WP_REST_Request $request ) {
+		return static::generate_stats_array( $request->get_param( 'prefix' ) );
+	}
+
+	/**
+	 * Check permissions for the `get_heartbeat_data` endpoint.
+	 *
+	 * @return true|WP_Error
+	 */
+	public function rest_heartbeat_data_permission_check() {
+		if ( current_user_can( 'jetpack_connect' ) ) {
+			return true;
+		}
+
+		return Rest_Authentication::is_signed_with_blog_token()
+			? true
+			: new WP_Error( 'invalid_permission_heartbeat_data', REST_Connector::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
 	}
 }

@@ -221,6 +221,10 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$client_user = get_user_by( 'id', $this->user_id );
 		unset( $client_user->data->user_pass );
 		$this->assertUsersEqual( $client_user, $server_user );
+
+		$save_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
+		$this->assertSame( 'author', $save_event->args[1]['role_added'] );
+		$this->assertEquals( $this->user_id, $save_event->args[0]->ID );
 	}
 
 	public function test_user_set_role_is_synced() {
@@ -233,6 +237,9 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$client_user = get_user_by( 'id', $this->user_id );
 		unset( $client_user->data->user_pass );
 		$this->assertUsersEqual( $client_user, $server_user );
+
+		$save_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
+		$this->assertTrue( $save_event->args[1]['role_changed'] );
 	}
 
 	public function test_user_set_role_is_synced_in_wp_update_user_context() {
@@ -261,16 +268,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_user_remove_role_is_synced() {
 		$user = get_user_by( 'id', $this->user_id );
-		$user->add_role( 'author' );
-		$this->sender->do_sync();
-
-		$server_user = $this->server_replica_storage->get_user( $this->user_id );
-		$client_user = get_user_by( 'id', $this->user_id );
-		unset( $client_user->data->user_pass );
-		$this->assertUsersEqual( $client_user, $server_user );
-
-		// lets now remove role
-		$user->remove_role( 'author' );
+		$user->remove_role( 'subscriber' );
 		$this->sender->do_sync();
 
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
@@ -278,6 +276,10 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$client_user = get_user_by( 'id', $this->user_id );
 		unset( $client_user->data->user_pass );
 		$this->assertUsersEqual( $client_user, $server_user );
+
+		$save_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
+		$this->assertSame( 'subscriber', $save_event->args[1]['role_removed'] );
+		$this->assertEquals( $this->user_id, $save_event->args[0]->ID );
 	}
 
 	// Capabilities syncing

@@ -187,14 +187,11 @@ class Jetpack_Notifications {
 
 		$third_party_cookie_check_iframe = '<span style="display:none;"><iframe class="jetpack-notes-cookie-check" src="https://widgets.wp.com/3rd-party-cookie-check/index.html"></iframe></span>';
 
-		$classes = 'wpnt-loading wpn-read';
+		$title = self::get_notes_markup();
 		$wp_admin_bar->add_menu(
 			array(
 				'id'     => 'notes',
-				'title'  => '<span id="wpnt-notes-unread-count" class="' . esc_attr( $classes ) . '">
-					<span class="screen-reader-text">' . esc_html__( 'Notifications', 'jetpack' ) . '</span>
-					<span class="noticon noticon-notification"></span>
-					</span>',
+				'title'  => $title,
 				'meta'   => array(
 					'html'  => '<div id="wpnt-notes-panel2" class="intrinsic-ignore" style="display:none" lang="' . esc_attr( $wpcom_locale ) . '" dir="' . ( is_rtl() ? 'rtl' : 'ltr' ) . '"><div class="wpnt-notes-panel-header"><span class="wpnt-notes-header">' . __( 'Notifications', 'jetpack' ) . '</span><span class="wpnt-notes-panel-link"></span></div></div>' . $third_party_cookie_check_iframe,
 					'class' => 'menupop',
@@ -203,6 +200,17 @@ class Jetpack_Notifications {
 				'href'   => 'https://wordpress.com/notifications',
 			)
 		);
+	}
+
+	/**
+	 * Returns the HTML markup for used by notification in top bar
+	 *
+	 * @return string
+	 */
+	private static function get_notes_markup() {
+		return '<span id="wpnt-notes-unread-count" class="wpnt-loading wpn-read"></span>
+<span class="noticon noticon-bell"></span>
+<span class="screen-reader-text">' . esc_html__( 'Notifications', 'jetpack' ) . '</span>';
 	}
 
 	/**

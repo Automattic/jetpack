@@ -275,7 +275,7 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		}
 
 		foreach ( $media_files as $media_item ) {
-			if ( ! preg_match( '@^video/@', $media_item['type'] ) ) {
+			if ( ! isset( $media_item['type'] ) || ! preg_match( '@^video/@', $media_item['type'] ) ) {
 				return false;
 			}
 		}

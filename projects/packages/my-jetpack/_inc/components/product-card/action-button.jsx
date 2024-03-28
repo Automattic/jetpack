@@ -2,8 +2,8 @@ import { Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chevronDown, external, check } from '@wordpress/icons';
 import cs from 'classnames';
-import React, { useCallback, useState, useEffect, useMemo } from 'react';
-import { useProduct } from '../../hooks/use-product';
+import { useCallback, useState, useEffect, useMemo } from 'react';
+import useProduct from '../../data/products/use-product';
 import styles from './style.module.scss';
 
 export const PRODUCT_STATUSES = {
@@ -30,7 +30,6 @@ const ActionButton = ( {
 	onFixConnection,
 	isFetching,
 	isInstallingStandalone,
-	isDeactivatingStandalone,
 	className,
 	onAdd,
 	onInstall,
@@ -43,7 +42,7 @@ const ActionButton = ( {
 	const { manageUrl, purchaseUrl } = detail;
 	const isManageDisabled = ! manageUrl;
 
-	const isBusy = isFetching || isInstallingStandalone || isDeactivatingStandalone;
+	const isBusy = isFetching || isInstallingStandalone;
 	const hasAdditionalActions = additionalActions?.length > 0;
 
 	const buttonState = useMemo( () => {

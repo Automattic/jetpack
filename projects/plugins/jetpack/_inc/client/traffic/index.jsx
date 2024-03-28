@@ -13,6 +13,7 @@ import { getLastPostUrl, currentThemeIsBlockTheme, getSiteId } from 'state/initi
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
+import { siteUsesWpAdminInterface } from 'state/site';
 import Blaze from './blaze';
 import { GoogleAnalytics } from './google-analytics';
 import { RelatedPosts } from './related-posts';
@@ -38,6 +39,7 @@ export class Traffic extends React.Component {
 			hasConnectedOwner: this.props.hasConnectedOwner,
 			lastPostUrl: this.props.lastPostUrl,
 			siteAdminUrl: this.props.siteAdminUrl,
+			siteUsesWpAdminInterface: this.props.siteUsesWpAdminInterface,
 		};
 
 		const foundSeo = this.props.isModuleFound( 'seo-tools' ),
@@ -90,13 +92,7 @@ export class Traffic extends React.Component {
 				) }
 				{ foundStats && <SiteStats { ...commonProps } /> }
 				{ foundAnalytics && (
-					<GoogleAnalytics
-						{ ...commonProps }
-						configureUrl={ getRedirectUrl( 'calypso-marketing-traffic', {
-							site: this.props.blogID ?? this.props.siteRawUrl,
-							anchor: 'analytics',
-						} ) }
-					/>
+					<GoogleAnalytics { ...commonProps } site={ this.props.blogID ?? this.props.siteRawUrl } />
 				) }
 				{ foundBlaze && <Blaze { ...commonProps } /> }
 				{ foundShortlinks && <Shortlinks { ...commonProps } /> }
@@ -120,5 +116,6 @@ export default connect( state => {
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		hasConnectedOwner: hasConnectedOwner( state ),
 		blogID: getSiteId( state ),
+		siteUsesWpAdminInterface: siteUsesWpAdminInterface( state ),
 	};
 } )( Traffic );

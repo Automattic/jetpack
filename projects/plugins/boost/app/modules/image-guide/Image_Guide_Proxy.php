@@ -14,6 +14,8 @@ class Image_Guide_Proxy {
 
 	/**
 	 * AJAX handler to handle proxying of external image resources.
+	 *
+	 * @return never
 	 */
 	public static function handle_proxy() {
 		// Verify valid nonce.

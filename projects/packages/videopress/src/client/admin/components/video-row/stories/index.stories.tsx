@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { VideoRow } from '..';
 import { postersArray, randomPoster } from '../../../mock';
 import styles from '../style.module.scss';
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'Packages/VideoPress/Video Row',
@@ -48,9 +48,9 @@ export default {
 			options: [ ...postersArray, 'none' ],
 		},
 	},
-} as ComponentMeta< typeof VideoRow >;
+} as Meta< typeof VideoRow >;
 
-const Template: ComponentStory< typeof VideoRow > = args => {
+const Template: StoryFn< typeof VideoRow > = args => {
 	if ( args.thumbnail === 'none' ) {
 		args.thumbnail = null;
 	}

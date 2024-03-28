@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.4] - 2024-03-27
+### Fixed
+- Fix handling of error message when sync wpcom rest api could not be enabled [#36578]
+- Jetpack Sync: Prevent Fatal on send upon failing to enable WPCOM REST API feature [#36600]
+
+## [2.10.3] - 2024-03-25
+### Changed
+- Internal updates.
+
+## [2.10.2] - 2024-03-18
+### Changed
+- Internal updates.
+
+## [2.10.1] - 2024-03-14
+### Changed
+- Internal updates.
+
+## [2.10.0] - 2024-03-12
+### Added
+- Sync:Now Sync uses rest api endpoint for enabled sites [#36210]
+
+## [2.9.0] - 2024-03-04
+### Added
+- Sync: Add feature flag for enabling the use of rest api for sending the sync data [#36118]
+- Whitelist the new wpcom_classic_early_release site option [#36111]
+
 ## [2.8.1] - 2024-03-01
 ### Fixed
 - Jetpack Sync: Ensure Woo HPOS order date fields are properly encoded [#36023]
@@ -1059,6 +1085,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[2.10.4]: https://github.com/Automattic/jetpack-sync/compare/v2.10.3...v2.10.4
+[2.10.3]: https://github.com/Automattic/jetpack-sync/compare/v2.10.2...v2.10.3
+[2.10.2]: https://github.com/Automattic/jetpack-sync/compare/v2.10.1...v2.10.2
+[2.10.1]: https://github.com/Automattic/jetpack-sync/compare/v2.10.0...v2.10.1
+[2.10.0]: https://github.com/Automattic/jetpack-sync/compare/v2.9.0...v2.10.0
+[2.9.0]: https://github.com/Automattic/jetpack-sync/compare/v2.8.1...v2.9.0
 [2.8.1]: https://github.com/Automattic/jetpack-sync/compare/v2.8.0...v2.8.1
 [2.8.0]: https://github.com/Automattic/jetpack-sync/compare/v2.7.0...v2.8.0
 [2.7.0]: https://github.com/Automattic/jetpack-sync/compare/v2.6.1...v2.7.0

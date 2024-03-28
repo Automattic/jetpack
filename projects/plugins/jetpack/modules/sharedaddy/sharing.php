@@ -122,21 +122,21 @@ class Sharing_Admin {
 	}
 
 	/**
-	 * Register Sharing settings menu page in offline mode.
+	 * Register Sharing settings menu page in offline mode or when wp-admin interface is enabled.
 	 */
 	public function subscription_menu() {
-		if ( ! ( new Status() )->is_offline_mode() ) {
-			return;
-		}
+		$wpcom_is_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
 
-		add_submenu_page(
-			'options-general.php',
-			__( 'Sharing Settings', 'jetpack' ),
-			__( 'Sharing', 'jetpack' ),
-			'manage_options',
-			'sharing',
-			array( $this, 'wrapper_admin_page' )
-		);
+		if ( ( new Status() )->is_offline_mode() || $wpcom_is_wp_admin_interface ) {
+			add_submenu_page(
+				'options-general.php',
+				__( 'Sharing Settings', 'jetpack' ),
+				__( 'Sharing', 'jetpack' ),
+				'manage_options',
+				'sharing',
+				array( $this, 'wrapper_admin_page' )
+			);
+		}
 	}
 
 	/**
@@ -164,7 +164,7 @@ class Sharing_Admin {
 	/**
 	 * Create a new custom sharing service via AJAX.
 	 *
-	 * @return void
+	 * @return never
 	 */
 	public function ajax_new_service() {
 		if (
@@ -724,7 +724,7 @@ class Sharing_Admin {
 			new Share_Reddit( 'reddit', array() ),
 		);
 		?>
-		
+
 		<div class="share_manage_options">
 			<br class="clearing" />
 			<h2><?php esc_html_e( 'Sharing Buttons', 'jetpack' ); ?></h2>
@@ -785,6 +785,10 @@ class Sharing_Admin {
  * @return bool
  */
 function jetpack_post_sharing_get_value( array $post ) {
+	if ( ! isset( $post['id'] ) ) {
+		return false;
+	}
+
 	// if sharing IS disabled on this post, enabled=false, so negate the meta
 	return (bool) ! get_post_meta( $post['id'], 'sharing_disabled', true );
 }

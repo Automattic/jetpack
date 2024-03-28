@@ -293,6 +293,34 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
+	 * Test that the Waf_Request class returns $_POST data correctly decoded from JSON via Waf_Request::get_post_vars().
+	 */
+	public function testGetVarsPostWithJson() {
+		$_SERVER['CONTENT_TYPE'] = 'application/json';
+
+		$request = $this->mock_request(
+			array(
+				'body' => json_encode(
+					array(
+						'str' => 'value',
+						'arr' => array( 'a', 'b', 'c' ),
+						'obj' => (object) array( 'foo' => 'bar' ),
+					)
+				),
+			)
+		);
+		$value   = $request->get_post_vars();
+		$this->assertIsArray( $value );
+		$this->assertContains( array( 'json.str', 'value' ), $value );
+		$this->assertContains( array( 'json.arr.0', 'a' ), $value );
+		$this->assertContains( array( 'json.arr.1', 'b' ), $value );
+		$this->assertContains( array( 'json.arr.2', 'c' ), $value );
+		$this->assertContains( array( 'json.obj.foo', 'bar' ), $value );
+
+		unset( $_SERVER['CONTENT_TYPE'] );
+	}
+
+	/**
 	 * Test that the Waf_Request class transforms and returns $_FILES data correctly via Waf_Request::get_files().
 	 */
 	public function testGetFiles() {
@@ -353,5 +381,25 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 			),
 			$values
 		);
+	}
+
+	/**
+	 * Returned a Waf_Request instance with mocked data.
+	 *
+	 * @param array $data Key/value assoc. array of mocked data to pre-fill the request with.
+	 * @return Waf_Request
+	 */
+	protected function mock_request( $data ) {
+		$method_names = array_map(
+			function ( $k ) {
+				return "get_$k";
+			},
+			array_keys( $data )
+		);
+		$mock         = $this->createPartialMock( Waf_Request::class, $method_names );
+		foreach ( $data as $k => $v ) {
+			$mock->method( "get_$k" )->willReturn( $v );
+		}
+		return $mock;
 	}
 }

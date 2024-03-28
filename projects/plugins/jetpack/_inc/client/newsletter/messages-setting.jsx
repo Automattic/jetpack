@@ -5,12 +5,22 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
+import { isUnavailableInOfflineMode, isUnavailableInSiteConnectionMode } from 'state/connection';
 import { getModule } from 'state/modules';
 import Textarea from '../components/textarea';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 
+const SUBSCRIPTION_OPTIONS = 'subscription_options';
+
 const MessagesSetting = props => {
-	const { getOptionValue, isSavingAnyOption, subscriptionsModule, onOptionChange } = props;
+	const {
+		isSavingAnyOption,
+		subscriptionsModule,
+		onOptionChange,
+		welcomeMessage,
+		unavailableInOfflineMode,
+		unavailableInSiteConnectionMode,
+	} = props;
 
 	const changeWelcomeMessageState = useCallback(
 		event => {
@@ -22,14 +32,17 @@ const MessagesSetting = props => {
 		[ onOptionChange ]
 	);
 
-	const welcomeMessage = getOptionValue( 'subscription_options' )?.welcome || '';
+	const disabled =
+		unavailableInOfflineMode ||
+		unavailableInSiteConnectionMode ||
+		isSavingAnyOption( [ SUBSCRIPTION_OPTIONS ] );
 
 	return (
 		<SettingsCard
 			{ ...props }
 			header={ __( 'Messages', 'jetpack' ) }
 			module={ SUBSCRIPTIONS_MODULE_NAME }
-			saveDisabled={ isSavingAnyOption( [ 'subscription_options' ] ) }
+			saveDisabled={ disabled }
 		>
 			<SettingsGroup
 				hasChild
@@ -48,7 +61,8 @@ const MessagesSetting = props => {
 						{ __( 'Welcome email message', 'jetpack' ) }
 					</span>
 					<Textarea
-						name={ 'subscription_options' }
+						disabled={ disabled }
+						name={ SUBSCRIPTION_OPTIONS }
 						value={ welcomeMessage }
 						onChange={ changeWelcomeMessageState }
 					/>
@@ -68,10 +82,15 @@ export default withModuleSettingsFormHelpers(
 	connect( ( state, ownProps ) => {
 		return {
 			subscriptionsModule: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
-			getOptionValue: ownProps.getOptionValue,
 			isSavingAnyOption: ownProps.isSavingAnyOption,
 			moduleName: ownProps.moduleName,
 			onOptionChange: ownProps.onOptionChange,
+			welcomeMessage: ownProps.getOptionValue( SUBSCRIPTION_OPTIONS )?.welcome || '',
+			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
+			unavailableInSiteConnectionMode: isUnavailableInSiteConnectionMode(
+				state,
+				SUBSCRIPTIONS_MODULE_NAME
+			),
 		};
 	} )( MessagesSetting )
 );

@@ -133,7 +133,6 @@ class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $this->dedicated_sync_test_request_spawned );
 		$this->assertTrue( Settings::is_dedicated_sync_enabled() );
 	}
-
 	/**
 	 * Intercept HTTP request to run Sync and mock the response.
 	 * Should be hooked on the `pre_http_request` filter.
@@ -176,5 +175,19 @@ class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
 			'status_code' => 500,
 			'body'        => '',
 		);
+	}
+
+	public function test_enabling_wpcom_rest_api_enabled_gets_disabled_when_send_data_fails() {
+		add_filter( 'jetpack_sync_send_data', array( $this, 'serverReceiveWithError' ) );
+		Settings::update_settings( array( 'wpcom_rest_api_enabled' => 1 ) );
+		remove_filter( 'jetpack_sync_send_data', array( $this, 'serverReceiveWithError' ) );
+		$this->assertFalse( Settings::is_wpcom_rest_api_enabled() );
+	}
+
+	/**
+	 * Intercept send_data to return WP_Error.
+	 */
+	public function serverReceiveWithError() {
+		return new WP_Error( 'an_error', 'An Error Occurred' );
 	}
 }

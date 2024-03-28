@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Add phan stubs for constants defined by `ZeroBSCRM::define()`, as Phan doesn't recognize that as defining constants. No change to functionality.
+
+

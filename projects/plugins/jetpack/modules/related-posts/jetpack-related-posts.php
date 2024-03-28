@@ -1162,6 +1162,7 @@ EOT;
 	 *
 	 * @param array $excludes array of post_ids to exclude.
 	 * @uses send_nosniff_header, self::get_for_post_id, get_the_ID
+	 * @return never
 	 */
 	protected function action_frontend_init_ajax( array $excludes ) {
 		define( 'DOING_AJAX', true );
@@ -2051,6 +2052,10 @@ EOT;
 	 * @return array
 	 */
 	public function rest_get_related_posts( $object ) {
+		if ( ! isset( $object['id'] ) ) {
+			return array();
+		}
+
 		// If the Related Posts option is turned off, don't get the related posts.
 		$options = \Jetpack_Options::get_option( 'relatedposts', array() );
 		if ( empty( $options['enabled'] ) || ! $options['enabled'] ) {

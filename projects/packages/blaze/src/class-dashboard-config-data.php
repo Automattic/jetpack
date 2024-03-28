@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
 /**
@@ -32,6 +33,7 @@ class Dashboard_Config_Data {
 	 */
 	public function get_data() {
 		$blog_id      = Jetpack_Options::get_option( 'id' );
+		$host         = new Host();
 		$empty_object = json_decode( '{}' );
 
 		$user = $this->get_connected_user_identity();
@@ -73,6 +75,7 @@ class Dashboard_Config_Data {
 							'options'      => array(
 								'admin_url'       => admin_url(),
 								'gmt_offset'      => $this->get_gmt_offset(),
+								'is_wpcom_atomic' => $host->is_woa_site(),
 								'jetpack_version' => Constants::get_constant( 'JETPACK__VERSION' ),
 							),
 						),

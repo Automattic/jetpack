@@ -251,8 +251,6 @@ function jetpack_get_migration_data( $option_name ) {
 /**
  * Prints a TOS blurb used throughout the connection prompts.
  *
- * Note: custom ToS messages are also defined in Jetpack_Pre_Connection_JITMs->get_raw_messages()
- *
  * @since 5.3
  *
  * @echo string

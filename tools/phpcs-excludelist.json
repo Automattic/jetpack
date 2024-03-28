@@ -272,8 +272,6 @@
 	"projects/plugins/jetpack/json-endpoints/jetpack/class.jetpack-json-api-get-option-backup-endpoint.php",
 	"projects/plugins/jetpack/json-endpoints/jetpack/class.jetpack-json-api-get-post-backup-endpoint.php",
 	"projects/plugins/jetpack/modules/comments/base.php",
-	"projects/plugins/jetpack/modules/contact-form/admin.php",
-	"projects/plugins/jetpack/modules/contact-form/grunion-contact-form.php",
 	"projects/plugins/jetpack/modules/markdown/easy-markdown.php",
 	"projects/plugins/jetpack/modules/sharedaddy/sharing-sources.php",
 	"projects/plugins/jetpack/modules/sitemaps/sitemap-librarian.php",

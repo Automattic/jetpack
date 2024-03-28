@@ -97,9 +97,21 @@ const JetpackProductDetails = props => {
 					'jetpack'
 				),
 				{
-					a: <a href={ getRedirectUrl( 'jetpack-social-sig-support-page' ) } />,
+					a: (
+						<a
+							href={ getRedirectUrl( 'jetpack-social-sig-support-page' ) }
+							target="_blank"
+							rel="noreferrer"
+						/>
+					),
 					br: <br />,
-					link: <a href={ getRedirectUrl( 'social-plugin-publicize-support-admin-page' ) } />,
+					link: (
+						<a
+							href={ getRedirectUrl( 'social-plugin-publicize-support-admin-page' ) }
+							target="_blank"
+							rel="noreferrer"
+						/>
+					),
 				}
 			),
 		},
@@ -111,7 +123,13 @@ const JetpackProductDetails = props => {
 					'jetpack'
 				),
 				{
-					a: <a href={ getRedirectUrl( 'social-plugin-publicize-support-admin-page' ) } />,
+					a: (
+						<a
+							href={ getRedirectUrl( 'social-plugin-publicize-support-admin-page' ) }
+							target="_blank"
+							rel="noreferrer"
+						/>
+					),
 				}
 			),
 		},

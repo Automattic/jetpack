@@ -130,10 +130,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$this->update_submenus( $slug, $submenus_to_update );
 		}
 
-		add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null );
-
-		// When the interface is not set to wp-admin, we replace the Profile submenu.
 		if ( ! $this->use_wp_admin_interface() ) {
+			// The 'Subscribers' menu exists in the Jetpack menu for Classic wp-admin interface, so only add it for non-wp-admin interfaces.
+			add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null );
+
+			// When the interface is not set to wp-admin, we replace the Profile submenu.
 			remove_submenu_page( 'users.php', 'profile.php' );
 			add_submenu_page( 'users.php', esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', 'https://wordpress.com/me/', null );
 		}
@@ -193,11 +194,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_browse_sites_link() {
 		$site_count = get_user_option( 'wpcom_site_count' );
 		if ( ! $site_count || $site_count < 2 ) {
-			return;
-		}
-
-		// Unnecessary because "My Sites" always links to the Sites page.
-		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
 			return;
 		}
 
@@ -460,9 +456,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		/**
 		 * Adds the WordPress.com GitHub Deployments submenu under the main Tools menu.
 		 */
-		if ( apply_filters( 'jetpack_show_wpcom_github_deployments_menu', false ) ) {
-			add_submenu_page( 'tools.php', esc_attr__( 'GitHub Deployments', 'jetpack' ), __( 'GitHub Deployments', 'jetpack' ), 'manage_options', 'https://wordpress.com/github-deployments/' . $this->domain, null, 7 );
-		}
+		add_submenu_page( 'tools.php', esc_attr__( 'GitHub Deployments', 'jetpack' ), __( 'GitHub Deployments', 'jetpack' ), 'manage_options', 'https://wordpress.com/github-deployments/' . $this->domain, null, 8 );
 	}
 
 	/**

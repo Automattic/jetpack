@@ -8,7 +8,7 @@
 // order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
 // to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
 // are installed, or in some other cases).
-namespace Automattic\Jetpack\Backup\V0003;
+namespace Automattic\Jetpack\Backup\V0004;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
@@ -457,7 +457,7 @@ class Test_Throw_On_Errors extends TestCase {
 	 */
 	public function testFilePutContentsNullParams() {
 		$this->expectException( Exception::class );
-		$this->expectExceptionMessage( 'Filename for file_put_contents() is unset' );
+		$this->expectExceptionMessage( 'Filename for f_p_c() is unset' );
 		/** @noinspection PhpParamsInspection */
 		Throw_On_Errors::t_file_put_contents( null, null );
 	}
@@ -467,7 +467,7 @@ class Test_Throw_On_Errors extends TestCase {
 	 */
 	public function testFilePutContentsEmptyParams() {
 		$this->expectException( Exception::class );
-		$this->expectExceptionMessage( 'Filename for file_put_contents() is unset' );
+		$this->expectExceptionMessage( 'Filename for f_p_c() is unset' );
 		/** @noinspection PhpParamsInspection */
 		Throw_On_Errors::t_file_put_contents( '', null );
 	}
@@ -491,7 +491,7 @@ class Test_Throw_On_Errors extends TestCase {
 	 */
 	public function testFileGetContentsNullParams() {
 		$this->expectException( Exception::class );
-		$this->expectExceptionMessage( 'Filename for file_get_contents() is unset' );
+		$this->expectExceptionMessage( 'Filename for f_g_c() is unset' );
 		/** @noinspection PhpParamsInspection */
 		Throw_On_Errors::t_file_get_contents( null );
 	}
@@ -501,7 +501,7 @@ class Test_Throw_On_Errors extends TestCase {
 	 */
 	public function testFileGetContentsEmptyParams() {
 		$this->expectException( Exception::class );
-		$this->expectExceptionMessage( 'Filename for file_get_contents() is unset' );
+		$this->expectExceptionMessage( 'Filename for f_g_c() is unset' );
 		/** @noinspection PhpParamsInspection */
 		Throw_On_Errors::t_file_get_contents( '' );
 	}

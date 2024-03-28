@@ -3,6 +3,7 @@
  * Comment endpoint.
  *
  * @todo - can this file be written without overriding global variables?
+ *
  * @phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
  */
 /**

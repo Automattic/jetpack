@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+
 if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 
 	/**
@@ -425,6 +427,21 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 			self::clear_wpcom_profile_cookies();
 
 			return $xml->getResponse();
+		}
+
+		/**
+		 * Check if a local user is already connected to WordPress.com.
+		 *
+		 * @since 13.3
+		 *
+		 * @param int $user_id Local User information.
+		 */
+		public static function is_user_connected( $user_id = 0 ) {
+			if ( ! $user_id ) {
+				$user_id = get_current_user_id();
+			}
+
+			return ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $user_id );
 		}
 	}
 

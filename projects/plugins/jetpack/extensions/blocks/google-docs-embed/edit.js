@@ -141,9 +141,12 @@ const GsuiteBlockEdit = props => {
 	};
 
 	const aspectRatios = [
-		{ label: 'Default', value: '' },
-		{ label: '100% - Show the whole document', value: 'ar-100' },
-		{ label: '50% - Show half of the document', value: 'ar-50' },
+		// translators: default aspect ratio for the embedded Google document.
+		{ label: __( 'Default', 'jetpack' ), value: '' },
+		// translators: aspect ratio for the embedded Google document.
+		{ label: __( '100% - Show the whole document', 'jetpack' ), value: 'ar-100' },
+		// translators: aspect ratio for the embedded Google document.
+		{ label: __( '50% - Show half of the document', 'jetpack' ), value: 'ar-50' },
 	];
 
 	return (

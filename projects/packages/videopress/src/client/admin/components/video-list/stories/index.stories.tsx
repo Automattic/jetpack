@@ -1,6 +1,6 @@
 import { action } from '@storybook/addon-actions';
 import VideoList from '..';
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'Packages/VideoPress/Video List',
@@ -15,9 +15,9 @@ export default {
 			</div>
 		),
 	],
-} as ComponentMeta< typeof VideoList >;
+} as Meta< typeof VideoList >;
 
-const Template: ComponentStory< typeof VideoList > = args => {
+const Template: StoryFn< typeof VideoList > = args => {
 	return <VideoList { ...args } />;
 };
 

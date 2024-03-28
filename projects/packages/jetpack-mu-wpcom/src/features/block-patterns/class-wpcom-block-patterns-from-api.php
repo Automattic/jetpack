@@ -139,7 +139,12 @@ class Wpcom_Block_Patterns_From_Api {
 			}
 		}
 
-		$this->update_pattern_block_types();
+		// We prefer to show the starter page patterns modal of wpcom instead of core
+		// if it's available. Hence, we have to update the block types of patterns
+		// to disable the core's.
+		if ( class_exists( '\A8C\FSE\Starter_Page_Templates' ) ) {
+			$this->update_pattern_block_types();
+		}
 
 		// Temporarily removing the call to `update_pattern_post_types` while we investigate
 		// https://github.com/Automattic/wp-calypso/issues/79145.
@@ -280,7 +285,8 @@ class Wpcom_Block_Patterns_From_Api {
 			}
 
 			$post_content_offset = array_search( 'core/post-content', $pattern['blockTypes'], true );
-			if ( $post_content_offset !== false ) {
+			$is_page_pattern     = empty( $pattern['postTypes'] ) || in_array( 'page', $pattern['postTypes'], true );
+			if ( $post_content_offset !== false && $is_page_pattern ) {
 				unregister_block_pattern( $pattern['name'] );
 
 				array_splice( $pattern['blockTypes'], $post_content_offset, 1 );

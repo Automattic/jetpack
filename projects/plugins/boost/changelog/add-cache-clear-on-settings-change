@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Cache: Clear cache if Boost module settings are changed

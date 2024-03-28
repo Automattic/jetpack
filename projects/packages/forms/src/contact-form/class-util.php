@@ -167,7 +167,7 @@ class Util {
 	 * Sets the $grunion_block_template_part_id global.
 	 *
 	 * This is part of the fix for Contact Form Blocks added to FSE _template parts_ (e.g footer).
-	 * The global is processed in Grunion_Contact_Form::parse().
+	 * The global is processed in Contact_Form::parse().
 	 *
 	 * @param string $template_part_id ID for the currently rendered template part.
 	 */

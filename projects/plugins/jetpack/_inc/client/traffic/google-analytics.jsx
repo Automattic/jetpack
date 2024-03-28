@@ -42,9 +42,13 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 							{
 								a: (
 									<a
-										href={ getRedirectUrl( 'calypso-stats-day', {
-											site: this.props.siteRawUrl,
-										} ) }
+										href={
+											this.props.siteUsesWpAdminInterface
+												? this.props.siteAdminUrl + 'admin.php?page=jetpack#/stats'
+												: getRedirectUrl( 'calypso-stats-day', {
+														site: this.props.siteRawUrl,
+												  } )
+										}
 									/>
 								),
 							}
@@ -55,7 +59,15 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 							compact
 							className="jp-settings-card__configure-link"
 							onClick={ this.trackConfigureClick }
-							href={ this.props.configureUrl }
+							href={ getRedirectUrl(
+								this.props.siteUsesWpAdminInterface
+									? 'calypso-marketing-connections'
+									: 'calypso-marketing-traffic',
+								{
+									site: this.props.site,
+									anchor: 'analytics',
+								}
+							) }
 							target="_blank"
 						>
 							{ __( 'Configure your Google Analytics settings', 'jetpack' ) }

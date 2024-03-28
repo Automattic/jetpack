@@ -10,6 +10,7 @@ import enquirer from 'enquirer';
 import { execa } from 'execa';
 import pDebounce from 'p-debounce';
 import tmp from 'tmp';
+import { tracks } from '../helpers/analytics.js';
 import { projectDir } from '../helpers/install.js';
 import { listProjectFiles } from '../helpers/list-project-files.js';
 import { allProjectsByType, dirs } from '../helpers/projectHelpers.js';
@@ -70,6 +71,7 @@ export async function rsyncInit( argv ) {
 	}
 
 	if ( argv.watch ) {
+		await tracks( 'rsync_watch' );
 		let watcher;
 		const rsyncAndUpdateWatches = async ( event, eventfile ) => {
 			if ( argv.v ) {

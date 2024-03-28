@@ -38,7 +38,6 @@ import JetpackEmailConnectionSettings from './components/jetpack-email-connectio
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
 import SalesforceLeadFormSettings from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
-import useFormAccessibleName from './hooks/use-form-accessible-name';
 import { withStyleVariables } from './util/with-style-variables';
 import defaultVariations from './variations';
 
@@ -77,8 +76,6 @@ export const JetpackContactFormEdit = forwardRef(
 		{
 			attributes,
 			setAttributes,
-			siteTitle,
-			postTitle,
 			postAuthorEmail,
 			hasInnerBlocks,
 			replaceInnerBlocks,
@@ -102,7 +99,6 @@ export const JetpackContactFormEdit = forwardRef(
 			customThankyouMessage,
 			customThankyouRedirect,
 			jetpackCRM,
-			formTitle,
 			salesforceData,
 		} = attributes;
 
@@ -160,19 +156,6 @@ export const JetpackContactFormEdit = forwardRef(
 			}
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 		}, [] );
-
-		useFormAccessibleName( formTitle, clientId, setAttributes );
-
-		useEffect( () => {
-			if ( to === undefined && postAuthorEmail ) {
-				setAttributes( { to: postAuthorEmail } );
-			}
-
-			if ( subject === undefined && siteTitle !== undefined && postTitle !== undefined ) {
-				const emailSubject = '[' + siteTitle + '] ' + postTitle;
-				setAttributes( { subject: emailSubject } );
-			}
-		}, [ to, postAuthorEmail, subject, siteTitle, postTitle, setAttributes ] );
 
 		const renderSubmissionSettings = () => {
 			return (
@@ -377,12 +360,11 @@ export default compose( [
 		const { getBlockType, getBlockVariations, getDefaultBlockVariation } = select( 'core/blocks' );
 		const { getBlocks } = select( 'core/block-editor' );
 		const { getEditedPostAttribute } = select( 'core/editor' );
-		const { getSite, getUser, canUser } = select( 'core' );
+		const { getUser, canUser } = select( 'core' );
 		const innerBlocks = getBlocks( props.clientId );
 
 		const authorId = getEditedPostAttribute( 'author' );
 		const authorEmail = authorId && getUser( authorId ) && getUser( authorId ).email;
-		const postTitle = getEditedPostAttribute( 'title' );
 		const canUserInstallPlugins = canUser( 'create', 'plugins' );
 
 		const submitButton = innerBlocks.find( block => block.name === 'jetpack/button' );
@@ -399,8 +381,6 @@ export default compose( [
 
 			innerBlocks,
 			hasInnerBlocks: innerBlocks.length > 0,
-			siteTitle: get( getSite && getSite(), [ 'title' ] ),
-			postTitle: postTitle,
 			postAuthorEmail: authorEmail,
 		};
 	} ),

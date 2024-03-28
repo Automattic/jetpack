@@ -5,35 +5,33 @@ import { execa } from 'execa';
 /**
  * Test if a lockfile is checked in.
  *
- * @param {string} project - Project slug.
+ * @param {string} dir - Project dir.
  * @param {string} lockFile - Lock file name.
  * @returns {boolean} - Whether the lock file exists and is checked in.
  */
-async function hasLockFile( project, lockFile ) {
-	const cwd = projectDir( project );
-	if ( ( await fs.access( cwd + '/' + lockFile ).catch( () => false ) ) === false ) {
+async function hasLockFile( dir, lockFile ) {
+	if ( ( await fs.access( dir + '/' + lockFile ).catch( () => false ) ) === false ) {
 		return false;
 	}
-	const { stdout } = await execa( 'git', [ 'ls-files', lockFile ], { cwd: cwd } );
+	const { stdout } = await execa( 'git', [ 'ls-files', lockFile ], { cwd: dir } );
 	return !! stdout;
 }
 
 /**
  * Test if a composer lockfile exists and is valid.
  *
- * @param {string} project - Project slug.
+ * @param {string} dir - Project dir.
  * @returns {boolean} - Whether the lock file exists and is valid.
  */
-async function isComposerLockOk( project ) {
-	const cwd = projectDir( project );
-	if ( ( await fs.access( cwd + '/composer.lock' ).catch( () => false ) ) === false ) {
+async function isComposerLockOk( dir ) {
+	if ( ( await fs.access( dir + '/composer.lock' ).catch( () => false ) ) === false ) {
 		return false;
 	}
 	try {
 		await execa(
 			'composer',
 			[ 'validate', '--check-lock', '--no-check-all', '--no-check-publish' ],
-			{ cwd: cwd, stdout: 'ignore' }
+			{ cwd: dir, stdout: 'ignore' }
 		);
 		return true;
 	} catch ( e ) {
@@ -86,9 +84,10 @@ export async function getInstallArgs( project, pkgMgr, argv ) {
 	// For composer, choose 'install' or 'update' depending on whether the lockfile is checked in.
 	// For pnpm, the lockfile is always checked in thanks to the workspace thing.
 	if ( pkgMgr === 'composer' ) {
-		if ( await hasLockFile( project, 'composer.lock' ) ) {
+		const dir = projectDir( project );
+		if ( await hasLockFile( dir, 'composer.lock' ) ) {
 			args.push( 'install' );
-		} else if ( argv.useUncommittedComposerLock && ( await isComposerLockOk( project ) ) ) {
+		} else if ( argv.useUncommittedComposerLock && ( await isComposerLockOk( dir ) ) ) {
 			args.push( 'install' );
 		} else {
 			args.push( 'update' );
@@ -101,5 +100,27 @@ export async function getInstallArgs( project, pkgMgr, argv ) {
 	} else {
 		throw new Error( `Unknown package manager ${ pkgMgr }` );
 	}
+	return args;
+}
+
+/**
+ * Determine install command arguments.
+ *
+ * @param {string} dir - Project directory.
+ * @param {object} argv - Argv object.
+ * @param {boolean} argv.useUncommittedComposerLock - Whether to use uncommitted composer.lock files when valid.
+ * @returns {string[]} Args to pass to the package manager.
+ */
+export async function getComposerInstallArgsForDir( dir, argv ) {
+	const args = [];
+
+	if ( await hasLockFile( dir, 'composer.lock' ) ) {
+		args.push( 'install' );
+	} else if ( argv.useUncommittedComposerLock && ( await isComposerLockOk( dir ) ) ) {
+		args.push( 'install' );
+	} else {
+		args.push( 'update' );
+	}
+
 	return args;
 }

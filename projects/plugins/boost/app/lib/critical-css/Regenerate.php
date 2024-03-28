@@ -35,7 +35,7 @@ class Regenerate {
 			// If this is a cloud CSS request, we need to trigger the generation
 			// of the CSS and return the URL to the CSS file.
 			$cloud_css = new Cloud_CSS();
-			$cloud_css->regenerate_cloud_css();
+			$cloud_css->regenerate_cloud_css( Cloud_CSS::REGENERATE_REASON_USER_REQUEST );
 			Cloud_CSS_Followup::schedule();
 		}
 
