@@ -10,8 +10,8 @@ export const variations = [
 	},
 	{
 		name: 'print',
-		attributes: { service: 'print', label: 'Print' },
-		title: 'Print',
+		attributes: { service: 'print', label: __( 'Print', 'jetpack' ) },
+		title: __( 'Print', 'jetpack' ),
 		icon: <SocialIcon icon={ 'print' } size={ 24 } />,
 	},
 	{
@@ -29,8 +29,8 @@ export const variations = [
 	},
 	{
 		name: 'mail',
-		attributes: { service: 'mail', label: 'Mail' },
-		title: 'Mail',
+		attributes: { service: 'mail', label: __( 'Mail', 'jetpack' ) },
+		title: __( 'Mail', 'jetpack' ),
 		keywords: [ 'email', 'e-mail' ],
 		icon: <SocialIcon icon={ 'mail' } size={ 24 } />,
 	},
@@ -104,7 +104,7 @@ export const variations = [
 	},
 	{
 		name: 'native-share',
-		attributes: { service: 'share', label: 'Share' },
+		attributes: { service: 'share', label: __( 'Share', 'jetpack' ) },
 		/* translators: Sharing Button title */
 		title: __( 'Native Share', 'jetpack' ),
 		icon: <SocialIcon icon={ 'share' } size={ 24 } />,
