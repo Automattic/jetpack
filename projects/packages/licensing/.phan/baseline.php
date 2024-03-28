@@ -17,7 +17,6 @@ return [
     // PhanTypeMismatchArgumentProbablyReal : 3 occurrences
     // PhanTypeMismatchArgument : 2 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
-    // PhanUndeclaredConstant : 2 occurrences
     // PhanTypeMismatchProperty : 1 occurrence
     // PhanTypeMismatchPropertyDefault : 1 occurrence
     // PhanTypeMismatchReturn : 1 occurrence
@@ -29,7 +28,6 @@ return [
     'file_suppressions' => [
         'src/class-endpoints.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType'],
         'src/class-licensing.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyDefault', 'PhanTypeSuspiciousNonTraversableForeach'],
-        'tests/php/bootstrap.php' => ['PhanUndeclaredConstant'],
         'tests/php/class-test-licensing-endpoints.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty', 'PhanUndeclaredTypeReturnType'],
         'tests/php/class-test-licensing.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredMethod'],
     ],

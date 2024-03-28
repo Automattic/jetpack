@@ -12,8 +12,10 @@ const debug = debugFactory( 'ai-client:use-image-generator' );
 const useImageGenerator = () => {
 	const generateImage = async function ( {
 		feature,
+		postContent,
 	}: {
 		feature: string;
+		postContent: string;
 	} ): Promise< { data: Array< { url: string } > } > {
 		let token = '';
 
@@ -27,8 +29,21 @@ const useImageGenerator = () => {
 		try {
 			debug( 'Generating image' );
 
-			// TODO: Find a proper prompt for the image generation
-			const imageGenerationPrompt = ``;
+			// TODO: fine tune the prompt as we move forward
+			const imageGenerationPrompt =
+				`I need a cover image for a blog post.
+Before creating the image, identify the main topic of the content and only represent it.
+Do not represent the whole content in one image, keep it simple and just represent one single idea.
+Do not add details, detailed explanations or highlights from the content, just represent the main idea as if it was a photograph.
+Do not use collages or compositions with multiple elements or scenes. Stick to one single scene. Do not compose unrealistic scenes.
+If the content describes facts, objects or concepts from the real world, represent them on a realistic style and do not make unreal compositions.
+If the content is more abstract, use a more abstract style to represent the main idea.
+Make sure the light and the style are visually appealing.
+Do not add text to the image.
+
+This is the post content:
+
+` + postContent;
 
 			const URL = 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-image';
 
@@ -36,10 +51,12 @@ const useImageGenerator = () => {
 				prompt: imageGenerationPrompt,
 				response_format: 'url',
 				feature,
+				size: '1792x1024',
 			};
 
 			const headers = {
 				Authorization: `Bearer ${ token }`,
+				'Content-Type': 'application/json',
 			};
 
 			const data = await fetch( URL, {

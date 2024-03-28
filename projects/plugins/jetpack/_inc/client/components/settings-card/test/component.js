@@ -59,7 +59,6 @@ describe( 'SettingsCard', () => {
 			'notes',
 			'subscriptions',
 			'protect',
-			'enhanced-distribution',
 			'comments',
 			'json-api',
 			'photon',

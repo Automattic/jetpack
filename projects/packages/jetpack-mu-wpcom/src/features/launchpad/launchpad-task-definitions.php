@@ -16,6 +16,17 @@ function wpcom_launchpad_should_use_wp_admin_link() {
 }
 
 /**
+ * Returns whether the task link should point to Jetpack Cloud page
+ * instead of Calypso page.
+ *
+ * @return bool
+ */
+function wpcom_launchpad_should_use_jetpack_cloud_link() {
+	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+	return $is_atomic_site && get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+}
+
+/**
  * Get the task definitions for the Launchpad.
  *
  * @return array
@@ -218,6 +229,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_has_goal_import_subscribers',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_jetpack_cloud_link() ) {
+					return 'https://cloud.jetpack.com/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
+				}
 				return '/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
 			},
 		),
@@ -483,6 +497,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'target_repetitions'        => 10,
 			'repetition_count_callback' => 'wpcom_launchpad_get_newsletter_subscriber_count',
 			'get_calypso_path'          => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_jetpack_cloud_link() ) {
+					return 'https://cloud.jetpack.com/subscribers/' . $data['site_slug_encoded'];
+				}
 				return '/subscribers/' . $data['site_slug_encoded'];
 			},
 		),
@@ -506,6 +523,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_has_goal_import_subscribers',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_jetpack_cloud_link() ) {
+					return 'https://cloud.jetpack.com/subscribers/' . $data['site_slug_encoded'];
+				}
 				return '/subscribers/' . $data['site_slug_encoded'];
 			},
 		),
@@ -622,6 +642,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => '__return_true',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_jetpack_cloud_link() ) {
+					return 'https://cloud.jetpack.com/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
+				}
 				return '/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
 			},
 		),
