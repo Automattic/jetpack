@@ -138,7 +138,7 @@ class Notices {
 		 * Since we're returning an error that will be shown as a red notice, let's remove the
 		 * informational "blue" notice.
 		 */
-		remove_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'msg_login_by_jetpack' ) );
+		remove_filter( 'login_message', array( static::class, 'msg_login_by_jetpack' ) );
 		return new \WP_Error( 'jetpack_sso_required', self::get_sso_required_message() );
 	}
 

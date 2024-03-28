@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Connection\SSO\Force_2FA;
 use Automattic\Jetpack\Connection\SSO\Helpers;
+use Automattic\Jetpack\Connection\SSO\Notices;
 use Automattic\Jetpack\Connection\SSO\User_Admin;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
@@ -51,10 +52,10 @@ class SSO {
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 		add_action( 'init', array( $this, 'maybe_logout_user' ), 5 );
 		add_action( 'login_form_logout', array( $this, 'store_wpcom_profile_cookies_on_logout' ) );
-		add_action( 'jetpack_unlinked_user', array( 'Helpers', 'delete_connection_for_user' ) );
+		add_action( 'jetpack_unlinked_user', array( Helpers::class, 'delete_connection_for_user' ) );
 
 		add_action( 'jetpack_site_before_disconnected', array( static::class, 'disconnect' ) );
-		add_action( 'wp_login', array( 'Jetpack_SSO', 'clear_cookies_after_login' ) );
+		add_action( 'wp_login', array( static::class, 'clear_cookies_after_login' ) );
 
 		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
 		add_action( 'login_form_jetpack-sso', '__return_true' );
@@ -454,7 +455,7 @@ class SSO {
 			 * let's fire at priority 30. wp_authenticate_spam_check is fired at priority 99, but since we return a
 			 * WP_Error in disable_default_login_form, then we won't trigger spam processing logic.
 			 */
-			add_filter( 'authenticate', array( 'Jetpack_SSO_Notices', 'disable_default_login_form' ), 30 );
+			add_filter( 'authenticate', array( Notices::class, 'disable_default_login_form' ), 30 );
 
 			/**
 			 * Filter the display of the disclaimer message appearing when default WordPress login form is disabled.
@@ -467,7 +468,7 @@ class SSO {
 			 */
 			$display_sso_disclaimer = apply_filters( 'jetpack_sso_display_disclaimer', true );
 			if ( $display_sso_disclaimer ) {
-				add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'msg_login_by_jetpack' ) );
+				add_filter( 'login_message', array( Notices::class, 'msg_login_by_jetpack' ) );
 			}
 		}
 
@@ -476,10 +477,10 @@ class SSO {
 				$this->handle_login();
 				$this->display_sso_login_form();
 			} elseif ( ( new Status() )->is_staging_site() ) {
-				add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'sso_not_allowed_in_staging' ) );
+				add_filter( 'login_message', array( Notices::class, 'sso_not_allowed_in_staging' ) );
 			} else {
 				// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
-				add_filter( 'allowed_redirect_hosts', array( 'Helpers', 'allowed_redirect_hosts' ) );
+				add_filter( 'allowed_redirect_hosts', array( Helpers::class, 'allowed_redirect_hosts' ) );
 				$reauth  = ! empty( $_GET['force_reauth'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$sso_url = $this->get_sso_url_or_die( $reauth );
 
@@ -498,7 +499,7 @@ class SSO {
 			 * is not something other than login (Like logout!)
 			 */
 			if ( ! $this->use_wp_admin_interface() && Helpers::bypass_login_forward_wpcom() && $this->wants_to_login() ) {
-				add_filter( 'allowed_redirect_hosts', array( 'Helpers', 'allowed_redirect_hosts' ) );
+				add_filter( 'allowed_redirect_hosts', array( Helpers::class, 'allowed_redirect_hosts' ) );
 				$reauth  = ! empty( $_GET['force_reauth'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$sso_url = $this->get_sso_url_or_die( $reauth );
 				$tracking->record_user_event( 'sso_login_redirect_bypass_success' );
@@ -519,7 +520,7 @@ class SSO {
 		add_action( 'login_head', array( $this, 'print_inline_admin_css' ) );
 
 		if ( ( new Status() )->is_staging_site() ) {
-			add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'sso_not_allowed_in_staging' ) );
+			add_filter( 'login_message', array( Notices::class, 'sso_not_allowed_in_staging' ) );
 			return;
 		}
 
@@ -778,7 +779,7 @@ class SSO {
 		$user_data = $xml->isError() ? false : $xml->getResponse();
 		if ( empty( $user_data ) ) {
 			add_filter( 'jetpack_sso_default_to_sso_login', '__return_false' );
-			add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'error_invalid_response_data' ) );
+			add_filter( 'login_message', array( Notices::class, 'error_invalid_response_data' ) );
 			return;
 		}
 
@@ -812,7 +813,7 @@ class SSO {
 
 			/** This filter is documented in core/src/wp-includes/pluggable.php */
 			do_action( 'wp_login_failed', $user_data->login, $error );
-			add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'error_msg_enable_two_step' ) );
+			add_filter( 'login_message', array( Notices::class, 'error_msg_enable_two_step' ) );
 			return;
 		}
 
@@ -834,7 +835,7 @@ class SSO {
 
 					/** This filter is documented in core/src/wp-includes/pluggable.php */
 					do_action( 'wp_login_failed', $user_data->login, $error );
-					add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'error_invalid_response_data' ) ); // @todo Need to have a better notice. This is only for the sake of testing the validation.
+					add_filter( 'login_message', array( Notices::class, 'error_invalid_response_data' ) ); // @todo Need to have a better notice. This is only for the sake of testing the validation.
 					return;
 				}
 				update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );
@@ -875,7 +876,7 @@ class SSO {
 							'error_message' => 'could_not_create_username',
 						)
 					);
-					add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'error_unable_to_create_user' ) );
+					add_filter( 'login_message', array( Notices::class, 'error_unable_to_create_user' ) );
 					return;
 				}
 
@@ -891,7 +892,7 @@ class SSO {
 				);
 
 				$this->user_data = $user_data;
-				add_action( 'login_message', array( 'Jetpack_SSO_Notices', 'error_msg_email_already_exists' ) );
+				add_action( 'login_message', array( Notices::class, 'error_msg_email_already_exists' ) );
 				return;
 			}
 		}
@@ -912,9 +913,9 @@ class SSO {
 			// Cache the user's details, so we can present it back to them on their user screen.
 			update_user_meta( $user->ID, 'wpcom_user_data', $user_data );
 
-			add_filter( 'auth_cookie_expiration', array( 'Helpers', 'extend_auth_cookie_expiration_for_sso' ) );
+			add_filter( 'auth_cookie_expiration', array( Helpers::class, 'extend_auth_cookie_expiration_for_sso' ) );
 			wp_set_auth_cookie( $user->ID, true );
-			remove_filter( 'auth_cookie_expiration', array( 'Helpers', 'extend_auth_cookie_expiration_for_sso' ) );
+			remove_filter( 'auth_cookie_expiration', array( Helpers::class, 'extend_auth_cookie_expiration_for_sso' ) );
 
 			/** This filter is documented in core/src/wp-includes/user.php */
 			do_action( 'wp_login', $user->user_login, $user );
@@ -966,7 +967,7 @@ class SSO {
 				exit;
 			}
 
-			add_filter( 'allowed_redirect_hosts', array( 'Helpers', 'allowed_redirect_hosts' ) );
+			add_filter( 'allowed_redirect_hosts', array( Helpers::class, 'allowed_redirect_hosts' ) );
 			wp_safe_redirect(
 			/** This filter is documented in core/src/wp-login.php */
 				apply_filters( 'login_redirect', $redirect_to, $_request_redirect_to, $user )
@@ -989,7 +990,7 @@ class SSO {
 
 		/** This filter is documented in core/src/wp-includes/pluggable.php */
 		do_action( 'wp_login_failed', $user_data->login, $error );
-		add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'cant_find_user' ) );
+		add_filter( 'login_message', array( Notices::class, 'cant_find_user' ) );
 	}
 
 	/**
@@ -1199,7 +1200,7 @@ class SSO {
 		add_filter( 'jetpack_use_iframe_authorization_flow', '__return_false' );
 		$connect_url = $jetpack->build_connect_url( true, $redirect_after_auth, 'sso' );
 
-		add_filter( 'allowed_redirect_hosts', array( 'Helpers', 'allowed_redirect_hosts' ) );
+		add_filter( 'allowed_redirect_hosts', array( Helpers::class, 'allowed_redirect_hosts' ) );
 		wp_safe_redirect( $connect_url );
 		exit;
 	}
