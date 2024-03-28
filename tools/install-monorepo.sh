@@ -213,7 +213,7 @@ function do_pnpm {
 	if ! has_command pnpm; then
 		echo "pnpm: not found"
 		echo "Installing pnpm..."
-		curl -fsSL https://get.pnpm.io/install.sh | sh - &>/dev/null
+		curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION="$PNPM_VERSION" sh - &>/dev/null
 
 		# Make sure pnpm is in one's path
 		export PNPM_HOME="$("$SHELL" -i -c 'echo "$PNPM_HOME"')"
@@ -305,10 +305,10 @@ do_nvm
 do_node
 do_bash
 do_jq
-do_pnpm
 
 # Get repo-preferred versions
 source .github/versions.sh
+do_pnpm
 do_php
 do_composer
 
