@@ -83,6 +83,47 @@ class Jetpack_Contact_Info_Block {
 	}
 
 	/**
+	 * Adds name schema attributes.
+	 *
+	 * @param array  $attr    Array containing the name block attributes.
+	 * @param string $content String containing the name block content.
+	 *
+	 * @return string
+	 */
+	public static function render_name( $attr, $content ) {
+		$content = self::has_attributes( $attr, array( 'className' ) ) ?
+			str_replace( 'class="wp-block-jetpack-name"', 'itemprop="name" class="wp-block-jetpack-name"', $content ) :
+			'';
+		return $content;
+	}
+
+	/**
+	 * Adds name schema attributes.
+	 *
+	 * @param array  $attr    Array containing the image block attributes.
+	 * @param string $content String containing the image block content.
+	 *
+	 * @return string
+	 */
+	public static function render_image( $attr, $content ) {
+		$image = $attr['image'];
+
+		if ( isset( $image ) && isset( $image['url'] ) ) {
+			return str_replace(
+				'<div class="wp-block-jetpack-image"></div>',
+				sprintf(
+					'<div class="wp-block-jetpack-image"><img itemprop="image" src="%1$s" alt="%2$s"/></div>',
+					esc_attr( $image['url'] ),
+					isset( $image['alt'] ) ? esc_attr( $image['alt'] ) : ''
+				),
+				$content
+			);
+		}
+
+		return '';
+	}
+
+	/**
 	 * Adds email schema attributes.
 	 *
 	 * @param array  $attr    Array containing the email block attributes.
