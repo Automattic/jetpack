@@ -425,6 +425,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	/**
 	 * Defaults to false - this is filled on the WordPress.com side in multiple locations.
 	 *
+	 * @see WPCOM_JSON_API_GET_Site_Endpoint::decorate_jetpack_response.
 	 * @return bool
 	 */
 	public function get_capabilities() {
@@ -544,11 +545,12 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 * Returns true if a user has got the capability that is being checked, false otherwise.
 	 *
 	 * @param string $role The capability to check.
+	 * @param mixed  ...$args Optional further parameters, typically starting with an object ID.
 	 *
 	 * @return bool
 	 */
-	public function current_user_can( $role ) {
-		return current_user_can( $role );
+	public function current_user_can( $role, ...$args ) {
+		return current_user_can( $role, ...$args );
 	}
 
 	/**
