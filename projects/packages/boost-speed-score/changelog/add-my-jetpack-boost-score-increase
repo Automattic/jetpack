@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Add gereric Jetpack_Boost_Modules class for when Boost is uninstalled/not activated.

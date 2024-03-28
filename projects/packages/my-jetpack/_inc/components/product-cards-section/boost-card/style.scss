@@ -12,7 +12,6 @@ $border_radius: math.div($bar-height, 2);
     column-gap: 1em;
     margin: 8px 0 8px;
     &--letter {
-        position: relative;
         > button {
             all: unset;
             font-size: var(--font-title-small);
@@ -80,4 +79,16 @@ $border_radius: math.div($bar-height, 2);
         height: $bar-height;
         border-radius: $border_radius;
     }
+}
+
+.mj-boost-speed-score__increase {
+    position: absolute;
+    top: 26px;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    font-size: var(--font-body-small);
+    line-height: 28px;
+    color: var(--jp-green-50);
+	fill: var(--jp-green-50);
 }
