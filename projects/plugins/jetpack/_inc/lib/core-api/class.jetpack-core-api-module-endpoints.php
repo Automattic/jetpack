@@ -987,6 +987,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'wpcom_featured_image_in_email':
 				case 'wpcom_subscription_emails_use_excerpt':
 				case 'jetpack_subscriptions_subscribe_post_end_enabled':
+				case 'jetpack_subscriptions_login_navigation_enabled':
 					// Convert the false value to 0. This allows the option to be updated if it doesn't exist yet.
 					$sub_value = $value ? $value : 0;
 					$updated   = (string) get_option( $option ) !== (string) $sub_value ? update_option( $option, $sub_value ) : true;

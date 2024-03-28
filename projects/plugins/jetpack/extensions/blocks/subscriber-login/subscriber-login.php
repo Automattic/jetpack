@@ -17,6 +17,8 @@ use Jetpack_Gutenberg;
 use Jetpack_Memberships;
 use Jetpack_Options;
 
+require_once __DIR__ . '/class-jetpack-subscription-site.php';
+
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -35,6 +37,8 @@ function register_block() {
 		__DIR__,
 		array( 'render_callback' => __NAMESPACE__ . '\render_block' )
 	);
+
+	Jetpack_Subscription_Site::init()->handle_subscriber_login_block_placements();
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 

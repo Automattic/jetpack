@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Untangling: return untangled admin menu from wpcom/v2/admin-menu endpoint for early classic view

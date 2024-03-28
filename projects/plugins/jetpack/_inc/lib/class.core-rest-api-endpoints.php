@@ -2659,6 +2659,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),
+			'jetpack_subscriptions_login_navigation_enabled' => array(
+				'description'       => esc_html__( 'Add Subscriber Login block to the navigation.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
 			'social_notifications_subscribe'        => array(
 				'description'       => esc_html__( 'Send email notification when someone subscribes to my blog', 'jetpack' ),
 				'type'              => 'boolean',

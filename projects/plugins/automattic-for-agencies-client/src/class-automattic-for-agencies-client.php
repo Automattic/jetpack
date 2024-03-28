@@ -13,6 +13,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Plugin_Deactivation\Deactivation_Handler;
 use Automattic\Jetpack\Sync\Data_Settings;
 
 /**
@@ -34,6 +35,9 @@ class Automattic_For_Agencies_Client {
 
 		// Add scripts and styles to our admin page.
 		add_action( 'load-settings_page_' . AUTOMATTIC_FOR_AGENCIES_CLIENT_SLUG, array( static::class, 'load_scripts_styles' ) );
+
+		// Display a modal when trying to deactivate the plugin.
+		Deactivation_Handler::init( AUTOMATTIC_FOR_AGENCIES_CLIENT_SLUG, __DIR__ . '/admin/deactivation-dialog.php' );
 	}
 
 	/**
