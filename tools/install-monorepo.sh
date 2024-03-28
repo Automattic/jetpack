@@ -105,7 +105,7 @@ function do_homebrew {
 function do_nvm {
 	# Get latest nvm version.
 	# Based on this: https://stackoverflow.com/a/71896712
-	good_nvm_version=$(basename $(curl -fs -o/dev/null -w %{redirect_url} https://github.com/nvm-sh/nvm/releases/latest))
+	local good_nvm_version=$(basename "$(curl -fs -o/dev/null -w '%{redirect_url}' https://github.com/nvm-sh/nvm/releases/latest)")
 
 	if [[ -f "$HOME"/.nvm/nvm.sh ]] ; then
 		# Since nvm is really several shell functions, and isn't in the environment
