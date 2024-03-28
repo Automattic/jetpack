@@ -138,7 +138,7 @@ function do_nvm {
 	else
 		echo "nvm: not found"
 		info "Installing nvm..."
-		curl -s -o- https://raw.githubusercontent.com/nvm-sh/nvm/$good_nvm_version/install.sh | bash - &>/dev/null &&
+		curl -s -o- "https://raw.githubusercontent.com/nvm-sh/nvm/$good_nvm_version/install.sh" | bash - &>/dev/null &&
 
 		# Source to get latest shell functions
 		export NVM_DIR="$HOME"/.nvm && source "$NVM_DIR"/nvm.sh --no-use
