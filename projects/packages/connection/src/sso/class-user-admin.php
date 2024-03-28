@@ -279,7 +279,7 @@ class User_Admin {
 				return self::create_error_notice_and_redirect( $query_params );
 			}
 
-			$body = json_decode( wp_remote_retrieve_body( $response ), true );
+			$body = json_decode( wp_remote_retrieve_body( $response ) );
 
 			// access the first item since we're inviting one user.
 			if ( is_array( $body ) && ! empty( $body ) ) {
