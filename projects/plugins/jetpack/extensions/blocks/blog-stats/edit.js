@@ -1,7 +1,7 @@
 import { numberFormat } from '@automattic/jetpack-components';
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
-import { InspectorControls, RichText } from '@wordpress/block-editor';
+import { InspectorControls, RichText, useBlockProps } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
@@ -9,6 +9,7 @@ import { BlogStatsInspectorControls } from './controls';
 import { InactiveStatsPlaceholder } from './inactive-placeholder';
 
 function BlogStatsEdit( { attributes, className, setAttributes } ) {
+	const blockProps = useBlockProps();
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'stats' );
 	const { label, statsData, statsOption } = attributes;
@@ -64,7 +65,7 @@ function BlogStatsEdit( { attributes, className, setAttributes } ) {
 		_n( 'hit', 'hits', parseInt( stats ), 'jetpack', 0 );
 
 	return (
-		<>
+		<div { ...blockProps }>
 			<InspectorControls>
 				<BlogStatsInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
 			</InspectorControls>
@@ -85,7 +86,7 @@ function BlogStatsEdit( { attributes, className, setAttributes } ) {
 					</p>
 				) }
 			</div>
-		</>
+		</div>
 	);
 }
 
