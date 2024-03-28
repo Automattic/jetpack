@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { useImageGenerator } from '@automattic/jetpack-ai-client';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
@@ -15,6 +16,7 @@ import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library';
 import AiAssistantModal from '../modal';
 
 const FEATURED_IMAGE_FEATURE_NAME = 'featured-post-image';
+const JETPACK_SIDEBAR_PLACEMENT = 'jetpack-sidebar';
 
 export default function FeaturedImage() {
 	const { toggleEditorPanelOpened: toggleEditorPanelOpenedFromEditPost } =
@@ -28,6 +30,8 @@ export default function FeaturedImage() {
 	const [ imageURL, setImageURL ] = useState( null );
 	const { generateImage } = useImageGenerator();
 	const { isLoading: isSavingToMediaLibrary, saveToMediaLibrary } = useSaveToMediaLibrary();
+	const { tracks } = useAnalytics();
+	const { recordEvent } = tracks;
 
 	const postContent = usePostContent();
 
@@ -74,19 +78,34 @@ export default function FeaturedImage() {
 	}, [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] );
 
 	const handleGenerate = useCallback( () => {
+		// track the generate image event
+		recordEvent( 'jetpack_ai_featured_image_generation_generate_image', {
+			placement: JETPACK_SIDEBAR_PLACEMENT,
+		} );
+
 		toggleFeaturedImageModal();
 		processImageGeneration();
-	}, [ toggleFeaturedImageModal, processImageGeneration ] );
+	}, [ toggleFeaturedImageModal, processImageGeneration, recordEvent ] );
 
 	const handleRegenerate = useCallback( () => {
+		// track the regenerate image event
+		recordEvent( 'jetpack_ai_featured_image_generation_generate_another_image', {
+			placement: JETPACK_SIDEBAR_PLACEMENT,
+		} );
+
 		processImageGeneration();
-	}, [ processImageGeneration ] );
+	}, [ processImageGeneration, recordEvent ] );
 
 	const triggerComplemenetaryArea = useCallback( () => {
 		enableComplementaryArea( 'core/edit-post', 'edit-post/document' );
 	}, [ enableComplementaryArea ] );
 
 	const handleAccept = useCallback( () => {
+		// track the accept/use image event
+		recordEvent( 'jetpack_ai_featured_image_generation_use_image', {
+			placement: JETPACK_SIDEBAR_PLACEMENT,
+		} );
+
 		saveToMediaLibrary( imageURL ).then( image => {
 			editPost( { featured_media: image.id } );
 			toggleFeaturedImageModal();
@@ -107,6 +126,7 @@ export default function FeaturedImage() {
 		editPost,
 		imageURL,
 		isEditorPanelOpened,
+		recordEvent,
 		saveToMediaLibrary,
 		toggleEditorPanelOpened,
 		toggleFeaturedImageModal,
