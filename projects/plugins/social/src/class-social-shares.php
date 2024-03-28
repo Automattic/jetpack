@@ -37,7 +37,7 @@ class Social_Shares {
 		$succesful_shares = array_filter(
 			$shares[0],
 			function ( $share ) {
-				return isset( $share['status'] ) && $share['status'] === 'success';
+				return isset( $share['status'] ) && 'success' === $share['status'];
 			}
 		);
 
