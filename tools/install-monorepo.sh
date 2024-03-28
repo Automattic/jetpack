@@ -19,6 +19,9 @@ function usage {
 }
 
 # Wrapper to check for a command silently.
+#
+# $1 - Command to check for
+# Returns: 0 if the command exists, non-zero if not.
 function has_command {
 	command -v "$1" &>/dev/null
 	return $?
