@@ -489,6 +489,10 @@ function zeroBSCRM_pages_admin_display_custom_fields_table($id = -1, $objectType
 		     		$html .= '<td class="zbs-view-vital-customfields-'.esc_attr($v['type']).'">' . str_replace(',',', ',esc_html( $v['value'] ) )  . '</td>';
 		     		break;
 
+				case 'textarea':
+					$html .= '<td class="zbs-view-vital-customfields-' . esc_attr( $v['type'] ) . '"><div class="textarea-scrollable">' . nl2br( esc_html( $v['value'] ) ) . '</div></td>';
+					break;
+
 		     	default:
 		     		$html .= '<td class="zbs-view-vital-customfields-'.esc_attr($v['type']).'">' . nl2br( esc_html( $v['value'] ) ) . '</td>';
 		     		break;

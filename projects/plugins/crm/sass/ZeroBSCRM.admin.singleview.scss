@@ -129,7 +129,10 @@
 
 		// specifically allow textarea field types to expand beyond overflow:
 		tr td.zbs-view-vital-customfields-textarea {
-
+			.textarea-scrollable {
+				max-height: 600px;
+				overflow-y: auto;
+			}
 		}
 	}
 

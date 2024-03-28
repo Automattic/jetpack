@@ -525,8 +525,13 @@ class zbsDAL_forms extends zbsDAL_ObjectLayer {
                 
                     // simplistic add
                     // NOTE: This IGNORES ownership of custom field lines.
-                    $searchWheres['search_customfields'] = array('ID','IN',"(SELECT zbscf_objid FROM ".$ZBSCRM_t['customfields']." WHERE zbscf_objval LIKE %s AND zbscf_objtype = ".ZBS_TYPE_FORM.")",'%'.$searchPhrase.'%');
-
+	                // @codingStandardsIgnoreStart
+	                if ( jpcrm_migration_table_has_index( $ZBSCRM_t['customfields'], 'search' ) ) {
+		                $searchWheres['search_customfields'] = array('ID','IN',"(SELECT zbscf_objid FROM ".$ZBSCRM_t['customfields']." WHERE MATCH(zbscf_objval) AGAINST(%s) AND zbscf_objtype = ".ZBS_TYPE_FORM.")",$searchPhrase);
+	                } else {
+                        $searchWheres['search_customfields'] = array('ID','IN',"(SELECT zbscf_objid FROM ".$ZBSCRM_t['customfields']." WHERE zbscf_objval LIKE %s AND zbscf_objtype = ".ZBS_TYPE_FORM.")",'%'.$searchPhrase.'%');
+					}
+	                // @codingStandardsIgnoreEnd
                 }
 
                 // This generates a query like 'zbsf_fname LIKE %s OR zbsf_lname LIKE %s', 

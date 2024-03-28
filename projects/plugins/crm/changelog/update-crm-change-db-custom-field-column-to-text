@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Convert the custom field value column into TEXT and change queries to use MATCH/AGAINST SQL syntax
