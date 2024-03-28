@@ -69,6 +69,7 @@ function Price( { value, currency, isOld } ) {
  * @param {number} [props.quantity]              - The quantity of the product to purchase
  * @param {boolean} [props.highlightLastFeature] - Whether to highlight the last feature of the list of features
  * @param {boolean} [props.isFetching]           - Whether the product is being fetched
+ * @param {boolean} [props.isRedirecting]        - Whether the application is redirecting away from the interstitial
  * @returns {object}                               ProductDetailCard react component.
  */
 const ProductDetailCard = ( {
@@ -83,6 +84,7 @@ const ProductDetailCard = ( {
 	quantity = null,
 	highlightLastFeature = false,
 	isFetching = false,
+	isRedirecting = false,
 } ) => {
 	const {
 		fileSystemWriteAccess = 'no',
@@ -366,7 +368,7 @@ const ProductDetailCard = ( {
 					<Text
 						component={ ProductDetailButton }
 						onClick={ clickHandler }
-						isLoading={ isFetching || hasMainCheckoutStarted }
+						isLoading={ isFetching || isRedirecting || hasMainCheckoutStarted }
 						disabled={ cantInstallPlugin }
 						isPrimary={ ! isBundle }
 						className={ styles[ 'checkout-button' ] }
@@ -380,7 +382,7 @@ const ProductDetailCard = ( {
 					<Text
 						component={ ProductDetailButton }
 						onClick={ trialClickHandler }
-						isLoading={ isFetching || hasTrialCheckoutStarted }
+						isLoading={ isFetching || isRedirecting || hasTrialCheckoutStarted }
 						disabled={ cantInstallPlugin }
 						isPrimary={ false }
 						className={ [ styles[ 'checkout-button' ], styles[ 'free-product-checkout-button' ] ] }

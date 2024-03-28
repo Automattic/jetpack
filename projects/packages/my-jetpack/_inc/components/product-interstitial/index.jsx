@@ -6,7 +6,7 @@ import { useConnection } from '@automattic/jetpack-connection';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -76,6 +76,7 @@ export default function ProductInterstitial( {
 		skipUserConnection: true,
 		redirectUri: detail.postActivationUrl ? detail.postActivationUrl : null,
 	} );
+	const [ isRedirectingAfterActivation, setIsRedirectingAfterActivation ] = useState( false );
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
@@ -146,6 +147,8 @@ export default function ProductInterstitial( {
 							? product?.pricingForUi?.tiers?.[ tier ]?.isFree
 							: product?.pricingForUi?.isFree;
 						const needsPurchase = ! isFree && ! hasPaidPlanForProduct;
+
+						setIsRedirectingAfterActivation( true );
 
 						// If the product is CRM, redirect the user to the Jetpack CRM pricing page.
 						// This is done because CRM is not part of the WP billing system
@@ -219,6 +222,7 @@ export default function ProductInterstitial( {
 							trackProductButtonClick={ trackProductClick }
 							preferProductName={ preferProductName }
 							isFetching={ isActivating || siteIsRegistering }
+							isRedirecting={ isRedirectingAfterActivation }
 						/>
 					) : (
 						<Container
@@ -240,6 +244,7 @@ export default function ProductInterstitial( {
 									quantity={ quantity }
 									highlightLastFeature={ highlightLastFeature }
 									isFetching={ isActivating || siteIsRegistering }
+									isRedirecting={ isRedirectingAfterActivation }
 								/>
 							</Col>
 							<Col

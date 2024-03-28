@@ -11,7 +11,7 @@ import {
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { sprintf, __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
@@ -29,6 +29,7 @@ import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
  * @param {string}   props.tier                    - Product tier slug, i.e. 'free' or 'upgraded'.
  * @param {Function} props.trackProductButtonClick - Tracks click event for the product button.
  * @param {boolean}  props.preferProductName       - Whether to show the product name instead of the title.
+ * @param {boolean} [props.isRedirecting]          - Whether the application is redirecting away from the interstitial
  * @returns {object} - ProductDetailTableColumn component.
  */
 const ProductDetailTableColumn = ( {
@@ -36,11 +37,13 @@ const ProductDetailTableColumn = ( {
 	onProductButtonClick,
 	detail,
 	isFetching,
+	isRedirecting,
 	tier,
 	trackProductButtonClick,
 	preferProductName,
 } ) => {
 	const { siteSuffix = '', myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
+	const [ clicked, setClicked ] = useState( false );
 
 	// Extract the product details.
 	const {
@@ -102,7 +105,16 @@ const ProductDetailTableColumn = ( {
 	const onClick = useCallback( () => {
 		trackProductButtonClick( isFree );
 		onProductButtonClick?.( runCheckout, detail, tier );
-	}, [ trackProductButtonClick, onProductButtonClick, runCheckout, detail, tier, isFree ] );
+		setClicked( true );
+	}, [
+		trackProductButtonClick,
+		onProductButtonClick,
+		runCheckout,
+		detail,
+		tier,
+		isFree,
+		setClicked,
+	] );
 
 	// Compute the price per month.
 	const price = fullPrice ? Math.round( ( fullPrice / 12 ) * 100 ) / 100 : null;
@@ -163,8 +175,8 @@ const ProductDetailTableColumn = ( {
 					fullWidth
 					variant={ isFree ? 'secondary' : 'primary' }
 					onClick={ onClick }
-					isLoading={ hasCheckoutStarted || isFetching }
-					disabled={ hasCheckoutStarted || cantInstallPlugin || isFetching }
+					isLoading={ clicked && ( hasCheckoutStarted || isFetching || isRedirecting ) }
+					disabled={ hasCheckoutStarted || cantInstallPlugin || isFetching || isRedirecting }
 				>
 					{ callToAction }
 				</Button>
@@ -213,6 +225,7 @@ ProductDetailTableColumn.propTypes = {
 	detail: PropTypes.object.isRequired,
 	tier: PropTypes.string.isRequired,
 	trackProductButtonClick: PropTypes.func.isRequired,
+	isRedirecting: PropTypes.bool,
 	preferProductName: PropTypes.bool.isRequired,
 };
 
@@ -227,6 +240,7 @@ ProductDetailTableColumn.propTypes = {
  * @param {Function} props.trackProductButtonClick - Tracks click event for the product button.
  * @param {boolean}  props.isFetching              - True if there is a pending request to load the product.
  * @param {boolean}  props.preferProductName       - Whether to show the product name instead of the title.
+ * @param {boolean} [props.isRedirecting]          - Whether the application is redirecting away from the interstitial
  * @returns {object} - ProductDetailTable react component.
  */
 const ProductDetailTable = ( {
@@ -234,6 +248,7 @@ const ProductDetailTable = ( {
 	onProductButtonClick,
 	trackProductButtonClick,
 	isFetching,
+	isRedirecting,
 	preferProductName,
 } ) => {
 	const { fileSystemWriteAccess = 'no' } = getMyJetpackWindowInitialState();
@@ -316,6 +331,7 @@ const ProductDetailTable = ( {
 							tier={ tier }
 							detail={ detail }
 							isFetching={ isFetching }
+							isRedirecting={ isRedirecting }
 							onProductButtonClick={ onProductButtonClick }
 							trackProductButtonClick={ trackProductButtonClick }
 							primary={ index === 0 }
@@ -334,6 +350,7 @@ ProductDetailTable.propTypes = {
 	onProductButtonClick: PropTypes.func.isRequired,
 	trackProductButtonClick: PropTypes.func.isRequired,
 	isFetching: PropTypes.bool.isRequired,
+	isRedirecting: PropTypes.bool,
 	preferProductName: PropTypes.bool.isRequired,
 };
 
