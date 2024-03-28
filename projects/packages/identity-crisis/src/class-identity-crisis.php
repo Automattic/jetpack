@@ -10,7 +10,6 @@ namespace Automattic\Jetpack;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\IdentityCrisis\Exception;
-use Automattic\Jetpack\IdentityCrisis\Package_Version;
 use Automattic\Jetpack\IdentityCrisis\UI;
 use Automattic\Jetpack\IdentityCrisis\URL_Secret;
 use Jetpack_Options;
