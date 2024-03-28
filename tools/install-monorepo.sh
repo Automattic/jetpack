@@ -23,58 +23,27 @@ function has_command {
 	return $?
 }
 
-# Check if we're on Mac or Linux; bail if we're not.
+# Check if we're on macOS; bail if we're not.
 function do_system {
-	OS="$(uname)"
-	if [[ "$OS" != "Linux" && "$OS" != "Darwin" ]]; then
-		die "Installer script is only supported on macOS and Linux."
-	elif [[ "$(uname -m)" == "aarch64" ]]; then
-		# Homebrew doesn't support Linux on ARM, so gate the installer as well.
-		die "Linux on ARM is unsupported."
+	if [[ "$(uname)" != "Darwin" ]]; then
+		die "Installer script is only supported on macOS."
 	fi
-	echo "Valid OS: $OS"
+	echo "Valid OS: macOS (Darwin)"
 }
 
-# Checks for build-essential (Linux), git, and curl.
+# Checks for git and curl.
 function do_basics {
-	if [[ "$OS" == "Linux" ]]; then
-		if ! has_command apt; then
-			# Effectively only support Debian.
-			die "Installer script requires 'apt' to ensure build-essential package is installed."
-		fi
-
-		sudo apt update
-		if [[ $(dpkg-query -W --showformat='${db:Status-Status}' build-essential 2>/dev/null) != 'installed' ]]; then
-			echo "build-essential: not found"
-			echo "Installing build-essential..."
-			sudo apt install build-essential || die "Unable to install build-essential!"
-			echo "Installed build-essential."
-		fi
-		echo "build-essential: available"
-	fi
 
 	# Check for curl and git
 	if ! has_command git; then
 		echo "git: not found"
-		if [[ "$OS" == "Linux" ]]; then
-			echo "Installing git..."
-			sudo apt install git || die "Unable to install git!"
-			echo "Installed git."
-		else
-			die "Installer script requires git to be installed."
-		fi
+		die "Installer script requires git to be installed."
 	fi
 	echo "git: available"
 
 	if ! has_command curl; then
 		echo "curl: not found"
-		if [[ "$OS" == "Linux" ]]; then
-			echo "Installing curl..."
-			sudo apt install curl || die "Unable to install curl!"
-			echo "Installed curl."
-		else
-			die "Installer script requires curl to be installed."
-		fi
+		die "Installer script requires curl to be installed."
 	fi
 	echo "curl: available"
 }
@@ -85,11 +54,7 @@ function do_homebrew {
 		echo "brew: not found"
 		echo "Installing brew..."
 		/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || die "Unable to install brew!"
-		if [[ "$OS" == "Linux" ]]; then
-			HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
-		else
-			HOMEBREW_PREFIX="/opt/homebrew"
-		fi
+		HOMEBREW_PREFIX="/opt/homebrew"
 
 		# Add brew env to current script for use later.
 		eval "\$(${HOMEBREW_PREFIX}/bin/brew shellenv)"
@@ -104,18 +69,10 @@ function do_homebrew {
 		# https://github.com/Homebrew/install/blob/master/install.sh
 		case "${SHELL}" in
 			*/bash*)
-				if [[ "$OS" == "Linux" ]]; then
-					shell_rcfile="${HOME}/.bashrc"
-				else
-					shell_rcfile="${HOME}/.bash_profile"
-				fi
+				shell_rcfile="${HOME}/.bash_profile"
 				;;
 			*/zsh*)
-				if [[ "$OS" == "Linux" ]]; then
-					shell_rcfile="${ZDOTDIR:-"${HOME}"}/.zshrc"
-				else
-					shell_rcfile="${ZDOTDIR:-"${HOME}"}/.zprofile"
-				fi
+				shell_rcfile="${ZDOTDIR:-"${HOME}"}/.zprofile"
 				;;
 			*/fish*)
 				shell_rcfile="${HOME}/.config/fish/config.fish"
