@@ -227,7 +227,7 @@ function do_pnpm {
 }
 
 function do_php {
-	if ! has_command php || php -r "exit( version_compare( PHP_VERSION, '$PHP_VERSION', '>=' ) ? 0 : 1 );"; then
+	if ! has_command php || php -r "exit( version_compare( PHP_VERSION, '$PHP_VERSION', '<' ) ? 0 : 1 );"; then
 		echo "PHP $PHP_VERSION: not found"
 
 		# Note that we can't use grep -q, as it's prematurely terminated.
