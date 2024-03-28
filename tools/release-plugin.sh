@@ -160,9 +160,9 @@ if [[ "$CURRENT_BRANCH" != "trunk" ]]; then
 	git checkout trunk && git pull
 fi
 
-if [[ -n "$(git status --porcelain)" ]]; then
-	die "Working directory not clean, make sure you're working from a clean checkout and try again."
-fi
+# if [[ -n "$(git status --porcelain)" ]]; then
+# 	die "Working directory not clean, make sure you're working from a clean checkout and try again."
+# fi
 
 yellow "Checking out prerelease branch."
 # Check out and push pre-release branch

@@ -183,11 +183,21 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.2.0 - 2024-03-15
-#### Fixed
-- Cache: Verify cache enabled on current site before saving cached data
-- General: Added filter documentation
-- General: Removed duplicate uninstall hook, fixing unnecessary database writes
+### 3.2.1 - 2024-03-28
+#### Added
+- Cache: Ensure cache engine is setup every time Settings page loads.
+- Cache: Clear cache if Boost module settings are changed.
+- Cache: Show status in Site Health if cache setup is not working properly.
+- Cloud CSS: Optimize regeneration time.
+- Compatibility: Improved compatibility with SEO plugins for smoother Cloud CSS generation.
+
+#### Changed
+- Cloud CSS: Update REST API endpoint to be available even if the module is turned off.
+- Performance History: Sanitize graph annotation text.
+- Speed Score: More accurately detect which modules are active when a speed score is requested.
+- General: Updated package dependencies.
+- General: Update getting started and upgrade copies.
+- General: Only show installation errors on plugins page
 
 --------
 
