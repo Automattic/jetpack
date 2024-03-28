@@ -152,52 +152,222 @@ Check out the inline documentation in the [Module class](https://github.com/Auto
 
 # Hooks and filters
 
+## Config
+
+### Filter the JavaScript constants
+
+Filter hook: `jetpack_boost_js_constants`
+
+* Parameter array `$constants`: Constants defined by the plugin in the Config class constructor
+
+Usage:
+```php
+add_filter( 'jetpack_boost_js_constants', function( $constants ) {
+        return $constants;
+    }
+);
+```
+
+### Filter the path to the distributed assets folder.
+
+Filter hook: `jetpack_boost_asset_internal_path`
+
+* Parameter string `$path`: the path, "app/assets/dist/".
+
+Usage:
+```php
+add_filter( 'jetpack_boost_asset_internal_path', function( $path ) {
+        return $path;
+    }
+);
+```
+
+### Filters the URL to the distributed assets folder.
+
+Filter hook: `jetpack_boost_asset_url`
+
+* Parameter string `$url`: the URL to the file.
+* Parameter string `$min_path`: the minified path.
+* Parameter string `$non_min_path`: the non-minified path.
+
+Usage:
+```php
+add_filter( 'jetpack_boost_asset_url', function( $url, $min_path, $non_min_path ) {
+    return $url;
+}, 10, 3 );
+```
+
+## Menu
+
+### Modify the number of problems shown in the Boost sidebar menu
+
+Filter hook: `jetpack_boost_total_problem_count`
+
+* Parameter integer `$count`: the number of problems
+
+Usage:
+```php
+add_filter( 'jetpack_boost_total_problem_count', function( $count ) {
+        return $count;
+    }
+);
+```
+
 ## Critical CSS
 
--   `jetpack_boost_critical_css_skip_url`: Skip generating critical CSS for a URL. By default, we skip URLs that are 404 pages.
+### Filter the Critical CSS URLs
+
+Filter hook: `jetpack_boost_critical_css_urls`
+
+* Parameter array `$urls`: array of URLs
+
+Usage:
+```php
+add_filter( 'jetpack_boost_critical_css_urls', function( $urls) {
+        return $urls;
+    }
+);
+```
+
+### Filter the loading method for each stylesheet. It's either async or deferred.
+
+Filter hook: `jetpack_boost_async_style`:
+
+* Parameter string `$method`: async or deferred.
+* Parameter string `$handle`: the stylesheet's registered handle.
+* Parameter string `$media`:  the stylesheet's media attribute.
+
+Usage:
+```php
+add_filter( 'jetpack_boost_async_style', function( $method, $handle, $media ) {
+    return $method;
+}, 10, 3 );
+```
+
+### Filter the post types that need critical css.
+
+Filter hook: `jetpack_boost_critical_css_post_types`
+
+* Parameter array `$post_types`: the post types to be filtered.
+
+Usage:
+```php
+add_filter( 'jetpack_boost_critical_css_post_types', function( $types) {
+        return $types;
+    }
+);
+```
+
+### Filter the WP_Query parameters users to gather sample posts
+
+Filter hook: `jetpack_boost_critical_css_post_type_query`
+
+* Parameter array `$args`: The arguments that will be used by WP_Query
+
+Usage:
+```php
+add_filter( 'jetpack_boost_critical_css_post_type_query', function( $args ) {
+        return $args;
+    }
+);
+```
+
+### Filter the WP_Term_Query args to get a sample of terms for a taxonomy
+
+Filter hook: `jetpack_boost_critical_css_terms_query`
+
+* Parameter array `$args`: The arguments that will be used by WP_Term_Query
+
+Usage:
+```php
+add_filter( 'jetpack_boost_critical_css_terms_query', function( $args ) {
+        return $args;
+    }
+);
+```
 
 ## Render Blocking JS
 
--   `jetpack_boost_render_blocking_js_exclude_handles`: Provide an array of registered script handles that should not be moved to the end of the document.
--   `jetpack_boost_render_blocking_js_exclude_scripts`: Alter the array and remove any scripts that should not be moved to the end of the document.
+### Set up the ignore attribute
+
+Filter hook: `jetpack_boost_render_blocking_js_ignore_attribute`
+
+* Parameter string `$attribute`: the attribute used to ignore blocking. Default value: "data-jetpack-boost"
+
+Usage:
+```php
+add_filter( 'jetpack_boost_render_blocking_js_ignore_attribute', function( $attribute ) {
+        return $attribute;
+    }
+);
+```
+
+### Filter to disable defer blocking JS
+
+Filter hook: `jetpack_boost_should_defer_js`
+
+* Parameter bool `$defer`: return false to disable defer blocking
+
+Usage:
+```php
+add_filter( 'jetpack_boost_should_defer_js', function( $defer ) {
+        return $defer;
+    }
+);
+```
+
+### Filter to provide an array of registered script handles that should not be moved to the end of the document.
+
+Filter hook: `jetpack_boost_render_blocking_js_exclude_handles`
+
+* Parameter array `$handles`: an array of script handles
+
+Usage:
+```php
+add_filter( 'jetpack_boost_render_blocking_js_exclude_handles', function( $handles ) {
+        return $handles;
+    }
+);
+```
+
+### Filter to remove any scripts that should not be moved to the end of the document.
+
+Filter hook: `jetpack_boost_render_blocking_js_exclude_scripts`
+
+* Parameter array: Alter the array and remove any scripts that should not be moved to the end of the document.
+
+Usage:
+```php
+add_filter( 'jetpack_boost_render_blocking_js_exclude_scripts', function( $scripts ) {
+        return $scripts;
+    }
+);
+```
 
 ## Enabling/disabling modules and modules availability
 
-- `jetpack_boost_module_enabled` provides a default status, true/false, and feature slug (e.g. `critical-css`). Returning `true` will force a module on, `false` will force it off, regardless of the configuration variable.
-
-```php
-	// force critical CSS on
-	add_filter( 'jetpack_boost_module_enabled', function( $status, $feature ) {
-		if ( 'critical-css' === $feature ) {
-			return true;
-		}
-		return $status;
-	}, 10, 2 );
-```
-
-- `jetpack_boost_modules` filters the available list of modules.
-
-```php
-	// exclude minify module from available modules
-	add_filter( 'jetpack_boost_modules', function( $modules ) {
-		if (($key = array_search('minify' , $modules)) !== false) {
-			unset($modules[$key]);
-		}
-		return $modules;
-	} );
-```
-
 ## Bypassing the Jetpack connection
 
-Filtering `jetpack_boost_connection_bypass` and returning `true` will fake a connected state. This is useful for debugging, and also on WordPress.com.
+Filter hook: `jetpack_boost_connection_bypass`
 
-Filtering `jetpack_boost_connection_user_data` and returning an object with the following shape can help fake out user data, or provide an alternative user identity, e.g. on WordPress.com.
+* Paramter integer `$connected`: return true to fake a connected state. This is useful for debugging and also on WordPress.com
 
+Usage:
+```php
+add_filter( 'jetpack_boost_connection_bypass', function( $connected ) {
+        return $connected;
+    }
+);
+```
+
+Filter hook: `jetpack_boost_connection_user_data`
+
+* Parameter object `$user_data`: return an object with the following shape can help fake out user data, or provide an alternative user identity, e.g. on WordPress.com.
+
+Usage:
 ```php
 // provide local user data and don't allow disconnecting
-add_filter(
-	'jetpack_boost_connection_user_data',
-	function ( $user ) {
+add_filter( 'jetpack_boost_connection_user_data', function ( $user ) {
 		$wpcomUser = array(
 			'ID' => 1234,
 			'login' => 'fakewpcomuser',
@@ -215,4 +385,208 @@ add_filter(
 			'canDisconnect' => false,
 		];
 	}
-);```
+);
+```
+
+## Critical CSS Viewport Filters
+
+These filters are used for testing purposes.
+
+### Filter the viewport size
+
+Filter hook: `jetpack_boost_viewport_size`
+
+* Parameter array `$data`: array containing the width and height of the view port
+* Parameter string `$cookie_name`: Name of the viewport cookie
+* Parameter string `$cookie_value`: value of the viewport cookie
+
+Usage:
+```php
+add_filter( 'jetpack_boost_viewport_size', function( $data, $cookie_name, $cookie_value ) {
+    return $data;
+}, 10, 3 );
+```
+
+### Filter the default viewport sizes
+
+Filter hook: `jetpack_boost_critical_css_viewport_sizes`
+
+* Parameter array `$viewport_sizes`: supported viewport sizes
+
+Usage:
+```php
+add_filter( 'jetpack_boost_critical_css_viewport_sizes', function( $sizes ) {
+    return $sizes;
+} );
+```
+
+### Filter the default viewport devices
+
+Filter hook: `jetpack_boost_critical_css_default_viewports`
+
+* Parameter array `$viewport_devices`: supported viewport devices
+
+Usage:
+```php
+add_filter( 'jetpack_boost_critical_css_default_viewports', function( $devices ) {
+    return $devices;
+} );
+```
+
+### Filter the best viewport
+
+Filter hook: `jetpack_boost_pick_viewport`
+
+* Parameter array `$best_size`: the narrowest defined viewport that is equal or wider than the passed width.
+* Parameter integer `$width`: the width of the viewport
+* Parameter integer `$height`: the height of the viewport
+* Parameter array `$viewport_sizes`: an array of viewport sizes
+
+Usage:
+```php
+add_filter( 'jetpack_boost_pick_viewport', function( $best_size, $width, $height, $viewport_sizes ) {
+    return $best_size;
+}, 10, 4 );
+```
+
+## Features
+
+### Filter the "has feature" check to enable or disable a feature
+
+Filter hook: `jetpack_boost_has_feature_{$feature}`
+
+* Parameter bool `$has_feature`: true if feature available
+
+Usage:
+```php
+add_filter( 'jetpack_boost_has_feature_' . $feature, function( $has_feature ) {
+    return $has_feature;
+} );
+```
+
+## Debug Mode
+
+### Filter the debug mode setting
+
+Filter hook: `jetpack_boost_debug`
+
+* Parameter bool `$debug`: true if enabled.
+
+Usage:
+```php
+add_filter( 'jetpack_boost_debug', function( $debug ) {
+    return $debug;
+} );
+```
+
+## Concatenation Filters
+
+### Filter the URL of the site the plugin will be concatenating CSS or JS on.
+
+Filter hook: `page_optimize_site_url`
+
+* Parameter string `$url`: URL of the page with CSS or JS to concatonate
+
+Usage:
+```php
+add_filter( 'page_optimize_site_url', function( $url ) {
+    return $url;
+} );
+```
+
+### Disable concatenation of a particular JS file
+
+Filter hook: `js_do_concat`
+
+* Parameter bool `$do_concat`: if true, then perform concatenation
+* Parameter string `$handle`: handle to JSS file
+
+Usage:
+```php
+add_filter( 'js_do_concat', function( $do_concat, $handle ) {
+    return $do_concat;
+}, 10, 2 );
+```
+
+### Disable concatenation of a particular CSS file
+
+Filter hook: `css_do_concat`
+
+* Parameter bool `$do_concat`: if true, then perform concatenation
+* Parameter string `$handle`: handle to CSS file
+
+Usage:
+```php
+add_filter( 'css_do_concat', function( $do_concat, $handle ) {
+    return $do_concat;
+}, 10, 2 );
+```
+
+### Filters the HTML script tag of an enqueued script
+
+Filter hook: `script_loader_tag`
+
+A copy of the core filter of the same name. https://developer.wordpress.org/reference/hooks/script_loader_tag/
+
+### Filters the style source URL
+
+Filter hook: `style_loader_src`
+
+* Parameter string `$src`: URL of style sheet
+* Parameter string `$handle`: handle to CSS file
+
+Usage:
+```php
+add_filter( 'style_loader_src', function( $src, $handle ) {
+    return $src;
+}, 10, 2 );
+```
+
+### Filters the style loader HTML tag
+
+Filter hook: `page_optimize_style_loader_tag`
+
+* Parameter string `$tag`: style loader tag
+* Parameter array `$handles`: handles of CSS files
+* Parameter string `$href`: link to CSS file
+* Parameter string `$media`: media attribute of the link.
+
+Usage:
+```php
+add_filter( 'page_optimize_style_loader_tag', function( $tag, $handles, $href, $media ) {
+    return $tag;
+}, 10, 4 );
+```
+
+### Filters the style HTML loader tag
+
+Filter hook: `style_loader_tag`
+
+* Parameter string `$tag`: style loader tag
+* Parameter string `$handles`: handles of CSS files
+* Parameter string `$href`: link to CSS file
+* Parameter string `$media`: media attribute of the link.
+
+Usage:
+```php
+add_filter( 'style_loader_tag', function( $tag, $handles, $href, $media ) {
+    return $tag;
+}, 10, 4 );
+```
+
+## Output Filter
+
+### Filter the output buffer (Critical CSS)
+
+Filter hook: `jetpack_boost_output_filtering_last_buffer`
+
+* Parameter string `$joint_buffer`: The entire output buffer
+* Parameter string `$buffer_start`: The top half of the buffer
+* Parameter string `$buffer_end`: The bottom half of the buffer
+
+Usage:
+```php
+add_filter( 'jetpack_boost_output_filtering_last_buffer', function( $joint_buffer, $buffer_start, $buffer_end ) {
+    return $joint_buffer;
+}, 10, 3 );
+```
