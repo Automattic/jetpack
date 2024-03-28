@@ -89,7 +89,7 @@ const Meta = () => {
 
 	return (
 		pageCache && (
-			<div className={ styles.wrapper }>
+			<div className={ styles.wrapper } data-testid="page-cache-meta">
 				<div className={ styles.head }>
 					<div className={ styles.summary }>{ getSummary() }</div>
 					<div className={ styles.actions }>
