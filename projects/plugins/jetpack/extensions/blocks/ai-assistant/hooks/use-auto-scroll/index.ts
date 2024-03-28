@@ -83,7 +83,7 @@ const useAutoScroll = (
 				( blockRef?.current?.lastChild instanceof HTMLElement
 					? blockRef.current.lastChild.clientHeight
 					: 80 ) + 40;
-			debug( 'offsets', offset, extraOffset );
+
 			if ( bounds?.bottom > window.innerHeight - offset || bounds?.top < 0 ) {
 				scrollElementRef.current?.scrollBy(
 					0,
