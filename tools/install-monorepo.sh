@@ -173,7 +173,7 @@ function do_node {
 			nvm install
 			# Something's wrong, so abort.
 			if ! nvm list node | grep -q "$good_node_version"; then
-				die "Unable to needed version of node!"
+				die "Unable to install needed version of node!"
 			fi
 			echo "Correct version of node installed."
 		fi
