@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Prevent JS error when subscription module is not enabled.
