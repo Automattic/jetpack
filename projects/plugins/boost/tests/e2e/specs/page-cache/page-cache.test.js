@@ -41,11 +41,17 @@ test.describe( 'Cache module', () => {
 	// Make sure there's no cache header when module is disabled.
 	test( 'Page Cache header should not be present when module is inactive', async () => {
 		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'page_cache' ] ).build();
-		await PostFrontendPage.visit( page );
+		const postFrontendPage = await PostFrontendPage.visit( page );
+		// Cache is only available to logged out users.
+		await postFrontendPage.logout();
 
 		page.on( 'response', response => {
+			if ( response.url().replace( /\/$/, '' ) !== postFrontendPage.url ) {
+				return;
+			}
+
 			expect(
-				response.headers().hasOwnProperty( 'X-Jetpack-Boost-Cache' ),
+				response.headers().hasOwnProperty( 'X-Jetpack-Boost-Cache'.toLowerCase() ),
 				'Page Cache header should not be present'
 			).toBeFalsy();
 		} );
