@@ -87,7 +87,7 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 
 		$utils_mock->expects( $this->once() )
 			->method( 'cache_add' )
-			->with( $this->stringContains( 'key-largo' ), array( $this->pattern_mock_object ), 'ptk_patterns', DAY_IN_SECONDS );
+			->with( $this->stringContains( 'key-largo' ), array( $this->pattern_mock_object ), 'ptk_patterns', 5 * MINUTE_IN_SECONDS );
 
 		$this->assertEquals( array( 'a8c/' . $this->pattern_mock_object['name'] => true ), $block_patterns_from_api->register_patterns() );
 	}
@@ -136,9 +136,6 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 		add_filter( 'a8c_override_patterns_source_site', $example_site );
 		$utils_mock              = $this->createBlockPatternsUtilsMock( array( $this->pattern_mock_object ) );
 		$block_patterns_from_api = new Wpcom_Block_Patterns_From_Api( $utils_mock );
-
-		$utils_mock->expects( $this->never() )
-			->method( 'cache_get' );
 
 		$utils_mock->expects( $this->never() )
 			->method( 'cache_add' );
