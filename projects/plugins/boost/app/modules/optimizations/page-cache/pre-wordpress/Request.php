@@ -5,6 +5,9 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress;
 
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
+use Automattic\Jetpack_Boost\Modules\Modules_Index;
+
 class Request {
 	/**
 	 * @var Request - The request instance for current request.
@@ -86,7 +89,7 @@ class Request {
 		// Check if the query parameters `jb-disable-modules` or `jb-generate-critical-css` exist.
 		$query_params = isset( $this->request_parameters['get'] ) ? $this->request_parameters['get'] : array();
 		if ( isset( $query_params ) &&
-			( isset( $query_params['jb-disable-modules'] ) || isset( $query_params['jb-generate-critical-css'] ) )
+			( isset( $query_params[ Modules_Index::DISABLE_MODULE_QUERY_VAR ] ) || isset( $query_params[ Generator::GENERATE_QUERY_ACTION ] ) )
 		) {
 			return true;
 		}
