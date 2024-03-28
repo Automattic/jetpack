@@ -100,6 +100,7 @@ const recommendationsRoutes = [
 	'/recommendations/woocommerce',
 	'/recommendations/monitor',
 	'/recommendations/newsletter',
+	'/recommendations/paid-newsletter',
 	'/recommendations/related-posts',
 	'/recommendations/creative-mail',
 	'/recommendations/site-accelerator',
@@ -578,6 +579,7 @@ class Main extends React.Component {
 			case '/recommendations/woocommerce':
 			case '/recommendations/monitor':
 			case '/recommendations/newsletter':
+			case '/recommendations/paid-newsletter':
 			case '/recommendations/related-posts':
 			case '/recommendations/creative-mail':
 			case '/recommendations/site-accelerator':

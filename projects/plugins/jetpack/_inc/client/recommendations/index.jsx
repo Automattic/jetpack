@@ -85,6 +85,9 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.NEWSLETTER:
 			redirectPath = '/newsletter';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.PAID_NEWSLETTER:
+			redirectPath = '/paid-newsletter';
+			break;
 		case RECOMMENDATION_WIZARD_STEP.RELATED_POSTS:
 			redirectPath = '/related-posts';
 			break;
@@ -327,6 +330,9 @@ const RecommendationsComponent = props => {
 					</Route>
 					<Route path="/recommendations/server-credentials">
 						<ResourcePrompt stepSlug="server-credentials" />
+					</Route>
+					<Route path="/recommendations/paid-newsletter">
+						<ResourcePrompt stepSlug="paid-newsletter" isNew={ isNew( 'paid-newsletter' ) } />
 					</Route>
 					<Route path="/recommendations/summary">
 						<Summary newRecommendations={ newRecommendations } />

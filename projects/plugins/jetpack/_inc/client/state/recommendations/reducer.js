@@ -344,6 +344,7 @@ const stepToNextStepByPath = {
 		monitor: 'related-posts',
 		'related-posts': 'newsletter',
 		newsletter: 'site-accelerator',
+		'paid-newsletter': 'summary',
 		'site-accelerator': 'publicize',
 		publicize: 'vaultpress-for-woocommerce',
 		'vaultpress-for-woocommerce': 'vaultpress-backup', // falls back to vaultpress-backup so it only shows one of them
@@ -438,6 +439,7 @@ export const stepToRoute = {
 	woocommerce: '#/recommendations/woocommerce',
 	monitor: '#/recommendations/monitor',
 	newsletter: '#/recommendations/newsletter',
+	'paid-newsletter': '#/recommendations/paid-newsletter',
 	'related-posts': '#/recommendations/related-posts',
 	'creative-mail': '#/recommendations/creative-mail',
 	'site-accelerator': '#/recommendations/site-accelerator',

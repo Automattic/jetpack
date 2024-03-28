@@ -53,7 +53,14 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 				configureButtonLabel: __( 'Settings', 'jetpack' ),
 				displayName: __( 'Newsletter', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
-				configLink: '#/settings?term=subscriptions',
+				configLink: '#/newsletter',
+			};
+		case 'paid-newsletter':
+			return {
+				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				displayName: __( 'Paid Newsletter', 'jetpack' ),
+				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
+				configLink: '#/newsletter',
 			};
 		case 'related-posts':
 			return {
@@ -673,6 +680,25 @@ export const getStepContent = ( state, stepSlug ) => {
 				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-search-configure',
 				illustration: 'assistant-search',
 				skipText: __( 'Next', 'jetpack' ),
+			};
+		case 'paid-newsletter':
+			return {
+				question: __( 'Start a Paid Newsletter', 'jetpack' ),
+				description: __(
+					'Monetize your Newsletter by offering premium content to paid subscribers.',
+					'jetpack'
+				),
+				descriptionList: [
+					__( 'Set up paid newsletter subscriptions.', 'jetpack' ),
+					__( 'Publish premium content.', 'jetpack' ),
+					__( 'Earn money through your Newsletter.', 'jetpack' ),
+				],
+				ctaText: __( 'Create a Paid Newsletter', 'jetpack' ),
+				ctaLink:
+					'https://wordpress.com/earn/payments-plans/' +
+					location.hostname +
+					'#add-newsletter-payment-plan',
+				illustration: 'assistant-newsletter',
 			};
 		case 'server-credentials':
 			return {

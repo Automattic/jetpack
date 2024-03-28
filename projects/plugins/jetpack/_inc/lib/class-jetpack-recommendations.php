@@ -20,12 +20,13 @@ use Automattic\Jetpack\Status\Host;
  * Jetpack_Recommendations class
  */
 class Jetpack_Recommendations {
-	const PUBLICIZE_RECOMMENDATION   = 'publicize';
-	const PROTECT_RECOMMENDATION     = 'protect';
-	const ANTI_SPAM_RECOMMENDATION   = 'anti-spam';
-	const VIDEOPRESS_RECOMMENDATION  = 'videopress';
-	const BACKUP_PLAN_RECOMMENDATION = 'backup-plan';
-	const BOOST_RECOMMENDATION       = 'boost';
+	const PUBLICIZE_RECOMMENDATION       = 'publicize';
+	const PROTECT_RECOMMENDATION         = 'protect';
+	const ANTI_SPAM_RECOMMENDATION       = 'anti-spam';
+	const VIDEOPRESS_RECOMMENDATION      = 'videopress';
+	const BACKUP_PLAN_RECOMMENDATION     = 'backup-plan';
+	const BOOST_RECOMMENDATION           = 'boost';
+	const PAID_NEWSLETTER_RECOMMENDATION = 'paid-newsletter';
 
 	const CONDITIONAL_RECOMMENDATIONS_OPTION = 'recommendations_conditional';
 	const CONDITIONAL_RECOMMENDATIONS        = array(
@@ -35,6 +36,7 @@ class Jetpack_Recommendations {
 		self::VIDEOPRESS_RECOMMENDATION,
 		self::BACKUP_PLAN_RECOMMENDATION,
 		self::BOOST_RECOMMENDATION,
+		self::PAID_NEWSLETTER_RECOMMENDATION,
 	);
 
 	const VIDEOPRESS_TIMED_ACTION = 'jetpack_recommend_videopress';
@@ -103,6 +105,38 @@ class Jetpack_Recommendations {
 
 		// Monitor for changes in plugins that have auto-updates enabled
 		add_action( 'update_site_option_auto_update_plugins', array( static::class, 'plugin_auto_update_settings_changed' ), 10, 3 );
+
+		// Subscriber count check. This runs when stats are fetched.
+		add_action( 'jetpack_followers_fetched', array( static::class, 'recommend_paid_newsletter' ), 10, 1 );
+	}
+
+	/**
+	 * Checks a sites subscriber count and triggers the recommendation if it is over 100 or under 100k.
+	 *
+	 * @param array $followers Array of followers data from WPcom stats check.
+	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/followers/
+	 */
+	public static function recommend_paid_newsletter( $followers ) {
+		// return if followers is not an array.
+		if ( ! is_array( $followers ) ) {
+			return;
+		}
+
+		// return if the subscriptions module is not active
+		if ( ! Jetpack::is_module_active( 'subscriptions' ) ) {
+			return;
+		}
+
+		// if followers array does not have total key, return.
+		if ( array_key_exists( 'total', $followers ) ) {
+			// the endpoint used in class-wpocom-stats does not pass type=all as a parameter. Summing the parts gives the total for this purpose
+			$total_subscribers = $followers['total_email'] + $followers['total_wpcom'];
+			if ( $total_subscribers >= 100 && $total_subscribers < 100000 ) {
+				self::enable_conditional_recommendation( self::PAID_NEWSLETTER_RECOMMENDATION );
+			}
+		} else {
+			return;
+		}
 	}
 
 	/**
