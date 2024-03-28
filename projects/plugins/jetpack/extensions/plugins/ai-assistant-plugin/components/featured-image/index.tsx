@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { useImageGenerator } from '@automattic/jetpack-ai-client';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Spinner } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -24,6 +25,8 @@ export default function FeaturedImage() {
 	const [ imageURL, setImageURL ] = useState( null );
 	const { generateImage } = useImageGenerator();
 	const { isLoading: isSavingToMediaLibrary, saveToMediaLibrary } = useSaveToMediaLibrary();
+	const { tracks } = useAnalytics();
+	const { recordEvent } = tracks;
 
 	const postContent = usePostContent();
 
@@ -57,20 +60,29 @@ export default function FeaturedImage() {
 	}, [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] );
 
 	const handleGenerate = useCallback( () => {
+		// track the generate image event
+		recordEvent( 'jetpack_ai_featured_image_generation_generate_image' );
+
 		toggleFeaturedImageModal();
 		processImageGeneration();
-	}, [ toggleFeaturedImageModal, processImageGeneration ] );
+	}, [ toggleFeaturedImageModal, processImageGeneration, recordEvent ] );
 
 	const handleRegenerate = useCallback( () => {
+		// track the regenerate image event
+		recordEvent( 'jetpack_ai_featured_image_generation_generate_another_image' );
+
 		processImageGeneration();
-	}, [ processImageGeneration ] );
+	}, [ processImageGeneration, recordEvent ] );
 
 	const handleAccept = useCallback( () => {
+		// track the accept/use image event
+		recordEvent( 'jetpack_ai_featured_image_generation_use_image' );
+
 		saveToMediaLibrary( imageURL ).then( image => {
 			editPost( { featured_media: image.id } );
 			toggleFeaturedImageModal();
 		} );
-	}, [ editPost, imageURL, saveToMediaLibrary, toggleFeaturedImageModal ] );
+	}, [ editPost, imageURL, saveToMediaLibrary, toggleFeaturedImageModal, recordEvent ] );
 
 	const modalTitleWhenGenerating = __( 'Generating featured image…', 'jetpack' );
 	const modalTitleWhenDone = __( 'Featured Image Generation', 'jetpack' );
