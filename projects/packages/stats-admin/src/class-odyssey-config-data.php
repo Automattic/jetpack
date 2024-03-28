@@ -79,7 +79,8 @@ class Odyssey_Config_Data {
 						"$blog_id" => array(
 							'ID'           => $blog_id,
 							'URL'          => site_url(),
-							'jetpack'      => true,
+							// Atomic and jetpack sites should return true.
+							'jetpack'      => ! $host->is_wpcom_simple(),
 							'visible'      => true,
 							'capabilities' => $this->get_current_user_capabilities(),
 							'products'     => Jetpack_Plan::get_products(),
