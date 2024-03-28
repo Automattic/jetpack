@@ -2,8 +2,7 @@
 set -eo pipefail
 
 # Start in the monorepo root folder.
-root_dir="$(dirname "${BASH_SOURCE[0]}")/.."
-cd "$root_dir"
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 # Source some helper functions.
 source tools/includes/chalk-lite.sh
