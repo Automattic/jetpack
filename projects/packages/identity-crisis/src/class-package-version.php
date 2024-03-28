@@ -14,7 +14,7 @@ class Package_Version {
 
 	const PACKAGE_VERSION = '0.18.0-alpha';
 
-	const PACKAGE_SLUG = 'identity_crisis';
+	const PACKAGE_SLUG = 'identity-crisis';
 
 	/**
 	 * Adds the package slug and version to the package version tracker's data.
