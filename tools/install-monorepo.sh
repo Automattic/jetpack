@@ -88,7 +88,7 @@ function do_homebrew {
 
 		# Add brew init to shell rc file.
 		if ! grep -qs "eval \"\$(${HOMEBREW_PREFIX}/bin/brew shellenv)\"" "${shell_rcfile}"; then
-			(echo; echo 'eval "\$(${HOMEBREW_PREFIX}/bin/brew shellenv)"') >> ${shell_rcfile}
+			(echo; echo "eval \"\$(${HOMEBREW_PREFIX}/bin/brew shellenv)\"") >> "${shell_rcfile}"
 		fi
 
 	else
