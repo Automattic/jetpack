@@ -230,7 +230,7 @@ function do_php {
 	if ! has_command php || php -r "exit( version_compare( PHP_VERSION, '$PHP_VERSION', '>=' ) ? 0 : 1 );"; then
 		echo "PHP $PHP_VERSION: not found"
 
-		# Note that we can't use grep -v, as it's prematurely terminated.
+		# Note that we can't use grep -q, as it's prematurely terminated.
 		if ! $(brew list|grep php@$PHP_VERSION >/dev/null); then
 			echo "Installing PHP $PHP_VERSION..."
 			# Don't hide output, as this can take some time...
