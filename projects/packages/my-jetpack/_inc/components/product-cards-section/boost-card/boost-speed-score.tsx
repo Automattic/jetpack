@@ -23,7 +23,8 @@ const BoostSpeedScore: FC = () => {
 	const { recordEvent } = useAnalytics();
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ speedLetterGrade, setSpeedLetterGrade ] = useState( '' );
-	const [ averageSpeedScore, setAverageSpeedScore ] = useState< number | null >( null );
+	const [ currentSpeedScore, setCurrentSpeedScore ] = useState< number | null >( null );
+	const [ previousSpeedScore, setPreviousSpeedScore ] = useState< number | null >( null );
 	const [ isSpeedScoreError, setIsSpeedScoreError ] = useState( false );
 	const [ isTooltipVisible, setIsTooltipVisible ] = useState( false );
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
@@ -36,50 +37,25 @@ const BoostSpeedScore: FC = () => {
 	const isBoostActive =
 		status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 
-	const TODAYS_SCORE_CACHE_KEY = 'MyJetpackTodaysBoostScore';
-	const DAY_IN_MILLISECONDS = 86400000;
-
 	const getAverageSpeedScore = ( mobileScore, desktopScore ) => {
 		return Math.round( ( mobileScore + desktopScore ) / 2 );
 	};
 
 	const setScoresFromCache = cachedSpeedScores => {
-		setAverageSpeedScore(
+		setCurrentSpeedScore(
 			getAverageSpeedScore( cachedSpeedScores.scores.mobile, cachedSpeedScores.scores.desktop )
 		);
+		if ( cachedSpeedScores.previousScores.mobile && cachedSpeedScores.previousScores.desktop ) {
+			setPreviousSpeedScore(
+				getAverageSpeedScore(
+					cachedSpeedScores.previousScores.mobile,
+					cachedSpeedScores.previousScores.desktop
+				)
+			);
+		}
 		setSpeedLetterGrade(
 			getScoreLetter( cachedSpeedScores.scores.mobile, cachedSpeedScores.scores.desktop )
 		);
-	};
-
-	const setTodaysScoreCache = ( score: number, letter: string ) => {
-		const now = new Date();
-
-		const storageItem = {
-			score: score,
-			letter: letter,
-			expiry: now.getTime() + DAY_IN_MILLISECONDS,
-		};
-		localStorage.setItem( TODAYS_SCORE_CACHE_KEY, JSON.stringify( storageItem ) );
-	};
-
-	const getTodaysScoreCache = (): { score: number; letter: string } => {
-		const storageItem = localStorage.getItem( TODAYS_SCORE_CACHE_KEY );
-
-		if ( ! storageItem ) {
-			return null;
-		}
-
-		const item: { score: number; letter: string; expiry: number } = JSON.parse( storageItem );
-		const now = new Date();
-
-		// compare the expiry time of the item with the current time
-		if ( now.getTime() > item.expiry ) {
-			// If the item is expired, delete the item from storage
-			localStorage.removeItem( TODAYS_SCORE_CACHE_KEY );
-			return null;
-		}
-		return item;
 	};
 
 	const getSpeedScores = async () => {
@@ -89,26 +65,20 @@ const BoostSpeedScore: FC = () => {
 			return;
 		}
 
-		// First look if today's score is cached in localStorage.
-		const todaysCachedScore = getTodaysScoreCache();
-		if ( todaysCachedScore ) {
-			setAverageSpeedScore( todaysCachedScore.score );
-			setSpeedLetterGrade( todaysCachedScore.letter );
-			return;
-		}
-
-		// If scores not cached, fetch the scores.
 		setIsLoading( true );
 		try {
 			const scores = await requestSpeedScores( true, apiRoot, siteUrl, apiNonce );
-			const speedScoreAverage = getAverageSpeedScore(
-				scores.current.mobile,
-				scores.current.desktop
-			);
 			const scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
-			setTodaysScoreCache( speedScoreAverage, scoreLetter );
-			setAverageSpeedScore( speedScoreAverage );
 			setSpeedLetterGrade( scoreLetter );
+			setCurrentSpeedScore( getAverageSpeedScore( scores.current.mobile, scores.current.desktop ) );
+			if ( latestBoostSpeedScores && latestBoostSpeedScores.scores ) {
+				setPreviousSpeedScore(
+					getAverageSpeedScore(
+						latestBoostSpeedScores.scores.mobile,
+						latestBoostSpeedScores.scores.desktop
+					)
+				);
+			}
 			setIsLoading( false );
 		} catch ( err ) {
 			recordEvent( 'jetpack_boost_speed_score_error', {
@@ -124,26 +94,22 @@ const BoostSpeedScore: FC = () => {
 				// Hide Boost scores if error and no cached scores
 				setIsSpeedScoreError( true );
 			}
-
 			setIsLoading( false );
 		}
 	};
 
 	const boostScoreIncrease = useMemo( () => {
-		if ( ! latestBoostSpeedScores || ! averageSpeedScore ) {
+		if ( ! previousSpeedScore || ! currentSpeedScore ) {
 			return null;
 		}
-		const { scores } = latestBoostSpeedScores;
-		const { mobile, desktop } = scores;
-		const latestScoresAverage = getAverageSpeedScore( mobile, desktop );
 
 		// Only return an increase. Don't return a negative value (decrease).
-		if ( averageSpeedScore < latestScoresAverage ) {
+		if ( currentSpeedScore < previousSpeedScore ) {
 			return null;
 		}
 
-		return averageSpeedScore - latestScoresAverage;
-	}, [ averageSpeedScore, latestBoostSpeedScores ] );
+		return currentSpeedScore - previousSpeedScore;
+	}, [ currentSpeedScore, previousSpeedScore ] );
 
 	const tooltipCopy = useBoostTooltipCopy( { speedLetterGrade, boostScoreIncrease } );
 
@@ -158,7 +124,14 @@ const BoostSpeedScore: FC = () => {
 	useEffect( () => {
 		if ( latestBoostSpeedScores ) {
 			if ( isBoostActive ) {
-				getSpeedScores();
+				if ( calculateDaysSince( latestBoostSpeedScores.timestamp * 1000 ) < 1 ) {
+					// When Boost plugin installed & active, use cache scores if they are less than 1 day old.
+					// In other words, calculate a new score once every day.
+					setScoresFromCache( latestBoostSpeedScores );
+				} else {
+					// Boost is active and cache scores are 1 or more days old.
+					getSpeedScores();
+				}
 			} else if ( calculateDaysSince( latestBoostSpeedScores.timestamp * 1000 ) < 14 ) {
 				// When Boost plugin is not installed or activated, use cache scores if they are less than 2 weeks old (14 days).
 				setScoresFromCache( latestBoostSpeedScores );
@@ -208,14 +181,8 @@ const BoostSpeedScore: FC = () => {
 						</div>
 						<div className="mj-boost-speed-score__bar">
 							<BoostScoreBar
-								score={
-									averageSpeedScore ||
-									getAverageSpeedScore(
-										latestBoostSpeedScores?.scores?.mobile,
-										latestBoostSpeedScores?.scores?.desktop
-									)
-								}
-								active={ averageSpeedScore > 0 }
+								score={ currentSpeedScore }
+								active={ currentSpeedScore > 0 }
 								isLoading={ isLoading }
 								showPrevScores={ false }
 								scoreBarType="desktop"

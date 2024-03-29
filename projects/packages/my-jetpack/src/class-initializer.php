@@ -198,7 +198,14 @@ class Initializer {
 		);
 		$modules             = new Modules();
 		$connection          = new Connection_Manager();
-		$speed_score_history = new Speed_Score_History( get_site_url() );
+		$speed_score_history = new Speed_Score_History( get_site_url(), PHP_URL_HOST );
+		$latest_score        = $speed_score_history->latest();
+		$previous_score      = array();
+		if ( $speed_score_history->count() > 1 ) {
+			$previous_score = $speed_score_history->latest( 1 );
+		}
+		$latest_score['previousScores'] = isset( $previous_score['scores'] ) ? $previous_score['scores'] : array();
+
 		wp_localize_script(
 			'my_jetpack_main_app',
 			'myJetpackInitialState',
@@ -240,7 +247,7 @@ class Initializer {
 					'isEnabled'       => Jetpack_Manage::could_use_jp_manage(),
 					'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
 				),
-				'latestBoostSpeedScores' => $speed_score_history->latest(),
+				'latestBoostSpeedScores' => $latest_score,
 			)
 		);
 
