@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Dotcom patterns: use wp_block post type patterns in editor with all themes and remove core and Jetpack form patterns
+Dotcom patterns: use wp_block post type patterns in editor with all themes and hide core and Jetpack form patterns
