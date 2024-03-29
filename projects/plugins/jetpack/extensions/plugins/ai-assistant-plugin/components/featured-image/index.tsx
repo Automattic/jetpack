@@ -18,7 +18,7 @@ import AiAssistantModal from '../modal';
 const FEATURED_IMAGE_FEATURE_NAME = 'featured-post-image';
 const JETPACK_SIDEBAR_PLACEMENT = 'jetpack-sidebar';
 
-export default function FeaturedImage() {
+export default function FeaturedImage( { busy, disabled }: { busy: boolean; disabled: boolean } ) {
 	const { toggleEditorPanelOpened: toggleEditorPanelOpenedFromEditPost } =
 		useDispatch( 'core/edit-post' );
 	const { editPost, toggleEditorPanelOpened: toggleEditorPanelOpenedFromEditor } =
@@ -144,7 +144,12 @@ export default function FeaturedImage() {
 					'jetpack'
 				) }
 			</p>
-			<Button onClick={ handleGenerate } variant="secondary">
+			<Button
+				onClick={ handleGenerate }
+				isBusy={ busy }
+				disabled={ ! postContent || disabled }
+				variant="secondary"
+			>
 				{ __( 'Generate image', 'jetpack' ) }
 			</Button>
 			{ isFeaturedImageModalVisible && (
