@@ -2,7 +2,9 @@ import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { JetpackBoostPage, PermalinksPage } from '../../lib/pages/index.js';
 import { PostFrontendPage } from 'jetpack-e2e-commons/pages/index.js';
+import { WPLoginPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import playwrightConfig from 'jetpack-e2e-commons/playwright.config.mjs';
+import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
 
 test.describe( 'Cache module', () => {
 	let page;
@@ -22,6 +24,12 @@ test.describe( 'Cache module', () => {
 		await permalinksPage.useDayNameStructure();
 	} );
 
+	// Disabling the module before each test, because each test will decide if
+	// it needs the module enabled or not.
+	test.beforeEach( async () => {
+		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'page_cache' ] ).build();
+	} );
+
 	test.afterAll( async () => {
 		// Reset the environment for any other tests.
 		await boostPrerequisitesBuilder( page ).withCleanEnv().withConnection( true ).build();
@@ -29,8 +37,6 @@ test.describe( 'Cache module', () => {
 	} );
 
 	test( 'No Page Cache meta information should show on the admin when the module is inactive', async () => {
-		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'page_cache' ] ).build();
-
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 		expect(
 			await jetpackBoostPage.isThePageCacheMetaInformationVisible(),
@@ -39,14 +45,15 @@ test.describe( 'Cache module', () => {
 	} );
 
 	// Make sure there's no cache header when module is disabled.
-	test( 'Page Cache header should not be present when module is inactive', async () => {
-		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'page_cache' ] ).build();
-		const postFrontendPage = await PostFrontendPage.visit( page );
-		// Cache is only available to logged out users.
-		await postFrontendPage.logout();
+	test( 'Page Cache header should not be present when module is inactive', async ( {
+		browser,
+	} ) => {
+		const newPage = await browser.newPage( playwrightConfig.use );
+		const postFrontPage = await PostFrontendPage.visit( newPage );
+		await postFrontPage.logout();
 
-		page.on( 'response', response => {
-			if ( response.url().replace( /\/$/, '' ) !== postFrontendPage.url ) {
+		newPage.on( 'response', response => {
+			if ( response.url().replace( /\/$/, '' ) !== resolveSiteUrl().replace( /\/$/, '' ) ) {
 				return;
 			}
 
@@ -55,22 +62,16 @@ test.describe( 'Cache module', () => {
 				'Page Cache header should not be present'
 			).toBeFalsy();
 		} );
-	} );
 
-	// Make sure Page Cache meta is visible when module is active.
-	test( 'Page Cache meta information should show on the admin when the module is active', async () => {
-		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'page_cache' ] ).build();
+		await PostFrontendPage.visit( newPage );
 
-		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-		expect(
-			await jetpackBoostPage.waitForPageCacheMetaInfoVisibility(),
-			'Page Cache meta information should be visible'
-		).toBeTruthy();
+		await newPage.close();
 	} );
 
 	// Make sure there's an error message when trying to enable Page Cache with plain permalinks.
-	test( 'Page Cache should show error notice when plain permalinks are enabled', async () => {
-		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'page_cache' ] ).build();
+	test( 'Enabling Page Cache should show error notice when plain permalinks are enabled', async () => {
+		const loginPage = await WPLoginPage.visit( page );
+		await loginPage.login();
 
 		const permalinksPage = await PermalinksPage.visit( page );
 		await permalinksPage.usePlainStructure();
@@ -83,16 +84,31 @@ test.describe( 'Cache module', () => {
 		).toBeTruthy();
 	} );
 
-	// Make sure there's a cache header when module is enabled.
-	test( 'Page Cache header should be present when module is active', async () => {
-		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'page_cache' ] ).build();
-		const postFrontendPage = await PostFrontendPage.visit( page );
-		// Cache is only available to logged out users.
-		await postFrontendPage.logout();
+	// Make sure Page Cache meta is visible when module is active.
+	test( 'Page Cache meta information should show on the admin when the module is active', async () => {
+		const permalinksPage = await PermalinksPage.visit( page );
+		await permalinksPage.useDayNameStructure();
 
-		page.on( 'response', response => {
-			// Not sure why there's a trailing slash, but it's messing up the test.
-			if ( response.url().replace( /\/$/, '' ) !== postFrontendPage.url ) {
+		// Activate the module.
+		const jetpackBoostPage = await JetpackBoostPage.visit( page );
+		await jetpackBoostPage.toggleModule( 'page_cache' );
+
+		expect(
+			await jetpackBoostPage.waitForPageCacheMetaInfoVisibility(),
+			'Page Cache meta information should be visible'
+		).toBeTruthy();
+	} );
+
+	// Make sure there's a cache header when module is enabled.
+	test( 'Page Cache header should be present when module is active', async ( { browser } ) => {
+		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'page_cache' ] ).build();
+
+		const newPage = await browser.newPage( playwrightConfig.use );
+		const postFrontPage = await PostFrontendPage.visit( newPage );
+		await postFrontPage.logout();
+
+		newPage.on( 'response', response => {
+			if ( response.url().replace( /\/$/, '' ) !== resolveSiteUrl().replace( /\/$/, '' ) ) {
 				return;
 			}
 
@@ -101,5 +117,9 @@ test.describe( 'Cache module', () => {
 				'Page Cache header should be present'
 			).toBeTruthy();
 		} );
+
+		await PostFrontendPage.visit( newPage );
+
+		await newPage.close();
 	} );
 } );
