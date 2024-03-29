@@ -1,6 +1,6 @@
 <?php
 /**
- * Phan stubs for WordPress-defined functions.
+ * Phan stubs for WPCOM-defined functions.
  *
  * @package automattic/jetpack-monorepo
  */
