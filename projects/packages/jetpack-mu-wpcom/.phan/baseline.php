@@ -38,7 +38,6 @@ return [
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanRedefineFunction : 1 occurrence
     // PhanRedundantCondition : 1 occurrence
-    // PhanRedundantConditionInLoop : 1 occurrence
     // PhanTypeComparisonToArray : 1 occurrence
     // PhanTypeInvalidLeftOperandOfNumericOp : 1 occurrence
     // PhanTypeMismatchDimFetch : 1 occurrence
@@ -56,7 +55,6 @@ return [
         'src/features/100-year-plan/locked-mode.php' => ['PhanEmptyFQSENInCallable', 'PhanUndeclaredClassConstant', 'PhanUndeclaredFunction'],
         'src/features/admin-color-schemes/admin-color-schemes.php' => ['PhanUndeclaredConstant'],
         'src/features/block-patterns/block-patterns.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredTypeParameter'],
-        'src/features/block-patterns/class-wpcom-block-patterns-from-api.php' => ['PhanRedundantConditionInLoop'],
         'src/features/block-patterns/class-wpcom-block-patterns-utils.php' => ['PhanTypeMismatchReturnNullable', 'PhanUndeclaredFunction'],
         'src/features/coming-soon/coming-soon.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchArgumentInternal', 'PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable'],
         'src/features/coming-soon/fallback-coming-soon-page.php' => ['PhanTypeMismatchArgument', 'PhanTypeVoidArgument', 'PhanUndeclaredFunction'],
