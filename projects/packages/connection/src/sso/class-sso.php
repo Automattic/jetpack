@@ -46,6 +46,14 @@ class SSO {
 
 		self::$instance = $this;
 
+		/*
+		 * This feature currently relies on the Jetpack plugin.
+		 * Bail if Jetpack isn't installed.
+		 */
+		if ( ! class_exists( 'Jetpack' ) ) {
+			return;
+		}
+
 		add_action( 'admin_init', array( $this, 'maybe_authorize_user_after_sso' ), 1 );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'login_init', array( $this, 'login_init' ) );
