@@ -36,6 +36,15 @@ class Test_Helpers extends BaseTestCase {
 	}
 
 	/**
+	 * Clean up the testing environment.
+	 *
+	 * @after
+	 */
+	public function tear_down() {
+		Constants::clear_constants();
+	}
+
+	/**
 	 * Return 1.
 	 *
 	 * @return int
@@ -210,7 +219,7 @@ class Test_Helpers extends BaseTestCase {
 	 * Test "allow_redirect_hosts_adds_default_hosts".
 	 */
 	public function test_allow_redirect_hosts_adds_default_hosts() {
-		Constants::$set_constants['JETPACK__API_BASE'] = 'https://jetpack.wordpress.com/jetpack.';
+		Constants::set_constant( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
 		$hosts = Helpers::allowed_redirect_hosts( array( 'test.com' ) );
 		$this->assertIsArray( $hosts );
 		$this->assertContains( 'test.com', $hosts );
