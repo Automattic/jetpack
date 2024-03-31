@@ -28,7 +28,8 @@ export default function SocialPostControl( { disabled = false, isCustomMediaAvai
 		  )
 		: __(
 				'You need a featured image for this post to be able to share as a social post.',
-				'jetpack'
+				'jetpack',
+				/* dummy arg to avoid bad minification */ 0
 		  );
 
 	const onCheckboxChange = useCallback(
