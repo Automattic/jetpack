@@ -4,7 +4,7 @@ declare module '*.jpeg';
 declare module '*.jpg';
 declare module '*.scss';
 
-// These libraries don't types, this suppresses the TypeScript errors
+// These libraries don't have types, this suppresses the TypeScript errors
 declare module '@wordpress/components';
 declare module '@wordpress/compose';
 declare module '@wordpress/i18n';
