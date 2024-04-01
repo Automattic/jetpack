@@ -12,6 +12,7 @@ export function boostPrerequisitesBuilder( page ) {
 		connected: undefined,
 		jetpackDeactivated: undefined,
 		mockSpeedScore: undefined,
+		enqueuedAssets: undefined,
 	};
 
 	return {
@@ -35,6 +36,10 @@ export function boostPrerequisitesBuilder( page ) {
 			state.mockSpeedScore = shouldMockSpeedScore;
 			return this;
 		},
+		withEnqueuedAssets( shouldEnqueueAssets ) {
+			state.enqueuedAssets = shouldEnqueueAssets;
+			return this;
+		},
 		withCleanEnv() {
 			state.clean = true;
 			return this;
@@ -52,6 +57,7 @@ async function buildPrerequisites( state, page ) {
 		testPostTitles: () => ensureTestPosts( state.testPostTitles ),
 		clean: () => ensureCleanState( state.clean ),
 		mockSpeedScore: () => ensureMockSpeedScoreState( state.mockSpeedScore ),
+		enqueuedAssets: () => ensureEnqueuedAssets( state.enqueuedAssets ),
 	};
 
 	logger.prerequisites( JSON.stringify( state, null, 2 ) );
@@ -90,6 +96,16 @@ export async function ensureMockSpeedScoreState( mockSpeedScore ) {
 	} else {
 		logger.prerequisites( 'Unmocking Speed Score' );
 		await execWpCommand( 'plugin deactivate e2e-mock-speed-score-api' );
+	}
+}
+
+export async function ensureEnqueuedAssets( enqueue ) {
+	if ( enqueue ) {
+		logger.prerequisites( 'Enqueuing assets' );
+		await execWpCommand( 'plugin activate e2e-concatenate-enqueue' );
+	} else {
+		logger.prerequisites( 'Deactivating assets' );
+		await execWpCommand( 'plugin deactivate e2e-concatenate-enqueue' );
 	}
 }
 
