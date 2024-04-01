@@ -102,10 +102,10 @@ export async function ensureMockSpeedScoreState( mockSpeedScore ) {
 export async function ensureEnqueuedAssets( enqueue ) {
 	if ( enqueue ) {
 		logger.prerequisites( 'Enqueuing assets' );
-		await execWpCommand( 'plugin activate e2e-concatenate-enqueue' );
+		await execWpCommand( 'plugin activate e2e-concatenate-enqueue/e2e-concatenate-enqueue.php' );
 	} else {
 		logger.prerequisites( 'Deactivating assets' );
-		await execWpCommand( 'plugin deactivate e2e-concatenate-enqueue' );
+		await execWpCommand( 'plugin deactivate e2e-concatenate-enqueue/e2e-concatenate-enqueue.php' );
 	}
 }
 

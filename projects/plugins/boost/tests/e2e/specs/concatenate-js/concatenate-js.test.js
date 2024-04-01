@@ -32,9 +32,8 @@ test.describe( 'Concatenate JS', () => {
 		const postFrontPage = await PostFrontendPage.visit( page );
 
 		expect(
-			// TinyMCE is enqueued via a helper plugin. When concatenation is not enabled,
-			// it should be enqueued as a separate script.
-			( await postFrontPage.page.locator( '[id="wp-tinymce-root-js"]' ).count() ) > 0,
+			// This script is enqueued via a helper plugin.
+			( await postFrontPage.page.locator( '[id="e2e-script-one-js"]' ).count() ) > 0,
 			'JS concatenation shouldn`t occur when the module is inactive'
 		).toBeTruthy();
 	} );
@@ -57,10 +56,10 @@ test.describe( 'Concatenate JS', () => {
 		const postFrontPage = await PostFrontendPage.visit( page );
 
 		expect(
-			// wp-tinymce-root and wp-tinymce are enqueued by a helper plugin. When concatenation is enabled,
+			// e2e-script-one and e2e-script-two are enqueued by a helper plugin. When concatenation is enabled,
 			// they should be concatenated into a single script.
 			( await postFrontPage.page
-				.locator( '[data-handles="wp-tinymce-root,wp-tinymce"]' )
+				.locator( '[data-handles="e2e-script-one,e2e-script-two"]' )
 				.count() ) > 0,
 			'JS Concatenation occurs when module is active'
 		).toBeTruthy();
@@ -74,6 +73,7 @@ test.describe( 'Concatenate JS', () => {
 		const postFrontPage = await PostFrontendPage.visit( page );
 
 		expect(
+			// jQuery is enqueued by a helper plugin.
 			( await postFrontPage.page.locator( '[id="jquery-core-js"]' ).count() ) > 0,
 			'jQuery should not be concatenated'
 		).toBeTruthy();
