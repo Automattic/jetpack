@@ -204,7 +204,7 @@ class Initializer {
 		if ( $speed_score_history->count() > 1 ) {
 			$previous_score = $speed_score_history->latest( 1 );
 		}
-		$latest_score['previousScores'] = isset( $previous_score['scores'] ) ? $previous_score['scores'] : array();
+		$latest_score['previousScores'] = $previous_score['scores'] ?? array();
 
 		wp_localize_script(
 			'my_jetpack_main_app',
