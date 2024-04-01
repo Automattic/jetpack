@@ -46,6 +46,7 @@ class Jetpack_Mu_Wpcom {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 		}
 
 		// Unified navigation fix for changes in WordPress 6.2.
@@ -277,5 +278,14 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_wpcom_command_palette() {
 		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
+	}
+
+	/**
+	 * Load Odyssey Stats in Simple sites.
+	 */
+	public static function load_wpcom_simple_odyssey_stats() {
+		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
+			require_once __DIR__ . '/features/wpcom-simple-odyssey-stats/wpcom-simple-odyssey-stats.php';
+		}
 	}
 }
