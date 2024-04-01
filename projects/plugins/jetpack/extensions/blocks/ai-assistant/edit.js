@@ -109,6 +109,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
+	const contentRef = useRef( null );
+
 	const {
 		isLoadingCategories,
 		isLoadingCompletion,
@@ -139,6 +141,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		userPrompt: attributes.userPrompt,
 		requireUpgrade,
 		requestingState: attributes.requestingState,
+		contentRef,
+		blockRef,
 	} );
 
 	const connected = isUserConnected();
@@ -499,13 +503,14 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		>
 			<div { ...blockProps }>
 				{ contentIsLoaded && ! useGutenbergSyntax && (
-					<div className="jetpack-ai-assistant__content">
+					<div ref={ contentRef } className="jetpack-ai-assistant__content">
 						<RawHTML>{ markdownConverter.render( attributes.content ) }</RawHTML>
 					</div>
 				) }
 
 				{ contentIsLoaded && useGutenbergSyntax && (
 					<div
+						ref={ contentRef }
 						className="jetpack-ai-assistant__content is-layout-building-mode"
 						{ ...innerBlocks }
 					/>
@@ -589,7 +594,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 						retryRequest={ retryRequest }
 						handleAcceptContent={ handleAcceptContent }
 						handleAcceptTitle={ handleAcceptTitle }
-						handleGetSuggestion={ handleGetSuggestion }
 						handleImageRequest={ handleImageRequest }
 						handleTryAgain={ null }
 						showRetry={ showRetry }
