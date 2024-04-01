@@ -2286,6 +2286,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
+      '@automattic/jetpack-shared-extension-utils':
+        specifier: workspace:*
+        version: link:../../js-packages/shared-extension-utils
       '@wordpress/base-styles':
         specifier: 4.45.0
         version: 4.45.0
