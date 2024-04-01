@@ -97,7 +97,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const contentRef = useRef( null );
 
 	const {
-		isLoadingCategories,
 		isLoadingCompletion,
 		wasCompletionJustRequested,
 		getSuggestionFromOpenAI,
@@ -213,8 +212,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const useGutenbergSyntax = attributes?.useGutenbergSyntax;
 
-	// Waiting state means there is nothing to be done until it resolves
-	const isWaitingState = isLoadingCompletion || isLoadingCategories;
 	// Content is loaded
 	const contentIsLoaded = !! attributes.content;
 
@@ -509,9 +506,9 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					</InspectorControls>
 				) }
 
-				{ ! isWaitingState && connected && ! requireUpgrade && (
+				{ ! isLoadingCompletion && connected && ! requireUpgrade && (
 					<ToolbarControls
-						isWaitingState={ isWaitingState }
+						isWaitingState={ isLoadingCompletion }
 						contentIsLoaded={ contentIsLoaded }
 						getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
 						retryRequest={ retryRequest }
@@ -552,7 +549,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					state={ requestingState }
 					isTransparent={ requireUpgrade || ! connected }
 					showButtonLabels={ ! isMobileViewport }
-					showAccept={ requestingState !== 'init' && contentIsLoaded && ! isWaitingState }
+					showAccept={ requestingState !== 'init' && contentIsLoaded && ! isLoadingCompletion }
 					acceptLabel={ acceptLabel }
 					showGuideLine={ contentIsLoaded }
 					showRemove={ attributes?.content?.length > 0 }
