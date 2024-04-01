@@ -38,4 +38,14 @@ test.describe( 'Concatenate JS', () => {
 			'JS concatenation shouldn`t occur when the module is inactive'
 		).toBeTruthy();
 	} );
+
+	test( 'Meta information should be visible when the module is active', async () => {
+		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'minify_js' ] ).build();
+		const jetpackBoostPage = await JetpackBoostPage.visit( page );
+
+		expect(
+			await jetpackBoostPage.isConcatenateJsMetaVisible(),
+			'Concatenate JS meta information should be visible'
+		).toBeTruthy();
+	} );
 } );
