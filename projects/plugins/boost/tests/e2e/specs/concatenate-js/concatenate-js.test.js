@@ -15,7 +15,7 @@ test.describe( 'Concatenate JS', () => {
 	test.afterAll( async () => {} );
 
 	test( 'No Concatenate JS meta information should show on the admin when the module is inactive', async () => {
-		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'concatenate_js' ] ).build();
+		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'minify_js' ] ).build();
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 
 		expect(
@@ -26,7 +26,7 @@ test.describe( 'Concatenate JS', () => {
 
 	test( 'JS concatenation shouldn`t occur when the module is inactive', async () => {
 		await boostPrerequisitesBuilder( page )
-			.withInactiveModules( [ 'concatenate_js' ] )
+			.withInactiveModules( [ 'minify_js' ] )
 			.withEnqueuedAssets( true )
 			.build();
 		const postFrontPage = await PostFrontendPage.visit( page );
