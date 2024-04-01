@@ -18,11 +18,11 @@ function current_user_has_wpcom_account() {
 	$user_id = get_current_user_id();
 
 	if ( function_exists( '\A8C\Billingdaddy\Users\get_wpcom_user' ) ) {
-		// On Simple sites, we can use the get_wpcom_user function to check if the user has a WordPress.com account.
+		// @phan-suppress-next-line PhanUndeclaredFunction -- On Simple sites, use get_wpcom_user function to check if the user has a WordPress.com account.
 		$user        = \A8C\Billingdaddy\Users\get_wpcom_user( $user_id );
 		$has_account = isset( $user->ID );
 	} else {
-		// On Atomic sites, we need to use the Connection Manager to check if the user has a WordPress.com account.
+		// On Atomic sites, use the Connection Manager to check if the user has a WordPress.com account.
 		$connection_manager = new Connection_Manager();
 		$wpcom_user_data    = $connection_manager->get_connected_user_data( $user_id );
 		$has_account        = isset( $wpcom_user_data['ID'] );
