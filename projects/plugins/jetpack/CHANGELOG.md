@@ -4,7 +4,7 @@
 
 ## 13.3-beta - 2024-04-01
 ### Enhancements
-- Member login block: add ability to hide manage subscription -link. [#36602]
+- Member login block: Add ability to hide manage subscription link. [#36602]
 
 ### Improved compatibility
 - Carousel: disable WordPress' lightbox option when Jetpack's Carousel feature is activated. [#36565]
@@ -12,23 +12,23 @@
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Add Phan stub for wordpress functions. [#36627]
-- AI Assistant: remove dead code from the suggestions hook [#36625]
+- AI Assistant: Remove dead code from the suggestions hook. [#36625]
 - AI Assistant: Remove unused code [#36621]
-- AI Featured Image: connect the image generation hook to the UI. [#36620]
-- AI Featured Image: track events for generating, regenerating and using images [#36638]
-- AI Plugin: Add modal and featured image usage [#36613]
-- Disable AI Featured Image button if requires upgrade or no post content [#36653]
-- Google Embed blocks: make proportion values translatable [#36641]
-- Improve UX when setting AI Featured Image [#36643]
-- Packages: add version tracking for identity-crisis package. [#36635]
-- Recipe Block: make default texts translatable [#36624]
-- Save generated AI image to library and set as featured image [#36626]
-- SSO: remove jQuery dependency for improved performance. [#36605]
-- Subscription login block: switch to singular "manage subscription" [#36603]
-- Subscriptions: Add missing padding param to the Subscriber popup markup [#36619]
-- Subscriptions: Fix Subscribe block invalid content [#36617]
-- Subscription Site: Hook Subscriber Login block into the navigation [#36487]
-- Untangling: return untangled admin menu from wpcom/v2/admin-menu endpoint for early classic view [#36601]
+- AI Featured Image: Connect the image generation hook to the UI. [#36620]
+- AI Featured Image: Disable if requires upgrade or no post content. [#36653]
+- AI Featured Image: Improve UX. [#36643]
+- AI Featured Image: Track events for generating, regenerating and using images. [#36638]
+- AI Featured Image: Save image to library and set as featured. [#36626]
+- AI Plugin: Add modal and featured image usage. [#36613]
+- Google Embed blocks: Make proportion values translatable. [#36641]
+- Packages: Add version tracking for identity-crisis package. [#36635]
+- Recipe Block: Make default texts translatable. [#36624]
+- SSO: Remove jQuery dependency for improved performance. [#36605]
+- Subscription login block: Switch to singular "manage subscription". [#36603]
+- Subscriptions: Add missing padding param to the Subscriber popup markup. [#36619]
+- Subscriptions: Fix Subscribe block invalid content. [#36617]
+- Subscription Site: Hook Subscriber Login block into the navigation. [#36487]
+- Untangling: return untangled admin menu from wpcom/v2/admin-menu endpoint for early classic view. [#36601]
 
 ## 13.3-a.9 - 2024-03-27
 ### Bug fixes
