@@ -177,6 +177,7 @@ export default function useProductCheckoutWorkflow( {
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
 		restApi.setApiNonce( apiNonce );
+		setCheckoutStarted( false );
 	}, [] );
 
 	return {
