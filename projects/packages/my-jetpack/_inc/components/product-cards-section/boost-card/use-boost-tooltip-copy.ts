@@ -1,15 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useMemo } from 'react';
-import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
-import { Purchase } from '../../../data/types';
-import useSimpleQuery from '../../../data/use-simple-query';
-
-const JETPACK_BOOST_PRODUCTS = [
-	'jetpack_boost_bi_yearly',
-	'jetpack_boost_yearly',
-	'jetpack_boost_monthly',
-];
+import type { ReactElement } from 'react';
 
 /**
  * Gets the translated tooltip copy based on the Boost letter grade and other factors.
@@ -17,7 +8,7 @@ const JETPACK_BOOST_PRODUCTS = [
  * @param {object} props - React props
  * @param {string} props.speedLetterGrade - The Boost score letter grade.
  * @param {number|null} props.boostScoreIncrease - The number of points the score increased.
- * @returns {React.ReactElement | string} A translated JSX Element or string.
+ * @returns {ReactElement | string} A translated JSX Element or string.
  */
 export function useBoostTooltipCopy( {
 	speedLetterGrade,
@@ -25,27 +16,10 @@ export function useBoostTooltipCopy( {
 }: {
 	speedLetterGrade: string;
 	boostScoreIncrease: number | null;
-} ): React.ReactElement | string {
+} ): ReactElement | string {
 	const slug = 'boost';
-	const { data: purchases, isLoading }: { data: Array< Purchase >; isLoading: boolean } =
-		useSimpleQuery( {
-			name: QUERY_PURCHASES_KEY,
-			query: { path: REST_API_SITE_PURCHASES_ENDPOINT },
-		} );
-	const hasBoostPaidPlan = useMemo( () => {
-		if ( isLoading ) {
-			return false;
-		}
-		if ( ! purchases?.length ) {
-			return false;
-		}
-		return (
-			purchases.filter( purchase => JETPACK_BOOST_PRODUCTS.includes( purchase.product_slug ) )
-				.length > 0
-		);
-	}, [ isLoading, purchases ] );
 	const { detail } = useProduct( slug );
-	const { isPluginActive } = detail;
+	const { isPluginActive, hasPaidPlanForProduct: hasBoostPaidPlan } = detail;
 
 	// Boost plugin is active
 	if ( isPluginActive ) {

@@ -16,7 +16,7 @@ import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import { PRODUCT_STATUSES } from '../../product-card/action-button';
 import { useBoostTooltipCopy } from './use-boost-tooltip-copy';
 import type { SpeedScores } from './types';
-import type { FC } from 'react';
+import type { FC, SetStateAction } from 'react';
 
 import './style.scss';
 
@@ -28,7 +28,7 @@ const BoostSpeedScore: FC = () => {
 	const [ previousSpeedScore, setPreviousSpeedScore ] = useState< number | null >( null );
 	const [ isSpeedScoreError, setIsSpeedScoreError ] = useState( false );
 	const [ isTooltipVisible, setIsTooltipVisible ] = useState( false );
-	const isMobileViewport = useViewportMatch( 'medium', '<' );
+	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
 
 	const { siteUrl = '', latestBoostSpeedScores } = getMyJetpackWindowInitialState();
 	const { apiRoot, apiNonce, isSiteConnected } = useMyJetpackConnection();
@@ -42,16 +42,29 @@ const BoostSpeedScore: FC = () => {
 		return Math.round( ( mobileScore + desktopScore ) / 2 );
 	};
 
+	const updateScores = (
+		setScores: ( value: SetStateAction< number > ) => void,
+		scores: SpeedScores[ 'scores' ]
+	) => {
+		const { mobile, desktop } = scores;
+		if ( mobile && desktop ) {
+			setScores( getAverageSpeedScore( mobile, desktop ) );
+		}
+	};
+
+	const updateLetterGrade = ( scores: SpeedScores[ 'scores' ] ) => {
+		const { mobile, desktop } = scores;
+		if ( mobile && desktop ) {
+			setSpeedLetterGrade( getScoreLetter( mobile, desktop ) );
+		}
+	};
+
 	const setScoresFromCache = ( cachedSpeedScores: SpeedScores ) => {
 		const { scores, previousScores } = cachedSpeedScores;
 
-		setCurrentSpeedScore( getAverageSpeedScore( scores.mobile, scores.desktop ) );
-		if ( previousScores.mobile && previousScores.desktop ) {
-			setPreviousSpeedScore(
-				getAverageSpeedScore( previousScores.mobile, previousScores.desktop )
-			);
-		}
-		setSpeedLetterGrade( getScoreLetter( scores.mobile, scores.desktop ) );
+		updateScores( setCurrentSpeedScore, scores );
+		updateScores( setPreviousSpeedScore, previousScores );
+		updateLetterGrade( scores );
 	};
 
 	const getSpeedScores = async () => {
@@ -64,19 +77,10 @@ const BoostSpeedScore: FC = () => {
 		setIsLoading( true );
 		try {
 			const scores = await requestSpeedScores( true, apiRoot, siteUrl, apiNonce );
-			const { mobile, desktop } = scores.current;
-
-			const scoreLetter = getScoreLetter( mobile, desktop );
+			const scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
 			setSpeedLetterGrade( scoreLetter );
-			setCurrentSpeedScore( getAverageSpeedScore( mobile, desktop ) );
-			if ( latestBoostSpeedScores?.scores ) {
-				setPreviousSpeedScore(
-					getAverageSpeedScore(
-						latestBoostSpeedScores.scores.mobile,
-						latestBoostSpeedScores.scores.desktop
-					)
-				);
-			}
+			updateScores( setCurrentSpeedScore, scores.current );
+			updateScores( setPreviousSpeedScore, latestBoostSpeedScores.scores );
 			setIsLoading( false );
 		} catch ( err ) {
 			recordEvent( 'jetpack_boost_speed_score_error', {

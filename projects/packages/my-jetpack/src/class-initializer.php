@@ -198,7 +198,7 @@ class Initializer {
 		);
 		$modules             = new Modules();
 		$connection          = new Connection_Manager();
-		$speed_score_history = new Speed_Score_History( get_site_url(), PHP_URL_HOST );
+		$speed_score_history = new Speed_Score_History( get_site_url() );
 		$latest_score        = $speed_score_history->latest();
 		$previous_score      = array();
 		if ( $speed_score_history->count() > 1 ) {
