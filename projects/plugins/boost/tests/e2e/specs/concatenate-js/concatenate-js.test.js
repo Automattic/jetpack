@@ -48,4 +48,21 @@ test.describe( 'Concatenate JS', () => {
 			'Concatenate JS meta information should be visible'
 		).toBeTruthy();
 	} );
+
+	test( 'JS Concatenation occurs when module is active', async () => {
+		await boostPrerequisitesBuilder( page )
+			.withActiveModules( [ 'minify_js' ] )
+			.withEnqueuedAssets( true )
+			.build();
+		const postFrontPage = await PostFrontendPage.visit( page );
+
+		expect(
+			// wp-tinymce-root and wp-tinymce are enqueued by a helper plugin. When concatenation is enabled,
+			// they should be concatenated into a single script.
+			( await postFrontPage.page
+				.locator( '[data-handles="wp-tinymce-root,wp-tinymce"]' )
+				.count() ) > 0,
+			'JS Concatenation occurs when module is active'
+		).toBeTruthy();
+	} );
 } );
