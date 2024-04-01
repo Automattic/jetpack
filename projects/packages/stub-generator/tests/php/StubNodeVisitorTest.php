@@ -16,6 +16,7 @@ use PhpParser\NodeVisitor\ParentConnectingVisitor;
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard as PrettyPrinter_Standard;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 /**
@@ -391,6 +392,429 @@ class StubNodeVisitorTest extends TestCase {
 				 Processing namespace 'XXX'
 				  Skipping define `__NAMESPACE__ . '\\' . 'BAZ'` because I can't stringify it
 				OUTPUT . "\n",
+			),
+
+			'Extract some classes, defs = *'              => array(
+				<<<'PHP'
+				class Foo {
+				}
+
+				class Bar {
+				}
+				PHP,
+				'*',
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+					}
+					class Bar
+					{
+					}
+				}
+				PHP,
+			),
+			'Extract some classes, class = *'             => array(
+				<<<'PHP'
+				class Foo {
+				}
+
+				class Bar {
+				}
+				PHP,
+				array( 'class' => '*' ),
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+					}
+					class Bar
+					{
+					}
+				}
+				PHP,
+			),
+			'Extract a selected class by name'            => array(
+				<<<'PHP'
+				class Barf {
+				}
+
+				class FooBar {
+				}
+
+				class Foo {
+					function Bar(){}
+				}
+
+				class Bar {
+				}
+				PHP,
+				array( 'class' => array( 'Bar' => array() ) ),
+				<<<'PHP'
+				namespace {
+					class Bar
+					{
+					}
+				}
+				PHP,
+			),
+			'Extract no classes'                          => array(
+				<<<'PHP'
+				class Foo {
+				}
+
+				class Bar {
+				}
+				PHP,
+				array( 'trait' => array( 'Bar' ) ),
+				<<<'PHP'
+				PHP,
+			),
+			'Extract namespaced classes'                  => array(
+				<<<'PHP'
+				namespace {
+					/** Non-namespaced */
+					class Foo {
+					}
+
+					/** Non-namespaced */
+					class Bar {
+					}
+				}
+
+				namespace Some\NS {
+					/** Namespaced */
+					class Foo {
+					}
+
+					/** Namespaced */
+					class Bar {
+					}
+				}
+				PHP,
+				array(
+					'class' => array(
+						'Foo'         => array(),
+						'Some\NS\Bar' => array(),
+					),
+				),
+				<<<'PHP'
+				namespace {
+					/** Non-namespaced */
+					class Foo
+					{
+					}
+				}
+				namespace Some\NS {
+					/** Namespaced */
+					class Bar
+					{
+					}
+				}
+				PHP,
+				BufferedOutput::VERBOSITY_DEBUG,
+				<<<'OUTPUT'
+				 Processing namespace ''
+				  Processing class Foo
+				  Skipping class Bar
+				 Processing namespace 'Some\NS'
+				  Skipping class Some\NS\Foo
+				  Processing class Some\NS\Bar
+				OUTPUT . "\n",
+			),
+
+			'Extract trait vs interface vs class'         => array(
+				<<<'PHP'
+				class Foo {
+				}
+				trait Foo {
+				}
+				interface Foo {
+				}
+
+				class Bar {
+				}
+				trait Bar {
+				}
+				interface Bar {
+				}
+
+				class Baz {
+				}
+				trait Baz {
+				}
+				interface Baz {
+				}
+				PHP,
+				array(
+					'class'     => array( 'Foo' => array() ),
+					'trait'     => array( 'Bar' => array() ),
+					'interface' => array( 'Baz' => array() ),
+				),
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+					}
+					trait Bar
+					{
+					}
+					interface Baz
+					{
+					}
+				}
+				PHP,
+			),
+
+			'Extract class constants, defs=*'             => array(
+				<<<'PHP'
+				class Foo {
+					public const PUB = 'pub';
+					protected const PROT = 'prot';
+					private const PRIV = 'priv';
+				}
+				final class Bar {
+					public const PUB = 'pub';
+					protected const PROT = 'prot';
+					private const PRIV = 'priv';
+				}
+				trait TFoo {
+					public const PUB = 'pub';
+					protected const PROT = 'prot';
+					private const PRIV = 'priv';
+				}
+				interface IFoo {
+					public const PUB = 'pub';
+				}
+				PHP,
+				'*',
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+						public const PUB = 'pub';
+						protected const PROT = 'prot';
+					}
+					final class Bar
+					{
+						public const PUB = 'pub';
+					}
+					trait TFoo
+					{
+						public const PUB = 'pub';
+						protected const PROT = 'prot';
+						private const PRIV = 'priv';
+					}
+					interface IFoo
+					{
+						public const PUB = 'pub';
+					}
+				}
+				PHP,
+			),
+			'Extract class constants, class=*'            => array(
+				<<<'PHP'
+				class Foo {
+					public const PUB = 'pub';
+					protected const PROT = 'prot';
+					private const PRIV = 'priv';
+				}
+				final class Bar {
+					public const PUB = 'pub';
+					protected const PROT = 'prot';
+					private const PRIV = 'priv';
+				}
+				PHP,
+				array( 'class' => '*' ),
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+						public const PUB = 'pub';
+						protected const PROT = 'prot';
+					}
+					final class Bar
+					{
+						public const PUB = 'pub';
+					}
+				}
+				PHP,
+			),
+			'Extract class constants, class[...]=*'       => array(
+				<<<'PHP'
+				class Foo {
+					public const PUB = 'pub';
+					protected const PROT = 'prot';
+					private const PRIV = 'priv';
+				}
+				final class Bar {
+					public const PUB = 'pub';
+					protected const PROT = 'prot';
+					private const PRIV = 'priv';
+				}
+				PHP,
+				array(
+					'class' => array(
+						'Foo' => '*',
+						'Bar' => '*',
+					),
+				),
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+						public const PUB = 'pub';
+						protected const PROT = 'prot';
+					}
+					final class Bar
+					{
+						public const PUB = 'pub';
+					}
+				}
+				PHP,
+			),
+			'Extract class constants, class[...].constant=*' => array(
+				<<<'PHP'
+				class Foo {
+					public const PUB = 'pub';
+					protected const PROT = 'prot';
+					private const PRIV = 'priv';
+				}
+				final class Bar {
+					public const PUB = 'pub';
+					protected const PROT = 'prot';
+					private const PRIV = 'priv';
+				}
+				PHP,
+				array(
+					'class' => array(
+						'Foo' => array( 'constant' => '*' ),
+						'Bar' => array( 'constant' => '*' ),
+					),
+				),
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+						public const PUB = 'pub';
+						protected const PROT = 'prot';
+					}
+					final class Bar
+					{
+						public const PUB = 'pub';
+					}
+				}
+				PHP,
+			),
+			'Extract a selected class constant by name'   => array(
+				<<<'PHP'
+				class Foo {
+					const FOO = 'foo', BAR = 'bar';
+					const BAZ = 'BAR';
+				}
+				trait TFoo {
+					const FOO = 'foo', BAR = 'bar';
+					const BAZ = 'BAR';
+				}
+				interface IFoo {
+					const FOO = 'foo', BAR = 'bar';
+					const BAZ = 'BAR';
+				}
+				PHP,
+				array( 'class' => array( 'Foo' => array( 'constant' => array( 'BAR' ) ) ) ),
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+						const BAR = 'bar';
+					}
+				}
+				PHP,
+			),
+			'Extract no class constants'                  => array(
+				<<<'PHP'
+				class Foo {
+					const FOO = 'foo', BAR = 'bar';
+					const BAZ = 'BAR';
+				}
+				PHP,
+				array( 'class' => array( 'Foo' => array( 'method' => array( 'BAR' ) ) ) ),
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+					}
+				}
+				PHP,
+			),
+			'Extract a selected class constant by name from a namespaced class' => array(
+				<<<'PHP'
+				namespace Some\NS;
+				class Foo {
+					const FOO = 'foo', BAR = 'bar';
+					const BAZ = 'BAR';
+				}
+				PHP,
+				array(
+					'class' => array(
+						'Foo'         => '*',
+						'Some\NS\Foo' => array( 'constant' => array( 'BAR' ) ),
+					),
+				),
+				<<<'PHP'
+				namespace Some\NS;
+
+				class Foo
+				{
+					const BAR = 'bar';
+				}
+				PHP,
+			),
+		);
+	}
+
+	/**
+	 * Test the visitor when parent nodes aren't available.
+	 *
+	 * @dataProvider provideIntegration_NoParent
+	 * @param string $input Input PHP class contents.
+	 * @param string $expect Expected exception message.
+	 */
+	public function testIntegration_NoParent( string $input, string $expect ) {
+		$this->expectException( RuntimeException::class );
+		$this->expectExceptionMessage( $expect );
+
+		$output    = new BufferedOutput();
+		$parser    = ( new ParserFactory() )->createForHostVersion();
+		$traverser = new NodeTraverser();
+		$traverser->addVisitor( new NameResolver() );
+		$visitor = new StubNodeVisitor( $output );
+		$traverser->addVisitor( $visitor );
+
+		$stmts = $parser->parse( "<?php\nclass Foo {\n$input\n}" );
+		$this->assertNotNull( $stmts );
+		'@phan-var \PhpParser\Node[] $stmts';
+
+		$visitor->setDefs( 'dummy.php', '*' );
+		$traverser->traverse( $stmts );
+	}
+
+	/**
+	 * Data provider for testIntegration_NoParent.
+	 */
+	public function provideIntegration_NoParent() {
+		return array(
+			'ClassConst'  => array(
+				'const C = "C";',
+				'No parent found at dummy.php:3 (node Stmt_ClassConst)',
+			),
+			'Property'    => array(
+				'public $prop;',
+				'No parent found at dummy.php:3 (node Stmt_Property)',
+			),
+			'ClassMethod' => array(
+				'public function method() {}',
+				'No parent found at dummy.php:3 (node Stmt_ClassMethod)',
 			),
 		);
 	}

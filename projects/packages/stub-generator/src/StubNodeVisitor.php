@@ -35,6 +35,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Node visitor to extract stubs.
+ *
+ * Note this visitor must be queued after `NameResolver` and `ParentConnectingVisitor`,
+ * as it depends on the properties and attributes those add.
  */
 class StubNodeVisitor extends NodeVisitorAbstract {
 
@@ -274,7 +277,7 @@ class StubNodeVisitor extends NodeVisitorAbstract {
 
 		if ( $node instanceof ClassMethod ) {
 			list( $parent, $defs ) = $this->selectDef( $node, 'method' );
-			if ( ! $defs ) {
+			if ( ! $parent ) {
 				$this->fatal( $node, 'No parent found' );
 			}
 			if ( $parent instanceof Class_ && $node->isPrivate() ) {
@@ -298,7 +301,7 @@ class StubNodeVisitor extends NodeVisitorAbstract {
 
 		if ( $node instanceof Property ) {
 			list( $parent, $defs ) = $this->selectDef( $node, 'property' );
-			if ( ! $defs ) {
+			if ( ! $parent ) {
 				$this->fatal( $node, 'No parent found' );
 			}
 
@@ -326,7 +329,7 @@ class StubNodeVisitor extends NodeVisitorAbstract {
 
 		if ( $node instanceof ClassConst ) {
 			list( $parent, $defs ) = $this->selectDef( $node, 'constant' );
-			if ( ! $defs ) {
+			if ( ! $parent ) {
 				$this->fatal( $node, 'No parent found' );
 			}
 
