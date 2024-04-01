@@ -126,6 +126,11 @@ export default class JetpackBoostPage extends WpPage {
 		return this.waitForElementToBeVisible( selector );
 	}
 
+	async isConcatenateJsMetaVisible() {
+		const selector = '[data-testid="meta-minify_js_excludes"]';
+		return this.page.isVisible( selector );
+	}
+
 	async navigateToMainSettingsPage() {
 		await this.page.click( 'text=Go back' );
 	}
