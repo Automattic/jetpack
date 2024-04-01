@@ -325,10 +325,13 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.3-a.9 - 2024-03-27
-#### Bug fixes
-- Paid Content Block: Fix subscriber view content not rendering in WordPress.com reader.
-- SSO: Disable WordPress.com invitation functionality for non-connected users.
+### 13.3-beta - 2024-04-01
+#### Enhancements
+- Member login block: add ability to hide manage subscription -link.
+
+#### Improved compatibility
+- Carousel: disable WordPress' lightbox option when Jetpack's Carousel feature is activated.
+- SEO Tools: make the feature available on non-connected sites.
 
 --------
 
