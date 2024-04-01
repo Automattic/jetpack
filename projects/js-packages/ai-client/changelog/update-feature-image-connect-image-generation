@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-AI Client: set request content type as JSON on image generation hook and use rectangular images instead of square images.

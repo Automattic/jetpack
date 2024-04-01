@@ -229,7 +229,7 @@ class REST_Endpoints {
 	/**
 	 * Endpoint for URL validation and creating a secret.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.18.0
 	 *
 	 * @return array
 	 */
