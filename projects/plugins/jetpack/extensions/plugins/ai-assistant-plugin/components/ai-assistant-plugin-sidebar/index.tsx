@@ -120,7 +120,7 @@ export default function AiAssistantPluginSidebar() {
 					{ isAIFeaturedImageAvailable && (
 						<PanelRow className="jetpack-ai-featured-image-control__header">
 							<BaseControl label={ __( 'Create Featured Post Image', 'jetpack' ) }>
-								<FeaturedImage />
+								<FeaturedImage busy={ isRedirecting } disabled={ requireUpgrade } />
 							</BaseControl>
 						</PanelRow>
 					) }

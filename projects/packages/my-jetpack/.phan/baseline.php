@@ -20,11 +20,11 @@ return [
     // PhanNoopNew : 6 occurrences
     // PhanUndeclaredStaticProperty : 6 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 5 occurrences
-    // PhanTypeMismatchArgument : 4 occurrences
     // PhanUndeclaredTypeParameter : 4 occurrences
     // PhanUndeclaredTypeReturnType : 4 occurrences
     // PhanUnextractableAnnotation : 4 occurrences
     // PhanTypeArraySuspicious : 3 occurrences
+    // PhanTypeMismatchArgument : 3 occurrences
     // PhanTypeMismatchReturnNullable : 3 occurrences
     // PhanImpossibleCondition : 2 occurrences
     // PhanNonClassMethodCall : 2 occurrences
