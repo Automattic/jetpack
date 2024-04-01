@@ -2539,8 +2539,8 @@ importers:
         version: 2.3.0
     devDependencies:
       '@automattic/calypso-color-schemes':
-        specifier: 3.1.2
-        version: 3.1.2
+        specifier: 3.1.3
+        version: 3.1.3
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
@@ -4501,10 +4501,6 @@ packages:
   /@automattic/babel-plugin-preserve-i18n@1.0.0:
     resolution: {integrity: sha512-dRmLP0Ytf2oDNbUbO8MXLKYnPZfqhtFQ8v1hgDo2Fde1Y0bUz2Ll1UmUOHdyZudnrN/8Zt95cG/fIOJ0dxHi8Q==}
     dev: false
-
-  /@automattic/calypso-color-schemes@3.1.2:
-    resolution: {integrity: sha512-tp1zRUHqtC+R/sIvUHdVFat7pJPRiMyb0z4/hKlqvby3/McRraSmDkK1GtIJCPYiX7C/whwXQGb49hGJIGeshw==}
-    dev: true
 
   /@automattic/calypso-color-schemes@3.1.3:
     resolution: {integrity: sha512-nzs36yfxUOcsD3HvB72IHgdUfIzTRnT7QmF78CBXEREawTEs0uDyELdx/rAOtW/PauxRYRGQ4zeK5c67FWqLxw==}
