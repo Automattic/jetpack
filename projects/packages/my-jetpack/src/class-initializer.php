@@ -198,7 +198,7 @@ class Initializer {
 		);
 		$modules             = new Modules();
 		$connection          = new Connection_Manager();
-		$speed_score_history = new Speed_Score_History( wp_parse_url( get_site_url(), PHP_URL_HOST ) );
+		$speed_score_history = new Speed_Score_History( get_site_url() );
 		wp_localize_script(
 			'my_jetpack_main_app',
 			'myJetpackInitialState',
