@@ -18,7 +18,8 @@
 		"build": "pnpm run clean && pnpm run compile-ts",
 		"clean": "rm -rf build/",
 		"compile-ts": "tsc --pretty",
-		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
+		"watch": "tsc --watch --pretty"
 	},
 	"type": "module",
 	"devDependencies": {

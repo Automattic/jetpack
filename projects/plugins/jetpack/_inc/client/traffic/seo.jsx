@@ -118,8 +118,7 @@ export const SEO = withModuleSettingsFormHelpers(
 		};
 
 		render() {
-			const isOfflineMode = this.props.isOfflineMode,
-				seo = this.props.getModule( 'seo-tools' ),
+			const seo = this.props.getModule( 'seo-tools' ),
 				isSeoActive = this.props.getOptionValue( seo.module ),
 				customSeoTitles = this.props.getOptionValue( 'advanced_seo_title_formats' ),
 				frontPageMetaDescription = this.props.getOptionValue(
@@ -204,7 +203,6 @@ export const SEO = withModuleSettingsFormHelpers(
 						</ModuleToggle>
 					</SettingsGroup>
 					{ isSeoActive &&
-						! isOfflineMode &&
 						! isFetchingPluginsData( this.props.state ) &&
 						! hasConflictingSeoPlugin && (
 							<>

@@ -5,7 +5,6 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 /**
@@ -59,22 +58,12 @@ class Wpcom_Block_Patterns_Utils {
 	}
 
 	/**
-	 * Returns the sha1 hash of a concatenated string to use as a cache key.
+	 * Returns a cache key per locale.
 	 *
-	 * @param string $patterns_slug A slug for a patterns source site, e.g., `block_patterns`.
 	 * @return string locale slug
 	 */
-	public function get_patterns_cache_key( $patterns_slug ) {
-		return sha1(
-			implode(
-				'_',
-				array(
-					$patterns_slug,
-					Jetpack_Mu_Wpcom::PACKAGE_VERSION,
-					$this->get_block_patterns_locale(),
-				)
-			)
-		);
+	public function get_patterns_cache_key() {
+		return 'wpcom_block_patterns_' . $this->get_block_patterns_locale();
 	}
 
 	/**

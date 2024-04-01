@@ -10,6 +10,7 @@
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-identity-crisis": "@dev",
+		"automattic/jetpack-plugin-deactivation": "@dev",
 		"automattic/jetpack-plugins-installer": "@dev",
 		"automattic/jetpack-sync": "@dev"
 	},
