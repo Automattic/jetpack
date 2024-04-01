@@ -479,7 +479,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "abd4079c124a2d3560838cf5370043763e81cccd"
+                "reference": "e42a81c98788be332c6e5409b4bc901ececcd3d8"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -509,7 +509,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.18.x-dev"
+                    "dev-trunk": "0.19.x-dev"
                 }
             },
             "autoload": {
