@@ -1,11 +1,11 @@
 import { Text } from '@automattic/jetpack-components';
-import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { store as socialStore } from '@automattic/jetpack-publicize-components';
+import { ExternalLink, ToggleControl } from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import React, { useState } from 'react';
 import ToggleSection from '../toggle-section';
-import { SocialStoreSelectors } from '../types/types';
 import styles from './styles.module.scss';
 
 type SocialNotesToggleProps = {
@@ -16,10 +16,11 @@ type SocialNotesToggleProps = {
 };
 
 const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) => {
-	const { isEnabled } = useSelect( select => {
-		const store = select( SOCIAL_STORE_ID ) as SocialStoreSelectors;
+	const { isEnabled, notesConfig } = useSelect( select => {
+		const store = select( socialStore );
 		return {
 			isEnabled: store.isSocialNotesEnabled(),
+			notesConfig: store.getSocialNotesConfig(),
 			// Temporarily we disable forever after action to wait for the page to reload.
 			// isUpdating: store.isSocialNotesSettingsUpdating(),
 		};
@@ -27,7 +28,8 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 
 	const [ isUpdating, setIsUpdating ] = useState( false );
 
-	const updateOptions = useDispatch( SOCIAL_STORE_ID ).updateSocialNotesSettings;
+	const { updateSocialNotesSettings: updateOptions, updateSocialNotesConfig } =
+		useDispatch( socialStore );
 
 	const toggleStatus = useCallback( () => {
 		const newOption = {
@@ -44,6 +46,15 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 		} );
 	}, [ isEnabled, updateOptions ] );
 
+	const onToggleNotesConfig = useCallback(
+		( option: 'append_link' | 'use_shortlink' | 'use_parenthical_link' ) => () => {
+			updateSocialNotesConfig( {
+				[ option ]: ! notesConfig[ option ],
+			} );
+		},
+		[ notesConfig, updateSocialNotesConfig ]
+	);
+
 	return (
 		<ToggleSection
 			title={ __( 'Enable Social Notes', 'jetpack-social' ) }
@@ -58,6 +69,56 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 					'jetpack-social'
 				) }
 			</Text>
+			{ isEnabled && ! isUpdating ? (
+				<div className={ styles[ 'notes-options-wrapper' ] }>
+					<ToggleControl
+						label={ __( 'Append post link', 'jetpack-social' ) }
+						checked={ notesConfig.append_link }
+						className={ styles.toggle }
+						onChange={ onToggleNotesConfig( 'append_link' ) }
+						help={ __(
+							'Whether to append the post link when sharing the note.',
+							'jetpack-social'
+						) }
+					/>
+					{ notesConfig.append_link ? (
+						<>
+							<ToggleControl
+								label={ __( 'Use shortlink', 'jetpack-social' ) }
+								checked={ notesConfig.use_shortlink }
+								className={ styles.toggle }
+								onChange={ onToggleNotesConfig( 'use_shortlink' ) }
+								help={ __(
+									'Whether to use the shortlink instead of the full URL.',
+									'jetpack-social'
+								) }
+							/>
+							<ToggleControl
+								label={ __( 'Use parenthical link format', 'jetpack-social' ) }
+								checked={ notesConfig.use_parenthical_link }
+								className={ styles.toggle }
+								onChange={ onToggleNotesConfig( 'use_parenthical_link' ) }
+								help={
+									<span>
+										{ sprintf(
+											/* translators: 1 is the link format */
+											__(
+												'Whether to use the parenthetical link format like %1$s, instead of the standard link.',
+												'jetpack-social'
+											),
+											'(jetpack.com sn/12345)'
+										) }
+										&nbsp;
+										<ExternalLink href="https://jetpack.com/redirect/?source=jetpack-social-notes-help">
+											{ __( 'Learn more', 'jetpack-social' ) }
+										</ExternalLink>
+									</span>
+								}
+							/>
+						</>
+					) : null }
+				</div>
+			) : null }
 		</ToggleSection>
 	);
 };
