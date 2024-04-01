@@ -65,4 +65,17 @@ test.describe( 'Concatenate JS', () => {
 			'JS Concatenation occurs when module is active'
 		).toBeTruthy();
 	} );
+
+	test( 'jQuery should not be concatenated as it is excluded by default', async () => {
+		await boostPrerequisitesBuilder( page )
+			.withActiveModules( [ 'minify_js' ] )
+			.withEnqueuedAssets( true )
+			.build();
+		const postFrontPage = await PostFrontendPage.visit( page );
+
+		expect(
+			( await postFrontPage.page.locator( '[id="jquery-core-js"]' ).count() ) > 0,
+			'jQuery should not be concatenated'
+		).toBeTruthy();
+	} );
 } );

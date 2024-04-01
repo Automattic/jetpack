@@ -14,4 +14,5 @@ add_action( 'wp_enqueue_scripts', 'e2e_enqueue_assets' );
 
 function e2e_enqueue_assets() {
 	wp_enqueue_script( 'wp-tinymce' );
+	wp_enqueue_script( 'jquery' );
 }
