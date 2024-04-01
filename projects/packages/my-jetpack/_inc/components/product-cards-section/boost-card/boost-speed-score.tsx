@@ -8,13 +8,14 @@ import { Popover } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { arrowUp, Icon } from '@wordpress/icons';
-import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import { PRODUCT_STATUSES } from '../../product-card/action-button';
 import { useBoostTooltipCopy } from './use-boost-tooltip-copy';
+import type { SpeedScores } from './types';
 import type { FC } from 'react';
 
 import './style.scss';
@@ -37,25 +38,20 @@ const BoostSpeedScore: FC = () => {
 	const isBoostActive =
 		status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 
-	const getAverageSpeedScore = ( mobileScore, desktopScore ) => {
+	const getAverageSpeedScore = ( mobileScore: number, desktopScore: number ) => {
 		return Math.round( ( mobileScore + desktopScore ) / 2 );
 	};
 
-	const setScoresFromCache = cachedSpeedScores => {
-		setCurrentSpeedScore(
-			getAverageSpeedScore( cachedSpeedScores.scores.mobile, cachedSpeedScores.scores.desktop )
-		);
-		if ( cachedSpeedScores.previousScores.mobile && cachedSpeedScores.previousScores.desktop ) {
+	const setScoresFromCache = ( cachedSpeedScores: SpeedScores ) => {
+		const { scores, previousScores } = cachedSpeedScores;
+
+		setCurrentSpeedScore( getAverageSpeedScore( scores.mobile, scores.desktop ) );
+		if ( previousScores.mobile && previousScores.desktop ) {
 			setPreviousSpeedScore(
-				getAverageSpeedScore(
-					cachedSpeedScores.previousScores.mobile,
-					cachedSpeedScores.previousScores.desktop
-				)
+				getAverageSpeedScore( previousScores.mobile, previousScores.desktop )
 			);
 		}
-		setSpeedLetterGrade(
-			getScoreLetter( cachedSpeedScores.scores.mobile, cachedSpeedScores.scores.desktop )
-		);
+		setSpeedLetterGrade( getScoreLetter( scores.mobile, scores.desktop ) );
 	};
 
 	const getSpeedScores = async () => {
@@ -68,10 +64,12 @@ const BoostSpeedScore: FC = () => {
 		setIsLoading( true );
 		try {
 			const scores = await requestSpeedScores( true, apiRoot, siteUrl, apiNonce );
-			const scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
+			const { mobile, desktop } = scores.current;
+
+			const scoreLetter = getScoreLetter( mobile, desktop );
 			setSpeedLetterGrade( scoreLetter );
-			setCurrentSpeedScore( getAverageSpeedScore( scores.current.mobile, scores.current.desktop ) );
-			if ( latestBoostSpeedScores && latestBoostSpeedScores.scores ) {
+			setCurrentSpeedScore( getAverageSpeedScore( mobile, desktop ) );
+			if ( latestBoostSpeedScores?.scores ) {
 				setPreviousSpeedScore(
 					getAverageSpeedScore(
 						latestBoostSpeedScores.scores.mobile,
