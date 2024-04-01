@@ -30,7 +30,7 @@ const shouldSendAuthRequest = computed( () => {
 		! userLoggedIn.value &&
 		shouldCheckAuth.value &&
 		canAccessCookies.value &&
-		( document.location.hostname.endsWith( '.wordpress.com' ) || isPublicAPIReady.value )
+		isPublicAPIReady.value
 	);
 } );
 
@@ -54,13 +54,16 @@ export default function useSocialLogin() {
 
 	useEffect( () => {
 		if ( shouldSendAuthRequest.value ) {
-			shouldCheckAuth.value = false;
 			wpcomRequest< UserInfo >( {
 				path: '/verbum/auth',
 				apiNamespace: 'wpcom/v2',
-			} ).then( res => {
-				userInfo.value = res;
-			} );
+			} )
+				.then( res => {
+					userInfo.value = res;
+				} )
+				.finally( () => {
+					shouldCheckAuth.value = false;
+				} );
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ shouldSendAuthRequest.value ] );

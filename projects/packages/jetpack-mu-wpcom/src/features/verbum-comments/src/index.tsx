@@ -27,7 +27,6 @@ import {
 } from './state';
 import {
 	classNames,
-	canWeAccessCookies,
 	setUserInfoCookie,
 	addWordPressDomain,
 	hasSubscriptionOptionsVisible,
@@ -47,9 +46,7 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 	const { login, loginWindowRef, logout } = useSocialLogin();
 	useFormMutations();
 
-	const requestPermissionFromIframe =
-		! VerbumComments.isJetpackComments && ! isPublicAPIReady.value;
-	const requestPermissionOnFormClick = VerbumComments.isJetpackComments && ! isPublicAPIReady.value;
+	const requestPermissionFromIframe = ! canAccessCookies.value || ! isPublicAPIReady.value;
 
 	const dispose = effect( () => {
 		// The tray, when there is no sub options, is pretty minimal.
@@ -68,10 +65,8 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 		formRef.current = document.getElementById( 'commentform' ) as HTMLFormElement | null;
 
 		if ( formRef.current ) {
-			formRef.current.addEventListener( 'click', handleCommentFormClick );
 			formRef.current.addEventListener( 'submit', handleCommentSubmit );
 			return () => {
-				formRef.current.removeEventListener( 'click', handleCommentFormClick );
 				formRef.current.removeEventListener( 'submit', handleCommentSubmit );
 			};
 		}
@@ -167,20 +162,6 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 		submitFormFunction.call( formRef.current );
 	};
 
-	const handleCommentFormClick = async () => {
-		if ( ! requestPermissionOnFormClick ) {
-			return;
-		}
-
-		if ( ! document.hasStorageAccess ) {
-			canAccessCookies.value = canWeAccessCookies();
-		}
-
-		document.requestStorageAccess().then( () => {
-			canAccessCookies.value = true;
-		} );
-	};
-
 	const handleCommentSubmit = async event => {
 		window.removeEventListener( 'beforeunload', handleBeforeUnload );
 		if ( userInfo.value?.service === 'guest' ) {
@@ -274,6 +255,7 @@ const { siteId } = {
 window.addEventListener( 'message', event => {
 	if ( event.origin === 'https://public-api.wordpress.com' && event.data === 'ready' ) {
 		isPublicAPIReady.value = true;
+		canAccessCookies.value = true;
 	}
 } );
 
