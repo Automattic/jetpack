@@ -73,7 +73,7 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 				<div className={ styles[ 'notes-options-wrapper' ] }>
 					<ToggleControl
 						label={ __( 'Append post link', 'jetpack-social' ) }
-						checked={ notesConfig.append_link }
+						checked={ notesConfig.append_link ?? true }
 						className={ styles.toggle }
 						onChange={ onToggleNotesConfig( 'append_link' ) }
 						help={ __(
@@ -85,7 +85,7 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 						<>
 							<ToggleControl
 								label={ __( 'Use shortlink', 'jetpack-social' ) }
-								checked={ notesConfig.use_shortlink }
+								checked={ notesConfig.use_shortlink ?? false }
 								className={ styles.toggle }
 								onChange={ onToggleNotesConfig( 'use_shortlink' ) }
 								help={ __(
@@ -95,7 +95,7 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 							/>
 							<ToggleControl
 								label={ __( 'Use parenthical link format', 'jetpack-social' ) }
-								checked={ notesConfig.use_parenthical_link }
+								checked={ notesConfig.use_parenthical_link ?? false }
 								className={ styles.toggle }
 								onChange={ onToggleNotesConfig( 'use_parenthical_link' ) }
 								help={
