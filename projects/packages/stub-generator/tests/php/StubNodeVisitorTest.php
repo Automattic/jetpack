@@ -1418,9 +1418,10 @@ class StubNodeVisitorTest extends TestCase {
 					 * Munge a Foo.
 					 *
 					 * @param Foo|null $foo Foo to munge.
+					 * @param array<string,Foo> $map Map.
 					 * @return Foo Munged Foo.
 					 */
-					public function mungeFoo( ?Foo $foo ): Foo {}
+					public function mungeFoo( ?Foo $foo, $map ): Foo {}
 				}
 				PHP,
 				'*',
@@ -1437,9 +1438,10 @@ class StubNodeVisitorTest extends TestCase {
 					 * Munge a Foo.
 					 *
 					 * @param \Other\NS\Foo|null $foo Foo to munge.
+					 * @param array<string, \Other\NS\Foo> $map Map.
 					 * @return \Other\NS\Foo Munged Foo.
 					 */
-					public function mungeFoo(?\Other\NS\Foo $foo): \Other\NS\Foo
+					public function mungeFoo(?\Other\NS\Foo $foo, $map): \Other\NS\Foo
 					{
 					}
 				}
