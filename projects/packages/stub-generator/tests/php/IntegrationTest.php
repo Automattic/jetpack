@@ -28,6 +28,8 @@ class IntegrationTest extends TestCase {
 			'test-application',
 			get_class(
 				new class() {
+					public $context; // 🤷
+
 					public function url_stat() {
 						$stat = array(
 							'dev'     => 0,
@@ -71,10 +73,10 @@ class IntegrationTest extends TestCase {
 	 * Test the command.
 	 *
 	 * @dataProvider provideExecute
-	 * @param string[]                                                     $args Command line arguments.
-	 * @param array                                                        $options Options for the test and CommandTester.
-	 * @param int                                                          $expectExitCode Expected exit code.
-	 * @param array{'stdout'|'stderr','contains'|'regex'|'exact',string}[] $expect Output expectations.
+	 * @param string[] $args Command line arguments.
+	 * @param array    $options Options for the test and CommandTester.
+	 * @param int      $expectExitCode Expected exit code.
+	 * @param array[]  $expect Output expectations.
 	 */
 	public function testExecute( array $args, array $options, $expectExitCode, $expect ) {
 		$options += array(
@@ -85,9 +87,16 @@ class IntegrationTest extends TestCase {
 		$app->setAutoExit( false );
 		$tester = new CommandTester( $app );
 		$code   = $tester->execute( $args, $options );
-		foreach ( $expect as list( $src, $type, $val ) ) {
-			$actual = $src === 'stdout' ? $tester->getDisplay( true ) : $tester->getErrorOutput( true );
-			if ( $type === 'contains' ) {
+		$srcs   = array(
+			'stdout' => $tester->getDisplay( true ),
+			'stderr' => $tester->getErrorOutput( true ),
+		);
+		foreach ( $expect as $x ) {
+			list( $src, $type, $val ) = $x;
+			$actual                   = $srcs[ $src ];
+			if ( $type === 'replace' ) {
+				$srcs[ $src ] = str_replace( $val, $x[3], $srcs[ $src ] );
+			} elseif ( $type === 'contains' ) {
 				$this->assertStringContainsString( $val, $actual );
 			} elseif ( $type === 'regex' ) {
 				$this->assertMatchesRegularExpression( $val, $actual );
@@ -146,6 +155,7 @@ class IntegrationTest extends TestCase {
 				1,
 				array(
 					array( 'stdout', 'exact', '' ),
+					array( 'stderr', 'replace', 'failed to open stream:', 'Failed to open stream:' ),
 					array( 'stderr', 'exact', "Failed to read test-application://foo: file_get_contents(test-application://foo): Failed to open stream: \"class@anonymous::stream_open\" call failed\n" ),
 				),
 			),
@@ -289,6 +299,7 @@ class IntegrationTest extends TestCase {
 				2,
 				array(
 					array( 'stdout', 'exact', "<?php\n\n" ),
+					array( 'stderr', 'replace', 'failed to open stream:', 'Failed to open stream:' ),
 					array(
 						'stderr',
 						'exact',
@@ -347,7 +358,7 @@ class IntegrationTest extends TestCase {
 				array(
 					'stderr',
 					'regex',
-					'#^Failed to write /dev/full: file_put_contents\(\): Write of \d+ bytes failed with errno=\d+#',
+					'#^Failed to write /dev/full: file_put_contents\(\): (Only -1 of 347 bytes written, possibly out of free disk space|Write of \d+ bytes failed with errno=\d+)#',
 				),
 			)
 		);
