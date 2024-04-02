@@ -95,6 +95,7 @@ function make_phan_config( $dir, $options = array() ) {
 				"$root/vendor/php-stubs/wp-cli-stubs/wp-cli-commands-stubs.php",
 				"$root/vendor/php-stubs/wp-cli-stubs/wp-cli-i18n-stubs.php",
 				"$root/.phan/stubs/wordpress-constants.php",
+				"$root/.phan/stubs/wpcom-functions.php",
 			) : array(),
 			$options['file_list'],
 			$options['parse_file_list']

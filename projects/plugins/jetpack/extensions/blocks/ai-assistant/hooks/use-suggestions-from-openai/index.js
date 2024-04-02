@@ -4,13 +4,14 @@
 import { askQuestion } from '@automattic/jetpack-ai-client';
 import { parse } from '@wordpress/blocks';
 import { useSelect, useDispatch, dispatch } from '@wordpress/data';
-import { useEffect, useState, useRef } from '@wordpress/element';
+import { useState, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
 import { DEFAULT_PROMPT_TONE } from '../../components/tone-dropdown-control';
+import useAutoScroll from '../../hooks/use-auto-scroll';
 import { buildPromptForBlock, delimiter } from '../../lib/prompt';
 import {
 	getContentFromBlocks,
@@ -33,6 +34,8 @@ const useSuggestionsFromOpenAI = ( {
 	onModeration,
 	requireUpgrade,
 	requestingState,
+	blockRef,
+	contentRef,
 } ) => {
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
@@ -45,80 +48,21 @@ const useSuggestionsFromOpenAI = ( {
 	const [ requestState, setRequestState ] = useState( requestingState || 'init' );
 	const source = useRef();
 
+	const {
+		preSuggestionPartialHandler,
+		postSuggestionPartialHandler,
+		snapToBottom,
+		enableAutoScroll,
+		disableAutoScroll,
+		autoScrollEnabled,
+	} = useAutoScroll( blockRef, contentRef );
+
 	// Let's grab post data so that we can do something smart.
 	const currentPostTitle = useSelect( select =>
 		select( 'core/editor' ).getEditedPostAttribute( 'title' )
 	);
 
-	//TODO: decide if we still want to load categories and tags now user is providing the prompt by default.
-	// If not the following can be removed.
-	let loading = false;
-	const categories =
-		useSelect( select => select( 'core/editor' ).getEditedPostAttribute( 'categories' ) ) || [];
-
-	const categoryObjects = useSelect(
-		select => {
-			return categories
-				.map( categoryId => {
-					const category = select( 'core' ).getEntityRecord( 'taxonomy', 'category', categoryId );
-
-					if ( ! category ) {
-						// Data is not yet loaded
-						loading = true;
-						return;
-					}
-
-					return category;
-				} )
-				.filter( Boolean ); // Remove undefined values
-		},
-		[ categories ]
-	);
-
-	const tags =
-		useSelect( select => select( 'core/editor' ).getEditedPostAttribute( 'tags' ), [] ) || [];
-	const tagObjects = useSelect(
-		select => {
-			return tags
-				.map( tagId => {
-					const tag = select( 'core' ).getEntityRecord( 'taxonomy', 'post_tag', tagId );
-
-					if ( ! tag ) {
-						// Data is not yet loaded
-						loading = true;
-						return;
-					}
-
-					return tag;
-				} )
-				.filter( Boolean ); // Remove undefined values
-		},
-		[ tags ]
-	);
-
-	useEffect( () => {
-		setIsLoadingCategories( loading );
-
-		/*
-		 * Returning a cleanup function that will stop
-		 * the suggestion if it's still rolling.
-		 */
-		return () => {
-			if ( source?.current ) {
-				debug( 'Cleaning things up...' );
-				source?.current?.close();
-			}
-		};
-	}, [ loading, source ] );
-
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
-	// eslint-disable-next-line no-unused-vars
-	const categoryNames = categoryObjects
-		.filter( cat => cat.id !== 1 )
-		.map( ( { name } ) => name )
-		.join( ', ' );
-	// eslint-disable-next-line no-unused-vars
-	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
 
 	const getStreamedSuggestionFromOpenAI = async ( type, options = {} ) => {
 		/*
@@ -220,6 +164,7 @@ const useSuggestionsFromOpenAI = ( {
 		}
 
 		try {
+			enableAutoScroll();
 			setIsLoadingCompletion( true );
 			setWasCompletionJustRequested( true );
 			// debug all prompt items, one by one
@@ -253,6 +198,7 @@ const useSuggestionsFromOpenAI = ( {
 			setShowRetry( true );
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
+			disableAutoScroll();
 		}
 
 		const onFunctionDone = async e => {
@@ -342,6 +288,11 @@ const useSuggestionsFromOpenAI = ( {
 				content: assistantResponse,
 				messages: updatedMessages,
 			} );
+
+			if ( autoScrollEnabled.current ) {
+				snapToBottom( 10 );
+			}
+			disableAutoScroll();
 
 			if ( ! useGutenbergSyntax ) {
 				return;
@@ -501,7 +452,9 @@ const useSuggestionsFromOpenAI = ( {
 			// replaceInnerBlocks( clientId, validBlocks );
 
 			// Remove the delimiter from the suggestion and update the block.
+			preSuggestionPartialHandler?.( clientId, e?.detail );
 			updateBlockAttributes( clientId, { content: e?.detail?.replaceAll( delimiter, '' ) } );
+			postSuggestionPartialHandler?.( clientId, e?.detail );
 		};
 
 		source?.current?.addEventListener( 'function_done', onFunctionDone );
