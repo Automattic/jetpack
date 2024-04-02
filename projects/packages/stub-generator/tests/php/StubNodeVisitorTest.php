@@ -572,19 +572,23 @@ class StubNodeVisitorTest extends TestCase {
 					public const PUB = 'pub';
 					protected const PROT = 'prot';
 					private const PRIV = 'priv';
+					final public const FPUB = 'fpub';
 				}
 				final class Bar {
 					public const PUB = 'pub';
 					protected const PROT = 'prot';
 					private const PRIV = 'priv';
+					final public const FPUB = 'fpub';
 				}
 				trait TFoo {
 					public const PUB = 'pub';
 					protected const PROT = 'prot';
 					private const PRIV = 'priv';
+					final public const FPUB = 'fpub';
 				}
 				interface IFoo {
 					public const PUB = 'pub';
+					final public const FPUB = 'fpub';
 				}
 				PHP,
 				'*',
@@ -594,23 +598,48 @@ class StubNodeVisitorTest extends TestCase {
 					{
 						public const PUB = 'pub';
 						protected const PROT = 'prot';
+						final public const FPUB = 'fpub';
 					}
 					final class Bar
 					{
 						public const PUB = 'pub';
+						final public const FPUB = 'fpub';
 					}
 					trait TFoo
 					{
 						public const PUB = 'pub';
 						protected const PROT = 'prot';
 						private const PRIV = 'priv';
+						final public const FPUB = 'fpub';
 					}
 					interface IFoo
 					{
 						public const PUB = 'pub';
+						final public const FPUB = 'fpub';
 					}
 				}
 				PHP,
+				BufferedOutput::VERBOSITY_DEBUG,
+				<<<'OUTPUT'
+				 Processing class Foo
+				  Keeping const PUB
+				  Keeping const PROT
+				  Skipping private const PRIV
+				  Keeping const FPUB
+				 Processing class Bar
+				  Keeping const PUB
+				  Skipping final-class protected const PROT
+				  Skipping private const PRIV
+				  Keeping const FPUB
+				 Processing trait TFoo
+				  Keeping const PUB
+				  Keeping const PROT
+				  Keeping const PRIV
+				  Keeping const FPUB
+				 Processing interface IFoo
+				  Keeping const PUB
+				  Keeping const FPUB
+				OUTPUT . "\n",
 			),
 			'Extract class constants, class=*'            => array(
 				<<<'PHP'
@@ -747,6 +776,22 @@ class StubNodeVisitorTest extends TestCase {
 				}
 				PHP,
 			),
+			'Extract no class constants because we only want the class' => array(
+				<<<'PHP'
+				class Foo {
+					const FOO = 'foo', BAR = 'bar';
+					const BAZ = 'BAR';
+				}
+				PHP,
+				array( 'class' => array( 'Foo' => array() ) ),
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+					}
+				}
+				PHP,
+			),
 			'Extract a selected class constant by name from a namespaced class' => array(
 				<<<'PHP'
 				namespace Some\NS;
@@ -758,7 +803,7 @@ class StubNodeVisitorTest extends TestCase {
 				array(
 					'class' => array(
 						'Foo'         => '*',
-						'Some\NS\Foo' => array( 'constant' => array( 'BAR' ) ),
+						'Some\NS\Foo' => array( 'constant' => array( 'BAR', 'Some\NS\BAZ' ) ),
 					),
 				),
 				<<<'PHP'
@@ -767,6 +812,592 @@ class StubNodeVisitorTest extends TestCase {
 				class Foo
 				{
 					const BAR = 'bar';
+				}
+				PHP,
+			),
+
+			'Extract class properties, defs=*'            => array(
+				<<<'PHP'
+				class Foo {
+					public $pub = 'pub';
+					protected $prot = 'prot';
+					private $priv = 'priv';
+					public static $spub = 'spub';
+					protected static $sprot = 'sprot';
+					private static $spriv = 'spriv';
+				}
+				final class Bar {
+					public $pub = 'pub';
+					protected $prot = 'prot';
+					private $priv = 'priv';
+					public static $spub = 'spub';
+					protected static $sprot = 'sprot';
+					private static $spriv = 'spriv';
+				}
+				trait TFoo {
+					public $pub = 'pub';
+					protected $prot = 'prot';
+					private $priv = 'priv';
+					public static $spub = 'spub';
+					protected static $sprot = 'sprot';
+					private static $spriv = 'spriv';
+				}
+				interface IFoo {
+					public $pub = 'pub';
+					public static $spub = 'spub';
+				}
+				PHP,
+				'*',
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+						public $pub = 'pub';
+						protected $prot = 'prot';
+						public static $spub = 'spub';
+						protected static $sprot = 'sprot';
+					}
+					final class Bar
+					{
+						public $pub = 'pub';
+						public static $spub = 'spub';
+					}
+					trait TFoo
+					{
+						public $pub = 'pub';
+						protected $prot = 'prot';
+						private $priv = 'priv';
+						public static $spub = 'spub';
+						protected static $sprot = 'sprot';
+						private static $spriv = 'spriv';
+					}
+					interface IFoo
+					{
+						public $pub = 'pub';
+						public static $spub = 'spub';
+					}
+				}
+				PHP,
+				BufferedOutput::VERBOSITY_DEBUG,
+				<<<'OUTPUT'
+				 Processing class Foo
+				  Keeping property $pub
+				  Keeping property $prot
+				  Skipping private property $priv
+				  Keeping property $spub
+				  Keeping property $sprot
+				  Skipping private property $spriv
+				 Processing class Bar
+				  Keeping property $pub
+				  Skipping final-class protected property $prot
+				  Skipping private property $priv
+				  Keeping property $spub
+				  Skipping final-class protected property $sprot
+				  Skipping private property $spriv
+				 Processing trait TFoo
+				  Keeping property $pub
+				  Keeping property $prot
+				  Keeping property $priv
+				  Keeping property $spub
+				  Keeping property $sprot
+				  Keeping property $spriv
+				 Processing interface IFoo
+				  Keeping property $pub
+				  Keeping property $spub
+				OUTPUT . "\n",
+			),
+			'Extract class properties, class=*'           => array(
+				<<<'PHP'
+				class Foo {
+					public $pub = 'pub';
+					protected $prot = 'prot';
+					private $priv = 'priv';
+				}
+				final class Bar {
+					public $pub = 'pub';
+					protected $prot = 'prot';
+					private $priv = 'priv';
+				}
+				PHP,
+				array( 'class' => '*' ),
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+						public $pub = 'pub';
+						protected $prot = 'prot';
+					}
+					final class Bar
+					{
+						public $pub = 'pub';
+					}
+				}
+				PHP,
+			),
+			'Extract class properties, class[...]=*'      => array(
+				<<<'PHP'
+				class Foo {
+					public $pub = 'pub';
+					protected $prot = 'prot';
+					private $priv = 'priv';
+				}
+				final class Bar {
+					public $pub = 'pub';
+					protected $prot = 'prot';
+					private $priv = 'priv';
+				}
+				PHP,
+				array(
+					'class' => array(
+						'Foo' => '*',
+						'Bar' => '*',
+					),
+				),
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+						public $pub = 'pub';
+						protected $prot = 'prot';
+					}
+					final class Bar
+					{
+						public $pub = 'pub';
+					}
+				}
+				PHP,
+			),
+			'Extract class properties, class[...].property=*' => array(
+				<<<'PHP'
+				class Foo {
+					public $pub = 'pub';
+					protected $prot = 'prot';
+					private $priv = 'priv';
+				}
+				final class Bar {
+					public $pub = 'pub';
+					protected $prot = 'prot';
+					private $priv = 'priv';
+				}
+				PHP,
+				array(
+					'class' => array(
+						'Foo' => array( 'property' => '*' ),
+						'Bar' => array( 'property' => '*' ),
+					),
+				),
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+						public $pub = 'pub';
+						protected $prot = 'prot';
+					}
+					final class Bar
+					{
+						public $pub = 'pub';
+					}
+				}
+				PHP,
+			),
+			'Extract a selected class property by name'   => array(
+				<<<'PHP'
+				class Foo {
+					public $foo = 'FOO', $bar = 'BAR';
+					public $baz = 'bar';
+				}
+				trait TFoo {
+					public $foo = 'FOO', $bar = 'BAR';
+					public $baz = 'bar';
+				}
+				interface IFoo {
+					public $foo = 'FOO', $bar = 'BAR';
+					public $baz = 'bar';
+				}
+				PHP,
+				array( 'class' => array( 'Foo' => array( 'property' => array( 'bar' ) ) ) ),
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+						public $bar = 'BAR';
+					}
+				}
+				PHP,
+			),
+			'Extract no class properties'                 => array(
+				<<<'PHP'
+				class Foo {
+					public $foo = 'FOO', $bar = 'BAR';
+					public $baz = 'bar';
+				}
+				PHP,
+				array( 'class' => array( 'Foo' => array( 'method' => array( 'bar' ) ) ) ),
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+					}
+				}
+				PHP,
+			),
+			'Extract no class properties because we only want the class' => array(
+				<<<'PHP'
+				class Foo {
+					public $foo = 'FOO', $bar = 'BAR';
+					public $baz = 'bar';
+				}
+				PHP,
+				array( 'class' => array( 'Foo' => array() ) ),
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+					}
+				}
+				PHP,
+			),
+			'Extract a selected class property by name from a namespaced class' => array(
+				<<<'PHP'
+				namespace Some\NS;
+				class Foo {
+					public $foo = 'FOO', $bar = 'BAR';
+					public $baz = 'bar';
+				}
+				PHP,
+				array(
+					'class' => array(
+						'Foo'         => '*',
+						'Some\NS\Foo' => array( 'property' => array( 'bar', 'Some\NS\baz' ) ),
+					),
+				),
+				<<<'PHP'
+				namespace Some\NS;
+
+				class Foo
+				{
+					public $bar = 'BAR';
+				}
+				PHP,
+			),
+
+			'Extract class methods, defs=*'               => array(
+				<<<'PHP'
+				class Foo {
+					public function pub() { return 'pub'; }
+					protected function prot() { return 'prot'; }
+					private function priv() { return 'priv'; }
+					public static function spub() { return 'spub'; }
+					protected static function sprot() { return 'sprot'; }
+					private static function spriv() { return 'spriv'; }
+				}
+				final class Bar {
+					public function pub() { return 'pub'; }
+					protected function prot() { return 'prot'; }
+					private function priv() { return 'priv'; }
+					public static function spub() { return 'spub'; }
+					protected static function sprot() { return 'sprot'; }
+					private static function spriv() { return 'spriv'; }
+				}
+				trait TFoo {
+					public function pub() { return 'pub'; }
+					protected function prot() { return 'prot'; }
+					private function priv() { return 'priv'; }
+					public static function spub() { return 'spub'; }
+					protected static function sprot() { return 'sprot'; }
+					private static function spriv() { return 'spriv'; }
+				}
+				interface IFoo {
+					public function pub() { return 'pub'; }
+					public static function spub() { return 'spub'; }
+				}
+				PHP,
+				'*',
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+						public function pub()
+						{
+						}
+						protected function prot()
+						{
+						}
+						public static function spub()
+						{
+						}
+						protected static function sprot()
+						{
+						}
+					}
+					final class Bar
+					{
+						public function pub()
+						{
+						}
+						public static function spub()
+						{
+						}
+					}
+					trait TFoo
+					{
+						public function pub()
+						{
+						}
+						protected function prot()
+						{
+						}
+						private function priv()
+						{
+						}
+						public static function spub()
+						{
+						}
+						protected static function sprot()
+						{
+						}
+						private static function spriv()
+						{
+						}
+					}
+					interface IFoo
+					{
+						public function pub()
+						{
+						}
+						public static function spub()
+						{
+						}
+					}
+				}
+				PHP,
+				BufferedOutput::VERBOSITY_DEBUG,
+				<<<'OUTPUT'
+				 Processing class Foo
+				  Keeping method pub
+				  Keeping method prot
+				  Skipping private method priv
+				  Keeping method spub
+				  Keeping method sprot
+				  Skipping private method spriv
+				 Processing class Bar
+				  Keeping method pub
+				  Skipping final-class protected method prot
+				  Skipping private method priv
+				  Keeping method spub
+				  Skipping final-class protected method sprot
+				  Skipping private method spriv
+				 Processing trait TFoo
+				  Keeping method pub
+				  Keeping method prot
+				  Keeping method priv
+				  Keeping method spub
+				  Keeping method sprot
+				  Keeping method spriv
+				 Processing interface IFoo
+				  Keeping method pub
+				  Keeping method spub
+				OUTPUT . "\n",
+			),
+			'Extract class methods, class=*'              => array(
+				<<<'PHP'
+				class Foo {
+					public function pub() { return 'pub'; }
+					protected function prot() { return 'prot'; }
+					private function priv() { return 'priv'; }
+				}
+				final class Bar {
+					public function pub() { return 'pub'; }
+					protected function prot() { return 'prot'; }
+					private function priv() { return 'priv'; }
+				}
+				PHP,
+				array( 'class' => '*' ),
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+						public function pub()
+						{
+						}
+						protected function prot()
+						{
+						}
+					}
+					final class Bar
+					{
+						public function pub()
+						{
+						}
+					}
+				}
+				PHP,
+			),
+			'Extract class methods, class[...]=*'         => array(
+				<<<'PHP'
+				class Foo {
+					public function pub() { return 'pub'; }
+					protected function prot() { return 'prot'; }
+					private function priv() { return 'priv'; }
+				}
+				final class Bar {
+					public function pub() { return 'pub'; }
+					protected function prot() { return 'prot'; }
+					private function priv() { return 'priv'; }
+				}
+				PHP,
+				array(
+					'class' => array(
+						'Foo' => '*',
+						'Bar' => '*',
+					),
+				),
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+						public function pub()
+						{
+						}
+						protected function prot()
+						{
+						}
+					}
+					final class Bar
+					{
+						public function pub()
+						{
+						}
+					}
+				}
+				PHP,
+			),
+			'Extract class methods, class[...].method=*'  => array(
+				<<<'PHP'
+				class Foo {
+					public function pub() { return 'pub'; }
+					protected function prot() { return 'prot'; }
+					private function priv() { return 'priv'; }
+				}
+				final class Bar {
+					public function pub() { return 'pub'; }
+					protected function prot() { return 'prot'; }
+					private function priv() { return 'priv'; }
+				}
+				PHP,
+				array(
+					'class' => array(
+						'Foo' => array( 'method' => '*' ),
+						'Bar' => array( 'method' => '*' ),
+					),
+				),
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+						public function pub()
+						{
+						}
+						protected function prot()
+						{
+						}
+					}
+					final class Bar
+					{
+						public function pub()
+						{
+						}
+					}
+				}
+				PHP,
+			),
+			'Extract a selected class method by name'     => array(
+				<<<'PHP'
+				class Foo {
+					public function foo() { return 'FOO'; }
+					public function bar() { return 'BAR'; }
+					public function baz() { return 'bar'; }
+				}
+				trait TFoo {
+					public function foo() { return 'FOO'; }
+					public function bar() { return 'BAR'; }
+					public function baz() { return 'bar'; }
+				}
+				interface IFoo {
+					public function foo() { return 'FOO'; }
+					public function bar() { return 'BAR'; }
+					public function baz() { return 'bar'; }
+				}
+				PHP,
+				array( 'class' => array( 'Foo' => array( 'method' => array( 'bar' ) ) ) ),
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+						public function bar()
+						{
+						}
+					}
+				}
+				PHP,
+			),
+			'Extract no class methods'                    => array(
+				<<<'PHP'
+				class Foo {
+					public function foo() { return 'FOO'; }
+					public function bar() { return 'BAR'; }
+					public function baz() { return 'bar'; }
+				}
+				PHP,
+				array( 'class' => array( 'Foo' => array( 'constant' => array( 'bar' ) ) ) ),
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+					}
+				}
+				PHP,
+			),
+			'Extract no class methods because we only want the class' => array(
+				<<<'PHP'
+				class Foo {
+					public function foo() { return 'FOO'; }
+					public function bar() { return 'BAR'; }
+					public function baz() { return 'bar'; }
+				}
+				PHP,
+				array( 'class' => array( 'Foo' => array() ) ),
+				<<<'PHP'
+				namespace {
+					class Foo
+					{
+					}
+				}
+				PHP,
+			),
+			'Extract a selected class method by name from a namespaced class' => array(
+				<<<'PHP'
+				namespace Some\NS;
+				class Foo {
+					public function foo() { return 'FOO'; }
+					public function bar() { return 'BAR'; }
+					public function baz() { return 'bar'; }
+				}
+				PHP,
+				array(
+					'class' => array(
+						'Foo'         => '*',
+						'Some\NS\Foo' => array( 'method' => array( 'bar', 'Some\NS\baz' ) ),
+					),
+				),
+				<<<'PHP'
+				namespace Some\NS;
+
+				class Foo
+				{
+					public function bar()
+					{
+					}
 				}
 				PHP,
 			),
