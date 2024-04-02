@@ -6,7 +6,7 @@ import { useConnection } from '@automattic/jetpack-connection';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
-import React, { useCallback, useEffect, useState, useReducer } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -77,16 +77,16 @@ export default function ProductInterstitial( {
 		redirectUri: detail.postActivationUrl ? detail.postActivationUrl : null,
 	} );
 	const [ isRedirectingAfterActivation, setIsRedirectingAfterActivation ] = useState( false );
-	const [ , forceUpdate ] = useReducer( x => x + 1, 0 );
 
 	useEffect( () => {
+		const handlePageShow = e => {
+			if ( e.persisted ) {
+				setIsRedirectingAfterActivation( false );
+			}
+		};
 		// If loading from bfcache, we want to force react to re-render
 		// There is some buginess in the loading states otherwise
-		window.addEventListener( 'pageshow', e => {
-			if ( e.persisted ) {
-				forceUpdate();
-			}
-		} );
+		window.addEventListener( 'pageshow', handlePageShow );
 	}, [] );
 
 	useEffect( () => {
