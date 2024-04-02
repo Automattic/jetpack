@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Social: Ensure the settings panel is rendered during pre/post publish
