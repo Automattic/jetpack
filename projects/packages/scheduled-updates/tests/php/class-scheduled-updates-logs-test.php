@@ -58,7 +58,7 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 	 * @after
 	 */
 	protected function tear_down() {
-		delete_option( 'jetpack_scheduled_update_logs' );
+		delete_option( Scheduled_Updates_Logs::OPTION_NAME );
 
 		parent::tear_down_wordbless();
 	}
