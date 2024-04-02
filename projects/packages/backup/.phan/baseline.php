@@ -9,7 +9,6 @@
  */
 return [
     // # Issue statistics:
-    // PhanRedefinedClassReference : 45+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 15+ occurrences
     // PhanTypeMismatchReturn : 6 occurrences
     // PhanUndeclaredClassMethod : 6 occurrences
@@ -23,10 +22,8 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-initial-state.php' => ['PhanRedefinedClassReference'],
-        'src/class-jetpack-backup.php' => ['PhanPossiblyUndeclaredVariable', 'PhanRedefinedClassReference', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredStaticMethod', 'PhanUndeclaredTypeParameter'],
-        'src/class-rest-controller.php' => ['PhanRedefinedClassReference', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference'],
-        'tests/php/test-rest-controller.php' => ['PhanRedefinedClassReference'],
+        'src/class-jetpack-backup.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredStaticMethod', 'PhanUndeclaredTypeParameter'],
+        'src/class-rest-controller.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)
