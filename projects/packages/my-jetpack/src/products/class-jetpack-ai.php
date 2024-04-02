@@ -29,6 +29,13 @@ class Jetpack_Ai extends Product {
 	public static $slug = 'jetpack-ai';
 
 	/**
+	 * Whether this product has a free offering
+	 *
+	 * @var bool
+	 */
+	public static $has_free_offering = true;
+
+	/**
 	 * Get the Product info for the API
 	 *
 	 * @throws \Exception If required attribute is not declared in the child class.

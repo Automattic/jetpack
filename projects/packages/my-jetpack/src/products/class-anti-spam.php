@@ -44,6 +44,13 @@ class Anti_Spam extends Product {
 	public static $requires_user_connection = false;
 
 	/**
+	 * Whether this product has a free offering
+	 *
+	 * @var bool
+	 */
+	public static $has_free_offering = true;
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string

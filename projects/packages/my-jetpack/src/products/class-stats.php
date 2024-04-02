@@ -60,6 +60,13 @@ class Stats extends Module_Product {
 	public static $has_standalone_plugin = false;
 
 	/**
+	 * Whether this product has a free offering
+	 *
+	 * @var bool
+	 */
+	public static $has_free_offering = true;
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string
