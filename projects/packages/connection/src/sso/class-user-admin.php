@@ -156,7 +156,9 @@ class User_Admin {
 	 * @todo Remove suppression and function_exists check when we drop support for WP 6.3.
 	 */
 	public function handle_invitation_results() {
-		$valid_nonce = isset( $_GET['_wpnonce'] ) ? wp_verify_nonce( $_GET['_wpnonce'], 'jetpack-sso-invite-user' ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
+		$valid_nonce = isset( $_GET['_wpnonce'] )
+			? wp_verify_nonce( sanitize_key( $_GET['_wpnonce'] ), 'jetpack-sso-invite-user' )
+			: false;
 
 		if ( ! $valid_nonce || ! isset( $_GET['jetpack-sso-invite-user'] ) || ! function_exists( 'wp_admin_notice' ) ) {
 			return;
