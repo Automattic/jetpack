@@ -706,14 +706,14 @@ class User_Admin {
 	 */
 	public function render_wpcom_invite_checkbox( $type ) {
 		/*
-			* Only check this box by default on WordPress.com sites
-			* that do not use the WooCommerce plugin.
-			*/
+		 * Only check this box by default on WordPress.com sites
+		 * that do not use the WooCommerce plugin.
+		 */
 		$is_checked = ( new Host() )->is_wpcom_platform() && ! class_exists( 'WooCommerce' );
 
 		if ( $type === 'add-new-user' ) {
 			?>
-			<table class="form-table" id="custom_email_message_block">
+			<table class="form-table">
 				<tr class="form-field">
 					<th scope="row">
 						<label for="invite_user_wpcom"><?php esc_html_e( 'Invite user', 'jetpack-connection' ); ?></label>
@@ -791,22 +791,22 @@ class User_Admin {
 					: false;
 			$custom_email_message = ( $valid_nonce && isset( $_POST['custom_email_message'] ) ) ? sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) ) : '';
 			?>
-		<table class="form-table">
-			<tr class="form-field">
-				<th scope="row">
-					<label for="custom_email_message"><?php esc_html_e( 'Custom Message', 'jetpack-connection' ); ?></label>
-				</th>
-				<td>
-					<label for="custom_email_message">
-						<textarea aria-describedby="custom_email_message_description" rows="3" maxlength="500" id="custom_email_message" name="custom_email_message"><?php echo esc_html( $custom_email_message ); ?></textarea>
-						<p id="custom_email_message_description">
-							<?php
-							esc_html_e( 'This user will be invited to WordPress.com. You can include a personalized welcome message with the invitation.', 'jetpack-connection' );
-							?>
-					</label>
-				</td>
-			</tr>
-		</table>
+			<table class="form-table" id="custom_email_message_block">
+				<tr class="form-field">
+					<th scope="row">
+						<label for="custom_email_message"><?php esc_html_e( 'Custom Message', 'jetpack-connection' ); ?></label>
+					</th>
+					<td>
+						<label for="custom_email_message">
+							<textarea aria-describedby="custom_email_message_description" rows="3" maxlength="500" id="custom_email_message" name="custom_email_message"><?php echo esc_html( $custom_email_message ); ?></textarea>
+							<p id="custom_email_message_description">
+								<?php
+								esc_html_e( 'This user will be invited to WordPress.com. You can include a personalized welcome message with the invitation.', 'jetpack-connection' );
+								?>
+						</label>
+					</td>
+				</tr>
+			</table>
 			<?php
 		}
 	}
