@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Social;
  */
 class Note {
 	const JETPACK_SOCIAL_NOTE_CPT     = 'jetpack-social-note';
-	const JETPACK_SOCIAL_NOTES_CONFIG = 'jetpack-social-notes-config';
+	const JETPACK_SOCIAL_NOTES_CONFIG = 'jetpack_social_notes_config';
 	const FLUSH_REWRITE_RULES_FLUSHED = 'jetpack_social_rewrite_rules_flushed';
 
 	/**
