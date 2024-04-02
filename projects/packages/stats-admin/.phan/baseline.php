@@ -12,7 +12,7 @@ return [
     // PhanUndeclaredClassMethod : 60+ occurrences
     // PhanUndeclaredTypeParameter : 20+ occurrences
     // PhanTypeMismatchReturn : 8 occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 6 occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 7 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
     // PhanTypeMismatchArgument : 1 occurrence

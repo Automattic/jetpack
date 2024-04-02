@@ -288,6 +288,36 @@ class Test_REST_Endpoints extends TestCase {
 	}
 
 	/**
+	 * Testing the `/jetpack/v4/identity-crisis/idc-url-validation` endpoint.
+	 */
+	public function test_request_url_validation_no_access() {
+		Jetpack_Options::update_option( 'blog_token', 'new.blogtoken' );
+		Jetpack_Options::update_option( 'id', 42 );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/identity-crisis/idc-url-validation' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertEquals( 401, $response->get_status() );
+		$this->assertEquals( 'invalid_user_permission_identity_crisis', $data['code'] );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/identity-crisis/idc-url-validation` endpoint.
+	 */
+	public function test_request_url_validation_urls_and_secret() {
+		$this->set_blog_token_auth();
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/identity-crisis/idc-url-validation' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+	}
+	/**
 	 * Mock blog token authorization for API requests.
 	 *
 	 * @return void

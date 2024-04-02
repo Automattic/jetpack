@@ -22,7 +22,6 @@ for F in README.md .gitkeep .gitignore; do
 done
 
 declare -A PROJECT_PREFIXES=(
-	['editor-extensions']='Block'
 	['github-actions']='Action'
 	['packages']='Package'
 	['plugins']='Plugin'

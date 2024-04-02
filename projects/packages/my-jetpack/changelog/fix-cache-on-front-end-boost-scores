@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix cache on front end request for boost speed scores

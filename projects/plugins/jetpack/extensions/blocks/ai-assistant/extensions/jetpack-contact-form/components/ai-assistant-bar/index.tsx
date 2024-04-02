@@ -27,7 +27,7 @@ import ConnectPrompt from '../../../../components/connect-prompt';
 import UpgradePrompt from '../../../../components/upgrade-prompt';
 import useAiFeature from '../../../../hooks/use-ai-feature';
 import { isUserConnected } from '../../../../lib/connection';
-import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
+import { getJetpackFormCustomPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
 import { AI_ASSISTANT_JETPACK_FORM_NOTICE_ID } from '../../ui-handler/with-ui-handler-data-provider';
 import './style.scss';
@@ -123,7 +123,7 @@ export default function AiAssistantBar( {
 		// Remove previous error notice.
 		removeNotice( AI_ASSISTANT_JETPACK_FORM_NOTICE_ID );
 
-		const prompt = getPrompt( PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, {
+		const prompt = getJetpackFormCustomPrompt( {
 			request: inputValue,
 			content: getSerializedContentFromBlock( clientId ),
 		} );
