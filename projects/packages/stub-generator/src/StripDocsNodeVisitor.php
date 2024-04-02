@@ -7,8 +7,17 @@
 
 namespace Automattic\Jetpack\StubGenerator;
 
+use PhpParser\Comment\Doc;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
+use PHPStan\PhpDocParser\Ast\NodeTraverser;
+use PHPStan\PhpDocParser\Ast\NodeVisitor\CloningVisitor;
+use PHPStan\PhpDocParser\Lexer\Lexer;
+use PHPStan\PhpDocParser\Parser\ConstExprParser;
+use PHPStan\PhpDocParser\Parser\PhpDocParser;
+use PHPStan\PhpDocParser\Parser\TokenIterator;
+use PHPStan\PhpDocParser\Parser\TypeParser;
+use PHPStan\PhpDocParser\Printer\Printer;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -24,16 +33,65 @@ class StripDocsNodeVisitor extends NodeVisitorAbstract {
 	private $output;
 
 	/**
+	 * PHPDoc lexer
+	 *
+	 * @var Lexer
+	 */
+	private $lexer;
+
+	/**
+	 * PHPDoc parser
+	 *
+	 * @var Parser
+	 */
+	private $parser;
+
+	/**
+	 * PHPDoc traverser
+	 *
+	 * @var NodeTraverser
+	 */
+	private $traverser;
+
+	/**
+	 * PHPDoc printer
+	 *
+	 * @var Printer;
+	 */
+	private $printer;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param OutputInterface $output OutputInterface.
 	 */
 	public function __construct( OutputInterface $output ) {
-		$this->output = $output;
+		$this->output    = $output;
+		$usedAttributes  = array(
+			'lines'   => true,
+			'indexes' => true,
+		);
+		$this->lexer     = new Lexer();
+		$constExprParser = new ConstExprParser( true, true, $usedAttributes );
+		$typeParser      = new TypeParser( $constExprParser, true, $usedAttributes );
+		$this->parser    = new PhpDocParser( $typeParser, $constExprParser, true, true, $usedAttributes );
+		$this->traverser = new NodeTraverser( array( new CloningVisitor(), new StripDocsPhpDocNodeVisitor( $output ) ) );
+		$this->printer   = new Printer();
 	}
 
-	// phpcs:ignore Squiz.Commenting.FunctionComment.Missing,VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Inherited.
+	// phpcs:ignore Squiz.Commenting.FunctionComment.Missing -- Inherited.
 	public function enterNode( Node $node ) {
-		// @todo Write this.
+		$docComment = $node->getDocComment();
+		$node->setAttribute( 'comments', array() );
+
+		// Process the doc comment, if any.
+		if ( $docComment ) {
+			$tokens         = new TokenIterator( $this->lexer->tokenize( $docComment ) );
+			$oldDoc         = $this->parser->parse( $tokens );
+			list( $newDoc ) = $this->traverser->traverse( array( $oldDoc ) );
+			if ( $newDoc->children ) {
+				$node->setDocComment( new Doc( $this->printer->printFormatPreserving( $newDoc, $oldDoc, $tokens ) ) );
+			}
+		}
 	}
 }

@@ -24,6 +24,7 @@ function another_function() {
 	throw new Exception( 'Nope!' );
 }
 
+// This function has no docs.
 function undocumented_function( $args ) {
 	return $args;
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the jetpack-stub-generator Application class.
+ * Integration tests for jetpack-stub-generator.
  *
  * @package automattic/jetpack-stub-generator
  */
@@ -13,9 +13,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
- * Tests for the jetpack-stub-generator Application class.
+ * Integration tests for jetpack-stub-generator.
  *
  * @covers \Automattic\Jetpack\StubGenerator\Application
+ * @covers \Automattic\Jetpack\StubGenerator\StripDocsNodeVisitor
  */
 class ApplicationTest extends TestCase {
 

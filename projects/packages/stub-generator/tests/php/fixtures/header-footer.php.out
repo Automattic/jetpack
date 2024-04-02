@@ -22,6 +22,7 @@ function a_function($p1, $p2)
 function another_function()
 {
 }
+// This function has no docs.
 function undocumented_function($args)
 {
 }
