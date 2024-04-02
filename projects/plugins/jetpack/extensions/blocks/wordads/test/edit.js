@@ -47,10 +47,10 @@ describe( 'WordAdsEdit', () => {
 		return { placeholder, selectedFormat };
 	};
 
-	test( 'renders wrapper with correct css class', () => {
-		const { baseElement } = render( <WordAdsEdit { ...defaultProps } /> );
+	test( 'matches snapshot', () => {
+		const { container } = render( <WordAdsEdit { ...defaultProps } /> );
 
-		expect( baseElement ).toMatchSnapshot( 'WordAdsEdit classes' );
+		expect( container ).toMatchSnapshot( 'WordAdsEdit' );
 	} );
 
 	test( 'renders ad placeholder with correct css class and styles', () => {
