@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Scheduled_Updates;
+use Automattic\Jetpack\Scheduled_Updates_Logs;
 
 /**
  * Test class for WPCOM_REST_API_V2_Endpoint_Update_Schedules.
@@ -746,5 +747,125 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$result = rest_do_request( $request );
 
 		$this->assertSame( 200, $result->get_status() );
+	}
+
+	/**
+	 * Test adding a log entry.
+	 *
+	 * @covers ::add_log
+	 */
+	public function test_add_log() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . Scheduled_Updates::generate_schedule_id( array() ) . '/logs' );
+		$request->set_body_params(
+			array(
+				'action'  => Scheduled_Updates_Logs::PLUGIN_UPDATES_START,
+				'message' => 'Starting plugin updates.',
+			)
+		);
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+	}
+
+	/**
+	 * Test retrieving logs
+	 *
+	 * @covers ::add_log
+	 */
+	public function test_get_logs() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/' . Scheduled_Updates::generate_schedule_id( array() ) . '/logs' );
+		$result  = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( array(), $result->get_data() );
+	}
+
+	/**
+	 * Test adding a log entry and retrieving it
+	 *
+	 * @covers ::add_log
+	 * @covers ::get_logs
+	 */
+	public function test_add_and_get_log() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . Scheduled_Updates::generate_schedule_id( array() ) . '/logs' );
+		$request->set_body_params(
+			array(
+				'action'  => Scheduled_Updates_Logs::PLUGIN_UPDATES_START,
+				'message' => 'Starting plugin updates.',
+			)
+		);
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/' . Scheduled_Updates::generate_schedule_id( array() ) . '/logs' );
+		$result  = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertCount( 1, $result->get_data() );
+		$this->assertSame( Scheduled_Updates_Logs::PLUGIN_UPDATES_START, $result->get_data()[0][0]['action'] );
+	}
+
+	/**
+	 * Test adding multiple runs and retrieving them
+	 *
+	 * @covers ::add_log
+	 * @covers ::get_logs
+	 */
+	public function test_add_and_get_multiple_logs() {
+		wp_set_current_user( $this->admin_id );
+
+		// Simulate 5 runs
+		for ( $i = 0;$i < 5;$i++ ) {
+			$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . Scheduled_Updates::generate_schedule_id( array() ) . '/logs' );
+			$request->set_body_params(
+				array(
+					'action'  => Scheduled_Updates_Logs::PLUGIN_UPDATES_START,
+					'message' => 'Starting plugin updates.',
+				)
+			);
+			$result = rest_do_request( $request );
+			$this->assertSame( 200, $result->get_status() );
+
+			$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . Scheduled_Updates::generate_schedule_id( array() ) . '/logs' );
+			$request->set_body_params(
+				array(
+					'action'  => Scheduled_Updates_Logs::PLUGIN_UPDATES_COMPLETE,
+					'message' => 'Ending plugin updates.',
+				)
+			);
+			$result = rest_do_request( $request );
+			$this->assertSame( 200, $result->get_status() );
+		}
+
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/' . Scheduled_Updates::generate_schedule_id( array() ) . '/logs' );
+		$result  = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertCount( Scheduled_Updates_Logs::MAX_RUNS_PER_SCHEDULE, $result->get_data() );
+		$this->assertSame( Scheduled_Updates_Logs::PLUGIN_UPDATES_START, $result->get_data()[0][0]['action'] );
+	}
+
+	/**
+	 * Test adding a log when unauthorized
+	 *
+	 * @covers ::add_log
+	 */
+	public function test_add_log_unauthorized() {
+		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . Scheduled_Updates::generate_schedule_id( array() ) . '/logs' );
+		$request->set_body_params(
+			array(
+				'action'  => Scheduled_Updates_Logs::PLUGIN_UPDATES_START,
+				'message' => 'Starting plugin updates.',
+			)
+		);
+		$result = rest_do_request( $request );
+		$this->assertSame( 401, $result->get_status() );
 	}
 }
