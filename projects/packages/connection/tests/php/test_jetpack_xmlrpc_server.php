@@ -11,7 +11,6 @@ use WorDBless\BaseTestCase;
  * Class to test the legacy Jetpack_XMLRPC_Server class.
  */
 class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
-
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
@@ -36,6 +35,17 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 		( new Tokens() )->update_user_token( $user_id, sprintf( '%s.%s.%d', 'key', 'private', $user_id ), false );
 
 		$this->xmlrpc_admin = $user_id;
+
+		Constants::set_constant( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
+	}
+
+	/**
+	 * Clean up the testing environment.
+	 *
+	 * @after
+	 */
+	public function tear_down() {
+		Constants::clear_constants();
 	}
 
 	/**

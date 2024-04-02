@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Constants;
 use WorDBless\BaseTestCase;
 
 require_once ABSPATH . WPINC . '/IXR/class-IXR-client.php';
@@ -14,6 +15,21 @@ require_once ABSPATH . WPINC . '/IXR/class-IXR-client.php';
  * Connection Manager functionality testing.
  */
 class XMLRPC_Async_Call_Test extends BaseTestCase {
+	/**
+	 * Initialize the object before running the test method.
+	 */
+	public function set_up() {
+		Constants::set_constant( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
+	}
+
+	/**
+	 * Clean up the testing environment.
+	 *
+	 * @after
+	 */
+	public function tear_down() {
+		Constants::clear_constants();
+	}
 
 	/**
 	 * Test add call
