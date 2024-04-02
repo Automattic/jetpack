@@ -46,6 +46,8 @@ function SubscriptionsSettings( props ) {
 		isStcEnabled,
 		isSmEnabled,
 		isSubscribePostEndEnabled,
+		isLoginNavigationEnabled,
+		isSubscriptionSiteFeatureEnabled,
 		isSubscriptionSiteEditSupported,
 		isSubscriptionsActive,
 		siteRawUrl,
@@ -74,6 +76,13 @@ function SubscriptionsSettings( props ) {
 		  } )
 		: null;
 
+	const headerTemplateEditorUrl = siteAdminUrl
+		? addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
+				postType: 'wp_template_part',
+				postId: `${ themeStylesheet }//header`,
+		  } )
+		: null;
+
 	const handleSubscribeToBlogToggleChange = useCallback( () => {
 		updateFormStateModuleOption( SUBSCRIPTIONS_MODULE_NAME, 'stb_enabled' );
 	}, [ updateFormStateModuleOption ] );
@@ -90,6 +99,13 @@ function SubscriptionsSettings( props ) {
 		updateFormStateModuleOption(
 			SUBSCRIPTIONS_MODULE_NAME,
 			'jetpack_subscriptions_subscribe_post_end_enabled'
+		);
+	}, [ updateFormStateModuleOption ] );
+
+	const handleLoginNavigationToggleChange = useCallback( () => {
+		updateFormStateModuleOption(
+			SUBSCRIPTIONS_MODULE_NAME,
+			'jetpack_subscriptions_login_navigation_enabled'
 		);
 	}, [ updateFormStateModuleOption ] );
 
@@ -231,6 +247,29 @@ function SubscriptionsSettings( props ) {
 									'jetpack'
 								) }
 							/>
+							{ isSubscriptionSiteFeatureEnabled && (
+								<ToggleControl
+									checked={ isSubscriptionsActive && isLoginNavigationEnabled }
+									disabled={ isDisabled }
+									toggling={ isSavingAnyOption( [
+										'jetpack_subscriptions_login_navigation_enabled',
+									] ) }
+									onChange={ handleLoginNavigationToggleChange }
+									label={
+										<>
+											{ __( 'Add the Subscriber Login Block to the navigation', 'jetpack' ) }
+											{ isBlockTheme && headerTemplateEditorUrl && (
+												<>
+													{ '. ' }
+													<ExternalLink href={ headerTemplateEditorUrl }>
+														{ __( 'Preview and edit', 'jetpack' ) }
+													</ExternalLink>
+												</>
+											) }
+										</>
+									}
+								/>
+							) }
 						</FormFieldset>
 					}
 				</SettingsGroup>
@@ -263,6 +302,9 @@ export default withModuleSettingsFormHelpers(
 			isSmEnabled: ownProps.getOptionValue( 'sm_enabled' ),
 			isSubscribePostEndEnabled: ownProps.getOptionValue(
 				'jetpack_subscriptions_subscribe_post_end_enabled'
+			),
+			isLoginNavigationEnabled: ownProps.getOptionValue(
+				'jetpack_subscriptions_login_navigation_enabled'
 			),
 			isSubscriptionSiteFeatureEnabled: isSubscriptionSiteEnabled( state ),
 			isSubscriptionSiteEditSupported: subscriptionSiteEditSupported( state ),

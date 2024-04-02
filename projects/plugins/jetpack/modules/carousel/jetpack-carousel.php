@@ -83,6 +83,9 @@ class Jetpack_Carousel {
 		$this->single_image_gallery_enabled            = ! $this->maybe_disable_jp_carousel_single_images();
 		$this->single_image_gallery_enabled_media_file = $this->maybe_enable_jp_carousel_single_images_media_file();
 
+		// Disable core lightbox when Carousel is enabled.
+		add_action( 'wp_theme_json_data_theme', array( $this, 'disable_core_lightbox' ) );
+
 		if ( is_admin() ) {
 			// Register the Carousel-related related settings.
 			add_action( 'admin_init', array( $this, 'register_settings' ), 5 );
@@ -204,6 +207,32 @@ class Jetpack_Carousel {
 		 * @param bool false Should Carousel be enabled for single images linking to 'Media File'? Default to false.
 		 */
 		return apply_filters( 'jp_carousel_load_for_images_linked_to_file', false );
+	}
+
+	/**
+	 * Disable the "Lightbox" option offered in WordPress core
+	 * whenever Jetpack's Carousel feature is enabled.
+	 *
+	 * @since 13.3
+	 *
+	 * @param WP_Theme_JSON_Data $theme_json Class to access and update theme.json data.
+	 */
+	public function disable_core_lightbox( $theme_json ) {
+		return $theme_json->update_with(
+			array(
+				'version'  => 2,
+				'settings' => array(
+					'blocks' => array(
+						'core/image' => array(
+							'lightbox' => array(
+								'allowEditing' => false,
+								'enabled'      => false,
+							),
+						),
+					),
+				),
+			)
+		);
 	}
 
 	/**

@@ -5,8 +5,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
-
 /**
  * Class containing utility static methods that other SEO tools are relying on.
  */
@@ -41,7 +39,11 @@ class Jetpack_SEO_Utils {
 			return false;
 		}
 
-		return Jetpack_Plan::supports( 'advanced-seo' );
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return wpcom_site_has_feature( 'advanced-seo', get_current_blog_id() );
+		}
+
+		return true;
 	}
 
 	/**
