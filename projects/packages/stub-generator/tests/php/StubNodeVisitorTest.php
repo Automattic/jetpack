@@ -1401,6 +1401,50 @@ class StubNodeVisitorTest extends TestCase {
 				}
 				PHP,
 			),
+
+			'Handling of use directives'                  => array(
+				<<<'PHP'
+				namespace Some\NS;
+
+				use Other\NS\Foo;
+
+				class Bar {
+					/**
+					 * @var Foo
+					 */
+					public $foo;
+
+					/**
+					 * Munge a Foo.
+					 *
+					 * @param Foo|null $foo Foo to munge.
+					 * @return Foo Munged Foo.
+					 */
+					public function mungeFoo( ?Foo $foo ): Foo {}
+				}
+				PHP,
+				'*',
+				<<<'PHP'
+				namespace Some\NS;
+
+				class Bar
+				{
+					/**
+					 * @var \Other\NS\Foo
+					 */
+					public $foo;
+					/**
+					 * Munge a Foo.
+					 *
+					 * @param \Other\NS\Foo|null $foo Foo to munge.
+					 * @return \Other\NS\Foo Munged Foo.
+					 */
+					public function mungeFoo(?\Other\NS\Foo $foo): \Other\NS\Foo
+					{
+					}
+				}
+				PHP,
+			),
 		);
 	}
 
