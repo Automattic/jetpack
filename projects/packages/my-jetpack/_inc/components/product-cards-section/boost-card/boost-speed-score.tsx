@@ -46,21 +46,21 @@ const BoostSpeedScore: FC = () => {
 		setScores: ( value: SetStateAction< number > ) => void,
 		scores: SpeedScores[ 'scores' ]
 	) => {
-		const { mobile, desktop } = scores;
+		const { mobile, desktop } = scores || {};
 		if ( mobile && desktop ) {
 			setScores( getAverageSpeedScore( mobile, desktop ) );
 		}
 	};
 
 	const updateLetterGrade = ( scores: SpeedScores[ 'scores' ] ) => {
-		const { mobile, desktop } = scores;
+		const { mobile, desktop } = scores || {};
 		if ( mobile && desktop ) {
 			setSpeedLetterGrade( getScoreLetter( mobile, desktop ) );
 		}
 	};
 
 	const setScoresFromCache = ( cachedSpeedScores: SpeedScores ) => {
-		const { scores, previousScores } = cachedSpeedScores;
+		const { scores, previousScores } = cachedSpeedScores || {};
 
 		updateScores( setCurrentSpeedScore, scores );
 		updateScores( setPreviousSpeedScore, previousScores );
@@ -75,29 +75,30 @@ const BoostSpeedScore: FC = () => {
 		}
 
 		setIsLoading( true );
-		try {
-			const scores = await requestSpeedScores( true, apiRoot, siteUrl, apiNonce );
-			const scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
-			setSpeedLetterGrade( scoreLetter );
-			updateScores( setCurrentSpeedScore, scores.current );
-			updateScores( setPreviousSpeedScore, latestBoostSpeedScores.scores );
-			setIsLoading( false );
-		} catch ( err ) {
-			recordEvent( 'jetpack_boost_speed_score_error', {
-				feature: 'jetpack-boost',
-				position: 'my-jetpack',
-				error: err,
-			} );
+		requestSpeedScores( true, apiRoot, siteUrl, apiNonce )
+			.then( scores => {
+				const scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
+				setSpeedLetterGrade( scoreLetter );
+				updateScores( setCurrentSpeedScore, scores.current );
+				updateScores( setPreviousSpeedScore, latestBoostSpeedScores.scores );
+				setIsLoading( false );
+			} )
+			.catch( err => {
+				recordEvent( 'jetpack_boost_speed_score_error', {
+					feature: 'jetpack-boost',
+					position: 'my-jetpack',
+					error: err,
+				} );
 
-			// If error, use the cached "latest" speed scores if they exist
-			if ( latestBoostSpeedScores && latestBoostSpeedScores.scores ) {
-				setScoresFromCache( latestBoostSpeedScores );
-			} else {
-				// Hide Boost scores if error and no cached scores
-				setIsSpeedScoreError( true );
-			}
-			setIsLoading( false );
-		}
+				// If error, use the cached "latest" speed scores if they exist
+				if ( latestBoostSpeedScores && latestBoostSpeedScores.scores ) {
+					setScoresFromCache( latestBoostSpeedScores );
+				} else {
+					// Hide Boost scores if error and no cached scores
+					setIsSpeedScoreError( true );
+				}
+				setIsLoading( false );
+			} );
 	};
 
 	const boostScoreIncrease = useMemo( () => {
