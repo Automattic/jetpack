@@ -777,7 +777,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	public function test_get_logs() {
 		wp_set_current_user( $this->admin_id );
 
-		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/' . Scheduled_Updates::generate_schedule_id( array() ) . '/logs' );
+		$schedule_id = $this->create_test_schedule();
+
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/' . $schedule_id . '/logs' );
 		$result  = rest_do_request( $request );
 
 		$this->assertSame( 200, $result->get_status() );
@@ -793,7 +795,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	public function test_add_and_get_log() {
 		wp_set_current_user( $this->admin_id );
 
-		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . Scheduled_Updates::generate_schedule_id( array() ) . '/logs' );
+		$schedule_id = $this->create_test_schedule();
+
+		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . $schedule_id . '/logs' );
 		$request->set_body_params(
 			array(
 				'action'  => Scheduled_Updates_Logs::PLUGIN_UPDATES_START,
@@ -804,7 +808,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		$this->assertSame( 200, $result->get_status() );
 
-		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/' . Scheduled_Updates::generate_schedule_id( array() ) . '/logs' );
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/' . $schedule_id . '/logs' );
 		$result  = rest_do_request( $request );
 
 		$this->assertSame( 200, $result->get_status() );
@@ -821,9 +825,11 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	public function test_add_and_get_multiple_logs() {
 		wp_set_current_user( $this->admin_id );
 
+		$schedule_id = $this->create_test_schedule();
+
 		// Simulate 5 runs
 		for ( $i = 0;$i < 5;$i++ ) {
-			$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . Scheduled_Updates::generate_schedule_id( array() ) . '/logs' );
+			$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . $schedule_id . '/logs' );
 			$request->set_body_params(
 				array(
 					'action'  => Scheduled_Updates_Logs::PLUGIN_UPDATES_START,
@@ -833,7 +839,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 			$result = rest_do_request( $request );
 			$this->assertSame( 200, $result->get_status() );
 
-			$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . Scheduled_Updates::generate_schedule_id( array() ) . '/logs' );
+			$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . $schedule_id . '/logs' );
 			$request->set_body_params(
 				array(
 					'action'  => Scheduled_Updates_Logs::PLUGIN_UPDATES_COMPLETE,
@@ -844,7 +850,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 			$this->assertSame( 200, $result->get_status() );
 		}
 
-		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/' . Scheduled_Updates::generate_schedule_id( array() ) . '/logs' );
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/' . $schedule_id . '/logs' );
 		$result  = rest_do_request( $request );
 
 		$this->assertSame( 200, $result->get_status() );
@@ -867,5 +873,27 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		);
 		$result = rest_do_request( $request );
 		$this->assertSame( 401, $result->get_status() );
+	}
+
+	/**
+	 * Create schedule
+	 *
+	 * @param int $i Schedule index.
+	 */
+	private function create_test_schedule( $i = 0 ) {
+		$request           = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$scheduled_plugins = array( 'test/test' . $i . '.php' );
+		$request->set_body_params(
+			array(
+				'plugins'  => $scheduled_plugins,
+				'schedule' => array(
+					'timestamp' => strtotime( "next Monday {$i}:00" ),
+					'interval'  => 'weekly',
+				),
+			)
+		);
+
+		$result = rest_do_request( $request );
+		return $result->get_data();
 	}
 }
