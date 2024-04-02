@@ -213,7 +213,7 @@ class Jetpack_Carousel {
 	 * Disable the "Lightbox" option offered in WordPress core
 	 * whenever Jetpack's Carousel feature is enabled.
 	 *
-	 * @since $$next-version$$
+	 * @since 13.3
 	 *
 	 * @param WP_Theme_JSON_Data $theme_json Class to access and update theme.json data.
 	 */
@@ -882,7 +882,11 @@ class Jetpack_Carousel {
 			 * This is meant as a relatively quick fix, as a better fix is likely to update the get_posts call above to only
 			 * include attachments.
 			 */
-			if ( ! isset( $attachment->ID ) || ! wp_attachment_is_image( $attachment->ID ) ) {
+			if (
+				! isset( $attachment->ID )
+				|| ! wp_attachment_is_image( $attachment->ID )
+				|| ! isset( $selected_images[ $attachment->ID ] )
+			) {
 				continue;
 			}
 			$image_elements = $selected_images[ $attachment->ID ];

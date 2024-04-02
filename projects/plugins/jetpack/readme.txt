@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, performance
-Stable tag: 13.2.1
+Stable tag: 13.2.2
 Requires at least: 6.3
 Requires PHP: 7.0
 Tested up to: 6.5
@@ -325,9 +325,36 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.3-a.9 - 2024-03-27
+### 13.3-beta - 2024-04-01
+#### Enhancements
+- AI Assistant: Provide per-block quick actions to make them more relevant.
+- Blocks: "Earn" category renamed to "Monetize".
+- General: Only show installation errors on Plugins page.
+- Jetpack AI: When the response includes a title and post title is empty, use provided title as post title.
+- Member login block: Add ability to hide manage subscription link.
+- My Jetpack: Trigger red bubble notification when a broken installation is detected.
+- Newsletters: Display Email settings on Newsletter settings page.
+- Newsletters: Ensure blog stats and top posts blocks do not render in email newsletters.
+- Newsletters: Reorder settings cards to improve hierarchy.
+- Newsletters: Use radio buttons instead of toggles on Email Settings.
+- Sharing: Add a Bluesky sharing button.
+- Sharing: add a Threads sharing button and a Threads sharing button block.
+- Sharing: Add Native (Web Share) button to Sharing Buttons block.
+- Sharing: Remove Like button from master bar.
+- Social: Add support for an SMS button.
+
+#### Improved compatibility
+- Carousel: disable WordPress' lightbox option when Jetpack's Carousel feature is activated.
+- General: Remove methods that were deprecated before the release of Jetpack 10.0, in 2021.
+- SEO Tools: make the feature available on non-connected sites.
+- Subscriptions: Remove subscription settings from reading options page.
+
 #### Bug fixes
+- Dashboard: Update the sharing button settings to clarify the available options (block or legacy sharing buttons).
+- Enhanced Distribution: begin deprecation process as the Firehose is winding down.
 - Paid Content Block: Fix subscriber view content not rendering in WordPress.com reader.
+- Sharing: avoid PHP warnings when using custom post types.
+- Sharing: fix the display of the sharing block in some classic themes.
 - SSO: Disable WordPress.com invitation functionality for non-connected users.
 
 --------
