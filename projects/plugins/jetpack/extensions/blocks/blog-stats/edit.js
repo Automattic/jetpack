@@ -9,13 +9,13 @@ import { BlogStatsInspectorControls } from './controls';
 import { InactiveStatsPlaceholder } from './inactive-placeholder';
 
 function BlogStatsEdit( { attributes, className, setAttributes } ) {
-	const blockProps = useBlockProps();
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'stats' );
 	const { label, statsData, statsOption } = attributes;
 	const [ blogViews, setBlogViews ] = useState( null );
 	const [ blogVisitors, setBlogVisitors ] = useState();
 	const [ postViews, setPostViews ] = useState();
+	const blockProps = useBlockProps();
 
 	const blogStats = statsData === 'views' ? blogViews : blogVisitors;
 	const stats = statsOption === 'post' ? postViews : blogStats;
