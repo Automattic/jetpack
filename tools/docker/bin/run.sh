@@ -15,9 +15,6 @@ group="${APACHE_RUN_GROUP:-www-data}"
 # Download WordPress
 [ -f /var/www/html/xmlrpc.php ] || wp --allow-root core download
 
-# Set writable permissions for the wp-content directory
-chmod -R 755 /var/www/html/wp-content
-
 # Configure WordPress
 if [ ! -f /var/www/html/wp-config.php ]; then
 	echo "Creating wp-config.php ..."
@@ -64,15 +61,10 @@ if [ ! -f /var/www/html/wp-config.php ]; then
 	wp --allow-root config set JETPACK_DOCKER_ENV true --raw --type=constant
 fi
 
-chmod 644 /var/www/html/wp-config.php
-
 # Copy single site htaccess if none is present
 if [ ! -f /var/www/html/.htaccess ]; then
 	cp /var/lib/jetpack-config/htaccess /var/www/html/.htaccess
 fi
-
-# Set writable permissions for the .htaccess file
-chmod 644 /var/www/html/.htaccess
 
 # Clean up old method of including psysh (used from 2019 until 2021)
 if [[ -e /var/www/html/wp-cli.yml ]] && grep -q '^require: /usr/local/bin/psysh$' /var/www/html/wp-cli.yml; then
