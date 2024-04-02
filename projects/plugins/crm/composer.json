@@ -55,7 +55,7 @@
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/woocommerce": "^3.0",
-		"dompdf/dompdf": "2.0.3"
+		"dompdf/dompdf": "2.0.4"
 	},
 	"repositories": [
 		{
