@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack;
 
+use WP_Error;
+
 /**
  * Test class for Scheduled_Updates_Logs.
  *
@@ -30,6 +32,8 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 	public static function set_up_before_class() {
 		parent::set_up_before_class();
 		\phpmock\phpunit\PHPMock::defineFunctionMock( 'Automattic\Jetpack', 'realpath' );
+		Scheduled_Updates::init();
+		Scheduled_Updates::load_rest_api_endpoints();
 	}
 
 	/**
@@ -40,6 +44,7 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 	protected function set_up() {
 		parent::set_up_wordbless();
 		\WorDBless\Users::init()->clear_all_users();
+		Scheduled_Updates::init();
 
 		// Initialize the admin
 		$this->admin_id = wp_insert_user(
@@ -70,7 +75,7 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 	 * @covers ::get
 	 */
 	public function test_log_and_get_logs() {
-		$schedule_id = 'test_schedule';
+		$schedule_id = $this->create_schedule( 1 );
 
 		// Test logging events
 		Scheduled_Updates_Logs::log( $schedule_id, Scheduled_Updates_Logs::PLUGIN_UPDATES_START, 'Starting plugin updates' );
@@ -101,7 +106,7 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 	 * @covers ::get
 	 */
 	public function test_max_runs_per_schedule() {
-		$schedule_id = 'test_schedule';
+		$schedule_id = $this->create_schedule( 1 );
 
 		// Log events for more than MAX_RUNS_PER_SCHEDULE
 		for ( $i = 1; $i <= Scheduled_Updates_Logs::MAX_RUNS_PER_SCHEDULE + 1; $i++ ) {
@@ -121,6 +126,21 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test logging to a non-existent schedule ID.
+	 *
+	 * @covers ::get
+	 */
+	public function test_log_non_existent_schedule() {
+		$schedule_id = 'non_existent_schedule';
+
+		// Test retrieving logs for a non-existent schedule
+		$result = Scheduled_Updates_Logs::log( $schedule_id, Scheduled_Updates_Logs::PLUGIN_UPDATES_START, 'Starting plugin updates' );
+
+		// Assert that an empty array is returned
+		$this->assertInstanceOf( WP_Error::class, $result );
+	}
+
+	/**
 	 * Test retrieving logs for a non-existent schedule ID.
 	 *
 	 * @covers ::get
@@ -132,7 +152,7 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 		$logs = Scheduled_Updates_Logs::get( $schedule_id );
 
 		// Assert that an empty array is returned
-		$this->assertEmpty( $logs );
+		$this->assertInstanceOf( WP_Error::class, $logs );
 	}
 
 	/**
@@ -142,8 +162,8 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 	 * @covers ::get
 	 */
 	public function test_get_all_logs() {
-		$schedule_id_1 = 'test_schedule_1';
-		$schedule_id_2 = 'test_schedule_2';
+		$schedule_id_1 = $this->create_schedule( 1 );
+		$schedule_id_2 = $this->create_schedule( 2 );
 
 		// Log events for multiple schedules
 		Scheduled_Updates_Logs::log( $schedule_id_1, Scheduled_Updates_Logs::PLUGIN_UPDATES_START, 'Starting plugin updates for schedule 1' );
@@ -173,8 +193,8 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 	 * @covers ::get
 	 */
 	public function test_clear_logs() {
-		$schedule_id_1 = 'test_schedule_1';
-		$schedule_id_2 = 'test_schedule_2';
+		$schedule_id_1 = $this->create_schedule( 1 );
+		$schedule_id_2 = $this->create_schedule( 2 );
 
 		// Log events for multiple schedules
 		Scheduled_Updates_Logs::log( $schedule_id_1, Scheduled_Updates_Logs::PLUGIN_UPDATES_START, 'Starting plugin updates for schedule 1' );
@@ -200,5 +220,42 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 
 		// Assert that all logs are empty
 		$this->assertEmpty( $all_logs );
+	}
+
+	/**
+	 * Test clearing logs for a non-existent schedule ID.
+	 *
+	 * @covers ::get
+	 */
+	public function test_clear_logs_non_existent_schedule() {
+		$schedule_id = 'non_existent_schedule';
+
+		// Test retrieving logs for a non-existent schedule
+		$logs = Scheduled_Updates_Logs::clear( $schedule_id );
+
+		// Assert that an empty array is returned
+		$this->assertInstanceOf( WP_Error::class, $logs );
+	}
+
+	/**
+	 * Create schedule
+	 *
+	 * @param int $i Schedule index.
+	 */
+	private function create_schedule( $i = 0 ) {
+		$request           = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$scheduled_plugins = array( 'test/test' . $i . '.php' );
+		$request->set_body_params(
+			array(
+				'plugins'  => $scheduled_plugins,
+				'schedule' => array(
+					'timestamp' => strtotime( "next Monday {$i}:00" ),
+					'interval'  => 'weekly',
+				),
+			)
+		);
+
+		$result = rest_do_request( $request );
+		return $result->get_data();
 	}
 }
