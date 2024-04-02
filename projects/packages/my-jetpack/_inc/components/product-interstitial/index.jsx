@@ -142,13 +142,11 @@ export default function ProductInterstitial( {
 							: myJetpackCheckoutUri;
 						// there is a separate hasRequiredTier, but it is not implemented
 						const hasPaidPlanForProduct = product?.hasPaidPlanForProduct;
-						const isUpgradeToHigherTier =
-							tier &&
-							product?.pricingForUi?.tiers?.[ tier ] &&
-							! product?.pricingForUi?.tiers?.[ tier ]?.isFree;
 						const isFree = tier
 							? product?.pricingForUi?.tiers?.[ tier ]?.isFree
 							: product?.pricingForUi?.isFree;
+						const isUpgradeToHigherTier =
+							tier && product?.pricingForUi?.tiers?.[ tier ] && ! isFree && product?.isUpgradable;
 						const needsPurchase = ( ! isFree && ! hasPaidPlanForProduct ) || isUpgradeToHigherTier;
 
 						// If the product is CRM, redirect the user to the Jetpack CRM pricing page.
