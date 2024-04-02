@@ -11,6 +11,7 @@ import styles from './styles.module.scss';
  * @returns {React.Component} The `ConnectionCard` component.
  */
 export default function ConnectionCard() {
+	const { apiNonce, apiRoot, registrationNonce } = window.automatticForAgenciesClientInitialState;
 	return (
 		<BrandedCard>
 			<div className={ styles.card }>
@@ -48,7 +49,13 @@ export default function ConnectionCard() {
 						{ __( 'And more', 'automattic-for-agencies-client' ) }
 					</li>
 				</ul>
-				<ConnectionButton />
+				<ConnectionButton
+					apiRoot={ apiRoot }
+					apiNonce={ apiNonce }
+					registrationNonce={ registrationNonce }
+					from="automattic-for-agencies-client"
+					redirectUri="admin.php?page=automattic-for-agencies-client"
+				/>
 			</div>
 		</BrandedCard>
 	);
