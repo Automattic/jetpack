@@ -2,14 +2,20 @@ import { Path, SVG } from '@wordpress/components';
 import React from 'react';
 
 /**
- * Protect Logo component
+ * Automattic Icon Logo component
  *
  * @param {object} props             - Component props
  * @param {string} props.innerColor  - Color code for the line in the middle of the logo.
  * @param {string} props.outerColor  - Color code for the logo's outer
  * @returns {React.ReactElement} Component template
  */
-export default function AutomatticIconLogo( { innerColor = '#00A3E0', outerColor = '#FFFFFF' } ) {
+export default function AutomatticIconLogo( {
+	innerColor = '#00A3E0',
+	outerColor = '#FFFFFF',
+}: {
+	innerColor: string;
+	outerColor: string;
+} ): React.ReactElement {
 	return (
 		<SVG
 			clipRule="evenodd"
