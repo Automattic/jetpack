@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-AI Client: fix a bug where quick prompts would not work after getting suggested content

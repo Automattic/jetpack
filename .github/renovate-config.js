@@ -90,6 +90,9 @@ module.exports = {
 			constraints: {
 				php: `~${ versions.MIN_PHP_VERSION }.0`,
 			},
+			// Need to have renovate tell composer to ignore `.require.php` since dev deps aren't constrained by this
+			// but renovate insists on using the above to choose the PHP version to run with. Sigh.
+			composerIgnorePlatformReqs: [ 'ext-*', 'lib-*', 'php' ],
 		},
 		...( () => {
 			const ret = {};
