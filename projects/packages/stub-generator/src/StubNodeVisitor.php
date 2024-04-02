@@ -277,7 +277,7 @@ class StubNodeVisitor extends NodeVisitorAbstract {
 
 		if ( $node instanceof ClassMethod ) {
 			list( $parent, $defs ) = $this->selectDef( $node, 'method' );
-			if ( ! $parent ) {
+			if ( $parent === null || $defs === null ) {
 				$this->fatal( $node, 'No parent found' );
 			}
 			if ( $parent instanceof Class_ && $node->isPrivate() ) {
@@ -301,7 +301,7 @@ class StubNodeVisitor extends NodeVisitorAbstract {
 
 		if ( $node instanceof Property ) {
 			list( $parent, $defs ) = $this->selectDef( $node, 'property' );
-			if ( ! $parent ) {
+			if ( $parent === null || $defs === null ) {
 				$this->fatal( $node, 'No parent found' );
 			}
 
@@ -329,7 +329,7 @@ class StubNodeVisitor extends NodeVisitorAbstract {
 
 		if ( $node instanceof ClassConst ) {
 			list( $parent, $defs ) = $this->selectDef( $node, 'constant' );
-			if ( ! $parent ) {
+			if ( $parent === null || $defs === null ) {
 				$this->fatal( $node, 'No parent found' );
 			}
 

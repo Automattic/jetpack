@@ -42,7 +42,9 @@ class StripDocsPhpDocNodeVisitor extends AbstractNodeVisitor {
 		}
 
 		// The description on tags like `@param` comes in as a property.
+		// @phan-suppress-next-line PhanUndeclaredProperty -- It's being checked right here.
 		if ( ! empty( $node->description ) ) {
+			// @phan-suppress-next-line PhanUndeclaredProperty -- It's being checked just above.
 			$node->description = '';
 		}
 	}

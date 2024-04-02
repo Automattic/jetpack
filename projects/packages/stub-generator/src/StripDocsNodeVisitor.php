@@ -42,7 +42,7 @@ class StripDocsNodeVisitor extends NodeVisitorAbstract {
 	/**
 	 * PHPDoc parser
 	 *
-	 * @var Parser
+	 * @var PhpDocParser
 	 */
 	private $parser;
 
@@ -56,7 +56,7 @@ class StripDocsNodeVisitor extends NodeVisitorAbstract {
 	/**
 	 * PHPDoc printer
 	 *
-	 * @var Printer;
+	 * @var Printer
 	 */
 	private $printer;
 
@@ -86,9 +86,10 @@ class StripDocsNodeVisitor extends NodeVisitorAbstract {
 
 		// Process the doc comment, if any.
 		if ( $docComment ) {
-			$tokens         = new TokenIterator( $this->lexer->tokenize( $docComment ) );
+			$tokens         = new TokenIterator( $this->lexer->tokenize( $docComment->getText() ) );
 			$oldDoc         = $this->parser->parse( $tokens );
 			list( $newDoc ) = $this->traverser->traverse( array( $oldDoc ) );
+			'@phan-var \PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocNode $newDoc';
 			if ( $newDoc->children ) {
 				$node->setDocComment( new Doc( $this->printer->printFormatPreserving( $newDoc, $oldDoc, $tokens ) ) );
 			}
