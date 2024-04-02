@@ -213,7 +213,7 @@ class Jetpack_Carousel {
 	 * Disable the "Lightbox" option offered in WordPress core
 	 * whenever Jetpack's Carousel feature is enabled.
 	 *
-	 * @since $$next-version$$
+	 * @since 13.3
 	 *
 	 * @param WP_Theme_JSON_Data $theme_json Class to access and update theme.json data.
 	 */
