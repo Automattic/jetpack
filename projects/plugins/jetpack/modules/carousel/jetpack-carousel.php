@@ -882,7 +882,11 @@ class Jetpack_Carousel {
 			 * This is meant as a relatively quick fix, as a better fix is likely to update the get_posts call above to only
 			 * include attachments.
 			 */
-			if ( ! isset( $attachment->ID ) || ! wp_attachment_is_image( $attachment->ID ) ) {
+			if (
+				! isset( $attachment->ID )
+				|| ! wp_attachment_is_image( $attachment->ID )
+				|| ! isset( $selected_images[ $attachment->ID ] )
+			) {
 				continue;
 			}
 			$image_elements = $selected_images[ $attachment->ID ];
