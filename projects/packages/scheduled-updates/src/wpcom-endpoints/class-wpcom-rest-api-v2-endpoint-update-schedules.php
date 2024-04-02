@@ -246,7 +246,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$plugins  = $request['plugins'];
 		usort( $plugins, 'strnatcasecmp' );
 
-		$event = wp_schedule_event( $schedule['timestamp'], $schedule['interval'], Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins, true );
+		$event = Scheduled_Updates::create_scheduled_update( $schedule['timestamp'], $schedule['interval'], $plugins );
 		if ( is_wp_error( $event ) ) {
 			return $event;
 		}
@@ -428,7 +428,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 
 		$event = $events[ $request['schedule_id'] ];
 
-		$result = wp_unschedule_event( $event->timestamp, Scheduled_Updates::PLUGIN_CRON_HOOK, $event->args, true );
+		$result = Scheduled_Updates::delete_scheduled_update( $event->timestamp, $event->args );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
