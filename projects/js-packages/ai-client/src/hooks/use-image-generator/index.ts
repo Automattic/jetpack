@@ -45,7 +45,7 @@ Do not add text to the image.
 
 This is the post content:
 
-` + postContent;
+` + ( postContent.length > 3000 ? postContent.substring( 0, 3000 ) + ` [...]` : postContent ); // truncating the content so the whole prompt is not longer than 4000 characters, the model limit.
 
 			const URL = 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-image';
 
