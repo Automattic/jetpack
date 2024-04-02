@@ -28,6 +28,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	const [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] = useState( false );
 	const [ generating, setGenerating ] = useState( false );
 	const [ imageURL, setImageURL ] = useState( null );
+	const [ error, setError ] = useState( null );
 	const { generateImage } = useImageGenerator();
 	const { isLoading: isSavingToMediaLibrary, saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { tracks } = useAnalytics();
@@ -53,6 +54,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	 */
 	const processImageGeneration = useCallback( () => {
 		setGenerating( true );
+		setError( null );
 		generateImage( {
 			feature: FEATURED_IMAGE_FEATURE_NAME,
 			postContent,
@@ -64,9 +66,8 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 					setImageURL( image );
 				}
 			} )
-			.catch( error => {
-				// eslint-disable-next-line no-console
-				console.error( error );
+			.catch( e => {
+				setError( e );
 			} )
 			.finally( () => {
 				setGenerating( false );
@@ -168,22 +169,37 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 						</div>
 					) : (
 						<div className="ai-assistant-featured-image__content">
-							<img className="ai-assistant-featured-image__image" src={ imageURL } alt="" />
+							{ error ? (
+								<div className="ai-assistant-featured-image__error">
+									{ __( 'An error occurred while generating the image. Try Again', 'jetpack' ) }
+									{ error?.message && (
+										<span className="ai-assistant-featured-image__error-message">
+											{ error?.message }
+										</span>
+									) }
+								</div>
+							) : (
+								<img className="ai-assistant-featured-image__image" src={ imageURL } alt="" />
+							) }
 							<div className="ai-assistant-featured-image__actions">
-								<Button
-									onClick={ handleAccept }
-									variant="secondary"
-									isBusy={ isSavingToMediaLibrary }
-									disabled={ isSavingToMediaLibrary }
-								>
-									{ __( 'Save and use image', 'jetpack' ) }
-								</Button>
+								{ ! error && (
+									<Button
+										onClick={ handleAccept }
+										variant="secondary"
+										isBusy={ isSavingToMediaLibrary }
+										disabled={ isSavingToMediaLibrary }
+									>
+										{ __( 'Save and use image', 'jetpack' ) }
+									</Button>
+								) }
 								<Button
 									onClick={ handleRegenerate }
 									variant="secondary"
 									disabled={ isSavingToMediaLibrary }
 								>
-									{ __( 'Generate another image', 'jetpack' ) }
+									{ error
+										? __( 'Try again', 'jetpack' )
+										: __( 'Generate another image', 'jetpack' ) }
 								</Button>
 							</div>
 						</div>
