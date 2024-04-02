@@ -18,7 +18,7 @@ use Symfony\Component\Console\Tester\CommandTester;
  * @covers \Automattic\Jetpack\StubGenerator\Application
  * @covers \Automattic\Jetpack\StubGenerator\StripDocsNodeVisitor
  */
-class ApplicationTest extends TestCase {
+class IntegrationTest extends TestCase {
 
 	/**
 	 * Set up before class.
