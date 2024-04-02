@@ -183,7 +183,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.2.1 - 2024-03-29
+### 3.2.2 - 2024-04-02
 #### Added
 - Cache: Ensure cache engine is loading every time the Settings page loads.
 - Cache: Clear cache if Boost module settings are changed
