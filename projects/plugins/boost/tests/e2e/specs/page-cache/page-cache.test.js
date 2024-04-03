@@ -107,17 +107,37 @@ test.describe( 'Cache module', () => {
 		const postFrontPage = await PostFrontendPage.visit( newPage );
 		await postFrontPage.logout();
 
+		let totalVisits = 0;
+
 		newPage.on( 'response', response => {
 			if ( response.url().replace( /\/$/, '' ) !== resolveSiteUrl().replace( /\/$/, '' ) ) {
 				return;
 			}
 
-			expect(
-				response.headers().hasOwnProperty( 'X-Jetpack-Boost-Cache'.toLowerCase() ),
-				'Page Cache header should be present'
-			).toBeTruthy();
+			totalVisits++;
+
+			const responseHeaders = response.headers();
+			const cacheHeaderName = 'X-Jetpack-Boost-Cache'.toLowerCase();
+
+			// First visit should always be a miss.
+			if ( totalVisits === 1 ) {
+				expect(
+					responseHeaders.hasOwnProperty( cacheHeaderName ) &&
+						responseHeaders[ cacheHeaderName ] === 'miss',
+					'Page Cache header should be set to miss on first visit.'
+				).toBeTruthy();
+			} else {
+				expect(
+					responseHeaders.hasOwnProperty( cacheHeaderName ) &&
+						responseHeaders[ cacheHeaderName ] === 'hit',
+					'Page Cache header should be set to hit on second visit.'
+				).toBeTruthy();
+			}
 		} );
 
+		await PostFrontendPage.visit( newPage );
+
+		// Visit again to make sure the cache is hit.
 		await PostFrontendPage.visit( newPage );
 
 		await newPage.close();
