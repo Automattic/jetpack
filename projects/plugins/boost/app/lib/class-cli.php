@@ -24,7 +24,7 @@ class CLI {
 	 */
 	private $jetpack_boost;
 
-	const MAKE_E2E_TESTS_WORK_MODULES = array( 'critical_css', 'render_blocking_js' );
+	const MAKE_E2E_TESTS_WORK_MODULES = array( 'critical_css', 'render_blocking_js', 'image_guide' );
 
 	/**
 	 * CLI constructor.
