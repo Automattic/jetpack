@@ -13,6 +13,7 @@ export function boostPrerequisitesBuilder( page ) {
 		jetpackDeactivated: undefined,
 		mockSpeedScore: undefined,
 		enqueuedAssets: undefined,
+		appendImage: undefined,
 	};
 
 	return {
@@ -40,6 +41,10 @@ export function boostPrerequisitesBuilder( page ) {
 			state.enqueuedAssets = shouldEnqueueAssets;
 			return this;
 		},
+		withAppendedImage( shouldAppendImage ) {
+			state.appendImage = shouldAppendImage;
+			return this;
+		},
 		withCleanEnv() {
 			state.clean = true;
 			return this;
@@ -58,6 +63,7 @@ async function buildPrerequisites( state, page ) {
 		clean: () => ensureCleanState( state.clean ),
 		mockSpeedScore: () => ensureMockSpeedScoreState( state.mockSpeedScore ),
 		enqueuedAssets: () => ensureEnqueuedAssets( state.enqueuedAssets ),
+		appendImage: () => ensureAppendedImage( state.appendImage ),
 	};
 
 	logger.prerequisites( JSON.stringify( state, null, 2 ) );
@@ -106,6 +112,16 @@ export async function ensureEnqueuedAssets( enqueue ) {
 	} else {
 		logger.prerequisites( 'Deactivating assets' );
 		await execWpCommand( 'plugin deactivate e2e-concatenate-enqueue/e2e-concatenate-enqueue.php' );
+	}
+}
+
+export async function ensureAppendedImage( append ) {
+	if ( append ) {
+		logger.prerequisites( 'Appending image' );
+		await execWpCommand( 'plugin activate e2e-appended-image/e2e-appended-image.php' );
+	} else {
+		logger.prerequisites( 'Removing appended image' );
+		await execWpCommand( 'plugin deactivate e2e-appended-image/e2e-appended-image.php' );
 	}
 }
 
