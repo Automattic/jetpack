@@ -99,7 +99,7 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 								<span>
 									{ __( 'Format of the link to use when sharing a note.', 'jetpack-social' ) }
 									&nbsp;
-									<ExternalLink href="https://jetpack.com/redirect/?source=jetpack-social-notes-permashortcitation">
+									<ExternalLink href="https://jetpack.com/redirect/?source=jetpack-social-notes-link-format">
 										{ __( 'Learn more', 'jetpack-social' ) }
 									</ExternalLink>
 								</span>
