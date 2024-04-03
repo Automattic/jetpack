@@ -97,6 +97,15 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 		processImageGeneration();
 	}, [ processImageGeneration, recordEvent ] );
 
+	const handleTryAgain = useCallback( () => {
+		// track the try again event
+		recordEvent( 'jetpack_ai_featured_image_generation_try_again', {
+			placement: JETPACK_SIDEBAR_PLACEMENT,
+		} );
+
+		processImageGeneration();
+	}, [ processImageGeneration, recordEvent ] );
+
 	const triggerComplementaryArea = useCallback( () => {
 		enableComplementaryArea( 'core/edit-post', 'edit-post/document' );
 	}, [ enableComplementaryArea ] );
@@ -192,15 +201,19 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 										{ __( 'Save and use image', 'jetpack' ) }
 									</Button>
 								) }
-								<Button
-									onClick={ handleRegenerate }
-									variant="secondary"
-									disabled={ isSavingToMediaLibrary }
-								>
-									{ error
-										? __( 'Try again', 'jetpack' )
-										: __( 'Generate another image', 'jetpack' ) }
-								</Button>
+								{ error ? (
+									<Button onClick={ handleTryAgain } variant="secondary">
+										{ __( 'Try again', 'jetpack' ) }
+									</Button>
+								) : (
+									<Button
+										onClick={ handleRegenerate }
+										variant="secondary"
+										disabled={ isSavingToMediaLibrary }
+									>
+										{ __( 'Generate another image', 'jetpack' ) }
+									</Button>
+								) }
 							</div>
 						</div>
 					) }
