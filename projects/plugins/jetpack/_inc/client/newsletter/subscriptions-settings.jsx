@@ -18,7 +18,6 @@ import {
 	currentThemeIsBlockTheme,
 	currentThemeStylesheet,
 	getSiteAdminUrl,
-	isSubscriptionSiteEnabled,
 	subscriptionSiteEditSupported,
 } from 'state/initial-state';
 import { getModule } from 'state/modules';
@@ -47,7 +46,6 @@ function SubscriptionsSettings( props ) {
 		isSmEnabled,
 		isSubscribePostEndEnabled,
 		isLoginNavigationEnabled,
-		isSubscriptionSiteFeatureEnabled,
 		isSubscriptionSiteEditSupported,
 		isSubscriptionsActive,
 		siteRawUrl,
@@ -247,29 +245,27 @@ function SubscriptionsSettings( props ) {
 									'jetpack'
 								) }
 							/>
-							{ isSubscriptionSiteFeatureEnabled && (
-								<ToggleControl
-									checked={ isSubscriptionsActive && isLoginNavigationEnabled }
-									disabled={ isDisabled }
-									toggling={ isSavingAnyOption( [
-										'jetpack_subscriptions_login_navigation_enabled',
-									] ) }
-									onChange={ handleLoginNavigationToggleChange }
-									label={
-										<>
-											{ __( 'Add the Subscriber Login Block to the navigation', 'jetpack' ) }
-											{ isBlockTheme && headerTemplateEditorUrl && (
-												<>
-													{ '. ' }
-													<ExternalLink href={ headerTemplateEditorUrl }>
-														{ __( 'Preview and edit', 'jetpack' ) }
-													</ExternalLink>
-												</>
-											) }
-										</>
-									}
-								/>
-							) }
+							<ToggleControl
+								checked={ isSubscriptionsActive && isLoginNavigationEnabled }
+								disabled={ isDisabled }
+								toggling={ isSavingAnyOption( [
+									'jetpack_subscriptions_login_navigation_enabled',
+								] ) }
+								onChange={ handleLoginNavigationToggleChange }
+								label={
+									<>
+										{ __( 'Add the Subscriber Login Block to the navigation', 'jetpack' ) }
+										{ isBlockTheme && headerTemplateEditorUrl && (
+											<>
+												{ '. ' }
+												<ExternalLink href={ headerTemplateEditorUrl }>
+													{ __( 'Preview and edit', 'jetpack' ) }
+												</ExternalLink>
+											</>
+										) }
+									</>
+								}
+							/>
 						</FormFieldset>
 					}
 				</SettingsGroup>
@@ -306,7 +302,6 @@ export default withModuleSettingsFormHelpers(
 			isLoginNavigationEnabled: ownProps.getOptionValue(
 				'jetpack_subscriptions_login_navigation_enabled'
 			),
-			isSubscriptionSiteFeatureEnabled: isSubscriptionSiteEnabled( state ),
 			isSubscriptionSiteEditSupported: subscriptionSiteEditSupported( state ),
 			isBlockTheme: currentThemeIsBlockTheme( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),

@@ -36,21 +36,7 @@ class Jetpack_Subscription_Site {
 	 * @return void
 	 */
 	public function handle_subscriber_login_block_placements() {
-		if ( ! $this->is_subscription_site_feature_enabled() ) {
-			return;
-		}
-
 		$this->handle_subscriber_login_block_navigation_placement();
-	}
-
-	/**
-	 * Returns true if Subscription Site feature is enabled.
-	 *
-	 * @return bool
-	 */
-	protected function is_subscription_site_feature_enabled() {
-		// It's temporary. Allows to enable the Subscription Site feature.
-		return (bool) apply_filters( 'jetpack_subscription_site_enabled', false );
 	}
 
 	/**
