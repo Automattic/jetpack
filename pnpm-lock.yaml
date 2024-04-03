@@ -2870,8 +2870,13 @@ importers:
         specifier: 5.32.0
         version: 5.32.0
       '@wordpress/i18n':
+<<<<<<< HEAD
         specifier: 4.55.0
         version: 4.55.0
+=======
+        specifier: 4.54.0
+        version: 4.54.0
+>>>>>>> 14973a7911 (Add share details information to the connection card)
       classnames:
         specifier: 2.3.2
         version: 2.3.2
