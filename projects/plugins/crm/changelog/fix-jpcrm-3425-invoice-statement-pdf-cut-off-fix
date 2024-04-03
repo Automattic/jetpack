@@ -1,4 +1,4 @@
-Significance: minor
+Significance: patch
 Type: fixed
 
 Invoices: Fixed display issues for statements with long invoice lists.
