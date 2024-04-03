@@ -46,7 +46,7 @@ class Jetpack_Mu_Wpcom {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
-			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
+			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 		}
 
 		// Unified navigation fix for changes in WordPress 6.2.
