@@ -23,6 +23,10 @@
 
 	:global {
 		.components-base-control {
+			&__field {
+				--wp-admin-theme-color: var(--jp-green-40);
+			}
+
 			label.components-input-control__label {
 				text-transform: none;
 				font-weight: inherit;
