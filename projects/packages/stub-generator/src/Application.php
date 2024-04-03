@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\StubGenerator;
 
+use Automattic\Jetpack\StubGenerator\PhpParser\PhpDocNameResolver;
 use Automattic\Jetpack\StubGenerator\PhpParser\StripDocsNodeVisitor;
 use Automattic\Jetpack\StubGenerator\PhpParser\StubNodeVisitor;
 use PhpParser\NodeTraverser;
@@ -205,8 +206,10 @@ class Application extends SingleCommandApplication {
 
 		$parser = ( new ParserFactory() )->createForHostVersion();
 
-		$traverser = new NodeTraverser();
-		$traverser->addVisitor( new NameResolver() );
+		$traverser    = new NodeTraverser();
+		$nameResolver = new NameResolver();
+		$traverser->addVisitor( $nameResolver );
+		$traverser->addVisitor( new PhpDocNameResolver( $nameResolver->getNameContext(), $output ) );
 		$traverser->addVisitor( new ParentConnectingVisitor() );
 		$visitor = new StubNodeVisitor( $output );
 		$traverser->addVisitor( $visitor );
