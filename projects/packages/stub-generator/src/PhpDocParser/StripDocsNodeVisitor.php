@@ -5,7 +5,7 @@
  * @package automattic/jetpack-stub-generator
  */
 
-namespace Automattic\Jetpack\StubGenerator;
+namespace Automattic\Jetpack\StubGenerator\PhpDocParser;
 
 use PHPStan\PhpDocParser\Ast\AbstractNodeVisitor;
 use PHPStan\PhpDocParser\Ast\Node;
@@ -28,7 +28,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Node visitor to strip docs.
  */
-class StripDocsPhpDocNodeVisitor extends AbstractNodeVisitor {
+class StripDocsNodeVisitor extends AbstractNodeVisitor {
 
 	/**
 	 * OutputInterface.

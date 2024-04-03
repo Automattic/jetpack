@@ -5,8 +5,9 @@
  * @package automattic/jetpack-stub-generator
  */
 
-namespace Automattic\Jetpack\StubGenerator;
+namespace Automattic\Jetpack\StubGenerator\PhpParser;
 
+use Automattic\Jetpack\StubGenerator\PhpDocParser\StripDocsNodeVisitor as PhpDocParser_StripDocsNodeVisitor;
 use PhpParser\Comment\Doc;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
@@ -75,7 +76,7 @@ class StripDocsNodeVisitor extends NodeVisitorAbstract {
 		$constExprParser = new ConstExprParser( true, true, $usedAttributes );
 		$typeParser      = new TypeParser( $constExprParser, true, $usedAttributes );
 		$this->parser    = new PhpDocParser( $typeParser, $constExprParser, true, true, $usedAttributes );
-		$this->traverser = new NodeTraverser( array( new CloningVisitor(), new StripDocsPhpDocNodeVisitor( $output ) ) );
+		$this->traverser = new NodeTraverser( array( new CloningVisitor(), new PhpDocParser_StripDocsNodeVisitor( $output ) ) );
 		$this->printer   = new Printer();
 	}
 

@@ -16,7 +16,7 @@ use Symfony\Component\Console\Tester\CommandTester;
  * Integration tests for jetpack-stub-generator.
  *
  * @covers \Automattic\Jetpack\StubGenerator\Application
- * @covers \Automattic\Jetpack\StubGenerator\StripDocsNodeVisitor
+ * @covers \Automattic\Jetpack\StubGenerator\PhpParser\StripDocsNodeVisitor
  */
 class IntegrationTest extends TestCase {
 

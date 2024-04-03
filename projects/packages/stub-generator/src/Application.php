@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\StubGenerator;
 
+use Automattic\Jetpack\StubGenerator\PhpParser\StripDocsNodeVisitor;
+use Automattic\Jetpack\StubGenerator\PhpParser\StubNodeVisitor;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\NodeVisitor\ParentConnectingVisitor;

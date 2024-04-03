@@ -1,15 +1,15 @@
 <?php
 /**
- * Tests for the jetpack-stub-generator StubNodeVisitor class.
+ * Tests for the jetpack-stub-generator PhpParser\StubNodeVisitor class.
  *
  * @package automattic/jetpack-stub-generator
  */
 
 // phpcs:disable PHPCompatibility.Syntax.NewFlexibleHeredocNowdoc.ClosingMarkerNoNewLine -- https://github.com/PHPCompatibility/PHPCompatibility/issues/1696
 
-namespace Automattic\Jetpack\StubGenerator\Tests;
+namespace Automattic\Jetpack\StubGenerator\Tests\PhpParser;
 
-use Automattic\Jetpack\StubGenerator\StubNodeVisitor;
+use Automattic\Jetpack\StubGenerator\PhpParser\StubNodeVisitor;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\NodeVisitor\ParentConnectingVisitor;
@@ -22,7 +22,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 /**
  * Tests for the jetpack-stub-generator StubNodeVisitor class.
  *
- * @covers \Automattic\Jetpack\StubGenerator\StubNodeVisitor
+ * @covers \Automattic\Jetpack\StubGenerator\PhpParser\StubNodeVisitor
  */
 class StubNodeVisitorTest extends TestCase {
 

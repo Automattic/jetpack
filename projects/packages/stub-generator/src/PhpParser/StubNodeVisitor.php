@@ -5,7 +5,7 @@
  * @package automattic/jetpack-stub-generator
  */
 
-namespace Automattic\Jetpack\StubGenerator;
+namespace Automattic\Jetpack\StubGenerator\PhpParser;
 
 <<<PHAN
 @phan-type ClassDefs = '*'|array<string,'*'|array{constant?:'*'|string[],property?:'*'|string[],method?:'*'|string[]}>

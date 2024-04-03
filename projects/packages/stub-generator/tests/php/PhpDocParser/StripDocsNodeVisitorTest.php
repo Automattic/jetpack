@@ -1,15 +1,15 @@
 <?php
 /**
- * Tests for the jetpack-stub-generator StripDocsPhpDocNodeVisitor class.
+ * Tests for the jetpack-stub-generator PhpDocParser\StripDocsNodeVisitor class.
  *
  * @package automattic/jetpack-stub-generator
  */
 
 // phpcs:disable PHPCompatibility.Syntax.NewFlexibleHeredocNowdoc.ClosingMarkerNoNewLine -- https://github.com/PHPCompatibility/PHPCompatibility/issues/1696
 
-namespace Automattic\Jetpack\StubGenerator\Tests;
+namespace Automattic\Jetpack\StubGenerator\Tests\PhpDocParser;
 
-use Automattic\Jetpack\StubGenerator\StripDocsPhpDocNodeVisitor;
+use Automattic\Jetpack\StubGenerator\PhpDocParser\StripDocsNodeVisitor;
 use PHPStan\PhpDocParser\Ast\NodeTraverser;
 use PHPStan\PhpDocParser\Ast\NodeVisitor\CloningVisitor;
 use PHPStan\PhpDocParser\Lexer\Lexer;
@@ -22,11 +22,11 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 /**
- * Tests for the jetpack-stub-generator StripDocsPhpDocNodeVisitor class.
+ * Tests for the jetpack-stub-generator PhpDocParser\StripDocsNodeVisitor class.
  *
- * @covers \Automattic\Jetpack\StubGenerator\StripDocsPhpDocNodeVisitor
+ * @covers \Automattic\Jetpack\StubGenerator\PhpDocParser\StripDocsNodeVisitor
  */
-class StripDocsPhpDocNodeVisitorTest extends TestCase {
+class StripDocsNodeVisitorTest extends TestCase {
 
 	/**
 	 * Test the visitor.
@@ -48,7 +48,7 @@ class StripDocsPhpDocNodeVisitorTest extends TestCase {
 		$constExprParser = new ConstExprParser( true, true, $usedAttributes );
 		$typeParser      = new TypeParser( $constExprParser, true, $usedAttributes );
 		$parser          = new PhpDocParser( $typeParser, $constExprParser, true, true, $usedAttributes );
-		$traverser       = new NodeTraverser( array( new CloningVisitor(), new StripDocsPhpDocNodeVisitor( $output ) ) );
+		$traverser       = new NodeTraverser( array( new CloningVisitor(), new StripDocsNodeVisitor( $output ) ) );
 		$printer         = new Printer();
 
 		$tokens         = new TokenIterator( $lexer->tokenize( $input ) );
