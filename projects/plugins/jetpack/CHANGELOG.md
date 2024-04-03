@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 13.3-beta - 2024-04-01
+## 13.3 - 2024-04-03
 ### Enhancements
 - AI Assistant: Provide per-block quick actions to make them more relevant. [#36393]
 - Blocks: "Earn" category renamed to "Monetize". [#36480]
@@ -96,6 +96,7 @@
 - RNMobile: Remove code associated with Story block for the mobile native version. [#36151]
 - Sharing Block: Remove extra margin previously added to the first button. [#36386]
 - Show Browse sites when wp-admin interface is selected and using nav unification. [#36198]
+- Social: Ensure the Settings panel is rendered during pre/post publish. [#36654]
 - SSO: Add error log on SSO invite. [#36416]
 - SSO: add filter allowing one to disable the WordPress.com invite interface. [#36572]
 - SSO: fix PHP notices and remove unnecessary PHPCS ignores. [#36589]
