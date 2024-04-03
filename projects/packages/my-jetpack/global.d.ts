@@ -6,6 +6,7 @@ declare module '*.scss';
 interface Window {
 	myJetpackInitialState?: {
 		siteSuffix: string;
+		siteUrl: string;
 		latestBoostSpeedScores: {
 			scores: {
 				desktop: number;
@@ -186,6 +187,7 @@ interface Window {
 		};
 		redBubbleAlerts: {
 			'missing-site-connection'?: null;
+			'welcome-banner-active'?: null;
 			[ key: `${ string }-bad-installation` ]: {
 				data: {
 					plugin: string;
@@ -195,9 +197,6 @@ interface Window {
 		topJetpackMenuItemUrl: string;
 		userIsAdmin: string;
 		userIsNewToJetpack: string;
-		welcomeBanner: {
-			hasBeenDismissed: boolean;
-		};
 	};
 	JP_CONNECTION_INITIAL_STATE: {
 		apiRoot: string;

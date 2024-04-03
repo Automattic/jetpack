@@ -43,6 +43,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	protected function set_up() {
 		parent::set_up_wordbless();
 		\WorDBless\Users::init()->clear_all_users();
+		Scheduled_Updates::init();
 
 		// Initialize the WordPress filesystem variable.
 		global $wp_filesystem;
@@ -220,6 +221,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertCount( 1, wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
 		$this->assertTrue( delete_plugins( array( $plugins[0] ) ) );
+
 		$this->assertCount( 0, wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
 	}
 

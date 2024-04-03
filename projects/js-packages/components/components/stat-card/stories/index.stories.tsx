@@ -1,6 +1,6 @@
 import { Icon, postList } from '@wordpress/icons';
 import StatCard from '..';
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'JS Packages/Components/Stat Card',
@@ -22,7 +22,7 @@ export default {
 			},
 		},
 	},
-} as ComponentMeta< typeof StatCard >;
+} as Meta< typeof StatCard >;
 
 const defaultArgs = {
 	icon: <Icon icon={ postList } color="green" />,
@@ -30,7 +30,7 @@ const defaultArgs = {
 	value: 1806,
 };
 
-const Template: ComponentStory< typeof StatCard > = args => {
+const Template: StoryFn< typeof StatCard > = args => {
 	return <StatCard { ...args } />;
 };
 
