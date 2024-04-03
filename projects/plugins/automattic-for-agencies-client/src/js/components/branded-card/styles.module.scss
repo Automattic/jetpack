@@ -46,9 +46,9 @@
 .card__column--content {
 	background-color: #FFFFFF;
 	border-radius: 8px;
-	padding: 80px 48px;
-	display: flex;
 	flex-basis: 562px;
+    height: 612px;
+    overflow: auto;
 
     @media (max-width: 959px) {
         padding: 48px;

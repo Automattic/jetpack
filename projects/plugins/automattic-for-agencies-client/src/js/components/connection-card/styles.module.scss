@@ -1,44 +1,141 @@
 .card {
-	min-height: 452px;
 	display: flex;
 	flex-direction: column;
 	gap: 24px;
+	padding: 32px 48px;
 
 	@media (max-width: 959px) {
 		min-height: auto;
 	}
+
+	h1, h2, h3, h4, h5, h6 {
+		letter-spacing: -1%;
+		margin: 0;
+	}
+
+	h1 {
+		font-size: 36px;
+		line-height: 40px;
+
+		@media (max-width: 659px) {
+			font-size: 24px;
+			line-height: 32px;
+		}
+	}
+	
+	h2 {
+		font-size: 32px;
+		line-height: 35px;
+		font-weight: 510;
+
+		@media (max-width: 659px) {
+			font-size: 24px;
+			line-height: 32px;
+		}
+	}
+	
+	p {
+		margin: 0;
+	}
+
+	ul {
+		margin: 0;
+		padding: 0;
+		list-style-type: none;
+	}
 }
 
-.card__heading {
-	font-size: 36px;
-	line-height: 40px;
-	letter-spacing: -1%;
-	margin: 0;
-
-	@media (max-width: 659px) {
-        font-size: 24px;
-		line-height: 32px;
-    }
+.card--connection {
+	padding: 80px 48px;
 }
 
-.check-list {
+.card--sharing {
+	gap: 32px;
+}
+
+.card__prose {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.checklist {
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
 	margin: 0;
+
+	li {
+		display: flex;
+		gap: 4px;
+		margin-bottom: 0;
+		font-size: 16px;
+		line-height: 22px;
+		letter-spacing: -2%;
+	}
+
+	li svg {
+		margin-top: -1px;
+		flex-shrink: 0;
+	}
+
+	.card--sharing & li {
+		font-size: 14px;
+	}
 }
 
-.check-list li {
+.site-connection {
 	display: flex;
-	// align-items: center;
-	gap: 4px;
-	margin-bottom: 0;
-	font-size: 16px;
-	line-height: 22px;
-	letter-spacing: -2%;
+	flex-direction: column;
+	gap: 16px;
+
+	.terms-of-service {
+		font-size: 13px;
+		color: var(--jp-black);
+		max-width: 460px;
+		
+	}
+
+	.terms-of-service__link {
+		color: var(--automattic-blue-60);
+		white-space: nowrap;
+		text-decoration: underline;
+	}
+
+	:global {
+		.components-button.is-link {
+			color: var(--automattic-blue-60);
+			white-space: nowrap;
+			text-decoration: underline;
+		}
+	}
+
 }
 
-.check-list li svg {
-	margin-top: -1px;
-	flex-shrink: 0;
+.connect-button-wrapper {
+	:global {
+		.components-button {
+			background-color: var(--automattic-blue-60);
+			min-width: 178px;
+		}
+	}
+}
+
+:global {
+	.components-button.components-button--back {
+		font-size: 14px;
+		color: var(--jp-black);
+		text-decoration: none;
+
+		&:hover {
+			text-decoration: underline;
+		}
+
+		svg {
+			width: 14px;
+			height: 14px;
+			margin-right: 4px;
+			margin-top: 1px;
+		}
+	}
 }
