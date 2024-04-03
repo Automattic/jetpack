@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.20.1.1] - 2024-04-03
+### Fixed
+- fix tier upgrades in my Jetpack [#36705]
+
 ## [4.20.1] - 2024-04-01
 ### Added
 - Change Phan baselines. [#36627]
@@ -1403,6 +1407,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.20.1.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.20.1...4.20.1.1
 [4.20.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.20.0...4.20.1
 [4.20.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.19.0...4.20.0
 [4.19.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.18.0...4.19.0
