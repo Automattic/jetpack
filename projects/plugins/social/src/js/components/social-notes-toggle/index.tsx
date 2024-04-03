@@ -94,7 +94,7 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 								) }
 							/>
 							<ToggleControl
-								label={ __( 'Use parenthical link format', 'jetpack-social' ) }
+								label={ __( 'Use permashortcitation', 'jetpack-social' ) }
 								checked={ notesConfig.use_parenthical_link ?? false }
 								className={ styles.toggle }
 								onChange={ onToggleNotesConfig( 'use_parenthical_link' ) }
@@ -103,13 +103,13 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 										{ sprintf(
 											/* translators: 1 is the link format */
 											__(
-												'Whether to use the parenthetical link format like %1$s, instead of the standard link.',
+												'Whether to use the permashortcitation like %1$s, instead of the standard link.',
 												'jetpack-social'
 											),
 											'(jetpack.com sn/12345)'
 										) }
 										&nbsp;
-										<ExternalLink href="https://jetpack.com/redirect/?source=jetpack-social-notes-help">
+										<ExternalLink href="https://jetpack.com/redirect/?source=jetpack-social-notes-permashortcitation">
 											{ __( 'Learn more', 'jetpack-social' ) }
 										</ExternalLink>
 									</span>
