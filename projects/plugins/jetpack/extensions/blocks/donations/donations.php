@@ -80,6 +80,9 @@ function render_block( $attr, $content ) {
 		);
 	}
 
+	$choose_amount_text = isset( $attr['chooseAmountText'] ) && ! empty( $attr['chooseAmountText'] ) ? $attr['chooseAmountText'] : __( 'Choose an amount', 'jetpack' );
+	$custom_amount_text = isset( $attr['customAmountText'] ) && ! empty( $attr['customAmountText'] ) ? $attr['customAmountText'] : __( 'Or enter a custom amount', 'jetpack' );
+
 	$currency   = $attr['currency'];
 	$nav        = '';
 	$headings   = '';
@@ -140,7 +143,7 @@ function render_block( $attr, $content ) {
 	if ( $attr['showCustomAmount'] ) {
 		$custom_amount        .= sprintf(
 			'<p>%s</p>',
-			wp_kses_post( $attr['customAmountText'] )
+			wp_kses_post( $custom_amount_text )
 		);
 		$default_custom_amount = \Jetpack_Memberships::SUPPORTED_CURRENCIES[ $currency ] * 100;
 		$custom_amount        .= sprintf(
@@ -176,7 +179,7 @@ function render_block( $attr, $content ) {
 		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
 		$nav,
 		$headings,
-		$attr['chooseAmountText'],
+		$choose_amount_text,
 		$amounts,
 		$custom_amount,
 		$extra_text,
