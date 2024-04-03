@@ -322,7 +322,7 @@ class PhpDocNameResolverTest extends TestCase {
 				use Other\NS\Foo;
 
 				/**
-				 * Not sure that Phan even supports this, but the type parser does.
+				 * Phan doesn't seem to support this, but the doc parser does.
 				 *
 				 * @param $size Name.
 				 * @return ($size is positive-int ? non-empty-array<Foo> : Foo[])
@@ -345,7 +345,7 @@ class PhpDocNameResolverTest extends TestCase {
 
 				use Other\NS\Foo;
 				/**
-				 * Not sure that Phan even supports this, but the type parser does.
+				 * Phan doesn't seem to support this, but the doc parser does.
 				 *
 				 * @param $size Name.
 				 * @return ($size is positive-int ? non-empty-array<\Other\NS\Foo> : \Other\NS\Foo[])
@@ -481,9 +481,9 @@ class PhpDocNameResolverTest extends TestCase {
 				use Other\NS\Foo;
 
 				/**
-				 * Not sure that Phan even supports this, but the type parser does.
+				 * Phan doesn't seem to support this, but the doc parser does.
 				 *
-				 * @phpstan-type AMap array{foo:Foo,bar:Bar,best?:Foo|Bar|null}
+				 * @phan-type AMap = array{foo:Foo,bar:Bar,best?:Foo|Bar|null}
 				 * @param AMap $map
 				 * @return AMap['bar']
 				 */
@@ -495,9 +495,9 @@ class PhpDocNameResolverTest extends TestCase {
 
 				use Other\NS\Foo;
 				/**
-				 * Not sure that Phan even supports this, but the type parser does.
+				 * Phan doesn't seem to support this, but the doc parser does.
 				 *
-				 * @phpstan-type AMap array{foo:\Other\NS\Foo,bar:Bar,best?:\Other\NS\Foo|Bar|null}
+				 * @phan-type AMap = array{foo:\Other\NS\Foo,bar:Bar,best?:\Other\NS\Foo|Bar|null}
 				 * @param AMap $map
 				 * @return AMap['bar']
 				 */
