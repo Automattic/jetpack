@@ -26,10 +26,18 @@ const useAutoScroll = (
 		let parent = element.parentElement;
 		while ( parent ) {
 			const { overflow } = window.getComputedStyle( parent );
+
 			if ( overflow.split( ' ' ).every( o => o === 'auto' || o === 'scroll' ) ) {
 				return parent;
 			}
-			parent = parent.parentElement;
+
+			if ( parent.parentElement ) {
+				parent = parent.parentElement;
+			} else {
+				// If there's no parent, we're at the top of the DOM
+				// just return the document element
+				return parent;
+			}
 		}
 
 		return document.documentElement;
