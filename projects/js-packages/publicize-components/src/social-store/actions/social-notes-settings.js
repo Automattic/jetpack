@@ -47,7 +47,7 @@ export function* updateSocialNotesConfig( config ) {
 		yield setJetpackSettings( updatedSettings );
 		return true;
 	} catch ( e ) {
-		yield setJetpackSettings( { social_notes_config: newConfig } );
+		yield setJetpackSettings( { social_notes_config: prevConfig } );
 		return false;
 	}
 }
