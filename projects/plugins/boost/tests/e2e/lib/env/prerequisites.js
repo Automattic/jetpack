@@ -102,10 +102,10 @@ export async function ensureMockSpeedScoreState( mockSpeedScore ) {
 export async function ensureAppendedImage( append ) {
 	if ( append ) {
 		logger.prerequisites( 'Appending image' );
-		await execWpCommand( 'plugin activate e2e-image-cdn/e2e-image-cdn.php' );
+		await execWpCommand( 'plugin activate e2e-appended-image/e2e-appended-image.php' );
 	} else {
 		logger.prerequisites( 'Removing appended image' );
-		await execWpCommand( 'plugin deactivate e2e-image-cdn/e2e-image-cdn.php' );
+		await execWpCommand( 'plugin deactivate e2e-appended-image/e2e-appended-image.php' );
 	}
 }
 

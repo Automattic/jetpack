@@ -37,7 +37,6 @@ const useSuggestionsFromOpenAI = ( {
 	blockRef,
 	contentRef,
 } ) => {
-	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
 	const [ wasCompletionJustRequested, setWasCompletionJustRequested ] = useState( false );
 	const [ showRetry, setShowRetry ] = useState( false );
@@ -485,10 +484,8 @@ const useSuggestionsFromOpenAI = ( {
 	}
 
 	return {
-		isLoadingCategories,
 		isLoadingCompletion,
 		wasCompletionJustRequested,
-		setIsLoadingCategories,
 		setShowRetry,
 		showRetry,
 		postTitle: currentPostTitle,

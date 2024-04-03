@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Social;
  */
 class Note {
 	const JETPACK_SOCIAL_NOTE_CPT     = 'jetpack-social-note';
+	const JETPACK_SOCIAL_NOTES_CONFIG = 'jetpack_social_notes_config';
 	const FLUSH_REWRITE_RULES_FLUSHED = 'jetpack_social_rewrite_rules_flushed';
 
 	/**
@@ -136,7 +137,7 @@ class Note {
 	 */
 	public function restrict_blocks_for_social_note( $allowed_blocks, $post ) {
 		if ( 'jetpack-social-note' === $post->post_type ) {
-			// Only allow paragraph block
+			// Only allow paragraph block.
 			$allowed_blocks = array(
 				'core/paragraph',
 			);
@@ -177,6 +178,32 @@ class Note {
 	}
 
 	/**
+	 * Get the social notes config.
+	 *
+	 * @return array The social notes config.
+	 */
+	public function get_config() {
+		return get_option(
+			self::JETPACK_SOCIAL_NOTES_CONFIG,
+			// Append link by default.
+			array(
+				'append_link' => true,
+			)
+		);
+	}
+
+	/**
+	 * Update social notes config
+	 *
+	 * @param array $config The config to update.
+	 */
+	public function update_config( $config ) {
+		$old_config = get_option( self::JETPACK_SOCIAL_NOTES_CONFIG, array() );
+		$new_config = array_merge( $old_config, $config );
+		update_option( self::JETPACK_SOCIAL_NOTES_CONFIG, $new_config );
+	}
+
+	/**
 	 * Use the_title hook so we show the social note's exceprt in the post list view.
 	 *
 	 * @param array $title The title of the post, which we have set to be an empty string for Social Notes.
@@ -187,7 +214,7 @@ class Note {
 			return wp_trim_words( get_the_excerpt(), 10 );
 		}
 
-		// Return the original title for other cases
+		// Return the original title for other cases.
 		return $title;
 	}
 }
