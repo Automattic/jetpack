@@ -245,7 +245,7 @@ function SubscriptionsSettings( props ) {
 									'jetpack'
 								) }
 							/>
-							{ isBlockTheme && (
+							{ isSubscriptionSiteEditSupported && (
 								<ToggleControl
 									checked={ isSubscriptionsActive && isLoginNavigationEnabled }
 									disabled={ isDisabled }
