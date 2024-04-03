@@ -242,26 +242,15 @@ class REST_Settings_Controller extends WP_REST_Controller {
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 					'properties'  => array(
-						'append_link'          => array(
+						'append_link' => array(
 							'description' => __( 'Whether to append the post link when sharing the note.', 'jetpack-social' ),
 							'type'        => 'boolean',
 							'context'     => array( 'view', 'edit' ),
 						),
-						'use_shortlink'        => array(
-							'description' => __( 'Whether to use the shortlink instead of the full URL.', 'jetpack-social' ),
-							'type'        => 'boolean',
-							'context'     => array( 'view', 'edit' ),
-						),
-						'use_parenthical_link' => array(
-							'description' => sprintf(
-								/* translators: 1 is the link format */
-								__(
-									'Whether to use the parenthetical link format like %1$s, instead of the standard link.',
-									'jetpack-social'
-								),
-								'(jetpack.com sn/12345)'
-							),
-							'type'        => 'boolean',
+						'link_format' => array(
+							'description' => __( 'Link format', 'jetpack-social' ),
+							'type'        => 'string',
+							'enum'        => array( 'full_url', 'shortlink', 'permashortcitation' ),
 							'context'     => array( 'view', 'edit' ),
 						),
 					),

@@ -5,7 +5,7 @@
 		color: inherit;
 	}
 
-	@media ( min-width: 600px ) {
+	@media (min-width: 600px) {
 		grid-column: 2;
 	}
 }
@@ -22,9 +22,15 @@
 	}
 
 	:global {
-		.components-base-control__field {
-			--wp-admin-theme-color: var(--jp-green-40);
+		.components-base-control {
+			label.components-input-control__label {
+				text-transform: none;
+				font-weight: inherit;
+				font-size: inherit;
+			}
+			.components-input-control__container {
+				max-width: max-content;
+			}
 		}
 	}
 }
-

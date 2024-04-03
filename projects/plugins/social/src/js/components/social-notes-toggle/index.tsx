@@ -1,9 +1,9 @@
 import { Text } from '@automattic/jetpack-components';
 import { store as socialStore } from '@automattic/jetpack-publicize-components';
-import { ExternalLink, ToggleControl } from '@wordpress/components';
+import { ExternalLink, SelectControl, ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import React, { useState } from 'react';
 import ToggleSection from '../toggle-section';
 import styles from './styles.module.scss';
@@ -46,14 +46,21 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 		} );
 	}, [ isEnabled, updateOptions ] );
 
-	const onToggleNotesConfig = useCallback(
-		( option: 'append_link' | 'use_shortlink' | 'use_parenthical_link' ) => () => {
-			updateSocialNotesConfig( {
-				[ option ]: ! notesConfig[ option ],
-			} );
+	const onToggleAppendLink = useCallback(
+		( append_link: boolean ) => {
+			updateSocialNotesConfig( { append_link } );
 		},
-		[ notesConfig, updateSocialNotesConfig ]
+		[ updateSocialNotesConfig ]
 	);
+
+	const onChangeLinkFormat = useCallback(
+		( link_format: string ) => {
+			updateSocialNotesConfig( { link_format } );
+		},
+		[ updateSocialNotesConfig ]
+	);
+
+	const appendLink = notesConfig.append_link ?? true;
 
 	return (
 		<ToggleSection
@@ -73,49 +80,31 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 				<div className={ styles[ 'notes-options-wrapper' ] }>
 					<ToggleControl
 						label={ __( 'Append post link', 'jetpack-social' ) }
-						checked={ notesConfig.append_link ?? true }
+						checked={ appendLink }
 						className={ styles.toggle }
-						onChange={ onToggleNotesConfig( 'append_link' ) }
-						help={ __(
-							'Whether to append the post link when sharing the note.',
-							'jetpack-social'
-						) }
+						onChange={ onToggleAppendLink }
+						help={ __( 'Whether to append the post link when sharing a note.', 'jetpack-social' ) }
 					/>
-					{ notesConfig.append_link ? (
-						<>
-							<ToggleControl
-								label={ __( 'Use shortlink', 'jetpack-social' ) }
-								checked={ notesConfig.use_shortlink ?? false }
-								className={ styles.toggle }
-								onChange={ onToggleNotesConfig( 'use_shortlink' ) }
-								help={ __(
-									'Whether to use the shortlink instead of the full URL.',
-									'jetpack-social'
-								) }
-							/>
-							<ToggleControl
-								label={ __( 'Use permashortcitation', 'jetpack-social' ) }
-								checked={ notesConfig.use_parenthical_link ?? false }
-								className={ styles.toggle }
-								onChange={ onToggleNotesConfig( 'use_parenthical_link' ) }
-								help={
-									<span>
-										{ sprintf(
-											/* translators: 1 is the link format */
-											__(
-												'Whether to use the permashortcitation like %1$s, instead of the standard link.',
-												'jetpack-social'
-											),
-											'(jetpack.com sn/12345)'
-										) }
-										&nbsp;
-										<ExternalLink href="https://jetpack.com/redirect/?source=jetpack-social-notes-permashortcitation">
-											{ __( 'Learn more', 'jetpack-social' ) }
-										</ExternalLink>
-									</span>
-								}
-							/>
-						</>
+					{ appendLink ? (
+						<SelectControl
+							label={ __( 'Link format', 'jetpack-social' ) }
+							value={ notesConfig.link_format ?? 'full_url' }
+							onChange={ onChangeLinkFormat }
+							options={ [
+								{ label: 'Full URL', value: 'full_url' },
+								{ label: 'Shortlink', value: 'shortlink' },
+								{ label: 'Permashortcitation', value: 'permashortcitation' },
+							] }
+							help={
+								<span>
+									{ __( 'Format of the link to use when sharing a note.', 'jetpack-social' ) }
+									&nbsp;
+									<ExternalLink href="https://jetpack.com/redirect/?source=jetpack-social-notes-permashortcitation">
+										{ __( 'Learn more', 'jetpack-social' ) }
+									</ExternalLink>
+								</span>
+							}
+						/>
 					) : null }
 				</div>
 			) : null }
