@@ -325,7 +325,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.3-beta - 2024-04-01
+### 13.3 - 2024-04-03
 #### Enhancements
 - AI Assistant: Provide per-block quick actions to make them more relevant.
 - Blocks: "Earn" category renamed to "Monetize".
