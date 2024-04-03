@@ -3,15 +3,17 @@
  */
 import { useCallback, useRef } from '@wordpress/element';
 import debugFactory from 'debug';
+import { useEffect } from 'react';
 
 const debug = debugFactory( 'jetpack-ai-assistant:use-auto-scroll' );
 const useAutoScroll = (
 	blockRef: React.MutableRefObject< HTMLDivElement >,
 	contentRef: React.MutableRefObject< HTMLDivElement >
 ) => {
-	const scrollElementRef = useRef( null );
 	const autoScrollEnabled = useRef( false );
 	const ignoreScroll = useRef( false );
+	const doingAutoScroll = useRef( false );
+	const scrollElementRef = useRef( null );
 
 	const getScrollParent = useCallback( element => {
 		// if we have it on ref already, don't scavenge the dom, just return it
@@ -44,78 +46,63 @@ const useAutoScroll = (
 	}, [] );
 
 	const userScrollHandler = useCallback( () => {
-		if ( ignoreScroll.current ) {
-			debug( 'scroll event skipped' );
-			return;
-		}
 		debug( 'user scrolled, disabling auto' );
-		// as the user scrolls, disable auto scroll
-		// Note: need to dupe disableAutoScroll as both callbacks cannot depend on each other
-		autoScrollEnabled.current = false;
+		if ( autoScrollEnabled.current && ! doingAutoScroll.current ) {
+			debug( 'user scrolled, disabling auto' );
+			ignoreScroll.current = true;
+		}
+	}, [] );
+
+	const userScrollEndHandler = useCallback( () => {
 		ignoreScroll.current = false;
-		scrollElementRef.current?.removeEventListener( 'scroll', userScrollHandler );
-		scrollElementRef.current = null;
+		if ( autoScrollEnabled.current ) {
+			debug( 'user stopped scrolling, enabling auto' );
+		}
 	}, [] );
 
 	const enableAutoScroll = useCallback( () => {
 		autoScrollEnabled.current = true;
-		ignoreScroll.current = true;
-		scrollElementRef.current = getScrollParent( blockRef.current );
-		scrollElementRef.current?.addEventListener( 'scroll', userScrollHandler );
 		debug( 'enabling auto scroll' );
-		debug( scrollElementRef.current );
-		debug( contentRef.current );
-	}, [ getScrollParent, blockRef, userScrollHandler, contentRef ] );
+	}, [] );
 
 	const disableAutoScroll = useCallback( () => {
 		autoScrollEnabled.current = false;
-		ignoreScroll.current = false;
-		scrollElementRef.current?.removeEventListener( 'scroll', userScrollHandler );
-		scrollElementRef.current = null;
 		debug( 'disabling auto scroll' );
-	}, [ userScrollHandler ] );
-
-	const preSuggestionPartialHandler = useCallback( () => {
-		// bail early if we're not in auto scroll mode
-		if ( ! autoScrollEnabled.current ) {
-			return;
-		}
-
-		ignoreScroll.current = true;
 	}, [] );
 
 	const snapToBottom = useCallback( () => {
-		// FF doesn't support scrollIntoViewIfNeeded
-		if ( ! blockRef?.current?.scrollIntoViewIfNeeded ) {
-			blockRef?.current?.scrollIntoViewIfNeeded?.( { block: 'end', inline: 'end' } );
-		} else {
-			blockRef?.current?.scrollIntoView( { block: 'end', inline: 'end' } );
-		}
-	}, [ blockRef ] );
-
-	const postSuggestionPartialHandler = useCallback( () => {
-		// bail early if we're not in auto scroll mode
-		if ( ! autoScrollEnabled.current ) {
+		if ( ! autoScrollEnabled.current || ignoreScroll.current ) {
 			return;
 		}
 
-		// do the auto scroll
-		snapToBottom();
+		const lastParagraph = contentRef?.current?.firstElementChild?.lastElementChild;
 
-		// this setTimeout here because setting the flag to skip the user scroll event
-		// would get into a race condition with the event handler
-		setTimeout( () => {
-			ignoreScroll.current = false;
-		}, 100 );
-	}, [ snapToBottom ] );
+		if ( ! lastParagraph ) {
+			return;
+		}
+
+		doingAutoScroll.current = true;
+		lastParagraph?.scrollIntoView( { block: 'center', inline: 'center', behavior: 'smooth' } );
+		doingAutoScroll.current = false;
+	}, [ contentRef ] );
+
+	useEffect( () => {
+		const parent = getScrollParent( blockRef.current );
+		debug( 'effect event added', window.document, parent );
+		parent.addEventListener( 'scroll', userScrollHandler );
+		parent.addEventListener( 'scrollend', userScrollEndHandler );
+
+		// cleanup
+		return () => {
+			parent.removeEventListener( 'scroll', userScrollHandler );
+			parent.removeEventListener( 'scrollend', userScrollEndHandler );
+		};
+	}, [ blockRef, getScrollParent, userScrollEndHandler, userScrollHandler ] );
 
 	return {
-		autoScrollEnabled,
 		snapToBottom,
 		enableAutoScroll,
 		disableAutoScroll,
-		preSuggestionPartialHandler,
-		postSuggestionPartialHandler,
 	};
 };
 

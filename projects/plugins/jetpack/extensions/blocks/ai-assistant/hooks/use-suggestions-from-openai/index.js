@@ -34,8 +34,8 @@ const useSuggestionsFromOpenAI = ( {
 	onModeration,
 	requireUpgrade,
 	requestingState,
-	blockRef,
 	contentRef,
+	blockRef,
 } ) => {
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
 	const [ wasCompletionJustRequested, setWasCompletionJustRequested ] = useState( false );
@@ -47,14 +47,10 @@ const useSuggestionsFromOpenAI = ( {
 	const [ requestState, setRequestState ] = useState( requestingState || 'init' );
 	const source = useRef();
 
-	const {
-		preSuggestionPartialHandler,
-		postSuggestionPartialHandler,
-		snapToBottom,
-		enableAutoScroll,
-		disableAutoScroll,
-		autoScrollEnabled,
-	} = useAutoScroll( blockRef, contentRef );
+	const { snapToBottom, enableAutoScroll, disableAutoScroll } = useAutoScroll(
+		blockRef,
+		contentRef
+	);
 
 	// Let's grab post data so that we can do something smart.
 	const currentPostTitle = useSelect( select =>
@@ -288,9 +284,7 @@ const useSuggestionsFromOpenAI = ( {
 				messages: updatedMessages,
 			} );
 
-			if ( autoScrollEnabled.current ) {
-				snapToBottom();
-			}
+			snapToBottom();
 			disableAutoScroll();
 
 			if ( ! useGutenbergSyntax ) {
@@ -451,9 +445,8 @@ const useSuggestionsFromOpenAI = ( {
 			// replaceInnerBlocks( clientId, validBlocks );
 
 			// Remove the delimiter from the suggestion and update the block.
-			preSuggestionPartialHandler?.( clientId, e?.detail );
 			updateBlockAttributes( clientId, { content: e?.detail?.replaceAll( delimiter, '' ) } );
-			postSuggestionPartialHandler?.( clientId, e?.detail );
+			snapToBottom();
 		};
 
 		source?.current?.addEventListener( 'function_done', onFunctionDone );
