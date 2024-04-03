@@ -180,7 +180,10 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 						<div className="ai-assistant-featured-image__content">
 							{ error ? (
 								<div className="ai-assistant-featured-image__error">
-									{ __( 'An error occurred while generating the image. Try Again', 'jetpack' ) }
+									{ __(
+										'An error occurred while generating the image. Please, try Again',
+										'jetpack'
+									) }
 									{ error?.message && (
 										<span className="ai-assistant-featured-image__error-message">
 											{ error?.message }
