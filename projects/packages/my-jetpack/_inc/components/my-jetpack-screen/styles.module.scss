@@ -2,6 +2,10 @@
 	margin-bottom: 0;
 }
 
+.cta {
+	min-width: auto;
+}
+
 .notice {
 	& > div {
 		position: relative;
@@ -76,7 +80,6 @@
     margin-right: var( --spacing-base ); // 8px
 	flex-grow: 1;
 	display: flex;
-	text-wrap: balance;
 
 	// left icon
 	& > svg {
