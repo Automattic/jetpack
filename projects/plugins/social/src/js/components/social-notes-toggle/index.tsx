@@ -91,9 +91,12 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 							value={ notesConfig.link_format ?? 'full_url' }
 							onChange={ onChangeLinkFormat }
 							options={ [
-								{ label: 'Full URL', value: 'full_url' },
-								{ label: 'Shortlink', value: 'shortlink' },
-								{ label: 'Permashortcitation', value: 'permashortcitation' },
+								{ label: __( 'Full URL', 'jetpack-social' ), value: 'full_url' },
+								{ label: __( 'Shortlink', 'jetpack-social' ), value: 'shortlink' },
+								{
+									label: __( 'Permashortcitation', 'jetpack-social' ),
+									value: 'permashortcitation',
+								},
 							] }
 							help={
 								<span>
