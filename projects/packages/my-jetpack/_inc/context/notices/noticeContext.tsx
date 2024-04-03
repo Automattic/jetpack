@@ -13,6 +13,7 @@ const defaultNotice: Notice = {
 export const NoticeContext = createContext< NoticeContextType >( {
 	currentNotice: defaultNotice,
 	setNotice: null,
+	resetNotice: null,
 } );
 
 // Maybe todo: Add a clearNotice type function to remove any active notices
@@ -27,11 +28,16 @@ const NoticeContextProvider = ( { children } ) => {
 		}
 	};
 
+	const resetNotice = () => {
+		setCurrentNotice( defaultNotice );
+	};
+
 	return (
 		<NoticeContext.Provider
 			value={ {
 				currentNotice,
 				setNotice,
+				resetNotice,
 			} }
 		>
 			{ children }

@@ -97,6 +97,7 @@ const GlobalNotice = ( { message, options } ) => {
  */
 export default function MyJetpackScreen() {
 	useNotificationWatcher();
+	const { redBubbleAlerts } = getMyJetpackWindowInitialState();
 	const { showFullJetpackStatsCard = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	const { jetpackManage = {}, adminUrl } = getMyJetpackWindowInitialState();
 
@@ -125,8 +126,10 @@ export default function MyJetpackScreen() {
 	const [ reloading, setReloading ] = useState( false );
 
 	useEffect( () => {
-		recordEvent( 'jetpack_myjetpack_page_view' );
-	}, [ recordEvent ] );
+		recordEvent( 'jetpack_myjetpack_page_view', {
+			red_bubble_alerts: Object.keys( redBubbleAlerts ).join( ',' ),
+		} );
+	}, [ recordEvent, redBubbleAlerts ] );
 
 	if ( window.location.hash.includes( '?reload=true' ) ) {
 		// Clears the query string and reloads the page.

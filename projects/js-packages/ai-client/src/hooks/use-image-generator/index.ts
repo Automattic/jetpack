@@ -13,10 +13,12 @@ const useImageGenerator = () => {
 	const generateImage = async function ( {
 		feature,
 		postContent,
+		responseFormat = 'url',
 	}: {
 		feature: string;
 		postContent: string;
-	} ): Promise< { data: Array< { url: string } > } > {
+		responseFormat?: 'url' | 'b64_json';
+	} ): Promise< { data: Array< { [ key: string ]: string } > } > {
 		let token = '';
 
 		try {
@@ -49,12 +51,14 @@ This is the post content:
 
 			const body = {
 				prompt: imageGenerationPrompt,
-				response_format: 'url',
+				response_format: responseFormat,
 				feature,
+				size: '1792x1024',
 			};
 
 			const headers = {
 				Authorization: `Bearer ${ token }`,
+				'Content-Type': 'application/json',
 			};
 
 			const data = await fetch( URL, {
@@ -63,7 +67,7 @@ This is the post content:
 				body: JSON.stringify( body ),
 			} ).then( response => response.json() );
 
-			return data as { data: { url: string }[] };
+			return data as { data: { [ key: string ]: string }[] };
 		} catch ( error ) {
 			return;
 		}

@@ -8,5 +8,8 @@
 	<rule ref="PHPCompatibilityWP">
 		<!-- Doesn't hurt anything, earlier versions ignore attributes. -->
 		<exclude name="PHPCompatibility.Attributes.NewAttributes.Found" />
+
+		<!-- We're not ready for 8.4 yet. Hopefully https://core.trac.wordpress.org/ticket/58719 will happen before we are. -->
+		<exclude name="PHPCompatibility.FunctionDeclarations.RemovedImplicitlyNullableParam.Deprecated" />
 	</rule>
 </ruleset>
