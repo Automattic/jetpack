@@ -842,7 +842,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 			$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . $schedule_id . '/logs' );
 			$request->set_body_params(
 				array(
-					'action'  => Scheduled_Updates_Logs::PLUGIN_UPDATES_COMPLETE,
+					'action'  => Scheduled_Updates_Logs::PLUGIN_UPDATES_SUCCESS,
 					'message' => 'Ending plugin updates.',
 				)
 			);
