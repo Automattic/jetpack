@@ -84,26 +84,14 @@ const useAutoScroll = (
 		ignoreScroll.current = true;
 	}, [] );
 
-	const snapToBottom = useCallback(
-		( extraOffset = 0 ) => {
-			const bounds = contentRef.current?.getBoundingClientRect();
-			const offset =
-				( blockRef?.current?.lastChild instanceof HTMLElement
-					? blockRef.current.lastChild.clientHeight
-					: 80 ) + 40;
-
-			if ( bounds?.bottom > window.innerHeight - offset || bounds?.top < 0 ) {
-				scrollElementRef.current?.scrollBy(
-					0,
-					contentRef.current?.getBoundingClientRect().bottom -
-						window.innerHeight +
-						offset +
-						extraOffset
-				);
-			}
-		},
-		[ blockRef, contentRef ]
-	);
+	const snapToBottom = useCallback( () => {
+		// FF doesn't support scrollIntoViewIfNeeded
+		if ( ! blockRef?.current?.scrollIntoViewIfNeeded ) {
+			blockRef?.current?.scrollIntoViewIfNeeded?.( { block: 'end', inline: 'end' } );
+		} else {
+			blockRef?.current?.scrollIntoView( { block: 'end', inline: 'end' } );
+		}
+	}, [ blockRef ] );
 
 	const postSuggestionPartialHandler = useCallback( () => {
 		// bail early if we're not in auto scroll mode

@@ -289,7 +289,7 @@ const useSuggestionsFromOpenAI = ( {
 			} );
 
 			if ( autoScrollEnabled.current ) {
-				snapToBottom( 10 );
+				snapToBottom();
 			}
 			disableAutoScroll();
 
