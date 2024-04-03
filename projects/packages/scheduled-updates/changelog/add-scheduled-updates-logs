@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add backend infrastructure to log scheduled update events

@@ -64,19 +64,30 @@ class User_Agent_Info {
 	 *
 	 * @var null|string
 	 */
-	private $platform             = null;
-	const PLATFORM_WINDOWS        = 'windows';
-	const PLATFORM_IPHONE         = 'iphone';
-	const PLATFORM_IPOD           = 'ipod';
-	const PLATFORM_IPAD           = 'ipad';
-	const PLATFORM_BLACKBERRY     = 'blackberry';
-	const PLATFORM_BLACKBERRY_10  = 'blackberry_10';
-	const PLATFORM_SYMBIAN        = 'symbian_series60';
-	const PLATFORM_SYMBIAN_S40    = 'symbian_series40';
-	const PLATFORM_J2ME_MIDP      = 'j2me_midp';
-	const PLATFORM_ANDROID        = 'android';
-	const PLATFORM_ANDROID_TABLET = 'android_tablet';
-	const PLATFORM_FIREFOX_OS     = 'firefoxOS';
+	private $platform              = null;
+	const PLATFORM_WINDOWS         = 'windows';
+	const PLATFORM_IPHONE          = 'iphone';
+	const PLATFORM_IPOD            = 'ipod';
+	const PLATFORM_IPAD            = 'ipad';
+	const PLATFORM_BLACKBERRY      = 'blackberry';
+	const PLATFORM_BLACKBERRY_10   = 'blackberry_10';
+	const PLATFORM_SYMBIAN         = 'symbian_series60';
+	const PLATFORM_SYMBIAN_S40     = 'symbian_series40';
+	const PLATFORM_J2ME_MIDP       = 'j2me_midp';
+	const PLATFORM_ANDROID         = 'android';
+	const PLATFORM_ANDROID_TABLET  = 'android_tablet';
+	const PLATFORM_FIREFOX_OS      = 'firefoxOS';
+	const PLATFORM_DESKTOP_LINUX   = 'linux';
+	const PLATFORM_DESKTOP_MAC     = 'mac';
+	const PLATFORM_DESKTOP_WINDOWS = 'windows';
+	const PLATFORM_DESKTOP_CHROME  = 'chrome';
+	const BROWSER_CHROME           = 'chrome';
+	const BROWSER_FIREFOX          = 'firefox';
+	const BROWSER_SAFARI           = 'safari';
+	const BROWSER_EDGE             = 'edge';
+	const BROWSER_OPERA            = 'opera';
+	const BROWSER_IE               = 'ie';
+	const OTHER                    = 'other';
 
 	/**
 	 * A list of dumb-phone user agent parts.
@@ -275,6 +286,57 @@ class User_Agent_Info {
 		}
 
 		return $this->platform;
+	}
+
+	/**
+	 * Returns the platform for desktops
+	 *
+	 * @return string
+	 */
+	public function get_desktop_platform() {
+		$ua = $this->useragent;
+		if ( empty( $ua ) ) {
+			return false;
+		}
+		$platform = self::OTHER;
+
+		if ( static::is_linux_desktop() ) {
+			$platform = self::PLATFORM_DESKTOP_LINUX;
+		} elseif ( static::is_mac_desktop() ) {
+			$platform = self::PLATFORM_DESKTOP_MAC;
+		} elseif ( static::is_windows_desktop() ) {
+			$platform = self::PLATFORM_DESKTOP_WINDOWS;
+		} elseif ( static::is_chrome_desktop() ) {
+			$platform = self::PLATFORM_DESKTOP_CHROME;
+		}
+		return $platform;
+	}
+
+	/**
+	 * A simple pattern matching method for extracting the browser from the user agent.
+	 *
+	 * @return string
+	 */
+	public function get_browser() {
+		$ua = $this->useragent;
+		if ( empty( $ua ) ) {
+			return self::OTHER;
+		}
+
+		if ( static::is_opera_mini() || static::is_opera_mobile() || static::is_opera_desktop() || static::is_opera_mini_dumb() ) {
+			return self::BROWSER_OPERA;
+		} elseif ( static::is_edge_browser() ) {
+			return self::BROWSER_EDGE;
+		} elseif ( static::is_chrome_desktop() || self::is_chrome_for_iOS() ) {
+			return self::BROWSER_CHROME;
+		} elseif ( static::is_safari_browser() ) {
+			return self::BROWSER_SAFARI;
+		} elseif ( static::is_firefox_mobile() || static::is_firefox_desktop() ) {
+			return self::BROWSER_FIREFOX;
+		} elseif ( static::is_ie_browser() ) {
+			return self::BROWSER_IE;
+		}
+		return self::OTHER;
 	}
 
 	/**
@@ -712,6 +774,46 @@ class User_Agent_Info {
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * Detect Safari browser
+	 */
+	public static function is_safari_browser() {
+		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			return false;
+		}
+		if ( false === strpos( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ), 'Safari' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Detect Edge browser
+	 */
+	public static function is_edge_browser() {
+		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			return false;
+		}
+		if ( false === strpos( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ), 'Edge' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Detect Edge browser
+	 */
+	public static function is_ie_browser() {
+		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			return false;
+		}
+		$ua = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		if ( false === ( strpos( $ua, 'MSIE' ) || strpos( $ua, 'Trident/7' ) ) ) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -1269,6 +1371,66 @@ class User_Agent_Info {
 		}
 		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		return ( strpos( $agent, 'bb10' ) !== false ) && ( strpos( $agent, 'mobile' ) !== false );
+	}
+
+	/**
+	 * Determines whether a desktop platform is Linux OS
+	 *
+	 * @return bool
+	 */
+	public static function is_linux_desktop() {
+		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			return false;
+		}
+		if ( ! preg_match( '/linux/i', wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Determines whether a desktop platform is Mac OS
+	 *
+	 * @return bool
+	 */
+	public static function is_mac_desktop() {
+		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			return false;
+		}
+		if ( ! preg_match( '/macintosh|mac os x/i', wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Determines whether a desktop platform is Windows OS
+	 *
+	 * @return bool
+	 */
+	public static function is_windows_desktop() {
+		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			return false;
+		}
+		if ( ! preg_match( '/windows|win32/i', wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Determines whether a desktop platform is Chrome OS
+	 *
+	 * @return bool
+	 */
+	public static function is_chrome_desktop() {
+		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			return false;
+		}
+		if ( ! preg_match( '/chrome/i', wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+			return false;
+		}
+		return true;
 	}
 
 	/**
