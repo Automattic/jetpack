@@ -76,8 +76,8 @@ function SubscriptionsSettings( props ) {
 
 	const headerTemplateEditorUrl = siteAdminUrl
 		? addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
-				postType: 'wp_template_part',
-				postId: `${ themeStylesheet }//header`,
+				postType: 'wp_template',
+				postId: `${ themeStylesheet }//index`,
 		  } )
 		: null;
 
