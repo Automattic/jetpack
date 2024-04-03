@@ -1593,7 +1593,7 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                 }
 
 					// If we are using our CRM reference id (table field id_override) system, we should not change the reference number when importing from woo.
-					if ( $data['woo_use_crm_id'] === true ) {
+					if ( isset( $data['woo_use_crm_id'] ) && $data['woo_use_crm_id'] === true ) {
 						$dataArr['zbsi_id_override'] = $previous_invoice_obj['id_override']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					}
 
@@ -1800,7 +1800,7 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 
         } else {
 					// If we are using our CRM reference id (table field id_override) system, we should generate a new invoice number.
-					if ( $data['woo_use_crm_id'] === true ) {
+					if ( isset( $data['woo_use_crm_id'] ) && $data['woo_use_crm_id'] === true ) {
 						$ref_type = $zbs->settings->get( 'reftype' );
 						// We can only generate it if autonumber is set
 						if ( $ref_type === 'autonumber' ) {
