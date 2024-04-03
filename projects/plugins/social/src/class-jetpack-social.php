@@ -238,6 +238,8 @@ class Jetpack_Social {
 			$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
 			$settings                = $jetpack_social_settings->get_settings( true );
 
+			$note = new Automattic\Jetpack\Social\Note();
+
 			$state = array_merge(
 				$state,
 				array(
@@ -248,7 +250,8 @@ class Jetpack_Social {
 						'isEnhancedPublishingEnabled'    => $publicize->has_enhanced_publishing_feature(),
 						'dismissedNotices'               => Dismissed_Notices::get_dismissed_notices(),
 						'supportedAdditionalConnections' => $publicize->get_supported_additional_connections(),
-						'social_notes_enabled'           => ( new Automattic\Jetpack\Social\Note() )->enabled(),
+						'social_notes_enabled'           => $note->enabled(),
+						'social_notes_config'            => $note->get_config(),
 					),
 					'connectionData'  => array(
 						'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
