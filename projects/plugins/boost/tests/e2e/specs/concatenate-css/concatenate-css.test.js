@@ -59,7 +59,7 @@ test.describe( 'Concatenate JS', () => {
 			// e2e-style-one and e2e-style-two are enqueued by a helper plugin. When concatenation is enabled,
 			// they should be concatenated into a single style.
 			( await postFrontPage.page
-				.locator( '[data-handles*="e2e-style-one,e2e-style-two"]' )
+				.locator( '[data-handles*="e2e-style-one"][data-handles*="e2e-style-two"]' )
 				.count() ) > 0,
 			'CSS Concatenation occurs when module is active'
 		).toBeTruthy();

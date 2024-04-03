@@ -59,7 +59,7 @@ test.describe( 'Concatenate JS', () => {
 			// e2e-script-one and e2e-script-two are enqueued by a helper plugin. When concatenation is enabled,
 			// they should be concatenated into a single script.
 			( await postFrontPage.page
-				.locator( '[data-handles="e2e-script-one,e2e-script-two"]' )
+				.locator( '[data-handles*="e2e-script-one"][data-handles*="e2e-script-two"]' )
 				.count() ) > 0,
 			'JS Concatenation occurs when module is active'
 		).toBeTruthy();
