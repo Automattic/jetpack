@@ -12,6 +12,7 @@ const useAutoScroll = (
 ) => {
 	const autoScrollEnabled = useRef( false );
 	const ignoreScroll = useRef( false );
+	const ignoreScrollTimeout = useRef( null );
 	const doingAutoScroll = useRef( false );
 	const scrollElementRef = useRef( null );
 
@@ -33,32 +34,38 @@ const useAutoScroll = (
 				return parent;
 			}
 
-			if ( parent.parentElement ) {
-				parent = parent.parentElement;
-			} else {
-				// If there's no parent, we're at the top of the DOM
-				// just return the document element
+			// If parent is body, it's the one with the scroll event
+			if ( parent.nodeName === 'BODY' ) {
 				return parent;
 			}
+
+			parent = parent.parentElement;
 		}
 
-		return document.documentElement;
+		return document.body;
+	}, [] );
+
+	const enableIgnoreScroll = useCallback( () => {
+		ignoreScroll.current = true;
+	}, [] );
+
+	const disableIgnoreScroll = useCallback( () => {
+		ignoreScroll.current = false;
 	}, [] );
 
 	const userScrollHandler = useCallback( () => {
-		debug( 'user scrolled, disabling auto' );
 		if ( autoScrollEnabled.current && ! doingAutoScroll.current ) {
-			debug( 'user scrolled, disabling auto' );
-			ignoreScroll.current = true;
-		}
-	}, [] );
+			if ( ! ignoreScroll.current ) {
+				enableIgnoreScroll();
+			}
 
-	const userScrollEndHandler = useCallback( () => {
-		ignoreScroll.current = false;
-		if ( autoScrollEnabled.current ) {
-			debug( 'user stopped scrolling, enabling auto' );
+			clearTimeout( ignoreScrollTimeout.current );
+
+			ignoreScrollTimeout.current = setTimeout( () => {
+				disableIgnoreScroll();
+			}, 1000 );
 		}
-	}, [] );
+	}, [ disableIgnoreScroll, enableIgnoreScroll ] );
 
 	const enableAutoScroll = useCallback( () => {
 		autoScrollEnabled.current = true;
@@ -77,27 +84,26 @@ const useAutoScroll = (
 
 		const lastParagraph = contentRef?.current?.firstElementChild?.lastElementChild;
 
-		if ( ! lastParagraph ) {
-			return;
+		if ( lastParagraph ) {
+			doingAutoScroll.current = true;
+			lastParagraph?.scrollIntoView( { block: 'center', inline: 'center', behavior: 'smooth' } );
+			setTimeout( () => {
+				doingAutoScroll.current = false;
+			}, 1000 );
 		}
-
-		doingAutoScroll.current = true;
-		lastParagraph?.scrollIntoView( { block: 'center', inline: 'center', behavior: 'smooth' } );
-		doingAutoScroll.current = false;
 	}, [ contentRef ] );
 
 	useEffect( () => {
 		const parent = getScrollParent( blockRef.current );
-		debug( 'effect event added', window.document, parent );
-		parent.addEventListener( 'scroll', userScrollHandler );
-		parent.addEventListener( 'scrollend', userScrollEndHandler );
+		debug( 'effect event added', parent );
+
+		parent.onscroll = userScrollHandler;
 
 		// cleanup
 		return () => {
-			parent.removeEventListener( 'scroll', userScrollHandler );
-			parent.removeEventListener( 'scrollend', userScrollEndHandler );
+			parent.onscroll = null;
 		};
-	}, [ blockRef, getScrollParent, userScrollEndHandler, userScrollHandler ] );
+	}, [ blockRef, getScrollParent, userScrollHandler ] );
 
 	return {
 		snapToBottom,
