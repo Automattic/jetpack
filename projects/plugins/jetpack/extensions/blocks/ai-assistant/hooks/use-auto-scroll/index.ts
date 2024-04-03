@@ -5,11 +5,12 @@ import { useCallback, useRef } from '@wordpress/element';
 import debugFactory from 'debug';
 
 const debug = debugFactory( 'jetpack-ai-assistant:use-auto-scroll' );
+
 const useAutoScroll = (
 	blockRef: React.MutableRefObject< HTMLDivElement >,
 	contentRef: React.MutableRefObject< HTMLDivElement >
 ) => {
-	const scrollElementRef = useRef( null );
+	const scrollElementRef = useRef< HTMLElement | null >( null );
 	const autoScrollEnabled = useRef( false );
 	const ignoreScroll = useRef( false );
 
