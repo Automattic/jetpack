@@ -6,66 +6,26 @@ import debugFactory from 'debug';
 import { useEffect } from 'react';
 
 const debug = debugFactory( 'jetpack-ai-assistant:use-auto-scroll' );
+
 const useAutoScroll = (
 	blockRef: React.MutableRefObject< HTMLDivElement >,
 	contentRef: React.MutableRefObject< HTMLDivElement >
 ) => {
+	const scrollElementRef = useRef( null );
 	const autoScrollEnabled = useRef( false );
 	const ignoreScroll = useRef( false );
-	const ignoreScrollTimeout = useRef( null );
 	const doingAutoScroll = useRef( false );
-	const scrollElementRef = useRef( null );
-
-	const getScrollParent = useCallback( element => {
-		// if we have it on ref already, don't scavenge the dom, just return it
-		if ( scrollElementRef.current ) {
-			return scrollElementRef.current;
-		}
-
-		if ( element == null ) {
-			return null;
-		}
-
-		let parent = element.parentElement;
-		while ( parent ) {
-			const { overflow } = window.getComputedStyle( parent );
-
-			if ( overflow.split( ' ' ).every( o => o === 'auto' || o === 'scroll' ) ) {
-				return parent;
-			}
-
-			// If parent is body, it's the one with the scroll event
-			if ( parent.nodeName === 'BODY' ) {
-				return parent;
-			}
-
-			parent = parent.parentElement;
-		}
-
-		return document.body;
-	}, [] );
 
 	const enableIgnoreScroll = useCallback( () => {
+		debug( 'enabling ignore scroll' );
 		ignoreScroll.current = true;
 	}, [] );
 
-	const disableIgnoreScroll = useCallback( () => {
-		ignoreScroll.current = false;
-	}, [] );
-
 	const userScrollHandler = useCallback( () => {
-		if ( autoScrollEnabled.current && ! doingAutoScroll.current ) {
-			if ( ! ignoreScroll.current ) {
-				enableIgnoreScroll();
-			}
-
-			clearTimeout( ignoreScrollTimeout.current );
-
-			ignoreScrollTimeout.current = setTimeout( () => {
-				disableIgnoreScroll();
-			}, 1000 );
+		if ( autoScrollEnabled.current && ! doingAutoScroll.current && ! ignoreScroll.current ) {
+			enableIgnoreScroll();
 		}
-	}, [ disableIgnoreScroll, enableIgnoreScroll ] );
+	}, [ enableIgnoreScroll ] );
 
 	const enableAutoScroll = useCallback( () => {
 		autoScrollEnabled.current = true;
@@ -74,11 +34,13 @@ const useAutoScroll = (
 
 	const disableAutoScroll = useCallback( () => {
 		autoScrollEnabled.current = false;
+		ignoreScroll.current = false;
+		scrollElementRef.current = null;
 		debug( 'disabling auto scroll' );
 	}, [] );
 
 	const snapToBottom = useCallback( () => {
-		if ( ! autoScrollEnabled.current || ignoreScroll.current ) {
+		if ( ! autoScrollEnabled.current || ignoreScroll.current || doingAutoScroll.current ) {
 			return;
 		}
 
@@ -86,22 +48,63 @@ const useAutoScroll = (
 
 		if ( lastParagraph ) {
 			doingAutoScroll.current = true;
-			lastParagraph?.scrollIntoView( { block: 'center', inline: 'center', behavior: 'smooth' } );
-			setTimeout( () => {
-				doingAutoScroll.current = false;
-			}, 1000 );
+
+			// Safari does not support scrollend event, so we don't use smooth scroll for it
+			if ( 'onscrollend' in window ) {
+				scrollElementRef?.current?.addEventListener?.(
+					'scrollend',
+					() => {
+						doingAutoScroll.current = false;
+					},
+					{ once: true }
+				);
+				lastParagraph?.scrollIntoView( { block: 'center', inline: 'center', behavior: 'smooth' } );
+			} else {
+				lastParagraph?.scrollIntoView( { block: 'center', inline: 'center' } );
+				setTimeout( () => {
+					doingAutoScroll.current = false;
+				}, 1000 );
+			}
 		}
 	}, [ contentRef ] );
 
-	useEffect( () => {
-		const parent = getScrollParent( blockRef.current );
-		debug( 'effect event added', parent );
+	const getScrollParent = useCallback( el => {
+		if ( el == null ) {
+			return null;
+		}
 
-		parent.onscroll = userScrollHandler;
+		if ( el.nodeName === 'BODY' ) {
+			return el;
+		}
+
+		if ( el.ownerDocument !== document ) {
+			return el.ownerDocument;
+		}
+
+		const { overflow } = window.getComputedStyle( el );
+
+		if ( overflow.split( ' ' ).every( o => o === 'auto' || o === 'scroll' ) ) {
+			return el;
+		}
+
+		if ( ! el.parentElement ) {
+			return el;
+		}
+
+		return getScrollParent( el.parentElement );
+	}, [] );
+
+	useEffect( () => {
+		const parent = getScrollParent( blockRef?.current?.parentElement );
+		if ( parent ) {
+			scrollElementRef.current = parent;
+			parent?.addEventListener?.( 'scroll', userScrollHandler );
+			debug( 'effect event added' );
+		}
 
 		// cleanup
 		return () => {
-			parent.onscroll = null;
+			parent?.removeEventListener?.( 'scroll', userScrollHandler );
 		};
 	}, [ blockRef, getScrollParent, userScrollHandler ] );
 
