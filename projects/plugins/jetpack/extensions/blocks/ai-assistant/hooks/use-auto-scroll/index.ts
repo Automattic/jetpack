@@ -36,36 +36,24 @@ const useAutoScroll = (
 	const disableAutoScroll = useCallback( () => {
 		autoScrollEnabled.current = false;
 		ignoreScroll.current = false;
+		doingAutoScroll.current = false;
 		debug( 'disabling auto scroll' );
 	}, [] );
 
 	const snapToBottom = useCallback( () => {
-		if ( ! autoScrollEnabled.current || ignoreScroll.current ) {
+		if ( ! autoScrollEnabled.current || ignoreScroll.current || doingAutoScroll.current ) {
 			return;
 		}
 
 		const lastParagraph = contentRef?.current?.firstElementChild?.lastElementChild;
 
 		if ( lastParagraph ) {
-			// Safari does not support scrollend event, so we don't use smooth scroll for it
-			if ( 'onscrollend' in window ) {
-				doingAutoScroll.current = true;
-				scrollElementRef?.current?.addEventListener?.(
-					'scrollend',
-					() => {
-						doingAutoScroll.current = false;
-					},
-					{ once: true }
-				);
-				lastParagraph?.scrollIntoView( { block: 'center', inline: 'center' } );
-			} else if ( ! doingAutoScroll.current ) {
-				// Just scroll in Safari after finishing the current one
-				doingAutoScroll.current = true;
-				lastParagraph?.scrollIntoView( { block: 'center', inline: 'center' } );
-				setTimeout( () => {
-					doingAutoScroll.current = false;
-				}, 100 );
-			}
+			// Just scroll after finishing the current one
+			doingAutoScroll.current = true;
+			lastParagraph?.scrollIntoView( { block: 'center', inline: 'center' } );
+			setTimeout( () => {
+				doingAutoScroll.current = false;
+			}, 200 );
 		}
 	}, [ contentRef ] );
 
