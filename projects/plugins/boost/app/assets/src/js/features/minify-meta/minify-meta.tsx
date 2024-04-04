@@ -22,7 +22,7 @@ const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Pr
 	const htmlId = `jb-minify-meta-${ datasyncKey }`;
 
 	return (
-		<div className={ styles[ 'minify-meta' ] }>
+		<div className={ styles[ 'minify-meta' ] } data-testid={ `meta-${ datasyncKey }` }>
 			{ isEditing ? (
 				<div className={ styles[ 'manage-excludes' ] }>
 					<label htmlFor={ htmlId }>{ inputLabel }</label>
