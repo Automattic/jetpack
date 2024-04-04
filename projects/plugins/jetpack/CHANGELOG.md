@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 13.3 - 2024-04-03
+## [13.3] - 2024-04-03
 ### Enhancements
 - AI Assistant: Provide per-block quick actions to make them more relevant. [#36393]
 - Blocks: "Earn" category renamed to "Monetize". [#36480]
@@ -139,6 +139,10 @@
 - WPCOM_JSON_API_List_Comments_Endpoint: Do not prefetch comment meta for large hierarchical threads [#36460]
 - WPCOM_JSON_API_List_Comments_Endpoint: Remove update_comment_cache() that is no longer needed [#36363]
 - WPCOM_JSON_API_Upload_Media_v1_1_Endpoint: Fix errors on invalid post data. [#36291]
+
+## 13.2.2 - 2024-03-22
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add function exists check for wp_admin_notice [#36511]
 
 ## 13.2.1 - 2024-03-12
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
@@ -10065,6 +10069,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[13.3]: https://wp.me/p1moTy-19qu
 [13.2]: https://wp.me/p1moTy-15UC
 [13.1]: https://wp.me/p1moTy-12e0
 [13.0]: https://wp.me/p1moTy-10Xp
