@@ -10,7 +10,16 @@ import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import classnames from 'classnames';
 import metadata from './block.json';
-import { NOTIFICATION_PROCESSING, NOTIFICATION_SUCCESS, NOTIFICATION_ERROR } from './constants';
+import {
+	NOTIFICATION_PROCESSING,
+	NOTIFICATION_SUCCESS,
+	NOTIFICATION_ERROR,
+	DEFAULT_EMAIL_PLACEHOLDER,
+	DEFAULT_CONSENT_TEXT,
+	DEFAULT_PROCESSING_LABEL,
+	DEFAULT_SUCCESS_LABEL,
+	DEFAULT_ERROR_LABEL,
+} from './constants';
 import { MailChimpBlockControls } from './controls';
 
 const API_STATE_LOADING = 0;
@@ -97,7 +106,11 @@ class MailchimpSubscribeEdit extends Component {
 
 	labelForAuditionType = audition => {
 		const { attributes } = this.props;
-		const { processingLabel, successLabel, errorLabel } = attributes;
+		const {
+			processingLabel = DEFAULT_PROCESSING_LABEL,
+			successLabel = DEFAULT_SUCCESS_LABEL,
+			errorLabel = DEFAULT_ERROR_LABEL,
+		} = attributes;
 		if ( audition === NOTIFICATION_PROCESSING ) {
 			return processingLabel;
 		} else if ( audition === NOTIFICATION_SUCCESS ) {
@@ -119,12 +132,12 @@ class MailchimpSubscribeEdit extends Component {
 		const { attributes, className, notices, noticeUI, setAttributes } = this.props;
 		const { audition, connected, connectURL, currentUserConnected } = this.state;
 		const {
-			emailPlaceholder,
-			consentText,
+			emailPlaceholder = DEFAULT_EMAIL_PLACEHOLDER,
+			consentText = DEFAULT_CONSENT_TEXT,
 			interests,
-			processingLabel,
-			successLabel,
-			errorLabel,
+			processingLabel = DEFAULT_PROCESSING_LABEL,
+			successLabel = DEFAULT_SUCCESS_LABEL,
+			errorLabel = DEFAULT_ERROR_LABEL,
 			preview,
 			signupFieldTag,
 			signupFieldValue,

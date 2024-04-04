@@ -1,16 +1,24 @@
 import { ExternalLink, PanelBody, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { NOTIFICATION_PROCESSING, NOTIFICATION_SUCCESS, NOTIFICATION_ERROR } from './constants';
+import {
+	NOTIFICATION_PROCESSING,
+	NOTIFICATION_SUCCESS,
+	NOTIFICATION_ERROR,
+	DEFAULT_EMAIL_PLACEHOLDER,
+	DEFAULT_PROCESSING_LABEL,
+	DEFAULT_SUCCESS_LABEL,
+	DEFAULT_ERROR_LABEL,
+} from './constants';
 import MailchimpGroups from './mailchimp-groups';
 
 export function MailChimpBlockControls( {
 	auditionNotification,
 	clearAudition,
 	setAttributes,
-	emailPlaceholder,
-	processingLabel,
-	successLabel,
-	errorLabel,
+	emailPlaceholder = DEFAULT_EMAIL_PLACEHOLDER,
+	processingLabel = DEFAULT_PROCESSING_LABEL,
+	successLabel = DEFAULT_SUCCESS_LABEL,
+	errorLabel = DEFAULT_ERROR_LABEL,
 	interests,
 	signupFieldTag,
 	signupFieldValue,
