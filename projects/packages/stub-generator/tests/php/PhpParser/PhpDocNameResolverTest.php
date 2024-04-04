@@ -73,6 +73,7 @@ class PhpDocNameResolverTest extends TestCase {
 
 				use Other\NS\Foo;
 				use Some\NS\Sub\Baz;
+				use Aliased as Something;
 
 				class Bar {
 					/**
@@ -99,6 +100,11 @@ class PhpDocNameResolverTest extends TestCase {
 					 * @var \Qu\ux
 					 */
 					public $quux;
+
+					/**
+					 * @var Something
+					 */
+					public $something;
 				}
 				PHP,
 				<<<'PHP'
@@ -106,6 +112,7 @@ class PhpDocNameResolverTest extends TestCase {
 
 				use Other\NS\Foo;
 				use Some\NS\Sub\Baz;
+				use Aliased as Something;
 				class Bar
 				{
 					/**
@@ -128,6 +135,10 @@ class PhpDocNameResolverTest extends TestCase {
 					 * @var \Qu\ux
 					 */
 					public $quux;
+					/**
+					 * @var \Aliased
+					 */
+					public $something;
 				}
 				PHP,
 			),

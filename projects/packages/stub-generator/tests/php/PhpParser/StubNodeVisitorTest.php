@@ -1407,9 +1407,11 @@ class StubNodeVisitorTest extends TestCase {
 				namespace Some\NS;
 
 				use Other\NS\Foo;
+				use Aliased as Baz;
 
 				class Bar {
 					public function mungeFoo( ?Foo $foo, $map ): Foo {}
+					public function getBaz(): Baz {}
 				}
 				PHP,
 				'*',
@@ -1419,6 +1421,9 @@ class StubNodeVisitorTest extends TestCase {
 				class Bar
 				{
 					public function mungeFoo(?\Other\NS\Foo $foo, $map): \Other\NS\Foo
+					{
+					}
+					public function getBaz(): \Aliased
 					{
 					}
 				}
