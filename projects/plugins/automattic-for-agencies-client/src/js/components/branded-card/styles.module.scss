@@ -52,6 +52,8 @@
 
 	@media ( max-width: 959px ) {
 		padding: 48px;
+		height: auto;
+		overflow: unset;
 	}
 
 	@media ( max-width: 659px ) {
