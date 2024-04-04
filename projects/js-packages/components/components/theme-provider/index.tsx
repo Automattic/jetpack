@@ -72,6 +72,9 @@ export const colors = {
 	'--jp-green': '#069e08',
 	'--jp-green-primary': 'var( --jp-green-40 )',
 	'--jp-green-secondary': 'var( --jp-green-30 )',
+	// Automattic
+	'--automattic-blue-60': '#0088BF',
+	'--automattic-blue-80': '#021A23',
 };
 
 export const borders = {

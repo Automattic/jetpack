@@ -2851,6 +2851,9 @@ importers:
 
   projects/plugins/automattic-for-agencies-client:
     dependencies:
+      '@automattic/jetpack-api':
+        specifier: workspace:*
+        version: link:../../js-packages/api
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../../js-packages/base-styles
