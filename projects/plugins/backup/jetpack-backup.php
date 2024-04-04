@@ -44,7 +44,7 @@ define( 'JETPACK_BACKUP_PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) )
 
 /**
  * Checks if Jetpack is installed and if yes, require version 10+
- * Can be extended to check for various system requiremens, such as WP or PHP version.
+ * Can be extended to check for various system requirements, such as WP or PHP version.
  *
  * @return bool|WP_Error True if system requirements are met, WP_Error if not.
  */

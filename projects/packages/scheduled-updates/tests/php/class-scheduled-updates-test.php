@@ -43,6 +43,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	protected function set_up() {
 		parent::set_up_wordbless();
 		\WorDBless\Users::init()->clear_all_users();
+		Scheduled_Updates::init();
 
 		// Initialize the WordPress filesystem variable.
 		global $wp_filesystem;
@@ -220,6 +221,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertCount( 1, wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
 		$this->assertTrue( delete_plugins( array( $plugins[0] ) ) );
+
 		$this->assertCount( 0, wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
 	}
 
@@ -565,6 +567,82 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_get_scheduled_update_text( $schedule, $expected ) {
 		$this->assertSame( $expected, Scheduled_Updates::get_scheduled_update_text( $schedule ) );
+	}
+
+	/**
+	 * Test clear CRON cache.
+	 *
+	 * @covers ::clear_cron_cache
+	 */
+	public function test_clear_cron_cache() {
+		$plugins = $this->create_plugins_for_deletion( 3 );
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$params  = array(
+			'plugins'  => array(),
+			'schedule' => array(
+				'timestamp' => strtotime( 'next Monday 8:00' ),
+				'interval'  => 'weekly',
+			),
+		);
+
+		wp_set_current_user( $this->admin_id );
+
+		$params['plugins']               = array( $plugins[0] );
+		$params['schedule']['timestamp'] = strtotime( 'next Monday 8:00' );
+		$request->set_body_params( $params );
+
+		// Create first event.
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+
+		$id_1 = $result->get_data();
+		$this->assertIsString( $id_1 );
+
+		$events = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
+		$this->assertCount( 1, $events );
+
+		$params['plugins']               = array( $plugins[1], $plugins[2] );
+		$params['schedule']['timestamp'] = strtotime( 'next Monday 9:00' );
+		$request->set_body_params( $params );
+
+		// Create second event.
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+
+		$id_2 = $result->get_data();
+		$this->assertIsString( $id_2 );
+
+		// Get scheduled events.
+		$events = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
+		$this->assertCount( 2, $events );
+
+		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/update-schedules' );
+		$result  = rest_do_request( $request );
+		$data    = $result->get_data();
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertArrayHasKey( $id_1, $data );
+		$this->assertArrayHasKey( $id_2, $data );
+
+		$request = new \WP_REST_Request( 'DELETE', '/wpcom/v2/update-schedules/' . $id_1 );
+		$result  = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertTrue( $result->get_data() );
+
+		// Get scheduled events.
+		$events = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
+		$this->assertCount( 1, $events );
+
+		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/update-schedules' );
+		$result  = rest_do_request( $request );
+		$data    = $result->get_data();
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertArrayNotHasKey( $id_1, $data );
+		$this->assertArrayHasKey( $id_2, $data );
 	}
 
 	/**

@@ -36,7 +36,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.20.2';
+	const PACKAGE_VERSION = '4.20.3-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -199,6 +199,13 @@ class Initializer {
 		$modules             = new Modules();
 		$connection          = new Connection_Manager();
 		$speed_score_history = new Speed_Score_History( get_site_url() );
+		$latest_score        = $speed_score_history->latest();
+		$previous_score      = array();
+		if ( $speed_score_history->count() > 1 ) {
+			$previous_score = $speed_score_history->latest( 1 );
+		}
+		$latest_score['previousScores'] = $previous_score['scores'] ?? array();
+
 		wp_localize_script(
 			'my_jetpack_main_app',
 			'myJetpackInitialState',
@@ -214,6 +221,7 @@ class Initializer {
 				'myJetpackCheckoutUri'   => admin_url( 'admin.php?page=my-jetpack' ),
 				'topJetpackMenuItemUrl'  => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'             => ( new Status() )->get_site_suffix(),
+				'siteUrl'                => esc_url( get_site_url() ),
 				'blogID'                 => Connection_Manager::get_site_id( true ),
 				'myJetpackVersion'       => self::PACKAGE_VERSION,
 				'myJetpackFlags'         => self::get_my_jetpack_flags(),
@@ -239,7 +247,7 @@ class Initializer {
 					'isEnabled'       => Jetpack_Manage::could_use_jp_manage(),
 					'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
 				),
-				'latestBoostSpeedScores' => $speed_score_history->latest(),
+				'latestBoostSpeedScores' => $latest_score,
 			)
 		);
 

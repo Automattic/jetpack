@@ -141,6 +141,7 @@ abstract class Product {
 			'pricing_for_ui'            => static::get_pricing_for_ui(),
 			'is_bundle'                 => static::is_bundle_product(),
 			'is_plugin_active'          => static::is_plugin_active(),
+			'is_upgradable'             => static::is_upgradable(),
 			'is_upgradable_by_bundle'   => static::is_upgradable_by_bundle(),
 			'supported_products'        => static::get_supported_products(),
 			'wpcom_product_slug'        => static::get_wpcom_product_slug(),

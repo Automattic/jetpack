@@ -9,12 +9,12 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredProperty : 35+ occurrences
+    // PhanUndeclaredProperty : 40+ occurrences
+    // PhanCompatibleAccessMethodOnTraitDefinition : 2 occurrences
     // PhanPluginMixedKeyNoKey : 2 occurrences
     // PhanRedundantCondition : 2 occurrences
     // PhanTypeArraySuspiciousNullable : 2 occurrences
     // PhanUndeclaredClassMethod : 2 occurrences
-    // PhanCompatibleAccessMethodOnTraitDefinition : 1 occurrence
     // PhanNoopNew : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanTypeMismatchDimFetch : 1 occurrence
@@ -24,6 +24,7 @@ return [
         'src/class-scheduled-updates.php' => ['PhanRedundantCondition', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDimFetch', 'PhanUndeclaredClassMethod'],
         'src/pluggable.php' => ['PhanTypeArraySuspiciousNullable'],
         'src/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-update-schedules.php' => ['PhanPluginMixedKeyNoKey'],
+        'tests/php/class-scheduled-updates-logs-test.php' => ['PhanCompatibleAccessMethodOnTraitDefinition', 'PhanUndeclaredProperty'],
         'tests/php/class-scheduled-updates-test.php' => ['PhanCompatibleAccessMethodOnTraitDefinition', 'PhanUndeclaredProperty'],
         'tests/php/class-wpcom-rest-api-v2-endpoint-update-schedules-test.php' => ['PhanNoopNew'],
     ],
