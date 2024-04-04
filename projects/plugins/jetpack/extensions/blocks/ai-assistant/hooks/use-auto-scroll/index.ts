@@ -6,6 +6,10 @@ import debugFactory from 'debug';
 
 const debug = debugFactory( 'jetpack-ai-assistant:use-auto-scroll' );
 
+// These are the events that we want to listen to in order to disable auto scroll
+// The 'scroll' event does not play well with latest Gutenberg and its iframe, so we add the other events
+const USER_STOP_EVENTS = [ 'scroll', 'wheel', 'touchmove', 'keyup' ];
+
 const useAutoScroll = (
 	blockRef: React.MutableRefObject< HTMLDivElement >,
 	contentRef: React.MutableRefObject< HTMLDivElement >
@@ -25,15 +29,24 @@ const useAutoScroll = (
 		}
 
 		let parent = element.parentElement;
+
 		while ( parent ) {
 			const { overflow } = window.getComputedStyle( parent );
+
 			if ( overflow.split( ' ' ).every( o => o === 'auto' || o === 'scroll' ) ) {
 				return parent;
 			}
-			parent = parent.parentElement;
+
+			if ( parent.parentElement ) {
+				parent = parent.parentElement;
+			} else {
+				// If there's no parent, we're at the top of the DOM
+				// just return the document element
+				return parent;
+			}
 		}
 
-		return document.documentElement;
+		return document.body;
 	}, [] );
 
 	const userScrollHandler = useCallback( () => {
@@ -41,12 +54,18 @@ const useAutoScroll = (
 			debug( 'scroll event skipped' );
 			return;
 		}
-		debug( 'user scrolled, disabling auto' );
+
+		debug( 'user stop event, disabling auto' );
+
 		// as the user scrolls, disable auto scroll
 		// Note: need to dupe disableAutoScroll as both callbacks cannot depend on each other
 		autoScrollEnabled.current = false;
 		ignoreScroll.current = false;
-		scrollElementRef.current?.removeEventListener( 'scroll', userScrollHandler );
+
+		USER_STOP_EVENTS.forEach( event => {
+			scrollElementRef.current?.removeEventListener( event, userScrollHandler );
+		} );
+
 		scrollElementRef.current = null;
 	}, [] );
 
@@ -54,7 +73,11 @@ const useAutoScroll = (
 		autoScrollEnabled.current = true;
 		ignoreScroll.current = true;
 		scrollElementRef.current = getScrollParent( blockRef.current );
-		scrollElementRef.current?.addEventListener( 'scroll', userScrollHandler );
+
+		USER_STOP_EVENTS.forEach( event => {
+			scrollElementRef.current?.addEventListener( event, userScrollHandler );
+		} );
+
 		debug( 'enabling auto scroll' );
 		debug( scrollElementRef.current );
 		debug( contentRef.current );
@@ -63,7 +86,11 @@ const useAutoScroll = (
 	const disableAutoScroll = useCallback( () => {
 		autoScrollEnabled.current = false;
 		ignoreScroll.current = false;
-		scrollElementRef.current?.removeEventListener( 'scroll', userScrollHandler );
+
+		USER_STOP_EVENTS.forEach( event => {
+			scrollElementRef.current?.removeEventListener( event, userScrollHandler );
+		} );
+
 		scrollElementRef.current = null;
 		debug( 'disabling auto scroll' );
 	}, [ userScrollHandler ] );
@@ -77,26 +104,9 @@ const useAutoScroll = (
 		ignoreScroll.current = true;
 	}, [] );
 
-	const snapToBottom = useCallback(
-		( extraOffset = 0 ) => {
-			const bounds = contentRef.current?.getBoundingClientRect();
-			const offset =
-				( blockRef?.current?.lastChild instanceof HTMLElement
-					? blockRef.current.lastChild.clientHeight
-					: 80 ) + 40;
-
-			if ( bounds?.bottom > window.innerHeight - offset || bounds?.top < 0 ) {
-				scrollElementRef.current?.scrollBy(
-					0,
-					contentRef.current?.getBoundingClientRect().bottom -
-						window.innerHeight +
-						offset +
-						extraOffset
-				);
-			}
-		},
-		[ blockRef, contentRef ]
-	);
+	const snapToBottom = useCallback( () => {
+		blockRef?.current?.scrollIntoView( { block: 'end', inline: 'end' } );
+	}, [ blockRef ] );
 
 	const postSuggestionPartialHandler = useCallback( () => {
 		// bail early if we're not in auto scroll mode
