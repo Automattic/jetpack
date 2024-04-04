@@ -14,6 +14,7 @@ const useAutoScroll = (
 	const scrollElementRef = useRef( null );
 	const autoScrollEnabled = useRef( false );
 	const ignoreScroll = useRef( false );
+	const startedAutoScroll = useRef( false );
 	const doingAutoScroll = useRef( false );
 
 	const enableIgnoreScroll = useCallback( () => {
@@ -22,7 +23,7 @@ const useAutoScroll = (
 	}, [] );
 
 	const userScrollHandler = useCallback( () => {
-		if ( autoScrollEnabled.current && ! doingAutoScroll.current && ! ignoreScroll.current ) {
+		if ( autoScrollEnabled.current && startedAutoScroll.current && ! ignoreScroll.current ) {
 			enableIgnoreScroll();
 		}
 	}, [ enableIgnoreScroll ] );
@@ -30,32 +31,40 @@ const useAutoScroll = (
 	const enableAutoScroll = useCallback( () => {
 		autoScrollEnabled.current = true;
 		ignoreScroll.current = false;
+		scrollElementRef.current?.addEventListener( 'scroll', userScrollHandler );
 		debug( 'enabling auto scroll' );
-	}, [] );
+	}, [ userScrollHandler ] );
 
 	const disableAutoScroll = useCallback( () => {
 		autoScrollEnabled.current = false;
 		ignoreScroll.current = false;
+		startedAutoScroll.current = false;
 		doingAutoScroll.current = false;
+		scrollElementRef.current?.removeEventListener( 'scroll', userScrollHandler );
+		scrollElementRef.current = null;
 		debug( 'disabling auto scroll' );
-	}, [] );
+	}, [ userScrollHandler ] );
 
 	const snapToBottom = useCallback( () => {
-		if ( ! autoScrollEnabled.current || ignoreScroll.current || doingAutoScroll.current ) {
+		if ( ! autoScrollEnabled.current || ignoreScroll.current ) {
 			return;
 		}
 
 		const lastParagraph = contentRef?.current?.firstElementChild?.lastElementChild;
 
-		if ( lastParagraph ) {
-			// Just scroll after finishing the current one
+		if ( lastParagraph && ! doingAutoScroll.current ) {
+			startedAutoScroll.current = true;
 			doingAutoScroll.current = true;
+
+			scrollElementRef?.current?.removeEventListener( 'scroll', userScrollHandler );
 			lastParagraph?.scrollIntoView( { block: 'center', inline: 'center' } );
+
 			setTimeout( () => {
 				doingAutoScroll.current = false;
+				scrollElementRef?.current?.addEventListener( 'scroll', userScrollHandler );
 			}, 200 );
 		}
-	}, [ contentRef ] );
+	}, [ contentRef, userScrollHandler ] );
 
 	const getScrollParent = useCallback( el => {
 		if ( el == null ) {
@@ -87,17 +96,10 @@ const useAutoScroll = (
 
 	useEffect( () => {
 		const parent = getScrollParent( blockRef?.current?.parentElement );
-		if ( parent ) {
+		if ( ! scrollElementRef.current ) {
 			scrollElementRef.current = parent;
-			parent?.addEventListener?.( 'scroll', userScrollHandler );
-			debug( 'auto scroll effect event added' );
 		}
-
-		// cleanup
-		return () => {
-			parent?.removeEventListener?.( 'scroll', userScrollHandler );
-		};
-	}, [ blockRef, getScrollParent, userScrollHandler ] );
+	}, [ blockRef, getScrollParent ] );
 
 	return {
 		snapToBottom,
