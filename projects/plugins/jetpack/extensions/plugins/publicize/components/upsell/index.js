@@ -25,12 +25,7 @@ const getDescriptions = () => ( {
 	),
 } );
 
-function getPanelDescription(
-	isPostPublished,
-	isPublicizeEnabled,
-	hasConnections,
-	hasEnabledConnections
-) {
+function getPanelDescription( isPostPublished, isPublicizeEnabled, hasConnections ) {
 	const descriptions = getDescriptions();
 
 	if ( ! hasConnections ) {
@@ -42,10 +37,7 @@ function getPanelDescription(
 		return descriptions.reshare;
 	}
 
-	const isEnabled = isPublicizeEnabled && hasEnabledConnections;
-
-	// For new posts, show the enabled or disabled description based on the current state.
-	return isEnabled ? descriptions.enabled : descriptions.disabled;
+	return isPublicizeEnabled ? descriptions.enabled : descriptions.disabled;
 }
 
 export default function UpsellNotice() {

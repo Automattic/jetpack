@@ -24,7 +24,6 @@ const getDescriptions = () => ( {
 const getDescription = ( {
 	isPublicizeEnabled,
 	hasConnections,
-	hasEnabledConnections,
 	hidePublicizeFeature,
 	isPostPublished,
 } ) => {
@@ -42,10 +41,7 @@ const getDescription = ( {
 		return descriptions.reshare;
 	}
 
-	const isEnabled = isPublicizeEnabled && hasEnabledConnections;
-
-	// For new posts, show the enabled or disabled description based on the current state.
-	return isEnabled ? descriptions.enabled : descriptions.disabled;
+	return isPublicizeEnabled ? descriptions.enabled : descriptions.disabled;
 };
 
 /**
