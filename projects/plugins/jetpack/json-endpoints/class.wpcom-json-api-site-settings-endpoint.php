@@ -119,8 +119,8 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'rss_use_excerpt'                         => '(bool) Whether the RSS feed will use post excerpts',
 			'launchpad_screen'                        => '(string) Whether or not launchpad is presented and what size it will be',
 			'sm_enabled'                              => '(bool) Whether the newsletter subscribe modal is enabled',
-			'jetpack_subscriptions_subscribe_post_end_enabled' => '(bool) Whether the subscribe block at the end of each post is enabled',
-			'jetpack_subscriptions_login_navigation_enabled' => '(bool) Whether the subscriber Login block navigation placement is enabled',
+			'jetpack_subscriptions_subscribe_post_end_enabled' => '(bool) Whether the Subscribe block at the end of each post placement is enabled',
+			'jetpack_subscriptions_login_navigation_enabled' => '(bool) Whether the Subscriber Login block navigation placement is enabled',
 			'wpcom_ai_site_prompt'                    => '(string) User input in the AI site prompt',
 		),
 
