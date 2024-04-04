@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Store log timestamp as int
