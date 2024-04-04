@@ -120,10 +120,12 @@ function DetailSharingContent( { onCloseSharingDetailsClick } ) {
 				</button>
 			</div>
 			<div className={ styles.card__prose }>
-				<h2>What data is synced from your site</h2>
+				<h2>{ __( 'What data is synced from your site', 'automattic-for-agencies-client' ) }</h2>
 				<p>
-					Your privacy matters to us. We sync only the necessary data required to provide our
-					Automattic for Agencies portal experiences.
+					{ __(
+						'Your privacy matters to us. We sync only the necessary data required to provide our Automattic for Agencies portal experiences.',
+						'automattic-for-agencies-client'
+					) }
 				</p>
 			</div>
 			<ul className={ styles.checklist }>
@@ -219,7 +221,7 @@ function DetailSharingContent( { onCloseSharingDetailsClick } ) {
 				</li>
 			</ul>
 			<div className={ styles.card__prose }>
-				<h2>Data we will not sync</h2>
+				<h2>{ __( 'Data we will not sync', 'automattic-for-agencies-client' ) }</h2>
 				<ul className={ styles.checklist }>
 					<li>
 						<CloseIcon />
