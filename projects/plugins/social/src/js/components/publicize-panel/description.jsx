@@ -1,29 +1,25 @@
 import { __ } from '@wordpress/i18n';
 import styles from './styles.module.scss';
 
-const descriptions = {
+const getDescriptions = () => ( {
 	start: __(
 		'Start sharing your posts by connecting your social media accounts.',
 		'jetpack-social'
 	),
 	enabled: __(
-		'This post will be shared on all your enabled social media accounts the moment you publish the post.',
+		'Enable the social media accounts where you want to share your post.',
 		'jetpack-social'
 	),
 	disabled: __(
 		'Use this tool to share your post on all your social media accounts.',
 		'jetpack-social'
 	),
-	published: __(
-		'Enable a connection to share this post by clicking on the share post button.',
-		'jetpack-social'
-	),
 	noReshare: __( 'Posts can only be shared as they are first published.', 'jetpack-social' ),
 	reshare: __(
-		'Share this post on all your enabled social media accounts by clicking on the share post button.',
+		'Enable the social media accounts where you want to re-share your post, then click on the "Share post" button below.',
 		'jetpack-social'
 	),
-};
+} );
 
 const getDescription = ( {
 	isPublicizeEnabled,
@@ -32,22 +28,22 @@ const getDescription = ( {
 	hidePublicizeFeature,
 	isPostPublished,
 } ) => {
+	const descriptions = getDescriptions();
+
 	if ( hidePublicizeFeature ) {
 		return descriptions.noReshare;
 	}
 	if ( ! hasConnections ) {
 		return descriptions.start;
 	}
-	if ( isPostPublished && isPublicizeEnabled && ! hasEnabledConnections ) {
-		return descriptions.published;
+
+	if ( isPostPublished ) {
+		return descriptions.reshare;
 	}
-	if ( ! isPublicizeEnabled || ! hasEnabledConnections ) {
-		return descriptions.disabled;
-	}
-	if ( isPublicizeEnabled && hasEnabledConnections && ! isPostPublished ) {
-		return descriptions.enabled;
-	}
-	return descriptions.reshare;
+
+	const isEnabled = isPublicizeEnabled && hasEnabledConnections;
+
+	return isEnabled ? descriptions.enabled : descriptions.disabled;
 };
 
 /**
