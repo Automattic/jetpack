@@ -51,7 +51,7 @@ class Scheduled_Updates_Logs {
 	public static function log( $schedule_id, $action, $message = null, $context = null ) {
 		$timestamp = wp_date( 'U' );
 		$log_entry = array(
-			'timestamp' => $timestamp,
+			'timestamp' => intval( $timestamp ),
 			'action'    => $action,
 			'message'   => $message,
 			'context'   => $context,
