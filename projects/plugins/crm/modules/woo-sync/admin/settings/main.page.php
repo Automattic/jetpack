@@ -56,11 +56,13 @@ function jpcrm_settings_page_html_woosync_main() {
 		$updatedSettings['wctagproductprefix'] = ! empty( $_POST['wctagproductprefix'] ) ? zeroBSCRM_textProcess( $_POST['wctagproductprefix'] ) : '';
 
 		// switches
-		$updatedSettings['wcinv']             = ! empty( $_POST['wpzbscrm_wcinv'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.Security.NonceVerification.Missing
-		$updatedSettings['wccrminvreference'] = ! empty( $_POST['wpzbscrm_wccrminvreference'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.Security.NonceVerification.Missing
-		$updatedSettings['wcprod']            = ! empty( $_POST['wpzbscrm_wcprod'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.Security.NonceVerification.Missing
-		$updatedSettings['wcport']            = ! empty( $_POST['wpzbscrm_wcport'] ) ? preg_replace( '/\s*,\s*/', ',', sanitize_text_field( $_POST['wpzbscrm_wcport'] ) ) : ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-		$updatedSettings['wcacc']             = ! empty( $_POST['wpzbscrm_wcacc'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.Security.NonceVerification.Missing
+		// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.Security.NonceVerification.Missing
+		$updatedSettings['wcinv']             = ! empty( $_POST['wpzbscrm_wcinv'] );
+		$updatedSettings['wccrminvreference'] = ! empty( $_POST['wpzbscrm_wccrminvreference'] );
+		$updatedSettings['wcprod']            = ! empty( $_POST['wpzbscrm_wcprod'] );
+		$updatedSettings['wcport']            = ! empty( $_POST['wpzbscrm_wcport'] ) ? preg_replace( '/\s*,\s*/', ',', sanitize_text_field( wp_unslash( $_POST['wpzbscrm_wcport'] ) ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash - wcport values can be saved with slashes.
+		$updatedSettings['wcacc']             = ! empty( $_POST['wpzbscrm_wcacc'] );
+		 // phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.Security.NonceVerification.Missing
 
 		// trash/delete action
 		$updatedSettings['auto_trash'] = 'change_status';
