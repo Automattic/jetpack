@@ -28,6 +28,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	const [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] = useState( false );
 	const [ generating, setGenerating ] = useState( false );
 	const [ imageURL, setImageURL ] = useState( null );
+	const [ error, setError ] = useState( null );
 	const { generateImage } = useImageGenerator();
 	const { isLoading: isSavingToMediaLibrary, saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { tracks } = useAnalytics();
@@ -53,6 +54,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	 */
 	const processImageGeneration = useCallback( () => {
 		setGenerating( true );
+		setError( null );
 		generateImage( {
 			feature: FEATURED_IMAGE_FEATURE_NAME,
 			postContent,
@@ -64,9 +66,8 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 					setImageURL( image );
 				}
 			} )
-			.catch( error => {
-				// eslint-disable-next-line no-console
-				console.error( error );
+			.catch( e => {
+				setError( e );
 			} )
 			.finally( () => {
 				setGenerating( false );
@@ -90,6 +91,15 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	const handleRegenerate = useCallback( () => {
 		// track the regenerate image event
 		recordEvent( 'jetpack_ai_featured_image_generation_generate_another_image', {
+			placement: JETPACK_SIDEBAR_PLACEMENT,
+		} );
+
+		processImageGeneration();
+	}, [ processImageGeneration, recordEvent ] );
+
+	const handleTryAgain = useCallback( () => {
+		// track the try again event
+		recordEvent( 'jetpack_ai_featured_image_generation_try_again', {
 			placement: JETPACK_SIDEBAR_PLACEMENT,
 		} );
 
@@ -168,23 +178,45 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 						</div>
 					) : (
 						<div className="ai-assistant-featured-image__content">
-							<img className="ai-assistant-featured-image__image" src={ imageURL } alt="" />
+							{ error ? (
+								<div className="ai-assistant-featured-image__error">
+									{ __(
+										'An error occurred while generating the image. Please, try Again',
+										'jetpack'
+									) }
+									{ error?.message && (
+										<span className="ai-assistant-featured-image__error-message">
+											{ error?.message }
+										</span>
+									) }
+								</div>
+							) : (
+								<img className="ai-assistant-featured-image__image" src={ imageURL } alt="" />
+							) }
 							<div className="ai-assistant-featured-image__actions">
-								<Button
-									onClick={ handleAccept }
-									variant="secondary"
-									isBusy={ isSavingToMediaLibrary }
-									disabled={ isSavingToMediaLibrary }
-								>
-									{ __( 'Save and use image', 'jetpack' ) }
-								</Button>
-								<Button
-									onClick={ handleRegenerate }
-									variant="secondary"
-									disabled={ isSavingToMediaLibrary }
-								>
-									{ __( 'Generate another image', 'jetpack' ) }
-								</Button>
+								{ ! error && (
+									<Button
+										onClick={ handleAccept }
+										variant="secondary"
+										isBusy={ isSavingToMediaLibrary }
+										disabled={ isSavingToMediaLibrary }
+									>
+										{ __( 'Save and use image', 'jetpack' ) }
+									</Button>
+								) }
+								{ error ? (
+									<Button onClick={ handleTryAgain } variant="secondary">
+										{ __( 'Try again', 'jetpack' ) }
+									</Button>
+								) : (
+									<Button
+										onClick={ handleRegenerate }
+										variant="secondary"
+										disabled={ isSavingToMediaLibrary }
+									>
+										{ __( 'Generate another image', 'jetpack' ) }
+									</Button>
+								) }
 							</div>
 						</div>
 					) }

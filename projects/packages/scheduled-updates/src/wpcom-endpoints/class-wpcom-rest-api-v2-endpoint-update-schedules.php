@@ -8,6 +8,7 @@
  */
 
 use Automattic\Jetpack\Scheduled_Updates;
+use Automattic\Jetpack\Scheduled_Updates_Logs;
 
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Update_Schedules
@@ -98,6 +99,40 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 							'required'    => true,
 						),
 					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<schedule_id>[\w]+)/logs',
+			array(
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'add_log' ),
+					'permission_callback' => array( $this, 'add_log_permissions_check' ),
+					'args'                => array(
+						'action'  => array(
+							'description' => 'The action to be logged',
+							'type'        => 'string',
+							'required'    => true,
+						),
+						'message' => array(
+							'description' => 'The message to be logged',
+							'type'        => 'string',
+							'required'    => false,
+						),
+						'context' => array(
+							'description' => 'The context to be logged',
+							'type'        => 'object',
+							'required'    => false,
+						),
+					),
+				),
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_logs' ),
+					'permission_callback' => array( $this, 'get_logs_permissions_check' ),
 				),
 			)
 		);
@@ -246,7 +281,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$plugins  = $request['plugins'];
 		usort( $plugins, 'strnatcasecmp' );
 
-		$event = wp_schedule_event( $schedule['timestamp'], $schedule['interval'], Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins, true );
+		$event = Scheduled_Updates::create_scheduled_update( $schedule['timestamp'], $schedule['interval'], $plugins );
 		if ( is_wp_error( $event ) ) {
 			return $event;
 		}
@@ -400,6 +435,64 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	}
 
 	/**
+	 * Permission check for adding a log entry
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return bool|WP_Error
+	 */
+	public function add_log_permissions_check( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
+		}
+
+		return current_user_can( 'update_plugins' );
+	}
+
+	/**
+	 * Adds a log entry to an update schedule.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error The updated event or a WP_Error if the schedule could not be found.
+	 */
+	public function add_log( $request ) {
+		$schedule_id = $request['schedule_id'];
+		$action      = $request['action'];
+		$message     = $request['message'];
+		$context     = $request['context'];
+
+		Scheduled_Updates_Logs::log( $schedule_id, $action, $message, $context );
+
+		return rest_ensure_response( true );
+	}
+
+	/**
+	 * Permission check for retrieving logs.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return bool|WP_Error
+	 */
+	public function get_logs_permissions_check( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
+		}
+
+		return current_user_can( 'update_plugins' );
+	}
+
+	/**
+	 * Retrieves logs for a specific schedule.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error The logs for the schedule or a WP_Error if the schedule could not be found.
+	 */
+	public function get_logs( $request ) {
+		$schedule_id = $request['schedule_id'];
+		$logs        = Scheduled_Updates_Logs::get( $schedule_id );
+
+		return rest_ensure_response( $logs );
+	}
+
+	/**
 	 * Permission check for deleting a specific schedule.
 	 *
 	 * @param WP_REST_Request $request Request object.
@@ -428,7 +521,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 
 		$event = $events[ $request['schedule_id'] ];
 
-		$result = wp_unschedule_event( $event->timestamp, Scheduled_Updates::PLUGIN_CRON_HOOK, $event->args, true );
+		$result = Scheduled_Updates::delete_scheduled_update( $event->timestamp, $event->args );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
