@@ -1,0 +1,44 @@
+.card {
+	min-height: 452px;
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+
+	@media (max-width: 959px) {
+		min-height: auto;
+	}
+}
+
+.card__heading {
+	font-size: 36px;
+	line-height: 40px;
+	letter-spacing: -1%;
+	margin: 0;
+
+	@media (max-width: 659px) {
+        font-size: 24px;
+		line-height: 32px;
+    }
+}
+
+.check-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin: 0;
+}
+
+.check-list li {
+	display: flex;
+	// align-items: center;
+	gap: 4px;
+	margin-bottom: 0;
+	font-size: 16px;
+	line-height: 22px;
+	letter-spacing: -2%;
+}
+
+.check-list li svg {
+	margin-top: -1px;
+	flex-shrink: 0;
+}

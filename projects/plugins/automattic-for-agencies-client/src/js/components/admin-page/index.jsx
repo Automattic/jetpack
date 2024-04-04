@@ -5,10 +5,11 @@ import {
 	Col,
 	PricingCard,
 } from '@automattic/jetpack-components';
-import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
+import ConnectionCard from '../connection-card';
 import styles from './styles.module.scss';
 
 const Admin = () => {
@@ -82,29 +83,6 @@ const Admin = () => {
 export default Admin;
 
 const ConnectionSection = () => {
-	const { apiNonce, apiRoot, registrationNonce } = window.automatticForAgenciesClientInitialState;
-	return (
-		<ConnectScreenRequiredPlan
-			buttonLabel={ __( 'Get Automattic For Agencies Client', 'automattic-for-agencies-client' ) }
-			priceAfter={ 4.5 }
-			priceBefore={ 9 }
-			pricingTitle={ __( 'Automattic For Agencies Client', 'automattic-for-agencies-client' ) }
-			title={ __(
-				'Easily connect your clients sites to the Automattic for Agencies portal and enable portal features like plugin updates, downtime monitoring, and more.',
-				'automattic-for-agencies-client'
-			) }
-			apiRoot={ apiRoot }
-			apiNonce={ apiNonce }
-			registrationNonce={ registrationNonce }
-			from="automattic-for-agencies-client"
-			redirectUri="admin.php?page=automattic-for-agencies-client"
-		>
-			<h3>{ __( 'Connection screen title', 'automattic-for-agencies-client' ) }</h3>
-			<ul>
-				<li>{ __( 'Amazing feature 1', 'automattic-for-agencies-client' ) }</li>
-				<li>{ __( 'Amazing feature 2', 'automattic-for-agencies-client' ) }</li>
-				<li>{ __( 'Amazing feature 3', 'automattic-for-agencies-client' ) }</li>
-			</ul>
-		</ConnectScreenRequiredPlan>
-	);
+	// const { apiNonce, apiRoot, registrationNonce } = window.automatticForAgenciesClientInitialState;
+	return <ConnectionCard />;
 };

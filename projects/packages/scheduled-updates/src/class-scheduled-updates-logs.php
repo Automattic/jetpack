@@ -29,10 +29,14 @@ class Scheduled_Updates_Logs {
 	 * Action constant representing the different kind of log message.
 	 */
 	const PLUGIN_UPDATES_START                    = 'PLUGIN_UPDATES_START';
+	const PLUGIN_UPDATES_SUCCESS                  = 'PLUGIN_UPDATES_SUCCESS';
+	const PLUGIN_UPDATES_FAILURE                  = 'PLUGIN_UPDATES_FAILURE';
 	const PLUGIN_UPDATE_SUCCESS                   = 'PLUGIN_UPDATE_SUCCESS';
+	const PLUGIN_UPDATE_FAILURE                   = 'PLUGIN_UPDATE_FAILURE';
+	const PLUGIN_SITE_HEALTH_CHECK_SUCCESS        = 'PLUGIN_SITE_HEALTH_CHECK_SUCCESS';
+	const PLUGIN_SITE_HEALTH_CHECK_FAILURE        = 'PLUGIN_SITE_HEALTH_CHECK_FAILURE';
 	const PLUGIN_UPDATE_FAILURE_AND_ROLLBACK      = 'PLUGIN_UPDATE_FAILURE_AND_ROLLBACK';
 	const PLUGIN_UPDATE_FAILURE_AND_ROLLBACK_FAIL = 'PLUGIN_UPDATE_FAILURE_AND_ROLLBACK_FAIL';
-	const PLUGIN_UPDATES_COMPLETE                 = 'PLUGIN_UPDATES_COMPLETE';
 
 	/**
 	 * Logs a scheduled update event.
