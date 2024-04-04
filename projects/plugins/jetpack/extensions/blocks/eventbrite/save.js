@@ -8,19 +8,17 @@ export default function save( { attributes } ) {
 		return;
 	}
 
-	if ( style === 'modal' ) {
-		return (
-			<div { ...blockProps }>
-				<InnerBlocks.Content />
-			</div>
-		);
-	}
+	let content;
 
-	return (
-		url && (
+	if ( style === 'modal' ) {
+		content = <InnerBlocks.Content />;
+	} else if ( url ) {
+		content = (
 			<a className="eventbrite__direct-link" href={ url }>
 				{ url }
 			</a>
-		)
-	);
+		);
+	}
+
+	return <div { ...blockProps }>{ content }</div>;
 }
