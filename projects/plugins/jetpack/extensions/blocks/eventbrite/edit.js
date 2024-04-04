@@ -23,7 +23,7 @@ const innerButtonBlock = {
 	},
 };
 
-const EventbriteEdit = props => {
+export const EventbriteEdit = props => {
 	const { attributes, noticeOperations, onReplace, setAttributes } = props;
 	const { url, style } = attributes;
 
