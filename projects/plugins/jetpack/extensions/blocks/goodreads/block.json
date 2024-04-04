@@ -22,8 +22,7 @@
 			"type": "string"
 		},
 		"customTitle": {
-			"type": "string",
-			"default": "My Bookshelf"
+			"type": "string"
 		},
 		"goodreadsId": {
 			"type": "number"

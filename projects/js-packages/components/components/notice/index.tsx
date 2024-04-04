@@ -67,7 +67,7 @@ const Notice: React.FC< NoticeProps > = ( {
 			</div>
 
 			<div className={ styles[ 'main-content' ] }>
-				<div className={ styles.title }>{ title }</div>
+				{ title && <div className={ styles.title }>{ title }</div> }
 				{ children }
 
 				{ actions && actions.length > 0 && (

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Force cache cleaning before scheduling a new job.
