@@ -74,10 +74,12 @@ const useAutoScroll = (
 			return null;
 		}
 
+		// If we arrived to the body, we should stop since it's the last event handler
 		if ( el.nodeName === 'BODY' ) {
 			return el;
 		}
 
+		// Gutenberg on newest version run inside iframe, on that case the scroll parent is the iframe
 		if ( el.ownerDocument !== document ) {
 			return el.ownerDocument;
 		}
@@ -100,7 +102,7 @@ const useAutoScroll = (
 		if ( parent ) {
 			scrollElementRef.current = parent;
 			parent?.addEventListener?.( 'scroll', userScrollHandler );
-			debug( 'effect event added' );
+			debug( 'auto scroll effect event added' );
 		}
 
 		// cleanup
