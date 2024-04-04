@@ -58,12 +58,12 @@ const useAutoScroll = (
 			startedAutoScroll.current = true;
 			doingAutoScroll.current = true;
 
-			scrollElementRef?.current?.removeEventListener( 'scroll', userScrollHandler );
+			scrollElementRef?.current?.removeEventListener?.( 'scroll', userScrollHandler );
 			lastParagraph?.scrollIntoView( { block: 'center', inline: 'center' } );
 
 			setTimeout( () => {
 				doingAutoScroll.current = false;
-				scrollElementRef?.current?.addEventListener( 'scroll', userScrollHandler );
+				scrollElementRef?.current?.addEventListener?.( 'scroll', userScrollHandler );
 			}, 200 );
 		}
 	}, [ contentRef, userScrollHandler ] );
@@ -74,12 +74,12 @@ const useAutoScroll = (
 		}
 
 		// If we arrived to the body, we should stop since it's the last event handler
-		if ( el.nodeName === 'BODY' ) {
+		if ( el?.nodeName === 'BODY' ) {
 			return el;
 		}
 
 		// Gutenberg on newest version run inside iframe, on that case the scroll parent is the iframe
-		if ( el.ownerDocument !== document ) {
+		if ( el?.ownerDocument !== document ) {
 			return el.ownerDocument;
 		}
 
@@ -89,11 +89,11 @@ const useAutoScroll = (
 			return el;
 		}
 
-		if ( ! el.parentElement ) {
+		if ( ! el?.parentElement ) {
 			return el;
 		}
 
-		return getScrollParent( el.parentElement );
+		return getScrollParent( el?.parentElement );
 	}, [] );
 
 	useEffect( () => {
