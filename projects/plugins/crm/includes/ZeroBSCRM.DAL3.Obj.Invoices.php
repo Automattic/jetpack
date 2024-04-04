@@ -1805,9 +1805,7 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 						// We can only generate it if autonumber is set
 						if ( $ref_type === 'autonumber' ) {
 							$next_number                 = $zbs->settings->get( 'refnextnum' );
-							$prefix                      = $zbs->settings->get( 'refprefix' );
-							$suffix                      = $zbs->settings->get( 'refsuffix' );
-							$dataArr['zbsi_id_override'] = $prefix . $next_number . $suffix; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+							$dataArr['zbsi_id_override'] = $zbs->settings->get( 'refprefix' ) . $next_number . $zbs->settings->get( 'refsuffix' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 							++$next_number;
 							$zbs->settings->update( 'refnextnum', $next_number );
 						}
