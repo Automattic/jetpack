@@ -15,6 +15,7 @@ export default function UsageCounter() {
 
 	const currentLimit = featureData?.currentTier?.value || 0;
 	const currentUsage = featureData?.usagePeriod?.requestsCount || 0;
+	const featuredImageCost = featureData?.costs?.[ 'featured-post-image' ]?.image;
 	const isUnlimited = currentLimit === 1;
 
 	const loadingLabel = __( '…', 'jetpack' );
@@ -25,7 +26,11 @@ export default function UsageCounter() {
 		currentLimit
 	);
 
-	const pricingLabel = __( 'Featured image generation costs 10 requests per image', 'jetpack' );
+	const pricingLabel = sprintf(
+		// Translators: %d is the cost of generating a featured image.
+		__( 'Featured image generation costs %d requests per image', 'jetpack' ),
+		featuredImageCost
+	);
 
 	// No usage counter if the plan is unlimited.
 	if ( isUnlimited ) {
