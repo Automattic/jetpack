@@ -8,8 +8,8 @@ import { useImperativeHandle, useRef, useEffect, useCallback } from '@wordpress/
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall, check, arrowUp, trash, reusableBlock } from '@wordpress/icons';
 import classNames from 'classnames';
-import { forwardRef } from 'react';
-import React from 'react';
+import debugFactory from 'debug';
+import React, { forwardRef } from 'react';
 /**
  * Internal dependencies
  */
@@ -44,6 +44,8 @@ type AiControlProps = {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};
+
+const debug = debugFactory( 'jetpack-ai-client:ai-control' );
 
 /**
  * AI Control component.
@@ -84,11 +86,7 @@ export function AIControl(
 		if ( editRequest ) {
 			promptUserInputRef?.current?.focus();
 		}
-
-		if ( ! editRequest && lastValue !== null && value !== lastValue ) {
-			onChange?.( lastValue );
-		}
-	}, [ editRequest, lastValue, value ] );
+	}, [ editRequest ] );
 
 	const sendRequest = useCallback( () => {
 		setLastValue( value );
@@ -119,6 +117,7 @@ export function AIControl(
 	}, [] );
 
 	const cancelEdit = useCallback( () => {
+		debug( 'cancelEdit, revert to last value', lastValue );
 		onChange( lastValue || '' );
 		setEditRequest( false );
 	}, [ lastValue ] );

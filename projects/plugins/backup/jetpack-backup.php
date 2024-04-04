@@ -29,7 +29,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-use Automattic\Jetpack\Backup\V0003\Jetpack_Backup as My_Jetpack_Backup;
+use Automattic\Jetpack\Backup\V0004\Jetpack_Backup as My_Jetpack_Backup;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -44,7 +44,7 @@ define( 'JETPACK_BACKUP_PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) )
 
 /**
  * Checks if Jetpack is installed and if yes, require version 10+
- * Can be extended to check for various system requiremens, such as WP or PHP version.
+ * Can be extended to check for various system requirements, such as WP or PHP version.
  *
  * @return bool|WP_Error True if system requirements are met, WP_Error if not.
  */
@@ -99,6 +99,20 @@ if ( is_readable( $jetpack_autoloader ) ) {
 			__( 'Error loading autoloader file for Jetpack VaultPress Backup plugin', 'jetpack-backup' )
 		);
 	}
+
+	// Add a red bubble notification to My Jetpack if the installation is bad.
+	add_filter(
+		'my_jetpack_red_bubble_notification_slugs',
+		function ( $slugs ) {
+			$slugs['jetpack-vaultpress-backup-plugin-bad-installation'] = array(
+				'data' => array(
+					'plugin' => 'Jetpack VaultPress Backup',
+				),
+			);
+
+			return $slugs;
+		}
+	);
 
 	add_action(
 		'admin_notices',
@@ -166,7 +180,7 @@ add_filter(
 	}
 );
 
-register_deactivation_hook( __FILE__, array( 'Automattic\\Jetpack\\Backup\\V0003\\Jetpack_Backup', 'plugin_deactivation' ) );
+register_deactivation_hook( __FILE__, array( 'Automattic\\Jetpack\\Backup\\V0004\\Jetpack_Backup', 'plugin_deactivation' ) );
 
 // Main plugin class.
 My_Jetpack_Backup::initialize();

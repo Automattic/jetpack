@@ -60,6 +60,88 @@ function register_block() {
 					),
 					'align'   => array( 'wide', 'full' ),
 				),
+				'attributes'      => array(
+					'subscribePlaceholder'            => array(
+						'type'    => 'string',
+						'default' => __( 'Type your email…', 'jetpack' ),
+					),
+					'showSubscribersTotal'            => array(
+						'type'    => 'boolean',
+						'default' => false,
+					),
+					'includeSocialFollowers'          => array(
+						'type' => 'boolean',
+					),
+					'buttonOnNewLine'                 => array(
+						'type'    => 'boolean',
+						'default' => false,
+					),
+					'buttonWidth'                     => array(
+						'type' => 'string',
+					),
+					'submitButtonText'                => array(
+						'type'    => 'string',
+						'default' => __( 'Subscribe', 'jetpack' ),
+					),
+					'emailFieldBackgroundColor'       => array(
+						'type' => 'string',
+					),
+					'customEmailFieldBackgroundColor' => array(
+						'type' => 'string',
+					),
+					'emailFieldGradient'              => array(
+						'type' => 'string',
+					),
+					'customEmailFieldGradient'        => array(
+						'type' => 'string',
+					),
+					'buttonBackgroundColor'           => array(
+						'type' => 'string',
+					),
+					'customButtonBackgroundColor'     => array(
+						'type' => 'string',
+					),
+					'buttonGradient'                  => array(
+						'type' => 'string',
+					),
+					'customButtonGradient'            => array(
+						'type' => 'string',
+					),
+					'textColor'                       => array(
+						'type' => 'string',
+					),
+					'customTextColor'                 => array(
+						'type' => 'string',
+					),
+					'fontSize'                        => array(
+						'type' => 'string',
+					),
+					'customFontSize'                  => array(
+						'type' => 'string',
+					),
+					'borderRadius'                    => array(
+						'type' => 'number',
+					),
+					'borderWeight'                    => array(
+						'type' => 'number',
+					),
+					'borderColor'                     => array(
+						'type' => 'string',
+					),
+					'customBorderColor'               => array(
+						'type' => 'string',
+					),
+					'padding'                         => array(
+						'type' => 'number',
+					),
+					'spacing'                         => array(
+						'type' => 'number',
+					),
+					'successMessage'                  => array(
+						'type'    => 'string',
+						'default' => __( 'Success! An email was just sent to confirm your subscription. Please find the email now and click \'Confirm Follow\' to start subscribing.', 'jetpack' ),
+					),
+				),
 			)
 		);
 	}
@@ -764,7 +846,7 @@ function render_for_website( $data, $classes, $styles ) {
 							esc_attr( $subscribe_field_id ),
 							( ! empty( $data['subscribe_email'] )
 								? 'disabled title="' . esc_attr__( "You're logged in with this email", 'jetpack' ) . '"'
-								: ''
+								: 'title="' . esc_attr__( 'Please fill in this field.', 'jetpack' ) . '"'
 							)
 						);
 						?>
@@ -1095,36 +1177,28 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		// translators: %s is the name of the site.
 		: esc_html__( 'Subscribe to get access to the rest of this post and other subscriber-only content.', 'jetpack' );
 
-	$sign_in         = '';
-	$switch_accounts = '';
+	$login_block = '';
 
-	if ( ( new Host() )->is_wpcom_simple() ) {
-		// On WPCOM we will redirect directly to the current page
-		$redirect_url = get_current_url();
-	} else {
-		// On self-hosted we will save and hide the token
-		$redirect_url = get_site_url() . '/wp-json/jetpack/v4/subscribers/auth';
-		$redirect_url = add_query_arg( 'redirect_url', get_current_url(), $redirect_url );
-	}
-
-	$sign_in_link = add_query_arg(
-		array(
-			'site_id'      => intval( \Jetpack_Options::get_option( 'id' ) ),
-			'redirect_url' => rawurlencode( $redirect_url ),
-		),
-		'https://subscribe.wordpress.com/memberships/jwt/'
-	);
 	if ( is_user_auth() ) {
 		if ( ( new Host() )->is_wpcom_simple() ) {
-			$switch_accounts_link = wp_logout_url( $sign_in_link );
-			$switch_accounts      = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
-<p class="has-text-align-center" style="font-size:14px"><a href="' . $switch_accounts_link . '">' . __( 'Switch Accounts', 'jetpack' ) . '</a></p>
+			// We cannot use wpcom_logmein_redirect_url since it returns redirect URL when user is already logged in.
+			$login_link           = add_query_arg(
+				array(
+					'redirect_to' => rawurlencode( get_current_url() ),
+					'blog_id'     => get_current_blog_id(),
+				),
+				'https://wordpress.com/log-in/link'
+			);
+			$switch_accounts_link = wp_logout_url( $login_link );
+			$login_block          = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
+<p class="has-text-align-center" style="font-size:14px">
+	<a href="' . $switch_accounts_link . '">' . __( 'Switch accounts', 'jetpack' ) . '</a>
+</p>
 <!-- /wp:paragraph -->';
-
 		}
 	} else {
 		$access_question = get_paywall_access_question( $newsletter_access_level );
-		$sign_in         = '<!-- wp:group {"style":{"typography":{"fontSize":"14px"}},"layout":{"type":"flex","justifyContent":"center"}} -->
+		$login_block     = '<!-- wp:group {"style":{"typography":{"fontSize":"14px"}},"layout":{"type":"flex","justifyContent":"center"}} -->
 <div class="wp-block-group" style="font-size:14px">
 	<!-- wp:jetpack/subscriber-login {"logInLabel":"' . $access_question . '"} /-->
 </div>
@@ -1149,8 +1223,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 <!-- /wp:paragraph -->
 
 <!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact","isPaidSubscriber":' . ( $is_paid_subscriber ? 'true' : 'false' ) . '} /-->
-' . $sign_in . '
-' . $switch_accounts . '
+' . $login_block . '
 </div>
 <!-- /wp:group -->
 ';

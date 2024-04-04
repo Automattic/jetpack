@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { AdminPage, Button, Col, Container, Text } from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
@@ -71,6 +72,10 @@ export default function ProductInterstitial( {
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
 	const { myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
+	const { siteIsRegistering, handleRegisterSite } = useConnection( {
+		skipUserConnection: true,
+		redirectUri: detail.postActivationUrl ? detail.postActivationUrl : null,
+	} );
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
@@ -96,7 +101,7 @@ export default function ProductInterstitial( {
 		( isFreePlan = false, customSlug = null ) => {
 			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
 				product: customSlug ?? slug,
-				productSlug: getProductSlugForTrackEvent( isFreePlan ),
+				product_slug: getProductSlugForTrackEvent( isFreePlan ),
 			} );
 		},
 		[ recordEvent, slug, getProductSlugForTrackEvent ]
@@ -106,7 +111,7 @@ export default function ProductInterstitial( {
 		( isFreePlan = false ) => {
 			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
 				product: bundle,
-				productSlug: getProductSlugForTrackEvent( isFreePlan ),
+				product_slug: getProductSlugForTrackEvent( isFreePlan ),
 			} );
 		},
 		[ recordEvent, bundle, getProductSlugForTrackEvent ]
@@ -135,32 +140,34 @@ export default function ProductInterstitial( {
 						postCheckoutUrl = activatedProduct?.post_checkout_url
 							? activatedProduct.post_checkout_url
 							: myJetpackCheckoutUri;
-						const postActivationUrl = product?.postActivationUrl;
-						const hasRequiredPlan = tier
-							? product?.hasRequiredTier?.[ tier ]
-							: product?.hasRequiredPlan;
+						// there is a separate hasRequiredTier, but it is not implemented
+						const hasPaidPlanForProduct = product?.hasPaidPlanForProduct;
 						const isFree = tier
 							? product?.pricingForUi?.tiers?.[ tier ]?.isFree
 							: product?.pricingForUi?.isFree;
-						const needsPurchase = ! isFree && ! hasRequiredPlan;
+						const isUpgradeToHigherTier =
+							tier && product?.pricingForUi?.tiers?.[ tier ] && ! isFree && product?.isUpgradable;
+						const needsPurchase = ( ! isFree && ! hasPaidPlanForProduct ) || isUpgradeToHigherTier;
 
 						// If the product is CRM, redirect the user to the Jetpack CRM pricing page.
 						// This is done because CRM is not part of the WP billing system
 						// and we can't send them to checkout like we can with the rest of the products
-						if ( product.pluginSlug === 'zero-bs-crm' && ! hasRequiredPlan ) {
+						if ( product.pluginSlug === 'zero-bs-crm' && ! hasPaidPlanForProduct ) {
 							window.location.href = 'https://jetpackcrm.com/pricing/';
 							return;
 						}
 
 						// If no purchase is needed, redirect the user to the product screen.
 						if ( ! needsPurchase ) {
-							if ( postActivationUrl ) {
-								window.location.href = postActivationUrl;
-								return;
-							}
+							// for free products, we still initiate the site connection
+							handleRegisterSite().then( redirectUri => {
+								if ( ! redirectUri ) {
+									// Fall back to the My Jetpack overview page.
+									return navigateToMyJetpackOverviewPage();
+								}
+							} );
 
-							// Fall back to the My Jetpack overview page.
-							return navigateToMyJetpackOverviewPage();
+							return;
 						}
 
 						// Redirect to the checkout page.
@@ -176,6 +183,7 @@ export default function ProductInterstitial( {
 			slug,
 			myJetpackCheckoutUri,
 			ctaCallback,
+			handleRegisterSite,
 		]
 	);
 
@@ -211,7 +219,8 @@ export default function ProductInterstitial( {
 							clickHandler={ clickHandler }
 							onProductButtonClick={ clickHandler }
 							trackProductButtonClick={ trackProductClick }
-							isFetching={ isActivating }
+							preferProductName={ preferProductName }
+							isFetching={ isActivating || siteIsRegistering }
 						/>
 					) : (
 						<Container
@@ -232,7 +241,7 @@ export default function ProductInterstitial( {
 									hideTOS={ hideTOS }
 									quantity={ quantity }
 									highlightLastFeature={ highlightLastFeature }
-									isFetching={ isActivating }
+									isFetching={ isActivating || siteIsRegistering }
 								/>
 							</Col>
 							<Col

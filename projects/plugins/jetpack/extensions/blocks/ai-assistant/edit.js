@@ -4,10 +4,8 @@
 import { AIControl, UpgradeMessage } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps, useInnerBlocksProps, InspectorControls } from '@wordpress/block-editor';
-import { rawHandler, createBlock, parse } from '@wordpress/blocks';
+import { rawHandler, parse } from '@wordpress/blocks';
 import {
-	Flex,
-	FlexBlock,
 	Modal,
 	Notice,
 	PanelBody,
@@ -32,7 +30,6 @@ import { USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } from '../../plugins/ai-a
 import { PLAN_TYPE_FREE, usePlanType } from '../../shared/use-plan-type';
 import ConnectPrompt from './components/connect-prompt';
 import FeedbackControl from './components/feedback-control';
-import ImageWithSelect from './components/image-with-select';
 import ToolbarControls from './components/toolbar-controls';
 import UpgradePrompt from './components/upgrade-prompt';
 import { getStoreBlockId } from './extensions/ai-assistant/with-ai-assistant';
@@ -40,7 +37,6 @@ import useAICheckout from './hooks/use-ai-checkout';
 import useAiFeature from './hooks/use-ai-feature';
 import useSuggestionsFromOpenAI from './hooks/use-suggestions-from-openai';
 import { isUserConnected } from './lib/connection';
-import { getImagesFromOpenAI } from './lib/image';
 import { getInitialSystemPrompt } from './lib/prompt';
 import './editor.scss';
 
@@ -54,27 +50,16 @@ const isPlaygroundVisible =
 
 export default function AIAssistantEdit( { attributes, setAttributes, clientId, isSelected } ) {
 	const [ errorData, setError ] = useState( {} );
-	const [ loadingImages, setLoadingImages ] = useState( false );
-	const [ resultImages, setResultImages ] = useState( [] );
-	const [ imageModal, setImageModal ] = useState( null );
 	const [ errorDismissed, setErrorDismissed ] = useState( null );
 	const { tracks } = useAnalytics();
-	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 
 	const { getBlock } = useSelect( 'core/block-editor' );
 
 	const aiControlRef = useRef( null );
 	const blockRef = useRef( null );
 
-	const { replaceBlocks, replaceBlock, removeBlock } = useDispatch( 'core/block-editor' );
+	const { replaceBlocks, removeBlock } = useDispatch( 'core/block-editor' );
 	const { editPost } = useDispatch( 'core/editor' );
-	const { mediaUpload } = useSelect( select => {
-		const { getSettings } = select( 'core/block-editor' );
-		const settings = getSettings();
-		return {
-			mediaUpload: settings.mediaUpload,
-		};
-	}, [] );
 
 	const {
 		isOverLimit,
@@ -109,8 +94,9 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
+	const contentRef = useRef( null );
+
 	const {
-		isLoadingCategories,
 		isLoadingCompletion,
 		wasCompletionJustRequested,
 		getSuggestionFromOpenAI,
@@ -139,6 +125,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		userPrompt: attributes.userPrompt,
 		requireUpgrade,
 		requestingState: attributes.requestingState,
+		contentRef,
+		blockRef,
 	} );
 
 	const connected = isUserConnected();
@@ -222,52 +210,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		setAttributes( { requestingState } );
 	}, [ requestingState, setAttributes ] );
 
-	const saveImage = async image => {
-		if ( loadingImages ) {
-			return;
-		}
-		setLoadingImages( true );
-		setError( {} );
-
-		// First convert image to a proper blob file
-		const resp = await fetch( image );
-		const blob = await resp.blob();
-		const file = new File( [ blob ], 'jetpack_ai_image.png', {
-			type: 'image/png',
-		} );
-		// Actually upload the image
-		mediaUpload( {
-			filesList: [ file ],
-			onFileChange: ( [ img ] ) => {
-				if ( ! img.id ) {
-					// Without this image gets uploaded twice
-					return;
-				}
-				replaceBlock(
-					clientId,
-					createBlock( 'core/image', {
-						url: img.url,
-						caption: attributes.requestedPrompt,
-						alt: attributes.requestedPrompt,
-					} )
-				);
-			},
-			allowedTypes: [ 'image' ],
-			onError: message => {
-				// eslint-disable-next-line no-console
-				console.error( message );
-				setLoadingImages( false );
-			},
-		} );
-		tracks.recordEvent( 'jetpack_ai_dalle_generation_upload', {
-			post_id: postId,
-		} );
-	};
-
 	const useGutenbergSyntax = attributes?.useGutenbergSyntax;
 
-	// Waiting state means there is nothing to be done until it resolves
-	const isWaitingState = isLoadingCompletion || isLoadingCategories;
 	// Content is loaded
 	const contentIsLoaded = !! attributes.content;
 
@@ -338,11 +282,25 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 			 * - Get HTML code from markdown content
 			 * - Create blocks from HTML code
 			 */
-			const HTML = markdownConverter
+			let HTML = markdownConverter
 				.render( attributes.content || '' )
 				// Fix list indentation
 				.replace( /<li>\s+<p>/g, '<li>' )
 				.replace( /<\/p>\s+<\/li>/g, '</li>' );
+
+			const seemsToIncludeTitle =
+				HTML?.split( '\n' ).length > 1 && HTML?.split( '\n' )?.[ 0 ]?.match( /^<h1>.*<\/h1>$/ );
+
+			if ( seemsToIncludeTitle && ! postTitle ) {
+				// split HTML on new line characters
+				const htmlLines = HTML.split( '\n' );
+				// take the first line as title
+				const title = htmlLines.shift();
+				// rejoin the rest of the lines on HTML
+				HTML = htmlLines.join( '\n' );
+				// set the title as post title
+				editPost( { title: title.replace( /<[^>]*>/g, '' ) } );
+			}
 			newGeneratedBlocks = rawHandler( { HTML: HTML } );
 		} else {
 			/*
@@ -398,26 +356,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		stopSuggestion();
 		focusOnPrompt();
 		tracks.recordEvent( 'jetpack_ai_assistant_block_stop', { feature: 'ai-assistant' } );
-	};
-
-	const handleImageRequest = () => {
-		setResultImages( [] );
-		setError( {} );
-
-		getImagesFromOpenAI(
-			attributes.userPrompt.trim() === ''
-				? __( 'What would you like to see?', 'jetpack' )
-				: attributes.userPrompt,
-			setAttributes,
-			setLoadingImages,
-			setResultImages,
-			setError,
-			postId
-		);
-
-		tracks.recordEvent( 'jetpack_ai_dalle_generation', {
-			post_id: postId,
-		} );
 	};
 
 	/*
@@ -485,13 +423,14 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		>
 			<div { ...blockProps }>
 				{ contentIsLoaded && ! useGutenbergSyntax && (
-					<div className="jetpack-ai-assistant__content">
+					<div ref={ contentRef } className="jetpack-ai-assistant__content">
 						<RawHTML>{ markdownConverter.render( attributes.content ) }</RawHTML>
 					</div>
 				) }
 
 				{ contentIsLoaded && useGutenbergSyntax && (
 					<div
+						ref={ contentRef }
 						className="jetpack-ai-assistant__content is-layout-building-mode"
 						{ ...innerBlocks }
 					/>
@@ -567,16 +506,14 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					</InspectorControls>
 				) }
 
-				{ ! isWaitingState && connected && ! requireUpgrade && (
+				{ ! isLoadingCompletion && connected && ! requireUpgrade && (
 					<ToolbarControls
-						isWaitingState={ isWaitingState }
+						isWaitingState={ isLoadingCompletion }
 						contentIsLoaded={ contentIsLoaded }
 						getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
 						retryRequest={ retryRequest }
 						handleAcceptContent={ handleAcceptContent }
 						handleAcceptTitle={ handleAcceptTitle }
-						handleGetSuggestion={ handleGetSuggestion }
-						handleImageRequest={ handleImageRequest }
 						handleTryAgain={ null }
 						showRetry={ showRetry }
 						contentBefore={ contentBefore }
@@ -612,7 +549,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					state={ requestingState }
 					isTransparent={ requireUpgrade || ! connected }
 					showButtonLabels={ ! isMobileViewport }
-					showAccept={ requestingState !== 'init' && contentIsLoaded && ! isWaitingState }
+					showAccept={ requestingState !== 'init' && contentIsLoaded && ! isLoadingCompletion }
 					acceptLabel={ acceptLabel }
 					showGuideLine={ contentIsLoaded }
 					showRemove={ attributes?.content?.length > 0 }
@@ -629,40 +566,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 						) : null
 					}
 				/>
-
-				{ ! loadingImages && resultImages.length > 0 && (
-					<Flex direction="column" style={ { width: '100%' } }>
-						<FlexBlock
-							style={ { textAlign: 'center', margin: '12px', fontStyle: 'italic', width: '100%' } }
-						>
-							{ attributes.requestedPrompt }
-						</FlexBlock>
-						<FlexBlock style={ { fontSize: '20px', lineHeight: '38px' } }>
-							{ __( 'Please choose your image', 'jetpack' ) }
-						</FlexBlock>
-						<Flex direction="row" wrap={ true }>
-							{ resultImages.map( image => (
-								<ImageWithSelect
-									setImageModal={ setImageModal }
-									saveImage={ saveImage }
-									image={ image }
-									key={ image }
-								/>
-							) ) }
-						</Flex>
-					</Flex>
-				) }
-
-				{ ! loadingImages && imageModal && (
-					<Modal onRequestClose={ () => setImageModal( null ) }>
-						<ImageWithSelect
-							saveImage={ saveImage }
-							setImageModal={ setImageModal }
-							image={ imageModal }
-							inModal={ true }
-						/>
-					</Modal>
-				) }
 			</div>
 		</KeyboardShortcuts>
 	);

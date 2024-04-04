@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Load Stats on admin_menu hook for Simple sites so Jetpack menu loads for admin-menu API

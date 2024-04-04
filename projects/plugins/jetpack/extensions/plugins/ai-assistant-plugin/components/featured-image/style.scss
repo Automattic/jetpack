@@ -1,0 +1,42 @@
+.ai-assistant-featured-image {
+	&__image {
+		width: 100%;
+		height: auto;
+	}
+
+	&__loading {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 200px;
+	}
+
+	&__content {
+		display: flex;
+		margin-top: 8px;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		gap: 16px;
+	}
+
+	&__actions {
+		display: flex;
+		gap: 16px;
+	}
+
+	&__error {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-direction: column;
+		height: 300px;
+		width: 600px;
+		border: 1px dotted;
+
+		&-message {
+			font-size: 10px;
+			color: red;
+		}
+	}
+}

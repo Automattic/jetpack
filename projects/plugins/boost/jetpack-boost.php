@@ -9,7 +9,7 @@
  * Plugin Name:       Jetpack Boost
  * Plugin URI:        https://jetpack.com/boost
  * Description:       Boost your WordPress site's performance, from the creators of Jetpack
- * Version: 3.2.1-alpha
+ * Version: 3.2.3-alpha
  * Author:            Automattic - Jetpack Site Speed team
  * Author URI:        https://jetpack.com/boost/
  * License:           GPL-2.0+
@@ -29,7 +29,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-define( 'JETPACK_BOOST_VERSION', '3.2.1-alpha' );
+define( 'JETPACK_BOOST_VERSION', '3.2.3-alpha' );
 define( 'JETPACK_BOOST_SLUG', 'jetpack-boost' );
 
 if ( ! defined( 'JETPACK_BOOST_CLIENT_NAME' ) ) {
@@ -84,6 +84,20 @@ if ( is_readable( $boost_packages_path ) ) {
 			)
 		);
 	}
+
+	// Add a red bubble notification to My Jetpack if the installation is bad.
+	add_filter(
+		'my_jetpack_red_bubble_notification_slugs',
+		function ( $slugs ) {
+			$slugs['jetpack-boost-plugin-bad-installation'] = array(
+				'data' => array(
+					'plugin' => 'Jetpack Boost',
+				),
+			);
+
+			return $slugs;
+		}
+	);
 
 	/**
 	 * Outputs an admin notice for folks running Jetpack Boost without having run composer install.

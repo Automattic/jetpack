@@ -31,6 +31,28 @@ export function* updateSocialNotesSettings( settings ) {
 }
 
 /**
+ * Yield actions to update settings
+ *
+ * @param {object} config - config to update
+ * @yields {object} - an action object.
+ * @returns {object} - an action object.
+ */
+export function* updateSocialNotesConfig( config ) {
+	const prevConfig = select( SOCIAL_STORE_ID ).getSocialNotesConfig();
+	const newConfig = { ...prevConfig, ...config };
+	try {
+		yield setJetpackSettings( { social_notes_config: newConfig } );
+		yield updateJetpackSettingsControl( { social_notes_config: config } );
+		const updatedSettings = yield fetchJetpackSettings();
+		yield setJetpackSettings( updatedSettings );
+		return true;
+	} catch ( e ) {
+		yield setJetpackSettings( { social_notes_config: prevConfig } );
+		return false;
+	}
+}
+
+/**
  * Yield actions to refresh settings
  *
  * @yields {object} - an action object.
@@ -67,7 +89,17 @@ export function setUpdatingSocialNotesSettingsDone() {
 	return setJetpackSettings( { social_notes_is_updating: false } );
 }
 
+/**
+ * Set state updating action
+ *
+ * @returns {object} - an action object.
+ */
+export function setUpdatingSocialNotesConfig() {
+	return setJetpackSettings( { social_notes_config_is_updating: true } );
+}
+
 export default {
 	updateSocialNotesSettings,
+	updateSocialNotesConfig,
 	refreshSocialNotesSettings,
 };

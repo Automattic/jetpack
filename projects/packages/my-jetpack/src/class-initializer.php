@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Boost_Speed_Score\Jetpack_Boost_Modules;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Connection\Client;
@@ -37,7 +36,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.18.0-alpha';
+	const PACKAGE_VERSION = '4.20.3-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -87,8 +86,7 @@ class Initializer {
 		}
 
 		// Initialize Boost Speed Score
-		$boost_modules = Jetpack_Boost_Modules::init();
-		new Speed_Score( $boost_modules, 'jetpack-my-jetpack' );
+		new Speed_Score( array(), 'jetpack-my-jetpack' );
 
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
@@ -200,7 +198,14 @@ class Initializer {
 		);
 		$modules             = new Modules();
 		$connection          = new Connection_Manager();
-		$speed_score_history = new Speed_Score_History( wp_parse_url( get_site_url(), PHP_URL_HOST ) );
+		$speed_score_history = new Speed_Score_History( get_site_url() );
+		$latest_score        = $speed_score_history->latest();
+		$previous_score      = array();
+		if ( $speed_score_history->count() > 1 ) {
+			$previous_score = $speed_score_history->latest( 1 );
+		}
+		$latest_score['previousScores'] = $previous_score['scores'] ?? array();
+
 		wp_localize_script(
 			'my_jetpack_main_app',
 			'myJetpackInitialState',
@@ -216,6 +221,7 @@ class Initializer {
 				'myJetpackCheckoutUri'   => admin_url( 'admin.php?page=my-jetpack' ),
 				'topJetpackMenuItemUrl'  => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'             => ( new Status() )->get_site_suffix(),
+				'siteUrl'                => esc_url( get_site_url() ),
 				'blogID'                 => Connection_Manager::get_site_id( true ),
 				'myJetpackVersion'       => self::PACKAGE_VERSION,
 				'myJetpackFlags'         => self::get_my_jetpack_flags(),
@@ -237,14 +243,11 @@ class Initializer {
 				'isUserFromKnownHost'    => self::is_user_from_known_host(),
 				'isCommercial'           => self::is_commercial_site(),
 				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
-				'welcomeBanner'          => array(
-					'hasBeenDismissed' => \Jetpack_Options::get_option( 'dismissed_welcome_banner', false ),
-				),
 				'jetpackManage'          => array(
 					'isEnabled'       => Jetpack_Manage::could_use_jp_manage(),
 					'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
 				),
-				'latestBoostSpeedScores' => $speed_score_history->latest(),
+				'latestBoostSpeedScores' => $latest_score,
 			)
 		);
 
@@ -620,7 +623,7 @@ class Initializer {
 	public static function maybe_show_red_bubble() {
 		global $menu;
 		// filters for the items in this file
-		add_filter( 'my_jetpack_red_bubble_notification_slugs', array( __CLASS__, 'alert_if_missing_site_connection' ) );
+		add_filter( 'my_jetpack_red_bubble_notification_slugs', array( __CLASS__, 'add_red_bubble_alerts' ) );
 		$red_bubble_alerts = self::get_red_bubble_alerts();
 
 		// The Jetpack menu item should be on index 3
@@ -654,6 +657,22 @@ class Initializer {
 	}
 
 	/**
+	 *  Add relevant red bubble notifications
+	 *
+	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
+	 * @return array
+	 */
+	public static function add_red_bubble_alerts( array $red_bubble_slugs ) {
+		$welcome_banner_dismissed = \Jetpack_Options::get_option( 'dismissed_welcome_banner', false );
+		if ( self::is_jetpack_user_new() && ! $welcome_banner_dismissed ) {
+			$red_bubble_slugs['welcome-banner-active'] = null;
+			return $red_bubble_slugs;
+		} else {
+			return self::alert_if_missing_site_connection( $red_bubble_slugs );
+		}
+	}
+
+	/**
 	 * Add an alert slug if the site is missing a site connection
 	 *
 	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
@@ -661,7 +680,7 @@ class Initializer {
 	 */
 	public static function alert_if_missing_site_connection( array $red_bubble_slugs ) {
 		if ( ! ( new Connection_Manager() )->is_connected() ) {
-			$red_bubble_slugs[] = self::MISSING_SITE_CONNECTION_NOTIFICATION_KEY;
+			$red_bubble_slugs[ self::MISSING_SITE_CONNECTION_NOTIFICATION_KEY ] = null;
 		}
 
 		return $red_bubble_slugs;

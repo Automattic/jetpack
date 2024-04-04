@@ -1,34 +1,27 @@
-jQuery( document ).ready( function ( $ ) {
-	var body = $( 'body' ),
-		toggleSSO = $( '.jetpack-sso-toggle' ),
-		userLogin = $( '#user_login' ),
-		userPassword = $( '#user_pass' ),
-		ssoWrap = $( '#jetpack-sso-wrap' ),
-		loginForm = $( '#loginform' ),
-		overflow = $( '<div class="jetpack-sso-clear"></div>' );
+document.addEventListener( 'DOMContentLoaded', () => {
+	const body = document.querySelector( 'body' ),
+		toggleSSO = document.querySelector( '.jetpack-sso-toggle' ),
+		userLogin = document.getElementById( 'user_login' ),
+		userPassword = document.getElementById( 'user_pass' ),
+		ssoWrap = document.getElementById( 'jetpack-sso-wrap' ),
+		loginForm = document.getElementById( 'loginform' ),
+		overflow = document.createElement( 'div' );
 
-	// The overflow div is a poor man's clearfloat. We reposition the remember me
-	// checkbox and the submit button within that to clear the float on the
-	// remember me checkbox. This is important since we're positioning the SSO
-	// UI under the submit button.
-	//
-	// @TODO: Remove this approach once core ticket 28528 is in and we have more actions in wp-login.php.
-	// See - https://core.trac.wordpress.org/ticket/28528
-	loginForm.append( overflow );
-	overflow.append( $( 'p.forgetmenot' ), $( 'p.submit' ) );
+	overflow.className = 'jetpack-sso-clear';
 
-	// We reposition the SSO UI at the bottom of the login form which
-	// fixes a tab order issue. Then we override any styles for absolute
-	// positioning of the SSO UI.
-	loginForm.append( ssoWrap );
-	body.addClass( 'jetpack-sso-repositioned' );
+	loginForm.appendChild( overflow );
+	overflow.appendChild( document.querySelector( 'p.forgetmenot' ) );
+	overflow.appendChild( document.querySelector( 'p.submit' ) );
 
-	toggleSSO.on( 'click', function ( e ) {
+	loginForm.appendChild( ssoWrap );
+	body.classList.add( 'jetpack-sso-repositioned' );
+
+	toggleSSO.addEventListener( 'click', e => {
 		e.preventDefault();
-		body.toggleClass( 'jetpack-sso-form-display' );
-		if ( ! body.hasClass( 'jetpack-sso-form-display' ) ) {
+		body.classList.toggle( 'jetpack-sso-form-display' );
+		if ( ! body.classList.contains( 'jetpack-sso-form-display' ) ) {
 			userLogin.focus();
-			userPassword.prop( 'disabled', false );
+			userPassword.disabled = false;
 		}
 	} );
 } );

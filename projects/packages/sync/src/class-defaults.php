@@ -88,6 +88,7 @@ class Defaults {
 		'jetpack_protect_key',
 		'jetpack_publicize_options',
 		'jetpack_relatedposts',
+		'jetpack_social_notes_config',
 		'jetpack_social_settings',
 		'jetpack_social_autoconvert_images',
 		'jetpack_sso_match_by_email',

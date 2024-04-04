@@ -20,7 +20,8 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.4.2-alpha';
+	const PACKAGE_VERSION = '0.6.0-alpha';
+
 	/**
 	 * The cron event hook for the scheduled plugins update.
 	 *
@@ -51,6 +52,7 @@ class Scheduled_Updates {
 		add_action( 'rest_api_init', array( __CLASS__, 'add_is_managed_extension_field' ) );
 		add_filter( 'auto_update_plugin', array( __CLASS__, 'allowlist_scheduled_plugins' ), 10, 2 );
 		add_filter( 'plugin_auto_update_setting_html', array( __CLASS__, 'show_scheduled_updates' ), 10, 2 );
+		add_action( 'deleted_plugin', array( __CLASS__, 'deleted_plugin' ), 10, 2 );
 	}
 
 	/**
@@ -95,6 +97,39 @@ class Scheduled_Updates {
 	}
 
 	/**
+	 * Create a scheduled update.
+	 *
+	 * @param int    $timestamp Timestamp of the first run.
+	 * @param string $interval  Interval of the update.
+	 * @param array  $plugins   List of plugins to update.
+	 * @return \WP_Error|bool True on success, WP_Error on failure.
+	 */
+	public static function create_scheduled_update( $timestamp, $interval, $plugins ) {
+		return wp_schedule_event( $timestamp, $interval, self::PLUGIN_CRON_HOOK, $plugins, true );
+	}
+
+	/**
+	 * Remove a scheduled update.
+	 *
+	 * @param int   $timestamp Timestamp of the first run.
+	 * @param array $plugins   List of plugins to update.
+	 * @return \WP_Error|bool True on success, WP_Error on failure.
+	 */
+	public static function delete_scheduled_update( $timestamp, $plugins ) {
+		// Be sure to clear the cron cache before removing a cron entry.
+		self::clear_cron_cache();
+
+		return wp_unschedule_event( $timestamp, self::PLUGIN_CRON_HOOK, $plugins, true );
+	}
+
+	/**
+	 * Clear the cron cache.
+	 */
+	public static function clear_cron_cache() {
+		wp_cache_delete( 'alloptions', 'options' );
+	}
+
+	/**
 	 * Updates last status of a scheduled update.
 	 *
 	 * @param string      $schedule_id Request ID.
@@ -131,6 +166,18 @@ class Scheduled_Updates {
 		update_option( 'jetpack_scheduled_update_statuses', $option );
 
 		return $option;
+	}
+
+	/**
+	 * Get the last status of a scheduled update.
+	 *
+	 * @param string $schedule_id Request ID.
+	 * @return array|null Last status of the scheduled update or null if not found.
+	 */
+	public static function get_scheduled_update_status( $schedule_id ) {
+		$statuses = get_option( 'jetpack_scheduled_update_statuses', array() );
+
+		return $statuses[ $schedule_id ] ?? null;
 	}
 
 	/**
@@ -208,30 +255,30 @@ class Scheduled_Updates {
 			$html = sprintf(
 				/* translators: %s is the time of day. Daily at 10 am. */
 				esc_html__( 'Daily at %s.', 'jetpack-scheduled-updates' ),
-				get_date_from_gmt( gmdate( 'Y-m-d H:i:s', $schedule->timestamp ), get_option( 'time_format' ) )
+				wp_date( get_option( 'time_format' ), $schedule->timestamp )
 			);
 		} else {
 			// Not getting smart about passing in weekdays makes it easier to translate.
 			$weekdays = array(
-				/* translators: %s is the time of day. Sundays at 10 am. */
-				__( 'Sundays at %s.', 'jetpack-scheduled-updates' ),
 				/* translators: %s is the time of day. Mondays at 10 am. */
-				__( 'Mondays at %s.', 'jetpack-scheduled-updates' ),
+				1 => __( 'Mondays at %s.', 'jetpack-scheduled-updates' ),
 				/* translators: %s is the time of day. Tuesdays at 10 am. */
-				__( 'Tuesdays at %s.', 'jetpack-scheduled-updates' ),
+				2 => __( 'Tuesdays at %s.', 'jetpack-scheduled-updates' ),
 				/* translators: %s is the time of day. Wednesdays at 10 am. */
-				__( 'Wednesdays at %s.', 'jetpack-scheduled-updates' ),
+				3 => __( 'Wednesdays at %s.', 'jetpack-scheduled-updates' ),
 				/* translators: %s is the time of day. Thursdays at 10 am. */
-				__( 'Thursdays at %s.', 'jetpack-scheduled-updates' ),
+				4 => __( 'Thursdays at %s.', 'jetpack-scheduled-updates' ),
 				/* translators: %s is the time of day. Fridays at 10 am. */
-				__( 'Fridays at %s.', 'jetpack-scheduled-updates' ),
+				5 => __( 'Fridays at %s.', 'jetpack-scheduled-updates' ),
 				/* translators: %s is the time of day. Saturdays at 10 am. */
-				__( 'Saturdays at %s.', 'jetpack-scheduled-updates' ),
+				6 => __( 'Saturdays at %s.', 'jetpack-scheduled-updates' ),
+				/* translators: %s is the time of day. Sundays at 10 am. */
+				7 => __( 'Sundays at %s.', 'jetpack-scheduled-updates' ),
 			);
 
 			$html = sprintf(
-				$weekdays[ date_i18n( 'N', $schedule->timestamp ) ],
-				get_date_from_gmt( gmdate( 'Y-m-d H:i:s', $schedule->timestamp ), get_option( 'time_format' ) )
+				$weekdays[ wp_date( 'N', $schedule->timestamp ) ],
+				wp_date( get_option( 'time_format' ), $schedule->timestamp )
 			);
 		}
 
@@ -337,6 +384,63 @@ class Scheduled_Updates {
 		}
 
 		return $file_mod_capabilities;
+	}
+
+	/**
+	 * Hook run when a plugin is deleted.
+	 *
+	 * @param string $plugin_file Path to the plugin file relative to the plugins directory.
+	 * @param bool   $deleted     Whether the plugin deletion was successful.
+	 */
+	public static function deleted_plugin( $plugin_file, $deleted ) {
+		if ( ! $deleted ) {
+			return;
+		}
+
+		$events = wp_get_scheduled_events( self::PLUGIN_CRON_HOOK );
+
+		if ( ! count( $events ) ) {
+			return;
+		}
+
+		foreach ( $events as $id => $event ) {
+			// Continue if the plugin is not part of the schedule.
+			if ( ! in_array( $plugin_file, $event->args, true ) ) {
+				continue;
+			}
+
+			// Remove the schedule.
+			$result = self::delete_scheduled_update( $event->timestamp, $event->args );
+
+			if ( is_wp_error( $result ) || false === $result ) {
+				continue;
+			}
+
+			$plugins = array_values( array_diff( $event->args, array( $plugin_file ) ) );
+
+			if ( ! count( $plugins ) ) {
+				continue;
+			}
+
+			// There are still plugins to update. Schedule a new event.
+			$result = self::create_scheduled_update( $event->timestamp, $event->schedule, $plugins );
+
+			if ( is_wp_error( $result ) || false === $result ) {
+				continue;
+			}
+
+			$schedule_id = self::generate_schedule_id( $plugins );
+			$status      = self::get_scheduled_update_status( $id );
+
+			// Inherit the status from the previous schedule.
+			if ( $status ) {
+				self::set_scheduled_update_status(
+					$schedule_id,
+					$status['last_run_timestamp'],
+					$status['last_run_status']
+				);
+			}
+		}
 	}
 
 	/**
