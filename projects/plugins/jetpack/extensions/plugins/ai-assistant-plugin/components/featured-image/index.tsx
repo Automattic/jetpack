@@ -14,6 +14,7 @@ import './style.scss';
 import usePostContent from '../../hooks/use-post-content';
 import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library';
 import AiAssistantModal from '../modal';
+import UsageCounter from './usage-counter';
 
 const FEATURED_IMAGE_FEATURE_NAME = 'featured-post-image';
 const JETPACK_SIDEBAR_PLACEMENT = 'jetpack-sidebar';
@@ -178,21 +179,26 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 						</div>
 					) : (
 						<div className="ai-assistant-featured-image__content">
-							{ error ? (
-								<div className="ai-assistant-featured-image__error">
-									{ __(
-										'An error occurred while generating the image. Please, try Again',
-										'jetpack'
-									) }
-									{ error?.message && (
-										<span className="ai-assistant-featured-image__error-message">
-											{ error?.message }
-										</span>
-									) }
-								</div>
-							) : (
-								<img className="ai-assistant-featured-image__image" src={ imageURL } alt="" />
-							) }
+							<div className="ai-assistant-featured-image__image-canvas">
+								{ error ? (
+									<div className="ai-assistant-featured-image__error">
+										{ __(
+											'An error occurred while generating the image. Please, try Again',
+											'jetpack'
+										) }
+										{ error?.message && (
+											<span className="ai-assistant-featured-image__error-message">
+												{ error?.message }
+											</span>
+										) }
+									</div>
+								) : (
+									<>
+										<img className="ai-assistant-featured-image__image" src={ imageURL } alt="" />
+										<UsageCounter />
+									</>
+								) }
+							</div>
 							<div className="ai-assistant-featured-image__actions">
 								{ ! error && (
 									<Button
