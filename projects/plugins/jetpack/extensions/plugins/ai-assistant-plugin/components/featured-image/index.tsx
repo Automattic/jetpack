@@ -11,6 +11,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import './style.scss';
+import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import usePostContent from '../../hooks/use-post-content';
 import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library';
 import AiAssistantModal from '../modal';
@@ -35,6 +36,11 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
 
+	// Get feature data
+	const aiFeature = useAiFeature();
+	const { increaseRequestsCount, costs } = aiFeature;
+	const featuredImageCost = costs?.[ FEATURED_IMAGE_FEATURE_NAME ]?.image;
+
 	const postContent = usePostContent();
 
 	// Handle deprecation and move of toggle action from edit-post.
@@ -51,6 +57,13 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	}, [] );
 
 	/*
+	 * Function to update the requests count after a featured image generation.
+	 */
+	const updateRequestsCount = useCallback( () => {
+		increaseRequestsCount( featuredImageCost );
+	}, [ increaseRequestsCount, featuredImageCost ] );
+
+	/*
 	 * Function to generate a new image with the current value of the post content.
 	 */
 	const processImageGeneration = useCallback( () => {
@@ -65,6 +78,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 				if ( result.data.length > 0 ) {
 					const image = 'data:image/png;base64,' + result.data[ 0 ].b64_json;
 					setImageURL( image );
+					updateRequestsCount();
 				}
 			} )
 			.catch( e => {
@@ -73,7 +87,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 			.finally( () => {
 				setGenerating( false );
 			} );
-	}, [ postContent, setGenerating, setImageURL, generateImage ] );
+	}, [ postContent, setGenerating, setImageURL, generateImage, updateRequestsCount ] );
 
 	const toggleFeaturedImageModal = useCallback( () => {
 		setIsFeaturedImageModalVisible( ! isFeaturedImageModalVisible );
