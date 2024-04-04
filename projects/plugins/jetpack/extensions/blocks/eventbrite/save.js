@@ -1,6 +1,7 @@
-import { InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 
 export default function save( { attributes } ) {
+	const blockProps = useBlockProps.save();
 	const { eventId, style, url } = attributes;
 
 	if ( ! eventId ) {
@@ -9,7 +10,7 @@ export default function save( { attributes } ) {
 
 	if ( style === 'modal' ) {
 		return (
-			<div>
+			<div { ...blockProps }>
 				<InnerBlocks.Content />
 			</div>
 		);
