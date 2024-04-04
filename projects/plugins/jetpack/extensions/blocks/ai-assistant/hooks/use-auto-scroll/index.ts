@@ -31,6 +31,8 @@ const useAutoScroll = (
 	const enableAutoScroll = useCallback( () => {
 		autoScrollEnabled.current = true;
 		ignoreScroll.current = false;
+		startedAutoScroll.current = false;
+		doingAutoScroll.current = false;
 		scrollElementRef.current?.addEventListener( 'scroll', userScrollHandler );
 		debug( 'enabling auto scroll' );
 	}, [ userScrollHandler ] );
