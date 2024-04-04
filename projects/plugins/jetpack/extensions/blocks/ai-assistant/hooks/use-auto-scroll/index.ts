@@ -57,7 +57,7 @@ const useAutoScroll = (
 					},
 					{ once: true }
 				);
-				lastParagraph?.scrollIntoView( { block: 'center', inline: 'center', behavior: 'smooth' } );
+				lastParagraph?.scrollIntoView( { block: 'center', inline: 'center' } );
 			} else if ( ! doingAutoScroll.current ) {
 				// Just scroll in Safari after finishing the current one
 				doingAutoScroll.current = true;
