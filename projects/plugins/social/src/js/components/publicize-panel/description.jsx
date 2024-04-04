@@ -7,7 +7,7 @@ const getDescriptions = () => ( {
 		'jetpack-social'
 	),
 	enabled: __(
-		'Enable the social media accounts where you want to share your post.',
+		'Click on the social icons below to control where you want to share your post.',
 		'jetpack-social'
 	),
 	disabled: __(
