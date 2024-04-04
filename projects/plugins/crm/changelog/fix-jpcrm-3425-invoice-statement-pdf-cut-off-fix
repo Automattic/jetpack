@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+
+Invoices: Fixed display issues for statements with long invoice lists.
+Invoices: Enhanced the PDF generation for statements.

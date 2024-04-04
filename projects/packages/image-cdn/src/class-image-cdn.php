@@ -14,7 +14,7 @@ use Automattic\Jetpack\Assets;
  */
 final class Image_CDN {
 
-	const PACKAGE_VERSION = '0.3.3';
+	const PACKAGE_VERSION = '0.3.4-alpha';
 
 	/**
 	 * Singleton.
@@ -368,9 +368,9 @@ final class Image_CDN {
 				 *
 				 * @since 2.0.3
 				 *
-				 * @param bool false Should Photon ignore this image. Default to false.
-				 * @param string $src Image URL.
-				 * @param string $tag Image Tag (Image HTML output).
+				 * @param bool              false Should Photon ignore this image. Default to false.
+				 * @param string            $src  Image URL.
+				 * @param string|array|null $tag  Image Tag (Image HTML output) or array of image details for srcset.
 				 */
 				if ( apply_filters( 'jetpack_photon_skip_image', false, $src, $tag ) ) {
 					continue;
