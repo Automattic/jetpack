@@ -24,4 +24,19 @@
 		display: flex;
 		gap: 16px;
 	}
+
+	&__error {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-direction: column;
+		height: 300px;
+		width: 600px;
+		border: 1px dotted;
+
+		&-message {
+			font-size: 10px;
+			color: red;
+		}
+	}
 }
