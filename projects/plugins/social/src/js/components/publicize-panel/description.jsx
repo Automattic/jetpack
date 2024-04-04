@@ -38,11 +38,13 @@ const getDescription = ( {
 	}
 
 	if ( isPostPublished ) {
+		// For published posts, always show the reshare description.
 		return descriptions.reshare;
 	}
 
 	const isEnabled = isPublicizeEnabled && hasEnabledConnections;
 
+	// For new posts, show the enabled or disabled description based on the current state.
 	return isEnabled ? descriptions.enabled : descriptions.disabled;
 };
 
