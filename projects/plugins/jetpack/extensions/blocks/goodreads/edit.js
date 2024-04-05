@@ -1,5 +1,5 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
-import { BlockControls, InspectorControls } from '@wordpress/block-editor';
+import { BlockControls, InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { Placeholder, SandBox, Button, Spinner, withNotices } from '@wordpress/components';
 import { useState, useEffect, useRef } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -14,6 +14,7 @@ const GoodreadsEdit = props => {
 	const [ url, setUrl ] = useState( '' );
 	const [ isResolvingUrl, setIsResolvingUrl ] = useState( false );
 	const prevPropsRef = useRef( null );
+	const blockProps = useBlockProps();
 
 	const { isFetchingData, goodreadsUserId, isError } = useFetchGoodreadsData( url );
 
@@ -134,12 +135,12 @@ const GoodreadsEdit = props => {
 		);
 	};
 
-	if ( isResolvingUrl ) {
-		return renderLoading();
-	}
+	let content;
 
-	if ( attributes.goodreadsId ) {
-		return (
+	if ( isResolvingUrl ) {
+		content = renderLoading();
+	} else if ( attributes.goodreadsId ) {
+		content = (
 			<>
 				<InspectorControls>
 					<GoodreadsInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
@@ -152,9 +153,11 @@ const GoodreadsEdit = props => {
 				{ renderInlinePreview() }
 			</>
 		);
+	} else {
+		content = renderEditEmbed();
 	}
 
-	return renderEditEmbed();
+	return <div { ...blockProps }>{ content }</div>;
 };
 
 export default withNotices( GoodreadsEdit );
