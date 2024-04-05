@@ -46,53 +46,26 @@ class Wpcom_Block_Patterns_From_Api {
 		$pattern_categories = array();
 		$block_patterns     = $this->get_patterns( $patterns_cache_key );
 
+		// Register categories from first pattern in each category.
 		foreach ( (array) $block_patterns as $pattern ) {
 			foreach ( (array) $pattern['categories'] as $slug => $category ) {
-				// Register categories from first pattern in each category.
-				if ( ! isset( $pattern_categories[ $slug ] ) ) {
+				// Skip categories that start with an underscore
+				$is_hidden_category = substr( $slug, 0, 1 ) === '_';
+
+				if ( ! isset( $pattern_categories[ $slug ] ) && ! $is_hidden_category ) {
 					$pattern_categories[ $slug ] = array(
 						'label'       => $category['title'],
 						'description' => $category['description'],
 					);
+
+					// Unregister first to overwrite any existent categories
+					unregister_block_pattern_category( $slug );
+					register_block_pattern_category(
+						$slug,
+						$pattern_categories[ $slug ]
+					);
 				}
 			}
-		}
-
-		// Unregister existing categories so that we can insert them in the desired order (alphabetically).
-		$existing_categories = array();
-		foreach ( \WP_Block_Pattern_Categories_Registry::get_instance()->get_all_registered() as $existing_category ) {
-			$existing_categories[ $existing_category['name'] ] = $existing_category;
-			unregister_block_pattern_category( $existing_category['name'] );
-		}
-
-		// Existing categories are registered in Gutenberg or other plugins.
-		// We overwrite them with the categories from Dotcom patterns.
-		$pattern_categories = array_merge( $existing_categories, $pattern_categories );
-
-		// Order categories alphabetically by their label.
-		uasort(
-			$pattern_categories,
-			function ( $a, $b ) {
-				return strnatcasecmp( $a['label'], $b['label'] );
-			}
-		);
-
-		// Move the Featured category to be the first category.
-		if ( isset( $pattern_categories['featured'] ) ) {
-			$featured_category  = $pattern_categories['featured'];
-			$pattern_categories = array( 'featured' => $featured_category ) + $pattern_categories;
-		}
-
-		// Register categories (and re-register existing categories).
-		foreach ( $pattern_categories as $slug => &$category_properties ) {
-			// Rename category labels.
-			if ( 'posts' === $slug ) {
-				$category_properties['label'] = __(
-					'Blog Posts',
-					'jetpack-mu-wpcom'
-				);
-			}
-			register_block_pattern_category( $slug, $category_properties );
 		}
 
 		foreach ( (array) $block_patterns as &$pattern ) {
