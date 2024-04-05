@@ -8,6 +8,9 @@
 
 namespace Automattic\Jetpack\Extensions\Subscriber_Login;
 
+use WP_Block_Template;
+use WP_Post;
+
 /**
  * Jetpack_Subscription_Site class.
  */
@@ -36,21 +39,26 @@ class Jetpack_Subscription_Site {
 	 * @return void
 	 */
 	public function handle_subscriber_login_block_placements() {
-		if ( ! $this->is_subscription_site_feature_enabled() ) {
-			return;
-		}
-
 		$this->handle_subscriber_login_block_navigation_placement();
 	}
 
 	/**
-	 * Returns true if Subscription Site feature is enabled.
+	 * Returns true if context is recognized as a header element.
+	 *
+	 * @param WP_Block_Template|WP_Post|array $context The block template, template part, or pattern the anchor block belongs to.
 	 *
 	 * @return bool
 	 */
-	protected function is_subscription_site_feature_enabled() {
-		// It's temporary. Allows to enable the Subscription Site feature.
-		return (bool) apply_filters( 'jetpack_subscription_site_enabled', false );
+	protected function is_header_context( $context ) {
+		if ( $context instanceof WP_Post && $context->post_type === 'wp_navigation' ) {
+			return true;
+		}
+
+		if ( $context instanceof WP_Block_Template && $context->area === 'header' ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -59,26 +67,32 @@ class Jetpack_Subscription_Site {
 	 * @return void
 	 */
 	protected function handle_subscriber_login_block_navigation_placement() {
+		global $wp_version;
+
 		$subscriber_login_navigation_enabled = get_option( 'jetpack_subscriptions_login_navigation_enabled', false );
 		if ( ! $subscriber_login_navigation_enabled ) {
 			return;
 		}
 
-		if ( ! wp_is_block_theme() ) { // TODO Fallback for classic themes.
+		if ( ! wp_is_block_theme() || version_compare( $wp_version, '6.5-beta2', '<' ) ) { // TODO Fallback for classic themes and wp core < 6.5-beta2.
 			return;
 		}
 
 		add_filter(
 			'hooked_block_types',
-			function ( $hooked_blocks, $relative_position, $anchor_block ) {
-				if ( $anchor_block === 'core/navigation' && $relative_position === 'last_child' ) {
+			function ( $hooked_blocks, $relative_position, $anchor_block, $context ) {
+				if (
+					$anchor_block === 'core/navigation' &&
+					$relative_position === 'last_child' &&
+					self::is_header_context( $context )
+				) {
 					$hooked_blocks[] = 'jetpack/subscriber-login';
 				}
 
 				return $hooked_blocks;
 			},
 			10,
-			3
+			4
 		);
 	}
 }

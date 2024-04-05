@@ -14,7 +14,7 @@ export const InstagramNoMediaNotice: React.FC = () => {
 				'jetpack'
 			) }
 			<br />
-			<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+			<ExternalLink href={ getRedirectUrl( 'jetpack-social-share-to-instagram' ) }>
 				{ __( 'Learn more', 'jetpack' ) }
 			</ExternalLink>
 		</Notice>
@@ -22,7 +22,7 @@ export const InstagramNoMediaNotice: React.FC = () => {
 		<Notice type={ 'warning' }>
 			{ __( 'You need a featured image to share to Instagram.', 'jetpack' ) }
 			<br />
-			<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+			<ExternalLink href={ getRedirectUrl( 'jetpack-social-share-to-instagram' ) }>
 				{ __( 'Learn more', 'jetpack' ) }
 			</ExternalLink>
 		</Notice>

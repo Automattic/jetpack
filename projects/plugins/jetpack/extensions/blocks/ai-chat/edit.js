@@ -14,9 +14,17 @@ import { useSelect } from '@wordpress/data';
 import './editor.scss';
 import ConnectPrompt from './components/nudge-connect';
 import EnableJetpackSearchPrompt from './components/nudge-enable-search';
+import { DEFAULT_ASK_BUTTON_LABEL, DEFAULT_PLACEHOLDER } from './constants';
 import { AiChatControls } from './controls';
 
 export default function Edit( { attributes, setAttributes, clientId } ) {
+	const {
+		askButtonLabel = DEFAULT_ASK_BUTTON_LABEL,
+		placeholder = DEFAULT_PLACEHOLDER,
+		showCopy,
+		showFeedback,
+		showSources,
+	} = attributes;
 	const blockProps = useBlockProps();
 	const isBlockSelected = useSelect(
 		select => {
@@ -31,13 +39,13 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			<div className="jetpack-ai-chat-question-wrapper">
 				<TextControl
 					className="jetpack-ai-chat-question-input"
-					placeholder={ attributes.placeholder }
+					placeholder={ placeholder }
 					disabled={ true }
 				/>
 				<RichText
 					className="wp-block-button__link jetpack-ai-chat-question-button"
 					onChange={ value => setAttributes( { askButtonLabel: value } ) }
-					value={ attributes.askButtonLabel }
+					value={ askButtonLabel }
 					withoutInteractiveFormatting
 					allowedFormats={ [ 'core/bold', 'core/italic', 'core/strikethrough' ] }
 				/>
@@ -45,12 +53,12 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			{ isBlockSelected && <GuidelineMessage /> }
 			<InspectorControls>
 				<AiChatControls
-					askButtonLabel={ attributes.askButtonLabel }
-					placeholder={ attributes.placeholder }
+					askButtonLabel={ askButtonLabel }
+					placeholder={ placeholder }
 					setAttributes={ setAttributes }
-					showCopy={ attributes.showCopy }
-					showFeedback={ attributes.showFeedback }
-					showSources={ attributes.showSources }
+					showCopy={ showCopy }
+					showFeedback={ showFeedback }
+					showSources={ showSources }
 				/>
 			</InspectorControls>
 		</div>

@@ -6,7 +6,7 @@ import save from './save';
 
 const name = 'premium-content/buttons';
 const settings = {
-	apiVersion: 2,
+	apiVersion: 3,
 	title: __( 'Premium Content buttons', 'jetpack' ),
 	description: __(
 		'Prompt Premium Content visitors to take action with a group of button-style links.',

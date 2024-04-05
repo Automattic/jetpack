@@ -29,10 +29,14 @@ class Scheduled_Updates_Logs {
 	 * Action constant representing the different kind of log message.
 	 */
 	const PLUGIN_UPDATES_START                    = 'PLUGIN_UPDATES_START';
+	const PLUGIN_UPDATES_SUCCESS                  = 'PLUGIN_UPDATES_SUCCESS';
+	const PLUGIN_UPDATES_FAILURE                  = 'PLUGIN_UPDATES_FAILURE';
 	const PLUGIN_UPDATE_SUCCESS                   = 'PLUGIN_UPDATE_SUCCESS';
+	const PLUGIN_UPDATE_FAILURE                   = 'PLUGIN_UPDATE_FAILURE';
+	const PLUGIN_SITE_HEALTH_CHECK_SUCCESS        = 'PLUGIN_SITE_HEALTH_CHECK_SUCCESS';
+	const PLUGIN_SITE_HEALTH_CHECK_FAILURE        = 'PLUGIN_SITE_HEALTH_CHECK_FAILURE';
 	const PLUGIN_UPDATE_FAILURE_AND_ROLLBACK      = 'PLUGIN_UPDATE_FAILURE_AND_ROLLBACK';
 	const PLUGIN_UPDATE_FAILURE_AND_ROLLBACK_FAIL = 'PLUGIN_UPDATE_FAILURE_AND_ROLLBACK_FAIL';
-	const PLUGIN_UPDATES_COMPLETE                 = 'PLUGIN_UPDATES_COMPLETE';
 
 	/**
 	 * Logs a scheduled update event.
@@ -47,7 +51,7 @@ class Scheduled_Updates_Logs {
 	public static function log( $schedule_id, $action, $message = null, $context = null ) {
 		$timestamp = wp_date( 'U' );
 		$log_entry = array(
-			'timestamp' => $timestamp,
+			'timestamp' => intval( $timestamp ),
 			'action'    => $action,
 			'message'   => $message,
 			'context'   => $context,
@@ -148,6 +152,59 @@ class Scheduled_Updates_Logs {
 		}
 
 		update_option( self::OPTION_NAME, $logs );
+	}
+
+	/**
+	 * Infers the status of a plugin update schedule from its logs.
+	 *
+	 * @param string $schedule_id The ID of the plugin update schedule.
+	 *
+	 * @return array|false An array containing the last run timestamp and status, or false if no logs are found.
+	 *                     The array has the following keys:
+	 *                     - 'last_run_timestamp': The timestamp of the last run, or null if the status is 'in-progress'.
+	 *                     - 'last_run_status': The status of the last run, which can be one of the following:
+	 *                       - 'in-progress': The update is currently in progress.
+	 *                       - 'success': The update was successful.
+	 *                       - 'failure': The update failed.
+	 *                       - 'failure-and-rollback': The update failed and a rollback was performed.
+	 *                       - 'failure-and-rollback-fail': The update failed and the rollback also failed.
+	 */
+	public static function infer_status_from_logs( $schedule_id ) {
+		$logs = self::get( $schedule_id );
+		if ( is_wp_error( $logs ) || empty( $logs ) ) {
+			return false;
+		}
+
+		$last_run = end( $logs );
+
+		$status    = 'in-progress';
+		$timestamp = time();
+
+		foreach ( $last_run as $log_entry ) {
+			$timestamp = $log_entry['timestamp'];
+
+			if ( self::PLUGIN_UPDATES_SUCCESS === $log_entry['action'] ) {
+				$status = 'success';
+				break;
+			}
+			if ( self::PLUGIN_UPDATES_FAILURE === $log_entry['action'] ) {
+				$status = 'failure';
+				break;
+			}
+			if ( self::PLUGIN_UPDATE_FAILURE_AND_ROLLBACK === $log_entry['action'] ) {
+				$status = 'failure-and-rollback';
+				break;
+			}
+			if ( self::PLUGIN_UPDATE_FAILURE_AND_ROLLBACK_FAIL === $log_entry['action'] ) {
+				$status = 'failure-and-rollback-fail';
+				break;
+			}
+		}
+
+		return array(
+			'last_run_timestamp' => 'in-progress' === $status ? null : $timestamp,
+			'last_run_status'    => $status,
+		);
 	}
 
 	/**

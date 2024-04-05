@@ -20,7 +20,8 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.6.0-alpha';
+	const PACKAGE_VERSION = '0.7.0';
+
 	/**
 	 * The cron event hook for the scheduled plugins update.
 	 *
@@ -96,6 +97,39 @@ class Scheduled_Updates {
 	}
 
 	/**
+	 * Create a scheduled update.
+	 *
+	 * @param int    $timestamp Timestamp of the first run.
+	 * @param string $interval  Interval of the update.
+	 * @param array  $plugins   List of plugins to update.
+	 * @return \WP_Error|bool True on success, WP_Error on failure.
+	 */
+	public static function create_scheduled_update( $timestamp, $interval, $plugins ) {
+		return wp_schedule_event( $timestamp, $interval, self::PLUGIN_CRON_HOOK, $plugins, true );
+	}
+
+	/**
+	 * Remove a scheduled update.
+	 *
+	 * @param int   $timestamp Timestamp of the first run.
+	 * @param array $plugins   List of plugins to update.
+	 * @return \WP_Error|bool True on success, WP_Error on failure.
+	 */
+	public static function delete_scheduled_update( $timestamp, $plugins ) {
+		// Be sure to clear the cron cache before removing a cron entry.
+		self::clear_cron_cache();
+
+		return wp_unschedule_event( $timestamp, self::PLUGIN_CRON_HOOK, $plugins, true );
+	}
+
+	/**
+	 * Clear the cron cache.
+	 */
+	public static function clear_cron_cache() {
+		wp_cache_delete( 'alloptions', 'options' );
+	}
+
+	/**
 	 * Updates last status of a scheduled update.
 	 *
 	 * @param string      $schedule_id Request ID.
@@ -141,8 +175,12 @@ class Scheduled_Updates {
 	 * @return array|null Last status of the scheduled update or null if not found.
 	 */
 	public static function get_scheduled_update_status( $schedule_id ) {
-		$statuses = get_option( 'jetpack_scheduled_update_statuses', array() );
+		$status = Scheduled_Updates_Logs::infer_status_from_logs( $schedule_id );
+		if ( false !== $status ) {
+			return $status;
+		}
 
+		$statuses = get_option( 'jetpack_scheduled_update_statuses', array() );
 		return $statuses[ $schedule_id ] ?? null;
 	}
 
@@ -376,7 +414,7 @@ class Scheduled_Updates {
 			}
 
 			// Remove the schedule.
-			$result = wp_unschedule_event( $event->timestamp, self::PLUGIN_CRON_HOOK, $event->args, true );
+			$result = self::delete_scheduled_update( $event->timestamp, $event->args );
 
 			if ( is_wp_error( $result ) || false === $result ) {
 				continue;
@@ -389,7 +427,7 @@ class Scheduled_Updates {
 			}
 
 			// There are still plugins to update. Schedule a new event.
-			$result = wp_schedule_event( $event->timestamp, $event->schedule, self::PLUGIN_CRON_HOOK, $plugins, true );
+			$result = self::create_scheduled_update( $event->timestamp, $event->schedule, $plugins );
 
 			if ( is_wp_error( $result ) || false === $result ) {
 				continue;

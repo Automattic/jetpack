@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Update My Jetpack to use the Notice component from @automattic/jetpack-components and be more consistent with the other notices in Jetpack
