@@ -22,11 +22,10 @@ return [
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
     // PhanTypeMismatchReturnNullable : 1 occurrence
-    // PhanUndeclaredTypeProperty : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-identity-crisis.php' => ['PhanDeprecatedFunction', 'PhanPluginRedundantAssignment', 'PhanRedundantCondition', 'PhanUndeclaredTypeProperty'],
+        'src/class-identity-crisis.php' => ['PhanDeprecatedFunction', 'PhanPluginRedundantAssignment', 'PhanRedundantCondition'],
         'src/class-rest-endpoints.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'src/class-url-secret.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchReturnNullable', 'PhanUndeclaredClassMethod'],
         'tests/php/test-identity-crisis.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredTypeReturnType'],
