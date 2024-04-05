@@ -156,7 +156,7 @@ const jetpackFormEditWithAiComponents = createHigherOrderComponent( BlockEdit =>
 		}
 
 		const blockControlsProps = {
-			group: 'block',
+			group: 'block' as const,
 		};
 
 		return (
@@ -237,7 +237,7 @@ const jetpackFormChildrenEditWithAiComponents = createHigherOrderComponent( Bloc
 		}
 
 		const blockControlsProps = {
-			group: 'parent',
+			group: 'parent' as const,
 		};
 
 		return (
