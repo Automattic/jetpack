@@ -57,6 +57,8 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 		planType === PLAN_TYPE_TIERED ? usagePeriod?.requestsCount : allTimeRequestsCount;
 	const requestsLimit = planType === PLAN_TYPE_FREE ? freeRequestsLimit : currentTier?.limit;
 	const isUnlimited = planType === PLAN_TYPE_UNLIMITED;
+	const requestsBalance = requestsLimit - requestsCount;
+	const notEnoughRequests = requestsBalance < featuredImageCost;
 
 	const postContent = usePostContent();
 
@@ -189,7 +191,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 			<Button
 				onClick={ handleGenerate }
 				isBusy={ busy }
-				disabled={ ! postContent || disabled }
+				disabled={ ! postContent || disabled || notEnoughRequests }
 				variant="secondary"
 			>
 				{ __( 'Generate image', 'jetpack' ) }
@@ -214,7 +216,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 								{ error ? (
 									<div className="ai-assistant-featured-image__error">
 										{ __(
-											'An error occurred while generating the image. Please, try Again',
+											'An error occurred while generating the image. Please, try again!',
 											'jetpack'
 										) }
 										{ error?.message && (
@@ -255,7 +257,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 									<Button
 										onClick={ handleRegenerate }
 										variant="secondary"
-										disabled={ isSavingToMediaLibrary }
+										disabled={ isSavingToMediaLibrary || notEnoughRequests }
 									>
 										{ __( 'Generate another image', 'jetpack' ) }
 									</Button>
