@@ -3,6 +3,7 @@ import { NoticeContextType, Notice } from './types';
 
 const defaultNotice: Notice = {
 	message: '',
+	title: null,
 	options: {
 		level: '',
 		priority: 0,

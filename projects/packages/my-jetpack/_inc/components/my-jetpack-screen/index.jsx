@@ -43,7 +43,7 @@ import StatsSection from '../stats-section';
 import WelcomeBanner from '../welcome-banner';
 import styles from './styles.module.scss';
 
-const GlobalNotice = ( { message, options } ) => {
+const GlobalNotice = ( { message, title, options } ) => {
 	const [ isBiggerThanMedium ] = useBreakpointMatch( [ 'md' ], [ '>' ] );
 
 	const actionButtons = options.actions?.map( action => {
@@ -56,7 +56,7 @@ const GlobalNotice = ( { message, options } ) => {
 				[ styles[ 'bigger-than-medium' ] ]: isBiggerThanMedium,
 			} ) }
 		>
-			<Notice hideCloseButton={ true } { ...options } actions={ actionButtons }>
+			<Notice hideCloseButton={ true } { ...options } title={ title } actions={ actionButtons }>
 				<div className={ styles.message }>{ message }</div>
 			</Notice>
 		</div>
@@ -76,7 +76,11 @@ export default function MyJetpackScreen() {
 
 	const { isWelcomeBannerVisible } = useWelcomeBanner();
 	const { currentNotice } = useContext( NoticeContext );
-	const { message, options } = currentNotice || {};
+	const {
+		message: noticeMessage,
+		title: noticeTitle,
+		options: noticeOptions,
+	} = currentNotice || {};
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const { data: availabilityData, isLoading: isChatAvailabilityLoading } = useSimpleQuery( {
 		name: QUERY_CHAT_AVAILABILITY_KEY,
@@ -130,7 +134,7 @@ export default function MyJetpackScreen() {
 					</Container>
 				) }
 				<WelcomeBanner />
-				<Container horizontalSpacing={ 5 } horizontalGap={ message ? 3 : 6 }>
+				<Container horizontalSpacing={ 5 } horizontalGap={ noticeMessage ? 3 : 6 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>
 						<Text variant="headline-small">
 							{ __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' ) }
@@ -141,8 +145,16 @@ export default function MyJetpackScreen() {
 							<ConnectionError />
 						</Col>
 					) }
-					{ message && ! isWelcomeBannerVisible && (
-						<Col>{ <GlobalNotice message={ message } options={ options } /> }</Col>
+					{ noticeMessage && ! isWelcomeBannerVisible && (
+						<Col>
+							{
+								<GlobalNotice
+									message={ noticeMessage }
+									title={ noticeTitle }
+									options={ noticeOptions }
+								/>
+							}
+						</Col>
 					) }
 					{ showFullJetpackStatsCard && (
 						<Col

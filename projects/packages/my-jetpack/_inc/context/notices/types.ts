@@ -1,5 +1,5 @@
 import type { NoticeAction } from '@wordpress/components/src/notice/types';
-import type { Dispatch, SetStateAction } from 'react';
+import type { Dispatch, ReactNode, SetStateAction } from 'react';
 
 export type NoticeButtonAction = NoticeAction & {
 	isLoading?: boolean;
@@ -8,7 +8,8 @@ export type NoticeButtonAction = NoticeAction & {
 };
 
 export type Notice = {
-	message: string;
+	message: string | ReactNode;
+	title?: string;
 	options: {
 		level: string;
 		actions?: NoticeButtonAction[];
