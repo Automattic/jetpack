@@ -1,7 +1,8 @@
 import restApi from '@automattic/jetpack-api';
-import { ActionButton, Button, Spinner } from '@automattic/jetpack-components';
-import { useConnection } from '@automattic/jetpack-connection';
+import { Button, Spinner } from '@automattic/jetpack-components';
+import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { Modal } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -11,34 +12,95 @@ import CloseCircleIcon from '../close-circle-icon';
 import styles from './styles.module.scss';
 
 /**
- * Connected Card component.
+ * Site Connected Content component.
  *
- * @returns {React.Component} The `ConnectionCard` component.
+ * @returns {React.Component} The `SiteConnectedContent` component.
  */
-export default function ConnectedCard() {
-	const { apiNonce, apiRoot, registrationNonce } = window.automatticForAgenciesClientInitialState;
+function SiteConnectedContent() {
+	const navigateToDashboard = useCallback( () => {
+		window.location.href = 'https://agencies.automattic.com';
+	}, [] );
 
-	const { handleRegisterSite, siteIsRegistering, userIsConnecting, registrationError } =
-		useConnection( {
-			apiNonce,
-			apiRoot,
-			autoTrigger: false,
-			from: 'automattic-for-agencies-client',
-			redirectUri: 'admin.php?page=automattic-for-agencies-client',
-			registrationNonce,
-		} );
+	return (
+		<div className={ styles.card }>
+			<h1>
+				{ __(
+					'Your site is connected to Automattic for Agencies',
+					'automattic-for-agencies-client'
+				) }
+			</h1>
+			<p
+				className={ classNames(
+					styles.connection_status,
+					styles[ 'connection_status--connected' ]
+				) }
+			>
+				<CheckCircleIcon />
+				{ __( 'Site is connected and syncing', 'automattic-for-agencies-client' ) }
+			</p>
+			<div>
+				<Button onClick={ navigateToDashboard } isExternalLink>
+					{ __( 'Visit the dashboard', 'automattic-for-agencies-client' ) }
+				</Button>
+			</div>
+		</div>
+	);
+}
+
+/**
+ * Site Disconnected Content component.
+ *
+ * @returns {React.Component} The `SiteDisconnectedContent` component.
+ */
+function SiteDisconnectedContent() {
+	const { setConnectionStatus } = useDispatch( CONNECTION_STORE_ID );
+
+	const refreshConnectionState = useCallback( () => {
+		setConnectionStatus( { isActive: false, isRegistered: false, isUserConnected: false } );
+	}, [ setConnectionStatus ] );
+
+	return (
+		<div className={ styles.card }>
+			<h1>
+				{ __(
+					'Your site was disconnected from Automattic for Agencies',
+					'automattic-for-agencies-client'
+				) }
+			</h1>
+			<p
+				className={ classNames(
+					styles.connection_status,
+					styles[ 'connection_status--disconnected' ]
+				) }
+			>
+				<CloseCircleIcon />
+				{ __( 'Site is disconnected', 'automattic-for-agencies-client' ) }
+			</p>
+			<div>
+				<Button onClick={ refreshConnectionState }>
+					{ __( 'Reconnect this site now', 'automattic-for-agencies-client' ) }
+				</Button>
+			</div>
+		</div>
+	);
+}
+
+/**
+ * Disconnect Site Link component.
+ *
+ * @param {object}   props              - Component props.
+ * @param {Function} props.onDisconnect - Callback to run when the site is disconnected.
+ * @returns {React.Component} The `DisconnectSiteLink` component.
+ */
+function DisconnectSiteLink( { onDisconnect } ) {
+	const { apiNonce, apiRoot } = window.automatticForAgenciesClientInitialState;
 
 	const [ showDisconnectSiteDialog, setShowDisconnectSiteDialog ] = useState( false );
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
-	const [ isDisconnected, setIsDisconnected ] = useState( false );
 	const [ disconnectError, setDisconnectError ] = useState( false );
 
 	const onDisconnectSiteClick = useCallback( () => setShowDisconnectSiteDialog( true ), [] );
 	const onCloseDisconnectSiteDialog = useCallback( () => setShowDisconnectSiteDialog( false ), [] );
-
-	const navigateToDashboard = useCallback( () => {
-		window.location.href = 'https://agencies.automattic.com';
-	}, [] );
 
 	/**
 	 * Disconnect the site.
@@ -50,15 +112,14 @@ export default function ConnectedCard() {
 			.disconnectSite()
 			.then( () => {
 				setIsDisconnecting( false );
-				setIsDisconnected( true );
 				setShowDisconnectSiteDialog( false );
-				// setConnectionStatus( { isActive: false, isRegistered: false, isUserConnected: false } );
+				onDisconnect();
 			} )
 			.catch( error => {
 				setIsDisconnecting( false );
 				setDisconnectError( error );
 			} );
-	}, [ setIsDisconnecting, setIsDisconnected, setDisconnectError ] );
+	}, [ onDisconnect ] );
 
 	/**
 	 * Initialize the REST API.
@@ -70,65 +131,11 @@ export default function ConnectedCard() {
 
 	return (
 		<>
-			<BrandedCard>
-				{ ! isDisconnected ? (
-					<div className={ styles.card }>
-						<h1>
-							{ __(
-								'Your site is connected to Automattic for Agencies',
-								'automattic-for-agencies-client'
-							) }
-						</h1>
-						<p
-							className={ classNames(
-								styles.connection_status,
-								styles[ 'connection_status--connected' ]
-							) }
-						>
-							<CheckCircleIcon />
-							{ __( 'Site is connected and syncing', 'automattic-for-agencies-client' ) }
-						</p>
-						<div>
-							<Button onClick={ navigateToDashboard } isExternalLink>
-								{ __( 'Visit the dashboard', 'automattic-for-agencies-client' ) }
-							</Button>
-						</div>
-					</div>
-				) : (
-					<div className={ styles.card }>
-						<h1>
-							{ __(
-								'Your site was disconnected from Automattic for Agencies',
-								'automattic-for-agencies-client'
-							) }
-						</h1>
-						<p
-							className={ classNames(
-								styles.connection_status,
-								styles[ 'connection_status--disconnected' ]
-							) }
-						>
-							<CloseCircleIcon />
-							{ __( 'Site is disconnected', 'automattic-for-agencies-client' ) }
-						</p>
-						<div>
-							<ActionButton
-								label={ __( 'Reconnect this site now', 'automattic-for-agencies-client' ) }
-								onClick={ handleRegisterSite }
-								displayError={ registrationError ? true : false }
-								isLoading={ siteIsRegistering || userIsConnecting }
-							/>
-						</div>
-					</div>
-				) }
-			</BrandedCard>
-			{ ! isDisconnected && (
-				<div className={ styles.disconnect_site_trigger }>
-					<Button variant="link" size="small" onClick={ onDisconnectSiteClick }>
-						{ __( 'Disconnect site', 'automattic-for-agencies-client' ) }
-					</Button>
-				</div>
-			) }
+			<div className={ styles.disconnect_site_trigger }>
+				<Button variant="link" size="small" onClick={ onDisconnectSiteClick }>
+					{ __( 'Disconnect site', 'automattic-for-agencies-client' ) }
+				</Button>
+			</div>
 			{ showDisconnectSiteDialog && (
 				<Modal
 					title={ __(
@@ -182,6 +189,26 @@ export default function ConnectedCard() {
 					) }
 				</Modal>
 			) }
+		</>
+	);
+}
+
+/**
+ * Connected Card component.
+ *
+ * @returns {React.Component} The `ConnectionCard` component.
+ */
+export default function ConnectedCard() {
+	const [ isDisconnected, setIsDisconnected ] = useState( false );
+
+	const onDisconnect = useCallback( () => setIsDisconnected( true ), [ setIsDisconnected ] );
+
+	return (
+		<>
+			<BrandedCard>
+				{ ! isDisconnected ? <SiteConnectedContent /> : <SiteDisconnectedContent /> }
+			</BrandedCard>
+			{ ! isDisconnected && <DisconnectSiteLink onDisconnect={ onDisconnect } /> }
 		</>
 	);
 }

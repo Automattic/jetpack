@@ -1,3 +1,9 @@
+// to do: replace after @automattic/color-studio@2.6.0 release
+:root {
+	--automattic-blue-60: #0088BF;
+	--automattic-blue-80: #021A23;
+}
+
 .card {
 	background-color: var( --automattic-blue-80 );
 	border-radius: 14px;
