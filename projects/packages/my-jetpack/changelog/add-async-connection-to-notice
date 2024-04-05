@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+My Jetpack: add a way to connect a Jetpack site to WordPress.com asynchronously and update the message in the notice to reflect that.
