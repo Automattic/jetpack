@@ -1,0 +1,30 @@
+
+.site-connection {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.terms-of-service-wrapper {
+	:global {
+		.terms-of-service {
+			font-size: 13px;
+			max-width: 460px;
+
+			.terms-of-service__link {
+				color: var(--automattic-blue-60);
+				white-space: nowrap;
+				text-decoration: underline;
+			}
+		}
+	}
+}
+
+.connect-button-wrapper {
+	:global {
+		.components-button {
+			background-color: var(--automattic-blue-60);
+			min-width: 178px;
+		}
+	}
+}

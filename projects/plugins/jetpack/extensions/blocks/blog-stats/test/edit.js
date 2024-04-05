@@ -15,6 +15,11 @@ useSelect.mockImplementation( () => {
 	};
 } );
 
+jest.mock( '@wordpress/block-editor', () => ( {
+	...jest.requireActual( '@wordpress/block-editor' ),
+	useBlockProps: jest.fn(),
+} ) );
+
 const defaultAttributes = {
 	label: '',
 	statsOption: 'site',

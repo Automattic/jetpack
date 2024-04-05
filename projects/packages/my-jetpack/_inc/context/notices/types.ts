@@ -10,7 +10,7 @@ export type NoticeButtonAction = NoticeAction & {
 export type Notice = {
 	message: string;
 	options: {
-		status: string;
+		level: string;
 		actions?: NoticeButtonAction[];
 		priority: number;
 		isRedBubble?: boolean;

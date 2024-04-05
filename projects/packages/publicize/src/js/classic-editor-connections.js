@@ -51,7 +51,7 @@ const validateFeaturedMedia = ( $, connectionsNeedValidation ) => {
 		.append(
 			connectionNeedsMediaString.replace(
 				'%s',
-				'https://jetpack.com/redirect/?source=jetpack-social-media-support-information'
+				'https://jetpack.com/support/jetpack-social/sharing-to-instagram-with-jetpack-social'
 			)
 		);
 };

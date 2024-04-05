@@ -8,6 +8,7 @@ import {
 } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { __ } from '@wordpress/i18n';
+import { DEFAULT_PLACEHOLDER } from './constants';
 
 export function AiChatControls( {
 	setAttributes,
@@ -30,7 +31,7 @@ export function AiChatControls( {
 						className="jetpack-ai-chat__ask-button-text"
 					>
 						<TextControl
-							placeholder={ __( 'Ask a question about this site.', 'jetpack' ) }
+							placeholder={ DEFAULT_PLACEHOLDER }
 							onChange={ newPlaceholder => setAttributes( { placeholder: newPlaceholder } ) }
 							value={ placeholder }
 						/>
