@@ -2,11 +2,11 @@
 
 /* eslint-disable no-console */
 
-const { createTokenAuth } = require( '@octokit/auth-token' );
-const { Octokit } = require( '@octokit/rest' );
-const chalk = require( 'chalk' );
-const enquirer = require( 'enquirer' );
-const sodium = require( 'libsodium-wrappers' );
+import { createTokenAuth } from '@octokit/auth-token';
+import { Octokit } from '@octokit/rest';
+import chalk from 'chalk';
+import enquirer from 'enquirer';
+import sodium from 'libsodium-wrappers';
 
 /**
  * Update a secret.

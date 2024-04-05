@@ -2,13 +2,14 @@
 
 /* eslint-disable no-console */
 
-const fs = require( 'fs' );
-const path = require( 'path' );
-const { createTokenAuth } = require( '@octokit/auth-token' );
-const { Octokit } = require( '@octokit/rest' );
-const chalk = require( 'chalk' );
-const enquirer = require( 'enquirer' );
-const glob = require( 'glob' );
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { createTokenAuth } from '@octokit/auth-token';
+import { Octokit } from '@octokit/rest';
+import chalk from 'chalk';
+import enquirer from 'enquirer';
+import glob from 'glob';
 
 /**
  * List secrets.
@@ -52,7 +53,7 @@ async function main() {
 			return;
 		}
 	} else {
-		const cwd = path.resolve( __dirname, '../..' );
+		const cwd = fileURLToPath( new URL( '../..', import.meta.url ) );
 		repos = [];
 		repos = glob
 			.sync( 'projects/*/*/composer.json', { cwd } )

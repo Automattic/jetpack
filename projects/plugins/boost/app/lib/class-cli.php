@@ -11,6 +11,9 @@ namespace Automattic\Jetpack_Boost\Lib;
 
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Jetpack_Boost;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Garbage_Collection;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
 
 /**
  * Control your local Jetpack Boost installation.
@@ -24,7 +27,7 @@ class CLI {
 	 */
 	private $jetpack_boost;
 
-	const MAKE_E2E_TESTS_WORK_MODULES = array( 'critical_css', 'render_blocking_js', 'minify_js', 'minify_css', 'image_cdn', 'image_guide' );
+	const MAKE_E2E_TESTS_WORK_MODULES = array( 'critical_css', 'render_blocking_js', 'page_cache', 'minify_js', 'minify_css', 'image_cdn', 'image_guide' );
 
 	/**
 	 * CLI constructor.
@@ -112,6 +115,22 @@ class CLI {
 	 */
 	private function set_module_status( $module_slug, $status ) {
 		( new Status( $module_slug ) )->update( $status );
+
+		if ( $module_slug === 'page_cache' && $status ) {
+			$setup_result = Page_Cache_Setup::run_setup();
+			if ( is_wp_error( $setup_result ) ) {
+				\WP_CLI::error(
+					sprintf(
+						/* translators: %s refers to the error code */
+						__( 'Setup: %s', 'jetpack-boost' ),
+						$setup_result->get_error_code()
+					)
+				);
+			}
+
+			Garbage_Collection::activate();
+			Boost_Cache_Settings::get_instance()->set( array( 'enabled' => true ) );
+		}
 
 		$status_label = $status ? __( 'activated', 'jetpack-boost' ) : __( 'deactivated', 'jetpack-boost' );
 
