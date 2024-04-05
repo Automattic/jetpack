@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack\Post_List;
 
+use WP_Post;
+use WP_Screen;
+
 /**
  * The Post_List Admin Area
  */

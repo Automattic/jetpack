@@ -267,7 +267,7 @@ class Jetpack_Provision {
 	 *
 	 * @param string $access_token Access token.
 	 *
-	 * @return array|\Automattic\Jetpack\Connection\WP_Error|bool|WP_Error
+	 * @return array|bool|WP_Error
 	 */
 	private static function verify_token( $access_token ) {
 		$request = array(

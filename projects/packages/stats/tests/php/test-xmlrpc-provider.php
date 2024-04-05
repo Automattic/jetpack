@@ -18,7 +18,7 @@ class Test_XMLRPC_Provider extends StatsBaseTestCase {
 	/**
 	 * An instance of XMLRPC_Provider class.
 	 *
-	 * @var Automattic\Jetpack\Stats\XMLRPC_Provider
+	 * @var \Automattic\Jetpack\Stats\XMLRPC_Provider
 	 */
 	protected $xmlrpc_instance;
 
