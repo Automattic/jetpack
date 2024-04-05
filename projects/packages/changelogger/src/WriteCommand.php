@@ -12,6 +12,7 @@ use Automattic\Jetpack\Changelog\Changelog;
 use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\MissingInputException;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -125,7 +126,9 @@ EOF
 		}
 		try {
 			$question = new ConfirmationQuestion( "$msg Proceed? " . ( $yes ? '[Y/n] ' : '[y/N] ' ), $yes );
-			return $this->getHelper( 'question' )->ask( $input, $output, $question );
+			$helper   = $this->getHelper( 'question' );
+			'@phan-var QuestionHelper $helper';
+			return $helper->ask( $input, $output, $question );
 		} catch ( MissingInputException $ex ) { // @codeCoverageIgnore
 			$output->writeln( 'Got EOF when attempting to query user, aborting.', OutputInterface::VERBOSITY_VERBOSE ); // @codeCoverageIgnore
 			return false; // @codeCoverageIgnore
@@ -473,7 +476,10 @@ EOF
 						),
 						$input->getOption( 'yes' ) ? 'proceed' : 'abort'
 					);
-					switch ( $this->getHelper( 'question' )->ask( $input, $output, $question ) ) {
+
+					$helper = $this->getHelper( 'question' );
+					'@phan-var QuestionHelper $helper';
+					switch ( $helper->ask( $input, $output, $question ) ) {
 						case 'proceed': // @codeCoverageIgnore
 							break;
 						case 'normalize': // @codeCoverageIgnore
@@ -615,7 +621,7 @@ EOF
 		}
 
 		// Get the changes.
-		list( $ret, $changes, $files ) = $this->loadChanges( $input, $output, $changelog );
+		list( $ret, $changes, $files ) = $this->loadChanges( $input, $output );
 		if ( self::OK_EXIT !== $ret ) {
 			return $ret;
 		}
