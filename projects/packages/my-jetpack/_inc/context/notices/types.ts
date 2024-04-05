@@ -14,6 +14,8 @@ export type Notice = {
 		level: string;
 		actions?: NoticeButtonAction[];
 		priority: number;
+		hideCloseButton?: boolean;
+		onClose?: () => void;
 	};
 };
 

@@ -50,14 +50,10 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 					message: __( 'Your site has been successfully connected.', 'jetpack-my-jetpack' ),
 					options: {
 						level: 'success',
-						actions: [
-							{
-								label: __( 'Close', 'jetpack-my-jetpack' ),
-								onClick: resetNotice,
-								noDefaultClasses: true,
-							},
-						],
+						actions: [],
 						priority: NOTICE_PRIORITY_HIGH,
+						hideCloseButton: false,
+						onClose: resetNotice,
 					},
 				} );
 			} );
