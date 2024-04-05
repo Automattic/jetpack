@@ -20,7 +20,7 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.6.0';
+	const PACKAGE_VERSION = '0.7.0-alpha';
 
 	/**
 	 * The cron event hook for the scheduled plugins update.
@@ -175,8 +175,12 @@ class Scheduled_Updates {
 	 * @return array|null Last status of the scheduled update or null if not found.
 	 */
 	public static function get_scheduled_update_status( $schedule_id ) {
-		$statuses = get_option( 'jetpack_scheduled_update_statuses', array() );
+		$status = Scheduled_Updates_Logs::infer_status_from_logs( $schedule_id );
+		if ( false !== $status ) {
+			return $status;
+		}
 
+		$statuses = get_option( 'jetpack_scheduled_update_statuses', array() );
 		return $statuses[ $schedule_id ] ?? null;
 	}
 
