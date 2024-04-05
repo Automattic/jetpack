@@ -31,7 +31,7 @@
 		"@storybook/react": "8.0.6",
 		"@testing-library/react": "14.2.1",
 		"@types/jest": "29.5.12",
-		"@types/react": "18.2.61",
+		"@types/react": "18.2.74",
 		"@wordpress/babel-plugin-import-jsx-pragma": "4.38.0",
 		"babel-jest": "29.7.0",
 		"jest": "^29.7.0",
