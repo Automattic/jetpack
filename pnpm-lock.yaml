@@ -4454,6 +4454,7 @@ packages:
       '@octokit/core': 5.1.0
       '@octokit/plugin-paginate-rest': 9.2.1(@octokit/core@5.1.0)
       '@octokit/plugin-rest-endpoint-methods': 10.4.1(@octokit/core@5.1.0)
+      undici: 5.28.4
     dev: false
 
   /@actions/http-client@2.2.1:
