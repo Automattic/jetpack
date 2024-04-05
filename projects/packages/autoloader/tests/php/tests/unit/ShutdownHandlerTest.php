@@ -39,7 +39,7 @@ class ShutdownHandlerTest extends TestCase {
 	public function test_shutdown_caches_active_plugins() {
 		$this->plugins_handler->expects( $this->once() )
 			->method( 'get_active_plugins' )
-			->with( false, true )
+			->with( false, true ) // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- PHPUnit 9.6 declares the wrong type for this method.
 			->willReturn( array( TEST_PLUGIN_DIR ) );
 		$this->plugins_handler->expects( $this->once() )
 			->method( 'cache_plugins' )
@@ -58,7 +58,7 @@ class ShutdownHandlerTest extends TestCase {
 	public function test_shutdown_does_not_save_unchanged_cache() {
 		$this->plugins_handler->expects( $this->once() )
 			->method( 'get_active_plugins' )
-			->with( false, true )
+			->with( false, true ) // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- PHPUnit 9.6 declares the wrong type for this method.
 			->willReturn( array( TEST_PLUGIN_DIR ) );
 		$this->plugins_handler->expects( $this->never() )
 			->method( 'cache_plugins' );
@@ -90,7 +90,7 @@ class ShutdownHandlerTest extends TestCase {
 	public function test_shutdown_handles_exceptions() {
 		$this->plugins_handler->expects( $this->once() )
 			->method( 'get_active_plugins' )
-			->with( false, true )
+			->with( false, true ) // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- PHPUnit 9.6 declares the wrong type for this method.
 			->willThrowException( new \RuntimeException() );
 		$this->plugins_handler->expects( $this->once() )
 			->method( 'cache_plugins' )
