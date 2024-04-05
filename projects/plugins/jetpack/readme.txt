@@ -53,7 +53,7 @@ Get blazing fast site speed with Jetpack. Jetpack’s free CDN (content delivery
 * Image CDN for images and core static files, like CSS and JavaScript, served from our servers, not yours, which saves you money and bandwidth.
 * Unlimited, high speed, ad free video hosting keeps the focus on your content, not on ads or recommendations that lead people off site.
 * Custom site search is incredibly powerful and customizable. Helps your visitors instantly find the right content so they read and buy more. Works great with WooCommerce / eCommerce sites to help filter products so customers get what they want on your site faster.
-* Recommended to use with WP Super Cache for ultimate WordPress site speed.
+* Recommended to use with [Jetpack Boost](https://wordpress.org/plugins/jetpack-boost/) for ultimate WordPress site speed.
 
 = POWERFUL TOOLS FOR GROWTH =
 Create and customize your WordPress site, optimize it for visitors and revenue, and enjoy watching your stats tick up. Build it, share it, and watch it grow.
@@ -158,7 +158,6 @@ Ever wish you could have just one feature of Jetpack in its own plugin? Now you 
 * [Jetpack Social](https://wordpress.org/plugins/jetpack-social/)
 * [Jetpack VideoPress](https://wordpress.org/plugins/jetpack-videopress/)
 * [Akismet Anti-Spam](https://wordpress.org/plugins/akismet/)
-* [WP Super Cache](https://wordpress.org/plugins/wp-super-cache/)
 
 
 == Installation ==
@@ -299,6 +298,8 @@ The process of setting up an SSL certificate will depend on your hosting provide
 WP Super Cache works by caching your WordPress pages as static HTML pages so that page requests, for an already cached page, do not need to be processed by the WordPress PHP scripts. Typically, most visitors of your site will view cached versions of the WordPress pages, so your server will have more processing power to serve an increased number of users.
 
 Jetpack has an image CDN that works by caching and serving your WordPress images globally from its own servers. These plugins are both maintained by Automattic and work together to give you ultimate site speed.
+
+Automattic actively develops [Jetpack Boost](https://wordpress.org/plugins/jetpack-boost/) to help you increase your website speed in ways beyond WP Super Cache. We recommend using Jetpack Boost instead of WP Super Cache.
 
 = What version of PHP do I need? =
 
