@@ -15,7 +15,7 @@ use WP_Screen;
  */
 class Post_List {
 
-	const PACKAGE_VERSION = '0.6.1';
+	const PACKAGE_VERSION = '0.6.2-alpha';
 	const FEATURE         = 'enhanced_post_list';
 
 	/**
