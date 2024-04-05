@@ -44,7 +44,7 @@
 		"rememo": "4.0.1"
 	},
 	"devDependencies": {
-		"@automattic/color-studio": "2.5.0",
+		"@automattic/color-studio": "2.6.0",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.24.0",
