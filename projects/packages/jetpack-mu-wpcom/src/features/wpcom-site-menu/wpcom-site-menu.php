@@ -367,3 +367,37 @@ function hide_customizer_menu_on_block_theme() {
 	}
 }
 add_action( 'init', 'hide_customizer_menu_on_block_theme' );
+
+/**
+ * Links were removed in 3.5 core, but we've kept them active on dotcom.
+ *
+ * This function will check to see if Links should be enabled based on the number of links in the database
+ * and then set an option to minimize repeat queries later. The Links menu is visible when the Link Manager is enabled.
+ *
+ * @return void
+ */
+function wpcom_maybe_enable_link_manager() {
+	if ( get_option( 'link_manager_check' ) ) {
+		return;
+	}
+
+	// The max ID number of the auto-generated links.
+	// See /wp-content/mu-plugins/wpcom-wp-install-defaults.php in WP.com.
+	$max_default_id = 10;
+
+	// We are only checking the latest entry link_id so are limiting the query to 1.
+	$link_manager_links = get_bookmarks(
+		array(
+			'orderby'        => 'link_id',
+			'order'          => 'DESC',
+			'limit'          => 1,
+			'hide_invisible' => 0,
+		)
+	);
+
+	$has_links = is_countable( $link_manager_links ) && count( $link_manager_links ) > 0 && $link_manager_links[0]->link_id > $max_default_id;
+
+	update_option( 'link_manager_enabled', intval( $has_links ) );
+	update_option( 'link_manager_check', time() );
+}
+add_action( 'init', 'wpcom_maybe_enable_link_manager' );
