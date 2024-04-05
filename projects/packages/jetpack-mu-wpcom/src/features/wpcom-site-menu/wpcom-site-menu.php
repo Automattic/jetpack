@@ -52,7 +52,7 @@ function wpcom_add_wpcom_menu_item() {
 	}
 
 	/**
-	 * Don't show `All Sites` and `Hosting` to administrators without a WordPress.com account being attached,
+	 * Don't show `Hosting` to administrators without a WordPress.com account being attached,
 	 * as they don't have access to any of the pages.
 	 */
 	if ( ! current_user_has_wpcom_account() ) {
@@ -185,6 +185,14 @@ add_action( 'admin_menu', 'wpcom_add_wpcom_menu_item' );
  * Enqueue the All Sites menu styles.
  */
 function enqueue_all_sites_menu_styles() {
+	/**
+	 * Don't show `All Sites` to administrators without a WordPress.com account being attached,
+	 * as they don't have access to any of the pages.
+	 */
+	if ( ! current_user_has_wpcom_account() ) {
+		return;
+	}
+
 	$css = '
 		#wpadminbar #wp-admin-bar-my-sites a.ab-item {display: flex; align-items: center;}
 		#wpadminbar #wp-admin-bar-my-sites a.ab-item:before {display: none;}
@@ -202,6 +210,14 @@ add_action( 'admin_enqueue_scripts', 'enqueue_all_sites_menu_styles' );
  * Add All Sites menu to the right side of the WP logo on the masterbar.
  */
 function add_all_sites_menu_to_masterbar() {
+	/**
+	 * Don't show `All Sites` to administrators without a WordPress.com account being attached,
+	 * as they don't have access to any of the pages.
+	 */
+	if ( ! current_user_has_wpcom_account() ) {
+		return;
+	}
+
 	global $wp_admin_bar;
 
 	// svg is from https://github.com/WordPress/gutenberg/blob/ad487383ce80e0c762200e83ec2c372463ecc940/packages/icons/src/library/category.js
