@@ -9,7 +9,7 @@ import type { ProductCamelCase } from '../types';
 const getIsPluginAlreadyActive = ( detail: ProductCamelCase ) => {
 	const { standalonePluginInfo, isPluginActive } = detail;
 
-	if ( standalonePluginInfo?.hasStandalonePlugin && standalonePluginInfo?.isStandaloneInstalled ) {
+	if ( standalonePluginInfo?.hasStandalonePlugin ) {
 		return standalonePluginInfo?.isStandaloneActive;
 	}
 
