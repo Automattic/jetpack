@@ -27,6 +27,9 @@ import {
 	DEFAULT_PADDING_VALUE,
 	DEFAULT_SPACING_VALUE,
 	DEFAULT_FONTSIZE_VALUE,
+	DEFAULT_SUBSCRIBE_PLACEHOLDER,
+	DEFAULT_SUBMIT_BUTTON_LABEL,
+	DEFAULT_SUCCESS_MESSAGE,
 } from './constants';
 import SubscriptionControls from './controls';
 import { SubscriptionsPlaceholder } from './subscription-placeholder';
@@ -85,11 +88,11 @@ export function SubscriptionEdit( props ) {
 		includeSocialFollowers,
 		padding,
 		spacing,
-		submitButtonText,
-		subscribePlaceholder,
+		submitButtonText = DEFAULT_SUBMIT_BUTTON_LABEL,
+		subscribePlaceholder = DEFAULT_SUBSCRIBE_PLACEHOLDER,
 		showSubscribersTotal,
 		buttonOnNewLine,
-		successMessage,
+		successMessage = DEFAULT_SUCCESS_MESSAGE,
 	} = validatedAttributes;
 
 	const { subscriberCount, subscriberCountString } = useSelect( select => {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+AI Featured Image: handle posts longer than the limit of Dall-e generation prompt.
