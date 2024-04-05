@@ -12,6 +12,7 @@ import { __ } from '@wordpress/i18n';
  */
 import './style.scss';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
+import { PLAN_TYPE_FREE, PLAN_TYPE_TIERED, usePlanType } from '../../../../shared/use-plan-type';
 import usePostContent from '../../hooks/use-post-content';
 import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library';
 import AiAssistantModal from '../modal';
@@ -37,9 +38,19 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	const { recordEvent } = tracks;
 
 	// Get feature data
-	const aiFeature = useAiFeature();
-	const { increaseRequestsCount, costs } = aiFeature;
+	const {
+		requestsCount: allTimeRequestsCount,
+		requestsLimit: freeRequestsLimit,
+		usagePeriod,
+		currentTier,
+		increaseRequestsCount,
+		costs,
+	} = useAiFeature();
+	const planType = usePlanType( currentTier );
 	const featuredImageCost = costs?.[ FEATURED_IMAGE_FEATURE_NAME ]?.image;
+	const requestsCount =
+		planType === PLAN_TYPE_TIERED ? usagePeriod?.requestsCount : allTimeRequestsCount;
+	const requestsLimit = planType === PLAN_TYPE_FREE ? freeRequestsLimit : currentTier?.limit;
 
 	const postContent = usePostContent();
 
@@ -209,7 +220,13 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 								) : (
 									<>
 										<img className="ai-assistant-featured-image__image" src={ imageURL } alt="" />
-										<UsageCounter />
+										{ featuredImageCost && requestsLimit && (
+											<UsageCounter
+												cost={ featuredImageCost }
+												currentLimit={ requestsLimit }
+												currentUsage={ requestsCount }
+											/>
+										) }
 									</>
 								) }
 							</div>
