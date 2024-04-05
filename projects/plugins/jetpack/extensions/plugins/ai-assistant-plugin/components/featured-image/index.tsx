@@ -12,7 +12,12 @@ import { __ } from '@wordpress/i18n';
  */
 import './style.scss';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
-import { PLAN_TYPE_FREE, PLAN_TYPE_TIERED, usePlanType } from '../../../../shared/use-plan-type';
+import {
+	PLAN_TYPE_FREE,
+	PLAN_TYPE_TIERED,
+	PLAN_TYPE_UNLIMITED,
+	usePlanType,
+} from '../../../../shared/use-plan-type';
 import usePostContent from '../../hooks/use-post-content';
 import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library';
 import AiAssistantModal from '../modal';
@@ -51,6 +56,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	const requestsCount =
 		planType === PLAN_TYPE_TIERED ? usagePeriod?.requestsCount : allTimeRequestsCount;
 	const requestsLimit = planType === PLAN_TYPE_FREE ? freeRequestsLimit : currentTier?.limit;
+	const isUnlimited = planType === PLAN_TYPE_UNLIMITED;
 
 	const postContent = usePostContent();
 
@@ -220,7 +226,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 								) : (
 									<>
 										<img className="ai-assistant-featured-image__image" src={ imageURL } alt="" />
-										{ featuredImageCost && requestsLimit && (
+										{ ! isUnlimited && featuredImageCost && requestsLimit && (
 											<UsageCounter
 												cost={ featuredImageCost }
 												currentLimit={ requestsLimit }
