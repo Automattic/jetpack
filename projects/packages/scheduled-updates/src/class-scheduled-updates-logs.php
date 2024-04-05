@@ -157,7 +157,7 @@ class Scheduled_Updates_Logs {
 	/**
 	 * Infers the status of a plugin update schedule from its logs.
 	 *
-	 * @param int $schedule_id The ID of the plugin update schedule.
+	 * @param string $schedule_id The ID of the plugin update schedule.
 	 *
 	 * @return array|false An array containing the last run timestamp and status, or false if no logs are found.
 	 *                     The array has the following keys:
