@@ -94,7 +94,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		};
 
 		const noticeOptions = {
-			level: 'warning',
+			level: 'info',
 			actions: [
 				{
 					label: requiresUserConnection
