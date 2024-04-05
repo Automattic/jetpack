@@ -59,6 +59,14 @@ const projects = [
 		buildGroup: 'jetpack-boost',
 	},
 	{
+		project: 'Jetpack Boost - Page Cache',
+		path: 'projects/plugins/boost/tests/e2e',
+		testArgs: [ 'specs/page-cache', '--retries=1' ],
+		targets: [ 'plugins/boost' ],
+		suite: '',
+		buildGroup: 'jetpack-boost',
+	},
+	{
 		project: 'Jetpack Boost - Concatenate JS/CSS',
 		path: 'projects/plugins/boost/tests/e2e',
 		testArgs: [ 'specs/concatenate', '--retries=1' ],
