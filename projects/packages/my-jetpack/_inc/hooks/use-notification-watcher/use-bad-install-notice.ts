@@ -50,7 +50,6 @@ const useBadInstallNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 				},
 			],
 			priority: NOTICE_PRIORITY_MEDIUM,
-			isRedBubble: true,
 		};
 
 		setNotice( {
