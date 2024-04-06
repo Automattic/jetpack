@@ -23,7 +23,18 @@ import styles from './style.module.scss';
  * @returns {React.Component} The `ActionButton` component.
  */
 const ActionButton = props => {
-	const { label, onClick, isLoading, isDisabled, displayError, errorMessage, customClass } = props;
+	const {
+		label,
+		onClick,
+		isLoading,
+		loadingText,
+		isDisabled,
+		displayError,
+		errorMessage,
+		customClass,
+	} = props;
+
+	const loadingContent = loadingText || <Spinner />;
 
 	return (
 		<>
@@ -35,7 +46,7 @@ const ActionButton = props => {
 					variant="primary"
 					disabled={ isLoading || isDisabled }
 				>
-					{ isLoading ? <Spinner /> : label }
+					{ isLoading ? loadingContent : label }
 				</Button>
 			}
 
