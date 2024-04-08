@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.44.0] - 2024-04-08
+### Changed
+- Updated package dependencies. [#36760]
+- Update to the most recent version of Color Studio, 2.6.0. [#36751]
+
+### Removed
+- Removed add Search license link for simple sites due to My Jetpack inavailability. [#36667]
+
 ## [0.43.8] - 2024-03-27
 ### Changed
 - Updated package dependencies. [#36585]
@@ -925,6 +933,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.44.0]: https://github.com/Automattic/jetpack-search/compare/v0.43.8...v0.44.0
 [0.43.8]: https://github.com/Automattic/jetpack-search/compare/v0.43.7...v0.43.8
 [0.43.7]: https://github.com/Automattic/jetpack-search/compare/v0.43.6...v0.43.7
 [0.43.6]: https://github.com/Automattic/jetpack-search/compare/v0.43.5...v0.43.6
