@@ -1,11 +1,7 @@
-// to do: replace after @automattic/color-studio@2.6.0 release
-:root {
-	--automattic-blue-60: #0088BF;
-	--automattic-blue-80: #021A23;
-}
+@import '~@automattic/color-studio/dist/color-variables';
 
 .card {
-	background-color: var( --automattic-blue-80 );
+	background-color: $studio-automattic-blue-90;
 	border-radius: 14px;
 	display: flex;
 	padding: 8px;
@@ -52,12 +48,16 @@
 
 	:global {
 		.components-button.is-primary {
-			background-color: var(--automattic-blue-60);
+			background-color: $studio-automattic-blue;
 			min-width: 178px;
 		}
 
+		.components-button.is-primary:hover {
+			background-color: $studio-automattic-blue-60;
+		}
+
 		.components-button.is-link {
-			color: var(--automattic-blue-60);
+			color: $studio-automattic-blue;
 			white-space: nowrap;
 			text-decoration: underline;
 		}

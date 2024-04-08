@@ -1,8 +1,4 @@
-// to do: replace after @automattic/color-studio@2.6.0 release
-:root {
-	--automattic-blue-60: #0088BF;
-	--automattic-blue-80: #021A23;
-}
+@import '~@automattic/color-studio/dist/color-variables';
 
 .card {
 	display: flex;
@@ -143,14 +139,14 @@
 	}
 
 	.terms-of-service__link {
-		color: var(--automattic-blue-60);
+		color: $studio-automattic-blue;
 		white-space: nowrap;
 		text-decoration: underline;
 	}
 
 	:global {
 		.components-button.is-link {
-			color: var(--automattic-blue-60);
+			color: $studio-automattic-blue;
 			white-space: nowrap;
 			text-decoration: underline;
 		}
@@ -161,7 +157,7 @@
 .connect-button-wrapper {
 	:global {
 		.components-button {
-			background-color: var(--automattic-blue-60);
+			background-color: $studio-automattic-blue;
 			min-width: 178px;
 		}
 	}
@@ -170,7 +166,7 @@
 :global {
 	.components-button.is-link.components-button--back {
 		font-size: 14px;
-		color: var(--jp-black);
+		color: $studio-black;
 		text-decoration: none;
 
 		&:hover {
