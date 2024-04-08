@@ -1,19 +1,14 @@
-import { date } from '@wordpress/date';
 import { Component } from '@wordpress/element';
 import { _x, sprintf } from '@wordpress/i18n';
 import { isEmpty } from 'lodash';
 
 class DayPreview extends Component {
 	formatTime( time ) {
-		const { timeFormat } = this.props;
 		const [ hours, minutes ] = time.split( ':' );
-		const _date = new Date();
 		if ( ! hours || ! minutes ) {
 			return false;
 		}
-		_date.setHours( hours );
-		_date.setMinutes( minutes );
-		return date( timeFormat, _date );
+		return time;
 	}
 
 	renderInterval = ( interval, key ) => {
