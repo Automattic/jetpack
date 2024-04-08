@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack Protect footer: Ensured that links to the cloud and the promotion around it are not shown if you are on a platform where the firewall is not supported.
