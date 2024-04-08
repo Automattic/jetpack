@@ -25,6 +25,34 @@
 		background: $masterbar-highlight-background;
 	}
 
+	/**
+	 * Styles for All Sites menu
+	 */
+	#wpadminbar .wp-admin-bar-all-sites a.ab-item {
+		display: flex;
+		align-items: center;
+	}
+	#wpadminbar .wp-admin-bar-all-sites a.ab-item svg {
+		fill: rgba(#f0f0f1, .6);
+		margin-right: 4px;
+	}
+	#wpadminbar .wp-admin-bar-all-sites:hover a.ab-item svg {
+		fill: $menu-highlight-icon;
+	}
+	@media (max-width: 782px) {
+		#wpadminbar .wp-admin-bar-all-sites {
+			display: block;
+		}
+		#wpadminbar .wp-admin-bar-all-sites a.ab-item {
+			justify-content: center;
+			text-indent: 0;
+			font-size: 0;
+		}
+		#wpadminbar .wp-admin-bar-all-sites a.ab-item svg {
+			width: 36px;
+			margin-right: 0;
+		}
+	}
 }
 
 // Make current submenu icon color stay the same on hover

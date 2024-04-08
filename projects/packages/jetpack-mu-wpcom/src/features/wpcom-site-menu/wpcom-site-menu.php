@@ -182,31 +182,6 @@ function wpcom_add_wpcom_menu_item() {
 add_action( 'admin_menu', 'wpcom_add_wpcom_menu_item' );
 
 /**
- * Enqueue the All Sites menu styles.
- */
-function enqueue_all_sites_menu_styles() {
-	/**
-	 * Don't show `All Sites` to administrators without a WordPress.com account being attached,
-	 * as they don't have access to any of the pages.
-	 */
-	if ( ! current_user_has_wpcom_account() ) {
-		return;
-	}
-
-	$css = '
-		#wpadminbar #wp-admin-bar-my-sites a.ab-item {display: flex; align-items: center;}
-		#wpadminbar #wp-admin-bar-my-sites a.ab-item:before {display: none;}
-		#wpadminbar #wp-admin-bar-my-sites a.ab-item svg {fill: #e5f8ff; margin-right: 4px;}
-		@media (max-width: 782px) {
-			#wpadminbar #wp-admin-bar-my-sites a.ab-item {justify-content: center; text-indent: 0; font-size: 0;}
-			#wpadminbar #wp-admin-bar-my-sites a.ab-item svg {width: 36px; margin-right: 0;}
-		}
-	';
-	wp_add_inline_style( 'wp-admin', $css );
-}
-add_action( 'admin_enqueue_scripts', 'enqueue_all_sites_menu_styles' );
-
-/**
  * Add All Sites menu to the right side of the WP logo on the masterbar.
  */
 function add_all_sites_menu_to_masterbar() {
@@ -220,14 +195,20 @@ function add_all_sites_menu_to_masterbar() {
 
 	global $wp_admin_bar;
 
-	// svg is from https://github.com/WordPress/gutenberg/blob/ad487383ce80e0c762200e83ec2c372463ecc940/packages/icons/src/library/category.js
+	/**
+	 * Using inline SVG since there is no equivalent dashicon.
+	 * SVG is from https://github.com/WordPress/gutenberg/blob/ad487383ce80e0c762200e83ec2c372463ecc940/packages/icons/src/library/category.js
+	 */
 	$icon = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true" focusable="false"><path d="M6 5.5h3a.5.5 0 01.5.5v3a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V6a.5.5 0 01.5-.5zM4 6a2 2 0 012-2h3a2 2 0 012 2v3a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm11-.5h3a.5.5 0 01.5.5v3a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5V6a.5.5 0 01.5-.5zM13 6a2 2 0 012-2h3a2 2 0 012 2v3a2 2 0 01-2 2h-3a2 2 0 01-2-2V6zm5 8.5h-3a.5.5 0 00-.5.5v3a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-3a.5.5 0 00-.5-.5zM15 13a2 2 0 00-2 2v3a2 2 0 002 2h3a2 2 0 002-2v-3a2 2 0 00-2-2h-3zm-9 1.5h3a.5.5 0 01.5.5v3a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5v-3a.5.5 0 01.5-.5zM4 15a2 2 0 012-2h3a2 2 0 012 2v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>';
 
 	$wp_admin_bar->add_node(
 		array(
-			'id'    => 'my-sites',
+			'id'    => 'all-sites',
 			'title' => $icon . __( 'All Sites', 'jetpack-mu-wpcom' ),
 			'href'  => 'https://wordpress.com/sites',
+			'meta'  => array(
+				'class' => 'wp-admin-bar-all-sites',
+			),
 		)
 	);
 }
