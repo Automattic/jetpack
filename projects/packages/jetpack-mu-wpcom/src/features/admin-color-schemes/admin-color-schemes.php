@@ -132,6 +132,27 @@ function register_calypso_admin_color_schemes() {
 }
 
 /**
+ * Get the admin color scheme override URL based on the environment
+ *
+ * @param string $color_scheme  The color scheme to get the URL for.
+ */
+function get_admin_color_scheme_override_url( $color_scheme ) {
+	// TODO: migrate these color scheme CSS files to jetpack-mu-wpcom as well.
+	return plugins_url( '_inc/build/masterbar/admin-color-schemes/colors/' . $color_scheme . '/all-sites-menu.css', JETPACK__PLUGIN_FILE );
+}
+
+/**
+ * Enqueues current color-scheme overrides for core color schemes
+ */
+function enqueue_core_color_schemes_overrides() {
+	$core_color_schemes = array( 'blue', 'coffee', 'ectoplasm', 'fresh', 'light', 'midnight', 'modern', 'ocean', 'sunrise' );
+	$color_scheme       = get_user_option( 'admin_color' );
+	if ( in_array( $color_scheme, $core_color_schemes, true ) ) {
+		wp_enqueue_style( 'jetpack-core-color-scheme-override', get_admin_color_scheme_override_url( $color_scheme ), array(), JETPACK__VERSION );
+	}
+}
+
+/**
  * Re-enqueue Core color scheme CSS.
  *
  * Currently, the selected color scheme CSS (with id = "colors") is concatenated (by Jetpack Boost / Page Optimize),
@@ -151,5 +172,6 @@ function reenqueue_core_color_scheme() {
 
 if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
 	add_action( 'admin_init', 'register_calypso_admin_color_schemes' );
+	add_action( 'admin_init', 'enqueue_core_color_schemes_overrides' );
 	add_action( 'admin_enqueue_scripts', 'reenqueue_core_color_scheme' );
 }

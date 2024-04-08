@@ -1,0 +1,10 @@
+/**
+ * Styles for All Sites menu
+ * Colors are taken from the following file in WordPress core:
+ * https://github.com/WordPress/wordpress-develop/blob/8d0aed455b1790c5d51386f7675d9e8d68e48edf/src/wp-admin/css/colors/_variables.scss
+ * `src/wp-admin/css/colors/{color}/colors.scss`
+ */
+$menu-icon: #999;
+$menu-submenu-focus-text: #04a4cc;
+
+@import "../_all-sites-menu";
