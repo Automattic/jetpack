@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use WP_Post;
+
 /**
  * VideoPress block editor class for content generation
  */

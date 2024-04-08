@@ -9,17 +9,14 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredClassProperty : 4 occurrences
-    // PhanTypeMismatchArgument : 2 occurrences
-    // PhanUndeclaredTypeParameter : 2 occurrences
     // PhanTypeArraySuspicious : 1 occurrence
+    // PhanTypeMismatchArgument : 1 occurrence
     // PhanTypeMismatchArgumentNullable : 1 occurrence
     // PhanTypeMismatchReturnNullable : 1 occurrence
     // PhanTypeMismatchReturnProbablyReal : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-post-list.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredClassProperty', 'PhanUndeclaredTypeParameter'],
         'src/class-post-thumbnail.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

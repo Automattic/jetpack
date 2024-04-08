@@ -80,7 +80,7 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 		// Test logging events
 		Scheduled_Updates_Logs::log( $schedule_id, Scheduled_Updates_Logs::PLUGIN_UPDATES_START, 'Starting plugin updates' );
 		Scheduled_Updates_Logs::log( $schedule_id, Scheduled_Updates_Logs::PLUGIN_UPDATE_SUCCESS, 'Plugin updated successfully', array( 'plugin' => 'test-plugin' ) );
-		Scheduled_Updates_Logs::log( $schedule_id, Scheduled_Updates_Logs::PLUGIN_UPDATES_COMPLETE, 'Plugin updates completed' );
+		Scheduled_Updates_Logs::log( $schedule_id, Scheduled_Updates_Logs::PLUGIN_UPDATES_SUCCESS, 'Plugin updates completed' );
 
 		// Test retrieving logs
 		$logs = Scheduled_Updates_Logs::get( $schedule_id );
@@ -95,7 +95,7 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 		$this->assertEquals( Scheduled_Updates_Logs::PLUGIN_UPDATE_SUCCESS, $logs[0][1]['action'] );
 		$this->assertEquals( 'Plugin updated successfully', $logs[0][1]['message'] );
 		$this->assertEquals( array( 'plugin' => 'test-plugin' ), $logs[0][1]['context'] );
-		$this->assertEquals( Scheduled_Updates_Logs::PLUGIN_UPDATES_COMPLETE, $logs[0][2]['action'] );
+		$this->assertEquals( Scheduled_Updates_Logs::PLUGIN_UPDATES_SUCCESS, $logs[0][2]['action'] );
 		$this->assertEquals( 'Plugin updates completed', $logs[0][2]['message'] );
 	}
 
@@ -111,7 +111,7 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 		// Log events for more than MAX_RUNS_PER_SCHEDULE
 		for ( $i = 1; $i <= Scheduled_Updates_Logs::MAX_RUNS_PER_SCHEDULE + 1; $i++ ) {
 			Scheduled_Updates_Logs::log( $schedule_id, Scheduled_Updates_Logs::PLUGIN_UPDATES_START, "Starting plugin updates (Run $i)" );
-			Scheduled_Updates_Logs::log( $schedule_id, Scheduled_Updates_Logs::PLUGIN_UPDATES_COMPLETE, "Plugin updates completed (Run $i)" );
+			Scheduled_Updates_Logs::log( $schedule_id, Scheduled_Updates_Logs::PLUGIN_UPDATES_SUCCESS, "Plugin updates completed (Run $i)" );
 		}
 
 		// Test retrieving logs
@@ -167,9 +167,9 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 
 		// Log events for multiple schedules
 		Scheduled_Updates_Logs::log( $schedule_id_1, Scheduled_Updates_Logs::PLUGIN_UPDATES_START, 'Starting plugin updates for schedule 1' );
-		Scheduled_Updates_Logs::log( $schedule_id_1, Scheduled_Updates_Logs::PLUGIN_UPDATES_COMPLETE, 'Plugin updates completed for schedule 1' );
+		Scheduled_Updates_Logs::log( $schedule_id_1, Scheduled_Updates_Logs::PLUGIN_UPDATES_SUCCESS, 'Plugin updates completed for schedule 1' );
 		Scheduled_Updates_Logs::log( $schedule_id_2, Scheduled_Updates_Logs::PLUGIN_UPDATES_START, 'Starting plugin updates for schedule 2' );
-		Scheduled_Updates_Logs::log( $schedule_id_2, Scheduled_Updates_Logs::PLUGIN_UPDATES_COMPLETE, 'Plugin updates completed for schedule 2' );
+		Scheduled_Updates_Logs::log( $schedule_id_2, Scheduled_Updates_Logs::PLUGIN_UPDATES_SUCCESS, 'Plugin updates completed for schedule 2' );
 
 		// Test retrieving all logs
 		$all_logs = Scheduled_Updates_Logs::get();
@@ -235,6 +235,55 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 
 		// Assert that an empty array is returned
 		$this->assertInstanceOf( WP_Error::class, $logs );
+	}
+
+	/**
+	 * Test force clearing logs for a non-existent schedule ID.
+	 *
+	 * @covers ::get
+	 */
+	public function test_force_clear_logs_non_existent_schedule() {
+		$schedule_id = 'non_existent_schedule';
+
+		// Test retrieving logs for a non-existent schedule
+		$logs = Scheduled_Updates_Logs::clear( $schedule_id, true );
+
+		// Assert that null is returned
+		$this->assertNull( $logs );
+	}
+
+	/**
+	 * Test deleting logs after scheduled update deletion.
+	 *
+	 * @covers ::get
+	 */
+	public function test_delete_logs_after_scheduled_update_deletion() {
+		$schedule_id = $this->create_schedule( 1 );
+
+		Scheduled_Updates_Logs::log( $schedule_id, Scheduled_Updates_Logs::PLUGIN_UPDATES_START, 'Starting plugin updates' );
+
+		// Test retrieving logs
+		$logs = Scheduled_Updates_Logs::get( $schedule_id );
+
+		$this->assertCount( 1, $logs );
+		$this->assertCount( 1, $logs[0] );
+
+		$request = new \WP_REST_Request( 'DELETE', '/wpcom/v2/update-schedules/' . $schedule_id );
+		$result  = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertTrue( $result->get_data() );
+
+		$logs = Scheduled_Updates_Logs::get( $schedule_id );
+
+		$this->assertInstanceOf( WP_Error::class, $logs );
+
+		$schedule_id = $this->create_schedule( 1 );
+
+		$logs = Scheduled_Updates_Logs::get( $schedule_id );
+
+		// New schedule with same plugins of an old schedule should not have the same logs.
+		$this->assertCount( 0, $logs );
 	}
 
 	/**

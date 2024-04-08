@@ -9,26 +9,20 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeArraySuspicious : 5 occurrences
     // PhanTypeExpectedObjectPropAccess : 3 occurrences
-    // PhanTypeMismatchReturn : 3 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 2 occurrences
-    // PhanUndeclaredClassMethod : 2 occurrences
-    // PhanUndeclaredMethod : 2 occurrences
-    // PhanUndeclaredTypeParameter : 2 occurrences
+    // PhanTypeMismatchReturn : 2 occurrences
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanTypeInvalidDimOffset : 1 occurrence
     // PhanTypeMismatchArgument : 1 occurrence
-    // PhanTypeMismatchProperty : 1 occurrence
     // PhanUndeclaredFunction : 1 occurrence
-    // PhanUndeclaredTypeProperty : 1 occurrence
-    // PhanUndeclaredTypeReturnType : 1 occurrence
+    // PhanUndeclaredMethod : 1 occurrence
     // PhanUnreferencedUseNormal : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-post-connection-jitm.php' => ['PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeProperty'],
-        'src/class-rest-api-endpoints.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspicious', 'PhanTypeMismatchReturn', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType'],
+        'src/class-post-connection-jitm.php' => ['PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanUndeclaredFunction'],
+        'src/class-rest-api-endpoints.php' => ['PhanPluginSimplifyExpressionBool'],
         'tests/php/test_JITM.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUnreferencedUseNormal'],
         'tests/php/test_pre_connection_jitm.php' => ['PhanTypeInvalidDimOffset', 'PhanUndeclaredMethod'],
     ],

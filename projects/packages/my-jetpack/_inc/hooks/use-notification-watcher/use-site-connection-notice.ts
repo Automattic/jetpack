@@ -40,7 +40,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 				  );
 
 		const noticeOptions = {
-			status: 'warning',
+			level: 'warning',
 			actions: [
 				{
 					label: __( 'Connect your user account to fix this', 'jetpack-my-jetpack' ),

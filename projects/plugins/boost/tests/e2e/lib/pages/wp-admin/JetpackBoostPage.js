@@ -126,6 +126,36 @@ export default class JetpackBoostPage extends WpPage {
 		return this.waitForElementToBeVisible( selector );
 	}
 
+	async isThePageCacheMetaInformationVisible() {
+		const selector = '[data-testid="page-cache-meta"]';
+		return this.page.isVisible( selector );
+	}
+
+	async waitForPageCacheMetaInfoVisibility() {
+		const selector = '[data-testid="page-cache-meta"]';
+		return this.waitForElementToBeVisible( selector, 3 * 60 * 1000 );
+	}
+
+	async waitForPageCachePermalinksErrorVisibility() {
+		const selector = '[data-testid="module-page_cache"] >> text=Permalink settings must be updated';
+		return this.waitForElementToBeVisible( selector, 3 * 60 * 1000 );
+	}
+
+	async isConcatenateJsMetaVisible() {
+		const selector = '[data-testid="meta-minify_js_excludes"]';
+		return this.page.isVisible( selector );
+	}
+
+	async isConcatenateCssMetaVisible() {
+		const selector = '[data-testid="meta-minify_css_excludes"]';
+		return this.page.isVisible( selector );
+	}
+
+	async isImageCdnUpgradeSectionVisible() {
+		const selector = '[data-testid="module-image_cdn"] >> text=For more control over image quality';
+		return this.page.isVisible( selector );
+	}
+
 	async navigateToMainSettingsPage() {
 		await this.page.click( 'text=Go back' );
 	}

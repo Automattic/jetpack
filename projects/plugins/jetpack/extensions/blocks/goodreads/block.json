@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 1,
+	"apiVersion": 3,
 	"name": "jetpack/goodreads",
 	"title": "Goodreads",
 	"description": "Features books from the shelves of your Goodreads account.",
@@ -22,8 +22,7 @@
 			"type": "string"
 		},
 		"customTitle": {
-			"type": "string",
-			"default": "My Bookshelf"
+			"type": "string"
 		},
 		"goodreadsId": {
 			"type": "number"

@@ -5,6 +5,7 @@ namespace Automattic\Jetpack\Search;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Search\Test_Case as Search_Test_Case;
 use WP_REST_Request;
+use WP_REST_Response;
 use WP_REST_Server;
 
 /**

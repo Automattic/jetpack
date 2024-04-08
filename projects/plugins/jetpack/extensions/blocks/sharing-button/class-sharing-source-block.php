@@ -13,6 +13,7 @@ namespace Automattic\Jetpack\Extensions\Sharing_Button_Block;
 
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Jetpack_PostImages;
+use WP_Post;
 
 /**
  * Base class for sharing sources.

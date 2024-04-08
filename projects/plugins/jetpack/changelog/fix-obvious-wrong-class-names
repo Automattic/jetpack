@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Fix phpdoc class references. Should be no change to functionality.
+
+
