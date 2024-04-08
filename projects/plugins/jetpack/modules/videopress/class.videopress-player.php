@@ -869,7 +869,7 @@ class VideoPress_Player {
 	 * Double-baked Flash object markup for Internet Explorer and more standards-friendly consuming agents.
 	 *
 	 * @since 1.1
-	 * @return HTML markup. Object and children.
+	 * @return string HTML markup. Object and children.
 	 */
 	private function flash_object() {
 		wp_enqueue_script( 'videopress' );

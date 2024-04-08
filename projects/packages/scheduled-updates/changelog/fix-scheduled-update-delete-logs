@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Delete logs after scheduled update deletion.

@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Extensions\Donations;
 
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
+use WP_Post;
 
 /**
  * Registers the block for use in Gutenberg

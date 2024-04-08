@@ -1,0 +1,18 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.ai-assistant-featured-image__usage-counter {
+	color: var(--studio-gray-50, #646970);
+	font-size: 1em;
+	line-height: 21px;
+	display: flex;
+
+	& .usage-counter__icon {
+		height: 20px;
+		width: 20px;
+        outline: none;
+
+		path {
+			fill: var(--studio-gray-20, #a7aaad);
+		}
+	}
+}

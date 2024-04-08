@@ -1460,7 +1460,7 @@ class Jetpack_Carousel {
 	 *
 	 * @param mixed $value User input setting value.
 	 *
-	 * @return number Sanitized value, only 1 or 0.
+	 * @return int Sanitized value, only 1 or 0.
 	 */
 	public function carousel_display_exif_sanitize( $value ) {
 		return $this->sanitize_1or0_option( $value );
@@ -1469,9 +1469,9 @@ class Jetpack_Carousel {
 	/**
 	 * Return sanitized option for value that controls whether comments will be hidden or not.
 	 *
-	 * @param number $value Value to sanitize.
+	 * @param mixed $value Value to sanitize.
 	 *
-	 * @return number Sanitized value, only 1 or 0.
+	 * @return int Sanitized value, only 1 or 0.
 	 */
 	public function carousel_display_comments_sanitize( $value ) {
 		return $this->sanitize_1or0_option( $value );
@@ -1513,7 +1513,7 @@ class Jetpack_Carousel {
 	 *
 	 * @param mixed $value User input.
 	 *
-	 * @return number Sanitized value, only 1 or 0.
+	 * @return int Sanitized value, only 1 or 0.
 	 */
 	public function carousel_enable_it_sanitize( $value ) {
 		return $this->sanitize_1or0_option( $value );

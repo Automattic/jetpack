@@ -10,27 +10,28 @@
 return [
     // # Issue statistics:
     // PhanUndeclaredFunction : 65+ occurrences
-    // PhanUndeclaredClassMethod : 60+ occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 55+ occurrences
-    // PhanTypeMismatchArgument : 40+ occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 60+ occurrences
+    // PhanUndeclaredClassMethod : 55+ occurrences
+    // PhanTypeMismatchArgument : 35+ occurrences
     // PhanTypeArraySuspicious : 30+ occurrences
     // PhanUndeclaredTypeParameter : 15+ occurrences
     // PhanUndeclaredFunctionInCallable : 10+ occurrences
-    // PhanUndeclaredTypeReturnType : 9 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 8 occurrences
     // PhanUndeclaredClassConstant : 8 occurrences
-    // PhanTypeMismatchReturn : 7 occurrences
     // PhanTypeMismatchReturnProbablyReal : 7 occurrences
-    // PhanUndeclaredTypeProperty : 4 occurrences
+    // PhanUndeclaredTypeReturnType : 6 occurrences
+    // PhanTypeMismatchReturn : 5 occurrences
     // PhanNoopNew : 3 occurrences
     // PhanUndeclaredClassInCallable : 3 occurrences
     // PhanUndeclaredClassReference : 3 occurrences
     // PhanUndeclaredConstant : 3 occurrences
+    // PhanUndeclaredTypeProperty : 3 occurrences
     // PhanEmptyFQSENInCallable : 2 occurrences
     // PhanParamTooMany : 2 occurrences
     // PhanTypeMismatchArgumentInternal : 2 occurrences
     // PhanTypeMismatchDefault : 2 occurrences
     // PhanTypeMissingReturn : 2 occurrences
+    // PhanDeprecatedFunction : 1 occurrence
     // PhanImpossibleTypeComparison : 1 occurrence
     // PhanNonClassMethodCall : 1 occurrence
     // PhanNoopArrayAccess : 1 occurrence
@@ -42,7 +43,6 @@ return [
     // PhanTypeInvalidLeftOperandOfNumericOp : 1 occurrence
     // PhanTypeMismatchDimFetch : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
-    // PhanTypeMismatchPropertyDefault : 1 occurrence
     // PhanTypeMismatchReturnNullable : 1 occurrence
     // PhanTypeNonVarPassByRef : 1 occurrence
     // PhanTypeVoidArgument : 1 occurrence
@@ -73,8 +73,8 @@ return [
         'src/features/wpcom-site-menu/wpcom-site-menu.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassInCallable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunctionInCallable'],
         'src/utils.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference'],
         'tests/lib/functions-wordpress.php' => ['PhanRedefineFunction'],
-        'tests/php/features/block-patterns/class-wpcom-block-patterns-from-api-test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeReturnType'],
-        'tests/php/features/coming-soon/class-coming-soon-test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyDefault', 'PhanUndeclaredTypeProperty'],
+        'tests/php/features/block-patterns/class-wpcom-block-patterns-from-api-test.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
+        'tests/php/features/coming-soon/class-coming-soon-test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/features/launchpad/class-launchpad-jetpack-connection-client-mock.php' => ['PhanTypeMissingReturn'],
         'tests/php/features/launchpad/class-launchpad-task-list-validation-test.php' => ['PhanNonClassMethodCall', 'PhanTypeMismatchArgument'],
         'tests/php/features/launchpad/class-launchpad-task-lists-test.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeNonVarPassByRef'],

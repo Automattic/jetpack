@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Assets;
 use WP_Customize_Color_Control;
+use WP_Customize_Manager;
 
 /**
  * Class to customize search on the site.

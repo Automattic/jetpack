@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\VideoPress;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Modules;
 use VIDEOPRESS_PRIVACY;
+use WP_Post;
 
 /**
  * VideoPress video access control utilities.
