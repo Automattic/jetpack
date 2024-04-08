@@ -1,4 +1,4 @@
-import { BlockControls, InnerBlocks } from '@wordpress/block-editor';
+import { BlockControls, InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { Button, withNotices } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { useCallback, useEffect, useState } from 'react';
@@ -27,6 +27,7 @@ export const EventbriteEdit = props => {
 	const { attributes, noticeOperations, onReplace, setAttributes } = props;
 	const { url, style } = attributes;
 
+	const blockProps = useBlockProps();
 	const [ editingUrl, setEditingUrl ] = useState( false );
 	const [ editedUrl, setEditedUrl ] = useState( attributes.url || '' );
 	const [ isResolvingUrl, setIsResolvingUrl ] = useState( false );
@@ -123,7 +124,7 @@ export const EventbriteEdit = props => {
 		);
 	}
 
-	return <div>{ content }</div>;
+	return <div { ...blockProps }>{ content }</div>;
 };
 
 export default withNotices( EventbriteEdit );

@@ -9,17 +9,14 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgument : 3 occurrences
     // PhanNoopNew : 2 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 1 occurrence
-    // PhanTypeMismatchReturn : 1 occurrence
-    // PhanUndeclaredTypeParameter : 1 occurrence
-    // PhanUndeclaredTypeReturnType : 1 occurrence
+    // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturn', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType'],
-        'src/class-wpcom-migration.php' => ['PhanNoopNew', 'PhanTypeMismatchArgument'],
+        'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentProbablyReal'],
+        'src/class-wpcom-migration.php' => ['PhanNoopNew'],
         'wpcom-migration.php' => ['PhanNoopNew'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

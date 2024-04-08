@@ -10,11 +10,9 @@
 return [
     // # Issue statistics:
     // PhanPluginDuplicateConditionalNullCoalescing : 45+ occurrences
-    // PhanTypeArraySuspicious : 8 occurrences
     // PhanParamTooMany : 6 occurrences
     // PhanTypeMismatchArgument : 5 occurrences
-    // PhanUndeclaredTypeParameter : 5 occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 4 occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 5 occurrences
     // PhanTypeMismatchProperty : 2 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
     // PhanNoopNew : 1 occurrence
@@ -27,7 +25,7 @@ return [
         'src/class-credentials.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-plan.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-protect-status.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentProbablyReal'],
-        'src/class-rest-controller.php' => ['PhanParamTooMany', 'PhanTypeArraySuspicious', 'PhanUndeclaredTypeParameter'],
+        'src/class-rest-controller.php' => ['PhanParamTooMany'],
         'src/class-scan-status.php' => ['PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchProperty'],
         'src/class-status.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchArgument'],
         'src/class-threats.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgumentProbablyReal'],

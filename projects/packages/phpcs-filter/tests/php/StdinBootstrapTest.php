@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\PhpcsFilter\Tests;
 use PHPUnit\Framework\TestCase;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use RuntimeException;
 
 /**
  * Tests for stdin-bootstrap.php.

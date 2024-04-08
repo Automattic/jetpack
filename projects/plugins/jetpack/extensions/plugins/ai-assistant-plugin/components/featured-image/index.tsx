@@ -11,9 +11,17 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import './style.scss';
+import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
+import {
+	PLAN_TYPE_FREE,
+	PLAN_TYPE_TIERED,
+	PLAN_TYPE_UNLIMITED,
+	usePlanType,
+} from '../../../../shared/use-plan-type';
 import usePostContent from '../../hooks/use-post-content';
 import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library';
 import AiAssistantModal from '../modal';
+import UsageCounter from './usage-counter';
 
 const FEATURED_IMAGE_FEATURE_NAME = 'featured-post-image';
 const JETPACK_SIDEBAR_PLACEMENT = 'jetpack-sidebar';
@@ -34,6 +42,24 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
 
+	// Get feature data
+	const {
+		requestsCount: allTimeRequestsCount,
+		requestsLimit: freeRequestsLimit,
+		usagePeriod,
+		currentTier,
+		increaseRequestsCount,
+		costs,
+	} = useAiFeature();
+	const planType = usePlanType( currentTier );
+	const featuredImageCost = costs?.[ FEATURED_IMAGE_FEATURE_NAME ]?.image;
+	const requestsCount =
+		planType === PLAN_TYPE_TIERED ? usagePeriod?.requestsCount : allTimeRequestsCount;
+	const requestsLimit = planType === PLAN_TYPE_FREE ? freeRequestsLimit : currentTier?.limit;
+	const isUnlimited = planType === PLAN_TYPE_UNLIMITED;
+	const requestsBalance = requestsLimit - requestsCount;
+	const notEnoughRequests = requestsBalance < featuredImageCost;
+
 	const postContent = usePostContent();
 
 	// Handle deprecation and move of toggle action from edit-post.
@@ -50,6 +76,13 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	}, [] );
 
 	/*
+	 * Function to update the requests count after a featured image generation.
+	 */
+	const updateRequestsCount = useCallback( () => {
+		increaseRequestsCount( featuredImageCost );
+	}, [ increaseRequestsCount, featuredImageCost ] );
+
+	/*
 	 * Function to generate a new image with the current value of the post content.
 	 */
 	const processImageGeneration = useCallback( () => {
@@ -64,6 +97,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 				if ( result.data.length > 0 ) {
 					const image = 'data:image/png;base64,' + result.data[ 0 ].b64_json;
 					setImageURL( image );
+					updateRequestsCount();
 				}
 			} )
 			.catch( e => {
@@ -72,7 +106,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 			.finally( () => {
 				setGenerating( false );
 			} );
-	}, [ postContent, setGenerating, setImageURL, generateImage ] );
+	}, [ postContent, setGenerating, setImageURL, generateImage, updateRequestsCount ] );
 
 	const toggleFeaturedImageModal = useCallback( () => {
 		setIsFeaturedImageModalVisible( ! isFeaturedImageModalVisible );
@@ -157,7 +191,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 			<Button
 				onClick={ handleGenerate }
 				isBusy={ busy }
-				disabled={ ! postContent || disabled }
+				disabled={ ! postContent || disabled || notEnoughRequests }
 				variant="secondary"
 			>
 				{ __( 'Generate image', 'jetpack' ) }
@@ -178,21 +212,32 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 						</div>
 					) : (
 						<div className="ai-assistant-featured-image__content">
-							{ error ? (
-								<div className="ai-assistant-featured-image__error">
-									{ __(
-										'An error occurred while generating the image. Please, try Again',
-										'jetpack'
-									) }
-									{ error?.message && (
-										<span className="ai-assistant-featured-image__error-message">
-											{ error?.message }
-										</span>
-									) }
-								</div>
-							) : (
-								<img className="ai-assistant-featured-image__image" src={ imageURL } alt="" />
-							) }
+							<div className="ai-assistant-featured-image__image-canvas">
+								{ error ? (
+									<div className="ai-assistant-featured-image__error">
+										{ __(
+											'An error occurred while generating the image. Please, try again!',
+											'jetpack'
+										) }
+										{ error?.message && (
+											<span className="ai-assistant-featured-image__error-message">
+												{ error?.message }
+											</span>
+										) }
+									</div>
+								) : (
+									<>
+										<img className="ai-assistant-featured-image__image" src={ imageURL } alt="" />
+										{ ! isUnlimited && featuredImageCost && requestsLimit && (
+											<UsageCounter
+												cost={ featuredImageCost }
+												currentLimit={ requestsLimit }
+												currentUsage={ requestsCount }
+											/>
+										) }
+									</>
+								) }
+							</div>
 							<div className="ai-assistant-featured-image__actions">
 								{ ! error && (
 									<Button
@@ -212,7 +257,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 									<Button
 										onClick={ handleRegenerate }
 										variant="secondary"
-										disabled={ isSavingToMediaLibrary }
+										disabled={ isSavingToMediaLibrary || notEnoughRequests }
 									>
 										{ __( 'Generate another image', 'jetpack' ) }
 									</Button>

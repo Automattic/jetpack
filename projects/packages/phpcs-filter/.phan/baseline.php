@@ -18,7 +18,6 @@ return [
     // PhanPluginLoopVariableReuse : 1 occurrence
     // PhanTypeArraySuspiciousNullable : 1 occurrence
     // PhanTypeMismatchReturnProbablyReal : 1 occurrence
-    // PhanUndeclaredClassMethod : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
@@ -36,7 +35,7 @@ return [
         'tests/fixtures/perdir/file.php' => ['PhanUndeclaredFunction'],
         'tests/fixtures/perdir/severity-to-0/file.php' => ['PhanUndeclaredFunction'],
         'tests/php/PhpcsFilterTest.php' => ['PhanPluginLoopVariableReuse', 'PhanPossiblyUndeclaredVariable'],
-        'tests/php/StdinBootstrapTest.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable', 'PhanUndeclaredClassMethod'],
+        'tests/php/StdinBootstrapTest.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

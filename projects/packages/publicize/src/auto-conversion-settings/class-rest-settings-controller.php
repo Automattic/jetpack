@@ -14,6 +14,8 @@ namespace Automattic\Jetpack\Publicize\Auto_Conversion;
 use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings as Jetpack_Social_Settings;
 use WP_Error;
 use WP_REST_Controller;
+use WP_REST_Request;
+use WP_REST_Response;
 use WP_REST_Server;
 
 /**

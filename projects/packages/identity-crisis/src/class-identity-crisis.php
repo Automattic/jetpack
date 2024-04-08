@@ -26,7 +26,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.18.2';
+	const PACKAGE_VERSION = '0.18.3-alpha';
 
 	/**
 	 * Package Slug
@@ -63,7 +63,7 @@ class Identity_Crisis {
 	/**
 	 * The current screen, which is set if the current user is a non-admin and this is an admin page.
 	 *
-	 * @var WP_Screen
+	 * @var \WP_Screen
 	 */
 	public static $current_screen;
 

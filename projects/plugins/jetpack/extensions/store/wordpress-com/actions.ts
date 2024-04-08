@@ -49,6 +49,7 @@ export function mapAiFeatureResponseToAiFeatureProps(
 		currentTier: response[ 'current-tier' ],
 		nextTier: response[ 'next-tier' ],
 		tierPlansEnabled: !! response[ 'tier-plans-enabled' ],
+		costs: response.costs,
 	};
 }
 
