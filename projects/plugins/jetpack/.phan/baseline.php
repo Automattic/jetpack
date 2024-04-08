@@ -11,7 +11,7 @@ return [
     // # Issue statistics:
     // PhanTypeMismatchArgument : 550+ occurrences
     // PhanUndeclaredMethod : 370+ occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 360+ occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 350+ occurrences
     // PhanUndeclaredClassMethod : 340+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 290+ occurrences
     // PhanUndeclaredFunction : 290+ occurrences
@@ -137,7 +137,7 @@ return [
         '3rd-party/qtranslate-x.php' => ['PhanTypeMismatchReturn'],
         '3rd-party/woocommerce.php' => ['PhanParamTooMany', 'PhanUndeclaredFunction'],
         '3rd-party/wpml.php' => ['PhanUndeclaredFunction'],
-        '_inc/blogging-prompts.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassMethod'],
+        '_inc/blogging-prompts.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgumentInternal', 'PhanUndeclaredClassMethod'],
         '_inc/class.jetpack-provision.php' => ['PhanAccessMethodInternal', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnNullable'],
         '_inc/genericons.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         '_inc/jetpack-server-sandbox.php' => ['PhanSuspiciousMagicConstant', 'PhanUndeclaredClassMethod'],
@@ -582,7 +582,6 @@ return [
         'modules/wordads/php/class-wordads-sidebar-widget.php' => ['PhanTypeExpectedObjectPropAccessButGotNull', 'PhanTypeMismatchArgument'],
         'modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php' => ['PhanPluginUseReturnValueInternalKnown'],
         'modules/wpcom-block-editor/functions.editor-type.php' => ['PhanUndeclaredFunction'],
-        'modules/wpcom-tos/wpcom-tos.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'sal/class.json-api-date.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanRedundantCondition', 'PhanTypeMismatchArgumentInternalProbablyReal'],
         'sal/class.json-api-links.php' => ['PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'sal/class.json-api-post-base.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanUndeclaredFunction'],

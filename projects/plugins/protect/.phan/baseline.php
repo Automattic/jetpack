@@ -12,7 +12,7 @@ return [
     // PhanPluginDuplicateConditionalNullCoalescing : 45+ occurrences
     // PhanParamTooMany : 6 occurrences
     // PhanTypeMismatchArgument : 5 occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 5 occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 4 occurrences
     // PhanTypeMismatchProperty : 2 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
     // PhanNoopNew : 1 occurrence
