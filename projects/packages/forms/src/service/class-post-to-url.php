@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Forms\Service;
 
+use WP_Error;
+
 /**
  * Class Post_To_Url
  *
@@ -165,8 +167,8 @@ class Post_To_Url {
 	 * Gather fields key/value pairs from the form
 	 * Sanitizes the hidden fields values
 	 *
-	 * @param Automattic\Jetpack\Forms\ContactForm\Contact_Form $form The form instance being processed/submitted.
-	 * @param array                                             $entry_values The feedback entry values.
+	 * @param \Automattic\Jetpack\Forms\ContactForm\Contact_Form $form The form instance being processed/submitted.
+	 * @param array                                              $entry_values The feedback entry values.
 	 */
 	private function get_form_data( $form, $entry_values ) {
 		$fields = array();

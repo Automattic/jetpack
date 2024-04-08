@@ -1332,7 +1332,7 @@ class Jetpack {
 	/**
 	 * Does the network allow admins to add new users.
 	 *
-	 * @return boolian
+	 * @return bool
 	 */
 	public static function network_add_new_users() {
 		return (bool) get_site_option( 'add_new_users' );
@@ -1341,7 +1341,7 @@ class Jetpack {
 	 * File upload psace left per site in MB.
 	 *  -1 means NO LIMIT.
 	 *
-	 * @return number
+	 * @return int
 	 */
 	public static function network_site_upload_space() {
 		// value in MB.
@@ -1360,7 +1360,7 @@ class Jetpack {
 	/**
 	 * Maximum file upload size set by the network.
 	 *
-	 * @return number
+	 * @return int
 	 */
 	public static function network_max_upload_file_size() {
 		// value in KB.

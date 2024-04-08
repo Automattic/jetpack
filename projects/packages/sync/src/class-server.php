@@ -19,7 +19,7 @@ class Server {
 	 *
 	 * @access private
 	 *
-	 * @var Automattic\Jetpack\Sync\Codec_Interface
+	 * @var \Automattic\Jetpack\Sync\Codec_Interface
 	 */
 	private $codec;
 

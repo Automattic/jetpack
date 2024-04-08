@@ -365,7 +365,7 @@ class Site_Logo {
 	/**
 	 * Sanitize our header text Customizer setting.
 	 *
-	 * @param any $input The input value to sanitize.
+	 * @param mixed $input The input value to sanitize.
 	 * @return bool|string 1 if checked, empty string if not checked.
 	 */
 	public function sanitize_checkbox( $input ) {
@@ -375,7 +375,7 @@ class Site_Logo {
 	/**
 	 * Validate and sanitize a new site logo setting.
 	 *
-	 * @param any $input Logo setting value to sanitize.
+	 * @param mixed $input Logo setting value to sanitize.
 	 * @return int Attachment post ID, or 0 if invalid.
 	 */
 	public function sanitize_logo_setting( $input ) {

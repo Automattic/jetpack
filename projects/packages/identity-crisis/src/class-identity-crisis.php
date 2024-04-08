@@ -63,7 +63,7 @@ class Identity_Crisis {
 	/**
 	 * The current screen, which is set if the current user is a non-admin and this is an admin page.
 	 *
-	 * @var WP_Screen
+	 * @var \WP_Screen
 	 */
 	public static $current_screen;
 

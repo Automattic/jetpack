@@ -28,7 +28,7 @@ class Authorize_Redirect {
 	/**
 	 * Constructs the object
 	 *
-	 * @param Automattic\Jetpack\Connection\Manager $connection The Connection Manager object.
+	 * @param \Automattic\Jetpack\Connection\Manager $connection The Connection Manager object.
 	 */
 	public function __construct( $connection ) {
 		$this->connection = $connection;

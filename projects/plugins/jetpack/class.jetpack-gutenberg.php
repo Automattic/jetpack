@@ -928,7 +928,7 @@ class Jetpack_Gutenberg {
 	 *
 	 * @since 8.1.0
 	 *
-	 * @param obj    $preset_extensions_manifest List of extensions available in Jetpack.
+	 * @param object $preset_extensions_manifest List of extensions available in Jetpack.
 	 * @param string $blocks_variation           Subset of blocks. production|beta|experimental.
 	 *
 	 * @return array $preset_extensions Array of extensions for that variation
