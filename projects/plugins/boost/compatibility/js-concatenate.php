@@ -6,7 +6,9 @@ namespace Automattic\Jetpack_Boost\Compatibility\JS_Concatenate;
 
 function maybe_do_not_concat( $do_concat, $handle ) {
 	$excluded_handles = array(
-		'tribe-tickets-block', // Plugin: `event-tickets`
+		// Plugin: `event-tickets`
+		'tribe-tickets-block',
+		'tribe-tickets-provider',
 	);
 
 	if ( in_array( $handle, $excluded_handles, true ) ) {
