@@ -8,6 +8,8 @@
 
 namespace Jetpack\EditorType;
 
+use WP_Block_Editor_Context;
+
 /**
  * Remember when the classic editor was used to edit a post.
  *

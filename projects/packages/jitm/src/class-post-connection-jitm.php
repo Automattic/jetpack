@@ -27,7 +27,7 @@ class Post_Connection_JITM extends JITM {
 	/**
 	 * Tracking object.
 	 *
-	 * @var Automattic\Jetpack\Tracking
+	 * @var \Automattic\Jetpack\Tracking
 	 *
 	 * @access private
 	 */

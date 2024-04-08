@@ -278,7 +278,7 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 	/**
 	 * Deletes the WP_CACHE define from wp-config.php
 	 *
-	 * @return WP_Error if an error occurred.
+	 * @return \WP_Error if an error occurred.
 	 */
 	public static function delete_wp_cache_constant() {
 		$config_file = self::find_wp_config();

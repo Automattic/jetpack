@@ -13,6 +13,8 @@ use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Status\Visitor;
 use Jetpack_Options;
 use WP_Error;
+use WP_REST_Request;
+use WP_REST_Response;
 
 /**
  * Class Endpoints.

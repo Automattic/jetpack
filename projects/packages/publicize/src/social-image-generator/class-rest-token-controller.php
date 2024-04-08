@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Publicize\Social_Image_Generator;
 
 use WP_Error;
 use WP_REST_Controller;
+use WP_REST_Request;
 use WP_REST_Server;
 
 /**
@@ -38,7 +39,7 @@ class REST_Token_Controller extends WP_REST_Controller {
 	/**
 	 * Passes the request parameters to the WPCOM endpoint to generate a preview image token.
 	 *
-	 * @param WP_Request $request The request object, which includes the parameters.
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
 	 * @return array|WP_Error The token or an error.
 	 */
 	public function generate_preview_token( $request ) {

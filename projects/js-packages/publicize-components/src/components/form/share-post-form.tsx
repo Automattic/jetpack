@@ -23,7 +23,7 @@ export const SharePostForm: React.FC = () => {
 	const mediaId = attachedMedia[ 0 ]?.id || featuredImageId;
 	const socialPostDisabled = ! mediaId && ! isSocialImageGeneratorEnabledForPost;
 
-	return isJetpackSocialNote ? (
+	return isJetpackSocialNote && isEnhancedPublishingEnabled ? (
 		<SocialPostControl disabled={ socialPostDisabled } isCustomMediaAvailable={ false } />
 	) : (
 		<>

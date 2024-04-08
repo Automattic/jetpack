@@ -25,4 +25,9 @@ export type SiteAIAssistantFeatureEndpointResponseProps = {
 	'current-tier': TierProp;
 	'tier-plans': Array< TierProp >;
 	'next-tier'?: TierProp | null;
+	costs?: {
+		[ key: string ]: {
+			[ key: string ]: number;
+		};
+	};
 };
