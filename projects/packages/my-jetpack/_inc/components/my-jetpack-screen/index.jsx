@@ -98,6 +98,8 @@ export default function MyJetpackScreen() {
 	const { recordEvent } = useAnalytics();
 	const [ reloading, setReloading ] = useState( false );
 
+	// useLayoutEffect gets called before useEffect.
+	// We are using it here to ensure the `page_view` event gets triggered first.
 	useLayoutEffect( () => {
 		recordEvent( 'jetpack_myjetpack_page_view', {
 			red_bubble_alerts: Object.keys( redBubbleAlerts ).join( ',' ),
