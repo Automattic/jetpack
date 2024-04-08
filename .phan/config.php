@@ -19,7 +19,7 @@ $pseudoProjects = json_decode( preg_replace( '#^\s*\/\/.*#m', '', file_get_conte
 $config = make_phan_config(
 	dirname( __DIR__ ),
 	array(
-		'is_wordpress'       => false,
+		'stubs'              => array(),
 		'exclude_file_regex' => array_merge(
 			array(
 				// For the monorepo itself, we want to exclude all the projects. Those are processed individually instead.

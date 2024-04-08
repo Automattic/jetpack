@@ -7,6 +7,8 @@
  */
 
 // @phpcs:disable WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- This is not WordPress
+// @phpcs:disable WordPress.WP.CapitalPDangit.MisspelledInComment -- It's filename constants.
+// @phpcs:disable WordPress.WP.CapitalPDangit.MisspelledInText -- It's filename constants.
 
 /**
  * Create a Phan configuration.
@@ -14,30 +16,57 @@
  * @param string $dir Project directory.
  * @param array  $options Additional options.
  *   - directory_list: (array) Directories to scan, rather than scanning the whole project.
- *   - file_list: (array) Additional individual files to scan.
- *   - is_wordpress: (bool) Set false to not include WordPress stubs and other WordPress-specific configuration.
- *   - exclude_file_regex: (array) Additional regexes to exclude. Will be anchored at the start.
- *   - exclude_file_list: (array) Individual files to exclude.
  *   - exclude_analysis_directory_list: (array) Directories to exclude from analysis.
+ *   - exclude_file_list: (array) Individual files to exclude.
+ *   - exclude_file_regex: (array) Additional regexes to exclude. Will be anchored at the start.
+ *   - file_list: (array) Additional individual files to scan.
+ *   - parse_file_list: (array) Files to parse but not analyze. Equivalent to listing in both 'file_list' and 'exclude_analysis_directory_list'.
+ *   - stubs: (array) Predefined stubs to load. Default is `array( 'wordpress', 'wp-cli', 'wpcom' )`.
+ *      - wordpress: Stubs from php-stubs/wordpress-stubs, php-stubs/wordpress-tests-stubs, php-stubs/wp-cli-stubs, and .phan/stubs/wordpress-constants.php.
+ *      - wp-cli: Stubs from php-stubs/wp-cli-stubs.
+ *      - wpcom: Stubs from .phan/stubs/wpcom-stubs.php.
+ *   - +stubs: (array) Like 'stubs', but setting this does not clear the defaults.
  *   - suppress_issue_types: (array) Issues to suppress for the entire project.
  *   - unsuppress_issue_types: (array) Default-suppressed issues to unsuppress for the project.
- *   - parse_file_list: (array) Files to parse but not analyze. Equivalent to listing in both 'file_list' and 'exclude_analysis_directory_list'.
  * @return array Phan config.
+ * @throws InvalidArgumentException If something is detected as invalid.
  */
 function make_phan_config( $dir, $options = array() ) {
 	$options += array(
 		'directory_list'                  => array( '.' ),
-		'file_list'                       => array(),
-		'is_wordpress'                    => true,
 		'exclude_analysis_directory_list' => array(),
-		'exclude_file_regex'              => array(),
 		'exclude_file_list'               => array(),
+		'exclude_file_regex'              => array(),
+		'file_list'                       => array(),
 		'parse_file_list'                 => array(),
+		'stubs'                           => array( 'wordpress', 'wp-cli', 'wpcom' ),
+		'+stubs'                          => array(),
 		'suppress_issue_types'            => array(),
 		'unsuppress_issue_types'          => array(),
 	);
 
 	$root = dirname( __DIR__ );
+
+	$stubs = array();
+	foreach ( array_merge( $options['stubs'], $options['+stubs'] ) as $stub ) {
+		switch ( $stub ) {
+			case 'wordpress':
+				$stubs[] = "$root/vendor/php-stubs/wordpress-stubs/wordpress-stubs.php";
+				$stubs[] = "$root/vendor/php-stubs/wordpress-tests-stubs/wordpress-tests-stubs.php";
+				$stubs[] = "$root/.phan/stubs/wordpress-constants.php";
+				break;
+			case 'wp-cli':
+				$stubs[] = "$root/vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php";
+				$stubs[] = "$root/vendor/php-stubs/wp-cli-stubs/wp-cli-commands-stubs.php";
+				$stubs[] = "$root/vendor/php-stubs/wp-cli-stubs/wp-cli-i18n-stubs.php";
+				break;
+			case 'wpcom':
+				$stubs[] = "$root/.phan/stubs/wpcom-stubs.php";
+				break;
+			default:
+				throw new InvalidArgumentException( "Unknown stub '$stub'" );
+		}
+	}
 
 	$config = array(
 		// Apparently this is only useful when upgrading from php 5, not for 7-to-8.
@@ -88,15 +117,7 @@ function make_phan_config( $dir, $options = array() ) {
 				// Otherwise it complains about the config files trying to call this function. 😀
 				__FILE__,
 			),
-			$options['is_wordpress'] ? array(
-				"$root/vendor/php-stubs/wordpress-stubs/wordpress-stubs.php",
-				"$root/vendor/php-stubs/wordpress-tests-stubs/wordpress-tests-stubs.php",
-				"$root/vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php",
-				"$root/vendor/php-stubs/wp-cli-stubs/wp-cli-commands-stubs.php",
-				"$root/vendor/php-stubs/wp-cli-stubs/wp-cli-i18n-stubs.php",
-				"$root/.phan/stubs/wordpress-constants.php",
-				"$root/.phan/stubs/wpcom-functions.php",
-			) : array(),
+			$stubs,
 			$options['file_list'],
 			$options['parse_file_list']
 		),
