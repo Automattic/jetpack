@@ -1218,8 +1218,8 @@ importers:
         specifier: 7.24.0
         version: 7.24.0
       '@playwright/test':
-        specifier: 1.39.0
-        version: 1.39.0
+        specifier: 1.43.0
+        version: 1.43.0
       '@storybook/addon-a11y':
         specifier: 8.0.6
         version: 8.0.6
@@ -2013,8 +2013,8 @@ importers:
         specifier: 7.23.3
         version: 7.23.3(@babel/core@7.24.0)
       '@playwright/test':
-        specifier: 1.39.0
-        version: 1.39.0
+        specifier: 1.43.0
+        version: 1.43.0
       '@types/node':
         specifier: ^20.4.2
         version: 20.12.4
@@ -2931,8 +2931,8 @@ importers:
   projects/plugins/automattic-for-agencies-client/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.39.0
-        version: 1.39.0
+        specifier: 1.43.0
+        version: 1.43.0
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -3070,8 +3070,8 @@ importers:
   projects/plugins/boost/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.39.0
-        version: 1.39.0
+        specifier: 1.43.0
+        version: 1.43.0
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -3614,8 +3614,8 @@ importers:
   projects/plugins/jetpack/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.39.0
-        version: 1.39.0
+        specifier: 1.43.0
+        version: 1.43.0
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -3705,8 +3705,8 @@ importers:
   projects/plugins/migration/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.39.0
-        version: 1.39.0
+        specifier: 1.43.0
+        version: 1.43.0
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -3818,8 +3818,8 @@ importers:
   projects/plugins/search/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.39.0
-        version: 1.39.0
+        specifier: 1.43.0
+        version: 1.43.0
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -3954,8 +3954,8 @@ importers:
   projects/plugins/social/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.39.0
-        version: 1.39.0
+        specifier: 1.43.0
+        version: 1.43.0
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -4045,8 +4045,8 @@ importers:
   projects/plugins/starter-plugin/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.39.0
-        version: 1.39.0
+        specifier: 1.43.0
+        version: 1.43.0
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -4150,8 +4150,8 @@ importers:
   projects/plugins/videopress/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.39.0
-        version: 1.39.0
+        specifier: 1.43.0
+        version: 1.43.0
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -4247,8 +4247,8 @@ importers:
   tools/e2e-commons:
     devDependencies:
       '@playwright/test':
-        specifier: 1.39.0
-        version: 1.39.0
+        specifier: 1.43.0
+        version: 1.43.0
       '@slack/web-api':
         specifier: 6.10.0
         version: 6.10.0
@@ -7064,12 +7064,12 @@ packages:
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
     dev: true
 
-  /@playwright/test@1.39.0:
-    resolution: {integrity: sha512-3u1iFqgzl7zr004bGPYiN/5EZpRUSFddQBra8Rqll5N0/vfpqlP9I9EXqAoGacuAbX6c9Ulg/Cjqglp5VkK6UQ==}
+  /@playwright/test@1.43.0:
+    resolution: {integrity: sha512-Ebw0+MCqoYflop7wVKj711ccbNlrwTBCtjY5rlbiY9kHL2bCYxq+qltK6uPsVBGGAOb033H2VO0YobcQVxoW7Q==}
     engines: {node: '>=16'}
     hasBin: true
     dependencies:
-      playwright: 1.39.0
+      playwright: 1.43.0
     dev: true
 
   /@preact/signals-core@1.6.0:
@@ -8562,7 +8562,7 @@ packages:
       jest-runner: 29.7.0
       jest-serializer-html: 7.1.0
       jest-watch-typeahead: 2.2.2(jest@29.7.0)
-      playwright: 1.39.0
+      playwright: 1.43.0
       semver: 7.5.2
     transitivePeerDependencies:
       - '@swc/helpers'
@@ -17017,7 +17017,7 @@ packages:
       jest-process-manager: 0.4.0
       jest-runner: 29.7.0
       nyc: 15.1.0
-      playwright-core: 1.39.0
+      playwright-core: 1.43.0
       rimraf: 3.0.2
       uuid: 8.3.2
     transitivePeerDependencies:
@@ -19262,18 +19262,18 @@ packages:
       find-up: 6.3.0
     dev: true
 
-  /playwright-core@1.39.0:
-    resolution: {integrity: sha512-+k4pdZgs1qiM+OUkSjx96YiKsXsmb59evFoqv8SKO067qBA+Z2s/dCzJij/ZhdQcs2zlTAgRKfeiiLm8PQ2qvw==}
+  /playwright-core@1.43.0:
+    resolution: {integrity: sha512-iWFjyBUH97+pUFiyTqSLd8cDMMOS0r2ZYz2qEsPjH8/bX++sbIJT35MSwKnp1r/OQBAqC5XO99xFbJ9XClhf4w==}
     engines: {node: '>=16'}
     hasBin: true
     dev: true
 
-  /playwright@1.39.0:
-    resolution: {integrity: sha512-naE5QT11uC/Oiq0BwZ50gDmy8c8WLPRTEWuSSFVG2egBka/1qMoSqYQcROMT9zLwJ86oPofcTH2jBY/5wWOgIw==}
+  /playwright@1.43.0:
+    resolution: {integrity: sha512-SiOKHbVjTSf6wHuGCbqrEyzlm6qvXcv7mENP+OZon1I07brfZLGdfWV0l/efAzVx7TF3Z45ov1gPEkku9q25YQ==}
     engines: {node: '>=16'}
     hasBin: true
     dependencies:
-      playwright-core: 1.39.0
+      playwright-core: 1.43.0
     optionalDependencies:
       fsevents: 2.3.2
     dev: true
