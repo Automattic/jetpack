@@ -22,14 +22,14 @@ class Dashboard {
 	/**
 	 * Connection manager instance
 	 *
-	 * @var Automattic\Jetpack\Connection\Manager
+	 * @var \Automattic\Jetpack\Connection\Manager
 	 */
 	protected $connection_manager;
 
 	/**
 	 * Contructor
 	 *
-	 * @param Automattic\Jetpack\Connection\Manager $connection_manager - Connection Manager instance.
+	 * @param \Automattic\Jetpack\Connection\Manager $connection_manager - Connection Manager instance.
 	 */
 	public function __construct( $connection_manager = null ) {
 		$this->connection_manager = $connection_manager ? $connection_manager : new Connection_Manager( Package::SLUG );

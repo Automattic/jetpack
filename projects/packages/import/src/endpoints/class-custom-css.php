@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Import\Endpoints;
 
+use WP_Error;
+use WP_REST_Request;
+use WP_REST_Response;
+
 require_once ABSPATH . 'wp-includes/theme.php';
 
 /**

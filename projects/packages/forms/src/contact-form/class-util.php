@@ -193,9 +193,9 @@ class Util {
 	/**
 	 * Sets the 'widget' attribute on all instances of the contact form in the widget block.
 	 *
-	 * @param string          $content  Existing widget block content.
-	 * @param array           $instance Array of settings for the current widget.
-	 * @param WP_Widget_Block $widget   Current Block widget instance.
+	 * @param string           $content  Existing widget block content.
+	 * @param array            $instance Array of settings for the current widget.
+	 * @param \WP_Widget_Block $widget   Current Block widget instance.
 	 * @return string
 	 */
 	public static function grunion_contact_form_filter_widget_block_content( $content, $instance, $widget ) {

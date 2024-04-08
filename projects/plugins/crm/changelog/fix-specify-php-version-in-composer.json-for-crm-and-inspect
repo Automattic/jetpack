@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Specify minimum PHP version in composer.json. Should be no change to functionality.
-
-

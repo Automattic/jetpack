@@ -11,7 +11,7 @@ return [
     // # Issue statistics:
     // PhanUndeclaredProperty : 30+ occurrences
     // PhanTypeMismatchArgument : 10+ occurrences
-    // PhanUndeclaredClassMethod : 10+ occurrences
+    // PhanUndeclaredClassMethod : 9 occurrences
     // PhanPossiblyUndeclaredVariable : 7 occurrences
     // PhanParamSignatureMismatch : 6 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 6 occurrences
@@ -24,7 +24,6 @@ return [
     // PhanNonClassMethodCall : 2 occurrences
     // PhanPluginDuplicateCatchStatementBody : 2 occurrences
     // PhanTypeMismatchDeclaredParam : 2 occurrences
-    // PhanUndeclaredClassCatch : 2 occurrences
     // PhanUndeclaredClassStaticProperty : 2 occurrences
     // PhanUnextractableAnnotationElementName : 2 occurrences
     // PhanUnextractableAnnotationSuffix : 2 occurrences
@@ -36,8 +35,8 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'data/example-external.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassStaticProperty', 'PhanUndeclaredFunction'],
-        'scripts/core-calls.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchDeclaredParam', 'PhanUndeclaredClassCatch', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
-        'scripts/core-definitions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchDeclaredParam', 'PhanUndeclaredClassCatch', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
+        'scripts/core-calls.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchDeclaredParam', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
+        'scripts/core-definitions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchDeclaredParam', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
         'scripts/example.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'scripts/jetpack-slurper.php' => ['PhanDeprecatedEncapsVar'],
         'scripts/jetpack-svn.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
@@ -55,7 +54,7 @@ return [
         'src/api/class-controller.php' => ['PhanUndeclaredMethod'],
         'src/api/class-model.php' => ['PhanTypeArraySuspiciousNullable'],
         'src/api/class-plugin-downloader.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanUndeclaredProperty'],
-        'src/class-declarations.php' => ['PhanPluginDuplicateCatchStatementBody', 'PhanUndeclaredClassMethod'],
+        'src/class-declarations.php' => ['PhanPluginDuplicateCatchStatementBody'],
         'src/class-differences.php' => ['PhanNonClassMethodCall', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentNullable'],
         'src/class-invocations.php' => ['PhanPluginDuplicateCatchStatementBody'],
         'src/class-utils.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredClassMethod', 'PhanUndeclaredMethod', 'PhanUndeclaredProperty', 'PhanUndeclaredTypeParameter', 'PhanUnextractableAnnotationElementName', 'PhanUnextractableAnnotationSuffix'],

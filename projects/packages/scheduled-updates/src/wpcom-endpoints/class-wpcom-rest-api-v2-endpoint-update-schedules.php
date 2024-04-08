@@ -548,6 +548,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			update_option( 'auto_update_plugins', $auto_update_plugins );
 		}
 
+		// Delete logs
+		Scheduled_Updates_Logs::clear( $request['schedule_id'], true );
+
 		return rest_ensure_response( true );
 	}
 

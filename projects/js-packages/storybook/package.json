@@ -25,7 +25,7 @@
 		"@babel/plugin-syntax-jsx": "7.23.3",
 		"@babel/preset-react": "7.23.3",
 		"@babel/runtime": "7.24.0",
-		"@playwright/test": "1.39.0",
+		"@playwright/test": "1.43.0",
 		"@storybook/addon-a11y": "8.0.6",
 		"@storybook/addon-docs": "8.0.6",
 		"@storybook/addon-essentials": "8.0.6",
