@@ -3,123 +3,140 @@
  */
 import { useCallback, useRef } from '@wordpress/element';
 import debugFactory from 'debug';
+import { useEffect } from 'react';
 
 const debug = debugFactory( 'jetpack-ai-assistant:use-auto-scroll' );
+
 const useAutoScroll = (
 	blockRef: React.MutableRefObject< HTMLDivElement >,
 	contentRef: React.MutableRefObject< HTMLDivElement >
 ) => {
-	const scrollElementRef = useRef( null );
+	const scrollElementRef = useRef< HTMLElement | Document | null >( null );
+	const styledScrollElementRef = useRef< HTMLElement | null >( null );
 	const autoScrollEnabled = useRef( false );
 	const ignoreScroll = useRef( false );
+	const startedAutoScroll = useRef( false );
+	const doingAutoScroll = useRef( false );
+	const scrollElementOriginalStyle = useRef< { scrollPadding: string; scrollMargin: string } >( {
+		scrollPadding: '',
+		scrollMargin: '',
+	} );
 
-	const getScrollParent = useCallback( element => {
-		// if we have it on ref already, don't scavenge the dom, just return it
-		if ( scrollElementRef.current ) {
-			return scrollElementRef.current;
-		}
-
-		if ( element == null ) {
-			return null;
-		}
-
-		let parent = element.parentElement;
-		while ( parent ) {
-			const { overflow } = window.getComputedStyle( parent );
-			if ( overflow.split( ' ' ).every( o => o === 'auto' || o === 'scroll' ) ) {
-				return parent;
-			}
-			parent = parent.parentElement;
-		}
-
-		return document.documentElement;
+	const enableIgnoreScroll = useCallback( () => {
+		debug( 'enabling ignore scroll' );
+		ignoreScroll.current = true;
 	}, [] );
 
 	const userScrollHandler = useCallback( () => {
-		if ( ignoreScroll.current ) {
-			debug( 'scroll event skipped' );
-			return;
+		if ( autoScrollEnabled.current && startedAutoScroll.current && ! ignoreScroll.current ) {
+			enableIgnoreScroll();
 		}
-		debug( 'user scrolled, disabling auto' );
-		// as the user scrolls, disable auto scroll
-		// Note: need to dupe disableAutoScroll as both callbacks cannot depend on each other
-		autoScrollEnabled.current = false;
-		ignoreScroll.current = false;
-		scrollElementRef.current?.removeEventListener( 'scroll', userScrollHandler );
-		scrollElementRef.current = null;
-	}, [] );
+	}, [ enableIgnoreScroll ] );
 
 	const enableAutoScroll = useCallback( () => {
 		autoScrollEnabled.current = true;
-		ignoreScroll.current = true;
-		scrollElementRef.current = getScrollParent( blockRef.current );
+		ignoreScroll.current = false;
+		startedAutoScroll.current = false;
+		doingAutoScroll.current = false;
 		scrollElementRef.current?.addEventListener( 'scroll', userScrollHandler );
 		debug( 'enabling auto scroll' );
-		debug( scrollElementRef.current );
-		debug( contentRef.current );
-	}, [ getScrollParent, blockRef, userScrollHandler, contentRef ] );
+	}, [ userScrollHandler ] );
 
 	const disableAutoScroll = useCallback( () => {
 		autoScrollEnabled.current = false;
 		ignoreScroll.current = false;
+		startedAutoScroll.current = false;
+		doingAutoScroll.current = false;
 		scrollElementRef.current?.removeEventListener( 'scroll', userScrollHandler );
+
+		// Reset scroll padding and margin
+		if ( styledScrollElementRef.current?.style ) {
+			styledScrollElementRef.current.style.scrollPadding =
+				scrollElementOriginalStyle.current.scrollPadding;
+			styledScrollElementRef.current.style.scrollMargin =
+				scrollElementOriginalStyle.current.scrollMargin;
+		}
+
 		scrollElementRef.current = null;
 		debug( 'disabling auto scroll' );
 	}, [ userScrollHandler ] );
 
-	const preSuggestionPartialHandler = useCallback( () => {
-		// bail early if we're not in auto scroll mode
-		if ( ! autoScrollEnabled.current ) {
+	const snapToBottom = useCallback( () => {
+		if ( ! autoScrollEnabled.current || ignoreScroll.current ) {
 			return;
 		}
 
-		ignoreScroll.current = true;
-	}, [] );
+		const lastParagraph = contentRef?.current?.firstElementChild?.lastElementChild;
 
-	const snapToBottom = useCallback(
-		( extraOffset = 0 ) => {
-			const bounds = contentRef.current?.getBoundingClientRect();
-			const offset =
-				( blockRef?.current?.lastChild instanceof HTMLElement
-					? blockRef.current.lastChild.clientHeight
-					: 80 ) + 40;
+		if ( lastParagraph && ! doingAutoScroll.current ) {
+			startedAutoScroll.current = true;
+			doingAutoScroll.current = true;
 
-			if ( bounds?.bottom > window.innerHeight - offset || bounds?.top < 0 ) {
-				scrollElementRef.current?.scrollBy(
-					0,
-					contentRef.current?.getBoundingClientRect().bottom -
-						window.innerHeight +
-						offset +
-						extraOffset
-				);
+			scrollElementRef?.current?.removeEventListener?.( 'scroll', userScrollHandler );
+			lastParagraph?.scrollIntoView( { block: 'end', inline: 'end' } );
+
+			setTimeout( () => {
+				doingAutoScroll.current = false;
+				scrollElementRef?.current?.addEventListener?.( 'scroll', userScrollHandler );
+			}, 200 );
+		}
+	}, [ contentRef, userScrollHandler ] );
+
+	const getScrollParent = useCallback(
+		( el: HTMLElement | null ): HTMLElement | Document | null => {
+			if ( el == null ) {
+				return null;
 			}
+
+			// If we arrived to the body, we should stop since it's the last event handler
+			if ( el?.nodeName === 'BODY' ) {
+				return el;
+			}
+
+			// Gutenberg on newest version run inside iframe, on that case the scroll parent is the iframe
+			if ( el?.ownerDocument !== document ) {
+				return el.ownerDocument;
+			}
+
+			const { overflow } = window.getComputedStyle( el );
+
+			if ( overflow.split( ' ' ).every( o => o === 'auto' || o === 'scroll' ) ) {
+				return el;
+			}
+
+			if ( ! el?.parentElement ) {
+				return el;
+			}
+
+			return getScrollParent( el?.parentElement );
 		},
-		[ blockRef, contentRef ]
+		[]
 	);
 
-	const postSuggestionPartialHandler = useCallback( () => {
-		// bail early if we're not in auto scroll mode
-		if ( ! autoScrollEnabled.current ) {
-			return;
+	useEffect( () => {
+		const parent = getScrollParent( blockRef?.current?.parentElement );
+
+		if ( ! scrollElementRef.current && parent ) {
+			scrollElementRef.current = parent;
+			styledScrollElementRef.current =
+				parent instanceof HTMLElement ? parent : parent.documentElement;
+
+			// Save the original scroll padding and margin
+			scrollElementOriginalStyle.current = {
+				scrollPadding: styledScrollElementRef.current.style.scrollPadding,
+				scrollMargin: styledScrollElementRef.current.style.scrollMargin,
+			};
+
+			// Add scroll padding and margin to avoid the content to be hidden by the fixed input bar
+			styledScrollElementRef.current.style.scrollPadding = '80px';
+			styledScrollElementRef.current.style.scrollMargin = '10px';
 		}
-
-		// do the auto scroll
-		snapToBottom();
-
-		// this setTimeout here because setting the flag to skip the user scroll event
-		// would get into a race condition with the event handler
-		setTimeout( () => {
-			ignoreScroll.current = false;
-		}, 100 );
-	}, [ snapToBottom ] );
+	}, [ blockRef, getScrollParent ] );
 
 	return {
-		autoScrollEnabled,
 		snapToBottom,
 		enableAutoScroll,
 		disableAutoScroll,
-		preSuggestionPartialHandler,
-		postSuggestionPartialHandler,
 	};
 };
 
