@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Data Tools: Cleanup of page logic. [#36273]
 - Invoices: Display full statements with long invoice lists.
-  Invoices: Enhanced the PDF generation for statements. [#36713]
+- Invoices: Enhanced the PDF generation for statements. [#36713]
 - Listviews: Status filters are now case-sensitive. [#36232]
 - PDF: Improved font reinstallation. [#36704]
 - Permissions: Allow users assigned to contacts to view linked objects even if assign ownership is unchecked. [#36239]
