@@ -54,7 +54,6 @@ const GlobalNotice = ( { message, options } ) => {
 		<div
 			className={ classnames( styles.notice, {
 				[ styles[ 'bigger-than-medium' ] ]: isBiggerThanMedium,
-				[ styles[ 'is-red-bubble' ] ]: options.isRedBubble,
 			} ) }
 		>
 			<Notice hideCloseButton={ true } { ...options } actions={ actionButtons }>

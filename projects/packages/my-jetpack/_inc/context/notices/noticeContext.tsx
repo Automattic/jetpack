@@ -6,7 +6,6 @@ const defaultNotice: Notice = {
 	options: {
 		level: '',
 		priority: 0,
-		isRedBubble: false,
 	},
 };
 
