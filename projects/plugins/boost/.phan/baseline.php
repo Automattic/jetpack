@@ -29,7 +29,6 @@ return [
     // PhanUndeclaredClassConstant : 3 occurrences
     // PhanNoopNew : 2 occurrences
     // PhanRedundantCondition : 2 occurrences
-    // PhanUndeclaredFunctionInCallable : 2 occurrences
     // PhanUndeclaredMethodInCallable : 2 occurrences
     // PhanUndeclaredStaticMethod : 2 occurrences
     // PhanCoalescingNeverNull : 1 occurrence
@@ -51,6 +50,7 @@ return [
     // PhanUndeclaredClassInCallable : 1 occurrence
     // PhanUndeclaredClassReference : 1 occurrence
     // PhanUndeclaredConstantOfClass : 1 occurrence
+    // PhanUndeclaredFunctionInCallable : 1 occurrence
     // PhanUndeclaredMethod : 1 occurrence
     // PhanUndeclaredTypeParameter : 1 occurrence
     // PhanUndeclaredTypeProperty : 1 occurrence
@@ -111,7 +111,7 @@ return [
         'compatibility/page-optimize.php' => ['PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable'],
         'compatibility/score-prompt.php' => ['PhanImpossibleTypeComparisonInGlobalScope', 'PhanTypeComparisonToArray'],
         'compatibility/web-stories.php' => ['PhanUndeclaredClassConstant'],
-        'compatibility/woocommerce.php' => ['PhanTypeArraySuspicious', 'PhanUndeclaredFunctionInCallable'],
+        'compatibility/woocommerce.php' => ['PhanTypeArraySuspicious'],
         'compatibility/wp-super-cache.php' => ['PhanUndeclaredFunction'],
         'jetpack-boost.php' => ['PhanNoopNew'],
         'tests/bootstrap.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturnProbablyReal'],
