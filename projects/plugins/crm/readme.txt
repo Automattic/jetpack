@@ -371,7 +371,7 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 #### Fixed
 - Data Tools: Cleanup of page logic.
 - Invoices: Display full statements with long invoice lists.
-  Invoices: Enhanced the PDF generation for statements.
+- Invoices: Enhanced the PDF generation for statements.
 - Listviews: Status filters are now case-sensitive.
 - PDF: Improved font reinstallation.
 - Permissions: Allow users assigned to contacts to view linked objects even if assign ownership is unchecked.
