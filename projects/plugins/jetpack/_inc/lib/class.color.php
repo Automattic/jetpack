@@ -93,19 +93,16 @@ class Jetpack_Color {
 		if ( $red < 0 || $red > 255 ) {
 			throw new RangeException( 'Red value ' . $red . ' out of valid color code range' );
 		}
-		$red = intval( $red );
 
 		if ( $green < 0 || $green > 255 ) {
 			throw new RangeException( 'Green value ' . $green . ' out of valid color code range' );
 		}
-		$green = intval( $green );
 
 		if ( $blue < 0 || $blue > 255 ) {
 			throw new RangeException( 'Blue value ' . $blue . ' out of valid color code range' );
 		}
-		$blue = intval( $blue );
 
-		$this->color = ( $red << 16 ) + ( $green << 8 ) + $blue;
+		$this->color = ( intval( $red ) << 16 ) + ( intval( $green ) << 8 ) + intval( $blue );
 
 		return $this;
 	}
