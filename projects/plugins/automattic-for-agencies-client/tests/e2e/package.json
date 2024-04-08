@@ -1,5 +1,4 @@
 {
-	"name": "jetpack-starter-e2e-tests",
 	"private": true,
 	"type": "module",
 	"description": "Easily connect your clients sites to the Automattic for Agencies portal and enable portal features like plugin updates, downtime monitoring, and more..",

@@ -1,5 +1,4 @@
 {
-	"name": "wpcom-migration-e2e-tests",
 	"private": true,
 	"type": "module",
 	"description": "A WordPress plugin that helps users to migrate their sites to WordPress.com.",
