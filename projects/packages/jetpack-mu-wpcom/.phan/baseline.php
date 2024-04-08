@@ -11,7 +11,7 @@ return [
     // # Issue statistics:
     // PhanUndeclaredFunction : 65+ occurrences
     // PhanUndeclaredClassMethod : 60+ occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 55+ occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 50+ occurrences
     // PhanTypeMismatchArgument : 40+ occurrences
     // PhanTypeArraySuspicious : 30+ occurrences
     // PhanUndeclaredTypeParameter : 15+ occurrences
@@ -21,11 +21,11 @@ return [
     // PhanUndeclaredClassConstant : 8 occurrences
     // PhanTypeMismatchReturn : 7 occurrences
     // PhanTypeMismatchReturnProbablyReal : 7 occurrences
+    // PhanUndeclaredConstant : 5 occurrences
     // PhanUndeclaredTypeProperty : 4 occurrences
     // PhanNoopNew : 3 occurrences
     // PhanUndeclaredClassInCallable : 3 occurrences
     // PhanUndeclaredClassReference : 3 occurrences
-    // PhanUndeclaredConstant : 3 occurrences
     // PhanEmptyFQSENInCallable : 2 occurrences
     // PhanParamTooMany : 2 occurrences
     // PhanTypeMismatchArgumentInternal : 2 occurrences
@@ -34,12 +34,10 @@ return [
     // PhanImpossibleTypeComparison : 1 occurrence
     // PhanNonClassMethodCall : 1 occurrence
     // PhanNoopArrayAccess : 1 occurrence
-    // PhanPluginDuplicateExpressionAssignmentOperation : 1 occurrence
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanRedefineFunction : 1 occurrence
     // PhanRedundantCondition : 1 occurrence
     // PhanTypeComparisonToArray : 1 occurrence
-    // PhanTypeInvalidLeftOperandOfNumericOp : 1 occurrence
     // PhanTypeMismatchDimFetch : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
     // PhanTypeMismatchPropertyDefault : 1 occurrence
@@ -70,7 +68,7 @@ return [
         'src/features/wpcom-command-palette/wpcom-command-palette.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-launchpad.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-site-migration-migrate-guru-key.php' => ['PhanUndeclaredClassMethod'],
-        'src/features/wpcom-site-menu/wpcom-site-menu.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassInCallable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunctionInCallable'],
+        'src/features/wpcom-site-menu/wpcom-site-menu.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassInCallable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunctionInCallable'],
         'src/utils.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference'],
         'tests/lib/functions-wordpress.php' => ['PhanRedefineFunction'],
         'tests/php/features/block-patterns/class-wpcom-block-patterns-from-api-test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeReturnType'],
