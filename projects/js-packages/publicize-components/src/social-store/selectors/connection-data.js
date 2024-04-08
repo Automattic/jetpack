@@ -58,7 +58,7 @@ export function getMustReauthConnections( state ) {
  *
  * @param {import("../types").SocialStoreState} state - State object.
  *
- * @returns {Array} List of enabled connections.
+ * @returns {Array<import("../types").Connection>} List of enabled connections.
  */
 export function getEnabledConnections( state ) {
 	return getConnections( state ).filter( connection => connection.enabled );
