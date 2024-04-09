@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Jetpack Components: only display div that contains title if a title is passed.

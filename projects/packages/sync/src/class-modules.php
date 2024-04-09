@@ -90,7 +90,7 @@ class Modules {
 	 *
 	 * @param string $module_name A module name.
 	 *
-	 * @return bool|Automattic\Jetpack\Sync\Modules\Module
+	 * @return bool|\Automattic\Jetpack\Sync\Modules\Module
 	 */
 	public static function get_module( $module_name ) {
 		foreach ( self::get_modules() as $module ) {
@@ -134,7 +134,7 @@ class Modules {
 	 *
 	 * @param string $module_class The classname of a Jetpack sync module.
 	 *
-	 * @return Automattic\Jetpack\Sync\Modules\Module
+	 * @return \Automattic\Jetpack\Sync\Modules\Module
 	 */
 	public static function load_module( $module_class ) {
 		return new $module_class();
@@ -146,9 +146,9 @@ class Modules {
 	 * @access public
 	 * @static
 	 *
-	 * @param Automattic\Jetpack\Sync\Modules\Module $module Instance of a Jetpack sync module.
+	 * @param \Automattic\Jetpack\Sync\Modules\Module $module Instance of a Jetpack sync module.
 	 *
-	 * @return Automattic\Jetpack\Sync\Modules\Module
+	 * @return \Automattic\Jetpack\Sync\Modules\Module
 	 */
 	public static function set_module_defaults( $module ) {
 		$module->set_defaults();

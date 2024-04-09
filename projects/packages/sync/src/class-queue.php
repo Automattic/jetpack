@@ -199,7 +199,7 @@ class Queue {
 	 *
 	 * @param int $buffer_size Size of the buffer to checkout.
 	 *
-	 * @return Automattic\Jetpack\Sync\Queue_Buffer|bool|int|\WP_Error
+	 * @return \Automattic\Jetpack\Sync\Queue_Buffer|bool|int|\WP_Error
 	 */
 	public function checkout( $buffer_size ) {
 		if ( $this->get_checkout_id() ) {
@@ -348,7 +348,7 @@ class Queue {
 	/**
 	 * Check in the queue.
 	 *
-	 * @param Automattic\Jetpack\Sync\Queue_Buffer $buffer Queue_Buffer object.
+	 * @param \Automattic\Jetpack\Sync\Queue_Buffer $buffer Queue_Buffer object.
 	 *
 	 * @return bool|\WP_Error
 	 */
@@ -367,8 +367,8 @@ class Queue {
 	/**
 	 * Close the buffer.
 	 *
-	 * @param Automattic\Jetpack\Sync\Queue_Buffer $buffer Queue_Buffer object.
-	 * @param null|array                           $ids_to_remove Ids to remove from the queue.
+	 * @param \Automattic\Jetpack\Sync\Queue_Buffer $buffer Queue_Buffer object.
+	 * @param null|array                            $ids_to_remove Ids to remove from the queue.
 	 *
 	 * @return bool|\WP_Error
 	 */
@@ -653,7 +653,7 @@ class Queue {
 	/**
 	 * Return true if the buffer is still valid or an Error other wise.
 	 *
-	 * @param Automattic\Jetpack\Sync\Queue_Buffer $buffer The Queue_Buffer.
+	 * @param \Automattic\Jetpack\Sync\Queue_Buffer $buffer The Queue_Buffer.
 	 *
 	 * @return bool|WP_Error
 	 */

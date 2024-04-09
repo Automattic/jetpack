@@ -83,7 +83,7 @@ function JetpackRestApiClient( root, nonce ) {
 			cacheBusterCallback = callback;
 		},
 
-		registerSite: ( registrationNonce, redirectUri ) => {
+		registerSite: ( registrationNonce, redirectUri, from ) => {
 			const params = {
 				registration_nonce: registrationNonce,
 				no_iframe: true,
@@ -95,6 +95,10 @@ function JetpackRestApiClient( root, nonce ) {
 
 			if ( null !== redirectUri ) {
 				params.redirect_uri = redirectUri;
+			}
+
+			if ( from ) {
+				params.from = from;
 			}
 
 			return postRequest( `${ apiRoot }jetpack/v4/connection/register`, postParams, {

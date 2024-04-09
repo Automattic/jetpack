@@ -227,7 +227,7 @@ export async function handler( argv ) {
 
 	if ( argv.all ) {
 		argv.project = allProjects();
-		argv.project.unshift( 'monorepo', Object.keys( pseudoProjects ) );
+		argv.project.unshift( 'monorepo', ...Object.keys( pseudoProjects ) );
 	}
 
 	if ( argv.project.length === 0 ) {

@@ -11,6 +11,8 @@ use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Redirect;
 use Jetpack_IXR_Client;
 use Jetpack_Options;
+use WP_Error;
+use WP_Post;
 
 /**
  * Extend the base class with Jetpack-specific functionality.
@@ -621,7 +623,7 @@ class Publicize extends Publicize_Base {
 			'refresh_url'      => $refresh_url,
 		);
 
-		$this->test_connection_results[ $id ] = new \WP_Error( $connection_error_code, $connection_test_message, $error_data );
+		$this->test_connection_results[ $id ] = new WP_Error( $connection_error_code, $connection_test_message, $error_data );
 
 		return $this->test_connection_results[ $id ];
 	}
@@ -654,8 +656,8 @@ class Publicize extends Publicize_Base {
 	 * Save a flag locally to indicate that this post has already been Publicized via the selected
 	 * connections.
 	 *
-	 * @param int      $post_ID Post ID.
-	 * @param \WP_Post $post Post object.
+	 * @param int     $post_ID Post ID.
+	 * @param WP_Post $post Post object.
 	 */
 	public function save_publicized( $post_ID, $post = null ) {
 		if ( $post === null ) {
@@ -673,8 +675,8 @@ class Publicize extends Publicize_Base {
 	/**
 	 * Set post flags for Publicize.
 	 *
-	 * @param array    $flags List of flags.
-	 * @param \WP_Post $post Post object.
+	 * @param array   $flags List of flags.
+	 * @param WP_Post $post Post object.
 	 * @return array
 	 */
 	public function set_post_flags( $flags, $post ) {

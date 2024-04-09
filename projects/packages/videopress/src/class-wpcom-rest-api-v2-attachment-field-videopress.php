@@ -10,6 +10,9 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
+use WP_Post;
+use WP_REST_Request;
+use WP_REST_Response;
 
 /**
  * Add per-attachment VideoPress data.

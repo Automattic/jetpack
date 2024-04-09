@@ -1,8 +1,46 @@
+@import '~@automattic/color-studio/dist/color-variables';
+
 .card {
 	display: flex;
 	flex-direction: column;
 	gap: 24px;
 	padding: 32px 48px;
+
+	h1, h2, h3, h4, h5, h6 {
+		letter-spacing: -1%;
+		margin: 0;
+	}
+
+	h1 {
+		font-size: 36px;
+		line-height: 40px;
+
+		@media (max-width: 659px) {
+			font-size: 24px;
+			line-height: 32px;
+		}
+	}
+	
+	h2 {
+		font-size: 32px;
+		line-height: 35px;
+		font-weight: 510;
+
+		@media (max-width: 659px) {
+			font-size: 24px;
+			line-height: 32px;
+		}
+	}
+	
+	p {
+		margin: 0;
+	}
+
+	ul {
+		margin: 0;
+		padding: 0;
+		list-style-type: none;
+	}
 
 	h1, h2, h3, h4, h5, h6 {
 		letter-spacing: -1%;
@@ -101,14 +139,14 @@
 	}
 
 	.terms-of-service__link {
-		color: var(--automattic-blue-60);
+		color: $studio-automattic-blue;
 		white-space: nowrap;
 		text-decoration: underline;
 	}
 
 	:global {
 		.components-button.is-link {
-			color: var(--automattic-blue-60);
+			color: $studio-automattic-blue;
 			white-space: nowrap;
 			text-decoration: underline;
 		}
@@ -119,16 +157,16 @@
 .connect-button-wrapper {
 	:global {
 		.components-button {
-			background-color: var(--automattic-blue-60);
+			background-color: $studio-automattic-blue;
 			min-width: 178px;
 		}
 	}
 }
 
 :global {
-	.components-button.components-button--back {
+	.components-button.is-link.components-button--back {
 		font-size: 14px;
-		color: var(--jp-black);
+		color: $studio-black;
 		text-decoration: none;
 
 		&:hover {

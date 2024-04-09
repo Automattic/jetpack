@@ -131,17 +131,18 @@ class Scheduled_Updates_Logs {
 	 * Clears the logs for a specific schedule_id or all logs if no schedule_id is provided.
 	 *
 	 * @param string|null $schedule_id Optional. The ID of the schedule. If not provided, all logs will be cleared.
+	 * @param bool        $skip_validation Optional. Whether to skip the validation of the schedule_id.
 	 *
 	 * @return WP_Error|null
 	 */
-	public static function clear( string $schedule_id = null ) {
+	public static function clear( string $schedule_id = null, $skip_validation = false ) {
 		$logs = get_option( self::OPTION_NAME, array() );
 
 		if ( null === $schedule_id ) {
 			// Clear all logs if no schedule_id is provided
 			$logs = array();
 		} else {
-			if ( ! self::is_valid_schedule( $schedule_id ) ) {
+			if ( ! $skip_validation && ! self::is_valid_schedule( $schedule_id ) ) {
 				return new WP_Error( 'invalid_schedule_id', 'Invalid schedule ID' );
 			}
 

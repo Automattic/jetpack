@@ -146,10 +146,10 @@ class Jetpack_IXR_Client extends IXR_Client {
 			$code    = $match[1];
 			$message = $match[2];
 			$status  = $fault_code;
-			return new \WP_Error( $code, $message, $status );
+			return new WP_Error( $code, $message, $status );
 		}
 
-		return new \WP_Error( "IXR_{$fault_code}", $fault_string );
+		return new WP_Error( "IXR_{$fault_code}", $fault_string );
 	}
 
 	/**

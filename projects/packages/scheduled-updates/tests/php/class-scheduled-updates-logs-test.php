@@ -238,6 +238,55 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test force clearing logs for a non-existent schedule ID.
+	 *
+	 * @covers ::get
+	 */
+	public function test_force_clear_logs_non_existent_schedule() {
+		$schedule_id = 'non_existent_schedule';
+
+		// Test retrieving logs for a non-existent schedule
+		$logs = Scheduled_Updates_Logs::clear( $schedule_id, true );
+
+		// Assert that null is returned
+		$this->assertNull( $logs );
+	}
+
+	/**
+	 * Test deleting logs after scheduled update deletion.
+	 *
+	 * @covers ::get
+	 */
+	public function test_delete_logs_after_scheduled_update_deletion() {
+		$schedule_id = $this->create_schedule( 1 );
+
+		Scheduled_Updates_Logs::log( $schedule_id, Scheduled_Updates_Logs::PLUGIN_UPDATES_START, 'Starting plugin updates' );
+
+		// Test retrieving logs
+		$logs = Scheduled_Updates_Logs::get( $schedule_id );
+
+		$this->assertCount( 1, $logs );
+		$this->assertCount( 1, $logs[0] );
+
+		$request = new \WP_REST_Request( 'DELETE', '/wpcom/v2/update-schedules/' . $schedule_id );
+		$result  = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertTrue( $result->get_data() );
+
+		$logs = Scheduled_Updates_Logs::get( $schedule_id );
+
+		$this->assertInstanceOf( WP_Error::class, $logs );
+
+		$schedule_id = $this->create_schedule( 1 );
+
+		$logs = Scheduled_Updates_Logs::get( $schedule_id );
+
+		// New schedule with same plugins of an old schedule should not have the same logs.
+		$this->assertCount( 0, $logs );
+	}
+
+	/**
 	 * Create schedule
 	 *
 	 * @param int $i Schedule index.
