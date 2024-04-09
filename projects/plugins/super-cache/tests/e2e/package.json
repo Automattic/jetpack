@@ -1,5 +1,4 @@
 {
-	"name": "super-cache-e2e-tests",
 	"private": true,
 	"type": "module",
 	"description": "E2E test suite for Super Cache",
