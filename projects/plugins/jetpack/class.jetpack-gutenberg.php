@@ -687,8 +687,7 @@ class Jetpack_Gutenberg {
 		}
 		// AI Assistant
 		$ai_assistant_state = array(
-			'is-enabled'            => apply_filters( 'jetpack_ai_enabled', true ),
-			'is-playground-visible' => Constants::is_true( 'JETPACK_AI_ASSISTANT_PLAYGROUND' ),
+			'is-enabled' => apply_filters( 'jetpack_ai_enabled', true ),
 		);
 
 		$screen_base = null;
