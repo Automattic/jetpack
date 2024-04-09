@@ -190,7 +190,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/autoloader",
-				"reference": "6c9f1a7060500a7b1a498dc31f1f785c04cf7488"
+				"reference": "6bb097db25b5b249079fcb03ff39d493f59076a6"
 			},
 			"require": {
 				"composer-plugin-api": "^1.1 || ^2.0",
@@ -198,6 +198,7 @@
 			},
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
+				"composer/composer": "^1.1 || ^2.0",
 				"yoast/phpunit-polyfills": "1.1.0"
 			},
 			"type": "composer-plugin",

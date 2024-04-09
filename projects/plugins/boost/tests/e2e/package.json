@@ -1,5 +1,4 @@
 {
-	"name": "jetpack-boost-e2e-tests",
 	"private": true,
 	"type": "module",
 	"description": "Boost your WordPress site's performance, from the creators of Jetpack.",
