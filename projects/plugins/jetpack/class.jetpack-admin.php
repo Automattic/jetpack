@@ -6,8 +6,10 @@
  */
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -66,6 +68,7 @@ class Jetpack_Admin {
 		add_action( 'admin_menu', array( $jetpack_react, 'add_actions' ), 998 );
 		add_action( 'jetpack_admin_menu', array( $jetpack_react, 'jetpack_add_dashboard_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $jetpack_react, 'jetpack_add_settings_sub_nav_item' ) );
+		add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_monetize' ) );
 		add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_debugger' ) );
 		add_action( 'jetpack_admin_menu', array( $fallback_page, 'add_actions' ) );
 		add_action( 'jetpack_admin_menu', array( $jetpack_about, 'add_actions' ) );
@@ -543,6 +546,43 @@ class Jetpack_Admin {
 		if ( wp_get_referer() ) {
 			add_filter( 'wp_redirect', 'wp_get_referer' );
 		}
+	}
+
+	/**
+	 * Add Monetize admin menu.
+	 */
+	public function admin_menu_monetize() {
+		if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
+			return;
+		}
+
+		if ( ! ( new Host() )->is_wpcom_platform() ) {
+			return;
+		}
+
+		$status = new Status();
+
+		/*
+		 * Do not display if we're in Offline mode,
+		 * or if the user is not connected.
+		 */
+		if (
+			$status->is_offline_mode()
+			|| ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected()
+		) {
+			return;
+		}
+
+		$monetize_url = Redirect::get_url( 'calypso-monetize' );
+
+		add_submenu_page(
+			'jetpack',
+			__( 'Monetize', 'jetpack' ),
+			__( 'Monetize', 'jetpack' ) . ' <span class="dashicons dashicons-external"></span>',
+			'manage_options',
+			esc_url( $monetize_url ),
+			null
+		);
 	}
 
 	/**
