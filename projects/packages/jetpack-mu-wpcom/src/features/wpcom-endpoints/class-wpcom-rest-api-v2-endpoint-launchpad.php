@@ -149,7 +149,9 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 	 */
 	public function get_data( $request ) {
 		// Handle translations for Atomic sites.
-		$locale = $request['_locale'] ? get_user_locale() : null;
+		$switched_locale = false;
+		$locale          = $request['_locale'] ? get_user_locale() : null;
+
 		if ( $locale ) {
 			$switched_locale = switch_to_locale( $locale );
 		}
