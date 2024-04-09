@@ -117,7 +117,7 @@ class Jetpack_Memberships {
 	private static $post_access_level_cache = array();
 
 	/**
-	 * Cached results of get_post_access_level method.
+	 * Clear cached results of get_post_access_level method.
 	 */
 	public static function clear_post_access_level_cache() {
 		self::$post_access_level_cache = array();
