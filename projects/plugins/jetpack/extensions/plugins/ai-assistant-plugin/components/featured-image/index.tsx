@@ -217,19 +217,17 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 										) }
 									</div>
 								) : (
-									<>
-										<img className="ai-assistant-featured-image__image" src={ imageURL } alt="" />
-										{ ! isUnlimited && featuredImageCost && requestsLimit && (
-											<UsageCounter
-												cost={ featuredImageCost }
-												currentLimit={ requestsLimit }
-												currentUsage={ requestsCount }
-											/>
-										) }
-									</>
+									<img className="ai-assistant-featured-image__image" src={ imageURL } alt="" />
 								) }
 							</div>
 							<div className="ai-assistant-featured-image__actions">
+								{ ! isUnlimited && featuredImageCost && requestsLimit && (
+									<UsageCounter
+										cost={ featuredImageCost }
+										currentLimit={ requestsLimit }
+										currentUsage={ requestsCount }
+									/>
+								) }
 								{ error ? (
 									<Button onClick={ handleTryAgain } variant="secondary">
 										{ __( 'Try again', 'jetpack' ) }
