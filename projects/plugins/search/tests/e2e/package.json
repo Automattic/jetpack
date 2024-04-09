@@ -1,5 +1,4 @@
 {
-	"name": "jetpack-search-e2e-tests",
 	"private": true,
 	"type": "module",
 	"description": "A cloud-powered replacement for WordPress' search.",
