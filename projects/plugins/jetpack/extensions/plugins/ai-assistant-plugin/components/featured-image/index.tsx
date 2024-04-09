@@ -182,12 +182,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 
 	return (
 		<div>
-			<p>
-				{ __(
-					'Ask Jetpack AI to generate an image based on your post content, to use as the post featured image.',
-					'jetpack'
-				) }
-			</p>
+			<p>{ __( 'Create and use an AI generated featured image for your post.', 'jetpack' ) }</p>
 			<Button
 				onClick={ handleGenerate }
 				isBusy={ busy }
