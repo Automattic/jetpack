@@ -233,11 +233,11 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 								{ ! error && (
 									<Button
 										onClick={ handleAccept }
-										variant="secondary"
+										variant="primary"
 										isBusy={ isSavingToMediaLibrary }
 										disabled={ isSavingToMediaLibrary }
 									>
-										{ __( 'Save and use image', 'jetpack' ) }
+										{ __( 'Set as featured image', 'jetpack' ) }
 									</Button>
 								) }
 								{ error ? (
