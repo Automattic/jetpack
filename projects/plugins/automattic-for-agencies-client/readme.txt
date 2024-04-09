@@ -1,6 +1,6 @@
 === Automattic For Agencies Client ===
-Contributors: automattic,
-Tags: stuff
+Contributors: automattic
+Tags: agency, dashboard, management, sites, monitoring
 Requires at least: 6.3
 Requires PHP: 7.0
 Tested up to: 6.5
@@ -8,28 +8,38 @@ Stable tag: 0.1.0-alpha
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Automattic For Agencies Client plugin
+Securely connect your clients’ sites to the Automattic for Agencies Sites Dashboard. Manage your sites from one place and see what needs attention.
 
 == Description ==
 
-Easily connect your clients sites to the Automattic for Agencies portal and enable portal features like plugin updates, downtime monitoring, and more.
+[Automattic for Agencies](https://automattic.com/for/agencies/) is a new agency program that combines the best of Woo, WordPress.com, Jetpack, Pressable, and WordPress VIP under one roof.
+
+This plugin securely connects your clients’ sites to the Automattic for Agencies Sites Dashboard, enabling you to manage them from one place and be notified immediately if any site is experiencing security or performance issues.
+
+This plugin will also enhance the overall Automattic for Agencies portal experience:
+
+
+- With plugin updates across the sites you manage in just a few clicks
+- Downtime monitoring so you’ll instantly know if a client’s site needs attention
+- Immediate installation and activation of purchased products and services.
+- And more to come.
+
+Like other Automattic products, this plugin connects to WordPress.com’s servers to provide the best end-user experience. We only sync what’s absolutely necessary to provide our program experience.
 
 == Installation ==
 
-Installation instructions go here.
+Install & Activate this plugin on all your WordPress sites that you want to manage directly from the Sites Dashboard in Automattic for Agencies.
 
-== Frequently Asked Questions ==
+Once the plugin is activated, you will be brought through the site connection process.
 
-= A question that someone might have =
-
-An answer to that question.
+If you would like to disconnect a site or check if the site is connected correctly from WP Admin, click on the "Settings" link under the plugin name in "Plugins > Installed Plugins."
 
 == Screenshots ==
 
-1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
-the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
-directory take precedence. For example, `/assets/screenshot-1.png` would win over `/tags/4.3/screenshot-1.png`
-(or jpg, jpeg, gif).
-2. This is the second screen shot
+1. Manage your connection to the agency dashboard from the Settings screen in your WordPress dashboard.
 
 == Changelog ==
+
+### 0.1.0 - 2024-04-09
+#### Enhancements
+- Initial release
