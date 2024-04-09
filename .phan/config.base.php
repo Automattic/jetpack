@@ -23,6 +23,7 @@
  *   - parse_file_list: (array) Files to parse but not analyze. Equivalent to listing in both 'file_list' and 'exclude_analysis_directory_list'.
  *   - stubs: (array) Predefined stubs to load. Default is `array( 'wordpress', 'wp-cli', 'wpcom' )`.
  *      - woocommerce: Stubs from php-stubs/woocommerce.
+ *      - woocommerce-internal: Stubs from .phan/stubs/woocommerce-internal-stubs.php.
  *      - woocommerce-packages: Stubs from php-stubs/woocommerce.
  *      - wordpress: Stubs from php-stubs/wordpress-stubs, php-stubs/wordpress-tests-stubs, php-stubs/wp-cli-stubs, and .phan/stubs/wordpress-constants.php.
  *      - wp-cli: Stubs from php-stubs/wp-cli-stubs.
@@ -54,6 +55,9 @@ function make_phan_config( $dir, $options = array() ) {
 		switch ( $stub ) {
 			case 'woocommerce':
 				$stubs[] = "$root/vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php";
+				break;
+			case 'woocommerce-internal':
+				$stubs[] = "$root/.phan/stubs/woocommerce-internal-stubs.php";
 				break;
 			case 'woocommerce-packages':
 				$stubs[] = "$root/vendor/php-stubs/woocommerce-stubs/woocommerce-packages-stubs.php";
