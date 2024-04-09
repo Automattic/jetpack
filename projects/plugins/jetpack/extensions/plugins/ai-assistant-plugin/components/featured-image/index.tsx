@@ -250,7 +250,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 										variant="secondary"
 										disabled={ isSavingToMediaLibrary || notEnoughRequests }
 									>
-										{ __( 'Generate another image', 'jetpack' ) }
+										{ __( 'Generate again', 'jetpack' ) }
 									</Button>
 								) }
 							</div>
