@@ -239,6 +239,9 @@ function include_compatibility_files() {
 	if ( function_exists( 'aioseo' ) ) {
 		require_once __DIR__ . '/compatibility/aioseo.php';
 	}
+
+	// Exclude known scripts that causes problem when concatenated.
+	require_once __DIR__ . '/compatibility/js-concatenate.php';
 }
 
 add_action( 'plugins_loaded', __NAMESPACE__ . '\include_compatibility_files' );

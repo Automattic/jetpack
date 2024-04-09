@@ -32,6 +32,7 @@ class ChangelogTest extends TestCase {
 		$this->assertSame( 'Foo', $changelog->getPrologue() );
 		$this->assertSame( 'Bar', $changelog->getEpilogue() );
 
+		// @phan-suppress-next-line PhanTypeMismatchArgument -- This is testing the type casting.
 		$this->assertSame( $changelog, $changelog->setPrologue( 123 )->setEpilogue( 456 ) );
 		$this->assertSame( '123', $changelog->getPrologue() );
 		$this->assertSame( '456', $changelog->getEpilogue() );
@@ -72,6 +73,7 @@ class ChangelogTest extends TestCase {
 		$changelog = new Changelog();
 		$this->expectException( InvalidArgumentException::class );
 		$this->expectExceptionMessage( 'Automattic\\Jetpack\\Changelog\\Changelog::setEntries: Expected a ChangelogEntry, got NULL at index 0' );
+		// @phan-suppress-next-line PhanTypeMismatchArgument -- This is testing the error case.
 		$changelog->setEntries( array( null ) );
 	}
 
@@ -82,6 +84,7 @@ class ChangelogTest extends TestCase {
 		$changelog = new Changelog();
 		$this->expectException( InvalidArgumentException::class );
 		$this->expectExceptionMessage( 'Automattic\\Jetpack\\Changelog\\Changelog::setEntries: Expected a ChangelogEntry, got Automattic\\Jetpack\\Changelog\\Changelog at index 0' );
+		// @phan-suppress-next-line PhanTypeMismatchArgument -- This is testing the error case.
 		$changelog->setEntries( array( $changelog ) );
 	}
 

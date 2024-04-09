@@ -49,7 +49,6 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 				},
 			],
 			priority: NOTICE_PRIORITY_HIGH,
-			isRedBubble: true,
 		};
 
 		setNotice( {
