@@ -546,8 +546,11 @@ class Jetpack_Memberships {
 			return Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 		}
 
-		if ( isset( self::$post_access_level_cache[ $post_id ] ) ) {
-			return self::$post_access_level_cache[ $post_id ];
+		$blog_id   = get_current_blog_id();
+		$cache_key = $blog_id . '_' . $post_id;
+
+		if ( isset( self::$post_access_level_cache[ $cache_key ] ) ) {
+			return self::$post_access_level_cache[ $cache_key ];
 		}
 
 		$post_access_level = get_post_meta( $post_id, self::$post_access_level_meta_name, true );
@@ -555,7 +558,7 @@ class Jetpack_Memberships {
 			$post_access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 		}
 
-		self::$post_access_level_cache[ $post_id ] = $post_access_level;
+		self::$post_access_level_cache[ $cache_key ] = $post_access_level;
 
 		return $post_access_level;
 	}
