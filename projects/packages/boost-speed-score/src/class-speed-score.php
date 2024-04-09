@@ -23,7 +23,7 @@ if ( ! defined( 'JETPACK_BOOST_REST_PREFIX' ) ) {
  */
 class Speed_Score {
 
-	const PACKAGE_VERSION = '0.3.10-alpha';
+	const PACKAGE_VERSION = '0.3.10';
 
 	/**
 	 * Array of module slugs that are currently active and can impact speed score.
