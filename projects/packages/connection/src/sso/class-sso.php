@@ -88,7 +88,7 @@ class SSO {
 		 * @return bool
 		 */
 		if (
-			! class_exists( 'Automattic\Jetpack\Connection\SSO\Force_2FA' )
+			! class_exists( 'Automattic\Jetpack\Connection\SSO\Force_2FA', false )
 			&& apply_filters( 'jetpack_force_2fa', false )
 		) {
 			new Force_2FA();
