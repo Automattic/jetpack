@@ -177,8 +177,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 		triggerComplementaryArea,
 	] );
 
-	const modalTitleWhenGenerating = __( 'Generating featured image…', 'jetpack' );
-	const modalTitleWhenDone = __( 'Featured Image Generation', 'jetpack' );
+	const modalTitle = __( 'Generate a featured image with AI', 'jetpack' );
 
 	return (
 		<div>
@@ -192,10 +191,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 				{ __( 'Generate image', 'jetpack' ) }
 			</Button>
 			{ isFeaturedImageModalVisible && (
-				<AiAssistantModal
-					handleClose={ toggleFeaturedImageModal }
-					title={ generating ? modalTitleWhenGenerating : modalTitleWhenDone }
-				>
+				<AiAssistantModal handleClose={ toggleFeaturedImageModal } title={ modalTitle }>
 					{ generating ? (
 						<div className="ai-assistant-featured-image__loading">
 							<Spinner
