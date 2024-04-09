@@ -204,16 +204,14 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 					title={ generating ? modalTitleWhenGenerating : modalTitleWhenDone }
 				>
 					{ generating ? (
-						<>
-							<div className="ai-assistant-featured-image__loading">
-								<Spinner
-									style={ {
-										width: '50px',
-										height: '50px',
-									} }
-								/>
-							</div>
-						</>
+						<div className="ai-assistant-featured-image__loading">
+							<Spinner
+								style={ {
+									width: '50px',
+									height: '50px',
+								} }
+							/>
+						</div>
 					) : (
 						<div className="ai-assistant-featured-image__content">
 							<div className="ai-assistant-featured-image__image-canvas">
