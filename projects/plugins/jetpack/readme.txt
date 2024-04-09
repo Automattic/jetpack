@@ -326,37 +326,13 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.3 - 2024-04-03
+### 13.4-a.1 - 2024-04-08
 #### Enhancements
-- AI Assistant: Provide per-block quick actions to make them more relevant.
-- Blocks: "Earn" category renamed to "Monetize".
-- General: Only show installation errors on Plugins page.
-- Jetpack AI: When the response includes a title and post title is empty, use provided title as post title.
-- Member login block: Add ability to hide manage subscription link.
-- My Jetpack: Trigger red bubble notification when a broken installation is detected.
-- Newsletters: Display Email settings on Newsletter settings page.
-- Newsletters: Ensure blog stats and top posts blocks do not render in email newsletters.
-- Newsletters: Reorder settings cards to improve hierarchy.
-- Newsletters: Use radio buttons instead of toggles on Email Settings.
-- Sharing: Add a Bluesky sharing button.
-- Sharing: add a Threads sharing button and a Threads sharing button block.
-- Sharing: Add Native (Web Share) button to Sharing Buttons block.
-- Sharing: Remove Like button from master bar.
-- Social: Add support for an SMS button.
-
-#### Improved compatibility
-- Carousel: disable WordPress' lightbox option when Jetpack's Carousel feature is activated.
-- General: Remove methods that were deprecated before the release of Jetpack 10.0, in 2021.
-- SEO Tools: make the feature available on non-connected sites.
-- Subscriptions: Remove subscription settings from reading options page.
+- Newsletters: Add a filter that enables the user to control the timing at which the Subscribe Modal loads.
 
 #### Bug fixes
-- Dashboard: Update the sharing button settings to clarify the available options (block or legacy sharing buttons).
-- Enhanced Distribution: begin deprecation process as the Firehose is winding down.
-- Paid Content Block: Fix subscriber view content not rendering in WordPress.com reader.
-- Sharing: avoid PHP warnings when using custom post types.
-- Sharing: fix the display of the sharing block in some classic themes.
-- SSO: Disable WordPress.com invitation functionality for non-connected users.
+- Secure Sign-On: Disable the WordPress.com invitation setup on Multisite.
+- Theme Tools: Fix deprecation notices in the color management library.
 
 --------
 
