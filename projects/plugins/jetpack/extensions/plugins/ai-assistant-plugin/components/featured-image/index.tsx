@@ -230,16 +230,6 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 								) }
 							</div>
 							<div className="ai-assistant-featured-image__actions">
-								{ ! error && (
-									<Button
-										onClick={ handleAccept }
-										variant="primary"
-										isBusy={ isSavingToMediaLibrary }
-										disabled={ isSavingToMediaLibrary }
-									>
-										{ __( 'Set as featured image', 'jetpack' ) }
-									</Button>
-								) }
 								{ error ? (
 									<Button onClick={ handleTryAgain } variant="secondary">
 										{ __( 'Try again', 'jetpack' ) }
@@ -251,6 +241,16 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 										disabled={ isSavingToMediaLibrary || notEnoughRequests }
 									>
 										{ __( 'Generate again', 'jetpack' ) }
+									</Button>
+								) }
+								{ ! error && (
+									<Button
+										onClick={ handleAccept }
+										variant="primary"
+										isBusy={ isSavingToMediaLibrary }
+										disabled={ isSavingToMediaLibrary }
+									>
+										{ __( 'Set as featured image', 'jetpack' ) }
 									</Button>
 								) }
 							</div>
