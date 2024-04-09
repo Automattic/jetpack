@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\Analyzer;
 
+use Exception;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\ParserFactory;

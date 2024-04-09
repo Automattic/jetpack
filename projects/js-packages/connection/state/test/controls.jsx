@@ -26,12 +26,13 @@ describe( 'controls', () => {
 		it( 'resolves with result', async () => {
 			const registrationNonce = 'REGISTRATION_NONCE';
 			const redirectUri = 'REDIRECT_URI';
+			const from = 'FROM';
 			const fakeResult = {};
 			stubRegisterSite.mockResolvedValue( fakeResult );
 
-			const result = await registerSite( { registrationNonce, redirectUri } );
+			const result = await registerSite( { registrationNonce, redirectUri, from } );
 			expect( result ).toEqual( fakeResult );
-			expect( stubRegisterSite ).toHaveBeenCalledWith( registrationNonce, redirectUri );
+			expect( stubRegisterSite ).toHaveBeenCalledWith( registrationNonce, redirectUri, from );
 		} );
 
 		it( 'resolves with error', async () => {

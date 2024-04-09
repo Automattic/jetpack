@@ -2,6 +2,36 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.4-a.1 - 2024-04-08
+### Enhancements
+- Newsletters: Add a filter that enables the user to control the timing at which the Subscribe Modal loads. [#36374]
+
+### Bug fixes
+- Secure Sign-On: Disable the WordPress.com invitation setup on Multisite. [#36690]
+- Theme Tools: Fix deprecation notices in the color management library. [#36789]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add error handling in image generation. [#36709]
+- AI Assistant: Scroll to bottom of current block as suggestions keep coming. [#36569]
+- AI Featured Image: Add request counter to UI. [#36744]
+- Blocks: Move localizable strings out of the metadata attributes field. [#36724]
+- Carousel: Add extra isset check to avoid warnings. [#36681]
+- Create /wpcom/v2/admin-color endpoint that returns admin color scheme. [#36749]
+- Eventbrite Block: Refactor Edit component to function. [#36739]
+- Fix translation issues for default attributes. [#36695]
+- Jetpack AI Assistant: Remove old deadcode from image modal. [#36683]
+- MailChimp Block: Refactor Edit component to function. [#36746]
+- Markdown Block: Refactor Edit component to function. [#36758]
+- PHP 8.1: Fix error trying to run preg_split on array. [#36699]
+- Repeat Visitor Block: Refactor Edit component to function. [#36762]
+- Sharing block: Make sharing options translatable. [#36642]
+- Simplified social network selection for post sharing. [#36734]
+- Subscriptions: Add Subscriber Login block navigation placement setting to Sync and Dotcom API. [#36737]
+- Subscription Site: Release the Subscriber Login navigation placement toggle. [#36717]
+- Theme tools: Use integer casting method that doesn't cause deprecation notices. [#36680]
+- Update blocks to use API version 3. [#36701] [#36742]
+- Updated package dependencies. [#36760] [#36761] [#36775] [#36788]
+
 ## [13.3] - 2024-04-03
 ### Enhancements
 - AI Assistant: Provide per-block quick actions to make them more relevant. [#36393]

@@ -1,5 +1,4 @@
 {
-	"name": "jetpack-e2e-tests",
 	"private": true,
 	"type": "module",
 	"description": "[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
@@ -35,7 +34,7 @@
 		"test-encrypt-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in config/local.cjs -out ./config/encrypted.enc"
 	},
 	"devDependencies": {
-		"@playwright/test": "1.39.0",
+		"@playwright/test": "1.43.0",
 		"allure-playwright": "2.9.2",
 		"config": "3.3.7",
 		"jetpack-e2e-commons": "workspace:*"

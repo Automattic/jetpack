@@ -13,7 +13,6 @@ export type Notice = {
 		level: string;
 		actions?: NoticeButtonAction[];
 		priority: number;
-		isRedBubble?: boolean;
 	};
 };
 

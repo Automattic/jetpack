@@ -38,7 +38,7 @@ class Blocks {
 	 *     @type bool  $plan_check           Should we check for a specific plan before registering the block.
 	 * }
 	 *
-	 * @return WP_Block_Type|false The registered block type on success, or false on failure.
+	 * @return \WP_Block_Type|false The registered block type on success, or false on failure.
 	 */
 	public static function jetpack_register_block( $slug, $args = array() ) {
 		// Slug doesn't start with `jetpack/`, isn't an absolute path, or doesn't contain a slash

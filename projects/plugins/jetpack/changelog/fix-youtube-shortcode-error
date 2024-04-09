@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-PHP 8.1: Fix error trying to run preg_split on array

@@ -7,7 +7,9 @@
 
 namespace Automattic\Jetpack\Changelogger;
 
+use Automattic\Jetpack\Changelog\ChangeEntry;
 use Automattic\Jetpack\Changelog\Changelog;
+use Automattic\Jetpack\Changelog\ChangelogEntry;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -64,7 +66,7 @@ interface FormatterPlugin {
 	 *
 	 * @param string $version See `ChangelogEntry::__construct()`.
 	 * @param array  $data See `ChangelogEntry::__construct()`.
-	 * @returns ChangelogEntry
+	 * @return ChangelogEntry
 	 */
 	public function newChangelogEntry( $version, $data = array() );
 
@@ -72,7 +74,7 @@ interface FormatterPlugin {
 	 * Create a new ChangeEntry.
 	 *
 	 * @param array $data See `ChangeEntry::__construct()`.
-	 * @returns ChangeEntry
+	 * @return ChangeEntry
 	 */
 	public function newChangeEntry( $data = array() );
 }
