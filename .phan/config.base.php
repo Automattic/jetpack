@@ -22,6 +22,8 @@
  *   - file_list: (array) Additional individual files to scan.
  *   - parse_file_list: (array) Files to parse but not analyze. Equivalent to listing in both 'file_list' and 'exclude_analysis_directory_list'.
  *   - stubs: (array) Predefined stubs to load. Default is `array( 'wordpress', 'wp-cli', 'wpcom' )`.
+ *      - woocommerce: Stubs from php-stubs/woocommerce.
+ *      - woocommerce-packages: Stubs from php-stubs/woocommerce.
  *      - wordpress: Stubs from php-stubs/wordpress-stubs, php-stubs/wordpress-tests-stubs, php-stubs/wp-cli-stubs, and .phan/stubs/wordpress-constants.php.
  *      - wp-cli: Stubs from php-stubs/wp-cli-stubs.
  *      - wpcom: Stubs from .phan/stubs/wpcom-stubs.php.
@@ -50,6 +52,12 @@ function make_phan_config( $dir, $options = array() ) {
 	$stubs = array();
 	foreach ( array_merge( $options['stubs'], $options['+stubs'] ) as $stub ) {
 		switch ( $stub ) {
+			case 'woocommerce':
+				$stubs[] = "$root/vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php";
+				break;
+			case 'woocommerce-packages':
+				$stubs[] = "$root/vendor/php-stubs/woocommerce-stubs/woocommerce-packages-stubs.php";
+				break;
 			case 'wordpress':
 				$stubs[] = "$root/vendor/php-stubs/wordpress-stubs/wordpress-stubs.php";
 				$stubs[] = "$root/vendor/php-stubs/wordpress-tests-stubs/wordpress-tests-stubs.php";
