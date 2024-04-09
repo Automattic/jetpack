@@ -221,36 +221,42 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 								) }
 							</div>
 							<div className="ai-assistant-featured-image__actions">
-								{ ! isUnlimited && featuredImageCost && requestsLimit && (
-									<UsageCounter
-										cost={ featuredImageCost }
-										currentLimit={ requestsLimit }
-										currentUsage={ requestsCount }
-									/>
-								) }
-								{ error ? (
-									<Button onClick={ handleTryAgain } variant="secondary">
-										{ __( 'Try again', 'jetpack' ) }
-									</Button>
-								) : (
-									<Button
-										onClick={ handleRegenerate }
-										variant="secondary"
-										disabled={ isSavingToMediaLibrary || notEnoughRequests }
-									>
-										{ __( 'Generate again', 'jetpack' ) }
-									</Button>
-								) }
-								{ ! error && (
-									<Button
-										onClick={ handleAccept }
-										variant="primary"
-										isBusy={ isSavingToMediaLibrary }
-										disabled={ isSavingToMediaLibrary }
-									>
-										{ __( 'Set as featured image', 'jetpack' ) }
-									</Button>
-								) }
+								<div className="ai-assistant-featured-image__actions-left">
+									{ ! isUnlimited && featuredImageCost && requestsLimit && (
+										<UsageCounter
+											cost={ featuredImageCost }
+											currentLimit={ requestsLimit }
+											currentUsage={ requestsCount }
+										/>
+									) }
+								</div>
+								<div className="ai-assistant-featured-image__actions-right">
+									<div className="ai-assistant-featured-image__action-buttons">
+										{ error ? (
+											<Button onClick={ handleTryAgain } variant="secondary">
+												{ __( 'Try again', 'jetpack' ) }
+											</Button>
+										) : (
+											<Button
+												onClick={ handleRegenerate }
+												variant="secondary"
+												disabled={ isSavingToMediaLibrary || notEnoughRequests }
+											>
+												{ __( 'Generate again', 'jetpack' ) }
+											</Button>
+										) }
+										{ ! error && (
+											<Button
+												onClick={ handleAccept }
+												variant="primary"
+												isBusy={ isSavingToMediaLibrary }
+												disabled={ isSavingToMediaLibrary }
+											>
+												{ __( 'Set as featured image', 'jetpack' ) }
+											</Button>
+										) }
+									</div>
+								</div>
 							</div>
 						</div>
 					) }
