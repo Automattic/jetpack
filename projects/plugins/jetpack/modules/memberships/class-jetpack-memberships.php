@@ -110,6 +110,20 @@ class Jetpack_Memberships {
 	private static $user_is_paid_subscriber_cache = array();
 
 	/**
+	 * Cached results of get_post_access_level method.
+	 *
+	 * @var array
+	 */
+	private static $post_access_level_cache = array();
+
+	/**
+	 * Cached results of get_post_access_level method.
+	 */
+	public static function clear_post_access_level_cache() {
+		self::$post_access_level_cache = array();
+	}
+
+	/**
 	 * Currencies we support and Stripe's minimum amount for a transaction in that currency.
 	 *
 	 * @link https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
@@ -194,6 +208,7 @@ class Jetpack_Memberships {
 	private function register_init_hook() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
 		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_gutenberg_block' ) );
+		add_action( 'switch_blog', array( $this, 'clear_post_access_level_cache' ) );
 	}
 
 	/**
@@ -539,11 +554,11 @@ class Jetpack_Memberships {
 			return Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 		}
 
-		$cache_key = 'post_access_level_' . $post_id;
+		$blog_id   = get_current_blog_id();
+		$cache_key = $blog_id . '_' . $post_id;
 
-		$post_access_level = wp_cache_get( $cache_key, 'jetpack-memberships' );
-		if ( false !== $post_access_level ) {
-			return $post_access_level;
+		if ( isset( self::$post_access_level_cache[ $cache_key ] ) ) {
+			return self::$post_access_level_cache[ $cache_key ];
 		}
 
 		$post_access_level = get_post_meta( $post_id, self::$post_access_level_meta_name, true );
@@ -551,7 +566,7 @@ class Jetpack_Memberships {
 			$post_access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 		}
 
-		wp_cache_set( $cache_key, $post_access_level, 'jetpack-memberships' );
+		self::$post_access_level_cache[ $cache_key ] = $post_access_level;
 
 		return $post_access_level;
 	}
