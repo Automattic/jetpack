@@ -183,8 +183,10 @@ add_action( 'admin_menu', 'wpcom_add_wpcom_menu_item' );
 
 /**
  * Add All Sites menu to the right side of the WP logo on the masterbar.
+ *
+ * @param WP_Admin_Bar $wp_admin_bar - The WP_Admin_Bar instance.
  */
-function add_all_sites_menu_to_masterbar() {
+function add_all_sites_menu_to_masterbar( $wp_admin_bar ) {
 	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
 		return;
 	}
@@ -196,8 +198,6 @@ function add_all_sites_menu_to_masterbar() {
 	if ( ! current_user_has_wpcom_account() ) {
 		return;
 	}
-
-	global $wp_admin_bar;
 
 	$wp_admin_bar->add_node(
 		array(
