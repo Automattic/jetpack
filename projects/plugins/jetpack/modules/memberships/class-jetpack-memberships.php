@@ -110,6 +110,13 @@ class Jetpack_Memberships {
 	private static $user_is_paid_subscriber_cache = array();
 
 	/**
+	 * Cached results of get_post_access_level method.
+	 *
+	 * @var array
+	 */
+	private static $post_access_level_cache = array();
+
+	/**
 	 * Currencies we support and Stripe's minimum amount for a transaction in that currency.
 	 *
 	 * @link https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
@@ -539,10 +546,17 @@ class Jetpack_Memberships {
 			return Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 		}
 
+		if ( isset( self::$post_access_level_cache[ $post_id ] ) ) {
+			return self::$post_access_level_cache[ $post_id ];
+		}
+
 		$post_access_level = get_post_meta( $post_id, self::$post_access_level_meta_name, true );
 		if ( empty( $post_access_level ) ) {
 			$post_access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 		}
+
+		self::$post_access_level_cache[ $post_id ] = $post_access_level;
+
 		return $post_access_level;
 	}
 
