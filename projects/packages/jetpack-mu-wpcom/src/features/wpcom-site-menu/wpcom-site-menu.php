@@ -185,6 +185,10 @@ add_action( 'admin_menu', 'wpcom_add_wpcom_menu_item' );
  * Add All Sites menu to the right side of the WP logo on the masterbar.
  */
 function add_all_sites_menu_to_masterbar() {
+	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
+		return;
+	}
+
 	/**
 	 * Don't show `All Sites` to administrators without a WordPress.com account being attached,
 	 * as they don't have access to any of the pages.
