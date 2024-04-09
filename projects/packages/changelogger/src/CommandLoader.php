@@ -70,6 +70,7 @@ class CommandLoader implements CommandLoaderInterface {
 	 * Checks if a command exists.
 	 *
 	 * @param string $name Command name.
+	 * @phan-suppress-previous-line PhanParamSignatureRealMismatchHasNoParamType -- Parameter type widening is allowed since php 7.2, and this only widens since symfony/console 5.0 which requires 7.2.5. Adding `string` would break compatibility with earlier symfony/console versions needed to support 7.0 and 7.1.
 	 * @return bool
 	 */
 	public function has( $name ): bool {
@@ -80,6 +81,7 @@ class CommandLoader implements CommandLoaderInterface {
 	 * Loads a command.
 	 *
 	 * @param string $name Command name.
+	 * @phan-suppress-previous-line PhanParamSignatureRealMismatchHasNoParamType -- Parameter type widening is allowed since php 7.2, and this only widens since symfony/console 5.0 which requires 7.2.5. Adding `string` would break compatibility with earlier symfony/console versions needed to support 7.0 and 7.1.
 	 * @return Command
 	 * @throws CommandNotFoundException If the command is not found.
 	 */

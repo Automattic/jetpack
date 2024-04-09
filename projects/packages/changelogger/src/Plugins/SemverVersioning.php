@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Changelogger\Plugins;
 
+use Automattic\Jetpack\Changelog\ChangeEntry;
 use Automattic\Jetpack\Changelogger\PluginTrait;
 use Automattic\Jetpack\Changelogger\VersioningPlugin;
 use InvalidArgumentException;
@@ -155,8 +156,8 @@ class SemverVersioning implements VersioningPlugin {
 		if ( isset( $significances['major'] ) ) {
 			$info['patch'] = 0;
 			if ( 0 === (int) $info['major'] ) {
-				if ( is_callable( array( $this->output, 'getErrorOutput' ) ) ) {
-					$out = $this->output->getErrorOutput();
+				if ( is_callable( array( $this->output, 'getErrorOutput' ) ) ) { // @phan-suppress-current-line PhanUndeclaredMethodInCallable -- This is checking.
+					$out = $this->output->getErrorOutput(); // @phan-suppress-current-line PhanUndeclaredMethod -- Checked just above.
 					$out->writeln( '<warning>Semver does not automatically move version 0.y.z to 1.0.0.</>' );
 					$out->writeln( '<warning>You will have to do that manually when you\'re ready for the first release.</>' );
 				}
@@ -213,7 +214,7 @@ class SemverVersioning implements VersioningPlugin {
 			if ( ctype_digit( $a ) ) {
 				if ( ctype_digit( $b ) ) {
 					if ( (int) $a !== (int) $b ) {
-						return $a - $b;
+						return (int) $a - (int) $b;
 					}
 				} else {
 					return -1;
