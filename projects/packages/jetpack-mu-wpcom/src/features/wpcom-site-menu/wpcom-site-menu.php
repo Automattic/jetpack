@@ -8,6 +8,7 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 /**
  * Check if the current user has a WordPress.com account connected.
@@ -52,46 +53,15 @@ function wpcom_add_wpcom_menu_item() {
 	}
 
 	/**
-	 * Don't show `All Sites` and `Hosting` to administrators without a WordPress.com account being attached,
+	 * Don't show `Hosting` to administrators without a WordPress.com account being attached,
 	 * as they don't have access to any of the pages.
 	 */
 	if ( ! current_user_has_wpcom_account() ) {
 		return;
 	}
 
-	global $menu;
-
 	$parent_slug = 'wpcom-hosting-menu';
 	$domain      = wp_parse_url( home_url(), PHP_URL_HOST );
-
-	add_menu_page(
-		esc_attr__( 'All Sites', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'All Sites', 'jetpack-mu-wpcom' ),
-		// We should show `All Sites` for all users roles if they have a WordPress.com account connected.
-		'read',
-		'https://wordpress.com/sites',
-		null,
-		'dashicons-arrow-left-alt2',
-		0
-	);
-
-	// Position a separator below the `All Sites` menu item.
-	// Inspired by https://github.com/Automattic/jetpack/blob/b6b6e86c5491869782857141ca48168dfa195635/projects/plugins/jetpack/modules/masterbar/admin-menu/class-base-admin-menu.php#L239
-	$separator = array(
-		'',
-		'read',
-		wp_unique_id( 'separator-custom-' ),
-		'',
-		'wp-menu-separator',
-	);
-
-	$position = 0;
-	if ( isset( $menu[ "$position" ] ) ) {
-		$position            = $position + substr( base_convert( md5( $separator[2] . $separator[0] ), 16, 10 ), -5 ) * 0.00001;
-		$menu[ "$position" ] = $separator; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-	} else {
-		$menu[ "$position" ] = $separator; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-	}
 
 	add_menu_page(
 		esc_attr__( 'Hosting', 'jetpack-mu-wpcom' ),
@@ -211,6 +181,44 @@ function wpcom_add_wpcom_menu_item() {
 	);
 }
 add_action( 'admin_menu', 'wpcom_add_wpcom_menu_item' );
+
+/**
+ * Add All Sites menu to the right side of the WP logo on the masterbar.
+ *
+ * @param WP_Admin_Bar $wp_admin_bar - The WP_Admin_Bar instance.
+ */
+function add_all_sites_menu_to_masterbar( $wp_admin_bar ) {
+	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
+		return;
+	}
+
+	/**
+	 * Don't show `All Sites` to administrators without a WordPress.com account being attached,
+	 * as they don't have access to any of the pages.
+	 */
+	if ( ! current_user_has_wpcom_account() ) {
+		return;
+	}
+
+	wp_enqueue_style(
+		'wpcom-site-menu-masterbar',
+		plugins_url( 'build/wpcom-site-menu/wpcom-site-menu.css', Jetpack_Mu_Wpcom::BASE_FILE ),
+		array(),
+		Jetpack_Mu_Wpcom::PACKAGE_VERSION
+	);
+
+	$wp_admin_bar->add_node(
+		array(
+			'id'    => 'all-sites',
+			'title' => __( 'All Sites', 'jetpack-mu-wpcom' ),
+			'href'  => 'https://wordpress.com/sites',
+			'meta'  => array(
+				'class' => 'wp-admin-bar-all-sites',
+			),
+		)
+	);
+}
+add_action( 'admin_bar_menu', 'add_all_sites_menu_to_masterbar', 15 );
 
 /**
  * Helper function to determine if the admin notice should be shown.
