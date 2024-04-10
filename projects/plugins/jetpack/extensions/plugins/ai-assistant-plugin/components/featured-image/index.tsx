@@ -22,7 +22,7 @@ import {
 import usePostContent from '../../hooks/use-post-content';
 import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library';
 import AiAssistantModal from '../modal';
-import Carrousel, { CarrouseImageData, CarrouselImages } from './carrousel';
+import Carrousel, { CarrouselImageData, CarrouselImages } from './carrousel';
 import UsageCounter from './usage-counter';
 
 const FEATURED_IMAGE_FEATURE_NAME = 'featured-post-image';
@@ -90,7 +90,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	}, [ increaseRequestsCount, featuredImageCost ] );
 
 	/* Merge the image data with the new data. */
-	const updateImages = useCallback( ( data: CarrouseImageData, index ) => {
+	const updateImages = useCallback( ( data: CarrouselImageData, index ) => {
 		setImages( currentImages => {
 			const newImages = [ ...currentImages ];
 			newImages[ index ] = {

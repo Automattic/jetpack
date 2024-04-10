@@ -11,7 +11,7 @@ import classNames from 'classnames';
 import blank from './blankbase64.json';
 import './carrousel.scss';
 
-export type CarrouseImageData = {
+export type CarrouselImageData = {
 	image?: string;
 	libraryId?: number | string;
 	generating?: boolean;
@@ -20,7 +20,7 @@ export type CarrouseImageData = {
 	};
 };
 
-export type CarrouselImages = CarrouseImageData[];
+export type CarrouselImages = CarrouselImageData[];
 
 function BlankImage( { children, isDotted = false } ) {
 	const blankImage = (
