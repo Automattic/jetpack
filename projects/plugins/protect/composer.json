@@ -16,7 +16,7 @@
 		"automattic/jetpack-sync": "^2.10.1",
 		"automattic/jetpack-transport-helper": "^0.2.2",
 		"automattic/jetpack-plans": "^0.4.3",
-		"automattic/jetpack-waf": "0.16.0.1",
+		"automattic/jetpack-waf": "^0.16.0.1",
 		"automattic/jetpack-status": "^2.1.2"
 	},
 	"require-dev": {
