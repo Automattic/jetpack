@@ -9,6 +9,8 @@
 
 namespace Automattic\Jetpack;
 
+use WP_Error;
+
 /**
  * Provides Jetpack CRM plugin data.
  */

@@ -8,6 +8,7 @@ use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
 use WorDBless\Users as WorDBless_Users;
 use WP_REST_Request;
+use WP_REST_Response;
 use WP_REST_Server;
 
 /**

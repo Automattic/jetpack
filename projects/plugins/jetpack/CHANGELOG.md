@@ -2,7 +2,37 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 13.3-beta - 2024-04-01
+## 13.4-a.1 - 2024-04-08
+### Enhancements
+- Newsletters: Add a filter that enables the user to control the timing at which the Subscribe Modal loads. [#36374]
+
+### Bug fixes
+- Secure Sign-On: Disable the WordPress.com invitation setup on Multisite. [#36690]
+- Theme Tools: Fix deprecation notices in the color management library. [#36789]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add error handling in image generation. [#36709]
+- AI Assistant: Scroll to bottom of current block as suggestions keep coming. [#36569]
+- AI Featured Image: Add request counter to UI. [#36744]
+- Blocks: Move localizable strings out of the metadata attributes field. [#36724]
+- Carousel: Add extra isset check to avoid warnings. [#36681]
+- Create /wpcom/v2/admin-color endpoint that returns admin color scheme. [#36749]
+- Eventbrite Block: Refactor Edit component to function. [#36739]
+- Fix translation issues for default attributes. [#36695]
+- Jetpack AI Assistant: Remove old deadcode from image modal. [#36683]
+- MailChimp Block: Refactor Edit component to function. [#36746]
+- Markdown Block: Refactor Edit component to function. [#36758]
+- PHP 8.1: Fix error trying to run preg_split on array. [#36699]
+- Repeat Visitor Block: Refactor Edit component to function. [#36762]
+- Sharing block: Make sharing options translatable. [#36642]
+- Simplified social network selection for post sharing. [#36734]
+- Subscriptions: Add Subscriber Login block navigation placement setting to Sync and Dotcom API. [#36737]
+- Subscription Site: Release the Subscriber Login navigation placement toggle. [#36717]
+- Theme tools: Use integer casting method that doesn't cause deprecation notices. [#36680]
+- Update blocks to use API version 3. [#36701] [#36742]
+- Updated package dependencies. [#36760] [#36761] [#36775] [#36788]
+
+## [13.3] - 2024-04-03
 ### Enhancements
 - AI Assistant: Provide per-block quick actions to make them more relevant. [#36393]
 - Blocks: "Earn" category renamed to "Monetize". [#36480]
@@ -96,6 +126,7 @@
 - RNMobile: Remove code associated with Story block for the mobile native version. [#36151]
 - Sharing Block: Remove extra margin previously added to the first button. [#36386]
 - Show Browse sites when wp-admin interface is selected and using nav unification. [#36198]
+- Social: Ensure the Settings panel is rendered during pre/post publish. [#36654]
 - SSO: Add error log on SSO invite. [#36416]
 - SSO: add filter allowing one to disable the WordPress.com invite interface. [#36572]
 - SSO: fix PHP notices and remove unnecessary PHPCS ignores. [#36589]
@@ -138,6 +169,10 @@
 - WPCOM_JSON_API_List_Comments_Endpoint: Do not prefetch comment meta for large hierarchical threads [#36460]
 - WPCOM_JSON_API_List_Comments_Endpoint: Remove update_comment_cache() that is no longer needed [#36363]
 - WPCOM_JSON_API_Upload_Media_v1_1_Endpoint: Fix errors on invalid post data. [#36291]
+
+## 13.2.2 - 2024-03-22
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add function exists check for wp_admin_notice [#36511]
 
 ## 13.2.1 - 2024-03-12
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
@@ -10064,6 +10099,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[13.3]: https://wp.me/p1moTy-19qu
 [13.2]: https://wp.me/p1moTy-15UC
 [13.1]: https://wp.me/p1moTy-12e0
 [13.0]: https://wp.me/p1moTy-10Xp

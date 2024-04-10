@@ -714,7 +714,7 @@ class Jetpack_Backup {
 	/**
 	 * Get the best addon offer for this site, including pricing details
 	 *
-	 * @param WP_Request $request Object including storage usage.
+	 * @param \WP_REST_Request $request Object including storage usage.
 	 *
 	 * @return string|WP_Error A JSON object with the suggested storage addon details if the request was successful,
 	 *                         or a WP_Error otherwise.

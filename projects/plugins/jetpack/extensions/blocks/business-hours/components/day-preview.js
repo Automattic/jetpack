@@ -1,19 +1,29 @@
-import { date } from '@wordpress/date';
 import { Component } from '@wordpress/element';
 import { _x, sprintf } from '@wordpress/i18n';
 import { isEmpty } from 'lodash';
 
+const defaultLang = 'en';
+const lang = ( 'undefined' !== typeof window && window.navigator?.language ) || defaultLang;
+const timeFormat = Intl?.DateTimeFormat
+	? new Intl.DateTimeFormat( lang, {
+			hour: 'numeric',
+			minute: 'numeric',
+			// Force AM/PM display at the moment since only that format is used in the site
+			hour12: true,
+	  } )
+	: null;
 class DayPreview extends Component {
 	formatTime( time ) {
-		const { timeFormat } = this.props;
 		const [ hours, minutes ] = time.split( ':' );
-		const _date = new Date();
 		if ( ! hours || ! minutes ) {
 			return false;
 		}
-		_date.setHours( hours );
-		_date.setMinutes( minutes );
-		return date( timeFormat, _date );
+
+		const date = new Date();
+		date.setHours( hours );
+		date.setMinutes( minutes );
+
+		return timeFormat ? timeFormat.format( date ) : time;
 	}
 
 	renderInterval = ( interval, key ) => {

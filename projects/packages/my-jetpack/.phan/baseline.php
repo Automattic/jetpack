@@ -16,16 +16,14 @@ return [
     // PhanTypeMismatchReturnProbablyReal : 10+ occurrences
     // PhanAbstractStaticMethodCallInStatic : 8 occurrences
     // PhanUndeclaredClassMethod : 8 occurrences
-    // PhanTypeMismatchReturn : 7 occurrences
     // PhanNoopNew : 6 occurrences
+    // PhanTypeMismatchReturn : 6 occurrences
     // PhanUndeclaredStaticProperty : 6 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 5 occurrences
-    // PhanUndeclaredTypeParameter : 4 occurrences
-    // PhanUndeclaredTypeReturnType : 4 occurrences
     // PhanUnextractableAnnotation : 4 occurrences
     // PhanTypeArraySuspicious : 3 occurrences
-    // PhanTypeMismatchArgument : 3 occurrences
     // PhanTypeMismatchReturnNullable : 3 occurrences
+    // PhanUndeclaredTypeParameter : 3 occurrences
     // PhanImpossibleCondition : 2 occurrences
     // PhanNonClassMethodCall : 2 occurrences
     // PhanPluginMixedKeyNoKey : 1 occurrence
@@ -42,20 +40,20 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-activitylog.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'src/class-initializer.php' => ['PhanImpossibleCondition', 'PhanNoopNew', 'PhanParamTooMany', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredTypeProperty', 'PhanUndeclaredTypeReturnType'],
+        'src/class-initializer.php' => ['PhanImpossibleCondition', 'PhanNoopNew', 'PhanParamTooMany', 'PhanRedundantCondition', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredTypeProperty'],
         'src/class-jetpack-manage.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'src/class-products.php' => ['PhanNonClassMethodCall'],
         'src/class-rest-product-data.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn'],
         'src/class-rest-products.php' => ['PhanParamTooMany', 'PhanPluginMixedKeyNoKey', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/class-rest-purchases.php' => ['PhanParamTooMany', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredTypeReturnType'],
+        'src/class-rest-purchases.php' => ['PhanParamTooMany', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-rest-zendesk-chat.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredFunction', 'PhanUnextractableAnnotationSuffix'],
         'src/class-wpcom-products.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUnextractableAnnotation'],
         'src/products/class-anti-spam.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
         'src/products/class-backup.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyDefault'],
-        'src/products/class-boost.php' => ['PhanTypeMismatchPropertyDefault', 'PhanUndeclaredTypeParameter'],
+        'src/products/class-boost.php' => ['PhanTypeMismatchPropertyDefault'],
         'src/products/class-creator.php' => ['PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchReturnProbablyReal'],
         'src/products/class-crm.php' => ['PhanTypeMismatchPropertyDefault'],
-        'src/products/class-extras.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault', 'PhanUndeclaredTypeReturnType'],
+        'src/products/class-extras.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
         'src/products/class-hybrid-product.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturnNullable', 'PhanUndeclaredStaticProperty'],
         'src/products/class-jetpack-ai.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod'],
         'src/products/class-module-product.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod'],

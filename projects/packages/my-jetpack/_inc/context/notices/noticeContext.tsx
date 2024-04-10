@@ -4,9 +4,8 @@ import { NoticeContextType, Notice } from './types';
 const defaultNotice: Notice = {
 	message: '',
 	options: {
-		status: '',
+		level: '',
 		priority: 0,
-		isRedBubble: false,
 	},
 };
 

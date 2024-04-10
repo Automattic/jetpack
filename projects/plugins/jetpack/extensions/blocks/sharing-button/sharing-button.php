@@ -13,6 +13,7 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
+use WP_Block_Template;
 
 require_once __DIR__ . '/class-sharing-source-block.php';
 require_once __DIR__ . '/components/social-icons.php';
@@ -257,7 +258,7 @@ function add_block_to_single_posts_template( $hooked_block_types, $relative_posi
 
 	// Only hook into page and single post templates.
 	if (
-		! $context instanceof \WP_Block_Template
+		! $context instanceof WP_Block_Template
 		|| ! property_exists( $context, 'slug' )
 		|| empty( $context->slug )
 		|| ! preg_match( '/^(page|single)/', $context->slug )

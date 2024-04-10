@@ -26,7 +26,7 @@ class Test_Status extends TestCase {
 	/**
 	 * Status instance.
 	 *
-	 * @var Automattic\Jetpack\Status
+	 * @var \Automattic\Jetpack\Status
 	 */
 	private $status_obj;
 

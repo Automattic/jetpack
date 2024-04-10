@@ -1,5 +1,5 @@
 import { isCurrentUserConnected } from '@automattic/jetpack-shared-extension-utils';
-import { InspectorControls } from '@wordpress/block-editor';
+import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { Button, Placeholder, RadioControl, Spinner, withNotices } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -16,9 +16,9 @@ import useInstagramGallery from './use-instagram-gallery';
 import './editor.scss';
 
 const InstagramGalleryEdit = props => {
-	const { attributes, className, isSelected, noticeOperations, noticeUI, setAttributes } = props;
+	const blockProps = useBlockProps();
+	const { attributes, isSelected, noticeOperations, noticeUI, setAttributes } = props;
 	const { accessToken, align, columns, count, isStackedOnMobile, spacing } = attributes;
-
 	useEffect( () => {
 		const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
 		if ( ! isEqual( validatedAttributes, attributes ) ) {
@@ -57,7 +57,7 @@ const InstagramGalleryEdit = props => {
 	const showLoadingSpinner = accessToken && isLoadingGallery && isEmpty( images );
 	const showGallery = ! showPlaceholder && ! showLoadingSpinner;
 
-	const blockClasses = classnames( className, { [ `align${ align }` ]: align } );
+	const blockClasses = classnames( blockProps.className, { [ `align${ align }` ]: align } );
 	const gridClasses = classnames(
 		'wp-block-jetpack-instagram-gallery__grid',
 		`wp-block-jetpack-instagram-gallery__grid-columns-${ columns }`,
@@ -159,7 +159,7 @@ const InstagramGalleryEdit = props => {
 	};
 
 	return (
-		<div className={ blockClasses }>
+		<div { ...blockProps } className={ blockClasses }>
 			{ showPlaceholder && (
 				<Placeholder
 					icon="instagram"

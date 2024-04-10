@@ -381,7 +381,7 @@ function grofiles_hovercards_data_callbacks() {
 /**
  * Keyed JSON object containing all profile data provided by registered callbacks
  *
- * @param int|strung $author User ID or email address.
+ * @param int|string $author User ID or email address.
  *
  * @return array( data_key => data, ... )
  */

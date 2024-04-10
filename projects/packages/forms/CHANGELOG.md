@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.30.14] - 2024-04-08
+### Changed
+- Updated package dependencies. [#36760]
+- Update to the most recent version of Color Studio, 2.6.0. [#36751]
+
 ## [0.30.13] - 2024-03-27
 ### Changed
 - Updated package dependencies. [#36585]
@@ -530,6 +535,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.30.14]: https://github.com/automattic/jetpack-forms/compare/v0.30.13...v0.30.14
 [0.30.13]: https://github.com/automattic/jetpack-forms/compare/v0.30.12...v0.30.13
 [0.30.12]: https://github.com/automattic/jetpack-forms/compare/v0.30.11...v0.30.12
 [0.30.11]: https://github.com/automattic/jetpack-forms/compare/v0.30.10...v0.30.11

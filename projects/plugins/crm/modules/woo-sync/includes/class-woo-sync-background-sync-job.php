@@ -1905,9 +1905,9 @@ class Woo_Sync_Background_Sync_Job {
 		// ==== Invoice
 		$data['invoice'] = array();
 		if ( $settings['wcinv'] == 1 ) {
-
 			$data['invoice'] = array(
-				'id_override'          => 'woo-' . $order_num, // we have to add a prefix here otherwise woo order #123 wouldn't insert if invoice with id #123 already exists
+				'woo_use_crm_id'       => ! empty( $settings['wccrminvreference'] ),
+				'id_override'          => 'woo-' . $order_num, // (ignored if wccrminvreference === 1) We have to add a prefix here otherwise woo order #123 wouldn't insert if invoice with id #123 already exists.
 				'status'               => $invoice_status,
 				'currency'             => $order_currency,
 				'date'                 => $invoice_creation_date_uts,

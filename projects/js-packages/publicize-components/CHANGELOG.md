@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.49.0] - 2024-04-08
+### Added
+- Added options and UI for link formatting. [#36671]
+
+### Changed
+- Extracted the connection toggle state logic. [#36776]
+- Only show custom media picker for normal posts. [#36640]
+- Updated package dependencies. [#36760]
+- Updated package dependencies. [#36761]
+- Update to the most recent version of Color Studio, 2.6.0. [#36751]
+
+### Fixed
+- Fixed an issue where share as a social post was available free. [#36779]
+- Fixed the (no title) link on the post publish panel. [#36718]
+- Fixed the learn more link. [#36735]
+
 ## [0.48.5] - 2024-03-27
 ### Changed
 - Updated package dependencies. [#36585]
@@ -624,6 +640,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.49.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.48.5...v0.49.0
 [0.48.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.48.4...v0.48.5
 [0.48.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.48.3...v0.48.4
 [0.48.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.48.2...v0.48.3

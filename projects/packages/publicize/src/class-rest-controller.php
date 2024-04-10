@@ -11,6 +11,8 @@ namespace Automattic\Jetpack\Publicize;
 use Automattic\Jetpack\Connection\Client;
 use Jetpack_Options;
 use WP_Error;
+use WP_REST_Request;
+use WP_REST_Response;
 use WP_REST_Server;
 
 /**
@@ -250,7 +252,7 @@ class REST_Controller {
 	/**
 	 * Dismisses a notice to prevent it from appearing again.
 	 *
-	 * @param WP_Request $request The request object, which includes the parameters.
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
 	 * @return WP_REST_Response|WP_Error True if the request was successful, or a WP_Error otherwise.
 	 */
 	public function update_dismissed_notices( $request ) {
@@ -277,7 +279,7 @@ class REST_Controller {
 	 *
 	 * POST jetpack/v4/publicize/(?P<postId>\d+)
 	 *
-	 * @param WP_Request $request The request object, which includes the parameters.
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
 	 */
 	public function share_post( $request ) {
 		$post_id             = $request->get_param( 'postId' );

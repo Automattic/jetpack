@@ -79,6 +79,7 @@ class Config {
 	 *
 	 * @deprecated since 1.2.0, no longer needed.
 	 * @param OutputInterface $out Ignored.
+	 * @codeCoverageIgnore
 	 */
 	public static function setOutput( OutputInterface $out ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	}
@@ -99,8 +100,8 @@ class Config {
 		self::$config['base'] = getcwd();
 
 		$from = '';
-		if ( null !== self::$composerJsonPath ) {
-			$composer = self::$composerJsonPath;
+		if ( self::$composerJsonPath !== null ) {
+			$composer = (string) self::$composerJsonPath;
 		} else {
 			$composer = getenv( 'COMPOSER' );
 			if ( $composer ) {
@@ -269,7 +270,7 @@ class Config {
 	/**
 	 * Get formatting plugin.
 	 *
-	 * @return Formatter
+	 * @return FormatterPlugin
 	 * @throws \RuntimeException If the configured formatter is unknown.
 	 */
 	public static function formatterPlugin() {
@@ -288,7 +289,7 @@ class Config {
 	/**
 	 * Get verisoning plugin.
 	 *
-	 * @return Versioning
+	 * @return VersioningPlugin
 	 * @throws \RuntimeException If the configured versioning plugin is unknown.
 	 */
 	public static function versioningPlugin() {
