@@ -5,18 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 2.1.0-beta - 2024-03-14
+## 2.1.0 - 2024-04-10
 ### Added
-- Added onboarding flows. [#34649]
+- Add data to WAF logs and add toggle for users to opt-in to share more data with us if needed. [#36377]
 - Added firewall standalone mode indicator. [#34840]
+- Added onboarding flows. [#34649]
 
 ### Changed
 - General: indicate compatibility with the upcoming version of WordPress, 6.5. [#35820]
-- Use blog ID instead of site slug in checkout links. [#35004]
 - Updated package dependencies. [#36325]
 - Updated package lockfile. [#35672]
+- Use blog ID instead of site slug in checkout links. [#35004]
 
 ### Fixed
+- Jetpack Protect footer: Ensured that links to the cloud and the promotion around it are not shown if you are on a platform where the firewall is not supported. [#36794]
 - Prevent text orphans in the site scanning header. [#35935]
 
 ## 2.0.0 - 2024-01-18
