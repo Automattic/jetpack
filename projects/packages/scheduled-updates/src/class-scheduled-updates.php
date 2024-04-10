@@ -57,6 +57,12 @@ class Scheduled_Updates {
 		add_filter( 'views_plugins', array( Scheduled_Updates_Admin::class, 'add_scheduled_updates_view' ) );
 		add_filter( 'plugin_auto_update_setting_html', array( Scheduled_Updates_Admin::class, 'show_scheduled_updates' ), 10, 2 );
 
+		add_action( 'jetpack_scheduled_update_created', array( __CLASS__, 'maybe_disable_autoupdates' ), 10, 3 );
+		add_action( 'jetpack_scheduled_update_created', array( __CLASS__, 'create_scheduled_update_status' ), 10, 3 );
+		add_action( 'jetpack_scheduled_update_updated', array( __CLASS__, 'migrate_schedule_status' ), 10, 2 );
+		add_action( 'jetpack_scheduled_update_deleted', array( __CLASS__, 'enable_autoupdates' ), 10, 2 );
+		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Logs::class, 'clear' ) );
+
 		// Update cron sync option after options update.
 		$callback = array( __CLASS__, 'update_option_cron' );
 
@@ -178,14 +184,28 @@ class Scheduled_Updates {
 	}
 
 	/**
+	 * Create a scheduled update status.
+	 *
+	 * @param string           $schedule_id Request ID.
+	 * @param object           $event       The event object.
+	 * @param \WP_REST_Request $request     The request object.
+	 */
+	public static function create_scheduled_update_status( $schedule_id, $event, $request ) {
+		// Only create the status if this is a CREATE request.
+		if ( empty( $request['schedule_id'] ) ) {
+			self::set_scheduled_update_status( $schedule_id );
+		}
+	}
+
+	/**
 	 * Updates last status of a scheduled update.
 	 *
 	 * @param string      $schedule_id Request ID.
-	 * @param int|null    $timestamp   Timestamp of the last run.
-	 * @param string|null $status      Status of the last run.
+	 * @param int|null    $timestamp   Optional. Timestamp of the last run. Default is null.
+	 * @param string|null $status      Optional. Status of the last run. Default is null.
 	 * @return false|array Updated statuses or false if not found.
 	 */
-	public static function set_scheduled_update_status( $schedule_id, $timestamp, $status ) {
+	public static function set_scheduled_update_status( $schedule_id, $timestamp = null, $status = null ) {
 		$events = wp_get_scheduled_events( self::PLUGIN_CRON_HOOK );
 
 		if ( empty( $events[ $schedule_id ] ) ) {
@@ -227,6 +247,21 @@ class Scheduled_Updates {
 	}
 
 	/**
+	 * Migrate the status of a scheduled update.
+	 *
+	 * @param string $old_schedule_id Old schedule ID.
+	 * @param object $new_schedule_id New schedule ID.
+	 */
+	public static function migrate_schedule_status( $old_schedule_id, $new_schedule_id ) {
+		$old_status = static::get_scheduled_update_status( $old_schedule_id );
+
+		// Sets the previous status.
+		if ( $old_status ) {
+			static::set_scheduled_update_status( $new_schedule_id, $old_status['last_run_timestamp'], $old_status['last_run_status'] );
+		}
+	}
+
+	/**
 	 * Allow plugins that are part of scheduled updates to be updated automatically.
 	 *
 	 * @param bool|null $update Whether to update. The value of null is internally used
@@ -249,6 +284,53 @@ class Scheduled_Updates {
 		}
 
 		return $update;
+	}
+
+	/**
+	 * Maybe disable autoupdates.
+	 *
+	 * @param string           $id      The ID of the schedule.
+	 * @param object           $event   The event object.
+	 * @param \WP_REST_Request $request The request object.
+	 */
+	public static function maybe_disable_autoupdates( $id, $event, $request ) {
+		require_once ABSPATH . 'wp-admin/includes/update.php';
+
+		if ( wp_is_auto_update_enabled_for_type( 'plugin' ) ) {
+			// Remove the plugins that are now updated on a schedule from the auto-update list.
+			$auto_update_plugins = get_option( 'auto_update_plugins', array() );
+			$auto_update_plugins = array_diff( $auto_update_plugins, $request['plugins'] );
+			update_option( 'auto_update_plugins', $auto_update_plugins );
+		}
+	}
+
+	/**
+	 * Enable autoupdates.
+	 *
+	 * @param string $id    The ID of the schedule.
+	 * @param object $event The deleted event object.
+	 */
+	public static function enable_autoupdates( $id, $event ) {
+		require_once ABSPATH . 'wp-admin/includes/update.php';
+
+		if ( ! wp_is_auto_update_enabled_for_type( 'plugin' ) ) {
+			return;
+		}
+
+		$events = wp_get_scheduled_events( static::PLUGIN_CRON_HOOK );
+		unset( $events[ $id ] );
+
+		// Find the plugins that are not part of any other schedule.
+		$plugins = $event->args;
+		foreach ( wp_list_pluck( $events, 'args' ) as $args ) {
+			$plugins = array_diff( $plugins, $args );
+		}
+
+		// Add the plugins that are no longer updated on a schedule to the auto-update list.
+		$auto_update_plugins = get_option( 'auto_update_plugins', array() );
+		$auto_update_plugins = array_unique( array_merge( $auto_update_plugins, $plugins ) );
+		usort( $auto_update_plugins, 'strnatcasecmp' );
+		update_option( 'auto_update_plugins', $auto_update_plugins );
 	}
 
 	/**

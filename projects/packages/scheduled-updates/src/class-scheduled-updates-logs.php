@@ -162,7 +162,7 @@ class Scheduled_Updates_Logs {
 	 */
 	public static function infer_status_from_logs( $schedule_id ) {
 		$logs = self::get( $schedule_id );
-		if ( is_wp_error( $logs ) || empty( $logs ) ) {
+		if ( empty( $logs ) ) {
 			return false;
 		}
 
