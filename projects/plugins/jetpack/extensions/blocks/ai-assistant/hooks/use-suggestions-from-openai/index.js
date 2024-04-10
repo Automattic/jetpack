@@ -66,13 +66,6 @@ const useSuggestionsFromOpenAI = ( {
 		 */
 		dequeueAiAssistantFeatureAsyncRequest();
 
-		const implementedFunctions = options?.functions?.reduce( ( acc, { name, implementation } ) => {
-			return {
-				...acc,
-				[ name ]: implementation,
-			};
-		}, {} );
-
 		/*
 		 * If the site requires an upgrade to use the feature,
 		 * let's set the error and return an `undefined` event source.
@@ -192,58 +185,6 @@ const useSuggestionsFromOpenAI = ( {
 			setWasCompletionJustRequested( false );
 			disableAutoScroll();
 		}
-
-		const onFunctionDone = async e => {
-			const { detail } = e;
-
-			// Add assistant message with the function call request
-			const assistantResponse = { role: 'assistant', content: null, function_call: detail };
-
-			const response = await implementedFunctions[ detail.name ]?.(
-				JSON.parse( detail.arguments )
-			);
-
-			// Add the function call response
-			const functionResponse = {
-				role: 'function',
-				name: detail?.name,
-				content: JSON.stringify( response ),
-			};
-
-			prompt = [ ...prompt, assistantResponse, functionResponse ];
-
-			// Remove source.current listeners
-			source?.current?.removeEventListener( 'function_done', onFunctionDone );
-			source?.current?.removeEventListener( 'done', onDone );
-			source?.current?.removeEventListener( 'error_unclear_prompt', onErrorUnclearPrompt );
-			source?.current?.removeEventListener( 'error_network', onErrorNetwork );
-			source?.current?.removeEventListener( 'error_context_too_large', onErrorContextTooLarge );
-			source?.current?.removeEventListener(
-				'error_service_unavailable',
-				onErrorServiceUnavailable
-			);
-			source?.current?.removeEventListener( 'error_quota_exceeded', onErrorQuotaExceeded );
-			source?.current?.removeEventListener( 'error_moderation', onErrorModeration );
-			source?.current?.removeEventListener( 'suggestion', onSuggestion );
-
-			source.current = await askQuestion( prompt, {
-				postId,
-				requireUpgrade,
-				feature: 'ai-assistant',
-				functions: options.functions,
-			} );
-
-			// Add the listeners back
-			source?.current?.addEventListener( 'function_done', onFunctionDone );
-			source?.current?.addEventListener( 'done', onDone );
-			source?.current?.addEventListener( 'error_unclear_prompt', onErrorUnclearPrompt );
-			source?.current?.addEventListener( 'error_network', onErrorNetwork );
-			source?.current?.addEventListener( 'error_context_too_large', onErrorContextTooLarge );
-			source?.current?.addEventListener( 'error_service_unavailable', onErrorServiceUnavailable );
-			source?.current?.addEventListener( 'error_quota_exceeded', onErrorQuotaExceeded );
-			source?.current?.addEventListener( 'error_moderation', onErrorModeration );
-			source?.current?.addEventListener( 'suggestion', onSuggestion );
-		};
 
 		const onDone = e => {
 			const { detail } = e;
@@ -415,7 +356,6 @@ const useSuggestionsFromOpenAI = ( {
 			snapToBottom();
 		};
 
-		source?.current?.addEventListener( 'function_done', onFunctionDone );
 		source?.current?.addEventListener( 'done', onDone );
 		source?.current?.addEventListener( 'error_unclear_prompt', onErrorUnclearPrompt );
 		source?.current?.addEventListener( 'error_network', onErrorNetwork );
