@@ -2,6 +2,9 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.3.1 - 2024-04-10
+- Protect: Improved handling of request URLs. [#36833]
+
 ## 13.3 - 2024-04-03
 ### Enhancements
 - AI Assistant: Provide per-block quick actions to make them more relevant. [#36393]
