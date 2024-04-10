@@ -21,6 +21,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		skipUserConnection: true,
 		apiRoot,
 		apiNonce,
+		from: 'my-jetpack',
 	} );
 	const products = useAllProducts();
 	const navToConnection = useMyJetpackNavigate( MyJetpackRoutes.Connection );
