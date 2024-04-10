@@ -3,9 +3,9 @@
  */
 import { useImageGenerator } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Button, Spinner } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -22,6 +22,7 @@ import {
 import usePostContent from '../../hooks/use-post-content';
 import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library';
 import AiAssistantModal from '../modal';
+import Carrousel, { CarrouselImageData, CarrouselImages } from './carrousel';
 import UsageCounter from './usage-counter';
 
 const FEATURED_IMAGE_FEATURE_NAME = 'featured-post-image';
@@ -33,16 +34,19 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	const { editPost, toggleEditorPanelOpened: toggleEditorPanelOpenedFromEditor } =
 		useDispatch( 'core/editor' );
 
-	const { enableComplementaryArea } = useDispatch( 'core/interface' );
 	const [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] = useState( false );
-	const [ generating, setGenerating ] = useState( false );
-	const [ imageURL, setImageURL ] = useState( null );
-	const [ libraryImage, setLibraryImage ] = useState( null );
-	const [ error, setError ] = useState( null );
+	const [ images, setImages ] = useState< CarrouselImages >( [ { generating: true } ] );
+	const [ current, setCurrent ] = useState( 0 );
+	const pointer = useRef( 0 );
+
+	const { enableComplementaryArea } = useDispatch( 'core/interface' );
 	const { generateImage } = useImageGenerator();
 	const { isLoading: isSavingToMediaLibrary, saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
+
+	const currentImage = images[ current ];
+	const currentPointer = images[ pointer.current ];
 
 	// Get feature data
 	const {
@@ -85,13 +89,31 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 		increaseRequestsCount( featuredImageCost );
 	}, [ increaseRequestsCount, featuredImageCost ] );
 
+	/* Merge the image data with the new data. */
+	const updateImages = useCallback( ( data: CarrouselImageData, index ) => {
+		setImages( currentImages => {
+			const newImages = [ ...currentImages ];
+			newImages[ index ] = {
+				...newImages[ index ],
+				...data,
+			};
+			return newImages;
+		} );
+	}, [] );
+
+	const handlePreviousImage = useCallback( () => {
+		setCurrent( Math.max( current - 1, 0 ) );
+	}, [ current, setCurrent ] );
+
+	const handleNextImage = useCallback( () => {
+		setCurrent( Math.min( current + 1, images.length - 1 ) );
+	}, [ current, images.length ] );
+
 	/*
 	 * Function to generate a new image with the current value of the post content.
 	 */
 	const processImageGeneration = useCallback( () => {
-		setGenerating( true );
-		setError( null );
-		setLibraryImage( null );
+		updateImages( { generating: true, error: null }, pointer.current );
 
 		generateImage( {
 			feature: FEATURED_IMAGE_FEATURE_NAME,
@@ -101,20 +123,22 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 			.then( result => {
 				if ( result.data.length > 0 ) {
 					const image = 'data:image/png;base64,' + result.data[ 0 ].b64_json;
-					setImageURL( image );
+					updateImages( { image, generating: false }, pointer.current );
 					updateRequestsCount();
-					saveToMediaLibrary( image ).then( savedImage => {
-						setLibraryImage( savedImage );
-					} );
+					saveToMediaLibrary( image )
+						.then( savedImage => {
+							updateImages( { libraryId: savedImage.id }, pointer.current );
+							pointer.current += 1;
+						} )
+						.catch( () => {
+							pointer.current += 1;
+						} );
 				}
 			} )
 			.catch( e => {
-				setError( e );
-			} )
-			.finally( () => {
-				setGenerating( false );
+				updateImages( { generating: false, error: e }, pointer.current );
 			} );
-	}, [ generateImage, postContent, updateRequestsCount, saveToMediaLibrary ] );
+	}, [ updateImages, generateImage, postContent, updateRequestsCount, saveToMediaLibrary ] );
 
 	const toggleFeaturedImageModal = useCallback( () => {
 		setIsFeaturedImageModalVisible( ! isFeaturedImageModalVisible );
@@ -137,6 +161,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 		} );
 
 		processImageGeneration();
+		setCurrent( crrt => crrt + 1 );
 	}, [ processImageGeneration, recordEvent ] );
 
 	const handleTryAgain = useCallback( () => {
@@ -159,7 +184,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 		} );
 
 		const setAsFeaturedImage = image => {
-			editPost( { featured_media: image.id } );
+			editPost( { featured_media: image } );
 			toggleFeaturedImageModal();
 
 			// Open the featured image panel for users to see the new image.
@@ -177,18 +202,18 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 
 		// If the image is already in the media library, use it directly, if it failed for some reason
 		// save it to the media library and then use it.
-		if ( libraryImage ) {
-			setAsFeaturedImage( libraryImage );
+		if ( images[ current ].libraryId ) {
+			setAsFeaturedImage( images[ current ].libraryId );
 		} else {
-			saveToMediaLibrary( imageURL ).then( image => {
-				setAsFeaturedImage( image );
+			saveToMediaLibrary( images[ current ].image ).then( image => {
+				setAsFeaturedImage( image.id );
 			} );
 		}
 	}, [
+		current,
 		editPost,
-		imageURL,
+		images,
 		isEditorPanelOpened,
-		libraryImage,
 		recordEvent,
 		saveToMediaLibrary,
 		toggleEditorPanelOpened,
@@ -211,90 +236,71 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 			</Button>
 			{ isFeaturedImageModalVisible && (
 				<AiAssistantModal handleClose={ toggleFeaturedImageModal } title={ modalTitle }>
-					{ generating ? (
-						<div className="ai-assistant-featured-image__loading">
-							<Spinner
-								style={ {
-									width: '50px',
-									height: '50px',
-								} }
+					<div className="ai-assistant-featured-image__content">
+						<div className="ai-assistant-featured-image__image-canvas">
+							{ ( requireUpgrade || notEnoughRequests ) && (
+								<UpgradePrompt
+									description={
+										notEnoughRequests
+											? sprintf(
+													// Translators: %d is the cost of generating a featured image.
+													__(
+														"Featured image generation costs %d requests per image. You don't have enough requests to generate another image.",
+														'jetpack'
+													),
+													featuredImageCost
+											  )
+											: null
+									}
+								/>
+							) }
+							<Carrousel
+								images={ images }
+								current={ current }
+								handlePreviousImage={ handlePreviousImage }
+								handleNextImage={ handleNextImage }
 							/>
 						</div>
-					) : (
-						<div className="ai-assistant-featured-image__content">
-							<div className="ai-assistant-featured-image__image-canvas">
-								{ ( requireUpgrade || notEnoughRequests ) && (
-									<UpgradePrompt
-										description={
-											notEnoughRequests
-												? sprintf(
-														// Translators: %d is the cost of generating a featured image.
-														__(
-															"Featured image generation costs %d requests per image. You don't have enough requests to generate another image.",
-															'jetpack'
-														),
-														featuredImageCost
-												  )
-												: null
-										}
+						<div className="ai-assistant-featured-image__actions">
+							<div className="ai-assistant-featured-image__actions-left">
+								{ ! isUnlimited && featuredImageCost && requestsLimit && (
+									<UsageCounter
+										cost={ featuredImageCost }
+										currentLimit={ requestsLimit }
+										currentUsage={ requestsCount }
 									/>
 								) }
-								{ error ? (
-									<div className="ai-assistant-featured-image__error">
-										{ __(
-											'An error occurred while generating the image. Please, try again!',
-											'jetpack'
-										) }
-										{ error?.message && (
-											<span className="ai-assistant-featured-image__error-message">
-												{ error?.message }
-											</span>
-										) }
-									</div>
-								) : (
-									<img className="ai-assistant-featured-image__image" src={ imageURL } alt="" />
-								) }
 							</div>
-							<div className="ai-assistant-featured-image__actions">
-								<div className="ai-assistant-featured-image__actions-left">
-									{ ! isUnlimited && featuredImageCost && requestsLimit && (
-										<UsageCounter
-											cost={ featuredImageCost }
-											currentLimit={ requestsLimit }
-											currentUsage={ requestsCount }
-										/>
+							<div className="ai-assistant-featured-image__actions-right">
+								<div className="ai-assistant-featured-image__action-buttons">
+									{ currentPointer?.error ? (
+										<Button onClick={ handleTryAgain } variant="secondary">
+											{ __( 'Try again', 'jetpack' ) }
+										</Button>
+									) : (
+										<Button
+											onClick={ handleRegenerate }
+											variant="secondary"
+											isBusy={ isSavingToMediaLibrary || currentPointer?.generating }
+											disabled={
+												isSavingToMediaLibrary || notEnoughRequests || currentPointer?.generating
+											}
+										>
+											{ __( 'Generate new image', 'jetpack' ) }
+										</Button>
 									) }
-								</div>
-								<div className="ai-assistant-featured-image__actions-right">
-									<div className="ai-assistant-featured-image__action-buttons">
-										{ error ? (
-											<Button onClick={ handleTryAgain } variant="secondary">
-												{ __( 'Try again', 'jetpack' ) }
-											</Button>
-										) : (
-											<Button
-												onClick={ handleRegenerate }
-												variant="secondary"
-												disabled={ isSavingToMediaLibrary || notEnoughRequests }
-											>
-												{ __( 'Generate again', 'jetpack' ) }
-											</Button>
-										) }
-										{ ! error && (
-											<Button
-												onClick={ handleAccept }
-												variant="primary"
-												isBusy={ isSavingToMediaLibrary }
-												disabled={ isSavingToMediaLibrary }
-											>
-												{ __( 'Set as featured image', 'jetpack' ) }
-											</Button>
-										) }
-									</div>
+									<Button
+										onClick={ handleAccept }
+										variant="primary"
+										isBusy={ isSavingToMediaLibrary || currentImage?.generating }
+										disabled={ isSavingToMediaLibrary || ! currentImage?.image }
+									>
+										{ __( 'Set as featured image', 'jetpack' ) }
+									</Button>
 								</div>
 							</div>
 						</div>
-					) }
+					</div>
 				</AiAssistantModal>
 			) }
 		</div>
