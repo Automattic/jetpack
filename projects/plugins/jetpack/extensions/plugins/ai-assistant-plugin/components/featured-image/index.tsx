@@ -6,11 +6,12 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import './style.scss';
+import UpgradePrompt from '../../../../blocks/ai-assistant/components/upgrade-prompt';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import {
 	PLAN_TYPE_FREE,
@@ -44,6 +45,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 
 	// Get feature data
 	const {
+		requireUpgrade,
 		requestsCount: allTimeRequestsCount,
 		requestsLimit: freeRequestsLimit,
 		usagePeriod,
@@ -213,6 +215,22 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 					) : (
 						<div className="ai-assistant-featured-image__content">
 							<div className="ai-assistant-featured-image__image-canvas">
+								{ ( requireUpgrade || notEnoughRequests ) && (
+									<UpgradePrompt
+										description={
+											notEnoughRequests
+												? sprintf(
+														// Translators: %d is the cost of generating a featured image.
+														__(
+															"Featured image generation costs %d requests per image. You don't have enough requests to generate another image.",
+															'jetpack'
+														),
+														featuredImageCost
+												  )
+												: null
+										}
+									/>
+								) }
 								{ error ? (
 									<div className="ai-assistant-featured-image__error">
 										{ __(

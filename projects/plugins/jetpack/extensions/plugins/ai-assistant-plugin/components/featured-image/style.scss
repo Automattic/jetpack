@@ -39,4 +39,10 @@
 			color: red;
 		}
 	}
+
+	&__image-canvas {
+		& > .jetpack-ai-upgrade-banner {
+			margin-bottom: 8px;
+		}
+	}
 }
