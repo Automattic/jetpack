@@ -8,20 +8,9 @@
  * (can be combined with --load-baseline)
  */
 return [
-    // # Issue statistics:
-    // PhanPluginDuplicateConditionalNullCoalescing : 2 occurrences
-    // PhanUnextractableAnnotationSuffix : 2 occurrences
-    // PhanPluginSimplifyExpressionBool : 1 occurrence
-    // PhanTypeMismatchReturn : 1 occurrence
-    // UnusedPluginSuppression : 1 occurrence
-
+    // This baseline has no suppressions
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'Jetpack/Sniffs/Constants/MasterUserConstantSniff.php' => ['PhanUnextractableAnnotationSuffix'],
-        'Jetpack/Sniffs/Functions/I18nSniff.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanUnextractableAnnotationSuffix'],
-        'Jetpack/Sniffs/Functions/SetCookieSniff.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool'],
-        'hacks/PHPUnitTestTrait.php' => ['UnusedPluginSuppression'],
-        'tests/php/tests/test-jetpack-compat.php' => ['PhanTypeMismatchReturn'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)
