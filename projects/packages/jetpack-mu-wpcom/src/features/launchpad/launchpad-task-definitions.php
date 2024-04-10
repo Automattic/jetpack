@@ -742,8 +742,7 @@ function wpcom_launchpad_get_task_definitions() {
  *
  * @return boolean
  */
-
-function wpcom_launchpad_is_site_launched( $task ) {
+function wpcom_launchpad_is_site_launched() {
 	$launch_status = get_blog_option( null, 'launch-status' );
 	return 'launched' === $launch_status;
 }
