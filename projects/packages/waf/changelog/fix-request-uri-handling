@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Improves handling of REQUEST_URI
