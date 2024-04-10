@@ -138,6 +138,8 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 
 require_once __DIR__ . '/wpcom-migration-helpers/site-migration-helpers.php';
 
+require_once __DIR__ . '/wpcom-themes/themes.php';
+
 require_once __DIR__ . '/class-jetpack-plugin-compatibility.php';
 new Jetpack_Plugin_Compatibility();
 define( 'JETPACK_NOTES__CACHE_BUSTER', ( defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '1' ) . '-' . gmdate( 'oW' ) . '-' . WPCOMSH_VERSION );
