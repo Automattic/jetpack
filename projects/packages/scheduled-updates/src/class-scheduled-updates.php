@@ -193,7 +193,7 @@ class Scheduled_Updates {
 	public static function create_scheduled_update_status( $schedule_id, $event, $request ) {
 		// Only create the status if this is a CREATE request.
 		if ( empty( $request['schedule_id'] ) ) {
-			self::set_scheduled_update_status( $schedule_id );
+			self::set_scheduled_update_status( $schedule_id, null, null );
 		}
 	}
 
@@ -201,11 +201,11 @@ class Scheduled_Updates {
 	 * Updates last status of a scheduled update.
 	 *
 	 * @param string      $schedule_id Request ID.
-	 * @param int|null    $timestamp   Optional. Timestamp of the last run. Default is null.
-	 * @param string|null $status      Optional. Status of the last run. Default is null.
+	 * @param int|null    $timestamp   Timestamp of the last run.
+	 * @param string|null $status      Status of the last run.
 	 * @return false|array Updated statuses or false if not found.
 	 */
-	public static function set_scheduled_update_status( $schedule_id, $timestamp = null, $status = null ) {
+	public static function set_scheduled_update_status( $schedule_id, $timestamp, $status ) {
 		$events = wp_get_scheduled_events( self::PLUGIN_CRON_HOOK );
 
 		if ( empty( $events[ $schedule_id ] ) ) {
@@ -250,7 +250,7 @@ class Scheduled_Updates {
 	 * Migrate the status of a scheduled update.
 	 *
 	 * @param string $old_schedule_id Old schedule ID.
-	 * @param object $new_schedule_id New schedule ID.
+	 * @param string $new_schedule_id New schedule ID.
 	 */
 	public static function migrate_schedule_status( $old_schedule_id, $new_schedule_id ) {
 		$old_status = static::get_scheduled_update_status( $old_schedule_id );
