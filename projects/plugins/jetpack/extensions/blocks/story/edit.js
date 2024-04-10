@@ -1,9 +1,8 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL } from '@wordpress/blob';
-import { MediaPlaceholder } from '@wordpress/block-editor';
+import { MediaPlaceholder, useBlockProps } from '@wordpress/block-editor';
 import { withNotices } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import { get, pick } from 'lodash';
@@ -52,6 +51,7 @@ export default withNotices( function StoryEdit( {
 } ) {
 	const { mediaFiles } = attributes;
 	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
+	const blockProps = useBlockProps();
 	const lockName = 'storyBlockLock';
 
 	const onSelectMedia = newMediaFiles => {
@@ -113,33 +113,37 @@ export default withNotices( function StoryEdit( {
 		/>
 	);
 
+	let content;
+
 	if ( ! hasImages ) {
-		return (
-			<Fragment>
+		content = (
+			<>
 				{ controls }
 				{ mediaPlaceholder }
-			</Fragment>
+			</>
+		);
+	} else {
+		content = (
+			<>
+				{ controls }
+				{ noticeUI }
+				<div className={ classNames( 'wp-block-jetpack-story', 'wp-story', className ) }>
+					<StoryPlayer
+						slides={ mediaFiles }
+						disabled={ ! isSelected }
+						showSlideCount={ isSelected }
+						shadowDOM={ {
+							enabled: false,
+						} }
+						playInFullscreen={ false }
+						tapToPlayPause={ false }
+						playOnNextSlide={ false }
+					/>
+				</div>
+				{ isSelected && mediaPlaceholder }
+			</>
 		);
 	}
 
-	return (
-		<Fragment>
-			{ controls }
-			{ noticeUI }
-			<div className={ classNames( 'wp-block-jetpack-story', 'wp-story', className ) }>
-				<StoryPlayer
-					slides={ mediaFiles }
-					disabled={ ! isSelected }
-					showSlideCount={ isSelected }
-					shadowDOM={ {
-						enabled: false,
-					} }
-					playInFullscreen={ false }
-					tapToPlayPause={ false }
-					playOnNextSlide={ false }
-				/>
-			</div>
-			{ isSelected && mediaPlaceholder }
-		</Fragment>
-	);
+	return <div { ...blockProps }>{ content }</div>;
 } );
