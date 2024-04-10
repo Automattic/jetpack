@@ -122,9 +122,10 @@ class Note {
 						'placeholder' => __( "What's on your mind?", 'jetpack-social' ),
 					),
 				),
-				array(
-					'core/post-featured-image',
-				),
+				// We should add this back when the double featured image issue is fixed.
+				// array(
+				// 'core/post-featured-image',
+				// ),
 			),
 		);
 		register_post_type( self::JETPACK_SOCIAL_NOTE_CPT, $args );
