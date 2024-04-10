@@ -38,7 +38,7 @@ function wpcom_themes_show_banner() {
 			'logo'             => esc_url( $wpcom_logo ),
 			'title'            => esc_html__( 'Find the perfect theme for your site', 'jetpack-mu-wpcom' ),
 			'description'      => esc_html__( 'Dive deep into the world of WordPress.com themes. Discover the responsive and stunning designs waiting to bring your site to life.', 'jetpack-mu-wpcom' ),
-			'actionUrl'        => esc_url( "https://wordpress.com/themes/$site_slug" ),
+			'actionUrl'        => esc_url( "https://wordpress.com/themes/$site_slug?ref=wpcom-themes-banner" ),
 			'actionText'       => esc_html__( 'Explore themes', 'jetpack-mu-wpcom' ),
 			'bannerBackground' => esc_url( $background_image ),
 		)
