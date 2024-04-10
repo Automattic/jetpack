@@ -129,3 +129,29 @@ function wpcomsh_allow_en_locale_override( $locale_in ) {
 	return $locale_in;
 }
 add_filter( 'pre_determine_locale', 'wpcomsh_allow_en_locale_override' );
+
+/**
+ * Filter to hook into the `gettext` filter for requests against the `jetpack-mu-wpcom`
+ * text domain, as those translations are loaded into the `wpcomsh` text domain.
+ *
+ * @see 1727-gh-Automattic/wpcomsh
+ *
+ * @param string $translation The translated text.
+ * @param string $singular    The text to translate.
+ * @param string $domain      The text domain.
+ * @return string
+ */
+function wpcomsh_use_wpcomsh_fallback_for_jetpack_mu_wpcom_text_domain( $translation, $singular, $domain = 'default' ) {
+	if ( $domain !== 'jetpack-mu-wpcom' ) {
+		return $translation;
+	}
+
+	if ( $translation !== $singular ) {
+		return $translation;
+	}
+
+	// This is a low-level filter, and we trust that $singular is a string, so we can ignore these important warnings.
+	// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText, WordPress.WP.I18n.LowLevelTranslationFunction
+	return translate( $singular, 'wpcomsh' );
+}
+add_filter( 'gettext', 'wpcomsh_use_wpcomsh_fallback_for_jetpack_mu_wpcom_text_domain', 10, 3 );
