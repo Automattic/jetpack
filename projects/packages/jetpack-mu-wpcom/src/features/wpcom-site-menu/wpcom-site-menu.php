@@ -9,6 +9,8 @@
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 
 /**
  * Check if the current user has a WordPress.com account connected.
@@ -149,15 +151,6 @@ function wpcom_add_wpcom_menu_item() {
 
 	add_submenu_page(
 		$parent_slug,
-		esc_attr__( 'Monetize', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Monetize', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/earn/$domain" ),
-		null
-	);
-
-	add_submenu_page(
-		$parent_slug,
 		esc_attr__( 'Connections', 'jetpack-mu-wpcom' ),
 		esc_attr__( 'Connections', 'jetpack-mu-wpcom' ),
 		'manage_options',
@@ -219,6 +212,40 @@ function add_all_sites_menu_to_masterbar( $wp_admin_bar ) {
 	);
 }
 add_action( 'admin_bar_menu', 'add_all_sites_menu_to_masterbar', 15 );
+
+/**
+ * Add the WordPress.com submenu items related to Jetpack under the Jetpack menu on the wp-admin sidebar.
+ */
+function wpcom_add_jetpack_menu_item() {
+	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
+		return;
+	}
+
+	/**
+	 * Don't show to administrators without a WordPress.com account being attached,
+	 * as they don't have access to any of the pages.
+	 */
+	if ( ! current_user_has_wpcom_account() ) {
+		return;
+	}
+
+	/*
+	 * Do not display if we're in Offline mode, or if the user is not connected.
+	 */
+	if ( ( new Status() )->is_offline_mode() || ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) {
+		return;
+	}
+
+	add_submenu_page(
+		'jetpack',
+		__( 'Monetize', 'jetpack-mu-wpcom' ),
+		__( 'Monetize', 'jetpack-mu-wpcom' ) . ' <span class="dashicons dashicons-external"></span>',
+		'manage_options',
+		esc_url( Redirect::get_url( 'calypso-monetize' ) ),
+		null
+	);
+}
+add_action( 'jetpack_admin_menu', 'wpcom_add_jetpack_menu_item' );
 
 /**
  * Helper function to determine if the admin notice should be shown.
