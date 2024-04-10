@@ -36,6 +36,24 @@ export const SimplePaymentsEdit = ( {
 	block,
 	isSaving,
 } ) => {
+	const {
+		content,
+		currency,
+		email,
+		featuredMediaId,
+		featuredMediaUrl,
+		featuredMediaTitle,
+		multiple,
+		price,
+		productId,
+		title,
+	} = attributes;
+	/**
+	 * The only disabled state that concerns us is when we expect a product but don't have it in
+	 * local state.
+	 */
+	const isDisabled = productId && isEmpty( simplePayment );
+
 	const [ fieldEmailError, setFieldEmailError ] = useState( null );
 	const [ fieldPriceError, setFieldPriceError ] = useState( null );
 	const [ fieldTitleError, setFieldTitleError ] = useState( null );
@@ -49,22 +67,7 @@ export const SimplePaymentsEdit = ( {
 	 * If absent, we may save the product in the future but do not need to inject attributes based
 	 * on the response as they will have come from our product submission.
 	 */
-	const [ shouldInjectPaymentAttributes, setShouldInjectPaymentAttributes ] = useState(
-		!! attributes.productId
-	);
-
-	const {
-		content,
-		currency,
-		email,
-		featuredMediaId,
-		featuredMediaUrl,
-		featuredMediaTitle,
-		multiple,
-		price,
-		productId,
-		title,
-	} = attributes;
+	const [ shouldInjectPaymentAttrs, setShouldInjectPaymentAttrs ] = useState( !! productId );
 
 	const injectPaymentAttributes = () => {
 		/**
@@ -75,7 +78,7 @@ export const SimplePaymentsEdit = ( {
 		 * overwrite changes that the user has made with stale state from the previous save.
 		 */
 
-		if ( ! shouldInjectPaymentAttributes || isEmpty( simplePayment ) ) {
+		if ( ! shouldInjectPaymentAttrs || isEmpty( simplePayment ) ) {
 			return;
 		}
 
@@ -91,7 +94,7 @@ export const SimplePaymentsEdit = ( {
 			title: get( simplePayment, [ 'title', 'raw' ], title ),
 		} );
 
-		setShouldInjectPaymentAttributes( ! shouldInjectPaymentAttributes );
+		setShouldInjectPaymentAttrs( ! shouldInjectPaymentAttrs );
 	};
 
 	const saveProduct = () => {
@@ -365,21 +368,16 @@ export const SimplePaymentsEdit = ( {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ simplePayment ] );
 
-	// Validate and save product on post save
 	useEffect( () => {
 		if ( isSaving && ( hasPublishAction || ! isPostEditor ) && validateAttributes() ) {
+			// Validate and save product on post save
 			saveProduct();
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ isSaving ] );
-
-	// Validate on block deselect
-	useEffect( () => {
-		if ( ! isSelected ) {
+		} else if ( ! isSelected ) {
+			// Validate on block deselect
 			validateAttributes();
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ isSelected ] );
+	}, [ isSaving, isSelected ] );
 
 	useEffect( () => {
 		const shouldUpdatePostLinkUrl = postLinkUrl && postLinkUrl !== attributes.postLinkUrl;
@@ -396,21 +394,15 @@ export const SimplePaymentsEdit = ( {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ postLinkUrl, attributes ] );
 
-	/**
-	 * The only disabled state that concerns us is when we expect a product but don't have it in
-	 * local state.
-	 */
-	const isDisabled = productId && isEmpty( simplePayment );
+	let elt;
 
 	if ( ! isSelected && isDisabled ) {
-		return (
+		elt = (
 			<div className="simple-payments__loading">
 				<ProductPlaceholder aria-busy="true" content="█████" formattedPrice="█████" title="█████" />
 			</div>
 		);
-	}
-
-	if (
+	} else if (
 		! isSelected &&
 		email &&
 		price &&
@@ -419,7 +411,7 @@ export const SimplePaymentsEdit = ( {
 		! fieldPriceError &&
 		! fieldTitleError
 	) {
-		return (
+		elt = (
 			<ProductPlaceholder
 				aria-busy="false"
 				content={ content }
@@ -430,106 +422,108 @@ export const SimplePaymentsEdit = ( {
 				title={ title }
 			/>
 		);
-	}
+	} else {
+		const Wrapper = isDisabled ? Disabled : 'div';
 
-	const Wrapper = isDisabled ? Disabled : 'div';
-
-	return (
-		<Wrapper className="wp-block-jetpack-simple-payments">
-			<InspectorControls>
-				<PanelControls postLinkText={ attributes.postLinkText } setAttributes={ setAttributes } />
-			</InspectorControls>
-			<FeaturedMedia
-				{ ...{ featuredMediaId, featuredMediaUrl, featuredMediaTitle, setAttributes } }
-			/>
-			<div>
-				<TextControl
-					aria-describedby={ `${ instanceId }-title-error` }
-					className={ classNames( 'simple-payments__field', 'simple-payments__field-title', {
-						'simple-payments__field-has-error': fieldTitleError,
-					} ) }
-					label={ __( 'Item name', 'jetpack' ) }
-					onChange={ handleTitleChange }
-					placeholder={ __( 'Item name', 'jetpack' ) }
-					required
-					type="text"
-					value={ title }
+		elt = (
+			<Wrapper className="wp-block-jetpack-simple-payments">
+				<InspectorControls>
+					<PanelControls postLinkText={ attributes.postLinkText } setAttributes={ setAttributes } />
+				</InspectorControls>
+				<FeaturedMedia
+					{ ...{ featuredMediaId, featuredMediaUrl, featuredMediaTitle, setAttributes } }
 				/>
-				<HelpMessage id={ `${ instanceId }-title-error` } isError>
-					{ fieldTitleError }
-				</HelpMessage>
-
-				<TextareaControl
-					className="simple-payments__field simple-payments__field-content"
-					label={ __( 'Describe your item in a few words', 'jetpack' ) }
-					onChange={ handleContentChange }
-					placeholder={ __( 'Describe your item in a few words', 'jetpack' ) }
-					aria-label={ __( 'Describe your item in a few words', 'jetpack' ) }
-					value={ content }
-				/>
-
-				<div className="simple-payments__price-container">
-					<SelectControl
-						className="simple-payments__field simple-payments__field-currency"
-						label={ __( 'Currency', 'jetpack' ) }
-						onChange={ handleCurrencyChange }
-						options={ getCurrencyList }
-						value={ currency }
-					/>
+				<div>
 					<TextControl
-						aria-describedby={ `${ instanceId }-price-error` }
-						className={ classNames( 'simple-payments__field', 'simple-payments__field-price', {
-							'simple-payments__field-has-error': fieldPriceError,
+						aria-describedby={ `${ instanceId }-title-error` }
+						className={ classNames( 'simple-payments__field', 'simple-payments__field-title', {
+							'simple-payments__field-has-error': fieldTitleError,
 						} ) }
-						label={ __( 'Price', 'jetpack' ) }
-						onChange={ handlePriceChange }
-						placeholder={ formatPrice( 0, currency, false ) }
+						label={ __( 'Item name', 'jetpack' ) }
+						onChange={ handleTitleChange }
+						placeholder={ __( 'Item name', 'jetpack' ) }
 						required
-						step="1"
-						type="number"
-						value={ price || '' }
+						type="text"
+						value={ title }
 					/>
-					<HelpMessage id={ `${ instanceId }-price-error` } isError>
-						{ fieldPriceError }
+					<HelpMessage id={ `${ instanceId }-title-error` } isError>
+						{ fieldTitleError }
+					</HelpMessage>
+
+					<TextareaControl
+						className="simple-payments__field simple-payments__field-content"
+						label={ __( 'Describe your item in a few words', 'jetpack' ) }
+						onChange={ handleContentChange }
+						placeholder={ __( 'Describe your item in a few words', 'jetpack' ) }
+						aria-label={ __( 'Describe your item in a few words', 'jetpack' ) }
+						value={ content }
+					/>
+
+					<div className="simple-payments__price-container">
+						<SelectControl
+							className="simple-payments__field simple-payments__field-currency"
+							label={ __( 'Currency', 'jetpack' ) }
+							onChange={ handleCurrencyChange }
+							options={ getCurrencyList }
+							value={ currency }
+						/>
+						<TextControl
+							aria-describedby={ `${ instanceId }-price-error` }
+							className={ classNames( 'simple-payments__field', 'simple-payments__field-price', {
+								'simple-payments__field-has-error': fieldPriceError,
+							} ) }
+							label={ __( 'Price', 'jetpack' ) }
+							onChange={ handlePriceChange }
+							placeholder={ formatPrice( 0, currency, false ) }
+							required
+							step="1"
+							type="number"
+							value={ price || '' }
+						/>
+						<HelpMessage id={ `${ instanceId }-price-error` } isError>
+							{ fieldPriceError }
+						</HelpMessage>
+					</div>
+
+					<div className="simple-payments__field-multiple">
+						<ToggleControl
+							checked={ Boolean( multiple ) }
+							label={ __( 'Allow people to buy more than one item at a time', 'jetpack' ) }
+							onChange={ handleMultipleChange }
+						/>
+					</div>
+
+					<TextControl
+						aria-describedby={ `${ instanceId }-email-${ fieldEmailError ? 'error' : 'help' }` }
+						className={ classNames( 'simple-payments__field', 'simple-payments__field-email', {
+							'simple-payments__field-has-error': fieldEmailError,
+						} ) }
+						label={ __( 'Email', 'jetpack' ) }
+						onChange={ handleEmailChange }
+						placeholder={ __( 'Email', 'jetpack' ) }
+						required
+						// TODO: switch this back to type="email" once Gutenberg paste handler ignores inputs of type email
+						type="text"
+						value={ email }
+					/>
+					<HelpMessage id={ `${ instanceId }-email-error` } isError>
+						{ fieldEmailError }
+					</HelpMessage>
+					<HelpMessage id={ `${ instanceId }-email-help` }>
+						{ __(
+							'Enter the email address associated with your PayPal account. Don’t have an account?',
+							'jetpack'
+						) + ' ' }
+						<ExternalLink href="https://www.paypal.com/">
+							{ __( 'Create one on PayPal', 'jetpack' ) }
+						</ExternalLink>
 					</HelpMessage>
 				</div>
+			</Wrapper>
+		);
+	}
 
-				<div className="simple-payments__field-multiple">
-					<ToggleControl
-						checked={ Boolean( multiple ) }
-						label={ __( 'Allow people to buy more than one item at a time', 'jetpack' ) }
-						onChange={ handleMultipleChange }
-					/>
-				</div>
-
-				<TextControl
-					aria-describedby={ `${ instanceId }-email-${ fieldEmailError ? 'error' : 'help' }` }
-					className={ classNames( 'simple-payments__field', 'simple-payments__field-email', {
-						'simple-payments__field-has-error': fieldEmailError,
-					} ) }
-					label={ __( 'Email', 'jetpack' ) }
-					onChange={ handleEmailChange }
-					placeholder={ __( 'Email', 'jetpack' ) }
-					required
-					// TODO: switch this back to type="email" once Gutenberg paste handler ignores inputs of type email
-					type="text"
-					value={ email }
-				/>
-				<HelpMessage id={ `${ instanceId }-email-error` } isError>
-					{ fieldEmailError }
-				</HelpMessage>
-				<HelpMessage id={ `${ instanceId }-email-help` }>
-					{ __(
-						'Enter the email address associated with your PayPal account. Don’t have an account?',
-						'jetpack'
-					) + ' ' }
-					<ExternalLink href="https://www.paypal.com/">
-						{ __( 'Create one on PayPal', 'jetpack' ) }
-					</ExternalLink>
-				</HelpMessage>
-			</div>
-		</Wrapper>
-	);
+	return elt;
 };
 
 const mapSelectToProps = withSelect( ( select, props ) => {
