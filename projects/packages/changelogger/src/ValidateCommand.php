@@ -42,7 +42,7 @@ class ValidateCommand extends Command {
 	/**
 	 * Counts of errors and warnings output.
 	 *
-	 * @var int[]
+	 * @var array{error:int,warning:int}
 	 */
 	private $counts;
 
@@ -107,7 +107,8 @@ EOF
 		try {
 			$diagnostics = null; // Make phpcs happy.
 			$data        = Utils::loadChangeFile( $filename, $diagnostics );
-		} catch ( \RuntimeException $ex ) {
+			'@phan-var array{warnings:array{string,int}[],lines:array<string,int>} $diagnostics'; // No idea why Phan is getting confused about the type.
+		} catch ( LoadChangeFileException $ex ) {
 			$this->msg( 'error', $filename, $ex->fileLine, $ex->getMessage() );
 			return false;
 		}
@@ -212,6 +213,7 @@ EOF
 		}
 
 		$output->writeln( sprintf( 'Found %d error(s) and %d warning(s)', $this->counts['error'], $this->counts['warning'] ), OutputInterface::VERBOSITY_VERBOSE );
+		// @phan-suppress-next-line PhanImpossibleCondition -- Phan is incorrectly assuming it never changes.
 		return $this->counts['error'] || $this->counts['warning'] && ! $input->getOption( 'no-strict' ) ? 1 : 0;
 	}
 }

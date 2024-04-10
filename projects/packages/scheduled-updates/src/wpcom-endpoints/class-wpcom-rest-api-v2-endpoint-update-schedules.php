@@ -116,6 +116,17 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 							'description' => 'The action to be logged',
 							'type'        => 'string',
 							'required'    => true,
+							'enum'        => array(
+								Scheduled_Updates_Logs::PLUGIN_UPDATES_START,
+								Scheduled_Updates_Logs::PLUGIN_UPDATES_SUCCESS,
+								Scheduled_Updates_Logs::PLUGIN_UPDATES_FAILURE,
+								Scheduled_Updates_Logs::PLUGIN_UPDATE_SUCCESS,
+								Scheduled_Updates_Logs::PLUGIN_UPDATE_FAILURE,
+								Scheduled_Updates_Logs::PLUGIN_SITE_HEALTH_CHECK_SUCCESS,
+								Scheduled_Updates_Logs::PLUGIN_SITE_HEALTH_CHECK_FAILURE,
+								Scheduled_Updates_Logs::PLUGIN_UPDATE_FAILURE_AND_ROLLBACK,
+								Scheduled_Updates_Logs::PLUGIN_UPDATE_FAILURE_AND_ROLLBACK_FAIL,
+							),
 						),
 						'message' => array(
 							'description' => 'The message to be logged',
