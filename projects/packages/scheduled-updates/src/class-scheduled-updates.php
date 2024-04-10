@@ -205,11 +205,11 @@ class Scheduled_Updates {
 	 * Updates last status of a scheduled update.
 	 *
 	 * @param string      $schedule_id Request ID.
-	 * @param int|null    $timestamp   Timestamp of the last run.
-	 * @param string|null $status      Status of the last run.
+	 * @param int|null    $timestamp   Optional. Timestamp of the last run. Default is null.
+	 * @param string|null $status      Optional. Status of the last run. Default is null.
 	 * @return false|array Updated statuses or false if not found.
 	 */
-	public static function set_scheduled_update_status( $schedule_id, $timestamp, $status ) {
+	public static function set_scheduled_update_status( $schedule_id, $timestamp = null, $status = null ) {
 		$events = wp_get_scheduled_events( self::PLUGIN_CRON_HOOK );
 
 		if ( empty( $events[ $schedule_id ] ) ) {
