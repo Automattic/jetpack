@@ -37,6 +37,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	const [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] = useState( false );
 	const [ generating, setGenerating ] = useState( false );
 	const [ imageURL, setImageURL ] = useState( null );
+	const [ libraryImage, setLibraryImage ] = useState( null );
 	const [ error, setError ] = useState( null );
 	const { generateImage } = useImageGenerator();
 	const { isLoading: isSavingToMediaLibrary, saveToMediaLibrary } = useSaveToMediaLibrary();
@@ -90,6 +91,8 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	const processImageGeneration = useCallback( () => {
 		setGenerating( true );
 		setError( null );
+		setLibraryImage( null );
+
 		generateImage( {
 			feature: FEATURED_IMAGE_FEATURE_NAME,
 			postContent,
@@ -100,6 +103,9 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 					const image = 'data:image/png;base64,' + result.data[ 0 ].b64_json;
 					setImageURL( image );
 					updateRequestsCount();
+					saveToMediaLibrary( image ).then( savedImage => {
+						setLibraryImage( savedImage );
+					} );
 				}
 			} )
 			.catch( e => {
@@ -108,7 +114,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 			.finally( () => {
 				setGenerating( false );
 			} );
-	}, [ postContent, setGenerating, setImageURL, generateImage, updateRequestsCount ] );
+	}, [ generateImage, postContent, updateRequestsCount, saveToMediaLibrary ] );
 
 	const toggleFeaturedImageModal = useCallback( () => {
 		setIsFeaturedImageModalVisible( ! isFeaturedImageModalVisible );
@@ -152,7 +158,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 			placement: JETPACK_SIDEBAR_PLACEMENT,
 		} );
 
-		saveToMediaLibrary( imageURL ).then( image => {
+		const setAsFeaturedImage = image => {
 			editPost( { featured_media: image.id } );
 			toggleFeaturedImageModal();
 
@@ -167,11 +173,22 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 					triggerComplementaryArea();
 				}
 			}, 500 );
-		} );
+		};
+
+		// If the image is already in the media library, use it directly, if it failed for some reason
+		// save it to the media library and then use it.
+		if ( libraryImage ) {
+			setAsFeaturedImage( libraryImage );
+		} else {
+			saveToMediaLibrary( imageURL ).then( image => {
+				setAsFeaturedImage( image );
+			} );
+		}
 	}, [
 		editPost,
 		imageURL,
 		isEditorPanelOpened,
+		libraryImage,
 		recordEvent,
 		saveToMediaLibrary,
 		toggleEditorPanelOpened,
