@@ -37,6 +37,7 @@ const Health = ( { setup, error, setError }: HealthProps ) => {
 					onClose={ () => {
 						setError( { ...error, dismissed: true } );
 					} }
+					actions={ errorData.actions }
 				>
 					<p>{ errorData.message }</p>
 				</Notice>

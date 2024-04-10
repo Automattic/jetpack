@@ -94,3 +94,21 @@ export function useClearPageCacheAction() {
 
 	return [ message, action ] as const;
 }
+
+/**
+ * Hook to run an action that disables super cache.
+ */
+export function useAsyncSuperCacheAction() {
+	const action = useDataSyncAction( {
+		namespace: 'jetpack_boost_ds',
+		key: 'page_cache',
+		action_name: 'deactivate-wpsc',
+		schema: {
+			state: PageCache,
+			action_request: z.void(),
+			action_response: PageCacheError.or( z.boolean() ),
+		},
+	} );
+
+	return action;
+}

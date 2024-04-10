@@ -3,12 +3,15 @@ import { createInterpolateElement } from '@wordpress/element';
 import styles from '../health.module.scss';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { PageCacheError } from '$lib/stores/page-cache';
+import SwitchToBoost from '$features/page-cache/switch-to-boost/switch-to-boost';
 
 const cacheIssuesLink = ( issue: string ) => {
 	return getRedirectUrl( `jetpack-boost-cache-issue-${ issue }` );
 };
 
-const messages: { [ key: string ]: { title: string; message: React.ReactNode } } = {
+const messages: {
+	[ key: string ]: { title: string; message: React.ReactNode; actions?: React.ReactNode[] };
+} = {
 	'failed-settings-write': {
 		title: __( 'The settings file cannot be updated', 'jetpack-boost' ),
 		message: createInterpolateElement(
@@ -113,6 +116,7 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 				),
 			}
 		),
+		actions: [ <SwitchToBoost key="switch-to-boost" /> ],
 	},
 	'unable-to-write-to-advanced-cache': {
 		title: __( 'File Update Needed for Activation', 'jetpack-boost' ),
@@ -203,6 +207,7 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 type FormattedError = {
 	title: string;
 	message: React.ReactNode;
+	actions?: React.ReactNode[];
 };
 function getErrorData( status?: PageCacheError ): false | FormattedError {
 	if ( ! status ) {
