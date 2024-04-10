@@ -14,7 +14,6 @@ use Exception;
 use InvalidArgumentException;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
-use PHPUnit_Framework_ExpectationFailedException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
@@ -28,8 +27,8 @@ class IgnoreFileTest extends TestCase {
 	 * Run test cases from IgnoreFileTestData.jsonc.
 	 *
 	 * @dataProvider provideCases
-	 * @param string|string[] $patterns Patterns to test.
-	 * @param string[]        $pathmap Paths to test.
+	 * @param string|string[]                                  $patterns Patterns to test.
+	 * @param array<string,array{ignored:bool,unignored:bool}> $pathmap Paths to test.
 	 */
 	public function testCases( $patterns, $pathmap ) {
 		$ignore = new IgnoreFile();
@@ -186,7 +185,7 @@ class IgnoreFileTest extends TestCase {
 				$this->addWarning( 'This test is marked as "nogit" but passes. Maybe the "nogit" can be removed?' );
 			}
 		} catch ( Exception $ex ) {
-			if ( $skip && ( $ex instanceof PHPUnit_Framework_ExpectationFailedException || $ex instanceof ExpectationFailedException ) ) {
+			if ( $skip && $ex instanceof ExpectationFailedException ) {
 				$this->markTestSkipped( 'Git doesn\'t match its own docs' );
 			} else {
 				throw $ex;
