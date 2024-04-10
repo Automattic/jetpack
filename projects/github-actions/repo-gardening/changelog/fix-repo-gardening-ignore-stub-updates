@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Check Descriptions task: Ignore automated stub update PRs.
