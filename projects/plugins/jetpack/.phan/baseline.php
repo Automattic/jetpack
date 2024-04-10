@@ -695,7 +695,7 @@ return [
         'tests/php/sync/test_class.jetpack-sync-themes.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanUndeclaredMethod'],
         'tests/php/sync/test_class.jetpack-sync-updates.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredMethod', 'PhanUndeclaredMethodInCallable'],
         'tests/php/sync/test_class.jetpack-sync-users.php' => ['PhanTypeMismatchArgument'],
-        'tests/php/sync/test_class.jetpack-sync-woocommerce.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredClassMethod', 'PhanUndeclaredMethod'],
+        'tests/php/sync/test_class.jetpack-sync-woocommerce.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredMethod'],
         'tests/php/sync/test_class.jetpack-sync-wp_super_cache.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspiciousNullable'],
         'tests/php/sync/test_interface.jetpack-sync-replicastore.php' => ['PhanRedundantConditionInLoop', 'PhanTypeObjectUnsetDeclaredProperty', 'PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassMethod'],
         'tests/php/test_class.functions.opengraph.php' => ['PhanTypeMismatchArgumentProbablyReal'],
