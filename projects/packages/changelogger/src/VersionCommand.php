@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Changelogger;
 
+use Automattic\Jetpack\Changelog\ChangeEntry;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -61,7 +62,7 @@ EOF
 	 * @param ChangeEntry[] $changes Changes.
 	 * @param array         $extra Extra components for the version.
 	 * @return string $version
-	 * @throws InvalidArgumentException If something is wrong.
+	 * @throws \InvalidArgumentException If something is wrong.
 	 */
 	public static function getNextVersion( array $versions, array $changes, array $extra ) {
 		$versioning = Config::versioningPlugin();
@@ -138,7 +139,7 @@ EOF
 
 		// Read current versions, either from command line or changelog.
 		if ( 'next' === $which && $input->getOption( 'use-version' ) !== null ) {
-			$versions = array( $input->getOption( 'use-version' ) );
+			$versions = array( (string) $input->getOption( 'use-version' ) );
 		} else {
 			$file = Config::changelogFile();
 			if ( ! file_exists( $file ) ) {

@@ -16,7 +16,7 @@ import {
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useLayoutEffect, useState } from 'react';
 /*
  * Internal dependencies
  */
@@ -98,7 +98,9 @@ export default function MyJetpackScreen() {
 	const { recordEvent } = useAnalytics();
 	const [ reloading, setReloading ] = useState( false );
 
-	useEffect( () => {
+	// useLayoutEffect gets called before useEffect.
+	// We are using it here to ensure the `page_view` event gets triggered first.
+	useLayoutEffect( () => {
 		recordEvent( 'jetpack_myjetpack_page_view', {
 			red_bubble_alerts: Object.keys( redBubbleAlerts ).join( ',' ),
 		} );

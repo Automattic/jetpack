@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Blocks: move localizable strings out of the metadata attributes field

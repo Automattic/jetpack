@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+Deprecated the `$subheading` parameter to `ChangelogEntry::getChangesBySubheading()` to make the return value clearer.

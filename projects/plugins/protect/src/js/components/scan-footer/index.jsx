@@ -4,6 +4,8 @@ import {
 	Title,
 	getRedirectUrl,
 	ContextualUpgradeTrigger,
+	Col,
+	Container,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
@@ -112,12 +114,19 @@ const FooterInfo = () => {
 };
 
 const ScanFooter = () => {
-	return (
+	const { waf } = window.jetpackProtectInitialState || {};
+	return waf.wafSupported ? (
 		<SeventyFiveLayout
 			main={ <ProductPromotion /> }
 			secondary={ <FooterInfo /> }
 			preserveSecondaryOnMobile={ true }
 		/>
+	) : (
+		<Container horizontalSpacing={ 0 } horizontalGap={ 0 } fluid={ false }>
+			<Col>
+				<FooterInfo />
+			</Col>
+		</Container>
 	);
 };
 
