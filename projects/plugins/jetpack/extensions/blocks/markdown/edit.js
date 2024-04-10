@@ -12,11 +12,12 @@ import MarkdownRenderer from './renderer';
 const PANEL_EDITOR = 'editor';
 const PANEL_PREVIEW = 'preview';
 
-const MarkdownEdit = ( { attributes, setAttributes, className, isSelected, removeBlock } ) => {
+const MarkdownEdit = ( { attributes, setAttributes, isSelected, removeBlock } ) => {
 	const { source } = attributes;
 	const isEmpty = ! source || source.trim() === '';
 
 	const blockProps = useBlockProps();
+	const { className } = blockProps;
 	const [ activePanel, setActivePanel ] = useState( PANEL_EDITOR );
 	const input = useRef( null );
 

@@ -30,7 +30,7 @@ export const Rating = ( { id, setRating, children } ) => {
 };
 
 export default Symbol =>
-	function ( { className, setAttributes, attributes: { align, color, rating, maxRating } } ) {
+	function ( { setAttributes, attributes: { align, color, rating, maxRating } } ) {
 		const blockProps = useBlockProps();
 
 		const setNewMaxRating = newMaxRating => setAttributes( { maxRating: newMaxRating } );
@@ -59,7 +59,7 @@ export default Symbol =>
 						onChange={ nextAlign => setAttributes( { align: nextAlign } ) }
 					/>
 				</BlockControls>
-				<div className={ className } style={ { textAlign: align } }>
+				<div style={ { textAlign: align } }>
 					{ range( 1, maxRating + 1 ).map( position => (
 						<Rating key={ position } id={ position } setRating={ setNewRating }>
 							<span>

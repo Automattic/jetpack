@@ -43,7 +43,6 @@ export const pickRelevantMediaFiles = media => {
 
 export default withNotices( function StoryEdit( {
 	attributes,
-	className,
 	isSelected,
 	noticeOperations,
 	noticeUI,
@@ -91,7 +90,7 @@ export default withNotices( function StoryEdit( {
 		<MediaPlaceholder
 			addToGallery={ hasImages }
 			isAppender={ hasImages }
-			className={ className }
+			className={ blockProps.className }
 			disableMediaButtons={ hasImages && ! isSelected }
 			icon={ ! hasImages && icon }
 			labels={ {
@@ -127,23 +126,28 @@ export default withNotices( function StoryEdit( {
 			<>
 				{ controls }
 				{ noticeUI }
-				<div className={ classNames( 'wp-block-jetpack-story', 'wp-story', className ) }>
-					<StoryPlayer
-						slides={ mediaFiles }
-						disabled={ ! isSelected }
-						showSlideCount={ isSelected }
-						shadowDOM={ {
-							enabled: false,
-						} }
-						playInFullscreen={ false }
-						tapToPlayPause={ false }
-						playOnNextSlide={ false }
-					/>
-				</div>
+				<StoryPlayer
+					slides={ mediaFiles }
+					disabled={ ! isSelected }
+					showSlideCount={ isSelected }
+					shadowDOM={ {
+						enabled: false,
+					} }
+					playInFullscreen={ false }
+					tapToPlayPause={ false }
+					playOnNextSlide={ false }
+				/>
 				{ isSelected && mediaPlaceholder }
 			</>
 		);
 	}
 
-	return <div { ...blockProps }>{ content }</div>;
+	return (
+		<div
+			{ ...blockProps }
+			className={ classNames( 'wp-block-jetpack-story', 'wp-story', blockProps.className ) }
+		>
+			{ content }
+		</div>
+	);
 } );

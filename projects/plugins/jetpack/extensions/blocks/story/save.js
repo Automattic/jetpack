@@ -1,12 +1,8 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import classNames from 'classnames';
 
-export default ( { className } ) => {
+export default () => {
 	const blockProps = useBlockProps.save();
 
-	return (
-		<div { ...blockProps }>
-			<div className={ classNames( 'wp-story', className ) }></div>
-		</div>
-	);
+	return <div { ...blockProps } className={ classNames( 'wp-story', blockProps.className ) }></div>;
 };
