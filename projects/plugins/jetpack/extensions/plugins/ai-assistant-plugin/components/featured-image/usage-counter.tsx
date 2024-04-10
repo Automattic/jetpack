@@ -28,14 +28,14 @@ export default function UsageCounter( { currentLimit, currentUsage, cost }: Usag
 
 	const pricingLabel = sprintf(
 		// Translators: %d is the cost of generating a featured image.
-		__( 'Featured image generation costs %d requests per image.', 'jetpack' ),
+		__( '%d requests per image', 'jetpack' ),
 		cost
 	);
 
 	const pricingLabelNotEnoughRequests = sprintf(
 		// Translators: %d is the cost of generating a featured image.
 		__(
-			"Featured image generation costs %d requests per image. You don't have enough requests to generate another image.",
+			"%d requests per image. You don't have enough requests to generate another image",
 			'jetpack'
 		),
 		cost

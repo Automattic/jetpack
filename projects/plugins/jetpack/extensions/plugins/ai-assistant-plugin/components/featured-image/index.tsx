@@ -179,17 +179,11 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 		triggerComplementaryArea,
 	] );
 
-	const modalTitleWhenGenerating = __( 'Generating featured image…', 'jetpack' );
-	const modalTitleWhenDone = __( 'Featured Image Generation', 'jetpack' );
+	const modalTitle = __( 'Generate a featured image with AI', 'jetpack' );
 
 	return (
 		<div>
-			<p>
-				{ __(
-					'Ask Jetpack AI to generate an image based on your post content, to use as the post featured image.',
-					'jetpack'
-				) }
-			</p>
+			<p>{ __( 'Create and use an AI generated featured image for your post.', 'jetpack' ) }</p>
 			<Button
 				onClick={ handleGenerate }
 				isBusy={ busy }
@@ -199,10 +193,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 				{ __( 'Generate image', 'jetpack' ) }
 			</Button>
 			{ isFeaturedImageModalVisible && (
-				<AiAssistantModal
-					handleClose={ toggleFeaturedImageModal }
-					title={ generating ? modalTitleWhenGenerating : modalTitleWhenDone }
-				>
+				<AiAssistantModal handleClose={ toggleFeaturedImageModal } title={ modalTitle }>
 					{ generating ? (
 						<div className="ai-assistant-featured-image__loading">
 							<Spinner
@@ -244,42 +235,46 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 										) }
 									</div>
 								) : (
-									<>
-										<img className="ai-assistant-featured-image__image" src={ imageURL } alt="" />
-										{ ! isUnlimited && featuredImageCost && requestsLimit && (
-											<UsageCounter
-												cost={ featuredImageCost }
-												currentLimit={ requestsLimit }
-												currentUsage={ requestsCount }
-											/>
-										) }
-									</>
+									<img className="ai-assistant-featured-image__image" src={ imageURL } alt="" />
 								) }
 							</div>
 							<div className="ai-assistant-featured-image__actions">
-								{ ! error && (
-									<Button
-										onClick={ handleAccept }
-										variant="secondary"
-										isBusy={ isSavingToMediaLibrary }
-										disabled={ isSavingToMediaLibrary }
-									>
-										{ __( 'Save and use image', 'jetpack' ) }
-									</Button>
-								) }
-								{ error ? (
-									<Button onClick={ handleTryAgain } variant="secondary">
-										{ __( 'Try again', 'jetpack' ) }
-									</Button>
-								) : (
-									<Button
-										onClick={ handleRegenerate }
-										variant="secondary"
-										disabled={ isSavingToMediaLibrary || notEnoughRequests }
-									>
-										{ __( 'Generate another image', 'jetpack' ) }
-									</Button>
-								) }
+								<div className="ai-assistant-featured-image__actions-left">
+									{ ! isUnlimited && featuredImageCost && requestsLimit && (
+										<UsageCounter
+											cost={ featuredImageCost }
+											currentLimit={ requestsLimit }
+											currentUsage={ requestsCount }
+										/>
+									) }
+								</div>
+								<div className="ai-assistant-featured-image__actions-right">
+									<div className="ai-assistant-featured-image__action-buttons">
+										{ error ? (
+											<Button onClick={ handleTryAgain } variant="secondary">
+												{ __( 'Try again', 'jetpack' ) }
+											</Button>
+										) : (
+											<Button
+												onClick={ handleRegenerate }
+												variant="secondary"
+												disabled={ isSavingToMediaLibrary || notEnoughRequests }
+											>
+												{ __( 'Generate again', 'jetpack' ) }
+											</Button>
+										) }
+										{ ! error && (
+											<Button
+												onClick={ handleAccept }
+												variant="primary"
+												isBusy={ isSavingToMediaLibrary }
+												disabled={ isSavingToMediaLibrary }
+											>
+												{ __( 'Set as featured image', 'jetpack' ) }
+											</Button>
+										) }
+									</div>
+								</div>
 							</div>
 						</div>
 					) }

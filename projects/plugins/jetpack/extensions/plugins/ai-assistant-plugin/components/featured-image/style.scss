@@ -17,12 +17,31 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		gap: 16px;
+		gap: 32px;
 	}
 
 	&__actions {
+		width: 100%;
 		display: flex;
-		gap: 16px;
+		justify-content: center;
+	}
+
+	&__actions-left {
+		width: 50%;
+		display: flex;
+		justify-content: flex-start;
+	}
+
+	&__actions-right {
+		width: 50%;
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	&__action-buttons {
+		display: flex;
+		justify-content: center;
+		gap: 8px;
 	}
 
 	&__error {
