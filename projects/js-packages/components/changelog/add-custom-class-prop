@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Jetpack Components: add a new prop for custom classes for the ActionButton component

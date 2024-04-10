@@ -25,7 +25,6 @@ trait PHPUnitTestTrait {
 	 * @var string[]
 	 */
 	private static $PHPUNIT_CLASSES = [
-		// @phan-suppress-previous-line PhanReadOnlyPrivateProperty Traits cannot have constants
 		'MediaWikiTestCase' => 'MediaWikiTestCase',
 		'MediaWikiUnitTestCase' => 'MediaWikiUnitTestCase',
 		'MediaWikiIntegrationTestCase' => 'MediaWikiIntegrationTestCase',

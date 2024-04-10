@@ -2,8 +2,7 @@
  * External dependencies
  */
 import { askQuestion } from '@automattic/jetpack-ai-client';
-import { parse } from '@wordpress/blocks';
-import { useSelect, useDispatch, dispatch } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
@@ -131,8 +130,6 @@ const useSuggestionsFromOpenAI = ( {
 				userPrompt: options?.userPrompt || userPrompt,
 				type,
 				isGeneratingTitle: attributes.promptType === 'generateTitle',
-				useGutenbergSyntax: !! attributes?.useGutenbergSyntax,
-				customSystemPrompt: attributes?.customSystemPrompt,
 			} );
 
 			/*
@@ -172,7 +169,7 @@ const useSuggestionsFromOpenAI = ( {
 			source.current = await askQuestion( prompt, {
 				postId,
 				requireUpgrade,
-				feature: attributes?.useGpt4 ? 'ai-assistant-experimental' : 'ai-assistant',
+				feature: 'ai-assistant',
 				functions: options?.functions,
 			} );
 
@@ -232,7 +229,7 @@ const useSuggestionsFromOpenAI = ( {
 			source.current = await askQuestion( prompt, {
 				postId,
 				requireUpgrade,
-				feature: attributes?.useGpt4 ? 'ai-assistant-experimental' : null,
+				feature: 'ai-assistant',
 				functions: options.functions,
 			} );
 
@@ -277,8 +274,6 @@ const useSuggestionsFromOpenAI = ( {
 
 			stopSuggestion();
 
-			const useGutenbergSyntax = attributes?.useGutenbergSyntax;
-
 			updateBlockAttributes( clientId, {
 				content: assistantResponse,
 				messages: updatedMessages,
@@ -286,17 +281,6 @@ const useSuggestionsFromOpenAI = ( {
 
 			snapToBottom();
 			disableAutoScroll();
-
-			if ( ! useGutenbergSyntax ) {
-				return;
-			}
-
-			// POC for layout prompts:
-			// Generates the list of blocks from the generated code
-			const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
-			const blocks = parse( detail );
-			const validBlocks = blocks.filter( block => block.isValid );
-			replaceInnerBlocks( clientId, validBlocks );
 		};
 
 		const onErrorUnclearPrompt = () => {
@@ -356,8 +340,6 @@ const useSuggestionsFromOpenAI = ( {
 					userPrompt,
 					type,
 					isGeneratingTitle: attributes.promptType === 'generateTitle',
-					useGutenbergSyntax: !! attributes?.useGutenbergSyntax,
-					customSystemPrompt: attributes?.customSystemPrompt,
 				} );
 
 				setLastPrompt( [ ...prompt, ...updatedMessages, lastUserPrompt ] );
@@ -427,22 +409,6 @@ const useSuggestionsFromOpenAI = ( {
 		const onSuggestion = e => {
 			setWasCompletionJustRequested( false );
 			debug( '(suggestion)', e?.detail );
-
-			/*
-			 * Progressive blocks rendering process.
-			 * ToDo: Interesting challenge. Let's comment for now.
-			 */
-
-			// let's get valid HTML by using a temporary dom element
-			// const temp = document.createElement( 'div' );
-			// temp.innerHTML = e?.detail;
-
-			// // Now, we are ready to create blocks from the valid HTML.
-			// const blocks = rawHandler( { HTML: temp.innerHTML } );
-			// const validBlocks = blocks.filter( block => block.isValid );
-
-			// const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
-			// replaceInnerBlocks( clientId, validBlocks );
 
 			// Remove the delimiter from the suggestion and update the block.
 			updateBlockAttributes( clientId, { content: e?.detail?.replaceAll( delimiter, '' ) } );

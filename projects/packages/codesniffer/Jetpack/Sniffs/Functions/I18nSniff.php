@@ -32,7 +32,7 @@ class I18nSniff implements Sniff {
 	/**
 	 * Returns the token types that this sniff is interested in.
 	 *
-	 * @return array(int)
+	 * @return int[]
 	 */
 	public function register() {
 		return array( T_STRING );
@@ -131,7 +131,7 @@ class I18nSniff implements Sniff {
 			}
 
 			// Go through the values in the array looking for 'textdomain'.
-			$idx   = isset( $tokens[ $args[3][0] ]['parenthesis_opener'] ) ? $tokens[ $args[3][0] ]['parenthesis_opener'] : $args[3][0];
+			$idx   = $tokens[ $args[3][0] ]['parenthesis_opener'] ?? $args[3][0];
 			$end   = $args[3][1];
 			$start = $phpcsFile->findNext( Tokens::$emptyTokens, $idx + 1, $end, true );
 			$toks  = array( T_OPEN_CURLY_BRACKET, T_OPEN_SQUARE_BRACKET, T_OPEN_PARENTHESIS, T_OPEN_SHORT_ARRAY, T_COMMA );

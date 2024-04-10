@@ -1,21 +1,23 @@
 <?php
 /**
- * Phan stubs for WPCOM-defined functions.
+ * Stubs automatically generated from WordPress.com commit 70003f338879827548864d14988b92bb5bfa587f.
  *
- * @package automattic/jetpack-monorepo
+ * Do not edit this directly! Update the definition file in the wpcom repo at
+ * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
+ * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  */
 
 /**
- * Whether to enable the nav redesign.
- *
- * @phan-return bool Returns true if the nav redesign is enabled, false otherwise.
+ * @param int|false $user_id
+ * @return bool
  */
-function wpcom_is_nav_redesign_enabled(): bool {}
-
+function is_automattician($user_id = \false)
+{
+}
 /**
- * Whether the user is an Automattician
- *
- * @param int|null $user_id The user id.
- * @phan-return bool Returns true if the user is Automattician, false otherwise.
+ * @param int|null $blog_id
+ * @return bool
  */
-function is_automattician( $user_id = null ): bool {} // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+function wpcom_is_nav_redesign_enabled($blog_id = \null)
+{
+}
