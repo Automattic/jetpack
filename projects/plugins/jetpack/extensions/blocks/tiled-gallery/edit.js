@@ -11,8 +11,12 @@ import { ALLOWED_MEDIA_TYPES, LAYOUT_STYLES } from './constants';
 import { TiledGalleryBlockControls, TiledGalleryInspectorControls } from './controls';
 import Layout from './layout';
 
+const DEFAULT_COLUMNS_COUNT = 3;
+
 export function defaultColumnsNumber( attributes ) {
-	return Math.min( 3, attributes.images.length );
+	return attributes.images.length > 0
+		? Math.min( DEFAULT_COLUMNS_COUNT, attributes.images.length )
+		: DEFAULT_COLUMNS_COUNT;
 }
 
 export const pickRelevantMediaFiles = image => {
