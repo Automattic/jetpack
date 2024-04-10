@@ -81,6 +81,20 @@ class Scheduled_Updates {
 			// No updates available. Update the status to 'success' and return.
 			self::set_scheduled_update_status( $schedule_id, time(), 'success' );
 
+			( new Connection\Client() )->wpcom_json_api_request_as_blog(
+				sprintf( '/sites/%d/update-schedules/logs', \Jetpack_Options::get_option( 'id' ) ),
+				'2',
+				array( 'method' => 'POST' ),
+				array(
+					'action'  => Scheduled_Updates_Logs::PLUGIN_UPDATE_SUCCESS,
+					'message' => 'no_plugins_to_update',
+					'context' => array(
+						'plugins' => array(),
+					),
+				),
+				'wpcom'
+			);
+
 			return;
 		}
 
