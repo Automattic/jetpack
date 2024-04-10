@@ -1,5 +1,5 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
-import { InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { Notice, TextControl, RadioControl, Placeholder } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
@@ -20,9 +20,10 @@ const RADIO_OPTIONS = [
 ];
 const icon = getBlockIconComponent( metadata );
 
-export const RepeatVisitorEdit = ( { className, isSelected, attributes, setAttributes } ) => {
+export const RepeatVisitorEdit = ( { isSelected, attributes, setAttributes } ) => {
 	const { criteria, threshold } = attributes;
 
+	const blockProps = useBlockProps();
 	const [ isThresholdValid, setIsThresholdValid ] = useState( true );
 
 	const onVisibilityChange = val => setAttributes( { criteria: val } );
@@ -77,7 +78,8 @@ export const RepeatVisitorEdit = ( { className, isSelected, attributes, setAttri
 
 	return (
 		<div
-			className={ classNames( className, {
+			{ ...blockProps }
+			className={ classNames( blockProps.className, {
 				'wp-block-jetpack-repeat-visitor--is-unselected': ! isSelected,
 			} ) }
 		>
