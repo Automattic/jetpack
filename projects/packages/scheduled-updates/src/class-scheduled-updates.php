@@ -81,6 +81,18 @@ class Scheduled_Updates {
 			// No updates available. Update the status to 'success' and return.
 			self::set_scheduled_update_status( $schedule_id, time(), 'success' );
 
+			// Log a start and success.
+			Scheduled_Updates_Logs::log(
+				$schedule_id,
+				Scheduled_Updates_Logs::PLUGIN_UPDATES_START,
+				'no_plugins_to_update'
+			);
+			Scheduled_Updates_Logs::log(
+				$schedule_id,
+				Scheduled_Updates_Logs::PLUGIN_UPDATES_SUCCESS,
+				'no_plugins_to_update'
+			);
+
 			return;
 		}
 
