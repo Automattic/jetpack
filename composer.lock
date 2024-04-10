@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "591ead434f24ced0f6c803183daf90af",
+    "content-hash": "02f92def2ba7aea3f906f91528261cf5",
     "packages": [],
     "packages-dev": [
         {
@@ -978,6 +978,50 @@
                 "source": "https://github.com/php-parallel-lint/PHP-Parallel-Lint/tree/v1.3.2"
             },
             "time": "2022-02-21T12:50:22+00:00"
+        },
+        {
+            "name": "php-stubs/woocommerce-stubs",
+            "version": "v8.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-stubs/woocommerce-stubs.git",
+                "reference": "1bab3a764a91ed037f420dc38124e2516b29e6b8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-stubs/woocommerce-stubs/zipball/1bab3a764a91ed037f420dc38124e2516b29e6b8",
+                "reference": "1bab3a764a91ed037f420dc38124e2516b29e6b8",
+                "shasum": ""
+            },
+            "require": {
+                "php-stubs/wordpress-stubs": "^5.3 || ^6.0"
+            },
+            "require-dev": {
+                "php": "~7.1 || ~8.0",
+                "php-stubs/generator": "^0.8.0"
+            },
+            "suggest": {
+                "symfony/polyfill-php73": "Symfony polyfill backporting some PHP 7.3+ features to lower PHP versions",
+                "szepeviktor/phpstan-wordpress": "WordPress extensions for PHPStan"
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "WooCommerce function and class declaration stubs for static analysis.",
+            "homepage": "https://github.com/php-stubs/woocommerce-stubs",
+            "keywords": [
+                "PHPStan",
+                "static analysis",
+                "woocommerce",
+                "wordpress"
+            ],
+            "support": {
+                "issues": "https://github.com/php-stubs/woocommerce-stubs/issues",
+                "source": "https://github.com/php-stubs/woocommerce-stubs/tree/v8.7.0"
+            },
+            "time": "2024-03-19T16:55:16+00:00"
         },
         {
             "name": "php-stubs/wordpress-stubs",

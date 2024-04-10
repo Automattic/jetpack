@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Create endpoint /wpcom/v2/admin-color that returns admin color scheme

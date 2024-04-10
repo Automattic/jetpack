@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Autoloader;
 
+use Composer\IO\IOInterface;
+
 /**
  * Class AutoloadFileWriter.
  */
