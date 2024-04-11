@@ -1,7 +1,11 @@
-import { InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 
-export default ( { className } ) => (
-	<div className={ className }>
-		<InnerBlocks.Content />
-	</div>
-);
+export default () => {
+	const blockProps = useBlockProps.save();
+
+	return (
+		<div { ...blockProps }>
+			<InnerBlocks.Content />
+		</div>
+	);
+};
