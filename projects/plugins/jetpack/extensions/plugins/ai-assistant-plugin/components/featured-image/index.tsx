@@ -300,7 +300,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 												isBusy={ currentPointer?.generating }
 												disabled={ notEnoughRequests || currentPointer?.generating }
 											>
-												{ __( 'Generate new image', 'jetpack' ) }
+												{ __( 'Generate again', 'jetpack' ) }
 											</Button>
 										</Tooltip>
 									) }
