@@ -1,3 +1,4 @@
+import { useBlockProps } from '@wordpress/block-editor';
 import { range } from 'lodash';
 
 // This is a dynamic block, meaning that its content is created on the server.
@@ -10,9 +11,11 @@ import { range } from 'lodash';
 // We can't provide the full styled experience using UTF-8, so we optimize
 // for consistency.
 export default fallbackSymbol =>
-	function ( { className, attributes: { align, rating, color } } ) {
+	function ( { attributes: { align, rating, color } } ) {
+		const blockProps = useBlockProps.save();
+
 		return (
-			<figure className={ className } style={ { textAlign: align } }>
+			<figure { ...blockProps } style={ { textAlign: align } }>
 				{ range( 1, rating + 1 ).map( position => (
 					<span key={ position } style={ { color } }>
 						{ fallbackSymbol }
