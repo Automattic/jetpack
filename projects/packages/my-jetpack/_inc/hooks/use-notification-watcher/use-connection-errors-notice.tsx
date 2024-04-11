@@ -36,7 +36,7 @@ const useConnectionErrorsNotice = () => {
 
 		const onCtaClick = () => {
 			restoreConnection();
-			recordEvent( 'jetpack_my_jetpack_connection_error_notice_cta_click' );
+			recordEvent( 'jetpack_my_jetpack_connection_error_notice_reconnect_cta_click' );
 		};
 
 		const loadingButtonLabel = __( 'Reconnecting Jetpack…', 'jetpack-my-jetpack' );
@@ -53,7 +53,7 @@ const useConnectionErrorsNotice = () => {
 					noDefaultClasses: true,
 				},
 			],
-			priority: NOTICE_PRIORITY_HIGH + isRestoringConnection ? 1 : 0,
+			priority: NOTICE_PRIORITY_HIGH + ( isRestoringConnection ? 1 : 0 ),
 		};
 
 		setNotice( {
