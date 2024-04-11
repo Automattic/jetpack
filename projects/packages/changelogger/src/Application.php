@@ -19,7 +19,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
  */
 class Application extends SymfonyApplication {
 
-	const VERSION = '4.2.0';
+	const VERSION = '4.2.1-alpha';
 
 	/**
 	 * Constructor.
@@ -36,7 +36,7 @@ class Application extends SymfonyApplication {
 	 * @param OutputInterface $output OutputInterface.
 	 * @return int
 	 */
-	public function doRun( InputInterface $input, OutputInterface $output ) {
+	public function doRun( InputInterface $input, OutputInterface $output ): int {
 		$output->getFormatter()->setStyle( 'warning', new OutputFormatterStyle( 'black', 'yellow' ) );
 		// @phan-suppress-next-line PhanUndeclaredMethodInCallable,PhanUndeclaredMethod -- Being checked before being called.
 		$errout = is_callable( array( $output, 'getErrorOutput' ) ) ? $output->getErrorOutput() : $output;
