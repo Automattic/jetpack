@@ -266,6 +266,10 @@ We haven't published our roadmap since v3, but we may do in the future. You can 
 
 You can see all the CRM power-ups here: https://jetpackcrm.com/extensions/
 
+#### How can I contribute to Jetpack CRM?
+
+The core [Jetpack CRM plugin code](https://github.com/Automattic/jetpack/tree/trunk/projects/plugins/crm) is on Github and is open-source. The code is part of the Jetpack monorepo, and the [Jetpack contributing guide](https://github.com/Automattic/jetpack/blob/trunk/docs/CONTRIBUTING.md) is also relevant to Jetpack CRM.
+
 #### Is there a contact search feature on Jetpack CRM?
 
 Yes, Jetpack CRM comes with a search feature that allows you to run a customer search, contact search, and then act on it, letting you easily manage contacts. There’s also search for transactions, quotes, invoices, companys, lead forms, and tasks.
