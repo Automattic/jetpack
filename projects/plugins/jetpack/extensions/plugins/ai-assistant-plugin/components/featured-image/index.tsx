@@ -42,7 +42,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 
 	const { enableComplementaryArea } = useDispatch( 'core/interface' );
 	const { generateImage } = useImageGenerator();
-	const { isLoading: isSavingToMediaLibrary, saveToMediaLibrary } = useSaveToMediaLibrary();
+	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
 
@@ -124,14 +124,15 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 			.then( result => {
 				if ( result.data.length > 0 ) {
 					const image = 'data:image/png;base64,' + result.data[ 0 ].b64_json;
-					updateImages( { image, generating: false }, pointer.current );
+					updateImages( { image }, pointer.current );
 					updateRequestsCount();
 					saveToMediaLibrary( image )
 						.then( savedImage => {
-							updateImages( { libraryId: savedImage.id }, pointer.current );
+							updateImages( { libraryId: savedImage.id, generating: false }, pointer.current );
 							pointer.current += 1;
 						} )
 						.catch( () => {
+							updateImages( { generating: false }, pointer.current );
 							pointer.current += 1;
 						} );
 				}
@@ -282,10 +283,8 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 										<Button
 											onClick={ handleRegenerate }
 											variant="secondary"
-											isBusy={ isSavingToMediaLibrary || currentPointer?.generating }
-											disabled={
-												isSavingToMediaLibrary || notEnoughRequests || currentPointer?.generating
-											}
+											isBusy={ currentPointer?.generating }
+											disabled={ notEnoughRequests || currentPointer?.generating }
 										>
 											{ __( 'Generate new image', 'jetpack' ) }
 										</Button>
@@ -293,8 +292,8 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 									<Button
 										onClick={ handleAccept }
 										variant="primary"
-										isBusy={ isSavingToMediaLibrary || currentImage?.generating }
-										disabled={ isSavingToMediaLibrary || ! currentImage?.image }
+										isBusy={ currentImage?.generating }
+										disabled={ ! currentImage?.image }
 									>
 										{ __( 'Set as featured image', 'jetpack' ) }
 									</Button>
