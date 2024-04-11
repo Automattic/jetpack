@@ -178,7 +178,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	const triggerComplementaryArea = useCallback( () => {
 		// clear any block selection, because selected blocks have precedence on settings sidebar
 		clearSelectedBlock();
-		enableComplementaryArea( 'core/edit-post', 'edit-post/document' );
+		return enableComplementaryArea( 'core/edit-post', 'edit-post/document' );
 	}, [ clearSelectedBlock, enableComplementaryArea ] );
 
 	const handleAccept = useCallback( () => {
@@ -193,14 +193,14 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 
 			// Open the featured image panel for users to see the new image.
 			setTimeout( () => {
-				// If the panel is not opened, open it and then trigger the complementary area.
-				if ( ! isEditorPanelOpened( 'featured-image' ) ) {
-					toggleEditorPanelOpened?.( 'featured-image' ).then( () => {
-						triggerComplementaryArea();
-					} );
-				} else {
-					triggerComplementaryArea();
-				}
+				const isFeaturedImagePanelOpened = isEditorPanelOpened( 'featured-image' );
+
+				// open the complementary area and then trigger the featured image panel.
+				triggerComplementaryArea().then( () => {
+					if ( ! isFeaturedImagePanelOpened ) {
+						toggleEditorPanelOpened( 'featured-image' );
+					}
+				} );
 			}, 500 );
 		};
 
