@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.22.0] - 2024-04-11
+### Added
+- Add new tracking event for product activations made through My Jetpack [#36745]
+- My Jetpack: add a way to connect a Jetpack site to WordPress.com asynchronously and update the message in the notice to reflect that. [#36771]
+
+### Fixed
+- Ensure page_view gets loaded before product_card_loaded [#36790]
+
 ## [4.21.0] - 2024-04-08
 ### Added
 - Add 'from' property to connection call to WP.com. [#36741]
@@ -1425,6 +1433,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.22.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.21.0...4.22.0
 [4.21.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.20.2...4.21.0
 [4.20.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.20.1...4.20.2
 [4.20.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.20.0...4.20.1
