@@ -37,7 +37,6 @@ const markdownConverter = new MarkdownIt( {
 const isInBlockEditor = window?.Jetpack_Editor_Initial_State?.screenBase === 'post';
 
 export default function AIAssistantEdit( { attributes, setAttributes, clientId, isSelected } ) {
-	const [ errorData, setError ] = useState( {} );
 	const [ errorDismissed, setErrorDismissed ] = useState( null );
 	const { tracks } = useAnalytics();
 
@@ -85,8 +84,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const contentRef = useRef( null );
 
 	const {
-		isLoadingCompletion,
-		wasCompletionJustRequested,
 		getSuggestionFromOpenAI,
 		stopSuggestion,
 		showRetry,
@@ -95,6 +92,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		retryRequest,
 		wholeContent,
 		requestingState,
+		error,
 	} = useSuggestionsFromOpenAI( {
 		onSuggestionDone: useCallback( () => {
 			focusOnPrompt();
@@ -108,14 +106,16 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		attributes,
 		clientId,
 		content: attributes.content,
-		setError,
 		tracks,
 		userPrompt: attributes.userPrompt,
 		requireUpgrade,
-		requestingState: attributes.requestingState,
+		initialRequestingState: attributes.requestingState,
 		contentRef,
 		blockRef,
 	} );
+
+	const isWaitingResponse = requestingState === 'requesting';
+	const isLoadingCompletion = [ 'requesting', 'suggesting' ].includes( requestingState );
 
 	const connected = isUserConnected();
 
@@ -144,10 +144,10 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	}, [ storeBlockId, getSuggestionFromOpenAI ] );
 
 	useEffect( () => {
-		if ( errorData ) {
+		if ( error ) {
 			setErrorDismissed( false );
 		}
-	}, [ errorData ] );
+	}, [ error ] );
 
 	useEffect( () => {
 		// we don't want to store "half way" states
@@ -296,7 +296,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const blockProps = useBlockProps( {
 		ref: blockRef,
-		className: classNames( { 'is-waiting-response': wasCompletionJustRequested } ),
+		className: classNames( { 'is-waiting-response': isWaitingResponse } ),
 	} );
 
 	const promptPlaceholder = __( 'Ask Jetpack AI…', 'jetpack' );
@@ -309,15 +309,15 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		</>
 	);
 
-	const error = (
+	const errorNotice = (
 		<>
-			{ errorData?.message && ! errorDismissed && errorData?.code !== 'error_quota_exceeded' && (
+			{ error?.message && ! errorDismissed && error?.code !== 'error_quota_exceeded' && (
 				<Notice
-					status={ errorData.status }
+					status={ error.status }
 					isDismissible={ false }
 					className="jetpack-ai-assistant__error"
 				>
-					{ errorData.message }
+					{ error.message }
 				</Notice>
 			) }
 		</>
@@ -414,7 +414,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					showGuideLine={ contentIsLoaded }
 					showRemove={ attributes?.content?.length > 0 }
 					bannerComponent={ banner }
-					errorComponent={ error }
+					errorComponent={ errorNotice }
 					customFooter={
 						// Only show the upgrade message on each 5th request or if it's the first request - and only if the user is on the free plan
 						( requestsRemaining % 5 === 0 || requestsCount === 1 ) &&
