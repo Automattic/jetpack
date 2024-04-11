@@ -186,6 +186,7 @@ const TiledGalleryEdit = ( {
 				{ noticeUI }
 
 				<Layout
+					className="tiled-gallery__wrapper"
 					align={ align }
 					columns={ columns }
 					imageFilter={ imageFilter }

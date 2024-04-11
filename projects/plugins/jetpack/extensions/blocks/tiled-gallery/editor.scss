@@ -16,10 +16,6 @@
 }
 
 .wp-block-jetpack-tiled-gallery {
-	// Ensure that selected image outlines are visibile
-	padding-left: 4px;
-	padding-right: 4px;
-
 	&.is-style-square,
 	&.is-style-circle {
 		.tiled-gallery__item.is-transient img {
@@ -28,6 +24,12 @@
 			// By setting the bottom margin, ensure they occupy the correct vertical space.
 			margin-bottom: 100%;
 		}
+	}
+
+	.tiled-gallery__wrapper {
+		// Ensure that selected image outlines are visibile
+		padding-left: 4px;
+		padding-right: 4px;
 	}
 
 	.tiled-gallery__item {
