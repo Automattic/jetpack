@@ -15,6 +15,7 @@ import {
 	ERROR_QUOTA_EXCEEDED,
 	ERROR_SERVICE_UNAVAILABLE,
 	ERROR_UNCLEAR_PROMPT,
+	ERROR_RESPONSE,
 } from '../../types.js';
 /**
  * Types & constants
@@ -71,6 +72,11 @@ type useAiSuggestionsOptions = {
 	 * onError callback.
 	 */
 	onError?: ( error: RequestingErrorProps ) => void;
+
+	/*
+	 * Error callback common for all errors.
+	 */
+	onAllErrors?: ( error: RequestingErrorProps ) => void;
 };
 
 type useAiSuggestionsProps = {
@@ -186,6 +192,7 @@ export default function useAiSuggestions( {
 	onSuggestion,
 	onDone,
 	onError,
+	onAllErrors,
 }: useAiSuggestionsOptions = {} ): useAiSuggestionsProps {
 	const [ requestingState, setRequestingState ] = useState< RequestingStateProp >( 'init' );
 	const [ suggestion, setSuggestion ] = useState< string >( '' );
@@ -220,6 +227,13 @@ export default function useAiSuggestions( {
 			setRequestingState( 'done' );
 		},
 		[ onDone ]
+	);
+
+	const handleAnyError = useCallback(
+		( event: CustomEvent ) => {
+			onAllErrors?.( event?.detail );
+		},
+		[ onAllErrors ]
 	);
 
 	const handleError = useCallback(
@@ -291,6 +305,7 @@ export default function useAiSuggestions( {
 				eventSource.addEventListener( ERROR_SERVICE_UNAVAILABLE, handleServiceUnavailableError );
 				eventSource.addEventListener( ERROR_MODERATION, handleModerationError );
 				eventSource.addEventListener( ERROR_NETWORK, handleNetworkError );
+				eventSource.addEventListener( ERROR_RESPONSE, handleAnyError );
 
 				eventSource.addEventListener( 'done', handleDone );
 			} catch ( e ) {
