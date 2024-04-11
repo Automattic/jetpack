@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * "Version" command for the changelogger tool CLI.
  */
-#[AsCommand( name: 'version', description: 'Displays versions from the changelog and change files' )]
+#[AsCommand( 'version', 'Displays versions from the changelog and change files' )]
 class VersionCommand extends Command {
 
 	/**

@@ -23,7 +23,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 /**
  * "Write" command for the changelogger tool CLI.
  */
-#[AsCommand( name: 'write', description: 'Updates the changelog from change files' )]
+#[AsCommand( 'write', 'Updates the changelog from change files' )]
 class WriteCommand extends Command {
 
 	const OK_EXIT            = 0;

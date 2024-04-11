@@ -17,7 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * "Validate" command for the changelogger tool CLI.
  */
-#[AsCommand( name: 'validate', description: 'Validates changelog entry files' )]
+#[AsCommand( 'validate', 'Validates changelog entry files' )]
 class ValidateCommand extends Command {
 
 	/**

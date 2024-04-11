@@ -17,7 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * "Squash" command for the changelogger tool CLI.
  */
-#[AsCommand( name: 'squash', description: 'Squash changelog entries in the changelog file' )]
+#[AsCommand( 'squash', 'Squash changelog entries in the changelog file' )]
 class SquashCommand extends WriteCommand {
 
 	/**

@@ -20,7 +20,7 @@ use Symfony\Component\Console\Question\Question;
 /**
  * "Add" command for the changelogger tool CLI.
  */
-#[AsCommand( name: 'add', description: 'Adds a change file' )]
+#[AsCommand( 'add', 'Adds a change file' )]
 class AddCommand extends Command {
 
 	/**
