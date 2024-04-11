@@ -2,6 +2,7 @@ import { Spinner } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { StripeNudge } from '../../shared/components/stripe-nudge';
 import { SUPPORTED_CURRENCIES } from '../../shared/currencies';
 import getConnectUrl from '../../shared/get-connect-url';
 import { STORE_NAME as MEMBERSHIPS_PRODUCTS_STORE } from '../../store/membership-products/constants';
@@ -127,7 +128,12 @@ const Edit = props => {
 
 	if ( ! currency ) {
 		// Memberships settings are still loading
-		return <Spinner />;
+		return (
+			<>
+				<StripeNudge blockName="donations" />
+				<Spinner color="black" />
+			</>
+		);
 	}
 
 	return <Tabs { ...props } products={ products } />;
