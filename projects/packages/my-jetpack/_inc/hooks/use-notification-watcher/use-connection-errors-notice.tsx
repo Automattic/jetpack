@@ -41,19 +41,7 @@ const useConnectionErrorsNotice = () => {
 		}
 
 		const onCtaClick = () => {
-			restoreConnection().then( () => {
-				resetNotice();
-				setNotice( {
-					message: __( 'Your connection has been restored.', 'jetpack-my-jetpack' ),
-					options: {
-						level: 'success',
-						actions: [],
-						priority: NOTICE_PRIORITY_HIGH,
-						hideCloseButton: false,
-						onClose: resetNotice,
-					},
-				} );
-			} );
+			restoreConnection();
 			recordEvent( 'jetpack_my_jetpack_connection_error_notice_reconnect_cta_click' );
 		};
 
