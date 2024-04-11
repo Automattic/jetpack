@@ -294,36 +294,34 @@ export default function useAiSuggestions( {
 				debug( '%o', promptArg );
 			}
 
+			// Clear any error.
+			setError( undefined );
+
 			// Set the request status.
 			setRequestingState( 'requesting' );
 
-			try {
-				eventSourceRef.current = await askQuestion( promptArg, options );
+			eventSourceRef.current = await askQuestion( promptArg, options );
 
-				if ( ! eventSourceRef?.current ) {
-					return;
-				}
-
-				// Alias
-				const eventSource = eventSourceRef.current;
-
-				// Set the request status.
-				setRequestingState( 'suggesting' );
-
-				eventSource.addEventListener( 'suggestion', handleSuggestion );
-
-				eventSource.addEventListener( ERROR_QUOTA_EXCEEDED, handleErrorQuotaExceededError );
-				eventSource.addEventListener( ERROR_UNCLEAR_PROMPT, handleUnclearPromptError );
-				eventSource.addEventListener( ERROR_SERVICE_UNAVAILABLE, handleServiceUnavailableError );
-				eventSource.addEventListener( ERROR_MODERATION, handleModerationError );
-				eventSource.addEventListener( ERROR_NETWORK, handleNetworkError );
-				eventSource.addEventListener( ERROR_RESPONSE, handleAnyError );
-
-				eventSource.addEventListener( 'done', handleDone );
-			} catch ( e ) {
-				// eslint-disable-next-line no-console
-				console.error( e );
+			if ( ! eventSourceRef?.current ) {
+				return;
 			}
+
+			// Alias
+			const eventSource = eventSourceRef.current;
+
+			// Set the request status.
+			setRequestingState( 'suggesting' );
+
+			eventSource.addEventListener( 'suggestion', handleSuggestion );
+
+			eventSource.addEventListener( ERROR_QUOTA_EXCEEDED, handleErrorQuotaExceededError );
+			eventSource.addEventListener( ERROR_UNCLEAR_PROMPT, handleUnclearPromptError );
+			eventSource.addEventListener( ERROR_SERVICE_UNAVAILABLE, handleServiceUnavailableError );
+			eventSource.addEventListener( ERROR_MODERATION, handleModerationError );
+			eventSource.addEventListener( ERROR_NETWORK, handleNetworkError );
+			eventSource.addEventListener( ERROR_RESPONSE, handleAnyError );
+
+			eventSource.addEventListener( 'done', handleDone );
 		},
 		[
 			handleDone,
