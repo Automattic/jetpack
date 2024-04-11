@@ -1,6 +1,6 @@
 import { Col, Text } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, useRestoreConnection } from '@automattic/jetpack-connection';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useContext, useEffect } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
@@ -28,14 +28,32 @@ const useConnectionErrorsNotice = () => {
 		if ( restoreConnectionError ) {
 			errorMessage = (
 				<Col>
-					<Text mb={ 2 }>{ restoreConnectionError }</Text>
+					<Text mb={ 2 }>
+						{ sprintf(
+							/* translators: placeholder is the error. */
+							__( 'There was an error reconnecting Jetpack. Error: %s', 'jetpack-my-jetpack' ),
+							restoreConnectionError
+						) }
+					</Text>
 					<Text mb={ 2 }>{ connectionErrorMessage }</Text>
 				</Col>
 			);
 		}
 
 		const onCtaClick = () => {
-			restoreConnection();
+			restoreConnection().then( () => {
+				resetNotice();
+				setNotice( {
+					message: __( 'Your connection has been restored.', 'jetpack-my-jetpack' ),
+					options: {
+						level: 'success',
+						actions: [],
+						priority: NOTICE_PRIORITY_HIGH,
+						hideCloseButton: false,
+						onClose: resetNotice,
+					},
+				} );
+			} );
 			recordEvent( 'jetpack_my_jetpack_connection_error_notice_reconnect_cta_click' );
 		};
 
@@ -68,6 +86,7 @@ const useConnectionErrorsNotice = () => {
 		restoreConnection,
 		isRestoringConnection,
 		restoreConnectionError,
+		resetNotice,
 	] );
 };
 
