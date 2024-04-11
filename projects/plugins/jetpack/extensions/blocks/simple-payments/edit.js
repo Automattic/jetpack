@@ -10,7 +10,7 @@ import {
 } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { dispatch, withSelect } from '@wordpress/data';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { getWidgetIdFromBlock } from '@wordpress/widgets';
 import classNames from 'classnames';
@@ -67,7 +67,7 @@ export const SimplePaymentsEdit = ( {
 	 * If absent, we may save the product in the future but do not need to inject attributes based
 	 * on the response as they will have come from our product submission.
 	 */
-	const [ shouldInjectPaymentAttrs, setShouldInjectPaymentAttrs ] = useState( !! productId );
+	const shouldInjectPaymentAttributes = useRef( !! productId );
 
 	const injectPaymentAttributes = () => {
 		/**
@@ -78,7 +78,7 @@ export const SimplePaymentsEdit = ( {
 		 * overwrite changes that the user has made with stale state from the previous save.
 		 */
 
-		if ( ! shouldInjectPaymentAttrs || isEmpty( simplePayment ) ) {
+		if ( ! shouldInjectPaymentAttributes.current || isEmpty( simplePayment ) ) {
 			return;
 		}
 
@@ -94,7 +94,7 @@ export const SimplePaymentsEdit = ( {
 			title: get( simplePayment, [ 'title', 'raw' ], title ),
 		} );
 
-		setShouldInjectPaymentAttrs( ! shouldInjectPaymentAttrs );
+		shouldInjectPaymentAttributes.current = false;
 	};
 
 	const saveProduct = () => {
