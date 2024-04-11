@@ -1,3 +1,4 @@
+import { useBlockProps } from '@wordpress/block-editor';
 import { getActiveStyleName } from '../../shared/block-styles';
 import { LAYOUT_STYLES } from './constants';
 import { defaultColumnsNumber } from './edit';
@@ -5,6 +6,7 @@ import Layout from './layout';
 
 export default function TiledGallerySave( { attributes } ) {
 	const { imageFilter, images } = attributes;
+	const blockProps = useBlockProps.save();
 
 	if ( ! images.length ) {
 		return null;
@@ -20,17 +22,19 @@ export default function TiledGallerySave( { attributes } ) {
 	} = attributes;
 
 	return (
-		<Layout
-			align={ align }
-			className={ className }
-			columns={ columns }
-			imageFilter={ imageFilter }
-			images={ images }
-			isSave
-			layoutStyle={ getActiveStyleName( LAYOUT_STYLES, className ) }
-			linkTo={ linkTo }
-			roundedCorners={ roundedCorners }
-			columnWidths={ columnWidths }
-		/>
+		<div { ...blockProps }>
+			<Layout
+				align={ align }
+				className={ className }
+				columns={ columns }
+				imageFilter={ imageFilter }
+				images={ images }
+				isSave
+				layoutStyle={ getActiveStyleName( LAYOUT_STYLES, className ) }
+				linkTo={ linkTo }
+				roundedCorners={ roundedCorners }
+				columnWidths={ columnWidths }
+			/>
+		</div>
 	);
 }

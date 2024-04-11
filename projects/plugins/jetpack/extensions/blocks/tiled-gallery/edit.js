@@ -1,5 +1,5 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
-import { MediaPlaceholder } from '@wordpress/block-editor';
+import { MediaPlaceholder, useBlockProps } from '@wordpress/block-editor';
 import { DropZone, FormFileUpload, withNotices } from '@wordpress/components';
 import { mediaUpload } from '@wordpress/editor';
 import { useEffect, useState } from '@wordpress/element';
@@ -31,7 +31,6 @@ export const pickRelevantMediaFiles = image => {
 const TiledGalleryEdit = ( {
 	attributes,
 	isSelected,
-	className,
 	noticeOperations,
 	noticeUI,
 	setAttributes,
@@ -47,6 +46,7 @@ const TiledGalleryEdit = ( {
 	} = attributes;
 	const layoutStyle = getActiveStyleName( LAYOUT_STYLES, attributes.className );
 
+	const blockProps = useBlockProps();
 	const [ selectedImage, setSelectedImage ] = useState( null );
 	const [ changed, setChanged ] = useState(
 		'undefined' === typeof columnWidths || columnWidths?.length === 0 ? true : false
@@ -157,7 +157,6 @@ const TiledGalleryEdit = ( {
 		content = (
 			<MediaPlaceholder
 				icon={ getBlockIconComponent( metadata ) }
-				className={ className }
 				labels={ {
 					title: __( 'Tiled Gallery', 'jetpack' ),
 					name: __( 'images', 'jetpack' ),
@@ -188,7 +187,6 @@ const TiledGalleryEdit = ( {
 
 				<Layout
 					align={ align }
-					className={ className }
 					columns={ columns }
 					imageFilter={ imageFilter }
 					images={ images }
@@ -223,7 +221,7 @@ const TiledGalleryEdit = ( {
 	}
 
 	return (
-		<>
+		<div { ...blockProps }>
 			<TiledGalleryBlockControls
 				images={ images }
 				onSelectImages={ onSelectImages }
@@ -234,7 +232,7 @@ const TiledGalleryEdit = ( {
 				} }
 			/>
 			{ content }
-		</>
+		</div>
 	);
 };
 
