@@ -1,10 +1,18 @@
 /**
  * External dependencies
  */
-import { askQuestion } from '@automattic/jetpack-ai-client';
+import {
+	askQuestion,
+	getErrorData,
+	ERROR_CONTEXT_TOO_LARGE,
+	ERROR_MODERATION,
+	ERROR_NETWORK,
+	ERROR_QUOTA_EXCEEDED,
+	ERROR_SERVICE_UNAVAILABLE,
+	ERROR_UNCLEAR_PROMPT,
+} from '@automattic/jetpack-ai-client';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useRef } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -75,11 +83,7 @@ const useSuggestionsFromOpenAI = ( {
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setShowRetry( false );
-			setError( {
-				code: 'error_quota_exceeded',
-				message: __( 'You have reached the limit of requests for this site.', 'jetpack' ),
-				status: 'info',
-			} );
+			setError( getErrorData( ERROR_QUOTA_EXCEEDED ) );
 
 			return;
 		}
@@ -171,14 +175,7 @@ const useSuggestionsFromOpenAI = ( {
 			if ( err.message ) {
 				setError( { message: err.message, code: err?.code || 'unknown', status: 'error' } );
 			} else {
-				setError( {
-					message: __(
-						'Whoops, we have encountered an error. AI is like really, really hard and this is an experimental feature. Please try again later.',
-						'jetpack'
-					),
-					code: 'unknown',
-					status: 'error',
-				} );
+				setError( getErrorData( null ) );
 			}
 			setShowRetry( true );
 			setIsLoadingCompletion( false );
@@ -229,11 +226,7 @@ const useSuggestionsFromOpenAI = ( {
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
-			setError( {
-				code: 'error_unclear_prompt',
-				message: __( 'Your request was unclear. Mind trying again?', 'jetpack' ),
-				status: 'info',
-			} );
+			setError( getErrorData( ERROR_UNCLEAR_PROMPT ) );
 			onUnclearPrompt?.();
 		};
 
@@ -243,14 +236,7 @@ const useSuggestionsFromOpenAI = ( {
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setShowRetry( false );
-			setError( {
-				code: 'error_context_too_large',
-				message: __(
-					'The content is too large to be processed all at once. Please try to shorten it or divide it into smaller parts.',
-					'jetpack'
-				),
-				status: 'info',
-			} );
+			setError( getErrorData( ERROR_CONTEXT_TOO_LARGE ) );
 		};
 
 		const onErrorNetwork = ( { detail: error } ) => {
@@ -290,11 +276,7 @@ const useSuggestionsFromOpenAI = ( {
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setShowRetry( true );
-			setError( {
-				code: 'error_network',
-				message: __( 'It was not possible to process your request. Mind trying again?', 'jetpack' ),
-				status: 'info',
-			} );
+			setError( getErrorData( ERROR_NETWORK ) );
 		};
 
 		const onErrorServiceUnavailable = () => {
@@ -303,14 +285,7 @@ const useSuggestionsFromOpenAI = ( {
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setShowRetry( true );
-			setError( {
-				code: 'error_service_unavailable',
-				message: __(
-					'Jetpack AI services are currently unavailable. Sorry for the inconvenience.',
-					'jetpack'
-				),
-				status: 'info',
-			} );
+			setError( getErrorData( ERROR_SERVICE_UNAVAILABLE ) );
 		};
 
 		const onErrorQuotaExceeded = () => {
@@ -323,11 +298,7 @@ const useSuggestionsFromOpenAI = ( {
 			// Dispatch the action to set the feature as requiring an upgrade.
 			setAiAssistantFeatureRequireUpgrade( true );
 
-			setError( {
-				code: 'error_quota_exceeded',
-				message: __( 'You have reached the limit of requests for this site.', 'jetpack' ),
-				status: 'info',
-			} );
+			setError( getErrorData( ERROR_QUOTA_EXCEEDED ) );
 		};
 
 		const onErrorModeration = () => {
@@ -336,14 +307,7 @@ const useSuggestionsFromOpenAI = ( {
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setShowRetry( false );
-			setError( {
-				code: 'error_moderation',
-				message: __(
-					'This request has been flagged by our moderation system. Please try to rephrase it and try again.',
-					'jetpack'
-				),
-				status: 'info',
-			} );
+			setError( getErrorData( ERROR_MODERATION ) );
 			onModeration?.();
 		};
 
