@@ -24,9 +24,9 @@ import FeedbackControl from './components/feedback-control';
 import ToolbarControls from './components/toolbar-controls';
 import UpgradePrompt from './components/upgrade-prompt';
 import { getStoreBlockId } from './extensions/ai-assistant/with-ai-assistant';
+import useAIAssistant from './hooks/use-ai-assistant';
 import useAICheckout from './hooks/use-ai-checkout';
 import useAiFeature from './hooks/use-ai-feature';
-import useSuggestionsFromOpenAI from './hooks/use-suggestions-from-openai';
 import { isUserConnected } from './lib/connection';
 import './editor.scss';
 
@@ -93,7 +93,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		wholeContent,
 		requestingState,
 		error,
-	} = useSuggestionsFromOpenAI( {
+	} = useAIAssistant( {
 		onSuggestionDone: useCallback( () => {
 			focusOnPrompt();
 			increaseRequestsCount();

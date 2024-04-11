@@ -17,17 +17,17 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import { DEFAULT_PROMPT_TONE } from '../../components/tone-dropdown-control';
-import useAutoScroll from '../../hooks/use-auto-scroll';
 import { buildPromptForBlock, delimiter } from '../../lib/prompt';
 import {
 	getContentFromBlocks,
 	getPartialContentToBlock,
 	getTextContentFromInnerBlocks,
 } from '../../lib/utils/block-content';
+import useAutoScroll from '../use-auto-scroll';
 
 const debugError = debugFactory( 'jetpack-ai-assistant:error' );
 
-const useSuggestionsFromOpenAI = ( {
+const useAIAssistant = ( {
 	attributes,
 	clientId,
 	content,
@@ -259,4 +259,4 @@ const useSuggestionsFromOpenAI = ( {
 	};
 };
 
-export default useSuggestionsFromOpenAI;
+export default useAIAssistant;
