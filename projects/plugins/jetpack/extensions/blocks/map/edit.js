@@ -1,6 +1,6 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
-import { BlockControls, InspectorControls } from '@wordpress/block-editor';
+import { BlockControls, InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import {
 	Button,
 	ExternalLink,
@@ -45,7 +45,6 @@ const RESIZABLE_BOX_ENABLE_OPTION = {
 };
 
 const MapEdit = ( {
-	className,
 	setAttributes,
 	attributes,
 	noticeUI,
@@ -75,6 +74,8 @@ const MapEdit = ( {
 	const [ apiKeySource, setApiKeySource ] = useState( null );
 	const [ apiRequestOutstanding, setApiRequestOutstanding ] = useState( null );
 	const mapRef = useRef( null );
+	const blockProps = useBlockProps();
+	const { className } = blockProps;
 
 	const mapStyle = getActiveStyleName( styles, className );
 	const mapProvider = getMapProvider( { mapStyle } );
@@ -322,67 +323,65 @@ const MapEdit = ( {
 					/>
 				</InspectorControls>
 
-				<div className={ className }>
-					<ResizableBox
-						size={ {
-							height: mapHeight || 'auto',
-							width: '100%',
-						} }
-						grid={ [ 10, 10 ] }
-						showHandle={ isSelected }
-						minHeight={ MIN_HEIGHT }
-						enable={ RESIZABLE_BOX_ENABLE_OPTION }
-						onResizeStart={ onResizeStart }
-						onResizeStop={ onMapResize }
-					>
-						<div className="wp-block-jetpack-map__map_wrapper">
-							<Map
-								ref={ mapRef }
-								address={ address }
-								scrollToZoom={ allowScrollToZoom }
-								showFullscreenButton={ showFullscreenButton }
-								mapStyle={ mapStyle || 'default' }
-								mapDetails={ mapDetails }
-								mapHeight={ mapHeight }
-								points={ points }
-								zoom={ zoom }
-								mapCenter={ mapCenter }
-								markerColor={ markerColor }
-								onSetZoom={ value => {
-									setAttributes( { zoom: value } );
-								} }
-								admin={ true }
-								apiKey={ apiKey }
-								onSetPoints={ value => setAttributes( { points: value } ) }
-								onSetMapCenter={ value => setAttributes( { mapCenter: value } ) }
-								onMapLoaded={ () => setAddPointVisibility( ! points.length ) }
-								onMarkerClick={ () => setAddPointVisibility( false ) }
-								onError={ onError }
-								mapProvider={ mapProvider }
-							>
-								{ isSelected && addPointVisibility && (
-									<AddPoint
-										onAddPoint={ addPoint }
-										onClose={ () => setAddPointVisibility( false ) }
-										apiKey={ apiKey }
-										onError={ onError }
-										tagName="AddPoint"
-										mapProvider={ mapProvider }
-									/>
-								) }
-							</Map>
-						</div>
-					</ResizableBox>
-				</div>
+				<ResizableBox
+					size={ {
+						height: mapHeight || 'auto',
+						width: '100%',
+					} }
+					grid={ [ 10, 10 ] }
+					showHandle={ isSelected }
+					minHeight={ MIN_HEIGHT }
+					enable={ RESIZABLE_BOX_ENABLE_OPTION }
+					onResizeStart={ onResizeStart }
+					onResizeStop={ onMapResize }
+				>
+					<div className="wp-block-jetpack-map__map_wrapper">
+						<Map
+							ref={ mapRef }
+							address={ address }
+							scrollToZoom={ allowScrollToZoom }
+							showFullscreenButton={ showFullscreenButton }
+							mapStyle={ mapStyle || 'default' }
+							mapDetails={ mapDetails }
+							mapHeight={ mapHeight }
+							points={ points }
+							zoom={ zoom }
+							mapCenter={ mapCenter }
+							markerColor={ markerColor }
+							onSetZoom={ value => {
+								setAttributes( { zoom: value } );
+							} }
+							admin={ true }
+							apiKey={ apiKey }
+							onSetPoints={ value => setAttributes( { points: value } ) }
+							onSetMapCenter={ value => setAttributes( { mapCenter: value } ) }
+							onMapLoaded={ () => setAddPointVisibility( ! points.length ) }
+							onMarkerClick={ () => setAddPointVisibility( false ) }
+							onError={ onError }
+							mapProvider={ mapProvider }
+						>
+							{ isSelected && addPointVisibility && (
+								<AddPoint
+									onAddPoint={ addPoint }
+									onClose={ () => setAddPointVisibility( false ) }
+									apiKey={ apiKey }
+									onError={ onError }
+									tagName="AddPoint"
+									mapProvider={ mapProvider }
+								/>
+							) }
+						</Map>
+					</div>
+				</ResizableBox>
 			</>
 		);
 	}
 
 	return (
-		<>
+		<div { ...blockProps }>
 			{ noticeUI }
 			{ content }
-		</>
+		</div>
 	);
 };
 
