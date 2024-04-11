@@ -34,6 +34,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 		useDispatch( 'core/edit-post' );
 	const { editPost, toggleEditorPanelOpened: toggleEditorPanelOpenedFromEditor } =
 		useDispatch( 'core/editor' );
+	const { clearSelectedBlock } = useDispatch( 'core/block-editor' );
 
 	const [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] = useState( false );
 	const [ images, setImages ] = useState< CarrouselImages >( [ { generating: true } ] );
@@ -176,8 +177,10 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	}, [ processImageGeneration, recordEvent ] );
 
 	const triggerComplementaryArea = useCallback( () => {
-		enableComplementaryArea( 'core/edit-post', 'edit-post/document' );
-	}, [ enableComplementaryArea ] );
+		// clear any block selection, because selected blocks have precedence on settings sidebar
+		clearSelectedBlock();
+		return enableComplementaryArea( 'core/edit-post', 'edit-post/document' );
+	}, [ clearSelectedBlock, enableComplementaryArea ] );
 
 	const handleAccept = useCallback( () => {
 		// track the accept/use image event
@@ -191,14 +194,19 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 
 			// Open the featured image panel for users to see the new image.
 			setTimeout( () => {
-				// If the panel is not opened, open it and then trigger the complementary area.
-				if ( ! isEditorPanelOpened( 'featured-image' ) ) {
-					toggleEditorPanelOpened?.( 'featured-image' ).then( () => {
-						triggerComplementaryArea();
-					} );
-				} else {
-					triggerComplementaryArea();
-				}
+				const isFeaturedImagePanelOpened = isEditorPanelOpened( 'featured-image' );
+				const isPostStatusPanelOpened = isEditorPanelOpened( 'post-status' );
+
+				// open the complementary area and then trigger the featured image panel.
+				triggerComplementaryArea().then( () => {
+					if ( ! isFeaturedImagePanelOpened ) {
+						toggleEditorPanelOpened( 'featured-image' );
+					}
+					// handle the case where the featured image panel is not present
+					if ( ! isPostStatusPanelOpened ) {
+						toggleEditorPanelOpened( 'post-status' );
+					}
+				} );
 			}, 500 );
 		};
 
