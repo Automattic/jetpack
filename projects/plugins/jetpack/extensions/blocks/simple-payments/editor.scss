@@ -3,9 +3,12 @@
 .wp-block-jetpack-simple-payments {
 	font-family: $default-font;
 	font-size: $default-font-size;
-	display: grid;
-	grid-template-columns: 200px auto;
-	grid-column-gap: 10px;
+
+	.simple-payments__wrapper {
+		display: grid;
+		grid-template-columns: 200px auto;
+		grid-column-gap: 10px;
+	}
 
 	.simple-payments__field {
 		.components-base-control__field {
