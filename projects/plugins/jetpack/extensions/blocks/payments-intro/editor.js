@@ -1,4 +1,4 @@
-import { InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
 import donationMetadata from '../donations/block.json';
 import premiumContentMetadata from '../premium-content/block.json';
@@ -10,7 +10,15 @@ import './editor.scss';
 
 registerJetpackBlockFromMetadata( metadata, {
 	edit,
-	save: () => <InnerBlocks.Content />,
+	save: () => {
+		const blockProps = useBlockProps.save();
+
+		return (
+			<div { ...blockProps }>
+				<InnerBlocks.Content />
+			</div>
+		);
+	},
 	keywords: [
 		...new Set( [
 			...metadata.keywords,
