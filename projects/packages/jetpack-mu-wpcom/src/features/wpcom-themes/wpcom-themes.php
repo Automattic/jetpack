@@ -51,3 +51,16 @@ function wpcom_themes_show_banner() {
 	);
 }
 add_action( 'load-theme-install.php', 'wpcom_themes_show_banner' );
+
+/**
+ * Registers an "Appearance > Theme Showcase" menu.
+ */
+function wpcom_themes_add_theme_showcase_menu() {
+	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
+		return;
+	}
+
+	$site_slug = wp_parse_url( home_url(), PHP_URL_HOST );
+	add_submenu_page( 'themes.php', esc_attr__( 'Theme Showcase', 'jetpack-mu-wpcom' ), __( 'Theme Showcase', 'jetpack-mu-wpcom' ), 'read', "https://wordpress.com/themes/$site_slug?ref=wpcom-themes-menu" );
+}
+add_action( 'admin_menu', 'wpcom_themes_add_theme_showcase_menu' );
