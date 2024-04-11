@@ -1,14 +1,15 @@
-import { InspectorControls } from '@wordpress/block-editor';
+import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { PanelBody, ToggleControl, BaseControl, TextControl } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import metadata from './block.json';
 
-function SubscriberLoginEdit( { attributes, setAttributes, className } ) {
+function SubscriberLoginEdit( { attributes, setAttributes } ) {
 	const logInInputId = useInstanceId( TextControl, 'inspector-text-control' );
 	const logOutInputId = useInstanceId( TextControl, 'inspector-text-control' );
 	const manageSubscriptionsInputId = useInstanceId( TextControl, 'inspector-text-control' );
+	const blockProps = useBlockProps();
 	const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
 	const {
 		redirectToCurrent,
@@ -19,7 +20,7 @@ function SubscriberLoginEdit( { attributes, setAttributes, className } ) {
 	} = validatedAttributes;
 
 	return (
-		<>
+		<div { ...blockProps }>
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 					<ToggleControl
@@ -65,10 +66,8 @@ function SubscriberLoginEdit( { attributes, setAttributes, className } ) {
 					) }
 				</PanelBody>
 			</InspectorControls>
-			<div className={ className }>
-				<a href="#logout-pseudo-link">{ logOutLabel || __( 'Log out', 'jetpack' ) }</a>
-			</div>
-		</>
+			<a href="#logout-pseudo-link">{ logOutLabel || __( 'Log out', 'jetpack' ) }</a>
+		</div>
 	);
 }
 
