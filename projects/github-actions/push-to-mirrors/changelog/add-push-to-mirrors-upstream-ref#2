@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Use the `Upstream-Ref` footers to find better base commits for newly-mirrored branches. Add workflow parameters `upstream-ref-count` and `upstream-ref-since` to control how many commits are searched.
