@@ -13,7 +13,6 @@ import {
 	useBreakpointMatch,
 	ActionButton,
 } from '@automattic/jetpack-components';
-import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { useContext, useLayoutEffect, useState } from 'react';
@@ -81,7 +80,6 @@ export default function MyJetpackScreen() {
 		title: noticeTitle,
 		options: noticeOptions,
 	} = currentNotice || {};
-	const { hasConnectionError } = useConnectionErrorNotice();
 	const { data: availabilityData, isLoading: isChatAvailabilityLoading } = useSimpleQuery( {
 		name: QUERY_CHAT_AVAILABILITY_KEY,
 		query: { path: REST_API_CHAT_AVAILABILITY_ENDPOINT },
@@ -140,11 +138,6 @@ export default function MyJetpackScreen() {
 							{ __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' ) }
 						</Text>
 					</Col>
-					{ hasConnectionError && ! isWelcomeBannerVisible && (
-						<Col>
-							<ConnectionError />
-						</Col>
-					) }
 					{ noticeMessage && ! isWelcomeBannerVisible && (
 						<Col>
 							{
