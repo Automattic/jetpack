@@ -9,6 +9,7 @@ import debugFactory from 'debug';
  */
 import askQuestion from '../../ask-question/index.js';
 import {
+	ERROR_CONTEXT_TOO_LARGE,
 	ERROR_MODERATION,
 	ERROR_NETWORK,
 	ERROR_QUOTA_EXCEEDED,
@@ -145,6 +146,15 @@ export function getErrorData( errorCode: SuggestionErrorCode ): RequestingErrorP
 				code: ERROR_MODERATION,
 				message: __(
 					'This request has been flagged by our moderation system. Please try to rephrase it and try again.',
+					'jetpack-ai-client'
+				),
+				severity: 'info',
+			};
+		case ERROR_CONTEXT_TOO_LARGE:
+			return {
+				code: ERROR_CONTEXT_TOO_LARGE,
+				message: __(
+					'The content is too large to be processed all at once. Please try to shorten it or divide it into smaller parts.',
 					'jetpack-ai-client'
 				),
 				severity: 'info',
