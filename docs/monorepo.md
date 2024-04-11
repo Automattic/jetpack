@@ -205,7 +205,7 @@ We use eslint and phpcs to lint JavaScript and PHP code. Projects should comply 
 
 ### Static Analysis
 
-We use Phan for PHP static analysis.[^1] Configuration for a project resides in the `.phan/config.php` within the project, which should generally build on top of the `.phan/config.base.php` from the monorepo root. A baseline file also resides at `.phan/baseline.php` to allow for incremental fixing of errors.
+We use Phan for PHP static analysis.[^1] Configuration for a project resides in the `.phan/config.php` within the project, which should generally build on top of the `.phan/config.base.php` from the monorepo root. A baseline file may also reside at `.phan/baseline.php` to allow for incremental fixing of errors.
 
 Phan in the monorepo should be run locally via [Jetpack's CLI tool](#first-time) as `jetpack phan`. Note that Phan soft-requires the [PHP ast extension](https://pecl.php.net/package/ast); while on Linux installing this is likely as easy as `sudo apt-get install php8.2-ast`, Mac users have reported having trouble.
 
