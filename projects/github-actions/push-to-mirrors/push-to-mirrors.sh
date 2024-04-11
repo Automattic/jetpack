@@ -21,7 +21,7 @@
 # - GITHUB_SHA: Head SHA1. HEAD will be assumed if not specified.
 # - NO_UPSTREAM_REFS: Set to 'true' to suppress the "Upstream-Ref" footer in commit messages. Note this will make `DEFAULT_BRANCH` be used more often.
 # - UPSTREAM_REF_COUNT: When checking Upstream-Ref to find a base commit for a new mirror branch, only consider this many monorepo commits at most.
-# - UPSTREAM_REF_SINCE: When checking Upstream-Ref to find a base commit for a new mirror branch, only consider monorepo commits since this date (in any format accepted by GNU `date`'s `--date` parameter).
+# - UPSTREAM_REF_SINCE: When checking Upstream-Ref to find a base commit for a new mirror branch, only consider monorepo commits since this date (in any format accepted by `git log`'s `--since` or `--since-as-filter` parameter).
 # - USER_NAME: Git user name to use when making the commit to the mirror repo.
 # - USER_EMAIL: Email address to use when making the commit to the mirror repo. Defaults to "$USER_NAME@users.noreply.github.com"
 
@@ -89,7 +89,12 @@ if [[ "$NO_UPSTREAM_REFS" != 'true' ]]; then
 
 	ARGS=()
 	if [[ -n "$UPSTREAM_REF_SINCE" ]]; then
-		ARGS+=( --since-as-filter="$( date --iso-8601=seconds --utc --date="$UPSTREAM_REF_SINCE" )" )
+		# GitHub may not have an up-to-date git
+		if git log --max-count=1 --since-as-filter='now' &>/dev/null; then
+			ARGS+=( --since-as-filter="$UPSTREAM_REF_SINCE" )
+		else
+			ARGS+=( --since="$UPSTREAM_REF_SINCE" )
+		fi
 	fi
 	if [[ -n "$UPSTREAM_REF_COUNT" ]]; then
 		ARGS+=( --max-count="$UPSTREAM_REF_COUNT" )

@@ -34,7 +34,7 @@ inputs:
     description: >
       When checking "Upstream-Ref" to find a base commit for a new mirror
       branch, only consider monorepo commits since this date (in any format
-      accepted by GNU `date`'s `--date` parameter).
+      accepted by `git log`'s `--since` or `--since-as-filter` parameter).
     required: false
   username:
     description: Name of the user the token belongs to.

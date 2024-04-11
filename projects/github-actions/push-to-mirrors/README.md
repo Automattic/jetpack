@@ -60,7 +60,7 @@ This action is intended to be triggered by a `push` event.
 
     # When checking "Upstream-Ref" to find a base commit for a new mirror
     # branch, only consider monorepo commits since this date (in any format
-    # accepted by GNU `date`'s `--date` parameter).
+    # accepted by `git log`'s `--since` or `--since-as-filter` parameter).
     upstream-ref-since:
 
     # Name of the user the token belongs to.
