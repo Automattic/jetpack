@@ -14,9 +14,9 @@ const useConnectionErrorsNotice = () => {
 	const { recordEvent } = useAnalytics();
 
 	useEffect( () => {
-		// Reset notice when the status of reconnection changes
+		// Reset notice before showing the failed to restore connection notice
 		resetNotice();
-	}, [ resetNotice, connectionErrorMessage, isRestoringConnection ] );
+	}, [ resetNotice, restoreConnectionError ] );
 
 	useEffect( () => {
 		if ( ! hasConnectionError ) {
@@ -53,7 +53,7 @@ const useConnectionErrorsNotice = () => {
 					noDefaultClasses: true,
 				},
 			],
-			priority: NOTICE_PRIORITY_HIGH,
+			priority: NOTICE_PRIORITY_HIGH + isRestoringConnection ? 1 : 0,
 		};
 
 		setNotice( {
