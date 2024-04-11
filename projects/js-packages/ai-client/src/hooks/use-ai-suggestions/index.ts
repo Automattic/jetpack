@@ -74,6 +74,11 @@ type useAiSuggestionsOptions = {
 	onDone?: ( content: string ) => void;
 
 	/*
+	 * onStop callback.
+	 */
+	onStop?: () => void;
+
+	/*
 	 * onError callback.
 	 */
 	onError?: ( error: RequestingErrorProps ) => void;
@@ -202,6 +207,7 @@ export default function useAiSuggestions( {
 	initialRequestingState = 'init',
 	onSuggestion,
 	onDone,
+	onStop,
 	onError,
 	onAllErrors,
 }: useAiSuggestionsOptions = {} ): useAiSuggestionsProps {
@@ -235,6 +241,7 @@ export default function useAiSuggestions( {
 	 */
 	const handleDone = useCallback(
 		( event: CustomEvent ) => {
+			closeEventSource();
 			onDone?.( event?.detail );
 			setRequestingState( 'done' );
 		},
@@ -346,11 +353,11 @@ export default function useAiSuggestions( {
 	}, [] );
 
 	/**
-	 * Stop suggestion handler.
+	 * Close the event source connection.
 	 *
 	 * @returns {void}
 	 */
-	const stopSuggestion = useCallback( () => {
+	const closeEventSource = useCallback( () => {
 		if ( ! eventSourceRef?.current ) {
 			return;
 		}
@@ -371,9 +378,6 @@ export default function useAiSuggestions( {
 		eventSource.removeEventListener( ERROR_NETWORK, handleNetworkError );
 
 		eventSource.removeEventListener( 'done', handleDone );
-
-		// Set requesting state to done since the suggestion stopped.
-		setRequestingState( 'done' );
 	}, [
 		eventSourceRef,
 		handleSuggestion,
@@ -384,6 +388,17 @@ export default function useAiSuggestions( {
 		handleNetworkError,
 		handleDone,
 	] );
+
+	/**
+	 * Stop suggestion handler.
+	 *
+	 * @returns {void}
+	 */
+	const stopSuggestion = useCallback( () => {
+		closeEventSource();
+		onStop?.();
+		setRequestingState( 'done' );
+	}, [ onStop ] );
 
 	// Request suggestions automatically when ready.
 	useEffect( () => {
