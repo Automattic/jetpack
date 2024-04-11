@@ -132,11 +132,12 @@ const Edit = props => {
 		return <LoadingError className={ className } error={ loadingError } />;
 	}
 
-	if ( ! currency ) {
-		if ( stripeConnectUrl ) {
-			return <StripeNudge blockName="donations" />;
-		}
+	if ( stripeConnectUrl ) {
+		// Need to connect Stripe first
+		return <StripeNudge blockName="donations" />;
+	}
 
+	if ( ! currency ) {
 		// Memberships settings are still loading
 		return <Spinner color="black" />;
 	}
