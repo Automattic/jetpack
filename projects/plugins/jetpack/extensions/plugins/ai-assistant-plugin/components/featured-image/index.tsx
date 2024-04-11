@@ -7,6 +7,7 @@ import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Icon, external } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -300,6 +301,17 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 								</div>
 							</div>
 						</div>
+					</div>
+					<div className="ai-assistant-featured-image__footer">
+						<Button
+							variant="link"
+							className="ai-assistant-featured-image__feedback-button"
+							href="https://jetpack.com/redirect/?source=jetpack-ai-feedback"
+							target="_blank"
+						>
+							<span>{ __( 'Provide feedback', 'jetpack' ) }</span>
+							<Icon icon={ external } className="icon" />
+						</Button>
 					</div>
 				</AiAssistantModal>
 			) }
