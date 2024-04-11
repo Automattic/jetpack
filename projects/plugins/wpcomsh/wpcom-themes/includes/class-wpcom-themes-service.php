@@ -56,7 +56,7 @@ class WPCom_Themes_Service {
 	 * @return stdClass The themes API result including wpcom themes.
 	 */
 	public function filter_themes_api_result( stdClass $res ): stdClass {
-		$wpcom_themes = $this->get_themes();
+		$wpcom_themes = array_values( $this->get_themes() );
 
 		if ( 1 === $res->info['page'] ) {
 			$res->themes = array_merge( $wpcom_themes, $res->themes );
@@ -78,7 +78,8 @@ class WPCom_Themes_Service {
 		$themes = array();
 		foreach ( $wpcom_themes as $theme ) {
 			if ( $this->has_valid_theme_tier( $theme ) ) {
-				$themes[] = $this->mapper->map_wpcom_to_wporg( $theme );
+				$wporg_theme                  = $this->mapper->map_wpcom_to_wporg( $theme );
+				$themes[ $wporg_theme->slug ] = $wporg_theme;
 			}
 		}
 
@@ -96,5 +97,18 @@ class WPCom_Themes_Service {
 		$tier = $theme->theme_tier->slug ?? false;
 
 		return in_array( $tier, self::VALID_THEME_TIERS, true );
+	}
+
+	/**
+	 * Retrieves a WPCom theme by its slug.
+	 *
+	 * @param string $slug The theme slug.
+	 *
+	 * @return stdClass|null The theme object if found, null otherwise.
+	 */
+	public function get_theme( string $slug ): ?stdClass {
+		$themes = $this->get_themes();
+
+		return $themes[ $slug ] ?? null;
 	}
 }

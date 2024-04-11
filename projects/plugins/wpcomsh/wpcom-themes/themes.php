@@ -53,3 +53,24 @@ function wpcomsh_popular_wpcom_themes_api_result( $res, string $action, $args ) 
 	return $wpcom_themes_service->filter_themes_api_result( $res );
 }
 add_filter( 'themes_api_result', 'wpcomsh_popular_wpcom_themes_api_result', 0, 3 );
+
+/**
+ * Process the themes API result theme_information for WPCom themes if needed.
+ *
+ * @param mixed  $res    The result object.
+ * @param string $action The action.
+ * @param mixed  $args   The arguments.
+ *
+ * @return mixed|stdClass|WP_Error|null
+ */
+function wpcomsh_theme_information_wpcom_themes_api_result( $res, string $action, $args ) {
+	// Pre-requisites checks.
+	if ( 'theme_information' !== $action || ! wpcom_is_nav_redesign_enabled() || ! get_option( 'wpcom_themes_on_atomic' ) ) {
+		return $res;
+	}
+
+	$wpcom_themes_service = wpcomsh_get_wpcom_themes_service_instance();
+
+	return $wpcom_themes_service->get_theme( $args->slug ) ?? $res;
+}
+add_filter( 'themes_api_result', 'wpcomsh_theme_information_wpcom_themes_api_result', 0, 3 );
