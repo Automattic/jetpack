@@ -3,7 +3,6 @@
  */
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
@@ -130,8 +129,6 @@ type useAiSuggestionsProps = {
 	 */
 	handleErrorQuotaExceededError: () => void;
 };
-
-const debug = debugFactory( 'jetpack-ai-client:use-suggestion' );
 
 /**
  * Get the error data for a given error code.
@@ -293,14 +290,6 @@ export default function useAiSuggestions( {
 			promptArg: PromptProp,
 			options: AskQuestionOptionsArgProps = { ...askQuestionOptions }
 		) => {
-			if ( Array.isArray( promptArg ) && promptArg?.length ) {
-				promptArg.forEach( ( { role, content: promptContent }, i ) =>
-					debug( '(%s/%s) %o\n%s', i + 1, promptArg.length, `[${ role }]`, promptContent )
-				);
-			} else {
-				debug( '%o', promptArg );
-			}
-
 			// Clear any error.
 			setError( undefined );
 

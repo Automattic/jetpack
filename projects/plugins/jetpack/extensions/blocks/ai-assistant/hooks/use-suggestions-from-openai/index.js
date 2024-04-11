@@ -25,8 +25,6 @@ import {
 	getTextContentFromInnerBlocks,
 } from '../../lib/utils/block-content';
 
-const debug = debugFactory( 'jetpack-ai-assistant:event' );
-const debugPrompt = debugFactory( 'jetpack-ai-assistant:prompt' );
 const debugError = debugFactory( 'jetpack-ai-assistant:error' );
 
 const useSuggestionsFromOpenAI = ( {
@@ -65,8 +63,6 @@ const useSuggestionsFromOpenAI = ( {
 	const lastUserPrompt = useRef();
 
 	const onSuggestion = detail => {
-		debug( '(suggestion)', detail );
-
 		// Remove the delimiter from the suggestion and update the block.
 		updateBlockAttributes( clientId, { content: detail?.replaceAll( delimiter, '' ) } );
 		snapToBottom();
@@ -83,9 +79,6 @@ const useSuggestionsFromOpenAI = ( {
 		};
 
 		updatedMessages.current.push( lastUserPrompt.current, lastAssistantPrompt );
-
-		debugPrompt( 'Add %o\n%s', `[${ lastUserPrompt.role }]`, lastUserPrompt.content );
-		debugPrompt( 'Add %o\n%s', `[${ lastAssistantPrompt.role }]`, lastAssistantPrompt.content );
 
 		/*
 		 * Limit the messages to 20 items.
@@ -242,11 +235,6 @@ const useSuggestionsFromOpenAI = ( {
 
 		try {
 			enableAutoScroll();
-
-			// debug all prompt items, one by one
-			prompt.forEach( ( { role, content: promptContent }, i ) =>
-				debugPrompt( '(%s/%s) %o\n%s', i + 1, prompt.length, `[${ role }]`, promptContent )
-			);
 
 			await request( prompt );
 		} catch ( err ) {
