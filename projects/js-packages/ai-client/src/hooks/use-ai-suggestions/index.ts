@@ -119,6 +119,11 @@ type useAiSuggestionsProps = {
 	 * The handler to stop a suggestion.
 	 */
 	stopSuggestion: () => void;
+
+	/*
+	 * The handler to handle the quota exceeded error.
+	 */
+	handleErrorQuotaExceededError: () => void;
 };
 
 const debug = debugFactory( 'jetpack-ai-client:use-suggestion' );
@@ -410,6 +415,9 @@ export default function useAiSuggestions( {
 		request,
 		stopSuggestion,
 		reset,
+
+		// Error handlers
+		handleErrorQuotaExceededError,
 
 		// SuggestionsEventSource
 		eventSource: eventSourceRef.current,
