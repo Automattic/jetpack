@@ -34,6 +34,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 		useDispatch( 'core/edit-post' );
 	const { editPost, toggleEditorPanelOpened: toggleEditorPanelOpenedFromEditor } =
 		useDispatch( 'core/editor' );
+	const { clearSelectedBlock } = useDispatch( 'core/block-editor' );
 
 	const [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] = useState( false );
 	const [ images, setImages ] = useState< CarrouselImages >( [ { generating: true } ] );
@@ -175,8 +176,10 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	}, [ processImageGeneration, recordEvent ] );
 
 	const triggerComplementaryArea = useCallback( () => {
+		// clear any block selection, because selected blocks have precedence on settings sidebar
+		clearSelectedBlock();
 		enableComplementaryArea( 'core/edit-post', 'edit-post/document' );
-	}, [ enableComplementaryArea ] );
+	}, [ clearSelectedBlock, enableComplementaryArea ] );
 
 	const handleAccept = useCallback( () => {
 		// track the accept/use image event
