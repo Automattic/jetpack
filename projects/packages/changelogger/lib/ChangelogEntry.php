@@ -268,7 +268,7 @@ class ChangelogEntry implements JsonSerializable {
 	/**
 	 * Get the changes grouped by subheading.
 	 *
-	 * @param string|null $subheading Subheading to retrieve. @deprecated since $$next-version$$. Do `->getChangesBySubheading()[ $subheading ]` instead.
+	 * @param string|null $subheading Subheading to retrieve. @deprecated since 4.2.0. Do `->getChangesBySubheading()[ $subheading ]` instead.
 	 * @return array<string,ChangeEntry[]> Change entries by subheading.
 	 *   Returns just the `ChangeEntry[]` if the deprecated `$subheading` parameter is used.
 	 */
