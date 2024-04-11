@@ -39,7 +39,7 @@ const useConnectionErrorsNotice = () => {
 			recordEvent( 'jetpack_my_jetpack_connection_error_notice_cta_click' );
 		};
 
-		const loadingButtonLabel = __( 'Reconnecting Jetpack', 'jetpack-my-jetpack' );
+		const loadingButtonLabel = __( 'Reconnecting Jetpack…', 'jetpack-my-jetpack' );
 		const restoreButtonLabel = __( 'Restore Connection', 'jetpack-my-jetpack' );
 
 		const noticeOptions = {
