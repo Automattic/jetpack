@@ -22,9 +22,9 @@ const Edit = props => {
 	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
 	const post = useSelect( select => select( 'core/editor' ).getCurrentPost(), [] );
 
-	const isStripeConnected = useSelect(
-		select => select( membershipProductsStore ).isApiStateConnected(),
-		false
+	const stripeConnectUrl = useSelect(
+		select => select( membershipProductsStore ).getConnectUrl(),
+		''
 	);
 
 	const { setConnectUrl, setConnectedAccountDefaultCurrency } = useDispatch(
@@ -133,7 +133,7 @@ const Edit = props => {
 	}
 
 	if ( ! currency ) {
-		if ( ! isStripeConnected ) {
+		if ( stripeConnectUrl ) {
 			<StripeNudge blockName="donations" />;
 		}
 
