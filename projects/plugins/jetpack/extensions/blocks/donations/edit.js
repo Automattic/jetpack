@@ -2,8 +2,10 @@ import { Spinner } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { StripeNudge } from '../../shared/components/stripe-nudge';
 import { SUPPORTED_CURRENCIES } from '../../shared/currencies';
 import getConnectUrl from '../../shared/get-connect-url';
+import { store as membershipProductsStore } from '../../store/membership-products';
 import { STORE_NAME as MEMBERSHIPS_PRODUCTS_STORE } from '../../store/membership-products/constants';
 import fetchDefaultProducts from './fetch-default-products';
 import fetchStatus from './fetch-status';
@@ -19,6 +21,11 @@ const Edit = props => {
 
 	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
 	const post = useSelect( select => select( 'core/editor' ).getCurrentPost(), [] );
+
+	const stripeConnectUrl = useSelect(
+		select => select( membershipProductsStore ).getConnectUrl(),
+		''
+	);
 
 	const { setConnectUrl, setConnectedAccountDefaultCurrency } = useDispatch(
 		MEMBERSHIPS_PRODUCTS_STORE
@@ -125,9 +132,14 @@ const Edit = props => {
 		return <LoadingError className={ className } error={ loadingError } />;
 	}
 
+	if ( stripeConnectUrl ) {
+		// Need to connect Stripe first
+		return <StripeNudge blockName="donations" />;
+	}
+
 	if ( ! currency ) {
 		// Memberships settings are still loading
-		return <Spinner />;
+		return <Spinner color="black" />;
 	}
 
 	return <Tabs { ...props } products={ products } />;
