@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Super Cache: copy compatibility functions so plugin can use older WordPress versions.
