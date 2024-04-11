@@ -194,11 +194,16 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 			// Open the featured image panel for users to see the new image.
 			setTimeout( () => {
 				const isFeaturedImagePanelOpened = isEditorPanelOpened( 'featured-image' );
+				const isPostStatusPanelOpened = isEditorPanelOpened( 'post-status' );
 
 				// open the complementary area and then trigger the featured image panel.
 				triggerComplementaryArea().then( () => {
 					if ( ! isFeaturedImagePanelOpened ) {
 						toggleEditorPanelOpened( 'featured-image' );
+					}
+					// handle the case where the featured image panel is not present
+					if ( ! isPostStatusPanelOpened ) {
+						toggleEditorPanelOpened( 'post-status' );
 					}
 				} );
 			}, 500 );
