@@ -63,7 +63,12 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 				{ name: __( 'Number of shares in 30 days', 'jetpack-social' ) },
 				{ name: __( 'Priority support', 'jetpack-social' ) },
 				{ name: __( 'Schedule posting', 'jetpack-social' ) },
-				{ name: __( 'Instagram, Facebook, Mastodon, LinkedIn, & Tumblr', 'jetpack-social' ) },
+				{
+					name: __(
+						'Instagram, Facebook, Mastodon, LinkedIn, Nextdoor, & Tumblr',
+						'jetpack-social'
+					),
+				},
 				{ name: __( 'Customize publications', 'jetpack-social' ) },
 				{
 					name: __( 'Recycle content', 'jetpack-social' ),
@@ -141,40 +146,6 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 				<PricingTableItem isIncluded />
 				<PricingTableItem isIncluded />
 				<PricingTableItem isComingSoon />
-			</PricingTableColumn>
-			<PricingTableColumn primary>
-				<PricingTableHeader>
-					{ productInfo?.basic ? (
-						<ProductPrice
-							price={ productInfo?.basic?.price }
-							offPrice={ productInfo?.basic?.introOffer }
-							legend={ __( '/month, billed yearly', 'jetpack-social' ) }
-							currency={ productInfo?.currencyCode }
-							hidePriceFraction
-						/>
-					) : (
-						<Spinner className={ styles.spinner } />
-					) }
-					<Button
-						href={ getRedirectUrl( 'jetpack-social-basic-plan-plugin-admin-page', {
-							site: blogID ?? siteSuffix,
-							query: 'redirect_to=admin.php?page=jetpack-social',
-						} ) }
-						fullWidth
-					>
-						{ __( 'Get Basic plan', 'jetpack-social' ) }
-					</Button>
-				</PricingTableHeader>
-				{ UNLIMITED_SHARES_TABLE_ITEM }
-				<PricingTableItem isIncluded />
-				<PricingTableItem isIncluded />
-				<PricingTableItem isIncluded />
-				<PricingTableItem isIncluded />
-				<PricingTableItem isIncluded />
-				<PricingTableItem />
-				<PricingTableItem />
-				<PricingTableItem />
-				<PricingTableItem />
 			</PricingTableColumn>
 			<PricingTableColumn>
 				<PricingTableHeader>
