@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
 import { SUPPORTED_CURRENCIES } from '../../shared/currencies';
 import getConnectUrl from '../../shared/get-connect-url';
+import { store as membershipProductsStore } from '../../store/membership-products';
 import { STORE_NAME as MEMBERSHIPS_PRODUCTS_STORE } from '../../store/membership-products/constants';
 import fetchDefaultProducts from './fetch-default-products';
 import fetchStatus from './fetch-status';
@@ -20,6 +21,11 @@ const Edit = props => {
 
 	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
 	const post = useSelect( select => select( 'core/editor' ).getCurrentPost(), [] );
+
+	const isStripeConnected = useSelect(
+		select => select( membershipProductsStore ).isApiStateConnected(),
+		false
+	);
 
 	const { setConnectUrl, setConnectedAccountDefaultCurrency } = useDispatch(
 		MEMBERSHIPS_PRODUCTS_STORE
@@ -127,13 +133,12 @@ const Edit = props => {
 	}
 
 	if ( ! currency ) {
+		if ( ! isStripeConnected ) {
+			<StripeNudge blockName="donations" />;
+		}
+
 		// Memberships settings are still loading
-		return (
-			<>
-				<StripeNudge blockName="donations" />
-				<Spinner color="black" />
-			</>
-		);
+		return <Spinner color="black" />;
 	}
 
 	return <Tabs { ...props } products={ products } />;
