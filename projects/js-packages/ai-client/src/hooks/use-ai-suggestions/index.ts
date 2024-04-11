@@ -59,6 +59,11 @@ type useAiSuggestionsOptions = {
 	askQuestionOptions?: AskQuestionOptionsArgProps;
 
 	/*
+	 * Initial requesting state.
+	 */
+	initialRequestingState?: RequestingStateProp;
+
+	/*
 	 * onSuggestion callback.
 	 */
 	onSuggestion?: ( suggestion: string ) => void;
@@ -189,12 +194,14 @@ export default function useAiSuggestions( {
 	prompt,
 	autoRequest = false,
 	askQuestionOptions = {},
+	initialRequestingState = 'init',
 	onSuggestion,
 	onDone,
 	onError,
 	onAllErrors,
 }: useAiSuggestionsOptions = {} ): useAiSuggestionsProps {
-	const [ requestingState, setRequestingState ] = useState< RequestingStateProp >( 'init' );
+	const [ requestingState, setRequestingState ] =
+		useState< RequestingStateProp >( initialRequestingState );
 	const [ suggestion, setSuggestion ] = useState< string >( '' );
 	const [ error, setError ] = useState< RequestingErrorProps >();
 
