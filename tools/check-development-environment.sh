@@ -358,19 +358,23 @@ if [[ -z "$BIN" ]]; then
 else
 	success "yes"
 
-	checking '[optional] Docker-compose is available'
-	BIN="$(command -v docker-compose)"
-	if [[ -z "$BIN" ]]; then
+	checking '[optional] Docker compose is available'
+	AS=
+	if docker compose version &>/dev/null; then
+		VER="$(docker compose version 2>/dev/null | sed -n -E 's/^(docker-compose|Docker Compose) version v?([0-9]+\.[0-9]+\.[0-9a-zA-Z.-]+)(, .*|\+.*)?$/\2/p')"
+		AS='docker compose'
+	elif BIN="$(command -v docker-compose)"; then
+		VER="$(docker-compose --version 2>/dev/null | sed -n -E 's/^(docker-compose|Docker Compose) version v?([0-9]+\.[0-9]+\.[0-9a-zA-Z.-]+)(, .*|\+.*)?$/\2/p')"
+		AS='docker-compose'
+	fi
+	if [[ -z "$AS" ]]; then
 		warning "no" 'docker-supported-recommended'
+	elif [[ -z "$VER" ]]; then
+		warning "yes (as '$AS', version unknown)"
+	elif version_compare "$VER" "1.28"; then
+		success "yes (as '$AS', version $VER)"
 	else
-		VER="$(docker-compose --version 2>/dev/null | sed -n -E 's/^(docker-compose|Docker Compose) version v?([0-9]+\.[0-9]+\.[0-9a-zA-Z.-]+)(, .*)?$/\2/p')"
-		if [[ -z "$VER" ]]; then
-			warning "yes (version unknown)"
-		elif version_compare "$VER" "1.28"; then
-			success "yes (version $VER)"
-		else
-			warning "yes (version $VER)" '' "Docker-compose at $BIN is version $VER. Version 1.28 or later is recommended."
-		fi
+		warning "yes (as '$AS', version $VER)" '' "Docker compose at $BIN is version $VER. Version 1.28 or later is recommended."
 	fi
 
 	checking '[optional] Docker is running'
