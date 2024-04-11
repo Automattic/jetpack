@@ -134,7 +134,7 @@ const Edit = props => {
 
 	if ( ! currency ) {
 		if ( stripeConnectUrl ) {
-			<StripeNudge blockName="donations" />;
+			return <StripeNudge blockName="donations" />;
 		}
 
 		// Memberships settings are still loading
