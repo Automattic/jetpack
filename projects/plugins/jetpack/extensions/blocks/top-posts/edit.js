@@ -1,6 +1,6 @@
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
-import { BlockControls, InspectorControls } from '@wordpress/block-editor';
+import { BlockControls, InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { useState, useEffect } from '@wordpress/element';
 import classNames from 'classnames';
 import { LoadingPostsGrid } from '../../shared/components/loading-posts-grid';
@@ -46,9 +46,11 @@ function TopPostsPreviewItem( props ) {
 	);
 }
 
-function TopPostsEdit( { attributes, className, setAttributes } ) {
+function TopPostsEdit( { attributes, setAttributes } ) {
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'stats' );
+	const blockProps = useBlockProps();
+	const { className } = blockProps;
 
 	const [ postsData, setPostsData ] = useState();
 	const [ postsToDisplay, setPostsToDisplay ] = useState();
@@ -134,43 +136,46 @@ function TopPostsEdit( { attributes, className, setAttributes } ) {
 		setPostsToDisplay,
 	] );
 
+	let content;
+
 	if ( ! isModuleActive && ! isLoadingModules ) {
-		return (
+		content = (
 			<InactiveStatsPlaceholder
 				className={ className }
 				changeStatus={ changeStatus }
 				isLoading={ isChangingStatus }
 			/>
 		);
-	}
+	} else if ( ! postsToDisplay ) {
+		content = <LoadingPostsGrid />;
+	} else {
+		content = (
+			<>
+				<InspectorControls>
+					<TopPostsInspectorControls
+						attributes={ attributes }
+						setAttributes={ setAttributes }
+						toggleAttributes={ toggleAttributes }
+						setToggleAttributes={ setToggleAttributes }
+						postTypesData={ postTypesData }
+					/>
+				</InspectorControls>
 
-	if ( ! postsToDisplay ) {
-		return <LoadingPostsGrid />;
+				<BlockControls>
+					<TopPostsBlockControls attributes={ attributes } setAttributes={ setAttributes } />
+				</BlockControls>
+
+				<div data-item-count={ postsToDisplay.length }>
+					<div className="jetpack-top-posts-wrapper">{ postsToDisplay }</div>
+				</div>
+			</>
+		);
 	}
 
 	return (
-		<>
-			<InspectorControls>
-				<TopPostsInspectorControls
-					attributes={ attributes }
-					setAttributes={ setAttributes }
-					toggleAttributes={ toggleAttributes }
-					setToggleAttributes={ setToggleAttributes }
-					postTypesData={ postTypesData }
-				/>
-			</InspectorControls>
-
-			<BlockControls>
-				<TopPostsBlockControls attributes={ attributes } setAttributes={ setAttributes } />
-			</BlockControls>
-
-			<div
-				className={ classNames( className, `is-${ layout }-layout` ) }
-				data-item-count={ postsToDisplay.length }
-			>
-				<div className="jetpack-top-posts-wrapper">{ postsToDisplay }</div>
-			</div>
-		</>
+		<div { ...blockProps } className={ classNames( className, `is-${ layout }-layout` ) }>
+			{ content }
+		</div>
 	);
 }
 
