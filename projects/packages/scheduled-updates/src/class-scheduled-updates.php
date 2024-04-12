@@ -359,8 +359,8 @@ class Scheduled_Updates {
 		}
 
 		if ( is_multisite() ) {
-			// is it the main network ? is really is multi network
-			if ( Jetpack::is_multi_network() ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
+			if ( class_exists( 'Jetpack' ) && \Jetpack::is_multi_network() ) {
 				$reasons_can_not_modify_files['is_multi_network'] = __( 'Multi network install are not supported.', 'jetpack-scheduled-updates' );
 			}
 			// Is the site the main site here.
@@ -370,8 +370,8 @@ class Scheduled_Updates {
 		}
 
 		$file_mod_capabilities = array(
-			'modify_files'     => (bool) empty( $reasons_can_not_modify_files ), // install, remove, update
-			'autoupdate_files' => (bool) empty( $reasons_can_not_modify_files ) && empty( $reasons_can_not_autoupdate ), // enable autoupdates
+			'modify_files'     => empty( $reasons_can_not_modify_files ), // install, remove, update.
+			'autoupdate_files' => empty( $reasons_can_not_modify_files ) && empty( $reasons_can_not_autoupdate ), // enable autoupdates.
 		);
 
 		$errors = array();
@@ -478,10 +478,11 @@ class Scheduled_Updates {
 	 * @see Automattic\Jetpack\Sync\Functions::file_system_write_access
 	 */
 	private static function file_system_write_access() {
-		if ( ! class_exists( 'Automattic\Jetpack\Sync\Functions' ) ) {
-			return false;
+		if ( class_exists( 'Automattic\Jetpack\Sync\Functions' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
+			return Automattic\Jetpack\Sync\Functions::file_system_write_access();
 		}
 
-		return \Automattic\Jetpack\Sync\Functions::file_system_write_access();
+		return false;
 	}
 }

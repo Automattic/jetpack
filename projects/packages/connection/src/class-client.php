@@ -440,11 +440,11 @@ class Client {
 	/**
 	 * Query the WordPress.com REST API using the blog token
 	 *
-	 * @param String $path The API endpoint relative path.
-	 * @param String $version The API version.
-	 * @param array  $args Request arguments.
-	 * @param String $body Request body.
-	 * @param String $base_api_path (optional) the API base path override, defaults to 'rest'.
+	 * @param string       $path          The API endpoint relative path.
+	 * @param string       $version       The API version.
+	 * @param array        $args          Request arguments.
+	 * @param array|string $body          Request body.
+	 * @param string       $base_api_path (optional) the API base path override, defaults to 'rest'.
 	 * @return array|WP_Error $response Data.
 	 */
 	public static function wpcom_json_api_request_as_blog(

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connection: Update phpdocs to better reflect accepted parameter types for wpcom_json_api_request_as_blog().

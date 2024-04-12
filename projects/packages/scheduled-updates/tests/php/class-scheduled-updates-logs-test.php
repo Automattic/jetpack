@@ -24,6 +24,13 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 	use \phpmock\phpunit\PHPMock;
 
 	/**
+	 * Admin user ID.
+	 *
+	 * @var int
+	 */
+	protected $admin_id;
+
+	/**
 	 * Set up before class.
 	 *
 	 * @see Restrictions here: https://github.com/php-mock/php-mock-phpunit?tab=readme-ov-file#restrictions
@@ -31,7 +38,7 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function set_up_before_class() {
 		parent::set_up_before_class();
-		\phpmock\phpunit\PHPMock::defineFunctionMock( 'Automattic\Jetpack', 'realpath' );
+		static::defineFunctionMock( 'Automattic\Jetpack', 'realpath' );
 		Scheduled_Updates::init();
 		Scheduled_Updates::load_rest_api_endpoints();
 	}

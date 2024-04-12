@@ -51,6 +51,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			'/' . $this->rest_base,
 			array(
 				array(
+					// @phan-suppress-next-line PhanPluginMixedKeyNoKey
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_items' ),
 					'permission_callback' => array( $this, 'get_items_permissions_check' ),
@@ -152,6 +153,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			'/' . $this->rest_base . '/(?P<schedule_id>[\w]+)',
 			array(
 				array(
+					// @phan-suppress-next-line PhanPluginMixedKeyNoKey
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_item' ),
 					'permission_callback' => array( $this, 'get_item_permissions_check' ),
