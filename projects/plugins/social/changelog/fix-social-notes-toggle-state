@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Disabled the Note config toggles while the API calls are pending
