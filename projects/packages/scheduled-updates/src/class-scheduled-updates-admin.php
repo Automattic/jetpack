@@ -133,7 +133,7 @@ class Scheduled_Updates_Admin {
 			);
 
 			$html = sprintf(
-				$weekdays[ wp_date( 'N', $schedule->timestamp ) ],
+				$weekdays[ (int) wp_date( 'N', $schedule->timestamp ) ],
 				wp_date( get_option( 'time_format' ), $schedule->timestamp )
 			);
 		}
