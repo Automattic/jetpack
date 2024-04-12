@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Changelogger;
 use Automattic\Jetpack\Changelog\ChangeEntry;
 use Automattic\Jetpack\Changelog\Changelog;
 use InvalidArgumentException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\MissingInputException;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -22,6 +23,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 /**
  * "Write" command for the changelogger tool CLI.
  */
+#[AsCommand( 'write', 'Updates the changelog from change files' )]
 class WriteCommand extends Command {
 
 	const OK_EXIT            = 0;
@@ -36,6 +38,13 @@ class WriteCommand extends Command {
 	 * @var string|null
 	 */
 	protected static $defaultName = 'write';
+
+	/**
+	 * The default command description
+	 *
+	 * @var string|null
+	 */
+	protected static $defaultDescription = 'Updates the changelog from change files';
 
 	/**
 	 * The FormatterPlugin in use.
@@ -62,7 +71,7 @@ class WriteCommand extends Command {
 	 * Configures the command.
 	 */
 	protected function configure() {
-		$this->setDescription( 'Updates the changelog from change files' )
+		$this->setDescription( static::$defaultDescription )
 			->addOption( 'amend', null, InputOption::VALUE_NONE, 'Amend the latest version instead of creating a new one' )
 			->addOption( 'yes', null, InputOption::VALUE_NONE, 'Default all questions to "yes" instead of "no". Particularly useful for non-interactive mode' )
 			->addOption( 'use-version', null, InputOption::VALUE_REQUIRED, 'Use this version instead of determining the version automatically' )
@@ -602,7 +611,7 @@ EOF
 	 * @param OutputInterface $output OutputInterface.
 	 * @return int 0 If everything went fine, or an exit code.
 	 */
-	protected function execute( InputInterface $input, OutputInterface $output ) {
+	protected function execute( InputInterface $input, OutputInterface $output ): int {
 		try {
 			$this->formatter = Config::formatterPlugin();
 			$this->formatter->setIO( $input, $output );
