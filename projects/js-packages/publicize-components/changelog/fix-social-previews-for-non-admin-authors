@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed social previews crashing for non admin authors
