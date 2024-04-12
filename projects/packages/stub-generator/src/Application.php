@@ -253,12 +253,8 @@ class Application extends SingleCommandApplication {
 
 		ksort( $visitor->namespaces );
 		$stmts = array_values( $visitor->namespaces );
-		if ( count( $stmts ) === 1 ) {
-			if ( $stmts[0]->name ) {
-				$stmts[0]->setAttribute( 'kind', \PhpParser\Node\Stmt\Namespace_::KIND_SEMICOLON );
-			} else {
-				$stmts = $stmts[0]->stmts;
-			}
+		if ( count( $stmts ) === 1 && ! $stmts[0]->name ) {
+			$stmts = $stmts[0]->stmts;
 		}
 		return $stmts;
 	}
