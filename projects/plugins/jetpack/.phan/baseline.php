@@ -410,7 +410,7 @@ return [
         'modules/markdown/easy-markdown.php' => ['PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanUndeclaredProperty'],
         'modules/masterbar.php' => ['PhanNoopNew'],
         'modules/masterbar/admin-menu/class-admin-menu.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
-        'modules/masterbar/admin-menu/class-atomic-admin-menu.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMissingReturn', 'PhanUndeclaredFunctionInCallable'],
+        'modules/masterbar/admin-menu/class-atomic-admin-menu.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredFunctionInCallable'],
         'modules/masterbar/admin-menu/class-base-admin-menu.php' => ['PhanEmptyFQSENInCallable', 'PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginDuplicateExpressionAssignmentOperation', 'PhanTypeArraySuspiciousNullable', 'PhanTypeInstantiateAbstract', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypePossiblyInvalidDimOffset'],
         'modules/masterbar/admin-menu/class-dashboard-switcher-tracking.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredFunction'],
         'modules/masterbar/admin-menu/class-domain-only-admin-menu.php' => ['PhanTypeMismatchArgumentProbablyReal'],
