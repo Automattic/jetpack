@@ -15,6 +15,19 @@ type SocialNotesToggleProps = {
 	disabled?: boolean;
 };
 
+const handleStateUpdating = ( updateFunction, updatingStateSetter, ...args ) => {
+	// Set the updating state to true
+	updatingStateSetter( true );
+	document.body.style.cursor = 'wait';
+	// Call the updateFunction with provided arguments
+	const promise = updateFunction( ...args );
+	// When the promise resolves (update is completed), set the updating state to false
+	promise.then( () => {
+		updatingStateSetter( false );
+		document.body.style.cursor = 'auto';
+	} );
+};
+
 const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) => {
 	const { isEnabled, notesConfig } = useSelect( select => {
 		const store = select( socialStore );
@@ -27,6 +40,8 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 	}, [] );
 
 	const [ isUpdating, setIsUpdating ] = useState( false );
+	const [ isAppendLinkToggleUpdating, setIsAppendLinkToggleUpdating ] = useState( false );
+	const [ isLinkFormatUpdating, setIsLinkFormatUpdating ] = useState( false );
 
 	const { updateSocialNotesSettings: updateOptions, updateSocialNotesConfig } =
 		useDispatch( socialStore );
@@ -48,14 +63,16 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 
 	const onToggleAppendLink = useCallback(
 		( append_link: boolean ) => {
-			updateSocialNotesConfig( { append_link } );
+			handleStateUpdating( updateSocialNotesConfig, setIsAppendLinkToggleUpdating, {
+				append_link,
+			} );
 		},
 		[ updateSocialNotesConfig ]
 	);
 
 	const onChangeLinkFormat = useCallback(
 		( link_format: string ) => {
-			updateSocialNotesConfig( { link_format } );
+			handleStateUpdating( updateSocialNotesConfig, setIsLinkFormatUpdating, { link_format } );
 		},
 		[ updateSocialNotesConfig ]
 	);
@@ -81,15 +98,17 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 					<ToggleControl
 						label={ __( 'Append post link', 'jetpack-social' ) }
 						checked={ appendLink }
+						disabled={ isAppendLinkToggleUpdating || isLinkFormatUpdating }
 						className={ styles.toggle }
 						onChange={ onToggleAppendLink }
 						help={ __( 'Whether to append the post link when sharing a note.', 'jetpack-social' ) }
 					/>
-					{ appendLink ? (
+					{ appendLink && ! isAppendLinkToggleUpdating ? (
 						<SelectControl
 							label={ __( 'Link format', 'jetpack-social' ) }
 							value={ notesConfig.link_format ?? 'full_url' }
 							onChange={ onChangeLinkFormat }
+							disabled={ isLinkFormatUpdating }
 							options={ [
 								{ label: __( 'Full URL', 'jetpack-social' ), value: 'full_url' },
 								{ label: __( 'Shortlink', 'jetpack-social' ), value: 'shortlink' },
