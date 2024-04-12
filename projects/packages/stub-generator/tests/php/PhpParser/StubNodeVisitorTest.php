@@ -1429,6 +1429,78 @@ class StubNodeVisitorTest extends TestCase {
 				}
 				PHP,
 			),
+
+			'Handling of func_get_args()'                 => array(
+				<<<'PHP'
+				namespace Some\NS;
+
+				function no_params() {
+					func_get_args();
+				}
+
+				function no_varargs( $x, $y ) {
+					func_get_args();
+				}
+
+				function has_varargs( $x, ...$args ) {
+					func_get_args();
+				}
+
+				class Foo {
+					public function no_params() {
+						func_get_args();
+					}
+
+					public function no_varargs( $x, $y ) {
+						func_get_args();
+					}
+
+					public function has_varargs( $x, ...$args ) {
+						func_get_args();
+					}
+				}
+
+				function uses_func_get_arg() {
+					func_get_arg();
+				}
+
+				function uses_func_num_args() {
+					func_num_args();
+				}
+				PHP,
+				'*',
+				<<<'PHP'
+				namespace Some\NS;
+
+				function no_params(...$func_get_args)
+				{
+				}
+				function no_varargs($x, $y, ...$func_get_args)
+				{
+				}
+				function has_varargs($x, ...$args)
+				{
+				}
+				class Foo
+				{
+					public function no_params(...$func_get_args)
+					{
+					}
+					public function no_varargs($x, $y, ...$func_get_args)
+					{
+					}
+					public function has_varargs($x, ...$args)
+					{
+					}
+				}
+				function uses_func_get_arg(...$func_get_args)
+				{
+				}
+				function uses_func_num_args(...$func_get_args)
+				{
+				}
+				PHP,
+			),
 		);
 	}
 

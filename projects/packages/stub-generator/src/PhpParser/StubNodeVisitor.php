@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\StubGenerator\PhpParser;
 @phan-type Definitions = array{constant:'*'|string[],function:'*'|string[],class:ClassDefs,interface:ClassDefs,trait:ClassDefs}
 PHAN;
 
+use PhpParser\BuilderFactory;
 use PhpParser\Node;
 use PhpParser\Node\Expr\BinaryOp\Concat as BinaryOp_Concat;
 use PhpParser\Node\Expr\FuncCall;
@@ -28,6 +29,7 @@ use PhpParser\Node\Stmt\Interface_;
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Property;
 use PhpParser\Node\Stmt\Trait_;
+use PhpParser\NodeFinder;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\PrettyPrinter\Standard as PrettyPrinter_Standard;
 use RuntimeException;
@@ -221,6 +223,7 @@ class StubNodeVisitor extends NodeVisitorAbstract {
 			if ( $this->defs['function'] === '*' || in_array( $node->namespacedName->toString(), $this->defs['function'], true ) ) {
 				// Ignore anything inside the function.
 				if ( $node->stmts ) {
+					$this->mutateForFuncGetArgs( $node );
 					$node->stmts = array();
 				}
 				$this->debug( "Keeping function {$node->namespacedName}" );
@@ -287,6 +290,7 @@ class StubNodeVisitor extends NodeVisitorAbstract {
 			} elseif ( $defs === '*' || in_array( $node->name->toString(), $defs, true ) ) {
 				// Ignore anything inside the method.
 				if ( $node->stmts ) {
+					$this->mutateForFuncGetArgs( $node );
 					$node->stmts = array();
 				}
 				$this->debug( "Keeping method {$node->name}" );
@@ -374,6 +378,32 @@ class StubNodeVisitor extends NodeVisitorAbstract {
 			}
 			$this->namespaces[ $nsName ]->stmts[] = $node;
 
+		}
+	}
+
+	/**
+	 * Mutate a function/method's signature if it uses `func_get_args()`.
+	 *
+	 * @param Function_|ClassMethod $node Node.
+	 */
+	private function mutateForFuncGetArgs( Node $node ): void {
+		// First, see if the function already uses varargs.
+		foreach ( $node->getParams() as $param ) {
+			if ( $param->variadic ) {
+				return;
+			}
+		}
+
+		// See if the function contains a call to `func_get_args()`.
+		$call = ( new NodeFinder() )->findFirst(
+			$node->stmts,
+			function ( Node $n ) {
+				return $n instanceof FuncCall && $n->name instanceof Name && in_array( $n->name->toString(), array( 'func_get_args', 'func_get_arg', 'func_num_args' ), true );
+			}
+		);
+
+		if ( $call !== null ) {
+			$node->params[] = ( new BuilderFactory() )->param( 'func_get_args' )->makeVariadic()->getNode();
 		}
 	}
 }
