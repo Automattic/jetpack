@@ -19,7 +19,7 @@ function wpcom_themes_show_banner() {
 
 	$site_slug        = wp_parse_url( home_url(), PHP_URL_HOST );
 	$wpcom_logo       = plugins_url( 'images/wpcom-logo.svg', __FILE__ );
-	$background_image = plugins_url( 'images/banner-background.png', __FILE__ );
+	$background_image = plugins_url( 'images/banner-background.webp', __FILE__ );
 
 	wp_enqueue_script(
 		'wpcom-themes-banner',
