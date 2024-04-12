@@ -53,7 +53,6 @@ class Scheduled_Updates_Admin {
 				'<a href="%1$s" class="%2$s">%3$s <span class="count">(%4$s)</span></a>',
 				esc_url( add_query_arg( array( 'plugin_status' => 'scheduled-updates' ), 'plugins.php' ) ),
 				isset( $_REQUEST['plugin_status'] ) && 'scheduled-updates' === $_REQUEST['plugin_status'] ? 'current' : '', // phpcs:ignore WordPress.Security.NonceVerification
-				/* translators: %s is the number of scheduled updates. */
 				__( 'Scheduled Updates', 'jetpack-scheduled-updates' ),
 				number_format_i18n( $totals['scheduled-updates'] )
 			);
