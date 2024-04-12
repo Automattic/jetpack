@@ -9,7 +9,7 @@ default:
     tools/docker/mu-plugins: /var/www/html/wp-content/mu-plugins
 
   # Extra configuration (none by default). Anything set under this key will be written out as
-  # an extra docker-compose configuration file.
+  # an extra Docker compose configuration file.
   extras:
 
 # Dev environment overrides. None by default.

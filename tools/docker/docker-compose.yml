@@ -23,7 +23,7 @@ services:
 
   ## - The container wordpress is a very basic but custom container with WordPress and all of the tools we need
   ##   for development.
-  ## - The container will be named jetpack_wordpress for easy reference when running docker/docker-compose commands
+  ## - The container will be named jetpack_dev_wordpress_1 or jetpack_dev-wordpress-1 (depending on your Docker compose version) for easy reference when running Docker commands
   ##
   ## Here we map the following:
   ##  - The docker/wordpress-develop directory where we'll get WordPress source code with unit tests
