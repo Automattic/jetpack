@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Tiled Gallery Block: remove dependency to the Plans package in block.

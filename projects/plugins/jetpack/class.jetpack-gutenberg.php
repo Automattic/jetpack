@@ -632,6 +632,7 @@ class Jetpack_Gutenberg {
 		}
 
 		$status = new Status();
+		$host   = new Host();
 
 		// Required for Analytics. See _inc/lib/admin-pages/class.jetpack-admin-page.php.
 		if ( ! $status->is_offline_mode() && Jetpack::is_connection_ready() ) {
@@ -713,6 +714,7 @@ class Jetpack_Gutenberg {
 				'is_private_site'               => $status->is_private_site(),
 				'is_coming_soon'                => $status->is_coming_soon(),
 				'is_offline_mode'               => $status->is_offline_mode(),
+				'is_vip_site'                   => $host->is_vip_site(),
 				'is_newsletter_feature_enabled' => class_exists( '\Jetpack_Memberships' ),
 				/**
 				 * Enable the RePublicize UI in the block editor context.

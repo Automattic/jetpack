@@ -11,7 +11,6 @@
 namespace Automattic\Jetpack\Extensions;
 
 use Automattic\Jetpack\Blocks;
-use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Status;
 use Jetpack;
 use Jetpack_Gutenberg;
@@ -57,9 +56,6 @@ class Tiled_Gallery {
 		Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 		$is_squareish_layout = self::is_squareish_layout( $attr );
-
-		$jetpack_plan = Jetpack_Plan::get();
-		wp_localize_script( 'jetpack-gallery-settings', 'jetpack_plan', array( 'data' => $jetpack_plan['product_slug'] ) );
 
 		if ( preg_match_all( '/<img [^>]+>/', $content, $images ) ) {
 			/**

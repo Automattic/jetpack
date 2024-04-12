@@ -49,3 +49,13 @@ export function isComingSoon() {
 	const jetpackData = getJetpackData();
 	return jetpackData?.jetpack?.is_coming_soon ?? false;
 }
+
+/**
+ * Return whether the current site is hosted on the WordPress.com VIP platform.
+ *
+ * @returns {boolean} whether the current site is a VIP site.
+ */
+export function isVipSite() {
+	const jetpackData = getJetpackData();
+	return jetpackData?.jetpack?.is_vip_site ?? false;
+}
