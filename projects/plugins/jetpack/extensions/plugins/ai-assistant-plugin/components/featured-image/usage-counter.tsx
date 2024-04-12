@@ -1,9 +1,7 @@
 /**
  * External dependencies
  */
-import { Tooltip } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, info } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -17,39 +15,20 @@ type UsageCounterProps = {
 
 export default function UsageCounter( { currentLimit, currentUsage, cost }: UsageCounterProps ) {
 	const requestsBalance = currentLimit - currentUsage;
-	const notEnoughRequests = requestsBalance < cost;
 
-	const requestsCountLabel = sprintf(
-		// Translators: %1$d is the number of requests used, %d is the limit of requests.
-		__( 'Usage: %1$d / %2$d requests', 'jetpack' ),
-		currentUsage,
-		currentLimit
-	);
+	const requestsBalanceLabel = __( 'Requests needed / available:', 'jetpack' );
 
-	const pricingLabel = sprintf(
-		// Translators: %d is the cost of generating a featured image.
-		__( '%d requests per image', 'jetpack' ),
-		cost
-	);
-
-	const pricingLabelNotEnoughRequests = sprintf(
-		// Translators: %d is the cost of generating a featured image.
-		__(
-			"%d requests per image. You don't have enough requests to generate another image",
-			'jetpack'
-		),
-		cost
+	const requestsBalanceValues = sprintf(
+		// Translators: %1$d is the cost of one image, %2$d is the current requests balance.
+		__( '%1$d / %2$d', 'jetpack' ),
+		cost,
+		requestsBalance
 	);
 
 	return (
 		<div className="ai-assistant-featured-image__usage-counter">
-			{ requestsCountLabel }
-			<Tooltip
-				text={ notEnoughRequests ? pricingLabelNotEnoughRequests : pricingLabel }
-				placement="bottom"
-			>
-				<Icon className="usage-counter__icon" icon={ info } />
-			</Tooltip>
+			{ requestsBalanceLabel } <br />
+			{ requestsBalanceValues }
 		</div>
 	);
 }

@@ -3,7 +3,7 @@
  */
 import { useImageGenerator } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Button } from '@wordpress/components';
+import { Button, Tooltip } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -232,6 +232,11 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	] );
 
 	const modalTitle = __( 'Generate a featured image with AI', 'jetpack' );
+	const costTooltipText = sprintf(
+		// Translators: %d is the cost of generating one image.
+		__( '%d requests per image', 'jetpack' ),
+		featuredImageCost
+	);
 
 	return (
 		<div>
@@ -288,14 +293,16 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 											{ __( 'Try again', 'jetpack' ) }
 										</Button>
 									) : (
-										<Button
-											onClick={ handleRegenerate }
-											variant="secondary"
-											isBusy={ currentPointer?.generating }
-											disabled={ notEnoughRequests || currentPointer?.generating }
-										>
-											{ __( 'Generate new image', 'jetpack' ) }
-										</Button>
+										<Tooltip text={ costTooltipText } placement="bottom">
+											<Button
+												onClick={ handleRegenerate }
+												variant="secondary"
+												isBusy={ currentPointer?.generating }
+												disabled={ notEnoughRequests || currentPointer?.generating }
+											>
+												{ __( 'Generate again', 'jetpack' ) }
+											</Button>
+										</Tooltip>
 									) }
 									<Button
 										onClick={ handleAccept }
