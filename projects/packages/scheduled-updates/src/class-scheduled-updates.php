@@ -135,6 +135,33 @@ class Scheduled_Updates {
 	}
 
 	/**
+	 * Save the schedules for sync.
+	 *
+	 * @return bool
+	 */
+	public static function save_schedules_for_sync() {
+		$events = wp_get_scheduled_events( self::PLUGIN_CRON_HOOK );
+
+		foreach ( array_keys( $events ) as $schedule_id ) {
+			$events[ $schedule_id ]->schedule_id = $schedule_id;
+
+			$status = self::get_scheduled_update_status( $schedule_id );
+
+			if ( ! $status ) {
+				$status = array(
+					'last_run_timestamp' => null,
+					'last_run_status'    => null,
+				);
+			}
+
+			$events[ $schedule_id ]->last_run_timestamp = $status['last_run_timestamp'];
+			$events[ $schedule_id ]->last_run_status    = $status['last_run_status'];
+		}
+
+		return update_option( self::PLUGIN_CRON_HOOK, $events );
+	}
+
+	/**
 	 * Clear the cron cache.
 	 */
 	public static function clear_cron_cache() {
