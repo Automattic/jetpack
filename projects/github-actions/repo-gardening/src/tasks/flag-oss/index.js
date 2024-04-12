@@ -15,6 +15,10 @@ async function flagOss( payload, octokit ) {
 	const { head, base } = pull_request;
 	const { owner, name } = repository;
 
+	if ( head.repo.full_name === base.repo.full_name ) {
+		return;
+	}
+
 	// Check if PR author is org member
 	// https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28#check-organization-membership-for-a-user
 	const orgMembershipRequest = await octokit.rest.orgs.checkMembershipForUser( {
@@ -22,7 +26,7 @@ async function flagOss( payload, octokit ) {
 		username: head.user.login,
 	} );
 
-	if ( head.repo.full_name === base.repo.full_name || 204 === orgMembershipRequest.status ) {
+	if ( 204 === orgMembershipRequest.status ) {
 		return;
 	}
 
