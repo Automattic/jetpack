@@ -127,6 +127,10 @@ class Manager {
 
 		Webhooks::init( $manager );
 
+		// Unlink user before deleting the user from WP.com.
+		add_action( 'deleted_user', array( $manager, 'disconnect_user_force' ), 10, 1 );
+		add_action( 'remove_user_from_blog', array( $manager, 'disconnect_user_force' ), 10, 1 );
+
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
 
@@ -861,6 +865,22 @@ class Manager {
 		// Using wp_redirect intentionally because we're redirecting outside.
 		wp_redirect( $this->get_authorization_url( $user, $redirect_url ) ); // phpcs:ignore WordPress.Security.SafeRedirect
 		exit();
+	}
+
+	/**
+	 * Force user disconnect.
+	 *
+	 * @param int $user_id Local (external) user ID.
+	 *
+	 * @return bool
+	 */
+	public function disconnect_user_force( $user_id ) {
+		if ( ! (int) $user_id ) {
+			// Missing user ID.
+			return false;
+		}
+
+		return $this->disconnect_user( $user_id, true, true );
 	}
 
 	/**
