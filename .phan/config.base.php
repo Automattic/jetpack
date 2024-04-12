@@ -22,6 +22,7 @@
  *   - file_list: (array) Additional individual files to scan.
  *   - parse_file_list: (array) Files to parse but not analyze. Equivalent to listing in both 'file_list' and 'exclude_analysis_directory_list'.
  *   - stubs: (array) Predefined stubs to load. Default is `array( 'wordpress', 'wp-cli', 'wpcom' )`.
+ *      - akismet: Stubs from .phan/stubs/akismet-stubs.php.
  *      - woocommerce: Stubs from php-stubs/woocommerce.
  *      - woocommerce-internal: Stubs from .phan/stubs/woocommerce-internal-stubs.php.
  *      - woocommerce-packages: Stubs from php-stubs/woocommerce.
@@ -53,6 +54,9 @@ function make_phan_config( $dir, $options = array() ) {
 	$stubs = array();
 	foreach ( array_merge( $options['stubs'], $options['+stubs'] ) as $stub ) {
 		switch ( $stub ) {
+			case 'akismet':
+				$stubs[] = "$root/.phan/stubs/akismet-stubs.php";
+				break;
 			case 'woocommerce':
 				$stubs[] = "$root/vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php";
 				break;
