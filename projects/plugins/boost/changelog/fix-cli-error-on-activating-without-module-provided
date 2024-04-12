@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+CLI: Fix fatal error when using 'activate' without a module name.
