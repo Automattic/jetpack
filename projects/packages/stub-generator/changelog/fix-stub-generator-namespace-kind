@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Skip setting `'kind'` on `Namespace_` nodes. The printer doesn't care.
+
+

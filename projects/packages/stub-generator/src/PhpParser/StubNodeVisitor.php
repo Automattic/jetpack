@@ -370,9 +370,7 @@ class StubNodeVisitor extends NodeVisitorAbstract {
 		) {
 			$nsName = $this->getNamespaceName( $node );
 			if ( ! isset( $this->namespaces[ $nsName ] ) ) {
-				$ns = new Namespace_( $nsName === '' ? null : new Name( $nsName ) );
-				$ns->setAttribute( 'kind', Namespace_::KIND_BRACED );
-				$this->namespaces[ $nsName ] = $ns;
+				$this->namespaces[ $nsName ] = new Namespace_( $nsName === '' ? null : new Name( $nsName ) );
 			}
 			$this->namespaces[ $nsName ]->stmts[] = $node;
 
