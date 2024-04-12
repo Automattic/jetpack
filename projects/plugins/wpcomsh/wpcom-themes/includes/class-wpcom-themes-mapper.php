@@ -36,20 +36,16 @@ class WPCom_Themes_Mapper {
 		$theme->is_commercial        = false;
 		$theme->external_support_url = false;
 		$theme->is_community         = false;
-
-		// @TODO Include block theme in API response instead of reading from installed theme.
-		$theme->block_theme    = $wp_theme->is_block_theme();
-		$theme->compatible_wp  = true;
-		$theme->compatible_php = true;
-		$theme->num_ratings    = 0;
-		$theme->rating         = 0;
-		$theme->requires       = '5.8';
-		$theme->requires_php   = '7.4';
-
-		// @TODO Include version in API response.
-		$theme->version   = '1.0';
-		$theme->active    = $wpcom_stylesheet === $current_theme->get_stylesheet();
-		$theme->installed = $wp_theme->exists();
+		$theme->block_theme          = $wpcom_theme->block_theme;
+		$theme->compatible_wp        = true;
+		$theme->compatible_php       = true;
+		$theme->num_ratings          = 0;
+		$theme->rating               = 0;
+		$theme->requires             = '5.8';
+		$theme->requires_php         = '7.4';
+		$theme->version              = $wpcom_theme->version;
+		$theme->active               = $wpcom_stylesheet === $current_theme->get_stylesheet();
+		$theme->installed            = $wp_theme->exists();
 
 		return $theme;
 	}
