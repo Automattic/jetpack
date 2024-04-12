@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [0.33.8] - 2024-04-11
+### Changed
+- Update dependencies.
+
 ## [0.33.7] - 2024-04-08
 ### Added
 - Add 'from' property to connection call to WP.com. [#36741]
@@ -749,6 +753,7 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[0.33.8]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.7...v0.33.8
 [0.33.7]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.6...v0.33.7
 [0.33.6]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.5...v0.33.6
 [0.33.5]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.4...v0.33.5

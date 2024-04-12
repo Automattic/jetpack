@@ -379,11 +379,10 @@ function wpcom_site_menu_handle_dismiss_notice() {
 add_action( 'wp_ajax_dismiss_wpcom_site_menu_intro_notice', 'wpcom_site_menu_handle_dismiss_notice' );
 
 /**
- * Ensures customizer menu and adminbar items are not visible on a block theme for atomic sites.
+ * Ensures customizer menu and adminbar items are not visible on a block theme.
  */
 function hide_customizer_menu_on_block_theme() {
-	$is_wpcom = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
-	if ( ! $is_wpcom && wp_is_block_theme() && ! is_customize_preview() ) {
+	if ( wp_is_block_theme() && ! is_customize_preview() ) {
 		remove_action( 'customize_register', 'add_logotool_button', 20 );
 		remove_action( 'customize_register', 'footercredits_register', 99 );
 		remove_action( 'customize_register', 'wpcom_disable_customizer_site_icon', 20 );

@@ -200,6 +200,7 @@ class Defaults {
 		'jetpack_blocks_disabled',
 		'jetpack_package_versions',
 		'jetpack_newsletters_publishing_default_frequency',
+		'jetpack_scheduled_plugins_update',
 	);
 
 	/**

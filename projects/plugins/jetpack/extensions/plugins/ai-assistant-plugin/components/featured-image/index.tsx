@@ -7,6 +7,7 @@ import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Icon, external } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -33,6 +34,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 		useDispatch( 'core/edit-post' );
 	const { editPost, toggleEditorPanelOpened: toggleEditorPanelOpenedFromEditor } =
 		useDispatch( 'core/editor' );
+	const { clearSelectedBlock } = useDispatch( 'core/block-editor' );
 
 	const [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] = useState( false );
 	const [ images, setImages ] = useState< CarrouselImages >( [ { generating: true } ] );
@@ -41,7 +43,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 
 	const { enableComplementaryArea } = useDispatch( 'core/interface' );
 	const { generateImage } = useImageGenerator();
-	const { isLoading: isSavingToMediaLibrary, saveToMediaLibrary } = useSaveToMediaLibrary();
+	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
 
@@ -123,14 +125,15 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 			.then( result => {
 				if ( result.data.length > 0 ) {
 					const image = 'data:image/png;base64,' + result.data[ 0 ].b64_json;
-					updateImages( { image, generating: false }, pointer.current );
+					updateImages( { image }, pointer.current );
 					updateRequestsCount();
 					saveToMediaLibrary( image )
 						.then( savedImage => {
-							updateImages( { libraryId: savedImage.id }, pointer.current );
+							updateImages( { libraryId: savedImage.id, generating: false }, pointer.current );
 							pointer.current += 1;
 						} )
 						.catch( () => {
+							updateImages( { generating: false }, pointer.current );
 							pointer.current += 1;
 						} );
 				}
@@ -174,8 +177,10 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	}, [ processImageGeneration, recordEvent ] );
 
 	const triggerComplementaryArea = useCallback( () => {
-		enableComplementaryArea( 'core/edit-post', 'edit-post/document' );
-	}, [ enableComplementaryArea ] );
+		// clear any block selection, because selected blocks have precedence on settings sidebar
+		clearSelectedBlock();
+		return enableComplementaryArea( 'core/edit-post', 'edit-post/document' );
+	}, [ clearSelectedBlock, enableComplementaryArea ] );
 
 	const handleAccept = useCallback( () => {
 		// track the accept/use image event
@@ -189,14 +194,19 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 
 			// Open the featured image panel for users to see the new image.
 			setTimeout( () => {
-				// If the panel is not opened, open it and then trigger the complementary area.
-				if ( ! isEditorPanelOpened( 'featured-image' ) ) {
-					toggleEditorPanelOpened?.( 'featured-image' ).then( () => {
-						triggerComplementaryArea();
-					} );
-				} else {
-					triggerComplementaryArea();
-				}
+				const isFeaturedImagePanelOpened = isEditorPanelOpened( 'featured-image' );
+				const isPostStatusPanelOpened = isEditorPanelOpened( 'post-status' );
+
+				// open the complementary area and then trigger the featured image panel.
+				triggerComplementaryArea().then( () => {
+					if ( ! isFeaturedImagePanelOpened ) {
+						toggleEditorPanelOpened( 'featured-image' );
+					}
+					// handle the case where the featured image panel is not present
+					if ( ! isPostStatusPanelOpened ) {
+						toggleEditorPanelOpened( 'post-status' );
+					}
+				} );
 			}, 500 );
 		};
 
@@ -281,10 +291,8 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 										<Button
 											onClick={ handleRegenerate }
 											variant="secondary"
-											isBusy={ isSavingToMediaLibrary || currentPointer?.generating }
-											disabled={
-												isSavingToMediaLibrary || notEnoughRequests || currentPointer?.generating
-											}
+											isBusy={ currentPointer?.generating }
+											disabled={ notEnoughRequests || currentPointer?.generating }
 										>
 											{ __( 'Generate new image', 'jetpack' ) }
 										</Button>
@@ -292,14 +300,25 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 									<Button
 										onClick={ handleAccept }
 										variant="primary"
-										isBusy={ isSavingToMediaLibrary || currentImage?.generating }
-										disabled={ isSavingToMediaLibrary || ! currentImage?.image }
+										isBusy={ currentImage?.generating }
+										disabled={ ! currentImage?.image }
 									>
 										{ __( 'Set as featured image', 'jetpack' ) }
 									</Button>
 								</div>
 							</div>
 						</div>
+					</div>
+					<div className="ai-assistant-featured-image__footer">
+						<Button
+							variant="link"
+							className="ai-assistant-featured-image__feedback-button"
+							href="https://jetpack.com/redirect/?source=jetpack-ai-feedback"
+							target="_blank"
+						>
+							<span>{ __( 'Provide feedback', 'jetpack' ) }</span>
+							<Icon icon={ external } className="icon" />
+						</Button>
 					</div>
 				</AiAssistantModal>
 			) }

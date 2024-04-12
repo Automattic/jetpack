@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.22] - 2024-04-11
+### Removed
+- Removed automattic brand colors. [#36747]
+
 ## [0.6.21] - 2024-04-08
 ### Added
 - Added color variables for Automattic branding [#36664]
@@ -269,6 +273,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Node 16.7.0 in tooling. This shouldn't change the behavior of the code itself.
 
+[0.6.22]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.21...0.6.22
 [0.6.21]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.20...0.6.21
 [0.6.20]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.19...0.6.20
 [0.6.19]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.18...0.6.19
