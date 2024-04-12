@@ -4,6 +4,7 @@ import donationMetadata from '../donations/block.json';
 import premiumContentMetadata from '../premium-content/block.json';
 import recurringPaymentsMetadata from '../recurring-payments/block.json';
 import metadata from './block.json';
+import { default as deprecated } from './deprecated';
 import edit from './edit';
 
 import './editor.scss';
@@ -30,4 +31,5 @@ registerJetpackBlockFromMetadata( metadata, {
 			...premiumContentMetadata.keywords,
 		] ),
 	],
+	deprecated,
 } );
