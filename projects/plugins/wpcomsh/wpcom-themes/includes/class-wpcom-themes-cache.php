@@ -18,26 +18,20 @@ class WPCom_Themes_Cache {
 	const CACHE_GROUP = 'wpcom-themes-cache';
 
 	/**
-	 * The cache key.
-	 *
-	 * @var string
-	 */
-	const CACHE_KEY = 'wpcom-themes-list';
-
-	/**
 	 * Executes the callable responsible for obtaining a WPCom theme list and caches the result.
 	 *
-	 * @param callable $lambda Callable that returns a theme list.
-	 * @param int      $ttl    Time to live in seconds.
+	 * @param string   $cache_key The cache key.
+	 * @param callable $lambda    Callable that returns a theme list.
+	 * @param int      $ttl       Time to live in seconds.
 	 *
 	 * @return array Array of cached themes.
 	 */
-	public function run_cached( callable $lambda, int $ttl = DAY_IN_SECONDS ): mixed {
-		$data = wp_cache_get( self::CACHE_KEY, self::CACHE_GROUP );
+	public function run_cached( string $cache_key, callable $lambda, int $ttl = DAY_IN_SECONDS ): mixed {
+		$data = wp_cache_get( $cache_key, self::CACHE_GROUP );
 
 		if ( false === $data ) {
 			$data = $lambda();
-			wp_cache_set( self::CACHE_KEY, $data, self::CACHE_GROUP, $ttl );
+			wp_cache_set( $cache_key, $data, self::CACHE_GROUP, $ttl );
 		}
 
 		return $data;
