@@ -56,7 +56,7 @@ add_action( 'load-theme-install.php', 'wpcom_themes_show_banner' );
  * Registers an "Appearance > Theme Showcase" menu.
  */
 function wpcom_themes_add_theme_showcase_menu() {
-	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
+	if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 		return;
 	}
 
