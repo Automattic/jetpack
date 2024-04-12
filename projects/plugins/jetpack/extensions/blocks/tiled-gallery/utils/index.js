@@ -1,4 +1,8 @@
-import { isAtomicSite, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
+import {
+	isAtomicSite,
+	isPrivateSite,
+	isSimpleSite,
+} from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL } from '@wordpress/blob';
 import { range } from 'lodash';
 import photon from 'photon';
@@ -31,12 +35,12 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 		return { src: img.url };
 	}
 
-	// Do not Photonize images that are still uploading, are from localhost, or are private + atomic
+	// Do not Photonize images that are still uploading, are from localhost, or are private on simple or WoA sites.
 	if (
 		isBlobURL( img.url ) ||
 		/^https?:\/\/localhost/.test( img.url ) ||
 		/^https?:\/\/.*\.local\//.test( img.url ) ||
-		( isAtomicSite() && isPrivateSite() )
+		( ( isAtomicSite() || isSimpleSite() ) && isPrivateSite() )
 	) {
 		return { src: img.url };
 	}
