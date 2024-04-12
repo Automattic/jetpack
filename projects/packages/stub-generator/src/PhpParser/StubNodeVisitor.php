@@ -32,6 +32,7 @@ use PhpParser\Node\Stmt\Property;
 use PhpParser\Node\Stmt\Return_;
 use PhpParser\Node\Stmt\Trait_;
 use PhpParser\NodeFinder;
+use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\PrettyPrinter\Standard as PrettyPrinter_Standard;
 use RuntimeException;
@@ -430,14 +431,32 @@ class StubNodeVisitor extends NodeVisitorAbstract {
 			return;
 		}
 
-		$return = ( new NodeFinder() )->findFirst(
-			$node->stmts,
-			function ( Node $n ) {
-				return $n instanceof Return_ && $n->expr;
-			}
-		);
+		$visitor   = new class() extends NodeVisitorAbstract {
+			/**
+			 * Whether a return was found.
+			 *
+			 * @var bool
+			 */
+			public $found = false;
 
-		if ( $return !== null ) {
+			// phpcs:ignore Squiz.Commenting.FunctionComment.Missing -- Inherited.
+			public function enterNode( Node $n ) {
+				if ( $n instanceof Return_ && $n->expr ) {
+					$this->found = true;
+					return self::STOP_TRAVERSAL;
+				}
+
+				if ( $n instanceof \PhpParser\Node\Expr\Closure || $n instanceof ClassMethod || $n instanceof Function_ ) {
+					return self::DONT_TRAVERSE_CHILDREN;
+				}
+
+				return null;
+			}
+		};
+		$traverser = new NodeTraverser( $visitor );
+		$traverser->traverse( $node->stmts );
+
+		if ( $visitor->found ) {
 			$docComment = $node->getDocComment() ? $node->getDocComment()->getText() : '/** */';
 			$docComment = rtrim( substr( $docComment, 0, -2 ), " \t" ) . "\n * @phan-return mixed Dummy doc for stub.\n */";
 			$node->setDocComment( new DocComment( $docComment ) );

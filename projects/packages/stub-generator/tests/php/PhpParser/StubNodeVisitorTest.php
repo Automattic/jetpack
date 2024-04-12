@@ -1529,6 +1529,25 @@ class StubNodeVisitorTest extends TestCase {
 					}
 				}
 
+				function return_only_in_subfunctions() {
+					function xxx() {
+						return 42;
+					}
+					class Huh {
+						public function xxx() {
+							return 42;
+						}
+					}
+					$x = function () {
+						return 42;
+					};
+					$x = new class() {
+						function xxx() {
+							return 42;
+						}
+					};
+				}
+
 				function has_return_and_decl(): array {
 					return array();
 				}
@@ -1568,6 +1587,9 @@ class StubNodeVisitorTest extends TestCase {
 				 * @phan-return mixed Dummy doc for stub.
 				 */
 				function has_return()
+				{
+				}
+				function return_only_in_subfunctions()
 				{
 				}
 				function has_return_and_decl(): array
