@@ -11,10 +11,10 @@ return [
     // # Issue statistics:
     // PhanUnextractableAnnotation : 45+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 10+ occurrences
-    // PhanTypeMismatchArgument : 10+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 10+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 9 occurrences
     // PhanUndeclaredClassMethod : 8 occurrences
+    // PhanTypeMismatchArgument : 7 occurrences
     // PhanUndeclaredTypeProperty : 7 occurrences
     // PhanRedundantCondition : 6 occurrences
     // PhanTypeMismatchProperty : 6 occurrences
@@ -62,9 +62,7 @@ return [
         'src/wpes/class-query-parser.php' => ['PhanUndeclaredProperty'],
         'tests/php/test-get-ios-version.php' => ['PhanUndeclaredFunctionInCallable'],
         'tests/php/test-helpers.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchArgument', 'PhanTypeMismatchProperty', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredTypeProperty', 'PhanUnextractableAnnotation'],
-        'tests/php/test-module-control.php' => ['PhanTypeMismatchArgument'],
         'tests/php/test-plan.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgumentProbablyReal'],
-        'tests/php/test-rest-controller.php' => ['PhanTypeMismatchArgument'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

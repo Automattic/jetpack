@@ -47,7 +47,6 @@ class StubNodeVisitorTest extends TestCase {
 
 		$stmts = $parser->parse( "<?php\n$input" );
 		$this->assertNotNull( $stmts );
-		'@phan-var \PhpParser\Node[] $stmts';
 
 		$visitor->setDefs( 'dummy.php', $defs );
 		$traverser->traverse( $stmts );
@@ -1524,7 +1523,6 @@ class StubNodeVisitorTest extends TestCase {
 
 		$stmts = $parser->parse( "<?php\nclass Foo {\n$input\n}" );
 		$this->assertNotNull( $stmts );
-		'@phan-var \PhpParser\Node[] $stmts';
 
 		$visitor->setDefs( 'dummy.php', '*' );
 		$traverser->traverse( $stmts );

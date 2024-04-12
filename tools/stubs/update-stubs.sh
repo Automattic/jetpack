@@ -80,3 +80,17 @@ fetch_repo woocommerce/woocommerce
 echo
 info 'Extracting WooCommerce internal stubs'
 "$BASE/projects/packages/stub-generator/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/woocommerce-internal-stubs.php" "$BASE/tools/stubs/woocommerce-internal-stub-defs.php"
+
+echo
+info 'Downloading PHPUnit'
+mkdir -p "$WORK_DIR/phpunit"
+jq '{ "require-dev": { "yoast/phpunit-polyfills": .["require-dev"]["yoast/phpunit-polyfills"] } }' "$BASE/tools/cli/skeletons/common/composer.json" > "$WORK_DIR/phpunit/composer.json"
+composer --working-dir="$WORK_DIR/phpunit" update
+
+echo
+info 'Extracting PHPUnit stubs'
+"$BASE/projects/packages/stub-generator/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/phpunit-stubs.php" "$BASE/tools/stubs/phpunit-stub-defs.php"
+php "$BASE/tools/stubs/munge-phpunit-stubs.php" "$BASE/.phan/stubs/phpunit-stubs.php"
+for f in "$WORK_DIR"/phpunit/vendor/{phpunit,sebastian}/*; do
+	echo "${f#$WORK_DIR/phpunit/}"
+done > "$BASE/.phan/stubs/phpunit-dirs.txt"
