@@ -13,6 +13,7 @@ namespace Automattic\Jetpack\StubGenerator\PhpParser;
 PHAN;
 
 use PhpParser\BuilderFactory;
+use PhpParser\Comment\Doc as DocComment;
 use PhpParser\Node;
 use PhpParser\Node\Expr\BinaryOp\Concat as BinaryOp_Concat;
 use PhpParser\Node\Expr\FuncCall;
@@ -28,6 +29,7 @@ use PhpParser\Node\Stmt\Function_;
 use PhpParser\Node\Stmt\Interface_;
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Property;
+use PhpParser\Node\Stmt\Return_;
 use PhpParser\Node\Stmt\Trait_;
 use PhpParser\NodeFinder;
 use PhpParser\NodeVisitorAbstract;
@@ -223,6 +225,7 @@ class StubNodeVisitor extends NodeVisitorAbstract {
 			if ( $this->defs['function'] === '*' || in_array( $node->namespacedName->toString(), $this->defs['function'], true ) ) {
 				// Ignore anything inside the function.
 				if ( $node->stmts ) {
+					$this->addFunctionReturnType( $node );
 					$this->mutateForFuncGetArgs( $node );
 					$node->stmts = array();
 				}
@@ -404,6 +407,40 @@ class StubNodeVisitor extends NodeVisitorAbstract {
 
 		if ( $call !== null ) {
 			$node->params[] = ( new BuilderFactory() )->param( 'func_get_args' )->makeVariadic()->getNode();
+		}
+	}
+
+	/**
+	 * Add function return type.
+	 *
+	 * If a function stub has no declared return type and no phpdoc, Phan seems
+	 * to assume "void". If there are any non-empty `return` statements in the
+	 * function body, document it as "mixed" so Phan won't give bogus PhanTypeVoidAssignment
+	 * and the like.
+	 *
+	 * This doesn't seem to apply to methods though. 🤷
+	 *
+	 * @param Function_ $node Node.
+	 */
+	private function addFunctionReturnType( Function_ $node ): void {
+		// First, see if the function already has a return type, either declared or phpdoc.
+		if ( $node->getReturnType() !== null ||
+			preg_match( '/@(phan-|phan-real-)?return /', (string) $node->getDocComment() )
+		) {
+			return;
+		}
+
+		$return = ( new NodeFinder() )->findFirst(
+			$node->stmts,
+			function ( Node $n ) {
+				return $n instanceof Return_ && $n->expr;
+			}
+		);
+
+		if ( $return !== null ) {
+			$docComment = $node->getDocComment() ? $node->getDocComment()->getText() : '/** */';
+			$docComment = rtrim( substr( $docComment, 0, -2 ), " \t" ) . "\n * @phan-return mixed Dummy doc for stub.\n */";
+			$node->setDocComment( new DocComment( $docComment ) );
 		}
 	}
 }
