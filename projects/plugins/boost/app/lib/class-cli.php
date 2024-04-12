@@ -10,7 +10,6 @@
 namespace Automattic\Jetpack_Boost\Lib;
 
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
-use Automattic\Jetpack_Boost\Jetpack_Boost;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Garbage_Collection;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
@@ -76,7 +75,7 @@ class CLI {
 			}
 		} else {
 			/* translators: Placeholder is list of available modules. */
-			\WP_CLI::error( sprintf( __( 'Please specify a valid module. It should be one of %s', 'jetpack-boost' ), wp_json_encode( Jetpack_Boost::AVAILABLE_MODULES_DEFAULT ) ) );
+			\WP_CLI::error( sprintf( __( 'Please specify a valid module. It should be one of %s', 'jetpack-boost' ), wp_json_encode( self::MAKE_E2E_TESTS_WORK_MODULES ) ) );
 		}
 
 		switch ( $action ) {
