@@ -22,7 +22,7 @@ const handleStateUpdating = ( updateFunction, updatingStateSetter, ...args ) => 
 	// Call the updateFunction with provided arguments
 	const promise = updateFunction( ...args );
 	// When the promise resolves (update is completed), set the updating state to false
-	promise.then( () => {
+	promise.finally( () => {
 		updatingStateSetter( false );
 		document.body.style.cursor = 'auto';
 	} );
