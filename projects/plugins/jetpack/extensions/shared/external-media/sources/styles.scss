@@ -1,0 +1,38 @@
+.jetpack-external-media-wrapper__aiimagegenerator {
+	width: 80%;
+	.results {
+		display: flex;
+		padding: 2em 0;
+		justify-content: space-between;
+		flex-wrap: wrap;
+
+		p {
+			flex-basis: 100%;
+		}
+
+		div {
+			width: 32%;
+			padding-bottom: 1rem;
+
+			.components-button {
+				display: block;
+				position: relative;
+				height: auto;
+			}
+
+			button {
+				padding: 0;
+
+				img {
+					vertical-align: bottom;
+					max-width: 100%;
+				}
+
+				&:hover {
+					outline: 2px solid #C9356E;
+				}
+			}
+		}
+
+	}
+}
