@@ -32,8 +32,29 @@ class Scheduled_Updates_Admin {
 				$GLOBALS['status'] = 'scheduled-updates'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			}
 
-			$scheduled                    = array_unique( array_merge( ...array_values( wp_list_pluck( $events, 'args' ) ) ) );
-			$plugins['scheduled-updates'] = array_intersect_key( (array) $plugins['all'], array_flip( $scheduled ) );
+			/*
+			 * Get the unique list of plugins that are part of scheduled updates.
+			 *
+			 * Example:
+			 *  $scheduled = array(
+			 *      'rest-api-console/rest-api-console.php'     => 0,
+			 *      'wordpress-importer/wordpress-importer.php' => 1,
+			 *      'wp-last-login/wp-last-login.php'           => 2,
+			 *  );
+			 */
+			$scheduled = array_flip(
+				array_unique(
+					array_merge(
+						...array_values(
+							wp_list_pluck( $events, 'args' )
+						)
+					)
+				)
+			);
+
+			// Removing from the auto-update-disabled list since they are scheduled.
+			$plugins['auto-update-disabled'] = array_diff_key( (array) $plugins['auto-update-disabled'], $scheduled );
+			$plugins['scheduled-updates']    = array_intersect_key( (array) $plugins['all'], $scheduled );
 		}
 
 		return $plugins;
