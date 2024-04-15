@@ -141,4 +141,22 @@ class WPCom_Themes_Service {
 		}
 		return null;
 	}
+
+	/**
+	 * Search for a theme by its download url.
+	 *
+	 * @param string $url The download URL of the theme.
+	 *
+	 * @return stdClass|null The wporg theme object if found, null otherwise.
+	 */
+	public function get_theme_by_download_url( string $url ): ?stdClass {
+		$wpcom_themes = $this->api->fetch_all_themes();
+		foreach ( $wpcom_themes as $wpcom_theme ) {
+			if ( $wpcom_theme->download_uri === $url ) {
+				return $this->mapper->map_wpcom_to_wporg( $wpcom_theme );
+			}
+		}
+
+		return null;
+	}
 }
