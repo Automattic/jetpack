@@ -38,7 +38,7 @@ new WPCOM_JSON_API_List_Users_Endpoint(
 			'search'          => '(string) Find matching users.',
 			'search_columns'  => "(array) Specify which columns to check for matching users. Can be any of 'ID', 'user_login', 'user_email', 'user_url', 'user_nicename', and 'display_name'. Only works when combined with `search` parameter.",
 			'role'            => '(string) Specify a specific user role to fetch.',
-			'capabilities'    => '(array) Specify a specific capability to fetch.',
+			'capabilities'    => '(array) Specify one or more capabilities to fetch.',
 		),
 
 		'response_format'      => array(
