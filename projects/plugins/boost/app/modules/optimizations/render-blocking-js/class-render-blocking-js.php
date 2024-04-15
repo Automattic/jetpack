@@ -59,6 +59,13 @@ class Render_Blocking_JS implements Pluggable, Changes_Page_Output, Optimization
 		$this->output_filter = new Output_Filter();
 
 		// Set up the ignore attribute value.
+		/**
+		 * Filters the ignore attribute
+		 *
+		 * @param $string $ignore_attribute The string used to ignore elements of the page.
+		 *
+		 * @since   1.0.0
+		 */
 		$this->ignore_attribute = apply_filters( 'jetpack_boost_render_blocking_js_ignore_attribute', 'data-jetpack-boost' );
 
 		add_action( 'template_redirect', array( $this, 'start_output_filtering' ), -999999 );

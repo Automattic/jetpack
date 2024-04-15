@@ -98,6 +98,13 @@ class Archive_Provider extends Provider {
 
 		$post_types = array_filter( $post_types, 'is_post_type_viewable' );
 
+		/**
+		 * Filters the post types used for Critical CSS
+		 *
+		 * @param array $post_types The array of post types to be used
+		 *
+		 * @since   1.0.0
+		 */
 		return apply_filters( 'jetpack_boost_critical_css_post_types', $post_types );
 	}
 
