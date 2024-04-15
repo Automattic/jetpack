@@ -51,7 +51,6 @@ const PublicizeSettings = () => {
 		);
 		panels = (
 			<>
-				{ isSocialImageGeneratorAvailable && <SocialImageGeneratorPanel /> }
 				<PrePublishPanels isSocialImageGeneratorAvailable={ isSocialImageGeneratorAvailable } />
 				<PostPublishPanels />
 			</>
@@ -60,7 +59,10 @@ const PublicizeSettings = () => {
 
 	return (
 		<PostTypeSupportCheck supportKeys="publicize">
-			<JetpackPluginSidebar>{ children }</JetpackPluginSidebar>
+			<JetpackPluginSidebar>
+				{ children }
+				{ isSocialImageGeneratorAvailable && <SocialImageGeneratorPanel /> }
+			</JetpackPluginSidebar>
 			{ panels }
 		</PostTypeSupportCheck>
 	);
