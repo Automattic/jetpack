@@ -152,6 +152,9 @@ importers:
       react-dom:
         specifier: 18.2.0
         version: 18.2.0(react@18.2.0)
+      turndown:
+        specifier: 7.1.2
+        version: 7.1.2
     devDependencies:
       '@storybook/addon-actions':
         specifier: 8.0.6
@@ -165,6 +168,9 @@ importers:
       '@types/markdown-it':
         specifier: 14.0.0
         version: 14.0.0
+      '@types/turndown':
+        specifier: 5.0.4
+        version: 5.0.4
       jest:
         specifier: ^29.6.2
         version: 29.7.0
@@ -3464,9 +3470,6 @@ importers:
       tinycolor2:
         specifier: 1.4.2
         version: 1.4.2
-      turndown:
-        specifier: 7.1.2
-        version: 7.1.2
       tus-js-client:
         specifier: 2.3.0
         version: 2.3.0
@@ -9497,6 +9500,10 @@ packages:
 
   /@types/triple-beam@1.3.5:
     resolution: {integrity: sha512-6WaYesThRMCl19iryMYP7/x2OVgCtbIVflDGFpWnb9irXI3UjYE4AzmYuiUKY1AJstGijoY+MgUszMgRxIYTYw==}
+    dev: true
+
+  /@types/turndown@5.0.4:
+    resolution: {integrity: sha512-28GI33lCCkU4SGH1GvjDhFgOVr+Tym4PXGBIU1buJUa6xQolniPArtUT+kv42RR2N9MsMLInkr904Aq+ESHBJg==}
     dev: true
 
   /@types/unist@3.0.2:
