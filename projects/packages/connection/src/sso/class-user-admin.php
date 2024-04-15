@@ -965,7 +965,7 @@ class User_Admin {
 	public function jetpack_user_connected_th( $columns ) {
 		wp_enqueue_script(
 			'jetpack-sso-users',
-			plugin_dir_url( __FILE__ ) . 'jetpack-sso-users.js',
+			'../../build/jetpack-sso-users.js',
 			array(),
 			Package_Version::PACKAGE_VERSION,
 			false

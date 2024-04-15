@@ -227,14 +227,14 @@ class SSO {
 		if ( is_rtl() ) {
 			wp_enqueue_style(
 				'jetpack-sso-login',
-				plugin_dir_url( __FILE__ ) . 'jetpack-sso-login-rtl.css',
+				'../../build/jetpack-sso-login.rtl.css',
 				array( 'login', 'genericons' ),
 				Package_Version::PACKAGE_VERSION
 			);
 		} else {
 			wp_enqueue_style(
 				'jetpack-sso-login',
-				plugin_dir_url( __FILE__ ) . 'jetpack-sso-login.css',
+				'../../build/jetpack-sso-login.css',
 				array( 'login', 'genericons' ),
 				Package_Version::PACKAGE_VERSION
 			);
@@ -242,7 +242,7 @@ class SSO {
 
 		wp_enqueue_script(
 			'jetpack-sso-login',
-			plugin_dir_url( __FILE__ ) . 'jetpack-sso-login.js',
+			'../../build/jetpack-sso-login.js',
 			array(),
 			Package_Version::PACKAGE_VERSION,
 			false
