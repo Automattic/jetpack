@@ -2,6 +2,41 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.4-a.3 - 2024-04-15
+### Improved compatibility
+- WordPress.com Toolbar: Avoid fatal errors when using other menu management plugins and the WordPress.com Toolbar feature. [#36783]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add the 'All Sites' menu. [#36632]
+- Add 'Carrousel' in 'Featured Image'. [#36834]
+- Add upgrade prompt in 'Featured Image'. [#36806]
+- Admin Menu: Moved "Theme Showcase" menu registration to jetpack-mu-wpcom package. [#36851]
+- AI Assistant: Remove AI Playground. [#36808]
+- AI Assistant: Rename useSuggestionsFromOpenAI to useAIAssistant and deduplicate suggestion logic. [#36869]
+- AI Featured Image: Fix bug on automatic transition to featured image panel. [#36863]
+- AI Featured Image: Include link to provide feedback on the footer of the modal. [#36831]
+- AI Featured Image: Incorporate i3  updates on style and UI. [#36868]
+- AI Featured Image: Update copy and UI alignments. [#36812]
+- A minor performance improvement on memberships. [#36821]
+- Auto-save image from featured image feature. [#36822]
+- Avoid showing featured image upgrade prompt on generating. [#36899]
+- Business Hours: Fix time formatting in preview mode. [#36786]
+- Business Hours Block: Refactor Edit component to a function. [#36785]
+- Dontains Form block: Show Stripe nudge if not connected. [#36841]
+- Fix auto scroll on iframe editor. [#36726]
+- Fixed SIG not visible in Jetpack sidebar. [#36895]
+- Improve performance of memberships checks. [#36798]
+- Make the representation of the end date consistent in membership subscription abbreviation. [#36838]
+- Map Block: Refactor Edit component to function. [#36795]
+- Post endpoint: Return a 404 if a post is being trashed but does not exist. [#36768]
+- Simple Payments Block: Refactor Edit component to a function. [#36809]
+- Slideshow Block: Refactor Edit component to a function. [#36805]
+- Tiled Gallery Block: Refactor Edit component to a function. [#36804]
+- Update blocks to use API version 3. [#36827] [#36852] [#36854]
+- Updated social previews package. [#36874]
+- Update Testimonials CPT priority so it always appears below Portfolio Projects. [#36866]
+- Update UX on Featured Image. [#36865]
+
 ## 13.4-a.1 - 2024-04-08
 ### Enhancements
 - Newsletters: Add a filter that enables the user to control the timing at which the Subscribe Modal loads. [#36374]
@@ -33,6 +68,7 @@
 - Updated package dependencies. [#36760] [#36761] [#36775] [#36788]
 
 ## 13.3.1 - 2024-04-10
+
 - Protect: Improved handling of request URLs. [#36833]
 
 ## [13.3] - 2024-04-03
