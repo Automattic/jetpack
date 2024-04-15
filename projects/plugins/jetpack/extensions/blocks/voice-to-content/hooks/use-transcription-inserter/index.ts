@@ -38,7 +38,7 @@ export default function useTranscriptionInserter(): UseTranscriptionInserterRetu
 			/*
 			 * Convert the markdown to HTML
 			 */
-			const html = renderHTMLFromMarkdown( { content: transcription || '', rules: 'all' } );
+			const html = renderHTMLFromMarkdown( { content: transcription || '' } );
 
 			/*
 			 * Parse the HTML into blocks

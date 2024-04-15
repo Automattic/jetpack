@@ -218,7 +218,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const replaceContent = async () => {
 		let newGeneratedBlocks = [];
 
-		let HTML = renderHTMLFromMarkdown( { content: attributes.content || '', rules: 'all' } );
+		let HTML = renderHTMLFromMarkdown( { content: attributes.content || '' } );
 
 		const seemsToIncludeTitle =
 			HTML?.split( '\n' ).length > 1 && HTML?.split( '\n' )?.[ 0 ]?.match( /^<h1>.*<\/h1>$/ );
@@ -337,9 +337,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 			<div { ...blockProps }>
 				{ contentIsLoaded && (
 					<div ref={ contentRef } className="jetpack-ai-assistant__content">
-						<RawHTML>
-							{ renderHTMLFromMarkdown( { content: attributes.content || '', rules: 'all' } ) }
-						</RawHTML>
+						<RawHTML>{ renderHTMLFromMarkdown( { content: attributes.content || '' } ) }</RawHTML>
 					</div>
 				) }
 				<InspectorControls>
