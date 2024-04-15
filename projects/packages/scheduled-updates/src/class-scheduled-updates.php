@@ -467,12 +467,9 @@ class Scheduled_Updates {
 	 * @return array Updated callables whitelist.
 	 */
 	public static function add_scheduled_callable_whitelist( $callables ) {
-		return array_merge(
-			$callables,
-			array(
-				'jetpack_get_scheduled_plugins_update' => array( __CLASS__, 'get_scheduled_updates' ),
-			)
-		);
+		$callables[ self::PLUGIN_CRON_HOOK ] = array( __CLASS__, 'get_scheduled_updates' );
+
+		return $callables;
 	}
 
 	/**

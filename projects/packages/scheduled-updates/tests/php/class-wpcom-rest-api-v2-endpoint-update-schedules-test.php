@@ -182,12 +182,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame( $schedule_id, $result->get_data() );
 
-		$sync_option = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
-		$this->assertIsArray( $sync_option );
-		$this->assertIsObject( $sync_option[ $schedule_id ] );
-		$this->assertSame( $plugins, $sync_option[ $schedule_id ]->args );
-		$this->assertNull( $sync_option[ $schedule_id ]->last_run_timestamp );
-		$this->assertNull( $sync_option[ $schedule_id ]->last_run_status );
+		$callable_result = Scheduled_Updates::get_scheduled_updates();
+		$this->assertIsArray( $callable_result );
+		$this->assertIsObject( $callable_result[ $schedule_id ] );
+		$this->assertSame( $plugins, $callable_result[ $schedule_id ]->args );
+		$this->assertNull( $callable_result[ $schedule_id ]->last_run_timestamp );
+		$this->assertNull( $callable_result[ $schedule_id ]->last_run_status );
 
 		// Can't create a schedule for the same time again.
 		$request->set_body_params(
@@ -235,12 +235,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame( $schedule_id, $result->get_data() );
 
-		$sync_option = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
-		$this->assertIsArray( $sync_option );
-		$this->assertIsObject( $sync_option[ $schedule_id ] );
-		$this->assertSame( $plugins, $sync_option[ $schedule_id ]->args );
-		$this->assertNull( $sync_option[ $schedule_id ]->last_run_timestamp );
-		$this->assertNull( $sync_option[ $schedule_id ]->last_run_status );
+		$callable_result = Scheduled_Updates::get_scheduled_updates();
+		$this->assertIsArray( $callable_result );
+		$this->assertIsObject( $callable_result[ $schedule_id ] );
+		$this->assertSame( $plugins, $callable_result[ $schedule_id ]->args );
+		$this->assertNull( $callable_result[ $schedule_id ]->last_run_timestamp );
+		$this->assertNull( $callable_result[ $schedule_id ]->last_run_status );
 
 		$plugins[] = 'wp-test-plugin/wp-test-plugin.php';
 		$request->set_body_params(
@@ -259,10 +259,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame( $schedule_id_2, $result->get_data() );
 
-		$sync_option = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
-		$this->assertIsArray( $sync_option );
-		$this->assertIsObject( $sync_option[ $schedule_id ] );
-		$this->assertIsObject( $sync_option[ $schedule_id_2 ] );
+		$callable_result = Scheduled_Updates::get_scheduled_updates();
+		$this->assertIsArray( $callable_result );
+		$this->assertIsObject( $callable_result[ $schedule_id ] );
+		$this->assertIsObject( $callable_result[ $schedule_id_2 ] );
 	}
 
 	/**
@@ -627,10 +627,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame( $schedule_id, $result->get_data() );
 
-		$sync_option = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
-		$this->assertIsArray( $sync_option );
-		$this->assertIsObject( $sync_option[ $schedule_id ] );
-		$this->assertSame( $plugins, $sync_option[ $schedule_id ]->args );
+		$callable_result = Scheduled_Updates::get_scheduled_updates();
+		$this->assertIsArray( $callable_result );
+		$this->assertIsObject( $callable_result[ $schedule_id ] );
+		$this->assertSame( $plugins, $callable_result[ $schedule_id ]->args );
 	}
 
 	/**
@@ -680,12 +680,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 			$this->assertSame( $timestamp, $updated_status['last_run_timestamp'] ?? null );
 			$this->assertSame( $status, $updated_status['last_run_status'] ?? null );
 
-			$sync_option = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
-			$this->assertIsArray( $sync_option );
-			$this->assertIsObject( $sync_option[ $schedule_id ] );
-			$this->assertSame( $plugins, $sync_option[ $schedule_id ]->args );
-			$this->assertSame( $timestamp, $sync_option[ $schedule_id ]->last_run_timestamp );
-			$this->assertSame( $status, $sync_option[ $schedule_id ]->last_run_status );
+			$callable_result = Scheduled_Updates::get_scheduled_updates();
+			$this->assertIsArray( $callable_result );
+			$this->assertIsObject( $callable_result[ $schedule_id ] );
+			$this->assertSame( $plugins, $callable_result[ $schedule_id ]->args );
+			$this->assertSame( $timestamp, $callable_result[ $schedule_id ]->last_run_timestamp );
+			$this->assertSame( $status, $callable_result[ $schedule_id ]->last_run_status );
 		}
 	}
 
@@ -751,8 +751,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		$this->assertFalse( wp_get_scheduled_event( Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins ) );
 
-		$sync_option = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
-		$this->assertSame( array(), $sync_option );
+		$callable_result = Scheduled_Updates::get_scheduled_updates();
+		$this->assertSame( array(), $callable_result );
 	}
 
 	/**
@@ -846,7 +846,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$result = rest_do_request( $request );
 
 		$this->assertSame( 200, $result->get_status() );
-		$this->assertSame( array(), get_option( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
+		$this->assertSame( array(), Scheduled_Updates::get_scheduled_updates() );
 	}
 
 	/**
@@ -865,10 +865,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame( array(), $result->get_data() );
 
-		$sync_option = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
-		$this->assertIsArray( $sync_option );
-		$this->assertNull( $sync_option[ $schedule_id ]->last_run_timestamp );
-		$this->assertNull( $sync_option[ $schedule_id ]->last_run_status );
+		$callable_result = Scheduled_Updates::get_scheduled_updates();
+		$this->assertIsArray( $callable_result );
+		$this->assertNull( $callable_result[ $schedule_id ]->last_run_timestamp );
+		$this->assertNull( $callable_result[ $schedule_id ]->last_run_status );
 	}
 
 	/**
@@ -900,10 +900,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertCount( 1, $result->get_data() );
 		$this->assertSame( Scheduled_Updates_Logs::PLUGIN_UPDATES_START, $result->get_data()[0][0]['action'] );
 
-		$sync_option = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
-		$this->assertIsArray( $sync_option );
-		$this->assertNull( $sync_option[ $schedule_id ]->last_run_timestamp );
-		$this->assertSame( 'in-progress', $sync_option[ $schedule_id ]->last_run_status );
+		$callable_result = Scheduled_Updates::get_scheduled_updates();
+		$this->assertIsArray( $callable_result );
+		$this->assertNull( $callable_result[ $schedule_id ]->last_run_timestamp );
+		$this->assertSame( 'in-progress', $callable_result[ $schedule_id ]->last_run_status );
 	}
 
 	/**
@@ -947,9 +947,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertCount( Scheduled_Updates_Logs::MAX_RUNS_PER_SCHEDULE, $result->get_data() );
 		$this->assertSame( Scheduled_Updates_Logs::PLUGIN_UPDATES_START, $result->get_data()[0][0]['action'] );
 
-		$sync_option = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
-		$this->assertNotNull( $sync_option[ $schedule_id ]->last_run_timestamp );
-		$this->assertSame( 'success', $sync_option[ $schedule_id ]->last_run_status );
+		$callable_result = Scheduled_Updates::get_scheduled_updates();
+		$this->assertNotNull( $callable_result[ $schedule_id ]->last_run_timestamp );
+		$this->assertSame( 'success', $callable_result[ $schedule_id ]->last_run_status );
 	}
 
 	/**
