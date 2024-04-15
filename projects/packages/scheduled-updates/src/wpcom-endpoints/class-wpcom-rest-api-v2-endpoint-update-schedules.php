@@ -278,9 +278,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		// Set an empty status of a schedule on creation/modify.
 		Scheduled_Updates::set_scheduled_update_status( $id, null, null );
 
-		// Sync option.
-		Scheduled_Updates::save_schedules_for_sync();
-
 		return rest_ensure_response( $id );
 	}
 
@@ -361,9 +358,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			Scheduled_Updates::set_scheduled_update_status( $item->data, $previous_schedule_status['last_run_timestamp'], $previous_schedule_status['last_run_status'] );
 		}
 
-		// Sync option.
-		Scheduled_Updates::save_schedules_for_sync();
-
 		return $item;
 	}
 
@@ -396,9 +390,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			$request['last_run_status']
 		);
 
-		// Sync option.
-		Scheduled_Updates::save_schedules_for_sync();
-
 		return rest_ensure_response( $option[ $request['schedule_id'] ] );
 	}
 
@@ -429,9 +420,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$context     = $request['context'];
 
 		Scheduled_Updates_Logs::log( $schedule_id, $action, $message, $context );
-
-		// Sync option.
-		Scheduled_Updates::save_schedules_for_sync();
 
 		return rest_ensure_response( true );
 	}
@@ -521,9 +509,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 
 		// Delete logs
 		Scheduled_Updates_Logs::clear( $request['schedule_id'], true );
-
-		// Sync option.
-		Scheduled_Updates::save_schedules_for_sync();
 
 		return rest_ensure_response( true );
 	}

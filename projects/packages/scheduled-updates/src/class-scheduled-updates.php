@@ -53,6 +53,7 @@ class Scheduled_Updates {
 		add_filter( 'auto_update_plugin', array( __CLASS__, 'allowlist_scheduled_plugins' ), 10, 2 );
 		add_filter( 'plugin_auto_update_setting_html', array( __CLASS__, 'show_scheduled_updates' ), 10, 2 );
 		add_action( 'deleted_plugin', array( __CLASS__, 'deleted_plugin' ), 10, 2 );
+		add_filter( 'jetpack_sync_callable_whitelist', array( __CLASS__, 'add_scheduled_callable_whitelist' ) );
 	}
 
 	/**
@@ -132,33 +133,6 @@ class Scheduled_Updates {
 		self::clear_cron_cache();
 
 		return wp_unschedule_event( $timestamp, self::PLUGIN_CRON_HOOK, $plugins, true );
-	}
-
-	/**
-	 * Save the schedules for sync.
-	 *
-	 * @return bool
-	 */
-	public static function save_schedules_for_sync() {
-		$events = wp_get_scheduled_events( self::PLUGIN_CRON_HOOK );
-
-		foreach ( array_keys( $events ) as $schedule_id ) {
-			$events[ $schedule_id ]->schedule_id = $schedule_id;
-
-			$status = self::get_scheduled_update_status( $schedule_id );
-
-			if ( ! $status ) {
-				$status = array(
-					'last_run_timestamp' => null,
-					'last_run_status'    => null,
-				);
-			}
-
-			$events[ $schedule_id ]->last_run_timestamp = $status['last_run_timestamp'];
-			$events[ $schedule_id ]->last_run_status    = $status['last_run_status'];
-		}
-
-		return update_option( self::PLUGIN_CRON_HOOK, $events );
 	}
 
 	/**
@@ -484,6 +458,48 @@ class Scheduled_Updates {
 				);
 			}
 		}
+	}
+
+	/**
+	 * Add Scheduled Updates to the sync callable whitelist.
+	 *
+	 * @param array $callables Existing callables whitelist.
+	 * @return array Updated callables whitelist.
+	 */
+	public static function add_scheduled_callable_whitelist( $callables ) {
+		return array_merge(
+			$callables,
+			array(
+				'jetpack_get_scheduled_plugins_update' => array( __CLASS__, 'get_scheduled_updates' ),
+			)
+		);
+	}
+
+	/**
+	 * Get the scheduled updates.
+	 *
+	 * @return array
+	 */
+	public static function get_scheduled_updates() {
+		$events = wp_get_scheduled_events( self::PLUGIN_CRON_HOOK );
+
+		foreach ( array_keys( $events ) as $schedule_id ) {
+			$events[ $schedule_id ]->schedule_id = $schedule_id;
+
+			$status = self::get_scheduled_update_status( $schedule_id );
+
+			if ( ! $status ) {
+				$status = array(
+					'last_run_timestamp' => null,
+					'last_run_status'    => null,
+				);
+			}
+
+			$events[ $schedule_id ]->last_run_timestamp = $status['last_run_timestamp'];
+			$events[ $schedule_id ]->last_run_status    = $status['last_run_status'];
+		}
+
+		return $events;
 	}
 
 	/**
