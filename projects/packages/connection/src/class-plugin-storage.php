@@ -167,6 +167,8 @@ class Plugin_Storage {
 			return;
 		}
 
+		self::$configured = true;
+
 		if ( is_multisite() ) {
 			self::$current_blog_id = get_current_blog_id();
 		}
@@ -178,8 +180,6 @@ class Plugin_Storage {
 		if ( $number_of_plugins_differ || true === self::$refresh_connected_plugins ) {
 			self::update_active_plugins_option();
 		}
-
-		self::$configured = true;
 	}
 
 	/**
