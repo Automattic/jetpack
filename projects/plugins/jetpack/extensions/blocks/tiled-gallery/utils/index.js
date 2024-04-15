@@ -35,7 +35,7 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 		return { src: img.url };
 	}
 
-	// Do not Photonize images that are still uploading, are from localhost, or are private on simple or WoA sites.
+	// Do not Photonize images that are still uploading, are from localhost, or are private + atomic
 	if (
 		isBlobURL( img.url ) ||
 		/^https?:\/\/localhost/.test( img.url ) ||
