@@ -32,6 +32,7 @@ function wpcom_launchpad_should_use_jetpack_cloud_link() {
  * @return array
  */
 function wpcom_launchpad_get_task_definitions() {
+	$switched_locale = switch_to_locale( get_user_locale() );
 	$task_definitions = array(
 		// Core tasks.
 		'design_edited'                   => array(
@@ -731,6 +732,10 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 	);
 
+	if ( $switched_locale ) {
+		restore_previous_locale();
+	}
+
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
 
 	return array_merge( $extended_task_definitions, $task_definitions );
@@ -940,7 +945,6 @@ function wpcom_launchpad_init_listeners( $task_definitions ) {
  * @return void
  */
 function wpcom_launchpad_init_task_definitions() {
-	switch_to_locale( get_user_locale() );
 	$task_definitions = wpcom_launchpad_get_task_definitions();
 
 	wpcom_launchpad_init_listeners( $task_definitions );
