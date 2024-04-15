@@ -76,7 +76,6 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 		const project = file.match( /^projects\/(?<ptype>[^/]*)\/(?<pname>[^/]*)\// );
 		if ( project && project.groups.ptype && project.groups.pname ) {
 			const prefix = {
-				'editor-extensions': 'Block',
 				'github-actions': 'Action',
 				packages: 'Package',
 				plugins: 'Plugin',
@@ -136,6 +135,12 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 			if ( contactForm.groups.blocks ) {
 				keywords.add( '[Block] Contact Form' );
 			}
+		}
+
+		// The WooCommerce Analytics feature now lives in both a package and a Jetpack module.
+		const wooCommerceAnalytics = file.match( /^projects\/packages\/woocommerce-analytics\// );
+		if ( wooCommerceAnalytics !== null ) {
+			keywords.add( '[Feature] WooCommerce Analytics' );
 		}
 
 		// Docker.
@@ -210,9 +215,9 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 			keywords.add( `[mu wpcom Feature] ${ cleanName( muWpcomFeatureName ) }` );
 		}
 
-		// Boost Critical CSS.
+		// Boost Features
 		const boostModules = file.match(
-			/^projects\/plugins\/boost\/app\/(?:modules|features)\/(?<boostModule>[^/]*)\//
+			/^projects\/plugins\/boost\/app\/(?:modules|features)\/(?:optimizations\/)?(?<boostModule>[^/]*)\//
 		);
 		const boostModuleName = boostModules && boostModules.groups.boostModule;
 		if ( boostModuleName ) {

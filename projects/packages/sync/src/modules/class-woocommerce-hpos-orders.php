@@ -254,6 +254,18 @@ class WooCommerce_HPOS_Orders extends Module {
 				}
 			}
 
+			/**
+			 * We need to convert the WC_DateTime objects to stdClass objects to ensure they are properly encoded.
+			 *
+			 * @see Automattic\Jetpack\Sync\Functions::json_wrap as the return value of get_object_vars can vary depending on PHP version.
+			 */
+			if ( in_array( $key, array( 'date_created', 'date_modified', 'date_paid', 'date_completed' ), true ) ) {
+				if ( is_a( $order_data[ $key ], 'WC_DateTime' ) ) {
+					$filtered_order_data[ $key ] = (object) (array) $order_data[ $key ];
+					continue;
+				}
+			}
+
 			if ( isset( $order_data[ $key ] ) ) {
 				$filtered_order_data[ $key ] = $order_data[ $key ];
 				continue;

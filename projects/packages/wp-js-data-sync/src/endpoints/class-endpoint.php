@@ -129,6 +129,27 @@ class Endpoint {
 		return $this->handler( $request, 'delete' );
 	}
 
+	private function response_error( $message, $code ) {
+		return rest_ensure_response(
+			array(
+				'status'  => 'error',
+				'message' => $message,
+				'code'    => $code,
+			)
+		);
+	}
+
+	private function response_success( $data ) {
+		$response = array(
+			'status' => 'success',
+			'JSON'   => $data,
+		);
+		if ( true === DS_Utils::is_debug() ) {
+			$response['log'] = $this->entry->get_parser()->get_log();
+		}
+		return rest_ensure_response( $response );
+	}
+
 	/**
 	 * Route the request to the apropriate handler.
 	 *
@@ -153,30 +174,22 @@ class Endpoint {
 		}
 
 		try {
-			$params   = $request->get_json_params();
-			$data     = isset( $params['JSON'] ) ? $params['JSON'] : null;
-			$result   = $this->entry->$entry_method( $data );
-			$response = array(
-				'status' => 'success',
-				'JSON'   => $result,
-			);
-			if ( true === DS_Utils::is_debug() ) {
-				$response['log'] = $this->entry->get_parser()->get_log();
-			}
+			$params = $request->get_json_params();
+			$data   = isset( $params['JSON'] ) ? $params['JSON'] : null;
+			$result = $this->entry->$entry_method( $data );
 
 			if ( true === DS_Utils::debug_disable( $this->route_base ) ) {
 				// Return 418 I'm a teapot if this is a debug request to the endpoint.
 				return rest_ensure_response( new \WP_Error( 'teapot', "I'm a teapot.", array( 'status' => 418 ) ) );
 			}
-			return rest_ensure_response( $response );
 
+			if ( is_wp_error( $result ) ) {
+				return $this->response_error( $result->get_error_message(), $result->get_error_code() );
+			}
+
+			return $this->response_success( $result );
 		} catch ( \RuntimeException $e ) {
-			return rest_ensure_response(
-				array(
-					'status'  => 'error',
-					'message' => $e->getMessage(),
-				)
-			);
+			return $this->response_error( $e->getMessage(), 500 );
 		}
 	}
 

@@ -1,16 +1,16 @@
 import VideoUploadArea from '..';
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'Packages/VideoPress/Video Upload Area',
 	component: VideoUploadArea,
-} as ComponentMeta< typeof VideoUploadArea >;
+} as Meta< typeof VideoUploadArea >;
 
 const noop = () => {
 	//
 };
 
-const Template: ComponentStory< typeof VideoUploadArea > = args => {
+const Template: StoryFn< typeof VideoUploadArea > = args => {
 	return <VideoUploadArea { ...args } onSelectFiles={ noop } />;
 };
 

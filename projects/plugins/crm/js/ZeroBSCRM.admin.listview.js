@@ -2799,15 +2799,15 @@ function zeroBSCRMJS_listView_segment_added( dataLine ) {
  * @param dataLine
  */
 function zeroBSCRMJS_listView_segment_name( dataLine ) {
-	var name_str = dataLine.name;
+	var name_str = jpcrm.esc_html(dataLine.name);
 
 	// if any errors, attach an exclaimation mark
 	if ( typeof dataLine.error !== 'undefined' ) {
-		name_str += ' <i class="red exclamation triangle icon" title="' + dataLine.error + '"></i>';
+		name_str += ' <i class="red exclamation triangle icon" title="' + jpcrm.esc_attr(dataLine.error) + '"></i>';
 	}
 
 	var td =
-		'<td><a href="' + zeroBSCRMJS_listView_editURL( dataLine.id ) + '">' + jpcrm.esc_html(name_str) + '</a></td>';
+		'<td><a href="' + zeroBSCRMJS_listView_editURL( dataLine.id ) + '">' + name_str + '</a></td>';
 
 	return td;
 }

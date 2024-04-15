@@ -76,7 +76,7 @@ const Header = () => {
 								{ __( 'Connect accounts', 'jetpack-social' ) }
 							</Button>
 						) }
-						<Button href={ newPostUrl } variant="secondary">
+						<Button href={ newPostUrl } variant={ hasConnections ? 'primary' : 'secondary' }>
 							{ __( 'Write a post', 'jetpack-social' ) }
 						</Button>
 					</div>

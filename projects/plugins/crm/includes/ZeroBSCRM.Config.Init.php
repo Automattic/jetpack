@@ -376,7 +376,7 @@ $zeroBSCRM_Conf_Def = array(
 	'customviews2'                       => array(
 
 		// } These use the zbs default funcs but can be overriden :)
-		'customer'            => array(
+		'customer'    => array(
 			'id'         => array( 'ID' ),
 			'nameavatar' => array( __( 'Name and Avatar', 'zero-bs-crm' ) ),
 			'status'     => array( 'Status' ),
@@ -384,7 +384,7 @@ $zeroBSCRM_Conf_Def = array(
 			'added'      => array( 'Added' ),
 		),
 
-		'company'             => array(
+		'company'     => array(
 			'id'       => array( 'ID' ),
 			'name'     => array( __( 'Name', 'zero-bs-crm' ) ),
 			'status'   => array( __( 'Status', 'zero-bs-crm' ) ),
@@ -393,7 +393,7 @@ $zeroBSCRM_Conf_Def = array(
 			'editlink' => array( __( 'Edit', 'zero-bs-crm' ) ),
 		),
 
-		'quote'               => array(
+		'quote'       => array(
 			'id'       => array( 'ID' ),
 			'title'    => array( 'Quote Title' ),
 			'customer' => array( 'Contact' ),
@@ -402,7 +402,7 @@ $zeroBSCRM_Conf_Def = array(
 			'editlink' => array( __( 'Edit', 'zero-bs-crm' ) ),
 		),
 
-		'invoice'             => array(
+		'invoice'     => array(
 			'id'       => array( 'ID' ),
 			'ref'      => array( 'Reference' ),
 			'customer' => array( 'Contact' ),
@@ -411,7 +411,7 @@ $zeroBSCRM_Conf_Def = array(
 			'editlink' => array( __( 'Edit', 'zero-bs-crm' ) ),
 		),
 
-		'form'                => array(
+		'form'        => array(
 			'id'          => array( 'ID' ),
 			'title'       => array( 'Title' ),
 			'style'       => array( __( 'Style', 'zero-bs-crm' ) ),
@@ -421,7 +421,7 @@ $zeroBSCRM_Conf_Def = array(
 			'editlink'    => array( __( 'Edit', 'zero-bs-crm' ) ),
 		),
 
-		'event'               => array(
+		'event'       => array(
 			'id'       => array( 'ID' ),
 			'title'    => array( __( 'Name', 'zero-bs-crm' ) ),
 			'desc'     => array( __( 'Description', 'zero-bs-crm' ) ),
@@ -432,7 +432,7 @@ $zeroBSCRM_Conf_Def = array(
 			'action'   => array( __( 'Action', 'zero-bs-crm' ) ),
 		),
 
-		'transaction'         => array(
+		'transaction' => array(
 			'id'       => array( 'ID' ),
 			'customer' => array( __( 'Contact', 'zero-bs-crm' ) ),
 			'status'   => array( __( 'Status', 'zero-bs-crm' ) ),
@@ -442,48 +442,11 @@ $zeroBSCRM_Conf_Def = array(
 			'editlink' => array( __( 'Edit Link', 'zero-bs-crm' ) ),
 		),
 
-		'transaction_filters' => array(
-			'status_succeeded' => array( 'Succeeded' ),
-			'status_completed' => array( 'Completed' ),
-			'status_failed'    => array( 'Failed' ),
-			'status_refunded'  => array( 'Refunded' ),
-		),
-
-		'customer_filters'    => array(
-			'lead'           => array( __( 'Lead', 'zero-bs-crm' ) ),
-			'customer'       => array( __( 'Customer', 'zero-bs-crm' ) ),
-			'assigned_to_me' => array( __( 'Assigned to me', 'zero-bs-crm' ) ),
-		),
-
-		'quote_filters'       => array(
-			'status_accepted'    => array( 'Accepted' ),
-			'status_notaccepted' => array( 'Not Accepted' ),
-		),
-
-		'invoice_filters'     => array(
-			'status_draft'   => array( 'Draft' ),
-			'status_unpaid'  => array( 'Unpaid' ),
-			'status_paid'    => array( 'Paid' ),
-			'status_overdue' => array( 'Overdue' ),
-			'status_deleted' => array( 'Deleted' ),
-		),
-
-		'segment'             => array(
+		'segment'     => array(
 			'id'            => array( 'ID' ),
 			'name'          => array( 'Name' ),
 			'audiencecount' => array( 'Contact Count' ),
 			'action'        => array( 'Action' ),
-		),
-
-		'form_filters'        => array(),
-
-		'event_filters'       => array(
-			'status_incomplete' => array( 'Incomplete' ),
-			'status_completed'  => array( 'Completed' ),
-			'next30'            => array( 'Next 30 days' ),
-			'last30'            => array( 'Past 30 days' ),
-			'next7'             => array( 'Next 7 days' ),
-			'last7'             => array( 'Past 7 days' ),
 		),
 
 	),

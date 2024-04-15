@@ -22,14 +22,14 @@ class Speed_Score_Graph_History_Request extends Cacheable {
 	/**
 	 * The timestamp start windown in ms.
 	 *
-	 * @var number $start timestamp start windown in ms.
+	 * @var int|float $start timestamp start windown in ms.
 	 */
 	private $start;
 
 	/**
 	 * The timestamp end windown in ms.
 	 *
-	 * @var number $end timestamp end windown in ms.
+	 * @var int|float $end timestamp end windown in ms.
 	 */
 	private $end;
 
@@ -57,9 +57,9 @@ class Speed_Score_Graph_History_Request extends Cacheable {
 	/**
 	 * Constructor.
 	 *
-	 * @param number $start timestamp start windown in ms.
-	 * @param number $end timestamp end windown in ms.
-	 * @param array  $error Speed Scores error.
+	 * @param int|float $start timestamp start windown in ms.
+	 * @param int|float $end timestamp end windown in ms.
+	 * @param array     $error Speed Scores error.
 	 */
 	public function __construct( $start, $end, $error ) {
 		$this->start       = $start;

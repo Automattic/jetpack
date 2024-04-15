@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
+use WP_Error;
 
 /**
  * The Client class that is used to connect to WordPress.com Jetpack API.
@@ -88,6 +89,7 @@ class Client {
 			'blog_id'       => 0,
 			'auth_location' => Constants::get_constant( 'JETPACK_CLIENT__AUTH_LOCATION' ),
 			'method'        => 'POST',
+			'format'        => 'json',
 			'timeout'       => 10,
 			'redirection'   => 0,
 			'headers'       => array(),
@@ -106,7 +108,7 @@ class Client {
 
 		$token = ( new Tokens() )->get_access_token( $args['user_id'] );
 		if ( ! $token ) {
-			return new \WP_Error( 'missing_token' );
+			return new WP_Error( 'missing_token' );
 		}
 
 		$method = strtoupper( $args['method'] );
@@ -122,7 +124,7 @@ class Client {
 
 		@list( $token_key, $secret ) = explode( '.', $token->secret ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		if ( empty( $token ) || empty( $secret ) ) {
-			return new \WP_Error( 'malformed_token' );
+			return new WP_Error( 'malformed_token' );
 		}
 
 		$token_key = sprintf(
@@ -151,20 +153,22 @@ class Client {
 			// Allow arrays to be used in passing data.
 			$body_to_hash = $body;
 
-			if ( is_array( $body ) ) {
+			if ( $args['format'] === 'jsonl' ) {
+				parse_str( $body, $body_to_hash );
+			}
+			if ( is_array( $body_to_hash ) ) {
 				// We cast this to a new variable, because the array form of $body needs to be
 				// maintained so it can be passed into the request later on in the code.
-				if ( array() !== $body ) {
-					$body_to_hash = wp_json_encode( self::_stringify_data( $body ) );
+				if ( array() !== $body_to_hash ) {
+					$body_to_hash = wp_json_encode( self::_stringify_data( $body_to_hash ) );
 				} else {
 					$body_to_hash = '';
 				}
 			}
 
 			if ( ! is_string( $body_to_hash ) ) {
-				return new \WP_Error( 'invalid_body', 'Body is malformed.' );
+				return new WP_Error( 'invalid_body', 'Body is malformed.' );
 			}
-
 			$body_hash = base64_encode( sha1( $body_to_hash, true ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		}
 
@@ -370,6 +374,7 @@ class Client {
 			array(
 				'headers'     => 'array',
 				'method'      => 'string',
+				'format'      => 'string',
 				'timeout'     => 'int',
 				'redirection' => 'int',
 				'stream'      => 'boolean',

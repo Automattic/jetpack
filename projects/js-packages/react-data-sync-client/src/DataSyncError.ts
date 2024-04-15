@@ -4,6 +4,11 @@ import { z } from 'zod';
 /**
  * DataSync Error returned by the REST API.
  */
+export type DataSyncErrorInfo = {
+	message: string;
+	code: string;
+};
+
 type ErrorData = {
 	location: string | URL;
 	status:
@@ -26,7 +31,7 @@ export class DataSyncError extends Error {
 	public name = 'DataSyncError';
 	constructor(
 		public message: string,
-		public info: ErrorData
+		public errorData: ErrorData
 	) {
 		super( message );
 
@@ -44,19 +49,28 @@ export class DataSyncError extends Error {
 		Object.setPrototypeOf( this, DataSyncError.prototype );
 	}
 
+	public isAborted(): boolean {
+		return this.errorData.status === 'aborted';
+	}
+
 	/**
 	 * This is a helper method to log and format DataSync errors in the console.
 	 * It's only called when `window.datasync_debug` is set to `true`.
 	 */
 	private debugMessage() {
-		if ( this.info.error instanceof DOMException && this.info.error.name === 'AbortError' ) {
+		if (
+			this.errorData.error instanceof DOMException &&
+			this.errorData.error.name === 'AbortError'
+		) {
 			console.warn(
-				`DataSync: ${ this.info.method ?? '<unknown>' } ${ this.info.location }  request aborted.`
+				`DataSync: ${ this.errorData.method ?? '<unknown>' } ${
+					this.errorData.location
+				}  request aborted.`
 			);
 			return;
 		}
 
-		const info = this.info;
+		const info = this.errorData;
 		const key = `${ info.namespace }.${ info.key }`;
 
 		// Group common styles into a single object
@@ -139,8 +153,11 @@ export class DataSyncError extends Error {
 		}
 		console.log( `%cLocation%c:\n${ location }`, `${ style.bold } ${ style.spacing }`, '' );
 
-		if ( this.info.namespace in window && this.info.key in window[ this.info.namespace ] ) {
-			const value = window[ this.info.namespace ][ this.info.key ];
+		if (
+			this.errorData.namespace in window &&
+			this.errorData.key in window[ this.errorData.namespace ]
+		) {
+			const value = window[ this.errorData.namespace ][ this.errorData.key ];
 
 			console.log(
 				`%cInitial Data%c:\nwindow.${ key }.value =`,
@@ -174,5 +191,23 @@ export class DataSyncError extends Error {
 		}
 		console.groupEnd();
 		console.groupEnd();
+	}
+
+	public info(): DataSyncErrorInfo {
+		let code = 'unknown_error';
+		let message = this.message;
+
+		if ( this.errorData.data instanceof Object ) {
+			if ( 'code' in this.errorData.data && typeof this.errorData.data.code === 'string' ) {
+				code = this.errorData.data.code;
+			}
+			if ( 'message' in this.errorData.data && typeof this.errorData.data.message === 'string' ) {
+				message = this.errorData.data.message;
+			}
+		}
+		return {
+			message,
+			code,
+		};
 	}
 }

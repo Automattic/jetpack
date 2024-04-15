@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
-import { StripeNudge } from '../../shared/components/stripe-nudge';
 import Controls from './controls';
 import Tab from './tab';
 
@@ -54,7 +53,6 @@ const Tabs = props => {
 
 	return (
 		<div className={ className }>
-			<StripeNudge blockName="donations" />
 			<div className="donations__container">
 				{ Object.keys( tabs ).length > 1 && (
 					<div className="donations__nav">

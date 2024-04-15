@@ -38,6 +38,10 @@ export function builder( yargs ) {
 			type: 'boolean',
 			description: 'Skip execution of `pnpm install`.',
 		} )
+		.option( 'use-uncommitted-composer-lock', {
+			type: 'boolean',
+			description: 'Use uncommitted composer.lock files.',
+		} )
 		.option( 'concurrency', {
 			type: 'number',
 			description: 'Maximum number of install tasks to run at once. Ignored with `--verbose`.',

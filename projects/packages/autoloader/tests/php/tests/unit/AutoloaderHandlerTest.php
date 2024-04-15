@@ -21,21 +21,21 @@ class AutoloaderHandlerTest extends TestCase {
 	/**
 	 * The php autoloader mock;
 	 *
-	 * @var PHP_Autoloader|\PHPUnit\Framework\MockObject\MockObject
+	 * @var PHP_Autoloader&\PHPUnit\Framework\MockObject\MockObject
 	 */
 	private $php_autoloader;
 
 	/**
 	 * The hook manager mock;
 	 *
-	 * @var Hook_Manager|\PHPUnit\Framework\MockObject\MockObject
+	 * @var Hook_Manager&\PHPUnit\Framework\MockObject\MockObject
 	 */
 	private $hook_manager;
 
 	/**
 	 * The manifest reader mock.
 	 *
-	 * @var Manifest_Reader|\PHPUnit\Framework\MockObject\MockObject
+	 * @var Manifest_Reader&\PHPUnit\Framework\MockObject\MockObject
 	 */
 	private $manifest_reader;
 
@@ -65,10 +65,10 @@ class AutoloaderHandlerTest extends TestCase {
 			->disableOriginalConstructor()
 			->getMock();
 		$this->autoloader_handler = new Autoloader_Handler(
-			$this->php_autoloader,
-			$this->hook_manager,
-			$this->manifest_reader,
-			$version_selector
+			$this->php_autoloader, // @phan-suppress-current-line PhanTypeMismatchArgument -- It's correct, but PHPUnit 9.6 only declares `@psalm-template` and not `@template` and such so Phan can't know the right types.
+			$this->hook_manager, // @phan-suppress-current-line PhanTypeMismatchArgument -- Same.
+			$this->manifest_reader, // @phan-suppress-current-line PhanTypeMismatchArgument -- Same.
+			$version_selector // @phan-suppress-current-line PhanTypeMismatchArgument -- Same.
 		);
 	}
 

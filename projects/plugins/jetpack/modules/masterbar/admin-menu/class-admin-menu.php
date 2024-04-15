@@ -106,6 +106,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	public function add_my_home_menu() {
 
 		if ( self::DEFAULT_VIEW !== $this->get_preferred_view( 'index.php' ) ) {
+			add_menu_page( __( 'My Home', 'jetpack' ), __( 'My Home', 'jetpack' ), 'read', 'https://wordpress.com/home/' . $this->domain, null, 'dashicons-admin-home', '1.5' );
 			return;
 		}
 

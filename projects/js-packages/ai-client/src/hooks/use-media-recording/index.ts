@@ -5,26 +5,28 @@ import { useRef, useState, useEffect, useCallback } from '@wordpress/element';
 /*
  * Types
  */
-type RecordingStateProp = 'inactive' | 'recording' | 'paused' | 'processing' | 'error';
+export type RecordingState = 'inactive' | 'recording' | 'paused' | 'error';
 type UseMediaRecordingProps = {
-	onDone?: ( blob: Blob, url: string ) => void;
+	onDone?: ( blob: Blob ) => void;
 };
+
+/**
+ * Media types
+ */
+const MEDIA_TYPE_MP4_MP4A = 'audio/mp4;codecs=mp4a';
+const MEDIA_TYPE_MP4 = 'audio/mp4';
+const MEDIA_TYPE_WEBM = 'audio/webm';
 
 type UseMediaRecordingReturn = {
 	/**
 	 * The current recording state
 	 */
-	state: RecordingStateProp;
+	state: RecordingState;
 
 	/**
 	 * The recorded blob
 	 */
 	blob: Blob | null;
-
-	/**
-	 * The recorded blob url
-	 */
-	url: string | null;
 
 	/**
 	 * The error message
@@ -35,6 +37,11 @@ type UseMediaRecordingReturn = {
 	 * The duration of the recorded audio
 	 */
 	duration: number;
+
+	/**
+	 * The audio analyser node
+	 */
+	analyser?: AnalyserNode;
 
 	/**
 	 * The error handler
@@ -85,8 +92,8 @@ export default function useMediaRecording( {
 	// Reference to the media recorder instance
 	const mediaRecordRef = useRef( null );
 
-	// Recording state: `inactive`, `recording`, `paused`, `processing`, `error`
-	const [ state, setState ] = useState< RecordingStateProp >( 'inactive' );
+	// Recording state: `inactive`, `recording`, `paused`, `error`
+	const [ state, setState ] = useState< RecordingState >( 'inactive' );
 
 	// reference to the paused state to be used in the `onDataAvailable` event listener,
 	// as the `mediaRecordRef.current.state` is already `inactive` when the recorder is stopped,
@@ -96,6 +103,8 @@ export default function useMediaRecording( {
 	const recordStartTimestamp = useRef< number >( 0 );
 	const [ duration, setDuration ] = useState< number >( 0 );
 
+	const audioStream = useRef< MediaStream | null >( null );
+
 	// The recorded blob
 	const [ blob, setBlob ] = useState< Blob | null >( null );
 
@@ -104,15 +113,19 @@ export default function useMediaRecording( {
 
 	const [ error, setError ] = useState< string | null >( null );
 
+	const analyser = useRef< AnalyserNode >( null );
+
 	/**
 	 * Get the recorded blob.
 	 *
 	 * @returns {Blob} The recorded blob
 	 */
 	function getBlob() {
-		return new Blob( recordedChunks, {
-			type: 'audio/webm',
-		} );
+		if ( MediaRecorder.isTypeSupported( MEDIA_TYPE_MP4_MP4A ) ) {
+			return new Blob( recordedChunks, { type: MEDIA_TYPE_MP4 } ); // omit the codecs parameter
+		}
+
+		return new Blob( recordedChunks, { type: MEDIA_TYPE_WEBM } );
 	}
 
 	// `start` recording handler
@@ -201,12 +214,26 @@ export default function useMediaRecording( {
 			return;
 		}
 
+		const audioCtx = new AudioContext();
+		analyser.current = audioCtx.createAnalyser();
+
 		const constraints = { audio: true };
 
 		navigator.mediaDevices
 			.getUserMedia( constraints )
 			.then( stream => {
-				mediaRecordRef.current = new MediaRecorder( stream );
+				audioStream.current = stream;
+				const source = audioCtx.createMediaStreamSource( stream );
+				source.connect( analyser.current );
+
+				/**
+				 * Special handling for iOS devices.
+				 */
+				if ( MediaRecorder.isTypeSupported( MEDIA_TYPE_MP4_MP4A ) ) {
+					mediaRecordRef.current = new MediaRecorder( stream, { mimeType: MEDIA_TYPE_MP4_MP4A } );
+				} else {
+					mediaRecordRef.current = new MediaRecorder( stream, { mimeType: MEDIA_TYPE_WEBM } );
+				}
 
 				mediaRecordRef.current.addEventListener( 'start', onStartListener );
 				mediaRecordRef.current.addEventListener( 'stop', onStopListener );
@@ -241,10 +268,8 @@ export default function useMediaRecording( {
 	 * @returns {void}
 	 */
 	function onStopListener(): void {
-		setState( 'processing' );
 		const lastBlob = getBlob();
-		const url = URL.createObjectURL( lastBlob );
-		onDone?.( lastBlob, url );
+		onDone?.( lastBlob );
 
 		// Clear the recorded chunks
 		recordedChunks.length = 0;
@@ -294,11 +319,22 @@ export default function useMediaRecording( {
 		}
 	}
 
+	/**
+	 * Close the audio stream
+	 */
+	function closeStream() {
+		if ( audioStream.current ) {
+			const tracks = audioStream.current.getTracks();
+			tracks.forEach( track => track.stop() );
+		}
+	}
+
 	// Remove listeners and clear the recorded chunks
 	useEffect( () => {
 		reset();
 
 		return () => {
+			closeStream();
 			clearListeners();
 		};
 	}, [] );
@@ -306,9 +342,9 @@ export default function useMediaRecording( {
 	return {
 		state,
 		blob,
-		url: blob ? URL.createObjectURL( blob ) : null,
 		error,
 		duration,
+		analyser: analyser.current,
 		onError,
 
 		controls: {

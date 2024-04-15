@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use WP_Error;
 
 /**
  * Class responsible for handling the Boost product
@@ -51,21 +52,21 @@ class Boost extends Product {
 	public static $requires_user_connection = false;
 
 	/**
-	 * Get the internationalized product name
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'Boost', 'jetpack-my-jetpack' );
+		return 'Boost';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack Boost', 'jetpack-my-jetpack' );
+		return 'Jetpack Boost';
 	}
 
 	/**
@@ -238,6 +239,15 @@ class Boost extends Product {
 	}
 
 	/**
+	 * Get the URL the user is taken after purchasing the product through the checkout
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_checkout_url() {
+		return self::get_manage_url();
+	}
+
+	/**
 	 * Get the product princing details
 	 *
 	 * @return array Pricing details
@@ -261,6 +271,27 @@ class Boost extends Product {
 	}
 
 	/**
+	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 *
+	 * @return boolean
+	 */
+	public static function has_paid_plan_for_product() {
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
+			return false;
+		}
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				// Boost is available as standalone bundle and as part of the Complete plan.
+				if ( strpos( $purchase->product_slug, 'jetpack_boost' ) !== false || str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Get the URL where the user manages the product
 	 *
 	 * @return ?string
@@ -273,7 +304,7 @@ class Boost extends Product {
 	 * Activates the product by installing and activating its plugin
 	 *
 	 * @param bool|WP_Error $current_result Is the result of the top level activation actions. You probably won't do anything if it is an WP_Error.
-	 * @return boolean|\WP_Error
+	 * @return boolean|WP_Error
 	 */
 	public static function do_product_specific_activation( $current_result ) {
 

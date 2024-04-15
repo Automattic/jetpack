@@ -6,6 +6,7 @@ import {
 	minimumTransactionAmountForCurrency,
 } from '../../shared/currencies';
 import Amount from './amount';
+import { DEFAULT_CHOOSE_AMOUNT_TEXT, DEFAULT_CUSTOM_AMOUNT_TEXT } from './constants';
 
 const Tab = ( { activeTab, attributes, setAttributes } ) => {
 	const {
@@ -14,8 +15,8 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 		monthlyDonation,
 		annualDonation,
 		showCustomAmount,
-		chooseAmountText,
-		customAmountText,
+		chooseAmountText = DEFAULT_CHOOSE_AMOUNT_TEXT,
+		customAmountText = DEFAULT_CUSTOM_AMOUNT_TEXT,
 	} = attributes;
 
 	const donationAttributes = {

@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Use "woocommerce-internal" Phan stubs. No change to functionality.
+
+

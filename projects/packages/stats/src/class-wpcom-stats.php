@@ -492,4 +492,24 @@ class WPCOM_Stats {
 
 		return json_decode( $response_body, true );
 	}
+
+	/**
+	 * Convert stats array to object after sanity checking the array is valid.
+	 *
+	 * @since 0.11.0
+	 *
+	 * @param  array $stats_array The stats array.
+	 * @return WP_Error|Object|null
+	 */
+	public function convert_stats_array_to_object( $stats_array ) {
+
+		if ( is_wp_error( $stats_array ) ) {
+			return $stats_array;
+		}
+		$encoded_array = wp_json_encode( $stats_array );
+		if ( ! $encoded_array ) {
+			return new WP_Error( 'stats_encoding_error', 'Failed to encode stats array' );
+		}
+		return json_decode( $encoded_array );
+	}
 }

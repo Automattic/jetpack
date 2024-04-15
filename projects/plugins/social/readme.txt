@@ -3,7 +3,7 @@ Contributors: automattic, pabline, siddarthan, gmjuhasz, manzoorwanijk, danielpo
 Tags: social-media, publicize, social-media-manager, social-networking, social marketing, social, social share,  social media scheduling, social media automation, auto post, auto- publish, social share
 Requires at least: 6.3
 Requires PHP: 7.0
-Tested up to: 6.4
+Tested up to: 6.5
 Stable tag: 2.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -100,19 +100,27 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 4.0.0 - 2024-01-18
+### 4.2.0 - 2024-04-11
+#### Added
+- Added functions to display share urls
+- Added options and UI for link formatting
+- Added support for comments on Social Notes
+- Packages: add version tracking for identity-crisis package.
+- Trigger red bubble notification when bad install is detected
+
 #### Changed
-- Changed dismissed notices endpoint to be a core endpoint
-- Social: Changed the illustration on the admin page
-- Social: Refactored storing of feature options to use core functions
-- Split PublicizeForm component into smaller ones
-- Updated Jetpack Social activation landing page
-- Updated package dependencies. [#34559] [#34815]
-- Updated the design for Quick Share buttons and fixed its a11y
+- Allow multiple paragraphs for Social Notes
+- Only show custom media picker for normal posts
+- Only show installation errors on plugins page
+- Removed the featured image block from the template
+- Simplified social network selection for post sharing
+- Updated package dependencies. [#36309] [#36325] [#36585] [#36760] [#36761] [#36775]
+- Update to the most recent version of Color Studio, 2.6.0.
+- Update to the most recent version of the @automattic/calypso-color-schemes package.
 
 #### Fixed
-- Fixed a bug with the initial state script
-- Fixed Jetpack Social scheduled post messaging
+- Fixed typos
+- Prevent enqueuing of admin styles on the frontend
 
 == Upgrade Notice ==
 

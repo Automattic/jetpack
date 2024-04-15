@@ -381,7 +381,7 @@ class JWT {
 	 * @param int $errno An error number from json_last_error().
 	 * @throws DomainException .
 	 *
-	 * @return void
+	 * @return never
 	 */
 	private static function handle_json_error( $errno ) {
 		$messages = array(

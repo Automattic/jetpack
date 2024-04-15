@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+AI Assistant: Rename useSuggestionsFromOpenAI to useAIAssistant and deduplicate suggestion logic

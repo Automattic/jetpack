@@ -27,6 +27,7 @@ import { AiExcerptControl } from '../../components/ai-excerpt-control';
 import type { LanguageProp } from '../../../../blocks/ai-assistant/components/i18n-dropdown-control';
 import type { ToneProp } from '../../../../blocks/ai-assistant/components/tone-dropdown-control';
 import type { AiModelTypeProp, PromptProp } from '@automattic/jetpack-ai-client';
+import type * as EditorSelectors from '@wordpress/editor/store/selectors';
 
 import './style.scss';
 
@@ -44,7 +45,9 @@ type ContentLensMessageContextProps = {
 
 function AiPostExcerpt() {
 	const { excerpt, postId } = useSelect( select => {
-		const { getEditedPostAttribute, getCurrentPostId } = select( editorStore );
+		const { getEditedPostAttribute, getCurrentPostId } = select(
+			editorStore
+		) as typeof EditorSelectors;
 
 		return {
 			excerpt: getEditedPostAttribute( 'excerpt' ) ?? '',
@@ -56,7 +59,7 @@ function AiPostExcerpt() {
 
 	const { editPost } = useDispatch( 'core/editor' );
 
-	const { dequeueAiAssistantFeatureAyncRequest, increaseAiAssistantRequestsCount } =
+	const { dequeueAiAssistantFeatureAsyncRequest, increaseAiAssistantRequestsCount } =
 		useDispatch( 'wordpress-com/plans' );
 
 	// Post excerpt words number
@@ -107,7 +110,7 @@ function AiPostExcerpt() {
 	// Pick raw post content
 	const postContent = useSelect(
 		select => {
-			const content = select( editorStore ).getEditedPostContent();
+			const content = ( select( editorStore ) as typeof EditorSelectors ).getEditedPostContent();
 			if ( ! content ) {
 				return '';
 			}
@@ -176,7 +179,7 @@ ${ postContent }
 		 * in case there is one pending,
 		 * when performing a new AI suggestion request.
 		 */
-		dequeueAiAssistantFeatureAyncRequest();
+		dequeueAiAssistantFeatureAsyncRequest();
 
 		request( prompt, { feature: 'jetpack-ai-content-lens', model } );
 		tracks.recordEvent( 'jetpack_ai_assistant_block_generate', {

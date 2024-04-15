@@ -5,7 +5,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -30,6 +29,13 @@ require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-user-admin.php
  */
 class Jetpack_SSO {
 	/**
+	 * WordPress.com User information.
+	 *
+	 * @var false|object
+	 */
+	private $user_data;
+
+	/**
 	 * Jetpack_SSO instance.
 	 *
 	 * @var Jetpack_SSO
@@ -42,7 +48,6 @@ class Jetpack_SSO {
 	private function __construct() {
 
 		self::$instance = $this;
-		new Jetpack_SSO_User_Admin();
 
 		add_action( 'admin_init', array( $this, 'maybe_authorize_user_after_sso' ), 1 );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
@@ -82,6 +87,29 @@ class Jetpack_SSO {
 			// Checking for the class to avoid collisions with existing standalone Jetpack Force 2FA plugin and break out if so.
 			require_once JETPACK__PLUGIN_DIR . 'modules/sso/class-jetpack-force-2fa.php';
 			new Jetpack_Force_2FA();
+		}
+
+		/*
+		 * Allow admins to invite new users to create a WordPress.com account
+		 * as they are added to the site.
+		 *
+		 * This is a feature that is only available when the admin is connected to WordPress.com.
+		 */
+		if (
+			Jetpack_SSO_Helpers::is_user_connected() &&
+			! is_multisite() &&
+			/**
+			 * Toggle the ability to invite new users to create a WordPress.com account.
+			 *
+			 * @module sso
+			 *
+			 * @since 13.3
+			 *
+			 * @param bool true Whether to allow admins to invite new users to create a WordPress.com account.
+			 */
+			apply_filters( 'jetpack_sso_invite_new_users_wpcom', true )
+		) {
+			new Jetpack_SSO_User_Admin();
 		}
 	}
 
@@ -199,12 +227,28 @@ class Jetpack_SSO {
 		}
 
 		if ( is_rtl() ) {
-			wp_enqueue_style( 'jetpack-sso-login', plugins_url( 'modules/sso/jetpack-sso-login-rtl.css', JETPACK__PLUGIN_FILE ), array( 'login', 'genericons' ), JETPACK__VERSION );
+			wp_enqueue_style(
+				'jetpack-sso-login',
+				plugins_url( 'modules/sso/jetpack-sso-login-rtl.css', JETPACK__PLUGIN_FILE ),
+				array( 'login', 'genericons' ),
+				JETPACK__VERSION
+			);
 		} else {
-			wp_enqueue_style( 'jetpack-sso-login', plugins_url( 'modules/sso/jetpack-sso-login.css', JETPACK__PLUGIN_FILE ), array( 'login', 'genericons' ), JETPACK__VERSION );
+			wp_enqueue_style(
+				'jetpack-sso-login',
+				plugins_url( 'modules/sso/jetpack-sso-login.css', JETPACK__PLUGIN_FILE ),
+				array( 'login', 'genericons' ),
+				JETPACK__VERSION
+			);
 		}
 
-		wp_enqueue_script( 'jetpack-sso-login', plugins_url( 'modules/sso/jetpack-sso-login.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION, false );
+		wp_enqueue_script(
+			'jetpack-sso-login',
+			plugins_url( 'modules/sso/jetpack-sso-login.js', JETPACK__PLUGIN_FILE ),
+			array(),
+			JETPACK__VERSION,
+			false
+		);
 	}
 
 	/**
@@ -701,6 +745,8 @@ class Jetpack_SSO {
 
 	/**
 	 * Retrieves nonce used for SSO form.
+	 *
+	 * @return string|WP_Error
 	 */
 	public static function request_initial_nonce() {
 		$nonce = ! empty( $_COOKIE['jetpack_sso_nonce'] )
@@ -900,7 +946,7 @@ class Jetpack_SSO {
 			$json_api_auth_environment = Jetpack_SSO_Helpers::get_json_api_auth_environment();
 
 			$is_json_api_auth  = ! empty( $json_api_auth_environment );
-			$is_user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $user->ID );
+			$is_user_connected = Jetpack_SSO_Helpers::is_user_connected( $user->ID );
 			$roles             = new Roles();
 			$tracking->record_user_event(
 				'sso_user_logged_in',
@@ -1048,7 +1094,7 @@ class Jetpack_SSO {
 	 * Build WordPress.com SSO URL with appropriate query parameters.
 	 *
 	 * @param array $args Optional query parameters.
-	 * @return string WordPress.com SSO URL
+	 * @return string|WP_Error WordPress.com SSO URL
 	 */
 	public function build_sso_url( $args = array() ) {
 		$sso_nonce = ! empty( $args['sso_nonce'] ) ? $args['sso_nonce'] : self::request_initial_nonce();
@@ -1061,8 +1107,8 @@ class Jetpack_SSO {
 
 		$args = wp_parse_args( $args, $defaults );
 
-		if ( is_wp_error( $args['sso_nonce'] ) ) {
-			return $args['sso_nonce'];
+		if ( is_wp_error( $sso_nonce ) ) {
+			return $sso_nonce;
 		}
 
 		return add_query_arg( $args, 'https://wordpress.com/wp-login.php' );
@@ -1074,7 +1120,7 @@ class Jetpack_SSO {
 	 * on WordPress.com.
 	 *
 	 * @param array $args Optional query parameters.
-	 * @return string WordPress.com SSO URL
+	 * @return string|WP_Error WordPress.com SSO URL
 	 */
 	public function build_reauth_and_sso_url( $args = array() ) {
 		$sso_nonce = ! empty( $args['sso_nonce'] ) ? $args['sso_nonce'] : self::request_initial_nonce();
@@ -1172,11 +1218,13 @@ class Jetpack_SSO {
 	 * stored when the user logs out, and then deleted when the user logs in.
 	 */
 	public function store_wpcom_profile_cookies_on_logout() {
-		if ( ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() ) ) {
+		$user_id = get_current_user_id();
+
+		if ( ! Jetpack_SSO_Helpers::is_user_connected( $user_id ) ) {
 			return;
 		}
 
-		$user_data = $this->get_user_data( get_current_user_id() );
+		$user_data = $this->get_user_data( $user_id );
 		if ( ! $user_data ) {
 			return;
 		}

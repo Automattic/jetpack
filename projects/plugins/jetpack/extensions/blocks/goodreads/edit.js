@@ -1,5 +1,5 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
-import { BlockControls, InspectorControls } from '@wordpress/block-editor';
+import { BlockControls, InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { Placeholder, SandBox, Button, Spinner, withNotices } from '@wordpress/components';
 import { useState, useEffect, useRef } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -11,18 +11,12 @@ import { createGoodreadsEmbedLink } from './utils';
 const GoodreadsEdit = props => {
 	const { attributes, className, noticeOperations, noticeUI, setAttributes } = props;
 	const [ userInput, setUserInput ] = useState( '' );
-	const [ displayPreview, setDisplayPreview ] = useState( false );
 	const [ url, setUrl ] = useState( '' );
 	const [ isResolvingUrl, setIsResolvingUrl ] = useState( false );
 	const prevPropsRef = useRef( null );
+	const blockProps = useBlockProps();
 
 	const { isFetchingData, goodreadsUserId, isError } = useFetchGoodreadsData( url );
-
-	useEffect( () => {
-		if ( attributes.link ) {
-			setDisplayPreview( true );
-		}
-	}, [ attributes.link ] );
 
 	useEffect( () => {
 		if ( isFetchingData ) {
@@ -35,13 +29,17 @@ const GoodreadsEdit = props => {
 			if ( isError ) {
 				setAttributes( { widgetId: undefined, goodreadsId: undefined, link: undefined } );
 				setErrorNotice();
-				setDisplayPreview( false );
+			}
+
+			// Applies when transforming from Legacy Widget,
+			// in which case goodreadsId is already known.
+			if ( attributes.goodreadsId ) {
+				setRequestLink();
 			}
 
 			if ( goodreadsUserId && ! isError ) {
-				setAttributes( { goodreadsId: goodreadsUserId.toString() } );
+				setAttributes( { goodreadsId: goodreadsUserId } );
 				setRequestLink();
-				setDisplayPreview( true );
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -50,13 +48,14 @@ const GoodreadsEdit = props => {
 	useEffect( () => {
 		if (
 			prevPropsRef.current &&
+			attributes.goodreadsId &&
 			attributes.widgetId === prevPropsRef.current.attributes.widgetId
 		) {
 			setRequestLink();
 		}
 		prevPropsRef.current = props;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ props, attributes.widgetId ] );
+	}, [ props, attributes.goodreadsId, attributes.widgetId ] );
 
 	const setErrorNotice = () => {
 		noticeOperations.removeAllNotices();
@@ -120,11 +119,7 @@ const GoodreadsEdit = props => {
 	};
 
 	const renderInlinePreview = () => {
-		const { goodreadsId, link, id } = attributes;
-
-		if ( ! goodreadsId ) {
-			return;
-		}
+		const { link, id } = attributes;
 
 		const html = `
 		<style> [class^=gr_custom_container_] { border: 1px solid gray; border-radius: 10px; margin: auto; padding: 0 5px 10px 5px; background-color: #fff; color: #000; width: 300px; }  [class^=gr_custom_header_] { border-bottom: 1px solid gray; width: 100%; padding: 10px 0; margin: auto; text-align: center; font-size: 120%; }  [class^=gr_custom_each_container_] { width: 100%; clear: both; margin: auto; overflow: auto; padding-bottom: 4px; border-bottom: 1px solid #aaa; }  [class^=gr_custom_each_container_] { width: 100%; clear: both; margin-bottom: 10px; overflow: auto; padding-bottom: 4px; border-bottom: 1px solid #aaa; }  [class^=gr_custom_book_container_] { overflow: hidden; height: 60px; float: left; margin-right: 6px; width: 39px; }  [class^=gr_custom_author_] { font-size: 10px; }  [class^=gr_custom_tags_] { font-size: 10px; color: gray; }  [class^=gr_custom_rating_] { float: right; }  [class^=gr_grid_book_container] { float: left; width: 98px; height: 160px; padding: 0px 0px; overflow: hidden; }  [class^=gr_grid_book_container] img { height: 100%; width: 100%; }  a { text-decoration: none; }  a:hover { text-decoration: underline; }  img { max-width: 100%; }</style>
@@ -140,36 +135,29 @@ const GoodreadsEdit = props => {
 		);
 	};
 
+	let content;
+
 	if ( isResolvingUrl ) {
-		return renderLoading();
-	}
-
-	// Example block in preview.
-	if ( attributes.goodreadsId === 1176283 ) {
-		return renderInlinePreview();
-	}
-
-	if ( displayPreview ) {
-		return (
+		content = renderLoading();
+	} else if ( attributes.goodreadsId ) {
+		content = (
 			<>
 				<InspectorControls>
 					<GoodreadsInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
 				</InspectorControls>
 
 				<BlockControls>
-					<GoodreadsBlockControls
-						attributes={ attributes }
-						setAttributes={ setAttributes }
-						setDisplayPreview={ setDisplayPreview }
-					/>
+					<GoodreadsBlockControls attributes={ attributes } setAttributes={ setAttributes } />
 				</BlockControls>
 
 				{ renderInlinePreview() }
 			</>
 		);
+	} else {
+		content = renderEditEmbed();
 	}
 
-	return renderEditEmbed();
+	return <div { ...blockProps }>{ content }</div>;
 };
 
 export default withNotices( GoodreadsEdit );

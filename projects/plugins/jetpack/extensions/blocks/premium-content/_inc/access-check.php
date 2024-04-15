@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Extensions\Premium_Content;
 
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service;
+use Automattic\Jetpack\Status\Host;
 
 require_once __DIR__ . '/subscription-service/include.php';
 
@@ -105,18 +107,37 @@ function current_visitor_can_access( $attributes, $block ) {
 	if ( ! empty( $tier_ids ) ) {
 		// If the selected plan is a tier, we want to check directly if user has a higher "tier".
 		// This is to prevent situation where the user upgrades and lose access to premium-gated content
-		$token          = $paywall->get_and_set_token_from_request();
-		$payload        = $paywall->decode_token( $token );
-		$is_valid_token = ! empty( $payload );
 
-		$can_view = false;
-		if ( $is_valid_token ) {
-			$subscriptions = (array) $payload['subscriptions'];
-			foreach ( $tier_ids as $tier_id ) {
-				$can_view = ! $paywall->maybe_gate_access_for_user_if_tier( $tier_id, $subscriptions );
-				if ( $can_view ) {
-					break;
-				}
+		$subscriptions = array();
+		if ( ( new Host() )->is_wpcom_simple() && is_user_logged_in() ) {
+			$user_id = wp_get_current_user()->ID;
+			/**
+			 * Filter the subscriptions attached to a specific user on a given site.
+			 *
+			 * @since 9.4.0
+			 *
+			 * @param array $subscriptions Array of subscriptions.
+			 * @param int   $user_id The user's ID.
+			 * @param int   $site_id ID of the current site.
+			 */
+			$subscriptions = apply_filters( 'earn_get_user_subscriptions_for_site_id', array(), $user_id, get_current_blog_id() );
+			// format the subscriptions so that they can be validated.
+			$subscriptions = WPCOM_Online_Subscription_Service::abbreviate_subscriptions( $subscriptions );
+		} else {
+			$token          = $paywall->get_and_set_token_from_request();
+			$payload        = $paywall->decode_token( $token );
+			$is_valid_token = ! empty( $payload );
+
+			$can_view = false;
+			if ( $is_valid_token ) {
+				$subscriptions = (array) $payload['subscriptions'];
+			}
+		}
+
+		foreach ( $tier_ids as $tier_id ) {
+			$can_view = ! $paywall->maybe_gate_access_for_user_if_tier( $tier_id, $subscriptions );
+			if ( $can_view ) {
+				break;
 			}
 		}
 	} else {

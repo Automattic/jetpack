@@ -233,10 +233,11 @@ class Test_Host extends TestCase {
 	 * @return array
 	 */
 	public function get_source_query_params() {
-			return array(
-				'empty'   => array( '', '' ),
-				'valid'   => array( 'jetpack-manage', 'jetpack-manage' ),
-				'invalid' => array( 'invalid-param', '' ),
-			);
+		return array(
+			'empty'        => array( '', '' ),
+			'valid_manage' => array( 'jetpack-manage', 'jetpack-manage' ),
+			'valid_a4a'    => array( 'a8c-for-agencies', 'a8c-for-agencies' ),
+			'invalid'      => array( 'invalid-param', '' ),
+		);
 	}
 }

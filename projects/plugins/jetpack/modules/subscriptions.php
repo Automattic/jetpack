@@ -135,6 +135,17 @@ class Jetpack_Subscriptions {
 
 		// Add Subscribers menu to Jetpack navigation.
 		add_action( 'jetpack_admin_menu', array( $this, 'add_subscribers_menu' ) );
+
+		// Customize the configuration URL to lead to the Subscriptions settings.
+		add_filter(
+			'jetpack_module_configuration_url_subscriptions',
+			function () {
+				return Jetpack::admin_url( array( 'page' => 'jetpack#/newsletter' ) );
+			}
+		);
+
+		// Track categories created through the category editor page
+		add_action( 'wp_ajax_add-tag', array( $this, 'track_newsletter_category_creation' ), 1 );
 	}
 
 	/**
@@ -396,45 +407,6 @@ class Jetpack_Subscriptions {
 			'social_notifications_subscribe',
 			array( $this, 'social_notifications_subscribe_validate' )
 		);
-
-		/** Subscription Messaging Options */
-
-		register_setting(
-			'reading',
-			'subscription_options',
-			array( $this, 'validate_settings' )
-		);
-
-		add_settings_section(
-			'email_settings',
-			__( 'Follower Settings', 'jetpack' ),
-			array( $this, 'reading_section' ),
-			'reading'
-		);
-
-		add_settings_field(
-			'invitation',
-			__( 'Blog follow email text', 'jetpack' ),
-			array( $this, 'setting_invitation' ),
-			'reading',
-			'email_settings'
-		);
-
-		add_settings_field(
-			'comment-follow',
-			__( 'Comment follow email text', 'jetpack' ),
-			array( $this, 'setting_comment_follow' ),
-			'reading',
-			'email_settings'
-		);
-
-		add_settings_field(
-			'welcome',
-			__( 'Welcome email text', 'jetpack' ),
-			array( $this, 'setting_welcome' ),
-			'reading',
-			'email_settings'
-		);
 	}
 
 	/**
@@ -571,90 +543,6 @@ class Jetpack_Subscriptions {
 
 		// Otherwise we return 'on'.
 		return 'on';
-	}
-
-	/**
-	 * Validate settings for the Subscriptions module.
-	 *
-	 * @param array $settings Settings to be validated.
-	 */
-	public function validate_settings( $settings ) {
-		global $allowedposttags;
-
-		$default = $this->get_default_settings();
-
-		// Blog Follow.
-		$settings['invitation'] = trim( wp_kses( $settings['invitation'], $allowedposttags ) );
-		if ( empty( $settings['invitation'] ) ) {
-			$settings['invitation'] = $default['invitation'];
-		}
-
-		// Comments Follow (single post).
-		$settings['comment_follow'] = trim( wp_kses( $settings['comment_follow'], $allowedposttags ) );
-		if ( empty( $settings['comment_follow'] ) ) {
-			$settings['comment_follow'] = $default['comment_follow'];
-		}
-
-		return $settings;
-	}
-
-	/**
-	 * HTML output helper for Reading section.
-	 */
-	public function reading_section() {
-		echo '<p id="follower-settings">';
-		esc_html_e( 'These settings change emails sent from your blog to followers.', 'jetpack' );
-		echo '</p>';
-	}
-
-	/**
-	 * HTML output helper for Invitation section.
-	 */
-	public function setting_invitation() {
-		$settings = $this->get_settings();
-		echo '<textarea name="subscription_options[invitation]" class="large-text" cols="50" rows="5">' . esc_textarea( $settings['invitation'] ) . '</textarea>';
-		echo '<p><span class="description">' . esc_html__( 'Introduction text sent when someone follows your blog. (Site and confirmation details will be automatically added for you.)', 'jetpack' ) . '</span></p>';
-	}
-
-	/**
-	 * HTML output helper for Comment Follow section.
-	 */
-	public function setting_comment_follow() {
-		$settings = $this->get_settings();
-		echo '<textarea name="subscription_options[comment_follow]" class="large-text" cols="50" rows="5">' . esc_textarea( $settings['comment_follow'] ) . '</textarea>';
-		echo '<p><span class="description">' . esc_html__( 'Introduction text sent when someone follows a post on your blog. (Site and confirmation details will be automatically added for you.)', 'jetpack' ) . '</span></p>';
-	}
-
-	/**
-	 * HTML output helper for Welcome section.
-	 */
-	public function setting_welcome() {
-		$settings = $this->get_settings();
-		echo '<textarea name="subscription_options[welcome]" class="large-text" cols="50" rows="5">' . esc_textarea( $settings['welcome'] ) . '</textarea>';
-		echo '<p><span class="description">' . esc_html__( 'Welcome text sent when someone follows your blog.', 'jetpack' ) . '</span></p>';
-	}
-
-	/**
-	 * Get default settings for the Subscriptions module.
-	 */
-	public function get_default_settings() {
-		$site_url    = get_home_url();
-		$display_url = preg_replace( '(^https?://)', '', untrailingslashit( $site_url ) );
-
-		return array(
-			/* translators: Both %1$s and %2$s is site address */
-			'invitation'     => sprintf( __( "Howdy,\nYou recently subscribed to <a href='%1\$s'>%2\$s</a> and we need to verify the email you provided. Once you confirm below, you'll be able to receive and read new posts.\n\nIf you believe this is an error, ignore this message and nothing more will happen.", 'jetpack' ), $site_url, $display_url ),
-			'comment_follow' => __( "Howdy.\n\nYou recently followed one of my posts. This means you will receive an email when new comments are posted.\n\nTo activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again.", 'jetpack' ),
-			/* translators: %1$s is the site address */
-			'welcome'        => sprintf( __( 'Cool, you are now subscribed to %1$s and will receive an email notification when a new post is published.', 'jetpack' ), $display_url ),
-		);
-	}
-
-	/**
-	 * Reeturn merged `subscription_options` option with module default settings.
-	 */
-	public function get_settings() {
-		return wp_parse_args( (array) get_option( 'subscription_options' ), $this->get_default_settings() );
 	}
 
 	/**
@@ -1106,10 +994,10 @@ class Jetpack_Subscriptions {
 	 */
 	public function add_subscribers_menu() {
 		/*
-		 * Do not display any menu on WoA and WordPress.com Simple sites.
+		 * Do not display any menu on WoA and WordPress.com Simple sites (unless Classic wp-admin is enabled).
 		 * They already get a menu item under Users via nav-unification.
 		 */
-		if ( ( new Host() )->is_wpcom_platform() ) {
+		if ( ( new Host() )->is_wpcom_platform() && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 			return;
 		}
 
@@ -1128,8 +1016,13 @@ class Jetpack_Subscriptions {
 
 		$blog_id = Connection_Manager::get_site_id( true );
 
+		$source = 'jetpack-menu-calypso-subscribers';
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			$source = 'jetpack-menu-jetpack-manage-subscribers';
+		}
+
 		$link = Redirect::get_url(
-			'jetpack-menu-calypso-subscribers',
+			$source,
 			array( 'site' => $blog_id ? $blog_id : $status->get_site_suffix() )
 		);
 
@@ -1141,6 +1034,36 @@ class Jetpack_Subscriptions {
 			esc_url( $link ),
 			null
 		);
+	}
+
+	/**
+	 * Record tracks event if categories is created when user enters
+	 * the edit category page through the newsletter settings page.
+	 *
+	 * @return void
+	 */
+	public function track_newsletter_category_creation() {
+
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
+		if ( empty( $_POST['_wp_http_referer'] ) ) {
+			return;
+		}
+
+		if ( strpos( sanitize_url( wp_unslash( $_POST['_wp_http_referer'] ) ), 'referer=newsletter-categories' ) > -1 ) {
+
+			$parent = filter_var( empty( $_POST['parent'] ) ? 0 : wp_unslash( $_POST['parent'] ), FILTER_SANITIZE_NUMBER_INT );
+
+			$is_child_category = $parent > 0;
+
+			$tracking = new Automattic\Jetpack\Tracking();
+			$tracking->tracks_record_event(
+				wp_get_current_user(),
+				'jetpack_newsletter_add_category',
+				array(
+					'is_child_category' => $is_child_category,
+				)
+			);
+		}
 	}
 }
 

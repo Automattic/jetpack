@@ -1,10 +1,10 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, performance
-Stable tag: 13.1.2
+Stable tag: 13.3.1
 Requires at least: 6.3
 Requires PHP: 7.0
-Tested up to: 6.4
+Tested up to: 6.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -53,7 +53,7 @@ Get blazing fast site speed with Jetpack. Jetpack’s free CDN (content delivery
 * Image CDN for images and core static files, like CSS and JavaScript, served from our servers, not yours, which saves you money and bandwidth.
 * Unlimited, high speed, ad free video hosting keeps the focus on your content, not on ads or recommendations that lead people off site.
 * Custom site search is incredibly powerful and customizable. Helps your visitors instantly find the right content so they read and buy more. Works great with WooCommerce / eCommerce sites to help filter products so customers get what they want on your site faster.
-* Recommended to use with WP Super Cache for ultimate WordPress site speed.
+* Recommended to use with [Jetpack Boost](https://wordpress.org/plugins/jetpack-boost/) for ultimate WordPress site speed.
 
 = POWERFUL TOOLS FOR GROWTH =
 Create and customize your WordPress site, optimize it for visitors and revenue, and enjoy watching your stats tick up. Build it, share it, and watch it grow.
@@ -158,7 +158,6 @@ Ever wish you could have just one feature of Jetpack in its own plugin? Now you 
 * [Jetpack Social](https://wordpress.org/plugins/jetpack-social/)
 * [Jetpack VideoPress](https://wordpress.org/plugins/jetpack-videopress/)
 * [Akismet Anti-Spam](https://wordpress.org/plugins/akismet/)
-* [WP Super Cache](https://wordpress.org/plugins/wp-super-cache/)
 
 
 == Installation ==
@@ -216,7 +215,6 @@ Jetpack is the ultimate toolkit for WP for both the classic editor and the block
 * Custom CSS — Customize the appearance of your theme without creating a child theme or worrying about updates overwriting your customizations.
 * Custom Content Types — Adds custom post types (CPTs) to your site.
 * Downtime Monitor — Alerts you via electronic mail if your site goes down to ensure you keep uptime.
-* Enhanced Distribution — Increase your reach by allowing your content to be included in the WordPress.com “firehose” of public blog content.
 * Extra Sidebar Widgets — Extra widgets you can add to your blog, including RSS Links and Facebook Like Boxes.
 * Gravatar Hovercards — Make your Gravatar profile visible to those viewing your blog.
 * Google Analytics (GA) — Track your WordPress site statistics thanks to Google Analytics.
@@ -301,6 +299,8 @@ WP Super Cache works by caching your WordPress pages as static HTML pages so tha
 
 Jetpack has an image CDN that works by caching and serving your WordPress images globally from its own servers. These plugins are both maintained by Automattic and work together to give you ultimate site speed.
 
+Automattic actively develops [Jetpack Boost](https://wordpress.org/plugins/jetpack-boost/) to help you increase your website speed in ways beyond WP Super Cache. We recommend using Jetpack Boost instead of WP Super Cache.
+
 = What version of PHP do I need? =
 
 Sites must be built on PHP 7.0 or greater, but Jetpack always supports the latest version of PHP.
@@ -326,26 +326,13 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.2-a.7 - 2024-02-19
+### 13.4-a.1 - 2024-04-08
 #### Enhancements
-- Added custom message textarea to send a message via email when adding new users
-- Add images while publishing on the web via the jetpack app
-- Add some extra margin around Stats settings toggles
-- Add support for Email stats
-- Comment: Add Goodreads embed block in Gutenberg.
-- SSO: Add user invite revoke row action in users table
-- SSO: improve messaging and account binding between local and wp.com users
-- SSO: Updated column heading and row background color when invitation is pending.
-- SSO: When creating a new users, mail the users with an invitation to WPCom.
-- We added the Welcome Email Message setting to Newsletter settings
-
-#### Improved compatibility
-- Add 'if_not_modified_since' to the update post endpoints this will help clients fails if the post has been updated since last retrieved
-- Add support for WP Super Cache and Boost Cache
+- Newsletters: Add a filter that enables the user to control the timing at which the Subscribe Modal loads.
 
 #### Bug fixes
-- Jetpack Google Fonts: Fix some Google fonts aren't displayed correctly on front end
-- Scan: ensure the Admin notice resources are always properly loaded.
+- Secure Sign-On: Disable the WordPress.com invitation setup on Multisite.
+- Theme Tools: Fix deprecation notices in the color management library.
 
 --------
 

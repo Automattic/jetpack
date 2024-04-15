@@ -5,6 +5,127 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.23.2] - 2024-04-08
+### Changed
+- Updated package dependencies. [#36760] [#36761] [#36788]
+
+## [5.23.1] - 2024-04-05
+### Changed
+- Update dependencies.
+
+## [5.23.0] - 2024-04-04
+### Added
+- Allow Simple sites access to the Hosting menu [#36684]
+
+### Changed
+- Load Stats on admin_menu hook for Simple sites so Jetpack menu loads for admin-menu API [#36712]
+
+## [5.22.0] - 2024-04-01
+### Added
+- Add Odyssey Stats to wpcom Simple Site [#36628]
+- Change Phan baselines. [#36627]
+
+### Changed
+- Dotcom patterns: use wp_block post type patterns in editor with all themes and hide core and Jetpack form patterns [#36588]
+- General: update Phan configuration. [#36528]
+
+## [5.21.0] - 2024-03-27
+### Changed
+- Updated package dependencies. [#36585]
+- Updated Verbum Highlander Comment form prompt value [#36505]
+
+### Fixed
+- Untangle: update launchpad links for subscribers to go to Jetpack Cloud [#36573]
+
+## [5.20.0] - 2024-03-25
+### Removed
+- Removed Subscribers from Hosting menu [#36513]
+
+## [5.19.0] - 2024-03-22
+### Changed
+- Added additional settings for commenting on simple sites [#36367]
+- Releasing Gutenberg to all Verbum users. [#36476]
+
+### Fixed
+- Block Patterns: The modal of the starter patterns isn't shown when you're creating a new post [#36516]
+- Untangle: update launchpad links for newsletter setting to go to Jetpack's [#36495]
+
+## [5.18.0] - 2024-03-20
+### Changed
+- The GitHub deployments feature check has been removed. [#36383]
+- Updated copy by replacing "subscribers" with "emails" [#36450]
+
+### Fixed
+- Fixed a bug where locked mode was applied to all sites in /me/sites that followed a site with locked mode enabled. [#36388]
+- Hosting menu is only available to admin with a wpcom account [#36405]
+- Wrong text in the editor placeholder. It was not translated [#36454]
+
+## [5.17.0] - 2024-03-15
+### Added
+- Added information regarding if github deployments is active to the wp-admin command palette config. [#36324]
+- Untangle: Enable both Calypso & Core admin color schemes in Users -> Profile [#36341]
+
+## [5.16.1] - 2024-03-12
+### Changed
+- Internal updates.
+
+## [5.16.0] - 2024-03-12
+### Added
+- Added Connections to the Hosting menu [#36302]
+
+### Changed
+- Updated package dependencies. [#36325]
+
+## [5.15.2] - 2024-03-11
+### Changed
+- External dependencies of the Command Palette are now explicitly declared. [#36184]
+- Jetpack MU WPCOM: Added Bytespider robots.txt [#36260]
+- Remove external-icon from Hosting menu [#36221]
+
+### Fixed
+- unregisters unnecessary items from the customizer for atomic sites on block theme [#36161]
+- Untangle: correctly show the current homepage when live-previewing another block theme [#36178]
+
+## [5.15.1] - 2024-03-05
+### Changed
+- Internal updates.
+
+## [5.15.0] - 2024-03-04
+### Added
+- Added a Command Palette loader on the jetpack-mu-wpcom plugin. [#35635]
+
+### Changed
+- Add-Ons: Hide the menu on atomic sites [#36065]
+- Scheduled Updates: Load API endpoints on WP.com so it works with public-api passthrough. [#35999]
+- Show gutenberg in verbum to 80% of users [#36121]
+- The Command Palette loads the script with a `defer` strategy now to improve the performance. [#36076]
+- Updated package dependencies.
+
+### Fixed
+- Add blog id and post id to connection params [#36152]
+- Untangle: fix launchpad links to go to wp-admin pages on classic view [#36014]
+
+## [5.14.1] - 2024-02-26
+### Changed
+- Verbum: Ensure colour contrast for disabled button is a11y-friendly. [#35929]
+
+### Fixed
+- Fix comment form login for passwordless users [#35785]
+
+## [5.14.0] - 2024-02-26
+### Added
+- Adds a dismissible admin notice to inform users of the hosting menu [#35930]
+- Add Scheduled Updates package [#35796]
+
+### Changed
+- Add Anthropic UAs to list of crawlers to block. [#35924]
+- Change wpcom menu item to go to my sites instead of global site view. [#35928]
+- Update WordPress.com menu item to be a menu of links rather than one link. [#35925]
+
+## [5.13.1] - 2024-02-21
+### Changed
+- Ensure consistent robots.txt behavior between WP.com and WoA. [#35803]
+
 ## [5.13.0] - 2024-02-19
 ### Added
 - Blog Privacy: Add AI User Agents to robots.txt depending on blog setting. [#35704]
@@ -590,6 +711,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.23.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.23.1...v5.23.2
+[5.23.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.23.0...v5.23.1
+[5.23.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.22.0...v5.23.0
+[5.22.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.21.0...v5.22.0
+[5.21.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.20.0...v5.21.0
+[5.20.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.19.0...v5.20.0
+[5.19.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.18.0...v5.19.0
+[5.18.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.17.0...v5.18.0
+[5.17.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.16.1...v5.17.0
+[5.16.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.16.0...v5.16.1
+[5.16.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.15.2...v5.16.0
+[5.15.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.15.1...v5.15.2
+[5.15.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.15.0...v5.15.1
+[5.15.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.14.1...v5.15.0
+[5.14.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.14.0...v5.14.1
+[5.14.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.13.1...v5.14.0
+[5.13.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.13.0...v5.13.1
 [5.13.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.12.2...v5.13.0
 [5.12.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.12.1...v5.12.2
 [5.12.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.12.0...v5.12.1

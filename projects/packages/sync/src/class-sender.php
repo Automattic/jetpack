@@ -128,7 +128,7 @@ class Sender {
 	 *
 	 * @access private
 	 *
-	 * @var Automattic\Jetpack\Sync\Queue
+	 * @var \Automattic\Jetpack\Sync\Queue
 	 */
 	private $sync_queue;
 
@@ -137,7 +137,7 @@ class Sender {
 	 *
 	 * @access private
 	 *
-	 * @var Automattic\Jetpack\Sync\Queue
+	 * @var \Automattic\Jetpack\Sync\Queue
 	 */
 	private $full_sync_queue;
 
@@ -146,7 +146,7 @@ class Sender {
 	 *
 	 * @access private
 	 *
-	 * @var Automattic\Jetpack\Sync\Codec_Interface
+	 * @var \Automattic\Jetpack\Sync\Codec_Interface
 	 */
 	private $codec;
 
@@ -165,7 +165,7 @@ class Sender {
 	 * @access private
 	 * @static
 	 *
-	 * @var Automattic\Jetpack\Sync\Sender
+	 * @var \Automattic\Jetpack\Sync\Sender
 	 */
 	private static $instance;
 
@@ -439,7 +439,7 @@ class Sender {
 	 *
 	 * @access public
 	 *
-	 * @param Automattic\Jetpack\Sync\Queue $queue Queue object.
+	 * @param \Automattic\Jetpack\Sync\Queue $queue Queue object.
 	 *
 	 * @return boolean|WP_Error True if this sync sending was successful, error object otherwise.
 	 */
@@ -507,8 +507,8 @@ class Sender {
 	 *
 	 * @access public
 	 *
-	 * @param (array|Automattic\Jetpack\Sync\Queue_Buffer) $buffer_or_items Queue buffer or array of objects.
-	 * @param boolean                                      $encode Whether to encode the items.
+	 * @param (array|\Automattic\Jetpack\Sync\Queue_Buffer) $buffer_or_items Queue buffer or array of objects.
+	 * @param boolean                                       $encode Whether to encode the items.
 	 * @return array Sync items to send.
 	 */
 	public function get_items_to_send( $buffer_or_items, $encode = true ) {
@@ -587,7 +587,7 @@ class Sender {
 	 *
 	 * @access public
 	 *
-	 * @param Automattic\Jetpack\Sync\Queue $queue Queue object.
+	 * @param \Automattic\Jetpack\Sync\Queue $queue Queue object.
 	 *
 	 * @return boolean|WP_Error True if this sync sending was successful, error object otherwise.
 	 */
@@ -790,7 +790,7 @@ class Sender {
 	 *
 	 * @access public
 	 *
-	 * @return Automattic\Jetpack\Sync\Queue Queue object.
+	 * @return \Automattic\Jetpack\Sync\Queue Queue object.
 	 */
 	public function get_sync_queue() {
 		return $this->sync_queue;
@@ -801,7 +801,7 @@ class Sender {
 	 *
 	 * @access public
 	 *
-	 * @return Automattic\Jetpack\Sync\Queue Queue object.
+	 * @return \Automattic\Jetpack\Sync\Queue Queue object.
 	 */
 	public function get_full_sync_queue() {
 		return $this->full_sync_queue;
@@ -812,7 +812,7 @@ class Sender {
 	 *
 	 * @access public
 	 *
-	 * @return Automattic\Jetpack\Sync\Codec_Interface Codec object.
+	 * @return \Automattic\Jetpack\Sync\Codec_Interface Codec object.
 	 */
 	public function get_codec() {
 		return $this->codec;

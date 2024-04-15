@@ -12,6 +12,7 @@ type ModuleProps = {
 	slug: string;
 	toggle?: boolean;
 	onEnable?: () => void;
+	onBeforeToggle?: ( newStatus: boolean ) => void;
 	onDisable?: () => void;
 	onMountEnable?: () => void;
 };
@@ -23,6 +24,7 @@ const Module = ( {
 	slug,
 	toggle = true,
 	onEnable,
+	onBeforeToggle,
 	onDisable,
 	onMountEnable,
 }: ModuleProps ) => {
@@ -37,6 +39,9 @@ const Module = ( {
 	const isModuleAvailable = status?.available ?? false;
 
 	const handleToggle = () => {
+		if ( onBeforeToggle ) {
+			onBeforeToggle( ! isModuleActive );
+		}
 		setStatus( ! isModuleActive );
 	};
 
@@ -48,12 +53,12 @@ const Module = ( {
 	}, [] );
 
 	// Don't show unavailable modules
-	if ( ! isModuleAvailable ) {
+	if ( ! isModuleAvailable && slug !== 'page_cache' ) {
 		return null;
 	}
 
 	return (
-		<div className={ styles.module }>
+		<div className={ styles.module } data-testid={ `module-${ slug }` }>
 			<div className={ styles.toggle }>
 				{ toggle && (
 					<ToggleControl

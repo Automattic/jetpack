@@ -84,6 +84,7 @@ if ( ! class_exists( 'WP_Importer', false ) ) {
 }
 
 // Mock known importer. Uses class name of a real importer plugin.
+// @phan-suppress-next-line PhanRedefinedExtendedClass -- Ignore stub definition above.
 class RSS_Import extends WP_Importer {
 	public function start_fake_rss_import() {
 		do_action( 'import_start' );
@@ -91,6 +92,7 @@ class RSS_Import extends WP_Importer {
 }
 
 // Mock unknown importer.
+// @phan-suppress-next-line PhanRedefinedExtendedClass -- Ignore stub definition above.
 class Unknown_Import extends WP_Importer {
 	public function start_fake_import() {
 		do_action( 'import_start' );

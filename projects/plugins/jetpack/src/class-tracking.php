@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\Plugin;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Tracking as Tracks;
+use WP_Error;
+use WP_User;
 
 /**
  * Tracks class.
@@ -114,8 +116,8 @@ class Tracking {
 	 *
 	 * @access public
 	 *
-	 * @param string   $action Type of secret (one of 'register', 'authorize', 'publicize').
-	 * @param \WP_User $user The user object.
+	 * @param string  $action Type of secret (one of 'register', 'authorize', 'publicize').
+	 * @param WP_User $user The user object.
 	 */
 	public function jetpack_verify_secrets_begin( $action, $user ) {
 		$this->tracking->record_user_event( "jpc_verify_{$action}_begin", array(), $user );
@@ -126,8 +128,8 @@ class Tracking {
 	 *
 	 * @access public
 	 *
-	 * @param string   $action Type of secret (one of 'register', 'authorize', 'publicize').
-	 * @param \WP_User $user The user object.
+	 * @param string  $action Type of secret (one of 'register', 'authorize', 'publicize').
+	 * @param WP_User $user The user object.
 	 */
 	public function jetpack_verify_secrets_success( $action, $user ) {
 		$this->tracking->record_user_event( "jpc_verify_{$action}_success", array(), $user );
@@ -138,9 +140,9 @@ class Tracking {
 	 *
 	 * @access public
 	 *
-	 * @param string    $action Type of secret (one of 'register', 'authorize', 'publicize').
-	 * @param \WP_User  $user The user object.
-	 * @param \WP_Error $error Error object.
+	 * @param string   $action Type of secret (one of 'register', 'authorize', 'publicize').
+	 * @param WP_User  $user The user object.
+	 * @param WP_Error $error Error object.
 	 */
 	public function jetpack_verify_secrets_fail( $action, $user, $error ) {
 		$this->tracking->record_user_event(
@@ -176,7 +178,7 @@ class Tracking {
 	 * @access public
 	 *
 	 * @param string|int $error      The error code.
-	 * @param \WP_Error  $registered The error object.
+	 * @param WP_Error   $registered The error object.
 	 */
 	public function jetpack_connection_register_fail( $error, $registered ) {
 		$this->tracking->record_user_event(

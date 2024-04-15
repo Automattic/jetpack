@@ -21,6 +21,7 @@ export DEBIAN_FRONTEND=noninteractive
 # Determine packages to install.
 PKGS=(
 	"php${VER}"
+	"php${VER}-ast"
 	"php${VER}-bcmath"
 	"php${VER}-cli"
 	"php${VER}-curl"

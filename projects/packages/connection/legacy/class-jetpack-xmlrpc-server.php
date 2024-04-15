@@ -269,7 +269,7 @@ class Jetpack_XMLRPC_Server {
 	 * This XML-RPC method is called from the /jpphp/provision endpoint on WPCOM in order to
 	 * register this site so that a plan can be provisioned.
 	 *
-	 * @param array $request An array containing at minimum nonce and local_user keys.
+	 * @param array|ArrayAccess $request An array containing at minimum nonce and local_user keys.
 	 *
 	 * @return \WP_Error|array
 	 */
@@ -373,7 +373,7 @@ class Jetpack_XMLRPC_Server {
 	 * This XML-RPC method is called from the /jpphp/provision endpoint on WPCOM in order to
 	 * register this site so that a plan can be provisioned.
 	 *
-	 * @param array $request An array containing at minimum a nonce key and a local_username key.
+	 * @param array|ArrayAccess $request An array containing at minimum a nonce key and a local_username key.
 	 *
 	 * @return \WP_Error|array
 	 */
@@ -440,8 +440,8 @@ class Jetpack_XMLRPC_Server {
 	 * Given an array containing a local user identifier and a nonce, will attempt to fetch and set
 	 * an access token for the given user.
 	 *
-	 * @param array       $request    An array containing local_user and nonce keys at minimum.
-	 * @param \IXR_Client $ixr_client The client object, optional.
+	 * @param array|ArrayAccess $request An array containing local_user and nonce keys at minimum.
+	 * @param \IXR_Client       $ixr_client The client object, optional.
 	 * @return mixed
 	 */
 	public function remote_connect( $request, $ixr_client = false ) {

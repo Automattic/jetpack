@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.42.9] - 2024-04-08
+### Changed
+- Updated package dependencies. [#36760]
+
+### Fixed
+- Fixed the learn more link. [#36735]
+
+## [0.42.8] - 2024-03-27
+### Changed
+- Updated package dependencies. [#36585]
+
+## [0.42.7] - 2024-03-25
+### Changed
+- Internal updates.
+
+## [0.42.6] - 2024-03-18
+### Changed
+- Internal updates.
+
+## [0.42.5] - 2024-03-12
+### Changed
+- Updated package dependencies. [#36325]
+
+### Fixed
+- REST requests: avoid potential warnings with custom objects. [#36315]
+
+## [0.42.4] - 2024-03-04
+### Security
+- Added new tests for the OG image optimization logic [#35987]
+
+### Changed
+- Updated package dependencies. [#36095]
+
+## [0.42.3] - 2024-02-26
+### Fixed
+- Deprecate the sharing_menu method of the Publicize_UI class. [#35810]
+
 ## [0.42.2] - 2024-02-14
 ### Fixed
 - Fixed an issue where on old sites og:image is an array that causes issues [#35688]
@@ -480,6 +517,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.42.9]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.8...v0.42.9
+[0.42.8]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.7...v0.42.8
+[0.42.7]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.6...v0.42.7
+[0.42.6]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.5...v0.42.6
+[0.42.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.4...v0.42.5
+[0.42.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.3...v0.42.4
+[0.42.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.2...v0.42.3
 [0.42.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.1...v0.42.2
 [0.42.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.0...v0.42.1
 [0.42.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.41.0...v0.42.0

@@ -56,7 +56,7 @@ export default function useFetchGoodreadsData( input ) {
 		}
 
 		const regex = /\/(user|author)\/show\/(\d+)/;
-		const goodreadsId = input.match( regex ) ? input.match( regex )[ 2 ] : false;
+		const goodreadsId = input.match( regex ) ? parseInt( input.match( regex )[ 2 ] ) : false;
 
 		if ( input.length && ! goodreadsId ) {
 			setIsError( true );

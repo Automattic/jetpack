@@ -16,6 +16,7 @@ use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Status as Jetpack_Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
+use WP_Post;
 
 /**
  * Class for promoting posts.
@@ -68,15 +69,16 @@ class Blaze {
 
 	/**
 	 * Is the wp-admin Dashboard enabled?
-	 * That dashboard is not available or necessary on WordPress.com sites.
+	 * That dashboard is not available or necessary on WordPress.com sites when the nav redesign is disabled.
 	 *
 	 * @return bool
 	 */
 	public static function is_dashboard_enabled() {
-		$is_dashboard_enabled = true;
+		$is_dashboard_enabled          = true;
+		$wpcom_is_nav_redesign_enabled = function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled();
 
-		// On WordPress.com sites, the dashboard is not needed.
-		if ( ( new Host() )->is_wpcom_platform() ) {
+		// On WordPress.com sites, the dashboard is not needed if the nav redesign is not enabled.
+		if ( ! $wpcom_is_nav_redesign_enabled && ( new Host() )->is_wpcom_platform() ) {
 			$is_dashboard_enabled = false;
 		}
 

@@ -14,7 +14,7 @@ import {
 	UNLIMITED_PLAN_REQUESTS_LIMIT,
 	ACTION_SET_TIER_PLANS_ENABLED,
 } from './constants';
-import type { PlanStateProps } from './types';
+import type { PlanStateProps, TierLimitProp } from './types';
 
 const INITIAL_STATE: PlanStateProps = {
 	plans: [],
@@ -115,7 +115,7 @@ export default function reducer( state = INITIAL_STATE, action ) {
 			if ( isUnlimitedTierPlan ) {
 				requestsLimit = UNLIMITED_PLAN_REQUESTS_LIMIT;
 			} else if ( isFreeTierPlan ) {
-				requestsLimit = state.features.aiAssistant.requestsLimit;
+				requestsLimit = state.features.aiAssistant.requestsLimit as TierLimitProp;
 			}
 
 			const currentCount =

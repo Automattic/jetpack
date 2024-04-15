@@ -22,7 +22,6 @@ for F in README.md .gitkeep .gitignore; do
 done
 
 declare -A PROJECT_PREFIXES=(
-	['editor-extensions']='Block'
 	['github-actions']='Action'
 	['packages']='Package'
 	['plugins']='Plugin'
@@ -180,7 +179,7 @@ for PROJECT in projects/*/*; do
 		fi
 	fi
 
-	# Should have only one of jsconfig.json or tsconfig.json.
+	# - should have only one of jsconfig.json or tsconfig.json.
 	# @todo Having neither is ok in some cases. Can we determine when one is needed to flag that it should be added?
 	if [[ -e "$PROJECT/jsconfig.json" && -e "$PROJECT/tsconfig.json" ]]; then
 		EXIT=1
@@ -193,6 +192,35 @@ for PROJECT in projects/*/*; do
 		EXIT=1
 		LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["dependencies","ts-loader"] or . == ["devDependencies","ts-loader"] or . == ["optionalDependencies","ts-loader"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json" | head -1)
 		echo "::error file=$PROJECT/package.json${LINE}::For consistency we've settled on using \`@babel/preset-typescript\` (and \`fork-ts-checker-webpack-plugin\` or \`tsc\` for definition files) rather than \`ts-loader\`. Please switch to that."
+	fi
+
+	# - certain tsconfig options should not be used directly.
+	if [[ -e "$PROJECT/tsconfig.json" ]]; then
+		# tsconfig.json files may have comments. Strip those.
+		JSON=$( sed 's#^[ \t]*//.*##' "$PROJECT/tsconfig.json" );
+		if jq -e '.compilerOptions // {} | has( "noEmit" )' <<<"$JSON" >/dev/null; then
+			EXIT=1
+			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["compilerOptions","noEmit"] then ",line=\( input_line_number )" else empty end' <<<"$JSON")
+			echo "::error file=$PROJECT/tsconfig.json${LINE}::Don't set noEmit directly. Extend tsconfig.base.json if you want it false, or tsconfig.tsc.json or tsconfig.tsc-declaration-only.json if you want it true."
+		fi
+		if jq -e '.compilerOptions // {} | has( "module" )' <<<"$JSON" >/dev/null; then
+			EXIT=1
+			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["compilerOptions","module"] then ",line=\( input_line_number )" else empty end' <<<"$JSON")
+			echo "::error file=$PROJECT/tsconfig.json${LINE}::Don't set module directly. Our base configs already set correct values."
+		fi
+		if jq -e '.compilerOptions // {} | has( "moduleResolution" )' <<<"$JSON" >/dev/null; then
+			EXIT=1
+			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["compilerOptions","moduleResolution"] then ",line=\( input_line_number )" else empty end' <<<"$JSON")
+			echo "::error file=$PROJECT/tsconfig.json${LINE}::Don't set moduleResolution directly. Our base configs already set correct values."
+		fi
+	fi
+
+	# - if the project has any php files, a phan config should exist.
+	if [[ -n "$( git ls-files ":!$PROJECT/.phan/*" "$PROJECT/*.php" )" ]]; then
+		if [[ ! -e "$PROJECT/.phan/config.php" ]]; then
+			EXIT=1
+			echo "::error file=$PROJECT/.phan/config.php::Project $SLUG has PHP files but does not contain .phan/config.php. Refer to Static Analysis in docs/monorepo.md."
+		fi
 	fi
 
 	# - composer.json must exist.
@@ -397,6 +425,20 @@ if [[ -n "$DUPS" ]]; then
 		fi
 		EXIT=1
 		echo "::error file=$FILE$LINE::Name $KEY is in use in composer.json by $SLUGS. They must be deduplicated."
+	done <<<"$DUPS"
+fi
+
+# - package.json name fields should not be repeated.
+debug "Checking for duplicate package.json names"
+DUPS="$(jq -rn 'reduce inputs as $i ({}; if $i.name then .[$i.name] |= ( . // [] ) + [ input_filename ] else . end) | to_entries[] | .key as $key | .value | select( length > 1 ) | ( [ .[] | capture("^projects/(?<s>.*)/package\\.json$").s ] | .[-1] |= "and " + . | join( if length > 2 then ", " else " " end ) ) as $slugs | .[] | [ ., $key, $slugs ] | @tsv' projects/*/*/package.json projects/*/*/tests/e2e/package.json)"
+if [[ -n "$DUPS" ]]; then
+	while IFS=$'\t' read -r FILE KEY SLUGS; do
+		LINE=$(grep --line-number --max-count=1 '^	"name":' "$FILE" || true)
+		if [[ -n "$LINE" ]]; then
+			LINE=",line=${LINE%%:*}"
+		fi
+		EXIT=1
+		echo "::error file=$FILE$LINE::Name $KEY is in use in package.json by $SLUGS. They must be deduplicated."
 	done <<<"$DUPS"
 fi
 

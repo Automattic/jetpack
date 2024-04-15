@@ -5,6 +5,60 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.49.1] - 2024-04-11
+### Changed
+- Update dependencies. [#36156]
+
+## [0.49.0] - 2024-04-08
+### Added
+- Added options and UI for link formatting. [#36671]
+
+### Changed
+- Extracted the connection toggle state logic. [#36776]
+- Only show custom media picker for normal posts. [#36640]
+- Updated package dependencies. [#36760]
+- Updated package dependencies. [#36761]
+- Update to the most recent version of Color Studio, 2.6.0. [#36751]
+
+### Fixed
+- Fixed an issue where share as a social post was available free. [#36779]
+- Fixed the (no title) link on the post publish panel. [#36718]
+- Fixed the learn more link. [#36735]
+
+## [0.48.5] - 2024-03-27
+### Changed
+- Updated package dependencies. [#36585]
+
+## [0.48.4] - 2024-03-12
+### Changed
+- Updated package dependencies. [#36325]
+
+## [0.48.3] - 2024-03-07
+### Changed
+- Update dependencies. [#36156]
+
+## [0.48.2] - 2024-03-04
+### Changed
+- Update dependencies. [#36113]
+- Updated package dependencies.
+
+### Removed
+- Removed the flow to reconnect a broken social connection from the editor. [#35343]
+
+## [0.48.1] - 2024-02-27
+### Changed
+- Update dependencies. [#35170]
+
+## [0.48.0] - 2024-02-26
+### Added
+- Added toggle to Social admin page for the Social Notes [#35681]
+
+### Changed
+- Added description to social previews for titleless posts [#35728]
+
+### Removed
+- Removed a notice to tell users that instagram is new nad can be connected [#35860]
+
 ## [0.47.1] - 2024-02-13
 ### Changed
 - Updated package dependencies. [#35608]
@@ -590,6 +644,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.49.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.49.0...v0.49.1
+[0.49.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.48.5...v0.49.0
+[0.48.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.48.4...v0.48.5
+[0.48.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.48.3...v0.48.4
+[0.48.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.48.2...v0.48.3
+[0.48.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.48.1...v0.48.2
+[0.48.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.48.0...v0.48.1
+[0.48.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.47.1...v0.48.0
 [0.47.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.47.0...v0.47.1
 [0.47.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.46.0...v0.47.0
 [0.46.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.45.2...v0.46.0

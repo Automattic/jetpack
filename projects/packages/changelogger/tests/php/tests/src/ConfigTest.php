@@ -228,9 +228,9 @@ class ConfigTest extends TestCase {
 
 		$w->config = array(
 			'ordering' => array(
-				'subheading',
-				'bogus',
-				123,
+				0   => 'subheading',
+				1   => 'bogus',
+				2   => 123,
 				'x' => 'y',
 			),
 		);
@@ -242,9 +242,9 @@ class ConfigTest extends TestCase {
 		$w->cache = array();
 		$this->assertSame(
 			array(
-				'subheading',
-				'bogus',
-				'123',
+				0   => 'subheading',
+				1   => 'bogus',
+				2   => '123',
 				'x' => 'y',
 			),
 			Config::ordering()
@@ -313,7 +313,7 @@ class ConfigTest extends TestCase {
 		);
 
 		// Get plugin by name.
-		class_alias( DummyPluginImpl::class, \Automattic\Jetpack\Changelogger\Plugins\FooDummy::class );
+		class_alias( DummyPluginImpl::class, \Automattic\Jetpack\Changelogger\Plugins\FooDummy::class ); // @phan-suppress-current-line PhanUndeclaredClassReference -- `class_alias` is *creating* it, Phan.
 		$ret = $w->getPlugin( 'foo', 'Dummy', DummyPlugin::class );
 		$this->assertInstanceOf( DummyPluginImpl::class, $ret );
 		$this->assertSame( array( 'name' => 'foo' ), $ret->config );

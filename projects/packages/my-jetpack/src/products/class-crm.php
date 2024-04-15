@@ -47,21 +47,21 @@ class Crm extends Product {
 	public static $requires_user_connection = false;
 
 	/**
-	 * Get the internationalized product name
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'CRM', 'jetpack-my-jetpack' );
+		return 'CRM';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack CRM', 'jetpack-my-jetpack' );
+		return 'Jetpack CRM';
 	}
 
 	/**
@@ -140,11 +140,13 @@ class Crm extends Product {
 	 *
 	 * @return boolean
 	 */
-	public static function has_required_plan() {
+	public static function has_paid_plan_for_product() {
 		$purchases_data = Wpcom_Products::get_site_current_purchases();
 		if ( is_wp_error( $purchases_data ) ) {
 			return false;
 		}
+
+		// TODO: check if CRM has a separate plan
 
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {

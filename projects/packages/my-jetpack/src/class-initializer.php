@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
@@ -24,6 +25,7 @@ use Automattic\Jetpack\Status\Host as Status_Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack;
+use WP_Error;
 
 /**
  * The main Initializer class that registers the admin menu and eneuque the assets.
@@ -35,7 +37,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.10.0';
+	const PACKAGE_VERSION = '4.22.0';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -54,6 +56,8 @@ class Initializer {
 	);
 
 	const MY_JETPACK_SITE_INFO_TRANSIENT_KEY = 'my-jetpack-site-info';
+
+	const MISSING_SITE_CONNECTION_NOTIFICATION_KEY = 'missing-site-connection';
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
@@ -82,6 +86,9 @@ class Initializer {
 			Licensing::instance()->initialize();
 		}
 
+		// Initialize Boost Speed Score
+		new Speed_Score( array(), 'jetpack-my-jetpack' );
+
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
 
@@ -95,6 +102,8 @@ class Initializer {
 		);
 
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+		// This is later than the admin-ui package, which runs on 1000
+		add_action( 'admin_init', array( __CLASS__, 'maybe_show_red_bubble' ), 1001 );
 
 		// Sets up JITMS.
 		JITM::configure();
@@ -189,7 +198,15 @@ class Initializer {
 			)
 		);
 		$modules             = new Modules();
-		$speed_score_history = new Speed_Score_History( wp_parse_url( get_site_url(), PHP_URL_HOST ) );
+		$connection          = new Connection_Manager();
+		$speed_score_history = new Speed_Score_History( get_site_url() );
+		$latest_score        = $speed_score_history->latest();
+		$previous_score      = array();
+		if ( $speed_score_history->count() > 1 ) {
+			$previous_score = $speed_score_history->latest( 1 );
+		}
+		$latest_score['previousScores'] = $previous_score['scores'] ?? array();
+
 		wp_localize_script(
 			'my_jetpack_main_app',
 			'myJetpackInitialState',
@@ -202,9 +219,10 @@ class Initializer {
 				),
 				'plugins'                => Plugins_Installer::get_plugins(),
 				'myJetpackUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
-				'myJetpackCheckoutUri'   => 'admin.php?page=my-jetpack',
+				'myJetpackCheckoutUri'   => admin_url( 'admin.php?page=my-jetpack' ),
 				'topJetpackMenuItemUrl'  => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'             => ( new Status() )->get_site_suffix(),
+				'siteUrl'                => esc_url( get_site_url() ),
 				'blogID'                 => Connection_Manager::get_site_id( true ),
 				'myJetpackVersion'       => self::PACKAGE_VERSION,
 				'myJetpackFlags'         => self::get_my_jetpack_flags(),
@@ -214,17 +232,23 @@ class Initializer {
 				'IDCContainerID'         => static::get_idc_container_id(),
 				'userIsAdmin'            => current_user_can( 'manage_options' ),
 				'userIsNewToJetpack'     => self::is_jetpack_user_new(),
+				'lifecycleStats'         => array(
+					'jetpackPlugins'  => self::get_installed_jetpack_plugins(),
+					'isSiteConnected' => $connection->is_connected(),
+					'isUserConnected' => $connection->is_user_connected(),
+					'purchases'       => self::get_purchases(),
+					'modules'         => self::get_active_modules(),
+				),
+				'redBubbleAlerts'        => self::get_red_bubble_alerts(),
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
 				'isUserFromKnownHost'    => self::is_user_from_known_host(),
 				'isCommercial'           => self::is_commercial_site(),
-				'welcomeBanner'          => array(
-					'hasBeenDismissed' => \Jetpack_Options::get_option( 'dismissed_welcome_banner', false ),
-				),
+				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
 				'jetpackManage'          => array(
 					'isEnabled'       => Jetpack_Manage::could_use_jp_manage(),
 					'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
 				),
-				'latestBoostSpeedScores' => $speed_score_history->latest(),
+				'latestBoostSpeedScores' => $latest_score,
 			)
 		);
 
@@ -244,6 +268,63 @@ class Initializer {
 		if ( self::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
+	}
+
+	/**
+	 * Get product slugs of the active purchases
+	 *
+	 * @return array
+	 */
+	public static function get_purchases() {
+		$purchases = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases ) ) {
+			return array();
+		}
+
+		return array_map(
+			function ( $purchase ) {
+				return $purchase->product_slug;
+			},
+			$purchases
+		);
+	}
+
+	/**
+	 * Get installed Jetpack plugins
+	 *
+	 * @return array
+	 */
+	public static function get_installed_jetpack_plugins() {
+		$plugin_slugs = array_keys( Plugins_Installer::get_plugins() );
+		$plugin_slugs = array_map(
+			static function ( $slug ) {
+				$parts = explode( '/', $slug );
+				if ( empty( $parts ) ) {
+					return '';
+				}
+				// Return the last segment of the filepath without the PHP extension
+				return str_replace( '.php', '', $parts[ count( $parts ) - 1 ] );
+			},
+			$plugin_slugs
+		);
+
+		return array_values( array_intersect( self::JETPACK_PLUGIN_SLUGS, $plugin_slugs ) );
+	}
+
+	/**
+	 * Get active modules (except ones enabled by default)
+	 *
+	 * @return array
+	 */
+	public static function get_active_modules() {
+		$modules        = new Modules();
+		$active_modules = $modules->get_active();
+
+		// if the Jetpack plugin is active, filter out the modules that are active by default
+		if ( class_exists( 'Jetpack' ) && ! empty( $active_modules ) ) {
+			$active_modules = array_diff( $active_modules, Jetpack::get_default_modules() );
+		}
+		return $active_modules;
 	}
 
 	/**
@@ -319,8 +400,8 @@ class Initializer {
 	 */
 	public static function get_my_jetpack_flags() {
 		$flags = array(
-			'videoPressStats'      => Jetpack_Constants::is_true( 'JETPACK_MY_JETPACK_VIDEOPRESS_STATS_ENABLED' ),
-			'showJetpackStatsCard' => class_exists( 'Jetpack' ),
+			'videoPressStats'          => Jetpack_Constants::is_true( 'JETPACK_MY_JETPACK_VIDEOPRESS_STATS_ENABLED' ),
+			'showFullJetpackStatsCard' => class_exists( 'Jetpack' ),
 		);
 
 		return $flags;
@@ -390,6 +471,11 @@ class Initializer {
 			$should = false;
 		}
 
+		// All options presented in My Jetpack require a connection to WordPress.com.
+		if ( ( new Status() )->is_offline_mode() ) {
+			$should = false;
+		}
+
 		/**
 		 * Allows filtering whether My Jetpack should be initialized.
 		 *
@@ -414,7 +500,7 @@ class Initializer {
 		$body              = json_decode( wp_remote_retrieve_body( $response ) );
 
 		if ( is_wp_error( $response ) || empty( $response['body'] ) ) {
-			return new \WP_Error( 'site_data_fetch_failed', 'Site data fetch failed', array( 'status' => $response_code ) );
+			return new WP_Error( 'site_data_fetch_failed', 'Site data fetch failed', array( 'status' => $response_code ) );
 		}
 
 		return rest_ensure_response( $body, 200 );
@@ -528,5 +614,76 @@ class Initializer {
 	 */
 	public static function get_idc_container_id() {
 		return static::IDC_CONTAINER_ID;
+	}
+
+	/**
+	 * Conditionally append the red bubble notification to the "Jetpack" menu item if there are alerts to show
+	 *
+	 * @return void
+	 */
+	public static function maybe_show_red_bubble() {
+		global $menu;
+		// filters for the items in this file
+		add_filter( 'my_jetpack_red_bubble_notification_slugs', array( __CLASS__, 'add_red_bubble_alerts' ) );
+		$red_bubble_alerts = self::get_red_bubble_alerts();
+
+		// The Jetpack menu item should be on index 3
+		if (
+			! empty( $red_bubble_alerts ) &&
+			is_countable( $red_bubble_alerts ) &&
+			isset( $menu[3] ) &&
+			$menu[3][0] === 'Jetpack'
+		) {
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$menu[3][0] .= sprintf( ' <span class="awaiting-mod">%d</span>', count( $red_bubble_alerts ) );
+		}
+	}
+
+	/**
+	 * Collect all possible alerts that we might use a red bubble notification for
+	 *
+	 * @return array
+	 */
+	public static function get_red_bubble_alerts() {
+		static $red_bubble_alerts = array();
+
+		// using a static cache since we call this function more than once in the class
+		if ( ! empty( $red_bubble_alerts ) ) {
+			return $red_bubble_alerts;
+		}
+		// go find the alerts
+		$red_bubble_alerts = apply_filters( 'my_jetpack_red_bubble_notification_slugs', $red_bubble_alerts );
+
+		return $red_bubble_alerts;
+	}
+
+	/**
+	 *  Add relevant red bubble notifications
+	 *
+	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
+	 * @return array
+	 */
+	public static function add_red_bubble_alerts( array $red_bubble_slugs ) {
+		$welcome_banner_dismissed = \Jetpack_Options::get_option( 'dismissed_welcome_banner', false );
+		if ( self::is_jetpack_user_new() && ! $welcome_banner_dismissed ) {
+			$red_bubble_slugs['welcome-banner-active'] = null;
+			return $red_bubble_slugs;
+		} else {
+			return self::alert_if_missing_site_connection( $red_bubble_slugs );
+		}
+	}
+
+	/**
+	 * Add an alert slug if the site is missing a site connection
+	 *
+	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
+	 * @return array
+	 */
+	public static function alert_if_missing_site_connection( array $red_bubble_slugs ) {
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
+			$red_bubble_slugs[ self::MISSING_SITE_CONNECTION_NOTIFICATION_KEY ] = null;
+		}
+
+		return $red_bubble_slugs;
 	}
 }

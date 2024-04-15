@@ -3,6 +3,7 @@
  * Tests for the 3rd-party domain mapping plugin integration.
  *
  * @package automattic/jetpack
+ *
  * @phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
 

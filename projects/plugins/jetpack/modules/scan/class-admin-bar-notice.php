@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Scan;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Redirect;
+use WP_Admin_Bar;
 
 /**
  * Class Main

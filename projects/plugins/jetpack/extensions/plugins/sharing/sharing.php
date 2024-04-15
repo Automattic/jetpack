@@ -38,6 +38,10 @@ add_action(
 					'jetpack_sharing_enabled',
 					array(
 						'get_callback' => function ( array $post ) {
+							if ( ! isset( $post['id'] ) ) {
+								return false;
+							}
+
 							return (bool) ! get_post_meta( $post['id'], 'sharing_disabled', true );
 						},
 						'schema'       => array(

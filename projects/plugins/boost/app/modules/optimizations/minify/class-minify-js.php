@@ -2,10 +2,12 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Minify;
 
+use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
+use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Minify\Concatenate_JS;
 
-class Minify_JS implements Pluggable {
+class Minify_JS implements Pluggable, Changes_Page_Output, Optimization {
 
 	public static $default_excludes = array( 'jquery', 'jquery-core', 'underscore', 'backbone' );
 
@@ -23,6 +25,15 @@ class Minify_JS implements Pluggable {
 
 	public static function get_slug() {
 		return 'minify_js';
+	}
+
+	/**
+	 * The module starts serving as soon as it's enabled.
+	 *
+	 * @return bool
+	 */
+	public function is_ready() {
+		return true;
 	}
 
 	public static function is_available() {
