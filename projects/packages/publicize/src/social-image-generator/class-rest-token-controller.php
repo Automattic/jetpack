@@ -51,7 +51,7 @@ class REST_Token_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Check the current user has admin privleges for accessing the endpoints.
+	 * Check the current user permissions for the endpoints.
 	 *
 	 * @return bool|WP_Error True if user can manage options.
 	 */
