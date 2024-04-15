@@ -1,4 +1,4 @@
-import { BlockControls, PlainText } from '@wordpress/block-editor';
+import { BlockControls, PlainText, useBlockProps } from '@wordpress/block-editor';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -12,10 +12,12 @@ import MarkdownRenderer from './renderer';
 const PANEL_EDITOR = 'editor';
 const PANEL_PREVIEW = 'preview';
 
-const MarkdownEdit = ( { attributes, setAttributes, className, isSelected, removeBlock } ) => {
+const MarkdownEdit = ( { attributes, setAttributes, isSelected, removeBlock } ) => {
 	const { source } = attributes;
 	const isEmpty = ! source || source.trim() === '';
 
+	const blockProps = useBlockProps();
+	const { className } = blockProps;
 	const [ activePanel, setActivePanel ] = useState( PANEL_EDITOR );
 	const input = useRef( null );
 
@@ -82,7 +84,7 @@ const MarkdownEdit = ( { attributes, setAttributes, className, isSelected, remov
 		);
 	}
 
-	return content;
+	return <div { ...blockProps }>{ content }</div>;
 };
 
 export default compose( [

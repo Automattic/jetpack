@@ -2,10 +2,6 @@
 	margin-bottom: 0;
 }
 
-.cta {
-	min-width: auto;
-}
-
 .notice {
 	& > div {
 		position: relative;
@@ -74,12 +70,20 @@
 			}
 		}
 	}
+
+	.cta {
+		min-width: auto;
+	}
 }
 
 .message {
     margin-right: var( --spacing-base ); // 8px
 	flex-grow: 1;
 	display: flex;
+
+	& :global(.terms-of-service) {
+		color: var( --jp-gray-70 );
+	}
 
 	// left icon
 	& > svg {

@@ -53,7 +53,9 @@ class Dashboard_Config_Data {
 			'site_name'                => \get_bloginfo( 'name' ),
 			'sections'                 => array(),
 			// Features are inlined in Calypso Blaze app (wp-calypso/apps/blaze-dashboard)
-			'features'                 => array(),
+			'features'                 => array(
+				'is_running_in_jetpack_site' => ! $host->is_wpcom_simple(),
+			),
 			'initial_state'            => array(
 				'currentUser' => array(
 					'id'           => $user['ID'],
@@ -67,7 +69,7 @@ class Dashboard_Config_Data {
 						"$blog_id" => array(
 							'ID'           => $blog_id,
 							'URL'          => site_url(),
-							'jetpack'      => true,
+							'jetpack'      => ! $host->is_wpcom_simple(),
 							'visible'      => true,
 							'capabilities' => $empty_object,
 							'products'     => array(),
@@ -76,6 +78,7 @@ class Dashboard_Config_Data {
 								'admin_url'       => admin_url(),
 								'gmt_offset'      => $this->get_gmt_offset(),
 								'is_wpcom_atomic' => $host->is_woa_site(),
+								'is_wpcom_simple' => $host->is_wpcom_simple(),
 								'jetpack_version' => Constants::get_constant( 'JETPACK__VERSION' ),
 							),
 						),

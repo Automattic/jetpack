@@ -12,7 +12,7 @@ jetpack_vendor/
 .DS_Store
 *.code-workspace
 *.swp
-# Custom environment for docker-compose (used by docker-compose.yml)
+# Custom environment for Docker compose (used by docker-compose.yml)
 /.env
 /tools/docker/compose-extras.yml
 /tools/docker/compose-volumes.yml
@@ -34,7 +34,7 @@ npm-debug.log
 phpcs.xml
 .phpunit.result.cache
 
-## Things for docker-composer
+## Things for Docker compose
 /tools/docker/data/*
 !/tools/docker/data/.gitkeep
 !/tools/docker/data/ssh.keys/

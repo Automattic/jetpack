@@ -1,8 +1,10 @@
-import { InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 
-export default ( { className } ) => {
+export default () => {
+	const blockProps = useBlockProps.save();
+
 	return (
-		<div className={ className }>
+		<div { ...blockProps }>
 			<div className="wp-block-jetpack-repeat-visitor__inner-container">
 				<InnerBlocks.Content />
 			</div>

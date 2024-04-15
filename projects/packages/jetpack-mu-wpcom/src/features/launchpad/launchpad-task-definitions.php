@@ -577,6 +577,9 @@ function wpcom_launchpad_get_task_definitions() {
 						'earn-launchpad'
 					);
 				}
+				if ( wpcom_launchpad_should_use_jetpack_cloud_link() ) {
+					return 'https://cloud.jetpack.com/monetize/payments/' . $data['site_slug_encoded'];
+				}
 				return '/earn/payments/' . $data['site_slug_encoded'];
 			},
 		),
@@ -587,6 +590,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_has_paid_membership_plans',
 			'is_visible_callback'  => '__return_true',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_jetpack_cloud_link() ) {
+					return 'https://cloud.jetpack.com/monetize/payments/' . $data['site_slug_encoded'] . '#add-new-payment-plan';
+				}
 				return '/earn/payments/' . $data['site_slug_encoded'] . '#add-new-payment-plan';
 			},
 		),

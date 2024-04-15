@@ -221,10 +221,6 @@ for PROJECT in projects/*/*; do
 			EXIT=1
 			echo "::error file=$PROJECT/.phan/config.php::Project $SLUG has PHP files but does not contain .phan/config.php. Refer to Static Analysis in docs/monorepo.md."
 		fi
-		if [[ ! -e "$PROJECT/.phan/baseline.php" ]]; then
-			EXIT=1
-			echo "::error file=$PROJECT/.phan/baseline.php::Project $SLUG has PHP files but does not contain .phan/baseline.php. Refer to Static Analysis in docs/monorepo.md."
-		fi
 	fi
 
 	# - composer.json must exist.

@@ -1675,7 +1675,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "eff7840b633f47b7fcaea2069f6f2313944ffd4e"
+				"reference": "b75e18b95f6e0b9f0edeeded684589e49450c92d"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1709,7 +1709,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "4.21.x-dev"
+					"dev-trunk": "4.22.x-dev"
 				},
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-initializer.php"
@@ -2454,7 +2454,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/sync",
-				"reference": "6f1c78637e77424cfaa762850842d08d3f79b4d0"
+				"reference": "9e12c71d3a061cdf252f6279e730247700ecfab9"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2486,7 +2486,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "2.11.x-dev"
+					"dev-trunk": "2.12.x-dev"
 				}
 			},
 			"autoload": {
@@ -2991,12 +2991,12 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/changelogger",
-				"reference": "c542e9c3360ba5cd08a209d972a32a3fa65d87b3"
+				"reference": "d945e0cd8dec218ab24445d5ddc95894c9f24534"
 			},
 			"require": {
 				"php": ">=7.0",
-				"symfony/console": "^3.4 || ^4.4 || ^5.2 || ^6.0",
-				"symfony/process": "^3.4 || ^4.4 || ^5.2 || ^6.0"
+				"symfony/console": "^3.4 || ^4.4 || ^5.2 || ^6.0 || ^7.0",
+				"symfony/process": "^3.4 || ^4.4 || ^5.2 || ^6.0 || ^7.0"
 			},
 			"require-dev": {
 				"wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",

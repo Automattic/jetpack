@@ -129,7 +129,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "6afd8e193ad433131247e6cba33ba6d3d926c055"
+                "reference": "6f45a0b01e673600031623777197022c2cc3aef6"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -152,7 +152,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.23.x-dev"
+                    "dev-trunk": "5.24.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -263,12 +263,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "c542e9c3360ba5cd08a209d972a32a3fa65d87b3"
+                "reference": "d945e0cd8dec218ab24445d5ddc95894c9f24534"
             },
             "require": {
                 "php": ">=7.0",
-                "symfony/console": "^3.4 || ^4.4 || ^5.2 || ^6.0",
-                "symfony/process": "^3.4 || ^4.4 || ^5.2 || ^6.0"
+                "symfony/console": "^3.4 || ^4.4 || ^5.2 || ^6.0 || ^7.0",
+                "symfony/process": "^3.4 || ^4.4 || ^5.2 || ^6.0 || ^7.0"
             },
             "require-dev": {
                 "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",

@@ -32,6 +32,9 @@
 - Update blocks to use API version 3. [#36701] [#36742]
 - Updated package dependencies. [#36760] [#36761] [#36775] [#36788]
 
+## 13.3.1 - 2024-04-10
+- Protect: Improved handling of request URLs. [#36833]
+
 ## [13.3] - 2024-04-03
 ### Enhancements
 - AI Assistant: Provide per-block quick actions to make them more relevant. [#36393]
