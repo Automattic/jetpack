@@ -343,24 +343,23 @@ class Scheduled_Updates {
 		$reasons_can_not_autoupdate   = array();
 		$reasons_can_not_modify_files = array();
 
-		$has_file_system_write_access = self::file_system_write_access();
+		$has_file_system_write_access = Sync\Functions::file_system_write_access();
 		if ( ! $has_file_system_write_access ) {
 			$reasons_can_not_modify_files['has_no_file_system_write_access'] = __( 'The file permissions on this host prevent editing files.', 'jetpack-scheduled-updates' );
 		}
 
-		$disallow_file_mods = \Automattic\Jetpack\Constants::get_constant( 'DISALLOW_FILE_MODS' );
+		$disallow_file_mods = Constants::get_constant( 'DISALLOW_FILE_MODS' );
 		if ( $disallow_file_mods ) {
 			$reasons_can_not_modify_files['disallow_file_mods'] = __( 'File modifications are explicitly disabled by a site administrator.', 'jetpack-scheduled-updates' );
 		}
 
-		$automatic_updater_disabled = \Automattic\Jetpack\Constants::get_constant( 'AUTOMATIC_UPDATER_DISABLED' );
+		$automatic_updater_disabled = Constants::get_constant( 'AUTOMATIC_UPDATER_DISABLED' );
 		if ( $automatic_updater_disabled ) {
 			$reasons_can_not_autoupdate['automatic_updater_disabled'] = __( 'Any autoupdates are explicitly disabled by a site administrator.', 'jetpack-scheduled-updates' );
 		}
 
 		if ( is_multisite() ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod
-			if ( class_exists( 'Jetpack' ) && \Jetpack::is_multi_network() ) {
+			if ( ( new Status() )->is_multi_network() ) {
 				$reasons_can_not_modify_files['is_multi_network'] = __( 'Multi network install are not supported.', 'jetpack-scheduled-updates' );
 			}
 			// Is the site the main site here.
@@ -469,20 +468,5 @@ class Scheduled_Updates {
 	 */
 	public static function generate_schedule_id( $args ) {
 		return md5( serialize( $args ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
-	}
-
-	/**
-	 * Returns if the file system is writeable.
-	 * Used mostly for mocking during tests.
-	 *
-	 * @see Automattic\Jetpack\Sync\Functions::file_system_write_access
-	 */
-	private static function file_system_write_access() {
-		if ( class_exists( 'Automattic\Jetpack\Sync\Functions' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod
-			return Automattic\Jetpack\Sync\Functions::file_system_write_access();
-		}
-
-		return false;
 	}
 }
