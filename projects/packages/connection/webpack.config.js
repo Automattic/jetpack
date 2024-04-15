@@ -2,11 +2,16 @@ const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const glob = require( 'glob' );
 
-const ssoCssEntries = {};
-// Add all CSS files in the src/sso directory.
+const ssoEntries = {};
+// Add all js files in the src/sso directory.
+for ( const file of glob.sync( './src/sso/*.js' ) ) {
+	const name = path.basename( file, path.extname( file ) );
+	ssoEntries[ name ] = file;
+}
+// Add all css files as well.
 for ( const file of glob.sync( './src/sso/*.css' ) ) {
 	const name = path.basename( file, path.extname( file ) );
-	ssoCssEntries[ name ] = file;
+	ssoEntries[ name ] = file;
 }
 
 module.exports = [
@@ -20,8 +25,7 @@ module.exports = [
 					type: 'window',
 				},
 			},
-			// Add all ssoCssEntries.
-			...ssoCssEntries,
+			...ssoEntries,
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,

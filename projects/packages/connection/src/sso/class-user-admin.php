@@ -76,7 +76,7 @@ class User_Admin {
 	public function jetpack_new_users_styles() {
 		Assets::register_script(
 			'jetpack-sso-admin-create-user',
-			'jetpack-sso-admin-create-user.js',
+			'../../dist/jetpack-sso-admin-create-user.js',
 			__FILE__,
 			array(
 				'strategy'  => 'defer',
@@ -963,12 +963,16 @@ class User_Admin {
 	 * @return array
 	 */
 	public function jetpack_user_connected_th( $columns ) {
-		wp_enqueue_script(
+		Assets::register_script(
 			'jetpack-sso-users',
-			'../../build/jetpack-sso-users.js',
-			array(),
-			Package_Version::PACKAGE_VERSION,
-			false
+			'../../dist/jetpack-sso-users.js',
+			__FILE__,
+			array(
+				'strategy'  => 'defer',
+				'in_footer' => true,
+				'enqueue'   => true,
+				'version'   => Package_Version::PACKAGE_VERSION,
+			)
 		);
 
 		$columns['user_jetpack'] = sprintf(

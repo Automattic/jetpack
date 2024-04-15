@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\SSO\Force_2FA;
 use Automattic\Jetpack\Connection\SSO\Helpers;
 use Automattic\Jetpack\Connection\SSO\Notices;
@@ -224,28 +225,14 @@ class SSO {
 			return;
 		}
 
-		if ( is_rtl() ) {
-			wp_enqueue_style(
-				'jetpack-sso-login',
-				'../../build/jetpack-sso-login.rtl.css',
-				array( 'login', 'genericons' ),
-				Package_Version::PACKAGE_VERSION
-			);
-		} else {
-			wp_enqueue_style(
-				'jetpack-sso-login',
-				'../../build/jetpack-sso-login.css',
-				array( 'login', 'genericons' ),
-				Package_Version::PACKAGE_VERSION
-			);
-		}
-
-		wp_enqueue_script(
+		Assets::register_script(
 			'jetpack-sso-login',
-			'../../build/jetpack-sso-login.js',
-			array(),
-			Package_Version::PACKAGE_VERSION,
-			false
+			'../../dist/jetpack-sso-login.js',
+			__FILE__,
+			array(
+				'enqueue' => true,
+				'version' => Package_Version::PACKAGE_VERSION,
+			)
 		);
 	}
 
