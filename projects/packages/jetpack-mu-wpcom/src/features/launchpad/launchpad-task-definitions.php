@@ -739,7 +739,7 @@ function wpcom_launchpad_get_task_definitions() {
 
 /**
  * Returns true if the current site is launched.
- * 
+ *
  * @param array $task The task object.
  * @param bool  $is_complete The current task status.
  *
@@ -749,11 +749,11 @@ function wpcom_launchpad_is_site_launched( $task, $is_complete ) {
 	if ( $is_complete ) {
 		return true;
 	}
-	
+
 	$launch_status = get_blog_option( get_current_blog_id(), 'launch-status' );
 
-	if( 'launched' === $launch_status ) {
-		wpcom_mark_launchpad_task_complete( 'site_launched' );	
+	if ( 'launched' === $launch_status ) {
+		wpcom_mark_launchpad_task_complete( 'site_launched' );
 		return true;
 	} else {
 		return false;
