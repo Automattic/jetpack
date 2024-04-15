@@ -940,6 +940,7 @@ function wpcom_launchpad_init_listeners( $task_definitions ) {
  * @return void
  */
 function wpcom_launchpad_init_task_definitions() {
+	switch_to_locale( get_user_locale() );
 	$task_definitions = wpcom_launchpad_get_task_definitions();
 
 	wpcom_launchpad_init_listeners( $task_definitions );
