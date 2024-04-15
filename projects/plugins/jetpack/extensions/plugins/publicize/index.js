@@ -45,9 +45,12 @@ const PublicizeSettings = () => {
 		);
 	} else {
 		children = (
-			<PublicizePanel>
-				<UpsellNotice />
-			</PublicizePanel>
+			<>
+				<PublicizePanel>
+					<UpsellNotice />
+				</PublicizePanel>
+				{ isSocialImageGeneratorAvailable && <SocialImageGeneratorPanel /> }
+			</>
 		);
 		panels = (
 			<>
@@ -59,10 +62,7 @@ const PublicizeSettings = () => {
 
 	return (
 		<PostTypeSupportCheck supportKeys="publicize">
-			<JetpackPluginSidebar>
-				{ children }
-				{ isSocialImageGeneratorAvailable && <SocialImageGeneratorPanel /> }
-			</JetpackPluginSidebar>
+			<JetpackPluginSidebar>{ children }</JetpackPluginSidebar>
 			{ panels }
 		</PostTypeSupportCheck>
 	);
