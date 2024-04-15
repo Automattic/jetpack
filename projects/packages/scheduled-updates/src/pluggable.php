@@ -12,8 +12,6 @@ if ( ! function_exists( 'wp_get_scheduled_events' ) ) {
 	 * Retrieves all the events that have been scheduled for the hook provided.
 	 * This should really be in Core, and until it is, we'll define it here in a forward-compatible way.
 	 *
-	 * @suppress PhanTypeArraySuspiciousNullable
-	 *
 	 * @param string $hook Action hook of the event.
 	 * @return object[]|array {
 	 *     Array of event objects. Empty array if no events exist for the hook.
@@ -54,6 +52,9 @@ if ( ! function_exists( 'wp_get_scheduled_events' ) ) {
 			if ( isset( $cron[ $hook ] ) ) {
 				$key             = key( $cron[ $hook ] );
 				$scheduled_event = array_pop( $cron[ $hook ] );
+				if ( null === $scheduled_event ) {
+					continue;
+				}
 
 				$event = (object) array(
 					'hook'      => $hook,
