@@ -110,6 +110,7 @@ class Sharing_Service {
 			'mastodon'         => 'Share_Mastodon',
 			'nextdoor'         => 'Share_Nextdoor',
 			'x'                => 'Share_X',
+			'bluesky'          => 'Share_Bluesky',
 			// deprecated.
 			'skype'            => 'Share_Skype',
 		);
@@ -500,7 +501,7 @@ class Sharing_Service {
 			}
 		}
 
-		if ( false === $this->global['sharing_label'] ) {
+		if ( false === $this->global['sharing_label'] || $this->global['sharing_label'] === 'Share this:' ) {
 			$this->global['sharing_label'] = $this->default_sharing_label;
 		}
 

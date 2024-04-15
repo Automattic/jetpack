@@ -59,7 +59,7 @@ function AiPostExcerpt() {
 
 	const { editPost } = useDispatch( 'core/editor' );
 
-	const { dequeueAiAssistantFeatureAyncRequest, increaseAiAssistantRequestsCount } =
+	const { dequeueAiAssistantFeatureAsyncRequest, increaseAiAssistantRequestsCount } =
 		useDispatch( 'wordpress-com/plans' );
 
 	// Post excerpt words number
@@ -179,7 +179,7 @@ ${ postContent }
 		 * in case there is one pending,
 		 * when performing a new AI suggestion request.
 		 */
-		dequeueAiAssistantFeatureAyncRequest();
+		dequeueAiAssistantFeatureAsyncRequest();
 
 		request( prompt, { feature: 'jetpack-ai-content-lens', model } );
 		tracks.recordEvent( 'jetpack_ai_assistant_block_generate', {

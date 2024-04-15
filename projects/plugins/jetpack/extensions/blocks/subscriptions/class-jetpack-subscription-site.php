@@ -38,24 +38,7 @@ class Jetpack_Subscription_Site {
 	 * @return void
 	 */
 	public function handle_subscribe_block_placements() {
-		if ( ! $this->is_subscription_site_feature_enabled() ) {
-			return;
-		}
-
 		$this->handle_subscribe_block_post_end_placement();
-	}
-
-	/**
-	 * Returns true if Subscription Site feature is enabled.
-	 *
-	 * @return bool
-	 */
-	protected function is_subscription_site_feature_enabled() {
-		// It's temporary. Allows to enable the Subscription Site feature.
-		$subscription_site_enabled = (bool) apply_filters( 'jetpack_subscription_site_enabled', false );
-
-		global $wp_version;
-		return $subscription_site_enabled && version_compare( $wp_version, '6.5-beta2', '>=' );
 	}
 
 	/**
@@ -111,12 +94,14 @@ class Jetpack_Subscription_Site {
 	 * @return void
 	 */
 	protected function handle_subscribe_block_post_end_placement() {
+		global $wp_version;
+
 		$subscribe_post_end_enabled = get_option( 'jetpack_subscriptions_subscribe_post_end_enabled', false );
 		if ( ! $subscribe_post_end_enabled ) {
 			return;
 		}
 
-		if ( ! wp_is_block_theme() ) { // Fallback for classic themes.
+		if ( ! wp_is_block_theme() || version_compare( $wp_version, '6.5-beta2', '<' ) ) { // Fallback for classic themes and wp core < 6.5-beta2.
 			add_filter(
 				'the_content',
 				function ( $content ) {
@@ -131,15 +116,16 @@ class Jetpack_Subscription_Site {
 						$discover_more_from_text = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
 						$subscribe_text          = __( 'Subscribe to get the latest posts to your email.', 'jetpack' );
 
-						return $content . <<<HTML
+						return $content . do_blocks(
+							<<<HTML
 <!-- wp:group {"style":{"spacing":{"padding":{"top":"0px","bottom":"0px","left":"0px","right":"0px"},"margin":{"top":"32px","bottom":"32px"}},"border":{"width":"0px","style":"none"}},"className":"has-border-color","layout":{"type":"default"}} -->
 <div class="wp-block-group has-border-color" style="border-style:none;border-width:0px;margin-top:32px;margin-bottom:32px;padding-top:0px;padding-right:0px;padding-bottom:0px;padding-left:0px">
 	<!-- wp:separator {"style":{"spacing":{"margin":{"bottom":"24px"}}},"className":"is-style-wide"} -->
 	<hr class="wp-block-separator has-alpha-channel-opacity is-style-wide" style="margin-bottom:24px"/>
 	<!-- /wp:separator -->
 
-	<!-- wp:heading {"textAlign":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"26px"},"layout":{"selfStretch":"fit","flexSize":null},"spacing":{"margin":{"top":"4px","bottom":"10px"}}}} -->
-	<h2 class="wp-block-heading has-text-align-center" style="margin-top:4px;margin-bottom:10px;font-size:26px;font-style:normal;font-weight:600">$discover_more_from_text</h2>
+	<!-- wp:heading {"textAlign":"center","level":3,"style":{"layout":{"selfStretch":"fit","flexSize":null},"spacing":{"margin":{"top":"4px","bottom":"10px"}}}} -->
+	<h3 class="wp-block-heading has-text-align-center" style="margin-top:4px;margin-bottom:10px">$discover_more_from_text</h3>
 	<!-- /wp:heading -->
 
 	<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"15px"},"spacing":{"margin":{"top":"10px","bottom":"10px"}}}} -->
@@ -153,12 +139,13 @@ class Jetpack_Subscription_Site {
 	<!-- /wp:group -->
 </div>
 <!-- /wp:group -->
-HTML;
+HTML
+						);
 					}
 
 					return $content;
 				},
-				8, // TODO use 10 and do_blocks instead?
+				100, // To insert it after the sharing blocks.
 				1
 			);
 
@@ -214,8 +201,8 @@ HTML;
 	<hr class="wp-block-separator has-alpha-channel-opacity is-style-wide" style="margin-bottom:36px"/>
 	<!-- /wp:separator -->
 
-	<!-- wp:heading {"textAlign":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"26px"},"layout":{"selfStretch":"fit","flexSize":null},"spacing":{"margin":{"top":"4px","bottom":"10px"}}}} -->
-	<h2 class="wp-block-heading has-text-align-center" style="margin-top:4px;margin-bottom:10px;font-size:26px;font-style:normal;font-weight:600">$discover_more_from_text</h2>
+	<!-- wp:heading {"textAlign":"center","level":3,"style":{"layout":{"selfStretch":"fit","flexSize":null},"spacing":{"margin":{"top":"4px","bottom":"10px"}}}} -->
+	<h3 class="wp-block-heading has-text-align-center" style="margin-top:4px;margin-bottom:10px">$discover_more_from_text</h3>
 	<!-- /wp:heading -->
 
 	<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"15px"},"spacing":{"margin":{"top":"4px","bottom":"0px"}}}} -->

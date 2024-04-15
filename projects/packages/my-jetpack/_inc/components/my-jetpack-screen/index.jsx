@@ -7,16 +7,16 @@ import {
 	AdminPage,
 	Container,
 	Col,
+	Notice,
 	Text,
 	ZendeskChat,
 	useBreakpointMatch,
+	ActionButton,
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
-import { Icon, Notice, Path, SVG } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { info } from '@wordpress/icons';
 import classnames from 'classnames';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useLayoutEffect, useState } from 'react';
 /*
  * Internal dependencies
  */
@@ -30,8 +30,9 @@ import {
 import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
-import useConnectionWatcher from '../../hooks/use-connection-watcher';
+import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import ConnectionsSection from '../connections-section';
 import IDCModal from '../idc-modal';
 import JetpackManageBanner from '../jetpack-manage-banner';
@@ -42,48 +43,23 @@ import StatsSection from '../stats-section';
 import WelcomeBanner from '../welcome-banner';
 import styles from './styles.module.scss';
 
-const GlobalNotice = ( { message, options } ) => {
+const GlobalNotice = ( { message, title, options } ) => {
 	const [ isBiggerThanMedium ] = useBreakpointMatch( [ 'md' ], [ '>' ] );
 
-	/*
-	 * Map Notice statuses with Icons.
-	 * `success`, `info`, `warning`, `error`
-	 */
-	const iconMap = {
-		error: (
-			<SVG
-				className={ styles.nofill }
-				width="24"
-				height="24"
-				viewBox="0 0 24 24"
-				fill="none"
-				xmlns="http://www.w3.org/2000/svg"
-			>
-				<Path
-					d="M11.7815 4.93772C11.8767 4.76626 12.1233 4.76626 12.2185 4.93772L20.519 19.8786C20.6116 20.0452 20.4911 20.25 20.3005 20.25H3.69951C3.50889 20.25 3.3884 20.0452 3.48098 19.8786L11.7815 4.93772Z"
-					stroke="#D63638"
-					strokeWidth="1.5"
-				/>
-				<Path d="M13 10H11V15H13V10Z" fill="#D63638" />
-				<Path d="M13 16H11V18H13V16Z" fill="#D63638" />
-			</SVG>
-		),
-		info,
-	};
+	const actionButtons = options.actions?.map( action => {
+		return <ActionButton customClass={ styles.cta } { ...action } />;
+	} );
 
 	return (
-		<Notice
-			isDismissible={ false }
-			{ ...options }
-			className={
-				styles.notice + ( isBiggerThanMedium ? ' ' + styles[ 'bigger-than-medium' ] : '' )
-			}
+		<div
+			className={ classnames( styles.notice, {
+				[ styles[ 'bigger-than-medium' ] ]: isBiggerThanMedium,
+			} ) }
 		>
-			<div className={ styles.message }>
-				{ iconMap?.[ options.status ] && <Icon icon={ iconMap[ options.status ] } /> }
-				{ message }
-			</div>
-		</Notice>
+			<Notice hideCloseButton={ true } { ...options } title={ title } actions={ actionButtons }>
+				<div className={ styles.message }>{ message }</div>
+			</Notice>
+		</div>
 	);
 };
 
@@ -93,13 +69,18 @@ const GlobalNotice = ( { message, options } ) => {
  * @returns {object} The MyJetpackScreen component.
  */
 export default function MyJetpackScreen() {
-	useConnectionWatcher();
-	const { hasBeenDismissed = false } = getMyJetpackWindowInitialState( 'welcomeBanner' );
+	useNotificationWatcher();
+	const { redBubbleAlerts } = getMyJetpackWindowInitialState();
 	const { showFullJetpackStatsCard = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	const { jetpackManage = {}, adminUrl } = getMyJetpackWindowInitialState();
 
+	const { isWelcomeBannerVisible } = useWelcomeBanner();
 	const { currentNotice } = useContext( NoticeContext );
-	const { message, options } = currentNotice || {};
+	const {
+		message: noticeMessage,
+		title: noticeTitle,
+		options: noticeOptions,
+	} = currentNotice || {};
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const { data: availabilityData, isLoading: isChatAvailabilityLoading } = useSimpleQuery( {
 		name: QUERY_CHAT_AVAILABILITY_KEY,
@@ -121,9 +102,13 @@ export default function MyJetpackScreen() {
 	const { recordEvent } = useAnalytics();
 	const [ reloading, setReloading ] = useState( false );
 
-	useEffect( () => {
-		recordEvent( 'jetpack_myjetpack_page_view' );
-	}, [ recordEvent ] );
+	// useLayoutEffect gets called before useEffect.
+	// We are using it here to ensure the `page_view` event gets triggered first.
+	useLayoutEffect( () => {
+		recordEvent( 'jetpack_myjetpack_page_view', {
+			red_bubble_alerts: Object.keys( redBubbleAlerts ).join( ',' ),
+		} );
+	}, [ recordEvent, redBubbleAlerts ] );
 
 	if ( window.location.hash.includes( '?reload=true' ) ) {
 		// Clears the query string and reloads the page.
@@ -149,19 +134,27 @@ export default function MyJetpackScreen() {
 					</Container>
 				) }
 				<WelcomeBanner />
-				<Container horizontalSpacing={ 5 } horizontalGap={ message ? 3 : 6 }>
+				<Container horizontalSpacing={ 5 } horizontalGap={ noticeMessage ? 3 : 6 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>
 						<Text variant="headline-small">
 							{ __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' ) }
 						</Text>
 					</Col>
-					{ hasConnectionError && ( hasBeenDismissed || ! isNewUser ) && (
+					{ hasConnectionError && ! isWelcomeBannerVisible && (
 						<Col>
 							<ConnectionError />
 						</Col>
 					) }
-					{ message && ( hasBeenDismissed || ! isNewUser ) && (
-						<Col>{ <GlobalNotice message={ message } options={ options } /> }</Col>
+					{ noticeMessage && ! isWelcomeBannerVisible && (
+						<Col>
+							{
+								<GlobalNotice
+									message={ noticeMessage }
+									title={ noticeTitle }
+									options={ noticeOptions }
+								/>
+							}
+						</Col>
 					) }
 					{ showFullJetpackStatsCard && (
 						<Col

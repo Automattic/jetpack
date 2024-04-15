@@ -1,5 +1,4 @@
 {
-	"name": "super-cache-e2e-tests",
 	"private": true,
 	"type": "module",
 	"description": "E2E test suite for Super Cache",
@@ -24,7 +23,7 @@
 	},
 	"devDependencies": {
 		"@jest/globals": "^29.0.0",
-		"axios": "1.6.2",
+		"axios": "1.6.8",
 		"cheerio": "1.0.0-rc.12",
 		"dotenv": "16.0.2",
 		"jest": "^29.0.0",

@@ -460,6 +460,7 @@ class Brute_Force_Protection_Blocked_Login_Page {
 	 * @param string $message - the message we're sending.
 	 * @param string $back_button - the back button.
 	 * @param string $recovery_form - the recovery form.
+	 * @return never
 	 */
 	public function display_page( $title, $message, $back_button = false, $recovery_form = false ) {
 

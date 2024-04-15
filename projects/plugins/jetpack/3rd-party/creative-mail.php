@@ -34,6 +34,8 @@ if ( ! empty( $_GET['creative-mail-install-error'] ) ) { // phpcs:ignore WordPre
  * Verify the intent to install Creative Mail, and kick off installation.
  *
  * This works in tandem with a JITM set up in the JITM package.
+ *
+ * @return never
  */
 function try_install() {
 	check_admin_referer( 'creative-mail-install' );

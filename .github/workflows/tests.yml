@@ -303,3 +303,61 @@ jobs:
 
           echo "Running tools/check-plugin-monorepo-deps.sh ${ARGS[@]}"
           tools/check-plugin-monorepo-deps.sh "${ARGS[@]}"
+
+  # Probably this should be a linting test too, but we don't run linting on trunk or release branches.
+  phan:
+    name: Static analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 15  # 2024-03-05: Takes about 5 minutes.
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+      - name: Pnpm install
+        run: pnpm install
+      - name: Run phan
+        run: pnpm jetpack phan --all -v --update-baseline --format github
+      - name: Run phan for previous WP version too
+        env:
+          # Don't bother complaining about unused suppressions that may be used with the newer stubs. See .phan/config.base.php for how this gets applied.
+          NO_PHAN_UNUSED_SUPPRESSION: 1
+        run: |
+          composer update --prefer-lowest php-stubs/wordpress-stubs php-stubs/wordpress-tests-stubs
+          # Don't re-update baselines here, only check.
+          pnpm jetpack phan --all -v --format github
+      - name: Check baselines
+        run: |
+          # Anything changed (with a side of printing the diff)
+          if git diff --exit-code --ignore-matching-lines='^    // ' -- .phan/baseline.php '*/.phan/baseline.php'; then
+            exit 0
+          fi
+
+          # Collect which projects changed to suggest the right command.
+          PROJECTS=()
+          for f in $( git -c core.quotepath=off diff --name-only -- .phan/baseline.php '*/.phan/baseline.php' ); do
+            if [[ "$f" == ".phan/baseline.php" ]]; then
+              SLUG=monorepo
+            elif [[ "$f" == projects/*/*/.phan/baseline.php ]]; then
+              SLUG=${f%/.phan/baseline.php}
+              SLUG=${SLUG#projects/}
+            elif SLUG=$( grep -v '^[ \t]*\/\/' .phan/monorepo-pseudo-projects.jsonc | jq -re --arg f "${f%.phan/baseline.php}" 'to_entries[] | select( .value == $f ) | .key' ); then
+              : # Ok
+            else
+              SLUG=
+            fi
+            if grep -q 'This baseline has no suppressions' "$f"; then
+              if [[ -n "$SLUG" ]]; then
+                echo "::error file=$f::This Phan baseline is now empty (good job!). You may remove it, or if you want to keep it (e.g. if you expect new unfixed issues to be added in the future) you can run \`jetpack phan --update-baseline $SLUG\` to update it."
+              else
+                echo "::error file=$f::This Phan baseline is now empty (good job!). You may remove it."
+              fi
+            elif [[ -n "$SLUG" ]]; then
+              PROJECTS+=( "$SLUG" )
+            else
+              echo "::error file=$f::This Phan baseline has changed and should be updated. This Action was unable to determine the command needed to update it; please report this to the Garage team."
+            fi
+          done
+          if [[ ${#PROJECTS[@]} -gt 0 ]]; then
+            echo "::error::Phan baselines have changed (good job!). Run \`jetpack phan --update-baseline ${PROJECTS[*]}\` to update them."
+          fi
+          exit 1

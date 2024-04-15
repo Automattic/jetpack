@@ -27,10 +27,12 @@ import {
 	VideoPressInterstitial,
 	StatsInterstitial,
 } from './components/product-interstitial';
+import JetpackAiProductPage from './components/product-interstitial/jetpack-ai/product-page';
 import RedeemTokenScreen from './components/redeem-token-screen';
+import { MyJetpackRoutes } from './constants';
 import NoticeContextProvider from './context/notices/noticeContext';
-import './style.module.scss';
 import { getMyJetpackWindowInitialState } from './data/utils/get-my-jetpack-window-state';
+import './style.module.scss';
 
 /**
  * Component to scroll window to top on route change.
@@ -55,27 +57,35 @@ const MyJetpack = () => {
 					<HashRouter>
 						<ScrollToTop />
 						<Routes>
-							<Route path="/" element={ <MyJetpackScreen /> } />
-							<Route path="/connection" element={ <ConnectionScreen /> } />
-							<Route path="/add-akismet" element={ <AntiSpamInterstitial /> } />
+							<Route path={ MyJetpackRoutes.Home } element={ <MyJetpackScreen /> } />
+							<Route path={ MyJetpackRoutes.Connection } element={ <ConnectionScreen /> } />
+							<Route path={ MyJetpackRoutes.AddAkismet } element={ <AntiSpamInterstitial /> } />
 							{ /* Redirect the old route for Anti Spam */ }
-							<Route path="/add-anti-spam" element={ <Navigate replace to="/add-akismet" /> } />
-							<Route path="/add-backup" element={ <BackupInterstitial /> } />
-							<Route path="/add-boost" element={ <BoostInterstitial /> } />
-							<Route path="/add-crm" element={ <CRMInterstitial /> } />
-							<Route path="/add-creator" element={ <CreatorInterstitial /> } />
-							<Route path="/add-jetpack-ai" element={ <JetpackAiInterstitial /> } />
-							<Route path="/add-extras" element={ <ExtrasInterstitial /> } />
-							<Route path="/add-protect" element={ <ProtectInterstitial /> } />
-							<Route path="/add-scan" element={ <ScanInterstitial /> } />
-							<Route path="/add-social" element={ <SocialInterstitial /> } />
-							<Route path="/add-search" element={ <SearchInterstitial /> } />
-							<Route path="/add-videopress" element={ <VideoPressInterstitial /> } />
-							<Route path="/add-stats" element={ <StatsInterstitial /> } />
+							<Route
+								path={ MyJetpackRoutes.AddAntiSpam }
+								element={ <Navigate replace to={ MyJetpackRoutes.AddAkismet } /> }
+							/>
+							<Route path={ MyJetpackRoutes.AddBackup } element={ <BackupInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddBoost } element={ <BoostInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddCRM } element={ <CRMInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddCreator } element={ <CreatorInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddJetpackAI } element={ <JetpackAiInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddExtras } element={ <ExtrasInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddProtect } element={ <ProtectInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddScan } element={ <ScanInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddSocial } element={ <SocialInterstitial /> } />
+							<Route path={ MyJetpackRoutes.AddSearch } element={ <SearchInterstitial /> } />
+							<Route
+								path={ MyJetpackRoutes.AddVideoPress }
+								element={ <VideoPressInterstitial /> }
+							/>
+							<Route path={ MyJetpackRoutes.AddStats } element={ <StatsInterstitial /> } />
 							{ loadAddLicenseScreen && (
-								<Route path="/add-license" element={ <AddLicenseScreen /> } />
+								<Route path={ MyJetpackRoutes.AddLicense } element={ <AddLicenseScreen /> } />
 							) }
+							<Route path={ MyJetpackRoutes.RedeemToken } element={ <RedeemTokenScreen /> } />
 							<Route path="/redeem-token" element={ <RedeemTokenScreen /> } />
+							<Route path="/jetpack-ai" element={ <JetpackAiProductPage /> } />
 						</Routes>
 					</HashRouter>
 				</QueryClientProvider>

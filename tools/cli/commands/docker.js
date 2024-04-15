@@ -5,6 +5,11 @@ import * as envfile from 'envfile';
 import { dockerFolder, setConfig } from '../helpers/docker-config.js';
 
 /**
+ * How to run Docker compose.
+ */
+let dockerComposeCmd = null;
+
+/**
  * Sets default options that are common for most of the commands
  *
  * @param {object} yargs - Yargs
@@ -154,16 +159,28 @@ const checkProcessResult = res => {
 };
 
 /**
- * Executor for `docker-compose` commands
+ * Executor for `docker compose` commands
  *
  * @param {object} argv - Yargs
  * @param {Array} opts - Array of arguments
  * @param {object} envOpts - key-value pairs of the ENV variables to set
  */
 const composeExecutor = ( argv, opts, envOpts ) => {
-	const res = executor( argv, () =>
-		shellExecutor( argv, 'docker-compose', opts, { env: envOpts } )
-	);
+	if ( dockerComposeCmd === null ) {
+		if ( argv.v ) {
+			console.log( chalk.green( 'Checking how to run Docker compose' ) );
+		}
+		if ( spawnSync( 'docker', [ 'compose', 'version' ], { stdio: 'ignore' } ).status === 0 ) {
+			dockerComposeCmd = [ 'docker', 'compose' ];
+		} else if ( spawnSync( 'docker-compose', [ '--version' ], { stdio: 'ignore' } ).status === 0 ) {
+			dockerComposeCmd = [ 'docker-compose' ];
+		} else {
+			console.error( chalk.red( `Neither 'docker compose' nor 'docker-compose' is available.` ) );
+			process.exit( 1 );
+		}
+	}
+	const [ cmd, ...args ] = dockerComposeCmd.concat( opts );
+	const res = executor( argv, () => shellExecutor( argv, cmd, args, { env: envOpts } ) );
 	checkProcessResult( res );
 };
 
@@ -501,7 +518,7 @@ const execJtCmdHandler = argv => {
 		const dockerPs = spawnSync(
 			'docker',
 			[
-				"ps --filter 'name=jetpack_dev_wordpress' --filter 'status=running' --format='{{.ID}} {{.Names}}'",
+				"ps --filter 'name=jetpack_dev[_-]wordpress' --filter 'status=running' --format='{{.ID}} {{.Names}}'",
 			],
 			{
 				encoding: 'utf8',

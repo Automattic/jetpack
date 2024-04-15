@@ -62,22 +62,6 @@ function jetpack_boost_page_optimize_deactivate() {
 }
 
 /**
- * Plugin uninstall hook - cleanup options.
- */
-function jetpack_boost_page_optimize_uninstall() {
-	// Run cleanup on uninstall. You can uninstall an active plugin w/o deactivation.
-	jetpack_boost_page_optimize_deactivate();
-
-	// JS
-	delete_option( 'page_optimize-js' );
-	delete_option( 'page_optimize-load-mode' );
-	delete_option( 'page_optimize-js-exclude' );
-	// CSS
-	delete_option( 'page_optimize-css' );
-	delete_option( 'page_optimize-css-exclude' );
-}
-
-/**
  * Convert enqueued home-relative URLs to absolute ones.
  *
  * Enqueued script URLs which start with / are relative to WordPress' home URL.
@@ -296,7 +280,7 @@ function jetpack_boost_minify_serve_concatenated() {
 		if ( $prefix === substr( $request_path, -strlen( $prefix ), strlen( $prefix ) ) ) {
 			require_once __DIR__ . '/functions-service.php';
 			jetpack_boost_page_optimize_service_request();
-			exit;
+			exit; // @phan-suppress-current-line PhanPluginUnreachableCode -- Safer to include it even though jetpack_boost_page_optimize_service_request() itself never returns.
 		}
 	}
 }
@@ -314,10 +298,6 @@ function jetpack_boost_minify_setup() {
 		return;
 	}
 	$setup_done = true;
-
-	// Hook up deactivation and uninstall cleanup paths.
-	register_deactivation_hook( JETPACK_BOOST_PATH, 'jetpack_boost_page_optimize_deactivate' );
-	register_uninstall_hook( JETPACK_BOOST_PATH, 'jetpack_boost_page_optimize_uninstall' );
 
 	// Schedule cache cleanup.
 	add_action( 'jetpack_boost_minify_cron_cache_cleanup', 'jetpack_boost_page_optimize_cache_cleanup' );

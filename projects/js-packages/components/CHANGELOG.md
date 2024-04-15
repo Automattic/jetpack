@@ -2,6 +2,36 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.52.0] - 2024-04-11
+### Added
+- Added connected card to the A4A plugin. [#36747]
+- Jetpack Components: add a new prop for custom classes for the ActionButton component [#36771]
+
+## [0.51.0] - 2024-04-08
+### Added
+- Added AutomatticIconLogo and AutomatticForAgenciesLogo components. [#36664]
+
+### Changed
+- Jetpack Components: only display div that contains title if a title is passed. [#36711]
+- Updated package dependencies. [#36756, #36760, #36761]
+
+## [0.50.5] - 2024-03-29
+### Changed
+- Internal updates.
+
+## [0.50.4] - 2024-03-27
+### Changed
+- Updated package dependencies. [#36539, #36585]
+
+## [0.50.3] - 2024-03-25
+### Added
+- Annotations: Make it possible to interact with them [#36453]
+- Create RadioControl component [#36532]
+
+## [0.50.2] - 2024-03-14
+### Added
+- Add Bluesky color [#36181]
+
 ## [0.50.1] - 2024-03-12
 ### Added
 - Social Logos: add new SMS icon. [#36176]
@@ -978,6 +1008,12 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.52.0]: https://github.com/Automattic/jetpack-components/compare/0.51.0...0.52.0
+[0.51.0]: https://github.com/Automattic/jetpack-components/compare/0.50.5...0.51.0
+[0.50.5]: https://github.com/Automattic/jetpack-components/compare/0.50.4...0.50.5
+[0.50.4]: https://github.com/Automattic/jetpack-components/compare/0.50.3...0.50.4
+[0.50.3]: https://github.com/Automattic/jetpack-components/compare/0.50.2...0.50.3
+[0.50.2]: https://github.com/Automattic/jetpack-components/compare/0.50.1...0.50.2
 [0.50.1]: https://github.com/Automattic/jetpack-components/compare/0.50.0...0.50.1
 [0.50.0]: https://github.com/Automattic/jetpack-components/compare/0.49.2...0.50.0
 [0.49.2]: https://github.com/Automattic/jetpack-components/compare/0.49.1...0.49.2

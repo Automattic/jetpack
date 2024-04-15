@@ -6,7 +6,7 @@ import { execa } from 'execa';
 import Listr from 'listr';
 import UpdateRenderer from 'listr-update-renderer';
 import VerboseRenderer from 'listr-verbose-renderer';
-import { getInstallArgs, projectDir } from '../helpers/install.js';
+import { getInstallArgs, getComposerInstallArgsForDir, projectDir } from '../helpers/install.js';
 import { coerceConcurrency } from '../helpers/normalizeArgv.js';
 import PrefixStream from '../helpers/prefix-stream.js';
 import { allProjects } from '../helpers/projectHelpers.js';
@@ -16,16 +16,30 @@ export const command = 'phan [project...]';
 export const describe = 'Run Phan on a monorepo project';
 
 /**
+ * Load list of monorepo pseudo-projects.
+ *
+ * @returns {object} Map of key to dir.
+ */
+async function monorepoPseudoProjects() {
+	const contents = await fs.readFile(
+		new URL( '../../../.phan/monorepo-pseudo-projects.jsonc', import.meta.url ),
+		{ encoding: 'utf8' }
+	);
+	return JSON.parse( contents.replace( /^\s*\/\/.*/gm, '' ) );
+}
+
+/**
  * Options definition for the phan subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
  * @returns {object} Yargs with the phan commands defined.
  */
-export function builder( yargs ) {
+export async function builder( yargs ) {
 	return yargs
 		.positional( 'project', {
 			describe:
-				'Project in the form of type/name, e.g. plugins/jetpack, or "monorepo" for code outside of the projects.',
+				// prettier-ignore
+				`Project in the form of type/name, e.g. plugins/jetpack. The following pseudo-projects are also available: "monorepo", "${ Object.keys( await monorepoPseudoProjects() ).join( '", "' ) }".`,
 			type: 'string',
 		} )
 		.option( 'all', {
@@ -40,6 +54,11 @@ export function builder( yargs ) {
 		.option( 'update-baseline', {
 			type: 'boolean',
 			description: 'Update the Phan baselines.',
+		} )
+		.option( 'force-update-baseline', {
+			type: 'boolean',
+			description:
+				'Update the Phan baselines, even if no baseline currently exists. But please try not to use this, fix the issues instead.',
 		} )
 		.option( 'no-use-uncommitted-composer-lock', {
 			type: 'boolean',
@@ -82,7 +101,19 @@ export function builder( yargs ) {
 			type: 'string',
 			description: 'Comma-separated list of files to analyze.',
 		} )
+		.option( 'filter-issues', {
+			type: 'string',
+			description:
+				'Comma-separated list of issue codes to filter for. Only these issues will be reported.',
+		} )
+		.option( 'report-file', {
+			type: 'string',
+			description: 'Write the report to this file instead of to standard output.',
+		} )
 		.check( argv => {
+			if ( argv.forceUpdateBaseline ) {
+				argv.updateBaseline = true;
+			}
 			if (
 				argv.updateBaseline &&
 				( argv[ 'allow-polyfill-parser' ] || argv[ 'force-polyfill-parser' ] )
@@ -103,12 +134,42 @@ export function builder( yargs ) {
  * @param {object} argv - The argv for the command line.
  */
 export async function handler( argv ) {
-	if ( argv.project.length === 1 && argv.project[ 0 ] !== 'monorepo' ) {
+	if ( ! argv[ 'allow-polyfill-parser' ] && ! argv[ 'force-polyfill-parser' ] ) {
+		try {
+			await execa( 'php', [ '-r', 'exit( extension_loaded( "ast" ) ? 42 : 41 );' ], {
+				stdio: 'ignore',
+			} );
+		} catch ( e ) {
+			if ( e.exitCode === 41 ) {
+				console.error(
+					chalk.red(
+						'PHP ast extension is not loaded! You should install it; see the Static analysis section in docs/monorepo.md for details'
+					)
+				);
+				console.error(
+					chalk.yellow(
+						'You might run with --allow-polyfill-parser or --force-polyfill-parser in the mean time, but note that may report false positives.'
+					)
+				);
+				process.exit( 1 );
+			} else if ( e.exitCode !== 42 ) {
+				throw e;
+			}
+		}
+	}
+
+	if (
+		argv.project.length === 1 &&
+		argv.project[ 0 ] !== 'monorepo' &&
+		! argv.project[ 0 ].startsWith( 'monorepo/' )
+	) {
 		if ( argv.project[ 0 ].indexOf( '/' ) < 0 ) {
 			argv.type = argv.project[ 0 ];
 			argv.project = [];
 		}
 	}
+
+	const pseudoProjects = await monorepoPseudoProjects();
 
 	const checkFilesByProject = {};
 	if ( argv[ 'include-analysis-file-list' ] ) {
@@ -116,9 +177,18 @@ export async function handler( argv ) {
 			.split( ',' )
 			.map( v => path.relative( process.cwd(), v ) ) ) {
 			if ( ! f.startsWith( 'projects/' ) ) {
-				argv.project.push( 'monorepo' );
-				checkFilesByProject.monorepo ??= [];
-				checkFilesByProject.monorepo.push( f );
+				let prj = 'monorepo';
+				for ( const [ k, pth ] of Object.entries( pseudoProjects ) ) {
+					if (
+						! path.relative( pth, f ).startsWith( '../' ) &&
+						( prj === 'monorepo' || pth.length > pseudoProjects[ prj ].length )
+					) {
+						prj = k;
+					}
+				}
+				argv.project.push( prj );
+				checkFilesByProject[ prj ] ??= [];
+				checkFilesByProject[ prj ].push( f );
 				continue;
 			}
 			const m = f.match( /^projects\/([^/]+\/[^/]+)\/(.+)$/ );
@@ -165,7 +235,7 @@ export async function handler( argv ) {
 
 	if ( argv.all ) {
 		argv.project = allProjects();
-		argv.project.unshift( 'monorepo' );
+		argv.project.unshift( 'monorepo', ...Object.keys( pseudoProjects ) );
 	}
 
 	if ( argv.project.length === 0 ) {
@@ -214,12 +284,6 @@ export async function handler( argv ) {
 	} else {
 		phanArgs.push( '--progress-bar' );
 	}
-	if ( argv.baseline !== false ) {
-		phanArgs.push( '--load-baseline=.phan/baseline.php' );
-	}
-	if ( argv.updateBaseline ) {
-		phanArgs.push( '--save-baseline=.phan/baseline.php' );
-	}
 	for ( const arg of [
 		'automatic-fix',
 		'allow-polyfill-parser',
@@ -236,6 +300,8 @@ export async function handler( argv ) {
 	const issues = [];
 	const projects = new Set( argv.project );
 
+	const filterIssues = argv.filterIssues ? new Set( argv.filterIssues.split( ',' ) ) : null;
+
 	// Avoid a node warning about too many event listeners.
 	if ( argv.v ) {
 		process.stdout.setMaxListeners( projects.size + 10 );
@@ -243,16 +309,18 @@ export async function handler( argv ) {
 	}
 
 	for ( const project of projects ) {
+		const cwd = pseudoProjects[ project ]
+			? path.resolve( pseudoProjects[ project ] )
+			: projectDir( project );
+
 		// Does the project even exist?
-		if (
-			( await fs.access( projectDir( project, 'composer.json' ) ).catch( () => false ) ) === false
-		) {
+		if ( ( await fs.access( path.join( cwd, 'composer.json' ) ).catch( () => false ) ) === false ) {
 			console.error( chalk.red( `Project ${ project } does not exist!` ) );
 			continue;
 		}
 
 		// Does the project have a phan config?
-		if ( ( await fs.access( projectDir( project, '.phan' ) ).catch( () => false ) ) === false ) {
+		if ( ( await fs.access( path.join( cwd, '.phan' ) ).catch( () => false ) ) === false ) {
 			if ( ! argv.all ) {
 				console.error( chalk.yellow( `Project ${ project } has no phan config, skipping` ) );
 			}
@@ -261,7 +329,17 @@ export async function handler( argv ) {
 
 		const projectPhanArgs = checkFilesByProject[ project ]
 			? [ ...phanArgs, '--include-analysis-file-list', checkFilesByProject[ project ].join( ',' ) ]
-			: phanArgs;
+			: [ ...phanArgs ];
+
+		// Baseline handling depends on whether the baseline exists.
+		const hasBaseline =
+			( await fs.access( path.join( cwd, '.phan/baseline.php' ) ).catch( () => false ) ) !== false;
+		if ( hasBaseline && argv.baseline !== false ) {
+			projectPhanArgs.push( '--load-baseline=.phan/baseline.php' );
+		}
+		if ( ( hasBaseline && argv.updateBaseline ) || argv.forceUpdateBaseline ) {
+			projectPhanArgs.push( '--save-baseline=.phan/baseline.php' );
+		}
 
 		let sstdout = process.stdout,
 			sstderr = process.stderr;
@@ -281,11 +359,14 @@ export async function handler( argv ) {
 				const subtasks = [];
 
 				if ( project !== 'monorepo' ) {
+					const args = pseudoProjects[ project ]
+						? await getComposerInstallArgsForDir( cwd, argv )
+						: await getInstallArgs( project, 'composer', argv );
 					subtasks.push( {
 						title: 'Installing composer dependencies',
 						task: async () => {
-							const proc = execa( 'composer', await getInstallArgs( project, 'composer', argv ), {
-								cwd: projectDir( project ),
+							const proc = execa( 'composer', args, {
+								cwd,
 								stdio: [ 'ignore', argv.v ? 'pipe' : 'ignore', argv.v ? 'pipe' : 'ignore' ],
 							} );
 							if ( argv.v ) {
@@ -298,12 +379,12 @@ export async function handler( argv ) {
 				}
 
 				try {
-					await fs.access( projectDir( project, '.phan/pre-run' ), fs.constants.X_OK );
+					await fs.access( path.join( cwd, '.phan/pre-run' ), fs.constants.X_OK );
 					subtasks.push( {
 						title: 'Executing pre-run script',
 						task: async () => {
-							const proc = execa( projectDir( project, '.phan/pre-run' ), projectPhanArgs, {
-								cwd: projectDir( project ),
+							const proc = execa( path.join( cwd, '.phan/pre-run' ), projectPhanArgs, {
+								cwd,
 								stdio: [ 'ignore', argv.v ? 'pipe' : 'ignore', argv.v ? 'pipe' : 'ignore' ],
 							} );
 							if ( argv.v ) {
@@ -328,7 +409,7 @@ export async function handler( argv ) {
 								sstdout.write( `Executing ${ phanPath } ${ projectPhanArgs.join( ' ' ) }\n` );
 							}
 							const proc = execa( phanPath, projectPhanArgs, {
-								cwd: projectDir( project ),
+								cwd,
 								buffer: false,
 								stdio: [ 'ignore', 'pipe', 'pipe' ],
 							} );
@@ -347,6 +428,25 @@ export async function handler( argv ) {
 								} );
 							}
 							await proc;
+
+							// Don't re-create unneeded baselines with --force-update-baseline.
+							if ( ! hasBaseline && argv.forceUpdateBaseline ) {
+								if ( argv.v ) {
+									sstderr.write(
+										'Removing that baseline, no issues were reported so it should be empty.\n'
+									);
+								}
+								try {
+									await fs.unlink( path.join( cwd, '.phan/baseline.php' ) );
+								} catch ( e ) {
+									if ( argv.v ) {
+										sstderr.write(
+											// prettier-ignore
+											`Failed to unlink ${ path.join( cwd, '.phan/baseline.php' ) }: ${ e.message }\n`
+										);
+									}
+								}
+							}
 						} catch ( e ) {
 							let json;
 							try {
@@ -363,12 +463,17 @@ export async function handler( argv ) {
 								}
 								throw e;
 							}
-							issues.push( ...json );
-							throw new Error(
-								json.length === 1
-									? 'Phan reported 1 issue'
-									: `Phan reported ${ json.length } issues`
-							);
+							if ( filterIssues ) {
+								json = json.filter( i => filterIssues.has( i.check_name ) );
+							}
+							if ( json.length ) {
+								issues.push( ...json );
+								throw new Error(
+									json.length === 1
+										? 'Phan reported 1 issue'
+										: `Phan reported ${ json.length } issues`
+								);
+							}
 						}
 					},
 				} );
@@ -405,9 +510,22 @@ export async function handler( argv ) {
 		}
 		return 0;
 	} );
+
+	const reportStream = argv.reportFile
+		? ( await fs.open( argv.reportFile, 'w' ) ).createWriteStream()
+		: process.stdout;
+	const writeln = async v => {
+		if ( v !== '' && ! reportStream.write( v ) ) {
+			await new Promise( r => reportStream.once( 'drain', r ) );
+		}
+		if ( ! reportStream.write( '\n' ) ) {
+			await new Promise( r => reportStream.once( 'drain', r ) );
+		}
+	};
+
 	switch ( argv.format ) {
 		case 'json':
-			console.log( JSON.stringify( issues ) );
+			await writeln( JSON.stringify( issues ) );
 			break;
 		case 'emacs':
 			for ( const issue of issues ) {
@@ -417,7 +535,7 @@ export async function handler( argv ) {
 					msg += ':' + issue.location.lines.begin_column;
 				}
 				msg += ': ' + issue.description.replace( /\s+/g, ' ' );
-				console.log( msg );
+				await writeln( msg );
 			}
 			break;
 		case 'github':
@@ -427,7 +545,7 @@ export async function handler( argv ) {
 				if ( issue.location.lines.begin_column !== undefined ) {
 					msg += ':' + issue.location.lines.begin_column;
 				}
-				console.log( msg );
+				await writeln( msg );
 
 				msg = '::error file=' + path.relative( process.cwd(), issue.location.path );
 				msg += ',line=' + issue.location.lines.begin;
@@ -444,7 +562,7 @@ export async function handler( argv ) {
 						'%0A%0ASuggestion: ' +
 						issue.suggestion.replace( /[%\r\n]/g, m => encodeURIComponent( m[ 0 ] ) );
 				}
-				console.log( msg );
+				await writeln( msg );
 			}
 			break;
 		default:
@@ -473,16 +591,26 @@ export async function handler( argv ) {
 					}
 				}
 				const sep = '-'.repeat( argv.width === Infinity ? 80 : argv.width );
+				const suggestionPrefix = argv.reportFile
+					? '\nSuggestion: '
+					: `\n${ chalk.green( 'Suggestion:' ) } `;
+				const colorizeIssue = argv.reportFile
+					? v => v
+					: v =>
+							v.replace(
+								/^([^ ]*) ([^ ]*)/,
+								`${ chalk.yellow( '$1' ) } ${ chalk.yellow( '$2' ) }`
+							);
 				for ( const file of Object.keys( files ) ) {
-					console.log( '' );
-					console.log( `FILE: ${ path.relative( process.cwd(), file ) }` );
-					console.log( sep );
-					console.log(
+					await writeln( '' );
+					await writeln( `FILE: ${ path.relative( process.cwd(), file ) }` );
+					await writeln( sep );
+					await writeln(
 						files[ file ].issues.length === 1
 							? 'FOUND 1 ISSUE'
 							: `FOUND ${ files[ file ].issues.length } ISSUES`
 					);
-					console.log( sep );
+					await writeln( sep );
 					const lw = String( files[ file ].l ).length;
 					const cw = files[ file ].c < 0 ? -1 : String( files[ file ].c ).length;
 					const ww = Math.max( argv.width - lw - cw - 3, 50 );
@@ -500,11 +628,8 @@ export async function handler( argv ) {
 						let first = true;
 						let l = 0;
 						for ( const line of (
-							issue.description.replace(
-								/^([^ ]*) ([^ ]*)/,
-								`${ chalk.yellow( '$1' ) } ${ chalk.yellow( '$2' ) }`
-							) +
-							( issue.suggestion ? `\n${ chalk.green( 'Suggestion:' ) } ` + issue.suggestion : '' )
+							colorizeIssue( issue.description ) +
+							( issue.suggestion ? suggestionPrefix + issue.suggestion : '' )
 						).split( /\n/ ) ) {
 							if ( ! first ) {
 								msg += nl;
@@ -522,15 +647,19 @@ export async function handler( argv ) {
 								l += wl + 1;
 							}
 						}
-						console.log( msg );
+						await writeln( msg );
 					}
-					console.log( sep );
+					await writeln( sep );
 				}
-				console.log( '' );
-				console.log(
+				await writeln( '' );
+				await writeln(
 					issues.length === 1 ? 'FOUND 1 ISSUE TOTAL' : `FOUND ${ issues.length } ISSUES TOTAL`
 				);
 			}
 			break;
+	}
+	if ( argv.reportFile ) {
+		reportStream.end();
+		console.log( `Report written to ${ argv.reportFile }` );
 	}
 }

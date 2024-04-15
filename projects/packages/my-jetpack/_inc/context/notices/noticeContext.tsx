@@ -1,20 +1,19 @@
 import { createContext, useState } from 'react';
 import { NoticeContextType, Notice } from './types';
 
-const defaultNotice = {
+const defaultNotice: Notice = {
 	message: '',
+	title: null,
 	options: {
-		status: '',
-		actions: {
-			label: '',
-			onClick: () => {},
-		},
+		level: '',
+		priority: 0,
 	},
 };
 
 export const NoticeContext = createContext< NoticeContextType >( {
 	currentNotice: defaultNotice,
 	setNotice: null,
+	resetNotice: null,
 } );
 
 // Maybe todo: Add a clearNotice type function to remove any active notices
@@ -23,9 +22,14 @@ const NoticeContextProvider = ( { children } ) => {
 	const [ currentNotice, setCurrentNotice ] = useState< Notice >( defaultNotice );
 
 	const setNotice = ( notice: Notice ) => {
-		if ( ! currentNotice.message ) {
+		// Only update notice if there is not already a notice or the new notice has a higher priority
+		if ( ! currentNotice.message || notice.options.priority > currentNotice.options.priority ) {
 			setCurrentNotice( notice );
 		}
+	};
+
+	const resetNotice = () => {
+		setCurrentNotice( defaultNotice );
 	};
 
 	return (
@@ -33,6 +37,7 @@ const NoticeContextProvider = ( { children } ) => {
 			value={ {
 				currentNotice,
 				setNotice,
+				resetNotice,
 			} }
 		>
 			{ children }

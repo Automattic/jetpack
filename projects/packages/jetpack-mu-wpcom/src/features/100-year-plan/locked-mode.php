@@ -17,6 +17,8 @@ function wpcom_lm_maybe_add_map_meta_cap_filter() {
 
 	if ( wpcom_site_has_feature( WPCOM_Features::LOCKED_MODE ) && get_option( 'wpcom_locked_mode' ) ) {
 		add_filter( 'map_meta_cap', 'wpcom_lm_remove_post_capabilities', 10, 2 );
+	} else {
+		remove_filter( 'map_meta_cap', 'wpcom_lm_remove_post_capabilities' );
 	}
 }
 add_action( 'plugins_loaded', 'wpcom_lm_maybe_add_map_meta_cap_filter', 11 );

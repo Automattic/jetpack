@@ -1,4 +1,5 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
+import { useBlockProps } from '@wordpress/block-editor';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
 import { SandBox, Button, Placeholder, withNotices } from '@wordpress/components';
 import { useState } from '@wordpress/element';
@@ -15,12 +16,12 @@ const icon = getBlockIconComponent( metadata );
 export function NextdoorEdit( {
 	attributes,
 	clientId,
-	className,
 	name,
 	noticeOperations,
 	noticeUI,
 	setAttributes,
 } ) {
+	const blockProps = useBlockProps();
 	const defaultClassName = getBlockDefaultClassName( name );
 	const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
 
@@ -95,7 +96,7 @@ export function NextdoorEdit( {
 	);
 
 	return (
-		<div className={ className }>
+		<div { ...blockProps }>
 			<NextdoorControls
 				{ ...{ defaultClassName, nextdoorShareUrl, onFormSubmit, setNextdoorShareUrl } }
 			/>

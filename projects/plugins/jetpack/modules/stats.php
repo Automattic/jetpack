@@ -419,7 +419,8 @@ function jetpack_admin_ui_stats_report_page_wrapper() {
  */
 function stats_reports_page( $main_chart_only = false ) {
 	if ( isset( $_GET['dashboard'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		return stats_dashboard_widget_content();
+		stats_dashboard_widget_content();
+		exit; // @phan-suppress-current-line PhanPluginUnreachableCode -- Safer to include it even though stats_dashboard_widget_content() never returns.
 	}
 
 	$blog_id = Stats_Options::get_option( 'blog_id' );
@@ -1216,7 +1217,7 @@ function stats_jetpack_dashboard_widget() {
  * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
  *
  * @access public
- * @return void
+ * @return never
  */
 function stats_dashboard_widget_content() {
 	$width  = isset( $_GET['width'] ) ? intval( $_GET['width'] ) / 2 : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended

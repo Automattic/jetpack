@@ -28,6 +28,7 @@ import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
  * @param {boolean}  props.isFetching              - True if there is a pending request to load the product.
  * @param {string}   props.tier                    - Product tier slug, i.e. 'free' or 'upgraded'.
  * @param {Function} props.trackProductButtonClick - Tracks click event for the product button.
+ * @param {boolean}  props.preferProductName       - Whether to show the product name instead of the title.
  * @returns {object} - ProductDetailTableColumn component.
  */
 const ProductDetailTableColumn = ( {
@@ -37,15 +38,19 @@ const ProductDetailTableColumn = ( {
 	isFetching,
 	tier,
 	trackProductButtonClick,
+	preferProductName,
 } ) => {
 	const { siteSuffix = '', myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
 
 	// Extract the product details.
 	const {
+		name,
 		featuresByTier = [],
 		pricingForUi: { tiers: tiersPricingForUi },
 		title,
 		postCheckoutUrl,
+		isBundle,
+		hasPaidPlanForProduct,
 	} = detail;
 
 	// Extract the pricing details for the provided tier.
@@ -120,16 +125,22 @@ const ProductDetailTableColumn = ( {
 				/* dummy arg to avoid bad minification */ 0
 		  );
 
-	const callToAction =
-		customCallToAction ||
-		( isFree
-			? __( 'Start for Free', 'jetpack-my-jetpack' )
+	const productMoniker = name && preferProductName ? name : title;
+	const defaultCtaLabel =
+		! isBundle && hasPaidPlanForProduct
+			? sprintf(
+					/* translators: placeholder is product name. */
+					__( 'Install %s', 'jetpack-my-jetpack' ),
+					productMoniker
+			  )
 			: sprintf(
 					/* translators: placeholder is product name. */
 					__( 'Get %s', 'jetpack-my-jetpack' ),
-					title,
-					/* dummy arg to avoid bad minification */ 0
-			  ) );
+					productMoniker
+			  );
+	const callToAction =
+		customCallToAction ||
+		( isFree ? __( 'Start for Free', 'jetpack-my-jetpack' ) : defaultCtaLabel );
 
 	return (
 		<PricingTableColumn primary={ ! isFree }>
@@ -137,14 +148,16 @@ const ProductDetailTableColumn = ( {
 				{ isFree ? (
 					<ProductPrice price={ 0 } legend={ '' } currency={ 'USD' } hidePriceFraction />
 				) : (
-					<ProductPrice
-						price={ price }
-						offPrice={ offPrice }
-						legend={ priceDescription }
-						currency={ currencyCode }
-						hideDiscountLabel={ isOneMonthOffer }
-						hidePriceFraction
-					/>
+					! hasPaidPlanForProduct && (
+						<ProductPrice
+							price={ price }
+							offPrice={ offPrice }
+							legend={ priceDescription }
+							currency={ currencyCode }
+							hideDiscountLabel={ isOneMonthOffer }
+							hidePriceFraction
+						/>
+					)
 				) }
 				<Button
 					fullWidth
@@ -200,6 +213,7 @@ ProductDetailTableColumn.propTypes = {
 	detail: PropTypes.object.isRequired,
 	tier: PropTypes.string.isRequired,
 	trackProductButtonClick: PropTypes.func.isRequired,
+	preferProductName: PropTypes.bool.isRequired,
 };
 
 /**
@@ -212,6 +226,7 @@ ProductDetailTableColumn.propTypes = {
  * @param {Function} props.onProductButtonClick    - Click handler for the product button.
  * @param {Function} props.trackProductButtonClick - Tracks click event for the product button.
  * @param {boolean}  props.isFetching              - True if there is a pending request to load the product.
+ * @param {boolean}  props.preferProductName       - Whether to show the product name instead of the title.
  * @returns {object} - ProductDetailTable react component.
  */
 const ProductDetailTable = ( {
@@ -219,11 +234,21 @@ const ProductDetailTable = ( {
 	onProductButtonClick,
 	trackProductButtonClick,
 	isFetching,
+	preferProductName,
 } ) => {
 	const { fileSystemWriteAccess = 'no' } = getMyJetpackWindowInitialState();
 
 	const { detail } = useProduct( slug );
-	const { description, featuresByTier = [], pluginSlug, status, tiers = [], title } = detail;
+	const {
+		description,
+		featuresByTier = [],
+		pluginSlug,
+		status,
+		tiers = [],
+		hasPaidPlanForProduct,
+		title,
+		pricingForUi: { tiers: tiersPricingForUi },
+	} = detail;
 
 	// If the plugin can not be installed automatically, the user will have to take extra steps.
 	const cantInstallPlugin = 'plugin_absent' === status && 'no' === fileSystemWriteAccess;
@@ -269,23 +294,36 @@ const ProductDetailTable = ( {
 		[ featuresByTier ]
 	);
 
+	const tierIsFree = tier => {
+		const { isFree } = tiersPricingForUi[ tier ];
+		return isFree;
+	};
+
 	return (
 		<>
 			{ cantInstallPluginNotice }
 
 			<PricingTable title={ description } items={ pricingTableItems }>
-				{ tiers.map( ( tier, index ) => (
-					<ProductDetailTableColumn
-						key={ index }
-						tier={ tier }
-						detail={ detail }
-						isFetching={ isFetching }
-						onProductButtonClick={ onProductButtonClick }
-						trackProductButtonClick={ trackProductButtonClick }
-						primary={ index === 0 }
-						cantInstallPlugin={ cantInstallPlugin }
-					/>
-				) ) }
+				{ tiers.map( ( tier, index ) => {
+					// Don't show the column if this is a free offering and we already have a plan
+					if ( hasPaidPlanForProduct && tierIsFree( tier ) ) {
+						return null;
+					}
+
+					return (
+						<ProductDetailTableColumn
+							key={ index }
+							tier={ tier }
+							detail={ detail }
+							isFetching={ isFetching }
+							onProductButtonClick={ onProductButtonClick }
+							trackProductButtonClick={ trackProductButtonClick }
+							primary={ index === 0 }
+							cantInstallPlugin={ cantInstallPlugin }
+							preferProductName={ preferProductName }
+						/>
+					);
+				} ) }
 			</PricingTable>
 		</>
 	);
@@ -296,6 +334,7 @@ ProductDetailTable.propTypes = {
 	onProductButtonClick: PropTypes.func.isRequired,
 	trackProductButtonClick: PropTypes.func.isRequired,
 	isFetching: PropTypes.bool.isRequired,
+	preferProductName: PropTypes.bool.isRequired,
 };
 
 export default ProductDetailTable;

@@ -61,9 +61,9 @@ class LatestAutoloaderGuardTest extends TestCase {
 			->getMock();
 
 		$this->guard = new Latest_Autoloader_Guard(
-			$this->plugins_handler,
-			$this->autoloader_handler,
-			$this->autoloader_locator
+			$this->plugins_handler, // @phan-suppress-current-line PhanTypeMismatchArgument -- It's correct, but PHPUnit 9.6 only declares `@psalm-template` and not `@template` and such so Phan can't know the right types.
+			$this->autoloader_handler, // @phan-suppress-current-line PhanTypeMismatchArgument -- Same.
+			$this->autoloader_locator // @phan-suppress-current-line PhanTypeMismatchArgument -- Same.
 		);
 	}
 
@@ -117,7 +117,7 @@ class LatestAutoloaderGuardTest extends TestCase {
 		$this->autoloader_locator->method( 'find_latest_autoloader' )
 			->willReturn( 'new-latest' );
 		$this->autoloader_locator->method( 'get_autoloader_path' )
-			->with( 'new-latest' )
+			->with( 'new-latest' ) // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- PHPUnit 9.6 declares the wrong type for this method.
 			->willReturn( TEST_PLUGIN_DIR . '/functions.php' );
 
 		$this->assertTrue(

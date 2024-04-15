@@ -40,7 +40,8 @@ class PluginLocatorTest extends TestCase {
 	 */
 	public function set_up() {
 		$this->path_processor = $this->getMockBuilder( Path_Processor::class )->getMock();
-		$this->locator        = new Plugin_Locator( $this->path_processor );
+		// @phan-suppress-next-line PhanTypeMismatchArgument -- It's correct, but PHPUnit 9.6 only declares `@psalm-template` and not `@template` and such so Phan can't know the right types.
+		$this->locator = new Plugin_Locator( $this->path_processor );
 	}
 
 	/**
@@ -59,7 +60,7 @@ class PluginLocatorTest extends TestCase {
 	public function test_finds_current_plugin() {
 		$this->path_processor->expects( $this->once() )
 			->method( 'find_directory_with_autoloader' )
-			->with( TEST_PLUGIN_DIR, array() )
+			->with( TEST_PLUGIN_DIR, array() ) // @phan-suppress-current-line PhanTypeMismatchArgument -- PHPUnit 9.6 declares the wrong type for this method.
 			->willReturn( TEST_PLUGIN_DIR );
 
 		$path = $this->locator->find_current_plugin();
@@ -73,7 +74,7 @@ class PluginLocatorTest extends TestCase {
 	public function test_finds_current_plugin_throws_exception_when_not_autoloaded() {
 		$this->path_processor->expects( $this->once() )
 			->method( 'find_directory_with_autoloader' )
-			->with( TEST_PLUGIN_DIR, array() )
+			->with( TEST_PLUGIN_DIR, array() ) // @phan-suppress-current-line PhanTypeMismatchArgument -- PHPUnit 9.6 declares the wrong type for this method.
 			->willReturn( false );
 
 		$this->expectExceptionMessage( 'Failed to locate plugin' );

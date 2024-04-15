@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 4.2.0 - 2024-04-11
+### Added
+- Added functions to display share urls [#36328]
+- Added options and UI for link formatting [#36671]
+- Added support for comments on Social Notes [#36428]
+- Packages: add version tracking for identity-crisis package. [#36635]
+- Trigger red bubble notification when bad install is detected [#36449]
+
+### Changed
+- Allow multiple paragraphs for Social Notes [#36522]
+- Only show custom media picker for normal posts [#36640]
+- Only show installation errors on plugins page [#36390]
+- Removed the featured image block from the template [#36819]
+- Simplified social network selection for post sharing [#36734]
+- Updated package dependencies. [#36309] [#36325] [#36585] [#36760] [#36761] [#36775] [#36788]
+- Update to the most recent version of Color Studio, 2.6.0. [#36751]
+- Update to the most recent version of the @automattic/calypso-color-schemes package. [#36227]
+
+### Fixed
+- Fixed typos [#36554]
+- Prevent enqueuing of admin styles on the frontend [#36552]
+
 ## 4.1.0 - 2024-03-07
 ### Added
 - Added a template lock to our Social Note CPT [#35619]

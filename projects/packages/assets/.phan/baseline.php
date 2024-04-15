@@ -12,7 +12,6 @@ return [
     // PhanTypeMismatchArgument : 10+ occurrences
     // PhanDeprecatedFunction : 5 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
-    // PhanRedefinedUsedTrait : 3 occurrences
     // PhanParamTooFewUnpack : 2 occurrences
     // PhanImpossibleTypeComparison : 1 occurrence
     // PhanParamTooMany : 1 occurrence
@@ -24,8 +23,7 @@ return [
     'file_suppressions' => [
         'src/class-assets.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
         'src/class-semver.php' => ['PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeInvalidRightOperandOfNumericOp'],
-        'tests/php/test-assets.php' => ['PhanDeprecatedFunction', 'PhanImpossibleTypeComparison', 'PhanParamTooFewUnpack', 'PhanParamTooMany', 'PhanRedefinedUsedTrait', 'PhanTypeMismatchArgument', 'PhanUndeclaredClassReference'],
-        'tests/php/test-semver.php' => ['PhanRedefinedUsedTrait'],
+        'tests/php/test-assets.php' => ['PhanDeprecatedFunction', 'PhanImpossibleTypeComparison', 'PhanParamTooFewUnpack', 'PhanParamTooMany', 'PhanTypeMismatchArgument', 'PhanUndeclaredClassReference'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

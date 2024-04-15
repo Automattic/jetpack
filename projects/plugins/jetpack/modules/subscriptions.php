@@ -994,10 +994,10 @@ class Jetpack_Subscriptions {
 	 */
 	public function add_subscribers_menu() {
 		/*
-		 * Do not display any menu on WoA and WordPress.com Simple sites.
+		 * Do not display any menu on WoA and WordPress.com Simple sites (unless Classic wp-admin is enabled).
 		 * They already get a menu item under Users via nav-unification.
 		 */
-		if ( ( new Host() )->is_wpcom_platform() ) {
+		if ( ( new Host() )->is_wpcom_platform() && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 			return;
 		}
 
@@ -1016,8 +1016,13 @@ class Jetpack_Subscriptions {
 
 		$blog_id = Connection_Manager::get_site_id( true );
 
+		$source = 'jetpack-menu-calypso-subscribers';
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			$source = 'jetpack-menu-jetpack-manage-subscribers';
+		}
+
 		$link = Redirect::get_url(
-			'jetpack-menu-calypso-subscribers',
+			$source,
 			array( 'site' => $blog_id ? $blog_id : $status->get_site_suffix() )
 		);
 

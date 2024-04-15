@@ -740,3 +740,13 @@ export function getJetpackManageInfo( state ) {
 export function isSubscriptionSiteEnabled( state ) {
 	return !! state.jetpack.initialState.isSubscriptionSiteEnabled;
 }
+
+/**
+ * Returns true if Subscription Site editing feature is supported.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if Subscription Site editing feature is supported.
+ */
+export function subscriptionSiteEditSupported( state ) {
+	return !! state.jetpack.initialState.subscriptionSiteEditSupported;
+}

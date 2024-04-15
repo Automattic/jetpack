@@ -19,7 +19,7 @@ class Editor_View {
 	/**
 	 * Add hooks according to screen.
 	 *
-	 * @param WP_Screen $screen Data about current screen.
+	 * @param \WP_Screen $screen Data about current screen.
 	 */
 	public static function add_hooks( $screen ) {
 		if ( isset( $screen->base ) && 'post' === $screen->base ) {

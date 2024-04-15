@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Properly support symfony/console 7.0.

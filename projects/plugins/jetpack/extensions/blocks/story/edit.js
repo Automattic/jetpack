@@ -1,9 +1,8 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL } from '@wordpress/blob';
-import { MediaPlaceholder } from '@wordpress/block-editor';
+import { MediaPlaceholder, useBlockProps } from '@wordpress/block-editor';
 import { withNotices } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import { get, pick } from 'lodash';
@@ -44,7 +43,6 @@ export const pickRelevantMediaFiles = media => {
 
 export default withNotices( function StoryEdit( {
 	attributes,
-	className,
 	isSelected,
 	noticeOperations,
 	noticeUI,
@@ -52,6 +50,7 @@ export default withNotices( function StoryEdit( {
 } ) {
 	const { mediaFiles } = attributes;
 	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
+	const blockProps = useBlockProps();
 	const lockName = 'storyBlockLock';
 
 	const onSelectMedia = newMediaFiles => {
@@ -91,7 +90,7 @@ export default withNotices( function StoryEdit( {
 		<MediaPlaceholder
 			addToGallery={ hasImages }
 			isAppender={ hasImages }
-			className={ className }
+			className={ blockProps.className }
 			disableMediaButtons={ hasImages && ! isSelected }
 			icon={ ! hasImages && icon }
 			labels={ {
@@ -113,20 +112,20 @@ export default withNotices( function StoryEdit( {
 		/>
 	);
 
+	let content;
+
 	if ( ! hasImages ) {
-		return (
-			<Fragment>
+		content = (
+			<>
 				{ controls }
 				{ mediaPlaceholder }
-			</Fragment>
+			</>
 		);
-	}
-
-	return (
-		<Fragment>
-			{ controls }
-			{ noticeUI }
-			<div className={ classNames( 'wp-block-jetpack-story', 'wp-story', className ) }>
+	} else {
+		content = (
+			<>
+				{ controls }
+				{ noticeUI }
 				<StoryPlayer
 					slides={ mediaFiles }
 					disabled={ ! isSelected }
@@ -138,8 +137,17 @@ export default withNotices( function StoryEdit( {
 					tapToPlayPause={ false }
 					playOnNextSlide={ false }
 				/>
-			</div>
-			{ isSelected && mediaPlaceholder }
-		</Fragment>
+				{ isSelected && mediaPlaceholder }
+			</>
+		);
+	}
+
+	return (
+		<div
+			{ ...blockProps }
+			className={ classNames( 'wp-block-jetpack-story', 'wp-story', blockProps.className ) }
+		>
+			{ content }
+		</div>
 	);
 } );

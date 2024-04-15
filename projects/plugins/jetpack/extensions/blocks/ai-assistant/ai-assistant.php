@@ -125,3 +125,15 @@ add_action(
 		}
 	}
 );
+
+/**
+ * Register the `ai-featured-image-generator` extension.
+ */
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
+			\Jetpack_Gutenberg::set_extension_available( 'ai-featured-image-generator' );
+		}
+	}
+);

@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 5.5
 Tested up to: 6.5
 Requires PHP: 7.0
-Stable tag: 3.1.1
+Stable tag: 3.2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,26 +183,21 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.1.1 - 2024-03-11
+### 3.2.2 - 2024-04-02
 #### Added
-- Cache: Added a Page Cache module.
-- Defer JS: Automatically exclude JSON-LD schemas.
-- Speed Scores: Added support for annotating points of time in the speed score history graph.
+- Cache: Ensure cache engine is loading every time the Settings page loads.
+- Cache: Clear cache if Boost module settings are changed
+- Cache: Show notification in site health if cache system isn't loading.
+- Compatibility: Improved compatibility with SEO plugins for smoother Cloud CSS generation.
 
 #### Changed
-- General: Better error handling for invalid data when running wp-admin pages.
-- General: Enabled React.StrictMode for development.
-- General: Improved error handling.
-- General: Indicate compatibility with the upcoming version of WordPress, 6.5.
-- General: Switch to using Blog ID links instead of site slugs in checkout flow.
-- Image Guide: Removed beta flag
-
-#### Fixed
-- Critical CSS: Prevent errors when page_for_posts misconfigured.
-- Critical CSS: Prevent missing archive pages from breaking the generation process.
-- General: Prevent missing pricing information from affecting the getting started flow.
-- Image Size Analysis: Update summary groups to align with status icons.
-- Concatenate JS/CSS: Ensure minification is enabled.
+- Cloud CSS: Optimize regeneration time.
+- Cloud CSS: Update REST API endpoint to be available even if the module is turned off.
+- Performance History: Sanitize graph annotation text.
+- Speed Score: More accurately detect which modules are active when a speed score is requested.
+- General: Only show installation errors on plugins page.
+- General: Updated package dependencies.
+- General: Update getting started and upgrade copies.
 
 --------
 

@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Lib\Critical_CSS;
 
+use WP_Error;
+
 class Critical_CSS_State {
 
 	const GENERATION_STATES = array(
@@ -47,12 +49,12 @@ class Critical_CSS_State {
 
 	public function set_provider_error_dismissed( $provider_key, $dismissed ) {
 		if ( empty( $this->state['providers'] ) ) {
-			return new \WP_Error( 'invalid_provider_key', 'No providers exist' );
+			return new WP_Error( 'invalid_provider_key', 'No providers exist' );
 		}
 
 		$provider_index = array_search( $provider_key, array_column( $this->state['providers'], 'key' ), true );
 		if ( $provider_index === false ) {
-			return new \WP_Error( 'invalid_provider_key', 'Invalid provider key' );
+			return new WP_Error( 'invalid_provider_key', 'Invalid provider key' );
 		}
 
 		$this->state['providers'][ $provider_index ]['error_status'] = $dismissed ? 'dismissed' : 'active';
@@ -69,12 +71,12 @@ class Critical_CSS_State {
 	 */
 	private function update_provider_state( $provider_key, $state ) {
 		if ( empty( $this->state['providers'] ) ) {
-			return new \WP_Error( 'invalid_provider_key', 'No providers exist' );
+			return new WP_Error( 'invalid_provider_key', 'No providers exist' );
 		}
 
 		$provider_index = array_search( $provider_key, array_column( $this->state['providers'], 'key' ), true );
 		if ( $provider_index === false ) {
-			return new \WP_Error( 'invalid_provider_key', 'Invalid provider key' );
+			return new WP_Error( 'invalid_provider_key', 'Invalid provider key' );
 		}
 
 		$this->state['providers'][ $provider_index ] = array_merge(
@@ -155,6 +157,10 @@ class Critical_CSS_State {
 
 	public function get_error_message() {
 		return isset( $this->state['status_error'] ) ? $this->state['status_error'] : null;
+	}
+
+	public function is_generated() {
+		return self::GENERATION_STATES['generated'] === $this->state['status'];
 	}
 
 	public function is_requesting() {

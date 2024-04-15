@@ -8,6 +8,7 @@ import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
+import { MyJetpackRoutes } from '../../constants';
 import useActivate from '../../data/products/use-activate';
 import useInstallStandalonePlugin from '../../data/products/use-install-standalone-plugin';
 import useProduct from '../../data/products/use-product';
@@ -33,7 +34,7 @@ const ConnectedProductCard = ( {
 	const { detail } = useProduct( slug );
 	const { name, description: defaultDescription, requiresUserConnection, status } = detail;
 
-	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
+	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.Connection );
 
 	/*
 	 * Redirect only if connected

@@ -11,7 +11,6 @@ return [
     // # Issue statistics:
     // PhanUndeclaredClassMethod : 60+ occurrences
     // PhanNoopNew : 15+ occurrences
-    // PhanUndeclaredConstant : 10+ occurrences
     // PhanPluginSimplifyExpressionBool : 9 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
     // PhanUndeclaredClassConstant : 4 occurrences
@@ -25,7 +24,6 @@ return [
     // PhanEmptyForeach : 1 occurrence
     // PhanNonClassMethodCall : 1 occurrence
     // PhanParamTooMany : 1 occurrence
-    // PhanPluginNeverReturnMethod : 1 occurrence
     // PhanSuspiciousValueComparison : 1 occurrence
     // PhanTypeConversionFromArray : 1 occurrence
     // PhanTypePossiblyInvalidDimOffset : 1 occurrence
@@ -45,12 +43,12 @@ return [
         'modules/class-modules-helper.php' => ['PhanNoopNew', 'PhanUndeclaredClassMethod'],
         'modules/class-protect-helper.php' => ['PhanNoopNew', 'PhanPluginSimplifyExpressionBool', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassStaticProperty', 'PhanUndeclaredProperty'],
         'modules/class-rest-api-tester.php' => ['PhanNoopNew'],
-        'modules/class-scan-helper.php' => ['PhanNoopNew', 'PhanParamTooMany', 'PhanSuspiciousValueComparison', 'PhanTypeConversionFromArray', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredConstant'],
+        'modules/class-scan-helper.php' => ['PhanNoopNew', 'PhanParamTooMany', 'PhanSuspiciousValueComparison', 'PhanTypeConversionFromArray', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/class-sync-data-settings-tester.php' => ['PhanNoopNew', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredClass'],
-        'modules/class-waf-helper.php' => ['PhanNoopNew', 'PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant'],
+        'modules/class-waf-helper.php' => ['PhanNoopNew', 'PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod'],
         'modules/class-wpcom-api-request-tracker-module.php' => ['PhanNoopNew', 'PhanTypeMismatchArgument'],
         'modules/class-xmlrpc-logger.php' => ['PhanNoopNew', 'PhanUndeclaredFunction'],
-        'modules/inc/class-broken-token-connection-errors.php' => ['PhanPluginNeverReturnMethod', 'PhanTypeMismatchArgument', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeProperty'],
+        'modules/inc/class-broken-token-connection-errors.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeProperty'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

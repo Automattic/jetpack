@@ -1,10 +1,22 @@
+import { __ } from '@wordpress/i18n';
 import SocialIcon from 'social-logos';
 
 export const variations = [
 	{
+		name: 'bluesky',
+		attributes: { service: 'bluesky', label: 'Bluesky' },
+		title: 'Bluesky',
+		icon: <SocialIcon icon={ 'bluesky' } size={ 24 } />,
+	},
+	{
 		name: 'print',
-		attributes: { service: 'print', label: 'Print' },
-		title: 'Print',
+		attributes: {
+			service: 'print',
+			// translators: option to print the content - a verb.
+			label: __( 'Print', 'jetpack' ),
+		},
+		// translators: option to print the content - a verb labelling a button.
+		title: __( 'Print', 'jetpack' ),
 		icon: <SocialIcon icon={ 'print' } size={ 24 } />,
 	},
 	{
@@ -22,8 +34,13 @@ export const variations = [
 	},
 	{
 		name: 'mail',
-		attributes: { service: 'mail', label: 'Mail' },
-		title: 'Mail',
+		attributes: {
+			service: 'mail',
+			// translators: option to share the content by email - a verb.
+			label: __( 'Mail', 'jetpack' ),
+		},
+		// translators: option to share the content by email - a verb labelling a button.
+		title: __( 'Mail', 'jetpack' ),
 		keywords: [ 'email', 'e-mail' ],
 		icon: <SocialIcon icon={ 'mail' } size={ 24 } />,
 	},
@@ -94,6 +111,22 @@ export const variations = [
 		attributes: { service: 'nextdoor', label: 'Nextdoor' },
 		title: 'Nextdoor',
 		icon: <SocialIcon icon={ 'nextdoor' } size={ 24 } />,
+	},
+	{
+		name: 'native-share',
+		attributes: {
+			service: 'share',
+			// translators: option to share the content - a verb.
+			label: __( 'Share', 'jetpack' ),
+		},
+		// translators: option to share the content - a verb labelling a button.
+		title: __( 'Native Share', 'jetpack' ),
+		icon: <SocialIcon icon={ 'share' } size={ 24 } />,
+		//TODO: we can add link in the future to proper documentation
+		description: __(
+			'Share with native tools on users device or copy to clipboard otherwise',
+			'jetpack'
+		),
 	},
 ];
 

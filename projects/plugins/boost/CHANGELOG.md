@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.2] - 2024-04-02
+### Added
+- Cache: Ensure cache engine is loading every time the Settings page loads. [#36339]
+- Cache: Clear cache if Boost module settings are changed [#36452]
+- Cache: Show notification in site health if cache system isn't loading. [#36449]
+- Compatibility: Improved compatibility with SEO plugins for smoother Cloud CSS generation. [#36556]
+
+### Changed
+- Cloud CSS: Optimize regeneration time. [#36519]
+- Cloud CSS: Update REST API endpoint to be available even if the module is turned off. [#36437]
+- Performance History: Sanitize graph annotation text. [#36453]
+- Speed Score: More accurately detect which modules are active when a speed score is requested. [#36534]
+- General: Only show installation errors on plugins page. [#36390]
+- General: Updated package dependencies. [#36585]
+- General: Update getting started and upgrade copies. [#36475]
+
+## [3.2.0] - 2024-03-15
+### Fixed
+- Cache: Verify cache enabled on current site before saving cached data [#36350]
+- General: Added filter documentation [#36226]
+- General: Removed duplicate uninstall hook, fixing unnecessary database writes [#36403]
+
 ## [3.1.1] - 2024-03-11
 ### Added
 - Cache: Added a Page Cache module. [#35042]
@@ -397,6 +419,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[3.2.2]: https://github.com/Automattic/jetpack-boost-production/compare/3.2.0...3.2.2
+[3.2.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.1.1...3.2.0
 [3.1.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.0.2...3.1.1
 [3.0.2]: https://github.com/Automattic/jetpack-boost-production/compare/3.0.1...3.0.2
 [3.0.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.0.0...3.0.1

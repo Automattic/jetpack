@@ -9,7 +9,7 @@
 // order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
 // to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
 // are installed, or in some other cases).
-namespace Automattic\Jetpack\Backup\V0003;
+namespace Automattic\Jetpack\Backup\V0004;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Backup\V0003\Initial_State as Backup_Initial_State;
+use Automattic\Jetpack\Backup\V0004\Initial_State as Backup_Initial_State;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
@@ -714,7 +714,7 @@ class Jetpack_Backup {
 	/**
 	 * Get the best addon offer for this site, including pricing details
 	 *
-	 * @param WP_Request $request Object including storage usage.
+	 * @param \WP_REST_Request $request Object including storage usage.
 	 *
 	 * @return string|WP_Error A JSON object with the suggested storage addon details if the request was successful,
 	 *                         or a WP_Error otherwise.

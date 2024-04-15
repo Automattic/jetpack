@@ -26,14 +26,17 @@ use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Site_Health;
 use Automattic\Jetpack_Boost\Lib\Status;
+use Automattic\Jetpack_Boost\Modules\Modules_Index;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Site_Urls;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Source_Providers;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
 /**
@@ -112,7 +115,9 @@ class Jetpack_Boost {
 
 		add_action( 'init', array( $this, 'init_textdomain' ) );
 
-		add_action( 'handle_environment_change', array( $this, 'handle_environment_change' ), 10, 2 );
+		add_action( 'jetpack_boost_critical_css_environment_changed', array( $this, 'handle_environment_change' ), 10, 2 );
+
+		add_filter( 'query_vars', array( self::class, 'whitelist_query_args' ) );
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
@@ -137,6 +142,20 @@ class Jetpack_Boost {
 	}
 
 	/**
+	 * Add query args used by Boost to a list of allowed query args.
+	 *
+	 * @param array $allowed_query_args The list of allowed query args.
+	 *
+	 * @return array The modified list of allowed query args.
+
+	 */
+	public static function whitelist_query_args( $allowed_query_args ) {
+		$allowed_query_args[] = Generator::GENERATE_QUERY_ACTION;
+		$allowed_query_args[] = Modules_Index::DISABLE_MODULE_QUERY_VAR;
+		return $allowed_query_args;
+	}
+
+	/**
 	 * Plugin activation handler.
 	 */
 	public static function activate() {
@@ -155,6 +174,11 @@ class Jetpack_Boost {
 	 */
 	public function deactivate() {
 		do_action( 'jetpack_boost_deactivate' );
+
+		// Tell Minify JS/CSS to clean up.
+		require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-helpers.php';
+		jetpack_boost_page_optimize_deactivate();
+
 		Regenerate_Admin_Notice::dismiss();
 		Analytics::record_user_event( 'deactivate_plugin' );
 		Page_Cache_Setup::deactivate();
@@ -165,6 +189,7 @@ class Jetpack_Boost {
 	 */
 	public function init_admin( $modules_setup ) {
 		REST_API::register( List_Site_Urls::class );
+		REST_API::register( List_Source_Providers::class );
 		$this->connection->ensure_connection();
 		( new Admin() )->init( $modules_setup );
 	}
@@ -177,7 +202,7 @@ class Jetpack_Boost {
 				'jetpack_sync_callable_whitelist' => array(
 					'boost_modules'                => array( new Modules_Setup(), 'get_status' ),
 					'boost_latest_scores'          => array( new Speed_Score_History( get_home_url() ), 'latest' ),
-					'boost_latest_no_boost_scores' => array( new Speed_Score_History( add_query_arg( 'jb-disable-modules', 'all', get_home_url() ) ), 'latest' ),
+					'boost_latest_no_boost_scores' => array( new Speed_Score_History( add_query_arg( Modules_Index::DISABLE_MODULE_QUERY_VAR, 'all', get_home_url() ) ), 'latest' ),
 					'critical_css_state'           => array( new Critical_CSS_State(), 'get' ),
 				),
 			)

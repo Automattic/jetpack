@@ -13,6 +13,7 @@ namespace Automattic\Jetpack\Extensions\Sharing_Button_Block;
 
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Jetpack_PostImages;
+use WP_Post;
 
 /**
  * Base class for sharing sources.
@@ -366,6 +367,7 @@ abstract class Sharing_Source_Block {
 	 * Redirect to an external social network site to finish sharing.
 	 *
 	 * @param string $url Sharing URL for a given service.
+	 * @return never
 	 */
 	public function redirect_request( $url ) {
 		wp_redirect( $url ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- We allow external redirects here; we define them ourselves.
@@ -566,6 +568,27 @@ class Share_Print_Block extends Sharing_Source_Block {
 	 */
 	public function get_name() {
 		return __( 'Print', 'jetpack' );
+	}
+}
+
+/**
+ * Native Share button (relying on the Web Share API).
+ */
+class Share_Native_Block extends Sharing_Source_Block {
+	/**
+	 * Service short name.
+	 *
+	 * @var string
+	 */
+	public $shortname = 'native';
+
+	/**
+	 * Service name.
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return __( 'Web Share', 'jetpack' );
 	}
 }
 
@@ -948,6 +971,45 @@ class Share_Nextdoor_Block extends Sharing_Source_Block {
 		parent::process_request( $post, $post_data );
 
 		$url  = 'https://nextdoor.com/sharekit/?source=jetpack&body=';
+		$url .= rawurlencode( $this->get_share_title( $post->ID ) . ' ' . $this->get_share_url( $post->ID ) );
+
+		parent::redirect_request( $url );
+	}
+}
+
+/**
+ * Bluesky sharing button.
+ */
+class Share_Bluesky_Block extends Sharing_Source_Block {
+	/**
+	 * Service short name.
+	 *
+	 * @var string
+	 */
+	public $shortname = 'bluesky';
+
+	/**
+	 * Service name.
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return __( 'Bluesky', 'jetpack' );
+	}
+
+	/**
+	 * Process sharing request. Add actions that need to happen when sharing here.
+	 *
+	 * @param WP_Post $post Post object.
+	 * @param array   $post_data Array of information about the post we're sharing.
+	 *
+	 * @return void
+	 */
+	public function process_request( $post, array $post_data ) {
+		// Record stats
+		parent::process_request( $post, $post_data );
+
+		$url  = 'https://bsky.app/intent/compose?text=';
 		$url .= rawurlencode( $this->get_share_title( $post->ID ) . ' ' . $this->get_share_url( $post->ID ) );
 
 		parent::redirect_request( $url );
