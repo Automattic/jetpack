@@ -846,8 +846,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		);
 		$result = rest_do_request( $request );
 
-		$this->assertSame( 200, $result->get_status() );
-		$this->assertSame( array(), get_option( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
+		$this->assertSame( 404, $result->get_status() );
+		$this->assertSame( false, get_option( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
 	}
 
 	/**
