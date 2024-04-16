@@ -128,6 +128,8 @@ function make_phan_config( $dir, $options = array() ) {
 			array(
 				// Otherwise it complains about the config files trying to call this function. 😀
 				__FILE__,
+				// Assume everything uses PHPUnit.
+				"$root/.phan/stubs/phpunit-stubs.php",
 			),
 			$stubs,
 			$options['file_list'],
@@ -146,15 +148,18 @@ function make_phan_config( $dir, $options = array() ) {
 					// Most of these are probably from our intra-monorepo symlinks.
 					'(?:jetpack_)?vendor/.*/(?:wordpress|(?:jetpack_)?vendor|node_modules)/',
 					// Yoast/phpunit-polyfills triggers a lot of PhanRedefinedXXX errors.
-					// Avoid that by excluding certain files.
-					'vendor/yoast/phpunit-polyfills/src/Polyfills/.*_Empty\.php',
-					'vendor/yoast/phpunit-polyfills/src/TestCases/TestCasePHPUnitGte8\.php',
+					// Avoid that by excluding the versions of the files for PHPUnit < 9.6
+					'vendor/yoast/phpunit-polyfills/src/Polyfills/(?!.*_Empty).*\.php',
+					'vendor/yoast/phpunit-polyfills/src/TestCases/TestCasePHPUnitLte7\.php',
 					// Other stuff to ignore.
 					'node_modules/',
 					'tests/e2e/node_modules/',
 					'wordpress/',
 					'\.cache/',
 				),
+				// PHPUnit 9.6 has some broken phpdocs and missing `@template` annotations. We provide corrected stubs.
+				// This file holds the vendor paths we stubbed.
+				explode( "\n", trim( (string) file_get_contents( "$root/.phan/stubs/phpunit-dirs.txt" ) ) ),
 				$options['exclude_file_regex']
 			)
 		) . ')@',

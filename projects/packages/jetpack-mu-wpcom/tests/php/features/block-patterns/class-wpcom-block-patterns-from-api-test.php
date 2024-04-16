@@ -59,7 +59,6 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 	 */
 	public function createBlockPatternsUtilsMock( $pattern_mock_response, $cache_get = false, $cache_add = true, $get_patterns_cache_key = 'key-largo', $get_block_patterns_locale = 'fr' ) {
 		$mock = $this->createMock( Wpcom_Block_Patterns_Utils::class );
-		'@phan-var Wpcom_Block_Patterns_Utils&\PHPUnit\Framework\MockObject\MockObject $mock'; // PHPUnit 9.6 only declares `@psalm-template` and not `@template` and such so Phan can't know the right types.
 
 		$mock->method( 'remote_get' )
 			->willReturn( $pattern_mock_response );

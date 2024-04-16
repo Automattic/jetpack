@@ -25,7 +25,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 	public function set_up() {
 		if ( ! self::$woo_enabled ) {
 			$this->markTestSkipped();
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 		parent::set_up();
 		$this->full_sync = Modules::get_module( 'full-sync' );
@@ -223,6 +223,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_full_sync_order_items() {
 		$this->markTestSkipped( 'Temporarily skip this test.' );
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		$order1 = $this->createOrderWithItem();
 		$order2 = $this->createOrderWithItem();
 

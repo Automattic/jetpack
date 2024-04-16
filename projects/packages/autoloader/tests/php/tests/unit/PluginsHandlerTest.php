@@ -46,13 +46,12 @@ class PluginsHandlerTest extends TestCase {
 	 * @before
 	 */
 	public function set_up() {
-		$this->plugin_locator = $this->getMockBuilder( Plugin_Locator::class )
+		$this->plugin_locator  = $this->getMockBuilder( Plugin_Locator::class )
 			->disableOriginalConstructor()
 			->getMock();
-		$this->path_processor = $this->getMockBuilder( Path_Processor::class )
+		$this->path_processor  = $this->getMockBuilder( Path_Processor::class )
 			->disableOriginalConstructor()
 			->getMock();
-		// @phan-suppress-next-line PhanTypeMismatchArgument -- It's correct, but PHPUnit 9.6 only declares `@psalm-template` and not `@template` and such so Phan can't know the right types.
 		$this->plugins_handler = new Plugins_Handler( $this->plugin_locator, $this->path_processor );
 	}
 
@@ -73,7 +72,7 @@ class PluginsHandlerTest extends TestCase {
 		$jetpack_autoloader_activating_plugins_paths = array( WP_PLUGIN_DIR . '/plugin_activating' );
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_using_option' )
-			->with( 'active_plugins', false ) // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- PHPUnit 9.6 declares the wrong type for this method.
+			->with( 'active_plugins', false )
 			->willReturn( array( WP_PLUGIN_DIR . '/dummy_current' ) );
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_using_request_action' )
@@ -142,7 +141,7 @@ class PluginsHandlerTest extends TestCase {
 	public function test_gets_active_plugins_records_unknown_plugins() {
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_using_option' )
-			->with( 'active_plugins', false ) // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- PHPUnit 9.6 declares the wrong type for this method.
+			->with( 'active_plugins', false )
 			->willReturn( array() );
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_using_request_action' )
@@ -172,7 +171,7 @@ class PluginsHandlerTest extends TestCase {
 	public function test_gets_active_plugins_ignores_unknown_plugins_when_desired() {
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_using_option' )
-			->with( 'active_plugins', false ) // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- PHPUnit 9.6 declares the wrong type for this method.
+			->with( 'active_plugins', false )
 			->willReturn( array() );
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_using_request_action' )
@@ -198,7 +197,7 @@ class PluginsHandlerTest extends TestCase {
 		$jetpack_autoloader_activating_plugins_paths = array();
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_using_option' )
-			->with( 'active_plugins', false ) // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- PHPUnit 9.6 declares the wrong type for this method.
+			->with( 'active_plugins', false )
 			->willReturn( array() );
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_using_request_action' )
@@ -227,7 +226,7 @@ class PluginsHandlerTest extends TestCase {
 		$jetpack_autoloader_activating_plugins_paths = array();
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_using_option' )
-			->with( 'active_plugins', false ) // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- PHPUnit 9.6 declares the wrong type for this method.
+			->with( 'active_plugins', false )
 			->willReturn( array( WP_PLUGIN_DIR . '/dummy_newer' ) );
 		$this->plugin_locator->expects( $this->exactly( 2 ) )
 			->method( 'find_using_request_action' )
@@ -260,7 +259,7 @@ class PluginsHandlerTest extends TestCase {
 
 		$this->path_processor->expects( $this->once() )
 			->method( 'untokenize_path_constants' )
-			->with( '{{WP_PLUGIN_PATH}}/plugins/dummy_newer' ) // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- PHPUnit 9.6 declares the wrong type for this method.
+			->with( '{{WP_PLUGIN_PATH}}/plugins/dummy_newer' )
 			->willReturn( WP_PLUGIN_DIR . '/dummy_newer' );
 
 		$plugin_paths = $this->plugins_handler->get_cached_plugins();
@@ -288,7 +287,7 @@ class PluginsHandlerTest extends TestCase {
 	public function test_updates_cache_writes_plugins() {
 		$this->path_processor->expects( $this->once() )
 			->method( 'tokenize_path_constants' )
-			->with( WP_PLUGIN_DIR . '/dummy_newer' ) // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- PHPUnit 9.6 declares the wrong type for this method.
+			->with( WP_PLUGIN_DIR . '/dummy_newer' )
 			->willReturn( '{{WP_PLUGIN_PATH}}/plugins/dummy_newer' );
 
 		$this->plugins_handler->cache_plugins( array( WP_PLUGIN_DIR . '/dummy_newer' ) );

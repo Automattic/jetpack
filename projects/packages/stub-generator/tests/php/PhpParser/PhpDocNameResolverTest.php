@@ -45,7 +45,6 @@ class PhpDocNameResolverTest extends TestCase {
 
 		$stmts = $parser->parse( "<?php\n$input" );
 		$this->assertNotNull( $stmts );
-		'@phan-var \PhpParser\Node[] $stmts';
 
 		$stmts = $traverser->traverse( $stmts );
 
