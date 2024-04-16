@@ -25,6 +25,13 @@ class WPCom_Themes_Service {
 	private WPCom_Themes_Api $api;
 
 	/**
+	 * Theme merge strategy collection.
+	 *
+	 * @var WPCom_Themes_Merger
+	 */
+	private WPCom_Themes_Merger $merger;
+
+	/**
 	 * Valid theme tiers for Atomic sites.
 	 */
 	private const VALID_THEME_TIERS = array(
@@ -39,31 +46,16 @@ class WPCom_Themes_Service {
 	 *
 	 * @param WPCom_Themes_Api    $api    The WordPress.com themes API.
 	 * @param WPCom_Themes_Mapper $mapper The mapper to map WPCom themes to WPORG themes.
+	 * @param WPCom_Themes_Merger $merger The theme merge strategy collection.
 	 */
 	public function __construct(
 		WPCom_Themes_Api $api,
-		WPCom_Themes_Mapper $mapper
+		WPCom_Themes_Mapper $mapper,
+		WPCom_Themes_Merger $merger
 	) {
 		$this->api    = $api;
 		$this->mapper = $mapper;
-	}
-
-	/**
-	 * Filter the WP.org themes API result to include the given WordPress.com themes.
-	 *
-	 * @param stdClass $wporg_theme_api_response The WP.org themes API result.
-	 * @param array    $wpcom_themes             The WP.com themes to include.
-	 *
-	 * @return stdClass The themes API result including wpcom themes.
-	 */
-	protected function merge_wpcom_and_wporg_themes( stdClass $wporg_theme_api_response, array $wpcom_themes ): stdClass {
-		if ( 1 === $wporg_theme_api_response->info['page'] ) {
-			$wporg_theme_api_response->themes = array_merge( $wpcom_themes, $wporg_theme_api_response->themes );
-		}
-
-		$wporg_theme_api_response->info['results'] += count( $wpcom_themes );
-
-		return $wporg_theme_api_response;
+		$this->merger = $merger;
 	}
 
 	/**
@@ -76,7 +68,7 @@ class WPCom_Themes_Service {
 	public function filter_themes_api_result_recommended( stdClass $wporg_theme_api_response ): stdClass {
 		$wpcom_recommended_themes = $this->api->fetch_recommended_themes();
 		$wpcom_recommended_themes = $this->map_and_filter_wpcom_themes( $wpcom_recommended_themes );
-		return $this->merge_wpcom_and_wporg_themes( $wporg_theme_api_response, $wpcom_recommended_themes );
+		return $this->merger->merge_by_wpcom_first( $wporg_theme_api_response, $wpcom_recommended_themes );
 	}
 
 	/**
@@ -90,7 +82,7 @@ class WPCom_Themes_Service {
 	public function filter_themes_api_result_search( stdClass $wporg_theme_api_response, string $search ): stdClass {
 		$wpcom_search_themes = $this->api->search_themes( $search );
 		$wpcom_search_themes = $this->map_and_filter_wpcom_themes( $wpcom_search_themes );
-		return $this->merge_wpcom_and_wporg_themes( $wporg_theme_api_response, $wpcom_search_themes );
+		return $this->merger->merge_by_wpcom_first( $wporg_theme_api_response, $wpcom_search_themes );
 	}
 
 	/**
@@ -158,5 +150,36 @@ class WPCom_Themes_Service {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Returns a list of themes that include WPCom themes sorted by release date.
+	 *
+	 * @param stdClass $wporg_theme_api_response The WP.org themes API result.
+	 *
+	 * @return stdClass The themes API result including wpcom themes.
+	 */
+	public function filter_themes_api_result_latest( stdClass $wporg_theme_api_response ): stdClass {
+		$wpcom_themes = $this->api->fetch_all_themes();
+		$wpcom_themes = $this->map_and_filter_wpcom_themes( $wpcom_themes );
+		return $this->merger->merge_by_release_date( $wporg_theme_api_response, $wpcom_themes );
+	}
+
+	/**
+	 * Returns a list of themes that include WPCom block themes sorted by release date.
+	 *
+	 * @param stdClass $wporg_theme_api_response The WP.org themes API result.
+	 *
+	 * @return stdClass The themes API result including wpcom themes.
+	 */
+	public function filter_themes_api_result_block_themes( stdClass $wporg_theme_api_response ): stdClass {
+		$wpcom_themes = $this->api->fetch_all_themes();
+		$wpcom_themes = array_filter(
+			$wpcom_themes,
+			fn( $theme ) => $theme->block_theme
+		);
+		$wpcom_themes = $this->map_and_filter_wpcom_themes( $wpcom_themes );
+
+		return $this->merger->merge_by_release_date( $wporg_theme_api_response, $wpcom_themes );
 	}
 }

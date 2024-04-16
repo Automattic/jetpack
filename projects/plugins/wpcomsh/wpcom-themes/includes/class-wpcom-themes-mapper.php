@@ -44,6 +44,8 @@ class WPCom_Themes_Mapper {
 		$theme->installed            = $wp_theme->exists();
 		$theme->block_theme          = $wpcom_theme->block_theme;
 		$theme->version              = $wpcom_theme->version;
+		$theme->creation_time        = $wpcom_theme->date_added;
+		$theme->is_wpcom_theme       = true;
 
 		return $theme;
 	}

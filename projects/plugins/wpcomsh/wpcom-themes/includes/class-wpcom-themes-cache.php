@@ -26,10 +26,10 @@ class WPCom_Themes_Cache {
 	 *
 	 * @return array Array of cached themes.
 	 */
-	public function run_cached( string $cache_key, callable $lambda, int $ttl = DAY_IN_SECONDS ): mixed {
+	public function run_cached( string $cache_key, callable $lambda, int $ttl = DAY_IN_SECONDS ): array {
 		$data = wp_cache_get( $cache_key, self::CACHE_GROUP );
 
-		if ( false === $data ) {
+		if ( false === $data || defined( 'IGNORE_CACHED_WPCOM_THEMES' ) ) {
 			$data = $lambda();
 			wp_cache_set( $cache_key, $data, self::CACHE_GROUP, $ttl );
 		}
