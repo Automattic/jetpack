@@ -21,21 +21,21 @@ class AutoloaderHandlerTest extends TestCase {
 	/**
 	 * The php autoloader mock;
 	 *
-	 * @var PHP_Autoloader|\PHPUnit\Framework\MockObject\MockObject
+	 * @var PHP_Autoloader&\PHPUnit\Framework\MockObject\MockObject
 	 */
 	private $php_autoloader;
 
 	/**
 	 * The hook manager mock;
 	 *
-	 * @var Hook_Manager|\PHPUnit\Framework\MockObject\MockObject
+	 * @var Hook_Manager&\PHPUnit\Framework\MockObject\MockObject
 	 */
 	private $hook_manager;
 
 	/**
 	 * The manifest reader mock.
 	 *
-	 * @var Manifest_Reader|\PHPUnit\Framework\MockObject\MockObject
+	 * @var Manifest_Reader&\PHPUnit\Framework\MockObject\MockObject
 	 */
 	private $manifest_reader;
 

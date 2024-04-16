@@ -9,7 +9,7 @@
  * Plugin Name:       Jetpack Boost
  * Plugin URI:        https://jetpack.com/boost
  * Description:       Boost your WordPress site's performance, from the creators of Jetpack
- * Version: 3.2.0
+ * Version: 3.2.3-alpha
  * Author:            Automattic - Jetpack Site Speed team
  * Author URI:        https://jetpack.com/boost/
  * License:           GPL-2.0+
@@ -29,7 +29,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-define( 'JETPACK_BOOST_VERSION', '3.2.0' );
+define( 'JETPACK_BOOST_VERSION', '3.2.3-alpha' );
 define( 'JETPACK_BOOST_SLUG', 'jetpack-boost' );
 
 if ( ! defined( 'JETPACK_BOOST_CLIENT_NAME' ) ) {
@@ -85,12 +85,29 @@ if ( is_readable( $boost_packages_path ) ) {
 		);
 	}
 
+	// Add a red bubble notification to My Jetpack if the installation is bad.
+	add_filter(
+		'my_jetpack_red_bubble_notification_slugs',
+		function ( $slugs ) {
+			$slugs['jetpack-boost-plugin-bad-installation'] = array(
+				'data' => array(
+					'plugin' => 'Jetpack Boost',
+				),
+			);
+
+			return $slugs;
+		}
+	);
+
 	/**
 	 * Outputs an admin notice for folks running Jetpack Boost without having run composer install.
 	 *
 	 * @since 1.2.0
 	 */
 	function jetpack_boost_admin_missing_files() {
+		if ( get_current_screen()->id !== 'plugins' ) {
+			return;
+		}
 		?>
 		<div class="notice notice-error is-dismissible">
 			<p>
@@ -222,6 +239,9 @@ function include_compatibility_files() {
 	if ( function_exists( 'aioseo' ) ) {
 		require_once __DIR__ . '/compatibility/aioseo.php';
 	}
+
+	// Exclude known scripts that causes problem when concatenated.
+	require_once __DIR__ . '/compatibility/js-concatenate.php';
 }
 
 add_action( 'plugins_loaded', __NAMESPACE__ . '\include_compatibility_files' );

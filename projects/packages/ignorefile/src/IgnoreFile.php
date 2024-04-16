@@ -9,6 +9,7 @@ namespace Automattic;
 
 use Automattic\IgnoreFile\InvalidPatternException;
 use CallbackFilterIterator;
+use FilterIterator;
 use InvalidArgumentException;
 use Iterator;
 use RecursiveCallbackFilterIterator;
@@ -203,7 +204,7 @@ class IgnoreFile {
 	 * as that does not include the necessary trailing `/` on directory names.
 	 *
 	 * @param Iterator $iter Iterator to filter.
-	 * @return Iterator Filtered iterator.
+	 * @return FilterIterator|FilterIterator&RecursiveIterator Filtered iterator. If the input implements `RecursiveIterator`, the returned iterator does too.
 	 */
 	public function filterIterator( Iterator $iter ) {
 		if ( $iter instanceof RecursiveIterator ) {

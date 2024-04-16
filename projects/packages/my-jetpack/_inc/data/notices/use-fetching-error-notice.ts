@@ -1,5 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { useContext, useEffect } from 'react';
+import { NOTICE_PRIORITY_LOW } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import {
 	QUERY_ACTIVATE_PRODUCT_KEY,
@@ -37,7 +38,10 @@ export const useFetchingErrorNotice = ( { infoName, isError, overrideMessage }: 
 		if ( isError && errorNoticeWhitelist.includes( infoName ) ) {
 			setNotice( {
 				message,
-				options: { status: 'error' },
+				options: {
+					level: 'error',
+					priority: NOTICE_PRIORITY_LOW,
+				},
 			} );
 		}
 	}, [ message, setNotice, isError, infoName ] );

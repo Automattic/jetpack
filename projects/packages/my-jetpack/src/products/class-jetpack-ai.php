@@ -8,13 +8,18 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\My_Jetpack\Initializer;
 use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use WP_Post;
 
 /**
  * Class responsible for handling the Jetpack AI product
  */
 class Jetpack_Ai extends Product {
+
+	const CURRENT_TIER_SLUG  = 'free';
+	const UPGRADED_TIER_SLUG = 'upgraded';
 
 	/**
 	 * The product slug
@@ -76,6 +81,77 @@ class Jetpack_Ai extends Product {
 	}
 
 	/**
+	 * Get the product's available tiers
+	 *
+	 * @return string[] Slugs of the available tiers
+	 */
+	public static function get_tiers() {
+		return array(
+			self::UPGRADED_TIER_SLUG,
+			self::CURRENT_TIER_SLUG,
+		);
+	}
+
+	/**
+	 * Get the internationalized comparison of free vs upgraded features
+	 *
+	 * @return array[] Protect features comparison
+	 */
+	public static function get_features_by_tier() {
+		$current_tier        = self::get_current_usage_tier();
+		$current_description = $current_tier === 0
+			? __( 'Up to 20 requests', 'jetpack-my-jetpack' )
+			/* translators: number of requests */
+			: sprintf( __( 'Up to %d requests per month', 'jetpack-my-jetpack' ), $current_tier );
+		$next_tier        = self::get_next_usage_tier();
+		$next_description = $next_tier === null
+			? __( 'Let\'s get in touch', 'jetpack-my-jetpack' )
+			/* translators: number of requests */
+			: sprintf( __( 'Up to %d requests per month', 'jetpack-my-jetpack' ), $next_tier );
+
+		return array(
+			array(
+				'name'  => __( 'Number of requests', 'jetpack-my-jetpack' ),
+				'info'  => array(
+					'title'   => __( 'Requests', 'jetpack-my-jetpack' ),
+					'content' => __( 'Increase your monthly request limit. Upgrade now and have the option to further increase your requests with additional upgrades.', 'jetpack-my-jetpack' ),
+				),
+				'tiers' => array(
+					self::CURRENT_TIER_SLUG  => array(
+						'included'    => true,
+						'description' => $current_description,
+					),
+					self::UPGRADED_TIER_SLUG => array(
+						'included'    => true,
+						'description' => $next_description,
+					),
+				),
+			),
+			array(
+				'name'  => __( 'Generate and edit content', 'jetpack-my-jetpack' ),
+				'tiers' => array(
+					self::CURRENT_TIER_SLUG  => array( 'included' => true ),
+					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
+				),
+			),
+			array(
+				'name'  => __( 'Build forms from prompts', 'jetpack-my-jetpack' ),
+				'tiers' => array(
+					self::CURRENT_TIER_SLUG  => array( 'included' => true ),
+					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
+				),
+			),
+			array(
+				'name'  => __( 'Get feedback on posts', 'jetpack-my-jetpack' ),
+				'tiers' => array(
+					self::CURRENT_TIER_SLUG  => array( 'included' => true ),
+					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
+				),
+			),
+		);
+	}
+
+	/**
 	 * Get the current usage tier
 	 *
 	 * @return int
@@ -126,7 +202,7 @@ class Jetpack_Ai extends Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Experimental tool to add AI to your editor', 'jetpack-my-jetpack' );
+		return __( 'The most powerful AI tool for WordPress', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -201,10 +277,14 @@ class Jetpack_Ai extends Product {
 	/**
 	 * Get the product pricing details by tier
 	 *
-	 * @param int $tier The usage tier.
+	 * @param int|null $tier The usage tier.
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui_by_usage_tier( $tier ) {
+		if ( $tier === null ) {
+			return array();
+		}
+
 		$product = Wpcom_Products::get_product( static::get_wpcom_product_slug() );
 
 		if ( empty( $product ) ) {
@@ -266,14 +346,34 @@ class Jetpack_Ai extends Product {
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
-		$next_tier = self::get_next_usage_tier();
+		$next_tier              = self::get_next_usage_tier();
+		$current_tier           = self::get_current_usage_tier();
+		$current_call_to_action = $current_tier === 0
+			? __( 'Continue for free', 'jetpack-my-jetpack' )
+			: __( 'I\'m fine with my plan, thanks', 'jetpack-my-jetpack' );
+		$next_call_to_action    = $next_tier === null
+			? __( 'Contact Us', 'jetpack-my-jetpack' )
+			: __( 'Upgrade', 'jetpack-my-jetpack' );
 
-		return array_merge(
-			array(
-				'available'          => true,
-				'wpcom_product_slug' => static::get_wpcom_product_slug(),
+		return array(
+			'tiers' => array(
+				self::CURRENT_TIER_SLUG  => array_merge(
+					self::get_pricing_for_ui_by_usage_tier( $current_tier ),
+					array(
+						'available'      => true,
+						'is_free'        => true,
+						'call_to_action' => $current_call_to_action,
+					)
+				),
+				self::UPGRADED_TIER_SLUG => array_merge(
+					self::get_pricing_for_ui_by_usage_tier( $next_tier ),
+					array(
+						'wpcom_product_slug' => static::get_wpcom_product_slug(),
+						'quantity'           => $next_tier,
+						'call_to_action'     => $next_call_to_action,
+					)
+				),
 			),
-			self::get_pricing_for_ui_by_usage_tier( $next_tier )
 		);
 	}
 
@@ -331,12 +431,48 @@ class Jetpack_Ai extends Product {
 	}
 
 	/**
+	 * Get the URL the user is taken after purchasing the product through the checkout
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_checkout_url() {
+		return '/wp-admin/admin.php?page=my-jetpack#/jetpack-ai';
+	}
+
+	/**
+	 * Get the URL the user is taken after activating the product through the checkout
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_activation_url() {
+		return '/wp-admin/admin.php?page=my-jetpack#/jetpack-ai';
+	}
+
+	/**
 	 * Get the URL where the user manages the product
 	 *
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		return '';
+		return '/wp-admin/admin.php?page=my-jetpack#/add-jetpack-ai';
+	}
+
+	/**
+	 * Checks whether the plugin is installed
+	 *
+	 * @return boolean
+	 */
+	public static function is_plugin_installed() {
+		return self::is_jetpack_plugin_installed();
+	}
+
+	/**
+	 * Checks whether the plugin is active
+	 *
+	 * @return boolean
+	 */
+	public static function is_plugin_active() {
+		return (bool) static::is_jetpack_plugin_active();
 	}
 
 	/**
@@ -382,5 +518,62 @@ class Jetpack_Ai extends Product {
 	 */
 	private static function is_site_connected() {
 		return ( new Connection_Manager() )->is_connected();
+	}
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * NOTE: this method is the only thing that resembles an initialization for the product.
+	 *
+	 * @return void
+	 */
+	public static function extend_plugin_action_links() {
+		add_action( 'admin_enqueue_scripts', array( static::class, 'admin_enqueue_scripts' ) );
+		add_filter( 'default_content', array( static::class, 'add_ai_block' ), 10, 2 );
+	}
+
+	/**
+	 * Enqueue the AI Assistant script
+	 *
+	 * The script is just a global variable used for the nonce, needed for the create post link.
+	 *
+	 * @return void
+	 */
+	public static function admin_enqueue_scripts() {
+		wp_register_script(
+			'my_jetpack_ai_app',
+			false,
+			array(),
+			Initializer::PACKAGE_VERSION,
+			array( 'in_footer' => true )
+		);
+		wp_localize_script(
+			'my_jetpack_ai_app',
+			'jetpackAi',
+			array(
+				'nonce' => wp_create_nonce( 'ai-assistant-content-nonce' ),
+			)
+		);
+		wp_enqueue_script( 'my_jetpack_ai_app' );
+	}
+
+	/**
+	 * Add AI block to the post content
+	 *
+	 * Used only from the link on the product page, the filter will insert an AI Assistant block in the post content.
+	 *
+	 * @param string  $content The post content.
+	 * @param WP_Post $post The post object.
+	 * @return string
+	 */
+	public static function add_ai_block( $content, WP_Post $post ) {
+		if ( isset( $_GET['use_ai_block'] ) && isset( $_GET['_wpnonce'] )
+			&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'ai-assistant-content-nonce' )
+			&& current_user_can( 'edit_post', $post->ID )
+			&& '' === $content
+		) {
+			return '<!-- wp:jetpack/ai-assistant /-->';
+		}
+		return $content;
 	}
 }

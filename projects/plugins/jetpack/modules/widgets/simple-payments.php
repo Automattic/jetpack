@@ -344,7 +344,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * Returns the number of decimal places on string representing a price.
 		 *
 		 * @param string $number Price to check.
-		 * @return number number of decimal places.
+		 * @return int|null number of decimal places.
 		 */
 		private function get_decimal_places( $number ) {
 			$parts = explode( '.', $number );

@@ -5,7 +5,7 @@
  * Sort Order: 35
  * Recommendation Order: 15
  * First Introduced: 4.4
- * Requires Connection: Yes
+ * Requires Connection: No
  * Requires User Connection: No
  * Auto Activate: No
  * Module Tags: Social, Appearance

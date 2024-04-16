@@ -252,7 +252,9 @@ class Broken_Token_Connection_Errors {
 	}
 
 	/**
-	 * Return the list of verified errors to dynamically refresh the interface
+	 * Print the list of verified errors to dynamically refresh the interface
+	 *
+	 * @return never
 	 */
 	public function admin_post_refresh_verified_errors_list() {
 		check_admin_referer( 'refresh-verified-errors' );

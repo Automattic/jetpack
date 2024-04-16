@@ -19,25 +19,6 @@ use Automattic\Jetpack\Status\Host;
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move the functions and such to some other file.
 
 /**
- * Wrapper function to safely register a gutenberg block type
- *
- * @deprecated 9.1.0 Use Automattic\\Jetpack\\Blocks::jetpack_register_block instead
- *
- * @see register_block_type
- *
- * @since 6.7.0
- *
- * @param string $slug Slug of the block.
- * @param array  $args Arguments that are passed into register_block_type.
- *
- * @return WP_Block_Type|false The registered block type on success, or false on failure.
- */
-function jetpack_register_block( $slug, $args = array() ) {
-	_deprecated_function( __METHOD__, '9.1.0', 'Automattic\\Jetpack\\Blocks::jetpack_register_block' );
-	return Blocks::jetpack_register_block( $slug, $args );
-}
-
-/**
  * General Gutenberg editor specific functionality
  */
 class Jetpack_Gutenberg {
@@ -706,8 +687,7 @@ class Jetpack_Gutenberg {
 		}
 		// AI Assistant
 		$ai_assistant_state = array(
-			'is-enabled'            => apply_filters( 'jetpack_ai_enabled', true ),
-			'is-playground-visible' => Constants::is_true( 'JETPACK_AI_ASSISTANT_PLAYGROUND' ),
+			'is-enabled' => apply_filters( 'jetpack_ai_enabled', true ),
 		);
 
 		$screen_base = null;
@@ -850,22 +830,6 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Get CSS classes for a block.
-	 *
-	 * @since 7.7.0
-	 *
-	 * @param string $slug  Block slug.
-	 * @param array  $attr  Block attributes.
-	 * @param array  $extra Potential extra classes you may want to provide.
-	 *
-	 * @return string $classes List of CSS classes for a block.
-	 */
-	public static function block_classes( $slug, $attr, $extra = array() ) {
-		_deprecated_function( __METHOD__, '9.0.0', 'Automattic\\Jetpack\\Blocks::classes' );
-		return Blocks::classes( $slug, $attr, $extra );
-	}
-
-	/**
 	 * Determine whether a site should use the default set of blocks, or a custom set.
 	 * Possible variations are currently beta, experimental, and production.
 	 *
@@ -963,7 +927,7 @@ class Jetpack_Gutenberg {
 	 *
 	 * @since 8.1.0
 	 *
-	 * @param obj    $preset_extensions_manifest List of extensions available in Jetpack.
+	 * @param object $preset_extensions_manifest List of extensions available in Jetpack.
 	 * @param string $blocks_variation           Subset of blocks. production|beta|experimental.
 	 *
 	 * @return array $preset_extensions Array of extensions for that variation

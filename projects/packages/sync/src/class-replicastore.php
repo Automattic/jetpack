@@ -1392,6 +1392,7 @@ class Replicastore implements Replicastore_Interface {
 	 * Used in methods that are not implemented and shouldn't be invoked.
 	 *
 	 * @access private
+	 * @return never
 	 * @throws Exception If this method is invoked.
 	 */
 	private function invalid_call() {

@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Social;
 
+use WP_Post;
+
 /**
  * Adds the meta tags.
  */

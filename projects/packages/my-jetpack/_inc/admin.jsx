@@ -27,6 +27,7 @@ import {
 	VideoPressInterstitial,
 	StatsInterstitial,
 } from './components/product-interstitial';
+import JetpackAiProductPage from './components/product-interstitial/jetpack-ai/product-page';
 import RedeemTokenScreen from './components/redeem-token-screen';
 import { MyJetpackRoutes } from './constants';
 import NoticeContextProvider from './context/notices/noticeContext';
@@ -83,6 +84,8 @@ const MyJetpack = () => {
 								<Route path={ MyJetpackRoutes.AddLicense } element={ <AddLicenseScreen /> } />
 							) }
 							<Route path={ MyJetpackRoutes.RedeemToken } element={ <RedeemTokenScreen /> } />
+							<Route path="/redeem-token" element={ <RedeemTokenScreen /> } />
+							<Route path="/jetpack-ai" element={ <JetpackAiProductPage /> } />
 						</Routes>
 					</HashRouter>
 				</QueryClientProvider>

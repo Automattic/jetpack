@@ -7,12 +7,15 @@
 
 namespace Automattic\Jetpack\Post_List;
 
+use WP_Post;
+use WP_Screen;
+
 /**
  * The Post_List Admin Area
  */
 class Post_List {
 
-	const PACKAGE_VERSION = '0.6.1-alpha';
+	const PACKAGE_VERSION = '0.6.2';
 	const FEATURE         = 'enhanced_post_list';
 
 	/**

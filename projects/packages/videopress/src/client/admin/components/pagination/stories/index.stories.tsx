@@ -1,14 +1,14 @@
 import { action } from '@storybook/addon-actions';
-import { useArgs } from '@storybook/client-api';
+import { useArgs } from '@storybook/preview-api';
 import Pagination from '..';
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'Packages/VideoPress/Pagination',
 	component: Pagination,
-} as ComponentMeta< typeof Pagination >;
+} as Meta< typeof Pagination >;
 
-const Template: ComponentStory< typeof Pagination > = args => {
+const Template: StoryFn< typeof Pagination > = args => {
 	const [ , updateArgs ] = useArgs();
 	const onChangePage = ( newPage: number ) => {
 		updateArgs( { currentPage: newPage, disabled: true } );

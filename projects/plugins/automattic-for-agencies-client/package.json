@@ -1,0 +1,59 @@
+{
+	"private": true,
+	"description": "Easily connect your clients sites to the Automattic for Agencies portal and enable portal features like plugin updates, downtime monitoring, and more..",
+	"homepage": "https://jetpack.com",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Automattic For Agencies Client"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/plugins/automattic-for-agencies-client"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "pnpm run clean && pnpm run build-client",
+		"build-client": "webpack",
+		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client'",
+		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
+		"clean": "rm -rf build/",
+		"test": "jest",
+		"validate": "pnpm exec validate-es build/",
+		"watch": "pnpm run build && webpack watch"
+	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
+	"dependencies": {
+		"@automattic/color-studio": "2.6.0",
+		"@automattic/jetpack-api": "workspace:*",
+		"@automattic/jetpack-base-styles": "workspace:*",
+		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-connection": "workspace:*",
+		"@wordpress/data": "9.25.0",
+		"@wordpress/date": "4.55.0",
+		"@wordpress/element": "5.32.0",
+		"@wordpress/i18n": "4.55.0",
+		"classnames": "2.3.2",
+		"react": "18.2.0",
+		"react-dom": "18.2.0"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@babel/core": "7.24.0",
+		"@babel/preset-env": "7.24.0",
+		"@babel/runtime": "7.24.0",
+		"@testing-library/dom": "9.3.4",
+		"@testing-library/react": "14.2.1",
+		"@wordpress/browserslist-config": "5.38.0",
+		"babel-jest": "29.4.3",
+		"concurrently": "7.6.0",
+		"jest": "29.7.0",
+		"jest-environment-jsdom": "29.7.0",
+		"sass": "1.64.1",
+		"sass-loader": "12.4.0",
+		"webpack": "5.76.0",
+		"webpack-cli": "4.9.1"
+	}
+}

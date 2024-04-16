@@ -7,7 +7,12 @@ import {
 	ToolbarGroup,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { GOODREADS_SHELF_OPTIONS, GOODREADS_ORDER_OPTIONS, GOODREADS_SORT_OPTIONS } from './utils';
+import {
+	GOODREADS_SHELF_OPTIONS,
+	GOODREADS_ORDER_OPTIONS,
+	GOODREADS_SORT_OPTIONS,
+	GOODREADS_DEFAULT_TITLE,
+} from './utils';
 
 const renderGoodreadsDisplaySettings = ( { attributes, setAttributes } ) => {
 	const { showCover, showAuthor, showTitle, showRating, showReview, showTags } = attributes;
@@ -68,7 +73,7 @@ export function GoodreadsInspectorControls( { attributes, setAttributes } ) {
 
 				<TextControl
 					label={ __( 'Title', 'jetpack' ) }
-					value={ customTitle || __( 'My Bookshelf', 'jetpack' ) }
+					value={ customTitle || GOODREADS_DEFAULT_TITLE }
 					onChange={ value => setAttributes( { customTitle: value } ) }
 				/>
 

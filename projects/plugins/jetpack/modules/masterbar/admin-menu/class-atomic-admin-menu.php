@@ -130,10 +130,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$this->update_submenus( $slug, $submenus_to_update );
 		}
 
-		add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null );
-
-		// When the interface is not set to wp-admin, we replace the Profile submenu.
 		if ( ! $this->use_wp_admin_interface() ) {
+			// The 'Subscribers' menu exists in the Jetpack menu for Classic wp-admin interface, so only add it for non-wp-admin interfaces.
+			add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null );
+
+			// When the interface is not set to wp-admin, we replace the Profile submenu.
 			remove_submenu_page( 'users.php', 'profile.php' );
 			add_submenu_page( 'users.php', esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', 'https://wordpress.com/me/', null );
 		}
@@ -455,9 +456,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		/**
 		 * Adds the WordPress.com GitHub Deployments submenu under the main Tools menu.
 		 */
-		if ( apply_filters( 'jetpack_show_wpcom_github_deployments_menu', false ) ) {
-			add_submenu_page( 'tools.php', esc_attr__( 'GitHub Deployments', 'jetpack' ), __( 'GitHub Deployments', 'jetpack' ), 'manage_options', 'https://wordpress.com/github-deployments/' . $this->domain, null, 7 );
-		}
+		add_submenu_page( 'tools.php', esc_attr__( 'GitHub Deployments', 'jetpack' ), __( 'GitHub Deployments', 'jetpack' ), 'manage_options', 'https://wordpress.com/github-deployments/' . $this->domain, null, 8 );
 	}
 
 	/**
@@ -558,17 +557,5 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		};
 
 		add_action( 'admin_notices', $admin_notices );
-	}
-
-	/**
-	 * Adds Appearance menu.
-	 */
-	public function add_appearance_menu() {
-		// When the interface is set to wp-admin, we need to add a link to the Marketplace and rest of the menu keeps like core.
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
-			add_submenu_page( 'themes.php', esc_attr__( 'Theme Showcase', 'jetpack' ), __( 'Theme Showcase', 'jetpack' ), 'read', 'https://wordpress.com/themes/' . $this->domain );
-		} else {
-			parent::add_appearance_menu();
-		}
 	}
 }

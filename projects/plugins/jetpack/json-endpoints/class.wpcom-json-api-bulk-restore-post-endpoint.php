@@ -47,7 +47,7 @@ class WPCOM_JSON_API_Bulk_Restore_Post_Endpoint extends WPCOM_JSON_API_Update_Po
 	 *
 	 * @param string $path - the path.
 	 * @param int    $blog_id - the blog ID.
-	 * @param obj    $object - parameter is for making the method signature compatible with its parent class method.
+	 * @param object $object - parameter is for making the method signature compatible with its parent class method.
 	 */
 	public function callback( $path = '', $blog_id = 0, $object = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );

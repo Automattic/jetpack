@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.35
+// @version      1.36
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @grant        GM_xmlhttpRequest
 // @connect      betadownload.jetpack.me
@@ -171,6 +171,13 @@
 								{
 									label: 'Enable WordPress.com Sandbox Access',
 									name: 'dev-pool',
+								},
+								{
+									checked: true,
+									label: 'Drop-in Cache Plugins',
+									name: 'cache-drop-in',
+									invert: true,
+									value: 'false',
 								},
 								{
 									label: 'Multisite based on subdirectories',

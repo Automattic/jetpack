@@ -17,6 +17,7 @@ $parser = new \Automattic\Jetpack\Doc_Parser();
 $parser->generate( array( $args, 'phpdoc.json' ) );
 
 $docs_json = json_decode( file_get_contents( __DIR__ . '/docs.json' ), true );
+'@phan-var array{parents:array<string,string[]>} $docs_json';
 
 $processed_docs = array();
 $result         = array();
@@ -122,9 +123,10 @@ function get_html_from_markdown( $file_path ) {
 
 	$headers = $document->getElementsByTagName( 'h1' );
 	if ( count( $headers ) ) {
-		$doc_title = $headers[0]->textContent;
-
-		$headers[0]->remove();
+		$header = $headers->item( 0 );
+		'@phan-var DOMElement $header';
+		$doc_title = $header->textContent;
+		$header->remove();
 	}
 
 	// Add IDs to all headers.

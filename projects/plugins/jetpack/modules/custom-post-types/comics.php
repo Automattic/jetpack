@@ -546,6 +546,8 @@ class Jetpack_Comic {
 
 	/**
 	 * API endpoint for front-end image uploading.
+	 *
+	 * @return never
 	 */
 	public function upload() {
 		global $content_width;

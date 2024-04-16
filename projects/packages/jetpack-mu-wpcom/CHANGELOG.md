@@ -5,6 +5,79 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.24.0] - 2024-04-15
+### Added
+- WP.com Patterns: Hide WP.com categories that start with underscore. [#36763]
+- Calypso: Add Theme Showcase menu. [#36851]
+- Display a banner before the theme browser that links to the WP.com Theme Showcase. [#36801]
+
+### Changed
+- Conditionally enable link manager on Simple and Atomic sites. [#36770]
+- Hide Customize on block themes on Simple Classic sites. [#36856]
+- Monetize: Move into Jetpack menu and open the page on Jetpack Cloud. [#36799]
+- Update Monetize Launchpad links to Jetpack Cloud. [#36728]
+
+### Removed
+- Removed All Sites menu option from sidebar. [#36632]
+
+### Fixed
+- Add translation support for the Launchpad API endpoint. [#36802]
+
+## [5.23.2] - 2024-04-08
+### Changed
+- Updated package dependencies. [#36760] [#36761] [#36788]
+
+## [5.23.1] - 2024-04-05
+### Changed
+- Update dependencies.
+
+## [5.23.0] - 2024-04-04
+### Added
+- Allow Simple sites access to the Hosting menu [#36684]
+
+### Changed
+- Load Stats on admin_menu hook for Simple sites so Jetpack menu loads for admin-menu API [#36712]
+
+## [5.22.0] - 2024-04-01
+### Added
+- Add Odyssey Stats to wpcom Simple Site [#36628]
+- Change Phan baselines. [#36627]
+
+### Changed
+- Dotcom patterns: use wp_block post type patterns in editor with all themes and hide core and Jetpack form patterns [#36588]
+- General: update Phan configuration. [#36528]
+
+## [5.21.0] - 2024-03-27
+### Changed
+- Updated package dependencies. [#36585]
+- Updated Verbum Highlander Comment form prompt value [#36505]
+
+### Fixed
+- Untangle: update launchpad links for subscribers to go to Jetpack Cloud [#36573]
+
+## [5.20.0] - 2024-03-25
+### Removed
+- Removed Subscribers from Hosting menu [#36513]
+
+## [5.19.0] - 2024-03-22
+### Changed
+- Added additional settings for commenting on simple sites [#36367]
+- Releasing Gutenberg to all Verbum users. [#36476]
+
+### Fixed
+- Block Patterns: The modal of the starter patterns isn't shown when you're creating a new post [#36516]
+- Untangle: update launchpad links for newsletter setting to go to Jetpack's [#36495]
+
+## [5.18.0] - 2024-03-20
+### Changed
+- The GitHub deployments feature check has been removed. [#36383]
+- Updated copy by replacing "subscribers" with "emails" [#36450]
+
+### Fixed
+- Fixed a bug where locked mode was applied to all sites in /me/sites that followed a site with locked mode enabled. [#36388]
+- Hosting menu is only available to admin with a wpcom account [#36405]
+- Wrong text in the editor placeholder. It was not translated [#36454]
+
 ## [5.17.0] - 2024-03-15
 ### Added
 - Added information regarding if github deployments is active to the wp-admin command palette config. [#36324]
@@ -656,6 +729,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.24.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.23.2...v5.24.0
+[5.23.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.23.1...v5.23.2
+[5.23.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.23.0...v5.23.1
+[5.23.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.22.0...v5.23.0
+[5.22.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.21.0...v5.22.0
+[5.21.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.20.0...v5.21.0
+[5.20.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.19.0...v5.20.0
+[5.19.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.18.0...v5.19.0
+[5.18.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.17.0...v5.18.0
 [5.17.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.16.1...v5.17.0
 [5.16.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.16.0...v5.16.1
 [5.16.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.15.2...v5.16.0
