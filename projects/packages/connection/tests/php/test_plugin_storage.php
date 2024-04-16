@@ -50,14 +50,14 @@ class Test_Plugin_Storage extends TestCase {
 		try {
 			$reflection_class->setStaticPropertyValue( 'configured', false );
 			$reflection_class->setStaticPropertyValue( 'plugins', array() );
-		} catch ( ReflectionException $e ) { // PHP 7 compat
+		} catch ( \ReflectionException $e ) { // PHP 7 compat
 			$configured = $reflection_class->getProperty( 'configured' );
 			$configured->setAccessible( true );
-			$configured = $configured->setValue( false );
+			$configured->setValue( false );
 
 			$plugins = $reflection_class->getProperty( 'plugins' );
 			$plugins->setAccessible( true );
-			$plugins = $plugins->setValue( array() );
+			$plugins->setValue( array() );
 		}
 	}
 
