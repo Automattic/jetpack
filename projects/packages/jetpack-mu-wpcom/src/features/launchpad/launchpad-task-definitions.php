@@ -565,7 +565,10 @@ function wpcom_launchpad_get_task_definitions() {
 		// Earn tasks
 		'stripe_connected'                => array(
 			'get_title'            => function () {
-				return __( 'Connect a Stripe account to collect payments', 'jetpack-mu-wpcom' );
+				switch_to_locale( 'en' );
+				$localised_string = __( 'Connect a Stripe account to collect payments', 'jetpack-mu-wpcom' );
+				restore_previous_locale();
+				return $localised_string;
 			},
 			'is_visible_callback'  => '__return_true',
 			'is_complete_callback' => 'wpcom_launchpad_is_stripe_connected',
