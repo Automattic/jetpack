@@ -1,4 +1,8 @@
-import { isAtomicSite, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
+import {
+	isAtomicSite,
+	isPrivateSite,
+	isSimpleSite,
+} from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL } from '@wordpress/blob';
 import { range } from 'lodash';
 import photon from 'photon';
@@ -47,8 +51,7 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 	const { height, width } = img;
 	const { layoutStyle } = galleryAtts;
 
-	const photonImplementation =
-		isWpcomFilesUrl( url ) || true === isVIP() ? photonWpcomImage : photon;
+	const photonImplementation = true === isVIP() || isSimpleSite() ? photonWpcomImage : photon;
 
 	/**
 	 * Build the `src`
@@ -113,13 +116,10 @@ function isVIP() {
 		return true;
 	}
 }
-function isWpcomFilesUrl( url ) {
-	const { host } = new URL( url, window.location.href );
-	return /\.files\.wordpress\.com$/.test( host );
-}
 
 /**
  * Apply photon arguments to *.files.wordpress.com images
+ * or images on mapped domains on private simple sites.
  *
  * This function largely duplicates the functionality of the photon.js lib.
  * This is necessary because we want to serve images from *.files.wordpress.com so that private

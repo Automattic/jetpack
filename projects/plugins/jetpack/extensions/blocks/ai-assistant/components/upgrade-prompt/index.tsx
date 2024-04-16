@@ -3,10 +3,9 @@
  */
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import debugFactory from 'debug';
-import React, { useCallback } from 'react';
 /*
  * Internal dependencies
  */
@@ -15,6 +14,7 @@ import { PLAN_TYPE_TIERED, usePlanType } from '../../../../shared/use-plan-type'
 import useAICheckout from '../../hooks/use-ai-checkout';
 import useAiFeature from '../../hooks/use-ai-feature';
 import { canUserPurchasePlan } from '../../lib/connection';
+import type { ReactElement } from 'react';
 import './style.scss';
 
 type UpgradePromptProps = {
@@ -28,12 +28,12 @@ const debug = debugFactory( 'jetpack-ai-assistant:upgrade-prompt' );
  * to the checkout page or the Jetpack AI interstitial page.
  *
  * @param {UpgradePromptProps} props - Component props.
- * @returns {React.ReactNode} the Nudge component with the prompt.
+ * @returns {ReactElement} the Nudge component with the prompt.
  */
 const DefaultUpgradePrompt = ( {
 	placement = null,
 	description = null,
-}: UpgradePromptProps ): React.JSX.Element => {
+}: UpgradePromptProps ): ReactElement => {
 	const { checkoutUrl, autosaveAndRedirect, isRedirecting } = useAICheckout();
 	const canUpgrade = canUserPurchasePlan();
 	const {
@@ -181,13 +181,9 @@ const DefaultUpgradePrompt = ( {
  *
  * @param {object} props - Component props.
  * @param {string} props.description - The description to display in the prompt.
- * @returns {React.ReactNode} the Nudge component with the prompt.
+ * @returns {ReactElement} the Nudge component with the prompt.
  */
-const VIPUpgradePrompt = ( {
-	description = null,
-}: {
-	description?: string;
-} ): React.JSX.Element => {
+const VIPUpgradePrompt = ( { description = null }: { description?: string } ): ReactElement => {
 	const vipDescription = createInterpolateElement(
 		__(
 			"You've reached the Jetpack AI rate limit. <strong>Please reach out to your VIP account team.</strong>",

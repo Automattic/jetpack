@@ -20,7 +20,7 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.7.2';
+	const PACKAGE_VERSION = '0.8.0-alpha';
 
 	/**
 	 * The cron event hook for the scheduled plugins update.
@@ -51,8 +51,28 @@ class Scheduled_Updates {
 		add_action( self::PLUGIN_CRON_HOOK, array( __CLASS__, 'run_scheduled_update' ), 10, 10 );
 		add_action( 'rest_api_init', array( __CLASS__, 'add_is_managed_extension_field' ) );
 		add_filter( 'auto_update_plugin', array( __CLASS__, 'allowlist_scheduled_plugins' ), 10, 2 );
-		add_filter( 'plugin_auto_update_setting_html', array( __CLASS__, 'show_scheduled_updates' ), 10, 2 );
 		add_action( 'deleted_plugin', array( __CLASS__, 'deleted_plugin' ), 10, 2 );
+
+		add_filter( 'plugins_list', array( Scheduled_Updates_Admin::class, 'add_scheduled_updates_context' ) );
+		add_filter( 'views_plugins', array( Scheduled_Updates_Admin::class, 'add_scheduled_updates_view' ) );
+		add_filter( 'plugin_auto_update_setting_html', array( Scheduled_Updates_Admin::class, 'show_scheduled_updates' ), 10, 2 );
+
+		// Update cron sync option after options update.
+		$callback = array( __CLASS__, 'update_option_cron' );
+
+		// Main cron saving.
+		add_action( 'add_option_cron', $callback );
+		add_action( 'update_option_cron', $callback );
+
+		// Logs saving.
+		add_action( 'add_option_' . Scheduled_Updates_Logs::OPTION_NAME, $callback );
+		add_action( 'update_option_' . Scheduled_Updates_Logs::OPTION_NAME, $callback );
+
+		// This is a temporary solution for backward compatibility. It will be removed in the future.
+		// It's needed to ensure that preexisting schedules are loaded into the sync option.
+		if ( false === get_option( self::PLUGIN_CRON_HOOK ) ) {
+			call_user_func( $callback );
+		}
 	}
 
 	/**
@@ -132,6 +152,31 @@ class Scheduled_Updates {
 		self::clear_cron_cache();
 
 		return wp_unschedule_event( $timestamp, self::PLUGIN_CRON_HOOK, $plugins, true );
+	}
+
+	/**
+	 * Save the schedules for sync after cron option saving.
+	 */
+	public static function update_option_cron() {
+		$events = wp_get_scheduled_events( self::PLUGIN_CRON_HOOK );
+
+		foreach ( array_keys( $events ) as $schedule_id ) {
+			$events[ $schedule_id ]->schedule_id = $schedule_id;
+
+			$status = self::get_scheduled_update_status( $schedule_id );
+
+			if ( ! $status ) {
+				$status = array(
+					'last_run_timestamp' => null,
+					'last_run_status'    => null,
+				);
+			}
+
+			$events[ $schedule_id ]->last_run_timestamp = $status['last_run_timestamp'];
+			$events[ $schedule_id ]->last_run_status    = $status['last_run_status'];
+		}
+
+		update_option( self::PLUGIN_CRON_HOOK, $events );
 	}
 
 	/**
@@ -219,86 +264,6 @@ class Scheduled_Updates {
 		}
 
 		return $update;
-	}
-
-	/**
-	 * Filters the HTML of the auto-updates setting for each plugin in the Plugins list table.
-	 *
-	 * @param string $html        The HTML of the plugin's auto-update column content,
-	 *                            including toggle auto-update action links and
-	 *                            time to next update.
-	 * @param string $plugin_file Path to the plugin file relative to the plugin directory.
-	 */
-	public static function show_scheduled_updates( $html, $plugin_file ) {
-		if ( ! function_exists( 'wp_get_scheduled_events' ) ) {
-			require_once __DIR__ . '/pluggable.php';
-		}
-
-		$events = wp_get_scheduled_events( self::PLUGIN_CRON_HOOK );
-
-		$schedules = array();
-		foreach ( $events as $event ) {
-			if ( in_array( $plugin_file, $event->args, true ) ) {
-				$schedules[] = $event;
-			}
-		}
-
-		// Plugin is not part of an update schedule.
-		if ( empty( $schedules ) ) {
-			return $html;
-		}
-
-		$text = array_map( array( __CLASS__, 'get_scheduled_update_text' ), $schedules );
-
-		$html  = '<p style="margin: 0 0 8px">' . implode( '<br>', $text ) . '</p>';
-		$html .= sprintf(
-			'<a href="%1$s">%2$s</a>',
-			esc_url( 'https://wordpress.com/plugins/scheduled-updates/' . ( new Status() )->get_site_suffix() ),
-			esc_html__( 'Edit', 'jetpack-scheduled-updates' )
-		);
-
-		return $html;
-	}
-
-	/**
-	 * Get the text for a scheduled update.
-	 *
-	 * @param object $schedule The scheduled update.
-	 * @return string
-	 */
-	public static function get_scheduled_update_text( $schedule ) {
-		if ( DAY_IN_SECONDS === $schedule->interval ) {
-			$html = sprintf(
-				/* translators: %s is the time of day. Daily at 10 am. */
-				esc_html__( 'Daily at %s.', 'jetpack-scheduled-updates' ),
-				wp_date( get_option( 'time_format' ), $schedule->timestamp )
-			);
-		} else {
-			// Not getting smart about passing in weekdays makes it easier to translate.
-			$weekdays = array(
-				/* translators: %s is the time of day. Mondays at 10 am. */
-				1 => __( 'Mondays at %s.', 'jetpack-scheduled-updates' ),
-				/* translators: %s is the time of day. Tuesdays at 10 am. */
-				2 => __( 'Tuesdays at %s.', 'jetpack-scheduled-updates' ),
-				/* translators: %s is the time of day. Wednesdays at 10 am. */
-				3 => __( 'Wednesdays at %s.', 'jetpack-scheduled-updates' ),
-				/* translators: %s is the time of day. Thursdays at 10 am. */
-				4 => __( 'Thursdays at %s.', 'jetpack-scheduled-updates' ),
-				/* translators: %s is the time of day. Fridays at 10 am. */
-				5 => __( 'Fridays at %s.', 'jetpack-scheduled-updates' ),
-				/* translators: %s is the time of day. Saturdays at 10 am. */
-				6 => __( 'Saturdays at %s.', 'jetpack-scheduled-updates' ),
-				/* translators: %s is the time of day. Sundays at 10 am. */
-				7 => __( 'Sundays at %s.', 'jetpack-scheduled-updates' ),
-			);
-
-			$html = sprintf(
-				$weekdays[ wp_date( 'N', $schedule->timestamp ) ],
-				wp_date( get_option( 'time_format' ), $schedule->timestamp )
-			);
-		}
-
-		return $html;
 	}
 
 	/**

@@ -1,4 +1,5 @@
 import { Spinner } from '@automattic/jetpack-components';
+import { useBlockProps } from '@wordpress/block-editor';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -13,9 +14,10 @@ import LoadingError from './loading-error';
 import Tabs from './tabs';
 
 const Edit = props => {
-	const { attributes, className, setAttributes } = props;
+	const { attributes, setAttributes } = props;
 	const { currency } = attributes;
 
+	const blockProps = useBlockProps();
 	const [ loadingError, setLoadingError ] = useState( '' );
 	const [ products, setProducts ] = useState( [] );
 
@@ -128,21 +130,21 @@ const Edit = props => {
 		unlockPostSaving,
 	] );
 
+	let content;
+
 	if ( loadingError ) {
-		return <LoadingError className={ className } error={ loadingError } />;
-	}
-
-	if ( stripeConnectUrl ) {
+		content = <LoadingError error={ loadingError } />;
+	} else if ( stripeConnectUrl ) {
 		// Need to connect Stripe first
-		return <StripeNudge blockName="donations" />;
-	}
-
-	if ( ! currency ) {
+		content = <StripeNudge blockName="donations" />;
+	} else if ( ! currency ) {
 		// Memberships settings are still loading
-		return <Spinner color="black" />;
+		content = <Spinner color="black" />;
+	} else {
+		content = <Tabs { ...props } products={ products } />;
 	}
 
-	return <Tabs { ...props } products={ products } />;
+	return <div { ...blockProps }>{ content }</div>;
 };
 
 export default Edit;

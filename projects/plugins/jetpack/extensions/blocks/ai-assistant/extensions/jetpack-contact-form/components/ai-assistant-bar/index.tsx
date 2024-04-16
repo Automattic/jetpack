@@ -19,7 +19,6 @@ import {
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import classNames from 'classnames';
-import React from 'react';
 /**
  * Internal dependencies
  */

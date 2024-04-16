@@ -1,6 +1,7 @@
-import { RichText } from '@wordpress/block-editor';
+import { RichText, useBlockProps } from '@wordpress/block-editor';
 
 const Save = ( { attributes } ) => {
+	const blockProps = useBlockProps.save();
 	const { fallbackLinkUrl, oneTimeDonation, monthlyDonation, annualDonation } = attributes;
 
 	if (
@@ -13,7 +14,7 @@ const Save = ( { attributes } ) => {
 	}
 
 	return (
-		<div>
+		<div { ...blockProps }>
 			<RichText.Content tagName="h4" value={ oneTimeDonation.heading } />
 			<RichText.Content tagName="p" value={ oneTimeDonation.extraText } />
 			<RichText.Content

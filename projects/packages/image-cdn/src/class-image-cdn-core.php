@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Image_CDN;
 
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * A static class that provides core Image CDN functionality.
@@ -146,17 +147,28 @@ class Image_CDN_Core {
 			}
 		}
 
+		$is_wpcom_private_site = false;
+		if ( ( new Host() )->is_wpcom_platform() && ( new Status() )->is_private_site() ) {
+			$is_wpcom_private_site = true;
+			if ( isset( $args['ssl'] ) ) {
+				// Do not send the ssl argument to prevent caching issues.
+				unset( $args['ssl'] );
+			}
+		}
+
 		/** This filter is documented below. */
 		$custom_photon_url = apply_filters( 'jetpack_photon_domain', '', $image_url );
 		$custom_photon_url = esc_url( $custom_photon_url );
 
 		// You can't run a Photon URL through Photon again because query strings are stripped.
 		// So if the image is already a Photon URL, append the new arguments to the existing URL.
-		// Alternately, if it's a *.files.wordpress.com url, then keep the domain as is.
+		// Alternately, if it's a *.files.wordpress.com url or an image on a private WordPress.com Simple site,
+		// then keep the domain as is.
 		if (
 			in_array( $image_url_parts['host'], array( 'i0.wp.com', 'i1.wp.com', 'i2.wp.com' ), true )
 			|| wp_parse_url( $custom_photon_url, PHP_URL_HOST ) === $image_url_parts['host']
 			|| $is_wpcom_image
+			|| $is_wpcom_private_site
 		) {
 			$photon_url = add_query_arg( $args, $image_url );
 			return self::cdn_url_scheme( $photon_url, $scheme );
