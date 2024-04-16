@@ -4,8 +4,13 @@
 		"name": "jetpack/mailchimp",
 		"isValid": true,
 		"attributes": {
+			"consentText": "By clicking submit, you agree to share your email address with the site owner and Mailchimp to receive marketing, updates, and other emails from the site owner. Use the unsubscribe link in those emails to opt out at any time.",
+			"emailPlaceholder": "Enter your email",
+			"errorLabel": "Whoops! There was an error and we couldn't process your subscription. Please reload the page and try again.",
 			"interests": [],
-			"preview": false
+			"preview": false,
+			"processingLabel": "Processing…",
+			"successLabel": "Success! You're on the list."
 		},
 		"innerBlocks": [
 			{
@@ -18,8 +23,7 @@
 					"uniqueId": "mailchimp-widget-id",
 					"text": "Join my email list"
 				},
-				"innerBlocks": [],
-				"originalContent": ""
+				"innerBlocks": []
 			}
 		],
 		"originalContent": ""
