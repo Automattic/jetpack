@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
+use WP_Error;
 use WP_Post;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
 
@@ -250,9 +251,9 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	/**
 	 * Get all plans id that make access valid for a post with this tier id.
 	 *
-	 * @param int $tier_id Tier id.
+	 * @param int $tier_id Tier ID.
 	 *
-	 * @return array|\WP_Error
+	 * @return array|WP_Error
 	 */
 	public static function get_valid_plan_ids_for_tier( $tier_id ) {
 		// Valid plans are:
@@ -274,7 +275,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 
 		if ( $tier === null ) {
 			// We have an error
-			return WP_Error( 'The plan related to the tier cannot be found' );
+			return new WP_Error( 'related-plan-not-found', 'The plan related to the tier cannot be found' );
 		}
 
 		$tier_price      = self::find_metadata( $tier, 'jetpack_memberships_price' );
@@ -283,7 +284,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 
 		if ( $tier_price === null || $tier_currency === null || $tier_product_id === null ) {
 			// There is an issue with the meta
-			return WP_Error( 'The plan related to the tier is missing data' );
+			return new WP_Error( 'wrong-data-plan-not-found', 'The plan related to the tier is missing data' );
 		}
 
 		$valid_plan_ids[] = $tier_id;
@@ -460,7 +461,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 			}
 
 			if ( ( $subscription_interval === '1 month' && $subscription_price >= $tier_price ) ||
-					( $subscription_interval === '1 year' && $subscription_price >= $annual_tier_price )
+				( $subscription_interval === '1 year' && $subscription_price >= $annual_tier_price )
 			) {
 				// One subscription is more expensive than the minimum set by the post' selected tier
 				return false;
