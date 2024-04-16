@@ -1,7 +1,7 @@
 import { InspectorControls } from '@wordpress/block-editor';
 import { ExternalLink, PanelBody, TextControl } from '@wordpress/components';
+import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useRef } from 'react';
 import {
 	NOTIFICATION_PROCESSING,
 	NOTIFICATION_SUCCESS,
