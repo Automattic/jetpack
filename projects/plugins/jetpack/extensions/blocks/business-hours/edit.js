@@ -1,10 +1,10 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
+import { useBlockProps } from '@wordpress/block-editor';
 import { Placeholder } from '@wordpress/components';
 import { getSettings } from '@wordpress/date';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
 import metadata from './block.json';
 import DayEdit from './components/day-edit';
 import DayPreview from './components/day-preview';
@@ -25,7 +25,8 @@ export const defaultLocalization = {
 };
 
 const BusinessHours = props => {
-	const { attributes, className, isSelected } = props;
+	const { attributes, isSelected } = props;
+	const blockProps = useBlockProps();
 	const [ localization, setLocalization ] = useState( defaultLocalization );
 	const [ hasFetched, setHasFetched ] = useState( false );
 
@@ -57,7 +58,7 @@ const BusinessHours = props => {
 		} = settings;
 
 		content = (
-			<dl className={ classNames( className, 'jetpack-business-hours' ) }>
+			<dl className="jetpack-business-hours">
 				{ localizedWeek.map( ( day, key ) => {
 					return (
 						<DayPreview key={ key } day={ day } localization={ localization } timeFormat={ time } />
@@ -67,7 +68,7 @@ const BusinessHours = props => {
 		);
 	} else {
 		content = (
-			<div className={ classNames( className, 'is-edit' ) }>
+			<div className="is-edit">
 				{ localizedWeek.map( ( day, key ) => {
 					return <DayEdit key={ key } day={ day } localization={ localization } { ...props } />;
 				} ) }
@@ -75,7 +76,7 @@ const BusinessHours = props => {
 		);
 	}
 
-	return content;
+	return <div { ...blockProps }>{ content }</div>;
 };
 
 export default BusinessHours;
