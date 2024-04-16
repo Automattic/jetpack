@@ -252,7 +252,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	 *
 	 * @param int $tier_id Tier id.
 	 *
-	 * @return false|void
+	 * @return array|\WP_Error
 	 */
 	public static function get_valid_plan_ids_for_tier( $tier_id ) {
 		// Valid plans are:
@@ -331,6 +331,8 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 				$valid_plan_ids [] = $post->ID;
 			}
 		}
+
+		return $valid_plan_ids;
 	}
 
 	/**
