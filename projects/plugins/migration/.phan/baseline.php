@@ -11,11 +11,10 @@ return [
     // # Issue statistics:
     // PhanNoopNew : 2 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 1 occurrence
-    // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentProbablyReal'],
+        'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-wpcom-migration.php' => ['PhanNoopNew'],
         'wpcom-migration.php' => ['PhanNoopNew'],
     ],
