@@ -138,6 +138,7 @@ while read -r GIT_SLUG; do
 
 	# Initialize the directory as a git repo, and set the remote
 	git init -b "$BRANCH" .
+	git config --local gc.auto 0
 	git remote add origin "${GITHUB_SERVER_URL}/${GIT_SLUG}"
 	if [[ -n "$API_TOKEN_GITHUB" ]]; then
 		git config --local "http.${GITHUB_SERVER_URL}/.extraheader" "AUTHORIZATION: basic $(printf "x-access-token:%s" "$API_TOKEN_GITHUB" | base64 -w 0)"

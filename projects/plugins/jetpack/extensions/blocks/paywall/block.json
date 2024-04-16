@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 1,
+	"apiVersion": 3,
 	"name": "jetpack/paywall",
 	"title": "Paywall",
 	"description": "Limit access to the content below this block to chosen subscribers.",

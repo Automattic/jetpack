@@ -1,7 +1,7 @@
 import { BlockControls, InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { Button, withNotices } from '@wordpress/components';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { useCallback, useEffect, useState } from 'react';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import testEmbedUrl from '../../shared/test-embed-url';
 import metadata from './block.json';
