@@ -29,7 +29,7 @@ class REST_Token_Controller extends WP_REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'generate_preview_token' ),
-				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+				'permission_callback' => array( $this, 'permissions_check' ),
 				'args'                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::CREATABLE ),
 				'schema'              => array( $this, 'get_public_item_schema' ),
 			)
@@ -51,12 +51,12 @@ class REST_Token_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Check the current user has admin privleges for accessing the endpoints.
+	 * Check the current user permissions for the endpoints.
 	 *
 	 * @return bool|WP_Error True if user can manage options.
 	 */
-	public function require_admin_privilege_callback() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+	public function permissions_check() {
+		if ( ! current_user_can( 'edit_posts' ) ) {
 			return new WP_Error(
 				'rest_forbidden_context',
 				__( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-publicize-pkg' ),

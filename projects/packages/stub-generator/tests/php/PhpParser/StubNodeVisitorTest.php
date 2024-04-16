@@ -84,6 +84,9 @@ class StubNodeVisitorTest extends TestCase {
 				'*',
 				<<<'PHP'
 				namespace {
+					/**
+					 * @phan-return mixed Dummy doc for stub.
+					 */
 					function foo()
 					{
 					}
@@ -106,6 +109,9 @@ class StubNodeVisitorTest extends TestCase {
 				array( 'function' => '*' ),
 				<<<'PHP'
 				namespace {
+					/**
+					 * @phan-return mixed Dummy doc for stub.
+					 */
 					function foo()
 					{
 					}
@@ -185,7 +191,9 @@ class StubNodeVisitorTest extends TestCase {
 				array( 'function' => array( 'foo', 'Some\NS\bar' ) ),
 				<<<'PHP'
 				namespace {
-					/** Non-namespaced */
+					/** Non-namespaced
+					 * @phan-return mixed Dummy doc for stub.
+					 */
 					function foo()
 					{
 					}
@@ -1497,6 +1505,112 @@ class StubNodeVisitorTest extends TestCase {
 				}
 				function uses_func_num_args(...$func_get_args)
 				{
+				}
+				PHP,
+			),
+
+			'Function return type inference'              => array(
+				<<<'PHP'
+				namespace X;
+
+				function no_return() {
+				}
+
+				function empty_return() {
+					return;
+				}
+
+				function has_return() {
+					if ( foo() ) {
+						return;
+					} else {
+						return 42;
+					}
+				}
+
+				function return_only_in_subfunctions() {
+					function xxx() {
+						return 42;
+					}
+					class Huh {
+						public function xxx() {
+							return 42;
+						}
+					}
+					$x = function () {
+						return 42;
+					};
+					$x = new class() {
+						function xxx() {
+							return 42;
+						}
+					};
+				}
+
+				function has_return_and_decl(): array {
+					return array();
+				}
+
+				/** @return array */
+				function has_return_and_phpdoc() {
+					return array();
+				}
+
+				/** @phan-return array */
+				function has_return_and_phan_phpdoc() {
+					return array();
+				}
+
+				/** @phan-real-return array */
+				function has_return_and_phan_phpdoc_real() {
+					return array();
+				}
+
+				class Foo {
+					function has_return() {
+						return 42;
+					}
+				}
+				PHP,
+				'*',
+				<<<'PHP'
+				namespace X;
+
+				function no_return()
+				{
+				}
+				function empty_return()
+				{
+				}
+				/**
+				 * @phan-return mixed Dummy doc for stub.
+				 */
+				function has_return()
+				{
+				}
+				function return_only_in_subfunctions()
+				{
+				}
+				function has_return_and_decl(): array
+				{
+				}
+				/** @return array */
+				function has_return_and_phpdoc()
+				{
+				}
+				/** @phan-return array */
+				function has_return_and_phan_phpdoc()
+				{
+				}
+				/** @phan-real-return array */
+				function has_return_and_phan_phpdoc_real()
+				{
+				}
+				class Foo
+				{
+					function has_return()
+					{
+					}
 				}
 				PHP,
 			),

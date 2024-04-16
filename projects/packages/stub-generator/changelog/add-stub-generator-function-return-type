@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Document function stub return type as "mixed" if it has a non-empty `return` but lacks any declaration or phpdoc, so Phan doesn't assume "void".
