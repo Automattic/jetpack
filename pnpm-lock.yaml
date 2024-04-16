@@ -868,8 +868,8 @@ importers:
         specifier: workspace:*
         version: link:../shared-extension-utils
       '@automattic/social-previews':
-        specifier: 2.0.1-beta.12
-        version: 2.0.1-beta.12(@babel/runtime@7.24.0)(@types/react@18.2.74)(react-dom@18.2.0)(react@18.2.0)
+        specifier: 2.0.1-beta.13
+        version: 2.0.1-beta.13(@babel/runtime@7.24.0)(@types/react@18.2.74)(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/annotations':
         specifier: 2.55.0
         version: 2.55.0(react@18.2.0)
@@ -3309,8 +3309,8 @@ importers:
         specifier: 1.0.0
         version: 1.0.0
       '@automattic/social-previews':
-        specifier: 2.0.1-beta.12
-        version: 2.0.1-beta.12(@babel/runtime@7.24.0)(@types/react@18.2.74)(react-dom@18.2.0)(react@18.2.0)
+        specifier: 2.0.1-beta.13
+        version: 2.0.1-beta.13(@babel/runtime@7.24.0)(@types/react@18.2.74)(react-dom@18.2.0)(react@18.2.0)
       '@automattic/viewport':
         specifier: 1.0.0
         version: 1.0.0
@@ -4535,10 +4535,10 @@ packages:
       '@automattic/popup-monitor': 1.0.2
     dev: false
 
-  /@automattic/social-previews@2.0.1-beta.12(@babel/runtime@7.24.0)(@types/react@18.2.74)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-C97GhuCVp9k3ELadGpn3NcL1xs6+nbKTn0b0kzh+0/0W+ZT4FYutkmolLTAilYOnX/r3peY3KMoy39Bn+pGBkg==}
+  /@automattic/social-previews@2.0.1-beta.13(@babel/runtime@7.24.0)(@types/react@18.2.74)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-kfIY93RYQzIPCDyElRNyW32w3vEqRWw3Xs3IDMkuON/sRb56ZPFfWLVBRs3J6gPH4W+I/pdB36slbQ9r5Z872Q==}
     peerDependencies:
-      '@babel/runtime': ^7.23.8
+      '@babel/runtime': ^7.24.0
       react: ^18.2.0
       react-dom: ^18.2.0
     peerDependenciesMeta:
@@ -23329,7 +23329,6 @@ packages:
     resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/56adf5a550475fd30962cd4e8f8bfcaf71f84177}
     name: jetpack-boost-critical-css-gen
     version: 0.0.11
-    prepare: true
     requiresBuild: true
     dependencies:
       clean-css: 5.3.3

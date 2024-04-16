@@ -326,13 +326,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.4-a.1 - 2024-04-08
-#### Enhancements
-- Newsletters: Add a filter that enables the user to control the timing at which the Subscribe Modal loads.
-
-#### Bug fixes
-- Secure Sign-On: Disable the WordPress.com invitation setup on Multisite.
-- Theme Tools: Fix deprecation notices in the color management library.
+### 13.4-a.3 - 2024-04-15
+#### Improved compatibility
+- WordPress.com Toolbar: Avoid fatal errors when using other menu management plugins and the WordPress.com Toolbar feature.
 
 --------
 

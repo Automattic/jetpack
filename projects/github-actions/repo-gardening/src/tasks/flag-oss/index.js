@@ -19,6 +19,17 @@ async function flagOss( payload, octokit ) {
 		return;
 	}
 
+	// Check if PR author is org member
+	// https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28#check-organization-membership-for-a-user
+	const orgMembershipRequest = await octokit.rest.orgs.checkMembershipForUser( {
+		org: owner.login,
+		username: head.user.login,
+	} );
+
+	if ( 204 === orgMembershipRequest.status ) {
+		return;
+	}
+
 	debug( `flag-oss: Adding OSS Citizen label to PR #${ number }` );
 	await octokit.rest.issues.addLabels( {
 		owner: owner.login,

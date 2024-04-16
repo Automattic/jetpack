@@ -4,8 +4,8 @@ import {
 } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { withNotices } from '@wordpress/components';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
-import { useCallback, useEffect, useState } from 'react';
 import metadata from './block.json';
 import Body from './body';
 import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED, API_STATE_LOADING } from './constants';
