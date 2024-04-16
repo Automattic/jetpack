@@ -634,6 +634,9 @@ class Jetpack_Memberships {
 	public static function user_is_paid_subscriber( $valid_plan_ids = array(), $user_id = null ) {
 		if ( empty( $user_id ) ) {
 			$user_id = get_current_user_id();
+			if ( empty( $user_id ) ) {
+				return false;
+			}
 		}
 		// sort and stringify sorted valid plan ids to use as a cache key
 		sort( $valid_plan_ids );
