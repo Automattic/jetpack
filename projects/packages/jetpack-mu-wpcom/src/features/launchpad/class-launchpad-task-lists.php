@@ -484,6 +484,15 @@ class Launchpad_Task_Lists {
 		return null;
 	}
 
+	private function get_localised_text_from_callback( $item, $callback ) {
+		$switched_locale = switch_to_locale( get_user_locale() );
+		$localised_title = $this->load_value_from_callback( $item, $callback );
+		if ( $switched_locale ) {
+			restore_previous_locale();
+		}
+		return $localised_title;
+	}
+
 	/**
 	 * Loads a title for a task, calling the 'get_title' callback if it exists,
 	 * or falling back on the value for the 'title' key if it is set.
@@ -494,7 +503,7 @@ class Launchpad_Task_Lists {
 	 * @return string The title for the task.
 	 */
 	private function load_title( $task ) {
-		$title = $this->load_value_from_callback( $task, 'get_title' );
+		$title = $this->get_localised_text_from_callback( $task, 'get_title' );
 		if ( ! empty( $title ) ) {
 			return $title;
 		}
@@ -513,7 +522,7 @@ class Launchpad_Task_Lists {
 	 * @return string The subtitle for the task.
 	 */
 	private function load_subtitle( $task ) {
-		$subtitle = $this->load_value_from_callback( $task, 'subtitle' );
+		$subtitle = $this->get_localised_text_from_callback( $task, 'subtitle' );
 		if ( ! empty( $subtitle ) ) {
 			return $subtitle;
 		}
