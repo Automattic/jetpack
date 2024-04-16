@@ -228,6 +228,20 @@ function wpcomsh_theme_install_by_symlink( $reply, $package, WP_Upgrader $upgrad
 add_filter( 'upgrader_pre_download', 'wpcomsh_theme_install_by_symlink', 0, 4 );
 
 /**
+ * Remove the symlink created for the WPCom theme when the theme is deleted.
+ *
+ * @param string $stylesheet The theme stylesheet.
+ *
+ * @return void Return early if the theme is not a WPCom theme.
+ */
+function wpcomsh_delete_managed_wpcom_theme( string $stylesheet ) {
+	if ( wpcomsh_is_theme_symlinked( $stylesheet ) ) {
+		wpcomsh_jetpack_wpcom_theme_delete( false, $stylesheet );
+	}
+}
+add_action( 'delete_theme', 'wpcomsh_delete_managed_wpcom_theme' );
+
+/**
  * Include the creation date in the themes API response.
  *
  * @param array $args The arguments.

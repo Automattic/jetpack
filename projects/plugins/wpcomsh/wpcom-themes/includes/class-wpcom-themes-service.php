@@ -125,7 +125,7 @@ class WPCom_Themes_Service {
 	 */
 	public function get_theme( string $slug ): ?stdClass {
 		$wpcom_themes = $this->api->fetch_all_themes();
-		$wpcom_themes = $this->map_and_filter_wpcom_themes( $wpcom_themes );
+		$wpcom_themes = array_map( fn( $theme ) => $this->mapper->map_wpcom_to_wporg( $theme ), $wpcom_themes );
 		foreach ( $wpcom_themes as $wpcom_theme ) {
 			if ( $wpcom_theme->slug === $slug ) {
 				return $wpcom_theme;
