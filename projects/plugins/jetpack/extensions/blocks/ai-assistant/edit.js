@@ -8,10 +8,9 @@ import { rawHandler } from '@wordpress/blocks';
 import { Notice, PanelBody, PanelRow, KeyboardShortcuts } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { RawHTML, useState, useCallback } from '@wordpress/element';
+import { RawHTML, useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
-import { useEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */

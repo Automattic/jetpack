@@ -260,6 +260,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		usort( $plugins, 'strnatcasecmp' );
 
 		$event = Scheduled_Updates::create_scheduled_update( $schedule['timestamp'], $schedule['interval'], $plugins );
+
 		if ( is_wp_error( $event ) ) {
 			return $event;
 		}
@@ -419,7 +420,11 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$message     = $request['message'];
 		$context     = $request['context'];
 
-		Scheduled_Updates_Logs::log( $schedule_id, $action, $message, $context );
+		$log = Scheduled_Updates_Logs::log( $schedule_id, $action, $message, $context );
+
+		if ( is_wp_error( $log ) ) {
+			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
+		}
 
 		return rest_ensure_response( true );
 	}
