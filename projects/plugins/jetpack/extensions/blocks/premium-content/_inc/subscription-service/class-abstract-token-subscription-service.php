@@ -259,7 +259,6 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 		// Valid plans are:
 		// - monthly tiers with same currency and price same or higher than original tier
 		// - yearly tiers higher than related yearly plan or 12 times price of the original tier
-
 		$valid_plan_ids = array();
 
 		$all_plans = \Jetpack_Memberships::get_all_plans();
@@ -319,7 +318,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 				continue;
 			}
 
-			$subscription_price = floatval( $subscription_price );
+			$plan_price = floatval( $plan_price );
 
 			if ( $tier_currency !== $plan_currency ) {
 				// For now, we don't count if there are different currency (not sure how to convert price in a pure JP env)
