@@ -20,7 +20,7 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.7.2';
+	const PACKAGE_VERSION = '0.8.0-alpha';
 
 	/**
 	 * The cron event hook for the scheduled plugins update.
@@ -53,6 +53,23 @@ class Scheduled_Updates {
 		add_filter( 'auto_update_plugin', array( __CLASS__, 'allowlist_scheduled_plugins' ), 10, 2 );
 		add_filter( 'plugin_auto_update_setting_html', array( __CLASS__, 'show_scheduled_updates' ), 10, 2 );
 		add_action( 'deleted_plugin', array( __CLASS__, 'deleted_plugin' ), 10, 2 );
+
+		// Update cron sync option after options update.
+		$callback = array( __CLASS__, 'update_option_cron' );
+
+		// Main cron saving.
+		add_action( 'add_option_cron', $callback );
+		add_action( 'update_option_cron', $callback );
+
+		// Logs saving.
+		add_action( 'add_option_' . Scheduled_Updates_Logs::OPTION_NAME, $callback );
+		add_action( 'update_option_' . Scheduled_Updates_Logs::OPTION_NAME, $callback );
+
+		// This is a temporary solution for backward compatibility. It will be removed in the future.
+		// It's needed to ensure that preexisting schedules are loaded into the sync option.
+		if ( false === get_option( self::PLUGIN_CRON_HOOK ) ) {
+			call_user_func( $callback );
+		}
 	}
 
 	/**
@@ -132,6 +149,31 @@ class Scheduled_Updates {
 		self::clear_cron_cache();
 
 		return wp_unschedule_event( $timestamp, self::PLUGIN_CRON_HOOK, $plugins, true );
+	}
+
+	/**
+	 * Save the schedules for sync after cron option saving.
+	 */
+	public static function update_option_cron() {
+		$events = wp_get_scheduled_events( self::PLUGIN_CRON_HOOK );
+
+		foreach ( array_keys( $events ) as $schedule_id ) {
+			$events[ $schedule_id ]->schedule_id = $schedule_id;
+
+			$status = self::get_scheduled_update_status( $schedule_id );
+
+			if ( ! $status ) {
+				$status = array(
+					'last_run_timestamp' => null,
+					'last_run_status'    => null,
+				);
+			}
+
+			$events[ $schedule_id ]->last_run_timestamp = $status['last_run_timestamp'];
+			$events[ $schedule_id ]->last_run_status    = $status['last_run_status'];
+		}
+
+		update_option( self::PLUGIN_CRON_HOOK, $events );
 	}
 
 	/**
