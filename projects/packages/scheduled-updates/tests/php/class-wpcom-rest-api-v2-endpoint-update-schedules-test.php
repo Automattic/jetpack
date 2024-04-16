@@ -59,6 +59,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		);
 		wp_set_current_user( 0 );
 
+		Scheduled_Updates::init();
 		do_action( 'rest_api_init' );
 	}
 
@@ -73,6 +74,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		wp_clear_scheduled_hook( Scheduled_Updates::PLUGIN_CRON_HOOK );
 		delete_option( 'jetpack_scheduled_update_statuses' );
+		delete_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
 	}
 
 	/**
@@ -865,11 +867,11 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	}
 
 	/**
-	 * Test adding a log entry.
+	 * Test adding a log entry for a non-existent schedule.
 	 *
 	 * @covers ::add_log
 	 */
-	public function test_add_log() {
+	public function test_add_log_invalid_schedule() {
 		wp_set_current_user( $this->admin_id );
 
 		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . Scheduled_Updates::generate_schedule_id( array() ) . '/logs' );
@@ -882,7 +884,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$result = rest_do_request( $request );
 
 		$this->assertSame( 404, $result->get_status() );
-		$this->assertSame( false, get_option( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
+		$this->assertEmpty( get_option( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
 	}
 
 	/**
