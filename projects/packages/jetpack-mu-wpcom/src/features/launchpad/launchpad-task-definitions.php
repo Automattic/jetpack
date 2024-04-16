@@ -127,7 +127,7 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 		'plan_selected'                   => array(
 			'get_title'            => function () {
-				return __( 'Choose a plan' );
+				return __( 'Choose a plan', 'jetpack-mu-wpcom' );
 			},
 			'subtitle'             => 'wpcom_launchpad_get_plan_selected_subtitle',
 			'is_complete_callback' => '__return_true',
@@ -138,7 +138,7 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 		'setup_general'                   => array(
 			'get_title'            => function () {
-				return __( 'Give your site a name' );
+				return __( 'Give your site a name', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_disabled_callback' => '__return_true',
@@ -151,14 +151,14 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 		'site_launched'                   => array(
 			'get_title'             => function () {
-				return __( 'Launch your site' );
+				return __( 'Launch your site', 'jetpack-mu-wpcom' );
 			},
 			'isLaunchTask'          => true,
 			'add_listener_callback' => 'wpcom_launchpad_add_site_launch_listener',
 		),
 		'verify_email'                    => array(
 			'get_title'            => function () {
-				return __( 'Verify email address' );
+				return __( 'Verify email address', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_email_verified',
 			'is_disabled_callback' => 'wpcom_launchpad_is_email_verified',
@@ -171,7 +171,7 @@ function wpcom_launchpad_get_task_definitions() {
 		'first_post_published_newsletter' => array(
 			'id_map'                => 'first_post_published',
 			'get_title'             => function () {
-				return __( 'Start writing' );
+				return __( 'Start writing', 'jetpack-mu-wpcom' );
 			},
 			'add_listener_callback' => function () {
 				add_action( 'publish_post', 'wpcom_launchpad_track_publish_first_post_task' );
@@ -185,7 +185,7 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 		'newsletter_plan_created'         => array(
 			'get_title'           => function () {
-				return __( 'Create paid Newsletter' );
+				return __( 'Create paid Newsletter', 'jetpack-mu-wpcom' );
 			},
 			'is_visible_callback' => 'wpcom_launchpad_has_goal_paid_subscribers',
 			'get_calypso_path'    => function ( $task, $default, $data ) {
@@ -195,7 +195,7 @@ function wpcom_launchpad_get_task_definitions() {
 		'setup_newsletter'                => array(
 			'id'                   => 'setup_newsletter',
 			'get_title'            => function () {
-				return __( 'Personalize newsletter' );
+				return __( 'Personalize newsletter', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => '__return_true',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
@@ -207,7 +207,7 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 		'set_up_payments'                 => array(
 			'get_title'           => function () {
-				return __( 'Set up payment method' );
+				return __( 'Set up payment method', 'jetpack-mu-wpcom' );
 			},
 			'is_visible_callback' => 'wpcom_launchpad_has_goal_paid_subscribers',
 			'get_calypso_path'    => function ( $task, $default, $data ) {
@@ -224,7 +224,7 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 		'subscribers_added'               => array(
 			'get_title'            => function () {
-				return __( 'Add subscribers' );
+				return __( 'Add subscribers', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_has_goal_import_subscribers',
@@ -237,7 +237,7 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 		'migrate_content'                 => array(
 			'get_title'            => function () {
-				return __( 'Migrate content' );
+				return __( 'Migrate content', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_has_goal_import_subscribers',
@@ -730,10 +730,6 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 		),
 	);
-
-	if ( $switched_locale ) {
-		restore_previous_locale();
-	}
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
 
