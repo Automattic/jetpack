@@ -248,6 +248,92 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	}
 
 	/**
+	 * Get all plans id that make access valid for a post with this tier id.
+	 *
+	 * @param int $tier_id Tier id.
+	 *
+	 * @return false|void
+	 */
+	public static function get_valid_plan_ids_for_tier( $tier_id ) {
+		// Valid plans are:
+		// - monthly tiers with same currency and price same or higher than original tier
+		// - yearly tiers higher than related yearly plan or 12 times price of the original tier
+
+		$valid_plan_ids = array();
+
+		$all_plans = \Jetpack_Memberships::get_all_plans();
+
+		// Let's get the current tier
+		$tier = null;
+		foreach ( $all_plans as $post ) {
+			if ( $post->ID === $tier_id ) {
+				$tier = $post;
+				break;
+			}
+		}
+
+		if ( $tier === null ) {
+			// We have an error
+			return WP_Error( 'The plan related to the tier cannot be found' );
+		}
+
+		$tier_price      = self::find_metadata( $tier, 'jetpack_memberships_price' );
+		$tier_currency   = self::find_metadata( $tier, 'jetpack_memberships_currency' );
+		$tier_product_id = self::find_metadata( $tier, 'jetpack_memberships_product_id' );
+
+		if ( $tier_price === null || $tier_currency === null || $tier_product_id === null ) {
+			// There is an issue with the meta
+			return WP_Error( 'The plan related to the tier is missing data' );
+		}
+
+		$valid_plan_ids[] = $tier_id;
+
+		$tier_price = floatval( $tier_price );
+
+		// At this point we know the post is
+		$annual_tier = null;
+		foreach ( $all_plans as $plan ) {
+			if ( intval( self::find_metadata( $plan, 'jetpack_memberships_tier' ) ) === $tier_id ) {
+				$annual_tier = $plan;
+				break;
+			}
+		}
+
+		if ( ! empty( $annual_tier ) ) {
+			$annual_tier_price = floatval( self::find_metadata( $annual_tier, 'jetpack_memberships_price' ) );
+			$valid_plan_ids[]  = $annual_tier->ID;
+		}
+
+		foreach ( $all_plans as $post ) {
+			if ( in_array( $post->ID, $valid_plan_ids, true ) ) {
+				continue;
+			}
+
+			$plan_price    = self::find_metadata( $post, 'jetpack_memberships_price' );
+			$plan_currency = self::find_metadata( $post, 'jetpack_memberships_currency' );
+			$plan_interval = self::find_metadata( $post, 'jetpack_memberships_interval' );
+
+			if ( $plan_price === null || $plan_currency === null || $plan_interval === null ) {
+				// There is an issue with the meta
+				continue;
+			}
+
+			$subscription_price = floatval( $subscription_price );
+
+			if ( $tier_currency !== $plan_currency ) {
+				// For now, we don't count if there are different currency (not sure how to convert price in a pure JP env)
+				continue;
+			}
+
+			if ( ( $plan_interval === '1 month' && $plan_price >= $tier_price ) ||
+				( $plan_interval === '1 year' && $plan_price >= $annual_tier_price )
+			) {
+				$valid_plan_ids [] = $post->ID;
+			}
+		}
+	}
+
+	/**
 	 * Find metadata in post
 	 *
 	 * @param WP_Post|object $post        Post.
@@ -255,7 +341,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	 *
 	 * @return mixed|null
 	 */
-	private function find_metadata( $post, $meta_key ) {
+	private static function find_metadata( $post, $meta_key ) {
 
 		if ( $post instanceof WP_Post ) {
 			return $post->{$meta_key};
@@ -301,9 +387,9 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 			return false;
 		}
 
-		$tier_price        = $this->find_metadata( $tier, 'jetpack_memberships_price' );
-		$tier_currency     = $this->find_metadata( $tier, 'jetpack_memberships_currency' );
-		$tier_product_id   = $this->find_metadata( $tier, 'jetpack_memberships_product_id' );
+		$tier_price        = self::find_metadata( $tier, 'jetpack_memberships_price' );
+		$tier_currency     = self::find_metadata( $tier, 'jetpack_memberships_currency' );
+		$tier_product_id   = self::find_metadata( $tier, 'jetpack_memberships_product_id' );
 		$annual_tier_price = $tier_price * 12;
 
 		if ( $tier_price === null || $tier_currency === null || $tier_product_id === null ) {
@@ -317,7 +403,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 		$annual_tier_id = null;
 		$annual_tier    = null;
 		foreach ( $all_plans as $plan ) {
-			if ( intval( $this->find_metadata( $plan, 'jetpack_memberships_tier' ) ) === $tier_id ) {
+			if ( intval( self::find_metadata( $plan, 'jetpack_memberships_tier' ) ) === $tier_id ) {
 				$annual_tier = $plan;
 				break;
 			}
@@ -325,7 +411,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 
 		if ( ! empty( $annual_tier ) ) {
 			$annual_tier_id    = $annual_tier->ID;
-			$annual_tier_price = floatval( $this->find_metadata( $annual_tier, 'jetpack_memberships_price' ) );
+			$annual_tier_price = floatval( self::find_metadata( $annual_tier, 'jetpack_memberships_price' ) );
 		}
 
 		foreach ( $user_abbreviated_subscriptions as $subscription_plan_id => $details ) {
@@ -338,7 +424,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 
 			$subscription_post = null;
 			foreach ( $all_plans as $plan ) {
-				if ( intval( $this->find_metadata( $plan, 'jetpack_memberships_product_id' ) ) === intval( $subscription_plan_id ) ) {
+				if ( intval( self::find_metadata( $plan, 'jetpack_memberships_product_id' ) ) === intval( $subscription_plan_id ) ) {
 					$subscription_post = $plan;
 					break;
 				}
@@ -355,9 +441,9 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 				return false;
 			}
 
-			$subscription_price    = $this->find_metadata( $subscription_post, 'jetpack_memberships_price' );
-			$subscription_currency = $this->find_metadata( $subscription_post, 'jetpack_memberships_currency' );
-			$subscription_interval = $this->find_metadata( $subscription_post, 'jetpack_memberships_interval' );
+			$subscription_price    = self::find_metadata( $subscription_post, 'jetpack_memberships_price' );
+			$subscription_currency = self::find_metadata( $subscription_post, 'jetpack_memberships_currency' );
+			$subscription_interval = self::find_metadata( $subscription_post, 'jetpack_memberships_interval' );
 
 			if ( $subscription_price === null || $subscription_currency === null || $subscription_interval === null ) {
 				// There is an issue with the meta

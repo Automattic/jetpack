@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Added a method to retrieve the Tiers id relevant to a specific plan
