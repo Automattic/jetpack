@@ -2613,7 +2613,7 @@ class Manager {
 	 *
 	 * @param null|array $environment Value to override $_REQUEST.
 	 *
-	 * @return mixed
+	 * @return void
 	 */
 	public function verify_json_api_authorization_request( $environment = null ) {
 		$environment = $environment === null
