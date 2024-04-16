@@ -46,8 +46,7 @@ function wpcomsh_popular_wpcom_themes_api_result( $res, string $action, $args ) 
 	if (
 		'query_themes' !== $action ||
 		'popular' !== $browse ||
-		! wpcom_is_nav_redesign_enabled() ||
-		! get_option( 'wpcom_themes_on_atomic' )
+		! wpcom_is_nav_redesign_enabled()
 	) {
 		return $res;
 	}
@@ -74,8 +73,7 @@ function wpcomsh_search_wpcom_themes_api_result( $res, string $action, $args ) {
 	if (
 		'query_themes' !== $action ||
 		'' === $search ||
-		! wpcom_is_nav_redesign_enabled() ||
-		! get_option( 'wpcom_themes_on_atomic' )
+		! wpcom_is_nav_redesign_enabled()
 	) {
 		return $res;
 	}
@@ -98,7 +96,7 @@ add_filter( 'themes_api_result', 'wpcomsh_search_wpcom_themes_api_result', 0, 3 
  */
 function wpcomsh_theme_information_wpcom_themes_api_result( $res, string $action, $args ) {
 	// Pre-requisites checks.
-	if ( 'theme_information' !== $action || ! wpcom_is_nav_redesign_enabled() || ! get_option( 'wpcom_themes_on_atomic' ) ) {
+	if ( 'theme_information' !== $action || ! wpcom_is_nav_redesign_enabled() ) {
 		return $res;
 	}
 
@@ -135,7 +133,7 @@ function wpcomsh_remove_symlink_wp_error( $code, $message, $data, WP_Error $erro
  */
 function wpcomsh_theme_install_by_symlink( $reply, $package, WP_Upgrader $upgrader ) {
 	// Pre-requisites checks.
-	if ( ! wpcom_is_nav_redesign_enabled() || ! get_option( 'wpcom_themes_on_atomic' ) ) {
+	if ( ! wpcom_is_nav_redesign_enabled() ) {
 		return $reply;
 	}
 
