@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { AIControl, UpgradeMessage } from '@automattic/jetpack-ai-client';
+import { AIControl, UpgradeMessage, renderHTMLFromMarkdown } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { rawHandler } from '@wordpress/blocks';
@@ -11,7 +11,6 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { RawHTML, useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
-import MarkdownIt from 'markdown-it';
 /**
  * Internal dependencies
  */
@@ -28,10 +27,6 @@ import useAICheckout from './hooks/use-ai-checkout';
 import useAiFeature from './hooks/use-ai-feature';
 import { isUserConnected } from './lib/connection';
 import './editor.scss';
-
-const markdownConverter = new MarkdownIt( {
-	breaks: true,
-} );
 
 const isInBlockEditor = window?.Jetpack_Editor_Initial_State?.screenBase === 'post';
 
@@ -221,16 +216,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const replaceContent = async () => {
 		let newGeneratedBlocks = [];
-		/*
-		 * Markdown-syntax content
-		 * - Get HTML code from markdown content
-		 * - Create blocks from HTML code
-		 */
-		let HTML = markdownConverter
-			.render( attributes.content || '' )
-			// Fix list indentation
-			.replace( /<li>\s+<p>/g, '<li>' )
-			.replace( /<\/p>\s+<\/li>/g, '</li>' );
+
+		let HTML = renderHTMLFromMarkdown( { content: attributes.content || '' } );
 
 		const seemsToIncludeTitle =
 			HTML?.split( '\n' ).length > 1 && HTML?.split( '\n' )?.[ 0 ]?.match( /^<h1>.*<\/h1>$/ );
@@ -349,7 +336,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 			<div { ...blockProps }>
 				{ contentIsLoaded && (
 					<div ref={ contentRef } className="jetpack-ai-assistant__content">
-						<RawHTML>{ markdownConverter.render( attributes.content ) }</RawHTML>
+						<RawHTML>{ renderHTMLFromMarkdown( { content: attributes.content || '' } ) }</RawHTML>
 					</div>
 				) }
 				<InspectorControls>

@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
+import { renderMarkdownFromHTML } from '@automattic/jetpack-ai-client';
 import { createBlock, getSaveContent } from '@wordpress/blocks';
 /**
  * Internal dependencies
  */
 import metadata from '../block.json';
 import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '../extensions/ai-assistant';
-import turndownService from '../lib/turndown';
 /**
  * Types
  */
@@ -34,7 +34,7 @@ export function transformToAIAssistantBlock( blockType: ExtendedBlockProp, attrs
 	}
 
 	// Convert the content to markdown.
-	const aiAssistantBlockcontent = turndownService.turndown( htmlContent );
+	const aiAssistantBlockcontent = renderMarkdownFromHTML( { content: htmlContent } );
 
 	// A list of messages to start with
 	const messages: Array< PromptItemProps > = [];
