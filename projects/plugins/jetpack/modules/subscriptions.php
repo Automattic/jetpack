@@ -960,7 +960,9 @@ class Jetpack_Subscriptions {
 	 * @return bool
 	 */
 	public function first_published_status_meta_auth_callback() {
-		if ( current_user_can( 'publish_posts' ) ) {
+		$capability = apply_filters( 'jetpack_subscriber_was_published_capability', 'publish_posts' );
+
+		if ( current_user_can( $capability ) ) {
 			return true;
 		}
 		return false;
