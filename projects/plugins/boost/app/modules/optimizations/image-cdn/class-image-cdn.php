@@ -16,6 +16,8 @@ class Image_CDN implements Pluggable, Changes_Page_Output, Optimization {
 		if ( Premium_Features::has_feature( Premium_Features::IMAGE_CDN_QUALITY ) ) {
 			add_filter( 'jetpack_photon_pre_args', array( $this, 'add_quality_args' ), 10, 2 );
 		}
+
+		add_action( 'wp_footer', array( $this, 'inject_image_cdn_liar_script' ) );
 	}
 
 	public static function get_slug() {
@@ -87,5 +89,19 @@ class Image_CDN implements Pluggable, Changes_Page_Output, Optimization {
 
 		// Passing 100 to photon will result in a lossless image
 		return $quality_settings[ $image_type ]['lossless'] ? 100 : $quality_settings[ $image_type ]['quality'];
+	}
+
+	/**
+	 * Injects the image-cdn-liar.js script as an inline script in the footer.
+	 */
+	public function inject_image_cdn_liar_script() {
+		?>
+		<script async>
+			<?php
+			// Insecure and Temporary
+			echo file_get_contents( __DIR__ . '/inline-script.js' );
+			?>
+		</script>
+		<?php
 	}
 }
