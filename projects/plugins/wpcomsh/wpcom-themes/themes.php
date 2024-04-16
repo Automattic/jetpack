@@ -98,9 +98,10 @@ add_filter( 'themes_api_result', 'wpcomsh_latest_wpcom_themes_api_result', 0, 3 
  */
 function wpcomsh_block_themes_wpcom_themes_api_result( $res, string $action, $args ) {
 	// Pre-requisites checks.
+	$tag = $args->tag ?? '';
 	if (
 		'query_themes' !== $action ||
-		'full-site-editing' !== $args->tag ||
+		'full-site-editing' !== $tag ||
 		! wpcom_is_nav_redesign_enabled()
 	) {
 		return $res;
