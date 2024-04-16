@@ -1247,9 +1247,10 @@ function get_paywall_simple() {
 
 	return '
 <!-- wp:columns -->
-<div class="wp-block-columns" style="display: inline-block; width: 90%">
-                  font-family: \'SF Pro Text\', sans-serif;
-                  line-height: 28.8px;">
+<div 
+	class="wp-block-columns" 
+	style="display: inline-block; width: 90%; font-family: \'SF Pro Text\', sans-serif; line-height: 28.8px;"
+>
         ' . $access_heading . '
         </p>
         <!-- /wp:paragraph -->
