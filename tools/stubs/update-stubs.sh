@@ -74,6 +74,14 @@ function fetch_repo {
 }
 
 echo
+info 'Downloading Akismet'
+fetch_plugin akismet
+
+echo
+info 'Extracting Akismet stubs'
+"$BASE/projects/packages/stub-generator/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/akismet-stubs.php" "$BASE/tools/stubs/akismet-stub-defs.php"
+
+echo
 info 'Downloading WooCommerce'
 fetch_repo woocommerce/woocommerce
 
