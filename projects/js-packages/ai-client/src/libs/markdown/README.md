@@ -42,7 +42,7 @@ const markdownContent = renderer.render( { content: htmlContent } );
 
 ## Markdown to HTML
 
-The Markdown to HTML conversion uses the [markdown-it ](https://github.com/markdown-it/markdown-it) library and supports markdown-it's options. It also adds access to common fixes.
+The Markdown to HTML conversion uses the [markdown-it](https://github.com/markdown-it/markdown-it) library and supports markdown-it's options. It also adds access to common fixes.
 
 Example:
 ```typescript
