@@ -23,6 +23,7 @@
  *   - parse_file_list: (array) Files to parse but not analyze. Equivalent to listing in both 'file_list' and 'exclude_analysis_directory_list'.
  *   - stubs: (array) Predefined stubs to load. Default is `array( 'wordpress', 'wp-cli', 'wpcom' )`.
  *      - akismet: Stubs from .phan/stubs/akismet-stubs.php.
+ *      - photon-opencv: Stubs from .phan/stubs/photon-opencv-stubs.php.
  *      - woocommerce: Stubs from php-stubs/woocommerce.
  *      - woocommerce-internal: Stubs from .phan/stubs/woocommerce-internal-stubs.php.
  *      - woocommerce-packages: Stubs from php-stubs/woocommerce.
@@ -56,6 +57,9 @@ function make_phan_config( $dir, $options = array() ) {
 		switch ( $stub ) {
 			case 'akismet':
 				$stubs[] = "$root/.phan/stubs/akismet-stubs.php";
+				break;
+			case 'photon-opencv':
+				$stubs[] = "$root/.phan/stubs/photon-opencv-stubs.php";
 				break;
 			case 'woocommerce':
 				$stubs[] = "$root/vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php";
