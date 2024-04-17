@@ -25,7 +25,8 @@
 		"classmap": [
 			"legacy",
 			"src/",
-			"src/webhooks"
+			"src/webhooks",
+			"src/identity-crisis"
 		]
 	},
 	"scripts": {
