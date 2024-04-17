@@ -755,8 +755,8 @@ class Sharing_Admin {
 							</ul>
 						</div>
 					</div>
-				</div><?php
-				if ( $show_jetpack_admin_settings_link ) : ?>
+				</div>
+				<?php if ( $show_jetpack_admin_settings_link ) : ?>
 				<p class="settings-sharing__block-theme-description">
 					<?php
 					printf(
