@@ -158,25 +158,18 @@ class Scheduled_Updates {
 	 * Save the schedules for sync after cron option saving.
 	 */
 	public static function update_option_cron() {
-		$events = wp_get_scheduled_events( self::PLUGIN_CRON_HOOK );
+		$endpoint = new \WPCOM_REST_API_V2_Endpoint_Update_Schedules();
+		$events   = $endpoint->get_items( new \WP_REST_Request() );
 
-		foreach ( array_keys( $events ) as $schedule_id ) {
-			$events[ $schedule_id ]->schedule_id = $schedule_id;
-
-			$status = self::get_scheduled_update_status( $schedule_id );
-
-			if ( ! $status ) {
-				$status = array(
-					'last_run_timestamp' => null,
-					'last_run_status'    => null,
-				);
-			}
-
-			$events[ $schedule_id ]->last_run_timestamp = $status['last_run_timestamp'];
-			$events[ $schedule_id ]->last_run_status    = $status['last_run_status'];
+		if ( ! is_wp_error( $events ) ) {
+			$option = array_map(
+				function ( $event ) {
+					return (object) $event;
+				},
+				$events->get_data()
+			);
+			update_option( self::PLUGIN_CRON_HOOK, $option );
 		}
-
-		update_option( self::PLUGIN_CRON_HOOK, $events );
 	}
 
 	/**
