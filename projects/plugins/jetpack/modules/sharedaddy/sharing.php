@@ -726,7 +726,8 @@ class Sharing_Admin {
 
 		// Check if admin page exists
 		global $submenu;
-		error_log( print_r( compact('submenu'), true ) );
+		$show_jetpack_admin_settings_link = isset( $submenu['jetpack'][0][2] ) && $submenu['jetpack'][0][2] === 'jetpack#/settings';
+		error_log( var_export( compact('submenu', 'show_jetpack_admin_settings_link'), true ) );
 		?>
 
 		<div class="share_manage_options">
@@ -755,7 +756,8 @@ class Sharing_Admin {
 							</ul>
 						</div>
 					</div>
-				</div>
+				</div><?php
+				if ( $show_jetpack_admin_settings_link ) : ?>
 				<p class="settings-sharing__block-theme-description">
 					<?php
 					printf(
@@ -770,6 +772,7 @@ class Sharing_Admin {
 					);
 					?>
 				</p>
+				<?php endif; ?>
 			</div>
 			<br class="clearing" />
 		</div>
