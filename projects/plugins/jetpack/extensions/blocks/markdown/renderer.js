@@ -38,8 +38,7 @@ const renderMarkdown = source => {
 
 	let html = markdownConverter.render( source );
 
-	// Add inline styles to any to-do lists, found in the html as unordered lists with the .contains-task-list class.
-	// This is done to allow for custom styling of the to-do list items.
+	// Add inline styles to all to-do lists.
 	html = html.replace(
 		/<ul class="contains-task-list">/g,
 		'<ul class="contains-task-list" style="list-style: none;">'
