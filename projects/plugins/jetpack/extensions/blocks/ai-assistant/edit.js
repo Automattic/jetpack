@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { AIControl, UpgradeMessage, renderHTMLFromMarkdown } from '@automattic/jetpack-ai-client';
+import {
+	BlockAIControl,
+	UpgradeMessage,
+	renderHTMLFromMarkdown,
+} from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { rawHandler } from '@wordpress/blocks';
@@ -383,7 +387,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 						isGeneratingTitle={ isGeneratingTitle }
 					/>
 				) }
-				<AIControl
+				<BlockAIControl
 					ref={ aiControlRef }
 					disabled={ requireUpgrade || ! connected }
 					value={ attributes.userPrompt }

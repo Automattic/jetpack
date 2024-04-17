@@ -2,23 +2,16 @@
  * External dependencies
  */
 import { action } from '@storybook/addon-actions';
+import { Button, Notice } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import React from 'react';
 /**
  * Internal dependencies
  */
-import AIControl from '../index.js';
-/**
- * Types
- */
-import type { Meta } from '@storybook/react';
+import { GuidelineMessage, ErrorMessage, UpgradeMessage } from '../../message/index.js';
+import { AIControl } from '../index.js';
 
-interface AIControlStoryMeta extends Meta< typeof AIControl > {
-	title?: string;
-	component?: React.ReactElement;
-}
-
-const meta: AIControlStoryMeta = {
+export default {
 	title: 'JS Packages/AI Client/AI Control',
 	component: AIControl,
 	decorators: [
@@ -35,13 +28,48 @@ const meta: AIControlStoryMeta = {
 			},
 			options: [ 'init', 'requesting', 'suggesting', 'done', 'error' ],
 		},
+		message: {
+			control: {
+				type: 'select',
+			},
+			options: {
+				None: null,
+				'Guideline message': <GuidelineMessage />,
+				'Error message': <ErrorMessage onTryAgainClick={ action( 'onTryAgainClick' ) } />,
+				'Upgrade message': (
+					<UpgradeMessage requestsRemaining={ 10 } onUpgradeClick={ action( 'onUpgradeClick' ) } />
+				),
+			},
+		},
+		actions: {
+			control: {
+				type: 'select',
+			},
+			options: {
+				None: null,
+				'Accept button': <Button>Accept</Button>,
+			},
+		},
+		errorComponent: {
+			control: {
+				type: 'select',
+			},
+			options: {
+				None: null,
+				'Error notice': (
+					<Notice status="error" isDismissible={ true }>
+						Error message
+					</Notice>
+				),
+			},
+		},
 	},
 	parameters: {
 		controls: {
 			exclude: /on[A-Z].*/,
 		},
 	},
-} as Meta< typeof AIControl >;
+};
 
 const Template = args => {
 	const [ value, setValue ] = useState( '' );
@@ -55,19 +83,16 @@ const Template = args => {
 };
 
 const DefaultArgs = {
+	placeholder: 'Placeholder',
+	disabled: false,
 	isTransparent: false,
-	placeholder: '',
 	state: 'init',
-	showButtonLabels: true,
-	showAccept: false,
-	acceptLabel: 'Accept',
 	onChange: action( 'onChange' ),
-	onSend: action( 'onSend' ),
-	onStop: action( 'onStop' ),
-	onAccept: action( 'onAccept' ),
+	message: null,
+	bannerComponent: null,
+	errorComponent: null,
+	actions: null,
 };
 
 export const Default = Template.bind( {} );
 Default.args = DefaultArgs;
-
-export default meta;
