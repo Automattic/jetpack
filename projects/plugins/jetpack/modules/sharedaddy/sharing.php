@@ -723,6 +723,10 @@ class Sharing_Admin {
 			new Share_Email( 'email', array() ),
 			new Share_Reddit( 'reddit', array() ),
 		);
+
+		// Check if admin page exists
+		global $submenu;
+		error_log( print_r( compact('submenu'), true ) );
 		?>
 
 		<div class="share_manage_options">
