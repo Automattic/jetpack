@@ -7,6 +7,7 @@
  */
 
 import { Disabled, ExternalLink, PanelRow } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { Fragment, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -51,6 +52,8 @@ export default function PublicizeForm() {
 			numberOfSharesRemaining: select( socialStore ).numberOfSharesRemaining(),
 		};
 	}, [] );
+
+	const isAdmin = useSelect( select => select( coreStore ).canUser( 'update', 'settings' ), [] );
 
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
@@ -113,13 +116,14 @@ export default function PublicizeForm() {
 							/>
 						) ) }
 				</>
-			) : (
+			) : null }
+			{ ! hasConnections && isAdmin ? (
 				<PanelRow>
 					<ExternalLink href={ connectionsAdminUrl }>
 						{ __( 'Connect an account', 'jetpack' ) }
 					</ExternalLink>
 				</PanelRow>
-			) }
+			) : null }
 			{ ! isPublicizeDisabledBySitePlan && (
 				<Fragment>
 					{ isPublicizeEnabled && hasEnabledConnections && <SharePostForm /> }

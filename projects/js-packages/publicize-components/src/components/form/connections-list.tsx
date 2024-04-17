@@ -1,3 +1,5 @@
+import { store as coreStore } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import PublicizeConnection from '../connection';
 import PublicizeSettingsButton from '../settings-button';
@@ -8,6 +10,8 @@ export const ConnectionsList: React.FC = () => {
 	const { connections, toggleById } = useSocialMediaConnections();
 
 	const { canBeTurnedOn, shouldBeDisabled } = useConnectionState();
+
+	const isAdmin = useSelect( select => select( coreStore ).canUser( 'update', 'settings' ), [] );
 
 	return (
 		<ul className={ styles[ 'connections-list' ] }>
@@ -28,9 +32,11 @@ export const ConnectionsList: React.FC = () => {
 					/>
 				);
 			} ) }
-			<li>
-				<PublicizeSettingsButton />
-			</li>
+			{ isAdmin ? (
+				<li>
+					<PublicizeSettingsButton />
+				</li>
+			) : null }
 		</ul>
 	);
 };
