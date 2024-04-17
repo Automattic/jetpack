@@ -44,10 +44,14 @@ function fetch_plugin {
 	echo "Unzipping..."
 	local D=$PWD
 	cd "$WORK_DIR"
-	cols=$( tput cols )
-	unzip "$slug.zip" | while read -r line; do
-		printf '\r\e[0K%.*s' "$cols" "$line"
-	done
+	if [[ -n "$TERM" && -t 1 ]]; then
+		cols=$( tput cols )
+		unzip "$slug.zip" | while read -r line; do
+			printf '\r\e[0K%.*s' "$cols" "$line"
+		done
+	else
+		unzip "$slug.zip"
+	fi
 	cd "$D"
 	printf '\r\e[0KDone!\n'
 }
