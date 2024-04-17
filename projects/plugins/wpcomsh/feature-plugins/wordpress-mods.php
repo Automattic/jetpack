@@ -236,7 +236,7 @@ function wpcomsh_prevent_owner_removal( $allcaps, $caps, $args ) {
 	if ( in_array( $args[0], array( 'edit_user', 'delete_user', 'remove_user', 'promote_user' ), true ) ) {
 		$jetpack = get_option( 'jetpack_options' );
 
-		if ( ! empty( $jetpack['master_user'] ) && $args[2] === $jetpack['master_user'] ) {
+		if ( ! empty( $jetpack['master_user'] ) && isset( $args[2] ) && $args[2] === $jetpack['master_user'] ) {
 			return array();
 		}
 	}
