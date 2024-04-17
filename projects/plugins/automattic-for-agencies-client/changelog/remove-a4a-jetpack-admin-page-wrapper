@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Removed the Jetpack-branded header and footer from the plugin.

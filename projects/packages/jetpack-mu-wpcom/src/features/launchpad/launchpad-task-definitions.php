@@ -750,7 +750,7 @@ function wpcom_launchpad_is_site_launched( $task, $is_complete ) {
 		return true;
 	}
 
-	$launch_status = get_blog_option( get_current_blog_id(), 'launch-status' );
+	$launch_status = get_option( 'launch-status' );
 
 	if ( 'launched' === $launch_status ) {
 		wpcom_mark_launchpad_task_complete( 'site_launched' );
