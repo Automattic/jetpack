@@ -92,18 +92,19 @@ class Scheduled_Updates_Logs {
 	/**
 	 * Retrieves the logs for a specific schedule_id or all logs if no schedule_id is provided.
 	 *
-	 * @param string|null $schedule_id Optional. The ID of the schedule. If not provided, all logs will be returned.
+	 * If a schedule_id is provided, the logs for that specific schedule are returned.
+	 * If no schedule_id is provided, all logs are returned, with each schedule_id as a key in the array.
 	 *
-	 * @return array
-	 *              An array containing the logs, split by run.
-	 *               If a schedule_id is provided, the logs for that specific schedule are returned.
-	 *               If no schedule_id is provided, all logs are returned, with each schedule_id as a key in the array.
-	 *               Each run is an array of log entries, where each log entry is an associative array
-	 *               containing the following keys:
-	 *               - 'timestamp' (int): The Unix timestamp of the log entry.
-	 *               - 'action' (string): The action constant representing the event.
-	 *               - 'message' (string|null): The message associated with the event, if available.
-	 *               - 'context' (mixed|null): Additional context data associated with the event, if available.
+	 * @param string|null $schedule_id Optional. The ID of the schedule. If not provided, all logs will be returned.
+	 * @return array {
+	 *      An array containing the logs, split by run.
+	 *      Each run is an array of log entries, where each log entry is an associative array containing the following keys:
+	 *
+	 *      @type int         $timestamp The Unix timestamp of the log entry.
+	 *      @type string      $action    The action constant representing the event.
+	 *      @type string|null $message   The message associated with the event, if available.
+	 *      @type mixed|null  $context   Additional context data associated with the event, if available.
+	 * }
 	 */
 	public static function get( $schedule_id = null ) {
 		$logs = get_option( self::OPTION_NAME, array() );
