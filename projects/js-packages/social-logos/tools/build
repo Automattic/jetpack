@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+# Start in the right folder.
+root_dir="$(dirname "${BASH_SOURCE[0]}")/.."
+cd "$root_dir"
+
+# Output.
+echo 'Starting full build...'
+
+# Run through full build flow.
+./tools/clean &&
+./tools/svg-optimize &&
+./tools/svg-to-php &&
+./tools/svg-to-sprite &&
+./tools/svg-to-font.js &&
+./tools/svg-to-react-data.js &&
+./tools/build-react &&
+echo 'Build complete.' ||
+echo 'Build failure!'

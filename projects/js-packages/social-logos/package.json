@@ -1,0 +1,41 @@
+{
+	"name": "social-logos",
+	"version": "2.5.9",
+	"main": "react/index.js",
+	"peerDependencies": {
+		"react": "15 - 18"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/social-logos"
+	},
+	"license": "GPL-2.0+",
+	"files": [
+		"build/",
+		"!build/svg-clean",
+		"!build/php"
+	],
+	"dependencies": {
+		"prop-types": "^15.5.7"
+	},
+	"devDependencies": {
+		"@babel/cli": "^7.23.9",
+		"@babel/core": "^7.24.0",
+		"@babel/preset-env": "7.15.0",
+		"@babel/preset-react": "^7.14.5",
+		"babel-preset-minify": "^0.5.1",
+		"svg2ttf": "^6.0.3",
+		"svgicons2svgfont": "^12.0.0",
+		"svgo": "^3.2.0",
+		"svgstore-cli": "^2.0.1",
+		"wawoff2": "^2.0.1",
+		"xml2js": "^0.6.2"
+	},
+	"scripts": {
+		"build": "./tools/build"
+	},
+	"volta": {
+		"node": "16.8.0",
+		"npm": "7.21.1"
+	}
+}
