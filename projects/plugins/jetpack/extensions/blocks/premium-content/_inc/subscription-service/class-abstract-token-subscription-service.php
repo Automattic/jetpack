@@ -256,9 +256,8 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	 * @return array|WP_Error
 	 */
 	public static function get_valid_plan_ids_for_tier( $tier_id ) {
-		// Valid plans are:
-		// - monthly tiers with same currency and price same or higher than original tier
-		// - yearly tiers higher than related yearly plan or 12 times price of the original tier
+		// Valid plans are monthly tiers with same currency and same or higher price than original tier
+
 		$valid_plan_ids = array();
 
 		$all_plans = \Jetpack_Memberships::get_all_plans();
