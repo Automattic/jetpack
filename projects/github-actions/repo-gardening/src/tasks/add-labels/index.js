@@ -137,6 +137,12 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 			}
 		}
 
+		// The SSO feature nows lives in both a package and a Jetpack module.
+		const sso = file.match( /^projects\/packages\/connection\/src\/sso\// );
+		if ( sso !== null ) {
+			keywords.add( '[Feature] SSO' );
+		}
+
 		// The WooCommerce Analytics feature now lives in both a package and a Jetpack module.
 		const wooCommerceAnalytics = file.match( /^projects\/packages\/woocommerce-analytics\// );
 		if ( wooCommerceAnalytics !== null ) {
