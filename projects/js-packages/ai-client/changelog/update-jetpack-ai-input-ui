@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Client: Separate AIControl UI from block logic
