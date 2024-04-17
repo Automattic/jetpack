@@ -13,9 +13,9 @@ import React, { forwardRef } from 'react';
 /**
  * Internal dependencies
  */
-import './style.scss';
 import AiStatusIndicator from '../ai-status-indicator/index.js';
-import { GuidelineMessage } from './message.js';
+import { GuidelineMessage } from '../message/index.js';
+import './style.scss';
 /**
  * Types
  */

@@ -4,5 +4,6 @@ export { default as AudioDurationDisplay } from './audio-duration-display/index.
 export {
 	GuidelineMessage,
 	UpgradeMessage,
+	ErrorMessage,
 	default as FooterMessage,
-} from './ai-control/message.js';
+} from './message/index.js';
