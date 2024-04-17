@@ -134,7 +134,7 @@ function render_block( $attr, $content ) {
 		$extra_text .= sprintf(
 			'<p class="%1$s">%2$s</p>',
 			esc_attr( $donation['class'] ),
-			wp_kses_post( isset( $donation['extraText'] ) ? $donation['extraText'] : $default_texts['extraText'] )
+			wp_kses_post( $donation['extraText'] ?? $default_texts['extraText'] )
 		);
 		$buttons    .= sprintf(
 			'<a class="wp-block-button__link donations__donate-button %1$s" href="%2$s">%3$s</a>',
