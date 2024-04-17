@@ -49,6 +49,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		requestsCount,
 		requestsLimit,
 		currentTier,
+		loading: loadingAiFeature,
 	} = useAiFeature();
 	const requestsRemaining = Math.max( requestsLimit - requestsCount, 0 );
 
@@ -404,6 +405,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					customFooter={
 						// Only show the upgrade message on each 5th request or if it's the first request - and only if the user is on the free plan
 						( requestsRemaining % 5 === 0 || requestsCount === 1 ) &&
+						! loadingAiFeature && // Don't show the upgrade message while the feature is loading
 						planType === PLAN_TYPE_FREE ? (
 							<UpgradeMessage
 								requestsRemaining={ requestsRemaining }
