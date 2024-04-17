@@ -724,10 +724,9 @@ class Sharing_Admin {
 			new Share_Reddit( 'reddit', array() ),
 		);
 
-		// Check if admin page exists
+		// Hide the link to Jetpack Sharing settings if no Jetpack Settings found in submenu list
 		global $submenu;
-		$show_jetpack_admin_settings_link = isset( $submenu['jetpack'][0][2] ) && $submenu['jetpack'][0][2] === 'jetpack#/settings';
-		error_log( var_export( compact('submenu', 'show_jetpack_admin_settings_link'), true ) );
+		$show_jetpack_admin_settings_link = isset( $submenu['jetpack'][1][2] ) && $submenu['jetpack'][1][2] === 'jetpack#/settings';
 		?>
 
 		<div class="share_manage_options">
