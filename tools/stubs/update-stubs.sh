@@ -82,6 +82,14 @@ info 'Extracting Akismet stubs'
 "$BASE/projects/packages/stub-generator/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/akismet-stubs.php" "$BASE/tools/stubs/akismet-stub-defs.php"
 
 echo
+info 'Downloading WordPress.com Editing Toolkit'
+fetch_plugin full-site-editing
+
+echo
+info 'Extracting WordPress.com Editing Toolkit stubs'
+"$BASE/projects/packages/stub-generator/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/full-site-editing-stubs.php" "$BASE/tools/stubs/full-site-editing-stub-defs.php"
+
+echo
 info 'Downloading WooCommerce'
 fetch_repo woocommerce/woocommerce
 

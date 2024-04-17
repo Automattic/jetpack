@@ -59,7 +59,6 @@ return [
     // PhanTypeInvalidLeftOperandOfNumericOp : 10+ occurrences
     // PhanTypeMismatchReturnNullable : 10+ occurrences
     // PhanUndeclaredClassProperty : 10+ occurrences
-    // PhanUndeclaredClassReference : 10+ occurrences
     // PhanUndeclaredConstant : 10+ occurrences
     // PhanUndeclaredTypeReturnType : 10+ occurrences
     // PhanCommentParamWithoutRealParam : 9 occurrences
@@ -72,6 +71,7 @@ return [
     // PhanTypeMismatchArgumentInternalReal : 7 occurrences
     // PhanUndeclaredTypeParameter : 7 occurrences
     // PhanCommentAbstractOnInheritedMethod : 6 occurrences
+    // PhanUndeclaredClassReference : 6 occurrences
     // PhanUndeclaredTypeProperty : 6 occurrences
     // PhanUndeclaredVariableDim : 6 occurrences
     // PhanUnextractableAnnotationElementName : 6 occurrences
@@ -89,7 +89,6 @@ return [
     // PhanTypeInvalidRightOperandOfBitwiseOp : 4 occurrences
     // PhanTypeInvalidRightOperandOfNumericOp : 4 occurrences
     // PhanUndeclaredClassInCallable : 4 occurrences
-    // PhanUndeclaredClassReference : 4 occurrences
     // PhanDeprecatedFunctionInternal : 3 occurrences
     // PhanDeprecatedTrait : 3 occurrences
     // PhanTypeConversionFromArray : 3 occurrences
@@ -588,7 +587,7 @@ return [
         'sal/class.json-api-post-base.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanUndeclaredFunction'],
         'sal/class.json-api-site-base.php' => ['PhanParamTooMany', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredFunction'],
         'sal/class.json-api-site-jetpack-base.php' => ['PhanRedundantCondition', 'PhanTypeMismatchReturnProbablyReal'],
-        'sal/class.json-api-site-jetpack.php' => ['PhanParamSignatureMismatch', 'PhanUndeclaredFunction'],
+        'sal/class.json-api-site-jetpack.php' => ['PhanParamSignatureMismatch'],
         'sal/class.json-api-token.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanSuspiciousValueComparison', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanUndeclaredVariable'],
         'src/class-jetpack-crm-data.php' => ['PhanUndeclaredFunction'],
         'src/class-jetpack-modules-overrides.php' => ['PhanRedundantCondition'],
