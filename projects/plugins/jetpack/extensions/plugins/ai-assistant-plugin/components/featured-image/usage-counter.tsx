@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -16,19 +17,30 @@ type UsageCounterProps = {
 export default function UsageCounter( { currentLimit, currentUsage, cost }: UsageCounterProps ) {
 	const requestsBalance = currentLimit - currentUsage;
 
-	const requestsBalanceLabel = __( 'Requests needed / available:', 'jetpack' );
-
-	const requestsBalanceValues = sprintf(
-		// Translators: %1$d is the cost of one image, %2$d is the current requests balance.
-		__( '%1$d / %2$d', 'jetpack' ),
-		cost,
-		requestsBalance
+	const requestsNeeded = createInterpolateElement(
+		// Translators: %d is the cost of one image.
+		sprintf( __( 'Requests needed: <counter>%d</counter>', 'jetpack' ), cost ),
+		{
+			counter: <span />,
+		}
+	);
+	const requestsAvailable = createInterpolateElement(
+		// Translators: %d is the current requests balance.
+		sprintf( __( 'Requests available: <counter>%d</counter>', 'jetpack' ), requestsBalance ),
+		{
+			counter:
+				requestsBalance < cost ? (
+					<span className="ai-assistant-featured-image__usage-counter-no-limit" />
+				) : (
+					<strong />
+				),
+		}
 	);
 
 	return (
 		<div className="ai-assistant-featured-image__usage-counter">
-			{ requestsBalanceLabel } <br />
-			{ requestsBalanceValues }
+			<span>{ requestsNeeded }</span>
+			<span>{ requestsAvailable }</span>
 		</div>
 	);
 }

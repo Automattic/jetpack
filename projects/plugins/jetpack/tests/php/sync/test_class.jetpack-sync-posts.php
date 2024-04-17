@@ -1154,6 +1154,7 @@ POST_CONTENT;
 	public function test_embed_shortcode_is_disabled_on_the_content_filter_during_sync() {
 		$this->markTestSkipped( 'Skipping to be able to merge #21030. Needs a proper fix anyway.' );
 		// this only applies to rendered content, which is off by default
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		$content =
@@ -1419,6 +1420,7 @@ That was a cool video.';
 		$mocked->expects( $this->exactly( 15 ) )
 				->method( 'chunked_call' );
 
+		// @phan-suppress-next-line PhanEmptyFQSENInClasslike -- https://github.com/phan/phan/issues/4851
 		add_action( 'jetpack_post_meta_batch_delete', array( $mocked, 'chunked_call' ), 10, 2 );
 
 		/**
@@ -1449,6 +1451,7 @@ That was a cool video.';
 		$mocked->expects( $this->never() )
 				->method( 'chunked_call' );
 
+		// @phan-suppress-next-line PhanEmptyFQSENInClasslike -- https://github.com/phan/phan/issues/4851
 		add_action( 'jetpack_post_meta_batch_delete', array( $mocked, 'chunked_call' ), 10, 2 );
 
 		/**
@@ -1479,6 +1482,7 @@ That was a cool video.';
 		$mocked->expects( $this->never() )
 			->method( 'chunked_call' );
 
+		// @phan-suppress-next-line PhanEmptyFQSENInClasslike -- https://github.com/phan/phan/issues/4851
 		add_action( 'jetpack_post_meta_batch_delete', array( $mocked, 'chunked_call' ), 10, 2 );
 
 		/**

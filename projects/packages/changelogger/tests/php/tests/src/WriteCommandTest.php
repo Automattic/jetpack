@@ -1142,7 +1142,6 @@ class WriteCommandTest extends CommandTestCase {
 		$command = $this->getMockBuilder( WriteCommand::class )
 			->setMethods( array( 'writeChangelog', 'deleteChanges' ) )
 			->getMock();
-		'@phan-var WriteCommand&\PHPUnit\Framework\MockObject\MockObject $command'; // PHPUnit 9.6 only declares `@psalm-template` and not `@template` and such so Phan can't know the right types.
 		$command->setApplication( $this->getCommand( 'write' )->getApplication() );
 		$command->method( 'writeChangelog' )->willReturn( WriteCommand::FATAL_EXIT );
 		$command->expects( $this->never() )->method( 'deleteChanges' );
