@@ -443,6 +443,8 @@ class Jetpack {
 	/**
 	 * Verified data for JSON authorization request
 	 *
+	 * @deprecated $$next-version$$
+	 *
 	 * @var array
 	 */
 	public $json_api_authorization_request = array();
@@ -5080,9 +5082,9 @@ endif;
 	public function login_form_json_api_authorization() {
 		static::connection()->verify_json_api_authorization_request();
 
-		add_action( 'wp_login', array( 'Automattic\\Jetpack\\Connection\\Manager', 'store_json_api_authorization_token' ), 10, 2 );
+		add_action( 'wp_login', array( static::connection(), 'store_json_api_authorization_token' ), 10, 2 );
 
-		add_action( 'login_message', array( $this, 'login_message_json_api_authorization' ) );
+		add_action( 'login_message', array( static::connection(), 'login_message_json_api_authorization' ) );
 		add_action( 'login_form', array( $this, 'preserve_action_in_login_form_for_json_api_authorization' ) );
 		add_filter( 'site_url', array( $this, 'post_login_form_to_signed_url' ), 10, 3 );
 	}
@@ -5130,10 +5132,7 @@ endif;
 	public function store_json_api_authorization_token( $user_login, $user ) {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager::store_json_api_authorization_token' );
 
-		add_filter( 'login_redirect', array( $this, 'add_token_to_login_redirect_json_api_authorization' ), 10, 3 );
-		add_filter( 'allowed_redirect_hosts', array( $this, 'allow_wpcom_public_api_domain' ) );
-		$token = wp_generate_password( 32, false );
-		update_user_meta( $user->ID, 'jetpack_json_api_' . $this->json_api_authorization_request['client_id'], $token );
+		return static::connection()->store_json_api_authorization_token( $user_login, $user );
 	}
 
 	/**
@@ -5206,7 +5205,7 @@ endif;
 	public function verify_json_api_authorization_request( $environment = null ) {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager::verify_json_api_authorization_request' );
 
-		static::connection()->verify_json_api_authorization_request( $environment );
+		return static::connection()->verify_json_api_authorization_request( $environment );
 	}
 
 	/**
@@ -5215,11 +5214,9 @@ endif;
 	 * @return string
 	 */
 	public function login_message_json_api_authorization() {
-		return '<p class="message">' . sprintf(
-			/* translators: Name/image of the client requesting authorization */
-			esc_html__( '%s wants to access your site’s data. Log in to authorize that access.', 'jetpack' ),
-			'<strong>' . esc_html( $this->json_api_authorization_request['client_title'] ) . '</strong>'
-		) . '<img src="' . esc_url( $this->json_api_authorization_request['client_image'] ) . '" /></p>';
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager::login_message_json_api_authorization' );
+
+		return static::connection()->login_message_json_api_authorization();
 	}
 
 	/**

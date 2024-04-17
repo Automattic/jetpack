@@ -2847,4 +2847,19 @@ class Manager {
 		$token = wp_generate_password( 32, false );
 		update_user_meta( $user->ID, 'jetpack_json_api_' . $this->json_api_authorization_request['client_id'], $token );
 	}
+
+	/**
+	 * HTML for the JSON API authorization notice.
+	 *
+	 * @since $$next-version$$ Ported from Jetpack to the Connection package.
+	 *
+	 * @return string
+	 */
+	public function login_message_json_api_authorization() {
+		return '<p class="message">' . sprintf(
+			/* translators: Name/image of the client requesting authorization */
+			esc_html__( '%s wants to access your site’s data. Log in to authorize that access.', 'jetpack-connection' ),
+			'<strong>' . esc_html( $this->json_api_authorization_request['client_title'] ) . '</strong>'
+		) . '<img src="' . esc_url( $this->json_api_authorization_request['client_image'] ) . '" /></p>';
+	}
 }
