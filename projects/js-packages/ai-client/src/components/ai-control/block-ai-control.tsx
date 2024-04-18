@@ -97,7 +97,7 @@ export function BlockAIControl(
 		}
 	}, [ editRequest ] );
 
-	const sendRequest = useCallback( () => {
+	const sendHandler = useCallback( () => {
 		setLastValue( value );
 		setEditRequest( false );
 		onSend?.( value );
@@ -118,18 +118,18 @@ export function BlockAIControl(
 				setEditRequest( newValue !== lastValue );
 			}
 		},
-		[ lastValue, state ]
+		[ onChange, lastValue, state ]
 	);
 
 	const discardHandler = useCallback( () => {
 		onDiscard?.();
-	}, [] );
+	}, [ onDiscard ] );
 
 	const cancelEdit = useCallback( () => {
 		debug( 'cancelEdit, revert to last value', lastValue );
 		onChange( lastValue || '' );
 		setEditRequest( false );
-	}, [ lastValue ] );
+	}, [ onChange, lastValue ] );
 
 	useKeyboardShortcut(
 		'mod+enter',
@@ -147,7 +147,7 @@ export function BlockAIControl(
 		'enter',
 		e => {
 			e.preventDefault();
-			sendRequest();
+			sendHandler();
 		},
 		{
 			target: promptUserInputRef,
@@ -193,7 +193,7 @@ export function BlockAIControl(
 							{ value?.length > 0 && (
 								<Button
 									className="jetpack-components-ai-control__controls-prompt_button"
-									onClick={ sendRequest }
+									onClick={ sendHandler }
 									variant="primary"
 									disabled={ ! value?.length || disabled }
 									label={ __( 'Send request', 'jetpack-ai-client' ) }
