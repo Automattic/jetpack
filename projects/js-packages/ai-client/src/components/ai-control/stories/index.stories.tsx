@@ -32,7 +32,8 @@ export default {
 			control: {
 				type: 'select',
 			},
-			options: {
+			options: [ 'None', 'Guideline message', 'Error message', 'Upgrade message' ],
+			mapping: {
 				None: null,
 				'Guideline message': <GuidelineMessage />,
 				'Error message': <ErrorMessage onTryAgainClick={ action( 'onTryAgainClick' ) } />,
@@ -45,7 +46,8 @@ export default {
 			control: {
 				type: 'select',
 			},
-			options: {
+			options: [ 'None', 'Accept button' ],
+			mapping: {
 				None: null,
 				'Accept button': <Button>Accept</Button>,
 			},
@@ -54,7 +56,8 @@ export default {
 			control: {
 				type: 'select',
 			},
-			options: {
+			options: [ 'None', 'Error notice' ],
+			mapping: {
 				None: null,
 				'Error notice': (
 					<Notice status="error" isDismissible={ true }>
@@ -71,7 +74,7 @@ export default {
 	},
 };
 
-const Template = args => {
+const DefaultTemplate = args => {
 	const [ value, setValue ] = useState( '' );
 
 	const handleChange = ( newValue: string ) => {
@@ -94,5 +97,5 @@ const DefaultArgs = {
 	actions: null,
 };
 
-export const Default = Template.bind( {} );
+export const Default = DefaultTemplate.bind( {} );
 Default.args = DefaultArgs;
