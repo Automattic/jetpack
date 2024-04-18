@@ -9,7 +9,7 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredFunction : 65+ occurrences
+    // PhanUndeclaredFunction : 60+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 50+ occurrences
     // PhanTypeMismatchArgument : 30+ occurrences
     // PhanTypeArraySuspicious : 25+ occurrences

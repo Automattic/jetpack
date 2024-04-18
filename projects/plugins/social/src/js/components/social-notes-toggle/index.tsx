@@ -1,4 +1,4 @@
-import { Text } from '@automattic/jetpack-components';
+import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { store as socialStore } from '@automattic/jetpack-publicize-components';
 import { ExternalLink, SelectControl, ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -29,11 +29,12 @@ const handleStateUpdating = ( updateFunction, updatingStateSetter, ...args ) => 
 };
 
 const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) => {
-	const { isEnabled, notesConfig } = useSelect( select => {
+	const { isEnabled, notesConfig, newNoteUrl } = useSelect( select => {
 		const store = select( socialStore );
 		return {
 			isEnabled: store.isSocialNotesEnabled(),
 			notesConfig: store.getSocialNotesConfig(),
+			newNoteUrl: `${ store.getAdminUrl() }post-new.php?post_type=jetpack-social-note`,
 			// Temporarily we disable forever after action to wait for the page to reload.
 			// isUpdating: store.isSocialNotesSettingsUpdating(),
 		};
@@ -42,6 +43,8 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 	const [ isUpdating, setIsUpdating ] = useState( false );
 	const [ isAppendLinkToggleUpdating, setIsAppendLinkToggleUpdating ] = useState( false );
 	const [ isLinkFormatUpdating, setIsLinkFormatUpdating ] = useState( false );
+
+	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
 	const { updateSocialNotesSettings: updateOptions, updateSocialNotesConfig } =
 		useDispatch( socialStore );
@@ -57,7 +60,14 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 		setIsUpdating( true );
 		document.body.style.cursor = 'wait';
 		updatePromise.then( () => {
-			window.location.reload();
+			// If the toggle is turned on we don't need to reload the page,
+			// as they will have the CTA to create a note.
+			if ( newOption.social_notes_enabled ) {
+				setIsUpdating( false );
+				document.body.style.cursor = 'auto';
+			} else {
+				window.location.reload();
+			}
 		} );
 	}, [ isEnabled, updateOptions ] );
 
@@ -93,6 +103,17 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 					'jetpack-social'
 				) }
 			</Text>
+
+			<Button
+				className={ styles.button }
+				fullWidth={ isSmall }
+				variant="secondary"
+				disabled={ isUpdating || ! isEnabled }
+				href={ newNoteUrl }
+			>
+				{ __( 'Create a note', 'jetpack-social' ) }
+			</Button>
+
 			{ isEnabled && ! isUpdating ? (
 				<div className={ styles[ 'notes-options-wrapper' ] }>
 					<ToggleControl
