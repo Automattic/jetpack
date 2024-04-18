@@ -119,7 +119,6 @@ return [
     // PhanTypeComparisonFromArray : 1 occurrence
     // PhanTypeInstantiateAbstract : 1 occurrence
     // PhanTypeInvalidCallableArraySize : 1 occurrence
-    // PhanTypeMismatchForeach : 1 occurrence
     // PhanTypeMismatchReturnSuperType : 1 occurrence
     // PhanTypeSuspiciousEcho : 1 occurrence
     // PhanTypeVoidArgument : 1 occurrence
@@ -226,7 +225,7 @@ return [
         'extensions/blocks/calendly/calendly.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal'],
         'extensions/blocks/contact-info/class-jetpack-contact-info-block.php' => ['PhanTypeMismatchReturn'],
         'extensions/blocks/cookie-consent/cookie-consent.php' => ['PhanParamTooMany', 'PhanUndeclaredFunction'],
-        'extensions/blocks/donations/donations.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchForeach', 'PhanUndeclaredFunction'],
+        'extensions/blocks/donations/donations.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredFunction'],
         'extensions/blocks/gif/gif.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
         'extensions/blocks/google-calendar/google-calendar.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'extensions/blocks/google-docs-embed/google-docs-embed.php' => ['PhanRedundantCondition', 'PhanUndeclaredFunction'],
