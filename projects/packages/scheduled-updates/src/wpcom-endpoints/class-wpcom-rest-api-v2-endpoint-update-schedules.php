@@ -276,9 +276,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 
 		$id = Scheduled_Updates::generate_schedule_id( $plugins );
 
-		// Set an empty status of a schedule on creation/modify.
-		Scheduled_Updates::set_scheduled_update_status( $id, null, null );
-
 		return rest_ensure_response( $id );
 	}
 
@@ -356,7 +353,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 
 		// Sets the previous status.
 		if ( $previous_schedule_status ) {
-			Scheduled_Updates::set_scheduled_update_status( $item->data, $previous_schedule_status['last_run_timestamp'], $previous_schedule_status['last_run_status'] );
+			Scheduled_Updates_Logs::replace_logs_schedule_id( $request['schedule_id'], $item->data );
 		}
 
 		return $item;
