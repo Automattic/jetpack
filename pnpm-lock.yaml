@@ -3048,6 +3048,9 @@ importers:
       jest:
         specifier: 29.7.0
         version: 29.7.0
+      jest-environment-jsdom:
+        specifier: 29.7.0
+        version: 29.7.0
       livereload:
         specifier: 0.9.3
         version: 0.9.3
