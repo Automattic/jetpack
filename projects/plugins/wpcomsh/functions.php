@@ -73,47 +73,34 @@ function wpcomsh_is_wpcom_pub_theme( $theme_slug ) {
  * @return bool|WP_Error
  */
 function wpcomsh_symlink_theme( $theme_slug, $theme_type ) {
-	$themes_source_path = '';
-
+	/**
+	 * We need to read from the themes_path constants and create the symlink using the themes_symlink constant.
+	 *
+	 * More context here:
+	 * - p1487627624008111-slack-C2PDURDSL
+	 * - p1713351585355929-slack-C7YPW6K40
+	 */
+	$theme_link_to_path = get_theme_root() . '/' . $theme_slug;
+	$theme_read_path    = '';
+	$theme_symlink_path = '';
 	if ( WPCOMSH_PUB_THEME_TYPE === $theme_type ) {
-		$themes_source_path = WPCOMSH_PUB_THEMES_SYMLINK;
+		$theme_read_path    = WPCOMSH_PUB_THEMES_PATH . "/$theme_slug";
+		$theme_symlink_path = WPCOMSH_PUB_THEMES_SYMLINK . "/$theme_slug";
 	} elseif ( WPCOMSH_PREMIUM_THEME_TYPE === $theme_type ) {
-		$themes_source_path = WPCOMSH_PREMIUM_THEMES_SYMLINK;
+		$theme_read_path    = WPCOMSH_PREMIUM_THEMES_PATH . "/$theme_slug";
+		$theme_symlink_path = WPCOMSH_PREMIUM_THEMES_SYMLINK . "/$theme_slug";
 	}
 
-	$abs_theme_path         = $themes_source_path . "/{$theme_slug}";
-	$abs_theme_symlink_path = get_theme_root() . '/' . $theme_slug;
-
-	$path_to_check = $abs_theme_path;
-	if ( wpcom_is_nav_redesign_enabled() ) {
-		$path_to_check = WP_CONTENT_DIR . '/themes/' . $abs_theme_path;
+	if ( file_exists( $theme_read_path ) && symlink( $theme_symlink_path, $theme_link_to_path ) ) {
+		return true;
 	}
 
-	if ( ! file_exists( $path_to_check ) ) {
-		$error_message = "Source theme directory doesn't exists at: {$abs_theme_path}";
+	$error_message = "Could not install theme $theme_slug.";
+	$debug_message = "$error_message Read directory: $theme_read_path, symlink directory: $theme_symlink_path, link to: $theme_link_to_path.";
 
-		error_log( 'WPComSH: ' . $error_message ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions
+	error_log( 'WPComSH: ' . $debug_message ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions
 
-		return new WP_Error( 'error_symlinking_theme', $error_message );
-	}
-
-	if ( ! symlink( $abs_theme_path, $abs_theme_symlink_path ) ) {
-		$theme_source_folder_path = WPCOMSH_PUB_THEME_TYPE === $theme_type
-			? WPCOMSH_PUB_THEMES_PATH
-			: WPCOMSH_PREMIUM_THEMES_PATH;
-
-		$error_message = sprintf(
-			'Can\'t symlink theme with slug: %1$s. Make sure it exists in the %2$s directory.',
-			$theme_slug,
-			$theme_source_folder_path
-		);
-
-		error_log( 'WPComSH: ' . $error_message ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions
-
-		return new WP_Error( 'error_symlinking_theme', $error_message );
-	}
-
-	return true;
+	return new WP_Error( 'error_symlinking_theme', $error_message );
 }
 
 /**
