@@ -1,3 +1,4 @@
+import { useBlockProps } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
 import metadata from './block.json';
@@ -12,18 +13,22 @@ import './view.scss';
 
 registerJetpackBlockFromMetadata( metadata, {
 	edit,
-	save: ( { attributes: { rid } } ) => (
-		<div>
-			{ rid?.map( ( restaurantId, restaurantIndex ) => (
-				<a
-					href={ `https://www.opentable.com/restref/client/?rid=${ restaurantId }` }
-					key={ `${ restaurantId }-${ restaurantIndex }` }
-				>
-					{ `https://www.opentable.com/restref/client/?rid=${ restaurantId }` }
-				</a>
-			) ) }
-		</div>
-	),
+	save: ( { attributes: { rid } } ) => {
+		const blockProps = useBlockProps.save();
+
+		return (
+			<div { ...blockProps }>
+				{ rid?.map( ( restaurantId, restaurantIndex ) => (
+					<a
+						href={ `https://www.opentable.com/restref/client/?rid=${ restaurantId }` }
+						key={ `${ restaurantId }-${ restaurantIndex }` }
+					>
+						{ `https://www.opentable.com/restref/client/?rid=${ restaurantId }` }
+					</a>
+				) ) }
+			</div>
+		);
+	},
 	attributes: metadata.attributes,
 	styles: getStyleOptions(),
 	transforms: {

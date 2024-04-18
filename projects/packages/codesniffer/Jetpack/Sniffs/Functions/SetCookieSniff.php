@@ -64,7 +64,7 @@ class SetCookieSniff extends AbstractFunctionParameterSniff {
 
 		// We're only interested in the third parameter.
 		$param = $this->target_functions[ $matched_content ]['param'];
-		if ( false === isset( $parameters[ $param ] ) || 'true' !== strtolower( $parameters[ $param ]['raw'] ) ) {
+		if ( ! isset( $parameters[ $param ] ) || 'true' !== strtolower( $parameters[ $param ]['raw'] ) ) {
 			$errorcode = 'MissingTrueHTTPOnly';
 
 			/*
@@ -77,7 +77,7 @@ class SetCookieSniff extends AbstractFunctionParameterSniff {
 
 			$this->phpcsFile->addWarning(
 				'The %s function requires the httponly parameter to be set to true, unless intentionally disabled.',
-				( isset( $parameters[ $param ]['start'] ) ? $parameters[ $param ]['start'] : $parameters[1]['start'] ),
+				$parameters[ $param ]['start'] ?? $parameters[1]['start'],
 				$errorcode,
 				array( $matched_content )
 			);

@@ -18,7 +18,7 @@ if ( ! function_exists( 'wpcom_site_has_feature' ) ) {
 	 *
 	 * @param string $feature The feature to check.
 	 */
-	function wpcom_site_has_feature( $feature ) {
+	function wpcom_site_has_feature( $feature, $blog_id = 0 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		switch ( $feature ) {
 			case WPCOM_Features::ATOMIC:
 			case WPCOM_Features::MANAGE_PLUGINS:

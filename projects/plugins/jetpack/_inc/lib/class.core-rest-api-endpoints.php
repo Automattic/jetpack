@@ -1778,39 +1778,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Registers the Jetpack site
-	 *
-	 * @deprecated since Jetpack 9.7.0
-	 * @see Automattic\Jetpack\Connection\REST_Connector::connection_register()
-	 *
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 *
-	 * @return bool|WP_Error True if Jetpack successfully registered
-	 */
-	public static function register_site( $request ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.7.0', '\Automattic\Jetpack\Connection\REST_Connector::connection_register' );
-
-		if ( ! wp_verify_nonce( $request->get_param( 'registration_nonce' ), 'jetpack-registration-nonce' ) ) {
-			return new WP_Error( 'invalid_nonce', __( 'Unable to verify your request.', 'jetpack' ), array( 'status' => 403 ) );
-		}
-
-		if ( isset( $request['from'] ) ) {
-			Jetpack::connection()->add_register_request_param( 'from', (string) $request['from'] );
-		}
-		$response = Jetpack::connection()->try_registration();
-
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		return rest_ensure_response(
-			array(
-				'authorizeUrl' => Jetpack::build_authorize_url( false ),
-			)
-		);
-	}
-
-	/**
 	 * Gets a new connect raw URL with fresh nonce.
 	 *
 	 * @uses Jetpack::disconnect();
@@ -2687,6 +2654,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 			'jetpack_subscriptions_subscribe_post_end_enabled' => array(
 				'description'       => esc_html__( 'Add Subscribe block at the end of each post.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'jetpack_subscriptions_login_navigation_enabled' => array(
+				'description'       => esc_html__( 'Add Subscriber Login block to the navigation.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',

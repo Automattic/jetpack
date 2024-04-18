@@ -3,7 +3,6 @@
  */
 import { BlockControls } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import React from 'react';
 /**
  * Internal dependencies
  */
@@ -22,7 +21,7 @@ export const withAIAssistant = createHigherOrderComponent(
 		const { name: blockType } = props;
 
 		const blockControlProps = {
-			group: 'block',
+			group: 'block' as const,
 		};
 
 		/*

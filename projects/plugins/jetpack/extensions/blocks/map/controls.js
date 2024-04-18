@@ -38,8 +38,10 @@ const markerIcon = (
 export default ( {
 	attributes,
 	setAttributes,
-	state,
-	setState,
+	apiKey,
+	apiKeySource,
+	apiKeyControl,
+	onKeyChange,
 	context,
 	mapRef,
 	instanceId,
@@ -205,7 +207,7 @@ export default ( {
 				<PanelBody title={ __( 'Mapbox Access Token', 'jetpack' ) } initialOpen={ false }>
 					<TextControl
 						help={
-							'wpcom' === state.apiKeySource && (
+							'wpcom' === apiKeySource && (
 								<>
 									{ __( 'You can optionally enter your own access token.', 'jetpack' ) }{ ' ' }
 									<ExternalLink href="https://account.mapbox.com/access-tokens/">
@@ -215,21 +217,21 @@ export default ( {
 							)
 						}
 						label={ __( 'Mapbox Access Token', 'jetpack' ) }
-						value={ state.apiKeyControl }
-						onChange={ value => setState( { apiKeyControl: value } ) }
+						value={ apiKeyControl }
+						onChange={ onKeyChange }
 					/>
 					<ButtonGroup>
 						<Button
 							type="button"
 							onClick={ updateAPIKey }
-							disabled={ ! state.apiKeyControl || state.apiKeyControl === state.apiKey }
+							disabled={ ! apiKeyControl || apiKeyControl === apiKey }
 						>
 							{ __( 'Update Token', 'jetpack' ) }
 						</Button>
 						<Button
 							type="button"
 							onClick={ removeAPIKey }
-							disabled={ 'wpcom' === state.apiKeySource }
+							disabled={ 'wpcom' === apiKeySource }
 							variant="secondary"
 						>
 							{ __( 'Remove Token', 'jetpack' ) }

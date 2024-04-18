@@ -12,7 +12,10 @@ use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use WP_Error;
 use WP_REST_Controller;
+use WP_REST_Request;
+use WP_REST_Response;
 use WP_REST_Server;
+
 /**
  * Handles the REST routes for Form Responses, aka Feedback.
  */
@@ -365,7 +368,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			);
 		}
 
-		return new \WP_REST_Response( array(), 200 );
+		return new WP_REST_Response( array(), 200 );
 	}
 
 	/**
@@ -408,7 +411,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			);
 		}
 
-		return new \WP_REST_Response( array(), 200 );
+		return new WP_REST_Response( array(), 200 );
 	}
 
 	/**
@@ -431,7 +434,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			}
 		}
 
-		return new \WP_REST_Response( array(), 200 );
+		return new WP_REST_Response( array(), 200 );
 	}
 
 	/**
@@ -454,7 +457,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			}
 		}
 
-		return new \WP_REST_Response( array(), 200 );
+		return new WP_REST_Response( array(), 200 );
 	}
 
 	/**
@@ -477,18 +480,18 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			}
 		}
 
-		return new \WP_REST_Response( array(), 200 );
+		return new WP_REST_Response( array(), 200 );
 	}
 
 	/**
-	 * Returns a \WP_REST_Response containing the given error message and code.
+	 * Returns a WP_REST_Response containing the given error message and code.
 	 *
 	 * @param  string $message Error message.
 	 * @param  int    $code    Error code.
-	 * @return \WP_REST_Response
+	 * @return WP_REST_Response
 	 */
 	private function error_response( $message, $code ) {
-		return new \WP_REST_Response( array( 'error' => $message ), $code );
+		return new WP_REST_Response( array( 'error' => $message ), $code );
 	}
 }
 

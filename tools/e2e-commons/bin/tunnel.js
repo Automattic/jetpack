@@ -35,6 +35,24 @@ yargs( hideBin( process.argv ) )
 	.alias( 'h', 'help' ).argv;
 
 /**
+ * This allows overriding the tunnel with a custom tunnel like ngrok.
+ * Useful when running e2e tests locally and you want to use a tunnel that's
+ * closer to you than the localtunnel instance.
+ *
+ * For example:
+ * ```
+ * TUNNEL_URL=https://somethingsomething.ngrok.io npm run test-e2e:start
+ * ```
+ */
+function getTunnelOverrideURL() {
+	return process.env.TUNNEL_URL;
+}
+
+function saveTunnelUrlToFile( url ) {
+	fs.writeFileSync( config.get( 'temp.tunnels' ), url );
+}
+
+/**
  * Fork a subprocess to run the tunnel.
  *
  * The `localtunnel` needs a process to keep running for the entire time the tunnel is up.
@@ -87,6 +105,13 @@ async function tunnelChild() {
 	console.log = wrap( console.log );
 	console.error = wrap( console.error );
 
+	const customTunnelUrl = getTunnelOverrideURL();
+	if ( customTunnelUrl ) {
+		console.log( `Using custom tunnel URL: ${ customTunnelUrl }` );
+		saveTunnelUrlToFile( customTunnelUrl );
+		process.exit( 0 );
+	}
+
 	const subdomain = await getTunnelSubdomain();
 
 	if ( ! ( await isTunnelOn( subdomain ) ) ) {
@@ -101,8 +126,8 @@ async function tunnelChild() {
 			console.log( `${ tunnel.clientId } tunnel closed` );
 		} );
 
-		fs.writeFileSync( config.get( 'temp.tunnels' ), tunnel.url );
 		console.log( `Opened tunnel '${ tunnel.url }'` );
+		saveTunnelUrlToFile( tunnel.url );
 		fs.writeFileSync( config.get( 'temp.pid' ), `${ process.pid }` );
 	}
 

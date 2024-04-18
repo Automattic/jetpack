@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
+use WP_Post;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
 
 /**
@@ -249,14 +250,14 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	/**
 	 * Find metadata in post
 	 *
-	 * @param WP_Post|StdClass $post        Post.
-	 * @param string           $meta_key    Meta to retrieve.
+	 * @param WP_Post|object $post        Post.
+	 * @param string         $meta_key    Meta to retrieve.
 	 *
 	 * @return mixed|null
 	 */
 	private function find_metadata( $post, $meta_key ) {
 
-		if ( is_a( $post, '\WP_Post' ) ) {
+		if ( $post instanceof WP_Post ) {
 			return $post->{$meta_key};
 		}
 

@@ -209,6 +209,11 @@ class Verbum_Admin {
 
 		// The greeting.
 		$greeting = get_option( 'highlander_comment_form_prompt', $this->default_greeting );
+
+		if ( empty( $greeting ) ) {
+			$greeting = $this->default_greeting;
+		}
+
 		?>
 
 		<input type="text" name="highlander_comment_form_prompt" id="jetpack-comment-form-greeting" value="<?php echo esc_attr( $greeting ); ?>" class="regular-text">

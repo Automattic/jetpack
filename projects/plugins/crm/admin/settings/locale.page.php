@@ -27,11 +27,18 @@ if(!isset($whwpCountryList)) require_once( ZEROBSCRM_INCLUDE_PATH . 'wh.countryc
 
 // check for default font reinstalls
 if ( isset( $_GET['reinstall_default_font'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
-
 	// check nonce
 	check_admin_referer( 'zbs-update-settings-reinstall-font' );
 
 	// hard reinstall
+	require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
+	require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
+	$fonts_dir = jpcrm_storage_fonts_dir_path();
+	if ( $fonts_dir ) {
+		$filesystem_direct = new WP_Filesystem_Direct( false );
+		$filesystem_direct->rmdir( $fonts_dir, true );
+	}
+
 	$fonts = $zbs->get_fonts();
 	$fonts->extract_and_install_default_fonts();
 	$default_font_reinstalled = true;

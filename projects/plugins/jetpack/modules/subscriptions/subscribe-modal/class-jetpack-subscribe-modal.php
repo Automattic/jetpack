@@ -62,6 +62,19 @@ class Jetpack_Subscribe_Modal {
 		if ( $this->should_user_see_modal() ) {
 			wp_enqueue_style( 'subscribe-modal-css', plugins_url( 'subscribe-modal.css', __FILE__ ), array(), JETPACK__VERSION );
 			wp_enqueue_script( 'subscribe-modal-js', plugins_url( 'subscribe-modal.js', __FILE__ ), array( 'wp-dom-ready' ), JETPACK__VERSION, true );
+
+			/**
+			 * Filter how many milliseconds a user must scroll for until the Subscribe Modal appears.
+			 *
+			 * @module subscriptions
+			 *
+			 * @since 13.4
+			 *
+			 * @param int 300 Time in milliseconds for the Subscribe Modal to appear upon scrolling.
+			 */
+			$load_time = absint( apply_filters( 'jetpack_subscribe_modal_load_time', 300 ) );
+
+			wp_localize_script( 'subscribe-modal-js', 'Jetpack_Subscriptions', array( 'modalLoadTime' => $load_time ) );
 		}
 	}
 
@@ -136,7 +149,7 @@ class Jetpack_Subscribe_Modal {
 		$subscribe_text     = __( 'Subscribe now to keep reading and get access to the full archive.', 'jetpack' );
 
 		return <<<HTML
-	<!-- wp:group {"style":{"spacing":{"top":"32px","bottom":"32px","left":"32px","right":"32px"},"margin":{"top":"0","bottom":"0"}},"border":{"color":"#dddddd","width":"1px"}},"layout":{"type":"constrained","contentSize":"450px"}} -->
+	<!-- wp:group {"style":{"spacing":{"padding":{"top":"32px","bottom":"32px","left":"32px","right":"32px"},"margin":{"top":"0","bottom":"0"}},"border":{"color":"#dddddd","width":"1px"}},"layout":{"type":"constrained","contentSize":"450px"}} -->
 	<div class="wp-block-group has-border-color" style="border-color:#dddddd;border-width:1px;margin-top:0;margin-bottom:0;padding-top:32px;padding-right:32px;padding-bottom:32px;padding-left:32px">
 
 	<!-- wp:heading {"textAlign":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"26px"},"layout":{"selfStretch":"fit","flexSize":null},"spacing":{"margin":{"top":"4px","bottom":"10px"}}}} -->

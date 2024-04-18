@@ -1,9 +1,9 @@
-import { BlockControls, PlainText } from '@wordpress/block-editor';
+import { BlockControls, PlainText, useBlockProps } from '@wordpress/block-editor';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
-import { Component } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import ToolbarButton from './controls';
 import MarkdownRenderer from './renderer';
 
 /**
@@ -12,44 +12,17 @@ import MarkdownRenderer from './renderer';
 const PANEL_EDITOR = 'editor';
 const PANEL_PREVIEW = 'preview';
 
-class MarkdownEdit extends Component {
-	input = null;
+const MarkdownEdit = ( { attributes, setAttributes, isSelected, removeBlock } ) => {
+	const { source } = attributes;
+	const isEmpty = ! source || source.trim() === '';
 
-	state = {
-		activePanel: PANEL_EDITOR,
-	};
+	const blockProps = useBlockProps();
+	const { className } = blockProps;
+	const [ activePanel, setActivePanel ] = useState( PANEL_EDITOR );
+	const input = useRef( null );
 
-	bindInput = ref => void ( this.input = ref );
-
-	componentDidUpdate( prevProps ) {
-		if (
-			prevProps.isSelected &&
-			! this.props.isSelected &&
-			this.state.activePanel === PANEL_PREVIEW
-		) {
-			this.toggleMode( PANEL_EDITOR )();
-		}
-		if (
-			! prevProps.isSelected &&
-			this.props.isSelected &&
-			this.state.activePanel === PANEL_EDITOR &&
-			this.input
-		) {
-			this.input.focus();
-		}
-	}
-
-	isEmpty() {
-		const source = this.props.attributes.source;
-		return ! source || source.trim() === '';
-	}
-
-	updateSource = source => this.props.setAttributes( { source } );
-
-	handleKeyDown = e => {
-		const { attributes, removeBlock } = this.props;
-		const { source } = attributes;
-
+	const onChange = s => setAttributes( { source: s } );
+	const onKeyDown = e => {
 		// Remove the block if source is empty and we're pressing the Backspace key
 		if ( e.keyCode === 8 && source === '' ) {
 			removeBlock();
@@ -57,41 +30,41 @@ class MarkdownEdit extends Component {
 		}
 	};
 
-	toggleMode = mode => () => this.setState( { activePanel: mode } );
-
-	renderToolbarButton( mode, label ) {
-		const { activePanel } = this.state;
-		const { className } = this.props;
-		const buttonClassnames = classnames( className, 'components-button components-tab-button', {
-			'is-pressed': activePanel === mode,
-		} );
-
-		return (
-			<button className={ buttonClassnames } onClick={ this.toggleMode( mode ) }>
-				<span>{ label }</span>
-			</button>
-		);
-	}
-
-	render() {
-		const { attributes, className, isSelected } = this.props;
-		const { source } = attributes;
-		const { activePanel } = this.state;
-
-		if ( ! isSelected && this.isEmpty() ) {
-			return (
-				<p className={ `${ className }__placeholder` }>
-					{ __( 'Write your _Markdown_ **here**…', 'jetpack' ) }
-				</p>
-			);
+	useEffect( () => {
+		if ( isSelected ) {
+			if ( activePanel === PANEL_EDITOR ) {
+				input?.current.focus();
+			}
+		} else if ( activePanel === PANEL_PREVIEW ) {
+			setActivePanel( PANEL_EDITOR );
 		}
+	}, [ isSelected, activePanel, setActivePanel ] );
 
-		return (
+	let content;
+
+	if ( ! isSelected && isEmpty ) {
+		content = (
+			<p className={ `${ className }__placeholder` }>
+				{ __( 'Write your _Markdown_ **here**…', 'jetpack' ) }
+			</p>
+		);
+	} else {
+		content = (
 			<div className={ className }>
 				<BlockControls>
 					<div className="components-toolbar">
-						{ this.renderToolbarButton( PANEL_EDITOR, __( 'Markdown', 'jetpack' ) ) }
-						{ this.renderToolbarButton( PANEL_PREVIEW, __( 'Preview', 'jetpack' ) ) }
+						<ToolbarButton
+							className={ className }
+							label={ __( 'Markdown', 'jetpack' ) }
+							isPressed={ activePanel === PANEL_EDITOR }
+							onClick={ () => setActivePanel( PANEL_EDITOR ) }
+						/>
+						<ToolbarButton
+							className={ className }
+							label={ __( 'Preview', 'jetpack' ) }
+							isPressed={ activePanel === PANEL_PREVIEW }
+							onClick={ () => setActivePanel( PANEL_PREVIEW ) }
+						/>
 					</div>
 				</BlockControls>
 
@@ -100,17 +73,19 @@ class MarkdownEdit extends Component {
 				) : (
 					<PlainText
 						className={ `${ className }__editor` }
-						onChange={ this.updateSource }
-						onKeyDown={ this.handleKeyDown }
+						onChange={ onChange }
+						onKeyDown={ onKeyDown }
 						aria-label={ __( 'Markdown', 'jetpack' ) }
-						innerRef={ this.bindInput }
+						ref={ input }
 						value={ source }
 					/>
 				) }
 			</div>
 		);
 	}
-}
+
+	return <div { ...blockProps }>{ content }</div>;
+};
 
 export default compose( [
 	withSelect( select => ( {

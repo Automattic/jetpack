@@ -720,7 +720,7 @@ class AssetsTest extends TestCase {
 			$obj->andReturn( $options['filter'] );
 		}
 
-		$mock = $this->getMockBuilder( stdClass::class )
+		$mock = $this->getMockBuilder( \stdClass::class )
 			->setMethods( array( 'add', 'add_inline_script' ) )
 			->getMock();
 		$mock->expects( $this->exactly( 2 ) )->method( 'add' )

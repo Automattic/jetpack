@@ -41,7 +41,7 @@ const useBadInstallNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		};
 
 		const noticeOptions = {
-			status: 'error',
+			level: 'error',
 			actions: [
 				{
 					label: __( 'See documentation', 'jetpack-my-jetpack' ),
@@ -49,12 +49,12 @@ const useBadInstallNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 					noDefaultClasses: true,
 				},
 			],
+			priority: NOTICE_PRIORITY_MEDIUM,
 		};
 
 		setNotice( {
 			message: errorMessage,
 			options: noticeOptions,
-			priority: NOTICE_PRIORITY_MEDIUM,
 		} );
 	}, [ redBubbleAlerts, setNotice, recordEvent ] );
 };

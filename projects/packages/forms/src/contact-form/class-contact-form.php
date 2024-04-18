@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Sync\Settings;
+use WP_Error;
 
 /**
  * Class for the contact-form shortcode.

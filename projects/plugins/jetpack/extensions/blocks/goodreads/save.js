@@ -1,9 +1,10 @@
-/* eslint-disable jsdoc/require-jsdoc */
-import { InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 
 export default function save() {
+	const blockProps = useBlockProps.save();
+
 	return (
-		<div>
+		<div { ...blockProps }>
 			<InnerBlocks.Content />
 		</div>
 	);

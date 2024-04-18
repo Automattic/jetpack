@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
+use WP_Error;
 
 /**
  * The Client class that is used to connect to WordPress.com Jetpack API.
@@ -107,7 +108,7 @@ class Client {
 
 		$token = ( new Tokens() )->get_access_token( $args['user_id'] );
 		if ( ! $token ) {
-			return new \WP_Error( 'missing_token' );
+			return new WP_Error( 'missing_token' );
 		}
 
 		$method = strtoupper( $args['method'] );
@@ -123,7 +124,7 @@ class Client {
 
 		@list( $token_key, $secret ) = explode( '.', $token->secret ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		if ( empty( $token ) || empty( $secret ) ) {
-			return new \WP_Error( 'malformed_token' );
+			return new WP_Error( 'malformed_token' );
 		}
 
 		$token_key = sprintf(
@@ -166,7 +167,7 @@ class Client {
 			}
 
 			if ( ! is_string( $body_to_hash ) ) {
-				return new \WP_Error( 'invalid_body', 'Body is malformed.' );
+				return new WP_Error( 'invalid_body', 'Body is malformed.' );
 			}
 			$body_hash = base64_encode( sha1( $body_to_hash, true ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		}
@@ -407,11 +408,11 @@ class Client {
 	/**
 	 * Queries the WordPress.com REST API with a user token.
 	 *
-	 * @param  string $path             REST API path.
-	 * @param  string $version          REST API version. Default is `2`.
-	 * @param  array  $args             Arguments to {@see WP_Http}. Default is `array()`.
-	 * @param  string $body             Body passed to {@see WP_Http}. Default is `null`.
-	 * @param  string $base_api_path    REST API root. Default is `wpcom`.
+	 * @param string            $path             REST API path.
+	 * @param string            $version          REST API version. Default is `2`.
+	 * @param array             $args             Arguments to {@see WP_Http}. Default is `array()`.
+	 * @param null|string|array $body       Body passed to {@see WP_Http}. Default is `null`.
+	 * @param string            $base_api_path    REST API root. Default is `wpcom`.
 	 *
 	 * @return array|WP_Error $response Response data, else {@see WP_Error} on failure.
 	 */

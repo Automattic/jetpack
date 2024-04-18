@@ -6,6 +6,18 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 	& > .banner-card {
 		padding: 0;
 		overflow: hidden;
+
+		&::before {
+			content: '';
+			position: absolute;
+			top: -11px;
+			left: -11px;
+			width: 18px;
+			height: 18px;
+			border-radius: 50%;
+			background-color: var( --jp-red-50 );
+			border: 2px solid var(--jp-white-off);
+		}
 	}
 
 	& > .dismiss {

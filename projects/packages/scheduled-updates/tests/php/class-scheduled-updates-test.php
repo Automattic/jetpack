@@ -43,6 +43,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	protected function set_up() {
 		parent::set_up_wordbless();
 		\WorDBless\Users::init()->clear_all_users();
+		Scheduled_Updates::init();
 
 		// Initialize the WordPress filesystem variable.
 		global $wp_filesystem;
@@ -63,7 +64,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		// Ensure plugin directory exists.
 		$this->wp_filesystem->mkdir( $this->plugin_dir );
 
-		// init the hook
+		// Init the hook.
 		add_action( 'rest_api_init', array( 'Automattic\Jetpack\Scheduled_Updates', 'add_is_managed_extension_field' ) );
 
 		do_action( 'rest_api_init' );
@@ -75,10 +76,10 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 * @after
 	 */
 	protected function tear_down() {
-		// Clean up the temporary plugin directory
+		// Clean up the temporary plugin directory.
 		$this->wp_filesystem->rmdir( $this->plugin_dir, true );
 
-		// Clean up the plugins cache created by get_plugins()
+		// Clean up the plugins cache created by get_plugins().
 		wp_cache_delete( 'plugins', 'plugins' );
 
 		wp_clear_scheduled_hook( Scheduled_Updates::PLUGIN_CRON_HOOK );
@@ -94,12 +95,12 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 * @covers ::add_is_managed_extension_field
 	 */
 	public function test_unmanaged_plugins() {
-		// direct
+		// Direct.
 		$plugin_name = 'direct-plugin';
 		$this->wp_filesystem->mkdir( "$this->plugin_dir/$plugin_name" );
 		$this->populate_file_with_plugin_header( "$this->plugin_dir/$plugin_name/$plugin_name.php", 'direct-plugin' );
 
-		// make sure the directory exists
+		// Make sure the directory exists.
 		$this->assertTrue( $this->wp_filesystem->is_dir( "$this->plugin_dir/direct-plugin" ) );
 
 		$request       = new \WP_REST_Request( 'GET', '/wp/v2/plugins' );
@@ -117,7 +118,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 * @covers ::add_is_managed_extension_field
 	 */
 	public function test_unmanaged_plugins_not_in_root_directory() {
-		// we simulate a symlink to a subdirectory inside a wp directory
+		// We simulate a symlink to a subdirectory inside a wp directory.
 		$plugin_name = 'managed-plugin';
 		$target_dir  = "$this->plugin_dir/wordpress";
 		$this->wp_filesystem->mkdir( $target_dir );
@@ -125,7 +126,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		$this->populate_file_with_plugin_header( "$target_dir/$plugin_name/$plugin_name.php", 'managed-plugin' );
 		symlink( "$target_dir/$plugin_name", "$this->plugin_dir/$plugin_name" );
 
-		// make sure the symlink exists
+		// Make sure the symlink exists.
 		$this->assertFalse( $this->wp_filesystem->is_dir( "$this->plugin_dir/direct-plugin" ) );
 		$this->assertTrue( is_link( "$this->plugin_dir/managed-plugin" ) );
 
@@ -144,7 +145,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 * @covers ::add_is_managed_extension_field
 	 */
 	public function test_managed_plugins() {
-		// we simulate a symlink to a subdirectory inside a wp directory
+		// We simulate a symlink to a subdirectory inside a wp directory.
 		$plugin_name = 'managed-plugin';
 		$target_dir  = "$this->plugin_dir/wordpress";
 		$this->wp_filesystem->mkdir( $target_dir );
@@ -152,11 +153,11 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		$this->populate_file_with_plugin_header( "$target_dir/$plugin_name/$plugin_name.php", 'managed-plugin' );
 		symlink( "$target_dir/$plugin_name", "$this->plugin_dir/$plugin_name" );
 
-		// make sure the symlink exists
+		// Make sure the symlink exists.
 		$this->assertFalse( $this->wp_filesystem->is_dir( "$this->plugin_dir/direct-plugin" ) );
 		$this->assertTrue( is_link( "$this->plugin_dir/managed-plugin" ) );
 
-		// tweak realpath so that it returns `/wordpress/...`
+		// Tweak realpath so that it returns `/wordpress/...`.
 		$realpath = $this->getFunctionMock( __NAMESPACE__, 'realpath' );
 		$realpath->expects( $this->once() )->willReturn( "/wordpress/plugins/$plugin_name" );
 
@@ -220,6 +221,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertCount( 1, wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
 		$this->assertTrue( delete_plugins( array( $plugins[0] ) ) );
+
 		$this->assertCount( 0, wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
 	}
 
@@ -552,6 +554,82 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 			$this->assertSame( $pre_events[ $i ]['last_run_timestamp'], $post_events[ $i ]['last_run_timestamp'] );
 			$this->assertSame( $pre_events[ $i ]['last_run_status'], $post_events[ $i ]['last_run_status'] );
 		}
+	}
+
+	/**
+	 * Test clear CRON cache.
+	 *
+	 * @covers ::clear_cron_cache
+	 */
+	public function test_clear_cron_cache() {
+		$plugins = $this->create_plugins_for_deletion( 3 );
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$params  = array(
+			'plugins'  => array(),
+			'schedule' => array(
+				'timestamp' => strtotime( 'next Monday 8:00' ),
+				'interval'  => 'weekly',
+			),
+		);
+
+		wp_set_current_user( $this->admin_id );
+
+		$params['plugins']               = array( $plugins[0] );
+		$params['schedule']['timestamp'] = strtotime( 'next Monday 8:00' );
+		$request->set_body_params( $params );
+
+		// Create first event.
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+
+		$id_1 = $result->get_data();
+		$this->assertIsString( $id_1 );
+
+		$events = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
+		$this->assertCount( 1, $events );
+
+		$params['plugins']               = array( $plugins[1], $plugins[2] );
+		$params['schedule']['timestamp'] = strtotime( 'next Monday 9:00' );
+		$request->set_body_params( $params );
+
+		// Create second event.
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+
+		$id_2 = $result->get_data();
+		$this->assertIsString( $id_2 );
+
+		// Get scheduled events.
+		$events = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
+		$this->assertCount( 2, $events );
+
+		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/update-schedules' );
+		$result  = rest_do_request( $request );
+		$data    = $result->get_data();
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertArrayHasKey( $id_1, $data );
+		$this->assertArrayHasKey( $id_2, $data );
+
+		$request = new \WP_REST_Request( 'DELETE', '/wpcom/v2/update-schedules/' . $id_1 );
+		$result  = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertTrue( $result->get_data() );
+
+		// Get scheduled events.
+		$events = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
+		$this->assertCount( 1, $events );
+
+		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/update-schedules' );
+		$result  = rest_do_request( $request );
+		$data    = $result->get_data();
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertArrayNotHasKey( $id_1, $data );
+		$this->assertArrayHasKey( $id_2, $data );
 	}
 
 	/**

@@ -26,6 +26,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 				blogID = this.props.blogID,
 				siteAdminUrl = this.props.siteAdminUrl,
 				isOfflineMode = this.props.isOfflineMode,
+				siteUsesWpAdminInterface = this.props.siteUsesWpAdminInterface,
 				hasSharingBlock = this.props.hasSharingBlock,
 				isBlockTheme = this.props.isBlockTheme,
 				isActive = this.props.getOptionValue( 'sharedaddy' );
@@ -42,6 +43,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 			 * - Do you use a block-based theme and is the sharing block available?
 			 * - Is the site connected to WordPress.com?
 			 * - Is the site in offline mode?
+			 * - Is the site using the classic admin interface?
 			 *
 			 * @returns {React.ReactNode} A card with the sharing configuration link.
 			 */
@@ -54,7 +56,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 
 				if ( shouldShowSharingBlock ) {
 					cardProps.href = `${ siteAdminUrl }site-editor.php?path=%2Fwp_template`;
-				} else if ( isLinked && ! isOfflineMode ) {
+				} else if ( isLinked && ! isOfflineMode && ! siteUsesWpAdminInterface ) {
 					cardProps.href = getRedirectUrl( 'calypso-marketing-sharing-buttons', {
 						site: blogID ?? siteRawUrl,
 					} );

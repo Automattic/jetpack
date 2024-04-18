@@ -110,6 +110,20 @@ class Jetpack_Memberships {
 	private static $user_is_paid_subscriber_cache = array();
 
 	/**
+	 * Cached results of get_post_access_level method.
+	 *
+	 * @var array
+	 */
+	private static $post_access_level_cache = array();
+
+	/**
+	 * Clear cached results of get_post_access_level method.
+	 */
+	public static function clear_post_access_level_cache() {
+		self::$post_access_level_cache = array();
+	}
+
+	/**
 	 * Currencies we support and Stripe's minimum amount for a transaction in that currency.
 	 *
 	 * @link https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
@@ -194,6 +208,7 @@ class Jetpack_Memberships {
 	private function register_init_hook() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
 		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_gutenberg_block' ) );
+		add_action( 'switch_blog', array( $this, 'clear_post_access_level_cache' ) );
 	}
 
 	/**
@@ -539,10 +554,20 @@ class Jetpack_Memberships {
 			return Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 		}
 
+		$blog_id   = get_current_blog_id();
+		$cache_key = $blog_id . '_' . $post_id;
+
+		if ( isset( self::$post_access_level_cache[ $cache_key ] ) ) {
+			return self::$post_access_level_cache[ $cache_key ];
+		}
+
 		$post_access_level = get_post_meta( $post_id, self::$post_access_level_meta_name, true );
 		if ( empty( $post_access_level ) ) {
 			$post_access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 		}
+
+		self::$post_access_level_cache[ $cache_key ] = $post_access_level;
+
 		return $post_access_level;
 	}
 
@@ -581,6 +606,22 @@ class Jetpack_Memberships {
 		$user = wp_get_current_user();
 		// phpcs:ignore ImportDetection.Imports.RequireImports.Symbol
 		return 0 !== $user->ID && current_user_can( 'edit_post', get_the_ID() );
+	}
+
+	/**
+	 * Clears the static cache for all users or for a given user.
+	 *
+	 * @param int|null $user_id The user_id to unset in the cache, otherwise the entire static cache is cleared.
+	 * @return void
+	 */
+	public static function clear_cache( int $user_id = null ) {
+		if ( empty( $user_id ) ) {
+			self::$user_is_paid_subscriber_cache = array();
+			self::$user_can_view_post_cache      = array();
+			return;
+		}
+		unset( self::$user_is_paid_subscriber_cache[ $user_id ] );
+		unset( self::$user_can_view_post_cache[ $user_id ] );
 	}
 
 	/**
@@ -636,7 +677,7 @@ class Jetpack_Memberships {
 		}
 
 		$cache_key = sprintf( '%d_%d', $user_id, $post_id );
-		if ( $user_id !== 0 && isset( self::$user_can_view_post_cache[ $cache_key ] ) ) {
+		if ( isset( self::$user_can_view_post_cache[ $cache_key ] ) ) {
 			return self::$user_can_view_post_cache[ $cache_key ];
 		}
 
@@ -646,12 +687,10 @@ class Jetpack_Memberships {
 			return true;
 		}
 
-		if ( $user_id === 0 ) {
-			if ( defined( 'WPCOM_SENDING_POST_TO_SUBSCRIBERS' ) && WPCOM_SENDING_POST_TO_SUBSCRIBERS ) {
-				if ( Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS === $post_access_level ) {
-					return true;
-				}
-			}
+		// we are sending the post to subscribers so the user is a subscriber
+		if ( defined( 'WPCOM_SENDING_POST_TO_SUBSCRIBERS' ) && WPCOM_SENDING_POST_TO_SUBSCRIBERS && Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS === $post_access_level ) {
+			self::$user_can_view_post_cache[ $cache_key ] = true;
+			return true;
 		}
 
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';

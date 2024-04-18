@@ -3,15 +3,17 @@ import { NoticeContextType, Notice } from './types';
 
 const defaultNotice: Notice = {
 	message: '',
+	title: null,
 	options: {
-		status: '',
+		level: '',
+		priority: 0,
 	},
-	priority: 0,
 };
 
 export const NoticeContext = createContext< NoticeContextType >( {
 	currentNotice: defaultNotice,
 	setNotice: null,
+	resetNotice: null,
 } );
 
 // Maybe todo: Add a clearNotice type function to remove any active notices
@@ -21,9 +23,13 @@ const NoticeContextProvider = ( { children } ) => {
 
 	const setNotice = ( notice: Notice ) => {
 		// Only update notice if there is not already a notice or the new notice has a higher priority
-		if ( ! currentNotice.message || notice.priority > currentNotice.priority ) {
+		if ( ! currentNotice.message || notice.options.priority > currentNotice.options.priority ) {
 			setCurrentNotice( notice );
 		}
+	};
+
+	const resetNotice = () => {
+		setCurrentNotice( defaultNotice );
 	};
 
 	return (
@@ -31,6 +37,7 @@ const NoticeContextProvider = ( { children } ) => {
 			value={ {
 				currentNotice,
 				setNotice,
+				resetNotice,
 			} }
 		>
 			{ children }

@@ -30,6 +30,16 @@ function fixDeps( pkg ) {
 		pkg.peerDependencies.react = '^18';
 	}
 
+	// Missing dep or peer dep.
+	// https://github.com/actions/toolkit/issues/1684
+	if (
+		pkg.name === '@actions/github' &&
+		! pkg.dependencies?.undici &&
+		! pkg.peerDependencies?.undici
+	) {
+		pkg.dependencies.undici = '*';
+	}
+
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
 	// https://github.com/WordPress/gutenberg/issues/39810
 	if ( pkg.name === '@wordpress/eslint-plugin' ) {

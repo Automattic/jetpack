@@ -1,4 +1,4 @@
-import { ToggleControl } from '@automattic/jetpack-components';
+import { RadioControl, ToggleControl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { FormLegend } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -34,16 +34,12 @@ const EmailSettings = props => {
 		);
 	}, [ isFeaturedImageInEmailEnabled, updateFormStateAndSaveOptionValue ] );
 
-	const handleSubscriptionEmailsUseFullTextChange = useCallback(
-		value => {
-			updateFormStateAndSaveOptionValue( SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION, ! value );
-		},
-		[ updateFormStateAndSaveOptionValue ]
-	);
-
 	const handleSubscriptionEmailsUseExcerptChange = useCallback(
 		value => {
-			updateFormStateAndSaveOptionValue( SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION, value );
+			updateFormStateAndSaveOptionValue(
+				SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION,
+				value === 'excerpt'
+			);
 		},
 		[ updateFormStateAndSaveOptionValue ]
 	);
@@ -101,19 +97,13 @@ const EmailSettings = props => {
 					{ __( 'For each new post email, include', 'jetpack' ) }
 				</FormLegend>
 
-				<ToggleControl
+				<RadioControl
+					selected={ subscriptionEmailsUseExcerpt ? 'excerpt' : 'full' }
 					disabled={ excerptInputDisabled }
-					checked={ ! subscriptionEmailsUseExcerpt }
-					toogling={ isSavingAnyOption( [ SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION ] ) }
-					label={ __( 'Full text', 'jetpack' ) }
-					onChange={ handleSubscriptionEmailsUseFullTextChange }
-				/>
-
-				<ToggleControl
-					disabled={ excerptInputDisabled }
-					checked={ subscriptionEmailsUseExcerpt }
-					toogling={ isSavingAnyOption( [ SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION ] ) }
-					label={ __( 'Excerpt', 'jetpack' ) }
+					options={ [
+						{ label: __( 'Full text', 'jetpack' ), value: 'full' },
+						{ label: __( 'Excerpt', 'jetpack' ), value: 'excerpt' },
+					] }
 					onChange={ handleSubscriptionEmailsUseExcerptChange }
 				/>
 			</SettingsGroup>

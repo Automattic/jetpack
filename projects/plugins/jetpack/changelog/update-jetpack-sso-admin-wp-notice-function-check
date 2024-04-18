@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Add function exists check for wp_admin_notice

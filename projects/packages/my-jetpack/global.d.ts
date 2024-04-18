@@ -3,10 +3,22 @@ declare module '*.svg';
 declare module '*.jpeg';
 declare module '*.jpg';
 declare module '*.scss';
+
+// These libraries don't have types, this suppresses the TypeScript errors
+declare module '@wordpress/components';
+declare module '@wordpress/compose';
+declare module '@wordpress/i18n';
+declare module '@wordpress/icons';
+
 interface Window {
 	myJetpackInitialState?: {
 		siteSuffix: string;
+		siteUrl: string;
 		latestBoostSpeedScores: {
+			previousScores: {
+				desktop: number;
+				mobile: number;
+			};
 			scores: {
 				desktop: number;
 				mobile: number;
@@ -186,6 +198,7 @@ interface Window {
 		};
 		redBubbleAlerts: {
 			'missing-site-connection'?: null;
+			'welcome-banner-active'?: null;
 			[ key: `${ string }-bad-installation` ]: {
 				data: {
 					plugin: string;
@@ -195,9 +208,6 @@ interface Window {
 		topJetpackMenuItemUrl: string;
 		userIsAdmin: string;
 		userIsNewToJetpack: string;
-		welcomeBanner: {
-			hasBeenDismissed: boolean;
-		};
 	};
 	JP_CONNECTION_INITIAL_STATE: {
 		apiRoot: string;
