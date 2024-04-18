@@ -3033,6 +3033,9 @@ importers:
       '@storybook/react':
         specifier: 8.0.6
         version: 8.0.6(react-dom@18.2.0)(react@18.2.0)(typescript@5.0.4)
+      '@types/jest':
+        specifier: 29.5.12
+        version: 29.5.12
       '@types/jquery':
         specifier: 3.5.29
         version: 3.5.29
@@ -3042,6 +3045,9 @@ importers:
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
+      jest:
+        specifier: 29.7.0
+        version: 29.7.0
       livereload:
         specifier: 0.9.3
         version: 0.9.3
@@ -17208,7 +17214,7 @@ packages:
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
-      picomatch: 2.2.3
+      picomatch: 2.3.1
 
   /jest-validate@29.7.0:
     resolution: {integrity: sha512-ZB7wHqaRGVw/9hST/OuFUReG7M8vKeq0/J2egIGLdvjHCmYqGARhzXmtgi+gVeZ5uXFF219aOc3Ls2yLg27tkw==}
