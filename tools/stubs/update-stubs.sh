@@ -74,9 +74,39 @@ function fetch_repo {
 }
 
 echo
+info 'Downloading Akismet'
+fetch_plugin akismet
+
+echo
+info 'Extracting Akismet stubs'
+"$BASE/projects/packages/stub-generator/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/akismet-stubs.php" "$BASE/tools/stubs/akismet-stub-defs.php"
+
+echo
+info 'Downloading WordPress.com Editing Toolkit'
+fetch_plugin full-site-editing
+
+echo
+info 'Extracting WordPress.com Editing Toolkit stubs'
+"$BASE/projects/packages/stub-generator/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/full-site-editing-stubs.php" "$BASE/tools/stubs/full-site-editing-stub-defs.php"
+
+echo
 info 'Downloading WooCommerce'
 fetch_repo woocommerce/woocommerce
 
 echo
 info 'Extracting WooCommerce internal stubs'
 "$BASE/projects/packages/stub-generator/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/woocommerce-internal-stubs.php" "$BASE/tools/stubs/woocommerce-internal-stub-defs.php"
+
+echo
+info 'Downloading PHPUnit'
+mkdir -p "$WORK_DIR/phpunit"
+jq '{ "require-dev": { "yoast/phpunit-polyfills": .["require-dev"]["yoast/phpunit-polyfills"] } }' "$BASE/tools/cli/skeletons/common/composer.json" > "$WORK_DIR/phpunit/composer.json"
+composer --working-dir="$WORK_DIR/phpunit" update
+
+echo
+info 'Extracting PHPUnit stubs'
+"$BASE/projects/packages/stub-generator/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/phpunit-stubs.php" "$BASE/tools/stubs/phpunit-stub-defs.php"
+php "$BASE/tools/stubs/munge-phpunit-stubs.php" "$BASE/.phan/stubs/phpunit-stubs.php"
+for f in "$WORK_DIR"/phpunit/vendor/{phpunit,sebastian}/*; do
+	echo "${f#$WORK_DIR/phpunit/}"
+done > "$BASE/.phan/stubs/phpunit-dirs.txt"

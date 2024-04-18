@@ -10,7 +10,6 @@ import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { post, postContent, postExcerpt, termDescription, blockTable } from '@wordpress/icons';
 import debugFactory from 'debug';
-import React from 'react';
 /**
  * Internal dependencies
  */
@@ -35,6 +34,7 @@ import './style.scss';
 import type { ExtendedBlockProp } from '../../extensions/ai-assistant';
 import type { PromptTypeProp } from '../../lib/prompt';
 import type { ToneProp } from '../tone-dropdown-control';
+import type { ReactElement } from 'react';
 
 const debug = debugFactory( 'jetpack-ai-assistant:dropdown' );
 
@@ -138,12 +138,12 @@ type AiAssistantDropdownContentProps = {
 /**
  * The React content of the dropdown.
  * @param {AiAssistantDropdownContentProps} props - The props.
- * @returns {React.ReactNode} The React content of the dropdown.
+ * @returns {ReactElement} The React content of the dropdown.
  */
 function AiAssistantDropdownContent( {
 	onClose,
 	blockType,
-}: AiAssistantDropdownContentProps ): React.JSX.Element {
+}: AiAssistantDropdownContentProps ): ReactElement {
 	// Set the state for the no content info.
 	const [ noContent, setNoContent ] = useState( false );
 

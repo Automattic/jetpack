@@ -349,6 +349,7 @@ class ConfigTest extends TestCase {
 			'Dummy',
 			DummyPlugin::class
 		);
+		// @phan-suppress-next-line PhanUndeclaredClassReference -- Will be loaded from dummy.php created just above.
 		$this->assertInstanceOf( __NAMESPACE__ . '\\TestFromFile', $ret );
 		$this->assertSame(
 			array(
@@ -375,6 +376,7 @@ class ConfigTest extends TestCase {
 			"<?php\nnamespace $ns;\nclass TestFromFile4a {}\nclass TestFromFile4b $classBody\n"
 		);
 		$ret = $w->getPlugin( array( 'filename' => 'dummy4.php' ), 'Dummy', DummyPlugin::class );
+		// @phan-suppress-next-line PhanUndeclaredClassReference -- Will be loaded from dummy4.php created just above.
 		$this->assertInstanceOf( __NAMESPACE__ . '\\TestFromFile4b', $ret );
 
 		// Get by loading file, file with two valid class.

@@ -1,5 +1,5 @@
 import { getCurrencyDefaults } from '@automattic/format-currency';
-import { InspectorControls } from '@wordpress/block-editor';
+import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import {
 	Disabled,
 	ExternalLink,
@@ -53,6 +53,8 @@ export const SimplePaymentsEdit = ( {
 	 * local state.
 	 */
 	const isDisabled = productId && isEmpty( simplePayment );
+
+	const blockProps = useBlockProps();
 
 	const [ fieldEmailError, setFieldEmailError ] = useState( null );
 	const [ fieldPriceError, setFieldPriceError ] = useState( null );
@@ -426,7 +428,7 @@ export const SimplePaymentsEdit = ( {
 		const Wrapper = isDisabled ? Disabled : 'div';
 
 		elt = (
-			<Wrapper className="wp-block-jetpack-simple-payments">
+			<Wrapper className="simple-payments__wrapper">
 				<InspectorControls>
 					<PanelControls postLinkText={ attributes.postLinkText } setAttributes={ setAttributes } />
 				</InspectorControls>
@@ -523,7 +525,7 @@ export const SimplePaymentsEdit = ( {
 		);
 	}
 
-	return elt;
+	return <div { ...blockProps }>{ elt }</div>;
 };
 
 const mapSelectToProps = withSelect( ( select, props ) => {

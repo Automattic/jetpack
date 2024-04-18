@@ -253,7 +253,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 				<AiAssistantModal handleClose={ toggleFeaturedImageModal } title={ modalTitle }>
 					<div className="ai-assistant-featured-image__content">
 						<div className="ai-assistant-featured-image__image-canvas">
-							{ ( requireUpgrade || notEnoughRequests ) && (
+							{ ( requireUpgrade || notEnoughRequests ) && ! currentPointer?.generating && (
 								<UpgradePrompt
 									description={
 										notEnoughRequests

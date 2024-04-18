@@ -26,5 +26,5 @@ function another_function() {
 
 // This function has no docs.
 function undocumented_function( $args ) {
-	return $args;
+	var_dump( $args );
 }

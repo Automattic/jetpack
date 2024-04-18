@@ -15,6 +15,7 @@ $root = dirname( __DIR__, 4 );
 return make_phan_config(
 	dirname( __DIR__ ),
 	array(
+		'+stubs'          => array( 'full-site-editing', 'photon-opencv' ),
 		'parse_file_list' => array(
 			"$root/projects/packages/stats-admin/src/class-dashboard.php",
 			"$root/projects/plugins/jetpack/class-jetpack-stats-dashboard-widget.php",

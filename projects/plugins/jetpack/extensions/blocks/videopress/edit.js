@@ -28,13 +28,18 @@ import {
 	withInstanceId,
 } from '@wordpress/compose';
 import { useSelect, withDispatch, withSelect } from '@wordpress/data';
-import { Component, createInterpolateElement, createRef, Fragment } from '@wordpress/element';
+import {
+	Component,
+	createInterpolateElement,
+	createRef,
+	Fragment,
+	useEffect,
+} from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import classnames from 'classnames';
 import { get, indexOf } from 'lodash';
-import { useEffect } from 'react';
 import { VideoPressIcon } from '../../shared/icons';
 import { VideoPressBlockProvider } from './components';
 import { VIDEO_PRIVACY } from './constants';
