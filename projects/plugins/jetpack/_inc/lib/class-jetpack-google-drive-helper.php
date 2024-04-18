@@ -66,7 +66,7 @@ class Jetpack_Google_Drive_Helper {
 	 * @param int    $user_id The user ID.
 	 * @param string $title   The spreadsheet title.
 	 * @param array  $rows    Array of arrays with values.
-	 * @return array
+	 * @return array|WP_Error
 	 */
 	public static function create_sheet( $user_id, $title, $rows = array() ) {
 		$site_id = Manager::get_site_id();

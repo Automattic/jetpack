@@ -20,6 +20,9 @@ return make_phan_config(
 			'tests/php/_inc/lib/mocks/class-simplepie-item.php',
 			'tests/php/_inc/lib/mocks/class-simplepie-locator.php',
 			'tests/php/_inc/lib/mocks/class-simplepie.php',
+			// Mocks of wpcom classes and functions.
+			'tests/php/lib/class-wpcom-features.php',
+			'tests/php/lib/mock-functions.php',
 		),
 		'exclude_analysis_directory_list' => array(
 			// This file breaks analysis, Phan gets lost recursing in trying to figure out some types.
