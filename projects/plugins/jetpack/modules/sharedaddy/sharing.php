@@ -724,9 +724,15 @@ class Sharing_Admin {
 			new Share_Reddit( 'reddit', array() ),
 		);
 
-		// Hide the link to Jetpack Sharing settings if no Jetpack Settings found in submenu list
 		global $submenu;
-		$show_jetpack_admin_settings_link = isset( $submenu['jetpack'][1][2] ) && $submenu['jetpack'][1][2] === 'jetpack#/settings';
+		// Hide the link to Jetpack Sharing settings if no Jetpack Settings found in submenu list
+		$show_jetpack_admin_settings_link = array_reduce(
+			$submenu['jetpack'],
+			function ( $carry, $item ) {
+				return $carry || ( isset( $item[2] ) && $item[2] === 'jetpack#/settings' );
+			},
+			false
+		);
 		?>
 
 		<div class="share_manage_options">
