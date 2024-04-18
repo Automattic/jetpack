@@ -58,7 +58,6 @@ class StdinBootstrapTest extends TestCase {
 
 		$data = json_decode( $ret, true );
 		$this->assertIsArray( $data, 'phpcs output contains a JSON object' );
-		'@phan-var array $data';
 
 		$fileData = array_values( $data['files'] );
 		$messages = $fileData[0]['messages'] ?? array();

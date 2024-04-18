@@ -1,11 +1,12 @@
 /**
  * External dependencies
  */
+import { renderHTMLFromMarkdown } from '@automattic/jetpack-ai-client';
 import { rawHandler } from '@wordpress/blocks';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useRef } from '@wordpress/element';
 import debugFactory from 'debug';
-import MarkdownIt from 'markdown-it';
+import type { Block } from '@automattic/jetpack-ai-client';
 
 const debug = debugFactory( 'voice-to-content:use-transcription-inserter' );
 
@@ -15,13 +16,6 @@ const debug = debugFactory( 'voice-to-content:use-transcription-inserter' );
 export type UseTranscriptionInserterReturn = {
 	upsertTranscription: ( transcription: string ) => void;
 };
-
-/**
- * Create a new markdown converter
- */
-const markdownConverter = new MarkdownIt( {
-	breaks: true,
-} );
 
 /**
  * Hook to handle the insertion of the transcription into the editor.
@@ -35,7 +29,7 @@ export default function useTranscriptionInserter(): UseTranscriptionInserterRetu
 	/*
 	 * List of blocks currently on the editor.
 	 */
-	const currentBlocks = useRef( [] );
+	const currentBlocks = useRef< Block[] >( [] );
 
 	const upsertTranscription = useCallback(
 		( transcription: string ) => {
@@ -44,11 +38,7 @@ export default function useTranscriptionInserter(): UseTranscriptionInserterRetu
 			/*
 			 * Convert the markdown to HTML
 			 */
-			const html = markdownConverter
-				.render( transcription || '' )
-				// Fix list indentation
-				.replace( /<li>\s+<p>/g, '<li>' )
-				.replace( /<\/p>\s+<\/li>/g, '</li>' );
+			const html = renderHTMLFromMarkdown( { content: transcription || '' } );
 
 			/*
 			 * Parse the HTML into blocks
@@ -64,7 +54,7 @@ export default function useTranscriptionInserter(): UseTranscriptionInserterRetu
 				 */
 				if ( i < currentBlocks.current.length ) {
 					const currentblockClientId = currentBlocks.current[ i ].clientId;
-					const currentBlockContent = currentBlocks.current[ i ].attributes.content;
+					const currentBlockContent = currentBlocks.current[ i ].attributes?.content;
 
 					/*
 					 * If the block has content, update it

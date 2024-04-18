@@ -1,6 +1,11 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL } from '@wordpress/blob';
-import { MediaPlaceholder, BlockControls, InspectorControls } from '@wordpress/block-editor';
+import {
+	MediaPlaceholder,
+	BlockControls,
+	InspectorControls,
+	useBlockProps,
+} from '@wordpress/block-editor';
 import { DropZone, FormFileUpload, withNotices } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
@@ -28,7 +33,6 @@ export const pickRelevantMediaFiles = ( image, sizeSlug ) => {
 export const SlideshowEdit = ( {
 	attributes,
 	setAttributes,
-	className,
 	isSelected,
 	noticeOperations,
 	noticeUI,
@@ -38,6 +42,8 @@ export const SlideshowEdit = ( {
 	resizedImages,
 } ) => {
 	const { align, autoplay, delay, effect, images, sizeSlug, ids } = attributes;
+
+	const blockProps = useBlockProps();
 
 	const setImages = imgs => {
 		setAttributes( {
@@ -107,7 +113,6 @@ export const SlideshowEdit = ( {
 		content = (
 			<MediaPlaceholder
 				icon={ getBlockIconComponent( metadata ) }
-				className={ className }
 				labels={ {
 					title: __( 'Slideshow', 'jetpack' ),
 					instructions: __(
@@ -130,7 +135,6 @@ export const SlideshowEdit = ( {
 				<Slideshow
 					align={ align }
 					autoplay={ autoplay }
-					className={ className }
 					delay={ delay }
 					effect={ effect }
 					images={ images }
@@ -155,7 +159,7 @@ export const SlideshowEdit = ( {
 	}
 
 	return (
-		<>
+		<div { ...blockProps }>
 			<InspectorControls>
 				<PanelControls
 					attributes={ attributes }
@@ -172,7 +176,7 @@ export const SlideshowEdit = ( {
 				/>
 			</BlockControls>
 			{ content }
-		</>
+		</div>
 	);
 };
 

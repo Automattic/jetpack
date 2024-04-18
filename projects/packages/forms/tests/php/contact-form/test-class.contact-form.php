@@ -557,7 +557,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	public function test_grunion_delete_old_spam_deletes_an_old_post_marked_as_spam() {
 		// grunion_Delete_old_spam performs direct DB queries which cannot be tested outisde of a working WP install.
 		$this->markTestSkipped();
-
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		$post_id = wp_insert_post(
 			array(
 				'post_type'     => 'feedback',
@@ -1685,7 +1685,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	public function test_personal_data_exporter() {
 		// Contact_Form_Plugin::personal_data_exporter uses `get_posts` internally making it currently untestable outside of a WP environment.
 		$this->markTestSkipped();
-
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		$this->add_field_values(
 			array(
 				'name'     => 'John Doe',
@@ -1752,7 +1752,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	public function test_personal_data_eraser() {
 		// Contact_Form_Plugin::personal_data_exporter uses `get_posts` internally making it currently untestable outside of a WP environment.
 		$this->markTestSkipped();
-
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		$this->add_field_values(
 			array(
 				'name'  => 'John Doe',
@@ -1792,7 +1792,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	public function test_personal_data_eraser_pagination() {
 		// Contact_Form_Plugin::personal_data_exporter uses `get_posts` internally making it currently untestable outside of a WP environment.
 		$this->markTestSkipped();
-
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		$this->add_field_values(
 			array(
 				'name'  => 'Jane Doe',

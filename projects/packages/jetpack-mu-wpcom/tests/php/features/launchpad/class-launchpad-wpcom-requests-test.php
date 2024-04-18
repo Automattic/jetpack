@@ -5,8 +5,8 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-use Automattic\Jetpack\Jetpack_Mu_Wpcom;
-require_once Jetpack_Mu_Wpcom::PKG_DIR . '../status/src/class-visitor.php';
+// Comment to make phpcs happy.
+
 require_once __DIR__ . '/class-launchpad-jetpack-connection-client-mock.php';
 
 /**
@@ -20,10 +20,6 @@ class Launchpad_WPCOM_Requests_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_wpcom_launchpad_request_user_attributes() {
 		$attributes = array( 'attribute1', 'attribute2' );
-		// Mocking Automattic\Jetpack\Status\Visitor::get_ip
-		$visitor_mock = $this->getMockBuilder( Automattic\Jetpack\Status\Visitor::class )
-			->getMock();
-		$visitor_mock->method( 'get_ip' )->willReturn( 'mocked_ip' );
 
 		$response = array(
 			'response' => array(

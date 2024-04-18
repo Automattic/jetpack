@@ -9,10 +9,9 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredMethod : 10+ occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 3 occurrences
     // PhanTypeMismatchArgument : 2 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanTypeMismatchPropertyDefault : 1 occurrence
     // PhanTypeSuspiciousNonTraversableForeach : 1 occurrence
 
@@ -20,7 +19,6 @@ return [
     'file_suppressions' => [
         'src/class-endpoints.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-licensing.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyDefault', 'PhanTypeSuspiciousNonTraversableForeach'],
-        'tests/php/class-test-licensing.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredMethod'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)
