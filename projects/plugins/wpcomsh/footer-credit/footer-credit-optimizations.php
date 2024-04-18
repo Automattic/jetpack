@@ -22,8 +22,10 @@ function wpcom_better_footer_links_buffer( $page ) {
 	// Run "better link" filters.
 	$footer = wpcom_better_footer_links( $output[0] );
 
+	$remaining_content = isset( $output[1] ) ? $output[1] : '';
+
 	// Piece back together again.
-	$page = implode( array( $footer, 'wpcom_wp_footer' . $output[1] ) );
+	$page = implode( array( $footer, 'wpcom_wp_footer' . $remaining_content ) );
 
 	// If nothing to join, return empty string.
 	if ( 'wpcom_wp_footer' === $page ) {
