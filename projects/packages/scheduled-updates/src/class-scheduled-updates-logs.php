@@ -251,4 +251,28 @@ class Scheduled_Updates_Logs {
 
 		return true;
 	}
+
+	/**
+	 * Replaces the logs with the old schedule ID with new ones.
+	 *
+	 * @param string $old_schedule_id The old schedule ID.
+	 * @param string $new_schedule_id The new schedule ID.
+	 *
+	 * @return bool True if the logs were successfully replaced, false otherwise.
+	 */
+	public static function replace_logs_schedule_id( $old_schedule_id, $new_schedule_id ) {
+		$logs = self::get();
+
+		if ( isset( $logs[ $old_schedule_id ] ) ) {
+			// Replace the logs with the old schedule ID with new ones
+			$logs[ $new_schedule_id ] = $logs[ $old_schedule_id ];
+			unset( $logs[ $old_schedule_id ] );
+
+			update_option( self::OPTION_NAME, $logs );
+
+			return true;
+		}
+
+		return false;
+	}
 }
