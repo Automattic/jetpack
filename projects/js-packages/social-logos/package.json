@@ -3,7 +3,7 @@
 	"version": "2.5.9",
 	"description": "A repository of all the social logos used on WordPress.com.",
 	"type": "module",
-	"main": "build/react/social-logo.js",
+	"main": "build/react/index.jsx",
 	"peerDependencies": {
 		"react": "^18.0.0",
 		"react-dom": "^18.0.0"
