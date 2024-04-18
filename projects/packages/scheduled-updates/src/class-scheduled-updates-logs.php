@@ -45,11 +45,14 @@ class Scheduled_Updates_Logs {
 	 * @param string $action      The action constant representing the event.
 	 * @param string $message     Optional. The message associated with the event.
 	 * @param mixed  $context     Optional. Additional context data associated with the event.
+	 * @param int    $timestamp   Optional. The Unix timestamp of the log entry. Default is the current time.
 	 *
 	 * @return WP_Error|null
 	 */
-	public static function log( $schedule_id, $action, $message = null, $context = null ) {
-		$timestamp = wp_date( 'U' );
+	public static function log( $schedule_id, $action, $message = null, $context = null, $timestamp = null ) {
+		if ( null === $timestamp ) {
+			$timestamp = wp_date( 'U' );
+		}
 		$log_entry = array(
 			'timestamp' => intval( $timestamp ),
 			'action'    => $action,
