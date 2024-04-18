@@ -3,16 +3,11 @@ import Button from 'components/button';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import analytics from 'lib/analytics';
 import React from 'react';
 import { connect } from 'react-redux';
 import { isUnavailableInOfflineMode, isUnavailableInSiteConnectionMode } from 'state/connection';
 import { getJetpackCloudUrl } from 'state/initial-state';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
-
-const trackSetupPaymentPlansButtonClick = () => {
-	analytics.tracks.recordJetpackClick( 'setup_payment_plans_button_click' );
-};
 
 /**
  * Paid Newsletter component.
@@ -43,7 +38,6 @@ function PaidNewsletter( props ) {
 
 				<Button
 					href={ ! setupPaymentPlansButtonDisabled ? setupPaymentPlansUrl : undefined }
-					onClick={ trackSetupPaymentPlansButtonClick }
 					disabled={ setupPaymentPlansButtonDisabled }
 					primary
 					rna
