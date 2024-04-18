@@ -313,7 +313,7 @@ importers:
         specifier: 2.0.5
         version: 2.0.5(@babel/runtime@7.24.0)(react@18.2.0)
       social-logos:
-        specifier: 2.5.9
+        specifier: workspace:*
         version: link:../social-logos
       uplot:
         specifier: 1.6.24
@@ -3502,7 +3502,7 @@ importers:
         specifier: 7.5.2
         version: 7.5.2
       social-logos:
-        specifier: 2.5.9
+        specifier: workspace:*
         version: link:../../js-packages/social-logos
       swiper:
         specifier: 6.7.0
