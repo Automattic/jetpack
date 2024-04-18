@@ -5,7 +5,6 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import React from 'react';
 import { connect } from 'react-redux';
-import { isUnavailableInOfflineMode, isUnavailableInSiteConnectionMode } from 'state/connection';
 import { getJetpackCloudUrl } from 'state/initial-state';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 
@@ -16,15 +15,9 @@ import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
  * @returns {React.Component} Subscription settings component.
  */
 function PaidNewsletter( props ) {
-	const {
-		unavailableInOfflineMode,
-		unavailableInSiteConnectionMode,
-		isSubscriptionsActive,
-		setupPaymentPlansUrl,
-	} = props;
+	const { isSubscriptionsActive, setupPaymentPlansUrl } = props;
 
-	const setupPaymentPlansButtonDisabled =
-		unavailableInOfflineMode || unavailableInSiteConnectionMode || ! isSubscriptionsActive;
+	const setupPaymentPlansButtonDisabled = ! isSubscriptionsActive;
 
 	return (
 		<SettingsCard header={ __( 'Paid Newsletter', 'jetpack' ) } hideButton>
@@ -52,11 +45,6 @@ function PaidNewsletter( props ) {
 export default withModuleSettingsFormHelpers(
 	connect( ( state, ownProps ) => {
 		return {
-			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
-			unavailableInSiteConnectionMode: isUnavailableInSiteConnectionMode(
-				state,
-				SUBSCRIPTIONS_MODULE_NAME
-			),
 			isSubscriptionsActive: ownProps.getOptionValue( SUBSCRIPTIONS_MODULE_NAME ),
 			setupPaymentPlansUrl: getJetpackCloudUrl( state, 'monetize/payments' ),
 		};
