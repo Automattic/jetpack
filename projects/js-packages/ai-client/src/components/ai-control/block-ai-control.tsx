@@ -3,7 +3,7 @@
  */
 import { Button, ButtonGroup } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
-import { useImperativeHandle, useRef, useEffect, useCallback } from '@wordpress/element';
+import { useImperativeHandle, useRef, useEffect, useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import {
 	Icon,
@@ -84,8 +84,8 @@ export function BlockAIControl(
 	ref: React.MutableRefObject< HTMLInputElement >
 ): ReactElement {
 	const loading = state === 'requesting' || state === 'suggesting';
-	const [ editRequest, setEditRequest ] = React.useState( false );
-	const [ lastValue, setLastValue ] = React.useState( value || null );
+	const [ editRequest, setEditRequest ] = useState( false );
+	const [ lastValue, setLastValue ] = useState( value || null );
 	const promptUserInputRef = useRef( null );
 
 	// Pass the ref to forwardRef.
