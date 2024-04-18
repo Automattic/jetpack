@@ -3,6 +3,10 @@ interface ImageSize {
 	height: number;
 }
 
+function getDpr() {
+	return window.devicePixelRatio || 1;
+}
+
 export function parseImageSize( resizeParam: string ): ImageSize | null {
 	const [ width, height ] = resizeParam.split( ',' ).map( Number );
 	if ( isNaN( width ) || isNaN( height ) ) {
@@ -19,7 +23,8 @@ export function getImageSizeFromUrl( url: string ): ImageSize | null {
 	return parseImageSize( resizeParam );
 }
 
-export function calculateTargetSize( rect: DOMRect, dpr: number ): ImageSize {
+export function calculateTargetSize( rect: DOMRect ): ImageSize {
+	const dpr = getDpr();
 	const targetWidth = rect.width * dpr;
 	const ratio = rect.width / rect.height;
 	const targetHeight = Math.ceil( targetWidth / ratio );
@@ -71,14 +76,25 @@ export function findClosestImageSize(
 	return null;
 }
 
-function updateImageAttributes( img: HTMLImageElement, url: string, size: ImageSize, dpr: number ) {
-	const newUrl = new URL( url );
-	newUrl.searchParams.set( 'resize', `${ size.width },${ size.height }` );
-	newUrl.searchParams.set( 'jb-lazy', `${ size.width },${ size.height }` );
+function decideImageSize(
+	imageUrl: string,
+	srcSet: string[],
+	targetSize: ImageSize
+): { newUrl: string; newSrc: string; targetIndex: number } {
+	const dpr = getDpr();
+	const newUrl = new URL( imageUrl );
+	newUrl.searchParams.set( 'resize', `${ targetSize.width },${ targetSize.height }` );
+	newUrl.searchParams.set( 'jb-lazy', `${ targetSize.width },${ targetSize.height }` );
 
-	const srcset = img.srcset.split( ',' );
-	const targetIndex = srcset.findIndex( src => src.includes( url ) );
+	const targetIndex = srcSet.findIndex( src => src.includes( imageUrl ) );
 	const newSrc = `${ newUrl.toString() } ${ dpr * window.innerWidth }w`;
+
+	return { newUrl: newUrl.toString(), newSrc, targetIndex };
+}
+
+function updateImageAttributes( img: HTMLImageElement, url: string, size: ImageSize ) {
+	const srcset = img.srcset.split( ',' );
+	const { newSrc, targetIndex } = decideImageSize( url, srcset, size );
 
 	if ( targetIndex !== -1 ) {
 		srcset[ targetIndex ] = newSrc;
@@ -101,15 +117,14 @@ export function dynamicSrcset( img: HTMLImageElement ) {
 		return;
 	}
 
-	const dpr = window.devicePixelRatio || 1;
 	const rect = img.getBoundingClientRect();
-	const targetSize = calculateTargetSize( rect, dpr );
+	const targetSize = calculateTargetSize( rect );
 
 	const urls = img.srcset.split( ',' );
 	urls.unshift( `${ img.src } 0w` );
 
 	const closestImage = findClosestImageSize( urls, targetSize.width );
 	if ( closestImage ) {
-		updateImageAttributes( img, closestImage.url, targetSize, dpr );
+		updateImageAttributes( img, closestImage.url, targetSize );
 	}
 }

@@ -41,8 +41,8 @@ describe( 'calculateTargetSize', () => {
 			left: 0,
 			toJSON: () => ( {} ),
 		};
-		const dpr = 2;
-		expect( calculateTargetSize( rect, dpr ) ).toEqual( { width: 1000, height: 500 } );
+		window.devicePixelRatio = 2;
+		expect( calculateTargetSize( rect ) ).toEqual( { width: 1000, height: 500 } );
 	} );
 } );
 
