@@ -70,12 +70,6 @@
 }
 
 .jetpack-components-ai-control__controls-prompt_button_wrapper {
-	text-transform: uppercase;
-	font-size: 11px;
-	font-weight: 600;
-	line-height: 1em;
-	user-select: none;
-	white-space: nowrap;
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -87,6 +81,10 @@
 	.components-button-group .components-button {
 		box-shadow: none;
 		padding: 6px 8px;
+	}
+
+	.components-button-group {
+		display: flex;
 	}
 }
 
