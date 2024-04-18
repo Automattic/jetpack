@@ -1,13 +1,17 @@
 {
-	"name": "social-logos",
+	"name": "@automattic/social-logos",
 	"version": "2.5.9",
-	"main": "react/index.js",
+	"description": "A repository of all the social logos used on WordPress.com.",
+	"type": "module",
+	"main": "build/react/social-logo.js",
 	"peerDependencies": {
-		"react": "15 - 18"
+		"react": "^18.0.0",
+		"react-dom": "^18.0.0"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/social-logos"
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/social-logos"
 	},
 	"license": "GPL-2.0+",
 	"files": [
@@ -16,7 +20,9 @@
 		"!build/php"
 	],
 	"dependencies": {
-		"prop-types": "^15.5.7"
+		"prop-types": "^15.5.7",
+		"react": "18.2.0",
+		"react-dom": "18.2.0"
 	},
 	"devDependencies": {
 		"@babel/cli": "^7.23.9",

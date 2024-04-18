@@ -273,6 +273,9 @@ importers:
       '@automattic/jetpack-boost-score-api':
         specifier: workspace:*
         version: link:../boost-score-api
+      '@automattic/social-logos':
+        specifier: workspace:*
+        version: link:../social-logos
       '@babel/runtime':
         specifier: ^7
         version: 7.24.0
@@ -312,9 +315,6 @@ importers:
       react-slider:
         specifier: 2.0.5
         version: 2.0.5(@babel/runtime@7.24.0)(react@18.2.0)
-      social-logos:
-        specifier: workspace:*
-        version: link:../social-logos
       uplot:
         specifier: 1.6.24
         version: 1.6.24
@@ -1210,6 +1210,12 @@ importers:
       prop-types:
         specifier: ^15.5.7
         version: 15.8.1
+      react:
+        specifier: 18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: 18.2.0
+        version: 18.2.0(react@18.2.0)
     devDependencies:
       '@babel/cli':
         specifier: ^7.23.9
@@ -3360,6 +3366,9 @@ importers:
       '@automattic/request-external-access':
         specifier: 1.0.0
         version: 1.0.0
+      '@automattic/social-logos':
+        specifier: workspace:*
+        version: link:../../js-packages/social-logos
       '@automattic/social-previews':
         specifier: 2.0.1-beta.13
         version: 2.0.1-beta.13(@babel/runtime@7.24.0)(@types/react@18.2.74)(react-dom@18.2.0)(react@18.2.0)
@@ -3501,9 +3510,6 @@ importers:
       semver:
         specifier: 7.5.2
         version: 7.5.2
-      social-logos:
-        specifier: workspace:*
-        version: link:../../js-packages/social-logos
       swiper:
         specifier: 6.7.0
         version: 6.7.0
