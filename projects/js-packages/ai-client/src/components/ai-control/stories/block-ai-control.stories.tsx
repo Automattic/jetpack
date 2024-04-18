@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { action } from '@storybook/addon-actions';
+import { useArgs } from '@storybook/preview-api';
 import { Notice } from '@wordpress/components';
-import { useState } from '@wordpress/element';
 import React from 'react';
 /**
  * Internal dependencies
@@ -65,26 +65,39 @@ export default {
 };
 
 const DefaultTemplate = args => {
-	const [ value, setValue ] = useState( '' );
+	const [ { value }, updateArgs, resetArgs ] = useArgs();
 
 	const handleChange = ( newValue: string ) => {
-		setValue( newValue );
+		updateArgs( { value: newValue, showAccept: false } );
 		args?.onChange?.( newValue );
 	};
 
 	const handleSend = () => {
+		updateArgs( { state: 'requesting', error: null, showAccept: false } );
+
+		setTimeout( () => {
+			updateArgs( { state: 'suggesting' } );
+
+			setTimeout( () => {
+				updateArgs( { state: 'done', showAccept: true } );
+			}, 3000 );
+		}, 1000 );
+
 		args?.onSend?.( value );
 	};
 
 	const handleStop = () => {
+		updateArgs( { state: 'done', error: null, showAccept: true } );
 		args?.onStop?.();
 	};
 
 	const handleAccept = () => {
+		resetArgs();
 		args?.onAccept?.();
 	};
 
 	const handleDiscard = () => {
+		resetArgs();
 		args?.onDiscard?.();
 	};
 
@@ -102,13 +115,14 @@ const DefaultTemplate = args => {
 };
 
 const DefaultArgs = {
+	value: '',
 	placeholder: 'Placeholder',
 	acceptLabel: 'Accept',
 	showButtonLabels: true,
 	disabled: false,
 	isTransparent: false,
 	state: 'init',
-	showAccept: true,
+	showAccept: false,
 	showGuideLine: true,
 	customFooter: null,
 	onChange: action( 'onChange' ),
