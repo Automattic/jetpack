@@ -99,7 +99,7 @@ class Image_CDN implements Pluggable, Changes_Page_Output, Optimization {
 		<script async>
 			<?php
 			// Insecure and Temporary
-			echo file_get_contents( __DIR__ . '/inline-script.js' );
+			echo file_get_contents( __DIR__ . '/dist/liar.js' );
 			?>
 		</script>
 		<?php
