@@ -10,6 +10,16 @@
 	}
 }
 
+.button {
+	margin-top: calc( var( --spacing-base ) * 2 );
+	grid-column: span 2;
+	justify-self: flex-start;
+
+	@media ( min-width: 600px ) {
+		grid-column: 2;
+	}
+}
+
 .notes-options-wrapper {
 	display: flex;
 	flex-direction: column;
