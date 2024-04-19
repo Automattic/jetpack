@@ -21,9 +21,10 @@
  *   - exclude_file_regex: (array) Additional regexes to exclude. Will be anchored at the start.
  *   - file_list: (array) Additional individual files to scan.
  *   - parse_file_list: (array) Files to parse but not analyze. Equivalent to listing in both 'file_list' and 'exclude_analysis_directory_list'.
- *   - stubs: (array) Predefined stubs to load. Default is `array( 'wordpress', 'wp-cli', 'wpcom' )`.
+ *   - stubs: (array) Predefined stubs to load. Default is `array( 'wordpress', 'wp-cli' )`.
  *      - akismet: Stubs from .phan/stubs/akismet-stubs.php.
  *      - full-site-editing: Stubs from .phan/stubs/full-site-editing-stubs.php.
+ *      - photon-opencv: Stubs from .phan/stubs/photon-opencv-stubs.php.
  *      - woocommerce: Stubs from php-stubs/woocommerce.
  *      - woocommerce-internal: Stubs from .phan/stubs/woocommerce-internal-stubs.php.
  *      - woocommerce-packages: Stubs from php-stubs/woocommerce.
@@ -44,7 +45,7 @@ function make_phan_config( $dir, $options = array() ) {
 		'exclude_file_regex'              => array(),
 		'file_list'                       => array(),
 		'parse_file_list'                 => array(),
-		'stubs'                           => array( 'wordpress', 'wp-cli', 'wpcom' ),
+		'stubs'                           => array( 'wordpress', 'wp-cli' ),
 		'+stubs'                          => array(),
 		'suppress_issue_types'            => array(),
 		'unsuppress_issue_types'          => array(),
@@ -60,6 +61,9 @@ function make_phan_config( $dir, $options = array() ) {
 				break;
 			case 'full-site-editing':
 				$stubs[] = "$root/.phan/stubs/full-site-editing-stubs.php";
+				break;
+			case 'photon-opencv':
+				$stubs[] = "$root/.phan/stubs/photon-opencv-stubs.php";
 				break;
 			case 'woocommerce':
 				$stubs[] = "$root/vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php";

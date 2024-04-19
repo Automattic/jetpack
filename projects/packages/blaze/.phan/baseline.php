@@ -15,11 +15,10 @@ return [
     // PhanParamTooMany : 1 occurrence
     // PhanTypeMismatchReturnProbablyReal : 1 occurrence
     // PhanTypeNoAccessiblePropertiesForeach : 1 occurrence
-    // PhanUndeclaredFunction : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-blaze.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredFunction'],
+        'src/class-blaze.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'src/class-dashboard-rest-controller.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeNoAccessiblePropertiesForeach'],
         'src/class-rest-controller.php' => ['PhanParamTooMany'],
     ],

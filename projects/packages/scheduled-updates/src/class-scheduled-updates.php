@@ -98,8 +98,6 @@ class Scheduled_Updates {
 		$plugins_to_update = array_intersect_key( $plugins_to_update, array_flip( $plugins ) );
 
 		if ( empty( $plugins_to_update ) ) {
-			// No updates available. Update the status to 'success' and return.
-			self::set_scheduled_update_status( $schedule_id, time(), 'success' );
 
 			// Log a start and success.
 			Scheduled_Updates_Logs::log(
@@ -222,16 +220,10 @@ class Scheduled_Updates {
 	 * Get the last status of a scheduled update.
 	 *
 	 * @param string $schedule_id Request ID.
-	 * @return array|null Last status of the scheduled update or null if not found.
+	 * @return array|false Last status of the scheduled update or false if not found.
 	 */
 	public static function get_scheduled_update_status( $schedule_id ) {
-		$status = Scheduled_Updates_Logs::infer_status_from_logs( $schedule_id );
-		if ( false !== $status ) {
-			return $status;
-		}
-
-		$statuses = get_option( 'jetpack_scheduled_update_statuses', array() );
-		return $statuses[ $schedule_id ] ?? null;
+		return Scheduled_Updates_Logs::infer_status_from_logs( $schedule_id );
 	}
 
 	/**
@@ -408,11 +400,7 @@ class Scheduled_Updates {
 
 			// Inherit the status from the previous schedule.
 			if ( $status ) {
-				self::set_scheduled_update_status(
-					$schedule_id,
-					$status['last_run_timestamp'],
-					$status['last_run_status']
-				);
+				Scheduled_Updates_Logs::replace_logs_schedule_id( $id, $schedule_id );
 			}
 		}
 	}

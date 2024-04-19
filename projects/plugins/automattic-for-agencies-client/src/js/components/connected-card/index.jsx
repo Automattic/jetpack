@@ -18,7 +18,7 @@ import styles from './styles.module.scss';
  */
 function SiteConnectedContent() {
 	const navigateToDashboard = useCallback( () => {
-		window.location.href = 'https://agencies.automattic.com';
+		window.location.href = 'https://agencies.automattic.com?source=client-plugin';
 	}, [] );
 
 	return (
