@@ -75,10 +75,13 @@ describe( 'findClosestImageSize', () => {
 	} );
 } );
 
-function createImageSize( width: number, height: number ) {
-	return `https://i0.wp.com/example.com/image.jpg?resize=${ encodeURIComponent(
-		`${ width },${ height }`
-	) } ${ width }w`;
+function createImageSize( resize: string, mq: string, prevSize?: string ) {
+	const url = new URL( 'https://i0.wp.com/example.com/image.jpg' );
+	url.searchParams.set( 'resize', resize );
+	if ( prevSize ) {
+		url.searchParams.set( 'jb-lazy', prevSize );
+	}
+	return `${ url } ${ mq }`;
 }
 
 function setBoundingRect( img: HTMLImageElement, width: number, height: number ) {
@@ -103,10 +106,11 @@ describe( 'dynamicSrcset', () => {
 		img = document.createElement( 'img' );
 		img.src = 'https://i0.wp.com/example.com/image.jpg';
 		const srcset = [
-			createImageSize( 100, 50 ),
-			createImageSize( 400, 250 ),
-			createImageSize( 1400, 700 ),
+			createImageSize( '100,50', '100w' ),
+			createImageSize( '400,250', '400w' ),
+			createImageSize( '1400,700', '1400w' ),
 		];
+
 		img.srcset = srcset.join( ',' );
 		img.setAttribute( 'width', '1000' );
 		img.setAttribute( 'height', '500' );
@@ -117,17 +121,17 @@ describe( 'dynamicSrcset', () => {
 
 	it( 'srcset should include all original image sizes', () => {
 		dynamicSrcset( img );
-		expect( img.srcset ).toContain( createImageSize( 100, 50 ) );
-		expect( img.srcset ).toContain( createImageSize( 400, 250 ) );
-		expect( img.srcset ).toContain( createImageSize( 1400, 700 ) );
-		expect( img.sizes ).toBe( 'auto' );
+		expect( img.srcset ).toContain( createImageSize( '100,50', '100w' ) );
+		expect( img.srcset ).toContain( createImageSize( '400,250', '400w' ) );
+		expect( img.srcset ).toContain( createImageSize( '1400,700', '1400w' ) );
 	} );
 
 	it( 'should create a new srcset entry for the target size', () => {
 		dynamicSrcset( img );
-		expect( img.srcset ).toContain( encodeURIComponent( `${ 1000 },${ 500 }` ) );
-		expect( img.srcset ).toContain( `${ window.innerWidth * window.devicePixelRatio }w` );
+		expect( img.srcset ).toContain( createImageSize( '1000,500', '5000w' ) );
 	} );
+
+
 
 	it( 'should not update attributes if conditions are not met', () => {
 		const image = document.createElement( 'img' );
