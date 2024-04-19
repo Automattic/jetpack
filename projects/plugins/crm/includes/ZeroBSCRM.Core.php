@@ -481,9 +481,10 @@ final class ZeroBSCRM {
 	 */
 	public $acceptable_restricted_html = array(
 		'a'          => array(
-			'href'  => array(),
-			'title' => array(),
-			'id'    => array(),
+			'href'   => array(),
+			'title'  => array(),
+			'id'     => array(),
+			'target' => array(),
 		),
 		'br'         => array(),
 		'em'         => array(),
