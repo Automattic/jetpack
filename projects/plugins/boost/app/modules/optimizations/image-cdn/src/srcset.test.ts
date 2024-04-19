@@ -54,22 +54,24 @@ describe( 'findClosestImageSize', () => {
 	];
 
 	it( 'should return null if the urls are invalid', () => {
-		expect( findClosestImageSize( ['foo.com', 'bar.com'], 500 ) ).toBeNull();
+		expect( findClosestImageSize( ['foo.com', 'bar.com'], 500 ) ).toBeUndefined();
 	} );
 
 	it( 'should find the closest image size', () => {
 		expect( findClosestImageSize( urls, 250 ) ).toEqual( {
 			url: 'https://i0.wp.com/example.com/image.jpg?resize=200,100',
 			width: 200,
+			height: 100,
 		} );
 		expect( findClosestImageSize( urls, 999 ) ).toEqual( {
 			url: 'https://i0.wp.com/example.com/image.jpg?resize=300,150',
 			width: 300,
+			height: 150,
 		} );
 	} );
 
-	it( 'should return null when the target width is smaller than the smallest image width', () => {
-		expect( findClosestImageSize( urls, 50 ) ).toBeNull();
+	it( 'should return undefined when the target width is smaller than the smallest image width', () => {
+		expect( findClosestImageSize( urls, 50 ) ).toBeUndefined();
 	} );
 } );
 
