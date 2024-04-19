@@ -269,7 +269,7 @@ class Scheduled_Updates_Logs {
 			return false;
 		}
 
-		$logs = self::get();
+		$logs = get_option( self::OPTION_NAME, array() );
 
 		if ( isset( $logs[ $old_schedule_id ] ) ) {
 			// Replace the logs with the old schedule ID with new ones
