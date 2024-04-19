@@ -1,4 +1,8 @@
 .ai-assistant-modal {
+	@media (min-width: 960px) {
+		max-height: 90%;
+	}
+
 	&__content {
 		display: flex;
 		flex-direction: column;
