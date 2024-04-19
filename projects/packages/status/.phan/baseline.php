@@ -9,7 +9,6 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgument : 10+ occurrences
     // PhanUndeclaredClassMethod : 10+ occurrences
     // PhanUndeclaredConstant : 6 occurrences
     // PhanTypeMismatchArgumentInternal : 4 occurrences
@@ -27,6 +26,7 @@ return [
     // PhanPluginRedundantAssignment : 1 occurrence
     // PhanRedundantCondition : 1 occurrence
     // PhanTypeArraySuspicious : 1 occurrence
+    // PhanTypeMismatchArgument : 1 occurrence
     // PhanTypeMismatchArgumentNullable : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanTypeMismatchReturnProbablyReal : 1 occurrence
@@ -42,7 +42,7 @@ return [
         'src/class-modules.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUnextractableAnnotation'],
         'src/class-status.php' => ['PhanRedundantCondition', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredFunction', 'PhanUndeclaredMethod'],
         'tests/php/bootstrap.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturnProbablyReal'],
-        'tests/php/test-host.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgument'],
+        'tests/php/test-host.php' => ['PhanParamTooMany'],
         'tests/php/test-status.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgumentInternal'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

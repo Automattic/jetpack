@@ -10,9 +10,9 @@
 return [
     // # Issue statistics:
     // PhanUndeclaredMethod : 20+ occurrences
-    // PhanTypeMismatchArgument : 10+ occurrences
     // PhanUnextractableAnnotationSuffix : 10+ occurrences
     // PhanDeprecatedFunction : 9 occurrences
+    // PhanTypeMismatchArgument : 9 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 8 occurrences
     // PhanNoopNew : 6 occurrences
     // PhanTypeMismatchDefault : 5 occurrences
@@ -59,7 +59,6 @@ return [
         'src/class-waf-transforms.php' => ['PhanPluginInvalidPregRegex', 'PhanTypeInvalidDimOffset'],
         'src/functions.php' => ['PhanUnextractableAnnotationSuffix'],
         'tests/php/integration/test-waf-compatibility.php' => ['PhanParamTooMany'],
-        'tests/php/integration/test-waf-unsupported-environment.php' => ['PhanTypeMismatchArgument'],
         'tests/php/unit/functions-wordpress.php' => ['PhanRedefineFunction'],
         'tests/php/unit/test-waf-operators.php' => ['PhanTypeMismatchArgumentInternal'],
         'tests/php/unit/test-waf-runtime-targets.php' => ['PhanPluginRedundantAssignment', 'PhanUnextractableAnnotationElementName', 'PhanUnextractableAnnotationSuffix'],
