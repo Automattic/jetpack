@@ -90,7 +90,7 @@ function ConnectionContent( { onShowSharingDetailsClick } ) {
 						apiNonce={ apiNonce }
 						registrationNonce={ registrationNonce }
 						from="automattic-for-agencies-client"
-						redirectUri="admin.php?page=automattic-for-agencies-client"
+						redirectUri="options-general.php?page=automattic-for-agencies-client"
 					/>
 				</div>
 			</div>

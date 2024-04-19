@@ -45,11 +45,14 @@ class Scheduled_Updates_Logs {
 	 * @param string $action      The action constant representing the event.
 	 * @param string $message     Optional. The message associated with the event.
 	 * @param mixed  $context     Optional. Additional context data associated with the event.
+	 * @param int    $timestamp   Optional. The Unix timestamp of the log entry. Default is the current time.
 	 *
 	 * @return WP_Error|null
 	 */
-	public static function log( $schedule_id, $action, $message = null, $context = null ) {
-		$timestamp = wp_date( 'U' );
+	public static function log( $schedule_id, $action, $message = null, $context = null, $timestamp = null ) {
+		if ( null === $timestamp ) {
+			$timestamp = wp_date( 'U' );
+		}
 		$log_entry = array(
 			'timestamp' => intval( $timestamp ),
 			'action'    => $action,
@@ -250,5 +253,34 @@ class Scheduled_Updates_Logs {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Replaces the logs with the old schedule ID with new ones.
+	 *
+	 * @param string $old_schedule_id The old schedule ID.
+	 * @param string $new_schedule_id The new schedule ID.
+	 *
+	 * @return bool True if the logs were successfully replaced, false otherwise.
+	 */
+	public static function replace_logs_schedule_id( $old_schedule_id, $new_schedule_id ) {
+
+		if ( $old_schedule_id === $new_schedule_id ) {
+			return false;
+		}
+
+		$logs = get_option( self::OPTION_NAME, array() );
+
+		if ( isset( $logs[ $old_schedule_id ] ) ) {
+			// Replace the logs with the old schedule ID with new ones
+			$logs[ $new_schedule_id ] = $logs[ $old_schedule_id ];
+			unset( $logs[ $old_schedule_id ] );
+
+			update_option( self::OPTION_NAME, $logs );
+
+			return true;
+		}
+
+		return false;
 	}
 }
