@@ -264,6 +264,11 @@ class Scheduled_Updates_Logs {
 	 * @return bool True if the logs were successfully replaced, false otherwise.
 	 */
 	public static function replace_logs_schedule_id( $old_schedule_id, $new_schedule_id ) {
+
+		if ( $old_schedule_id === $new_schedule_id ) {
+			return false;
+		}
+
 		$logs = self::get();
 
 		if ( isset( $logs[ $old_schedule_id ] ) ) {
