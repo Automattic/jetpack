@@ -607,7 +607,21 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins );
 
-		Scheduled_Updates::set_scheduled_update_status( $schedule_id, $timestamp, $status );
+		// Log a start and success.
+		Scheduled_Updates_Logs::log(
+			$schedule_id,
+			Scheduled_Updates_Logs::PLUGIN_UPDATES_START,
+			'no_plugins_to_update',
+			null,
+			$timestamp
+		);
+		Scheduled_Updates_Logs::log(
+			$schedule_id,
+			Scheduled_Updates_Logs::PLUGIN_UPDATES_SUCCESS,
+			'no_plugins_to_update',
+			null,
+			$timestamp
+		);
 
 		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . $schedule_id );
 		$request->set_body_params(
