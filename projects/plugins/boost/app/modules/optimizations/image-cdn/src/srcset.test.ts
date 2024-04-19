@@ -79,6 +79,20 @@ function createImageSize(width: number, height: number) {
 	return `https://i0.wp.com/example.com/image.jpg?resize=${width}%2C${height} ${width}w`;
 }
 
+function setBoundingRect(img: HTMLImageElement, width: number, height: number) {
+	Object.defineProperty(img, 'getBoundingClientRect', {
+		value: () => ({
+			width,
+			height,
+			top: 0,
+			right: width,
+			bottom: height,
+			left: 0,
+		}),
+		writable: true,
+	});
+}
+
 describe( 'dynamicSrcset', () => {
 	let img: HTMLImageElement;
 	beforeEach( () => {
@@ -96,17 +110,7 @@ describe( 'dynamicSrcset', () => {
 		img.setAttribute( 'height', '500' );
 
 		// Mocking the bounding rect of the image
-		Object.defineProperty(img, 'getBoundingClientRect', {
-			value: () => ({
-				width: 1000,
-				height: 500,
-				top: 0,
-				right: 1000,
-				bottom: 500,
-				left: 0,
-			}),
-			writable: true,
-		});
+		setBoundingRect(img, 1000, 500);
 	} );
 
 	it( 'srcset should include all original image sizes', () => {
