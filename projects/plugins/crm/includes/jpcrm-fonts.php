@@ -474,6 +474,17 @@ class JPCRM_Fonts {
 		$remote_zip_name = $this->font_name_to_zip( $font_name );
 		$temp_path = tempnam( sys_get_temp_dir(), 'crmfont' );
 
+		// Several large font files may timeout when downloading. Increase the timeout for these files.
+		$large_font_files = array( ' Noto  Sans  Simplified  Chinese', ' Noto  Serif  Display', ' Noto  Sans', ' Noto  Sans  Display', ' Noto  Sans  Taiwan', ' Noto  Sans  Hong  Kong', ' Noto  Sans  Japanese', ' Noto  Sans  Korean', ' Noto  Sans  Mono' );
+		if ( in_array( $font_name, $large_font_files, true ) ) {
+			add_filter(
+				'http_request_timeout',
+				function () {
+					return 60;
+				}
+			);
+		}
+
 		// Retrieve zip
 		global $zbs;
 		if ( !zeroBSCRM_retrieveFile( $zbs->urls['extdlfonts'] . $remote_zip_name, $temp_path ) ) {

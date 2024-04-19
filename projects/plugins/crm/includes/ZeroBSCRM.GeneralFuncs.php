@@ -527,15 +527,6 @@ function zeroBSCRM_wpb_lastlogin($uid ) {
  */
 function zeroBSCRM_retrieveFile( $url, $filepath, $args = array() ) {
 
-	$large_font_files = array( 'NotoSansSimplifiedChinese.zip', 'NotoSerifDisplay.zip', 'NotoSans.zip', 'NotoSansDisplay.zip', 'NotoSansTaiwan.zip', 'NotoSansHongKong.zip', 'NotoSansJapanese.zip', 'NooSansKorean.zip', 'NotoSansMono.zip' );
-	// Several large font files may timeout when downloading. Increase the timeout for these files.
-	foreach ( $large_font_files as $file ) {
-		if ( str_ends_with( $url, $file ) ) {
-
-			add_filter( 'http_request_timeout', 'custom_large_font_timeout' );
-		}
-	}
-
 	// Use wp_remote_get to fetch the data
 	$response = wp_remote_get( $url, $args );
 
@@ -578,15 +569,6 @@ function zeroBSCRM_retrieveFile( $url, $filepath, $args = array() ) {
 	}
 
 	return false;
-}
-
-/**
- * Increase the timeout for large font files.
- * The timeout is increased to 60 seconds (the default is 5), for large font files.
- * @return int The timeout in seconds.
- */
-function custom_large_font_timeout() {
-	return 60;
 }
 
 	# http://stackoverflow.com/questions/8889025/unzip-a-file-with-php
