@@ -53,6 +53,13 @@ class Verbum_Gutenberg_Editor {
 	 * Enqueue the assets for the Gutenberg editor
 	 */
 	public function enqueue_assets() {
+		if (
+			! ( is_singular() && comments_open() )
+			&& ! ( is_front_page() && is_page() && comments_open() )
+		) {
+			return;
+		}
+
 		$vbe_cache_buster = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/build_meta.json' );
 
 		wp_enqueue_style(
