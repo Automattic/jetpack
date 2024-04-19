@@ -574,35 +574,40 @@ class JPCRM_Fonts {
 
 	}
 
+	/**
+	 * Loads a font file collection (.ttf's) onto the server for dompdf
+	 * only needs to fire once
+	 *
+	 * @param string $font_name Font name.
+	 * @param string $regular_file Regular font file.
+	 * @param string $bold_file Bold font file.
+	 * @param string $italic_file Italic font file.
+	 * @param string $bold_italic_file Bold italic font file.
+	 */
+	public function load_font( $font_name = '', $regular_file = '', $bold_file = null, $italic_file = null, $bold_italic_file = null ) {
 
-	/*
-	* Loads a font file collection (.ttf's) onto the server for dompdf
-	* only needs to fire once
-	*/
-	public function load_font( $font_name='', $normalFile='', $boldFile=null, $italicFile=null, $boldItalicFile=null ){
-
-		if ( zeroBSCRM_isZBSAdminOrAdmin() && !empty($font_name)
-				&& file_exists($normalFile)
-				&& ( file_exists($boldFile) || $boldFile == null )
-				&& ( file_exists($italicFile) || $italicFile == null )
-				&& ( file_exists($boldItalicFile) || $boldItalicFile == null )
+		if (
+			zeroBSCRM_isZBSAdminOrAdmin()
+			&& ! empty( $font_name )
+			&& file_exists( $regular_file )
+			&& ( $bold_file === null || file_exists( $bold_file ) )
+			&& ( $italic_file === null || file_exists( $italic_file ) )
+			&& ( $bold_italic_file === null || file_exists( $bold_italic_file ) )
 		) {
 
 			// PDF Install check (importantly skip the font check with false first param)
-			zeroBSCRM_extension_checkinstall_pdfinv(false);
+			zeroBSCRM_extension_checkinstall_pdfinv( false );
 
 			global $zbs;
 			$dompdf = $zbs->pdf_engine();
 
 			// Install the font(s)
-			return $this->install_font_family( $dompdf, $font_name, $normalFile, $boldFile, $italicFile, $boldItalicFile );
+			return $this->install_font_family( $dompdf, $font_name, $regular_file, $bold_file, $italic_file, $bold_italic_file );
 
 		}
 
-		return false; 
-
+		return false;
 	}
-
 
 	/*
 	* Retrieves the font cache from dompdf and returns all loaded fonts
