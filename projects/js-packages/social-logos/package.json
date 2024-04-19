@@ -1,5 +1,5 @@
 {
-	"name": "@automattic/social-logos",
+	"name": "social-logos",
 	"version": "3.0.0-alpha",
 	"description": "A repository of all the social logos used on WordPress.com.",
 	"type": "module",

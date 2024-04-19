@@ -16,7 +16,6 @@
 	"dependencies": {
 		"@automattic/format-currency": "1.0.1",
 		"@automattic/jetpack-boost-score-api": "workspace:*",
-		"@automattic/social-logos": "workspace:*",
 		"@babel/runtime": "^7",
 		"@wordpress/browserslist-config": "5.38.0",
 		"@wordpress/components": "27.3.0",
@@ -30,6 +29,7 @@
 		"prop-types": "^15.7.2",
 		"qrcode.react": "3.1.0",
 		"react-slider": "2.0.5",
+		"social-logos": "workspace:*",
 		"uplot": "1.6.24",
 		"uplot-react": "1.1.4"
 	},
