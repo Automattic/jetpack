@@ -70,11 +70,10 @@ export function findClosestImageSize( urls: string[], targetWidth: number ): Ima
 	return closestImage;
 }
 
-function resizeImage( imageUrl: string, targetSize: Dimensions ): string {
+function resizeImage( imageUrl: string, targetSize: Dimensions ): URL {
 	const newUrl = new URL( imageUrl );
 	newUrl.searchParams.set( 'resize', `${ targetSize.width },${ targetSize.height }` );
-	newUrl.searchParams.set( 'jb-lazy', `${ targetSize.width },${ targetSize.height }` );
-	return newUrl.toString();
+	return newUrl;
 }
 
 export function dynamicSrcset( img: HTMLImageElement ) {
