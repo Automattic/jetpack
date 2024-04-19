@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+CLI: Make `wp jetpack publicize` work again.

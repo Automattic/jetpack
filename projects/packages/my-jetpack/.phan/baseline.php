@@ -33,7 +33,6 @@ return [
     // PhanUndeclaredClassProperty : 1 occurrence
     // PhanUndeclaredClassStaticProperty : 1 occurrence
     // PhanUndeclaredConstant : 1 occurrence
-    // PhanUndeclaredFunction : 1 occurrence
     // PhanUndeclaredTypeProperty : 1 occurrence
     // PhanUnextractableAnnotationSuffix : 1 occurrence
 
@@ -46,7 +45,7 @@ return [
         'src/class-rest-product-data.php' => ['PhanParamTooMany', 'PhanTypeMismatchReturn'],
         'src/class-rest-products.php' => ['PhanParamTooMany', 'PhanPluginMixedKeyNoKey', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-rest-purchases.php' => ['PhanParamTooMany', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/class-rest-zendesk-chat.php' => ['PhanParamTooMany', 'PhanUndeclaredFunction', 'PhanUnextractableAnnotationSuffix'],
+        'src/class-rest-zendesk-chat.php' => ['PhanParamTooMany', 'PhanUnextractableAnnotationSuffix'],
         'src/class-wpcom-products.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUnextractableAnnotation'],
         'src/products/class-anti-spam.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
         'src/products/class-backup.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyDefault'],
