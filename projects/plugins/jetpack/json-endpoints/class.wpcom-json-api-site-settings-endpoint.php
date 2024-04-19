@@ -1138,13 +1138,14 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'in_site_migration_flow':
+					$canonical_value = (int) (bool) $value;
 					if ( ! (bool) $value ) {
 						delete_option( 'in_site_migration_flow' );
 					} else {
-						update_option( 'in_site_migration_flow', (int) (bool) $value );
+						update_option( 'in_site_migration_flow', $canonical_value );
 					}
 
-					$updated[ $key ] = (int) (bool) $value;
+					$updated[ $key ] = $canonical_value;
 					break;
 
 				default:
