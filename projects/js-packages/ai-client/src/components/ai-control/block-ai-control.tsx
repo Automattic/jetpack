@@ -115,18 +115,18 @@ export function BlockAIControl(
 				setEditRequest( newValue !== lastValue );
 			}
 		},
-		[ onChange, lastValue, state ]
+		[ lastValue, state ]
 	);
 
 	const discardHandler = useCallback( () => {
 		onDiscard?.();
-	}, [ onDiscard ] );
+	}, [] );
 
 	const cancelEdit = useCallback( () => {
 		debug( 'cancelEdit, revert to last value', lastValue );
 		onChange?.( lastValue || '' );
 		setEditRequest( false );
-	}, [ onChange, lastValue ] );
+	}, [ lastValue ] );
 
 	useKeyboardShortcut(
 		'mod+enter',
