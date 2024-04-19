@@ -1408,7 +1408,7 @@ class Colors_Manager_Common {
 					elseif ( isset( self::$colors[ $rule[2] ] ) ) {
 						$set_colors = self::get_colors();
 						try {
-							$bg_color = new Jetpack_Color( $set_colors[ $rule[2] ] );
+							$bg_color = new Jetpack_Color( $set_colors[ $rule[2] ] ?? null );
 						} catch ( RangeException $e ) {
 							$message  = 'function: ' . __FUNCTION__ . "\n";
 							$message .= 'call: $bg_color = new Jetpack_Color( ' . $set_colors[ $rule[2] ] . ' );' . "\n";
