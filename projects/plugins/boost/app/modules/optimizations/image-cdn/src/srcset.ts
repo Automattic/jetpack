@@ -40,12 +40,18 @@ export function calculateTargetSize( rect: DOMRect ): Dimensions {
 	};
 }
 
-function isNearlySameSize( targetWidth: number, width: number ) {
-	return Math.abs( targetWidth - width ) < 50 || Math.abs( targetWidth / width - 1 ) < 0.1;
+export function isSizeReusable( desiredWidth: number, existingWidth: number ) {
+	if( existingWidth <= 0 ) {
+		return false;
+	}
+	const diff = existingWidth - desiredWidth;
+	if( diff < 0 ) {
+		return false;
+	}
+	return diff < 50 || desiredWidth / existingWidth > 1.1;
 }
 
 export function findClosestImageSize( urls: string[], targetWidth: number ): ImageMeta | undefined {
-	let closestImage: ImageMeta | undefined;
 	for ( const src of urls ) {
 		const [ url, widthStr ] = src.trim().split( ' ' );
 		if ( ! widthStr?.trim().endsWith( 'w' ) ) {
@@ -57,15 +63,12 @@ export function findClosestImageSize( urls: string[], targetWidth: number ): Ima
 			continue;
 		}
 
-		const { width, height } = imageSize;
-		if ( isNearlySameSize( targetWidth, width ) ) {
-			return { url, width, height };
-		} else if ( targetWidth > width || ( closestImage?.width && width < closestImage.width ) ) {
-			closestImage = { url, width, height };
+		if ( isSizeReusable( targetWidth, imageSize.width ) ) {
+			return { url, ...imageSize };
 		}
 	}
 
-	return closestImage;
+	return undefined;
 }
 
 function resizeImage( imageUrl: string, targetSize: Dimensions ): URL {
@@ -88,14 +91,13 @@ export function dynamicSrcset( img: HTMLImageElement ) {
 	const targetSize = calculateTargetSize( rect );
 
 	const srcset = img.srcset.split( ',' );
-	const urls = [ `${ img.src } 0w`, ...srcset ];
+	const closestImage = findClosestImageSize( srcset, targetSize.width );
 
-	const closestImage = findClosestImageSize( urls, targetSize.width );
-	if ( closestImage && isNearlySameSize( targetSize.width, closestImage.width ) ) {
+	if ( closestImage ) {
 		srcset.push( `${ closestImage.url } ${ window.innerWidth * getDpr() }w` );
 		img.srcset = srcset.join( ',' );
 		img.sizes = 'auto';
-	} else {
+	} else if ( img.src ) {
 		const newUrl = resizeImage( img.src, targetSize );
 		srcset.push( `${ newUrl } ${ window.innerWidth * getDpr() }w` );
 		img.srcset = srcset.join( ',' );

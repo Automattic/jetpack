@@ -3,8 +3,34 @@ import {
 	dynamicSrcset,
 	findClosestImageSize,
 	getImageSizeFromUrl,
+	isSizeReusable,
 	parseImageSize,
 } from './srcset';
+
+
+
+function createImageSize( resize: string, mq: string, prevSize?: string ) {
+	const url = new URL( 'https://i0.wp.com/example.com/image.jpg' );
+	url.searchParams.set( 'resize', resize );
+	if ( prevSize ) {
+		url.searchParams.set( 'jb-lazy', prevSize );
+	}
+	return `${ url } ${ mq }`;
+}
+
+function setBoundingRect( img: HTMLImageElement, width: number, height: number ) {
+	Object.defineProperty( img, 'getBoundingClientRect', {
+		value: () => ( {
+			width,
+			height,
+			top: 0,
+			right: width,
+			bottom: height,
+			left: 0,
+		} ),
+		writable: true,
+	} );
+}
 
 describe( 'parse image resize param', () => {
 	it( 'should parse valid resize param', () => {
@@ -46,57 +72,51 @@ describe( 'calculateTargetSize', () => {
 	} );
 } );
 
+describe('isSizeReusable', () => {
+	it('should return true if the target width is close to the width', () => {
+		expect(isSizeReusable(100, 100)).toBe(true);
+		expect(isSizeReusable(90, 100)).toBe(true);
+		expect(isSizeReusable(51, 100)).toBe(true);
+		expect(isSizeReusable(50, 100)).toBe(false);
+		expect(isSizeReusable(101, 100)).toBe(false);
+		expect(isSizeReusable(150, 100)).toBe(false);
+	})
+})
+
 describe( 'findClosestImageSize', () => {
-	const urls = [
-		'https://i0.wp.com/example.com/image.jpg?resize=100,50 100w',
-		'https://i0.wp.com/example.com/image.jpg?resize=200,100 200w',
-		'https://i0.wp.com/example.com/image.jpg?resize=300,150 300w',
+	const srcset = [
+		createImageSize( '100,50', '100w' ),
+		createImageSize( '400,250', '400w' ),
+		createImageSize( '1400,700', '1400w' ),
 	];
 
-	it( 'should return null if the urls are invalid', () => {
+	it( 'should return undefined if the urls are invalid', () => {
 		expect( findClosestImageSize( [ 'foo.com', 'bar.com' ], 500 ) ).toBeUndefined();
 	} );
 
-	it( 'should find the closest image size', () => {
-		expect( findClosestImageSize( urls, 250 ) ).toEqual( {
-			url: 'https://i0.wp.com/example.com/image.jpg?resize=200,100',
-			width: 200,
-			height: 100,
+	it( "should find the closest image that's larger than the target width", () => {
+		expect( findClosestImageSize( srcset, 51 ) ).toEqual( {
+			url: srcset[0].split(' ')[0],
+			width: 100,
+			height: 50,
 		} );
-		expect( findClosestImageSize( urls, 999 ) ).toEqual( {
-			url: 'https://i0.wp.com/example.com/image.jpg?resize=300,150',
-			width: 300,
-			height: 150,
+
+		expect( findClosestImageSize( srcset, 1380 ) ).toEqual( {
+			url: srcset[2].split(' ')[0],
+			width: 1400,
+			height: 700,
 		} );
 	} );
 
-	it( 'should return undefined when the target width is smaller than the smallest image width', () => {
-		expect( findClosestImageSize( urls, 50 ) ).toBeUndefined();
-	} );
+	it("shouldn't find closest image if the closest image isn't close enough in size", () => {
+		expect( findClosestImageSize( srcset, 50 ) ).toBeUndefined();
+		expect( findClosestImageSize( srcset, 110 ) ).toBeUndefined();
+		expect( findClosestImageSize( srcset, 1100 ) ).toBeUndefined();
+		expect( findClosestImageSize( srcset, 1350 ) ).toBeUndefined();
+	})
 } );
 
-function createImageSize( resize: string, mq: string, prevSize?: string ) {
-	const url = new URL( 'https://i0.wp.com/example.com/image.jpg' );
-	url.searchParams.set( 'resize', resize );
-	if ( prevSize ) {
-		url.searchParams.set( 'jb-lazy', prevSize );
-	}
-	return `${ url } ${ mq }`;
-}
 
-function setBoundingRect( img: HTMLImageElement, width: number, height: number ) {
-	Object.defineProperty( img, 'getBoundingClientRect', {
-		value: () => ( {
-			width,
-			height,
-			top: 0,
-			right: width,
-			bottom: height,
-			left: 0,
-		} ),
-		writable: true,
-	} );
-}
 
 describe( 'dynamicSrcset', () => {
 	let img: HTMLImageElement;
@@ -138,6 +158,16 @@ describe( 'dynamicSrcset', () => {
 			createImageSize( '400,250', `${ window.innerWidth * window.devicePixelRatio }w` )
 		);
 	} );
+
+	it( "shouldn't upscale the image when reusing an srcset entry", () => {
+		setBoundingRect( img, 420, 260 );
+		dynamicSrcset( img );
+		expect( img.srcset ).toContain(
+			createImageSize( '420,260', `${ window.innerWidth * window.devicePixelRatio }w` )
+		);
+	} );
+
+
 
 	it( 'should not update attributes if conditions are not met', () => {
 		const image = document.createElement( 'img' );
