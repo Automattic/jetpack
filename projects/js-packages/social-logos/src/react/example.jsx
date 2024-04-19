@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import SocialLogo from './social-logo';
 import { SocialLogoData } from './social-logo-data';
 import './example.css';
 
 /**
+ * An example React component that displays all the social logos.
  *
+ * @returns {React.Component} The `SocialLogosExample` component.
  */
 function SocialLogosExample() {
 	const [ useSmallIcons, setUseSmallIcons ] = useState( false );

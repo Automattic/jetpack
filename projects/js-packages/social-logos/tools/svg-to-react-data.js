@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 const svgDir = 'build/svg-clean';
 const destReactDir = 'build/react';
 const destDataFile = destReactDir + '/social-logo-data.jsx';
@@ -16,11 +17,11 @@ process.chdir( rootDir );
 /**
  * Transforms kebab case names to camel case
  * Legacy code with limited purpose.
- * @param name        - ex: foo-bar-baz
- * @returns {string}  ex: fooBarBaz
+ * @param {string} name - e.g.: foo-bar-baz
+ * @returns {string} e.g.: fooBarBaz
  */
 function kebabToCamelCase( name ) {
-	const KEBAB_REGEX = /\-(\w)/g;
+	const KEBAB_REGEX = /-(\w)/g;
 	return name.replace( KEBAB_REGEX, function replacer( match, capture ) {
 		return capture.toUpperCase();
 	} );
@@ -34,7 +35,7 @@ if ( ! fs.existsSync( destReactDir ) ) {
 let socialLogoData = `/** This is a generated file. Do not edit. */
 export const SocialLogoData = [`;
 
-files = glob.sync( svgDir + '/*.svg' );
+const files = glob.sync( svgDir + '/*.svg' );
 
 files.forEach( file => {
 	// Get logo name from SVG file

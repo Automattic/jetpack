@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 const svgDir = 'build/svg-clean';
 const srcSvgDir = 'src/svg';
 const codepointsFile = 'src/font/codepoints.json';
@@ -112,7 +113,7 @@ fontStream
 		fontBuffer = Buffer.concat( [ fontBuffer, data ] );
 	} )
 	.on( 'finish', async function () {
-		woff2Buffer = await svg2woff2( fontBuffer );
+		const woff2Buffer = await svg2woff2( fontBuffer );
 		generateCSS( woff2Buffer );
 		writeCodepoints();
 		console.log( `Created font files in '${ destFontDir }'.` );
