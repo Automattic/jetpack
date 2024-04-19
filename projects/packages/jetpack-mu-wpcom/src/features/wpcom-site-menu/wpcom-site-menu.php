@@ -9,7 +9,6 @@
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
-use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
 /**
@@ -133,24 +132,6 @@ function wpcom_add_wpcom_menu_item() {
 
 	add_submenu_page(
 		$parent_slug,
-		esc_attr__( 'Configuration', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Configuration', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/hosting-config/$domain" ),
-		null
-	);
-
-	add_submenu_page(
-		$parent_slug,
-		esc_attr__( 'Monitoring', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Monitoring', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/site-monitoring/$domain" ),
-		null
-	);
-
-	add_submenu_page(
-		$parent_slug,
 		esc_attr__( 'Connections', 'jetpack-mu-wpcom' ),
 		esc_attr__( 'Connections', 'jetpack-mu-wpcom' ),
 		'manage_options',
@@ -235,15 +216,6 @@ function wpcom_add_jetpack_menu_item() {
 	if ( ( new Status() )->is_offline_mode() || ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) {
 		return;
 	}
-
-	add_submenu_page(
-		'jetpack',
-		__( 'Monetize', 'jetpack-mu-wpcom' ),
-		__( 'Monetize', 'jetpack-mu-wpcom' ) . ' <span class="dashicons dashicons-external"></span>',
-		'manage_options',
-		esc_url( Redirect::get_url( 'calypso-monetize' ) ),
-		null
-	);
 }
 add_action( 'jetpack_admin_menu', 'wpcom_add_jetpack_menu_item' );
 
