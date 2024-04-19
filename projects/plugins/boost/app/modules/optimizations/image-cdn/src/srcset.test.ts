@@ -75,6 +75,10 @@ describe( 'findClosestImageSize', () => {
 	} );
 } );
 
+function createImageSize(width: number, height: number) {
+	return `https://i0.wp.com/example.com/image.jpg?resize=${width}%2C${height} ${width}w`;
+}
+
 describe( 'dynamicSrcset', () => {
 	let img: HTMLImageElement;
 	beforeEach( () => {
@@ -83,18 +87,33 @@ describe( 'dynamicSrcset', () => {
 		img = document.createElement( 'img' );
 		img.src = 'https://i0.wp.com/example.com/image.jpg';
 		const srcset = [
-			'https://i0.wp.com/example.com/image.jpg?resize=100,50 100w',
-			'https://i0.wp.com/example.com/image.jpg?resize=400,250 400w',
-			'https://i0.wp.com/example.com/image.jpg?resize=1400,700 1400w',
+			createImageSize(100, 50),
+			createImageSize(400, 250),
+			createImageSize(1400, 700),
 		];
 		img.srcset = srcset.join( ',' );
 		img.setAttribute( 'width', '1000' );
 		img.setAttribute( 'height', '500' );
+
+		// Mocking the bounding rect of the image
+		Object.defineProperty(img, 'getBoundingClientRect', {
+			value: () => ({
+				width: 1000,
+				height: 500,
+				top: 0,
+				right: 1000,
+				bottom: 500,
+				left: 0,
+			}),
+			writable: true,
+		});
 	} );
 
-	it( 'should update srcset and sizes attributes', () => {
+	it( 'srcset should include all original image sizes', () => {
 		dynamicSrcset( img );
-		expect( img.srcset ).toContain( 'https://i0.wp.com/example.com/image.jpg?resize=100,50' );
+		expect( img.srcset ).toContain( createImageSize(100, 50) );
+		expect( img.srcset ).toContain( createImageSize(400, 250) );
+		expect( img.srcset ).toContain( createImageSize(1400, 700) );
 		expect( img.sizes ).toBe( 'auto' );
 	} );
 

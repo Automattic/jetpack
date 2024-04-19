@@ -72,8 +72,8 @@ export function findClosestImageSize( urls: string[], targetWidth: number ): Ima
 
 function resizeImage( imageUrl: string, targetSize: Dimensions ): string {
 	const newUrl = new URL( imageUrl );
-	newUrl.searchParams.set( 'resize', `${ targetSize.width },${ targetSize.height }` );
-	newUrl.searchParams.set( 'jb-lazy', `${ targetSize.width },${ targetSize.height }` );
+	newUrl.searchParams.set( 'resize', `${ targetSize.width }%2C${ targetSize.height }` );
+	newUrl.searchParams.set( 'jb-lazy', `${ targetSize.width }%2C${ targetSize.height }` );
 	return newUrl.toString();
 }
 
@@ -82,8 +82,7 @@ export function dynamicSrcset( img: HTMLImageElement ) {
 		! img.getAttribute( 'width' ) ||
 		! img.getAttribute( 'height' ) ||
 		! img.srcset ||
-		! img.src.includes( '.wp.com' ) ||
-		! img.src.includes( 'resize=' )
+		! img.src.includes( '.wp.com' )
 	) {
 		return;
 	}
