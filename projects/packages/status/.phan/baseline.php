@@ -18,7 +18,6 @@ return [
     // PhanPluginSimplifyExpressionBool : 2 occurrences
     // PhanRedefineFunction : 2 occurrences
     // PhanUndeclaredClassInCallable : 2 occurrences
-    // PhanUndeclaredClassReference : 2 occurrences
     // PhanUndeclaredMethod : 2 occurrences
     // PhanDeprecatedFunction : 1 occurrence
     // PhanMisspelledAnnotation : 1 occurrence
@@ -30,6 +29,7 @@ return [
     // PhanTypeMismatchArgumentNullable : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanTypeMismatchReturnProbablyReal : 1 occurrence
+    // PhanUndeclaredClassReference : 1 occurrence
     // PhanUnextractableAnnotation : 1 occurrence
     // PhanUnextractableAnnotationSuffix : 1 occurrence
 
