@@ -29,10 +29,10 @@ export function getImageSizeFromUrl( url: string ): Dimensions | null {
 	return parseImageSize( resizeParam );
 }
 
-export function calculateTargetSize( rect: DOMRect ): Dimensions {
+export function calculateTargetSize( dimensions: Dimensions ): Dimensions {
 	const dpr = getDpr();
-	const ratio = rect.width / rect.height;
-	const targetWidth = Math.ceil( (rect.width * dpr) / 10 ) * 10;
+	const ratio = dimensions.width / dimensions.height;
+	const targetWidth = Math.ceil( (dimensions.width * dpr) / 10 ) * 10;
 	const targetHeight = Math.ceil( targetWidth / ratio );
 	return {
 		width: targetWidth,
