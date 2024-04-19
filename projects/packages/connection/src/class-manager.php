@@ -1952,7 +1952,9 @@ class Manager {
 			$url = add_query_arg( 'from', $from, $url );
 		}
 
-		$url = $raw ? esc_url_raw( $url ) : esc_url( $url );
+		if ( $raw ) {
+			$url = esc_url_raw( $url );
+		}
 
 		/**
 		 * Filter the URL used when connecting a user to a WordPress.com account.
