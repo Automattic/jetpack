@@ -1007,6 +1007,7 @@ final class ZeroBSCRM {
 		$this->urls['kb-mailpoet']              = 'https://kb.jetpackcrm.com/knowledge-base/mailpoet-crm-sync/';
 		$this->urls['kb-automations']           = 'https://kb.jetpackcrm.com/knowledge-base/automations/';
 		$this->urls['kb-contact-fields']        = 'https://kb.jetpackcrm.com/knowledge-base/contact-field-list/';
+		$this->urls['kb-pdf-custom-fonts']      = 'https://kb.jetpackcrm.com/knowledge-base/using-custom-fonts-in-crm-pdfs-e-g-invoice-templates/';
 
 		// coming soon
 		$this->urls['soon'] = 'https://jetpackcrm.com/coming-soon/';
