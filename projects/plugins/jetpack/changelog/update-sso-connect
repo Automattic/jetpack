@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Janitorial: deprecate methods in Jetpack class in favor of methods from the Connection package.
