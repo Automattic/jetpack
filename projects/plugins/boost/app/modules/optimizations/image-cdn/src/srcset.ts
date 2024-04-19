@@ -72,8 +72,8 @@ export function findClosestImageSize( urls: string[], targetWidth: number ): Ima
 
 function resizeImage( imageUrl: string, targetSize: Dimensions ): string {
 	const newUrl = new URL( imageUrl );
-	newUrl.searchParams.set( 'resize', `${ targetSize.width }%2C${ targetSize.height }` );
-	newUrl.searchParams.set( 'jb-lazy', `${ targetSize.width }%2C${ targetSize.height }` );
+	newUrl.searchParams.set( 'resize', `${ targetSize.width },${ targetSize.height }` );
+	newUrl.searchParams.set( 'jb-lazy', `${ targetSize.width },${ targetSize.height }` );
 	return newUrl.toString();
 }
 
@@ -96,7 +96,7 @@ export function dynamicSrcset( img: HTMLImageElement ) {
 	const closestImage = findClosestImageSize( urls, targetSize.width );
 	if ( closestImage ) {
 		const newUrl = resizeImage( img.src, targetSize );
-		srcset.push( newUrl );
+		srcset.push( `${ newUrl } ${ window.innerWidth * getDpr() }w` );
 		img.srcset = srcset.join( ',' );
 		img.sizes = 'auto';
 	}

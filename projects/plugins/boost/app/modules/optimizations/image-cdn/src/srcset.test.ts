@@ -75,50 +75,58 @@ describe( 'findClosestImageSize', () => {
 	} );
 } );
 
-function createImageSize(width: number, height: number) {
-	return `https://i0.wp.com/example.com/image.jpg?resize=${width}%2C${height} ${width}w`;
+function createImageSize( width: number, height: number ) {
+	return `https://i0.wp.com/example.com/image.jpg?resize=${ encodeURIComponent(
+		`${ width },${ height }`
+	) } ${ width }w`;
 }
 
-function setBoundingRect(img: HTMLImageElement, width: number, height: number) {
-	Object.defineProperty(img, 'getBoundingClientRect', {
-		value: () => ({
+function setBoundingRect( img: HTMLImageElement, width: number, height: number ) {
+	Object.defineProperty( img, 'getBoundingClientRect', {
+		value: () => ( {
 			width,
 			height,
 			top: 0,
 			right: width,
 			bottom: height,
 			left: 0,
-		}),
+		} ),
 		writable: true,
-	});
+	} );
 }
 
 describe( 'dynamicSrcset', () => {
 	let img: HTMLImageElement;
 	beforeEach( () => {
 		window.devicePixelRatio = 1;
-
+		window.innerWidth = 5000;
 		img = document.createElement( 'img' );
 		img.src = 'https://i0.wp.com/example.com/image.jpg';
 		const srcset = [
-			createImageSize(100, 50),
-			createImageSize(400, 250),
-			createImageSize(1400, 700),
+			createImageSize( 100, 50 ),
+			createImageSize( 400, 250 ),
+			createImageSize( 1400, 700 ),
 		];
 		img.srcset = srcset.join( ',' );
 		img.setAttribute( 'width', '1000' );
 		img.setAttribute( 'height', '500' );
 
 		// Mocking the bounding rect of the image
-		setBoundingRect(img, 1000, 500);
+		setBoundingRect( img, 1000, 500 );
 	} );
 
 	it( 'srcset should include all original image sizes', () => {
 		dynamicSrcset( img );
-		expect( img.srcset ).toContain( createImageSize(100, 50) );
-		expect( img.srcset ).toContain( createImageSize(400, 250) );
-		expect( img.srcset ).toContain( createImageSize(1400, 700) );
+		expect( img.srcset ).toContain( createImageSize( 100, 50 ) );
+		expect( img.srcset ).toContain( createImageSize( 400, 250 ) );
+		expect( img.srcset ).toContain( createImageSize( 1400, 700 ) );
 		expect( img.sizes ).toBe( 'auto' );
+	} );
+
+	it( 'should create a new srcset entry for the target size', () => {
+		dynamicSrcset( img );
+		expect( img.srcset ).toContain( encodeURIComponent( `${ 1000 },${ 500 }` ) );
+		expect( img.srcset ).toContain( `${ window.innerWidth * window.devicePixelRatio }w` );
 	} );
 
 	it( 'should not update attributes if conditions are not met', () => {
