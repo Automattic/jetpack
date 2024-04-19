@@ -51,6 +51,8 @@ class Verbum_Gutenberg_Editor {
 
 	/**
 	 * Enqueue the assets for the Gutenberg editor
+	 *
+	 * In case the page is singular and has comment closed or front page with comments closed we avoid the enqueueing
 	 */
 	public function enqueue_assets() {
 		if (
