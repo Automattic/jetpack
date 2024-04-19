@@ -1842,8 +1842,8 @@ class Manager {
 	/**
 	 * Builds a URL to the Jetpack connection auth page.
 	 *
-	 * @param WP_User $user (optional) defaults to the current logged in user.
-	 * @param String  $redirect (optional) a redirect URL to use instead of the default.
+	 * @param WP_User|null $user (optional) defaults to the current logged in user.
+	 * @param string       $redirect (optional) a redirect URL to use instead of the default.
 	 * @return string Connect URL.
 	 */
 	public function get_authorization_url( $user = null, $redirect = null ) {

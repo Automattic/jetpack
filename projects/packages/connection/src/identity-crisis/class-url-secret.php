@@ -85,7 +85,7 @@ class URL_Secret {
 	public function create() {
 		$secret_data = array(
 			'secret'     => $this->generate_secret(),
-			'expires_at' => time() + static::LIFESPAN,
+			'expires_at' => strval( time() + static::LIFESPAN ),
 		);
 
 		$result = Jetpack_Options::update_option( static::OPTION_KEY, $secret_data );
@@ -140,22 +140,22 @@ class URL_Secret {
 	 * Generate secret for response.
 	 *
 	 * @param string $flow used to tell which flow generated the exception.
-	 * @return string
+	 * @return string|null
 	 */
 	public static function create_secret( $flow = 'generating_secret_failed' ) {
-		$secret = null;
+		$secret_value = null;
 		try {
 
 			$secret = new self();
 			$secret->create();
 
 			if ( $secret->exists() ) {
-				$secret = $secret->get_secret();
+				$secret_value = $secret->get_secret();
 			}
 		} catch ( Exception $e ) {
 			// Track the error and proceed.
 			( new Tracking() )->record_user_event( $flow, array( 'current_url' => Urls::site_url() ) );
 		}
-		return $secret;
+		return $secret_value;
 	}
 }

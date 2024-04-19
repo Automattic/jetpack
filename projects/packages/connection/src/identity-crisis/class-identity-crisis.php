@@ -324,10 +324,6 @@ class Identity_Crisis {
 	 * @return bool Whether the site is in an identity crisis.
 	 */
 	public function check_response_for_idc( $response ) {
-		if ( ! is_array( $response ) ) {
-			return false;
-		}
-
 		if ( is_array( $response ) && isset( $response['error_code'] ) ) {
 			$error_code              = $response['error_code'];
 			$allowed_idc_error_codes = array(
@@ -413,7 +409,6 @@ class Identity_Crisis {
 					$sync_error['wpcom_home'] === $local_options['home'] &&
 					$sync_error['wpcom_siteurl'] === $local_options['siteurl']
 				) {
-					$is_valid = false;
 					// Enable migrate_for_idc so that sync actions are accepted.
 					Jetpack_Options::update_option( 'migrate_for_idc', true );
 				} elseif ( $sync_error['home'] === $local_options['home'] && $sync_error['siteurl'] === $local_options['siteurl'] ) {
@@ -600,6 +595,7 @@ class Identity_Crisis {
 	/**
 	 * Renders the first step notice.
 	 *
+	 * @suppress PhanDeprecatedFunction
 	 * @deprecated  0.17.0 Use `@automattic/jetpack-idc` instead.
 	 * @return void
 	 */
@@ -645,6 +641,7 @@ class Identity_Crisis {
 	/**
 	 * Renders the second step notice.
 	 *
+	 * @suppress PhanDeprecatedFunction
 	 * @deprecated  0.17.0 Use `@automattic/jetpack-idc` instead.
 	 *
 	 * @return void
@@ -692,6 +689,7 @@ class Identity_Crisis {
 	/**
 	 * Returns the first step header lead.
 	 *
+	 * @suppress PhanDeprecatedFunction
 	 * @deprecated  0.17.0 Use `@automattic/jetpack-idc` instead.
 	 *
 	 * @return string
@@ -723,6 +721,7 @@ class Identity_Crisis {
 	/**
 	 * Returns the first step header explanation.
 	 *
+	 * @suppress PhanDeprecatedFunction
 	 * @deprecated since 0.17.0 Use `@automattic/jetpack-idc` instead.
 	 *
 	 * @return string
@@ -752,6 +751,7 @@ class Identity_Crisis {
 	/**
 	 * Returns the confirm safe mode explanation.
 	 *
+	 * @suppress PhanDeprecatedFunction
 	 * @deprecated since 0.17.0 Use `@automattic/jetpack-idc` instead.
 	 * @return string
 	 */
@@ -802,6 +802,7 @@ class Identity_Crisis {
 	/**
 	 * Returns the first step fix connection action explanation.
 	 *
+	 * @suppress PhanDeprecatedFunction
 	 * @deprecated since 0.17.0 Use `@automattic/jetpack-idc` instead.
 	 * @return string
 	 */
@@ -878,6 +879,7 @@ class Identity_Crisis {
 	/**
 	 * Returns the site action explanation.
 	 *
+	 * @suppress PhanDeprecatedFunction
 	 * @deprecated since 0.17.0 Use `@automattic/jetpack-idc` instead.
 	 * @return string
 	 */
@@ -930,6 +932,7 @@ class Identity_Crisis {
 	/**
 	 * Returns the start fresh explanation.
 	 *
+	 * @suppress PhanDeprecatedFunction
 	 * @deprecated since 0.17.0 Use `@automattic/jetpack-idc` instead.
 	 * @return string
 	 */
@@ -982,6 +985,7 @@ class Identity_Crisis {
 	/**
 	 * Returns the unsure prompt text.
 	 *
+	 * @suppress PhanDeprecatedFunction
 	 * @deprecated since 0.17.0 Use `@automattic/jetpack-idc` instead.
 	 * @return string
 	 */

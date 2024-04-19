@@ -564,7 +564,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 	/**
 	 * Data provider for test_check_response_for_idc_with_error_code
 	 *
-	 * @return The test data with the structure:
+	 * @return array The test data with the structure:
 	 *    'input'           => The input for the check_response_for_idc method.
 	 *     'option_updated' => Whether the check_response_for_idc method should update
 	 *                         the sync_error_idc option.
@@ -668,7 +668,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 	/**
 	 * Data provider for test_check_http_response_for_idc_detected_idc_detected.
 	 *
-	 * @return The test data with the structure:
+	 * @return array The test data with the structure:
 	 *    'input'           => The input for the check_response_for_idc method.
 	 *     'option_updated' => Whether the check_response_for_idc method should update
 	 *                         the sync_error_idc option.
@@ -932,7 +932,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 	 * Clean up the settings from the check_identity_crisis_return_error method.
 	 */
 	private function clean_up_check_identity_crisis_return_error() {
-		\Jetpack_Options::delete_option( 'id', 'test' );
+		\Jetpack_Options::delete_option( 'id' );
 		\Jetpack_Options::update_option( 'blog_token', 'test' );
 		remove_filter( 'jetpack_sync_error_idc_validation', '__return_true' );
 		delete_option( 'jetpack_sync_error_idc' );
