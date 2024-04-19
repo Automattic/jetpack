@@ -18,6 +18,7 @@ import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import { TierProp } from '../../../../store/wordpress-com/types';
 import FeaturedImage from '../featured-image';
 import Proofread from '../proofread';
+import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
 import { USAGE_PANEL_PLACEMENT_JETPACK_SIDEBAR } from '../usage-panel/types';
 import './style.scss';
@@ -31,6 +32,10 @@ const isUsagePanelAvailable =
 const isAIFeaturedImageAvailable =
 	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'ai-featured-image-generator' ]
 		?.available || false;
+// Determine if the AI Title Optimization feature is available
+const isAITitleOptimizationAvailable =
+	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'ai-title-optimization' ]?.available ||
+	false;
 
 const Upgrade = ( {
 	onClick,
@@ -112,6 +117,13 @@ export default function AiAssistantPluginSidebar() {
 						isOpen && panelToggleTracker( 'jetpack-sidebar' );
 					} }
 				>
+					{ isAITitleOptimizationAvailable && (
+						<PanelRow className="jetpack-ai-title-optimization__header">
+							<BaseControl label={ __( 'Optimize Publishing', 'jetpack' ) }>
+								<TitleOptimization busy={ isRedirecting } disabled={ requireUpgrade } />
+							</BaseControl>
+						</PanelRow>
+					) }
 					<PanelRow className="jetpack-ai-proofread-control__header">
 						<BaseControl label={ __( 'AI feedback on post', 'jetpack' ) }>
 							<Proofread busy={ isRedirecting } disabled={ requireUpgrade } />
