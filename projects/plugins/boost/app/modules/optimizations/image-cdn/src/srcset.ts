@@ -48,7 +48,11 @@ export function isSizeReusable( desiredWidth: number, existingWidth: number ) {
 	if ( diff < 0 ) {
 		return false;
 	}
-	return diff < 50 || desiredWidth / existingWidth > 1.1;
+	if( diff < 50 ) {
+		return true;
+	}
+	const ratio = desiredWidth / existingWidth;
+	return ratio > 0.9 && ratio <= 1;
 }
 
 export function findClosestImageSize( urls: string[], targetWidth: number ): ImageMeta | undefined {

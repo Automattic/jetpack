@@ -7,8 +7,6 @@ import {
 	parseImageSize,
 } from './srcset';
 
-
-
 function createImageSize( resize: string, mq: string, prevSize?: string ) {
 	const url = new URL( 'https://i0.wp.com/example.com/image.jpg' );
 	url.searchParams.set( 'resize', resize );
@@ -75,7 +73,7 @@ describe( 'calculateTargetSize', () => {
 		const ratio = 600 / 200;
 		const rect: DOMRect = {
 			width: 600 - 9,
-			height: (600 - 9) / ratio, // = 197px
+			height: ( 600 - 9 ) / ratio, // = 197px
 			x: 0,
 			y: 0,
 			top: 0,
@@ -87,33 +85,35 @@ describe( 'calculateTargetSize', () => {
 		window.devicePixelRatio = 1;
 		expect( calculateTargetSize( rect ) ).toEqual( {
 			width: 600,
-			height: Math.ceil(600 / ratio),
+			height: Math.ceil( 600 / ratio ),
 		} );
 
 		window.devicePixelRatio = 2;
 		expect( calculateTargetSize( rect ) ).toEqual( {
 			width: 1190,
-			height: Math.ceil(1190 / ratio),
+			height: Math.ceil( 1190 / ratio ),
 		} );
-	})
+	} );
 } );
 
-describe('isSizeReusable', () => {
-	it('should return true if the target width is close to the width', () => {
-		expect(isSizeReusable(100, 100)).toBe(true);
-		expect(isSizeReusable(90, 100)).toBe(true);
-		expect(isSizeReusable(51, 100)).toBe(true);
-		expect(isSizeReusable(50, 100)).toBe(false);
-		expect(isSizeReusable(101, 100)).toBe(false);
-		expect(isSizeReusable(150, 100)).toBe(false);
-	})
-})
+describe( 'isSizeReusable', () => {
+	it( 'should return true if the target width is close to the width', () => {
+		expect( isSizeReusable( 100, 100 ) ).toBe( true );
+		expect( isSizeReusable( 90, 100 ) ).toBe( true );
+		expect( isSizeReusable( 51, 100 ) ).toBe( true );
+		expect( isSizeReusable( 901, 1000 ) ).toBe( true );
+		expect( isSizeReusable( 50, 100 ) ).toBe( false );
+		expect( isSizeReusable( 101, 100 ) ).toBe( false );
+		expect( isSizeReusable( 150, 100 ) ).toBe( false );
+		expect( isSizeReusable( 900, 1000 ) ).toBe( false );
+	} );
+} );
 
 describe( 'findClosestImageSize', () => {
 	const srcset = [
-		createImageSize( '100,50', '100w' ),
-		createImageSize( '400,250', '400w' ),
-		createImageSize( '1400,700', '1400w' ),
+		createImageSize( '100,50', '200w' ),
+		createImageSize( '400,250', '800w' ),
+		createImageSize( '1400,700', '2400w' ),
 	];
 
 	it( 'should return undefined if the urls are invalid', () => {
@@ -122,27 +122,50 @@ describe( 'findClosestImageSize', () => {
 
 	it( "should find the closest image that's larger than the target width", () => {
 		expect( findClosestImageSize( srcset, 51 ) ).toEqual( {
-			url: srcset[0].split(' ')[0],
+			url: srcset[ 0 ].split( ' ' )[ 0 ],
 			width: 100,
 			height: 50,
 		} );
 
-		expect( findClosestImageSize( srcset, 1380 ) ).toEqual( {
-			url: srcset[2].split(' ')[0],
+		expect( findClosestImageSize( srcset, 1300 ) ).toEqual( {
+			url: srcset[ 2 ].split( ' ' )[ 0 ],
 			width: 1400,
 			height: 700,
 		} );
 	} );
 
-	it("shouldn't find closest image if the closest image isn't close enough in size", () => {
+	it( 'should find the closest image even if the srcset is unordered', () => {
+		const unorderedSrcset = [
+			createImageSize( '1400,700', '1400w' ),
+			createImageSize( '100,50', '100w' ),
+			createImageSize( '400,250', '400w' ),
+		];
+		expect( findClosestImageSize( unorderedSrcset, 1300 ) ).toEqual( {
+			url: unorderedSrcset[ 0 ].split( ' ' )[ 0 ],
+			width: 1400,
+			height: 700,
+		} );
+
+		expect( findClosestImageSize( unorderedSrcset, 51 ) ).toEqual( {
+			url: unorderedSrcset[ 1 ].split( ' ' )[ 0 ],
+			width: 100,
+			height: 50,
+		} );
+
+		expect( findClosestImageSize( unorderedSrcset, 351 ) ).toEqual( {
+			url: unorderedSrcset[ 2 ].split( ' ' )[ 0 ],
+			width: 400,
+			height: 250,
+		} );
+	} );
+
+	it( "shouldn't find closest image if the closest image isn't close enough in size", () => {
 		expect( findClosestImageSize( srcset, 50 ) ).toBeUndefined();
 		expect( findClosestImageSize( srcset, 110 ) ).toBeUndefined();
 		expect( findClosestImageSize( srcset, 1100 ) ).toBeUndefined();
-		expect( findClosestImageSize( srcset, 1350 ) ).toBeUndefined();
-	})
+		expect( findClosestImageSize( srcset, 1200 ) ).toBeUndefined();
+	} );
 } );
-
-
 
 describe( 'dynamicSrcset', () => {
 	let img: HTMLImageElement;
@@ -192,8 +215,6 @@ describe( 'dynamicSrcset', () => {
 			createImageSize( '420,260', `${ window.innerWidth * window.devicePixelRatio }w` )
 		);
 	} );
-
-
 
 	it( 'should not update attributes if conditions are not met', () => {
 		const image = document.createElement( 'img' );
