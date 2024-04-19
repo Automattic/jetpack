@@ -374,6 +374,18 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 										);
 										?>
 								</p>
+								<p>
+									<?php
+										echo wp_kses(
+											sprintf(
+												/* translators: %s is the URL of the CRM support doc explaining how to add styles to pdf templates. */
+												__( 'Once a new font is installed, <a href="%s" target="_blank">learn more about using the custom fonts in CRM PDFs here</a>.', 'zero-bs-crm' ),
+												esc_url( 'https://kb.jetpackcrm.com/knowledge-base/using-custom-fonts-in-crm-pdfs-e-g-invoice-templates' )
+											),
+											$zbs->acceptable_restricted_html
+										);
+										?>
+								</p>
 								<button type="submit" class="ui small green button"><?php esc_html_e( 'Install font', 'zero-bs-crm' ); ?></button>
 							</div>
 
