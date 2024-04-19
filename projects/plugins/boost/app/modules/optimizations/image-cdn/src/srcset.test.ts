@@ -54,7 +54,7 @@ describe( 'findClosestImageSize', () => {
 	];
 
 	it( 'should return null if the urls are invalid', () => {
-		expect( findClosestImageSize( ['foo.com', 'bar.com'], 500 ) ).toBeUndefined();
+		expect( findClosestImageSize( [ 'foo.com', 'bar.com' ], 500 ) ).toBeUndefined();
 	} );
 
 	it( 'should find the closest image size', () => {
@@ -78,21 +78,24 @@ describe( 'findClosestImageSize', () => {
 describe( 'dynamicSrcset', () => {
 	beforeEach( () => {
 		window.devicePixelRatio = 1;
-	} );
 
-	it( 'should update srcset and sizes attributes', () => {
 		const img = document.createElement( 'img' );
 		img.src = 'https://i0.wp.com/example.com/image.jpg?resize=100,50';
 		img.srcset = 'https://i0.wp.com/example.com/image.jpg?resize=100,50 100w';
 		img.setAttribute( 'width', '100' );
 		img.setAttribute( 'height', '50' );
 		document.body.appendChild( img );
+	} );
 
+	afterEach( () => {
+		document.body.removeChild( document.querySelector( 'img' )! );
+	} );
+
+	it( 'should update srcset and sizes attributes', () => {
+		const img = document.querySelector( 'img' )!;
 		dynamicSrcset( img );
 		expect( img.srcset ).toContain( 'https://i0.wp.com/example.com/image.jpg?resize=100,50' );
 		expect( img.sizes ).toBe( 'auto' );
-
-		document.body.removeChild( img );
 	} );
 
 	it( 'should not update attributes if conditions are not met', () => {
