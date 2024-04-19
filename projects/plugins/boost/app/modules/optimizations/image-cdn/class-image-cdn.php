@@ -16,8 +16,10 @@ class Image_CDN implements Pluggable, Changes_Page_Output, Optimization {
 		if ( Premium_Features::has_feature( Premium_Features::IMAGE_CDN_QUALITY ) ) {
 			add_filter( 'jetpack_photon_pre_args', array( $this, 'add_quality_args' ), 10, 2 );
 		}
-
-		add_action( 'wp_footer', array( $this, 'inject_image_cdn_liar_script' ) );
+		$image_cdn_liar = jetpack_boost_ds_get( 'image_cdn_liar' );
+		if ( $image_cdn_liar ) {
+			add_action( 'wp_footer', array( $this, 'inject_image_cdn_liar_script' ) );
+		}
 	}
 
 	public static function get_slug() {
