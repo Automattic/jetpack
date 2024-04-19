@@ -12,10 +12,10 @@ return [
     // PhanTypeExpectedObjectPropAccess : 3 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 2 occurrences
     // PhanTypeMismatchReturn : 2 occurrences
+    // PhanUndeclaredMethod : 2 occurrences
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanTypeInvalidDimOffset : 1 occurrence
     // PhanTypeMismatchArgument : 1 occurrence
-    // PhanUndeclaredMethod : 1 occurrence
     // PhanUnreferencedUseNormal : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
