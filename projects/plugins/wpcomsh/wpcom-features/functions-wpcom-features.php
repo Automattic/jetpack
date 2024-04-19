@@ -162,6 +162,12 @@ function _wpcom_features_get_simple_site_purchases( $blog_id ) {
 		$blog_id = _wpcom_get_current_blog_id();
 	}
 
+	// Optional skip, used for suspended/spam/deleted sites.
+	$skip_purchase_lookup = apply_filters( 'wpcom_simple_skip_purchase_lookup', false, $blog_id );
+	if ( $skip_purchase_lookup ) {
+		return array();
+	}
+
 	// 'site_purchases' belong to $global_groups in ./wp-content/object-cache.php
 	$wp_cache_group = 'site_purchases';
 	$wp_cache_found = false;
@@ -185,7 +191,7 @@ function _wpcom_features_get_simple_site_purchases( $blog_id ) {
 	$purchases = $wpdb->get_results(
 		$wpdb->prepare(
 			"
-					SELECT
+					SELECT 
 					    product.product_slug,
 					    product.product_id,
 					    product.billing_product_id,
