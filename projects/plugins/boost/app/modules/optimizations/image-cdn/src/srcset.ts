@@ -32,7 +32,7 @@ export function getImageSizeFromUrl( url: string ): Dimensions | null {
 export function calculateTargetSize( dimensions: Dimensions ): Dimensions {
 	const dpr = getDpr();
 	const ratio = dimensions.width / dimensions.height;
-	const targetWidth = Math.ceil( (dimensions.width * dpr) / 10 ) * 10;
+	const targetWidth = Math.ceil( ( dimensions.width * dpr ) / 10 ) * 10;
 	const targetHeight = Math.ceil( targetWidth / ratio );
 	return {
 		width: targetWidth,
@@ -48,7 +48,7 @@ export function isSizeReusable( desiredWidth: number, existingWidth: number ) {
 	if ( diff < 0 ) {
 		return false;
 	}
-	if( diff < 50 ) {
+	if ( diff < 50 ) {
 		return true;
 	}
 	const ratio = desiredWidth / existingWidth;
@@ -68,7 +68,7 @@ export function findClosestImageSize( urls: string[], targetWidth: number ): Ima
 		}
 
 		if ( isSizeReusable( targetWidth, imageSize.width ) ) {
-			return { url: new URL(url), ...imageSize };
+			return { url: new URL( url ), ...imageSize };
 		}
 	}
 
@@ -96,16 +96,16 @@ export function dynamicSrcset( img: HTMLImageElement ) {
 	const targetSize = calculateTargetSize( rect );
 
 	const srcset = img.srcset.split( ',' );
-	const closestImage = findClosestImageSize( [`${img.src} 0w`, ...srcset], targetSize.width );
+	const closestImage = findClosestImageSize( [ `${ img.src } 0w`, ...srcset ], targetSize.width );
 
 	if ( closestImage ) {
-		closestImage.url.searchParams.set('_jb', '2');
+		closestImage.url.searchParams.set( '_jb', '2' );
 		srcset.push( `${ closestImage.url } ${ window.innerWidth * getDpr() }w` );
 		img.srcset = srcset.join( ',' );
 		img.sizes = 'auto';
 	} else {
 		const newUrl = resizeImage( img.src, targetSize );
-		newUrl.searchParams.set('_jb', '1');
+		newUrl.searchParams.set( '_jb', '1' );
 		srcset.push( `${ newUrl } ${ window.innerWidth * getDpr() }w` );
 		img.srcset = srcset.join( ',' );
 		img.sizes = 'auto';

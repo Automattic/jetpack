@@ -264,16 +264,19 @@ describe( 'dynamicSrcset', () => {
 		} );
 	} );
 
-
 	it( 'should reuse existing src image if the target size is close enough', () => {
 		window.innerWidth = 5000;
 		window.devicePixelRatio = 1;
 		setBoundingRect( img, 4400, 2200 );
 		untrackedDynamicSrcset( img );
-		expect( img.srcset ).toContain( `https://i0.wp.com/example.com/image.jpg?resize=4444%2C2222 5000w` );
+		expect( img.srcset ).toContain(
+			`https://i0.wp.com/example.com/image.jpg?resize=4444%2C2222 5000w`
+		);
 		window.devicePixelRatio = 1.5;
 		untrackedDynamicSrcset( img );
-		expect( img.srcset ).toContain( `https://i0.wp.com/example.com/image.jpg?resize=6600%2C3300 7500w` );
+		expect( img.srcset ).toContain(
+			`https://i0.wp.com/example.com/image.jpg?resize=6600%2C3300 7500w`
+		);
 	} );
 
 	it( 'should reuse existing src image after accounting for DPR > 1', () => {
@@ -292,11 +295,14 @@ describe( 'dynamicSrcset', () => {
 		img.srcset = srcset.join( ',' );
 		setBoundingRect( img, 460, 230 );
 		untrackedDynamicSrcset( img );
-		expect( img.srcset ).toContain( `https://i0.wp.com/example.com/image.jpg?resize=1400%2C700 15000w` );
+		expect( img.srcset ).toContain(
+			`https://i0.wp.com/example.com/image.jpg?resize=1400%2C700 15000w`
+		);
 
-		setBoundingRect(img, 500, 250);
+		setBoundingRect( img, 500, 250 );
 		untrackedDynamicSrcset( img );
-		expect( img.srcset ).toContain( `https://i0.wp.com/example.com/image.jpg?resize=1500%2C750 15000w` );
-	});
-
+		expect( img.srcset ).toContain(
+			`https://i0.wp.com/example.com/image.jpg?resize=1500%2C750 15000w`
+		);
+	} );
 } );

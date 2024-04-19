@@ -5,25 +5,37 @@ import { z } from 'zod';
 import styles from '../../../pages/index/index.module.scss';
 
 export default function ImageCdnLiar() {
-	const [ imageCdnLiar, setImageCdnLiar ] = useDataSync( 'jetpack_boost_ds', 'image_cdn_liar', z.boolean().catch(false) );
+	const [ imageCdnLiar, setImageCdnLiar ] = useDataSync(
+		'jetpack_boost_ds',
+		'image_cdn_liar',
+		z.boolean().catch( false )
+	);
 
 	return (
 		<>
-			<div style={{
-				marginBottom: '10px'
-			}}>
-				<span style={{
-					fontWeight: 'bold',
-				}}
+			<div
+				style={ {
+					marginBottom: '10px',
+				} }
 			>
-				{ __( 'Auto-Resize Lazy Images', 'jetpack-boost' ) }
+				<span
+					style={ {
+						fontWeight: 'bold',
+					} }
+				>
+					{ __( 'Auto-Resize Lazy Images', 'jetpack-boost' ) }
 				</span>
-				<span style={{ position: 'relative', top: '4px' }} className={ styles.beta }>Beta</span>
+				<span style={ { position: 'relative', top: '4px' } } className={ styles.beta }>
+					Beta
+				</span>
 			</div>
 			<ToggleControl
-				label={ __( 'Automatically resize images that are lazily loaded to fit the exact dimensions they occupy on the page.', 'jetpack-boost' ) }
+				label={ __(
+					'Automatically resize images that are lazily loaded to fit the exact dimensions they occupy on the page.',
+					'jetpack-boost'
+				) }
 				checked={ imageCdnLiar.data }
-				onChange={ (value) => setImageCdnLiar.mutate(value) }
+				onChange={ value => setImageCdnLiar.mutate( value ) }
 			/>
 		</>
 	);
