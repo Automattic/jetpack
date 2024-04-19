@@ -829,7 +829,7 @@ class Jetpack {
 		add_filter( 'jetpack_client_authorize_fallback_url', array( Jetpack_Client_Server::class, 'client_authorize_fallback_url' ) );
 
 		// Filters for the Manager::get_token() urls and request body.
-		add_filter( 'jetpack_token_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
+		add_filter( 'jetpack_token_redirect_url', array( Authorize_Redirect::class, 'filter_connect_redirect_url' ) );
 		add_filter( 'jetpack_token_request_body', array( __CLASS__, 'filter_token_request_body' ) );
 
 		// Filter for the `jetpack/v4/connection/data` API response.
