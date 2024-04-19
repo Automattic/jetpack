@@ -1740,6 +1740,15 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
+      '@babel/core':
+        specifier: 7.24.0
+        version: 7.24.0
+      '@babel/preset-env':
+        specifier: 7.24.0
+        version: 7.24.0(@babel/core@7.24.0)
+      '@babel/runtime':
+        specifier: 7.24.0
+        version: 7.24.0
       '@wordpress/browserslist-config':
         specifier: 5.38.0
         version: 5.38.0
