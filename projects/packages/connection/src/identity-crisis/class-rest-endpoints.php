@@ -14,8 +14,6 @@ use Jetpack_XMLRPC_Server;
 use WP_Error;
 use WP_REST_Server;
 
-// phpcs:disable WordPress.WP.I18n.TextDomainMismatch -- Keeping the old 'jetpack-idc' text domain to preserve the translations.
-
 /**
  * This class will handle Identity Crisis Endpoints
  *

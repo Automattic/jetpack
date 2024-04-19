@@ -15,8 +15,6 @@ use Automattic\Jetpack\IdentityCrisis\URL_Secret;
 use Jetpack_Options;
 use WP_Error;
 
-// phpcs:disable WordPress.WP.I18n.TextDomainMismatch -- Keeping the old 'jetpack-idc' text domain to preserve the translations.
-
 /**
  * This class will handle everything involved with fixing an Identity Crisis.
  *

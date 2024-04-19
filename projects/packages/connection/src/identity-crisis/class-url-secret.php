@@ -11,8 +11,6 @@ use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
 
-// phpcs:disable WordPress.WP.I18n.TextDomainMismatch -- Keeping the old 'jetpack-idc' text domain to preserve the translations.
-
 /**
  * IDC URL secret functionality.
  * A short-lived secret used to verify whether an IDC is coming from the same vs a different Jetpack site.
