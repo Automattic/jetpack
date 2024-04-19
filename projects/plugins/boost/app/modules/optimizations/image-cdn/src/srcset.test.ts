@@ -81,10 +81,15 @@ describe( 'dynamicSrcset', () => {
 		window.devicePixelRatio = 1;
 
 		img = document.createElement( 'img' );
-		img.src = 'https://i0.wp.com/example.com/image.jpg?resize=100,50';
-		img.srcset = 'https://i0.wp.com/example.com/image.jpg?resize=100,50 100w';
-		img.setAttribute( 'width', '100' );
-		img.setAttribute( 'height', '50' );
+		img.src = 'https://i0.wp.com/example.com/image.jpg';
+		const srcset = [
+			'https://i0.wp.com/example.com/image.jpg?resize=100,50 100w',
+			'https://i0.wp.com/example.com/image.jpg?resize=400,250 400w',
+			'https://i0.wp.com/example.com/image.jpg?resize=1400,700 1400w',
+		];
+		img.srcset = srcset.join( ',' );
+		img.setAttribute( 'width', '1000' );
+		img.setAttribute( 'height', '500' );
 	} );
 
 	it( 'should update srcset and sizes attributes', () => {
