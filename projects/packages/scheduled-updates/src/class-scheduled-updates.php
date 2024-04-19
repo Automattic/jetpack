@@ -30,6 +30,11 @@ class Scheduled_Updates {
 	const PLUGIN_CRON_HOOK = 'jetpack_scheduled_plugins_update';
 
 	/**
+	 * The name of the WordPress option where the health check paths are stored.
+	 */
+	const PATHS_OPTION_NAME = 'jetpack_scheduled_update_health_check_paths';
+
+	/**
 	 * Initialize the class.
 	 */
 	public static function init() {
@@ -124,8 +129,9 @@ class Scheduled_Updates {
 			'2',
 			array( 'method' => 'POST' ),
 			array(
-				'plugins'     => $plugins_to_update,
-				'schedule_id' => $schedule_id,
+				'health_check_paths' => self::get_scheduled_update_health_check_paths( $schedule_id ),
+				'plugins'            => $plugins_to_update,
+				'schedule_id'        => $schedule_id,
 			),
 			'wpcom'
 		);
@@ -155,6 +161,32 @@ class Scheduled_Updates {
 		self::clear_cron_cache();
 
 		return wp_unschedule_event( $timestamp, self::PLUGIN_CRON_HOOK, $plugins, true );
+	}
+
+	/**
+	 * Update the health check paths.
+	 *
+	 * @param string $schedule_id Request ID.
+	 * @param array  $paths       List of paths to save.
+	 * @return bool
+	 */
+	public static function update_health_paths( $schedule_id, $paths ) {
+		$option       = get_option( self::PATHS_OPTION_NAME, array() );
+		$parsed_paths = array();
+
+		foreach ( $paths as $path ) {
+			$parsed = wp_parse_url( $path, PHP_URL_PATH );
+
+			if ( is_string( $parsed ) ) {
+				$parsed_paths[] = $parsed;
+			}
+		}
+
+		if ( count( $parsed_paths ) ) {
+			$option[ $schedule_id ] = $parsed_paths;
+		}
+
+		return update_option( self::PATHS_OPTION_NAME, $option );
 	}
 
 	/**
@@ -229,6 +261,18 @@ class Scheduled_Updates {
 	 */
 	public static function get_scheduled_update_status( $schedule_id ) {
 		return Scheduled_Updates_Logs::infer_status_from_logs( $schedule_id );
+	}
+
+	/**
+	 * Get the health check paths for a scheduled update.
+	 *
+	 * @param string $schedule_id Request ID.
+	 * @return array List of health check paths.
+	 */
+	public static function get_scheduled_update_health_check_paths( $schedule_id ) {
+		$option = get_option( self::PATHS_OPTION_NAME, array() );
+
+		return $option[ $schedule_id ] ?? array();
 	}
 
 	/**
