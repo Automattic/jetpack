@@ -82,6 +82,7 @@ export function dynamicSrcset( img: HTMLImageElement ) {
 		! img.getAttribute( 'width' ) ||
 		! img.getAttribute( 'height' ) ||
 		! img.srcset ||
+		! img.src ||
 		! img.src.includes( '.wp.com' )
 	) {
 		return;
@@ -97,7 +98,7 @@ export function dynamicSrcset( img: HTMLImageElement ) {
 		srcset.push( `${ closestImage.url } ${ window.innerWidth * getDpr() }w` );
 		img.srcset = srcset.join( ',' );
 		img.sizes = 'auto';
-	} else if ( img.src ) {
+	} else {
 		const newUrl = resizeImage( img.src, targetSize );
 		srcset.push( `${ newUrl } ${ window.innerWidth * getDpr() }w` );
 		img.srcset = srcset.join( ',' );
