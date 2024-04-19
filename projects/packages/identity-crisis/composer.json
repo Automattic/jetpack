@@ -5,16 +5,10 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=7.0",
-		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-constants": "@dev",
-		"automattic/jetpack-status": "@dev",
-		"automattic/jetpack-logo": "@dev",
-		"automattic/jetpack-assets": "@dev"
+		"automattic/jetpack-connection": "@dev"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev",
-		"yoast/phpunit-polyfills": "1.1.0",
-		"automattic/wordbless": "@dev"
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -22,26 +16,6 @@
 	"autoload": {
 		"classmap": [
 			"src/"
-		]
-	},
-	"scripts": {
-		"build-development": [
-			"pnpm run build"
-		],
-		"build-production": [
-			"NODE_ENV='production' pnpm run build"
-		],
-		"phpunit": [
-			"./vendor/phpunit/phpunit/phpunit --colors=always"
-		],
-		"test-php": [
-			"@composer phpunit"
-		],
-		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"watch": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm run watch"
 		]
 	},
 	"repositories": [
