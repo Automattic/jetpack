@@ -15,6 +15,8 @@ add_action(
 		* based on specific conditions or requirements. By default, the module will
 		* load normally. If the filter returns true, the module will be skipped.
 		*
+		* @module google-fonts
+		*
 		* @since $$next-version$$
 		*
 		* @param bool $skip Whether to skip loading the Jetpack Google Fonts module. Default false.
