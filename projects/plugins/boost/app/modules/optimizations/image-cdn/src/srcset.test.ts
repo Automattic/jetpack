@@ -125,13 +125,13 @@ describe( 'findClosestImageSize', () => {
 
 	it( "should find the closest image that's larger than the target width", () => {
 		expect( findClosestImageSize( srcset, 51 ) ).toEqual( {
-			url: srcset[ 0 ].split( ' ' )[ 0 ],
+			url: new URL( srcset[ 0 ].split( ' ' )[ 0 ] ),
 			width: 100,
 			height: 50,
 		} );
 
 		expect( findClosestImageSize( srcset, 1300 ) ).toEqual( {
-			url: srcset[ 2 ].split( ' ' )[ 0 ],
+			url: new URL( srcset[ 2 ].split( ' ' )[ 0 ] ),
 			width: 1400,
 			height: 700,
 		} );
@@ -144,19 +144,19 @@ describe( 'findClosestImageSize', () => {
 			createImageSize( '400,250', '400w' ),
 		];
 		expect( findClosestImageSize( unorderedSrcset, 1300 ) ).toEqual( {
-			url: unorderedSrcset[ 0 ].split( ' ' )[ 0 ],
+			url: new URL( unorderedSrcset[ 0 ].split( ' ' )[ 0 ] ),
 			width: 1400,
 			height: 700,
 		} );
 
 		expect( findClosestImageSize( unorderedSrcset, 51 ) ).toEqual( {
-			url: unorderedSrcset[ 1 ].split( ' ' )[ 0 ],
+			url: new URL( unorderedSrcset[ 1 ].split( ' ' )[ 0 ] ),
 			width: 100,
 			height: 50,
 		} );
 
 		expect( findClosestImageSize( unorderedSrcset, 351 ) ).toEqual( {
-			url: unorderedSrcset[ 2 ].split( ' ' )[ 0 ],
+			url: new URL( unorderedSrcset[ 2 ].split( ' ' )[ 0 ] ),
 			width: 400,
 			height: 250,
 		} );
@@ -170,6 +170,11 @@ describe( 'findClosestImageSize', () => {
 	} );
 } );
 
+function untrackedDynamicSrcset( img: HTMLImageElement ) {
+	dynamicSrcset( img );
+	img.srcset = img.srcset.replaceAll( /&_jb=[0-9]/gim, '' );
+}
+
 describe( 'dynamicSrcset', () => {
 	let img: HTMLImageElement;
 
@@ -179,20 +184,23 @@ describe( 'dynamicSrcset', () => {
 		const manualValidationImg = document.createElement( 'img' );
 
 		manualValidationImg.setAttribute( 'src', 'https://i0.wp.com/example.com/image.jpg' );
-		manualValidationImg.setAttribute( 'srcset', `https://i0.wp.com/example.com/image.jpg?resize=100%2C200 1000w, https://i0.wp.com/example.com/image.jpg?resize=400%2C200 400w, https://i0.wp.com/example.com/image.jpg?resize=1400%2C700 1400w` );
+		manualValidationImg.setAttribute(
+			'srcset',
+			`https://i0.wp.com/example.com/image.jpg?resize=100%2C200 1000w, https://i0.wp.com/example.com/image.jpg?resize=400%2C200 400w, https://i0.wp.com/example.com/image.jpg?resize=1400%2C700 1400w`
+		);
 		manualValidationImg.setAttribute( 'width', '800' );
 		manualValidationImg.setAttribute( 'height', '400' );
 		setBoundingRect( manualValidationImg, 800, 400 );
 
-		dynamicSrcset( manualValidationImg );
+		untrackedDynamicSrcset( manualValidationImg );
 		expect( manualValidationImg.srcset ).toContain(
 			`https://i0.wp.com/example.com/image.jpg?resize=800%2C400 9999w`
 		);
 
 		window.devicePixelRatio = 2;
-		dynamicSrcset( manualValidationImg );
+		untrackedDynamicSrcset( manualValidationImg );
 		expect( manualValidationImg.srcset ).toContain(
-			`https://i0.wp.com/example.com/image.jpg?resize=1600%2C800 9999w`
+			`https://i0.wp.com/example.com/image.jpg?resize=1600%2C800 19998w`
 		);
 	} );
 
@@ -205,7 +213,7 @@ describe( 'dynamicSrcset', () => {
 				window.devicePixelRatio = devicePixelRatio;
 				window.innerWidth = 5000;
 				img = document.createElement( 'img' );
-				img.src = 'https://i0.wp.com/example.com/image.jpg';
+				img.src = 'https://i0.wp.com/example.com/image.jpg?resize=640,360';
 				const srcset = [
 					createImageSize( '100,50', '100w' ),
 					createImageSize( '400,250', '400w' ),
@@ -221,26 +229,26 @@ describe( 'dynamicSrcset', () => {
 			} );
 
 			it( 'srcset should include all original image sizes', () => {
-				dynamicSrcset( img );
+				untrackedDynamicSrcset( img );
 				expect( img.srcset ).toContain( createImageSize( '100,50', '100w' ) );
 				expect( img.srcset ).toContain( createImageSize( '400,250', '400w' ) );
 				expect( img.srcset ).toContain( createImageSize( '1400,700', '1400w' ) );
 			} );
 
 			it( 'should create a new srcset entry for the target size', () => {
-				dynamicSrcset( img );
+				untrackedDynamicSrcset( img );
 				expect( img.srcset ).toContain( createImageSize( '1000,500', w( window.innerWidth ) ) );
 			} );
 
 			it( 'should reuse existing srcset entry if the target size is close enough', () => {
 				setBoundingRect( img, 396, 248 );
-				dynamicSrcset( img );
+				untrackedDynamicSrcset( img );
 				expect( img.srcset ).toContain( createImageSize( '400,250', w( window.innerWidth ) ) );
 			} );
 
 			it( "shouldn't upscale the image when reusing an srcset entry", () => {
 				setBoundingRect( img, 420, 260 );
-				dynamicSrcset( img );
+				untrackedDynamicSrcset( img );
 				expect( img.srcset ).toContain( createImageSize( '420,260', w( window.innerWidth ) ) );
 			} );
 
@@ -248,11 +256,12 @@ describe( 'dynamicSrcset', () => {
 				const image = document.createElement( 'img' );
 				image.src = 'https://i0.wp.com/example.com/image.jpg';
 
-				dynamicSrcset( image );
+				untrackedDynamicSrcset( image );
 
 				expect( image.srcset ).toBe( '' );
 				expect( image.sizes ).toBe( '' );
 			} );
 		} );
 	} );
+
 } );
