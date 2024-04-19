@@ -29,9 +29,6 @@ type AIControlProps = {
 	promptUserInputRef?: React.MutableRefObject< HTMLInputElement >;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-const noop = () => {};
-
 /**
  * Base AIControl component. Contains the main structure of the control component and slots for banner, error, actions and message.
  *
@@ -44,7 +41,7 @@ export default function AIControl( {
 	placeholder = '',
 	isTransparent = false,
 	state = 'init',
-	onChange = noop,
+	onChange,
 	bannerComponent = null,
 	errorComponent = null,
 	actions = null,

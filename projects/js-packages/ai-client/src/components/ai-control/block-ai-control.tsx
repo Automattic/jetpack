@@ -48,9 +48,6 @@ type BlockAIControlProps = {
 	errorComponent?: ReactElement;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-const noop = () => {};
-
 const debug = debugFactory( 'jetpack-ai-client:ai-control' );
 
 /**
@@ -72,11 +69,11 @@ export function BlockAIControl(
 		state = 'init',
 		showGuideLine = false,
 		customFooter = null,
-		onChange = noop,
-		onSend = noop,
-		onStop = noop,
-		onAccept = noop,
-		onDiscard = null,
+		onChange,
+		onSend,
+		onStop,
+		onAccept,
+		onDiscard,
 		showRemove = false,
 		bannerComponent = null,
 		errorComponent = null,
@@ -127,7 +124,7 @@ export function BlockAIControl(
 
 	const cancelEdit = useCallback( () => {
 		debug( 'cancelEdit, revert to last value', lastValue );
-		onChange( lastValue || '' );
+		onChange?.( lastValue || '' );
 		setEditRequest( false );
 	}, [ onChange, lastValue ] );
 

@@ -38,9 +38,6 @@ type ExtensionAIControlProps = {
 	onUpgrade?: () => void;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-const noop = () => {};
-
 /**
  * ExtensionAIControl component. Used by the AI Assistant inline extensions, adding logic and components to the base AIControl component.
  *
@@ -60,12 +57,12 @@ export function ExtensionAIControl(
 		error,
 		requestsRemaining,
 		showUpgradeMessage = false,
-		onChange = noop,
-		onSend = noop,
-		onStop = noop,
-		onClose = noop,
-		onUndo = noop,
-		onUpgrade = noop,
+		onChange,
+		onSend,
+		onStop,
+		onClose,
+		onUndo,
+		onUpgrade,
 	}: ExtensionAIControlProps,
 	ref: React.MutableRefObject< HTMLInputElement >
 ): ReactElement {
