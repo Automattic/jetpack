@@ -24,7 +24,7 @@ return [
     // PhanTypeArraySuspiciousNullable : 5 occurrences
     // PhanTypeMismatchDefault : 5 occurrences
     // PhanTypeMismatchArgumentInternal : 4 occurrences
-    // PhanTypeMismatchArgumentNullable : 4 occurrences
+    // PhanTypeMismatchArgumentNullable : 3 occurrences
     // PhanTypeMismatchProperty : 3 occurrences
     // PhanTypeObjectUnsetDeclaredProperty : 3 occurrences
     // PhanUndeclaredTypeReturnType : 3 occurrences
@@ -79,7 +79,7 @@ return [
         'src/sso/class-helpers.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'src/sso/class-sso.php' => ['PhanNoopNew', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassMethod'],
         'src/sso/class-user-admin.php' => ['PhanPluginUnreachableCode', 'PhanTypeMismatchArgument'],
-        'src/webhooks/class-authorize-redirect.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchProperty', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredTypeProperty'],
+        'src/webhooks/class-authorize-redirect.php' => ['PhanTypeMismatchProperty', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredTypeProperty'],
         'tests/php/test-class-nonce-handler.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanTypeMismatchArgument'],
         'tests/php/test-class-plugin.php' => ['PhanUndeclaredTypeThrowsType'],
         'tests/php/test-class-webhooks.php' => ['PhanDeprecatedFunction', 'PhanUndeclaredTypeThrowsType'],
