@@ -276,4 +276,27 @@ describe( 'dynamicSrcset', () => {
 		expect( img.srcset ).toContain( `https://i0.wp.com/example.com/image.jpg?resize=6600%2C3300 7500w` );
 	} );
 
+	it( 'should reuse existing src image after accounting for DPR > 1', () => {
+		window.innerWidth = 5000;
+
+		window.devicePixelRatio = 1;
+		// Fixed DPR 1 sizes as they'd appear in DOM
+		const srcset = [
+			createImageSize( '100,50', '100w' ),
+			createImageSize( '400,250', '400w' ),
+			createImageSize( '1400,700', '1400w' ),
+		];
+
+		// Pretend this is a dense display rendering a small image
+		window.devicePixelRatio = 3;
+		img.srcset = srcset.join( ',' );
+		setBoundingRect( img, 460, 230 );
+		untrackedDynamicSrcset( img );
+		expect( img.srcset ).toContain( `https://i0.wp.com/example.com/image.jpg?resize=1400%2C700 15000w` );
+
+		setBoundingRect(img, 500, 250);
+		untrackedDynamicSrcset( img );
+		expect( img.srcset ).toContain( `https://i0.wp.com/example.com/image.jpg?resize=1500%2C750 15000w` );
+	});
+
 } );
