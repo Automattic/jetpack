@@ -643,8 +643,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		// Get the updated status
 		$updated_status = Scheduled_Updates::get_scheduled_update_status( $schedule_id );
-		if ( $updated_status === null ) {
-			$this->fail( 'Scheduled_Updates::get_scheduled_update_status() returned null.' );
+		if ( $updated_status === false ) {
+			$this->fail( 'Scheduled_Updates::get_scheduled_update_status() returned false.' );
 		} else {
 			$this->assertIsArray( $updated_status, 'Scheduled_Updates::get_scheduled_update_status() should return an array.' );
 			// doing these null checks for the static analyzer

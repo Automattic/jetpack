@@ -220,10 +220,10 @@ class Scheduled_Updates {
 	 * Get the last status of a scheduled update.
 	 *
 	 * @param string $schedule_id Request ID.
-	 * @return array|null Last status of the scheduled update or null if not found.
+	 * @return array|false Last status of the scheduled update or false if not found.
 	 */
 	public static function get_scheduled_update_status( $schedule_id ) {
-		return Scheduled_Updates_Logs::infer_status_from_logs( $schedule_id ) ?? null;
+		return Scheduled_Updates_Logs::infer_status_from_logs( $schedule_id );
 	}
 
 	/**
