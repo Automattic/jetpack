@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/social-logos",
-	"version": "2.5.9",
+	"version": "3.0.0-alpha",
 	"description": "A repository of all the social logos used on WordPress.com.",
 	"type": "module",
 	"main": "build/react/index.jsx",
