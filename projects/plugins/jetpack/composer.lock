@@ -457,7 +457,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/blaze",
-				"reference": "889ea6effa5f7942b2cb09b1f809b8645ba7ca30"
+				"reference": "792f0dabc3e885b741dc4313f953fe2f4c29e978"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -485,7 +485,7 @@
 					"link-template": "https://github.com/automattic/jetpack-blaze/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.20.x-dev"
+					"dev-trunk": "0.21.x-dev"
 				},
 				"textdomain": "jetpack-blaze",
 				"version-constants": {
