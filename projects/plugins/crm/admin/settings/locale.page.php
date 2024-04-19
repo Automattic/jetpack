@@ -367,7 +367,7 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 										echo wp_kses(
 											sprintf(
 												/* translators: %s is the URL of the CRM notifications page. */
-												__( 'If a font does not install, please  <a href="%s" >check your notifications</a> for any error messages. Note that some larger font files may take up to a minute to download.', 'zero-bs-crm' ),
+												__( 'If a font does not install, please <a href="%s" >check your notifications</a> for any error messages. Note that some larger font files may take up to a minute to download.', 'zero-bs-crm' ),
 												esc_url( get_site_url() . '/wp-admin/admin.php?page=zerobscrm-notifications' )
 											),
 											$zbs->acceptable_restricted_html
