@@ -96,7 +96,7 @@ export function dynamicSrcset( img: HTMLImageElement ) {
 	const targetSize = calculateTargetSize( rect );
 
 	const srcset = img.srcset.split( ',' );
-	const closestImage = findClosestImageSize( [img.src, ...srcset], targetSize.width );
+	const closestImage = findClosestImageSize( [`${img.src} 0w`, ...srcset], targetSize.width );
 
 	if ( closestImage ) {
 		closestImage.url.searchParams.set('_jb', '2');

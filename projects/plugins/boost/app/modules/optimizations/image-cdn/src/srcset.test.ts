@@ -213,7 +213,7 @@ describe( 'dynamicSrcset', () => {
 				window.devicePixelRatio = devicePixelRatio;
 				window.innerWidth = 5000;
 				img = document.createElement( 'img' );
-				img.src = 'https://i0.wp.com/example.com/image.jpg?resize=640,360';
+				img.src = 'https://i0.wp.com/example.com/image.jpg?resize=4444%2C2222';
 				const srcset = [
 					createImageSize( '100,50', '100w' ),
 					createImageSize( '400,250', '400w' ),
@@ -262,6 +262,18 @@ describe( 'dynamicSrcset', () => {
 				expect( image.sizes ).toBe( '' );
 			} );
 		} );
+	} );
+
+
+	it( 'should reuse existing src image if the target size is close enough', () => {
+		window.innerWidth = 5000;
+		window.devicePixelRatio = 1;
+		setBoundingRect( img, 4400, 2200 );
+		untrackedDynamicSrcset( img );
+		expect( img.srcset ).toContain( `https://i0.wp.com/example.com/image.jpg?resize=4444%2C2222 5000w` );
+		window.devicePixelRatio = 1.5;
+		untrackedDynamicSrcset( img );
+		expect( img.srcset ).toContain( `https://i0.wp.com/example.com/image.jpg?resize=6600%2C3300 7500w` );
 	} );
 
 } );
