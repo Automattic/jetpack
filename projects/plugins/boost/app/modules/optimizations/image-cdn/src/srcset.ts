@@ -4,7 +4,7 @@ type Dimensions = {
 };
 
 type ImageMeta = {
-	url: string;
+	url: URL;
 	width: number;
 	height: number;
 };
@@ -68,7 +68,7 @@ export function findClosestImageSize( urls: string[], targetWidth: number ): Ima
 		}
 
 		if ( isSizeReusable( targetWidth, imageSize.width ) ) {
-			return { url, ...imageSize };
+			return { url: new URL(url), ...imageSize };
 		}
 	}
 
