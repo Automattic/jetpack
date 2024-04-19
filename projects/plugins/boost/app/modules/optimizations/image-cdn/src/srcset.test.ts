@@ -131,7 +131,13 @@ describe( 'dynamicSrcset', () => {
 		expect( img.srcset ).toContain( createImageSize( '1000,500', '5000w' ) );
 	} );
 
-
+	it( 'should reuse existing srcset entry if the target size is close enough', () => {
+		setBoundingRect( img, 396, 248 );
+		dynamicSrcset( img );
+		expect( img.srcset ).toContain(
+			createImageSize( '400,250', `${ window.innerWidth * window.devicePixelRatio }w` )
+		);
+	} );
 
 	it( 'should not update attributes if conditions are not met', () => {
 		const image = document.createElement( 'img' );

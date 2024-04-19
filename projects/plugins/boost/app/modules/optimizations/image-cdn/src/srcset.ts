@@ -41,7 +41,7 @@ export function calculateTargetSize( rect: DOMRect ): Dimensions {
 }
 
 function isNearlySameSize( targetWidth: number, width: number ) {
-	return Math.abs( targetWidth - width ) < 50 || targetWidth / width < 0.1;
+	return Math.abs( targetWidth - width ) < 50 || Math.abs( targetWidth / width - 1 ) < 0.1;
 }
 
 export function findClosestImageSize( urls: string[], targetWidth: number ): ImageMeta | undefined {
@@ -58,12 +58,10 @@ export function findClosestImageSize( urls: string[], targetWidth: number ): Ima
 		}
 
 		const { width, height } = imageSize;
-		if ( targetWidth > width || ( closestImage?.width && width < closestImage.width ) ) {
-			closestImage = { url, width, height };
-		}
-
 		if ( isNearlySameSize( targetWidth, width ) ) {
 			return { url, width, height };
+		} else if ( targetWidth > width || ( closestImage?.width && width < closestImage.width ) ) {
+			closestImage = { url, width, height };
 		}
 	}
 
@@ -93,7 +91,11 @@ export function dynamicSrcset( img: HTMLImageElement ) {
 	const urls = [ `${ img.src } 0w`, ...srcset ];
 
 	const closestImage = findClosestImageSize( urls, targetSize.width );
-	if ( closestImage ) {
+	if ( closestImage && isNearlySameSize( targetSize.width, closestImage.width ) ) {
+		srcset.push( `${ closestImage.url } ${ window.innerWidth * getDpr() }w` );
+		img.srcset = srcset.join( ',' );
+		img.sizes = 'auto';
+	} else {
 		const newUrl = resizeImage( img.src, targetSize );
 		srcset.push( `${ newUrl } ${ window.innerWidth * getDpr() }w` );
 		img.srcset = srcset.join( ',' );
