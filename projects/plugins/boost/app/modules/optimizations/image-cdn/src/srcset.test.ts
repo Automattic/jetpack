@@ -7,12 +7,11 @@ import {
 	parseImageSize,
 } from './srcset';
 
-function createImageSize( resize: string, mq: string, prevSize?: string ) {
+function createImageSize( resize: string, mq: string ) {
 	const url = new URL( 'https://i0.wp.com/example.com/image.jpg' );
-	url.searchParams.set( 'resize', resize );
-	if ( prevSize ) {
-		url.searchParams.set( 'jb-lazy', prevSize );
-	}
+	const [ width, height ] = resize.split( ',' ).map( item => parseInt( item, 10 ) );
+	const size = calculateTargetSize( { width, height } );
+	url.searchParams.set( 'resize', `${ size.width },${ size.height }` );
 	return `${ url } ${ mq }`;
 }
 
@@ -110,6 +109,10 @@ describe( 'isSizeReusable', () => {
 } );
 
 describe( 'findClosestImageSize', () => {
+	beforeEach( () => {
+		window.devicePixelRatio = 1;
+	} );
+
 	const srcset = [
 		createImageSize( '100,50', '200w' ),
 		createImageSize( '400,250', '800w' ),
@@ -169,60 +172,87 @@ describe( 'findClosestImageSize', () => {
 
 describe( 'dynamicSrcset', () => {
 	let img: HTMLImageElement;
-	beforeEach( () => {
+
+	it( '[manual validation] should create a new srcset entry for the target size', () => {
+		window.innerWidth = 9999;
 		window.devicePixelRatio = 1;
-		window.innerWidth = 5000;
-		img = document.createElement( 'img' );
-		img.src = 'https://i0.wp.com/example.com/image.jpg';
-		const srcset = [
-			createImageSize( '100,50', '100w' ),
-			createImageSize( '400,250', '400w' ),
-			createImageSize( '1400,700', '1400w' ),
-		];
+		const manualValidationImg = document.createElement( 'img' );
 
-		img.srcset = srcset.join( ',' );
-		img.setAttribute( 'width', '1000' );
-		img.setAttribute( 'height', '500' );
+		manualValidationImg.setAttribute( 'src', 'https://i0.wp.com/example.com/image.jpg' );
+		manualValidationImg.setAttribute( 'srcset', `https://i0.wp.com/example.com/image.jpg?resize=100%2C200 1000w, https://i0.wp.com/example.com/image.jpg?resize=400%2C200 400w, https://i0.wp.com/example.com/image.jpg?resize=1400%2C700 1400w` );
+		manualValidationImg.setAttribute( 'width', '800' );
+		manualValidationImg.setAttribute( 'height', '400' );
+		setBoundingRect( manualValidationImg, 800, 400 );
 
-		// Mocking the bounding rect of the image
-		setBoundingRect( img, 1000, 500 );
-	} );
+		dynamicSrcset( manualValidationImg );
+		expect( manualValidationImg.srcset ).toContain(
+			`https://i0.wp.com/example.com/image.jpg?resize=800%2C400 9999w`
+		);
 
-	it( 'srcset should include all original image sizes', () => {
-		dynamicSrcset( img );
-		expect( img.srcset ).toContain( createImageSize( '100,50', '100w' ) );
-		expect( img.srcset ).toContain( createImageSize( '400,250', '400w' ) );
-		expect( img.srcset ).toContain( createImageSize( '1400,700', '1400w' ) );
-	} );
-
-	it( 'should create a new srcset entry for the target size', () => {
-		dynamicSrcset( img );
-		expect( img.srcset ).toContain( createImageSize( '1000,500', '5000w' ) );
-	} );
-
-	it( 'should reuse existing srcset entry if the target size is close enough', () => {
-		setBoundingRect( img, 396, 248 );
-		dynamicSrcset( img );
-		expect( img.srcset ).toContain(
-			createImageSize( '400,250', `${ window.innerWidth * window.devicePixelRatio }w` )
+		window.devicePixelRatio = 2;
+		dynamicSrcset( manualValidationImg );
+		expect( manualValidationImg.srcset ).toContain(
+			`https://i0.wp.com/example.com/image.jpg?resize=1600%2C800 9999w`
 		);
 	} );
 
-	it( "shouldn't upscale the image when reusing an srcset entry", () => {
-		setBoundingRect( img, 420, 260 );
-		dynamicSrcset( img );
-		expect( img.srcset ).toContain(
-			createImageSize( '420,260', `${ window.innerWidth * window.devicePixelRatio }w` )
-		);
-	} );
+	const testDevicePixelRatios = [ 1, 1.5 ];
 
-	it( 'should not update attributes if conditions are not met', () => {
-		const image = document.createElement( 'img' );
-		image.src = 'https://i0.wp.com/example.com/image.jpg';
+	testDevicePixelRatios.forEach( devicePixelRatio => {
+		const w = ( value: number ) => `${ value * devicePixelRatio }w`;
+		describe( `with devicePixelRatio ${ devicePixelRatio }`, () => {
+			beforeEach( () => {
+				window.devicePixelRatio = devicePixelRatio;
+				window.innerWidth = 5000;
+				img = document.createElement( 'img' );
+				img.src = 'https://i0.wp.com/example.com/image.jpg';
+				const srcset = [
+					createImageSize( '100,50', '100w' ),
+					createImageSize( '400,250', '400w' ),
+					createImageSize( '1400,700', '1400w' ),
+				];
 
-		dynamicSrcset( image );
+				img.srcset = srcset.join( ',' );
+				img.setAttribute( 'width', '1000' );
+				img.setAttribute( 'height', '500' );
 
-		expect( image.srcset ).toBe( '' );
-		expect( image.sizes ).toBe( '' );
+				// Mocking the bounding rect of the image
+				setBoundingRect( img, 1000, 500 );
+			} );
+
+			it( 'srcset should include all original image sizes', () => {
+				dynamicSrcset( img );
+				expect( img.srcset ).toContain( createImageSize( '100,50', '100w' ) );
+				expect( img.srcset ).toContain( createImageSize( '400,250', '400w' ) );
+				expect( img.srcset ).toContain( createImageSize( '1400,700', '1400w' ) );
+			} );
+
+			it( 'should create a new srcset entry for the target size', () => {
+				dynamicSrcset( img );
+				expect( img.srcset ).toContain( createImageSize( '1000,500', w( window.innerWidth ) ) );
+			} );
+
+			it( 'should reuse existing srcset entry if the target size is close enough', () => {
+				setBoundingRect( img, 396, 248 );
+				dynamicSrcset( img );
+				expect( img.srcset ).toContain( createImageSize( '400,250', w( window.innerWidth ) ) );
+			} );
+
+			it( "shouldn't upscale the image when reusing an srcset entry", () => {
+				setBoundingRect( img, 420, 260 );
+				dynamicSrcset( img );
+				expect( img.srcset ).toContain( createImageSize( '420,260', w( window.innerWidth ) ) );
+			} );
+
+			it( 'should not update attributes if conditions are not met', () => {
+				const image = document.createElement( 'img' );
+				image.src = 'https://i0.wp.com/example.com/image.jpg';
+
+				dynamicSrcset( image );
+
+				expect( image.srcset ).toBe( '' );
+				expect( image.sizes ).toBe( '' );
+			} );
+		} );
 	} );
 } );
