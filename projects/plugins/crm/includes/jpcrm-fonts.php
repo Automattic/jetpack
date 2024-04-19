@@ -57,6 +57,15 @@ class JPCRM_Fonts {
 					case 'Boku2':
 						$cleaned_name = 'Boku2 (JP)';
 						break;
+					case 'Hong Kong (Noto Sans)':
+						$cleaned_name = 'Chinese (Traditional, Hong Kong)';
+						break;
+					case 'Taiwan (Noto Sans)':
+						$cleaned_name = 'Chinese (Traditional, Taiwan)';
+						break;
+					case 'Simplified Chinese (Noto Sans)':
+						$cleaned_name = 'Chinese (Simplified)';
+						break;
 
 				}
 
