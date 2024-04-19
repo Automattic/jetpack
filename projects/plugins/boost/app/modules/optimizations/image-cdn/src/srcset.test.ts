@@ -70,6 +70,32 @@ describe( 'calculateTargetSize', () => {
 		window.devicePixelRatio = 2;
 		expect( calculateTargetSize( rect ) ).toEqual( { width: 1000, height: 500 } );
 	} );
+
+	it( 'should round up the target size to the nearest 10', () => {
+		const ratio = 600 / 200;
+		const rect: DOMRect = {
+			width: 600 - 9,
+			height: (600 - 9) / ratio, // = 197px
+			x: 0,
+			y: 0,
+			top: 0,
+			right: 0,
+			bottom: 0,
+			left: 0,
+			toJSON: () => ( {} ),
+		};
+		window.devicePixelRatio = 1;
+		expect( calculateTargetSize( rect ) ).toEqual( {
+			width: 600,
+			height: Math.ceil(600 / ratio),
+		} );
+
+		window.devicePixelRatio = 2;
+		expect( calculateTargetSize( rect ) ).toEqual( {
+			width: 1190,
+			height: Math.ceil(1190 / ratio),
+		} );
+	})
 } );
 
 describe('isSizeReusable', () => {

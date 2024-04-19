@@ -31,21 +31,21 @@ export function getImageSizeFromUrl( url: string ): Dimensions | null {
 
 export function calculateTargetSize( rect: DOMRect ): Dimensions {
 	const dpr = getDpr();
-	const targetWidth = rect.width * dpr;
 	const ratio = rect.width / rect.height;
+	const targetWidth = Math.ceil( (rect.width * dpr) / 10 ) * 10;
 	const targetHeight = Math.ceil( targetWidth / ratio );
 	return {
-		width: Math.ceil( targetWidth / 10 ) * 10,
+		width: targetWidth,
 		height: targetHeight,
 	};
 }
 
 export function isSizeReusable( desiredWidth: number, existingWidth: number ) {
-	if( existingWidth <= 0 ) {
+	if ( existingWidth <= 0 ) {
 		return false;
 	}
 	const diff = existingWidth - desiredWidth;
-	if( diff < 0 ) {
+	if ( diff < 0 ) {
 		return false;
 	}
 	return diff < 50 || desiredWidth / existingWidth > 1.1;
