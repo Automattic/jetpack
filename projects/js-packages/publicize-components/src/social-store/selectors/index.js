@@ -12,6 +12,7 @@ const selectors = {
 	...sharesData,
 	...socialImageGeneratorSettingsSelectors,
 	...autoConversionSettingsSelectors,
+	userConnectionUrl: state => state.userConnectionUrl,
 };
 
 export default selectors;
