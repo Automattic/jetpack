@@ -76,35 +76,30 @@ describe( 'findClosestImageSize', () => {
 } );
 
 describe( 'dynamicSrcset', () => {
+	let img: HTMLImageElement;
 	beforeEach( () => {
 		window.devicePixelRatio = 1;
 
-		const img = document.createElement( 'img' );
+		img = document.createElement( 'img' );
 		img.src = 'https://i0.wp.com/example.com/image.jpg?resize=100,50';
 		img.srcset = 'https://i0.wp.com/example.com/image.jpg?resize=100,50 100w';
 		img.setAttribute( 'width', '100' );
 		img.setAttribute( 'height', '50' );
-		document.body.appendChild( img );
-	} );
-
-	afterEach( () => {
-		document.body.removeChild( document.querySelector( 'img' )! );
 	} );
 
 	it( 'should update srcset and sizes attributes', () => {
-		const img = document.querySelector( 'img' )!;
 		dynamicSrcset( img );
 		expect( img.srcset ).toContain( 'https://i0.wp.com/example.com/image.jpg?resize=100,50' );
 		expect( img.sizes ).toBe( 'auto' );
 	} );
 
 	it( 'should not update attributes if conditions are not met', () => {
-		const img = document.createElement( 'img' );
-		img.src = 'https://i0.wp.com/example.com/image.jpg';
+		const image = document.createElement( 'img' );
+		image.src = 'https://i0.wp.com/example.com/image.jpg';
 
-		dynamicSrcset( img );
+		dynamicSrcset( image );
 
-		expect( img.srcset ).toBe( '' );
-		expect( img.sizes ).toBe( '' );
+		expect( image.srcset ).toBe( '' );
+		expect( image.sizes ).toBe( '' );
 	} );
 } );
