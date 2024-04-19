@@ -62,10 +62,14 @@ describe( 'findClosestImageSize', () => {
 			url: 'https://i0.wp.com/example.com/image.jpg?resize=200,100',
 			width: 200,
 		} );
-		expect( findClosestImageSize( urls, 3500 ) ).toEqual( {
+		expect( findClosestImageSize( urls, 999 ) ).toEqual( {
 			url: 'https://i0.wp.com/example.com/image.jpg?resize=300,150',
 			width: 300,
 		} );
+	} );
+
+	it( 'should return null when the target width is smaller than the smallest image width', () => {
+		expect( findClosestImageSize( urls, 50 ) ).toBeNull();
 	} );
 } );
 
