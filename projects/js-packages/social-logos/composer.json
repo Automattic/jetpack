@@ -7,11 +7,7 @@
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev"
 	},
-	"scripts": {
-		"test-js": [
-			"pnpm run test"
-		]
-	},
+	"scripts": {},
 	"repositories": [
 		{
 			"type": "path",
