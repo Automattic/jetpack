@@ -61,6 +61,33 @@ function wpcom_themes_add_theme_showcase_menu() {
 	}
 
 	$site_slug = wp_parse_url( home_url(), PHP_URL_HOST );
-	add_submenu_page( 'themes.php', esc_attr__( 'Theme Showcase', 'jetpack-mu-wpcom' ), __( 'Theme Showcase', 'jetpack-mu-wpcom' ), 'read', "https://wordpress.com/themes/$site_slug?ref=wpcom-themes-menu" );
+	add_submenu_page(
+		'themes.php',
+		esc_attr__( 'Theme Showcase', 'jetpack-mu-wpcom' ),
+		__( 'Theme Showcase', 'jetpack-mu-wpcom' ),
+		current_user_can( 'switch_themes' ) ? 'switch_themes' : 'edit_theme_options',
+		"https://wordpress.com/themes/$site_slug?ref=wpcom-themes-menu"
+	);
 }
 add_action( 'admin_menu', 'wpcom_themes_add_theme_showcase_menu' );
+
+/**
+ * Removes actions from the active theme details added by Core to replicate our custom WP.com submenus.
+ *
+ * Core expect the menus to link to WP Admin, but our submenus point to wordpress.com so the actions won't work.
+ *
+ * @see https://github.com/WordPress/wordpress-develop/blob/80096ddf29d3ffa4d5654f5f788df7f598b48756/src/wp-admin/themes.php#L356-L412
+ */
+function wpcom_themes_remove_wpcom_actions() {
+	wp_enqueue_script(
+		'wpcom-theme-actions',
+		plugins_url( 'js/theme-actions.js', __FILE__ ),
+		array(),
+		Jetpack_Mu_Wpcom::PACKAGE_VERSION,
+		array(
+			'strategy'  => 'defer',
+			'in_footer' => true,
+		)
+	);
+}
+add_action( 'load-themes.php', 'wpcom_themes_remove_wpcom_actions' );
