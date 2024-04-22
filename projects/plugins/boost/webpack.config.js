@@ -161,8 +161,8 @@ module.exports = [
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
 		output: {
-			path: path.resolve( './app/modules/optimizations/image-cdn/' ),
-			filename: 'inline-liar.js.php',
+			path: path.resolve( './app/modules/optimizations/image-cdn/dist' ),
+			filename: 'inline-liar.js',
 		},
 		optimization: {
 			...jetpackWebpackConfig.optimization,
