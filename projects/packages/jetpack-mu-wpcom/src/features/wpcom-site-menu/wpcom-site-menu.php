@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Check if the current user has a WordPress.com account connected.
@@ -217,7 +218,11 @@ add_action( 'admin_bar_menu', 'add_all_sites_menu_to_masterbar', 15 );
  * Add the WordPress.com submenu items related to Jetpack under the Jetpack menu on the wp-admin sidebar.
  */
 function wpcom_add_jetpack_menu_item() {
-	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
+	/*
+	 * Do not display any menu on WoA and WordPress.com Simple sites (unless Classic wp-admin is enabled).
+	 * They already get a menu item under Users via nav-unification.
+	 */
+	if ( ( new Host() )->is_wpcom_platform() && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 		return;
 	}
 

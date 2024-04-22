@@ -1,4 +1,4 @@
 Significance: minor
-Type: added
+Type: changed
 
-Add Scheduled Update Plugins option to synched options
+Added scheduled updates sync option.

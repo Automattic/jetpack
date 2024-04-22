@@ -6,6 +6,7 @@ import {
 	RichText,
 	withColors,
 	withFontSizes,
+	useBlockProps,
 	__experimentalUseGradient as useGradient, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
 import { TextControl, Toolbar, withFallbackStyles } from '@wordpress/components';
@@ -58,7 +59,6 @@ const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
 
 export function SubscriptionEdit( props ) {
 	const {
-		className,
 		attributes,
 		setAttributes,
 		emailFieldBackgroundColor,
@@ -73,6 +73,8 @@ export function SubscriptionEdit( props ) {
 		fontSize,
 		hasTierPlans,
 	} = props;
+
+	const blockProps = useBlockProps();
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( name );
 
@@ -206,16 +208,6 @@ export function SubscriptionEdit( props ) {
 		width: buttonWidth,
 	};
 
-	const getBlockClassName = () => {
-		return classnames(
-			className,
-			'wp-block-jetpack-subscriptions__container',
-			'wp-block-jetpack-subscriptions__supports-newline',
-			buttonOnNewLine ? 'wp-block-jetpack-subscriptions__use-newline' : undefined,
-			showSubscribersTotal ? 'wp-block-jetpack-subscriptions__show-subs' : undefined
-		);
-	};
-
 	const previousButtonBackgroundColor = usePrevious( buttonBackgroundColor );
 
 	useEffect( () => {
@@ -237,92 +229,109 @@ export function SubscriptionEdit( props ) {
 		isModuleActive,
 	] );
 
-	if ( isLoadingModules ) {
-		return <SubscriptionSkeletonLoader />;
-	}
+	let content;
 
-	if ( ! isModuleActive ) {
-		return (
+	if ( isLoadingModules ) {
+		content = <SubscriptionSkeletonLoader />;
+	} else if ( ! isModuleActive ) {
+		content = (
 			<SubscriptionsPlaceholder
 				changeStatus={ changeStatus }
 				isModuleActive={ isModuleActive }
 				isLoading={ isChangingStatus }
 			/>
 		);
+	} else {
+		content = (
+			<>
+				<InspectorControls>
+					<SubscriptionControls
+						buttonBackgroundColor={ buttonBackgroundColor }
+						borderColor={ borderColor }
+						buttonGradient={ buttonGradient }
+						borderRadius={ borderRadius }
+						borderWeight={ borderWeight }
+						buttonOnNewLine={ buttonOnNewLine }
+						emailFieldBackgroundColor={ emailFieldBackgroundColor }
+						fallbackButtonBackgroundColor={ fallbackButtonBackgroundColor }
+						fallbackTextColor={ fallbackTextColor }
+						fontSize={ fontSize }
+						includeSocialFollowers={ includeSocialFollowers }
+						isGradientAvailable={ isGradientAvailable }
+						padding={ padding }
+						setAttributes={ setAttributes }
+						setBorderColor={ setBorderColor }
+						setButtonBackgroundColor={ setButtonBackgroundColor }
+						setTextColor={ setTextColor }
+						showSubscribersTotal={ showSubscribersTotal }
+						spacing={ spacing }
+						subscriberCount={ subscriberCount }
+						textColor={ textColor }
+						buttonWidth={ buttonWidth }
+						subscribePlaceholder={ subscribePlaceholder }
+						submitButtonText={ submitButtonText }
+						successMessage={ successMessage }
+					/>
+				</InspectorControls>
+				{ isNewsletterFeatureEnabled() && (
+					<BlockControls>
+						<Toolbar>
+							<GetAddPaidPlanButton context={ 'toolbar' } hasTierPlans={ hasTierPlans } />
+						</Toolbar>
+					</BlockControls>
+				) }
+
+				<div style={ cssVars }>
+					<div className="wp-block-jetpack-subscriptions__container is-not-subscriber">
+						<div className="wp-block-jetpack-subscriptions__form" role="form">
+							<div className="wp-block-jetpack-subscriptions__form-elements">
+								<TextControl
+									placeholder={ subscribePlaceholder }
+									disabled={ true }
+									className={ classnames(
+										emailFieldClasses,
+										'wp-block-jetpack-subscriptions__textfield'
+									) }
+									style={ emailFieldStyles }
+								/>
+								<RichText
+									className={ classnames(
+										buttonClasses,
+										'wp-block-jetpack-subscriptions__button',
+										'wp-block-button__link'
+									) }
+									onChange={ value => setAttributes( { submitButtonText: value } ) }
+									style={ buttonStyles }
+									value={ submitButtonText }
+									withoutInteractiveFormatting
+									allowedFormats={ [ 'core/bold', 'core/italic', 'core/strikethrough' ] }
+								/>
+							</div>
+						</div>
+					</div>
+					{ showSubscribersTotal && (
+						<div className="wp-block-jetpack-subscriptions__subscount">
+							{ subscriberCountString }
+						</div>
+					) }
+				</div>
+			</>
+		);
 	}
 
 	return (
-		<>
-			<InspectorControls>
-				<SubscriptionControls
-					buttonBackgroundColor={ buttonBackgroundColor }
-					borderColor={ borderColor }
-					buttonGradient={ buttonGradient }
-					borderRadius={ borderRadius }
-					borderWeight={ borderWeight }
-					buttonOnNewLine={ buttonOnNewLine }
-					emailFieldBackgroundColor={ emailFieldBackgroundColor }
-					fallbackButtonBackgroundColor={ fallbackButtonBackgroundColor }
-					fallbackTextColor={ fallbackTextColor }
-					fontSize={ fontSize }
-					includeSocialFollowers={ includeSocialFollowers }
-					isGradientAvailable={ isGradientAvailable }
-					padding={ padding }
-					setAttributes={ setAttributes }
-					setBorderColor={ setBorderColor }
-					setButtonBackgroundColor={ setButtonBackgroundColor }
-					setTextColor={ setTextColor }
-					showSubscribersTotal={ showSubscribersTotal }
-					spacing={ spacing }
-					subscriberCount={ subscriberCount }
-					textColor={ textColor }
-					buttonWidth={ buttonWidth }
-					subscribePlaceholder={ subscribePlaceholder }
-					submitButtonText={ submitButtonText }
-					successMessage={ successMessage }
-				/>
-			</InspectorControls>
-			{ isNewsletterFeatureEnabled() && (
-				<BlockControls>
-					<Toolbar>
-						<GetAddPaidPlanButton context={ 'toolbar' } hasTierPlans={ hasTierPlans } />
-					</Toolbar>
-				</BlockControls>
+		<div
+			{ ...blockProps }
+			className={ classnames(
+				blockProps.className,
+				'wp-block-jetpack-subscriptions__container',
+				'wp-block-jetpack-subscriptions__supports-newline',
+				buttonOnNewLine ? 'wp-block-jetpack-subscriptions__use-newline' : undefined,
+				showSubscribersTotal ? 'wp-block-jetpack-subscriptions__show-subs' : undefined
 			) }
-
-			<div className={ getBlockClassName() } style={ cssVars }>
-				<div className="wp-block-jetpack-subscriptions__container is-not-subscriber">
-					<div className="wp-block-jetpack-subscriptions__form" role="form">
-						<div className="wp-block-jetpack-subscriptions__form-elements">
-							<TextControl
-								placeholder={ subscribePlaceholder }
-								disabled={ true }
-								className={ classnames(
-									emailFieldClasses,
-									'wp-block-jetpack-subscriptions__textfield'
-								) }
-								style={ emailFieldStyles }
-							/>
-							<RichText
-								className={ classnames(
-									buttonClasses,
-									'wp-block-jetpack-subscriptions__button',
-									'wp-block-button__link'
-								) }
-								onChange={ value => setAttributes( { submitButtonText: value } ) }
-								style={ buttonStyles }
-								value={ submitButtonText }
-								withoutInteractiveFormatting
-								allowedFormats={ [ 'core/bold', 'core/italic', 'core/strikethrough' ] }
-							/>
-						</div>
-					</div>
-				</div>
-				{ showSubscribersTotal && (
-					<div className="wp-block-jetpack-subscriptions__subscount">{ subscriberCountString }</div>
-				) }
-			</div>
-		</>
+		>
+			{ content }
+		</div>
 	);
 }
 

@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Publicize\Publicize;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 
 /**
@@ -253,7 +254,7 @@ class Jetpack_Core_API_Site_Endpoint {
 		}
 
 		// Number of active Publicize connections.
-		if ( Jetpack::is_module_active( 'publicize' ) && class_exists( 'Publicize' ) ) {
+		if ( Jetpack::is_module_active( 'publicize' ) && class_exists( Publicize::class ) ) {
 			$publicize   = new Publicize();
 			$connections = $publicize->get_all_connections();
 

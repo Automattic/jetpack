@@ -1,3 +1,4 @@
+import { useConnection } from '@automattic/jetpack-connection';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import PublicizeConnection from '../connection';
 import PublicizeSettingsButton from '../settings-button';
@@ -8,6 +9,8 @@ export const ConnectionsList: React.FC = () => {
 	const { connections, toggleById } = useSocialMediaConnections();
 
 	const { canBeTurnedOn, shouldBeDisabled } = useConnectionState();
+
+	const { isUserConnected } = useConnection();
 
 	return (
 		<ul className={ styles[ 'connections-list' ] }>
@@ -28,9 +31,11 @@ export const ConnectionsList: React.FC = () => {
 					/>
 				);
 			} ) }
-			<li>
-				<PublicizeSettingsButton />
-			</li>
+			{ isUserConnected ? (
+				<li>
+					<PublicizeSettingsButton />
+				</li>
+			) : null }
 		</ul>
 	);
 };

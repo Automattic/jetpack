@@ -260,6 +260,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		usort( $plugins, 'strnatcasecmp' );
 
 		$event = Scheduled_Updates::create_scheduled_update( $schedule['timestamp'], $schedule['interval'], $plugins );
+
 		if ( is_wp_error( $event ) ) {
 			return $event;
 		}
@@ -274,9 +275,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		}
 
 		$id = Scheduled_Updates::generate_schedule_id( $plugins );
-
-		// Set an empty status of a schedule on creation/modify.
-		Scheduled_Updates::set_scheduled_update_status( $id, null, null );
 
 		return rest_ensure_response( $id );
 	}
@@ -346,7 +344,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 
 		$previous_schedule_status = Scheduled_Updates::get_scheduled_update_status( $request['schedule_id'] );
 
-		$deleted = $this->delete_item( $request );
+		$clear_logs = false;
+		$deleted    = $this->delete_item( $request, $clear_logs );
 		if ( is_wp_error( $deleted ) ) {
 			return $deleted;
 		}
@@ -355,7 +354,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 
 		// Sets the previous status.
 		if ( $previous_schedule_status ) {
-			Scheduled_Updates::set_scheduled_update_status( $item->data, $previous_schedule_status['last_run_timestamp'], $previous_schedule_status['last_run_status'] );
+			Scheduled_Updates_Logs::replace_logs_schedule_id( $request['schedule_id'], $item->data );
 		}
 
 		return $item;
@@ -419,7 +418,11 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$message     = $request['message'];
 		$context     = $request['context'];
 
-		Scheduled_Updates_Logs::log( $schedule_id, $action, $message, $context );
+		$success = Scheduled_Updates_Logs::log( $schedule_id, $action, $message, $context );
+
+		if ( ! $success ) {
+			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
+		}
 
 		return rest_ensure_response( true );
 	}
@@ -469,9 +472,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * Deletes an existing update schedule.
 	 *
 	 * @param WP_REST_Request $request Request object.
+	 * @param bool            $clear_logs Whether to clear the logs or not.
 	 * @return WP_REST_Response|WP_Error
 	 */
-	public function delete_item( $request ) {
+	public function delete_item( $request, $clear_logs = true ) {
 		$events = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
 
 		if ( ! isset( $events[ $request['schedule_id'] ] ) ) {
@@ -508,7 +512,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		}
 
 		// Delete logs
-		Scheduled_Updates_Logs::clear( $request['schedule_id'], true );
+		if ( $clear_logs ) {
+			Scheduled_Updates_Logs::clear( $request['schedule_id'] );
+		}
 
 		return rest_ensure_response( true );
 	}

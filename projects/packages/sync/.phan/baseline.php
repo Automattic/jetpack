@@ -38,7 +38,6 @@ return [
     // PhanTypeMismatchReturnNullable : 2 occurrences
     // PhanTypePossiblyInvalidDimOffset : 2 occurrences
     // PhanTypeSuspiciousStringExpression : 2 occurrences
-    // PhanUndeclaredFunction : 2 occurrences
     // PhanDeprecatedFunction : 1 occurrence
     // PhanNoopNew : 1 occurrence
     // PhanParamTooManyCallable : 1 occurrence
@@ -50,6 +49,7 @@ return [
     // PhanTypeMismatchDefault : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
     // PhanTypeMismatchPropertyProbablyReal : 1 occurrence
+    // PhanUndeclaredFunction : 1 occurrence
     // PhanUndeclaredMethodInCallable : 1 occurrence
     // PhanUndeclaredStaticMethod : 1 occurrence
     // PhanUndeclaredTypeParameter : 1 occurrence
@@ -83,7 +83,7 @@ return [
         'src/modules/class-network-options.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchReturnProbablyReal'],
         'src/modules/class-options.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredFunction'],
         'src/modules/class-plugins.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanUndeclaredMethod'],
-        'src/modules/class-posts.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginUseReturnValueInternalKnown', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredFunction'],
+        'src/modules/class-posts.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginUseReturnValueInternalKnown', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturnProbablyReal'],
         'src/modules/class-protect.php' => ['PhanUndeclaredClassMethod'],
         'src/modules/class-term-relationships.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument'],
         'src/modules/class-terms.php' => ['PhanAccessMethodInternal', 'PhanParamSignatureMismatch'],

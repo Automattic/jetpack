@@ -32,7 +32,6 @@ return [
         'packages/Async_Option/Async_Option.php' => ['PhanParamTooMany'],
         'packages/Async_Option/Endpoint.php' => ['PhanParamTooMany'],
         'packages/Async_Option/Registry.php' => ['PhanCommentParamWithoutRealParam'],
-        'packages/Async_Option/Storage/WP_Option.php' => ['PhanUndeclaredProperty'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

@@ -1,6 +1,9 @@
+import { useBlockProps } from '@wordpress/block-editor';
+import classNames from 'classnames';
 import { formatPrice } from './utils';
 
 export default function Save( { attributes } ) {
+	const blockProps = useBlockProps.save();
 	const {
 		content,
 		currency,
@@ -12,12 +15,19 @@ export default function Save( { attributes } ) {
 		productId,
 		title,
 	} = attributes;
+
 	if ( ! productId ) {
 		return null;
 	}
 
 	return (
-		<div className={ `jetpack-simple-payments-wrapper jetpack-simple-payments-${ productId }` }>
+		<div
+			{ ...blockProps }
+			className={ classNames(
+				blockProps.className,
+				`jetpack-simple-payments-wrapper jetpack-simple-payments-${ productId }`
+			) }
+		>
 			<div className="jetpack-simple-payments-product">
 				{ featuredMediaUrl && (
 					<div className="jetpack-simple-payments-product-image">
