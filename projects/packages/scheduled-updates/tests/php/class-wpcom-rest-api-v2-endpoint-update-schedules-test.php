@@ -158,11 +158,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Monday 8:00' ),
-					'interval'           => 'weekly',
-					'health_check_paths' => array(),
-				),
+				'schedule' => $this->get_schedule(),
 			)
 		);
 		$schedule_id = Scheduled_Updates::generate_schedule_id( $request->get_body_params()['plugins'] );
@@ -198,11 +194,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Monday 8:00' ),
-					'interval'           => 'weekly',
-					'health_check_paths' => array(),
-				),
+				'schedule' => $this->get_schedule(),
 			)
 		);
 
@@ -226,11 +218,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Monday 8:00' ),
-					'interval'           => 'weekly',
-					'health_check_paths' => array(),
-				),
+				'schedule' => $this->get_schedule(),
 			)
 		);
 		$schedule_id = Scheduled_Updates::generate_schedule_id( $request->get_body_params()['plugins'] );
@@ -253,11 +241,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Monday 10:00' ),
-					'interval'           => 'weekly',
-					'health_check_paths' => array(),
-				),
+				'schedule' => $this->get_schedule( 'next Monday 10:00' ),
 			)
 		);
 
@@ -285,11 +269,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Monday 8:00' ),
-					'interval'           => 'weekly',
-					'health_check_paths' => array(),
-				),
+				'schedule' => $this->get_schedule(),
 			)
 		);
 
@@ -328,11 +308,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Monday 8:00' ),
-					'interval'           => 'weekly',
-					'health_check_paths' => array(),
-				),
+				'schedule' => $this->get_schedule(),
 			)
 		);
 
@@ -361,11 +337,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 					'gutenberg/gutenberg.php',
 					'custom-plugin/custom-plugin.php',
 				),
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Wednesday 10:00' ),
-					'interval'           => 'daily',
-					'health_check_paths' => array(),
-				),
+				'schedule' => $this->get_schedule( 'next Wednesday 10:00', 'daily' ),
 			)
 		);
 
@@ -394,11 +366,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Monday 8:00' ),
-					'interval'           => 'weekly',
-					'health_check_paths' => array(),
-				),
+				'schedule' => $this->get_schedule(),
 			)
 		);
 
@@ -477,11 +445,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Monday 8:00' ),
-					'interval'           => 'weekly',
-					'health_check_paths' => array(),
-				),
+				'schedule' => $this->get_schedule(),
 			)
 		);
 
@@ -573,11 +537,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Tuesday 9:00' ),
-					'interval'           => 'daily',
-					'health_check_paths' => array(),
-				),
+				'schedule' => $this->get_schedule( 'next Tuesday 9:00', 'daily' ),
 			)
 		);
 		$result = rest_do_request( $request );
@@ -642,11 +602,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Tuesday 9:00' ),
-					'interval'           => 'daily',
-					'health_check_paths' => array(),
-				),
+				'schedule' => $this->get_schedule( 'next Tuesday 9:00', 'daily' ),
 			)
 		);
 
@@ -689,11 +645,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => array(),
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Tuesday 9:00' ),
-					'interval'           => 'daily',
-					'health_check_paths' => array(),
-				),
+				'schedule' => $this->get_schedule( 'next Tuesday 9:00', 'daily' ),
 			)
 		);
 		$result = rest_do_request( $request );
@@ -976,11 +928,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Monday 8:00' ),
-					'interval'           => 'weekly',
-					'health_check_paths' => array( '/test-path', 'test-path-2' ),
-				),
+				'schedule' => $this->get_schedule( 'next Monday 8:00', 'weekly', array( '/test-path', 'test-path-2' ) ),
 			)
 		);
 		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
@@ -1007,15 +955,27 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $scheduled_plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( "next Monday {$i}:00" ),
-					'interval'           => 'weekly',
-					'health_check_paths' => array(),
-				),
+				'schedule' => $this->get_schedule( "next Monday {$i}:00" ),
 			)
 		);
 
 		$result = rest_do_request( $request );
 		return $result->get_data();
+	}
+
+	/**
+	 * Get a schedule.
+	 *
+	 * @param string $timestamp Schedule timestamp.
+	 * @param string $interval Schedule interval.
+	 * @param array  $health_check_paths Health check paths.
+	 * @return array
+	 */
+	private function get_schedule( $timestamp = 'next Monday 8:00', $interval = 'weekly', $health_check_paths = array() ) {
+		return array(
+			'timestamp'          => strtotime( $timestamp ),
+			'interval'           => $interval,
+			'health_check_paths' => $health_check_paths,
+		);
 	}
 }
