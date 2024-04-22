@@ -72,6 +72,13 @@ class Manager {
 	private static $extra_register_params = array();
 
 	/**
+	 * We store ID's of users already disconnected to prevent multiple disconnect requests.
+	 *
+	 * @var array
+	 */
+	private static $disconnected_users = array();
+
+	/**
 	 * Initialize the object.
 	 * Make sure to call the "Configure" first.
 	 *
@@ -128,8 +135,8 @@ class Manager {
 		Webhooks::init( $manager );
 
 		// Unlink user before deleting the user from WP.com.
-		add_action( 'deleted_user', array( $manager, 'disconnect_user_force' ), 10, 1 );
-		add_action( 'remove_user_from_blog', array( $manager, 'disconnect_user_force' ), 10, 1 );
+		add_action( 'deleted_user', array( $manager, 'disconnect_user_force' ), 9, 1 );
+		add_action( 'remove_user_from_blog', array( $manager, 'disconnect_user_force' ), 9, 1 );
 
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
@@ -904,6 +911,11 @@ class Manager {
 			return false;
 		}
 
+		if ( in_array( $user_id, static::$disconnected_users, true ) ) {
+			// The user is already disconnected.
+			return false;
+		}
+
 		// Attempt to disconnect the user from WordPress.com.
 		$is_disconnected_from_wpcom = $this->unlink_user_from_wpcom( $user_id );
 
@@ -932,6 +944,8 @@ class Manager {
 				}
 			}
 		}
+
+		static::$disconnected_users[] = $user_id;
 
 		return $is_disconnected_from_wpcom && $is_disconnected_locally;
 	}
