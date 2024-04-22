@@ -915,18 +915,18 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	 *
 	 * @covers ::create_item
 	 */
-	public function test_create_item_with_valid_paths() {
-		$plugins = array( 'gutenberg/gutenberg.php' );
-		$paths   = array(
-			'test',
-			'/test-path',
-			'test-path-2',
-		);
-		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+	public function test_create_item_with_no_paths() {
+		$plugins  = array( 'gutenberg/gutenberg.php' );
+		$request  = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$schedule = $this->get_schedule();
+
+		// No health check paths.
+		unset( $schedule['health_check_paths'] );
+
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => $this->get_schedule( 'next Monday 8:00', 'weekly', $paths ),
+				'schedule' => $schedule,
 			)
 		);
 		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
@@ -939,7 +939,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( $schedule_id, $result->get_data() );
 
 		$option_paths = Scheduled_Updates::get_scheduled_update_health_check_paths( $schedule_id );
-		$this->assertSame( $paths, $option_paths );
+		$this->assertSame( array(), $option_paths );
 	}
 
 	/**

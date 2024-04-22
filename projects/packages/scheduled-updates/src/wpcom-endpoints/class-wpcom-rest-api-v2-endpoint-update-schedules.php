@@ -266,7 +266,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		}
 
 		$id = Scheduled_Updates::generate_schedule_id( $plugins );
-		Scheduled_Updates::update_health_paths( $id, $schedule['health_check_paths'] );
+		Scheduled_Updates::update_health_paths( $id, $schedule['health_check_paths'] ?? array() );
 
 		/**
 		 * Fires when a scheduled update is created.
@@ -819,7 +819,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 					'health_check_paths' => array(
 						'description'       => 'Paths to check for site health.',
 						'type'              => 'array',
-						'required'          => true,
+						'required'          => false,
+						'default'           => array(),
 						'validate_callback' => array( $this, 'validate_paths_param' ),
 					),
 				),
