@@ -221,7 +221,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 				'schedule' => $this->get_schedule(),
 			)
 		);
-		$schedule_id = Scheduled_Updates::generate_schedule_id( $request->get_body_params()['plugins'] );
+		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
 
 		// Successful request.
 		wp_set_current_user( $this->admin_id );
@@ -938,7 +938,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame( $schedule_id, $result->get_data() );
 
-		$option_paths = Scheduled_Updates::get_scheduled_update_health_check_paths( $schedule_id );
+		$option_paths = Scheduled_Updates::get_health_check_paths( $schedule_id );
 		$this->assertSame( array(), $option_paths );
 	}
 
@@ -974,7 +974,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame( $schedule_id, $result->get_data() );
 
-		$option_paths = Scheduled_Updates::get_scheduled_update_health_check_paths( $schedule_id );
+		$option_paths = Scheduled_Updates::get_health_check_paths( $schedule_id );
 		$this->assertSame(
 			array(
 				'a_b',
@@ -986,6 +986,69 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 			),
 			$option_paths
 		);
+	}
+
+	/**
+	 * Test remove item with paths.
+	 *
+	 * @covers ::create_item
+	 */
+	public function test_remove_item_with_with_paths() {
+		$plugins  = array( 'gutenberg/gutenberg.php' );
+		$request  = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$schedule = $this->get_schedule( 'next Monday 8:00', 'weekly', array( 'a', 'b' ) );
+
+		$request->set_body_params(
+			array(
+				'plugins'  => $plugins,
+				'schedule' => $schedule,
+			)
+		);
+		$schedule_id_1 = Scheduled_Updates::generate_schedule_id( $plugins );
+
+		// Successful request.
+		wp_set_current_user( $this->admin_id );
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( $schedule_id_1, $result->get_data() );
+
+		$option_paths = Scheduled_Updates::get_health_check_paths( $schedule_id_1 );
+		$this->assertSame( array( 'a', 'b' ), $option_paths );
+
+		$plugins[]     = 'wp-test-plugin/wp-test-plugin.php';
+		$schedule_id_2 = Scheduled_Updates::generate_schedule_id( $plugins );
+		$request->set_body_params(
+			array(
+				'plugins'  => $plugins,
+				'schedule' => $this->get_schedule( 'next Monday 11:00', 'daily', array( 'c', 'd' ) ),
+			)
+		);
+
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( $schedule_id_2, $result->get_data() );
+
+		$option_paths = Scheduled_Updates::get_health_check_paths( $schedule_id_2 );
+		$this->assertSame( array( 'c', 'd' ), $option_paths );
+
+		$request = new WP_REST_Request( 'DELETE', '/wpcom/v2/update-schedules/' . $schedule_id_1 );
+		$result  = rest_do_request( $request );
+		$this->assertSame( 200, $result->get_status() );
+
+		$option_paths = Scheduled_Updates::get_health_check_paths( $schedule_id_1 );
+		$this->assertSame( array(), $option_paths );
+
+		$request = new WP_REST_Request( 'DELETE', '/wpcom/v2/update-schedules/' . $schedule_id_2 );
+		$result  = rest_do_request( $request );
+		$this->assertSame( 200, $result->get_status() );
+
+		$option_paths = Scheduled_Updates::get_health_check_paths( $schedule_id_1 );
+		$this->assertSame( array(), $option_paths );
+
+		// The option should be removed.
+		$this->assertSame( 'test', get_option( Scheduled_Updates::PATHS_OPTION_NAME, 'test' ) );
 	}
 
 	/**

@@ -129,7 +129,7 @@ class Scheduled_Updates {
 			'2',
 			array( 'method' => 'POST' ),
 			array(
-				'health_check_paths' => self::get_scheduled_update_health_check_paths( $schedule_id ),
+				'health_check_paths' => self::get_health_check_paths( $schedule_id ),
 				'plugins'            => $plugins_to_update,
 				'schedule_id'        => $schedule_id,
 			),
@@ -164,13 +164,25 @@ class Scheduled_Updates {
 	}
 
 	/**
-	 * Update the health check paths.
+	 * Get the health check paths for a scheduled update.
+	 *
+	 * @param string $schedule_id Request ID.
+	 * @return array List of health check paths.
+	 */
+	public static function get_health_check_paths( $schedule_id ) {
+		$option = get_option( self::PATHS_OPTION_NAME, array() );
+
+		return $option[ $schedule_id ] ?? array();
+	}
+
+	/**
+	 * Update the health check paths for a scheduled update.
 	 *
 	 * @param string $schedule_id Request ID.
 	 * @param array  $paths       List of paths to save.
 	 * @return bool
 	 */
-	public static function update_health_paths( $schedule_id, $paths ) {
+	public static function update_health_check_paths( $schedule_id, $paths ) {
 		$option       = get_option( self::PATHS_OPTION_NAME, array() );
 		$parsed_paths = array();
 
@@ -189,6 +201,26 @@ class Scheduled_Updates {
 		}
 
 		return update_option( self::PATHS_OPTION_NAME, $option );
+	}
+
+	/**
+	 * Clear the health check paths for a scheduled update.
+	 *
+	 * @param string|null $schedule_id Request ID.
+	 * @return bool
+	 */
+	public static function clear_health_check_paths( $schedule_id ) {
+		$option = get_option( self::PATHS_OPTION_NAME, array() );
+
+		if ( isset( $option[ $schedule_id ] ) ) {
+			unset( $option[ $schedule_id ] );
+		}
+
+		if ( count( $option ) ) {
+			return update_option( self::PATHS_OPTION_NAME, $option );
+		} else {
+			return delete_option( self::PATHS_OPTION_NAME );
+		}
 	}
 
 	/**
@@ -263,18 +295,6 @@ class Scheduled_Updates {
 	 */
 	public static function get_scheduled_update_status( $schedule_id ) {
 		return Scheduled_Updates_Logs::infer_status_from_logs( $schedule_id );
-	}
-
-	/**
-	 * Get the health check paths for a scheduled update.
-	 *
-	 * @param string $schedule_id Request ID.
-	 * @return array List of health check paths.
-	 */
-	public static function get_scheduled_update_health_check_paths( $schedule_id ) {
-		$option = get_option( self::PATHS_OPTION_NAME, array() );
-
-		return $option[ $schedule_id ] ?? array();
 	}
 
 	/**

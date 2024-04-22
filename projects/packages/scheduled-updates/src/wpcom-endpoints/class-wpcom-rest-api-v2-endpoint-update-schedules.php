@@ -266,7 +266,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		}
 
 		$id = Scheduled_Updates::generate_schedule_id( $plugins );
-		Scheduled_Updates::update_health_paths( $id, $schedule['health_check_paths'] ?? array() );
+		Scheduled_Updates::update_health_check_paths( $id, $schedule['health_check_paths'] ?? array() );
 
 		/**
 		 * Fires when a scheduled update is created.
@@ -503,6 +503,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		 */
 		do_action( 'jetpack_scheduled_update_deleted', $request['schedule_id'], $event, $request );
 
+		Scheduled_Updates::clear_health_check_paths( $request['schedule_id'] );
+
 		return rest_ensure_response( true );
 	}
 
@@ -547,7 +549,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		}
 
 		$item                       = array_merge( $item, $status );
-		$item['health_check_paths'] = Scheduled_Updates::get_scheduled_update_health_check_paths( $item['schedule_id'] );
+		$item['health_check_paths'] = Scheduled_Updates::get_health_check_paths( $item['schedule_id'] );
 
 		$item = $this->add_additional_fields_to_object( $item, $request );
 
@@ -817,7 +819,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 						'required'    => true,
 					),
 					'health_check_paths' => array(
-						'description'       => 'Paths to check for site health.',
+						'description'       => 'List of paths to check for site health after the update.',
 						'type'              => 'array',
 						'required'          => false,
 						'default'           => array(),
