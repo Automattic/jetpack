@@ -99,7 +99,7 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	 */
 	public function get_items( $request ) {
 		if ( ! $this->is_wpcom ) {
-			return $this->proxy_request_to_wpcom( $request );
+			return $this->prepare_items_for_response( $this->proxy_request_to_wpcom( $request ) );
 		}
 
 		if ( $request->get_param( 'force_year' ) ) {
@@ -114,7 +114,7 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 		remove_action( 'pre_get_posts', array( $this, 'modify_query' ) );
 		restore_current_blog();
 
-		return $items;
+		return $this->prepare_items_for_response( $items );
 	}
 
 	/**
@@ -249,6 +249,36 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 		}
 
 		return $clauses;
+	}
+
+	/**
+	 * Prepares multiple blogging prompts output for response.
+	 *
+	 * @param array $items Prompt objects.
+	 * @return array A collection of prompt objects.
+	 */
+	public function prepare_items_for_response( $items ) {
+		$locale = get_locale();
+
+		if ( ! isset( $locale ) || empty( $locale ) ) {
+			return $items;
+		}
+
+		$i    = strpos( $locale, '_' );
+		$lang = substr( $locale, 0, $i ? $i : strlen( $locale ) );
+
+		foreach ( $items as $index => $item ) {
+			$url     = $item['answered_link'];
+			$query   = wp_parse_url( $url, PHP_URL_QUERY ) ?? '';
+			$matches = array();
+			$result  = preg_match( '/(?:^|&)lang=/', $query, $matches );
+
+			if ( 0 === $result ) {
+				$items[ $index ]['answered_link'] = add_query_arg( 'lang', $lang, $url );
+			}
+		}
+
+		return $items;
 	}
 
 	/**
