@@ -212,11 +212,10 @@ class Status {
 	/**
 	 * If is a staging site.
 	 *
-	 * @todo Add IDC detection to a package.
-	 *
 	 * @return bool
 	 */
 	public function is_staging_site() {
+		// TODO: Caching this may be an issue if the site is in the process of being moved from staging to production.
 		$cached = Cache::get( 'is_staging_site' );
 		if ( null !== $cached ) {
 			return $cached;
@@ -228,34 +227,12 @@ class Status {
 		 */
 		$is_staging = ! in_array( wp_get_environment_type(), array( 'production', 'local' ), true );
 
-		$known_staging = array(
-			'urls'      => array(
-				'#\.staging\.wpengine\.com$#i',                    // WP Engine. This is their legacy staging URL structure. Their new platform does not have a common URL. https://github.com/Automattic/jetpack/issues/21504
-				'#\.staging\.kinsta\.com$#i',                      // Kinsta.com.
-				'#\.kinsta\.cloud$#i',                             // Kinsta.com.
-				'#\.stage\.site$#i',                               // DreamPress.
-				'#\.newspackstaging\.com$#i',                      // Newspack.
-				'#^(?!live-)([a-zA-Z0-9-]+)\.pantheonsite\.io$#i', // Pantheon.
-				'#\.flywheelsites\.com$#i',                        // Flywheel.
-				'#\.flywheelstaging\.com$#i',                      // Flywheel.
-				'#\.cloudwaysapps\.com$#i',                        // Cloudways.
-				'#\.azurewebsites\.net$#i',                        // Azure.
-				'#\.wpserveur\.net$#i',                            // WPServeur.
-				'#\-liquidwebsites\.com$#i',                       // Liquidweb.
-			),
-			'constants' => array(
-				'IS_WPE_SNAPSHOT',      // WP Engine. This is used on their legacy staging environment. Their new platform does not have a constant. https://github.com/Automattic/jetpack/issues/21504
-				'KINSTA_DEV_ENV',       // Kinsta.com.
-				'WPSTAGECOACH_STAGING', // WP Stagecoach.
-				'JETPACK_STAGING_MODE', // Generic.
-				'WP_LOCAL_DEV',         // Generic.
-			),
-		);
 		/**
 		 * Filters the flags of known staging sites.
 		 *
 		 * @since 1.1.1
 		 * @since-jetpack 3.9.0
+		 * @deprecated $$next-version$$
 		 *
 		 * @param array $known_staging {
 		 *     An array of arrays that each are used to check if the current site is staging.
@@ -263,30 +240,7 @@ class Status {
 		 *     @type array $constants PHP constants of known staging/developement environments.
 		 *  }
 		 */
-		$known_staging = apply_filters( 'jetpack_known_staging', $known_staging );
-
-		if ( isset( $known_staging['urls'] ) ) {
-			$site_url = site_url();
-			foreach ( $known_staging['urls'] as $url ) {
-				if ( preg_match( $url, wp_parse_url( $site_url, PHP_URL_HOST ) ) ) {
-					$is_staging = true;
-					break;
-				}
-			}
-		}
-
-		if ( isset( $known_staging['constants'] ) ) {
-			foreach ( $known_staging['constants'] as $constant ) {
-				if ( defined( $constant ) && constant( $constant ) ) {
-					$is_staging = true;
-				}
-			}
-		}
-
-		// Last, let's check if sync is erroring due to an IDC. If so, set the site to staging mode.
-		if ( ! $is_staging && method_exists( 'Automattic\\Jetpack\\Identity_Crisis', 'validate_sync_error_idc_option' ) && \Automattic\Jetpack\Identity_Crisis::validate_sync_error_idc_option() ) {
-			$is_staging = true;
-		}
+		$known_staging = apply_filters_deprecated( 'jetpack_known_staging', $known_staging, '$$next-version$$' );
 
 		/**
 		 * Filters is_staging_site check.
@@ -300,6 +254,28 @@ class Status {
 
 		Cache::set( 'is_staging_site', $is_staging );
 		return $is_staging;
+	}
+
+	/**
+	 * If site is in safe mode.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public function in_safe_mode() {
+		$cached = Cache::get( 'in_safe_mode' );
+		if ( null !== $cached ) {
+			return $cached;
+		}
+		$in_safe_mode = false;
+
+		if ( method_exists( 'Automattic\\Jetpack\\Identity_Crisis', 'validate_sync_error_idc_option' ) && \Automattic\Jetpack\Identity_Crisis::validate_sync_error_idc_option() ) {
+			$in_safe_mode = true;
+		}
+		Cache::set( 'in_safe_mode', $in_safe_mode );
+
+		return $in_safe_mode;
 	}
 
 	/**

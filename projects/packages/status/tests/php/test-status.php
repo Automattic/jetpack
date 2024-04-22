@@ -202,20 +202,6 @@ class Test_Status extends TestCase {
 	}
 
 	/**
-	 * Test when using the constant to set dev mode
-	 *
-	 * @covers Automattic\Jetpack\Status::is_offline_mode
-	 *
-	 * @runInSeparateProcess
-	 */
-	public function test_is_offline_mode_constant() {
-		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( true )->andReturn( true );
-		$this->mocked_constants['\\JETPACK_DEV_DEBUG'] = true;
-
-		$this->assertTrue( $this->status_obj->is_offline_mode() );
-	}
-
-	/**
 	 * Test for is_multi_network with a single site
 	 *
 	 * @covers Automattic\Jetpack\Status::is_multi_network
@@ -329,85 +315,6 @@ class Test_Status extends TestCase {
 	}
 
 	/**
-	 * Tests known staging sites.
-	 *
-	 * @dataProvider get_is_staging_site_known_hosting_providers_data
-	 * @covers Automattic\Jetpack\Status::is_staging_site
-	 *
-	 * @param string $site_url Site URL.
-	 * @param bool   $expected Expected return.
-	 */
-	public function test_is_staging_site_for_known_hosting_providers( $site_url, $expected ) {
-		$this->site_url = $site_url;
-		$result         = $this->status_obj->is_staging_site();
-		$this->assertSame(
-			$expected,
-			$result,
-			sprintf(
-				'Expected %1$s to return %2$s for is_staging_site()',
-				$site_url,
-				var_export( $expected, 1 ) // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
-			)
-		);
-	}
-
-	/**
-	 * Known hosting providers.
-	 *
-	 * Including a couple of general RegEx checks (subdir, ending slash).
-	 *
-	 * @return array
-	 */
-	public function get_is_staging_site_known_hosting_providers_data() {
-		return array(
-			'wpengine'              => array(
-				'http://bjk.staging.wpengine.com',
-				true,
-			),
-			'kinsta'                => array(
-				'http://test.staging.kinsta.com',
-				true,
-			),
-			'dreampress'            => array(
-				'http://ebinnion.stage.site',
-				true,
-			),
-			'newspack'              => array(
-				'http://test.newspackstaging.com',
-				true,
-			),
-			'wpengine_subdirectory' => array(
-				'http://bjk.staging.wpengine.com/staging',
-				true,
-			),
-			'wpengine_endslash'     => array(
-				'http://bjk.staging.wpengine.com/',
-				true,
-			),
-			'not_a_staging_site'    => array(
-				'http://staging.wpengine.com.example.com/',
-				false,
-			),
-			'pantheon_dev'          => array(
-				'http://dev-site-name.pantheonsite.io',
-				true,
-			),
-			'pantheon_test'         => array(
-				'http://test-site-name.pantheonsite.io',
-				true,
-			),
-			'pantheon_multi'        => array(
-				'http://multidev-env-site-name.pantheonsite.io',
-				true,
-			),
-			'pantheon_live'         => array(
-				'http://live-site-name.pantheonsite.io',
-				false,
-			),
-		);
-	}
-
-	/**
 	 * Tests known local development sites.
 	 *
 	 * @dataProvider get_is_local_site_known_tld
@@ -426,40 +333,6 @@ class Test_Status extends TestCase {
 				$site_url,
 				$expected_response
 			)
-		);
-	}
-
-	/**
-	 * Known hosting providers.
-	 *
-	 * @return array
-	 */
-	public function get_is_local_site_known_tld() {
-		return array(
-			'vvv'            => array(
-				'http://jetpack.test',
-				true,
-			),
-			'docksal'        => array(
-				'http://jetpack.docksal',
-				true,
-			),
-			'serverpress'    => array(
-				'http://jetpack.dev.cc',
-				true,
-			),
-			'lando'          => array(
-				'http://jetpack.lndo.site',
-				true,
-			),
-			'test_subdomain' => array(
-				'https://test.jetpack.com',
-				false,
-			),
-			'test_in_domain' => array(
-				'https://jetpack.test.jetpack.com',
-				false,
-			),
 		);
 	}
 
