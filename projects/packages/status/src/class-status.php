@@ -211,20 +211,12 @@ class Status {
 
 	/**
 	 * If is a staging site.
+	 * Core's wp_get_environment_type allows for a few specific options. We recognize as staging anything other than production or local.
 	 *
 	 * @return bool
 	 */
 	public function is_staging_site() {
-		// TODO: Caching this may be an issue if the site is in the process of being moved from staging to production.
-		$cached = Cache::get( 'is_staging_site' );
-		if ( null !== $cached ) {
-			return $cached;
-		}
 
-		/*
-		 * Core's wp_get_environment_type allows for a few specific options.
-		 * We should default to bowing out gracefully for anything other than production or local.
-		 */
 		$is_staging = ! in_array( wp_get_environment_type(), array( 'production', 'local' ), true );
 
 		/**
@@ -252,7 +244,6 @@ class Status {
 		 */
 		$is_staging = apply_filters( 'jetpack_is_staging_site', $is_staging );
 
-		Cache::set( 'is_staging_site', $is_staging );
 		return $is_staging;
 	}
 

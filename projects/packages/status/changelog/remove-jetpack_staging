@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+Staging: removed known_hosts and added is_safe_mode method
