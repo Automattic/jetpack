@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Carousel: ensure that disabling the feature on WordPress.com Simple brings back Core's Lightbox back.

@@ -1,10 +1,11 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
-import { InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
 import { Button, ExternalLink, Placeholder, Spinner, withNotices } from '@wordpress/components';
 import { select, dispatch } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import classNames from 'classnames';
 import { isEqual } from 'lodash';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import testEmbedUrl from '../../shared/test-embed-url';
@@ -28,8 +29,7 @@ const innerButtonBlock = {
 const icon = getBlockIconComponent( metadata );
 
 export function CalendlyEdit( props ) {
-	const { attributes, className, clientId, name, noticeOperations, noticeUI, setAttributes } =
-		props;
+	const { attributes, clientId, name, noticeOperations, noticeUI, setAttributes } = props;
 	const defaultClassName = getBlockDefaultClassName( name );
 	const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
 
@@ -43,6 +43,7 @@ export function CalendlyEdit( props ) {
 	const [ isEditingUrl, setIsEditingUrl ] = useState( false );
 	const [ isResolvingUrl, setIsResolvingUrl ] = useState( false );
 	const [ embedButtonAttributes, setEmbedButtonAttributes ] = useState( {} );
+	const blockProps = useBlockProps();
 
 	const setErrorNotice = () => {
 		noticeOperations.removeAllNotices();
@@ -195,13 +196,13 @@ export function CalendlyEdit( props ) {
 		return blockEmbedding;
 	}
 
-	let classes = className;
-	if ( url && ! isEditingUrl ) {
-		classes += ` calendly-style-${ style }`;
-	}
-
 	return (
-		<div className={ classes }>
+		<div
+			{ ...blockProps }
+			className={ classNames( blockProps.className, {
+				[ `calendly-style-${ style }` ]: url && ! isEditingUrl,
+			} ) }
+		>
 			<CalendlyControls
 				{ ...{
 					...props,

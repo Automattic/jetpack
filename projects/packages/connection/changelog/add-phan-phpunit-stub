@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Fix some Phan issues in tests triggered by updated PHPUnit stubs. No change in functionality.
+
+

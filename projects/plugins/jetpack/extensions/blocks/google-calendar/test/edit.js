@@ -37,7 +37,6 @@ describe( 'GoogleCalendarEdit', () => {
 		setAttributes,
 		clientId: 1,
 		isMobile: false,
-		className: 'custom-calendar-class',
 		isSelected: true,
 		name: 'jetpack/google-calendar',
 		noticeOperations: {
@@ -56,9 +55,6 @@ describe( 'GoogleCalendarEdit', () => {
 		const emptyProps = { ...defaultProps, attributes: emptyAttributes };
 		const { container } = render( <GoogleCalendarEdit { ...emptyProps } /> );
 
-		// Check block specific CSS classes are applied.
-		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-		expect( container.firstChild ).toHaveClass( defaultProps.className );
 		expect(
 			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 			container.querySelector( `.${ defaultClassName }-placeholder-instructions` )

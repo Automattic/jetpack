@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Adds the ability to filter users in the WPCOM_JSON_API_List_Users_Endpoint endpoint by capability

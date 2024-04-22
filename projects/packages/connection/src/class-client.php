@@ -408,11 +408,11 @@ class Client {
 	/**
 	 * Queries the WordPress.com REST API with a user token.
 	 *
-	 * @param  string $path             REST API path.
-	 * @param  string $version          REST API version. Default is `2`.
-	 * @param  array  $args             Arguments to {@see WP_Http}. Default is `array()`.
-	 * @param  string $body             Body passed to {@see WP_Http}. Default is `null`.
-	 * @param  string $base_api_path    REST API root. Default is `wpcom`.
+	 * @param string            $path             REST API path.
+	 * @param string            $version          REST API version. Default is `2`.
+	 * @param array             $args             Arguments to {@see WP_Http}. Default is `array()`.
+	 * @param null|string|array $body       Body passed to {@see WP_Http}. Default is `null`.
+	 * @param string            $base_api_path    REST API root. Default is `wpcom`.
 	 *
 	 * @return array|WP_Error $response Response data, else {@see WP_Error} on failure.
 	 */

@@ -44,7 +44,7 @@ export default function AiAssistantModal( {
 	title?: string;
 } ) {
 	return (
-		<Modal __experimentalHideHeader={ hideHeader }>
+		<Modal __experimentalHideHeader={ hideHeader } className="ai-assistant-modal">
 			<div className="ai-assistant-modal__content">
 				<ModalHeader requestingState={ requestingState } onClose={ handleClose } title={ title } />
 				<hr className="ai-assistant-modal__divider" />
