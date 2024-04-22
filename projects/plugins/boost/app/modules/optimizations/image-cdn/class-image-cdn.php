@@ -97,18 +97,12 @@ class Image_CDN implements Pluggable, Changes_Page_Output, Optimization {
 	 * Injects the image-cdn-liar.js script as an inline script in the footer.
 	 */
 	public function inject_image_cdn_liar_script() {
-		?>
-		<script async type="text/javascript">
-			// Jetpack Boost: Lazy Image Auto Resizer
-			<?php
-			$file = __DIR__ . '/dist/inline-liar.js';
-			if ( file_exists( $file ) ) {
-				// Include the JavaScript directly inline.
-				// phpcs:ignore
-				echo file_get_contents( $file );
-			}
-			?>
-		</script>
-		<?php
+		$file = __DIR__ . '/dist/inline-liar.js';
+		if ( file_exists( $file ) ) {
+			// Include the JavaScript directly inline.
+			// phpcs:ignore
+			$data = file_get_contents( $file );
+			echo wp_get_inline_script_tag( $data, array( 'async' ) );
+		}
 	}
 }
