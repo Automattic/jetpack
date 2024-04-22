@@ -29,19 +29,13 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	public $editor_id;
 
 	/**
-	 * The endpoint object.
-	 *
-	 * @var WPCOM_REST_API_V2_Endpoint_Update_Schedules
-	 */
-	public static $endpoint;
-
-	/**
 	 * Set up before class.
 	 */
 	public static function set_up_before_class() {
 		parent::set_up_before_class();
 
-		self::$endpoint = new WPCOM_REST_API_V2_Endpoint_Update_Schedules();
+		// @phan-suppress-next-line PhanNoopNew
+		new WPCOM_REST_API_V2_Endpoint_Update_Schedules();
 	}
 
 	/**

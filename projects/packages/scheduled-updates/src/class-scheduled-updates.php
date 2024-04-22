@@ -92,9 +92,11 @@ class Scheduled_Updates {
 
 	/**
 	 * Load the REST API endpoints.
+	 *
+	 * @suppress PhanUndeclaredFunction
 	 */
 	public static function load_rest_api_endpoints() {
-		if ( ! function_exists( 'wpcom_rest_api_v2_load_plugin' ) ) {
+		if ( ! function_exists( 'wpcom_rest_api_v2_load_plugin' ) || ! function_exists( 'wpcom_rest_api_v2_load_plugin_files' ) ) {
 			return;
 		}
 
