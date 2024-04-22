@@ -45,6 +45,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 		),
 
 		'request_format'      => array(
+			'in_site_migration_flow'                  => '(bool) Whether the site is currently in the Site Migration signup flow.',
 			'blogname'                                => '(string) Blog name',
 			'blogdescription'                         => '(string) Blog description',
 			'default_pingback_flag'                   => '(bool) Notify blogs linked from article?',
@@ -468,6 +469,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'enable_blocks_comments'           => (bool) get_option( 'enable_blocks_comments', true ),
 						'highlander_comment_form_prompt'   => $this->get_highlander_comment_form_prompt_option(),
 						'jetpack_comment_form_color_scheme' => (string) get_option( 'jetpack_comment_form_color_scheme' ),
+						'in_site_migration_flow'           => (bool) get_option( 'in_site_migration_flow', 0 ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -1133,6 +1135,17 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$updated[ $key ] = $value;
 					}
 
+					break;
+
+				case 'in_site_migration_flow':
+					$canonical_value = (int) (bool) $value;
+					if ( 0 === $canonical_value ) {
+						delete_option( 'in_site_migration_flow' );
+					} else {
+						update_option( 'in_site_migration_flow', $canonical_value );
+					}
+
+					$updated[ $key ] = $canonical_value;
 					break;
 
 				default:
