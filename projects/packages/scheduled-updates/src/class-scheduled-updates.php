@@ -59,6 +59,7 @@ class Scheduled_Updates {
 
 		add_action( 'jetpack_scheduled_update_created', array( __CLASS__, 'maybe_disable_autoupdates' ), 10, 3 );
 		add_action( 'jetpack_scheduled_update_deleted', array( __CLASS__, 'enable_autoupdates' ), 10, 2 );
+		add_action( 'jetpack_scheduled_update_deleted', array( __CLASS__, 'clear_cron_cache' ) );
 		add_action( 'jetpack_scheduled_update_updated', array( Scheduled_Updates_Logs::class, 'replace_logs_schedule_id' ), 10, 2 );
 		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Logs::class, 'delete_logs_schedule_id' ), 10, 3 );
 
@@ -130,32 +131,6 @@ class Scheduled_Updates {
 			),
 			'wpcom'
 		);
-	}
-
-	/**
-	 * Create a scheduled update.
-	 *
-	 * @param int    $timestamp Timestamp of the first run.
-	 * @param string $interval  Interval of the update.
-	 * @param array  $plugins   List of plugins to update.
-	 * @return \WP_Error|bool True on success, WP_Error on failure.
-	 */
-	public static function create_scheduled_update( $timestamp, $interval, $plugins ) {
-		return wp_schedule_event( $timestamp, $interval, self::PLUGIN_CRON_HOOK, $plugins, true );
-	}
-
-	/**
-	 * Remove a scheduled update.
-	 *
-	 * @param int   $timestamp Timestamp of the first run.
-	 * @param array $plugins   List of plugins to update.
-	 * @return \WP_Error|bool True on success, WP_Error on failure.
-	 */
-	public static function delete_scheduled_update( $timestamp, $plugins ) {
-		// Be sure to clear the cron cache before removing a cron entry.
-		self::clear_cron_cache();
-
-		return wp_unschedule_event( $timestamp, self::PLUGIN_CRON_HOOK, $plugins, true );
 	}
 
 	/**
@@ -432,7 +407,7 @@ class Scheduled_Updates {
 
 		$events = wp_get_scheduled_events( self::PLUGIN_CRON_HOOK );
 
-		if ( ! count( $events ) ) {
+		if ( empty( $events ) ) {
 			return;
 		}
 
@@ -442,32 +417,29 @@ class Scheduled_Updates {
 				continue;
 			}
 
-			// Remove the schedule.
-			$result = self::delete_scheduled_update( $event->timestamp, $event->args );
+			$endpoint = new \WPCOM_REST_API_V2_Endpoint_Update_Schedules();
+			$plugins  = array_values( array_diff( $event->args, array( $plugin_file ) ) );
 
-			if ( is_wp_error( $result ) || false === $result ) {
-				continue;
-			}
+			if ( empty( $plugins ) ) {
+				// Delete the schedule if there are no more plugins.
+				$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . $id );
+				$request->set_query_params( array( 'schedule_id' => $id ) );
 
-			$plugins = array_values( array_diff( $event->args, array( $plugin_file ) ) );
+				$endpoint->delete_item( $request );
+			} else {
+				$request = new \WP_REST_Request( 'DELETE', '/wpcom/v2/update-schedules/' . $id );
+				$request->set_body_params(
+					array(
+						'schedule_id' => $id,
+						'plugins'     => $plugins,
+						'schedule'    => array(
+							'interval'  => $event->schedule,
+							'timestamp' => $event->timestamp,
+						),
+					)
+				);
 
-			if ( ! count( $plugins ) ) {
-				continue;
-			}
-
-			// There are still plugins to update. Schedule a new event.
-			$result = self::create_scheduled_update( $event->timestamp, $event->schedule, $plugins );
-
-			if ( is_wp_error( $result ) || false === $result ) {
-				continue;
-			}
-
-			$schedule_id = self::generate_schedule_id( $plugins );
-			$status      = self::get_scheduled_update_status( $id );
-
-			// Inherit the status from the previous schedule.
-			if ( $status ) {
-				Scheduled_Updates_Logs::replace_logs_schedule_id( $id, $schedule_id );
+				$endpoint->update_item( $request );
 			}
 		}
 	}

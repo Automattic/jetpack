@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Scheduled Updates: Reused endpoint hooks for cache purge and move deleted plugins callback to using endpoint callbacks
