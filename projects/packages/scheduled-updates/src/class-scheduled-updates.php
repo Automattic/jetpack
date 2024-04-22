@@ -59,9 +59,9 @@ class Scheduled_Updates {
 
 		add_action( 'jetpack_scheduled_update_created', array( __CLASS__, 'maybe_disable_autoupdates' ), 10, 3 );
 		add_action( 'jetpack_scheduled_update_created', array( __CLASS__, 'create_scheduled_update_status' ), 10, 3 );
-		add_action( 'jetpack_scheduled_update_updated', array( __CLASS__, 'migrate_schedule_status' ), 10, 2 );
 		add_action( 'jetpack_scheduled_update_deleted', array( __CLASS__, 'enable_autoupdates' ), 10, 2 );
-		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Logs::class, 'clear' ) );
+		add_action( 'jetpack_scheduled_update_updated', array( Scheduled_Updates_Logs::class, 'replace_logs_schedule_id' ), 10, 2 );
+		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Logs::class, 'delete_logs_schedule_id' ), 10, 3 );
 
 		// Update cron sync option after options update.
 		$callback = array( __CLASS__, 'update_option_cron' );
@@ -244,21 +244,6 @@ class Scheduled_Updates {
 	 */
 	public static function get_scheduled_update_status( $schedule_id ) {
 		return Scheduled_Updates_Logs::infer_status_from_logs( $schedule_id );
-	}
-
-	/**
-	 * Migrate the status of a scheduled update.
-	 *
-	 * @param string $old_schedule_id Old schedule ID.
-	 * @param string $new_schedule_id New schedule ID.
-	 */
-	public static function migrate_schedule_status( $old_schedule_id, $new_schedule_id ) {
-		$old_status = static::get_scheduled_update_status( $old_schedule_id );
-
-		// Sets the previous status.
-		if ( $old_status ) {
-			static::set_scheduled_update_status( $new_schedule_id, $old_status['last_run_timestamp'], $old_status['last_run_status'] );
-		}
 	}
 
 	/**
