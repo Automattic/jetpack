@@ -320,12 +320,12 @@ class JPCRM_Fonts {
 	 *
 	 * This is an an adapted version of install_font_family() from https://github.com/dompdf/utils
 	 *
-	 * @param Dompdf $dompdf      dompdf main object 
-	 * @param string $fontname    the font-family name
-	 * @param string $normal      the filename of the normal face font subtype
-	 * @param string $bold        the filename of the bold face font subtype
-	 * @param string $italic      the filename of the italic face font subtype
-	 * @param string $bold_italic the filename of the bold italic face font subtype
+	 * @param Dompdf      $dompdf dompdf main object.
+	 * @param string      $fontname the font-family name.
+	 * @param string      $normal the filename of the normal face font subtype.
+	 * @param string|null $bold the filename of the bold face font subtype.
+	 * @param string|null $italic the filename of the italic face font subtype.
+	 * @param string|null $bold_italic the filename of the bold italic face font subtype.
 	 *
 	 * @throws Exception
 	 */
@@ -578,11 +578,11 @@ class JPCRM_Fonts {
 	 * Loads a font file collection (.ttf's) onto the server for dompdf
 	 * only needs to fire once
 	 *
-	 * @param string $font_name Font name.
-	 * @param string $regular_file Regular font file.
-	 * @param string $bold_file Bold font file.
-	 * @param string $italic_file Italic font file.
-	 * @param string $bold_italic_file Bold italic font file.
+	 * @param string      $font_name Font name.
+	 * @param string      $regular_file Regular font file.
+	 * @param string|null $bold_file Bold font file.
+	 * @param string|null $italic_file Italic font file.
+	 * @param string|null $bold_italic_file Bold italic font file.
 	 */
 	public function load_font( $font_name = '', $regular_file = '', $bold_file = null, $italic_file = null, $bold_italic_file = null ) {
 
