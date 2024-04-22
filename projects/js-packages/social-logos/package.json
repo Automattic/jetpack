@@ -2,6 +2,7 @@
 	"name": "social-logos",
 	"version": "3.0.0-alpha",
 	"description": "A repository of all the social logos used on WordPress.com.",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/social-logos/",
 	"type": "module",
 	"main": "build/react/index.jsx",
 	"peerDependencies": {
