@@ -75,7 +75,8 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"ai-assistant-backend-prompts",
-		"ai-logo-generator"
+		"ai-logo-generator",
+		"ai-title-optimization"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [
