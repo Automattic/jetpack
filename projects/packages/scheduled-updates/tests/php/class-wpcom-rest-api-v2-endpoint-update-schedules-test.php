@@ -911,16 +911,14 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	}
 
 	/**
-	 * Test create item.
+	 * Test create item with paths.
 	 *
 	 * @covers ::create_item
 	 */
-	public function test_create_item_with_paths() {
-		$plugins = array(
-			'custom-plugin/custom-plugin.php',
-			'gutenberg/gutenberg.php',
-		);
+	public function test_create_item_with_valid_paths() {
+		$plugins = array( 'gutenberg/gutenberg.php' );
 		$paths   = array(
+			'test',
 			'/test-path',
 			'test-path-2',
 		);
@@ -928,7 +926,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => $this->get_schedule( 'next Monday 8:00', 'weekly', array( '/test-path', 'test-path-2' ) ),
+				'schedule' => $this->get_schedule( 'next Monday 8:00', 'weekly', $paths ),
 			)
 		);
 		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
@@ -942,6 +940,52 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		$option_paths = Scheduled_Updates::get_scheduled_update_health_check_paths( $schedule_id );
 		$this->assertSame( $paths, $option_paths );
+	}
+
+	/**
+	 * Test create item with paths.
+	 *
+	 * @covers ::create_item
+	 */
+	public function test_create_item_with_various_paths() {
+		$plugins = array( 'gutenberg/gutenberg.php' );
+		$paths   = array(
+			"a\nb",
+			'=',
+			'=',
+			' ',
+			"\ntest\t",
+			'*',
+			'ünicode',
+		);
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$request->set_body_params(
+			array(
+				'plugins'  => $plugins,
+				'schedule' => $this->get_schedule( 'next Monday 8:00', 'weekly', $paths ),
+			)
+		);
+		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
+
+		// Successful request.
+		wp_set_current_user( $this->admin_id );
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( $schedule_id, $result->get_data() );
+
+		$option_paths = Scheduled_Updates::get_scheduled_update_health_check_paths( $schedule_id );
+		$this->assertSame(
+			array(
+				'a_b',
+				'=',
+				'',
+				'test',
+				'*',
+				'ünicode',
+			),
+			$option_paths
+		);
 	}
 
 	/**

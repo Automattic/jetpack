@@ -175,12 +175,14 @@ class Scheduled_Updates {
 		$parsed_paths = array();
 
 		foreach ( $paths as $path ) {
-			$parsed = wp_parse_url( $path, PHP_URL_PATH );
+			$parsed = wp_parse_url( trim( $path ), PHP_URL_PATH );
 
 			if ( is_string( $parsed ) ) {
 				$parsed_paths[] = $parsed;
 			}
 		}
+
+		$parsed_paths = array_values( array_unique( $parsed_paths ) );
 
 		if ( count( $parsed_paths ) ) {
 			$option[ $schedule_id ] = $parsed_paths;
