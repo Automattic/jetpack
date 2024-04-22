@@ -45,7 +45,7 @@ class Test_URL_Secret extends TestCase {
 		static::assertTrue( $is_created );
 		static::assertTrue( $does_exist );
 		static::assertSame( 1, preg_match( '/^[a-z0-9]{12}$/i', $secret ) );
-		static::assertTrue( is_int( $expires_at ) );
+		static::assertTrue( (bool) preg_match( '/^\d+$/', $expires_at ) );
 		static::assertEquals( strlen( (string) time() ), strlen( $expires_at ) );
 	}
 
