@@ -99,11 +99,8 @@ class Image_CDN implements Pluggable, Changes_Page_Output, Optimization {
 	public function inject_image_cdn_liar_script() {
 		?>
 		<script async>
-			<?php
-			// Insecure and Temporary
-			// phpcs:ignore
-			echo file_get_contents( __DIR__ . '/dist/liar.js' );
-			?>
+			// Jetpack Boost: Lazy Image Auto Resizer
+			<?php include __DIR__ . '/dist/inline-liar.js.php'; ?>
 		</script>
 		<?php
 	}

@@ -162,7 +162,7 @@ module.exports = [
 		devtool: jetpackWebpackConfig.devtool,
 		output: {
 			path: path.resolve( './app/modules/optimizations/image-cdn/dist' ),
-			filename: 'liar.js',
+			filename: 'inline-liar.js.php',
 		},
 		optimization: {
 			...jetpackWebpackConfig.optimization,
