@@ -18,7 +18,8 @@ import styles from './styles.module.scss';
  */
 function SiteConnectedContent() {
 	const navigateToDashboard = useCallback( () => {
-		window.location.href = 'https://agencies.automattic.com?source=client-plugin';
+		const currentUrl = encodeURIComponent( window.location.href );
+		window.location.href = `https://agencies.automattic.com?source=client-plugin&wp-admin-url=${ currentUrl }`;
 	}, [] );
 
 	return (
