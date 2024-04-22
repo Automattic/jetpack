@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Newsletters: Add reply to behaviour setting
+Componetnts: Add SelectControl - similar to RadioControl, but with select element.
