@@ -2,12 +2,15 @@
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed
 
+use Automattic\Jetpack\Publicize\Publicize;
+
 if ( ! function_exists( 'publicize_init' ) ) {
 	/**
 	 * Some tests rely on this function which won't get defined unless we mock lots
 	 * of things and require the module code. Instead we'll define it here.
 	 *
-	 * @return Publicize Object
+	 * @return \Automattic\Jetpack\Publicize\Publicize|\Publicize Object
+	 * @phan-suppress PhanRedefineFunction
 	 */
 	function publicize_init() {
 		global $publicize;
@@ -130,7 +133,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 
 	private function setup_publicize_mock() {
 		global $publicize;
-		$this->publicize = $this->getMockBuilder( 'Automattic\Jetpack\Publicize\Publicize' )->setMethods( array( 'test_connection' ) )->getMock();
+		$this->publicize = $this->getMockBuilder( Publicize::class )->setMethods( array( 'test_connection' ) )->getMock();
 
 		$this->publicize->method( 'test_connection' )
 			->withAnyParameters()
