@@ -18,5 +18,8 @@
 		}
 	],
 	"minimum-stability": "dev",
-	"prefer-stable": true
+	"prefer-stable": true,
+	"extra": {
+		"npmjs-autopublish": true
+	}
 }
