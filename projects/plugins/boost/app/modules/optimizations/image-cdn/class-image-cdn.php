@@ -100,7 +100,7 @@ class Image_CDN implements Pluggable, Changes_Page_Output, Optimization {
 		?>
 		<script async type="text/javascript">
 			// Jetpack Boost: Lazy Image Auto Resizer
-			<?php include __DIR__ . '/dist/inline-liar.js.php'; ?>
+			<?php include __DIR__ . '/inline-liar.js.php'; ?>
 		</script>
 		<?php
 	}
