@@ -911,7 +911,7 @@ class Manager {
 			return false;
 		}
 
-		if ( in_array( $user_id, static::$disconnected_users, true ) ) {
+		if ( in_array( $user_id, self::$disconnected_users, true ) ) {
 			// The user is already disconnected.
 			return false;
 		}
@@ -945,7 +945,7 @@ class Manager {
 			}
 		}
 
-		static::$disconnected_users[] = $user_id;
+		self::$disconnected_users[] = $user_id;
 
 		return $is_disconnected_from_wpcom && $is_disconnected_locally;
 	}
