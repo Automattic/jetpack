@@ -247,21 +247,6 @@ class Scheduled_Updates {
 	}
 
 	/**
-	 * Migrate the status of a scheduled update.
-	 *
-	 * @param string $old_schedule_id Old schedule ID.
-	 * @param string $new_schedule_id New schedule ID.
-	 */
-	public static function migrate_schedule_status( $old_schedule_id, $new_schedule_id ) {
-		$old_status = static::get_scheduled_update_status( $old_schedule_id );
-
-		// Sets the previous status.
-		if ( $old_status ) {
-			static::set_scheduled_update_status( $new_schedule_id, $old_status['last_run_timestamp'], $old_status['last_run_status'] );
-		}
-	}
-
-	/**
 	 * Allow plugins that are part of scheduled updates to be updated automatically.
 	 *
 	 * @param bool|null $update Whether to update. The value of null is internally used
