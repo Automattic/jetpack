@@ -3,13 +3,13 @@
  */
 import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { getBlockContent } from '@wordpress/blocks';
 import { MenuItem, MenuGroup, ToolbarButton, Dropdown, Notice } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { post, postContent, postExcerpt, termDescription, blockTable } from '@wordpress/icons';
 import debugFactory from 'debug';
+import React from 'react';
 /**
  * Internal dependencies
  */
@@ -23,7 +23,7 @@ import {
 	PROMPT_TYPE_CHANGE_LANGUAGE,
 	PROMPT_TYPE_USER_PROMPT,
 } from '../../lib/prompt';
-import { getRawTextFromHTML } from '../../lib/utils/block-content';
+import { getBlocksContent, getRawTextFromHTML } from '../../lib/utils/block-content';
 import { transformToAIAssistantBlock } from '../../transforms';
 import { I18nMenuDropdown } from '../i18n-dropdown-control';
 import { ToneDropdownMenu } from '../tone-dropdown-control';
@@ -39,16 +39,16 @@ import type { ReactElement } from 'react';
 const debug = debugFactory( 'jetpack-ai-assistant:dropdown' );
 
 // Quick edits option: "Correct spelling and grammar"
-const QUICK_EDIT_KEY_CORRECT_SPELLING = 'correct-spelling' as const;
+export const QUICK_EDIT_KEY_CORRECT_SPELLING = 'correct-spelling' as const;
 
 // Quick edits option: "Simplify"
-const QUICK_EDIT_KEY_SIMPLIFY = 'simplify' as const;
+export const QUICK_EDIT_KEY_SIMPLIFY = 'simplify' as const;
 
 // Quick edits option: "Summarize"
-const QUICK_EDIT_KEY_SUMMARIZE = 'summarize' as const;
+export const QUICK_EDIT_KEY_SUMMARIZE = 'summarize' as const;
 
 // Quick edits option: "Make longer"
-const QUICK_EDIT_KEY_MAKE_LONGER = 'make-longer' as const;
+export const QUICK_EDIT_KEY_MAKE_LONGER = 'make-longer' as const;
 
 // Ask AI Assistant option
 export const KEY_ASK_AI_ASSISTANT = 'ask-ai-assistant' as const;
@@ -105,45 +105,102 @@ const quickActionsList = {
 	],
 };
 
-export type AiAssistantDropdownOnChangeOptionsArgProps = {
+type AiAssistantDropdownOnChangeOptionsArgProps = {
 	tone?: ToneProp;
 	language?: string;
 	userPrompt?: string;
 };
 
-type AiAssistantControlComponentProps = {
-	/*
-	 * The block type. Required.
-	 */
+type AiAssistantToolbarDropdownContentProps = {
 	blockType: ExtendedBlockProp;
+	disabled?: boolean;
+	onAskAiAssistant: () => void;
+	onRequestSuggestion: (
+		promptType: PromptTypeProp,
+		options?: AiAssistantDropdownOnChangeOptionsArgProps
+	) => void;
 };
 
 /**
- * Given a list of blocks, it returns their content as a string.
- * @param {Array} blocks - The list of blocks.
- * @returns {string}       The content of the blocks as a string.
+ * The React UI content of the dropdown.
+ * @param {AiAssistantToolbarDropdownContentProps} props - The props.
+ * @returns {ReactElement} The React content of the dropdown.
  */
-export function getBlocksContent( blocks ) {
-	return blocks
-		.filter( block => block != null ) // Safeguard against null or undefined blocks
-		.map( block => getBlockContent( block ) )
-		.join( '\n\n' );
+function AiAssistantToolbarDropdownContent( {
+	blockType,
+	disabled = false,
+	onAskAiAssistant,
+	onRequestSuggestion,
+}: AiAssistantToolbarDropdownContentProps ): ReactElement {
+	const blockQuickActions = quickActionsList[ blockType ] ?? [];
+
+	return (
+		<>
+			{ disabled && (
+				<Notice status="warning" isDismissible={ false } className="jetpack-ai-assistant__info">
+					{ __( 'Add content to activate the tools below', 'jetpack' ) }
+				</Notice>
+			) }
+
+			<MenuGroup>
+				<MenuItem
+					icon={ aiAssistantIcon }
+					iconPosition="left"
+					key="key-ai-assistant"
+					onClick={ onAskAiAssistant }
+					disabled={ disabled }
+				>
+					<div className="jetpack-ai-assistant__menu-item">
+						{ __( 'Ask AI Assistant', 'jetpack' ) }
+					</div>
+				</MenuItem>
+
+				{ [ ...quickActionsList.default, ...blockQuickActions ].map( quickAction => (
+					<MenuItem
+						icon={ quickAction?.icon }
+						iconPosition="left"
+						key={ `key-${ quickAction.key }` }
+						onClick={ () => {
+							onRequestSuggestion( quickAction.aiSuggestion, { ...( quickAction.options ?? {} ) } );
+						} }
+						disabled={ disabled }
+					>
+						<div className="jetpack-ai-assistant__menu-item">{ quickAction.name }</div>
+					</MenuItem>
+				) ) }
+
+				<ToneDropdownMenu
+					onChange={ tone => {
+						onRequestSuggestion( PROMPT_TYPE_CHANGE_TONE, { tone } );
+					} }
+					disabled={ disabled }
+				/>
+
+				<I18nMenuDropdown
+					onChange={ language => {
+						onRequestSuggestion( PROMPT_TYPE_CHANGE_LANGUAGE, { language } );
+					} }
+					disabled={ disabled }
+				/>
+			</MenuGroup>
+		</>
+	);
 }
 
-type AiAssistantDropdownContentProps = {
+type AiAssistantBlockToolbarDropdownContentProps = {
 	onClose: () => void;
 	blockType: ExtendedBlockProp;
 };
 
 /**
- * The React content of the dropdown.
- * @param {AiAssistantDropdownContentProps} props - The props.
+ * The dropdown component with logic for the AI Assistant block.
+ * @param {AiAssistantBlockToolbarDropdownContentProps} props - The props.
  * @returns {ReactElement} The React content of the dropdown.
  */
-function AiAssistantDropdownContent( {
+function AiAssistantBlockToolbarDropdownContent( {
 	onClose,
 	blockType,
-}: AiAssistantDropdownContentProps ): ReactElement {
+}: AiAssistantBlockToolbarDropdownContentProps ) {
 	// Set the state for the no content info.
 	const [ noContent, setNoContent ] = useState( false );
 
@@ -247,62 +304,30 @@ function AiAssistantDropdownContent( {
 		tracks.recordEvent( 'jetpack_ai_assistant_prompt_show', { block_type: blockType } );
 	};
 
-	const blockQuickActions = quickActionsList[ blockType ] ?? [];
-
 	return (
-		<>
-			{ noContent && (
-				<Notice status="warning" isDismissible={ false } className="jetpack-ai-assistant__info">
-					{ __( 'Add content to activate the tools below', 'jetpack' ) }
-				</Notice>
-			) }
-
-			<MenuGroup>
-				<MenuItem
-					icon={ aiAssistantIcon }
-					iconPosition="left"
-					key="key-ai-assistant"
-					onClick={ replaceWithAiAssistantBlock }
-					disabled={ noContent }
-				>
-					<div className="jetpack-ai-assistant__menu-item">
-						{ __( 'Ask AI Assistant', 'jetpack' ) }
-					</div>
-				</MenuItem>
-
-				{ [ ...quickActionsList.default, ...blockQuickActions ].map( quickAction => (
-					<MenuItem
-						icon={ quickAction?.icon }
-						iconPosition="left"
-						key={ `key-${ quickAction.key }` }
-						onClick={ () => {
-							requestSuggestion( quickAction.aiSuggestion, { ...( quickAction.options ?? {} ) } );
-						} }
-						disabled={ noContent }
-					>
-						<div className="jetpack-ai-assistant__menu-item">{ quickAction.name }</div>
-					</MenuItem>
-				) ) }
-
-				<ToneDropdownMenu
-					onChange={ tone => {
-						requestSuggestion( PROMPT_TYPE_CHANGE_TONE, { tone } );
-					} }
-					disabled={ noContent }
-				/>
-
-				<I18nMenuDropdown
-					onChange={ language => {
-						requestSuggestion( PROMPT_TYPE_CHANGE_LANGUAGE, { language } );
-					} }
-					disabled={ noContent }
-				/>
-			</MenuGroup>
-		</>
+		<AiAssistantToolbarDropdownContent
+			blockType={ blockType }
+			onRequestSuggestion={ requestSuggestion }
+			onAskAiAssistant={ replaceWithAiAssistantBlock }
+			disabled={ noContent }
+		/>
 	);
 }
 
-export default function AiAssistantDropdown( { blockType }: AiAssistantControlComponentProps ) {
+type AiAssistantBlockToolbarDropdownProps = {
+	blockType: ExtendedBlockProp;
+	label?: string;
+};
+
+/**
+ * The AI Assistant dropdown component.
+ * @param {AiAssistantBlockToolbarDropdownProps} props - The props.
+ * @returns {ReactElement} The AI Assistant dropdown component.
+ */
+export default function AiAssistantBlockToolbarDropdown( {
+	blockType,
+	label = __( 'AI Assistant', 'jetpack' ),
+}: AiAssistantBlockToolbarDropdownProps ) {
 	const { tracks } = useAnalytics();
 
 	const toggleHandler = isOpen => {
@@ -312,6 +337,7 @@ export default function AiAssistantDropdown( { blockType }: AiAssistantControlCo
 			} );
 		}
 	};
+
 	return (
 		<Dropdown
 			popoverProps={ {
@@ -325,14 +351,14 @@ export default function AiAssistantDropdown( { blockType }: AiAssistantControlCo
 						onClick={ onToggle }
 						aria-haspopup="true"
 						aria-expanded={ isOpen }
-						label={ __( 'AI Assistant', 'jetpack' ) }
+						label={ label }
 						icon={ aiAssistantIcon }
 					/>
 				);
 			} }
 			onToggle={ toggleHandler }
 			renderContent={ ( { onClose: onClose } ) => (
-				<AiAssistantDropdownContent onClose={ onClose } blockType={ blockType } />
+				<AiAssistantBlockToolbarDropdownContent onClose={ onClose } blockType={ blockType } />
 			) }
 		/>
 	);
