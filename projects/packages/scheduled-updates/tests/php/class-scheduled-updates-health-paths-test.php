@@ -81,7 +81,47 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 	 * @covers ::validate
 	 */
 	public function test_validate() {
-		$this->assertSame( 'test', Scheduled_Updates_Health_Paths::validate( 'test' ) );
+		$site_url     = get_site_url();
+		$paths        = array(
+			'',
+			'/',
+			"a\nb",
+			'/a/b',
+			'=',
+			"test\n\t",
+			'ünicode',
+			'/index.php?foo=bar',
+			'/index.php?foo=bar&bar=baz#test',
+			'?foo=bar',
+		);
+		$parsed_paths = array(
+			'/',
+			'/',
+			'/a_b',
+			'/a/b',
+			'/=',
+			'/test',
+			'/ünicode',
+			'/index.php?foo=bar',
+			'/index.php?foo=bar&bar=baz',
+			'/?foo=bar',
+			'/',
+			'/',
+		);
+
+		// Same paths with a URL prefix.
+		$paths_with_url = array_map(
+			function ( $path ) use ( $site_url ) {
+				$path = strlen( $path ) ? '/' . ltrim( $path, '/' ) : '';
+				return $site_url . $path;
+			},
+			$paths
+		);
+
+		foreach ( $paths as $index => $path ) {
+			$this->assertSame( $parsed_paths[ $index ], Scheduled_Updates_Health_Paths::validate( $paths_with_url[ $index ] ) );
+			$this->assertSame( $parsed_paths[ $index ], Scheduled_Updates_Health_Paths::validate( $path ) );
+		}
 	}
 
 	/**
@@ -147,10 +187,11 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame(
 			array(
-				'a_b',
-				'=',
-				'test',
-				'ünicode',
+				'/a_b',
+				'/=',
+				'/',
+				'/test',
+				'/ünicode',
 			),
 			$option_paths
 		);
@@ -185,7 +226,7 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( $schedule_id_1, $result->get_data() );
 
 		$option_paths = Scheduled_Updates_Health_Paths::get( $schedule_id_1 );
-		$this->assertSame( array( 'a', 'b' ), $option_paths );
+		$this->assertSame( array( '/a', '/b' ), $option_paths );
 
 		$plugins[]     = 'wp-test-plugin/wp-test-plugin.php';
 		$schedule_id_2 = Scheduled_Updates::generate_schedule_id( $plugins );
@@ -206,7 +247,7 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( $schedule_id_2, $result->get_data() );
 
 		$option_paths = Scheduled_Updates_Health_Paths::get( $schedule_id_2 );
-		$this->assertSame( array( 'c', 'd' ), $option_paths );
+		$this->assertSame( array( '/c', '/d' ), $option_paths );
 
 		$request = new WP_REST_Request( 'DELETE', '/wpcom/v2/update-schedules/' . $schedule_id_1 );
 		$result  = rest_do_request( $request );

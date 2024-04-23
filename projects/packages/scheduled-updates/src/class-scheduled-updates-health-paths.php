@@ -89,15 +89,39 @@ class Scheduled_Updates_Health_Paths {
 	 */
 	public static function validate( $path ) {
 		if ( ! is_string( $path ) ) {
-			return new WP_Error( 'rest_invalid_path', __( 'The path must be a string.', 'jetpack-scheduled-updates' ), array( 'status' => 400 ) );
+			return new WP_Error( 'rest_invalid_path', __( 'The path must be a string.', 'jetpack-scheduled-updates' ) );
 		}
 
-		$parsed = wp_parse_url( trim( $path ), PHP_URL_PATH );
+		$parsed = wp_parse_url( trim( $path ) );
 
-		if ( false === $parsed || '' === $parsed ) {
-			return new WP_Error( 'rest_invalid_path', __( 'The path must be a valid URL.', 'jetpack-scheduled-updates' ), array( 'status' => 400 ) );
+		if ( false === $parsed ) {
+			return new WP_Error( 'rest_invalid_path', __( 'The path must be a valid URL.', 'jetpack-scheduled-updates' ) );
 		}
 
-		return $parsed;
+		if ( array_key_exists( 'host', $parsed ) ) {
+			$site_url = wp_parse_url( get_site_url() );
+
+			if ( $site_url['host'] !== $parsed['host'] ) {
+				return new WP_Error( 'rest_invalid_path', __( 'The URL is not from the current site.', 'jetpack-scheduled-updates' ) );
+			}
+
+			if ( array_key_exists( 'scheme', $parsed ) && $site_url['scheme'] !== $parsed['scheme'] ) {
+				return new WP_Error( 'rest_invalid_path', __( 'The URL scheme must match the current site.', 'jetpack-scheduled-updates' ) );
+			}
+		}
+
+		if ( ! array_key_exists( 'path', $parsed ) ) {
+			$parsed['path'] = '';
+		} else {
+			$parsed['path'] = trim( $parsed['path'] );
+		}
+
+		$ret = '/' . ltrim( $parsed['path'], '/\\' );
+
+		if ( array_key_exists( 'query', $parsed ) ) {
+			$ret .= '?' . trim( $parsed['query'] );
+		}
+
+		return $ret;
 	}
 }
