@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: fix minor issue where the TOS component was being called inside of a <p>, throwing a warning that <p> can't be a descendant of <p>. This also fixes the font size of the TOS text.

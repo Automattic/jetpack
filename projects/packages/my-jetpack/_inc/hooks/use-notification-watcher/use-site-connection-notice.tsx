@@ -113,9 +113,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		) : (
 			<Col>
 				<Text mb={ 2 }>{ siteConnectionContent.message }</Text>
-				<Text variant="body-extra-small">
-					<TermsOfService agreeButtonLabel={ siteConnectionContent.buttonLabel } />
-				</Text>
+				<TermsOfService agreeButtonLabel={ siteConnectionContent.buttonLabel } />
 			</Col>
 		);
 
