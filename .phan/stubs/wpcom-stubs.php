@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from WordPress.com commit 97bbb5df6304c8b3628f0168f11a1428421e8d98.
+ * Stubs automatically generated from WordPress.com commit 445f4e86b57d3ab972660e191db3dd7026ddbff6.
  *
  * Do not edit this directly! Update the definition file in the wpcom repo at
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
@@ -902,7 +902,7 @@ namespace {
     /**
      * @return int
      */
-    function wpcom_reach_total_for_blog()
+    function wpcom_reach_total_for_blog($args = [])
     {
     }
     /**
