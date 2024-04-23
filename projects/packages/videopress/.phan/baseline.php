@@ -12,7 +12,6 @@ return [
     // PhanPluginDuplicateConditionalNullCoalescing : 20+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 10+ occurrences
     // PhanUndeclaredClassMethod : 10+ occurrences
-    // PhanUndeclaredFunction : 10+ occurrences
     // PhanTypeMismatchReturn : 8 occurrences
     // PhanUndeclaredProperty : 8 occurrences
     // PhanTypeArraySuspicious : 6 occurrences
@@ -22,6 +21,7 @@ return [
     // PhanNonClassMethodCall : 4 occurrences
     // PhanTypeArraySuspiciousNullable : 4 occurrences
     // PhanTypeMismatchArgument : 4 occurrences
+    // PhanUndeclaredFunction : 4 occurrences
     // PhanNoopNew : 3 occurrences
     // PhanParamTooMany : 3 occurrences
     // PhanUndeclaredMethod : 3 occurrences
@@ -49,11 +49,11 @@ return [
     'file_suppressions' => [
         'src/class-access-control.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction'],
         'src/class-admin-ui.php' => ['PhanUndeclaredClassMethod'],
-        'src/class-ajax.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredFunction'],
+        'src/class-ajax.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'src/class-attachment-handler.php' => ['PhanNonClassMethodCall', 'PhanTypeArraySuspicious'],
         'src/class-block-editor-content.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-block-editor-extensions.php' => ['PhanRedundantCondition', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/class-data.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious', 'PhanTypeMismatchReturn', 'PhanUndeclaredFunction'],
+        'src/class-data.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious', 'PhanTypeMismatchReturn'],
         'src/class-divi.php' => ['PhanUndeclaredProperty'],
         'src/class-initializer.php' => ['PhanNoopNew', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredMethod'],
         'src/class-jwt-token-bridge.php' => ['PhanTypeMismatchReturn'],

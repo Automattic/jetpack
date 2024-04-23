@@ -46,5 +46,6 @@ foreach ( $iter as $k => $v ) {
 		$config['files'][ $k ] = '*';
 	}
 }
+ksort( $config['files'] );
 
 return $config;

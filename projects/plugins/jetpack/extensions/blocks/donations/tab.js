@@ -6,7 +6,9 @@ import {
 	minimumTransactionAmountForCurrency,
 } from '../../shared/currencies';
 import Amount from './amount';
-import { DEFAULT_CHOOSE_AMOUNT_TEXT, DEFAULT_CUSTOM_AMOUNT_TEXT } from './constants';
+import { getDefaultTexts } from './utils';
+
+const DEFAULT_TEXTS = getDefaultTexts();
 
 const Tab = ( { activeTab, attributes, setAttributes } ) => {
 	const {
@@ -15,8 +17,8 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 		monthlyDonation,
 		annualDonation,
 		showCustomAmount,
-		chooseAmountText = DEFAULT_CHOOSE_AMOUNT_TEXT,
-		customAmountText = DEFAULT_CUSTOM_AMOUNT_TEXT,
+		chooseAmountText = DEFAULT_TEXTS.chooseAmountText,
+		customAmountText = DEFAULT_TEXTS.customAmountText,
 	} = attributes;
 
 	const donationAttributes = {
@@ -25,9 +27,9 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 		'1 year': 'annualDonation',
 	};
 
-	const getDonationValue = key => attributes[ donationAttributes[ activeTab ] ][ key ];
+	const donationAttribute = donationAttributes[ activeTab ];
+	const getDonationValue = key => attributes[ donationAttribute ][ key ];
 	const setDonationValue = ( key, value ) => {
-		const donationAttribute = donationAttributes[ activeTab ];
 		const donation = attributes[ donationAttribute ];
 		setAttributes( {
 			[ donationAttribute ]: {
@@ -66,7 +68,7 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 			<RichText
 				tagName="h4"
 				placeholder={ __( 'Write a message…', 'jetpack' ) }
-				value={ getDonationValue( 'heading' ) }
+				value={ getDonationValue( 'heading' ) || DEFAULT_TEXTS[ donationAttribute ]?.heading }
 				onChange={ value => setDonationValue( 'heading', value ) }
 			/>
 			<RichText
@@ -112,14 +114,16 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 			<RichText
 				tagName="p"
 				placeholder={ __( 'Write a message…', 'jetpack' ) }
-				value={ getDonationValue( 'extraText' ) }
+				value={ getDonationValue( 'extraText' ) ?? DEFAULT_TEXTS.extraText }
 				onChange={ value => setDonationValue( 'extraText', value ) }
 			/>
 			<div className="wp-block-button donations__donate-button-wrapper">
 				<RichText
 					className="wp-block-button__link donations__donate-button"
 					placeholder={ __( 'Write a message…', 'jetpack' ) }
-					value={ getDonationValue( 'buttonText' ) }
+					value={
+						getDonationValue( 'buttonText' ) || DEFAULT_TEXTS[ donationAttribute ]?.buttonText
+					}
 					onChange={ value => setButtonText( value ) }
 					allowedFormats={ allowedFormatsForButton }
 				/>
