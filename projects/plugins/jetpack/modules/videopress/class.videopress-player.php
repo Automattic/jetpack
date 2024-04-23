@@ -710,7 +710,7 @@ class VideoPress_Player {
 				. "' width='100%'"
 				. "' height='" . esc_attr( $videopress_options['height'] )
 				. "' style='max-width:" . esc_attr( $videopress_options['width'] )
-				. ";' src='" . esc_attr( $iframe_url )
+				. "px;' src='" . esc_attr( $iframe_url )
 				. "' frameborder='0' allowfullscreen"
 				. $cover
 				. " allow='clipboard-write'></iframe>"
