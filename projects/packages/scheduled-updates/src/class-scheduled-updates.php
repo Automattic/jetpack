@@ -58,7 +58,6 @@ class Scheduled_Updates {
 		add_filter( 'plugin_auto_update_setting_html', array( Scheduled_Updates_Admin::class, 'show_scheduled_updates' ), 10, 2 );
 
 		add_action( 'jetpack_scheduled_update_created', array( __CLASS__, 'maybe_disable_autoupdates' ), 10, 3 );
-		add_action( 'jetpack_scheduled_update_created', array( __CLASS__, 'create_scheduled_update_status' ), 10, 3 );
 		add_action( 'jetpack_scheduled_update_deleted', array( __CLASS__, 'enable_autoupdates' ), 10, 2 );
 		add_action( 'jetpack_scheduled_update_updated', array( Scheduled_Updates_Logs::class, 'replace_logs_schedule_id' ), 10, 2 );
 		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Logs::class, 'delete_logs_schedule_id' ), 10, 3 );
@@ -181,20 +180,6 @@ class Scheduled_Updates {
 	 */
 	public static function clear_cron_cache() {
 		wp_cache_delete( 'alloptions', 'options' );
-	}
-
-	/**
-	 * Create a scheduled update status.
-	 *
-	 * @param string           $schedule_id Request ID.
-	 * @param object           $event       The event object.
-	 * @param \WP_REST_Request $request     The request object.
-	 */
-	public static function create_scheduled_update_status( $schedule_id, $event, $request ) {
-		// Only create the status if this is a CREATE request.
-		if ( empty( $request['schedule_id'] ) ) {
-			self::set_scheduled_update_status( $schedule_id, null, null );
-		}
 	}
 
 	/**
