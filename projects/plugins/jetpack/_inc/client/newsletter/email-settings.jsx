@@ -135,11 +135,11 @@ const EmailSettings = props => {
 				} }
 			>
 				<FormLegend className="jp-form-label-wide">
-					{ __( 'Reply-to behavior', 'jetpack' ) }
+					{ __( 'Reply-to settings', 'jetpack' ) }
 				</FormLegend>
 				<p>
 					{ __(
-						'When a subscriber replies to the newsletter you sent, that reply should:',
+						'Choose who receives emails when subscribers reply to your newsletter.',
 						'jetpack'
 					) }
 				</p>
@@ -147,8 +147,11 @@ const EmailSettings = props => {
 					selected={ subscriptionReplyTo ? 'no-reply' : 'full' }
 					disabled={ replyToInputDisabled }
 					options={ [
-						{ label: __( 'Replies are disallowed', 'jetpack' ), value: 'no-reply' },
-						{ label: __( "Be sent to the post author's email", 'jetpack' ), value: 'author' },
+						{ label: __( 'Replies are not allowed.', 'jetpack' ), value: 'no-reply' },
+						{
+							label: __( "Replies will be sent to the post author's email.", 'jetpack' ),
+							value: 'author',
+						},
 					] }
 					onChange={ handleSubscriptionReplyToChange }
 				/>
