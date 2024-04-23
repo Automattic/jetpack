@@ -72,6 +72,13 @@ class Manager {
 	private static $extra_register_params = array();
 
 	/**
+	 * We store ID's of users already disconnected to prevent multiple disconnect requests.
+	 *
+	 * @var array
+	 */
+	private static $disconnected_users = array();
+
+	/**
 	 * Initialize the object.
 	 * Make sure to call the "Configure" first.
 	 *
@@ -126,6 +133,10 @@ class Manager {
 		add_filter( 'jetpack_heartbeat_stats_array', array( $manager, 'add_stats_to_heartbeat' ) );
 
 		Webhooks::init( $manager );
+
+		// Unlink user before deleting the user from WP.com.
+		add_action( 'deleted_user', array( $manager, 'disconnect_user_force' ), 9, 1 );
+		add_action( 'remove_user_from_blog', array( $manager, 'disconnect_user_force' ), 9, 1 );
 
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
@@ -864,6 +875,22 @@ class Manager {
 	}
 
 	/**
+	 * Force user disconnect.
+	 *
+	 * @param int $user_id Local (external) user ID.
+	 *
+	 * @return bool
+	 */
+	public function disconnect_user_force( $user_id ) {
+		if ( ! (int) $user_id ) {
+			// Missing user ID.
+			return false;
+		}
+
+		return $this->disconnect_user( $user_id, true, true );
+	}
+
+	/**
 	 * Unlinks the current user from the linked WordPress.com user.
 	 *
 	 * @access public
@@ -881,6 +908,11 @@ class Manager {
 		$is_primary_user = Jetpack_Options::get_option( 'master_user' ) === $user_id;
 
 		if ( $is_primary_user && ! $can_overwrite_primary_user ) {
+			return false;
+		}
+
+		if ( in_array( $user_id, self::$disconnected_users, true ) ) {
+			// The user is already disconnected.
 			return false;
 		}
 
@@ -912,6 +944,8 @@ class Manager {
 				}
 			}
 		}
+
+		self::$disconnected_users[] = $user_id;
 
 		return $is_disconnected_from_wpcom && $is_disconnected_locally;
 	}

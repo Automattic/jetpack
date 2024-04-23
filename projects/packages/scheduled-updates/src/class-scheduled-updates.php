@@ -57,6 +57,11 @@ class Scheduled_Updates {
 		add_filter( 'views_plugins', array( Scheduled_Updates_Admin::class, 'add_scheduled_updates_view' ) );
 		add_filter( 'plugin_auto_update_setting_html', array( Scheduled_Updates_Admin::class, 'show_scheduled_updates' ), 10, 2 );
 
+		add_action( 'jetpack_scheduled_update_created', array( __CLASS__, 'maybe_disable_autoupdates' ), 10, 3 );
+		add_action( 'jetpack_scheduled_update_deleted', array( __CLASS__, 'enable_autoupdates' ), 10, 2 );
+		add_action( 'jetpack_scheduled_update_updated', array( Scheduled_Updates_Logs::class, 'replace_logs_schedule_id' ), 10, 2 );
+		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Logs::class, 'delete_logs_schedule_id' ), 10, 3 );
+
 		// Update cron sync option after options update.
 		$callback = array( __CLASS__, 'update_option_cron' );
 
@@ -249,6 +254,53 @@ class Scheduled_Updates {
 		}
 
 		return $update;
+	}
+
+	/**
+	 * Maybe disable autoupdates.
+	 *
+	 * @param string           $id      The ID of the schedule.
+	 * @param object           $event   The event object.
+	 * @param \WP_REST_Request $request The request object.
+	 */
+	public static function maybe_disable_autoupdates( $id, $event, $request ) {
+		require_once ABSPATH . 'wp-admin/includes/update.php';
+
+		if ( wp_is_auto_update_enabled_for_type( 'plugin' ) ) {
+			// Remove the plugins that are now updated on a schedule from the auto-update list.
+			$auto_update_plugins = get_option( 'auto_update_plugins', array() );
+			$auto_update_plugins = array_diff( $auto_update_plugins, $request['plugins'] );
+			update_option( 'auto_update_plugins', $auto_update_plugins );
+		}
+	}
+
+	/**
+	 * Enable autoupdates.
+	 *
+	 * @param string $id    The ID of the schedule.
+	 * @param object $event The deleted event object.
+	 */
+	public static function enable_autoupdates( $id, $event ) {
+		require_once ABSPATH . 'wp-admin/includes/update.php';
+
+		if ( ! wp_is_auto_update_enabled_for_type( 'plugin' ) ) {
+			return;
+		}
+
+		$events = wp_get_scheduled_events( static::PLUGIN_CRON_HOOK );
+		unset( $events[ $id ] );
+
+		// Find the plugins that are not part of any other schedule.
+		$plugins = $event->args;
+		foreach ( wp_list_pluck( $events, 'args' ) as $args ) {
+			$plugins = array_diff( $plugins, $args );
+		}
+
+		// Add the plugins that are no longer updated on a schedule to the auto-update list.
+		$auto_update_plugins = get_option( 'auto_update_plugins', array() );
+		$auto_update_plugins = array_unique( array_merge( $auto_update_plugins, $plugins ) );
+		usort( $auto_update_plugins, 'strnatcasecmp' );
+		update_option( 'auto_update_plugins', $auto_update_plugins );
 	}
 
 	/**
