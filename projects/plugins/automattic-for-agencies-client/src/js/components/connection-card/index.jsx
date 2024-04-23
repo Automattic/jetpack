@@ -167,16 +167,6 @@ function DetailSharingContent( { onCloseSharingDetailsClick } ) {
 					<CheckIcon />
 					{ createInterpolateElement(
 						__(
-							'<strong>Full_Sync_Immediately:</strong> to do a full resync of the database.',
-							'automattic-for-agencies-client'
-						),
-						{ strong: <strong /> }
-					) }
-				</li>
-				<li>
-					<CheckIcon />
-					{ createInterpolateElement(
-						__(
 							'<strong>Updates:</strong> to sync data about plugin, theme, and core updates.',
 							'automattic-for-agencies-client'
 						),
