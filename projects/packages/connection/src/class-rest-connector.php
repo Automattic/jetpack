@@ -995,7 +995,7 @@ class REST_Connector {
 	 *
 	 * @return mixed|null
 	 */
-	public static function connection_check() {
+	public function connection_check() {
 		/**
 		 * Filters the successful response of the REST API test_connection method
 		 *
