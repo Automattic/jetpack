@@ -32,14 +32,16 @@ function footercredit_replace_credit( $link, $lang ) {
 	}
 
 	$options = footercredit_options();
-	$credit = $options[ $credit_option ];
+	$credit = $options[ $credit_option ] ?? null;
 	$url = apply_filters( 'wpcom_better_footer_credit_url', 'https://wordpress.com/?ref=footer_custom_' . $credit_option, $lang );
 
 	// check for SVG option
 	if ( $credit_option == 'svg' ) {
 		$link = '<a href="'. esc_url( $url ) .'" title="' . __( 'Create a website or blog at WordPress.com' ) . '">'. footercredit_svg() .'</a>';
-	} else {
+	} elseif ( ! is_null( $credit ) ) {
 		$link = '<a href="'. esc_url( $url ) .'">'. esc_html( $credit ) .'</a>.';
+	} else {
+		$link = '';
 	}
 
 	return footercredit_make_credit_link_discoverable( $link );
