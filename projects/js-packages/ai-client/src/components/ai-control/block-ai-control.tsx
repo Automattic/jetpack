@@ -48,7 +48,7 @@ type BlockAIControlProps = {
 	error?: ReactElement;
 };
 
-const debug = debugFactory( 'jetpack-ai-client:ai-control' );
+const debug = debugFactory( 'jetpack-ai-client:block-ai-control' );
 
 /**
  * BlockAIControl component. Used by the AI Assistant block, adding logic and components to the base AIControl component.
