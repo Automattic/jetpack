@@ -1,6 +1,7 @@
 <?php
 /**
  * A collection of helper functions used in the SSO module.
+ * Test-test-test
  *
  * @package automattic/jetpack-connection
  */
