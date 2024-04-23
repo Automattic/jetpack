@@ -8,6 +8,7 @@
  */
 
 use Automattic\Jetpack\Scheduled_Updates;
+use Automattic\Jetpack\Scheduled_Updates_Health_Paths;
 use Automattic\Jetpack\Scheduled_Updates_Logs;
 
 /**
@@ -266,7 +267,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		}
 
 		$id = Scheduled_Updates::generate_schedule_id( $plugins );
-		Scheduled_Updates::update_health_check_paths( $id, $schedule['health_check_paths'] ?? array() );
+		Scheduled_Updates_Health_Paths::update( $id, $schedule['health_check_paths'] ?? array() );
 
 		/**
 		 * Fires when a scheduled update is created.
@@ -503,7 +504,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		 */
 		do_action( 'jetpack_scheduled_update_deleted', $request['schedule_id'], $event, $request );
 
-		Scheduled_Updates::clear_health_check_paths( $request['schedule_id'] );
+		Scheduled_Updates_Health_Paths::clear( $request['schedule_id'] );
 
 		return rest_ensure_response( true );
 	}
@@ -549,7 +550,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		}
 
 		$item                       = array_merge( $item, $status );
-		$item['health_check_paths'] = Scheduled_Updates::get_health_check_paths( $item['schedule_id'] );
+		$item['health_check_paths'] = Scheduled_Updates_Health_Paths::get( $item['schedule_id'] );
 
 		$item = $this->add_additional_fields_to_object( $item, $request );
 
@@ -649,14 +650,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 */
 	public function validate_paths_param( $paths ) {
 		foreach ( $paths as $path ) {
-			if ( ! is_string( $path ) ) {
-				return new WP_Error( 'rest_invalid_path', __( 'The path must be a string.', 'jetpack-scheduled-updates' ), array( 'status' => 400 ) );
-			}
+			$valid = Scheduled_Updates_Health_Paths::validate( $path );
 
-			$parsed = wp_parse_url( $path, PHP_URL_PATH );
+			if ( is_wp_error( $valid ) ) {
+				$valid->add_data( array( 'status' => 400 ) );
 
-			if ( false === $parsed || '' === $parsed['path'] ) {
-				return new WP_Error( 'rest_invalid_path', __( 'The path must be a valid URL.', 'jetpack-scheduled-updates' ), array( 'status' => 400 ) );
+				return $valid;
 			}
 		}
 

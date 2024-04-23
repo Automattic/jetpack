@@ -30,11 +30,6 @@ class Scheduled_Updates {
 	const PLUGIN_CRON_HOOK = 'jetpack_scheduled_plugins_update';
 
 	/**
-	 * The name of the WordPress option where the health check paths are stored.
-	 */
-	const PATHS_OPTION_NAME = 'jetpack_scheduled_update_health_check_paths';
-
-	/**
 	 * Initialize the class.
 	 */
 	public static function init() {
@@ -161,66 +156,6 @@ class Scheduled_Updates {
 		self::clear_cron_cache();
 
 		return wp_unschedule_event( $timestamp, self::PLUGIN_CRON_HOOK, $plugins, true );
-	}
-
-	/**
-	 * Get the health check paths for a scheduled update.
-	 *
-	 * @param string $schedule_id Request ID.
-	 * @return array List of health check paths.
-	 */
-	public static function get_health_check_paths( $schedule_id ) {
-		$option = get_option( self::PATHS_OPTION_NAME, array() );
-
-		return $option[ $schedule_id ] ?? array();
-	}
-
-	/**
-	 * Update the health check paths for a scheduled update.
-	 *
-	 * @param string $schedule_id Request ID.
-	 * @param array  $paths       List of paths to save.
-	 * @return bool
-	 */
-	public static function update_health_check_paths( $schedule_id, $paths ) {
-		$option       = get_option( self::PATHS_OPTION_NAME, array() );
-		$parsed_paths = array();
-
-		foreach ( $paths as $path ) {
-			$parsed = wp_parse_url( trim( $path ), PHP_URL_PATH );
-
-			if ( is_string( $parsed ) ) {
-				$parsed_paths[] = $parsed;
-			}
-		}
-
-		$parsed_paths = array_values( array_unique( $parsed_paths ) );
-
-		if ( count( $parsed_paths ) ) {
-			$option[ $schedule_id ] = $parsed_paths;
-		}
-
-		return update_option( self::PATHS_OPTION_NAME, $option );
-	}
-
-	/**
-	 * Clear the health check paths for a scheduled update.
-	 *
-	 * @param string|null $schedule_id Request ID.
-	 * @return bool
-	 */
-	public static function clear_health_check_paths( $schedule_id ) {
-		$option = get_option( self::PATHS_OPTION_NAME, array() );
-
-		if ( isset( $option[ $schedule_id ] ) ) {
-			unset( $option[ $schedule_id ] );
-		}
-
-		if ( count( $option ) ) {
-			return update_option( self::PATHS_OPTION_NAME, $option );
-		} else {
-			return delete_option( self::PATHS_OPTION_NAME );
-		}
 	}
 
 	/**

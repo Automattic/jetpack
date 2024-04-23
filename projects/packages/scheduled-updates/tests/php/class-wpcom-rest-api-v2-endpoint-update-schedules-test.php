@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Scheduled_Updates;
+use Automattic\Jetpack\Scheduled_Updates_Health_Paths;
 use Automattic\Jetpack\Scheduled_Updates_Logs;
 
 /**
@@ -938,7 +939,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame( $schedule_id, $result->get_data() );
 
-		$option_paths = Scheduled_Updates::get_health_check_paths( $schedule_id );
+		$option_paths = Scheduled_Updates_Health_Paths::get( $schedule_id );
 		$this->assertSame( array(), $option_paths );
 	}
 
@@ -972,7 +973,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame( $schedule_id, $result->get_data() );
 
-		$option_paths = Scheduled_Updates::get_health_check_paths( $schedule_id );
+		$option_paths = Scheduled_Updates_Health_Paths::get( $schedule_id );
 		$this->assertSame(
 			array(
 				'a_b',
@@ -1010,7 +1011,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame( $schedule_id_1, $result->get_data() );
 
-		$option_paths = Scheduled_Updates::get_health_check_paths( $schedule_id_1 );
+		$option_paths = Scheduled_Updates_Health_Paths::get( $schedule_id_1 );
 		$this->assertSame( array( 'a', 'b' ), $option_paths );
 
 		$plugins[]     = 'wp-test-plugin/wp-test-plugin.php';
@@ -1027,25 +1028,25 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame( $schedule_id_2, $result->get_data() );
 
-		$option_paths = Scheduled_Updates::get_health_check_paths( $schedule_id_2 );
+		$option_paths = Scheduled_Updates_Health_Paths::get( $schedule_id_2 );
 		$this->assertSame( array( 'c', 'd' ), $option_paths );
 
 		$request = new WP_REST_Request( 'DELETE', '/wpcom/v2/update-schedules/' . $schedule_id_1 );
 		$result  = rest_do_request( $request );
 		$this->assertSame( 200, $result->get_status() );
 
-		$option_paths = Scheduled_Updates::get_health_check_paths( $schedule_id_1 );
+		$option_paths = Scheduled_Updates_Health_Paths::get( $schedule_id_1 );
 		$this->assertSame( array(), $option_paths );
 
 		$request = new WP_REST_Request( 'DELETE', '/wpcom/v2/update-schedules/' . $schedule_id_2 );
 		$result  = rest_do_request( $request );
 		$this->assertSame( 200, $result->get_status() );
 
-		$option_paths = Scheduled_Updates::get_health_check_paths( $schedule_id_2 );
+		$option_paths = Scheduled_Updates_Health_Paths::get( $schedule_id_2 );
 		$this->assertSame( array(), $option_paths );
 
 		// The option should be removed.
-		$this->assertSame( 'test', get_option( Scheduled_Updates::PATHS_OPTION_NAME, 'test' ) );
+		$this->assertSame( 'test', get_option( Scheduled_Updates_Health_Paths::PATHS_OPTION_NAME, 'test' ) );
 	}
 
 	/**
