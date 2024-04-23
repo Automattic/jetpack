@@ -144,7 +144,7 @@ const EmailSettings = props => {
 					) }
 				</p>
 				<RadioControl
-					selected={ subscriptionReplyTo ? 'no-reply' : 'full' }
+					selected={ subscriptionReplyTo || 'no-reply' }
 					disabled={ replyToInputDisabled }
 					options={ [
 						{ label: __( 'Replies are not allowed.', 'jetpack' ), value: 'no-reply' },
