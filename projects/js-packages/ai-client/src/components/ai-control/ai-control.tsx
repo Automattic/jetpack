@@ -22,8 +22,8 @@ type AIControlProps = {
 	isTransparent?: boolean;
 	state?: RequestingStateProp;
 	onChange?: ( newValue: string ) => void;
-	bannerComponent?: ReactElement;
-	errorComponent?: ReactElement;
+	banner?: ReactElement;
+	error?: ReactElement;
 	actions?: ReactElement;
 	message?: ReactElement;
 	promptUserInputRef?: React.MutableRefObject< HTMLInputElement >;
@@ -42,17 +42,17 @@ export default function AIControl( {
 	isTransparent = false,
 	state = 'init',
 	onChange,
-	bannerComponent = null,
-	errorComponent = null,
+	banner = null,
+	error = null,
 	actions = null,
 	message = null,
 	promptUserInputRef = null,
 }: AIControlProps ): ReactElement {
 	return (
 		<div className="jetpack-components-ai-control__container-wrapper">
-			{ errorComponent }
+			{ error }
 			<div className="jetpack-components-ai-control__container">
-				{ bannerComponent }
+				{ banner }
 				<div
 					className={ classNames( 'jetpack-components-ai-control__wrapper', {
 						'is-transparent': isTransparent,

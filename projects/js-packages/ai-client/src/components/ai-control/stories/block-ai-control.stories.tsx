@@ -28,7 +28,7 @@ export default {
 			},
 			options: [ 'init', 'requesting', 'suggesting', 'done', 'error' ],
 		},
-		errorComponent: {
+		error: {
 			control: {
 				type: 'select',
 			},
@@ -131,8 +131,8 @@ const DefaultArgs = {
 	onAccept: action( 'onAccept' ),
 	onDiscard: action( 'onDiscard' ),
 	showRemove: false,
-	bannerComponent: null,
-	errorComponent: null,
+	banner: null,
+	error: null,
 };
 
 export const Default = DefaultTemplate.bind( {} );

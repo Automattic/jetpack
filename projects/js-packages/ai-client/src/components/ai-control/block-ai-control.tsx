@@ -44,8 +44,8 @@ type BlockAIControlProps = {
 	onAccept?: () => void;
 	onDiscard?: () => void;
 	showRemove?: boolean;
-	bannerComponent?: ReactElement;
-	errorComponent?: ReactElement;
+	banner?: ReactElement;
+	error?: ReactElement;
 };
 
 const debug = debugFactory( 'jetpack-ai-client:ai-control' );
@@ -75,8 +75,8 @@ export function BlockAIControl(
 		onAccept,
 		onDiscard,
 		showRemove = false,
-		bannerComponent = null,
-		errorComponent = null,
+		banner = null,
+		error = null,
 	}: BlockAIControlProps,
 	ref: React.MutableRefObject< HTMLInputElement >
 ): ReactElement {
@@ -266,8 +266,8 @@ export function BlockAIControl(
 			isTransparent={ isTransparent }
 			state={ state }
 			onChange={ changeHandler }
-			bannerComponent={ bannerComponent }
-			errorComponent={ errorComponent }
+			banner={ banner }
+			error={ error }
 			actions={ actions }
 			message={ message }
 			promptUserInputRef={ promptUserInputRef }

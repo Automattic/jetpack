@@ -52,7 +52,7 @@ export default {
 				'Accept button': <Button>Accept</Button>,
 			},
 		},
-		errorComponent: {
+		error: {
 			control: {
 				type: 'select',
 			},
@@ -92,8 +92,8 @@ const DefaultArgs = {
 	state: 'init',
 	onChange: action( 'onChange' ),
 	message: null,
-	bannerComponent: null,
-	errorComponent: null,
+	banner: null,
+	error: null,
 	actions: null,
 };
 

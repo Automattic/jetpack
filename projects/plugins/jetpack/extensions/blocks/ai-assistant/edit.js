@@ -404,8 +404,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					acceptLabel={ acceptLabel }
 					showGuideLine={ contentIsLoaded }
 					showRemove={ attributes?.content?.length > 0 }
-					bannerComponent={ banner }
-					errorComponent={ errorNotice }
+					banner={ banner }
+					error={ errorNotice }
 					customFooter={
 						// Only show the upgrade message on each 5th request or if it's the first request - and only if the user is on the free plan
 						( requestsRemaining % 5 === 0 || requestsCount === 1 ) &&
