@@ -709,7 +709,7 @@ class VideoPress_Player {
 				. "' aria-label='" . __( 'VideoPress Video Player', 'jetpack' )
 				. "' width='100%'"
 				. "' height='" . esc_attr( $videopress_options['height'] )
-				. "' style='max-width:'" . esc_attr( $videopress_options['width'] )
+				. "' style='max-width:" . esc_attr( $videopress_options['width'] )
 				. ";' src='" . esc_attr( $iframe_url )
 				. "' frameborder='0' allowfullscreen"
 				. $cover
