@@ -10,24 +10,22 @@
 return [
     // # Issue statistics:
     // PhanNonClassMethodCall : 10+ occurrences
-    // PhanUndeclaredClassMethod : 8 occurrences
     // PhanCommentParamWithoutRealParam : 6 occurrences
-    // PhanTypeMismatchArgument : 4 occurrences
+    // PhanParamTooFew : 6 occurrences
     // PhanUndeclaredMethod : 4 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 2 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 2 occurrences
     // PhanTypeMismatchReturn : 2 occurrences
-    // PhanUndeclaredTypeParameter : 2 occurrences
     // PhanUnreferencedUseNormal : 2 occurrences
     // PhanImpossibleCondition : 1 occurrence
     // PhanImpossibleTypeComparison : 1 occurrence
-    // PhanParamTooFew : 1 occurrence
     // PhanParamTooMany : 1 occurrence
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanRedundantCondition : 1 occurrence
     // PhanTypeMismatchArgumentNullable : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
     // PhanTypeMissingReturn : 1 occurrence
+    // PhanUndeclaredTypeParameter : 1 occurrence
     // PhanUnextractableAnnotation : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
@@ -43,7 +41,7 @@ return [
         'src/schema/types/class-type-assoc-array.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturn'],
         'src/schema/types/class-type-string.php' => ['PhanImpossibleTypeComparison'],
         'tests/php/schema/integration/test-integration-fallback-values.php' => ['PhanNonClassMethodCall'],
-        'tests/php/schema/integration/test-integration-parsing-errors.php' => ['PhanNonClassMethodCall', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
+        'tests/php/schema/integration/test-integration-parsing-errors.php' => ['PhanNonClassMethodCall', 'PhanParamTooFew', 'PhanTypeMismatchReturn'],
         'tests/php/schema/type/test-type-assoc-array.php' => ['PhanTypeMismatchArgumentProbablyReal'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

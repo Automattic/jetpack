@@ -1104,7 +1104,7 @@ class Crunion_Contact_Form_Shortcode {
 	 * We're using object composition to call code from the `forms` package.
 	 * This holds the reference to the Contact_Form_Shortcode instance.
 	 *
-	 * @var Contact_Form_Shortcode
+	 * @var Automattic\Jetpack\Forms\ContactForm\Contact_Form_Shortcode
 	 */
 	private $shortcode;
 
@@ -1250,7 +1250,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * Form we are currently looking at. If processed, will become $last
 	 *
 	 * @deprecated 13.3 See Automattic\Jetpack\Forms\ContactForm\Contact_Form
-	 * @var Whatever
+	 * @var Grunion_Contact_Form
 	 */
 	private static $current_form;
 
@@ -1282,7 +1282,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * We're using object composition to call code from the `forms` package.
 	 * This holds the reference to the Contact_Form instance.
 	 *
-	 * @var Contact_Form
+	 * @var Automattic\Jetpack\Forms\ContactForm\Contact_Form
 	 */
 	private $form;
 
@@ -1643,7 +1643,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * that the message will be flagged as spam.
 	 *
 	 * @deprecated 13.3 Use Automattic\Jetpack\Forms\ContactForm\Contact_Form::add_plain_text_alternative
-	 * @param PHPMailer $phpmailer - the phpmailer.
+	 * @param PHPMailer\PHPMailer\PHPMailer $phpmailer - the phpmailer.
 	 */
 	public static function add_plain_text_alternative( $phpmailer ) {
 		_deprecated_function( __METHOD__, 'jetpack-13.3', 'Automattic\Jetpack\Forms\ContactForm\Contact_Form::add_plain_text_alternative' );

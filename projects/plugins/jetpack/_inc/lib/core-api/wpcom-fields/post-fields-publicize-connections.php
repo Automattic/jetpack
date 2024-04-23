@@ -258,7 +258,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	 * @param object          $post    Post data to insert/update.
 	 * @param WP_REST_Request $request API request.
 	 *
-	 * @return Filtered $post
+	 * @return object|WP_Error Filtered $post
 	 */
 	public function rest_pre_insert( $post, $request ) {
 		if ( ! isset( $request['jetpack_publicize_connections'] ) ) {

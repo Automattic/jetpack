@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Plugin;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Tracking as Tracks;
+use IXR_Error;
 use WP_Error;
 use WP_User;
 
@@ -222,7 +223,7 @@ class Tracking {
 				'error_code'    => $parameters->get_error_code(),
 				'error_message' => $parameters->get_error_message(),
 			);
-		} elseif ( is_a( $parameters, '\\IXR_Error' ) ) {
+		} elseif ( is_a( $parameters, IXR_Error::class ) ) {
 			$parameters = array(
 				'error_code'    => $parameters->code,
 				'error_message' => $parameters->message,

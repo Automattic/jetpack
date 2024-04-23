@@ -39,13 +39,12 @@ return [
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
     // PhanUndeclaredFunctionInCallable : 1 occurrence
-    // PhanUndeclaredTypeThrowsType : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'cli.php' => ['PhanUndeclaredFunctionInCallable'],
         'src/brute-force-protection/class-blocked-login-page.php' => ['PhanNonClassMethodCall', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault'],
-        'src/brute-force-protection/class-math-fallback.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredTypeThrowsType'],
+        'src/brute-force-protection/class-math-fallback.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturnProbablyReal'],
         'src/brute-force-protection/class-shared-functions.php' => ['PhanTypeComparisonToArray', 'PhanTypeMismatchReturnProbablyReal', 'PhanUnextractableAnnotationSuffix'],
         'src/class-brute-force-protection.php' => ['PhanNoopNew', 'PhanStaticCallToNonStatic', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanUnextractableAnnotationSuffix'],
         'src/class-compatibility.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal'],
