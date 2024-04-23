@@ -1041,7 +1041,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$result  = rest_do_request( $request );
 		$this->assertSame( 200, $result->get_status() );
 
-		$option_paths = Scheduled_Updates::get_health_check_paths( $schedule_id_1 );
+		$option_paths = Scheduled_Updates::get_health_check_paths( $schedule_id_2 );
 		$this->assertSame( array(), $option_paths );
 
 		// The option should be removed.
