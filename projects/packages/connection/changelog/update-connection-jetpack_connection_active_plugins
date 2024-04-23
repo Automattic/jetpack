@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Jetpack Connection: Prevent unnecessary jetpack_connection_active_plugins option updates

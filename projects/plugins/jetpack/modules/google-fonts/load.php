@@ -17,7 +17,7 @@ add_action(
 		*
 		* @module google-fonts
 		*
-		* @since $$next-version$$
+		* @since 13.4
 		*
 		* @param bool $skip Whether to skip loading the Jetpack Google Fonts module. Default false.
 		*/

@@ -1,5 +1,0 @@
-Significance: patch
-Type: added
-Comment: Add Phan suppressions in tests for new PHPUnit stub. No change to functionality.
-
-
