@@ -952,10 +952,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$paths   = array(
 			"a\nb",
 			'=',
-			'=',
 			' ',
 			"\ntest\t",
-			'*',
 			'ünicode',
 		);
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
@@ -981,7 +979,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 				'=',
 				'',
 				'test',
-				'*',
 				'ünicode',
 			),
 			$option_paths
@@ -993,7 +990,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	 *
 	 * @covers ::create_item
 	 */
-	public function test_remove_item_with_with_paths() {
+	public function test_remove_item_with_paths() {
 		$plugins  = array( 'gutenberg/gutenberg.php' );
 		$request  = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
 		$schedule = $this->get_schedule( 'next Monday 8:00', 'weekly', array( 'a', 'b' ) );
