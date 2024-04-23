@@ -1,10 +1,12 @@
 import { RadioControl, ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { FormLegend } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { useCallback } from 'react';
+import TextInput from 'components/text-input';
+import emailValidator from 'email-validator';
+import { useCallback, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import { isUnavailableInOfflineMode, isUnavailableInSiteConnectionMode } from 'state/connection';
 import { getModule } from 'state/modules';
@@ -16,6 +18,7 @@ const subscriptionsAndNewslettersSupportUrl =
 const FEATURED_IMAGE_IN_EMAIL_OPTION = 'wpcom_featured_image_in_email';
 const SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION = 'wpcom_subscription_emails_use_excerpt';
 const REPLY_TO_OPTION = 'jetpack_subscriptions_reply_to';
+const REPLY_TO_EMAIL = 'jetpack_subscriptions_reply_to_email';
 
 //Check for feature flag
 const urlParams = new URLSearchParams( window.location.search );
@@ -29,6 +32,8 @@ const EmailSettings = props => {
 		isFeaturedImageInEmailEnabled,
 		subscriptionEmailsUseExcerpt,
 		subscriptionReplyTo,
+		subscriptionReplyToEmail,
+		onOptionChange,
 		updateFormStateAndSaveOptionValue,
 		unavailableInSiteConnectionMode,
 	} = props;
@@ -52,9 +57,44 @@ const EmailSettings = props => {
 
 	const handleSubscriptionReplyToChange = useCallback(
 		value => {
-			updateFormStateAndSaveOptionValue( REPLY_TO_OPTION, value );
+			if ( value !== 'custom' ) {
+				updateFormStateAndSaveOptionValue( { [ REPLY_TO_OPTION ]: value, [ REPLY_TO_EMAIL ]: '' } );
+			} else {
+				updateFormStateAndSaveOptionValue( REPLY_TO_OPTION, value );
+			}
 		},
 		[ updateFormStateAndSaveOptionValue ]
+	);
+
+	const [ isEmailValid, setIsEmailValid ] = useState( 'not-checking' );
+	const isTypingEmailTimeoutRef = useRef( 0 );
+
+	const handleEmailBlur = useCallback(
+		event => {
+			if ( emailValidator.validate( event.target.value ) ) {
+				setIsEmailValid( 'yes' );
+			} else {
+				setIsEmailValid( 'no' );
+			}
+		},
+		[ setIsEmailValid ]
+	);
+
+	const handleSubscriptionReplyToEmailChange = useCallback(
+		event => {
+			setIsEmailValid( 'not-checking' );
+			clearTimeout( isTypingEmailTimeoutRef.current );
+			isTypingEmailTimeoutRef.current = setTimeout( () => {
+				handleEmailBlur( event );
+			}, 300 );
+
+			const subscriptionOptionEvent = {
+				target: { name: event.target.name, value: event.target.value },
+			};
+
+			onOptionChange( subscriptionOptionEvent );
+		},
+		[ onOptionChange, handleEmailBlur, isTypingEmailTimeoutRef ]
 	);
 
 	const disabled = unavailableInOfflineMode || unavailableInSiteConnectionMode;
@@ -64,14 +104,15 @@ const EmailSettings = props => {
 		disabled || isSavingAnyOption( [ SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION ] );
 
 	const replyToInputDisabled = disabled || isSavingAnyOption( [ REPLY_TO_OPTION ] );
+	const replyToEmailDisabled = disabled || isSavingAnyOption( [ REPLY_TO_EMAIL ] );
 
 	return (
 		<SettingsCard
 			{ ...props }
 			header={ __( 'Email configuration', 'jetpack' ) }
-			hideButton
 			module={ SUBSCRIPTIONS_MODULE_NAME }
 			saveDisabled={ disabled }
+			hideButton={ subscriptionReplyTo !== 'custom' || isEmailValid === 'no' }
 		>
 			<SettingsGroup
 				hasChild
@@ -175,7 +216,9 @@ export default withModuleSettingsFormHelpers(
 			subscriptionEmailsUseExcerpt: ownProps.getOptionValue(
 				SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION
 			),
+			onOptionChange: ownProps.onOptionChange,
 			subscriptionReplyTo: ownProps.getOptionValue( REPLY_TO_OPTION ),
+			subscriptionReplyToEmail: ownProps.getOptionValue( REPLY_TO_EMAIL ),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
 			unavailableInSiteConnectionMode: isUnavailableInSiteConnectionMode(
 				state,

@@ -462,6 +462,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'wpcom_reader_views_enabled'       => (bool) get_option( 'wpcom_reader_views_enabled', true ),
 						'wpcom_subscription_emails_use_excerpt' => $this->get_wpcom_subscription_emails_use_excerpt_option(),
 						'jetpack_subscriptions_reply_to'   => (string) $this->get_subscriptions_reply_to_option(),
+						'jetpack_subscriptions_reply_to_email' => (string) $this->get_subscriptions_reply_to_email_option(),
 						'show_on_front'                    => (string) get_option( 'show_on_front' ),
 						'page_on_front'                    => (string) get_option( 'page_on_front' ),
 						'page_for_posts'                   => (string) get_option( 'page_for_posts' ),
@@ -1028,8 +1029,15 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'jetpack_subscriptions_reply_to':
-					$to_set_value = (string) in_array( $value, array( 'no-reply', 'author' ), true ) ? $value : 'no-reply';
-					update_option( 'jetpack_subscriptions_reply_to', (string) $to_set_value );
+					require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-settings.php';
+					$to_set_value = Automattic\Jetpack\Modules\Subscriptions\Settings::is_valid_reply_to( $value ) ? $value : 'no-reply';
+					update_option( $key, (string) $to_set_value );
+					$updated[ $key ] = (bool) $value;
+					break;
+
+				case 'jetpack_subscriptions_reply_to_email':
+					$to_set_value = is_email( $value ) ? $value : '';
+					update_option( $key, (string) $to_set_value );
 					$updated[ $key ] = (bool) $value;
 					break;
 
@@ -1270,6 +1278,21 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return 'no-reply';
 		}
 		return $reply_to;
+	}
+	/**
+	 * Get the string value of the jetpack_subscriptions_reply_to_email option.
+	 * When the option is not set, it will return an empty string.
+	 *
+	 * @return string
+	 */
+	protected function get_subscriptions_reply_to_email_option() {
+		$reply_to       = get_option( 'jetpack_subscriptions_reply_to', null );
+		$reply_to_email = get_option( 'jetpack_subscriptions_reply_to_email', null );
+
+		if ( ! empty( $reply_to_email ) && $reply_to === 'custom' ) {
+			return $reply_to_email;
+		}
+		return '';
 	}
 
 	/**

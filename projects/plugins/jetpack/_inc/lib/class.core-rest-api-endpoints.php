@@ -2652,6 +2652,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_subscriptions_reply_to',
 				'jp_group'          => 'subscriptions',
 			),
+			'jetpack_subscriptions_reply_to_email'  => array(
+				'description'       => esc_html__( 'Custom reply to email', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => '',
+				'validate_callback' => __CLASS__ . '::validate_subscriptions_reply_to_email',
+				'jp_group'          => 'subscriptions',
+			),
 			'sm_enabled'                            => array(
 				'description'       => esc_html__( 'Show popup Subscribe modal to readers.', 'jetpack' ),
 				'type'              => 'boolean',
@@ -3393,7 +3400,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Validates that the parameter is among the valid reply-to types for subscriptions.
 	 *
-	 * @since 4.3.0
+	 * @since 13.4.0
 	 *
 	 * @param string|bool     $value Value to check.
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
@@ -3402,18 +3409,48 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error
 	 */
 	public static function validate_subscriptions_reply_to( $value, $request, $param ) {
-		$valid_values = array( 'author', 'no-reply' );
-		if ( ! empty( $value ) && ! in_array( $value, $valid_values, true ) ) {
-			return new WP_Error(
-				'invalid_param',
-				sprintf(
-					/* Translators: Placeholder is a parameter name. */
-					esc_html__( '%s must be a valid type.', 'jetpack' ),
-					$param
-				)
-			);
+		if ( empty( $value ) ) {
+			return true;
 		}
-		return true;
+
+		require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-settings.php';
+		if ( Automattic\Jetpack\Modules\Subscriptions\Settings::is_valid_reply_to( $value ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_param',
+			sprintf(
+				/* Translators: Placeholder is a parameter name. */
+				esc_html__( '%s must be a valid type.', 'jetpack' ),
+				$param
+			)
+		);
+	}
+	/**
+	 * Validates that the parameter is a valid email address or an empty string (to be able to clear the field).
+	 *
+	 * @since 13.4.0
+	 *
+	 * @param string|bool     $value Value to check.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param Name of the parameter passed to endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_subscriptions_reply_to_email( $value, $request, $param ) {
+		if ( empty( $value ) || is_email( $value ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_param',
+			sprintf(
+				/* Translators: Placeholder is a parameter name. */
+				esc_html__( '%s must be a valid type.', 'jetpack' ),
+				$param
+			)
+		);
 	}
 
 	/**
