@@ -20,6 +20,11 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"npmjs-autopublish": true
+		"autotagger": true,
+		"npmjs-autopublish": true,
+		"mirror-repo": "Automattic/social-logos",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/social-logos/compare/v${old}...v${new}"
+		}
 	}
 }
