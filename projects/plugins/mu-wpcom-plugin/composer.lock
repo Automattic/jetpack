@@ -920,7 +920,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/scheduled-updates",
-                "reference": "44dcf9235164fad19de125aa913ba08b51f26001"
+                "reference": "4e73fbe065bc43c01fc1358982b23f5c4bca39f6"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
