@@ -125,7 +125,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$slug = current_user_can( 'list_users' ) ? 'users.php' : 'profile.php';
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'users.php' ) ) {
 			$submenus_to_update = array(
-				'users.php' => 'https://wordpress.com/people/team/' . $this->domain,
+				'users.php'    => 'https://wordpress.com/people/team/' . $this->domain,
+				'user-new.php' => 'https://wordpress.com/people/new/' . $this->domain,
 			);
 			$this->update_submenus( $slug, $submenus_to_update );
 		}
