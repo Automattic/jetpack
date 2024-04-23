@@ -1124,3 +1124,19 @@ function wpcom_set_launchpad_config_option( $option, $value ) {
 
 	return update_option( 'wpcom_launchpad_config', $wpcom_launchpad_config );
 }
+
+/**
+ * Takes the user back to launchpad once they have changed the name of their site.
+ */
+function launchpad_redirect_on_change_site_name() {
+	if ( ! isset( $_GET['settings-updated'] ) || ! isset( $_GET['return-url'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return;
+	}
+	// todo: apply same check as the name change.
+	$site_slug = wpcom_get_site_slug();
+	$redirect  = wp_sanitize_redirect( wp_unslash( $_GET['return-url'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$redirect  = wp_validate_redirect( $redirect, "https://wordpress.com/home/$site_slug" );
+
+	wp_safe_redirect( $redirect );
+}
+add_action( 'load-options-general.php', 'launchpad_redirect_on_change_site_name' );
