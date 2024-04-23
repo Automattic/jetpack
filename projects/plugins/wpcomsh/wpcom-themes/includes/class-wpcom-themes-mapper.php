@@ -12,6 +12,27 @@
 class WPCom_Themes_Mapper {
 
 	/**
+	 * Maps a WPCom theme subject to .org theme subjects.
+	 */
+	private const SUBJECT_MAP = array(
+		'business'             => 'e-commerce',
+		'store'                => 'e-commerce',
+		'real-estate'          => 'e-commerce',
+		'health-wellness'      => 'e-commerce',
+		'restaurant'           => 'food-and-drink',
+		'travel-lifestyle'     => 'holiday',
+		'art-design'           => 'photography',
+		'about'                => 'blog',
+		'authors-writers'      => 'blog',
+		'newsletter'           => 'news',
+		'magazine'             => 'news',
+		'music'                => 'portfolio',
+		'fashion-beauty'       => 'e-commerce',
+		'community-non-profit' => 'blog',
+		'podcast'              => 'portfolio',
+	);
+
+	/**
 	 * Maps a WPCom theme object to a WPOrg theme object.
 	 *
 	 * @param stdClass $wpcom_theme WPCom theme object.
@@ -49,7 +70,33 @@ class WPCom_Themes_Mapper {
 		$theme->version              = $wpcom_theme->version;
 		$theme->creation_time        = $wpcom_theme->date_added;
 		$theme->is_wpcom_theme       = true;
+		$theme->tags                 = $this->build_theme_tags( $wpcom_theme );
 
 		return $theme;
+	}
+
+	/**
+	 * Creates an array of theme tags from a WPCom theme object.
+	 *
+	 * @param stdClass $theme WPCom theme object.
+	 *
+	 * @return array Theme tags.
+	 */
+	private function build_theme_tags( $theme ) {
+		$tags = array();
+
+		foreach ( $theme->taxonomies->theme_subject ?? array() as $subject ) {
+			$tags[] = $this::SUBJECT_MAP[ $subject->slug ] ?? $subject->slug;
+		}
+
+		foreach ( (array) $theme->taxonomies as $taxonomy ) {
+			foreach ( $taxonomy as $item ) {
+				if ( isset( $item->slug ) ) {
+					$tags[] = $item->slug;
+				}
+			}
+		}
+
+		return $tags;
 	}
 }

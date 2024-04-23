@@ -142,6 +142,33 @@ function wpcomsh_search_wpcom_themes_api_result( $res, string $action, $args ) {
 add_filter( 'themes_api_result', 'wpcomsh_search_wpcom_themes_api_result', 0, 3 );
 
 /**
+ * Process the themes API result and add WPCom themes when using the filter feature.
+ *
+ * @param mixed  $res    The result object.
+ * @param string $action The action.
+ * @param mixed  $args   The arguments.
+ *
+ * @return mixed|stdClass
+ */
+function wpcomsh_feature_filter_wpcom_themes_api_result( $res, string $action, $args ) {
+	// Pre-requisites checks.
+	$tags = $args->tag ?? array();
+	if (
+		'query_themes' !== $action ||
+		! $tags ||
+		! wpcom_is_nav_redesign_enabled()
+	) {
+		return $res;
+	}
+
+	$wpcom_themes_service = wpcomsh_get_wpcom_themes_service_instance();
+
+	// Add results to the resulting array.
+	return $wpcom_themes_service->filter_themes_api_result_feature_filter( $res, $tags );
+}
+add_filter( 'themes_api_result', 'wpcomsh_feature_filter_wpcom_themes_api_result', 0, 3 );
+
+/**
  * Process the themes API result theme_information for WPCom themes if needed.
  *
  * @param mixed  $res    The result object.

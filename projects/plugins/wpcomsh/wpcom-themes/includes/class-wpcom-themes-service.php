@@ -68,6 +68,7 @@ class WPCom_Themes_Service {
 	public function filter_themes_api_result_recommended( stdClass $wporg_theme_api_response ): stdClass {
 		$wpcom_recommended_themes = $this->api->fetch_recommended_themes();
 		$wpcom_recommended_themes = $this->map_and_filter_wpcom_themes( $wpcom_recommended_themes );
+
 		return $this->merger->merge_by_wpcom_first( $wporg_theme_api_response, $wpcom_recommended_themes );
 	}
 
@@ -82,6 +83,7 @@ class WPCom_Themes_Service {
 	public function filter_themes_api_result_search( stdClass $wporg_theme_api_response, string $search ): stdClass {
 		$wpcom_search_themes = $this->api->search_themes( $search );
 		$wpcom_search_themes = $this->map_and_filter_wpcom_themes( $wpcom_search_themes );
+
 		return $this->merger->merge_by_wpcom_first( $wporg_theme_api_response, $wpcom_search_themes );
 	}
 
@@ -131,6 +133,7 @@ class WPCom_Themes_Service {
 				return $wpcom_theme;
 			}
 		}
+
 		return null;
 	}
 
@@ -163,6 +166,7 @@ class WPCom_Themes_Service {
 	public function filter_themes_api_result_latest( stdClass $wporg_theme_api_response ): stdClass {
 		$wpcom_themes = $this->api->fetch_all_themes();
 		$wpcom_themes = $this->map_and_filter_wpcom_themes( $wpcom_themes );
+
 		return $this->merger->merge_by_release_date( $wporg_theme_api_response, $wpcom_themes );
 	}
 
@@ -182,5 +186,25 @@ class WPCom_Themes_Service {
 		$wpcom_themes = $this->map_and_filter_wpcom_themes( $wpcom_themes );
 
 		return $this->merger->merge_by_release_date( $wporg_theme_api_response, $wpcom_themes );
+	}
+
+	/**
+	 * Returns a list of themes that include WPCom themes filtered by tags.
+	 *
+	 * @param stdClass $wporg_theme_api_response The WP.org themes API result.
+	 * @param array    $tags                     The tags to filter by.
+	 *
+	 * @return stdClass The themes API result including wpcom themes.
+	 */
+	public function filter_themes_api_result_feature_filter( stdClass $wporg_theme_api_response, array $tags ): stdClass {
+		$wpcom_themes = $this->api->fetch_all_themes();
+		$wpcom_themes = $this->map_and_filter_wpcom_themes( $wpcom_themes );
+
+		$wpcom_themes = array_filter(
+			$wpcom_themes,
+			fn( $theme ) => array_intersect( $tags, $theme->tags )
+		);
+
+		return $this->merger->merge_by_wpcom_first( $wporg_theme_api_response, $wpcom_themes );
 	}
 }
