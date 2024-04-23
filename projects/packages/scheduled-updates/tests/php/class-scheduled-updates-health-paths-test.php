@@ -81,7 +81,7 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 	 * @covers ::validate
 	 */
 	public function test_validate() {
-		$this->assertWPError( Scheduled_Updates_Health_Paths::validate( 1 ) );
+		$this->assertSame( 'test', Scheduled_Updates_Health_Paths::validate( 'test' ) );
 	}
 
 	/**

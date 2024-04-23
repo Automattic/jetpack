@@ -124,7 +124,7 @@ class Scheduled_Updates {
 			'2',
 			array( 'method' => 'POST' ),
 			array(
-				'health_check_paths' => self::get_health_check_paths( $schedule_id ),
+				'health_check_paths' => Scheduled_Updates_Health_Paths::get( $schedule_id ),
 				'plugins'            => $plugins_to_update,
 				'schedule_id'        => $schedule_id,
 			),
