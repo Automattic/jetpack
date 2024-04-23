@@ -22,6 +22,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Use the matticbot token so Actions run on the created PR.
+          token: ${{ secrets.API_TOKEN_GITHUB }}
 
       - name: Update stubs
         run: tools/stubs/update-stubs.sh
