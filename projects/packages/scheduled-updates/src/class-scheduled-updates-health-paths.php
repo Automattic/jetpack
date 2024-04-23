@@ -19,7 +19,7 @@ class Scheduled_Updates_Health_Paths {
 	/**
 	 * The name of the WordPress option where the health check paths are stored.
 	 */
-	const PATHS_OPTION_NAME = 'jetpack_scheduled_update_health_check_paths';
+	const OPTION_NAME = 'jetpack_scheduled_update_health_check_paths';
 
 	/**
 	 * Get the health check paths for a scheduled update.
@@ -28,7 +28,7 @@ class Scheduled_Updates_Health_Paths {
 	 * @return array List of health check paths.
 	 */
 	public static function get( $schedule_id ) {
-		$option = get_option( self::PATHS_OPTION_NAME, array() );
+		$option = get_option( self::OPTION_NAME, array() );
 
 		return $option[ $schedule_id ] ?? array();
 	}
@@ -41,11 +41,11 @@ class Scheduled_Updates_Health_Paths {
 	 * @return bool
 	 */
 	public static function update( $schedule_id, $paths ) {
-		$option       = get_option( self::PATHS_OPTION_NAME, array() );
+		$option       = get_option( self::OPTION_NAME, array() );
 		$parsed_paths = array();
 
 		foreach ( $paths as $path ) {
-			$parsed = wp_parse_url( trim( $path ), PHP_URL_PATH );
+			$parsed = self::validate( $path );
 
 			if ( is_string( $parsed ) ) {
 				$parsed_paths[] = $parsed;
@@ -58,7 +58,7 @@ class Scheduled_Updates_Health_Paths {
 			$option[ $schedule_id ] = $parsed_paths;
 		}
 
-		return update_option( self::PATHS_OPTION_NAME, $option );
+		return update_option( self::OPTION_NAME, $option );
 	}
 
 	/**
@@ -68,16 +68,16 @@ class Scheduled_Updates_Health_Paths {
 	 * @return bool
 	 */
 	public static function clear( $schedule_id ) {
-		$option = get_option( self::PATHS_OPTION_NAME, array() );
+		$option = get_option( self::OPTION_NAME, array() );
 
 		if ( isset( $option[ $schedule_id ] ) ) {
 			unset( $option[ $schedule_id ] );
 		}
 
 		if ( count( $option ) ) {
-			return update_option( self::PATHS_OPTION_NAME, $option );
+			return update_option( self::OPTION_NAME, $option );
 		} else {
-			return delete_option( self::PATHS_OPTION_NAME );
+			return delete_option( self::OPTION_NAME );
 		}
 	}
 
@@ -85,19 +85,19 @@ class Scheduled_Updates_Health_Paths {
 	 * Validate a path.
 	 *
 	 * @param string $path An health path.
-	 * @return true|WP_Error
+	 * @return string|WP_Error
 	 */
 	public static function validate( $path ) {
 		if ( ! is_string( $path ) ) {
 			return new WP_Error( 'rest_invalid_path', __( 'The path must be a string.', 'jetpack-scheduled-updates' ), array( 'status' => 400 ) );
 		}
 
-		$parsed = wp_parse_url( $path, PHP_URL_PATH );
+		$parsed = wp_parse_url( trim( $path ), PHP_URL_PATH );
 
-		if ( false === $parsed || '' === $parsed['path'] ) {
+		if ( false === $parsed || '' === $parsed ) {
 			return new WP_Error( 'rest_invalid_path', __( 'The path must be a valid URL.', 'jetpack-scheduled-updates' ), array( 'status' => 400 ) );
 		}
 
-		return true;
+		return $parsed;
 	}
 }
