@@ -641,13 +641,14 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 200, $result->get_status() );
 		$schedule_id = $result->get_data();
 
-		// Get the updated status
+		// Get the updated status.
 		$updated_status = Scheduled_Updates::get_scheduled_update_status( $schedule_id );
+
 		if ( $updated_status === false ) {
 			$this->fail( 'Scheduled_Updates::get_scheduled_update_status() returned false.' );
 		} else {
 			$this->assertIsArray( $updated_status, 'Scheduled_Updates::get_scheduled_update_status() should return an array.' );
-			// doing these null checks for the static analyzer
+			// doing these null checks for the static analyzer.
 			$this->assertSame( $timestamp, $updated_status['last_run_timestamp'] ?? null );
 			$this->assertSame( $status, $updated_status['last_run_status'] ?? null );
 
@@ -888,7 +889,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		$schedule_id = $this->create_test_schedule();
 
-		// Simulate 5 runs
+		// Simulate 5 runs.
 		for ( $i = 0;$i < 5;$i++ ) {
 			$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . $schedule_id . '/logs' );
 			$request->set_body_params(

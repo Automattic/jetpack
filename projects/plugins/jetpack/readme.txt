@@ -326,9 +326,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.4-a.3 - 2024-04-15
-#### Improved compatibility
-- WordPress.com Toolbar: Avoid fatal errors when using other menu management plugins and the WordPress.com Toolbar feature.
+### 13.4-a.5 - 2024-04-22
+#### Enhancements
+- Subscription: Add a filter to Allow Newsletter Block Meta Capability to be Changed.
 
 --------
 

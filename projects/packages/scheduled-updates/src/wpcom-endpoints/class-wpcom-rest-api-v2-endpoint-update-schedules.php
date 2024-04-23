@@ -265,16 +265,16 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return $event;
 		}
 
-		require_once ABSPATH . 'wp-admin/includes/update.php';
-
-		if ( wp_is_auto_update_enabled_for_type( 'plugin' ) ) {
-			// Remove the plugins that are now updated on a schedule from the auto-update list.
-			$auto_update_plugins = get_option( 'auto_update_plugins', array() );
-			$auto_update_plugins = array_diff( $auto_update_plugins, $plugins );
-			update_option( 'auto_update_plugins', $auto_update_plugins );
-		}
-
 		$id = Scheduled_Updates::generate_schedule_id( $plugins );
+
+		/**
+		 * Fires when a scheduled update is created.
+		 *
+		 * @param string          $id      The ID of the schedule.
+		 * @param object          $event   The event object.
+		 * @param WP_REST_Request $request The request object.
+		 */
+		do_action( 'jetpack_scheduled_update_created', $id, $event, $request );
 
 		return rest_ensure_response( $id );
 	}
@@ -342,20 +342,21 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return $result;
 		}
 
-		$previous_schedule_status = Scheduled_Updates::get_scheduled_update_status( $request['schedule_id'] );
-
-		$clear_logs = false;
-		$deleted    = $this->delete_item( $request, $clear_logs );
+		$deleted = $this->delete_item( $request );
 		if ( is_wp_error( $deleted ) ) {
 			return $deleted;
 		}
 
 		$item = $this->create_item( $request );
 
-		// Sets the previous status.
-		if ( $previous_schedule_status ) {
-			Scheduled_Updates_Logs::replace_logs_schedule_id( $request['schedule_id'], $item->data );
-		}
+		/**
+		 * Fires when a scheduled update is updated.
+		 *
+		 * @param string          $old_id  The ID of the schedule to update.
+		 * @param string          $new_id  The ID of the updated event.
+		 * @param WP_REST_Request $request The request object.
+		 */
+		do_action( 'jetpack_scheduled_update_updated', $request['schedule_id'], $item->data, $request );
 
 		return $item;
 	}
@@ -472,10 +473,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * Deletes an existing update schedule.
 	 *
 	 * @param WP_REST_Request $request Request object.
-	 * @param bool            $clear_logs Whether to clear the logs or not.
 	 * @return WP_REST_Response|WP_Error
 	 */
-	public function delete_item( $request, $clear_logs = true ) {
+	public function delete_item( $request ) {
 		$events = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
 
 		if ( ! isset( $events[ $request['schedule_id'] ] ) ) {
@@ -493,28 +493,14 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return new WP_Error( 'unschedule_event_error', __( 'Error during unschedule of the event.', 'jetpack-scheduled-updates' ), array( 'status' => 500 ) );
 		}
 
-		require_once ABSPATH . 'wp-admin/includes/update.php';
-
-		if ( wp_is_auto_update_enabled_for_type( 'plugin' ) ) {
-			unset( $events[ $request['schedule_id'] ] );
-
-			// Find the plugins that are not part of any other schedule.
-			$plugins = $event->args;
-			foreach ( wp_list_pluck( $events, 'args' ) as $args ) {
-				$plugins = array_diff( $plugins, $args );
-			}
-
-			// Add the plugins that are no longer updated on a schedule to the auto-update list.
-			$auto_update_plugins = get_option( 'auto_update_plugins', array() );
-			$auto_update_plugins = array_unique( array_merge( $auto_update_plugins, $plugins ) );
-			usort( $auto_update_plugins, 'strnatcasecmp' );
-			update_option( 'auto_update_plugins', $auto_update_plugins );
-		}
-
-		// Delete logs
-		if ( $clear_logs ) {
-			Scheduled_Updates_Logs::clear( $request['schedule_id'] );
-		}
+		/**
+		 * Fires when a scheduled update is deleted.
+		 *
+		 * @param string          $id      The ID of the schedule to delete.
+		 * @param object          $event   The deleted event object.
+		 * @param WP_REST_Request $request The request object.
+		 */
+		do_action( 'jetpack_scheduled_update_deleted', $request['schedule_id'], $event, $request );
 
 		return rest_ensure_response( true );
 	}

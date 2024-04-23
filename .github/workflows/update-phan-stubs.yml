@@ -22,6 +22,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Use the matticbot token so CI runs on the created PR.
+          token: ${{ secrets.API_TOKEN_GITHUB }}
 
       - name: Update stubs
         run: tools/stubs/update-stubs.sh
@@ -50,7 +53,7 @@ jobs:
       - name: Create commit and PR
         if: steps.changes.outputs.needed == 'true' && steps.changes.outputs.has-branch == 'false'
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
         run: |
           git checkout -b update/phan-custom-stubs
           git commit -am 'phan: Update custom stubs'
