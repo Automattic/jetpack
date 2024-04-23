@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-REST API: Correctly report Publicize when applicable in `/jetpack/v4/site/benefits` endpoint.

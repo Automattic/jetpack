@@ -162,6 +162,9 @@ importers:
       '@storybook/blocks':
         specifier: 8.0.6
         version: 8.0.6(@types/react@18.2.74)(react-dom@18.2.0)(react@18.2.0)
+      '@storybook/preview-api':
+        specifier: 8.0.6
+        version: 8.0.6
       '@storybook/react':
         specifier: 8.0.6
         version: 8.0.6(react-dom@18.2.0)(react@18.2.0)(typescript@5.0.4)
