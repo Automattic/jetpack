@@ -171,11 +171,12 @@ class Status {
 	/**
 	 * If is a staging site.
 	 *
-	 * @todo Add IDC detection to a package.
+	 * @deprecated since $$next-version$$
 	 *
 	 * @return bool
 	 */
 	public function is_staging_site() {
+		_deprecated_function( __FUNCTION__, '$$next-version$$', 'in_safe_mode' );
 		$cached = Cache::get( 'is_staging_site' );
 		if ( null !== $cached ) {
 			return $cached;
@@ -259,6 +260,49 @@ class Status {
 
 		Cache::set( 'is_staging_site', $is_staging );
 		return $is_staging;
+	}
+
+	/**
+	 * If the site is in safe mode.
+	 * TODO: Fix IDC package after we move it to connection package.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public function in_safe_mode() {
+		$cached = Cache::get( 'in_safe_mode' );
+		if ( null !== $cached ) {
+			return $cached;
+		}
+		$in_safe_mode = false;
+		if ( method_exists( 'Automattic\\Jetpack\\Identity_Crisis', 'validate_sync_error_idc_option' ) && \Automattic\Jetpack\Identity_Crisis::validate_sync_error_idc_option() ) {
+			$in_safe_mode = true;
+		}
+		Cache::set( 'in_safe_mode', $in_safe_mode );
+		return $in_safe_mode;
+	}
+
+	/**
+	 * If the site is a development/staging site.
+	 * This is a new version of is_staging_site added to separate safe and legacy staging modes.
+	 * This method only checks for core WP_ENVIRONMENT_TYPE setting
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public function is_development_site() {
+		$is_dev_site = ! in_array( wp_get_environment_type(), array( 'production', 'local' ), true );
+		/**
+		 * Filters is_development_site check.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $is_dev_site If the current site is a staging or dev site.
+		 */
+		$is_dev_site = apply_filters( 'jetpack_is_development_site', $is_dev_site );
+		return $is_dev_site;
 	}
 
 	/**
