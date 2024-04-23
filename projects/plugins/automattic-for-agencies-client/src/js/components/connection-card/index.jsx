@@ -135,63 +135,63 @@ function DetailSharingContent( { onCloseSharingDetailsClick } ) {
 			<ul className={ styles.checklist }>
 				<li>
 					<CheckIcon />
-					{ createInterpolateElement(
-						__(
-							'<strong>Options:</strong> To sync specific site options (and constants) that help us identify the changes to the features we power.',
-							'automattic-for-agencies-client'
-						),
-						{ strong: <strong /> }
-					) }
+					<div>
+						{ createInterpolateElement(
+							__(
+								'<strong>Options:</strong> To sync specific site options (and constants) that help us identify the changes to the features we power.',
+								'automattic-for-agencies-client'
+							),
+							{ strong: <strong /> }
+						) }
+					</div>
 				</li>
 				<li>
 					<CheckIcon />
-					{ createInterpolateElement(
-						__(
-							'<strong>Updates:</strong> To sync data about plugin, theme, and core updates and enable updating these from the Automattic for Agencies portal.',
-							'automattic-for-agencies-client'
-						),
-						{ strong: <strong /> }
-					) }
+					<div>
+						{ createInterpolateElement(
+							__(
+								'<strong>Updates:</strong> To sync data about plugin, theme, and core updates and enable updating these from the Automattic for Agencies portal.',
+								'automattic-for-agencies-client'
+							),
+							{ strong: <strong /> }
+						) }
+					</div>
 				</li>
 				<li>
 					<CheckIcon />
-					{ createInterpolateElement(
-						__(
-							'<strong>Plugins:</strong> To sync plugin data, such as deletions and installations.',
-							'automattic-for-agencies-client'
-						),
-						{ strong: <strong /> }
-					) }
+					<div>
+						{ createInterpolateElement(
+							__(
+								'<strong>Plugins:</strong> To sync plugin data, such as deletions and installations.',
+								'automattic-for-agencies-client'
+							),
+							{ strong: <strong /> }
+						) }
+					</div>
 				</li>
 				<li>
 					<CheckIcon />
-					{ createInterpolateElement(
-						__(
-							'<strong>Updates:</strong> to sync data about plugin, theme, and core updates.',
-							'automattic-for-agencies-client'
-						),
-						{ strong: <strong /> }
-					) }
+					<div>
+						{ createInterpolateElement(
+							__(
+								"<strong>Users:</strong> To sync information on the site's users and any related changes. This will be used for user management in the future.",
+								'automattic-for-agencies-client'
+							),
+							{ strong: <strong /> }
+						) }
+					</div>
 				</li>
 				<li>
 					<CheckIcon />
-					{ createInterpolateElement(
-						__(
-							"<strong>Users:</strong> To sync information on the site's users and any related changes. This will be used for user management in the future.",
-							'automattic-for-agencies-client'
-						),
-						{ strong: <strong /> }
-					) }
-				</li>
-				<li>
-					<CheckIcon />
-					{ createInterpolateElement(
-						__(
-							'<strong>Stats:</strong> To sync heartbeat data. This is used to power downtime monitoring and the last 7-day stats charts.',
-							'automattic-for-agencies-client'
-						),
-						{ strong: <strong /> }
-					) }
+					<div>
+						{ createInterpolateElement(
+							__(
+								'<strong>Stats:</strong> To sync heartbeat data. This is used to power downtime monitoring and the last 7-day stats charts.',
+								'automattic-for-agencies-client'
+							),
+							{ strong: <strong /> }
+						) }
+					</div>
 				</li>
 			</ul>
 		</>
