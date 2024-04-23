@@ -1,9 +1,4 @@
-import {
-	RadioControl,
-	ToggleControl,
-	getRedirectUrl,
-	SelectControl,
-} from '@automattic/jetpack-components';
+import { RadioControl, ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { FormLegend } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -142,13 +137,18 @@ const EmailSettings = props => {
 				<FormLegend className="jp-form-label-wide">
 					{ __( 'Reply-to behavior', 'jetpack' ) }
 				</FormLegend>
-
-				<SelectControl
+				<p>
+					{ __(
+						'When a subscriber replies to the newsletter you sent, that reply should:',
+						'jetpack'
+					) }
+				</p>
+				<RadioControl
 					selected={ subscriptionReplyTo ? 'no-reply' : 'full' }
 					disabled={ replyToInputDisabled }
 					options={ [
 						{ label: __( 'Replies are disallowed', 'jetpack' ), value: 'no-reply' },
-						{ label: __( "Be sent to author's inbox", 'jetpack' ), value: 'author' },
+						{ label: __( "Be sent to the post author's email", 'jetpack' ), value: 'author' },
 					] }
 					onChange={ handleSubscriptionReplyToChange }
 				/>
