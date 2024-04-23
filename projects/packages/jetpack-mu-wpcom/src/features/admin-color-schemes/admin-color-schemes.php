@@ -7,15 +7,18 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+
 /**
  * Get the admin color scheme URL based on the environment
  *
  * @param string $color_scheme  The color scheme to get the URL for.
+ * @param string $file          The file name (optional, default: colors.css).
  * @return string
  */
-function get_admin_color_scheme_url( $color_scheme ) {
+function get_admin_color_scheme_url( $color_scheme, $file = 'colors.css' ) {
 	// TODO: migrate these color scheme CSS files to jetpack-mu-wpcom as well.
-	return plugins_url( '_inc/build/masterbar/admin-color-schemes/colors/' . $color_scheme . '/colors.css', JETPACK__PLUGIN_FILE );
+	return plugins_url( '_inc/build/masterbar/admin-color-schemes/colors/' . $color_scheme . '/' . $file, JETPACK__PLUGIN_FILE );
 }
 
 /**
@@ -146,6 +149,12 @@ function reenqueue_core_color_scheme() {
 	if ( in_array( $color_scheme, $core_color_schemes, true ) ) {
 		// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 		wp_enqueue_style( 'jetpack-core-color-scheme', "https://s0.wp.com/wp-admin/css/colors/$color_scheme/colors.min.css" );
+		wp_enqueue_style(
+			'jetpack-core-color-schemes-overrides-sidebar-notice',
+			get_admin_color_scheme_url( $color_scheme, 'sidebar-notice.css' ),
+			array(),
+			Jetpack_Mu_Wpcom::PACKAGE_VERSION
+		);
 	}
 }
 
