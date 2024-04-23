@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Sitemaps: Ensured that the last modification date from the jetpack_page_sitemap_other_urls filter is considered for the last modification date of the generated sitemap.
