@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Added exception for new IDC REST endpoint.
