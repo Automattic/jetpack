@@ -13,9 +13,9 @@ const wpcomShowSidebarNotice = () => {
 				<a href="${ wpcomSidebarNotice.url }" class="wp-not-current-submenu menu-top menu-icon-generic toplevel_page_site-notices">
 					<div class="wp-menu-name">
 						<div class="upsell_banner">
-							<div class="wpcom-sidebar-notice__icon"><span class="dashicons dashicons-info-outline"></span></div>
-							<div class="wpcom-sidebar-notice__text">${ wpcomSidebarNotice.text }</div>
-							<button type="button" class="wpcom-sidebar-notice__action button button-primary">${ wpcomSidebarNotice.action }</button>
+							<div class="upsell_banner__icon dashicons" aria-hidden="true"></div>
+							<div class="upsell_banner__text">${ wpcomSidebarNotice.text }</div>
+							<button type="button" class="upsell_banner__action button button-primary">${ wpcomSidebarNotice.action }</button>
 						</div>
 					</div>
 				</a>

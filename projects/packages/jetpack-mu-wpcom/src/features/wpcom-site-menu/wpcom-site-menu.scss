@@ -71,16 +71,24 @@
 		gap: 6px;
 	}
 
-	.wpcom-sidebar-notice__icon {
+	.upsell_banner__icon {
 		display: none;
+
+		&:before {
+			content: '\f534';
+			font-family: 'dashicons';
+			background-color: #a7aaad;
+			color: white;
+			border-radius: 50%;
+		}
 	}
 
-	.wpcom-sidebar-notice__text {
+	.upsell_banner__text {
 		font-size: 12px;
 		line-height: 16px;
 	}
 
-	.wpcom-sidebar-notice__action {
+	.upsell_banner__action {
 		width: 100%;
 		font-size: 13px;
 		line-height: 20px;
@@ -105,12 +113,12 @@
 			padding: 4px;
 		}
 
-		.wpcom-sidebar-notice__icon {
+		.upsell_banner__icon {
 			display: block;
 		}
 
-		.wpcom-sidebar-notice__text,
-		.wpcom-sidebar-notice__action {
+		.upsell_banner__text,
+		.upsell_banner__action {
 			display: none;
 		}
 	}
