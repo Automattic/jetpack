@@ -707,9 +707,10 @@ class VideoPress_Player {
 			// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 			return "<iframe title='" . __( 'VideoPress Video Player', 'jetpack' )
 				. "' aria-label='" . __( 'VideoPress Video Player', 'jetpack' )
-				. "' width='" . esc_attr( $videopress_options['width'] )
+				. "' width='100%'"
 				. "' height='" . esc_attr( $videopress_options['height'] )
-				. "' src='" . esc_attr( $iframe_url )
+				. "' style='max-width:'" . esc_attr( $videopress_options['width'] )
+				. ";' src='" . esc_attr( $iframe_url )
 				. "' frameborder='0' allowfullscreen"
 				. $cover
 				. " allow='clipboard-write'></iframe>"
