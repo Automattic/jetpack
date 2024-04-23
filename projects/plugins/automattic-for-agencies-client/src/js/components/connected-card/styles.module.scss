@@ -1,3 +1,5 @@
+@import '~@automattic/color-studio/dist/color-variables';
+
 .card {
     padding: 160px 48px 48px;
     display: flex;
@@ -34,6 +36,19 @@
 
 .disconnect_modal {
     max-width: 512px;
+    border-radius: 20px;
+
+    :global {
+        .components-modal__header-heading {
+            font-size: 20px;
+            line-height: 24px;
+        }
+
+        p {
+            font-size: 14px;
+            line-height: 20px;
+        }
+    }
 }
 
 .disconnect_modal__error {
@@ -46,11 +61,15 @@
     display: flex;
     gap: 8px;
     justify-content: flex-end;
+    margin-top: 2rem;
 
     :global {
         .components-button {
             --spacing-base: 16px;
             --font-body-extra-small: 14px;
+        }
+        .components-button.is-secondary {
+            box-shadow: inset 0 0 0 1px $studio-gray-5;
         }
     }
 }
