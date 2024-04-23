@@ -13,7 +13,7 @@ require __DIR__ . '/../../../../.phan/config.base.php';
 return make_phan_config(
 	dirname( __DIR__ ),
 	array(
-		'+stubs'                          => array( 'akismet', 'full-site-editing', 'woocommerce', 'woocommerce-internal', 'woocommerce-packages', 'wpcom' ),
+		'+stubs'                          => array( 'akismet', 'amp', 'full-site-editing', 'woocommerce', 'woocommerce-internal', 'woocommerce-packages', 'wpcom' ),
 		'exclude_file_list'               => array(
 			// Mocks of core classes.
 			'tests/php/_inc/lib/mocks/class-simplepie-file.php',

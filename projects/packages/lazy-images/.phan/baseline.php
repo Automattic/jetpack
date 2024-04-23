@@ -10,13 +10,13 @@
 return [
     // # Issue statistics:
     // PhanTypeMismatchArgument : 2 occurrences
+    // PhanDeprecatedFunction : 1 occurrence
     // PhanParamTooMany : 1 occurrence
     // PhanTypeMismatchPropertyProbablyReal : 1 occurrence
-    // PhanUndeclaredFunction : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/lazy-images.php' => ['PhanTypeMismatchPropertyProbablyReal', 'PhanUndeclaredFunction'],
+        'src/lazy-images.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchPropertyProbablyReal'],
         'tests/php/test_class.lazy-images.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgument'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
