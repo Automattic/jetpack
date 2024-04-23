@@ -688,7 +688,7 @@ function get_post_access_level_for_current_post() {
  */
 function render_for_website( $data, $classes, $styles ) {
 	$lang              = get_locale();
-	$blog_id           = Jetpack_Memberships::get_blog_id();
+	$blog_id           = \Jetpack_Options::get_option( 'id' );
 	$widget_id_suffix  = Jetpack_Subscriptions_Widget::$instance_count > 1 ? '-' . Jetpack_Subscriptions_Widget::$instance_count : '';
 	$form_id           = 'subscribe-blog' . $widget_id_suffix;
 	$form_url          = 'https://wordpress.com/email-subscriptions';
