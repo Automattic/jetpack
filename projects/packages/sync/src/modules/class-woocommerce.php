@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+use WC_Order;
 use WP_Error;
 
 /**
@@ -204,10 +205,10 @@ class WooCommerce extends Module {
 	/**
 	 * Retrieve the order item ids to be removed and send them as one action
 	 *
-	 * @param Order  $order The order argument.
-	 * @param string $type Order item type.
+	 * @param WC_Order $order The order argument.
+	 * @param string   $type Order item type.
 	 */
-	public function action_woocommerce_remove_order_items( $order, $type ) {
+	public function action_woocommerce_remove_order_items( WC_Order $order, $type ) {
 		if ( $type ) {
 			$order_items = $order->get_items( $type );
 		} else {
