@@ -707,7 +707,7 @@ class VideoPress_Player {
 			// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 			return "<iframe title='" . __( 'VideoPress Video Player', 'jetpack' )
 				. "' aria-label='" . __( 'VideoPress Video Player', 'jetpack' )
-				. "' width='100%'"
+				. "' width='100%"
 				. "' height='" . esc_attr( $videopress_options['height'] )
 				. "' style='max-width:" . esc_attr( $videopress_options['width'] )
 				. "px;' src='" . esc_attr( $iframe_url )
