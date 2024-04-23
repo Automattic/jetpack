@@ -45,11 +45,7 @@ function wpcomsh_get_wpcom_themes_service_instance(): WPCom_Themes_Service {
 function wpcomsh_popular_wpcom_themes_api_result( $res, string $action, $args ) {
 	// Pre-requisites checks.
 	$browse = $args->browse ?? '';
-	if (
-		'query_themes' !== $action ||
-		'popular' !== $browse ||
-		! wpcom_is_nav_redesign_enabled()
-	) {
+	if ( 'query_themes' !== $action || 'popular' !== $browse ) {
 		return $res;
 	}
 
@@ -72,11 +68,7 @@ add_filter( 'themes_api_result', 'wpcomsh_popular_wpcom_themes_api_result', 0, 3
 function wpcomsh_latest_wpcom_themes_api_result( $res, string $action, $args ) {
 	// Pre-requisites checks.
 	$browse = $args->browse ?? '';
-	if (
-		'query_themes' !== $action ||
-		'new' !== $browse ||
-		! wpcom_is_nav_redesign_enabled()
-	) {
+	if ( 'query_themes' !== $action || 'new' !== $browse ) {
 		return $res;
 	}
 
@@ -99,11 +91,7 @@ add_filter( 'themes_api_result', 'wpcomsh_latest_wpcom_themes_api_result', 0, 3 
 function wpcomsh_block_themes_wpcom_themes_api_result( $res, string $action, $args ) {
 	// Pre-requisites checks.
 	$tag = $args->tag ?? '';
-	if (
-		'query_themes' !== $action ||
-		'full-site-editing' !== $tag ||
-		! wpcom_is_nav_redesign_enabled()
-	) {
+	if ( 'query_themes' !== $action || 'full-site-editing' !== $tag ) {
 		return $res;
 	}
 
@@ -126,11 +114,7 @@ add_filter( 'themes_api_result', 'wpcomsh_block_themes_wpcom_themes_api_result',
 function wpcomsh_search_wpcom_themes_api_result( $res, string $action, $args ) {
 	// Pre-requisites checks.
 	$search = $args->search ?? '';
-	if (
-		'query_themes' !== $action ||
-		'' === $search ||
-		! wpcom_is_nav_redesign_enabled()
-	) {
+	if ( 'query_themes' !== $action || '' === $search ) {
 		return $res;
 	}
 
@@ -153,11 +137,7 @@ add_filter( 'themes_api_result', 'wpcomsh_search_wpcom_themes_api_result', 0, 3 
 function wpcomsh_feature_filter_wpcom_themes_api_result( $res, string $action, $args ) {
 	// Pre-requisites checks.
 	$tags = $args->tag ?? array();
-	if (
-		'query_themes' !== $action ||
-		! $tags ||
-		! wpcom_is_nav_redesign_enabled()
-	) {
+	if ( 'query_themes' !== $action || ! $tags ) {
 		return $res;
 	}
 
@@ -179,7 +159,7 @@ add_filter( 'themes_api_result', 'wpcomsh_feature_filter_wpcom_themes_api_result
  */
 function wpcomsh_theme_information_wpcom_themes_api_result( $res, string $action, $args ) {
 	// Pre-requisites checks.
-	if ( 'theme_information' !== $action || ! wpcom_is_nav_redesign_enabled() ) {
+	if ( 'theme_information' !== $action ) {
 		return $res;
 	}
 
@@ -215,14 +195,10 @@ function wpcomsh_remove_symlink_wp_error( $code, $message, $data, WP_Error $erro
  * @return bool|mixed|WP_Error
  */
 function wpcomsh_theme_install_by_symlink( $reply, $package, WP_Upgrader $upgrader ) {
-	// Pre-requisites checks.
-	if ( ! wpcom_is_nav_redesign_enabled() ) {
-		return $reply;
-	}
-
 	$wpcom_themes_service = wpcomsh_get_wpcom_themes_service_instance();
 	$wpcom_theme          = $wpcom_themes_service->get_theme_by_download_url( $package );
 
+	// Pre-requisites checks.
 	if ( ! $wpcom_theme ) {
 		return $reply;
 	}
