@@ -159,20 +159,6 @@ class Scheduled_Updates {
 	}
 
 	/**
-	 * Create a scheduled update status.
-	 *
-	 * @param string           $schedule_id Request ID.
-	 * @param object           $event       The event object.
-	 * @param \WP_REST_Request $request     The request object.
-	 */
-	public static function create_scheduled_update_status( $schedule_id, $event, $request ) {
-		// Only create the status if this is a CREATE request.
-		if ( empty( $request['schedule_id'] ) ) {
-			self::set_scheduled_update_status( $schedule_id, null, null );
-		}
-	}
-
-	/**
 	 * Updates last status of a scheduled update.
 	 *
 	 * @param string      $schedule_id Request ID.
