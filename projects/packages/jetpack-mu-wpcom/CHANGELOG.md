@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.25.0] - 2024-04-22
+### Added
+- Add missing dependency on `automattic/jetpack-status`. [#36881]
+
+### Changed
+- Launch the WP.com themes banner in WP Admin for all users. [#36935]
+- Monetize: Move menu item into the Jetpack menu for all Classic interface users. [#36995]
+
+### Fixed
+- Added completed callback for site_launched task. [#36839]
+- Fixed a WP.com only issue that forced the Themes menu to always point to Calypso even when the classic interface was set. [#36934]
+- Fix enqueuing editor styles. [#36983]
+- Themes: Fixed an issue that was showing a broken Theme Showcase action in the active theme details. [#36986]
+
 ## [5.24.0] - 2024-04-15
 ### Added
 - WP.com Patterns: Hide WP.com categories that start with underscore. [#36763]
@@ -729,6 +743,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.25.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.24.0...v5.25.0
 [5.24.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.23.2...v5.24.0
 [5.23.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.23.1...v5.23.2
 [5.23.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.23.0...v5.23.1

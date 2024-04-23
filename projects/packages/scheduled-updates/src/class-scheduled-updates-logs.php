@@ -162,7 +162,7 @@ class Scheduled_Updates_Logs {
 	 */
 	public static function infer_status_from_logs( $schedule_id ) {
 		$logs = self::get( $schedule_id );
-		if ( is_wp_error( $logs ) || empty( $logs ) ) {
+		if ( empty( $logs ) ) {
 			return false;
 		}
 
@@ -199,6 +199,41 @@ class Scheduled_Updates_Logs {
 	}
 
 	/**
+	 * Replaces the logs with the old schedule ID with new ones.
+	 *
+	 * @param string $old_schedule_id The old schedule ID.
+	 * @param string $new_schedule_id The new schedule ID.
+	 */
+	public static function replace_logs_schedule_id( $old_schedule_id, $new_schedule_id ) {
+		if ( $old_schedule_id === $new_schedule_id ) {
+			return;
+		}
+
+		$logs = get_option( self::OPTION_NAME, array() );
+
+		if ( isset( $logs[ $old_schedule_id ] ) ) {
+			// Replace the logs with the old schedule ID with new ones.
+			$logs[ $new_schedule_id ] = $logs[ $old_schedule_id ];
+			unset( $logs[ $old_schedule_id ] );
+
+			update_option( self::OPTION_NAME, $logs );
+		}
+	}
+
+	/**
+	 * Deletes the logs for a schedule ID when the current request is a DELETE request.
+	 *
+	 * @param string           $schedule_id The ID of the schedule to delete.
+	 * @param object           $event       The deleted event object.
+	 * @param \WP_REST_Request $request     The request object.
+	 */
+	public static function delete_logs_schedule_id( $schedule_id, $event, $request ) {
+		if ( $request->get_method() === \WP_REST_Server::DELETABLE ) {
+			self::clear( $schedule_id );
+		}
+	}
+
+	/**
 	 * Splits the logs into runs based on the PLUGIN_UPDATES_START action.
 	 *
 	 * @param array $logs The logs to split into runs.
@@ -224,34 +259,5 @@ class Scheduled_Updates_Logs {
 		}
 
 		return $runs;
-	}
-
-	/**
-	 * Replaces the logs with the old schedule ID with new ones.
-	 *
-	 * @param string $old_schedule_id The old schedule ID.
-	 * @param string $new_schedule_id The new schedule ID.
-	 *
-	 * @return bool True if the logs were successfully replaced, false otherwise.
-	 */
-	public static function replace_logs_schedule_id( $old_schedule_id, $new_schedule_id ) {
-
-		if ( $old_schedule_id === $new_schedule_id ) {
-			return false;
-		}
-
-		$logs = get_option( self::OPTION_NAME, array() );
-
-		if ( isset( $logs[ $old_schedule_id ] ) ) {
-			// Replace the logs with the old schedule ID with new ones
-			$logs[ $new_schedule_id ] = $logs[ $old_schedule_id ];
-			unset( $logs[ $old_schedule_id ] );
-
-			update_option( self::OPTION_NAME, $logs );
-
-			return true;
-		}
-
-		return false;
 	}
 }
