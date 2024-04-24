@@ -15,7 +15,6 @@ return [
     // PhanTypeArraySuspiciousNullable : 2 occurrences
     // PhanUndeclaredClassMethod : 2 occurrences
     // PhanCompatibleAccessMethodOnTraitDefinition : 1 occurrence
-    // PhanNoopNew : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanUndeclaredFunction : 1 occurrence
 
@@ -25,7 +24,6 @@ return [
         'src/pluggable.php' => ['PhanTypeArraySuspiciousNullable'],
         'src/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-update-schedules.php' => ['PhanPluginMixedKeyNoKey', 'PhanUndeclaredFunction'],
         'tests/php/class-scheduled-updates-test.php' => ['PhanCompatibleAccessMethodOnTraitDefinition', 'PhanUndeclaredProperty'],
-        'tests/php/class-wpcom-rest-api-v2-endpoint-update-schedules-test.php' => ['PhanNoopNew'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)
