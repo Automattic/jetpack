@@ -402,7 +402,7 @@ class Functions {
 	 *
 	 * @deprecated 1.23.1
 	 *
-	 * @param string $callable Function that was used to retrieve URL option.
+	 * @param string $callable Function name that was used to retrieve URL option.
 	 * @param string $new_value URL Protocol to set URLs to.
 	 * @return string Normalized URL.
 	 */
