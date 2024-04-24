@@ -34,6 +34,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	public static function set_up_before_class() {
 		parent::set_up_before_class();
 
+		// @phan-suppress-next-line PhanNoopNew -- The constructor register routes.
 		new WPCOM_REST_API_V2_Endpoint_Update_Schedules();
 	}
 
