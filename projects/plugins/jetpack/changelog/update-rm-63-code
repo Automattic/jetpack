@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+General: remove code that was added to remain compatible with versions of WordPress lower than 6.4.

@@ -8,6 +8,7 @@
  */
 
 use Automattic\Jetpack\Scheduled_Updates;
+use Automattic\Jetpack\Scheduled_Updates_Health_Paths;
 use Automattic\Jetpack\Scheduled_Updates_Logs;
 
 /**
@@ -266,6 +267,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		}
 
 		$id = Scheduled_Updates::generate_schedule_id( $plugins );
+		Scheduled_Updates_Health_Paths::update( $id, $schedule['health_check_paths'] ?? array() );
 
 		/**
 		 * Fires when a scheduled update is created.
@@ -502,6 +504,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		 */
 		do_action( 'jetpack_scheduled_update_deleted', $request['schedule_id'], $event, $request );
 
+		Scheduled_Updates_Health_Paths::clear( $request['schedule_id'] );
+
 		return rest_ensure_response( true );
 	}
 
@@ -545,7 +549,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			);
 		}
 
-		$item = array_merge( $item, $status );
+		$item                       = array_merge( $item, $status );
+		$item['health_check_paths'] = Scheduled_Updates_Health_Paths::get( $item['schedule_id'] );
 
 		$item = $this->add_additional_fields_to_object( $item, $request );
 
@@ -632,6 +637,26 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	public function validate_themes_param( $themes ) {
 		if ( ! empty( $themes ) ) {
 			return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not schedule theme updates at this time.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Checks that the "paths" parameter is a valid array of paths.
+	 *
+	 * @param array $paths List of paths to check.
+	 * @return bool|WP_Error
+	 */
+	public function validate_paths_param( $paths ) {
+		foreach ( $paths as $path ) {
+			$valid = Scheduled_Updates_Health_Paths::validate( $path );
+
+			if ( is_wp_error( $valid ) ) {
+				$valid->add_data( array( 'status' => 400 ) );
+
+				return $valid;
+			}
 		}
 
 		return true;
@@ -745,6 +770,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 					'type'        => 'string',
 					'enum'        => array( 'success', 'failure-and-rollback', 'failure-and-rollback-fail' ),
 				),
+				'health_check_paths' => array(
+					'description' => 'Paths to check for site health.',
+					'type'        => 'array',
+				),
 			),
 		);
 
@@ -777,16 +806,27 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 				'type'        => 'object',
 				'required'    => true,
 				'properties'  => array(
-					'interval'  => array(
+					'interval'           => array(
 						'description' => 'Interval for the schedule.',
 						'type'        => 'string',
 						'enum'        => array( 'daily', 'weekly' ),
 						'required'    => true,
 					),
-					'timestamp' => array(
+					'timestamp'          => array(
 						'description' => 'Unix timestamp (UTC) for when to first run the schedule.',
 						'type'        => 'integer',
 						'required'    => true,
+					),
+					'health_check_paths' => array(
+						'description'       => 'List of paths to check for site health after the update.',
+						'type'              => 'array',
+						'maxItems'          => 5,
+						'items'             => array(
+							'type' => 'string',
+						),
+						'required'          => false,
+						'default'           => array(),
+						'validate_callback' => array( $this, 'validate_paths_param' ),
 					),
 				),
 			),
