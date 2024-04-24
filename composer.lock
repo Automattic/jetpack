@@ -981,16 +981,16 @@
         },
         {
             "name": "php-stubs/woocommerce-stubs",
-            "version": "v8.7.0",
+            "version": "v8.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/woocommerce-stubs.git",
-                "reference": "1bab3a764a91ed037f420dc38124e2516b29e6b8"
+                "reference": "320ad596d47d4a8687bbeac0924d8167a6689da6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/woocommerce-stubs/zipball/1bab3a764a91ed037f420dc38124e2516b29e6b8",
-                "reference": "1bab3a764a91ed037f420dc38124e2516b29e6b8",
+                "url": "https://api.github.com/repos/php-stubs/woocommerce-stubs/zipball/320ad596d47d4a8687bbeac0924d8167a6689da6",
+                "reference": "320ad596d47d4a8687bbeac0924d8167a6689da6",
                 "shasum": ""
             },
             "require": {
@@ -1019,31 +1019,33 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/woocommerce-stubs/issues",
-                "source": "https://github.com/php-stubs/woocommerce-stubs/tree/v8.7.0"
+                "source": "https://github.com/php-stubs/woocommerce-stubs/tree/v8.8.2"
             },
-            "time": "2024-03-19T16:55:16+00:00"
+            "time": "2024-04-17T12:41:04+00:00"
         },
         {
             "name": "php-stubs/wordpress-stubs",
-            "version": "v6.4.0",
+            "version": "v6.5.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/wordpress-stubs.git",
-                "reference": "286d42eeb44c6808633cc59b8dbb9aa75fe41264"
+                "reference": "379f17a90c01498d4c99a0d15aab6e7aa6a2c840"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/wordpress-stubs/zipball/286d42eeb44c6808633cc59b8dbb9aa75fe41264",
-                "reference": "286d42eeb44c6808633cc59b8dbb9aa75fe41264",
+                "url": "https://api.github.com/repos/php-stubs/wordpress-stubs/zipball/379f17a90c01498d4c99a0d15aab6e7aa6a2c840",
+                "reference": "379f17a90c01498d4c99a0d15aab6e7aa6a2c840",
                 "shasum": ""
             },
             "require-dev": {
+                "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
                 "nikic/php-parser": "^4.13",
                 "php": "^7.4 || ~8.0.0",
                 "php-stubs/generator": "^0.8.3",
-                "phpdocumentor/reflection-docblock": "^5.3",
-                "phpstan/phpstan": "^1.10.12",
-                "phpunit/phpunit": "^9.5"
+                "phpdocumentor/reflection-docblock": "5.3",
+                "phpstan/phpstan": "^1.10.49",
+                "phpunit/phpunit": "^9.5",
+                "szepeviktor/phpcs-psr-12-neutron-hybrid-ruleset": "^0.11"
             },
             "suggest": {
                 "paragonie/sodium_compat": "Pure PHP implementation of libsodium",
@@ -1064,22 +1066,22 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/wordpress-stubs/issues",
-                "source": "https://github.com/php-stubs/wordpress-stubs/tree/v6.4.0"
+                "source": "https://github.com/php-stubs/wordpress-stubs/tree/v6.5.2"
             },
-            "time": "2023-11-08T07:02:08+00:00"
+            "time": "2024-04-14T17:30:14+00:00"
         },
         {
             "name": "php-stubs/wordpress-tests-stubs",
-            "version": "v6.4.0",
+            "version": "v6.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/wordpress-tests-stubs.git",
-                "reference": "e7d6d1653f2347cd016f66fb9cd74d7cf7360b49"
+                "reference": "7d6649a7e91d92aea7a191d2c1f621605d310f4e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/wordpress-tests-stubs/zipball/e7d6d1653f2347cd016f66fb9cd74d7cf7360b49",
-                "reference": "e7d6d1653f2347cd016f66fb9cd74d7cf7360b49",
+                "url": "https://api.github.com/repos/php-stubs/wordpress-tests-stubs/zipball/7d6649a7e91d92aea7a191d2c1f621605d310f4e",
+                "reference": "7d6649a7e91d92aea7a191d2c1f621605d310f4e",
                 "shasum": ""
             },
             "require-dev": {
@@ -1104,9 +1106,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/wordpress-tests-stubs/issues",
-                "source": "https://github.com/php-stubs/wordpress-tests-stubs/tree/v6.4.0"
+                "source": "https://github.com/php-stubs/wordpress-tests-stubs/tree/v6.5.0"
             },
-            "time": "2024-02-26T13:52:25+00:00"
+            "time": "2024-04-02T18:38:25+00:00"
         },
         {
             "name": "php-stubs/wp-cli-stubs",
@@ -2919,7 +2921,7 @@
         "automattic/jetpack-phpcs-filter": 20
     },
     "prefer-stable": true,
-    "prefer-lowest": true,
+    "prefer-lowest": false,
     "platform": {
         "ext-json": "*"
     },
