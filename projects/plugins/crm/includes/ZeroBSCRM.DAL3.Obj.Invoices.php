@@ -811,7 +811,8 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 					if ( str_starts_with( $qFilter, 'status_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 						$quick_filter_status         = substr( $qFilter, 7 ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-						$wheres['quickfilterstatus'] = array( 'zbsi_status', '=', 'convert(%s using utf8mb4) collate utf8mb4_bin', $quick_filter_status );
+						$quick_filter_status         = str_replace( '_', ' ', $quick_filter_status );
+						$wheres['quickfilterstatus'] = array( 'zbsi_status', 'LIKE', '%s', ucwords( $quick_filter_status ) );
 
 					} else {
 
