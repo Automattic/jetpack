@@ -151,16 +151,13 @@ class User_Admin {
 
 	/**
 	 * Renders invitations errors/success messages in users.php.
-	 *
-	 * @phan-suppress PhanUndeclaredFunction,UnusedSuppression -- Existence of wp_admin_notice (added in WP 6.4) is checked inline.
-	 * @todo Remove suppression and function_exists check when we drop support for WP 6.3.
 	 */
 	public function handle_invitation_results() {
 		$valid_nonce = isset( $_GET['_wpnonce'] )
 			? wp_verify_nonce( sanitize_key( $_GET['_wpnonce'] ), 'jetpack-sso-invite-user' )
 			: false;
 
-		if ( ! $valid_nonce || ! isset( $_GET['jetpack-sso-invite-user'] ) || ! function_exists( 'wp_admin_notice' ) ) {
+		if ( ! $valid_nonce || ! isset( $_GET['jetpack-sso-invite-user'] ) ) {
 			return;
 		}
 		if ( $_GET['jetpack-sso-invite-user'] === 'success' ) {
@@ -610,10 +607,6 @@ class User_Admin {
 	 * Render the invitation email message.
 	 */
 	public function render_invitation_email_message() {
-		// @todo Remove function_exists check (and phan suppression below) when we drop support for WP 6.3.
-		if ( ! function_exists( 'wp_admin_notice' ) ) {
-			return;
-		}
 		$message = wp_kses(
 			__(
 				'We highly recommend inviting users to join WordPress.com and log in securely using <a class="jetpack-sso-admin-create-user-invite-message-link-sso" rel="noopener noreferrer" target="_blank" href="https://jetpack.com/support/sso/">Secure Sign On</a> to ensure maximum security and efficiency.',
@@ -628,7 +621,6 @@ class User_Admin {
 				),
 			)
 		);
-		// @phan-suppress-next-line PhanUndeclaredFunction -- Existence of wp_admin_notice (added in WP 6.4) is checked above. @phan-suppress-current-line UnusedPluginSuppression
 		wp_admin_notice(
 			$message,
 			array(
@@ -644,10 +636,6 @@ class User_Admin {
 	 * Render a note that wp.com invites will be automatically revoked.
 	 */
 	public function render_invitations_notices_for_deleted_users() {
-		// @todo Remove function_exists check (and phan suppression below) when we drop support for WP 6.3.
-		if ( ! function_exists( 'wp_admin_notice' ) ) {
-			return;
-		}
 		check_admin_referer( 'bulk-users' );
 
 		// When one user is deleted, the param is `user`, when multiple users are deleted, the param is `users`.
@@ -686,7 +674,6 @@ class User_Admin {
 				),
 				array( 'strong' => true )
 			);
-			// @phan-suppress-next-line PhanUndeclaredFunction -- Existence of wp_admin_notice (added in WP 6.4) is checked above. @phan-suppress-current-line UnusedPluginSuppression
 			wp_admin_notice(
 				$message,
 				array(
