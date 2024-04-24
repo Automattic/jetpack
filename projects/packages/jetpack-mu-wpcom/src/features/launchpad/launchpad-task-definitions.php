@@ -2388,7 +2388,7 @@ add_action( 'post_updated', 'wpcom_launchpad_edit_page_check', 10, 3 );
  * @return bool True if we should show the task, false otherwise.
  */
 function wpcom_launchpad_is_add_subscribe_block_visible() {
-	return is_callable( array( '\Automattic\Jetpack\Blocks', 'is_fse_theme' ) ) && \Automattic\Jetpack\Blocks::is_fse_theme();
+	return \Automattic\Jetpack\Blocks::is_fse_theme();
 }
 
 /**
