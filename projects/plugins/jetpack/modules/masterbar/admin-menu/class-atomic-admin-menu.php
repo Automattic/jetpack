@@ -157,6 +157,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'plugins.php' ) ) {
 			$submenus_to_update = array( 'plugin-install.php' => $plugins_slug );
 			$this->update_submenus( 'plugins.php', $submenus_to_update );
+			$this->add_scheduled_updates_menu();
 			return;
 		}
 
@@ -186,6 +187,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$submenus_to_update = array( 'plugin-install.php' => $plugins_slug );
 
 		$this->update_submenus( 'plugins.php', $submenus_to_update );
+		$this->add_scheduled_updates_menu();
 	}
 
 	/**
@@ -563,5 +565,26 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		};
 
 		add_action( 'admin_notices', $admin_notices );
+	}
+
+	/**
+	 * Adds Scheduled Updates menu.
+	 */
+	public function add_scheduled_updates_menu() {
+		if (
+			function_exists( 'wpcom_site_has_feature' ) &&
+			! wpcom_site_has_feature( \WPCOM_Features::SCHEDULED_UPDATES )
+		) {
+			return;
+		}
+
+		add_submenu_page(
+			'plugins.php',
+			esc_attr__( 'Scheduled Updates', 'jetpack' ),
+			__( 'Scheduled Updates', 'jetpack' ),
+			'update_plugins',
+			'https://wordpress.com/plugins/scheduled-updates/' . $this->domain,
+			null
+		);
 	}
 }
