@@ -196,11 +196,11 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 			// Add statuses if enabled.
 			if ( $zbs->settings->get( 'filtersfromstatus' ) === 1 ) {
 				$statuses = array(
-					'draft'   => __( 'Draft', 'zero-bs-crm' ),
-					'unpaid'  => __( 'Unpaid', 'zero-bs-crm' ),
-					'paid'    => __( 'Paid', 'zero-bs-crm' ),
-					'overdue' => __( 'Overdue', 'zero-bs-crm' ),
-					'deleted' => __( 'Deleted', 'zero-bs-crm' ),
+					'Draft'   => __( 'Draft', 'zero-bs-crm' ),
+					'Unpaid'  => __( 'Unpaid', 'zero-bs-crm' ),
+					'Paid'    => __( 'Paid', 'zero-bs-crm' ),
+					'Overdue' => __( 'Overdue', 'zero-bs-crm' ),
+					'Deleted' => __( 'Deleted', 'zero-bs-crm' ),
 				);
 				foreach ( $statuses as $status_slug => $status_label ) {
 					$listview_filters[ ZBS_TYPE_INVOICE ]['status'][ 'status_' . $status_slug ] = $status_label;
@@ -811,8 +811,7 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 					if ( str_starts_with( $qFilter, 'status_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 						$quick_filter_status         = substr( $qFilter, 7 ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-						$quick_filter_status         = str_replace( '_', ' ', $quick_filter_status );
-						$wheres['quickfilterstatus'] = array( 'zbsi_status', 'LIKE', '%s', ucwords( $quick_filter_status ) );
+						$wheres['quickfilterstatus'] = array( 'zbsi_status', '=', 'convert(%s using utf8mb4) collate utf8mb4_bin', $quick_filter_status );
 
 					} else {
 
