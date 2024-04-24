@@ -105,7 +105,7 @@ export default function TitleOptimization( {
 							<TitleOptimizationOptions
 								onChangeValue={ e => setSelected( e.target.value ) }
 								selected={ selected }
-								options={ options.map( ( option, index ) => ( {
+								options={ options?.map?.( ( option, index ) => ( {
 									value: `title-${ index }`,
 									label: option.title,
 									description: option.explanation,
