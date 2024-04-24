@@ -100,7 +100,7 @@ function activate() {
  */
 function error_notice() {
 	wp_admin_notice(
-		__( 'There was an error installing Creative Mail.', 'jetpack' ),
+		esc_html__( 'There was an error installing Creative Mail.', 'jetpack' ),
 		array(
 			'type'        => 'error',
 			'dismissible' => true,
