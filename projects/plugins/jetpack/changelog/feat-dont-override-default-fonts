@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Google Fonts: Avoid theme fonts overriding the default fonts so fonts with a specific font weight that are not supported by the provided theme can be rendered correctly
