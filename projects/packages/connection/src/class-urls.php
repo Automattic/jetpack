@@ -82,7 +82,7 @@ class Urls {
 	/**
 	 * Return URL with a normalized protocol.
 	 *
-	 * @param string $callable Function that was used to retrieve URL option.
+	 * @param string $callable Function name that was used to retrieve URL option.
 	 * @param string $new_value URL Protocol to set URLs to.
 	 * @return string Normalized URL.
 	 */
