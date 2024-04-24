@@ -6,6 +6,7 @@
 	"require": {
 		"php": ">=7.0",
 		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-blocks": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-stats-admin": "@dev",
