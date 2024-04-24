@@ -209,8 +209,9 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 			array(
 				'plugins'  => $plugins,
 				'schedule' => array(
-					'timestamp' => strtotime( 'next Monday 8:00' ),
-					'interval'  => 'weekly',
+					'timestamp'          => strtotime( 'next Monday 8:00' ),
+					'interval'           => 'weekly',
+					'health_check_paths' => array(),
 				),
 			)
 		);
@@ -238,8 +239,9 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 			array(
 				'plugins'  => $plugins,
 				'schedule' => array(
-					'timestamp' => strtotime( 'next Monday 8:00' ),
-					'interval'  => 'weekly',
+					'timestamp'          => strtotime( 'next Monday 8:00' ),
+					'interval'           => 'weekly',
+					'health_check_paths' => array(),
 				),
 			)
 		);
@@ -284,8 +286,9 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 				array(
 					'plugins'  => array( $plugins[ $i ], $plugins[ $i + 1 ] ),
 					'schedule' => array(
-						'timestamp' => strtotime( "next Monday {$hour}:00" ),
-						'interval'  => 'weekly',
+						'timestamp'          => strtotime( "next Monday {$hour}:00" ),
+						'interval'           => 'weekly',
+						'health_check_paths' => array(),
 					),
 				)
 			);
@@ -334,8 +337,9 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 			array(
 				'plugins'  => array( $plugins[2] ),
 				'schedule' => array(
-					'timestamp' => strtotime( 'next Monday 8:00' ),
-					'interval'  => 'weekly',
+					'timestamp'          => strtotime( 'next Monday 8:00' ),
+					'interval'           => 'weekly',
+					'health_check_paths' => array(),
 				),
 			)
 		);
@@ -347,8 +351,9 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 			array(
 				'plugins'  => array( $plugins[0], $plugins[1], $plugins[2] ),
 				'schedule' => array(
-					'timestamp' => strtotime( 'next Monday 9:00' ),
-					'interval'  => 'weekly',
+					'timestamp'          => strtotime( 'next Monday 9:00' ),
+					'interval'           => 'weekly',
+					'health_check_paths' => array(),
 				),
 			)
 		);
@@ -390,8 +395,9 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 				array(
 					'plugins'  => array( $plugins[ $i ] ),
 					'schedule' => array(
-						'timestamp' => strtotime( "next Monday {$hour}:00" ),
-						'interval'  => 'weekly',
+						'timestamp'          => strtotime( "next Monday {$hour}:00" ),
+						'interval'           => 'weekly',
+						'health_check_paths' => array(),
 					),
 				)
 			);
@@ -427,8 +433,9 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 				array(
 					'plugins'  => array( $plugins[ $i ] ),
 					'schedule' => array(
-						'timestamp' => strtotime( "next Monday {$hour}:00" ),
-						'interval'  => 'weekly',
+						'timestamp'          => strtotime( "next Monday {$hour}:00" ),
+						'interval'           => 'weekly',
+						'health_check_paths' => array(),
 					),
 				)
 			);
@@ -462,8 +469,9 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 				array(
 					'plugins'  => array( $plugins[ $i ] ),
 					'schedule' => array(
-						'timestamp' => strtotime( "next Monday {$hour}:00" ),
-						'interval'  => 'weekly',
+						'timestamp'          => strtotime( "next Monday {$hour}:00" ),
+						'interval'           => 'weekly',
+						'health_check_paths' => array(),
 					),
 				)
 			);
@@ -510,8 +518,9 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 				array(
 					'plugins'  => $scheduled_plugins,
 					'schedule' => array(
-						'timestamp' => strtotime( "next Monday {$hour}:00" ),
-						'interval'  => 'weekly',
+						'timestamp'          => strtotime( "next Monday {$hour}:00" ),
+						'interval'           => 'weekly',
+						'health_check_paths' => array(),
 					),
 				)
 			);
@@ -567,8 +576,9 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		$params  = array(
 			'plugins'  => array(),
 			'schedule' => array(
-				'timestamp' => strtotime( 'next Monday 8:00' ),
-				'interval'  => 'weekly',
+				'timestamp'          => strtotime( 'next Monday 8:00' ),
+				'interval'           => 'weekly',
+				'health_check_paths' => array(),
 			),
 		);
 

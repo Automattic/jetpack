@@ -13,7 +13,6 @@ return [
     // PhanParamTooMany : 3 occurrences
     // PhanCommentParamWithoutRealParam : 2 occurrences
     // PhanTypeMismatchArgumentInternal : 2 occurrences
-    // PhanUndeclaredProperty : 2 occurrences
     // PhanUndeclaredTypeParameter : 2 occurrences
     // PhanAccessMethodInternal : 1 occurrence
     // PhanImpossibleCondition : 1 occurrence
