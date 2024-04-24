@@ -141,6 +141,10 @@ function wpcomsh_feature_filter_wpcom_themes_api_result( $res, string $action, $
 		return $res;
 	}
 
+	if ( ! is_array( $tags ) ) {
+		$tags = array( $tags );
+	}
+
 	$wpcom_themes_service = wpcomsh_get_wpcom_themes_service_instance();
 
 	// Add results to the resulting array.
