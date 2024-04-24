@@ -1518,10 +1518,16 @@ class Admin {
 	 * Show an admin notice if the "Empty Spam" or "Check Spam" process was unable to complete, probably due to a permissions error.
 	 */
 	public function grunion_feedback_admin_notice() {
+		$message = '';
+
 		if ( isset( $_GET['jetpack_empty_feedback_spam_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$message = esc_html__( 'An error occurred while trying to empty the Feedback spam folder.', 'jetpack-forms' );
 		} elseif ( isset( $_GET['jetpack_check_feedback_spam_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$message = esc_html__( 'An error occurred while trying to check for spam among the feedback you received.', 'jetpack-forms' );
+		}
+
+		if ( empty( $message ) ) {
+			return;
 		}
 
 		wp_admin_notice(
