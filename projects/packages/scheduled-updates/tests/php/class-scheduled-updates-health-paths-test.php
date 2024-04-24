@@ -97,7 +97,7 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 		$parsed_paths = array(
 			'/',
 			'/',
-			'/a_b',
+			'/ab',
 			'/a/b',
 			'/=',
 			'/test',
@@ -187,7 +187,7 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame(
 			array(
-				'/a_b',
+				'/ab',
 				'/=',
 				'/',
 				'/test',

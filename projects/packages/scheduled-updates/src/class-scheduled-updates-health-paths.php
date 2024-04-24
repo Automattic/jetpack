@@ -92,7 +92,20 @@ class Scheduled_Updates_Health_Paths {
 			return new WP_Error( 'rest_invalid_path', __( 'The path must be a string.', 'jetpack-scheduled-updates' ) );
 		}
 
-		$parsed = wp_parse_url( trim( $path ) );
+		$site_url = wp_parse_url( get_site_url() );
+		$path     = trim( $path );
+
+		if (
+			! str_starts_with( $path, $site_url['host'] ) &&
+			! str_starts_with( $path, $site_url['scheme'] . '://' . $site_url['host'] )
+		) {
+			// The user sent 'test/test.php' instead of '/test/test.php' and not
+			// 'http://example.com/test/test.php' or 'example.com/test/test.php'.
+			$path = '/' . ltrim( $path, '/\\' );
+		}
+
+		$path   = esc_url_raw( trim( $path ) );
+		$parsed = wp_parse_url( $path );
 
 		if ( false === $parsed ) {
 			return new WP_Error( 'rest_invalid_path', __( 'The path must be a valid URL.', 'jetpack-scheduled-updates' ) );
