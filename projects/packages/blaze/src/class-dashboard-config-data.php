@@ -119,7 +119,7 @@ class Dashboard_Config_Data {
 		 *
 		 * @param bool $data Blaze dashboard config data.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.21.0
 		 */
 		return apply_filters( 'jetpack_blaze_dashboard_config_data', $data );
 	}

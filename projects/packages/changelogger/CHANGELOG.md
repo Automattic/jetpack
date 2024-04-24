@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.2] - 2024-04-22
+### Changed
+- Internal updates.
+
 ## [4.2.1] - 2024-04-15
 ### Changed
 - Support symfony/console 7.0. [#36861]
@@ -224,6 +228,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - Initial version.
 
+[4.2.2]: https://github.com/Automattic/jetpack-changelogger/compare/4.2.1...4.2.2
 [4.2.1]: https://github.com/Automattic/jetpack-changelogger/compare/4.2.0...4.2.1
 [4.2.0]: https://github.com/Automattic/jetpack-changelogger/compare/4.1.2...4.2.0
 [4.1.2]: https://github.com/Automattic/jetpack-changelogger/compare/4.1.1...4.1.2

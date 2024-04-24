@@ -3,13 +3,13 @@
  * Tests for the Jetpack_Sitemap_Builder class.
  *
  * @package automattic/jetpack
- * @since $$next-version$$
+ * @since 13.4
  */
 
 /**
  * Test class for Jetpack_Sitemap_Builder.
  *
- * @since $$next-version$$
+ * @since 13.4
  */
 class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 
@@ -18,7 +18,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Builder::build_one_page_sitemap
 	 * @group jetpack-sitemap
-	 * @since $$next-version$$
+	 * @since 13.4
 	 */
 	public function test_build_one_page_sitemap_considers_lastmod_from_other_urls() {
 		$other_urls = array(

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useAiContext, AIControl, ERROR_QUOTA_EXCEEDED } from '@automattic/jetpack-ai-client';
+import { useAiContext, BlockAIControl, ERROR_QUOTA_EXCEEDED } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { serialize } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
@@ -19,6 +19,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import classNames from 'classnames';
+import React from 'react';
 /**
  * Internal dependencies
  */
@@ -268,7 +269,7 @@ export default function AiAssistantBar( {
 				>
 					{ siteRequireUpgrade && <UpgradePrompt placement="jetpack-form-block" /> }
 					{ ! connected && <ConnectPrompt /> }
-					<AIControl
+					<BlockAIControl
 						ref={ inputRef }
 						disabled={ siteRequireUpgrade || ! connected }
 						value={ inputValue }

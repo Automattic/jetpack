@@ -75,7 +75,7 @@ class IDC_Simulator {
 	 * @param string $url the siteurl value.
 	 */
 	public static function spoof_url( $url ) {
-		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
+		if ( ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
 			return $url;
 		}
 
