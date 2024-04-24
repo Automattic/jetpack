@@ -738,9 +738,14 @@ final class ZeroBSCRM {
 				if ( $pagenow == $page || empty( $page ) ) {
 
 					foreach ( $notices as $notice ) {
-
-						echo '<div class="notice notice-' . esc_attr( $notice['class'] ) . ' is-dismissible">' . $notice['html'] . '</div>';
-
+						wp_admin_notice(
+							$notice['html'],
+							array(
+								'type'           => $notice['class'],
+								'dismissible'    => true,
+								'paragraph_wrap' => false,
+							)
+						);
 					}
 				}
 			}

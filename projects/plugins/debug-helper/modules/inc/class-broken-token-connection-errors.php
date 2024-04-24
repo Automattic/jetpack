@@ -105,15 +105,23 @@ class Broken_Token_Connection_Errors {
 			<p>
 				This page helps you to trigger connection errors with invalid signatures.
 			</p>
-			<?php if ( $this->dev_debug_on ) : ?>
-				<div class="notice notice-success">
-					<p>JETPACK_DEV_DEBUG constant is ON. This means every error will be reported. You're good to test.</p>
-				</div>
-			<?php else : ?>
-				<div class="notice notice-warning">
-					<p>JETPACK_DEV_DEBUG constant is OFF. This means an error will only be reported once evey hour. Set it to true so you can test it.</p>
-				</div>
-			<?php endif; ?>
+			<?php
+			if ( $this->dev_debug_on ) {
+				wp_admin_notice(
+					'JETPACK_DEV_DEBUG constant is ON. This means every error will be reported. You’re good to test.',
+					array(
+						'type' => 'success',
+					)
+				);
+			} else {
+				wp_admin_notice(
+					'JETPACK_DEV_DEBUG constant is OFF. This means an error will only be reported once evey hour. Set it to true so you can test it.',
+					array(
+						'type' => 'warning',
+					)
+				);
+			}
+			?>
 
 			<p>
 				Now head to <a href="https://jetpack.com/debug/?url=<?php echo esc_url_raw( get_home_url() ); ?>">Jetpack Debugger</a> and trigger some requests!
@@ -228,27 +236,27 @@ class Broken_Token_Connection_Errors {
 	 * Clear all connection errors.
 	 */
 	public function admin_post_clear_all_errors() {
-		check_admin_referer( 'clear-all-errors' );
-		$this->error_manager->delete_all_errors();
-		$this->admin_post_redirect_referrer();
+			check_admin_referer( 'clear-all-errors' );
+			$this->error_manager->delete_all_errors();
+			$this->admin_post_redirect_referrer();
 	}
 
 	/**
 	 * Clear all unverified connection errors.
 	 */
 	public function admin_post_clear_all_connection_errors() {
-		check_admin_referer( 'clear-connection-errors' );
-		$this->error_manager->delete_stored_errors();
-		$this->admin_post_redirect_referrer();
+			check_admin_referer( 'clear-connection-errors' );
+			$this->error_manager->delete_stored_errors();
+			$this->admin_post_redirect_referrer();
 	}
 
 	/**
 	 * Clear all verified connection errors.
 	 */
 	public function admin_post_clear_all_verified_connection_errors() {
-		check_admin_referer( 'clear-verified-connection-errors' );
-		$this->error_manager->delete_verified_errors();
-		$this->admin_post_redirect_referrer();
+			check_admin_referer( 'clear-verified-connection-errors' );
+			$this->error_manager->delete_verified_errors();
+			$this->admin_post_redirect_referrer();
 	}
 
 	/**
@@ -257,9 +265,9 @@ class Broken_Token_Connection_Errors {
 	 * @return never
 	 */
 	public function admin_post_refresh_verified_errors_list() {
-		check_admin_referer( 'refresh-verified-errors' );
-		$this->print_verified_errors();
-		exit;
+			check_admin_referer( 'refresh-verified-errors' );
+			$this->print_verified_errors();
+			exit;
 	}
 
 	/**
@@ -284,34 +292,34 @@ class Broken_Token_Connection_Errors {
 	 */
 	public function get_sample_error( $error_code, $user_id, $error_type = 'xmlrpc' ) {
 
-		$signature_details = array(
-			'token'     => 'dhj938djh938d:1:' . $user_id,
-			'timestamp' => time(),
-			'nonce'     => 'asd3d32d',
-			'body_hash' => 'dsf34frf',
-			'method'    => 'POST',
-			'url'       => 'https://example.org',
-			'signature' => 'sdf234fe',
-		);
+			$signature_details = array(
+				'token'     => 'dhj938djh938d:1:' . $user_id,
+				'timestamp' => time(),
+				'nonce'     => 'asd3d32d',
+				'body_hash' => 'dsf34frf',
+				'method'    => 'POST',
+				'url'       => 'https://example.org',
+				'signature' => 'sdf234fe',
+			);
 
-		return new \WP_Error(
-			$error_code,
-			'An error was triggered',
-			compact( 'signature_details', 'error_type' )
-		);
+			return new \WP_Error(
+				$error_code,
+				'An error was triggered',
+				compact( 'signature_details', 'error_type' )
+			);
 	}
 
 	/**
 	 * Creates a fake error
 	 */
 	public function admin_post_create_error() {
-		check_admin_referer( 'create-error' );
+			check_admin_referer( 'create-error' );
 
-		$user_id = isset( $_POST['token_type'] ) && 'user' === $_POST['token_type'] ? 1 : 0;
+			$user_id = isset( $_POST['token_type'] ) && 'user' === $_POST['token_type'] ? 1 : 0;
 
-		$error = $this->get_sample_error( 'invalid_token', $user_id );
+			$error = $this->get_sample_error( 'invalid_token', $user_id );
 
-		$this->error_manager->store_error( $error );
+			$this->error_manager->store_error( $error );
 
 		if ( isset( $_POST['verified'] ) && 'yes' === $_POST['verified'] ) {
 			$errors = $this->error_manager->get_stored_errors();
@@ -320,7 +328,7 @@ class Broken_Token_Connection_Errors {
 			}
 		}
 
-		$this->admin_post_redirect_referrer();
+			$this->admin_post_redirect_referrer();
 	}
 }
 
