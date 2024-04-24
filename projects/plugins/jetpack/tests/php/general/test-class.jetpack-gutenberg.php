@@ -13,12 +13,12 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		parent::set_up();
 		if ( ! function_exists( 'register_block_type' ) ) {
 			$this->markTestSkipped( 'register_block_type not available' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		if ( ! class_exists( 'WP_Block_Type_Registry' ) ) {
 			$this->markTestSkipped( 'WP_Block_Type_Registry not available' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 		// Create a user and set it up as current.
 		$this->master_user_id = self::factory()->user->create( array( 'user_login' => 'current_master' ) );

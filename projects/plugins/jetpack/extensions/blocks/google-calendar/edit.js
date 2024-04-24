@@ -3,7 +3,7 @@ import {
 	isSimpleSite,
 	getBlockIconComponent,
 } from '@automattic/jetpack-shared-extension-utils';
-import { InspectorControls } from '@wordpress/block-editor';
+import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
 import { Placeholder, SandBox, Button, ExternalLink, withNotices } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
@@ -19,7 +19,6 @@ const icon = getBlockIconComponent( metadata );
 export function GoogleCalendarEdit( props ) {
 	const {
 		attributes: { url, height },
-		className,
 		isMobile,
 		isSelected,
 		name,
@@ -27,6 +26,8 @@ export function GoogleCalendarEdit( props ) {
 		noticeUI,
 		setAttributes,
 	} = props;
+
+	const blockProps = useBlockProps();
 
 	const [ editedEmbed, setEditedEmbed ] = useState( url || '' );
 	const [ editingUrl, setEditingUrl ] = useState( false );
@@ -115,17 +116,18 @@ export function GoogleCalendarEdit( props ) {
 		</InspectorControls>
 	);
 
+	let content;
+
 	if ( editingUrl || ! url ) {
 		const supportLink =
 			isSimpleSite() || isAtomicSite()
 				? 'https://en.support.wordpress.com/wordpress-editor/blocks/google-calendar/'
 				: 'https://jetpack.com/support/jetpack-blocks/google-calendar/';
 
-		return (
-			<div className={ className }>
+		content = (
+			<>
 				{ controls }
 				<Placeholder
-					className={ className }
 					label={ __( 'Google Calendar', 'jetpack' ) }
 					icon={ icon }
 					notices={ noticeUI }
@@ -141,25 +143,27 @@ export function GoogleCalendarEdit( props ) {
 						<ExternalLink href={ supportLink }>{ __( 'Learn more', 'jetpack' ) }</ExternalLink>
 					</div>
 				</Placeholder>
-			</div>
+			</>
+		);
+	} else {
+		// Disabled because the overlay div doesn't actually have a role or functionality
+		// as far as the user is concerned. We're just catching the first click so that
+		// the block can be selected without interacting with the embed preview that the overlay covers.
+		/* eslint-disable jsx-a11y/no-static-element-interactions */
+		content = (
+			<>
+				{ controls }
+				<div>
+					<SandBox html={ html } onFocus={ hideOverlay } />
+					{ ! interactive && (
+						<div className="block-library-embed__interactive-overlay" onMouseUp={ hideOverlay } />
+					) }
+				</div>
+			</>
 		);
 	}
 
-	// Disabled because the overlay div doesn't actually have a role or functionality
-	// as far as the user is concerned. We're just catching the first click so that
-	// the block can be selected without interacting with the embed preview that the overlay covers.
-	/* eslint-disable jsx-a11y/no-static-element-interactions */
-	return (
-		<div className={ className }>
-			{ controls }
-			<div>
-				<SandBox html={ html } onFocus={ hideOverlay } />
-				{ ! interactive && (
-					<div className="block-library-embed__interactive-overlay" onMouseUp={ hideOverlay } />
-				) }
-			</div>
-		</div>
-	);
+	return <div { ...blockProps }>{ content }</div>;
 }
 
 export default compose(

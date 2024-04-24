@@ -57,8 +57,8 @@ class Jetpack_Testimonial {
 	 * only if the site supports it
 	 */
 	public function maybe_register_cpt() {
-		// Add an option to enable the CPT
-		add_action( 'admin_init', array( $this, 'settings_api_init' ) );
+		// Add an option to enable the CPT. Set the priority to 11 to ensure "Portfolio Projects" appears above "Testimonials" in the UI.
+		add_action( 'admin_init', array( $this, 'settings_api_init' ), 11 );
 
 		// Check on theme switch if theme supports CPT and setting is disabled
 		add_action( 'after_switch_theme', array( $this, 'activation_post_type_support' ) );

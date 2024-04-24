@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Carousel: Add extra isset check to avoid warnings.

@@ -6,6 +6,7 @@
 // are installed, or in some other cases).
 namespace Automattic\Jetpack\Backup\V0004;
 
+use Exception;
 use WorDBless\BaseTestCase;
 use WP_Error;
 use function get_site_url;

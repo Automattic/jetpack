@@ -3,10 +3,10 @@ import { NoticeContextType, Notice } from './types';
 
 const defaultNotice: Notice = {
 	message: '',
+	title: null,
 	options: {
-		status: '',
+		level: '',
 		priority: 0,
-		isRedBubble: false,
 	},
 };
 

@@ -39,7 +39,7 @@ export const useFetchingErrorNotice = ( { infoName, isError, overrideMessage }: 
 			setNotice( {
 				message,
 				options: {
-					status: 'error',
+					level: 'error',
 					priority: NOTICE_PRIORITY_LOW,
 				},
 			} );

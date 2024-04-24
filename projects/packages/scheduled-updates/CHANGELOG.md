@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2024-04-22
+### Added
+- Add a sync option where for scheduled updated. [#36877]
+- Populated sync option with results from endpoint. [#36915]
+- Scheduled Updates: Added a views link to filter plugins that are part of a scheduled update. [#36880]
+
+### Changed
+- Scheduled Updates: Change how we read status and get it from logs directly [#36981]
+
+## [0.7.2] - 2024-04-15
+### Changed
+- Internal updates.
+
+## [0.7.1] - 2024-04-08
+### Fixed
+- Delete logs after scheduled update deletion. [#36778]
+
+## [0.7.0] - 2024-04-05
+### Changed
+- Infer scheduled update status from logs [#36752]
+
+## [0.6.0] - 2024-04-04
+### Added
+- Add backend infrastructure to log scheduled update events [#36676]
+- Add scheduled updates logging endpoints [#36687]
+
+### Fixed
+- Force cache cleaning before scheduling a new job. [#36697]
+- Store log timestamp as int [#36736]
+
 ## [0.5.3] - 2024-04-01
 ### Changed
 - General: update Phan configuration. [#36528]
@@ -94,6 +124,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Generate initial package for Scheduled Updates [#35796]
 
+[0.8.0]: https://github.com/Automattic/scheduled-updates/compare/v0.7.2...v0.8.0
+[0.7.2]: https://github.com/Automattic/scheduled-updates/compare/v0.7.1...v0.7.2
+[0.7.1]: https://github.com/Automattic/scheduled-updates/compare/v0.7.0...v0.7.1
+[0.7.0]: https://github.com/Automattic/scheduled-updates/compare/v0.6.0...v0.7.0
+[0.6.0]: https://github.com/Automattic/scheduled-updates/compare/v0.5.3...v0.6.0
 [0.5.3]: https://github.com/Automattic/scheduled-updates/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/Automattic/scheduled-updates/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/Automattic/scheduled-updates/compare/v0.5.0...v0.5.1

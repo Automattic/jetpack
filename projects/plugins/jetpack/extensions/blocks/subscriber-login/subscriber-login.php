@@ -38,6 +38,15 @@ function register_block() {
 		array( 'render_callback' => __NAMESPACE__ . '\render_block' )
 	);
 
+	add_filter(
+		'jetpack_options_whitelist',
+		function ( $options ) {
+			$options[] = 'jetpack_subscriptions_login_navigation_enabled';
+
+			return $options;
+		}
+	);
+
 	Jetpack_Subscription_Site::init()->handle_subscriber_login_block_placements();
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );

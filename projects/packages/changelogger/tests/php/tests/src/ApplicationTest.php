@@ -56,11 +56,11 @@ class ApplicationTest extends TestCase {
 	 *
 	 * @param callable $callback Command callback.
 	 * @param array    $options Options:
-	 *     - catch-exceptions: (bool) Whether the application should catch exceptions. Default false.
-	 *     - inputs: (array) Value to pass to $tester->setInputs().
+	 *   - catch-exceptions: (bool) Whether the application should catch exceptions. Default false.
+	 *   - inputs: (array) Value to pass to $tester->setInputs().
 	 * @return ApplicationTester
 	 */
-	private function runApplication( $callback, array $options = array( 'interactive' => false ) ) {
+	private function runApplication( $callback, array $options = array() ) {
 		$app = new Application();
 		$app->setAutoExit( false );
 		$app->setCatchExceptions( false );

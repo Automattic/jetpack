@@ -2,7 +2,107 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 13.3-beta - 2024-04-01
+## 13.4-a.5 - 2024-04-22
+### Enhancements
+- Subscription: Add a filter to Allow Newsletter Block Meta Capability to be Changed. [#36909]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add scheduled updates sync option. [#36877]
+- Add in_site_migration_flow to the list of available site options to update and retrieve. This will be used as part of the Site Migration on-boarding flow. [#36974]
+- Adds the ability to filter users in the WPCOM_JSON_API_List_Users_Endpoint endpoint by capability. [#36893]
+- Add the userConnectionUrl to initial state to use in Social sidebar. [#36976]
+- AI Assistant: Extract Markdown and HTML conversions to AI Client. [#36906]
+- AI Featured Image: move tool from beta to production, to make it available to everyone. [#36965]
+- AI Featured Image: remove scrollbar on smaller screens. [#36963]
+- Block Scaffolding: update API version in template [#36955]
+- Carousel: Ensure that disabling the feature on WordPress.com Simple brings back Core's Lightbox back. [#36914]
+- CLI: Make `wp jetpack publicize` work again. [#36988]
+- Donations Block: Fix non localized strings. [#36951]
+- Enabled SIG even if publicize is disabled. [#36911]
+- Fix phpdoc types, and update phan config and baseline for wpcom stubs. No change to functionality. [#36988]
+- Google Docs Embed: Fix non localized strings. [#36993]
+- Jetpack Google Fonts: Add filter to conditionally skip loading. [#36980]
+- Monetize: Move menu item under Jetpack menu for all Classic interface users. [#36995]
+- Remove unnecessary react imports. [#36904]
+- REST API: Correctly report Publicize when applicable in `/jetpack/v4/site/benefits` endpoint. [#36988]
+- Sitemaps: Ensured that the last modification date from the jetpack_page_sitemap_other_urls filter is considered for the last modification date of the generated sitemap. [#36991]
+- Subscriptions: Add Subscriber Login block navigation placement setting to Dotcom Site Settings API. [#37000]
+- Subscriptions Block: Only check newsletter plans when inside WP Admin. [#36928]
+- Tiled Gallery: Fix round corners style. [#36952]
+- Tiled Gallery Block: Don't use image CDN on private WordPress.com simple sites. [#36876]
+- Update blocks to use API version 3. [#36858] [#36859] [#36864]
+- Update UX of featured image usage counter. [#36926]
+
+## 13.4-a.3 - 2024-04-15
+### Improved compatibility
+- WordPress.com Toolbar: Avoid fatal errors when using other menu management plugins and the WordPress.com Toolbar feature. [#36783]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add the 'All Sites' menu. [#36632]
+- Add 'Carrousel' in 'Featured Image'. [#36834]
+- Add upgrade prompt in 'Featured Image'. [#36806]
+- Admin Menu: Moved "Theme Showcase" menu registration to jetpack-mu-wpcom package. [#36851]
+- AI Assistant: Remove AI Playground. [#36808]
+- AI Assistant: Rename useSuggestionsFromOpenAI to useAIAssistant and deduplicate suggestion logic. [#36869]
+- AI Featured Image: Fix bug on automatic transition to featured image panel. [#36863]
+- AI Featured Image: Include link to provide feedback on the footer of the modal. [#36831]
+- AI Featured Image: Incorporate i3  updates on style and UI. [#36868]
+- AI Featured Image: Update copy and UI alignments. [#36812]
+- A minor performance improvement on memberships. [#36821]
+- Auto-save image from featured image feature. [#36822]
+- Avoid showing featured image upgrade prompt on generating. [#36899]
+- Business Hours: Fix time formatting in preview mode. [#36786]
+- Business Hours Block: Refactor Edit component to a function. [#36785]
+- Dontains Form block: Show Stripe nudge if not connected. [#36841]
+- Fix auto scroll on iframe editor. [#36726]
+- Fixed SIG not visible in Jetpack sidebar. [#36895]
+- Improve performance of memberships checks. [#36798]
+- Make the representation of the end date consistent in membership subscription abbreviation. [#36838]
+- Map Block: Refactor Edit component to function. [#36795]
+- Post endpoint: Return a 404 if a post is being trashed but does not exist. [#36768]
+- Simple Payments Block: Refactor Edit component to a function. [#36809]
+- Slideshow Block: Refactor Edit component to a function. [#36805]
+- Tiled Gallery Block: Refactor Edit component to a function. [#36804]
+- Update blocks to use API version 3. [#36827] [#36852] [#36854]
+- Updated social previews package. [#36874]
+- Update Testimonials CPT priority so it always appears below Portfolio Projects. [#36866]
+- Update UX on Featured Image. [#36865]
+
+## 13.4-a.1 - 2024-04-08
+### Enhancements
+- Newsletters: Add a filter that enables the user to control the timing at which the Subscribe Modal loads. [#36374]
+
+### Bug fixes
+- Secure Sign-On: Disable the WordPress.com invitation setup on Multisite. [#36690]
+- Theme Tools: Fix deprecation notices in the color management library. [#36789]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add error handling in image generation. [#36709]
+- AI Assistant: Scroll to bottom of current block as suggestions keep coming. [#36569]
+- AI Featured Image: Add request counter to UI. [#36744]
+- Blocks: Move localizable strings out of the metadata attributes field. [#36724]
+- Carousel: Add extra isset check to avoid warnings. [#36681]
+- Create /wpcom/v2/admin-color endpoint that returns admin color scheme. [#36749]
+- Eventbrite Block: Refactor Edit component to function. [#36739]
+- Fix translation issues for default attributes. [#36695]
+- Jetpack AI Assistant: Remove old deadcode from image modal. [#36683]
+- MailChimp Block: Refactor Edit component to function. [#36746]
+- Markdown Block: Refactor Edit component to function. [#36758]
+- PHP 8.1: Fix error trying to run preg_split on array. [#36699]
+- Repeat Visitor Block: Refactor Edit component to function. [#36762]
+- Sharing block: Make sharing options translatable. [#36642]
+- Simplified social network selection for post sharing. [#36734]
+- Subscriptions: Add Subscriber Login block navigation placement setting to Sync and Dotcom API. [#36737]
+- Subscription Site: Release the Subscriber Login navigation placement toggle. [#36717]
+- Theme tools: Use integer casting method that doesn't cause deprecation notices. [#36680]
+- Update blocks to use API version 3. [#36701] [#36742]
+- Updated package dependencies. [#36760] [#36761] [#36775] [#36788]
+
+## 13.3.1 - 2024-04-10
+
+- Protect: Improved handling of request URLs. [#36833]
+
+## [13.3] - 2024-04-03
 ### Enhancements
 - AI Assistant: Provide per-block quick actions to make them more relevant. [#36393]
 - Blocks: "Earn" category renamed to "Monetize". [#36480]
@@ -96,6 +196,7 @@
 - RNMobile: Remove code associated with Story block for the mobile native version. [#36151]
 - Sharing Block: Remove extra margin previously added to the first button. [#36386]
 - Show Browse sites when wp-admin interface is selected and using nav unification. [#36198]
+- Social: Ensure the Settings panel is rendered during pre/post publish. [#36654]
 - SSO: Add error log on SSO invite. [#36416]
 - SSO: add filter allowing one to disable the WordPress.com invite interface. [#36572]
 - SSO: fix PHP notices and remove unnecessary PHPCS ignores. [#36589]
@@ -138,6 +239,10 @@
 - WPCOM_JSON_API_List_Comments_Endpoint: Do not prefetch comment meta for large hierarchical threads [#36460]
 - WPCOM_JSON_API_List_Comments_Endpoint: Remove update_comment_cache() that is no longer needed [#36363]
 - WPCOM_JSON_API_Upload_Media_v1_1_Endpoint: Fix errors on invalid post data. [#36291]
+
+## 13.2.2 - 2024-03-22
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add function exists check for wp_admin_notice [#36511]
 
 ## 13.2.1 - 2024-03-12
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
@@ -10064,6 +10169,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[13.3]: https://wp.me/p1moTy-19qu
 [13.2]: https://wp.me/p1moTy-15UC
 [13.1]: https://wp.me/p1moTy-12e0
 [13.0]: https://wp.me/p1moTy-10Xp

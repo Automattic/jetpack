@@ -18,7 +18,6 @@ import {
 	currentThemeIsBlockTheme,
 	currentThemeStylesheet,
 	getSiteAdminUrl,
-	isSubscriptionSiteEnabled,
 	subscriptionSiteEditSupported,
 } from 'state/initial-state';
 import { getModule } from 'state/modules';
@@ -47,7 +46,6 @@ function SubscriptionsSettings( props ) {
 		isSmEnabled,
 		isSubscribePostEndEnabled,
 		isLoginNavigationEnabled,
-		isSubscriptionSiteFeatureEnabled,
 		isSubscriptionSiteEditSupported,
 		isSubscriptionsActive,
 		siteRawUrl,
@@ -78,8 +76,8 @@ function SubscriptionsSettings( props ) {
 
 	const headerTemplateEditorUrl = siteAdminUrl
 		? addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
-				postType: 'wp_template_part',
-				postId: `${ themeStylesheet }//header`,
+				postType: 'wp_template',
+				postId: `${ themeStylesheet }//index`,
 		  } )
 		: null;
 
@@ -247,7 +245,7 @@ function SubscriptionsSettings( props ) {
 									'jetpack'
 								) }
 							/>
-							{ isSubscriptionSiteFeatureEnabled && (
+							{ isSubscriptionSiteEditSupported && (
 								<ToggleControl
 									checked={ isSubscriptionsActive && isLoginNavigationEnabled }
 									disabled={ isDisabled }
@@ -258,7 +256,7 @@ function SubscriptionsSettings( props ) {
 									label={
 										<>
 											{ __( 'Add the Subscriber Login Block to the navigation', 'jetpack' ) }
-											{ isBlockTheme && headerTemplateEditorUrl && (
+											{ headerTemplateEditorUrl && (
 												<>
 													{ '. ' }
 													<ExternalLink href={ headerTemplateEditorUrl }>
@@ -306,7 +304,6 @@ export default withModuleSettingsFormHelpers(
 			isLoginNavigationEnabled: ownProps.getOptionValue(
 				'jetpack_subscriptions_login_navigation_enabled'
 			),
-			isSubscriptionSiteFeatureEnabled: isSubscriptionSiteEnabled( state ),
 			isSubscriptionSiteEditSupported: subscriptionSiteEditSupported( state ),
 			isBlockTheme: currentThemeIsBlockTheme( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),

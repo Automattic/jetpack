@@ -17,18 +17,17 @@ return [
     // PhanTypeArraySuspicious : 190+ occurrences
     // PhanImpossibleCondition : 180+ occurrences
     // PhanPluginUnreachableCode : 170+ occurrences
-    // PhanTypeMismatchArgument : 170+ occurrences
     // PhanTypeMismatchPropertyProbablyReal : 160+ occurrences
-    // PhanTypePossiblyInvalidDimOffset : 150+ occurrences
+    // PhanTypePossiblyInvalidDimOffset : 160+ occurrences
+    // PhanTypeMismatchArgument : 140+ occurrences
     // PhanPossiblyUndeclaredVariable : 130+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 130+ occurrences
     // PhanTypeMismatchDefault : 110+ occurrences
     // PhanPluginMixedKeyNoKey : 95+ occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 95+ occurrences
     // PhanSuspiciousValueComparison : 85+ occurrences
-    // PhanUndeclaredClassMethod : 75+ occurrences
     // PhanImpossibleTypeComparison : 70+ occurrences
     // PhanPluginRedundantAssignment : 70+ occurrences
+    // PhanUndeclaredClassMethod : 70+ occurrences
     // PhanTypeMismatchArgumentInternal : 65+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 60+ occurrences
     // PhanPluginNeverReturnFunction : 55+ occurrences
@@ -36,22 +35,23 @@ return [
     // PhanTypeMismatchArgumentInternalReal : 50+ occurrences
     // PhanTypeExpectedObjectPropAccess : 45+ occurrences
     // PhanTypeMismatchArgumentNullableInternal : 45+ occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 45+ occurrences
     // PhanDeprecatedFunction : 40+ occurrences
     // PhanTypeMismatchArgumentNullable : 40+ occurrences
     // PhanTypeMismatchDimFetch : 40+ occurrences
+    // PhanUndeclaredMethod : 40+ occurrences
     // PhanUndeclaredTypeParameter : 40+ occurrences
     // PhanUnreferencedUseNormal : 40+ occurrences
     // PhanPluginDuplicateAdjacentStatement : 35+ occurrences
     // PhanPluginSimplifyExpressionBool : 35+ occurrences
     // PhanTypeMismatchForeach : 35+ occurrences
-    // PhanUndeclaredFunction : 35+ occurrences
-    // PhanUndeclaredMethod : 35+ occurrences
     // PhanTypeSuspiciousStringExpression : 30+ occurrences
     // PhanUndeclaredVariableDim : 30+ occurrences
     // PhanCommentParamWithoutRealParam : 25+ occurrences
     // PhanParamSignatureMismatch : 25+ occurrences
     // PhanRedundantConditionInGlobalScope : 25+ occurrences
     // PhanUndeclaredClassProperty : 25+ occurrences
+    // PhanUndeclaredFunction : 25+ occurrences
     // PhanUndeclaredTypeReturnType : 25+ occurrences
     // PhanParamSignaturePHPDocMismatchReturnType : 20+ occurrences
     // PhanPossiblyUndeclaredGlobalVariable : 20+ occurrences
@@ -94,16 +94,15 @@ return [
     // PhanParamSignaturePHPDocMismatchTooFewParameters : 3 occurrences
     // PhanTypeExpectedObjectPropAccessButGotNull : 3 occurrences
     // PhanTypeMismatchDimAssignment : 3 occurrences
-    // PhanUndeclaredClassInstanceof : 3 occurrences
     // PhanUnextractableAnnotation : 3 occurrences
     // PhanParamTooFew : 2 occurrences
     // PhanParamTooManyInternal : 2 occurrences
     // PhanPluginDuplicateExpressionAssignment : 2 occurrences
     // PhanRedefineFunction : 2 occurrences
     // PhanTypeVoidArgument : 2 occurrences
+    // PhanUndeclaredClassInstanceof : 2 occurrences
     // PhanCommentParamOnEmptyParamList : 1 occurrence
     // PhanImpossibleTypeComparisonInLoop : 1 occurrence
-    // PhanNonClassMethodCall : 1 occurrence
     // PhanNoopVariable : 1 occurrence
     // PhanParamSuspiciousOrder : 1 occurrence
     // PhanParamTooFewInternal : 1 occurrence
@@ -288,15 +287,14 @@ return [
         'modules/woo-sync/admin/settings/connections.page.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable'],
         'modules/woo-sync/admin/woo-sync-hub/main.page.ajax.php' => ['PhanPluginNeverReturnFunction'],
         'modules/woo-sync/admin/woo-sync-hub/main.page.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentNullable'],
-        'modules/woo-sync/includes/class-woo-sync-background-sync-job.php' => ['PhanCommentParamWithoutRealParam', 'PhanImpossibleCondition', 'PhanPluginDuplicateCatchStatementBody', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeArraySuspiciousNullable', 'PhanTypeComparisonFromArray', 'PhanTypeMagicVoidWithReturn', 'PhanTypeMismatchArgument', 'PhanTypeMismatchDimFetch', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction', 'PhanUndeclaredVariable', 'PhanUnextractableAnnotationElementName', 'PhanUnreferencedUseNormal'],
-        'modules/woo-sync/includes/class-woo-sync-background-sync.php' => ['PhanUndeclaredFunction', 'PhanUndeclaredTypeParameter', 'PhanUnextractableAnnotationElementName'],
+        'modules/woo-sync/includes/class-woo-sync-background-sync-job.php' => ['PhanCommentParamWithoutRealParam', 'PhanImpossibleCondition', 'PhanPluginDuplicateCatchStatementBody', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeArraySuspiciousNullable', 'PhanTypeComparisonFromArray', 'PhanTypeMagicVoidWithReturn', 'PhanTypeMismatchArgument', 'PhanTypeMismatchDimFetch', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredFunction', 'PhanUndeclaredMethod', 'PhanUndeclaredVariable', 'PhanUnextractableAnnotationElementName', 'PhanUnreferencedUseNormal'],
+        'modules/woo-sync/includes/class-woo-sync-background-sync.php' => ['PhanUndeclaredTypeParameter', 'PhanUnextractableAnnotationElementName'],
         'modules/woo-sync/includes/class-woo-sync-my-account-integration.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypePossiblyInvalidDimOffset'],
-        'modules/woo-sync/includes/class-woo-sync-woo-admin-integration.php' => ['PhanNonClassMethodCall', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeParameter'],
-        'modules/woo-sync/includes/class-woo-sync.php' => ['PhanImpossibleTypeComparison', 'PhanParamTooFew', 'PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginDuplicateExpressionAssignmentOperation', 'PhanPluginNeverReturnMethod', 'PhanPluginUnreachableCode', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeArraySuspicious', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType', 'PhanUndeclaredVariable', 'PhanUnextractableAnnotationElementName', 'PhanUnextractableAnnotationSuffix'],
-        'modules/woo-sync/includes/jpcrm-woo-sync-contact-tabs.php' => ['PhanUndeclaredFunction'],
+        'modules/woo-sync/includes/class-woo-sync-woo-admin-integration.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredTypeParameter'],
+        'modules/woo-sync/includes/class-woo-sync.php' => ['PhanImpossibleTypeComparison', 'PhanParamTooFew', 'PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginDuplicateExpressionAssignmentOperation', 'PhanPluginNeverReturnMethod', 'PhanPluginUnreachableCode', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeArraySuspicious', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunctionInCallable', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType', 'PhanUndeclaredVariable', 'PhanUnextractableAnnotationElementName', 'PhanUnextractableAnnotationSuffix'],
+        'modules/woo-sync/includes/jpcrm-woo-sync-contact-tabs.php' => ['PhanUndeclaredFunction', 'PhanUndeclaredMethod'],
         'modules/woo-sync/includes/segment-conditions/class-segment-condition-woo-customer.php' => ['PhanTypeArraySuspiciousNullable'],
         'modules/woo-sync/includes/segment-conditions/class-segment-condition-woo-order-count.php' => ['PhanTypeArraySuspiciousNullable'],
-        'modules/woo-sync/jpcrm-woo-sync-init.php' => ['PhanUndeclaredClassMethod'],
         'src/automation/class-automation-engine.php' => ['PhanTypeMismatchDeclaredReturn', 'PhanTypeMismatchDimFetch', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturnSuperType'],
         'src/automation/class-automation-logger.php' => ['PhanTypeMismatchProperty'],
         'src/automation/class-base-trigger.php' => ['PhanAbstractStaticMethodCallInStatic'],
@@ -338,23 +336,22 @@ return [
         'tests/codeception/_support/Module/WordPress.php' => ['PhanIncompatibleRealPropertyType', 'PhanParamSignatureMismatch', 'PhanTypeMismatchDeclaredParamNullable', 'PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction', 'PhanUndeclaredMethod', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty', 'PhanUndeclaredTypeReturnType'],
         'tests/codeception/_support/UnitTester.php' => ['PhanParamSignatureMismatch', 'PhanParamSignaturePHPDocMismatchReturnType', 'PhanParamSignaturePHPDocMismatchTooFewParameters', 'PhanUndeclaredTrait'],
         'tests/php/automation/class-automation-engine-test.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanRedundantCondition'],
-        'tests/php/automation/class-automation-workflow-test.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredMethod', 'PhanUnreferencedUseNormal'],
-        'tests/php/automation/companies/class-company-trigger-test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUnreferencedUseNormal'],
+        'tests/php/automation/class-automation-workflow-test.php' => ['PhanParamTooMany', 'PhanUnreferencedUseNormal'],
+        'tests/php/automation/companies/class-company-trigger-test.php' => ['PhanUnreferencedUseNormal'],
         'tests/php/automation/contacts/actions/class-delete-contact-test.php' => ['PhanUnreferencedUseNormal'],
         'tests/php/automation/contacts/class-contact-condition-test.php' => ['PhanUnreferencedUseNormal'],
-        'tests/php/automation/contacts/class-contact-trigger-test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUnreferencedUseNormal'],
+        'tests/php/automation/contacts/class-contact-trigger-test.php' => ['PhanUnreferencedUseNormal'],
         'tests/php/automation/invoices/class-invoice-condition-test.php' => ['PhanUnreferencedUseNormal'],
-        'tests/php/automation/invoices/class-invoice-trigger-test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUnreferencedUseNormal'],
+        'tests/php/automation/invoices/class-invoice-trigger-test.php' => ['PhanUnreferencedUseNormal'],
         'tests/php/automation/mocks/mock-class-contact-condition.php' => ['PhanUnreferencedUseNormal'],
         'tests/php/automation/mocks/mock-class-contact-created-trigger.php' => ['PhanTypeMismatchDeclaredReturnNullable'],
         'tests/php/automation/mocks/mock-class-trigger-empty-slug.php' => ['PhanTypeMismatchDeclaredReturnNullable'],
         'tests/php/automation/quotes/class-quote-condition-test.php' => ['PhanTypeMismatchProperty', 'PhanUnreferencedUseNormal'],
-        'tests/php/automation/quotes/class-quote-trigger-test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUnreferencedUseNormal'],
-        'tests/php/automation/tasks/class-task-trigger-test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredMethod', 'PhanUnreferencedUseNormal'],
+        'tests/php/automation/quotes/class-quote-trigger-test.php' => ['PhanUnreferencedUseNormal'],
+        'tests/php/automation/tasks/class-task-trigger-test.php' => ['PhanUnreferencedUseNormal'],
         'tests/php/automation/tools/class-automation-faker.php' => ['PhanPluginMixedKeyNoKey'],
         'tests/php/automation/transactions/class-transaction-condition-test.php' => ['PhanUnreferencedUseNormal'],
-        'tests/php/automation/transactions/class-transaction-trigger-test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUnreferencedUseNormal'],
-        'tests/php/automation/wordpress/class-wp-user-trigger-test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
+        'tests/php/automation/transactions/class-transaction-trigger-test.php' => ['PhanUnreferencedUseNormal'],
         'tests/php/bootstrap.php' => ['PhanUndeclaredConstant'],
         'tests/php/event-manager/class-event-manager-faker.php' => ['PhanCommentParamOnEmptyParamList', 'PhanUndeclaredTypeReturnType'],
         'tests/php/event-manager/class-event-manager-test.php' => ['PhanCommentVarInsteadOfParam', 'PhanParamTooMany'],

@@ -8,7 +8,7 @@
 /**
  * Menu fixture data.
  *
- * @return \string[][]
+ * @return string[][]
  */
 function get_menu_fixture() {
 	return array(
@@ -158,7 +158,7 @@ function get_menu_fixture() {
 /**
  * WPCom Menu fixture data.
  *
- * @return \string[][]
+ * @return string[][]
  */
 function get_wpcom_menu_fixture() {
 	$gutenberg_menus = array(
@@ -178,7 +178,7 @@ function get_wpcom_menu_fixture() {
 /**
  * Submenu fixture data.
  *
- * @return \string[][][]
+ * @return string[][][]
  */
 function get_submenu_fixture() {
 	return array(

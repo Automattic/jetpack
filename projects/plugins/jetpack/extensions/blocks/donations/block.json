@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 1,
+	"apiVersion": 3,
 	"name": "jetpack/donations",
 	"title": "Donations Form",
 	"description": "Collect one-time, monthly, or annually recurring donations.",
@@ -45,10 +45,7 @@
 			"default": {
 				"show": true,
 				"planId": null,
-				"amounts": [ 5, 15, 100 ],
-				"heading": "Make a one-time donation",
-				"extraText": "Your contribution is appreciated.",
-				"buttonText": "Donate"
+				"amounts": [ 5, 15, 100 ]
 			}
 		},
 		"monthlyDonation": {
@@ -56,10 +53,7 @@
 			"default": {
 				"show": true,
 				"planId": null,
-				"amounts": [ 5, 15, 100 ],
-				"heading": "Make a monthly donation",
-				"extraText": "Your contribution is appreciated.",
-				"buttonText": "Donate monthly"
+				"amounts": [ 5, 15, 100 ]
 			}
 		},
 		"annualDonation": {
@@ -67,10 +61,7 @@
 			"default": {
 				"show": true,
 				"planId": null,
-				"amounts": [ 5, 15, 100 ],
-				"heading": "Make a yearly donation",
-				"extraText": "Your contribution is appreciated.",
-				"buttonText": "Donate yearly"
+				"amounts": [ 5, 15, 100 ]
 			}
 		},
 		"showCustomAmount": {
@@ -78,12 +69,10 @@
 			"default": true
 		},
 		"chooseAmountText": {
-			"type": "string",
-			"default": "Choose an amount"
+			"type": "string"
 		},
 		"customAmountText": {
-			"type": "string",
-			"default": "Or enter a custom amount"
+			"type": "string"
 		},
 		"fallbackLinkUrl": {
 			"type": "string"

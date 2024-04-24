@@ -1,27 +1,20 @@
 /**
  * External dependencies
  */
-import { AIControl, UpgradeMessage } from '@automattic/jetpack-ai-client';
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { useBlockProps, useInnerBlocksProps, InspectorControls } from '@wordpress/block-editor';
-import { rawHandler, parse } from '@wordpress/blocks';
 import {
-	Modal,
-	Notice,
-	PanelBody,
-	PanelRow,
-	ToggleControl,
-	TextareaControl,
-	Button,
-	KeyboardShortcuts,
-} from '@wordpress/components';
+	BlockAIControl,
+	UpgradeMessage,
+	renderHTMLFromMarkdown,
+} from '@automattic/jetpack-ai-client';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
+import { rawHandler } from '@wordpress/blocks';
+import { Notice, PanelBody, PanelRow, KeyboardShortcuts } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { RawHTML, useState, useCallback } from '@wordpress/element';
+import { RawHTML, useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
-import MarkdownIt from 'markdown-it';
-import { useEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
@@ -33,23 +26,15 @@ import FeedbackControl from './components/feedback-control';
 import ToolbarControls from './components/toolbar-controls';
 import UpgradePrompt from './components/upgrade-prompt';
 import { getStoreBlockId } from './extensions/ai-assistant/with-ai-assistant';
+import useAIAssistant from './hooks/use-ai-assistant';
 import useAICheckout from './hooks/use-ai-checkout';
 import useAiFeature from './hooks/use-ai-feature';
-import useSuggestionsFromOpenAI from './hooks/use-suggestions-from-openai';
 import { isUserConnected } from './lib/connection';
-import { getInitialSystemPrompt } from './lib/prompt';
 import './editor.scss';
 
-const markdownConverter = new MarkdownIt( {
-	breaks: true,
-} );
-
 const isInBlockEditor = window?.Jetpack_Editor_Initial_State?.screenBase === 'post';
-const isPlaygroundVisible =
-	window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'is-playground-visible' ];
 
 export default function AIAssistantEdit( { attributes, setAttributes, clientId, isSelected } ) {
-	const [ errorData, setError ] = useState( {} );
 	const [ errorDismissed, setErrorDismissed ] = useState( null );
 	const { tracks } = useAnalytics();
 
@@ -68,6 +53,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		requestsCount,
 		requestsLimit,
 		currentTier,
+		loading: loadingAiFeature,
 	} = useAiFeature();
 	const requestsRemaining = Math.max( requestsLimit - requestsCount, 0 );
 
@@ -97,8 +83,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const contentRef = useRef( null );
 
 	const {
-		isLoadingCompletion,
-		wasCompletionJustRequested,
 		getSuggestionFromOpenAI,
 		stopSuggestion,
 		showRetry,
@@ -107,7 +91,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		retryRequest,
 		wholeContent,
 		requestingState,
-	} = useSuggestionsFromOpenAI( {
+		error,
+	} = useAIAssistant( {
 		onSuggestionDone: useCallback( () => {
 			focusOnPrompt();
 			increaseRequestsCount();
@@ -120,14 +105,16 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		attributes,
 		clientId,
 		content: attributes.content,
-		setError,
 		tracks,
 		userPrompt: attributes.userPrompt,
 		requireUpgrade,
-		requestingState: attributes.requestingState,
+		initialRequestingState: attributes.requestingState,
 		contentRef,
 		blockRef,
 	} );
+
+	const isWaitingResponse = requestingState === 'requesting';
+	const isLoadingCompletion = [ 'requesting', 'suggesting' ].includes( requestingState );
 
 	const connected = isUserConnected();
 
@@ -156,50 +143,10 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	}, [ storeBlockId, getSuggestionFromOpenAI ] );
 
 	useEffect( () => {
-		if ( errorData ) {
+		if ( error ) {
 			setErrorDismissed( false );
 		}
-	}, [ errorData ] );
-
-	/*
-	 * Populate the block with inner blocks if:
-	 * - It's the first time the block is rendered
-	 * - It's Gutenberg syntax enabled
-	 * - The block doesn't have children blocks
-	 * - The `content` attribute contains contains blocks definition
-	 */
-	const initialContent = useRef( attributes?.content );
-	useEffect( () => {
-		// Check if is Gutenberg syntax enabled
-		if ( ! attributes?.useGutenbergSyntax ) {
-			return;
-		}
-
-		// Bail out if the block doesn't have content (via attribute)
-		if ( ! initialContent?.current?.length ) {
-			return;
-		}
-
-		// Bail out if the block already has children blocks
-		const block = getBlock( clientId );
-		if ( block?.innerBlocks?.length ) {
-			return;
-		}
-
-		/*
-		 * Bail out if the content doesn't contain blocks definition
-		 * This is a very basic check, but it's enough for now.
-		 * If the content hasn't blocks defined by using Gutenberg syntax,
-		 * it can parse undesired blocks. Eg: `core/freeform` block :scream:
-		 */
-		const storedInnerBlocks = parse( initialContent.current );
-		if ( ! storedInnerBlocks?.length ) {
-			return;
-		}
-
-		// Populate block inner blocks
-		replaceBlocks( clientId, storedInnerBlocks );
-	}, [ initialContent, clientId, replaceBlocks, getBlock, attributes?.useGutenbergSyntax ] );
+	}, [ error ] );
 
 	useEffect( () => {
 		// we don't want to store "half way" states
@@ -209,8 +156,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 		setAttributes( { requestingState } );
 	}, [ requestingState, setAttributes ] );
-
-	const useGutenbergSyntax = attributes?.useGutenbergSyntax;
 
 	// Content is loaded
 	const contentIsLoaded = !! attributes.content;
@@ -276,41 +221,23 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const replaceContent = async () => {
 		let newGeneratedBlocks = [];
-		if ( ! useGutenbergSyntax ) {
-			/*
-			 * Markdown-syntax content
-			 * - Get HTML code from markdown content
-			 * - Create blocks from HTML code
-			 */
-			let HTML = markdownConverter
-				.render( attributes.content || '' )
-				// Fix list indentation
-				.replace( /<li>\s+<p>/g, '<li>' )
-				.replace( /<\/p>\s+<\/li>/g, '</li>' );
 
-			const seemsToIncludeTitle =
-				HTML?.split( '\n' ).length > 1 && HTML?.split( '\n' )?.[ 0 ]?.match( /^<h1>.*<\/h1>$/ );
+		let HTML = renderHTMLFromMarkdown( { content: attributes.content || '' } );
 
-			if ( seemsToIncludeTitle && ! postTitle ) {
-				// split HTML on new line characters
-				const htmlLines = HTML.split( '\n' );
-				// take the first line as title
-				const title = htmlLines.shift();
-				// rejoin the rest of the lines on HTML
-				HTML = htmlLines.join( '\n' );
-				// set the title as post title
-				editPost( { title: title.replace( /<[^>]*>/g, '' ) } );
-			}
-			newGeneratedBlocks = rawHandler( { HTML: HTML } );
-		} else {
-			/*
-			 * Gutenberg-syntax content
-			 * - Blocks are already created
-			 * - blocks are children of the current block
-			 */
-			newGeneratedBlocks = getBlock( clientId );
-			newGeneratedBlocks = newGeneratedBlocks?.innerBlocks || [];
+		const seemsToIncludeTitle =
+			HTML?.split( '\n' ).length > 1 && HTML?.split( '\n' )?.[ 0 ]?.match( /^<h1>.*<\/h1>$/ );
+
+		if ( seemsToIncludeTitle && ! postTitle ) {
+			// split HTML on new line characters
+			const htmlLines = HTML.split( '\n' );
+			// take the first line as title
+			const title = htmlLines.shift();
+			// rejoin the rest of the lines on HTML
+			HTML = htmlLines.join( '\n' );
+			// set the title as post title
+			editPost( { title: title.replace( /<[^>]*>/g, '' ) } );
 		}
+		newGeneratedBlocks = rawHandler( { HTML: HTML } );
 
 		// Replace the block with the new generated blocks
 		await replaceBlocks( clientId, newGeneratedBlocks );
@@ -358,20 +285,10 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		tracks.recordEvent( 'jetpack_ai_assistant_block_stop', { feature: 'ai-assistant' } );
 	};
 
-	/*
-	 * Custom prompt modal
-	 */
-	const [ isCustomPrompModalVisible, setIsCustomPrompModalVisible ] = useState( false );
-	const toogleShowCustomPromptModal = () => {
-		setIsCustomPrompModalVisible( ! isCustomPrompModalVisible );
-	};
-
 	const blockProps = useBlockProps( {
 		ref: blockRef,
-		className: classNames( { 'is-waiting-response': wasCompletionJustRequested } ),
+		className: classNames( { 'is-waiting-response': isWaitingResponse } ),
 	} );
-
-	const innerBlocks = useInnerBlocksProps( blockProps );
 
 	const promptPlaceholder = __( 'Ask Jetpack AI…', 'jetpack' );
 	const promptPlaceholderWithSamples = __( 'Write about… Make a table for…', 'jetpack' );
@@ -383,15 +300,15 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		</>
 	);
 
-	const error = (
+	const errorNotice = (
 		<>
-			{ errorData?.message && ! errorDismissed && errorData?.code !== 'error_quota_exceeded' && (
+			{ error?.message && ! errorDismissed && error?.code !== 'error_quota_exceeded' && (
 				<Notice
-					status={ errorData.status }
+					status={ error.status }
 					isDismissible={ false }
 					className="jetpack-ai-assistant__error"
 				>
-					{ errorData.message }
+					{ error.message }
 				</Notice>
 			) }
 		</>
@@ -422,18 +339,10 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 			} }
 		>
 			<div { ...blockProps }>
-				{ contentIsLoaded && ! useGutenbergSyntax && (
+				{ contentIsLoaded && (
 					<div ref={ contentRef } className="jetpack-ai-assistant__content">
-						<RawHTML>{ markdownConverter.render( attributes.content ) }</RawHTML>
+						<RawHTML>{ renderHTMLFromMarkdown( { content: attributes.content || '' } ) }</RawHTML>
 					</div>
-				) }
-
-				{ contentIsLoaded && useGutenbergSyntax && (
-					<div
-						ref={ contentRef }
-						className="jetpack-ai-assistant__content is-layout-building-mode"
-						{ ...innerBlocks }
-					/>
 				) }
 				<InspectorControls>
 					<PanelBody initialOpen={ true }>
@@ -447,64 +356,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 						</PanelRow>
 					</PanelBody>
 				</InspectorControls>
-
-				{ isPlaygroundVisible && (
-					<InspectorControls>
-						<PanelBody title={ __( 'AI Playground', 'jetpack' ) } initialOpen={ true }>
-							<PanelRow>
-								<ToggleControl
-									label={ __( 'Gutenberg Syntax', 'jetpack' ) }
-									onChange={ check => setAttributes( { useGutenbergSyntax: check } ) }
-									checked={ attributes.useGutenbergSyntax }
-								/>
-							</PanelRow>
-							<PanelRow>
-								<ToggleControl
-									label={ __( 'GPT-4', 'jetpack' ) }
-									onChange={ check => setAttributes( { useGpt4: check } ) }
-									checked={ attributes.useGpt4 }
-								/>
-							</PanelRow>
-							<PanelRow>
-								{ isCustomPrompModalVisible && (
-									<Modal
-										title={ __( 'Custom System Prompt', 'jetpack' ) }
-										onRequestClose={ toogleShowCustomPromptModal }
-									>
-										<TextareaControl
-											rows={ 20 }
-											label={ __( 'Set up the custom system prompt ', 'jetpack' ) }
-											onChange={ value => setAttributes( { customSystemPrompt: value } ) }
-											className="jetpack-ai-assistant__custom-prompt"
-											value={
-												attributes.customSystemPrompt ||
-												getInitialSystemPrompt( {
-													useGutenbergSyntax: attributes.useGutenbergSyntax,
-													useGpt4: attributes.useGpt4,
-												} )?.content
-											}
-										/>
-										<div className="jetpack-ai-assistant__custom-prompt__footer">
-											<Button
-												onClick={ () => setAttributes( { customSystemPrompt: '' } ) }
-												variant="secondary"
-											>
-												{ __( 'Restore the prompt', 'jetpack' ) }
-											</Button>
-
-											<Button onClick={ toogleShowCustomPromptModal } variant="secondary">
-												{ __( 'Close', 'jetpack' ) }
-											</Button>
-										</div>
-									</Modal>
-								) }
-								<Button onClick={ toogleShowCustomPromptModal } variant="secondary">
-									{ __( 'Set system custom prompt', 'jetpack' ) }
-								</Button>
-							</PanelRow>
-						</PanelBody>
-					</InspectorControls>
-				) }
 
 				{ ! isLoadingCompletion && connected && ! requireUpgrade && (
 					<ToolbarControls
@@ -536,7 +387,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 						isGeneratingTitle={ isGeneratingTitle }
 					/>
 				) }
-				<AIControl
+				<BlockAIControl
 					ref={ aiControlRef }
 					disabled={ requireUpgrade || ! connected }
 					value={ attributes.userPrompt }
@@ -553,11 +404,12 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					acceptLabel={ acceptLabel }
 					showGuideLine={ contentIsLoaded }
 					showRemove={ attributes?.content?.length > 0 }
-					bannerComponent={ banner }
-					errorComponent={ error }
+					banner={ banner }
+					error={ errorNotice }
 					customFooter={
 						// Only show the upgrade message on each 5th request or if it's the first request - and only if the user is on the free plan
 						( requestsRemaining % 5 === 0 || requestsCount === 1 ) &&
+						! loadingAiFeature && // Don't show the upgrade message while the feature is loading
 						planType === PLAN_TYPE_FREE ? (
 							<UpgradeMessage
 								requestsRemaining={ requestsRemaining }

@@ -45,6 +45,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 		),
 
 		'request_format'      => array(
+			'in_site_migration_flow'                  => '(bool) Whether the site is currently in the Site Migration signup flow.',
 			'blogname'                                => '(string) Blog name',
 			'blogdescription'                         => '(string) Blog description',
 			'default_pingback_flag'                   => '(bool) Notify blogs linked from article?',
@@ -119,7 +120,8 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'rss_use_excerpt'                         => '(bool) Whether the RSS feed will use post excerpts',
 			'launchpad_screen'                        => '(string) Whether or not launchpad is presented and what size it will be',
 			'sm_enabled'                              => '(bool) Whether the newsletter subscribe modal is enabled',
-			'jetpack_subscriptions_subscribe_post_end_enabled' => '(bool) Whether the subscribe block at the end of each post is enabled',
+			'jetpack_subscriptions_subscribe_post_end_enabled' => '(bool) Whether the Subscribe block at the end of each post placement is enabled',
+			'jetpack_subscriptions_login_navigation_enabled' => '(bool) Whether the Subscriber Login block navigation placement is enabled',
 			'wpcom_ai_site_prompt'                    => '(string) User input in the AI site prompt',
 		),
 
@@ -454,6 +456,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'wpcom_newsletter_categories_enabled' => (bool) get_option( 'wpcom_newsletter_categories_enabled' ),
 						'sm_enabled'                       => (bool) get_option( 'sm_enabled' ),
 						'jetpack_subscriptions_subscribe_post_end_enabled' => (bool) get_option( 'jetpack_subscriptions_subscribe_post_end_enabled' ),
+						'jetpack_subscriptions_login_navigation_enabled' => (bool) get_option( 'jetpack_subscriptions_login_navigation_enabled' ),
 						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
 						'wpcom_reader_views_enabled'       => (bool) get_option( 'wpcom_reader_views_enabled', true ),
 						'wpcom_subscription_emails_use_excerpt' => $this->get_wpcom_subscription_emails_use_excerpt_option(),
@@ -466,6 +469,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'enable_blocks_comments'           => (bool) get_option( 'enable_blocks_comments', true ),
 						'highlander_comment_form_prompt'   => $this->get_highlander_comment_form_prompt_option(),
 						'jetpack_comment_form_color_scheme' => (string) get_option( 'jetpack_comment_form_color_scheme' ),
+						'in_site_migration_flow'           => (bool) get_option( 'in_site_migration_flow', 0 ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -1095,6 +1099,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$updated[ $key ] = (int) (bool) $value;
 					break;
 
+				case 'jetpack_subscriptions_login_navigation_enabled':
+					update_option( 'jetpack_subscriptions_login_navigation_enabled', (int) (bool) $value );
+					$updated[ $key ] = (int) (bool) $value;
+					break;
+
 				case 'show_on_front':
 					if ( in_array( $value, array( 'page', 'posts' ), true ) && update_option( $key, $value ) ) {
 							$updated[ $key ] = $value;
@@ -1126,6 +1135,17 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$updated[ $key ] = $value;
 					}
 
+					break;
+
+				case 'in_site_migration_flow':
+					$canonical_value = (int) (bool) $value;
+					if ( 0 === $canonical_value ) {
+						delete_option( 'in_site_migration_flow' );
+					} else {
+						update_option( 'in_site_migration_flow', $canonical_value );
+					}
+
+					$updated[ $key ] = $canonical_value;
 					break;
 
 				default:

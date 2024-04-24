@@ -154,6 +154,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Launch your site', 'jetpack-mu-wpcom' );
 			},
 			'isLaunchTask'          => true,
+			'is_complete_callback'  => 'wpcom_launchpad_is_site_launched',
 			'add_listener_callback' => 'wpcom_launchpad_add_site_launch_listener',
 		),
 		'verify_email'                    => array(
@@ -577,6 +578,9 @@ function wpcom_launchpad_get_task_definitions() {
 						'earn-launchpad'
 					);
 				}
+				if ( wpcom_launchpad_should_use_jetpack_cloud_link() ) {
+					return 'https://cloud.jetpack.com/monetize/payments/' . $data['site_slug_encoded'];
+				}
 				return '/earn/payments/' . $data['site_slug_encoded'];
 			},
 		),
@@ -587,6 +591,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_has_paid_membership_plans',
 			'is_visible_callback'  => '__return_true',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_should_use_jetpack_cloud_link() ) {
+					return 'https://cloud.jetpack.com/monetize/payments/' . $data['site_slug_encoded'] . '#add-new-payment-plan';
+				}
 				return '/earn/payments/' . $data['site_slug_encoded'] . '#add-new-payment-plan';
 			},
 		),
@@ -728,6 +735,29 @@ function wpcom_launchpad_get_task_definitions() {
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
 
 	return array_merge( $extended_task_definitions, $task_definitions );
+}
+
+/**
+ * Returns true if the current site is launched.
+ *
+ * @param array $task The task object.
+ * @param bool  $is_complete The current task status.
+ *
+ * @return boolean
+ */
+function wpcom_launchpad_is_site_launched( $task, $is_complete ) {
+	if ( $is_complete ) {
+		return true;
+	}
+
+	$launch_status = get_option( 'launch-status' );
+
+	if ( 'launched' === $launch_status ) {
+		wpcom_mark_launchpad_task_complete( 'site_launched' );
+		return true;
+	} else {
+		return false;
+	}
 }
 
 /**

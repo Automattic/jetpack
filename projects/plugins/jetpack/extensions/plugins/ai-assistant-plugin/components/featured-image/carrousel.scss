@@ -1,0 +1,137 @@
+.ai-assistant-featured-image {
+	&__blank {
+		display: flex;
+		justify-content: center;
+		position: relative;
+		align-items: center;
+		width: 100%;
+		height: auto;
+
+		&-content {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+
+			&.is-dotted {
+				border: 1px dotted;
+			}
+		}
+	}
+
+	&__error {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+
+		&-message {
+			font-size: 10px;
+			color: red;
+		}
+	}
+
+	&__carrousel {
+		flex-direction: column;
+		width: 100%;
+
+		&-images {
+			position: relative;
+			display: flex;
+			align-items: center;
+			overflow: hidden;
+
+			.ai-carrousel {
+				&__prev {
+					left: 0;
+				}
+
+				&__next {
+					right: 0;
+				}
+
+				&__prev, &__next {
+					&:hover {
+						background-color: rgba(0, 0, 0, 0.3);
+						opacity: 1;
+					}
+
+					&-icon {
+						fill: white;
+						&.is-disabled {
+							fill: gray;
+						}
+					}
+
+					cursor: pointer;
+					z-index: 1;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					transition: opacity .3s;
+					border: none;
+					position: absolute;
+					top: 0;
+					bottom: 0;
+					height: 100%;
+					width: 60px;
+					opacity: 0;
+					background: transparent;
+				}
+			}
+		}
+
+		&-counter {
+			display: flex;
+			justify-content: flex-end;
+			align-items: center;
+			font-size: 13px;
+			padding: 8px 0;
+
+			.ai-carrousel {
+				&__prev, &__next {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					cursor: pointer;
+					border: none;
+					background: transparent;
+					padding: 0;
+
+					&-icon {
+						&.is-disabled {
+							fill: gray;
+						}
+					}
+				}
+			}
+		}
+
+		&-image {
+			width: 100%;
+			height: auto;
+		}
+
+		&-image-container {
+			display: flex;
+			width: 100%;
+			height: auto;
+			position: absolute;
+			left: 8px;
+			transform: translateX(100%);
+			transition: transform .5s ;
+
+			&.is-prev {
+				transform: translateX(-100%);
+				left: -8px;
+			}
+
+			&.is-current {
+				transform: translateX(0);
+				position: static;
+			}
+		}
+	}
+}

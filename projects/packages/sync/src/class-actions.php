@@ -57,7 +57,7 @@ class Actions {
 	 * @access public
 	 * @static
 	 *
-	 * @var Automattic\Jetpack\Sync\Sender
+	 * @var \Automattic\Jetpack\Sync\Sender
 	 */
 	public static $sender = null;
 
@@ -67,7 +67,7 @@ class Actions {
 	 * @access public
 	 * @static
 	 *
-	 * @var Automattic\Jetpack\Sync\Listener
+	 * @var \Automattic\Jetpack\Sync\Listener
 	 */
 	public static $listener = null;
 

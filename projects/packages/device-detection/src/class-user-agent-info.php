@@ -1741,6 +1741,7 @@ class User_Agent_Info {
 			'bne.es_bot', // https://www.bne.es/es/colecciones/archivo-web-espanola/aviso-webmasters
 			'google-safety;', // https://www.google.com/bot.html
 			'mojeekbot', // https://www.mojeek.com/bot.html
+			'linkwalker', // https://www.linkwalker.com/
 		);
 
 		foreach ( $bot_agents as $bot_agent ) {

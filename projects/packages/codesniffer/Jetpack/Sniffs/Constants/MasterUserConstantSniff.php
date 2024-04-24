@@ -17,7 +17,7 @@ class MasterUserConstantSniff implements Sniff {
 	/**
 	 * Returns the token types that this sniff is interested in.
 	 *
-	 * @return array(int)
+	 * @return int[]
 	 */
 	public function register() {
 		return array( T_STRING );
