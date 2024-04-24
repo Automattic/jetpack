@@ -8,6 +8,7 @@ import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 import EmailSettings from './email-settings';
 import MessagesSetting from './messages-setting';
 import NewsletterCategories from './newsletter-categories';
+import PaidNewsletter from './paid-newsletter';
 import SubscriptionsSettings from './subscriptions-settings';
 
 /**
@@ -45,8 +46,9 @@ function Subscriptions( props ) {
 			{ foundSubscriptions && (
 				<>
 					<SubscriptionsSettings siteRawUrl={ siteRawUrl } blogID={ blogID } />
-					<EmailSettings />
+					<PaidNewsletter />
 					<NewsletterCategories />
+					<EmailSettings />
 					<MessagesSetting { ...props } />
 				</>
 			) }

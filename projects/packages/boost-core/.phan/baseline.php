@@ -10,16 +10,15 @@
 return [
     // # Issue statistics:
     // PhanAbstractStaticMethodCallInStatic : 3 occurrences
-    // PhanUndeclaredConstant : 3 occurrences
     // PhanParamTooMany : 2 occurrences
+    // PhanTypeMismatchArgumentInternal : 2 occurrences
     // PhanUndeclaredClassMethod : 2 occurrences
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/lib/class-boost-api.php' => ['PhanParamTooMany'],
         'src/lib/class-cacheable.php' => ['PhanAbstractStaticMethodCallInStatic'],
-        'src/lib/class-transient.php' => ['PhanUndeclaredConstant'],
-        'src/lib/class-utils.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredConstant'],
+        'src/lib/class-utils.php' => ['PhanTypeMismatchArgumentInternal', 'PhanUndeclaredClassMethod'],
         'src/lib/class-wpcom-boost-api-client.php' => ['PhanUndeclaredClassMethod'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

@@ -208,7 +208,9 @@ class Waf_Request {
 		$uri = isset( $_SERVER['REQUEST_URI'] ) ? filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ), FILTER_DEFAULT ) : '/';
 		if ( false !== strpos( $uri, '?' ) ) {
 			// remove the query string (we'll pull it from elsewhere later)
-			$uri = substr( $uri, 0, strpos( $uri, '?' ) );
+			$uri = urldecode( substr( $uri, 0, strpos( $uri, '?' ) ) );
+		} else {
+			$uri = urldecode( $uri );
 		}
 		$query_string = isset( $_SERVER['QUERY_STRING'] ) ? '?' . filter_var( wp_unslash( $_SERVER['QUERY_STRING'] ), FILTER_DEFAULT ) : '';
 		if ( 1 === preg_match( '/^https?:\/\//', $uri ) ) {

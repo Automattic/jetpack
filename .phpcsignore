@@ -4,5 +4,6 @@
 # Same for changelog directories.
 **/changelog/
 
-# Phan baselines shouldn't be phpcs-ed.
+# Phan baselines and stubs shouldn't be phpcs-ed.
 **/.phan/baseline.php
+**/.phan/stubs/

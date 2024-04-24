@@ -1,5 +1,7 @@
 import { __, _x } from '@wordpress/i18n';
 
+export const GOODREADS_DEFAULT_TITLE = __( 'My Bookshelf', 'jetpack' );
+
 export const GOODREADS_SHELF_OPTIONS = [
 	{
 		label: _x( 'Read', 'perfect participle - eg. I read a book yesterday.', 'jetpack' ),
@@ -52,7 +54,7 @@ export const GOODREADS_ORDER_OPTIONS = [
 export function createGoodreadsEmbedLink( { attributes } ) {
 	const {
 		bookNumber,
-		customTitle,
+		customTitle = GOODREADS_DEFAULT_TITLE,
 		goodreadsId,
 		orderOption,
 		shelfOption,

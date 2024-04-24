@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.16 - 2024-04-22
+### Changed
+- Internal updates.
+
+## 2.1.15 - 2024-04-15
+### Changed
+- Internal updates.
+
+## 2.1.14 - 2024-04-08
+### Changed
+- Updated package dependencies. [#36775]
+
+## 2.1.13 - 2024-04-05
+### Changed
+- Internal updates.
+
+## 2.1.12 - 2024-04-04
+### Changed
+- Internal updates.
+
+## 2.1.11 - 2024-04-01
+### Changed
+- Internal updates.
+
+## 2.1.10 - 2024-03-27
+### Changed
+- Internal updates.
+
+## 2.1.9 - 2024-03-25
+### Changed
+- Internal updates.
+
+## 2.1.8 - 2024-03-22
+### Changed
+- Internal updates.
+
+## 2.1.7 - 2024-03-20
+### Changed
+- Comment: Updated composer.lock. [#36458]
+
 ## 2.1.6 - 2024-03-18
 ### Changed
 - Internal updates.

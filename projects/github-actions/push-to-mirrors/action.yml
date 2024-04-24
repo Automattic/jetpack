@@ -9,10 +9,15 @@ inputs:
       Commit message to use for the mirror commits. If omitted, it will be read
       from the monorepo checkout pointed at by `source-directory`.
     required: false
+  no-upstream-refs:
+    description: >
+      Set to `true` to suppress the "Upstream-Ref" footers in mirrored commits.
+    required: false
   source-directory:
     description: >
-      Directory containing a checkout of the commit being mirrored. Only used
-      if `commit-message` is not specified.
+      Directory containing a checkout of the commit being mirrored. Used to
+      fetch git metadata for the mirror commits, and to find the base commit
+      for new mirror branches.
     required: false
     default: ${{ github.workspace }}
   token:
@@ -20,6 +25,17 @@ inputs:
       GitHub Access Token. This token must allow for pushing to all relevant
       branches of all relevant mirror repos.
     required: true
+  upstream-ref-count:
+    description: >
+      When checking "Upstream-Ref" to find a base commit for a new mirror
+      branch, only consider this many monorepo commits at most.
+    required: false
+  upstream-ref-since:
+    description: >
+      When checking "Upstream-Ref" to find a base commit for a new mirror
+      branch, only consider monorepo commits since this date (in any format
+      accepted by `git log`'s `--since` or `--since-as-filter` parameter).
+    required: false
   username:
     description: Name of the user the token belongs to.
     required: true
@@ -44,7 +60,10 @@ runs:
         BUILD_BASE: ${{ inputs.working-directory }}
         COMMIT_MESSAGE: ${{ inputs.commit-message }}
         DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        NO_UPSTREAM_REFS: ${{ inputs.no-upstream-refs }}
         SOURCE_DIR: ${{ inputs.source-directory }}
+        UPSTREAM_REF_COUNT: ${{ inputs.upstream-ref-count }}
+        UPSTREAM_REF_SINCE: ${{ inputs.upstream-ref-since }}
         USER_EMAIL: ${{ inputs.user-email }}
         USER_NAME: ${{ inputs.username }}
       run: $GITHUB_ACTION_PATH/push-to-mirrors.sh

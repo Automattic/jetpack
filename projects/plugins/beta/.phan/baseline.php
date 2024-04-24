@@ -9,7 +9,6 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredConstant : 30+ occurrences
     // PhanPluginDuplicateExpressionAssignment : 5 occurrences
     // PhanTypeMismatchArgument : 4 occurrences
     // PhanTypeMismatchReturnProbablyReal : 4 occurrences
@@ -34,14 +33,12 @@ return [
         'src/admin/branch-card.template.php' => ['PhanPluginDuplicateExpressionAssignment'],
         'src/admin/exception.template.php' => ['PhanPluginDuplicateExpressionAssignment'],
         'src/admin/notice.template.php' => ['PhanPluginSimplifyExpressionBool'],
-        'src/admin/plugin-manage.template.php' => ['PhanPluginDuplicateExpressionAssignment', 'PhanPossiblyUndeclaredGlobalVariable', 'PhanUndeclaredConstant'],
+        'src/admin/plugin-manage.template.php' => ['PhanPluginDuplicateExpressionAssignment', 'PhanPossiblyUndeclaredGlobalVariable'],
         'src/admin/plugin-select.template.php' => ['PhanTypeMismatchArgumentNullable'],
         'src/admin/show-needed-updates.template.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable'],
-        'src/class-admin.php' => ['PhanUndeclaredConstant'],
-        'src/class-autoupdateself.php' => ['PhanStaticPropIsStaticType', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredConstant'],
-        'src/class-hooks.php' => ['PhanPossiblyNullTypeMismatchProperty', 'PhanStaticPropIsStaticType', 'PhanTypeInvalidExpressionArrayDestructuring', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant', 'PhanUndeclaredMethod', 'PhanUnextractableAnnotation'],
-        'src/class-plugin.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredConstant', 'PhanUndeclaredMethod'],
-        'src/class-utils.php' => ['PhanUndeclaredConstant'],
+        'src/class-autoupdateself.php' => ['PhanStaticPropIsStaticType', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/class-hooks.php' => ['PhanPossiblyNullTypeMismatchProperty', 'PhanStaticPropIsStaticType', 'PhanTypeInvalidExpressionArrayDestructuring', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredMethod', 'PhanUnextractableAnnotation'],
+        'src/class-plugin.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredMethod'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

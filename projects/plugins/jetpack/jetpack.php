@@ -4,11 +4,11 @@
  * Plugin URI: https://jetpack.com
  * Description: Security, performance, and marketing tools made by WordPress experts. Jetpack keeps your site protected so you can focus on more important things.
  * Author: Automattic
- * Version: 13.3-a.4
+ * Version: 13.4-a.6
  * Author URI: https://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
- * Requires at least: 6.3
+ * Requires at least: 6.4
  * Requires PHP: 7.0
  *
  * @package automattic/jetpack
@@ -32,9 +32,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-define( 'JETPACK__MINIMUM_WP_VERSION', '6.3' );
+define( 'JETPACK__MINIMUM_WP_VERSION', '6.4' );
 define( 'JETPACK__MINIMUM_PHP_VERSION', '7.0' );
-define( 'JETPACK__VERSION', '13.3-a.4' );
+define( 'JETPACK__VERSION', '13.4-a.6' );
 
 /**
  * Constant used to fetch the connection owner token
@@ -155,6 +155,20 @@ if ( is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings
 			)
 		);
 	}
+
+	// Add a red bubble notification to My Jetpack if the installation is bad.
+	add_filter(
+		'my_jetpack_red_bubble_notification_slugs',
+		function ( $slugs ) {
+			$slugs['jetpack-plugin-bad-installation'] = array(
+				'data' => array(
+					'plugin' => 'Jetpack',
+				),
+			);
+
+			return $slugs;
+		}
+	);
 
 	/**
 	 * Outputs an admin notice for folks running Jetpack without having run composer install.

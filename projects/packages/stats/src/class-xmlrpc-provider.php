@@ -38,10 +38,12 @@ class XMLRPC_Provider {
 	/**
 	 * Initialize class and get back a singleton instance.
 	 *
+	 * @param bool $new_instance Force create new instance.
+	 *
 	 * @return XMLRPC_Provider
 	 */
-	public static function init() {
-		if ( null === self::$instance ) {
+	public static function init( $new_instance = false ) {
+		if ( null === self::$instance || $new_instance ) {
 			self::$instance = new XMLRPC_Provider();
 		}
 

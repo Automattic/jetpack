@@ -9,11 +9,9 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredClassMethod : 30+ occurrences
     // PhanTypeMismatchArgument : 10+ occurrences
-    // PhanUndeclaredConstant : 8 occurrences
-    // PhanUndeclaredProperty : 6 occurrences
-    // PhanUndeclaredMethod : 5 occurrences
+    // PhanUndeclaredClassMethod : 10+ occurrences
+    // PhanUndeclaredConstant : 6 occurrences
     // PhanTypeMismatchArgumentInternal : 4 occurrences
     // PhanUndeclaredFunction : 4 occurrences
     // PhanTypeMismatchArgumentNullableInternal : 3 occurrences
@@ -21,7 +19,7 @@ return [
     // PhanPluginSimplifyExpressionBool : 2 occurrences
     // PhanRedefineFunction : 2 occurrences
     // PhanUndeclaredClassInCallable : 2 occurrences
-    // PhanUndeclaredClassReference : 2 occurrences
+    // PhanUndeclaredMethod : 2 occurrences
     // PhanDeprecatedFunction : 1 occurrence
     // PhanMisspelledAnnotation : 1 occurrence
     // PhanParamTooMany : 1 occurrence
@@ -30,23 +28,22 @@ return [
     // PhanTypeArraySuspicious : 1 occurrence
     // PhanTypeMismatchArgumentNullable : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
-    // PhanTypeMismatchProperty : 1 occurrence
     // PhanTypeMismatchReturnProbablyReal : 1 occurrence
-    // PhanUndeclaredTypeProperty : 1 occurrence
+    // PhanUndeclaredClassReference : 1 occurrence
     // PhanUnextractableAnnotation : 1 occurrence
     // PhanUnextractableAnnotationSuffix : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-cache.php' => ['PhanMisspelledAnnotation'],
-        'src/class-cookiestate.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginRedundantAssignment', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredConstant'],
+        'src/class-cookiestate.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginRedundantAssignment', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullableInternal'],
         'src/class-errors.php' => ['PhanTypeMismatchArgumentInternal', 'PhanUndeclaredClassInCallable'],
         'src/class-host.php' => ['PhanTypeMismatchArgumentNullable', 'PhanUnextractableAnnotationSuffix'],
         'src/class-modules.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUnextractableAnnotation'],
-        'src/class-status.php' => ['PhanRedundantCondition', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredFunction', 'PhanUndeclaredMethod', 'PhanUndeclaredProperty'],
+        'src/class-status.php' => ['PhanRedundantCondition', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredFunction', 'PhanUndeclaredMethod'],
         'tests/php/bootstrap.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturnProbablyReal'],
-        'tests/php/test-host.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgument', 'PhanUndeclaredMethod'],
-        'tests/php/test-status.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchProperty', 'PhanUndeclaredClassMethod', 'PhanUndeclaredProperty', 'PhanUndeclaredTypeProperty'],
+        'tests/php/test-host.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgument'],
+        'tests/php/test-status.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgumentInternal'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

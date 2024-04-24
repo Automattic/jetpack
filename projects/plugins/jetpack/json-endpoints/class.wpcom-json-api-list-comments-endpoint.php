@@ -308,6 +308,10 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 				}
 			}
 		}
+		if ( $args['hierarchical'] && $found > 5000 ) {
+			// Massive comment thread found; don't pre-load comment metadata to reduce memory used.
+			$query['update_comment_meta_cache'] = false;
+		}
 
 		if ( $post_id ) {
 			$post = get_post( $post_id );

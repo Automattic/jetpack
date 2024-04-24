@@ -1,0 +1,86 @@
+<?php
+namespace {
+    /**
+     * @param string $p1
+     * @param array $p2
+     * @return ?object
+     */
+    function a_function($p1, $p2)
+    {
+    }
+    /**
+     * @return never
+     * @throws Exception
+     */
+    function another_function()
+    {
+    }
+    function undocumented_function($args)
+    {
+    }
+}
+namespace Some\NS {
+    class Class1
+    {
+        /**
+         * @var string
+         */
+        public const PUBLIC_CONST = 'public';
+        /**
+         * @var string
+         */
+        protected const PROTECTED_CONST = 'protected';
+        public const UNDOCUMENTED_CONST = 'undocumented';
+        /**
+         * @var string
+         */
+        public $publicProperty = 'public';
+        /**
+         * @var string
+         */
+        protected $protectedProperty = 'protected';
+        public $undocumentedProperty = 'undocumented';
+        /**
+         * @var string
+         */
+        public static $publicStaticProperty = 'public';
+        /**
+         * @var string
+         */
+        protected static $protectedStaticProperty = 'protected';
+        public static $undocumentedStaticProperty = 'undocumented';
+        /**
+         * @param string $var
+         * @param int $var2
+         */
+        public function __construct($var, $var2)
+        {
+        }
+        /**
+         * @param string $var
+         * @return string
+         */
+        public function publicMethod($var)
+        {
+        }
+        protected function protectedMethod()
+        {
+        }
+        public function undocumentedMethod()
+        {
+        }
+        /**
+         * @param string $var
+         * @return string
+         */
+        public static function publicStaticMethod($var)
+        {
+        }
+        protected static function protectedStaticMethod()
+        {
+        }
+        public static function undocumentedStaticStaticMethod()
+        {
+        }
+    }
+}

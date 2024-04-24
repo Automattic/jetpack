@@ -839,7 +839,7 @@ class Admin {
 	/**
 	 * Filter feedback posts by parent_id if present.
 	 *
-	 * @param WP_Query $query Current query.
+	 * @param \WP_Query $query Current query.
 	 *
 	 * @return void
 	 */

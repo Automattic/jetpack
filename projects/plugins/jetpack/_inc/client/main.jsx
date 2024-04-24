@@ -3,10 +3,9 @@ import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { ActivationScreen } from '@automattic/jetpack-licensing';
+import ConnectScreenBody from '@automattic/jetpack-my-jetpack/components/connection-screen/body';
 import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
-import { Dashicon } from '@wordpress/components';
 import { withDispatch } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import AtAGlance from 'at-a-glance/index.jsx';
 import AdminNotices from 'components/admin-notices';
@@ -430,60 +429,22 @@ class Main extends React.Component {
 			const searchParams = new URLSearchParams( location.search.split( '?' )[ 1 ] );
 
 			return (
-				<ConnectScreen
+				<ConnectScreenBody
+					title={
+						this.props.connectingUserFeatureLabel &&
+						sprintf(
+							/* translators: placeholder is a feature label (e.g. SEO, Notifications) */
+							__( 'Unlock %s and more amazing features', 'jetpack' ),
+							this.props.connectingUserFeatureLabel
+						)
+					}
+					from={ ( searchParams && searchParams.get( 'from' ) ) || this.props.connectingUserFrom }
+					redirectUri="admin.php?page=jetpack"
+					apiRoot={ this.props.apiRoot }
 					apiNonce={ this.props.apiNonce }
 					registrationNonce={ this.props.registrationNonce }
-					apiRoot={ this.props.apiRoot }
-					images={ [ '/images/connect-right-secondary.png' ] }
-					assetBaseUrl={ this.props.pluginBaseUrl }
 					autoTrigger={ this.shouldAutoTriggerConnection() }
-					title={
-						this.props.connectingUserFeatureLabel
-							? sprintf(
-									/* translators: placeholder is a feature label (e.g. SEO, Notifications) */
-									__( 'Unlock %s and more amazing features', 'jetpack' ),
-									this.props.connectingUserFeatureLabel
-							  )
-							: __( 'Unlock all the amazing features of Jetpack by connecting now', 'jetpack' )
-					}
-					buttonLabel={ __( 'Connect your user account', 'jetpack' ) }
-					redirectUri="admin.php?page=jetpack"
-					from={ ( searchParams && searchParams.get( 'from' ) ) || this.props.connectingUserFrom }
-				>
-					{ /*
-					Since the list style type is set to none, `role=list` is required for VoiceOver (on Safari) to announce the list.
-					See: https://www.scottohara.me/blog/2019/01/12/lists-and-safari.html
-					*/ }
-					<ul role="list">
-						<li>{ __( 'Receive instant downtime alerts', 'jetpack' ) }</li>
-						<li>{ __( 'Automatically share your content on social media', 'jetpack' ) }</li>
-						<li>{ __( 'Let your subscribers know when you post', 'jetpack' ) }</li>
-						<li>{ __( 'Receive notifications about new likes and comments', 'jetpack' ) }</li>
-						<li>{ __( 'Let visitors share your content on social media', 'jetpack' ) }</li>
-						<li>
-							{ createInterpolateElement(
-								__( 'And more! <a>See all Jetpack features</a>', 'jetpack' ),
-								{
-									a: (
-										<a
-											href={ getRedirectUrl( 'jetpack-features' ) }
-											target="_blank"
-											rel="noreferrer"
-										/>
-									),
-								}
-							) }
-							<a
-								className="jp-connection-screen-icon"
-								href={ getRedirectUrl( 'jetpack-features' ) }
-								target="_blank"
-								rel="noreferrer"
-							>
-								<Dashicon icon="external" />
-							</a>
-						</li>
-					</ul>
-				</ConnectScreen>
+				/>
 			);
 		}
 

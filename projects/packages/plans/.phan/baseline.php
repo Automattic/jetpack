@@ -9,16 +9,15 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredClassMethod : 4 occurrences
-    // PhanUndeclaredFunction : 2 occurrences
     // PhanPluginMixedKeyNoKey : 1 occurrence
     // PhanTypeMismatchPropertyProbablyReal : 1 occurrence
     // PhanTypeMismatchReturn : 1 occurrence
     // PhanTypeMismatchReturnProbablyReal : 1 occurrence
+    // PhanUndeclaredClassMethod : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-current-plan.php' => ['PhanTypeMismatchPropertyProbablyReal', 'PhanUndeclaredFunction'],
+        'src/class-current-plan.php' => ['PhanTypeMismatchPropertyProbablyReal'],
         'src/class-plans.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod'],
         'tests/php/test-current-plan.php' => ['PhanPluginMixedKeyNoKey'],
     ],

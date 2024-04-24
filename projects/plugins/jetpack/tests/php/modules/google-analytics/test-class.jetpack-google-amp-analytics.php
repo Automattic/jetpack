@@ -34,7 +34,7 @@ class WP_Test_Jetpack_Google_AMP_Analytics extends WP_UnitTestCase {
 	public function set_up() {
 		if ( ! self::$woo_enabled ) {
 			$this->markTestSkipped();
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		parent::set_up();

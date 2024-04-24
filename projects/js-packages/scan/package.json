@@ -26,13 +26,13 @@
 		"@babel/core": "7.24.0",
 		"@babel/plugin-transform-react-jsx": "7.23.4",
 		"@jest/globals": "29.7.0",
-		"@storybook/addon-actions": "7.6.17",
-		"@storybook/blocks": "7.6.17",
-		"@storybook/react": "7.6.17",
+		"@storybook/addon-actions": "8.0.6",
+		"@storybook/blocks": "8.0.6",
+		"@storybook/react": "8.0.6",
 		"@testing-library/react": "14.2.1",
 		"@types/jest": "29.5.12",
-		"@types/react": "18.2.61",
-		"@wordpress/babel-plugin-import-jsx-pragma": "4.36.0",
+		"@types/react": "18.2.74",
+		"@wordpress/babel-plugin-import-jsx-pragma": "4.38.0",
 		"babel-jest": "29.7.0",
 		"jest": "^29.7.0",
 		"jest-environment-jsdom": "29.7.0",
@@ -52,10 +52,10 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
-		"@wordpress/api-fetch": "6.50.0",
-		"@wordpress/element": "5.30.0",
-		"@wordpress/i18n": "4.53.0",
-		"@wordpress/url": "3.54.0",
+		"@wordpress/api-fetch": "6.52.0",
+		"@wordpress/element": "5.32.0",
+		"@wordpress/i18n": "4.55.0",
+		"@wordpress/url": "3.56.0",
 		"debug": "4.3.4",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0"
@@ -63,6 +63,6 @@
 	"peerDependencies": {
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
-		"@wordpress/i18n": "4.53.0"
+		"@wordpress/i18n": "4.55.0"
 	}
 }

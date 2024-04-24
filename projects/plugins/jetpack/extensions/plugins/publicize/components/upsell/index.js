@@ -15,47 +15,32 @@ import { external } from '@wordpress/icons';
 import classNames from 'classnames';
 import useUpgradeFlow from '../../../../shared/use-upgrade-flow';
 
-function getPanelDescription(
-	isPostPublished,
-	isPublicizeEnabled,
-	hasConnections,
-	hasEnabledConnections
-) {
-	// Use constants when the string is used in multiple places.
-	const start_your_posts_string = __(
-		'Start sharing your posts by connecting your social media accounts.',
+const getDescriptions = () => ( {
+	start: __( 'Start sharing your posts by connecting your social media accounts.', 'jetpack' ),
+	enabled: __(
+		'Click on the social icons below to control where you want to share your post.',
 		'jetpack'
-	);
-	const this_post_will_string = __(
-		'This post will be shared on all your enabled social media accounts the moment you publish the post.',
+	),
+	disabled: __( 'Use this tool to share your post on all your social media accounts.', 'jetpack' ),
+	reshare: __(
+		'Enable the social media accounts where you want to re-share your post, then click on the "Share post" button below.',
 		'jetpack'
-	);
+	),
+} );
 
-	// RePublicize feature is enabled.
-	// No connections.
+function getPanelDescription( isPostPublished, isPublicizeEnabled, hasConnections ) {
+	const descriptions = getDescriptions();
+
 	if ( ! hasConnections ) {
-		return start_your_posts_string;
+		return descriptions.start;
 	}
 
-	if ( isPostPublished && isPublicizeEnabled && ! hasEnabledConnections ) {
-		return __(
-			'Enable a connection to share this post by clicking on the share post button.',
-			'jetpack'
-		);
+	if ( isPostPublished ) {
+		// For published posts, always show the reshare description.
+		return descriptions.reshare;
 	}
 
-	if ( ! isPublicizeEnabled || ! hasEnabledConnections ) {
-		return __( 'Use this tool to share your post on all your social media accounts.', 'jetpack' );
-	}
-
-	if ( isPublicizeEnabled && hasEnabledConnections && ! isPostPublished ) {
-		return this_post_will_string;
-	}
-
-	return __(
-		'Share this post on all your enabled social media accounts by clicking on the share post button.',
-		'jetpack'
-	);
+	return isPublicizeEnabled ? descriptions.enabled : descriptions.disabled;
 }
 
 export default function UpsellNotice() {

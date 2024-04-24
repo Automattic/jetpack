@@ -13,6 +13,7 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 use Automattic\Jetpack\Waf\Waf_Runner;
 use Jetpack_Protect;
 use WP_Error;
+use WP_REST_Request;
 use WP_REST_Response;
 
 /**

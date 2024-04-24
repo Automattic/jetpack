@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack Social
  * Plugin URI: https://wordpress.org/plugins/jetpack-social
  * Description: Share your site’s posts on several social media networks automatically when you publish a new post.
- * Version: 4.2.0-alpha
+ * Version: 4.3.0-alpha
  * Author: Automattic - Jetpack Social team
  * Author URI: https://jetpack.com/social/
  * License: GPLv2 or later
@@ -54,6 +54,20 @@ if ( is_readable( $jetpack_autoloader ) ) {
 			__( 'Error loading autoloader file for Jetpack Social plugin', 'jetpack-social' )
 		);
 	}
+
+	// Add a red bubble notification to My Jetpack if the installation is bad.
+	add_filter(
+		'my_jetpack_red_bubble_notification_slugs',
+		function ( $slugs ) {
+			$slugs['jetpack-social-plugin-bad-installation'] = array(
+				'data' => array(
+					'plugin' => 'Jetpack Social',
+				),
+			);
+
+			return $slugs;
+		}
+	);
 
 	add_action(
 		'admin_notices',

@@ -5,6 +5,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress;
 
+use WP_Post;
+
 class Boost_Cache_Utils {
 
 	/**

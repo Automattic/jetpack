@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
+import { renderMarkdownFromHTML } from '@automattic/jetpack-ai-client';
 import { getBlockContent } from '@wordpress/blocks';
 import { serialize } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import turndownService from '../turndown';
 
 /**
  * Returns partial content from the beginning of the post
@@ -29,7 +29,7 @@ export function getPartialContentToBlock( clientId: string ): string {
 		return '';
 	}
 
-	return turndownService.turndown( serialize( blocks ) );
+	return renderMarkdownFromHTML( { content: serialize( blocks ) } );
 }
 
 /**
@@ -46,7 +46,7 @@ export function getContentFromBlocks(): string {
 		return '';
 	}
 
-	return turndownService.turndown( serialize( blocks ) );
+	return renderMarkdownFromHTML( { content: serialize( blocks ) } );
 }
 
 export function getTextContentFromInnerBlocks( clientId: string ) {

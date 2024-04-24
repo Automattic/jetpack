@@ -1,0 +1,32 @@
+.disconnect_site_trigger {
+    display: flex;
+    justify-content: center;
+    padding: 32px;
+}
+
+.disconnect_modal {
+    max-width: 512px;
+}
+
+.disconnect_modal__error {
+    color: var( --jp-red-50 );
+    text-align: end;
+    margin-bottom: 0;
+}
+
+.disconnect_modal__actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+
+    :global {
+        .components-button {
+            --spacing-base: 16px;
+            --font-body-extra-small: 14px;
+        }
+    }
+}
+
+.disconnect_button {
+    min-width: 167px;
+}

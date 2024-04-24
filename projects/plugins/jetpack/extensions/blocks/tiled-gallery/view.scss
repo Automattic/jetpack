@@ -6,8 +6,6 @@ $tiled-gallery-max-column-count: 20;
 $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 
 .wp-block-jetpack-tiled-gallery {
-	margin: 0 auto $jetpack-block-margin-bottom;
-
 	&.is-style-circle .tiled-gallery__item img {
 		border-radius: 50%;
 	}
@@ -36,7 +34,7 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 	}
 
 	@for $i from 1 through $tiled-gallery-max-rounded-corners {
-		&.has-rounded-corners-#{$i} .tiled-gallery__item img {
+		.has-rounded-corners-#{$i} .tiled-gallery__item img {
 			border-radius: #{$i}px;
 		}
 	}

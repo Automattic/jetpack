@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.2.75 - 2024-04-15
+### Changed
+- Update dependencies. [#36848]
+
+## 0.2.74 - 2024-04-08
+### Changed
+- Updated package dependencies. [#36760]
+
+### Fixed
+- Fix test with new from property when registering site. [#36741]
+
+## 0.2.73 - 2024-03-27
+### Changed
+- Updated package dependencies. [#36585]
+
 ## 0.2.72 - 2024-03-12
 ### Changed
 - Update dependencies. [#36243]

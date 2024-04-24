@@ -62,8 +62,8 @@ class WriteCommandTest extends CommandTestCase {
 			file_put_contents( 'composer.json', json_encode( array( 'extra' => array( 'changelogger' => $options['composer.json'] ) ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 			unset( $options['composer.json'] );
 		}
-		$changelog = isset( $options['changelog'] ) ? $options['changelog'] : null;
-		$changes   = isset( $options['changes'] ) ? $options['changes'] : array();
+		$changelog = $options['changelog'] ?? null;
+		$changes   = $options['changes'] ?? array();
 		unset( $options['changelog'], $options['changes'] );
 		if ( null !== $changelog ) {
 			file_put_contents( 'CHANGELOG.md', $changelog );
@@ -1034,7 +1034,7 @@ class WriteCommandTest extends CommandTestCase {
 				0,
 				array( '{^$}' ),
 				true,
-				'changelog' => "# Changelog\n\n## 1.0.1 - $date\n### Fixed\n- Fixed a thing.\n\n## 1.0 - 2021-02-24\n\n- Initial release\n",
+				"# Changelog\n\n## 1.0.1 - $date\n### Fixed\n- Fixed a thing.\n\n## 1.0 - 2021-02-24\n\n- Initial release\n",
 			),
 
 			'Writing a new prerelease based on an old one' => array(
@@ -1046,7 +1046,7 @@ class WriteCommandTest extends CommandTestCase {
 				0,
 				array( '{^$}' ),
 				true,
-				'changelog' => "# Changelog\n\n## 1.0.1-beta.2 - $date\n### Fixed\n- Fixed a thing.\n\n## 1.0.1-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
+				"# Changelog\n\n## 1.0.1-beta.2 - $date\n### Fixed\n- Fixed a thing.\n\n## 1.0.1-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
 			),
 			'Writing a new prerelease based on an old one (2)' => array(
 				array( '--prerelease' => 'beta.2' ),
@@ -1057,7 +1057,7 @@ class WriteCommandTest extends CommandTestCase {
 				0,
 				array( '{^$}' ),
 				true,
-				'changelog' => "# Changelog\n\n## 2.0.0-beta.2 - $date\n### Fixed\n- Fixed a thing.\n\n## 2.0.0-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
+				"# Changelog\n\n## 2.0.0-beta.2 - $date\n### Fixed\n- Fixed a thing.\n\n## 2.0.0-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
 			),
 			'Writing a new prerelease based on an old one (3)' => array(
 				array( '--prerelease' => 'alpha' ),
@@ -1068,7 +1068,7 @@ class WriteCommandTest extends CommandTestCase {
 				0,
 				array( '{^$}' ),
 				true,
-				'changelog' => "# Changelog\n\n## 1.0.2-alpha - $date\n### Fixed\n- Fixed a thing.\n\n## 1.0.1-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
+				"# Changelog\n\n## 1.0.2-alpha - $date\n### Fixed\n- Fixed a thing.\n\n## 1.0.1-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
 			),
 		);
 	}
@@ -1077,9 +1077,7 @@ class WriteCommandTest extends CommandTestCase {
 	 * Test failure to format changelog.
 	 */
 	public function testWriteChangelog_formatError() {
-		$formatter = $this->getMockBuilder( FormatterPlugin::class )
-			->setMethodsExcept( array() )
-			->getMock();
+		$formatter = $this->getMockBuilder( FormatterPlugin::class )->getMock();
 		$formatter->expects( $this->never() )->method( $this->logicalNot( $this->matches( 'format' ) ) );
 		$formatter->method( 'format' )->willThrowException( new InvalidArgumentException( 'Exception for test.' ) );
 
@@ -1099,9 +1097,7 @@ class WriteCommandTest extends CommandTestCase {
 	public function testWriteChangelog_writeError() {
 		mkdir( 'CHANGELOG.md' );
 
-		$formatter = $this->getMockBuilder( FormatterPlugin::class )
-			->setMethodsExcept( array() )
-			->getMock();
+		$formatter = $this->getMockBuilder( FormatterPlugin::class )->getMock();
 		$formatter->expects( $this->never() )->method( $this->logicalNot( $this->matches( 'format' ) ) );
 		$formatter->method( 'format' )->willReturn( "Changelog!\n" );
 
@@ -1142,6 +1138,7 @@ class WriteCommandTest extends CommandTestCase {
 	 * Test execute handling of writeChangelog failing.
 	 */
 	public function testExecute_writeChangelog_fail() {
+		// @phan-suppress-next-line PhanDeprecatedFunction -- Hopefully we drop PHP <7.2 before having to deal with this, as the designated replacement isn't until PHPUnit 8.
 		$command = $this->getMockBuilder( WriteCommand::class )
 			->setMethods( array( 'writeChangelog', 'deleteChanges' ) )
 			->getMock();

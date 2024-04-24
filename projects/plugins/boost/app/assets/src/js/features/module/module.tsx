@@ -58,7 +58,7 @@ const Module = ( {
 	}
 
 	return (
-		<div className={ styles.module }>
+		<div className={ styles.module } data-testid={ `module-${ slug }` }>
 			<div className={ styles.toggle }>
 				{ toggle && (
 					<ToggleControl

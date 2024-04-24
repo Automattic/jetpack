@@ -74,9 +74,7 @@ describe( 'GifEdit', () => {
 		const { container } = render( <GifEdit { ...defaultProps } /> );
 		expect(
 			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-			container.querySelector(
-				`.${ defaultProps.className }.align${ defaultProps.attributes.align }`
-			)
+			container.querySelector( `.align${ defaultProps.attributes.align }` )
 		).toBeInTheDocument();
 	} );
 
