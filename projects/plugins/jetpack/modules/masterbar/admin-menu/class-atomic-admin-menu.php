@@ -157,7 +157,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'plugins.php' ) ) {
 			$submenus_to_update = array( 'plugin-install.php' => $plugins_slug );
 			$this->update_submenus( 'plugins.php', $submenus_to_update );
-			$this->add_scheduled_updates_menu();
 			return;
 		}
 
