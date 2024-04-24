@@ -87,11 +87,11 @@ class SetCookieSniff extends AbstractFunctionParameterSniff {
 		}
 		$arrayItems    = PassedParameters::getParameters( $this->phpcsFile, $arrStart, 0, true );
 		$httponlyPos   = null;
-		$httponlyValue = null;
+		$httponlyValue = '';
 		foreach ( $arrayItems as $arrayItem ) {
 			try {
 				$arrowPtr = Arrays::getDoubleArrowPtr( $this->phpcsFile, $arrayItem['start'], $arrayItem['end'] );
-			} catch ( RuntimeException $e ) {
+			} catch ( \RuntimeException $e ) {
 				// Parse error: empty array item. Ignore.
 				continue;
 			}
