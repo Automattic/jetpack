@@ -316,7 +316,7 @@ class Client {
 	/**
 	 * Sets the time difference for correct signature computation.
 	 *
-	 * @param array $response Response array from `wp_remote_request`.
+	 * @param array|\WP_Error $response Response array from `wp_remote_request`, or WP_Error on error.
 	 * @param bool  $force_set whether to force setting the time difference.
 	 */
 	public static function set_time_diff( &$response, $force_set = false ) {
