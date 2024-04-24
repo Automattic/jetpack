@@ -99,6 +99,7 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	 */
 	public function get_items( $request ) {
 		if ( ! $this->is_wpcom ) {
+			// @phan-suppress-next-line PhanTypeMismatchReturn
 			return $this->prepare_items_for_response( $this->proxy_request_to_wpcom( $request ) );
 		}
 
@@ -114,6 +115,7 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 		remove_action( 'pre_get_posts', array( $this, 'modify_query' ) );
 		restore_current_blog();
 
+		// @phan-suppress-next-line PhanTypeMismatchArgument,PhanTypeMismatchReturn
 		return $this->prepare_items_for_response( $items );
 	}
 
