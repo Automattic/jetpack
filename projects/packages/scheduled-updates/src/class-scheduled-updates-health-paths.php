@@ -112,8 +112,6 @@ class Scheduled_Updates_Health_Paths {
 		}
 
 		if ( array_key_exists( 'host', $parsed ) ) {
-			$site_url = wp_parse_url( get_site_url() );
-
 			if ( $site_url['host'] !== $parsed['host'] ) {
 				return new WP_Error( 'rest_invalid_path', __( 'The URL is not from the current site.', 'jetpack-scheduled-updates' ) );
 			}
