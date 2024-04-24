@@ -739,9 +739,19 @@ final class ZeroBSCRM {
 
 					foreach ( $notices as $notice ) {
 						wp_admin_notice(
-							$notice['html'],
+							wp_kses(
+								$notice['html'],
+								array(
+									'a' => array(
+										'href'   => array(),
+										'target' => array(),
+										'class'  => array(),
+									),
+									'p' => array(),
+								)
+							),
 							array(
-								'type'           => $notice['class'],
+								'type'           => esc_attr( $notice['class'] ),
 								'dismissible'    => true,
 								'paragraph_wrap' => false,
 							)
