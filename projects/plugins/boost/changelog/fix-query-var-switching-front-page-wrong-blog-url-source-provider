@@ -1,5 +1,5 @@
 Significance: patch
 Type: fixed
-Comment: Fixed switching content of home page during critical css generation.
-Fixed returning home url instead of posts url for posts page source provider.
+Comment: Fixed switching content of home page during critical css generation. Fixed returning home url instead of posts url for posts page source provider.
+
 
