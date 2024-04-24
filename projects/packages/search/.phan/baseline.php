@@ -11,9 +11,9 @@ return [
     // # Issue statistics:
     // PhanUnextractableAnnotation : 45+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 10+ occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 10+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 9 occurrences
     // PhanTypeMismatchArgument : 7 occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 7 occurrences
     // PhanRedundantCondition : 6 occurrences
     // PhanUndeclaredProperty : 6 occurrences
     // PhanTypeMismatchReturn : 5 occurrences
@@ -44,9 +44,8 @@ return [
         'src/class-cli.php' => ['PhanTypeMismatchArgument'],
         'src/class-helper.php' => ['PhanDeprecatedPartiallySupportedCallable', 'PhanImpossibleCondition', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference'],
         'src/class-options.php' => ['PhanPluginSimplifyExpressionBool'],
-        'src/class-plan.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUnextractableAnnotation'],
-        'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentProbablyReal'],
-        'src/class-stats.php' => ['PhanTypeMismatchArgumentProbablyReal'],
+        'src/class-plan.php' => ['PhanDeprecatedFunction', 'PhanUnextractableAnnotation'],
+        'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-template-tags.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'src/classic-search/class-classic-search.php' => ['PhanImpossibleCondition', 'PhanPluginRedundantAssignment', 'PhanRedundantCondition', 'PhanTypeComparisonToArray', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchDeclaredParamNullable', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturn', 'PhanTypePossiblyInvalidDimOffset'],
         'src/customizer/customize-controls/class-excluded-post-types-control.php' => ['PhanRedundantCondition', 'PhanTypeMismatchReturnProbablyReal'],

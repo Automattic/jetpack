@@ -410,6 +410,17 @@ abstract class SAL_Site {
 	abstract public function get_user_interactions();
 
 	/**
+	 * Return the user interactions with a site. Not used in Jetpack.
+	 *
+	 * @param string $role The capability to check.
+	 * @return bool
+	 * @see class.json-api-site-jetpack.php for implementation.
+	 * @see class.json-api-site-wpcom.php (on WPCOM) for Simple-site implementation.
+	 * @see class.json-api-site-jetpack-shadow.php (on WPCOM) for Atomic-site implementation.
+	 */
+	abstract public function current_user_can( $role );
+
+	/**
 	 * Defines a filter to set whether a site is an automated_transfer site or not.
 	 *
 	 * Default is false.
@@ -903,24 +914,24 @@ abstract class SAL_Site {
 		$is_wpcom_blog_owner = wpcom_get_blog_owner() === (int) get_current_user_id();
 
 		return array(
-			'edit_pages'          => current_user_can( 'edit_pages' ),
-			'edit_posts'          => current_user_can( 'edit_posts' ),
-			'edit_others_posts'   => current_user_can( 'edit_others_posts' ),
-			'edit_others_pages'   => current_user_can( 'edit_others_pages' ),
-			'delete_posts'        => current_user_can( 'delete_posts' ),
-			'delete_others_posts' => current_user_can( 'delete_others_posts' ),
-			'edit_theme_options'  => current_user_can( 'edit_theme_options' ),
-			'edit_users'          => current_user_can( 'edit_users' ),
-			'list_users'          => current_user_can( 'list_users' ),
-			'manage_categories'   => current_user_can( 'manage_categories' ),
-			'manage_options'      => current_user_can( 'manage_options' ),
-			'moderate_comments'   => current_user_can( 'moderate_comments' ),
+			'edit_pages'          => $this->current_user_can( 'edit_pages' ),
+			'edit_posts'          => $this->current_user_can( 'edit_posts' ),
+			'edit_others_posts'   => $this->current_user_can( 'edit_others_posts' ),
+			'edit_others_pages'   => $this->current_user_can( 'edit_others_pages' ),
+			'delete_posts'        => $this->current_user_can( 'delete_posts' ),
+			'delete_others_posts' => $this->current_user_can( 'delete_others_posts' ),
+			'edit_theme_options'  => $this->current_user_can( 'edit_theme_options' ),
+			'edit_users'          => $this->current_user_can( 'edit_users' ),
+			'list_users'          => $this->current_user_can( 'list_users' ),
+			'manage_categories'   => $this->current_user_can( 'manage_categories' ),
+			'manage_options'      => $this->current_user_can( 'manage_options' ),
+			'moderate_comments'   => $this->current_user_can( 'moderate_comments' ),
 			'activate_wordads'    => $is_wpcom_blog_owner,
-			'promote_users'       => current_user_can( 'promote_users' ),
-			'publish_posts'       => current_user_can( 'publish_posts' ),
-			'upload_files'        => current_user_can( 'upload_files' ),
-			'delete_users'        => current_user_can( 'delete_users' ),
-			'remove_users'        => current_user_can( 'remove_users' ),
+			'promote_users'       => $this->current_user_can( 'promote_users' ),
+			'publish_posts'       => $this->current_user_can( 'publish_posts' ),
+			'upload_files'        => $this->current_user_can( 'upload_files' ),
+			'delete_users'        => $this->current_user_can( 'delete_users' ),
+			'remove_users'        => $this->current_user_can( 'remove_users' ),
 			'own_site'            => $is_wpcom_blog_owner,
 			/**
 			 * Filter whether the Hosting section in Calypso should be available for site.
@@ -933,7 +944,8 @@ abstract class SAL_Site {
 			 */
 			'view_hosting'        => apply_filters( 'jetpack_json_api_site_can_view_hosting', false ),
 			'view_stats'          => stats_is_blog_user( $this->blog_id ),
-			'activate_plugins'    => current_user_can( 'activate_plugins' ),
+			'activate_plugins'    => $this->current_user_can( 'activate_plugins' ),
+			'update_plugins'      => $this->current_user_can( 'update_plugins' ),
 		);
 	}
 

@@ -14,7 +14,6 @@ return [
     // PhanParamTooMany : 10+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 10+ occurrences
     // PhanAbstractStaticMethodCallInStatic : 8 occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 8 occurrences
     // PhanUndeclaredClassMethod : 8 occurrences
     // PhanNoopNew : 6 occurrences
     // PhanTypeMismatchReturn : 6 occurrences
@@ -24,6 +23,7 @@ return [
     // PhanTypeMismatchReturnNullable : 3 occurrences
     // PhanImpossibleCondition : 2 occurrences
     // PhanNonClassMethodCall : 2 occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 2 occurrences
     // PhanPluginMixedKeyNoKey : 1 occurrence
     // PhanRedundantCondition : 1 occurrence
     // PhanTypeMismatchArgumentInternal : 1 occurrence
@@ -44,7 +44,7 @@ return [
         'src/class-rest-zendesk-chat.php' => ['PhanParamTooMany', 'PhanUnextractableAnnotationSuffix'],
         'src/class-wpcom-products.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUnextractableAnnotation'],
         'src/products/class-anti-spam.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
-        'src/products/class-backup.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyDefault'],
+        'src/products/class-backup.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
         'src/products/class-boost.php' => ['PhanTypeMismatchPropertyDefault'],
         'src/products/class-creator.php' => ['PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchReturnProbablyReal'],
         'src/products/class-crm.php' => ['PhanTypeMismatchPropertyDefault'],
@@ -53,10 +53,9 @@ return [
         'src/products/class-jetpack-ai.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod'],
         'src/products/class-module-product.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod'],
         'src/products/class-product.php' => ['PhanAbstractStaticMethodCallInStatic', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
-        'src/products/class-protect.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyDefault'],
-        'src/products/class-scan.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal'],
-        'src/products/class-search-stats.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'src/products/class-search.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchReturnNullable', 'PhanUndeclaredClassMethod'],
+        'src/products/class-protect.php' => ['PhanTypeMismatchPropertyDefault'],
+        'src/products/class-scan.php' => ['PhanTypeMismatchArgumentNullable'],
+        'src/products/class-search.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchReturnNullable', 'PhanUndeclaredClassMethod'],
         'src/products/class-security.php' => ['PhanTypeMismatchArgumentNullable'],
         'src/products/class-social.php' => ['PhanTypeMismatchPropertyDefault'],
         'src/products/class-starter.php' => ['PhanTypeMismatchArgumentNullable'],

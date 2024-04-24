@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Improve phpdoc comments in Client class, and remove some unnecessary boolean checks.
