@@ -40,7 +40,7 @@ case "$WP_BRANCH" in
 	previous)
 		# We hard-code the version here because there's a time near WP releases where
 		# we've dropped the old 'previous' but WP hasn't actually released the new 'latest'
-		TAG=6.3
+		TAG=6.4
 		;;
 	*)
 		echo "Unrecognized value for WP_BRANCH: $WP_BRANCH" >&2
