@@ -96,6 +96,24 @@
 		min-height: 32px;
 		margin-bottom: 0;
 	}
+
+	.upsell_banner__dismiss {
+		background-color: transparent;
+		color: inherit;
+		min-height: 0;
+		font-size: 12px;
+		line-height: 16px;
+		text-align: center;
+		margin-top: -2px;
+
+		&:hover {
+			background-color: transparent;
+		}
+
+		&:focus {
+			box-shadow: none;
+		}
+	}
 }
 
 @mixin folded {
@@ -118,7 +136,8 @@
 		}
 
 		.upsell_banner__text,
-		.upsell_banner__action {
+		.upsell_banner__action,
+		.upsell_banner__dismiss {
 			display: none;
 		}
 	}

@@ -244,10 +244,14 @@ function wpcom_site_menu_enqueue_scripts() {
 			'wpcom-site-menu',
 			'wpcomSidebarNotice',
 			array(
-				'url'         => esc_url( $link ),
-				'text'        => wp_kses( $notice['content'], array() ),
-				'action'      => wp_kses( $notice['cta'], array() ),
-				'dismissible' => $notice['dismissible'],
+				'url'          => esc_url( $link ),
+				'text'         => wp_kses( $notice['content'], array() ),
+				'action'       => wp_kses( $notice['cta'], array() ),
+				'dismissible'  => $notice['dismissible'],
+				'dismissLabel' => esc_html__( 'Dismiss', 'jetpack-mu-wpcom' ),
+				'id'           => $notice['id'],
+				'featureClass' => $notice['feature_class'],
+				'dismissNonce' => wp_create_nonce( 'wpcom_dismiss_sidebar_notice' ),
 			)
 		);
 	}
@@ -285,14 +289,34 @@ function wpcom_get_sidebar_notice() {
 	$message = json_decode( wp_json_encode( $message[0] ) );
 
 	return array(
-		'content'           => $message->content->message,
-		'cta'               => $message->CTA->message, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			'link'          => $message->CTA->link, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			'dismissible'   => $message->is_dismissible,
-			'feature_class' => $message->feature_class,
-			'id'            => $message->id,
+		'content'       => $message->content->message,
+		'cta'           => $message->CTA->message, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		'link'          => $message->CTA->link, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		'dismissible'   => $message->is_dismissible,
+		'feature_class' => $message->feature_class,
+		'id'            => $message->id,
 	);
 }
+
+/**
+ * Handle AJAX requests to dismiss a sidebar notice;
+ */
+function wpcom_dismiss_sidebar_notice() {
+	check_ajax_referer( 'wpcom_dismiss_sidebar_notice' );
+	if ( isset( $_REQUEST['id'] ) && isset( $_REQUEST['feature_class'] ) ) {
+		$id            = sanitize_text_field( wp_unslash( $_REQUEST['id'] ) );
+		$feature_class = sanitize_text_field( wp_unslash( $_REQUEST['feature_class'] ) );
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			require_lib( 'jetpack-jitm/jitm-engine' );
+			\JITM\Engine::dismiss( $id, $feature_class );
+		} else {
+			$jitm = \Automattic\Jetpack\JITMS\JITM::get_instance();
+			$jitm->dismiss( $id, $feature_class );
+		}
+	}
+	wp_die();
+}
+add_action( 'wp_ajax_wpcom_dismiss_sidebar_notice', 'wpcom_dismiss_sidebar_notice' );
 
 /**
  * Add the WordPress.com submenu items related to Jetpack under the Jetpack menu on the wp-admin sidebar.
