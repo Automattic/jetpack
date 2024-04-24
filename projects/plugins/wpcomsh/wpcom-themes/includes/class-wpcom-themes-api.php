@@ -17,6 +17,11 @@ class WPCom_Themes_Api {
 	const WP_COM_THEMES_API_URL = 'https://public-api.wordpress.com/rest/v1.2/themes?http_envelope=1&page=1&number=1000';
 
 	/**
+	 * The URL of the WordPress.com theme API.
+	 */
+	const WP_COM_THEME_API_URL = 'https://public-api.wordpress.com/rest/v1.2/themes/%s?http_envelope=1';
+
+	/**
 	 * Cache handler.
 	 *
 	 * @var WPCom_Themes_Cache $cache
@@ -43,21 +48,31 @@ class WPCom_Themes_Api {
 	 */
 	protected function fetch_themes( string $cache_key, array $params = array() ): array {
 		$url = add_query_arg( $params, self::WP_COM_THEMES_API_URL );
+
 		return $this->cache->run_cached(
 			$cache_key,
-			function () use ( $url ) {
-				$response = wp_remote_get( esc_url_raw( $url ) );
-				if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
-					$body_json = json_decode( wp_remote_retrieve_body( $response ) );
-
-					if ( isset( $body_json->body->themes ) ) {
-						return $body_json->body->themes;
-					}
-				}
-
-				return array();
-			}
+			fn() => $this->handle_request( $url )->themes ?? array()
 		);
+	}
+
+	/**
+	 * Fetches the response from the given URL.
+	 *
+	 * @param string $url URL to fetch.
+	 *
+	 * @return ?stdClass Response body.
+	 */
+	protected function handle_request( string $url ): ?stdClass {
+		$response = wp_remote_get( esc_url_raw( $url ) );
+		if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
+			$body_json = json_decode( wp_remote_retrieve_body( $response ) );
+
+			if ( isset( $body_json->body ) ) {
+				return $body_json->body;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -65,8 +80,30 @@ class WPCom_Themes_Api {
 	 *
 	 * @return array<stdClass> An array with all the WPCom themes.
 	 */
-	public function fetch_all_themes(): array {
+	public function fetch_all_non_delisted_themes(): array {
 		return $this->fetch_themes( 'wpcom-themes-all' );
+	}
+
+	/**
+	 * Returns the WP.com theme with the given slug.
+	 *
+	 * @param string $slug Theme slug
+	 *
+	 * @return stdClass|null A WPCom theme object or null if not found.
+	 */
+	public function fetch_theme( string $slug ): ?stdClass {
+		$url = sprintf( self::WP_COM_THEME_API_URL, $slug );
+
+		$theme = $this->cache->run_cached(
+			'wpcom-themes-' . $slug,
+			fn() => $this->handle_request( $url )
+		);
+
+		if ( ! $theme || isset( $theme->error ) ) {
+			return null;
+		}
+
+		return $theme;
 	}
 
 	/**

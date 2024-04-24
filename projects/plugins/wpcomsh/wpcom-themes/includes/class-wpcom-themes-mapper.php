@@ -54,7 +54,7 @@ class WPCom_Themes_Mapper {
 
 		// Some themes returned by the API do not have a download URI, but they are installable since they're managed by WP.com.
 		// In those cases we generate a fake download url so that we can find the theme by download url even though it's not a real download link.
-		$theme->download_link        = $wpcom_theme->download_uri ?? $wpcom_theme->id;
+		$theme->download_link        = $wpcom_theme->id;
 		$theme->is_commercial        = false;
 		$theme->external_support_url = false;
 		$theme->is_community         = false;

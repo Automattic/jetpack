@@ -198,9 +198,9 @@ function wpcomsh_remove_symlink_wp_error( $code, $message, $data, WP_Error $erro
  *
  * @return bool|mixed|WP_Error
  */
-function wpcomsh_theme_install_by_symlink( $reply, $package, WP_Upgrader $upgrader ) {
+function wpcomsh_theme_install_by_symlink( $reply, string $package, WP_Upgrader $upgrader ) {
 	$wpcom_themes_service = wpcomsh_get_wpcom_themes_service_instance();
-	$wpcom_theme          = $wpcom_themes_service->get_theme_by_download_url( $package );
+	$wpcom_theme          = $wpcom_themes_service->get_theme( $package );
 
 	// Pre-requisites checks.
 	if ( ! $wpcom_theme ) {

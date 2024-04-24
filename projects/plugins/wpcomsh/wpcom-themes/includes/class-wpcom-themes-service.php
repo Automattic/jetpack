@@ -126,34 +126,13 @@ class WPCom_Themes_Service {
 	 * @return stdClass|null The theme object if found, null otherwise.
 	 */
 	public function get_theme( string $slug ): ?stdClass {
-		$wpcom_themes = $this->api->fetch_all_themes();
-		$wpcom_themes = $this->map_and_filter_wpcom_themes( $wpcom_themes );
-		foreach ( $wpcom_themes as $wpcom_theme ) {
-			if ( $wpcom_theme->slug === $slug ) {
-				return $wpcom_theme;
-			}
+		$wpcom_theme = $this->api->fetch_theme( $slug );
+
+		if ( ! $wpcom_theme ) {
+			return null;
 		}
 
-		return null;
-	}
-
-	/**
-	 * Search for a theme by its download url.
-	 *
-	 * @param string $url The download URL of the theme.
-	 *
-	 * @return stdClass|null The wporg theme object if found, null otherwise.
-	 */
-	public function get_theme_by_download_url( string $url ): ?stdClass {
-		$wpcom_themes = $this->api->fetch_all_themes();
-		$wpcom_themes = $this->map_and_filter_wpcom_themes( $wpcom_themes );
-		foreach ( $wpcom_themes as $wpcom_theme ) {
-			if ( $wpcom_theme->download_link === $url ) {
-				return $wpcom_theme;
-			}
-		}
-
-		return null;
+		return $this->mapper->map_wpcom_to_wporg( $wpcom_theme );
 	}
 
 	/**
@@ -164,7 +143,7 @@ class WPCom_Themes_Service {
 	 * @return stdClass The themes API result including wpcom themes.
 	 */
 	public function filter_themes_api_result_latest( stdClass $wporg_theme_api_response ): stdClass {
-		$wpcom_themes = $this->api->fetch_all_themes();
+		$wpcom_themes = $this->api->fetch_all_non_delisted_themes();
 		$wpcom_themes = $this->map_and_filter_wpcom_themes( $wpcom_themes );
 
 		return $this->merger->merge_by_release_date( $wporg_theme_api_response, $wpcom_themes );
@@ -178,7 +157,7 @@ class WPCom_Themes_Service {
 	 * @return stdClass The themes API result including wpcom themes.
 	 */
 	public function filter_themes_api_result_block_themes( stdClass $wporg_theme_api_response ): stdClass {
-		$wpcom_themes = $this->api->fetch_all_themes();
+		$wpcom_themes = $this->api->fetch_all_non_delisted_themes();
 		$wpcom_themes = array_filter(
 			$wpcom_themes,
 			fn( $theme ) => $theme->block_theme
@@ -197,7 +176,7 @@ class WPCom_Themes_Service {
 	 * @return stdClass The themes API result including wpcom themes.
 	 */
 	public function filter_themes_api_result_feature_filter( stdClass $wporg_theme_api_response, array $tags ): stdClass {
-		$wpcom_themes = $this->api->fetch_all_themes();
+		$wpcom_themes = $this->api->fetch_all_non_delisted_themes();
 		$wpcom_themes = $this->map_and_filter_wpcom_themes( $wpcom_themes );
 
 		$wpcom_themes = array_filter(
