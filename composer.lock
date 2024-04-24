@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "02f92def2ba7aea3f906f91528261cf5",
+    "content-hash": "ea0720f27be9bac14e63538bec9535f0",
     "packages": [],
     "packages-dev": [
         {
@@ -1025,27 +1025,25 @@
         },
         {
             "name": "php-stubs/wordpress-stubs",
-            "version": "v6.4.3",
+            "version": "v6.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/wordpress-stubs.git",
-                "reference": "6105bdab2f26c0204fe90ecc53d5684754550e8f"
+                "reference": "286d42eeb44c6808633cc59b8dbb9aa75fe41264"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/wordpress-stubs/zipball/6105bdab2f26c0204fe90ecc53d5684754550e8f",
-                "reference": "6105bdab2f26c0204fe90ecc53d5684754550e8f",
+                "url": "https://api.github.com/repos/php-stubs/wordpress-stubs/zipball/286d42eeb44c6808633cc59b8dbb9aa75fe41264",
+                "reference": "286d42eeb44c6808633cc59b8dbb9aa75fe41264",
                 "shasum": ""
             },
             "require-dev": {
-                "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
                 "nikic/php-parser": "^4.13",
                 "php": "^7.4 || ~8.0.0",
                 "php-stubs/generator": "^0.8.3",
                 "phpdocumentor/reflection-docblock": "^5.3",
-                "phpstan/phpstan": "^1.10.49",
-                "phpunit/phpunit": "^9.5",
-                "szepeviktor/phpcs-psr-12-neutron-hybrid-ruleset": "^0.11"
+                "phpstan/phpstan": "^1.10.12",
+                "phpunit/phpunit": "^9.5"
             },
             "suggest": {
                 "paragonie/sodium_compat": "Pure PHP implementation of libsodium",
@@ -1066,22 +1064,22 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/wordpress-stubs/issues",
-                "source": "https://github.com/php-stubs/wordpress-stubs/tree/v6.4.3"
+                "source": "https://github.com/php-stubs/wordpress-stubs/tree/v6.4.0"
             },
-            "time": "2024-02-11T18:56:19+00:00"
+            "time": "2023-11-08T07:02:08+00:00"
         },
         {
             "name": "php-stubs/wordpress-tests-stubs",
-            "version": "v6.5.0",
+            "version": "v6.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/wordpress-tests-stubs.git",
-                "reference": "7d6649a7e91d92aea7a191d2c1f621605d310f4e"
+                "reference": "e7d6d1653f2347cd016f66fb9cd74d7cf7360b49"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/wordpress-tests-stubs/zipball/7d6649a7e91d92aea7a191d2c1f621605d310f4e",
-                "reference": "7d6649a7e91d92aea7a191d2c1f621605d310f4e",
+                "url": "https://api.github.com/repos/php-stubs/wordpress-tests-stubs/zipball/e7d6d1653f2347cd016f66fb9cd74d7cf7360b49",
+                "reference": "e7d6d1653f2347cd016f66fb9cd74d7cf7360b49",
                 "shasum": ""
             },
             "require-dev": {
@@ -1106,9 +1104,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/wordpress-tests-stubs/issues",
-                "source": "https://github.com/php-stubs/wordpress-tests-stubs/tree/v6.5.0"
+                "source": "https://github.com/php-stubs/wordpress-tests-stubs/tree/v6.4.0"
             },
-            "time": "2024-04-02T18:38:25+00:00"
+            "time": "2024-02-26T13:52:25+00:00"
         },
         {
             "name": "php-stubs/wp-cli-stubs",
@@ -2921,7 +2919,7 @@
         "automattic/jetpack-phpcs-filter": 20
     },
     "prefer-stable": true,
-    "prefer-lowest": false,
+    "prefer-lowest": true,
     "platform": {
         "ext-json": "*"
     },
