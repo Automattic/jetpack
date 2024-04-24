@@ -45,6 +45,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 		),
 
 		'request_format'      => array(
+			'migration_source_site_domain'            => '(string) The source site URL, from the migration flow',
 			'in_site_migration_flow'                  => '(bool) Whether the site is currently in the Site Migration signup flow.',
 			'blogname'                                => '(string) Blog name',
 			'blogdescription'                         => '(string) Blog description',
@@ -470,6 +471,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'highlander_comment_form_prompt'   => $this->get_highlander_comment_form_prompt_option(),
 						'jetpack_comment_form_color_scheme' => (string) get_option( 'jetpack_comment_form_color_scheme' ),
 						'in_site_migration_flow'           => (bool) get_option( 'in_site_migration_flow', 0 ),
+						'migration_source_site_domain'     => (string) get_option( 'migration_source_site_domain' ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
