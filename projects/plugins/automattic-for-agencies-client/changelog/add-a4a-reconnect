@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Added reconnection flow to the A4A client plugin.

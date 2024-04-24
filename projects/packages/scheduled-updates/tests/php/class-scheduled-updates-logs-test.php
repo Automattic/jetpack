@@ -292,8 +292,9 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 			array(
 				'plugins'  => $scheduled_plugins,
 				'schedule' => array(
-					'timestamp' => strtotime( "next Monday {$i}:00" ),
-					'interval'  => 'weekly',
+					'timestamp'          => strtotime( "next Monday {$i}:00" ),
+					'interval'           => 'weekly',
+					'health_check_paths' => array(),
 				),
 			)
 		);

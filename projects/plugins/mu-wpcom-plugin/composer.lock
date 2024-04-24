@@ -129,7 +129,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "363a5e59793e0ffbd391e6a01fe3a12f5cd57093"
+                "reference": "30ac1e53eb4561f4e378612c0a52e34bd0a36f4a"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -153,7 +153,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.25.x-dev"
+                    "dev-trunk": "5.26.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -199,7 +199,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "90b8d62a2a976c5a39114c1e6f295faaa5ebb2d0"
+                "reference": "59fb86d4efb879b475bc17203e74303b28fca2a0"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -222,7 +222,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.2.x-dev"
+                    "dev-trunk": "3.0.x-dev"
                 }
             },
             "autoload": {
@@ -252,7 +252,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/scheduled-updates",
-                "reference": "a829494dc67c0e478c7f1b500986dff319081f23"
+                "reference": "ce33d9393f024efd66071ea0eae3758f000748cc"
             },
             "require": {
                 "php": ">=7.0"
@@ -275,7 +275,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.8.x-dev"
+                    "dev-trunk": "0.9.x-dev"
                 },
                 "textdomain": "jetpack-scheduled-updates",
                 "version-constants": {
