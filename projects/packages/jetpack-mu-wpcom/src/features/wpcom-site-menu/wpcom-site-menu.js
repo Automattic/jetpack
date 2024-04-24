@@ -22,9 +22,7 @@ const wpcomShowSidebarNotice = () => {
 						<div class="upsell_banner">
 							<div class="upsell_banner__icon dashicons" aria-hidden="true"></div>
 							<div class="upsell_banner__text">${ wpcomSidebarNotice.text }</div>
-							<button type="button" class="upsell_banner__action button button-primary">${
-								wpcomSidebarNotice.action
-							}</button>
+							<button type="button" class="upsell_banner__action button">${ wpcomSidebarNotice.action }</button>
 							${
 								wpcomSidebarNotice.dismissible === '1'
 									? '<button type="button" class="upsell_banner__dismiss button button-link">' +
