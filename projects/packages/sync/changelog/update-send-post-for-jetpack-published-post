@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Sync: When publishing post, sending the actual post in the jetpack_published_post action to avoid sending unnecessary extra action.
