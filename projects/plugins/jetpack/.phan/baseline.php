@@ -34,11 +34,11 @@ return [
     // PhanUndeclaredProperty : 35+ occurrences
     // PhanParamSignatureMismatch : 30+ occurrences
     // PhanTypeMismatchPropertyProbablyReal : 30+ occurrences
-    // PhanUndeclaredFunction : 30+ occurrences
     // PhanDeprecatedProperty : 25+ occurrences
     // PhanPluginSimplifyExpressionBool : 25+ occurrences
     // PhanTypeMismatchDefault : 25+ occurrences
     // PhanTypeMissingReturn : 25+ occurrences
+    // PhanUndeclaredFunction : 25+ occurrences
     // PhanUnextractableAnnotation : 25+ occurrences
     // PhanUnextractableAnnotationSuffix : 25+ occurrences
     // PhanMisspelledAnnotation : 20+ occurrences
@@ -127,7 +127,7 @@ return [
         '3rd-party/bbpress.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredFunction'],
         '3rd-party/class-domain-mapping.php' => ['PhanUndeclaredClassInCallable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunctionInCallable', 'PhanUndeclaredTypeReturnType'],
         '3rd-party/class-jetpack-bbpress-rest-api.php' => ['PhanUndeclaredFunction', 'PhanUnextractableAnnotationSuffix'],
-        '3rd-party/class.jetpack-amp-support.php' => ['PhanDeprecatedFunction', 'PhanParamTooMany', 'PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable'],
+        '3rd-party/class.jetpack-amp-support.php' => ['PhanDeprecatedFunction', 'PhanParamTooMany'],
         '3rd-party/debug-bar/class-jetpack-search-debug-bar.php' => ['PhanUndeclaredExtendedClass', 'PhanUndeclaredMethod'],
         '3rd-party/qtranslate-x.php' => ['PhanTypeMismatchReturn'],
         '3rd-party/woocommerce.php' => ['PhanParamTooMany'],
