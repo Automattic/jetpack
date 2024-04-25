@@ -31,21 +31,27 @@ export default function TitleOptimization( {
 	const [ options, setOptions ] = useState( [] );
 	const { editPost } = useDispatch( 'core/editor' );
 	const { autosave } = useAutoSaveAndRedirect();
+	const { increaseAiAssistantRequestsCount } = useDispatch( 'wordpress-com/plans' );
 
 	const toggleTitleOptimizationModal = useCallback( () => {
 		setIsTitleOptimizationModalVisible( ! isTitleOptimizationModalVisible );
 	}, [ isTitleOptimizationModalVisible ] );
 
-	const handleDone = useCallback( ( content: string ) => {
-		setGenerating( false );
-		try {
-			const parsedContent = JSON.parse( content );
-			setOptions( parsedContent );
-			setSelected( parsedContent?.[ 0 ]?.title );
-		} catch ( e ) {
-			// Do nothing
-		}
-	}, [] );
+	const handleDone = useCallback(
+		( content: string ) => {
+			setGenerating( false );
+			increaseAiAssistantRequestsCount();
+
+			try {
+				const parsedContent = JSON.parse( content );
+				setOptions( parsedContent );
+				setSelected( parsedContent?.[ 0 ]?.title );
+			} catch ( e ) {
+				// Do nothing
+			}
+		},
+		[ increaseAiAssistantRequestsCount ]
+	);
 
 	const { request } = useAiSuggestions( {
 		onDone: handleDone,
