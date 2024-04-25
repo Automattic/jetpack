@@ -151,7 +151,7 @@ class Posts extends Module {
 		add_action( 'jetpack_sync_save_post', $callable, 10, 4 );
 
 		add_action( 'deleted_post', $callable, 10 );
-		add_action( 'jetpack_published_post', $callable, 10, 2 );
+		add_action( 'jetpack_published_post', $callable, 10, 3 );
 		add_filter( 'jetpack_sync_before_enqueue_deleted_post', array( $this, 'filter_blacklisted_post_types_deleted' ) );
 
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
@@ -732,10 +732,6 @@ class Posts extends Module {
 		// Only Send Pulished Post event if post_type is not blacklisted.
 		if ( ! in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true ) ) {
 
-			// Refreshing the post in the cache site before triggering the publish event.
-			// The true parameter means that it's an update action, not create action.
-			$this->wp_insert_post( $post_ID, $post, true );
-
 			/**
 			 * Action that gets synced when a post type gets published.
 			 *
@@ -744,8 +740,9 @@ class Posts extends Module {
 			 *
 			 * @param int $post_ID
 			 * @param mixed array $flags post flags that are added to the post
+			 * @param WP_Post $post The post object
 			 */
-			do_action( 'jetpack_published_post', $post_ID, $flags );
+			do_action( 'jetpack_published_post', $post_ID, $flags, $post );
 		}
 		unset( $this->just_published[ $post_ID ] );
 
