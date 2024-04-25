@@ -49,7 +49,7 @@ class Authorize_Json_Api {
 		}
 
 		list( $env_token,, $env_user_id ) = explode( ':', $environment['token'] );
-		$token                            = ( new Tokens() )->get_access_token( $env_user_id, $env_token );
+		$token                            = ( new Tokens() )->get_access_token( (int) $env_user_id, $env_token );
 		if ( ! $token || empty( $token->secret ) ) {
 			wp_die( esc_html__( 'You must connect your Jetpack plugin to WordPress.com to use this feature.', 'jetpack-connection' ) );
 		}
@@ -224,17 +224,21 @@ class Authorize_Json_Api {
 	 *
 	 * @since $$next-version$$ Ported from Jetpack to the Connection package.
 	 *
-	 * @param string  $redirect_to URL.
-	 * @param string  $original_redirect_to URL.
-	 * @param WP_User $user WP_User for the redirect.
+	 * @param string   $redirect_to URL.
+	 * @param string   $original_redirect_to URL.
+	 * @param \WP_User $user WP_User for the redirect.
 	 *
 	 * @return string
 	 */
-	public function add_token_to_login_redirect_json_api_authorization( $redirect_to, $original_redirect_to, $user ) {
+	public function add_token_to_login_redirect_json_api_authorization( $redirect_to, $original_redirect_to, $user ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return add_query_arg(
 			urlencode_deep(
 				array(
-					'jetpack-code'    => get_user_meta( $user->ID, 'jetpack_json_api_' . $this->json_api_authorization_request['client_id'], true ),
+					'jetpack-code'    => get_user_meta(
+						$user->ID,
+						'jetpack_json_api_' . $this->json_api_authorization_request['client_id'],
+						true
+					),
 					'jetpack-user-id' => (int) $user->ID,
 					'jetpack-state'   => $this->json_api_authorization_request['state'],
 				)
