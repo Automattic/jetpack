@@ -704,11 +704,11 @@ function render_for_website( $data, $classes, $styles ) {
 		$post_id = get_option( 'page_on_front' );
 	}
 
-	$subscribe_field_id     = apply_filters( 'subscribe_field_id', 'subscribe-field' . $widget_id_suffix, $data['widget_id'] );
-	$tier_id                = get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true );
-	$is_subscribed          = Jetpack_Memberships::is_current_user_subscribed();
-	$button_text            = get_submit_button_text( $data );
-	$show_subscribers_count = $data['show_subscribers_total'] && $data['subscribers_total'] && ! $is_subscribed;
+	$subscribe_field_id    = apply_filters( 'subscribe_field_id', 'subscribe-field' . $widget_id_suffix, $data['widget_id'] );
+	$tier_id               = get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true );
+	$is_subscribed         = Jetpack_Memberships::is_current_user_subscribed();
+	$button_text           = get_submit_button_text( $data );
+	$show_subscriber_count = $data['show_subscribers_total'] && $data['subscribers_total'] && ! $is_subscribed;
 
 	ob_start();
 
@@ -828,7 +828,7 @@ function render_for_website( $data, $classes, $styles ) {
 					</div>
 				</form>
 			<?php endif; ?>
-			<?php if ( $show_subscribers_count ) : ?>
+			<?php if ( $show_subscriber_count ) : ?>
 				<div class="wp-block-jetpack-subscriptions__subscount">
 					<?php echo esc_html( Jetpack_Memberships::get_join_others_text( $data['subscribers_total'] ) ); ?>
 				</div>
