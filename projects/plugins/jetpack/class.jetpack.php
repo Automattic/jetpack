@@ -10,6 +10,7 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Config;
+use Automattic\Jetpack\Connection\Authorize_Json_Api;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
@@ -5079,11 +5080,12 @@ endif;
 	 * Handles the login action for Authorizing the JSON API
 	 */
 	public function login_form_json_api_authorization() {
-		static::connection()->verify_json_api_authorization_request();
+		$authorize_json_api = new Authorize_Json_Api();
+		$authorize_json_api->verify_json_api_authorization_request();
 
-		add_action( 'wp_login', array( static::connection(), 'store_json_api_authorization_token' ), 10, 2 );
+		add_action( 'wp_login', array( $authorize_json_api, 'store_json_api_authorization_token' ), 10, 2 );
 
-		add_action( 'login_message', array( static::connection(), 'login_message_json_api_authorization' ) );
+		add_action( 'login_message', array( $authorize_json_api, 'login_message_json_api_authorization' ) );
 		add_action( 'login_form', array( $this, 'preserve_action_in_login_form_for_json_api_authorization' ) );
 		add_filter( 'site_url', array( $this, 'post_login_form_to_signed_url' ), 10, 3 );
 	}
@@ -5129,9 +5131,9 @@ endif;
 	 * @param WP_User $user User logged in.
 	 */
 	public function store_json_api_authorization_token( $user_login, $user ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager::store_json_api_authorization_token' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Authorize_Json_Api::store_json_api_authorization_token' );
 
-		return static::connection()->store_json_api_authorization_token( $user_login, $user );
+		return ( new Authorize_Json_Api() )->store_json_api_authorization_token( $user_login, $user );
 	}
 
 	/**
@@ -5188,13 +5190,15 @@ endif;
 	 * @return string
 	 */
 	public function add_token_to_login_redirect_json_api_authorization( $redirect_to, $original_redirect_to, $user ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager::add_token_to_login_redirect_json_api_authorization' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Authorize_Json_Api::add_token_to_login_redirect_json_api_authorization' );
 
-		return static::connection()->add_token_to_login_redirect_json_api_authorization( $redirect_to, $original_redirect_to, $user );
+		return ( new Authorize_Json_Api() )->add_token_to_login_redirect_json_api_authorization( $redirect_to, $original_redirect_to, $user );
 	}
 
 	/**
 	 * Verifies the request by checking the signature
+	 *
+	 * @deprecated $$next-version$$
 	 *
 	 * @since 4.6.0 Method was updated to use `$_REQUEST` instead of `$_GET` and `$_POST`. Method also updated to allow
 	 * passing in an `$environment` argument that overrides `$_REQUEST`. This was useful for integrating with SSO.
@@ -5202,20 +5206,22 @@ endif;
 	 * @param null|array $environment Value to override $_REQUEST.
 	 */
 	public function verify_json_api_authorization_request( $environment = null ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager::verify_json_api_authorization_request' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Authorize_Json_Api::verify_json_api_authorization_request' );
 
-		return static::connection()->verify_json_api_authorization_request( $environment );
+		return ( new Authorize_Json_Api() )->verify_json_api_authorization_request( $environment );
 	}
 
 	/**
 	 * HTML for the JSON API authorization notice.
 	 *
+	 * @deprecated $$next-version$$
+	 *
 	 * @return string
 	 */
 	public function login_message_json_api_authorization() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager::login_message_json_api_authorization' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Authorize_Json_Api::login_message_json_api_authorization' );
 
-		return static::connection()->login_message_json_api_authorization();
+		return ( new Authorize_Json_Api() )->login_message_json_api_authorization();
 	}
 
 	/**

@@ -930,9 +930,8 @@ class SSO {
 
 			$json_api_auth_environment = Helpers::get_json_api_auth_environment();
 
-			$manager           = new Manager();
 			$is_json_api_auth  = ! empty( $json_api_auth_environment );
-			$is_user_connected = $manager->is_user_connected( $user->ID );
+			$is_user_connected = ( new Manager() )->is_user_connected( $user->ID );
 			$roles             = new Roles();
 			$tracking->record_user_event(
 				'sso_user_logged_in',
@@ -945,8 +944,9 @@ class SSO {
 			);
 
 			if ( $is_json_api_auth ) {
-				$manager->verify_json_api_authorization_request( $json_api_auth_environment );
-				$manager->store_json_api_authorization_token( $user->user_login, $user );
+				$authorize_json_api = new Authorize_Json_Api();
+				$authorize_json_api->verify_json_api_authorization_request( $json_api_auth_environment );
+				$authorize_json_api->store_json_api_authorization_token( $user->user_login, $user );
 
 			} elseif ( ! $is_user_connected ) {
 				wp_safe_redirect(
