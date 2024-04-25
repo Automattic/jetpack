@@ -53,7 +53,7 @@ export default function TitleOptimization( {
 		[ increaseAiAssistantRequestsCount ]
 	);
 
-	const { request } = useAiSuggestions( {
+	const { request, stopSuggestion } = useAiSuggestions( {
 		onDone: handleDone,
 		onError: () => {
 			setGenerating( false );
@@ -94,6 +94,11 @@ export default function TitleOptimization( {
 		},
 		[ autosave, editPost, selected, toggleTitleOptimizationModal ]
 	);
+
+	const handleCancel = useCallback( () => {
+		toggleTitleOptimizationModal();
+		stopSuggestion();
+	}, [ stopSuggestion, toggleTitleOptimizationModal ] );
 
 	return (
 		<div>
@@ -137,7 +142,7 @@ export default function TitleOptimization( {
 								} ) ) }
 							/>
 							<div className="jetpack-ai-title-optimization__cta">
-								<Button variant="secondary" onClick={ toggleTitleOptimizationModal }>
+								<Button variant="secondary" onClick={ handleCancel }>
 									{ __( 'Cancel', 'jetpack' ) }
 								</Button>
 								<Button variant="primary" onClick={ handleAccept }>
