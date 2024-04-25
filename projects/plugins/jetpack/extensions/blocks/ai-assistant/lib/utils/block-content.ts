@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
+import { renderMarkdownFromHTML } from '@automattic/jetpack-ai-client';
 import { getBlockContent } from '@wordpress/blocks';
 import { serialize } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import turndownService from '../turndown';
 
 /**
  * Returns partial content from the beginning of the post
@@ -29,7 +29,7 @@ export function getPartialContentToBlock( clientId: string ): string {
 		return '';
 	}
 
-	return turndownService.turndown( serialize( blocks ) );
+	return renderMarkdownFromHTML( { content: serialize( blocks ) } );
 }
 
 /**
@@ -46,19 +46,34 @@ export function getContentFromBlocks(): string {
 		return '';
 	}
 
-	return turndownService.turndown( serialize( blocks ) );
+	return renderMarkdownFromHTML( { content: serialize( blocks ) } );
 }
 
+/**
+ * Given a list of blocks, it returns their content as a string.
+ * @param {Array} blocks - The list of blocks.
+ * @returns {string}       The content of the blocks as a string.
+ */
+export function getBlocksContent( blocks ) {
+	return blocks
+		.filter( block => block != null ) // Safeguard against null or undefined blocks
+		.map( block => getBlockContent( block ) )
+		.join( '\n\n' );
+}
+
+/**
+ * Returns the text content of the inner blocks of a block.
+ *
+ * @param {string} clientId - The block clientId.
+ * @returns {string}          The text content.
+ */
 export function getTextContentFromInnerBlocks( clientId: string ) {
 	const block = select( 'core/block-editor' ).getBlock( clientId );
 	if ( ! block?.innerBlocks?.length ) {
 		return '';
 	}
 
-	return block.innerBlocks
-		.filter( blq => blq != null ) // Safeguard against null or undefined blocks
-		.map( blq => getBlockContent( blq.clientId ) )
-		.join( '\n\n' );
+	return getBlocksContent( block.innerBlocks );
 }
 
 /**

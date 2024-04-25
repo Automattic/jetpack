@@ -16,10 +16,10 @@ return [
     // PhanTypeMissingReturn : 10+ occurrences
     // PhanTypeArraySuspicious : 9 occurrences
     // PhanTypeMismatchArgument : 9 occurrences
-    // PhanUndeclaredFunction : 8 occurrences
     // PhanParamTooMany : 7 occurrences
     // PhanPossiblyUndeclaredVariable : 6 occurrences
     // PhanUndeclaredClassMethod : 6 occurrences
+    // PhanUndeclaredFunction : 6 occurrences
     // PhanUndeclaredConstant : 5 occurrences
     // PhanCommentParamOnEmptyParamList : 3 occurrences
     // PhanPluginUseReturnValueInternalKnown : 3 occurrences
@@ -101,10 +101,10 @@ return [
         'app/modules/optimizations/page-cache/pre-wordpress/Logger.php' => ['PhanCoalescingNeverNull', 'PhanPluginDuplicateConditionalNullCoalescing'],
         'app/modules/optimizations/page-cache/pre-wordpress/Request.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchPropertyDefault'],
         'app/modules/optimizations/page-cache/pre-wordpress/storage/File_Storage.php' => ['PhanTypeMismatchArgument'],
-        'app/modules/optimizations/render-blocking-js/class-render-blocking-js.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMissingReturn', 'PhanUndeclaredFunction'],
+        'app/modules/optimizations/render-blocking-js/class-render-blocking-js.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMissingReturn'],
         'app/modules/performance-history/Performance_History.php' => ['PhanTypeMissingReturn'],
         'app/rest-api/permissions/Nonce.php' => ['PhanParamTooMany'],
-        'compatibility/amp.php' => ['PhanUndeclaredClassInCallable', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty'],
+        'compatibility/amp.php' => ['PhanUndeclaredClassInCallable', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty'],
         'compatibility/elementor.php' => ['PhanUndeclaredClassConstant'],
         'compatibility/jetpack.php' => ['PhanUndeclaredClassMethod'],
         'compatibility/lib/class-sync-jetpack-module-status.php' => ['PhanParamTooMany', 'PhanUndeclaredClassMethod'],

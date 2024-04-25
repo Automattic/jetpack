@@ -960,7 +960,17 @@ class Jetpack_Subscriptions {
 	 * @return bool
 	 */
 	public function first_published_status_meta_auth_callback() {
-		if ( current_user_can( 'publish_posts' ) ) {
+		/**
+		 * Filter the capability to view if a post was ever published in the Subscription Module.
+		 *
+		 * @module subscriptions
+		 *
+		 * @since 13.4
+		 *
+		 * @param string $capability User capability needed to view if a post was ever published. Default to publish_posts.
+		 */
+		$capability = apply_filters( 'jetpack_subscriptions_post_was_ever_published_capability', 'publish_posts' );
+		if ( current_user_can( $capability ) ) {
 			return true;
 		}
 		return false;

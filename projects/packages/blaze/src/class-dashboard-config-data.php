@@ -17,6 +17,32 @@ use Jetpack_Options;
  * Class Dashboard_Config_Data
  */
 class Dashboard_Config_Data {
+
+	/**
+	 * Blaze dashboard admin page. Default is tools.php.
+	 *
+	 * @var string
+	 */
+	private $admin_page;
+
+	/**
+	 * Blaze dashboard menu slug. Default is 'advertising'.
+	 *
+	 * @var string
+	 */
+	private $menu_slug;
+
+	/**
+	 * Dashboard config constructor.
+	 *
+	 * @param string $admin_page Dashboard admin page. Default is tools.php.
+	 * @param string $menu_slug Dashboard menu slug. Default is 'advertising'.
+	 */
+	public function __construct( $admin_page = 'tools.php', $menu_slug = 'advertising' ) {
+		$this->admin_page = $admin_page;
+		$this->menu_slug  = $menu_slug;
+	}
+
 	/**
 	 * Set configData to window.configData.
 	 *
@@ -38,7 +64,7 @@ class Dashboard_Config_Data {
 
 		$user = $this->get_connected_user_identity();
 
-		return array(
+		$data = array(
 			'admin_page_base'          => $this->get_admin_path(),
 			'api_root'                 => esc_url_raw( rest_url() ),
 			'blog_id'                  => $blog_id,
@@ -87,6 +113,15 @@ class Dashboard_Config_Data {
 				),
 			),
 		);
+
+		/**
+		 * Filter to allow modification of the Blaze dashboard config data.
+		 *
+		 * @param bool $data Blaze dashboard config data.
+		 *
+		 * @since 0.21.0
+		 */
+		return apply_filters( 'jetpack_blaze_dashboard_config_data', $data );
 	}
 
 	/**
@@ -129,7 +164,9 @@ class Dashboard_Config_Data {
 	protected function get_admin_path() {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		if ( ! isset( $_SERVER['PHP_SELF'] ) || ! isset( $_SERVER['QUERY_STRING'] ) ) {
-			$parsed = wp_parse_url( admin_url( 'tools.php?page=advertising' ) );
+			$admin_path = $this->admin_page . '?page=' . $this->menu_slug;
+			$parsed     = wp_parse_url( admin_url( $admin_path ) );
+
 			return $parsed['path'] . '?' . $parsed['query'];
 		}
 		// We do this because page.js requires the exactly page base to be set otherwise it will not work properly.

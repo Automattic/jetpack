@@ -20,7 +20,7 @@ import { AiAssistantUiContextProvider } from './context';
 /**
  * Types
  */
-import type { Block } from '../../../lib/utils/compare-blocks';
+import type { Block } from '@automattic/jetpack-ai-client';
 import type { RequestingErrorProps } from '@automattic/jetpack-ai-client';
 
 // An identifier to use on the extension error notices,
