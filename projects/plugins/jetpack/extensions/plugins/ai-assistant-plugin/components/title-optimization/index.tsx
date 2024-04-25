@@ -95,7 +95,7 @@ export default function TitleOptimization( {
 		[ autosave, editPost, selected, toggleTitleOptimizationModal ]
 	);
 
-	const handleCancel = useCallback( () => {
+	const handleClose = useCallback( () => {
 		toggleTitleOptimizationModal();
 		stopSuggestion();
 	}, [ stopSuggestion, toggleTitleOptimizationModal ] );
@@ -112,11 +112,7 @@ export default function TitleOptimization( {
 				{ __( 'Improve title', 'jetpack' ) }
 			</Button>
 			{ isTitleOptimizationModalVisible && (
-				<AiAssistantModal
-					handleClose={ toggleTitleOptimizationModal }
-					title={ modalTitle }
-					maxWidth={ 512 }
-				>
+				<AiAssistantModal handleClose={ handleClose } title={ modalTitle } maxWidth={ 512 }>
 					{ generating ? (
 						<div className="jetpack-ai-title-optimization__loading">
 							<Spinner
@@ -142,7 +138,7 @@ export default function TitleOptimization( {
 								} ) ) }
 							/>
 							<div className="jetpack-ai-title-optimization__cta">
-								<Button variant="secondary" onClick={ handleCancel }>
+								<Button variant="secondary" onClick={ toggleTitleOptimizationModal }>
 									{ __( 'Cancel', 'jetpack' ) }
 								</Button>
 								<Button variant="primary" onClick={ handleAccept }>
