@@ -252,8 +252,8 @@ class Authorize_Json_Api {
 	 *
 	 * @since $$next-version$$ Ported from Jetpack to the Connection package.
 	 *
-	 * @param string  $user_login Unused.
-	 * @param WP_User $user User logged in.
+	 * @param string   $user_login Unused.
+	 * @param \WP_User $user User logged in.
 	 *
 	 * @return void
 	 */
