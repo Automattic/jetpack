@@ -1,4 +1,0 @@
-Significance: major
-Type: removed
-
-Scheduled Updates: Removed checks for valid schedules when retreiving and clearing logs

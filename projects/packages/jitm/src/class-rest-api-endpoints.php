@@ -63,7 +63,7 @@ class Rest_Api_Endpoints {
 			$query['s'] = $request['s'];
 		}
 
-		return $jitm->get_messages( $request['message_path'], urldecode_deep( $query ), 'true' === $request['full_jp_logo_exists'] ? true : false );
+		return $jitm->get_messages( $request['message_path'], urldecode_deep( $query ), 'true' === $request['full_jp_logo_exists'] );
 	}
 
 	/**

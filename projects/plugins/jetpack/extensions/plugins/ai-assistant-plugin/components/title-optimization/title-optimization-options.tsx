@@ -9,7 +9,7 @@ type TitleOptimizationOptions = {
 	description: string;
 }[];
 
-const id = 'title-optimization-option';
+const titleOptimizationId = 'title-optimization-option';
 
 export default function TitleOptimizationOptions( {
 	options,
@@ -23,12 +23,15 @@ export default function TitleOptimizationOptions( {
 	return (
 		<div className="jetpack-ai-title-optimization__options">
 			{ options.map( ( option, index ) => (
-				<div className="jetpack-ai-title-optimization__option" key={ `${ id }-${ index }` }>
+				<div
+					className="jetpack-ai-title-optimization__option"
+					key={ `${ titleOptimizationId }-${ index }` }
+				>
 					<input
-						id={ `${ id }-${ index }` }
+						id={ `${ titleOptimizationId }-${ index }` }
 						className="jetpack-ai-title-optimization__option-input"
 						type="radio"
-						name={ id }
+						name={ titleOptimizationId }
 						value={ option.value }
 						onChange={ onChangeValue }
 						checked={ option.value === selected }
@@ -36,7 +39,7 @@ export default function TitleOptimizationOptions( {
 					<div className="jetpack-ai-title-optimization__option-content">
 						<label
 							className="jetpack-ai-title-optimization__option-label"
-							htmlFor={ `${ id }-${ index }` }
+							htmlFor={ `${ titleOptimizationId }-${ index }` }
 						>
 							{ option.label }
 						</label>

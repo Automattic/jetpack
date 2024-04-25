@@ -3,11 +3,13 @@
  */
 import { useAiSuggestions } from '@automattic/jetpack-ai-client';
 import { Button, Spinner } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import useAutoSaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
 import usePostContent from '../../hooks/use-post-content';
 import AiAssistantModal from '../modal';
 import TitleOptimizationOptions from './title-optimization-options';
@@ -23,24 +25,33 @@ export default function TitleOptimization( {
 	const modalTitle = __( 'Optimize post title', 'jetpack' );
 
 	const postContent = usePostContent();
-	const [ selected, setSelected ] = useState( 'title-0' );
+	const [ selected, setSelected ] = useState( null );
 	const [ isTitleOptimizationModalVisible, setIsTitleOptimizationModalVisible ] = useState( false );
 	const [ generating, setGenerating ] = useState( false );
 	const [ options, setOptions ] = useState( [] );
+	const { editPost } = useDispatch( 'core/editor' );
+	const { autosave } = useAutoSaveAndRedirect();
+	const { increaseAiAssistantRequestsCount } = useDispatch( 'wordpress-com/plans' );
 
 	const toggleTitleOptimizationModal = useCallback( () => {
 		setIsTitleOptimizationModalVisible( ! isTitleOptimizationModalVisible );
 	}, [ isTitleOptimizationModalVisible ] );
 
-	const handleDone = useCallback( ( content: string ) => {
-		setGenerating( false );
-		try {
-			const parsedContent = JSON.parse( content );
-			setOptions( parsedContent );
-		} catch ( e ) {
-			// Do nothing
-		}
-	}, [] );
+	const handleDone = useCallback(
+		( content: string ) => {
+			setGenerating( false );
+			increaseAiAssistantRequestsCount();
+
+			try {
+				const parsedContent = JSON.parse( content );
+				setOptions( parsedContent );
+				setSelected( parsedContent?.[ 0 ]?.title );
+			} catch ( e ) {
+				// Do nothing
+			}
+		},
+		[ increaseAiAssistantRequestsCount ]
+	);
 
 	const { request } = useAiSuggestions( {
 		onDone: handleDone,
@@ -69,6 +80,20 @@ export default function TitleOptimization( {
 		toggleTitleOptimizationModal();
 		handleRequest();
 	}, [ handleRequest, toggleTitleOptimizationModal ] );
+
+	const handleAccept = useCallback(
+		( event: MouseEvent ) => {
+			editPost( { title: selected } );
+			toggleTitleOptimizationModal();
+
+			try {
+				autosave( event );
+			} catch ( e ) {
+				// Do nothing since the user can save manually
+			}
+		},
+		[ autosave, editPost, selected, toggleTitleOptimizationModal ]
+	);
 
 	return (
 		<div>
@@ -105,8 +130,8 @@ export default function TitleOptimization( {
 							<TitleOptimizationOptions
 								onChangeValue={ e => setSelected( e.target.value ) }
 								selected={ selected }
-								options={ options?.map?.( ( option, index ) => ( {
-									value: `title-${ index }`,
+								options={ options?.map?.( option => ( {
+									value: option.title,
 									label: option.title,
 									description: option.explanation,
 								} ) ) }
@@ -115,7 +140,9 @@ export default function TitleOptimization( {
 								<Button variant="secondary" onClick={ toggleTitleOptimizationModal }>
 									{ __( 'Cancel', 'jetpack' ) }
 								</Button>
-								<Button variant="primary">{ __( 'Replace title', 'jetpack' ) }</Button>
+								<Button variant="primary" onClick={ handleAccept }>
+									{ __( 'Replace title', 'jetpack' ) }
+								</Button>
 							</div>
 						</>
 					) }
