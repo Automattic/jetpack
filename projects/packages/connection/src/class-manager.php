@@ -72,15 +72,6 @@ class Manager {
 	private static $extra_register_params = array();
 
 	/**
-	 * Verified data for JSON authorization request
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @var array
-	 */
-	public $json_api_authorization_request = array();
-
-	/**
 	 * We store ID's of users already disconnected to prevent multiple disconnect requests.
 	 *
 	 * @var array
