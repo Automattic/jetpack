@@ -1,0 +1,4 @@
+Significance: major
+Type: other
+
+Google Analytics: extract the code from the module into a package.
