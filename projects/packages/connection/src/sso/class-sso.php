@@ -930,7 +930,7 @@ class SSO {
 
 			$json_api_auth_environment = Helpers::get_json_api_auth_environment();
 
-			$manager           = new Manager( 'jetpack-connection' );
+			$manager           = new Manager();
 			$is_json_api_auth  = ! empty( $json_api_auth_environment );
 			$is_user_connected = $manager->is_user_connected( $user->ID );
 			$roles             = new Roles();
@@ -1207,7 +1207,7 @@ class SSO {
 	 */
 	public function store_wpcom_profile_cookies_on_logout() {
 		$user_id = get_current_user_id();
-		if ( ! ( new Manager( 'jetpack-connection' ) )->is_user_connected( $user_id ) ) {
+		if ( ! ( new Manager() )->is_user_connected( $user_id ) ) {
 			return;
 		}
 
