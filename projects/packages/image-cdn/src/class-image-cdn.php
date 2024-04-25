@@ -14,7 +14,7 @@ use Automattic\Jetpack\Assets;
  */
 final class Image_CDN {
 
-	const PACKAGE_VERSION = '0.3.5';
+	const PACKAGE_VERSION = '0.3.6';
 
 	/**
 	 * Singleton.

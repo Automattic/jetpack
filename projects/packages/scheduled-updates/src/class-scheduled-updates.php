@@ -20,7 +20,7 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.9.0-alpha';
+	const PACKAGE_VERSION = '0.9.0';
 
 	/**
 	 * The cron event hook for the scheduled plugins update.
@@ -124,8 +124,9 @@ class Scheduled_Updates {
 			'2',
 			array( 'method' => 'POST' ),
 			array(
-				'plugins'     => $plugins_to_update,
-				'schedule_id' => $schedule_id,
+				'health_check_paths' => Scheduled_Updates_Health_Paths::get( $schedule_id ),
+				'plugins'            => $plugins_to_update,
+				'schedule_id'        => $schedule_id,
 			),
 			'wpcom'
 		);

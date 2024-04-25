@@ -13,8 +13,8 @@ return [
     // PhanTypeMismatchArgument : 10+ occurrences
     // PhanUnextractableAnnotationSuffix : 10+ occurrences
     // PhanDeprecatedFunction : 9 occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 8 occurrences
     // PhanNoopNew : 6 occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 5 occurrences
     // PhanTypeMismatchDefault : 5 occurrences
     // PhanTypeMismatchReturn : 5 occurrences
     // PhanTypeMismatchReturnProbablyReal : 5 occurrences
@@ -52,7 +52,7 @@ return [
         'src/class-waf-constants.php' => ['PhanCoalescingNeverNull', 'PhanUndeclaredConstant'],
         'src/class-waf-operators.php' => ['PhanTypeMismatchReturn'],
         'src/class-waf-request.php' => ['PhanGenericConstructorTypes', 'PhanUnextractableAnnotationSuffix'],
-        'src/class-waf-rules-manager.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredMethod'],
+        'src/class-waf-rules-manager.php' => ['PhanUndeclaredMethod'],
         'src/class-waf-runner.php' => ['PhanUndeclaredMethod'],
         'src/class-waf-runtime.php' => ['PhanGenericConstructorTypes', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable', 'PhanUndeclaredConstant', 'PhanUnextractableAnnotationElementName', 'PhanUnextractableAnnotationSuffix'],
         'src/class-waf-standalone-bootstrap.php' => ['PhanUndeclaredMethod'],

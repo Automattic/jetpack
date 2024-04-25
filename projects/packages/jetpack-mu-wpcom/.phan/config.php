@@ -17,7 +17,6 @@ return make_phan_config(
 	array(
 		'+stubs'          => array( 'full-site-editing', 'photon-opencv', 'wpcom' ),
 		'parse_file_list' => array(
-			"$root/projects/packages/stats-admin/src/class-dashboard.php",
 			"$root/projects/plugins/jetpack/class-jetpack-stats-dashboard-widget.php",
 		),
 	)
