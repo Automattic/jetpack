@@ -198,6 +198,9 @@ class Jetpack_Memberships {
 			'is_deleted'      => array(
 				'meta' => $meta_prefix . 'is_deleted',
 			),
+			'is_sandboxed'    => array(
+				'meta' => $meta_prefix . 'is_sandboxed',
+			),
 		);
 		return $properties;
 	}
