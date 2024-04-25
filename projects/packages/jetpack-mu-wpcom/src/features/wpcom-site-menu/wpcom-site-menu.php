@@ -548,7 +548,7 @@ add_action( 'init', 'wpcom_maybe_enable_link_manager' );
 /**
  * Add the Scheduled Updates menu item to the Plugins menu.
  *
- * Limited to users who can update plugins.
+ * Limited to sites with scheduled updates feature.
  */
 function wpcom_add_scheduled_updates_menu() {
 	// Bail on Simple sites
