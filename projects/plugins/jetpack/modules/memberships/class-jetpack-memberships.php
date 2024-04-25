@@ -634,17 +634,23 @@ class Jetpack_Memberships {
 	public static function user_is_paid_subscriber( $valid_plan_ids = array(), $user_id = null ) {
 		if ( empty( $user_id ) ) {
 			$user_id = get_current_user_id();
+			if ( empty( $user_id ) ) {
+				return false;
+			}
 		}
-		if ( ! isset( self::$user_is_paid_subscriber_cache[ $user_id ] ) ) {
+		// sort and stringify sorted valid plan ids to use as a cache key
+		sort( $valid_plan_ids );
+		$cache_key = $user_id . '_' . implode( ',', $valid_plan_ids );
+		if ( ! isset( self::$user_is_paid_subscriber_cache[ $cache_key ] ) ) {
 			require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 			if ( empty( $valid_plan_ids ) ) {
 				$valid_plan_ids = self::get_all_newsletter_plan_ids();
 			}
 			$paywall            = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service( $user_id );
 			$is_paid_subscriber = $paywall->visitor_can_view_content( $valid_plan_ids, Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS );
-			self::$user_is_paid_subscriber_cache[ $user_id ] = $is_paid_subscriber;
+			self::$user_is_paid_subscriber_cache[ $cache_key ] = $is_paid_subscriber;
 		}
-		return self::$user_is_paid_subscriber_cache[ $user_id ];
+		return self::$user_is_paid_subscriber_cache[ $cache_key ];
 	}
 
 	/**
