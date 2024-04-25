@@ -25,7 +25,7 @@ class GA_Manager {
 	/**
 	 * Property to hold concrete analytics implementation that does the work (universal or legacy).
 	 *
-	 * @var Universal|Jetpack_Google_Analytics_Legacy
+	 * @var Universal|Legacy
 	 */
 	public static $analytics = false;
 
@@ -39,9 +39,9 @@ class GA_Manager {
 		// Otherwise, don't bother emitting the tracking ID or fetching analytics.js
 		if ( class_exists( 'WooCommerce' ) && Options::enhanced_ecommerce_tracking_is_enabled() ) {
 			self::$analytics = new Universal();
-			new Jetpack_Google_AMP_Analytics();
+			new AMP_Analytics();
 		} else {
-			self::$analytics = new Jetpack_Google_Analytics_Legacy();
+			self::$analytics = new Legacy();
 		}
 	}
 
@@ -69,7 +69,7 @@ class GA_Manager {
 		}
 
 		$amp_tracking_codes = static::get_amp_tracking_codes( $analytics_entries );
-		$jetpack_account    = Jetpack_Google_Analytics_Options::get_tracking_code();
+		$jetpack_account    = Options::get_tracking_code();
 
 		// Bypass tracking codes already set on AMP plugin.
 		if ( in_array( $jetpack_account, $amp_tracking_codes, true ) ) {
@@ -79,7 +79,7 @@ class GA_Manager {
 		$config_data = wp_json_encode(
 			array(
 				'vars'     => array(
-					'account' => Jetpack_Google_Analytics_Options::get_tracking_code(),
+					'account' => Options::get_tracking_code(),
 				),
 				'triggers' => array(
 					'trackPageview' => array(
@@ -123,6 +123,3 @@ class GA_Manager {
 		return $accounts;
 	}
 }
-
-global $jetpack_google_analytics;
-$jetpack_google_analytics = Jetpack_Google_Analytics::get_instance();
