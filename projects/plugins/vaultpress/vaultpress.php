@@ -61,18 +61,18 @@ if ( is_readable( $loader ) ) {
 		if ( get_current_screen()->id !== 'plugins' ) {
 			return;
 		}
-		?>
-		<div class="notice notice-error is-dismissible">
-			<p>
-				<?php
-					echo wp_kses(
-						__( 'Your installation of VaultPress is incomplete. If you installed it from GitHub, please run <code>composer install</code>.', 'vaultpress' ),
-						array( 'code' => true )
-					);
-				?>
-			</p>
-		</div>
-		<?php
+
+		$message = wp_kses(
+			__( 'Your installation of VaultPress is incomplete. If you installed it from GitHub, please run <code>composer install</code>.', 'vaultpress' ),
+			array( 'code' => true )
+		);
+		wp_admin_notice(
+			$message,
+			array(
+				'type'        => 'error',
+				'dismissible' => true,
+			)
+		);
 	}
 	add_action( 'admin_notices', 'vaultpress_admin_missing_autoloader' );
 	return;

@@ -116,11 +116,13 @@ if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' )
 	 * @since 7.2.0
 	 */
 	function jetpack_admin_unsupported_wp_notice() {
-		?>
-		<div class="notice notice-error is-dismissible">
-			<p><?php esc_html_e( 'Jetpack requires a more recent version of WordPress and has been paused. Please update WordPress to continue enjoying Jetpack.', 'jetpack' ); ?></p>
-		</div>
-		<?php
+		wp_admin_notice(
+			esc_html__( 'Jetpack requires a more recent version of WordPress and has been paused. Please update WordPress to continue enjoying Jetpack.', 'jetpack' ),
+			array(
+				'type'        => 'error',
+				'dismissible' => true,
+			)
+		);
 	}
 
 	add_action( 'admin_notices', 'jetpack_admin_unsupported_wp_notice' );
@@ -179,29 +181,28 @@ if ( is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings
 		if ( get_current_screen()->id !== 'plugins' ) {
 			return;
 		}
-		?>
-		<div class="notice notice-error is-dismissible">
-			<p>
-				<?php
-				printf(
-					wp_kses(
-						/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Jetpack is incomplete. If you installed Jetpack from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack must have Composer dependencies installed and built via the build command: <code>jetpack build plugins/jetpack --with-deps</code>', 'jetpack' ),
-						array(
-							'a'    => array(
-								'href'   => array(),
-								'rel'    => array(),
-								'target' => array(),
-							),
-							'code' => array(),
-						)
+		$message = sprintf(
+			wp_kses(
+				/* translators: Placeholder is a link to a support document. */
+				__( 'Your installation of Jetpack is incomplete. If you installed Jetpack from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack must have Composer dependencies installed and built via the build command: <code>jetpack build plugins/jetpack --with-deps</code>', 'jetpack' ),
+				array(
+					'a'    => array(
+						'href'   => array(),
+						'rel'    => array(),
+						'target' => array(),
 					),
-					'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
-				);
-				?>
-			</p>
-		</div>
-		<?php
+					'code' => array(),
+				)
+			),
+			'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
+		);
+		wp_admin_notice(
+			$message,
+			array(
+				'type'        => 'error',
+				'dismissible' => true,
+			)
+		);
 	}
 
 	add_action( 'admin_notices', 'jetpack_admin_missing_files' );
