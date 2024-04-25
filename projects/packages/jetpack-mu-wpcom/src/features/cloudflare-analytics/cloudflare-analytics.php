@@ -21,7 +21,10 @@ function insert_tracking_id() {
 	if (
 		! empty( $option['code'] )
 		&& ! is_admin()
-		&&  ( ! class_exists( 'Jetpack_AMP_Support' ) || ( class_exists( 'Jetpack_AMP_Support' ) && ! \Jetpack_AMP_Support::is_amp_request() ) )
+		&& (
+			! class_exists( 'Jetpack_AMP_Support' )
+			|| ( class_exists( 'Jetpack_AMP_Support' ) && ! \Jetpack_AMP_Support::is_amp_request() )
+		)
 	) {
 		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		printf(
