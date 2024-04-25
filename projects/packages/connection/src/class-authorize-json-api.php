@@ -44,6 +44,10 @@ class Authorize_Json_Api {
 			? $_REQUEST // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce verification handled later in function.
 			: $environment;
 
+		if ( ! isset( $environment['token'] ) ) {
+			wp_die( esc_html__( 'You must connect your Jetpack plugin to WordPress.com to use this feature.', 'jetpack-connection' ) );
+		}
+
 		list( $env_token,, $env_user_id ) = explode( ':', $environment['token'] );
 		$token                            = ( new Tokens() )->get_access_token( $env_user_id, $env_token );
 		if ( ! $token || empty( $token->secret ) ) {
