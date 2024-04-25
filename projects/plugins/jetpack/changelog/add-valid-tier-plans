@@ -1,4 +1,4 @@
 Significance: patch
-Type: added
+Type: enhancement
 
 Add a method to find all plans that are valid for a given newsletter tier.
