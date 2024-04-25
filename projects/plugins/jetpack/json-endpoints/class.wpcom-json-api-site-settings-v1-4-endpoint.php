@@ -35,6 +35,7 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 		),
 
 		'request_format'  => array(
+			'migration_source_site_domain'            => '(string) The source site URL, from the migration flow',
 			'in_site_migration_flow'                  => '(bool) Whether the site is currently in the Site Migration signup flow.',
 			'blogname'                                => '(string) Blog name',
 			'blogdescription'                         => '(string) Blog description',

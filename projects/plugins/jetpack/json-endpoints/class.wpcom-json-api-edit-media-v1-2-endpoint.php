@@ -34,7 +34,7 @@ new WPCOM_JSON_API_Edit_Media_v1_2_Endpoint(
 							'Audio and Video may also be available. See <code>allowed_file_types</code> ' .
 							'in the options response of the site endpoint. ' .
 							'<br /><br /><strong>Example</strong>:<br />' .
-							"<code>curl \<br />--form 'title=Image' \<br />--form 'media=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
+							"<code>curl \<br />--form 'title=Image' \<br />--form 'media=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/media/new'</code>",
 			'attrs'       => '(object) An Object of attributes (`title`, `description` and `caption`) ' .
 							'are supported to assign to the media uploaded via the `media` or `media_url`',
 			'media_url'   => '(string) An URL of the image to attach to a post.',

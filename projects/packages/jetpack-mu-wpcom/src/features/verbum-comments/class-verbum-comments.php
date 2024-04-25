@@ -425,7 +425,7 @@ HTML;
 	 * Check if the comment is allowed by verifying the Facebook token.
 	 *
 	 * @param array $comment_data - The comment data.
-	 * @return WP_Error|comment_data The comment data if the comment is allowed, or a WP_Error if not.
+	 * @return WP_Error|array The comment data if the comment is allowed, or a WP_Error if not.
 	 */
 	public function verify_external_account( $comment_data ) {
 		$service = isset( $_POST['hc_post_as'] ) ? sanitize_text_field( wp_unslash( $_POST['hc_post_as'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce checked before saving comment
