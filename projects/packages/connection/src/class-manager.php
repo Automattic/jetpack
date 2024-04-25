@@ -2877,7 +2877,7 @@ class Manager {
 	 */
 	public function store_json_api_authorization_token( $user_login, $user ) {
 		add_filter( 'login_redirect', array( $this, 'add_token_to_login_redirect_json_api_authorization' ), 10, 3 );
-		add_filter( 'allowed_redirect_hosts', array( $this, 'allow_wpcom_public_api_domain' ) );
+		add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_public_api_domain' ) );
 		$token = wp_generate_password( 32, false );
 		update_user_meta( $user->ID, 'jetpack_json_api_' . $this->json_api_authorization_request['client_id'], $token );
 	}

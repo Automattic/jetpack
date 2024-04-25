@@ -5144,9 +5144,9 @@ endif;
 	 * @param array $domains Allowed WP.com Environments.
 	 */
 	public function allow_wpcom_public_api_domain( $domains ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager::allow_wpcom_public_api_domain' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Status\\Host::allow_wpcom_public_api_domain' );
 
-		return static::connection()->allow_wpcom_public_api_domain( $domains );
+		return Host::allow_wpcom_public_api_domain( $domains );
 	}
 
 	/**
