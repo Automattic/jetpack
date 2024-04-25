@@ -1,3 +1,4 @@
+  1 | ERROR   | [ ] Class file names should be based on the class name with "class-" prepended. Expected class-dummy-class.php, but found mediawiki-imports.php. (WordPress.Files.FileName.InvalidClassFileName)
  12 | WARNING | [x] Use statements are not alphabetically sorted (MediaWiki.Classes.UnsortedUseStatements.UnsortedUse)
  14 | WARNING | [x] There should not be empty lines between use statements (MediaWiki.WhiteSpace.EmptyLinesBetweenUse.Found)
  16 | WARNING | [x] Unnecessary use statement "Unnecessary" in the same namespace (MediaWiki.Classes.UnusedUseStatement.UnnecessaryUse)

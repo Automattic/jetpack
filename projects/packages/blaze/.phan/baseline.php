@@ -10,9 +10,9 @@
 return [
     // # Issue statistics:
     // PhanTypeMismatchArgument : 2 occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 2 occurrences
     // PhanTypeMismatchReturn : 2 occurrences
     // PhanParamTooMany : 1 occurrence
+    // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanTypeMismatchReturnProbablyReal : 1 occurrence
     // PhanTypeNoAccessiblePropertiesForeach : 1 occurrence
 
