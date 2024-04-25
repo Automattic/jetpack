@@ -40,6 +40,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	const [ images, setImages ] = useState< CarrouselImages >( [ { generating: true } ] );
 	const [ current, setCurrent ] = useState( 0 );
 	const pointer = useRef( 0 );
+	const [ userPrompt, setUserPrompt ] = useState( '' );
 
 	const { enableComplementaryArea } = useDispatch( 'core/interface' );
 	const { generateImage } = useImageGenerator();
@@ -121,6 +122,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 			feature: FEATURED_IMAGE_FEATURE_NAME,
 			postContent,
 			responseFormat: 'b64_json',
+			userPrompt,
 		} )
 			.then( result => {
 				if ( result.data.length > 0 ) {
@@ -141,7 +143,14 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 			.catch( e => {
 				updateImages( { generating: false, error: e }, pointer.current );
 			} );
-	}, [ updateImages, generateImage, postContent, updateRequestsCount, saveToMediaLibrary ] );
+	}, [
+		updateImages,
+		generateImage,
+		postContent,
+		userPrompt,
+		updateRequestsCount,
+		saveToMediaLibrary,
+	] );
 
 	const toggleFeaturedImageModal = useCallback( () => {
 		setIsFeaturedImageModalVisible( ! isFeaturedImageModalVisible );
@@ -175,6 +184,13 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 
 		processImageGeneration();
 	}, [ processImageGeneration, recordEvent ] );
+
+	const handleUserPromptChange = useCallback(
+		( e: React.ChangeEvent< HTMLTextAreaElement > ) => {
+			setUserPrompt( e.target.value );
+		},
+		[ setUserPrompt ]
+	);
 
 	const triggerComplementaryArea = useCallback( () => {
 		// clear any block selection, because selected blocks have precedence on settings sidebar
@@ -252,6 +268,16 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 			{ isFeaturedImageModalVisible && (
 				<AiAssistantModal handleClose={ toggleFeaturedImageModal } title={ modalTitle }>
 					<div className="ai-assistant-featured-image__content">
+						<div className="ai-assistant-featured-image__user-prompt-field">
+							<textarea
+								rows={ 2 }
+								onChange={ handleUserPromptChange }
+								placeholder={ __(
+									'Include optional instructions to generate a new image',
+									'jetpack'
+								) }
+							></textarea>
+						</div>
 						<div className="ai-assistant-featured-image__image-canvas">
 							{ ( requireUpgrade || notEnoughRequests ) && ! currentPointer?.generating && (
 								<UpgradePrompt

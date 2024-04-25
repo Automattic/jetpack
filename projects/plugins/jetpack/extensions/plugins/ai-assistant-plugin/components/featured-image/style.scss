@@ -14,6 +14,21 @@
 		justify-content: center;
 	}
 
+	&__user-prompt-field {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+
+		textarea {
+			width: 100%;
+			outline: none;
+			border: 1px solid #CCC;
+			border-radius: 6px;
+			padding: 12px;
+			color: var(--studio-gray-50);
+		}
+	}
+
 	&__actions-left {
 		width: 50%;
 		display: flex;
