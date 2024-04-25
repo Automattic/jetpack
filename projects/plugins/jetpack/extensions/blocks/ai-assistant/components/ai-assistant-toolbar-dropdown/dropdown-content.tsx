@@ -44,7 +44,15 @@ export const QUICK_EDIT_KEY_MAKE_LONGER = 'make-longer' as const;
 // Ask AI Assistant option
 export const KEY_ASK_AI_ASSISTANT = 'ask-ai-assistant' as const;
 
-const quickActionsList = {
+const quickActionsList: {
+	[ key: string ]: {
+		name: string;
+		key: string;
+		aiSuggestion: PromptTypeProp;
+		icon: ReactElement;
+		options?: AiAssistantDropdownOnChangeOptionsArgProps;
+	}[];
+} = {
 	default: [
 		{
 			name: __( 'Correct spelling and grammar', 'jetpack' ),
@@ -102,14 +110,16 @@ export type AiAssistantDropdownOnChangeOptionsArgProps = {
 	userPrompt?: string;
 };
 
+export type OnRequestSuggestion = (
+	promptType: PromptTypeProp,
+	options?: AiAssistantDropdownOnChangeOptionsArgProps
+) => void;
+
 type AiAssistantToolbarDropdownContentProps = {
 	blockType: ExtendedBlockProp;
 	disabled?: boolean;
 	onAskAiAssistant: () => void;
-	onRequestSuggestion: (
-		promptType: PromptTypeProp,
-		options?: AiAssistantDropdownOnChangeOptionsArgProps
-	) => void;
+	onRequestSuggestion: OnRequestSuggestion;
 };
 
 /**
