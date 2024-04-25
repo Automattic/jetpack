@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\JITMS\JITM;
-use Automattic\Jetpack\JITMS\Pre_Connection_JITM;
 use Brain\Monkey;
 use Brain\Monkey\Actions;
 use Brain\Monkey\Filters;
@@ -80,6 +79,7 @@ class Test_Jetpack_JITM extends TestCase {
 
 		$jitm = new JITM();
 		$screen = (object) array( 'id' => $screen_id ); // fake screen object
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Fake object, don't care.
 		$jitm->prepare_jitms( $screen );
 
 		// Set up mocks for a bunch of methods called by the hook.
