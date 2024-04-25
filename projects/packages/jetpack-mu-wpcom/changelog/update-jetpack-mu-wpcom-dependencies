@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Update automattic/jetpack-mu-wpcom's dependencies to explicitly reflect the current state.
