@@ -567,6 +567,10 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertObjectNotHasProperty( 'amp_permalink', $post );
 
+		/**
+		 * @phan-suppress PhanRedefineFunction
+		 * @todo Defining this function mid-test here seems risky. Is there a better way we can test this?
+		 */
 		function amp_get_permalink( $post_id ) { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
 			return "http://example.com/?p=$post_id&amp";
 		}

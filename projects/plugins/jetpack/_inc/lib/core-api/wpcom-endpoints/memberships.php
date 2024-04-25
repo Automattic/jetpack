@@ -498,7 +498,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 *
 	 * @param WP_REST_Request $request The request for this endpoint.
 	 * @param ?string         $type The type of the products to list.
-	 * @param ?string         $is_editable This string will be interpreted as a bool to determine if we are looking for editable or non-editable products.
+	 * @param ?bool           $is_editable If we are looking for editable or non-editable products.
 	 * @throws \Exception If blog is not known or if there is an error getting products.
 	 * @return array List of products.
 	 */
@@ -539,7 +539,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 *
 	 * @param array $payload The request payload which contains details about the product.
 	 * @throws \Exception When the product failed to be created.
-	 * @return object The newly created product.
+	 * @return array The newly created product.
 	 */
 	private function create_product_from_wpcom( $payload ) {
 		$this->prevent_running_outside_of_wpcom();

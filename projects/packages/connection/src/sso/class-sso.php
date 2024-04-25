@@ -110,7 +110,7 @@ class SSO {
 			 *
 			 * @module sso
 			 *
-			 * @since $$next-version$$
+			 * @since 2.7.2
 			 *
 			 * @param bool true Whether to allow admins to invite new users to create a WordPress.com account.
 			 */

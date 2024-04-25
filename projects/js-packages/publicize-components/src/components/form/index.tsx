@@ -6,6 +6,7 @@
  * sharing message.
  */
 
+import { useConnection } from '@automattic/jetpack-connection';
 import { Disabled, ExternalLink, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { Fragment, useMemo } from '@wordpress/element';
@@ -44,6 +45,8 @@ export default function PublicizeForm() {
 	const { shouldShowNotice, NOTICES } = useDismissNotice();
 	const { isPublicizeEnabled, isPublicizeDisabledBySitePlan, connectionsAdminUrl } =
 		usePublicizeConfig();
+
+	const useConnectionUrl = useSelect( select => select( socialStore ).userConnectionUrl(), [] );
 
 	const { numberOfSharesRemaining } = useSelect( select => {
 		return {
@@ -90,6 +93,8 @@ export default function PublicizeForm() {
 
 	refreshConnections();
 
+	const { isUserConnected } = useConnection();
+
 	return (
 		<Wrapper>
 			{ hasConnections ? (
@@ -113,13 +118,44 @@ export default function PublicizeForm() {
 							/>
 						) ) }
 				</>
-			) : (
-				<PanelRow>
-					<ExternalLink href={ connectionsAdminUrl }>
-						{ __( 'Connect an account', 'jetpack' ) }
-					</ExternalLink>
-				</PanelRow>
-			) }
+			) : null }
+			<PanelRow>
+				{
+					// Use IIFE make it more readable and avoid nested ternary operators.
+					( () => {
+						if ( ! isUserConnected ) {
+							return (
+								<p>
+									{ __(
+										'You must connect your WordPress.com account to be able to add social media connections.',
+										'jetpack'
+									) }
+									&nbsp;
+									<a href={ useConnectionUrl }>{ __( 'Connect now', 'jetpack' ) }</a>
+								</p>
+							);
+						}
+
+						if ( ! hasConnections ) {
+							return (
+								<p>
+									{ __(
+										'Sharing is disabled because there are no social media accounts connected.',
+										'jetpack'
+									) }
+									<br />
+									<ExternalLink href={ connectionsAdminUrl }>
+										{ __( 'Connect an account', 'jetpack' ) }
+									</ExternalLink>
+								</p>
+							);
+						}
+
+						return null;
+					} )()
+				}
+			</PanelRow>
+
 			{ ! isPublicizeDisabledBySitePlan && (
 				<Fragment>
 					{ isPublicizeEnabled && hasEnabledConnections && <SharePostForm /> }

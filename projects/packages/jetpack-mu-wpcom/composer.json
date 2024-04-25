@@ -6,6 +6,10 @@
 	"require": {
 		"php": ">=7.0",
 		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-blocks": "@dev",
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-redirect": "@dev",
+		"automattic/jetpack-stats-admin": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/scheduled-updates": "@dev"
 	},
@@ -52,7 +56,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "5.24.x-dev"
+			"dev-trunk": "5.26.x-dev"
 		},
 		"textdomain": "jetpack-mu-wpcom",
 		"version-constants": {

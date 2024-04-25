@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Move user disconnect on removal into the Connection package.
+
+

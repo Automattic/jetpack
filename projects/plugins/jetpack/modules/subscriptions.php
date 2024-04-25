@@ -965,7 +965,7 @@ class Jetpack_Subscriptions {
 		 *
 		 * @module subscriptions
 		 *
-		 * @since $$next-version$$
+		 * @since 13.4
 		 *
 		 * @param string $capability User capability needed to view if a post was ever published. Default to publish_posts.
 		 */

@@ -9,7 +9,7 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgument : 50+ occurrences
+    // PhanTypeMismatchArgument : 45+ occurrences
     // PhanParamTooMany : 40+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 20+ occurrences
     // PhanDeprecatedFunction : 15+ occurrences
@@ -23,16 +23,15 @@ return [
     // PhanRedundantCondition : 5 occurrences
     // PhanTypeArraySuspiciousNullable : 5 occurrences
     // PhanTypeMismatchDefault : 5 occurrences
-    // PhanTypeMismatchArgumentInternal : 4 occurrences
-    // PhanTypeMismatchArgumentNullable : 3 occurrences
+    // PhanTypeMismatchArgumentInternal : 3 occurrences
     // PhanTypeMismatchProperty : 3 occurrences
     // PhanTypeObjectUnsetDeclaredProperty : 3 occurrences
     // PhanUndeclaredTypeReturnType : 3 occurrences
     // PhanCommentParamWithoutRealParam : 2 occurrences
-    // PhanImpossibleCondition : 2 occurrences
     // PhanNonClassMethodCall : 2 occurrences
     // PhanPluginUnreachableCode : 2 occurrences
     // PhanPossiblyUndeclaredVariable : 2 occurrences
+    // PhanTypeMismatchArgumentNullable : 2 occurrences
     // PhanTypeMismatchPropertyDefault : 2 occurrences
     // PhanTypeMismatchReturnNullable : 2 occurrences
     // PhanTypePossiblyInvalidDimOffset : 2 occurrences
@@ -41,15 +40,14 @@ return [
     // PhanUndeclaredTypeThrowsType : 2 occurrences
     // PhanUnextractableAnnotationSuffix : 2 occurrences
     // PhanAccessMethodInternal : 1 occurrence
+    // PhanImpossibleCondition : 1 occurrence
     // PhanImpossibleTypeComparison : 1 occurrence
     // PhanPluginDuplicateAdjacentStatement : 1 occurrence
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanTypeMismatchDeclaredParamNullable : 1 occurrence
     // PhanTypeSuspiciousStringExpression : 1 occurrence
     // PhanUndeclaredClassReference : 1 occurrence
-    // PhanUndeclaredFunction : 1 occurrence
     // PhanUndeclaredFunctionInCallable : 1 occurrence
-    // PhanUndeclaredTypeParameter : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
@@ -58,7 +56,6 @@ return [
         'legacy/class-jetpack-signature.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentInternal'],
         'legacy/class-jetpack-tracks-client.php' => ['PhanNonClassMethodCall', 'PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchPropertyProbablyReal'],
         'legacy/class-jetpack-xmlrpc-server.php' => ['PhanAccessMethodInternal', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredProperty'],
-        'src/class-client.php' => ['PhanImpossibleCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeParameter'],
         'src/class-error-handler.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-heartbeat.php' => ['PhanTypeMismatchPropertyDefault'],
         'src/class-manager.php' => ['PhanImpossibleCondition', 'PhanNoopNew', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDeclaredParamNullable', 'PhanTypeMismatchDefault', 'PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredTypeProperty', 'PhanUndeclaredTypeReturnType'],
