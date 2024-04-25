@@ -29,9 +29,7 @@
 			"@composer phpunit"
 		],
 		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"build-production": "pnpm run build-production",
-		"build-development": "pnpm run build"
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
 	},
 	"repositories": [
 		{
