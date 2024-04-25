@@ -21,7 +21,7 @@ function PaidNewsletter( props ) {
 	const setupPaymentPlansButtonDisabled = ! isSubscriptionsActive;
 
 	const trackSetupPaymentPlansButtonClick = useCallback( () => {
-		analytics.tracks.recordJetpackClick( 'newsletter_setup_payment_plans_button_click' );
+		analytics.tracks.recordJetpackClick( 'newsletter_settings_setup_payment_plans_button_click' );
 	}, [] );
 
 	return (
