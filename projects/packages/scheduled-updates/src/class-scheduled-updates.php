@@ -408,12 +408,12 @@ class Scheduled_Updates {
 
 			if ( empty( $plugins ) ) {
 				// Delete the schedule if there are no more plugins.
-				$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . $id );
+				$request = new \WP_REST_Request( 'DELETE', '/wpcom/v2/update-schedules/' . $id );
 				$request->set_query_params( array( 'schedule_id' => $id ) );
 
 				$endpoint->delete_item( $request );
 			} else {
-				$request = new \WP_REST_Request( 'DELETE', '/wpcom/v2/update-schedules/' . $id );
+				$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . $id );
 				$request->set_body_params(
 					array(
 						'schedule_id' => $id,
