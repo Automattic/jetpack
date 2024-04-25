@@ -161,6 +161,7 @@ class Posts extends Module {
 		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
 
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_post', array( $this, 'filter_jetpack_sync_before_enqueue_jetpack_sync_save_post' ) );
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_published_post', array( $this, 'filter_jetpack_sync_before_enqueue_jetpack_published_post' ) );
 
 		add_action( 'jetpack_daily_akismet_meta_cleanup_before', array( $this, 'daily_akismet_meta_cleanup_before' ) );
 		add_action( 'jetpack_daily_akismet_meta_cleanup_after', array( $this, 'daily_akismet_meta_cleanup_after' ) );
@@ -349,6 +350,18 @@ class Posts extends Module {
 		}
 
 		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
+	}
+
+	/**
+	 * Add filtered post content.
+	 *
+	 * @param array $args Hook arguments.
+	 * @return array Hook arguments.
+	 */
+	public function filter_jetpack_sync_before_enqueue_jetpack_published_post( $args ) {
+		list( $post_id, $flags, $post ) = $args;
+
+		return array( $post_id, $flags, $this->filter_post_content_and_add_links( $post ) );
 	}
 
 	/**
