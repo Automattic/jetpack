@@ -9,16 +9,38 @@ import { addFilter } from '@wordpress/hooks';
  */
 import metadata from '../../block.json';
 import { isUserConnected } from '../../lib/connection';
+import { getFeatureAvailability } from '../../lib/utils/get-feature-availability';
 
-/*
- * Types and Constants
- */
+// We have two types of block extensions for now, transformative and inline.
+// The transformative blocks are transformed into an AI Assistant block when a request is made.
+// The inline blocks are updated in place.
+// Once all transformative blocks are converted to inline blocks, we can remove the distinction, but for now, we need to keep it.
+
 export const AI_ASSISTANT_SUPPORT_NAME = 'ai-assistant-support';
+export const AI_ASSISTANT_EXTENSIONS_SUPPORT_NAME = 'ai-assistant-extensions-support';
 
-// List of blocks that can be extended.
-export const EXTENDED_BLOCKS = [ 'core/paragraph', 'core/heading', 'core/list' ] as const;
+// Check if the AI Assistant support is enabled.
+export const isAiAssistantSupportEnabled = getFeatureAvailability( AI_ASSISTANT_SUPPORT_NAME );
+// Check if the AI Assistant inline extensions support is enabled.
+export const isAiAssistantExtensionsSupportEnabled = getFeatureAvailability(
+	AI_ASSISTANT_EXTENSIONS_SUPPORT_NAME
+);
 
-export type ExtendedBlockProp = ( typeof EXTENDED_BLOCKS )[ number ];
+// The blocks will be converted one by one to inline blocks, so we update the lists accordingly, under the feature flag.
+export let EXTENDED_TRANSFORMATIVE_BLOCKS: string[];
+export let EXTENDED_INLINE_BLOCKS: string[];
+
+if ( isAiAssistantExtensionsSupportEnabled ) {
+	EXTENDED_TRANSFORMATIVE_BLOCKS = [ 'core/paragraph', 'core/list' ];
+	EXTENDED_INLINE_BLOCKS = [ 'core/heading' ];
+} else {
+	EXTENDED_TRANSFORMATIVE_BLOCKS = [ 'core/paragraph', 'core/list', 'core/heading' ];
+	EXTENDED_INLINE_BLOCKS = [];
+}
+
+// Since the lists depend on the feature flag, we need to define the types manually.
+export type ExtendedBlockProp = 'core/paragraph' | 'core/list' | 'core/heading';
+export type ExtendedInlineBlockProp = 'core/heading';
 
 type BlockSettingsProps = {
 	supports: {
@@ -27,9 +49,6 @@ type BlockSettingsProps = {
 		};
 	};
 };
-
-export const isAiAssistantSupportExtensionEnabled =
-	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ AI_ASSISTANT_SUPPORT_NAME ];
 
 /**
  * Check if it is possible to extend the block.
@@ -43,7 +62,7 @@ export function isPossibleToExtendBlock(): boolean {
 	}
 
 	// Check Jetpack extension is enabled.
-	if ( ! isAiAssistantSupportExtensionEnabled ) {
+	if ( ! isAiAssistantSupportEnabled ) {
 		return false;
 	}
 
@@ -85,7 +104,7 @@ function addJetpackAISupport(
 	name: ExtendedBlockProp
 ): BlockSettingsProps {
 	// Only extend the blocks in the list.
-	if ( ! EXTENDED_BLOCKS.includes( name ) ) {
+	if ( ! EXTENDED_TRANSFORMATIVE_BLOCKS.includes( name ) ) {
 		return settings;
 	}
 
