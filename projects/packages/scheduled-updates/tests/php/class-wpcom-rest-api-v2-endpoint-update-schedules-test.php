@@ -29,12 +29,19 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	public $editor_id;
 
 	/**
+	 * The endpoint object.
+	 *
+	 * @var WPCOM_REST_API_V2_Endpoint_Update_Schedules
+	 */
+	public static $endpoint;
+
+	/**
 	 * Set up before class.
 	 */
 	public static function set_up_before_class() {
 		parent::set_up_before_class();
 
-		new WPCOM_REST_API_V2_Endpoint_Update_Schedules();
+		self::$endpoint = new WPCOM_REST_API_V2_Endpoint_Update_Schedules();
 	}
 
 	/**
@@ -127,6 +134,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 					'interval'           => DAY_IN_SECONDS,
 					'last_run_timestamp' => null,
 					'last_run_status'    => null,
+					'health_check_paths' => array(),
 				),
 				Scheduled_Updates::generate_schedule_id( $plugins ) => array(
 					'hook'               => Scheduled_Updates::PLUGIN_CRON_HOOK,
@@ -136,6 +144,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 					'interval'           => WEEK_IN_SECONDS,
 					'last_run_timestamp' => null,
 					'last_run_status'    => null,
+					'health_check_paths' => array(),
 				),
 			),
 			$result->get_data()
@@ -156,10 +165,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp' => strtotime( 'next Monday 8:00' ),
-					'interval'  => 'weekly',
-				),
+				'schedule' => $this->get_schedule(),
 			)
 		);
 		$schedule_id = Scheduled_Updates::generate_schedule_id( $request->get_body_params()['plugins'] );
@@ -195,10 +201,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp' => strtotime( 'next Monday 8:00' ),
-					'interval'  => 'weekly',
-				),
+				'schedule' => $this->get_schedule(),
 			)
 		);
 
@@ -222,13 +225,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp' => strtotime( 'next Monday 8:00' ),
-					'interval'  => 'weekly',
-				),
+				'schedule' => $this->get_schedule(),
 			)
 		);
-		$schedule_id = Scheduled_Updates::generate_schedule_id( $request->get_body_params()['plugins'] );
+		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
 
 		// Successful request.
 		wp_set_current_user( $this->admin_id );
@@ -248,10 +248,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp' => strtotime( 'next Monday 10:00' ),
-					'interval'  => 'weekly',
-				),
+				'schedule' => $this->get_schedule( 'next Monday 10:00' ),
 			)
 		);
 
@@ -279,10 +276,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp' => strtotime( 'next Monday 8:00' ),
-					'interval'  => 'weekly',
-				),
+				'schedule' => $this->get_schedule(),
 			)
 		);
 
@@ -321,10 +315,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp' => strtotime( 'next Monday 8:00' ),
-					'interval'  => 'weekly',
-				),
+				'schedule' => $this->get_schedule(),
 			)
 		);
 
@@ -353,10 +344,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 					'gutenberg/gutenberg.php',
 					'custom-plugin/custom-plugin.php',
 				),
-				'schedule' => array(
-					'timestamp' => strtotime( 'next Wednesday 10:00' ),
-					'interval'  => 'daily',
-				),
+				'schedule' => $this->get_schedule( 'next Wednesday 10:00', 'daily' ),
 			)
 		);
 
@@ -385,10 +373,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp' => strtotime( 'next Monday 8:00' ),
-					'interval'  => 'weekly',
-				),
+				'schedule' => $this->get_schedule(),
 			)
 		);
 
@@ -410,8 +395,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 			array(
 				'plugins'  => $plugins,
 				'schedule' => array(
-					'timestamp' => strtotime( 'next Wednesday 10:00' ),
-					'interval'  => 'daily',
+					'timestamp'          => strtotime( 'next Wednesday 10:00' ),
+					'interval'           => 'daily',
+					'health_check_paths' => array(),
 				),
 			)
 		);
@@ -435,6 +421,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 					'interval'           => DAY_IN_SECONDS,
 					'last_run_timestamp' => null,
 					'last_run_status'    => null,
+					'health_check_paths' => array(),
 				),
 			),
 			$result->get_data()
@@ -465,10 +452,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp' => strtotime( 'next Monday 8:00' ),
-					'interval'  => 'weekly',
-				),
+				'schedule' => $this->get_schedule(),
 			)
 		);
 
@@ -520,6 +504,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 				'interval'           => WEEK_IN_SECONDS,
 				'last_run_timestamp' => null,
 				'last_run_status'    => null,
+				'health_check_paths' => array(),
 			),
 			$result->get_data()
 		);
@@ -559,10 +544,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp' => strtotime( 'next Tuesday 9:00' ),
-					'interval'  => 'daily',
-				),
+				'schedule' => $this->get_schedule( 'next Tuesday 9:00', 'daily' ),
 			)
 		);
 		$result = rest_do_request( $request );
@@ -627,10 +609,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp' => strtotime( 'next Tuesday 9:00' ),
-					'interval'  => 'daily',
-				),
+				'schedule' => $this->get_schedule( 'next Tuesday 9:00', 'daily' ),
 			)
 		);
 
@@ -641,13 +620,14 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 200, $result->get_status() );
 		$schedule_id = $result->get_data();
 
-		// Get the updated status
+		// Get the updated status.
 		$updated_status = Scheduled_Updates::get_scheduled_update_status( $schedule_id );
+
 		if ( $updated_status === false ) {
 			$this->fail( 'Scheduled_Updates::get_scheduled_update_status() returned false.' );
 		} else {
 			$this->assertIsArray( $updated_status, 'Scheduled_Updates::get_scheduled_update_status() should return an array.' );
-			// doing these null checks for the static analyzer
+			// doing these null checks for the static analyzer.
 			$this->assertSame( $timestamp, $updated_status['last_run_timestamp'] ?? null );
 			$this->assertSame( $status, $updated_status['last_run_status'] ?? null );
 
@@ -672,10 +652,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => array(),
-				'schedule' => array(
-					'timestamp' => strtotime( 'next Tuesday 9:00' ),
-					'interval'  => 'daily',
-				),
+				'schedule' => $this->get_schedule( 'next Tuesday 9:00', 'daily' ),
 			)
 		);
 		$result = rest_do_request( $request );
@@ -888,7 +865,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		$schedule_id = $this->create_test_schedule();
 
-		// Simulate 5 runs
+		// Simulate 5 runs.
 		for ( $i = 0;$i < 5;$i++ ) {
 			$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . $schedule_id . '/logs' );
 			$request->set_body_params(
@@ -951,14 +928,27 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $scheduled_plugins,
-				'schedule' => array(
-					'timestamp' => strtotime( "next Monday {$i}:00" ),
-					'interval'  => 'weekly',
-				),
+				'schedule' => $this->get_schedule( "next Monday {$i}:00" ),
 			)
 		);
 
 		$result = rest_do_request( $request );
 		return $result->get_data();
+	}
+
+	/**
+	 * Get a schedule.
+	 *
+	 * @param string $timestamp Schedule timestamp.
+	 * @param string $interval Schedule interval.
+	 * @param array  $health_check_paths Health check paths.
+	 * @return array
+	 */
+	private function get_schedule( $timestamp = 'next Monday 8:00', $interval = 'weekly', $health_check_paths = array() ) {
+		return array(
+			'timestamp'          => strtotime( $timestamp ),
+			'interval'           => $interval,
+			'health_check_paths' => $health_check_paths,
+		);
 	}
 }

@@ -61,7 +61,7 @@ class Access_Control {
 	/**
 	 * Get the singleton instance.
 	 *
-	 * @return AJAX
+	 * @return self
 	 */
 	public static function instance() {
 		if ( null === self::$instance ) {

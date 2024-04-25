@@ -16,10 +16,10 @@ return [
     // PhanTypeMissingReturn : 10+ occurrences
     // PhanTypeArraySuspicious : 9 occurrences
     // PhanTypeMismatchArgument : 9 occurrences
-    // PhanUndeclaredFunction : 8 occurrences
     // PhanParamTooMany : 7 occurrences
     // PhanPossiblyUndeclaredVariable : 6 occurrences
     // PhanUndeclaredClassMethod : 6 occurrences
+    // PhanUndeclaredFunction : 6 occurrences
     // PhanUndeclaredConstant : 5 occurrences
     // PhanCommentParamOnEmptyParamList : 3 occurrences
     // PhanPluginUseReturnValueInternalKnown : 3 occurrences
@@ -29,7 +29,6 @@ return [
     // PhanUndeclaredClassConstant : 3 occurrences
     // PhanNoopNew : 2 occurrences
     // PhanRedundantCondition : 2 occurrences
-    // PhanUndeclaredMethodInCallable : 2 occurrences
     // PhanUndeclaredStaticMethod : 2 occurrences
     // PhanCoalescingNeverNull : 1 occurrence
     // PhanCommentObjectInClassConstantType : 1 occurrence
@@ -45,13 +44,11 @@ return [
     // PhanTypeMismatchArgumentNullable : 1 occurrence
     // PhanTypeMismatchDefault : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
-    // PhanTypeMismatchPropertyProbablyReal : 1 occurrence
     // PhanTypeSuspiciousStringExpression : 1 occurrence
     // PhanUndeclaredClassInCallable : 1 occurrence
     // PhanUndeclaredClassReference : 1 occurrence
     // PhanUndeclaredConstantOfClass : 1 occurrence
     // PhanUndeclaredFunctionInCallable : 1 occurrence
-    // PhanUndeclaredMethod : 1 occurrence
     // PhanUndeclaredTypeParameter : 1 occurrence
     // PhanUndeclaredTypeProperty : 1 occurrence
 
@@ -63,10 +60,9 @@ return [
         'app/data-sync/Performance_History_Entry.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious'],
         'app/features/setup-prompt/Setup_Prompt.php' => ['PhanTypeMissingReturn'],
         'app/lib/Environment_Change_Detector.php' => ['PhanCommentParamOutOfOrder'],
-        'app/lib/Status.php' => ['PhanTypeArraySuspiciousNullable', 'PhanUndeclaredMethodInCallable'],
+        'app/lib/Status.php' => ['PhanTypeArraySuspiciousNullable'],
         'app/lib/Super_Cache_Info.php' => ['PhanUndeclaredFunction'],
         'app/lib/class-cli.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanUndeclaredConstantOfClass'],
-        'app/lib/class-minify.php' => ['PhanTypeMismatchPropertyProbablyReal', 'PhanUndeclaredMethod'],
         'app/lib/class-viewport.php' => ['PhanTypeMismatchArgument'],
         'app/lib/critical-css/Critical_CSS_State.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
         'app/lib/critical-css/Regenerate.php' => ['PhanParamTooMany'],
@@ -101,10 +97,10 @@ return [
         'app/modules/optimizations/page-cache/pre-wordpress/Logger.php' => ['PhanCoalescingNeverNull', 'PhanPluginDuplicateConditionalNullCoalescing'],
         'app/modules/optimizations/page-cache/pre-wordpress/Request.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchPropertyDefault'],
         'app/modules/optimizations/page-cache/pre-wordpress/storage/File_Storage.php' => ['PhanTypeMismatchArgument'],
-        'app/modules/optimizations/render-blocking-js/class-render-blocking-js.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMissingReturn', 'PhanUndeclaredFunction'],
+        'app/modules/optimizations/render-blocking-js/class-render-blocking-js.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMissingReturn'],
         'app/modules/performance-history/Performance_History.php' => ['PhanTypeMissingReturn'],
         'app/rest-api/permissions/Nonce.php' => ['PhanParamTooMany'],
-        'compatibility/amp.php' => ['PhanUndeclaredClassInCallable', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty'],
+        'compatibility/amp.php' => ['PhanUndeclaredClassInCallable', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty'],
         'compatibility/elementor.php' => ['PhanUndeclaredClassConstant'],
         'compatibility/jetpack.php' => ['PhanUndeclaredClassMethod'],
         'compatibility/lib/class-sync-jetpack-module-status.php' => ['PhanParamTooMany', 'PhanUndeclaredClassMethod'],

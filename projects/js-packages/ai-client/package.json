@@ -1,7 +1,7 @@
 {
 	"private": false,
 	"name": "@automattic/jetpack-ai-client",
-	"version": "0.12.2-alpha",
+	"version": "0.12.3",
 	"description": "A JS client for consuming Jetpack AI services",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/ai-client/#readme",
 	"bugs": {
@@ -25,6 +25,7 @@
 	"devDependencies": {
 		"@storybook/addon-actions": "8.0.6",
 		"@storybook/blocks": "8.0.6",
+		"@storybook/preview-api": "8.0.6",
 		"@storybook/react": "8.0.6",
 		"@types/markdown-it": "14.0.0",
 		"@types/turndown": "5.0.4",

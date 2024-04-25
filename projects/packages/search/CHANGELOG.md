@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.44.3] - 2024-04-25
+### Changed
+- Internal updates.
+
+## [0.44.2] - 2024-04-22
+### Changed
+- Internal updates.
+
 ## [0.44.1] - 2024-04-15
 ### Changed
 - Update dependencies. [#36848]
@@ -937,6 +945,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.44.3]: https://github.com/Automattic/jetpack-search/compare/v0.44.2...v0.44.3
+[0.44.2]: https://github.com/Automattic/jetpack-search/compare/v0.44.1...v0.44.2
 [0.44.1]: https://github.com/Automattic/jetpack-search/compare/v0.44.0...v0.44.1
 [0.44.0]: https://github.com/Automattic/jetpack-search/compare/v0.43.8...v0.44.0
 [0.43.8]: https://github.com/Automattic/jetpack-search/compare/v0.43.7...v0.43.8
