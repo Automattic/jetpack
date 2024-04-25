@@ -14,7 +14,14 @@
 		justify-content: center;
 	}
 
-	&__user-prompt-field {
+	&__user-prompt {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		flex-direction: row;
+	}
+
+	&__user-prompt-textarea {
 		width: 100%;
 		display: flex;
 		justify-content: center;
