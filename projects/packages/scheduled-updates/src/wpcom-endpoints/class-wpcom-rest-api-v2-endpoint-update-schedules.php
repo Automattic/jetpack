@@ -218,9 +218,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			$event->schedule_id = $schedule_id;
 
 			// Run through the prepare_item_for_response method to add the last run status.
-			$response[ $schedule_id ] = $this->prepare_response_for_collection(
-				$this->prepare_item_for_response( $event, $request )
-			);
+			$response[ $schedule_id ] = $this->prepare_item_for_response( $event, $request );
 		}
 
 		return rest_ensure_response( $response );
@@ -507,28 +505,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		Scheduled_Updates_Health_Paths::clear( $request['schedule_id'] );
 
 		return rest_ensure_response( true );
-	}
-
-	/**
-	 * Prepares a response for insertion into a collection.
-	 *
-	 * @param WP_REST_Response $response Response object.
-	 * @return array|mixed Response data, ready for insertion into collection data.
-	 */
-	public function prepare_response_for_collection( $response ) {
-		if ( ! ( $response instanceof WP_REST_Response ) ) {
-			return $response;
-		}
-
-		$data   = (array) $response->get_data();
-		$server = rest_get_server();
-		$links  = $server::get_compact_response_links( $response );
-
-		if ( ! empty( $links ) ) {
-			$data['_links'] = $links;
-		}
-
-		return $data;
 	}
 
 	/**
