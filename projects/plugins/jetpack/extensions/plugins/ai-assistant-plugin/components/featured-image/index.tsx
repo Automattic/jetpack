@@ -254,6 +254,17 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 		featuredImageCost
 	);
 
+	const acceptButton = (
+		<Button
+			onClick={ handleAccept }
+			variant="primary"
+			isBusy={ currentImage?.generating }
+			disabled={ ! currentImage?.image }
+		>
+			{ __( 'Set as featured image', 'jetpack' ) }
+		</Button>
+	);
+
 	return (
 		<div>
 			<p>{ __( 'Create and use an AI generated featured image for your post.', 'jetpack' ) }</p>
@@ -333,22 +344,8 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 								current={ current }
 								handlePreviousImage={ handlePreviousImage }
 								handleNextImage={ handleNextImage }
+								actions={ acceptButton }
 							/>
-						</div>
-						<div className="ai-assistant-featured-image__actions">
-							<div className="ai-assistant-featured-image__actions-left"></div>
-							<div className="ai-assistant-featured-image__actions-right">
-								<div className="ai-assistant-featured-image__action-buttons">
-									<Button
-										onClick={ handleAccept }
-										variant="primary"
-										isBusy={ currentImage?.generating }
-										disabled={ ! currentImage?.image }
-									>
-										{ __( 'Set as featured image', 'jetpack' ) }
-									</Button>
-								</div>
-							</div>
 						</div>
 					</div>
 					<div className="ai-assistant-featured-image__footer">
