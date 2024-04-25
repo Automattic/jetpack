@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Scheduled Updates: move health check functions into hooks
