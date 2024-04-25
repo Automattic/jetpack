@@ -5,6 +5,11 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+// Type aliases used in a bunch of places in this file. Unfortunately Phan doesn't have a way to set these more globally than copy-pasting them into each file needing them.
+<<<PHAN
+@phan-type Task = array{id:string, title?:string, get_title?:callable, id_map?:string, add_listener_callback?:callable, badge_text_callback?:callable, extra_data_callback?:callable, get_calypso_path?:callable, is_complete_callback?:callable, is_disabled_callback?:callable, isLaunchTask?:bool, is_visible_callback?:callable, target_repetitions?:int, repetition_count_callback?:callable, subtitle?:callable, completed?:bool}
+PHAN;
+
 /**
  * Returns whether the task link should point to wp-admin page
  * instead of Calypso page.
@@ -29,7 +34,7 @@ function wpcom_launchpad_should_use_jetpack_cloud_link() {
 /**
  * Get the task definitions for the Launchpad.
  *
- * @return array
+ * @return Task[]
  */
 function wpcom_launchpad_get_task_definitions() {
 	$task_definitions = array(
@@ -740,8 +745,8 @@ function wpcom_launchpad_get_task_definitions() {
 /**
  * Returns true if the current site is launched.
  *
- * @param array $task The task object.
- * @param bool  $is_complete The current task status.
+ * @param Task $task The task object.
+ * @param bool $is_complete The current task status.
  *
  * @return boolean
  */
@@ -922,7 +927,7 @@ function wpcom_launchpad_update_task_status( $new_statuses ) {
 /**
  * Initialize the Launchpad task listener callbacks.
  *
- * @param array $task_definitions The tasks to initialize.
+ * @param Task[] $task_definitions The tasks to initialize.
  *
  * @return mixed void or WP_Error.
  */
@@ -1012,7 +1017,7 @@ function wpcom_launchpad_is_design_step_enabled() {
 /**
  * Determines whether or not domain upsell task is completed.
  *
- * @param array $task    The Task object.
+ * @param Task  $task    The Task object.
  * @param mixed $default The default value.
  * @return bool True if domain upsell task is completed.
  */
@@ -1075,8 +1080,8 @@ function wpcom_launchpad_is_domain_upsell_task_visible() {
 /**
  * Verifies if the Mobile App is installed for the current user.
  *
- * @param array $task The task object.
- * @param bool  $is_complete The current task status.
+ * @param Task $task The task object.
+ * @param bool $is_complete The current task status.
  * @return bool True if the Mobile App is installed for the current user.
  */
 function wpcom_launchpad_is_mobile_app_installed( $task, $is_complete ) {
@@ -1502,7 +1507,7 @@ add_action( 'publish_post', 'wpcom_launchpad_track_write_3_posts_task' );
 /**
  * Callback for getting the number of posts published.
  *
- * @param array $task The Task definition.
+ * @param Task $task The Task definition.
  * @return int
  */
 function wpcom_launchpad_get_write_3_posts_repetition_count( $task ) {
@@ -1514,7 +1519,7 @@ function wpcom_launchpad_get_write_3_posts_repetition_count( $task ) {
 /**
  * Returns the option value for a task and false if no option exists.
  *
- * @param array $task The task data.
+ * @param Task $task The task data.
  * @return bool True if the option for the task is marked as complete, false otherwise.
  */
 function wpcom_launchpad_is_task_option_completed( $task ) {
@@ -1535,8 +1540,8 @@ function wpcom_launchpad_is_task_option_completed( $task ) {
  * injecting additional logic into complex code paths.
  * NOTE: This function should only be used when (re)computing the repetition count is quick.
  *
- * @param array $task              The task data.
- * @param bool  $is_option_complete Whether the underlying option has already been marked as complete.
+ * @param Task $task              The task data.
+ * @param bool $is_option_complete Whether the underlying option has already been marked as complete.
  * @return bool True if the underlying option has been marked as complete, or if we detect that
  * target_repetitions has been reached.
  */
@@ -2450,7 +2455,7 @@ function wpcom_launchpad_domain_customize_check_purchases() {
 /**
  * Determines whether or not domain customize task is complete.
  *
- * @param array $task    The Task object.
+ * @param Task  $task    The Task object.
  * @param mixed $default The default value.
  * @return bool True if domain customize task is complete.
  */

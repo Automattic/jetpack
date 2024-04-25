@@ -66,7 +66,7 @@ class csstidy_print { // phpcs:ignore
 	/**
 	 * Constructor
 	 *
-	 * @param array $css contains the class csstidy.
+	 * @param csstidy $css contains the class csstidy.
 	 * @access private
 	 * @version 1.0
 	 */
@@ -83,7 +83,7 @@ class csstidy_print { // phpcs:ignore
 	/**
 	 * Call constructor function.
 	 *
-	 * @param object $css - the CSS we're working with.
+	 * @param csstidy $css - the CSS we're working with.
 	 */
 	public function csstidy_print( &$css ) {
 		$this->__construct( $css );

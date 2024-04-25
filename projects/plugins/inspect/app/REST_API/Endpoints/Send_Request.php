@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Inspect\REST_API\Endpoints;
 
 use Automattic\Jetpack_Inspect\Monitors;
 use Automattic\Jetpack_Inspect\REST_API\Permissions\Current_User_Admin;
+use WP_REST_Request;
 use WP_REST_Server;
 
 /**
@@ -49,7 +50,7 @@ class Send_Request {
 	/**
 	 * Handle the request and return the response.
 	 *
-	 * @param Request $request request.
+	 * @param WP_REST_Request $request request.
 	 */
 	public function response( $request ) {
 
@@ -86,7 +87,7 @@ class Send_Request {
 	/**
 	 * Returns transport function name.
 	 *
-	 * @param Request $request request.
+	 * @param WP_REST_Request $request request.
 	 */
 	private function get_transport_function( $request ) {
 		$transport_name       = $request->get_param( 'transport' ) ?? 'wp_remote_request';

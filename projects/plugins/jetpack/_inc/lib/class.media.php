@@ -222,9 +222,9 @@ class Jetpack_Media {
 	/**
 	 * Add a new item into revision_history array.
 	 *
-	 * @param  object $media_item - media post object.
-	 * @param  file   $file - file recently added.
-	 * @param  bool   $has_original_media - condition is the original media has been already added.
+	 * @param  object         $media_item - media post object.
+	 * @param  array|WP_Error $file - File data, or WP_Error on error.
+	 * @param  bool           $has_original_media - condition is the original media has been already added.
 	 * @return bool `true` if the item has been added. Otherwise `false`.
 	 */
 	public static function register_revision( $media_item, $file, $has_original_media ) {

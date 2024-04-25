@@ -37,7 +37,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.22.2';
+	const PACKAGE_VERSION = '4.22.3-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -62,7 +62,7 @@ class Initializer {
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
 	 *
-	 * @var stdClass Object
+	 * @var object
 	 */
 	public static $site_info;
 
@@ -509,7 +509,7 @@ class Initializer {
 	/**
 	 * Populates the self::$site_info var with site data from the /sites/%d endpoint
 	 *
-	 * @return Object|WP_Error
+	 * @return object|WP_Error
 	 */
 	public static function get_site_info() {
 		static $site_info = null;

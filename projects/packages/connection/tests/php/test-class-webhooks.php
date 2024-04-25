@@ -33,8 +33,6 @@ class Test_Webhooks extends TestCase {
 	/**
 	 * Setting up the testing environment.
 	 *
-	 * @throws \phpmock\MockEnabledException The mock exception.
-	 *
 	 * @before
 	 */
 	public function set_up() {
