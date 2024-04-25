@@ -33,8 +33,7 @@
  * if they tried to install it as one.
  */
 function jetpack_monorepo_is_not_a_plugin() {
-	echo '<div class="notice notice-error"><p>';
-	printf(
+	$message = sprintf(
 		wp_kses(
 			/* translators: Link to Jetpack installation instructions. */
 			__( 'The Jetpack Monorepo is not a plugin, and should not be installed as one. See <a href="%s">the Jetpack Monorepo documentation</a> for instructions on correctly installing Jetpack.', 'jetpack' ),
@@ -44,7 +43,12 @@ function jetpack_monorepo_is_not_a_plugin() {
 		),
 		esc_url( 'https://github.com/Automattic/jetpack#jetpack-monorepo' )
 	);
-	echo "</p></div>\n";
+	wp_admin_notice(
+		$message,
+		array(
+			'type' => 'error',
+		)
+	);
 }
 
 add_action( 'admin_notices', 'jetpack_monorepo_is_not_a_plugin' );

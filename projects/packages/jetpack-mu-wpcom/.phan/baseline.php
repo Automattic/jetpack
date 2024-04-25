@@ -49,6 +49,7 @@ return [
         'src/features/100-year-plan/locked-mode.php' => ['PhanEmptyFQSENInCallable'],
         'src/features/admin-color-schemes/admin-color-schemes.php' => ['PhanUndeclaredConstant'],
         'src/features/block-patterns/class-wpcom-block-patterns-utils.php' => ['PhanTypeMismatchReturnNullable'],
+        'src/features/cloudflare-analytics/cloudflare-analytics.php' => ['PhanUndeclaredClassMethod'],
         'src/features/coming-soon/coming-soon.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchArgumentInternal', 'PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable'],
         'src/features/coming-soon/fallback-coming-soon-page.php' => ['PhanTypeMismatchArgument', 'PhanTypeVoidArgument'],
         'src/features/error-reporting/error-reporting.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],

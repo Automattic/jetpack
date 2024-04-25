@@ -3,7 +3,8 @@ import Button from 'components/button';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import React from 'react';
+import analytics from 'lib/analytics';
+import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { getJetpackCloudUrl } from 'state/initial-state';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
@@ -19,6 +20,10 @@ function PaidNewsletter( props ) {
 
 	const setupPaymentPlansButtonDisabled = ! isSubscriptionsActive;
 
+	const trackSetupPaymentPlansButtonClick = useCallback( () => {
+		analytics.tracks.recordJetpackClick( 'newsletter_settings_setup_payment_plans_button_click' );
+	}, [] );
+
 	return (
 		<SettingsCard header={ __( 'Paid Newsletter', 'jetpack' ) } hideButton>
 			<SettingsGroup>
@@ -31,6 +36,7 @@ function PaidNewsletter( props ) {
 
 				<Button
 					href={ ! setupPaymentPlansButtonDisabled ? setupPaymentPlansUrl : undefined }
+					onClick={ trackSetupPaymentPlansButtonClick }
 					disabled={ setupPaymentPlansButtonDisabled }
 					primary
 					rna
