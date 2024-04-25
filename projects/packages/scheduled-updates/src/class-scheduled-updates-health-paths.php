@@ -36,11 +36,14 @@ class Scheduled_Updates_Health_Paths {
 	/**
 	 * Update the health check paths for a scheduled update.
 	 *
-	 * @param string $schedule_id Request ID.
-	 * @param array  $paths       List of paths to save.
+	 * @param string           $schedule_id The ID of the schedule.
+	 * @param object           $event       The event object.
+	 * @param \WP_REST_Request $request     The request object.
 	 * @return bool
 	 */
-	public static function update( $schedule_id, $paths ) {
+	public static function update( $schedule_id, $event, $request ) {
+		$schedule     = $request['schedule'];
+		$paths        = $schedule['health_check_paths'] ?? array();
 		$option       = get_option( self::OPTION_NAME, array() );
 		$parsed_paths = array();
 

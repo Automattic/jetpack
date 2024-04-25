@@ -61,6 +61,8 @@ class Scheduled_Updates {
 		add_action( 'jetpack_scheduled_update_deleted', array( __CLASS__, 'enable_autoupdates' ), 10, 2 );
 		add_action( 'jetpack_scheduled_update_updated', array( Scheduled_Updates_Logs::class, 'replace_logs_schedule_id' ), 10, 2 );
 		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Logs::class, 'delete_logs_schedule_id' ), 10, 3 );
+		add_action( 'jetpack_scheduled_update_created', array( Scheduled_Updates_Health_Paths::class, 'update' ), 10, 3 );
+		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Health_Paths::class, 'clear' ), 10, 1 );
 
 		// Update cron sync option after options update.
 		$callback = array( __CLASS__, 'update_option_cron' );
