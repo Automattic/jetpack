@@ -543,7 +543,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 *     @type string $slug Module slug.
 	 * }
 	 *
-	 * @return bool|WP_Error True if module was updated. Otherwise, a WP_Error instance with the corresponding error.
+	 * @return bool|WP_REST_Response|WP_Error True or a WP_REST_Response if module was updated. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public function update_data( $request ) {
 

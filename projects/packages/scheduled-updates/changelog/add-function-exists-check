@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Adds an exists check before using wpcom_rest_api_v2_load_plugin() in the API endpoint.

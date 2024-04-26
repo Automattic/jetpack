@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Sync\Settings;
+use PHPMailer\PHPMailer\PHPMailer;
 use WP_Error;
 
 /**
@@ -49,7 +50,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * Form we are currently looking at. If processed, will become $last
 	 *
-	 * @var Whatever
+	 * @var Contact_Form
 	 */
 	public static $current_form;
 
