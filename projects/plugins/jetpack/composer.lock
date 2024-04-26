@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "2d56d2e8cbc747ab23d1b1699a16ef76",
+	"content-hash": "aabdf7e6c89c547ee123802392e66866",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -1164,6 +1164,61 @@
 				"GPL-2.0-or-later"
 			],
 			"description": "Jetpack Forms",
+			"transport-options": {
+				"relative": true
+			}
+		},
+		{
+			"name": "automattic/jetpack-google-analytics",
+			"version": "dev-trunk",
+			"dist": {
+				"type": "path",
+				"url": "../../packages/google-analytics",
+				"reference": "333fe8c27a8f1811f6a16803eb048026e48586af"
+			},
+			"require": {
+				"php": ">=7.0"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"yoast/phpunit-polyfills": "1.1.0"
+			},
+			"suggest": {
+				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+			},
+			"type": "jetpack-library",
+			"extra": {
+				"branch-alias": {
+					"dev-trunk": "0.1.x-dev"
+				},
+				"textdomain": "jetpack-google-analytics",
+				"version-constants": {
+					"::PACKAGE_VERSION": "src/class-ga-manager.php"
+				}
+			},
+			"autoload": {
+				"classmap": [
+					"src/"
+				]
+			},
+			"scripts": {
+				"build-development": [
+					"echo 'Add your build step to composer.json, please!'"
+				],
+				"build-production": [
+					"echo 'Add your build step to composer.json, please!'"
+				],
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"description": "Set up Google Analytics without touching a line of code.",
 			"transport-options": {
 				"relative": true
 			}
@@ -5619,6 +5674,7 @@
 		"automattic/jetpack-device-detection": 20,
 		"automattic/jetpack-error": 20,
 		"automattic/jetpack-forms": 20,
+		"automattic/jetpack-google-analytics": 20,
 		"automattic/jetpack-google-fonts-provider": 20,
 		"automattic/jetpack-identity-crisis": 20,
 		"automattic/jetpack-image-cdn": 20,
