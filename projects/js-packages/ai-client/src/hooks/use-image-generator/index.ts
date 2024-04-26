@@ -10,6 +10,21 @@ import requestJwt from '../../jwt/index.js';
 const debug = debugFactory( 'ai-client:use-image-generator' );
 
 /**
+ * Cut the post content on a given lenght so the total length of the prompt is not longer than 4000 characters.
+ * @param {string} content - the content to be truncated
+ * @param {number} currentPromptLength - the length of the prompt already in use
+ * @returns {string} a truncated version of the content respecting the prompt length limit
+ */
+const truncateContent = ( content: string, currentPromptLength: number ): string => {
+	const maxLength = 4000;
+	const remainingLength = maxLength - currentPromptLength;
+	// 6 is the length of the ellipsis and the space before it
+	return content.length > remainingLength
+		? content.substring( 0, remainingLength - 6 ) + ` [...]`
+		: content;
+};
+
+/**
  * Create the prompt string based on the provided context.
  * @param {string} postContent - the content of the post
  * @param {string} userPrompt - the user prompt for the image generation, if provided
@@ -22,8 +37,7 @@ const getImageGenerationPrompt = ( postContent: string, userPrompt?: string ): s
 	 * provide some guardrails for the generation.
 	 */
 	if ( userPrompt ) {
-		return (
-			`I need a cover image for a blog post based on this user prompt:
+		const imageGenerationPrompt = `I need a cover image for a blog post based on this user prompt:
 
 ${ userPrompt }
 
@@ -38,16 +52,16 @@ Do not add text to the image.
 
 For additional context, this is the post content:
 
-` + ( postContent.length > 2000 ? postContent.substring( 0, 2000 ) + ` [...]` : postContent )
-		); // truncating the content so the whole prompt is not longer than 4000 characters, the model limit.
+`;
+		// truncating the content so the whole prompt is not longer than 4000 characters, the model limit.
+		return imageGenerationPrompt + truncateContent( postContent, imageGenerationPrompt.length );
 	}
 
 	/**
 	 * When the user does not provide a custom prompt, we will use the
 	 * standard one, based solely on the post content.
 	 */
-	return (
-		`I need a cover image for a blog post.
+	const imageGenerationPrompt = `I need a cover image for a blog post.
 Before creating the image, identify the main topic of the content and only represent it.
 Do not represent the whole content in one image, keep it simple and just represent one single idea.
 Do not add details, detailed explanations or highlights from the content, just represent the main idea as if it was a photograph.
@@ -59,8 +73,9 @@ Do not add text to the image.
 
 This is the post content:
 
-` + ( postContent.length > 3000 ? postContent.substring( 0, 3000 ) + ` [...]` : postContent )
-	); // truncating the content so the whole prompt is not longer than 4000 characters, the model limit.
+`;
+	// truncating the content so the whole prompt is not longer than 4000 characters, the model limit.
+	return imageGenerationPrompt + truncateContent( postContent, imageGenerationPrompt.length );
 };
 
 const useImageGenerator = () => {
