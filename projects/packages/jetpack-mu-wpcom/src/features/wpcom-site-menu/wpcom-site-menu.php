@@ -564,10 +564,11 @@ function wpcom_add_scheduled_updates_menu() {
 		return;
 	}
 
-	if (
-		function_exists( 'wpcom_site_has_feature' ) &&
-		! wpcom_site_has_feature( \WPCOM_Features::SCHEDULED_UPDATES )
-	) {
+	if ( ! function_exists( 'wpcom_site_has_feature' ) ) {
+		return;
+	}
+
+	if ( ! wpcom_site_has_feature( \WPCOM_Features::SCHEDULED_UPDATES ) ) {
 		return;
 	}
 
