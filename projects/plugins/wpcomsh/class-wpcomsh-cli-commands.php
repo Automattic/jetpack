@@ -747,6 +747,113 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 				WP_CLI::success( "Removing the data field `$field` successfully" );
 			}
 		}
+
+		/**
+		 * List incompatible plugins on the site.
+		 *
+		 * ## OPTIONS
+		 *
+		 * <action>
+		 * : The action you want to run. Only `list` supported at present.
+		 * ---
+		 * options:
+		 *  - list
+		 * ---
+		 *
+		 * [--field=<field>]
+		 * : Prints the value of a single field for each incompatible plugin.
+		 *
+		 * [--fields=<fields>]
+		 * : The fields to include in the output.
+		 *
+		 * [--format=<format>]
+		 * : The output format to use.
+		 * ---
+		 * default: table
+		 * options:
+		 *  - table
+		 *  - csv
+		 *  - json
+		 * ---
+		 *
+		 * [--status=<status>]
+		 * : Only return incompatible plugins with a specific status.
+		 * ---
+		 * options:
+		 *  - active
+		 *  - inactive
+		 *  - active-network
+		 *  - must-use
+		 *
+		 * ## AVAILABLE FIELDS
+		 *
+		 * These fields will be displayed by default for each plugin:
+		 *
+		 * * name
+		 * * status
+		 * * version
+		 *
+		 * These fields are optionally available:
+		 *
+		 * * message
+		 * * title
+		 * * description
+		 * * file
+		 * * author
+		 *
+		 * @subcommand incompatible-plugins
+		 */
+		public function incompatible_plugins( $args, $assoc_args ) {
+			if ( empty( $args[0] ) ) {
+				WP_CLI::error( 'No action specified.' );
+			}
+
+			$action = $args[0];
+
+			$supported_actions = array( 'list' );
+
+			if ( ! in_array( $action, $supported_actions, true ) ) {
+				WP_CLI::error( "Unsupported action: '{$action}'. Must be one of: " . implode( '|', $supported_actions ) );
+			}
+
+			$jetpack_plugin_compatibility = Jetpack_Plugin_Compatibility::get_instance();
+
+			$incompatible_plugins = $jetpack_plugin_compatibility->find_incompatible_plugins();
+
+			$status_to_filter = \WP_CLI\Utils\get_flag_value( $assoc_args, 'status' );
+			if ( ! empty( $status_to_filter ) ) {
+				$incompatible_plugins = array_filter(
+					$incompatible_plugins,
+					function ( $incompatible_plugin_details ) use ( $status_to_filter ) {
+						return $status_to_filter === ( $incompatible_plugin_details['status'] ?? null );
+					}
+				);
+			}
+
+			if ( empty( $incompatible_plugins ) ) {
+				WP_CLI::success( 'No incompatible plugins found.' );
+				return;
+			}
+
+			$refined_plugin_list = array();
+
+			foreach ( $incompatible_plugins as $plugin_filename => $plugin_details ) {
+				$refined_plugin_list[] = array(
+					'name'        => \WP_CLI\Utils\get_plugin_name( $plugin_filename ),
+					'status'      => $plugin_details['status'],
+					'version'     => $plugin_details['details']['Version'] ?? '',
+					'message'     => $plugin_details['message'],
+					'title'       => $plugin_details['details']['Name'] ?? '',
+					'description' => $plugin_details['details']['Description'] ?? '',
+					'file'        => $plugin_filename,
+					'author'      => $plugin_details['details']['Author'] ?? '',
+				);
+			}
+
+			$formatter = new \WP_CLI\Formatter( $assoc_args, array( 'name', 'status', 'version' ), 'plugin' );
+
+			$formatter->display_items( $refined_plugin_list );
+		}
 	}
 }
 

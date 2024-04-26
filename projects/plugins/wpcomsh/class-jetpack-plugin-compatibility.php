@@ -185,7 +185,7 @@ class Jetpack_Plugin_Compatibility {
 	/**
 	 * Jetpack_Plugin_Compatibility constructor.
 	 */
-	public function __construct() {
+	protected function __construct() {
 		// Disable plugin activation for unsupported plugins.
 		add_action( 'load-plugins.php', array( $this, 'check_plugin_compatibility' ) );
 		// Replace "Activate" plugin link for plugins that should not be activated (plugins.php).
@@ -197,6 +197,19 @@ class Jetpack_Plugin_Compatibility {
 		add_action( 'admin_notices', array( $this, 'incompatible_plugin_notices' ) );
 		// Disable My Jetpack page.
 		add_filter( 'jetpack_my_jetpack_should_initialize', 'wpcom_is_nav_redesign_enabled' );
+	}
+
+	/**
+	 * Public getter to return a singleton instance of Jetpack_Plugin_Compatibility.
+	 */
+	public static function get_instance(): Jetpack_Plugin_Compatibility {
+		static $instance = null;
+
+		if ( null === $instance ) {
+			$instance = new static();
+		}
+
+		return $instance;
 	}
 
 	/**
@@ -262,5 +275,63 @@ class Jetpack_Plugin_Compatibility {
 		}
 
 		return $action_links;
+	}
+
+	/**
+	 * Find the incompatible plugins on the site.
+	 *
+	 * @return array
+	 */
+	public function find_incompatible_plugins(): array {
+		// We don't apply the standard Core 'all_plugins' filter, so we are truly looking at all standard plugins.
+		$standard_plugins = get_plugins();
+
+		$incompatible_plugins = array();
+
+		foreach ( $standard_plugins as $plugin_file => $plugin_details ) {
+			if ( ! array_key_exists( $plugin_file, $this->incompatible_plugins ) ) {
+				continue;
+			}
+
+			$incompatible_plugins[ $plugin_file ] = array(
+				'message' => $this->incompatible_plugins[ $plugin_file ],
+				'details' => $plugin_details,
+				'status'  => $this->get_plugin_status( $plugin_file ),
+			);
+		}
+
+		$mu_plugins = get_mu_plugins();
+
+		foreach ( $mu_plugins as $mu_plugin_file => $mu_plugin_details ) {
+			if ( ! array_key_exists( $mu_plugin_file, $this->incompatible_plugins ) ) {
+				continue;
+			}
+
+			$incompatible_plugins[ $mu_plugin_file ] = array(
+				'message' => $this->incompatible_plugins[ $mu_plugin_file ],
+				'details' => $mu_plugin_details,
+				'status'  => 'must-use',
+			);
+		}
+
+		return $incompatible_plugins;
+	}
+
+	/**
+	 * Helper function to determine the status of a standard plugin.
+	 *
+	 * @param string $plugin_file The full plugin filename.
+	 * @return 'active-network'|'active'|'inactive'
+	 */
+	protected function get_plugin_status( string $plugin_file ): string {
+		if ( is_plugin_active_for_network( $plugin_file ) ) {
+			return 'active-network';
+		}
+
+		if ( is_plugin_active( $plugin_file ) ) {
+			return 'active';
+		}
+
+		return 'inactive';
 	}
 }
