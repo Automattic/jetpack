@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Untangling: prevent CSS concat on colors handle instead of reenqueuing colors from CDN
