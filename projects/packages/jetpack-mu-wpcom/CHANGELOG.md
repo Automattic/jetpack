@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.26.1] - 2024-04-26
+### Added
+- CloudFlare Analytics: add tracking code management (originally in the Jetpack plugin). [#37061]
+
+### Changed
+- General: use wp_admin_notice function introduced in WP 6.4 to display notices. [#37051]
+
+### Fixed
+- Calypso: Prevent CSS concat on colors handle instead of reenqueuing colors from CDN. [#37063]
+
 ## [5.26.0] - 2024-04-25
 ### Added
 - Admin menu: Show sidebar notices on classic interface. [#36797]
@@ -753,6 +763,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.26.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.26.0...v5.26.1
 [5.26.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.25.0...v5.26.0
 [5.25.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.24.0...v5.25.0
 [5.24.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.23.2...v5.24.0
