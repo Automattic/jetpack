@@ -96,11 +96,14 @@ class Scheduled_Updates {
 	 * @suppress PhanUndeclaredFunction
 	 */
 	public static function load_rest_api_endpoints() {
-		if ( ! function_exists( 'wpcom_rest_api_v2_load_plugin' ) || ! function_exists( 'wpcom_rest_api_v2_load_plugin_files' ) ) {
+		if ( ! function_exists( 'wpcom_rest_api_v2_load_plugin' ) ) {
 			return;
 		}
 
-		wpcom_rest_api_v2_load_plugin_files( 'wpcom-endpoints/*.php' );
+		$endpoints = glob( __DIR__ . '/wpcom-endpoints/*.php' );
+		foreach ( array_filter( (array) $endpoints, 'is_file' ) as $endpoint ) {
+			require_once $endpoint;
+		}
 
 		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules' );
 		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities' );
