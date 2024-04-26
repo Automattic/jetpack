@@ -21,16 +21,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities_Test extends \Wor
 	public $admin_id;
 
 	/**
-	 * Set up before class.
-	 */
-	public static function set_up_before_class() {
-		parent::set_up_before_class();
-
-		// @phan-suppress-next-line PhanNoopNew
-		new WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities();
-	}
-
-	/**
 	 * Set up.
 	 */
 	public function set_up() {
@@ -46,7 +36,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities_Test extends \Wor
 		wp_set_current_user( 0 );
 
 		Scheduled_Updates::init();
-		do_action( 'rest_api_init' );
 	}
 
 	/**

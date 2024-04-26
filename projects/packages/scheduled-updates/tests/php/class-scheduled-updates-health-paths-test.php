@@ -30,25 +30,6 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 	public $admin_id;
 
 	/**
-	 * The endpoint object.
-	 *
-	 * @var WPCOM_REST_API_V2_Endpoint_Update_Schedules
-	 */
-	public static $endpoint;
-
-	/**
-	 * Set up before class.
-	 *
-	 * @see Restrictions here: https://github.com/php-mock/php-mock-phpunit?tab=readme-ov-file#restrictions
-	 * @beforeClass
-	 */
-	public static function set_up_before_class() {
-		parent::set_up_before_class();
-
-		self::$endpoint = new WPCOM_REST_API_V2_Endpoint_Update_Schedules();
-	}
-
-	/**
 	 * Set up.
 	 *
 	 * @before
@@ -67,7 +48,6 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 		wp_set_current_user( $this->admin_id );
 
 		Scheduled_Updates::init();
-		do_action( 'rest_api_init' );
 	}
 
 	/**

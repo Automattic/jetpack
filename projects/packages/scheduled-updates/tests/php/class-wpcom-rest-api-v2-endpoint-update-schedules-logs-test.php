@@ -22,16 +22,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs_Test extends \WorDBless\B
 	public $admin_id;
 
 	/**
-	 * Set up before class.
-	 */
-	public static function set_up_before_class() {
-		parent::set_up_before_class();
-
-		// @phan-suppress-next-line PhanNoopNew
-		new WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs();
-	}
-
-	/**
 	 * Set up.
 	 */
 	public function set_up() {
@@ -47,7 +37,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs_Test extends \WorDBless\B
 		wp_set_current_user( 0 );
 
 		Scheduled_Updates::init();
-		do_action( 'rest_api_init' );
 	}
 
 	/**

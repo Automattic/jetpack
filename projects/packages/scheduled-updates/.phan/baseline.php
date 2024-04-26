@@ -12,11 +12,9 @@ return [
     // PhanUndeclaredProperty : 40+ occurrences
     // PhanTypeArraySuspiciousNullable : 2 occurrences
     // PhanCompatibleAccessMethodOnTraitDefinition : 1 occurrence
-    // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-scheduled-updates.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'src/pluggable.php' => ['PhanTypeArraySuspiciousNullable'],
         'tests/php/class-scheduled-updates-test.php' => ['PhanCompatibleAccessMethodOnTraitDefinition', 'PhanUndeclaredProperty'],
     ],

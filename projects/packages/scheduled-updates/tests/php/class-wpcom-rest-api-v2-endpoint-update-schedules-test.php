@@ -29,16 +29,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	public $editor_id;
 
 	/**
-	 * Set up before class.
-	 */
-	public static function set_up_before_class() {
-		parent::set_up_before_class();
-
-		// @phan-suppress-next-line PhanNoopNew
-		new WPCOM_REST_API_V2_Endpoint_Update_Schedules();
-	}
-
-	/**
 	 * Set up.
 	 */
 	public function set_up() {
@@ -61,7 +51,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		wp_set_current_user( 0 );
 
 		Scheduled_Updates::init();
-		do_action( 'rest_api_init' );
 	}
 
 	/**
@@ -747,5 +736,21 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		rest_do_request( $request );
 
 		$this->assertSame( $expected_result, get_option( 'auto_update_plugins' ) );
+	}
+
+	/**
+	 * Get a schedule.
+	 *
+	 * @param string $timestamp Schedule timestamp.
+	 * @param string $interval Schedule interval.
+	 * @param array  $health_check_paths Health check paths.
+	 * @return array
+	 */
+	private function get_schedule( $timestamp = 'next Monday 8:00', $interval = 'weekly', $health_check_paths = array() ) {
+		return array(
+			'timestamp'          => strtotime( $timestamp ),
+			'interval'           => $interval,
+			'health_check_paths' => $health_check_paths,
+		);
 	}
 }

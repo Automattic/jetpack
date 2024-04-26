@@ -12,7 +12,7 @@ if ( ! function_exists( 'wpcom_rest_api_v2_load_plugin_files' ) ) {
 	 * @param string $file_pattern Path pattern to the endpoints (pattern must be supported by glob()).
 	 */
 	function wpcom_rest_api_v2_load_plugin_files( $file_pattern ) {
-		$plugins = glob( __DIR__ . '/' . $file_pattern );
+		$plugins = glob( dirname( __DIR__, 2 ) . '/src/' . $file_pattern );
 
 		if ( ! is_array( $plugins ) ) {
 			return;
