@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Newsletter: add jetpack_subscriptions_reply_to_email option to sync
