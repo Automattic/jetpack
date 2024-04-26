@@ -735,6 +735,26 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/domains/manage/' . $data['site_slug_encoded'];
 			},
 		),
+		'customize_your_store'            => array(
+			'get_title'            => function () {
+				return __( 'Customize your store', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_woocommerce_setup_visible',
+			'get_calypso_path'     => function () {
+				return site_url( '/wp-admin/admin.php?page=wc-admin&path=%2Fcustomize-store' );
+			},
+		),
+		'add_your_products'               => array(
+			'get_title'            => function () {
+				return __( 'Add your products', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_woocommerce_setup_visible',
+			'get_calypso_path'     => function () {
+				return site_url( '/wp-admin/admin.php?page=wc-admin&task=products' );
+			},
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
