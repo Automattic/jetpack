@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+WordPress.com Block Editor: avoid relying on the Jetpack class.
