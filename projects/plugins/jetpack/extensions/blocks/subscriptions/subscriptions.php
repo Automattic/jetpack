@@ -1170,7 +1170,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
  * Returns Get Access question for the paywall
  *
  * @param string $post_access_level The newsletter access level.
- * @return string.
+ * @return string
  */
 function get_paywall_access_question( $post_access_level ) {
 	switch ( $post_access_level ) {

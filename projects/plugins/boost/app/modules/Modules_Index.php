@@ -24,7 +24,7 @@ class Modules_Index {
 	protected $modules = array();
 
 	/**
-	 * @var Pluggable[] - Classes that handle all Jetpack Boost featues.
+	 * @var class-string<Pluggable>[] - Classes that handle all Jetpack Boost featues.
 	 */
 	const MODULES = array(
 		Critical_CSS::class,
