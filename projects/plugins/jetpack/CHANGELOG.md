@@ -2,6 +2,58 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.4-a.7 - 2024-04-25
+### Improved compatibility
+- General: Update WordPress version requirements to WordPress 6.4 and remove compatibility code for lower versions. [#37047] [#37049]
+
+### Bug fixes
+- Google Fonts: Avoid theme fonts overriding the default fonts so fonts with a specific font weight that are not supported by the provided theme can be rendered correctly. [#37050]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add migration_source_site_domain to the list of available site options to update and retrieve. This will be used as part of the Site Migration on-boarding flow. [#37060]
+- Add title optimization as beta [#37001]
+- Add title optimization jetpack sidebar entry [#37002]
+- Add title optimization modal content [#37003]
+- Add update_plugins capability to the /sites/%s endpoint. [#36280]
+- AI Assistant: Separate toolbar dropdown logic and UI [#37016]
+- AI Assistant: Update AIControl imports [#36967]
+- Cookie Consent: localize default text [#37012]
+- Enhanced Distribution: remove deprecated module file. [#37032]
+- Masterbar: Specific styles for sidebar upsells are now maintained in separate files for each color scheme [#37022]
+- Subscriptions: Add "Paid newsletter" section to the Newsletter settings [#36975]
+- Subscriptions: Link "Subscribed" button to individual subscription page [#37021]
+
+## 13.4-a.5 - 2024-04-22
+### Enhancements
+- Subscription: Add a filter to Allow Newsletter Block Meta Capability to be Changed. [#36909]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add scheduled updates sync option. [#36877]
+- Add in_site_migration_flow to the list of available site options to update and retrieve. This will be used as part of the Site Migration on-boarding flow. [#36974]
+- Adds the ability to filter users in the WPCOM_JSON_API_List_Users_Endpoint endpoint by capability. [#36893]
+- Add the userConnectionUrl to initial state to use in Social sidebar. [#36976]
+- AI Assistant: Extract Markdown and HTML conversions to AI Client. [#36906]
+- AI Featured Image: move tool from beta to production, to make it available to everyone. [#36965]
+- AI Featured Image: remove scrollbar on smaller screens. [#36963]
+- Block Scaffolding: update API version in template [#36955]
+- Carousel: Ensure that disabling the feature on WordPress.com Simple brings back Core's Lightbox back. [#36914]
+- CLI: Make `wp jetpack publicize` work again. [#36988]
+- Donations Block: Fix non localized strings. [#36951]
+- Enabled SIG even if publicize is disabled. [#36911]
+- Fix phpdoc types, and update phan config and baseline for wpcom stubs. No change to functionality. [#36988]
+- Google Docs Embed: Fix non localized strings. [#36993]
+- Jetpack Google Fonts: Add filter to conditionally skip loading. [#36980]
+- Monetize: Move menu item under Jetpack menu for all Classic interface users. [#36995]
+- Remove unnecessary react imports. [#36904]
+- REST API: Correctly report Publicize when applicable in `/jetpack/v4/site/benefits` endpoint. [#36988]
+- Sitemaps: Ensured that the last modification date from the jetpack_page_sitemap_other_urls filter is considered for the last modification date of the generated sitemap. [#36991]
+- Subscriptions: Add Subscriber Login block navigation placement setting to Dotcom Site Settings API. [#37000]
+- Subscriptions Block: Only check newsletter plans when inside WP Admin. [#36928]
+- Tiled Gallery: Fix round corners style. [#36952]
+- Tiled Gallery Block: Don't use image CDN on private WordPress.com simple sites. [#36876]
+- Update blocks to use API version 3. [#36858] [#36859] [#36864]
+- Update UX of featured image usage counter. [#36926]
+
 ## 13.4-a.3 - 2024-04-15
 ### Improved compatibility
 - WordPress.com Toolbar: Avoid fatal errors when using other menu management plugins and the WordPress.com Toolbar feature. [#36783]

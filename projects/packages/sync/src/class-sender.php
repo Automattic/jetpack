@@ -702,7 +702,7 @@ class Sender {
 	 * @param string $action_name The action.
 	 * @param array  $data The data associated with the action.
 	 *
-	 * @return Items processed. TODO: this doesn't make much sense anymore, it should probably be just a bool.
+	 * @return array Items processed. TODO: this doesn't make much sense anymore, it should probably be just a bool.
 	 */
 	public function send_action( $action_name, $data = null ) {
 		if ( ! Settings::is_sender_enabled( 'full_sync' ) ) {

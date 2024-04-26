@@ -1,4 +1,5 @@
 Significance: patch
 Type: other
+Comment: Update Phan baseline. No change to functionality.
 
-Fix phpdoc types, and update phan config and baseline for wpcom stubs. No change to functionality.
+

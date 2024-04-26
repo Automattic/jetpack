@@ -21,7 +21,7 @@ class Authorize_Redirect {
 	/**
 	 * The Connection Manager object.
 	 *
-	 * @var Manager
+	 * @var \Automattic\Jetpack\Connection\Manager
 	 */
 	private $connection;
 

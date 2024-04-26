@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from WordPress.com commit 97bbb5df6304c8b3628f0168f11a1428421e8d98.
+ * Stubs automatically generated from WordPress.com commit bfb2ad18f8fd904ad916be5877a31c975ae02df2.
  *
  * Do not edit this directly! Update the definition file in the wpcom repo at
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
@@ -413,6 +413,13 @@ namespace {
     {
     }
     /**
+     * @param string $url
+     * @return array{0:int,1:int,2:int,3:string,mime:string,channels?:int,bits?:int}|false
+     */
+    function wpcom_getimagesize($uri)
+    {
+    }
+    /**
      * @param string $slug
      */
     function require_lib($slug)
@@ -536,6 +543,14 @@ namespace {
         public function activate_plugin($plugin)
         {
         }
+    }
+    /**
+     * @param string $comment_content
+     * @param WP_Comment|null $comment_object
+     * @return string
+     */
+    function comment_like_button($comment_content = '', $comment_object = \null)
+    {
     }
     class Jetpack_Custom_CSS
     {
@@ -790,6 +805,14 @@ namespace {
     {
     }
     /**
+     * @param  string $url
+     * @return string
+     * @internal 
+     */
+    function staticize_subdomain($url)
+    {
+    }
+    /**
      * @param array $classes
      * @return string
      */
@@ -902,7 +925,7 @@ namespace {
     /**
      * @return int
      */
-    function wpcom_reach_total_for_blog()
+    function wpcom_reach_total_for_blog($args = [])
     {
     }
     /**
