@@ -293,6 +293,11 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'task_ids' => array(
 				'customize_your_store',
 				'add_your_products',
+				'get_paid_with_woopayments',
+				'collect_sales_tax',
+				'grow_your_business',
+				'add_a_domain',
+				'launch_your_store',
 			),
 		),
 	);
