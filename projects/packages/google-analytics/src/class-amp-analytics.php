@@ -23,6 +23,7 @@ class AMP_Analytics {
 	 * Checks if its AMP request, if WooCommerce is available, if DNT is disabled, if there's tracking code and if tracking is enabled.
 	 */
 	public function maybe_load_hooks() {
+		// @phan-suppress-next-line PhanUndeclaredClassMethod
 		if ( ! class_exists( 'Jetpack_AMP_Support' ) || ! \Jetpack_AMP_Support::is_amp_request() ) {
 			return;
 		}
@@ -59,12 +60,14 @@ class AMP_Analytics {
 	 * @param object $cart_item_data Cart item data.
 	 */
 	public function amp_add_to_cart( $cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$product = wc_get_product( $product_id );
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		$product = \wc_get_product( $product_id );
 		if ( $product ) {
 			$product_sku  = Utils::get_product_sku_or_id( $product );
 			$product_name = $product->get_name();
 
-			$events   = WC()->session->get( 'wc_ga_events' );
+			// @phan-suppress-next-line PhanUndeclaredFunction
+			$events   = \WC()->session->get( 'wc_ga_events' );
 			$events[] = array(
 				'type'      => 'add',
 				'ga_params' => array(
@@ -74,7 +77,8 @@ class AMP_Analytics {
 					'pr1qt' => absint( $quantity ),
 				),
 			);
-			WC()->session->set( 'wc_ga_events', $events );
+			// @phan-suppress-next-line PhanUndeclaredFunction
+			\WC()->session->set( 'wc_ga_events', $events );
 		}
 	}
 
@@ -84,8 +88,10 @@ class AMP_Analytics {
 	 * @param int $order_id The Order ID.
 	 */
 	public function amp_after_purchase( $order_id ) {
-		$events      = WC()->session->get( 'wc_ga_events' );
-		$order       = wc_get_order( $order_id );
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		$events = \WC()->session->get( 'wc_ga_events' );
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		$order       = \wc_get_order( $order_id );
 		$order_total = $order->get_total();
 		$order_tax   = $order->get_total_tax();
 
@@ -110,7 +116,8 @@ class AMP_Analytics {
 		}
 
 		$events[] = $event;
-		WC()->session->set( 'wc_ga_events', $events );
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		\WC()->session->set( 'wc_ga_events', $events );
 	}
 
 	/**
@@ -121,7 +128,8 @@ class AMP_Analytics {
 			return;
 		}
 
-		$events = WC()->session->get( 'wc_ga_events' );
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		$events = \WC()->session->get( 'wc_ga_events' );
 		if ( ! is_array( $events ) ) {
 			return;
 		}
@@ -148,6 +156,7 @@ class AMP_Analytics {
 
 			array_shift( $events );
 		}
-		WC()->session->set( 'wc_ga_events', $events );
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		\WC()->session->set( 'wc_ga_events', $events );
 	}
 }

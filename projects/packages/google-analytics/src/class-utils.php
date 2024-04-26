@@ -14,7 +14,9 @@ class Utils {
 	/**
 	 * Gets product categories or varation attributes as a formatted concatenated string
 	 *
-	 * @param WC_Product $product Product to get categories/variations for.
+	 * @phan-suppress PhanUndeclaredTypeParameter
+	 *
+	 * @param \WC_Product $product Product to get categories/variations for.
 	 * @return string
 	 */
 	public static function get_product_categories_concatenated( $product ) {
@@ -26,13 +28,16 @@ class Utils {
 			return '';
 		}
 
-		$variation_data = $product->is_type( 'variation' ) ? wc_get_product_variation_attributes( $product->get_id() ) : '';
+		// @phan-suppress-next-line PhanUndeclaredClassMethod, PhanUndeclaredFunction
+		$variation_data = $product->is_type( 'variation' ) ? \wc_get_product_variation_attributes( $product->get_id() ) : '';
 		if ( is_array( $variation_data ) && ! empty( $variation_data ) ) {
-			$line = wc_get_formatted_variation( $variation_data, true );
+			// @phan-suppress-next-line PhanUndeclaredFunction
+			$line = \wc_get_formatted_variation( $variation_data, true );
 		} else {
-			$out        = array();
+			$out = array();
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			$categories = get_the_terms( $product->get_id(), 'product_cat' );
-			if ( $categories ) {
+			if ( is_array( $categories ) ) {
 				foreach ( $categories as $category ) {
 					$out[] = $category->name;
 				}
@@ -45,7 +50,9 @@ class Utils {
 	/**
 	 * Gets a product's SKU with fallback to just ID. IDs are prepended with a hash symbol.
 	 *
-	 * @param WC_Product $product Product to get SKU/ID for.
+	 * @phan-suppress PhanUndeclaredTypeParameter
+	 *
+	 * @param \WC_Product $product Product to get SKU/ID for.
 	 * @return string
 	 */
 	public static function get_product_sku_or_id( $product ) {
@@ -57,6 +64,7 @@ class Utils {
 			return '';
 		}
 
+		// @phan-suppress-next-line PhanUndeclaredClassMethod
 		return $product->get_sku() ? $product->get_sku() : '#' . $product->get_id();
 	}
 

@@ -33,6 +33,7 @@ class Legacy {
 	 * @return string - Tracking URL
 	 */
 	private function get_url( $track ) {
+		// @phan-suppress-next-line PhanPluginDuplicateConditionalNullCoalescing
 		$site_url = ( is_ssl() ? 'https://' : 'http://' ) . sanitize_text_field( wp_unslash( isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : '' ) );
 		foreach ( $track as $k => $value ) {
 			if ( strpos( strtolower( $value ), strtolower( $site_url ) ) === 0 ) {
@@ -74,11 +75,12 @@ class Legacy {
 			return;
 		}
 
+		// @phan-suppress-next-line PhanUndeclaredClassMethod
 		if ( class_exists( 'Jetpack_AMP_Support' ) && \Jetpack_AMP_Support::is_amp_request() ) {
 			// For Reader mode — legacy.
-			add_filter( 'amp_post_template_analytics', 'Jetpack_Google_Analytics::amp_analytics_entries', 1000 );
+			add_filter( 'amp_post_template_analytics', array( GA_Manager::class, 'amp_analytics_entries' ), 1000 );
 			// For Standard and Transitional modes.
-			add_filter( 'amp_analytics_entries', 'Jetpack_Google_Analytics::amp_analytics_entries', 1000 );
+			add_filter( 'amp_analytics_entries', array( GA_Manager::class, 'amp_analytics_entries' ), 1000 );
 			return;
 		}
 
@@ -213,8 +215,10 @@ class Legacy {
 	/**
 	 * Used to filter in the order details to the custom vars array for classic analytics
 	 *
+	 * @phan-suppress PhanUndeclaredClassMethod
+	 *
 	 * @param array $custom_vars Custom vars to be filtered.
-	 * @return array Possibly updated custom vars.
+	 * @return array|void Possibly updated custom vars.
 	 */
 	public function jetpack_wga_classic_track_purchases( $custom_vars ) {
 		global $wp;
@@ -232,11 +236,14 @@ class Legacy {
 			return $custom_vars;
 		}
 
-		$minimum_woocommerce_active = class_exists( 'WooCommerce' ) && version_compare( WC_VERSION, '3.0', '>=' );
-		if ( $minimum_woocommerce_active && is_order_received_page() ) {
+		// @phan-suppress-next-line PhanUndeclaredConstant
+		$minimum_woocommerce_active = class_exists( 'WooCommerce' ) && version_compare( \WC_VERSION, '3.0', '>=' );
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		if ( $minimum_woocommerce_active && \is_order_received_page() ) {
+			// @phan-suppress-next-line PhanPluginDuplicateConditionalNullCoalescing
 			$order_id = isset( $wp->query_vars['order-received'] ) ? $wp->query_vars['order-received'] : 0;
 			if ( 0 < $order_id && 1 !== (int) get_post_meta( $order_id, '_ga_tracked', true ) ) {
-				$order = new WC_Order( $order_id );
+				$order = new \WC_Order( $order_id );
 
 				/**
 				 * [ '_add_Trans', '123', 'Site Title', '21.00', '1.00', '5.00', 'Snohomish', 'WA', 'USA' ]
@@ -313,16 +320,20 @@ class Legacy {
 			return;
 		}
 
-		if ( is_product() ) { // product page
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		if ( \is_product() ) { // product page
 			global $product;
 			$product_sku_or_id = $product->get_sku() ? $product->get_sku() : '#' . $product->get_id();
-			wc_enqueue_js(
+			// @phan-suppress-next-line PhanUndeclaredFunction
+			\wc_enqueue_js(
 				"$( '.single_add_to_cart_button' ).click( function() {
 					_gaq.push(['_trackEvent', 'Products', 'Add to Cart', '#" . esc_js( $product_sku_or_id ) . "']);
 				} );"
 			);
-		} elseif ( is_woocommerce() ) { // any other page that uses templates (like product lists, archives, etc)
-			wc_enqueue_js(
+			// @phan-suppress-next-line PhanUndeclaredFunction
+		} elseif ( \is_woocommerce() ) { // any other page that uses templates (like product lists, archives, etc)
+			// @phan-suppress-next-line PhanUndeclaredFunction
+			\wc_enqueue_js(
 				"$( '.add_to_cart_button:not(.product_type_variable, .product_type_grouped)' ).click( function() {
 					var label = $( this ).data( 'product_sku' ) ? $( this ).data( 'product_sku' ) : '#' + $( this ).data( 'product_id' );
 					_gaq.push(['_trackEvent', 'Products', 'Add to Cart', label]);

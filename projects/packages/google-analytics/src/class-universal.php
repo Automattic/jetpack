@@ -56,11 +56,12 @@ class Universal {
 		}
 
 		// TODO: Test the code for cases with existing and missing Jetpack_AMP_Support class.
-		if ( class_exists( '\Jetpack_AMP_Support' ) && \Jetpack_AMP_Support::is_amp_request() ) {
+		// @phan-suppress-next-line PhanUndeclaredClassMethod
+		if ( class_exists( 'Jetpack_AMP_Support' ) && \Jetpack_AMP_Support::is_amp_request() ) {
 			// For Reader mode — legacy.
-			add_filter( 'amp_post_template_analytics', 'Jetpack_Google_Analytics::amp_analytics_entries', 1000 );
+			add_filter( 'amp_post_template_analytics', array( GA_Manager::class, 'amp_analytics_entries' ), 1000 );
 			// For Standard and Transitional modes.
-			add_filter( 'amp_analytics_entries', 'Jetpack_Google_Analytics::amp_analytics_entries', 1000 );
+			add_filter( 'amp_analytics_entries', array( GA_Manager::class, 'amp_analytics_entries' ), 1000 );
 			return;
 		}
 
@@ -112,6 +113,8 @@ class Universal {
 	 *
 	 * May also update post meta to indicate the order has been tracked.
 	 *
+	 * @phan-suppress PhanUndeclaredClassMethod
+	 *
 	 * @param array $command_array Array of commands.
 	 * @return array `$command_array` with additional commands conditionally added.
 	 */
@@ -126,15 +129,18 @@ class Universal {
 			return $command_array;
 		}
 
+		// @phan-suppress-next-line PhanUndeclaredConstant
 		$minimum_woocommerce_active = class_exists( 'WooCommerce' ) && version_compare( WC_VERSION, '3.0', '>=' );
 		if ( ! $minimum_woocommerce_active ) {
 			return $command_array;
 		}
 
-		if ( ! is_order_received_page() ) {
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		if ( ! \is_order_received_page() ) {
 			return $command_array;
 		}
 
+		// @phan-suppress-next-line PhanPluginDuplicateConditionalNullCoalescing
 		$order_id = isset( $wp->query_vars['order-received'] ) ? $wp->query_vars['order-received'] : 0;
 		if ( 0 === (int) $order_id ) {
 			return $command_array;
@@ -152,7 +158,7 @@ class Universal {
 			return $command_array;
 		}
 
-		$order          = new WC_Order( $order_id );
+		$order          = new \WC_Order( $order_id );
 		$order_currency = $order->get_currency();
 		$command        = "ga( 'set', '&cu', '" . esc_js( $order_currency ) . "' );";
 		array_push( $command_array, $command );
@@ -207,11 +213,14 @@ class Universal {
 	public function maybe_track_hpos_purchases( $command_array ) {
 		global $wp;
 
+		// @phan-suppress-next-line PhanPluginDuplicateConditionalNullCoalescing
 		$order_id = isset( $wp->query_vars['order-received'] ) ? $wp->query_vars['order-received'] : 0;
 		if ( 0 === (int) $order_id ) {
 			return $command_array;
 		}
-		$order = wc_get_order( $order_id );
+
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		$order = \wc_get_order( $order_id );
 
 		if ( false === $order ) {
 			return $command_array;
@@ -278,7 +287,8 @@ class Universal {
 		$product_sku_or_id = Utils::get_product_sku_or_id( $product );
 		$selector          = '.single_add_to_cart_button';
 
-		wc_enqueue_js(
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		\wc_enqueue_js(
 			"$( '" . esc_js( $selector ) . "' ).click( function() {
 				var productDetails = {
 					'id': '" . esc_js( $product_sku_or_id ) . "',
@@ -304,6 +314,7 @@ class Universal {
 			return;
 		}
 
+		// @phan-suppress-next-line PhanUndeclaredConstant
 		$minimum_woocommerce_active = class_exists( 'WooCommerce' ) && version_compare( WC_VERSION, '3.0', '>=' );
 		if ( ! $minimum_woocommerce_active ) {
 			return;
@@ -311,7 +322,8 @@ class Universal {
 
 		$selector = '.add_to_cart_button:not(.product_type_variable, .product_type_grouped)';
 
-		wc_enqueue_js(
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		\wc_enqueue_js(
 			"$( '" . esc_js( $selector ) . "' ).click( function() {
 				var productSku = $( this ).data( 'product_sku' );
 				var productID = $( this ).data( 'product_id' );
@@ -341,7 +353,8 @@ class Universal {
 		// We listen at div.woocommerce because the cart 'form' contents get forcibly
 		// updated and subsequent removals from cart would then not have this click
 		// handler attached
-		wc_enqueue_js(
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		\wc_enqueue_js(
 			"$( 'div.woocommerce' ).on( 'click', 'a.remove', function() {
 				var productSku = $( this ).data( 'product_sku' );
 				var productID = $( this ).data( 'product_id' );
@@ -368,7 +381,8 @@ class Universal {
 			return $url;
 		}
 
-		$item    = WC()->cart->get_cart_item( $key );
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		$item    = \WC()->cart->get_cart_item( $key );
 		$product = $item['data'];
 
 		$new_attributes = sprintf(
@@ -409,7 +423,8 @@ class Universal {
 			'list'     => $list,
 			'position' => $woocommerce_loop['loop'],
 		);
-		wc_enqueue_js( "ga( 'ec:addImpression', " . wp_json_encode( $item_details ) . ' );' );
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		\wc_enqueue_js( "ga( 'ec:addImpression', " . wp_json_encode( $item_details ) . ' );' );
 	}
 
 	/**
@@ -442,7 +457,8 @@ class Universal {
 			'position' => $woocommerce_loop['loop'],
 		);
 
-		wc_enqueue_js(
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		\wc_enqueue_js(
 			"$( '" . esc_js( $selector ) . "' ).click( function() {
 				if ( true === $( this ).hasClass( 'add_to_cart_button' ) ) {
 					return;
@@ -476,7 +492,8 @@ class Universal {
 			'category' => Utils::get_product_categories_concatenated( $product ),
 			'price'    => $product->get_price(),
 		);
-		wc_enqueue_js(
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		\wc_enqueue_js(
 			"ga( 'ec:addProduct', " . wp_json_encode( $item_details ) . ' );' .
 			"ga( 'ec:setAction', 'detail' );"
 		);
@@ -495,7 +512,8 @@ class Universal {
 		}
 
 		$universal_commands = array();
-		$cart               = WC()->cart->get_cart();
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		$cart = \WC()->cart->get_cart();
 
 		foreach ( $cart as $cart_item_key => $cart_item ) {
 			/**
@@ -517,7 +535,8 @@ class Universal {
 
 		array_push( $universal_commands, "ga( 'ec:setAction','checkout' );" );
 
-		wc_enqueue_js( implode( "\r\n", $universal_commands ) );
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		\wc_enqueue_js( implode( "\r\n", $universal_commands ) );
 	}
 
 	/**
@@ -538,6 +557,7 @@ class Universal {
 			return;
 		}
 
-		wc_enqueue_js( "ga( 'send', 'pageview' );" );
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		\wc_enqueue_js( "ga( 'send', 'pageview' );" );
 	}
 }
