@@ -97,15 +97,20 @@ class Archive_Provider extends Provider {
 		);
 		unset( $post_types['attachment'] );
 
-		$post_types          = array_filter( $post_types, 'is_post_type_viewable' );
-		$provider_post_types = array();
+		$post_types = array_filter( $post_types, 'is_post_type_viewable' );
 
+		$provider_post_types_ignore_list = Singular_Post_Provider::get_ignored_post_types();
+		$provider_post_types             = array();
 		// Generate a name => name array for backwards compatibility.
 		foreach ( $post_types as $post_type ) {
+			if ( in_array( $post_type->name, $provider_post_types_ignore_list, true ) ) {
+				continue;
+			}
+
 			$provider_post_types[ $post_type->name ] = $post_type->name;
 		}
 
-		return apply_filters( 'jetpack_boost_critical_css_post_types', $provider_post_types, $post_types );
+		return apply_filters( 'jetpack_boost_critical_css_post_types_archives', $provider_post_types, $post_types );
 	}
 
 	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
