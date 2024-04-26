@@ -72,24 +72,28 @@ class WPCOM_REST_API_V2_Endpoint_Subscriptions_Reply_To extends WP_REST_Controll
 	/**
 	 * Get the state of the reply-to setting.
 	 *
-	 * @return array
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
-	public function get_reply_to_status() {
+	public function get_reply_to_status( $request ) {
 		return rest_ensure_response(
 			array(
-				'status' => apply_filters( 'jetpack_subscriptions_reply_to_status', 'not_set' ),
+				'status' => apply_filters( 'jetpack_subscriptions_reply_to_status', 'not_set', $request ),
 			)
 		);
 	}
 	/**
 	 * Resend the verification email.
 	 *
-	 * @return array
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
-	public function resend_verification() {
+	public function resend_verification( $request ) {
 		return rest_ensure_response(
 			array(
-				'resend' => apply_filters( 'jetpack_subscriptions_reply_to_status_resend', null ),
+				'resend' => apply_filters( 'jetpack_subscriptions_reply_to_status_resend', false, $request ),
 			)
 		);
 	}
