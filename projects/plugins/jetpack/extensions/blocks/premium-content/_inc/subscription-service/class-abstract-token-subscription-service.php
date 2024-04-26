@@ -507,9 +507,9 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	/**
 	 * Return true if any ID/date pairs are valid. Otherwise false.
 	 *
-	 * @param int[]                          $valid_plan_ids List of valid plan IDs.
-	 * @param array<int, Token_Subscription> $token_subscriptions : ID must exist in the provided <code>$valid_subscriptions</code> parameter.
-	 *                                                            The provided end date needs to be greater than <code>now()</code>.
+	 * @param int[]              $valid_plan_ids List of valid plan IDs.
+	 * @param array<int, object> $token_subscriptions : ID must exist in the provided <code>$valid_subscriptions</code> parameter.
+	 *                                                The provided end date needs to be greater than <code>now()</code>.
 	 *
 	 * @return bool
 	 */

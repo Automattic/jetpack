@@ -27,15 +27,16 @@ export default function TitleOptimizationOptions( {
 					className="jetpack-ai-title-optimization__option"
 					key={ `${ titleOptimizationId }-${ index }` }
 				>
-					<input
-						id={ `${ titleOptimizationId }-${ index }` }
-						className="jetpack-ai-title-optimization__option-input"
-						type="radio"
-						name={ titleOptimizationId }
-						value={ option.value }
-						onChange={ onChangeValue }
-						checked={ option.value === selected }
-					/>
+					<div className="jetpack-ai-title-optimization__option-input">
+						<input
+							id={ `${ titleOptimizationId }-${ index }` }
+							type="radio"
+							name={ titleOptimizationId }
+							value={ option.value }
+							onChange={ onChangeValue }
+							checked={ option.value === selected }
+						/>
+					</div>
 					<div className="jetpack-ai-title-optimization__option-content">
 						<label
 							className="jetpack-ai-title-optimization__option-label"

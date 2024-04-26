@@ -520,12 +520,16 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return $response;
 		}
 
-		$data   = (array) $response->get_data();
-		$server = rest_get_server();
-		$links  = $server::get_compact_response_links( $response );
+		$data = (array) $response->get_data();
 
-		if ( ! empty( $links ) ) {
-			$data['_links'] = $links;
+		// Only call rest_get_server() if we're in a REST API request.
+		if ( did_action( 'rest_api_init' ) ) {
+			$server = rest_get_server();
+			$links  = $server::get_compact_response_links( $response );
+
+			if ( ! empty( $links ) ) {
+				$data['_links'] = $links;
+			}
 		}
 
 		return $data;
@@ -834,4 +838,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	}
 }
 
-wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules' );
+if ( function_exists( 'wpcom_rest_api_v2_load_plugin' ) ) {
+	wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules' );
+}

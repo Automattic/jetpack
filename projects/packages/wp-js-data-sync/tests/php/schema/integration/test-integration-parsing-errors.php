@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Context;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;

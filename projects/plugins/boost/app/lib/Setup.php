@@ -36,9 +36,15 @@ class Setup {
 		return self::$instances;
 	}
 
+	/**
+	 * @template T
+	 * @param class-string<T> $class_name
+	 * @return T|null
+	 */
 	public static function get_instance_of( $class_name ) {
 		foreach ( self::get_instances() as $instance ) {
 			if ( $instance instanceof $class_name ) {
+				// @phan-suppress-next-line PhanTypeMismatchReturn -- Phan isn't inferring the type correctly from the `instanceof $class_name` like it's supposed to.
 				return $instance;
 			}
 		}

@@ -53,7 +53,7 @@ export default function TitleOptimization( {
 		[ increaseAiAssistantRequestsCount ]
 	);
 
-	const { request } = useAiSuggestions( {
+	const { request, stopSuggestion } = useAiSuggestions( {
 		onDone: handleDone,
 		onError: () => {
 			setGenerating( false );
@@ -95,6 +95,11 @@ export default function TitleOptimization( {
 		[ autosave, editPost, selected, toggleTitleOptimizationModal ]
 	);
 
+	const handleClose = useCallback( () => {
+		toggleTitleOptimizationModal();
+		stopSuggestion();
+	}, [ stopSuggestion, toggleTitleOptimizationModal ] );
+
 	return (
 		<div>
 			<p>{ __( 'Use AI to optimize key details of your post.', 'jetpack' ) }</p>
@@ -107,11 +112,7 @@ export default function TitleOptimization( {
 				{ __( 'Improve title', 'jetpack' ) }
 			</Button>
 			{ isTitleOptimizationModalVisible && (
-				<AiAssistantModal
-					handleClose={ toggleTitleOptimizationModal }
-					title={ modalTitle }
-					maxWidth={ 512 }
-				>
+				<AiAssistantModal handleClose={ handleClose } title={ modalTitle } maxWidth={ 512 }>
 					{ generating ? (
 						<div className="jetpack-ai-title-optimization__loading">
 							<Spinner
