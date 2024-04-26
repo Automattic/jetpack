@@ -50,6 +50,29 @@ function temporarily_override_all_sites_menus_to_horizon() {
 add_action( 'admin_bar_menu', 'temporarily_override_all_sites_menus_to_horizon', 16 );
 
 /**
+ * Temporarily hides the Hosting menus that are already in GSV.
+ */
+function temporarily_hide_hosting_menus_already_in_global_site_view() {
+	global $submenu;
+
+	if ( ! wpcom_is_nav_redesign_enabled() || ! is_proxied() ) {
+		return;
+	}
+
+	$items_to_hide = array( 'hosting-config', 'site-monitoring' );
+
+	foreach ( $submenu['wpcom-hosting-menu'] as &$menu_item ) {
+		foreach ( $items_to_hide  as $item_to_hide ) {
+			if ( str_starts_with( $menu_item[2], 'https://wordpress.com/' . $item_to_hide ) ) {
+				remove_submenu_page( 'wpcom-hosting-menu', $menu_item[2] );
+				break;
+			}
+		}
+	}
+}
+add_action( 'admin_menu', 'temporarily_hide_hosting_menus_already_in_global_site_view', PHP_INT_MAX );
+
+/**
  * Temporarily override the Hosting menus to point to horizon.wordpress.com,
  * which enables the nav redesign by default.
  */
