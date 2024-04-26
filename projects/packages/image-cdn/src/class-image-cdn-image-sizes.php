@@ -24,7 +24,7 @@ class Image_CDN_Image_Sizes {
 	/**
 	 * Image to be resized.
 	 *
-	 * @var Image
+	 * @var Image_CDN_Image
 	 */
 	public $image;
 
