@@ -7,7 +7,10 @@ import { createBlock, getSaveContent } from '@wordpress/blocks';
  * Internal dependencies
  */
 import metadata from '../block.json';
-import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '../extensions/ai-assistant';
+import {
+	EXTENDED_TRANSFORMATIVE_BLOCKS,
+	isPossibleToExtendBlock,
+} from '../extensions/ai-assistant';
 /**
  * Types
  */
@@ -59,14 +62,14 @@ export function transformToAIAssistantBlock( blockType: ExtendedBlockProp, attrs
 /*
  * Create individual transform handler for each block type.
  */
-for ( const blockType of EXTENDED_BLOCKS ) {
+for ( const blockType of EXTENDED_TRANSFORMATIVE_BLOCKS ) {
 	from.push( {
 		type: 'block',
 		blocks: [ blockType ],
 		isMatch: () => isPossibleToExtendBlock(),
 		transform: ( attrs, innerBlocks ) => {
 			const content = getSaveContent( blockType, attrs, innerBlocks );
-			return transformToAIAssistantBlock( blockType, { ...attrs, content } );
+			return transformToAIAssistantBlock( blockType as ExtendedBlockProp, { ...attrs, content } );
 		},
 	} );
 }
