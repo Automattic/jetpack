@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Fix a bunch of phpdocs to make Phan happier. No change to functionality.
+
+

@@ -22,7 +22,7 @@ class Social_Image_Generator_Settings_Test extends BaseTestCase {
 	/**
 	 * Instance of the Settings class.
 	 *
-	 * @var Settings $settings
+	 * @var SocialSettings $settings
 	 */
 	protected $settings;
 
