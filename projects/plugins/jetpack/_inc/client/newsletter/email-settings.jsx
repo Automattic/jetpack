@@ -197,9 +197,40 @@ const EmailSettings = props => {
 								label: __( "Replies will be sent to the post author's email.", 'jetpack' ),
 								value: 'author',
 							},
+							{
+								label: __( 'Custom reply-to email.', 'jetpack' ),
+								value: 'custom',
+							},
 						] }
 						onChange={ handleSubscriptionReplyToChange }
 					/>
+					{ subscriptionReplyTo === 'custom' && (
+						<fieldset className="jp-form-fieldset">
+							<label className="jp-form-label-wide" htmlFor={ REPLY_TO_EMAIL }>
+								{ __( 'Custom reply-to email address', 'jetpack' ) }
+							</label>
+							<TextInput
+								id={ REPLY_TO_EMAIL }
+								name={ REPLY_TO_EMAIL }
+								type="email"
+								value={ subscriptionReplyToEmail }
+								onChange={ handleSubscriptionReplyToEmailChange }
+								placeholder={ __( 'Enter reply-to email address', 'jetpack' ) }
+								isError={ subscriptionReplyToEmail && isEmailValid === 'no' }
+								onBlur={ handleEmailBlur }
+								disabled={ replyToEmailDisabled }
+							/>
+							{ isEmailValid === 'no' && subscriptionReplyToEmail && (
+								<span>
+									{ sprintf(
+										/* translators: placeholder is an email address. */
+										__( '%s is not a valid email address.', 'jetpack' ),
+										subscriptionReplyToEmail
+									) }
+								</span>
+							) }
+						</fieldset>
+					) }
 				</SettingsGroup>
 			) }
 		</SettingsCard>
