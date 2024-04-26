@@ -27,7 +27,7 @@ const truncateContent = ( content: string, currentPromptLength: number ): string
 /**
  * Create the prompt string based on the provided context.
  * @param {string} postContent - the content of the post
- * @param {string} userPrompt - the user prompt for the image generation, if provided
+ * @param {string} userPrompt - the user prompt for the image generation, if provided. Max length is 1000 characters, will be truncated.
  * @returns {string} the prompt string
  */
 const getImageGenerationPrompt = ( postContent: string, userPrompt?: string ): string => {
@@ -39,7 +39,7 @@ const getImageGenerationPrompt = ( postContent: string, userPrompt?: string ): s
 	if ( userPrompt ) {
 		const imageGenerationPrompt = `I need a cover image for a blog post based on this user prompt:
 
-${ userPrompt }
+${ userPrompt.length > 1000 ? userPrompt.substring( 0, 1000 ) : userPrompt }
 
 Before creating the image, identify the main topic of the user prompt and relate it to the post content.
 Do not represent the whole content in one image, keep it simple and just represent one single idea.
