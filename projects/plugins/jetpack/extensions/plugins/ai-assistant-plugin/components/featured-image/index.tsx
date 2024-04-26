@@ -282,6 +282,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 						<div className="ai-assistant-featured-image__user-prompt">
 							<div className="ai-assistant-featured-image__user-prompt-textarea">
 								<textarea
+									disabled={ notEnoughRequests || currentPointer?.generating }
 									maxLength={ 1000 }
 									rows={ 2 }
 									onChange={ handleUserPromptChange }
