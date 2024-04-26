@@ -22,37 +22,37 @@ class Test_Helpers extends TestCase {
 	/**
 	 * Request URI
 	 *
-	 * @var any
+	 * @var string
 	 */
 	protected $request_uri;
 	/**
 	 * $_GET.
 	 *
-	 * @var any
+	 * @var array
 	 */
 	protected $get;
 	/**
 	 * $_POST.
 	 *
-	 * @var any
+	 * @var array
 	 */
 	protected $post;
 	/**
 	 * Registered widgets..
 	 *
-	 * @var any
+	 * @var array
 	 */
 	protected $registered_widgets;
 	/**
 	 * Query
 	 *
-	 * @var any
+	 * @var mixed
 	 */
 	protected $query;
 	/**
 	 * Post Types
 	 *
-	 * @var any
+	 * @var mixed
 	 */
 	protected $post_types;
 

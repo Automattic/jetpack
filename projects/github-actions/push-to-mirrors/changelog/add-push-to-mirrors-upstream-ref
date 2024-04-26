@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add footers like `Upstream-Ref: owner/repo@sha` to mirrored commits, to make it easy to find the source of any particular mirrored commit. New workflow parameter `no-upstream-refs` may be set to disable this.

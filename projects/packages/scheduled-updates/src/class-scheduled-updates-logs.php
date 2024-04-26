@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack;
 
-use WP_Error;
-
 /**
  * Scheduled_Update_Logs class
  *
@@ -45,11 +43,19 @@ class Scheduled_Updates_Logs {
 	 * @param string $action      The action constant representing the event.
 	 * @param string $message     Optional. The message associated with the event.
 	 * @param mixed  $context     Optional. Additional context data associated with the event.
-	 *
-	 * @return WP_Error|null
+	 * @param int    $timestamp   Optional. The Unix timestamp of the log entry. Default is the current time.
+	 * @return bool True if the log was successfully saved, false otherwise.
 	 */
-	public static function log( $schedule_id, $action, $message = null, $context = null ) {
-		$timestamp = wp_date( 'U' );
+	public static function log( $schedule_id, $action, $message = null, $context = null, $timestamp = null ) {
+		$events = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
+		if ( ! isset( $events[ $schedule_id ] ) ) {
+			return false;
+		}
+
+		if ( null === $timestamp ) {
+			$timestamp = wp_date( 'U' );
+		}
+
 		$log_entry = array(
 			'timestamp' => intval( $timestamp ),
 			'action'    => $action,
@@ -59,17 +65,13 @@ class Scheduled_Updates_Logs {
 
 		$logs = get_option( self::OPTION_NAME, array() );
 
-		if ( ! self::is_valid_schedule( $schedule_id ) ) {
-			return new WP_Error( 'invalid_schedule_id', 'Invalid schedule ID' );
-		}
-
 		if ( ! isset( $logs[ $schedule_id ] ) ) {
 			$logs[ $schedule_id ] = array();
 		}
 
 		$logs[ $schedule_id ][] = $log_entry;
 
-		// Keep only the logs for the last MAX_RUNS_PER_SCHEDULE runs per schedule_id
+		// Keep only the logs for the last MAX_RUNS_PER_SCHEDULE runs per schedule_id.
 		$start_count   = 0;
 		$last_two_runs = array();
 		for ( $i = count( $logs[ $schedule_id ] ) - 1; $i >= 0; $i-- ) {
@@ -84,39 +86,36 @@ class Scheduled_Updates_Logs {
 		$last_two_runs        = array_reverse( $last_two_runs );
 		$logs[ $schedule_id ] = $last_two_runs;
 
-		update_option( self::OPTION_NAME, $logs );
+		return update_option( self::OPTION_NAME, $logs );
 	}
 
 	/**
 	 * Retrieves the logs for a specific schedule_id or all logs if no schedule_id is provided.
 	 *
-	 * @param string|null $schedule_id Optional. The ID of the schedule. If not provided, all logs will be returned.
+	 * If a schedule_id is provided, the logs for that specific schedule are returned.
+	 * If no schedule_id is provided, all logs are returned, with each schedule_id as a key in the array.
 	 *
-	 * @return array|WP_Error
-	 *              An array containing the logs, split by run.
-	 *               If a schedule_id is provided, the logs for that specific schedule are returned.
-	 *               If no schedule_id is provided, all logs are returned, with each schedule_id as a key in the array.
-	 *               Each run is an array of log entries, where each log entry is an associative array
-	 *               containing the following keys:
-	 *               - 'timestamp' (int): The Unix timestamp of the log entry.
-	 *               - 'action' (string): The action constant representing the event.
-	 *               - 'message' (string|null): The message associated with the event, if available.
-	 *               - 'context' (mixed|null): Additional context data associated with the event, if available.
+	 * @param string|null $schedule_id Optional. The ID of the schedule. If not provided, all logs will be returned.
+	 * @return array {
+	 *      An array containing the logs, split by run.
+	 *      Each run is an array of log entries, where each log entry is an associative array containing the following keys:
+	 *
+	 *      @type int         $timestamp The Unix timestamp of the log entry.
+	 *      @type string      $action    The action constant representing the event.
+	 *      @type string|null $message   The message associated with the event, if available.
+	 *      @type mixed|null  $context   Additional context data associated with the event, if available.
+	 * }
 	 */
 	public static function get( $schedule_id = null ) {
 		$logs = get_option( self::OPTION_NAME, array() );
 
 		if ( null === $schedule_id ) {
-			// Return all logs if no schedule_id is provided
+			// Return all logs if no schedule_id is provided.
 			$all_logs = array();
 			foreach ( $logs as $schedule_id => $schedule_logs ) {
 				$all_logs[ $schedule_id ] = self::split_logs_into_runs( $schedule_logs );
 			}
 			return $all_logs;
-		}
-
-		if ( ! self::is_valid_schedule( $schedule_id ) ) {
-			return new WP_Error( 'invalid_schedule_id', 'Invalid schedule ID' );
 		}
 
 		if ( ! isset( $logs[ $schedule_id ] ) ) {
@@ -131,25 +130,16 @@ class Scheduled_Updates_Logs {
 	 * Clears the logs for a specific schedule_id or all logs if no schedule_id is provided.
 	 *
 	 * @param string|null $schedule_id Optional. The ID of the schedule. If not provided, all logs will be cleared.
-	 * @param bool        $skip_validation Optional. Whether to skip the validation of the schedule_id.
-	 *
-	 * @return WP_Error|null
 	 */
-	public static function clear( string $schedule_id = null, $skip_validation = false ) {
+	public static function clear( string $schedule_id = null ) {
 		$logs = get_option( self::OPTION_NAME, array() );
 
 		if ( null === $schedule_id ) {
-			// Clear all logs if no schedule_id is provided
+			// Clear all logs if no schedule_id is provided.
 			$logs = array();
 		} else {
-			if ( ! $skip_validation && ! self::is_valid_schedule( $schedule_id ) ) {
-				return new WP_Error( 'invalid_schedule_id', 'Invalid schedule ID' );
-			}
-
-			if ( isset( $logs[ $schedule_id ] ) ) {
-				// Clear the logs for the specific schedule_id
-				unset( $logs[ $schedule_id ] );
-			}
+			// Clear the logs for the specific schedule_id.
+			unset( $logs[ $schedule_id ] );
 		}
 
 		update_option( self::OPTION_NAME, $logs );
@@ -172,7 +162,7 @@ class Scheduled_Updates_Logs {
 	 */
 	public static function infer_status_from_logs( $schedule_id ) {
 		$logs = self::get( $schedule_id );
-		if ( is_wp_error( $logs ) || empty( $logs ) ) {
+		if ( empty( $logs ) ) {
 			return false;
 		}
 
@@ -209,6 +199,41 @@ class Scheduled_Updates_Logs {
 	}
 
 	/**
+	 * Replaces the logs with the old schedule ID with new ones.
+	 *
+	 * @param string $old_schedule_id The old schedule ID.
+	 * @param string $new_schedule_id The new schedule ID.
+	 */
+	public static function replace_logs_schedule_id( $old_schedule_id, $new_schedule_id ) {
+		if ( $old_schedule_id === $new_schedule_id ) {
+			return;
+		}
+
+		$logs = get_option( self::OPTION_NAME, array() );
+
+		if ( isset( $logs[ $old_schedule_id ] ) ) {
+			// Replace the logs with the old schedule ID with new ones.
+			$logs[ $new_schedule_id ] = $logs[ $old_schedule_id ];
+			unset( $logs[ $old_schedule_id ] );
+
+			update_option( self::OPTION_NAME, $logs );
+		}
+	}
+
+	/**
+	 * Deletes the logs for a schedule ID when the current request is a DELETE request.
+	 *
+	 * @param string           $schedule_id The ID of the schedule to delete.
+	 * @param object           $event       The deleted event object.
+	 * @param \WP_REST_Request $request     The request object.
+	 */
+	public static function delete_logs_schedule_id( $schedule_id, $event, $request ) {
+		if ( $request->get_method() === \WP_REST_Server::DELETABLE ) {
+			self::clear( $schedule_id );
+		}
+	}
+
+	/**
 	 * Splits the logs into runs based on the PLUGIN_UPDATES_START action.
 	 *
 	 * @param array $logs The logs to split into runs.
@@ -234,21 +259,5 @@ class Scheduled_Updates_Logs {
 		}
 
 		return $runs;
-	}
-
-	/**
-	 * Returns whether a schedule_id is valid.
-	 *
-	 * @param string $schedule_id The schedule id.
-	 * @return bool
-	 */
-	private static function is_valid_schedule( $schedule_id ) {
-		$events = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
-
-		if ( ! isset( $events[ $schedule_id ] ) ) {
-			return false;
-		}
-
-		return true;
 	}
 }

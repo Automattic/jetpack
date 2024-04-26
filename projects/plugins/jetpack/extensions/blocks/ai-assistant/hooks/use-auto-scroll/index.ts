@@ -1,9 +1,8 @@
 /**
  * External dependencies
  */
-import { useCallback, useRef } from '@wordpress/element';
+import { useCallback, useRef, useEffect } from '@wordpress/element';
 import debugFactory from 'debug';
-import { useEffect } from 'react';
 
 const debug = debugFactory( 'jetpack-ai-assistant:use-auto-scroll' );
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Update version of `actions/download-artifact` in documentation.

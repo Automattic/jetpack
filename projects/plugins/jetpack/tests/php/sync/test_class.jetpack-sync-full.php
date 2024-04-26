@@ -1091,6 +1091,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_full_sync_end_sends_checksums() {
 		$this->markTestSkipped( "We don't send checksums in this version" );
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		add_action( 'jetpack_full_sync_end', array( $this, 'record_full_sync_end_checksum' ), 10, 1 );
 
 		$this->full_sync->start();

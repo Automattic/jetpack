@@ -1,7 +1,7 @@
 .ai-assistant-featured-image {
 	&__content {
 		display: flex;
-		margin-top: 32px;
+		margin-top: 16px;
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
@@ -29,7 +29,7 @@
 	&__action-buttons {
 		display: flex;
 		justify-content: center;
-		gap: 8px;
+		gap: 12px;
 	}
 
 	&__image-canvas {

@@ -25,7 +25,7 @@ class WP_Test_Jetpack_Sync_WP_Super_Cache extends WP_Test_Jetpack_Sync_Base {
 	public function set_up() {
 		if ( ! self::$wp_super_cache_enabled ) {
 			$this->markTestSkipped();
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 		parent::set_up();
 		$this->resetCallableAndConstantTimeouts();

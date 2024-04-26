@@ -289,9 +289,9 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 	 * Update Widget Settings.
 	 *
 	 * @access public
-	 * @param mixed $new_instance New Instance.
-	 * @param mixed $old_instance Old Instance.
-	 * @return Instance.
+	 * @param array      $new_instance New Instance.
+	 * @param array|null $old_instance Old Instance.
+	 * @return array Instance.
 	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance = (array) $old_instance;
@@ -324,8 +324,8 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 	 * Remove username from value before to save stats.
 	 *
 	 * @access public
-	 * @param mixed $val Value.
-	 * @return Value.
+	 * @param string $val Value.
+	 * @return string Value.
 	 */
 	public function remove_username( $val ) {
 		return str_replace( '_username', '', $val );

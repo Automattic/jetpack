@@ -80,6 +80,11 @@ export default function Carrousel( {
 
 	return (
 		<div className="ai-assistant-featured-image__carrousel">
+			<div className="ai-assistant-featured-image__carrousel-counter">
+				{ prevButton }
+				{ current + 1 } / { images.length }
+				{ nextButton }
+			</div>
 			<div className="ai-assistant-featured-image__carrousel-images">
 				{ images.length > 1 && prevButton }
 				{ images.map( ( { image, generating, error }, index ) => (
@@ -126,11 +131,6 @@ export default function Carrousel( {
 						) }
 					</div>
 				) ) }
-				{ images.length > 1 && nextButton }
-			</div>
-			<div className="ai-assistant-featured-image__carrousel-counter">
-				{ images.length > 1 && prevButton }
-				{ current + 1 } / { images.length }
 				{ images.length > 1 && nextButton }
 			</div>
 		</div>

@@ -317,7 +317,7 @@ class REST_Connector {
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
-	 * @return array|wp-error
+	 * @return array|WP_Error
 	 */
 	public static function remote_authorize( $request ) {
 		$xmlrpc_server = new Jetpack_XMLRPC_Server();

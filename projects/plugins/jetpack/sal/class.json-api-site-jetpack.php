@@ -425,6 +425,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	/**
 	 * Defaults to false - this is filled on the WordPress.com side in multiple locations.
 	 *
+	 * @see WPCOM_JSON_API_GET_Site_Endpoint::decorate_jetpack_response.
 	 * @return bool
 	 */
 	public function get_capabilities() {
