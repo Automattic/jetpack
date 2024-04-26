@@ -735,6 +735,8 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/domains/manage/' . $data['site_slug_encoded'];
 			},
 		),
+
+		// Entrepreneur plan tasks
 		'customize_your_store'            => array(
 			'get_title'            => function () {
 				return __( 'Customize your store', 'jetpack-mu-wpcom' );
