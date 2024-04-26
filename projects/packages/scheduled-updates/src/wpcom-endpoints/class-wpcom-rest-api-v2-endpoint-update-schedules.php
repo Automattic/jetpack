@@ -10,7 +10,6 @@
 use Automattic\Jetpack\Scheduled_Updates;
 use Automattic\Jetpack\Scheduled_Updates_Health_Paths;
 
-
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Update_Schedules
  */
