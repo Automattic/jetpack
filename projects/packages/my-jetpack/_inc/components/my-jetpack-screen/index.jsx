@@ -15,7 +15,7 @@ import {
 } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
-import { useContext, useLayoutEffect, useState } from 'react';
+import { useContext, useEffect, useLayoutEffect, useState } from 'react';
 /*
  * Internal dependencies
  */
@@ -43,6 +43,14 @@ import WelcomeBanner from '../welcome-banner';
 import styles from './styles.module.scss';
 
 const GlobalNotice = ( { message, title, options } ) => {
+	const { recordEvent } = useAnalytics();
+
+	useEffect( () => {
+		recordEvent( 'jetpack_myjetpack_global_notice_view', {
+			noticeId: options.id,
+		} );
+	}, [ options.id, recordEvent ] );
+
 	const [ isBiggerThanMedium ] = useBreakpointMatch( [ 'md' ], [ '>' ] );
 
 	const actionButtons = options.actions?.map( action => {

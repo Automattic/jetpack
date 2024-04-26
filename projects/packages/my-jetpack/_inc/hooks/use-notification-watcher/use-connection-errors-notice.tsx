@@ -49,6 +49,7 @@ const useConnectionErrorsNotice = () => {
 		const restoreButtonLabel = __( 'Restore Connection', 'jetpack-my-jetpack' );
 
 		const noticeOptions = {
+			id: 'connection-error-notice',
 			level: 'error',
 			actions: [
 				{
