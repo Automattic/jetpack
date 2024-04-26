@@ -216,7 +216,7 @@ class PlaygroundPostprocessTest extends WP_UnitTestCase {
 
 		$this->assertWPError( $result );
 		// Jetpack is not installed.
-		$this->assertEquals( 'jetpack-not-installed', $result->get_error_code() );
+		$this->assertEquals( 'site-not-connected', $result->get_error_code() );
 
 		// Prefix has been restored.
 		$this->assertEquals( $old_prefix, $wpdb->prefix );
