@@ -1140,17 +1140,14 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'in_site_migration_flow':
-					if ( $value === false ) {
+					if ( empty( $value ) ) {
 						delete_option( 'in_site_migration_flow' );
 						break;
 					}
 
-					if ( $value === true ) {
-						$value = 'site-migration';
-					}
-
 					$migration_flow_whitelist = array(
 						'site-migration',
+						'migration-signup',
 					);
 
 					if ( ! in_array( $value, $migration_flow_whitelist, true ) ) {
