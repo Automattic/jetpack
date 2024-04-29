@@ -6,10 +6,18 @@ namespace Automattic\Jetpack_Boost\Compatibility\Jetpack;
  */
 class Sync_Jetpack_Module_Status {
 
-	/** Slug of the Jetpack module */
+	/**
+	 * Slug of the Jetpack module
+	 *
+	 * @var string
+	 */
 	public $jetpack_module_slug;
 
-	/** Slug of the Boost module */
+	/**
+	 * Slug of the Boost module
+	 *
+	 * @var string
+	 */
 	public $boost_module_slug;
 
 	public function __construct( $boost_module_slug, $jetpack_module_slug ) {

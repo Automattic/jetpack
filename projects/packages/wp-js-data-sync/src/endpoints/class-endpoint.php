@@ -97,32 +97,36 @@ class Endpoint {
 		}
 	}
 
-	/*
+	/**
 	 * Handle GET Requests on /wp-json/<namespace>/<route>
+	 *
 	 * @param \WP_REST_Request $request - The request object.
 	 */
 	public function handle_get( $request ) {
 		return $this->handler( $request, 'get' );
 	}
 
-	/*
+	/**
 	 * Handle POST, PUT, PATCH Requests on /wp-json/<namespace>/<route>/set
+	 *
 	 * @param \WP_REST_Request $request - The request object.
 	 */
 	public function handle_set( $request ) {
 		return $this->handler( $request, 'set' );
 	}
 
-	/*
+	/**
 	 * Handle POST, PUT, PATCH Requests on /wp-json/<namespace>/<route>/merge
+	 *
 	 * @param \WP_REST_Request $request - The request object.
 	 */
 	public function handle_merge( $request ) {
 		return $this->handler( $request, 'merge' );
 	}
 
-	/*
+	/**
 	 * Handle POST, DELETE Requests on /wp-json/<namespace>/<route>/delete
+	 *
 	 * @param \WP_REST_Request $request - The request object.
 	 */
 	public function handle_delete( $request ) {

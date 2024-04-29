@@ -230,6 +230,14 @@ for PROJECT in projects/*/*; do
 		continue
 	fi
 
+	# - In phpcs config, `<rule ref="Standard.Category.Sniff.Message"><severity>0</severity></rule>` doesn't do what you think.
+	for FILE in $(git -c core.quotepath=off ls-files "$PROJECT/.phpcs.dir.xml" "$PROJECT/**/.phpcs.dir.xml"); do
+		while IFS=$'\t' read -r LINE REF; do
+			EXIT=1
+			echo "::error file=$FILE,line=$LINE::PHPCS config attempts to set severity 0 for the sniff message \"$REF\". To exclude a single message from a sniff, use \`<rule ref=\"${REF%.*}\"><exclude name=\"$REF\"/></rule>\` instead."
+		done < <( php -r '$doc = new DOMDocument(); $doc->load( $argv[1] ); $xpath = new DOMXPath( $doc ); function has_message( $v ) { return count( explode(".", $v[0]->value) ) >= 4; } $xpath->registerNamespace("php", "http://php.net/xpath"); $xpath->registerPHPFunctions( "has_message" ); foreach ( $xpath->evaluate( "//rule[php:function(\"has_message\", @ref)][severity[normalize-space(.)=\"0\"]]" ) as $node ) { echo "{$node->getLineNo()}\t{$node->getAttribute("ref")}\n"; }' "$FILE" )
+	done
+
 	### All tests depending on composer.json must go below here.
 
 	# - composer.json must include a monorepo .repositories entry.
