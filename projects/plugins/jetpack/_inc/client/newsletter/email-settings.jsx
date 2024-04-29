@@ -44,7 +44,7 @@ const EmailSettings = props => {
 				SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION,
 				value === 'excerpt'
 			);
-			analytics.tracks.recordEvent( 'jetpack_newsletter_set_featured_image_in_email', { value } );
+			analytics.tracks.recordEvent( 'jetpack_newsletter_set_emails_use_excerpt', { value } );
 		},
 		[ updateFormStateAndSaveOptionValue ]
 	);
