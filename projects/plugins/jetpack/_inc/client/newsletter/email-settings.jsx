@@ -4,6 +4,7 @@ import { FormLegend } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import analytics from 'lib/analytics';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { isUnavailableInOfflineMode, isUnavailableInSiteConnectionMode } from 'state/connection';
@@ -34,10 +35,11 @@ const EmailSettings = props => {
 	} = props;
 
 	const handleEnableFeaturedImageInEmailToggleChange = useCallback( () => {
-		updateFormStateAndSaveOptionValue(
-			FEATURED_IMAGE_IN_EMAIL_OPTION,
-			! isFeaturedImageInEmailEnabled
-		);
+		const value = ! isFeaturedImageInEmailEnabled;
+		updateFormStateAndSaveOptionValue( FEATURED_IMAGE_IN_EMAIL_OPTION, value );
+		analytics.tracks.recordEvent( 'jetpack_newsletter_set_toggle_featured_image_in_email', {
+			value,
+		} );
 	}, [ isFeaturedImageInEmailEnabled, updateFormStateAndSaveOptionValue ] );
 
 	const handleSubscriptionEmailsUseExcerptChange = useCallback(
@@ -46,6 +48,7 @@ const EmailSettings = props => {
 				SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION,
 				value === 'excerpt'
 			);
+			analytics.tracks.recordEvent( 'jetpack_newsletter_set_featured_image_in_email', { value } );
 		},
 		[ updateFormStateAndSaveOptionValue ]
 	);
@@ -53,6 +56,7 @@ const EmailSettings = props => {
 	const handleSubscriptionReplyToChange = useCallback(
 		value => {
 			updateFormStateAndSaveOptionValue( REPLY_TO_OPTION, value );
+			analytics.tracks.recordEvent( 'jetpack_newsletter_set_reply_to', { value } );
 		},
 		[ updateFormStateAndSaveOptionValue ]
 	);
@@ -161,6 +165,19 @@ const EmailSettings = props => {
 					/>
 				</SettingsGroup>
 			) }
+				<RadioControl
+					selected={ subscriptionReplyTo || 'no-reply' }
+					disabled={ replyToInputDisabled }
+					options={ [
+						{ label: __( 'Replies are not allowed.', 'jetpack' ), value: 'no-reply' },
+						{
+							label: __( "Replies will be sent to the post author's email.", 'jetpack' ),
+							value: 'author',
+						},
+					] }
+					onChange={ handleSubscriptionReplyToChange }
+				/>
+			</SettingsGroup>
 		</SettingsCard>
 	);
 };
