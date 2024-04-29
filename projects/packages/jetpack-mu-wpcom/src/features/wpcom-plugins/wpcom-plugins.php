@@ -29,7 +29,7 @@ function wpcom_plugins_show_banner() {
 	);
 	wp_localize_script(
 		'wpcom-plugins-banner',
-		'wpcomPluginBanner',
+		'wpcomPluginsBanner',
 		array(
 			'logo'             => esc_url( $wpcom_logo ),
 			'title'            => esc_html__( "Flex your site's features with plugins", 'jetpack-mu-wpcom' ),
