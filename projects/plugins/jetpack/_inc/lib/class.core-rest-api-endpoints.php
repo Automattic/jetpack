@@ -1143,7 +1143,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
-	 * @return array|wp-error
+	 * @return array|WP_Error
 	 */
 	public static function is_site_verified_and_token( $request ) {
 		/**
@@ -1252,7 +1252,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
-	 * @return array|wp-error
+	 * @return array|WP_Error
 	 */
 	public static function dismiss_notice( $request ) {
 		$notice = $request['notice'];
@@ -2645,6 +2645,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),
+			'jetpack_subscriptions_reply_to'        => array(
+				'description'       => esc_html__( 'Reply to email behaviour for newsletters emails', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => 'no-reply',
+				'validate_callback' => __CLASS__ . '::validate_subscriptions_reply_to',
+				'jp_group'          => 'subscriptions',
+			),
 			'sm_enabled'                            => array(
 				'description'       => esc_html__( 'Show popup Subscribe modal to readers.', 'jetpack' ),
 				'type'              => 'boolean',
@@ -3377,6 +3384,32 @@ class Jetpack_Core_Json_Api_Endpoints {
 					esc_html__( '%1$s must be %2$s.', 'jetpack' ),
 					$param,
 					implode( ', ', $views )
+				)
+			);
+		}
+		return true;
+	}
+
+	/**
+	 * Validates that the parameter is among the valid reply-to types for subscriptions.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param string|bool     $value Value to check.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param Name of the parameter passed to endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_subscriptions_reply_to( $value, $request, $param ) {
+		$valid_values = array( 'author', 'no-reply' );
+		if ( ! empty( $value ) && ! in_array( $value, $valid_values, true ) ) {
+			return new WP_Error(
+				'invalid_param',
+				sprintf(
+					/* Translators: Placeholder is a parameter name. */
+					esc_html__( '%s must be a valid type.', 'jetpack' ),
+					$param
 				)
 			);
 		}

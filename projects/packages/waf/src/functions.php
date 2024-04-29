@@ -52,7 +52,7 @@ function wp_unslash( $value ) {
  *                                 Usually only used internally as part of recursion when flattening a nested array.
  * @param bool|null $dot_notation  Whether to use dot notation instead of bracket notation.
  *
- * @return array{ 0: string, 1: scalar }[]  $key_prefix  An array of key/value tuples, one for each distinct value in the input array.
+ * @return array{0: string, 1: scalar}[]  $key_prefix  An array of key/value tuples, one for each distinct value in the input array.
  */
 function flatten_array( $array, $key_prefix = '', $dot_notation = null ) {
 	$return = array();

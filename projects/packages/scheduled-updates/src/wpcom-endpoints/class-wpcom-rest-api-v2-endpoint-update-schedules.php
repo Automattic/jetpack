@@ -267,7 +267,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		}
 
 		$id = Scheduled_Updates::generate_schedule_id( $plugins );
-		Scheduled_Updates_Health_Paths::update( $id, $schedule['health_check_paths'] ?? array() );
 
 		/**
 		 * Fires when a scheduled update is created.
@@ -504,8 +503,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		 */
 		do_action( 'jetpack_scheduled_update_deleted', $request['schedule_id'], $event, $request );
 
-		Scheduled_Updates_Health_Paths::clear( $request['schedule_id'] );
-
 		return rest_ensure_response( true );
 	}
 
@@ -520,12 +517,16 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return $response;
 		}
 
-		$data   = (array) $response->get_data();
-		$server = rest_get_server();
-		$links  = $server::get_compact_response_links( $response );
+		$data = (array) $response->get_data();
 
-		if ( ! empty( $links ) ) {
-			$data['_links'] = $links;
+		// Only call rest_get_server() if we're in a REST API request.
+		if ( did_action( 'rest_api_init' ) ) {
+			$server = rest_get_server();
+			$links  = $server::get_compact_response_links( $response );
+
+			if ( ! empty( $links ) ) {
+				$data['_links'] = $links;
+			}
 		}
 
 		return $data;
@@ -540,18 +541,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 */
 	public function prepare_item_for_response( $item, $request ) {
 		$item = (array) $item;
-
-		$status = Scheduled_Updates::get_scheduled_update_status( $item['schedule_id'] );
-		if ( ! $status ) {
-			$status = array(
-				'last_run_timestamp' => null,
-				'last_run_status'    => null,
-			);
-		}
-
-		$item                       = array_merge( $item, $status );
-		$item['health_check_paths'] = Scheduled_Updates_Health_Paths::get( $item['schedule_id'] );
-
+		$item = apply_filters( 'jetpack_scheduled_response_item', $item, $request );
 		$item = $this->add_additional_fields_to_object( $item, $request );
 
 		// Remove schedule ID, not needed in the response.
@@ -770,6 +760,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 					'type'        => 'string',
 					'enum'        => array( 'success', 'failure-and-rollback', 'failure-and-rollback-fail' ),
 				),
+				'active'             => array(
+					'description' => 'Whether the schedule is active.',
+					'type'        => 'boolean',
+				),
 				'health_check_paths' => array(
 					'description' => 'Paths to check for site health.',
 					'type'        => 'array',
@@ -817,6 +811,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 						'type'        => 'integer',
 						'required'    => true,
 					),
+					'active'             => array(
+						'description' => 'Whether the schedule is active.',
+						'type'        => 'boolean',
+						'required'    => false,
+						'default'     => true,
+					),
 					'health_check_paths' => array(
 						'description'       => 'List of paths to check for site health after the update.',
 						'type'              => 'array',
@@ -834,4 +834,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	}
 }
 
-wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules' );
+if ( function_exists( 'wpcom_rest_api_v2_load_plugin' ) ) {
+	wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules' );
+}

@@ -317,7 +317,7 @@ class REST_Connector {
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
-	 * @return array|wp-error
+	 * @return array|WP_Error
 	 */
 	public static function remote_authorize( $request ) {
 		$xmlrpc_server = new Jetpack_XMLRPC_Server();
@@ -938,7 +938,7 @@ class REST_Connector {
 	 *
 	 * @since 1.29.0
 	 *
-	 * @return bool|WP_Error.
+	 * @return bool|WP_Error
 	 */
 	public static function update_user_token_permission_check() {
 		return Rest_Authentication::is_signed_with_blog_token()

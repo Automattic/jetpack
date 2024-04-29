@@ -46,7 +46,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 
 		'request_format'      => array(
 			'migration_source_site_domain'            => '(string) The source site URL, from the migration flow',
-			'in_site_migration_flow'                  => '(bool) Whether the site is currently in the Site Migration signup flow.',
+			'in_site_migration_flow'                  => '(string) The migration flow the site is in',
 			'blogname'                                => '(string) Blog name',
 			'blogdescription'                         => '(string) Blog description',
 			'default_pingback_flag'                   => '(bool) Notify blogs linked from article?',
@@ -461,6 +461,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
 						'wpcom_reader_views_enabled'       => (bool) get_option( 'wpcom_reader_views_enabled', true ),
 						'wpcom_subscription_emails_use_excerpt' => $this->get_wpcom_subscription_emails_use_excerpt_option(),
+						'jetpack_subscriptions_reply_to'   => (string) $this->get_subscriptions_reply_to_option(),
 						'show_on_front'                    => (string) get_option( 'show_on_front' ),
 						'page_on_front'                    => (string) get_option( 'page_on_front' ),
 						'page_for_posts'                   => (string) get_option( 'page_for_posts' ),
@@ -470,7 +471,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'enable_blocks_comments'           => (bool) get_option( 'enable_blocks_comments', true ),
 						'highlander_comment_form_prompt'   => $this->get_highlander_comment_form_prompt_option(),
 						'jetpack_comment_form_color_scheme' => (string) get_option( 'jetpack_comment_form_color_scheme' ),
-						'in_site_migration_flow'           => (bool) get_option( 'in_site_migration_flow', 0 ),
+						'in_site_migration_flow'           => (string) get_option( 'in_site_migration_flow', '' ),
 						'migration_source_site_domain'     => (string) get_option( 'migration_source_site_domain' ),
 					);
 
@@ -1026,6 +1027,12 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$updated[ $key ] = (bool) $value;
 					break;
 
+				case 'jetpack_subscriptions_reply_to':
+					$to_set_value = (string) in_array( $value, array( 'no-reply', 'author' ), true ) ? $value : 'no-reply';
+					update_option( 'jetpack_subscriptions_reply_to', (string) $to_set_value );
+					$updated[ $key ] = (bool) $value;
+					break;
+
 				case 'instant_search_enabled':
 					update_option( 'instant_search_enabled', (bool) $value );
 					$updated[ $key ] = (bool) $value;
@@ -1140,14 +1147,22 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'in_site_migration_flow':
-					$canonical_value = (int) (bool) $value;
-					if ( 0 === $canonical_value ) {
+					if ( empty( $value ) ) {
 						delete_option( 'in_site_migration_flow' );
-					} else {
-						update_option( 'in_site_migration_flow', $canonical_value );
+						break;
 					}
 
-					$updated[ $key ] = $canonical_value;
+					$migration_flow_whitelist = array(
+						'site-migration',
+						'migration-signup',
+					);
+
+					if ( ! in_array( $value, $migration_flow_whitelist, true ) ) {
+						break;
+					}
+
+					update_option( 'in_site_migration_flow', $value );
+					$updated[ $key ] = $value;
 					break;
 
 				default:
@@ -1249,6 +1264,20 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		return (bool) $wpcom_subscription_emails_use_excerpt;
+	}
+
+	/**
+	 * Get the string value of the jetpack_subscriptions_reply_to option.
+	 * When the option is not set, it will retun 'no-reply'.
+	 *
+	 * @return string
+	 */
+	protected function get_subscriptions_reply_to_option() {
+		$reply_to = get_option( 'jetpack_subscriptions_reply_to', null );
+		if ( $reply_to === null ) {
+			return 'no-reply';
+		}
+		return $reply_to;
 	}
 
 	/**

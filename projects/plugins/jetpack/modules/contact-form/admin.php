@@ -270,11 +270,12 @@ function grunion_sort_objects( $a, $b ) {
  * returns both the shortcode form, and HTML markup representing a preview of the form
  *
  * @deprecated 13.3 Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_ajax_shortcode
+ * @return never
  */
 function grunion_ajax_shortcode() {
 	_deprecated_function( __FUNCTION__, 'jetpack-13.3', 'Automattic\Jetpack\Forms\ContactForm\Admin->grunion_ajax_shortcode' );
 
-	return Grunion_Admin::$instance->grunion_ajax_shortcode();
+	Grunion_Admin::$instance->grunion_ajax_shortcode();
 }
 
 /**
@@ -282,11 +283,12 @@ function grunion_ajax_shortcode() {
  * and constructs a json object representing its contents and attributes.
  *
  * @deprecated 13.3 Use Automattic\Jetpack\Forms\ContactForm\Admin->grunion_ajax_shortcode_to_json
+ * @return never
  */
 function grunion_ajax_shortcode_to_json() {
 	_deprecated_function( __FUNCTION__, 'jetpack-13.3', 'Automattic\Jetpack\Forms\ContactForm\Admin->grunion_ajax_shortcode_to_json' );
 
-	return Grunion_Admin::$instance->grunion_ajax_shortcode_to_json();
+	Grunion_Admin::$instance->grunion_ajax_shortcode_to_json();
 }
 
 /**
@@ -403,7 +405,7 @@ class Grunion_Admin {
 	/**
 	 * Singleton class instance
 	 *
-	 * @var Grunion_Admin Class instance.
+	 * @var Admin Class instance.
 	 */
 	public static $instance;
 
@@ -411,7 +413,7 @@ class Grunion_Admin {
 	 * Instantiates this singleton class
 	 *
 	 * @deprecated 13.3 Use Automattic\Jetpack\Forms\ContactForm\Admin::init
-	 * @return Grunion_Admin The Grunion Admin class instance.
+	 * @return Admin The Grunion Admin class instance.
 	 */
 	public static function init() {
 		_deprecated_function( __METHOD__, 'jetpack-13.3', 'Automattic\Jetpack\Forms\ContactForm\Admin::init' );
