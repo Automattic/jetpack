@@ -232,7 +232,7 @@ class Scheduled_Updates_Active_Test extends \WorDBless\BaseTestCase {
 		$this->assertCount( 1, $logs );
 		$this->assertCount( 2, $logs[0] );
 
-		// The schduled update started and succeeded.
+		// The scheduled update started and succeeded.
 		$this->assertSame( Scheduled_Updates_Logs::PLUGIN_UPDATES_START, $logs[0][0]['action'] );
 		$this->assertSame( Scheduled_Updates_Logs::PLUGIN_UPDATES_SUCCESS, $logs[0][1]['action'] );
 	}
