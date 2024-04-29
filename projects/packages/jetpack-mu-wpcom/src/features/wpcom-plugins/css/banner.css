@@ -24,8 +24,8 @@
 	width: 540px;
 }
 
-.wpcom-plugins-banner h3,
-.wpcom-plugins-banner p {
+#wpcontent .wpcom-plugins-banner h3,
+#wpcontent .wpcom-plugins-banner p {
 	font-weight: 400;
 	letter-spacing: -0.32px;
 	margin: 10px 0;
