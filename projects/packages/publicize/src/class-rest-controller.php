@@ -137,6 +137,17 @@ class REST_Controller {
 				),
 			)
 		);
+
+		// Delete a Jetpack Social connection.
+		register_rest_route(
+			'jetpack/v4',
+			'/social/connections/(?P<connection_id>\d+)',
+			array(
+				'methods'             => WP_REST_Server::DELETABLE,
+				'callback'            => array( $this, 'delete_publicize_connection' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+			)
+		);
 	}
 
 	/**
@@ -343,5 +354,26 @@ class REST_Controller {
 	 */
 	protected function get_blog_id() {
 		return $this->is_wpcom ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
+	}
+
+	/**
+	 * Calls the WPCOM endpoint to delete the publicize connection.
+	 *
+	 * POST jetpack/v4/social/connections/{connection_id}
+	 *
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
+	 */
+	public function delete_publicize_connection( $request ) {
+		$connection_id = $request->get_param( 'connection_id' );
+		$blog_id       = $this->get_blog_id();
+
+		$path = sprintf(
+			'/sites/%d/jetpack-social-connections/%d',
+			$blog_id,
+			$connection_id
+		);
+
+		$response = Client::wpcom_json_api_request_as_user( $path, '2', array( 'method' => 'DELETE' ), null, 'wpcom' );
+		return rest_ensure_response( $this->make_proper_response( $response ) );
 	}
 }
