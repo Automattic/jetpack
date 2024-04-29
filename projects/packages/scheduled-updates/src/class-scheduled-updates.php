@@ -61,7 +61,7 @@ class Scheduled_Updates {
 		add_action( 'jetpack_scheduled_update_deleted', array( __CLASS__, 'enable_autoupdates' ), 10, 2 );
 		add_action( 'jetpack_scheduled_update_updated', array( Scheduled_Updates_Logs::class, 'replace_logs_schedule_id' ), 10, 2 );
 		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Logs::class, 'delete_logs_schedule_id' ), 10, 3 );
-		add_action( 'jetpack_scheduled_update_created', array( __CLASS__, 'updates_health_paths' ), 10, 3 );
+		add_action( 'jetpack_scheduled_update_created', array( Scheduled_Updates_Health_Paths::class, 'updates_health_paths' ), 10, 3 );
 		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Health_Paths::class, 'clear' ) );
 
 		// Update cron sync option after options update.
@@ -484,19 +484,5 @@ class Scheduled_Updates {
 		}
 
 		return \Automattic\Jetpack\Sync\Functions::file_system_write_access();
-	}
-
-	/**
-	 * Update the health check paths for a scheduled update.
-	 *
-	 * @param string           $id      The ID of the schedule.
-	 * @param object           $event   The event object.
-	 * @param \WP_REST_Request $request The request object.
-	 * @return bool
-	 */
-	public static function updates_health_paths( $id, $event, $request ) {
-		$schedule = $request['schedule'];
-		$paths    = $schedule['health_check_paths'] ?? array();
-		return Scheduled_Updates_Health_Paths::update( $id, $paths );
 	}
 }

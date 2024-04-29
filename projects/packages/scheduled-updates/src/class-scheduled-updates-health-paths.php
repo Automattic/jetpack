@@ -135,4 +135,18 @@ class Scheduled_Updates_Health_Paths {
 
 		return $ret;
 	}
+
+	/**
+	 * Update the health check paths for a scheduled update hook.
+	 *
+	 * @param string           $id      The ID of the schedule.
+	 * @param object           $event   The event object.
+	 * @param \WP_REST_Request $request The request object.
+	 * @return bool
+	 */
+	public static function updates_health_paths( $id, $event, $request ) {
+		$schedule = $request['schedule'];
+		$paths    = $schedule['health_check_paths'] ?? array();
+		return self::update( $id, $paths );
+	}
 }
