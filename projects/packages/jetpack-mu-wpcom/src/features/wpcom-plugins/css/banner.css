@@ -36,13 +36,13 @@
 	font-family: 'Recoleta';
 	font-size: 32px;
 	line-height: 40px;
-	color: #101517;
+	color: #FFF;
 }
 
 .wpcom-plugins-banner p {
 	font-size: 16px;
 	line-height: 24px;
-	color: #2C3338;
+	color: #A7AAAD;
 }
 
 .wpcom-plugins-banner a,
@@ -50,13 +50,13 @@
 	background-color: #3858E9;
 	color: white;
 	border-radius: 4px;
-	padding: 14px 24px;
+	padding: 10px 24px;
 	font-size: 14px;
 	line-height: 20px;
 	letter-spacing: 0.32px;
 	text-decoration: none;
 	display: inline-block;
-	margin-top: 17px;
+	margin-top: 32px;
 }
 
 .wpcom-plugins-banner a:hover,
@@ -79,7 +79,7 @@
 
 @media (max-width: 1120px) {
 	.wpcom-plugins-banner {
-		background-position: center right -150px;
+		background-position: bottom right 0px;
 	}
 }
 
