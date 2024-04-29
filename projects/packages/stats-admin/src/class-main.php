@@ -22,7 +22,7 @@ class Main {
 	/**
 	 * Stats version.
 	 */
-	const VERSION = '0.18.3';
+	const VERSION = '0.19.0-alpha';
 
 	/**
 	 * Singleton Main instance.
