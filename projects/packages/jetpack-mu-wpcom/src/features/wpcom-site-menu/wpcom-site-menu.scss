@@ -147,7 +147,7 @@
 	@include folded;
 }
 
-.rtl {
+.rtl .folded {
 	@include folded {
 		#adminmenu li.toplevel_page_site-notices .wp-menu-name {
 			right: auto;
