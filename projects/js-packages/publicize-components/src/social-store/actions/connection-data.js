@@ -78,7 +78,7 @@ export function refreshConnectionTestResults( syncToMeta = false ) {
 		try {
 			const path =
 				getJetpackData()?.social?.connectionRefreshPath ||
-				'/wpcom/v2/publicize/connection-test-results';
+				'/jetpack/v4/publicize/connection-test-results';
 
 			const freshConnections = await apiFetch( { path } );
 
