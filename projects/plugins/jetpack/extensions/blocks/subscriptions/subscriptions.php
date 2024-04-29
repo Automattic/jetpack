@@ -1267,12 +1267,19 @@ function get_paywall_simple() {
 	return '
 <!-- wp:columns -->
 <div class="wp-block-columns" style="display: inline-block; width: 90%">
+    <!-- wp:column -->
+    <div class="wp-block-column" style="background-color: #F6F7F7; padding: 32px; 24px;">
+        <!-- wp:paragraph -->
+        <p class="has-text-align-center"
+           style="text-align: center;
+                  color: #50575E;
+                  font-weight: 400;
+                  font-size: 16px;
                   font-family: \'SF Pro Text\', sans-serif;
                   line-height: 28.8px;">
         ' . $access_heading . '
         </p>
         <!-- /wp:paragraph -->
-
         <!-- wp:buttons -->
         <div class="wp-block-buttons" style="text-align: center;">
             <!-- wp:button -->
