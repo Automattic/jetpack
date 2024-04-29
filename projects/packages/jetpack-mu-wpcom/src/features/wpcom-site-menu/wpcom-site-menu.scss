@@ -125,6 +125,11 @@
 		.wp-menu-name {
 			left: auto;
 			padding-left: 4px;
+
+			.rtl & {
+			 	right: auto;
+				padding-right: 4px;
+			}
 		}
 
 		.upsell_banner {
