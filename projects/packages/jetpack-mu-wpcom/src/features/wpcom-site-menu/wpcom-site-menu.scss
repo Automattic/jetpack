@@ -147,7 +147,7 @@
 	@include folded;
 }
 
-.rtl .folded #adminmenu li.toplevel_page_site-notices .wp-menu-name {
+.rtl.folded #adminmenu li.toplevel_page_site-notices .wp-menu-name {
 	right: auto;
 	padding-right: 4px;
 }
