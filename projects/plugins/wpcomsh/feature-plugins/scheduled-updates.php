@@ -21,6 +21,17 @@ function scheduled_updates_menu() {
 		return;
 	}
 
+	global $submenu;
+
+	// Check if the Scheduled Updates submenu already exists
+	if ( isset( $submenu['plugins.php'] ) ) {
+		foreach ( $submenu['plugins.php'] as $submenu_item ) {
+			if ( $submenu_item[2] === 'https://wordpress.com/plugins/scheduled-updates/' . ( new Automattic\Jetpack\Status() )->get_site_suffix() ) {
+				return; // Submenu already exists, exit the function
+			}
+		}
+	}
+
 	add_submenu_page(
 		'plugins.php',
 		esc_attr__( 'Scheduled Updates', 'scheduled-updates' ),
@@ -30,4 +41,4 @@ function scheduled_updates_menu() {
 		null
 	);
 }
-add_action( 'admin_menu', 'scheduled_updates_menu' );
+add_action( 'admin_menu', 'scheduled_updates_menu', 11 );
