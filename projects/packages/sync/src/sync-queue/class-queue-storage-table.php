@@ -350,7 +350,7 @@ class Queue_Storage_Table {
 			$sender->send_action( 'jetpack_sync_custom_table_error', $data );
 		}
 
-		return (int) $items_count;
+		return $items_count;
 	}
 
 	/**
