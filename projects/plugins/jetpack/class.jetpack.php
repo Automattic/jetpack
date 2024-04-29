@@ -3460,7 +3460,7 @@ p {
 	 * will be updated instead of add a new one.
 	 *
 	 * @param  boolean $update_media_item - update media attachment.
-	 * @return array|WP_Error - An array describing the uploadind files process.
+	 * @return array|WP_Error - An array describing the uploading files process.
 	 */
 	public function upload_handler( $update_media_item = false ) {
 		if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' !== strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) ) {
