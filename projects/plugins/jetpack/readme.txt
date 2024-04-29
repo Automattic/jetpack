@@ -326,12 +326,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.4-a.7 - 2024-04-25
-#### Improved compatibility
-- General: Update WordPress version requirements to WordPress 6.4 and remove compatibility code for lower versions. [#37047]
-
-#### Bug fixes
-- Google Fonts: Avoid theme fonts overriding the default fonts so fonts with a specific font weight that are not supported by the provided theme can be rendered correctly.
+### 13.4-a.9 - 2024-04-29
+#### Enhancements
+- Newsletter: Add subscrition 'reply to' behaviour.
 
 --------
 

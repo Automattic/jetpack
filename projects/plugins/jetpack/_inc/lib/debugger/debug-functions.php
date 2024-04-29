@@ -37,8 +37,8 @@ function jetpack_debugger_site_status_tests( $core_tests ) {
 			/**
 			 * Callable for Core's Site Health system to execute.
 			 *
-			 * @param array $test A Jetpack Testing Suite test array.
-			 * @param Jetpack_Cxn_Tests $cxn_tests An instance of the Jetpack Test Suite.
+			 * @var array $test A Jetpack Testing Suite test array.
+			 * @var Jetpack_Cxn_Tests $cxn_tests An instance of the Jetpack Test Suite.
 			 *
 			 * @return array {
 			 *      A results array to match the format expected by WordPress Core.

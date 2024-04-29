@@ -3,7 +3,7 @@
  * Cloudflare Analytics
  * Let WPCOM users automatically insert a Cloudflare analytics JS snippet into their site footer.
  *
- * @since $$next-version$$ -- Ported from Jetpack.
+ * @since 5.26.1 -- Ported from Jetpack.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Cloudflare_Analytics;
 /**
  * Add Cloudflare Analytics tracking code to the head.
  *
- * @since $$next-version$$ -- Ported from Jetpack.
+ * @since 5.26.1 -- Ported from Jetpack.
  */
 function insert_tracking_id() {
 	$option = get_option( 'jetpack_cloudflare_analytics' );

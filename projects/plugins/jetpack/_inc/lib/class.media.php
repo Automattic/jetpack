@@ -435,7 +435,7 @@ class Jetpack_Media {
 	 *
 	 * @param  int   $media_id - media post ID.
 	 * @param  array $file_array - Data derived from `$_FILES` for an uploaded file.
-	 * @return {Post|WP_Error} Updated media item or a WP_Error is something went wrong.
+	 * @return WP_Post|WP_Error Updated media item or a WP_Error is something went wrong.
 	 */
 	public static function edit_media_file( $media_id, $file_array ) {
 		$media_item         = get_post( $media_id );

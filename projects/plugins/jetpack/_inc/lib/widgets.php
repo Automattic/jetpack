@@ -42,10 +42,10 @@ class Jetpack_Widgets {
 	 *  )
 	 * )
 	 *
-	 * @param string|integer   $position The position of the widget in its sidebar.
-	 * @param string           $widget_id The widget's id (eg: 'text-3').
-	 * @param string           $sidebar The widget's sidebar id (eg: 'sidebar-1').
-	 * @param array (Optional) $settings The settings for the widget.
+	 * @param string|integer $position The position of the widget in its sidebar.
+	 * @param string         $widget_id The widget's id (eg: 'text-3').
+	 * @param string         $sidebar The widget's sidebar id (eg: 'sidebar-1').
+	 * @param array|null     $settings The settings for the widget.
 	 *
 	 * @return array A normalized array representing this widget.
 	 */

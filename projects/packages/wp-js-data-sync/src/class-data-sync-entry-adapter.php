@@ -26,7 +26,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parser;
 final class Data_Sync_Entry_Adapter implements Data_Sync_Entry {
 
 	/**
-	 * @var (Entry_Can_Get & (Entry_Can_Set | Entry_Can_Merge | Entry_Can_Delete)) - The data sync entry.
+	 * @var Entry_Can_Get&Entry_Can_Set|Entry_Can_Get&Entry_Can_Merge|Entry_Can_Get&Entry_Can_Delete - The data sync entry.
 	 */
 	private $entry;
 
