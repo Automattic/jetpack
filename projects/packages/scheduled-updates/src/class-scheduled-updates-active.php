@@ -10,7 +10,7 @@ namespace Automattic\Jetpack;
 /**
  * Scheduled_Updates_Active class
  *
- * This class provides static methods to get/save actiev for scheduled updates.
+ * This class provides static methods to get/save active for scheduled updates.
  */
 class Scheduled_Updates_Active {
 
