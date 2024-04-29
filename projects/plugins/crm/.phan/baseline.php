@@ -101,7 +101,6 @@ return [
     // PhanRedefineFunction : 2 occurrences
     // PhanTypeVoidArgument : 2 occurrences
     // PhanUndeclaredClassInstanceof : 2 occurrences
-    // PhanCommentParamOnEmptyParamList : 1 occurrence
     // PhanImpossibleTypeComparisonInLoop : 1 occurrence
     // PhanNoopVariable : 1 occurrence
     // PhanParamSuspiciousOrder : 1 occurrence
@@ -353,7 +352,7 @@ return [
         'tests/php/automation/transactions/class-transaction-condition-test.php' => ['PhanUnreferencedUseNormal'],
         'tests/php/automation/transactions/class-transaction-trigger-test.php' => ['PhanUnreferencedUseNormal'],
         'tests/php/bootstrap.php' => ['PhanUndeclaredConstant'],
-        'tests/php/event-manager/class-event-manager-faker.php' => ['PhanCommentParamOnEmptyParamList', 'PhanUndeclaredTypeReturnType'],
+        'tests/php/event-manager/class-event-manager-faker.php' => ['PhanUndeclaredTypeReturnType'],
         'tests/php/event-manager/class-event-manager-test.php' => ['PhanCommentVarInsteadOfParam', 'PhanParamTooMany'],
         'tests/php/rest-api/v4/class-rest-authentication-test.php' => ['PhanTypeMismatchReturn'],
         'tests/php/rest-api/v4/class-rest-contacts-controller-test.php' => ['PhanPluginNeverReturnFunction'],
