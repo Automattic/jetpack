@@ -13,8 +13,8 @@ return [
     // PhanTypeMismatchArgument : 15+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 8 occurrences
     // PhanTypeMismatchReturn : 6 occurrences
+    // PhanUndeclaredClassMethod : 5 occurrences
     // PhanTypeMismatchReturnProbablyReal : 4 occurrences
-    // PhanUndeclaredClassMethod : 4 occurrences
     // PhanNoopNew : 3 occurrences
     // PhanTypePossiblyInvalidDimOffset : 3 occurrences
     // PhanUndeclaredFunction : 3 occurrences
