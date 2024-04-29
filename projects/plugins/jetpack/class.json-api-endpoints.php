@@ -1884,9 +1884,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * relative to now and will convert it to local time using either the
 	 * timezone set in the options table for the blog or the GMT offset.
 	 *
-	 * @param datetime string $date_string Date to parse.
+	 * @param string $date_string Date to parse.
 	 *
-	 * @return array( $local_time_string, $gmt_time_string )
+	 * @return array{string,string} ( $local_time_string, $gmt_time_string )
 	 */
 	public function parse_date( $date_string ) {
 		$date_string_info = date_parse( $date_string );

@@ -41,11 +41,11 @@ class Endpoint {
 	 * @param string          $route     - The route for the REST API endpoint.
 	 * @param Data_Sync_Entry $entry     The data sync entry to register the endpoint for.
 	 */
-	public function __construct( $namespace, $key, $entry ) {
+	public function __construct( $namespace, $route, $entry ) {
 		$this->entry          = $entry;
 		$this->rest_namespace = $namespace;
-		$this->route_base     = $key;
-		$this->nonce          = new Authenticated_Nonce( "{$namespace}_{$key}" );
+		$this->route_base     = $route;
+		$this->nonce          = new Authenticated_Nonce( "{$namespace}_{$route}" );
 	}
 
 	public function register_rest_routes() {

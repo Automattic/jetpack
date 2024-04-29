@@ -355,8 +355,6 @@ class WordAds {
 
 	/**
 	 * IPONWEB metadata used by the various scripts
-	 *
-	 * @return [type] [description]
 	 */
 	public function insert_head_meta() {
 		if ( self::is_amp() ) {

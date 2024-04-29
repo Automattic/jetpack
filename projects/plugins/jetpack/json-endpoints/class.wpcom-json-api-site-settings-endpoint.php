@@ -46,7 +46,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 
 		'request_format'      => array(
 			'migration_source_site_domain'            => '(string) The source site URL, from the migration flow',
-			'in_site_migration_flow'                  => '(bool) Whether the site is currently in the Site Migration signup flow.',
+			'in_site_migration_flow'                  => '(string) The migration flow the site is in',
 			'blogname'                                => '(string) Blog name',
 			'blogdescription'                         => '(string) Blog description',
 			'default_pingback_flag'                   => '(bool) Notify blogs linked from article?',
@@ -471,7 +471,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'enable_blocks_comments'           => (bool) get_option( 'enable_blocks_comments', true ),
 						'highlander_comment_form_prompt'   => $this->get_highlander_comment_form_prompt_option(),
 						'jetpack_comment_form_color_scheme' => (string) get_option( 'jetpack_comment_form_color_scheme' ),
-						'in_site_migration_flow'           => (bool) get_option( 'in_site_migration_flow', 0 ),
+						'in_site_migration_flow'           => (string) get_option( 'in_site_migration_flow', '' ),
 						'migration_source_site_domain'     => (string) get_option( 'migration_source_site_domain' ),
 					);
 
@@ -1147,14 +1147,22 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'in_site_migration_flow':
-					$canonical_value = (int) (bool) $value;
-					if ( 0 === $canonical_value ) {
+					if ( empty( $value ) ) {
 						delete_option( 'in_site_migration_flow' );
-					} else {
-						update_option( 'in_site_migration_flow', $canonical_value );
+						break;
 					}
 
-					$updated[ $key ] = $canonical_value;
+					$migration_flow_whitelist = array(
+						'site-migration',
+						'migration-signup',
+					);
+
+					if ( ! in_array( $value, $migration_flow_whitelist, true ) ) {
+						break;
+					}
+
+					update_option( 'in_site_migration_flow', $value );
+					$updated[ $key ] = $value;
 					break;
 
 				default:

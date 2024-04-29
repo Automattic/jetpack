@@ -679,7 +679,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Returns attachment object.
 	 *
-	 * @param object - $attachment attachment row.
+	 * @param object $attachment attachment row.
 	 *
 	 * @return object
 	 */

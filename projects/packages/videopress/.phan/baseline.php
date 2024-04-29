@@ -14,9 +14,8 @@ return [
     // PhanUndeclaredProperty : 8 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 7 occurrences
     // PhanTypeMismatchReturn : 7 occurrences
+    // PhanTypeMismatchReturnProbablyReal : 7 occurrences
     // PhanTypeArraySuspicious : 6 occurrences
-    // PhanTypeMismatchReturnProbablyReal : 6 occurrences
-    // PhanUnextractableAnnotation : 5 occurrences
     // PhanCommentOverrideOnNonOverrideMethod : 4 occurrences
     // PhanNonClassMethodCall : 4 occurrences
     // PhanTypeArraySuspiciousNullable : 4 occurrences
@@ -53,12 +52,12 @@ return [
         'src/class-divi.php' => ['PhanUndeclaredProperty'],
         'src/class-initializer.php' => ['PhanNoopNew', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentNullableInternal'],
         'src/class-jwt-token-bridge.php' => ['PhanTypeMismatchReturn'],
-        'src/class-plan.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUnextractableAnnotation'],
+        'src/class-plan.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-stats.php' => ['PhanTypeArraySuspiciousNullable'],
         'src/class-status.php' => ['PhanUndeclaredClassMethod'],
         'src/class-uploader-rest-endpoints.php' => ['PhanParamTooMany'],
         'src/class-uploader.php' => ['PhanTypeMismatchArgument'],
-        'src/class-utils.php' => ['PhanUnextractableAnnotation'],
+        'src/class-utils.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-videopresstoken.php' => ['PhanTypeMismatchReturn'],
         'src/class-wpcom-rest-api-v2-attachment-field-videopress.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredFunction'],
         'src/class-wpcom-rest-api-v2-attachment-videopress-data.php' => ['PhanUndeclaredFunction'],

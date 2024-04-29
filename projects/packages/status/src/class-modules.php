@@ -534,7 +534,7 @@ class Modules {
 	 *
 	 * @param array $modules Array of active modules to be saved in options.
 	 *
-	 * @return $success bool true for success, false for failure.
+	 * @return bool $success true for success, false for failure.
 	 */
 	public function update_active( $modules ) {
 		$current_modules      = \Jetpack_Options::get_option( 'active_modules', array() );

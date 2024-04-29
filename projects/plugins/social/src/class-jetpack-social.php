@@ -273,7 +273,7 @@ class Jetpack_Social {
 	 * It also caches the result to make sure that we don't call the API
 	 * more than once a request.
 	 *
-	 * @returns boolean True if the site has a plan that supports a higher share limit.
+	 * @return boolean True if the site has a plan that supports a higher share limit.
 	 */
 	public function has_paid_plan() {
 		static $has_plan = null;
@@ -296,7 +296,7 @@ class Jetpack_Social {
 	/**
 	 * Checks that we're connected, Publicize is active and that we're editing a post that supports it.
 	 *
-	 * @returns boolean True if the criteria are met.
+	 * @return boolean True if the criteria are met.
 	 */
 	public function should_enqueue_block_editor_scripts() {
 		return is_admin() && $this->is_connected() && self::is_publicize_active() && $this->is_supported_post();

@@ -28,7 +28,6 @@ return [
     // PhanTypeArraySuspicious : 3 occurrences
     // PhanTypeArraySuspiciousNullable : 3 occurrences
     // PhanAccessMethodInternal : 2 occurrences
-    // PhanCommentVarInsteadOfParam : 2 occurrences
     // PhanImpossibleCondition : 2 occurrences
     // PhanParamTooMany : 2 occurrences
     // PhanTypeMismatchArgumentNullable : 2 occurrences
@@ -71,8 +70,8 @@ return [
         'src/modules/class-callables.php' => ['PhanParamSignatureMismatch', 'PhanParamTooMany', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredMethod'],
         'src/modules/class-comments.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredMethod'],
         'src/modules/class-constants.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredProperty'],
-        'src/modules/class-full-sync-immediately.php' => ['PhanCommentVarInsteadOfParam', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchReturn', 'PhanUndeclaredMethod'],
-        'src/modules/class-full-sync.php' => ['PhanCommentVarInsteadOfParam', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanTypeComparisonFromArray', 'PhanUndeclaredMethod'],
+        'src/modules/class-full-sync-immediately.php' => ['PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchReturn', 'PhanUndeclaredMethod'],
+        'src/modules/class-full-sync.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanTypeComparisonFromArray', 'PhanUndeclaredMethod'],
         'src/modules/class-import.php' => ['PhanTypeMismatchArgumentInternal'],
         'src/modules/class-meta.php' => ['PhanParamSignatureMismatch', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgumentProbablyReal'],
         'src/modules/class-module.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
