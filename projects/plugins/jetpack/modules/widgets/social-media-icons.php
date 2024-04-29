@@ -104,7 +104,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 	 * Check Genericons.
 	 *
 	 * @access private
-	 * @return Bool.
+	 * @return bool
 	 */
 	private function check_genericons() {
 		global $wp_styles;

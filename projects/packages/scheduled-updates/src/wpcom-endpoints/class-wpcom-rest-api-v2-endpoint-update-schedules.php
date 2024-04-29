@@ -541,18 +541,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 */
 	public function prepare_item_for_response( $item, $request ) {
 		$item = (array) $item;
-
-		$status = Scheduled_Updates::get_scheduled_update_status( $item['schedule_id'] );
-		if ( ! $status ) {
-			$status = array(
-				'last_run_timestamp' => null,
-				'last_run_status'    => null,
-			);
-		}
-
-		$item                       = array_merge( $item, $status );
-		$item['health_check_paths'] = Scheduled_Updates_Health_Paths::get( $item['schedule_id'] );
-
+		$item = apply_filters( 'jetpack_scheduled_response_item', $item, $request );
 		$item = $this->add_additional_fields_to_object( $item, $request );
 
 		// Remove schedule ID, not needed in the response.
@@ -771,6 +760,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 					'type'        => 'string',
 					'enum'        => array( 'success', 'failure-and-rollback', 'failure-and-rollback-fail' ),
 				),
+				'active'             => array(
+					'description' => 'Whether the schedule is active.',
+					'type'        => 'boolean',
+				),
 				'health_check_paths' => array(
 					'description' => 'Paths to check for site health.',
 					'type'        => 'array',
@@ -817,6 +810,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 						'description' => 'Unix timestamp (UTC) for when to first run the schedule.',
 						'type'        => 'integer',
 						'required'    => true,
+					),
+					'active'             => array(
+						'description' => 'Whether the schedule is active.',
+						'type'        => 'boolean',
+						'required'    => false,
+						'default'     => true,
 					),
 					'health_check_paths' => array(
 						'description'       => 'List of paths to check for site health after the update.',

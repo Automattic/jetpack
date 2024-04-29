@@ -74,7 +74,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	/**
 	 * Get the token payload .
 	 *
-	 * @return array.
+	 * @return array
 	 */
 	public function get_token_payload() {
 		$token = $this->get_and_set_token_from_request();
@@ -93,7 +93,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	 *
 	 * @param string $key the property name.
 	 *
-	 * @return mixed|false.
+	 * @return mixed|false
 	 */
 	public function get_token_property( $key ) {
 		$token_payload = $this->get_token_payload();
