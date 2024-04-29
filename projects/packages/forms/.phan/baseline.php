@@ -20,7 +20,6 @@ return [
     // PhanRedundantCondition : 4 occurrences
     // PhanTypeMismatchReturn : 3 occurrences
     // PhanTypePossiblyInvalidDimOffset : 3 occurrences
-    // PhanUnextractableAnnotationElementName : 3 occurrences
     // PhanPluginRedundantAssignment : 2 occurrences
     // PhanTypeConversionFromArray : 2 occurrences
     // PhanTypeMismatchArgumentNullableInternal : 2 occurrences
@@ -44,7 +43,7 @@ return [
         'src/contact-form/class-contact-form-field.php' => ['PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyNullTypeMismatchProperty', 'PhanTypeConversionFromArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredProperty'],
         'src/contact-form/class-contact-form-plugin.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginRedundantAssignment', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod'],
         'src/contact-form/class-contact-form-shortcode.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/contact-form/class-contact-form.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginRedundantAssignment', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUnextractableAnnotationElementName'],
+        'src/contact-form/class-contact-form.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginRedundantAssignment', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod'],
         'src/dashboard/class-dashboard-view-switch.php' => ['PhanUnreferencedUseNormal'],
         'src/dashboard/class-dashboard.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredConstant'],
         'src/service/class-google-drive.php' => ['PhanTypeMismatchReturnProbablyReal'],

@@ -174,7 +174,7 @@ class Brute_Force_Protection_Shared_Functions {
 	 * @access public
 	 * @param mixed $allow_list IP allow list.
 	 * @param bool  $global (default: false) Global.
-	 * @return Bool.
+	 * @return bool
 	 */
 	public static function save_allow_list( $allow_list, $global = false ) {
 		$allow_list_error = false;

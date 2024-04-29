@@ -179,7 +179,7 @@ class Hooks {
 	 *
 	 * @param string[] $actions Array of plugin action links.
 	 * @param string   $plugin_file Plugin file.
-	 * @return $actions
+	 * @return string[]
 	 */
 	public function remove_activate_link( $actions, $plugin_file ) {
 		if ( isset( $actions['activate'] ) ) {
