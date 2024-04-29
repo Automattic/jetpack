@@ -56,7 +56,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_publicize_connection_test_results' ),
-				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+				'permission_callback' => array( $this, 'manage_connections_privilege_callback' ),
 			)
 		);
 
@@ -137,6 +137,16 @@ class REST_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/publicize/delete-connection/(?P<connectionId>\d+)',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'delete_publicize_connection' ),
+				'permission_callback' => array( $this, 'manage_connections_privilege_callback' ),
+			)
+		);
 	}
 
 	/**
@@ -155,6 +165,29 @@ class REST_Controller {
 		);
 
 		return new WP_Error( 'rest_forbidden', $error_msg, array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Only admins and creators of the connection can delete a connection
+	 *
+	 * @return bool|WP_Error Return true if the privileges are met.
+	 */
+	public function manage_connections_privilege_callback() {
+			return current_user_can( 'edit_posts' );
+	}
+
+	/**
+	 * Deletes a Publicize connection.
+	 *
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
+	 * POST `jetpack/v4/publicize/delete-connection/{connectionId}`
+	 */
+	public function delete_publicize_connection( $request ) {
+		$blog_id = $this->get_blog_id();
+		$path    = sprintf( '/sites/%d/publicize-connections/%d/delete', absint( $blog_id ), absint( $request->get_param( 'connectionId' ) ) );
+
+		$response = Client::wpcom_json_api_request_as_user( $path, '1.1', array( 'method' => 'POST' ), null, 'rest' );
+		return rest_ensure_response( $this->make_proper_response( $response ) );
 	}
 
 	/**

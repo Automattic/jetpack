@@ -42,6 +42,9 @@ class Client {
 
 		$response = self::_wp_remote_request( $result['url'], $result['request'] );
 
+		l( $result );
+		l( $response );
+
 		Error_Handler::get_instance()->check_api_response_for_errors(
 			$response,
 			$result['auth'],

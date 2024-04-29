@@ -18,6 +18,7 @@ export type Connection = {
 	connection_id: string;
 	is_healthy?: boolean;
 	error_code?: string;
+	can_disconnect: boolean;
 };
 
 export type ConnectionData = {

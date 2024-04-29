@@ -21,7 +21,7 @@ import StatCards from '../stat-cards';
 import styles from './styles.module.scss';
 
 const Header = () => {
-	const connectionData = window.jetpackSocialInitialState.connectionData ?? {};
+	const connectionData = window.jetpackSocialInitialState.connectionData ?? [];
 	const {
 		connectionsAdminUrl,
 		hasConnections,
@@ -36,7 +36,7 @@ const Header = () => {
 		const store = select( socialStore );
 		return {
 			connectionsAdminUrl: connectionData.adminUrl,
-			hasConnections: Object.keys( connectionData.connections || {} ).length > 0,
+			hasConnections: connectionData.length > 0,
 			isModuleEnabled: store.isModuleEnabled(),
 			newPostUrl: `${ store.getAdminUrl() }post-new.php`,
 			postsCount: store.getSharedPostsCount(),

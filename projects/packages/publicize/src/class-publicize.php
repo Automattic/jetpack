@@ -239,7 +239,14 @@ class Publicize extends Publicize_Base {
 					$user_id = (int) $connection['connection_data']['user_id'];
 					// phpcs:ignore WordPress.PHP.YodaConditions.NotYoda
 					if ( $user_id === 0 || $this->user_id() === $user_id ) {
-						$connections_to_return[ $service_name ][ $id ] = $connection;
+						$connections_to_return[] = array_merge(
+							$connection,
+							array(
+								'service_name'   => $service_name,
+								'connection_id'  => $connection['connection_data']['id'],
+								'can_disconnect' => current_user_can( 'manage_options' ) || get_current_user_id() === $user_id,
+							)
+						);
 					}
 				}
 			}
