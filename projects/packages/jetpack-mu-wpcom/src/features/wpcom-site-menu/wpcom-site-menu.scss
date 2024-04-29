@@ -125,11 +125,6 @@
 		.wp-menu-name {
 			left: auto;
 			padding-left: 4px;
-
-			.rtl & {
-			 	right: auto;
-				padding-right: 4px;
-			}
 		}
 
 		.upsell_banner {
@@ -150,6 +145,15 @@
 
 .folded {
 	@include folded;
+}
+
+.rtl {
+	@include folded {
+		#adminmenu li.toplevel_page_site-notices .wp-menu-name {
+			right: auto;
+			padding-right: 4px;
+		}
+	}
 }
 
 @media only screen and (max-width: 960px) and (min-width: 783px) {
