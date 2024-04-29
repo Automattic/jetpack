@@ -446,8 +446,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * Returns a success message to be returned if the form is sent via AJAX.
 	 *
-	 * @param int                 $feedback_id - the feedback ID.
-	 * @param object Contact_Form $form - the contact form.
+	 * @param int          $feedback_id - the feedback ID.
+	 * @param Contact_Form $form - the contact form.
 	 *
 	 * @return string $message
 	 */
@@ -476,8 +476,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Returns a compiled form with labels and values in a form of  an array
 	 * of lines.
 	 *
-	 * @param int                 $feedback_id - the feedback ID.
-	 * @param object Contact_Form $form - the form.
+	 * @param int          $feedback_id - the feedback ID.
+	 * @param Contact_Form $form - the form.
 	 *
 	 * @return array $lines
 	 */
@@ -569,8 +569,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Returns a compiled form with labels and values formatted for the email response
 	 * in a form of an array of lines.
 	 *
-	 * @param int                 $feedback_id - the feedback ID.
-	 * @param object Contact_Form $form - the form.
+	 * @param int          $feedback_id - the feedback ID.
+	 * @param Contact_Form $form - the form.
 	 *
 	 * @return array $lines
 	 */

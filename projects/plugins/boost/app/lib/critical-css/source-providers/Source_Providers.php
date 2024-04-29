@@ -111,8 +111,6 @@ class Source_Providers {
 	/**
 	 * Get providers sources.
 	 *
-	 * @param array $providers Providers.
-	 *
 	 * @return array
 	 */
 	public function get_provider_sources() {

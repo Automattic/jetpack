@@ -45,7 +45,7 @@ class Action_Endpoint {
 	 * @param $namespace
 	 * @param $key
 	 * @param $action_name
-	 * @param $action_schema
+	 * @param $request_schema
 	 * @param $action_class
 	 */
 	public function __construct( $namespace, $key, $action_name, $request_schema, $action_class ) {
