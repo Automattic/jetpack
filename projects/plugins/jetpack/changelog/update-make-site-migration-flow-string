@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Subscriptions: The in_site_migration_flow show be a string to allow us to redirect to various flows

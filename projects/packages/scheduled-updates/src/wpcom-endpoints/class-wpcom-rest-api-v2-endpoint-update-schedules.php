@@ -267,7 +267,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		}
 
 		$id = Scheduled_Updates::generate_schedule_id( $plugins );
-		Scheduled_Updates_Health_Paths::update( $id, $schedule['health_check_paths'] ?? array() );
 
 		/**
 		 * Fires when a scheduled update is created.
@@ -503,8 +502,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		 * @param WP_REST_Request $request The request object.
 		 */
 		do_action( 'jetpack_scheduled_update_deleted', $request['schedule_id'], $event, $request );
-
-		Scheduled_Updates_Health_Paths::clear( $request['schedule_id'] );
 
 		return rest_ensure_response( true );
 	}

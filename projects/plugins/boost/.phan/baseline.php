@@ -43,7 +43,6 @@ return [
     // PhanTypeSuspiciousStringExpression : 1 occurrence
     // PhanUndeclaredClassInCallable : 1 occurrence
     // PhanUndeclaredClassReference : 1 occurrence
-    // PhanUndeclaredConstantOfClass : 1 occurrence
     // PhanUndeclaredFunctionInCallable : 1 occurrence
     // PhanUndeclaredTypeParameter : 1 occurrence
     // PhanUndeclaredTypeProperty : 1 occurrence
@@ -57,7 +56,7 @@ return [
         'app/features/setup-prompt/Setup_Prompt.php' => ['PhanTypeMissingReturn'],
         'app/lib/Status.php' => ['PhanTypeArraySuspiciousNullable'],
         'app/lib/Super_Cache_Info.php' => ['PhanUndeclaredFunction'],
-        'app/lib/class-cli.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanUndeclaredConstantOfClass'],
+        'app/lib/class-cli.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
         'app/lib/class-viewport.php' => ['PhanTypeMismatchArgument'],
         'app/lib/critical-css/Critical_CSS_State.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
         'app/lib/critical-css/Regenerate.php' => ['PhanParamTooMany'],
