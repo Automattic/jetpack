@@ -144,7 +144,9 @@ if ( isset( $wp_cache_make_known_anon ) && $wp_cache_make_known_anon ) {
 do_cacheaction( 'cache_init' );
 
 if ( ! $cache_enabled ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- set by configuration or cache_init action
-	return true;
+	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+		define( 'DONOTCACHEPAGE', 1 );
+	}
 }
 
 // don't cache or serve cached files for various URLs, including the Customizer.
