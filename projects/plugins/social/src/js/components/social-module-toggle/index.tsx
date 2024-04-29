@@ -1,5 +1,5 @@
-import { Button, Text, useBreakpointMatch } from '@automattic/jetpack-components';
-import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
+import { Text } from '@automattic/jetpack-components';
+import { ConnectionManagement, SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -9,12 +9,11 @@ import { SocialStoreSelectors } from '../types/types';
 import styles from './styles.module.scss';
 
 const SocialModuleToggle: React.FC = () => {
-	const { connectionsAdminUrl, isModuleEnabled, isUpdating } = useSelect( select => {
+	const { isModuleEnabled, isUpdating } = useSelect( select => {
 		const store = select( SOCIAL_STORE_ID ) as SocialStoreSelectors;
 		return {
 			isModuleEnabled: store.isModuleEnabled(),
 			isUpdating: store.isUpdatingJetpackSettings(),
-			connectionsAdminUrl: store.getConnectionsAdminUrl(),
 		};
 	}, [] );
 
@@ -26,8 +25,6 @@ const SocialModuleToggle: React.FC = () => {
 		};
 		updateOptions( newOption );
 	}, [ isModuleEnabled, updateOptions ] );
-
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
 	return (
 		<ToggleSection
@@ -46,18 +43,8 @@ const SocialModuleToggle: React.FC = () => {
 					{ __( 'Learn more', 'jetpack-social' ) }
 				</ExternalLink>
 			</Text>
-			{ connectionsAdminUrl && (
-				<Button
-					fullWidth={ isSmall }
-					className={ styles.button }
-					variant="secondary"
-					isExternalLink={ true }
-					href={ connectionsAdminUrl }
-					disabled={ isUpdating || ! isModuleEnabled }
-					target="_blank"
-				>
-					{ __( 'Manage social media connections', 'jetpack-social' ) }
-				</Button>
+			{ ! isUpdating && isModuleEnabled && (
+				<ConnectionManagement className={ styles[ 'connection-management' ] } />
 			) }
 		</ToggleSection>
 	);
