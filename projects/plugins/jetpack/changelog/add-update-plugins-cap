@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Add update_plugins capability to the /sites/%s endpoint.

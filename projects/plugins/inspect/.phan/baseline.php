@@ -9,13 +9,10 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredClassMethod : 5 occurrences
     // PhanParamTooMany : 3 occurrences
     // PhanCommentParamWithoutRealParam : 2 occurrences
     // PhanTypeMismatchArgumentInternal : 2 occurrences
-    // PhanUndeclaredTypeParameter : 2 occurrences
     // PhanAccessMethodInternal : 1 occurrence
-    // PhanImpossibleCondition : 1 occurrence
     // PhanTypeMismatchReturn : 1 occurrence
     // PhanUndeclaredInvokeInCallable : 1 occurrence
     // PhanUndeclaredMethodInCallable : 1 occurrence
@@ -25,7 +22,7 @@ return [
         'app/Monitor.php' => ['PhanUndeclaredMethodInCallable'],
         'app/Options/Monitor_Status.php' => ['PhanTypeMismatchReturn'],
         'app/Options/Observer_Settings.php' => ['PhanTypeMismatchArgumentInternal'],
-        'app/REST_API/Endpoints/Send_Request.php' => ['PhanImpossibleCondition', 'PhanTypeMismatchArgumentInternal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredInvokeInCallable', 'PhanUndeclaredTypeParameter'],
+        'app/REST_API/Endpoints/Send_Request.php' => ['PhanTypeMismatchArgumentInternal', 'PhanUndeclaredInvokeInCallable'],
         'app/REST_API/Permissions/Nonce.php' => ['PhanParamTooMany'],
         'functions.php' => ['PhanAccessMethodInternal'],
         'packages/Async_Option/Async_Option.php' => ['PhanParamTooMany'],

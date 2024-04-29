@@ -16,8 +16,10 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use IXR_Error;
 use Jetpack_IXR_Client;
 use Jetpack_Options;
+use Jetpack_XMLRPC_Server;
 use WP_Error;
 use WP_User;
 
@@ -160,16 +162,16 @@ class Manager {
 	 *
 	 * @since 1.25.0 Deprecate $is_active param.
 	 *
-	 * @param array                  $request_params incoming request parameters.
-	 * @param bool                   $has_connected_owner Whether the site has a connected owner.
-	 * @param bool                   $is_signed whether the signature check has been successful.
-	 * @param \Jetpack_XMLRPC_Server $xmlrpc_server (optional) an instance of the server to use instead of instantiating a new one.
+	 * @param array                 $request_params incoming request parameters.
+	 * @param bool                  $has_connected_owner Whether the site has a connected owner.
+	 * @param bool                  $is_signed whether the signature check has been successful.
+	 * @param Jetpack_XMLRPC_Server $xmlrpc_server (optional) an instance of the server to use instead of instantiating a new one.
 	 */
 	public function setup_xmlrpc_handlers(
 		$request_params,
 		$has_connected_owner,
 		$is_signed,
-		\Jetpack_XMLRPC_Server $xmlrpc_server = null
+		Jetpack_XMLRPC_Server $xmlrpc_server = null
 	) {
 		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ), 1000, 2 );
 
@@ -204,7 +206,7 @@ class Manager {
 		if ( $xmlrpc_server ) {
 			$this->xmlrpc_server = $xmlrpc_server;
 		} else {
-			$this->xmlrpc_server = new \Jetpack_XMLRPC_Server();
+			$this->xmlrpc_server = new Jetpack_XMLRPC_Server();
 		}
 
 		$this->require_jetpack_authentication();
@@ -2321,7 +2323,7 @@ class Manager {
 	 * Handles a getOptions XMLRPC method call.
 	 *
 	 * @param array $args method call arguments.
-	 * @return an amended XMLRPC server options array.
+	 * @return array|IXR_Error An amended XMLRPC server options array.
 	 */
 	public function jetpack_get_options( $args ) {
 		global $wp_xmlrpc_server;

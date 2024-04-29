@@ -636,7 +636,12 @@ class Broken_Token {
 				break;
 		}
 
-		printf( '<div class="notice notice-success"><p>%s</p></div>', esc_html( $message ) );
+		wp_admin_notice(
+			esc_html( $message ),
+			array(
+				'type' => 'success',
+			)
+		);
 	}
 
 	/**
@@ -680,7 +685,12 @@ function register_broken_token() {
  * Notice for if Jetpack is not active.
  */
 function broken_token_jetpack_not_active() {
-	echo '<div class="notice info"><p>Jetpack Debug tools: Jetpack_Options package must be present for the Broken Token to work.</p></div>';
+	wp_admin_notice(
+		'Jetpack Debug tools: Jetpack_Options package must be present for the Broken Token to work.',
+		array(
+			'type' => 'info',
+		)
+	);
 }
 
 // phpcs:enable

@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Adds a jp_memberships_is_sandboxed item for sync.

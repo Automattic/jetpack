@@ -381,6 +381,18 @@ class REST_Controller {
 			)
 		);
 
+		// Get Devices stats time series.
+		register_rest_route(
+			static::$namespace,
+			// /stats/devices/screensize
+			sprintf( '/sites/%d/stats/devices/(?P<device_property>[\w]+)', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_devices_stats_time_series' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+			)
+		);
+
 		// Rerun commercial classificiation.
 		register_rest_route(
 			static::$namespace,
@@ -862,6 +874,27 @@ class REST_Controller {
 				'/sites/%d/stats/utm/%s?%s',
 				Jetpack_Options::get_option( 'id' ),
 				$req->get_param( 'utm_params' ),
+				$this->filter_and_build_query_string(
+					$req->get_params()
+				)
+			),
+			'v1.1',
+			array( 'timeout' => 10 )
+		);
+	}
+
+	/**
+	 * Get Devices stats time series.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function get_devices_stats_time_series( $req ) {
+		return WPCOM_Client::request_as_blog_cached(
+			sprintf(
+				'/sites/%d/stats/devices/%s?%s',
+				Jetpack_Options::get_option( 'id' ),
+				$req->get_param( 'device_property' ),
 				$this->filter_and_build_query_string(
 					$req->get_params()
 				)
