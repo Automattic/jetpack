@@ -807,6 +807,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 				'type'        => 'object',
 				'required'    => true,
 				'properties'  => array(
+					'active'             => array(
+						'description' => 'Whether the schedule is active.',
+						'type'        => 'boolean',
+						'required'    => false,
+						'default'     => true,
+					),
 					'interval'           => array(
 						'description' => 'Interval for the schedule.',
 						'type'        => 'string',
