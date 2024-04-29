@@ -1,0 +1,45 @@
+.ai-assistant-modal {
+	@media (min-width: 960px) {
+		max-height: 90%;
+	}
+
+	&__content {
+		display: flex;
+		flex-direction: column;
+		@media screen and (min-width: 960px) {
+			width: 100vw;
+		}
+	}
+
+	&__header {
+		display: flex;
+		justify-content: space-between;
+		margin-right: -32px;
+		margin-left: -32px;
+		margin-top: -32px;
+		padding: 8px 12px;
+	}
+
+	&__divider {
+		background: #DCDCDE;
+		margin: 0 -32px;
+		height: 1px;
+	}
+
+	&__title-wrapper {
+		display: flex;
+		gap: 16px;
+		align-items: center;
+
+		& > svg {
+			margin: 0;
+			color: #008710;
+		}
+	}
+
+	&__title {
+		font-size: 14px;
+		line-height: 24px;
+		margin: 0;
+	}
+}

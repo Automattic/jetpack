@@ -7,8 +7,8 @@ import React from 'react';
 /**
  * Internal Dependencies
  */
-import useAiSuggestions from '../hooks/use-ai-suggestions';
-import { AiDataContextProvider } from '.';
+import useAiSuggestions from '../hooks/use-ai-suggestions/index.js';
+import { AiDataContextProvider } from './index.js';
 
 /**
  * High Order Component that provides the

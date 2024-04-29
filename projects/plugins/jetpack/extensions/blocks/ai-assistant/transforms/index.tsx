@@ -1,14 +1,16 @@
 /**
  * External dependencies
  */
+import { renderMarkdownFromHTML } from '@automattic/jetpack-ai-client';
 import { createBlock, getSaveContent } from '@wordpress/blocks';
 /**
  * Internal dependencies
  */
 import metadata from '../block.json';
-import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '../extensions/ai-assistant';
-import { areBackendPromptsEnabled } from '../lib/prompt';
-import turndownService from '../lib/turndown';
+import {
+	EXTENDED_TRANSFORMATIVE_BLOCKS,
+	isPossibleToExtendBlock,
+} from '../extensions/ai-assistant';
 /**
  * Types
  */
@@ -35,31 +37,18 @@ export function transformToAIAssistantBlock( blockType: ExtendedBlockProp, attrs
 	}
 
 	// Convert the content to markdown.
-	const aiAssistantBlockcontent = turndownService.turndown( htmlContent );
+	const aiAssistantBlockcontent = renderMarkdownFromHTML( { content: htmlContent } );
 
 	// A list of messages to start with
 	const messages: Array< PromptItemProps > = [];
 
-	// If the backend prompts are enabled, add the relevant content prompt.
-	if ( areBackendPromptsEnabled ) {
-		messages.push( {
-			role: 'jetpack-ai',
-			context: {
-				type: 'ai-assistant-relevant-content',
-				content: aiAssistantBlockcontent,
-			},
-		} );
-	} else {
-		messages.push( {
-			role: 'user',
-			content: 'Tell me some content for this block, please.',
-		} );
-
-		messages.push( {
-			role: 'assistant',
+	messages.push( {
+		role: 'jetpack-ai',
+		context: {
+			type: 'ai-assistant-relevant-content',
 			content: aiAssistantBlockcontent,
-		} );
-	}
+		},
+	} );
 
 	return createBlock( metadata.name, {
 		...restAttrs,
@@ -73,14 +62,14 @@ export function transformToAIAssistantBlock( blockType: ExtendedBlockProp, attrs
 /*
  * Create individual transform handler for each block type.
  */
-for ( const blockType of EXTENDED_BLOCKS ) {
+for ( const blockType of EXTENDED_TRANSFORMATIVE_BLOCKS ) {
 	from.push( {
 		type: 'block',
 		blocks: [ blockType ],
 		isMatch: () => isPossibleToExtendBlock(),
 		transform: ( attrs, innerBlocks ) => {
 			const content = getSaveContent( blockType, attrs, innerBlocks );
-			return transformToAIAssistantBlock( blockType, { ...attrs, content } );
+			return transformToAIAssistantBlock( blockType as ExtendedBlockProp, { ...attrs, content } );
 		},
 	} );
 }

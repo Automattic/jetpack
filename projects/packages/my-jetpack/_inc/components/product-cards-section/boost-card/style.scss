@@ -1,0 +1,94 @@
+@use "sass:math";
+
+$bar_height: 24px;
+$border_radius: math.div($bar-height, 2);
+
+.mj-boost-speed-score__grade {
+    font-size: var(--font-body-small);
+    line-height: $bar_height;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    column-gap: 1em;
+    margin: 8px 0 8px;
+    &--letter {
+        > button {
+            all: unset;
+            font-size: var(--font-title-small);
+            font-weight: bold;
+            line-height: $bar_height;
+            color: var(--jp-green);
+            padding: 0 5px;
+            border-radius: var(--jp-border-radius);
+            cursor: pointer;
+            &:focus {
+                outline: 1px dotted var( --jp-black );
+            }
+        }
+    }
+}
+
+.boost-score-tooltip {
+    &__heading {
+        font-size: var(--font-title-small);
+        line-height: 30px;
+        margin: 0;
+        color: black;
+    }
+    &__content {
+        font-size: var(--font-body);
+        line-height: 24px;
+    }
+}
+
+.components-popover {
+    width: calc(100% - 63px);
+    max-width: 340px;
+    min-height: 150px;
+
+    @media (min-width: 783px) {
+        width: 100%;
+    }
+    &__content {
+        width: 100%;
+        padding: 24px;
+        p:last-child {
+            margin-bottom: 0;
+        }
+    }
+}
+
+.mj-boost-speed-score__bar {
+    .jb-score-bar__label {
+        display: none;
+    }
+
+    .jb-score-bar__filler {
+        border-radius: $border_radius;
+        min-width: 49px;
+    }
+
+    .jb-score-bar__bounds {
+        height: $bar_height;
+        border-radius: $border_radius;
+        margin-left: 0;
+    }
+
+    .jb-score-bar__score {
+        width: $bar-height + 6px;
+        height: $bar-height;
+        border-radius: $border_radius;
+    }
+}
+
+.mj-boost-speed-score__increase {
+    position: absolute;
+    top: 26px;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    font-size: var(--font-body-small);
+    line-height: 28px;
+    color: var(--jp-green-50);
+	fill: var(--jp-green-50);
+}

@@ -38,8 +38,8 @@ class Tracking {
 	/**
 	 * Creates the Tracking object.
 	 *
-	 * @param String                                $product_name the slug of the product that we are tracking.
-	 * @param Automattic\Jetpack\Connection\Manager $connection   the connection manager object.
+	 * @param String                                 $product_name the slug of the product that we are tracking.
+	 * @param \Automattic\Jetpack\Connection\Manager $connection   the connection manager object.
 	 */
 	public function __construct( $product_name = 'jetpack', $connection = null ) {
 		$this->product_name = $product_name;
@@ -159,7 +159,7 @@ class Tracking {
 	 *
 	 * @param string $event_type         Type of the event.
 	 * @param array  $data               Data to send with the event.
-	 * @param mixed  $user               Username, user_id, or WP_user object.
+	 * @param mixed  $user               Username, user_id, or WP_User object.
 	 * @param bool   $use_product_prefix Whether to use the object's product name as a prefix to the event type. If
 	 *                                   set to false, the prefix will be 'jetpack_'.
 	 */
@@ -189,7 +189,7 @@ class Tracking {
 	/**
 	 * Record an event in Tracks - this is the preferred way to record events from PHP.
 	 *
-	 * @param mixed  $user                   username, user_id, or WP_user object.
+	 * @param mixed  $user                   username, user_id, or WP_User object.
 	 * @param string $event_name             The name of the event.
 	 * @param array  $properties             Custom properties to send with the event.
 	 * @param int    $event_timestamp_millis The time in millis since 1970-01-01 00:00:00 when the event occurred.
@@ -221,8 +221,8 @@ class Tracking {
 	/**
 	 * Determines whether tracking should be enabled.
 	 *
-	 * @param Automattic\Jetpack\Terms_Of_Service $terms_of_service A Terms_Of_Service object.
-	 * @param Automattic\Jetpack\Status           $status A Status object.
+	 * @param \Automattic\Jetpack\Terms_Of_Service $terms_of_service A Terms_Of_Service object.
+	 * @param \Automattic\Jetpack\Status           $status A Status object.
 	 *
 	 * @return boolean True if tracking should be enabled, else false.
 	 */
@@ -238,10 +238,10 @@ class Tracking {
 	 * Procedurally build a Tracks Event Object.
 	 * NOTE: Use this only when the simpler Automattic\Jetpack\Tracking->jetpack_tracks_record_event() function won't work for you.
 	 *
-	 * @param WP_user $user                   WP_user object.
-	 * @param string  $event_name             The name of the event.
-	 * @param array   $properties             Custom properties to send with the event.
-	 * @param int     $event_timestamp_millis The time in millis since 1970-01-01 00:00:00 when the event occurred.
+	 * @param \WP_User $user                   WP_User object.
+	 * @param string   $event_name             The name of the event.
+	 * @param array    $properties             Custom properties to send with the event.
+	 * @param int      $event_timestamp_millis The time in millis since 1970-01-01 00:00:00 when the event occurred.
 	 *
 	 * @return \Jetpack_Tracks_Event|\WP_Error
 	 */

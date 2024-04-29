@@ -77,11 +77,15 @@ class Odyssey_Assets {
 	 * Development mode doesn't need this, as it's handled by `Assets` class.
 	 */
 	protected function get_cdn_asset_cache_buster() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['force_refresh'] ) ) {
+			set_transient( self::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY, floor( microtime( true ) * 1000 ), 15 * MINUTE_IN_SECONDS );
+		}
+
 		// Use cached cache buster in production.
 		$remote_asset_version = get_transient( self::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY );
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! empty( $remote_asset_version ) && ! isset( $_GET['force_refresh'] ) ) {
+		if ( ! empty( $remote_asset_version ) ) {
 			return $remote_asset_version;
 		}
 

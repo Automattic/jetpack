@@ -34,6 +34,8 @@ if ( ! empty( $_GET['creative-mail-install-error'] ) ) { // phpcs:ignore WordPre
  * Verify the intent to install Creative Mail, and kick off installation.
  *
  * This works in tandem with a JITM set up in the JITM package.
+ *
+ * @return never
  */
 function try_install() {
 	check_admin_referer( 'creative-mail-install' );
@@ -97,11 +99,13 @@ function activate() {
  * Notify the user that the installation of Creative Mail failed.
  */
 function error_notice() {
-	?>
-	<div class="notice notice-error is-dismissible">
-		<p><?php esc_html_e( 'There was an error installing Creative Mail.', 'jetpack' ); ?></p>
-	</div>
-	<?php
+	wp_admin_notice(
+		esc_html__( 'There was an error installing Creative Mail.', 'jetpack' ),
+		array(
+			'type'        => 'error',
+			'dismissible' => true,
+		)
+	);
 }
 
 /**

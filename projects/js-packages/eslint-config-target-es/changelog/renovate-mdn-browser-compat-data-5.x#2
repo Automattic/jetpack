@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Apparently MDN data considers "preview" a version, but didn't think that worth documenting. Handle it.

@@ -396,7 +396,7 @@ export default function VideoPressEdit( {
 				<>
 					<ConnectBanner
 						isConnected={ isActive }
-						isModuleActive={ isModuleActive }
+						isModuleActive={ isModuleActive || isStandalonePluginActive }
 						isConnecting={ isRedirectingToMyJetpack }
 						onConnect={ () => {
 							setIsRedirectingToMyJetpack( true );
@@ -489,7 +489,7 @@ export default function VideoPressEdit( {
 						}
 					} }
 					icon={ captionIcon }
-					isPressed={ showCaption }
+					aria-pressed={ showCaption }
 					label={ showCaption ? removeCaptionLabel : addCaptionLabel }
 				/>
 
@@ -591,7 +591,7 @@ export default function VideoPressEdit( {
 			</InspectorControls>
 
 			<ConnectBanner
-				isModuleActive={ isModuleActive }
+				isModuleActive={ isModuleActive || isStandalonePluginActive }
 				isConnected={ isActive }
 				isConnecting={ isRedirectingToMyJetpack }
 				onConnect={ () => {

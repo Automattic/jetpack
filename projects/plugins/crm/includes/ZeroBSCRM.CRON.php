@@ -91,20 +91,6 @@
 	Actual Action Funcs #2
 	====================================================== */
 
-	// ======= Clear Auto-drafts
-	function zeroBSCRM_cron_clearAutoDrafts() {
-
-		// } Simple
-		// only show these for legacy users using DAL<3
-		// #backward-compatibility
-		global $zbs;
-		if ( ! $zbs->isDAL3() ) {
-			zeroBSCRM_clearCPTAutoDrafts();
-		}
-	}
-
-	add_action( 'zbsclearautodrafts', 'zeroBSCRM_cron_clearAutoDrafts' );
-
 	function jpcrm_cron_notify_tasks() {
 
 		// } Simple

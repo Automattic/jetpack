@@ -52,21 +52,21 @@ class Backup extends Hybrid_Product {
 	public static $has_standalone_plugin = true;
 
 	/**
-	 * Get the internationalized product name
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'VaultPress Backup', 'jetpack-my-jetpack' );
+		return 'VaultPress Backup';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack VaultPress Backup', 'jetpack-my-jetpack' );
+		return 'Jetpack VaultPress Backup';
 	}
 
 	/**
@@ -127,6 +127,13 @@ class Backup extends Hybrid_Product {
 	 */
 	public static function get_wpcom_product_slug() {
 		return 'jetpack_backup_t1_yearly';
+	}
+
+	/**
+	 * Get the URL where the user should be redirected after checkout
+	 */
+	public static function get_post_checkout_url() {
+		return self::get_manage_url();
 	}
 
 	/**
@@ -209,10 +216,12 @@ class Backup extends Hybrid_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		if ( static::is_jetpack_plugin_active() ) {
-			return Redirect::get_url( 'my-jetpack-manage-backup' );
-		} elseif ( static::is_plugin_active() ) {
+		// check standalone first
+		if ( static::is_standalone_plugin_active() ) {
 			return admin_url( 'admin.php?page=jetpack-backup' );
+			// otherwise, check for the main Jetpack plugin
+		} elseif ( static::is_jetpack_plugin_active() ) {
+			return Redirect::get_url( 'my-jetpack-manage-backup' );
 		}
 	}
 
@@ -223,16 +232,5 @@ class Backup extends Hybrid_Product {
 	 */
 	public static function is_active() {
 		return parent::is_active() && static::has_required_plan();
-	}
-
-	/**
-	 * Get the URL where the user should be redirected after checkout
-	 */
-	public static function get_post_checkout_url() {
-		if ( static::is_jetpack_plugin_active() ) {
-			return 'admin.php?page=jetpack#/recommendations';
-		} elseif ( static::is_plugin_active() ) {
-			return 'admin.php?page=jetpack-backup';
-		}
 	}
 }

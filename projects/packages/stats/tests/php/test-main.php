@@ -20,7 +20,7 @@ class Test_Main extends StatsBaseTestCase {
 	/**
 	 * An instance of Main class.
 	 *
-	 * @var Automattic\Jetpack\Stats\Main
+	 * @var \Automattic\Jetpack\Stats\Main
 	 */
 	protected $stats;
 

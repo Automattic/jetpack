@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Added support for GitHub Enterprise by replacing github.com with a dynamic variable

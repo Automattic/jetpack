@@ -15,6 +15,7 @@ import AutoConversionToggle from '../auto-conversion-toggle';
 import PricingPage from '../pricing-page';
 import SocialImageGeneratorToggle from '../social-image-generator-toggle';
 import SocialModuleToggle from '../social-module-toggle';
+import SocialNotesToggle from '../social-notes-toggle';
 import SupportSection from '../support-section';
 import ConnectionScreen from './../connection-screen';
 import Header from './../header';
@@ -109,6 +110,7 @@ const Admin = () => {
 						{ shouldShowAdvancedPlanNudge && <AdvancedUpsellNotice /> }
 						<InstagramNotice onUpgrade={ onUpgradeToggle } />
 						<SocialModuleToggle />
+						{ isModuleEnabled && <SocialNotesToggle disabled={ isUpdatingJetpackSettings } /> }
 						{ isModuleEnabled && isAutoConversionAvailable && (
 							<AutoConversionToggle disabled={ isUpdatingJetpackSettings } />
 						) }

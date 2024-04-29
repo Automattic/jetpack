@@ -1,24 +1,22 @@
 import useSubscriptionApi from '../../hooks/useSubscriptionApi';
 import { translate } from '../../i18n';
-import { subscriptionSettings, userInfo, commentUrl } from '../../state';
+import { subscriptionSettings, userInfo, commentUrl, subscribeModalStatus } from '../../state';
 import { SimpleSubscribeModalProps } from '../../types';
 import { shouldShowSubscriptionModal } from '../../utils';
 import SubscriptionModal from './subscription-modal';
 
 // This determines if the modal should be shown to the user.
 // It's called before the modal is rendered.
-export const SimpleSubscribeSetModalShowLoggedIn = ( {
-	setSubscribeModalStatus,
-}: {
-	setSubscribeModalStatus: ( value: string ) => void;
-} ) => {
+export const SimpleSubscribeSetModalShowLoggedIn = () => {
 	const { email } = subscriptionSettings.value ?? {
 		email: {
 			send_posts: false,
 		},
 	};
-	setSubscribeModalStatus( shouldShowSubscriptionModal( email?.send_posts, userInfo.value?.uid ) );
-
+	subscribeModalStatus.value = shouldShowSubscriptionModal(
+		email?.send_posts,
+		userInfo.value?.uid
+	);
 	return null;
 };
 

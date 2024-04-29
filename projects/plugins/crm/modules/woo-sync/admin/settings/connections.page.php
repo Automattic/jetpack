@@ -158,7 +158,7 @@ function jpcrm_settings_page_html_woosync_connections() {
 						<?php _e('Are you sure?',"zero-bs-crm"); ?>
 					</div>
 					<p><?php echo sprintf( __( 'Are you sure you want to disconnect the connection to the store at <br><code>%s</code>?', 'zero-bs-crm' ), $sync_sites[ $site_key_to_disconnect ]['domain'] ); ?></p>
-					<p><?php esc_html_e( 'This will pernamently remove this connection. No new data will be synchronised from this external store unless you add a new connection to it at a later date. This will not remove any existing data.', 'zero-bs-crm' ); ?></p>
+					<p><?php esc_html_e( 'This will permanently remove this connection. No new data will be synchronised from this external store unless you add a new connection to it at a later date. This will not remove any existing data.', 'zero-bs-crm' ); ?></p>
 					<p><?php
 
 									// actions
@@ -181,39 +181,38 @@ function jpcrm_settings_page_html_woosync_connections() {
 				<td>
 					<?php
 
-						// first up we want to pick any local connections out of the stack
-						if ( isset( $sync_sites['local'] ) ){
+					// first up we want to pick any local connections out of the stack
+					if ( isset( $sync_sites['local'] ) ) {
 
-							// draw it
-							jpcrm_woosync_connections_page_single_connection( 'local', $sync_sites['local'] );
+						// draw it
+						jpcrm_woosync_connections_page_single_connection( 'local', $sync_sites['local'] );
 
+					}
+
+					foreach ( $sync_sites as $site_key => $site_info ) {
+
+						// skip local as dealt with above
+						if ( $site_key === 'local' ) {
+							continue;
 						}
 
+						// draw it
+						jpcrm_woosync_connections_page_single_connection( $site_key, $site_info );
 
-						foreach ( $sync_sites as $site_key => $site_info ){
+					}
 
-							// skip local as dealt with above
-							if ( $site_key == 'local' ) continue;
+					// if no connections show message:
+					if ( count( $sync_sites ) === 0 ) {
 
-							// draw it
-							jpcrm_woosync_connections_page_single_connection( $site_key, $site_info );
+						echo zeroBSCRM_UI2_messageHTML( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							'info',
+							__( 'No WooCommerce connections', 'zero-bs-crm' ),
+							__( 'Connect to an external WooCommerce store or install WooCommerce to get started.', 'zero-bs-crm' ),
+							'',
+							'jpcrm-no-woo-connections-notice'
+						);
 
-						}
-
-
-
-						// if no connections show message:
-						if ( count( $sync_sites ) == 0 ){
-
-							echo zeroBSCRM_UI2_messageHTML( 
-								'info',
-								__( 'No WooCommerce connections', 'zero-bs-crm' ),
-								__( '<a href="%s">Connect to an external WooCommerce store</a> or install WooCommerce to get started.', 'zero-bs-crm' ),
-								'',
-								'jpcrm-no-woo-connections-notice'
-							);
-
-						}
+					}
 
 					?>
 				</td>
@@ -519,5 +518,4 @@ function jpcrm_woosync_connections_styles_scripts(){
 	global $zbs;	
 	wp_enqueue_script( 'jpcrm-woo-sync-connections-page', plugins_url( '/js/jpcrm-woo-sync-settings-connections'.wp_scripts_get_suffix().'.js', JPCRM_WOO_SYNC_ROOT_FILE ), array( 'jquery' ), $zbs->modules->woosync->version );
 	wp_enqueue_style( 'jpcrm-woo-sync-connections-page', plugins_url( '/css/jpcrm-woo-sync-settings-connections'.wp_scripts_get_suffix().'.css', JPCRM_WOO_SYNC_ROOT_FILE ) );
-
 }

@@ -41,7 +41,7 @@ function Blaze( props ) {
 		toggleModuleNow,
 	} = props;
 
-	if ( isWoASite ) {
+	if ( isWoASite && ! blazeDashboardEnabled ) {
 		return null;
 	}
 

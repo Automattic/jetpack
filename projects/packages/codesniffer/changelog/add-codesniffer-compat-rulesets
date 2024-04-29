@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Added rulesets `Jetpack-Compat-*` to disable PHPCompatibility rules that trigger with `testVersion` 5.6 but don't apply to various later PHP versions.

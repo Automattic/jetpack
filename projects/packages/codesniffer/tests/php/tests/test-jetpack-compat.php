@@ -99,7 +99,7 @@ EOF;
 	/**
 	 * Provide arguments for `test_phpcs()`.
 	 *
-	 * @return array
+	 * @return \Generator<array>
 	 */
 	public function provide_standards() {
 		$lines1 = array(

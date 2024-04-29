@@ -2,6 +2,8 @@
 /**
  * Jetpack_WooCommerce_Analytics_Universal
  *
+ * @deprecated 13.3
+ *
  * @package automattic/jetpack
  * @author Automattic
  */
@@ -16,6 +18,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class Jetpack_WooCommerce_Analytics_Universal
  * Filters and Actions added to Store pages to perform analytics
+ *
+ * @deprecated 13.3
  */
 class Jetpack_WooCommerce_Analytics_Universal {
 
@@ -26,6 +30,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 	/**
 	 * Jetpack_WooCommerce_Analytics_Universal constructor.
+	 *
+	 * @deprecated 13.3
 	 */
 	public function __construct() {
 		$this->find_cart_checkout_content_sources();
@@ -60,6 +66,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 	/**
 	 * On product lists or other non-product pages, add an event listener to "Add to Cart" button click
+	 *
+	 * @deprecated 13.3
 	 */
 	public function loop_session_events() {
 		// Check for previous events queued in session data.
@@ -83,6 +91,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 	/**
 	 * On the cart page, add an event listener for removal of product click
+	 *
+	 * @deprecated 13.3
 	 */
 	public function remove_from_cart() {
 		$common_props = $this->render_properties_as_js(
@@ -113,6 +123,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	/**
 	 * Adds the product ID to the remove product link (for use by remove_from_cart above) if not present
 	 *
+	 * @deprecated 13.3
+	 *
 	 * @param string $url Full HTML a tag of the link to remove an item from the cart.
 	 * @param string $key Unique Key ID for a cart item.
 	 *
@@ -138,6 +150,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	/**
 	 * Get the selected shipping option for a cart item. If the name cannot be found in the options table, the method's
 	 * ID will be used.
+	 *
+	 * @deprecated 13.3
 	 *
 	 * @param string $cart_item_key the cart item key.
 	 *
@@ -181,9 +195,13 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 	/**
 	 * On the Checkout page, trigger an event for each product in the cart
+	 *
+	 * @deprecated 13.3
 	 */
 	public function checkout_process() {
-		$cart = WC()->cart->get_cart();
+		global $post;
+		$checkout_page_id = wc_get_page_id( 'checkout' );
+		$cart             = WC()->cart->get_cart();
 
 		$enabled_payment_options = array_filter(
 			WC()->payment_gateways->get_available_payment_gateways(),
@@ -197,16 +215,12 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		);
 
 		$enabled_payment_options = array_keys( $enabled_payment_options );
-		$include_express_payment = false;
 
-		$wcpay_version              = get_option( 'woocommerce_woocommerce_payments_version' );
-		$has_required_wcpay_version = version_compare( $wcpay_version, '2.9.0', '>=' );
-		// Check express payment availablity only if WC Pay is enabled and express checkout (payment request) is enabled.
-		if ( in_array( 'woocommerce_payments', $enabled_payment_options, true ) && $has_required_wcpay_version ) {
-			$wcpay_settings = get_option( 'woocommerce_woocommerce_payments_settings', array() );
-			if ( array_key_exists( 'payment_request', $wcpay_settings ) && 'yes' === $wcpay_settings['payment_request'] ) {
-				$include_express_payment = true;
-			}
+		$is_in_checkout_page = $checkout_page_id === $post->ID ? 'Yes' : 'No';
+		$session             = WC()->session;
+		if ( is_object( $session ) ) {
+			$session->set( 'checkout_page_used', true );
+			$session->save_data();
 		}
 
 		foreach ( $cart as $cart_item_key => $cart_item ) {
@@ -220,6 +234,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			}
 
 			$data = $this->get_cart_checkout_shared_data();
+
+			$data['from_checkout'] = $is_in_checkout_page;
 
 			if ( ! empty( $data['products'] ) ) {
 				unset( $data['products'] );
@@ -237,35 +253,64 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				$product->get_id()
 			);
 
-			if ( true === $include_express_payment ) {
-				wc_enqueue_js(
-					"
-					// wcpay.payment-request.availability event gets fired twice.
-					// make sure we push only one event.
-					var cartItem_{$cart_item_key}_logged = false;
-				    wp.hooks.addAction('wcpay.payment-request.availability', 'wcpay', function(args) {
-				        if ( true === cartItem_{$cart_item_key}_logged ) {
-				            return;
-				        }
-				        var properties = {$properties};
-				        properties.express_checkout = args.paymentRequestType;
-				        _wca.push(properties);
-						cartItem_{$cart_item_key}_logged = true;
-				    });
+			wc_enqueue_js(
 				"
-				);
-			} else {
-				$this->record_event(
-					'woocommerceanalytics_product_checkout',
-					$data,
-					$product->get_id()
-				);
-			}
+				var cartItem_{$cart_item_key}_logged = false;
+				var properties = {$properties};
+				// Check if jQuery is available
+				if ( typeof jQuery !== 'undefined' ) {
+					// This is only triggered on the checkout shortcode.
+					jQuery( document.body ).on( 'init_checkout', function () {
+						if ( true === cartItem_{$cart_item_key}_logged ) {
+							return;
+						}
+						wp.hooks.addAction( 'wcpay.payment-request.availability', 'wcpay', function ( args ) {
+							properties.express_checkout = args.paymentRequestType;
+						} );
+							properties.checkout_page_contains_checkout_block = '0';
+							properties.checkout_page_contains_checkout_shortcode = '1';
+
+							_wca.push( properties );
+							cartItem_{$cart_item_key}_logged = true;
+
+					} );
+				}
+
+				if (
+					typeof wp !== 'undefined' &&
+					typeof wp.data !== 'undefined' &&
+					typeof wp.data.subscribe !== 'undefined'
+				) {
+					wp.data.subscribe( function () {
+						if ( true === cartItem_{$cart_item_key}_logged ) {
+							return;
+						}
+
+						const checkoutDataStore = wp.data.select( 'wc/store/checkout' );
+						// Ensures we're not in Cart, but in Checkout page.
+						if (
+							typeof checkoutDataStore !== 'undefined' &&
+							checkoutDataStore.getOrderId() !== 0
+						) {
+							properties.express_checkout = Object.keys( wc.wcBlocksRegistry.getExpressPaymentMethods() );
+							properties.checkout_page_contains_checkout_block = '1';
+							properties.checkout_page_contains_checkout_shortcode = '0';
+
+							_wca.push( properties );
+							cartItem_{$cart_item_key}_logged = true;
+						}
+					} );
+				}
+			"
+			);
+
 		}
 	}
 
 	/**
 	 * After the checkout process, fire an event for each item in the order
+	 *
+	 * @deprecated 13.3
 	 *
 	 * @param string $order_id Order Id.
 	 */
@@ -282,9 +327,12 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		$payment_option = $order->get_payment_method();
 
 		if ( is_object( WC()->session ) ) {
-			$create_account = true === WC()->session->get( 'wc_checkout_createaccount_used' ) ? 'Yes' : 'No';
+			$create_account     = true === WC()->session->get( 'wc_checkout_createaccount_used' ) ? 'Yes' : 'No';
+			$checkout_page_used = true === WC()->session->get( 'checkout_page_used' ) ? 'Yes' : 'No';
+
 		} else {
-			$create_account = 'No';
+			$create_account     = 'No';
+			$checkout_page_used = 'No';
 		}
 
 		$guest_checkout = $order->get_user() ? 'No' : 'Yes';
@@ -299,6 +347,18 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			} elseif ( 'Apple Pay (WooCommerce Payments)' === $payment_option_title ) {
 				$express_checkout = array( 'apple_pay' );
 			}
+		}
+
+		$checkout_page_contains_checkout_block         = '0';
+			$checkout_page_contains_checkout_shortcode = '0';
+
+		$order_source = $order->get_created_via();
+		if ( 'store-api' === $order_source ) {
+			$checkout_page_contains_checkout_block     = '1';
+			$checkout_page_contains_checkout_shortcode = '0';
+		} elseif ( 'checkout' === $order_source ) {
+			$checkout_page_contains_checkout_block     = '0';
+			$checkout_page_contains_checkout_shortcode = '1';
 		}
 
 		// loop through products in the order and queue a purchase event.
@@ -327,6 +387,9 @@ class Jetpack_WooCommerce_Analytics_Universal {
 					'products_count'   => $order_items_count,
 					'coupon_used'      => $order_coupons_count,
 					'order_value'      => $order->get_total(),
+					'from_checkout'    => $checkout_page_used,
+					'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
+					'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
 				),
 				$product_id
 			);
@@ -336,6 +399,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	/**
 	 * Listen for clicks on the "Update Cart" button to know if an item has been removed by
 	 * updating its quantity to zero
+	 *
+	 * @deprecated 13.3
 	 */
 	public function remove_from_cart_via_quantity() {
 		$common_props = $this->render_properties_as_js(
@@ -364,6 +429,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	/**
 	 * Gets the inner blocks of a block.
 	 *
+	 * @deprecated 13.3
+	 *
 	 * @param array $inner_blocks The inner blocks.
 	 *
 	 * @return array
@@ -381,6 +448,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 	/**
 	 * Track adding items to the cart.
+	 *
+	 * @deprecated 13.3
 	 *
 	 * @param string $cart_item_key Cart item key.
 	 * @param int    $product_id Product added to cart.
@@ -403,6 +472,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 	/**
 	 * Track in-session data.
+	 *
+	 * @deprecated 13.3
 	 *
 	 * @param int    $product_id Product ID.
 	 * @param int    $quantity Quantity.
@@ -443,6 +514,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	/**
 	 * Save createaccount post data to be used in $this->order_process.
 	 *
+	 * @deprecated 13.3
+	 *
 	 * @param array $data post data from the checkout page.
 	 *
 	 * @return array
@@ -460,6 +533,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 	/**
 	 * Capture the create account event. Similar to save_checkout_post_data but works with Store API.
+	 *
+	 * @deprecated 13.3
 	 *
 	 * @param int   $customer_id Customer ID.
 	 * @param array $new_customer_data New customer data.

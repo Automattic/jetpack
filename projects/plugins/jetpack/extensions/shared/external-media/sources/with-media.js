@@ -233,6 +233,18 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 					.catch( this.handleApiError );
 			};
 
+			mapImageToResult = image => ( {
+				alt: image.name,
+				caption: image.caption,
+				id: image.ID,
+				type: 'image',
+				url: image.url,
+				sizes: {
+					thumbnail: { url: image.thumbnails.thumbnail },
+					large: { url: image.thumbnails.large },
+				},
+			} );
+
 			insertMedia = items => {
 				this.setState( { isCopying: items } );
 				this.props.noticeOperations.removeAllNotices();
@@ -243,25 +255,12 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 					this.modalElement.focus();
 				}
 				let result = [];
+
 				// insert media
 				if ( items.length !== 0 ) {
-					result = items.map( image => ( {
-						alt: image.name,
-						caption: image.caption,
-						id: image.ID,
-						type: 'image',
-						url: image.guid,
-					} ) );
+					result = items.map( this.mapImageToResult );
 				} else {
-					result = [
-						{
-							alt: items.name,
-							caption: items.caption,
-							id: items.ID,
-							type: 'image',
-							url: items.guid,
-						},
-					];
+					result = [ this.mapImageToResult( items ) ];
 				}
 
 				const { value, multiple, addToGallery } = this.props;

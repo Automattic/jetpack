@@ -49,12 +49,6 @@ class Jetpack_Search_Plugin {
 		$settings_link = '<a href="' . admin_url( 'admin.php?page=jetpack-search' ) . '">' . esc_html__( 'Settings', 'jetpack-search' ) . '</a>';
 		array_unshift( $links, $settings_link );
 
-		// Add the My Jetpack link only if Jetpack is connected
-		if ( ( new Connection_Manager() )->is_connected() ) {
-			$my_jetpack_link = '<a href="' . admin_url( 'admin.php?page=my-jetpack' ) . '">' . esc_html__( 'My Jetpack', 'jetpack-search' ) . '</a>';
-			array_unshift( $links, $my_jetpack_link );
-		}
-
 		return $links;
 	}
 

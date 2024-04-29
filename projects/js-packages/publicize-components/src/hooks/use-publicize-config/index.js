@@ -24,6 +24,7 @@ export default function usePublicizeConfig() {
 	const isRePublicizeFeatureAvailable =
 		getJetpackExtensionAvailability( republicizeFeatureName )?.available || isShareLimitEnabled;
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+	const currentPostType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 
 	const connectionsRootUrl =
 		getJetpackData()?.social?.publicizeConnectionsUrl ??
@@ -99,6 +100,11 @@ export default function usePublicizeConfig() {
 	 */
 	const isAutoConversionEnabled = !! getJetpackData()?.social?.isAutoConversionEnabled;
 
+	/**\
+	 * Returns true if the post type is a Jetpack Social Note.
+	 */
+	const isJetpackSocialNote = 'jetpack-social-note' === currentPostType;
+
 	return {
 		isPublicizeEnabledMeta,
 		isPublicizeEnabled,
@@ -113,11 +119,13 @@ export default function usePublicizeConfig() {
 		shouldShowAdvancedPlanNudge: sharesData.show_advanced_plan_upgrade_nudge,
 		hasPaidPlan,
 		isEnhancedPublishingEnabled,
-		isSocialImageGeneratorAvailable: !! getJetpackData()?.social?.isSocialImageGeneratorAvailable,
+		isSocialImageGeneratorAvailable:
+			!! getJetpackData()?.social?.isSocialImageGeneratorAvailable && ! isJetpackSocialNote,
 		isSocialImageGeneratorEnabled: !! getJetpackData()?.social?.isSocialImageGeneratorEnabled,
 		connectionsAdminUrl: connectionsRootUrl + ( blogID ?? getSiteFragment() ),
 		adminUrl: getJetpackData()?.social?.adminUrl,
 		isAutoConversionEnabled,
 		jetpackSharingSettingsUrl: getJetpackData()?.social?.jetpackSharingSettingsUrl,
+		isJetpackSocialNote,
 	};
 }

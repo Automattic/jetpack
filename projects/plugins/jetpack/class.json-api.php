@@ -313,7 +313,7 @@ class WPCOM_JSON_API {
 					$this->content_type = filter_var( wp_unslash( $_SERVER['HTTP_CONTENT_TYPE'] ) );
 				} elseif ( ! empty( $_SERVER['CONTENT_TYPE'] ) ) {
 					$this->content_type = filter_var( wp_unslash( $_SERVER['CONTENT_TYPE'] ) );
-				} elseif ( '{' === $this->post_body[0] ) {
+				} elseif ( isset( $this->post_body[0] ) && '{' === $this->post_body[0] ) {
 					$this->content_type = 'application/json';
 				} else {
 					$this->content_type = 'application/x-www-form-urlencoded';
@@ -424,9 +424,10 @@ class WPCOM_JSON_API {
 
 		// Normalize path and extract API version.
 		$this->path = untrailingslashit( $this->path );
-		preg_match( '#^/rest/v(\d+(\.\d+)*)#', $this->path, $matches );
-		$this->path    = substr( $this->path, strlen( $matches[0] ) );
-		$this->version = $matches[1];
+		if ( preg_match( '#^/rest/v(\d+(\.\d+)*)#', $this->path, $matches ) ) {
+			$this->path    = substr( $this->path, strlen( $matches[0] ) );
+			$this->version = $matches[1];
+		}
 
 		$allowed_methods = array( 'GET', 'POST' );
 		$four_oh_five    = false;
@@ -741,7 +742,7 @@ class WPCOM_JSON_API {
 
 		$status_code = $error->get_error_data();
 
-		if ( is_array( $status_code ) ) {
+		if ( is_array( $status_code ) && isset( $status_code['status_code'] ) ) {
 			$status_code = $status_code['status_code'];
 		}
 
@@ -1019,18 +1020,17 @@ class WPCOM_JSON_API {
 	 * Get avatar URL.
 	 *
 	 * @param string $email Email.
-	 * @param array  $avatar_size Args for `get_avatar_url()`.
+	 * @param array  $args Args for `get_avatar_url()`.
 	 * @return string|false
 	 */
-	public function get_avatar_url( $email, $avatar_size = null ) {
+	public function get_avatar_url( $email, $args = null ) {
 		if ( function_exists( 'wpcom_get_avatar_url' ) ) {
-			return null === $avatar_size
-				? wpcom_get_avatar_url( $email )
-				: wpcom_get_avatar_url( $email, $avatar_size );
+			$ret = wpcom_get_avatar_url( $email, $args['size'] ?? 96, $args['default'] ?? '', false, $args['force_default'] ?? false );
+			return $ret ? $ret[0] : false;
 		} else {
-			return null === $avatar_size
+			return null === $args
 				? get_avatar_url( $email )
-				: get_avatar_url( $email, $avatar_size );
+				: get_avatar_url( $email, $args );
 		}
 	}
 
@@ -1188,6 +1188,7 @@ class WPCOM_JSON_API {
 	 * @param string|WP_Error  $message As for `wp_die()`.
 	 * @param string|int       $title As for `wp_die()`.
 	 * @param string|array|int $args As for `wp_die()`.
+	 * @return never
 	 */
 	public function wp_die_handler( $message, $title = '', $args = array() ) {
 		// Allow wp_die calls to override HTTP status code...

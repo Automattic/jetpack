@@ -122,6 +122,40 @@ class WP_Test_Functions_Compat extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @author robfelty
+	 * @covers ::youtube_sanitize_url
+	 * @since 13.2
+	 */
+	public function test_youtube_sanitize_url_as_array() {
+
+		$url_array              = array(
+			'url' => 'http://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US',
+		);
+		$expected_sanitized_url = 'http://www.youtube.com/?v=9FhMMmqzbD8&fs=1&hl=en_US';
+
+		$sanitized_url = youtube_sanitize_url( $url_array );
+
+		$this->assertEquals( $expected_sanitized_url, $sanitized_url );
+	}
+
+	/**
+	 * @author robfelty
+	 * @covers ::youtube_sanitize_url
+	 * @since 13.2
+	 */
+	public function test_youtube_sanitize_url_invalid_input() {
+
+		$invalid_url_array      = array(
+			'vv' => 'http://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US',
+		);
+		$expected_sanitized_url = false;
+
+		$sanitized_url = youtube_sanitize_url( $invalid_url_array );
+
+		$this->assertEquals( $expected_sanitized_url, $sanitized_url );
+	}
+
+	/**
 	 * @author enkrates
 	 * @covers ::jetpack_get_youtube_id
 	 * @since 3.2

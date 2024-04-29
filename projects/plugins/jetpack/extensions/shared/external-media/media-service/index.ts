@@ -4,7 +4,7 @@ import { dispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { waitFor } from '../../wait-for';
-import { JETPACK_MEDIA_STORE } from '../store';
+import { store as mediaStore } from '../store';
 import { MediaSource } from './types';
 
 // Pexels constants
@@ -201,6 +201,9 @@ const isInserterOpened = (): boolean =>
 	select( 'core/edit-widgets' )?.isInserterOpened?.();
 
 const registerInInserter = ( mediaCategoryProvider: () => object ) =>
+	// Remove as soon @types/wordpress__block-editor is up to date
+	// eslint-disable-next-line
+	// @ts-ignore
 	dispatch( 'core/block-editor' )?.registerInserterMediaCategory?.( mediaCategoryProvider() );
 
 /**
@@ -224,7 +227,7 @@ const pexelsProvider = () =>
  * @returns {boolean} True if the MediaSource is authenticated false otherwise.
  */
 const isAuthenticatedByWithMediaComponent = ( source: MediaSource ) =>
-	!! select( JETPACK_MEDIA_STORE ).isAuthenticated( source );
+	!! select( mediaStore ).isAuthenticated( source );
 
 /**
  * Adds Google Photos to the media inserter if/when it's connected.
@@ -259,5 +262,5 @@ export const addPexelsToMediaInserter = () => {
  * @param {boolean} isAuthenticated - True if the MediaSource is authenticated false otherwise.
  */
 export const authenticateMediaSource = ( source: MediaSource, isAuthenticated: boolean ) => {
-	dispatch( JETPACK_MEDIA_STORE ).setAuthenticated( source, isAuthenticated );
+	dispatch( mediaStore ).setAuthenticated( source, isAuthenticated );
 };

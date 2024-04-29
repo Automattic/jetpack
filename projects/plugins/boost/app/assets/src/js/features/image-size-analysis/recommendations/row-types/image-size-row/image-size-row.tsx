@@ -10,6 +10,8 @@ import { __ } from '@wordpress/i18n';
 import TableRowHover from '../table-row-hover/table-row-hover';
 import { removeGetParams } from '$lib/utils/remove-get-params';
 import { recordBoostEventAndRedirect } from '$lib/utils/analytics';
+import styles from './image-size-row.module.scss';
+import classNames from 'classnames';
 
 interface ImageSizeRowProps {
 	enableTransition: boolean;
@@ -57,7 +59,7 @@ const TableRowContent: React.FC< ContentProps > = ( { title, details, toggleImag
 	const potentialSize = getPotentialSize( details );
 	return (
 		<>
-			<div className="jb-table-row__thumbnail">
+			<div className={ styles.thumbnail }>
 				<Thumbnail title={ title } url={ details.image.url } width={ 65 } height={ 65 } />
 			</div>
 
@@ -68,15 +70,15 @@ const TableRowContent: React.FC< ContentProps > = ( { title, details, toggleImag
 				/>
 			</div>
 
-			<div className="jb-table-row__potential-size">
+			<div className={ styles[ 'potential-size' ] }>
 				<Pill color={ pillColor }>{ Math.round( details.image.weight.current ) } KB</Pill>
 
-				<div className="jb-arrow">→</div>
+				<div>→</div>
 
 				<Pill color="#d0e6b8">{ potentialSize } KB</Pill>
 			</div>
 
-			<div className="jb-table-row__hover-content">
+			<div className={ classNames( styles[ 'hover-content' ], 'jb-table-row__hover-content' ) }>
 				<TableRowHover
 					device_type={ details.device_type }
 					edit_url={ details.page.edit_url }
@@ -87,12 +89,12 @@ const TableRowContent: React.FC< ContentProps > = ( { title, details, toggleImag
 				/>
 			</div>
 
-			<div className="jb-table-row__device">
+			<div className={ classNames( styles.device, 'jb-table-row__device' ) }>
 				<Device device={ details.device_type } />
 			</div>
 
-			<div className="jb-table-row__page">
-				<a href={ details.page.url } className="jb-page__link">
+			<div className={ classNames( styles.page, 'jb-table-row__page' ) }>
+				<a href={ details.page.url } className={ styles.link }>
 					{ details.page.title }
 				</a>
 			</div>
@@ -105,48 +107,48 @@ const Expanded: React.FC< { details: IsaImage } > = ( { details } ) => {
 	const potentialSize = getPotentialSize( details );
 	return (
 		<>
-			<div className="jb-expanded-info jb-mobile-only">
-				<h4 className="jb-expanded-info__header">{ __( 'Potential Size', 'jetpack-boost' ) }</h4>
-				<div className="jb-pills">
+			<div className={ classNames( styles[ 'expanded-info' ], styles[ 'mobile-only' ] ) }>
+				<h4 className={ styles.header }>{ __( 'Potential Size', 'jetpack-boost' ) }</h4>
+				<div className={ styles.pills }>
 					<Pill color={ pillColor }>{ Math.round( details.image.weight.current ) } KB</Pill>
-					<div className="jb-arrow">→</div>
+					<div>→</div>
 					<Pill color="#d0e6b8">{ potentialSize } KB</Pill>
 				</div>
 			</div>
 
-			<div className="jb-expanded-info jb-mobile-only">
-				<h4 className="jb-expanded-info__header">{ __( 'Device', 'jetpack-boost' ) }</h4>
-				<div className="jb-expanded-icon">
+			<div className={ classNames( styles[ 'expanded-info' ], styles[ 'mobile-only' ] ) }>
+				<h4 className={ styles.header }>{ __( 'Device', 'jetpack-boost' ) }</h4>
+				<div className={ styles[ 'expanded-icon' ] }>
 					<Device device={ details.device_type } />
 				</div>
-				<span className="jb-expanded-info__text">
+				<span>
 					{ details.device_type === 'desktop'
 						? __( 'This issue affects large screens', 'jetpack-boost' )
 						: __( 'This issue affects small screens', 'jetpack-boost' ) }
 				</span>
 			</div>
 
-			<div className="jb-expanded-info jb-image-details">
-				<h4 className="jb-expanded-info__header">{ __( 'Image Details', 'jetpack-boost' ) }</h4>
-				<div className="jb-expanded-info__row">
-					<div className="jb-label">{ __( 'File Dimensions', 'jetpack-boost' ) }</div>
-					<div className="jb-value">
+			<div className={ classNames( styles[ 'expanded-info' ], styles[ 'image-details' ] ) }>
+				<h4 className={ styles.header }>{ __( 'Image Details', 'jetpack-boost' ) }</h4>
+				<div className={ styles.row }>
+					<div>{ __( 'File Dimensions', 'jetpack-boost' ) }</div>
+					<div className={ styles.value }>
 						{ Math.round( details.image.dimensions.file.width ) }x
 						{ Math.round( details.image.dimensions.file.height ) }
 						px
 					</div>
 				</div>
-				<div className="jb-expanded-info__row">
-					<div className="jb-label">{ __( 'Expected Dimensions', 'jetpack-boost' ) }</div>
-					<div className="jb-value">
+				<div className={ styles.row }>
+					<div>{ __( 'Expected Dimensions', 'jetpack-boost' ) }</div>
+					<div className={ styles.value }>
 						{ Math.round( details.image.dimensions.expected.width ) }x
 						{ Math.round( details.image.dimensions.expected.height ) }
 						px
 					</div>
 				</div>
-				<div className="jb-expanded-info__row">
-					<div className="jb-label">{ __( 'Size on screen', 'jetpack-boost' ) }</div>
-					<div className="jb-value">
+				<div className={ styles.row }>
+					<div>{ __( 'Size on screen', 'jetpack-boost' ) }</div>
+					<div className={ styles.value }>
 						{ Math.round( details.image.dimensions.size_on_screen.width ) }x
 						{ Math.round( details.image.dimensions.size_on_screen.height ) }
 						px
@@ -154,11 +156,11 @@ const Expanded: React.FC< { details: IsaImage } > = ( { details } ) => {
 				</div>
 			</div>
 
-			<div className="jb-expanded-info jb-fix-options">
-				<h4 className="jb-expanded-info__header">{ __( 'How to fix', 'jetpack-boost' ) }</h4>
-				<p className="jb-expanded-info__text">{ details.instructions }</p>
+			<div className={ classNames( styles[ 'expanded-info' ], styles[ 'fix-options' ] ) }>
+				<h4 className={ styles.header }>{ __( 'How to fix', 'jetpack-boost' ) }</h4>
+				<p>{ details.instructions }</p>
 				{ details.page.edit_url && (
-					<div className="jb-actions">
+					<div className={ styles.actions }>
 						<Button
 							width="auto"
 							fill

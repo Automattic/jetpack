@@ -61,7 +61,12 @@
 		"ai-assistant-usage-panel",
 		"sharing-button",
 		"sharing-buttons",
-		"ai-content-lens"
+		"ai-content-lens",
+		"blog-stats",
+		"top-posts",
+		"goodreads",
+		"voice-to-content",
+		"ai-featured-image-generator"
 	],
 	"beta": [
 		"google-docs-embed",
@@ -69,11 +74,10 @@
 		"recipe",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
-		"create-with-voice",
-		"blog-stats",
-		"top-posts",
 		"ai-assistant-backend-prompts",
-		"ai-logo-generator"
+		"ai-logo-generator",
+		"ai-title-optimization",
+		"ai-assistant-extensions-support"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [
@@ -101,6 +105,7 @@
 		"tiled-gallery",
 		"tock",
 		"videopress",
+		"voice-to-content",
 		"wordads"
 	]
 }

@@ -1,0 +1,155 @@
+/**
+ * Styles for All Sites menu
+ */
+#wp-admin-bar-my-sites {
+	// Hide the Core's default My Sites menu
+	display: none;
+}
+#wpadminbar .wp-admin-bar-all-sites a.ab-item {
+	display: flex;
+	align-items: center;
+}
+#wpadminbar .wp-admin-bar-all-sites a.ab-item:before {
+	content: "";
+	width: 16px;
+	height: 16px;
+	background-color: currentColor;
+	/**
+		* Using inline SVG since there is no equivalent dashicon.
+		* SVG is from https://github.com/WordPress/gutenberg/blob/ad487383ce80e0c762200e83ec2c372463ecc940/packages/icons/src/library/category.js
+		*/
+	mask-image: url("data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSI+PHBhdGggZD0iTTYgNS41aDNhLjUuNSAwIDAxLjUuNXYzYS41LjUgMCAwMS0uNS41SDZhLjUuNSAwIDAxLS41LS41VjZhLjUuNSAwIDAxLjUtLjV6TTQgNmEyIDIgMCAwMTItMmgzYTIgMiAwIDAxMiAydjNhMiAyIDAgMDEtMiAySDZhMiAyIDAgMDEtMi0yVjZ6bTExLS41aDNhLjUuNSAwIDAxLjUuNXYzYS41LjUgMCAwMS0uNS41aC0zYS41LjUgMCAwMS0uNS0uNVY2YS41LjUgMCAwMS41LS41ek0xMyA2YTIgMiAwIDAxMi0yaDNhMiAyIDAgMDEyIDJ2M2EyIDIgMCAwMS0yIDJoLTNhMiAyIDAgMDEtMi0yVjZ6bTUgOC41aC0zYS41LjUgMCAwMC0uNS41djNhLjUuNSAwIDAwLjUuNWgzYS41LjUgMCAwMC41LS41di0zYS41LjUgMCAwMC0uNS0uNXpNMTUgMTNhMiAyIDAgMDAtMiAydjNhMiAyIDAgMDAyIDJoM2EyIDIgMCAwMDItMnYtM2EyIDIgMCAwMC0yLTJoLTN6bS05IDEuNWgzYS41LjUgMCAwMS41LjV2M2EuNS41IDAgMDEtLjUuNUg2YS41LjUgMCAwMS0uNS0uNXYtM2EuNS41IDAgMDEuNS0uNXpNNCAxNWEyIDIgMCAwMTItMmgzYTIgMiAwIDAxMiAydjNhMiAyIDAgMDEtMiAySDZhMiAyIDAgMDEtMi0ydi0zeiIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiPjwvcGF0aD48L3N2Zz4=");
+	mask-size: cover;
+	mask-position: center;
+	mask-repeat: no-repeat;
+}
+@media (max-width: 782px) {
+	#wpadminbar .wp-admin-bar-all-sites {
+		display: flex;
+	}
+	#wpadminbar .wp-admin-bar-all-sites a.ab-item {
+		justify-content: center;
+		text-indent: 0;
+		font-size: 0;
+	}
+	#wpadminbar .wp-admin-bar-all-sites a.ab-item:before {
+		width: 36px;
+		height: 36px;
+		margin: 0 8px;
+	}
+}
+
+/**
+ * Sidebar notice
+ */
+#adminmenu li.menu-top.toplevel_page_site-notices {
+	&:hover,
+	&:focus {
+		background-color: inherit;
+	}
+
+	a {
+		cursor: default;
+
+		&:hover,
+		&:focus {
+			box-shadow: none;
+			background-color: inherit;
+		}
+	}
+
+	.wp-menu-name {
+		padding-top: 0;
+		padding-left: 8px;
+	}
+
+	.upsell_banner {
+		border-radius: 2px;
+		padding: 8px;
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
+
+	.upsell_banner__icon {
+		display: none;
+
+		&:before {
+			content: '\f534';
+			font-family: 'dashicons';
+			background-color: #a7aaad;
+			color: white;
+			border-radius: 50%;
+		}
+	}
+
+	.upsell_banner__text {
+		font-size: 12px;
+		line-height: 16px;
+	}
+
+	.upsell_banner__action {
+		width: 100%;
+		font-size: 13px;
+		line-height: 20px;
+		cursor: pointer;
+		min-height: 32px;
+		margin-bottom: 0;
+		border: 0;
+	}
+
+	.upsell_banner__dismiss {
+		background-color: transparent;
+		color: inherit;
+		min-height: 0;
+		font-size: 12px;
+		line-height: 16px;
+		text-align: center;
+		margin-top: -2px;
+
+		&:hover {
+			background-color: transparent;
+		}
+
+		&:focus {
+			box-shadow: none;
+		}
+	}
+}
+
+@mixin folded {
+	#adminmenu li.toplevel_page_site-notices {
+		a {
+			height: 42px;
+		}
+
+		.wp-menu-name {
+			left: auto;
+			padding-left: 4px;
+		}
+
+		.upsell_banner {
+			padding: 4px;
+		}
+
+		.upsell_banner__icon {
+			display: block;
+		}
+
+		.upsell_banner__text,
+		.upsell_banner__action,
+		.upsell_banner__dismiss {
+			display: none;
+		}
+	}
+}
+
+.folded {
+	@include folded;
+}
+
+@media only screen and (max-width: 960px) and (min-width: 783px) {
+	.auto-fold {
+		@include folded;
+	}
+}

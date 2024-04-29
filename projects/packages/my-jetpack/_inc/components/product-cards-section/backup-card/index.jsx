@@ -1,13 +1,20 @@
 import { numberFormat, Text, getRedirectUrl } from '@automattic/jetpack-components';
+import { VisuallyHidden } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import Gridicon from 'gridicons';
 import PropTypes from 'prop-types';
 import { useEffect, useState, useMemo } from 'react';
+import {
+	REST_API_REWINDABLE_BACKUP_EVENTS_ENDPOINT,
+	REST_API_COUNT_BACKUP_ITEMS_ENDPOINT,
+	QUERY_BACKUP_HISTORY_KEY,
+	QUERY_BACKUP_STATS_KEY,
+} from '../../../data/constants';
+import useProduct from '../../../data/products/use-product';
+import useSimpleQuery from '../../../data/use-simple-query';
+import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
-import useBackupRewindableEvents from '../../../hooks/use-backup-rewindable-events';
-import useCountBackupItems from '../../../hooks/use-count-backup-items';
-import { useProduct } from '../../../hooks/use-product';
 import ProductCard from '../../connected-product-card';
 import { PRODUCT_STATUSES } from '../../product-card/action-button';
 import styles from './style.module.scss';
@@ -23,24 +30,45 @@ const getIcon = slug => {
 	}
 };
 
-const getTitle = slug => {
-	switch ( slug ) {
-		case 'comment':
-			return 'Comments';
-		case 'post':
-			return 'Posts';
-		case 'page':
-			return 'Pages';
-		case 'image':
-			return 'Images';
-		case 'video':
-			return 'Videos';
-		case 'audio':
-			return 'Audio Files';
-		default:
-			return slug;
-	}
-};
+const getStatRenderFn = stat =>
+	( {
+		comment: val =>
+			sprintf(
+				// translators: %d is the number of comments
+				_n( '%d comment', '%d comments', val, 'jetpack-my-jetpack' ),
+				val
+			),
+		post: val =>
+			sprintf(
+				// translators: %d is the number of posts
+				_n( '%d post', '%d posts', val, 'jetpack-my-jetpack' ),
+				val
+			),
+		page: val =>
+			sprintf(
+				// translators: %d is the number of pages
+				_n( '%d page', '%d pages', val, 'jetpack-my-jetpack' ),
+				val
+			),
+		image: val =>
+			sprintf(
+				// translators: %d is the number of images
+				_n( '%d image', '%d images', val, 'jetpack-my-jetpack' ),
+				val
+			),
+		video: val =>
+			sprintf(
+				// translators: %d is the number of videos
+				_n( '%d video', '%d videos', val, 'jetpack-my-jetpack' ),
+				val
+			),
+		audio: val =>
+			sprintf(
+				// translators: %d is the number of files
+				_n( '%d audio file', '%d audio files', val, 'jetpack-my-jetpack' ),
+				val
+			),
+	} )[ stat ] || ( val => `${ val } ${ stat }` );
 
 const getTimeSinceLastRenewableEvent = lastRewindableEventTime => {
 	if ( ! lastRewindableEventTime ) {
@@ -107,11 +135,17 @@ const BackupCard = ( { admin } ) => {
 };
 
 const WithBackupsValueSection = ( { admin, slug } ) => {
-	const { backupRewindableEvents, fetchingBackupRewindableEvents } = useBackupRewindableEvents();
-	const lastRewindableEventTime = backupRewindableEvents?.last_rewindable_event?.published;
-	const lastRewindableEvent = backupRewindableEvents?.last_rewindable_event;
-	const undoBackupId = backupRewindableEvents?.undo_backup_id;
+	const { data, isLoading } = useSimpleQuery( {
+		name: QUERY_BACKUP_HISTORY_KEY,
+		query: {
+			path: REST_API_REWINDABLE_BACKUP_EVENTS_ENDPOINT,
+		},
+	} );
+	const lastRewindableEvent = data?.last_rewindable_event;
+	const lastRewindableEventTime = lastRewindableEvent?.published;
+	const undoBackupId = data?.undo_backup_id;
 	const { recordEvent } = useAnalytics();
+	const { siteSuffix = '' } = getMyJetpackWindowInitialState();
 
 	const handleUndoClick = () => {
 		recordEvent( 'jetpack_myjetpack_backup_card_undo_click', {
@@ -123,7 +157,7 @@ const WithBackupsValueSection = ( { admin, slug } ) => {
 	const undoAction = {
 		href: getRedirectUrl( 'jetpack-backup-undo-cta', {
 			path: undoBackupId,
-			site: window?.myJetpackInitialState?.siteSuffix,
+			site: siteSuffix,
 		} ),
 		size: 'small',
 		variant: 'primary',
@@ -147,7 +181,7 @@ const WithBackupsValueSection = ( { admin, slug } ) => {
 			admin={ admin }
 			slug={ slug }
 			showMenu
-			isDataLoading={ fetchingBackupRewindableEvents }
+			isDataLoading={ isLoading }
 			Description={ lastRewindableEvent ? WithBackupsDescription : null }
 			additionalActions={ lastRewindableEvent ? [ undoAction ] : [] }
 		>
@@ -163,19 +197,27 @@ const WithBackupsValueSection = ( { admin, slug } ) => {
 
 const NoBackupsValueSection = ( { admin, slug } ) => {
 	const [ itemsToShow, setItemsToShow ] = useState( 3 );
-	const { countBackupItems: siteData, fetchingCountBackupItems: isFetching } =
-		useCountBackupItems();
+	const { data: backupStats, isLoading } = useSimpleQuery( {
+		name: QUERY_BACKUP_STATS_KEY,
+		query: {
+			path: REST_API_COUNT_BACKUP_ITEMS_ENDPOINT,
+		},
+	} );
 
-	const sortedData = useMemo( () => {
+	const sortedStats = useMemo( () => {
 		const data = [];
 
-		Object.keys( siteData ).forEach( key => {
+		if ( ! backupStats ) {
+			return data;
+		}
+
+		Object.keys( backupStats ).forEach( key => {
 			// We can safely filter out any values that are 0
-			if ( siteData[ key ] === 0 ) {
+			if ( backupStats[ key ] === 0 ) {
 				return;
 			}
 
-			data.push( [ key, siteData[ key ] ] );
+			data.push( [ key, backupStats[ key ] ] );
 		} );
 
 		data.sort( ( a, b ) => {
@@ -183,7 +225,7 @@ const NoBackupsValueSection = ( { admin, slug } ) => {
 		} );
 
 		return data;
-	}, [ siteData ] );
+	}, [ backupStats ] );
 
 	// Only show 2 data points on certain screen widths where the cards are squished
 	useEffect( () => {
@@ -200,37 +242,45 @@ const NoBackupsValueSection = ( { admin, slug } ) => {
 		};
 	}, [] );
 
-	const moreValue = sortedData.length > itemsToShow ? sortedData.length - itemsToShow : 0;
+	const moreValue = sortedStats.length > itemsToShow ? sortedStats.length - itemsToShow : 0;
 	const shortenedNumberConfig = { maximumFractionDigits: 1, notation: 'compact' };
 
 	return (
-		<ProductCard admin={ admin } slug={ slug } showMenu isDataLoading={ isFetching }>
+		<ProductCard admin={ admin } slug={ slug } showMenu isDataLoading={ isLoading }>
 			<div className={ styles[ 'no-backup-stats' ] }>
-				<div className={ styles[ 'main-stats' ] }>
-					{ sortedData.slice( 0, itemsToShow ).map( ( item, i ) => {
+				{ /* role="list" is required for VoiceOver on Safari */ }
+				{ /* eslint-disable-next-line jsx-a11y/no-redundant-roles */ }
+				<ul className={ styles[ 'main-stats' ] } role="list">
+					{ sortedStats.map( ( item, i ) => {
 						const itemSlug = item[ 0 ].split( '_' )[ 1 ];
 						const value = item[ 1 ];
 
 						return (
-							<div
+							<li
 								className={ classNames( styles[ 'main-stat' ], `main-stat-${ i }` ) }
 								key={ i + itemSlug }
-								title={ getTitle( itemSlug ) }
 							>
-								{ getIcon( itemSlug ) }
-								<span>{ numberFormat( value, shortenedNumberConfig ) }</span>
-							</div>
+								<>
+									{ i < itemsToShow && (
+										<span className={ classNames( styles[ 'visual-stat' ] ) } aria-hidden="true">
+											{ getIcon( itemSlug ) }
+											<span>{ numberFormat( value, shortenedNumberConfig ) }</span>
+										</span>
+									) }
+									<VisuallyHidden>{ getStatRenderFn( itemSlug )( value ) }</VisuallyHidden>
+								</>
+							</li>
 						);
 					} ) }
-				</div>
+				</ul>
 
 				{ moreValue > 0 && (
-					<p className={ styles[ 'more-stats' ] }>
+					<span className={ styles[ 'more-stats' ] } aria-hidden="true">
 						{
 							// translators: %s is the number of items that are not shown
 							sprintf( __( '+%s more', 'jetpack-my-jetpack' ), moreValue )
 						}
-					</p>
+					</span>
 				) }
 			</div>
 		</ProductCard>

@@ -1,4 +1,8 @@
-import { getScoreLetter, didScoresChange } from '@automattic/jetpack-boost-score-api';
+import {
+	getScoreLetter,
+	didScoresChange,
+	getScoreMovementPercentage,
+} from '@automattic/jetpack-boost-score-api';
 import { BoostScoreBar, Button } from '@automattic/jetpack-components';
 import { sprintf, __ } from '@wordpress/i18n';
 import ContextTooltip from './context-tooltip/context-tooltip';
@@ -14,6 +18,8 @@ import { useModulesState } from '$features/module/lib/stores';
 import { useCriticalCssState } from '$features/critical-css/lib/stores/critical-css-state';
 import { useLocalCriticalCssGeneratorStatus } from '$features/critical-css/local-generator/local-generator-provider';
 import { queryClient } from '@automattic/jetpack-react-data-sync-client';
+import ErrorBoundary from '$features/error-boundary/error-boundary';
+import PopOut from './pop-out/pop-out';
 
 const SpeedScore = () => {
 	const { site } = Jetpack_Boost;
@@ -35,6 +41,9 @@ const SpeedScore = () => {
 			}, [] ),
 		[ data ]
 	);
+
+	const showScoreChangePopOut =
+		status === 'loaded' && ! scores.isStale && getScoreMovementPercentage( scores );
 
 	// Mark performance history data as stale when speed scores are loaded.
 	useEffect( () => {
@@ -140,8 +149,22 @@ const SpeedScore = () => {
 				</div>
 				{ site.online && <PerformanceHistory /> }
 			</div>
+
+			<PopOut scoreChange={ showScoreChangePopOut } />
 		</>
 	);
 };
 
-export default SpeedScore;
+export default () => {
+	return (
+		<ErrorBoundary
+			fallback={
+				<div className="jb-container">
+					<p>{ __( 'Failed to load Speed Score.', 'jetpack-boost' ) }</p>
+				</div>
+			}
+		>
+			<SpeedScore />
+		</ErrorBoundary>
+	);
+};

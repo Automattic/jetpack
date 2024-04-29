@@ -34,7 +34,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_backupⓥ2_5_alpha",
+		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_backupⓥ2_6_alpha",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

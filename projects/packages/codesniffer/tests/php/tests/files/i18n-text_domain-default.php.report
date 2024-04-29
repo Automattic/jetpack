@@ -1,3 +1,3 @@
-  8 | WARNING | Missing domain arg. If this text string is supposed to use a WP Core translation, use the "default" text domain.
-    |         | (Jetpack.Functions.I18n.DomainDefault)
+  1 | ERROR   | Filenames should be all lowercase with hyphens as word separators. Expected i18n-text-domain-default.php, but found i18n-text_domain-default.php. (WordPress.Files.FileName.NotHyphenatedLowercase)
+  8 | WARNING | Missing domain arg. If this text string is supposed to use a WP Core translation, use the "default" text domain. (Jetpack.Functions.I18n.DomainDefault)
  10 | ERROR   | Mismatched text domain. Expected 'foobar' or 'default' but got 'domain'. (Jetpack.Functions.I18n.TextDomainMismatch)

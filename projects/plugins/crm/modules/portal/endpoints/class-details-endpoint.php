@@ -23,18 +23,8 @@ class Details_Endpoint extends Client_Portal_Endpoint {
 	}
 
 	function render_admin_notice() {
-		global $zbs;
-
-		$admin_message = '<b>' . __( 'Admin notice:', 'zero-bs-crm' ) . '</b><br>';
-		$admin_message .= __( 'This is the Client Portal contact details page. This will show the contact their details and allow them change information in the fields below. You can hide fields from this page in <i>Settings → Client Portal → Fields to hide on Portal</i>.', 'zero-bs-crm' );
-		##WLREMOVE
-		$admin_message .= '<br><br><a href="' . $zbs->urls['kbclientportal'] . '" target="_blank">' . __( 'Learn more', 'zero-bs-crm' ) . '</a>';
-		##/WLREMOVE
-
-		?>
-		<div class='alert alert-info' style="font-size: 0.8em;text-align: left;margin-top:0px;">
-		<?php echo $admin_message ?>
-		</div><?php
+		$admin_message = __( 'This is the Client Portal contact details page. This will show the contact their details and allow them change information in the fields below. You can hide fields from this page in Settings → Client Portal → Fields.', 'zero-bs-crm' );
+		$this->portal->render->portal_viewing_as_admin_banner( $admin_message );
 	}
 
 	// Functions that were in the template file

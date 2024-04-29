@@ -147,6 +147,22 @@ class Waf_Request {
 	}
 
 	/**
+	 * Returns the value of a specific header that was sent with this request
+	 *
+	 * @param string $name The name of the header to retrieve.
+	 * @return string
+	 */
+	public function get_header( $name ) {
+		$name = $this->normalize_header_name( $name );
+		foreach ( $this->get_headers() as list( $header_name, $header_value ) ) {
+			if ( $header_name === $name ) {
+				return $header_value;
+			}
+		}
+		return '';
+	}
+
+	/**
 	 * Change a header name to all-lowercase and replace spaces and underscores with dashes.
 	 *
 	 * @param string $name The header name to normalize.
@@ -192,7 +208,9 @@ class Waf_Request {
 		$uri = isset( $_SERVER['REQUEST_URI'] ) ? filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ), FILTER_DEFAULT ) : '/';
 		if ( false !== strpos( $uri, '?' ) ) {
 			// remove the query string (we'll pull it from elsewhere later)
-			$uri = substr( $uri, 0, strpos( $uri, '?' ) );
+			$uri = urldecode( substr( $uri, 0, strpos( $uri, '?' ) ) );
+		} else {
+			$uri = urldecode( $uri );
 		}
 		$query_string = isset( $_SERVER['QUERY_STRING'] ) ? '?' . filter_var( wp_unslash( $_SERVER['QUERY_STRING'] ), FILTER_DEFAULT ) : '';
 		if ( 1 === preg_match( '/^https?:\/\//', $uri ) ) {
@@ -254,6 +272,24 @@ class Waf_Request {
 	}
 
 	/**
+	 * Return the basename part of the request
+	 *
+	 * @example for 'https://wordpress.com/some/page.php?id=5', return 'page.php'
+	 * @return string
+	 */
+	public function get_basename() {
+		// Get the filename part of the request
+		$filename = $this->get_filename();
+		// Normalize slashes
+		$filename = str_replace( '\\', '/', $filename );
+		// Remove trailing slashes
+		$filename = rtrim( $filename, '/' );
+		// Return the basename
+		$offset = strrpos( $filename, '/' );
+		return $offset !== false ? substr( $filename, $offset + 1 ) : $filename;
+	}
+
+	/**
 	 * Return the query string. If present, it will be prefixed with '?'. Otherwise, it will be an empty string.
 	 *
 	 * @return string
@@ -296,6 +332,12 @@ class Waf_Request {
 	 * @return array<string, mixed|array>
 	 */
 	public function get_post_vars() {
+		// Attempt to decode JSON requests.
+		if ( strpos( $this->get_header( 'content-type' ), 'application/json' ) !== false ) {
+			$decoded_json = json_decode( $this->get_body(), true ) ?? array();
+			return flatten_array( $decoded_json, 'json', true );
+		}
+
 		return flatten_array( $_POST );
 	}
 

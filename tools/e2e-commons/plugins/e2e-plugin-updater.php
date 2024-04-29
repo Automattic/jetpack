@@ -14,9 +14,9 @@ add_filter( 'site_transient_update_plugins', 'e2e_set_jetpack_update', 10, 1 );
 /**
  * Injects new available Jetpack version and download url into core updater
  *
- * @param Object $value Value object.
+ * @param object $value Value object.
  *
- * @return array
+ * @return object
  */
 function e2e_set_jetpack_update( $value ) {
 	$update_version = get_option( 'e2e_jetpack_upgrader_update_version' );

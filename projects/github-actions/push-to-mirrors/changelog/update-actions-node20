@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Update example in readme to use `actions/checkout@v4`.

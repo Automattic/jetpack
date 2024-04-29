@@ -17,13 +17,6 @@ class Wpcom_Block_Patterns_From_Api {
 	const PATTERN_NAMESPACE = 'a8c/';
 
 	/**
-	 * Patterns source sites. A array of strings, each of which matches a valid source for retrieving patterns.
-	 *
-	 * @var array
-	 */
-	private $patterns_sources;
-
-	/**
 	 * A collection of utility methods.
 	 *
 	 * @var Wpcom_Block_Patterns_Utils
@@ -36,8 +29,6 @@ class Wpcom_Block_Patterns_From_Api {
 	 * @param Wpcom_Block_Patterns_Utils|null $utils       A class dependency containing utils methods.
 	 */
 	public function __construct( Wpcom_Block_Patterns_Utils $utils = null ) {
-		$this->patterns_sources = array( 'block_patterns' );
-
 		$this->utils = empty( $utils ) ? new Wpcom_Block_Patterns_Utils() : $utils;
 	}
 
@@ -50,96 +41,71 @@ class Wpcom_Block_Patterns_From_Api {
 		// Used to track which patterns we successfully register.
 		$results = array();
 
-		// For every pattern source site, fetch the patterns.
-		foreach ( $this->patterns_sources as $patterns_source ) {
-			$patterns_cache_key = $this->utils->get_patterns_cache_key( $patterns_source );
+		$patterns_cache_key = $this->utils->get_patterns_cache_key();
 
-			$pattern_categories = array();
-			$block_patterns     = $this->get_patterns( $patterns_cache_key, $patterns_source );
+		$pattern_categories = array();
+		$block_patterns     = $this->get_patterns( $patterns_cache_key );
 
-			foreach ( (array) $block_patterns as $pattern ) {
-				foreach ( (array) $pattern['categories'] as $slug => $category ) {
-					// Register categories from first pattern in each category.
-					if ( ! isset( $pattern_categories[ $slug ] ) ) {
-						$pattern_categories[ $slug ] = array(
-							'label'       => $category['title'],
-							'description' => $category['description'],
-						);
-					}
-				}
-			}
+		// Register categories from first pattern in each category.
+		foreach ( (array) $block_patterns as $pattern ) {
+			foreach ( (array) $pattern['categories'] as $slug => $category ) {
+				// Skip categories that start with an underscore
+				$is_hidden_category = substr( $slug, 0, 1 ) === '_';
 
-			// Unregister existing categories so that we can insert them in the desired order (alphabetically).
-			$existing_categories = array();
-			foreach ( \WP_Block_Pattern_Categories_Registry::get_instance()->get_all_registered() as $existing_category ) {
-				$existing_categories[ $existing_category['name'] ] = $existing_category;
-				unregister_block_pattern_category( $existing_category['name'] );
-			}
-
-			// Existing categories are registered in Gutenberg or other plugins.
-			// We overwrite them with the categories from Dotcom patterns.
-			$pattern_categories = array_merge( $existing_categories, $pattern_categories );
-
-			// Order categories alphabetically by their label.
-			uasort(
-				$pattern_categories,
-				function ( $a, $b ) {
-					return strnatcasecmp( $a['label'], $b['label'] );
-				}
-			);
-
-			// Move the Featured category to be the first category.
-			if ( isset( $pattern_categories['featured'] ) ) {
-				$featured_category  = $pattern_categories['featured'];
-				$pattern_categories = array( 'featured' => $featured_category ) + $pattern_categories;
-			}
-
-			// Register categories (and re-register existing categories).
-			foreach ( (array) $pattern_categories as $slug => &$category_properties ) {
-				// Rename category labels.
-				if ( 'posts' === $slug ) {
-					$category_properties['label'] = __(
-						'Blog Posts',
-						'jetpack-mu-wpcom'
+				if ( ! isset( $pattern_categories[ $slug ] ) && ! $is_hidden_category ) {
+					$pattern_categories[ $slug ] = array(
+						'label'       => $category['title'],
+						'description' => $category['description'],
 					);
-				}
-				register_block_pattern_category( $slug, $category_properties );
-			}
 
-			foreach ( (array) $block_patterns as &$pattern ) {
-				if ( $this->can_register_pattern( $pattern ) ) {
-					$is_premium = isset( $pattern['pattern_meta']['is_premium'] ) ? boolval( $pattern['pattern_meta']['is_premium'] ) : false;
-
-					// Set custom viewport width for the pattern preview with a
-					// default width of 1280 and ensure a safe minimum width of 320.
-					$viewport_width = isset( $pattern['pattern_meta']['viewport_width'] ) ? intval( $pattern['pattern_meta']['viewport_width'] ) : 1280;
-					$viewport_width = $viewport_width < 320 ? 320 : $viewport_width;
-					$pattern_name   = self::PATTERN_NAMESPACE . $pattern['name'];
-					$block_types    = $this->utils->maybe_get_pattern_block_types_from_pattern_meta( $pattern );
-					if ( empty( $block_types ) ) {
-						// For wp_block patterns because don't use pattern meta for block types.
-						$block_types = $this->utils->get_block_types_from_categories( $pattern );
-					}
-
-					$results[ $pattern_name ] = register_block_pattern(
-						$pattern_name,
-						array(
-							'title'         => $pattern['title'],
-							'description'   => $pattern['description'],
-							'content'       => $pattern['html'],
-							'viewportWidth' => $viewport_width,
-							'categories'    => array_keys(
-								$pattern['categories']
-							),
-							'isPremium'     => $is_premium,
-							'blockTypes'    => $block_types,
-						)
+					// Unregister first to overwrite any existent categories
+					unregister_block_pattern_category( $slug );
+					register_block_pattern_category(
+						$slug,
+						$pattern_categories[ $slug ]
 					);
 				}
 			}
 		}
 
-		$this->update_pattern_block_types();
+		foreach ( (array) $block_patterns as &$pattern ) {
+			if ( $this->can_register_pattern( $pattern ) ) {
+				$is_premium = isset( $pattern['pattern_meta']['is_premium'] ) ? boolval( $pattern['pattern_meta']['is_premium'] ) : false;
+
+				// Set custom viewport width for the pattern preview with a
+				// default width of 1280 and ensure a safe minimum width of 320.
+				$viewport_width = isset( $pattern['pattern_meta']['viewport_width'] ) ? intval( $pattern['pattern_meta']['viewport_width'] ) : 1280;
+				$viewport_width = $viewport_width < 320 ? 320 : $viewport_width;
+				$pattern_name   = self::PATTERN_NAMESPACE . $pattern['name'];
+				$block_types    = $this->utils->maybe_get_pattern_block_types_from_pattern_meta( $pattern );
+				if ( empty( $block_types ) ) {
+					// For wp_block patterns because don't use pattern meta for block types.
+					$block_types = $this->utils->get_block_types_from_categories( $pattern );
+				}
+
+				$results[ $pattern_name ] = register_block_pattern(
+					$pattern_name,
+					array(
+						'title'         => $pattern['title'],
+						'description'   => $pattern['description'],
+						'content'       => $pattern['html'],
+						'viewportWidth' => $viewport_width,
+						'categories'    => array_keys(
+							$pattern['categories']
+						),
+						'isPremium'     => $is_premium,
+						'blockTypes'    => $block_types,
+					)
+				);
+			}
+		}
+
+		// We prefer to show the starter page patterns modal of wpcom instead of core
+		// if it's available. Hence, we have to update the block types of patterns
+		// to disable the core's.
+		if ( class_exists( '\A8C\FSE\Starter_Page_Templates' ) ) {
+			$this->update_pattern_block_types();
+		}
 
 		// Temporarily removing the call to `update_pattern_post_types` while we investigate
 		// https://github.com/Automattic/wp-calypso/issues/79145.
@@ -151,49 +117,21 @@ class Wpcom_Block_Patterns_From_Api {
 	 * Returns a list of patterns.
 	 *
 	 * @param string $patterns_cache_key Key to store responses to and fetch responses from cache.
-	 * @param string $patterns_source    Slug for valid patterns source site, e.g., `block_patterns`.
-	 * @return array                      The list of translated patterns.
+	 * @return array The list of patterns.
 	 */
-	private function get_patterns( $patterns_cache_key, $patterns_source ) {
+	private function get_patterns( $patterns_cache_key ) {
 		$override_source_site = apply_filters( 'a8c_override_patterns_source_site', false );
-		if ( $override_source_site ) {
-			// Skip caching and request all patterns from a specified source site.
-			// This allows testing patterns in development with immediate feedback
-			// while avoiding polluting the cache. Note that this request gets
-			// all patterns on the source site, not just those with the 'pattern' tag.
+
+		$block_patterns = $this->utils->cache_get( $patterns_cache_key, 'ptk_patterns' );
+		$disable_cache  = ( function_exists( 'is_automattician' ) && is_automattician() ) || $override_source_site || ( defined( 'WP_DISABLE_PATTERN_CACHE' ) && WP_DISABLE_PATTERN_CACHE );
+
+		// Load fresh data if is automattician or we don't have any data.
+		if ( $disable_cache || false === $block_patterns ) {
 			$request_url = esc_url_raw(
 				add_query_arg(
 					array(
-						'site'         => $override_source_site,
-						'tags'         => 'pattern',
-						'pattern_meta' => 'is_web',
-					),
-					'https://public-api.wordpress.com/rest/v1/ptk/patterns/' . $this->utils->get_block_patterns_locale()
-				)
-			);
-
-			return $this->utils->remote_get( $request_url );
-		}
-
-		$block_patterns = $this->utils->cache_get( $patterns_cache_key, 'ptk_patterns' );
-
-		// Enable testing v2 patterns on sites with Assembler theme active
-		$enable_testing_v2_patterns = in_array( get_stylesheet(), array( 'pub/assembler', 'assembler' ), true );
-
-		// Load fresh data if we don't have any patterns.
-		if ( $enable_testing_v2_patterns || false === $block_patterns || ( defined( 'WP_DISABLE_PATTERN_CACHE' ) && WP_DISABLE_PATTERN_CACHE ) ) {
-			if ( $enable_testing_v2_patterns ) {
-				$request_params = array(
-					'site'      => 'dotcompatterns.wordpress.com',
-					'post_type' => 'wp_block',
-				);
-			}
-			$request_url = esc_url_raw(
-				add_query_arg(
-					$request_params ?? array(
-						'tags'            => 'pattern',
-						'pattern_meta'    => 'is_web',
-						'patterns_source' => $patterns_source,
+						'site'      => $override_source_site ?? 'dotcompatterns.wordpress.com',
+						'post_type' => 'wp_block',
 					),
 					'https://public-api.wordpress.com/rest/v1/ptk/patterns/' . $this->utils->get_block_patterns_locale()
 				)
@@ -201,8 +139,9 @@ class Wpcom_Block_Patterns_From_Api {
 
 			$block_patterns = $this->utils->remote_get( $request_url );
 
-			if ( ! $enable_testing_v2_patterns ) {
-				$this->utils->cache_add( $patterns_cache_key, $block_patterns, 'ptk_patterns', DAY_IN_SECONDS );
+			// Only save to cache when is not disabled.
+			if ( ! $disable_cache ) {
+				$this->utils->cache_add( $patterns_cache_key, $block_patterns, 'ptk_patterns', 5 * MINUTE_IN_SECONDS );
 			}
 		}
 
@@ -280,7 +219,8 @@ class Wpcom_Block_Patterns_From_Api {
 			}
 
 			$post_content_offset = array_search( 'core/post-content', $pattern['blockTypes'], true );
-			if ( $post_content_offset !== false ) {
+			$is_page_pattern     = empty( $pattern['postTypes'] ) || in_array( 'page', $pattern['postTypes'], true );
+			if ( $post_content_offset !== false && $is_page_pattern ) {
 				unregister_block_pattern( $pattern['name'] );
 
 				array_splice( $pattern['blockTypes'], $post_content_offset, 1 );

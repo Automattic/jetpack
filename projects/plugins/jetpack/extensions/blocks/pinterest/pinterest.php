@@ -2,6 +2,10 @@
 /**
  * Pinterest Block.
  *
+ * Note: this block is no longer available to be added to new posts.
+ * It is only kept available for existing posts with Pinterest blocks.
+ * You can still embed Pinterest content using the embed method provided by WordPress itself.
+ *
  * @since 8.0.0
  *
  * @package automattic/jetpack

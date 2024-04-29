@@ -5,6 +5,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 4.2.0 - 2024-04-11
+### Added
+- Added functions to display share urls [#36328]
+- Added options and UI for link formatting [#36671]
+- Added support for comments on Social Notes [#36428]
+- Packages: add version tracking for identity-crisis package. [#36635]
+- Trigger red bubble notification when bad install is detected [#36449]
+
+### Changed
+- Allow multiple paragraphs for Social Notes [#36522]
+- Only show custom media picker for normal posts [#36640]
+- Only show installation errors on plugins page [#36390]
+- Removed the featured image block from the template [#36819]
+- Simplified social network selection for post sharing [#36734]
+- Updated package dependencies. [#36309] [#36325] [#36585] [#36760] [#36761] [#36775] [#36788]
+- Update to the most recent version of Color Studio, 2.6.0. [#36751]
+- Update to the most recent version of the @automattic/calypso-color-schemes package. [#36227]
+
+### Fixed
+- Fixed typos [#36554]
+- Prevent enqueuing of admin styles on the frontend [#36552]
+
+## 4.1.0 - 2024-03-07
+### Added
+- Added a template lock to our Social Note CPT [#35619]
+- Added endpoint to update post meta [#35822]
+- Added feature support for the new CPT to support activitypub. [#35442]
+- Added fix for the post list screen for social notes. [#35514]
+- Added toggle to Social admin page for the Social Notes [#35681]
+- Implemented titless permalink fixes. [#35462]
+- New setting in /sties/$site/settings that is not relevant to this plugin. [#35509]
+- Register CPT for Social Notes. [#35415]
+- Social: Added archive page support to notes [#35592]
+
+### Changed
+- Changed the admin page 'Write a post' button to primary if the site has connections [#36031]
+- General: indicate compatibility with the upcoming version of WordPress, 6.5. [#35820]
+- Social Notes: Added the post list enhancements [#35819]
+- Tailored editor for social notes [#35536]
+- Updated package dependencies. [#35384, #35385, #35591, #35608, #35819, #36095, #36097, #36142, #36143]
+- Update package lock [#35672]
+- Update to the most recent version of the @automattic/calypso-color-schemes package. [#36187]
+- Use Blog ID in links to WPCOM instead of site slug. [#35006]
+
+### Fixed
+- Fixed no title from showing up in og:title [#35624]
+- Fixed og:title having word-breaks. [#36068]
+
 ## 4.0.0 - 2024-01-18
 ### Changed
 - Changed dismissed notices endpoint to be a core endpoint [#34544]

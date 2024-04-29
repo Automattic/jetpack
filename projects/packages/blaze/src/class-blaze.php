@@ -16,6 +16,7 @@ use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Status as Jetpack_Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
+use WP_Post;
 
 /**
  * Class for promoting posts.
@@ -68,15 +69,16 @@ class Blaze {
 
 	/**
 	 * Is the wp-admin Dashboard enabled?
-	 * That dashboard is not available or necessary on WordPress.com sites.
+	 * That dashboard is not available or necessary on WordPress.com sites when the nav redesign is disabled.
 	 *
 	 * @return bool
 	 */
 	public static function is_dashboard_enabled() {
-		$is_dashboard_enabled = true;
+		$is_dashboard_enabled          = true;
+		$wpcom_is_nav_redesign_enabled = function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled();
 
-		// On WordPress.com sites, the dashboard is not needed.
-		if ( ( new Host() )->is_wpcom_platform() ) {
+		// On WordPress.com sites, the dashboard is not needed if the nav redesign is not enabled.
+		if ( ! $wpcom_is_nav_redesign_enabled && ( new Host() )->is_wpcom_platform() ) {
 			$is_dashboard_enabled = false;
 		}
 
@@ -239,7 +241,7 @@ class Blaze {
 	 * - Calypso Links
 	 * - wp-admin Links if access to the wp-admin Blaze Dashboard is enabled.
 	 *
-	 * @param int $post_id Post ID.
+	 * @param int|string $post_id Post ID.
 	 *
 	 * @return array An array with the link, and whether this is a Calypso or a wp-admin link.
 	 */
@@ -282,10 +284,21 @@ class Blaze {
 	 * @return array
 	 */
 	public static function jetpack_blaze_row_action( $post_actions, $post ) {
-		$post_id = $post->ID;
+		/**
+		 * Allow third-party plugins to disable Blaze row actions.
+		 *
+		 * @since 0.16.0
+		 *
+		 * @param bool    $are_quick_links_enabled Should Blaze row actions be enabled.
+		 * @param WP_Post $post                    The current post in the post list table.
+		 */
+		$are_quick_links_enabled = apply_filters( 'jetpack_blaze_post_row_actions_enable', true, $post );
 
 		// Bail if we are not looking at one of the supported post types (post, page, or product).
-		if ( ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true ) ) {
+		if (
+			! $are_quick_links_enabled
+			|| ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true )
+		) {
 			return $post_actions;
 		}
 
@@ -299,7 +312,7 @@ class Blaze {
 			return $post_actions;
 		}
 
-		$blaze_url = self::get_campaign_management_url( $post_id );
+		$blaze_url = self::get_campaign_management_url( $post->ID );
 		$text      = __( 'Promote with Blaze', 'jetpack-blaze' );
 		$title     = get_the_title( $post );
 		$label     = sprintf(
@@ -364,9 +377,7 @@ class Blaze {
 			self::SCRIPT_HANDLE,
 			'blazeInitialState',
 			array(
-				'adminUrl'           => esc_url( admin_url() ),
-				'isDashboardEnabled' => self::is_dashboard_enabled(),
-				'siteFragment'       => ( new Jetpack_Status() )->get_site_suffix(),
+				'blazeUrlTemplate' => self::get_campaign_management_url( '__POST_ID__' ),
 			)
 		);
 	}

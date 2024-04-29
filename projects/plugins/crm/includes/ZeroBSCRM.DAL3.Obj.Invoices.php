@@ -182,8 +182,32 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
         #} =========== / LOAD ARGS =============
 
 			$this->events_manager = new Events_Manager();
+
+			add_filter( 'jpcrm_listview_filters', array( $this, 'add_listview_filters' ) );
     }
 
+		/**
+		 * Adds items to listview filter using `jpcrm_listview_filters` hook.
+		 *
+		 * @param array $listview_filters Listview filters.
+		 */
+		public function add_listview_filters( $listview_filters ) {
+			global $zbs;
+			// Add statuses if enabled.
+			if ( $zbs->settings->get( 'filtersfromstatus' ) === 1 ) {
+				$statuses = array(
+					'Draft'   => __( 'Draft', 'zero-bs-crm' ),
+					'Unpaid'  => __( 'Unpaid', 'zero-bs-crm' ),
+					'Paid'    => __( 'Paid', 'zero-bs-crm' ),
+					'Overdue' => __( 'Overdue', 'zero-bs-crm' ),
+					'Deleted' => __( 'Deleted', 'zero-bs-crm' ),
+				);
+				foreach ( $statuses as $status_slug => $status_label ) {
+					$listview_filters[ ZBS_TYPE_INVOICE ]['status'][ 'status_' . $status_slug ] = $status_label;
+				}
+			}
+			return $listview_filters;
+		}
 
     // ===============================================================================
     // ===========   INVOICE  =======================================================
@@ -786,11 +810,8 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                     // USE hasStatus above now...
 					if ( str_starts_with( $qFilter, 'status_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-                        $qFilterStatus = substr($qFilter,7);
-                        $qFilterStatus = str_replace('_',' ',$qFilterStatus);
-
-                        // check status
-                        $wheres['quickfilterstatus'] = array('zbsi_status','LIKE','%s',ucwords($qFilterStatus));
+						$quick_filter_status         = substr( $qFilter, 7 ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						$wheres['quickfilterstatus'] = array( 'zbsi_status', '=', 'convert(%s using utf8mb4) collate utf8mb4_bin', $quick_filter_status );
 
 					} else {
 
@@ -1571,6 +1592,11 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                         );
                 }
 
+					// If we are using our CRM reference id (table field id_override) system, we should not change the reference number when importing from woo.
+					if ( isset( $data['woo_use_crm_id'] ) && $data['woo_use_crm_id'] === true ) {
+						$dataArr['zbsi_id_override'] = $previous_invoice_obj['id_override']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					}
+
                 #} Attempt update
                 if ($wpdb->update( 
                         $ZBSCRM_t['invoices'], 
@@ -1773,7 +1799,18 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                         }
 
         } else {
-            
+					// If we are using our CRM reference id (table field id_override) system, we should generate a new invoice number.
+					if ( isset( $data['woo_use_crm_id'] ) && $data['woo_use_crm_id'] === true ) {
+						$ref_type = $zbs->settings->get( 'reftype' );
+						// We can only generate it if autonumber is set
+						if ( $ref_type === 'autonumber' ) {
+							$next_number                 = $zbs->settings->get( 'refnextnum' );
+							$dataArr['zbsi_id_override'] = $zbs->settings->get( 'refprefix' ) . $next_number . $zbs->settings->get( 'refsuffix' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+							++$next_number;
+							$zbs->settings->update( 'refnextnum', $next_number );
+						}
+					}
+
             #} No ID - must be an INSERT
             if ($wpdb->insert( 
                         $ZBSCRM_t['invoices'], 
@@ -2752,52 +2789,58 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
             if (is_array($invoice)){
 
                 // get total due
-                $invoiceTotalValue = 0.0; if (isset($invoice['total'])) $invoiceTotalValue = (float)$invoice['total'];
+						$invoice_total_value = 0.0;
+						if ( isset( $invoice['total'] ) ) {
+							$invoice_total_value = (float) $invoice['total'];
+							// this one'll be a rolling sum
+							$transactions_total_value = 0.0;
 
-						// this one'll be a rolling sum
-						$transactions_total_value = 0.0;
+							// cycle through trans + calc existing balance
+							if ( isset( $invoice['transactions'] ) && is_array( $invoice['transactions'] ) ) {
 
-						// cycle through trans + calc existing balance
-						if ( isset( $invoice['transactions'] ) && is_array( $invoice['transactions'] ) ) {
+								// got trans
+								foreach ( $invoice['transactions'] as $transaction ) {
 
-							// got trans
-							foreach ( $invoice['transactions'] as $transaction ) {
+									// should we also check for status=completed/succeeded? (leaving for now, will let check all):
 
-								// should we also check for status=completed/succeeded? (leaving for now, will let check all):
+									// get amount
+									$transaction_amount = 0.0;
 
-								// get amount
-								$transaction_amount = 0.0;
+									if ( isset( $transaction['total'] ) ) {
+										$transaction_amount = (float) $transaction['total'];
 
-								if ( isset( $transaction['total'] ) ) {
-									$transaction_amount = (float) $transaction['total'];
-								}
+										if ( $transaction_amount > 0 ) {
 
-								switch ( $transaction['type'] ) {
+											switch ( $transaction['type'] ) {
+												case __( 'Sale', 'zero-bs-crm' ):
+													// these count as debits against invoice.
+													$transactions_total_value -= $transaction_amount;
 
-									case __( 'Sale', 'zero-bs-crm' ):
-										// these count as debits against invoice.
-										$transactions_total_value -= $transaction_amount;
+													break;
 
-										break;
+												case __( 'Refund', 'zero-bs-crm' ):
+												case __( 'Credit Note', 'zero-bs-crm' ):
+													// these count as credits against invoice.
+													$transactions_total_value += $transaction_amount;
 
-									case __( 'Refund', 'zero-bs-crm' ):
-									case __( 'Credit Note', 'zero-bs-crm' ):
-										// These count as credits against invoice, and should be added.
-										$transactions_total_value -= abs( (float) $transaction_amount );
+													break;
 
-										break;
+											} // / switch on type (sale/refund)
 
-								} // / switch on type (sale/refund)
+										} // / if trans > 0
 
-							} // / each trans
+									} // / if isset
 
-							// should now have $transactionsTotalValue & $invoiceTotalValue
-							// ... so we sum + return.
-							return $invoiceTotalValue + $transactions_total_value; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+								} // / each trans
 
-						} // / if has trans
+								// should now have $transactions_total_value & $invoice_total_value
+								// ... so we sum + return.
+								return $invoice_total_value + $transactions_total_value;
 
-            } // / if retrieved inv
+							} // / if has trans
+						} //  if isset invoice total
+
+					} // / if retrieved inv
 
         } // / if invoice_id > 0
 

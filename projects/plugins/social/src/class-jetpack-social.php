@@ -104,12 +104,13 @@ class Jetpack_Social {
 				My_Jetpack_Initializer::init();
 			}
 		);
-		add_action( 'init', array( new Automattic\Jetpack\Social\Note(), 'register' ) );
+		add_action( 'init', array( new Automattic\Jetpack\Social\Note(), 'init' ) );
 
 		$this->manager = $connection_manager ? $connection_manager : new Connection_Manager();
 
 		// Add REST routes
 		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Settings_Controller(), 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Social_Note_Controller(), 'register_rest_routes' ) );
 
 		// Add block editor assets
 		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_editor_scripts' ) );
@@ -122,6 +123,8 @@ class Jetpack_Social {
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'social_filter_available_modules' ), 10, 1 );
 
 		add_filter( 'plugin_action_links_' . JETPACK_SOCIAL_PLUGIN_FOLDER . '/jetpack-social.php', array( $this, 'add_settings_link' ) );
+
+		add_shortcode( 'jp_shares_shortcode', array( $this, 'add_shares_shortcode' ) );
 	}
 
 	/**
@@ -235,6 +238,8 @@ class Jetpack_Social {
 			$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
 			$settings                = $jetpack_social_settings->get_settings( true );
 
+			$note = new Automattic\Jetpack\Social\Note();
+
 			$state = array_merge(
 				$state,
 				array(
@@ -245,6 +250,8 @@ class Jetpack_Social {
 						'isEnhancedPublishingEnabled'    => $publicize->has_enhanced_publishing_feature(),
 						'dismissedNotices'               => Dismissed_Notices::get_dismissed_notices(),
 						'supportedAdditionalConnections' => $publicize->get_supported_additional_connections(),
+						'social_notes_enabled'           => $note->enabled(),
+						'social_notes_config'            => $note->get_config(),
 					),
 					'connectionData'  => array(
 						'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
@@ -292,7 +299,7 @@ class Jetpack_Social {
 	 * @returns boolean True if the criteria are met.
 	 */
 	public function should_enqueue_block_editor_scripts() {
-		return $this->is_connected() && self::is_publicize_active() && $this->is_supported_post();
+		return is_admin() && $this->is_connected() && self::is_publicize_active() && $this->is_supported_post();
 	}
 
 	/**
@@ -343,6 +350,7 @@ class Jetpack_Social {
 					'autoConversionSettings'          => $settings['autoConversionSettings'],
 					'dismissedNotices'                => Dismissed_Notices::get_dismissed_notices(),
 					'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
+					'userConnectionUrl'               => esc_url_raw( admin_url( 'admin.php?page=my-jetpack#/connection' ) ),
 				),
 			)
 		);
@@ -502,5 +510,12 @@ class Jetpack_Social {
 			array( '<a href="' . esc_url( admin_url( 'admin.php?page=' . JETPACK_SOCIAL_PLUGIN_SLUG ) ) . '">' . __( 'Settings', 'jetpack-social' ) . '</a>' ),
 			$actions
 		);
+	}
+
+	/**
+	 * Adds the shares shortcode.
+	 */
+	public function add_shares_shortcode() {
+		return Social_Shares::get_the_social_shares( get_the_ID() );
 	}
 }

@@ -8,11 +8,10 @@ module.exports = {
 	module: {
 		strictExportPresence: true,
 		rules: [
-			{
-				test: /\.ts?$/,
-				use: 'ts-loader',
-				exclude: /node_modules/,
-			},
+			// Transpile JavaScript and TypeScript
+			jetpackWebpackConfig.TranspileRule( {
+				exclude: /node_modules\//,
+			} ),
 		],
 	},
 	optimization: {
@@ -30,5 +29,10 @@ module.exports = {
 			type: 'umd',
 		},
 	},
-	plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
+	plugins: [
+		...jetpackWebpackConfig.StandardPlugins( {
+			// Generate `.d.ts` files per tsconfig settings.
+			ForkTSCheckerPlugin: {},
+		} ),
+	],
 };

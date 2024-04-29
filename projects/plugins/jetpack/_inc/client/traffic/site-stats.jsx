@@ -300,7 +300,7 @@ class SiteStatsComponent extends React.Component {
 								</FormFieldset>
 							</>
 						) }
-						<FormFieldset>
+						<FormFieldset className="jp-stats-form-fieldset">
 							<ToggleControl
 								checked={ !! this.props.getOptionValue( 'admin_bar' ) }
 								disabled={
@@ -316,7 +316,7 @@ class SiteStatsComponent extends React.Component {
 								) }
 							/>
 						</FormFieldset>
-						<FormFieldset>
+						<FormFieldset className="jp-stats-form-fieldset">
 							<FormLegend>{ __( 'Count logged in page views from', 'jetpack' ) }</FormLegend>
 							{ Object.keys( siteRoles ).map( key => (
 								<ToggleControl
@@ -333,7 +333,7 @@ class SiteStatsComponent extends React.Component {
 								/>
 							) ) }
 						</FormFieldset>
-						<FormFieldset>
+						<FormFieldset className="jp-stats-form-fieldset">
 							<FormLegend>{ __( 'Allow Jetpack Stats to be viewed by', 'jetpack' ) }</FormLegend>
 							<ToggleControl
 								checked={ true }
@@ -357,7 +357,7 @@ class SiteStatsComponent extends React.Component {
 								) : null
 							) }
 						</FormFieldset>
-						<FormFieldset>
+						<FormFieldset className="jp-stats-form-fieldset">
 							<FormLegend>{ __( 'WordPress.com Reader', 'jetpack' ) }</FormLegend>
 							<ToggleControl
 								checked={ this.state.wpcom_reader_views_enabled }

@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
+use WP_Post;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
 
 /**
@@ -28,6 +29,22 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	const POST_ACCESS_LEVEL_SUBSCRIBERS                = 'subscribers';
 	const POST_ACCESS_LEVEL_PAID_SUBSCRIBERS           = 'paid_subscribers';
 	const POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS = 'paid_subscribers_all_tiers';
+
+	/**
+	 * An optional user_id to query against (omitting this will use either the token or current user id)
+	 *
+	 * @var int|null
+	 */
+	protected $user_id = null;
+
+	/**
+	 * Constructor
+	 *
+	 * @param int|null $user_id An optional user_id to query subscriptions against. Uses token from request/cookie or logged-in user information if omitted.
+	 */
+	public function __construct( $user_id = null ) {
+		$this->user_id = $user_id;
+	}
 
 	/**
 	 * Initialize the token subscription service.
@@ -233,14 +250,14 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	/**
 	 * Find metadata in post
 	 *
-	 * @param WP_Post|StdClass $post        Post.
-	 * @param string           $meta_key    Meta to retrieve.
+	 * @param WP_Post|object $post        Post.
+	 * @param string         $meta_key    Meta to retrieve.
 	 *
 	 * @return mixed|null
 	 */
 	private function find_metadata( $post, $meta_key ) {
 
-		if ( is_a( $post, '\WP_Post' ) ) {
+		if ( $post instanceof WP_Post ) {
 			return $post->{$meta_key};
 		}
 
@@ -443,24 +460,29 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 			return;
 		}
 
-		if ( ! empty( $token ) && false === headers_sent() ) {
-			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, 0, '/', COOKIE_DOMAIN, is_ssl(), true ); // httponly -- used by visitor_can_view_content() within the PHP context.
+		if ( ! empty( $token ) && ! headers_sent() ) {
+			// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
+			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, strtotime( '+1 month' ), '/', '', is_ssl(), false );
 		}
 	}
 
 	/**
 	 * Clear the auth cookie.
-	 *
-	 * @return void
 	 */
 	public static function clear_token_cookie() {
 		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
 			return;
 		}
 
-		if ( self::has_token_from_cookie() ) {
-			unset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
-			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', time() - DAY_IN_SECONDS, '/', COOKIE_DOMAIN, is_ssl(), true );
+		if ( ! self::has_token_from_cookie() ) {
+			return;
+		}
+
+		unset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
+
+		if ( ! headers_sent() ) {
+			// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
+			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', 1, '/', '', is_ssl(), false );
 		}
 	}
 
@@ -472,7 +494,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	private function token_from_request() {
 		$token = null;
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['token'] ) ) {
+		if ( isset( $_GET['token'] ) && is_string( $_GET['token'] ) ) {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 			if ( preg_match( '/^[a-zA-Z0-9\-_]+?\.[a-zA-Z0-9\-_]+?\.([a-zA-Z0-9\-_]+)?$/', $_GET['token'], $matches ) ) {
 				// token matches a valid JWT token pattern.
@@ -485,9 +507,9 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	/**
 	 * Return true if any ID/date pairs are valid. Otherwise false.
 	 *
-	 * @param int[]                          $valid_plan_ids List of valid plan IDs.
-	 * @param array<int, Token_Subscription> $token_subscriptions : ID must exist in the provided <code>$valid_subscriptions</code> parameter.
-	 *                                                            The provided end date needs to be greater than <code>now()</code>.
+	 * @param int[]              $valid_plan_ids List of valid plan IDs.
+	 * @param array<int, object> $token_subscriptions : ID must exist in the provided <code>$valid_subscriptions</code> parameter.
+	 *                                                The provided end date needs to be greater than <code>now()</code>.
 	 *
 	 * @return bool
 	 */

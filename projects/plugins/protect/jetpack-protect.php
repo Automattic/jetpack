@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack Protect
  * Plugin URI: https://wordpress.org/plugins/jetpack-protect
  * Description: Security tools that keep your site safe and sound, from posts to plugins.
- * Version: 2.1.0-alpha
+ * Version: 2.2.0-alpha
  * Author: Automattic - Jetpack Security team
  * Author URI: https://jetpack.com/protect/
  * License: GPLv2 or later
@@ -32,7 +32,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'JETPACK_PROTECT_VERSION', '2.1.0-alpha' );
+define( 'JETPACK_PROTECT_VERSION', '2.2.0-alpha' );
 define( 'JETPACK_PROTECT_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JETPACK_PROTECT_ROOT_FILE', __FILE__ );
 define( 'JETPACK_PROTECT_ROOT_FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
@@ -56,31 +56,48 @@ if ( is_readable( $jetpack_autoloader ) ) {
 		);
 	}
 
+	// Add a red bubble notification to My Jetpack if the installation is bad.
+	add_filter(
+		'my_jetpack_red_bubble_notification_slugs',
+		function ( $slugs ) {
+			$slugs['jetpack-protect-plugin-bad-installation'] = array(
+				'data' => array(
+					'plugin' => 'Jetpack Protect',
+				),
+			);
+
+			return $slugs;
+		}
+	);
+
 	add_action(
 		'admin_notices',
 		function () {
-			?>
-		<div class="notice notice-error is-dismissible">
-			<p>
-				<?php
-				printf(
-					wp_kses(
-						/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Jetpack Protect is incomplete. If you installed Jetpack Protect from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Protect must have Composer dependencies installed and built via the build command.', 'jetpack-protect' ),
-						array(
-							'a' => array(
-								'href'   => array(),
-								'target' => array(),
-								'rel'    => array(),
-							),
-						)
-					),
-					'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
-				);
-				?>
-			</p>
-		</div>
-			<?php
+			if ( get_current_screen()->id !== 'plugins' ) {
+				return;
+			}
+
+			$message = sprintf(
+				wp_kses(
+					/* translators: Placeholder is a link to a support document. */
+					__( 'Your installation of Jetpack Protect is incomplete. If you installed Jetpack Protect from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Protect must have Composer dependencies installed and built via the build command.', 'jetpack-protect' ),
+					array(
+						'a' => array(
+							'href'   => array(),
+							'target' => array(),
+							'rel'    => array(),
+						),
+					)
+				),
+				'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
+			);
+			wp_admin_notice(
+				$message,
+				array(
+					'type'        => 'error',
+					'dismissible' => true,
+				)
+			);
 		}
 	);
 

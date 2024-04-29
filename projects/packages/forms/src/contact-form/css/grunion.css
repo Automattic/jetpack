@@ -264,6 +264,13 @@
 	max-width: 75%;
 }
 
+@media only screen and ( max-width: 480px ) {
+	.wp-block-jetpack-contact-form .grunion-field-wrap {
+		flex-basis: 100%;
+		max-width: none;
+	}
+}
+
 .grunion-field-consent-wrap {
 	align-self: center;
 }

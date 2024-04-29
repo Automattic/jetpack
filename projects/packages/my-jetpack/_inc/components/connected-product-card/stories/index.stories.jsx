@@ -3,7 +3,6 @@
 import React from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import ConnectedProductCard from '../';
-import { initStore } from '../../../state/store';
 import { PRODUCT_STATUSES } from '../../product-card';
 import { getAllMockData, getProductSlugs } from '../../product-detail-card/stories/utils.js';
 
@@ -11,8 +10,6 @@ import { getAllMockData, getProductSlugs } from '../../product-detail-card/stori
 window.myJetpackRest = {};
 
 const mockData = getAllMockData();
-
-initStore();
 
 export default {
 	title: 'Packages/My Jetpack/Connected Product Card',

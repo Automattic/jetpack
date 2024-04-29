@@ -37,7 +37,7 @@ class Jetpack_Media {
 	 * The hash is built according to the filename trying to avoid name collisions
 	 * with other media files.
 	 *
-	 * @param  number $media_id - media post ID.
+	 * @param  int    $media_id - media post ID.
 	 * @param  string $new_filename - the new filename.
 	 * @return string A random filename.
 	 */
@@ -222,9 +222,9 @@ class Jetpack_Media {
 	/**
 	 * Add a new item into revision_history array.
 	 *
-	 * @param  object $media_item - media post object.
-	 * @param  file   $file - file recently added.
-	 * @param  bool   $has_original_media - condition is the original media has been already added.
+	 * @param  object         $media_item - media post object.
+	 * @param  array|WP_Error $file - File data, or WP_Error on error.
+	 * @param  bool           $has_original_media - condition is the original media has been already added.
 	 * @return bool `true` if the item has been added. Otherwise `false`.
 	 */
 	public static function register_revision( $media_item, $file, $has_original_media ) {
@@ -237,7 +237,7 @@ class Jetpack_Media {
 	/**
 	 * Return the `revision_history` of the given media.
 	 *
-	 * @param  number $media_id - media post ID.
+	 * @param  int $media_id - media post ID.
 	 * @return array `revision_history` array
 	 */
 	public static function get_revision_history( $media_id ) {
@@ -433,8 +433,8 @@ class Jetpack_Media {
 	 *
 	 * Note this does not support sideloads, only uploads.
 	 *
-	 * @param  number $media_id - media post ID.
-	 * @param  array  $file_array - Data derived from `$_FILES` for an uploaded file.
+	 * @param  int   $media_id - media post ID.
+	 * @param  array $file_array - Data derived from `$_FILES` for an uploaded file.
 	 * @return {Post|WP_Error} Updated media item or a WP_Error is something went wrong.
 	 */
 	public static function edit_media_file( $media_id, $file_array ) {

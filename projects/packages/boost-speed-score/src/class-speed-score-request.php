@@ -30,7 +30,7 @@ class Speed_Score_Request extends Cacheable {
 	/**
 	 * Active Jetpack Boost modules.
 	 *
-	 * @var array $active_modules Active modules.
+	 * @var string[] $active_modules Active modules.
 	 */
 	private $active_modules;
 
@@ -103,6 +103,15 @@ class Speed_Score_Request extends Cacheable {
 	}
 
 	/**
+	 * Get the list of active performance modules while this request was created.
+	 *
+	 * @return string[]
+	 */
+	public function get_active_modules() {
+		return $this->active_modules;
+	}
+
+	/**
 	 * Convert this object to a plain array for JSON serialization.
 	 */
 	#[\ReturnTypeWillChange]
@@ -110,7 +119,7 @@ class Speed_Score_Request extends Cacheable {
 		return array(
 			'id'             => $this->get_cache_id(),
 			'url'            => $this->url,
-			'active_modules' => $this->active_modules,
+			'active_modules' => $this->get_active_modules(),
 			'created'        => $this->created,
 			'status'         => $this->status,
 			'error'          => $this->error,

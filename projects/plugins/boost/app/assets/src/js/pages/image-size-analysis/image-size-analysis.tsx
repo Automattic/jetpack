@@ -14,6 +14,8 @@ import Header from '$layout/header/header';
 import { isaGroupKeys } from '$features/image-size-analysis/lib/isa-groups';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import styles from './image-size-analysis.module.scss';
+import classNames from 'classnames';
 
 type Props = {
 	isImageCdnModuleActive: boolean;
@@ -42,7 +44,7 @@ const ImageSizeAnalysis = ( { page, group, isImageCdnModuleActive }: Props ) => 
 	return (
 		<div id="jb-dashboard" className="jb-dashboard">
 			<Header subPageTitle={ __( 'Image analysis report', 'jetpack-boost' ) } />
-			<div className="jb-recommendations-page jb-section--alt">
+			<div className={ classNames( styles.page, 'jb-section--alt' ) }>
 				<div className="jb-container">
 					<Hero
 						group={ activeReport }
@@ -60,7 +62,7 @@ const ImageSizeAnalysis = ( { page, group, isImageCdnModuleActive }: Props ) => 
 					/>
 				</div>
 
-				<div className="jb-table-wrap">
+				<div className={ styles[ 'table-wrap' ] }>
 					<Table
 						isaDataLoading={ isaData.isLoading }
 						images={ isaData.data?.images || [] }

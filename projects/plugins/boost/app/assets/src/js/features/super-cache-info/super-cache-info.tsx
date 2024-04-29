@@ -22,7 +22,9 @@ const SuperCacheInfo = () => {
 		z.boolean()
 	);
 
-	const { pluginActive, cacheEnabled } = useSuperCacheDS();
+	const data = useSuperCacheDS();
+	const cacheEnabled = data?.cacheEnabled;
+	const pluginActive = data?.pluginActive;
 	const measureSuperCacheSaving = useMeasureSuperCacheSaving();
 	const [ ref, { height } ] = useMeasure();
 	const animationStyles = useSpring( {

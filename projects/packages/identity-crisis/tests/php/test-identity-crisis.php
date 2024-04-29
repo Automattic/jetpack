@@ -141,31 +141,6 @@ class Test_Identity_Crisis extends BaseTestCase {
 	}
 
 	/**
-	 * Test that should_handle_idc returns true when the legacy JETPACK_SYNC_IDC_OPTIN constant is true.
-	 */
-	public function test_should_handle_idc_true_when_legacy_constant_true() {
-		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', true );
-		$this->assertTrue( Identity_Crisis::should_handle_idc() );
-	}
-
-	/**
-	 * Test that should_handle_idc returns false when the legacy JETPACK_SYNC_IDC_OPTIN constant is false.
-	 */
-	public function test_should_handle_idc_false_when_legacy_constant_false() {
-		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
-		$this->assertFalse( Identity_Crisis::should_handle_idc() );
-	}
-
-	/**
-	 * Test that current JETPACK_SHOULD_HANDLE_IDC constant overrides the legacy JETPACK_SYNC_IDC_OPTIN constant.
-	 */
-	public function test_should_handle_idc_current_constant_overrides_legacy_constant() {
-		Constants::set_constant( 'JETPACK_SHOULD_HANDLE_IDC', true );
-		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
-		$this->assertTrue( Identity_Crisis::should_handle_idc() );
-	}
-
-	/**
 	 * Test that validate_sync_error_idc_option returns false if the sync_error_idc error doesn't exist.
 	 */
 	public function test_sync_error_idc_validation_returns_false_if_no_option() {
@@ -589,7 +564,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 	/**
 	 * Data provider for test_check_response_for_idc_with_error_code
 	 *
-	 * @return The test data with the structure:
+	 * @return array[] The test data with the structure:
 	 *    'input'           => The input for the check_response_for_idc method.
 	 *     'option_updated' => Whether the check_response_for_idc method should update
 	 *                         the sync_error_idc option.
@@ -693,7 +668,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 	/**
 	 * Data provider for test_check_http_response_for_idc_detected_idc_detected.
 	 *
-	 * @return The test data with the structure:
+	 * @return array[] The test data with the structure:
 	 *    'input'           => The input for the check_response_for_idc method.
 	 *     'option_updated' => Whether the check_response_for_idc method should update
 	 *                         the sync_error_idc option.
@@ -1134,5 +1109,38 @@ class Test_Identity_Crisis extends BaseTestCase {
 		foreach ( $result3 as $ip ) {
 			$this->assertNotContains( $expected_ip3, $ip );
 		}
+	}
+
+	/**
+	 * Tests that the identity-crisis package version is added to the package versions array obtained by the
+	 * Package_Version_Tracker.
+	 */
+	public function test_send_package_version_to_tracker_empty_array() {
+		Identity_Crisis::init();
+
+		$expected = array(
+			Identity_Crisis::PACKAGE_SLUG => Identity_Crisis::PACKAGE_VERSION,
+		);
+
+		$this->assertSame( $expected, apply_filters( 'jetpack_package_versions', array() ) );
+	}
+
+	/**
+	 * Tests that the identity-crisis package version is added to the package versions array obtained by the
+	 * Package_Version_Tracker.
+	 */
+	public function test_send_package_version_to_tracker_existing_array() {
+		$existing_array = array(
+			'test-package-slug' => '1.0.0',
+		);
+
+		$expected = array_merge(
+			$existing_array,
+			array( Identity_Crisis::PACKAGE_SLUG => Identity_Crisis::PACKAGE_VERSION )
+		);
+
+		add_filter( 'jetpack_package_versions', 'Automattic\\Jetpack\\Identity_Crisis::send_package_version_to_tracker' );
+
+		$this->assertSame( $expected, apply_filters( 'jetpack_package_versions', $existing_array ) );
 	}
 }

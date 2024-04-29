@@ -1,4 +1,4 @@
-import { store as blockEditorStore } from '@wordpress/block-editor';
+import { store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
 import { Disabled, Placeholder, Spinner } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { select, useSelect } from '@wordpress/data';
@@ -56,10 +56,11 @@ const BLOCK_NAME = 'premium-content';
  * @param { Props } props
  */
 
-function Edit( props ) {
+function Edit( { clientId, isSelected, attributes, setAttributes } ) {
+	const { isPreview, selectedPlanIds } = attributes;
+
 	const [ selectedTab, selectTab ] = useState( tabs[ WALL_TAB ] );
-	const { isPreview, selectedPlanIds } = props.attributes;
-	const { clientId, isSelected, className, setAttributes } = props;
+	const blockProps = useBlockProps();
 
 	const setSelectedProductIds = productIds => setAttributes( { selectedPlanIds: productIds } );
 
@@ -100,7 +101,7 @@ function Edit( props ) {
 	const isSmallViewport = useViewportMatch( 'medium', '<' );
 
 	return (
-		<div className={ className }>
+		<div { ...blockProps }>
 			{ ! isPreview && (
 				<>
 					{ isApiLoading && (

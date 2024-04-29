@@ -11,20 +11,9 @@ export const imageCdnSettingsSchema = z.object( {
 	png: qualityConfigSchema,
 	webp: qualityConfigSchema,
 } );
-
 export type ImageCdnSettings = z.infer< typeof imageCdnSettingsSchema >;
 export type QualityConfig = z.infer< typeof qualityConfigSchema >;
 
-export function useImageCdnQuality(): [ ImageCdnSettings, ( newValue: ImageCdnSettings ) => void ] {
-	const [ { data: imageCdnQuality }, { mutate: setImageCdnQuality } ] = useDataSync(
-		'jetpack_boost_ds',
-		'image_cdn_quality',
-		imageCdnSettingsSchema
-	);
-
-	if ( ! imageCdnQuality ) {
-		throw new Error( 'Image CDN Quality not loaded' );
-	}
-
-	return [ imageCdnQuality, setImageCdnQuality ];
+export function useImageCdnQuality() {
+	return useDataSync( 'jetpack_boost_ds', 'image_cdn_quality', imageCdnSettingsSchema );
 }

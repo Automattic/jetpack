@@ -4,7 +4,6 @@ import {
 	Button,
 	Flex,
 	FlexBlock,
-	PanelRow,
 	RadioControl,
 	Spinner,
 	VisuallyHidden,
@@ -276,25 +275,23 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 							</div>
 						</>
 					) }
-					<PanelRow>
-						<Flex direction="column">
-							{ showMisconfigurationWarning && <MisconfigurationWarning /> }
-							<FlexBlock direction="row" justify="flex-start">
-								{ canEdit && (
-									<NewsletterAccessRadioButtons
-										isEditorPanel={ true }
-										accessLevel={ _accessLevel }
-										stripeConnectUrl={ stripeConnectUrl }
-										hasTierPlans={ hasTierPlans }
-										postHasPaywallBlock={ foundPaywallBlock }
-									/>
-								) }
+					<Flex direction="column">
+						{ showMisconfigurationWarning && <MisconfigurationWarning /> }
+						<FlexBlock direction="row" justify="flex-start">
+							{ canEdit && (
+								<NewsletterAccessRadioButtons
+									isEditorPanel={ true }
+									accessLevel={ _accessLevel }
+									stripeConnectUrl={ stripeConnectUrl }
+									hasTierPlans={ hasTierPlans }
+									postHasPaywallBlock={ foundPaywallBlock }
+								/>
+							) }
 
-								{ /* Display the uneditable access level when the user doesn't have edit privileges*/ }
-								{ ! canEdit && <span>{ accessLabel }</span> }
-							</FlexBlock>
-						</Flex>
-					</PanelRow>
+							{ /* Display the uneditable access level when the user doesn't have edit privileges*/ }
+							{ ! canEdit && <span>{ accessLabel }</span> }
+						</FlexBlock>
+					</Flex>
 				</>
 			) }
 		/>

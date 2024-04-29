@@ -96,66 +96,55 @@ function zeroBSCRM_mailTemplate_emailPreview($templateID=-1){
 
 			$i=0;
 
-			$logoURL = '';
+			$logo_url = '';
 			##WLREMOVE
-			$logoURL = $zbs->urls['crm-logo'];
+			$logo_url = $zbs->urls['crm-logo'];
 			##/WLREMOVE
 
 
-			$tableHeaders = '';
+			$lineitems = array(
+				array(
+					'title'    => __( 'Your Invoice Item', 'zero-bs-crm' ),
+					'desc'     => __( 'Your invoice item description goes here', 'zero-bs-crm' ),
+					'quantity' => 5,
+					'price'    => 20,
+					'net'      => 100,
+				),
+				array(
+					'title'    => __( 'Another Item', 'zero-bs-crm' ),
+					'desc'     => __( 'Some other description', 'zero-bs-crm' ),
+					'quantity' => 3,
+					'price'    => 17,
+					'net'      => 51,
+				),
+			);
 
-				$zbsInvoiceHorQ = 'quantity';
+			$lineitems_header_html = zeroBSCRM_invoicing_generateInvPart_tableHeaders( 1 );
+			$lineitem_html         = zeroBSCRM_invoicing_generateInvPart_lineitems( $lineitems );
 
-				if($zbsInvoiceHorQ == 'quantity'){ 
-				
-					$tableHeaders = '<th class="left">'.__("Description",'zero-bs-crm').'</th><th>'.__("Quantity",'zero-bs-crm').'</th><th>'.__("Price",'zero-bs-crm').'</th><th>'.__("Total",'zero-bs-crm').'</th>';
+			$replacements['title']         = __( 'Invoice Template', 'zero-bs-crm' );
+			$replacements['invoice-title'] = __( 'Invoice', 'zero-bs-crm' );
+			$replacements['logo-url']      = esc_url( $logo_url );
 
-				}else{ 
+			$inv_number   = '2468';
+			$inv_date_str = jpcrm_uts_to_date_str( 1931212800, false, true );
+			$ref          = '920592qz-42';
 
-					$tableHeaders = '<th class="left">'.__("Description",'zero-bs-crm').'</th><th>'.__("Hours",'zero-bs-crm').'</th><th>'.__("Rate",'zero-bs-crm').'</th><th>'.__("Total",'zero-bs-crm').'</th>';
+			$totals_table = '';
 
-				}
-
-			$lineItems = "";
-			$lineItems .= 
-			'<tbody class="zbs-item-block" data-tableid="'.$i.'" id="tblock'.$i.'">
-					<tr class="top-row">
-						<td style="width:70%">'.__('Your Invoice Item','zero-bs-crm').'</td>
-						<td style="width:7.5%;text-align:center;" rowspan="3" class="cen">10</td>
-						<td style="width:7.5%;text-align:center;" rowspan="3"class="cen">$20</td>
-						<td style="width:7.5%;text-align:right;" rowspan="3" class="row-amount">$200</td>
-					</tr>
-					<tr class="bottom-row">
-						<td colspan="4" class="tapad">'.__('Your invoice item description goes here','zero-bs-crm').'</td>     
-					</tr>
-					<tr class="add-row"></tr>
-			</tbody>';  
-
-
-			$replacements['title'] = __('Invoice Template','zero-bs-crm');
-			$replacements['invoice-title'] = __('Invoice','zero-bs-crm');
-			$replacements['logo-url'] = esc_url( $logoURL );
-
-			$invNoStr = "101";
-			$invDateStr = "01/01/3001";
-			$ref = "ABC";
-			$dueDateStr = "01/01/3001";
-
-			$totalsTable = "";
-
-			$bizInfoTable = "";
+			$biz_info_table = '';
 			##WLREMOVE
-			$bizInfoTable = '<div style="text-align:right"><b>John Doe</b><br/>' . __( 'This is replaced<br>with the contacts details<br>from their profile.', 'zero-bs-crm' ) . '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase	
+			$biz_info_table = '<div style="text-align:right"><b>John Doe</b><br/>' . __( 'This is replaced<br>with the contacts details<br>from their profile.', 'zero-bs-crm' ) . '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase	
 			##/WLREMOVE
 
-			$replacements['invoice-number'] = $invNoStr;
-			$replacements['invoice-date'] = $invDateStr;
-			$replacements['invoice-ref'] = $ref;
-			$replacements['invoice-due-date'] = $dueDateStr;
-			$replacements['invoice-table-headers'] = $tableHeaders;
-			$replacements['invoice-line-items'] = $lineItems;
-			$replacements['invoice-totals-table'] = $totalsTable;
-			$replacements['biz-info'] = $bizInfoTable;
+			$replacements['invoice-number']        = $inv_number;
+			$replacements['invoice-date']          = $inv_date_str;
+			$replacements['invoice-ref']           = $ref;
+			$replacements['invoice-due-date']      = $inv_date_str;
+			$replacements['invoice-table-headers'] = $lineitems_header_html;
+			$replacements['invoice-line-items']    = $lineitem_html;
+			$replacements['invoice-totals-table']  = $totals_table;
+			$replacements['biz-info']              = $biz_info_table;
 
 			$viewInPortal = '';
 			$invoiceID = '';

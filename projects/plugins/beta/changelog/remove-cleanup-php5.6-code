@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Use `( function() {} )();` now that we no longer support PHP 5.6.
-
-

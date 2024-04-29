@@ -2,13 +2,14 @@ import { Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chevronDown, external, check } from '@wordpress/icons';
 import cs from 'classnames';
-import React, { useCallback, useState, useEffect, useMemo } from 'react';
-import { useProduct } from '../../hooks/use-product';
+import { useCallback, useState, useEffect, useMemo } from 'react';
+import useProduct from '../../data/products/use-product';
 import styles from './style.module.scss';
 
 export const PRODUCT_STATUSES = {
 	ACTIVE: 'active',
 	INACTIVE: 'inactive',
+	MODULE_DISABLED: 'module_disabled',
 	ERROR: 'error',
 	ABSENT: 'plugin_absent',
 	ABSENT_WITH_PLAN: 'plugin_absent_with_plan',
@@ -24,13 +25,14 @@ const ActionButton = ( {
 	slug,
 	onActivate,
 	additionalActions,
+	primaryActionOverride,
 	onManage,
 	onFixConnection,
 	isFetching,
 	isInstallingStandalone,
-	isDeactivatingStandalone,
 	className,
 	onAdd,
+	onInstall,
 	onLearnMore,
 	upgradeInInterstitial,
 } ) => {
@@ -40,7 +42,7 @@ const ActionButton = ( {
 	const { manageUrl, purchaseUrl } = detail;
 	const isManageDisabled = ! manageUrl;
 
-	const isBusy = isFetching || isInstallingStandalone || isDeactivatingStandalone;
+	const isBusy = isFetching || isInstallingStandalone;
 	const hasAdditionalActions = additionalActions?.length > 0;
 
 	const buttonState = useMemo( () => {
@@ -53,8 +55,7 @@ const ActionButton = ( {
 
 	const getStatusAction = useCallback( () => {
 		switch ( status ) {
-			case PRODUCT_STATUSES.ABSENT:
-			case PRODUCT_STATUSES.ABSENT_WITH_PLAN: {
+			case PRODUCT_STATUSES.ABSENT: {
 				const buttonText = __( 'Learn more', 'jetpack-my-jetpack' );
 				return {
 					...buttonState,
@@ -64,6 +65,24 @@ const ActionButton = ( {
 					weight: 'regular',
 					label: buttonText,
 					onClick: onLearnMore,
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.ABSENT in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.ABSENT ] ),
+				};
+			}
+			case PRODUCT_STATUSES.ABSENT_WITH_PLAN: {
+				const buttonText = __( 'Install Plugin', 'jetpack-my-jetpack' );
+				return {
+					...buttonState,
+					href: '',
+					size: 'small',
+					variant: 'primary',
+					weight: 'regular',
+					label: buttonText,
+					onClick: onInstall,
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.ABSENT_WITH_PLAN in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.ABSENT_WITH_PLAN ] ),
 				};
 			}
 			case PRODUCT_STATUSES.NEEDS_PURCHASE: {
@@ -75,6 +94,9 @@ const ActionButton = ( {
 					weight: 'regular',
 					label: __( 'Learn more', 'jetpack-my-jetpack' ),
 					onClick: onAdd,
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.NEEDS_PURCHASE in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_PURCHASE ] ),
 				};
 			}
 			case PRODUCT_STATUSES.CAN_UPGRADE: {
@@ -90,6 +112,9 @@ const ActionButton = ( {
 					weight: 'regular',
 					label: buttonText,
 					onClick: onAdd,
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.CAN_UPGRADE in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.CAN_UPGRADE ] ),
 				};
 			}
 			case PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE:
@@ -101,6 +126,9 @@ const ActionButton = ( {
 					weight: 'regular',
 					label: __( 'Learn more', 'jetpack-my-jetpack' ),
 					onClick: onAdd,
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE ] ),
 				};
 			case PRODUCT_STATUSES.ACTIVE: {
 				const buttonText = __( 'View', 'jetpack-my-jetpack' );
@@ -114,6 +142,9 @@ const ActionButton = ( {
 					weight: 'regular',
 					label: buttonText,
 					onClick: onManage,
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.ACTIVE in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.ACTIVE ] ),
 				};
 			}
 			case PRODUCT_STATUSES.ERROR:
@@ -125,8 +156,12 @@ const ActionButton = ( {
 					weight: 'regular',
 					label: __( 'Fix connection', 'jetpack-my-jetpack' ),
 					onClick: onFixConnection,
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.ERROR in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.ERROR ] ),
 				};
 			case PRODUCT_STATUSES.INACTIVE:
+			case PRODUCT_STATUSES.MODULE_DISABLED:
 				return {
 					...buttonState,
 					href: '',
@@ -135,23 +170,28 @@ const ActionButton = ( {
 					weight: 'regular',
 					label: __( 'Activate', 'jetpack-my-jetpack' ),
 					onClick: onActivate,
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.INACTIVE in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.INACTIVE ] ),
 				};
 			default:
 				return null;
 		}
 	}, [
+		status,
 		buttonState,
-		isManageDisabled,
-		manageUrl,
-		onActivate,
+		slug,
 		onAdd,
 		onFixConnection,
-		onManage,
+		onActivate,
+		onInstall,
 		onLearnMore,
 		purchaseUrl,
-		slug,
-		status,
 		upgradeInInterstitial,
+		isManageDisabled,
+		manageUrl,
+		onManage,
+		primaryActionOverride,
 	] );
 
 	const allActions = useMemo(

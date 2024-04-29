@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-WooCommerce Analytics: Resolve warning when enqueuing analytics script.

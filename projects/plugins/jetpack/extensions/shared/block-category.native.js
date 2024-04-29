@@ -12,11 +12,11 @@ if ( hostApp === 'WordPress' ) {
 }
 
 setCategories( [
-	...getCategories().filter( ( { slug } ) => slug !== 'earn' ),
-	// Add a Earn block category
+	...getCategories().filter( ( { slug } ) => slug !== 'monetize' ),
+	// Add a Monetize block category
 	{
-		slug: 'earn',
-		title: __( 'Earn', 'jetpack' ),
+		slug: 'monetize',
+		title: __( 'Monetize', 'jetpack' ),
 		icon: <JetpackLogo />,
 	},
 ] );

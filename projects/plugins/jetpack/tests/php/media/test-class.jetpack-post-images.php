@@ -41,6 +41,35 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test image size extract in src filename
+	 *
+	 * @covers Jetpack_PostImages::from_html
+	 */
+	public function test_from_html_size() {
+		$s = "<img src='img-2300x1300.jpg' />";
+
+		$result = Jetpack_PostImages::from_html( $s );
+
+		$this->assertIsArray( $result );
+		$this->assertNotEmpty( $result );
+		$this->assertEquals( 2300, $result[0]['src_width'] );
+		$this->assertEquals( 1300, $result[0]['src_height'] );
+	}
+
+	/**
+	 * Test ignoring unrealistic image sizes from src filename
+	 *
+	 * @covers Jetpack_PostImages::from_html
+	 */
+	public function test_from_html_no_size() {
+		$s = "<img src='img-851958915511220x220.jpg' />";
+
+		$result = Jetpack_PostImages::from_html( $s );
+
+		$this->assertEquals( array(), $result );
+	}
+
+	/**
 	 * @author scotchfield
 	 * @covers Jetpack_PostImages::from_slideshow
 	 * @since 3.2
@@ -307,7 +336,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	public function test_from_image_block_from_post_id_is_array() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		$post_info = $this->get_post_with_image_block();
@@ -326,7 +355,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	public function test_from_image_block_from_post_id_is_correct_array() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		$post_info = $this->get_post_with_image_block();
@@ -348,7 +377,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	public function test_from_image_block_from_html_is_empty_array() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		$html = '<!-- wp:image --><div class="wp-block-image"><figure class="wp-block-image"><img src="https://example.com/image.jpg" alt=""/></figure></div><!-- /wp:image -->';
@@ -434,7 +463,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	public function test_from_gallery_block_from_post_id_is_correct_array() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		$post_info = $this->get_post_with_gallery_block();
@@ -528,7 +557,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	public function test_from_columns_block_from_post_id_is_array() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		$post_info = $this->get_post_with_columns_block();
@@ -548,7 +577,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	public function test_from_columns_block_from_post_id_is_correct_array() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		$post_info = $this->get_post_with_columns_block();
@@ -570,7 +599,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	public function test_from_columns_block_from_html_is_empty_array() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		$html = '<!-- wp:columns --><div class="wp-block-columns has-2-columns"><!-- wp:column --><div class="wp-block-column"><!-- wp:image --><figure class="wp-block-image"><img src="https://example.com/image.jpg" alt=""/></figure><!-- /wp:image --></div><!-- /wp:column --><!-- wp:column --><div class="wp-block-column"><!-- wp:paragraph --><p>Some text</p><!-- /wp:paragraph --></div><!-- /wp:column --></div><!-- /wp:columns -->';
@@ -699,7 +728,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	public function test_from_story_block_from_post_id_is_correct_array_no_videopress() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		$media_types = array( 'image', 'video' );
@@ -725,7 +754,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	public function test_from_story_block_from_post_id_is_correct_array_videopress() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		$media_types = array( 'image', 'videopress' );
@@ -753,7 +782,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	public function test_from_story_block_from_post_id_is_correct_array_videopress_wpcom() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		$media_types = array( 'image', 'videopress' );

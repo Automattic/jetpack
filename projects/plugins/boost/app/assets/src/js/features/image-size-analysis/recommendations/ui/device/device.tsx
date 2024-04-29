@@ -1,4 +1,6 @@
 import React from 'react';
+import styles from './device.module.scss';
+
 type DeviceType = 'desktop' | 'phone';
 
 interface DeviceIconProps {
@@ -7,10 +9,10 @@ interface DeviceIconProps {
 
 const DeviceIcon: React.FC< DeviceIconProps > = ( { device } ) => {
 	return (
-		<div className="jb-device-icon">
+		<div className={ styles.icon }>
 			{ device === 'desktop' && (
 				<svg
-					className="jb-device-icon__svg--desktop"
+					className={ styles.desktop }
 					width="20"
 					height="12"
 					viewBox="0 0 20 12"
@@ -28,7 +30,7 @@ const DeviceIcon: React.FC< DeviceIconProps > = ( { device } ) => {
 
 			{ device === 'phone' && (
 				<svg
-					className="jb-device-icon__svg--phone"
+					className={ styles.phone }
 					width="10"
 					height="16"
 					viewBox="0 0 10 16"

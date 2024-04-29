@@ -23,9 +23,14 @@ const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 		);
 	}
 
-	const [ imageCdnQuality, setImageCdnQuality ] = useImageCdnQuality();
+	const [ query, mutation ] = useImageCdnQuality();
+	const imageCdnQuality = query?.data;
+	const setImageCdnQuality = mutation.mutate;
 
 	const setQuality = ( format: 'jpg' | 'png' | 'webp', newValue: number ) => {
+		if ( ! setImageCdnQuality || ! imageCdnQuality ) {
+			return;
+		}
 		setImageCdnQuality( {
 			...imageCdnQuality,
 			[ format ]: {
@@ -36,6 +41,9 @@ const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 	};
 
 	const setLossless = ( format: 'jpg' | 'png' | 'webp', newValue: boolean ) => {
+		if ( ! setImageCdnQuality || ! imageCdnQuality ) {
+			return;
+		}
 		setImageCdnQuality( {
 			...imageCdnQuality,
 			[ format ]: {
@@ -46,37 +54,39 @@ const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 	};
 
 	return (
-		<CollapsibleMeta
-			editText={ __( 'Change Image Quality', 'jetpack-boost' ) }
-			closeEditText={ __( 'Close', 'jetpack-boost' ) }
-			header={ <Header /> }
-			summary={ <Summary imageCdnQuality={ imageCdnQuality } /> }
-		>
-			<QualityControl
-				label={ __( 'JPEG', 'jetpack-boost' ) }
-				maxValue={ 89 }
-				quality={ imageCdnQuality.jpg.quality }
-				lossless={ imageCdnQuality.jpg.lossless }
-				setQuality={ value => setQuality( 'jpg', value ) }
-				setLossless={ value => setLossless( 'jpg', value ) }
-			/>
-			<QualityControl
-				label={ __( 'PNG', 'jetpack-boost' ) }
-				maxValue={ 80 }
-				quality={ imageCdnQuality.png.quality }
-				lossless={ imageCdnQuality.png.lossless }
-				setQuality={ value => setQuality( 'png', value ) }
-				setLossless={ value => setLossless( 'png', value ) }
-			/>
-			<QualityControl
-				label={ __( 'WEBP', 'jetpack-boost' ) }
-				maxValue={ 80 }
-				quality={ imageCdnQuality.webp.quality }
-				lossless={ imageCdnQuality.webp.lossless }
-				setQuality={ value => setQuality( 'webp', value ) }
-				setLossless={ value => setLossless( 'webp', value ) }
-			/>
-		</CollapsibleMeta>
+		imageCdnQuality && (
+			<CollapsibleMeta
+				editText={ __( 'Change Image Quality', 'jetpack-boost' ) }
+				closeEditText={ __( 'Close', 'jetpack-boost' ) }
+				header={ <Header /> }
+				summary={ <Summary imageCdnQuality={ imageCdnQuality } /> }
+			>
+				<QualityControl
+					label={ __( 'JPEG', 'jetpack-boost' ) }
+					maxValue={ 89 }
+					quality={ imageCdnQuality.jpg.quality }
+					lossless={ imageCdnQuality.jpg.lossless }
+					setQuality={ value => setQuality( 'jpg', value ) }
+					setLossless={ value => setLossless( 'jpg', value ) }
+				/>
+				<QualityControl
+					label={ __( 'PNG', 'jetpack-boost' ) }
+					maxValue={ 80 }
+					quality={ imageCdnQuality.png.quality }
+					lossless={ imageCdnQuality.png.lossless }
+					setQuality={ value => setQuality( 'png', value ) }
+					setLossless={ value => setLossless( 'png', value ) }
+				/>
+				<QualityControl
+					label={ __( 'WEBP', 'jetpack-boost' ) }
+					maxValue={ 80 }
+					quality={ imageCdnQuality.webp.quality }
+					lossless={ imageCdnQuality.webp.lossless }
+					setQuality={ value => setQuality( 'webp', value ) }
+					setLossless={ value => setLossless( 'webp', value ) }
+				/>
+			</CollapsibleMeta>
+		)
 	);
 };
 

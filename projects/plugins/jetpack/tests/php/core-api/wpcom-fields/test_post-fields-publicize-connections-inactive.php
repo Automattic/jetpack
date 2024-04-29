@@ -99,7 +99,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field_Inactive extends W
 
 	public function test_register_fields_posts() {
 		$this->markTestSkipped();
-
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/posts' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
@@ -110,6 +110,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field_Inactive extends W
 
 	public function test_register_fields_custom_post_type_with_custom_fields_support() {
 		$this->markTestSkipped();
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/example-with' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
@@ -123,6 +124,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field_Inactive extends W
 
 	public function test_register_fields_custom_post_type_without_custom_fields_support() {
 		$this->markTestSkipped();
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/example-without' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
@@ -136,6 +138,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field_Inactive extends W
 
 	public function test_response() {
 		$this->markTestSkipped();
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		$request  = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();

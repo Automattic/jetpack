@@ -10,6 +10,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
+use Automattic\Jetpack\Publicize\Publicize;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Listener;
@@ -1735,7 +1736,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			WP_CLI::error( __( 'Jetpack is currently in offline mode, so the Jetpack Social module will not load.', 'jetpack' ) );
 		}
 
-		if ( ! class_exists( 'Publicize' ) ) {
+		if ( ! class_exists( Publicize::class ) ) {
 			WP_CLI::error( __( 'The Jetpack Social module is not loaded.', 'jetpack' ) );
 		}
 
@@ -1902,6 +1903,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * Log and exit on a partner provision error.
 	 *
 	 * @param WP_Error $error Error.
+	 * @return never
 	 */
 	private function partner_provision_error( $error ) {
 		WP_CLI::log(

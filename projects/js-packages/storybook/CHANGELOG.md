@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.4.1 - 2024-02-07
+### Added
+- Add AI Client icon components [#32079]
+- Added boost back to storybook [#34180]
+- Storybook: register ./extensions folder of the Jetpack plugin project [#33771]
+
+### Changed
+- Boost: Updated storybook configuration to allow scss imports in boost stories. [#32690]
+- Jetpack Boost: Remove Jetpack Boost stories while in the React refactor [#34103]
+- Updated package dependencies.
+
+### Fixed
+- Storybook: remove Jetpack plugin from deps to fix builds in trunk [#33784]
+
 ## 0.4.0 - 2023-07-06
 ### Added
 - Import root styles from js-packages to load root variables used by components [#30037]

@@ -190,6 +190,7 @@ class REST_Products {
 			$activate_product_result->add_data( array( 'status' => 400 ) );
 			return $activate_product_result;
 		}
+		set_transient( 'my_jetpack_product_activated', $product_slug, 10 );
 
 		return rest_ensure_response( Products::get_product( $product_slug ), 200 );
 	}
@@ -234,17 +235,6 @@ class REST_Products {
 				'not_implemented',
 				__( 'The product class handler is not implemented', 'jetpack-my-jetpack' ),
 				array( 'status' => 501 )
-			);
-		}
-
-		/**
-		 * If the product is not hybrid, there is no need to deal with a standalone plugin.
-		 */
-		if ( ! is_subclass_of( $product['class'], Hybrid_Product::class ) ) {
-			return new \WP_Error(
-				'not_hybrid',
-				__( 'This product does not have a standalone plugin to install', 'jetpack-my-jetpack' ),
-				array( 'status' => 400 )
 			);
 		}
 

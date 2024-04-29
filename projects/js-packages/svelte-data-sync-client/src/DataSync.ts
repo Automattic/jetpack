@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { ApiError } from './ApiError';
-import type { ParsedValue } from './types';
-import type { JSONSchema } from './utils';
+import { ApiError } from './ApiError.js';
+import type { ParsedValue } from './types.js';
+import type { JSONSchema } from './utils.js';
 
 type RequestParams = string | JSONSchema;
 type RequestMethods = 'GET' | 'POST' | 'DELETE';

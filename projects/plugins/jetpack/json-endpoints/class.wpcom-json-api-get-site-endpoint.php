@@ -206,7 +206,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'can_blaze',
 		'wpcom_site_setup',
 		'is_commercial',
+		'is_commercial_reasons',
 		'wpcom_admin_interface',
+		'wpcom_classic_early_release',
 	);
 
 	/**
@@ -266,7 +268,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'wpcom_production_blog_id',
 		'wpcom_staging_blog_ids',
 		'is_commercial',
+		'is_commercial_reasons',
 		'wpcom_admin_interface',
+		'wpcom_classic_early_release',
 	);
 
 	/**
@@ -889,8 +893,14 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'is_commercial':
 					$options[ $key ] = $site->is_commercial();
 					break;
+				case 'is_commercial_reasons':
+					$options[ $key ] = $site->get_is_commercial_reasons();
+					break;
 				case 'wpcom_admin_interface':
 					$options[ $key ] = $site->get_wpcom_admin_interface();
+					break;
+				case 'wpcom_classic_early_release':
+					$options[ $key ] = $site->get_wpcom_classic_early_release();
 					break;
 			}
 		}

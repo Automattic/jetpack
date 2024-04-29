@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Exclude new `WordPress.Security.EscapeOutput.ExceptionNotEscaped` sniff. https://core.trac.wordpress.org/ticket/59282 is the correct way to fix the underlying issue it's trying to avoid, this would cause other problems.

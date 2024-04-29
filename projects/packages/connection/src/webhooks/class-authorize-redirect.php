@@ -18,11 +18,17 @@ use Jetpack_Network;
  * Authorize_Redirect Webhook handler class.
  */
 class Authorize_Redirect {
+	/**
+	 * The Connection Manager object.
+	 *
+	 * @var \Automattic\Jetpack\Connection\Manager
+	 */
+	private $connection;
 
 	/**
 	 * Constructs the object
 	 *
-	 * @param Automattic\Jetpack\Connection\Manager $connection The Connection Manager object.
+	 * @param \Automattic\Jetpack\Connection\Manager $connection The Connection Manager object.
 	 */
 	public function __construct( $connection ) {
 		$this->connection = $connection;
@@ -32,6 +38,8 @@ class Authorize_Redirect {
 	 * Handle the webhook
 	 *
 	 * This method implements what's in Jetpack::admin_page_load when the Jetpack plugin is not present
+	 *
+	 * @return never
 	 */
 	public function handle() {
 

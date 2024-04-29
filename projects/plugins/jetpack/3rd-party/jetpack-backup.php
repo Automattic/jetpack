@@ -31,6 +31,8 @@ if ( isset( $_GET['jetpack-backup-action'] ) ) { // phpcs:ignore WordPress.Secur
  * Verify the intent to install Jetpack Backup, and kick off installation.
  *
  * This works in tandem with a JITM set up in the JITM package.
+ *
+ * @return never
  */
 function try_install() {
 	check_admin_referer( 'jetpack-backup-install' );
@@ -95,9 +97,11 @@ function activate() {
  * Notify the user that the installation of Jetpack Backup failed.
  */
 function error_notice() {
-	?>
-	<div class="notice notice-error is-dismissible">
-		<p><?php esc_html_e( 'There was an error installing Jetpack Backup. Please try again.', 'jetpack' ); ?></p>
-	</div>
-	<?php
+	wp_admin_notice(
+		esc_html__( 'There was an error installing Jetpack Backup. Please try again.', 'jetpack' ),
+		array(
+			'type'        => 'error',
+			'dismissible' => true,
+		)
+	);
 }

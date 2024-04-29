@@ -3,6 +3,8 @@ import { recordBoostEvent } from '$lib/utils/analytics';
 import type { IsaCounts } from '$features/image-size-analysis';
 import { useNavigate, Link } from 'react-router-dom';
 import { getGroupLabel, isaGroupKeys } from '$features/image-size-analysis/lib/isa-groups';
+import styles from './tabs.module.scss';
+import classNames from 'classnames';
 
 interface TabsProps {
 	currentTab?: IsaCounts;
@@ -32,36 +34,37 @@ const Tabs: React.FC< TabsProps > = ( {
 		imageDataGroupTabs &&
 		activeGroupKey && (
 			<div>
-				<div className="jb-dropdown">
+				<div className={ styles.dropdown }>
 					{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
-					<div className="jb-dropdown__head-bar" onClick={ onClickDropdown }>
-						{ getGroupLabel( activeGroupKey ) }
+					<div className={ styles[ 'head-bar' ] } onClick={ onClickDropdown }>
+						{ getGroupLabel( activeGroupKey ) }{ ' ' }
 						{ currentTab && currentTab.issue_count > 0 && (
-							<span className="jb-dropdown__issues">{ currentTab.issue_count }</span>
+							<span className={ styles.issues }>{ currentTab.issue_count }</span>
 						) }
 						<span className="dashicons dashicons-arrow-down-alt2" />
 					</div>
 
 					{ dropdownOpen && (
-						<ul className="jb-dropdown__options">
+						<ul className={ styles.options }>
 							{ Object.entries( imageDataGroupTabs ).map( ( [ group, details ] ) => (
 								// eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
 								<li
 									key={ group }
-									className={ `jb-dropdown__item ${ details.issue_count > 0 ? 'active' : '' } ${
-										activeGroupKey === group ? 'selected' : ''
-									}` }
+									className={ classNames( styles.item, {
+										[ styles.active ]: details.issue_count,
+										[ styles.selected ]: activeGroupKey === group,
+									} ) }
 									onClick={ () => details.issue_count > 0 && selectGroup( group ) }
 								>
-									{ getGroupLabel( group ) }
-									<span className="jb-dropdown__issues">{ details.issue_count }</span>
+									{ getGroupLabel( group ) }{ ' ' }
+									<span className={ styles.issues }>{ details.issue_count }</span>
 								</li>
 							) ) }
 						</ul>
 					) }
 				</div>
 
-				<div className="jb-tabs">
+				<div className={ styles.tabs }>
 					{ Object.entries( imageDataGroupTabs ).map( ( [ group, details ] ) => {
 						const label = getGroupLabel( group );
 						const issues = details.issue_count;
@@ -69,14 +72,14 @@ const Tabs: React.FC< TabsProps > = ( {
 						return (
 							<div
 								key={ group }
-								className={ `jb-tab jb-tab--${ group } ${
-									activeGroupKey === group ? 'active' : ''
-								}` }
+								className={ classNames( styles.tab, {
+									[ styles.active ]: activeGroupKey === group,
+								} ) }
 							>
-								<div className="jb-tab__header">
+								<div className={ styles.header }>
 									{ issues > 0 ? (
 										<Link
-											className="jb-navigator-link"
+											className={ styles.link }
 											to={ `/image-size-analysis/${ group }/1` }
 											onClick={ () => {
 												recordBoostEvent( 'clicked_isa_report_group', { group } );
@@ -87,7 +90,7 @@ const Tabs: React.FC< TabsProps > = ( {
 											<span>{ issues }</span>
 										</Link>
 									) : (
-										<div className="jb-navigator-link jb-navigator-link--inactive">
+										<div className={ classNames( styles.link, styles.inactive ) }>
 											{ label }
 											<span>{ issues }</span>
 										</div>

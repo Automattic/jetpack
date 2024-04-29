@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-BREAKING: Drop support for PHP 5.6. `testVersion` should be set to `7.0-`.

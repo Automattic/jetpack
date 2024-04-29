@@ -19,8 +19,14 @@ export type Period = {
 	};
 };
 
+export type Annotation = {
+	timestamp: number;
+	text: string;
+};
+
 export type PerformanceHistoryData = {
 	periods: Period[];
+	annotations: Annotation[];
 	startDate: number;
 	endDate: number;
 };

@@ -201,6 +201,9 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @return array
 	 */
 	public function expand_order_object( $args ) {
+		if ( ! is_array( $args ) || ! isset( $args[0] ) ) {
+			return false;
+		}
 		$order_object = $args[0];
 
 		if ( is_int( $order_object ) ) {
@@ -250,6 +253,18 @@ class WooCommerce_HPOS_Orders extends Module {
 			if ( in_array( $key_parts[0], array( 'billing', 'shipping' ), true ) && 2 === count( $key_parts ) ) {
 				if ( isset( $order_data[ $key_parts[0] ][ $key_parts[1] ] ) ) {
 					$filtered_order_data[ $key ] = $order_data[ $key_parts[0] ][ $key_parts[1] ];
+					continue;
+				}
+			}
+
+			/**
+			 * We need to convert the WC_DateTime objects to stdClass objects to ensure they are properly encoded.
+			 *
+			 * @see Automattic\Jetpack\Sync\Functions::json_wrap as the return value of get_object_vars can vary depending on PHP version.
+			 */
+			if ( in_array( $key, array( 'date_created', 'date_modified', 'date_paid', 'date_completed' ), true ) ) {
+				if ( is_a( $order_data[ $key ], 'WC_DateTime' ) ) {
+					$filtered_order_data[ $key ] = (object) (array) $order_data[ $key ];
 					continue;
 				}
 			}

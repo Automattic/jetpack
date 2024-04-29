@@ -884,6 +884,10 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			),
 		);
 
+		if ( ! is_multisite() ) {
+			$expected_array['jetpack/jetpack.php']['My Jetpack'] = admin_url( 'admin.php?page=my-jetpack' );
+		}
+
 		$this->assertEquals( $expected_array, $this->extract_plugins_we_are_testing( $plugins_action_links ) );
 
 		$helper_all->array_override = array( '<a href="not-fun.php">not fun</a>' );

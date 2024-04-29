@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Tasks: run the Board update task before other tasks.

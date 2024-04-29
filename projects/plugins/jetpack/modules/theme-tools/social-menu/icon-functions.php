@@ -175,6 +175,7 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 			'skype.com'         => 'skype',
 			'skype:'            => 'skype',
 			'slideshare.net'    => 'slideshare',
+			'sms:'              => 'sms',
 			'snapchat.com'      => 'snapchat',
 			'soundcloud.com'    => 'soundcloud',
 			'spotify.com'       => 'spotify',

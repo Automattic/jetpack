@@ -1,17 +1,17 @@
 /**
  * External dependencies
  */
-import { useCallback, useContext, useEffect } from '@wordpress/element';
+import { useCallback, useContext, useEffect } from 'react';
 /**
  * Internal dependencies
  */
-import { ERROR_RESPONSE, RequestingErrorProps } from '../types';
-import { AiDataContext } from '.';
+import { ERROR_RESPONSE, RequestingErrorProps } from '../types.js';
+import { AiDataContext } from './index.js';
 /**
  * Types & constants
  */
-import type { AiDataContextProps } from './context';
-import type { AskQuestionOptionsArgProps } from '../ask-question';
+import type { AiDataContextProps } from './context.js';
+import type { AskQuestionOptionsArgProps } from '../ask-question/index.js';
 
 export type UseAiContextOptions = {
 	/*
@@ -48,7 +48,7 @@ export default function useAiContext( {
 	onSuggestion,
 	onError,
 }: UseAiContextOptions = {} ): AiDataContextProps {
-	const context = useContext( AiDataContext );
+	const context = useContext( AiDataContext ) as AiDataContextProps;
 	const { eventSource } = context;
 
 	const done = useCallback( ( event: CustomEvent ) => onDone?.( event?.detail ), [ onDone ] );

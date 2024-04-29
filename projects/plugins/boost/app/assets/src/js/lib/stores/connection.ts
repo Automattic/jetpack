@@ -60,7 +60,7 @@ export const useConnection = () => {
 	const [ { refetch: reloadModules } ] = useModulesState();
 
 	return {
-		connection: connection as ConnectionSchema,
+		connection,
 		initializeConnection: useCallback( async () => {
 			if ( connection?.connected ) {
 				return;

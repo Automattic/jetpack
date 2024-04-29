@@ -36,33 +36,6 @@ function render_block( $attr, $content ) {
 	if ( ! jetpack_is_frontend() ) {
 		return '';
 	}
+
 	return $content;
 }
-
-/**
- * Add the services list to the block
- */
-function add_sharing_buttons_block_data() {
-	$services = array(
-		'print',
-		'facebook',
-		'linkedin',
-		'mail',
-		'mastodon',
-		'pinterest',
-		'pocket',
-		'reddit',
-		'telegram',
-		'tumblr',
-		'whatsapp',
-		'x',
-		'nextdoor',
-	);
-
-	wp_add_inline_script(
-		'jetpack-block-sharing-button',
-		'var jetpack_sharing_buttons_services = ' . wp_json_encode( $services, JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
-		'before'
-	);
-}
-add_action( 'enqueue_block_assets', __NAMESPACE__ . '\add_sharing_buttons_block_data' );

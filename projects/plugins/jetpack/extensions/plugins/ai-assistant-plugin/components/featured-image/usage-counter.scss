@@ -1,0 +1,19 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.ai-assistant-featured-image__usage-counter {
+	color: var(--studio-gray-50, #646970);
+	font-size: 1em;
+	display: flex;
+	flex-direction: column;
+
+	& > span {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 8px;
+	}
+
+	&-no-limit {
+		color: red;
+	}
+}

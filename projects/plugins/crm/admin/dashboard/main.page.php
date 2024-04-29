@@ -72,7 +72,7 @@ function jpcrm_render_dashboard_page() {
 			'count'          => $count,
 			'backfill_count' => $backfill_count,
 			'contact_status' => $contact_status,
-			'link'           => false,
+			'link'           => jpcrm_esc_link( $zbs->slugs['managecontacts'] . '&quickfilters=status_' . $contact_status ),
 		);
 	}
 

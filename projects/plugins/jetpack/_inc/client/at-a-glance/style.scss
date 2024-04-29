@@ -575,7 +575,11 @@
 }
 
 .jp-dash-item__videopress-storage {
-	margin-top: 1em;
+	margin-top: rem( 16px );
+	span {
+		margin-top: rem( 10px );
+		display: block;
+	}
 }
 
 .jp-dash-item__action-links {

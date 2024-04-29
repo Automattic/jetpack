@@ -5,6 +5,34 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.0] - 2024-03-11
+### Added
+- Setup: Detect Jetpack Boost cache and suggest troubleshooting steps [#36018]
+- WP Super Cache: added WPSC_PRELOAD_POST_INTERVAL and WPSC_PRELOAD_LOOP_INTERVAL to modify preload timings [#36246]
+
+### Changed
+- Code Modernization: Replace usage of strpos() with str_contains() [#34137]
+- Code Modernization: Replace usage of strpos() with str_starts_with(). [#34135]
+- Code Modernization: Replace usage of substr() with str_starts_with() and str_ends_with(). [#34207]
+- Fix blurry Automattic logo. [#34985]
+- General: avoid deprecation warnings when trying to get URLs in PHP 8.2 [#34962]
+- General: indicate compatibility with the upcoming version of WordPress, 6.5. [#35820]
+- General: updated PHP requirement to PHP 7.0+ [#34126]
+- General: update WordPress version requirements to WordPress 6.3. [#34127]
+- WP Super Cache: check for Boost Cache when creating advanced-cache.php [#36027]
+- WP Super Cache: fixed labels on advanced settings page [#36067]
+- WP Super Cache: remove notifications that preload started working again. [#35960]
+
+### Fixed
+- Supercache: add "days" to "Next preload scheduled" message. [#34509]
+- Super Cache: with rebuild enabled, apply that to subdirectories instead of deleting them. [#35032]
+- WP Super Cache - fix the wp_super_cache_clear_post_cache filter so the homepage cache isn't deleted too. [#36069]
+- WP Super Cache: bail if the request uri isn't set. It means the plugin isn't configured yet. [#36024]
+- WP Super Cache: don't create an output buffer if there's already one active [#36124]
+- WP Super Cache: fixed serving a cached page on POST with late init enabled. [#36211]
+- WP Super Cache: fix the output buffer check, and make debug logs pre-formatted. [#36158]
+- WP Super Cache: if the preload number of posts is not in the list, then add it [#36249]
+
 ## [1.11.0] - 2023-11-08
 ### Added
 - Super Cache: fix "accept header" check, and add new "wpsc_accept_headers" filter on accept header list [#33972]
@@ -694,6 +722,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Misc fixes
 
+[1.12.0]: https://github.com/Automattic/wp-super-cache/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/Automattic/wp-super-cache/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/Automattic/wp-super-cache/compare/v1.9.4...v1.10.0
 [1.9.4]: https://github.com/Automattic/wp-super-cache/compare/v1.9.3...v1.9.4

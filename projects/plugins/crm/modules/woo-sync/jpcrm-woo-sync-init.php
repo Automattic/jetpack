@@ -153,73 +153,9 @@ function zeroBSCRM_extension_install_woo_sync() {
 // Uninstall function
 function zeroBSCRM_extension_uninstall_woo_sync() {
 
-	// Removes any WooSync filter buttons
-	jpcrm_woosync_remove_filter_buttons();
 	// remove cron
 	wp_clear_scheduled_hook( 'jpcrm_woosync_sync' );
 	return jpcrm_uninstall_core_extension( 'woo-sync' );
-
-}
-
-/*
-* Removes any WooSync filter buttons from user filter button settings:
-* (Leaving a flag to re-install them if reactivated.)
-*/
-function jpcrm_woosync_remove_filter_buttons(){
-
-
-    global $zbs;
-
-      // get current list view filters
-      $custom_views = $zbs->settings->get( 'customviews2' );
-
-      // If we have a customer filter button enabled
-      if ( isset( $custom_views['customer_filters']['woo_customer'] ) ){
-
-        // remove our filter
-        unset( $custom_views['customer_filters']['woo_customer'] );
-
-        // save
-        $zbs->settings->update( 'customviews2', $custom_views );
-
-        // flag it to re-activate when we re-install
-        // (delete any 'has_added_woofilter' flag, which would usually stop this auto-re-enabling, effectively saying 'do re-enable' when reactivated)
-        // (enacted via main WooSync class->include_filter_buttons())
-        $zbs->settings->dmzDelete( 'ext_woosync', 'has_added_woofilter' );
-
-      }
-
-      // If we have a transaction filter button enabled
-      if ( isset( $custom_views['transaction_filters']['woo_transaction'] ) ){
-
-        // remove our filter
-        unset( $custom_views['transaction_filters']['woo_transaction'] );
-
-        // save
-        $zbs->settings->update( 'customviews2', $custom_views );
-
-        // flag it to re-activate when we re-install
-        // (delete any 'has_added_woofilter' flag, which would usually stop this auto-re-enabling, effectively saying 'do re-enable' when reactivated)
-        // (enacted via main WooSync class->include_filter_buttons())
-        $zbs->settings->dmzDelete( 'ext_woosync', 'has_added_woo_transaction_filter' );
-
-      }
-
-      // If we have a invoice filter button enabled
-      if ( isset( $custom_views['invoice_filters']['woo_invoice'] ) ){
-
-        // remove our filter
-        unset( $custom_views['invoice_filters']['woo_invoice'] );
-
-        // save
-        $zbs->settings->update( 'customviews2', $custom_views );
-
-        // flag it to re-activate when we re-install
-        // (delete any 'has_added_woofilter' flag, which would usually stop this auto-re-enabling, effectively saying 'do re-enable' when reactivated)
-        // (enacted via main WooSync class->include_filter_buttons())
-        $zbs->settings->dmzDelete( 'ext_woosync', 'has_added_woo_invoice_filter' );
-
-      }
 
 }
 
@@ -290,6 +226,22 @@ function jpcrm_add_woo_jobs_to_system_assistant( $job_list ) {
 }
 add_filter( 'jpcrm_system_assistant_jobs', 'jpcrm_add_woo_jobs_to_system_assistant' );
 
+/**
+ * Check if HPOS is enabled.
+ *
+ * The feature was enabled in WooCommerce 7.1.
+ *
+ * For new stores created on or after 10 October 2023, this is enabled by default.
+ * https://woo.com/posts/platform-update-high-performance-order-storage-for-woocommerce/
+ *
+ * @return bool Defaults to false.
+ */
+function jpcrm_woosync_is_hpos_enabled() {
+	if ( class_exists( '\Automattic\WooCommerce\Utilities\OrderUtil' ) ) {
+		return \Automattic\WooCommerce\Utilities\OrderUtil::custom_orders_table_usage_is_enabled();
+	}
+	return false;
+}
 
 // Extension legacy definitions
 if ( ! defined( 'JPCRM_WOO_SYNC_ROOT_FILE' ) ) {

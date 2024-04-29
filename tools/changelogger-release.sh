@@ -277,19 +277,6 @@ cat <<-EOM
 
 	  git diff '**/CHANGELOG.md'
 
-	Feel free to edit them as needed. Then commit and push those changes.
+	Feel free to edit them as needed.
 
 EOM
-
-if [[ "$SLUG" == plugins/* ]]; then
-	cd "$BASE"
-	VER=$(cd "projects/$SLUG" && changelogger version current)
-	if [[ -n "$VER" ]]; then
-		cat <<-EOM
-			When ready, you can create the release branch with
-
-			  tools/create-release-branch.sh $SLUG ${VER%-beta}
-
-		EOM
-	fi
-fi
