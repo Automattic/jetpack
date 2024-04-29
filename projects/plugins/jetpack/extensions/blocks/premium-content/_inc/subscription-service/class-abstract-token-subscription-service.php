@@ -302,6 +302,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 			}
 		}
 
+		$annual_tier_price = null;
 		if ( ! empty( $annual_tier ) ) {
 			$annual_tier_price = floatval( self::find_metadata( $annual_tier, 'jetpack_memberships_price' ) );
 			$valid_plan_ids[]  = $annual_tier->ID;
@@ -329,7 +330,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 			}
 
 			if ( ( $plan_interval === '1 month' && $plan_price >= $tier_price ) ||
-				( $plan_interval === '1 year' && $plan_price >= $annual_tier_price )
+				( $annual_tier_price !== null && $plan_interval === '1 year' && $plan_price >= $annual_tier_price )
 			) {
 				$valid_plan_ids [] = $post->ID;
 			}
@@ -599,13 +600,13 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	/**
 	 * Return true if any ID/date pairs are valid. Otherwise false.
 	 *
-	 * @param int[] $valid_plan_ids List of valid plan IDs.
-	 * @param array $token_subscriptions : ID must exist in the provided <code>$valid_subscriptions</code> parameter.
-	 *                                     The provided end date needs to be greater than <code>now()</code>.
+	 * @param int[]    $valid_plan_ids List of valid plan IDs.
+	 * @param object[] $token_subscriptions : ID must exist in the provided <code>$valid_subscriptions</code> parameter.
+	 *                                                            The provided end date needs to be greater than <code>now()</code>.
 	 *
 	 * @return bool
 	 */
-	public static function validate_subscriptions( $valid_plan_ids, $token_subscriptions ) {
+	public static function validate_subscriptions( array $valid_plan_ids, array $token_subscriptions ) {
 		// Create a list of product_ids to compare against.
 		$product_ids = array();
 		foreach ( $valid_plan_ids as $plan_id ) {
@@ -615,11 +616,6 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 			}
 		}
 
-		/**
-		 * A tokenized subscription.
-		 *
-		 * @var Token_Subscription $token_subscription
-		 */
 		foreach ( $token_subscriptions as $product_id => $token_subscription ) {
 			if ( in_array( intval( $product_id ), $product_ids, true ) ) {
 				$end = is_int( $token_subscription->end_date ) ? $token_subscription->end_date : strtotime( $token_subscription->end_date );
