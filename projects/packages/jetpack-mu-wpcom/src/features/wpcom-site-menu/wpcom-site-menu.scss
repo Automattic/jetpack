@@ -147,13 +147,9 @@
 	@include folded;
 }
 
-.rtl .folded {
-	@include folded {
-		#adminmenu li.toplevel_page_site-notices .wp-menu-name {
-			right: auto;
-			padding-right: 4px;
-		}
-	}
+.rtl .folded #adminmenu li.toplevel_page_site-notices .wp-menu-name {
+	right: auto;
+	padding-right: 4px;
 }
 
 @media only screen and (max-width: 960px) and (min-width: 783px) {
