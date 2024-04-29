@@ -412,8 +412,8 @@ class Full_Sync_Immediately extends Module {
 			/**
 			 * Select configured and not finished modules.
 			 *
+			 * @param Module $module
 			 * @return bool
-			 * @var $module Module
 			 */
 			function ( $module ) use ( $status ) {
 				// Skip module if not configured for this sync or module is done.

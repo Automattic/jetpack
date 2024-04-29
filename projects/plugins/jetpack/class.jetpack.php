@@ -636,7 +636,7 @@ class Jetpack {
 	 *
 	 * @param array $modules Array of active modules to be saved in options.
 	 *
-	 * @return $success bool true for success, false for failure.
+	 * @return bool $success true for success, false for failure.
 	 */
 	public static function update_active_modules( $modules ) {
 		return ( new Modules() )->update_active( $modules );
@@ -3460,7 +3460,7 @@ p {
 	 * will be updated instead of add a new one.
 	 *
 	 * @param  boolean $update_media_item - update media attachment.
-	 * @return array - An array describing the uploadind files process.
+	 * @return array|WP_Error - An array describing the uploading files process.
 	 */
 	public function upload_handler( $update_media_item = false ) {
 		if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' !== strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) ) {
@@ -4977,7 +4977,7 @@ endif;
 	/**
 	 * If the db version is showing something other that what we've got now, bump it to current.
 	 *
-	 * @return bool: True if the option was incorrect and updated, false if nothing happened.
+	 * @return bool True if the option was incorrect and updated, false if nothing happened.
 	 */
 	public static function maybe_set_version_option() {
 		list( $version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
