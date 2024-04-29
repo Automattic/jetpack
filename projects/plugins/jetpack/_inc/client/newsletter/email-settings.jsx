@@ -86,7 +86,7 @@ const EmailSettings = props => {
 			clearTimeout( isTypingEmailTimeoutRef.current );
 			isTypingEmailTimeoutRef.current = setTimeout( () => {
 				handleEmailBlur( event );
-			}, 1000 );
+			}, 3000 );
 
 			const subscriptionOptionEvent = {
 				target: { name: event.target.name, value: event.target.value },
