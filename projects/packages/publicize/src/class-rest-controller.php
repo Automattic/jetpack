@@ -150,6 +150,17 @@ class REST_Controller {
 			)
 		);
 
+		// Update a Jetpack Social connection.
+		register_rest_route(
+			'jetpack/v4',
+			'/social/connections/(?P<connection_id>\d+)',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'update_publicize_connection' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+			)
+		);
+
 		// Delete a Jetpack Social connection.
 		register_rest_route(
 			'jetpack/v4',
@@ -399,9 +410,54 @@ class REST_Controller {
 	}
 
 	/**
-	 * Calls the WPCOM endpoint to delete the publicize connection.
+	 * Calls the WPCOM endpoint to update the publicize connection.
 	 *
 	 * POST jetpack/v4/social/connections/{connection_id}
+	 *
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
+	 */
+	public function update_publicize_connection( $request ) {
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$external_user_ID = $request->get_param( 'external_user_ID' );
+		$shared           = $request->get_param( 'shared' );
+		$blog_id          = $this->get_blog_id();
+		$connection_id    = $request->get_param( 'connection_id' );
+
+		$path = sprintf(
+			'/sites/%d/jetpack-social-connections/%d',
+			$blog_id,
+			$connection_id
+		);
+
+		$body = array();
+
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		if ( ! empty( $external_user_ID ) ) {
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$body['external_user_ID'] = $external_user_ID;
+		}
+
+		if ( $shared || ( false === $shared ) ) {
+			$body['shared'] = $shared;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			$path,
+			'2',
+			array(
+				'method'  => 'POST',
+				'timeout' => 120,
+			),
+			$body,
+			'wpcom'
+		);
+		return rest_ensure_response( $this->make_proper_response( $response ) );
+	}
+
+	/**
+	 * Calls the WPCOM endpoint to delete the publicize connection.
+	 *
+	 * DELETE jetpack/v4/social/connections/{connection_id}
 	 *
 	 * @param WP_REST_Request $request The request object, which includes the parameters.
 	 */
