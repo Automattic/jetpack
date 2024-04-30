@@ -279,6 +279,15 @@ class Status {
 		if ( method_exists( 'Automattic\\Jetpack\\Identity_Crisis', 'validate_sync_error_idc_option' ) && \Automattic\Jetpack\Identity_Crisis::validate_sync_error_idc_option() ) {
 			$in_safe_mode = true;
 		}
+		/**
+		 * Filters in_safe_mode check.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $in_safe_mode If the current site is in safe mode.
+		 */
+		$in_safe_mode = apply_filters( 'jetpack_is_in_safe_mode', $in_safe_mode );
+
 		Cache::set( 'in_safe_mode', $in_safe_mode );
 		return $in_safe_mode;
 	}

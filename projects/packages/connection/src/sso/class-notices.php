@@ -214,12 +214,14 @@ class Notices {
 	 * Error message that is displayed when the current site is in an identity crisis and SSO can not be used.
 	 *
 	 * @since jetpack-4.4.0
+	 * @deprecated since $$next-version$$
 	 *
 	 * @param string $message Error message.
 	 *
 	 * @return string
 	 */
 	public static function sso_not_allowed_in_staging( $message ) {
+		_deprecated_function( __FUNCTION__, '$$next-version$$', 'sso_not_allowed_in_safe_mode' );
 		$error = __(
 			'Logging in with WordPress.com is disabled for sites that are in staging mode.',
 			'jetpack-connection'
@@ -234,7 +236,38 @@ class Notices {
 		 *
 		 * @param string $error Error text.
 		 */
-		$error    = apply_filters( 'jetpack_sso_disallowed_staging_notice', $error );
+		$error    = apply_filters_deprecated( 'jetpack_sso_disallowed_staging_notice', $error, '$$next-version$$', 'jetpack_sso_disallowed_safe_mode_notice' );
+		$message .= sprintf( '<p class="message">%s</p>', esc_html( $error ) );
+		return $message;
+	}
+
+	/**
+	 * Error message that is displayed when the current site is in an identity crisis and SSO can not be used.
+	 *
+	 * @since jetpack-$$next-version$$
+	 * @since $$next-version$$
+	 *
+	 * @param string $message Error message.
+	 *
+	 * @return string
+	 */
+	public static function sso_not_allowed_in_safe_mode( $message ) {
+		$error = __(
+			'Logging in with WordPress.com is disabled for sites that are in safe mode.',
+			'jetpack-connection'
+		);
+
+		/**
+		 * Filters the disallowed notice for sites in safe mode attempting SSO.
+		 *
+		 * @module sso
+		 *
+		 * @since jetpack-$$next-version$$
+		 * @since $$next-version$$
+		 *
+		 * @param string $error Error text.
+		 */
+		$error    = apply_filters( 'jetpack_sso_disallowed_safe_mode_notice', $error );
 		$message .= sprintf( '<p class="message">%s</p>', esc_html( $error ) );
 		return $message;
 	}
