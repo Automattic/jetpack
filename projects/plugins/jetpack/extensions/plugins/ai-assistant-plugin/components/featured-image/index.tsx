@@ -27,7 +27,7 @@ import Carrousel, { CarrouselImageData, CarrouselImages } from './carrousel';
 import UsageCounter from './usage-counter';
 
 const FEATURED_IMAGE_FEATURE_NAME = 'featured-post-image';
-const JETPACK_SIDEBAR_PLACEMENT = 'jetpack-sidebar';
+export const JETPACK_SIDEBAR_PLACEMENT = 'jetpack-sidebar';
 
 export default function FeaturedImage( {
 	busy,
