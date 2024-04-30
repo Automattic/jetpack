@@ -189,8 +189,8 @@ final class Data_Sync {
 	 * However, you can provide an `$entry` instance that subscribes Entry_Can_* methods.
 	 * If you do, `Entry_Can_Get` interface is required, and all other Entry_Can_* interfaces are optional.
 	 *
-	 * @param string $key    - The key to register the entry under.
-	 * @param Parser $parser - The parser to use for the entry.
+	 * @param string        $key    - The key to register the entry under.
+	 * @param Parser        $parser - The parser to use for the entry.
 	 * @param Entry_Can_Get $custom_entry_instance - The entry to register. If null, a new Data_Sync_Option will be created.
 	 *
 	 * @return void

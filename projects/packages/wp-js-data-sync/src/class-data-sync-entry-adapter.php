@@ -37,6 +37,7 @@ final class Data_Sync_Entry_Adapter implements Data_Sync_Entry {
 
 	/**
 	 * For more explanation, see the class docblock.
+	 *
 	 * @see Data_Sync_Entry_Adapter
 	 * The constructor accepts any entry that subscribes to at least "Entry_Can_Get", but can also
 	 * subscribe to any of the other Entry_Can_* interfaces.
