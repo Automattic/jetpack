@@ -79,7 +79,8 @@
 
 @media (max-width: 1120px) {
 	.wpcom-plugins-banner {
-		background-position: bottom right 0px;
+		background-position: bottom right 5px;
+		background-size: 300px
 	}
 }
 
