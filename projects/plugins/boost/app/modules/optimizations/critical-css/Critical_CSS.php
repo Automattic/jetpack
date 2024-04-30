@@ -58,7 +58,6 @@ class Critical_CSS implements Pluggable, Changes_Page_Output, Optimization {
 	public function setup() {
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
 		add_filter( 'jetpack_boost_total_problem_count', array( $this, 'update_total_problem_count' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 9 ); // Make sure we load this before the main Boost script.
 
 		Generator::init();
 		Critical_CSS_Invalidator::init();
@@ -106,17 +105,5 @@ class Critical_CSS implements Pluggable, Changes_Page_Output, Optimization {
 
 	public function update_total_problem_count( $count ) {
 		return ( new Critical_CSS_State() )->has_errors() ? ++$count : $count;
-	}
-
-	public function enqueue_scripts() {
-		$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
-
-		wp_enqueue_script(
-			'jetpack-boost-critical-css-gen',
-			plugins_url( $internal_path . 'critical-css-gen.js', JETPACK_BOOST_PATH ),
-			array(),
-			JETPACK_BOOST_VERSION,
-			true
-		);
 	}
 }
