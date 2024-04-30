@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-01-18 14:21:03+0000\n"
+"PO-Revision-Date: 2024-01-19 14:10:05+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,31 +11,31 @@ msgstr ""
 "Language: ro\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:632
+msgid "Verify the email address for your domains"
+msgstr "Confirmă-ți adresa de email pentru domenii deținute"
+
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:271
 msgid "Site setup"
 msgstr "Inițializare site"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:639
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:622
 msgid "Finish Sensei setup"
 msgstr "Finalizează inițializarea Sensei"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:629
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:612
 msgid "Finish store setup"
 msgstr "Finalizează inițializarea magazinului"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:616
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:598
 msgid "Update your site's design"
 msgstr "Actualizează designul site-ului"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:607
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:589
 msgid "Enable post sharing"
 msgstr "Activează partajarea articolelor"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:598
-msgid "Set up professional email"
-msgstr "Inițializează Professional Email"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:589
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:580
 msgid "Install the mobile app"
 msgstr "Instalează aplicația pentru mobil"
 
@@ -281,7 +281,7 @@ msgstr "Partajează-ți site-ul"
 msgid "Edit a page"
 msgstr "Editează o pagină"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1236
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1324
 msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
 msgstr "Site-ul tău are stiluri premium. Actualizează acum ca să le publici și să deblochezi și alte funcționalități."
 
@@ -297,8 +297,8 @@ msgstr "Adaugă o pagină nouă"
 msgid "Drive traffic to your site"
 msgstr "Aduci trafic pe site-ul tău"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:321
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:580
 msgid "Give your site a name"
 msgstr "Dă-i site-ului un nume"
 
@@ -306,8 +306,8 @@ msgstr "Dă-i site-ului un nume"
 msgid "Claim your free one-year domain"
 msgstr "Beneficiezi de un domeniu gratuit în primul an"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:118
-#: frontend-notices/gifting-banner/gifting-banner.php:144
+#: frontend-notices/gifting-banner/gifting-banner.php:148
+#: frontend-notices/gifting-banner/gifting-banner.php:173
 msgctxt "verb"
 msgid "Gift"
 msgstr "Fă cadouri"
@@ -326,8 +326,8 @@ msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "Partajează"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:941
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1251
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:934
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1339
 msgid "Upgrade plan"
 msgstr "Actualizează plan"
 
@@ -351,7 +351,6 @@ msgstr "Lansează-ți blogul"
 msgid "Edit site design"
 msgstr "Editează designul site-ului"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:312
 msgid "Set up your site"
 msgstr "Inițializează-ți site-ul"
@@ -821,22 +820,22 @@ msgstr "Salvarea zipball în dosarul tmp a eșuat."
 msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
 msgstr "CDN-ul pentru imagini este dezactivat deoarece site-ul tău este marcat ca privat. Dacă miniaturile imaginilor nu sunt afișate în biblioteca Media, poți să comuți la modul În curând. <a href=\"%1$s\" target=_blank>Află mai multe</a>."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:234
+#: frontend-notices/gifting-banner/gifting-banner.php:263
 msgid "Gift the author a WordPress.com plan."
 msgstr "Fă-i cadou autorului un plan WordPress.com."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:222
+#: frontend-notices/gifting-banner/gifting-banner.php:251
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
 msgstr[0] "Fă-i cadou autorului un plan WordPress.com înainte de a expira peste o zi."
 msgstr[1] "Fă-i cadou autorului un plan WordPress.com înainte de a expira în %d zile."
 msgstr[2] "Fă-i cadou autorului un plan WordPress.com înainte de a expira în %d de zile."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:211
+#: frontend-notices/gifting-banner/gifting-banner.php:240
 msgid "Gift the author a WordPress.com upgrade."
 msgstr "Fă-i cadou autorului o actualizare WordPress.com."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:184
+#: frontend-notices/gifting-banner/gifting-banner.php:213
 msgid "This site's plan has expired."
 msgstr "Planul pentru acest site a expirat."
 
@@ -912,7 +911,7 @@ msgstr "Planul Starter pentru <strong>%3$s</strong> expiră pe %2$s. <a href=\"%
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
 msgstr "În prezent, folosești PHP <strong>%1$s</strong> care nu va mai avea actualizări de securitate începând cu %2$s. Actualizează la PHP %3$s sau o versiune ulterioară modificând <a href=\"%4$s\">configurarea pe serverul de găzduire</a>."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:190
+#: frontend-notices/gifting-banner/gifting-banner.php:219
 msgid "Enjoy this site?"
 msgstr "Îți place acest site?"
 
@@ -1255,6 +1254,8 @@ msgid "Display your about.me profile with thumbnail"
 msgstr "Afișează-ți profilul about.me cu miniatură"
 
 #: safeguard/utils.php:68
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1064
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1075
 msgid "Unable to fetch the requested data."
 msgstr "Nu am putut aduce datele cerute."
 

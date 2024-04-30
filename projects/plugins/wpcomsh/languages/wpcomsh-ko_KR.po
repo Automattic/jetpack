@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-01-18 09:54:03+0000\n"
+"PO-Revision-Date: 2024-01-19 14:10:05+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,31 +11,31 @@ msgstr ""
 "Language: ko_KR\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:632
+msgid "Verify the email address for your domains"
+msgstr "도메인의 이메일 주소 확인"
+
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:271
 msgid "Site setup"
 msgstr "사이트 설정"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:639
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:622
 msgid "Finish Sensei setup"
 msgstr "Sensei 설정 마무리"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:629
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:612
 msgid "Finish store setup"
 msgstr "스토어 설정 완료"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:616
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:598
 msgid "Update your site's design"
 msgstr "사이트 디자인 업데이트"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:607
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:589
 msgid "Enable post sharing"
 msgstr "글 공유 활성화"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:598
-msgid "Set up professional email"
-msgstr "Professional Email 설정"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:589
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:580
 msgid "Install the mobile app"
 msgstr "모바일 앱 설치"
 
@@ -281,7 +281,7 @@ msgstr "사이트 공유"
 msgid "Edit a page"
 msgstr "페이지 편집"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1236
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1324
 msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
 msgstr "사이트에 프리미엄 스타일이 있습니다. 지금 업그레이드하여 공개하고 수많은 기타 기능을 사용하세요."
 
@@ -297,8 +297,8 @@ msgstr "새 페이지 추가"
 msgid "Drive traffic to your site"
 msgstr "사이트로 트래픽 유도하기"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:321
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:580
 msgid "Give your site a name"
 msgstr "사이트 이름 정하기"
 
@@ -306,8 +306,8 @@ msgstr "사이트 이름 정하기"
 msgid "Claim your free one-year domain"
 msgstr "무료 1년 도메인 신청"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:118
-#: frontend-notices/gifting-banner/gifting-banner.php:144
+#: frontend-notices/gifting-banner/gifting-banner.php:148
+#: frontend-notices/gifting-banner/gifting-banner.php:173
 msgctxt "verb"
 msgid "Gift"
 msgstr "선물하기"
@@ -326,8 +326,8 @@ msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "공유"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:941
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1251
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:934
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1339
 msgid "Upgrade plan"
 msgstr "요금제 업그레이드"
 
@@ -351,7 +351,6 @@ msgstr "블로그 시작"
 msgid "Edit site design"
 msgstr "사이트 디자인 편집"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:312
 msgid "Set up your site"
 msgstr "사이트 설정"
@@ -821,20 +820,20 @@ msgstr "tmp 폴더에 zipball을 저장하지 못했습니다."
 msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
 msgstr "사이트가 비공개로 표시되어서 이미지 CDN이 비활성화되었습니다. 이미지 썸네일이 미디어 라이브러리에 표시되지 않으면 공개 예정 모드로 전환할 수 있습니다.  <a href=\"%1$s\" target=_blank>자세히 알아보세요</a>."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:234
+#: frontend-notices/gifting-banner/gifting-banner.php:263
 msgid "Gift the author a WordPress.com plan."
 msgstr "글쓴이에게 워드프레스닷컴 요금제를 선물합니다."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:222
+#: frontend-notices/gifting-banner/gifting-banner.php:251
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
 msgstr[0] "글쓴이에게 워드프레스닷컴 요금제를 %d일 후에 만료되기 전에 선물합니다."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:211
+#: frontend-notices/gifting-banner/gifting-banner.php:240
 msgid "Gift the author a WordPress.com upgrade."
 msgstr "글쓴이에게 워드프레스닷컴 업그레이드를 선물합니다."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:184
+#: frontend-notices/gifting-banner/gifting-banner.php:213
 msgid "This site's plan has expired."
 msgstr "이 사이트의 요금제가 만료되었습니다."
 
@@ -910,7 +909,7 @@ msgstr "<strong>%3$s</strong>의 Starter 요금제가 %2$s에 만료됩니다. <
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
 msgstr "%2$s부터 보안 업데이트가 수신되지 않는 PHP <strong>%1$s</strong>을(를) 현재 사용 중이십니다. <a href=\"%4$s\">호스팅 구성</a>을 변경하여 PHP %3$s 이상으로 업데이트하세요."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:190
+#: frontend-notices/gifting-banner/gifting-banner.php:219
 msgid "Enjoy this site?"
 msgstr "이 사이트가 마음에 드시나요?"
 
@@ -1253,6 +1252,8 @@ msgid "Display your about.me profile with thumbnail"
 msgstr "about.me 프로필을 썸네일과 함께 표시"
 
 #: safeguard/utils.php:68
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1064
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1075
 msgid "Unable to fetch the requested data."
 msgstr "요청한 데이터를 가져올 수 없습니다."
 

@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-01-14 20:03:57+0000\n"
+"PO-Revision-Date: 2024-01-25 08:41:46+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,31 +11,31 @@ msgstr ""
 "Language: fa\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:632
+msgid "Verify the email address for your domains"
+msgstr "آدرس ایمیل دامنه خود را تایید کنید"
+
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:271
 msgid "Site setup"
 msgstr "نصب سایت"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:639
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:622
 msgid "Finish Sensei setup"
-msgstr ""
+msgstr "نصب و تنظیم Sensei را تمام کنید."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:629
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:612
 msgid "Finish store setup"
-msgstr ""
+msgstr "تنظیم فروشگاه را تمام کنید"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:616
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:598
 msgid "Update your site's design"
-msgstr ""
+msgstr "به‌روزرسانی طراحی سایت خود"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:607
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:589
 msgid "Enable post sharing"
 msgstr "فعال کردن اشتراک‌گذاری نوشته"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:598
-msgid "Set up professional email"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:589
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:580
 msgid "Install the mobile app"
 msgstr "نصب اپلیکیشن موبایل"
 
@@ -65,7 +65,7 @@ msgstr ""
 
 #: imports/playground/class-sql-postprocessor.php:296
 msgid "The site is not connected."
-msgstr ""
+msgstr "سایت متصل نیست."
 
 #: imports/playground/class-sql-postprocessor.php:288
 msgid "Jetpack is not installed."
@@ -281,13 +281,13 @@ msgstr ""
 msgid "Edit a page"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1236
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1324
 msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
 msgstr ""
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:380
 msgid "Customize your domain"
-msgstr ""
+msgstr "دامنه خود را سفارشی کنید"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:342
 msgid "Add a new page"
@@ -297,8 +297,8 @@ msgstr "افزودن برگهٔ تازه"
 msgid "Drive traffic to your site"
 msgstr "ترافیک را به سایت خود هدایت کنید"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:321
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:580
 msgid "Give your site a name"
 msgstr "بیایید برای سایت شما یک نام انتخاب کنیم"
 
@@ -306,8 +306,8 @@ msgstr "بیایید برای سایت شما یک نام انتخاب کنیم"
 msgid "Claim your free one-year domain"
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:118
-#: frontend-notices/gifting-banner/gifting-banner.php:144
+#: frontend-notices/gifting-banner/gifting-banner.php:148
+#: frontend-notices/gifting-banner/gifting-banner.php:173
 msgctxt "verb"
 msgid "Gift"
 msgstr "هدیه دادن"
@@ -326,8 +326,8 @@ msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:941
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1251
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:934
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1339
 msgid "Upgrade plan"
 msgstr "ارتقا طرح"
 
@@ -345,13 +345,12 @@ msgstr "انتخاب یک دامنه"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:281
 msgid "Launch your blog"
-msgstr ""
+msgstr "وبلاگ خود را راه‌اندازی کنید"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:18
 msgid "Edit site design"
 msgstr "ویرایش طراحی سایت"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:312
 msgid "Set up your site"
 msgstr "سایت خود را راه اندازی کنید"
@@ -708,7 +707,7 @@ msgstr "تنظیم عنوان پادکست"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:104
 msgid "This is the URL you submit to iTunes or podcasting service."
-msgstr ""
+msgstr "این نشانی وبی است که شما به iTunes یا سرویس پادکستینگ ارسال می‌کنید."
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:103
 msgid "Your podcast feed: %1$s"
@@ -756,7 +755,7 @@ msgstr "خلاصه پادکست"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
 msgid "Podcast talent name"
-msgstr ""
+msgstr "نام استعداد پادکست"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
 msgid "Podcast subtitle"
@@ -821,22 +820,22 @@ msgstr ""
 msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:234
+#: frontend-notices/gifting-banner/gifting-banner.php:263
 msgid "Gift the author a WordPress.com plan."
 msgstr "یکی از طرح‌های WordPress.com را به آن هدیه دهید."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:222
+#: frontend-notices/gifting-banner/gifting-banner.php:251
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
-msgstr[0] ""
+msgstr[0] "قبل از انقضای طرح WordPress.com در %d روز، به نویسنده یک طرح WordPress.com هدیه دهید."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:211
+#: frontend-notices/gifting-banner/gifting-banner.php:240
 msgid "Gift the author a WordPress.com upgrade."
-msgstr ""
+msgstr "به نویسنده یک ارتقای WordPress.com هدیه دهید."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:184
+#: frontend-notices/gifting-banner/gifting-banner.php:213
 msgid "This site's plan has expired."
-msgstr ""
+msgstr "طرح این سایت منقضی شده است."
 
 #: notices/plan-notices.php:135
 msgid "The Entrepreneur plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Entrepreneur plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
@@ -910,7 +909,7 @@ msgstr ""
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:190
+#: frontend-notices/gifting-banner/gifting-banner.php:219
 msgid "Enjoy this site?"
 msgstr "از این سایت لذت می‌برید؟"
 
@@ -1253,6 +1252,8 @@ msgid "Display your about.me profile with thumbnail"
 msgstr "نمایش شناسنامۀ about.me شما با تصویر بندانگشتی"
 
 #: safeguard/utils.php:68
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1064
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1075
 msgid "Unable to fetch the requested data."
 msgstr "دریافت داده‌های درخواست‌شده مقدور نبود."
 

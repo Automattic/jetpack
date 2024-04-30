@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-01-17 09:54:03+0000\n"
+"PO-Revision-Date: 2024-01-19 14:10:05+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,31 +11,31 @@ msgstr ""
 "Language: he_IL\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:632
+msgid "Verify the email address for your domains"
+msgstr "לאמת את כתובת האימייל עבור הדומיינים שלך"
+
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:271
 msgid "Site setup"
 msgstr "עריכת הגדרות האתר"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:639
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:622
 msgid "Finish Sensei setup"
 msgstr "להשלים את ההגדרה של Sensei"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:629
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:612
 msgid "Finish store setup"
 msgstr "להשלים את ההגדרה של החנות"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:616
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:598
 msgid "Update your site's design"
 msgstr "לעדכן את העיצוב של האתר שלך"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:607
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:589
 msgid "Enable post sharing"
 msgstr "הפעלת השיתוף של הפוסטים"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:598
-msgid "Set up professional email"
-msgstr "הגדרה של Professional Email"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:589
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:580
 msgid "Install the mobile app"
 msgstr "התקנת האפליקציה למכשירים ניידים"
 
@@ -281,7 +281,7 @@ msgstr "שיתוף האתר שלך"
 msgid "Edit a page"
 msgstr "לערוך עמוד"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1236
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1324
 msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
 msgstr "האתר שלך כולל סגנונות פרימיום. כדאי לשדרג עכשיו כדי לפרסם את השינויים שביצעת בצבעים ולנצל המון אפשרויות אחרות."
 
@@ -297,8 +297,8 @@ msgstr "עמוד חדש"
 msgid "Drive traffic to your site"
 msgstr "להפנות תעבורה אל האתר שלך"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:321
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:580
 msgid "Give your site a name"
 msgstr "בחירת שם לאתר"
 
@@ -306,8 +306,8 @@ msgstr "בחירת שם לאתר"
 msgid "Claim your free one-year domain"
 msgstr "לקבל דומיין בחינם לשנה"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:118
-#: frontend-notices/gifting-banner/gifting-banner.php:144
+#: frontend-notices/gifting-banner/gifting-banner.php:148
+#: frontend-notices/gifting-banner/gifting-banner.php:173
 msgctxt "verb"
 msgid "Gift"
 msgstr "לתת מתנה"
@@ -326,8 +326,8 @@ msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "לשתף"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:941
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1251
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:934
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1339
 msgid "Upgrade plan"
 msgstr "שדרוג התוכנית"
 
@@ -351,7 +351,6 @@ msgstr "להשיק את הבלוג שלך"
 msgid "Edit site design"
 msgstr "עריכת עיצוב האתר"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:312
 msgid "Set up your site"
 msgstr "להגדיר את האתר שלך"
@@ -821,21 +820,21 @@ msgstr "השמירה של zipball בתיקיית tmp נכשלה."
 msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
 msgstr "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>למידע נוסף</a>."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:234
+#: frontend-notices/gifting-banner/gifting-banner.php:263
 msgid "Gift the author a WordPress.com plan."
 msgstr "אפשר להעניק למחבר תוכנית ב-WordPress.com במתנה."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:222
+#: frontend-notices/gifting-banner/gifting-banner.php:251
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
 msgstr[0] "אפשר להעניק למחבר תוכנית ב-WordPress.com במתנה לפני שתוקפה יפוג בעוד יום %d."
 msgstr[1] "אפשר להעניק למחבר תוכנית ב-WordPress.com במתנה לפני שתוקפה יפוג בעוד %d ימים."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:211
+#: frontend-notices/gifting-banner/gifting-banner.php:240
 msgid "Gift the author a WordPress.com upgrade."
 msgstr "אפשר להעניק למחבר שדרוג ב-WordPress.com במתנה."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:184
+#: frontend-notices/gifting-banner/gifting-banner.php:213
 msgid "This site's plan has expired."
 msgstr "תוקפה של תוכנית האתר פג."
 
@@ -911,7 +910,7 @@ msgstr "תוקף תוכנית Starter עבור <strong>%3$s</strong> יפוג ב
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
 msgstr "גרסת PHP שמשמשת אותך כרגע, <strong>%1$s</strong>, תצא משימוש ותפסיק לקבל עדכונים החל מ-%2$s. יש לעדכן את PHP לגרסה ⁦%3$s⁩ ומעלה על ידי שינוי <a href=\"%4$s\">הגדרות התצורה לאחסון</a>."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:190
+#: frontend-notices/gifting-banner/gifting-banner.php:219
 msgid "Enjoy this site?"
 msgstr "נהנית מהאתר הזה?"
 
@@ -1254,6 +1253,8 @@ msgid "Display your about.me profile with thumbnail"
 msgstr "הצג את פרופיל about.me שלך יחד עם תמונה ממוזערת"
 
 #: safeguard/utils.php:68
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1064
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1075
 msgid "Unable to fetch the requested data."
 msgstr "אין אפשרות להביא את הנתונים שביקשת."
 

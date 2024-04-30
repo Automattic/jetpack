@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-01-17 09:54:03+0000\n"
+"PO-Revision-Date: 2024-01-19 14:10:05+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,31 +11,31 @@ msgstr ""
 "Language: ja_JP\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:632
+msgid "Verify the email address for your domains"
+msgstr "ドメインのメールアドレスを確認"
+
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:271
 msgid "Site setup"
 msgstr "サイトのセットアップ"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:639
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:622
 msgid "Finish Sensei setup"
 msgstr "Sensei の設定を行う"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:629
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:612
 msgid "Finish store setup"
 msgstr "ストアの設定を完了"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:616
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:598
 msgid "Update your site's design"
 msgstr "サイトのデザインを更新する"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:607
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:589
 msgid "Enable post sharing"
 msgstr "投稿のシェアを有効化"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:598
-msgid "Set up professional email"
-msgstr "ビジネス用メールアドレスを設定"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:589
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:580
 msgid "Install the mobile app"
 msgstr "モバイルアプリをインストール"
 
@@ -281,7 +281,7 @@ msgstr "サイトを共有"
 msgid "Edit a page"
 msgstr "ページを編集"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1236
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1324
 msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
 msgstr "サイトにはプレミアムスタイルが含まれています。 今すぐアップグレードして、そのスタイルで公開し、他のさまざまな機能を活用しましょう。"
 
@@ -297,8 +297,8 @@ msgstr "新規固定ページを追加"
 msgid "Drive traffic to your site"
 msgstr "サイトのトラフィックを増やす"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:321
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:580
 msgid "Give your site a name"
 msgstr "サイトに名前を付けてください。"
 
@@ -306,8 +306,8 @@ msgstr "サイトに名前を付けてください。"
 msgid "Claim your free one-year domain"
 msgstr "1年間無料のドメインを取得する"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:118
-#: frontend-notices/gifting-banner/gifting-banner.php:144
+#: frontend-notices/gifting-banner/gifting-banner.php:148
+#: frontend-notices/gifting-banner/gifting-banner.php:173
 msgctxt "verb"
 msgid "Gift"
 msgstr "おくる"
@@ -326,8 +326,8 @@ msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "共有"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:941
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1251
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:934
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1339
 msgid "Upgrade plan"
 msgstr "プランをアップグレード"
 
@@ -351,7 +351,6 @@ msgstr "ブログを開始"
 msgid "Edit site design"
 msgstr "サイトの設計を編集"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:312
 msgid "Set up your site"
 msgstr "サイトを設定"
@@ -821,20 +820,20 @@ msgstr "tmp フォルダーに zipball を保存できませんでした。"
 msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
 msgstr "サイトが「非公開」として設定されているため、画像 CDN が無効になっています。 メディアライブラリにポスター画像が表示されない場合は、「まもなく公開予定」モードに切り替えられます。  <a href=\"%1$s\" target=_blank>さらに詳しく</a>。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:234
+#: frontend-notices/gifting-banner/gifting-banner.php:263
 msgid "Gift the author a WordPress.com plan."
 msgstr "投稿者に WordPress.com プランをプレゼントします。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:222
+#: frontend-notices/gifting-banner/gifting-banner.php:251
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
 msgstr[0] "%d日以内に期限が切れる前に投稿者に WordPress.com プランをプレゼントします。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:211
+#: frontend-notices/gifting-banner/gifting-banner.php:240
 msgid "Gift the author a WordPress.com upgrade."
 msgstr "投稿者に WordPress.com のアップグレードをプレゼントします。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:184
+#: frontend-notices/gifting-banner/gifting-banner.php:213
 msgid "This site's plan has expired."
 msgstr "このサイトのプランは終了しました。"
 
@@ -910,7 +909,7 @@ msgstr "<strong>%3$s</strong> の Starter プランは%2$sに有効期限が切�
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
 msgstr "現在使用している PHP <strong>%1$s</strong> は、%2$s以降、セキュリティ更新情報を受信できなくなります。 <a href=\"%4$s\">ホスティングの設定</a>を変更して、PHP %3$s以上に更新してください。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:190
+#: frontend-notices/gifting-banner/gifting-banner.php:219
 msgid "Enjoy this site?"
 msgstr "このサイトを楽しめましたか ?"
 
@@ -1253,6 +1252,8 @@ msgid "Display your about.me profile with thumbnail"
 msgstr "about.me プロフィールをサムネイル付きで表示"
 
 #: safeguard/utils.php:68
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1064
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1075
 msgid "Unable to fetch the requested data."
 msgstr "リクエストされたデータを取得できませんでした。"
 
@@ -1580,7 +1581,7 @@ msgstr "音楽プレーヤー"
 
 #: widgets/class-music-player-widget.php:17
 msgid "A multi-song music player"
-msgstr "複数の曲を含むミュージックプレーヤー"
+msgstr "複数の曲を含むミュージックプレ��ヤー"
 
 #: widgets/class-jetpack-i-voted-widget.php:36
 msgid "I Voted"

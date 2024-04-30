@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-01-11 10:57:54+0000\n"
+"PO-Revision-Date: 2024-01-19 16:54:04+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,31 +11,31 @@ msgstr ""
 "Language: sv_SE\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:632
+msgid "Verify the email address for your domains"
+msgstr "Verifiera e-postadressen för dina domäner"
+
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:271
 msgid "Site setup"
 msgstr "Webbplatskonfigurering"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:639
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:622
 msgid "Finish Sensei setup"
 msgstr "Slutför Sensei-installationen"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:629
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:612
 msgid "Finish store setup"
 msgstr "Slutför butiksinställningen"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:616
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:598
 msgid "Update your site's design"
 msgstr "Uppdatera din webbplats design"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:607
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:589
 msgid "Enable post sharing"
 msgstr "Aktivera delning av inlägg"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:598
-msgid "Set up professional email"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:589
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:580
 msgid "Install the mobile app"
 msgstr "Installera mobilappen"
 
@@ -57,11 +57,11 @@ msgstr "Temporär prefix är lika med nuvarande prefix."
 
 #: imports/playground/class-sql-postprocessor.php:314
 msgid "Error update links."
-msgstr ""
+msgstr "Fel vid uppdatering av länkar."
 
 #: imports/playground/class-sql-postprocessor.php:304
 msgid "Error update posts."
-msgstr ""
+msgstr "Fel vid uppdatering av inlägg."
 
 #: imports/playground/class-sql-postprocessor.php:296
 msgid "The site is not connected."
@@ -73,7 +73,7 @@ msgstr "Jetpack är inte installerat."
 
 #: imports/playground/class-sql-postprocessor.php:250
 msgid "Error saving whitelist options."
-msgstr ""
+msgstr "Det gick inte att spara alternativ för vitlista."
 
 #: imports/playground/class-sql-postprocessor.php:174
 msgid "Missing home URL."
@@ -102,7 +102,7 @@ msgstr "SQL-fil finns inte"
 #: imports/class-backup-import-manager.php:389
 #: imports/class-backup-import-manager.php:430
 msgid "No backup import found."
-msgstr ""
+msgstr "Ingen importerad säkerhetskopia hittades."
 
 #: imports/class-backup-import-manager.php:375
 msgid "An import is already running."
@@ -110,7 +110,7 @@ msgstr "En import körs redan."
 
 #: imports/class-backup-import-manager.php:233
 msgid "The backup import has been cancelled."
-msgstr ""
+msgstr "Importen av säkerhetskopian har avbrutits."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:30
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:44
@@ -281,7 +281,7 @@ msgstr "Dela din webbplats"
 msgid "Edit a page"
 msgstr "Redigera en sida"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1236
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1324
 msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
 msgstr "Din webbplats innehåller premiumstilar. Uppgradera nu för att publicera dem och låsa upp massor av andra funktioner."
 
@@ -297,8 +297,8 @@ msgstr "Lägg till en ny sida"
 msgid "Drive traffic to your site"
 msgstr "Styr trafik till din webbplats"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:321
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:580
 msgid "Give your site a name"
 msgstr "Ge din webbplats ett namn"
 
@@ -306,8 +306,8 @@ msgstr "Ge din webbplats ett namn"
 msgid "Claim your free one-year domain"
 msgstr "Hävda din gratis domän i ett år."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:118
-#: frontend-notices/gifting-banner/gifting-banner.php:144
+#: frontend-notices/gifting-banner/gifting-banner.php:148
+#: frontend-notices/gifting-banner/gifting-banner.php:173
 msgctxt "verb"
 msgid "Gift"
 msgstr "Ge en gåva"
@@ -326,8 +326,8 @@ msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "Dela"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:941
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1251
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:934
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1339
 msgid "Upgrade plan"
 msgstr "Uppgradera paket"
 
@@ -351,7 +351,6 @@ msgstr "Lansera din blogg"
 msgid "Edit site design"
 msgstr "Redigera webbplatsdesign"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:312
 msgid "Set up your site"
 msgstr "Ställ in din webbplats"
@@ -821,21 +820,21 @@ msgstr "Misslyckades med att spara zipball i tmp-mapp."
 msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
 msgstr "Bild-CDN är inaktiverat, eftersom din webbplats är satt som Privat. Om miniatyrbilder inte visas i ditt mediabibliotek kan du växla till läget Kommer snart.  <a href=\"%1$s\" target=_blank>Läs mer</a>."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:234
+#: frontend-notices/gifting-banner/gifting-banner.php:263
 msgid "Gift the author a WordPress.com plan."
 msgstr "Ge författaren ett WordPress.com-paket i gåva."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:222
+#: frontend-notices/gifting-banner/gifting-banner.php:251
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
 msgstr[0] "Ge författaren ett WordPress.com-paket i gåva innan det löper ut om %d dag."
 msgstr[1] "Ge författaren ett WordPress.com-paket i gåva innan det löper ut om %d dagar."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:211
+#: frontend-notices/gifting-banner/gifting-banner.php:240
 msgid "Gift the author a WordPress.com upgrade."
 msgstr "Ge författaren en gåva för en WordPress.com-uppgradering."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:184
+#: frontend-notices/gifting-banner/gifting-banner.php:213
 msgid "This site's plan has expired."
 msgstr "Detta webbplatspaket har löpt ut."
 
@@ -893,25 +892,25 @@ msgstr "Uppdatera"
 
 #: notices/plan-notices.php:125
 msgid "The Explorer plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Explorer plan features such as site monetization, VideoPress, and Google Analytics support."
-msgstr ""
+msgstr "Explorer-paketet för <strong>%3$s</strong> löpte ut %2$s. <a href=\"%1$s\">Återaktivera ditt paket</a> för att behålla funktionerna i Explorer-paketet, exempelvis intäktsgenerering, VideoPress och Google Analytics-stöd."
 
 #: notices/plan-notices.php:120
 msgid "The Starter plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Starter plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
-msgstr ""
+msgstr "Starter-paketet för <strong>%3$s</strong> löpte ut %2$s. <a href=\"%1$s\">Återaktivera ditt paket</a> för att behålla funktionerna i Starter-paketet, exempelvis 6 GB lagringsutrymme, inga WordPress.com-annonser och prenumerantexklusivt innehåll."
 
 #: notices/plan-notices.php:94
 msgid "The Explorer plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Explorer plan features such as site monetization, VideoPress, and Google Analytics support."
-msgstr ""
+msgstr "Explorer-paketet för <strong>%3$s</strong> löper ut %2$s. <a href=\"%1$s\">Förnya ditt paket</a> för att behålla funktionerna i Explorer-paketet, exempelvis intäktsgenerering, VideoPress och Google Analytics-stöd."
 
 #: notices/plan-notices.php:89
 msgid "The Starter plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Starter plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
-msgstr ""
+msgstr "Starter-paketet för <strong>%3$s</strong> löper ut %2$s. <a href=\"%1$s\">Förnya ditt paket</a> för att behålla funktionerna i Starter-paketet, exempelvis 6 GB lagringsutrymme, inga WordPress.com-annonser och prenumerantexklusivt innehåll."
 
 #: notices/php-version-notices.php:30
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
 msgstr "Du använder för närvarande PHP <strong>%1$s</strong>, som från och med %2$s inte längre kommer att få några säkerhetsuppdateringar. Uppdatera till PHP %3$s eller högre genom att ändra din <a href=\"%4$s\">värdkonfiguration</a>."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:190
+#: frontend-notices/gifting-banner/gifting-banner.php:219
 msgid "Enjoy this site?"
 msgstr "Gillar du denna webbplats?"
 
@@ -1254,6 +1253,8 @@ msgid "Display your about.me profile with thumbnail"
 msgstr "Visa din about.me-profil med miniatyr"
 
 #: safeguard/utils.php:68
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1064
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1075
 msgid "Unable to fetch the requested data."
 msgstr "Det gick inte att hämta begärda data."
 

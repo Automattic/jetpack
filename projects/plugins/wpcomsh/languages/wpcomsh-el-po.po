@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-01-11 08:10:10+0000\n"
+"PO-Revision-Date: 2024-04-10 01:36:30+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,31 +10,31 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:632
+msgid "Verify the email address for your domains"
+msgstr "Ἐπαληθεῦστε τὴν ἠλ. διεύθυνση γιὰ τοὺς τομεῖς σας"
+
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:271
 msgid "Site setup"
 msgstr "Ἐγκατάσταση ἱστοτόπου"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:639
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:622
 msgid "Finish Sensei setup"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:629
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:612
 msgid "Finish store setup"
 msgstr "Τελειῶστε τὴν δημιουργία τοῦ καταστήματος"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:616
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:598
 msgid "Update your site's design"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:607
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:589
 msgid "Enable post sharing"
 msgstr "Ἐνεργοποιῆστε τὸν διαμοιρασμὸ ἄρθρων."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:598
-msgid "Set up professional email"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:589
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:580
 msgid "Install the mobile app"
 msgstr "Ἐγκαταστῆστε τὴν ἐφαρμογὴ γιὰ κινητά"
 
@@ -155,11 +155,11 @@ msgstr "Ἐπιλέξτε θέμα"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:511
 msgid "Set up an offer for your supporters"
-msgstr ""
+msgstr "Ὑλοποιῆστε μιὰ προσφορὰ γιὰ τοὺς ὑποστηρικτές σας"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:494
 msgid "Connect a Stripe account to collect payments"
-msgstr ""
+msgstr "Συνδέστε λογαριασμὸ Stripe γιὰ νὰ συλλέγετε πληρωμές"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:482
 msgid "Add your About page"
@@ -167,23 +167,23 @@ msgstr ""
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:472
 msgid "Manage your paid Newsletter plan"
-msgstr ""
+msgstr "Διαχειρισθῆτε τὸ ἐπὶ πληρωμῇ πακέτο Newsletter (δελτίου τύπου)"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:464
 msgid "Connect your social media accounts"
-msgstr ""
+msgstr "Συνδέστε τοὺς λογαριασμοὺς σας τῶν κοινωνικῶν μέσων"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:453
 msgid "Manage your subscribers"
-msgstr ""
+msgstr "Διαχειρισθῆτε τοὺς συνδρομητές σας"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:443
 msgid "Write 3 posts"
-msgstr ""
+msgstr "Γράψτε 3 ἄρθρα"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:431
 msgid "Get your first 10 subscribers"
-msgstr ""
+msgstr "Ἀποκτῆστε τοὺς πρώτους 10 συνδρομητές σας"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:422
 msgid "Enable subscribers modal"
@@ -191,11 +191,11 @@ msgstr ""
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:413
 msgid "Customize welcome message"
-msgstr ""
+msgstr "Ἐξατομικεῦστε τὸ μήνυμα καλωσορίσματος"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:403
 msgid "Earn money with your newsletter"
-msgstr ""
+msgstr "Κερδίστε χρήματα μὲ τὸ δελτίο εἰδήσεών σας"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:352
 msgid "Update your About page"
@@ -280,9 +280,9 @@ msgstr ""
 msgid "Edit a page"
 msgstr "Ἐπεξἐργασθῆτε σελίδα"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1236
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1324
 msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
-msgstr ""
+msgstr "Ὁ ἱστότοπός σας περιέχει ὕφη ἰδιαίτερης ποιότητας. Ἀναβαθμίστε τώρα ὥστε νὰ τὰ δημοσιεύσετε καὶ νὰ ξεκλειδώσετε πλῆθος ἄλλων δυνατοτήτων."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:380
 msgid "Customize your domain"
@@ -296,8 +296,8 @@ msgstr "Προσθέστε νέα σελίδα"
 msgid "Drive traffic to your site"
 msgstr "Προσελκύστε ἐπισκέπτες στὸν ἱστότοπό σας"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:321
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:580
 msgid "Give your site a name"
 msgstr "Δῶστε ὄνομα στὸν ἱστότοπό σας"
 
@@ -305,8 +305,8 @@ msgstr "Δῶστε ὄνομα στὸν ἱστότοπό σας"
 msgid "Claim your free one-year domain"
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:118
-#: frontend-notices/gifting-banner/gifting-banner.php:144
+#: frontend-notices/gifting-banner/gifting-banner.php:148
+#: frontend-notices/gifting-banner/gifting-banner.php:173
 msgctxt "verb"
 msgid "Gift"
 msgstr ""
@@ -325,8 +325,8 @@ msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "Μοιρασθῆτε"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:941
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1251
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:934
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1339
 msgid "Upgrade plan"
 msgstr "Ἀναβαθμίστε πακέτο"
 
@@ -336,7 +336,7 @@ msgstr "Δημιουργῆστε ἕνα δελτίο τύπου ἐπὶ πλ�
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:178
 msgid "Set up payment method"
-msgstr ""
+msgstr "Ὁρίστε μέθοδο πληρωμῆς"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:62
 msgid "Choose a domain"
@@ -350,7 +350,6 @@ msgstr "Ξςκινῆστε τὸ ἱστολόγιό σας"
 msgid "Edit site design"
 msgstr "Ἐπεξεργασθῆτε τὸν σχεδιασμὸ τοῦ ἱστοτόπου"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:312
 msgid "Set up your site"
 msgstr "Κατασκευάστε τὸν ἱστότοπό σας"
@@ -361,7 +360,7 @@ msgstr "Ὀνομάστε τὸ ἱστολόγιό σας"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:301
 msgid "Personalize your site"
-msgstr ""
+msgstr "Δῶστε προσωπικότητα στὸν ἱστότοπό σας"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:263
 msgid "Upload your first video"
@@ -820,21 +819,21 @@ msgstr ""
 msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:234
+#: frontend-notices/gifting-banner/gifting-banner.php:263
 msgid "Gift the author a WordPress.com plan."
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:222
+#: frontend-notices/gifting-banner/gifting-banner.php:251
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
 msgstr[0] ""
 msgstr[1] ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:211
+#: frontend-notices/gifting-banner/gifting-banner.php:240
 msgid "Gift the author a WordPress.com upgrade."
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:184
+#: frontend-notices/gifting-banner/gifting-banner.php:213
 msgid "This site's plan has expired."
 msgstr ""
 
@@ -910,7 +909,7 @@ msgstr ""
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:190
+#: frontend-notices/gifting-banner/gifting-banner.php:219
 msgid "Enjoy this site?"
 msgstr ""
 
@@ -1253,6 +1252,8 @@ msgid "Display your about.me profile with thumbnail"
 msgstr "Ἐμφανίστε μὲ μικρογραφία τὰ στοιχεῖα τοῦ προφίλ σας"
 
 #: safeguard/utils.php:68
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1064
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1075
 msgid "Unable to fetch the requested data."
 msgstr ""
 

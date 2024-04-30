@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-01-11 08:10:10+0000\n"
+"PO-Revision-Date: 2024-02-03 09:37:54+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,57 +11,57 @@ msgstr ""
 "Language: sq_AL\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:632
+msgid "Verify the email address for your domains"
+msgstr "Verifikoni adresën email për përkatësitë tuaja"
+
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:271
 msgid "Site setup"
 msgstr "Rregullim sajti"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:639
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:622
 msgid "Finish Sensei setup"
-msgstr ""
+msgstr "Përfundoni ujdisje Sensei"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:629
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:612
 msgid "Finish store setup"
 msgstr "Përfundoni ujdisje shitoreje"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:616
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:598
 msgid "Update your site's design"
-msgstr ""
+msgstr "Përditësoni skemën grafike të sajtit tuaj"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:607
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:589
 msgid "Enable post sharing"
 msgstr "Aktivizo ndarje postimesh me të tjerët"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:598
-msgid "Set up professional email"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:589
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:580
 msgid "Install the mobile app"
 msgstr "Instaloni aplikacionin për celular"
 
 #: imports/utils/class-filerestorer.php:168
 msgid "No files are restored."
-msgstr ""
+msgstr "S’u rikthyen kartela."
 
 #: imports/utils/class-filerestorer.php:98
 msgid "No files are queued."
-msgstr ""
+msgstr "S’ka kartela të vëna në radhë."
 
 #: imports/playground/class-sql-postprocessor.php:383
 msgid "Missing temporary tables."
-msgstr ""
+msgstr "Mungojnë tabela të përkohshme."
 
 #: imports/playground/class-sql-postprocessor.php:376
 msgid "Temporary prefix is equals to current prefix."
-msgstr ""
+msgstr "Parashtesa e përkohshmë është njësoj me parashtesën e tanishme."
 
 #: imports/playground/class-sql-postprocessor.php:314
 msgid "Error update links."
-msgstr ""
+msgstr "Gabim përditësimi lidhjesh."
 
 #: imports/playground/class-sql-postprocessor.php:304
 msgid "Error update posts."
-msgstr ""
+msgstr "Gabim përditësimi postimesh."
 
 #: imports/playground/class-sql-postprocessor.php:296
 msgid "The site is not connected."
@@ -69,48 +69,48 @@ msgstr "Sajti s’është i lidhur."
 
 #: imports/playground/class-sql-postprocessor.php:288
 msgid "Jetpack is not installed."
-msgstr ""
+msgstr "Jetpack-u s’është i instaluar."
 
 #: imports/playground/class-sql-postprocessor.php:250
 msgid "Error saving whitelist options."
-msgstr ""
+msgstr "Gabim në ruajtje mundësish liste lejimesh."
 
 #: imports/playground/class-sql-postprocessor.php:174
 msgid "Missing home URL."
-msgstr ""
+msgstr "Mungon URL kreu."
 
 #: imports/playground/class-sql-postprocessor.php:164
 msgid "Missing site URL."
-msgstr ""
+msgstr "Mungon URL sajti."
 
 #: imports/playground/class-sql-postprocessor.php:155
 msgid "The site URL is not valid."
-msgstr ""
+msgstr "URL-ja e sajtit s’është e vlefshme."
 
 #: imports/playground/class-sql-postprocessor.php:151
 msgid "The home URL is not valid."
-msgstr ""
+msgstr "URL-ja e kreut s’është e vlefshme."
 
 #: imports/playground/class-sql-importer.php:45
 msgid "SQL import failed"
-msgstr ""
+msgstr "Importimi SQL dështoi"
 
 #: imports/playground/class-sql-importer.php:27
 msgid "SQL file not exists"
-msgstr ""
+msgstr "Kartela SQL s’ekziston"
 
 #: imports/class-backup-import-manager.php:389
 #: imports/class-backup-import-manager.php:430
 msgid "No backup import found."
-msgstr ""
+msgstr "S’u gjet importim kopjeruajtjeje."
 
 #: imports/class-backup-import-manager.php:375
 msgid "An import is already running."
-msgstr ""
+msgstr "Ka tashmë një importim në xhirim e sipër."
 
 #: imports/class-backup-import-manager.php:233
 msgid "The backup import has been cancelled."
-msgstr ""
+msgstr "Importimi i kopjeruajtjes është anuluar."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:30
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:44
@@ -128,27 +128,27 @@ msgstr ""
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:239
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:255
 msgid "Next steps for your site"
-msgstr ""
+msgstr "Hapat pasues për sajtin tuaj"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:570
 msgid "Add the Subscribe Block to your site"
-msgstr ""
+msgstr "Shtoni te sajti juaj bllokun Pajtohuni"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:559
 msgid "Import existing subscribers"
-msgstr ""
+msgstr "Importoni pajtimtarë ekzistues"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:550
 msgid "View site metrics"
-msgstr ""
+msgstr "Shihni matje sajti"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:541
 msgid "Set up ssh"
-msgstr ""
+msgstr "Ujdisni ssh"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:532
 msgid "Install a custom plugin"
-msgstr ""
+msgstr "Instaloni një shtojcë vetjake"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:523
 msgid "Choose a theme"
@@ -156,19 +156,19 @@ msgstr "Zgjidhni një temë"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:511
 msgid "Set up an offer for your supporters"
-msgstr ""
+msgstr "Ujdisni një ofertë për përkrahësit tuaj"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:494
 msgid "Connect a Stripe account to collect payments"
-msgstr ""
+msgstr "Lidhni një llogari Stripe, për të mbledhur pagesa"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:482
 msgid "Add your About page"
-msgstr ""
+msgstr "Shtoni faqen tuaj “Mbi”"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:472
 msgid "Manage your paid Newsletter plan"
-msgstr ""
+msgstr "Administroni planin tuaj me pagesë për Buletin"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:464
 msgid "Connect your social media accounts"
@@ -176,39 +176,39 @@ msgstr "Lidhni llogaritë tuaja prej mediash shoqërore"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:453
 msgid "Manage your subscribers"
-msgstr ""
+msgstr "Administroni pajtimtarët tuaj"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:443
 msgid "Write 3 posts"
-msgstr ""
+msgstr "Shkruani 3 postime"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:431
 msgid "Get your first 10 subscribers"
-msgstr ""
+msgstr "Merrni 10 pajtimtarët tuaj të parë"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:422
 msgid "Enable subscribers modal"
-msgstr ""
+msgstr "Aktivizoni dritare modale pajtimtarësh"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:413
 msgid "Customize welcome message"
-msgstr ""
+msgstr "Përshtatni mesazh mirëseardhjeje"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:403
 msgid "Earn money with your newsletter"
-msgstr ""
+msgstr "Fitoni para përmes buletinit tuaj"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:352
 msgid "Update your About page"
-msgstr ""
+msgstr "Përditësoni faqen tuaj “Mbi”"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:205
 msgid "Migrate content"
-msgstr ""
+msgstr "Migroni lëndë"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:135
 msgid "Verify email address"
-msgstr ""
+msgstr "Verifikoni adresë email"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:102
 msgid "Blog Posts"
@@ -216,78 +216,78 @@ msgstr "Postime Blogu"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:118
 msgid "Prevents new post and page from being created as well as existing posts and pages from being edited, and closes comments site wide."
-msgstr ""
+msgstr "Pengon krijim postimesh dhe faqesh të reja, si dhe përpunim postimesh dhe faqesh ekzistuese dhe mbyll komentet në krejt sajtin."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:117
 msgid "Enable Locked Mode"
-msgstr ""
+msgstr "Aktivizo Mënyrën “I kyçur”"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:100
 msgid "Locked Mode"
-msgstr ""
+msgstr "Mënyra “I kyçur”"
 
 #. translators: link to the help page: https://wordpress.com/help
 #: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:102
 msgid "To take ownership of the site, we ask that the person you designate contacts us at %s with a copy of the death certificate."
-msgstr ""
+msgstr "Që të merret pronësia e sajtit, kërkojmë që personi që përcaktoni të lidhet me ne përmes %s me një dëshmi të vdekjes."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:97
 msgid "Choose someone to look after your site when you pass away."
-msgstr ""
+msgstr "Zgjidhni dikë për t’u marrë me sajtin tuaj, kur të vdisni."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:80
 msgid "Legacy Contact"
-msgstr ""
+msgstr "Kontakt i Dikurshëm"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:73
 #: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:93
 msgid "Enhanced Ownership"
-msgstr ""
+msgstr "Pronësi e Thelluar"
 
 #: notices/anyone-can-register-notice.php:78
 msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <strong>Please consider disabling this option if open registration is not needed.<strong>"
-msgstr ""
+msgstr "Mundësia <a href=\"%2$s\">“Mund të regjistrohet cilido”</a> aktualisht është aktive. Roli i tanishëm parazgjedhje është %1$s. %4$s <strong>Ju lutemi, shihni mundësinë e çaktivizimit të këasj mundësie, nëse regjistrimi i hapur s’është i nevojshëm.<strong>"
 
 #: notices/anyone-can-register-notice.php:74
 msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <a href=\"%3$s\"><strong>Please consider disabling this option if open registration is not needed.</strong></a>."
-msgstr ""
+msgstr "Mundësia <a href=\"%2$s\">“Mund të regjistrohet cilido”</a> aktualisht është aktive. Roli i tanishëm parazgjedhje është %1$s. %4$s <a href=\"%3$s\"><strong>Ju lutemi, shihni mundësinë e çaktivizimit të këasj mundësie, nëse regjistrimi i hapur s’është i nevojshëm.</strong></a>."
 
 #: imports/utils/class-fileextractor.php:82
 msgid "The TAR file could not be extracted."
-msgstr ""
+msgstr "Kartela TAR s’u hap dot."
 
 #: imports/utils/class-fileextractor.php:43
 msgid "File type is not supported"
-msgstr ""
+msgstr "Lloji i kartelës nuk mbulohet"
 
 #: imports/utils/class-fileextractor.php:33
 msgid "Could not create folder"
-msgstr ""
+msgstr "S’u krijua dot dosja"
 
 #: imports/utils/class-fileextractor.php:29
 msgid "File not exists"
-msgstr ""
+msgstr "Kartela s’ekziston"
 
 #: imports/class-backup-import-manager.php:326
 #: imports/class-backup-import-manager.php:349
 msgid "Could not determine importer type."
-msgstr ""
+msgstr "S’u përcaktua dot lloj importuesi."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:395
 msgid "Share your site"
-msgstr ""
+msgstr "Ndani me të tjerët sajtin tuaj"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:368
 msgid "Edit a page"
-msgstr ""
+msgstr "Përpunoni një faqe"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1236
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1324
 msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
-msgstr ""
+msgstr "Sajti juaj përmban stile me pagesë. Përmirësojini tani, që t’i përdorni dhe shkyçni një mori veçorish të tjera."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:380
 msgid "Customize your domain"
-msgstr ""
+msgstr "Përshtatni përkatësinë tuaj"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:342
 msgid "Add a new page"
@@ -297,20 +297,20 @@ msgstr "Shtoni faqe të re"
 msgid "Drive traffic to your site"
 msgstr "Shpini trafik te sajti juaj"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:321
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:580
 msgid "Give your site a name"
 msgstr "Jepini një emër sajtit tuaj"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:51
 msgid "Claim your free one-year domain"
-msgstr ""
+msgstr "Kërkoni përkatësinë tuaj falas për një vit"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:118
-#: frontend-notices/gifting-banner/gifting-banner.php:144
+#: frontend-notices/gifting-banner/gifting-banner.php:148
+#: frontend-notices/gifting-banner/gifting-banner.php:173
 msgctxt "verb"
 msgid "Gift"
-msgstr ""
+msgstr "Dhuroni"
 
 #: vendor/automattic/jetpack-post-list/src/class-post-list.php:190
 msgid "Thumbnail"
@@ -319,29 +319,29 @@ msgstr "Miniaturë"
 #. translators: post title
 #: vendor/automattic/jetpack-post-list/src/class-post-list.php:173
 msgid "Share &#8220;%s&#8221; via Publicize"
-msgstr ""
+msgstr "Ndajeni “%s” me të tjerë përmes Publicize-it"
 
 #: vendor/automattic/jetpack-post-list/src/class-post-list.php:170
 msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "Ndajeni në"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:941
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1251
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:934
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1339
 msgid "Upgrade plan"
 msgstr "Përmirësojeni planin"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:159
 msgid "Create paid Newsletter"
-msgstr ""
+msgstr "Krijoni Buletin me pagesë"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:178
 msgid "Set up payment method"
-msgstr ""
+msgstr "Ujdisni metodë pagesash"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:62
 msgid "Choose a domain"
-msgstr ""
+msgstr "Zgjidhni një përkatësi"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:281
 msgid "Launch your blog"
@@ -349,9 +349,8 @@ msgstr "Filloni blogun tuaj"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:18
 msgid "Edit site design"
-msgstr ""
+msgstr "Përpunoni skemë grafike sajti"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:312
 msgid "Set up your site"
 msgstr "Ujdisni sajtin tuaj"
@@ -379,16 +378,16 @@ msgstr "Bëjeni sajtin tuaj publik"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:225
 msgid "Add links"
-msgstr ""
+msgstr "Shtoni lidhje"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:237
 msgid "Personalize Link in Bio"
-msgstr ""
+msgstr "Personalizoni Lidhje te Jetëshkrim"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:31
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:41
 msgid "Select a design"
-msgstr ""
+msgstr "Përzgjidhni një skemë grafike"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:148
 msgid "Start writing"
@@ -400,7 +399,7 @@ msgstr "Shkruani postimin tuaj të parë"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:195
 msgid "Add subscribers"
-msgstr ""
+msgstr "Shtoni pajtimtarë"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:95
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:107
@@ -409,11 +408,11 @@ msgstr "Zgjidhni një plan"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:169
 msgid "Personalize newsletter"
-msgstr ""
+msgstr "Personalizojeni buletinin"
 
 #: vendor/automattic/jetpack-config/src/class-config.php:135
 msgid "Unable to load class %1$s. Please add the package that contains it using composer and make sure you are requiring the Jetpack autoloader"
-msgstr ""
+msgstr "S’arrihet të ngarkohet klasa %1$s. Ju lutemi, shtoni paketën që e përmban, duke përdorur hartuesin dhe sigurohuni se po kërkoni vetëngarkuesin e Jetpack-ut"
 
 #. translators: 1: wp_default_scripts. 2: Name of the domain being aliased.
 #: vendor/automattic/jetpack-assets/src/class-assets.php:553
@@ -433,12 +432,12 @@ msgstr "latin"
 #: vendor/automattic/custom-fonts/providers/base.php:302
 msgctxt "font-style"
 msgid "Ultra Bold Oblique"
-msgstr ""
+msgstr "Kursive Ultra të Trasha"
 
 #: vendor/automattic/custom-fonts/providers/base.php:301
 msgctxt "font-style"
 msgid "Ultra Bold Italic"
-msgstr ""
+msgstr "Të pjerrëta Ultra të Trasha"
 
 #: vendor/automattic/custom-fonts/providers/base.php:300
 msgctxt "font-style"
@@ -448,12 +447,12 @@ msgstr "Ultra të Trasha"
 #: vendor/automattic/custom-fonts/providers/base.php:299
 msgctxt "font-style"
 msgid "Extra Bold Oblique"
-msgstr ""
+msgstr "Kursive Ekstra të Trasha"
 
 #: vendor/automattic/custom-fonts/providers/base.php:298
 msgctxt "font-style"
 msgid "Extra Bold Italic"
-msgstr "Të trasha të Pjerrëta"
+msgstr "Të pjerrëta Ekstra të Trasha"
 
 #: vendor/automattic/custom-fonts/providers/base.php:297
 msgctxt "font-style"
@@ -463,7 +462,7 @@ msgstr "Ekstra të Trasha"
 #: vendor/automattic/custom-fonts/providers/base.php:296
 msgctxt "font-style"
 msgid "Bold Oblique"
-msgstr ""
+msgstr "Kursive të Trasha"
 
 #: vendor/automattic/custom-fonts/providers/base.php:295
 msgctxt "font-style"
@@ -478,7 +477,7 @@ msgstr "Të trasha"
 #: vendor/automattic/custom-fonts/providers/base.php:293
 msgctxt "font-style"
 msgid "Semibold Oblique"
-msgstr ""
+msgstr "Kursive Gjysmë të Trasha"
 
 #: vendor/automattic/custom-fonts/providers/base.php:292
 msgctxt "font-style"
@@ -493,12 +492,12 @@ msgstr "Gjysmë të Trasha"
 #: vendor/automattic/custom-fonts/providers/base.php:290
 msgctxt "font-style"
 msgid "Medium Oblique"
-msgstr ""
+msgstr "Kursive Mesatare"
 
 #: vendor/automattic/custom-fonts/providers/base.php:289
 msgctxt "font-style"
 msgid "Medium Italic"
-msgstr "Të pjerrëta të Mesme"
+msgstr "Të pjerrëta Mesatare"
 
 #: vendor/automattic/custom-fonts/providers/base.php:288
 msgctxt "font-style"
@@ -508,7 +507,7 @@ msgstr "Mesatare"
 #: vendor/automattic/custom-fonts/providers/base.php:287
 msgctxt "font-style"
 msgid "Oblique"
-msgstr ""
+msgstr "Kursive"
 
 #: vendor/automattic/custom-fonts/providers/base.php:286
 msgctxt "font-style"
@@ -553,7 +552,7 @@ msgstr ""
 #: vendor/automattic/custom-fonts/providers/base.php:278
 msgctxt "font-style"
 msgid "Thin Oblique"
-msgstr ""
+msgstr "Kursive të Holla"
 
 #: vendor/automattic/custom-fonts/providers/base.php:277
 msgctxt "font-style"
@@ -567,7 +566,7 @@ msgstr "Të holla"
 
 #: vendor/automattic/custom-fonts/fonts-customize-control.php:41
 msgid "Huge"
-msgstr "I stërmadh"
+msgstr "Të stërmëdha"
 
 #: vendor/automattic/custom-fonts/fonts-customize-control.php:40
 msgid "Large"
@@ -587,7 +586,7 @@ msgstr "Të vogla"
 
 #: vendor/automattic/custom-fonts/fonts-customize-control.php:36
 msgid "Tiny"
-msgstr "E vockël"
+msgstr "Të vockla"
 
 #: vendor/automattic/custom-fonts/fonts-customize-control.php:35
 msgid "Default Theme Font"
@@ -616,7 +615,7 @@ msgstr "Shtuat një ID kompleti Typekit përmes ndërfaqes sonë të dikurshme, 
 
 #: vendor/automattic/custom-fonts-typekit/advanced-mode.php:54
 msgid "Lucky you! Your theme designers chose specific fonts for you that you can’t pick otherwise. If you aren’t happy with these fonts, uncheck the checkbox below and click \"Save\" to choose other fonts."
-msgstr ""
+msgstr "Jeni me fat! Hartuesit e temës tuaj grafike zgjodhën shkronja specifike për ju, që ndryshe s’mund t’i merrnit. Nëse s’jeni i kënaqur me këto shkronja, hiqjani shenjën kutizës më poshtë dhe klikoni mbi “Ruaje”, që të zgjidhni shkronja të tjera."
 
 #: vendor/automattic/custom-fonts-typekit/advanced-mode.php:23
 msgid "Uncheck to disable"
@@ -624,11 +623,11 @@ msgstr "Hiqjani shenjën që të çaktivizohet"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:114
 msgid "Spotify Feed ID"
-msgstr ""
+msgstr "ID Prurjeje Spotify"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:108
 msgid "Apple Podcasts Feed ID"
-msgstr ""
+msgstr "ID Prurjeje Podcast-esh Apple"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:102
 msgid "Title"
@@ -636,7 +635,7 @@ msgstr "Titull"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:86
 msgid "Podcast RSS Feed"
-msgstr ""
+msgstr "Prurje RSS e podkastit"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:83
 msgid "Listen on Spotify"
@@ -644,7 +643,7 @@ msgstr "Dëgjojeni në Spotify"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
 msgid "Listen on Apple Podcasts"
-msgstr ""
+msgstr "Dëgjojeni në Apple Podcasts"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:15
 msgid "Display information about your Podcast and allow visitors to follow via iTunes"
@@ -708,7 +707,7 @@ msgstr "Caktoni titull podkasti"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:104
 msgid "This is the URL you submit to iTunes or podcasting service."
-msgstr ""
+msgstr "Kjo është URL-ja që parashtroni te iTunes, apo shërbimi për “podcasting”."
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:103
 msgid "Your podcast feed: %1$s"
@@ -756,7 +755,7 @@ msgstr "Përmbledhje podkasti"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
 msgid "Podcast talent name"
-msgstr ""
+msgstr "Emër talenti Podkast"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
 msgid "Podcast subtitle"
@@ -781,67 +780,67 @@ msgstr ""
 
 #: private-site/logged-in-banner.php:163
 msgid "Next steps"
-msgstr "Hapat Pasues"
+msgstr "Hapat pasues"
 
 #: notices/anyone-can-register-notice.php:106
 msgid "This may pose a security risk to your site."
-msgstr ""
+msgstr "Kjo mund të sjellë te sajti juaj një rrezik sigurie."
 
 #: notices/anyone-can-register-notice.php:101
 msgid "It allows a user to post content."
-msgstr ""
+msgstr "I lejon një përdoruesi të postojë lëndë."
 
 #: notices/anyone-can-register-notice.php:96
 msgid "It allows a user to post/modify/delete all content."
-msgstr ""
+msgstr "I lejon një përdoruesi të postojë/ndryshojë/fshijë krejt lëndën."
 
 #: notices/anyone-can-register-notice.php:91
 msgid "It allows a user control over your orders and products."
-msgstr ""
+msgstr "I lejon një përdoruesi kontroll mbi porositë dhe produktet tuaj."
 
 #: notices/anyone-can-register-notice.php:86
 msgid "It allows a user full control over your site and its contents."
-msgstr ""
+msgstr "I lejon një përdoruesi kontroll të plotë mbi sajtin tuaj dhe lëndën e tij."
 
 #: endpoints/class-github-hosting-webhook-response.php:387
 #: imports/utils/class-fileextractor.php:64
 msgid "The ZIP file could not be extracted."
-msgstr ""
+msgstr "S’u përftua dot kartela ZIP."
 
 #: endpoints/class-github-hosting-webhook-response.php:378
 #: imports/utils/class-fileextractor.php:57
 msgid "The ZIP file could not be opened."
-msgstr ""
+msgstr "S’u hap dot kartela ZIP."
 
 #: endpoints/class-github-hosting-webhook-response.php:354
 msgid "Failed to save zipball in tmp folder."
-msgstr ""
+msgstr "S’u arrit të ruhej një paketim zip në dosje të përkohshme."
 
 #: notices/media-library-private-site-cdn-notice.php:20
 msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
-msgstr ""
+msgstr "CDN-ja e figurave është e çaktivizuar, ngaqë sajtit tuaj i është vënë shenjë si Privat. Nëse miniaturat e figurave nuk shfaqen në Mediatekën tuaj, mund të kaloni nën mënyrën “Së Shpejti”.  <a href=\"%1$s\" target=_blank>Mësoni më tepër</a>."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:234
+#: frontend-notices/gifting-banner/gifting-banner.php:263
 msgid "Gift the author a WordPress.com plan."
 msgstr "Dhurojini autorit një plan WordPress.com."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:222
+#: frontend-notices/gifting-banner/gifting-banner.php:251
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
 msgstr[0] "Dhurojini autorit një plan WordPress.com, para se të skadojë për %d ditë."
 msgstr[1] "Dhurojini autorit një plan WordPress.com, para se të skadojë për %d ditë."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:211
+#: frontend-notices/gifting-banner/gifting-banner.php:240
 msgid "Gift the author a WordPress.com upgrade."
 msgstr "Dhurojini autorit një përmirësim në WordPress.com."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:184
+#: frontend-notices/gifting-banner/gifting-banner.php:213
 msgid "This site's plan has expired."
 msgstr "Plani i këtij sajti ka skaduar."
 
 #: notices/plan-notices.php:135
 msgid "The Entrepreneur plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Entrepreneur plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "Plani Sipërmarrës për <strong>%3$s</strong> skadoi më %2$s. <a href=\"%1$s\">Riaktivizoni planin tuaj</a> që të mbani veçori Sipërmarrësish të tilla si, shtojca dhe tema të përshtatura, SFTP dhe përdorim të phpMyAdmin-it."
 
 #: notices/plan-notices.php:109
 msgid "The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
@@ -849,11 +848,11 @@ msgstr "Plani Pro për <strong>%3$s</strong> skadon më %2$s. <a href=\"%1$s\">R
 
 #: notices/plan-notices.php:104
 msgid "The Entrepreneur plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Entrepreneur plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "Plani Sipërmarrës  për <strong>%3$s</strong> skadon më %2$s. <a href=\"%1$s\">Riaktivizoni planin tuaj</a> që të mbani veçori Sipërmarrësish të tilla si, shtojca dhe tema të përshtatura, SFTP dhe përdorim të phpMyAdmin-it."
 
 #: notices/plan-notices.php:99
 msgid "The Creator plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Creator plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "Plani për Krijues <strong>%3$s</strong> skadon më %2$s. <a href=\"%1$s\">Riaktivizoni planin tuaj</a> që të mbani veçori Krijuesi të tilla si, shtojca dhe tema të përshtatura, SFTP dhe përdorim të phpMyAdmin-it."
 
 #: storage/storage.php:33
 msgid "You have used your space quota. Please delete files before uploading."
@@ -893,25 +892,25 @@ msgstr "Përditësoje"
 
 #: notices/plan-notices.php:125
 msgid "The Explorer plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Explorer plan features such as site monetization, VideoPress, and Google Analytics support."
-msgstr ""
+msgstr "Plani Eksplorator për <strong>%3$s</strong> skadoi më %2$s. <a href=\"%1$s\">Riaktivizoni planin tuaj</a>, që të mbani veçori plani Eksploratorësh, të tilla si monetarizim sajti, VideoPress  dhe mbulim për Google Analytics."
 
 #: notices/plan-notices.php:120
 msgid "The Starter plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Starter plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
-msgstr ""
+msgstr "Plani Fillues për <strong>%3$s</strong> skadoi më %2$s. <a href=\"%1$s\">Riaktivizoni planin tuaj</a>, që të mbani veçori plani Fillues, të tilla si 6 GB hapësirë depozitim, pa reklama nga WordPress.com dhe lëndë vetëm për Pajtimtarë."
 
 #: notices/plan-notices.php:94
 msgid "The Explorer plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Explorer plan features such as site monetization, VideoPress, and Google Analytics support."
-msgstr ""
+msgstr "Plani Eksplorues për <strong>%3$s</strong> skadon më %2$s. <a href=\"%1$s\">Riaktivizoni planin tuaj</a>, që të mbani veçori plani Eksploruesi, të tilla si monetarizim sajti, VideoPress dhe mbulim për Google Analytics."
 
 #: notices/plan-notices.php:89
 msgid "The Starter plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Starter plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
-msgstr ""
+msgstr "Plani Fillues për <strong>%3$s</strong> skadon më %2$s. <a href=\"%1$s\">Riaktivizoni planin tuaj</a>, që të mbani veçori plani Fillues, të tilla si 6 GB hapësirë depozitim, pa reklama nga WordPress.com dhe lëndë vetëm për Pajtimtarë."
 
 #: notices/php-version-notices.php:30
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
 msgstr "Aktualisht po përdorni PHP <strong>%1$s</strong>, që s’do të përfitojë më përditësime sigurie pas %2$s. Ju lutemi, përditësojeni me PHP %3$s ose më sipër, duke ndryshuar <a href=\"%4$s\">formësimin e strehimit tuaj</a>."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:190
+#: frontend-notices/gifting-banner/gifting-banner.php:219
 msgid "Enjoy this site?"
 msgstr "Po kënaqeni me këtë sajt?"
 
@@ -970,7 +969,7 @@ msgstr "Përditësime të administruara nga WordPress.com"
 
 #: notices/plan-notices.php:130
 msgid "The Creator plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Creator plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "Plani Krijues për <strong>%3$s</strong> skadon më %2$s. <a href=\"%1$s\">Riaktivizoni planin tuaj</a> që të mbani veçori plani Krijues, të tilla si shtojca dhe tema të përshtatura, SFTP, dhe përdorim të phpMyAdmin-it."
 
 #: notices/plan-notices.php:140
 msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
@@ -1254,6 +1253,8 @@ msgid "Display your about.me profile with thumbnail"
 msgstr "Shfaqni me një miniaturë profilin tuaj about.me"
 
 #: safeguard/utils.php:68
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1064
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1075
 msgid "Unable to fetch the requested data."
 msgstr "S’arrihet të sillen të dhënat e domosdoshme."
 
@@ -1640,19 +1641,19 @@ msgstr "Asnjë"
 
 #: widgets/class-gravatar-widget.php:148
 msgid "Extra Large (256 pixels)"
-msgstr "Shumë i Madh (256 piksela)"
+msgstr "Shumë e Madhe (256 piksela)"
 
 #: widgets/class-gravatar-widget.php:147
 msgid "Large (128 pixels)"
-msgstr "I madh (128 piksela)"
+msgstr "E madhe (128 piksela)"
 
 #: widgets/class-gravatar-widget.php:146
 msgid "Medium (96 pixels)"
-msgstr "Mesatar (96 piksela)"
+msgstr "Mesatare (96 piksela)"
 
 #: widgets/class-gravatar-widget.php:145
 msgid "Small (64 pixels)"
-msgstr "I vogël (64 piksela)"
+msgstr "E vogël (64 piksela)"
 
 #: widgets/class-gravatar-widget.php:102
 msgid "You need to pick a user or enter an email address in your <a href=\"%s\">Gravatar Widget</a> settings."

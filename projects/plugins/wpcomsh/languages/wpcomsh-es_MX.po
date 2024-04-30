@@ -11,57 +11,57 @@ msgstr ""
 "Language: es_MX\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:632
+msgid "Verify the email address for your domains"
+msgstr "Verifica la dirección de correo electrónico de tus dominios"
+
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:271
 msgid "Site setup"
 msgstr "Configuración del sitio web"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:639
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:622
 msgid "Finish Sensei setup"
 msgstr "Termina de configurar Sensei"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:629
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:612
 msgid "Finish store setup"
 msgstr "Terminar la configuración de la tienda"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:616
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:598
 msgid "Update your site's design"
 msgstr "Actualiza el diseño de tu sitio"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:607
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:589
 msgid "Enable post sharing"
 msgstr "Activa la opción de compartir entradas"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:598
-msgid "Set up professional email"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:589
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:580
 msgid "Install the mobile app"
 msgstr "Instala la aplicación móvil."
 
 #: imports/utils/class-filerestorer.php:168
 msgid "No files are restored."
-msgstr ""
+msgstr "No se ha restaurado ningún archivo."
 
 #: imports/utils/class-filerestorer.php:98
 msgid "No files are queued."
-msgstr ""
+msgstr "No hay archivos en cola."
 
 #: imports/playground/class-sql-postprocessor.php:383
 msgid "Missing temporary tables."
-msgstr ""
+msgstr "Faltan tablas temporales."
 
 #: imports/playground/class-sql-postprocessor.php:376
 msgid "Temporary prefix is equals to current prefix."
-msgstr ""
+msgstr "El prefijo temporal es igual que el prefijo actual."
 
 #: imports/playground/class-sql-postprocessor.php:314
 msgid "Error update links."
-msgstr ""
+msgstr "Error al actualizar los enlaces."
 
 #: imports/playground/class-sql-postprocessor.php:304
 msgid "Error update posts."
-msgstr ""
+msgstr "Error al actualizar las entradas."
 
 #: imports/playground/class-sql-postprocessor.php:296
 msgid "The site is not connected."
@@ -69,48 +69,48 @@ msgstr "El sitio no está conectado."
 
 #: imports/playground/class-sql-postprocessor.php:288
 msgid "Jetpack is not installed."
-msgstr ""
+msgstr "No se ha instalado Jetpack."
 
 #: imports/playground/class-sql-postprocessor.php:250
 msgid "Error saving whitelist options."
-msgstr ""
+msgstr "Error al guardar las opciones de la lista blanca."
 
 #: imports/playground/class-sql-postprocessor.php:174
 msgid "Missing home URL."
-msgstr ""
+msgstr "Falta la URL de la página de inicio."
 
 #: imports/playground/class-sql-postprocessor.php:164
 msgid "Missing site URL."
-msgstr ""
+msgstr "Falta la URL de la página del sitio."
 
 #: imports/playground/class-sql-postprocessor.php:155
 msgid "The site URL is not valid."
-msgstr ""
+msgstr "La URL del sitio no es válida."
 
 #: imports/playground/class-sql-postprocessor.php:151
 msgid "The home URL is not valid."
-msgstr ""
+msgstr "La URL de la página de inicio no es válida."
 
 #: imports/playground/class-sql-importer.php:45
 msgid "SQL import failed"
-msgstr ""
+msgstr "Error de importación de SQL."
 
 #: imports/playground/class-sql-importer.php:27
 msgid "SQL file not exists"
-msgstr ""
+msgstr "El archivo de SQL no existe."
 
 #: imports/class-backup-import-manager.php:389
 #: imports/class-backup-import-manager.php:430
 msgid "No backup import found."
-msgstr ""
+msgstr "No se ha encontrado ninguna copia de seguridad."
 
 #: imports/class-backup-import-manager.php:375
 msgid "An import is already running."
-msgstr ""
+msgstr "Ya se está ejecutando una importación."
 
 #: imports/class-backup-import-manager.php:233
 msgid "The backup import has been cancelled."
-msgstr ""
+msgstr "Se ha cancelado la importación de la copia de seguridad."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:30
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:44
@@ -281,7 +281,7 @@ msgstr "Comparte tu sitio"
 msgid "Edit a page"
 msgstr "Editar una página"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1236
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1324
 msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
 msgstr "Tu sitio contiene estilos premium. Mejora tu plan ahora para publicarlos y acceder a muchas otras funciones."
 
@@ -297,8 +297,8 @@ msgstr "Añadir una nueva página"
 msgid "Drive traffic to your site"
 msgstr "Dirige tráfico a tu sitio web"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:321
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:580
 msgid "Give your site a name"
 msgstr "Pon un nombre a tu sitio"
 
@@ -306,8 +306,8 @@ msgstr "Pon un nombre a tu sitio"
 msgid "Claim your free one-year domain"
 msgstr "Solicita tu dominio gratuito de un año"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:118
-#: frontend-notices/gifting-banner/gifting-banner.php:144
+#: frontend-notices/gifting-banner/gifting-banner.php:148
+#: frontend-notices/gifting-banner/gifting-banner.php:173
 msgctxt "verb"
 msgid "Gift"
 msgstr "Regalar"
@@ -326,8 +326,8 @@ msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "Compartir"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:941
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1251
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:934
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1339
 msgid "Upgrade plan"
 msgstr "Actualizar plan"
 
@@ -351,7 +351,6 @@ msgstr "Publica tu blog"
 msgid "Edit site design"
 msgstr "Edita el diseño del sitio"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:312
 msgid "Set up your site"
 msgstr "Configura tu sitio"
@@ -821,21 +820,21 @@ msgstr "No se ha podido guardar zipball en la carpeta tmp."
 msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
 msgstr "La CDN de imágenes está desactivada porque tu sitio está marcado como privado. Si las miniaturas de las imágenes no se muestran en la biblioteca de medios, puedes cambiar al modo Próximamente.  <a href=\"%1$s\" target=_blank>Más información</a>."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:234
+#: frontend-notices/gifting-banner/gifting-banner.php:263
 msgid "Gift the author a WordPress.com plan."
 msgstr "Regala al autor un plan de WordPress.com."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:222
+#: frontend-notices/gifting-banner/gifting-banner.php:251
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
 msgstr[0] "Regala al autor un plan de WordPress.com antes de que caduque en %d día."
 msgstr[1] "Regala al autor un plan de WordPress.com antes de que caduque en %d días."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:211
+#: frontend-notices/gifting-banner/gifting-banner.php:240
 msgid "Gift the author a WordPress.com upgrade."
 msgstr "Regala al autor una mejora de WordPress.com."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:184
+#: frontend-notices/gifting-banner/gifting-banner.php:213
 msgid "This site's plan has expired."
 msgstr "El plan del sitio ha caducado."
 
@@ -911,7 +910,7 @@ msgstr "El plan Starter para <strong>%3$s</strong> caduca el día %2$s. <a href=
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
 msgstr "Actualmente, estás usando PHP <strong>%1$s</strong>, que ya no tendrá actualizaciones de seguridad a partir del día %2$s. Actualiza a la versión PHP %3$s o superior cambiando tus <a href=\"%4$s\">ajustes de alojamiento</a>."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:190
+#: frontend-notices/gifting-banner/gifting-banner.php:219
 msgid "Enjoy this site?"
 msgstr "¿Te gusta este sitio?"
 
@@ -1254,6 +1253,8 @@ msgid "Display your about.me profile with thumbnail"
 msgstr "Mostrar tu perfil de about.me en miniatura"
 
 #: safeguard/utils.php:68
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1064
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1075
 msgid "Unable to fetch the requested data."
 msgstr "No se pueden recuperar los datos solicitados."
 
