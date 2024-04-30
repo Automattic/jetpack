@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+SSO: deprecate in-plugin methods in favor of methods from the Connection package.
