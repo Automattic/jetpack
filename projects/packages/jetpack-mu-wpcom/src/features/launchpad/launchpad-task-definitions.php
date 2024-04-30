@@ -741,7 +741,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Customize your store', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_ecommerce_task_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_woocommerce_setup_visible',
 			'get_calypso_path'     => function () {
 				return site_url( '/wp-admin/admin.php?page=wc-admin&path=%2Fcustomize-store' );
@@ -761,7 +761,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Get paid with WooPayments', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_ecommerce_task_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_woocommerce_setup_visible',
 			'get_calypso_path'     => function () {
 				return site_url( '/wp-admin/admin.php?page=wc-admin&task=woocommerce-payments' );
@@ -771,7 +771,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Collect sales tax', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_ecommerce_task_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_woocommerce_setup_visible',
 			'get_calypso_path'     => function () {
 				return site_url( '/wp-admin/admin.php?page=wc-admin&task=tax' );
@@ -781,7 +781,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Grow your business', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_ecommerce_task_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_woocommerce_setup_visible',
 			'get_calypso_path'     => function () {
 				return site_url( '/wp-admin/admin.php?page=wc-admin&task=marketing' );
@@ -791,7 +791,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Add a domain', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_ecommerce_task_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_woocommerce_setup_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/domains/add/' . $data['site_slug_encoded'];
@@ -801,7 +801,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Launch your store', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_ecommerce_task_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_woocommerce_setup_visible',
 			'get_calypso_path'     => function () {
 				return site_url( '/wp-admin/admin.php?page=wc-admin&task=launch_site' );
