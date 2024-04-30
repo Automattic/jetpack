@@ -56,27 +56,43 @@ export async function getDependencies( root, extra = null, noDev = false ) {
 	// Collect dependencies.
 	for ( const [ slug, depset ] of ret.entries() ) {
 		const path = slug === 'monorepo' ? root : `${ root }/projects/${ slug }`;
-		const deps = [];
+		let deps = [];
 
 		// Collect composer require, require-dev, and .extra.dependencies.
-		let json = JSON.parse( await fs.readFile( path + '/composer.json', { encoding: 'utf8' } ) );
+		const composerJson = JSON.parse(
+			await fs.readFile( path + '/composer.json', { encoding: 'utf8' } )
+		);
 		for ( const [ pkg, pkgslug ] of packageMap.entries() ) {
-			if ( json.require?.[ pkg ] || ( json[ 'require-dev' ]?.[ pkg ] && ! noDev ) ) {
+			if (
+				composerJson.require?.[ pkg ] ||
+				( composerJson[ 'require-dev' ]?.[ pkg ] && ! noDev )
+			) {
 				deps.push( pkgslug );
 			}
 		}
-		if ( extra && json.extra?.dependencies?.[ extra ] ) {
-			deps.push( ...json.extra.dependencies[ extra ] );
+		if ( extra && composerJson.extra?.dependencies?.[ extra ] ) {
+			deps.push( ...composerJson.extra.dependencies[ extra ] );
 		}
 
 		// Collect JS dependencies and devDependencies.
 		if ( ( await fs.access( path + '/package.json' ).catch( () => false ) ) !== false ) {
-			json = JSON.parse( await fs.readFile( path + '/package.json', { encoding: 'utf8' } ) );
+			const packageJson = JSON.parse(
+				await fs.readFile( path + '/package.json', { encoding: 'utf8' } )
+			);
 			for ( const [ pkg, pkgslug ] of jsPackageMap.entries() ) {
-				if ( json.dependencies?.[ pkg ] || ( json.devDependencies?.[ pkg ] && ! noDev ) ) {
+				if (
+					packageJson.dependencies?.[ pkg ] ||
+					( packageJson.devDependencies?.[ pkg ] && ! noDev )
+				) {
 					deps.push( pkgslug );
 				}
 			}
+		}
+
+		// Remove any test-only dependencies, unless test dependencies were requested.
+		if ( extra !== 'test' && composerJson.extra?.dependencies?.[ 'test-only' ] ) {
+			const undeps = new Set( composerJson.extra?.dependencies?.[ 'test-only' ] );
+			deps = deps.filter( v => ! undeps.has( v ) );
 		}
 
 		// Sort the dependencies and put them in the set.

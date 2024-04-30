@@ -554,6 +554,9 @@ importers:
         specifier: ^4.3.2
         version: 4.3.4
     devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../webpack-config
       '@babel/core':
         specifier: 7.24.0
         version: 7.24.0
