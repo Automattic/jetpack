@@ -13,6 +13,14 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
  * Displays a banner before the theme browser that links to the WP.com Theme Showcase.
  */
 function wpcom_plugins_show_banner() {
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( isset( $_GET['tab'] ) && 'favorites' === $_GET['tab'] ) {
+		// no banner on the favorites tab, it's a bit overbearing given they presumably want
+		// something specific.
+		return;
+	}
+
 	$site_slug        = wp_parse_url( home_url(), PHP_URL_HOST );
 	$wpcom_logo       = plugins_url( 'images/wpcom-logo.svg', __FILE__ );
 	$background_image = plugins_url( 'images/banner-background.png', __FILE__ );
