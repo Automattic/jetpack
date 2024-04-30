@@ -185,12 +185,14 @@ class Test_Host extends TestCase {
 	 * @covers Automattic\Jetpack\Status\Host::get_hosting_provider_by_nameserver
 	 */
 	public function test_get_hosting_provider_by_nameserver() {
-		$mock = $this->createPartialMock( Host::class, array( 'get_nameserver_dns_records' ) );
+		Functions\when( 'dns_get_record' )->justReturn(
+			array(
+				array( 'target' => 'ns1.bluehost.com' ),
+				array( 'target' => 'ns2.bluehost.com' ),
+			)
+		);
 
-		$mock->method( 'get_nameserver_dns_records' )
-			->willReturn( array( 'ns1.bluehost.com', 'ns2.bluehost.com' ) );
-
-		$provider = $mock->get_hosting_provider_by_nameserver( 'example.com' );
+		$provider = $this->host_obj->get_hosting_provider_by_nameserver( 'example.com' );
 		$this->assertEquals( 'bluehost', $provider );
 	}
 
@@ -200,6 +202,12 @@ class Test_Host extends TestCase {
 	 * @covers Automattic\Jetpack\Status\Host::get_known_host_guess
 	 */
 	public function test_get_known_host_guess() {
+		Functions\when( 'dns_get_record' )->justReturn(
+			array(
+				array( 'target' => 'ns1.bluehost.com' ),
+				array( 'target' => 'ns2.bluehost.com' ),
+			)
+		);
 		Functions\when( 'sanitize_text_field' )->alias(
 			function ( $value ) {
 				return $value;
@@ -207,24 +215,16 @@ class Test_Host extends TestCase {
 		);
 		$_SERVER['SERVER_NAME'] = 'mocked.example.com';
 
-		$mock1 = $this->createPartialMock( Host::class, array( 'get_hosting_provider_by_nameserver' ) );
-
-		$mock1->method( 'get_hosting_provider_by_nameserver' )
-			->willReturn( 'bluehost' );
-
-		$this->assertEquals( 'bluehost', $mock1->get_known_host_guess() );
+		$this->assertEquals( 'bluehost', $this->host_obj->get_known_host_guess() );
 		Cache::clear();
 
-		$mock2 = $this->createPartialMock( Host::class, array( 'is_atomic_platform' ) );
-
-		$mock2->method( 'is_atomic_platform' )
-			->willReturn( true );
-
-		$this->assertEquals( 'atomic', $mock2->get_known_host_guess() );
+		$this->setup_atomic_constants();
+		$this->assertEquals( 'atomic', $this->host_obj->get_known_host_guess() );
+		Constants::clear_constants();
 		Cache::clear();
 
+		Functions\when( 'dns_get_record' )->justReturn( array() );
 		$this->assertEquals( 'unknown', $this->host_obj->get_known_host_guess() );
-		Cache::clear();
 	}
 
 	/**
