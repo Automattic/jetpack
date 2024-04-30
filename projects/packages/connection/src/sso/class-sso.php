@@ -17,7 +17,6 @@ use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
-use Jetpack;
 use Jetpack_IXR_Client;
 use WP_Error;
 use WP_User;
