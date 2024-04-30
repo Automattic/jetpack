@@ -116,14 +116,9 @@ class Singular_Post_Provider extends Provider {
 
 		$post_types = array_filter( $post_types, 'is_post_type_viewable' );
 
-		$provider_post_types_ignore_list = self::get_ignored_post_types();
-		$provider_post_types             = array();
+		$provider_post_types = array();
 		// Generate a name => name array for backwards compatibility.
 		foreach ( $post_types as $post_type ) {
-			if ( in_array( $post_type->name, $provider_post_types_ignore_list, true ) ) {
-				continue;
-			}
-
 			$provider_post_types[ $post_type->name ] = $post_type->name;
 		}
 
@@ -158,26 +153,5 @@ class Singular_Post_Provider extends Provider {
 	/** @inheritdoc */
 	public static function get_success_ratio() {
 		return static::MIN_SUCCESS_URLS / static::MAX_URLS;
-	}
-
-	/**
-	 * Get post types that won't be included in the source providers list.
-	 *
-	 * @return array
-	 */
-	public static function get_ignored_post_types() {
-		/**
-		 * Filter the post types that won't be included in the source providers list.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param array $ignored_post_types An array of post types names.
-		 */
-		return apply_filters(
-			'jetpack_boost_critical_css_ignored_post_types',
-			array(
-				'e-landing-page', // Elementor's landing pages are broken. See https://github.com/elementor/elementor/issues/16244
-			)
-		);
 	}
 }

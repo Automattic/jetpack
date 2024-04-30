@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack_Boost\Compatibility\Elementor;
 
+use Elementor\Modules\LandingPages\Module;
 use Elementor\TemplateLibrary\Source_Local;
 
 /**
@@ -19,7 +20,13 @@ function exclude_elementor_library_custom_post_type( $post_types ) {
 		unset( $post_types[ Source_Local::CPT ] );
 	}
 
+	// Elementor's landing pages are broken. See https://github.com/elementor/elementor/issues/16244
+	if ( isset( $post_types[ Module::CPT ] ) ) {
+		unset( $post_types[ Module::CPT ] );
+	}
+
 	return $post_types;
 }
 
 add_filter( 'jetpack_boost_critical_css_post_types', __NAMESPACE__ . '\exclude_elementor_library_custom_post_type' );
+add_filter( 'jetpack_boost_critical_css_post_types_archives', __NAMESPACE__ . '\exclude_elementor_library_custom_post_type' );
