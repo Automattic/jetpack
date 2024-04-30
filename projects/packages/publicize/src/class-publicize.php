@@ -253,7 +253,7 @@ class Publicize extends Publicize_Base {
 					$user_id = (int) $connection['connection_data']['user_id'];
 					// phpcs:ignore WordPress.PHP.YodaConditions.NotYoda
 					if ( $user_id === 0 || $this->user_id() === $user_id ) {
-						if ( is_callable( array( self::class, 'use_amin_ui_v1' ) ) && self::use_admin_ui_v1() ) {
+						if ( self::use_admin_ui_v1() ) {
 							$connections_to_return[] = array_merge(
 								$connection,
 								array(
