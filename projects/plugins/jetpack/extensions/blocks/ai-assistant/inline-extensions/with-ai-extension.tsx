@@ -63,7 +63,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			[ increaseAiAssistantRequestsCount ]
 		);
 
-		// Suggestions are handled by the block handler for specific implementations.
+		// Data and functions with block-specific implementations.
 		const { onSuggestion } = blockHandler( blockName, clientId );
 
 		const { request, stopSuggestion, requestingState, error, suggestion } = useAiSuggestions( {
@@ -89,6 +89,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			return <BlockEdit { ...props } />;
 		}
 
+		// Defines where the block controls should be placed in the toolbar
 		const blockControlsProps = {
 			group: 'block' as const,
 		};
@@ -114,22 +115,21 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		return (
 			<>
-				<div className="jetpack-ai-extension--wrapper">
-					<BlockEdit { ...props } />
-					{ showAiControl && (
-						<AiAssistantInput
-							clientId={ clientId }
-							postId={ postId }
-							requestingState={ requestingState }
-							requestingError={ error }
-							suggestion={ suggestion }
-							request={ request }
-							stopSuggestion={ stopSuggestion }
-							close={ onClose }
-							undo={ onUndo }
-						/>
-					) }
-				</div>
+				<BlockEdit { ...props } />
+
+				{ showAiControl && (
+					<AiAssistantInput
+						clientId={ clientId }
+						postId={ postId }
+						requestingState={ requestingState }
+						requestingError={ error }
+						suggestion={ suggestion }
+						request={ request }
+						stopSuggestion={ stopSuggestion }
+						close={ onClose }
+						undo={ onUndo }
+					/>
+				) }
 
 				<BlockControls { ...blockControlsProps }>
 					<AiAssistantExtensionToolbarDropdown
