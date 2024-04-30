@@ -736,12 +736,12 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 		),
 
-		// Entrepreneur plan tasks
+		// WooCommerce tasks
 		'woo_customize-store'             => array(
 			'get_title'            => function () {
 				return __( 'Customize your store', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_ecommerce_task_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_woocommerce_task_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_woocommerce_setup_visible',
 			'get_calypso_path'     => function () {
 				return site_url( '/wp-admin/admin.php?page=wc-admin&path=%2Fcustomize-store' );
@@ -751,7 +751,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Add your products', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_ecommerce_task_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_woocommerce_task_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_woocommerce_setup_visible',
 			'get_calypso_path'     => function () {
 				return site_url( '/wp-admin/admin.php?page=wc-admin&task=products' );
@@ -761,7 +761,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Get paid with WooPayments', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_ecommerce_task_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_woocommerce_task_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_woocommerce_setup_visible',
 			'get_calypso_path'     => function () {
 				return site_url( '/wp-admin/admin.php?page=wc-admin&task=woocommerce-payments' );
@@ -771,7 +771,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Collect sales tax', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_ecommerce_task_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_woocommerce_task_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_woocommerce_setup_visible',
 			'get_calypso_path'     => function () {
 				return site_url( '/wp-admin/admin.php?page=wc-admin&task=tax' );
@@ -781,7 +781,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Grow your business', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_ecommerce_task_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_woocommerce_task_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_woocommerce_setup_visible',
 			'get_calypso_path'     => function () {
 				return site_url( '/wp-admin/admin.php?page=wc-admin&task=marketing' );
@@ -791,7 +791,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Add a domain', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_ecommerce_task_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_woocommerce_task_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_woocommerce_setup_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/domains/add/' . $data['site_slug_encoded'];
@@ -801,7 +801,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Launch your store', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_ecommerce_task_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_woocommerce_task_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_woocommerce_setup_visible',
 			'get_calypso_path'     => function () {
 				return site_url( '/wp-admin/admin.php?page=wc-admin&task=launch_site' );
@@ -838,14 +838,14 @@ function wpcom_launchpad_is_site_launched( $task, $is_complete ) {
 }
 
 /**
- * Returns true if the current site's eCommerce plan task is complete.
+ * Returns true if one of the site's WooCommerce tasks is complete.
  *
  * @param Task $task The task object.
  * @param bool $is_complete The current task status.
  *
  * @return boolean
  */
-function wpcom_launchpad_is_ecommerce_task_completed( $task, $is_complete ) {
+function wpcom_launchpad_is_woocommerce_task_completed( $task, $is_complete ) {
 	if ( $is_complete ) {
 		return true;
 	}
