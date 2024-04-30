@@ -214,7 +214,8 @@ class WordAds {
 			WordAds_Consent_Management_Provider::init();
 		}
 
-		if ( isset( $_SERVER['REQUEST_URI'] ) && '/ads.txt' === $_SERVER['REQUEST_URI'] ) {
+		if ( ( isset( $_SERVER['REQUEST_URI'] ) && '/ads.txt' === $_SERVER['REQUEST_URI'] )
+			|| ( site_url( 'ads.txt', 'relative' ) === $_SERVER['REQUEST_URI'] ) ) {
 
 			$ads_txt_transient = get_transient( 'wordads_ads_txt' );
 

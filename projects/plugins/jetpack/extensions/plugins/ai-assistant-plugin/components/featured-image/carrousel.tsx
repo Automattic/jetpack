@@ -50,11 +50,13 @@ export default function Carrousel( {
 	current,
 	handlePreviousImage,
 	handleNextImage,
+	actions = null,
 }: {
 	images: CarrouselImages;
 	current: number;
 	handlePreviousImage: () => void;
 	handleNextImage: () => void;
+	actions?: JSX.Element;
 } ) {
 	const prevButton = (
 		<button className="ai-carrousel__prev" onClick={ handlePreviousImage }>
@@ -80,11 +82,6 @@ export default function Carrousel( {
 
 	return (
 		<div className="ai-assistant-featured-image__carrousel">
-			<div className="ai-assistant-featured-image__carrousel-counter">
-				{ prevButton }
-				{ current + 1 } / { images.length }
-				{ nextButton }
-			</div>
 			<div className="ai-assistant-featured-image__carrousel-images">
 				{ images.length > 1 && prevButton }
 				{ images.map( ( { image, generating, error }, index ) => (
@@ -132,6 +129,14 @@ export default function Carrousel( {
 					</div>
 				) ) }
 				{ images.length > 1 && nextButton }
+			</div>
+			<div className="ai-assistant-featured-image__carrousel-footer">
+				<div className="ai-assistant-featured-image__carrousel-counter">
+					{ prevButton }
+					{ current + 1 } / { images.length }
+					{ nextButton }
+				</div>
+				<div className="ai-assistant-featured-image__carrousel-actions">{ actions }</div>
 			</div>
 		</div>
 	);
