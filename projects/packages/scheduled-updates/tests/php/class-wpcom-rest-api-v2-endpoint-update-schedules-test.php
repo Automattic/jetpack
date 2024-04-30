@@ -250,39 +250,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	}
 
 	/**
-	 * Temporary test to ensure backward compatibility. It will be removed in the future.
-	 */
-	public function test_init_backward_compatibility() {
-		$plugins = array(
-			'custom-plugin/custom-plugin.php',
-			'gutenberg/gutenberg.php',
-		);
-		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
-		$request->set_body_params(
-			array(
-				'plugins'  => $plugins,
-				'schedule' => $this->get_schedule(),
-			)
-		);
-
-		wp_set_current_user( $this->admin_id );
-		$result = rest_do_request( $request );
-
-		$this->assertSame( 200, $result->get_status() );
-
-		$pre_sync_option = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
-		$this->assertIsArray( $pre_sync_option );
-
-		// Force deleting the option to test backward compatibility.
-		$this->assertTrue( delete_option( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
-
-		// Simulate an init.
-		Scheduled_Updates::init();
-		$post_sync_option = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
-		$this->assertEquals( $pre_sync_option, $post_sync_option );
-	}
-
-	/**
 	 * Can't have multiple schedules for the same time.
 	 *
 	 * @covers ::validate_schedule
