@@ -925,7 +925,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "59fb86d4efb879b475bc17203e74303b28fca2a0"
+                "reference": "ab1eb569c2457fd51b5eccc40794686ccae7fe0d"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -948,7 +948,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.0.x-dev"
+                    "dev-trunk": "3.1.x-dev"
                 }
             },
             "autoload": {
