@@ -119,7 +119,15 @@ class Boost_Cache {
 			return false;
 		}
 
-		$cached = $this->storage->read( $this->request->get_uri(), $this->request->get_parameters() );
+		// check if rebuild file exists and rename it to the correct file
+		$rebuild_found = $this->storage->reset_rebuild_file( $this->request->get_uri(), $this->request->get_parameters() );
+		if ( $rebuild_found ) {
+			Logger::debug( 'Rebuild file found. Will be used for cache until new file created.' );
+			$cached = false;
+		} else {
+			$cached = $this->storage->read( $this->request->get_uri(), $this->request->get_parameters() );
+		}
+
 		if ( is_string( $cached ) ) {
 			$this->send_header( 'X-Jetpack-Boost-Cache: hit' );
 			Logger::debug( 'Serving cached page' );
@@ -127,7 +135,8 @@ class Boost_Cache {
 			die();
 		}
 
-		$this->send_header( 'X-Jetpack-Boost-Cache: miss' );
+		$cache_status = $rebuild_found ? 'rebuild' : 'miss';
+		$this->send_header( 'X-Jetpack-Boost-Cache: ' . $cache_status );
 
 		return false;
 	}
@@ -196,7 +205,7 @@ class Boost_Cache {
 				$this->delete_cache_for_post( get_post( $posts_page_id ) );
 			}
 		} else {
-			$this->storage->invalidate( home_url(), Filesystem_Utils::DELETE_FILES );
+			$this->storage->invalidate( home_url(), Filesystem_Utils::REBUILD_FILES );
 			Logger::debug( 'delete front page cache ' . Boost_Cache_Utils::normalize_request_uri( home_url() ) );
 		}
 	}
@@ -275,7 +284,7 @@ class Boost_Cache {
 			 */
 			if ( isset( $parameters['cookies'] ) && ! empty( $parameters['cookies'] ) ) {
 				$filename = trailingslashit( get_permalink( $post->ID ) ) . Filesystem_Utils::get_request_filename( $parameters );
-				$this->storage->invalidate( $filename, Filesystem_Utils::DELETE_FILE );
+				$this->storage->invalidate( $filename, Filesystem_Utils::REBUILD_FILE );
 			}
 			return;
 		}
@@ -426,7 +435,7 @@ class Boost_Cache {
 	public function delete_cache_for_url( $url ) {
 		Logger::debug( 'delete_cache_for_url: ' . $url );
 
-		return $this->storage->invalidate( $url, Filesystem_Utils::DELETE_ALL );
+		return $this->storage->invalidate( $url, Filesystem_Utils::REBUILD_ALL );
 	}
 
 	/**
