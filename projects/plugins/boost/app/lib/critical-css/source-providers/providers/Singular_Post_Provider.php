@@ -107,8 +107,7 @@ class Singular_Post_Provider extends Provider {
 	public static function get_post_types() {
 		$post_types = get_post_types(
 			array(
-				'public'              => true,
-				'exclude_from_search' => false, // Only return post types that are searchable.
+				'public' => true,
 			),
 			'objects'
 		);
