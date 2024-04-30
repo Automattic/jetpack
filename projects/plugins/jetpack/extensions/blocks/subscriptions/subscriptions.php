@@ -654,7 +654,7 @@ function render_block( $attributes ) {
 		'success_message'               => get_attribute(
 			$attributes,
 			'successMessage',
-			esc_html__( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing.", 'jetpack' )
+			esc_html__( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm' to start subscribing.", 'jetpack' )
 		),
 		'show_subscribers_total'        => (bool) get_attribute( $attributes, 'showSubscribersTotal' ),
 		'subscribers_total'             => get_subscriber_count( $include_social_followers ),

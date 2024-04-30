@@ -707,7 +707,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$defaults['subscribe_text']        = esc_html__( 'Enter your email address to subscribe to this blog and receive notifications of new posts by email.', 'jetpack' );
 		$defaults['subscribe_placeholder'] = esc_html__( 'Email Address', 'jetpack' );
 		$defaults['subscribe_button']      = esc_html__( 'Subscribe', 'jetpack' );
-		$defaults['success_message']       = esc_html__( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing.", 'jetpack' );
+		$defaults['success_message']       = esc_html__( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm' to start subscribing.", 'jetpack' );
 
 		return $defaults;
 	}
