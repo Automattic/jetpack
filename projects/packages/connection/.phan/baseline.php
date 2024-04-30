@@ -15,8 +15,8 @@ return [
     // PhanDeprecatedFunction : 15+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 15+ occurrences
     // PhanTypeMismatchReturn : 15+ occurrences
-    // PhanUndeclaredClassMethod : 10+ occurrences
     // PhanTypeMismatchPropertyProbablyReal : 9 occurrences
+    // PhanUndeclaredClassMethod : 9 occurrences
     // PhanNoopNew : 8 occurrences
     // PhanTypeMismatchReturnProbablyReal : 8 occurrences
     // PhanUndeclaredProperty : 8 occurrences
@@ -64,7 +64,7 @@ return [
         'src/class-tracking.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanTypePossiblyInvalidDimOffset'],
         'src/class-webhooks.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'src/sso/class-helpers.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'src/sso/class-sso.php' => ['PhanNoopNew', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassMethod'],
+        'src/sso/class-sso.php' => ['PhanNoopNew', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'src/sso/class-user-admin.php' => ['PhanPluginUnreachableCode', 'PhanTypeMismatchArgument'],
         'src/webhooks/class-authorize-redirect.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference'],
         'tests/php/test-class-nonce-handler.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanTypeMismatchArgument'],
