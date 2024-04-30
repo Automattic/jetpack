@@ -62,7 +62,6 @@ class Scheduled_Updates {
 		add_action( 'jetpack_scheduled_update_created', array( Scheduled_Updates_Health_Paths::class, 'updates_health_paths' ), 10, 3 );
 
 		add_action( 'jetpack_scheduled_update_updated', array( Scheduled_Updates_Logs::class, 'replace_logs_schedule_id' ), 10, 2 );
-		add_action( 'jetpack_scheduled_update_updated', array( Scheduled_Updates_Logs::class, 'replace_logs_schedule_id' ), 10, 2 );
 
 		add_action( 'jetpack_scheduled_update_deleted', array( __CLASS__, 'enable_autoupdates' ), 10, 2 );
 		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Active::class, 'clear' ) );
