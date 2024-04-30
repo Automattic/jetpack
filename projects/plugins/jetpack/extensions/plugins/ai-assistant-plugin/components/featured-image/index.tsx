@@ -29,7 +29,15 @@ import UsageCounter from './usage-counter';
 const FEATURED_IMAGE_FEATURE_NAME = 'featured-post-image';
 const JETPACK_SIDEBAR_PLACEMENT = 'jetpack-sidebar';
 
-export default function FeaturedImage( { busy, disabled }: { busy: boolean; disabled: boolean } ) {
+export default function FeaturedImage( {
+	busy,
+	disabled,
+	placement = JETPACK_SIDEBAR_PLACEMENT,
+}: {
+	busy: boolean;
+	disabled: boolean;
+	placement: string;
+} ) {
 	const { toggleEditorPanelOpened: toggleEditorPanelOpenedFromEditPost } =
 		useDispatch( 'core/edit-post' );
 	const { editPost, toggleEditorPanelOpened: toggleEditorPanelOpenedFromEditor } =
@@ -159,31 +167,31 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	const handleGenerate = useCallback( () => {
 		// track the generate image event
 		recordEvent( 'jetpack_ai_featured_image_generation_generate_image', {
-			placement: JETPACK_SIDEBAR_PLACEMENT,
+			placement,
 		} );
 
 		toggleFeaturedImageModal();
 		processImageGeneration();
-	}, [ toggleFeaturedImageModal, processImageGeneration, recordEvent ] );
+	}, [ toggleFeaturedImageModal, processImageGeneration, recordEvent, placement ] );
 
 	const handleRegenerate = useCallback( () => {
 		// track the regenerate image event
 		recordEvent( 'jetpack_ai_featured_image_generation_generate_another_image', {
-			placement: JETPACK_SIDEBAR_PLACEMENT,
+			placement,
 		} );
 
 		processImageGeneration();
 		setCurrent( crrt => crrt + 1 );
-	}, [ processImageGeneration, recordEvent ] );
+	}, [ processImageGeneration, recordEvent, placement ] );
 
 	const handleTryAgain = useCallback( () => {
 		// track the try again event
 		recordEvent( 'jetpack_ai_featured_image_generation_try_again', {
-			placement: JETPACK_SIDEBAR_PLACEMENT,
+			placement,
 		} );
 
 		processImageGeneration();
-	}, [ processImageGeneration, recordEvent ] );
+	}, [ processImageGeneration, recordEvent, placement ] );
 
 	const handleUserPromptChange = useCallback(
 		( e: React.ChangeEvent< HTMLTextAreaElement > ) => {
@@ -201,7 +209,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	const handleAccept = useCallback( () => {
 		// track the accept/use image event
 		recordEvent( 'jetpack_ai_featured_image_generation_use_image', {
-			placement: JETPACK_SIDEBAR_PLACEMENT,
+			placement,
 		} );
 
 		const setAsFeaturedImage = image => {
@@ -245,6 +253,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 		toggleEditorPanelOpened,
 		toggleFeaturedImageModal,
 		triggerComplementaryArea,
+		placement,
 	] );
 
 	const modalTitle = __( 'Generate a featured image with AI', 'jetpack' );
