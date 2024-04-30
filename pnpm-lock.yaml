@@ -1898,6 +1898,8 @@ importers:
         specifier: 5.0.4
         version: 5.0.4
 
+  projects/packages/google-analytics: {}
+
   projects/packages/google-fonts-provider: {}
 
   projects/packages/identity-crisis:
