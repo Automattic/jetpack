@@ -347,7 +347,7 @@ class Queue_Storage_Table {
 				'error'     => $wpdb->last_error,
 			);
 			$sender = Sender::get_instance();
-			$sender->send_action( 'jetpack_sync_custom_table_error_not_exist', $data );
+			$sender->send_action( 'jetpack_sync_storage_error_custom_table_not_exist', $data );
 		}
 
 		return $items_count;
