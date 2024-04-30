@@ -105,7 +105,13 @@ class Archive_Provider extends Provider {
 			$provider_post_types[ $post_type->name ] = $post_type->name;
 		}
 
-		return apply_filters( 'jetpack_boost_critical_css_post_types_archives', $provider_post_types, $post_types );
+		return apply_filters(
+			'jetpack_boost_critical_css_post_types_archives',
+			// Keep this for backwards compatibility.
+			apply_filters( 'jetpack_boost_critical_css_post_types', $provider_post_types ),
+			$provider_post_types,
+			$post_types
+		);
 	}
 
 	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
