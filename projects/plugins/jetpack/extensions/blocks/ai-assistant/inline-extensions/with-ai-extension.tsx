@@ -6,10 +6,10 @@ import {
 	ERROR_QUOTA_EXCEEDED,
 	useAiSuggestions,
 } from '@automattic/jetpack-ai-client';
-import { BlockControls } from '@wordpress/block-editor';
+import { BlockControls, useBlockProps } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { select, useDispatch } from '@wordpress/data';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState, useRef } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import debugFactory from 'debug';
 import React from 'react';
@@ -33,6 +33,9 @@ const debug = debugFactory( 'jetpack-ai-assistant:extensions:with-ai-extension' 
 const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 	return props => {
 		const { clientId, isSelected, name: blockName } = props;
+		const controlRef: React.MutableRefObject< HTMLDivElement | null > = useRef( null );
+		const controlObserver = useRef< ResizeObserver | null >( null );
+		const blockStyle = useRef< string >( '' );
 
 		// Only extend the allowed block types.
 		const possibleToExtendBlock = isPossibleToExtendBlock( {
@@ -84,6 +87,41 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			}
 		}, [ isSelected ] );
 
+		const { id } = useBlockProps();
+
+		useEffect( () => {
+			// There is no ref to the block, so we get the element by its id.
+			const block = document.getElementById( id );
+
+			if ( ! block ) {
+				return;
+			}
+
+			// Once when the AI Control is displayed
+			if ( showAiControl && ! controlObserver.current && controlRef.current ) {
+				// Save the block and control styles to adjust them later.
+				blockStyle.current = block.style.cssText;
+
+				// Observe the control's height to adjust the block's bottom-padding.
+				controlObserver.current = new ResizeObserver( ( [ entry ] ) => {
+					const { height } = entry.contentRect;
+
+					if ( block && controlRef.current && height > 0 ) {
+						block.style.paddingBottom = `${ height + 16 }px`;
+						controlRef.current.style.marginTop = `-${ height }px`;
+					}
+				} );
+
+				controlObserver.current.observe( controlRef.current );
+			} else if ( controlObserver.current ) {
+				// Reset the block's bottom-padding.
+				block.setAttribute( 'style', blockStyle.current );
+
+				controlObserver.current.disconnect();
+				controlObserver.current = null;
+			}
+		}, [ clientId, controlObserver, id, showAiControl ] );
+
 		// Only extend the target block.
 		if ( ! possibleToExtendBlock ) {
 			return <BlockEdit { ...props } />;
@@ -124,6 +162,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 						requestingState={ requestingState }
 						requestingError={ error }
 						suggestion={ suggestion }
+						wrapperRef={ controlRef }
 						request={ request }
 						stopSuggestion={ stopSuggestion }
 						close={ onClose }
