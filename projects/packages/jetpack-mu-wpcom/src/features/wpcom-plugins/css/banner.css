@@ -13,7 +13,7 @@
 	background-color: #242424;
 	padding: 64px 32px;
 	border-radius: 10px;
-	margin-bottom: 25px;
+	margin: 25px 0;
 	background-image: var(--wpcom-plugins-banner-image);
 	background-repeat: no-repeat;
 	background-position: bottom right 64px;
