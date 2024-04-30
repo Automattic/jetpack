@@ -1,8 +1,8 @@
 /* global wpcomPluginsBanner */
 
 document.addEventListener( 'DOMContentLoaded', () => {
-	const themeBrowser = document.querySelector( '#plugin-filter' );
-	if ( ! themeBrowser ) {
+	const pluginBrowser = document.querySelector( '#plugin-filter' );
+	if ( ! pluginBrowser ) {
 		return;
 	}
 
@@ -11,7 +11,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		`url(${ wpcomPluginsBanner.bannerBackground })`
 	);
 
-	themeBrowser.insertAdjacentHTML(
+	pluginBrowser.insertAdjacentHTML(
 		'beforebegin',
 		`
 		<div class="wpcom-plugins-banner">
