@@ -25,3 +25,15 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	`
 	);
 } );
+
+const wpcomPluginObserver = new MutationObserver( () => {
+	if (
+		! document.querySelector( '.plugin-install-search .current' ) ||
+		document.querySelector( '.no-plugin-results' )
+	) {
+		document.querySelector( '.wpcom-plugins-banner' ).classList.remove( 'hidden' );
+	} else {
+		document.querySelector( '.wpcom-plugins-banner' ).classList.add( 'hidden' );
+	}
+} );
+wpcomPluginObserver.observe( document.getElementById( 'plugin-filter' ), { childList: true } );
