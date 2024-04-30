@@ -179,6 +179,9 @@ export const Publicize = withModuleSettingsFormHelpers(
 					) }
 
 					{ isActive && configCard() }
+					{ window.Initial_State.socialInitialState.useAdminUiV1 ? (
+						<span>New connections UI goes here</span>
+					) : null }
 				</SettingsCard>
 			);
 		}

@@ -109,6 +109,9 @@ const Admin = () => {
 					<AdminSection>
 						{ shouldShowAdvancedPlanNudge && <AdvancedUpsellNotice /> }
 						<InstagramNotice onUpgrade={ onUpgradeToggle } />
+						{ window.jetpackSocialInitialState.useAdminUiV1 ? (
+							<span>New connections UI goes here</span>
+						) : null }
 						<SocialModuleToggle />
 						{ isModuleEnabled && <SocialNotesToggle disabled={ isUpdatingJetpackSettings } /> }
 						{ isModuleEnabled && isAutoConversionAvailable && (
