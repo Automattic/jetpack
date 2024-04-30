@@ -14,7 +14,7 @@ class Jetpack_BbPress_REST_API {
 	/**
 	 * Singleton
 	 *
-	 * @var Jetpack_BbPress_REST_API.
+	 * @var Jetpack_BbPress_REST_API
 	 */
 	private static $instance;
 

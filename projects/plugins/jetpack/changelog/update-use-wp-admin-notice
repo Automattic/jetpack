@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Janitorial: use wp_admin_notice function introduced in WP 6.4 to display notices.

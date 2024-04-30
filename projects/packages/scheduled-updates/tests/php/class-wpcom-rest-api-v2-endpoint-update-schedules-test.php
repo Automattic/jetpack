@@ -135,6 +135,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 					'last_run_timestamp' => null,
 					'last_run_status'    => null,
 					'health_check_paths' => array(),
+					'active'             => true,
 				),
 				Scheduled_Updates::generate_schedule_id( $plugins ) => array(
 					'hook'               => Scheduled_Updates::PLUGIN_CRON_HOOK,
@@ -145,6 +146,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 					'last_run_timestamp' => null,
 					'last_run_status'    => null,
 					'health_check_paths' => array(),
+					'active'             => true,
 				),
 			),
 			$result->get_data()
@@ -422,6 +424,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 					'last_run_timestamp' => null,
 					'last_run_status'    => null,
 					'health_check_paths' => array(),
+					'active'             => true,
 				),
 			),
 			$result->get_data()
@@ -505,6 +508,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 				'last_run_timestamp' => null,
 				'last_run_status'    => null,
 				'health_check_paths' => array(),
+				'active'             => true,
 			),
 			$result->get_data()
 		);

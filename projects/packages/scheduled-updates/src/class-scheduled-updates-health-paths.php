@@ -135,4 +135,31 @@ class Scheduled_Updates_Health_Paths {
 
 		return $ret;
 	}
+
+	/**
+	 * Update the health check paths for a scheduled update hook.
+	 *
+	 * @param string           $id      The ID of the schedule.
+	 * @param object           $event   The event object.
+	 * @param \WP_REST_Request $request The request object.
+	 * @return bool
+	 */
+	public static function updates_health_paths( $id, $event, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$schedule = $request['schedule'];
+		$paths    = $schedule['health_check_paths'] ?? array();
+		return self::update( $id, $paths );
+	}
+
+	/**
+	 * REST prepare_item_for_response filter.
+	 *
+	 * @param array            $item    WP Cron event.
+	 * @param \WP_REST_Request $request Request object.
+	 * @return array Response array on success.
+	 */
+	public static function response_filter( $item, $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$item['health_check_paths'] = self::get( $item['schedule_id'] );
+
+		return $item;
+	}
 }
