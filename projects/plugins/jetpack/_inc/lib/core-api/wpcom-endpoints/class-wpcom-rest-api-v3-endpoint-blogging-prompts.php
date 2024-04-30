@@ -262,7 +262,7 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	public function prepare_items_for_response( $items ) {
 		$locale = get_locale();
 
-		if ( ! isset( $locale ) || empty( $locale ) ) {
+		if ( empty( $locale ) ) {
 			return $items;
 		}
 
