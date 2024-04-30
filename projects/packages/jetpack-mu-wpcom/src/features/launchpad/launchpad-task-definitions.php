@@ -737,7 +737,7 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 
 		// Entrepreneur plan tasks
-		'customize_your_store'            => array(
+		'woo_customize-store'             => array(
 			'get_title'            => function () {
 				return __( 'Customize your store', 'jetpack-mu-wpcom' );
 			},
@@ -747,7 +747,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return site_url( '/wp-admin/admin.php?page=wc-admin&path=%2Fcustomize-store' );
 			},
 		),
-		'add_your_products'               => array(
+		'woo_products'                    => array(
 			'get_title'            => function () {
 				return __( 'Add your products', 'jetpack-mu-wpcom' );
 			},
@@ -757,7 +757,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return site_url( '/wp-admin/admin.php?page=wc-admin&task=products' );
 			},
 		),
-		'get_paid_with_woopayments'       => array(
+		'woo_woocommerce-payments'        => array(
 			'get_title'            => function () {
 				return __( 'Get paid with WooPayments', 'jetpack-mu-wpcom' );
 			},
@@ -767,7 +767,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return site_url( '/wp-admin/admin.php?page=wc-admin&task=woocommerce-payments' );
 			},
 		),
-		'collect_sales_tax'               => array(
+		'woo_tax'                         => array(
 			'get_title'            => function () {
 				return __( 'Collect sales tax', 'jetpack-mu-wpcom' );
 			},
@@ -777,7 +777,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return site_url( '/wp-admin/admin.php?page=wc-admin&task=tax' );
 			},
 		),
-		'grow_your_business'              => array(
+		'woo_marketing'                   => array(
 			'get_title'            => function () {
 				return __( 'Grow your business', 'jetpack-mu-wpcom' );
 			},
@@ -787,7 +787,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return site_url( '/wp-admin/admin.php?page=wc-admin&task=marketing' );
 			},
 		),
-		'add_a_domain'                    => array(
+		'woo_add_domain'                  => array(
 			'get_title'            => function () {
 				return __( 'Add a domain', 'jetpack-mu-wpcom' );
 			},
@@ -797,7 +797,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/domains/add/' . $data['site_slug_encoded'];
 			},
 		),
-		'launch_your_store'               => array(
+		'woo_launch_site'                 => array(
 			'get_title'            => function () {
 				return __( 'Launch your store', 'jetpack-mu-wpcom' );
 			},
@@ -850,10 +850,21 @@ function wpcom_launchpad_is_ecommerce_task_completed( $task, $is_complete ) {
 		return true;
 	}
 
+	// Array mapping task 'id' from $task to keys used in 'woocommerce_task_list_tracked_completed_tasks' site option
+	$task_map = array(
+		'woo_customize-store'      => 'customize-store',
+		'woo_products'             => 'products',
+		'woo_woocommerce-payments' => 'woocommerce-payments',
+		'woo_tax'                  => 'tax',
+		'woo_marketing'            => 'marketing',
+		'woo_add_domain'           => 'add_domain',
+		'woo_launch_site'          => 'launch_site',
+	);
+
 	$completed_tasks = get_option( 'woocommerce_task_list_tracked_completed_tasks', array() );
 
-	if ( in_array( 'products', $completed_tasks, true ) ) {
-		wpcom_mark_launchpad_task_complete( 'add_your_products' );
+	if ( array_key_exists( $task['id'], $task_map ) && in_array( $task_map[ $task['id'] ], $completed_tasks, true ) ) {
+		wpcom_mark_launchpad_task_complete( $task['id'] );
 		return true;
 	} else {
 		return false;
