@@ -751,7 +751,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Add your products', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_ecommerce_task_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_woocommerce_setup_visible',
 			'get_calypso_path'     => function () {
 				return site_url( '/wp-admin/admin.php?page=wc-admin&task=products' );
@@ -831,6 +831,29 @@ function wpcom_launchpad_is_site_launched( $task, $is_complete ) {
 
 	if ( 'launched' === $launch_status ) {
 		wpcom_mark_launchpad_task_complete( 'site_launched' );
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/**
+ * Returns true if the current site's eCommerce plan task is complete.
+ *
+ * @param Task $task The task object.
+ * @param bool $is_complete The current task status.
+ *
+ * @return boolean
+ */
+function wpcom_launchpad_is_ecommerce_task_completed( $task, $is_complete ) {
+	if ( $is_complete ) {
+		return true;
+	}
+
+	$completed_tasks = get_option( 'woocommerce_task_list_tracked_completed_tasks', array() );
+
+	if ( in_array( 'products', $completed_tasks, true ) ) {
+		wpcom_mark_launchpad_task_complete( 'add_your_products' );
 		return true;
 	} else {
 		return false;
