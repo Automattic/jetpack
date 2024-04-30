@@ -22,7 +22,9 @@ const cardCredentials = config.get( 'testCardCredentials' );
 export async function doClassicConnection( page, plan = 'free' ) {
 	const jetpackPage = await JetpackPage.init( page );
 	await jetpackPage.connect();
-	await ( await AuthorizePage.init( page ) ).approve();
+	await (
+		await AuthorizePage.init( page )
+	).approve( { redirectUrl: 'https://wordpress.com/jetpack/connect/plans/**' } );
 
 	if ( plan === 'free' ) {
 		await ( await PickAPlanPage.init( page ) ).select( 'free' );

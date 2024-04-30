@@ -41,7 +41,6 @@ class Action_Endpoint {
 	/**
 	 * This class handles endpoints for DataSync actions.
 	 *
-	 *
 	 * @param $namespace
 	 * @param $key
 	 * @param $action_name

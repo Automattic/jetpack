@@ -27,35 +27,30 @@
 		</properties>
 	</rule>
 
-	<rule ref="MediaWiki.Usage.ForbiddenFunctions.isset">
-		<severity>0</severity>
+	<rule ref="MediaWiki.Usage.ForbiddenFunctions">
+		<exclude name="MediaWiki.Usage.ForbiddenFunctions.isset"/>
 	</rule>
 
-	<rule ref="Squiz.Commenting.FunctionComment.MissingParamComment">
-		<severity>0</severity>
+	<rule ref="Squiz.Commenting.FunctionComment">
+		<exclude name="Squiz.Commenting.FunctionComment.MissingParamComment"/>
+		<exclude name="Squiz.Commenting.FunctionComment.MissingParamName"/>
+		<exclude name="Squiz.Commenting.FunctionComment.MissingParamTag"/>
+		<exclude name="Squiz.Commenting.FunctionComment.MissingReturn"/>
+		<exclude name="Squiz.Commenting.FunctionComment.ParamCommentFullStop"/>
 	</rule>
-	<rule ref="Squiz.Commenting.FunctionComment.MissingParamName">
-		<severity>0</severity>
+	<rule ref="Generic.Commenting.DocComment">
+		<exclude name="Generic.Commenting.DocComment.MissingShort"/>
 	</rule>
-	<rule ref="Squiz.Commenting.FunctionComment.MissingParamTag">
-		<severity>0</severity>
+	<rule ref="Squiz.Commenting.FunctionComment">
+		<exclude name="Squiz.Commenting.FunctionComment.Missing"/>
 	</rule>
-	<rule ref="Squiz.Commenting.FunctionComment.MissingReturn">
-		<severity>0</severity>
+	<rule ref="Squiz.Commenting.ClassComment">
+		<exclude name="Squiz.Commenting.ClassComment.Missing"/>
 	</rule>
-	<rule ref="Generic.Commenting.DocComment.MissingShort">
-		<severity>0</severity>
+	<rule ref="Squiz.Commenting.FileComment">
+		<exclude name="Squiz.Commenting.FileComment.Missing"/>
 	</rule>
-	<rule ref="Squiz.Commenting.FunctionComment.Missing">
-		<severity>0</severity>
-	</rule>
-	<rule ref="Squiz.Commenting.ClassComment.Missing">
-		<severity>0</severity>
-	</rule>
-	<rule ref="Squiz.Commenting.FileComment.Missing">
-		<severity>0</severity>
-	</rule>
-	<rule ref="Squiz.Commenting.VariableComment.Missing">
-		<severity>0</severity>
+	<rule ref="Squiz.Commenting.VariableComment">
+		<exclude name="Squiz.Commenting.VariableComment.Missing"/>
 	</rule>
 </ruleset>
