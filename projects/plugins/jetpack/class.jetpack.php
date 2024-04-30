@@ -16,6 +16,7 @@ use Automattic\Jetpack\Connection\Nonce_Handler;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Connection\Secrets;
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Connection\Webhooks\Authorize_Redirect;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\CookieState;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
@@ -824,7 +825,7 @@ class Jetpack {
 		add_filter( 'jetpack_client_authorize_fallback_url', array( Jetpack_Client_Server::class, 'client_authorize_fallback_url' ) );
 
 		// Filters for the Manager::get_token() urls and request body.
-		add_filter( 'jetpack_token_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
+		add_filter( 'jetpack_token_redirect_url', array( Authorize_Redirect::class, 'filter_connect_redirect_url' ) );
 		add_filter( 'jetpack_token_request_body', array( __CLASS__, 'filter_token_request_body' ) );
 
 		// Filter for the `jetpack/v4/connection/data` API response.
@@ -4353,7 +4354,7 @@ endif;
 				}
 			}
 
-			$url = static::build_authorize_url( $redirect );
+			$url = ( new Authorize_Redirect( static::connection() ) )->build_authorize_url( $redirect );
 		}
 
 		if ( $from ) {
@@ -4380,64 +4381,28 @@ endif;
 	 *
 	 * @todo Update default value for redirect since the called function expects a string.
 	 *
+	 * @deprecated $$next-version$$
+	 *
 	 * @return mixed|void
 	 */
 	public static function build_authorize_url( $redirect = false, $deprecated = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Authorize_Redirect::build_authorize_url' );
 
-		add_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
-		add_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
-
-		$c8n = self::connection();
-		$url = $c8n->get_authorization_url( wp_get_current_user(), $redirect );
-
-		remove_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
-		remove_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
-
-		/**
-		 * Filter the URL used when authorizing a user to a WordPress.com account.
-		 *
-		 * @since 8.9.0
-		 *
-		 * @param string $url Connection URL.
-		 */
-		return apply_filters( 'jetpack_build_authorize_url', $url );
+		return ( new Authorize_Redirect( static::connection() ) )->build_authorize_url( $redirect );
 	}
 
 	/**
 	 * Filters the connection URL parameter array.
 	 *
+	 * @deprecated $$next-version$$
+	 *
 	 * @param array $args default URL parameters used by the package.
 	 * @return array the modified URL arguments array.
 	 */
 	public static function filter_connect_request_body( $args ) {
-		if (
-			Constants::is_defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' )
-			&& include_once Constants::get_constant( 'JETPACK__GLOTPRESS_LOCALES_PATH' )
-		) {
-			$gp_locale      = GP_Locales::by_field( 'wp_locale', get_locale() );
-			$args['locale'] = isset( $gp_locale ) && isset( $gp_locale->slug )
-				? $gp_locale->slug
-				: '';
-		}
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Authorize_Redirect::filter_connect_request_body' );
 
-		$tracking        = new Tracking();
-		$tracks_identity = $tracking->tracks_get_identity( $args['state'] );
-
-		$args = array_merge(
-			$args,
-			array(
-				'_ui' => $tracks_identity['_ui'],
-				'_ut' => $tracks_identity['_ut'],
-			)
-		);
-
-		$calypso_env = ( new Host() )->get_calypso_env();
-
-		if ( ! empty( $calypso_env ) ) {
-			$args['calypso_env'] = $calypso_env;
-		}
-
-		return $args;
+		return Authorize_Redirect::filter_connect_request_body( $args );
 	}
 
 	/**
@@ -4479,20 +4444,14 @@ endif;
 	 * Filters the redirection URL that is used for connect requests. The redirect
 	 * URL should return the user back to the Jetpack console.
 	 *
+	 * @deprecated $$next-version$$
+	 *
 	 * @param String $redirect the default redirect URL used by the package.
 	 * @return String the modified URL.
 	 */
 	public static function filter_connect_redirect_url( $redirect ) {
-		$jetpack_admin_page = esc_url_raw( admin_url( 'admin.php?page=jetpack' ) );
-		$redirect           = $redirect
-			? wp_validate_redirect( esc_url_raw( $redirect ), $jetpack_admin_page )
-			: $jetpack_admin_page;
-
-		if ( isset( $_REQUEST['is_multisite'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not making a site change here.
-			$redirect = Jetpack_Network::init()->get_url( 'network_admin_page' );
-		}
-
-		return $redirect;
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Authorize_Redirect::filter_connect_redirect_url' );
+		return Authorize_Redirect::filter_connect_redirect_url( $redirect );
 	}
 
 	/**
