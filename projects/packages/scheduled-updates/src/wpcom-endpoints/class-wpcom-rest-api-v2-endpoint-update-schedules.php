@@ -116,7 +116,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 						'active' => array(
 							'description' => 'Whether the schedule is active.',
 							'type'        => 'boolean',
-							'required'    => false,
+							'required'    => true,
 							'default'     => true,
 						),
 					),
