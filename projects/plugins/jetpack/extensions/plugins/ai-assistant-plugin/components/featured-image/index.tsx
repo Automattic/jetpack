@@ -28,6 +28,7 @@ import UsageCounter from './usage-counter';
 
 const FEATURED_IMAGE_FEATURE_NAME = 'featured-post-image';
 export const FEATURED_IMAGE_PLACEMENT_JETPACK_SIDEBAR = 'jetpack-sidebar';
+export const FEATURED_IMAGE_PLACEMENT_MEDIA_SOURCE_DROPDOWN = 'media-source-dropdown';
 
 export default function FeaturedImage( {
 	busy,
