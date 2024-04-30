@@ -20,10 +20,10 @@ class Host {
 	 *
 	 * @return bool
 	 */
-	public function is_woa_site() {
+	public static function is_woa_site() {
 		$ret = Cache::get( 'is_woa_site' );
 		if ( null === $ret ) {
-			$ret = $this->is_atomic_platform() && Constants::is_true( 'WPCOMSH__PLUGIN_FILE' );
+			$ret = self::is_atomic_platform() && Constants::is_true( 'WPCOMSH__PLUGIN_FILE' );
 			Cache::set( 'is_woa_site', $ret );
 		}
 		return $ret;
@@ -36,7 +36,7 @@ class Host {
 	 *
 	 * @return bool
 	 */
-	public function is_atomic_platform() {
+	public static function is_atomic_platform() {
 		return Constants::is_true( 'ATOMIC_SITE_ID' ) && Constants::is_true( 'ATOMIC_CLIENT_ID' );
 	}
 
@@ -45,7 +45,7 @@ class Host {
 	 *
 	 * @return bool
 	 */
-	public function is_newspack_site() {
+	public static function is_newspack_site() {
 		return Constants::is_defined( 'NEWSPACK_PLUGIN_FILE' );
 	}
 
@@ -54,7 +54,7 @@ class Host {
 	 *
 	 * @return bool
 	 */
-	public function is_vip_site() {
+	public static function is_vip_site() {
 		return Constants::is_defined( 'WPCOM_IS_VIP_ENV' ) && true === Constants::get_constant( 'WPCOM_IS_VIP_ENV' );
 	}
 
@@ -63,7 +63,7 @@ class Host {
 	 *
 	 * @return bool
 	 */
-	public function is_wpcom_simple() {
+	public static function is_wpcom_simple() {
 		return Constants::is_defined( 'IS_WPCOM' ) && true === Constants::get_constant( 'IS_WPCOM' );
 	}
 
@@ -74,8 +74,8 @@ class Host {
 	 *
 	 * @return bool
 	 */
-	public function is_wpcom_platform() {
-		return $this->is_wpcom_simple() || $this->is_woa_site();
+	public static function is_wpcom_platform() {
+		return self::is_wpcom_simple() || self::is_woa_site();
 	}
 
 	/**
@@ -102,7 +102,7 @@ class Host {
 	 *
 	 * @return string Calypso environment
 	 */
-	public function get_calypso_env() {
+	public static function get_calypso_env() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Nonce is not required; only used for changing environments.
 		if ( isset( $_GET['calypso_env'] ) ) {
 			return sanitize_key( $_GET['calypso_env'] );
@@ -125,7 +125,7 @@ class Host {
 	 *
 	 * @return string "source" query param value
 	 */
-	public function get_source_query() {
+	public static function get_source_query() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$allowed_sources = array( 'jetpack-manage', 'a8c-for-agencies' );
 		if ( isset( $_GET['source'] ) && in_array( $_GET['source'], $allowed_sources, true ) ) {
@@ -141,7 +141,7 @@ class Host {
 	 * @param string $domain The domain of the site to check.
 	 * @return array
 	 */
-	public function get_nameserver_dns_records( $domain ) {
+	public static function get_nameserver_dns_records( $domain ) {
 		if ( ! function_exists( 'dns_get_record' ) ) {
 			return array();
 		}
@@ -164,7 +164,7 @@ class Host {
 	 * @param string $domain The domain of the site to check.
 	 * @return string The hosting provider of 'unknown'.
 	 */
-	public function get_hosting_provider_by_nameserver( $domain ) {
+	public static function get_hosting_provider_by_nameserver( $domain ) {
 		$known_nameservers = array(
 			'bluehost'     => array(
 				'.bluehost.com',
@@ -216,7 +216,7 @@ class Host {
 			),
 		);
 
-		$dns_records = $this->get_nameserver_dns_records( $domain );
+		$dns_records = self::get_nameserver_dns_records( $domain );
 		$dns_records = array_map( 'strtolower', $dns_records );
 
 		foreach ( $known_nameservers as $host => $ns_patterns ) {
@@ -237,7 +237,7 @@ class Host {
 	 *
 	 * @return string
 	 */
-	public function get_known_host_guess() {
+	public static function get_known_host_guess() {
 		$host = Cache::get( 'host_guess' );
 
 		if ( null !== $host ) {
@@ -246,20 +246,20 @@ class Host {
 
 		// First, let's check if we can recognize provider manually:
 		switch ( true ) {
-			case $this->is_woa_site():
+			case self::is_woa_site():
 				$provider = 'woa';
 				break;
-			case $this->is_atomic_platform():
+			case self::is_atomic_platform():
 				$provider = 'atomic';
 				break;
-			case $this->is_newspack_site():
+			case self::is_newspack_site():
 				$provider = 'newspack';
 				break;
-			case $this->is_vip_site():
+			case self::is_vip_site():
 				$provider = 'vip';
 				break;
-			case $this->is_wpcom_simple():
-			case $this->is_wpcom_platform():
+			case self::is_wpcom_simple():
+			case self::is_wpcom_platform():
 				$provider = 'wpcom';
 				break;
 			default:
@@ -270,7 +270,7 @@ class Host {
 		// Second, let's check if we can recognize provider by nameservers:
 		$domain = isset( $_SERVER['SERVER_NAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : '';
 		if ( $provider === 'unknown' && ! empty( $domain ) ) {
-			$provider = $this->get_hosting_provider_by_nameserver( $domain );
+			$provider = self::get_hosting_provider_by_nameserver( $domain );
 		}
 
 		Cache::set( 'host_guess', $provider );

@@ -48,7 +48,7 @@ function register_block() {
 	);
 
 	// If called via REST API, we need to register later in the lifecycle
-	if ( ( new Host() )->is_wpcom_platform() && ! jetpack_is_frontend() ) {
+	if ( Host::is_wpcom_platform() && ! jetpack_is_frontend() ) {
 		add_action(
 			'restapi_theme_init',
 			function () {
@@ -84,7 +84,7 @@ function get_current_url() {
 function get_subscriber_login_url( $redirect ) {
 	$redirect = ! empty( $redirect ) ? $redirect : get_site_url();
 
-	if ( ( new Host() )->is_wpcom_simple() ) {
+	if ( Host::is_wpcom_simple() ) {
 		// On WPCOM we will redirect immediately
 		return wpcom_logmein_redirect_url( $redirect, false, null, 'link', get_current_blog_id() );
 	}
