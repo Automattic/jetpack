@@ -276,4 +276,20 @@ class Host {
 		Cache::set( 'host_guess', $provider );
 		return $provider;
 	}
+
+	/**
+	 * Add public-api.wordpress.com to the safe redirect allowed list - only added when someone allows API access.
+	 *
+	 * @since $$next-version$$ Ported from Jetpack to the Status package.
+	 *
+	 * To be used with a filter of allowed domains for a redirect.
+	 *
+	 * @param array $domains Allowed WP.com Environments.
+	 *
+	 * @return array
+	 */
+	public static function allow_wpcom_public_api_domain( $domains ) {
+		$domains[] = 'public-api.wordpress.com';
+		return $domains;
+	}
 }
