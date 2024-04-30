@@ -1302,7 +1302,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/image-cdn",
-				"reference": "38d37494ab8ed0e2ae35658ba6f4c8e097a7476d"
+				"reference": "fdd9e3c288c7ada8ddcc70fb46ff4ae1426b3309"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1325,7 +1325,7 @@
 				},
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.3.x-dev"
+					"dev-trunk": "0.4.x-dev"
 				},
 				"textdomain": "jetpack-image-cdn",
 				"version-constants": {
@@ -1349,12 +1349,6 @@
 				],
 				"post-update-cmd": [
 					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"build-production": [
-					"pnpm run build-production"
-				],
-				"build-development": [
-					"pnpm run build"
 				]
 			},
 			"license": [
@@ -2454,7 +2448,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/sync",
-				"reference": "5f1e574ac98b4cfa494ee2585d7adb9efe89189b"
+				"reference": "bf72e4fd0707344623c04f5af5ae83ef1152ab14"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2486,7 +2480,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "2.14.x-dev"
+					"dev-trunk": "2.15.x-dev"
 				}
 			},
 			"autoload": {

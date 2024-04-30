@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+use WC_Order;
 use WP_Error;
 
 /**
@@ -93,6 +94,9 @@ class WooCommerce extends Module {
 
 		// Blacklist Action Scheduler comment types.
 		add_filter( 'jetpack_sync_prevent_sending_comment_data', array( $this, 'filter_action_scheduler_comments' ), 10, 2 );
+
+		// Preprocess action to be sent by Jetpack sync.
+		add_action( 'woocommerce_remove_order_items', array( $this, 'action_woocommerce_remove_order_items' ), 10, 2 );
 	}
 
 	/**
@@ -128,6 +132,7 @@ class WooCommerce extends Module {
 		add_action( 'woocommerce_new_order_item', $callable, 10, 4 );
 		add_action( 'woocommerce_update_order_item', $callable, 10, 4 );
 		add_action( 'woocommerce_delete_order_item', $callable, 10, 1 );
+		add_action( 'woocommerce_remove_order_item_ids', $callable, 10, 1 );
 		$this->init_listeners_for_meta_type( 'order_item', $callable );
 
 		// Payment tokens.
@@ -195,6 +200,25 @@ class WooCommerce extends Module {
 		// Make sure we always have all the data - prior to WooCommerce 3.0 we only have the user supplied data in the second argument and not the full details.
 		$args[1] = $this->build_order_item( $args[0] );
 		return $args;
+	}
+
+	/**
+	 * Retrieve the order item ids to be removed and send them as one action
+	 *
+	 * @param WC_Order $order The order argument.
+	 * @param string   $type Order item type.
+	 */
+	public function action_woocommerce_remove_order_items( WC_Order $order, $type ) {
+		if ( $type ) {
+			$order_items = $order->get_items( $type );
+		} else {
+			$order_items = $order->get_items();
+		}
+		$order_item_ids = array_keys( $order_items );
+
+		if ( $order_item_ids ) {
+			do_action( 'woocommerce_remove_order_item_ids', $order_item_ids );
+		}
 	}
 
 	/**

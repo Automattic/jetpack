@@ -212,7 +212,7 @@ class Full_Sync extends Module {
 			/**
 			 * Select configured and not finished modules.
 			 *
-			 * @var $module Module
+			 * @param Module $module
 			 * @return bool
 			 */
 			function ( $module ) use ( $configs, $enqueue_status ) {

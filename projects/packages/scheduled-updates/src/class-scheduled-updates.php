@@ -20,7 +20,7 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.10.0';
+	const PACKAGE_VERSION = '0.11.0-alpha';
 
 	/**
 	 * The cron event hook for the scheduled plugins update.
@@ -58,11 +58,19 @@ class Scheduled_Updates {
 		add_filter( 'plugin_auto_update_setting_html', array( Scheduled_Updates_Admin::class, 'show_scheduled_updates' ), 10, 2 );
 
 		add_action( 'jetpack_scheduled_update_created', array( __CLASS__, 'maybe_disable_autoupdates' ), 10, 3 );
-		add_action( 'jetpack_scheduled_update_deleted', array( __CLASS__, 'enable_autoupdates' ), 10, 2 );
-		add_action( 'jetpack_scheduled_update_updated', array( Scheduled_Updates_Logs::class, 'replace_logs_schedule_id' ), 10, 2 );
-		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Logs::class, 'delete_logs_schedule_id' ), 10, 3 );
+		add_action( 'jetpack_scheduled_update_created', array( Scheduled_Updates_Active::class, 'updates_active' ), 10, 3 );
 		add_action( 'jetpack_scheduled_update_created', array( Scheduled_Updates_Health_Paths::class, 'updates_health_paths' ), 10, 3 );
+
+		add_action( 'jetpack_scheduled_update_updated', array( Scheduled_Updates_Logs::class, 'replace_logs_schedule_id' ), 10, 2 );
+
+		add_action( 'jetpack_scheduled_update_deleted', array( __CLASS__, 'enable_autoupdates' ), 10, 2 );
+		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Active::class, 'clear' ) );
 		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Health_Paths::class, 'clear' ) );
+		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Logs::class, 'delete_logs_schedule_id' ), 10, 3 );
+
+		add_filter( 'jetpack_scheduled_response_item', array( __CLASS__, 'response_filter' ), 10, 2 );
+		add_filter( 'jetpack_scheduled_response_item', array( Scheduled_Updates_Active::class, 'response_filter' ), 10, 2 );
+		add_filter( 'jetpack_scheduled_response_item', array( Scheduled_Updates_Health_Paths::class, 'response_filter' ), 10, 2 );
 
 		// Update cron sync option after options update.
 		$callback = array( __CLASS__, 'update_option_cron' );
@@ -99,7 +107,13 @@ class Scheduled_Updates {
 	 * @param string ...$plugins List of plugins to update.
 	 */
 	public static function run_scheduled_update( ...$plugins ) {
-		$schedule_id       = self::generate_schedule_id( $plugins );
+		$schedule_id = self::generate_schedule_id( $plugins );
+
+		if ( ! Scheduled_Updates_Active::get( $schedule_id ) ) {
+			// The schedule is not active, return.
+			return false;
+		}
+
 		$available_updates = get_site_transient( 'update_plugins' );
 		$plugins_to_update = $available_updates->response ?? array();
 		$plugins_to_update = array_intersect_key( $plugins_to_update, array_flip( $plugins ) );
@@ -118,10 +132,10 @@ class Scheduled_Updates {
 				'no_plugins_to_update'
 			);
 
-			return;
+			return false;
 		}
 
-		( new Connection\Client() )->wpcom_json_api_request_as_blog(
+		$response = ( new Connection\Client() )->wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/hosting/scheduled-update', \Jetpack_Options::get_option( 'id' ) ),
 			'2',
 			array( 'method' => 'POST' ),
@@ -132,6 +146,8 @@ class Scheduled_Updates {
 			),
 			'wpcom'
 		);
+
+		return is_array( $response );
 	}
 
 	/**
@@ -458,6 +474,28 @@ class Scheduled_Updates {
 				Scheduled_Updates_Logs::replace_logs_schedule_id( $id, $schedule_id );
 			}
 		}
+	}
+
+	/**
+	 * REST prepare_item_for_response filter.
+	 *
+	 * @param array            $item    WP Cron event.
+	 * @param \WP_REST_Request $request Request object.
+	 * @return array Response array on success.
+	 */
+	public static function response_filter( $item, $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$status = self::get_scheduled_update_status( $item['schedule_id'] );
+
+		if ( ! $status ) {
+			$status = array(
+				'last_run_timestamp' => null,
+				'last_run_status'    => null,
+			);
+		}
+
+		$item = array_merge( $item, $status );
+
+		return $item;
 	}
 
 	/**

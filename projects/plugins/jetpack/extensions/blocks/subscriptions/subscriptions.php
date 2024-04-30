@@ -182,7 +182,17 @@ function register_block() {
 		}
 	);
 
-	Jetpack_Subscription_Site::init()->handle_subscribe_block_placements();
+	// If called via REST API, we need to register later in the lifecycle
+	if ( ( new Host() )->is_wpcom_platform() && ! jetpack_is_frontend() ) {
+		add_action(
+			'restapi_theme_init',
+			function () {
+				Jetpack_Subscription_Site::init()->handle_subscribe_block_placements();
+			}
+		);
+	} else {
+		Jetpack_Subscription_Site::init()->handle_subscribe_block_placements();
+	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
 
@@ -1170,7 +1180,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
  * Returns Get Access question for the paywall
  *
  * @param string $post_access_level The newsletter access level.
- * @return string.
+ * @return string
  */
 function get_paywall_access_question( $post_access_level ) {
 	switch ( $post_access_level ) {
@@ -1267,12 +1277,19 @@ function get_paywall_simple() {
 	return '
 <!-- wp:columns -->
 <div class="wp-block-columns" style="display: inline-block; width: 90%">
+    <!-- wp:column -->
+    <div class="wp-block-column" style="background-color: #F6F7F7; padding: 32px; 24px;">
+        <!-- wp:paragraph -->
+        <p class="has-text-align-center"
+           style="text-align: center;
+                  color: #50575E;
+                  font-weight: 400;
+                  font-size: 16px;
                   font-family: \'SF Pro Text\', sans-serif;
                   line-height: 28.8px;">
         ' . $access_heading . '
         </p>
         <!-- /wp:paragraph -->
-
         <!-- wp:buttons -->
         <div class="wp-block-buttons" style="text-align: center;">
             <!-- wp:button -->

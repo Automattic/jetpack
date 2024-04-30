@@ -201,6 +201,9 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @return array
 	 */
 	public function expand_order_object( $args ) {
+		if ( ! is_array( $args ) || ! isset( $args[0] ) ) {
+			return false;
+		}
 		$order_object = $args[0];
 
 		if ( is_int( $order_object ) ) {
