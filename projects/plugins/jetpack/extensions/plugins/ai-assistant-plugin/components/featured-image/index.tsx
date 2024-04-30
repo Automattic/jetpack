@@ -277,15 +277,19 @@ export default function FeaturedImage( {
 
 	return (
 		<div>
-			<p>{ __( 'Create and use an AI generated featured image for your post.', 'jetpack' ) }</p>
-			<Button
-				onClick={ handleGenerate }
-				isBusy={ busy }
-				disabled={ ! postContent || disabled || notEnoughRequests }
-				variant="secondary"
-			>
-				{ __( 'Generate image', 'jetpack' ) }
-			</Button>
+			{ placement === FEATURED_IMAGE_PLACEMENT_JETPACK_SIDEBAR && (
+				<>
+					<p>{ __( 'Create and use an AI generated featured image for your post.', 'jetpack' ) }</p>
+					<Button
+						onClick={ handleGenerate }
+						isBusy={ busy }
+						disabled={ ! postContent || disabled || notEnoughRequests }
+						variant="secondary"
+					>
+						{ __( 'Generate image', 'jetpack' ) }
+					</Button>
+				</>
+			) }
 			{ isFeaturedImageModalVisible && (
 				<AiAssistantModal handleClose={ toggleFeaturedImageModal } title={ modalTitle }>
 					<div className="ai-assistant-featured-image__content">
