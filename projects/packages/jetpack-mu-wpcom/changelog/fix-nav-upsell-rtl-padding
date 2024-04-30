@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Fix navigation upsell RTL padding
+Fix navigation upsell and notification RTL spacing.
