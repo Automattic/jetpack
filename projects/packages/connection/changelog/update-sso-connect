@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+SSO: rely on Connection methods instead of relying on methods from the Jetpack plugin.

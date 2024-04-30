@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file contains all the public actions for the Page Cache module.
  * This file is loaded before WordPress is fully initialized.
@@ -57,6 +56,7 @@ function jetpack_boost_delete_cache_for_home() {
 
 /**
  * Delete cache for a specific URL.
+ *
  * @param string $url - The URL to delete the cache for.
  */
 function jetpack_boost_delete_cache_for_url( $url ) {
@@ -66,6 +66,7 @@ function jetpack_boost_delete_cache_for_url( $url ) {
 
 /**
  * Delete cache for a specific post.
+ *
  * @param int $post_id - The ID of the post to delete the cache for.
  */
 function jetpack_boost_delete_cache_by_post_id( $post_id ) {

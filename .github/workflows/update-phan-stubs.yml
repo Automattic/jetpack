@@ -33,19 +33,24 @@ jobs:
         id: changes
         run: |
           if git diff --exit-code; then
-            echo "No changes"
+            echo "::notice::No changes"
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+          elif ! [[ "$(date +%e)" -le 7 && "$(date +%A)" == Thursday ]] && git diff --exit-code --ignore-matching-lines='^ \* Stubs automatically generated from' >/dev/null; then
+            echo "::notice::No changes (other than version bumps) and it's not the first Thursday"
             echo "needed=false" >> "$GITHUB_OUTPUT"
           elif git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=1 origin update/phan-custom-stubs >/dev/null; then
             TMP=$( git -c core.quotepath=off diff --name-only )
             mapfile -t FILES <<<"$TMP"
             if git diff --quiet --exit-code origin/update/phan-custom-stubs "${FILES[@]}"; then
-              echo "Branch already exists and is up to date with these changes"
+              echo "::notice::Branch already exists and is up to date with these changes"
               echo "needed=false" >> "$GITHUB_OUTPUT"
             else
+              echo "::notice::Branch needs updating"
               echo "has-branch=true" >> "$GITHUB_OUTPUT"
               echo "needed=true" >> "$GITHUB_OUTPUT"
             fi
           else
+            echo "::notice::Branch needs creating"
             echo "has-branch=false" >> "$GITHUB_OUTPUT"
             echo "needed=true" >> "$GITHUB_OUTPUT"
           fi

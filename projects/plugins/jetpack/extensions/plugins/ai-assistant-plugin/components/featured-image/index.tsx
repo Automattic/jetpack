@@ -40,6 +40,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	const [ images, setImages ] = useState< CarrouselImages >( [ { generating: true } ] );
 	const [ current, setCurrent ] = useState( 0 );
 	const pointer = useRef( 0 );
+	const [ userPrompt, setUserPrompt ] = useState( '' );
 
 	const { enableComplementaryArea } = useDispatch( 'core/interface' );
 	const { generateImage } = useImageGenerator();
@@ -121,6 +122,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 			feature: FEATURED_IMAGE_FEATURE_NAME,
 			postContent,
 			responseFormat: 'b64_json',
+			userPrompt,
 		} )
 			.then( result => {
 				if ( result.data.length > 0 ) {
@@ -141,7 +143,14 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 			.catch( e => {
 				updateImages( { generating: false, error: e }, pointer.current );
 			} );
-	}, [ updateImages, generateImage, postContent, updateRequestsCount, saveToMediaLibrary ] );
+	}, [
+		updateImages,
+		generateImage,
+		postContent,
+		userPrompt,
+		updateRequestsCount,
+		saveToMediaLibrary,
+	] );
 
 	const toggleFeaturedImageModal = useCallback( () => {
 		setIsFeaturedImageModalVisible( ! isFeaturedImageModalVisible );
@@ -175,6 +184,13 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 
 		processImageGeneration();
 	}, [ processImageGeneration, recordEvent ] );
+
+	const handleUserPromptChange = useCallback(
+		( e: React.ChangeEvent< HTMLTextAreaElement > ) => {
+			setUserPrompt( e.target.value );
+		},
+		[ setUserPrompt ]
+	);
 
 	const triggerComplementaryArea = useCallback( () => {
 		// clear any block selection, because selected blocks have precedence on settings sidebar
@@ -238,6 +254,17 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 		featuredImageCost
 	);
 
+	const acceptButton = (
+		<Button
+			onClick={ handleAccept }
+			variant="primary"
+			isBusy={ currentImage?.generating }
+			disabled={ ! currentImage?.image }
+		>
+			{ __( 'Set as featured image', 'jetpack' ) }
+		</Button>
+	);
+
 	return (
 		<div>
 			<p>{ __( 'Create and use an AI generated featured image for your post.', 'jetpack' ) }</p>
@@ -252,29 +279,19 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 			{ isFeaturedImageModalVisible && (
 				<AiAssistantModal handleClose={ toggleFeaturedImageModal } title={ modalTitle }>
 					<div className="ai-assistant-featured-image__content">
-						<div className="ai-assistant-featured-image__image-canvas">
-							{ ( requireUpgrade || notEnoughRequests ) && ! currentPointer?.generating && (
-								<UpgradePrompt
-									description={
-										notEnoughRequests
-											? sprintf(
-													// Translators: %d is the cost of generating a featured image.
-													__(
-														"Featured image generation costs %d requests per image. You don't have enough requests to generate another image.",
-														'jetpack'
-													),
-													featuredImageCost
-											  )
-											: null
-									}
-								/>
-							) }
-							<Carrousel
-								images={ images }
-								current={ current }
-								handlePreviousImage={ handlePreviousImage }
-								handleNextImage={ handleNextImage }
-							/>
+						<div className="ai-assistant-featured-image__user-prompt">
+							<div className="ai-assistant-featured-image__user-prompt-textarea">
+								<textarea
+									disabled={ notEnoughRequests || currentPointer?.generating }
+									maxLength={ 1000 }
+									rows={ 2 }
+									onChange={ handleUserPromptChange }
+									placeholder={ __(
+										'Include optional instructions to generate a new image',
+										'jetpack'
+									) }
+								></textarea>
+							</div>
 						</div>
 						<div className="ai-assistant-featured-image__actions">
 							<div className="ai-assistant-featured-image__actions-left">
@@ -304,16 +321,33 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 											</Button>
 										</Tooltip>
 									) }
-									<Button
-										onClick={ handleAccept }
-										variant="primary"
-										isBusy={ currentImage?.generating }
-										disabled={ ! currentImage?.image }
-									>
-										{ __( 'Set as featured image', 'jetpack' ) }
-									</Button>
 								</div>
 							</div>
+						</div>
+						<div className="ai-assistant-featured-image__image-canvas">
+							{ ( requireUpgrade || notEnoughRequests ) && ! currentPointer?.generating && (
+								<UpgradePrompt
+									description={
+										notEnoughRequests
+											? sprintf(
+													// Translators: %d is the cost of generating a featured image.
+													__(
+														"Featured image generation costs %d requests per image. You don't have enough requests to generate another image.",
+														'jetpack'
+													),
+													featuredImageCost
+											  )
+											: null
+									}
+								/>
+							) }
+							<Carrousel
+								images={ images }
+								current={ current }
+								handlePreviousImage={ handlePreviousImage }
+								handleNextImage={ handleNextImage }
+								actions={ acceptButton }
+							/>
 						</div>
 					</div>
 					<div className="ai-assistant-featured-image__footer">
