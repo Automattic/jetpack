@@ -183,7 +183,7 @@ function register_block() {
 	);
 
 	// If called via REST API, we need to register later in the lifecycle
-	if ( is_wpcom() && ! jetpack_is_frontend() ) {
+	if ( ( new Host() )->is_wpcom_platform() && ! jetpack_is_frontend() ) {
 		add_action(
 			'restapi_theme_init',
 			function () {
