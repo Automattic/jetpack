@@ -99,7 +99,6 @@ class Scheduled_Updates_Active_Test extends \WorDBless\BaseTestCase {
 				'timestamp'          => strtotime( 'next Monday 8:00' ),
 				'interval'           => 'weekly',
 				'health_check_paths' => array(),
-				'active'             => true,
 			),
 		);
 
@@ -117,17 +116,15 @@ class Scheduled_Updates_Active_Test extends \WorDBless\BaseTestCase {
 		$result  = rest_do_request( $request );
 		$this->assertSame( 200, $result->get_status() );
 
-		// Set active to false.
-		$post_data['schedule']['active'] = false;
-
 		$request->set_method( 'PUT' );
-		$request->set_route( '/wpcom/v2/update-schedules/' . $id );
-		$request->set_body_params( $post_data );
+		$request->set_route( '/wpcom/v2/update-schedules/' . $id . '/active' );
+		$request->set_body_params( array( 'active' => false ) );
 		$result = rest_do_request( $request );
 
 		$this->assertSame( 200, $result->get_status() );
 
 		$request->set_method( 'GET' );
+		$request->set_route( '/wpcom/v2/update-schedules/' . $id );
 		$result = rest_do_request( $request );
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertFalse( $result->get_data()['active'] );
@@ -190,7 +187,6 @@ class Scheduled_Updates_Active_Test extends \WorDBless\BaseTestCase {
 				'timestamp'          => strtotime( 'next Monday 8:00' ),
 				'interval'           => 'weekly',
 				'health_check_paths' => array(),
-				'active'             => false,
 			),
 		);
 
@@ -200,7 +196,16 @@ class Scheduled_Updates_Active_Test extends \WorDBless\BaseTestCase {
 
 		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
 		$this->assertSame( $schedule_id, $result->get_data() );
+
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules/' . $schedule_id . '/active' );
+		$request->set_body_params( array( 'active' => false ) );
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
 		$this->assertFalse( call_user_func_array( array( Scheduled_Updates::class, 'run_scheduled_update' ), $plugins ) );
+
+		// A scheduled update was not run.
+		$this->assertFalse( Scheduled_Updates_Logs::infer_status_from_logs( $schedule_id ) );
 	}
 
 	/**

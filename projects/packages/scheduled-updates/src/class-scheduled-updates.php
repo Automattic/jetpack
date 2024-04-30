@@ -58,7 +58,6 @@ class Scheduled_Updates {
 		add_filter( 'plugin_auto_update_setting_html', array( Scheduled_Updates_Admin::class, 'show_scheduled_updates' ), 10, 2 );
 
 		add_action( 'jetpack_scheduled_update_created', array( __CLASS__, 'maybe_disable_autoupdates' ), 10, 3 );
-		add_action( 'jetpack_scheduled_update_created', array( Scheduled_Updates_Active::class, 'updates_active' ), 10, 3 );
 		add_action( 'jetpack_scheduled_update_created', array( Scheduled_Updates_Health_Paths::class, 'updates_health_paths' ), 10, 3 );
 
 		add_action( 'jetpack_scheduled_update_updated', array( Scheduled_Updates_Logs::class, 'replace_logs_schedule_id' ), 10, 2 );
