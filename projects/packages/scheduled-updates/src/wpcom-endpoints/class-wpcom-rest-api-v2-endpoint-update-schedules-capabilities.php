@@ -30,7 +30,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities extends WP_REST_C
 	public $rest_base = 'update-schedules';
 
 	/**
-	 * WPCOM_REST_API_V2_Endpoint_Atomic_Hosting_Update_Schedule constructor.
+	 * WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities constructor.
 	 */
 	public function __construct() {
 		// Priority 9 to run before the main endpoint and avoid "/capabilities" being treated as a schedule ID.

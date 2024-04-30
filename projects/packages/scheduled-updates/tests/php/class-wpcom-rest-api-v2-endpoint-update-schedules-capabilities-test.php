@@ -8,7 +8,7 @@
 use Automattic\Jetpack\Scheduled_Updates;
 
 /**
- * Test class for WPCOM_REST_API_V2_Endpoint_Update_Schedules.
+ * Test class for WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities.
  *
  * @coversDefaultClass WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities
  */

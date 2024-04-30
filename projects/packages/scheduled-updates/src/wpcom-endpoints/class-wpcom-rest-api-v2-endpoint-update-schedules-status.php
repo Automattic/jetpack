@@ -28,7 +28,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Status extends WP_REST_Control
 	public $rest_base = 'update-schedules';
 
 	/**
-	 * WPCOM_REST_API_V2_Endpoint_Atomic_Hosting_Update_Schedule constructor.
+	 * WPCOM_REST_API_V2_Endpoint_Update_Schedules_Status constructor.
 	 */
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
