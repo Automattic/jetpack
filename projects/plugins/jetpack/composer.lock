@@ -1174,7 +1174,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/google-analytics",
-				"reference": "333fe8c27a8f1811f6a16803eb048026e48586af"
+				"reference": "982ff9228fdeb5333cf46d46a17ee4997b160cf1"
 			},
 			"require": {
 				"php": ">=7.0"
@@ -1188,9 +1188,14 @@
 			},
 			"type": "jetpack-library",
 			"extra": {
+				"autotagger": true,
 				"branch-alias": {
 					"dev-trunk": "0.1.x-dev"
 				},
+				"changelogger": {
+					"link-template": "https://github.com/Automattic/jetpack-google-analytics/compare/v${old}...v${new}"
+				},
+				"mirror-repo": "Automattic/jetpack-google-analytics",
 				"textdomain": "jetpack-google-analytics",
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-ga-manager.php"
