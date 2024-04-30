@@ -16,7 +16,7 @@ import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import { TierProp } from '../../../../store/wordpress-com/types';
-import FeaturedImage, { JETPACK_SIDEBAR_PLACEMENT } from '../featured-image';
+import FeaturedImage, { FEATURED_IMAGE_PLACEMENT_JETPACK_SIDEBAR } from '../featured-image';
 import Proofread from '../proofread';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
@@ -135,7 +135,7 @@ export default function AiAssistantPluginSidebar() {
 								<FeaturedImage
 									busy={ isRedirecting }
 									disabled={ requireUpgrade }
-									placement={ JETPACK_SIDEBAR_PLACEMENT }
+									placement={ FEATURED_IMAGE_PLACEMENT_JETPACK_SIDEBAR }
 								/>
 							</BaseControl>
 						</PanelRow>
