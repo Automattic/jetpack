@@ -15,6 +15,8 @@ class Collection {
 	 * Disable autoloading by default.
 	 *
 	 * @see autoload() to enable autoloading.
+	 *
+	 * @var bool
 	 */
 	private $autoload = false;
 
@@ -25,7 +27,7 @@ class Collection {
 		$this->key = $key;
 	}
 
-	/*
+	/**
 	 * Allow autoloading collections
 	 */
 	public function autoload() {
@@ -49,7 +51,7 @@ class Collection {
 	/**
 	 * Append a single item to the collection
 	 *
-	 * @param $item
+	 * @param mixed $item
 	 *
 	 * @return bool
 	 */

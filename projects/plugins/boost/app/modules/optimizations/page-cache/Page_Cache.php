@@ -13,12 +13,12 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boos
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 
 class Page_Cache implements Pluggable, Has_Deactivate, Optimization {
-	/*
+	/**
 	 * @var array - The errors that occurred when removing the cache.
 	 */
 	private $removal_errors = array();
 
-	/*
+	/**
 	 * The signature used to identify the advanced-cache.php file owned by Jetpack Boost.
 	 */
 	const ADVANCED_CACHE_SIGNATURE = 'Boost Cache Plugin';
@@ -28,7 +28,7 @@ class Page_Cache implements Pluggable, Has_Deactivate, Optimization {
 	 */
 	const ADVANCED_CACHE_VERSION = 'v0.0.3';
 
-	/*
+	/**
 	 * @var Boost_Cache_Settings - The settings for the page cache.
 	 */
 	private $settings;
