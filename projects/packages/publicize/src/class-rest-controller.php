@@ -138,6 +138,18 @@ class REST_Controller {
 			)
 		);
 
+		// Create a Jetpack Social connection.
+		register_rest_route(
+			'jetpack/v4',
+			'/social/connections/new',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'create_publicize_connection' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+				'schema'              => array( $this, 'get_jetpack_social_connections_schema' ),
+			)
+		);
+
 		// Delete a Jetpack Social connection.
 		register_rest_route(
 			'jetpack/v4',
@@ -166,6 +178,36 @@ class REST_Controller {
 		);
 
 		return new WP_Error( 'rest_forbidden', $error_msg, array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Retrieves the JSON schema for creating a jetpack social connection.
+	 *
+	 * @return array Schema data.
+	 */
+	public function get_jetpack_social_connections_schema() {
+		$schema = array(
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'jetpack-social-connection',
+			'type'       => 'object',
+			'properties' => array(
+				'keyring_connection_ID' => array(
+					'description' => __( 'Keyring connection ID', 'jetpack-publicize-pkg' ),
+					'type'        => 'integer',
+					'required'    => true,
+				),
+				'external_user_ID'      => array(
+					'description' => __( 'External User Id - in case of services like Facebook', 'jetpack-publicize-pkg' ),
+					'type'        => 'string',
+				),
+				'shared'                => array(
+					'description' => __( 'Whethe the connection is shared with other users', 'jetpack-publicize-pkg' ),
+					'type'        => 'boolean',
+				),
+			),
+		);
+
+		return rest_default_additional_properties_to_false( $schema );
 	}
 
 	/**
@@ -374,6 +416,50 @@ class REST_Controller {
 		);
 
 		$response = Client::wpcom_json_api_request_as_user( $path, '2', array( 'method' => 'DELETE' ), null, 'wpcom' );
+		return rest_ensure_response( $this->make_proper_response( $response ) );
+	}
+
+	/**
+	 * Create a publicize connection
+	 *
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
+	 * @return WP_REST_Response|WP_Error True if the request was successful, or a WP_Error otherwise.
+	 */
+	public function create_publicize_connection( $request ) {
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$keyring_connection_ID = $request->get_param( 'keyring_connection_ID' );
+		$shared                = $request->get_param( 'shared' );
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$external_user_ID = $request->get_param( 'external_user_ID' );
+		$blog_id          = $this->get_blog_id();
+
+		$path = sprintf(
+			'/sites/%d/jetpack-social-connections/new',
+			$blog_id
+		);
+
+		$body = array(
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			'keyring_connection_ID' => $keyring_connection_ID,
+			'shared'                => $shared,
+		);
+
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		if ( ! empty( $external_user_ID ) ) {
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$body['external_user_ID'] = $external_user_ID;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			$path,
+			'2',
+			array(
+				'method'  => 'POST',
+				'timeout' => 120,
+			),
+			$body,
+			'wpcom'
+		);
 		return rest_ensure_response( $this->make_proper_response( $response ) );
 	}
 }
