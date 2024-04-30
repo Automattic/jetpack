@@ -38,8 +38,6 @@
 		<exclude name="Squiz.Commenting.FunctionComment.Missing"/>
 		<exclude name="Squiz.Commenting.FunctionComment.MissingParamTag"/>
 		<exclude name="Squiz.Commenting.FunctionComment.ParamCommentFullStop"/>
-	</rule>
-	<rule ref="Squiz.Commenting.FunctionComment">
 		<exclude name="Squiz.Commenting.FunctionComment.MissingParamComment"/>
 	</rule>
 	<rule ref="Generic.Commenting.DocComment">
