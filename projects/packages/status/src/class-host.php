@@ -34,7 +34,7 @@ class Host {
 	 *
 	 * @since 1.9.0
 	 *
-	 * @return bool;
+	 * @return bool
 	 */
 	public function is_atomic_platform() {
 		return Constants::is_true( 'ATOMIC_SITE_ID' ) && Constants::is_true( 'ATOMIC_CLIENT_ID' );

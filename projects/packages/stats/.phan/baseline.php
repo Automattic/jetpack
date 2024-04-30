@@ -10,7 +10,6 @@
 return [
     // # Issue statistics:
     // PhanParamTooMany : 7 occurrences
-    // PhanUnextractableAnnotationSuffix : 5 occurrences
     // PhanTypeVoidAssignment : 4 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 2 occurrences
     // PhanDeprecatedFunction : 1 occurrence
@@ -18,9 +17,8 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-options.php' => ['PhanUnextractableAnnotationSuffix'],
-        'src/class-tracking-pixel.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanUnextractableAnnotationSuffix'],
-        'src/class-wpcom-stats.php' => ['PhanTypeMismatchReturn', 'PhanUnextractableAnnotationSuffix'],
+        'src/class-tracking-pixel.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
+        'src/class-wpcom-stats.php' => ['PhanTypeMismatchReturn'],
         'tests/php/test-main.php' => ['PhanParamTooMany', 'PhanTypeVoidAssignment'],
         'tests/php/test-options.php' => ['PhanTypeVoidAssignment'],
         'tests/php/test-wpcom-stats.php' => ['PhanDeprecatedFunction'],
