@@ -162,6 +162,10 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				return wp_admin_notice( __( 'User invite revoked successfully.', 'jetpack' ), array( 'type' => 'success' ) );
 			}
 
+			if ( $_GET['jetpack-sso-invite-user'] === 'failed' && isset( $_GET['jetpack-sso-invite-api-error-message'] ) ) {
+				return wp_admin_notice( wp_kses( wp_unslash( $_GET['jetpack-sso-invite-api-error-message'] ), array() ), array( 'type' => 'error' ) );
+			}
+
 			if ( $_GET['jetpack-sso-invite-user'] === 'failed' && isset( $_GET['jetpack-sso-invite-error'] ) ) {
 				switch ( $_GET['jetpack-sso-invite-error'] ) {
 					case 'invalid-user':
@@ -257,6 +261,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					$query_params  = array(
 						'jetpack-sso-invite-user'  => 'failed',
 						'jetpack-sso-invite-error' => $error_code,
+						'jetpack-sso-invite-api-error-messsage' => $error_message,
 						'_wpnonce'                 => $nonce,
 					);
 
