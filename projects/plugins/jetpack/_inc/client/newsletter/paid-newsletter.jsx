@@ -6,7 +6,9 @@ import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
+import { isUnavailableInOfflineMode, isOfflineMode } from 'state/connection';
 import { getJetpackCloudUrl } from 'state/initial-state';
+import { getModule } from 'state/modules';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 
 /**
@@ -16,17 +18,26 @@ import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
  * @returns {React.Component} Subscription settings component.
  */
 function PaidNewsletter( props ) {
-	const { isSubscriptionsActive, setupPaymentPlansUrl } = props;
+	const {
+		isSubscriptionsActive,
+		setupPaymentPlansUrl,
+		subscriptionsModule,
+		unavailableInOfflineMode,
+	} = props;
 
-	const setupPaymentPlansButtonDisabled = ! isSubscriptionsActive;
+	const setupPaymentPlansButtonDisabled = ! isSubscriptionsActive || unavailableInOfflineMode;
 
 	const trackSetupPaymentPlansButtonClick = useCallback( () => {
 		analytics.tracks.recordJetpackClick( 'newsletter_settings_setup_payment_plans_button_click' );
 	}, [] );
 
 	return (
-		<SettingsCard header={ __( 'Paid Newsletter', 'jetpack' ) } hideButton>
-			<SettingsGroup>
+		<SettingsCard { ...props } header={ __( 'Paid Newsletter', 'jetpack' ) } hideButton>
+			<SettingsGroup
+				disableInOfflineMode
+				disableInSiteConnectionMode
+				module={ subscriptionsModule }
+			>
 				<p className="jp-settings-card__email-settings">
 					{ __(
 						'Earn money through your Newsletter. Reward your most loyal subscribers with exclusive content or add a paywall to monetize content.',
@@ -53,6 +64,9 @@ export default withModuleSettingsFormHelpers(
 		return {
 			isSubscriptionsActive: ownProps.getOptionValue( SUBSCRIPTIONS_MODULE_NAME ),
 			setupPaymentPlansUrl: getJetpackCloudUrl( state, 'monetize/payments' ),
+			subscriptionsModule: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
+			isOffline: isOfflineMode( state ),
+			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
 		};
 	} )( PaidNewsletter )
 );
