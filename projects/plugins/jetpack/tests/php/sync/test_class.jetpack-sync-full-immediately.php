@@ -356,8 +356,9 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_full_sync_sends_previous_interval_end_for_users() {
+		$user_ids = array();
 		for ( $i = 0; $i < 45; $i++ ) {
-			$user_ids[] = self::factory()->user->create(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$user_ids[] = self::factory()->user->create();
 		}
 
 		// The first event is for full sync start.

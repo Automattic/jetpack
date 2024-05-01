@@ -5,7 +5,11 @@
  * @package automattic/jetpack
  */
 
-foreach ( $context['rows'] as $row ) : // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Defined by the caller. Let Phan handle it.
+'@phan-var-force Jetpack_Tiled_Gallery_Layout $this';
+'@phan-var-force array $context';
+
+foreach ( $context['rows'] as $row ) :
 	?>
 	<div
 		class="gallery-row"
@@ -22,12 +26,12 @@ foreach ( $context['rows'] as $row ) : // phpcs:ignore VariableAnalysis.CodeAnal
 			data-original-height="<?php echo esc_attr( $group->height ); ?>"
 		>
 			<?php
-			foreach ( $group->items( $context['needs_attachment_link'], $context['grayscale'] ) as $item ) : // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-				$this->partial( // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			foreach ( $group->items( $context['needs_attachment_link'], $context['grayscale'] ) as $item ) :
+				$this->partial( // @phan-suppress-current-line PhanAccessMethodPrivate -- Called in the scope of the class.
 					'item',
 					array(
 						'item' => $item,
-						'link' => $context['link'], // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+						'link' => $context['link'],
 					)
 				);
 				?>

@@ -3323,6 +3323,7 @@ p {
 					$throw = true;
 				}
 			} else {
+				// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- Checked above. See also https://github.com/phan/phan/issues/1204.
 				$reflection = new ReflectionFunction( 'stats_get_api_key' );
 				if ( basename( $plugin ) === basename( $reflection->getFileName() ) ) {
 					$throw = true;
