@@ -63,11 +63,11 @@ class Boost_Cache {
 	 * Initialize the actions for the cache.
 	 */
 	public function init_actions() {
-		add_action( 'transition_post_status', array( $this, 'delete_on_post_transition' ), 10, 3 );
-		add_action( 'transition_comment_status', array( $this, 'delete_on_comment_transition' ), 10, 3 );
-		add_action( 'comment_post', array( $this, 'delete_on_comment_post' ), 10, 3 );
-		add_action( 'edit_comment', array( $this, 'delete_on_comment_edit' ), 10, 2 );
-		add_action( 'switch_theme', array( $this, 'delete_cache' ) );
+		add_action( 'transition_post_status', array( $this, 'invalidate_on_post_transition' ), 10, 3 );
+		add_action( 'transition_comment_status', array( $this, 'invalidate_on_comment_transition' ), 10, 3 );
+		add_action( 'comment_post', array( $this, 'rebuild_on_comment_post' ), 10, 3 );
+		add_action( 'edit_comment', array( $this, 'rebuild_on_comment_edit' ), 10, 2 );
+		add_action( 'switch_theme', array( $this, 'invalidate_cache' ) );
 		add_action( 'wp_trash_post', array( $this, 'delete_on_post_trash' ), 10, 2 );
 		add_filter( 'wp_php_error_message', array( $this, 'disable_caching_on_error' ) );
 	}
@@ -189,8 +189,10 @@ class Boost_Cache {
 	}
 
 	/**
-	 * Delete the cache for the front page and paged archives.
+	 * Delete/rebuild the cache for the front page and paged archives.
 	 * This is called when a post is edited, deleted, or published.
+	 *
+	 * @param string $action - The action to take when deleting the cache.
 	 */
 	public function invalidate_cache_for_front_page( $action = Filesystem_Utils::REBUILD_FILES ) {
 		if ( get_option( 'show_on_front' ) === 'page' ) {
@@ -211,9 +213,10 @@ class Boost_Cache {
 	}
 
 	/**
-	 * Delete the cache for the given post.
+	 * Delete/rebuild the cache for the given post.
 	 *
 	 * @param int $post_id - The ID of the post to delete the cache for.
+	 * @param string $action - The action to take when deleting the cache.
 	 */
 	public function invalidate_cache_by_post_id( $post_id, $action = Filesystem_Utils::REBUILD_ALL ) {
 		$post = get_post( (int) $post_id );
@@ -223,20 +226,20 @@ class Boost_Cache {
 	}
 
 	/**
-	 * Delete the cache for the post if the comment transitioned from one state to another.
+	 * Rebuild the cache for the post if the comment transitioned from one state to another.
 	 *
 	 * @param string $new_status - The new status of the comment.
 	 * @param string $old_status - The old status of the comment.
 	 * @param WP_Comment $comment - The comment that transitioned.
 	 */
-	public function delete_on_comment_transition( $new_status, $old_status, $comment ) {
+	public function rebuild_on_comment_transition( $new_status, $old_status, $comment ) {
 		if ( $new_status === $old_status ) {
 			return;
 		}
-		Logger::debug( "delete_on_comment_transition: $new_status, $old_status" );
+		Logger::debug( "rebuild_on_comment_transition: $new_status, $old_status" );
 
 		if ( $new_status !== 'approved' && $old_status !== 'approved' ) {
-			Logger::debug( 'delete_on_comment_transition: comment not approved' );
+			Logger::debug( 'rebuild_on_comment_transition: comment not approved' );
 			return;
 		}
 
@@ -245,13 +248,13 @@ class Boost_Cache {
 	}
 
 	/**
-	 * After editing a comment, delete the cache for the post if the comment is approved.
-	 * If changing state and editing, both actions will be called, but the cache will only be deleted once.
+	 * After editing a comment, rebuild the cache for the post if the comment is approved.
+	 * If changing state and editing, both actions will be called, but the cache will only be rebuilt once.
 	 *
 	 * @param int $comment_id - The id of the comment.
 	 * @param array $commentdata - The comment data.
 	 */
-	public function delete_on_comment_edit( $comment_id, $commentdata ) {
+	public function rebuild_on_comment_edit( $comment_id, $commentdata ) {
 		$post = get_post( $commentdata['comment_post_ID'] );
 
 		if ( (int) $commentdata['comment_approved'] === 1 ) {
@@ -260,16 +263,16 @@ class Boost_Cache {
 	}
 
 	/**
-	 * After a comment is posted, delete the cache for the post if the comment is approved.
-	 * If the comment is not approved, only delete the cache for this post for this visitor.
+	 * After a comment is posted, rebuild the cache for the post if the comment is approved.
+	 * If the comment is not approved, only rebuild the cache for this post for this visitor.
 	 *
 	 * @param int $comment_id - The id of the comment.
 	 * @param int $comment_approved - The approval status of the comment.
 	 * @param array $commentdata - The comment data.
 	 */
-	public function delete_on_comment_post( $comment_id, $comment_approved, $commentdata ) {
+	public function rebuild_on_comment_post( $comment_id, $comment_approved, $commentdata ) {
 		$post = get_post( $commentdata['comment_post_ID'] );
-		Logger::debug( "delete_on_comment_post: $comment_id, $comment_approved, {$post->ID}" );
+		Logger::debug( "rebuild_on_comment_post: $comment_id, $comment_approved, {$post->ID}" );
 		/**
 		 * If a comment is not approved, we only need to delete the cache for
 		 * this post for this visitor so the unmoderated comment is shown to them.
@@ -309,11 +312,11 @@ class Boost_Cache {
 	 * @param string $old_status - The old status of the post.
 	 * @param WP_Post $post - The post that transitioned.
 	 */
-	public function delete_on_post_transition( $new_status, $old_status, $post ) {
+	public function invalidate_on_post_transition( $new_status, $old_status, $post ) {
 		// Special case: Delete cache if the post type can effect the whole site.
 		$special_post_types = array( 'wp_template', 'wp_template_part', 'wp_global_styles' );
 		if ( in_array( $post->post_type, $special_post_types, true ) ) {
-			Logger::debug( 'delete_on_post_transition: special post type ' . $post->post_type );
+			Logger::debug( 'invalidate_on_post_transition: special post type ' . $post->post_type );
 			$this->invalidate_cache();
 			return;
 		}
@@ -326,15 +329,15 @@ class Boost_Cache {
 			return;
 		}
 
-		Logger::debug( "delete_on_post_transition: $new_status, $old_status, {$post->ID}" );
+		Logger::debug( "invalidate_on_post_transition: $new_status, $old_status, {$post->ID}" );
 
 		// Don't delete the cache for posts that weren't published and aren't published now
 		if ( ! $this->is_published( $new_status ) && ! $this->is_published( $old_status ) ) {
-			Logger::debug( 'delete_on_post_transition: not published' );
+			Logger::debug( 'invalidate_on_post_transition: not published' );
 			return;
 		}
 
-		Logger::debug( "delete_on_post_transition: deleting post {$post->ID}" );
+		Logger::debug( "invalidate_on_post_transition: rebuilding post {$post->ID}" );
 
 		$this->invalidate_cache_for_post( $post );
 		$this->invalidate_cache_for_post_terms( $post );
