@@ -5,7 +5,7 @@ import { useImageGenerator } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Tooltip } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useRef, useState } from '@wordpress/element';
+import { useCallback, useRef, useState, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 /**
@@ -27,9 +27,20 @@ import Carrousel, { CarrouselImageData, CarrouselImages } from './carrousel';
 import UsageCounter from './usage-counter';
 
 const FEATURED_IMAGE_FEATURE_NAME = 'featured-post-image';
-const JETPACK_SIDEBAR_PLACEMENT = 'jetpack-sidebar';
+export const FEATURED_IMAGE_PLACEMENT_JETPACK_SIDEBAR = 'jetpack-sidebar';
+export const FEATURED_IMAGE_PLACEMENT_MEDIA_SOURCE_DROPDOWN = 'media-source-dropdown';
 
-export default function FeaturedImage( { busy, disabled }: { busy: boolean; disabled: boolean } ) {
+export default function FeaturedImage( {
+	busy,
+	disabled,
+	placement,
+	onClose = () => {},
+}: {
+	busy: boolean;
+	disabled: boolean;
+	placement: string;
+	onClose?: () => void;
+} ) {
 	const { toggleEditorPanelOpened: toggleEditorPanelOpenedFromEditPost } =
 		useDispatch( 'core/edit-post' );
 	const { editPost, toggleEditorPanelOpened: toggleEditorPanelOpenedFromEditor } =
@@ -41,6 +52,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	const [ current, setCurrent ] = useState( 0 );
 	const pointer = useRef( 0 );
 	const [ userPrompt, setUserPrompt ] = useState( '' );
+	const triggeredAutoGeneration = useRef( false );
 
 	const { enableComplementaryArea } = useDispatch( 'core/interface' );
 	const { generateImage } = useImageGenerator();
@@ -118,6 +130,29 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	const processImageGeneration = useCallback( () => {
 		updateImages( { generating: true, error: null }, pointer.current );
 
+		// Ensure the site has enough requests to generate the image.
+		if ( notEnoughRequests ) {
+			updateImages(
+				{
+					generating: false,
+					error: new Error(
+						__( "You don't have enough requests to generate another image", 'jetpack' )
+					),
+				},
+				pointer.current
+			);
+			return;
+		}
+
+		// Ensure the user prompt or the post content are set.
+		if ( ! userPrompt && ! postContent ) {
+			updateImages(
+				{ generating: false, error: new Error( __( 'No content to generate image', 'jetpack' ) ) },
+				pointer.current
+			);
+			return;
+		}
+
 		generateImage( {
 			feature: FEATURED_IMAGE_FEATURE_NAME,
 			postContent,
@@ -144,6 +179,7 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 				updateImages( { generating: false, error: e }, pointer.current );
 			} );
 	}, [
+		notEnoughRequests,
 		updateImages,
 		generateImage,
 		postContent,
@@ -156,34 +192,39 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 		setIsFeaturedImageModalVisible( ! isFeaturedImageModalVisible );
 	}, [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] );
 
+	const handleModalClose = useCallback( () => {
+		toggleFeaturedImageModal();
+		onClose?.();
+	}, [ toggleFeaturedImageModal, onClose ] );
+
 	const handleGenerate = useCallback( () => {
 		// track the generate image event
 		recordEvent( 'jetpack_ai_featured_image_generation_generate_image', {
-			placement: JETPACK_SIDEBAR_PLACEMENT,
+			placement,
 		} );
 
 		toggleFeaturedImageModal();
 		processImageGeneration();
-	}, [ toggleFeaturedImageModal, processImageGeneration, recordEvent ] );
+	}, [ toggleFeaturedImageModal, processImageGeneration, recordEvent, placement ] );
 
 	const handleRegenerate = useCallback( () => {
 		// track the regenerate image event
 		recordEvent( 'jetpack_ai_featured_image_generation_generate_another_image', {
-			placement: JETPACK_SIDEBAR_PLACEMENT,
+			placement,
 		} );
 
 		processImageGeneration();
 		setCurrent( crrt => crrt + 1 );
-	}, [ processImageGeneration, recordEvent ] );
+	}, [ processImageGeneration, recordEvent, placement ] );
 
 	const handleTryAgain = useCallback( () => {
 		// track the try again event
 		recordEvent( 'jetpack_ai_featured_image_generation_try_again', {
-			placement: JETPACK_SIDEBAR_PLACEMENT,
+			placement,
 		} );
 
 		processImageGeneration();
-	}, [ processImageGeneration, recordEvent ] );
+	}, [ processImageGeneration, recordEvent, placement ] );
 
 	const handleUserPromptChange = useCallback(
 		( e: React.ChangeEvent< HTMLTextAreaElement > ) => {
@@ -201,12 +242,12 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 	const handleAccept = useCallback( () => {
 		// track the accept/use image event
 		recordEvent( 'jetpack_ai_featured_image_generation_use_image', {
-			placement: JETPACK_SIDEBAR_PLACEMENT,
+			placement,
 		} );
 
 		const setAsFeaturedImage = image => {
 			editPost( { featured_media: image } );
-			toggleFeaturedImageModal();
+			handleModalClose();
 
 			// Open the featured image panel for users to see the new image.
 			setTimeout( () => {
@@ -243,9 +284,22 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 		recordEvent,
 		saveToMediaLibrary,
 		toggleEditorPanelOpened,
-		toggleFeaturedImageModal,
 		triggerComplementaryArea,
+		handleModalClose,
+		placement,
 	] );
+
+	/**
+	 * When the placement is set to FEATURED_IMAGE_PLACEMENT_MEDIA_SOURCE_DROPDOWN, we generate the image automatically.
+	 */
+	useEffect( () => {
+		if ( placement === FEATURED_IMAGE_PLACEMENT_MEDIA_SOURCE_DROPDOWN ) {
+			if ( ! triggeredAutoGeneration.current ) {
+				triggeredAutoGeneration.current = true;
+				handleGenerate();
+			}
+		}
+	}, [ placement, handleGenerate ] );
 
 	const modalTitle = __( 'Generate a featured image with AI', 'jetpack' );
 	const costTooltipText = sprintf(
@@ -267,17 +321,21 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 
 	return (
 		<div>
-			<p>{ __( 'Create and use an AI generated featured image for your post.', 'jetpack' ) }</p>
-			<Button
-				onClick={ handleGenerate }
-				isBusy={ busy }
-				disabled={ ! postContent || disabled || notEnoughRequests }
-				variant="secondary"
-			>
-				{ __( 'Generate image', 'jetpack' ) }
-			</Button>
+			{ placement === FEATURED_IMAGE_PLACEMENT_JETPACK_SIDEBAR && (
+				<>
+					<p>{ __( 'Create and use an AI generated featured image for your post.', 'jetpack' ) }</p>
+					<Button
+						onClick={ handleGenerate }
+						isBusy={ busy }
+						disabled={ ! postContent || disabled || notEnoughRequests }
+						variant="secondary"
+					>
+						{ __( 'Generate image', 'jetpack' ) }
+					</Button>
+				</>
+			) }
 			{ isFeaturedImageModalVisible && (
-				<AiAssistantModal handleClose={ toggleFeaturedImageModal } title={ modalTitle }>
+				<AiAssistantModal handleClose={ handleModalClose } title={ modalTitle }>
 					<div className="ai-assistant-featured-image__content">
 						<div className="ai-assistant-featured-image__user-prompt">
 							<div className="ai-assistant-featured-image__user-prompt-textarea">
