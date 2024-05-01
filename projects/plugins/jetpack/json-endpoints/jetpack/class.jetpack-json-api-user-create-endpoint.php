@@ -1,5 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+use Automattic\Jetpack\Connection\SSO\Helpers;
 use Automattic\Jetpack\Constants;
 
 /**
@@ -76,7 +77,7 @@ class Jetpack_JSON_API_User_Create_Endpoint extends Jetpack_JSON_API_Endpoint {
 			$this->user_data->url          = isset( $this->user_data->URL ) ? $this->user_data->URL : '';
 			$this->user_data->display_name = $this->user_data->name;
 			$this->user_data->description  = '';
-			$user                          = Jetpack_SSO_Helpers::generate_user( $this->user_data );
+			$user                          = Helpers::generate_user( $this->user_data );
 		}
 
 		if ( is_multisite() ) {
