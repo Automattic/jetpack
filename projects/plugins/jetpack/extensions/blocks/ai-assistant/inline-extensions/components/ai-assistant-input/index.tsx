@@ -14,6 +14,7 @@ import type { ReactElement } from 'react';
 export default function AiAssistantInput( {
 	requestingState,
 	wrapperRef,
+	action,
 	request,
 	stopSuggestion,
 	close,
@@ -25,6 +26,7 @@ export default function AiAssistantInput( {
 	requestingError?: RequestingErrorProps;
 	suggestion?: string;
 	wrapperRef?: React.MutableRefObject< HTMLDivElement | null >;
+	action?: string;
 	request: ( question: string ) => void;
 	stopSuggestion?: () => void;
 	close?: () => void;
@@ -59,6 +61,11 @@ export default function AiAssistantInput( {
 			setValue( '' );
 		}
 	}, [ requestingState ] );
+
+	// Set the value to the quick action text once it changes.
+	useEffect( () => {
+		setValue( action || '' );
+	}, [ action ] );
 
 	return (
 		<ExtensionAIControl

@@ -36,6 +36,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const controlRef: React.MutableRefObject< HTMLDivElement | null > = useRef( null );
 		const controlObserver = useRef< ResizeObserver | null >( null );
 		const blockStyle = useRef< string >( '' );
+		const [ action, setAction ] = useState< string >( '' );
 
 		// Only extend the allowed block types.
 		const possibleToExtendBlock = isPossibleToExtendBlock( {
@@ -134,15 +135,20 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			setShowAiControl( true );
 		};
 
-		const onRequestSuggestion: OnRequestSuggestion = ( promptType, options ) => {
+		const onRequestSuggestion: OnRequestSuggestion = ( promptType, options, humanText ) => {
 			setShowAiControl( true );
+
+			if ( humanText ) {
+				setAction( humanText );
+			}
 			// TODO: handle the promptType and options to request the suggestion.
-			debug( 'onRequestSuggestion', promptType, options );
+			debug( 'onRequestSuggestion', promptType, options, humanText );
 		};
 
 		const onClose = useCallback( () => {
 			setShowAiControl( false );
 			resetSuggestions();
+			setAction( '' );
 		}, [ resetSuggestions ] );
 
 		// Close the AI Control if the block is deselected.
@@ -169,6 +175,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 						requestingError={ error }
 						suggestion={ suggestion }
 						wrapperRef={ controlRef }
+						action={ action }
 						request={ request }
 						stopSuggestion={ stopSuggestion }
 						close={ onClose }
