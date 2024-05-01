@@ -232,14 +232,14 @@ class Boost_Cache {
 	 * @param string     $old_status - The old status of the comment.
 	 * @param WP_Comment $comment - The comment that transitioned.
 	 */
-	public function rebuild_on_comment_transition( $new_status, $old_status, $comment ) {
+	public function invalidate_on_comment_transition( $new_status, $old_status, $comment ) {
 		if ( $new_status === $old_status ) {
 			return;
 		}
-		Logger::debug( "rebuild_on_comment_transition: $new_status, $old_status" );
+		Logger::debug( "invalidate_on_comment_transition: $new_status, $old_status" );
 
 		if ( $new_status !== 'approved' && $old_status !== 'approved' ) {
-			Logger::debug( 'rebuild_on_comment_transition: comment not approved' );
+			Logger::debug( 'invalidate_on_comment_transition: comment not approved' );
 			return;
 		}
 
