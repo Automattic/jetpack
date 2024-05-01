@@ -17,6 +17,7 @@ import React from 'react';
  * Internal dependencies
  */
 import { EXTENDED_INLINE_BLOCKS } from '../extensions/ai-assistant';
+import { BuildPromptOptionsProps, buildPromptForExtensions } from '../lib/prompt';
 import { blockHandler } from './block-handler';
 import AiAssistantInput from './components/ai-assistant-input';
 import AiAssistantExtensionToolbarDropdown from './components/ai-assistant-toolbar-dropdown';
@@ -24,8 +25,12 @@ import { isPossibleToExtendBlock } from './lib/is-possible-to-extend-block';
 /*
  * Types
  */
-import type { OnRequestSuggestion } from '../components/ai-assistant-toolbar-dropdown/dropdown-content';
+import type {
+	AiAssistantDropdownOnChangeOptionsArgProps,
+	OnRequestSuggestion,
+} from '../components/ai-assistant-toolbar-dropdown/dropdown-content';
 import type { ExtendedInlineBlockProp } from '../extensions/ai-assistant';
+import type { PromptTypeProp } from '../lib/prompt';
 
 const debug = debugFactory( 'jetpack-ai-assistant:extensions:with-ai-extension' );
 
@@ -135,6 +140,31 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			setShowAiControl( true );
 		};
 
+		const getRequestMessages = ( {
+			promptType,
+			options,
+			userPrompt,
+		}: {
+			promptType: PromptTypeProp;
+			options?: AiAssistantDropdownOnChangeOptionsArgProps;
+			userPrompt?: string;
+		} ) => {
+			const blockContent = getContent();
+
+			const promptOptions: BuildPromptOptionsProps = {
+				tone: options?.tone,
+				language: options?.language,
+				fromExtension: true,
+			};
+
+			return buildPromptForExtensions( {
+				blockContent,
+				options: promptOptions,
+				type: promptType,
+				userPrompt,
+			} );
+		};
+
 		const onRequestSuggestion: OnRequestSuggestion = ( promptType, options, humanText ) => {
 			setShowAiControl( true );
 
@@ -142,11 +172,11 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				setAction( humanText );
 			}
 
-			// Get the block's content
-			const content = getContent();
+			const messages = getRequestMessages( { promptType, options } );
 
-			// TODO: handle the promptType and options to request the suggestion.
-			debug( 'onRequestSuggestion', promptType, options, content );
+			debug( 'onRequestSuggestion', promptType, options );
+
+			request( messages );
 		};
 
 		const onClose = useCallback( () => {
@@ -154,6 +184,14 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			resetSuggestions();
 			setAction( '' );
 		}, [ resetSuggestions ] );
+
+		const onUserRequest = ( userPrompt: string ) => {
+			const promptType = 'userPrompt';
+			const options = {};
+			const messages = getRequestMessages( { promptType, options, userPrompt } );
+
+			request( messages );
+		};
 
 		// Close the AI Control if the block is deselected.
 		useEffect( () => {
@@ -180,7 +218,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 						suggestion={ suggestion }
 						wrapperRef={ controlRef }
 						action={ action }
-						request={ request }
+						request={ onUserRequest }
 						stopSuggestion={ stopSuggestion }
 						close={ onClose }
 						undo={ onUndo }
