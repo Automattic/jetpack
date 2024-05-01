@@ -50,7 +50,6 @@ class File_Storage implements Storage {
 	 * @param string $request_uri - The URI of this request (excluding GET parameters)
 	 * @param array  $parameters  - An associative array of all the things that make this request special/different. Includes GET parameters and COOKIEs normally.
 	 */
-
 	public function reset_rebuild_file( $request_uri, $parameters ) {
 		$directory = self::get_uri_directory( $request_uri );
 		$filename  = Filesystem_Utils::get_request_filename( $parameters ) . Filesystem_Utils::REBUILD_FILE_EXTENSION;
