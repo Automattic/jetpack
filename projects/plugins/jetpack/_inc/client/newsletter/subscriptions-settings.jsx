@@ -92,10 +92,7 @@ function SubscriptionsSettings( props ) {
 		);
 	}, [ updateFormStateModuleOption ] );
 
-	const isDisabled =
-		! isSubscriptionsActive ||
-		unavailableInOfflineMode ||
-		isSavingAnyOption( [ SUBSCRIPTIONS_MODULE_NAME ] );
+	const isDisabled = ! isSubscriptionsActive || unavailableInOfflineMode;
 
 	return (
 		<SettingsCard
