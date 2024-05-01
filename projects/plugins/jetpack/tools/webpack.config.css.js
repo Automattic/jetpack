@@ -164,6 +164,9 @@ for ( const name of [
 	'modules/shortcodes/css/recipes',
 	'modules/shortcodes/css/recipes-print',
 	'modules/shortcodes/css/slideshow-shortcode',
+	'jetpack_vendor/automattic/jetpack-forms/src/contact-form/css/editor-inline-editing-style',
+	'jetpack_vendor/automattic/jetpack-forms/src/contact-form/css/editor-style',
+	'jetpack_vendor/automattic/jetpack-forms/src/contact-form/css/editor-ui',
 	'modules/custom-css/csstidy/cssparse',
 	'modules/custom-css/csstidy/cssparsed',
 	'modules/custom-css/custom-css/css/codemirror',
@@ -187,6 +190,7 @@ for ( const name of [
 // The ltr version is apparently used unminified.
 for ( const name of [
 	'modules/carousel/jetpack-carousel',
+	'jetpack_vendor/automattic/jetpack-forms/src/contact-form/css/grunion',
 	'modules/related-posts/related-posts',
 	'modules/shortcodes/css/recipes',
 	'modules/shortcodes/css/recipes-print',
