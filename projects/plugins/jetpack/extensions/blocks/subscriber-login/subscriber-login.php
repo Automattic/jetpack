@@ -47,7 +47,17 @@ function register_block() {
 		}
 	);
 
-	Jetpack_Subscription_Site::init()->handle_subscriber_login_block_placements();
+	// If called via REST API, we need to register later in the lifecycle
+	if ( ( new Host() )->is_wpcom_platform() && ! jetpack_is_frontend() ) {
+		add_action(
+			'restapi_theme_init',
+			function () {
+				Jetpack_Subscription_Site::init()->handle_subscriber_login_block_placements();
+			}
+		);
+	} else {
+		Jetpack_Subscription_Site::init()->handle_subscriber_login_block_placements();
+	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 

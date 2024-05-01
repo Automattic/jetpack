@@ -249,8 +249,8 @@ class Test_Helpers extends TestCase {
 	/**
 	 * Test case
 	 *
-	 * @param {number} $number - Widget ID.
-	 * @param {any}    $expected - Expected widget value.
+	 * @param int   $number - Widget ID.
+	 * @param mixed $expected - Expected widget value.
 	 *
 	 * @dataProvider get_build_widget_id_data
 	 */
@@ -261,8 +261,8 @@ class Test_Helpers extends TestCase {
 	/**
 	 * Test case
 	 *
-	 * @param {number} $number - Widget ID.
-	 * @param {any}    $expected - Expected widget value.
+	 * @param int   $number - Widget ID.
+	 * @param mixed $expected - Expected widget value.
 	 *
 	 * @dataProvider get_test_is_active_widget_data
 	 */
@@ -414,9 +414,9 @@ class Test_Helpers extends TestCase {
 	/**
 	 * Test case
 	 *
-	 * @param {any}  $expected - Expected value.
-	 * @param {bool} $previewing - Flag to set previewing value.
-	 * @param {bool} $post - Flag to set post value.
+	 * @param mixed $expected - Expected value.
+	 * @param bool  $previewing - Flag to set previewing value.
+	 * @param bool  $post - Flag to set post value.
 	 *
 	 * @dataProvider get_should_rerun_search_in_customizer_preview_data
 	 */
@@ -434,9 +434,9 @@ class Test_Helpers extends TestCase {
 	/**
 	 * Test case
 	 *
-	 * @param {any}   $expected - Expected value.
-	 * @param {array} $array_1 - Array.
-	 * @param {array} $array_2 - Array.
+	 * @param mixed $expected - Expected value.
+	 * @param array $array_1 - Array.
+	 * @param array $array_2 - Array.
 	 *
 	 * @dataProvider get_array_diff_data
 	 */
@@ -447,8 +447,8 @@ class Test_Helpers extends TestCase {
 	/**
 	 * Test case
 	 *
-	 * @param {any}   $expected - Expected value.
-	 * @param {array} $post_types - Post types.
+	 * @param mixed $expected - Expected value.
+	 * @param array $post_types - Post types.
 	 *
 	 * @dataProvider get_post_types_differ_searchable_data
 	 */
@@ -474,9 +474,9 @@ class Test_Helpers extends TestCase {
 	/**
 	 * Test case
 	 *
-	 * @param {any}   $expected - Expected value.
-	 * @param {array} $post_types - Post types.
-	 * @param {array} $get - $_GET value.
+	 * @param mixed $expected - Expected value.
+	 * @param array $post_types - Post types.
+	 * @param array $get - $_GET value.
 	 *
 	 * @dataProvider get_post_types_differ_query_data
 	 */
@@ -488,8 +488,8 @@ class Test_Helpers extends TestCase {
 	/**
 	 * Test case
 	 *
-	 * @param {any} $expected - Expected value.
-	 * @param {any} $filters - Filters.
+	 * @param mixed $expected - Expected value.
+	 * @param mixed $filters - Filters.
 	 *
 	 * @dataProvider get_filter_properties_for_tracks_data
 	 */
@@ -500,8 +500,8 @@ class Test_Helpers extends TestCase {
 	/**
 	 * Test case
 	 *
-	 * @param {any} $expected - Expected value.
-	 * @param {any} $widget - Widget.
+	 * @param mixed $expected - Expected value.
+	 * @param mixed $widget - Widget.
 	 *
 	 * @dataProvider get_widget_properties_for_tracks_data
 	 */
@@ -512,9 +512,9 @@ class Test_Helpers extends TestCase {
 	/**
 	 * Test case
 	 *
-	 * @param {any} $expected - Expected value.
-	 * @param {any} $old_value - Old value.
-	 * @param {any} $new_value - New value.
+	 * @param mixed $expected - Expected value.
+	 * @param mixed $old_value - Old value.
+	 * @param mixed $new_value - New value.
 	 *
 	 * @dataProvider get_widget_tracks_value_data
 	 */
@@ -525,8 +525,8 @@ class Test_Helpers extends TestCase {
 	/**
 	 * Test case
 	 *
-	 * @param {any} $expected - Expected value.
-	 * @param {any} $input - Input value.
+	 * @param mixed $expected - Expected value.
+	 * @param mixed $input - Input value.
 	 *
 	 * @dataProvider get_remove_active_from_post_type_buckets_data
 	 */
@@ -540,9 +540,9 @@ class Test_Helpers extends TestCase {
 	/**
 	 * Test case
 	 *
-	 * @param {any}    $expected - Expected value.
-	 * @param {string} $url - URL.
-	 * @param {any}    $post_types - Post types.
+	 * @param mixed  $expected - Expected value.
+	 * @param string $url - URL.
+	 * @param mixed  $post_types - Post types.
 	 *
 	 * @dataProvider get_add_post_types_to_url_data
 	 */
@@ -556,9 +556,9 @@ class Test_Helpers extends TestCase {
 	/**
 	 * Test case
 	 *
-	 * @param {any} $expected - Expected value.
-	 * @param {any} $filters - Filters.
-	 * @param {any} $post_types - Post types.
+	 * @param mixed $expected - Expected value.
+	 * @param mixed $filters - Filters.
+	 * @param mixed $post_types - Post types.
 	 *
 	 * @dataProvider get_ensure_post_types_on_remove_url_data
 	 */
@@ -572,9 +572,9 @@ class Test_Helpers extends TestCase {
 	/**
 	 * Test case
 	 *
-	 * @param {any} $expected - Expected value.
-	 * @param {any} $constant - VIP Index constant value.
-	 * @param {any} $filter - VIP index filter.
+	 * @param mixed $expected - Expected value.
+	 * @param mixed $constant - VIP Index constant value.
+	 * @param mixed $filter - VIP index filter.
 	 *
 	 * @dataProvider get_site_has_vip_index_data
 	 */
@@ -593,8 +593,8 @@ class Test_Helpers extends TestCase {
 	/**
 	 * Test case
 	 *
-	 * @param {any} $expected - Expected value.
-	 * @param {any} $has_vip_index - Constant value.
+	 * @param mixed $expected - Expected value.
+	 * @param mixed $has_vip_index - Constant value.
 	 *
 	 * @dataProvider get_max_posts_per_page_data
 	 */
@@ -606,8 +606,8 @@ class Test_Helpers extends TestCase {
 	/**
 	 * Test case
 	 *
-	 * @param {any} $expected - Expected value.
-	 * @param {any} $has_vip_index - Constant value.
+	 * @param mixed $expected - Expected value.
+	 * @param mixed $has_vip_index - Constant value.
 	 *
 	 * @dataProvider get_max_offset_data
 	 */
@@ -619,9 +619,9 @@ class Test_Helpers extends TestCase {
 	/**
 	 * Test case
 	 *
-	 * @param {any} $expected - Expected value.
-	 * @param {any} $type - Type.
-	 * @param {any} $is_updated - Is updated.
+	 * @param mixed $expected - Expected value.
+	 * @param mixed $type - Type.
+	 * @param mixed $is_updated - Is updated.
 	 *
 	 * @dataProvider get_date_filter_type_name_data
 	 */
@@ -1407,7 +1407,7 @@ class Test_Helpers extends TestCase {
 	/**
 	 * Sets the jetpack-search-filters-10 widget as inactive and jetpack-search-filters-22 as active.
 	 *
-	 * @param {array} $widgets - An associative array of sidebars and their widgets.
+	 * @param array $widgets - An associative array of sidebars and their widgets.
 	 */
 	public function fake_out_search_widget( $widgets ) {
 		// If no sidebars exist, create an empty one.
@@ -1471,8 +1471,8 @@ class Test_Helpers extends TestCase {
 	/**
 	 * Data provider
 	 *
-	 * @param {number} $count_filters - Number of filters.
-	 * @param {number} $count_cat - Number of categories.
+	 * @param int $count_filters - Number of filters.
+	 * @param int $count_cat - Number of categories.
 	 */
 	public function get_sample_filters( $count_filters = 2, $count_cat = 4 ) {
 		$filters = array();
@@ -1491,8 +1491,8 @@ class Test_Helpers extends TestCase {
 	/**
 	 * Data provider
 	 *
-	 * @param {number} $count_filters - Number of filters.
-	 * @param {number} $count_cat - Number of categories.
+	 * @param int $count_filters - Number of filters.
+	 * @param int $count_cat - Number of categories.
 	 */
 	public function get_sample_widget_instance( $count_filters = 2, $count_cat = 4 ) {
 		$instance = array(
@@ -1510,7 +1510,7 @@ class Test_Helpers extends TestCase {
 	/**
 	 * Data provider
 	 *
-	 * @param {number} $count - Number of categories.
+	 * @param int $count - Number of categories.
 	 */
 	public function get_cat_filter( $count = 4 ) {
 		return array(

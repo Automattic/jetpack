@@ -37,7 +37,8 @@ export const Publicize = withModuleSettingsFormHelpers(
 				hasAutoConversion = this.props.hasAutoConversion,
 				isAtomicSite = this.props.isAtomicSite,
 				activeFeatures = this.props.activeFeatures,
-				userCanManageModules = this.props.userCanManageModules;
+				userCanManageModules = this.props.userCanManageModules,
+				useAdminUiV1 = this.props.useAdminUiV1;
 
 			const showUpgradeLink =
 				! isAtomicSite &&
@@ -179,6 +180,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 					) }
 
 					{ isActive && configCard() }
+					{ useAdminUiV1 ? <span>New connections UI goes here</span> : null }
 				</SettingsCard>
 			);
 		}

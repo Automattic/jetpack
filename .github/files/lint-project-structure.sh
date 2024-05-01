@@ -539,6 +539,29 @@ for FILE in $(git -c core.quotepath=off ls-files 'projects/packages/**/block.jso
 	fi
 done
 
+# - In phpcs config, `<rule ref="Standard.Category.Sniff.Message"><severity>0</severity></rule>` doesn't do what you think.
+debug "Checking for bad message exclusions in phpcs configs"
+for FILE in $(git -c core.quotepath=off ls-files .phpcs.config.xml .phpcs.xml.dist .github/files/php-linting-phpcs.xml .github/files/phpcompatibility-dev-phpcs.xml '*/.phpcs.dir.xml' '*/.phpcs.dir.phpcompatibility.xml'); do
+	while IFS=$'\t' read -r LINE REF; do
+		EXIT=1
+		echo "::error file=$FILE,line=$LINE::PHPCS config attempts to set severity 0 for the sniff message \"$REF\". To exclude a single message from a sniff, use \`<rule ref=\"${REF%.*}\"><exclude name=\"$REF\"/></rule>\` instead."
+	done < <( php -- "$FILE" <<-'PHPDOC'
+		<?php
+		$doc = new DOMDocument();
+		$doc->load( $argv[1] );
+		$xpath = new DOMXPath( $doc );
+		function has_message( $v ) {
+			return count( explode(".", $v[0]->value) ) >= 4;
+		}
+		$xpath->registerNamespace("php", "http://php.net/xpath");
+		$xpath->registerPHPFunctions( "has_message" );
+		foreach ( $xpath->evaluate( "//rule[php:function(\"has_message\", @ref)][severity[normalize-space(.)=\"0\"]]" ) as $node ) {
+			echo "{$node->getLineNo()}\t{$node->getAttribute("ref")}\n";
+		}
+		PHPDOC
+	)
+done
+
 # - .nvmrc should match .github/versions.sh.
 debug "Checking .nvmrc vs versions.sh"
 if [[ "$(<.nvmrc)" != "$NODE_VERSION" ]]; then

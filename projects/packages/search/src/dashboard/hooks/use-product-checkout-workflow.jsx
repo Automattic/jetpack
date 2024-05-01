@@ -58,7 +58,7 @@ export default function useProductCheckoutWorkflow( {
 	// Build the checkout URL.
 	const checkoutProductUrl = getProductCheckoutUrl(
 		productSlug,
-		blogID ?? siteSuffix,
+		blogID || siteSuffix,
 		redirectUri,
 		isUserConnected || isWpcom
 	);

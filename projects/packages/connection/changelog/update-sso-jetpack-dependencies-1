@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Bring in authentication methods needed for SSO feature.

@@ -10,11 +10,9 @@
 return [
     // # Issue statistics:
     // PhanUndeclaredFunctionInCallable : 1 occurrence
-    // PhanUnextractableAnnotation : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/dashboard/class-dashboard.php' => ['PhanUnextractableAnnotation'],
         'src/initializers/class-initializer.php' => ['PhanUndeclaredFunctionInCallable'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

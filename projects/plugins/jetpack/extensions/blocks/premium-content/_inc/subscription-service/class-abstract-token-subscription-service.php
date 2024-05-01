@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
+use WP_Error;
 use WP_Post;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
 
@@ -74,7 +75,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	/**
 	 * Get the token payload .
 	 *
-	 * @return array.
+	 * @return array
 	 */
 	public function get_token_payload() {
 		$token = $this->get_and_set_token_from_request();
@@ -93,7 +94,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	 *
 	 * @param string $key the property name.
 	 *
-	 * @return mixed|false.
+	 * @return mixed|false
 	 */
 	public function get_token_property( $key ) {
 		$token_payload = $this->get_token_payload();
@@ -248,6 +249,97 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	}
 
 	/**
+	 * Get all plans id that make access valid for a post with this tier id.
+	 *
+	 * @param int $tier_id Newsletter tier post ID.
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function get_valid_plan_ids_for_tier( int $tier_id ) {
+		// Valid plans are:
+		// - monthly plan with ID $tier_id
+		// - yearly plan related to this $tier_id (in meta jetpack_memberships_tier)
+		// - monthly tiers with same currency and price same or higher than original tier
+		// - yearly plans that are more expensive than the yearly plan linked to the original tier
+
+		$valid_plan_ids = array();
+
+		$all_plans = \Jetpack_Memberships::get_all_plans();
+
+		// Let's get the current tier
+		$tier = null;
+		foreach ( $all_plans as $post ) {
+			if ( $post->ID === $tier_id ) {
+				$tier = $post;
+				break;
+			}
+		}
+
+		if ( $tier === null ) {
+			// We have an error
+			return new WP_Error( 'related-plan-not-found', 'The plan related to the tier cannot be found' );
+		}
+
+		$tier_price      = self::find_metadata( $tier, 'jetpack_memberships_price' );
+		$tier_currency   = self::find_metadata( $tier, 'jetpack_memberships_currency' );
+		$tier_product_id = self::find_metadata( $tier, 'jetpack_memberships_product_id' );
+
+		if ( $tier_price === null || $tier_currency === null || $tier_product_id === null ) {
+			// There is an issue with the meta
+			return new WP_Error( 'wrong-data-plan-not-found', 'The plan related to the tier is missing data' );
+		}
+
+		$valid_plan_ids[] = $tier_id;
+
+		$tier_price = floatval( $tier_price );
+
+		// At this point we know the post is
+		$annual_tier = null;
+		foreach ( $all_plans as $plan ) {
+			if ( intval( self::find_metadata( $plan, 'jetpack_memberships_tier' ) ) === $tier_id ) {
+				$annual_tier = $plan;
+				break;
+			}
+		}
+
+		$annual_tier_price = null;
+		if ( ! empty( $annual_tier ) ) {
+			$annual_tier_price = floatval( self::find_metadata( $annual_tier, 'jetpack_memberships_price' ) );
+			$valid_plan_ids[]  = $annual_tier->ID;
+		}
+
+		foreach ( $all_plans as $post ) {
+			if ( in_array( $post->ID, $valid_plan_ids, true ) ) {
+				continue;
+			}
+
+			$plan_price    = self::find_metadata( $post, 'jetpack_memberships_price' );
+			$plan_currency = self::find_metadata( $post, 'jetpack_memberships_currency' );
+			$plan_interval = self::find_metadata( $post, 'jetpack_memberships_interval' );
+
+			if ( $plan_price === null || $plan_currency === null || $plan_interval === null ) {
+				// There is an issue with the meta
+				continue;
+			}
+
+			$plan_price = floatval( $plan_price );
+
+			if ( $tier_currency !== $plan_currency ) {
+				// For now, we don't count if there are different currency (not sure how to convert price in a pure JP env)
+				continue;
+			}
+
+			if ( ( $plan_interval === '1 month' && $plan_price >= $tier_price ) ||
+				( $annual_tier_price !== null && $plan_interval === '1 year' && $plan_price >= $annual_tier_price )
+			) {
+				$valid_plan_ids [] = $post->ID;
+			}
+		}
+
+		return $valid_plan_ids;
+	}
+
+	/**
 	 * Find metadata in post
 	 *
 	 * @param WP_Post|object $post        Post.
@@ -255,7 +347,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	 *
 	 * @return mixed|null
 	 */
-	private function find_metadata( $post, $meta_key ) {
+	private static function find_metadata( $post, $meta_key ) {
 
 		if ( $post instanceof WP_Post ) {
 			return $post->{$meta_key};
@@ -301,9 +393,9 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 			return false;
 		}
 
-		$tier_price        = $this->find_metadata( $tier, 'jetpack_memberships_price' );
-		$tier_currency     = $this->find_metadata( $tier, 'jetpack_memberships_currency' );
-		$tier_product_id   = $this->find_metadata( $tier, 'jetpack_memberships_product_id' );
+		$tier_price        = self::find_metadata( $tier, 'jetpack_memberships_price' );
+		$tier_currency     = self::find_metadata( $tier, 'jetpack_memberships_currency' );
+		$tier_product_id   = self::find_metadata( $tier, 'jetpack_memberships_product_id' );
 		$annual_tier_price = $tier_price * 12;
 
 		if ( $tier_price === null || $tier_currency === null || $tier_product_id === null ) {
@@ -317,15 +409,16 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 		$annual_tier_id = null;
 		$annual_tier    = null;
 		foreach ( $all_plans as $plan ) {
-			if ( intval( $this->find_metadata( $plan, 'jetpack_memberships_tier' ) ) === $tier_id ) {
+			if ( intval( self::find_metadata( $plan, 'jetpack_memberships_tier' ) ) === $tier_id ) {
 				$annual_tier = $plan;
 				break;
 			}
 		}
 
+		$annual_tier_price = null;
 		if ( ! empty( $annual_tier ) ) {
 			$annual_tier_id    = $annual_tier->ID;
-			$annual_tier_price = floatval( $this->find_metadata( $annual_tier, 'jetpack_memberships_price' ) );
+			$annual_tier_price = floatval( self::find_metadata( $annual_tier, 'jetpack_memberships_price' ) );
 		}
 
 		foreach ( $user_abbreviated_subscriptions as $subscription_plan_id => $details ) {
@@ -338,7 +431,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 
 			$subscription_post = null;
 			foreach ( $all_plans as $plan ) {
-				if ( intval( $this->find_metadata( $plan, 'jetpack_memberships_product_id' ) ) === intval( $subscription_plan_id ) ) {
+				if ( intval( self::find_metadata( $plan, 'jetpack_memberships_product_id' ) ) === intval( $subscription_plan_id ) ) {
 					$subscription_post = $plan;
 					break;
 				}
@@ -355,9 +448,9 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 				return false;
 			}
 
-			$subscription_price    = $this->find_metadata( $subscription_post, 'jetpack_memberships_price' );
-			$subscription_currency = $this->find_metadata( $subscription_post, 'jetpack_memberships_currency' );
-			$subscription_interval = $this->find_metadata( $subscription_post, 'jetpack_memberships_interval' );
+			$subscription_price    = self::find_metadata( $subscription_post, 'jetpack_memberships_price' );
+			$subscription_currency = self::find_metadata( $subscription_post, 'jetpack_memberships_currency' );
+			$subscription_interval = self::find_metadata( $subscription_post, 'jetpack_memberships_interval' );
 
 			if ( $subscription_price === null || $subscription_currency === null || $subscription_interval === null ) {
 				// There is an issue with the meta
@@ -372,7 +465,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 			}
 
 			if ( ( $subscription_interval === '1 month' && $subscription_price >= $tier_price ) ||
-					( $subscription_interval === '1 year' && $subscription_price >= $annual_tier_price )
+					( $annual_tier_price !== null && $subscription_interval === '1 year' && $subscription_price >= $annual_tier_price )
 			) {
 				// One subscription is more expensive than the minimum set by the post' selected tier
 				return false;
@@ -507,13 +600,13 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	/**
 	 * Return true if any ID/date pairs are valid. Otherwise false.
 	 *
-	 * @param int[]              $valid_plan_ids List of valid plan IDs.
-	 * @param array<int, object> $token_subscriptions : ID must exist in the provided <code>$valid_subscriptions</code> parameter.
-	 *                                                The provided end date needs to be greater than <code>now()</code>.
+	 * @param int[]    $valid_plan_ids List of valid plan IDs.
+	 * @param object[] $token_subscriptions : ID must exist in the provided <code>$valid_subscriptions</code> parameter.
+	 *                                                            The provided end date needs to be greater than <code>now()</code>.
 	 *
 	 * @return bool
 	 */
-	public static function validate_subscriptions( $valid_plan_ids, $token_subscriptions ) {
+	public static function validate_subscriptions( array $valid_plan_ids, array $token_subscriptions ) {
 		// Create a list of product_ids to compare against.
 		$product_ids = array();
 		foreach ( $valid_plan_ids as $plan_id ) {
@@ -522,6 +615,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 				$product_ids[] = $product_id;
 			}
 		}
+
 		foreach ( $token_subscriptions as $product_id => $token_subscription ) {
 			if ( in_array( intval( $product_id ), $product_ids, true ) ) {
 				$end = is_int( $token_subscription->end_date ) ? $token_subscription->end_date : strtotime( $token_subscription->end_date );

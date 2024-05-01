@@ -11,6 +11,7 @@ export type Notice = {
 	message: string | ReactNode;
 	title?: string;
 	options: {
+		id?: string;
 		level: string;
 		actions?: NoticeButtonAction[];
 		priority: number;

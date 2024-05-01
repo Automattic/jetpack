@@ -4,6 +4,7 @@
  *
  * Reset critical CSS when existing critical css values are stale.
  */
+
 namespace Automattic\Jetpack_Boost\Lib\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Lib\Boost_Health;

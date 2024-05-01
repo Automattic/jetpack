@@ -7,7 +7,7 @@ export async function connect( page, premium = false ) {
 
 	let socialPage = await JetpackSocialPage.visit( page );
 	await socialPage.getStarted();
-	await ( await AuthorizePage.init( page ) ).approve();
+	await ( await AuthorizePage.init( page ) ).approve( { redirectUrl: socialPage.url } );
 	socialPage = await JetpackSocialPage.init( page );
 
 	if ( premium ) {

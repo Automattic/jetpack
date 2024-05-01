@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Connection\Authorize_Json_Api;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -959,8 +960,9 @@ class Jetpack_SSO {
 			);
 
 			if ( $is_json_api_auth ) {
-				Jetpack::init()->verify_json_api_authorization_request( $json_api_auth_environment );
-				Jetpack::init()->store_json_api_authorization_token( $user->user_login, $user );
+				$authorize_json_api = new Authorize_Json_Api();
+				$authorize_json_api->verify_json_api_authorization_request( $json_api_auth_environment );
+				$authorize_json_api->store_json_api_authorization_token( $user->user_login, $user );
 
 			} elseif ( ! $is_user_connected ) {
 				wp_safe_redirect(
