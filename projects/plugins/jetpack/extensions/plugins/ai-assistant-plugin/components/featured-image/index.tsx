@@ -5,7 +5,7 @@ import { useImageGenerator } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Tooltip } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useRef, useState } from '@wordpress/element';
+import { useCallback, useRef, useState, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 /**
@@ -263,6 +263,15 @@ export default function FeaturedImage( {
 		handleModalClose,
 		placement,
 	] );
+
+	/**
+	 * When the placement is set to FEATURED_IMAGE_PLACEMENT_MEDIA_SOURCE_DROPDOWN, we generate the image automatically.
+	 */
+	useEffect( () => {
+		if ( placement === FEATURED_IMAGE_PLACEMENT_MEDIA_SOURCE_DROPDOWN ) {
+			handleGenerate();
+		}
+	} );
 
 	const modalTitle = __( 'Generate a featured image with AI', 'jetpack' );
 	const costTooltipText = sprintf(
