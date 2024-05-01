@@ -35,24 +35,6 @@ if ( apply_filters( 'jetpack_contact_form_use_package', true ) ) {
 	return true; // Not returning true will cause the module to become deactivated.
 }
 
-require_once __DIR__ . '/contact-form/grunion-contact-form.php';
-
-/*
- * Filters if the new Contact Form Editor View should be used.
- *
- * A temporary filter to disable the new Editor View for the older UI.
- * Please note this filter and the old UI will be removed in the future.
- * Expected to be removed in Jetpack 5.8 or if a security issue merits removing the old code sooner.
- *
- * @since 5.2.0
- * @deprecated 13.2.0
- *
- * @param boolean $view Use new Editor View. Default true.
- */
-if ( is_admin() && apply_filters_deprecated( 'tmp_grunion_allow_editor_view', array( true ), '13.2.0', '', 'This functionality will be removed in an upcoming version.' ) ) {
-	require_once __DIR__ . '/contact-form/grunion-editor-view.php';
-}
-
 /**
  * Register Jetpack Form patterns
  */
