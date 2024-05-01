@@ -6,6 +6,8 @@
  * @package wpcomsh
  */
 
+use Automattic\Jetpack\Status;
+
 /**
  * Redirect to Design With AI page with `ref=entrepreneur-signup` in the URL.
  * Also deletes the `_wc_activation_redirect` transient which is used for first-time woo onboarding.
@@ -39,3 +41,28 @@ function wpcom_maybe_redirect_to_woo_design_with_ai() {
 }
 
 add_action( 'admin_init', 'wpcom_maybe_redirect_to_woo_design_with_ai', 1 );
+
+/**
+ * If the user is arriving from Design With AI as part of the
+ * Entrpreneur signup flow, redirect the user to Calypso My Home.
+ */
+function wpcom_maybe_redirect_from_woo_my_home_to_calypso_my_home() {
+
+	$is_arriving_from_design_with_ai = (
+		isset( $_GET['page'] ) && $_GET['page'] === 'wc-admin' && // phpcs:ignore WordPress.Security
+		isset( $_GET['ref'] ) && $_GET['ref'] === 'entrepreneur-signup' // phpcs:ignore WordPress.Security
+	);
+
+	if ( $is_arriving_from_design_with_ai ) {
+		$blog_domain = ( new Status() )->get_site_suffix();
+		$my_home_url = 'https://wordpress.com/home/' . $blog_domain . '?ref=entrepreneur-signup';
+
+		// TODO: Remove this when launching to production.
+		$my_home_url .= '&flags=entrepreneur-my-home';
+
+		wp_safe_redirect( $my_home_url );
+		exit;
+	}
+}
+
+add_action( 'admin_init', 'wpcom_maybe_redirect_from_woo_my_home_to_calypso_my_home', 1 );
