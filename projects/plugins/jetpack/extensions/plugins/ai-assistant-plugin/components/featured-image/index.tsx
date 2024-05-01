@@ -130,6 +130,15 @@ export default function FeaturedImage( {
 	const processImageGeneration = useCallback( () => {
 		updateImages( { generating: true, error: null }, pointer.current );
 
+		// Ensure the user prompt or the post content are set.
+		if ( ! userPrompt && ! postContent ) {
+			updateImages(
+				{ generating: false, error: new Error( __( 'No content to generate image', 'jetpack' ) ) },
+				pointer.current
+			);
+			return;
+		}
+
 		generateImage( {
 			feature: FEATURED_IMAGE_FEATURE_NAME,
 			postContent,
