@@ -1,6 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import Card from 'components/card';
+import ConnectUserBar from 'components/connect-user-bar';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -30,6 +31,7 @@ function Newsletter( props ) {
 		subscriptions,
 		toggleModuleNow,
 		isLinked,
+		isOffline,
 		isWpAdminInterface,
 		isSavingAnyOption,
 		isSubscriptionsActive,
@@ -96,6 +98,14 @@ function Newsletter( props ) {
 			</SettingsGroup>
 
 			{ getSubClickableCard() }
+
+			{ ! isLinked && ! isOffline && (
+				<ConnectUserBar
+					feature="subscriptions"
+					featureLabel={ __( 'Newsletter', 'jetpack' ) }
+					text={ __( 'Connect to manage your subscriptions settings.', 'jetpack' ) }
+				/>
+			) }
 		</SettingsCard>
 	);
 }
