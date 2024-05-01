@@ -120,7 +120,7 @@ class File_Storage implements Storage {
 			return false;
 		}
 
-		$count = Filesystem_Utils::delete_expired_files( $this->root_path, JETPACK_BOOST_CACHE_DURATION, Filesystem_Utils::REBUILD );
+		$count = Filesystem_Utils::gc_expired_files( $this->root_path, JETPACK_BOOST_CACHE_DURATION, Filesystem_Utils::REBUILD );
 
 		Logger::debug( "Garbage collected $count files" );
 	}

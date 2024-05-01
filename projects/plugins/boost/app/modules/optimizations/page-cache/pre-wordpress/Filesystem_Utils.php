@@ -117,7 +117,7 @@ class Filesystem_Utils {
 	 * @param string $action    - (optional) The action to take on expired files. DELETE to delete expired files, REBUILD to rebuild expired files. Default is DELETE.
 	 * @return int - The number of files deleted.
 	 */
-	public static function delete_expired_files( $directory, $file_ttl, $action = self::DELETE ) {
+	public static function gc_expired_files( $directory, $file_ttl, $action = self::DELETE ) {
 		clearstatcache();
 
 		$count  = 0;
@@ -145,7 +145,7 @@ class Filesystem_Utils {
 
 			// Handle directories recursively.
 			if ( is_dir( $file_path ) ) {
-				$count += self::delete_expired_files( $file_path, $file_ttl, $action );
+				$count += self::gc_expired_files( $file_path, $file_ttl, $action );
 				continue;
 			}
 
