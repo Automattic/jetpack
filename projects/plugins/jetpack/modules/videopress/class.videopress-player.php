@@ -328,13 +328,13 @@ class VideoPress_Player {
 	private function html5_static() {
 		wp_enqueue_script( 'videopress' );
 		$thumbnail = esc_url( $this->video->poster_frame_uri );
+		$html      = "<video id=\"{$this->video_id}\" width=\"{$this->video->calculated_width}\" height=\"{$this->video->calculated_height}\" poster=\"$thumbnail\" controls=\"true\"";
 
 		$preload = 'metadata';
 		if ( isset( $this->options['preloadContent'] ) && videopress_is_valid_preload( $this->options['preloadContent'] ) ) {
 			$preload = $this->options['preloadContent'];
 		}
 
-		$html = "<video id=\"{$this->video_id}\" width=\"{$this->video->calculated_width}\" height=\"{$this->video->calculated_height}\" poster=\"$thumbnail\" controls=\"true\"";
 		if ( isset( $this->options['autoplay'] ) && $this->options['autoplay'] === true ) {
 			$html .= ' autoplay="true"';
 		} else {
