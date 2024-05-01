@@ -69,7 +69,14 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		// Data and functions with block-specific implementations.
 		const { onSuggestion } = blockHandler( blockName, clientId );
 
-		const { request, stopSuggestion, requestingState, error, suggestion } = useAiSuggestions( {
+		const {
+			request,
+			stopSuggestion,
+			requestingState,
+			error,
+			suggestion,
+			reset: resetSuggestions,
+		} = useAiSuggestions( {
 			onSuggestion,
 			onDone,
 			onError,
@@ -78,14 +85,6 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				feature: 'ai-assistant',
 			},
 		} );
-
-		// Close the AI Control if the block is deselected.
-		useEffect( () => {
-			if ( ! isSelected ) {
-				setShowAiControl( false );
-				// TODO: reset all extension data.
-			}
-		}, [ isSelected ] );
 
 		const { id } = useBlockProps();
 
@@ -141,9 +140,17 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			debug( 'onRequestSuggestion', promptType, options );
 		};
 
-		const onClose = () => {
+		const onClose = useCallback( () => {
 			setShowAiControl( false );
-		};
+			resetSuggestions();
+		}, [ resetSuggestions ] );
+
+		// Close the AI Control if the block is deselected.
+		useEffect( () => {
+			if ( ! isSelected ) {
+				onClose();
+			}
+		}, [ isSelected, onClose ] );
 
 		const onUndo = () => {
 			// TODO: handle the undo action.

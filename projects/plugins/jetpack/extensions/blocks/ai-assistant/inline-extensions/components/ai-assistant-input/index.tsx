@@ -2,7 +2,8 @@
  * External dependencies
  */
 import { ExtensionAIControl } from '@automattic/jetpack-ai-client';
-import { useState } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import React from 'react';
 /*
  * Types
@@ -52,8 +53,16 @@ export default function AiAssistantInput( {
 		throw new Error( 'Function not implemented.' );
 	}
 
+	// Clear the input value on reset and when the request is done.
+	useEffect( () => {
+		if ( [ 'init', 'done' ].includes( requestingState ) ) {
+			setValue( '' );
+		}
+	}, [ requestingState ] );
+
 	return (
 		<ExtensionAIControl
+			placeholder={ __( 'Ask Jetpack AI to edit…', 'jetpack' ) }
 			disabled={ disabled }
 			value={ value }
 			state={ requestingState }
