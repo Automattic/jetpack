@@ -435,7 +435,7 @@ function wpcom_add_hosting_menu_intro_notice() {
 
 		.wpcom-site-menu-intro-notice a.close-button {
 			height: 16px;
-			margin-left: auto;
+			margin-inline-start: auto;
 		}
 	</style>
 	<div class="wpcom-site-menu-intro-notice notice notice-info" role="alert">
