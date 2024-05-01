@@ -5,7 +5,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress;
 
-/*
+/**
  * Cache settings class.
  * Settings are stored in a file in the boost-cache directory.
  */
@@ -17,6 +17,8 @@ class Boost_Cache_Settings {
 
 	/**
 	 * An uninitialized config holds these settings.
+	 *
+	 * @var array
 	 */
 	private $default_settings = array(
 		'enabled'         => false,
@@ -45,6 +47,7 @@ class Boost_Cache_Settings {
 
 	/**
 	 * Ensure a settings file exists, if one isn't there already.
+	 *
 	 * @return Boost_Cache_Error|bool - True if it was changed, or a Boost_Cache_Error on failure, false if it was already created.
 	 */
 	public function create_settings_file() {
@@ -78,7 +81,7 @@ class Boost_Cache_Settings {
 		}
 	}
 
-	/*
+	/**
 	 * Load the settings from the config file, if available. Falls back to defaults if not.
 	 */
 	private function init_settings() {
@@ -111,7 +114,7 @@ class Boost_Cache_Settings {
 		$this->settings = $file_settings;
 	}
 
-	/*
+	/**
 	 * Returns the value of the given setting.
 	 *
 	 * @param string $setting - The setting to get.
@@ -125,7 +128,7 @@ class Boost_Cache_Settings {
 		return $this->settings[ $setting ];
 	}
 
-	/*
+	/**
 	 * Returns true if the cache is enabled.
 	 *
 	 * @return bool
@@ -134,7 +137,7 @@ class Boost_Cache_Settings {
 		return $this->get( 'enabled', false );
 	}
 
-	/*
+	/**
 	 * Returns an array of URLs that should not be cached.
 	 *
 	 * @return array
@@ -154,6 +157,7 @@ class Boost_Cache_Settings {
 
 	/**
 	 * Sets the given settings, and saves them to the config file.
+	 *
 	 * @param array $settings - The settings to set in a key => value associative
 	 * array. This will be merged with the existing settings.
 	 * Example:

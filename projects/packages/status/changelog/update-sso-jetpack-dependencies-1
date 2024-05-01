@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add new method used to track allowed domains for API access.

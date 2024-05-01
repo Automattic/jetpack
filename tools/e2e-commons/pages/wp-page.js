@@ -11,7 +11,7 @@ export default class WpPage extends PageActions {
 	 *
 	 * @param {Object}  page           Playwright representation of the page.
 	 * @param {boolean} checkSelectors whether to also check for expected selectors
-	 * @return {WpPage} Instance of the Page Object class
+	 * @return {Promise<WpPage>} Instance of the Page Object class
 	 */
 	static async init( page, checkSelectors = true ) {
 		const it = new this( page );
