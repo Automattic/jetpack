@@ -47,7 +47,7 @@ function Subscriptions( props ) {
 			{ foundSubscriptions && (
 				<>
 					<Newsletter siteRawUrl={ siteRawUrl } blogID={ blogID } />
-					<SubscriptionsSettings siteRawUrl={ siteRawUrl } blogID={ blogID } />
+					<SubscriptionsSettings />
 					<PaidNewsletter />
 					<NewsletterCategories />
 					<EmailSettings />

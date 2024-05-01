@@ -2,15 +2,12 @@ import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import Card from 'components/card';
-import ConnectUserBar from 'components/connect-user-bar';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import SupportInfo from 'components/support-info';
-import analytics from 'lib/analytics';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { isCurrentUserLinked, isUnavailableInOfflineMode, isOfflineMode } from 'state/connection';
@@ -21,12 +18,7 @@ import {
 	subscriptionSiteEditSupported,
 } from 'state/initial-state';
 import { getModule } from 'state/modules';
-import { siteUsesWpAdminInterface } from 'state/site';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
-
-const trackViewSubsClick = () => {
-	analytics.tracks.recordJetpackClick( 'manage-subscribers' );
-};
 
 /**
  * Subscription settings component.
@@ -37,9 +29,6 @@ const trackViewSubsClick = () => {
 function SubscriptionsSettings( props ) {
 	const {
 		unavailableInOfflineMode,
-		isLinked,
-		isOffline,
-		isWpAdminInterface,
 		isSavingAnyOption,
 		isStbEnabled,
 		isStcEnabled,
@@ -48,14 +37,12 @@ function SubscriptionsSettings( props ) {
 		isLoginNavigationEnabled,
 		isSubscriptionSiteEditSupported,
 		isSubscriptionsActive,
-		siteRawUrl,
 		subscriptions,
 		toggleModuleNow,
 		updateFormStateModuleOption,
 		isBlockTheme,
 		siteAdminUrl,
 		themeStylesheet,
-		blogID,
 	} = props;
 
 	const subscribeModalEditorUrl =
@@ -106,31 +93,6 @@ function SubscriptionsSettings( props ) {
 			'jetpack_subscriptions_login_navigation_enabled'
 		);
 	}, [ updateFormStateModuleOption ] );
-
-	const getSubClickableCard = () => {
-		if ( unavailableInOfflineMode || ! isSubscriptionsActive || ! isLinked ) {
-			return '';
-		}
-
-		const source = isWpAdminInterface
-			? 'jetpack-settings-jetpack-manage-subscribers'
-			: 'calypso-subscribers';
-
-		return (
-			<Card
-				compact
-				className="jp-settings-card__configure-link"
-				onClick={ trackViewSubsClick }
-				href={ getRedirectUrl( source, {
-					site: blogID ?? siteRawUrl,
-				} ) }
-				target="_blank"
-				rel="noopener noreferrer"
-			>
-				{ __( 'Manage all subscribers', 'jetpack' ) }
-			</Card>
-		);
-	};
 
 	const isDisabled =
 		! isSubscriptionsActive ||
@@ -271,16 +233,6 @@ function SubscriptionsSettings( props ) {
 						</FormFieldset>
 					}
 				</SettingsGroup>
-
-				{ getSubClickableCard() }
-
-				{ ! isLinked && ! isOffline && (
-					<ConnectUserBar
-						feature="subscriptions"
-						featureLabel={ __( 'Newsletter', 'jetpack' ) }
-						text={ __( 'Connect to manage your subscriptions settings.', 'jetpack' ) }
-					/>
-				) }
 			</SettingsCard>
 		</>
 	);
@@ -291,7 +243,6 @@ export default withModuleSettingsFormHelpers(
 		return {
 			isLinked: isCurrentUserLinked( state ),
 			isOffline: isOfflineMode( state ),
-			isWpAdminInterface: siteUsesWpAdminInterface( state ),
 			isSubscriptionsActive: ownProps.getOptionValue( SUBSCRIPTIONS_MODULE_NAME ),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
 			subscriptions: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
