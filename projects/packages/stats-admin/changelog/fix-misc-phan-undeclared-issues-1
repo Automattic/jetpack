@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Rewrite a test to use reflection instead of `Closure->bindTo()` to access a protected property. More concise that way.
+
+

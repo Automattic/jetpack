@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove reference to `wpcom_subs_js`, which was removed from wpcom in D104342-code (March 2023).

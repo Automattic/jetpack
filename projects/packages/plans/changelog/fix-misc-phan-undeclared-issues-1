@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Correctly reference `Store_Product_List` class in `Plans::get_plans()`.
