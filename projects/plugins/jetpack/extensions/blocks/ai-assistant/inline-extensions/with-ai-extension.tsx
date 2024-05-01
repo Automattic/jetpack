@@ -68,7 +68,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		);
 
 		// Data and functions with block-specific implementations.
-		const { onSuggestion } = blockHandler( blockName, clientId );
+		const { onSuggestion, getContent } = blockHandler( blockName, clientId );
 
 		const {
 			request,
@@ -141,8 +141,12 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			if ( humanText ) {
 				setAction( humanText );
 			}
+
+			// Get the block's content
+			const content = getContent();
+
 			// TODO: handle the promptType and options to request the suggestion.
-			debug( 'onRequestSuggestion', promptType, options, humanText );
+			debug( 'onRequestSuggestion', promptType, options, content );
 		};
 
 		const onClose = useCallback( () => {
