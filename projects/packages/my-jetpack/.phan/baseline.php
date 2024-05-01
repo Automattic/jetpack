@@ -14,9 +14,9 @@ return [
     // PhanParamTooMany : 10+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 10+ occurrences
     // PhanAbstractStaticMethodCallInStatic : 8 occurrences
-    // PhanUndeclaredClassMethod : 8 occurrences
     // PhanNoopNew : 6 occurrences
     // PhanTypeMismatchReturn : 6 occurrences
+    // PhanUndeclaredClassMethod : 6 occurrences
     // PhanUndeclaredStaticProperty : 6 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 5 occurrences
     // PhanTypeMismatchReturnNullable : 3 occurrences
@@ -53,7 +53,7 @@ return [
         'src/products/class-product.php' => ['PhanAbstractStaticMethodCallInStatic', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
         'src/products/class-protect.php' => ['PhanTypeMismatchPropertyDefault'],
         'src/products/class-scan.php' => ['PhanTypeMismatchArgumentNullable'],
-        'src/products/class-search.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchReturnNullable', 'PhanUndeclaredClassMethod'],
+        'src/products/class-search.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchReturnNullable'],
         'src/products/class-security.php' => ['PhanTypeMismatchArgumentNullable'],
         'src/products/class-social.php' => ['PhanTypeMismatchPropertyDefault'],
         'src/products/class-starter.php' => ['PhanTypeMismatchArgumentNullable'],
