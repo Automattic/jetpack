@@ -36,11 +36,10 @@ export type SocialStoreState = {
 	hasPaidPlan?: boolean;
 	// on Jetack Social admin page
 	jetpackSettings?: JetpackSettings;
-	useAdminUiV1?: boolean;
 };
 
 declare global {
 	interface Window {
-		jetpackSocialInitialState?: SocialStoreState;
+		jetpackSocialInitialState?: SocialStoreState & { useAdminUiV1?: boolean };
 	}
 }
