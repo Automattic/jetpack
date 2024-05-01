@@ -26,7 +26,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.18.5';
+	const PACKAGE_VERSION = '0.18.6-alpha';
 
 	/**
 	 * Package Slug
