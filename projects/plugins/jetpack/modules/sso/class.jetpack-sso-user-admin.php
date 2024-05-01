@@ -261,7 +261,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					$query_params  = array(
 						'jetpack-sso-invite-user'  => 'failed',
 						'jetpack-sso-invite-error' => $error_code,
-						'jetpack-sso-invite-api-error-messsage' => $error_message,
+						'jetpack-sso-invite-api-error-message' => $error_message,
 						'_wpnonce'                 => $nonce,
 					);
 
