@@ -215,7 +215,7 @@ class Boost_Cache {
 	/**
 	 * Delete/rebuild the cache for the given post.
 	 *
-	 * @param int $post_id - The ID of the post to delete the cache for.
+	 * @param int    $post_id - The ID of the post to delete the cache for.
 	 * @param string $action - The action to take when deleting the cache.
 	 */
 	public function invalidate_cache_by_post_id( $post_id, $action = Filesystem_Utils::REBUILD_ALL ) {
@@ -363,7 +363,7 @@ class Boost_Cache {
 	}
 
 	/**
-	 * Deletes cache files for the given post.
+	 * Deletes/rebuilds cache files for the given post.
 	 *
 	 * @param WP_Post $post - The post to delete the cache file for.
 	 */
@@ -374,7 +374,7 @@ class Boost_Cache {
 		}
 
 		/**
-		 * Don't delete the cache for post types that are not public.
+		 * Don't invalidate the cache for post types that are not public.
 		 */
 		if ( ! Boost_Cache_Utils::is_visible_post_type( $post ) ) {
 			return;
