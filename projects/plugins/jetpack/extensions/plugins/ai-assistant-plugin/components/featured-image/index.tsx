@@ -33,11 +33,13 @@ export const FEATURED_IMAGE_PLACEMENT_MEDIA_SOURCE_DROPDOWN = 'media-source-drop
 export default function FeaturedImage( {
 	busy,
 	disabled,
-	placement = FEATURED_IMAGE_PLACEMENT_JETPACK_SIDEBAR,
+	placement,
+	onClose = () => {},
 }: {
 	busy: boolean;
 	disabled: boolean;
 	placement: string;
+	onClose?: () => void;
 } ) {
 	const { toggleEditorPanelOpened: toggleEditorPanelOpenedFromEditPost } =
 		useDispatch( 'core/edit-post' );
@@ -165,6 +167,11 @@ export default function FeaturedImage( {
 		setIsFeaturedImageModalVisible( ! isFeaturedImageModalVisible );
 	}, [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] );
 
+	const handleModalClose = useCallback( () => {
+		toggleFeaturedImageModal();
+		onClose?.();
+	}, [ toggleFeaturedImageModal, onClose ] );
+
 	const handleGenerate = useCallback( () => {
 		// track the generate image event
 		recordEvent( 'jetpack_ai_featured_image_generation_generate_image', {
@@ -215,7 +222,7 @@ export default function FeaturedImage( {
 
 		const setAsFeaturedImage = image => {
 			editPost( { featured_media: image } );
-			toggleFeaturedImageModal();
+			handleModalClose();
 
 			// Open the featured image panel for users to see the new image.
 			setTimeout( () => {
@@ -252,8 +259,8 @@ export default function FeaturedImage( {
 		recordEvent,
 		saveToMediaLibrary,
 		toggleEditorPanelOpened,
-		toggleFeaturedImageModal,
 		triggerComplementaryArea,
+		handleModalClose,
 		placement,
 	] );
 
@@ -291,7 +298,7 @@ export default function FeaturedImage( {
 				</>
 			) }
 			{ isFeaturedImageModalVisible && (
-				<AiAssistantModal handleClose={ toggleFeaturedImageModal } title={ modalTitle }>
+				<AiAssistantModal handleClose={ handleModalClose } title={ modalTitle }>
 					<div className="ai-assistant-featured-image__content">
 						<div className="ai-assistant-featured-image__user-prompt">
 							<div className="ai-assistant-featured-image__user-prompt-textarea">
