@@ -46,7 +46,12 @@ export default function AiAssistantModal( {
 	maxWidth?: number;
 } ) {
 	return (
-		<Modal __experimentalHideHeader={ hideHeader } className="ai-assistant-modal">
+		<Modal
+			__experimentalHideHeader={ hideHeader }
+			className="ai-assistant-modal"
+			shouldCloseOnClickOutside={ false }
+			onRequestClose={ handleClose }
+		>
 			<div className="ai-assistant-modal__content" style={ { maxWidth } }>
 				<ModalHeader requestingState={ requestingState } onClose={ handleClose } title={ title } />
 				<hr className="ai-assistant-modal__divider" />
