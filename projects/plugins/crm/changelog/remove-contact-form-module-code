@@ -1,4 +1,4 @@
-Significance: minor
+Significance: patch
 Type: removed
 
-Contact Form: Removing code and renaming relevant references to ensure we use the package version of the contact form.
+Contact Form: Updated a comment reference to Grunion_Contact_Form_Plugin to be Contact_Form_Plugin.
