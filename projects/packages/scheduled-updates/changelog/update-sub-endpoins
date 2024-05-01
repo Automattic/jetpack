@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Scheduled Updates: Broke out endpoint paths into separate files and formalized package dependencies

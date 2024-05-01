@@ -1,4 +1,4 @@
-import { createContext, useState } from 'react';
+import { createContext, useCallback, useState } from 'react';
 import { NoticeContextType, Notice } from './types';
 
 const defaultNotice: Notice = {
@@ -21,16 +21,19 @@ export const NoticeContext = createContext< NoticeContextType >( {
 const NoticeContextProvider = ( { children } ) => {
 	const [ currentNotice, setCurrentNotice ] = useState< Notice >( defaultNotice );
 
-	const setNotice = ( notice: Notice ) => {
-		// Only update notice if there is not already a notice or the new notice has a higher priority
-		if ( ! currentNotice.message || notice.options.priority > currentNotice.options.priority ) {
-			setCurrentNotice( notice );
-		}
-	};
+	const setNotice = useCallback(
+		( notice: Notice ) => {
+			// Only update notice if there is not already a notice or the new notice has a higher priority
+			if ( ! currentNotice.message || notice.options.priority > currentNotice.options.priority ) {
+				setCurrentNotice( notice );
+			}
+		},
+		[ currentNotice.message, currentNotice.options.priority ]
+	);
 
-	const resetNotice = () => {
+	const resetNotice = useCallback( () => {
 		setCurrentNotice( defaultNotice );
-	};
+	}, [] );
 
 	return (
 		<NoticeContext.Provider
