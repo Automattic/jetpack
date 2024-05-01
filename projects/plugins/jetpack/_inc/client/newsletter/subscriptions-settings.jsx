@@ -4,7 +4,6 @@ import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
-import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import SupportInfo from 'components/support-info';
@@ -38,7 +37,6 @@ function SubscriptionsSettings( props ) {
 		isSubscriptionSiteEditSupported,
 		isSubscriptionsActive,
 		subscriptions,
-		toggleModuleNow,
 		updateFormStateModuleOption,
 		isBlockTheme,
 		siteAdminUrl,
@@ -100,141 +98,107 @@ function SubscriptionsSettings( props ) {
 		isSavingAnyOption( [ SUBSCRIPTIONS_MODULE_NAME ] );
 
 	return (
-		<>
-			<SettingsCard
-				{ ...props }
-				hideButton
-				module={ SUBSCRIPTIONS_MODULE_NAME }
-				header={ __( 'Subscriptions', 'jetpack' ) }
-			>
-				<SettingsGroup
-					hasChild
-					disableInOfflineMode
-					disableInSiteConnectionMode
-					module={ subscriptions }
-					support={ {
-						text: __(
-							'Allows readers to subscribe to your posts or comments, and receive notifications of new content by email.',
-							'jetpack'
-						),
-						link: getRedirectUrl( 'jetpack-support-subscriptions' ),
-					} }
-				>
-					<ModuleToggle
-						slug="subscriptions"
-						disabled={ unavailableInOfflineMode }
-						activated={ isSubscriptionsActive }
-						toggling={ isSavingAnyOption( SUBSCRIPTIONS_MODULE_NAME ) }
-						toggleModule={ toggleModuleNow }
-					>
-						<span className="jp-form-toggle-explanation">
-							{ __( 'Allow visitors to subscribe to your site', 'jetpack' ) }
-						</span>
-					</ModuleToggle>
-					{
-						<FormFieldset>
-							<ToggleControl
-								checked={ isSubscriptionsActive && isSubscribePostEndEnabled }
-								disabled={ isDisabled }
-								toggling={ isSavingAnyOption( [
-									'jetpack_subscriptions_subscribe_post_end_enabled',
-								] ) }
-								onChange={ handleSubscribePostEndToggleChange }
-								label={
+		<SettingsCard
+			{ ...props }
+			hideButton
+			module={ SUBSCRIPTIONS_MODULE_NAME }
+			header={ __( 'Subscriptions', 'jetpack' ) }
+		>
+			<SettingsGroup disableInOfflineMode disableInSiteConnectionMode module={ subscriptions }>
+				<FormFieldset>
+					<ToggleControl
+						checked={ isSubscriptionsActive && isSubscribePostEndEnabled }
+						disabled={ isDisabled }
+						toggling={ isSavingAnyOption( [ 'jetpack_subscriptions_subscribe_post_end_enabled' ] ) }
+						onChange={ handleSubscribePostEndToggleChange }
+						label={
+							<>
+								{ __( 'Add the Subscribe Block at the end of each post', 'jetpack' ) }
+								{ isSubscriptionSiteEditSupported && singlePostTemplateEditorUrl && (
 									<>
-										{ __( 'Add the Subscribe Block at the end of each post', 'jetpack' ) }
-										{ isSubscriptionSiteEditSupported && singlePostTemplateEditorUrl && (
-											<>
-												{ '. ' }
-												<ExternalLink href={ singlePostTemplateEditorUrl }>
-													{ __( 'Preview and edit', 'jetpack' ) }
-												</ExternalLink>
-											</>
-										) }
+										{ '. ' }
+										<ExternalLink href={ singlePostTemplateEditorUrl }>
+											{ __( 'Preview and edit', 'jetpack' ) }
+										</ExternalLink>
 									</>
-								}
-							/>
-							<div className="jp-toggle-set">
-								<ToggleControl
-									checked={ isSubscriptionsActive && isSmEnabled }
-									disabled={ isDisabled }
-									toggling={ isSavingAnyOption( [ 'sm_enabled' ] ) }
-									onChange={ handleSubscribeModalToggleChange }
-									label={
+								) }
+							</>
+						}
+					/>
+					<div className="jp-toggle-set">
+						<ToggleControl
+							checked={ isSubscriptionsActive && isSmEnabled }
+							disabled={ isDisabled }
+							toggling={ isSavingAnyOption( [ 'sm_enabled' ] ) }
+							onChange={ handleSubscribeModalToggleChange }
+							label={
+								<>
+									{ __( 'Show subscription pop-up when scrolling a post', 'jetpack' ) }
+									{ isBlockTheme && subscribeModalEditorUrl && (
 										<>
-											{ __( 'Show subscription pop-up when scrolling a post', 'jetpack' ) }
-											{ isBlockTheme && subscribeModalEditorUrl && (
-												<>
-													{ '. ' }
-													<ExternalLink href={ subscribeModalEditorUrl }>
-														{ __( 'Preview and edit', 'jetpack' ) }
-													</ExternalLink>
-												</>
-											) }
+											{ '. ' }
+											<ExternalLink href={ subscribeModalEditorUrl }>
+												{ __( 'Preview and edit', 'jetpack' ) }
+											</ExternalLink>
 										</>
-									}
-								/>
-								<SupportInfo
-									text={ __(
-										'Automatically add a subscription form pop-up to every post and turn visitors into subscribers. It will appear as readers scroll through your posts.',
-										'jetpack'
 									) }
-									link={ getRedirectUrl( 'jetpack-support-subscriptions', {
-										anchor: 'enable-a-subscriber-pop-up-for-your-posts',
-									} ) }
-									privacyLink={ getRedirectUrl( 'jetpack-support-subscriptions', {
-										anchor: 'privacy',
-									} ) }
-								/>
-							</div>
-							<ToggleControl
-								checked={ isSubscriptionsActive && isStbEnabled }
-								disabled={ isDisabled }
-								toggling={ isSavingAnyOption( [ 'stb_enabled' ] ) }
-								onChange={ handleSubscribeToBlogToggleChange }
-								label={ __(
-									'Enable the “subscribe to site” option on your comment form',
-									'jetpack'
-								) }
-							/>
-							<ToggleControl
-								checked={ isSubscriptionsActive && isStcEnabled }
-								disabled={ isDisabled }
-								toggling={ isSavingAnyOption( [ 'stc_enabled' ] ) }
-								onChange={ handleSubscribeToCommentToggleChange }
-								label={ __(
-									'Enable the “subscribe to comments” option on your comment form',
-									'jetpack'
-								) }
-							/>
-							{ isSubscriptionSiteEditSupported && (
-								<ToggleControl
-									checked={ isSubscriptionsActive && isLoginNavigationEnabled }
-									disabled={ isDisabled }
-									toggling={ isSavingAnyOption( [
-										'jetpack_subscriptions_login_navigation_enabled',
-									] ) }
-									onChange={ handleLoginNavigationToggleChange }
-									label={
-										<>
-											{ __( 'Add the Subscriber Login Block to the navigation', 'jetpack' ) }
-											{ headerTemplateEditorUrl && (
-												<>
-													{ '. ' }
-													<ExternalLink href={ headerTemplateEditorUrl }>
-														{ __( 'Preview and edit', 'jetpack' ) }
-													</ExternalLink>
-												</>
-											) }
-										</>
-									}
-								/>
+								</>
+							}
+						/>
+						<SupportInfo
+							text={ __(
+								'Automatically add a subscription form pop-up to every post and turn visitors into subscribers. It will appear as readers scroll through your posts.',
+								'jetpack'
 							) }
-						</FormFieldset>
-					}
-				</SettingsGroup>
-			</SettingsCard>
-		</>
+							link={ getRedirectUrl( 'jetpack-support-subscriptions', {
+								anchor: 'enable-a-subscriber-pop-up-for-your-posts',
+							} ) }
+							privacyLink={ getRedirectUrl( 'jetpack-support-subscriptions', {
+								anchor: 'privacy',
+							} ) }
+						/>
+					</div>
+					<ToggleControl
+						checked={ isSubscriptionsActive && isStbEnabled }
+						disabled={ isDisabled }
+						toggling={ isSavingAnyOption( [ 'stb_enabled' ] ) }
+						onChange={ handleSubscribeToBlogToggleChange }
+						label={ __( 'Enable the “subscribe to site” option on your comment form', 'jetpack' ) }
+					/>
+					<ToggleControl
+						checked={ isSubscriptionsActive && isStcEnabled }
+						disabled={ isDisabled }
+						toggling={ isSavingAnyOption( [ 'stc_enabled' ] ) }
+						onChange={ handleSubscribeToCommentToggleChange }
+						label={ __(
+							'Enable the “subscribe to comments” option on your comment form',
+							'jetpack'
+						) }
+					/>
+					{ isSubscriptionSiteEditSupported && (
+						<ToggleControl
+							checked={ isSubscriptionsActive && isLoginNavigationEnabled }
+							disabled={ isDisabled }
+							toggling={ isSavingAnyOption( [ 'jetpack_subscriptions_login_navigation_enabled' ] ) }
+							onChange={ handleLoginNavigationToggleChange }
+							label={
+								<>
+									{ __( 'Add the Subscriber Login Block to the navigation', 'jetpack' ) }
+									{ headerTemplateEditorUrl && (
+										<>
+											{ '. ' }
+											<ExternalLink href={ headerTemplateEditorUrl }>
+												{ __( 'Preview and edit', 'jetpack' ) }
+											</ExternalLink>
+										</>
+									) }
+								</>
+							}
+						/>
+					) }
+				</FormFieldset>
+			</SettingsGroup>
+		</SettingsCard>
 	);
 }
 
