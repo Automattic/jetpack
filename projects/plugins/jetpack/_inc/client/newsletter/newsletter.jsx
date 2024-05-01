@@ -26,17 +26,16 @@ const trackViewSubsClick = () => {
  */
 function Newsletter( props ) {
 	const {
-		// TODO change the order
-		unavailableInOfflineMode,
-		subscriptions,
+		siteRawUrl,
+		blogID,
 		toggleModuleNow,
+		isSavingAnyOption,
 		isLinked,
 		isOffline,
 		isWpAdminInterface,
-		isSavingAnyOption,
 		isSubscriptionsActive,
-		siteRawUrl,
-		blogID,
+		unavailableInOfflineMode,
+		subscriptions,
 	} = props;
 
 	const getSubClickableCard = () => {
