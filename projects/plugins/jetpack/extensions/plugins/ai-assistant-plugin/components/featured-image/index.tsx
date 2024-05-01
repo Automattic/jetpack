@@ -130,6 +130,20 @@ export default function FeaturedImage( {
 	const processImageGeneration = useCallback( () => {
 		updateImages( { generating: true, error: null }, pointer.current );
 
+		// Ensure the site has enough requests to generate the image.
+		if ( notEnoughRequests ) {
+			updateImages(
+				{
+					generating: false,
+					error: new Error(
+						__( "You don't have enough requests to generate another image", 'jetpack' )
+					),
+				},
+				pointer.current
+			);
+			return;
+		}
+
 		// Ensure the user prompt or the post content are set.
 		if ( ! userPrompt && ! postContent ) {
 			updateImages(
@@ -165,6 +179,7 @@ export default function FeaturedImage( {
 				updateImages( { generating: false, error: e }, pointer.current );
 			} );
 	}, [
+		notEnoughRequests,
 		updateImages,
 		generateImage,
 		postContent,
