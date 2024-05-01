@@ -59,6 +59,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php';
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-site-endpoints.php';
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-widgets-endpoints.php';
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-generate-image-endpoint.php';
 
 		self::$stats_roles = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber' );
 
@@ -69,6 +70,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$module_toggle_endpoint = new Jetpack_Core_API_Module_Toggle_Endpoint( new Jetpack_IXR_Client() );
 		$site_endpoint          = new Jetpack_Core_API_Site_Endpoint();
 		$widget_endpoint        = new Jetpack_Core_API_Widget_Endpoint();
+		$generate_endpoint      = new Jetpack_Generate_Image_Endpoint();
 
 		/**
 		 * TODO: Move me somewhere that makes more sense.
@@ -784,6 +786,37 @@ class Jetpack_Core_Json_Api_Endpoints {
 						'format'            => 'uri',
 					),
 				),
+			)
+		);
+
+		// Generate images
+		register_rest_route(
+			'jetpack/v4',
+			'/generate-image',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $generate_endpoint, 'generate_image' ),
+				'permission_callback' => array( $generate_endpoint, 'can_request' ),
+				'args'                => array(
+					'prompt'              => array(
+						'required'          => true,
+						'type'              => 'string',
+						'validate_callback' => __CLASS__ . '::validate_string',
+					),
+					'force_model_refresh' => array(
+						'default' => false,
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/generate-image/(?P<id>[a-z0-9]+)',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $generate_endpoint, 'get_image' ),
+				'permission_callback' => array( $generate_endpoint, 'can_request' ),
 			)
 		);
 	}

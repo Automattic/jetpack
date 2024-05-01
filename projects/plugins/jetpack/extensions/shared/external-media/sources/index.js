@@ -1,12 +1,20 @@
 import { __ } from '@wordpress/i18n';
-import { GooglePhotosIcon, OpenverseIcon, PexelsIcon, JetpackMobileAppIcon } from '../../icons';
+import {
+	GooglePhotosIcon,
+	OpenverseIcon,
+	PexelsIcon,
+	JetpackMobileAppIcon,
+	AIImageGeneratorIcon,
+} from '../../icons';
 import {
 	SOURCE_WORDPRESS,
 	SOURCE_GOOGLE_PHOTOS,
 	SOURCE_OPENVERSE,
 	SOURCE_PEXELS,
 	SOURCE_JETPACK_APP_MEDIA,
+	SOURCE_AIIMAGGENERATOR,
 } from '../constants';
+import AIImageGenerator from './ai-image-generator';
 import GooglePhotosMedia from './google-photos';
 import JetpackAppMedia from './jetpack-app-media';
 import OpenverseMedia from './openverse';
@@ -39,6 +47,12 @@ export const externalMediaSources = [
 		label: __( 'Openverse', 'jetpack' ),
 		icon: <OpenverseIcon className="components-menu-items__item-icon" />,
 		keyword: 'openverse',
+	},
+	{
+		id: SOURCE_AIIMAGGENERATOR,
+		label: __( 'AI Image Generator', 'jetpack' ),
+		icon: <AIImageGeneratorIcon className="components-menu-items__item-icon" />,
+		keyword: 'ai image generator',
 	},
 ];
 
@@ -78,7 +92,10 @@ export function getExternalLibrary( type ) {
 		return OpenverseMedia;
 	} else if ( type === SOURCE_JETPACK_APP_MEDIA ) {
 		return JetpackAppMedia;
+	} else if ( type === SOURCE_AIIMAGGENERATOR ) {
+		return AIImageGenerator;
 	}
+
 	return null;
 }
 
