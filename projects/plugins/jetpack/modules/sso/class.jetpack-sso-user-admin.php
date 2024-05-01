@@ -252,10 +252,11 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				);
 
 				if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-					$error        = is_wp_error( $response ) ? $response->get_error_message() : 'invalid-invite-api-error';
-					$query_params = array(
+					$error_code    = 'invalid-invite-api-error';
+					$error_message = is_wp_error( $response ) ? $response->get_error_message() : wp_remote_retrieve_response_message( $response );
+					$query_params  = array(
 						'jetpack-sso-invite-user'  => 'failed',
-						'jetpack-sso-invite-error' => $error,
+						'jetpack-sso-invite-error' => $error_code,
 						'_wpnonce'                 => $nonce,
 					);
 
@@ -263,7 +264,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						$event,
 						array(
 							'success'       => 'false',
-							'error_message' => $error,
+							'error_code'    => $error_code,
+							'error_message' => $error_message,
 						)
 					);
 					return self::create_error_notice_and_redirect( $query_params );
