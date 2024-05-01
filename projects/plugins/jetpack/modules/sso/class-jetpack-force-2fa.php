@@ -58,15 +58,6 @@ class Jetpack_Force_2FA {
 	}
 
 	/**
-	 * Force 2FA when using Jetpack SSO and force Jetpack SSO.
-	 *
-	 * @deprecated $$next-version$$
-	 */
-	private function force_2fa() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Force_2FA::force_2fa' );
-	}
-
-	/**
 	 * Specifically set the two step filter for Jetpack SSO.
 	 *
 	 * @deprecated $$next-version$$
@@ -75,14 +66,5 @@ class Jetpack_Force_2FA {
 	 */
 	public function jetpack_set_two_step( $user_data ) {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Force_2FA::jetpack_set_two_step' );
-	}
-
-	/**
-	 * Get the login error message.
-	 *
-	 * @deprecated $$next-version$$
-	 */
-	private function get_login_error_message() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Force_2FA::get_login_error_message' );
 	}
 }
