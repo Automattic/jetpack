@@ -16,33 +16,6 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 	 * @deprecated $$next-version$$
 	 */
 	class Jetpack_SSO_User_Admin {
-
-		/**
-		 * Instance of WP_User_Query.
-		 *
-		 * @deprecated $$next-version$$
-		 *
-		 * @var $user_search
-		 */
-		private static $user_search = null;
-		/**
-		 * Array of cached invites.
-		 *
-		 * @deprecated $$next-version$$
-		 *
-		 * @var $cached_invites
-		 */
-		private static $cached_invites = null;
-
-		/**
-		 * Instance of Jetpack Tracking.
-		 *
-		 * @deprecated $$next-version$$
-		 *
-		 * @var $instance
-		 */
-		private static $tracking = null;
-
 		/**
 		 * Constructor function.
 		 *
@@ -232,16 +205,6 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		}
 
 		/**
-		 * Executed when our WP_User_Query instance is set, and we don't have cached invites.
-		 * This function uses the user emails and the 'are-users-invited' endpoint to build the cache.
-		 *
-		 * @deprecated $$next-version$$
-		 */
-		private static function rebuild_invite_cache() {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\SSO\\User_Admin->rebuild_invite_cache' );
-		}
-
-		/**
 		 * Check if there is cached invite for a user email.
 		 *
 		 * @access private
@@ -253,34 +216,6 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 */
 		public static function get_pending_cached_wpcom_invite( $email ) {
 			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\SSO\\User_Admin->get_pending_cached_wpcom_invite' );
-		}
-
-		/**
-		 * Check if a given user is invited to the site.
-		 *
-		 * @access private
-		 * @static
-		 *
-		 * @deprecated $$next-version$$
-		 *
-		 * @param int $user_id The user ID.
-		 */
-		private static function has_pending_wpcom_invite( $user_id ) {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\SSO\\User_Admin->has_pending_wpcom_invite' );
-		}
-
-		/**
-		 * Delete an external contributor from the site.
-		 *
-		 * @access private
-		 * @static
-		 *
-		 * @deprecated $$next-version$$
-		 *
-		 * @param int $user_id The user ID.
-		 */
-		private static function delete_external_contributor( $user_id ) {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\SSO\\User_Admin->delete_external_contributor' );
 		}
 
 		/**
