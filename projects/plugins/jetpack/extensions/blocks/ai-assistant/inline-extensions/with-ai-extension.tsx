@@ -36,7 +36,6 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const controlRef: React.MutableRefObject< HTMLDivElement | null > = useRef( null );
 		const controlObserver = useRef< ResizeObserver | null >( null );
 		const blockStyle = useRef< string >( '' );
-		const [ block, setBlock ] = useState< HTMLElement | null >( null );
 
 		// Only extend the allowed block types.
 		const possibleToExtendBlock = isPossibleToExtendBlock( {
@@ -91,11 +90,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const { id } = useBlockProps();
 
 		useEffect( () => {
-			// Keep the block reference.
-			setBlock( document.getElementById( id ) );
-		}, [ id ] );
+			const block = document.getElementById( id );
 
-		useEffect( () => {
 			if ( ! block ) {
 				return;
 			}
@@ -123,7 +119,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				controlObserver.current.disconnect();
 				controlObserver.current = null;
 			}
-		}, [ block, clientId, controlObserver, id, showAiControl ] );
+		}, [ clientId, controlObserver, id, showAiControl ] );
 
 		// Only extend the target block.
 		if ( ! possibleToExtendBlock ) {
