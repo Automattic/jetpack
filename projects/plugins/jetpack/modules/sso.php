@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Secure Sign On
  * Module Description: Allow users to log in to this site using WordPress.com accounts
@@ -25,3 +25,10 @@ add_action(
 		Jetpack::enable_module_configurable( __FILE__ );
 	}
 );
+
+/**
+ * Legacy, deprecated class.
+ *
+ * @deprecated $$next-version$$
+ */
+class Jetpack_SSO extends SSO {}
