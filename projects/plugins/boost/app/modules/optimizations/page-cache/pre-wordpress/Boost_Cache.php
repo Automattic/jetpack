@@ -339,7 +339,7 @@ class Boost_Cache {
 		$this->delete_cache_for_post( $post );
 		$this->delete_cache_for_post_terms( $post );
 		$this->delete_cache_for_front_page();
-		$this->delete_cache_for_author( $post->post_author );
+		$this->invalidate_cache_for_author( $post->post_author );
 	}
 
 	/**
@@ -354,7 +354,7 @@ class Boost_Cache {
 			$this->delete_cache_for_post( $post );
 			$this->delete_cache_for_post_terms( $post );
 			$this->delete_cache_for_front_page();
-			$this->delete_cache_for_author( $post->post_author );
+			$this->invalidate_cache_for_author( $post->post_author );
 		}
 	}
 
@@ -417,7 +417,7 @@ class Boost_Cache {
 	 * @param int $author_id - The id of the author.
 	 * @return bool|WP_Error - True if the cache was deleted, WP_Error otherwise.
 	 */
-	public function delete_cache_for_author( $author_id ) {
+	public function invalidate_cache_for_author( $author_id ) {
 		$author = get_userdata( $author_id );
 		if ( ! $author ) {
 			return;
