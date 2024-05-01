@@ -50,10 +50,7 @@ class Force_2FA {
 		$this->role = apply_filters( 'jetpack_force_2fa_cap', 'manage_options' );
 
 		// Bail if Jetpack SSO is not active
-		if (
-			! class_exists( 'Jetpack' )
-			|| ! ( new Modules() )->is_active( 'sso' )
-		) {
+		if ( ! ( new Modules() )->is_active( 'sso' ) ) {
 			add_action( 'admin_notices', array( $this, 'admin_notice' ) );
 			return;
 		}
