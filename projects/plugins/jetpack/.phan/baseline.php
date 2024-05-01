@@ -9,11 +9,11 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgument : 550+ occurrences
+    // PhanTypeMismatchArgument : 540+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 300+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 290+ occurrences
     // PhanUndeclaredMethod : 270+ occurrences
-    // PhanNoopNew : 210+ occurrences
+    // PhanNoopNew : 200+ occurrences
     // PhanTypeMismatchReturn : 160+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 150+ occurrences
     // PhanDeprecatedFunction : 140+ occurrences
@@ -38,11 +38,11 @@ return [
     // PhanPluginSimplifyExpressionBool : 25+ occurrences
     // PhanTypeMismatchDefault : 25+ occurrences
     // PhanTypeMissingReturn : 25+ occurrences
+    // PhanTypeSuspiciousNonTraversableForeach : 25+ occurrences
     // PhanUndeclaredFunction : 25+ occurrences
     // PhanTypeArraySuspicious : 20+ occurrences
     // PhanTypeMismatchArgumentNullableInternal : 20+ occurrences
     // PhanTypeMismatchDimFetch : 20+ occurrences
-    // PhanTypeSuspiciousNonTraversableForeach : 20+ occurrences
     // PhanPluginDuplicateExpressionAssignmentOperation : 15+ occurrences
     // PhanPluginMixedKeyNoKey : 15+ occurrences
     // PhanSuspiciousMagicConstant : 15+ occurrences
@@ -66,7 +66,6 @@ return [
     // PhanUndeclaredVariableDim : 6 occurrences
     // PhanImpossibleCondition : 5 occurrences
     // PhanNonClassMethodCall : 5 occurrences
-    // PhanPluginUnreachableCode : 5 occurrences
     // PhanTypeMismatchDimAssignment : 5 occurrences
     // PhanTypeSuspiciousStringExpression : 5 occurrences
     // PhanAccessMethodInternal : 4 occurrences
@@ -80,6 +79,7 @@ return [
     // PhanTypeInvalidRightOperandOfNumericOp : 4 occurrences
     // PhanDeprecatedFunctionInternal : 3 occurrences
     // PhanDeprecatedTrait : 3 occurrences
+    // PhanPluginUnreachableCode : 3 occurrences
     // PhanTypeConversionFromArray : 3 occurrences
     // PhanTypeMismatchArgumentReal : 3 occurrences
     // PhanTypeObjectUnsetDeclaredProperty : 3 occurrences
@@ -467,10 +467,6 @@ return [
         'modules/sitemaps/sitemap-librarian.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/sitemaps/sitemap-logger.php' => ['PhanTypeMismatchProperty'],
         'modules/sitemaps/sitemaps.php' => ['PhanNoopNew', 'PhanTypeMismatchArgument'],
-        'modules/sso.php' => ['PhanNoopNew', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
-        'modules/sso/class-jetpack-force-2fa.php' => ['PhanDeprecatedFunction'],
-        'modules/sso/class.jetpack-sso-helpers.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn'],
-        'modules/sso/class.jetpack-sso-user-admin.php' => ['PhanPluginUnreachableCode', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal'],
         'modules/stats.php' => ['PhanDeprecatedFunction', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn'],
         'modules/subscriptions.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeSuspiciousNonTraversableForeach'],
         'modules/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.php' => ['PhanTypeMismatchReturnNullable'],
