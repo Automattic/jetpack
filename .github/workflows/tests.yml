@@ -327,7 +327,7 @@ jobs:
           pnpm jetpack phan --all -v --format github
       - name: Check baselines
         run: |
-          # Anything changed (with a side of printing the diff)
+          # Anything changed? (with a side of printing the diff)
           if git diff --exit-code --ignore-matching-lines='^    // ' -- .phan/baseline.php '*/.phan/baseline.php'; then
             exit 0
           fi
@@ -335,6 +335,11 @@ jobs:
           # Collect which projects changed to suggest the right command.
           PROJECTS=()
           for f in $( git -c core.quotepath=off diff --name-only -- .phan/baseline.php '*/.phan/baseline.php' ); do
+            # --name-only and --ignore-matching-lines don't combine, so we have to do the check separately.
+            if git diff --quiet --exit-code --ignore-matching-lines='^    // ' -- "$f"; then
+              continue
+            fi
+
             if [[ "$f" == ".phan/baseline.php" ]]; then
               SLUG=monorepo
             elif [[ "$f" == projects/*/*/.phan/baseline.php ]]; then
