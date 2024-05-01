@@ -192,20 +192,20 @@ class Boost_Cache {
 	 * Delete the cache for the front page and paged archives.
 	 * This is called when a post is edited, deleted, or published.
 	 */
-	public function delete_cache_for_front_page() {
+	public function invalidate_cache_for_front_page( $action = Filesystem_Utils::REBUILD_FILES ) {
 		if ( get_option( 'show_on_front' ) === 'page' ) {
 			$front_page_id = get_option( 'page_on_front' ); // static page
 			if ( $front_page_id ) {
-				Logger::debug( 'delete_cache_for_front_page: deleting front page cache' );
-				$this->delete_cache_for_post( get_post( $front_page_id ) );
+				Logger::debug( 'invalidate_cache_for_front_page: deleting front page cache' );
+				$this->invalidate_cache_for_post( get_post( $front_page_id ), $action );
 			}
 			$posts_page_id = get_option( 'page_for_posts' ); // posts page
 			if ( $posts_page_id ) {
-				Logger::debug( 'delete_cache_for_front_page: deleting posts page cache' );
-				$this->delete_cache_for_post( get_post( $posts_page_id ) );
+				Logger::debug( 'invalidate_cache_for_front_page: deleting posts page cache' );
+				$this->invalidate_cache_for_post( get_post( $posts_page_id ), $action );
 			}
 		} else {
-			$this->storage->invalidate( home_url(), Filesystem_Utils::REBUILD_FILES );
+			$this->storage->invalidate( home_url(), $action );
 			Logger::debug( 'delete front page cache ' . Boost_Cache_Utils::normalize_request_uri( home_url() ) );
 		}
 	}
@@ -215,10 +215,10 @@ class Boost_Cache {
 	 *
 	 * @param int $post_id - The ID of the post to delete the cache for.
 	 */
-	public function delete_cache_by_post_id( $post_id ) {
+	public function invalidate_cache_by_post_id( $post_id, $action = Filesystem_Utils::REBUILD_ALL ) {
 		$post = get_post( (int) $post_id );
 		if ( $post ) {
-			$this->delete_cache_for_post( $post );
+			$this->invalidate_cache_for_post( $post, $action );
 		}
 	}
 
@@ -241,7 +241,7 @@ class Boost_Cache {
 		}
 
 		$post = get_post( $comment->comment_post_ID );
-		$this->delete_cache_for_post( $post );
+		$this->invalidate_cache_for_post( $post );
 	}
 
 	/**
@@ -255,7 +255,7 @@ class Boost_Cache {
 		$post = get_post( $commentdata['comment_post_ID'] );
 
 		if ( (int) $commentdata['comment_approved'] === 1 ) {
-			$this->delete_cache_for_post( $post );
+			$this->invalidate_cache_for_post( $post );
 		}
 	}
 
@@ -289,7 +289,7 @@ class Boost_Cache {
 			return;
 		}
 
-		$this->delete_cache_for_post( $post );
+		$this->invalidate_cache_for_post( $post );
 	}
 
 	/**
@@ -314,7 +314,7 @@ class Boost_Cache {
 		$special_post_types = array( 'wp_template', 'wp_template_part', 'wp_global_styles' );
 		if ( in_array( $post->post_type, $special_post_types, true ) ) {
 			Logger::debug( 'delete_on_post_transition: special post type ' . $post->post_type );
-			$this->delete_cache();
+			$this->invalidate_cache();
 			return;
 		}
 
@@ -336,9 +336,9 @@ class Boost_Cache {
 
 		Logger::debug( "delete_on_post_transition: deleting post {$post->ID}" );
 
-		$this->delete_cache_for_post( $post );
-		$this->delete_cache_for_post_terms( $post );
-		$this->delete_cache_for_front_page();
+		$this->invalidate_cache_for_post( $post );
+		$this->invalidate_cache_for_post_terms( $post );
+		$this->invalidate_cache_for_front_page();
 		$this->invalidate_cache_for_author( $post->post_author );
 	}
 
@@ -351,10 +351,10 @@ class Boost_Cache {
 	public function delete_on_post_trash( $post_id, $old_status ) {
 		if ( $this->is_published( $old_status ) ) {
 			$post = get_post( $post_id );
-			$this->delete_cache_for_post( $post );
-			$this->delete_cache_for_post_terms( $post );
-			$this->delete_cache_for_front_page();
-			$this->invalidate_cache_for_author( $post->post_author );
+			$this->invalidate_cache_for_post( $post, Filesystem_Utils::DELETE_ALL );
+			$this->invalidate_cache_for_post_terms( $post, Filesystem_Utils::DELETE_ALL );
+			$this->invalidate_cache_for_front_page( Filesystem_Utils::DELETE_ALL );
+			$this->invalidate_cache_for_author( $post->post_author, Filesystem_Utils::DELETE_ALL );
 		}
 	}
 
@@ -363,7 +363,7 @@ class Boost_Cache {
 	 *
 	 * @param WP_Post $post - The post to delete the cache file for.
 	 */
-	public function delete_cache_for_post( $post ) {
+	public function invalidate_cache_for_post( $post, $action = Filesystem_Utils::REBUILD_ALL ) {
 		static $already_deleted = -1;
 		if ( $already_deleted === $post->ID ) {
 			return;
@@ -384,8 +384,8 @@ class Boost_Cache {
 		 * the post name. We need to get the post name from the post object.
 		 */
 		$permalink = get_permalink( $post->ID );
-		Logger::debug( "delete_cache_for_post: $permalink" );
-		$this->delete_cache_for_url( $permalink );
+		Logger::debug( "invalidate_cache_for_post: $permalink" );
+		$this->invalidate_cache_for_url( $permalink, $action );
 	}
 
 	/**
@@ -393,12 +393,12 @@ class Boost_Cache {
 	 *
 	 * @param WP_Post $post - The post to delete the cache for.
 	 */
-	public function delete_cache_for_post_terms( $post ) {
+	public function invalidate_cache_for_post_terms( $post, $action = Filesystem_Utils::REBUILD_ALL ) {
 		$categories = get_the_category( $post->ID );
 		if ( is_array( $categories ) ) {
 			foreach ( $categories as $category ) {
 				$link = trailingslashit( get_category_link( $category->term_id ) );
-				$this->delete_cache_for_url( $link );
+				$this->invalidate_cache_for_url( $link, $action );
 			}
 		}
 
@@ -406,7 +406,7 @@ class Boost_Cache {
 		if ( is_array( $tags ) ) {
 			foreach ( $tags as $tag ) {
 				$link = trailingslashit( get_tag_link( $tag->term_id ) );
-				$this->delete_cache_for_url( $link );
+				$this->invalidate_cache_for_url( $link, $action );
 			}
 		}
 	}
@@ -417,14 +417,14 @@ class Boost_Cache {
 	 * @param int $author_id - The id of the author.
 	 * @return bool|WP_Error - True if the cache was deleted, WP_Error otherwise.
 	 */
-	public function invalidate_cache_for_author( $author_id ) {
+	public function invalidate_cache_for_author( $author_id, $action = Filesystem_Utils::REBUILD_ALL ) {
 		$author = get_userdata( $author_id );
 		if ( ! $author ) {
 			return;
 		}
 
 		$author_link = get_author_posts_url( $author_id, $author->user_nicename );
-		return $this->delete_cache_for_url( $author_link );
+		return $this->invalidate_cache_for_url( $author_link, $action );
 	}
 
 	/**
@@ -432,17 +432,17 @@ class Boost_Cache {
 	 *
 	 * @param string $url - The url to delete the cache for.
 	 */
-	public function delete_cache_for_url( $url ) {
-		Logger::debug( 'delete_cache_for_url: ' . $url );
+	public function invalidate_cache_for_url( $url, $action = Filesystem_Utils::REBUILD_ALL ) {
+		Logger::debug( 'invalidate_cache_for_url: ' . $url );
 
-		return $this->storage->invalidate( $url, Filesystem_Utils::REBUILD_ALL );
+		return $this->storage->invalidate( $url, $action );
 	}
 
 	/**
-	 * Delete the entire cache.
+	 * Invalidate the entire cache.
 	 */
-	public function delete_cache() {
-		return $this->delete_cache_for_url( home_url() );
+	public function invalidate_cache( $action = Filesystem_Utils::REBUILD_ALL ) {
+		return $this->invalidate_cache_for_url( home_url(), $action );
 	}
 
 	public function disable_caching_on_error( $message ) {
