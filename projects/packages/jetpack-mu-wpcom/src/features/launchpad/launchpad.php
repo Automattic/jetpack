@@ -291,13 +291,13 @@ function wpcom_launchpad_get_task_list_definitions() {
 		),
 		'entrepreneur-site-setup' => array(
 			'task_ids' => array(
-				'customize_your_store',
-				'add_your_products',
-				'get_paid_with_woopayments',
-				'collect_sales_tax',
-				'grow_your_business',
-				'add_a_domain',
-				'launch_your_store',
+				'woo_customize_store',
+				'woo_products',
+				'woo_woocommerce_payments',
+				'woo_tax',
+				'woo_marketing',
+				'woo_add_domain',
+				'woo_launch_site',
 			),
 		),
 	);

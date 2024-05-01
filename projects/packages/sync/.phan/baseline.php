@@ -24,7 +24,6 @@ return [
     // PhanRedundantCondition : 4 occurrences
     // PhanTypeExpectedObjectPropAccess : 4 occurrences
     // PhanTypeMismatchArgumentInternal : 4 occurrences
-    // PhanUndeclaredClassMethod : 4 occurrences
     // PhanTypeArraySuspicious : 3 occurrences
     // PhanTypeArraySuspiciousNullable : 3 occurrences
     // PhanAccessMethodInternal : 2 occurrences
@@ -46,13 +45,14 @@ return [
     // PhanTypeMismatchDefault : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
     // PhanTypeMismatchPropertyProbablyReal : 1 occurrence
+    // PhanUndeclaredClassMethod : 1 occurrence
     // PhanUndeclaredFunction : 1 occurrence
     // PhanUndeclaredMethodInCallable : 1 occurrence
     // PhanUndeclaredStaticMethod : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-actions.php' => ['PhanPluginSimplifyExpressionBool', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredMethod'],
+        'src/class-actions.php' => ['PhanPluginSimplifyExpressionBool', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredMethod'],
         'src/class-data-settings.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-dedicated-sender.php' => ['PhanTypeInvalidLeftOperandOfNumericOp'],
         'src/class-functions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredClassMethod'],
@@ -79,7 +79,6 @@ return [
         'src/modules/class-options.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredFunction'],
         'src/modules/class-plugins.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanUndeclaredMethod'],
         'src/modules/class-posts.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginUseReturnValueInternalKnown', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/modules/class-protect.php' => ['PhanUndeclaredClassMethod'],
         'src/modules/class-term-relationships.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument'],
         'src/modules/class-terms.php' => ['PhanAccessMethodInternal', 'PhanParamSignatureMismatch'],
         'src/modules/class-themes.php' => ['PhanParamSignatureMismatch', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredMethod'],

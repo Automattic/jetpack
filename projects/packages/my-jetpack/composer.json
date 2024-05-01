@@ -21,6 +21,7 @@
 		"yoast/phpunit-polyfills": "1.1.0",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "@dev",
+		"automattic/jetpack-search": "@dev",
 		"automattic/jetpack-videopress": "@dev"
 	},
 	"suggest": {
@@ -82,6 +83,12 @@
 		},
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-initializer.php"
+		},
+		"dependencies": {
+			"test-only": [
+				"packages/search",
+				"packages/videopress"
+			]
 		}
 	},
 	"config": {

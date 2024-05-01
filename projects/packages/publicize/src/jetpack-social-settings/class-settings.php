@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Publicize\Jetpack_Social_Settings;
 
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Publicize\Publicize;
 use Automattic\Jetpack\Publicize\Social_Image_Generator\Templates;
 
 /**
@@ -168,6 +169,8 @@ class Settings {
 			$settings['autoConversionSettings']['available']       = $this->is_auto_conversion_available();
 			$settings['socialImageGeneratorSettings']['available'] = $this->is_sig_available();
 		}
+
+		$settings['useAdminUiV1'] = Publicize::use_admin_ui_v1();
 
 		return $settings;
 	}

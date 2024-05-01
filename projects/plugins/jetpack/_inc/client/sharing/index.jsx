@@ -47,6 +47,7 @@ class Sharing extends Component {
 			isAtomicSite: this.props.isAtomicSite,
 			hasSharingBlock: this.props.hasSharingBlock,
 			isBlockTheme: this.props.isBlockTheme,
+			useAdminUiV1: this.props.useAdminUiV1,
 		};
 
 		const foundPublicize = this.props.isModuleFound( 'publicize' ),
@@ -103,5 +104,6 @@ export default connect( state => {
 		isAtomicSite: isAtomicSite( state ),
 		hasSharingBlock: isSharingBlockAvailable( state ),
 		isBlockTheme: currentThemeIsBlockTheme( state ),
+		useAdminUiV1: state.jetpack.initialState.socialInitialState.useAdminUiV1,
 	};
 } )( Sharing );
