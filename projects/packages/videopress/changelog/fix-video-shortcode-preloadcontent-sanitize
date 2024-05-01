@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Sanitize the preload value for video shortcodes and blocks
