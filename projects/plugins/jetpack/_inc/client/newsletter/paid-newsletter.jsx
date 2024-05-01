@@ -15,7 +15,7 @@ import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
  * Paid Newsletter component.
  *
  * @param {object} props - Component props.
- * @returns {React.Component} Subscription settings component.
+ * @returns {React.Component} Paid Newsletter component.
  */
 function PaidNewsletter( props ) {
 	const { isSubscriptionsActive, setupPaymentPlansUrl, subscriptionsModule } = props;
