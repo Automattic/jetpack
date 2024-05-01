@@ -52,6 +52,7 @@ export default function FeaturedImage( {
 	const [ current, setCurrent ] = useState( 0 );
 	const pointer = useRef( 0 );
 	const [ userPrompt, setUserPrompt ] = useState( '' );
+	const triggeredAutoGeneration = useRef( false );
 
 	const { enableComplementaryArea } = useDispatch( 'core/interface' );
 	const { generateImage } = useImageGenerator();
@@ -269,9 +270,12 @@ export default function FeaturedImage( {
 	 */
 	useEffect( () => {
 		if ( placement === FEATURED_IMAGE_PLACEMENT_MEDIA_SOURCE_DROPDOWN ) {
-			handleGenerate();
+			if ( ! triggeredAutoGeneration.current ) {
+				triggeredAutoGeneration.current = true;
+				handleGenerate();
+			}
 		}
-	} );
+	}, [ placement, handleGenerate ] );
 
 	const modalTitle = __( 'Generate a featured image with AI', 'jetpack' );
 	const costTooltipText = sprintf(
