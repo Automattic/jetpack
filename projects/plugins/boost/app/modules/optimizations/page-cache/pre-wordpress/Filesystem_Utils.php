@@ -90,6 +90,7 @@ class Filesystem_Utils {
 
 	/**
 	 * Returns true if the given directory is inside the boost-cache directory.
+	 *
 	 * @param string $dir - The directory to check.
 	 * @return bool
 	 */
@@ -101,7 +102,7 @@ class Filesystem_Utils {
 	/**
 	 * Given a request_uri and its parameters, return the filename to use for this cached data. Does not include the file path.
 	 *
-	 * @param array  $parameters  - An associative array of all the things that make this request special/different. Includes GET parameters and COOKIEs normally.
+	 * @param array $parameters  - An associative array of all the things that make this request special/different. Includes GET parameters and COOKIEs normally.
 	 */
 	public static function get_request_filename( $parameters ) {
 

@@ -124,9 +124,11 @@ class Test_Integration_Parsing_Errors extends TestCase {
 	}
 
 	/**
-	 * Creates an associative array with nested levels containing 'hello world' string.
+	 * Creates an associative array with nested levels containing $data.
 	 *
-	 * @param int $levels The depth of nesting in the associative array.
+	 * @param mixed $data Data to contain.
+	 * @param int   $levels The depth of nesting in the associative array.
+	 * @param int   $i Current nesting depth, used for recursive calls.
 	 *
 	 * @return array The associative array with data.
 	 */

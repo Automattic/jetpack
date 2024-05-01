@@ -56,7 +56,6 @@ if ( ! isset( $wp_cache_plugins_dir ) ) {
 
 // from the secret shown on the Advanced settings page.
 if ( isset( $_GET['donotcachepage'] ) && isset( $cache_page_secret ) && $_GET['donotcachepage'] == $cache_page_secret ) {
-	$cache_enabled = false;
 	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
 		define( 'DONOTCACHEPAGE', 1 );
 	}
@@ -124,7 +123,6 @@ if ( wpsc_is_rejected_cookie() ) {
 	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
 		define( 'DONOTCACHEPAGE', 1 );
 	}
-	$cache_enabled = false;
 	wp_cache_debug( 'Caching disabled because rejected cookie found.' );
 	return true;
 }
@@ -145,7 +143,7 @@ if ( isset( $wp_cache_make_known_anon ) && $wp_cache_make_known_anon ) {
 // an init action wpsc plugins can hook on to.
 do_cacheaction( 'cache_init' );
 
-if ( ! $cache_enabled ) {
+if ( ! $cache_enabled ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- set by configuration or cache_init action
 	return true;
 }
 

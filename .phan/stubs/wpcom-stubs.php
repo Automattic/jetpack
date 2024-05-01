@@ -116,7 +116,7 @@ namespace {
     class WPCOM_Store
     {
         /**
-         * @deprecated 
+         * @deprecated
          * @param int $user_id
          * @param int $blog_id
          * @param false $ids_only
@@ -877,7 +877,7 @@ namespace {
     {
     }
     /**
-     * @deprecated 
+     * @deprecated
      * @return bool
     */
     function wpcom_is_jetpack_search_supported($blog_id)
@@ -1124,6 +1124,7 @@ namespace {
         public const LEGACY_CONTACT = 'legacy-contact';
         public const LOCKED_MODE = 'locked-mode';
         public const MANAGE_PLUGINS = 'manage-plugins';
+        public const SCHEDULED_UPDATES = 'scheduled-updates';
         public const SUBSCRIPTION_GIFTING = 'subscription-gifting';
     }
     /**

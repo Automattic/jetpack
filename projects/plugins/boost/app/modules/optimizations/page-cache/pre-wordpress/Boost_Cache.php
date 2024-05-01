@@ -50,7 +50,7 @@ class Boost_Cache {
 	private static $cache_engine_loaded = false;
 
 	/**
-	 * @param $storage - Optionally provide a Boost_Cache_Storage subclass to handle actually storing and retrieving cached content. Defaults to a new instance of File_Storage.
+	 * @param ?Storage\Storage $storage - Optionally provide a Storage subclass to handle actually storing and retrieving cached content. Defaults to a new instance of File_Storage.
 	 */
 	public function __construct( $storage = null ) {
 		$this->settings = Boost_Cache_Settings::get_instance();
@@ -228,8 +228,8 @@ class Boost_Cache {
 	/**
 	 * Rebuild the cache for the post if the comment transitioned from one state to another.
 	 *
-	 * @param string $new_status - The new status of the comment.
-	 * @param string $old_status - The old status of the comment.
+	 * @param string     $new_status - The new status of the comment.
+	 * @param string     $old_status - The old status of the comment.
 	 * @param WP_Comment $comment - The comment that transitioned.
 	 */
 	public function rebuild_on_comment_transition( $new_status, $old_status, $comment ) {
@@ -251,7 +251,7 @@ class Boost_Cache {
 	 * After editing a comment, rebuild the cache for the post if the comment is approved.
 	 * If changing state and editing, both actions will be called, but the cache will only be rebuilt once.
 	 *
-	 * @param int $comment_id - The id of the comment.
+	 * @param int   $comment_id - The id of the comment.
 	 * @param array $commentdata - The comment data.
 	 */
 	public function rebuild_on_comment_edit( $comment_id, $commentdata ) {
@@ -266,8 +266,8 @@ class Boost_Cache {
 	 * After a comment is posted, rebuild the cache for the post if the comment is approved.
 	 * If the comment is not approved, only rebuild the cache for this post for this visitor.
 	 *
-	 * @param int $comment_id - The id of the comment.
-	 * @param int $comment_approved - The approval status of the comment.
+	 * @param int   $comment_id - The id of the comment.
+	 * @param int   $comment_approved - The approval status of the comment.
 	 * @param array $commentdata - The comment data.
 	 */
 	public function rebuild_on_comment_post( $comment_id, $comment_approved, $commentdata ) {
@@ -279,7 +279,8 @@ class Boost_Cache {
 		 */
 		if ( $comment_approved !== 1 ) {
 			$parameters = $this->request->get_parameters();
-			/**
+
+			/*
 			 * if there are no cookies, then visitor did not click "remember me".
 			 * No need to delete the cache for this visitor as they'll be
 			 * redirected to a page with a hash in the URL for the moderation
@@ -308,8 +309,8 @@ class Boost_Cache {
 	/**
 	 * Delete the cached post if it transitioned from one state to another.
 	 *
-	 * @param string $new_status - The new status of the post.
-	 * @param string $old_status - The old status of the post.
+	 * @param string  $new_status - The new status of the post.
+	 * @param string  $old_status - The old status of the post.
 	 * @param WP_Post $post - The post that transitioned.
 	 */
 	public function invalidate_on_post_transition( $new_status, $old_status, $post ) {
@@ -348,7 +349,7 @@ class Boost_Cache {
 	/**
 	 * Delete the cache for the post if it was trashed.
 	 *
-	 * @param int $post_id - The id of the post.
+	 * @param int    $post_id - The id of the post.
 	 * @param string $old_status - The old status of the post.
 	 */
 	public function delete_on_post_trash( $post_id, $old_status ) {
