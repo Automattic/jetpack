@@ -291,9 +291,9 @@ function wpcom_launchpad_get_task_list_definitions() {
 		),
 		'entrepreneur-site-setup' => array(
 			'task_ids' => array(
-				'woo_customize-store',
+				'woo_customize_store',
 				'woo_products',
-				'woo_woocommerce-payments',
+				'woo_woocommerce_payments',
 				'woo_tax',
 				'woo_marketing',
 				'woo_add_domain',

@@ -737,7 +737,7 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 
 		// WooCommerce tasks
-		'woo_customize-store'             => array(
+		'woo_customize_store'             => array(
 			'get_title'            => function () {
 				return __( 'Customize your store', 'jetpack-mu-wpcom' );
 			},
@@ -757,7 +757,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return site_url( '/wp-admin/admin.php?page=wc-admin&task=products' );
 			},
 		),
-		'woo_woocommerce-payments'        => array(
+		'woo_woocommerce_payments'        => array(
 			'get_title'            => function () {
 				return __( 'Get paid with WooPayments', 'jetpack-mu-wpcom' );
 			},
@@ -852,9 +852,9 @@ function wpcom_launchpad_is_woocommerce_task_completed( $task, $is_complete ) {
 
 	// Array mapping task 'id' from $task to keys used in 'woocommerce_task_list_tracked_completed_tasks' site option
 	$task_map = array(
-		'woo_customize-store'      => 'customize-store',
+		'woo_customize_store'      => 'customize-store',
 		'woo_products'             => 'products',
-		'woo_woocommerce-payments' => 'woocommerce-payments',
+		'woo_woocommerce_payments' => 'woocommerce-payments',
 		'woo_tax'                  => 'tax',
 		'woo_marketing'            => 'marketing',
 		'woo_add_domain'           => 'add_domain',
