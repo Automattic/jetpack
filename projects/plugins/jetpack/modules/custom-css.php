@@ -26,6 +26,8 @@ add_action( 'jetpack_modules_loaded', 'custom_css_loaded' );
  * Enable CSS module.
  */
 function custom_css_loaded() {
+	_deprecated_hook( 'custom_css_loaded', 'jetpack-$$next-version$$', 'WordPress Custom CSS', 'Jetpack no longer supports Custom CSS. Read the WordPress.org documentation to learn how to apply custom styles to your site: https://wordpress.org/documentation/article/styles-overview/#applying-custom-css' );
+
 	Jetpack::enable_module_configurable( __FILE__ );
 	add_filter( 'jetpack_module_configuration_url_custom-css', 'jetpack_custom_css_configuration_url' );
 }
