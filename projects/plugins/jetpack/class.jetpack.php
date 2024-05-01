@@ -15,7 +15,6 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Connection\Secrets;
-use Automattic\Jetpack\Connection\SSO\Helpers;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Connection\Webhooks\Authorize_Redirect;
 use Automattic\Jetpack\Constants;
@@ -1080,21 +1079,13 @@ class Jetpack {
 	 * @return array list of callables.
 	 */
 	public function filter_sync_callable_whitelist( $callables ) {
-
 		// Jetpack Functions.
 		$jetpack_callables = array(
-			'single_user_site'              => array( 'Jetpack', 'is_single_user_site' ),
-			'updates'                       => array( 'Jetpack', 'get_updates' ),
-			'available_jetpack_blocks'      => array( 'Jetpack_Gutenberg', 'get_availability' ), // Includes both Gutenberg blocks *and* plugins.
-			'sso_is_two_step_required'      => array( Helpers::class, 'is_two_step_required' ), // SSO feature related.
-			'sso_should_hide_login_form'    => array( Helpers::class, 'should_hide_login_form' ), // SSO feature related.
-			'sso_match_by_email'            => array( Helpers::class, 'match_by_email' ), // SSO feature related.
-			'sso_new_user_override'         => array( Helpers::class, 'new_user_override' ), // SSO feature related.
-			'sso_bypass_default_login_form' => array( Helpers::class, 'bypass_login_forward_wpcom' ), // SSO feature related.
+			'single_user_site'         => array( 'Jetpack', 'is_single_user_site' ),
+			'updates'                  => array( 'Jetpack', 'get_updates' ),
+			'available_jetpack_blocks' => array( 'Jetpack_Gutenberg', 'get_availability' ), // Includes both Gutenberg blocks *and* plugins.
 		);
-		$callables         = array_merge( $callables, $jetpack_callables );
-
-		return $callables;
+		return array_merge( $callables, $jetpack_callables );
 	}
 
 	/**
