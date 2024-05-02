@@ -1731,6 +1731,8 @@ importers:
 
   projects/packages/chatbot: {}
 
+  projects/packages/classic-theme-helper: {}
+
   projects/packages/connection:
     devDependencies:
       '@automattic/jetpack-webpack-config':
