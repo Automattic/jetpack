@@ -1,6 +1,6 @@
 <?php
 /**
- * Test class for WPCOM_REST_API_V2_Endpoint_Update_Schedules, active feature.
+ * Test class for WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active.
  *
  * @package automattic/scheduled-updates
  */
@@ -10,9 +10,11 @@ use Automattic\Jetpack\Scheduled_Updates_Active;
 use Automattic\Jetpack\Scheduled_Updates_Logs;
 
 /**
- * Test class for WPCOM_REST_API_V2_Endpoint_Update_Schedules, active feature.
+ * Test class for WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active.
+ *
+ * @coversDefaultClass WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active
  */
-class Scheduled_Updates_Active_Test extends \WorDBless\BaseTestCase {
+class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Used to mock global functions inside a namespace.
@@ -83,11 +85,11 @@ class Scheduled_Updates_Active_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test create_item.
+	 * Test update_item.
 	 *
-	 * @covers WPCOM_REST_API_V2_Endpoint_Update_Schedules::create_item
+	 * @covers update_item
 	 */
-	public function test_create_scheduled_update_with_active_true() {
+	public function test_active_true() {
 		$plugins   = array(
 			'custom-plugin/custom-plugin.php',
 			'gutenberg/gutenberg.php',
@@ -138,11 +140,11 @@ class Scheduled_Updates_Active_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test create_item.
+	 * Test update_item.
 	 *
-	 * @covers WPCOM_REST_API_V2_Endpoint_Update_Schedules::create_item
+	 * @covers update_item
 	 */
-	public function test_create_scheduled_update_is_active() {
+	public function test_is_active() {
 		$plugins   = array( 'gutenberg/gutenberg.php' );
 		$request   = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
 		$post_data = array(
@@ -171,9 +173,9 @@ class Scheduled_Updates_Active_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test run_scheduled_update.
+	 * Test update_item.
 	 *
-	 * @covers Scheduled_Updates::run_scheduled_update
+	 * @covers update_item
 	 */
 	public function test_run_inactive_schedule() {
 		$plugins   = array(
@@ -209,9 +211,9 @@ class Scheduled_Updates_Active_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test run_scheduled_update.
+	 * Test update_item.
 	 *
-	 * @covers Scheduled_Updates::run_scheduled_update
+	 * @covers update_item
 	 */
 	public function test_run_active_schedule() {
 		$plugins   = array( 'gutenberg/gutenberg.php' );
