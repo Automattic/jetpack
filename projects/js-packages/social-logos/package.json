@@ -37,9 +37,5 @@
 	},
 	"scripts": {
 		"build": "./tools/build"
-	},
-	"volta": {
-		"node": "16.8.0",
-		"npm": "7.21.1"
 	}
 }
