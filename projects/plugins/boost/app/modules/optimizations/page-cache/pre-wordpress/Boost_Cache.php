@@ -245,13 +245,7 @@ class Boost_Cache {
 
 		$post = get_post( $comment->comment_post_ID );
 
-		if ( $new_status !== 'approved' ) {
-			$action = Filesystem_Utils::DELETE_ALL;
-		} else {
-			$action = Filesystem_Utils::REBUILD_ALL;
-		}
-
-		$this->invalidate_cache_for_post( $post, $action );
+		$this->invalidate_cache_for_post( $post );
 	}
 
 	/**
