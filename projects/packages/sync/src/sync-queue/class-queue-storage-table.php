@@ -337,7 +337,7 @@ class Queue_Storage_Table {
 		);
 		// If the table does not exist, disable the custom queue table and send an error.
 		if ( ! empty( $wpdb->last_error )
-		&& str_contains( $wpdb->last_error, $this->table_name_no_prefix . " doesn't exist" )
+		&& str_contains( $wpdb->last_error, $this->table_name_no_prefix . "' doesn't exist" )
 		&& ! get_transient( self::CUSTOM_QUEUE_TABLE_DISABLE_WPDB_ERROR_NOT_EXIST_FLAG )
 		) {
 			set_transient( self::CUSTOM_QUEUE_TABLE_DISABLE_WPDB_ERROR_NOT_EXIST_FLAG, true, 6 * HOUR_IN_SECONDS );
