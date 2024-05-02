@@ -43,6 +43,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const inputRef: React.MutableRefObject< HTMLInputElement | null > = useRef( null );
 		const controlObserver = useRef< ResizeObserver | null >( null );
 		const blockStyle = useRef< string >( '' );
+		const ownerDocument = useRef< Document >( document );
 		const [ action, setAction ] = useState< string >( '' );
 
 		// Only extend the allowed block types.
@@ -84,7 +85,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				onBlockSuggestion( suggestion );
 
 				// Make sure the block element has the necessary bottom padding, as it can be replaced or changed
-				const block = document.getElementById( id );
+				const block = ownerDocument.current.getElementById( id );
 				if ( block && controlRef.current ) {
 					block.style.paddingBottom = `${ controlHeight.current + 16 }px`;
 				}
@@ -110,14 +111,16 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		} );
 
 		useEffect( () => {
-			// Focus the input when the AI Control is displayed.
 			if ( inputRef.current ) {
+				// Save the block's ownerDocument to use it later, as the editor can be in an iframe.
+				ownerDocument.current = inputRef.current.ownerDocument;
+				// Focus the input when the AI Control is displayed.
 				inputRef.current.focus();
 			}
-		}, [ clientId, showAiControl ] );
+		}, [ showAiControl ] );
 
 		useEffect( () => {
-			let block = document.getElementById( id );
+			let block = ownerDocument.current.getElementById( id );
 
 			if ( ! block ) {
 				return;
@@ -131,7 +134,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				// Observe the control's height to adjust the block's bottom-padding.
 				controlObserver.current = new ResizeObserver( ( [ entry ] ) => {
 					// The block element can be replaced or changed, so we need to get it again.
-					block = document.getElementById( id );
+					block = ownerDocument.current.getElementById( id );
 					controlHeight.current = entry.contentRect.height;
 
 					if ( block && controlRef.current && controlHeight.current > 0 ) {
