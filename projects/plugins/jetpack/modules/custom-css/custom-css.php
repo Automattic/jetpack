@@ -30,6 +30,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		add_action( 'load-revision.php', array( __CLASS__, 'load_revision_php' ) );
 
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'wp_enqueue_scripts' ) );
+		add_action( 'admin_footer', array( __CLASS__, 'update_initial_state' ) );
 
 		// Handle Sass/LESS.
 		add_filter( 'customize_value_custom_css', array( __CLASS__, 'customize_value_custom_css' ), 10, 2 );
@@ -351,10 +352,14 @@ class Jetpack_Custom_CSS_Enhancements {
 	 * Handle the enqueueing and localizing for scripts to be used in the Customizer.
 	 */
 	public static function customize_controls_enqueue_scripts() {
+		global $wp_customize;
+
 		wp_enqueue_style( 'jetpack-customizer-css' );
 		wp_enqueue_script( 'jetpack-customizer-css' );
 
+		$setting      = $wp_customize->get_setting( 'jetpack_custom_css[replace]' );
 		$content_help = __( 'Set a different media width for full size images.', 'jetpack' );
+
 		if ( ! empty( $GLOBALS['content_width'] ) ) {
 			$content_help .= sprintf(
 				// translators: the theme name and then the default width.
@@ -371,14 +376,16 @@ class Jetpack_Custom_CSS_Enhancements {
 				/** This filter is documented in modules/custom-css/custom-css.php */
 				'useRichEditor'        => ! jetpack_is_mobile() && apply_filters( 'safecss_use_ace', true ),
 				'areThereCssRevisions' => self::are_there_css_revisions(),
+				'startFresh'           => isset( $setting ) && $setting->value() ? true : false,
 				'revisionsUrl'         => self::get_revisions_url(),
 				'cssHelpUrl'           => '//en.support.wordpress.com/custom-design/editing-css/',
 				'l10n'                 => array(
-					'mode'           => __( 'Start Fresh', 'jetpack' ),
-					'mobile'         => __( 'On Mobile', 'jetpack' ),
-					'contentWidth'   => $content_help,
-					'revisions'      => _x( 'See full history', 'Toolbar button to see full CSS revision history', 'jetpack' ),
-					'css_help_title' => _x( 'Help', 'Toolbar button to get help with custom CSS', 'jetpack' ),
+					'mode'                        => __( 'Start Fresh', 'jetpack' ) . ' (' . __( 'deprecated', 'jetpack' ) . ')',
+					'mobile'                      => __( 'On Mobile', 'jetpack' ),
+					'contentWidth'                => $content_help,
+					'revisions'                   => _x( 'See full history', 'Toolbar button to see full CSS revision history', 'jetpack' ),
+					'css_help_title'              => _x( 'Help', 'Toolbar button to get help with custom CSS', 'jetpack' ),
+					'startFreshCustomizerWarning' => __( "The Start Fresh option in the Additional CSS panel is enabled, which means the theme's original CSS is not applied. This option will no longer be supported.", 'jetpack' ),
 				),
 			)
 		);
@@ -724,6 +731,8 @@ class Jetpack_Custom_CSS_Enhancements {
 			}
 		}
 
+		$deprecated_suffix = ' (' . __( 'deprecated', 'jetpack' ) . ')';
+
 		$wp_customize->selective_refresh->add_partial(
 			'custom_css',
 			array(
@@ -743,7 +752,7 @@ class Jetpack_Custom_CSS_Enhancements {
 			'wpcom_custom_css_content_width_control',
 			array(
 				'type'     => 'text',
-				'label'    => __( 'Media Width', 'jetpack' ),
+				'label'    => __( 'Media Width', 'jetpack' ) . $deprecated_suffix,
 				'section'  => 'custom_css',
 				'settings' => 'jetpack_custom_css[content_width]',
 			)
@@ -786,7 +795,7 @@ class Jetpack_Custom_CSS_Enhancements {
 				array(
 					'type'     => 'select',
 					'choices'  => $preprocessor_choices,
-					'label'    => __( 'Preprocessor', 'jetpack' ),
+					'label'    => __( 'Preprocessor', 'jetpack' ) . $deprecated_suffix,
 					'section'  => 'custom_css',
 					'settings' => 'jetpack_custom_css[preprocessor]',
 				)
@@ -996,6 +1005,62 @@ class Jetpack_Custom_CSS_Enhancements {
 		}
 
 		return $content_width;
+	}
+
+	/**
+	 * Update the initial state to include the `replace` option (Start Fresh) in the module data.
+	 */
+	public static function update_initial_state() {
+		$start_fresh = null;
+		// $wp_customize is not available here. Let's get the value of the `replace` option from the last
+		// customize_changeset posts.
+		$posts = get_posts(
+			array(
+				'post_type'   => 'customize_changeset',
+				'post_status' => 'trash',
+				'order_by'    => 'post_modified',
+				'order'       => 'DESC',
+			)
+		);
+
+		// Bail as soon as we find a post that defines the `replace` option.
+		foreach ( $posts as $post ) {
+			$content = $post->post_content;
+
+			if ( empty( $content ) ) {
+				continue;
+			}
+
+			$parsed_content = json_decode( $content, true );
+
+			if ( empty( $parsed_content ) ) {
+				continue;
+			}
+
+			foreach ( $parsed_content as $key => $data ) {
+				if ( str_ends_with( $key, '::jetpack_custom_css[replace]' ) ) {
+					$start_fresh = $data['value'];
+					break;
+				}
+			}
+
+			if ( isset( $start_fresh ) ) {
+				break;
+			}
+		}
+
+		$val = $start_fresh ? 'true' : 'false';
+
+		wp_add_inline_script(
+			'react-plugin',
+			"
+try {
+	var options = window.Initial_State?.getModules?.['custom-css']?.options || {};
+	options.replace = $val;
+} catch (e) {}
+",
+			'after'
+		);
 	}
 
 	/**
