@@ -99,13 +99,13 @@ export function dynamicSrcset( img: HTMLImageElement ) {
 	const closestImage = findClosestImageSize( [ `${ img.src } 0w`, ...srcset ], targetSize.width );
 
 	if ( closestImage ) {
-		closestImage.url.searchParams.set( '_jb', '2' );
+		closestImage.url.searchParams.set( '_jb', 'closest' );
 		srcset.push( `${ closestImage.url } ${ window.innerWidth * getDpr() }w` );
 		img.srcset = srcset.join( ',' );
 		img.sizes = 'auto';
 	} else {
 		const newUrl = resizeImage( img.src, targetSize );
-		newUrl.searchParams.set( '_jb', '1' );
+		newUrl.searchParams.set( '_jb', 'custom' );
 		srcset.push( `${ newUrl } ${ window.innerWidth * getDpr() }w` );
 		img.srcset = srcset.join( ',' );
 		img.sizes = 'auto';

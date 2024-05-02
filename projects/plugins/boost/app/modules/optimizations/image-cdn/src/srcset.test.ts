@@ -172,7 +172,7 @@ describe( 'findClosestImageSize', () => {
 
 function untrackedDynamicSrcset( img: HTMLImageElement ) {
 	dynamicSrcset( img );
-	img.srcset = img.srcset.replaceAll( /&_jb=[0-9]/gim, '' );
+	img.srcset = img.srcset.replaceAll( /&_jb=\w+/gim, '' );
 }
 
 describe( 'dynamicSrcset', () => {
