@@ -315,6 +315,7 @@ jobs:
         with:
           source-directory: ${{ github.workspace }}/monorepo
           token: ${{ secrets.API_TOKEN_GITHUB }}
+          upstream-ref-since: '2024-04-10' # No point in checking 12 years of earlier commits from before we started adding "Upstream-Ref".
           username: matticbot
           working-directory: ${{ github.workspace }}/build
-        timeout-minutes: 5  # 2021-01-18: Successful runs seem to take about half a minute.
+        timeout-minutes: 10  # 2024-04-11: Successful runs seem to take about a minute.

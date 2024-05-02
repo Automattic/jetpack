@@ -55,7 +55,7 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 	 * @param bool       $cache_add                 What we want Wpcom_Block_Patterns_Utils->cache_add() to return.
 	 * @param string     $get_patterns_cache_key    What we want Wpcom_Block_Patterns_Utils->get_patterns_cache_key() to return.
 	 * @param string     $get_block_patterns_locale What we want Wpcom_Block_Patterns_Utils->get_block_patterns_locale() to return.
-	 * @return obj PHP Unit mock object.
+	 * @return Wpcom_Block_Patterns_Utils&\PHPUnit\Framework\MockObject\MockObject PHP Unit mock object.
 	 */
 	public function createBlockPatternsUtilsMock( $pattern_mock_response, $cache_get = false, $cache_add = true, $get_patterns_cache_key = 'key-largo', $get_block_patterns_locale = 'fr' ) {
 		$mock = $this->createMock( Wpcom_Block_Patterns_Utils::class );

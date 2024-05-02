@@ -238,6 +238,8 @@ class Jetpack_Social {
 			$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
 			$settings                = $jetpack_social_settings->get_settings( true );
 
+			$note = new Automattic\Jetpack\Social\Note();
+
 			$state = array_merge(
 				$state,
 				array(
@@ -248,7 +250,8 @@ class Jetpack_Social {
 						'isEnhancedPublishingEnabled'    => $publicize->has_enhanced_publishing_feature(),
 						'dismissedNotices'               => Dismissed_Notices::get_dismissed_notices(),
 						'supportedAdditionalConnections' => $publicize->get_supported_additional_connections(),
-						'social_notes_enabled'           => ( new Automattic\Jetpack\Social\Note() )->enabled(),
+						'social_notes_enabled'           => $note->enabled(),
+						'social_notes_config'            => $note->get_config(),
 					),
 					'connectionData'  => array(
 						'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
@@ -270,7 +273,7 @@ class Jetpack_Social {
 	 * It also caches the result to make sure that we don't call the API
 	 * more than once a request.
 	 *
-	 * @returns boolean True if the site has a plan that supports a higher share limit.
+	 * @return boolean True if the site has a plan that supports a higher share limit.
 	 */
 	public function has_paid_plan() {
 		static $has_plan = null;
@@ -293,7 +296,7 @@ class Jetpack_Social {
 	/**
 	 * Checks that we're connected, Publicize is active and that we're editing a post that supports it.
 	 *
-	 * @returns boolean True if the criteria are met.
+	 * @return boolean True if the criteria are met.
 	 */
 	public function should_enqueue_block_editor_scripts() {
 		return is_admin() && $this->is_connected() && self::is_publicize_active() && $this->is_supported_post();
@@ -345,8 +348,10 @@ class Jetpack_Social {
 					'isSocialImageGeneratorAvailable' => $settings['socialImageGeneratorSettings']['available'],
 					'isSocialImageGeneratorEnabled'   => $settings['socialImageGeneratorSettings']['enabled'],
 					'autoConversionSettings'          => $settings['autoConversionSettings'],
+					'useAdminUiV1'                    => $settings['useAdminUiV1'],
 					'dismissedNotices'                => Dismissed_Notices::get_dismissed_notices(),
 					'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
+					'userConnectionUrl'               => esc_url_raw( admin_url( 'admin.php?page=my-jetpack#/connection' ) ),
 				),
 			)
 		);

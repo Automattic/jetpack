@@ -15,6 +15,7 @@ use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
 use WP_REST_Request;
+use WP_REST_Response;
 use WP_REST_Server;
 use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
 

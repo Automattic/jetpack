@@ -26,7 +26,7 @@ class Test_Status extends TestCase {
 	/**
 	 * Status instance.
 	 *
-	 * @var Automattic\Jetpack\Status
+	 * @var \Automattic\Jetpack\Status
 	 */
 	private $status_obj;
 
@@ -75,6 +75,9 @@ class Test_Status extends TestCase {
 				return array_key_exists( $const, $this->mocked_constants ) ? $this->mocked_constants[ $const ] : constant( $const );
 			}
 		);
+
+		// Alias-mock Identity_Crisis so the tests don't try to call into it.
+		\Mockery::mock( 'alias:Automattic\\Jetpack\\Identity_Crisis' );
 
 		Status\Cache::clear();
 		$this->status_obj = new Status();

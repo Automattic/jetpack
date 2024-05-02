@@ -1,21 +1,31 @@
+import { InspectorControls } from '@wordpress/block-editor';
 import { ExternalLink, PanelBody, TextControl } from '@wordpress/components';
+import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { NOTIFICATION_PROCESSING, NOTIFICATION_SUCCESS, NOTIFICATION_ERROR } from './constants';
+import {
+	NOTIFICATION_PROCESSING,
+	NOTIFICATION_SUCCESS,
+	NOTIFICATION_ERROR,
+	DEFAULT_EMAIL_PLACEHOLDER,
+	DEFAULT_PROCESSING_LABEL,
+	DEFAULT_SUCCESS_LABEL,
+	DEFAULT_ERROR_LABEL,
+} from './constants';
 import MailchimpGroups from './mailchimp-groups';
 
-export function MailChimpBlockControls( {
+export const MailChimpBlockControls = ( {
 	auditionNotification,
 	clearAudition,
 	setAttributes,
-	emailPlaceholder,
-	processingLabel,
-	successLabel,
-	errorLabel,
+	emailPlaceholder = DEFAULT_EMAIL_PLACEHOLDER,
+	processingLabel = DEFAULT_PROCESSING_LABEL,
+	successLabel = DEFAULT_SUCCESS_LABEL,
+	errorLabel = DEFAULT_ERROR_LABEL,
 	interests,
 	signupFieldTag,
 	signupFieldValue,
 	connectURL,
-} ) {
+} ) => {
 	const updateProcessingText = processing => {
 		setAttributes( { processingLabel: processing } );
 		auditionNotification( NOTIFICATION_PROCESSING );
@@ -103,4 +113,51 @@ export function MailChimpBlockControls( {
 			</PanelBody>
 		</>
 	);
-}
+};
+
+export const MailChimpInspectorControls = ( {
+	connectURL,
+	attributes,
+	setAttributes,
+	setAudition,
+} ) => {
+	const {
+		emailPlaceholder = DEFAULT_EMAIL_PLACEHOLDER,
+		processingLabel = DEFAULT_PROCESSING_LABEL,
+		successLabel = DEFAULT_SUCCESS_LABEL,
+		errorLabel = DEFAULT_ERROR_LABEL,
+		interests,
+		signupFieldTag,
+		signupFieldValue,
+	} = attributes;
+
+	const timeout = useRef( null );
+
+	const clearAudition = () => setAudition( null );
+	const auditionNotification = notification => {
+		setAudition( notification );
+
+		if ( timeout.current ) {
+			clearTimeout( timeout.current );
+		}
+		timeout.current = setTimeout( clearAudition, 3000 );
+	};
+
+	return (
+		<InspectorControls>
+			<MailChimpBlockControls
+				auditionNotification={ auditionNotification }
+				clearAudition={ clearAudition }
+				emailPlaceholder={ emailPlaceholder }
+				processingLabel={ processingLabel }
+				successLabel={ successLabel }
+				errorLabel={ errorLabel }
+				interests={ interests }
+				setAttributes={ setAttributes }
+				signupFieldTag={ signupFieldTag }
+				signupFieldValue={ signupFieldValue }
+				connectURL={ connectURL }
+			/>
+		</InspectorControls>
+	);
+};

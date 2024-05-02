@@ -21,7 +21,7 @@ class Jetpack_Social_Settings_Test extends BaseTestCase {
 	/**
 	 * Instance of the Settings class.
 	 *
-	 * @var Settings $settings
+	 * @var SocialSettings $settings
 	 */
 	protected $settings;
 
@@ -120,6 +120,7 @@ class Jetpack_Social_Settings_Test extends BaseTestCase {
 				'enabled'  => true,
 				'template' => 'example_template',
 			),
+			'useAdminUiV1'                 => false,
 		);
 
 		$this->settings = new SocialSettings();
@@ -139,6 +140,7 @@ class Jetpack_Social_Settings_Test extends BaseTestCase {
 				'enabled'  => false,
 				'template' => Templates::DEFAULT_TEMPLATE,
 			),
+			'useAdminUiV1'                 => false,
 		);
 
 		$this->settings = new SocialSettings();

@@ -86,28 +86,27 @@ if ( is_readable( $jetpack_beta_autoloader ) ) {
 		if ( get_current_screen()->id !== 'plugins' ) {
 			return;
 		}
-		?>
-		<div class="notice notice-error is-dismissible">
-			<p>
-				<?php
-				printf(
-					wp_kses(
-						/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Jetpack Beta is incomplete. If you installed Jetpack Beta from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment.', 'jetpack-beta' ),
-						array(
-							'a' => array(
-								'href'   => array(),
-								'target' => array(),
-								'rel'    => array(),
-							),
-						)
+		$message = sprintf(
+			wp_kses(
+				/* translators: Placeholder is a link to a support document. */
+				__( 'Your installation of Jetpack Beta is incomplete. If you installed Jetpack Beta from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment.', 'jetpack-beta' ),
+				array(
+					'a' => array(
+						'href'   => array(),
+						'target' => array(),
+						'rel'    => array(),
 					),
-					'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md'
-				);
-				?>
-			</p>
-		</div>
-		<?php
+				)
+			),
+			'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md'
+		);
+		wp_admin_notice(
+			$message,
+			array(
+				'type'        => 'error',
+				'dismissible' => true,
+			)
+		);
 	}
 
 	add_action( 'admin_notices', 'jetpack_beta_admin_missing_autoloader' );

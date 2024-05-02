@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.23.0-alpha';
+	const PACKAGE_VERSION = '5.28.0-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -46,7 +46,7 @@ class Jetpack_Mu_Wpcom {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
-			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
+			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 		}
 
 		// Unified navigation fix for changes in WordPress 6.2.
@@ -77,6 +77,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/admin-color-schemes/admin-color-schemes.php';
 		require_once __DIR__ . '/features/block-patterns/block-patterns.php';
 		require_once __DIR__ . '/features/blog-privacy/blog-privacy.php';
+		require_once __DIR__ . '/features/cloudflare-analytics/cloudflare-analytics.php';
 		require_once __DIR__ . '/features/error-reporting/error-reporting.php';
 		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
 		require_once __DIR__ . '/features/import-customizations/import-customizations.php';
@@ -84,6 +85,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/media/heif-support.php';
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
 		require_once __DIR__ . '/features/wpcom-site-menu/wpcom-site-menu.php';
+		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();

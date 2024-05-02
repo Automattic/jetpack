@@ -1,0 +1,27 @@
+.card {
+    padding: 160px 48px 48px;
+    display: flex;
+	flex-direction: column;
+	gap: 24px;
+
+    @media (max-width: 959px) {
+		padding: 16px;
+	}
+}
+
+.connection_status {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 16px;
+    line-height: 22px;
+    padding-bottom: 24px;
+}
+
+.connection_status--connected {
+    color: var( --jp-green-50 );
+}
+
+.connection_status--disconnected {
+    color: var( --jp-red-50 );
+}

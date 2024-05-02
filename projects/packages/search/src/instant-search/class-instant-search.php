@@ -11,6 +11,7 @@ use Automattic\Jetpack\Assets;
 use WP_Block_Parser;
 use WP_Block_Patterns_Registry;
 use WP_Error;
+use WP_Query;
 use WP_REST_Templates_Controller;
 
 /**
@@ -610,7 +611,7 @@ class Instant_Search extends Classic_Search {
 	/**
 	 * Append Search block to block if no 'wp:search' exists already.
 	 *
-	 * @param {string} $block_content - the content to append the search block.
+	 * @param string $block_content - the content to append the search block.
 	 */
 	public static function inject_search_widget_to_block( $block_content ) {
 		$search_block = sprintf(

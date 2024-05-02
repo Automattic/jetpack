@@ -10,6 +10,7 @@ module.exports = [
 		entry: {
 			'error-reporting': './src/features/error-reporting/index.js',
 			'block-theme-previews': './src/features/block-theme-previews/index.js',
+			'wpcom-site-menu': './src/features/wpcom-site-menu/wpcom-site-menu.scss',
 		},
 		mode: jetpackConfig.mode,
 		devtool: jetpackConfig.devtool,

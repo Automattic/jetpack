@@ -335,8 +335,8 @@ add_filter( 'upgrader_pre_download', 'jetpack_upgrader_pre_download' );
 
  * @deprecated Automattic\Jetpack\Sync\Functions::json_wrap
  *
- * @param array|obj $any        Source data to be cleaned up.
- * @param array     $seen_nodes Built array of nodes.
+ * @param mixed $any        Source data to be cleaned up.
+ * @param array $seen_nodes Built array of nodes.
  *
  * @return array
  */

@@ -1,8 +1,8 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
-import { InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { Notice, TextControl, RadioControl, Placeholder } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
-import { Component } from '@wordpress/element';
+import { useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import metadata from '../block.json';
@@ -20,24 +20,25 @@ const RADIO_OPTIONS = [
 ];
 const icon = getBlockIconComponent( metadata );
 
-export class RepeatVisitorEdit extends Component {
-	state = {
-		isThresholdValid: true,
-	};
+export const RepeatVisitorEdit = ( { isSelected, attributes, setAttributes } ) => {
+	const { criteria, threshold } = attributes;
 
-	setCriteria = criteria => this.props.setAttributes( { criteria } );
-	setThreshold = threshold => {
-		if ( /^\d+$/.test( threshold ) && +threshold > 0 ) {
-			this.props.setAttributes( { threshold: +threshold } );
-			this.setState( { isThresholdValid: true } );
-			return;
+	const blockProps = useBlockProps();
+	const [ isThresholdValid, setIsThresholdValid ] = useState( true );
+
+	const onVisibilityChange = val => setAttributes( { criteria: val } );
+	const onThresholdChange = val => {
+		if ( /^\d+$/.test( val ) && +val > 0 ) {
+			setAttributes( { threshold: +val } );
+			setIsThresholdValid( true );
+		} else {
+			setIsThresholdValid( false );
 		}
-		this.setState( { isThresholdValid: false } );
 	};
 
-	getNoticeLabel() {
-		if ( this.props.attributes.criteria === CRITERIA_AFTER ) {
-			if ( 1 === this.props.attributes.threshold ) {
+	const getNoticeLabel = () => {
+		if ( criteria === CRITERIA_AFTER ) {
+			if ( 1 === threshold ) {
 				return __(
 					'This block will only appear to people who have visited this page more than once.',
 					'jetpack'
@@ -49,14 +50,14 @@ export class RepeatVisitorEdit extends Component {
 				_n(
 					'This block will only appear to people who have visited this page more than %d time.',
 					'This block will only appear to people who have visited this page more than %d times.',
-					+this.props.attributes.threshold,
+					+threshold,
 					'jetpack'
 				),
-				this.props.attributes.threshold
+				threshold
 			);
 		}
 
-		if ( 1 === this.props.attributes.threshold ) {
+		if ( 1 === threshold ) {
 			return __(
 				'This block will only appear to people who are visiting this page for the first time.',
 				'jetpack'
@@ -68,59 +69,57 @@ export class RepeatVisitorEdit extends Component {
 			_n(
 				'This block will only appear to people who are visiting this page for %d time.',
 				'This block will only appear to people who have visited this page at most %d times.',
-				+this.props.attributes.threshold,
+				+threshold,
 				'jetpack'
 			),
-			this.props.attributes.threshold
+			threshold
 		);
-	}
+	};
 
-	render() {
-		return (
-			<div
-				className={ classNames( this.props.className, {
-					'wp-block-jetpack-repeat-visitor--is-unselected': ! this.props.isSelected,
-				} ) }
+	return (
+		<div
+			{ ...blockProps }
+			className={ classNames( blockProps.className, {
+				'wp-block-jetpack-repeat-visitor--is-unselected': ! isSelected,
+			} ) }
+		>
+			<Placeholder
+				icon={ icon }
+				label={ __( 'Repeat Visitor', 'jetpack' ) }
+				className="wp-block-jetpack-repeat-visitor-placeholder"
 			>
-				<Placeholder
-					icon={ icon }
-					label={ __( 'Repeat Visitor', 'jetpack' ) }
-					className="wp-block-jetpack-repeat-visitor-placeholder"
-				>
-					<TextControl
-						className="wp-block-jetpack-repeat-visitor-threshold"
-						defaultValue={ this.props.attributes.threshold }
-						help={
-							this.state.isThresholdValid ? '' : __( 'Please enter a valid number.', 'jetpack' )
-						}
-						label={ __( 'Visit count threshold', 'jetpack' ) }
-						min="1"
-						onChange={ this.setThreshold }
-						pattern="[0-9]"
-						type="number"
-					/>
+				<TextControl
+					className="wp-block-jetpack-repeat-visitor-threshold"
+					defaultValue={ threshold }
+					help={ isThresholdValid ? '' : __( 'Please enter a valid number.', 'jetpack' ) }
+					label={ __( 'Visit count threshold', 'jetpack' ) }
+					min="1"
+					onChange={ onThresholdChange }
+					pattern="[0-9]"
+					type="number"
+				/>
 
-					<RadioControl
-						label={ __( 'Visibility', 'jetpack' ) }
-						selected={ this.props.attributes.criteria }
-						options={ RADIO_OPTIONS }
-						onChange={ this.setCriteria }
-					/>
-				</Placeholder>
+				<RadioControl
+					label={ __( 'Visibility', 'jetpack' ) }
+					selected={ criteria }
+					options={ RADIO_OPTIONS }
+					onChange={ onVisibilityChange }
+				/>
+			</Placeholder>
 
-				<Notice status="info" isDismissible={ false }>
-					{ this.getNoticeLabel() }
-				</Notice>
-				<div className="wp-block-jetpack-repeat-visitor__inner-container">
-					<InnerBlocks />
-				</div>
+			<Notice status="info" isDismissible={ false }>
+				{ getNoticeLabel() }
+			</Notice>
+			<div className="wp-block-jetpack-repeat-visitor__inner-container">
+				<InnerBlocks />
 			</div>
-		);
-	}
-}
+		</div>
+	);
+};
 
 export default withSelect( ( select, ownProps ) => {
 	const { isBlockSelected, hasSelectedInnerBlock } = select( 'core/block-editor' );
+
 	return {
 		isSelected: isBlockSelected( ownProps.clientId ) || hasSelectedInnerBlock( ownProps.clientId ),
 	};

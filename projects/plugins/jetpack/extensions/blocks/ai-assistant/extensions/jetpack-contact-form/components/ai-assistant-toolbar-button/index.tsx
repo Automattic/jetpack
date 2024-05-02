@@ -4,14 +4,14 @@
 import { aiAssistantIcon, useAiContext } from '@automattic/jetpack-ai-client';
 import { KeyboardShortcuts, ToolbarButton } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
-import { useContext, useRef, useCallback } from '@wordpress/element';
+import { useEffect, useContext, useRef, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React, { useEffect } from 'react';
 /*
  * Internal dependencies
  */
 import { AiAssistantUiContext } from '../../ui-handler/context';
 import { selectFormBlock } from '../../ui-handler/with-ui-handler-data-provider';
+import type { ReactElement } from 'react';
 
 const AI_ASSISTANT_BAR_SLOT_CLASS = 'jetpack-ai-assistant-bar__slot';
 
@@ -22,13 +22,13 @@ const AI_ASSISTANT_BAR_SLOT_CLASS = 'jetpack-ai-assistant-bar__slot';
  *
  * @param {object} props - The component props.
  * @param {string} props.jetpackFormClientId - The Jetpack Form block client ID.
- * @returns {React.ReactElement}               The toolbar button.
+ * @returns {ReactElement}               The toolbar button.
  */
 export default function AiAssistantToolbarButton( {
 	jetpackFormClientId,
 }: {
 	jetpackFormClientId?: string;
-} ): React.ReactElement {
+} ): ReactElement {
 	const { isVisible, toggle, setAnchor, assistantAnchor } = useContext( AiAssistantUiContext );
 	const { requestingState } = useAiContext();
 

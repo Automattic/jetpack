@@ -22,6 +22,8 @@ export { default as getRedirectUrl } from './tools/jp-redirect';
 export { default as getProductCheckoutUrl } from './tools/get-product-checkout-url';
 export { isFirstMonthTrial } from './tools/pricing-utils';
 export { default as AutomatticBylineLogo } from './components/automattic-byline-logo';
+export { default as AutomatticIconLogo } from './components/automattic-icon-logo';
+export { default as AutomatticForAgenciesLogo } from './components/automattic-for-agencies-logo';
 export { default as JetpackFooter } from './components/jetpack-footer';
 export { default as Spinner } from './components/spinner';
 export { default as Gridicon } from './components/gridicon';

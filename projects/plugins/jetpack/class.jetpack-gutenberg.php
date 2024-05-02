@@ -687,8 +687,7 @@ class Jetpack_Gutenberg {
 		}
 		// AI Assistant
 		$ai_assistant_state = array(
-			'is-enabled'            => apply_filters( 'jetpack_ai_enabled', true ),
-			'is-playground-visible' => Constants::is_true( 'JETPACK_AI_ASSISTANT_PLAYGROUND' ),
+			'is-enabled' => apply_filters( 'jetpack_ai_enabled', true ),
 		);
 
 		$screen_base = null;
@@ -758,6 +757,7 @@ class Jetpack_Gutenberg {
 				'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
 				'autoConversionSettings'          => $settings['autoConversionSettings'],
 				'jetpackSharingSettingsUrl'       => esc_url_raw( admin_url( 'admin.php?page=jetpack#/sharing' ) ),
+				'userConnectionUrl'               => esc_url_raw( admin_url( 'admin.php?page=my-jetpack#/connection' ) ),
 			);
 		}
 
@@ -928,7 +928,7 @@ class Jetpack_Gutenberg {
 	 *
 	 * @since 8.1.0
 	 *
-	 * @param obj    $preset_extensions_manifest List of extensions available in Jetpack.
+	 * @param object $preset_extensions_manifest List of extensions available in Jetpack.
 	 * @param string $blocks_variation           Subset of blocks. production|beta|experimental.
 	 *
 	 * @return array $preset_extensions Array of extensions for that variation

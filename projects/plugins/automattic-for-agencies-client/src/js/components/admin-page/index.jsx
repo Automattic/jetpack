@@ -1,110 +1,65 @@
-import {
-	AdminPage,
-	AdminSectionHero,
-	Container,
-	Col,
-	PricingCard,
-} from '@automattic/jetpack-components';
-import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { Container, Col, ThemeProvider } from '@automattic/jetpack-components';
+import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
-import React from 'react';
-import styles from './styles.module.scss';
+import React, { useCallback, useMemo, useState } from 'react';
+import ConnectedCard from '../connected-card';
+import ConnectionCard from '../connection-card';
+import DisconnectSiteLink from '../disconnect-site-link';
+import DisconnectedCard from '../disconnected-card';
 
 const Admin = () => {
-	const connectionStatus = useSelect(
+	/** True if the user has just disconnected their site in the ongoing session. */
+	const [ wasManuallyDisconnected, setWasManuallyDisconnected ] = useState( false );
+
+	/** Callback that runs after the site is disconnected. */
+	const onDisconnect = useCallback(
+		() => setWasManuallyDisconnected( true ),
+		[ setWasManuallyDisconnected ]
+	);
+
+	const { isUserConnected, isRegistered } = useSelect(
 		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
 		[]
 	);
-	const { isUserConnected, isRegistered } = connectionStatus;
-	const showConnectionCard = ! isRegistered || ! isUserConnected;
+
+	const connectionErrors = useSelect(
+		select => select( CONNECTION_STORE_ID ).getConnectionErrors(),
+		[]
+	);
+
+	/** Render the relevant card based on the connection status. */
+	const connectionCard = useMemo( () => {
+		// Show the disconnection card if there are connection errors, or if the user has manually disconnected the site.
+		if ( Object.keys( connectionErrors ).length || wasManuallyDisconnected ) {
+			return <DisconnectedCard />;
+		}
+		// Show the connection card if we don't have a site and user connection.
+		if ( ! isRegistered || ! isUserConnected ) {
+			return <ConnectionCard />;
+		}
+		// Default to showing the card for a successfully connected site.
+		return <ConnectedCard />;
+	}, [ isRegistered, isUserConnected, connectionErrors, wasManuallyDisconnected ] );
+
+	const showDisconnectSiteLink = useMemo(
+		() =>
+			isRegistered &&
+			isUserConnected &&
+			! Object.keys( connectionErrors ).length &&
+			! wasManuallyDisconnected,
+		[ isRegistered, isUserConnected, connectionErrors, wasManuallyDisconnected ]
+	);
+
 	return (
-		<AdminPage
-			moduleName={ __( 'Automattic For Agencies Client', 'automattic-for-agencies-client' ) }
-		>
-			<AdminSectionHero>
-				{ showConnectionCard ? (
-					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-						<Col sm={ 4 } md={ 8 } lg={ 12 }>
-							<ConnectionSection />
-						</Col>
-					</Container>
-				) : (
-					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-						<Col>
-							<div id="jp-admin-notices" className="automattic-for-agencies-client-jitm-card" />
-						</Col>
-						<Col sm={ 4 } md={ 6 } lg={ 6 }>
-							<h1 className={ styles.heading }>
-								{ __( 'The plugin headline.', 'automattic-for-agencies-client' ) }
-							</h1>
-							<ul className={ styles[ 'jp-product-promote' ] }>
-								<li>
-									{ __(
-										'All the amazing things this plugin does',
-										'automattic-for-agencies-client'
-									) }
-								</li>
-								<li>
-									{ __(
-										'Presented in a list of amazing features',
-										'automattic-for-agencies-client'
-									) }
-								</li>
-								<li>
-									{ __( 'And all the benefits you will get', 'automattic-for-agencies-client' ) }
-								</li>
-							</ul>
-						</Col>
-						<Col lg={ 1 } md={ 1 } sm={ 0 } />
-						<Col sm={ 4 } md={ 5 } lg={ 5 }>
-							<PricingCard
-								title={ __( 'Automattic For Agencies Client', 'automattic-for-agencies-client' ) }
-								priceBefore={ 9 }
-								priceAfter={ 4.5 }
-								ctaText={ __(
-									'Get Automattic For Agencies Client',
-									'automattic-for-agencies-client'
-								) }
-								infoText={ __(
-									'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
-									'automattic-for-agencies-client'
-								) }
-							/>
-						</Col>
-					</Container>
-				) }
-			</AdminSectionHero>
-		</AdminPage>
+		<ThemeProvider targetDom={ document.body }>
+			<Container horizontalSpacing={ 10 } horizontalGap={ 3 }>
+				<Col sm={ 4 } md={ 8 } lg={ 12 }>
+					{ connectionCard }
+					{ showDisconnectSiteLink && <DisconnectSiteLink onDisconnect={ onDisconnect } /> }
+				</Col>
+			</Container>
+		</ThemeProvider>
 	);
 };
 
 export default Admin;
-
-const ConnectionSection = () => {
-	const { apiNonce, apiRoot, registrationNonce } = window.automatticForAgenciesClientInitialState;
-	return (
-		<ConnectScreenRequiredPlan
-			buttonLabel={ __( 'Get Automattic For Agencies Client', 'automattic-for-agencies-client' ) }
-			priceAfter={ 4.5 }
-			priceBefore={ 9 }
-			pricingTitle={ __( 'Automattic For Agencies Client', 'automattic-for-agencies-client' ) }
-			title={ __(
-				'Easily connect your clients sites to the Automattic for Agencies portal and enable portal features like plugin updates, downtime monitoring, and more.',
-				'automattic-for-agencies-client'
-			) }
-			apiRoot={ apiRoot }
-			apiNonce={ apiNonce }
-			registrationNonce={ registrationNonce }
-			from="automattic-for-agencies-client"
-			redirectUri="admin.php?page=automattic-for-agencies-client"
-		>
-			<h3>{ __( 'Connection screen title', 'automattic-for-agencies-client' ) }</h3>
-			<ul>
-				<li>{ __( 'Amazing feature 1', 'automattic-for-agencies-client' ) }</li>
-				<li>{ __( 'Amazing feature 2', 'automattic-for-agencies-client' ) }</li>
-				<li>{ __( 'Amazing feature 3', 'automattic-for-agencies-client' ) }</li>
-			</ul>
-		</ConnectScreenRequiredPlan>
-	);
-};

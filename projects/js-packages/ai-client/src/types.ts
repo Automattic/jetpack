@@ -93,6 +93,17 @@ export type { RecordingState } from './hooks/use-media-recording/index.js';
  */
 export type CancelablePromise< T = void > = Promise< T > & { canceled?: boolean };
 
+export type Block = {
+	attributes?: {
+		[ key: string ]: unknown;
+	};
+	clientId?: string;
+	innerBlocks?: Block[];
+	isValid?: boolean;
+	name?: string;
+	originalContent?: string;
+};
+
 /*
  * Transcription types
  */

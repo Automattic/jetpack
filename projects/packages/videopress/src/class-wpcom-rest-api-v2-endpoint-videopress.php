@@ -13,6 +13,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
 use WP_Error;
 use WP_REST_Controller;
+use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
 

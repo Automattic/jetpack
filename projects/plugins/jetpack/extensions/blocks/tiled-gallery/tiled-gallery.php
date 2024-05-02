@@ -168,8 +168,8 @@ class Tiled_Gallery {
 	 * Layouts are block styles and will be available as `is-style-[LAYOUT]` in the className
 	 * attribute. The default (rectangular) will be omitted.
 	 *
-	 * @param  {Array} $attr Attributes key/value array.
-	 * @return {boolean} True if layout is squareish, otherwise false.
+	 * @param array $attr Attributes key/value array.
+	 * @return boolean True if layout is squareish, otherwise false.
 	 */
 	private static function is_squareish_layout( $attr ) {
 		return isset( $attr['className'] )

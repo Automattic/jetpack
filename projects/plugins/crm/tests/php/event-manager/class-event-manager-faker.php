@@ -27,7 +27,6 @@ class Event_Manager_Faker {
 	/**
 	 * Return data for a dummy invoice.
 	 *
-	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Invoice object.
 	 * @return array|Data_Type_Invoice
 	 */
 	public function invoice_data() {

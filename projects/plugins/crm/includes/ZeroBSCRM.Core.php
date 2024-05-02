@@ -24,7 +24,7 @@ final class ZeroBSCRM {
 	 *
 	 * @var string
 	 */
-	public $version = '6.4.1';
+	public $version = '6.4.2';
 
 	/**
 	 * WordPress version tested with.
@@ -481,9 +481,10 @@ final class ZeroBSCRM {
 	 */
 	public $acceptable_restricted_html = array(
 		'a'          => array(
-			'href'  => array(),
-			'title' => array(),
-			'id'    => array(),
+			'href'   => array(),
+			'title'  => array(),
+			'id'     => array(),
+			'target' => array(),
 		),
 		'br'         => array(),
 		'em'         => array(),
@@ -737,9 +738,24 @@ final class ZeroBSCRM {
 				if ( $pagenow == $page || empty( $page ) ) {
 
 					foreach ( $notices as $notice ) {
-
-						echo '<div class="notice notice-' . esc_attr( $notice['class'] ) . ' is-dismissible">' . $notice['html'] . '</div>';
-
+						wp_admin_notice(
+							wp_kses(
+								$notice['html'],
+								array(
+									'a' => array(
+										'href'   => array(),
+										'target' => array(),
+										'class'  => array(),
+									),
+									'p' => array(),
+								)
+							),
+							array(
+								'type'           => esc_attr( $notice['class'] ),
+								'dismissible'    => true,
+								'paragraph_wrap' => false,
+							)
+						);
 					}
 				}
 			}
@@ -1007,6 +1023,7 @@ final class ZeroBSCRM {
 		$this->urls['kb-mailpoet']              = 'https://kb.jetpackcrm.com/knowledge-base/mailpoet-crm-sync/';
 		$this->urls['kb-automations']           = 'https://kb.jetpackcrm.com/knowledge-base/automations/';
 		$this->urls['kb-contact-fields']        = 'https://kb.jetpackcrm.com/knowledge-base/contact-field-list/';
+		$this->urls['kb-pdf-custom-fonts']      = 'https://kb.jetpackcrm.com/knowledge-base/using-custom-fonts-in-crm-pdfs-e-g-invoice-templates/';
 
 		// coming soon
 		$this->urls['soon'] = 'https://jetpackcrm.com/coming-soon/';

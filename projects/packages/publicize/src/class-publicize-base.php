@@ -14,6 +14,8 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
+use WP_Error;
+use WP_Post;
 
 /**
  * Base class for Publicize.

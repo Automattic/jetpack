@@ -196,11 +196,11 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 			// Add statuses if enabled.
 			if ( $zbs->settings->get( 'filtersfromstatus' ) === 1 ) {
 				$statuses = array(
-					'draft'   => __( 'Draft', 'zero-bs-crm' ),
-					'unpaid'  => __( 'Unpaid', 'zero-bs-crm' ),
-					'paid'    => __( 'Paid', 'zero-bs-crm' ),
-					'overdue' => __( 'Overdue', 'zero-bs-crm' ),
-					'deleted' => __( 'Deleted', 'zero-bs-crm' ),
+					'Draft'   => __( 'Draft', 'zero-bs-crm' ),
+					'Unpaid'  => __( 'Unpaid', 'zero-bs-crm' ),
+					'Paid'    => __( 'Paid', 'zero-bs-crm' ),
+					'Overdue' => __( 'Overdue', 'zero-bs-crm' ),
+					'Deleted' => __( 'Deleted', 'zero-bs-crm' ),
 				);
 				foreach ( $statuses as $status_slug => $status_label ) {
 					$listview_filters[ ZBS_TYPE_INVOICE ]['status'][ 'status_' . $status_slug ] = $status_label;
@@ -1592,6 +1592,11 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                         );
                 }
 
+					// If we are using our CRM reference id (table field id_override) system, we should not change the reference number when importing from woo.
+					if ( isset( $data['woo_use_crm_id'] ) && $data['woo_use_crm_id'] === true ) {
+						$dataArr['zbsi_id_override'] = $previous_invoice_obj['id_override']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					}
+
                 #} Attempt update
                 if ($wpdb->update( 
                         $ZBSCRM_t['invoices'], 
@@ -1794,7 +1799,18 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                         }
 
         } else {
-            
+					// If we are using our CRM reference id (table field id_override) system, we should generate a new invoice number.
+					if ( isset( $data['woo_use_crm_id'] ) && $data['woo_use_crm_id'] === true ) {
+						$ref_type = $zbs->settings->get( 'reftype' );
+						// We can only generate it if autonumber is set
+						if ( $ref_type === 'autonumber' ) {
+							$next_number                 = $zbs->settings->get( 'refnextnum' );
+							$dataArr['zbsi_id_override'] = $zbs->settings->get( 'refprefix' ) . $next_number . $zbs->settings->get( 'refsuffix' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+							++$next_number;
+							$zbs->settings->update( 'refnextnum', $next_number );
+						}
+					}
+
             #} No ID - must be an INSERT
             if ($wpdb->insert( 
                         $ZBSCRM_t['invoices'], 

@@ -16,6 +16,7 @@ use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Status as Jetpack_Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
+use WP_Post;
 
 /**
  * Class for promoting posts.
@@ -92,22 +93,12 @@ class Blaze {
 	}
 
 	/**
-	 * Is the Woo Blaze plugin active?
-	 * The dashboard provided by that plugin takes precedence over Jetpack Blaze
-	 *
-	 * @return bool
-	 */
-	public static function is_woo_blaze_active() {
-		return is_plugin_active( 'woocommerce/woocommerce.php' ) && is_plugin_active( 'woo-blaze/woo-blaze.php' );
-	}
-
-	/**
 	 * Enable the Blaze menu.
 	 *
 	 * @return void
 	 */
 	public static function enable_blaze_menu() {
-		if ( ! self::should_initialize() || self::is_woo_blaze_active() ) {
+		if ( ! self::should_initialize() ) {
 			return;
 		}
 
@@ -255,19 +246,12 @@ class Blaze {
 	 * @return array An array with the link, and whether this is a Calypso or a wp-admin link.
 	 */
 	public static function get_campaign_management_url( $post_id ) {
-		$is_woo_blaze_active = self::is_woo_blaze_active();
-
-		if ( self::is_dashboard_enabled() || $is_woo_blaze_active ) {
-			// Woo Blaze uses a different admin section and path prefix
-			$admin_section     = $is_woo_blaze_active ? 'admin.php' : 'tools.php';
-			$blaze_path_prefix = $is_woo_blaze_active ? 'wc-blaze' : 'advertising';
-
-			$admin_url = admin_url( sprintf( '%1$s?page=%2$s', $admin_section, $blaze_path_prefix ) );
+		if ( self::is_dashboard_enabled() ) {
+			$admin_url = admin_url( 'tools.php?page=advertising' );
 			$hostname  = wp_parse_url( get_site_url(), PHP_URL_HOST );
 			$blaze_url = sprintf(
-				'%1$s#!/%2$s/posts/promote/post-%3$s/%4$s',
+				'%1$s#!/advertising/posts/promote/post-%2$s/%3$s',
 				$admin_url,
-				$blaze_path_prefix,
 				esc_attr( $post_id ),
 				$hostname
 			);

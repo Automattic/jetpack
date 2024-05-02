@@ -24,7 +24,7 @@ class Jetpack_Publicize {
 	/**
 	 * Current status about Jetpack modules.
 	 *
-	 * @var Modules
+	 * @var Automattic\Jetpack\Modules
 	 */
 	public $modules;
 
@@ -84,7 +84,7 @@ class Jetpack_Publicize {
 			global $publicize;
 			require_once WP_CONTENT_DIR . '/mu-plugins/keyring/keyring.php';
 			require_once WP_CONTENT_DIR . '/admin-plugins/publicize/publicize-wpcom.php';
-			$publicize    = new Publicize();
+			$publicize    = new \Publicize();
 			$publicize_ui = new Automattic\Jetpack\Publicize\Publicize_UI();
 		}
 	}
@@ -113,7 +113,7 @@ if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 		 * set up that you might need to do if you want to use it on the front end.
 		 * Just call this function and it returns a Publicize object.
 		 *
-		 * @return Publicize Object
+		 * @return \Automattic\Jetpack\Publicize\Publicize|\Publicize Object
 		 */
 		function publicize_init() {
 			global $publicize;
