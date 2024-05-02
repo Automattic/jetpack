@@ -12,11 +12,11 @@ use Automattic\Jetpack\Connection\SSO\Force_2FA;
 use Automattic\Jetpack\Connection\SSO\Helpers;
 use Automattic\Jetpack\Connection\SSO\Notices;
 use Automattic\Jetpack\Connection\SSO\User_Admin;
+use Automattic\Jetpack\Connection\Webhooks\Authorize_Redirect;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
-use Jetpack;
 use Jetpack_IXR_Client;
 use WP_Error;
 use WP_User;
@@ -931,7 +931,7 @@ class SSO {
 			$json_api_auth_environment = Helpers::get_json_api_auth_environment();
 
 			$is_json_api_auth  = ! empty( $json_api_auth_environment );
-			$is_user_connected = ( new Manager( 'jetpack-connection' ) )->is_user_connected( $user->ID );
+			$is_user_connected = ( new Manager() )->is_user_connected( $user->ID );
 			$roles             = new Roles();
 			$tracking->record_user_event(
 				'sso_user_logged_in',
@@ -944,9 +944,9 @@ class SSO {
 			);
 
 			if ( $is_json_api_auth ) {
-				$jetpack = Jetpack::init();
-				$jetpack->verify_json_api_authorization_request( $json_api_auth_environment );
-				$jetpack->store_json_api_authorization_token( $user->user_login, $user );
+				$authorize_json_api = new Authorize_Json_Api();
+				$authorize_json_api->verify_json_api_authorization_request( $json_api_auth_environment );
+				$authorize_json_api->store_json_api_authorization_token( $user->user_login, $user );
 
 			} elseif ( ! $is_user_connected ) {
 				wp_safe_redirect(
@@ -1168,8 +1168,6 @@ class SSO {
 	 * calls menu_page_url() which doesn't work properly until admin menus are registered.
 	 */
 	public function maybe_authorize_user_after_sso() {
-		$jetpack = Jetpack::init();
-
 		if ( empty( $_GET['jetpack-sso-auth-redirect'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return;
 		}
@@ -1194,7 +1192,9 @@ class SSO {
 		 */
 		remove_all_filters( 'jetpack_use_iframe_authorization_flow' );
 		add_filter( 'jetpack_use_iframe_authorization_flow', '__return_false' );
-		$connect_url = $jetpack->build_connect_url( true, $redirect_after_auth, 'sso' );
+
+		$connection  = new Manager( 'jetpack-connection' );
+		$connect_url = ( new Authorize_Redirect( $connection ) )->build_authorize_url( $redirect_after_auth, 'sso', true );
 
 		add_filter( 'allowed_redirect_hosts', array( Helpers::class, 'allowed_redirect_hosts' ) );
 		wp_safe_redirect( $connect_url );
@@ -1207,7 +1207,7 @@ class SSO {
 	 */
 	public function store_wpcom_profile_cookies_on_logout() {
 		$user_id = get_current_user_id();
-		if ( ! ( new Manager( 'jetpack-connection' ) )->is_user_connected( $user_id ) ) {
+		if ( ! ( new Manager() )->is_user_connected( $user_id ) ) {
 			return;
 		}
 

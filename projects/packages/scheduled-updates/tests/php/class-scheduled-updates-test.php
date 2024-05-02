@@ -30,9 +30,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	public static function set_up_before_class() {
 		parent::set_up_before_class();
 		\phpmock\phpunit\PHPMock::defineFunctionMock( 'Automattic\Jetpack', 'realpath' );
-
-		Scheduled_Updates::init();
-		Scheduled_Updates::load_rest_api_endpoints();
 	}
 
 	/**
@@ -63,11 +60,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 		// Ensure plugin directory exists.
 		$this->wp_filesystem->mkdir( $this->plugin_dir );
-
-		// Init the hook.
-		add_action( 'rest_api_init', array( 'Automattic\Jetpack\Scheduled_Updates', 'add_is_managed_extension_field' ) );
-
-		do_action( 'rest_api_init' );
 	}
 
 	/**
@@ -482,7 +474,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 		$unschedule_error = function ( $pre, $timestamp ) {
 			// Simulate the first event unschedule error.
-			return $timestamp === strtotime( 'next Monday 8:00' ) ? new \WP_Error() : $pre;
+			return strtotime( 'next Monday 8:00' ) === $timestamp ? new \WP_Error() : $pre;
 		};
 
 		add_filter( 'pre_unschedule_event', $unschedule_error, 10, 2 );
@@ -506,7 +498,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_delete_plugin_new_events_inherit_statuses() {
 		$plugins  = $this->create_plugins_for_deletion( 3 );
-		$ids      = array();
 		$statuses = array( 'success', 'failure-and-rollback' );
 
 		// Create two events at 08:00 and 09:00 with plugins 0 and 1, and 1 and 2.
@@ -528,8 +519,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 			$result = rest_do_request( $request );
 			$this->assertSame( 200, $result->get_status() );
 
-			$id      = Scheduled_Updates::generate_schedule_id( $scheduled_plugins );
-			$request = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules/' . $id . '/status' );
+			$request = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules/' . $result->get_data() . '/status' );
 			$request->set_body_params(
 				array(
 					'last_run_timestamp' => time() + $i,
@@ -539,8 +529,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 			$result = rest_do_request( $request );
 			$this->assertSame( 200, $result->get_status() );
-
-			$ids[] = $id;
 		}
 
 		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/update-schedules' );
@@ -574,7 +562,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		$plugins = $this->create_plugins_for_deletion( 3 );
 		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
 		$params  = array(
-			'plugins'  => array(),
+			'plugins'  => array( $plugins[0] ),
 			'schedule' => array(
 				'timestamp'          => strtotime( 'next Monday 8:00' ),
 				'interval'           => 'weekly',
@@ -584,8 +572,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 		wp_set_current_user( $this->admin_id );
 
-		$params['plugins']               = array( $plugins[0] );
-		$params['schedule']['timestamp'] = strtotime( 'next Monday 8:00' );
 		$request->set_body_params( $params );
 
 		// Create first event.

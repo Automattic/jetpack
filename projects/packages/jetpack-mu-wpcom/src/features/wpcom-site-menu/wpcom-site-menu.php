@@ -23,7 +23,6 @@ function current_user_has_wpcom_account() {
 
 	if ( function_exists( '\A8C\Billingdaddy\Users\get_wpcom_user' ) ) {
 		// On Simple sites, use get_wpcom_user function to check if the user has a WordPress.com account.
-		// @phan-suppress-next-line PhanUndeclaredFunction
 		$user        = \A8C\Billingdaddy\Users\get_wpcom_user( $user_id );
 		$has_account = isset( $user->ID );
 	} else {
@@ -436,7 +435,7 @@ function wpcom_add_hosting_menu_intro_notice() {
 
 		.wpcom-site-menu-intro-notice a.close-button {
 			height: 16px;
-			margin-left: auto;
+			margin-inline-start: auto;
 		}
 	</style>
 	<div class="wpcom-site-menu-intro-notice notice notice-info" role="alert">
@@ -544,3 +543,43 @@ function wpcom_maybe_enable_link_manager() {
 	update_option( 'link_manager_check', time() );
 }
 add_action( 'init', 'wpcom_maybe_enable_link_manager' );
+
+/**
+ * Add the Scheduled Updates menu item to the Plugins menu.
+ *
+ * Limited to sites with scheduled updates feature.
+ */
+function wpcom_add_scheduled_updates_menu() {
+	// Bail on Simple sites
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		return;
+	}
+
+	/**
+	 * Don't show `Scheduled Updates` to administrators without a WordPress.com account being attached,
+	 * as they don't have access to any of the pages.
+	 */
+	if ( ! current_user_has_wpcom_account() ) {
+		return;
+	}
+
+	if ( ! function_exists( 'wpcom_site_has_feature' ) ) {
+		return;
+	}
+
+	if ( ! wpcom_site_has_feature( \WPCOM_Features::SCHEDULED_UPDATES ) ) {
+		return;
+	}
+
+	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
+
+	add_submenu_page(
+		'plugins.php',
+		esc_attr__( 'Scheduled Updates', 'jetpack-mu-wpcom' ),
+		__( 'Scheduled Updates', 'jetpack-mu-wpcom' ),
+		'update_plugins',
+		esc_url( "https://wordpress.com/plugins/scheduled-updates/$domain" ),
+		null
+	);
+}
+add_action( 'admin_menu', 'wpcom_add_scheduled_updates_menu' );

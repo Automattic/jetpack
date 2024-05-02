@@ -147,7 +147,6 @@ class Jetpack_Boost {
 	 * @param array $allowed_query_args The list of allowed query args.
 	 *
 	 * @return array The modified list of allowed query args.
-
 	 */
 	public static function whitelist_query_args( $allowed_query_args ) {
 		$allowed_query_args[] = Generator::GENERATE_QUERY_ACTION;

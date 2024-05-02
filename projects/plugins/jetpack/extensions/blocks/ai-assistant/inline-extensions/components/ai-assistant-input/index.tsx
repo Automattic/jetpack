@@ -12,6 +12,7 @@ import type { ReactElement } from 'react';
 
 export default function AiAssistantInput( {
 	requestingState,
+	wrapperRef,
 	request,
 	stopSuggestion,
 	close,
@@ -22,6 +23,7 @@ export default function AiAssistantInput( {
 	requestingState: RequestingStateProp;
 	requestingError?: RequestingErrorProps;
 	suggestion?: string;
+	wrapperRef?: React.MutableRefObject< HTMLDivElement | null >;
 	request: ( question: string ) => void;
 	stopSuggestion?: () => void;
 	close?: () => void;
@@ -51,18 +53,17 @@ export default function AiAssistantInput( {
 	}
 
 	return (
-		<>
-			<ExtensionAIControl
-				disabled={ disabled }
-				value={ value }
-				state={ requestingState }
-				onChange={ setValue }
-				onSend={ handleSend }
-				onStop={ handleStopSuggestion }
-				onClose={ handleClose }
-				onUndo={ handleUndo }
-				onUpgrade={ handleUpgrade }
-			/>
-		</>
+		<ExtensionAIControl
+			disabled={ disabled }
+			value={ value }
+			state={ requestingState }
+			onChange={ setValue }
+			onSend={ handleSend }
+			onStop={ handleStopSuggestion }
+			onClose={ handleClose }
+			onUndo={ handleUndo }
+			onUpgrade={ handleUpgrade }
+			wrapperRef={ wrapperRef }
+		/>
 	);
 }

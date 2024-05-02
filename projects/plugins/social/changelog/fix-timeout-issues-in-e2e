@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed timeouts in E2E tests

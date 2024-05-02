@@ -1165,6 +1165,22 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$updated[ $key ] = $value;
 					break;
 
+				case 'migration_source_site_domain':
+					// If we get an empty value, delete the option
+					if ( empty( $value ) ) {
+						delete_option( 'migration_source_site_domain' );
+						break;
+					}
+
+					// If we get a non-url value, don't update the option.
+					if ( wp_http_validate_url( $value ) === false ) {
+						break;
+					}
+
+					update_option( 'migration_source_site_domain', $value );
+					$updated[ $key ] = $value;
+					break;
+
 				default:
 					// allow future versions of this endpoint to support additional settings keys.
 					if ( has_filter( 'site_settings_endpoint_update_' . $key ) ) {

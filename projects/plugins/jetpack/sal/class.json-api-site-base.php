@@ -410,6 +410,13 @@ abstract class SAL_Site {
 	abstract public function get_user_interactions();
 
 	/**
+	 * Flag a site as deleted. Not used in Jetpack.
+	 *
+	 * @see class.json-api-site-jetpack.php for implementation.
+	 */
+	abstract public function is_deleted();
+
+	/**
 	 * Return the user interactions with a site. Not used in Jetpack.
 	 *
 	 * @param string $role The capability to check.
