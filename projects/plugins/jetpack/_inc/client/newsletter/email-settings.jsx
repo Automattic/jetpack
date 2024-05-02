@@ -150,9 +150,9 @@ const EmailSettings = props => {
 					selected={ subscriptionReplyTo || 'no-reply' }
 					disabled={ replyToInputDisabled }
 					options={ [
-						{ label: __( 'Replies are not allowed.', 'jetpack' ), value: 'no-reply' },
+						{ label: __( 'Replies are not allowed', 'jetpack' ), value: 'no-reply' },
 						{
-							label: __( "Replies will be sent to the post author's email.", 'jetpack' ),
+							label: __( "Replies will be sent to the post author's email", 'jetpack' ),
 							value: 'author',
 						},
 					] }
