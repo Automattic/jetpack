@@ -145,7 +145,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'create_publicize_connection' ),
-				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+				'permission_callback' => array( $this, 'require_author_privilege_callback' ),
 				'schema'              => array( $this, 'get_jetpack_social_connections_schema' ),
 			)
 		);
@@ -157,7 +157,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'update_publicize_connection' ),
-				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+				'permission_callback' => array( $this, 'require_author_privilege_callback' ),
 			)
 		);
 
@@ -168,7 +168,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::DELETABLE,
 				'callback'            => array( $this, 'delete_publicize_connection' ),
-				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+				'permission_callback' => array( $this, 'require_author_privilege_callback' ),
 			)
 		);
 	}
@@ -180,6 +180,24 @@ class REST_Controller {
 	 */
 	public function require_admin_privilege_callback() {
 		if ( current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+
+		$error_msg = esc_html__(
+			'You are not allowed to perform this action.',
+			'jetpack-publicize-pkg'
+		);
+
+		return new WP_Error( 'rest_forbidden', $error_msg, array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Only administrators can access the API.
+	 *
+	 * @return bool|WP_Error True if a blog token was used to sign the request, WP_Error otherwise.
+	 */
+	public function require_author_privilege_callback() {
+		if ( current_user_can( 'publish_posts' ) ) {
 			return true;
 		}
 
