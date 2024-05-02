@@ -53,10 +53,6 @@ export class HeadingHandler implements IBlockHandler {
 		this.replaceBlockContent( HTML );
 	}
 
-	public onDone(): void {
-		this.firstUpdate = true;
-	}
-
 	private replaceBlockContent( newContent: string ): void {
 		// Create a new block with the raw HTML content.
 		const [ newBlock ] = rawHandler( { HTML: newContent } );
@@ -64,9 +60,9 @@ export class HeadingHandler implements IBlockHandler {
 			return;
 		}
 
-		const blockEditorDispatch = dispatch( 'core/block-editor' ) as BlockEditorDispatch;
-
-		const { updateBlockAttributes, __unstableMarkNextChangeAsNotPersistent } = blockEditorDispatch;
+		const { updateBlockAttributes, __unstableMarkNextChangeAsNotPersistent } = dispatch(
+			'core/block-editor'
+		) as BlockEditorDispatch;
 
 		if ( ! this.firstUpdate ) {
 			// Mark the change as not persistent so we can undo all the changes in one step.
