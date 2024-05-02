@@ -22,7 +22,7 @@
 
 // this breaks with semantic's flow overrides
 #wpfooter {
-	// WH modified 11/10/18, trying putting back 
+	// WH modified 11/10/18, trying putting back
   //display:none;
   clear:both;
   position: relative;
@@ -41,9 +41,7 @@
 
 // match wp menu bg colour to page (white)
 ul#adminmenu a.wp-has-current-submenu:after, ul#adminmenu>li.current>a.current:after {
-
-    border-right-color: none !important;
-
+    border-right-color: transparent !important;
 }
 
 // WP default sets all <p> to be tiny (13px) - this undoes that before semantic sets in :)
@@ -87,7 +85,7 @@ i.card {
     line-height: 1em;
     padding-top: 1em;
     padding-bottom: 0.5em;
-    
+
 }
 
 
@@ -100,7 +98,7 @@ div [class*="left floated"] {
 div [class*="right floated"] {
   float: right;
    margin-right: 0.25em;
-} 
+}
 
 
 // right class on buttons - like this https://github.com/Semantic-Org/Semantic-UI/issues/664
