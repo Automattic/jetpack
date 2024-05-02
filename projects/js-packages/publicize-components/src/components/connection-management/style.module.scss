@@ -3,6 +3,21 @@
 	flex-direction: column;
 	align-items: start;
 	gap: 1.5rem;
+
+	.profile-link {
+		&:global(.components-external-link) {
+			color: inherit;
+			text-decoration: none;
+			
+			&:hover {
+				text-decoration: underline;
+			}
+			
+			> svg {
+				vertical-align: bottom;
+			}
+		}
+	}
 }
 
 .name {
@@ -17,18 +32,7 @@
 	cursor: default;
 }
 
-.profile-link {
-	color: inherit;
-	text-decoration: inherit;
 
-	&:hover {
-		text-decoration: underline;
-	}
-
-	> svg {
-		vertical-align: bottom;
-	}
-}
 
 // Table padding
 td {

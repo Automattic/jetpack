@@ -1,5 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { RefreshJetpackSocialSettingsWrapper } from '@automattic/jetpack-publicize-components';
+import {
+	ConnectionManagement,
+	RefreshJetpackSocialSettingsWrapper,
+} from '@automattic/jetpack-publicize-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
@@ -11,6 +14,7 @@ import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import React, { Component } from 'react';
 import './style.scss';
+import { FormFieldset } from '../components/forms';
 import AutoConversionSection from './features/auto-conversion-section';
 import SocialImageGeneratorSection from './features/social-image-generator-section';
 
@@ -167,6 +171,14 @@ export const Publicize = withModuleSettingsFormHelpers(
 								{ shouldShowChildElements && hasSocialImageGenerator && (
 									<SocialImageGeneratorSection />
 								) }
+								{ isActive &&
+								isLinked &&
+								useAdminUiV1 &&
+								! this.props.isSavingAnyOption( 'publicize' ) ? (
+									<FormFieldset>
+										<ConnectionManagement />
+									</FormFieldset>
+								) : null }
 							</RefreshJetpackSocialSettingsWrapper>
 						</SettingsGroup>
 					) }
@@ -179,8 +191,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 						/>
 					) }
 
-					{ isActive && configCard() }
-					{ useAdminUiV1 ? <span>New connections UI goes here</span> : null }
+					{ isActive && ! useAdminUiV1 && configCard() }
 				</SettingsCard>
 			);
 		}
