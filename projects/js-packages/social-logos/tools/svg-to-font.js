@@ -33,7 +33,7 @@ const getCodepoint = name => {
 const writeCodepoints = () => {
 	fs.writeFile(
 		codepointsFile,
-		JSON.stringify( codepoints, null, 4 ),
+		JSON.stringify( codepoints, null, '\t' ) + '\n',
 		{ encoding: 'utf8' },
 		err => {
 			if ( err ) {
