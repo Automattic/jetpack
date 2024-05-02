@@ -8,7 +8,7 @@ import {
 } from '@automattic/jetpack-ai-client';
 import { BlockControls, useBlockProps } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { select, useDispatch } from '@wordpress/data';
+import { dispatch, select, useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useState, useRef } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import debugFactory from 'debug';
@@ -45,6 +45,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const blockStyle = useRef< string >( '' );
 		const ownerDocument = useRef< Document >( document );
 		const [ action, setAction ] = useState< string >( '' );
+		const [ requestCount, setRequestCount ] = useState( 0 );
 
 		// Only extend the allowed block types.
 		const possibleToExtendBlock = isPossibleToExtendBlock( {
@@ -61,6 +62,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		const onDone = useCallback( () => {
 			increaseAiAssistantRequestsCount();
+			setRequestCount( count => count + 1 );
 		}, [ increaseAiAssistantRequestsCount ] );
 
 		const onError = useCallback(
@@ -211,6 +213,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			setShowAiControl( false );
 			resetSuggestions();
 			setAction( '' );
+			setRequestCount( 0 );
 		}, [ resetSuggestions ] );
 
 		const onUserRequest = ( userPrompt: string ) => {
@@ -228,9 +231,12 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			}
 		}, [ isSelected, onClose ] );
 
-		const onUndo = () => {
-			// TODO: handle the undo action.
-			debug( 'onUndo' );
+		const onUndo = async () => {
+			for ( let i = 0; i < requestCount; i++ ) {
+				await dispatch( 'core/editor' ).undo();
+			}
+
+			onClose();
 		};
 
 		return (
