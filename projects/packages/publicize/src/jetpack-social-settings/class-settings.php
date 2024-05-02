@@ -188,6 +188,8 @@ class Settings {
 			'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
 		);
 
+		$settings['connectionRefreshPath'] = '/jetpack/v4/publicize/connection-test-results';
+
 		return $settings;
 	}
 
