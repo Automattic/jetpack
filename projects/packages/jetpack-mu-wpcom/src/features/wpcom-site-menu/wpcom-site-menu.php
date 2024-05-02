@@ -602,7 +602,7 @@ function wpcom_add_plugins_menu() {
 			__( 'Plugins', 'jetpack-mu-wpcom' ),
 			'manage_options', // Roughly means "is a site admin"
 			$can_install_plugins ? 'https://wordpress.com/plugins/' . $domain : 'plugins.php',
-			'',
+			null,
 			'dashicons-admin-plugins',
 			65
 		);
