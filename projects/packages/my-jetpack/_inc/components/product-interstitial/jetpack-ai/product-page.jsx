@@ -70,6 +70,10 @@ export default function () {
 	const contactHref = getRedirectUrl( 'jetpack-ai-tiers-more-requests-contact' );
 	const feedbackURL = getRedirectUrl( 'jetpack-ai-feedback' );
 	const videoLinkFeaturedImages = getRedirectUrl( 'jetpack-ai-product-page-featured-image-link' );
+	const videoLinkForms = getRedirectUrl( 'jetpack-ai-product-page-form-link' );
+	const videoLinkContentFeedback = getRedirectUrl(
+		'jetpack-ai-product-page-content-feedback-link'
+	);
 
 	// isRegistered works as a flag to know if the page can link to a post creation or not
 	const ctaURL = isRegistered
@@ -352,7 +356,7 @@ export default function () {
 										className={ styles[ 'product-interstitial__usage-videos-link' ] }
 										icon={ help }
 										target="_blank"
-										href="https://jetpack.com/support/jetpack-blocks/contact-form/#forms-with-ai"
+										href={ videoLinkForms }
 									>
 										{ __( 'Learn about forms', 'jetpack-my-jetpack' ) }
 									</Button>
@@ -385,7 +389,7 @@ export default function () {
 										className={ styles[ 'product-interstitial__usage-videos-link' ] }
 										icon={ help }
 										target="_blank"
-										href="https://jetpack.com/support/jetpack-blocks/jetpack-ai-assistant-block/"
+										href={ videoLinkContentFeedback }
 									>
 										{ __( 'Learn more', 'jetpack-my-jetpack' ) }
 									</Button>
