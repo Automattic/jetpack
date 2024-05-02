@@ -38,6 +38,11 @@ export class HeadingHandler implements IBlockHandler {
 			) } ${ suggestion }`;
 		}
 
+		// Ignore an empty suggestion, that is, a suggestion that only contains hashes and spaces.
+		if ( suggestion.match( /^#*\s*$/ ) ) {
+			return;
+		}
+
 		const HTML = renderContent( suggestion );
 		this.replaceBlockContent( HTML );
 	}
