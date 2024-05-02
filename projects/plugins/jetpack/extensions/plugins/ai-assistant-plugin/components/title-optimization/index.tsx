@@ -128,7 +128,7 @@ export default function TitleOptimization( {
 			<p>{ __( 'Use AI to optimize key details of your post.', 'jetpack' ) }</p>
 			<Button
 				isBusy={ busy }
-				disabled={ disabled }
+				disabled={ ! postContent || disabled }
 				onClick={ handleTitleOptimization }
 				variant="secondary"
 			>
