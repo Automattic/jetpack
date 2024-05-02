@@ -4,11 +4,34 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chevronDown } from '@wordpress/icons';
 import classNames from 'classnames';
 import { useCallback, useState } from 'react';
+import { store } from '../../social-store';
+import ConnectButton from '../connect-button';
 import { ConnectPage } from './connect-page/connect-page';
 import { getSupportedConnections } from './constants';
 import styles from './style.module.scss';
 
 const AddConnectionModal = ( { onCloseModal } ) => {
+	const supportedServices = useSelect( select => {
+		const supportedConnections = getSupportedConnections();
+		const services = select( store )
+			.getServices()
+			.filter( service => service.type === 'publicize' )
+			.reduce(
+				( serviceData, service ) => ( {
+					...serviceData,
+					[ service.ID ]: service.connect_Url,
+				} ),
+				{}
+			);
+
+		return supportedConnections
+			.filter( connection => Object.hasOwn( services, connection.name ) )
+			.map( connection => {
+				connection.connectUrl = services[ connection.name ];
+				return connection;
+			} );
+	}, [] );
+
 	const [ currentService, setCurrentService ] = useState( null );
 
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
@@ -53,7 +76,7 @@ const AddConnectionModal = ( { onCloseModal } ) => {
 						</tr>
 					</thead>
 					<tbody>
-						{ getSupportedConnections().map( service => (
+						{ supportedServices.map( service => (
 							<tr key={ service.name }>
 								<td>
 									<service.icon iconSize={ isSmall ? 36 : 48 } />
@@ -70,9 +93,12 @@ const AddConnectionModal = ( { onCloseModal } ) => {
 								</td>
 								<td>
 									<div className={ styles[ 'column-actions' ] }>
-										<Button type="submit" variant="primary" size={ isSmall ? 'small' : 'normal' }>
-											{ __( 'Connect', 'jetpack' ) }
-										</Button>
+										<ConnectButton
+											connectUrl={ service.connectUrl }
+											onClose={ res => console.log( res ) }
+											key={ service.name }
+											size={ isSmall ? 'small' : 'normal' }
+										/>
 										<Button
 											size={ isSmall ? 'small' : 'normal' }
 											className={ styles[ 'chevron-button' ] }

@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
@@ -256,6 +257,7 @@ class Jetpack_Social {
 					'connectionData'  => array(
 						'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
 						'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
+						'services'    => $this->get_services(),
 					),
 					'sharesData'      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
 				),
@@ -264,6 +266,20 @@ class Jetpack_Social {
 		}
 
 		return $state;
+	}
+
+	public function get_services() {
+		$site_id = Connection_Manager::get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return [];
+		}
+		$path     = sprintf( '/sites/%d/external-services', $site_id );
+		$response = Client::wpcom_json_api_request_as_user( $path );
+		if ( is_wp_error( $response ) ) {
+			return [];
+		}
+		$body = json_decode( wp_remote_retrieve_body( $response ) );
+		return array_values( (array) $body->services ) ?? [];
 	}
 
 	/**

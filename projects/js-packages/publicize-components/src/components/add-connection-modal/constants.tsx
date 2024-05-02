@@ -19,6 +19,7 @@ export interface Connection {
 	description: string;
 	name: string;
 	examples?: Array< React.ComponentType >;
+	connectUrl?: string;
 }
 
 export const getSupportedConnections = (): Connection[] => {

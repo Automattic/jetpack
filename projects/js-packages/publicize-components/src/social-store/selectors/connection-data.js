@@ -106,3 +106,14 @@ export function getConnectionProfileDetails( state, service, { forceDefaults = f
 
 	return { displayName, profileImage, username };
 }
+
+/**
+ * Returns the services list from the store.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ *
+ * @returns {Array} The services list
+ */
+export function getServices( state ) {
+	return state.connectionData?.services ?? [];
+}
