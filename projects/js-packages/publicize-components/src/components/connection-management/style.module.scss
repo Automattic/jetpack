@@ -1,4 +1,4 @@
-.wrapper{
+.wrapper {
 	display: flex;
 	flex-direction: column;
 	align-items: start;
@@ -8,12 +8,12 @@
 		&:global(.components-external-link) {
 			color: inherit;
 			text-decoration: none;
-			
+
 			&:hover {
 				text-decoration: underline;
 			}
-			
-			> svg {
+
+			>svg {
 				vertical-align: bottom;
 			}
 		}
@@ -28,7 +28,7 @@
 	width: 25rem;
 }
 
-.icon > div {
+.icon>div {
 	cursor: default;
 }
 
@@ -54,9 +54,9 @@ table {
 	border-collapse: separate;
 	border-spacing: 0;
 	border-radius: 4px;
-	outline: 1px solid  var(--jp-gray-5);
+	outline: 1px solid var(--jp-gray-5);
 }
 
-tr:not(:last-child) > td {
+tr:not(:last-child)>td {
 	border-bottom: solid 1px var(--jp-gray-5);
 }
