@@ -110,6 +110,17 @@ class Filesystem_Utils {
 
 		return md5( json_encode( $key_components ) ) . '.html'; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 	}
+
+	/**
+	 * Check if a file is a rebuilt file.
+	 *
+	 * @param string $file - The file to check.
+	 * @return bool - True if the file is a rebuilt file, false otherwise.
+	 */
+	public static function is_rebuild_file( $file ) {
+		return substr( $file, -strlen( self::REBUILD_FILE_EXTENSION ) ) === self::REBUILD_FILE_EXTENSION;
+	}
+
 	/**
 	 * Recursively garbage collect a directory.
 	 *
@@ -151,9 +162,20 @@ class Filesystem_Utils {
 			}
 
 			$filemtime = filemtime( $file_path );
-			$expired   = ( $filemtime + $file_ttl ) <= $now;
+
+			// if the file ends with the rebuild file extension, it is a rebuilt file and the ttl is different.
+			if (
+				self::is_rebuild_file( $file )
+				&& ( $filemtime + JETPACK_BOOST_CACHE_STALE_DURATION ) <= $now
+			) {
+				Logger::debug( 'Deleting expired rebuilt file: ' . $file_path );
+				$expired = true;
+			} else {
+				$expired = ( $filemtime + $file_ttl ) <= $now;
+			}
+
 			if ( $expired ) {
-				if ( $action === self::REBUILD ) {
+				if ( $action === self::REBUILD && ! self::is_rebuild_file( $file_path ) ) {
 					if ( self::rebuild_file( $file_path ) ) {
 						++$count;
 					} else {
