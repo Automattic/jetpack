@@ -368,9 +368,9 @@ class Boost_Cache {
 		if ( $this->is_published( $old_status ) ) {
 			$post = get_post( $post_id );
 			$this->invalidate_cache_for_post( $post, Filesystem_Utils::DELETE_ALL );
-			$this->invalidate_cache_for_post_terms( $post, Filesystem_Utils::DELETE_ALL );
-			$this->invalidate_cache_for_front_page( Filesystem_Utils::DELETE_ALL );
-			$this->invalidate_cache_for_author( $post->post_author, Filesystem_Utils::DELETE_ALL );
+			$this->invalidate_cache_for_post_terms( $post );
+			$this->invalidate_cache_for_front_page();
+			$this->invalidate_cache_for_author( $post->post_author );
 		}
 	}
 
