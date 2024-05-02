@@ -80,6 +80,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active_Test extends \WorDBless
 	public function tear_down() {
 		wp_delete_user( $this->admin_id );
 		delete_option( Scheduled_Updates_Active::OPTION_NAME );
+		delete_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
 
 		parent::tear_down_wordbless();
 	}
@@ -89,7 +90,40 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active_Test extends \WorDBless
 	 *
 	 * @covers update_item
 	 */
-	public function test_active_true() {
+	public function test_active_is_true_by_default() {
+		$plugins   = array( 'gutenberg/gutenberg.php' );
+		$request   = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$post_data = array(
+			'plugins'  => $plugins,
+			'schedule' => array(
+				'timestamp'          => strtotime( 'next Monday 8:00' ),
+				'interval'           => 'weekly',
+				'health_check_paths' => array(),
+			),
+		);
+
+		$request->set_body_params( $post_data );
+
+		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
+		$result      = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		delete_option( Scheduled_Updates_Active::OPTION_NAME );
+
+		$request->set_method( 'GET' );
+		$result = rest_do_request( $request );
+		$this->assertSame( 200, $result->get_status() );
+
+		// Still active (for backwards compatibility)
+		$this->assertTrue( $result->get_data()[ $schedule_id ]['active'] );
+	}
+
+	/**
+	 * Test update_item.
+	 *
+	 * @covers update_item
+	 */
+	public function test_set_active_false_update_active_flag() {
 		$plugins   = array(
 			'custom-plugin/custom-plugin.php',
 			'gutenberg/gutenberg.php',
@@ -137,39 +171,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active_Test extends \WorDBless
 
 		// The option should be removed.
 		$this->assertSame( 'test', get_option( Scheduled_Updates_Active::OPTION_NAME, 'test' ) );
-	}
-
-	/**
-	 * Test update_item.
-	 *
-	 * @covers update_item
-	 */
-	public function test_is_active() {
-		$plugins   = array( 'gutenberg/gutenberg.php' );
-		$request   = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
-		$post_data = array(
-			'plugins'  => $plugins,
-			'schedule' => array(
-				'timestamp'          => strtotime( 'next Monday 8:00' ),
-				'interval'           => 'weekly',
-				'health_check_paths' => array(),
-			),
-		);
-
-		$request->set_body_params( $post_data );
-
-		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
-		$result      = rest_do_request( $request );
-
-		$this->assertSame( 200, $result->get_status() );
-		delete_option( Scheduled_Updates_Active::OPTION_NAME );
-
-		$request->set_method( 'GET' );
-		$result = rest_do_request( $request );
-		$this->assertSame( 200, $result->get_status() );
-
-		// Still active (for backwards compatibility)
-		$this->assertTrue( $result->get_data()[ $schedule_id ]['active'] );
 	}
 
 	/**
@@ -242,5 +243,43 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active_Test extends \WorDBless
 		// The scheduled update started and succeeded.
 		$this->assertSame( Scheduled_Updates_Logs::PLUGIN_UPDATES_START, $logs[0][0]['action'] );
 		$this->assertSame( Scheduled_Updates_Logs::PLUGIN_UPDATES_SUCCESS, $logs[0][1]['action'] );
+	}
+
+	/**
+	 * Test update_item update cron.
+	 *
+	 * @covers update_item
+	 */
+	public function test_set_active_false_update_sync_option() {
+		$plugins   = array(
+			'custom-plugin/custom-plugin.php',
+			'gutenberg/gutenberg.php',
+		);
+		$id        = Scheduled_Updates::generate_schedule_id( $plugins );
+		$request   = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$post_data = array(
+			'plugins'  => $plugins,
+			'schedule' => array(
+				'timestamp'          => strtotime( 'next Monday 8:00' ),
+				'interval'           => 'weekly',
+				'health_check_paths' => array(),
+			),
+		);
+
+		$request->set_body_params( $post_data );
+		rest_do_request( $request );
+
+		$option = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK, array() );
+		$this->arrayHasKey( $id, $option );
+		$this->assertTrue( $option[ $id ]->active );
+
+		$request->set_method( 'PUT' );
+		$request->set_route( '/wpcom/v2/update-schedules/' . $id . '/active' );
+		$request->set_body_params( array( 'active' => false ) );
+		rest_do_request( $request );
+
+		$option = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK, array() );
+		$this->arrayHasKey( $id, $option );
+		$this->assertFalse( $option[ $id ]->active );
 	}
 }
