@@ -102,6 +102,8 @@ class Image_CDN implements Pluggable, Changes_Page_Output, Optimization {
 			// Include the JavaScript directly inline.
 			// phpcs:ignore
 			$data = file_get_contents( $file );
+			// There's no meaningful way to escape JavaScript in this context.
+			// phpcs:ignore
 			echo wp_get_inline_script_tag( $data, array( 'async' => true ) );
 		}
 	}
