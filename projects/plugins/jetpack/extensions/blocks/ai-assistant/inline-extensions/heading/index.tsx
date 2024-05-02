@@ -7,7 +7,7 @@ import { select, dispatch } from '@wordpress/data';
 /**
  * Types
  */
-import type { BlockEditorSelect, IBlockHandler } from '../types';
+import type { BlockEditorDispatch, BlockEditorSelect, IBlockHandler } from '../types';
 import type { Block } from '@automattic/jetpack-ai-client';
 
 export function getMarkdown( html ) {
@@ -19,23 +19,29 @@ export function renderContent( markdown ) {
 }
 
 export class HeadingHandler implements IBlockHandler {
-	public block: Block;
+	public clientId: string;
+	public firstUpdate: boolean = true;
 
 	constructor( clientId: string ) {
+		this.clientId = clientId;
+	}
+
+	public getBlock(): Block {
 		const { getBlock } = select( 'core/block-editor' ) as BlockEditorSelect;
-		this.block = getBlock( clientId );
+		return getBlock( this.clientId );
 	}
 
 	public getContent() {
-		return getMarkdown( getBlockContent( this.block ) );
+		const block = this.getBlock();
+		return getMarkdown( getBlockContent( block ) );
 	}
 
 	public onSuggestion( suggestion: string ): void {
+		const block = this.getBlock();
+
 		// Adjust suggestion if it does not start with a hash.
 		if ( ! suggestion.startsWith( '#' ) ) {
-			suggestion = `${ '#'.repeat(
-				( this.block?.attributes?.level as number ) || 1
-			) } ${ suggestion }`;
+			suggestion = `${ '#'.repeat( ( block?.attributes?.level as number ) || 1 ) } ${ suggestion }`;
 		}
 
 		// Ignore an empty suggestion, that is, a suggestion that only contains hashes and spaces.
@@ -47,6 +53,10 @@ export class HeadingHandler implements IBlockHandler {
 		this.replaceBlockContent( HTML );
 	}
 
+	public onDone(): void {
+		this.firstUpdate = true;
+	}
+
 	private replaceBlockContent( newContent: string ): void {
 		// Create a new block with the raw HTML content.
 		const [ newBlock ] = rawHandler( { HTML: newContent } );
@@ -54,10 +64,18 @@ export class HeadingHandler implements IBlockHandler {
 			return;
 		}
 
+		const blockEditorDispatch = dispatch( 'core/block-editor' ) as BlockEditorDispatch;
+
+		const { updateBlockAttributes, __unstableMarkNextChangeAsNotPersistent } = blockEditorDispatch;
+
+		if ( ! this.firstUpdate ) {
+			// Mark the change as not persistent so we can undo all the changes in one step.
+			__unstableMarkNextChangeAsNotPersistent();
+		} else {
+			this.firstUpdate = false;
+		}
+
 		// Replace the original block attributes with the new block attributes.
-		dispatch( 'core/block-editor' ).updateBlockAttributes(
-			this.block.clientId as string,
-			newBlock.attributes
-		);
+		updateBlockAttributes( this.clientId, newBlock.attributes );
 	}
 }
