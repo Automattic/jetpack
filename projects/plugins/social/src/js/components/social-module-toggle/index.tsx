@@ -1,4 +1,4 @@
-import { Text } from '@automattic/jetpack-components';
+import { Button, Text, useBreakpointMatch } from '@automattic/jetpack-components';
 import { ConnectionManagement, SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -9,11 +9,13 @@ import { SocialStoreSelectors } from '../types/types';
 import styles from './styles.module.scss';
 
 const SocialModuleToggle: React.FC = () => {
-	const { isModuleEnabled, isUpdating } = useSelect( select => {
+	const { connectionsAdminUrl, isModuleEnabled, isUpdating, useAdminUiV1 } = useSelect( select => {
 		const store = select( SOCIAL_STORE_ID ) as SocialStoreSelectors;
 		return {
 			isModuleEnabled: store.isModuleEnabled(),
 			isUpdating: store.isUpdatingJetpackSettings(),
+			connectionsAdminUrl: store.getConnectionsAdminUrl(),
+			useAdminUiV1: store.useAdminUiV1(),
 		};
 	}, [] );
 
@@ -25,6 +27,30 @@ const SocialModuleToggle: React.FC = () => {
 		};
 		updateOptions( newOption );
 	}, [ isModuleEnabled, updateOptions ] );
+
+	const [ isSmall ] = useBreakpointMatch( 'sm' );
+
+	const renderConnectionManagement = () => {
+		if ( useAdminUiV1 ) {
+			return ! isUpdating && isModuleEnabled ? (
+				<ConnectionManagement className={ styles[ 'connection-management' ] } />
+			) : null;
+		}
+
+		return connectionsAdminUrl ? (
+			<Button
+				fullWidth={ isSmall }
+				className={ styles.button }
+				variant="secondary"
+				isExternalLink={ true }
+				href={ connectionsAdminUrl }
+				disabled={ isUpdating || ! isModuleEnabled }
+				target="_blank"
+			>
+				{ __( 'Manage social media connections', 'jetpack-social' ) }
+			</Button>
+		) : null;
+	};
 
 	return (
 		<ToggleSection
@@ -43,9 +69,7 @@ const SocialModuleToggle: React.FC = () => {
 					{ __( 'Learn more', 'jetpack-social' ) }
 				</ExternalLink>
 			</Text>
-			{ ! isUpdating && isModuleEnabled && (
-				<ConnectionManagement className={ styles[ 'connection-management' ] } />
-			) }
+			{ renderConnectionManagement() }
 		</ToggleSection>
 	);
 };
