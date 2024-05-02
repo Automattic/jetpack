@@ -316,12 +316,21 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	 *
 	 * @covers ::validate_schedule
 	 */
-	public function test_creating_more_than_two_schedules() {
-		// Create two schedules.
-		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', Scheduled_Updates::PLUGIN_CRON_HOOK, array( 'gutenberg/gutenberg.php' ) );
-		wp_schedule_event( strtotime( 'next Tuesday 9:00' ), 'daily', Scheduled_Updates::PLUGIN_CRON_HOOK, array( 'custom-plugin/custom-plugin.php' ) );
+	public function test_creating_more_than_twentyfour_schedules() {
+		// Create twentyfour schedules.
+		for ( $hour = 0; $hour < 24; $hour++ ) {
+			$formatted_hour = str_pad( $hour, 2, '0', STR_PAD_LEFT );
+			$plugin_name = "plugin-{$formatted_hour}/plugin-{$formatted_hour}.php";
 
-		// Number 3.
+			wp_schedule_event(
+				strtotime( "next Monday {$formatted_hour}:00" ),
+				'daily',
+				Scheduled_Updates::PLUGIN_CRON_HOOK,
+				array( $plugin_name )
+			);
+		}
+
+		// Number 25.
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
 		$request->set_body_params(
 			array(
