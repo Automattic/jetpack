@@ -11,6 +11,9 @@
 		"brain/monkey": "2.6.1",
 		"yoast/phpunit-polyfills": "1.1.0",
 		"automattic/jetpack-changelogger": "@dev",
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-identity-crisis": "@dev",
+		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-ip": "@dev"
 	},
 	"suggest": {
@@ -48,6 +51,13 @@
 		},
 		"branch-alias": {
 			"dev-trunk": "3.0.x-dev"
+		},
+		"dependencies": {
+			"test-only": [
+				"packages/connection",
+				"packages/identity-crisis",
+				"packages/plans"
+			]
 		}
 	}
 }

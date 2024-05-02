@@ -23,7 +23,6 @@ function current_user_has_wpcom_account() {
 
 	if ( function_exists( '\A8C\Billingdaddy\Users\get_wpcom_user' ) ) {
 		// On Simple sites, use get_wpcom_user function to check if the user has a WordPress.com account.
-		// @phan-suppress-next-line PhanUndeclaredFunction
 		$user        = \A8C\Billingdaddy\Users\get_wpcom_user( $user_id );
 		$has_account = isset( $user->ID );
 	} else {
@@ -436,7 +435,7 @@ function wpcom_add_hosting_menu_intro_notice() {
 
 		.wpcom-site-menu-intro-notice a.close-button {
 			height: 16px;
-			margin-left: auto;
+			margin-inline-start: auto;
 		}
 	</style>
 	<div class="wpcom-site-menu-intro-notice notice notice-info" role="alert">

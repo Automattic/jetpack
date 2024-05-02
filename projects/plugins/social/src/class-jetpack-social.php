@@ -348,6 +348,7 @@ class Jetpack_Social {
 					'isSocialImageGeneratorAvailable' => $settings['socialImageGeneratorSettings']['available'],
 					'isSocialImageGeneratorEnabled'   => $settings['socialImageGeneratorSettings']['enabled'],
 					'autoConversionSettings'          => $settings['autoConversionSettings'],
+					'useAdminUiV1'                    => $settings['useAdminUiV1'],
 					'dismissedNotices'                => Dismissed_Notices::get_dismissed_notices(),
 					'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
 					'userConnectionUrl'               => esc_url_raw( admin_url( 'admin.php?page=my-jetpack#/connection' ) ),
