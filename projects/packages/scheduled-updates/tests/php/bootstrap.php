@@ -15,3 +15,8 @@ require_once __DIR__ . '/../lib/functions-wordpress.php';
  * Load WorDBless.
  */
 \WorDBless\Load::load();
+
+/**
+ * Load REST API endpoints.
+ */
+\Automattic\Jetpack\Scheduled_Updates::load_rest_api_endpoints();

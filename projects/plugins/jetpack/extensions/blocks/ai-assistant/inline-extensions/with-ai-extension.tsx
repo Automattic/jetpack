@@ -6,10 +6,10 @@ import {
 	ERROR_QUOTA_EXCEEDED,
 	useAiSuggestions,
 } from '@automattic/jetpack-ai-client';
-import { BlockControls } from '@wordpress/block-editor';
+import { BlockControls, useBlockProps } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { select, useDispatch } from '@wordpress/data';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState, useRef } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import debugFactory from 'debug';
 import React from 'react';
@@ -33,6 +33,10 @@ const debug = debugFactory( 'jetpack-ai-assistant:extensions:with-ai-extension' 
 const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 	return props => {
 		const { clientId, isSelected, name: blockName } = props;
+		const controlRef: React.MutableRefObject< HTMLDivElement | null > = useRef( null );
+		const controlObserver = useRef< ResizeObserver | null >( null );
+		const blockStyle = useRef< string >( '' );
+		const [ block, setBlock ] = useState< HTMLElement | null >( null );
 
 		// Only extend the allowed block types.
 		const possibleToExtendBlock = isPossibleToExtendBlock( {
@@ -63,7 +67,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			[ increaseAiAssistantRequestsCount ]
 		);
 
-		// Suggestions are handled by the block handler for specific implementations.
+		// Data and functions with block-specific implementations.
 		const { onSuggestion } = blockHandler( blockName, clientId );
 
 		const { request, stopSuggestion, requestingState, error, suggestion } = useAiSuggestions( {
@@ -84,11 +88,49 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			}
 		}, [ isSelected ] );
 
+		const { id } = useBlockProps();
+
+		useEffect( () => {
+			// Keep the block reference.
+			setBlock( document.getElementById( id ) );
+		}, [ id ] );
+
+		useEffect( () => {
+			if ( ! block ) {
+				return;
+			}
+
+			// Once when the AI Control is displayed
+			if ( showAiControl && ! controlObserver.current && controlRef.current ) {
+				// Save the block and control styles to adjust them later.
+				blockStyle.current = block.style.cssText;
+
+				// Observe the control's height to adjust the block's bottom-padding.
+				controlObserver.current = new ResizeObserver( ( [ entry ] ) => {
+					const { height } = entry.contentRect;
+
+					if ( block && controlRef.current && height > 0 ) {
+						block.style.paddingBottom = `${ height + 16 }px`;
+						controlRef.current.style.marginTop = `-${ height }px`;
+					}
+				} );
+
+				controlObserver.current.observe( controlRef.current );
+			} else if ( controlObserver.current ) {
+				// Reset the block's bottom-padding.
+				block.setAttribute( 'style', blockStyle.current );
+
+				controlObserver.current.disconnect();
+				controlObserver.current = null;
+			}
+		}, [ block, clientId, controlObserver, id, showAiControl ] );
+
 		// Only extend the target block.
 		if ( ! possibleToExtendBlock ) {
 			return <BlockEdit { ...props } />;
 		}
 
+		// Defines where the block controls should be placed in the toolbar
 		const blockControlsProps = {
 			group: 'block' as const,
 		};
@@ -114,22 +156,22 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		return (
 			<>
-				<div className="jetpack-ai-extension--wrapper">
-					<BlockEdit { ...props } />
-					{ showAiControl && (
-						<AiAssistantInput
-							clientId={ clientId }
-							postId={ postId }
-							requestingState={ requestingState }
-							requestingError={ error }
-							suggestion={ suggestion }
-							request={ request }
-							stopSuggestion={ stopSuggestion }
-							close={ onClose }
-							undo={ onUndo }
-						/>
-					) }
-				</div>
+				<BlockEdit { ...props } />
+
+				{ showAiControl && (
+					<AiAssistantInput
+						clientId={ clientId }
+						postId={ postId }
+						requestingState={ requestingState }
+						requestingError={ error }
+						suggestion={ suggestion }
+						wrapperRef={ controlRef }
+						request={ request }
+						stopSuggestion={ stopSuggestion }
+						close={ onClose }
+						undo={ onUndo }
+					/>
+				) }
 
 				<BlockControls { ...blockControlsProps }>
 					<AiAssistantExtensionToolbarDropdown

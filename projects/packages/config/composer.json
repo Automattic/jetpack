@@ -7,7 +7,21 @@
 		"php": ">=7.0"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev"
+		"automattic/jetpack-changelogger": "@dev",
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-identity-crisis": "@dev",
+		"automattic/jetpack-import": "@dev",
+		"automattic/jetpack-jitm": "@dev",
+		"automattic/jetpack-post-list": "@dev",
+		"automattic/jetpack-publicize": "@dev",
+		"automattic/jetpack-search": "@dev",
+		"automattic/jetpack-stats": "@dev",
+		"automattic/jetpack-stats-admin": "@dev",
+		"automattic/jetpack-sync": "@dev",
+		"automattic/jetpack-videopress": "@dev",
+		"automattic/jetpack-waf": "@dev",
+		"automattic/jetpack-wordads": "@dev",
+		"automattic/jetpack-yoast-promo": "@dev"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -37,6 +51,29 @@
 		},
 		"branch-alias": {
 			"dev-trunk": "2.0.x-dev"
+		},
+		"dependencies": {
+			"test-only": [
+				"packages/connection",
+				"packages/identity-crisis",
+				"packages/import",
+				"packages/jitm",
+				"packages/post-list",
+				"packages/publicize",
+				"packages/search",
+				"packages/stats",
+				"packages/stats-admin",
+				"packages/sync",
+				"packages/videopress",
+				"packages/waf",
+				"packages/wordads",
+				"packages/yoast-promo"
+			]
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"automattic/jetpack-autoloader": true
 		}
 	}
 }

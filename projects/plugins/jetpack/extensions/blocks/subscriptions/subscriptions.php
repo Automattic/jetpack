@@ -654,7 +654,7 @@ function render_block( $attributes ) {
 		'success_message'               => get_attribute(
 			$attributes,
 			'successMessage',
-			esc_html__( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing.", 'jetpack' )
+			esc_html__( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm' to start subscribing.", 'jetpack' )
 		),
 		'show_subscribers_total'        => (bool) get_attribute( $attributes, 'showSubscribersTotal' ),
 		'subscribers_total'             => get_subscriber_count( $include_social_followers ),
@@ -731,7 +731,7 @@ function render_for_website( $data, $classes, $styles ) {
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
 		<div class="wp-block-jetpack-subscriptions__container<?php echo ! $is_subscribed ? ' is-not-subscriber' : ''; ?>">
 			<?php if ( is_top_subscription() ) : ?>
-				<p id="subscribe-submit"
+				<p id="subscribe-submit" class="is-link"
 					<?php if ( ! empty( $styles['submit_button_wrapper'] ) ) : ?>
 						style="<?php echo esc_attr( $styles['submit_button_wrapper'] ); ?>"
 					<?php endif; ?>

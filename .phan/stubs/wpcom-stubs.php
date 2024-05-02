@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from WordPress.com commit bfb2ad18f8fd904ad916be5877a31c975ae02df2.
+ * Stubs automatically generated from WordPress.com commit 633607ea914b8ce7062bc35082c83ab247ec196c.
  *
  * Do not edit this directly! Update the definition file in the wpcom repo at
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
@@ -1124,6 +1124,7 @@ namespace {
         public const LEGACY_CONTACT = 'legacy-contact';
         public const LOCKED_MODE = 'locked-mode';
         public const MANAGE_PLUGINS = 'manage-plugins';
+        public const SCHEDULED_UPDATES = 'scheduled-updates';
         public const SUBSCRIPTION_GIFTING = 'subscription-gifting';
     }
     /**
@@ -1251,6 +1252,15 @@ namespace {
      * @return int|false
      */
     function get_lang_id_by_code($lang_code)
+    {
+    }
+}
+namespace A8C\Billingdaddy\Users {
+    /**
+     * @param int $user_id
+     * @return \WP_User|false
+     */
+    function get_wpcom_user($user_id)
     {
     }
 }

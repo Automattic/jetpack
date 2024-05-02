@@ -27,6 +27,7 @@ type AIControlProps = {
 	actions?: ReactElement;
 	message?: ReactElement;
 	promptUserInputRef?: React.MutableRefObject< HTMLInputElement >;
+	wrapperRef?: React.MutableRefObject< HTMLDivElement | null >;
 };
 
 /**
@@ -47,9 +48,10 @@ export default function AIControl( {
 	actions = null,
 	message = null,
 	promptUserInputRef = null,
+	wrapperRef = null,
 }: AIControlProps ): ReactElement {
 	return (
-		<div className="jetpack-components-ai-control__container-wrapper">
+		<div className="jetpack-components-ai-control__container-wrapper" ref={ wrapperRef }>
 			{ error }
 			<div className="jetpack-components-ai-control__container">
 				{ banner }

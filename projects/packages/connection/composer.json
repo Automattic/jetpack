@@ -17,7 +17,9 @@
 		"automattic/wordbless": "@dev",
 		"yoast/phpunit-polyfills": "1.1.0",
 		"brain/monkey": "2.6.1",
-		"automattic/jetpack-changelogger": "@dev"
+		"automattic/jetpack-changelogger": "@dev",
+		"automattic/jetpack-licensing": "@dev",
+		"automattic/jetpack-sync": "@dev"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -68,6 +70,12 @@
 		},
 		"branch-alias": {
 			"dev-trunk": "2.7.x-dev"
+		},
+		"dependencies": {
+			"test-only": [
+				"packages/licensing",
+				"packages/sync"
+			]
 		}
 	},
 	"config": {

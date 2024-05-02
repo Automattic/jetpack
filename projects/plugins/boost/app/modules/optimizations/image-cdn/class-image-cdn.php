@@ -38,7 +38,7 @@ class Image_CDN implements Pluggable, Changes_Page_Output, Optimization {
 	/**
 	 * Add quality arg to existing photon args.
 	 *
-	 * @param $args array - Existing photon args.
+	 * @param array $args - Existing photon args.
 	 *
 	 * @return mixed
 	 */
