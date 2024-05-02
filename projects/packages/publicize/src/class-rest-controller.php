@@ -169,16 +169,7 @@ class REST_Controller {
 	 * @return bool|WP_Error True if a blog token was used to sign the request, WP_Error otherwise.
 	 */
 	public function require_admin_privilege_callback() {
-		if ( current_user_can( 'manage_options' ) ) {
-			return true;
-		}
-
-		$error_msg = esc_html__(
-			'You are not allowed to perform this action.',
-			'jetpack-publicize-pkg'
-		);
-
-		return new WP_Error( 'rest_forbidden', $error_msg, array( 'status' => rest_authorization_required_code() ) );
+		return current_user_can( 'manage_options' );
 	}
 
 	/**
