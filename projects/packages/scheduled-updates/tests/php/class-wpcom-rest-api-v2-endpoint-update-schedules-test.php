@@ -319,7 +319,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	public function test_creating_more_than_twentyfour_schedules() {
 		// Create twentyfour schedules.
 		for ( $hour = 0; $hour < 24; $hour++ ) {
-			$formatted_hour = str_pad( $hour, 2, '0', STR_PAD_LEFT );
+			$formatted_hour = str_pad( (string) $hour, 2, '0', STR_PAD_LEFT );
 			$plugin_name    = "plugin-{$formatted_hour}/plugin-{$formatted_hour}.php";
 
 			wp_schedule_event(
