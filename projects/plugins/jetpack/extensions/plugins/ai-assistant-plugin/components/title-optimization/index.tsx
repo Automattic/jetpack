@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { useAiSuggestions } from '@automattic/jetpack-ai-client';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Spinner } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
@@ -16,9 +17,11 @@ import TitleOptimizationOptions from './title-optimization-options';
 import './style.scss';
 
 export default function TitleOptimization( {
+	placement,
 	busy,
 	disabled,
 }: {
+	placement: string;
 	busy: boolean;
 	disabled: boolean;
 } ) {
@@ -32,6 +35,8 @@ export default function TitleOptimization( {
 	const { editPost } = useDispatch( 'core/editor' );
 	const { autosave } = useAutoSaveAndRedirect();
 	const { increaseAiAssistantRequestsCount } = useDispatch( 'wordpress-com/plans' );
+	const { tracks } = useAnalytics();
+	const { recordEvent } = tracks;
 
 	const toggleTitleOptimizationModal = useCallback( () => {
 		setIsTitleOptimizationModalVisible( ! isTitleOptimizationModalVisible );
@@ -76,13 +81,23 @@ export default function TitleOptimization( {
 	}, [ postContent, request ] );
 
 	const handleTitleOptimization = useCallback( () => {
+		// track the generate title optimization options
+		recordEvent( 'jetpack_ai_title_optimization_generate', {
+			placement,
+		} );
+
 		setGenerating( true );
 		toggleTitleOptimizationModal();
 		handleRequest();
-	}, [ handleRequest, toggleTitleOptimizationModal ] );
+	}, [ handleRequest, placement, recordEvent, toggleTitleOptimizationModal ] );
 
 	const handleAccept = useCallback(
 		( event: MouseEvent ) => {
+			// track the generated title acceptance
+			recordEvent( 'jetpack_ai_title_optimization_accept', {
+				placement,
+			} );
+
 			editPost( { title: selected } );
 			toggleTitleOptimizationModal();
 
@@ -92,7 +107,7 @@ export default function TitleOptimization( {
 				// Do nothing since the user can save manually
 			}
 		},
-		[ autosave, editPost, selected, toggleTitleOptimizationModal ]
+		[ autosave, editPost, placement, recordEvent, selected, toggleTitleOptimizationModal ]
 	);
 
 	const handleClose = useCallback( () => {
