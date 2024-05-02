@@ -594,11 +594,14 @@ function wpcom_add_plugins_menu() {
 	}
 
 	if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
+		$domain              = wp_parse_url( home_url(), PHP_URL_HOST );
+		$can_install_plugins = function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( WPCOM_Features::INSTALL_PLUGINS );
+
 		add_menu_page(
 			__( 'Plugins', 'jetpack-mu-wpcom' ),
 			__( 'Plugins', 'jetpack-mu-wpcom' ),
 			'manage_options', // Roughly means "is a site admin"
-			'plugins.php',
+			$can_install_plugins ? 'https://wordpress.com/plugins/' . $domain : 'plugins.php',
 			'',
 			'dashicons-admin-plugins',
 			65
