@@ -180,7 +180,7 @@ class WordAds_Smart {
 	private function get_config_url(): string {
 		return sprintf(
 			'https://public-api.wordpress.com/wpcom/v2/sites/%1$d/adflow/conf/?_jsonp=a8c_adflow_callback',
-			(int) Jetpack_Options::get_option( 'id' )
+			$this->get_blog_id()
 		);
 	}
 
@@ -205,8 +205,7 @@ class WordAds_Smart {
 	private function target_keywords(): string {
 		$target_keywords = array_merge(
 			$this->get_blog_keywords(),
-			$this->get_language_keywords(),
-			$this->get_feature_keywords()
+			$this->get_language_keywords()
 			// TODO: Include categorization.
 		);
 
@@ -229,19 +228,6 @@ class WordAds_Smart {
 	 */
 	private function get_language_keywords(): array {
 		return array( 'language=' . explode( '-', get_locale() )[0] );
-	}
-
-	/**
-	 * Gets a formatted list of feature keywords.
-	 *
-	 * @return array The list of feature keywords.
-	 */
-	private function get_feature_keywords(): array {
-		$feature_keywords = array();
-
-		$feature_keywords[] = 'adflow=true';
-
-		return $feature_keywords;
 	}
 
 	/**
