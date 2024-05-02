@@ -53,7 +53,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active extends WP_REST_Control
 							'description' => 'Whether the schedule is active.',
 							'type'        => 'boolean',
 							'required'    => true,
-							'default'     => true,
 						),
 					),
 				),
