@@ -509,6 +509,7 @@ return [
         'modules/videopress/class.videopress-gutenberg.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/videopress/class.videopress-player.php' => ['PhanImpossibleCondition', 'PhanPluginMixedKeyNoKey', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternalReal', 'PhanTypeMismatchArgumentNullable', 'PhanUndeclaredMethod', 'PhanUndeclaredProperty'],
         'modules/videopress/class.videopress-video.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredProperty'],
+        'modules/videopress/editor-media-view.php' => ['PhanSuspiciousMagicConstant'],
         'modules/videopress/shortcode.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'modules/widget-visibility/widget-conditions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanTypeComparisonToArray', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousNonTraversableForeach'],
         'modules/widgets/authors.php' => ['PhanTypeMismatchArgument', 'PhanTypeMissingReturn'],
