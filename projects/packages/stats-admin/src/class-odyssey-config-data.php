@@ -57,7 +57,9 @@ class Odyssey_Config_Data {
 			'site_name'                      => \get_bloginfo( 'name' ),
 			'sections'                       => array(),
 			// Features are inlined @see https://github.com/Automattic/wp-calypso/pull/70122
-			'features'                       => array(),
+			'features'                       => array(
+				'is_running_in_jetpack_site' => ! $host->is_wpcom_simple(),
+			),
 			// Intended for apps that do not use redux.
 			'gmt_offset'                     => $this->get_gmt_offset(),
 			'odyssey_stats_base_url'         => admin_url( 'admin.php?page=stats' ),
@@ -77,7 +79,8 @@ class Odyssey_Config_Data {
 						"$blog_id" => array(
 							'ID'           => $blog_id,
 							'URL'          => site_url(),
-							'jetpack'      => true,
+							// Atomic and jetpack sites should return true.
+							'jetpack'      => ! $host->is_wpcom_simple(),
 							'visible'      => true,
 							'capabilities' => $this->get_current_user_capabilities(),
 							'products'     => Jetpack_Plan::get_products(),
@@ -88,6 +91,7 @@ class Odyssey_Config_Data {
 								'gmt_offset'            => $this->get_gmt_offset(),
 								'is_automated_transfer' => $this->is_automated_transfer( $blog_id ),
 								'is_wpcom_atomic'       => $host->is_woa_site(),
+								'is_wpcom_simple'       => $host->is_wpcom_simple(),
 								'is_vip'                => $host->is_vip_site(),
 								'jetpack_version'       => defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '',
 								'stats_admin_version'   => Main::VERSION,

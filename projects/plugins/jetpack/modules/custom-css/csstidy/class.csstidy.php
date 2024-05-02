@@ -1238,7 +1238,7 @@ class csstidy { // phpcs:ignore
 	 * Checks if a property is valid
 	 *
 	 * @param string $property - the property.
-	 * @return bool;
+	 * @return bool
 	 * @access public
 	 * @version 1.0
 	 */

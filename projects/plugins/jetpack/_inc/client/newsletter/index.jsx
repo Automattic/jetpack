@@ -7,7 +7,9 @@ import { isModuleFound as isModuleFoundSelector } from 'state/search';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 import EmailSettings from './email-settings';
 import MessagesSetting from './messages-setting';
+import Newsletter from './newsletter';
 import NewsletterCategories from './newsletter-categories';
+import PaidNewsletter from './paid-newsletter';
 import SubscriptionsSettings from './subscriptions-settings';
 
 /**
@@ -44,9 +46,11 @@ function Subscriptions( props ) {
 			</h2>
 			{ foundSubscriptions && (
 				<>
-					<SubscriptionsSettings siteRawUrl={ siteRawUrl } blogID={ blogID } />
-					<EmailSettings />
+					<Newsletter siteRawUrl={ siteRawUrl } blogID={ blogID } />
+					<SubscriptionsSettings />
+					<PaidNewsletter />
 					<NewsletterCategories />
+					<EmailSettings />
 					<MessagesSetting { ...props } />
 				</>
 			) }

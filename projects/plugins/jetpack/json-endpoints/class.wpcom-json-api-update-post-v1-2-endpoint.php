@@ -258,6 +258,11 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 				return new WP_Error( 'invalid_input', 'Invalid request input', 400 );
 			}
 
+			$post = get_post( $post_id );
+			if ( ! $post || is_wp_error( $post ) ) {
+				return new WP_Error( 'unknown_post', 'Unknown post', 404 );
+			}
+
 			if ( isset( $input['status'] ) && 'trash' === $input['status'] && ! current_user_can( 'delete_post', $post_id ) ) {
 				return new WP_Error( 'unauthorized', 'User cannot delete post', 403 );
 			}
@@ -265,11 +270,6 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			// 'future' is an alias for 'publish' for now
 			if ( isset( $input['status'] ) && 'future' === $input['status'] ) {
 				$input['status'] = 'publish';
-			}
-
-			$post = get_post( $post_id );
-			if ( ! $post || is_wp_error( $post ) ) {
-				return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 			}
 
 			$_post_type = ( ! empty( $input['type'] ) ) ? $input['type'] : $post->post_type;
@@ -535,8 +535,11 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 
 		$has_media        = ! empty( $input['media'] ) ? count( $input['media'] ) : false;
 		$has_media_by_url = ! empty( $input['media_urls'] ) ? count( $input['media_urls'] ) : false;
+		$media_files      = array();
+		$media_urls       = array();
+		$media_attrs      = array();
+		$media_id_string  = '';
 
-		$media_id_string = '';
 		if ( $has_media || $has_media_by_url ) {
 			$media_files     = ! empty( $input['media'] ) ? $input['media'] : array();
 			$media_urls      = ! empty( $input['media_urls'] ) ? $input['media_urls'] : array();

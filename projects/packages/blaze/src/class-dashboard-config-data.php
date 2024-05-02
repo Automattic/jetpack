@@ -10,12 +10,39 @@ namespace Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
 /**
  * Class Dashboard_Config_Data
  */
 class Dashboard_Config_Data {
+
+	/**
+	 * Blaze dashboard admin page. Default is tools.php.
+	 *
+	 * @var string
+	 */
+	private $admin_page;
+
+	/**
+	 * Blaze dashboard menu slug. Default is 'advertising'.
+	 *
+	 * @var string
+	 */
+	private $menu_slug;
+
+	/**
+	 * Dashboard config constructor.
+	 *
+	 * @param string $admin_page Dashboard admin page. Default is tools.php.
+	 * @param string $menu_slug Dashboard menu slug. Default is 'advertising'.
+	 */
+	public function __construct( $admin_page = 'tools.php', $menu_slug = 'advertising' ) {
+		$this->admin_page = $admin_page;
+		$this->menu_slug  = $menu_slug;
+	}
+
 	/**
 	 * Set configData to window.configData.
 	 *
@@ -32,11 +59,12 @@ class Dashboard_Config_Data {
 	 */
 	public function get_data() {
 		$blog_id      = Jetpack_Options::get_option( 'id' );
+		$host         = new Host();
 		$empty_object = json_decode( '{}' );
 
 		$user = $this->get_connected_user_identity();
 
-		return array(
+		$data = array(
 			'admin_page_base'          => $this->get_admin_path(),
 			'api_root'                 => esc_url_raw( rest_url() ),
 			'blog_id'                  => $blog_id,
@@ -51,7 +79,9 @@ class Dashboard_Config_Data {
 			'site_name'                => \get_bloginfo( 'name' ),
 			'sections'                 => array(),
 			// Features are inlined in Calypso Blaze app (wp-calypso/apps/blaze-dashboard)
-			'features'                 => array(),
+			'features'                 => array(
+				'is_running_in_jetpack_site' => ! $host->is_wpcom_simple(),
+			),
 			'initial_state'            => array(
 				'currentUser' => array(
 					'id'           => $user['ID'],
@@ -65,7 +95,7 @@ class Dashboard_Config_Data {
 						"$blog_id" => array(
 							'ID'           => $blog_id,
 							'URL'          => site_url(),
-							'jetpack'      => true,
+							'jetpack'      => ! $host->is_wpcom_simple(),
 							'visible'      => true,
 							'capabilities' => $empty_object,
 							'products'     => array(),
@@ -73,6 +103,8 @@ class Dashboard_Config_Data {
 							'options'      => array(
 								'admin_url'       => admin_url(),
 								'gmt_offset'      => $this->get_gmt_offset(),
+								'is_wpcom_atomic' => $host->is_woa_site(),
+								'is_wpcom_simple' => $host->is_wpcom_simple(),
 								'jetpack_version' => Constants::get_constant( 'JETPACK__VERSION' ),
 							),
 						),
@@ -81,6 +113,15 @@ class Dashboard_Config_Data {
 				),
 			),
 		);
+
+		/**
+		 * Filter to allow modification of the Blaze dashboard config data.
+		 *
+		 * @param bool $data Blaze dashboard config data.
+		 *
+		 * @since 0.21.0
+		 */
+		return apply_filters( 'jetpack_blaze_dashboard_config_data', $data );
 	}
 
 	/**
@@ -123,7 +164,9 @@ class Dashboard_Config_Data {
 	protected function get_admin_path() {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		if ( ! isset( $_SERVER['PHP_SELF'] ) || ! isset( $_SERVER['QUERY_STRING'] ) ) {
-			$parsed = wp_parse_url( admin_url( 'tools.php?page=advertising' ) );
+			$admin_path = $this->admin_page . '?page=' . $this->menu_slug;
+			$parsed     = wp_parse_url( admin_url( $admin_path ) );
+
 			return $parsed['path'] . '?' . $parsed['query'];
 		}
 		// We do this because page.js requires the exactly page base to be set otherwise it will not work properly.

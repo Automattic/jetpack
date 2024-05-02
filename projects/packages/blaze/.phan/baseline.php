@@ -9,25 +9,17 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredTypeParameter : 25+ occurrences
-    // PhanUndeclaredFunction : 8 occurrences
-    // PhanUndeclaredClassMethod : 7 occurrences
-    // PhanTypeArraySuspicious : 5 occurrences
-    // PhanUndeclaredClassProperty : 4 occurrences
-    // PhanTypeMismatchArgument : 3 occurrences
-    // PhanUndeclaredConstant : 3 occurrences
-    // PhanTypeArrayUnsetSuspicious : 2 occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 2 occurrences
+    // PhanTypeMismatchArgument : 2 occurrences
+    // PhanTypeMismatchReturn : 2 occurrences
     // PhanParamTooMany : 1 occurrence
-    // PhanTypeMismatchReturn : 1 occurrence
+    // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanTypeMismatchReturnProbablyReal : 1 occurrence
-    // PhanUndeclaredClassInstanceof : 1 occurrence
+    // PhanTypeNoAccessiblePropertiesForeach : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-blaze.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassProperty', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeParameter'],
-        'src/class-dashboard-rest-controller.php' => ['PhanTypeArraySuspicious', 'PhanTypeArrayUnsetSuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredTypeParameter'],
-        'src/class-dashboard.php' => ['PhanUndeclaredConstant'],
+        'src/class-blaze.php' => ['PhanTypeMismatchArgumentProbablyReal'],
+        'src/class-dashboard-rest-controller.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeNoAccessiblePropertiesForeach'],
         'src/class-rest-controller.php' => ['PhanParamTooMany'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

@@ -76,7 +76,6 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 		const project = file.match( /^projects\/(?<ptype>[^/]*)\/(?<pname>[^/]*)\// );
 		if ( project && project.groups.ptype && project.groups.pname ) {
 			const prefix = {
-				'editor-extensions': 'Block',
 				'github-actions': 'Action',
 				packages: 'Package',
 				plugins: 'Plugin',
@@ -136,6 +135,12 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 			if ( contactForm.groups.blocks ) {
 				keywords.add( '[Block] Contact Form' );
 			}
+		}
+
+		// The SSO feature nows lives in both a package and a Jetpack module.
+		const sso = file.match( /^projects\/packages\/connection\/src\/sso\// );
+		if ( sso !== null ) {
+			keywords.add( '[Feature] SSO' );
 		}
 
 		// The WooCommerce Analytics feature now lives in both a package and a Jetpack module.

@@ -44,9 +44,7 @@ if ( ! class_exists( 'Brute_Force_Protection_Math_Authenticate' ) ) {
 		/**
 		 * Verifies that a user answered the math problem correctly while logging in.
 		 *
-		 * @return bool Returns true if the math is correct
-		 * @throws Error If insuffient $_POST variables are present.
-		 * @throws Error Message if the math is wrong.
+		 * @return bool Returns true if the math is correct. Exits if not.
 		 */
 		public static function math_authenticate() {
 			if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
@@ -90,6 +88,7 @@ if ( ! class_exists( 'Brute_Force_Protection_Math_Authenticate' ) ) {
 		 * Creates an interim page to collect answers to a math captcha
 		 *
 		 * @param string $error - the error message.
+		 * @return never
 		 */
 		public static function generate_math_page( $error = false ) {
 			ob_start();

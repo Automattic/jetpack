@@ -26,26 +26,6 @@ function should_load_wpcom_command_palette() {
 }
 
 /**
- * Checks if GitHub Deployments is available for a site.
- *
- * @param int $site_id Site id to check.
- *
- * @return bool True if GitHub Deployments is available for the site, false otherwise.
- */
-function is_gh_deployments_available( $site_id ) {
-	// On Atomic sites we can't read the sticker since it isn't in the allow list.
-	if ( function_exists( 'request_github_deployments_available' ) ) {
-		return request_github_deployments_available();
-	}
-
-	if ( function_exists( 'has_blog_sticker' ) ) {
-		return has_blog_sticker( 'wpcom-github-deployments', $site_id );
-	}
-
-	return false;
-}
-
-/**
  * Load the WPCom Command Palette.
  */
 function wpcom_load_command_palette() {
@@ -83,19 +63,18 @@ function wpcom_load_command_palette() {
 	$is_p2_site = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( $site_id );
 	$data       = wp_json_encode(
 		array(
-			'siteId'              => $site_id,
-			'isAtomic'            => $host->is_woa_site(),
-			'isSimple'            => $host->is_wpcom_simple(),
-			'isSelfHosted'        => ! $host->is_wpcom_platform(),
-			'isStaging'           => (bool) get_option( 'wpcom_is_staging_site' ),
-			'isPrivate'           => $jetpack_status->is_private_site(),
-			'isComingSoon'        => $jetpack_status->is_coming_soon(),
-			'capabilities'        => get_userdata( get_current_user_id() )->allcaps,
-			'isP2'                => $is_p2_site,
-			'shouldUseWpAdmin'    => 'wp-admin' === get_option( 'wpcom_admin_interface' ),
-			'siteHostname'        => wpcom_get_site_slug(),
-			'isWpcomStore'        => $host->is_woa_site() && is_plugin_active( 'woocommerce/woocommerce.php' ),
-			'isGHDeployAvailable' => is_gh_deployments_available( $site_id ),
+			'siteId'           => $site_id,
+			'isAtomic'         => $host->is_woa_site(),
+			'isSimple'         => $host->is_wpcom_simple(),
+			'isSelfHosted'     => ! $host->is_wpcom_platform(),
+			'isStaging'        => (bool) get_option( 'wpcom_is_staging_site' ),
+			'isPrivate'        => $jetpack_status->is_private_site(),
+			'isComingSoon'     => $jetpack_status->is_coming_soon(),
+			'capabilities'     => get_userdata( get_current_user_id() )->allcaps,
+			'isP2'             => $is_p2_site,
+			'shouldUseWpAdmin' => 'wp-admin' === get_option( 'wpcom_admin_interface' ),
+			'siteHostname'     => wpcom_get_site_slug(),
+			'isWpcomStore'     => $host->is_woa_site() && is_plugin_active( 'woocommerce/woocommerce.php' ),
 		)
 	);
 	wp_add_inline_script(

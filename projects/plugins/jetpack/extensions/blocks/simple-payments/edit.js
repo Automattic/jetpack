@@ -1,5 +1,5 @@
 import { getCurrencyDefaults } from '@automattic/format-currency';
-import { InspectorControls } from '@wordpress/block-editor';
+import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import {
 	Disabled,
 	ExternalLink,
@@ -10,12 +10,12 @@ import {
 } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { dispatch, withSelect } from '@wordpress/data';
-import { Component } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { getWidgetIdFromBlock } from '@wordpress/widgets';
 import classNames from 'classnames';
 import emailValidator from 'email-validator';
-import { get, isEmpty, isEqual, pick, trimEnd } from 'lodash';
+import { get, isEmpty, pick, trimEnd } from 'lodash';
 import HelpMessage from '../../shared/help-message';
 import { SIMPLE_PAYMENTS_PRODUCT_POST_TYPE, SUPPORTED_CURRENCY_LIST } from './constants';
 import { PanelControls } from './controls';
@@ -23,14 +23,43 @@ import FeaturedMedia from './featured-media';
 import ProductPlaceholder from './product-placeholder';
 import { decimalPlaces, formatPrice } from './utils';
 
-export class SimplePaymentsEdit extends Component {
-	state = {
-		fieldEmailError: null,
-		fieldPriceError: null,
-		fieldTitleError: null,
-		isSavingProduct: false,
-	};
+export const SimplePaymentsEdit = ( {
+	attributes,
+	instanceId,
+	isSelected,
+	setAttributes,
+	simplePayment,
+	featuredMedia,
+	hasPublishAction,
+	postLinkUrl,
+	isPostEditor,
+	block,
+	isSaving,
+} ) => {
+	const {
+		content,
+		currency,
+		email,
+		featuredMediaId,
+		featuredMediaUrl,
+		featuredMediaTitle,
+		multiple,
+		price,
+		productId,
+		title,
+	} = attributes;
+	/**
+	 * The only disabled state that concerns us is when we expect a product but don't have it in
+	 * local state.
+	 */
+	const isDisabled = productId && isEmpty( simplePayment );
 
+	const blockProps = useBlockProps();
+
+	const [ fieldEmailError, setFieldEmailError ] = useState( null );
+	const [ fieldPriceError, setFieldPriceError ] = useState( null );
+	const [ fieldTitleError, setFieldTitleError ] = useState( null );
+	const [ isSavingProduct, setIsSavingProduct ] = useState( false );
 	/**
 	 * We'll use this flag to inject attributes one time when the product entity is loaded.
 	 *
@@ -40,31 +69,278 @@ export class SimplePaymentsEdit extends Component {
 	 * If absent, we may save the product in the future but do not need to inject attributes based
 	 * on the response as they will have come from our product submission.
 	 */
-	shouldInjectPaymentAttributes = !! this.props.attributes.productId;
+	const shouldInjectPaymentAttributes = useRef( !! productId );
 
-	componentDidMount() {
-		// Try to get the simplePayment loaded into attributes if possible.
-		this.injectPaymentAttributes();
+	const injectPaymentAttributes = () => {
+		/**
+		 * Prevent injecting the product attributes when not desired.
+		 *
+		 * When we first load a product, we should inject its attributes as our initial form state.
+		 * When subsequent saves occur, we should avoid injecting attributes so that we do not
+		 * overwrite changes that the user has made with stale state from the previous save.
+		 */
 
-		const { attributes, hasPublishAction, postLinkUrl, setAttributes, isPostEditor } = this.props;
-		const { productId } = attributes;
+		if ( ! shouldInjectPaymentAttributes.current || isEmpty( simplePayment ) ) {
+			return;
+		}
 
+		setAttributes( {
+			content: get( simplePayment, [ 'content', 'raw' ], content ),
+			currency: get( simplePayment, [ 'meta', 'spay_currency' ], currency ),
+			email: get( simplePayment, [ 'meta', 'spay_email' ], email ),
+			featuredMediaId: get( simplePayment, [ 'featured_media' ], featuredMediaId ),
+			featuredMediaUrl: get( featuredMedia, 'url', featuredMediaUrl ),
+			featuredMediaTitle: get( featuredMedia, 'title', featuredMediaTitle ),
+			multiple: Boolean( get( simplePayment, [ 'meta', 'spay_multiple' ], Boolean( multiple ) ) ),
+			price: get( simplePayment, [ 'meta', 'spay_price' ], price || undefined ),
+			title: get( simplePayment, [ 'title', 'raw' ], title ),
+		} );
+
+		shouldInjectPaymentAttributes.current = false;
+	};
+
+	const saveProduct = () => {
+		if ( isSavingProduct ) {
+			return;
+		}
+
+		const { saveEntityRecord } = dispatch( 'core' );
+
+		setIsSavingProduct( true );
+
+		saveEntityRecord( 'postType', SIMPLE_PAYMENTS_PRODUCT_POST_TYPE, {
+			id: productId,
+			content,
+			featured_media: featuredMediaId,
+			meta: {
+				spay_currency: currency,
+				spay_email: email,
+				spay_multiple: multiple,
+				spay_price: price,
+			},
+			status: productId ? 'publish' : 'draft',
+			title,
+		} )
+			.then( record => {
+				if ( record ) {
+					setAttributes( { productId: record.id } );
+				}
+
+				return record;
+			} )
+			.catch( error => {
+				// Nothing we can do about errors without details at the moment
+				if ( ! error || ! error.data ) {
+					return;
+				}
+
+				const {
+					data: { key: apiErrorKey },
+				} = error;
+
+				// @TODO errors in other fields
+				setFieldEmailError(
+					apiErrorKey === 'spay_email'
+						? sprintf(
+								/* translators: Placeholder is an email address. */
+								__( '%s is not a valid email address.', 'jetpack' ),
+								email
+						  )
+						: null
+				);
+				setFieldPriceError(
+					apiErrorKey === 'spay_price' ? __( 'Invalid price.', 'jetpack' ) : null
+				);
+			} )
+			.finally( () => {
+				setIsSavingProduct( false );
+			} );
+	};
+
+	const validateAttributes = () => {
+		const isPriceValid = validatePrice();
+		const isTitleValid = validateTitle();
+		const isEmailValid = validateEmail();
+		const isCurrencyValid = validateCurrency();
+
+		return isPriceValid && isTitleValid && isEmailValid && isCurrencyValid;
+	};
+
+	/**
+	 * Validate currency
+	 *
+	 * This method does not include validation UI. Currency selection should not allow for invalid
+	 * values. It is primarily to ensure that the currency is valid to save.
+	 *
+	 * @returns  {boolean} True if currency is valid
+	 */
+	const validateCurrency = () => SUPPORTED_CURRENCY_LIST.includes( currency );
+
+	/**
+	 * Validate price
+	 *
+	 * Stores error message in state.fieldPriceError
+	 *
+	 * @returns {boolean} True when valid, false when invalid
+	 */
+	const validatePrice = () => {
+		const { precision } = getCurrencyDefaults( currency );
+
+		if ( ! price || parseFloat( price ) === 0 ) {
+			setFieldPriceError(
+				__( 'If you’re selling something, you need a price tag. Add yours here.', 'jetpack' )
+			);
+			return false;
+		}
+
+		if ( Number.isNaN( parseFloat( price ) ) ) {
+			setFieldPriceError( __( 'Invalid price', 'jetpack' ) );
+			return false;
+		}
+
+		if ( parseFloat( price ) < 0 ) {
+			setFieldPriceError(
+				__(
+					'Your price is negative — enter a positive number so people can pay the right amount.',
+					'jetpack'
+				)
+			);
+			return false;
+		}
+
+		if ( decimalPlaces( price ) > precision ) {
+			if ( precision === 0 ) {
+				setFieldPriceError(
+					__(
+						'We know every penny counts, but prices in this currency can’t contain decimal values.',
+						'jetpack'
+					)
+				);
+				return false;
+			}
+
+			setFieldPriceError(
+				sprintf(
+					/* translators: Placeholder is a number of decimals in a number. */
+					_n(
+						'The price cannot have more than %d decimal place.',
+						'The price cannot have more than %d decimal places.',
+						precision,
+						'jetpack'
+					),
+					precision
+				)
+			);
+			return false;
+		}
+
+		if ( fieldPriceError ) {
+			setFieldPriceError( null );
+		}
+
+		return true;
+	};
+
+	/**
+	 * Validate email
+	 *
+	 * Stores error message in state.fieldEmailError
+	 *
+	 * @returns {boolean} True when valid, false when invalid
+	 */
+	const validateEmail = () => {
+		if ( ! email ) {
+			setFieldEmailError(
+				__( 'We want to make sure payments reach you, so please add an email address.', 'jetpack' )
+			);
+			return false;
+		}
+
+		if ( ! emailValidator.validate( email ) ) {
+			setFieldEmailError(
+				sprintf(
+					/* translators: Placeholder is an email address. */
+					__( '%s is not a valid email address.', 'jetpack' ),
+					email
+				)
+			);
+			return false;
+		}
+
+		if ( fieldEmailError ) {
+			setFieldEmailError( null );
+		}
+
+		return true;
+	};
+
+	/**
+	 * Validate title
+	 *
+	 * Stores error message in state.fieldTitleError
+	 *
+	 * @returns {boolean} True when valid, false when invalid
+	 */
+	const validateTitle = () => {
+		if ( ! title ) {
+			setFieldTitleError(
+				__( 'Please add a brief title so that people know what they’re paying for.', 'jetpack' )
+			);
+			return false;
+		}
+
+		if ( fieldTitleError ) {
+			setFieldTitleError( null );
+		}
+
+		return true;
+	};
+
+	const handleEmailChange = value => {
+		setAttributes( { email: value } );
+		setFieldEmailError( null );
+	};
+
+	const handleContentChange = value => {
+		setAttributes( { content: value } );
+	};
+
+	const handlePriceChange = value => {
+		const p = parseFloat( value );
+		if ( ! isNaN( p ) ) {
+			setAttributes( { price: p } );
+		} else {
+			setAttributes( { price: undefined } );
+		}
+		setFieldPriceError( null );
+	};
+
+	const handleCurrencyChange = value => {
+		setAttributes( { currency: value } );
+	};
+
+	const handleMultipleChange = value => {
+		setAttributes( { multiple: !! value } );
+	};
+
+	const handleTitleChange = value => {
+		setAttributes( { title: value } );
+		setFieldTitleError( null );
+	};
+
+	const getCurrencyList = SUPPORTED_CURRENCY_LIST.map( value => {
+		const { symbol } = getCurrencyDefaults( value );
+		// if symbol is equal to the code (e.g., 'CHF' === 'CHF'), don't duplicate it.
+		// trim the dot at the end, e.g., 'kr.' becomes 'kr'
+		const label = symbol === value ? value : `${ value } ${ trimEnd( symbol, '.' ) }`;
+		return { value, label };
+	} );
+
+	useEffect( () => {
 		// If the user can publish save an empty product so that we have an ID and can save
 		// concurrently with the post that contains the Simple Payment.
 		if ( ( ! productId && hasPublishAction ) || ! isPostEditor ) {
-			this.saveProduct();
-		}
-
-		const shouldUpdatePostLinkUrl =
-			postLinkUrl && postLinkUrl !== this.props.attributes.postLinkUrl;
-		const shouldUpdatePostLinkText = ! this.props.attributes.postLinkText;
-		if ( shouldUpdatePostLinkUrl || shouldUpdatePostLinkText ) {
-			setAttributes( {
-				...( shouldUpdatePostLinkUrl && { postLinkUrl } ),
-				...( shouldUpdatePostLinkText && {
-					postLinkText: __( 'Click here to purchase.', 'jetpack' ),
-				} ),
-			} );
+			saveProduct();
 		}
 
 		window.wp?.customize?.bind( 'change', setting => {
@@ -80,35 +356,35 @@ export class SimplePaymentsEdit extends Component {
 				widgetId = setting.id;
 			}
 
-			if ( widgetId === getWidgetIdFromBlock( this.props.block ) && this.validateAttributes() ) {
-				this.saveProduct();
+			if ( widgetId === getWidgetIdFromBlock( block ) && validateAttributes() ) {
+				saveProduct();
 			}
 		} );
-	}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 
-	componentDidUpdate( prevProps ) {
-		const { hasPublishAction, isSelected, postLinkUrl, setAttributes, isPostEditor } = this.props;
-
-		if ( ! isEqual( prevProps.simplePayment, this.props.simplePayment ) ) {
-			this.injectPaymentAttributes();
+	useEffect( () => {
+		if ( simplePayment ) {
+			injectPaymentAttributes();
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ simplePayment ] );
 
-		if (
-			! prevProps.isSaving &&
-			this.props.isSaving &&
-			( hasPublishAction || ! isPostEditor ) &&
-			this.validateAttributes()
-		) {
+	useEffect( () => {
+		if ( isSaving && ( hasPublishAction || ! isPostEditor ) && validateAttributes() ) {
 			// Validate and save product on post save
-			this.saveProduct();
-		} else if ( prevProps.isSelected && ! isSelected ) {
+			saveProduct();
+		} else if ( ! isSelected ) {
 			// Validate on block deselect
-			this.validateAttributes();
+			validateAttributes();
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ isSaving, isSelected ] );
 
-		const shouldUpdatePostLinkUrl =
-			postLinkUrl && postLinkUrl !== this.props.attributes.postLinkUrl;
-		const shouldUpdatePostLinkText = ! this.props.attributes.postLinkText;
+	useEffect( () => {
+		const shouldUpdatePostLinkUrl = postLinkUrl && postLinkUrl !== attributes.postLinkUrl;
+		const shouldUpdatePostLinkText = ! attributes.postLinkText;
+
 		if ( shouldUpdatePostLinkUrl || shouldUpdatePostLinkText ) {
 			setAttributes( {
 				...( shouldUpdatePostLinkUrl && { postLinkUrl } ),
@@ -117,387 +393,45 @@ export class SimplePaymentsEdit extends Component {
 				} ),
 			} );
 		}
-	}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ postLinkUrl, attributes ] );
 
-	injectPaymentAttributes() {
-		/**
-		 * Prevent injecting the product attributes when not desired.
-		 *
-		 * When we first load a product, we should inject its attributes as our initial form state.
-		 * When subsequent saves occur, we should avoid injecting attributes so that we do not
-		 * overwrite changes that the user has made with stale state from the previous save.
-		 */
+	let elt;
 
-		const { simplePayment, featuredMedia } = this.props;
-		if ( ! this.shouldInjectPaymentAttributes || isEmpty( simplePayment ) ) {
-			return;
-		}
-
-		const { attributes, setAttributes } = this.props;
-		const {
-			content,
-			currency,
-			email,
-			featuredMediaId,
-			featuredMediaUrl,
-			featuredMediaTitle,
-			multiple,
-			price,
-			title,
-		} = attributes;
-
-		setAttributes( {
-			content: get( simplePayment, [ 'content', 'raw' ], content ),
-			currency: get( simplePayment, [ 'meta', 'spay_currency' ], currency ),
-			email: get( simplePayment, [ 'meta', 'spay_email' ], email ),
-			featuredMediaId: get( simplePayment, [ 'featured_media' ], featuredMediaId ),
-			featuredMediaUrl: get( featuredMedia, 'url', featuredMediaUrl ),
-			featuredMediaTitle: get( featuredMedia, 'title', featuredMediaTitle ),
-			multiple: Boolean( get( simplePayment, [ 'meta', 'spay_multiple' ], Boolean( multiple ) ) ),
-			price: get( simplePayment, [ 'meta', 'spay_price' ], price || undefined ),
-			title: get( simplePayment, [ 'title', 'raw' ], title ),
-		} );
-
-		this.shouldInjectPaymentAttributes = ! this.shouldInjectPaymentAttributes;
-	}
-
-	toApi() {
-		const { attributes } = this.props;
-		const { content, currency, email, featuredMediaId, multiple, price, productId, title } =
-			attributes;
-
-		return {
-			id: productId,
-			content,
-			featured_media: featuredMediaId,
-			meta: {
-				spay_currency: currency,
-				spay_email: email,
-				spay_multiple: multiple,
-				spay_price: price,
-			},
-			status: productId ? 'publish' : 'draft',
-			title,
-		};
-	}
-
-	saveProduct() {
-		if ( this.state.isSavingProduct ) {
-			return;
-		}
-
-		const { attributes, setAttributes } = this.props;
-		const { email } = attributes;
-		const { saveEntityRecord } = dispatch( 'core' );
-
-		this.setState( { isSavingProduct: true }, () => {
-			saveEntityRecord( 'postType', SIMPLE_PAYMENTS_PRODUCT_POST_TYPE, this.toApi() )
-				.then( record => {
-					if ( record ) {
-						setAttributes( { productId: record.id } );
-					}
-
-					return record;
-				} )
-				.catch( error => {
-					// Nothing we can do about errors without details at the moment
-					if ( ! error || ! error.data ) {
-						return;
-					}
-
-					const {
-						data: { key: apiErrorKey },
-					} = error;
-
-					// @TODO errors in other fields
-					this.setState( {
-						fieldEmailError:
-							apiErrorKey === 'spay_email'
-								? sprintf(
-										/* translators: Placeholder is an email address. */
-										__( '%s is not a valid email address.', 'jetpack' ),
-										email
-								  )
-								: null,
-						fieldPriceError:
-							apiErrorKey === 'spay_price' ? __( 'Invalid price.', 'jetpack' ) : null,
-					} );
-				} )
-				.finally( () => {
-					this.setState( {
-						isSavingProduct: false,
-					} );
-				} );
-		} );
-	}
-
-	validateAttributes = () => {
-		const isPriceValid = this.validatePrice();
-		const isTitleValid = this.validateTitle();
-		const isEmailValid = this.validateEmail();
-		const isCurrencyValid = this.validateCurrency();
-
-		return isPriceValid && isTitleValid && isEmailValid && isCurrencyValid;
-	};
-
-	/**
-	 * Validate currency
-	 *
-	 * This method does not include validation UI. Currency selection should not allow for invalid
-	 * values. It is primarily to ensure that the currency is valid to save.
-	 *
-	 * @returns  {boolean} True if currency is valid
-	 */
-	validateCurrency = () => {
-		const { currency } = this.props.attributes;
-		return SUPPORTED_CURRENCY_LIST.includes( currency );
-	};
-
-	/**
-	 * Validate price
-	 *
-	 * Stores error message in state.fieldPriceError
-	 *
-	 * @returns {boolean} True when valid, false when invalid
-	 */
-	validatePrice = () => {
-		const { currency, price } = this.props.attributes;
-		const { precision } = getCurrencyDefaults( currency );
-
-		if ( ! price || parseFloat( price ) === 0 ) {
-			this.setState( {
-				fieldPriceError: __(
-					'If you’re selling something, you need a price tag. Add yours here.',
-					'jetpack'
-				),
-			} );
-			return false;
-		}
-
-		if ( Number.isNaN( parseFloat( price ) ) ) {
-			this.setState( {
-				fieldPriceError: __( 'Invalid price', 'jetpack' ),
-			} );
-			return false;
-		}
-
-		if ( parseFloat( price ) < 0 ) {
-			this.setState( {
-				fieldPriceError: __(
-					'Your price is negative — enter a positive number so people can pay the right amount.',
-					'jetpack'
-				),
-			} );
-			return false;
-		}
-
-		if ( decimalPlaces( price ) > precision ) {
-			if ( precision === 0 ) {
-				this.setState( {
-					fieldPriceError: __(
-						'We know every penny counts, but prices in this currency can’t contain decimal values.',
-						'jetpack'
-					),
-				} );
-				return false;
-			}
-
-			this.setState( {
-				fieldPriceError: sprintf(
-					/* translators: Placeholder is a number of decimals in a number. */
-					_n(
-						'The price cannot have more than %d decimal place.',
-						'The price cannot have more than %d decimal places.',
-						precision,
-						'jetpack'
-					),
-					precision
-				),
-			} );
-			return false;
-		}
-
-		if ( this.state.fieldPriceError ) {
-			this.setState( { fieldPriceError: null } );
-		}
-
-		return true;
-	};
-
-	/**
-	 * Validate email
-	 *
-	 * Stores error message in state.fieldEmailError
-	 *
-	 * @returns {boolean} True when valid, false when invalid
-	 */
-	validateEmail = () => {
-		const { email } = this.props.attributes;
-		if ( ! email ) {
-			this.setState( {
-				fieldEmailError: __(
-					'We want to make sure payments reach you, so please add an email address.',
-					'jetpack'
-				),
-			} );
-			return false;
-		}
-
-		if ( ! emailValidator.validate( email ) ) {
-			this.setState( {
-				fieldEmailError: sprintf(
-					/* translators: Placeholder is an email address. */
-					__( '%s is not a valid email address.', 'jetpack' ),
-					email
-				),
-			} );
-			return false;
-		}
-
-		if ( this.state.fieldEmailError ) {
-			this.setState( { fieldEmailError: null } );
-		}
-
-		return true;
-	};
-
-	/**
-	 * Validate title
-	 *
-	 * Stores error message in state.fieldTitleError
-	 *
-	 * @returns {boolean} True when valid, false when invalid
-	 */
-	validateTitle = () => {
-		const { title } = this.props.attributes;
-		if ( ! title ) {
-			this.setState( {
-				fieldTitleError: __(
-					'Please add a brief title so that people know what they’re paying for.',
-					'jetpack'
-				),
-			} );
-			return false;
-		}
-
-		if ( this.state.fieldTitleError ) {
-			this.setState( { fieldTitleError: null } );
-		}
-
-		return true;
-	};
-
-	handleEmailChange = email => {
-		this.props.setAttributes( { email } );
-		this.setState( { fieldEmailError: null } );
-	};
-
-	handleContentChange = content => {
-		this.props.setAttributes( { content } );
-	};
-
-	handlePriceChange = price => {
-		price = parseFloat( price );
-		if ( ! isNaN( price ) ) {
-			this.props.setAttributes( { price } );
-		} else {
-			this.props.setAttributes( { price: undefined } );
-		}
-		this.setState( { fieldPriceError: null } );
-	};
-
-	handleCurrencyChange = currency => {
-		this.props.setAttributes( { currency } );
-	};
-
-	handleMultipleChange = multiple => {
-		this.props.setAttributes( { multiple: !! multiple } );
-	};
-
-	handleTitleChange = title => {
-		this.props.setAttributes( { title } );
-		this.setState( { fieldTitleError: null } );
-	};
-
-	getCurrencyList = SUPPORTED_CURRENCY_LIST.map( value => {
-		const { symbol } = getCurrencyDefaults( value );
-		// if symbol is equal to the code (e.g., 'CHF' === 'CHF'), don't duplicate it.
-		// trim the dot at the end, e.g., 'kr.' becomes 'kr'
-		const label = symbol === value ? value : `${ value } ${ trimEnd( symbol, '.' ) }`;
-		return { value, label };
-	} );
-
-	renderSettings = () => (
-		<InspectorControls>
-			<PanelControls
-				postLinkText={ this.props.attributes.postLinkText }
-				setAttributes={ this.props.setAttributes }
+	if ( ! isSelected && isDisabled ) {
+		elt = (
+			<div className="simple-payments__loading">
+				<ProductPlaceholder aria-busy="true" content="█████" formattedPrice="█████" title="█████" />
+			</div>
+		);
+	} else if (
+		! isSelected &&
+		email &&
+		price &&
+		title &&
+		! fieldEmailError &&
+		! fieldPriceError &&
+		! fieldTitleError
+	) {
+		elt = (
+			<ProductPlaceholder
+				aria-busy="false"
+				content={ content }
+				featuredMediaUrl={ featuredMediaUrl }
+				featuredMediaTitle={ featuredMediaTitle }
+				formattedPrice={ formatPrice( price, currency ) }
+				multiple={ multiple }
+				title={ title }
 			/>
-		</InspectorControls>
-	);
-
-	render() {
-		const { fieldEmailError, fieldPriceError, fieldTitleError } = this.state;
-		const { attributes, instanceId, isSelected, setAttributes, simplePayment } = this.props;
-		const {
-			content,
-			currency,
-			email,
-			featuredMediaId,
-			featuredMediaUrl,
-			featuredMediaTitle,
-			multiple,
-			price,
-			productId,
-			title,
-		} = attributes;
-
-		/**
-		 * The only disabled state that concerns us is when we expect a product but don't have it in
-		 * local state.
-		 */
-		const isDisabled = productId && isEmpty( simplePayment );
-
-		if ( ! isSelected && isDisabled ) {
-			return (
-				<div className="simple-payments__loading">
-					<ProductPlaceholder
-						aria-busy="true"
-						content="█████"
-						formattedPrice="█████"
-						title="█████"
-					/>
-				</div>
-			);
-		}
-
-		if (
-			! isSelected &&
-			email &&
-			price &&
-			title &&
-			! fieldEmailError &&
-			! fieldPriceError &&
-			! fieldTitleError
-		) {
-			return (
-				<ProductPlaceholder
-					aria-busy="false"
-					content={ content }
-					featuredMediaUrl={ featuredMediaUrl }
-					featuredMediaTitle={ featuredMediaTitle }
-					formattedPrice={ formatPrice( price, currency ) }
-					multiple={ multiple }
-					title={ title }
-				/>
-			);
-		}
-
+		);
+	} else {
 		const Wrapper = isDisabled ? Disabled : 'div';
 
-		return (
-			<Wrapper className="wp-block-jetpack-simple-payments">
-				{ this.renderSettings() }
+		elt = (
+			<Wrapper className="simple-payments__wrapper">
+				<InspectorControls>
+					<PanelControls postLinkText={ attributes.postLinkText } setAttributes={ setAttributes } />
+				</InspectorControls>
 				<FeaturedMedia
 					{ ...{ featuredMediaId, featuredMediaUrl, featuredMediaTitle, setAttributes } }
 				/>
@@ -508,7 +442,7 @@ export class SimplePaymentsEdit extends Component {
 							'simple-payments__field-has-error': fieldTitleError,
 						} ) }
 						label={ __( 'Item name', 'jetpack' ) }
-						onChange={ this.handleTitleChange }
+						onChange={ handleTitleChange }
 						placeholder={ __( 'Item name', 'jetpack' ) }
 						required
 						type="text"
@@ -521,7 +455,7 @@ export class SimplePaymentsEdit extends Component {
 					<TextareaControl
 						className="simple-payments__field simple-payments__field-content"
 						label={ __( 'Describe your item in a few words', 'jetpack' ) }
-						onChange={ this.handleContentChange }
+						onChange={ handleContentChange }
 						placeholder={ __( 'Describe your item in a few words', 'jetpack' ) }
 						aria-label={ __( 'Describe your item in a few words', 'jetpack' ) }
 						value={ content }
@@ -531,8 +465,8 @@ export class SimplePaymentsEdit extends Component {
 						<SelectControl
 							className="simple-payments__field simple-payments__field-currency"
 							label={ __( 'Currency', 'jetpack' ) }
-							onChange={ this.handleCurrencyChange }
-							options={ this.getCurrencyList }
+							onChange={ handleCurrencyChange }
+							options={ getCurrencyList }
 							value={ currency }
 						/>
 						<TextControl
@@ -541,7 +475,7 @@ export class SimplePaymentsEdit extends Component {
 								'simple-payments__field-has-error': fieldPriceError,
 							} ) }
 							label={ __( 'Price', 'jetpack' ) }
-							onChange={ this.handlePriceChange }
+							onChange={ handlePriceChange }
 							placeholder={ formatPrice( 0, currency, false ) }
 							required
 							step="1"
@@ -557,7 +491,7 @@ export class SimplePaymentsEdit extends Component {
 						<ToggleControl
 							checked={ Boolean( multiple ) }
 							label={ __( 'Allow people to buy more than one item at a time', 'jetpack' ) }
-							onChange={ this.handleMultipleChange }
+							onChange={ handleMultipleChange }
 						/>
 					</div>
 
@@ -567,7 +501,7 @@ export class SimplePaymentsEdit extends Component {
 							'simple-payments__field-has-error': fieldEmailError,
 						} ) }
 						label={ __( 'Email', 'jetpack' ) }
-						onChange={ this.handleEmailChange }
+						onChange={ handleEmailChange }
 						placeholder={ __( 'Email', 'jetpack' ) }
 						required
 						// TODO: switch this back to type="email" once Gutenberg paste handler ignores inputs of type email
@@ -590,7 +524,9 @@ export class SimplePaymentsEdit extends Component {
 			</Wrapper>
 		);
 	}
-}
+
+	return <div { ...blockProps }>{ elt }</div>;
+};
 
 const mapSelectToProps = withSelect( ( select, props ) => {
 	const { getEntityRecord, getMedia } = select( 'core' );

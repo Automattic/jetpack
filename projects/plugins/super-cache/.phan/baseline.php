@@ -9,7 +9,6 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredConstant : 95+ occurrences
     // PhanPluginSimplifyExpressionBool : 85+ occurrences
     // PhanUndeclaredGlobalVariable : 55+ occurrences
     // PhanTypeMismatchArgumentInternal : 30+ occurrences
@@ -22,8 +21,8 @@ return [
     // PhanTypeSuspiciousStringExpression : 10+ occurrences
     // PhanUndeclaredFunctionInCallable : 10+ occurrences
     // PhanTypeMismatchArgument : 9 occurrences
-    // PhanUndeclaredFunction : 9 occurrences
     // PhanTypeInvalidDimOffset : 8 occurrences
+    // PhanUndeclaredFunction : 8 occurrences
     // PhanTypeArraySuspiciousNull : 7 occurrences
     // PhanTypeArraySuspiciousNullable : 7 occurrences
     // PhanUndeclaredVariableDim : 7 occurrences
@@ -31,6 +30,7 @@ return [
     // PhanTypeMismatchArgumentProbablyReal : 5 occurrences
     // PhanTypeMismatchArgumentInternalProbablyReal : 4 occurrences
     // PhanTypeMismatchArgumentInternalReal : 4 occurrences
+    // PhanUndeclaredConstant : 4 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 3 occurrences
     // PhanPluginRedundantAssignment : 3 occurrences
     // PhanTypeInvalidLeftOperandOfNumericOp : 3 occurrences
@@ -60,28 +60,28 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'advanced-cache.php' => ['PhanPluginSimplifyExpressionBool'],
-        'inc/delete-cache-button.php' => ['PhanPluginNeverReturnFunction', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanUndeclaredFunction'],
+        'inc/delete-cache-button.php' => ['PhanPluginNeverReturnFunction', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal'],
         'ossdl-cdn.php' => ['PhanUndeclaredClassMethod'],
-        'partials/advanced.php' => ['PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredGlobalVariable', 'PhanRedundantConditionInGlobalScope', 'PhanTypeMismatchArgument', 'PhanTypeNonVarPassByRef', 'PhanUndeclaredConstant', 'PhanUndeclaredGlobalVariable'],
+        'partials/advanced.php' => ['PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredGlobalVariable', 'PhanRedundantConditionInGlobalScope', 'PhanTypeMismatchArgument', 'PhanTypeNonVarPassByRef', 'PhanUndeclaredGlobalVariable'],
         'partials/debug.php' => ['PhanTypeNonVarPassByRef', 'PhanUndeclaredGlobalVariable'],
         'partials/easy.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspiciousNull', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgumentInternalReal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredConstant', 'PhanUndeclaredGlobalVariable'],
-        'partials/lockdown.php' => ['PhanUndeclaredConstant', 'PhanUndeclaredGlobalVariable'],
+        'partials/lockdown.php' => ['PhanUndeclaredGlobalVariable'],
         'partials/preload.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredGlobalVariable', 'PhanTypeMismatchDimAssignment', 'PhanUndeclaredGlobalVariable'],
         'partials/rejected_user_agents.php' => ['PhanUndeclaredGlobalVariable'],
         'partials/tracking_parameters.php' => ['PhanUndeclaredGlobalVariable'],
-        'plugins/badbehaviour.php' => ['PhanRedundantCondition', 'PhanUndeclaredConstant'],
+        'plugins/badbehaviour.php' => ['PhanRedundantCondition'],
         'plugins/domain-mapping.php' => ['PhanRedundantCondition', 'PhanUndeclaredFunction'],
         'plugins/jetpack.php' => ['PhanPluginSimplifyExpressionBool'],
         'plugins/wptouch.php' => ['PhanPluginSimplifyExpressionBool', 'PhanUndeclaredFunction'],
         'rest/class.wp-super-cache-rest-get-cache.php' => ['PhanPluginSimplifyExpressionBool'],
-        'rest/class.wp-super-cache-rest-get-settings.php' => ['PhanPluginSimplifyExpressionBool', 'PhanSuspiciousValueComparison', 'PhanTypeMismatchReturn', 'PhanUndeclaredConstant', 'PhanUndeclaredFunctionInCallable', 'PhanUndeclaredVariable'],
-        'rest/class.wp-super-cache-rest-get-status.php' => ['PhanPluginSimplifyExpressionBool', 'PhanSuspiciousValueComparison', 'PhanTypeNonVarPassByRef', 'PhanUndeclaredConstant', 'PhanUndeclaredVariable'],
+        'rest/class.wp-super-cache-rest-get-settings.php' => ['PhanPluginSimplifyExpressionBool', 'PhanSuspiciousValueComparison', 'PhanTypeMismatchReturn', 'PhanUndeclaredFunctionInCallable', 'PhanUndeclaredVariable'],
+        'rest/class.wp-super-cache-rest-get-status.php' => ['PhanPluginSimplifyExpressionBool', 'PhanSuspiciousValueComparison', 'PhanTypeNonVarPassByRef', 'PhanUndeclaredVariable'],
         'rest/class.wp-super-cache-rest-test-cache.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeConversionFromArray', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredVariableDim'],
-        'rest/class.wp-super-cache-rest-update-settings.php' => ['PhanCommentParamWithoutRealParam', 'PhanPluginRedundantAssignment', 'PhanPluginSimplifyExpressionBool', 'PhanTypeMissingReturn', 'PhanUndeclaredConstant'],
+        'rest/class.wp-super-cache-rest-update-settings.php' => ['PhanCommentParamWithoutRealParam', 'PhanPluginRedundantAssignment', 'PhanPluginSimplifyExpressionBool', 'PhanTypeMissingReturn'],
         'tests/e2e/tools/mu-test-helpers.php' => ['PhanTypeMismatchArgument'],
         'wp-cache-base.php' => ['PhanTypeMismatchArgumentNullableInternal'],
-        'wp-cache-config-sample.php' => ['PhanUndeclaredConstant', 'PhanUndeclaredVariableDim'],
-        'wp-cache-phase1.php' => ['PhanRedundantConditionInGlobalScope', 'PhanTypeNonVarPassByRef', 'PhanUndeclaredConstant'],
+        'wp-cache-config-sample.php' => ['PhanUndeclaredVariableDim'],
+        'wp-cache-phase1.php' => ['PhanRedundantConditionInGlobalScope', 'PhanTypeNonVarPassByRef'],
         'wp-cache-phase2.php' => ['PhanImpossibleCondition', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginDuplicateIfCondition', 'PhanPluginRedundantAssignment', 'PhanPluginSimplifyExpressionBool', 'PhanPluginUnreachableCode', 'PhanPossiblyUndeclaredVariable', 'PhanRedefineFunctionInternal', 'PhanRedundantCondition', 'PhanSuspiciousValueComparison', 'PhanTypeArraySuspicious', 'PhanTypeArraySuspiciousNull', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentInternalProbablyReal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeNonVarPassByRef', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredConstant', 'PhanUndeclaredVariableDim'],
         'wp-cache.php' => ['PhanImpossibleCondition', 'PhanPluginDuplicateAdjacentStatement', 'PhanPluginDuplicateExpressionAssignmentOperation', 'PhanPluginNeverReturnFunction', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanRedundantConditionInLoop', 'PhanSuspiciousValueComparison', 'PhanTypeArraySuspicious', 'PhanTypeArraySuspiciousNullable', 'PhanTypeInvalidDimOffset', 'PhanTypeInvalidLeftOperandOfBitwiseOp', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeInvalidRightOperandOfAdd', 'PhanTypeInvalidRightOperandOfBitwiseOp', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentInternalProbablyReal', 'PhanTypeMismatchArgumentInternalReal', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeNonVarPassByRef', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredVariable', 'PhanUndeclaredVariableDim'],
     ],

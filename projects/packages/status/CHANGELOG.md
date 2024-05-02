@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.1] - 2024-04-30
+### Changed
+- Internal updates.
+
+## [3.0.0] - 2024-04-25
+### Added
+- Add is_automattician_feature_flags_only on Jetpack sites as an alternative to is_automattician present on simple sites. [#34798]
+
+### Removed
+- Remove methods deprecated long ago. [#36985]
+
+## [2.2.2] - 2024-04-22
+### Changed
+- Internal updates.
+
+## [2.2.1] - 2024-04-08
+### Changed
+- Internal updates.
+
+## [2.2.0] - 2024-03-22
+### Added
+- Add support for A8C for Agencies source parameter. [#36491]
+
+## [2.1.3] - 2024-03-20
+### Changed
+- Internal updates.
+
 ## [2.1.2] - 2024-03-12
 ### Changed
 - Internal updates.
@@ -314,6 +341,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Introduce a status package
 
+[3.0.1]: https://github.com/Automattic/jetpack-status/compare/v3.0.0...v3.0.1
+[3.0.0]: https://github.com/Automattic/jetpack-status/compare/v2.2.2...v3.0.0
+[2.2.2]: https://github.com/Automattic/jetpack-status/compare/v2.2.1...v2.2.2
+[2.2.1]: https://github.com/Automattic/jetpack-status/compare/v2.2.0...v2.2.1
+[2.2.0]: https://github.com/Automattic/jetpack-status/compare/v2.1.3...v2.2.0
+[2.1.3]: https://github.com/Automattic/jetpack-status/compare/v2.1.2...v2.1.3
 [2.1.2]: https://github.com/Automattic/jetpack-status/compare/v2.1.1...v2.1.2
 [2.1.1]: https://github.com/Automattic/jetpack-status/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/Automattic/jetpack-status/compare/v2.0.2...v2.1.0

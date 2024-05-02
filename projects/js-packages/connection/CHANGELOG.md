@@ -2,6 +2,29 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [0.33.8] - 2024-04-11
+### Changed
+- Update dependencies.
+
+## [0.33.7] - 2024-04-08
+### Added
+- Add 'from' property to connection call to WP.com. [#36741]
+
+## [0.33.6] - 2024-04-08
+### Changed
+- Updated package dependencies. [#36756, #36760, #36761]
+
+## [0.33.5] - 2024-03-27
+### Changed
+- Updated package dependencies. [#36539, #36585]
+
+### Fixed
+- Fixes some pricing showing twice by connecting sites that select a free option [#36533]
+
+## [0.33.4] - 2024-03-25
+### Fixed
+- Fix some redirect after purchase behavior when site is not connected [#36448]
+
 ## [0.33.3] - 2024-03-12
 ### Changed
 - Updated package dependencies. [#36325]
@@ -730,6 +753,11 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[0.33.8]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.7...v0.33.8
+[0.33.7]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.6...v0.33.7
+[0.33.6]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.5...v0.33.6
+[0.33.5]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.4...v0.33.5
+[0.33.4]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.3...v0.33.4
 [0.33.3]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.2...v0.33.3
 [0.33.2]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.1...v0.33.2
 [0.33.1]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.0...v0.33.1

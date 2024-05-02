@@ -122,7 +122,7 @@ function jetpack_vr_viewer_get_html( $url_params ) {
  *
  * @param array $atts Shortcode attributes.
  *
- * @return html - complete vr viewer html
+ * @return string complete vr viewer html
  */
 function jetpack_vr_viewer_shortcode( $atts ) {
 	$params = shortcode_atts(

@@ -10,7 +10,7 @@ import ImageCompareEdit from '../edit';
 function renderImageCompare( props ) {
 	const { container } = render( <ImageCompareEdit { ...props } /> );
 	// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-	return container.querySelector( `.${ props.className } > div:not([aria-hidden="true"])` );
+	return container.querySelector( `div:not([aria-hidden="true"])` );
 }
 
 describe( 'ImageCompareEdit', () => {
@@ -33,16 +33,14 @@ describe( 'ImageCompareEdit', () => {
 	const defaultProps = {
 		attributes: defaultAttributes,
 		isSelected: true,
-		className: 'custom-image-compare-class',
 		clientId: '1',
 	};
 
 	test( 'applies correct attributes to block wrapper', () => {
-		render( <ImageCompareEdit { ...defaultProps } /> );
-		const wrapper = screen.getByRole( 'figure' );
+		const { container } = render( <ImageCompareEdit { ...defaultProps } /> );
 
-		expect( wrapper ).toHaveClass( defaultProps.className );
-		expect( wrapper ).toHaveAttribute( 'id', defaultProps.clientId );
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+		expect( container.querySelector( 'figure' ) ).toHaveAttribute( 'id', defaultProps.clientId );
 	} );
 
 	test( 'applies juxtapose classes when images present', () => {

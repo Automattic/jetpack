@@ -1,14 +1,14 @@
 === Jetpack VideoPress  ===
 Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski, nunyvega, leogermani, cgastrell
-Tags: video, video-hosting, video-player, cdn, vimeo, youtube, video-streaming, mobile-video, jetpack
+Tags: video, video-hosting, video-player, cdn, video-streaming
 
-Requires at least: 6.3
+Requires at least: 6.4
 Tested up to: 6.5
 Stable tag: 1.5
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-The finest video hosting for WordPress. Stunning-quality video with none of the hassle. Drag and drop videos through the WordPress editor and keep the focus on your content, not the ads.
+The finest video hosting for WordPress. Drag and drop videos through the WordPress editor and keep the focus on your content, not the ads.
 
 == Description ==
 

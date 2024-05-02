@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use WP_Error;
+use WP_REST_Request;
+
 /**
  * Class Contact_Form_Endpoint
  * Used as 'rest_controller_class' parameter when 'feedback' post type is registered in \Automattic\Jetpack\Forms\ContactForm\Contact_Form.
@@ -20,7 +23,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 */
 	public function get_items_permissions_check( $request ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( ! is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
-			return new \WP_Error(
+			return new WP_Error(
 				'rest_cannot_view',
 				esc_html__( 'Sorry, you cannot view this resource.', 'jetpack-forms' ),
 				array( 'status' => 401 )
@@ -38,7 +41,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 */
 	public function get_item_permissions_check( $request ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( ! is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
-			return new \WP_Error(
+			return new WP_Error(
 				'rest_cannot_view',
 				esc_html__( 'Sorry, you cannot view this resource.', 'jetpack-forms' ),
 				array( 'status' => 401 )

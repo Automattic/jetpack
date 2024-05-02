@@ -1,14 +1,14 @@
 === Jetpack VaultPress Backup ===
 Contributors: automattic, bjorsch, fgiannar, initsogar, jeherve, jwebbdev, kraftbj, macbre, pypt, samiff, sermitr, williamvianas
 Tags: jetpack, backup, restore
-Requires at least: 6.3
+Requires at least: 6.4
 Requires PHP: 7.0
 Tested up to: 6.5
 Stable tag: 2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Jetpack VaultPress Backup. Save each change and get back online fast with one-click restores. The most proven WordPress backup plugin with over 270 million backups.
+Save each change and get back online fast with one-click restores. The most proven WordPress backup plugin with over 270 million backups.
 
 == Description ==
 

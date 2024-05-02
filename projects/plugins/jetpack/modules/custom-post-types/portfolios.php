@@ -694,7 +694,7 @@ class Jetpack_Portfolio {
 	 *
 	 * @param array $atts Shortcode attributes.
 	 *
-	 * @return portfolio_shortcode_html
+	 * @return string html
 	 */
 	public static function portfolio_shortcode( $atts ) {
 		// Default attributes.
@@ -860,7 +860,7 @@ class Jetpack_Portfolio {
 	 *
 	 * @param array $atts Shortcode attributes.
 	 *
-	 * @return html
+	 * @return string html
 	 */
 	private static function portfolio_shortcode_html( $atts ) {
 		$query                  = self::portfolio_query( $atts );
@@ -1011,7 +1011,7 @@ class Jetpack_Portfolio {
 	 *
 	 * @param int $post_id Post ID.
 	 *
-	 * @return html
+	 * @return string html
 	 */
 	private static function get_project_type( $post_id ) {
 		$project_types = get_the_terms( $post_id, self::CUSTOM_TAXONOMY_TYPE );
@@ -1044,7 +1044,7 @@ class Jetpack_Portfolio {
 	 *
 	 * @param int $post_id Post ID.
 	 *
-	 * @return html
+	 * @return string html
 	 */
 	private static function get_project_tags( $post_id ) {
 		$project_tags = get_the_terms( $post_id, self::CUSTOM_TAXONOMY_TAG );
@@ -1075,7 +1075,7 @@ class Jetpack_Portfolio {
 	/**
 	 * Displays the author of the current portfolio project.
 	 *
-	 * @return html
+	 * @return string html
 	 */
 	private static function get_project_author() {
 		$html  = '<div class="project-author">';
@@ -1095,7 +1095,7 @@ class Jetpack_Portfolio {
 	 *
 	 * @param int $post_id Post ID.
 	 *
-	 * @return html
+	 * @return string html
 	 */
 	private static function get_portfolio_thumbnail_link( $post_id ) {
 		if ( has_post_thumbnail( $post_id ) ) {

@@ -543,7 +543,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 *     @type string $slug Module slug.
 	 * }
 	 *
-	 * @return bool|WP_Error True if module was updated. Otherwise, a WP_Error instance with the corresponding error.
+	 * @return bool|WP_REST_Response|WP_Error True or a WP_REST_Response if module was updated. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public function update_data( $request ) {
 
@@ -980,6 +980,12 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					}
 					break;
 
+				case 'jetpack_subscriptions_reply_to':
+					// If option value was the same, consider it done.
+					$sub_value = in_array( $value, array( 'no-reply', 'author' ), true ) ? $value : 'no-reply';
+					$updated   = (string) get_option( $option ) !== (string) $sub_value ? update_option( $option, $sub_value ) : true;
+					break;
+
 				case 'stb_enabled':
 				case 'stc_enabled':
 				case 'sm_enabled':
@@ -987,6 +993,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'wpcom_featured_image_in_email':
 				case 'wpcom_subscription_emails_use_excerpt':
 				case 'jetpack_subscriptions_subscribe_post_end_enabled':
+				case 'jetpack_subscriptions_login_navigation_enabled':
 					// Convert the false value to 0. This allows the option to be updated if it doesn't exist yet.
 					$sub_value = $value ? $value : 0;
 					$updated   = (string) get_option( $option ) !== (string) $sub_value ? update_option( $option, $sub_value ) : true;

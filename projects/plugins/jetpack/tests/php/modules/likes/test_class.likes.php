@@ -93,25 +93,4 @@ class WP_Test_Likes extends WP_UnitTestCase {
 		// Likes should be visible
 		$this->assertTrue( Jetpack_Likes::init()->settings->is_likes_visible() );
 	}
-
-	/**
-	 * Check that Likes are properly added to admin bar.
-	 *
-	 * @since 4.6.0
-	 */
-	public function test_admin_bar_likes() {
-		$post_id = self::factory()->post->create( array( 'post_content' => 'Some content.' ) );
-		$this->go_to( get_permalink( $post_id ) );
-
-		// Initialize admin bar
-		add_filter( 'show_admin_bar', '__return_true' );
-		_wp_admin_bar_init();
-
-		// Add Likes to admin bar
-		Jetpack_Likes::init()->admin_bar_likes();
-
-		// The widget must be added to admin bar now.
-		global $wp_admin_bar;
-		$this->assertArrayHasKey( 'admin-bar-likes-widget', $wp_admin_bar->get_nodes() );
-	}
 }

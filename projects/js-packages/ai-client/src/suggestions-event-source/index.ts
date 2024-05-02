@@ -197,7 +197,9 @@ export default class SuggestionsEventSource extends EventTarget {
 					response.status <= 500 &&
 					! [ 413, 422, 429 ].includes( response.status )
 				) {
-					this.processConnectionError( response );
+					debug( 'Connection error: %o', response );
+					errorCode = ERROR_NETWORK;
+					this.dispatchEvent( new CustomEvent( ERROR_NETWORK, { detail: response } ) );
 				}
 
 				/*
@@ -356,16 +358,6 @@ export default class SuggestionsEventSource extends EventTarget {
 				new CustomEvent( 'functionCallChunk', { detail: this.fullFunctionCall } )
 			);
 		}
-	}
-
-	processConnectionError( response ) {
-		debug( 'Connection error: %o', response );
-		this.dispatchEvent( new CustomEvent( ERROR_NETWORK, { detail: response } ) );
-		this.dispatchEvent(
-			new CustomEvent( ERROR_RESPONSE, {
-				detail: getErrorData( ERROR_NETWORK ),
-			} )
-		);
 	}
 
 	processErrorEvent( e ) {

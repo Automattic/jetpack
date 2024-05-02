@@ -25,7 +25,7 @@ class Admin {
 		Environment_Change_Detector::init();
 
 		// Initiate speed scores.
-		new Speed_Score( $modules, 'boost-plugin' );
+		new Speed_Score( $modules->get_ready_active_optimization_modules(), 'boost-plugin' );
 
 		add_action( 'init', array( new Analytics(), 'init' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_BOOST_PLUGIN_BASE, array( $this, 'plugin_page_settings_link' ) );

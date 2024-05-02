@@ -316,7 +316,7 @@ class Settings {
 					$data = array(
 						'timestamp'     => microtime( true ),
 						'response_code' => $items->get_error_code(),
-						'response_body' => $items->get_error_data() ? trim( $items->get_error_data() ) : '',
+						'response_body' => $items->get_error_message() ?? '',
 					);
 					$sender->send_action( 'jetpack_sync_wpcom_rest_api_enable_error', $data );
 				}

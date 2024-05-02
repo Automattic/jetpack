@@ -29,7 +29,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-use Automattic\Jetpack\Backup\V0003\Jetpack_Backup as My_Jetpack_Backup;
+use Automattic\Jetpack\Backup\V0004\Jetpack_Backup as My_Jetpack_Backup;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -44,7 +44,7 @@ define( 'JETPACK_BACKUP_PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) )
 
 /**
  * Checks if Jetpack is installed and if yes, require version 10+
- * Can be extended to check for various system requiremens, such as WP or PHP version.
+ * Can be extended to check for various system requirements, such as WP or PHP version.
  *
  * @return bool|WP_Error True if system requirements are met, WP_Error if not.
  */
@@ -71,15 +71,13 @@ if ( is_wp_error( $jetpack_backup_meets_requirements ) ) {
 	add_action(
 		'admin_notices',
 		function () use ( $jetpack_backup_meets_requirements ) {
-			?>
-		<div class="notice notice-error is-dismissible">
-			<p>
-				<?php
-				echo esc_html( $jetpack_backup_meets_requirements->get_error_message() );
-				?>
-			</p>
-		</div>
-			<?php
+			wp_admin_notice(
+				esc_html( $jetpack_backup_meets_requirements->get_error_message() ),
+				array(
+					'type'        => 'error',
+					'dismissible' => true,
+				)
+			);
 		}
 	);
 
@@ -100,34 +98,47 @@ if ( is_readable( $jetpack_autoloader ) ) {
 		);
 	}
 
+	// Add a red bubble notification to My Jetpack if the installation is bad.
+	add_filter(
+		'my_jetpack_red_bubble_notification_slugs',
+		function ( $slugs ) {
+			$slugs['jetpack-vaultpress-backup-plugin-bad-installation'] = array(
+				'data' => array(
+					'plugin' => 'Jetpack VaultPress Backup',
+				),
+			);
+
+			return $slugs;
+		}
+	);
+
 	add_action(
 		'admin_notices',
 		function () {
 			if ( get_current_screen()->id !== 'plugins' ) {
 				return;
 			}
-			?>
-		<div class="notice notice-error is-dismissible">
-			<p>
-				<?php
-				printf(
-					wp_kses(
-						/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Jetpack VaultPress Backup is incomplete. If you installed Jetpack VaultPress Backup from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack VaultPress Backup must have Composer dependencies installed and built via the build command.', 'jetpack-backup' ),
-						array(
-							'a' => array(
-								'href'   => array(),
-								'target' => array(),
-								'rel'    => array(),
-							),
-						)
-					),
-					'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
-				);
-				?>
-			</p>
-		</div>
-			<?php
+			$message = sprintf(
+				wp_kses(
+					/* translators: Placeholder is a link to a support document. */
+					__( 'Your installation of Jetpack VaultPress Backup is incomplete. If you installed Jetpack VaultPress Backup from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack VaultPress Backup must have Composer dependencies installed and built via the build command.', 'jetpack-backup' ),
+					array(
+						'a' => array(
+							'href'   => array(),
+							'target' => array(),
+							'rel'    => array(),
+						),
+					)
+				),
+				'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
+			);
+			wp_admin_notice(
+				$message,
+				array(
+					'type'        => 'error',
+					'dismissible' => true,
+				)
+			);
 		}
 	);
 
@@ -166,7 +177,7 @@ add_filter(
 	}
 );
 
-register_deactivation_hook( __FILE__, array( 'Automattic\\Jetpack\\Backup\\V0003\\Jetpack_Backup', 'plugin_deactivation' ) );
+register_deactivation_hook( __FILE__, array( 'Automattic\\Jetpack\\Backup\\V0004\\Jetpack_Backup', 'plugin_deactivation' ) );
 
 // Main plugin class.
 My_Jetpack_Backup::initialize();

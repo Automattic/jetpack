@@ -20,16 +20,18 @@ import {
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
-import { siteHasFeature, getActiveFeatures } from 'state/site';
+import { siteHasFeature, getActiveFeatures, siteUsesWpAdminInterface } from 'state/site';
 import { Likes } from './likes';
 import { Publicize } from './publicize';
 import { ShareButtons } from './share-buttons';
+
 class Sharing extends Component {
 	render() {
 		const commonProps = {
 			settings: this.props.settings,
 			getModule: this.props.module,
 			isOfflineMode: this.props.isOfflineMode,
+			siteUsesWpAdminInterface: this.props.siteUsesWpAdminInterface,
 			isUnavailableInOfflineMode: this.props.isUnavailableInOfflineMode,
 			isLinked: this.props.isLinked,
 			connectUrl: this.props.connectUrl,
@@ -45,6 +47,7 @@ class Sharing extends Component {
 			isAtomicSite: this.props.isAtomicSite,
 			hasSharingBlock: this.props.hasSharingBlock,
 			isBlockTheme: this.props.isBlockTheme,
+			useAdminUiV1: this.props.useAdminUiV1,
 		};
 
 		const foundPublicize = this.props.isModuleFound( 'publicize' ),
@@ -84,6 +87,7 @@ export default connect( state => {
 		module: module_name => getModule( state, module_name ),
 		settings: getSettings( state ),
 		isOfflineMode: isOfflineMode( state ),
+		siteUsesWpAdminInterface: siteUsesWpAdminInterface( state ),
 		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
 		isLinked: isCurrentUserLinked( state ),
@@ -100,5 +104,6 @@ export default connect( state => {
 		isAtomicSite: isAtomicSite( state ),
 		hasSharingBlock: isSharingBlockAvailable( state ),
 		isBlockTheme: currentThemeIsBlockTheme( state ),
+		useAdminUiV1: state.jetpack.initialState.socialInitialState.useAdminUiV1,
 	};
 } )( Sharing );

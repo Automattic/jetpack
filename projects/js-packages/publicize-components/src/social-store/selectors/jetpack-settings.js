@@ -8,6 +8,7 @@ const jetpackSettingSelectors = {
 	getDismissedNotices: state => state.jetpackSettings?.dismissedNotices,
 	isSocialNotesEnabled: state => state.jetpackSettings?.social_notes_enabled,
 	isSocialNotesSettingsUpdating: state => state.jetpackSettings?.social_notes_is_updating,
+	getSocialNotesConfig: state => state.jetpackSettings?.social_notes_config ?? {},
 };
 
 export default jetpackSettingSelectors;

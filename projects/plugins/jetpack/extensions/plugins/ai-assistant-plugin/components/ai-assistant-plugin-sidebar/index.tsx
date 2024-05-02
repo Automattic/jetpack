@@ -6,7 +6,7 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelBody, PanelRow, BaseControl } from '@wordpress/components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import debugFactory from 'debug';
 import React from 'react';
 /**
@@ -15,8 +15,10 @@ import React from 'react';
 import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
-import FeaturedImage from '../featured-image';
+import { TierProp } from '../../../../store/wordpress-com/types';
+import FeaturedImage, { FEATURED_IMAGE_PLACEMENT_JETPACK_SIDEBAR } from '../featured-image';
 import Proofread from '../proofread';
+import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
 import { USAGE_PANEL_PLACEMENT_JETPACK_SIDEBAR } from '../usage-panel/types';
 import './style.scss';
@@ -30,16 +32,22 @@ const isUsagePanelAvailable =
 const isAIFeaturedImageAvailable =
 	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'ai-featured-image-generator' ]
 		?.available || false;
+// Determine if the AI Title Optimization feature is available
+const isAITitleOptimizationAvailable =
+	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'ai-title-optimization' ]?.available ||
+	false;
 
 const Upgrade = ( {
 	onClick,
 	type,
 	placement = '',
+	currentTier,
 }: {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	onClick: ( event: any ) => void;
 	type: string;
 	placement?: string;
+	currentTier?: TierProp;
 } ) => {
 	const { tracks } = useAnalytics();
 
@@ -49,6 +57,21 @@ const Upgrade = ( {
 			onClick?.( evt );
 		},
 		[ onClick, tracks, placement ]
+	);
+
+	const requestLimit = currentTier?.value && currentTier?.value !== 1 ? currentTier.limit : 20;
+
+	const freeLimitUpgradePrompt = __(
+		'You have reached the limit of <strong>20 free</strong> requests. <button>Upgrade to continue generating feedback.</button>',
+		'jetpack'
+	);
+	const tierLimitUpgradePrompt = sprintf(
+		/* translators: number is the request limit for the current tier/plan */
+		__(
+			'You have reached the limit of <strong>%d requests</strong>. <button>Upgrade to continue generating feedback.</button>',
+			'jetpack'
+		),
+		requestLimit
 	);
 
 	const messageForVip = createInterpolateElement(
@@ -62,20 +85,18 @@ const Upgrade = ( {
 	);
 
 	const defaultUpgradeMessage = createInterpolateElement(
-		__(
-			'You have reached the limit of 20 free requests. <button>Upgrade to continue generating feedback.</button>',
-			'jetpack'
-		),
+		requestLimit === 20 ? freeLimitUpgradePrompt : tierLimitUpgradePrompt,
 		{
+			strong: <strong />,
 			button: <Button variant="link" onClick={ handleClick } />,
 		}
 	);
 
-	return <div>{ type === 'vip' ? messageForVip : defaultUpgradeMessage }</div>;
+	return <p>{ type === 'vip' ? messageForVip : defaultUpgradeMessage }</p>;
 };
 
 export default function AiAssistantPluginSidebar() {
-	const { requireUpgrade, upgradeType } = useAiFeature();
+	const { requireUpgrade, upgradeType, currentTier } = useAiFeature();
 	const { autosaveAndRedirect, isRedirecting } = useAICheckout();
 
 	const { tracks } = useAnalytics();
@@ -96,6 +117,13 @@ export default function AiAssistantPluginSidebar() {
 						isOpen && panelToggleTracker( 'jetpack-sidebar' );
 					} }
 				>
+					{ isAITitleOptimizationAvailable && (
+						<PanelRow className="jetpack-ai-title-optimization__header">
+							<BaseControl label={ __( 'Optimize Publishing', 'jetpack' ) }>
+								<TitleOptimization busy={ isRedirecting } disabled={ requireUpgrade } />
+							</BaseControl>
+						</PanelRow>
+					) }
 					<PanelRow className="jetpack-ai-proofread-control__header">
 						<BaseControl label={ __( 'AI feedback on post', 'jetpack' ) }>
 							<Proofread busy={ isRedirecting } disabled={ requireUpgrade } />
@@ -103,8 +131,12 @@ export default function AiAssistantPluginSidebar() {
 					</PanelRow>
 					{ isAIFeaturedImageAvailable && (
 						<PanelRow className="jetpack-ai-featured-image-control__header">
-							<BaseControl label={ __( 'Create Featured Post Image', 'jetpack' ) }>
-								<FeaturedImage busy={ isRedirecting } disabled={ requireUpgrade } />
+							<BaseControl label={ __( 'AI Featured Image', 'jetpack' ) }>
+								<FeaturedImage
+									busy={ isRedirecting }
+									disabled={ requireUpgrade }
+									placement={ FEATURED_IMAGE_PLACEMENT_JETPACK_SIDEBAR }
+								/>
 							</BaseControl>
 						</PanelRow>
 					) }
@@ -133,7 +165,12 @@ export default function AiAssistantPluginSidebar() {
 				<>
 					<Proofread busy={ isRedirecting } disabled={ requireUpgrade } />
 					{ requireUpgrade && (
-						<Upgrade placement="pre-publish" onClick={ autosaveAndRedirect } type={ upgradeType } />
+						<Upgrade
+							placement="pre-publish"
+							onClick={ autosaveAndRedirect }
+							type={ upgradeType }
+							currentTier={ currentTier }
+						/>
 					) }
 				</>
 			</PluginPrePublishPanel>

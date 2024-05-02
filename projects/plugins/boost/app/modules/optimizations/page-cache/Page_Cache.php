@@ -5,19 +5,20 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
+use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Modules\Modules_Index;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 
-class Page_Cache implements Pluggable, Has_Deactivate {
-	/*
+class Page_Cache implements Pluggable, Has_Deactivate, Optimization {
+	/**
 	 * @var array - The errors that occurred when removing the cache.
 	 */
 	private $removal_errors = array();
 
-	/*
+	/**
 	 * The signature used to identify the advanced-cache.php file owned by Jetpack Boost.
 	 */
 	const ADVANCED_CACHE_SIGNATURE = 'Boost Cache Plugin';
@@ -27,7 +28,7 @@ class Page_Cache implements Pluggable, Has_Deactivate {
 	 */
 	const ADVANCED_CACHE_VERSION = 'v0.0.3';
 
-	/*
+	/**
 	 * @var Boost_Cache_Settings - The settings for the page cache.
 	 */
 	private $settings;
@@ -42,6 +43,9 @@ class Page_Cache implements Pluggable, Has_Deactivate {
 		add_action( 'jetpack_boost_module_status_updated', array( $this, 'handle_module_status_updated' ), 10, 2 );
 		add_action( 'jetpack_boost_critical_css_invalidated', array( $this, 'invalidate_cache' ) );
 		add_action( 'jetpack_boost_critical_css_generated', array( $this, 'invalidate_cache' ) );
+		add_action( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_minify_js_excludes', array( $this, 'invalidate_cache' ) );
+		add_action( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_minify_css_excludes', array( $this, 'invalidate_cache' ) );
+		add_action( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_image_cdn_quality', array( $this, 'invalidate_cache' ) );
 	}
 
 	/**
@@ -78,6 +82,15 @@ class Page_Cache implements Pluggable, Has_Deactivate {
 	public static function deactivate() {
 		Garbage_Collection::deactivate();
 		Boost_Cache_Settings::get_instance()->set( array( 'enabled' => false ) );
+	}
+
+	/**
+	 * The module is active if cache engine is loaded.
+	 *
+	 * @return bool
+	 */
+	public function is_ready() {
+		return Boost_Cache::is_loaded();
 	}
 
 	public static function is_available() {

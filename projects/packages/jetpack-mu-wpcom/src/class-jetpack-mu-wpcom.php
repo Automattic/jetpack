@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.17.1-alpha';
+	const PACKAGE_VERSION = '5.28.0-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -45,6 +45,8 @@ class Jetpack_Mu_Wpcom {
 		// This feature runs only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
+			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
+			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 		}
 
 		// Unified navigation fix for changes in WordPress 6.2.
@@ -75,6 +77,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/admin-color-schemes/admin-color-schemes.php';
 		require_once __DIR__ . '/features/block-patterns/block-patterns.php';
 		require_once __DIR__ . '/features/blog-privacy/blog-privacy.php';
+		require_once __DIR__ . '/features/cloudflare-analytics/cloudflare-analytics.php';
 		require_once __DIR__ . '/features/error-reporting/error-reporting.php';
 		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
 		require_once __DIR__ . '/features/import-customizations/import-customizations.php';
@@ -82,6 +85,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/media/heif-support.php';
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
 		require_once __DIR__ . '/features/wpcom-site-menu/wpcom-site-menu.php';
+		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
@@ -229,6 +233,12 @@ class Jetpack_Mu_Wpcom {
 		$is_p2     = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( $blog_id );
 		$is_forums = str_contains( get_stylesheet(), 'a8c/supportforums' ); // Not in /forums.
 
+		$verbum_option_enabled = get_blog_option( $blog_id, 'enable_verbum_commenting', true );
+
+		if ( empty( $verbum_option_enabled ) ) {
+			return true;
+		}
+
 		// Don't load any comment experience in the Reader, GlotPress, wp-admin, or P2.
 		return ( 1 === $blog_id || TRANSLATE_BLOG_ID === $blog_id || is_admin() || $is_p2 || $is_forums );
 	}
@@ -256,11 +266,28 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Load Verbum Comments Settings.
+	 */
+	public static function load_verbum_comments_admin() {
+		require_once __DIR__ . '/features/verbum-comments/assets/class-verbum-admin.php';
+		new \Automattic\Jetpack\Verbum_Admin();
+	}
+
+	/**
 	 * Load WPCOM Command Palette.
 	 *
 	 * @return void
 	 */
 	public static function load_wpcom_command_palette() {
 		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
+	}
+
+	/**
+	 * Load Odyssey Stats in Simple sites.
+	 */
+	public static function load_wpcom_simple_odyssey_stats() {
+		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
+			require_once __DIR__ . '/features/wpcom-simple-odyssey-stats/wpcom-simple-odyssey-stats.php';
+		}
 	}
 }

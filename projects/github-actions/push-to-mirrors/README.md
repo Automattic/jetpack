@@ -41,13 +41,27 @@ This action is intended to be triggered by a `push` event.
     # `source-directory` to fetch the message used for the commit.
     commit-message:
 
+    # Set to `true` to suppress the addition of "Upstream-Ref" footers in the
+    # mirrored commits.
+    no-upstream-refs:
+
     # Directory containing a checkout of the monorepo revision being mirrored.
-    # Used to fetch certain git metadata for the mirror commits.
+    # Used to fetch git metadata for the mirror commits, and to find the base
+    # commit for new mirror branches.
     source-directory: ${{ github.workspace }}
 
     # GitHub Access Token. This token must allow for pushing to all relevant
     # branches of all relevant mirror repos.
     token:
+
+    # When checking "Upstream-Ref" to find a base commit for a new mirror
+    # branch, only consider this many monorepo commits at most.
+    upstream-ref-count:
+
+    # When checking "Upstream-Ref" to find a base commit for a new mirror
+    # branch, only consider monorepo commits since this date (in any format
+    # accepted by `git log`'s `--since` or `--since-as-filter` parameter).
+    upstream-ref-since:
 
     # Name of the user the token belongs to.
     username:

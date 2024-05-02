@@ -47,7 +47,7 @@ class Abtest {
 	 * @access protected
 	 *
 	 * @param string $test_name Name of the A/B test.
-	 * @return mixed|Automattic\Jetpack\Error A/B test variation, or Automattic\Jetpack\Error on failure.
+	 * @return mixed|\Automattic\Jetpack\Error A/B test variation, or Automattic\Jetpack\Error on failure.
 	 */
 	protected function fetch_variation( $test_name ) {
 		// Make sure test name exists.
@@ -93,7 +93,7 @@ class Abtest {
 	 * @access protected
 	 *
 	 * @param string $test_name Name of the A/B test.
-	 * @return mixed|Automattic\Jetpack\Error A/B test variation, or Automattic\Jetpack\Error on failure.
+	 * @return mixed|\Automattic\Jetpack\Error A/B test variation, or Automattic\Jetpack\Error on failure.
 	 */
 	protected function request_variation( $test_name ) {
 		return Client::wpcom_json_api_request_as_blog( sprintf( '/abtest/%s', $test_name ), '2', array(), null, 'wpcom' );
