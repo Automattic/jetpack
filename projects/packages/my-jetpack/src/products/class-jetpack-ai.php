@@ -155,6 +155,13 @@ class Jetpack_Ai extends Product {
 					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
 				),
 			),
+			array(
+				'name'  => __( 'Generate featured images', 'jetpack-my-jetpack' ),
+				'tiers' => array(
+					self::CURRENT_TIER_SLUG  => array( 'included' => true ),
+					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
+				),
+			),
 		);
 	}
 
