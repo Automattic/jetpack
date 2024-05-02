@@ -133,6 +133,7 @@ return [
         '_inc/lib/admin-pages/class.jetpack-admin-page.php' => ['PhanDeprecatedProperty', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredProperty'],
         '_inc/lib/class-jetpack-ai-helper.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchPropertyDefault'],
         '_inc/lib/class-jetpack-currencies.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal'],
+		'_inc/lib/class-jetpack-google-drive-helper.php' => ['PhanTypeMismatchReturnProbablyReal'],
         '_inc/lib/class-jetpack-instagram-gallery-helper.php' => ['PhanTypeMismatchArgument'],
         '_inc/lib/class-jetpack-mapbox-helper.php' => ['PhanTypeMismatchArgumentNullable'],
         '_inc/lib/class-jetpack-podcast-feed-locator.php' => ['PhanDeprecatedFunctionInternal'],
