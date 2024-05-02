@@ -46,6 +46,8 @@ export default function () {
 	);
 	const videoTitle2 = __( 'Build forms using prompts', 'jetpack-my-jetpack' );
 	const videoTitle3 = __( 'Get feedback on posts', 'jetpack-my-jetpack' );
+	const videoTitle4 = __( 'Create featured images with one click', 'jetpack-my-jetpack' );
+	const featuredImageLink = getRedirectUrl( 'jetpack-ai-product-page-featured-image-link' );
 
 	debug( aiAssistantFeature );
 	const {
@@ -287,6 +289,40 @@ export default function () {
 									</Button>
 								</div>
 							</div>
+
+							<div className={ styles[ 'product-interstitial__usage-videos-item' ] }>
+								<div className={ styles[ 'product-interstitial__usage-videos-video' ] }>
+									<iframe
+										width="280"
+										height="157"
+										src="https://videopress.com/embed/HJCf8cXc?posterUrl=https%3A%2F%2Fjetpackme.files.wordpress.com%2F2024%2F02%2Fone-click-featured-images.png%3Fw%3D560"
+										allowFullScreen
+										allow="clipboard-write"
+										title={ videoTitle4 }
+									></iframe>
+									<script src="https://videopress.com/videopress-iframe.js"></script>
+								</div>
+								<div className={ styles[ 'product-interstitial__usage-videos-content' ] }>
+									<div className={ styles[ 'product-interstitial__usage-videos-heading' ] }>
+										{ videoTitle4 }
+									</div>
+									<div className={ styles[ 'product-interstitial__usage-videos-text' ] }>
+										{ __(
+											'Create featured images to illustrate your content and make it more engaging with just one click. Use prompts to generate adjusted new featured images.',
+											'jetpack-my-jetpack'
+										) }
+									</div>
+									<Button
+										className={ styles[ 'product-interstitial__usage-videos-link' ] }
+										icon={ help }
+										target="_blank"
+										href={ featuredImageLink }
+									>
+										{ __( 'Learn about featured images', 'jetpack-my-jetpack' ) }
+									</Button>
+								</div>
+							</div>
+
 							<div className={ styles[ 'product-interstitial__usage-videos-item' ] }>
 								<div className={ styles[ 'product-interstitial__usage-videos-video' ] }>
 									<iframe
