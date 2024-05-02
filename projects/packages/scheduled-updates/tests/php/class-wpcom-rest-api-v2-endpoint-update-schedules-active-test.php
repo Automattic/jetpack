@@ -270,7 +270,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active_Test extends \WorDBless
 		rest_do_request( $request );
 
 		$option = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK, array() );
-		$this->arrayHasKey( $id, $option );
+		$this->assertArrayHasKey( $id, $option );
 		$this->assertTrue( $option[ $id ]->active );
 
 		$request->set_method( 'PUT' );
@@ -279,7 +279,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active_Test extends \WorDBless
 		rest_do_request( $request );
 
 		$option = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK, array() );
-		$this->arrayHasKey( $id, $option );
+		$this->assertArrayHasKey( $id, $option );
 		$this->assertFalse( $option[ $id ]->active );
 	}
 }
