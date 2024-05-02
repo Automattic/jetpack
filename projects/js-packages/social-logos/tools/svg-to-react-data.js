@@ -69,8 +69,7 @@ files.forEach( file => {
 		svg: ${ svgContent },
 	},`;
 } );
-socialLogoData += `
-]`;
+socialLogoData += '\n];\n';
 
 fs.writeFileSync( destDataFile, socialLogoData );
 console.log( `Created React SVG data file in '${ destReactDir }'.` );
