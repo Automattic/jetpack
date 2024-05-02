@@ -39,6 +39,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 	return props => {
 		const { clientId, isSelected, name: blockName } = props;
 		const controlRef: React.MutableRefObject< HTMLDivElement | null > = useRef( null );
+		const controlHeight = useRef< number >( 0 );
 		const inputRef: React.MutableRefObject< HTMLInputElement | null > = useRef( null );
 		const controlObserver = useRef< ResizeObserver | null >( null );
 		const blockStyle = useRef< string >( '' );
@@ -73,8 +74,23 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			[ increaseAiAssistantRequestsCount ]
 		);
 
+		const { id } = useBlockProps();
+
 		// Data and functions with block-specific implementations.
-		const { onSuggestion, getContent } = blockHandler( blockName, clientId );
+		const { onSuggestion: onBlockSuggestion, getContent } = blockHandler( blockName, clientId );
+
+		const onSuggestion = useCallback(
+			( suggestion: string ) => {
+				onBlockSuggestion( suggestion );
+
+				// Make sure the block element has the necessary bottom padding, as it can be replaced or changed
+				const block = document.getElementById( id );
+				if ( block && controlRef.current ) {
+					block.style.paddingBottom = `${ controlHeight.current + 16 }px`;
+				}
+			},
+			[ id, onBlockSuggestion ]
+		);
 
 		const {
 			request,
@@ -93,8 +109,6 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			},
 		} );
 
-		const { id } = useBlockProps();
-
 		useEffect( () => {
 			// Focus the input when the AI Control is displayed.
 			if ( inputRef.current ) {
@@ -103,7 +117,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		}, [ clientId, showAiControl ] );
 
 		useEffect( () => {
-			const block = document.getElementById( id );
+			let block = document.getElementById( id );
 
 			if ( ! block ) {
 				return;
@@ -116,11 +130,13 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				// Observe the control's height to adjust the block's bottom-padding.
 				controlObserver.current = new ResizeObserver( ( [ entry ] ) => {
-					const { height } = entry.contentRect;
+					// The block element can be replaced or changed, so we need to get it again.
+					block = document.getElementById( id );
+					controlHeight.current = entry.contentRect.height;
 
-					if ( block && controlRef.current && height > 0 ) {
-						block.style.paddingBottom = `${ height + 16 }px`;
-						controlRef.current.style.marginTop = `-${ height }px`;
+					if ( block && controlRef.current && controlHeight.current > 0 ) {
+						block.style.paddingBottom = `${ controlHeight.current + 16 }px`;
+						controlRef.current.style.marginTop = `-${ controlHeight.current }px`;
 					}
 				} );
 
@@ -131,6 +147,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				controlObserver.current.disconnect();
 				controlObserver.current = null;
+				controlHeight.current = 0;
 			}
 		}, [ clientId, controlObserver, id, showAiControl ] );
 
