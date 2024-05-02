@@ -56,7 +56,7 @@ class File_Storage implements Storage {
 		$hash_path = $directory . $filename;
 
 		if ( file_exists( $hash_path ) ) {
-			$expired = ( filemtime( $hash_path ) + JETPACK_BOOST_CACHE_DURATION ) <= time();
+			$expired = ( filemtime( $hash_path ) + JETPACK_BOOST_CACHE_STALE_DURATION ) <= time();
 
 			if ( $expired ) {
 				if ( Filesystem_Utils::delete_file( $hash_path ) ) {
