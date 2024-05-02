@@ -196,11 +196,11 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 			// Add statuses if enabled.
 			if ( $zbs->settings->get( 'filtersfromstatus' ) === 1 ) {
 				$statuses = array(
-					'draft'   => __( 'Draft', 'zero-bs-crm' ),
-					'unpaid'  => __( 'Unpaid', 'zero-bs-crm' ),
-					'paid'    => __( 'Paid', 'zero-bs-crm' ),
-					'overdue' => __( 'Overdue', 'zero-bs-crm' ),
-					'deleted' => __( 'Deleted', 'zero-bs-crm' ),
+					'Draft'   => __( 'Draft', 'zero-bs-crm' ),
+					'Unpaid'  => __( 'Unpaid', 'zero-bs-crm' ),
+					'Paid'    => __( 'Paid', 'zero-bs-crm' ),
+					'Overdue' => __( 'Overdue', 'zero-bs-crm' ),
+					'Deleted' => __( 'Deleted', 'zero-bs-crm' ),
 				);
 				foreach ( $statuses as $status_slug => $status_label ) {
 					$listview_filters[ ZBS_TYPE_INVOICE ]['status'][ 'status_' . $status_slug ] = $status_label;

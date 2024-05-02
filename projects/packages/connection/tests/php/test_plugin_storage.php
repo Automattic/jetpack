@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Settings as Sync_Settings;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 
@@ -33,6 +34,7 @@ class Test_Plugin_Storage extends TestCase {
 	 */
 	public function set_up() {
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		Sync_Settings::update_settings( array( 'disable' => true ) );
 	}
 
 	/**

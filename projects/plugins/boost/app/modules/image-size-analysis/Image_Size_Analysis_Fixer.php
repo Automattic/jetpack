@@ -17,7 +17,6 @@ class Image_Size_Analysis_Fixer {
 	 *
 	 * @param string $url
 	 * @return string
-	 *
 	 */
 	public static function fix_url( $url ) {
 		$parsed_url = wp_parse_url( $url );

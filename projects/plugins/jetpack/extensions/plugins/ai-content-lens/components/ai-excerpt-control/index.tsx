@@ -98,7 +98,7 @@ export function AiExcerptControl( {
 					label={ __( 'Advanced AI options', 'jetpack' ) }
 					icon={ aiAssistantIcon }
 					onClick={ toggleSetting }
-					isPressed={ isSettingActive }
+					aria-pressed={ isSettingActive }
 					isSmall
 				/>
 			</BaseControl>

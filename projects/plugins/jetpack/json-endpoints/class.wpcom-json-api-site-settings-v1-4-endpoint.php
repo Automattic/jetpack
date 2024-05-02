@@ -35,7 +35,8 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 		),
 
 		'request_format'  => array(
-			'in_site_migration_flow'                  => '(bool) Whether the site is currently in the Site Migration signup flow.',
+			'migration_source_site_domain'            => '(string) The source site URL, from the migration flow',
+			'in_site_migration_flow'                  => '(string) Whether the site is currently in the Site Migration signup flow.',
 			'blogname'                                => '(string) Blog name',
 			'blogdescription'                         => '(string) Blog description',
 			'default_pingback_flag'                   => '(bool) Notify blogs linked from article?',
@@ -127,6 +128,7 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 			'wpcom_gifting_subscription'              => '(bool) Whether gifting is enabled for non auto-renew sites',
 			'wpcom_reader_views_enabled'              => '(bool) Whether showing post views in WordPress.com Reader is enabled for the site',
 			'wpcom_subscription_emails_use_excerpt'   => '(bool) Whether site subscription emails (e.g. New Post email notification) will use post excerpts',
+			'jetpack_subscriptions_reply_to'          => '(string) The reply to email behaviour for newsletter emails',
 			'show_on_front'                           => '(string) Whether homepage should display related posts or a static page. The expected value is \'posts\' or \'page\'.',
 			'page_on_front'                           => '(string) The page ID of the page to use as the site\'s homepage. It will apply only if \'show_on_front\' is set to \'page\'.',
 			'page_for_posts'                          => '(string) The page ID of the page to use as the site\'s posts page. It will apply only if \'show_on_front\' is set to \'page\'.',

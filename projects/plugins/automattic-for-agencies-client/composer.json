@@ -57,6 +57,8 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autotagger": true,
+		"autorelease": true,
 		"mirror-repo": "Automattic/automattic-for-agencies-client",
 		"release-branch-prefix": "automattic-for-agencies-client",
 		"beta-plugin-slug": "automattic-for-agencies-client",
@@ -71,6 +73,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_automattic_for_agencies_clientⓥ0_1_0_alpha"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_automattic_for_agencies_clientⓥ0_1_1_alpha"
 	}
 }

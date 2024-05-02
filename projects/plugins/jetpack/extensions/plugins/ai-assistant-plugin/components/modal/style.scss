@@ -1,13 +1,14 @@
 .ai-assistant-modal {
 	@media (min-width: 960px) {
-		max-height: 90%;
+		max-height: 95%;
 	}
 
 	&__content {
 		display: flex;
 		flex-direction: column;
-		width: 100vw;
-		max-width: 720px;
+		@media screen and (min-width: 960px) {
+			width: 100vw;
+		}
 	}
 
 	&__header {

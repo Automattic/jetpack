@@ -30,6 +30,7 @@ type ExtensionAIControlProps = {
 	error?: string;
 	requestsRemaining?: number;
 	showUpgradeMessage?: boolean;
+	wrapperRef?: React.MutableRefObject< HTMLDivElement | null >;
 	onChange?: ( newValue: string ) => void;
 	onSend?: ( currentValue: string ) => void;
 	onStop?: () => void;
@@ -57,6 +58,7 @@ export function ExtensionAIControl(
 		error,
 		requestsRemaining,
 		showUpgradeMessage = false,
+		wrapperRef,
 		onChange,
 		onSend,
 		onStop,
@@ -210,6 +212,7 @@ export function ExtensionAIControl(
 			actions={ actions }
 			message={ message }
 			promptUserInputRef={ promptUserInputRef }
+			wrapperRef={ wrapperRef }
 		/>
 	);
 }

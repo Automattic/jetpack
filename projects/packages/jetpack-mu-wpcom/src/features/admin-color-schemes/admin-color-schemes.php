@@ -135,20 +135,29 @@ function register_calypso_admin_color_schemes() {
 }
 
 /**
- * Re-enqueue Core color scheme CSS.
- *
  * Currently, the selected color scheme CSS (with id = "colors") is concatenated (by Jetpack Boost / Page Optimize),
  * and is output before the default color scheme CSS, making it lose in specificity.
  *
- * As a workaround, we re-enqueue the color scheme CSS.
- * In order for this one not to be concatenated again, we use the CSS file from an external URL, our CDN (s0.wp.com).
+ * To prevent this, we disable CSS concatenation for color schemes.
+
+ * @param boolean $do_concat  Whether to concat the CSS file.
+ * @param string  $handle     The file handle.
+ * @return boolean
  */
-function reenqueue_core_color_scheme() {
+function disable_css_concat_for_color_schemes( $do_concat, $handle ) {
+	if ( $handle === 'colors' ) {
+		return false;
+	}
+	return $do_concat;
+}
+
+/**
+ * For Core color schemes, we have an additional CSS file that is responsible for the colors of the sidebar notice.
+ */
+function enqueue_color_scheme_for_sidebar_notice() {
 	$core_color_schemes = array( 'blue', 'coffee', 'ectoplasm', 'fresh', 'light', 'midnight', 'modern', 'ocean', 'sunrise' );
 	$color_scheme       = get_user_option( 'admin_color' );
 	if ( in_array( $color_scheme, $core_color_schemes, true ) ) {
-		// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
-		wp_enqueue_style( 'jetpack-core-color-scheme', "https://s0.wp.com/wp-admin/css/colors/$color_scheme/colors.min.css" );
 		wp_enqueue_style(
 			'jetpack-core-color-schemes-overrides-sidebar-notice',
 			get_admin_color_scheme_url( $color_scheme, 'sidebar-notice.css' ),
@@ -160,5 +169,6 @@ function reenqueue_core_color_scheme() {
 
 if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
 	add_action( 'admin_init', 'register_calypso_admin_color_schemes' );
-	add_action( 'admin_enqueue_scripts', 'reenqueue_core_color_scheme' );
+	add_action( 'admin_enqueue_scripts', 'enqueue_color_scheme_for_sidebar_notice' );
+	add_filter( 'css_do_concat', 'disable_css_concat_for_color_schemes', 10, 2 );
 }

@@ -150,7 +150,7 @@ class Domain_Mapping {
 	 * Returns the Domain_Map::utils() instance.
 	 *
 	 * @see https://github.com/wpmudev/domain-mapping/blob/master/classes/Domainmap/Utils.php
-	 * @return Domainmap_Utils
+	 * @return \Domainmap_Utils
 	 */
 	public function get_domain_mapping_utils_instance() {
 		return \domain_map::utils();

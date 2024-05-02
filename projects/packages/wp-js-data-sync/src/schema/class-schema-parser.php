@@ -41,10 +41,8 @@ class Schema_Parser implements Parser {
 	 *
 	 * @param Parser $parser
 	 *
-	 *
 	 * @return $this
 	 * @see Schema::either()
-	 *
 	 */
 	private function or( Parser $parser ) {
 		if ( $this->parser instanceof Modifier_Fallback ) {

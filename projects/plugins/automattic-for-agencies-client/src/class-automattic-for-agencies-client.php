@@ -43,7 +43,7 @@ class Automattic_For_Agencies_Client {
 	/**
 	 * Configure what Jetpack packages should get automatically initialized.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @return void
 	 */
@@ -75,7 +75,7 @@ class Automattic_For_Agencies_Client {
 	/**
 	 * Add submenu.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @return void
 	 */

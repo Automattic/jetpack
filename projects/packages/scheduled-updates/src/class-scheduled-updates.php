@@ -20,7 +20,7 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.9.0-alpha';
+	const PACKAGE_VERSION = '0.11.0-alpha';
 
 	/**
 	 * The cron event hook for the scheduled plugins update.
@@ -58,9 +58,19 @@ class Scheduled_Updates {
 		add_filter( 'plugin_auto_update_setting_html', array( Scheduled_Updates_Admin::class, 'show_scheduled_updates' ), 10, 2 );
 
 		add_action( 'jetpack_scheduled_update_created', array( __CLASS__, 'maybe_disable_autoupdates' ), 10, 3 );
-		add_action( 'jetpack_scheduled_update_deleted', array( __CLASS__, 'enable_autoupdates' ), 10, 2 );
+		add_action( 'jetpack_scheduled_update_created', array( Scheduled_Updates_Active::class, 'updates_active' ), 10, 3 );
+		add_action( 'jetpack_scheduled_update_created', array( Scheduled_Updates_Health_Paths::class, 'updates_health_paths' ), 10, 3 );
+
 		add_action( 'jetpack_scheduled_update_updated', array( Scheduled_Updates_Logs::class, 'replace_logs_schedule_id' ), 10, 2 );
+
+		add_action( 'jetpack_scheduled_update_deleted', array( __CLASS__, 'enable_autoupdates' ), 10, 2 );
+		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Active::class, 'clear' ) );
+		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Health_Paths::class, 'clear' ) );
 		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Logs::class, 'delete_logs_schedule_id' ), 10, 3 );
+
+		add_filter( 'jetpack_scheduled_response_item', array( __CLASS__, 'response_filter' ), 10, 2 );
+		add_filter( 'jetpack_scheduled_response_item', array( Scheduled_Updates_Active::class, 'response_filter' ), 10, 2 );
+		add_filter( 'jetpack_scheduled_response_item', array( Scheduled_Updates_Health_Paths::class, 'response_filter' ), 10, 2 );
 
 		// Update cron sync option after options update.
 		$callback = array( __CLASS__, 'update_option_cron' );
@@ -82,13 +92,23 @@ class Scheduled_Updates {
 
 	/**
 	 * Load the REST API endpoints.
+	 *
+	 * @suppress PhanUndeclaredFunction
 	 */
 	public static function load_rest_api_endpoints() {
 		if ( ! function_exists( 'wpcom_rest_api_v2_load_plugin' ) ) {
 			return;
 		}
 
-		require_once __DIR__ . '/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-update-schedules.php';
+		$endpoints = glob( __DIR__ . '/wpcom-endpoints/*.php' );
+		foreach ( array_filter( (array) $endpoints, 'is_file' ) as $endpoint ) {
+			require_once $endpoint;
+		}
+
+		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules' );
+		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities' );
+		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs' );
+		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules_Status' );
 	}
 
 	/**
@@ -97,7 +117,13 @@ class Scheduled_Updates {
 	 * @param string ...$plugins List of plugins to update.
 	 */
 	public static function run_scheduled_update( ...$plugins ) {
-		$schedule_id       = self::generate_schedule_id( $plugins );
+		$schedule_id = self::generate_schedule_id( $plugins );
+
+		if ( ! Scheduled_Updates_Active::get( $schedule_id ) ) {
+			// The schedule is not active, return.
+			return false;
+		}
+
 		$available_updates = get_site_transient( 'update_plugins' );
 		$plugins_to_update = $available_updates->response ?? array();
 		$plugins_to_update = array_intersect_key( $plugins_to_update, array_flip( $plugins ) );
@@ -116,19 +142,22 @@ class Scheduled_Updates {
 				'no_plugins_to_update'
 			);
 
-			return;
+			return false;
 		}
 
-		( new Connection\Client() )->wpcom_json_api_request_as_blog(
+		$response = ( new Connection\Client() )->wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/hosting/scheduled-update', \Jetpack_Options::get_option( 'id' ) ),
 			'2',
 			array( 'method' => 'POST' ),
 			array(
-				'plugins'     => $plugins_to_update,
-				'schedule_id' => $schedule_id,
+				'health_check_paths' => Scheduled_Updates_Health_Paths::get( $schedule_id ),
+				'plugins'            => $plugins_to_update,
+				'schedule_id'        => $schedule_id,
 			),
 			'wpcom'
 		);
+
+		return is_array( $response );
 	}
 
 	/**
@@ -337,74 +366,6 @@ class Scheduled_Updates {
 	}
 
 	/**
-	 * Return file and update modification capabilities for the site.
-	 *
-	 * @see Jetpack_JSON_API_Plugins_Endpoint::file_mod_capabilities
-	 */
-	public static function get_file_mod_capabilities() {
-		$reasons_can_not_autoupdate   = array();
-		$reasons_can_not_modify_files = array();
-
-		$has_file_system_write_access = self::file_system_write_access();
-		if ( ! $has_file_system_write_access ) {
-			$reasons_can_not_modify_files['has_no_file_system_write_access'] = __( 'The file permissions on this host prevent editing files.', 'jetpack-scheduled-updates' );
-		}
-
-		$disallow_file_mods = \Automattic\Jetpack\Constants::get_constant( 'DISALLOW_FILE_MODS' );
-		if ( $disallow_file_mods ) {
-			$reasons_can_not_modify_files['disallow_file_mods'] = __( 'File modifications are explicitly disabled by a site administrator.', 'jetpack-scheduled-updates' );
-		}
-
-		$automatic_updater_disabled = \Automattic\Jetpack\Constants::get_constant( 'AUTOMATIC_UPDATER_DISABLED' );
-		if ( $automatic_updater_disabled ) {
-			$reasons_can_not_autoupdate['automatic_updater_disabled'] = __( 'Any autoupdates are explicitly disabled by a site administrator.', 'jetpack-scheduled-updates' );
-		}
-
-		if ( is_multisite() ) {
-			// is it the main network ? is really is multi network
-			if ( Jetpack::is_multi_network() ) {
-				$reasons_can_not_modify_files['is_multi_network'] = __( 'Multi network install are not supported.', 'jetpack-scheduled-updates' );
-			}
-			// Is the site the main site here.
-			if ( ! is_main_site() ) {
-				$reasons_can_not_modify_files['is_sub_site'] = __( 'The site is not the main network site', 'jetpack-scheduled-updates' );
-			}
-		}
-
-		$file_mod_capabilities = array(
-			'modify_files'     => (bool) empty( $reasons_can_not_modify_files ), // install, remove, update
-			'autoupdate_files' => (bool) empty( $reasons_can_not_modify_files ) && empty( $reasons_can_not_autoupdate ), // enable autoupdates
-		);
-
-		$errors = array();
-
-		if ( ! empty( $reasons_can_not_modify_files ) ) {
-			foreach ( $reasons_can_not_modify_files as $error_code => $error_message ) {
-					$errors[] = array(
-						'code'    => $error_code,
-						'message' => $error_message,
-					);
-			}
-		}
-
-		if ( ! $file_mod_capabilities['autoupdate_files'] ) {
-			foreach ( $reasons_can_not_autoupdate as $error_code => $error_message ) {
-				$errors[] = array(
-					'code'    => $error_code,
-					'message' => $error_message,
-				);
-			}
-		}
-
-		$errors = array_unique( $errors );
-		if ( ! empty( $errors ) ) {
-			$file_mod_capabilities['errors'] = $errors;
-		}
-
-		return $file_mod_capabilities;
-	}
-
-	/**
 	 * Hook run when a plugin is deleted.
 	 *
 	 * @param string $plugin_file Path to the plugin file relative to the plugins directory.
@@ -458,6 +419,28 @@ class Scheduled_Updates {
 	}
 
 	/**
+	 * REST prepare_item_for_response filter.
+	 *
+	 * @param array            $item    WP Cron event.
+	 * @param \WP_REST_Request $request Request object.
+	 * @return array Response array on success.
+	 */
+	public static function response_filter( $item, $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$status = self::get_scheduled_update_status( $item['schedule_id'] );
+
+		if ( ! $status ) {
+			$status = array(
+				'last_run_timestamp' => null,
+				'last_run_status'    => null,
+			);
+		}
+
+		$item = array_merge( $item, $status );
+
+		return $item;
+	}
+
+	/**
 	 * Generates a unique schedule ID.
 	 *
 	 * @see wp_schedule_event()
@@ -467,19 +450,5 @@ class Scheduled_Updates {
 	 */
 	public static function generate_schedule_id( $args ) {
 		return md5( serialize( $args ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
-	}
-
-	/**
-	 * Returns if the file system is writeable.
-	 * Used mostly for mocking during tests.
-	 *
-	 * @see Automattic\Jetpack\Sync\Functions::file_system_write_access
-	 */
-	private static function file_system_write_access() {
-		if ( ! class_exists( 'Automattic\Jetpack\Sync\Functions' ) ) {
-			return false;
-		}
-
-		return \Automattic\Jetpack\Sync\Functions::file_system_write_access();
 	}
 }

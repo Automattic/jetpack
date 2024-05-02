@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from WordPress.com commit 445f4e86b57d3ab972660e191db3dd7026ddbff6.
+ * Stubs automatically generated from WordPress.com commit 633607ea914b8ce7062bc35082c83ab247ec196c.
  *
  * Do not edit this directly! Update the definition file in the wpcom repo at
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
@@ -413,6 +413,13 @@ namespace {
     {
     }
     /**
+     * @param string $url
+     * @return array{0:int,1:int,2:int,3:string,mime:string,channels?:int,bits?:int}|false
+     */
+    function wpcom_getimagesize($uri)
+    {
+    }
+    /**
      * @param string $slug
      */
     function require_lib($slug)
@@ -536,6 +543,14 @@ namespace {
         public function activate_plugin($plugin)
         {
         }
+    }
+    /**
+     * @param string $comment_content
+     * @param WP_Comment|null $comment_object
+     * @return string
+     */
+    function comment_like_button($comment_content = '', $comment_object = \null)
+    {
     }
     class Jetpack_Custom_CSS
     {
@@ -787,6 +802,14 @@ namespace {
      * @return array
      */
     function get_active_blogs_for_user($args = array())
+    {
+    }
+    /**
+     * @param  string $url
+     * @return string
+     * @internal 
+     */
+    function staticize_subdomain($url)
     {
     }
     /**
@@ -1101,6 +1124,7 @@ namespace {
         public const LEGACY_CONTACT = 'legacy-contact';
         public const LOCKED_MODE = 'locked-mode';
         public const MANAGE_PLUGINS = 'manage-plugins';
+        public const SCHEDULED_UPDATES = 'scheduled-updates';
         public const SUBSCRIPTION_GIFTING = 'subscription-gifting';
     }
     /**
@@ -1228,6 +1252,15 @@ namespace {
      * @return int|false
      */
     function get_lang_id_by_code($lang_code)
+    {
+    }
+}
+namespace A8C\Billingdaddy\Users {
+    /**
+     * @param int $user_id
+     * @return \WP_User|false
+     */
+    function get_wpcom_user($user_id)
     {
     }
 }

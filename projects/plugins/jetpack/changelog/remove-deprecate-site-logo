@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Theme tools: deprecated site-logo functionality in favour of core supported custom-logo.

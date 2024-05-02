@@ -24,7 +24,7 @@ class Jetpack_Publicize {
 	/**
 	 * Current status about Jetpack modules.
 	 *
-	 * @var Modules
+	 * @var Automattic\Jetpack\Modules
 	 */
 	public $modules;
 

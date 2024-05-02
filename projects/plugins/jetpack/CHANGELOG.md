@@ -2,6 +2,48 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.4-a.9 - 2024-04-29
+### Enhancements
+- Newsletter: Add subscrition 'reply to' behaviour. [#37011]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add aceptance for title optimization. [#37078]
+- Add cancel action for title optimization. [#37080]
+- Adds a jp_memberships_is_sandboxed item for sync. [#37088]
+- AI Assistant: Add inline extensions feature flag. [#37082]
+- AI Assistant: Add partial heading inline extension. [#37087]
+- API Docs: Fix example request for media add and update endpoints. [#37072]
+- Block Editor: Update button props to match latest changes in WordPress 6.5. [#36318]
+- CloudFlare Analytics: deprecate feature and move to mu-wpcom. [#37061]
+- Ensure that the paid subscriber cache is unique to the parameters it consumes. [#36925]
+- Janitorial: Use wp_admin_notice function introduced in WP 6.4 to display notices. [#37051]
+- Subscriptions: Hide subscriber count for already subscribed users. [#37073]
+- Subscriptions: The in_site_migration_flow show be a string to allow us to redirect to various flows. [#37099]
+- Subscriptions: Track "Set up" button clicks. [#37053]
+- Untangling: Fix sidebar upsells on Default color scheme to follow Core's. [#37064]
+- WordPress.com Block Editor: Avoid relying on the Jetpack class. [#37074]
+
+## 13.4-a.7 - 2024-04-25
+### Improved compatibility
+- General: Update WordPress version requirements to WordPress 6.4 and remove compatibility code for lower versions. [#37047] [#37049]
+
+### Bug fixes
+- Google Fonts: Avoid theme fonts overriding the default fonts so fonts with a specific font weight that are not supported by the provided theme can be rendered correctly. [#37050]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add migration_source_site_domain to the list of available site options to update and retrieve. This will be used as part of the Site Migration on-boarding flow. [#37060]
+- Add title optimization as beta [#37001]
+- Add title optimization jetpack sidebar entry [#37002]
+- Add title optimization modal content [#37003]
+- Add update_plugins capability to the /sites/%s endpoint. [#36280]
+- AI Assistant: Separate toolbar dropdown logic and UI [#37016]
+- AI Assistant: Update AIControl imports [#36967]
+- Cookie Consent: localize default text [#37012]
+- Enhanced Distribution: remove deprecated module file. [#37032]
+- Masterbar: Specific styles for sidebar upsells are now maintained in separate files for each color scheme [#37022]
+- Subscriptions: Add "Paid newsletter" section to the Newsletter settings [#36975]
+- Subscriptions: Link "Subscribed" button to individual subscription page [#37021]
+
 ## 13.4-a.5 - 2024-04-22
 ### Enhancements
 - Subscription: Add a filter to Allow Newsletter Block Meta Capability to be Changed. [#36909]

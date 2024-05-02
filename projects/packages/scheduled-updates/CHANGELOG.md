@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2024-04-29
+### Changed
+- Scheduled Updates: move health check functions into hooks [#37067]
+
+## [0.9.1] - 2024-04-26
+### Added
+- Adds an exists check before using wpcom_rest_api_v2_load_plugin() in the API endpoint. [#37081]
+
+## [0.9.0] - 2024-04-25
+### Added
+- Add health paths to scheduled updates. [#36990]
+
+### Changed
+- Move arbitrary actions to callbacks. [#36835]
+
+### Removed
+- Remove checks for valid schedules when retreiving and clearing logs. [#36961]
+
 ## [0.8.0] - 2024-04-22
 ### Added
 - Add a sync option where for scheduled updated. [#36877]
@@ -124,6 +142,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Generate initial package for Scheduled Updates [#35796]
 
+[0.10.0]: https://github.com/Automattic/scheduled-updates/compare/v0.9.1...v0.10.0
+[0.9.1]: https://github.com/Automattic/scheduled-updates/compare/v0.9.0...v0.9.1
+[0.9.0]: https://github.com/Automattic/scheduled-updates/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/Automattic/scheduled-updates/compare/v0.7.2...v0.8.0
 [0.7.2]: https://github.com/Automattic/scheduled-updates/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/Automattic/scheduled-updates/compare/v0.7.0...v0.7.1

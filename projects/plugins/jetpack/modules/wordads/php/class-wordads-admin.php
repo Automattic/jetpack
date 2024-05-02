@@ -46,13 +46,32 @@ class WordAds_Admin {
 				'approved' => 'No',
 			);
 
-		$type = $wordads->option( 'wordads_approved' ) ? 'updated' : 'error';
-		?>
-		<div class="notice <?php echo esc_attr( $type ); ?> is-dismissible">
-			<p>Status: <span style="color:<?php echo esc_attr( $status['color'] ); ?>;"><?php echo esc_html( $status ); ?></p>
-			<pre><?php echo esc_html( $response ); ?></pre>
-		</div>
-		<?php
+		$type    = $wordads->option( 'wordads_approved' ) ? 'updated' : 'error';
+		$message = sprintf(
+			wp_kses(
+				/* Translators: %1$s is the status color, %2$s is the status, %3$s is the response */
+				__( '<p>Status: <span style="color:%1$s;">%2$s</span></p><pre>%3$s</pre>', 'jetpack' ),
+				array(
+					'p'    => array(),
+					'span' => array(
+						'style' => array(),
+					),
+					'pre'  => array(),
+				)
+			),
+			esc_attr( $status['color'] ),
+			esc_html( $status ),
+			esc_html( $response )
+		);
+
+		wp_admin_notice(
+			$message,
+			array(
+				'type'           => $type,
+				'dismissible'    => true,
+				'paragraph_wrap' => false,
+			)
+		);
 	}
 }
 

@@ -21,10 +21,10 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 	 *
 	 * @dataProvider provideArrayTargets
 	 *
-	 * @param Waf_Runtime                     $runtime                    The Waf_Runtime instance to use for the test (pre-loaded with items of mocked data).
-	 * @param string                          $target_name                The modsecurity target name being tested, lowercase (examples: 'request_headers', 'tx', 'args', etc).
-	 * @param array{ 0: string, 1: scalar }[] $expected_names_and_values  Array of key/value tuples, where `key` is the name of one of the three mocked items, and `value` is its value.
-	 * @param string                          $second_name_regex          RegEx pattern that will match only the second item in the list.
+	 * @param Waf_Runtime                   $runtime                    The Waf_Runtime instance to use for the test (pre-loaded with items of mocked data).
+	 * @param string                        $target_name                The modsecurity target name being tested, lowercase (examples: 'request_headers', 'tx', 'args', etc).
+	 * @param array{0: string, 1: scalar}[] $expected_names_and_values  Array of key/value tuples, where `key` is the name of one of the three mocked items, and `value` is its value.
+	 * @param string                        $second_name_regex          RegEx pattern that will match only the second item in the list.
 	 */
 	public function testArrayTargets( $runtime, $target_name, $expected_names_and_values, $second_name_regex ) {
 		$expected_count = count( $expected_names_and_values );
