@@ -89,7 +89,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active extends WP_REST_Control
 		}
 
 		Scheduled_Updates_Active::update( $request['schedule_id'], (bool) $request['active'] );
-		Scheduled_Updates::update_option_cron();
 
 		return rest_ensure_response( array( 'active' => (bool) $request['active'] ) );
 	}
