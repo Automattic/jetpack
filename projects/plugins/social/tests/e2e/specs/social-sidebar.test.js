@@ -7,10 +7,10 @@ import { connect } from '../flows/index.js';
 test.beforeEach( async ( { page } ) => {
 	await prerequisitesBuilder( page )
 		.withCleanEnv()
-		.withLoggedIn( true )
-		.withWpComLoggedIn( true )
 		.withActivePlugins( [ 'social' ] )
 		.withInactivePlugins( [ 'jetpack' ] )
+		.withLoggedIn( true )
+		.withWpComLoggedIn( true )
 		.build();
 } );
 
