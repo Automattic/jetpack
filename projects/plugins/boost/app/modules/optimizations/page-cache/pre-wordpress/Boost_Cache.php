@@ -345,7 +345,7 @@ class Boost_Cache {
 		}
 
 		// delete the cache files entirely if the post was unpublished
-		if ( 'publish' === $old_status && 'published' !== $new_status ) {
+		if ( 'publish' === $old_status && 'publish' !== $new_status ) {
 			Logger::debug( 'invalidate_on_post_transition: delete cache on new private page' );
 			$this->delete_on_post_trash( $post->ID, $old_status );
 			return;
