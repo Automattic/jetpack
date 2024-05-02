@@ -15,9 +15,6 @@ mkdir -p "$dest_react_dir"
 # Copy source JSX as well.
 cp "$src_react_dir"/*.jsx "$dest_react_dir"
 
-# JSX -> JS
-npx babel --quiet --presets @babel/preset-env,@babel/preset-react,minify --out-dir "$dest_react_dir" "$dest_react_dir"
-
 # Copy example CSS.
 cp "$src_css_dir"/example.css "$dest_react_dir"
 
