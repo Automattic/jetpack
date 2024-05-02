@@ -50,9 +50,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active extends WP_REST_Control
 					'permission_callback' => array( $this, 'update_item_permissions_check' ),
 					'args'                => array(
 						'active' => array(
-							'description' => 'Whether the schedule is active.',
-							'type'        => 'boolean',
-							'required'    => true,
+							'description'       => 'Whether the schedule is active.',
+							'type'              => 'boolean',
+							'required'          => true,
+							'sanitize_callback' => 'rest_sanitize_boolean',
 						),
 					),
 				),
