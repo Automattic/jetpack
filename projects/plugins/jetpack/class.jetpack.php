@@ -5602,7 +5602,7 @@ endif;
 			),
 			'jetpack_contact_form_use_package'             => array(
 				'replacement' => null,
-				'version'     => 'jetpack-$$next-version$$',
+				'version'     => 'jetpack-13.4.0',
 			),
 		);
 
