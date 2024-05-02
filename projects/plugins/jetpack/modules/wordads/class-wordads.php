@@ -216,7 +216,7 @@ class WordAds {
 		}
 
 		// Initialize Smart.
-		new WordAds_Smart( $this->params );
+		WordAds_Smart::instance()->init( $this->params );
 
 		if ( ( isset( $_SERVER['REQUEST_URI'] ) && '/ads.txt' === $_SERVER['REQUEST_URI'] )
 			|| ( site_url( 'ads.txt', 'relative' ) === $_SERVER['REQUEST_URI'] ) ) {

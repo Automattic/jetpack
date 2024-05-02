@@ -17,11 +17,11 @@ require_once WORDADS_ROOT . '/php/class-wordads-array-utils.php';
 class WordAds_Smart {
 
 	/**
-	 * WordAds Parameters.
+	 * The single instance of the class.
 	 *
-	 * @var WordAds_Params
+	 * @var WordAds_Smart
 	 */
-	private $params;
+	protected static $instance = null;
 
 	/**
 	 * Is this an AMP request?
@@ -52,22 +52,42 @@ class WordAds_Smart {
 	private $is_inline_enabled;
 
 	/**
-	 * Our constructor.
+	 * Private constructor.
+	 */
+	private function __construct() {
+	}
+
+	/**
+	 * Main Class Instance.
+	 *
+	 * Ensures only one instance of WordAds_Smart is loaded or can be loaded.
+	 *
+	 * @return WordAds_Smart
+	 */
+	public static function instance() {
+		if ( self::$instance === null ) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
+	/**
+	 * Initialize the ads.
 	 *
 	 * @param WordAds_Params $params Object containing WordAds settings.
+	 *
+	 * @return void
 	 */
-	public function __construct( WordAds_Params $params ) {
-		$this->params            = $params;
-		$this->is_amp            = function_exists( 'is_amp_endpoint' ) && is_amp_endpoint();
+	public function init( WordAds_Params $params ) {
+		$this->is_amp            = function_exists( 'amp_is_request' ) && amp_is_request();
 		$this->theme             = get_stylesheet();
-		$this->is_inline_enabled = is_singular( 'post' ) && $this->params->options['wordads_inline_enabled'];
+		$this->is_inline_enabled = is_singular( 'post' ) && $params->options['wordads_inline_enabled'];
 
 		// Allow override.
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['inline'] ) && 'true' === $_GET['inline'] ) {
 			$this->is_inline_enabled = true;
 		}
-
 		if ( $this->is_inline_enabled ) {
 			// Insert ads.
 			$this->insert_ads();
@@ -115,7 +135,7 @@ class WordAds_Smart {
 	 *
 	 * @return void
 	 */
-	public function insert_ads() {
+	private function insert_ads() {
 		if ( $this->is_amp ) {
 			return;
 		}
