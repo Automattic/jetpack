@@ -308,7 +308,7 @@ jobs:
   phan:
     name: Static analysis
     runs-on: ubuntu-latest
-    timeout-minutes: 15  # 2024-03-05: Takes about 5 minutes.
+    timeout-minutes: 20  # 2024-05-02: Up to about 8 minutes now that we're running against the old WP stubs too.
     steps:
       - uses: actions/checkout@v4
       - name: Setup tools
