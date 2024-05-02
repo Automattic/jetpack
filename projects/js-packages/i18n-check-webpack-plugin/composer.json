@@ -31,7 +31,7 @@
 			"link-template": "https://github.com/Automattic/i18n-check-webpack-plugin/compare/v${old}...v${new}"
 		},
 		"dependencies": {
-			"test": [
+			"test-only": [
 				"js-packages/webpack-config"
 			]
 		}

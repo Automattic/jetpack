@@ -88,6 +88,7 @@ class Defaults {
 		'jetpack_protect_key',
 		'jetpack_publicize_options',
 		'jetpack_relatedposts',
+		'jetpack_social_notes_config',
 		'jetpack_social_settings',
 		'jetpack_social_autoconvert_images',
 		'jetpack_sso_match_by_email',
@@ -195,10 +196,12 @@ class Defaults {
 		'wpcom_reader_views_enabled',
 		'wpcom_site_setup',
 		'wpcom_subscription_emails_use_excerpt',
+		'jetpack_subscriptions_reply_to',
 		'jetpack_verbum_subscription_modal',
 		'jetpack_blocks_disabled',
 		'jetpack_package_versions',
 		'jetpack_newsletters_publishing_default_frequency',
+		'jetpack_scheduled_plugins_update',
 	);
 
 	/**

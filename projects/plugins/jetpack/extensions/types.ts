@@ -20,9 +20,13 @@ export type SiteAIAssistantFeatureEndpointResponseProps = {
 	'site-require-upgrade': boolean;
 	'error-message'?: string;
 	'error-code'?: string;
-	'is-playground-visible'?: boolean;
 	'upgrade-type': UpgradeTypeProp;
 	'current-tier': TierProp;
 	'tier-plans': Array< TierProp >;
 	'next-tier'?: TierProp | null;
+	costs?: {
+		[ key: string ]: {
+			[ key: string ]: number;
+		};
+	};
 };

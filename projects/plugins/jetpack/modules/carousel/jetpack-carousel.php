@@ -83,9 +83,6 @@ class Jetpack_Carousel {
 		$this->single_image_gallery_enabled            = ! $this->maybe_disable_jp_carousel_single_images();
 		$this->single_image_gallery_enabled_media_file = $this->maybe_enable_jp_carousel_single_images_media_file();
 
-		// Disable core lightbox when Carousel is enabled.
-		add_action( 'wp_theme_json_data_theme', array( $this, 'disable_core_lightbox' ) );
-
 		if ( is_admin() ) {
 			// Register the Carousel-related related settings.
 			add_action( 'admin_init', array( $this, 'register_settings' ), 5 );
@@ -99,6 +96,9 @@ class Jetpack_Carousel {
 			add_action( 'wp_ajax_nopriv_get_attachment_comments', array( $this, 'get_attachment_comments' ) );
 			add_action( 'wp_ajax_post_attachment_comment', array( $this, 'post_attachment_comment' ) );
 			add_action( 'wp_ajax_nopriv_post_attachment_comment', array( $this, 'post_attachment_comment' ) );
+
+			// Disable core lightbox when Carousel is enabled.
+			add_action( 'wp_theme_json_data_theme', array( $this, 'disable_core_lightbox' ) );
 		} else {
 			if ( ! $this->in_jetpack ) {
 				if ( 0 === $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) ) {
@@ -128,6 +128,9 @@ class Jetpack_Carousel {
 
 			// `is_amp_request()` can't be called until the 'wp' filter.
 			add_action( 'wp', array( $this, 'check_amp_support' ) );
+
+			// Disable core lightbox when Carousel is enabled.
+			add_action( 'wp_theme_json_data_theme', array( $this, 'disable_core_lightbox' ) );
 		}
 
 		if ( $this->in_jetpack ) {
@@ -882,7 +885,11 @@ class Jetpack_Carousel {
 			 * This is meant as a relatively quick fix, as a better fix is likely to update the get_posts call above to only
 			 * include attachments.
 			 */
-			if ( ! isset( $attachment->ID ) || ! wp_attachment_is_image( $attachment->ID ) ) {
+			if (
+				! isset( $attachment->ID )
+				|| ! wp_attachment_is_image( $attachment->ID )
+				|| ! isset( $selected_images[ $attachment->ID ] )
+			) {
 				continue;
 			}
 			$image_elements = $selected_images[ $attachment->ID ];
@@ -1456,7 +1463,7 @@ class Jetpack_Carousel {
 	 *
 	 * @param mixed $value User input setting value.
 	 *
-	 * @return number Sanitized value, only 1 or 0.
+	 * @return int Sanitized value, only 1 or 0.
 	 */
 	public function carousel_display_exif_sanitize( $value ) {
 		return $this->sanitize_1or0_option( $value );
@@ -1465,9 +1472,9 @@ class Jetpack_Carousel {
 	/**
 	 * Return sanitized option for value that controls whether comments will be hidden or not.
 	 *
-	 * @param number $value Value to sanitize.
+	 * @param mixed $value Value to sanitize.
 	 *
-	 * @return number Sanitized value, only 1 or 0.
+	 * @return int Sanitized value, only 1 or 0.
 	 */
 	public function carousel_display_comments_sanitize( $value ) {
 		return $this->sanitize_1or0_option( $value );
@@ -1509,7 +1516,7 @@ class Jetpack_Carousel {
 	 *
 	 * @param mixed $value User input.
 	 *
-	 * @return number Sanitized value, only 1 or 0.
+	 * @return int Sanitized value, only 1 or 0.
 	 */
 	public function carousel_enable_it_sanitize( $value ) {
 		return $this->sanitize_1or0_option( $value );

@@ -72,7 +72,7 @@ class Jetpack_Google_Font_Face {
 		foreach ( $fonts as $font_faces ) {
 			$font_family = $font_faces[0]['font-family'] ?? '';
 			if ( in_array( $this->format_font( $font_family ), $fonts_in_use, true ) ) {
-				$fonts_to_print[ $font_family ] = $font_faces;
+				$fonts_to_print[] = $font_faces;
 			}
 		}
 

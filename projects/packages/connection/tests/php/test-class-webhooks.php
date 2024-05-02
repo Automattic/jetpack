@@ -33,8 +33,6 @@ class Test_Webhooks extends TestCase {
 	/**
 	 * Setting up the testing environment.
 	 *
-	 * @throws \phpmock\MockEnabledException The mock exception.
-	 *
 	 * @before
 	 */
 	public function set_up() {
@@ -130,7 +128,7 @@ class Test_Webhooks extends TestCase {
 			->setMethods( array( 'do_exit', 'handle_authorize', 'handle_authorize_redirect' ) )
 			->getMock();
 
-		$controller_skipped = $webhooks->controller();
+		$webhooks->controller();
 
 		$webhooks->expects( $this->once() )
 			->method( 'handle_authorize' );
@@ -153,8 +151,6 @@ class Test_Webhooks extends TestCase {
 
 		// `handle_authorize_redirect` gets called.
 		$webhooks->controller();
-
-		static::assertNull( $controller_skipped );
 	}
 
 	/**

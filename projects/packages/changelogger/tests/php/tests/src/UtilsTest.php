@@ -45,7 +45,7 @@ class UtilsTest extends TestCase {
 	public function testRunCommand( $cmd, $options, $expectExitCode, $expectStdout, $expectStderr, $expectOutput, $verbosity = BufferedOutput::VERBOSITY_DEBUG ) {
 		$sh = ( new ExecutableFinder() )->find( 'sh' );
 		if ( ! $sh ) {
-			$this->markTestSkipped( 'This test requires a Posix shell' );
+			$this->markTestSkipped( 'This test requires a POSIX shell' );
 		}
 
 		$expectOutput = strtr( $expectOutput, array( '{SHELL}' => $sh ) );
@@ -147,9 +147,9 @@ class UtilsTest extends TestCase {
 	 * Test loadChangeFile.
 	 *
 	 * @dataProvider provideLoadChangeFile
-	 * @param string                  $contents File contents.
-	 * @param array|\RuntimeException $expect Expected output.
-	 * @param array                   $expectDiagnostics Expected diagnostics.
+	 * @param string                        $contents File contents.
+	 * @param array|LoadChangeFileException $expect Expected output.
+	 * @param array                         $expectDiagnostics Expected diagnostics.
 	 */
 	public function testLoadChangeFile( $contents, $expect, $expectDiagnostics = array() ) {
 		$temp = tempnam( sys_get_temp_dir(), 'phpunit-testLoadChangeFile-' );
@@ -305,14 +305,14 @@ class UtilsTest extends TestCase {
 		try {
 			Utils::loadChangeFile( 'doesnotexist/reallydoesnotexist.txt' );
 			$this->fail( 'Expected exception not thrown' );
-		} catch ( \RuntimeException $ex ) {
+		} catch ( LoadChangeFileException $ex ) {
 			$this->assertSame( 'File does not exist.', $ex->getMessage() );
 			$this->assertNull( $ex->fileLine );
 		}
 		try {
 			Utils::loadChangeFile( '.' );
 			$this->fail( 'Expected exception not thrown' );
-		} catch ( \RuntimeException $ex ) {
+		} catch ( LoadChangeFileException $ex ) {
 			$this->assertSame( 'Expected a file, got dir.', $ex->getMessage() );
 			$this->assertNull( $ex->fileLine );
 		}
@@ -325,7 +325,7 @@ class UtilsTest extends TestCase {
 				try {
 					Utils::loadChangeFile( $temp );
 					$this->fail( 'Expected exception not thrown' );
-				} catch ( \RuntimeException $ex ) {
+				} catch ( LoadChangeFileException $ex ) {
 					$this->assertSame( 'File is not readable.', $ex->getMessage() );
 					$this->assertNull( $ex->fileLine );
 				}
@@ -428,9 +428,7 @@ class UtilsTest extends TestCase {
 	 * Test loadAllChanges.
 	 */
 	public function testLoadAllChanges() {
-		$formatter = $this->getMockBuilder( FormatterPlugin::class )
-			->setMethodsExcept( array() )
-			->getMock();
+		$formatter = $this->getMockBuilder( FormatterPlugin::class )->getMock();
 		$formatter->expects( $this->never() )->method( $this->logicalNot( $this->matches( 'newChangeEntry' ) ) );
 		$formatter->method( 'newChangeEntry' )->willReturnCallback(
 			function ( $data ) {

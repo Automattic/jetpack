@@ -36,6 +36,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Site_Urls;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Source_Providers;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
 /**
@@ -146,7 +147,6 @@ class Jetpack_Boost {
 	 * @param array $allowed_query_args The list of allowed query args.
 	 *
 	 * @return array The modified list of allowed query args.
-
 	 */
 	public static function whitelist_query_args( $allowed_query_args ) {
 		$allowed_query_args[] = Generator::GENERATE_QUERY_ACTION;
@@ -188,6 +188,7 @@ class Jetpack_Boost {
 	 */
 	public function init_admin( $modules_setup ) {
 		REST_API::register( List_Site_Urls::class );
+		REST_API::register( List_Source_Providers::class );
 		$this->connection->ensure_connection();
 		( new Admin() )->init( $modules_setup );
 	}

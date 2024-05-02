@@ -145,7 +145,9 @@ export default function ProductInterstitial( {
 						const isFree = tier
 							? product?.pricingForUi?.tiers?.[ tier ]?.isFree
 							: product?.pricingForUi?.isFree;
-						const needsPurchase = ! isFree && ! hasPaidPlanForProduct;
+						const isUpgradeToHigherTier =
+							tier && product?.pricingForUi?.tiers?.[ tier ] && ! isFree && product?.isUpgradable;
+						const needsPurchase = ( ! isFree && ! hasPaidPlanForProduct ) || isUpgradeToHigherTier;
 
 						// If the product is CRM, redirect the user to the Jetpack CRM pricing page.
 						// This is done because CRM is not part of the WP billing system

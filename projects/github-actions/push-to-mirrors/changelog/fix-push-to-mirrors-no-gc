@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Disable git automatic garbage collection. No point to it as the local repos will be immediately discarded.

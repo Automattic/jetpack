@@ -30,20 +30,15 @@ const SUBJECT_DEFAULT = null;
  * system prompt.
  *
  * @param {PromptTypeProp} promptType - The internal type of the prompt.
- * @param {string} customSystemPrompt - The custom system prompt, if available.
  * @returns {PromptItemProps} The initial message.
  */
-export function buildInitialMessageForBackendPrompt(
-	promptType: PromptTypeProp,
-	customSystemPrompt?: string
-): PromptItemProps {
+export function buildInitialMessageForBackendPrompt( promptType: PromptTypeProp ): PromptItemProps {
 	// The basic template for the message.
 	return {
 		role: 'jetpack-ai' as const,
 		context: {
 			type: 'ai-assistant-initial-prompt',
 			for: mapInternalPromptTypeToBackendPromptType( promptType ),
-			...( customSystemPrompt?.length ? { custom_system_prompt: customSystemPrompt } : {} ),
 		},
 	};
 }
@@ -55,7 +50,7 @@ export function buildInitialMessageForBackendPrompt(
  * @param {string} relevantContent - The relevant content.
  * @returns {PromptItemProps} The initial message.
  */
-export function buildRelevantContentMessageForBackendPrompt(
+function buildRelevantContentMessageForBackendPrompt(
 	isContentGenerated?: boolean,
 	relevantContent?: string | null
 ): PromptItemProps | null {

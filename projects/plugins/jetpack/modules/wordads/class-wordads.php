@@ -134,7 +134,7 @@ class WordAds {
 	 *
 	 * @param  string $option the option to grab.
 	 * @param  mixed  $default (optional).
-	 * @return option or $default if not set
+	 * @return mixed option or $default if not set
 	 *
 	 * @since 4.5.0
 	 */
@@ -214,7 +214,8 @@ class WordAds {
 			WordAds_Consent_Management_Provider::init();
 		}
 
-		if ( isset( $_SERVER['REQUEST_URI'] ) && '/ads.txt' === $_SERVER['REQUEST_URI'] ) {
+		if ( ( isset( $_SERVER['REQUEST_URI'] ) && '/ads.txt' === $_SERVER['REQUEST_URI'] )
+			|| ( site_url( 'ads.txt', 'relative' ) === $_SERVER['REQUEST_URI'] ) ) {
 
 			$ads_txt_transient = get_transient( 'wordads_ads_txt' );
 
@@ -355,8 +356,6 @@ class WordAds {
 
 	/**
 	 * IPONWEB metadata used by the various scripts
-	 *
-	 * @return [type] [description]
 	 */
 	public function insert_head_meta() {
 		if ( self::is_amp() ) {

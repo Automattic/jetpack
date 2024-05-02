@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use DOMDocument;
+use DOMElement;
 use WorDBless\BaseTestCase;
 use WorDBless\Posts;
 
@@ -557,7 +559,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	public function test_grunion_delete_old_spam_deletes_an_old_post_marked_as_spam() {
 		// grunion_Delete_old_spam performs direct DB queries which cannot be tested outisde of a working WP install.
 		$this->markTestSkipped();
-
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		$post_id = wp_insert_post(
 			array(
 				'post_type'     => 'feedback',
@@ -928,7 +930,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	 * @return DOMElement The first div element.
 	 */
 	public function getCommonDiv( $html ) {
-		$doc = new \DOMDocument();
+		$doc = new DOMDocument();
 		$doc->loadHTML( $html );
 		return $this->getFirstElement( $doc, 'div' );
 	}
@@ -936,15 +938,16 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	/**
 	 * Gets the first element in the given DOMDocument object.
 	 *
-	 * @param DOMDocument $dom The DOMDocument object.
-	 * @param string      $tag The tag name.
-	 * @param int         $index The index.
+	 * @param DOMDocument|DOMElement $dom The DOMDocument object.
+	 * @param string                 $tag The tag name.
+	 * @param int                    $index The index.
 	 *
-	 * @return DOMElement The first element with the given tag.
+	 * @return DOMElement|null The first element with the given tag.
 	 */
 	public function getFirstElement( $dom, $tag, $index = 0 ) {
 		$elements = $dom->getElementsByTagName( $tag );
-		return $elements->item( $index );
+		$element  = $elements->item( $index );
+		return $element instanceof DOMElement ? $element : null;
 	}
 
 	/**
@@ -981,7 +984,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		$expected = 'date' === $type ? $attributes['label'] . ' ' . $attributes['format'] : $attributes['label'];
 
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$this->assertEquals( $expected, trim( $label->nodeValue ), 'Label is not what we expect it to be...' );
+		$this->assertEquals( $expected, trim( (string) $label->nodeValue ), 'Label is not what we expect it to be...' );
 	}
 
 	/**
@@ -1685,7 +1688,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	public function test_personal_data_exporter() {
 		// Contact_Form_Plugin::personal_data_exporter uses `get_posts` internally making it currently untestable outside of a WP environment.
 		$this->markTestSkipped();
-
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		$this->add_field_values(
 			array(
 				'name'     => 'John Doe',
@@ -1752,7 +1755,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	public function test_personal_data_eraser() {
 		// Contact_Form_Plugin::personal_data_exporter uses `get_posts` internally making it currently untestable outside of a WP environment.
 		$this->markTestSkipped();
-
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		$this->add_field_values(
 			array(
 				'name'  => 'John Doe',
@@ -1792,7 +1795,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	public function test_personal_data_eraser_pagination() {
 		// Contact_Form_Plugin::personal_data_exporter uses `get_posts` internally making it currently untestable outside of a WP environment.
 		$this->markTestSkipped();
-
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		$this->add_field_values(
 			array(
 				'name'  => 'Jane Doe',

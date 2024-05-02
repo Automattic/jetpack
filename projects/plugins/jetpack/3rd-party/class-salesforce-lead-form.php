@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack;
 
+use WP_Error;
+
 /**
  * Class Salesforce_Lead_Form
  *

@@ -13,6 +13,7 @@ namespace Automattic\Jetpack\Extensions\Sharing_Button_Block;
 
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Jetpack_PostImages;
+use WP_Post;
 
 /**
  * Base class for sharing sources.
@@ -295,6 +296,7 @@ abstract class Sharing_Source_Block {
 			$encoded_data_attributes = implode(
 				' ',
 				array_map(
+					/** Format attributes */
 					function ( $data_key, $data_value ) {
 						return sprintf(
 							'data-%s="%s"',

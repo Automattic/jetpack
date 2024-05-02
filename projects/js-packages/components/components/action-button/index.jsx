@@ -23,19 +23,30 @@ import styles from './style.module.scss';
  * @returns {React.Component} The `ActionButton` component.
  */
 const ActionButton = props => {
-	const { label, onClick, isLoading, isDisabled, displayError, errorMessage } = props;
+	const {
+		label,
+		onClick,
+		isLoading,
+		loadingText,
+		isDisabled,
+		displayError,
+		errorMessage,
+		customClass,
+	} = props;
+
+	const loadingContent = loadingText || <Spinner />;
 
 	return (
 		<>
 			{
 				<Button
-					className={ classNames( styles.button, 'jp-action-button--button' ) }
+					className={ classNames( styles.button, 'jp-action-button--button', customClass ) }
 					label={ label }
 					onClick={ onClick }
 					variant="primary"
 					disabled={ isLoading || isDisabled }
 				>
-					{ isLoading ? <Spinner /> : label }
+					{ isLoading ? loadingContent : label }
 				</Button>
 			}
 

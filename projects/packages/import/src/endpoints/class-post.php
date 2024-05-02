@@ -8,6 +8,9 @@
 namespace Automattic\Jetpack\Import\Endpoints;
 
 use Automattic\Jetpack\Sync\Settings;
+use WP_Error;
+use WP_REST_Request;
+use WP_REST_Response;
 
 if ( ! function_exists( 'post_exists' ) ) {
 	require_once ABSPATH . 'wp-admin/includes/post.php';
@@ -81,7 +84,7 @@ class Post extends \WP_REST_Posts_Controller {
 		);
 
 		if ( $post_id ) {
-			return new \WP_Error(
+			return new WP_Error(
 				'post_exists',
 				__( 'Cannot create existing post.', 'jetpack-import' ),
 				array(

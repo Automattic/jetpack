@@ -112,7 +112,7 @@ class Universal {
 	 * @param string $url Full HTML a tag of the link to remove an item from the cart.
 	 * @param string $key Unique Key ID for a cart item.
 	 *
-	 * @return mixed.
+	 * @return string
 	 */
 	public function remove_from_cart_attributes( $url, $key ) {
 		if ( str_contains( $url, 'data-product_id' ) ) {
@@ -244,14 +244,16 @@ class Universal {
 						if ( true === cartItem_{$cart_item_key}_logged ) {
 							return;
 						}
-						wp.hooks.addAction( 'wcpay.payment-request.availability', 'wcpay', function ( args ) {
-							properties.express_checkout = args.paymentRequestType;
-						} );
-							properties.checkout_page_contains_checkout_block = '0';
-							properties.checkout_page_contains_checkout_shortcode = '1';
+						if ( typeof wp !== 'undefined' && typeof wp.hooks !== 'undefined' && typeof wp.hooks.addAction === 'function' ) {
+							wp.hooks.addAction( 'wcpay.payment-request.availability', 'wcpay', function ( args ) {
+								properties.express_checkout = args.paymentRequestType;
+							} );
+						}
+						properties.checkout_page_contains_checkout_block = '0';
+						properties.checkout_page_contains_checkout_shortcode = '1';
 
-							_wca.push( properties );
-							cartItem_{$cart_item_key}_logged = true;
+						_wca.push( properties );
+						cartItem_{$cart_item_key}_logged = true;
 
 					} );
 				}
