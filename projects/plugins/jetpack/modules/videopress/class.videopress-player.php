@@ -338,7 +338,7 @@ class VideoPress_Player {
 		if ( isset( $this->options['autoplay'] ) && $this->options['autoplay'] === true ) {
 			$html .= ' autoplay="true"';
 		} else {
-			$html .= ' preload="' . $preload . '"';
+			$html .= ' preload="' . esc_attr( $preload ) . '"';
 		}
 		if ( isset( $this->video->text_direction ) ) {
 			$html .= ' dir="' . esc_attr( $this->video->text_direction ) . '"';
