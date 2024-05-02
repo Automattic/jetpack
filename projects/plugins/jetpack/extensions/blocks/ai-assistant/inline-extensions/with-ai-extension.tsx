@@ -39,6 +39,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 	return props => {
 		const { clientId, isSelected, name: blockName } = props;
 		const controlRef: React.MutableRefObject< HTMLDivElement | null > = useRef( null );
+		const inputRef: React.MutableRefObject< HTMLInputElement | null > = useRef( null );
 		const controlObserver = useRef< ResizeObserver | null >( null );
 		const blockStyle = useRef< string >( '' );
 		const [ action, setAction ] = useState< string >( '' );
@@ -93,6 +94,13 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		} );
 
 		const { id } = useBlockProps();
+
+		useEffect( () => {
+			// Focus the input when the AI Control is displayed.
+			if ( inputRef.current ) {
+				inputRef.current.focus();
+			}
+		}, [ clientId, showAiControl ] );
 
 		useEffect( () => {
 			const block = document.getElementById( id );
@@ -217,6 +225,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 						requestingError={ error }
 						suggestion={ suggestion }
 						wrapperRef={ controlRef }
+						inputRef={ inputRef }
 						action={ action }
 						request={ onUserRequest }
 						stopSuggestion={ stopSuggestion }
