@@ -13,6 +13,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
 import { globe } from '@wordpress/icons';
+import React from 'react';
 /*
  * Internal dependencies
  */
@@ -38,7 +39,7 @@ export type LanguageProp = ( typeof LANGUAGE_LIST )[ number ];
 
 type LanguageDropdownControlProps = {
 	value?: LanguageProp;
-	onChange: ( value: string ) => void;
+	onChange: ( value: string, name?: string ) => void;
 	label?: string;
 	disabled?: boolean;
 };
@@ -46,7 +47,7 @@ type LanguageDropdownControlProps = {
 const defaultLanguageLocale =
 	window?.Jetpack_Editor_Initial_State?.siteLocale || navigator?.language;
 
-const defaultLabel = __( 'Translate', 'jetpack' );
+export const TRANSLATE_LABEL = __( 'Translate', 'jetpack' );
 
 export const defaultLanguage = ( defaultLanguageLocale?.split( '-' )[ 0 ] || 'en' ) as LanguageProp;
 
@@ -89,16 +90,6 @@ export const LANGUAGE_MAP = {
 	ko: {
 		label: __( 'Korean', 'jetpack' ),
 	},
-
-	id: {
-		label: __( 'Indonesian', 'jetpack' ),
-	},
-	tl: {
-		label: __( 'Filipino', 'jetpack' ),
-	},
-	vi: {
-		label: __( 'Vietnamese', 'jetpack' ),
-	},
 };
 
 export const I18nMenuGroup = ( {
@@ -117,7 +108,12 @@ export const I18nMenuGroup = ( {
 				return (
 					<MenuItem
 						key={ `key-${ language }` }
-						onClick={ () => onChange( language + ' (' + LANGUAGE_MAP[ language ].label + ')' ) }
+						onClick={ () =>
+							onChange(
+								language + ' (' + LANGUAGE_MAP[ language ].label + ')',
+								LANGUAGE_MAP[ language ].label
+							)
+						}
 						isSelected={ value === language }
 					>
 						{ LANGUAGE_MAP[ language ].label }
@@ -130,7 +126,7 @@ export const I18nMenuGroup = ( {
 
 export default function I18nDropdownControl( {
 	value = defaultLanguage,
-	label = defaultLabel,
+	label = TRANSLATE_LABEL,
 	onChange,
 	disabled = false,
 }: LanguageDropdownControlProps ) {
@@ -164,7 +160,7 @@ export default function I18nDropdownControl( {
 
 export function I18nMenuDropdown( {
 	value = defaultLanguage,
-	label = defaultLabel,
+	label = TRANSLATE_LABEL,
 	onChange,
 	disabled = false,
 }: Pick< LanguageDropdownControlProps, 'label' | 'onChange' | 'value' | 'disabled' > & {
@@ -187,8 +183,8 @@ export function I18nMenuDropdown( {
 		>
 			{ ( { onClose } ) => (
 				<I18nMenuGroup
-					onChange={ newLanguage => {
-						onChange( newLanguage );
+					onChange={ ( ...args ) => {
+						onChange( ...args );
 						onClose();
 					} }
 					value={ value }
