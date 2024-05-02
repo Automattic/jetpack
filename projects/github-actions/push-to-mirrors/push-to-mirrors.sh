@@ -113,20 +113,34 @@ if [[ "$NO_UPSTREAM_REFS" != 'true' ]]; then
 fi
 
 function get_upstream_sha {
-	if [[ "$NO_UPSTREAM_REFS" != 'true' ]] &&
-		git -c protocol.version=2 fetch --filter=tree:0 --tags --progress --no-recurse-submodules origin >&2
+	if [[ "$NO_UPSTREAM_REFS" == 'true' ]]; then
+		return 1
+	fi
+
+	# `git fetch --filter=tree:0` works well here to save downloading a lot of unnecessary data.
+	# However, when pushing, git seems to decide it needs to fetch some portion of that data anyway, and does so in an inefficient manner.
+	# We can avoid that by making a temporary second `.git` directory and doing the `git fetch --filter=tree:0` into that instead of into the real one,
+	# so the real one doesn't wind up with whatever weirdness makes git do the slow data fetch on push.
+	local tmpgit
+	tmpgit=$( mktemp -d -p . .git-tmp-XXXXXXXX ) || return 1
+	if
+		cp -a .git/. "$tmpgit/." &&
+		GIT_DIR=$tmpgit git -c protocol.version=2 fetch --filter=tree:0 --tags --progress --no-recurse-submodules origin >&2
 	then
 		local regex
 		for regex in "${UPSTREAM_REGEXES[@]}"; do
 			local dstsha
-			if dstsha=$( git rev-parse --verify --quiet ":/$regex" ) &&
+			if dstsha=$( GIT_DIR=$tmpgit git rev-parse --verify --quiet ":/$regex" ) &&
+				# Fetch the sha into the real .git, not $tmpgit
 				git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=1 origin "$dstsha" >&2
 			then
+				rm -rf "$tmpgit"
 				echo "$dstsha"
 				return 0
 			fi
 		done
 	fi
+	rm -rf "$tmpgit"
 	return 1
 }
 
@@ -138,6 +152,7 @@ while read -r GIT_SLUG; do
 
 	# Initialize the directory as a git repo, and set the remote
 	git init -b "$BRANCH" .
+	git config --local gc.auto 0
 	git remote add origin "${GITHUB_SERVER_URL}/${GIT_SLUG}"
 	if [[ -n "$API_TOKEN_GITHUB" ]]; then
 		git config --local "http.${GITHUB_SERVER_URL}/.extraheader" "AUTHORIZATION: basic $(printf "x-access-token:%s" "$API_TOKEN_GITHUB" | base64 -w 0)"

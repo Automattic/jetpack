@@ -40,7 +40,7 @@ export default function DashboardPage( { isLoading = false } ) {
 	const sendPaidPlanToCart = () => {
 		const checkoutProductUrl = getProductCheckoutUrl(
 			'jetpack_search',
-			blogID ?? domain,
+			blogID || domain,
 			`admin.php?page=jetpack-search&just_upgraded=1`,
 			true
 		);

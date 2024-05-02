@@ -83,9 +83,6 @@ class Jetpack_Carousel {
 		$this->single_image_gallery_enabled            = ! $this->maybe_disable_jp_carousel_single_images();
 		$this->single_image_gallery_enabled_media_file = $this->maybe_enable_jp_carousel_single_images_media_file();
 
-		// Disable core lightbox when Carousel is enabled.
-		add_action( 'wp_theme_json_data_theme', array( $this, 'disable_core_lightbox' ) );
-
 		if ( is_admin() ) {
 			// Register the Carousel-related related settings.
 			add_action( 'admin_init', array( $this, 'register_settings' ), 5 );
@@ -99,6 +96,9 @@ class Jetpack_Carousel {
 			add_action( 'wp_ajax_nopriv_get_attachment_comments', array( $this, 'get_attachment_comments' ) );
 			add_action( 'wp_ajax_post_attachment_comment', array( $this, 'post_attachment_comment' ) );
 			add_action( 'wp_ajax_nopriv_post_attachment_comment', array( $this, 'post_attachment_comment' ) );
+
+			// Disable core lightbox when Carousel is enabled.
+			add_action( 'wp_theme_json_data_theme', array( $this, 'disable_core_lightbox' ) );
 		} else {
 			if ( ! $this->in_jetpack ) {
 				if ( 0 === $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) ) {
@@ -128,6 +128,9 @@ class Jetpack_Carousel {
 
 			// `is_amp_request()` can't be called until the 'wp' filter.
 			add_action( 'wp', array( $this, 'check_amp_support' ) );
+
+			// Disable core lightbox when Carousel is enabled.
+			add_action( 'wp_theme_json_data_theme', array( $this, 'disable_core_lightbox' ) );
 		}
 
 		if ( $this->in_jetpack ) {

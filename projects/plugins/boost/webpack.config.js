@@ -10,18 +10,26 @@ const cssGenPath = path.dirname(
 	path.dirname( require.resolve( 'jetpack-boost-critical-css-gen' ) )
 );
 
-const cssGenCopyPatterns = [
-	{
-		from: path.join( cssGenPath, 'dist/bundle.js' ),
-		to: 'critical-css-gen.js',
-	},
-];
+let cssGenCopyPatterns;
 
-if ( ! isProduction ) {
-	cssGenCopyPatterns.push( {
-		from: path.join( cssGenPath, 'dist/bundle.js.map' ),
-		to: 'critical-css-gen.js.map',
-	} );
+if ( isProduction ) {
+	cssGenCopyPatterns = [
+		{
+			from: path.join( cssGenPath, 'dist/bundle.js' ),
+			to: 'critical-css-gen.js',
+		},
+	];
+} else {
+	cssGenCopyPatterns = [
+		{
+			from: path.join( cssGenPath, 'dist/bundle.full.js' ),
+			to: 'critical-css-gen.js',
+		},
+		{
+			from: path.join( cssGenPath, 'dist/bundle.full.js.map' ),
+			to: 'bundle.full.js.map',
+		},
+	];
 }
 
 const imageGuideCopyPatterns = [

@@ -83,16 +83,6 @@ export function registerJetpackBlockFromMetadata( metadata, settings, childBlock
 		icon: getBlockIconProp( metadata ),
 		attributes: metadata.attributes || {},
 	};
-	const { variations } = metadata;
-
-	if ( Array.isArray( variations ) && variations.length > 0 ) {
-		mergedSettings.variations = variations.map( variation => {
-			return {
-				...variation,
-				icon: getBlockIconProp( variation ),
-			};
-		} );
-	}
 
 	return registerJetpackBlock( metadata, mergedSettings, childBlocks, prefix );
 }

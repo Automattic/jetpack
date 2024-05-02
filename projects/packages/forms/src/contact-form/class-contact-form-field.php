@@ -33,7 +33,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	/**
 	 * Default or POSTed value.
 	 *
-	 * @var string
+	 * @var string|string[]
 	 */
 	public $value;
 

@@ -24,8 +24,7 @@ class PluginTraitTest extends TestCase {
 	 */
 	public function testTrait() {
 		$mock = $this->getMockBuilder( PluginTrait::class )->getMockForTrait();
-		'@phan-var PluginTrait&\PHPUnit\Framework\MockObject\MockObject $mock'; // PHPUnit 9.6 only declares `@psalm-template` and not `@template` and such so Phan can't know the right types.
-		$w = TestingAccessWrapper::newFromObject( $mock );
+		$w    = TestingAccessWrapper::newFromObject( $mock );
 
 		$this->assertSame( array(), $mock->getOptions() );
 

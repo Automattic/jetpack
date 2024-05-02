@@ -52,6 +52,7 @@ if $ALL; then
 		-o -name wordpress-develop \
 		-o -name node_modules \
 		-o -path ./tools/docker/data \
+		-o -path '*/.phan/stubs' \
 		"${SKIPS[@]}" \
 	\) -prune -o -name '*.php' -print | vendor/bin/parallel-lint --stdin "${ARGS[@]}"
 else

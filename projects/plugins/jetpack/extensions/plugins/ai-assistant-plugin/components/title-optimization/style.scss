@@ -1,0 +1,23 @@
+.jetpack-ai-title-optimization {
+	&__loading {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+		width: 100%;
+		height: 200px;
+		align-items: center;
+		justify-content: center;
+	}
+
+	&__intro {
+		margin-top: 16px;
+	}
+
+	&__cta {
+		display: flex;
+		gap: 8px;
+		justify-content: flex-end;
+		align-items: center;
+		margin-top: 16px;
+	}
+}

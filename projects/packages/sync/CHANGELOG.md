@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.15.0] - 2024-04-30
+### Added
+- Add Woocommerce event remove_order_items to Jetpack Sync [#33748]
+
+### Fixed
+- Jetpack Sync: Prevent enqueueing invalid Woo HPOS order data [#37111]
+
+## [2.14.0] - 2024-04-29
+### Added
+- Newsletters: Add reply to behaviour setting [#37011]
+
+### Changed
+- Sync: When publishing post, sending the actual post in the jetpack_published_post action to avoid sending unnecessary extra action. [#37071]
+
+## [2.13.1] - 2024-04-25
+### Changed
+- Update dependencies.
+
+## [2.13.0] - 2024-04-22
+### Changed
+- Added scheduled updates sync option. [#36877]
+
+## [2.12.0] - 2024-04-15
+### Added
+- Add Scheduled Update Plugins option to synched options. [#36849]
+
 ## [2.11.1] - 2024-04-11
 ### Changed
 - Internal updates.
@@ -1100,6 +1126,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[2.15.0]: https://github.com/Automattic/jetpack-sync/compare/v2.14.0...v2.15.0
+[2.14.0]: https://github.com/Automattic/jetpack-sync/compare/v2.13.1...v2.14.0
+[2.13.1]: https://github.com/Automattic/jetpack-sync/compare/v2.13.0...v2.13.1
+[2.13.0]: https://github.com/Automattic/jetpack-sync/compare/v2.12.0...v2.13.0
+[2.12.0]: https://github.com/Automattic/jetpack-sync/compare/v2.11.1...v2.12.0
 [2.11.1]: https://github.com/Automattic/jetpack-sync/compare/v2.11.0...v2.11.1
 [2.11.0]: https://github.com/Automattic/jetpack-sync/compare/v2.10.5...v2.11.0
 [2.10.5]: https://github.com/Automattic/jetpack-sync/compare/v2.10.4...v2.10.5

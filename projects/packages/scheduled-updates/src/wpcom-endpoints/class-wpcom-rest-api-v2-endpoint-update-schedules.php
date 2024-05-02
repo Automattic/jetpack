@@ -8,7 +8,7 @@
  */
 
 use Automattic\Jetpack\Scheduled_Updates;
-use Automattic\Jetpack\Scheduled_Updates_Logs;
+use Automattic\Jetpack\Scheduled_Updates_Health_Paths;
 
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Update_Schedules
@@ -51,6 +51,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			'/' . $this->rest_base,
 			array(
 				array(
+					// @phan-suppress-next-line PhanPluginMixedKeyNoKey -- `register_rest_route()` requires mixed key/no-key for `$args`, and then https://github.com/phan/phan/issues/4852 puts the error on the wrong line.
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_items' ),
 					'permission_callback' => array( $this, 'get_items_permissions_check' ),
@@ -67,91 +68,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base . '/capabilities',
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_capabilities' ),
-					'permission_callback' => array( $this, 'get_capabilities_permissions_check' ),
-				),
-			)
-		);
-
-		register_rest_route(
-			$this->namespace,
-			'/' . $this->rest_base . '/(?P<schedule_id>[\w]+)/status',
-			array(
-				array(
-					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => array( $this, 'update_status' ),
-					'permission_callback' => array( $this, 'update_status_permissions_check' ),
-					'args'                => array(
-						'last_run_timestamp' => array(
-							'description' => 'Unix timestamp (UTC) for when the last run occurred.',
-							'type'        => 'integer',
-							'required'    => true,
-						),
-						'last_run_status'    => array(
-							'description' => 'Status of last run.',
-							'type'        => 'string',
-							'enum'        => array( 'success', 'failure-and-rollback', 'failure-and-rollback-fail' ),
-							'required'    => true,
-						),
-					),
-				),
-			)
-		);
-
-		register_rest_route(
-			$this->namespace,
-			'/' . $this->rest_base . '/(?P<schedule_id>[\w]+)/logs',
-			array(
-				array(
-					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => array( $this, 'add_log' ),
-					'permission_callback' => array( $this, 'add_log_permissions_check' ),
-					'args'                => array(
-						'action'  => array(
-							'description' => 'The action to be logged',
-							'type'        => 'string',
-							'required'    => true,
-							'enum'        => array(
-								Scheduled_Updates_Logs::PLUGIN_UPDATES_START,
-								Scheduled_Updates_Logs::PLUGIN_UPDATES_SUCCESS,
-								Scheduled_Updates_Logs::PLUGIN_UPDATES_FAILURE,
-								Scheduled_Updates_Logs::PLUGIN_UPDATE_SUCCESS,
-								Scheduled_Updates_Logs::PLUGIN_UPDATE_FAILURE,
-								Scheduled_Updates_Logs::PLUGIN_SITE_HEALTH_CHECK_SUCCESS,
-								Scheduled_Updates_Logs::PLUGIN_SITE_HEALTH_CHECK_FAILURE,
-								Scheduled_Updates_Logs::PLUGIN_UPDATE_FAILURE_AND_ROLLBACK,
-								Scheduled_Updates_Logs::PLUGIN_UPDATE_FAILURE_AND_ROLLBACK_FAIL,
-							),
-						),
-						'message' => array(
-							'description' => 'The message to be logged',
-							'type'        => 'string',
-							'required'    => false,
-						),
-						'context' => array(
-							'description' => 'The context to be logged',
-							'type'        => 'object',
-							'required'    => false,
-						),
-					),
-				),
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_logs' ),
-					'permission_callback' => array( $this, 'get_logs_permissions_check' ),
-				),
-			)
-		);
-
-		register_rest_route(
-			$this->namespace,
 			'/' . $this->rest_base . '/(?P<schedule_id>[\w]+)',
 			array(
 				array(
+					// @phan-suppress-next-line PhanPluginMixedKeyNoKey -- `register_rest_route()` requires mixed key/no-key for `$args`, and then https://github.com/phan/phan/issues/4852 puts the error on the wrong line.
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_item' ),
 					'permission_callback' => array( $this, 'get_item_permissions_check' ),
@@ -260,23 +180,21 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		usort( $plugins, 'strnatcasecmp' );
 
 		$event = Scheduled_Updates::create_scheduled_update( $schedule['timestamp'], $schedule['interval'], $plugins );
+
 		if ( is_wp_error( $event ) ) {
 			return $event;
 		}
 
-		require_once ABSPATH . 'wp-admin/includes/update.php';
-
-		if ( wp_is_auto_update_enabled_for_type( 'plugin' ) ) {
-			// Remove the plugins that are now updated on a schedule from the auto-update list.
-			$auto_update_plugins = get_option( 'auto_update_plugins', array() );
-			$auto_update_plugins = array_diff( $auto_update_plugins, $plugins );
-			update_option( 'auto_update_plugins', $auto_update_plugins );
-		}
-
 		$id = Scheduled_Updates::generate_schedule_id( $plugins );
 
-		// Set an empty status of a schedule on creation/modify.
-		Scheduled_Updates::set_scheduled_update_status( $id, null, null );
+		/**
+		 * Fires when a scheduled update is created.
+		 *
+		 * @param string          $id      The ID of the schedule.
+		 * @param object          $event   The event object.
+		 * @param WP_REST_Request $request The request object.
+		 */
+		do_action( 'jetpack_scheduled_update_created', $id, $event, $request );
 
 		return rest_ensure_response( $id );
 	}
@@ -344,8 +262,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return $result;
 		}
 
-		$previous_schedule_status = Scheduled_Updates::get_scheduled_update_status( $request['schedule_id'] );
-
 		$deleted = $this->delete_item( $request );
 		if ( is_wp_error( $deleted ) ) {
 			return $deleted;
@@ -353,102 +269,16 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 
 		$item = $this->create_item( $request );
 
-		// Sets the previous status.
-		if ( $previous_schedule_status ) {
-			Scheduled_Updates::set_scheduled_update_status( $item->data, $previous_schedule_status['last_run_timestamp'], $previous_schedule_status['last_run_status'] );
-		}
+		/**
+		 * Fires when a scheduled update is updated.
+		 *
+		 * @param string          $old_id  The ID of the schedule to update.
+		 * @param string          $new_id  The ID of the updated event.
+		 * @param WP_REST_Request $request The request object.
+		 */
+		do_action( 'jetpack_scheduled_update_updated', $request['schedule_id'], $item->data, $request );
 
 		return $item;
-	}
-
-	/**
-	 * Permission check for updating last status.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return bool|WP_Error
-	 */
-	public function update_status_permissions_check( $request ) {
-		return $this->update_item_permissions_check( $request );
-	}
-
-	/**
-	 * Updates last status of an existing update schedule.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response|WP_Error The updated event or a WP_Error if the schedule could not be found.
-	 */
-	public function update_status( $request ) {
-		$events = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
-
-		if ( empty( $events[ $request['schedule_id'] ] ) ) {
-			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
-		}
-
-		$option = Scheduled_Updates::set_scheduled_update_status(
-			$request['schedule_id'],
-			$request['last_run_timestamp'],
-			$request['last_run_status']
-		);
-
-		return rest_ensure_response( $option[ $request['schedule_id'] ] );
-	}
-
-	/**
-	 * Permission check for adding a log entry
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return bool|WP_Error
-	 */
-	public function add_log_permissions_check( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
-		}
-
-		return current_user_can( 'update_plugins' );
-	}
-
-	/**
-	 * Adds a log entry to an update schedule.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response|WP_Error The updated event or a WP_Error if the schedule could not be found.
-	 */
-	public function add_log( $request ) {
-		$schedule_id = $request['schedule_id'];
-		$action      = $request['action'];
-		$message     = $request['message'];
-		$context     = $request['context'];
-
-		Scheduled_Updates_Logs::log( $schedule_id, $action, $message, $context );
-
-		return rest_ensure_response( true );
-	}
-
-	/**
-	 * Permission check for retrieving logs.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return bool|WP_Error
-	 */
-	public function get_logs_permissions_check( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
-		}
-
-		return current_user_can( 'update_plugins' );
-	}
-
-	/**
-	 * Retrieves logs for a specific schedule.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response|WP_Error The logs for the schedule or a WP_Error if the schedule could not be found.
-	 */
-	public function get_logs( $request ) {
-		$schedule_id = $request['schedule_id'];
-		$logs        = Scheduled_Updates_Logs::get( $schedule_id );
-
-		return rest_ensure_response( $logs );
 	}
 
 	/**
@@ -489,26 +319,14 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return new WP_Error( 'unschedule_event_error', __( 'Error during unschedule of the event.', 'jetpack-scheduled-updates' ), array( 'status' => 500 ) );
 		}
 
-		require_once ABSPATH . 'wp-admin/includes/update.php';
-
-		if ( wp_is_auto_update_enabled_for_type( 'plugin' ) ) {
-			unset( $events[ $request['schedule_id'] ] );
-
-			// Find the plugins that are not part of any other schedule.
-			$plugins = $event->args;
-			foreach ( wp_list_pluck( $events, 'args' ) as $args ) {
-				$plugins = array_diff( $plugins, $args );
-			}
-
-			// Add the plugins that are no longer updated on a schedule to the auto-update list.
-			$auto_update_plugins = get_option( 'auto_update_plugins', array() );
-			$auto_update_plugins = array_unique( array_merge( $auto_update_plugins, $plugins ) );
-			usort( $auto_update_plugins, 'strnatcasecmp' );
-			update_option( 'auto_update_plugins', $auto_update_plugins );
-		}
-
-		// Delete logs
-		Scheduled_Updates_Logs::clear( $request['schedule_id'], true );
+		/**
+		 * Fires when a scheduled update is deleted.
+		 *
+		 * @param string          $id      The ID of the schedule to delete.
+		 * @param object          $event   The deleted event object.
+		 * @param WP_REST_Request $request The request object.
+		 */
+		do_action( 'jetpack_scheduled_update_deleted', $request['schedule_id'], $event, $request );
 
 		return rest_ensure_response( true );
 	}
@@ -524,12 +342,16 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return $response;
 		}
 
-		$data   = (array) $response->get_data();
-		$server = rest_get_server();
-		$links  = $server::get_compact_response_links( $response );
+		$data = (array) $response->get_data();
 
-		if ( ! empty( $links ) ) {
-			$data['_links'] = $links;
+		// Only call rest_get_server() if we're in a REST API request.
+		if ( did_action( 'rest_api_init' ) ) {
+			$server = rest_get_server();
+			$links  = $server::get_compact_response_links( $response );
+
+			if ( ! empty( $links ) ) {
+				$data['_links'] = $links;
+			}
 		}
 
 		return $data;
@@ -544,17 +366,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 */
 	public function prepare_item_for_response( $item, $request ) {
 		$item = (array) $item;
-
-		$status = Scheduled_Updates::get_scheduled_update_status( $item['schedule_id'] );
-		if ( ! $status ) {
-			$status = array(
-				'last_run_timestamp' => null,
-				'last_run_status'    => null,
-			);
-		}
-
-		$item = array_merge( $item, $status );
-
+		$item = apply_filters( 'jetpack_scheduled_response_item', $item, $request );
 		$item = $this->add_additional_fields_to_object( $item, $request );
 
 		// Remove schedule ID, not needed in the response.
@@ -646,6 +458,26 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	}
 
 	/**
+	 * Checks that the "paths" parameter is a valid array of paths.
+	 *
+	 * @param array $paths List of paths to check.
+	 * @return bool|WP_Error
+	 */
+	public function validate_paths_param( $paths ) {
+		foreach ( $paths as $path ) {
+			$valid = Scheduled_Updates_Health_Paths::validate( $path );
+
+			if ( is_wp_error( $valid ) ) {
+				$valid->add_data( array( 'status' => 400 ) );
+
+				return $valid;
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * Validates the submitted schedule.
 	 *
 	 * @param WP_REST_Request $request Request object.
@@ -678,32 +510,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Permission check for retrieving capabilities.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return bool|WP_Error
-	 */
-	public function get_capabilities_permissions_check( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
-		}
-
-		return current_user_can( 'update_plugins' );
-	}
-
-	/**
-	 * Returns a list of capabilities for updating plugins, and errors if those capabilities are not met.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response
-	 */
-	public function get_capabilities( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$file_mod_capabilities = Scheduled_Updates::get_file_mod_capabilities();
-
-		return rest_ensure_response( $file_mod_capabilities );
 	}
 
 	/**
@@ -753,6 +559,14 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 					'type'        => 'string',
 					'enum'        => array( 'success', 'failure-and-rollback', 'failure-and-rollback-fail' ),
 				),
+				'active'             => array(
+					'description' => 'Whether the schedule is active.',
+					'type'        => 'boolean',
+				),
+				'health_check_paths' => array(
+					'description' => 'Paths to check for site health.',
+					'type'        => 'array',
+				),
 			),
 		);
 
@@ -785,21 +599,36 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 				'type'        => 'object',
 				'required'    => true,
 				'properties'  => array(
-					'interval'  => array(
+					'interval'           => array(
 						'description' => 'Interval for the schedule.',
 						'type'        => 'string',
 						'enum'        => array( 'daily', 'weekly' ),
 						'required'    => true,
 					),
-					'timestamp' => array(
+					'timestamp'          => array(
 						'description' => 'Unix timestamp (UTC) for when to first run the schedule.',
 						'type'        => 'integer',
 						'required'    => true,
+					),
+					'active'             => array(
+						'description' => 'Whether the schedule is active.',
+						'type'        => 'boolean',
+						'required'    => false,
+						'default'     => true,
+					),
+					'health_check_paths' => array(
+						'description'       => 'List of paths to check for site health after the update.',
+						'type'              => 'array',
+						'maxItems'          => 5,
+						'items'             => array(
+							'type' => 'string',
+						),
+						'required'          => false,
+						'default'           => array(),
+						'validate_callback' => array( $this, 'validate_paths_param' ),
 					),
 				),
 			),
 		);
 	}
 }
-
-wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules' );

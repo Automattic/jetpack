@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Now that our tooling can support it, add `@automattic/jetpack-webpack-config` as a dev-dep and flag it as test-only instead of doing scary cross-project requires in the test cases.
+
+

@@ -71,7 +71,7 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 		 * when it encounters an error so right now we do not have a way to hook into why a plugin failed.
 		 */
 		$this->markTestIncomplete( "Right now this doesn't work." );
-
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		$this->server_event_storage->reset();
 		$plugin_defaults = array(
 			'title'  => '',

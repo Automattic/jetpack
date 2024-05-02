@@ -4,7 +4,12 @@ global $wp_cache_preload_posts;
 
 echo '<a name="preload"></a>';
 if ( ! $cache_enabled || ! $super_cache_enabled || true === defined( 'DISABLESUPERCACHEPRELOADING' ) ) {
-	echo '<div class="notice notice-warning"><p>' . __( 'Preloading of cache disabled. Please make sure simple or expert mode is enabled or talk to your host administrator.', 'wp-super-cache' ) . '</p></div>';
+	wp_admin_notice(
+		esc_html__( 'Preloading of cache disabled. Please make sure simple or expert mode is enabled or talk to your host administrator.', 'wp-super-cache' ),
+		array(
+			'type' => 'warning',
+		)
+	);
 	return;
 }
 

@@ -115,7 +115,6 @@ function AiPostExcerpt() {
 				return '';
 			}
 
-			// return turndownService.turndown( content );
 			const document = new window.DOMParser().parseFromString( content, 'text/html' );
 
 			const documentRawText = document.body.textContent || document.body.innerText || '';

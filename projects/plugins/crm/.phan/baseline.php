@@ -17,14 +17,13 @@ return [
     // PhanTypeArraySuspicious : 190+ occurrences
     // PhanImpossibleCondition : 180+ occurrences
     // PhanPluginUnreachableCode : 170+ occurrences
-    // PhanTypeMismatchArgument : 170+ occurrences
     // PhanTypeMismatchPropertyProbablyReal : 160+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 160+ occurrences
+    // PhanTypeMismatchArgument : 140+ occurrences
     // PhanPossiblyUndeclaredVariable : 130+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 130+ occurrences
     // PhanTypeMismatchDefault : 110+ occurrences
     // PhanPluginMixedKeyNoKey : 95+ occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 95+ occurrences
     // PhanSuspiciousValueComparison : 85+ occurrences
     // PhanImpossibleTypeComparison : 70+ occurrences
     // PhanPluginRedundantAssignment : 70+ occurrences
@@ -36,10 +35,11 @@ return [
     // PhanTypeMismatchArgumentInternalReal : 50+ occurrences
     // PhanTypeExpectedObjectPropAccess : 45+ occurrences
     // PhanTypeMismatchArgumentNullableInternal : 45+ occurrences
-    // PhanUndeclaredMethod : 45+ occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 45+ occurrences
     // PhanDeprecatedFunction : 40+ occurrences
     // PhanTypeMismatchArgumentNullable : 40+ occurrences
     // PhanTypeMismatchDimFetch : 40+ occurrences
+    // PhanUndeclaredMethod : 40+ occurrences
     // PhanUndeclaredTypeParameter : 40+ occurrences
     // PhanUnreferencedUseNormal : 40+ occurrences
     // PhanPluginDuplicateAdjacentStatement : 35+ occurrences
@@ -101,7 +101,6 @@ return [
     // PhanRedefineFunction : 2 occurrences
     // PhanTypeVoidArgument : 2 occurrences
     // PhanUndeclaredClassInstanceof : 2 occurrences
-    // PhanCommentParamOnEmptyParamList : 1 occurrence
     // PhanImpossibleTypeComparisonInLoop : 1 occurrence
     // PhanNoopVariable : 1 occurrence
     // PhanParamSuspiciousOrder : 1 occurrence
@@ -336,25 +335,24 @@ return [
         'tests/codeception/_support/Module/WordPress.php' => ['PhanIncompatibleRealPropertyType', 'PhanParamSignatureMismatch', 'PhanTypeMismatchDeclaredParamNullable', 'PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction', 'PhanUndeclaredMethod', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty', 'PhanUndeclaredTypeReturnType'],
         'tests/codeception/_support/UnitTester.php' => ['PhanParamSignatureMismatch', 'PhanParamSignaturePHPDocMismatchReturnType', 'PhanParamSignaturePHPDocMismatchTooFewParameters', 'PhanUndeclaredTrait'],
         'tests/php/automation/class-automation-engine-test.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanRedundantCondition'],
-        'tests/php/automation/class-automation-workflow-test.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredMethod', 'PhanUnreferencedUseNormal'],
-        'tests/php/automation/companies/class-company-trigger-test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUnreferencedUseNormal'],
+        'tests/php/automation/class-automation-workflow-test.php' => ['PhanParamTooMany', 'PhanUnreferencedUseNormal'],
+        'tests/php/automation/companies/class-company-trigger-test.php' => ['PhanUnreferencedUseNormal'],
         'tests/php/automation/contacts/actions/class-delete-contact-test.php' => ['PhanUnreferencedUseNormal'],
         'tests/php/automation/contacts/class-contact-condition-test.php' => ['PhanUnreferencedUseNormal'],
-        'tests/php/automation/contacts/class-contact-trigger-test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUnreferencedUseNormal'],
+        'tests/php/automation/contacts/class-contact-trigger-test.php' => ['PhanUnreferencedUseNormal'],
         'tests/php/automation/invoices/class-invoice-condition-test.php' => ['PhanUnreferencedUseNormal'],
-        'tests/php/automation/invoices/class-invoice-trigger-test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUnreferencedUseNormal'],
+        'tests/php/automation/invoices/class-invoice-trigger-test.php' => ['PhanUnreferencedUseNormal'],
         'tests/php/automation/mocks/mock-class-contact-condition.php' => ['PhanUnreferencedUseNormal'],
         'tests/php/automation/mocks/mock-class-contact-created-trigger.php' => ['PhanTypeMismatchDeclaredReturnNullable'],
         'tests/php/automation/mocks/mock-class-trigger-empty-slug.php' => ['PhanTypeMismatchDeclaredReturnNullable'],
         'tests/php/automation/quotes/class-quote-condition-test.php' => ['PhanTypeMismatchProperty', 'PhanUnreferencedUseNormal'],
-        'tests/php/automation/quotes/class-quote-trigger-test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUnreferencedUseNormal'],
-        'tests/php/automation/tasks/class-task-trigger-test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredMethod', 'PhanUnreferencedUseNormal'],
+        'tests/php/automation/quotes/class-quote-trigger-test.php' => ['PhanUnreferencedUseNormal'],
+        'tests/php/automation/tasks/class-task-trigger-test.php' => ['PhanUnreferencedUseNormal'],
         'tests/php/automation/tools/class-automation-faker.php' => ['PhanPluginMixedKeyNoKey'],
         'tests/php/automation/transactions/class-transaction-condition-test.php' => ['PhanUnreferencedUseNormal'],
-        'tests/php/automation/transactions/class-transaction-trigger-test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUnreferencedUseNormal'],
-        'tests/php/automation/wordpress/class-wp-user-trigger-test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
+        'tests/php/automation/transactions/class-transaction-trigger-test.php' => ['PhanUnreferencedUseNormal'],
         'tests/php/bootstrap.php' => ['PhanUndeclaredConstant'],
-        'tests/php/event-manager/class-event-manager-faker.php' => ['PhanCommentParamOnEmptyParamList', 'PhanUndeclaredTypeReturnType'],
+        'tests/php/event-manager/class-event-manager-faker.php' => ['PhanUndeclaredTypeReturnType'],
         'tests/php/event-manager/class-event-manager-test.php' => ['PhanCommentVarInsteadOfParam', 'PhanParamTooMany'],
         'tests/php/rest-api/v4/class-rest-authentication-test.php' => ['PhanTypeMismatchReturn'],
         'tests/php/rest-api/v4/class-rest-contacts-controller-test.php' => ['PhanPluginNeverReturnFunction'],

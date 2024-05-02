@@ -1,18 +1,20 @@
 /**
  * External dependencies
  */
-import { AIControl, UpgradeMessage } from '@automattic/jetpack-ai-client';
+import {
+	BlockAIControl,
+	UpgradeMessage,
+	renderHTMLFromMarkdown,
+} from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { rawHandler } from '@wordpress/blocks';
 import { Notice, PanelBody, PanelRow, KeyboardShortcuts } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { RawHTML, useState, useCallback } from '@wordpress/element';
+import { RawHTML, useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
-import MarkdownIt from 'markdown-it';
-import { useEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
@@ -29,10 +31,6 @@ import useAICheckout from './hooks/use-ai-checkout';
 import useAiFeature from './hooks/use-ai-feature';
 import { isUserConnected } from './lib/connection';
 import './editor.scss';
-
-const markdownConverter = new MarkdownIt( {
-	breaks: true,
-} );
 
 const isInBlockEditor = window?.Jetpack_Editor_Initial_State?.screenBase === 'post';
 
@@ -55,6 +53,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		requestsCount,
 		requestsLimit,
 		currentTier,
+		loading: loadingAiFeature,
 	} = useAiFeature();
 	const requestsRemaining = Math.max( requestsLimit - requestsCount, 0 );
 
@@ -222,16 +221,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const replaceContent = async () => {
 		let newGeneratedBlocks = [];
-		/*
-		 * Markdown-syntax content
-		 * - Get HTML code from markdown content
-		 * - Create blocks from HTML code
-		 */
-		let HTML = markdownConverter
-			.render( attributes.content || '' )
-			// Fix list indentation
-			.replace( /<li>\s+<p>/g, '<li>' )
-			.replace( /<\/p>\s+<\/li>/g, '</li>' );
+
+		let HTML = renderHTMLFromMarkdown( { content: attributes.content || '' } );
 
 		const seemsToIncludeTitle =
 			HTML?.split( '\n' ).length > 1 && HTML?.split( '\n' )?.[ 0 ]?.match( /^<h1>.*<\/h1>$/ );
@@ -350,7 +341,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 			<div { ...blockProps }>
 				{ contentIsLoaded && (
 					<div ref={ contentRef } className="jetpack-ai-assistant__content">
-						<RawHTML>{ markdownConverter.render( attributes.content ) }</RawHTML>
+						<RawHTML>{ renderHTMLFromMarkdown( { content: attributes.content || '' } ) }</RawHTML>
 					</div>
 				) }
 				<InspectorControls>
@@ -396,7 +387,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 						isGeneratingTitle={ isGeneratingTitle }
 					/>
 				) }
-				<AIControl
+				<BlockAIControl
 					ref={ aiControlRef }
 					disabled={ requireUpgrade || ! connected }
 					value={ attributes.userPrompt }
@@ -413,11 +404,12 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					acceptLabel={ acceptLabel }
 					showGuideLine={ contentIsLoaded }
 					showRemove={ attributes?.content?.length > 0 }
-					bannerComponent={ banner }
-					errorComponent={ errorNotice }
+					banner={ banner }
+					error={ errorNotice }
 					customFooter={
 						// Only show the upgrade message on each 5th request or if it's the first request - and only if the user is on the free plan
 						( requestsRemaining % 5 === 0 || requestsCount === 1 ) &&
+						! loadingAiFeature && // Don't show the upgrade message while the feature is loading
 						planType === PLAN_TYPE_FREE ? (
 							<UpgradeMessage
 								requestsRemaining={ requestsRemaining }
