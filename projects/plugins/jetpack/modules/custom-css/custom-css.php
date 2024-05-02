@@ -376,7 +376,7 @@ class Jetpack_Custom_CSS_Enhancements {
 				/** This filter is documented in modules/custom-css/custom-css.php */
 				'useRichEditor'        => ! jetpack_is_mobile() && apply_filters( 'safecss_use_ace', true ),
 				'areThereCssRevisions' => self::are_there_css_revisions(),
-				'startFresh'           => isset( $setting ) && $setting->value() ? true : false,
+				'startFresh'           => isset( $setting ) && $setting->value(),
 				'revisionsUrl'         => self::get_revisions_url(),
 				'cssHelpUrl'           => '//en.support.wordpress.com/custom-design/editing-css/',
 				'l10n'                 => array(
