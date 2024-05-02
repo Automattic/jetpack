@@ -21,19 +21,9 @@ use Automattic\Jetpack\Forms\Jetpack_Forms;
  */
 
 /**
- * Whether to load the newer Jetpack Forms package.
- *
- * @use add_filter( 'jetpack_contact_form_use_package', '__return_true' );
- * @module contact-form
- *
- * @since 11.8
- *
- * @param bool $load_contact_form_package Load Jetpack Forms package. Default to false.
+ * Load the newer Jetpack Forms package.
  */
-if ( apply_filters( 'jetpack_contact_form_use_package', true ) ) {
-	Jetpack_Forms::load_contact_form();
-	return true; // Not returning true will cause the module to become deactivated.
-}
+Jetpack_Forms::load_contact_form();
 
 /**
  * Register Jetpack Form patterns

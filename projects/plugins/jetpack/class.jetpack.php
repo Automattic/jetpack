@@ -5600,6 +5600,10 @@ endif;
 				'replacement' => null,
 				'version'     => 'jetpack-13.2.0',
 			),
+			'jetpack_contact_form_use_package'             => array(
+				'replacement' => null,
+				'version'     => 'jetpack-$$next-version$$',
+			),
 		);
 
 		foreach ( $filter_deprecated_list as $tag => $args ) {
