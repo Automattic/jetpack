@@ -294,7 +294,7 @@ class Boost_Cache {
 			 */
 			if ( isset( $parameters['cookies'] ) && ! empty( $parameters['cookies'] ) ) {
 				$filename = trailingslashit( get_permalink( $post->ID ) ) . Filesystem_Utils::get_request_filename( $parameters );
-				$this->storage->invalidate( $filename, Filesystem_Utils::REBUILD_FILE );
+				$this->storage->invalidate( $filename, Filesystem_Utils::DELETE_FILE );
 			}
 			return;
 		}
