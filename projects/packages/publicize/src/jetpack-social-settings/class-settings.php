@@ -170,7 +170,23 @@ class Settings {
 			$settings['socialImageGeneratorSettings']['available'] = $this->is_sig_available();
 		}
 
+		return $settings;
+	}
+
+	/**
+	 * Get the initial state.
+	 */
+	public function get_initial_state() {
+		global $publicize;
+
+		$settings = $this->get_settings( true );
+
 		$settings['useAdminUiV1'] = Publicize::use_admin_ui_v1();
+
+		$settings['connectionData'] = array(
+			'connections' => $publicize->get_all_connections_for_user(),
+			'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
+		);
 
 		return $settings;
 	}
