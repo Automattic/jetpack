@@ -583,3 +583,26 @@ function wpcom_add_scheduled_updates_menu() {
 	);
 }
 add_action( 'admin_menu', 'wpcom_add_scheduled_updates_menu' );
+
+/**
+ * Add the Plugins menu item to the admin menu on simple sites.
+ */
+function wpcom_add_plugins_menu() {
+
+	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+		return;
+	}
+
+	if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
+		add_menu_page(
+			__( 'Plugins', 'jetpack-mu-wpcom' ),
+			__( 'Plugins', 'jetpack-mu-wpcom' ),
+			'manage_options', // Roughly means "is a site admin"
+			'plugins.php',
+			'',
+			'dashicons-admin-plugins',
+			65
+		);
+	}
+}
+add_action( 'admin_menu', 'wpcom_add_plugins_menu' );
