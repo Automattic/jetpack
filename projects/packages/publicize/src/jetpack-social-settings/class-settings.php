@@ -179,6 +179,11 @@ class Settings {
 	public function get_initial_state() {
 		global $publicize;
 
+		// Ensure that the Publicize is initialized.
+		if ( ! is_object( $publicize ) ) {
+			$publicize = new Publicize();
+		}
+
 		$settings = $this->get_settings( true );
 
 		$settings['useAdminUiV1'] = Publicize::use_admin_ui_v1();
