@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Remove reference to nonexistent `Automattic\Jetpack\Search\Compatibility\disable_instant_search_for_ios_lt_16` function in test.
+
+

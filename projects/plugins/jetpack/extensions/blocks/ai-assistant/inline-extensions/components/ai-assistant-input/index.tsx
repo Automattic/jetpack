@@ -14,6 +14,7 @@ import type { ReactElement } from 'react';
 export default function AiAssistantInput( {
 	requestingState,
 	wrapperRef,
+	inputRef,
 	action,
 	request,
 	stopSuggestion,
@@ -25,6 +26,7 @@ export default function AiAssistantInput( {
 	requestingState: RequestingStateProp;
 	requestingError?: RequestingErrorProps;
 	suggestion?: string;
+	inputRef?: React.MutableRefObject< HTMLInputElement | null >;
 	wrapperRef?: React.MutableRefObject< HTMLDivElement | null >;
 	action?: string;
 	request: ( question: string ) => void;
@@ -80,6 +82,7 @@ export default function AiAssistantInput( {
 			onUndo={ handleUndo }
 			onUpgrade={ handleUpgrade }
 			wrapperRef={ wrapperRef }
+			ref={ inputRef }
 		/>
 	);
 }

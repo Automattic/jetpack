@@ -221,7 +221,7 @@ final class Data_Sync {
 		 * ```
 		 */
 		if ( method_exists( $parser, 'set_context' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredMethod -- Checked for just above.
+			// @phan-suppress-next-line PhanUndeclaredMethod -- Phan misses the method_exists(). See https://github.com/phan/phan/issues/1204.
 			$parser->set_context( new Schema_Context( $key ) );
 		}
 		$entry_adapter = new Data_Sync_Entry_Adapter( $entry, $parser );

@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix types in some phpdocs. No change to functionality.
+
+
