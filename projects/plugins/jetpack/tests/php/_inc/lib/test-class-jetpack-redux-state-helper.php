@@ -5,8 +5,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Publicize\Publicize;
-
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-redux-state-helper.php';
 
 /**
@@ -23,32 +21,10 @@ class WP_Test_Jetpack_Redux_State_Helper extends WP_UnitTestCase {
 	private $theme_features;
 
 	/**
-	 * Publicize instance.
-	 *
-	 * @var ?Publicize
-	 */
-	private $publicize = null;
-
-	/**
 	 * Saving the original theme features.
 	 */
 	public function set_up() {
 		parent::set_up();
-
-		global $publicize;
-
-		$mock_builder = $this->getMockBuilder( Publicize::class );
-
-		// PHPUnit < 8.0 doesn't have onlyMethods method and PHPUnit >= 8.0 has setMethods method deprecated.
-		$method = is_callable( array( $mock_builder, 'onlyMethods' ) ) ? 'onlyMethods' : 'setMethods';
-
-		$this->publicize = call_user_func( array( $mock_builder, $method ), array( 'get_all_connections_for_user' ) )->getMock();
-
-		$this->publicize->method( 'get_all_connections_for_user' )
-			->withAnyParameters()
-			->willReturn( array() );
-
-		$publicize = $this->publicize;
 
 		global $_wp_theme_features;
 		$this->theme_features = $_wp_theme_features;
