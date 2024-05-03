@@ -251,7 +251,7 @@ function wpcom_site_menu_enqueue_scripts() {
 			$wpcom_user_data    = $connection_manager->get_connected_user_data();
 			if ( $wpcom_user_data ) {
 				$user_id    = $wpcom_user_data['ID'];
-				$user_login = $wpcom_user_data['username'];
+				$user_login = $wpcom_user_data['login'];
 			}
 		}
 
