@@ -1126,6 +1126,7 @@ namespace {
         public const MANAGE_PLUGINS = 'manage-plugins';
         public const SCHEDULED_UPDATES = 'scheduled-updates';
         public const SUBSCRIPTION_GIFTING = 'subscription-gifting';
+        public const INSTALL_PLUGINS = 'install-plugins';
     }
     /**
      * @param string $feature
