@@ -68,7 +68,7 @@ class Universal {
 		/**
 		 * Allow for additional elements to be added to the universal Google Analytics queue (ga) array
 		 *
-		 * @since 5.6.0
+		 * @since jetpack-5.6.0
 		 *
 		 * @param array $custom_vars Array of universal Google Analytics queue elements
 		 */
@@ -206,7 +206,7 @@ class Universal {
 	 *
 	 * @see https://github.com/woocommerce/woocommerce/wiki/High-Performance-Order-Storage-Upgrade-Recipe-Book
 	 *
-	 * @since 13.1
+	 * @since jetpack-13.1
 	 * @param array $command_array Array of commands.
 	 * @return array `$command_array` with additional commands conditionally added.
 	 */
