@@ -424,6 +424,7 @@ export default function FeaturedImage( {
 											  )
 											: null
 									}
+									useLightNudge={ true }
 								/>
 							) }
 							<Carrousel
