@@ -126,7 +126,7 @@ class Legacy {
 		/**
 		 * Allow for additional elements to be added to the classic Google Analytics queue (_gaq) array
 		 *
-		 * @since 5.4.0
+		 * @since jetpack-5.4.0
 		 *
 		 * @param array $custom_vars Array of classic Google Analytics queue elements
 		 */
@@ -158,7 +158,7 @@ class Legacy {
 		/**
 		 * Allow for additional elements to be added to the Global Site Tags array.
 		 *
-		 * @since 9.2.0
+		 * @since jetpack-9.2.0
 		 *
 		 * @param array $universal_commands Array of gtag function calls.
 		 */
