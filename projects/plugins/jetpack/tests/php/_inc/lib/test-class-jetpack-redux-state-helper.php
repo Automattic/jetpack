@@ -36,7 +36,13 @@ class WP_Test_Jetpack_Redux_State_Helper extends WP_UnitTestCase {
 		parent::set_up();
 
 		global $publicize;
-		$this->publicize = $this->getMockBuilder( Publicize::class )->onlyMethods( array( 'get_all_connections_for_user' ) )->getMock();
+
+		$mock_builder = $this->getMockBuilder( Publicize::class );
+
+		// PHPUnit < 8.0 doesn't have onlyMethods method and PHPUnit >= 8.0 has setMethods method deprecated.
+		$method = is_callable( array( $mock_builder, 'onlyMethods' ) ) ? 'onlyMethods' : 'setMethods';
+
+		$this->publicize = call_user_func( array( $mock_builder, $method ), array( 'get_all_connections_for_user' ) )->getMock();
 
 		$this->publicize->method( 'get_all_connections_for_user' )
 			->withAnyParameters()
