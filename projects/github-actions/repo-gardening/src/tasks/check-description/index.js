@@ -470,7 +470,7 @@ async function checkDescription( payload, octokit ) {
 
 	if (
 		( ref === 'update/phan-wpcom-stubs' || ref === 'update/phan-custom-stubs' ) &&
-		author === 'matticbot'
+		( author === 'matticbot' || author === 'github-actions[bot]' )
 	) {
 		debug( `check-description: Automated stub update, skipping` );
 		return;

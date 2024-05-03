@@ -5,6 +5,15 @@
  * @package automattic/jetpack
  */
 
+if ( ! function_exists( 'has_blog_sticker' ) ) {
+	/**
+	 * "Mock" WPCOM sticker function with 'get_option'
+	 */
+	function has_blog_sticker( $sticker ) {
+		return get_option( $sticker );
+	}
+}
+
 if ( ! function_exists( 'wp_cache_is_enabled' ) ) {
 	/**
 	 * "Mocking" function so that it exists and Automattic\Jetpack\Sync\Actions will load Automattic\Jetpack\Sync\Modules\WP_Super_Cache.

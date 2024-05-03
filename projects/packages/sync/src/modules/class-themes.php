@@ -383,6 +383,7 @@ class Themes extends Module {
 		}
 
 		if ( 'install' === $details['action'] ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- Checked above. See also https://github.com/phan/phan/issues/1204.
 			$theme = $upgrader->theme_info();
 			if ( ! $theme instanceof \WP_Theme ) {
 				return;

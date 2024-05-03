@@ -567,6 +567,10 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertObjectNotHasProperty( 'amp_permalink', $post );
 
+		/**
+		 * @phan-suppress PhanRedefineFunction
+		 * @todo Defining this function mid-test here seems risky. Is there a better way we can test this?
+		 */
 		function amp_get_permalink( $post_id ) { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
 			return "http://example.com/?p=$post_id&amp";
 		}
@@ -1154,6 +1158,7 @@ POST_CONTENT;
 	public function test_embed_shortcode_is_disabled_on_the_content_filter_during_sync() {
 		$this->markTestSkipped( 'Skipping to be able to merge #21030. Needs a proper fix anyway.' );
 		// this only applies to rendered content, which is off by default
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		$content =
@@ -1361,15 +1366,15 @@ That was a cool video.';
 
 		$events = $this->server_event_storage->get_all_events();
 
-		$events = array_slice( $events, -6 );
+		$events = array_slice( $events, -4 );
 
-		$this->assertEquals( $events[0]->args[0], $events[2]->args[0] );
+		$this->assertEquals( $events[0]->args[0], $events[1]->args[0] );
 		$this->assertEquals( 'jetpack_sync_save_post', $events[0]->action );
-		$this->assertEquals( 'jetpack_published_post', $events[2]->action );
+		$this->assertEquals( 'jetpack_published_post', $events[1]->action );
 
-		$this->assertEquals( $events[3]->args[0], $events[5]->args[0] );
-		$this->assertEquals( 'jetpack_sync_save_post', $events[3]->action );
-		$this->assertEquals( 'jetpack_published_post', $events[5]->action );
+		$this->assertEquals( $events[2]->args[0], $events[3]->args[0] );
+		$this->assertEquals( 'jetpack_sync_save_post', $events[2]->action );
+		$this->assertEquals( 'jetpack_published_post', $events[3]->action );
 	}
 
 	/**
@@ -1419,6 +1424,7 @@ That was a cool video.';
 		$mocked->expects( $this->exactly( 15 ) )
 				->method( 'chunked_call' );
 
+		// @phan-suppress-next-line PhanEmptyFQSENInClasslike -- https://github.com/phan/phan/issues/4851
 		add_action( 'jetpack_post_meta_batch_delete', array( $mocked, 'chunked_call' ), 10, 2 );
 
 		/**
@@ -1449,6 +1455,7 @@ That was a cool video.';
 		$mocked->expects( $this->never() )
 				->method( 'chunked_call' );
 
+		// @phan-suppress-next-line PhanEmptyFQSENInClasslike -- https://github.com/phan/phan/issues/4851
 		add_action( 'jetpack_post_meta_batch_delete', array( $mocked, 'chunked_call' ), 10, 2 );
 
 		/**
@@ -1479,6 +1486,7 @@ That was a cool video.';
 		$mocked->expects( $this->never() )
 			->method( 'chunked_call' );
 
+		// @phan-suppress-next-line PhanEmptyFQSENInClasslike -- https://github.com/phan/phan/issues/4851
 		add_action( 'jetpack_post_meta_batch_delete', array( $mocked, 'chunked_call' ), 10, 2 );
 
 		/**

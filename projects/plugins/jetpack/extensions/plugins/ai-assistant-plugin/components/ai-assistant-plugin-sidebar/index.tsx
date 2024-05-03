@@ -4,7 +4,7 @@
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelBody, PanelRow, BaseControl } from '@wordpress/components';
-import { PluginPrePublishPanel } from '@wordpress/edit-post';
+import { PluginPrePublishPanel, PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import debugFactory from 'debug';
@@ -16,8 +16,9 @@ import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import { TierProp } from '../../../../store/wordpress-com/types';
-import FeaturedImage from '../featured-image';
+import FeaturedImage, { FEATURED_IMAGE_PLACEMENT_JETPACK_SIDEBAR } from '../featured-image';
 import Proofread from '../proofread';
+import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
 import { USAGE_PANEL_PLACEMENT_JETPACK_SIDEBAR } from '../usage-panel/types';
 import './style.scss';
@@ -31,6 +32,10 @@ const isUsagePanelAvailable =
 const isAIFeaturedImageAvailable =
 	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'ai-featured-image-generator' ]
 		?.available || false;
+// Determine if the AI Title Optimization feature is available
+const isAITitleOptimizationAvailable =
+	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'ai-title-optimization' ]?.available ||
+	false;
 
 const Upgrade = ( {
 	onClick,
@@ -112,6 +117,17 @@ export default function AiAssistantPluginSidebar() {
 						isOpen && panelToggleTracker( 'jetpack-sidebar' );
 					} }
 				>
+					{ isAITitleOptimizationAvailable && (
+						<PanelRow className="jetpack-ai-title-optimization__header">
+							<BaseControl label={ __( 'Optimize Publishing', 'jetpack' ) }>
+								<TitleOptimization
+									placement="jetpack-sidebar"
+									busy={ isRedirecting }
+									disabled={ requireUpgrade }
+								/>
+							</BaseControl>
+						</PanelRow>
+					) }
 					<PanelRow className="jetpack-ai-proofread-control__header">
 						<BaseControl label={ __( 'AI feedback on post', 'jetpack' ) }>
 							<Proofread busy={ isRedirecting } disabled={ requireUpgrade } />
@@ -120,7 +136,11 @@ export default function AiAssistantPluginSidebar() {
 					{ isAIFeaturedImageAvailable && (
 						<PanelRow className="jetpack-ai-featured-image-control__header">
 							<BaseControl label={ __( 'AI Featured Image', 'jetpack' ) }>
-								<FeaturedImage busy={ isRedirecting } disabled={ requireUpgrade } />
+								<FeaturedImage
+									busy={ isRedirecting }
+									disabled={ requireUpgrade }
+									placement={ FEATURED_IMAGE_PLACEMENT_JETPACK_SIDEBAR }
+								/>
 							</BaseControl>
 						</PanelRow>
 					) }
@@ -147,6 +167,13 @@ export default function AiAssistantPluginSidebar() {
 				initialOpen={ false }
 			>
 				<>
+					{ isAITitleOptimizationAvailable && (
+						<TitleOptimization
+							placement="pre-publish"
+							busy={ isRedirecting }
+							disabled={ requireUpgrade }
+						/>
+					) }
 					<Proofread busy={ isRedirecting } disabled={ requireUpgrade } />
 					{ requireUpgrade && (
 						<Upgrade
@@ -158,6 +185,41 @@ export default function AiAssistantPluginSidebar() {
 					) }
 				</>
 			</PluginPrePublishPanel>
+
+			<PluginDocumentSettingPanel
+				icon={ <JetpackEditorPanelLogo /> }
+				title={ title }
+				name="jetpack-ai-assistant"
+			>
+				{ isAITitleOptimizationAvailable && (
+					<PanelRow className="jetpack-ai-title-optimization__header">
+						<BaseControl label={ __( 'Optimize Publishing', 'jetpack' ) }>
+							<TitleOptimization
+								placement="document-setting"
+								busy={ isRedirecting }
+								disabled={ requireUpgrade }
+							/>
+						</BaseControl>
+					</PanelRow>
+				) }
+
+				<PanelRow className="jetpack-ai-proofread-control__header">
+					<BaseControl label={ __( 'AI feedback on post', 'jetpack' ) }>
+						<Proofread busy={ isRedirecting } disabled={ requireUpgrade } />
+					</BaseControl>
+				</PanelRow>
+
+				{ requireUpgrade && (
+					<PanelRow>
+						<Upgrade
+							placement="document-setting"
+							onClick={ autosaveAndRedirect }
+							type={ upgradeType }
+							currentTier={ currentTier }
+						/>
+					</PanelRow>
+				) }
+			</PluginDocumentSettingPanel>
 		</>
 	);
 }

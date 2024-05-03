@@ -2,6 +2,114 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.4-a.9 - 2024-04-29
+### Enhancements
+- Newsletter: Add subscrition 'reply to' behaviour. [#37011]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add aceptance for title optimization. [#37078]
+- Add cancel action for title optimization. [#37080]
+- Adds a jp_memberships_is_sandboxed item for sync. [#37088]
+- AI Assistant: Add inline extensions feature flag. [#37082]
+- AI Assistant: Add partial heading inline extension. [#37087]
+- API Docs: Fix example request for media add and update endpoints. [#37072]
+- Block Editor: Update button props to match latest changes in WordPress 6.5. [#36318]
+- CloudFlare Analytics: deprecate feature and move to mu-wpcom. [#37061]
+- Ensure that the paid subscriber cache is unique to the parameters it consumes. [#36925]
+- Janitorial: Use wp_admin_notice function introduced in WP 6.4 to display notices. [#37051]
+- Subscriptions: Hide subscriber count for already subscribed users. [#37073]
+- Subscriptions: The in_site_migration_flow show be a string to allow us to redirect to various flows. [#37099]
+- Subscriptions: Track "Set up" button clicks. [#37053]
+- Untangling: Fix sidebar upsells on Default color scheme to follow Core's. [#37064]
+- WordPress.com Block Editor: Avoid relying on the Jetpack class. [#37074]
+
+## 13.4-a.7 - 2024-04-25
+### Improved compatibility
+- General: Update WordPress version requirements to WordPress 6.4 and remove compatibility code for lower versions. [#37047] [#37049]
+
+### Bug fixes
+- Google Fonts: Avoid theme fonts overriding the default fonts so fonts with a specific font weight that are not supported by the provided theme can be rendered correctly. [#37050]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add migration_source_site_domain to the list of available site options to update and retrieve. This will be used as part of the Site Migration on-boarding flow. [#37060]
+- Add title optimization as beta [#37001]
+- Add title optimization jetpack sidebar entry [#37002]
+- Add title optimization modal content [#37003]
+- Add update_plugins capability to the /sites/%s endpoint. [#36280]
+- AI Assistant: Separate toolbar dropdown logic and UI [#37016]
+- AI Assistant: Update AIControl imports [#36967]
+- Cookie Consent: localize default text [#37012]
+- Enhanced Distribution: remove deprecated module file. [#37032]
+- Masterbar: Specific styles for sidebar upsells are now maintained in separate files for each color scheme [#37022]
+- Subscriptions: Add "Paid newsletter" section to the Newsletter settings [#36975]
+- Subscriptions: Link "Subscribed" button to individual subscription page [#37021]
+
+## 13.4-a.5 - 2024-04-22
+### Enhancements
+- Subscription: Add a filter to Allow Newsletter Block Meta Capability to be Changed. [#36909]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add scheduled updates sync option. [#36877]
+- Add in_site_migration_flow to the list of available site options to update and retrieve. This will be used as part of the Site Migration on-boarding flow. [#36974]
+- Adds the ability to filter users in the WPCOM_JSON_API_List_Users_Endpoint endpoint by capability. [#36893]
+- Add the userConnectionUrl to initial state to use in Social sidebar. [#36976]
+- AI Assistant: Extract Markdown and HTML conversions to AI Client. [#36906]
+- AI Featured Image: move tool from beta to production, to make it available to everyone. [#36965]
+- AI Featured Image: remove scrollbar on smaller screens. [#36963]
+- Block Scaffolding: update API version in template [#36955]
+- Carousel: Ensure that disabling the feature on WordPress.com Simple brings back Core's Lightbox back. [#36914]
+- CLI: Make `wp jetpack publicize` work again. [#36988]
+- Donations Block: Fix non localized strings. [#36951]
+- Enabled SIG even if publicize is disabled. [#36911]
+- Fix phpdoc types, and update phan config and baseline for wpcom stubs. No change to functionality. [#36988]
+- Google Docs Embed: Fix non localized strings. [#36993]
+- Jetpack Google Fonts: Add filter to conditionally skip loading. [#36980]
+- Monetize: Move menu item under Jetpack menu for all Classic interface users. [#36995]
+- Remove unnecessary react imports. [#36904]
+- REST API: Correctly report Publicize when applicable in `/jetpack/v4/site/benefits` endpoint. [#36988]
+- Sitemaps: Ensured that the last modification date from the jetpack_page_sitemap_other_urls filter is considered for the last modification date of the generated sitemap. [#36991]
+- Subscriptions: Add Subscriber Login block navigation placement setting to Dotcom Site Settings API. [#37000]
+- Subscriptions Block: Only check newsletter plans when inside WP Admin. [#36928]
+- Tiled Gallery: Fix round corners style. [#36952]
+- Tiled Gallery Block: Don't use image CDN on private WordPress.com simple sites. [#36876]
+- Update blocks to use API version 3. [#36858] [#36859] [#36864]
+- Update UX of featured image usage counter. [#36926]
+
+## 13.4-a.3 - 2024-04-15
+### Improved compatibility
+- WordPress.com Toolbar: Avoid fatal errors when using other menu management plugins and the WordPress.com Toolbar feature. [#36783]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add the 'All Sites' menu. [#36632]
+- Add 'Carrousel' in 'Featured Image'. [#36834]
+- Add upgrade prompt in 'Featured Image'. [#36806]
+- Admin Menu: Moved "Theme Showcase" menu registration to jetpack-mu-wpcom package. [#36851]
+- AI Assistant: Remove AI Playground. [#36808]
+- AI Assistant: Rename useSuggestionsFromOpenAI to useAIAssistant and deduplicate suggestion logic. [#36869]
+- AI Featured Image: Fix bug on automatic transition to featured image panel. [#36863]
+- AI Featured Image: Include link to provide feedback on the footer of the modal. [#36831]
+- AI Featured Image: Incorporate i3  updates on style and UI. [#36868]
+- AI Featured Image: Update copy and UI alignments. [#36812]
+- A minor performance improvement on memberships. [#36821]
+- Auto-save image from featured image feature. [#36822]
+- Avoid showing featured image upgrade prompt on generating. [#36899]
+- Business Hours: Fix time formatting in preview mode. [#36786]
+- Business Hours Block: Refactor Edit component to a function. [#36785]
+- Dontains Form block: Show Stripe nudge if not connected. [#36841]
+- Fix auto scroll on iframe editor. [#36726]
+- Fixed SIG not visible in Jetpack sidebar. [#36895]
+- Improve performance of memberships checks. [#36798]
+- Make the representation of the end date consistent in membership subscription abbreviation. [#36838]
+- Map Block: Refactor Edit component to function. [#36795]
+- Post endpoint: Return a 404 if a post is being trashed but does not exist. [#36768]
+- Simple Payments Block: Refactor Edit component to a function. [#36809]
+- Slideshow Block: Refactor Edit component to a function. [#36805]
+- Tiled Gallery Block: Refactor Edit component to a function. [#36804]
+- Update blocks to use API version 3. [#36827] [#36852] [#36854]
+- Updated social previews package. [#36874]
+- Update Testimonials CPT priority so it always appears below Portfolio Projects. [#36866]
+- Update UX on Featured Image. [#36865]
+
 ## 13.4-a.1 - 2024-04-08
 ### Enhancements
 - Newsletters: Add a filter that enables the user to control the timing at which the Subscribe Modal loads. [#36374]
@@ -33,6 +141,7 @@
 - Updated package dependencies. [#36760] [#36761] [#36775] [#36788]
 
 ## 13.3.1 - 2024-04-10
+
 - Protect: Improved handling of request URLs. [#36833]
 
 ## [13.3] - 2024-04-03

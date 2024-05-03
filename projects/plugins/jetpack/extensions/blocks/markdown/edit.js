@@ -1,8 +1,8 @@
 import { BlockControls, PlainText, useBlockProps } from '@wordpress/block-editor';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useEffect, useRef, useState } from 'react';
 import ToolbarButton from './controls';
 import MarkdownRenderer from './renderer';
 

@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Changelogger;
 
 use Automattic\Jetpack\Changelog\ChangeEntry;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,6 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * "Version" command for the changelogger tool CLI.
  */
+#[AsCommand( 'version', 'Displays versions from the changelog and change files' )]
 class VersionCommand extends Command {
 
 	/**
@@ -27,10 +29,17 @@ class VersionCommand extends Command {
 	protected static $defaultName = 'version';
 
 	/**
+	 * The default command description
+	 *
+	 * @var string|null
+	 */
+	protected static $defaultDescription = 'Displays versions from the changelog and change files';
+
+	/**
 	 * Configures the command.
 	 */
 	protected function configure() {
-		$this->setDescription( 'Displays versions from the changelog and change files' )
+		$this->setDescription( static::$defaultDescription )
 			->addArgument( 'which', InputArgument::REQUIRED, 'Version to fetch: <info>previous</>, <info>current</>, or <info>next</>' )
 			->addOption( 'use-version', null, InputOption::VALUE_REQUIRED, 'When fetching the next version, use this instead of the current version in the changelog' )
 			->addOption( 'use-significance', null, InputOption::VALUE_REQUIRED, 'When fetching the next version, use this significance instead of using the actual change files' )
@@ -112,7 +121,7 @@ EOF
 	 * @param OutputInterface $output OutputInterface.
 	 * @return int 0 if everything went fine, or an exit code.
 	 */
-	protected function execute( InputInterface $input, OutputInterface $output ) {
+	protected function execute( InputInterface $input, OutputInterface $output ): int {
 		try {
 			$formatter = Config::formatterPlugin();
 			$formatter->setIO( $input, $output );

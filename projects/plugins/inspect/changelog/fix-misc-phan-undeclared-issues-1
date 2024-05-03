@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Add a `@return` and a `@phan-var` so Phan can get the correct types to avoid a PhanUndeclaredInvokeInCallable.
+
+

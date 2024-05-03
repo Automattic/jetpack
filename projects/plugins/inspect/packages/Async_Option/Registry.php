@@ -52,8 +52,8 @@ class Registry {
 	/**
 	 * Register an option using an Async Option Template.
 	 *
-	 * @param $option_name string
-	 * @param $value       Async_Option_Template
+	 * @param $key       string
+	 * @param $template  Async_Option_Template
 	 *
 	 * @return Async_Option
 	 * @throws \Exception

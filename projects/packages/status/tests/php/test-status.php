@@ -76,6 +76,9 @@ class Test_Status extends TestCase {
 			}
 		);
 
+		// Alias-mock Identity_Crisis so the tests don't try to call into it.
+		\Mockery::mock( 'alias:Automattic\\Jetpack\\Identity_Crisis' );
+
 		Status\Cache::clear();
 		$this->status_obj = new Status();
 	}
@@ -318,6 +321,9 @@ class Test_Status extends TestCase {
 		$wpdb->prefix   = 'wp_';
 		$wpdb->site     = 'wp_site';
 		$wpdb->usermeta = 'wp_usermeta';
+
+		// Reset class so Phan doesn't get confused.
+		'@phan-var \wpdb $wpdb';
 	}
 
 	/**

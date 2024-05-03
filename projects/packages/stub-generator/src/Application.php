@@ -38,13 +38,6 @@ class Application extends SingleCommandApplication {
 	private $exitCode = 0;
 
 	/**
-	 * Default description.
-	 *
-	 * @var string
-	 */
-	protected static $defaultDescription = 'Generate stubs for specific functions/classes/etc from a codebase.';
-
-	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -90,9 +83,9 @@ class Application extends SingleCommandApplication {
 	 * @param OutputInterface $output OutputInterface.
 	 * @return int 0 if everything went fine, or an exit code.
 	 */
-	protected function execute( InputInterface $input, OutputInterface $output ) {
+	protected function execute( InputInterface $input, OutputInterface $output ): int {
 		$output->getFormatter()->setStyle( 'warning', new OutputFormatterStyle( 'black', 'yellow' ) );
-		// @phan-suppress-next-line PhanUndeclaredMethod,PhanUndeclaredMethodInCallable -- Phan doesn't recognize the `is_callable()` check.
+		// @phan-suppress-next-line PhanUndeclaredMethod,PhanUndeclaredMethodInCallable -- Being checked before being called. See also https://github.com/phan/phan/issues/1204.
 		$errout = is_callable( array( $output, 'getErrorOutput' ) ) ? $output->getErrorOutput() : $output;
 
 		$definition = $this->loadDefinition( $input, $errout );
@@ -253,12 +246,8 @@ class Application extends SingleCommandApplication {
 
 		ksort( $visitor->namespaces );
 		$stmts = array_values( $visitor->namespaces );
-		if ( count( $stmts ) === 1 ) {
-			if ( $stmts[0]->name ) {
-				$stmts[0]->setAttribute( 'kind', \PhpParser\Node\Stmt\Namespace_::KIND_SEMICOLON );
-			} else {
-				$stmts = $stmts[0]->stmts;
-			}
+		if ( count( $stmts ) === 1 && ! $stmts[0]->name ) {
+			$stmts = $stmts[0]->stmts;
 		}
 		return $stmts;
 	}

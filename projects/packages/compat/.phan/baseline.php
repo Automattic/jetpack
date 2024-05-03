@@ -9,11 +9,13 @@
  */
 return [
     // # Issue statistics:
+    // PhanDeprecatedFunction : 1 occurrence
     // PhanPluginDuplicateConditionalNullCoalescing : 1 occurrence
+    // PhanTypeMismatchProperty : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'lib/locales.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
+        'lib/locales.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchProperty'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

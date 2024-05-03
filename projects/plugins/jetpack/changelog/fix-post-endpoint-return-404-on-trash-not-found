@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Post endpoint: return a 404 if a post is being trashed but does not exist

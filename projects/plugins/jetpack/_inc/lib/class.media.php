@@ -222,9 +222,9 @@ class Jetpack_Media {
 	/**
 	 * Add a new item into revision_history array.
 	 *
-	 * @param  object $media_item - media post object.
-	 * @param  file   $file - file recently added.
-	 * @param  bool   $has_original_media - condition is the original media has been already added.
+	 * @param  object         $media_item - media post object.
+	 * @param  array|WP_Error $file - File data, or WP_Error on error.
+	 * @param  bool           $has_original_media - condition is the original media has been already added.
 	 * @return bool `true` if the item has been added. Otherwise `false`.
 	 */
 	public static function register_revision( $media_item, $file, $has_original_media ) {
@@ -435,7 +435,7 @@ class Jetpack_Media {
 	 *
 	 * @param  int   $media_id - media post ID.
 	 * @param  array $file_array - Data derived from `$_FILES` for an uploaded file.
-	 * @return {Post|WP_Error} Updated media item or a WP_Error is something went wrong.
+	 * @return WP_Post|WP_Error Updated media item or a WP_Error is something went wrong.
 	 */
 	public static function edit_media_file( $media_id, $file_array ) {
 		$media_item         = get_post( $media_id );
