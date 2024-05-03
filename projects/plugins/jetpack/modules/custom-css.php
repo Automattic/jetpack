@@ -28,7 +28,7 @@ add_action( 'jetpack_modules_loaded', 'custom_css_loaded' );
 function custom_css_loaded() {
 	_deprecated_hook(
 		'custom_css_loaded',
-		'jetpack-$$next-version$$',
+		'$$next-version$$',
 		'WordPress Custom CSS',
 		sprintf(
 			// translators: %s is a link to the WordPress.org documentation.
