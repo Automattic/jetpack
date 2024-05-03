@@ -490,15 +490,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 					'description' => 'The interval time in seconds for the schedule.',
 					'type'        => 'integer',
 				),
-				'last_run_timestamp' => array(
-					'description' => 'Unix timestamp (UTC) for when the last run occurred.',
-					'type'        => 'integer',
-				),
-				'last_run_status'    => array(
-					'description' => 'Status of last run.',
-					'type'        => 'string',
-					'enum'        => array( 'success', 'failure-and-rollback', 'failure-and-rollback-fail' ),
-				),
 				'health_check_paths' => array(
 					'description' => 'Paths to check for site health.',
 					'type'        => 'array',
