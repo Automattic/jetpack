@@ -156,8 +156,8 @@ class SemverVersioning implements VersioningPlugin {
 		if ( isset( $significances['major'] ) ) {
 			$info['patch'] = 0;
 			if ( 0 === (int) $info['major'] ) {
-				if ( is_callable( array( $this->output, 'getErrorOutput' ) ) ) { // @phan-suppress-current-line PhanUndeclaredMethodInCallable -- This is checking.
-					$out = $this->output->getErrorOutput(); // @phan-suppress-current-line PhanUndeclaredMethod -- Checked just above.
+				if ( is_callable( array( $this->output, 'getErrorOutput' ) ) ) { // @phan-suppress-current-line PhanUndeclaredMethodInCallable -- See https://github.com/phan/phan/issues/1204.
+					$out = $this->output->getErrorOutput(); // @phan-suppress-current-line PhanUndeclaredMethod -- See https://github.com/phan/phan/issues/1204.
 					$out->writeln( '<warning>Semver does not automatically move version 0.y.z to 1.0.0.</>' );
 					$out->writeln( '<warning>You will have to do that manually when you\'re ready for the first release.</>' );
 				}

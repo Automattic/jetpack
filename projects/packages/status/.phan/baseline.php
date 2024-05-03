@@ -19,7 +19,6 @@ return [
     // PhanPluginSimplifyExpressionBool : 2 occurrences
     // PhanRedefineFunction : 2 occurrences
     // PhanUndeclaredClassInCallable : 2 occurrences
-    // PhanUndeclaredMethod : 2 occurrences
     // PhanDeprecatedFunction : 1 occurrence
     // PhanParamTooMany : 1 occurrence
     // PhanPluginRedundantAssignment : 1 occurrence
@@ -35,7 +34,7 @@ return [
         'src/class-errors.php' => ['PhanTypeMismatchArgumentInternal', 'PhanUndeclaredClassInCallable'],
         'src/class-host.php' => ['PhanTypeMismatchArgumentNullable'],
         'src/class-modules.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction'],
-        'src/class-status.php' => ['PhanRedundantCondition', 'PhanUndeclaredFunction', 'PhanUndeclaredMethod'],
+        'src/class-status.php' => ['PhanRedundantCondition', 'PhanUndeclaredFunction'],
         'tests/php/bootstrap.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturnProbablyReal'],
         'tests/php/test-host.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgument'],
         'tests/php/test-status.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgumentInternal'],

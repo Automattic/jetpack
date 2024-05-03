@@ -1,0 +1,4 @@
+Significance: patch
+Type: deprecated
+
+Deprecate `jetpack_search` property on `Search_Widget`. It has never been set to a non-null value since the package was created.
