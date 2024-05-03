@@ -147,7 +147,7 @@ export default function FeaturedImage( {
 				{
 					generating: false,
 					error: new Error(
-						__( "You don't have enough requests to generate another image", 'jetpack' )
+						__( "You don't have enough requests to generate another image.", 'jetpack' )
 					),
 				},
 				pointer.current
@@ -158,7 +158,15 @@ export default function FeaturedImage( {
 		// Ensure the user prompt or the post content are set.
 		if ( ! userPrompt && ! postContent ) {
 			updateImages(
-				{ generating: false, error: new Error( __( 'No content to generate image', 'jetpack' ) ) },
+				{
+					generating: false,
+					error: new Error(
+						__(
+							'No content to generate image. Please type custom instructions and try again.',
+							'jetpack'
+						)
+					),
+				},
 				pointer.current
 			);
 			return;
