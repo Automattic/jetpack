@@ -19,6 +19,7 @@ export default function useAiFeature() {
 	const {
 		fetchAiAssistantFeature: loadFeatures,
 		increaseAiAssistantRequestsCount: increaseRequestsCount,
+		dequeueAiAssistantFeatureAsyncRequest: dequeueAsyncRequest,
 	} = useDispatch( 'wordpress-com/plans' );
 
 	return {
@@ -27,5 +28,6 @@ export default function useAiFeature() {
 		error: null, // @todo: handle error at store level
 		refresh: loadFeatures,
 		increaseRequestsCount,
+		dequeueAsyncRequest,
 	};
 }

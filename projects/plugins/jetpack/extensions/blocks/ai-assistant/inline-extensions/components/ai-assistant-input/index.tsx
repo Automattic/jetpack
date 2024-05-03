@@ -4,40 +4,50 @@
 import { ExtensionAIControl } from '@automattic/jetpack-ai-client';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import React, { useCallback } from 'react';
+/*
+ * Internal dependencies
+ */
+import useAICheckout from '../../../hooks/use-ai-checkout';
 /*
  * Types
  */
 import type { RequestingErrorProps, RequestingStateProp } from '@automattic/jetpack-ai-client';
-import type { ReactElement } from 'react';
+import type { ReactElement, MouseEvent } from 'react';
 
-export default function AiAssistantInput( {
-	requestingState,
-	requestingError,
-	wrapperRef,
-	inputRef,
-	action,
-	request,
-	stopSuggestion,
-	close,
-	undo,
-}: {
-	clientId?: string;
-	postId?: number;
+export type AiAssistantInputProps = {
 	requestingState: RequestingStateProp;
 	requestingError?: RequestingErrorProps;
-	suggestion?: string;
 	inputRef?: React.MutableRefObject< HTMLInputElement | null >;
 	wrapperRef?: React.MutableRefObject< HTMLDivElement | null >;
 	action?: string;
+	showUpgradeMessage?: boolean;
+	requireUpgrade?: boolean;
+	requestsRemaining?: number;
 	request: ( question: string ) => void;
 	stopSuggestion?: () => void;
 	close?: () => void;
 	undo?: () => void;
-} ): ReactElement {
+};
+
+export default function AiAssistantInput( {
+	requestingState,
+	requestingError,
+	inputRef,
+	wrapperRef,
+	action,
+	showUpgradeMessage = false,
+	requireUpgrade = false,
+	requestsRemaining = 0,
+	request,
+	stopSuggestion,
+	close,
+	undo,
+}: AiAssistantInputProps ): ReactElement {
 	const [ value, setValue ] = useState( '' );
 	const [ showGuideLine, setShowGuideLine ] = useState( false );
-	const disabled = [ 'requesting', 'suggesting' ].includes( requestingState );
+	const disabled = requireUpgrade || [ 'requesting', 'suggesting' ].includes( requestingState );
+	const { autosaveAndRedirect } = useAICheckout();
 
 	function handleSend(): void {
 		request?.( value );
@@ -55,9 +65,12 @@ export default function AiAssistantInput( {
 		undo?.();
 	}
 
-	function handleUpgrade(): void {
-		throw new Error( 'Function not implemented.' );
-	}
+	const handleUpgrade = useCallback(
+		( event: MouseEvent< HTMLButtonElement > ) => {
+			autosaveAndRedirect( event );
+		},
+		[ autosaveAndRedirect ]
+	);
 
 	// Clear the input value on reset and when the request is done.
 	useEffect( () => {
@@ -84,6 +97,8 @@ export default function AiAssistantInput( {
 			state={ requestingState }
 			showGuideLine={ showGuideLine }
 			error={ requestingError?.message }
+			requestsRemaining={ requestsRemaining }
+			showUpgradeMessage={ showUpgradeMessage }
 			onChange={ setValue }
 			onSend={ handleSend }
 			onStop={ handleStopSuggestion }
