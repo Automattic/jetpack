@@ -85,6 +85,14 @@ abstract class Product {
 	public static $has_free_offering = false;
 
 	/**
+	 * Whether the product requires a plan to run
+	 * The plan could be paid or free
+	 *
+	 * @var bool
+	 */
+	public static $requires_plan = false;
+
+	/**
 	 * Get the plugin slug
 	 *
 	 * @return ?string
@@ -153,10 +161,10 @@ abstract class Product {
 			'supported_products'        => static::get_supported_products(),
 			'wpcom_product_slug'        => static::get_wpcom_product_slug(),
 			'requires_user_connection'  => static::$requires_user_connection,
-			'has_required_plan'         => static::has_required_plan(),
+			'has_any_plan_for_product'  => static::has_any_plan_for_product(),
+			'has_free_plan_for_product' => static::has_free_plan_for_product(),
 			'has_paid_plan_for_product' => static::has_paid_plan_for_product(),
 			'has_free_offering'         => static::$has_free_offering,
-			'has_required_tier'         => static::has_required_tier(),
 			'manage_url'                => static::get_manage_url(),
 			'purchase_url'              => static::get_purchase_url(),
 			'post_activation_url'       => static::get_post_activation_url(),
@@ -342,38 +350,32 @@ abstract class Product {
 	}
 
 	/**
-	 * Checks whether the current plan (or purchases) of the site already supports the product
-	 *
-	 * Returns true if it supports. Return false if a purchase is still required.
-	 *
-	 * Free products will always return true.
-	 *
-	 * @return boolean
-	 */
-	public static function has_required_plan() {
-		return true;
-	}
-
-	/**
 	 * Checks whether the site has a paid plan for the product
 	 * This ignores free products, it only checks if there is a purchase that supports the product
 	 *
 	 * @return boolean
 	 */
 	public static function has_paid_plan_for_product() {
-		// TODO: this is not always the same.
-		// There should be checks on each individual product class for paid plans if the product has a free offering
-		// For products with no free offering, checking has_required_plan works fine
-		return static::has_required_plan();
+		return false;
 	}
 
 	/**
-	 * Checks whether the current plan (or purchases) of the site already supports the tiers
+	 * Checks whether the site has a free plan for the product
+	 * Note, this should not return true if a product does not have a WPCOM plan (ex: search free, Akismet Free, stats free)
 	 *
-	 * @return array Key/value pairs of tier slugs and whether they are supported or not.
+	 * @return false
 	 */
-	public static function has_required_tier() {
-		return array();
+	public static function has_free_plan_for_product() {
+		return false;
+	}
+
+	/**
+	 * Checks whether the site has any WPCOM plan for a product (paid or free)
+	 *
+	 * @return bool
+	 */
+	public static function has_any_plan_for_product() {
+		return static::has_paid_plan_for_product() || static::has_free_plan_for_product();
 	}
 
 	/**
@@ -449,15 +451,9 @@ abstract class Product {
 			} elseif ( static::is_upgradable() ) {
 				// Upgradable plans should ignore whether or not they have the required plan.
 				$status = 'can_upgrade';
-			} elseif ( ! static::has_required_plan() ) { // We need needs_purchase here as well because some products we consider active without the required plan.
-				if ( static::has_trial_support() ) {
-					$status = 'needs_purchase_or_free';
-				} else {
-					$status = 'needs_purchase';
-				}
 			}
-		} elseif ( ! static::has_required_plan() ) {
-			if ( static::has_trial_support() ) {
+		} elseif ( ! static::has_any_plan_for_product() ) {
+			if ( static::$has_free_offering ) {
 				$status = 'needs_purchase_or_free';
 			} else {
 				$status = 'needs_purchase';
@@ -474,7 +470,7 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function is_active() {
-		return static::is_plugin_active() && static::has_required_plan();
+		return static::is_plugin_active() && ( ( static::$requires_plan && static::has_any_plan_for_product() ) || ( ! static::$requires_plan && static::$has_free_offering ) );
 	}
 
 	/**

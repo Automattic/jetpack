@@ -120,7 +120,7 @@ abstract class Hybrid_Product extends Product {
 
 		// Only activate the module if the plan supports it
 		// We don't want to throw an error for a missing plan here since we try activation before purchase
-		if ( static::has_required_plan() && ! empty( static::$module_name ) ) {
+		if ( static::has_any_plan_for_product() && ! empty( static::$module_name ) ) {
 			$module_activation = ( new Modules() )->activate( static::$module_name, false, false );
 
 			if ( ! $module_activation ) {
@@ -149,7 +149,7 @@ abstract class Hybrid_Product extends Product {
 		 * Activate the module as well, if the user has a plan
 		 * or the product does not require a plan to work
 		 */
-		if ( static::has_required_plan() && isset( static::$module_name ) ) {
+		if ( static::has_any_plan_for_product() && isset( static::$module_name ) ) {
 			$module_activation = ( new Modules() )->activate( static::$module_name, false, false );
 
 			if ( ! $module_activation ) {
