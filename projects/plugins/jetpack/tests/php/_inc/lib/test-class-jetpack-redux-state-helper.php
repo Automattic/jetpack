@@ -36,7 +36,7 @@ class WP_Test_Jetpack_Redux_State_Helper extends WP_UnitTestCase {
 		parent::set_up();
 
 		global $publicize;
-		$this->publicize = $this->getMockBuilder( Publicize::class )->setMethods( array( 'get_all_connections_for_user' ) )->getMock();
+		$this->publicize = $this->getMockBuilder( Publicize::class )->onlyMethods( array( 'get_all_connections_for_user' ) )->getMock();
 
 		$this->publicize->method( 'get_all_connections_for_user' )
 			->withAnyParameters()
