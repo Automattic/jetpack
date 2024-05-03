@@ -22,12 +22,15 @@ import {
 } from '../../../../shared/use-plan-type';
 import usePostContent from '../../hooks/use-post-content';
 import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library';
+import {
+	PLACEMENT_JETPACK_SIDEBAR,
+	PLACEMENT_DOCUMENT_SETTINGS,
+} from '../ai-assistant-plugin-sidebar/types';
 import AiAssistantModal from '../modal';
 import Carrousel, { CarrouselImageData, CarrouselImages } from './carrousel';
 import UsageCounter from './usage-counter';
 
 const FEATURED_IMAGE_FEATURE_NAME = 'featured-post-image';
-export const FEATURED_IMAGE_PLACEMENT_JETPACK_SIDEBAR = 'jetpack-sidebar';
 export const FEATURED_IMAGE_PLACEMENT_MEDIA_SOURCE_DROPDOWN = 'media-source-dropdown';
 
 export default function FeaturedImage( {
@@ -332,7 +335,8 @@ export default function FeaturedImage( {
 
 	return (
 		<div>
-			{ placement === FEATURED_IMAGE_PLACEMENT_JETPACK_SIDEBAR && (
+			{ ( placement === PLACEMENT_JETPACK_SIDEBAR ||
+				placement === PLACEMENT_DOCUMENT_SETTINGS ) && (
 				<>
 					<p>{ __( 'Create and use an AI generated featured image for your post.', 'jetpack' ) }</p>
 					<Button
