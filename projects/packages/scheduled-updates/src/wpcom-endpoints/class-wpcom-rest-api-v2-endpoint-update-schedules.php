@@ -545,8 +545,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 							'required'    => true,
 						),
 						'health_check_paths' => array(
-							'description' => 'Paths to check for site health.',
+							'description' => 'List of paths to check for site health after the update.',
 							'type'        => 'array',
+							'maxItems'    => 5,
 							'items'       => array(
 								'type'        => 'string',
 								'arg_options' => array(
