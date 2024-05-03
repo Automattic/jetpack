@@ -136,7 +136,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			// Add the schedule_id to the object.
 			$event->schedule_id = $schedule_id;
 
-			// Run through the prepare_item_for_response method to add the last run status.
+			// Run through the prepare_item_for_response method to add any registered rest fields.
 			$response[ $schedule_id ] = $this->prepare_response_for_collection(
 				$this->prepare_item_for_response( $event, $request )
 			);
