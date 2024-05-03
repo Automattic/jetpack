@@ -28,7 +28,6 @@ defaultView.args = {
 	requestsCount: 10,
 	requestsLimit: 100,
 	planType: 'tiered',
-	requireUpgrade: false,
 	loading: false,
 	canUpgrade: true,
 	showContactUsCallToAction: false,
