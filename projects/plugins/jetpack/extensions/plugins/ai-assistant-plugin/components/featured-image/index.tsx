@@ -370,6 +370,23 @@ export default function FeaturedImage( {
 								></textarea>
 							</div>
 						</div>
+						{ ( requireUpgrade || notEnoughRequests ) && ! currentPointer?.generating && (
+							<UpgradePrompt
+								description={
+									notEnoughRequests
+										? sprintf(
+												// Translators: %d is the cost of generating a featured image.
+												__(
+													"Featured image generation costs %d requests per image. You don't have enough requests to generate another image.",
+													'jetpack'
+												),
+												featuredImageCost
+										  )
+										: null
+								}
+								useLightNudge={ true }
+							/>
+						) }
 						<div className="ai-assistant-featured-image__actions">
 							<div className="ai-assistant-featured-image__actions-left">
 								{ ! isUnlimited && featuredImageCost && requestsLimit && (
@@ -410,23 +427,6 @@ export default function FeaturedImage( {
 							</div>
 						</div>
 						<div className="ai-assistant-featured-image__image-canvas">
-							{ ( requireUpgrade || notEnoughRequests ) && ! currentPointer?.generating && (
-								<UpgradePrompt
-									description={
-										notEnoughRequests
-											? sprintf(
-													// Translators: %d is the cost of generating a featured image.
-													__(
-														"Featured image generation costs %d requests per image. You don't have enough requests to generate another image.",
-														'jetpack'
-													),
-													featuredImageCost
-											  )
-											: null
-									}
-									useLightNudge={ true }
-								/>
-							) }
 							<Carrousel
 								images={ images }
 								current={ current }
