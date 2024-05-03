@@ -185,6 +185,31 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test create item with too many paths.
+	 *
+	 * @covers WPCOM_REST_API_V2_Endpoint_Update_Schedules::create_item
+	 */
+	public function test_create_item_with_too_many_paths() {
+		$plugins = array( 'gutenberg/gutenberg.php' );
+		$paths   = array_fill( 0, 6, '/a' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$request->set_body_params(
+			array(
+				'plugins'  => $plugins,
+				'schedule' => array(
+					'timestamp'          => strtotime( 'next Monday 8:00' ),
+					'interval'           => 'weekly',
+					'health_check_paths' => $paths,
+				),
+			)
+		);
+		$result = rest_do_request( $request )->get_data();
+
+		$this->assertSame( 'rest_invalid_param', $result['code'] );
+		$this->assertSame( 400, $result['data']['status'] );
+	}
+
+	/**
 	 * Test remove item with paths.
 	 *
 	 * @covers WPCOM_REST_API_V2_Endpoint_Update_Schedules::create_item
