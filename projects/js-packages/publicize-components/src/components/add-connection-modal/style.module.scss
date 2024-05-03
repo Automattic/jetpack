@@ -1,0 +1,49 @@
+.modal {
+	width: 65rem;
+	min-height: 700px;
+}
+
+.title {
+	margin: 0;
+}
+
+.description {
+	font-size: 15px;
+	margin-top: 0.7rem;
+	margin-bottom: 0;
+}
+
+.chevron {
+	display: block;
+}
+
+// Table padding
+td {
+	padding-top: 0.8rem;
+	padding-bottom: 0.8rem;
+
+	&:first-child {
+		padding-left: 1rem;
+		padding-right: 1rem;
+	}
+
+	&:last-child {
+		padding-right: 1rem;
+	}
+}
+
+// Table border
+table {
+	border-collapse: separate;
+	border-spacing: 0;
+	border-radius: 4px;
+	outline: 1px solid  var(--jp-gray-5);
+}
+
+tr:not(:last-child) > td {
+	border-bottom: solid 1px var(--jp-gray-5);
+}
+
+.column-description {
+	padding-right: 6rem;
+}

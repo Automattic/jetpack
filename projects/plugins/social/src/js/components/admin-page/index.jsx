@@ -6,7 +6,7 @@ import {
 	Col,
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { store as socialStore } from '@automattic/jetpack-publicize-components';
+import { store as socialStore, AddConnectionModal } from '@automattic/jetpack-publicize-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import React from 'react';
@@ -110,7 +110,7 @@ const Admin = () => {
 					<AdminSection>
 						{ shouldShowAdvancedPlanNudge && <AdvancedUpsellNotice /> }
 						<InstagramNotice onUpgrade={ onUpgradeToggle } />
-						{ useAdminUiV1 ? <span>New connections UI goes here</span> : null }
+						{ useAdminUiV1 ? <AddConnectionModal /> : null }
 						<SocialModuleToggle />
 						{ isModuleEnabled && <SocialNotesToggle disabled={ isUpdatingJetpackSettings } /> }
 						{ isModuleEnabled && isAutoConversionAvailable && (
