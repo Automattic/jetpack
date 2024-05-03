@@ -82,6 +82,12 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 * @uses Featured_Content::$max_posts
 		 */
 		public static function init() {
+
+			/**
+			 * Array variable to store theme support.
+			 *
+			 * @var array[] $theme_support
+			 */
 			$theme_support = get_theme_support( 'featured-content' );
 
 			// Return early if theme does not support featured content.
@@ -126,7 +132,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			add_action( 'wp_loaded', array( __CLASS__, 'wp_loaded' ) );
 			add_action( 'update_option_featured-content', array( __CLASS__, 'flush_post_tag_cache' ), 10, 2 );
 			add_action( 'delete_option_featured-content', array( __CLASS__, 'flush_post_tag_cache' ), 10, 2 );
-			add_action( 'split_shared_term', array( __CLASS__, 'jetpack_update_featured_content_for_split_terms', 10, 4 ) );
+			add_action( 'split_shared_term', array( __CLASS__, 'jetpack_update_featured_content_for_split_terms' ), 10, 4 );
 
 			if ( isset( $theme_support[0]['additional_post_types'] ) ) {
 				$theme_support[0]['post_types'] = array_merge( array( 'post' ), (array) $theme_support[0]['additional_post_types'] );
@@ -239,7 +245,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			}
 
 			// Back compat for installs that have the quantity option still set.
-			$quantity = isset( $settings['quantity'] ) ? $settings['quantity'] : self::$max_posts;
+			$quantity = $settings['quantity'] ?? self::$max_posts;
 
 			// Query for featured posts.
 			$featured = get_posts(
@@ -317,7 +323,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 * @uses Featured_Content::get_featured_post_ids();
 		 * @uses Featured_Content::get_setting();
 		 * @param WP_Query $query WP_Query object.
-		 * @return WP_Query Possibly modified WP_Query
+		 * @return WP_Query|null Possibly modified WP_Query
 		 */
 		public static function pre_get_posts( $query ) {
 
@@ -653,7 +659,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			$options = array_intersect_key( $options, $defaults );
 
 			if ( 'all' !== $key ) {
-				return isset( $options[ $key ] ) ? $options[ $key ] : false;
+				return $options[ $key ] ?? false;
 			}
 
 			return $options;
