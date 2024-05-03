@@ -105,16 +105,27 @@ export default function FeaturedImage( {
 	}, [ increaseRequestsCount, featuredImageCost ] );
 
 	/* Merge the image data with the new data. */
-	const updateImages = useCallback( ( data: CarrouselImageData, index ) => {
-		setImages( currentImages => {
-			const newImages = [ ...currentImages ];
-			newImages[ index ] = {
-				...newImages[ index ],
-				...data,
-			};
-			return newImages;
-		} );
-	}, [] );
+	const updateImages = useCallback(
+		( data: CarrouselImageData, index ) => {
+			setImages( currentImages => {
+				const newImages = [ ...currentImages ];
+				newImages[ index ] = {
+					...newImages[ index ],
+					...data,
+				};
+				return newImages;
+			} );
+
+			// Track errors so we can get more insight on the usage
+			if ( data.error ) {
+				recordEvent( 'jetpack_ai_featured_image_generation_error', {
+					placement,
+					error: data.error?.message,
+				} );
+			}
+		},
+		[ placement, recordEvent ]
+	);
 
 	const handlePreviousImage = useCallback( () => {
 		setCurrent( Math.max( current - 1, 0 ) );
