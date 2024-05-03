@@ -17,6 +17,8 @@ export const PRODUCT_STATUSES_LABELS = {
 	[ PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.ABSENT ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.ABSENT_WITH_PLAN ]: __( 'Needs Plugin', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION ]: __( 'Inactive', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.USER_CONNECTION_ERROR ]: __( 'Needs sign-in', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.ERROR ]: __( 'Needs connection', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.CAN_UPGRADE ]: __( 'Active', 'jetpack-my-jetpack' ),
 };
@@ -250,6 +252,8 @@ ProductCard.propTypes = {
 		PRODUCT_STATUSES.ABSENT_WITH_PLAN,
 		PRODUCT_STATUSES.NEEDS_PURCHASE,
 		PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE,
+		PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION,
+		PRODUCT_STATUSES.USER_CONNECTION_ERROR,
 		PRODUCT_STATUSES.CAN_UPGRADE,
 		PRODUCT_STATUSES.MODULE_DISABLED,
 	] ).isRequired,

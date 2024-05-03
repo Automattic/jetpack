@@ -16,6 +16,8 @@ export const PRODUCT_STATUSES = {
 	ABSENT_WITH_PLAN: 'plugin_absent_with_plan',
 	NEEDS_PURCHASE: 'needs_purchase',
 	NEEDS_PURCHASE_OR_FREE: 'needs_purchase_or_free',
+	NEEDS_FIRST_SITE_CONNECTION: 'needs_first_site_connection',
+	USER_CONNECTION_ERROR: 'user_connection_error',
 	CAN_UPGRADE: 'can_upgrade',
 };
 
@@ -87,6 +89,20 @@ const ActionButton = ( {
 						primaryActionOverride[ PRODUCT_STATUSES.ABSENT_WITH_PLAN ] ),
 				};
 			}
+			// The site or user have never been connected before and the connection is required
+			case PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION:
+				return {
+					...buttonState,
+					href: purchaseUrl || `#/add-${ slug }`,
+					size: 'small',
+					variant: 'primary',
+					weight: 'regular',
+					label: __( 'Learn more', 'jetpack-my-jetpack' ),
+					onClick: onAdd,
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION ] ),
+				};
 			case PRODUCT_STATUSES.NEEDS_PURCHASE: {
 				return {
 					...buttonState,
@@ -161,6 +177,18 @@ const ActionButton = ( {
 					...( primaryActionOverride &&
 						PRODUCT_STATUSES.ERROR in primaryActionOverride &&
 						primaryActionOverride[ PRODUCT_STATUSES.ERROR ] ),
+				};
+			case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
+				return {
+					href: '#/connection',
+					size: 'small',
+					variant: 'primary',
+					weight: 'regular',
+					label: __( 'Sign In', 'jetpack-my-jetpack' ),
+					onClick: onFixConnection,
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.USER_CONNECTION_ERROR in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.USER_CONNECTION_ERROR ] ),
 				};
 			case PRODUCT_STATUSES.INACTIVE:
 			case PRODUCT_STATUSES.MODULE_DISABLED:

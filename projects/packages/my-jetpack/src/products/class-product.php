@@ -445,9 +445,14 @@ abstract class Product {
 			$status = 'active';
 			// We only consider missing site & user connection an error when the Product is active.
 			if ( static::$requires_site_connection && ! ( new Connection_Manager() )->is_connected() ) {
-				$status = 'error';
+				// Site has never been connected before
+				if ( ! \Jetpack_Options::get_option( 'id' ) ) {
+					$status = 'needs_first_site_connection';
+				} else {
+					$status = 'error';
+				}
 			} elseif ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
-				$status = 'error';
+				$status = 'user_connection_error';
 			} elseif ( static::is_upgradable() ) {
 				// Upgradable plans should ignore whether or not they have the required plan.
 				$status = 'can_upgrade';
