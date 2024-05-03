@@ -44,6 +44,8 @@ export type SocialStoreState = {
 
 declare global {
 	interface Window {
-		jetpackSocialInitialState?: SocialStoreState;
+		jetpackSocialInitialState?: SocialStoreState & {
+			is_publicize_enabled: boolean;
+		};
 	}
 }

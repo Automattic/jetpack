@@ -21,11 +21,16 @@ const SocialModuleToggle: React.FC = () => {
 
 	const updateOptions = useDispatch( SOCIAL_STORE_ID ).updateJetpackSettings;
 
-	const toggleModule = useCallback( () => {
+	const toggleModule = useCallback( async () => {
 		const newOption = {
 			publicize_active: ! isModuleEnabled,
 		};
-		updateOptions( newOption );
+		await updateOptions( newOption );
+
+		// If the module was enabled, we need to refresh the connection list
+		if ( newOption.publicize_active && ! window.jetpackSocialInitialState.is_publicize_enabled ) {
+			window.location.reload();
+		}
 	}, [ isModuleEnabled, updateOptions ] );
 
 	const [ isSmall ] = useBreakpointMatch( 'sm' );

@@ -27,6 +27,14 @@ export const Publicize = withModuleSettingsFormHelpers(
 			} );
 		}
 
+		componentDidUpdate() {
+			const isActive = this.props.getOptionValue( 'publicize' );
+			// Reload the page if Publicize is enabled.
+			if ( isActive && ! window.Initial_State.socialInitialState.is_publicize_enabled ) {
+				window.location.reload();
+			}
+		}
+
 		render() {
 			const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'publicize' ),
 				isLinked = this.props.isLinked,
