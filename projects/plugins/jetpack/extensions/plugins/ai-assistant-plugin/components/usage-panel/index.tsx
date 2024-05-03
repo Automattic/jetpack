@@ -177,7 +177,7 @@ export default function ConnectedUsagePanel( { placement = null }: UsagePanelPro
 	const requestsLimit = planType === PLAN_TYPE_FREE ? freeRequestsLimit : currentTier?.limit;
 
 	const handleUpgradeClick = useCallback(
-		( event: React.MouseEvent< HTMLElement > ) => {
+		( event: React.MouseEvent< HTMLButtonElement > ) => {
 			event.preventDefault();
 			tracks.recordEvent( 'jetpack_ai_upgrade_button', {
 				current_tier_slug: currentTier?.slug,
@@ -190,7 +190,7 @@ export default function ConnectedUsagePanel( { placement = null }: UsagePanelPro
 	);
 
 	const handleContactUsClick = useCallback(
-		( event: React.MouseEvent< HTMLElement > ) => {
+		( event: React.MouseEvent< HTMLButtonElement > ) => {
 			event.preventDefault();
 			tracks.recordEvent( 'jetpack_ai_upgrade_button', {
 				current_tier_slug: currentTier?.slug,
