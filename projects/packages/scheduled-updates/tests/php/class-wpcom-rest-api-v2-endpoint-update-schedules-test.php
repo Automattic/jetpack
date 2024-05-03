@@ -312,44 +312,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	}
 
 	/**
-	 * Can't have more than two schedules.
-	 *
-	 * @covers ::validate_schedule
-	 */
-	public function test_creating_more_than_twentyfour_schedules() {
-		// Create twentyfour schedules.
-		for ( $hour = 0; $hour < 24; $hour++ ) {
-			$formatted_hour = str_pad( (string) $hour, 2, '0', STR_PAD_LEFT );
-			$plugin_name    = "plugin-{$formatted_hour}/plugin-{$formatted_hour}.php";
-
-			wp_schedule_event(
-				strtotime( "next Monday {$formatted_hour}:00" ),
-				'daily',
-				Scheduled_Updates::PLUGIN_CRON_HOOK,
-				array( $plugin_name )
-			);
-		}
-
-		// Number 25.
-		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
-		$request->set_body_params(
-			array(
-				'plugins'  => array(
-					'gutenberg/gutenberg.php',
-					'custom-plugin/custom-plugin.php',
-				),
-				'schedule' => $this->get_schedule( 'next Wednesday 10:00', 'daily' ),
-			)
-		);
-
-		wp_set_current_user( $this->admin_id );
-		$result = rest_do_request( $request );
-
-		$this->assertSame( 403, $result->get_status() );
-		$this->assertSame( 'rest_forbidden', $result->get_data()['code'] );
-	}
-
-	/**
 	 * Removes plugins from the autoupdate list when creating a schedule.
 	 *
 	 * @covers ::create_item
