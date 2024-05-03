@@ -51,7 +51,7 @@
 /*
  * Atomic notifications customized to standout. Based on Calypso notifications.
  */
-.wpcomsh-notice {
+.wpcomsh-notice, .rtl .wpcomsh-notice {
 	border: none;
 	background: #2D3337;
 	box-sizing: border-box;
