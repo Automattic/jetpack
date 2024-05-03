@@ -53,6 +53,7 @@ class Scheduled_Updates {
 		add_action( 'deleted_plugin', array( __CLASS__, 'deleted_plugin' ), 10, 2 );
 
 		add_action( 'rest_api_init', array( __CLASS__, 'add_is_managed_extension_field' ) );
+		add_action( 'rest_api_init', array( Scheduled_Updates_Logs::class, 'add_log_fields' ) );
 		add_action( 'rest_api_init', array( Scheduled_Updates_Active::class, 'add_active_field' ) );
 
 		add_filter( 'plugins_list', array( Scheduled_Updates_Admin::class, 'add_scheduled_updates_context' ) );
@@ -69,7 +70,6 @@ class Scheduled_Updates {
 		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Health_Paths::class, 'clear' ) );
 		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Logs::class, 'delete_logs_schedule_id' ), 10, 3 );
 
-		add_filter( 'jetpack_scheduled_response_item', array( __CLASS__, 'response_filter' ), 10, 2 );
 		add_filter( 'jetpack_scheduled_response_item', array( Scheduled_Updates_Health_Paths::class, 'response_filter' ), 10, 2 );
 
 		// Update cron sync option after options update.
@@ -421,28 +421,6 @@ class Scheduled_Updates {
 				Scheduled_Updates_Logs::replace_logs_schedule_id( $id, $schedule_id );
 			}
 		}
-	}
-
-	/**
-	 * REST prepare_item_for_response filter.
-	 *
-	 * @param array            $item    WP Cron event.
-	 * @param \WP_REST_Request $request Request object.
-	 * @return array Response array on success.
-	 */
-	public static function response_filter( $item, $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$status = self::get_scheduled_update_status( $item['schedule_id'] );
-
-		if ( ! $status ) {
-			$status = array(
-				'last_run_timestamp' => null,
-				'last_run_status'    => null,
-			);
-		}
-
-		$item = array_merge( $item, $status );
-
-		return $item;
 	}
 
 	/**
