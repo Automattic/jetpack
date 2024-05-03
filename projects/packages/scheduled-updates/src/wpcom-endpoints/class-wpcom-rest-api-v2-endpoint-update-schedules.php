@@ -8,6 +8,7 @@
  */
 
 use Automattic\Jetpack\Scheduled_Updates;
+use Automattic\Jetpack\Scheduled_Updates_Health_Paths;
 
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Update_Schedules
@@ -541,16 +542,26 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 					'type'        => 'object',
 					'required'    => true,
 					'properties'  => array(
-						'interval'  => array(
+						'interval'           => array(
 							'description' => 'Interval for the schedule.',
 							'type'        => 'string',
 							'enum'        => array( 'daily', 'weekly' ),
 							'required'    => true,
 						),
-						'timestamp' => array(
+						'timestamp'          => array(
 							'description' => 'Unix timestamp (UTC) for when to first run the schedule.',
 							'type'        => 'integer',
 							'required'    => true,
+						),
+						'health_check_paths' => array(
+							'description' => 'Paths to check for site health.',
+							'type'        => 'array',
+							'items'       => array(
+								'type'        => 'string',
+								'arg_options' => array(
+									'validate_callback' => array( Scheduled_Updates_Health_Paths::class, 'validate' ),
+								),
+							),
 						),
 					),
 				),
