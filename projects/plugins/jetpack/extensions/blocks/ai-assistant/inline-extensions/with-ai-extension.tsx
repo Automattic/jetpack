@@ -58,7 +58,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const { getCurrentPostId } = select( 'core/editor' );
 		const postId = getCurrentPostId();
 
-		const { increaseAiAssistantRequestsCount } = useDispatch( 'wordpress-com/plans' );
+		const { increaseAiAssistantRequestsCount, dequeueAiAssistantFeatureAsyncRequest } =
+			useDispatch( 'wordpress-com/plans' );
 
 		const onDone = useCallback( () => {
 			increaseAiAssistantRequestsCount();
@@ -205,6 +206,13 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			const messages = getRequestMessages( { promptType, options } );
 
 			debug( 'onRequestSuggestion', promptType, options );
+
+			/*
+			 * Always dequeue/cancel the AI Assistant feature async request,
+			 * in case there is one pending,
+			 * when performing a new AI suggestion request.
+			 */
+			dequeueAiAssistantFeatureAsyncRequest();
 
 			request( messages );
 		};
