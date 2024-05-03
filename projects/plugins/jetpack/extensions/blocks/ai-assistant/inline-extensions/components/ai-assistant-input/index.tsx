@@ -13,6 +13,7 @@ import type { ReactElement } from 'react';
 
 export default function AiAssistantInput( {
 	requestingState,
+	requestingError,
 	wrapperRef,
 	inputRef,
 	action,
@@ -75,6 +76,7 @@ export default function AiAssistantInput( {
 			disabled={ disabled }
 			value={ value }
 			state={ requestingState }
+			error={ requestingError?.message }
 			onChange={ setValue }
 			onSend={ handleSend }
 			onStop={ handleStopSuggestion }
