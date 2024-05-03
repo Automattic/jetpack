@@ -151,7 +151,7 @@ export default function TitleOptimization( {
 							{ error ? (
 								<div className="jetpack-ai-title-optimization__error">
 									{ __(
-										'It failed to generate your suggested titles. Please try again.',
+										'The generation of your suggested titles failed. Please try again.',
 										'jetpack'
 									) }
 								</div>
