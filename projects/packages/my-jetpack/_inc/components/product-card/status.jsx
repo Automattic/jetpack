@@ -10,7 +10,7 @@ const getStatusClassName = status => {
 		case PRODUCT_STATUSES.CAN_UPGRADE:
 			return styles.active;
 		case PRODUCT_STATUSES.ABSENT_WITH_PLAN:
-		case PRODUCT_STATUSES.ERROR:
+		case PRODUCT_STATUSES.SITE_CONNECTION_ERROR:
 		case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
 			return styles.warning;
 		case PRODUCT_STATUSES.INACTIVE:

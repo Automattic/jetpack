@@ -19,7 +19,7 @@ export const PRODUCT_STATUSES_LABELS = {
 	[ PRODUCT_STATUSES.ABSENT_WITH_PLAN ]: __( 'Needs Plugin', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.USER_CONNECTION_ERROR ]: __( 'Needs sign-in', 'jetpack-my-jetpack' ),
-	[ PRODUCT_STATUSES.ERROR ]: __( 'Needs connection', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.SITE_CONNECTION_ERROR ]: __( 'Needs connection', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.CAN_UPGRADE ]: __( 'Active', 'jetpack-my-jetpack' ),
 };
 
@@ -247,7 +247,7 @@ ProductCard.propTypes = {
 	status: PropTypes.oneOf( [
 		PRODUCT_STATUSES.ACTIVE,
 		PRODUCT_STATUSES.INACTIVE,
-		PRODUCT_STATUSES.ERROR,
+		PRODUCT_STATUSES.SITE_CONNECTION_ERROR,
 		PRODUCT_STATUSES.ABSENT,
 		PRODUCT_STATUSES.ABSENT_WITH_PLAN,
 		PRODUCT_STATUSES.NEEDS_PURCHASE,

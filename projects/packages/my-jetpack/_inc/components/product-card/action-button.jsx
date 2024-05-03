@@ -11,7 +11,7 @@ export const PRODUCT_STATUSES = {
 	ACTIVE: 'active',
 	INACTIVE: 'inactive',
 	MODULE_DISABLED: 'module_disabled',
-	ERROR: 'error',
+	SITE_CONNECTION_ERROR: 'site_connection_error',
 	ABSENT: 'plugin_absent',
 	ABSENT_WITH_PLAN: 'plugin_absent_with_plan',
 	NEEDS_PURCHASE: 'needs_purchase',
@@ -165,7 +165,7 @@ const ActionButton = ( {
 						primaryActionOverride[ PRODUCT_STATUSES.ACTIVE ] ),
 				};
 			}
-			case PRODUCT_STATUSES.ERROR:
+			case PRODUCT_STATUSES.SITE_CONNECTION_ERROR:
 				return {
 					...buttonState,
 					href: '#/connection',
