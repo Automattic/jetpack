@@ -27,7 +27,7 @@ export const internalMediaSources = [
 export const featuredImageExclusiveMediaSources = [
 	{
 		id: SOURCE_JETPACK_AI_FEATURED_IMAGE,
-		label: __( 'AI Generated Image', 'jetpack' ),
+		label: __( 'Generated with AI', 'jetpack' ),
 		icon: aiAssistantIcon,
 		keyword: 'jetpack ai',
 	},
