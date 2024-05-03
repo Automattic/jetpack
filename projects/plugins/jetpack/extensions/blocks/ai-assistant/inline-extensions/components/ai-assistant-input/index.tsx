@@ -36,6 +36,7 @@ export default function AiAssistantInput( {
 	undo?: () => void;
 } ): ReactElement {
 	const [ value, setValue ] = useState( '' );
+	const [ showGuideLine, setShowGuideLine ] = useState( false );
 	const disabled = [ 'requesting', 'suggesting' ].includes( requestingState );
 
 	function handleSend(): void {
@@ -70,12 +71,18 @@ export default function AiAssistantInput( {
 		setValue( action || '' );
 	}, [ action ] );
 
+	// Show the guideline message when there is some text in the input.
+	useEffect( () => {
+		setShowGuideLine( value.length > 0 );
+	}, [ value ] );
+
 	return (
 		<ExtensionAIControl
 			placeholder={ __( 'Ask Jetpack AI to edit…', 'jetpack' ) }
 			disabled={ disabled }
 			value={ value }
 			state={ requestingState }
+			showGuideLine={ showGuideLine }
 			error={ requestingError?.message }
 			onChange={ setValue }
 			onSend={ handleSend }
