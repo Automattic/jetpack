@@ -84,7 +84,9 @@ class Scheduled_Updates_Active {
 				 * @param array $item Prepared response array.
 				 * @return bool
 				 */
-				'get_callback' => fn ( $item ) => self::get( $item['schedule_id'] ),
+				'get_callback' => function ( $item ) {
+					return self::get( $item['schedule_id'] );
+				},
 				'schema'       => array(
 					'description' => 'Whether the schedule is active or paused.',
 					'type'        => 'boolean',
