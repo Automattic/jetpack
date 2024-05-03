@@ -236,7 +236,7 @@ class Notices {
 		 *
 		 * @param string $error Error text.
 		 */
-		$error    = apply_filters_deprecated( 'jetpack_sso_disallowed_staging_notice', $error, '$$next-version$$', 'jetpack_sso_disallowed_safe_mode_notice' );
+		$error    = apply_filters_deprecated( 'jetpack_sso_disallowed_staging_notice', array( $error ), '$$next-version$$', 'jetpack_sso_disallowed_safe_mode_notice' );
 		$message .= sprintf( '<p class="message">%s</p>', esc_html( $error ) );
 		return $message;
 	}
