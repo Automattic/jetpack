@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Publicize\Jetpack_Social_Settings;
 
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Publicize\Publicize;
 use Automattic\Jetpack\Publicize\Social_Image_Generator\Templates;
@@ -185,7 +186,9 @@ class Settings {
 
 		$settings['is_publicize_enabled'] = false;
 
-		if ( ( new Modules() )->is_active( 'publicize' ) && \Jetpack::connection()->has_connected_user() ) {
+		$connection = new Manager();
+
+		if ( ( new Modules() )->is_active( 'publicize' ) && $connection->has_connected_user() ) {
 			$settings['connectionData'] = array(
 				'connections' => $publicize->get_all_connections_for_user(),
 				'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
