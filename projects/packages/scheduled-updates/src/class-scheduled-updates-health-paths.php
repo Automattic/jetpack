@@ -148,7 +148,7 @@ class Scheduled_Updates_Health_Paths {
 				 * Populates the health_check_paths field.
 				 *
 				 * @param array $item Prepared response array.
-				 * @return bool
+				 * @return array List of health check paths.
 				 */
 				'get_callback'    => function ( $item ) {
 					return static::get( $item['schedule_id'] );
