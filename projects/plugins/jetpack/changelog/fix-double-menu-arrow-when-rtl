@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sidebar: Fix showing the double arrow on active menu when RTL
