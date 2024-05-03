@@ -19,6 +19,13 @@ use WP_Error;
 abstract class Hybrid_Product extends Product {
 
 	/**
+	 * The Jetpack module name, if any.
+	 *
+	 * @var ?string
+	 */
+	public static $module_name = null;
+
+	/**
 	 * All hybrid products have a standalone plugin
 	 *
 	 * @var bool
@@ -58,7 +65,7 @@ abstract class Hybrid_Product extends Product {
 	 * @return bool
 	 */
 	public static function is_module_active() {
-		if ( ! empty( static::$module_name ) ) {
+		if ( static::$module_name ) {
 			return ( new Modules() )->is_active( static::$module_name );
 		}
 		return true;

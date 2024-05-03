@@ -1,10 +1,10 @@
 <?php
 /**
- * Stubs automatically generated from WordPress.com commit 633607ea914b8ce7062bc35082c83ab247ec196c.
- *
  * Do not edit this directly! Update the definition file in the wpcom repo at
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
+ *
+ * Stubs automatically generated from WordPress.com commit f6d233645c2221d27ad1cc39ac0d4b8cdc1930ed.
  */
 
 namespace {
@@ -318,6 +318,15 @@ namespace {
          * @return array|WP_Error
          */
         public static function get_product_list($_blog_id, $type = \null, ?bool $is_editable = \null, $retrieve_deleted = \false)
+        {
+        }
+    }
+    class Memberships_Store_Sandbox extends \Store_Sandbox
+    {
+        /**
+         * @return Memberships_Store_Sandbox
+         */
+        public static function get_instance(): \Memberships_Store_Sandbox
         {
         }
     }
@@ -1121,12 +1130,12 @@ namespace {
     {
         public const ATOMIC = 'atomic';
         public const EMAIL_SUBSCRIPTION = 'email-subscription';
+        public const INSTALL_PLUGINS = 'install-plugins';
         public const LEGACY_CONTACT = 'legacy-contact';
         public const LOCKED_MODE = 'locked-mode';
         public const MANAGE_PLUGINS = 'manage-plugins';
         public const SCHEDULED_UPDATES = 'scheduled-updates';
         public const SUBSCRIPTION_GIFTING = 'subscription-gifting';
-        public const INSTALL_PLUGINS = 'install-plugins';
     }
     /**
      * @param string $feature

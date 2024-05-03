@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix reference to `Jetpack_Options` class in `Contact_Form_Plugin::record_tracks_event()`.

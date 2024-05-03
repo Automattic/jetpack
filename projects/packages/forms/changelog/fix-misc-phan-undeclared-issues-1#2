@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix Phan complaints about DOMElement methods called on DOMNode in tests, mostly by adding `assertInstanceOf` so it can infer DOMElement as the type.
+
+
