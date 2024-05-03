@@ -98,6 +98,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const onDone = useCallback( () => {
 			increaseRequestsCount();
 			setConsecutiveRequestCount( count => count + 1 );
+			inputRef.current?.focus();
 		}, [ increaseRequestsCount ] );
 
 		const onError = useCallback(
