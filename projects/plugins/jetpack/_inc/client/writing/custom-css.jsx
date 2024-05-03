@@ -49,7 +49,9 @@ export const StartFreshDeprecationWarning = ( { siteAdminUrl } ) =>
 			i: <i />,
 			b: <b />,
 			a1: <CustomizerLink siteAdminUrl={ siteAdminUrl } />,
-			a2: <a href="https://developer.wordpress.org/themes/basics/main-stylesheet-style-css/" />,
+			a2: (
+				<ExternalLink href="https://developer.wordpress.org/themes/basics/main-stylesheet-style-css/" />
+			),
 		}
 	);
 
