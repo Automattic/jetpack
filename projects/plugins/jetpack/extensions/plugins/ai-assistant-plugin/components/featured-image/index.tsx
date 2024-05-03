@@ -383,7 +383,11 @@ export default function FeaturedImage( {
 							<div className="ai-assistant-featured-image__actions-right">
 								<div className="ai-assistant-featured-image__action-buttons">
 									{ currentPointer?.error ? (
-										<Button onClick={ handleTryAgain } variant="secondary">
+										<Button
+											onClick={ handleTryAgain }
+											variant="secondary"
+											disabled={ ! userPrompt && ! postContent }
+										>
 											{ __( 'Try again', 'jetpack' ) }
 										</Button>
 									) : (
@@ -392,7 +396,11 @@ export default function FeaturedImage( {
 												onClick={ handleRegenerate }
 												variant="secondary"
 												isBusy={ currentPointer?.generating }
-												disabled={ notEnoughRequests || currentPointer?.generating }
+												disabled={
+													notEnoughRequests ||
+													currentPointer?.generating ||
+													( ! userPrompt && ! postContent )
+												}
 											>
 												{ __( 'Generate again', 'jetpack' ) }
 											</Button>
