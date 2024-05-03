@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Inspect\REST_API\Endpoints;
 
 use Automattic\Jetpack_Inspect\Monitors;
 use Automattic\Jetpack_Inspect\REST_API\Permissions\Current_User_Admin;
+use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
 
@@ -72,6 +73,7 @@ class Send_Request {
 		if ( is_wp_error( $function ) ) {
 			return rest_ensure_response( $function );
 		}
+		'@phan-var callable-string $function'; // Alas Phan doesn't have `@phan-assert-if-true`, so it can't know how `is_wp_error()` works. See https://github.com/phan/phan/issues/3127.
 
 		$monitor = Monitors::get( 'outgoing' );
 		if ( is_wp_error( $monitor ) ) {
@@ -88,6 +90,7 @@ class Send_Request {
 	 * Returns transport function name.
 	 *
 	 * @param WP_REST_Request $request request.
+	 * @return callable-string|WP_Error
 	 */
 	private function get_transport_function( $request ) {
 		$transport_name       = $request->get_param( 'transport' ) ?? 'wp_remote_request';

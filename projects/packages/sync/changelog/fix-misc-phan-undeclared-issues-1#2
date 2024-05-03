@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Add an `instanceof \DOMElement` so Phan can infer the correct type. Should be no change to functionality.
+
+
