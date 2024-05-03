@@ -7,6 +7,7 @@ export type OnSuggestion = ( suggestion: string ) => void;
 
 export interface IBlockHandler {
 	onSuggestion: OnSuggestion;
+	getContent: () => string;
 }
 
 export type BlockEditorSelect = {

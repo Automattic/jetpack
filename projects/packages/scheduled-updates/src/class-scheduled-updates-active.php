@@ -71,21 +71,6 @@ class Scheduled_Updates_Active {
 	}
 
 	/**
-	 * Update the active value for a scheduled update hook.
-	 *
-	 * @param string           $id      The ID of the schedule.
-	 * @param object           $event   The event object.
-	 * @param \WP_REST_Request $request The request object.
-	 * @return bool
-	 */
-	public static function updates_active( $id, $event, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$schedule = $request['schedule'];
-		$active   = $schedule['active'] ?? true;
-
-		return self::update( $id, $active );
-	}
-
-	/**
 	 * REST prepare_item_for_response filter.
 	 *
 	 * @param array            $item    WP Cron event.

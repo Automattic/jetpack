@@ -4,7 +4,9 @@
 import { ToneProp } from '../../components/tone-dropdown-control';
 import {
 	buildInitialMessageForBackendPrompt,
+	buildMessageContextForUserPrompt,
 	buildMessagesForBackendPrompt,
+	buildRelevantContentMessageForBackendPrompt,
 } from './backend-prompt';
 /**
  * Types & consts
@@ -108,7 +110,7 @@ export type BuildPromptOptionsProps = {
 };
 
 export type BuildPromptProps = {
-	generatedContent: string;
+	generatedContent?: string;
 	allPostContent?: string;
 	postContentAbove?: string;
 	currentPostTitle?: string;
@@ -152,4 +154,45 @@ export function buildPromptForBlock( {
 	} );
 
 	return [ initialMessage, ...userMessages ];
+}
+
+export type BuildExtensionPromptProps = {
+	blockContent: string;
+	options: BuildPromptOptionsProps;
+	type: PromptTypeProp;
+	userPrompt?: string;
+};
+
+/**
+ * Builds a prompt based on the type of prompt.
+ * Meant for use by the extensions.
+ *
+ * @param {BuildPromptProps} options - The prompt options.
+ * @returns {Array< PromptItemProps >} The prompt.
+ * @throws {Error} If the type is not recognized.
+ */
+export function buildPromptForExtensions( {
+	blockContent,
+	options,
+	type,
+	userPrompt,
+}: BuildExtensionPromptProps ): Array< PromptItemProps > {
+	const messages = [ buildInitialMessageForBackendPrompt( type ) ];
+
+	const relevantContentMessage = buildRelevantContentMessageForBackendPrompt( false, blockContent );
+
+	if ( relevantContentMessage ) {
+		messages.push( relevantContentMessage );
+	}
+
+	messages.push( {
+		role: 'jetpack-ai' as const,
+		context: buildMessageContextForUserPrompt( {
+			options,
+			type,
+			userPrompt,
+		} ),
+	} );
+
+	return messages;
 }

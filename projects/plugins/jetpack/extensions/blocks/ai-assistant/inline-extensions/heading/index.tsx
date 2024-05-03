@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { renderMarkdownFromHTML, renderHTMLFromMarkdown } from '@automattic/jetpack-ai-client';
-import { rawHandler } from '@wordpress/blocks';
+import { rawHandler, getBlockContent } from '@wordpress/blocks';
 import { select, dispatch } from '@wordpress/data';
 /**
  * Types
@@ -10,7 +10,7 @@ import { select, dispatch } from '@wordpress/data';
 import type { BlockEditorSelect, IBlockHandler } from '../types';
 import type { Block } from '@automattic/jetpack-ai-client';
 
-export function getContent( html ) {
+export function getMarkdown( html ) {
 	return renderMarkdownFromHTML( { content: html } );
 }
 
@@ -24,6 +24,10 @@ export class HeadingHandler implements IBlockHandler {
 	constructor( clientId: string ) {
 		const { getBlock } = select( 'core/block-editor' ) as BlockEditorSelect;
 		this.block = getBlock( clientId );
+	}
+
+	public getContent() {
+		return getMarkdown( getBlockContent( this.block ) );
 	}
 
 	public onSuggestion( suggestion: string ): void {
