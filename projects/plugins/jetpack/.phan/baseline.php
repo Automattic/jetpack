@@ -92,7 +92,6 @@ return [
     // PhanPluginDuplicateSwitchCaseLooseEquality : 2 occurrences
     // PhanPluginUseReturnValueInternalKnown : 2 occurrences
     // PhanRedefineFunctionInternal : 2 occurrences
-    // PhanStaticCallToNonStatic : 2 occurrences
     // PhanTypeMismatchArgumentInternalProbablyReal : 2 occurrences
     // PhanUndeclaredClassInCallable : 2 occurrences
     // PhanUndeclaredStaticMethod : 2 occurrences
@@ -103,6 +102,7 @@ return [
     // PhanPluginDuplicateSwitchCase : 1 occurrence
     // PhanPluginInvalidPregRegex : 1 occurrence
     // PhanPluginRedundantAssignmentInLoop : 1 occurrence
+    // PhanStaticCallToNonStatic : 1 occurrence
     // PhanSuspiciousValueComparison : 1 occurrence
     // PhanTypeComparisonFromArray : 1 occurrence
     // PhanTypeInstantiateAbstract : 1 occurrence
@@ -267,7 +267,7 @@ return [
         'json-endpoints/class.wpcom-json-api-get-post-counts-v1-1-endpoint.php' => ['PhanNoopNew', 'PhanRedundantCondition', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'json-endpoints/class.wpcom-json-api-get-post-endpoint.php' => ['PhanNoopNew', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn'],
         'json-endpoints/class.wpcom-json-api-get-post-v1-1-endpoint.php' => ['PhanNoopNew', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn'],
-        'json-endpoints/class.wpcom-json-api-get-site-endpoint.php' => ['PhanNoopNew', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturn', 'PhanUndeclaredMethod', 'PhanUndeclaredMethodInCallable'],
+        'json-endpoints/class.wpcom-json-api-get-site-endpoint.php' => ['PhanNoopNew', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchReturn', 'PhanUndeclaredMethod', 'PhanUndeclaredMethodInCallable'],
         'json-endpoints/class.wpcom-json-api-get-site-v1-2-endpoint.php' => ['PhanNoopNew'],
         'json-endpoints/class.wpcom-json-api-get-taxonomies-endpoint.php' => ['PhanNoopNew', 'PhanTypeMismatchReturn'],
         'json-endpoints/class.wpcom-json-api-get-taxonomy-endpoint.php' => ['PhanNoopNew', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable'],

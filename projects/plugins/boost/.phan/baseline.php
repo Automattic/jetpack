@@ -28,7 +28,6 @@ return [
     // PhanUndeclaredClassConstant : 3 occurrences
     // PhanNoopNew : 2 occurrences
     // PhanRedundantCondition : 2 occurrences
-    // PhanUndeclaredStaticMethod : 2 occurrences
     // PhanCoalescingNeverNull : 1 occurrence
     // PhanImpossibleTypeComparison : 1 occurrence
     // PhanImpossibleTypeComparisonInGlobalScope : 1 occurrence
@@ -40,11 +39,9 @@ return [
     // PhanTypeMismatchArgumentNullable : 1 occurrence
     // PhanTypeMismatchDefault : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
-    // PhanUndeclaredClassInCallable : 1 occurrence
+    // PhanTypeSuspiciousStringExpression : 1 occurrence
     // PhanUndeclaredClassReference : 1 occurrence
     // PhanUndeclaredFunctionInCallable : 1 occurrence
-    // PhanUndeclaredTypeParameter : 1 occurrence
-    // PhanUndeclaredTypeProperty : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
@@ -70,7 +67,7 @@ return [
         'app/lib/minify/Dependency_Path_Mapping.php' => ['PhanUndeclaredConstant'],
         'app/lib/minify/functions-helpers.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchDefault', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant'],
         'app/lib/minify/functions-service.php' => ['PhanImpossibleTypeComparison', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginNeverReturnFunction', 'PhanPluginUseReturnValueInternalKnown', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullableInternal'],
-        'app/modules/Modules_Setup.php' => ['PhanTypeMismatchPropertyDefault', 'PhanTypeMissingReturn', 'PhanUndeclaredStaticMethod'],
+        'app/modules/Modules_Setup.php' => ['PhanTypeMismatchPropertyDefault', 'PhanTypeMissingReturn'],
         'app/modules/image-guide/Image_Guide.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeMissingReturn'],
         'app/modules/image-guide/Image_Guide_Proxy.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'app/modules/image-size-analysis/Image_Size_Analysis.php' => ['PhanTypeMissingReturn'],
@@ -89,7 +86,6 @@ return [
         'app/modules/optimizations/render-blocking-js/class-render-blocking-js.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMissingReturn'],
         'app/modules/performance-history/Performance_History.php' => ['PhanTypeMissingReturn'],
         'app/rest-api/permissions/Nonce.php' => ['PhanParamTooMany'],
-        'compatibility/amp.php' => ['PhanUndeclaredClassInCallable', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty'],
         'compatibility/elementor.php' => ['PhanUndeclaredClassConstant'],
         'compatibility/jetpack.php' => ['PhanUndeclaredClassMethod'],
         'compatibility/lib/class-sync-jetpack-module-status.php' => ['PhanParamTooMany', 'PhanUndeclaredClassMethod'],

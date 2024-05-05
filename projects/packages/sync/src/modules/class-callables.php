@@ -404,7 +404,7 @@ class Callables extends Module {
 
 					$link_element = $link_elements->item( 0 );
 					// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					if ( $link_element->hasAttribute( 'href' ) && $link_element->nodeValue ) {
+					if ( $link_element instanceof \DOMElement && $link_element->hasAttribute( 'href' ) && $link_element->nodeValue ) {
 						$link_url = trim( $link_element->getAttribute( 'href' ) );
 
 						// Add the full admin path to the url if the plugin did not provide it.

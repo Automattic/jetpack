@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\IdentityCrisis;
 
+use Automattic\Jetpack\Connection\Urls;
+use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
 
 /**

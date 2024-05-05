@@ -489,10 +489,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$plugins = $request['plugins'];
 		usort( $plugins, 'strnatcasecmp' );
 
-		if ( empty( $request['schedule_id'] ) && count( $events ) >= 2 ) {
-			return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not create more than two schedules at this time.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
-		}
-
 		foreach ( $events as $key => $event ) {
 
 			// We'll update this schedule, so none of the checks apply.
@@ -609,12 +605,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 						'description' => 'Unix timestamp (UTC) for when to first run the schedule.',
 						'type'        => 'integer',
 						'required'    => true,
-					),
-					'active'             => array(
-						'description' => 'Whether the schedule is active.',
-						'type'        => 'boolean',
-						'required'    => false,
-						'default'     => true,
 					),
 					'health_check_paths' => array(
 						'description'       => 'List of paths to check for site health after the update.',

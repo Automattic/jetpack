@@ -825,7 +825,7 @@ abstract class Assert
      *
      * @phan-param ExpectedType $expected
      *
-     * @phan-assert =ExpectedType $actual
+     * @phan-assert ExpectedType $actual
      */
     public static function assertSame($expected, $actual, string $message = ''): void
     {
@@ -852,7 +852,7 @@ abstract class Assert
      *
      * @phan-param class-string<ExpectedType> $expected
      *
-     * @phan-assert =ExpectedType $actual
+     * @phan-assert ExpectedType $actual
      */
     public static function assertInstanceOf(string $expected, $actual, string $message = ''): void
     {
@@ -2773,7 +2773,7 @@ function assertObjectNotHasProperty(string $attributeName, object $object, strin
  *
  * @phan-param ExpectedType $expected
  *
- * @phan-assert =ExpectedType $actual
+ * @phan-assert ExpectedType $actual
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
@@ -2808,7 +2808,7 @@ function assertNotSame($expected, $actual, string $message = '', ...$func_get_ar
  *
  * @phan-param class-string<ExpectedType> $expected
  *
- * @phan-assert =ExpectedType $actual
+ * @phan-assert ExpectedType $actual
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *

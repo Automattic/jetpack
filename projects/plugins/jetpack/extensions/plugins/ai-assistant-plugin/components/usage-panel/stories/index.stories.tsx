@@ -5,7 +5,7 @@ import React from 'react';
 /*
  * Internal Dependencies
  */
-import UsagePanel from '..';
+import { UsagePanel } from '..';
 
 export default {
 	title: 'Plugins/Jetpack/Extensions/UsagePanel',
@@ -17,43 +17,19 @@ export default {
 	},
 };
 
-const DefaultTemplate = () => {
-	const props = {};
-
-	return <UsagePanel { ...props } />;
+const DefaultTemplate = args => {
+	return <UsagePanel { ...args } />;
 };
 
-export const aiAssistantFeatureUnsupported = DefaultTemplate.bind( {} );
-aiAssistantFeatureUnsupported.parameters = {
-	mockData: [
-		{
-			url: 'wpcom/v2/jetpack-ai/ai-assistant-feature?_locale=user',
-			method: 'GET',
-			status: 200,
-			response: {
-				'has-feature': false,
-				'requests-count': 11,
-				'requests-limit': 20,
-			},
-		},
-	],
+export const defaultView = DefaultTemplate.bind( {} );
+defaultView.args = {
+	nextStart: '2024-05-10 00:00:00',
+	nextLimit: 200,
+	requestsCount: 10,
+	requestsLimit: 100,
+	planType: 'tiered',
+	loading: false,
+	canUpgrade: true,
+	showContactUsCallToAction: false,
+	isRedirecting: false,
 };
-aiAssistantFeatureUnsupported.storyName = 'AI Assistant feature unsupported';
-
-export const aiAssisstantFeatureSupported = DefaultTemplate.bind( {} );
-aiAssisstantFeatureSupported.parameters = {
-	mockData: [
-		{
-			url: 'wpcom/v2/jetpack-ai/ai-assistant-feature?_locale=user',
-			method: 'GET',
-			status: 200,
-			response: {
-				'has-feature': true,
-				'requests-count': 120,
-				'requests-limit': 20,
-			},
-		},
-	],
-};
-
-aiAssisstantFeatureSupported.storyName = 'AI Assistant feature supported';

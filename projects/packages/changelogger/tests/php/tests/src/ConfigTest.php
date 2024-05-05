@@ -356,6 +356,7 @@ class ConfigTest extends TestCase {
 				'filename' => 'dummy.php',
 				'option'   => 'value',
 			),
+			// @phan-suppress-next-line PhanUndeclaredClassProperty -- Same.
 			$ret->c
 		);
 

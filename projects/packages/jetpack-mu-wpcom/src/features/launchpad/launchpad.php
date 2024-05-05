@@ -291,13 +291,13 @@ function wpcom_launchpad_get_task_list_definitions() {
 		),
 		'entrepreneur-site-setup' => array(
 			'task_ids' => array(
-				'customize_your_store',
-				'add_your_products',
-				'get_paid_with_woopayments',
-				'collect_sales_tax',
-				'grow_your_business',
-				'add_a_domain',
-				'launch_your_store',
+				'woo_customize_store',
+				'woo_products',
+				'woo_woocommerce_payments',
+				'woo_tax',
+				'woo_marketing',
+				'woo_add_domain',
+				'woo_launch_site',
 			),
 		),
 	);
@@ -1061,11 +1061,6 @@ function wpcom_launchpad_is_paid_newsletter_enabled() {
 	}
 
 	return wpcom_launchpad_has_goal_paid_subscribers() && apply_filters( 'wpcom_launchpad_intent_paid_newsletter_enabled', false );
-}
-
-// Unhook our old mu-plugin - this current file is being loaded on 0 priority for `plugins_loaded`.
-if ( class_exists( 'WPCOM_Launchpad' ) ) {
-	remove_action( 'plugins_loaded', array( WPCOM_Launchpad::get_instance(), 'init' ) );
 }
 
 /**

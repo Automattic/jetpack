@@ -58,7 +58,6 @@ class Scheduled_Updates {
 		add_filter( 'plugin_auto_update_setting_html', array( Scheduled_Updates_Admin::class, 'show_scheduled_updates' ), 10, 2 );
 
 		add_action( 'jetpack_scheduled_update_created', array( __CLASS__, 'maybe_disable_autoupdates' ), 10, 3 );
-		add_action( 'jetpack_scheduled_update_created', array( Scheduled_Updates_Active::class, 'updates_active' ), 10, 3 );
 		add_action( 'jetpack_scheduled_update_created', array( Scheduled_Updates_Health_Paths::class, 'updates_health_paths' ), 10, 3 );
 
 		add_action( 'jetpack_scheduled_update_updated', array( Scheduled_Updates_Logs::class, 'replace_logs_schedule_id' ), 10, 2 );
@@ -82,6 +81,10 @@ class Scheduled_Updates {
 		// Logs saving.
 		add_action( 'add_option_' . Scheduled_Updates_Logs::OPTION_NAME, $callback );
 		add_action( 'update_option_' . Scheduled_Updates_Logs::OPTION_NAME, $callback );
+
+		// Active flag saving.
+		add_action( 'add_option_' . Scheduled_Updates_Active::OPTION_NAME, $callback );
+		add_action( 'update_option_' . Scheduled_Updates_Active::OPTION_NAME, $callback );
 
 		// This is a temporary solution for backward compatibility. It will be removed in the future.
 		// It's needed to ensure that preexisting schedules are loaded into the sync option.
@@ -109,6 +112,7 @@ class Scheduled_Updates {
 		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities' );
 		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs' );
 		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules_Status' );
+		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active' );
 	}
 
 	/**

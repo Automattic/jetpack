@@ -33,5 +33,6 @@ export function blockHandler(
 
 	return {
 		onSuggestion: handler.onSuggestion.bind( handler ),
+		getContent: handler.getContent.bind( handler ),
 	};
 }
