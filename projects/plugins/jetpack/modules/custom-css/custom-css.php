@@ -380,7 +380,7 @@ class Jetpack_Custom_CSS_Enhancements {
 				'revisionsUrl'         => self::get_revisions_url(),
 				'cssHelpUrl'           => '//en.support.wordpress.com/custom-design/editing-css/',
 				'l10n'                 => array(
-					'mode'                        => __( 'Start Fresh', 'jetpack' ) . ' (' . __( 'deprecated', 'jetpack' ) . ')',
+					'mode'                        => __( 'Start Fresh (deprecated)', 'jetpack' ),
 					'mobile'                      => __( 'On Mobile', 'jetpack' ),
 					'contentWidth'                => $content_help,
 					'revisions'                   => _x( 'See full history', 'Toolbar button to see full CSS revision history', 'jetpack' ),
@@ -731,8 +731,6 @@ class Jetpack_Custom_CSS_Enhancements {
 			}
 		}
 
-		$deprecated_suffix = ' (' . __( 'deprecated', 'jetpack' ) . ')';
-
 		$wp_customize->selective_refresh->add_partial(
 			'custom_css',
 			array(
@@ -752,7 +750,7 @@ class Jetpack_Custom_CSS_Enhancements {
 			'wpcom_custom_css_content_width_control',
 			array(
 				'type'     => 'text',
-				'label'    => __( 'Media Width', 'jetpack' ) . $deprecated_suffix,
+				'label'    => __( 'Media Width (deprecated)', 'jetpack' ),
 				'section'  => 'custom_css',
 				'settings' => 'jetpack_custom_css[content_width]',
 			)
@@ -795,7 +793,7 @@ class Jetpack_Custom_CSS_Enhancements {
 				array(
 					'type'     => 'select',
 					'choices'  => $preprocessor_choices,
-					'label'    => __( 'Preprocessor', 'jetpack' ) . $deprecated_suffix,
+					'label'    => __( 'Preprocessor (deprecated)', 'jetpack' ),
 					'section'  => 'custom_css',
 					'settings' => 'jetpack_custom_css[preprocessor]',
 				)
