@@ -150,7 +150,7 @@ export default function FeaturedImage( {
 				{
 					generating: false,
 					error: new Error(
-						__( "You don't have enough requests to generate another image", 'jetpack' )
+						__( "You don't have enough requests to generate another image.", 'jetpack' )
 					),
 				},
 				pointer.current
@@ -161,7 +161,15 @@ export default function FeaturedImage( {
 		// Ensure the user prompt or the post content are set.
 		if ( ! userPrompt && ! postContent ) {
 			updateImages(
-				{ generating: false, error: new Error( __( 'No content to generate image', 'jetpack' ) ) },
+				{
+					generating: false,
+					error: new Error(
+						__(
+							'No content to generate image. Please type custom instructions and try again.',
+							'jetpack'
+						)
+					),
+				},
 				pointer.current
 			);
 			return;
@@ -366,6 +374,23 @@ export default function FeaturedImage( {
 								></textarea>
 							</div>
 						</div>
+						{ ( requireUpgrade || notEnoughRequests ) && ! currentPointer?.generating && (
+							<UpgradePrompt
+								description={
+									notEnoughRequests
+										? sprintf(
+												// Translators: %d is the cost of generating a featured image.
+												__(
+													"Featured image generation costs %d requests per image. You don't have enough requests to generate another image.",
+													'jetpack'
+												),
+												featuredImageCost
+										  )
+										: null
+								}
+								useLightNudge={ true }
+							/>
+						) }
 						<div className="ai-assistant-featured-image__actions">
 							<div className="ai-assistant-featured-image__actions-left">
 								{ ! isUnlimited && featuredImageCost && requestsLimit && (
@@ -379,7 +404,11 @@ export default function FeaturedImage( {
 							<div className="ai-assistant-featured-image__actions-right">
 								<div className="ai-assistant-featured-image__action-buttons">
 									{ currentPointer?.error ? (
-										<Button onClick={ handleTryAgain } variant="secondary">
+										<Button
+											onClick={ handleTryAgain }
+											variant="secondary"
+											disabled={ ! userPrompt && ! postContent }
+										>
 											{ __( 'Try again', 'jetpack' ) }
 										</Button>
 									) : (
@@ -388,7 +417,11 @@ export default function FeaturedImage( {
 												onClick={ handleRegenerate }
 												variant="secondary"
 												isBusy={ currentPointer?.generating }
-												disabled={ notEnoughRequests || currentPointer?.generating }
+												disabled={
+													notEnoughRequests ||
+													currentPointer?.generating ||
+													( ! userPrompt && ! postContent )
+												}
 											>
 												{ __( 'Generate again', 'jetpack' ) }
 											</Button>
@@ -398,22 +431,6 @@ export default function FeaturedImage( {
 							</div>
 						</div>
 						<div className="ai-assistant-featured-image__image-canvas">
-							{ ( requireUpgrade || notEnoughRequests ) && ! currentPointer?.generating && (
-								<UpgradePrompt
-									description={
-										notEnoughRequests
-											? sprintf(
-													// Translators: %d is the cost of generating a featured image.
-													__(
-														"Featured image generation costs %d requests per image. You don't have enough requests to generate another image.",
-														'jetpack'
-													),
-													featuredImageCost
-											  )
-											: null
-									}
-								/>
-							) }
 							<Carrousel
 								images={ images }
 								current={ current }
