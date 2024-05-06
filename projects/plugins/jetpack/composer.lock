@@ -1137,7 +1137,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
-				"reference": "a7f72c97950c8fa07ba69d2e5946b80fa56ae225"
+				"reference": "4c1d11d5592918996f3031a463c539f44a15fb67"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1165,7 +1165,7 @@
 					"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.30.x-dev"
+					"dev-trunk": "0.31.x-dev"
 				},
 				"textdomain": "jetpack-forms",
 				"version-constants": {
