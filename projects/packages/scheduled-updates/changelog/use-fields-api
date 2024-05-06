@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Switched endpoint args to be built from a schema and switched active field to use register_rest_field as an example for future changes.

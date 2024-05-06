@@ -60,7 +60,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'create_item' ),
 					'permission_callback' => array( $this, 'create_item_permissions_check' ),
-					'args'                => $this->get_object_params(),
+					'args'                => $this->get_object_params( WP_REST_Server::CREATABLE ),
 				),
 				'schema' => array( $this, 'get_public_item_schema' ),
 			)
@@ -95,7 +95,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 								'required'    => true,
 							),
 						),
-						$this->get_object_params()
+						$this->get_object_params( WP_REST_Server::EDITABLE )
 					),
 				),
 				array(
@@ -195,6 +195,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		 * @param WP_REST_Request $request The request object.
 		 */
 		do_action( 'jetpack_scheduled_update_created', $id, $event, $request );
+
+		$event              = wp_get_scheduled_event( Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins, $schedule['timestamp'] );
+		$event->schedule_id = $id;
+		$this->update_additional_fields_for_object( $event, $request );
 
 		return rest_ensure_response( $id );
 	}
@@ -376,46 +380,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	}
 
 	/**
-	 * Checks that the "plugins" parameter is a valid path.
-	 *
-	 * @param array $plugins List of plugins to update.
-	 * @return bool|WP_Error
-	 */
-	public function validate_plugins_param( $plugins ) {
-		$schema            = array(
-			'items'    => array( 'type' => 'string' ),
-			'maxItems' => 10,
-		);
-		$validated_plugins = rest_validate_array_value_from_schema( $plugins, $schema, 'plugins' );
-		if ( is_wp_error( $validated_plugins ) ) {
-			return $validated_plugins;
-		}
-
-		foreach ( $plugins as $plugin ) {
-			if ( ! $this->validate_plugin_param( $plugin ) ) {
-				return new WP_Error(
-					'rest_invalid_plugin',
-					/* translators: %s: plugin file */
-					sprintf( __( 'The plugin "%s" is not a valid plugin file.', 'jetpack-scheduled-updates' ), $plugin ),
-					array( 'status' => 400 )
-				);
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * Sanitizes the plugin slugs contained in the "plugins" parameter.
-	 *
-	 * @param array $plugins List of plugins to update.
-	 * @return array
-	 */
-	public function sanitize_plugins_param( $plugins ) {
-		return array_map( array( $this, 'sanitize_plugin_param' ), $plugins );
-	}
-
-	/**
 	 * Checks that the "plugin" parameter is a valid path.
 	 *
 	 * @param string $file The plugin file parameter.
@@ -452,26 +416,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	public function validate_themes_param( $themes ) {
 		if ( ! empty( $themes ) ) {
 			return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not schedule theme updates at this time.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
-		}
-
-		return true;
-	}
-
-	/**
-	 * Checks that the "paths" parameter is a valid array of paths.
-	 *
-	 * @param array $paths List of paths to check.
-	 * @return bool|WP_Error
-	 */
-	public function validate_paths_param( $paths ) {
-		foreach ( $paths as $path ) {
-			$valid = Scheduled_Updates_Health_Paths::validate( $path );
-
-			if ( is_wp_error( $valid ) ) {
-				$valid->add_data( array( 'status' => 400 ) );
-
-				return $valid;
-			}
 		}
 
 		return true;
@@ -555,10 +499,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 					'type'        => 'string',
 					'enum'        => array( 'success', 'failure-and-rollback', 'failure-and-rollback-fail' ),
 				),
-				'active'             => array(
-					'description' => 'Whether the schedule is active.',
-					'type'        => 'boolean',
-				),
 				'health_check_paths' => array(
 					'description' => 'Paths to check for site health.',
 					'type'        => 'array',
@@ -574,51 +514,65 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	/**
 	 * Retrieves the query params for scheduled updates.
 	 *
+	 * @param string $method HTTP method of the request.
+	 *                       The arguments for `CREATABLE` requests are checked for required values and may fall back to
+	 *                       a given default. This is not done on `EDITABLE` requests.
 	 * @return array[] Array of query parameters.
 	 */
-	public function get_object_params() {
-		return array(
-			'plugins'  => array(
-				'description'       => 'List of plugin slugs to update.',
-				'type'              => 'array',
-				'validate_callback' => array( $this, 'validate_plugins_param' ),
-				'sanitize_callback' => array( $this, 'sanitize_plugins_param' ),
-			),
-			'themes'   => array(
-				'description'       => 'List of theme slugs to update.',
-				'type'              => 'array',
-				'required'          => false,
-				'validate_callback' => array( $this, 'validate_themes_param' ),
-			),
-			'schedule' => array(
-				'description' => 'Update schedule.',
-				'type'        => 'object',
-				'required'    => true,
-				'properties'  => array(
-					'interval'           => array(
-						'description' => 'Interval for the schedule.',
+	public function get_object_params( $method ) {
+		$endpoint_args = array(
+			'title'      => 'update-schedule',
+			'properties' => array(
+				'plugins'  => array(
+					'description' => 'List of plugin slugs to update.',
+					'type'        => 'array',
+					'maxItems'    => 10,
+					'items'       => array(
 						'type'        => 'string',
-						'enum'        => array( 'daily', 'weekly' ),
-						'required'    => true,
-					),
-					'timestamp'          => array(
-						'description' => 'Unix timestamp (UTC) for when to first run the schedule.',
-						'type'        => 'integer',
-						'required'    => true,
-					),
-					'health_check_paths' => array(
-						'description'       => 'List of paths to check for site health after the update.',
-						'type'              => 'array',
-						'maxItems'          => 5,
-						'items'             => array(
-							'type' => 'string',
+						'arg_options' => array(
+							'validate_callback' => array( $this, 'validate_plugin_param' ),
+							'sanitize_callback' => array( $this, 'sanitize_plugin_param' ),
 						),
-						'required'          => false,
-						'default'           => array(),
-						'validate_callback' => array( $this, 'validate_paths_param' ),
+					),
+				),
+				'themes'   => array(
+					'description'       => 'List of theme slugs to update.',
+					'type'              => 'array',
+					'required'          => false,
+					'validate_callback' => array( $this, 'validate_themes_param' ),
+				),
+				'schedule' => array(
+					'description' => 'Update schedule.',
+					'type'        => 'object',
+					'required'    => true,
+					'properties'  => array(
+						'interval'           => array(
+							'description' => 'Interval for the schedule.',
+							'type'        => 'string',
+							'enum'        => array( 'daily', 'weekly' ),
+							'required'    => true,
+						),
+						'timestamp'          => array(
+							'description' => 'Unix timestamp (UTC) for when to first run the schedule.',
+							'type'        => 'integer',
+							'required'    => true,
+						),
+						'health_check_paths' => array(
+							'description' => 'List of paths to check for site health after the update.',
+							'type'        => 'array',
+							'maxItems'    => 5,
+							'items'       => array(
+								'type'        => 'string',
+								'arg_options' => array(
+									'validate_callback' => array( Scheduled_Updates_Health_Paths::class, 'validate' ),
+								),
+							),
+						),
 					),
 				),
 			),
 		);
+
+		return rest_get_endpoint_args_for_schema( $this->add_additional_fields_schema( $endpoint_args ), $method );
 	}
 }
