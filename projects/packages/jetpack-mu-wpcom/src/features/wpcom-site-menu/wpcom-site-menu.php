@@ -234,7 +234,7 @@ function wpcom_site_menu_enqueue_scripts() {
 
 	$notice = wpcom_get_sidebar_notice();
 	if ( $notice ) {
-		$link = $notice->link;
+		$link = $notice['link'];
 		if ( str_starts_with( $link, '/' ) ) {
 			$link = 'https://wordpress.com' . $link;
 		}
@@ -257,14 +257,14 @@ function wpcom_site_menu_enqueue_scripts() {
 
 		$data = array(
 			'url'          => esc_url( $link ),
-			'text'         => wp_kses( $notice->content, array() ),
-			'action'       => wp_kses( $notice->cta, array() ),
-			'dismissible'  => $notice->dismissible,
+			'text'         => wp_kses( $notice['content'], array() ),
+			'action'       => wp_kses( $notice['cta'], array() ),
+			'dismissible'  => $notice['dismissible'],
 			'dismissLabel' => esc_html__( 'Dismiss', 'jetpack-mu-wpcom' ),
-			'id'           => $notice->id,
-			'featureClass' => $notice->feature_class,
+			'id'           => $notice['id'],
+			'featureClass' => $notice['feature_class'],
 			'dismissNonce' => wp_create_nonce( 'wpcom_dismiss_sidebar_notice' ),
-			'tracks'       => $notice->tracks,
+			'tracks'       => $notice['tracks'],
 			'user'         => array(
 				'ID'       => $user_id,
 				'username' => $user_login,
@@ -282,7 +282,7 @@ add_action( 'admin_enqueue_scripts', 'wpcom_site_menu_enqueue_scripts' );
 /**
  * Returns the first available sidebar notice.
  *
- * @return object | null
+ * @return array | null
  */
 function wpcom_get_sidebar_notice() {
 	$message_path = 'calypso:sites:sidebar_notice';
@@ -309,7 +309,7 @@ function wpcom_get_sidebar_notice() {
 	// Serialize message as object (on Simple sites we have an array, on Atomic sites we have an object).
 	$message = json_decode( wp_json_encode( $message[0] ) );
 
-	return (object) array(
+	return array(
 		'content'       => $message->content->message,
 		'cta'           => $message->CTA->message, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		'link'          => $message->CTA->link, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
