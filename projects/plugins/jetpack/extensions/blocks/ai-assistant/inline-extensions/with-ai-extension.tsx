@@ -8,7 +8,7 @@ import {
 } from '@automattic/jetpack-ai-client';
 import { BlockControls, useBlockProps } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { dispatch, select, useDispatch } from '@wordpress/data';
+import { dispatch, select } from '@wordpress/data';
 import { useCallback, useEffect, useState, useRef } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import debugFactory from 'debug';
@@ -17,6 +17,7 @@ import React from 'react';
  * Internal dependencies
  */
 import { EXTENDED_INLINE_BLOCKS } from '../extensions/ai-assistant';
+import useAiFeature from '../hooks/use-ai-feature';
 import { BuildPromptOptionsProps, buildPromptForExtensions } from '../lib/prompt';
 import { blockHandler } from './block-handler';
 import AiAssistantInput from './components/ai-assistant-input';
@@ -45,7 +46,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const blockStyle = useRef< string >( '' );
 		const ownerDocument = useRef< Document >( document );
 		const [ action, setAction ] = useState< string >( '' );
-		const [ requestCount, setRequestCount ] = useState( 0 );
+		const [ consecutiveRequestCount, setConsecutiveRequestCount ] = useState( 0 );
+		const [ requestsRemaining, setRequestsRemaining ] = useState( 0 );
+		const [ showUpgradeMessage, setShowUpgradeMessage ] = useState( false );
 
 		// Only extend the allowed block types.
 		const possibleToExtendBlock = isPossibleToExtendBlock( {
@@ -58,12 +61,45 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const { getCurrentPostId } = select( 'core/editor' );
 		const postId = getCurrentPostId();
 
-		const { increaseAiAssistantRequestsCount } = useDispatch( 'wordpress-com/plans' );
+		const {
+			increaseRequestsCount,
+			dequeueAsyncRequest,
+			requireUpgrade,
+			requestsCount,
+			requestsLimit,
+			loading: loadingAiFeature,
+			nextTier,
+		} = useAiFeature();
+
+		useEffect( () => {
+			const remaining = Math.max( requestsLimit - requestsCount, 0 );
+			setRequestsRemaining( remaining );
+
+			const quarterPlanLimit = requestsLimit ? requestsLimit / 4 : 5;
+			setShowUpgradeMessage(
+				// if the feature is not loading
+				! loadingAiFeature &&
+					// and there is a next plan
+					!! nextTier &&
+					// and the user requires an upgrade
+					( requireUpgrade ||
+						// or the user has reached a multiple of the quarter plan limit, e.g. 100, 75, 50, 25, and 0 on the 100 tier.
+						remaining % quarterPlanLimit === 0 )
+			);
+		}, [
+			requestsLimit,
+			requestsCount,
+			loadingAiFeature,
+			nextTier,
+			requireUpgrade,
+			requestsRemaining,
+		] );
 
 		const onDone = useCallback( () => {
-			increaseAiAssistantRequestsCount();
-			setRequestCount( count => count + 1 );
-		}, [ increaseAiAssistantRequestsCount ] );
+			increaseRequestsCount();
+			setConsecutiveRequestCount( count => count + 1 );
+			inputRef.current?.focus();
+		}, [ increaseRequestsCount ] );
 
 		const onError = useCallback(
 			error => {
@@ -72,9 +108,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					return;
 				}
 
-				increaseAiAssistantRequestsCount();
+				increaseRequestsCount();
 			},
-			[ increaseAiAssistantRequestsCount ]
+			[ increaseRequestsCount ]
 		);
 
 		const { id } = useBlockProps();
@@ -100,7 +136,6 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			stopSuggestion,
 			requestingState,
 			error,
-			suggestion,
 			reset: resetSuggestions,
 		} = useAiSuggestions( {
 			onSuggestion,
@@ -206,6 +241,13 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 			debug( 'onRequestSuggestion', promptType, options );
 
+			/*
+			 * Always dequeue/cancel the AI Assistant feature async request,
+			 * in case there is one pending,
+			 * when performing a new AI suggestion request.
+			 */
+			dequeueAsyncRequest();
+
 			request( messages );
 		};
 
@@ -213,7 +255,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			setShowAiControl( false );
 			resetSuggestions();
 			setAction( '' );
-			setRequestCount( 0 );
+			setConsecutiveRequestCount( 0 );
 		}, [ resetSuggestions ] );
 
 		const onUserRequest = ( userPrompt: string ) => {
@@ -232,7 +274,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		}, [ isSelected, onClose ] );
 
 		const onUndo = async () => {
-			for ( let i = 0; i < requestCount; i++ ) {
+			for ( let i = 0; i < consecutiveRequestCount; i++ ) {
 				await dispatch( 'core/editor' ).undo();
 			}
 
@@ -245,14 +287,14 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				{ showAiControl && (
 					<AiAssistantInput
-						clientId={ clientId }
-						postId={ postId }
 						requestingState={ requestingState }
 						requestingError={ error }
-						suggestion={ suggestion }
 						wrapperRef={ controlRef }
 						inputRef={ inputRef }
 						action={ action }
+						showUpgradeMessage={ showUpgradeMessage }
+						requireUpgrade={ requireUpgrade }
+						requestsRemaining={ requestsRemaining }
 						request={ onUserRequest }
 						stopSuggestion={ stopSuggestion }
 						close={ onClose }

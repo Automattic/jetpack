@@ -161,23 +161,12 @@ export default function ConnectedUsagePanel( { placement = null }: UsagePanelPro
 	const canUpgrade = canUserPurchasePlan();
 
 	// fetch usage data
-	const {
-		requestsCount: allTimeRequestsCount,
-		requestsLimit: freeRequestsLimit,
-		isOverLimit,
-		usagePeriod,
-		currentTier,
-		nextTier,
-		loading,
-	} = useAiFeature();
+	const { requestsCount, requestsLimit, isOverLimit, usagePeriod, currentTier, nextTier, loading } =
+		useAiFeature();
 	const planType = usePlanType( currentTier );
 
-	const requestsCount =
-		planType === PLAN_TYPE_TIERED ? usagePeriod?.requestsCount : allTimeRequestsCount;
-	const requestsLimit = planType === PLAN_TYPE_FREE ? freeRequestsLimit : currentTier?.limit;
-
 	const handleUpgradeClick = useCallback(
-		( event: React.MouseEvent< HTMLElement > ) => {
+		( event: React.MouseEvent< HTMLButtonElement > ) => {
 			event.preventDefault();
 			tracks.recordEvent( 'jetpack_ai_upgrade_button', {
 				current_tier_slug: currentTier?.slug,
@@ -190,7 +179,7 @@ export default function ConnectedUsagePanel( { placement = null }: UsagePanelPro
 	);
 
 	const handleContactUsClick = useCallback(
-		( event: React.MouseEvent< HTMLElement > ) => {
+		( event: React.MouseEvent< HTMLButtonElement > ) => {
 			event.preventDefault();
 			tracks.recordEvent( 'jetpack_ai_upgrade_button', {
 				current_tier_slug: currentTier?.slug,
