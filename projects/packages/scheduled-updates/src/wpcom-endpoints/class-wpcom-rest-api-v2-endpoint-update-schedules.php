@@ -136,7 +136,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			// Add the schedule_id to the object.
 			$event->schedule_id = $schedule_id;
 
-			// Run through the prepare_item_for_response method to add the last run status.
+			// Run through the prepare_item_for_response method to add any registered rest fields.
 			$response[ $schedule_id ] = $this->prepare_response_for_collection(
 				$this->prepare_item_for_response( $event, $request )
 			);
@@ -489,15 +489,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 				'interval'           => array(
 					'description' => 'The interval time in seconds for the schedule.',
 					'type'        => 'integer',
-				),
-				'last_run_timestamp' => array(
-					'description' => 'Unix timestamp (UTC) for when the last run occurred.',
-					'type'        => 'integer',
-				),
-				'last_run_status'    => array(
-					'description' => 'Status of last run.',
-					'type'        => 'string',
-					'enum'        => array( 'success', 'failure-and-rollback', 'failure-and-rollback-fail' ),
 				),
 				'health_check_paths' => array(
 					'description' => 'Paths to check for site health.',
