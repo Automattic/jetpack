@@ -65,9 +65,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			increaseRequestsCount,
 			dequeueAsyncRequest,
 			requireUpgrade,
-			currentTier: { limit: requestsLimit },
+			requestsCount,
+			requestsLimit,
 			loading: loadingAiFeature,
-			usagePeriod: { requestsCount },
 			nextTier,
 		} = useAiFeature();
 

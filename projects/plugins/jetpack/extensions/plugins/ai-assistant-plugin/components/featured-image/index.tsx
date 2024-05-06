@@ -14,12 +14,7 @@ import { Icon, external } from '@wordpress/icons';
 import './style.scss';
 import UpgradePrompt from '../../../../blocks/ai-assistant/components/upgrade-prompt';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
-import {
-	PLAN_TYPE_FREE,
-	PLAN_TYPE_TIERED,
-	PLAN_TYPE_UNLIMITED,
-	usePlanType,
-} from '../../../../shared/use-plan-type';
+import { PLAN_TYPE_UNLIMITED, usePlanType } from '../../../../shared/use-plan-type';
 import usePostContent from '../../hooks/use-post-content';
 import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library';
 import {
@@ -69,18 +64,14 @@ export default function FeaturedImage( {
 	// Get feature data
 	const {
 		requireUpgrade,
-		requestsCount: allTimeRequestsCount,
-		requestsLimit: freeRequestsLimit,
-		usagePeriod,
+		requestsCount,
+		requestsLimit,
 		currentTier,
 		increaseRequestsCount,
 		costs,
 	} = useAiFeature();
 	const planType = usePlanType( currentTier );
 	const featuredImageCost = costs?.[ FEATURED_IMAGE_FEATURE_NAME ]?.image;
-	const requestsCount =
-		planType === PLAN_TYPE_TIERED ? usagePeriod?.requestsCount : allTimeRequestsCount;
-	const requestsLimit = planType === PLAN_TYPE_FREE ? freeRequestsLimit : currentTier?.limit;
 	const isUnlimited = planType === PLAN_TYPE_UNLIMITED;
 	const requestsBalance = requestsLimit - requestsCount;
 	const notEnoughRequests = requestsBalance < featuredImageCost;
