@@ -33,7 +33,6 @@ const Admin = () => {
 
 	const onUpgradeToggle = useCallback( () => setForceDisplayPricingPage( true ), [] );
 	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
-	const useAdminUiV1 = useSelect( select => select( socialStore ).useAdminUiV1(), [] );
 
 	const {
 		isModuleEnabled,
@@ -110,7 +109,6 @@ const Admin = () => {
 					<AdminSection>
 						{ shouldShowAdvancedPlanNudge && <AdvancedUpsellNotice /> }
 						<InstagramNotice onUpgrade={ onUpgradeToggle } />
-						{ useAdminUiV1 ? <span>New connections UI goes here</span> : null }
 						<SocialModuleToggle />
 						{ isModuleEnabled && <SocialNotesToggle disabled={ isUpdatingJetpackSettings } /> }
 						{ isModuleEnabled && isAutoConversionAvailable && (
