@@ -156,12 +156,12 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
 		$request->set_body_params(
 			array(
-				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Monday 8:00' ),
-					'interval'           => 'weekly',
-					'health_check_paths' => $paths,
+				'plugins'            => $plugins,
+				'schedule'           => array(
+					'timestamp' => strtotime( 'next Monday 8:00' ),
+					'interval'  => 'weekly',
 				),
+				'health_check_paths' => $paths,
 			)
 		);
 		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
@@ -195,12 +195,12 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
 		$request->set_body_params(
 			array(
-				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Monday 8:00' ),
-					'interval'           => 'weekly',
-					'health_check_paths' => $paths,
+				'plugins'            => $plugins,
+				'schedule'           => array(
+					'timestamp' => strtotime( 'next Monday 8:00' ),
+					'interval'  => 'weekly',
 				),
+				'health_check_paths' => $paths,
 			)
 		);
 		$result = rest_do_request( $request )->get_data();
@@ -220,12 +220,12 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 
 		$request->set_body_params(
 			array(
-				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Monday 8:00' ),
-					'interval'           => 'weekly',
-					'health_check_paths' => array( 'a', 'b' ),
+				'plugins'            => $plugins,
+				'schedule'           => array(
+					'timestamp' => strtotime( 'next Monday 8:00' ),
+					'interval'  => 'weekly',
 				),
+				'health_check_paths' => array( 'a', 'b' ),
 			)
 		);
 		$schedule_id_1 = Scheduled_Updates::generate_schedule_id( $plugins );
@@ -244,12 +244,12 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 		$schedule_id_2 = Scheduled_Updates::generate_schedule_id( $plugins );
 		$request->set_body_params(
 			array(
-				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Monday 11:00' ),
-					'interval'           => 'daily',
-					'health_check_paths' => array( 'c', 'd' ),
+				'plugins'            => $plugins,
+				'schedule'           => array(
+					'timestamp' => strtotime( 'next Monday 11:00' ),
+					'interval'  => 'daily',
 				),
+				'health_check_paths' => array( 'c', 'd' ),
 			)
 		);
 

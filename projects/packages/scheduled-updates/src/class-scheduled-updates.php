@@ -55,13 +55,13 @@ class Scheduled_Updates {
 		add_action( 'rest_api_init', array( __CLASS__, 'add_is_managed_extension_field' ) );
 		add_action( 'rest_api_init', array( Scheduled_Updates_Logs::class, 'add_log_fields' ) );
 		add_action( 'rest_api_init', array( Scheduled_Updates_Active::class, 'add_active_field' ) );
+		add_action( 'rest_api_init', array( Scheduled_Updates_Health_Paths::class, 'add_health_check_paths_field' ) );
 
 		add_filter( 'plugins_list', array( Scheduled_Updates_Admin::class, 'add_scheduled_updates_context' ) );
 		add_filter( 'views_plugins', array( Scheduled_Updates_Admin::class, 'add_scheduled_updates_view' ) );
 		add_filter( 'plugin_auto_update_setting_html', array( Scheduled_Updates_Admin::class, 'show_scheduled_updates' ), 10, 2 );
 
 		add_action( 'jetpack_scheduled_update_created', array( __CLASS__, 'maybe_disable_autoupdates' ), 10, 3 );
-		add_action( 'jetpack_scheduled_update_created', array( Scheduled_Updates_Health_Paths::class, 'updates_health_paths' ), 10, 3 );
 
 		add_action( 'jetpack_scheduled_update_updated', array( Scheduled_Updates_Logs::class, 'replace_logs_schedule_id' ), 10, 2 );
 
@@ -69,8 +69,6 @@ class Scheduled_Updates {
 		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Active::class, 'clear' ) );
 		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Health_Paths::class, 'clear' ) );
 		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Logs::class, 'delete_logs_schedule_id' ), 10, 3 );
-
-		add_filter( 'jetpack_scheduled_response_item', array( Scheduled_Updates_Health_Paths::class, 'response_filter' ), 10, 2 );
 
 		// Update cron sync option after options update.
 		$callback = array( __CLASS__, 'update_option_cron' );
