@@ -3,8 +3,15 @@ import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import connectionsButtonFacebook from '../../assets/connections-button-facebook.png';
+import connectionsButtonLinkedin from '../../assets/connections-button-linkedin.png';
+import connectionsButtonTumblr from '../../assets/connections-button-tumblr.png';
 import connectionsFacebook from '../../assets/connections-facebook.png';
 import connectionsInstagramBusiness from '../../assets/connections-instagram-business.png';
+import connectionsLinkedin from '../../assets/connections-linkedin.png';
+import connectionsNextdoor from '../../assets/connections-nextdoor.png';
+import connectionsTumblr from '../../assets/connections-tumblr.png';
+
+const sharingButtonLink = 'https://wordpress.com/support/sharing/';
 
 export interface Connection {
 	title: string;
@@ -49,10 +56,17 @@ export const getSupportedConnections = (): Connection[] => {
 						<br />
 						{ createInterpolateElement(
 							__(
-								'Add a sharing button to your posts so readers can share your story with their friends.',
+								'Add a <link /> to your posts so readers can share your story with their friends.',
 								'jetpack'
 							),
-							{ strong: <strong></strong> }
+							{
+								strong: <strong></strong>,
+								link: (
+									<ExternalLink href={ sharingButtonLink }>
+										{ __( 'sharing button', 'jetpack' ) }
+									</ExternalLink>
+								),
+							}
 						) }
 					</>
 				),
@@ -118,6 +132,46 @@ export const getSupportedConnections = (): Connection[] => {
 				'jetpack'
 			),
 			name: 'linkedin',
+			examples: [
+				() => (
+					<>
+						<img src={ connectionsLinkedin } alt={ __( 'Add LinkedIn connection', 'jetpack' ) } />
+						<br />
+						<br />
+						{ createInterpolateElement(
+							__(
+								'<strong>Connect</strong> to automatically share posts with your LinkedIn connections.',
+								'jetpack'
+							),
+							{ strong: <strong></strong> }
+						) }
+					</>
+				),
+				() => (
+					<>
+						<img
+							src={ connectionsButtonLinkedin }
+							alt={ __( 'Add LinkedIn connection', 'jetpack' ) }
+						/>
+						<br />
+						<br />
+						{ createInterpolateElement(
+							__(
+								'Add a <link /> to your posts so readers can share your story with their connections.',
+								'jetpack'
+							),
+							{
+								strong: <strong></strong>,
+								link: (
+									<ExternalLink href={ sharingButtonLink }>
+										{ __( 'sharing button', 'jetpack' ) }
+									</ExternalLink>
+								),
+							}
+						) }
+					</>
+				),
+			],
 		},
 		{
 			title: __( 'Nextdoor', 'jetpack' ),
@@ -127,6 +181,20 @@ export const getSupportedConnections = (): Connection[] => {
 				'jetpack'
 			),
 			name: 'nextdoor',
+			examples: [
+				() => (
+					<>
+						{ createInterpolateElement(
+							__(
+								'<strong>Connect</strong> with friends, neighbors, and local businesses by automatically sharing your posts to Nextdoor.',
+								'jetpack'
+							),
+							{ strong: <strong></strong> }
+						) }
+					</>
+				),
+				() => <img src={ connectionsNextdoor } alt={ __( 'Add Instagram photo', 'jetpack' ) } />,
+			],
 		},
 		{
 			title: __( 'Tumblr', 'jetpack' ),
@@ -136,6 +204,43 @@ export const getSupportedConnections = (): Connection[] => {
 				'jetpack'
 			),
 			name: 'tumblr',
+			examples: [
+				() => (
+					<>
+						<img src={ connectionsTumblr } alt={ __( 'Add Tumblr connection', 'jetpack' ) } />
+						<br />
+						<br />
+						{ createInterpolateElement(
+							__(
+								'<strong>Connect</strong> to automatically share posts to your Tumblr blog.',
+								'jetpack'
+							),
+							{ strong: <strong></strong> }
+						) }
+					</>
+				),
+				() => (
+					<>
+						<img src={ connectionsButtonTumblr } alt={ __( 'Add Tumblr connection', 'jetpack' ) } />
+						<br />
+						<br />
+						{ createInterpolateElement(
+							__(
+								'Add a <link /> to your posts so readers can share your story with their followers.',
+								'jetpack'
+							),
+							{
+								strong: <strong></strong>,
+								link: (
+									<ExternalLink href={ sharingButtonLink }>
+										{ __( 'sharing button', 'jetpack' ) }
+									</ExternalLink>
+								),
+							}
+						) }
+					</>
+				),
+			],
 		},
 		{
 			title: __( 'Mastodon', 'jetpack' ),
