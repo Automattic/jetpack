@@ -29,9 +29,10 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 	const wpcomThemesObserver = new MutationObserver( () => {
 		if (
-			document.querySelector(
-				'[data-sort="popular"].current, [data-sort="new"].current, [data-sort="block-themes"].current'
-			) &&
+			( ! document.querySelector( '.wp-filter' ) ||
+				document.querySelector(
+					'[data-sort="popular"].current, [data-sort="new"].current, [data-sort="block-themes"].current'
+				) ) &&
 			! document.querySelector( '.no-results p.no-themes' ) &&
 			! document.querySelector( '.loading-content .spinner, .spinner.is-active' )
 		) {
