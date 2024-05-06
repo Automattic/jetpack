@@ -70,6 +70,8 @@ class Scheduled_Updates {
 		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Health_Paths::class, 'clear' ) );
 		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Logs::class, 'delete_logs_schedule_id' ), 10, 3 );
 
+		add_filter( 'jetpack_scheduled_update_verify_plugins', array( __CLASS__, 'verify_plugins' ) );
+
 		// Update cron sync option after options update.
 		$callback = array( __CLASS__, 'update_option_cron' );
 
@@ -458,5 +460,32 @@ class Scheduled_Updates {
 		$folder = WP_PLUGIN_DIR . '/' . strtok( $plugin, '/' );
 		$target = is_link( $folder ) ? realpath( $folder ) : false;
 		return $target && 0 === strpos( $target, '/wordpress/' );
+	}
+
+	/**
+	 * Verify that the plugins are installed.
+	 *
+	 * @param array $plugins List of plugins to update.
+	 * @return bool|WP_Error
+	 */
+	public static function verify_plugins( $plugins ) {
+		$request_plugins_not_installed_or_managed = true;
+
+		foreach ( $plugins as $plugin ) {
+			if ( self::is_plugin_installed( $plugin ) && ! self::is_plugin_managed( $plugin ) ) {
+				$request_plugins_not_installed_or_managed = false;
+				break;
+			}
+		}
+
+		if ( $request_plugins_not_installed_or_managed ) {
+			return new \WP_Error(
+				'rest_forbidden',
+				__( 'None of the specified plugins are installed or all of them are managed.', 'jetpack-scheduled-updates' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		return true;
 	}
 }

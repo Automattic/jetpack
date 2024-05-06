@@ -174,7 +174,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
-		$verified_plugins = $this->verify_plugins( $request['plugins'] );
+
+		$verified_plugins = apply_filters( 'jetpack_scheduled_update_verify_plugins', $request['plugins'] );
 
 		if ( is_wp_error( $verified_plugins ) ) {
 			return $verified_plugins;
@@ -269,6 +270,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$result = $this->validate_schedule( $request );
 		if ( is_wp_error( $result ) ) {
 			return $result;
+		}
+
+		$verified_plugins = apply_filters( 'jetpack_scheduled_update_verify_plugins', $request['plugins'] );
+
+		if ( is_wp_error( $verified_plugins ) ) {
+			return $verified_plugins;
 		}
 
 		$deleted = $this->delete_item( $request );
@@ -555,32 +562,5 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		);
 
 		return rest_get_endpoint_args_for_schema( $this->add_additional_fields_schema( $endpoint_args ), $method );
-	}
-
-	/**
-	 * Verify that the plugins are installed.
-	 *
-	 * @param array $plugins List of plugins to update.
-	 * @return bool|WP_Error
-	 */
-	public function verify_plugins( $plugins ) {
-		$request_plugins_not_installed_or_managed = true;
-
-		foreach ( $plugins as $plugin ) {
-			if ( Scheduled_Updates::is_plugin_installed( $plugin ) && ! Scheduled_Updates::is_plugin_managed( $plugin ) ) {
-				$request_plugins_not_installed_or_managed = false;
-				break;
-			}
-		}
-
-		if ( $request_plugins_not_installed_or_managed ) {
-			return new WP_Error(
-				'rest_forbidden',
-				__( 'None of the specified plugins are installed or all of them are managed.', 'jetpack-scheduled-updates' ),
-				array( 'status' => 403 )
-			);
-		}
-
-		return true;
 	}
 }
