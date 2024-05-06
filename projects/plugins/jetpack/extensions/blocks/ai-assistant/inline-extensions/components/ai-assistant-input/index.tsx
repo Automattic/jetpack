@@ -2,9 +2,9 @@
  * External dependencies
  */
 import { ExtensionAIControl } from '@automattic/jetpack-ai-client';
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React, { useCallback } from 'react';
+import React from 'react';
 /*
  * Internal dependencies
  */
