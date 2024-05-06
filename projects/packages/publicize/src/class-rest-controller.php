@@ -131,7 +131,7 @@ class REST_Controller {
 		// Create a Jetpack Social connection.
 		register_rest_route(
 			'jetpack/v4',
-			'/social/connections/new',
+			'/social/connections',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'create_publicize_connection' ),
@@ -145,9 +145,10 @@ class REST_Controller {
 			'jetpack/v4',
 			'/social/connections/(?P<connection_id>\d+)',
 			array(
-				'methods'             => WP_REST_Server::CREATABLE,
+				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'update_publicize_connection' ),
 				'permission_callback' => array( $this, 'require_author_privilege_callback' ),
+				'schema'              => array( $this, 'get_jetpack_social_connections_update_schema' ),
 			)
 		);
 
@@ -202,6 +203,31 @@ class REST_Controller {
 					'type'        => 'string',
 				),
 				'shared'                => array(
+					'description' => __( 'Whethe the connection is shared with other users', 'jetpack-publicize-pkg' ),
+					'type'        => 'boolean',
+				),
+			),
+		);
+
+		return rest_default_additional_properties_to_false( $schema );
+	}
+
+	/**
+	 * Retrieves the JSON schema for updating a jetpack social connection.
+	 *
+	 * @return array Schema data.
+	 */
+	public function get_jetpack_social_connections_update_schema() {
+		$schema = array(
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'jetpack-social-connection',
+			'type'       => 'object',
+			'properties' => array(
+				'external_user_ID' => array(
+					'description' => __( 'External User Id - in case of services like Facebook', 'jetpack-publicize-pkg' ),
+					'type'        => 'string',
+				),
+				'shared'           => array(
 					'description' => __( 'Whethe the connection is shared with other users', 'jetpack-publicize-pkg' ),
 					'type'        => 'boolean',
 				),
@@ -396,8 +422,7 @@ class REST_Controller {
 	 * @param WP_REST_Request $request The request object, which includes the parameters.
 	 */
 	public function update_publicize_connection( $request ) {
-		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$external_user_ID = $request->get_param( 'external_user_ID' );
+		$external_user_id = $request->get_param( 'external_user_ID' );
 		$shared           = $request->get_param( 'shared' );
 		$blog_id          = $this->get_blog_id();
 		$connection_id    = $request->get_param( 'connection_id' );
@@ -410,10 +435,8 @@ class REST_Controller {
 
 		$body = array();
 
-		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		if ( ! empty( $external_user_ID ) ) {
-			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-			$body['external_user_ID'] = $external_user_ID;
+		if ( ! empty( $external_user_id ) ) {
+			$body['external_user_ID'] = $external_user_id;
 		}
 
 		if ( $shared || ( false === $shared ) ) {
@@ -461,12 +484,10 @@ class REST_Controller {
 	 * @return WP_REST_Response|WP_Error True if the request was successful, or a WP_Error otherwise.
 	 */
 	public function create_publicize_connection( $request ) {
-		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$keyring_connection_ID = $request->get_param( 'keyring_connection_ID' );
+		$keyring_connection_id = $request->get_param( 'keyring_connection_ID' );
 		$shared                = $request->get_param( 'shared' );
-		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$external_user_ID = $request->get_param( 'external_user_ID' );
-		$blog_id          = $this->get_blog_id();
+		$external_user_id      = $request->get_param( 'external_user_ID' );
+		$blog_id               = $this->get_blog_id();
 
 		$path = sprintf(
 			'/sites/%d/jetpack-social-connections/new',
@@ -474,15 +495,12 @@ class REST_Controller {
 		);
 
 		$body = array(
-			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-			'keyring_connection_ID' => $keyring_connection_ID,
+			'keyring_connection_ID' => $keyring_connection_id,
 			'shared'                => $shared,
 		);
 
-		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		if ( ! empty( $external_user_ID ) ) {
-			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-			$body['external_user_ID'] = $external_user_ID;
+		if ( ! empty( $external_user_id ) ) {
+			$body['external_user_ID'] = $external_user_id;
 		}
 
 		$response = Client::wpcom_json_api_request_as_user(
