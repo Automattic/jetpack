@@ -116,7 +116,7 @@ namespace {
     class WPCOM_Store
     {
         /**
-         * @deprecated 
+         * @deprecated
          * @param int $user_id
          * @param int $blog_id
          * @param false $ids_only
@@ -329,7 +329,7 @@ namespace {
         public static function get_instance(): \Memberships_Store_Sandbox
         {
         }
-		public static function init()
+		public static function init(bool $force = false)
 		{
 		}
     }
@@ -819,7 +819,7 @@ namespace {
     /**
      * @param  string $url
      * @return string
-     * @internal 
+     * @internal
      */
     function staticize_subdomain($url)
     {
@@ -889,7 +889,7 @@ namespace {
     {
     }
     /**
-     * @deprecated 
+     * @deprecated
      * @return bool
     */
     function wpcom_is_jetpack_search_supported($blog_id)
