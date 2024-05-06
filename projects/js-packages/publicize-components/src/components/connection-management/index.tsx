@@ -1,5 +1,4 @@
 import { Button, Spinner } from '@automattic/jetpack-components';
-import apiFetch from '@wordpress/api-fetch';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -7,8 +6,8 @@ import classNames from 'classnames';
 import { useCallback, useEffect, useReducer } from 'react';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store } from '../../social-store';
-import AddConnectionModal from '../add-connection-modal';
 import ConnectionIcon from '../connection-icon';
+import { Disconnect } from './disconnect';
 import styles from './style.module.scss';
 
 const ConnectionManagement = ( { className = null } ) => {
@@ -25,23 +24,11 @@ const ConnectionManagement = ( { className = null } ) => {
 		return a.service_name.localeCompare( b.service_name );
 	} );
 
-	const [ isModalOpen, toggleModal ] = useReducer( state => ! state, false );
+	const [ , /* isModalOpen, */ toggleModal ] = useReducer( state => ! state, false );
 
 	useEffect( () => {
 		refresh();
 	}, [ refresh ] );
-
-	const onDisconnect = useCallback(
-		conn_id => () => {
-			apiFetch( {
-				method: 'POST',
-				path: '/jetpack/v4/publicize/delete-connection/' + conn_id,
-			} ).then( () => {
-				// Handle disconnection
-			} );
-		},
-		[]
-	);
 
 	const renderConnectionName = connection => {
 		if ( connection.display_name ) {
@@ -56,6 +43,15 @@ const ConnectionManagement = ( { className = null } ) => {
 		}
 		return <Spinner color="black" />;
 	};
+
+	const onReconnect = useCallback(
+		( _serviceName: string ) => () => {
+			toggleModal();
+
+			// TODO Pass the service name to the modal
+		},
+		[]
+	);
 
 	return (
 		<div className={ classNames( styles.wrapper, className ) }>
@@ -81,15 +77,10 @@ const ConnectionManagement = ( { className = null } ) => {
 								</td>
 								<td className={ styles.name }>{ renderConnectionName( connection ) }</td>
 								<td>
-									{ connection.can_disconnect && (
-										<Button
-											size="small"
-											variant="secondary"
-											onClick={ onDisconnect( connection.connection_id ) }
-										>
-											{ __( 'Disconnect', 'jetpack' ) }
-										</Button>
-									) }
+									<Disconnect
+										connection={ connection }
+										onReconnect={ onReconnect( connection.service_name ) }
+									/>
 								</td>
 							</tr>
 						) ) }
@@ -98,10 +89,8 @@ const ConnectionManagement = ( { className = null } ) => {
 			) : (
 				<span>{ __( 'There are no connections added yet.', 'jetpack' ) }</span>
 			) }
-			<Button onClick={ toggleModal } size="small">
-				{ __( 'Add new connection', 'jetpack' ) }
-			</Button>
-			{ isModalOpen && <AddConnectionModal onCloseModal={ toggleModal } /> }
+			<Button size="small">{ __( 'Add new connection', 'jetpack' ) }</Button>
+			{ /* { isModalOpen && <AddConnectionModal onCloseModal={ toggleModal } /> } */ }
 		</div>
 	);
 };
