@@ -250,6 +250,16 @@ export const getSupportedConnections = (): Connection[] => {
 				'jetpack'
 			),
 			name: 'mastodon',
+			examples: [
+				() => (
+					<>
+						{ __(
+							'To share to Mastodon please enter your Mastodon username below, then click connect.',
+							'jetpack'
+						) }
+					</>
+				),
+			],
 		},
 	];
 };

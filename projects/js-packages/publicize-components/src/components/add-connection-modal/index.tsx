@@ -2,6 +2,7 @@ import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
+import classNames from 'classnames';
 import { useCallback, useState } from 'react';
 import { ConnectPage } from './connect-page/connect-page';
 import { getSupportedConnections } from './constants';
@@ -25,7 +26,10 @@ const AddConnectionModal = ( { onCloseModal } ) => {
 
 	return (
 		<Modal
-			className={ styles.modal }
+			className={ classNames( styles.modal, {
+				[ styles[ 'service-selector' ] ]: ! currentService,
+				[ styles.small ]: isSmall,
+			} ) }
 			onRequestClose={ onCloseModal }
 			title={
 				currentService

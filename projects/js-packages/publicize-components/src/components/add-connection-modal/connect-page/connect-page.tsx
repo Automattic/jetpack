@@ -30,7 +30,16 @@ export const ConnectPage: React.FC< ConnectPageProps > = ( { service, onBackClic
 				<Button variant="secondary" onClick={ onBackClicked }>
 					{ <Icon icon={ chevronLeft } className={ styles[ 'chevron-back' ] } /> }
 				</Button>
-				<Button variant="primary">{ __( 'Connect', 'jetpack' ) }</Button>
+				<form className={ classNames( styles[ 'connect-form' ], { [ styles.small ]: isSmall } ) }>
+					{ 'mastodon' === service.name ? (
+						<input
+							type="text"
+							aria-label={ __( 'Mastodon username', 'jetpack' ) }
+							placeholder={ __( '@mastodon@mastodon.social', 'jetpack' ) }
+						/>
+					) : null }
+					<Button variant="primary">{ __( 'Connect', 'jetpack' ) }</Button>
+				</form>
 			</div>
 		</>
 	);

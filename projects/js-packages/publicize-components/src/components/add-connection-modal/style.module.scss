@@ -1,6 +1,12 @@
 .modal {
 	width: 65rem;
-	min-height: 700px;
+	&.service-selector {
+		min-height: 700px;
+	}
+
+	&:not(.small) {
+		display: table;
+	}
 }
 
 .title {

@@ -4,12 +4,13 @@
 	grid-auto-flow: column;
 	font-size: 15px;
 	margin-top: 0.4rem;
-	height: 520px;
+	min-height: 300px;
 
 	&.small {
 		grid-auto-flow: row;
 		grid-gap: 2rem;
 		height: auto;
+		min-height: unset;
 	}
 
 	img {
@@ -19,12 +20,12 @@
 
 	> div {
 		padding: 0.4rem;
+		
+		&:has(img) {
+			margin-left: auto;
+			margin-right: auto;
+		}
 	}
-}
-
-.example {
-	margin-left: auto;
-	margin-right: auto;
 }
 
 .actions-wrapper {
@@ -35,4 +36,18 @@
 
 .chevron-back {
 	display: block;
+}
+
+.connect-form {
+	display: grid;
+	gap: 0.5rem;
+
+	& > input {
+		height: 100%;
+		width: 18rem;
+	}
+
+	&:not(.small) {
+		grid-auto-flow: column;
+	}
 }
