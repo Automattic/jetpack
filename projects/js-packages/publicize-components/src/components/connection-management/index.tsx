@@ -8,6 +8,7 @@ import useSocialMediaConnections from '../../hooks/use-social-media-connections'
 import { store } from '../../social-store';
 import ConnectionIcon from '../connection-icon';
 import { Disconnect } from './disconnect';
+import { Snackbars } from './snackbars';
 import styles from './style.module.scss';
 
 const ConnectionManagement = ( { className = null } ) => {
@@ -89,6 +90,7 @@ const ConnectionManagement = ( { className = null } ) => {
 			) : (
 				<span>{ __( 'There are no connections added yet.', 'jetpack' ) }</span>
 			) }
+			<Snackbars />
 			<Button size="small">{ __( 'Add new connection', 'jetpack' ) }</Button>
 			{ /* { isModalOpen && <AddConnectionModal onCloseModal={ toggleModal } /> } */ }
 		</div>

@@ -60,3 +60,8 @@ table {
 tr:not(:last-child)>td {
 	border-bottom: solid 1px var(--jp-gray-5);
 }
+
+// Adjust the position of the notices
+.snackbars {
+	position: relative;
+}
