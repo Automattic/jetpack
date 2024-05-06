@@ -255,7 +255,7 @@ function wpcom_site_menu_enqueue_scripts() {
 			}
 		}
 
-		$data = (object) array(
+		$data = array(
 			'url'          => esc_url( $link ),
 			'text'         => wp_kses( $notice->content, array() ),
 			'action'       => wp_kses( $notice->cta, array() ),
@@ -265,7 +265,7 @@ function wpcom_site_menu_enqueue_scripts() {
 			'featureClass' => $notice->feature_class,
 			'dismissNonce' => wp_create_nonce( 'wpcom_dismiss_sidebar_notice' ),
 			'tracks'       => $notice->tracks,
-			'user'         => (object) array(
+			'user'         => array(
 				'ID'       => $user_id,
 				'username' => $user_login,
 			),
