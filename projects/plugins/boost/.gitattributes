@@ -4,6 +4,7 @@
 
 app/assets/dist/**                              production-include
 app/modules/image-guide/dist/**                 production-include
+app/modules/optimizations/image-cdn/dist/**     production-include
 jetpack_vendor/**                               production-include
 vendor/autoload.php                             production-include
 vendor/autoload_functions.php                   production-include

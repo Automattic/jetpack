@@ -2,7 +2,8 @@
  * External dependencies
  */
 import { ExtensionAIControl } from '@automattic/jetpack-ai-client';
-import { useState } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import React from 'react';
 /*
  * Types
@@ -13,6 +14,8 @@ import type { ReactElement } from 'react';
 export default function AiAssistantInput( {
 	requestingState,
 	wrapperRef,
+	inputRef,
+	action,
 	request,
 	stopSuggestion,
 	close,
@@ -23,7 +26,9 @@ export default function AiAssistantInput( {
 	requestingState: RequestingStateProp;
 	requestingError?: RequestingErrorProps;
 	suggestion?: string;
+	inputRef?: React.MutableRefObject< HTMLInputElement | null >;
 	wrapperRef?: React.MutableRefObject< HTMLDivElement | null >;
+	action?: string;
 	request: ( question: string ) => void;
 	stopSuggestion?: () => void;
 	close?: () => void;
@@ -52,8 +57,21 @@ export default function AiAssistantInput( {
 		throw new Error( 'Function not implemented.' );
 	}
 
+	// Clear the input value on reset and when the request is done.
+	useEffect( () => {
+		if ( [ 'init', 'done' ].includes( requestingState ) ) {
+			setValue( '' );
+		}
+	}, [ requestingState ] );
+
+	// Set the value to the quick action text once it changes.
+	useEffect( () => {
+		setValue( action || '' );
+	}, [ action ] );
+
 	return (
 		<ExtensionAIControl
+			placeholder={ __( 'Ask Jetpack AI to edit…', 'jetpack' ) }
 			disabled={ disabled }
 			value={ value }
 			state={ requestingState }
@@ -64,6 +82,7 @@ export default function AiAssistantInput( {
 			onUndo={ handleUndo }
 			onUpgrade={ handleUpgrade }
 			wrapperRef={ wrapperRef }
+			ref={ inputRef }
 		/>
 	);
 }

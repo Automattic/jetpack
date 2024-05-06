@@ -645,6 +645,17 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	/**
+	 * Get site deleted status. Not used in Jetpack.
+	 *
+	 * @see /wpcom/public.api/rest/sal/trait.json-api-site-wpcom.php.
+	 *
+	 * @return bool
+	 */
+	public function is_deleted() {
+		return false;
+	}
+
+	/**
 	 * Detect whether a site is WordPress.com Staging Site. Not used in Jetpack.
 	 *
 	 * @see /wpcom/public.api/rest/sal/trait.json-api-site-wpcom.php.

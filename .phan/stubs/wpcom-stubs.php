@@ -1,10 +1,10 @@
 <?php
 /**
- * Stubs automatically generated from WordPress.com commit bfb2ad18f8fd904ad916be5877a31c975ae02df2.
- *
  * Do not edit this directly! Update the definition file in the wpcom repo at
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
+ *
+ * Stubs automatically generated from WordPress.com commit f6d233645c2221d27ad1cc39ac0d4b8cdc1930ed.
  */
 
 namespace {
@@ -116,7 +116,7 @@ namespace {
     class WPCOM_Store
     {
         /**
-         * @deprecated
+         * @deprecated 
          * @param int $user_id
          * @param int $blog_id
          * @param false $ids_only
@@ -318,6 +318,15 @@ namespace {
          * @return array|WP_Error
          */
         public static function get_product_list($_blog_id, $type = \null, ?bool $is_editable = \null, $retrieve_deleted = \false)
+        {
+        }
+    }
+    class Memberships_Store_Sandbox extends \Store_Sandbox
+    {
+        /**
+         * @return Memberships_Store_Sandbox
+         */
+        public static function get_instance(): \Memberships_Store_Sandbox
         {
         }
     }
@@ -877,7 +886,7 @@ namespace {
     {
     }
     /**
-     * @deprecated
+     * @deprecated 
      * @return bool
     */
     function wpcom_is_jetpack_search_supported($blog_id)
@@ -1121,6 +1130,7 @@ namespace {
     {
         public const ATOMIC = 'atomic';
         public const EMAIL_SUBSCRIPTION = 'email-subscription';
+        public const INSTALL_PLUGINS = 'install-plugins';
         public const LEGACY_CONTACT = 'legacy-contact';
         public const LOCKED_MODE = 'locked-mode';
         public const MANAGE_PLUGINS = 'manage-plugins';
@@ -1252,6 +1262,15 @@ namespace {
      * @return int|false
      */
     function get_lang_id_by_code($lang_code)
+    {
+    }
+}
+namespace A8C\Billingdaddy\Users {
+    /**
+     * @param int $user_id
+     * @return \WP_User|false
+     */
+    function get_wpcom_user($user_id)
     {
     }
 }

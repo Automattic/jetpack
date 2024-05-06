@@ -71,6 +71,9 @@ export function* getAutoConversionSettings() {
 export function getConnections() {
 	return function ( { dispatch, registry } ) {
 		const editor = registry.select( editorStore );
+		if ( ! editor.getCurrentPostId() ) {
+			return;
+		}
 		// Get the initial connections from the post meta
 		const connections = editor.getEditedPostAttribute( 'jetpack_publicize_connections' );
 

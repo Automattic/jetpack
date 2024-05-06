@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Fix z-index issue and close action button dropdown when clicked outside

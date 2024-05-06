@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Suppress PhanUndeclaredClassMethod regarding a class only referenced for compat with jetpack-jitm <1.6. No change to functionality.
+
+

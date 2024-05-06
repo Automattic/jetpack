@@ -486,6 +486,7 @@ interface Replicastore_Interface {
 	 * @access public
 	 *
 	 * @param int $user_id User ID.
+	 * @return \WP_User|null User object, or `null` if user invalid/not found.
 	 */
 	public function get_user( $user_id );
 
