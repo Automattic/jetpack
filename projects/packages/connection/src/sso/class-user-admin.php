@@ -171,6 +171,10 @@ class User_Admin {
 			return wp_admin_notice( __( 'User invite revoked successfully.', 'jetpack-connection' ), array( 'type' => 'success' ) );
 		}
 
+		if ( $_GET['jetpack-sso-invite-user'] === 'failed' && isset( $_GET['jetpack-sso-invite-api-error-message'] ) ) {
+			return wp_admin_notice( wp_kses( wp_unslash( $_GET['jetpack-sso-invite-api-error-message'] ), array() ), array( 'type' => 'error' ) );
+		}
+
 		if ( $_GET['jetpack-sso-invite-user'] === 'failed' && isset( $_GET['jetpack-sso-invite-error'] ) ) {
 			switch ( $_GET['jetpack-sso-invite-error'] ) {
 				case 'invalid-user':
@@ -261,21 +265,27 @@ class User_Admin {
 			);
 
 			if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-				$error_code    = 'invalid-invite-api-error';
-				$error_message = is_wp_error( $response ) ? $response->get_error_message() : wp_remote_retrieve_response_message( $response );
-				$query_params  = array(
+				$error_code   = 'invalid-invite-api-error';
+				$query_params = array(
 					'jetpack-sso-invite-user'  => 'failed',
 					'jetpack-sso-invite-error' => $error_code,
 					'_wpnonce'                 => $nonce,
 				);
 
+				$tracking_event_data = array(
+					'success'    => 'false',
+					'error_code' => $error_code,
+				);
+
+				$body = json_decode( $response['body'] );
+				if ( $body && $body->message ) {
+					$query_params['jetpack-sso-invite-api-error-message'] = $body->message;
+					$tracking_event_data['error_message']                 = $body->message;
+				}
+
 				self::$tracking->record_user_event(
 					$event,
-					array(
-						'success'       => 'false',
-						'error_code'    => $error_code,
-						'error_message' => $error_message,
-					)
+					$tracking_event_data
 				);
 				return self::create_error_notice_and_redirect( $query_params );
 			}
