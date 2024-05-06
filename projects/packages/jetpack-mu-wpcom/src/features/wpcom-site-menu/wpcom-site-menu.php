@@ -86,8 +86,8 @@ function wpcom_add_wpcom_menu_item() {
 
 	add_submenu_page(
 		$parent_slug,
-		esc_attr__( 'Site Overview', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Site Overview', 'jetpack-mu-wpcom' ) . ' <span class="dashicons dashicons-external"></span>',
+		esc_attr__( 'Overview', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Overview', 'jetpack-mu-wpcom' ) . ' <span class="dashicons dashicons-external"></span>',
 		'manage_options',
 		esc_url( "https://wordpress.com/hosting/$domain" ),
 		null
@@ -459,7 +459,7 @@ function wpcom_add_hosting_menu_intro_notice() {
 		<div>
 			<span class="title"><?php esc_html_e( 'WordPress.com', 'jetpack-mu-wpcom' ); ?></span><br />
 			<span>
-				<?php esc_html_e( 'Click "Hosting" in the sidebar to access the site overview and settings for plans, domains, emails, etc.', 'jetpack-mu-wpcom' ); ?>
+				<?php esc_html_e( 'Click "Hosting" in the sidebar to access the hosting overview and settings for plans, domains, emails, etc.', 'jetpack-mu-wpcom' ); ?>
 			</span>
 		</div>
 		<a href="#" class="close-button" aria-label=<?php echo esc_attr__( 'Dismiss', 'jetpack-mu-wpcom' ); ?>>
