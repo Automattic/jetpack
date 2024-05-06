@@ -1,6 +1,14 @@
 import apiFetch from '@wordpress/api-fetch';
+import { dispatch as coreDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { SET_CONNECTIONS, TOGGLE_CONNECTION } from './constants';
+import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
+import {
+	DELETE_CONNECTION,
+	DELETING_CONNECTION,
+	SET_CONNECTIONS,
+	TOGGLE_CONNECTION,
+} from './constants';
 
 /**
  * Set connections list
@@ -119,6 +127,76 @@ export function toggleConnectionById( connectionId, syncToMeta = true ) {
 
 		if ( syncToMeta ) {
 			dispatch( syncConnectionsToPostMeta() );
+		}
+	};
+}
+
+/**
+ * Deletes a connection.
+ *
+ * @param {string} connectionId - Connection ID to delete.
+ *
+ * @returns {object} Delete connection action.
+ */
+export function deleteConnection( connectionId ) {
+	return {
+		type: DELETE_CONNECTION,
+		connectionId,
+	};
+}
+
+/**
+ * Marks a connection as being deleted.
+ *
+ * @param {string} connectionId - Connection ID to delete.
+ *
+ * @returns {object} Deleting connection action.
+ */
+export function deletingConnection( connectionId ) {
+	return {
+		type: DELETING_CONNECTION,
+		connectionId,
+	};
+}
+
+/**
+ * Deletes a connection by disconnecting it.
+ *
+ * @param {object} args - Arguments.
+ * @param {string | number} args.connectionId - Connection ID to delete.
+ * @param {boolean} [args.showSuccessNotice] - Whether to show a success notice.
+ *
+ * @returns {void}
+ */
+export function deleteConnectionById( { connectionId, showSuccessNotice = true } ) {
+	return async function ( { dispatch } ) {
+		const { createErrorNotice, createSuccessNotice } = coreDispatch( noticesStore );
+
+		try {
+			const path = `/jetpack/v4/social/connections/${ connectionId }`;
+
+			dispatch( deletingConnection( connectionId ) );
+
+			await apiFetch( { method: 'DELETE', path } );
+
+			dispatch( deleteConnection( connectionId ) );
+
+			if ( showSuccessNotice ) {
+				createSuccessNotice( __( 'Account disconnected successfully.', 'jetpack' ), {
+					type: 'snackbar',
+					isDismissible: true,
+				} );
+			}
+		} catch ( error ) {
+			let message = __( 'Error disconnecting account.', 'jetpack' );
+
+			if ( typeof error === 'object' && 'message' in error && error.message ) {
+				message = `${ message } ${ error.message }`;
+			}
+
+			createErrorNotice( message, { type: 'snackbar', isDismissible: true } );
+		} finally {
+			dispatch( deletingConnection( null ) );
 		}
 	};
 }

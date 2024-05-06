@@ -7,6 +7,8 @@ export type SharesData = {
 	shared_posts_count: number;
 };
 
+export type ConnectionStatus = 'ok' | 'must_reauth' | 'invalid' | 'broken' | 'refresh-failed';
+
 export type Connection = {
 	id: string;
 	service_name: string;
@@ -21,10 +23,12 @@ export type Connection = {
 	can_disconnect: boolean;
 	profile_picture: string;
 	profile_link: string;
+	status: ConnectionStatus;
 };
 
 export type ConnectionData = {
 	connections: Connection[];
+	deletingConnection?: number | string | null;
 };
 
 export type JetpackSettings = {

@@ -106,3 +106,13 @@ export function getConnectionProfileDetails( state, service, { forceDefaults = f
 
 	return { displayName, profileImage, username };
 }
+
+/**
+ * Get the connection being deleted.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @returns {import("../types").ConnectionData['deletingConnection']} The connection being deleted.
+ */
+export function getDeletingConnection( state ) {
+	return state.connectionData?.deletingConnection;
+}
