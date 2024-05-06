@@ -18,7 +18,7 @@ import React from 'react';
  */
 import { EXTENDED_INLINE_BLOCKS } from '../extensions/ai-assistant';
 import useAiFeature from '../hooks/use-ai-feature';
-import { BuildPromptOptionsProps, buildPromptForExtensions } from '../lib/prompt';
+import { mapInternalPromptTypeToBackendPromptType } from '../lib/prompt/backend-prompt';
 import { blockHandler } from './block-handler';
 import AiAssistantInput from './components/ai-assistant-input';
 import AiAssistantExtensionToolbarDropdown from './components/ai-assistant-toolbar-dropdown';
@@ -34,6 +34,10 @@ import type { ExtendedInlineBlockProp } from '../extensions/ai-assistant';
 import type { PromptTypeProp } from '../lib/prompt';
 
 const debug = debugFactory( 'jetpack-ai-assistant:extensions:with-ai-extension' );
+
+const blockExtensionMapper = {
+	'core/heading': 'heading',
+};
 
 // HOC to populate the block's edit component with the AI Assistant bar and button.
 const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
@@ -216,18 +220,20 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		} ) => {
 			const blockContent = getContent();
 
-			const promptOptions: BuildPromptOptionsProps = {
-				tone: options?.tone,
-				language: options?.language,
-				fromExtension: true,
-			};
+			const extension = blockExtensionMapper[ blockName ];
 
-			return buildPromptForExtensions( {
-				blockContent,
-				options: promptOptions,
-				type: promptType,
-				userPrompt,
-			} );
+			return [
+				{
+					role: 'jetpack-ai' as const,
+					context: {
+						type: mapInternalPromptTypeToBackendPromptType( promptType, extension ),
+						content: blockContent,
+						request: userPrompt,
+						tone: options?.tone,
+						language: options?.language,
+					},
+				},
+			];
 		};
 
 		const onRequestSuggestion: OnRequestSuggestion = ( promptType, options, humanText ) => {
