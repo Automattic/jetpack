@@ -148,6 +148,12 @@ export default function () {
 		setShowNotice( showRenewalNotice || showUpgradeNotice );
 	}, [ showRenewalNotice, showUpgradeNotice ] );
 
+	const newBadge = (
+		<span className={ styles[ 'product-interstitial__new-badge' ] }>
+			{ __( 'New', 'jetpack-my-jetpack' ) }{ ' ' }
+		</span>
+	);
+
 	return (
 		<AdminPage showHeader={ false } showBackground={ true }>
 			<Container fluid horizontalSpacing={ 3 } horizontalGap={ 2 }>
@@ -312,6 +318,7 @@ export default function () {
 								<div className={ styles[ 'product-interstitial__usage-videos-content' ] }>
 									<div className={ styles[ 'product-interstitial__usage-videos-heading' ] }>
 										{ videoTitleFeaturedImages }
+										{ newBadge }
 									</div>
 									<div className={ styles[ 'product-interstitial__usage-videos-text' ] }>
 										{ __(

@@ -236,7 +236,7 @@ class Jetpack_Social {
 
 		if ( $this->is_connected() ) {
 			$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
-			$settings                = $jetpack_social_settings->get_settings( true );
+			$initial_state           = $jetpack_social_settings->get_initial_state();
 
 			$note = new Automattic\Jetpack\Social\Note();
 
@@ -259,7 +259,7 @@ class Jetpack_Social {
 					),
 					'sharesData'      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
 				),
-				$settings
+				$initial_state
 			);
 		}
 
@@ -327,7 +327,7 @@ class Jetpack_Social {
 		Assets::enqueue_script( 'jetpack-social-editor' );
 
 		$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
-		$settings                = $jetpack_social_settings->get_settings( true );
+		$initial_state           = $jetpack_social_settings->get_initial_state();
 
 		wp_localize_script(
 			'jetpack-social-editor',
@@ -345,10 +345,10 @@ class Jetpack_Social {
 					),
 					'hasPaidPlan'                     => $publicize->has_paid_plan(),
 					'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
-					'isSocialImageGeneratorAvailable' => $settings['socialImageGeneratorSettings']['available'],
-					'isSocialImageGeneratorEnabled'   => $settings['socialImageGeneratorSettings']['enabled'],
-					'autoConversionSettings'          => $settings['autoConversionSettings'],
-					'useAdminUiV1'                    => $settings['useAdminUiV1'],
+					'isSocialImageGeneratorAvailable' => $initial_state['socialImageGeneratorSettings']['available'],
+					'isSocialImageGeneratorEnabled'   => $initial_state['socialImageGeneratorSettings']['enabled'],
+					'autoConversionSettings'          => $initial_state['autoConversionSettings'],
+					'useAdminUiV1'                    => $initial_state['useAdminUiV1'],
 					'dismissedNotices'                => Dismissed_Notices::get_dismissed_notices(),
 					'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
 					'userConnectionUrl'               => esc_url_raw( admin_url( 'admin.php?page=my-jetpack#/connection' ) ),

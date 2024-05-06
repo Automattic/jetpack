@@ -8,7 +8,7 @@ import {
 } from '@automattic/jetpack-ai-client';
 import { BlockControls, useBlockProps } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { select, useDispatch } from '@wordpress/data';
+import { dispatch, select, useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useState, useRef } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import debugFactory from 'debug';
@@ -39,9 +39,13 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 	return props => {
 		const { clientId, isSelected, name: blockName } = props;
 		const controlRef: React.MutableRefObject< HTMLDivElement | null > = useRef( null );
+		const controlHeight = useRef< number >( 0 );
+		const inputRef: React.MutableRefObject< HTMLInputElement | null > = useRef( null );
 		const controlObserver = useRef< ResizeObserver | null >( null );
 		const blockStyle = useRef< string >( '' );
+		const ownerDocument = useRef< Document >( document );
 		const [ action, setAction ] = useState< string >( '' );
+		const [ requestCount, setRequestCount ] = useState( 0 );
 
 		// Only extend the allowed block types.
 		const possibleToExtendBlock = isPossibleToExtendBlock( {
@@ -58,6 +62,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		const onDone = useCallback( () => {
 			increaseAiAssistantRequestsCount();
+			setRequestCount( count => count + 1 );
 		}, [ increaseAiAssistantRequestsCount ] );
 
 		const onError = useCallback(
@@ -72,8 +77,23 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			[ increaseAiAssistantRequestsCount ]
 		);
 
+		const { id } = useBlockProps();
+
 		// Data and functions with block-specific implementations.
-		const { onSuggestion, getContent } = blockHandler( blockName, clientId );
+		const { onSuggestion: onBlockSuggestion, getContent } = blockHandler( blockName, clientId );
+
+		const onSuggestion = useCallback(
+			( suggestion: string ) => {
+				onBlockSuggestion( suggestion );
+
+				// Make sure the block element has the necessary bottom padding, as it can be replaced or changed
+				const block = ownerDocument.current.getElementById( id );
+				if ( block && controlRef.current ) {
+					block.style.paddingBottom = `${ controlHeight.current + 16 }px`;
+				}
+			},
+			[ id, onBlockSuggestion ]
+		);
 
 		const {
 			request,
@@ -92,10 +112,17 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			},
 		} );
 
-		const { id } = useBlockProps();
+		useEffect( () => {
+			if ( inputRef.current ) {
+				// Save the block's ownerDocument to use it later, as the editor can be in an iframe.
+				ownerDocument.current = inputRef.current.ownerDocument;
+				// Focus the input when the AI Control is displayed.
+				inputRef.current.focus();
+			}
+		}, [ showAiControl ] );
 
 		useEffect( () => {
-			const block = document.getElementById( id );
+			let block = ownerDocument.current.getElementById( id );
 
 			if ( ! block ) {
 				return;
@@ -108,11 +135,13 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				// Observe the control's height to adjust the block's bottom-padding.
 				controlObserver.current = new ResizeObserver( ( [ entry ] ) => {
-					const { height } = entry.contentRect;
+					// The block element can be replaced or changed, so we need to get it again.
+					block = ownerDocument.current.getElementById( id );
+					controlHeight.current = entry.contentRect.height;
 
-					if ( block && controlRef.current && height > 0 ) {
-						block.style.paddingBottom = `${ height + 16 }px`;
-						controlRef.current.style.marginTop = `-${ height }px`;
+					if ( block && controlRef.current && controlHeight.current > 0 ) {
+						block.style.paddingBottom = `${ controlHeight.current + 16 }px`;
+						controlRef.current.style.marginTop = `-${ controlHeight.current }px`;
 					}
 				} );
 
@@ -123,6 +152,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				controlObserver.current.disconnect();
 				controlObserver.current = null;
+				controlHeight.current = 0;
 			}
 		}, [ clientId, controlObserver, id, showAiControl ] );
 
@@ -183,6 +213,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			setShowAiControl( false );
 			resetSuggestions();
 			setAction( '' );
+			setRequestCount( 0 );
 		}, [ resetSuggestions ] );
 
 		const onUserRequest = ( userPrompt: string ) => {
@@ -200,9 +231,12 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			}
 		}, [ isSelected, onClose ] );
 
-		const onUndo = () => {
-			// TODO: handle the undo action.
-			debug( 'onUndo' );
+		const onUndo = async () => {
+			for ( let i = 0; i < requestCount; i++ ) {
+				await dispatch( 'core/editor' ).undo();
+			}
+
+			onClose();
 		};
 
 		return (
@@ -217,6 +251,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 						requestingError={ error }
 						suggestion={ suggestion }
 						wrapperRef={ controlRef }
+						inputRef={ inputRef }
 						action={ action }
 						request={ onUserRequest }
 						stopSuggestion={ stopSuggestion }

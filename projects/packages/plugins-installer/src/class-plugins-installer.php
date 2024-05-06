@@ -96,8 +96,8 @@ class Plugins_Installer {
 		}
 
 		if ( ! $result ) {
-			$error_code = $upgrader->skin->get_main_error_code();
-			$message    = $upgrader->skin->get_main_error_message();
+			$error_code = $skin->get_main_error_code();
+			$message    = $skin->get_main_error_message();
 			$error      = $message ? $message : __( 'An unknown error occurred during installation', 'jetpack-plugins-installer' );
 		}
 

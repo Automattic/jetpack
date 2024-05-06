@@ -19,6 +19,7 @@ export { default as PostPublishReviewPrompt } from './src/components/post-publis
 export { default as PostPublishManualSharing } from './src/components/post-publish-manual-sharing';
 export { default as RefreshJetpackSocialSettingsWrapper } from './src/components/refresh-jetpack-social-settings';
 export { default as AddConnectionModal } from './src/components/add-connection-modal';
+export { default as ConnectionManagement } from './src/components/connection-management';
 
 export { default as useSocialMediaConnections } from './src/hooks/use-social-media-connections';
 export { default as useSocialMediaMessage } from './src/hooks/use-social-media-message';

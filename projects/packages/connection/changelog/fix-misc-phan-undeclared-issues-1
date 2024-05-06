@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Remove references to nonexistent methods in tests. No change to functionality.
+
+

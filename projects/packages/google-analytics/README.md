@@ -1,8 +1,8 @@
-# google-analytics
+# Jetpack Google Analytics package
 
 Set up Google Analytics without touching a line of code.
 
-## How to install google-analytics
+## How to install Jetpack Google Analytics
 
 ### Installation From Git Repo
 

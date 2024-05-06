@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { dispatch } from '@wordpress/data';
+/**
  * Types
  */
 import type { Block } from '@automattic/jetpack-ai-client';
@@ -12,4 +16,10 @@ export interface IBlockHandler {
 
 export type BlockEditorSelect = {
 	getBlock: ( clientId: string ) => Block;
+};
+
+const blockEditorDispatch = dispatch( 'core/block-editor' );
+
+export type BlockEditorDispatch = typeof blockEditorDispatch & {
+	__unstableMarkNextChangeAsNotPersistent: () => void;
 };

@@ -13,7 +13,6 @@ return [
     // PhanTypeMismatchArgumentInternal : 2 occurrences
     // PhanAccessMethodInternal : 1 occurrence
     // PhanTypeMismatchReturn : 1 occurrence
-    // PhanUndeclaredInvokeInCallable : 1 occurrence
     // PhanUndeclaredMethodInCallable : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
@@ -21,7 +20,7 @@ return [
         'app/Monitor.php' => ['PhanUndeclaredMethodInCallable'],
         'app/Options/Monitor_Status.php' => ['PhanTypeMismatchReturn'],
         'app/Options/Observer_Settings.php' => ['PhanTypeMismatchArgumentInternal'],
-        'app/REST_API/Endpoints/Send_Request.php' => ['PhanTypeMismatchArgumentInternal', 'PhanUndeclaredInvokeInCallable'],
+        'app/REST_API/Endpoints/Send_Request.php' => ['PhanTypeMismatchArgumentInternal'],
         'app/REST_API/Permissions/Nonce.php' => ['PhanParamTooMany'],
         'functions.php' => ['PhanAccessMethodInternal'],
         'packages/Async_Option/Async_Option.php' => ['PhanParamTooMany'],
