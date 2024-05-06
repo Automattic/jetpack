@@ -38,7 +38,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * WPCOM_REST_API_V2_Endpoint_Atomic_Hosting_Update_Schedule constructor.
 	 */
 	public function __construct() {
-		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+		// Priority 11 to make it easier for rest field schemas to make it into get_object_params().
+		add_action( 'rest_api_init', array( $this, 'register_routes' ), 11 );
 	}
 
 	/**

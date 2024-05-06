@@ -53,9 +53,9 @@ class Scheduled_Updates {
 		add_action( 'deleted_plugin', array( __CLASS__, 'deleted_plugin' ), 10, 2 );
 
 		add_action( 'rest_api_init', array( __CLASS__, 'add_is_managed_extension_field' ) );
-		add_action( 'rest_api_init', array( Scheduled_Updates_Logs::class, 'add_log_fields' ), 9 );
-		add_action( 'rest_api_init', array( Scheduled_Updates_Active::class, 'add_active_field' ), 9 );
-		add_action( 'rest_api_init', array( Scheduled_Updates_Health_Paths::class, 'add_health_check_paths_field' ), 9 );
+		add_action( 'rest_api_init', array( Scheduled_Updates_Logs::class, 'add_log_fields' ) );
+		add_action( 'rest_api_init', array( Scheduled_Updates_Active::class, 'add_active_field' ) );
+		add_action( 'rest_api_init', array( Scheduled_Updates_Health_Paths::class, 'add_health_check_paths_field' ) );
 
 		add_filter( 'plugins_list', array( Scheduled_Updates_Admin::class, 'add_scheduled_updates_context' ) );
 		add_filter( 'views_plugins', array( Scheduled_Updates_Admin::class, 'add_scheduled_updates_view' ) );
