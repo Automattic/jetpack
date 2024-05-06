@@ -445,7 +445,7 @@ class Jetpack {
 	/**
 	 * Verified data for JSON authorization request
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.4
 	 *
 	 * @var array
 	 */
@@ -4383,12 +4383,12 @@ endif;
 	 *
 	 * @todo Update default value for redirect since the called function expects a string.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.4
 	 *
 	 * @return mixed|void
 	 */
 	public static function build_authorize_url( $redirect = false, $deprecated = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Authorize_Redirect::build_authorize_url' );
+		_deprecated_function( __METHOD__, 'jetpack-13.4', 'Authorize_Redirect::build_authorize_url' );
 
 		return ( new Authorize_Redirect( static::connection() ) )->build_authorize_url( $redirect );
 	}
@@ -4396,13 +4396,13 @@ endif;
 	/**
 	 * Filters the connection URL parameter array.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.4
 	 *
 	 * @param array $args default URL parameters used by the package.
 	 * @return array the modified URL arguments array.
 	 */
 	public static function filter_connect_request_body( $args ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Authorize_Redirect::filter_connect_request_body' );
+		_deprecated_function( __METHOD__, 'jetpack-13.4', 'Authorize_Redirect::filter_connect_request_body' );
 
 		return Authorize_Redirect::filter_connect_request_body( $args );
 	}
@@ -4446,13 +4446,13 @@ endif;
 	 * Filters the redirection URL that is used for connect requests. The redirect
 	 * URL should return the user back to the Jetpack console.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.4
 	 *
 	 * @param String $redirect the default redirect URL used by the package.
 	 * @return String the modified URL.
 	 */
 	public static function filter_connect_redirect_url( $redirect ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Authorize_Redirect::filter_connect_redirect_url' );
+		_deprecated_function( __METHOD__, 'jetpack-13.4', 'Authorize_Redirect::filter_connect_redirect_url' );
 		return Authorize_Redirect::filter_connect_redirect_url( $redirect );
 	}
 
@@ -5084,13 +5084,13 @@ endif;
 	/**
 	 * If someone logs in to approve API access, store the Access Code in usermeta.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.4
 	 *
 	 * @param string  $user_login Unused.
 	 * @param WP_User $user User logged in.
 	 */
 	public function store_json_api_authorization_token( $user_login, $user ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Authorize_Json_Api::store_json_api_authorization_token' );
+		_deprecated_function( __METHOD__, 'jetpack-13.4', 'Automattic\\Jetpack\\Connection\\Authorize_Json_Api::store_json_api_authorization_token' );
 
 		return ( new Authorize_Json_Api() )->store_json_api_authorization_token( $user_login, $user );
 	}
@@ -5100,12 +5100,12 @@ endif;
 	 *
 	 * To be used with a filter of allowed domains for a redirect.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.4
 	 *
 	 * @param array $domains Allowed WP.com Environments.
 	 */
 	public function allow_wpcom_public_api_domain( $domains ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Status\\Host::allow_wpcom_public_api_domain' );
+		_deprecated_function( __METHOD__, 'jetpack-13.4', 'Automattic\\Jetpack\\Status\\Host::allow_wpcom_public_api_domain' );
 
 		return Host::allow_wpcom_public_api_domain( $domains );
 	}
@@ -5113,14 +5113,14 @@ endif;
 	/**
 	 * Check if the redirect is encoded.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.4
 	 *
 	 * @param string $redirect_url Redirect URL.
 	 *
 	 * @return bool If redirect has been encoded.
 	 */
 	public static function is_redirect_encoded( $redirect_url ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-13.4' );
 		return preg_match( '/https?%3A%2F%2F/i', $redirect_url ) > 0;
 	}
 
@@ -5140,7 +5140,7 @@ endif;
 	/**
 	 * Add the Access Code details to the public-api.wordpress.com redirect.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.4
 	 *
 	 * @param string  $redirect_to URL.
 	 * @param string  $original_redirect_to URL.
@@ -5149,7 +5149,7 @@ endif;
 	 * @return string
 	 */
 	public function add_token_to_login_redirect_json_api_authorization( $redirect_to, $original_redirect_to, $user ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Authorize_Json_Api::add_token_to_login_redirect_json_api_authorization' );
+		_deprecated_function( __METHOD__, 'jetpack-13.4', 'Automattic\\Jetpack\\Connection\\Authorize_Json_Api::add_token_to_login_redirect_json_api_authorization' );
 
 		return ( new Authorize_Json_Api() )->add_token_to_login_redirect_json_api_authorization( $redirect_to, $original_redirect_to, $user );
 	}
@@ -5157,7 +5157,7 @@ endif;
 	/**
 	 * Verifies the request by checking the signature
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.4
 	 *
 	 * @since 4.6.0 Method was updated to use `$_REQUEST` instead of `$_GET` and `$_POST`. Method also updated to allow
 	 * passing in an `$environment` argument that overrides `$_REQUEST`. This was useful for integrating with SSO.
@@ -5165,7 +5165,7 @@ endif;
 	 * @param null|array $environment Value to override $_REQUEST.
 	 */
 	public function verify_json_api_authorization_request( $environment = null ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Authorize_Json_Api::verify_json_api_authorization_request' );
+		_deprecated_function( __METHOD__, 'jetpack-13.4', 'Automattic\\Jetpack\\Connection\\Authorize_Json_Api::verify_json_api_authorization_request' );
 
 		return ( new Authorize_Json_Api() )->verify_json_api_authorization_request( $environment );
 	}
@@ -5173,12 +5173,12 @@ endif;
 	/**
 	 * HTML for the JSON API authorization notice.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.4
 	 *
 	 * @return string
 	 */
 	public function login_message_json_api_authorization() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Authorize_Json_Api::login_message_json_api_authorization' );
+		_deprecated_function( __METHOD__, 'jetpack-13.4', 'Automattic\\Jetpack\\Connection\\Authorize_Json_Api::login_message_json_api_authorization' );
 
 		return ( new Authorize_Json_Api() )->login_message_json_api_authorization();
 	}

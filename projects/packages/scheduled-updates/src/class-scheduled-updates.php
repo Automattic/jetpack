@@ -20,7 +20,7 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.11.0-alpha';
+	const PACKAGE_VERSION = '0.11.1-alpha';
 
 	/**
 	 * The cron event hook for the scheduled plugins update.
@@ -193,6 +193,10 @@ class Scheduled_Updates {
 	 * Save the schedules for sync after cron option saving.
 	 */
 	public static function update_option_cron() {
+		Scheduled_Updates_Logs::add_log_fields();
+		Scheduled_Updates_Active::add_active_field();
+		Scheduled_Updates_Health_Paths::add_health_check_paths_field();
+
 		$endpoint = new \WPCOM_REST_API_V2_Endpoint_Update_Schedules();
 		$events   = $endpoint->get_items( new \WP_REST_Request() );
 
