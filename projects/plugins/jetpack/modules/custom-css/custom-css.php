@@ -1009,6 +1009,10 @@ class Jetpack_Custom_CSS_Enhancements {
 	 * Update the initial state to include the `replace` option (Start Fresh) in the module data.
 	 */
 	public static function update_initial_state() {
+		if ( 'toplevel_page_jetpack' !== get_current_screen()->base ) {
+			return;
+		}
+
 		$start_fresh = null;
 		// $wp_customize is not available here. Let's get the value of the `replace` option from the last
 		// customize_changeset posts.
