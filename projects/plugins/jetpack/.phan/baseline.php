@@ -9,14 +9,14 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgument : 550+ occurrences
+    // PhanTypeMismatchArgument : 540+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 300+ occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 290+ occurrences
-    // PhanUndeclaredMethod : 270+ occurrences
-    // PhanNoopNew : 210+ occurrences
+    // PhanPluginDuplicateConditionalNullCoalescing : 280+ occurrences
+    // PhanUndeclaredMethod : 260+ occurrences
+    // PhanNoopNew : 200+ occurrences
     // PhanTypeMismatchReturn : 160+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 150+ occurrences
-    // PhanDeprecatedFunction : 140+ occurrences
+    // PhanDeprecatedFunction : 130+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 110+ occurrences
     // PhanTypeArraySuspiciousNullable : 95+ occurrences
     // PhanRedundantCondition : 70+ occurrences
@@ -28,36 +28,35 @@ return [
     // PhanTypeExpectedObjectPropAccess : 45+ occurrences
     // PhanTypeMismatchArgumentInternal : 45+ occurrences
     // PhanPluginDuplicateAdjacentStatement : 40+ occurrences
-    // PhanUndeclaredStaticProperty : 40+ occurrences
     // PhanTypeInvalidDimOffset : 35+ occurrences
-    // PhanUndeclaredClassMethod : 35+ occurrences
     // PhanUndeclaredProperty : 35+ occurrences
-    // PhanTypeMismatchPropertyProbablyReal : 30+ occurrences
-    // PhanDeprecatedProperty : 25+ occurrences
     // PhanParamSignatureMismatch : 25+ occurrences
     // PhanPluginSimplifyExpressionBool : 25+ occurrences
     // PhanTypeMismatchDefault : 25+ occurrences
+    // PhanTypeMismatchPropertyProbablyReal : 25+ occurrences
     // PhanTypeMissingReturn : 25+ occurrences
+    // PhanTypeSuspiciousNonTraversableForeach : 25+ occurrences
     // PhanUndeclaredFunction : 25+ occurrences
+    // PhanDeprecatedProperty : 20+ occurrences
     // PhanTypeArraySuspicious : 20+ occurrences
-    // PhanTypeMismatchArgumentNullableInternal : 20+ occurrences
     // PhanTypeMismatchDimFetch : 20+ occurrences
-    // PhanTypeSuspiciousNonTraversableForeach : 20+ occurrences
     // PhanPluginDuplicateExpressionAssignmentOperation : 15+ occurrences
     // PhanPluginMixedKeyNoKey : 15+ occurrences
     // PhanSuspiciousMagicConstant : 15+ occurrences
     // PhanTypeExpectedObjectPropAccessButGotNull : 15+ occurrences
-    // PhanTypeMismatchProperty : 15+ occurrences
+    // PhanTypeMismatchArgumentNullableInternal : 15+ occurrences
     // PhanTypeMismatchPropertyDefault : 15+ occurrences
+    // PhanUndeclaredClassMethod : 15+ occurrences
     // PhanRedefineClass : 10+ occurrences
     // PhanRedundantConditionInLoop : 10+ occurrences
     // PhanTypeComparisonToArray : 10+ occurrences
     // PhanTypeInvalidLeftOperandOfNumericOp : 10+ occurrences
+    // PhanTypeMismatchProperty : 10+ occurrences
     // PhanTypeMismatchReturnNullable : 10+ occurrences
-    // PhanDeprecatedClass : 9 occurrences
     // PhanUndeclaredFunctionInCallable : 9 occurrences
     // PhanUndeclaredMethodInCallable : 9 occurrences
     // PhanPluginRedundantAssignment : 8 occurrences
+    // PhanDeprecatedClass : 7 occurrences
     // PhanTypeArraySuspiciousNull : 7 occurrences
     // PhanTypeMismatchArgumentInternalReal : 7 occurrences
     // PhanUndeclaredConstant : 7 occurrences
@@ -69,22 +68,21 @@ return [
     // PhanPluginUnreachableCode : 5 occurrences
     // PhanTypeMismatchDimAssignment : 5 occurrences
     // PhanTypeSuspiciousStringExpression : 5 occurrences
+    // PhanUndeclaredStaticProperty : 5 occurrences
     // PhanAccessMethodInternal : 4 occurrences
     // PhanContextNotObject : 4 occurrences
     // PhanImpossibleTypeComparison : 4 occurrences
     // PhanPossiblyUndeclaredGlobalVariable : 4 occurrences
-    // PhanStaticPropIsStaticType : 4 occurrences
     // PhanTypeInvalidLeftOperandOfAdd : 4 occurrences
     // PhanTypeInvalidLeftOperandOfBitwiseOp : 4 occurrences
     // PhanTypeInvalidRightOperandOfBitwiseOp : 4 occurrences
     // PhanTypeInvalidRightOperandOfNumericOp : 4 occurrences
     // PhanDeprecatedFunctionInternal : 3 occurrences
     // PhanDeprecatedTrait : 3 occurrences
+    // PhanStaticPropIsStaticType : 3 occurrences
     // PhanTypeConversionFromArray : 3 occurrences
     // PhanTypeMismatchArgumentReal : 3 occurrences
     // PhanTypeObjectUnsetDeclaredProperty : 3 occurrences
-    // PhanUndeclaredVariable : 3 occurrences
-    // PhanUnextractableAnnotationElementName : 3 occurrences
     // PhanCompatibleNegativeStringOffset : 2 occurrences
     // PhanEmptyFQSENInCallable : 2 occurrences
     // PhanImpossibleConditionInLoop : 2 occurrences
@@ -92,6 +90,7 @@ return [
     // PhanPluginDuplicateSwitchCaseLooseEquality : 2 occurrences
     // PhanPluginUseReturnValueInternalKnown : 2 occurrences
     // PhanRedefineFunctionInternal : 2 occurrences
+    // PhanStaticCallToNonStatic : 2 occurrences
     // PhanTypeMismatchArgumentInternalProbablyReal : 2 occurrences
     // PhanUndeclaredClassInCallable : 2 occurrences
     // PhanUndeclaredStaticMethod : 2 occurrences
@@ -102,17 +101,16 @@ return [
     // PhanPluginDuplicateSwitchCase : 1 occurrence
     // PhanPluginInvalidPregRegex : 1 occurrence
     // PhanPluginRedundantAssignmentInLoop : 1 occurrence
-    // PhanStaticCallToNonStatic : 1 occurrence
     // PhanSuspiciousValueComparison : 1 occurrence
     // PhanTypeComparisonFromArray : 1 occurrence
     // PhanTypeInstantiateAbstract : 1 occurrence
     // PhanTypeInvalidCallableArraySize : 1 occurrence
-    // PhanTypeMismatchReturnSuperType : 1 occurrence
     // PhanTypeSuspiciousEcho : 1 occurrence
     // PhanTypeVoidArgument : 1 occurrence
     // PhanUndeclaredClassReference : 1 occurrence
     // PhanUndeclaredExtendedClass : 1 occurrence
     // PhanUndeclaredTypeReturnType : 1 occurrence
+    // PhanUndeclaredVariable : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
@@ -288,8 +286,8 @@ return [
         'json-endpoints/class.wpcom-json-api-list-terms-endpoint.php' => ['PhanNoopNew', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanTypeSuspiciousNonTraversableForeach'],
         'json-endpoints/class.wpcom-json-api-list-users-endpoint.php' => ['PhanNoopNew', 'PhanRedundantCondition', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanUndeclaredProperty'],
         'json-endpoints/class.wpcom-json-api-menus-v1-1-endpoint.php' => ['PhanNoopNew', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredProperty'],
-        'json-endpoints/class.wpcom-json-api-post-endpoint.php' => ['PhanParamTooMany', 'PhanRedundantConditionInLoop', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternalReal', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchReturn', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanUndeclaredVariable'],
-        'json-endpoints/class.wpcom-json-api-post-v1-1-endpoint.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanUndeclaredVariable'],
+        'json-endpoints/class.wpcom-json-api-post-endpoint.php' => ['PhanRedundantConditionInLoop', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternalReal', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchReturn', 'PhanTypeSuspiciousNonTraversableForeach'],
+        'json-endpoints/class.wpcom-json-api-post-v1-1-endpoint.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturn'],
         'json-endpoints/class.wpcom-json-api-render-embed-endpoint.php' => ['PhanNoopNew', 'PhanTypeMismatchReturn'],
         'json-endpoints/class.wpcom-json-api-render-embed-reversal-endpoint.php' => ['PhanNoopNew', 'PhanTypeMismatchReturn'],
         'json-endpoints/class.wpcom-json-api-render-endpoint.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchArgument'],
@@ -367,12 +365,6 @@ return [
         'modules/custom-post-types/testimonial.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'modules/geo-location.php' => ['PhanTypeMismatchArgumentNullable'],
         'modules/geo-location/class.jetpack-geo-location.php' => ['PhanTypeMismatchArgument'],
-        'modules/google-analytics/classes/class-jetpack-google-amp-analytics.php' => ['PhanUndeclaredMethod'],
-        'modules/google-analytics/classes/wp-google-analytics-legacy.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
-        'modules/google-analytics/classes/wp-google-analytics-options.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
-        'modules/google-analytics/classes/wp-google-analytics-universal.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
-        'modules/google-analytics/classes/wp-google-analytics-utils.php' => ['PhanTypeSuspiciousNonTraversableForeach'],
-        'modules/google-analytics/wp-google-analytics.php' => ['PhanNoopNew', 'PhanStaticPropIsStaticType', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal'],
         'modules/google-fonts/current/class-jetpack-google-font-face.php' => ['PhanUndeclaredFunctionInCallable'],
         'modules/google-fonts/current/load-google-fonts.php' => ['PhanNoopNew', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/google-fonts/wordpress-6.3/load-google-fonts.php' => ['PhanUndeclaredFunction'],

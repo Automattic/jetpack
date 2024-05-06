@@ -69,7 +69,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active_Test extends \WorDBless
 		wp_set_current_user( $this->admin_id );
 
 		Scheduled_Updates::init();
-		do_action( 'rest_api_init' );
 	}
 
 	/**
