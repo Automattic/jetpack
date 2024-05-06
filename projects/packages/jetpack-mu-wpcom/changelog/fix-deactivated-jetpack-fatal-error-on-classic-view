@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WordPress.com Features: Don't load admin color schemes if Jetpack is not active
