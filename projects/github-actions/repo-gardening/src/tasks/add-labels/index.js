@@ -149,6 +149,12 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 			keywords.add( '[Feature] Google Analytics' );
 		}
 
+		// Theme Tools have now been extracted to their own package.
+		const themeTools = file.match( /^projects\/packages\/classic-theme-helper\// );
+		if ( themeTools !== null ) {
+			keywords.add( '[Feature] Theme Tools' );
+		}
+
 		// The WooCommerce Analytics feature now lives in both a package and a Jetpack module.
 		const wooCommerceAnalytics = file.match( /^projects\/packages\/woocommerce-analytics\// );
 		if ( wooCommerceAnalytics !== null ) {
