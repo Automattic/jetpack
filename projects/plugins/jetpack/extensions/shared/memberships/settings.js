@@ -302,6 +302,7 @@ export function NewsletterEmailDocumentSettings() {
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const [ postMeta, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
+	const { __unstableSaveForPreview } = useDispatch( editorStore );
 
 	const toggleSendEmail = value => {
 		const postMetaUpdate = {
@@ -310,6 +311,10 @@ export function NewsletterEmailDocumentSettings() {
 			[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: ! value,
 		};
 		setPostMeta( postMetaUpdate );
+		// @todo Remove the `if` check once WP 6.4 is the minimum supported version
+		if ( typeof __unstableSaveForPreview === 'function' ) {
+			__unstableSaveForPreview();
+		}
 	};
 
 	const isSendEmailEnabled = useSelect( select => {
