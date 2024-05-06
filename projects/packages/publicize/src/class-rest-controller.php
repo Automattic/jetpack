@@ -203,7 +203,7 @@ class REST_Controller {
 					'type'        => 'string',
 				),
 				'shared'                => array(
-					'description' => __( 'Whethe the connection is shared with other users', 'jetpack-publicize-pkg' ),
+					'description' => __( 'Whether the connection is shared with other users', 'jetpack-publicize-pkg' ),
 					'type'        => 'boolean',
 				),
 			),
@@ -228,7 +228,7 @@ class REST_Controller {
 					'type'        => 'string',
 				),
 				'shared'           => array(
-					'description' => __( 'Whethe the connection is shared with other users', 'jetpack-publicize-pkg' ),
+					'description' => __( 'Whether the connection is shared with other users', 'jetpack-publicize-pkg' ),
 					'type'        => 'boolean',
 				),
 			),
