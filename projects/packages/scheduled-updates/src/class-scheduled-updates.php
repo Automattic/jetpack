@@ -466,7 +466,7 @@ class Scheduled_Updates {
 	 * Verify that the plugins are installed.
 	 *
 	 * @param array $plugins List of plugins to update.
-	 * @return bool|WP_Error
+	 * @return bool|\WP_Error
 	 */
 	public static function verify_plugins( $plugins ) {
 		$request_plugins_not_installed_or_managed = true;
