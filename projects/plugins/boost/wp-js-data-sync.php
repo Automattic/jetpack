@@ -381,3 +381,4 @@ jetpack_boost_register_option(
 );
 
 jetpack_boost_register_action( 'page_cache', 'clear-page-cache', Schema::as_void(), new Clear_Page_Cache() );
+jetpack_boost_register_option( 'image_cdn_liar', Schema::as_boolean()->fallback( false ) );
