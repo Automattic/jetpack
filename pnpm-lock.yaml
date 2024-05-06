@@ -3107,6 +3107,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
 
+  projects/plugins/classic-theme-plugin: {}
+
   projects/plugins/crm:
     dependencies:
       '@automattic/jetpack-base-styles':
