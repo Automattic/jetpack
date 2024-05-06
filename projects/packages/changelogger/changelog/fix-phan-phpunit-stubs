@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Suppress a Phan issue in a test now that Phan infers classes from assertInstanceOf(). No change to functionality.
-
-

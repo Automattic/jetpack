@@ -28,10 +28,10 @@ Jetpack_Forms::load_contact_form();
 /**
  * Register Jetpack Form patterns
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Util::register_pattern
+ * @deprecated 13.4 Use Automattic\Jetpack\Forms\ContactForm\Util::register_pattern
  */
 function jetpack_form_register_pattern() {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Util::register_pattern' );
+	_deprecated_function( __METHOD__, 'jetpack-13.4', 'Automattic\Jetpack\Forms\ContactForm\Util::register_pattern' );
 	$category_slug = 'forms';
 	register_block_pattern_category( $category_slug, array( 'label' => __( 'Forms', 'jetpack' ) ) );
 
