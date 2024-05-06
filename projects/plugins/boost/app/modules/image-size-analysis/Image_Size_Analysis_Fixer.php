@@ -129,7 +129,11 @@ class Image_Size_Analysis_Fixer {
 	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	public static function fix_image_sizes( $sizes, $size, $image_url, $image_meta, $attachment_id ) {
 
-		$post    = get_post();
+		$post = get_post();
+		// If we're not in a post context, skip as there won't be any fixes.
+		if ( $post === null ) {
+			return $sizes;
+		}
 		$post_id = $post->ID;
 
 		$fixes         = self::get_fixes( $post_id );
