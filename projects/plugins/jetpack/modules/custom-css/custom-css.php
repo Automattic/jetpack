@@ -385,7 +385,7 @@ class Jetpack_Custom_CSS_Enhancements {
 					'contentWidth'                => $content_help,
 					'revisions'                   => _x( 'See full history', 'Toolbar button to see full CSS revision history', 'jetpack' ),
 					'css_help_title'              => _x( 'Help', 'Toolbar button to get help with custom CSS', 'jetpack' ),
-					'startFreshCustomizerWarning' => __( "The Start Fresh option in the Additional CSS panel is enabled, which means the theme's original CSS is not applied. This option will no longer be supported.", 'jetpack' ),
+					'startFreshCustomizerWarning' => __( "The Start Fresh option in the Additional CSS panel is enabled, which means the theme's original CSS is not applied. This option will no longer be supported after August 6, 2024.", 'jetpack' ),
 				),
 			)
 		);

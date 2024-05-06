@@ -42,7 +42,7 @@ const CustomizerLink = ( { children, siteAdminUrl } ) => (
 export const StartFreshDeprecationWarning = ( { siteAdminUrl } ) =>
 	createInterpolateElement(
 		__(
-			"The <i>Start Fresh</i> option in the <a1>CSS customization panel</a1> is enabled, which means the theme's original CSS is not applied. <b>This option will no longer be supported</b> and you'll need to modify your <a2>theme stylesheet</a2>.",
+			"The <i>Start Fresh</i> option in the <a1>CSS customization panel</a1> is enabled, which means the theme's original CSS is not applied. <b>This option will no longer be supported after August 6, 2024.</b> and you'll need to modify your <a2>theme stylesheet</a2>.",
 			'jetpack'
 		),
 		{
