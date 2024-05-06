@@ -11,9 +11,9 @@ return [
     // # Issue statistics:
     // PhanTypeMismatchArgument : 540+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 300+ occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 290+ occurrences
+    // PhanPluginDuplicateConditionalNullCoalescing : 280+ occurrences
     // PhanUndeclaredMethod : 260+ occurrences
-    // PhanNoopNew : 210+ occurrences
+    // PhanNoopNew : 200+ occurrences
     // PhanTypeMismatchReturn : 160+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 150+ occurrences
     // PhanDeprecatedFunction : 130+ occurrences
@@ -30,10 +30,10 @@ return [
     // PhanPluginDuplicateAdjacentStatement : 40+ occurrences
     // PhanTypeInvalidDimOffset : 35+ occurrences
     // PhanUndeclaredProperty : 35+ occurrences
-    // PhanTypeMismatchPropertyProbablyReal : 30+ occurrences
     // PhanParamSignatureMismatch : 25+ occurrences
     // PhanPluginSimplifyExpressionBool : 25+ occurrences
     // PhanTypeMismatchDefault : 25+ occurrences
+    // PhanTypeMismatchPropertyProbablyReal : 25+ occurrences
     // PhanTypeMissingReturn : 25+ occurrences
     // PhanTypeSuspiciousNonTraversableForeach : 25+ occurrences
     // PhanUndeclaredFunction : 25+ occurrences
@@ -73,13 +73,13 @@ return [
     // PhanContextNotObject : 4 occurrences
     // PhanImpossibleTypeComparison : 4 occurrences
     // PhanPossiblyUndeclaredGlobalVariable : 4 occurrences
-    // PhanStaticPropIsStaticType : 4 occurrences
     // PhanTypeInvalidLeftOperandOfAdd : 4 occurrences
     // PhanTypeInvalidLeftOperandOfBitwiseOp : 4 occurrences
     // PhanTypeInvalidRightOperandOfBitwiseOp : 4 occurrences
     // PhanTypeInvalidRightOperandOfNumericOp : 4 occurrences
     // PhanDeprecatedFunctionInternal : 3 occurrences
     // PhanDeprecatedTrait : 3 occurrences
+    // PhanStaticPropIsStaticType : 3 occurrences
     // PhanTypeConversionFromArray : 3 occurrences
     // PhanTypeMismatchArgumentReal : 3 occurrences
     // PhanTypeObjectUnsetDeclaredProperty : 3 occurrences
@@ -365,12 +365,6 @@ return [
         'modules/custom-post-types/testimonial.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'modules/geo-location.php' => ['PhanTypeMismatchArgumentNullable'],
         'modules/geo-location/class.jetpack-geo-location.php' => ['PhanTypeMismatchArgument'],
-        'modules/google-analytics/classes/class-jetpack-google-amp-analytics.php' => ['PhanUndeclaredMethod'],
-        'modules/google-analytics/classes/wp-google-analytics-legacy.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
-        'modules/google-analytics/classes/wp-google-analytics-options.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
-        'modules/google-analytics/classes/wp-google-analytics-universal.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
-        'modules/google-analytics/classes/wp-google-analytics-utils.php' => ['PhanTypeSuspiciousNonTraversableForeach'],
-        'modules/google-analytics/wp-google-analytics.php' => ['PhanNoopNew', 'PhanStaticPropIsStaticType', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal'],
         'modules/google-fonts/current/class-jetpack-google-font-face.php' => ['PhanUndeclaredFunctionInCallable'],
         'modules/google-fonts/current/load-google-fonts.php' => ['PhanNoopNew', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/google-fonts/wordpress-6.3/load-google-fonts.php' => ['PhanUndeclaredFunction'],

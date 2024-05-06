@@ -10,7 +10,6 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import { Nudge as StandardNudge } from '../../../../shared/components/upgrade-nudge';
-import { PLAN_TYPE_TIERED, usePlanType } from '../../../../shared/use-plan-type';
 import useAICheckout from '../../hooks/use-ai-checkout';
 import useAiFeature from '../../hooks/use-ai-feature';
 import { canUserPurchasePlan } from '../../lib/connection';
@@ -41,17 +40,7 @@ const DefaultUpgradePrompt = ( {
 
 	const { checkoutUrl, autosaveAndRedirect, isRedirecting } = useAICheckout();
 	const canUpgrade = canUserPurchasePlan();
-	const {
-		nextTier,
-		tierPlansEnabled,
-		currentTier,
-		requestsCount: allTimeRequestsCount,
-		usagePeriod,
-	} = useAiFeature();
-
-	const planType = usePlanType( currentTier );
-	const requestsCount =
-		planType === PLAN_TYPE_TIERED ? usagePeriod?.requestsCount : allTimeRequestsCount;
+	const { nextTier, tierPlansEnabled, currentTier, requestsCount } = useAiFeature();
 
 	const { tracks } = useAnalytics();
 

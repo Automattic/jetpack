@@ -17,7 +17,7 @@ import './style.scss';
  * Types
  */
 import type { RequestingStateProp } from '../../types.js';
-import type { ReactElement } from 'react';
+import type { ReactElement, MouseEvent } from 'react';
 
 type ExtensionAIControlProps = {
 	disabled?: boolean;
@@ -36,7 +36,7 @@ type ExtensionAIControlProps = {
 	onStop?: () => void;
 	onClose?: () => void;
 	onUndo?: () => void;
-	onUpgrade?: () => void;
+	onUpgrade?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 };
 
 /**
@@ -118,9 +118,12 @@ export function ExtensionAIControl(
 		onUndo?.();
 	}, [ onUndo ] );
 
-	const upgradeHandler = useCallback( () => {
-		onUpgrade?.();
-	}, [ onUpgrade ] );
+	const upgradeHandler = useCallback(
+		( event: MouseEvent< HTMLButtonElement > ) => {
+			onUpgrade?.( event );
+		},
+		[ onUpgrade ]
+	);
 
 	useKeyboardShortcut(
 		'enter',
