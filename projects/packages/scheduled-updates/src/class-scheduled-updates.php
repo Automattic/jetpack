@@ -359,10 +359,7 @@ class Scheduled_Updates {
 				* @return bool
 				*/
 				'get_callback' => function ( $data ) {
-					$folder = WP_PLUGIN_DIR . '/' . strtok( $data['plugin'], '/' );
-					$target = is_link( $folder ) ? realpath( $folder ) : false;
-
-					return $target && 0 === strpos( $target, '/wordpress/' );
+					return self::is_plugin_managed( $data['plugin'] );
 				},
 				'schema'       => array(
 					'description' => 'Whether the plugin is managed by the host.',
@@ -435,5 +432,31 @@ class Scheduled_Updates {
 	 */
 	public static function generate_schedule_id( $args ) {
 		return md5( serialize( $args ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+	}
+
+	/**
+	 * Check if a plugin is installed.
+	 *
+	 * @param string $plugin The plugin to check.
+	 * @return bool
+	 */
+	public static function is_plugin_installed( $plugin ) {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		$installed_plugins = get_plugins();
+		return array_key_exists( $plugin, $installed_plugins );
+	}
+
+	/**
+	 * Check if a plugin is managed by the host.
+	 *
+	 * @param string $plugin The plugin to check.
+	 * @return bool
+	 */
+	public static function is_plugin_managed( $plugin ) {
+		$folder = WP_PLUGIN_DIR . '/' . strtok( $plugin, '/' );
+		$target = is_link( $folder ) ? realpath( $folder ) : false;
+		return $target && 0 === strpos( $target, '/wordpress/' );
 	}
 }
