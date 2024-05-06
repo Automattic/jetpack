@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Suppress PhanUndeclaredFunctionInCallable affected by https://github.com/phan/phan/issues/4763.
+
+

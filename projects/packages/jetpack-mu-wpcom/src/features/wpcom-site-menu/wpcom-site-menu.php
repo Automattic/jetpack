@@ -86,6 +86,15 @@ function wpcom_add_wpcom_menu_item() {
 
 	add_submenu_page(
 		$parent_slug,
+		esc_attr__( 'Site Overview', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Site Overview', 'jetpack-mu-wpcom' ) . ' <span class="dashicons dashicons-external"></span>',
+		'manage_options',
+		esc_url( "https://wordpress.com/hosting/$domain" ),
+		null
+	);
+
+	add_submenu_page(
+		$parent_slug,
 		esc_attr__( 'Plans', 'jetpack-mu-wpcom' ),
 		esc_attr__( 'Plans', 'jetpack-mu-wpcom' ),
 		'manage_options',
@@ -128,24 +137,6 @@ function wpcom_add_wpcom_menu_item() {
 		esc_attr__( 'Purchases', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		esc_url( "https://wordpress.com/purchases/subscriptions/$domain" ),
-		null
-	);
-
-	add_submenu_page(
-		$parent_slug,
-		esc_attr__( 'Configuration', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Configuration', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/hosting-config/$domain" ),
-		null
-	);
-
-	add_submenu_page(
-		$parent_slug,
-		esc_attr__( 'Monitoring', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Monitoring', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/site-monitoring/$domain" ),
 		null
 	);
 
@@ -445,7 +436,7 @@ function wpcom_add_hosting_menu_intro_notice() {
 		<div>
 			<span class="title"><?php esc_html_e( 'WordPress.com', 'jetpack-mu-wpcom' ); ?></span><br />
 			<span>
-				<?php esc_html_e( 'To access settings for plans, domains, emails, etc., click "Hosting" in the sidebar.', 'jetpack-mu-wpcom' ); ?>
+				<?php esc_html_e( 'Click "Hosting" in the sidebar to access the site overview and settings for plans, domains, emails, etc.', 'jetpack-mu-wpcom' ); ?>
 			</span>
 		</div>
 		<a href="#" class="close-button" aria-label=<?php echo esc_attr__( 'Dismiss', 'jetpack-mu-wpcom' ); ?>>
@@ -583,3 +574,29 @@ function wpcom_add_scheduled_updates_menu() {
 	);
 }
 add_action( 'admin_menu', 'wpcom_add_scheduled_updates_menu' );
+
+/**
+ * Add the Plugins menu item to the admin menu on simple sites.
+ */
+function wpcom_add_plugins_menu() {
+
+	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+		return;
+	}
+
+	if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
+		$domain              = wp_parse_url( home_url(), PHP_URL_HOST );
+		$can_install_plugins = function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( WPCOM_Features::INSTALL_PLUGINS );
+
+		add_menu_page(
+			__( 'Plugins', 'jetpack-mu-wpcom' ),
+			__( 'Plugins', 'jetpack-mu-wpcom' ),
+			'manage_options', // Roughly means "is a site admin"
+			$can_install_plugins ? 'https://wordpress.com/plugins/' . $domain : 'plugins.php',
+			null,
+			'dashicons-admin-plugins',
+			65
+		);
+	}
+}
+add_action( 'admin_menu', 'wpcom_add_plugins_menu' );

@@ -22,12 +22,15 @@ import {
 } from '../../../../shared/use-plan-type';
 import usePostContent from '../../hooks/use-post-content';
 import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library';
+import {
+	PLACEMENT_JETPACK_SIDEBAR,
+	PLACEMENT_DOCUMENT_SETTINGS,
+} from '../ai-assistant-plugin-sidebar/types';
 import AiAssistantModal from '../modal';
 import Carrousel, { CarrouselImageData, CarrouselImages } from './carrousel';
 import UsageCounter from './usage-counter';
 
 const FEATURED_IMAGE_FEATURE_NAME = 'featured-post-image';
-export const FEATURED_IMAGE_PLACEMENT_JETPACK_SIDEBAR = 'jetpack-sidebar';
 export const FEATURED_IMAGE_PLACEMENT_MEDIA_SOURCE_DROPDOWN = 'media-source-dropdown';
 
 export default function FeaturedImage( {
@@ -105,16 +108,27 @@ export default function FeaturedImage( {
 	}, [ increaseRequestsCount, featuredImageCost ] );
 
 	/* Merge the image data with the new data. */
-	const updateImages = useCallback( ( data: CarrouselImageData, index ) => {
-		setImages( currentImages => {
-			const newImages = [ ...currentImages ];
-			newImages[ index ] = {
-				...newImages[ index ],
-				...data,
-			};
-			return newImages;
-		} );
-	}, [] );
+	const updateImages = useCallback(
+		( data: CarrouselImageData, index ) => {
+			setImages( currentImages => {
+				const newImages = [ ...currentImages ];
+				newImages[ index ] = {
+					...newImages[ index ],
+					...data,
+				};
+				return newImages;
+			} );
+
+			// Track errors so we can get more insight on the usage
+			if ( data.error ) {
+				recordEvent( 'jetpack_ai_featured_image_generation_error', {
+					placement,
+					error: data.error?.message,
+				} );
+			}
+		},
+		[ placement, recordEvent ]
+	);
 
 	const handlePreviousImage = useCallback( () => {
 		setCurrent( Math.max( current - 1, 0 ) );
@@ -321,7 +335,8 @@ export default function FeaturedImage( {
 
 	return (
 		<div>
-			{ placement === FEATURED_IMAGE_PLACEMENT_JETPACK_SIDEBAR && (
+			{ ( placement === PLACEMENT_JETPACK_SIDEBAR ||
+				placement === PLACEMENT_DOCUMENT_SETTINGS ) && (
 				<>
 					<p>{ __( 'Create and use an AI generated featured image for your post.', 'jetpack' ) }</p>
 					<Button

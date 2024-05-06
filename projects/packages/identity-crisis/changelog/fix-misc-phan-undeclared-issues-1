@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix class references in `URL_Secret::create_secret()` exception handler.

@@ -50,7 +50,7 @@ export function buildInitialMessageForBackendPrompt( promptType: PromptTypeProp 
  * @param {string} relevantContent - The relevant content.
  * @returns {PromptItemProps} The initial message.
  */
-function buildRelevantContentMessageForBackendPrompt(
+export function buildRelevantContentMessageForBackendPrompt(
 	isContentGenerated?: boolean,
 	relevantContent?: string | null
 ): PromptItemProps | null {
@@ -172,7 +172,7 @@ function getSubject(
  * @param {BuildPromptProps} options - The prompt options.
  * @returns {object} The context.
  */
-function buildMessageContextForUserPrompt( {
+export function buildMessageContextForUserPrompt( {
 	options,
 	type,
 	userPrompt,
