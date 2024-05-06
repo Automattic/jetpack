@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Remove `use Jetpack`, which the combination of #36924 and #36989 rendered unneeded causing Phan to complain. Then update Phan baseline too.
-
-

@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-Scheduled Update: Moved health_check_paths to using rest field and as a result changed where in the API response the field gets returned
