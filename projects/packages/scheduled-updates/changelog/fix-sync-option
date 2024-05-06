@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed a bug where rest_fileds were not registered when composing the sync option.
