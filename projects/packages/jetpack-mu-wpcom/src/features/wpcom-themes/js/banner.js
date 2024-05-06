@@ -14,7 +14,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	themeBrowser.insertAdjacentHTML(
 		'beforebegin',
 		`
-			<div class="wpcom-themes-banner hidden">
+			<div class="wpcom-themes-banner">
 				<div class="wpcom-themes-banner__content">
 					<img src="${ wpcomThemesBanner.logo }" alt="WordPress.com">
 					<h3>${ wpcomThemesBanner.title }</h3>
@@ -29,18 +29,21 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 	const wpcomThemesObserver = new MutationObserver( () => {
 		if (
-			( ! document.querySelector( '.wp-filter' ) ||
-				document.querySelector(
-					'[data-sort="popular"].current, [data-sort="new"].current, [data-sort="block-themes"].current'
-				) ) &&
-			! document.querySelector( '.no-results p.no-themes' ) &&
-			! document.querySelector( '.loading-content .spinner, .spinner.is-active' )
+			// Hide banner when loading results.
+			document.querySelector( '.loading-content .spinner' ) ||
+			// Hide banner on Favorites tab.
+			document.querySelector( '[data-sort="favorites"].current' ) ||
+			// Hide banner when using Feature Filter.
+			document.querySelector( '.show-filters .filter-drawer' ) ||
+			// Hide banner when searching (but only if there are results).
+			( document.querySelector( '#wp-filter-search-input' )?.value &&
+				! document.querySelector( '.no-results p.no-themes' ) )
 		) {
-			themesBanner.classList.remove( 'hidden' );
-		} else {
 			themesBanner.classList.add( 'hidden' );
+		} else {
+			themesBanner.classList.remove( 'hidden' );
 		}
 	} );
-	wpcomThemesObserver.observe( themeBrowser, { childList: true, subtree: true } );
+	wpcomThemesObserver.observe( themeBrowser, { childList: true } );
 	wpcomThemesObserver.observe( document.body, { attributes: true } );
 } );
