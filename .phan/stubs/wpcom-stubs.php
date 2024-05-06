@@ -329,6 +329,9 @@ namespace {
         public static function get_instance(): \Memberships_Store_Sandbox
         {
         }
+		public static function init()
+		{
+		}
     }
     /**
      * @param int $user_id
