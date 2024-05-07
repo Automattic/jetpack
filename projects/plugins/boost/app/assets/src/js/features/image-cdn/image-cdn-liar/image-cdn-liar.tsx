@@ -6,6 +6,7 @@ import indexStyles from '../../../pages/index/index.module.scss';
 import styles from './image-cdn-liar.module.scss';
 import classNames from 'classnames';
 import ModuleSubsection from '$features/ui/module-subsection/module-subsection';
+import { recordBoostEvent } from '$lib/utils/analytics';
 
 type ImageCdnLiarProps = {
 	isPremium: boolean;
@@ -22,6 +23,12 @@ export default function ImageCdnLiar( { isPremium }: ImageCdnLiarProps ) {
 		z.boolean().catch( false )
 	);
 
+	const handleToggle = ( value: boolean ) => {
+		setImageCdnLiar.mutate( value );
+
+		recordBoostEvent( 'image_cdn_liar_toggle', { enabled: Number( value ) } );
+	};
+
 	return (
 		<ModuleSubsection>
 			<div className={ styles.wrapper }>
@@ -33,7 +40,7 @@ export default function ImageCdnLiar( { isPremium }: ImageCdnLiarProps ) {
 					<ToggleControl
 						className={ styles[ 'toggle-control' ] }
 						checked={ imageCdnLiar.data }
-						onChange={ value => setImageCdnLiar.mutate( value ) }
+						onChange={ handleToggle }
 					/>
 				</div>
 			</div>
