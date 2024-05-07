@@ -103,8 +103,8 @@ class Admin {
 			'wp-components',
 		);
 
-		// Enqueue the critical CSS generator script if Critical CSS is enabled.
-		if ( ( new Modules_Index() )->is_module_enabled( Critical_CSS::get_slug() ) ) {
+		// Enqueue the critical CSS generator script if Critical CSS is available.
+		if ( ( new Modules_Index() )->is_module_available( Critical_CSS::get_slug() ) ) {
 			$admin_js_dependencies[] = $critical_css_gen_handle;
 		}
 
