@@ -8,7 +8,7 @@
 - Newsletters: Manage subscribers in Jetpack Cloud. [#37155]
 - Newsletters: Add a "Reply-to" setting for newsletter emails. [#37011]
 - Newsletters: Add filters for controlling the Subscribe Modal load time and the edit capability for the Newsletter Block Meta. [#36909] [#36374]
-- Paid Content Block: Login flow is matching the Subscribe Block. [#37178]
+- Paid Content Block: Use a login flow matching the Subscribe Block. [#37178]
 - WordAds: Ensure that ads.txt works on subdirectory websites. [#36887]
 
 ### Improved compatibility
