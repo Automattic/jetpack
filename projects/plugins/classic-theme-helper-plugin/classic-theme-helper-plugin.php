@@ -3,7 +3,7 @@
  *
  * Plugin Name: Classic Theme Helper Plugin
  * Plugin URI: https://wordpress.org/plugins/classic-theme-helper-plugin
- * Description: Features for classic themes..
+ * Description: Features for classic themes.
  * Version: 0.1.0-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/
