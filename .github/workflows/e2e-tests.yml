@@ -266,6 +266,10 @@ jobs:
           mapfile -t TEST_ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
           pnpm run test:run "${TEST_ARGS[@]}"
 
+          # Copy debug.log to output folder, if it exists
+          error_log="$GITHUB_WORKSPACE/tools/docker/wordpress/wp-content/debug.log"
+          [ ! -f $error_log ] || cp $error_log output/logs/php_errors.log
+
       - name: Write report metadata
         if: ${{ always() }}
         env:
