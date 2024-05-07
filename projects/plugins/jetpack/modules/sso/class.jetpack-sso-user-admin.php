@@ -269,7 +269,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					);
 
 					$body = json_decode( wp_remote_retrieve_body( $response ) );
-					if ( $body && $body->message ) {
+					if ( ! empty( $body ) && ! empty( $body->message ) ) {
 						$query_params['jetpack-sso-invite-api-error-message'] = $body->message;
 						$tracking_event_data['error_message']                 = $body->message;
 					}
