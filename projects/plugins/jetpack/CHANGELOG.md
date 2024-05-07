@@ -13,7 +13,7 @@
 
 ### Improved compatibility
 - General: WordPress 6.4 is now the minimum required version. [#37047] [#37049]
-- Theme Tools: Site-logo and devicepx are deprecated. Use WP Custom Logo instead. [#37116] [#37109]
+- Theme Tools: Site-logo and devicepx are deprecated. Use WordPress Core's custom-logo or logo block instead. [#37116] [#37109]
 - WordPress.com Toolbar: Avoid fatal errors when using other menu management plugins while the WordPress.com Toolbar feature is active. [#36783]
 
 ### Bug fixes
