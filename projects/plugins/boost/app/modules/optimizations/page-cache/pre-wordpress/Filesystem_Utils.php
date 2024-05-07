@@ -112,10 +112,10 @@ class Filesystem_Utils {
 	}
 
 	/**
-	 * Check if a file is a rebuilt file.
+	 * Check if a file is a rebuild file.
 	 *
 	 * @param string $file - The file to check.
-	 * @return bool - True if the file is a rebuilt file, false otherwise.
+	 * @return bool - True if the file is a rebuild file, false otherwise.
 	 */
 	public static function is_rebuild_file( $file ) {
 		return substr( $file, -strlen( self::REBUILD_FILE_EXTENSION ) ) === self::REBUILD_FILE_EXTENSION;
