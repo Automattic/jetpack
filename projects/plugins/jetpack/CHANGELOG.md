@@ -7,7 +7,7 @@
 - Jetpack AI: Add an AI Featured Image Generator. [#36709] [#36806] [#36812] [#36822] [#36831] [#36863] [#36865] [#36868] [#36899] [#36926] [#36963] [#36965] [#37086] [#37166] [#37209] [#37219]
 - Newsletters: Manage subscribers in Jetpack Cloud. [#37155]
 - Newsletters: Add a "Reply-to" setting for newsletter emails. [#37011]
-- Newsletters: Add filters for controlling the Subscribe Modal load time and the edit capability for the Newsletter Block Neta. [#36909] [#36374]
+- Newsletters: Add filters for controlling the Subscribe Modal load time and the edit capability for the Newsletter Block Meta. [#36909] [#36374]
 - Paid Content Block: Login flow is matching the Subscribe Block. [#37178]
 - WordAds: Ensure that ads.txt works on subdirectory websites. [#36887]
 
