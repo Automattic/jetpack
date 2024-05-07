@@ -1,4 +1,5 @@
 import { useConnection } from '@automattic/jetpack-connection';
+import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import PublicizeConnection from '../connection';
 import PublicizeSettingsButton from '../settings-button';
@@ -31,7 +32,7 @@ export const ConnectionsList: React.FC = () => {
 					/>
 				);
 			} ) }
-			{ isUserConnected ? (
+			{ isUserConnected || isSimpleSite() ? (
 				<li>
 					<PublicizeSettingsButton />
 				</li>

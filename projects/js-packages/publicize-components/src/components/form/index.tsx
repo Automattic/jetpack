@@ -7,6 +7,7 @@
  */
 
 import { useConnection } from '@automattic/jetpack-connection';
+import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { Disabled, ExternalLink, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { Fragment, useMemo } from '@wordpress/element';
@@ -123,7 +124,7 @@ export default function PublicizeForm() {
 				{
 					// Use IIFE make it more readable and avoid nested ternary operators.
 					( () => {
-						if ( ! isUserConnected ) {
+						if ( ! isUserConnected && ! isSimpleSite() ) {
 							return (
 								<p>
 									{ __(
