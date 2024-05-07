@@ -30,6 +30,13 @@ class Scheduled_Updates {
 	const PLUGIN_CRON_HOOK = 'jetpack_scheduled_plugins_update';
 
 	/**
+	 * The cron event filter for the scheduled plugins update.
+	 *
+	 * @var string
+	 */
+	const PLUGIN_CRON_FILTER = 'jetpack_scheduled_plugins_update_filter';
+
+	/**
 	 * Initialize the class.
 	 */
 	public static function init() {
@@ -195,6 +202,11 @@ class Scheduled_Updates {
 	 * Save the schedules for sync after cron option saving.
 	 */
 	public static function update_option_cron() {
+		// Do not update the option if the filter is set to false.
+		if ( ! apply_filters( self::PLUGIN_CRON_FILTER, true ) ) {
+			return;
+		}
+
 		Scheduled_Updates_Logs::add_log_fields();
 		Scheduled_Updates_Active::add_active_field();
 		Scheduled_Updates_Health_Paths::add_health_check_paths_field();

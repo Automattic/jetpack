@@ -278,11 +278,15 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return $verified_plugins;
 		}
 
+		add_filter( Scheduled_Updates::PLUGIN_CRON_FILTER, '__return_false' );
 		$deleted = $this->delete_item( $request );
+
 		if ( is_wp_error( $deleted ) ) {
+			remove_filter( Scheduled_Updates::PLUGIN_CRON_FILTER, '__return_false' );
 			return $deleted;
 		}
 
+		remove_filter( Scheduled_Updates::PLUGIN_CRON_FILTER, '__return_false' );
 		$item = $this->create_item( $request );
 
 		/**
