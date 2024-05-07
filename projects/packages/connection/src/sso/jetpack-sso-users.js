@@ -2,6 +2,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 	document
 		.querySelectorAll( '.jetpack-sso-invitation-tooltip-icon, #user_jetpack' )
 		.forEach( function ( tooltip ) {
+			tooltip.innerHTML += ' [?]';
 			tooltip.addEventListener( 'mouseenter', function () {
 				this.querySelector( '.jetpack-sso-invitation-tooltip' ).style.display = 'block';
 			} );
@@ -9,4 +10,8 @@ document.addEventListener( 'DOMContentLoaded', function () {
 				this.querySelector( '.jetpack-sso-invitation-tooltip' ).style.display = 'none';
 			} );
 		} );
+	document.querySelectorAll( '.jetpack-sso-th-tooltip' ).forEach( function ( tooltip_text ) {
+		const tooltipString = window.Jetpack_SSOTooltip.tooltip_string;
+		tooltip_text.innerHTML += tooltipString;
+	} );
 } );
