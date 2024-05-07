@@ -278,8 +278,6 @@ jobs:
         if: ${{ always() }}
         working-directory: ${{ matrix.path }}
         continue-on-error: true
-        env:
-          PHP_ERROR_LOG_PATH: '${{ matrix.path }}/output/logs/php_errors.log'
         run: |
           pnpm run tunnel:down
           echo "::group::Tunnel logs"
@@ -288,8 +286,7 @@ jobs:
 
           # Copy debug.log to output folder, if it exists
           error_log="$GITHUB_WORKSPACE/tools/docker/wordpress/wp-content/debug.log"
-          mkdir -p $(dirname "${PHP_ERROR_LOG_PATH}")
-          [ ! -f $error_log ] || cp $error_log "${PHP_ERROR_LOG_PATH}"
+          [ ! -f $error_log ] || cp $error_log output/logs/php_errors.log
 
           # Update permissions to workaround https://github.com/actions/cache/issues/753
           sudo chown -R runner:docker "$GITHUB_WORKSPACE/tools/docker"
