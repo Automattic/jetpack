@@ -305,7 +305,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 */
 		public static function flush_post_tag_cache( $prev, $opts ) {
 			if ( ! empty( $opts ) && ! empty( $opts['tag-id'] ) ) {
-				$query = new \WP_Query(
+				$query = new WP_Query(
 					array(
 						'tag_id'         => (int) $opts['tag-id'],
 						'posts_per_page' => -1,
