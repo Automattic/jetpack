@@ -139,6 +139,7 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 			'enable_blocks_comments'                  => '(bool) Whether blocks comments are enabled',
 			'highlander_comment_form_prompt'          => '(string) The prompt for the comment form',
 			'jetpack_comment_form_color_scheme'       => '(string) The color scheme for the comment form',
+			'wpcom_admin_interface'                   => '(string) Admin interface style (wp-admin / calypso)',
 		),
 
 		'response_format' => array(

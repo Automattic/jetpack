@@ -124,6 +124,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'jetpack_subscriptions_subscribe_post_end_enabled' => '(bool) Whether the Subscribe block at the end of each post placement is enabled',
 			'jetpack_subscriptions_login_navigation_enabled' => '(bool) Whether the Subscriber Login block navigation placement is enabled',
 			'wpcom_ai_site_prompt'                    => '(string) User input in the AI site prompt',
+			'wpcom_admin_interface'                   => '(string) Admin interface style (wp-admin / calypso)',
 		),
 
 		'response_format'     => array(
@@ -473,6 +474,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'jetpack_comment_form_color_scheme' => (string) get_option( 'jetpack_comment_form_color_scheme' ),
 						'in_site_migration_flow'           => (string) get_option( 'in_site_migration_flow', '' ),
 						'migration_source_site_domain'     => (string) get_option( 'migration_source_site_domain' ),
+						'wpcom_admin_interface'            => (string) get_option( 'wpcom_admin_interface' ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -1100,6 +1102,13 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'wpcom_newsletter_categories_enabled':
 					update_option( 'wpcom_newsletter_categories_enabled', (int) (bool) $value );
 					$updated[ $key ] = (int) (bool) $value;
+					break;
+
+				case 'wpcom_admin_interface':
+					$filtered_value = $value === 'calypso' ? 'calypso' : 'wp-admin';
+					if ( update_option( $key, $filtered_value ) ) {
+						$updated[ $key ] = $filtered_value;
+					}
 					break;
 
 				case 'sm_enabled':

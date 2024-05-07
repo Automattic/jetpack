@@ -107,6 +107,7 @@ new WPCOM_JSON_API_Site_Settings_V1_3_Endpoint(
 			'rss_use_excerpt'                         => '(bool) Whether the RSS feed will use post excerpts',
 			'wpcom_publish_posts_with_markdown'       => '(bool) Whether markdown is enabled for posts',
 			'wpcom_publish_comments_with_markdown'    => '(bool) Whether markdown is enabled for comments',
+			'wpcom_admin_interface'                   => '(string) Admin interface style (wp-admin / calypso)',
 		),
 
 		'response_format' => array(

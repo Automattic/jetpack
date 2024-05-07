@@ -256,6 +256,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_package_versions'                     => array(),
 			'jetpack_newsletters_publishing_default_frequency' => 'weekly',
 			'jetpack_scheduled_plugins_update'             => array(),
+			'wpcom_admin_interface'                        => 'calypso',
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
