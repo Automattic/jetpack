@@ -159,12 +159,7 @@ const Index = () => {
 			</Module>
 			<Module
 				slug="page_cache"
-				title={
-					<>
-						{ __( 'Cache Site Pages', 'jetpack-boost' ) }
-						<span className={ styles.beta }>Beta</span>
-					</>
-				}
+				title={ <>{ __( 'Cache Site Pages', 'jetpack-boost' ) }</> }
 				onBeforeToggle={ status => {
 					setIsPageCacheSettingUp( status );
 					if ( status === false ) {
