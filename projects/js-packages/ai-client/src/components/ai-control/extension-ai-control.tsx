@@ -37,6 +37,7 @@ type ExtensionAIControlProps = {
 	onClose?: () => void;
 	onUndo?: () => void;
 	onUpgrade?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+	onTryAgain?: () => void;
 };
 
 /**
@@ -65,6 +66,7 @@ export function ExtensionAIControl(
 		onClose,
 		onUndo,
 		onUpgrade,
+		onTryAgain,
 	}: ExtensionAIControlProps,
 	ref: React.MutableRefObject< HTMLInputElement >
 ): ReactElement {
@@ -124,6 +126,10 @@ export function ExtensionAIControl(
 		},
 		[ onUpgrade ]
 	);
+
+	const tryAgainHandler = useCallback( () => {
+		onTryAgain?.();
+	}, [ onTryAgain ] );
 
 	useKeyboardShortcut(
 		'enter',
@@ -195,7 +201,7 @@ export function ExtensionAIControl(
 
 	let message = null;
 	if ( error ) {
-		message = <ErrorMessage error={ error } onTryAgainClick={ sendHandler } />;
+		message = <ErrorMessage error={ error } onTryAgainClick={ tryAgainHandler } />;
 	} else if ( showUpgradeMessage ) {
 		message = (
 			<UpgradeMessage requestsRemaining={ requestsRemaining } onUpgradeClick={ upgradeHandler } />
