@@ -1,5 +1,4 @@
-import { Button, Spinner } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+import { Button } from '@automattic/jetpack-components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
@@ -7,6 +6,7 @@ import { useCallback, useEffect, useReducer } from 'react';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store } from '../../social-store';
 import ConnectionIcon from '../connection-icon';
+import { ConnectionInfo } from './connection-info';
 import { Disconnect } from './disconnect';
 import { Snackbars } from './snackbars';
 import styles from './style.module.scss';
@@ -30,20 +30,6 @@ const ConnectionManagement = ( { className = null } ) => {
 	useEffect( () => {
 		refresh();
 	}, [ refresh ] );
-
-	const renderConnectionName = connection => {
-		if ( connection.display_name ) {
-			if ( ! connection.profile_link ) {
-				return connection.display_name;
-			}
-			return (
-				<ExternalLink className={ styles[ 'profile-link' ] } href={ connection.profile_link }>
-					{ connection.display_name }
-				</ExternalLink>
-			);
-		}
-		return <Spinner color="black" />;
-	};
 
 	const onReconnect = useCallback(
 		( _serviceName: string ) => () => {
@@ -76,12 +62,14 @@ const ConnectionManagement = ( { className = null } ) => {
 										profilePicture={ connection.profile_picture }
 									/>
 								</td>
-								<td className={ styles.name }>{ renderConnectionName( connection ) }</td>
-								<td>
-									<Disconnect
+								<td className={ styles.name }>
+									<ConnectionInfo
 										connection={ connection }
 										onReconnect={ onReconnect( connection.service_name ) }
 									/>
+								</td>
+								<td>
+									<Disconnect connection={ connection } />
 								</td>
 							</tr>
 						) ) }
