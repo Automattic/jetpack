@@ -27,7 +27,7 @@ class Loader {
 	 *
 	 * @var Loader
 	 */
-	public static $instance = false;
+	public static $instance = null;
 
 	/**
 	 * Initialize the Loader.
