@@ -71,15 +71,27 @@ class Scheduled_Updates_Active {
 	}
 
 	/**
-	 * REST prepare_item_for_response filter.
-	 *
-	 * @param array            $item    WP Cron event.
-	 * @param \WP_REST_Request $request Request object.
-	 * @return array Response array on success.
+	 * Registers the active field for the update-schedule REST API.
 	 */
-	public static function response_filter( $item, $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$item['active'] = self::get( $item['schedule_id'] );
-
-		return $item;
+	public static function add_active_field() {
+		register_rest_field(
+			'update-schedule',
+			'active',
+			array(
+				/**
+				 * Populates the active field.
+				 *
+				 * @param array $item Prepared response array.
+				 * @return bool
+				 */
+				'get_callback' => function ( $item ) {
+					return self::get( $item['schedule_id'] );
+				},
+				'schema'       => array(
+					'description' => 'Whether the schedule is active or paused.',
+					'type'        => 'boolean',
+				),
+			)
+		);
 	}
 }

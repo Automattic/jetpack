@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Themes: Fixed an issue that was showing a broken Theme Showcase action in the active theme details

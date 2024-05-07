@@ -158,4 +158,39 @@ module.exports = [
 			} ),
 		},
 	},
+
+	/**
+	 * LIAR - Lazy Image Auto Resizer
+	 */
+	{
+		entry: {
+			inlineScript: './app/modules/optimizations/image-cdn/src/liar.ts',
+		},
+		mode: jetpackWebpackConfig.mode,
+		devtool: jetpackWebpackConfig.devtool,
+		output: {
+			path: path.resolve( './app/modules/optimizations/image-cdn/dist' ),
+			filename: 'inline-liar.js',
+		},
+		optimization: {
+			...jetpackWebpackConfig.optimization,
+		},
+		resolve: {
+			...jetpackWebpackConfig.resolve,
+		},
+		node: false,
+		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
+		module: {
+			strictExportPresence: true,
+			rules: [
+				// Transpile JavaScript
+				jetpackWebpackConfig.TranspileRule( {
+					exclude: /node_modules\//,
+				} ),
+			],
+		},
+		externals: {
+			...jetpackWebpackConfig.externals,
+		},
+	},
 ];

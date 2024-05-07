@@ -84,7 +84,7 @@ class Scheduled_Updates_Health_Paths {
 	/**
 	 * Validate a path.
 	 *
-	 * @param string $path An health path.
+	 * @param string $path Path to validate.
 	 * @return string|WP_Error
 	 */
 	public static function validate( $path ) {
@@ -137,29 +137,45 @@ class Scheduled_Updates_Health_Paths {
 	}
 
 	/**
-	 * Update the health check paths for a scheduled update hook.
-	 *
-	 * @param string           $id      The ID of the schedule.
-	 * @param object           $event   The event object.
-	 * @param \WP_REST_Request $request The request object.
-	 * @return bool
+	 * Registers the health_check_paths field for the update-schedule REST API.
 	 */
-	public static function updates_health_paths( $id, $event, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$schedule = $request['schedule'];
-		$paths    = $schedule['health_check_paths'] ?? array();
-		return self::update( $id, $paths );
-	}
+	public static function add_health_check_paths_field() {
+		register_rest_field(
+			'update-schedule',
+			'health_check_paths',
+			array(
+				/**
+				 * Populates the health_check_paths field.
+				 *
+				 * @param array $item Prepared response array.
+				 * @return array List of health check paths.
+				 */
+				'get_callback'    => function ( $item ) {
+					return static::get( $item['schedule_id'] );
+				},
 
-	/**
-	 * REST prepare_item_for_response filter.
-	 *
-	 * @param array            $item    WP Cron event.
-	 * @param \WP_REST_Request $request Request object.
-	 * @return array Response array on success.
-	 */
-	public static function response_filter( $item, $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$item['health_check_paths'] = self::get( $item['schedule_id'] );
-
-		return $item;
+				/**
+				 * Updates the health_check_paths field.
+				 *
+				 * @param array  $paths List of health check paths.
+				 * @param object $event Event object.
+				 * @return bool
+				 */
+				'update_callback' => function ( $paths, $event ) {
+					return static::update( $event->schedule_id, $paths );
+				},
+				'schema'          => array(
+					'description' => 'List of paths to check for site health after the update.',
+					'type'        => 'array',
+					'maxItems'    => 5,
+					'items'       => array(
+						'type'        => 'string',
+						'arg_options' => array(
+							'validate_callback' => array( __CLASS__, 'validate' ),
+						),
+					),
+				),
+			)
+		);
 	}
 }

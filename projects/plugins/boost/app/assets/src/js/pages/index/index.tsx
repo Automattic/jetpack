@@ -8,7 +8,7 @@ import { __ } from '@wordpress/i18n';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
 import MinifyMeta from '$features/minify-meta/minify-meta';
-import { QualitySettings } from '$features/image-cdn';
+import { QualitySettings, ImageCdnLiar } from '$features/image-cdn';
 import styles from './index.module.scss';
 import { RecommendationsMeta } from '$features/image-size-analysis';
 import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
@@ -159,12 +159,7 @@ const Index = () => {
 			</Module>
 			<Module
 				slug="page_cache"
-				title={
-					<>
-						{ __( 'Cache Site Pages', 'jetpack-boost' ) }
-						<span className={ styles.beta }>Beta</span>
-					</>
-				}
+				title={ __( 'Cache Site Pages', 'jetpack-boost' ) }
 				onBeforeToggle={ status => {
 					setIsPageCacheSettingUp( status );
 					if ( status === false ) {
@@ -304,6 +299,7 @@ const Index = () => {
 					</p>
 				}
 			>
+				<ImageCdnLiar />
 				<QualitySettings isPremium={ premiumFeatures.includes( 'image-cdn-quality' ) } />
 			</Module>
 

@@ -326,9 +326,27 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.4-a.9 - 2024-04-29
+### 13.4-beta - 2024-05-06
 #### Enhancements
 - Newsletter: Add subscrition 'reply to' behaviour.
+- Newsletters: Add a filter that enables the user to control the timing at which the Subscribe Modal loads.
+- Paid Content Block: Swap out the login flow.
+- Subscription: Add a filter to Allow Newsletter Block Meta Capability to be Changed.
+- Subscriptions: Manage subscribers in Jetpack Cloud instead of WP.com.
+- Subscription widget: Remove "follow" term from confirmation message
+- WordAds: Ensure that ads.txt works on subdirectory websites.
+
+#### Improved compatibility
+- General: Update WordPress version requirements to WordPress 6.4 and remove compatibility code for lower versions. [#37047]
+- Theme tools: Devicepx functionality is deprecated.
+- Theme tools: Site-logo functionality is deprecated in favour of core supported custom-logo.
+- WordPress.com Toolbar: Avoid fatal errors when using other menu management plugins and the WordPress.com Toolbar feature.
+
+#### Bug fixes
+- Google Fonts: Avoid theme fonts overriding the default fonts so fonts with a specific font weight that are not supported by the provided theme can be rendered correctly.
+- Secure Sign-On: Disable the WordPress.com invitation setup on Multisite.
+- Sidebar: Fix showing the double arrow on active menu when RTL
+- Theme Tools: Fix deprecation notices in the color management library.
 
 --------
 
