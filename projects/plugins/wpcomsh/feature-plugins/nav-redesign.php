@@ -27,6 +27,30 @@ function is_proxied() {
 }
 
 /**
+ * Adds Hosting -> Overview menu for proxied a12s.
+ *
+ * This logic should be moved to jetpack-mu-wpcom once nav redesign is fully launched.
+ */
+function add_hosting_overview_menu() {
+	if ( ! wpcom_is_nav_redesign_enabled() || ! is_proxied() ) {
+		return;
+	}
+
+	$domain = preg_replace( '#^https?://#', '', network_site_url() );
+
+	add_submenu_page(
+		'wpcom-hosting-menu',
+		esc_attr__( 'Overview', 'wpcomsh' ),
+		esc_attr__( 'Overview', 'wpcomsh' ) . ' <span class="dashicons dashicons-external"></span>',
+		'manage_options',
+		esc_url( "https://wordpress.com/hosting/$domain" ),
+		'',
+		1
+	);
+}
+add_action( 'admin_menu', 'add_hosting_overview_menu', 999999 );
+
+/**
  * Temporarily override the All Sites menu to point to horizon.wordpress.com,
  * which enables the nav redesign by default.
  */
