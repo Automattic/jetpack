@@ -277,7 +277,7 @@ class User_Admin {
 					'error_code' => $error_code,
 				);
 
-				$body = json_decode( $response['body'] );
+				$body = json_decode( wp_remote_retrieve_body( $response ) );
 				if ( $body && $body->message ) {
 					$query_params['jetpack-sso-invite-api-error-message'] = $body->message;
 					$tracking_event_data['error_message']                 = $body->message;
