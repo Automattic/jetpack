@@ -41,22 +41,6 @@ define( 'CLASSIC_THEME_PLUGIN_NAME', 'Classic Theme Helper' );
 define( 'CLASSIC_THEME_PLUGIN_URI', 'https://jetpack.com' );
 define( 'CLASSIC_THEME_PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
 
-// Jetpack Autoloader.
-$jetpack_autoloader = CLASSIC_THEME_PLUGIN_DIR . 'vendor/autoload_packages.php';
-if ( is_readable( $jetpack_autoloader ) ) {
-	require_once $jetpack_autoloader;
-	if ( method_exists( \Automattic\Jetpack\Assets::class, 'alias_textdomains_from_file' ) ) {
-		\Automattic\Jetpack\Assets::alias_textdomains_from_file( CLASSIC_THEME_PLUGIN_DIR . 'jetpack_vendor/i18n-map.php' );
-	}
-} else { // Something very unexpected. Error out gently with an admin_notice and exit loading.
-	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			__( 'Error loading autoloader file for Classic Theme Helper plugin', 'classic-theme-helper-plugin' )
-		);
-	}
-	return;
-}
-
 // Add "Settings" link to plugins page.
 add_filter(
 	'plugin_action_links_' . CLASSIC_THEME_PLUGIN_FOLDER . '/classic-theme-helper-plugin.php',
@@ -67,8 +51,6 @@ add_filter(
 		return $actions;
 	}
 );
-
-register_deactivation_hook( __FILE__, array( 'Classic_Theme_Helper_Plugin', 'plugin_deactivation' ) );
 
 // Main plugin class.
 new Classic_Theme_Helper_Plugin();
