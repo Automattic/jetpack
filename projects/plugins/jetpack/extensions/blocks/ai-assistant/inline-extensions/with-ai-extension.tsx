@@ -223,11 +223,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const getRequestMessages = ( {
 			promptType,
 			options,
-			userPrompt,
 		}: {
 			promptType: PromptTypeProp;
 			options?: AiAssistantDropdownOnChangeOptionsArgProps;
-			userPrompt?: string;
 		} ) => {
 			const blockContent = getContent();
 
@@ -239,7 +237,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					context: {
 						type: mapInternalPromptTypeToBackendPromptType( promptType, extension ),
 						content: blockContent,
-						request: userPrompt,
+						request: options?.userPrompt,
 						tone: options?.tone,
 						language: options?.language,
 					},
@@ -280,8 +278,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		const onUserRequest = ( userPrompt: string ) => {
 			const promptType = 'userPrompt';
-			const options = {};
-			const messages = getRequestMessages( { promptType, options, userPrompt } );
+			const options = { userPrompt };
+			const messages = getRequestMessages( { promptType, options } );
 
 			setLastRequest( { promptType, options } );
 
