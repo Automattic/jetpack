@@ -41,6 +41,7 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_block_theme_previews' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_command_palette' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_admin_interface' ) );
 
 		// This feature runs only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -289,5 +290,14 @@ class Jetpack_Mu_Wpcom {
 		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
 			require_once __DIR__ . '/features/wpcom-simple-odyssey-stats/wpcom-simple-odyssey-stats.php';
 		}
+	}
+
+	/**
+	 * Load WPCOM Admin Interface.
+	 *
+	 * @return void
+	 */
+	public static function load_wpcom_admin_interface() {
+		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
 	}
 }
