@@ -27,12 +27,12 @@
 			border-radius: 2px;
 			background-color: var( --jp-green-40 );
 
-			&.is-limit-reached {
+			&.warning {
 				background-color: var( --jp-yellow-10 );
+			}
 
-				&.require-upgrade {
-					background-color: var( --jp-red );
-				}
+			&.danger {
+				background-color: var( --jp-red );
 			}
 
 		}
@@ -41,5 +41,12 @@
 	.jetpack-ai-usage-panel__loading-placeholder {
 		background-color: var(--jp-gray-10);
 		margin-top: var( --spacing-base );
+	}
+
+	&__available-requests {
+		margin-top: 0;
+		margin-bottom: 8px;
+		font-size: 16px;
+		font-weight: 600;
 	}
 }

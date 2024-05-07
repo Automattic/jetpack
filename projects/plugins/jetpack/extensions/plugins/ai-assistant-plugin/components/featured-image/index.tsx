@@ -14,20 +14,18 @@ import { Icon, external } from '@wordpress/icons';
 import './style.scss';
 import UpgradePrompt from '../../../../blocks/ai-assistant/components/upgrade-prompt';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
-import {
-	PLAN_TYPE_FREE,
-	PLAN_TYPE_TIERED,
-	PLAN_TYPE_UNLIMITED,
-	usePlanType,
-} from '../../../../shared/use-plan-type';
+import { PLAN_TYPE_UNLIMITED, usePlanType } from '../../../../shared/use-plan-type';
 import usePostContent from '../../hooks/use-post-content';
 import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library';
+import {
+	PLACEMENT_JETPACK_SIDEBAR,
+	PLACEMENT_DOCUMENT_SETTINGS,
+} from '../ai-assistant-plugin-sidebar/types';
 import AiAssistantModal from '../modal';
 import Carrousel, { CarrouselImageData, CarrouselImages } from './carrousel';
 import UsageCounter from './usage-counter';
 
 const FEATURED_IMAGE_FEATURE_NAME = 'featured-post-image';
-export const FEATURED_IMAGE_PLACEMENT_JETPACK_SIDEBAR = 'jetpack-sidebar';
 export const FEATURED_IMAGE_PLACEMENT_MEDIA_SOURCE_DROPDOWN = 'media-source-dropdown';
 
 export default function FeaturedImage( {
@@ -66,18 +64,14 @@ export default function FeaturedImage( {
 	// Get feature data
 	const {
 		requireUpgrade,
-		requestsCount: allTimeRequestsCount,
-		requestsLimit: freeRequestsLimit,
-		usagePeriod,
+		requestsCount,
+		requestsLimit,
 		currentTier,
 		increaseRequestsCount,
 		costs,
 	} = useAiFeature();
 	const planType = usePlanType( currentTier );
 	const featuredImageCost = costs?.[ FEATURED_IMAGE_FEATURE_NAME ]?.image;
-	const requestsCount =
-		planType === PLAN_TYPE_TIERED ? usagePeriod?.requestsCount : allTimeRequestsCount;
-	const requestsLimit = planType === PLAN_TYPE_FREE ? freeRequestsLimit : currentTier?.limit;
 	const isUnlimited = planType === PLAN_TYPE_UNLIMITED;
 	const requestsBalance = requestsLimit - requestsCount;
 	const notEnoughRequests = requestsBalance < featuredImageCost;
@@ -105,16 +99,27 @@ export default function FeaturedImage( {
 	}, [ increaseRequestsCount, featuredImageCost ] );
 
 	/* Merge the image data with the new data. */
-	const updateImages = useCallback( ( data: CarrouselImageData, index ) => {
-		setImages( currentImages => {
-			const newImages = [ ...currentImages ];
-			newImages[ index ] = {
-				...newImages[ index ],
-				...data,
-			};
-			return newImages;
-		} );
-	}, [] );
+	const updateImages = useCallback(
+		( data: CarrouselImageData, index ) => {
+			setImages( currentImages => {
+				const newImages = [ ...currentImages ];
+				newImages[ index ] = {
+					...newImages[ index ],
+					...data,
+				};
+				return newImages;
+			} );
+
+			// Track errors so we can get more insight on the usage
+			if ( data.error ) {
+				recordEvent( 'jetpack_ai_featured_image_generation_error', {
+					placement,
+					error: data.error?.message,
+				} );
+			}
+		},
+		[ placement, recordEvent ]
+	);
 
 	const handlePreviousImage = useCallback( () => {
 		setCurrent( Math.max( current - 1, 0 ) );
@@ -136,7 +141,7 @@ export default function FeaturedImage( {
 				{
 					generating: false,
 					error: new Error(
-						__( "You don't have enough requests to generate another image", 'jetpack' )
+						__( "You don't have enough requests to generate another image.", 'jetpack' )
 					),
 				},
 				pointer.current
@@ -147,7 +152,15 @@ export default function FeaturedImage( {
 		// Ensure the user prompt or the post content are set.
 		if ( ! userPrompt && ! postContent ) {
 			updateImages(
-				{ generating: false, error: new Error( __( 'No content to generate image', 'jetpack' ) ) },
+				{
+					generating: false,
+					error: new Error(
+						__(
+							'No content to generate image. Please type custom instructions and try again.',
+							'jetpack'
+						)
+					),
+				},
 				pointer.current
 			);
 			return;
@@ -321,7 +334,8 @@ export default function FeaturedImage( {
 
 	return (
 		<div>
-			{ placement === FEATURED_IMAGE_PLACEMENT_JETPACK_SIDEBAR && (
+			{ ( placement === PLACEMENT_JETPACK_SIDEBAR ||
+				placement === PLACEMENT_DOCUMENT_SETTINGS ) && (
 				<>
 					<p>{ __( 'Create and use an AI generated featured image for your post.', 'jetpack' ) }</p>
 					<Button
@@ -351,6 +365,23 @@ export default function FeaturedImage( {
 								></textarea>
 							</div>
 						</div>
+						{ ( requireUpgrade || notEnoughRequests ) && ! currentPointer?.generating && (
+							<UpgradePrompt
+								description={
+									notEnoughRequests
+										? sprintf(
+												// Translators: %d is the cost of generating a featured image.
+												__(
+													"Featured image generation costs %d requests per image. You don't have enough requests to generate another image.",
+													'jetpack'
+												),
+												featuredImageCost
+										  )
+										: null
+								}
+								useLightNudge={ true }
+							/>
+						) }
 						<div className="ai-assistant-featured-image__actions">
 							<div className="ai-assistant-featured-image__actions-left">
 								{ ! isUnlimited && featuredImageCost && requestsLimit && (
@@ -364,7 +395,11 @@ export default function FeaturedImage( {
 							<div className="ai-assistant-featured-image__actions-right">
 								<div className="ai-assistant-featured-image__action-buttons">
 									{ currentPointer?.error ? (
-										<Button onClick={ handleTryAgain } variant="secondary">
+										<Button
+											onClick={ handleTryAgain }
+											variant="secondary"
+											disabled={ ! userPrompt && ! postContent }
+										>
 											{ __( 'Try again', 'jetpack' ) }
 										</Button>
 									) : (
@@ -373,7 +408,11 @@ export default function FeaturedImage( {
 												onClick={ handleRegenerate }
 												variant="secondary"
 												isBusy={ currentPointer?.generating }
-												disabled={ notEnoughRequests || currentPointer?.generating }
+												disabled={
+													notEnoughRequests ||
+													currentPointer?.generating ||
+													( ! userPrompt && ! postContent )
+												}
 											>
 												{ __( 'Generate again', 'jetpack' ) }
 											</Button>
@@ -383,22 +422,6 @@ export default function FeaturedImage( {
 							</div>
 						</div>
 						<div className="ai-assistant-featured-image__image-canvas">
-							{ ( requireUpgrade || notEnoughRequests ) && ! currentPointer?.generating && (
-								<UpgradePrompt
-									description={
-										notEnoughRequests
-											? sprintf(
-													// Translators: %d is the cost of generating a featured image.
-													__(
-														"Featured image generation costs %d requests per image. You don't have enough requests to generate another image.",
-														'jetpack'
-													),
-													featuredImageCost
-											  )
-											: null
-									}
-								/>
-							) }
 							<Carrousel
 								images={ images }
 								current={ current }

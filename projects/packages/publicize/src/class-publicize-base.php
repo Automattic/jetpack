@@ -466,6 +466,18 @@ abstract class Publicize_Base {
 			return 'https://facebook.com/' . $cmeta['connection_data']['meta']['facebook_page'];
 		}
 
+		if ( 'instagram-business' === $service_name && isset( $cmeta['connection_data']['meta']['username'] ) ) {
+			return 'https://instagram.com/' . $cmeta['connection_data']['meta']['username'];
+		}
+
+		if ( 'mastodon' === $service_name && isset( $cmeta['external_name'] ) ) {
+			return 'https://mastodon.social/@' . $cmeta['external_name'];
+		}
+
+		if ( 'nextdoor' === $service_name && isset( $cmeta['external_id'] ) ) {
+			return 'https://nextdoor.com/profile/' . $cmeta['external_id'];
+		}
+
 		if ( 'tumblr' === $service_name && isset( $cmeta['connection_data']['meta']['tumblr_base_hostname'] ) ) {
 			return 'https://' . $cmeta['connection_data']['meta']['tumblr_base_hostname'];
 		}

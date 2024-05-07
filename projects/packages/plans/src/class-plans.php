@@ -11,6 +11,8 @@
 
 namespace Automattic\Jetpack;
 
+use Store_Product_List;
+
 /**
  * Fetch data about available Plans from WordPress.com
  */

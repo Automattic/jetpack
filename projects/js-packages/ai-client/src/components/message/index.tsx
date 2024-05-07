@@ -39,7 +39,7 @@ export type MessageProps = {
 
 export type UpgradeMessageProps = {
 	requestsRemaining: number;
-	onUpgradeClick: () => void;
+	onUpgradeClick: ( event?: React.MouseEvent< HTMLButtonElement > ) => void;
 };
 
 export type ErrorMessageProps = {

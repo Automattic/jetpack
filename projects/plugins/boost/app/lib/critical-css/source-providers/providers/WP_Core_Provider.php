@@ -39,7 +39,7 @@ class WP_Core_Provider extends Provider {
 
 		$posts_page = get_option( 'page_for_posts' );
 		if ( ! empty( $posts_page ) ) {
-			$permalink = get_permalink( $front_page );
+			$permalink = get_permalink( $posts_page );
 			if ( ! empty( $permalink ) ) {
 				$urls['posts_page'] = array( $permalink );
 			}
