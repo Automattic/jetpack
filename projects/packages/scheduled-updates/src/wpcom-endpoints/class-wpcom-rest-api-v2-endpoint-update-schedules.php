@@ -175,6 +175,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return $result;
 		}
 
+		$verified_plugins = apply_filters( 'jetpack_scheduled_update_verify_plugins', $request['plugins'] );
+
+		if ( is_wp_error( $verified_plugins ) ) {
+			return $verified_plugins;
+		}
+
 		$schedule = $request['schedule'];
 		$plugins  = $request['plugins'];
 		usort( $plugins, 'strnatcasecmp' );
@@ -264,6 +270,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$result = $this->validate_schedule( $request );
 		if ( is_wp_error( $result ) ) {
 			return $result;
+		}
+
+		$verified_plugins = apply_filters( 'jetpack_scheduled_update_verify_plugins', $request['plugins'] );
+
+		if ( is_wp_error( $verified_plugins ) ) {
+			return $verified_plugins;
 		}
 
 		$deleted = $this->delete_item( $request );

@@ -1,9 +1,8 @@
 import { useBlockProps } from '@wordpress/block-editor';
-import classNames from 'classnames';
-import { getActiveStyleName } from '../../shared/block-styles';
-import { LAYOUT_STYLES } from './constants';
-import { defaultColumnsNumber } from './edit';
-import Layout from './layout';
+import { getActiveStyleName } from '../../../../shared/block-styles';
+import { LAYOUT_STYLES } from '../../constants';
+import { defaultColumnsNumber } from '../../edit';
+import Layout from '../../layout';
 
 export default function TiledGallerySave( { attributes } ) {
 	const { imageFilter, images } = attributes;
@@ -23,9 +22,10 @@ export default function TiledGallerySave( { attributes } ) {
 	} = attributes;
 
 	return (
-		<div { ...blockProps } className={ classNames( blockProps.className, className ) }>
+		<div { ...blockProps }>
 			<Layout
 				align={ align }
+				className={ className }
 				columns={ columns }
 				imageFilter={ imageFilter }
 				images={ images }
