@@ -158,15 +158,8 @@ class WP_Test_Jetpack_Google_Analytics extends TestCase {
 		$instance->insert_code();
 		$actual = ob_get_clean();
 
-		$this->assertStringContainsString(
-			'gtag( "event", "jetpack_testing_event", {"event_category":"somecat","event_label":"somelabel","value":"someval"} )',
-			$actual
-		);
-
-		$this->assertStringContainsString(
-			'gtag( "event", "another_jetpack_testing_event", {"event_category":"foo","event_label":"bar","value":"baz"} );',
-			$actual
-		);
+		$this->assertTrue( false !== strpos( $actual, 'gtag( "event", "jetpack_testing_event", {"event_category":"somecat","event_label":"somelabel","value":"someval"} )' ) );
+		$this->assertTrue( false !== strpos( $actual, 'gtag( "event", "another_jetpack_testing_event", {"event_category":"foo","event_label":"bar","value":"baz"} );' ) );
 	}
 
 	/**
