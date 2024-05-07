@@ -53,3 +53,14 @@ tr:not(:last-child) > td {
 .column-description {
 	padding-inline-end: 6rem;
 }
+
+.column-actions {
+	display: grid;
+	grid-auto-flow: column;
+}
+
+.chevron-button.chevron-button.chevron-button {
+	padding-inline-start: 0.5rem;
+	padding-inline-end: 0.5rem;
+	margin-inline-start: 0.4rem;
+}

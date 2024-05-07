@@ -1,7 +1,7 @@
 import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, chevronRight } from '@wordpress/icons';
+import { Icon, chevronDown } from '@wordpress/icons';
 import classNames from 'classnames';
 import { useCallback, useState } from 'react';
 import { ConnectPage } from './connect-page/connect-page';
@@ -56,22 +56,33 @@ const AddConnectionModal = ( { onCloseModal } ) => {
 						{ getSupportedConnections().map( service => (
 							<tr key={ service.name }>
 								<td>
-									<service.icon iconSize={ 48 } />
+									<service.icon iconSize={ isSmall ? 36 : 48 } />
 								</td>
-								<td className={ styles[ 'column-description' ] }>
+								<td
+									className={ classNames( styles[ 'column-description' ], {
+										[ styles.small ]: ! isSmall,
+									} ) }
+								>
 									<h2 className={ styles.title }>{ service.title }</h2>
 									{ ! isSmall ? (
 										<p className={ styles.description }>{ service.description }</p>
 									) : null }
 								</td>
 								<td>
-									<Button
-										variant="secondary"
-										onClick={ onServiceSelected( service ) }
-										aria-label={ __( 'Select service', 'jetpack' ) }
-									>
-										{ <Icon className={ styles.chevron } icon={ chevronRight } /> }
-									</Button>
+									<div className={ styles[ 'column-actions' ] }>
+										<Button type="submit" variant="primary" size={ isSmall ? 'small' : 'normal' }>
+											{ __( 'Connect', 'jetpack' ) }
+										</Button>
+										<Button
+											size={ isSmall ? 'small' : 'normal' }
+											className={ styles[ 'chevron-button' ] }
+											variant="secondary"
+											onClick={ onServiceSelected( service ) }
+											aria-label={ __( 'Select service', 'jetpack' ) }
+										>
+											{ <Icon className={ styles.chevron } icon={ chevronDown } /> }
+										</Button>
+									</div>
 								</td>
 							</tr>
 						) ) }
