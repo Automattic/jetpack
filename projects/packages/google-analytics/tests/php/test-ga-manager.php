@@ -150,7 +150,7 @@ class WP_Test_Jetpack_Google_Analytics extends TestCase {
 
 		// Mock `Jetpack_Google_Analytics_Legacy` instance to disable the constructor class.
 		$instance = $this->getMockBuilder( Legacy::class )
-			->setMethods( null )
+			->onlyMethods( array() )
 			->disableOriginalConstructor()
 			->getMock();
 
