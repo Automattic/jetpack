@@ -1,17 +1,21 @@
 document.addEventListener( 'DOMContentLoaded', function () {
 	document
-		.querySelectorAll( '.jetpack-sso-invitation-tooltip-icon, #user_jetpack' )
+		.querySelectorAll( '.jetpack-sso-invitation-tooltip-icon' )
 		.forEach( function ( tooltip ) {
 			tooltip.innerHTML += ' [?]';
+
+			const tooltipTextbox = document.createElement( 'span' );
+			tooltipTextbox.classList.add( 'jetpack-sso-invitation-tooltip', 'jetpack-sso-th-tooltip' );
+
+			const tooltipString = window.Jetpack_SSOTooltip.tooltipString;
+			tooltipTextbox.innerHTML += tooltipString;
+
 			tooltip.addEventListener( 'mouseenter', function () {
-				this.querySelector( '.jetpack-sso-invitation-tooltip' ).style.display = 'block';
+				tooltip.appendChild( tooltipTextbox );
+				tooltipTextbox.style.display = 'block';
 			} );
 			tooltip.addEventListener( 'mouseleave', function () {
-				this.querySelector( '.jetpack-sso-invitation-tooltip' ).style.display = 'none';
+				tooltip.removeChild( tooltipTextbox );
 			} );
 		} );
-	document.querySelectorAll( '.jetpack-sso-th-tooltip' ).forEach( function ( tooltip_textbox ) {
-		const tooltipString = window.Jetpack_SSOTooltip.tooltip_string;
-		tooltip_textbox.innerHTML += tooltipString;
-	} );
 } );

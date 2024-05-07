@@ -966,12 +966,12 @@ class User_Admin {
 
 		wp_add_inline_script(
 			'jetpack-sso-users',
-			"var Jetpack_SSOTooltip = { 'tooltip_string': '{$tooltip_string}' }",
+			"var Jetpack_SSOTooltip = { 'tooltipString': '{$tooltip_string}' }",
 			'before'
 		);
 
 		$columns['user_jetpack'] = sprintf(
-			'<span class="jetpack-sso-invitation-tooltip-icon" role="tooltip" aria-label="%3$s: %1$s" tabindex="0">%2$s<span class="jetpack-sso-invitation-tooltip jetpack-sso-th-tooltip"></span></span>',
+			'<span class="jetpack-sso-invitation-tooltip-icon jetpack-sso-status-column" role="tooltip" aria-label="%3$s: %1$s" tabindex="0">%2$s</span>',
 			$tooltip_string,
 			esc_html__( 'SSO Status', 'jetpack-connection' ),
 			esc_attr__( 'Tooltip', 'jetpack-connection' )
