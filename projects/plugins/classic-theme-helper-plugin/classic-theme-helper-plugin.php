@@ -2,7 +2,7 @@
 /**
  *
  * Plugin Name: Classic Theme Helper Plugin
- * Plugin URI: https://wordpress.org/plugins/classic-theme-helper-plugin
+ * Plugin URI: https://jetpack.com/
  * Description: Features for classic themes.
  * Version: 0.1.0-alpha
  * Author: Automattic
@@ -41,18 +41,6 @@ define( 'CLASSIC_THEME_HELPER_PLUGIN_NAME', 'Classic Theme Helper Plugin' );
 define( 'CLASSIC_THEME_HELPER_PLUGIN_URI', 'https://jetpack.com' );
 define( 'CLASSIC_THEME_HELPER_PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
 
-// Jetpack Autoloader.
-$jetpack_autoloader = CLASSIC_THEME_HELPER_PLUGIN_DIR . 'vendor/autoload_packages.php';
-if ( is_readable( $jetpack_autoloader ) ) {
-	require_once $jetpack_autoloader;
-	if ( method_exists( \Automattic\Jetpack\Assets::class, 'alias_textdomains_from_file' ) ) {
-		\Automattic\Jetpack\Assets::alias_textdomains_from_file( CLASSIC_THEME_HELPER_PLUGIN_DIR . 'jetpack_vendor/i18n-map.php' );
-	}
-} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) { // Something very unexpected. Error out gently with an admin_notice and exit loading.
-		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			__( 'Error loading autoloader file for Classic Theme Helper Plugin plugin', 'classic-theme-helper-plugin' )
-		);
-}
 // Add "Settings" link to plugins page.
 add_filter(
 	'plugin_action_links_' . CLASSIC_THEME_HELPER_PLUGIN_FOLDER . '/classic-theme-helper-plugin.php',
@@ -63,6 +51,3 @@ add_filter(
 		return $actions;
 	}
 );
-
-// Main plugin class.
-new Classic_Theme_Helper_Plugin();
