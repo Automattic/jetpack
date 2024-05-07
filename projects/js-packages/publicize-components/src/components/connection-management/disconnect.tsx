@@ -7,7 +7,11 @@ import { Connection } from '../../social-store/types';
 
 export type DisconnectProps = {
 	connection: Connection;
-	onReconnect?: VoidFunction;
+	label?: string;
+	onDisconnect?: VoidFunction;
+	showSuccessNotice?: boolean;
+	variant?: React.ComponentProps< typeof Button >[ 'variant' ];
+	isDestructive?: boolean;
 };
 
 /**
@@ -17,7 +21,14 @@ export type DisconnectProps = {
  *
  * @returns {import('react').ReactNode} - React element
  */
-export function Disconnect( { connection, onReconnect }: DisconnectProps ) {
+export function Disconnect( {
+	connection,
+	label,
+	onDisconnect,
+	showSuccessNotice = true,
+	variant = 'secondary',
+	isDestructive = true,
+}: DisconnectProps ) {
 	const { deleteConnectionById } = useDispatch( socialStore );
 
 	const { deletingConnection } = useSelect( select => {
@@ -28,45 +39,33 @@ export function Disconnect( { connection, onReconnect }: DisconnectProps ) {
 		};
 	}, [] );
 
-	const mustReconnect = connection.status !== 'ok';
-	const isDisconnectingThis = deletingConnection === connection.connection_id;
-	const isDisconnectingAny = Boolean( deletingConnection );
-
-	const onDisconnect = useCallback( () => {
-		deleteConnectionById( {
+	const onClickDisconnect = useCallback( async () => {
+		await deleteConnectionById( {
 			connectionId: connection.connection_id,
-			// We don't want to show the success notice if we're going to reconnect
-			showSuccessNotice: ! mustReconnect,
+			showSuccessNotice,
 		} );
 
-		if ( mustReconnect ) {
-			onReconnect?.();
-		}
-	}, [ connection.connection_id, deleteConnectionById, mustReconnect, onReconnect ] );
+		onDisconnect?.();
+	}, [ connection.connection_id, deleteConnectionById, onDisconnect, showSuccessNotice ] );
 
 	if ( ! connection.can_disconnect ) {
 		return null;
 	}
 
+	const isDisconnectingThis = deletingConnection === connection.connection_id;
+	const isDisconnectingAny = Boolean( deletingConnection );
+
 	return (
 		<Button
 			size="small"
-			variant="secondary"
-			onClick={ onDisconnect }
+			onClick={ onClickDisconnect }
 			disabled={ isDisconnectingAny }
+			variant={ variant }
+			isDestructive={ isDestructive }
 		>
-			{ ( ( needsReconnection, isDisconnecting ) => {
-				if ( needsReconnection ) {
-					// Use _x to avoid messed up minification
-					return isDisconnecting
-						? __( 'Reconnecting…', 'jetpack' )
-						: _x( 'Reconnect', 'Reconnect a social media account', 'jetpack' );
-				}
-
-				return isDisconnecting
-					? __( 'Disconnecting…', 'jetpack' )
-					: _x( 'Disconnect', 'Disconnect a social media account', 'jetpack' );
-			} )( mustReconnect, isDisconnectingThis ) }
+			{ isDisconnectingThis
+				? __( 'Disconnecting…', 'jetpack' )
+				: label || _x( 'Disconnect', 'Disconnect a social media account', 'jetpack' ) }
 		</Button>
 	);
 }
