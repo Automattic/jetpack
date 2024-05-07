@@ -286,15 +286,17 @@ class Jetpack_Plugin_Compatibility {
 		// We don't apply the standard Core 'all_plugins' filter, so we are truly looking at all standard plugins.
 		$standard_plugins = get_plugins();
 
-		$incompatible_plugins = array();
+		$disallowed_plugins = $this->get_disallowed_plugins();
+
+		$incompatible_plugins_on_site = array();
 
 		foreach ( $standard_plugins as $plugin_file => $plugin_details ) {
-			if ( ! array_key_exists( $plugin_file, $this->incompatible_plugins ) ) {
+			if ( ! array_key_exists( $plugin_file, $disallowed_plugins ) ) {
 				continue;
 			}
 
-			$incompatible_plugins[ $plugin_file ] = array(
-				'message' => $this->incompatible_plugins[ $plugin_file ],
+			$incompatible_plugins_on_site[ $plugin_file ] = array(
+				'message' => $disallowed_plugins[ $plugin_file ],
 				'details' => $plugin_details,
 				'status'  => $this->get_plugin_status( $plugin_file ),
 			);
@@ -303,18 +305,35 @@ class Jetpack_Plugin_Compatibility {
 		$mu_plugins = get_mu_plugins();
 
 		foreach ( $mu_plugins as $mu_plugin_file => $mu_plugin_details ) {
-			if ( ! array_key_exists( $mu_plugin_file, $this->incompatible_plugins ) ) {
+			if ( ! array_key_exists( $mu_plugin_file, $disallowed_plugins ) ) {
 				continue;
 			}
 
-			$incompatible_plugins[ $mu_plugin_file ] = array(
-				'message' => $this->incompatible_plugins[ $mu_plugin_file ],
+			$incompatible_plugins_on_site[ $mu_plugin_file ] = array(
+				'message' => $disallowed_plugins[ $mu_plugin_file ],
 				'details' => $mu_plugin_details,
 				'status'  => 'must-use',
 			);
 		}
 
-		return $incompatible_plugins;
+		return $incompatible_plugins_on_site;
+	}
+
+	/**
+	 * Helper function to return disallowed plugins.
+	 * When possible, this function will include platform-level plugins.
+	 *
+	 * @return string[]
+	 */
+	protected function get_disallowed_plugins(): array {
+		if ( ! class_exists( 'Atomic_Platform_Mu_Plugin' ) || ! method_exists( 'Atomic_Platform_Mu_Plugin', 'get_disallowed_plugins' ) ) {
+			return $this->incompatible_plugins;
+		}
+
+		$platform_mu_plugin = new Atomic_Platform_Mu_Plugin();
+
+		// We prefer product-level messages to platform messages when there are conflicts.
+		return array_merge( $platform_mu_plugin->get_disallowed_plugins(), $this->incompatible_plugins );
 	}
 
 	/**
