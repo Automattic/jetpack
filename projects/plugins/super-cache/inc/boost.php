@@ -48,5 +48,6 @@ function wpsc_delete_boost_loader_form() {
  */
 function wpsc_delete_boost_loader() {
 	global $wpsc_advanced_cache_filename;
-	return wp_delete_file( $wpsc_advanced_cache_filename );
+	// Cannot use wp_delete_file() because it doesn't return a boolean.
+	return @unlink( $wpsc_advanced_cache_filename ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.unlink_unlink
 }
