@@ -125,6 +125,7 @@ class Full_Sync extends Module {
 			}
 
 			if ( 'users' === $module_name && 'initial' === $module_config ) {
+				'@phan-var Users $module';
 				$module_config = $module->get_initial_sync_user_config();
 			}
 
