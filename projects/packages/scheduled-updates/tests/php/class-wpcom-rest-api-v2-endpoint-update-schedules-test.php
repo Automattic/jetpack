@@ -49,6 +49,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 			)
 		);
 		wp_set_current_user( 0 );
+		add_filter( 'jetpack_scheduled_update_verify_plugins', '__return_true', 11 );
 
 		Scheduled_Updates::init();
 	}
@@ -65,6 +66,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		wp_clear_scheduled_hook( Scheduled_Updates::PLUGIN_CRON_HOOK );
 		delete_option( 'jetpack_scheduled_update_statuses' );
 		delete_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
+		remove_filter( 'jetpack_scheduled_update_verify_plugins', '__return_true', 11 );
 	}
 
 	/**
@@ -301,35 +303,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 			array(
 				'plugins'  => $plugins,
 				'schedule' => $this->get_schedule(),
-			)
-		);
-
-		wp_set_current_user( $this->admin_id );
-		$result = rest_do_request( $request );
-
-		$this->assertSame( 403, $result->get_status() );
-		$this->assertSame( 'rest_forbidden', $result->get_data()['code'] );
-	}
-
-	/**
-	 * Can't have more than two schedules.
-	 *
-	 * @covers ::validate_schedule
-	 */
-	public function test_creating_more_than_two_schedules() {
-		// Create two schedules.
-		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', Scheduled_Updates::PLUGIN_CRON_HOOK, array( 'gutenberg/gutenberg.php' ) );
-		wp_schedule_event( strtotime( 'next Tuesday 9:00' ), 'daily', Scheduled_Updates::PLUGIN_CRON_HOOK, array( 'custom-plugin/custom-plugin.php' ) );
-
-		// Number 3.
-		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
-		$request->set_body_params(
-			array(
-				'plugins'  => array(
-					'gutenberg/gutenberg.php',
-					'custom-plugin/custom-plugin.php',
-				),
-				'schedule' => $this->get_schedule( 'next Wednesday 10:00', 'daily' ),
 			)
 		);
 

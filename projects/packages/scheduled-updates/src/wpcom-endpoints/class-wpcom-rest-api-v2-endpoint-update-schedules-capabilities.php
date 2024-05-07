@@ -33,8 +33,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities extends WP_REST_C
 	 * WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities constructor.
 	 */
 	public function __construct() {
-		// Priority 9 to run before the main endpoint and avoid "/capabilities" being treated as a schedule ID.
-		add_action( 'rest_api_init', array( $this, 'register_routes' ), 9 );
+		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
 	/**

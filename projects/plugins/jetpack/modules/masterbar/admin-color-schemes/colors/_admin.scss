@@ -332,7 +332,7 @@ textarea:focus {
 
 ul#adminmenu a.wp-has-current-submenu:after,
 ul#adminmenu > li.current > a.current:after {
-    border-right-color: $body-background;
+    border-inline-end-color: $body-background;
 }
 
 #adminmenu li.current a.menu-top,

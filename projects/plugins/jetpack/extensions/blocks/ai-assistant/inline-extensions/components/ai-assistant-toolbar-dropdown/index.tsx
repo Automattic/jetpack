@@ -35,8 +35,8 @@ function AiAssistantExtensionToolbarDropdownContent( {
 	onAskAiAssistant,
 	onRequestSuggestion,
 }: AiAssistantExtensionToolbarDropdownContentProps ) {
-	const handleRequestSuggestion: OnRequestSuggestion = ( promptType, options ) => {
-		onRequestSuggestion?.( promptType, options );
+	const handleRequestSuggestion: OnRequestSuggestion = ( ...args ) => {
+		onRequestSuggestion?.( ...args );
 		onClose?.();
 	};
 

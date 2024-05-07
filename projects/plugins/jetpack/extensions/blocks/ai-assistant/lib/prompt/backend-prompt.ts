@@ -50,7 +50,7 @@ export function buildInitialMessageForBackendPrompt( promptType: PromptTypeProp 
  * @param {string} relevantContent - The relevant content.
  * @returns {PromptItemProps} The initial message.
  */
-function buildRelevantContentMessageForBackendPrompt(
+export function buildRelevantContentMessageForBackendPrompt(
 	isContentGenerated?: boolean,
 	relevantContent?: string | null
 ): PromptItemProps | null {
@@ -172,7 +172,7 @@ function getSubject(
  * @param {BuildPromptProps} options - The prompt options.
  * @returns {object} The context.
  */
-function buildMessageContextForUserPrompt( {
+export function buildMessageContextForUserPrompt( {
 	options,
 	type,
 	userPrompt,
@@ -205,9 +205,13 @@ function buildMessageContextForUserPrompt( {
  * Maps the internal prompt type to the backend prompt type.
  *
  * @param {PromptTypeProp} promptType - The internal type of the prompt.
- * @returns {string} The backend type of the prompt.
+ * @param {string} extension          - The extension of the prompt, if any.
+ * @returns {string}                    The backend type of the prompt.
  */
-function mapInternalPromptTypeToBackendPromptType( promptType: PromptTypeProp ): string {
+export function mapInternalPromptTypeToBackendPromptType(
+	promptType: PromptTypeProp,
+	extension?: string
+): string {
 	const map = {
 		[ PROMPT_TYPE_SUMMARY_BY_TITLE ]: 'ai-assistant-summary-by-title',
 		[ PROMPT_TYPE_CONTINUE ]: 'ai-assistant-continue-writing',
@@ -221,6 +225,10 @@ function mapInternalPromptTypeToBackendPromptType( promptType: PromptTypeProp ):
 		[ PROMPT_TYPE_CHANGE_LANGUAGE ]: 'ai-assistant-change-language',
 		[ PROMPT_TYPE_USER_PROMPT ]: 'ai-assistant-user-prompt',
 	};
+
+	if ( extension ) {
+		return `${ map[ promptType ] }-${ extension }-extension`;
+	}
 
 	return map[ promptType ];
 }
