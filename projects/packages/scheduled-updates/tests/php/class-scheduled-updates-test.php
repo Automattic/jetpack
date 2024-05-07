@@ -681,12 +681,12 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
 		$request->set_body_params(
 			array(
-				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Monday 8:00' ),
-					'interval'           => 'weekly',
-					'health_check_paths' => array(),
+				'plugins'            => $plugins,
+				'schedule'           => array(
+					'timestamp' => strtotime( 'next Monday 8:00' ),
+					'interval'  => 'weekly',
 				),
+				'health_check_paths' => array(),
 			)
 		);
 
@@ -726,12 +726,12 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
 		$request->set_body_params(
 			array(
-				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Monday 8:00' ),
-					'interval'           => 'weekly',
-					'health_check_paths' => array(),
+				'plugins'            => $plugins,
+				'schedule'           => array(
+					'timestamp' => strtotime( 'next Monday 8:00' ),
+					'interval'  => 'weekly',
 				),
+				'health_check_paths' => array(),
 			)
 		);
 
@@ -776,12 +776,12 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
 		$request->set_body_params(
 			array(
-				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Monday 8:00' ),
-					'interval'           => 'weekly',
-					'health_check_paths' => array(),
+				'plugins'            => $plugins,
+				'schedule'           => array(
+					'timestamp' => strtotime( 'next Monday 8:00' ),
+					'interval'  => 'weekly',
 				),
+				'health_check_paths' => array(),
 			)
 		);
 

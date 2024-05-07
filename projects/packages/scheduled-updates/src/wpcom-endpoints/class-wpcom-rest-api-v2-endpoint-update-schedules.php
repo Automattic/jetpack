@@ -175,12 +175,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return $result;
 		}
 
-		$verified_plugins = apply_filters( 'jetpack_scheduled_update_verify_plugins', $request['plugins'] );
-
-		if ( is_wp_error( $verified_plugins ) ) {
-			return $verified_plugins;
-		}
-
 		$schedule = $request['schedule'];
 		$plugins  = $request['plugins'];
 		usort( $plugins, 'strnatcasecmp' );
@@ -270,12 +264,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$result = $this->validate_schedule( $request );
 		if ( is_wp_error( $result ) ) {
 			return $result;
-		}
-
-		$verified_plugins = apply_filters( 'jetpack_scheduled_update_verify_plugins', $request['plugins'] );
-
-		if ( is_wp_error( $verified_plugins ) ) {
-			return $verified_plugins;
 		}
 
 		// Prevent the sync option to be updated during deletion. This will ensure that the sync is performed only once.
@@ -395,6 +383,41 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		unset( $item['schedule_id'] );
 
 		return rest_ensure_response( $item );
+	}
+
+	/**
+	 * Checks that the "plugins" parameter is not empty.
+	 *
+	 * @param array           $plugins List of plugins to update.
+	 * @param WP_REST_Request $request Request object.
+	 * @param string          $param   The parameter name.
+	 * @return bool|WP_Error
+	 */
+	public function validate_plugins_param( $plugins, $request, $param ) {
+		$result = rest_validate_request_arg( $plugins, $request, $param );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		$installed_plugins = array_filter( $plugins, array( Scheduled_Updates::class, 'is_plugin_installed' ) );
+		if ( empty( $installed_plugins ) ) {
+			return new \WP_Error(
+				'rest_forbidden',
+				__( 'None of the specified plugins are installed.', 'jetpack-scheduled-updates' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		$unmanaged_plugins = array_diff( $plugins, array_filter( $plugins, array( Scheduled_Updates::class, 'is_plugin_managed' ) ) );
+		if ( empty( $unmanaged_plugins ) ) {
+			return new \WP_Error(
+				'rest_forbidden',
+				__( 'All of the specified plugins are managed.', 'jetpack-scheduled-updates' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		return true;
 	}
 
 	/**
@@ -532,6 +555,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 					'description' => 'List of plugin slugs to update.',
 					'type'        => 'array',
 					'maxItems'    => 10,
+					'arg_options' => array(
+						'validate_callback' => array( $this, 'validate_plugins_param' ),
+					),
 					'items'       => array(
 						'type'        => 'string',
 						'arg_options' => array(
