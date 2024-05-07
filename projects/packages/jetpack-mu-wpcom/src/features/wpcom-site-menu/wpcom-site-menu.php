@@ -86,15 +86,6 @@ function wpcom_add_wpcom_menu_item() {
 
 	add_submenu_page(
 		$parent_slug,
-		esc_attr__( 'Site Overview', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Site Overview', 'jetpack-mu-wpcom' ) . ' <span class="dashicons dashicons-external"></span>',
-		'manage_options',
-		esc_url( "https://wordpress.com/hosting/$domain" ),
-		null
-	);
-
-	add_submenu_page(
-		$parent_slug,
 		esc_attr__( 'Plans', 'jetpack-mu-wpcom' ),
 		esc_attr__( 'Plans', 'jetpack-mu-wpcom' ),
 		'manage_options',
@@ -137,6 +128,24 @@ function wpcom_add_wpcom_menu_item() {
 		esc_attr__( 'Purchases', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		esc_url( "https://wordpress.com/purchases/subscriptions/$domain" ),
+		null
+	);
+
+	add_submenu_page(
+		$parent_slug,
+		esc_attr__( 'Configuration', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Configuration', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		esc_url( "https://wordpress.com/hosting-config/$domain" ),
+		null
+	);
+
+	add_submenu_page(
+		$parent_slug,
+		esc_attr__( 'Monitoring', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Monitoring', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		esc_url( "https://wordpress.com/site-monitoring/$domain" ),
 		null
 	);
 
@@ -230,19 +239,41 @@ function wpcom_site_menu_enqueue_scripts() {
 			$link = 'https://wordpress.com' . $link;
 		}
 
-		wp_localize_script(
+		$user_id    = null;
+		$user_login = null;
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			global $current_user;
+			$user_id    = $current_user->ID;
+			$user_login = $current_user->user_login;
+		} else {
+			$connection_manager = new Connection_Manager();
+			$wpcom_user_data    = $connection_manager->get_connected_user_data();
+			if ( $wpcom_user_data ) {
+				$user_id    = $wpcom_user_data['ID'];
+				$user_login = $wpcom_user_data['login'];
+			}
+		}
+
+		$data = array(
+			'url'          => esc_url( $link ),
+			'text'         => wp_kses( $notice['content'], array() ),
+			'action'       => wp_kses( $notice['cta'], array() ),
+			'dismissible'  => $notice['dismissible'],
+			'dismissLabel' => esc_html__( 'Dismiss', 'jetpack-mu-wpcom' ),
+			'id'           => $notice['id'],
+			'featureClass' => $notice['feature_class'],
+			'dismissNonce' => wp_create_nonce( 'wpcom_dismiss_sidebar_notice' ),
+			'tracks'       => $notice['tracks'],
+			'user'         => array(
+				'ID'       => $user_id,
+				'username' => $user_login,
+			),
+		);
+
+		wp_add_inline_script(
 			'wpcom-site-menu',
-			'wpcomSidebarNotice',
-			array(
-				'url'          => esc_url( $link ),
-				'text'         => wp_kses( $notice['content'], array() ),
-				'action'       => wp_kses( $notice['cta'], array() ),
-				'dismissible'  => $notice['dismissible'],
-				'dismissLabel' => esc_html__( 'Dismiss', 'jetpack-mu-wpcom' ),
-				'id'           => $notice['id'],
-				'featureClass' => $notice['feature_class'],
-				'dismissNonce' => wp_create_nonce( 'wpcom_dismiss_sidebar_notice' ),
-			)
+			'window.wpcomSidebarNotice = ' . wp_json_encode( $data ) . ';'
 		);
 	}
 }
@@ -285,6 +316,7 @@ function wpcom_get_sidebar_notice() {
 		'dismissible'   => $message->is_dismissible,
 		'feature_class' => $message->feature_class,
 		'id'            => $message->id,
+		'tracks'        => $message->tracks ?? null,
 	);
 }
 
@@ -436,7 +468,7 @@ function wpcom_add_hosting_menu_intro_notice() {
 		<div>
 			<span class="title"><?php esc_html_e( 'WordPress.com', 'jetpack-mu-wpcom' ); ?></span><br />
 			<span>
-				<?php esc_html_e( 'Click "Hosting" in the sidebar to access the site overview and settings for plans, domains, emails, etc.', 'jetpack-mu-wpcom' ); ?>
+				<?php esc_html_e( 'To access settings for plans, domains, emails, etc., click "Hosting" in the sidebar.', 'jetpack-mu-wpcom' ); ?>
 			</span>
 		</div>
 		<a href="#" class="close-button" aria-label=<?php echo esc_attr__( 'Dismiss', 'jetpack-mu-wpcom' ); ?>>
