@@ -62,7 +62,7 @@
 - Donations Block: Show Stripe nudge if not connected. [#36841]
 - Enhanced Distribution: Remove deprecated module file. [#37032]
 - Eventbrite Block: Refactor Edit component to function. [#36739]
-- Featured Image: Add 'Carrousel' in 'Featured Image'. [#36834]
+- Featured Image: Add 'Carousel' to 'Featured Image'. [#36834]
 - Google Docs Embed: Fix non localized strings. [#36993]
 - Google Fonts: Add filter to conditionally skip loading. [#36980]
 - I18n: Fix translation issues for default attributes. [#36695]
