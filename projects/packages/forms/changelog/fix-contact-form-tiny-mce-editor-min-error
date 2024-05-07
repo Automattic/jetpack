@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Contact Form: Prevent an editor error when using the Classic Editor and contact forms are enabled
