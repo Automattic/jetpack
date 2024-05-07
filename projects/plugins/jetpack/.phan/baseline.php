@@ -16,7 +16,7 @@ return [
     // PhanNoopNew : 200+ occurrences
     // PhanTypeMismatchReturn : 160+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 150+ occurrences
-    // PhanDeprecatedFunction : 140+ occurrences
+    // PhanDeprecatedFunction : 130+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 110+ occurrences
     // PhanTypeArraySuspiciousNullable : 95+ occurrences
     // PhanRedundantCondition : 70+ occurrences
@@ -28,8 +28,8 @@ return [
     // PhanTypeExpectedObjectPropAccess : 45+ occurrences
     // PhanTypeMismatchArgumentInternal : 45+ occurrences
     // PhanPluginDuplicateAdjacentStatement : 40+ occurrences
-    // PhanTypeInvalidDimOffset : 35+ occurrences
     // PhanUndeclaredProperty : 35+ occurrences
+    // PhanTypeInvalidDimOffset : 30+ occurrences
     // PhanParamSignatureMismatch : 25+ occurrences
     // PhanPluginSimplifyExpressionBool : 25+ occurrences
     // PhanTypeMismatchDefault : 25+ occurrences
@@ -49,10 +49,10 @@ return [
     // PhanUndeclaredClassMethod : 15+ occurrences
     // PhanRedefineClass : 10+ occurrences
     // PhanRedundantConditionInLoop : 10+ occurrences
-    // PhanTypeComparisonToArray : 10+ occurrences
     // PhanTypeInvalidLeftOperandOfNumericOp : 10+ occurrences
     // PhanTypeMismatchProperty : 10+ occurrences
     // PhanTypeMismatchReturnNullable : 10+ occurrences
+    // PhanTypeComparisonToArray : 9 occurrences
     // PhanUndeclaredFunctionInCallable : 9 occurrences
     // PhanUndeclaredMethodInCallable : 9 occurrences
     // PhanPluginRedundantAssignment : 8 occurrences
@@ -104,7 +104,6 @@ return [
     // PhanSuspiciousValueComparison : 1 occurrence
     // PhanTypeComparisonFromArray : 1 occurrence
     // PhanTypeInstantiateAbstract : 1 occurrence
-    // PhanTypeInvalidCallableArraySize : 1 occurrence
     // PhanTypeSuspiciousEcho : 1 occurrence
     // PhanTypeVoidArgument : 1 occurrence
     // PhanUndeclaredClassReference : 1 occurrence
@@ -475,7 +474,6 @@ return [
         'modules/theme-tools/content-options/featured-images-fallback.php' => ['PhanTypeMismatchArgument', 'PhanTypePossiblyInvalidDimOffset'],
         'modules/theme-tools/content-options/featured-images.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchArgument'],
         'modules/theme-tools/content-options/post-details.php' => ['PhanTypeArraySuspiciousNullable'],
-        'modules/theme-tools/featured-content.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeComparisonToArray', 'PhanTypeInvalidCallableArraySize', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn', 'PhanTypePossiblyInvalidDimOffset'],
         'modules/theme-tools/site-breadcrumbs.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturn'],
         'modules/theme-tools/site-logo/inc/class-site-logo.php' => ['PhanRedundantCondition', 'PhanTypeComparisonToArray', 'PhanTypeMismatchReturn'],
         'modules/theme-tools/site-logo/inc/functions.php' => ['PhanTypeMismatchReturnProbablyReal'],
