@@ -78,7 +78,7 @@ const AddConnectionModal = ( { onCloseModal } ) => {
 											className={ styles[ 'chevron-button' ] }
 											variant="secondary"
 											onClick={ onServiceSelected( service ) }
-											aria-label={ __( 'Select service', 'jetpack' ) }
+											aria-label={ __( 'Learn more', 'jetpack' ) }
 										>
 											{ <Icon className={ styles.chevron } icon={ chevronDown } /> }
 										</Button>
