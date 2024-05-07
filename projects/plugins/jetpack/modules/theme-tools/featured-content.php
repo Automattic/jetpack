@@ -30,9 +30,10 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 	 * designate a featured post tag to associate posts with. Since this tag now has
 	 * special meaning beyond that of a normal tags, users will have the ability to
 	 * hide it from the front-end of their site.
+	 *
+	 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 	 */
 	class Featured_Content {
-
 		/**
 		 * The maximum number of posts that a Featured Content area can contain. We
 		 * define a default value here but themes can override this by defining a
