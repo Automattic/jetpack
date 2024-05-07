@@ -1,6 +1,5 @@
 import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { Icon, chevronLeft } from '@wordpress/icons';
 import classNames from 'classnames';
 import { Connection } from '../constants';
 import styles from './style.module.scss';
@@ -32,7 +31,7 @@ export const ConnectPage: React.FC< ConnectPageProps > = ( { service, onBackClic
 					onClick={ onBackClicked }
 					aria-label={ __( 'Go back', 'jetpack' ) }
 				>
-					{ <Icon icon={ chevronLeft } className={ styles[ 'chevron-back' ] } /> }
+					{ __( 'Back', 'jetpack' ) }
 				</Button>
 				<form className={ classNames( styles[ 'connect-form' ], { [ styles.small ]: isSmall } ) }>
 					{ 'mastodon' === service.name ? (
