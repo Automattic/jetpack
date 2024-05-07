@@ -5,9 +5,8 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Constants;
-
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+_deprecated_file( __FILE__, 'jetpack-$$next-version$$' );
 
 if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
 
@@ -83,9 +82,12 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 * If no theme support is found there is no need to hook into WordPress. We'll
 		 * just return early instead.
 		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 *
 		 * @uses Featured_Content::$max_posts
 		 */
 		public static function init() {
+			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Featured_Content\\init' );
 			$theme_support = get_theme_support( 'featured-content' );
 
 			// Return early if theme does not support featured content.
@@ -154,8 +156,11 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 *
 		 * Has to run on wp_loaded so that the preview filters of the customizer
 		 * have a chance to alter the value.
+		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 		 */
 		public static function wp_loaded() {
+			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Featured_Content\\wp_loaded' );
 			if ( self::get_setting( 'hide-tag' ) ) {
 				$settings = self::get_setting();
 
@@ -175,11 +180,13 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 * the "filter" key in the array passed as the $args parameter during the call
 		 * to: add_theme_support( 'featured-content', $args ).
 		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 		 * @uses Featured_Content::get_featured_post_ids()
 		 *
 		 * @return array
 		 */
 		public static function get_featured_posts() {
+			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Featured_Content\\get_featured_posts' );
 			$post_ids = self::get_featured_post_ids();
 
 			// No need to query if there is are no featured posts.
@@ -207,9 +214,11 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 *
 		 * Sets the "featured_content_ids" transient.
 		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 		 * @return array Array of post IDs.
 		 */
 		public static function get_featured_post_ids() {
+			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Featured_Content\\get_featured_post_ids' );
 			// Return array of cached results if they exist.
 			$featured_ids = get_transient( 'featured_content_ids' );
 			if ( ! empty( $featured_ids ) ) {
@@ -282,9 +291,11 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 *
 		 * Hooks in the "save_post" action.
 		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 		 * @see Featured_Content::validate_settings().
 		 */
 		public static function delete_transient() {
+			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Featured_Content\\delete_transient' );
 			delete_transient( 'featured_content_ids' );
 		}
 
@@ -293,10 +304,12 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 *
 		 * Hooks in the "update_option_featured-content" action.
 		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 		 * @param array $prev Previous option data.
 		 * @param array $opts New option data.
 		 */
 		public static function flush_post_tag_cache( $prev, $opts ) {
+			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Featured_Content\\flush_post_tag_cache' );
 			if ( ! empty( $opts ) && ! empty( $opts['tag-id'] ) ) {
 				$query = new WP_Query(
 					array(
@@ -318,12 +331,14 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 * Hooked onto the 'pre_get_posts' action, this changes the parameters of the
 		 * query before it gets any posts.
 		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 		 * @uses Featured_Content::get_featured_post_ids();
 		 * @uses Featured_Content::get_setting();
 		 * @param WP_Query $query WP_Query object.
 		 * @return WP_Query Possibly modified WP_Query
 		 */
 		public static function pre_get_posts( $query ) {
+			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Featured_Content\\pre_get_posts' );
 
 			// Bail if not home or not main query.
 			if ( ! $query->is_home() || ! $query->is_main_query() ) {
@@ -369,12 +384,14 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 *
 		 * Hooks in the "delete_post_tag" action.
 		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 		 * @see Featured_Content::validate_settings().
 		 *
 		 * @param int $tag_id The term_id of the tag that has been deleted.
 		 * @return void
 		 */
 		public static function delete_post_tag( $tag_id ) {
+			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Featured_Content\\delete_post_tag' );
 			$settings = self::get_setting();
 
 			if ( empty( $settings['tag-id'] ) || $tag_id != $settings['tag-id'] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
@@ -392,6 +409,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 *
 		 * Hooks into the "get_terms" filter.
 		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 		 * @uses Featured_Content::get_setting()
 		 *
 		 * @param array $terms A list of term objects. This is the return value of get_terms().
@@ -400,6 +418,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 * @return array $terms
 		 */
 		public static function hide_featured_term( $terms, $taxonomies, $args ) {
+			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Featured_Content\\hide_featured_term' );
 
 			// This filter is only appropriate on the front-end.
 			if ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) ) {
@@ -452,6 +471,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 *
 		 * Hooks into the "get_the_terms" filter.
 		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 		 * @uses Featured_Content::get_setting()
 		 *
 		 * @param array $terms A list of term objects. This is the return value of get_the_terms().
@@ -460,6 +480,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 * @return array $terms
 		 */
 		public static function hide_the_featured_term( $terms, $id, $taxonomy ) {
+			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Featured_Content\\hide_the_featured_term' );
 
 			// This filter is only appropriate on the front-end.
 			if ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) ) {
@@ -493,12 +514,14 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		/**
 		 * Register custom setting on the Settings -> Reading screen.
 		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 		 * @uses Featured_Content::render_form()
 		 * @uses Featured_Content::validate_settings()
 		 *
 		 * @return void
 		 */
 		public static function register_setting() {
+			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Featured_Content\\register_setting' );
 			add_settings_field( 'featured-content', __( 'Featured Content', 'jetpack' ), array( __CLASS__, 'render_form' ), 'reading' );
 
 			// Register sanitization callback for the Customizer.
@@ -508,9 +531,11 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		/**
 		 * Add settings to the Customizer.
 		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 		 * @param WP_Customize_Manager $wp_customize Theme Customizer object.
 		 */
 		public static function customize_register( $wp_customize ) {
+			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Featured_Content\\customize_register' );
 			$wp_customize->add_section(
 				'featured_content',
 				array(
@@ -590,15 +615,21 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 
 		/**
 		 * Enqueue the tag suggestion script.
+		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 		 */
 		public static function enqueue_scripts() {
+			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Featured_Content\\enqueue_scripts' );
 			wp_enqueue_script( 'featured-content-suggest', plugins_url( 'js/suggest.js', __FILE__ ), array( 'jquery', 'suggest' ), '20131022', true );
 		}
 
 		/**
 		 * Renders all form fields on the Settings -> Reading screen.
+		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 		 */
 		public static function render_form() {
+			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Featured_Content\\render_form' );
 			printf(
 				wp_kses(
 					/* translators: %s: Link to the Featured Content settings in the Customizer. */
@@ -621,10 +652,12 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 * In the event that you only require one setting, you may pass its name as the
 		 * first parameter to the function and only that value will be returned.
 		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 		 * @param string $key The key of a recognized setting.
 		 * @return mixed Array of all settings by default. A single value if passed as first parameter.
 		 */
 		public static function get_setting( $key = 'all' ) {
+			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Featured_Content\\get_setting' );
 			$saved = (array) get_option( 'featured-content' );
 
 			/**
@@ -670,12 +703,14 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 * saving to the database. This function will also delete the transient set in
 		 * Featured_Content::get_featured_content().
 		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 		 * @uses Featured_Content::delete_transient()
 		 *
 		 * @param array $input Array of settings input.
 		 * @return array $output
 		 */
 		public static function validate_settings( $input ) {
+			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Featured_Content\\validate_settings' );
 			$output = array();
 
 			if ( empty( $input['tag-name'] ) ) {
@@ -708,9 +743,11 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		/**
 		 * Removes the quantity setting from the options array.
 		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 		 * @return void
 		 */
 		public static function switch_theme() {
+			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Featured_Content\\switch_theme' );
 			$option = (array) get_option( 'featured-content' );
 
 			if ( isset( $option['quantity'] ) ) {
@@ -722,12 +759,14 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		/**
 		 * Update Featured Content term data as necessary when a shared term is split.
 		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 		 * @param int    $old_term_id ID of the formerly shared term.
 		 * @param int    $new_term_id ID of the new term created for the $term_taxonomy_id.
 		 * @param int    $term_taxonomy_id ID for the term_taxonomy row affected by the split.
 		 * @param string $taxonomy Taxonomy for the split term.
 		 */
 		public static function jetpack_update_featured_content_for_split_terms( $old_term_id, $new_term_id, $term_taxonomy_id, $taxonomy ) {
+			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Featured_Content\\jetpack_update_featured_content_for_split_terms' );
 			$featured_content_settings = get_option( 'featured-content', array() );
 
 			// Check to see whether the stored tag ID is the one that's just been split.
@@ -743,27 +782,26 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 	 * Adds the featured content plugin to the set of files for which action
 	 * handlers should be copied when the theme context is loaded by the REST API.
 	 *
+	 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 	 * @param array $copy_dirs Copy paths with actions to be copied.
 	 * @return array Copy paths with featured content plugin
 	 */
 	function wpcom_rest_api_featured_content_copy_plugin_actions( $copy_dirs ) {
+		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Featured_Content\\wpcom_rest_api_featured_content_copy_plugin_actions' );
 		$copy_dirs[] = __FILE__;
 		return $copy_dirs;
 	}
-	add_action( 'restapi_theme_action_copy_dirs', 'wpcom_rest_api_featured_content_copy_plugin_actions' );
 
 	/**
 	 * Delayed initialization for API Requests.
 	 *
+	 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 	 * @param object $request REST request object.
 	 */
 	function wpcom_rest_request_before_callbacks( $request ) {
+		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Featured_Content\\wpcom_rest_request_before_callbacks' );
 		Featured_Content::init();
 		return $request;
-	}
-
-	if ( Constants::is_true( 'IS_WPCOM' ) && Constants::is_true( 'REST_API_REQUEST' ) ) {
-		add_filter( 'rest_request_before_callbacks', 'wpcom_rest_request_before_callbacks' );
 	}
 
 	Featured_Content::setup();

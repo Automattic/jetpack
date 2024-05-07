@@ -5,12 +5,12 @@
  * @package automattic/jetpack-classic-theme-helper
  */
 
-namespace Automattic\Jetpack;
+namespace Automattic\Jetpack\Classic_Theme_Helper;
 
 /**
  * Classic Theme Helper.
  */
-class Classic_Theme_Helper {
+class Loader {
 
 	const PACKAGE_VERSION = '0.1.0-alpha';
 
