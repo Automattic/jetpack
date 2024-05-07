@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Remove wp-windows8 gallery shortcode special case in WPCOM API post endpoint.

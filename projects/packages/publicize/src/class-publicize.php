@@ -260,6 +260,7 @@ class Publicize extends Publicize_Base {
 									'service_name'   => $service_name,
 									'connection_id'  => $connection['connection_data']['id'],
 									'can_disconnect' => current_user_can( 'manage_options' ) || get_current_user_id() === $user_id,
+									'profile_link'   => $this->get_profile_link( $service_name, $connection ),
 								)
 							);
 						} else {

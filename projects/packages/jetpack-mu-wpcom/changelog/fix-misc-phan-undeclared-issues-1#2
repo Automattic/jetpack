@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Remove reference to `WPCOM_Launchpad`, which was removed from wpcom in D111041-code (May 2023).

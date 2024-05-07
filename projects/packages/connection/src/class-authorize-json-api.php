@@ -4,7 +4,7 @@
  * Used to handle connections via JSON API.
  * Ported from the Jetpack class.
  *
- * @since $$next-version$$ Ported from the Jetpack class.
+ * @since 2.7.6 Ported from the Jetpack class.
  *
  * @package automattic/jetpack-connection
  */
@@ -22,7 +22,7 @@ class Authorize_Json_Api {
 	/**
 	 * Verified data for JSON authorization request
 	 *
-	 * @since $$next-version$$
+	 * @since 2.7.6
 	 *
 	 * @var array
 	 */
@@ -33,7 +33,7 @@ class Authorize_Json_Api {
 	 *
 	 * @since jetpack-4.6.0 Method was updated to use `$_REQUEST` instead of `$_GET` and `$_POST`. Method also updated to allow
 	 * passing in an `$environment` argument that overrides `$_REQUEST`. This was useful for integrating with SSO.
-	 * @since $$next-version$$ Ported from Jetpack to the Connection package.
+	 * @since 2.7.6 Ported from Jetpack to the Connection package.
 	 *
 	 * @param null|array $environment Value to override $_REQUEST.
 	 *
@@ -222,7 +222,7 @@ class Authorize_Json_Api {
 	/**
 	 * Add the Access Code details to the public-api.wordpress.com redirect.
 	 *
-	 * @since $$next-version$$ Ported from Jetpack to the Connection package.
+	 * @since 2.7.6 Ported from Jetpack to the Connection package.
 	 *
 	 * @param string   $redirect_to URL.
 	 * @param string   $original_redirect_to URL.
@@ -250,7 +250,7 @@ class Authorize_Json_Api {
 	/**
 	 * If someone logs in to approve API access, store the Access Code in usermeta.
 	 *
-	 * @since $$next-version$$ Ported from Jetpack to the Connection package.
+	 * @since 2.7.6 Ported from Jetpack to the Connection package.
 	 *
 	 * @param string   $user_login Unused.
 	 * @param \WP_User $user User logged in.
@@ -267,7 +267,7 @@ class Authorize_Json_Api {
 	/**
 	 * HTML for the JSON API authorization notice.
 	 *
-	 * @since $$next-version$$ Ported from Jetpack to the Connection package.
+	 * @since 2.7.6 Ported from Jetpack to the Connection package.
 	 *
 	 * @return string
 	 */
