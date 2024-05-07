@@ -1261,7 +1261,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/scheduled-updates",
-                "reference": "5984ee152224a26d17fa32e2252fa40f5f888330"
+                "reference": "72fafdc115e7a14df44c589b3c03a193a050107c"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1288,7 +1288,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.11.x-dev"
+                    "dev-trunk": "0.12.x-dev"
                 },
                 "textdomain": "jetpack-scheduled-updates",
                 "version-constants": {
