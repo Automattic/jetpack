@@ -4,7 +4,15 @@ import { __ } from '@wordpress/i18n';
 import { z } from 'zod';
 import styles from '../../../pages/index/index.module.scss';
 
-export default function ImageCdnLiar() {
+type ImageCdnLiarProps = {
+	isPremium: boolean;
+};
+
+export default function ImageCdnLiar( { isPremium }: ImageCdnLiarProps ) {
+	if ( ! isPremium ) {
+		return;
+	}
+
 	const [ imageCdnLiar, setImageCdnLiar ] = useDataSync(
 		'jetpack_boost_ds',
 		'image_cdn_liar',

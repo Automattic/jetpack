@@ -1,4 +1,3 @@
-import { createInterpolateElement } from '@wordpress/element';
 import CollapsibleMeta from '../collapsible-meta/collapsible-meta';
 import { __, sprintf } from '@wordpress/i18n';
 import styles from './quality-settings.module.scss';
@@ -7,7 +6,6 @@ import QualityControl from '../quality-control/quality-control';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import { imageCdnSettingsSchema, useImageCdnQuality } from '../lib/stores';
 import { z } from 'zod';
-import { Link } from 'react-router-dom';
 
 type QualitySettingsProps = {
 	isPremium: boolean;
@@ -15,12 +13,7 @@ type QualitySettingsProps = {
 
 const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 	if ( ! isPremium ) {
-		return createInterpolateElement(
-			__( `For more control over image quality, <link>upgrade now!</link>`, 'jetpack-boost' ),
-			{
-				link: <Link to="/upgrade" />,
-			}
-		);
+		return;
 	}
 
 	const [ query, mutation ] = useImageCdnQuality();
