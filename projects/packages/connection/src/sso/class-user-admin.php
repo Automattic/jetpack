@@ -966,11 +966,7 @@ class User_Admin {
 
 		wp_add_inline_script(
 			'jetpack-sso-users',
-			'var Jetpack_SSOTooltip = ' . wp_json_encode(
-				array(
-					'tooltip_string' => $tooltip_string,
-				)
-			),
+			"var Jetpack_SSOTooltip = { 'tooltip_string': '{$tooltip_string}' }",
 			'before'
 		);
 

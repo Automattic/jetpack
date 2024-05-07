@@ -10,8 +10,8 @@ document.addEventListener( 'DOMContentLoaded', function () {
 				this.querySelector( '.jetpack-sso-invitation-tooltip' ).style.display = 'none';
 			} );
 		} );
-	document.querySelectorAll( '.jetpack-sso-th-tooltip' ).forEach( function ( tooltip_text ) {
+	document.querySelectorAll( '.jetpack-sso-th-tooltip' ).forEach( function ( tooltip_textbox ) {
 		const tooltipString = window.Jetpack_SSOTooltip.tooltip_string;
-		tooltip_text.innerHTML += tooltipString;
+		tooltip_textbox.innerHTML += tooltipString;
 	} );
 } );
