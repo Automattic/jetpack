@@ -720,7 +720,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	 * @covers ::delete_item
 	 */
 	public function test_crud_should_sync_three_times() {
-		echo "\n\n\n--------------------\n\n\n";
 		wp_set_current_user( $this->admin_id );
 		$plugins       = array(
 			'custom-plugin/custom-plugin.php',
