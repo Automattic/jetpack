@@ -15,10 +15,10 @@ const sharingButtonLink = 'https://wordpress.com/support/sharing/';
 
 export interface Connection {
 	title: string;
-	icon: ( props ) => JSX.Element;
+	icon: React.ComponentType< { iconSize: number } >;
 	description: string;
 	name: string;
-	examples?: ( () => JSX.Element )[];
+	examples?: Array< React.ComponentType >;
 }
 
 export const getSupportedConnections = (): Connection[] => {
