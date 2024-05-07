@@ -254,8 +254,11 @@ class Filesystem_Utils {
 	public static function rebuild_file( $file_path ) {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
 		if ( is_writable( $file_path ) ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename, WordPress.PHP.NoSilencedErrors.Discouraged
-			return @rename( $file_path, $file_path . self::REBUILD_FILE_EXTENSION );
+			// only rename the file if it is not already a rebuild file.
+			if ( ! self::is_rebuild_file( $file_path ) ) {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename, WordPress.PHP.NoSilencedErrors.Discouraged
+				@rename( $file_path, $file_path . self::REBUILD_FILE_EXTENSION );
+			}
 		}
 
 		return false;
