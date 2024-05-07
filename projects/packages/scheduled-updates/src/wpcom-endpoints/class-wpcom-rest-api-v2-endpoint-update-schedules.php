@@ -8,7 +8,6 @@
  */
 
 use Automattic\Jetpack\Scheduled_Updates;
-use Automattic\Jetpack\Scheduled_Updates_Health_Paths;
 
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Update_Schedules
@@ -39,7 +38,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * WPCOM_REST_API_V2_Endpoint_Atomic_Hosting_Update_Schedule constructor.
 	 */
 	public function __construct() {
-		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+		// Priority 11 to make it easier for rest field schemas to make it into get_object_params().
+		add_action( 'rest_api_init', array( $this, 'register_routes' ), 11 );
 	}
 
 	/**
@@ -467,32 +467,28 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			'title'      => 'update-schedule',
 			'type'       => 'object',
 			'properties' => array(
-				'hook'               => array(
+				'hook'      => array(
 					'description' => 'The hook name.',
 					'type'        => 'string',
 					'readonly'    => true,
 				),
-				'timestamp'          => array(
+				'timestamp' => array(
 					'description' => 'Unix timestamp (UTC) for when to next run the event.',
 					'type'        => 'integer',
 					'readonly'    => true,
 				),
-				'schedule'           => array(
+				'schedule'  => array(
 					'description' => 'How often the event should subsequently recur.',
 					'type'        => 'string',
 					'enum'        => array( 'daily', 'weekly' ),
 				),
-				'args'               => array(
+				'args'      => array(
 					'description' => 'The plugins to be updated on this schedule.',
 					'type'        => 'array',
 				),
-				'interval'           => array(
+				'interval'  => array(
 					'description' => 'The interval time in seconds for the schedule.',
 					'type'        => 'integer',
-				),
-				'health_check_paths' => array(
-					'description' => 'Paths to check for site health.',
-					'type'        => 'array',
 				),
 			),
 		);
@@ -537,27 +533,16 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 					'type'        => 'object',
 					'required'    => true,
 					'properties'  => array(
-						'interval'           => array(
+						'interval'  => array(
 							'description' => 'Interval for the schedule.',
 							'type'        => 'string',
 							'enum'        => array( 'daily', 'weekly' ),
 							'required'    => true,
 						),
-						'timestamp'          => array(
+						'timestamp' => array(
 							'description' => 'Unix timestamp (UTC) for when to first run the schedule.',
 							'type'        => 'integer',
 							'required'    => true,
-						),
-						'health_check_paths' => array(
-							'description' => 'List of paths to check for site health after the update.',
-							'type'        => 'array',
-							'maxItems'    => 5,
-							'items'       => array(
-								'type'        => 'string',
-								'arg_options' => array(
-									'validate_callback' => array( Scheduled_Updates_Health_Paths::class, 'validate' ),
-								),
-							),
 						),
 					),
 				),
