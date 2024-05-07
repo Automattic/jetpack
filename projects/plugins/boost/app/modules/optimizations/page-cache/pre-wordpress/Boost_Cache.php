@@ -29,8 +29,8 @@ if ( ! defined( 'JETPACK_BOOST_CACHE_DURATION' ) ) {
 }
 
 // Define how many seconds the rebuild cache should be considered stale, but usable, for each cached page.
-if ( ! defined( 'JETPACK_BOOST_CACHE_STALE_DURATION' ) ) {
-	define( 'JETPACK_BOOST_CACHE_STALE_DURATION', 10 );
+if ( ! defined( 'JETPACK_BOOST_CACHE_REBUILD_DURATION' ) ) {
+	define( 'JETPACK_BOOST_CACHE_REBUILD_DURATION', 10 );
 }
 
 class Boost_Cache {

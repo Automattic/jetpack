@@ -166,7 +166,7 @@ class Filesystem_Utils {
 			// if the file ends with the rebuild file extension, it is a rebuilt file and the ttl is different.
 			if (
 				self::is_rebuild_file( $file )
-				&& ( $filemtime + JETPACK_BOOST_CACHE_STALE_DURATION ) <= $now
+				&& ( $filemtime + JETPACK_BOOST_CACHE_REBUILD_DURATION ) <= $now
 			) {
 				Logger::debug( 'Deleting expired rebuilt file: ' . $file_path );
 				$expired = true;
