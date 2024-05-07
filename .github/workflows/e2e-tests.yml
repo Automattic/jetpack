@@ -288,6 +288,7 @@ jobs:
 
           # Copy debug.log to output folder, if it exists
           error_log="$GITHUB_WORKSPACE/tools/docker/wordpress/wp-content/debug.log"
+          sudo chown -R runner:docker $(dirname "${PHP_ERROR_LOG_PATH}")
           [ ! -f $error_log ] || cp $error_log "${PHP_ERROR_LOG_PATH}"
 
           # Update permissions to workaround https://github.com/actions/cache/issues/753
