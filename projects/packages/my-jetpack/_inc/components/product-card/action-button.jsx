@@ -2,8 +2,9 @@ import { Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chevronDown, external, check } from '@wordpress/icons';
 import cs from 'classnames';
-import { useCallback, useState, useEffect, useMemo } from 'react';
+import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
 import useProduct from '../../data/products/use-product';
+import useOutsideAlerter from '../../hooks/use-outside-alerter';
 import styles from './style.module.scss';
 
 export const PRODUCT_STATUSES = {
@@ -41,6 +42,7 @@ const ActionButton = ( {
 	const { detail } = useProduct( slug );
 	const { manageUrl, purchaseUrl } = detail;
 	const isManageDisabled = ! manageUrl;
+	const dropdownRef = useRef( null );
 
 	const isBusy = isFetching || isInstallingStandalone;
 	const hasAdditionalActions = additionalActions?.length > 0;
@@ -210,6 +212,11 @@ const ActionButton = ( {
 		setCurrentAction( allActions[ 0 ] );
 	}, [ allActions ] );
 
+	// Close the dropdown when clicking outside of it.
+	useOutsideAlerter( dropdownRef, () => {
+		setIsDropdownOpen( false );
+	} );
+
 	if ( ! admin ) {
 		return (
 			<Button { ...buttonState } size="small" variant="link" weight="regular">
@@ -222,7 +229,7 @@ const ActionButton = ( {
 	}
 
 	const dropdown = hasAdditionalActions && (
-		<div className={ styles[ 'action-button-dropdown' ] }>
+		<div ref={ dropdownRef } className={ styles[ 'action-button-dropdown' ] }>
 			<ul className={ styles[ 'dropdown-menu' ] }>
 				{ [ ...additionalActions, getStatusAction() ].map( ( { label, isExternalLink }, index ) => {
 					const onDropdownMenuItemClick = () => {

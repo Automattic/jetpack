@@ -38,8 +38,6 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 		parent::set_up_before_class();
 
 		static::defineFunctionMock( 'Automattic\Jetpack', 'realpath' );
-		Scheduled_Updates::init();
-		Scheduled_Updates::load_rest_api_endpoints();
 	}
 
 	/**

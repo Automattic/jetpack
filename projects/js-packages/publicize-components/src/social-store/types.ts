@@ -18,6 +18,9 @@ export type Connection = {
 	connection_id: string;
 	is_healthy?: boolean;
 	error_code?: string;
+	can_disconnect: boolean;
+	profile_picture: string;
+	profile_link: string;
 };
 
 export type ConnectionData = {
@@ -36,10 +39,13 @@ export type SocialStoreState = {
 	hasPaidPlan?: boolean;
 	// on Jetack Social admin page
 	jetpackSettings?: JetpackSettings;
+	useAdminUiV1?: boolean;
 };
 
 declare global {
 	interface Window {
-		jetpackSocialInitialState?: SocialStoreState;
+		jetpackSocialInitialState?: SocialStoreState & {
+			is_publicize_enabled: boolean;
+		};
 	}
 }

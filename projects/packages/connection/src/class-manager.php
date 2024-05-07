@@ -1878,11 +1878,16 @@ class Manager {
 	/**
 	 * Builds a URL to the Jetpack connection auth page.
 	 *
-	 * @param WP_User $user (optional) defaults to the current logged in user.
-	 * @param String  $redirect (optional) a redirect URL to use instead of the default.
+	 * @since 2.7.6 Added optional $from and $raw parameters.
+	 *
+	 * @param WP_User     $user     (optional) defaults to the current logged in user.
+	 * @param string      $redirect (optional) a redirect URL to use instead of the default.
+	 * @param bool|string $from     If not false, adds 'from=$from' param to the connect URL.
+	 * @param bool        $raw If true, URL will not be escaped.
+	 *
 	 * @return string Connect URL.
 	 */
-	public function get_authorization_url( $user = null, $redirect = null ) {
+	public function get_authorization_url( $user = null, $redirect = null, $from = false, $raw = false ) {
 		if ( empty( $user ) ) {
 			$user = wp_get_current_user();
 		}
@@ -1975,8 +1980,28 @@ class Manager {
 
 		$url = add_query_arg( $body, $api_url );
 
-		/** This filter is documented in plugins/jetpack/class-jetpack.php  */
-		return apply_filters( 'jetpack_build_authorize_url', $url );
+		if ( is_network_admin() ) {
+			$url = add_query_arg( 'is_multisite', network_admin_url( 'admin.php?page=jetpack-settings' ), $url );
+		}
+
+		if ( $from ) {
+			$url = add_query_arg( 'from', $from, $url );
+		}
+
+		if ( $raw ) {
+			$url = esc_url_raw( $url );
+		}
+
+		/**
+		 * Filter the URL used when connecting a user to a WordPress.com account.
+		 *
+		 * @since 2.0.0
+		 * @since 2.7.6 Added $raw parameter.
+		 *
+		 * @param string $url Connection URL.
+		 * @param bool   $raw If true, URL will not be escaped.
+		 */
+		return apply_filters( 'jetpack_build_authorize_url', $url, $raw );
 	}
 
 	/**

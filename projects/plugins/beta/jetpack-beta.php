@@ -124,5 +124,6 @@ add_action( 'init', array( Automattic\JetpackBeta\Hooks::class, 'instance' ) );
 add_action( 'muplugins_loaded', array( Automattic\JetpackBeta\Hooks::class, 'is_network_enabled' ) );
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- https://github.com/phan/phan/issues/4763
 	WP_CLI::add_command( 'jetpack-beta', Automattic\JetpackBeta\CliCommand::class );
 }

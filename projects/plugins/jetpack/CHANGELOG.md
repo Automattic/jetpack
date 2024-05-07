@@ -2,6 +2,68 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.4-beta - 2024-05-06
+### Enhancements
+- Paid Content Block: Swap out the login flow. [#37178]
+- Subscriptions: Manage subscribers in Jetpack Cloud instead of WP.com. [#37155]
+- Subscription widget: Remove "follow" term from confirmation message [#37135]
+- WordAds: Ensure that ads.txt works on subdirectory websites. [#36887]
+
+### Improved compatibility
+- Theme tools: Devicepx functionality is deprecated. [#37116]
+- Theme tools: Site-logo functionality is deprecated in favour of core supported custom-logo. [#37109]
+
+### Bug fixes
+- Sidebar: Fix showing the double arrow on active menu when RTL [#37204]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add a method to find all plans that are valid for a given newsletter tier. [#37084]
+- Added feature flag for social admin UI. [#37134]
+- Add error handling on Title Optimization. [#37195]
+- Add handler for the migration_source_site_domain option. [#37100]
+- Add tracks and new entries for title optimization. [#37180]
+- AI Assistant: Add undo functionality and fix input with iframe. [#37200]
+- AI Assistant: Fix AI Control positioning on inline extension. [#37145]
+- AI Assistant: Link toolbar actions to requests on inline extensions. [#37168]
+- AI Featured Image: Add entry point on the media source dropdown menu. [#37166]
+- AI Featured Image: Allow users to write prompts for the image generation. [#37086]
+- AI Featured Image: Change upgrade prompt layout and fix UI issues. [#37219]
+- AI Featured Image: Start tracking error messages. [#37209]
+- Contact Form: Removing code and renaming relevant references to ensure we use the package version of the contact form. [#37157]
+- Janitorial: Deprecate methods in Jetpack class in favor of methods from the Connection package. [#36989]
+- Jetpack Sync: Add Woocommerce event remove_order_items to Jetpack Sync. [#33748]
+- SSO: Deprecate in-plugin methods in favor of methods from the Connection package. [#36924]
+- Subscriptions: Add back missing HTML for paywall in emails. [#37117]
+- Subscriptions: Disable Paid Newsletter settings section when user is not connected to WP.com. [#37149]
+- Subscriptions: Fix registering block hooks for REST API calls. [#37123]
+- Subscriptions: Fix Subscribed button alignment. [#37066]
+- Subscriptions: Move the Newsletter module main toggle to separate section in Newsletter settings. [#37152]
+- Sync AI plugin content across settings and jetpack sidebar. [#37220]
+- Updated package dependencies. [#37147] [#37148]
+- Update interface of Usage Counter on Jetpack Plugin. [#37216]
+- WordPress.com REST API: Exposed is_deleted attribute with sites API response. [#37142]
+
+## 13.4-a.9 - 2024-04-29
+### Enhancements
+- Newsletter: Add subscrition 'reply to' behaviour. [#37011]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add aceptance for title optimization. [#37078]
+- Add cancel action for title optimization. [#37080]
+- Adds a jp_memberships_is_sandboxed item for sync. [#37088]
+- AI Assistant: Add inline extensions feature flag. [#37082]
+- AI Assistant: Add partial heading inline extension. [#37087]
+- API Docs: Fix example request for media add and update endpoints. [#37072]
+- Block Editor: Update button props to match latest changes in WordPress 6.5. [#36318]
+- CloudFlare Analytics: deprecate feature and move to mu-wpcom. [#37061]
+- Ensure that the paid subscriber cache is unique to the parameters it consumes. [#36925]
+- Janitorial: Use wp_admin_notice function introduced in WP 6.4 to display notices. [#37051]
+- Subscriptions: Hide subscriber count for already subscribed users. [#37073]
+- Subscriptions: The in_site_migration_flow show be a string to allow us to redirect to various flows. [#37099]
+- Subscriptions: Track "Set up" button clicks. [#37053]
+- Untangling: Fix sidebar upsells on Default color scheme to follow Core's. [#37064]
+- WordPress.com Block Editor: Avoid relying on the Jetpack class. [#37074]
+
 ## 13.4-a.7 - 2024-04-25
 ### Improved compatibility
 - General: Update WordPress version requirements to WordPress 6.4 and remove compatibility code for lower versions. [#37047] [#37049]

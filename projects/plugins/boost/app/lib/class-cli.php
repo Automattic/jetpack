@@ -10,7 +10,6 @@
 namespace Automattic\Jetpack_Boost\Lib;
 
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
-use Automattic\Jetpack_Boost\Jetpack_Boost;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Garbage_Collection;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
@@ -62,21 +61,19 @@ class CLI {
 	 * @param array $args Command arguments.
 	 */
 	public function module( $args ) {
-		$action = isset( $args[0] ) ? $args[0] : null;
+		$action      = isset( $args[0] ) ? $args[0] : null;
+		$module_slug = isset( $args[1] ) ? $args[1] : null;
 
-		$module_slug = null;
-
-		if ( isset( $args[1] ) ) {
-			$module_slug = $args[1];
-			if ( ! in_array( $module_slug, self::MAKE_E2E_TESTS_WORK_MODULES, true ) ) {
-				\WP_CLI::error(
-				/* translators: %s refers to the module slug like 'critical-css' */
-					sprintf( __( "The '%s' module slug is invalid", 'jetpack-boost' ), $module_slug )
-				);
-			}
-		} else {
+		if ( $module_slug === null ) {
 			/* translators: Placeholder is list of available modules. */
-			\WP_CLI::error( sprintf( __( 'Please specify a valid module. It should be one of %s', 'jetpack-boost' ), wp_json_encode( Jetpack_Boost::AVAILABLE_MODULES_DEFAULT ) ) );
+			\WP_CLI::error( sprintf( __( 'Please specify a valid module. It should be one of %s', 'jetpack-boost' ), wp_json_encode( self::MAKE_E2E_TESTS_WORK_MODULES ) ) );
+		}
+
+		if ( ! in_array( $module_slug, self::MAKE_E2E_TESTS_WORK_MODULES, true ) ) {
+			\WP_CLI::error(
+				/* translators: %1$s refers to the module slug like 'critical-css', %2$s is the list of available modules. */
+				sprintf( __( "The '%1\$s' module slug is invalid. It should be one of %2\$s", 'jetpack-boost' ), $module_slug, wp_json_encode( self::MAKE_E2E_TESTS_WORK_MODULES ) )
+			);
 		}
 
 		switch ( $action ) {

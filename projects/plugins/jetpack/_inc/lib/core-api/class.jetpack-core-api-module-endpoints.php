@@ -980,6 +980,16 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					}
 					break;
 
+				case 'jetpack_subscriptions_reply_to':
+					// If option value was the same, consider it done.
+					require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-settings.php';
+					$sub_value = Automattic\Jetpack\Modules\Subscriptions\Settings::is_valid_reply_to( $value )
+						? $value
+						: Automattic\Jetpack\Modules\Subscriptions\Settings::get_default_reply_to();
+
+						$updated = (string) get_option( $option ) !== (string) $sub_value ? update_option( $option, $sub_value ) : true;
+					break;
+
 				case 'stb_enabled':
 				case 'stc_enabled':
 				case 'sm_enabled':

@@ -410,6 +410,13 @@ abstract class SAL_Site {
 	abstract public function get_user_interactions();
 
 	/**
+	 * Flag a site as deleted. Not used in Jetpack.
+	 *
+	 * @see class.json-api-site-jetpack.php for implementation.
+	 */
+	abstract public function is_deleted();
+
+	/**
 	 * Return the user interactions with a site. Not used in Jetpack.
 	 *
 	 * @param string $role The capability to check.
@@ -1454,15 +1461,6 @@ abstract class SAL_Site {
 			return wpcomsh_is_site_sticker_active( 'difm-lite-in-progress' );
 		}
 		return false;
-	}
-
-	/**
-	 * The site options for DIFM lite in the design picker step
-	 *
-	 * @return string
-	 */
-	public function get_difm_lite_site_options() {
-		return get_option( 'difm_lite_site_options' );
 	}
 
 	/**

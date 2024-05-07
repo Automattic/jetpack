@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.44.5] - 2024-05-06
+### Added
+- Add missing package dependencies. [#37141]
+
+### Changed
+- Updated package dependencies. [#37147]
+
+### Deprecated
+- Deprecate `jetpack_search` property on `Search_Widget`. It has never been set to a non-null value since the package was created. [#37201]
+
+## [0.44.4] - 2024-04-29
+### Fixed
+- Fix connection flow for new sites. [#37085]
+
 ## [0.44.3] - 2024-04-25
 ### Changed
 - Internal updates.
@@ -945,6 +959,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.44.5]: https://github.com/Automattic/jetpack-search/compare/v0.44.4...v0.44.5
+[0.44.4]: https://github.com/Automattic/jetpack-search/compare/v0.44.3...v0.44.4
 [0.44.3]: https://github.com/Automattic/jetpack-search/compare/v0.44.2...v0.44.3
 [0.44.2]: https://github.com/Automattic/jetpack-search/compare/v0.44.1...v0.44.2
 [0.44.1]: https://github.com/Automattic/jetpack-search/compare/v0.44.0...v0.44.1

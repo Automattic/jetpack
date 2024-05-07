@@ -10,12 +10,13 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Config;
+use Automattic\Jetpack\Connection\Authorize_Json_Api;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Connection\Nonce_Handler;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Connection\Secrets;
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Connection\Webhooks\Authorize_Redirect;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\CookieState;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
@@ -444,6 +445,8 @@ class Jetpack {
 	/**
 	 * Verified data for JSON authorization request
 	 *
+	 * @deprecated 13.4
+	 *
 	 * @var array
 	 */
 	public $json_api_authorization_request = array();
@@ -636,7 +639,7 @@ class Jetpack {
 	 *
 	 * @param array $modules Array of active modules to be saved in options.
 	 *
-	 * @return $success bool true for success, false for failure.
+	 * @return bool $success true for success, false for failure.
 	 */
 	public static function update_active_modules( $modules ) {
 		return ( new Modules() )->update_active( $modules );
@@ -824,7 +827,7 @@ class Jetpack {
 		add_filter( 'jetpack_client_authorize_fallback_url', array( Jetpack_Client_Server::class, 'client_authorize_fallback_url' ) );
 
 		// Filters for the Manager::get_token() urls and request body.
-		add_filter( 'jetpack_token_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
+		add_filter( 'jetpack_token_redirect_url', array( Authorize_Redirect::class, 'filter_connect_redirect_url' ) );
 		add_filter( 'jetpack_token_request_body', array( __CLASS__, 'filter_token_request_body' ) );
 
 		// Filter for the `jetpack/v4/connection/data` API response.
@@ -3460,7 +3463,7 @@ p {
 	 * will be updated instead of add a new one.
 	 *
 	 * @param  boolean $update_media_item - update media attachment.
-	 * @return array - An array describing the uploadind files process.
+	 * @return array|WP_Error - An array describing the uploading files process.
 	 */
 	public function upload_handler( $update_media_item = false ) {
 		if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' !== strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) ) {
@@ -4353,7 +4356,7 @@ endif;
 				}
 			}
 
-			$url = static::build_authorize_url( $redirect );
+			$url = ( new Authorize_Redirect( static::connection() ) )->build_authorize_url( $redirect );
 		}
 
 		if ( $from ) {
@@ -4380,64 +4383,28 @@ endif;
 	 *
 	 * @todo Update default value for redirect since the called function expects a string.
 	 *
+	 * @deprecated 13.4
+	 *
 	 * @return mixed|void
 	 */
 	public static function build_authorize_url( $redirect = false, $deprecated = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		_deprecated_function( __METHOD__, 'jetpack-13.4', 'Authorize_Redirect::build_authorize_url' );
 
-		add_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
-		add_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
-
-		$c8n = self::connection();
-		$url = $c8n->get_authorization_url( wp_get_current_user(), $redirect );
-
-		remove_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
-		remove_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
-
-		/**
-		 * Filter the URL used when authorizing a user to a WordPress.com account.
-		 *
-		 * @since 8.9.0
-		 *
-		 * @param string $url Connection URL.
-		 */
-		return apply_filters( 'jetpack_build_authorize_url', $url );
+		return ( new Authorize_Redirect( static::connection() ) )->build_authorize_url( $redirect );
 	}
 
 	/**
 	 * Filters the connection URL parameter array.
 	 *
+	 * @deprecated 13.4
+	 *
 	 * @param array $args default URL parameters used by the package.
 	 * @return array the modified URL arguments array.
 	 */
 	public static function filter_connect_request_body( $args ) {
-		if (
-			Constants::is_defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' )
-			&& include_once Constants::get_constant( 'JETPACK__GLOTPRESS_LOCALES_PATH' )
-		) {
-			$gp_locale      = GP_Locales::by_field( 'wp_locale', get_locale() );
-			$args['locale'] = isset( $gp_locale ) && isset( $gp_locale->slug )
-				? $gp_locale->slug
-				: '';
-		}
+		_deprecated_function( __METHOD__, 'jetpack-13.4', 'Authorize_Redirect::filter_connect_request_body' );
 
-		$tracking        = new Tracking();
-		$tracks_identity = $tracking->tracks_get_identity( $args['state'] );
-
-		$args = array_merge(
-			$args,
-			array(
-				'_ui' => $tracks_identity['_ui'],
-				'_ut' => $tracks_identity['_ut'],
-			)
-		);
-
-		$calypso_env = ( new Host() )->get_calypso_env();
-
-		if ( ! empty( $calypso_env ) ) {
-			$args['calypso_env'] = $calypso_env;
-		}
-
-		return $args;
+		return Authorize_Redirect::filter_connect_request_body( $args );
 	}
 
 	/**
@@ -4479,20 +4446,14 @@ endif;
 	 * Filters the redirection URL that is used for connect requests. The redirect
 	 * URL should return the user back to the Jetpack console.
 	 *
+	 * @deprecated 13.4
+	 *
 	 * @param String $redirect the default redirect URL used by the package.
 	 * @return String the modified URL.
 	 */
 	public static function filter_connect_redirect_url( $redirect ) {
-		$jetpack_admin_page = esc_url_raw( admin_url( 'admin.php?page=jetpack' ) );
-		$redirect           = $redirect
-			? wp_validate_redirect( esc_url_raw( $redirect ), $jetpack_admin_page )
-			: $jetpack_admin_page;
-
-		if ( isset( $_REQUEST['is_multisite'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not making a site change here.
-			$redirect = Jetpack_Network::init()->get_url( 'network_admin_page' );
-		}
-
-		return $redirect;
+		_deprecated_function( __METHOD__, 'jetpack-13.4', 'Authorize_Redirect::filter_connect_redirect_url' );
+		return Authorize_Redirect::filter_connect_redirect_url( $redirect );
 	}
 
 	/**
@@ -4977,7 +4938,7 @@ endif;
 	/**
 	 * If the db version is showing something other that what we've got now, bump it to current.
 	 *
-	 * @return bool: True if the option was incorrect and updated, false if nothing happened.
+	 * @return bool True if the option was incorrect and updated, false if nothing happened.
 	 */
 	public static function maybe_set_version_option() {
 		list( $version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
@@ -5078,11 +5039,12 @@ endif;
 	 * Handles the login action for Authorizing the JSON API
 	 */
 	public function login_form_json_api_authorization() {
-		$this->verify_json_api_authorization_request();
+		$authorize_json_api = new Authorize_Json_Api();
+		$authorize_json_api->verify_json_api_authorization_request();
 
-		add_action( 'wp_login', array( $this, 'store_json_api_authorization_token' ), 10, 2 );
+		add_action( 'wp_login', array( $authorize_json_api, 'store_json_api_authorization_token' ), 10, 2 );
 
-		add_action( 'login_message', array( $this, 'login_message_json_api_authorization' ) );
+		add_action( 'login_message', array( $authorize_json_api, 'login_message_json_api_authorization' ) );
 		add_action( 'login_form', array( $this, 'preserve_action_in_login_form_for_json_api_authorization' ) );
 		add_filter( 'site_url', array( $this, 'post_login_form_to_signed_url' ), 10, 3 );
 	}
@@ -5122,14 +5084,15 @@ endif;
 	/**
 	 * If someone logs in to approve API access, store the Access Code in usermeta.
 	 *
+	 * @deprecated 13.4
+	 *
 	 * @param string  $user_login Unused.
 	 * @param WP_User $user User logged in.
 	 */
 	public function store_json_api_authorization_token( $user_login, $user ) {
-		add_filter( 'login_redirect', array( $this, 'add_token_to_login_redirect_json_api_authorization' ), 10, 3 );
-		add_filter( 'allowed_redirect_hosts', array( $this, 'allow_wpcom_public_api_domain' ) );
-		$token = wp_generate_password( 32, false );
-		update_user_meta( $user->ID, 'jetpack_json_api_' . $this->json_api_authorization_request['client_id'], $token );
+		_deprecated_function( __METHOD__, 'jetpack-13.4', 'Automattic\\Jetpack\\Connection\\Authorize_Json_Api::store_json_api_authorization_token' );
+
+		return ( new Authorize_Json_Api() )->store_json_api_authorization_token( $user_login, $user );
 	}
 
 	/**
@@ -5137,21 +5100,27 @@ endif;
 	 *
 	 * To be used with a filter of allowed domains for a redirect.
 	 *
+	 * @deprecated 13.4
+	 *
 	 * @param array $domains Allowed WP.com Environments.
 	 */
 	public function allow_wpcom_public_api_domain( $domains ) {
-		$domains[] = 'public-api.wordpress.com';
-		return $domains;
+		_deprecated_function( __METHOD__, 'jetpack-13.4', 'Automattic\\Jetpack\\Status\\Host::allow_wpcom_public_api_domain' );
+
+		return Host::allow_wpcom_public_api_domain( $domains );
 	}
 
 	/**
 	 * Check if the redirect is encoded.
+	 *
+	 * @deprecated 13.4
 	 *
 	 * @param string $redirect_url Redirect URL.
 	 *
 	 * @return bool If redirect has been encoded.
 	 */
 	public static function is_redirect_encoded( $redirect_url ) {
+		_deprecated_function( __METHOD__, 'jetpack-13.4' );
 		return preg_match( '/https?%3A%2F%2F/i', $redirect_url ) > 0;
 	}
 
@@ -5171,6 +5140,8 @@ endif;
 	/**
 	 * Add the Access Code details to the public-api.wordpress.com redirect.
 	 *
+	 * @deprecated 13.4
+	 *
 	 * @param string  $redirect_to URL.
 	 * @param string  $original_redirect_to URL.
 	 * @param WP_User $user WP_User for the redirect.
@@ -5178,20 +5149,15 @@ endif;
 	 * @return string
 	 */
 	public function add_token_to_login_redirect_json_api_authorization( $redirect_to, $original_redirect_to, $user ) {
-		return add_query_arg(
-			urlencode_deep(
-				array(
-					'jetpack-code'    => get_user_meta( $user->ID, 'jetpack_json_api_' . $this->json_api_authorization_request['client_id'], true ),
-					'jetpack-user-id' => (int) $user->ID,
-					'jetpack-state'   => $this->json_api_authorization_request['state'],
-				)
-			),
-			$redirect_to
-		);
+		_deprecated_function( __METHOD__, 'jetpack-13.4', 'Automattic\\Jetpack\\Connection\\Authorize_Json_Api::add_token_to_login_redirect_json_api_authorization' );
+
+		return ( new Authorize_Json_Api() )->add_token_to_login_redirect_json_api_authorization( $redirect_to, $original_redirect_to, $user );
 	}
 
 	/**
 	 * Verifies the request by checking the signature
+	 *
+	 * @deprecated 13.4
 	 *
 	 * @since 4.6.0 Method was updated to use `$_REQUEST` instead of `$_GET` and `$_POST`. Method also updated to allow
 	 * passing in an `$environment` argument that overrides `$_REQUEST`. This was useful for integrating with SSO.
@@ -5199,192 +5165,22 @@ endif;
 	 * @param null|array $environment Value to override $_REQUEST.
 	 */
 	public function verify_json_api_authorization_request( $environment = null ) {
-		$environment = $environment === null
-			? $_REQUEST // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce verification handled later in function.
-			: $environment;
+		_deprecated_function( __METHOD__, 'jetpack-13.4', 'Automattic\\Jetpack\\Connection\\Authorize_Json_Api::verify_json_api_authorization_request' );
 
-		list( $env_token,, $env_user_id ) = explode( ':', $environment['token'] );
-		$token                            = ( new Tokens() )->get_access_token( $env_user_id, $env_token );
-		if ( ! $token || empty( $token->secret ) ) {
-			wp_die( esc_html__( 'You must connect your Jetpack plugin to WordPress.com to use this feature.', 'jetpack' ) );
-		}
-
-		$die_error = __( 'Someone may be trying to trick you into giving them access to your site. Or it could be you just encountered a bug :).  Either way, please close this window.', 'jetpack' );
-
-		// Host has encoded the request URL, probably as a result of a bad http => https redirect.
-		if ( self::is_redirect_encoded( esc_url_raw( wp_unslash( $_GET['redirect_to'] ) ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- no site changes, we're erroring out.
-			/**
-			 * Jetpack authorisation request Error.
-			 *
-			 * @since 7.5.0
-			 */
-			do_action( 'jetpack_verify_api_authorization_request_error_double_encode' );
-			$die_error = sprintf(
-				/* translators: %s is a URL */
-				__( 'Your site is incorrectly double-encoding redirects from http to https. This is preventing Jetpack from authenticating your connection. Please visit our <a href="%s">support page</a> for details about how to resolve this.', 'jetpack' ),
-				esc_url( Redirect::get_url( 'jetpack-support-double-encoding' ) )
-			);
-		}
-
-		$jetpack_signature = new Jetpack_Signature( $token->secret, (int) Jetpack_Options::get_option( 'time_diff' ) );
-
-		if ( isset( $environment['jetpack_json_api_original_query'] ) ) {
-			$signature = $jetpack_signature->sign_request(
-				$environment['token'],
-				$environment['timestamp'],
-				$environment['nonce'],
-				'',
-				'GET',
-				$environment['jetpack_json_api_original_query'],
-				null,
-				true
-			);
-		} else {
-			$signature = $jetpack_signature->sign_current_request(
-				array(
-					'body'   => null,
-					'method' => 'GET',
-				)
-			);
-		}
-
-		if ( ! $signature ) {
-			wp_die(
-				wp_kses(
-					$die_error,
-					array(
-						'a' => array(
-							'href' => array(),
-						),
-					)
-				)
-			);
-		} elseif ( is_wp_error( $signature ) ) {
-			wp_die(
-				wp_kses(
-					$die_error,
-					array(
-						'a' => array(
-							'href' => array(),
-						),
-					)
-				)
-			);
-		} elseif ( ! hash_equals( $signature, $environment['signature'] ) ) {
-			if ( is_ssl() ) {
-				// If we signed an HTTP request on the Jetpack Servers, but got redirected to HTTPS by the local blog, check the HTTP signature as well.
-				$signature = $jetpack_signature->sign_current_request(
-					array(
-						'scheme' => 'http',
-						'body'   => null,
-						'method' => 'GET',
-					)
-				);
-				if ( ! $signature || is_wp_error( $signature ) || ! hash_equals( $signature, $environment['signature'] ) ) {
-					wp_die(
-						wp_kses(
-							$die_error,
-							array(
-								'a' => array(
-									'href' => array(),
-								),
-							)
-						)
-					);
-				}
-			} else {
-				wp_die(
-					wp_kses(
-						$die_error,
-						array(
-							'a' => array(
-								'href' => array(),
-							),
-						)
-					)
-				);
-			}
-		}
-
-		$timestamp = (int) $environment['timestamp'];
-		$nonce     = stripslashes( (string) $environment['nonce'] );
-
-		if ( ! $this->connection_manager ) {
-			$this->connection_manager = new Connection_Manager();
-		}
-
-		if ( ! ( new Nonce_Handler() )->add( $timestamp, $nonce ) ) {
-			// De-nonce the nonce, at least for 5 minutes.
-			// We have to reuse this nonce at least once (used the first time when the initial request is made, used a second time when the login form is POSTed).
-			$old_nonce_time = get_option( "jetpack_nonce_{$timestamp}_{$nonce}" );
-			if ( $old_nonce_time < time() - 300 ) {
-				wp_die( esc_html__( 'The authorization process expired. Please go back and try again.', 'jetpack' ) );
-			}
-		}
-
-		$data         = json_decode( base64_decode( stripslashes( $environment['data'] ) ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
-		$data_filters = array(
-			'state'        => 'opaque',
-			'client_id'    => 'int',
-			'client_title' => 'string',
-			'client_image' => 'url',
-		);
-
-		foreach ( $data_filters as $key => $sanitation ) {
-			if ( ! isset( $data->$key ) ) {
-				wp_die(
-					wp_kses(
-						$die_error,
-						array(
-							'a' => array(
-								'href' => array(),
-							),
-						)
-					)
-				);
-			}
-
-			switch ( $sanitation ) {
-				case 'int':
-					$this->json_api_authorization_request[ $key ] = (int) $data->$key;
-					break;
-				case 'opaque':
-					$this->json_api_authorization_request[ $key ] = (string) $data->$key;
-					break;
-				case 'string':
-					$this->json_api_authorization_request[ $key ] = wp_kses( (string) $data->$key, array() );
-					break;
-				case 'url':
-					$this->json_api_authorization_request[ $key ] = esc_url_raw( (string) $data->$key );
-					break;
-			}
-		}
-
-		if ( empty( $this->json_api_authorization_request['client_id'] ) ) {
-			wp_die(
-				wp_kses(
-					$die_error,
-					array(
-						'a' => array(
-							'href' => array(),
-						),
-					)
-				)
-			);
-		}
+		return ( new Authorize_Json_Api() )->verify_json_api_authorization_request( $environment );
 	}
 
 	/**
 	 * HTML for the JSON API authorization notice.
 	 *
+	 * @deprecated 13.4
+	 *
 	 * @return string
 	 */
 	public function login_message_json_api_authorization() {
-		return '<p class="message">' . sprintf(
-			/* translators: Name/image of the client requesting authorization */
-			esc_html__( '%s wants to access your site’s data. Log in to authorize that access.', 'jetpack' ),
-			'<strong>' . esc_html( $this->json_api_authorization_request['client_title'] ) . '</strong>'
-		) . '<img src="' . esc_url( $this->json_api_authorization_request['client_image'] ) . '" /></p>';
+		_deprecated_function( __METHOD__, 'jetpack-13.4', 'Automattic\\Jetpack\\Connection\\Authorize_Json_Api::login_message_json_api_authorization' );
+
+		return ( new Authorize_Json_Api() )->login_message_json_api_authorization();
 	}
 
 	/**
@@ -5803,6 +5599,10 @@ endif;
 			'jetpack_pre_connection_prompt_helpers'        => array(
 				'replacement' => null,
 				'version'     => 'jetpack-13.2.0',
+			),
+			'jetpack_contact_form_use_package'             => array(
+				'replacement' => null,
+				'version'     => 'jetpack-13.4.0',
 			),
 		);
 

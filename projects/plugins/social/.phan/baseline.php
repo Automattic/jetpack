@@ -10,7 +10,6 @@
 return [
     // # Issue statistics:
     // PhanUndeclaredProperty : 20+ occurrences
-    // PhanMisspelledAnnotation : 2 occurrences
     // PhanDeprecatedFunction : 1 occurrence
     // PhanNoopNew : 1 occurrence
     // PhanTypeMismatchArgument : 1 occurrence
@@ -19,7 +18,7 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'jetpack-social.php' => ['PhanNoopNew'],
-        'src/class-jetpack-social.php' => ['PhanMisspelledAnnotation', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/class-jetpack-social.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-note.php' => ['PhanTypeMismatchArgument'],
         'tests/php/test-class-jetpack-social.php' => ['PhanDeprecatedFunction', 'PhanUndeclaredProperty'],
         'tests/php/test-class-meta-tags.php' => ['PhanUndeclaredProperty'],

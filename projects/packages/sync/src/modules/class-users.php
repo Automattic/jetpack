@@ -180,7 +180,7 @@ class Users extends Module {
 	 * @access private
 	 *
 	 * @param mixed $user User object or ID.
-	 * @return \WP_User User object, or `null` if user invalid/not found.
+	 * @return \WP_User|null User object, or `null` if user invalid/not found.
 	 */
 	private function get_user( $user ) {
 		if ( is_numeric( $user ) ) {
