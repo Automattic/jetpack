@@ -65,7 +65,11 @@ const AddConnectionModal = ( { onCloseModal } ) => {
 									) : null }
 								</td>
 								<td>
-									<Button variant="secondary" onClick={ onServiceSelected( service ) }>
+									<Button
+										variant="secondary"
+										onClick={ onServiceSelected( service ) }
+										aria-label={ __( 'Select service', 'jetpack' ) }
+									>
 										{ <Icon className={ styles.chevron } icon={ chevronRight } /> }
 									</Button>
 								</td>
