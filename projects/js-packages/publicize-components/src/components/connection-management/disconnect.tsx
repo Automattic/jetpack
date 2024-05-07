@@ -1,7 +1,7 @@
 import { Button } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
 
@@ -57,10 +57,15 @@ export function Disconnect( { connection, onReconnect }: DisconnectProps ) {
 		>
 			{ ( ( needsReconnection, isDisconnecting ) => {
 				if ( needsReconnection ) {
-					return isDisconnecting ? __( 'Reconnecting…', 'jetpack' ) : __( 'Reconnect', 'jetpack' );
+					// Use _x to avoid messed up minification
+					return isDisconnecting
+						? __( 'Reconnecting…', 'jetpack' )
+						: _x( 'Reconnect', 'Reconnect a social media account', 'jetpack' );
 				}
 
-				return isDisconnecting ? __( 'Disconnecting…', 'jetpack' ) : __( 'Disconnect', 'jetpack' );
+				return isDisconnecting
+					? __( 'Disconnecting…', 'jetpack' )
+					: _x( 'Disconnect', 'Disconnect a social media account', 'jetpack' );
 			} )( mustReconnect, isDisconnectingThis ) }
 		</Button>
 	);
