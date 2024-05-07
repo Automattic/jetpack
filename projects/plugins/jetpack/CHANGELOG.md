@@ -58,7 +58,7 @@
 - CloudFlare Analytics: deprecate feature and move to mu-wpcom. [#37061]
 - Contact Form: Removing code and renaming relevant references to ensure we use the package version of the contact form. [#37157]
 - Cookie Consent: Localize default text. [#37012]
-- Donations Block: Fix non localized strings. [#36951]
+- Donations Block: Fix non-localized strings. [#36951]
 - Donations Block: Show Stripe nudge if not connected. [#36841]
 - Enhanced Distribution: Remove deprecated module file. [#37032]
 - Eventbrite Block: Refactor Edit component to function. [#36739]
