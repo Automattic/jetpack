@@ -712,6 +712,35 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	}
 
 	/**
+	 * Adds plugins to the autoupdate list when deleting a schedule.
+	 *
+	 * @covers ::create_item
+	 * @covers ::get_item
+	 * @covers ::update_item
+	 * @covers ::delete_item
+	 */
+	public function test_crud_should_sync_three_times() {
+		wp_set_current_user( $this->admin_id );
+		$plugins = array(
+			'custom-plugin/custom-plugin.php',
+			'gutenberg/gutenberg.php',
+		);
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$request->set_body_params(
+			array(
+				'plugins'  => $plugins,
+				'schedule' => $this->get_schedule(),
+			)
+		);
+		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
+		$result      = rest_do_request( $request );
+
+		// Create.
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( $schedule_id, $result->get_data() );
+	}
+
+	/**
 	 * Get a schedule.
 	 *
 	 * @param string $timestamp Schedule timestamp.
