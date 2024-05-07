@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-12-01 14:10:10+0000\n"
+"PO-Revision-Date: 2024-04-30 20:10:15+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,7 +11,272 @@ msgstr ""
 "Language: kab_DZ\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:632
+#. translators: post title
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:174
+msgid "Share &#8220;%s&#8221; via Jetpack Social"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:255
+msgid "To access settings for plans, domains, subscribers, etc., click \"Hosting\" in the sidebar."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:253
+msgid "WordPress.com"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:166
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:167
+msgid "Settings"
+msgstr "Iɣewwaren"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:157
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:158
+msgid "Subscribers"
+msgstr "Imeltaɣen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:148
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:149
+msgid "Monetize"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:139
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:140
+msgid "Monitoring"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:130
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:131
+msgid "Configuration"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:121
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:122
+msgid "Purchases"
+msgstr "Tiɣin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:112
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:113
+msgid "Emails"
+msgstr "Imaylen:"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:103
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:104
+msgid "Domains"
+msgstr "Tiɣula"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:93
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:94
+msgid "Add-ons"
+msgstr "Izegrar"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:83
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:84
+msgid "Plans"
+msgstr "Iɣawasen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:63
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:64
+msgid "Hosting"
+msgstr "Tanezduɣt"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:35
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:36
+msgid "All Sites"
+msgstr "Isemlen merra"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:456
+msgid "Error: please try commenting again."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:381
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:387
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:394
+msgid "Error: your Facebook login has expired."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:292
+msgid "Cancel reply"
+msgstr "Semmet tiririt"
+
+#. translators: % is the original posters name
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:291
+msgid "Leave a reply to %s"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:289
+msgid "Leave a comment"
+msgstr "Eǧǧ-d awennit"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:231
+msgid "Save my name, email, and website in this browser for the next time I comment."
+msgstr "Sekles deg iminig-agi isem-iw, imayl-iw akked usmel-iw i tikkelt-nniḍen mi ara aruɣ awennit."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:230
+msgid "Comment sent successfully"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:229
+msgid "Subscribe"
+msgstr "S'abonner"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:228
+msgid "Enter your email address"
+msgstr "Sekcem tansa email inek(m)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:227
+msgid "Interested in getting blog post updates? Simply click the button below to stay in the loop!"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:226
+msgid "Never miss a beat!"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:225
+msgid "Continue reading"
+msgstr "Kemmel taɣuri"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:224
+msgid "Subscribe now to keep reading and get access to the full archive."
+msgstr ""
+
+#. translators: %s is the name of the site
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:223
+msgid "Discover more from %s"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:221
+msgid "Loading your comment..."
+msgstr ""
+
+#. translators: Success message of a modal when user subscribes
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:220
+msgid "We'll keep you in the loop!"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:218
+msgid "Optional"
+msgstr "D axetṛan"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:217
+msgid "Website"
+msgstr "Asmel n web"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:216
+msgid "Write a reply..."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:214
+msgid "Cancel"
+msgstr "Semmet"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:213
+msgid "Email me new comments"
+msgstr "Aznet-iyi-d iwenniten imaynuten s yimayl"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:212
+msgid "Email me new posts"
+msgstr "Aznet-iyi-d tisuffaɣ timaynutin s yimayl"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:211
+msgid "Notify me of new posts"
+msgstr "Lɣut-iyi-d s tsuffaɣ timaynutin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:210
+msgid "Weekly"
+msgstr "Yal imalass"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:209
+msgid "WordPress"
+msgstr "WordPress"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:208
+msgid "Comment"
+msgstr "Awennit"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:207
+msgid "Reply"
+msgstr "Efk-d tiririt"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:206
+msgid "Daily"
+msgstr "Yal ass"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:205
+msgid "Instantly"
+msgstr "Imir imir"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:204
+msgid "(Address never made public)"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:202
+msgid "Log out"
+msgstr "Senser"
+
+#. translators: %s is the name of the provider (WordPress, Facebook, Twitter)
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:201
+msgid "Logged in via %s"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:199
+msgid "Log in to leave a comment."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:198
+msgid "Log in to leave a reply."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:197
+msgid "Leave a comment. (log in optional)"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:196
+msgid "Leave a reply. (log in optional)"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:195
+msgid "Website (optional)"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:194
+msgid "Email (address never made public)"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:192
+msgid "Receive web and mobile notifications for posts on this site."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:191
+msgid "Log in or provide your name and email to leave a comment."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:190
+msgid "Log in or provide your name and email to leave a reply."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-gutenberg-editor.php:30
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:215
+msgid "Write a comment..."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:42
+msgid "Get started"
+msgstr "Aha bdu tura"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:40
+msgid "Use WordPress.com’s guided importer to import posts and comments from Medium, Substack, Squarespace, Wix, and more."
+msgstr ""
+
+#: notices/feature-moved-to-jetpack-notices.php:21
+msgid "Visit %1$sJetpack Settings%2$s for more writing settings powered by Jetpack."
+msgstr ""
+
+#: feature-plugins/scheduled-updates.php:37
+#: feature-plugins/scheduled-updates.php:38
+msgid "Scheduled Updates"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:689
 msgid "Verify the email address for your domains"
 msgstr ""
 
@@ -19,23 +284,23 @@ msgstr ""
 msgid "Site setup"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:622
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:679
 msgid "Finish Sensei setup"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:612
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:669
 msgid "Finish store setup"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:598
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:652
 msgid "Update your site's design"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:589
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:643
 msgid "Enable post sharing"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:580
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:634
 msgid "Install the mobile app"
 msgstr ""
 
@@ -130,83 +395,83 @@ msgstr ""
 msgid "Next steps for your site"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:570
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:624
 msgid "Add the Subscribe Block to your site"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:559
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:613
 msgid "Import existing subscribers"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:550
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:604
 msgid "View site metrics"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:541
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:595
 msgid "Set up ssh"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:532
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:583
 msgid "Install a custom plugin"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:523
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:571
 msgid "Choose a theme"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:511
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:559
 msgid "Set up an offer for your supporters"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:494
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:542
 msgid "Connect a Stripe account to collect payments"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:482
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:527
 msgid "Add your About page"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:472
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:517
 msgid "Manage your paid Newsletter plan"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:464
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:509
 msgid "Connect your social media accounts"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:453
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:498
 msgid "Manage your subscribers"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:443
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:485
 msgid "Write 3 posts"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:431
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:473
 msgid "Get your first 10 subscribers"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:422
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:464
 msgid "Enable subscribers modal"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:413
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:455
 msgid "Customize welcome message"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:403
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:445
 msgid "Earn money with your newsletter"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:352
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:388
 msgid "Update your About page"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:205
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:226
 msgid "Migrate content"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:135
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:150
 msgid "Verify email address"
 msgstr ""
 
@@ -273,36 +538,36 @@ msgstr ""
 msgid "Could not determine importer type."
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:395
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:437
 msgid "Share your site"
 msgstr "Bḍu asmel-ik"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:368
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:407
 msgid "Edit a page"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1324
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1529
 msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:380
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:422
 msgid "Customize your domain"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:342
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:375
 msgid "Add a new page"
 msgstr "Rnu asebter amaynut"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:332
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:365
 msgid "Drive traffic to your site"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:321
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:130
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:351
 msgid "Give your site a name"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:51
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:61
 msgid "Claim your free one-year domain"
 msgstr ""
 
@@ -312,101 +577,96 @@ msgctxt "verb"
 msgid "Gift"
 msgstr ""
 
-#: vendor/automattic/jetpack-post-list/src/class-post-list.php:190
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:191
 msgid "Thumbnail"
 msgstr "Tugna taqmaḍt"
 
-#. translators: post title
-#: vendor/automattic/jetpack-post-list/src/class-post-list.php:173
-msgid "Share &#8220;%s&#8221; via Publicize"
-msgstr ""
-
-#: vendor/automattic/jetpack-post-list/src/class-post-list.php:170
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:171
 msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "Bḍu"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:934
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1339
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:991
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1544
 msgid "Upgrade plan"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:159
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:177
 msgid "Create paid Newsletter"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:178
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:199
 msgid "Set up payment method"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:62
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:72
 msgid "Choose a domain"
 msgstr "Fren taɣult"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:281
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:308
 msgid "Launch your blog"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:18
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:28
 msgid "Edit site design"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:312
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:342
 msgid "Set up your site"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:289
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:316
 msgid "Name your blog"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:301
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:328
 msgid "Personalize your site"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:263
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:287
 msgid "Upload your first video"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:256
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:280
 msgid "Set up your video site"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:128
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:217
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:143
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:241
 msgid "Launch your site"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:225
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:249
 msgid "Add links"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:237
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:261
 msgid "Personalize Link in Bio"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:31
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:41
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:51
 msgid "Select a design"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:148
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:163
 msgid "Start writing"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:77
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:87
 msgid "Write your first post"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:195
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:216
 msgid "Add subscribers"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:95
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:107
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:119
 msgid "Choose a plan"
 msgstr "Fren aɣawas"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:169
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:187
 msgid "Personalize newsletter"
 msgstr ""
 
@@ -415,12 +675,12 @@ msgid "Unable to load class %1$s. Please add the package that contains it using 
 msgstr ""
 
 #. translators: 1: wp_default_scripts. 2: Name of the domain being aliased.
-#: vendor/automattic/jetpack-assets/src/class-assets.php:553
+#: vendor/automattic/jetpack-assets/src/class-assets.php:571
 msgid "Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain."
 msgstr ""
 
 #. translators: %s is the script handle.
-#: vendor/automattic/jetpack-assets/src/class-assets.php:388
+#: vendor/automattic/jetpack-assets/src/class-assets.php:405
 msgid "Script \"%s\" depends on wp-i18n but does not specify \"textdomain\""
 msgstr ""
 
@@ -778,7 +1038,7 @@ msgstr ""
 msgid "Tweets by %s"
 msgstr ""
 
-#: private-site/logged-in-banner.php:163
+#: private-site/logged-in-banner.php:165
 msgid "Next steps"
 msgstr "Imecwaren uḍfiren"
 
@@ -802,18 +1062,12 @@ msgstr ""
 msgid "It allows a user full control over your site and its contents."
 msgstr ""
 
-#: endpoints/class-github-hosting-webhook-response.php:387
 #: imports/utils/class-fileextractor.php:64
 msgid "The ZIP file could not be extracted."
 msgstr ""
 
-#: endpoints/class-github-hosting-webhook-response.php:378
 #: imports/utils/class-fileextractor.php:57
 msgid "The ZIP file could not be opened."
-msgstr ""
-
-#: endpoints/class-github-hosting-webhook-response.php:354
-msgid "Failed to save zipball in tmp folder."
 msgstr ""
 
 #: notices/media-library-private-site-cdn-notice.php:20
@@ -858,35 +1112,37 @@ msgstr ""
 msgid "You have used your space quota. Please delete files before uploading."
 msgstr "Tesqedceḍ akk tallunt i k-id-iṣaḥen. Ttxil-k kkes kra n ifuyla send ad tsiliḍ."
 
-#: private-site/logged-in-banner.php:127
+#: private-site/logged-in-banner.php:129
 msgid "Change theme"
 msgstr "Beddel asentel"
 
-#: private-site/logged-in-banner.php:126
+#: private-site/logged-in-banner.php:128
 msgid "Change"
 msgstr "Beddel"
 
-#: private-site/logged-in-banner.php:113
+#: private-site/logged-in-banner.php:115
 msgid "Edit page"
 msgstr "Ẓreg asebter"
 
-#: private-site/logged-in-banner.php:113
+#: private-site/logged-in-banner.php:115
 msgid "Edit post"
 msgstr "Ẓreg tasuffeɣt"
 
-#: private-site/logged-in-banner.php:112
+#: private-site/logged-in-banner.php:114
 msgid "Edit"
 msgstr "Ẓreg"
 
-#: private-site/logged-in-banner.php:163
+#: private-site/logged-in-banner.php:165
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:74
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:75
 msgid "My Home"
 msgstr "Agejdan"
 
-#: private-site/logged-in-banner.php:86
+#: private-site/logged-in-banner.php:88
 msgid "Launch"
 msgstr "Sker"
 
-#: private-site/logged-in-banner.php:82
+#: private-site/logged-in-banner.php:84
 msgid "Update"
 msgstr "Leqqem"
 
@@ -924,7 +1180,7 @@ msgstr ""
 msgid "Heads up! Your site is currently in Coming Soon mode. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
 msgstr ""
 
-#: feature-plugins/class-theme-homepage-switcher.php:108
+#: feature-plugins/class-theme-homepage-switcher.php:111
 msgid "Home"
 msgstr "Asnubeg"
 
@@ -940,7 +1196,7 @@ msgstr ""
 msgid "You do not have permission to access this page."
 msgstr ""
 
-#: feature-plugins/masterbar.php:90
+#: feature-plugins/masterbar.php:106
 msgid "Set your color scheme on WordPress.com."
 msgstr ""
 
@@ -1047,18 +1303,22 @@ msgstr ""
 msgid "Category Cloud"
 msgstr ""
 
-#: private-site/private-site.php:171
+#: private-site/private-site.php:172
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
 msgstr ""
 
-#: private-site/logged-in-banner.php:81
+#: private-site/logged-in-banner.php:83
 msgid "Update visibility"
 msgstr ""
 
-#: private-site/logged-in-banner.php:85
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:249
+#: private-site/logged-in-banner.php:87
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:273
 msgid "Launch site"
 msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:258
+msgid "Dismiss"
+msgstr "Ttu"
 
 #: wpcomsh.php:909
 msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
@@ -1253,8 +1513,11 @@ msgid "Display your about.me profile with thumbnail"
 msgstr "Sken amaɣun-inek about.me s tenfult"
 
 #: safeguard/utils.php:68
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1064
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1075
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1194
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1205
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1259
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1270
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1278
 msgid "Unable to fetch the requested data."
 msgstr "D awezɣi ad d-tawiḍ isefka tesriḍ."
 
@@ -1266,27 +1529,27 @@ msgstr "Xleq-d asmel n web neɣ ablug baṭel deg WordPress.com"
 msgid "Create a free website at WordPress.com"
 msgstr "Xleq-d asmel n web batel deg WordPress.com"
 
-#: footer-credit/footer-credit/footer-credit.php:100
+#: footer-credit/footer-credit/footer-credit.php:102
 msgid "Powered by WordPress.com"
 msgstr "Ittusumer-d sɣur WordPress.com"
 
 #: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:87
-#: footer-credit/footer-credit/footer-credit.php:97
+#: footer-credit/footer-credit/footer-credit.php:99
 #: footer-credit/theme-optimizations.php:30
 #: footer-credit/theme-optimizations.php:35
 msgid "Blog at WordPress.com"
 msgstr "Ablug deg WordPress.com"
 
-#: footer-credit/footer-credit/footer-credit.php:96
+#: footer-credit/footer-credit/footer-credit.php:98
 msgid "A WordPress.com Website"
 msgstr "Asmel n web deg WordPress.com"
 
-#: footer-credit/footer-credit/footer-credit.php:95
+#: footer-credit/footer-credit/footer-credit.php:97
 msgid "WordPress.com Logo"
 msgstr "Alugu WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:40
-#: footer-credit/footer-credit/footer-credit.php:204
+#: footer-credit/footer-credit/footer-credit.php:206
 msgid "Create a website or blog at WordPress.com"
 msgstr "Snulfu-d asmel n web neɣ ablug deg WordPress.com"
 
@@ -1310,19 +1573,19 @@ msgstr "Ffer"
 msgid "Default"
 msgstr "Lexṣas"
 
-#: footer-credit/footer-credit-optimizations.php:159
+#: footer-credit/footer-credit-optimizations.php:161
 msgid "Design by"
 msgstr "Ittufeṣṣel s:"
 
-#: footer-credit/footer-credit-optimizations.php:147
+#: footer-credit/footer-credit-optimizations.php:149
 msgid "by"
 msgstr "sɣur"
 
-#: footer-credit/footer-credit-optimizations.php:130
+#: footer-credit/footer-credit-optimizations.php:132
 msgid "Theme"
 msgstr "Asentel"
 
-#: footer-credit/footer-credit-optimizations.php:114
+#: footer-credit/footer-credit-optimizations.php:116
 msgid "Proudly powered by WordPress"
 msgstr "S zzux i yettwasexdem sɣur WordPress"
 
@@ -1350,7 +1613,7 @@ msgstr "Sekles"
 msgid "Activate &amp; Save"
 msgstr "Rmed & ḥrez"
 
-#: private-site/private-site.php:177
+#: private-site/private-site.php:179
 msgid "Manage your site visibility settings"
 msgstr "Sefrek iɣewwaren n ubani n usmel-inek"
 
@@ -1467,6 +1730,7 @@ msgstr "Tiliγri"
 msgid "Email"
 msgstr "Email"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:193
 #: widgets/class-aboutme-widget.php:129
 #: widgets/class-wpcom-widget-reservations.php:22
 msgid "Name"
@@ -1689,7 +1953,7 @@ msgid "Display all authors (including those who have not written any posts)"
 msgstr "Sken akk imeskar (seddu-d ula d wid ur d-nuri acemma)"
 
 #: widgets/class-gravatar-widget.php:157
-#: widgets/class-jetpack-i-voted-widget.php:69
+#: widgets/class-jetpack-i-voted-widget.php:70
 #: widgets/class-jetpack-posts-i-like-widget.php:85
 #: widgets/class-jetpack-widget-twitter.php:145
 #: widgets/class-music-player-widget.php:82 widgets/class-pd-top-rated.php:134
@@ -1716,12 +1980,12 @@ msgstr "Sken iẓiki n tugniwin n avatar n yimeskar"
 msgid "Author Grid"
 msgstr "Iẓiki n umeskar"
 
-#: private-site/private-site.php:645
+#: private-site/private-site.php:647
 msgid "Private Site"
 msgstr "Asmel uslig"
 
-#: private-site/private-site.php:455 private-site/private-site.php:572
-#: private-site/private-site.php:795
+#: private-site/private-site.php:457 private-site/private-site.php:574
+#: private-site/private-site.php:797
 msgid "This site is private."
 msgstr "Asmel-agi d uslig"
 
