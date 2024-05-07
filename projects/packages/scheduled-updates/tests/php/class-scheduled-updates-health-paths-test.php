@@ -46,6 +46,7 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_scheduled_update_verify_plugins', '__return_true', 11 );
 
 		Scheduled_Updates::init();
 	}
@@ -58,7 +59,7 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 	public function tear_down() {
 		wp_delete_user( $this->admin_id );
 		delete_option( Scheduled_Updates_Health_Paths::OPTION_NAME );
-
+		remove_filter( 'jetpack_scheduled_update_verify_plugins', '__return_true', 11 );
 		parent::tear_down_wordbless();
 	}
 
