@@ -288,10 +288,6 @@ jobs:
           cat "$HOME/tunnel.log"
           echo "::endgroup::"
 
-          # Copy debug.log to output folder, if it exists
-          error_log="$GITHUB_WORKSPACE/tools/docker/wordpress/wp-content/debug.log"
-          [ ! -f $error_log ] || cp $error_log output/logs/php_errors.log
-
           # Update permissions to workaround https://github.com/actions/cache/issues/753
           sudo chown -R runner:docker "$GITHUB_WORKSPACE/tools/docker"
 
