@@ -720,24 +720,82 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	 * @covers ::delete_item
 	 */
 	public function test_crud_should_sync_three_times() {
+		echo "\n\n\n--------------------\n\n\n";
 		wp_set_current_user( $this->admin_id );
-		$plugins = array(
+		$plugins       = array(
 			'custom-plugin/custom-plugin.php',
 			'gutenberg/gutenberg.php',
 		);
-		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$request       = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$base_schedule = $this->get_schedule();
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => $this->get_schedule(),
+				'schedule' => $base_schedule,
 			)
 		);
+
+		$counter     = 0;
 		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
-		$result      = rest_do_request( $request );
+		$callback    = function ( $value ) use ( &$counter ) {
+			++$counter;
+
+			return $value;
+		};
+
+		// Add a filter used to count the number of times the option is updated.
+		add_filter( 'pre_update_option_' . Scheduled_Updates::PLUGIN_CRON_HOOK, $callback );
 
 		// Create.
+		$result = rest_do_request( $request );
+
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame( $schedule_id, $result->get_data() );
+		$this->assertSame( 1, $counter );
+
+		// Read.
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/' . $schedule_id );
+		$result  = rest_do_request( $request );
+		$data    = $result->get_data();
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertIsArray( $data );
+		$this->assertSame( $base_schedule['timestamp'], $data['timestamp'] );
+		$this->assertSame( 1, $counter );
+
+		// Update.
+		$request       = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . $schedule_id );
+		$base_schedule = $this->get_schedule( 'next Monday 9:00' );
+		$request->set_body_params(
+			array(
+				'plugins'  => $plugins,
+				'schedule' => $base_schedule,
+			)
+		);
+
+		$result = rest_do_request( $request );
+		$data   = $result->get_data();
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( $schedule_id, $result->get_data() );
+		$this->assertSame( 2, $counter );
+
+		// Read again.
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/' . $schedule_id );
+		$result  = rest_do_request( $request );
+		$data    = $result->get_data();
+
+		$this->assertSame( $base_schedule['timestamp'], $data['timestamp'] );
+		$this->assertSame( 2, $counter );
+
+		// Delete.
+		$request = new WP_REST_Request( 'DELETE', '/wpcom/v2/update-schedules/' . $schedule_id );
+		$result  = rest_do_request( $request );
+
+		$this->assertTrue( $result->get_data() );
+		$this->assertSame( 3, $counter );
+
+		remove_filter( 'pre_update_option_' . Scheduled_Updates::PLUGIN_CRON_HOOK, $callback );
 	}
 
 	/**
