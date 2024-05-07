@@ -30,7 +30,7 @@
 - AI Assistant: Add inline extensions feature flag. [#37082]
 - AI Assistant: Add partial heading inline extension. [#37087]
 - AI Assistant: Add title optimization as beta [#37001]
-- AI Assistant: Add title optimization jetpack sidebar entry. [#37002]
+- AI Assistant: Add title optimization Jetpack sidebar entry. [#37002]
 - AI Assistant: Add title optimization modal content. [#37003]
 - AI Assistant: Add tracks and new entries for title optimization. [#37180]
 - AI Assistant: Add undo functionality and fix input with iframe. [#37200]
