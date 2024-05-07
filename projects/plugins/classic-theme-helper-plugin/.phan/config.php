@@ -4,7 +4,7 @@
  * default configuration. Command-line arguments will be applied
  * after this file is read.
  *
- * @package automattic/jetpack-classic-theme-helper-plugin
+ * @package automattic/classic-theme-helper-plugin
  */
 
 // Require base config.

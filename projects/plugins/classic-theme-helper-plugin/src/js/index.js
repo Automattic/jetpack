@@ -7,7 +7,7 @@ import AdminPage from './components/admin-page';
  * Initial render function.
  */
 function renderApp() {
-	const container = document.getElementById( 'jetpack-classic-theme-helper-plugin-root' );
+	const container = document.getElementById( 'classic-theme-helper-plugin-root' );
 
 	if ( null === container ) {
 		return;

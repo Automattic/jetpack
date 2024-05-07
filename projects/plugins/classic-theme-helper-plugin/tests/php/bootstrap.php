@@ -14,4 +14,4 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../vendor/antecedent/patchwork/Patchwork.php';
 
 \WorDBless\Load::load();
-require_once __DIR__ . '/../../jetpack-classic-theme-helper-plugin.php';
+require_once __DIR__ . '/../../classic-theme-helper-plugin.php';

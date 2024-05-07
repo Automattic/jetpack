@@ -40,6 +40,6 @@
 			"tools/e2e-commons"
 		],
 		"pluginSlug": "classic-theme-helper-plugin",
-		"mirrorName": "jetpack-classic-theme-helper-plugin"
+		"mirrorName": "classic-theme-helper-plugin"
 	}
 }

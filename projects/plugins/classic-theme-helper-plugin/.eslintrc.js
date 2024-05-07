@@ -6,11 +6,11 @@ module.exports = {
 		},
 	},
 	rules: {
-		// Enforce the use of the jetpack-classic-theme-helper-plugin textdomain.
+		// Enforce the use of the classic-theme-helper-plugin textdomain.
 		'@wordpress/i18n-text-domain': [
 			'error',
 			{
-				allowedTextDomain: 'jetpack-classic-theme-helper-plugin',
+				allowedTextDomain: 'classic-theme-helper-plugin',
 			},
 		],
 	},

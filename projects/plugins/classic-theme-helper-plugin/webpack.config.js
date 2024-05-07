@@ -50,7 +50,7 @@ module.exports = [
 		externals: {
 			...jetpackWebpackConfig.externals,
 			jetpackConfig: JSON.stringify( {
-				consumer_slug: 'jetpack-classic-theme-helper-plugin',
+				consumer_slug: 'classic-theme-helper-plugin',
 			} ),
 		},
 	},
