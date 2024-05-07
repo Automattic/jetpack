@@ -258,6 +258,7 @@ class Filesystem_Utils {
 			if ( ! self::is_rebuild_file( $file_path ) ) {
 				// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename, WordPress.PHP.NoSilencedErrors.Discouraged
 				@rename( $file_path, $file_path . self::REBUILD_FILE_EXTENSION );
+				@touch( $file_path . self::REBUILD_FILE_EXTENSION ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
 			}
 		}
 
