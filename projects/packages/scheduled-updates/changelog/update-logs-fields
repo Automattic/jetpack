@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Moved last_run_status and last_run_timestamp data to using rest fields

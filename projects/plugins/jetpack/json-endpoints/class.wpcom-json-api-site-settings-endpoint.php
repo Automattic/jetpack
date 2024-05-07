@@ -1028,7 +1028,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'jetpack_subscriptions_reply_to':
-					$to_set_value = (string) in_array( $value, array( 'no-reply', 'author' ), true ) ? $value : 'no-reply';
+					require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-settings.php';
+					$to_set_value = Automattic\Jetpack\Modules\Subscriptions\Settings::is_valid_reply_to( $value )
+						? $value
+						: Automattic\Jetpack\Modules\Subscriptions\Settings::get_default_reply_to();
+
 					update_option( 'jetpack_subscriptions_reply_to', (string) $to_set_value );
 					$updated[ $key ] = (bool) $value;
 					break;
@@ -1291,7 +1295,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	protected function get_subscriptions_reply_to_option() {
 		$reply_to = get_option( 'jetpack_subscriptions_reply_to', null );
 		if ( $reply_to === null ) {
-			return 'no-reply';
+			require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-settings.php';
+			return Automattic\Jetpack\Modules\Subscriptions\Settings::get_default_reply_to();
 		}
 		return $reply_to;
 	}
