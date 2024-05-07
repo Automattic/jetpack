@@ -15,7 +15,7 @@ type ConnectionInfoProps = ConnectionStatusProps;
 function ConnectionName( { connection }: Pick< ConnectionInfoProps, 'connection' > ) {
 	if ( connection.display_name ) {
 		if ( ! connection.profile_link ) {
-			return connection.display_name;
+			return <span>{ connection.display_name }</span>;
 		}
 		return (
 			<ExternalLink className={ styles[ 'profile-link' ] } href={ connection.profile_link }>
