@@ -1,6 +1,6 @@
 document.addEventListener( 'DOMContentLoaded', function () {
 	document
-		.querySelectorAll( '.jetpack-sso-invitation-tooltip-icon' )
+		.querySelectorAll( '.jetpack-sso-invitation-tooltip-icon:not(.sso-disconnected-user-icon)' )
 		.forEach( function ( tooltip ) {
 			tooltip.innerHTML += ' [?]';
 
@@ -16,6 +16,16 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			} );
 			tooltip.addEventListener( 'mouseleave', function () {
 				tooltip.removeChild( tooltipTextbox );
+			} );
+		} );
+	document
+		.querySelectorAll( '.jetpack-sso-invitation-tooltip-icon:not(.jetpack-sso-status-column)' )
+		.forEach( function ( tooltip ) {
+			tooltip.addEventListener( 'mouseenter', function () {
+				this.querySelector( '.jetpack-sso-invitation-tooltip' ).style.display = 'block';
+			} );
+			tooltip.addEventListener( 'mouseleave', function () {
+				this.querySelector( '.jetpack-sso-invitation-tooltip' ).style.display = 'none';
 			} );
 		} );
 } );
