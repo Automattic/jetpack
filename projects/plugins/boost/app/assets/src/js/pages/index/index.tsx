@@ -297,7 +297,12 @@ const Index = () => {
 			</Module>
 			<Module
 				slug="image_cdn"
-				title={ __( 'Image CDN', 'jetpack-boost' ) }
+				title={
+					<>
+						{ __( 'Image CDN', 'jetpack-boost' ) }
+						{ hasPremiumCdnFeatures && <Upgraded /> }
+					</>
+				}
 				description={
 					<>
 						<p>
