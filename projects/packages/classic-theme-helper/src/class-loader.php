@@ -23,11 +23,22 @@ class Loader {
 		'class-featured-content.php',
 	);
 
-	/**
-	 * Initialize Classic Theme Helper.
+	/** Holds the singleton instance of the Loader
+	 *
+	 * @var Loader
 	 */
-	public function init() {
-		add_action( 'plugins_loaded', array( $this, 'load_modules' ) );
+	public static $instance = false;
+
+	/**
+	 * Initialize the Loader.
+	 */
+	public static function init() {
+		if ( ! self::$instance ) {
+			self::$instance = new Loader();
+			add_action( 'plugins_loaded', array( self::$instance, 'load_modules' ) );
+		}
+
+		return self::$instance;
 	}
 
 	/**
@@ -44,3 +55,4 @@ class Loader {
 		}
 	}
 }
+Loader::init();
