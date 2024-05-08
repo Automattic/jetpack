@@ -14,7 +14,7 @@
 function wpcomsh_wpcom_admin_interface_settings_field() {
 	add_settings_field( 'wpcom_admin_interface', '', 'wpcom_admin_interface_display', 'general', 'default' );
 
-	register_setting( 'general', 'wpcom_admin_interface', 'esc_attr' );
+	register_setting( 'general', 'wpcom_admin_interface', array( 'sanitize_callback' => 'esc_attr' ) );
 }
 
 /**
