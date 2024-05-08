@@ -312,6 +312,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_reset_module_also_resets_full_sync_lock() {
 		$full_sync = Modules::get_module( 'full-sync' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync $full_sync';
 		$full_sync->start();
 		$this->assertTrue( $full_sync->is_started() );
 
@@ -547,6 +548,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 		// Initialize a Full Sync (all modules).
 		$full_sync = Modules::get_module( 'full-sync' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync $full_sync';
 		$full_sync->start();
 
 		// Modify send_duration so we don't send all data at once.

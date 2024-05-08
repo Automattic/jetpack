@@ -489,7 +489,8 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that all constants are returned by get_objects_by_id.
 	 */
 	public function test_get_objects_by_id() {
-		$module     = Modules::get_module( 'themes' );
+		$module = Modules::get_module( 'themes' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Themes $module';
 		$theme_info = $module->get_objects_by_id( 'theme-info', array() );
 		$this->assertEquals( $module->expand_theme_data(), $theme_info );
 	}
