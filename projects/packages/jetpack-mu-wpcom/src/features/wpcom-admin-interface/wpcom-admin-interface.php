@@ -30,7 +30,7 @@ function wpcom_admin_interface_display() {
 	echo '</fieldset>';
 }
 
-if ( ! empty( get_option( 'wpcom_classic_early_release' ) ) ) {
+if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 	add_action( 'admin_init', 'wpcomsh_wpcom_admin_interface_settings_field' );
 }
 
