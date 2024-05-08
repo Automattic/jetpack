@@ -4,6 +4,7 @@ import { Icon, chevronDown, external, check } from '@wordpress/icons';
 import cs from 'classnames';
 import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
 import useProduct from '../../data/products/use-product';
+import useAnalytics from '../../hooks/use-analytics';
 import useOutsideAlerter from '../../hooks/use-outside-alerter';
 import styles from './style.module.scss';
 
@@ -43,6 +44,8 @@ const ActionButton = ( {
 	const { manageUrl, purchaseUrl } = detail;
 	const isManageDisabled = ! manageUrl;
 	const dropdownRef = useRef( null );
+	const chevronRef = useRef( null );
+	const { recordEvent } = useAnalytics();
 
 	const isBusy = isFetching || isInstallingStandalone;
 	const hasAdditionalActions = additionalActions?.length > 0;
@@ -202,9 +205,17 @@ const ActionButton = ( {
 		[ additionalActions, getStatusAction, hasAdditionalActions ]
 	);
 
+	const recordDropdownStateChange = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_dropdown_toggled', {
+			product: slug,
+			state: ! isDropdownOpen ? 'open' : 'closed',
+		} );
+	}, [ isDropdownOpen, recordEvent, slug ] );
+
 	const onChevronClick = useCallback( () => {
 		setIsDropdownOpen( ! isDropdownOpen );
-	}, [ isDropdownOpen ] );
+		recordDropdownStateChange();
+	}, [ isDropdownOpen, recordDropdownStateChange ] );
 
 	// By default, we set the first "addition action" as the current action shown on the card.
 	// If there are none, set it to the status action.
@@ -213,8 +224,12 @@ const ActionButton = ( {
 	}, [ allActions ] );
 
 	// Close the dropdown when clicking outside of it.
-	useOutsideAlerter( dropdownRef, () => {
-		setIsDropdownOpen( false );
+	useOutsideAlerter( dropdownRef, e => {
+		// Don't need to use outside alerter if chevron is clicked, chevron button will handle it
+		if ( ! chevronRef.current.contains( e.target ) ) {
+			setIsDropdownOpen( false );
+			recordDropdownStateChange();
+		}
 	} );
 
 	if ( ! admin ) {
@@ -235,6 +250,11 @@ const ActionButton = ( {
 					const onDropdownMenuItemClick = () => {
 						setCurrentAction( allActions[ index ] );
 						setIsDropdownOpen( false );
+
+						recordEvent( 'jetpack_myjetpack_product_card_dropdown_action_clicked', {
+							product: slug,
+							action: label,
+						} );
 					};
 
 					return (
@@ -277,6 +297,7 @@ const ActionButton = ( {
 							currentAction.variant === 'primary' ? styles.primary : styles.secondary
 						) }
 						onClick={ onChevronClick }
+						ref={ chevronRef }
 					>
 						<Icon
 							icon={ chevronDown }
