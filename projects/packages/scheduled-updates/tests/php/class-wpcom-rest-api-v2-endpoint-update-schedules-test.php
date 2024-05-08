@@ -606,7 +606,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . Scheduled_Updates::generate_schedule_id( array() ) );
 		$request->set_body_params(
 			array(
-				'plugins'  => array(),
+				'plugins'  => array( 'gutenberg/gutenberg.php' ),
 				'schedule' => $this->get_schedule( 'next Tuesday 9:00', 'daily' ),
 			)
 		);

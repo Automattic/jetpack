@@ -286,15 +286,16 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 	 */
 	private function create_schedule( $i = 0 ) {
 		$request           = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
-		$scheduled_plugins = array( 'test/test' . $i . '.php' );
+		$scheduled_plugins = array( 'gutenberg/gutenberg.php', 'installed-plugin/installed-plugin.php' );
+		$scheduled_plugins = array_slice( $scheduled_plugins, 0, $i );
 		$request->set_body_params(
 			array(
-				'plugins'  => $scheduled_plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( "next Monday {$i}:00" ),
-					'interval'           => 'weekly',
-					'health_check_paths' => array(),
+				'plugins'            => $scheduled_plugins,
+				'schedule'           => array(
+					'timestamp' => strtotime( "next Monday {$i}:00" ),
+					'interval'  => 'weekly',
 				),
+				'health_check_paths' => array(),
 			)
 		);
 

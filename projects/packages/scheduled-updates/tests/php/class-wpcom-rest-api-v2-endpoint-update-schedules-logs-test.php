@@ -197,9 +197,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs_Test extends \WorDBless\B
 	 *
 	 * @param int $i Schedule index.
 	 */
-	private function create_test_schedule( $i = 0 ) {
+	private function create_test_schedule( $i = 1 ) {
 		$request           = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
-		$scheduled_plugins = array( 'test/test' . $i . '.php' );
+		$scheduled_plugins = array( 'gutenberg/gutenberg.php', 'installed-plugin/installed-plugin.php' );
+		$scheduled_plugins = array_slice( $scheduled_plugins, 0, $i );
 		$request->set_body_params(
 			array(
 				'plugins'  => $scheduled_plugins,
