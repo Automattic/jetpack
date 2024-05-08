@@ -80,6 +80,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		remove_filter( 'jetpack_scheduled_update_verify_plugins', '__return_true', 11 );
 
 		self::$sync_counter = 0;
+		remove_action( 'add_option', array( __CLASS__, 'sync_callback' ) );
 		remove_action( 'update_option', array( __CLASS__, 'sync_callback' ) );
 	}
 
