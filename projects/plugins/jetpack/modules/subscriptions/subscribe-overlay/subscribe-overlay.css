@@ -1,8 +1,8 @@
-body.jetpack-subscribe-modal-open {
+body.jetpack-subscribe-overlay-open {
 	overflow: hidden;
 }
 
-.jetpack-subscribe-modal {
+.jetpack-subscribe-overlay {
 	visibility: hidden;
 	position: fixed;
 	z-index: 50000; /* Same as WP.com Action bar */
@@ -15,12 +15,12 @@ body.jetpack-subscribe-modal-open {
 	transition: all 0.4s;
 }
 
-.jetpack-subscribe-modal.open {
+.jetpack-subscribe-overlay.open {
 	background-color: rgba(0,0,0,0.3);
 	visibility: visible;
 }
 
-.jetpack-subscribe-modal__modal-content {
+.jetpack-subscribe-overlay__overlay-content {
 	position: relative;
 	visibility: hidden;
 	overflow: hidden;
@@ -35,23 +35,7 @@ body.jetpack-subscribe-modal-open {
 	text-wrap: balance;
 }
 
-.jetpack-subscribe-modal.open .jetpack-subscribe-modal__modal-content {
+.jetpack-subscribe-overlay.open .jetpack-subscribe-overlay__overlay-content {
 	top: 0;
 	visibility: visible;
-}
-
-/*
- * These text-wrap properties still have limited browser
- * support, but based on feedback still adding them for when
- * they are supported.
- */
-.jetpack-subscribe-modal__modal-content p {
-	text-wrap: balance;
-	text-wrap: pretty;
-}
-
-@media screen and (max-width: 640px) {
-	.jetpack-subscribe-modal__modal-content {
-		width: 94%;
-	}
 }
