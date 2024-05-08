@@ -128,6 +128,9 @@ const EmailSettings = props => {
 				disableInSiteConnectionMode
 				module={ subscriptionsModule }
 				support={ {
+					link: getRedirectUrl( 'jetpack-support-subscriptions', {
+						anchor: 'reply-to-email-address',
+					} ),
 					text: __(
 						"Sets the reply to email address for your newsletter emails. It's the email where subscribers send their replies.",
 						'jetpack'
