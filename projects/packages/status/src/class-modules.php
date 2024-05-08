@@ -166,7 +166,7 @@ class Modules {
 		}
 
 		$key           = md5( $file_name . maybe_serialize( $headers ) );
-		$refresh_cache = is_admin() && isset( $_GET['page'] ) && str_starts_with( $_GET['page'], 'jetpack' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
+		$refresh_cache = is_admin() && isset( $_GET['page'] ) && is_string( $_GET['page'] ) && str_starts_with( $_GET['page'], 'jetpack' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
 
 		// If we don't need to refresh the cache, and already have the value, short-circuit!
 		if ( ! $refresh_cache && isset( $file_data_option[ $key ] ) ) {

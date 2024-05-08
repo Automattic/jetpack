@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix phpcs config, and phpdoc comments that were easy to fix.

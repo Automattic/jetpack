@@ -278,11 +278,17 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return $verified_plugins;
 		}
 
+		// Prevent the sync option to be updated during deletion. This will ensure that the sync is performed only once.
+		// Context: https://github.com/Automattic/jetpack/issues/27763
+		add_filter( Scheduled_Updates::PLUGIN_CRON_SYNC_HOOK, '__return_false' );
 		$deleted = $this->delete_item( $request );
+
 		if ( is_wp_error( $deleted ) ) {
 			return $deleted;
 		}
 
+		// Re-enable the sync option before creation.
+		remove_filter( Scheduled_Updates::PLUGIN_CRON_SYNC_HOOK, '__return_false' );
 		$item = $this->create_item( $request );
 
 		/**

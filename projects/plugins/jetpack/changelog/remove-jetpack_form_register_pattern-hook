@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Contact Form: Unhook the jetpack_form_register_pattern function to prevent most deprecation notices.
