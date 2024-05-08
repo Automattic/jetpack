@@ -2098,6 +2098,8 @@ importers:
         specifier: 4.9.1
         version: 4.9.1(webpack@5.76.0)
 
+  projects/packages/masterbar: {}
+
   projects/packages/my-jetpack:
     dependencies:
       '@automattic/format-currency':
