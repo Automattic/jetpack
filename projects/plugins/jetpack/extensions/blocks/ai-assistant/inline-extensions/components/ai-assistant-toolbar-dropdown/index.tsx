@@ -5,7 +5,7 @@ import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { ToolbarButton, Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import React, { useCallback } from 'react';
 /*
  * Internal dependencies
  */
@@ -70,13 +70,27 @@ export default function AiAssistantExtensionToolbarDropdown( {
 }: AiAssistantExtensionToolbarDropdownProps ): ReactElement {
 	const { tracks } = useAnalytics();
 
-	const toggleHandler = ( isOpen: boolean ) => {
-		if ( isOpen ) {
-			tracks.recordEvent( 'jetpack_ai_assistant_extension_toolbar_menu_show', {
-				block_type: blockType,
-			} );
-		}
-	};
+	const toggleHandler = useCallback(
+		( isOpen: boolean ) => {
+			if ( isOpen ) {
+				tracks.recordEvent( 'jetpack_ai_assistant_extension_toolbar_menu_show', {
+					block_type: blockType,
+				} );
+			}
+		},
+		[ blockType, tracks ]
+	);
+
+	const handleAskAiAssistant = useCallback( () => {
+		onAskAiAssistant?.();
+	}, [ onAskAiAssistant ] );
+
+	const handleRequestSuggestion = useCallback< OnRequestSuggestion >(
+		( promptType, options, humanText ) => {
+			onRequestSuggestion?.( promptType, options, humanText );
+		},
+		[ onRequestSuggestion ]
+	);
 
 	return (
 		<Dropdown
@@ -101,8 +115,8 @@ export default function AiAssistantExtensionToolbarDropdown( {
 				<AiAssistantExtensionToolbarDropdownContent
 					onClose={ onClose }
 					blockType={ blockType }
-					onAskAiAssistant={ onAskAiAssistant }
-					onRequestSuggestion={ onRequestSuggestion }
+					onAskAiAssistant={ handleAskAiAssistant }
+					onRequestSuggestion={ handleRequestSuggestion }
 				/>
 			) }
 		/>
