@@ -1,8 +1,8 @@
+import { globalNoticesStore } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch as coreDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
-import { store as noticesStore } from '@wordpress/notices';
 import {
 	DELETE_CONNECTION,
 	DELETING_CONNECTION,
@@ -170,7 +170,7 @@ export function deletingConnection( connectionId ) {
  */
 export function deleteConnectionById( { connectionId, showSuccessNotice = true } ) {
 	return async function ( { dispatch } ) {
-		const { createErrorNotice, createSuccessNotice } = coreDispatch( noticesStore );
+		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
 
 		try {
 			const path = `/jetpack/v4/social/connections/${ connectionId }`;
