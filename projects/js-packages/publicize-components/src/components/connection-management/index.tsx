@@ -1,18 +1,21 @@
 import { Button } from '@automattic/jetpack-components';
 import { useSelect } from '@wordpress/data';
+import { useCallback, useEffect, useReducer, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
-import { useCallback, useEffect, useReducer } from 'react';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store } from '../../social-store';
+import AddConnectionModal from '../add-connection-modal';
+import { SupportedService, getSupportedServices } from '../add-connection-modal/constants';
 import ConnectionIcon from '../connection-icon';
 import { ConnectionInfo } from './connection-info';
 import { Disconnect } from './disconnect';
-import { Snackbars } from './snackbars';
 import styles from './style.module.scss';
 
 const ConnectionManagement = ( { className = null } ) => {
 	const { refresh } = useSocialMediaConnections();
+
+	const [ currentService, setCurrentService ] = useState< SupportedService >( null );
 
 	const connections = useSelect( select => {
 		return select( store ).getConnections();
@@ -25,20 +28,26 @@ const ConnectionManagement = ( { className = null } ) => {
 		return a.service_name.localeCompare( b.service_name );
 	} );
 
-	const [ , /* isModalOpen, */ toggleModal ] = useReducer( state => ! state, false );
+	const [ isModalOpen, toggleModal ] = useReducer( state => ! state, false );
 
 	useEffect( () => {
 		refresh();
 	}, [ refresh ] );
 
 	const onReconnect = useCallback(
-		( _serviceName: string ) => () => {
-			toggleModal();
+		( serviceName: string ) => () => {
+			const service = getSupportedServices().find( _service => _service.name === serviceName );
 
-			// TODO Pass the service name to the modal
+			setCurrentService( service );
+			toggleModal();
 		},
 		[]
 	);
+
+	const onCloseModal = useCallback( () => {
+		setCurrentService( null );
+		toggleModal();
+	}, [] );
 
 	return (
 		<div className={ classNames( styles.wrapper, className ) }>
@@ -78,9 +87,16 @@ const ConnectionManagement = ( { className = null } ) => {
 			) : (
 				<span>{ __( 'There are no connections added yet.', 'jetpack' ) }</span>
 			) }
-			<Snackbars />
-			<Button size="small">{ __( 'Add new connection', 'jetpack' ) }</Button>
-			{ /* { isModalOpen && <AddConnectionModal onCloseModal={ toggleModal } /> } */ }
+			<Button onClick={ toggleModal } size="small">
+				{ __( 'Add new connection', 'jetpack' ) }
+			</Button>
+			{ isModalOpen && (
+				<AddConnectionModal
+					onCloseModal={ onCloseModal }
+					currentService={ currentService }
+					setCurrentService={ setCurrentService }
+				/>
+			) }
 		</div>
 	);
 };
