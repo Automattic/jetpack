@@ -5,7 +5,7 @@ use Automattic\Jetpack\Sync\Modules;
 
 require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
-// Mock object requiered for test_theme_update()
+/** Mock object requiered for test_theme_update(). */
 class Dummy_Sync_Test_WP_Upgrader {
 	public $skin;
 

@@ -178,7 +178,11 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		remove_action( 'my_expanding_action', array( $this->listener, 'action_handler' ) );
 	}
 
-	// expand the input to 2000 random chars
+	/**
+	 * Generate 2000 random chars.
+	 *
+	 * @return string
+	 */
 	public function expand_small_action_to_large_size() {
 		// we generate a random string so it's hard to compress (i.e. doesn't shrink when gzencoded)
 		$characters        = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';

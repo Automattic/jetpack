@@ -457,9 +457,13 @@ class Jetpack_Gutenberg {
 		if ( ! wp_script_is( 'jetpack-blocks-assets-base-url', 'registered' ) ) {
 			// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- No actual script, so no version needed.
 			wp_register_script( 'jetpack-blocks-assets-base-url', false, array(), null, array( 'in_footer' => false ) );
+			$json_encode_flags = JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP;
+			if ( get_option( 'blog_charset' ) === 'UTF-8' ) {
+				$json_encode_flags |= JSON_UNESCAPED_UNICODE;
+			}
 			wp_add_inline_script(
 				'jetpack-blocks-assets-base-url',
-				'var Jetpack_Block_Assets_Base_Url=' . wp_json_encode( plugins_url( self::get_blocks_directory(), JETPACK__PLUGIN_FILE ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+				'var Jetpack_Block_Assets_Base_Url=' . wp_json_encode( plugins_url( self::get_blocks_directory(), JETPACK__PLUGIN_FILE ), $json_encode_flags ) . ';',
 				'before'
 			);
 		}

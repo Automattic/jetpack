@@ -94,7 +94,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( isset( $empty['comments'] ) );
 	}
 
-	// this only applies to the test replicastore - in production we overlay data
+	/** This only applies to the test replicastore - in production we overlay data */
 	public function test_sync_start_resets_storage() {
 		self::factory()->post->create();
 		$this->sender->do_sync();
@@ -541,7 +541,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync->reset_data();
 	}
 
-	// phpunit -c tests/php.multisite.xml --filter test_full_sync_sends_only_current_blog_users_in_multisite
 	public function test_full_sync_sends_only_current_blog_users_in_multisite() {
 		if ( ! is_multisite() ) {
 			$this->markTestSkipped( 'Run it in multi site mode' );
@@ -740,7 +739,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( $this->server_replica_storage->get_option( 'non_existant' ) );
 	}
 
-	// to test run phpunit -c tests/php.multisite.xml --filter test_full_sync_sends_all_network_options
 	public function test_full_sync_sends_all_network_options() {
 		if ( ! is_multisite() ) {
 			$this->markTestSkipped( 'Run it in multi site mode' );

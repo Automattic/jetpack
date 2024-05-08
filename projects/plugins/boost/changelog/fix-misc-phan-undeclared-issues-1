@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Use correct class name ("Critical_CSS", not "CriticalCSS") in `Compatibility\Amp` phpdocs.
-
-

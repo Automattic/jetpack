@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Use `$feature instanceof Interface` directly in `if`. It's fine to apply it to non-objects, and doing it this way allows Phan to correctly infer the type of `$feature` in the body of the `if`.
-
-
