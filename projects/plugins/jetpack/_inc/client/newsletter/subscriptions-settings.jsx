@@ -1,4 +1,4 @@
-import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
@@ -6,7 +6,6 @@ import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import SupportInfo from 'components/support-info';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { isCurrentUserLinked, isUnavailableInOfflineMode, isOfflineMode } from 'state/connection';
@@ -101,7 +100,7 @@ function SubscriptionsSettings( props ) {
 			module={ SUBSCRIPTIONS_MODULE_NAME }
 			header={ __( 'Subscriptions', 'jetpack' ) }
 		>
-			<SettingsGroup disableInOfflineMode disableInSiteConnectionMode module={ subscriptions } >
+			<SettingsGroup disableInOfflineMode disableInSiteConnectionMode module={ subscriptions }>
 				<p>
 					{ __(
 						'Automatically add subscription forms to your site and turn visitors into subscribers.',
