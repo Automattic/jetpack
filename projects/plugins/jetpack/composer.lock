@@ -1218,13 +1218,14 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/google-analytics",
-				"reference": "982ff9228fdeb5333cf46d46a17ee4997b160cf1"
+				"reference": "0d84900e8c06cdb72abcc2d37f04b3dfdec33034"
 			},
 			"require": {
 				"php": ">=7.0"
 			},
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
+				"automattic/wordbless": "^0.4.2",
 				"yoast/phpunit-polyfills": "1.1.0"
 			},
 			"suggest": {
@@ -1262,6 +1263,12 @@
 				],
 				"test-php": [
 					"@composer phpunit"
+				],
+				"post-install-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"post-update-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
 				]
 			},
 			"license": [
@@ -2571,7 +2578,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/sync",
-				"reference": "6c08210f41958cbad899f8cf8f92435b91eaa932"
+				"reference": "4415298e32ada09dc9880eb8d4ec5b979efa4889"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2605,7 +2612,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "2.15.x-dev"
+					"dev-trunk": "2.16.x-dev"
 				},
 				"dependencies": {
 					"test-only": [

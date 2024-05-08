@@ -4,9 +4,10 @@ import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useReducer } from 'react';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store } from '../../social-store';
+import AddConnectionModal from '../add-connection-modal';
 import ConnectionIcon from '../connection-icon';
 import styles from './style.module.scss';
 
@@ -24,7 +25,7 @@ const ConnectionManagement = ( { className = null } ) => {
 		return a.service_name.localeCompare( b.service_name );
 	} );
 
-	// const [ isModalOpen, toggleModal ] = useReducer( state => ! state, false );
+	const [ isModalOpen, toggleModal ] = useReducer( state => ! state, false );
 
 	useEffect( () => {
 		refresh();
@@ -97,8 +98,10 @@ const ConnectionManagement = ( { className = null } ) => {
 			) : (
 				<span>{ __( 'There are no connections added yet.', 'jetpack' ) }</span>
 			) }
-			<Button size="small">{ __( 'Add new connection', 'jetpack' ) }</Button>
-			{ /* { isModalOpen && <AddConnectionModal onCloseModal={ toggleModal } /> } */ }
+			<Button onClick={ toggleModal } size="small">
+				{ __( 'Add new connection', 'jetpack' ) }
+			</Button>
+			{ isModalOpen && <AddConnectionModal onCloseModal={ toggleModal } /> }
 		</div>
 	);
 };

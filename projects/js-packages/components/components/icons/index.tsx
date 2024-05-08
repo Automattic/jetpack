@@ -278,11 +278,13 @@ export function getIconBySlug< Slug extends IconSlug >( slug: Slug ): IconsMap[ 
 export const SocialServiceIcon: React.FC< {
 	serviceName: React.ComponentProps< typeof SocialLogo >[ 'icon' ];
 	className?: string;
-} > = ( { serviceName, className } ) => {
+	iconSize?: number;
+} > = ( { serviceName, className, iconSize } ) => {
 	return (
 		<SocialLogo
 			className={ classNames( styles.socialIcon, styles[ serviceName ], className ) }
 			icon={ serviceName }
+			size={ iconSize || 24 }
 		/>
 	);
 };
