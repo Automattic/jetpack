@@ -174,7 +174,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		$this->modify_comment_helper( $comment, $expected_variable );
 	}
 
-	/*
+	/**
 	 * Updates comment, checks that event args match expected, checks event is not duplicated
 	 */
 	private function modify_comment_helper( $comment, $expected_variable ) {

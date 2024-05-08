@@ -25,6 +25,8 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 	// TODO:
 	// Add tests for Syncing data on shutdown
 	// Add tests that prove that we know constants change
+	// phpcs:ignore Squiz.Commenting.FunctionComment.WrongStyle -- Confuses this for a function comment.
+
 	public function test_white_listed_constant_is_synced() {
 		$helper                 = new Jetpack_Sync_Test_Helper();
 		$helper->array_override = array( 'TEST_FOO' );
