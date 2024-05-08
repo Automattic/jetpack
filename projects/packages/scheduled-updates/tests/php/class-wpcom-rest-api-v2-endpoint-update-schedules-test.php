@@ -882,7 +882,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		$option_3 = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
 		$this->assertArrayHasKey( $schedule_id, $option );
-		$this->assertLessThanOrEqual( $option[ $schedule_id ]->updated_at, $option_3[ $schedule_id ]->updated_at );
+		$this->assertLessThanOrEqual( $option_2[ $schedule_id ]->updated_at, $option_3[ $schedule_id ]->updated_at );
 	}
 	/**
 	 * A callback run when a sync is performed.
