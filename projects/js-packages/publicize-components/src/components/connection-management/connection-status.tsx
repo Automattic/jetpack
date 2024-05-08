@@ -15,7 +15,7 @@ export type ConnectionStatusProps = {
  * @returns {import('react').ReactNode} - React element
  */
 export function ConnectionStatus( { connection, onReconnect }: ConnectionStatusProps ) {
-	if ( connection.status === 'ok' ) {
+	if ( connection.status === undefined || connection.status === 'ok' ) {
 		return null;
 	}
 
