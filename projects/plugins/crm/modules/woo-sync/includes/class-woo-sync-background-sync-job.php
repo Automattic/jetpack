@@ -935,8 +935,8 @@ class Woo_Sync_Background_Sync_Job {
 
 		}
 
-		// Add/update invoice (if enabled) (previously `add_or_update_invoice`)
-		if ( $settings['wcinv'] == 1 && $crm_object_data['invoice']['status'] !== WOOSYNC_DO_NOT_CREATE['id'] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+		// Add/update invoice (if enabled) (previously `add_or_update_invoice`), while checking for a 'Do not create' status to avoid creating this invoice if the mapping doesn't allow it
+		if ( $settings['wcinv'] == 1 && isset( $crm_object_data['invoice'] ) && isset( $crm_object_data['invoice']['status'] ) && $crm_object_data['invoice']['status'] !== WOOSYNC_DO_NOT_CREATE['id'] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 
 			// retrieve existing invoice
 			// note this is substituting $crm_object_data['invoice']['existence_check_args'] for what should be $args, but it works
