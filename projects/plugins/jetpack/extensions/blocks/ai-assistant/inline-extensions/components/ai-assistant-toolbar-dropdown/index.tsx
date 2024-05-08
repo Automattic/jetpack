@@ -82,14 +82,23 @@ export default function AiAssistantExtensionToolbarDropdown( {
 	);
 
 	const handleAskAiAssistant = useCallback( () => {
+		tracks.recordEvent( 'jetpack_editor_ai_assistant_extension_toolbar_prompt_show', {
+			block_type: blockType,
+		} );
+
 		onAskAiAssistant?.();
-	}, [ onAskAiAssistant ] );
+	}, [ blockType, onAskAiAssistant, tracks ] );
 
 	const handleRequestSuggestion = useCallback< OnRequestSuggestion >(
 		( promptType, options, humanText ) => {
+			tracks.recordEvent( 'jetpack_editor_ai_assistant_extension_toolbar_button_click', {
+				suggestion: promptType,
+				block_type: blockType,
+			} );
+
 			onRequestSuggestion?.( promptType, options, humanText );
 		},
-		[ onRequestSuggestion ]
+		[ blockType, onRequestSuggestion, tracks ]
 	);
 
 	return (

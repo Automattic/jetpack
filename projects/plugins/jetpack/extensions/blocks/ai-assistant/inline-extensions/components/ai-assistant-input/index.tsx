@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { ExtensionAIControl } from '@automattic/jetpack-ai-client';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useState, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
@@ -48,6 +49,7 @@ export default function AiAssistantInput( {
 	const [ placeholder, setPlaceholder ] = useState( __( 'Ask Jetpack AI to edit…', 'jetpack' ) );
 	const [ showGuideLine, setShowGuideLine ] = useState( false );
 	const { autosaveAndRedirect } = useAICheckout();
+	const { tracks } = useAnalytics();
 	const [ requestsRemaining, setRequestsRemaining ] = useState( 0 );
 	const [ showUpgradeMessage, setShowUpgradeMessage ] = useState( false );
 	const {
@@ -61,31 +63,53 @@ export default function AiAssistantInput( {
 	const disabled = requireUpgrade || [ 'requesting', 'suggesting' ].includes( requestingState );
 
 	const handleSend = useCallback( () => {
+		tracks.recordEvent( 'jetpack_ai_assistant_extension_generate', {
+			block_type: blockType,
+		} );
+
 		request?.( value );
-	}, [ request, value ] );
+	}, [ blockType, request, tracks, value ] );
 
 	const handleStopSuggestion = useCallback( () => {
+		tracks.recordEvent( 'jetpack_ai_assistant_extension_stop', {
+			block_type: blockType,
+		} );
+
 		stopSuggestion?.();
-	}, [ stopSuggestion ] );
+	}, [ blockType, stopSuggestion, tracks ] );
 
 	function handleClose(): void {
 		close?.();
 	}
 
 	const handleUndo = useCallback( () => {
+		tracks.recordEvent( 'jetpack_ai_assistant_undo', {
+			block_type: blockType,
+		} );
+
 		undo?.();
-	}, [ undo ] );
+	}, [ blockType, tracks, undo ] );
 
 	const handleUpgrade = useCallback(
 		( event: MouseEvent< HTMLButtonElement > ) => {
+			tracks.recordEvent( 'jetpack_ai_upgrade_button', {
+				current_tier_slug: currentTier?.slug,
+				requests_count: requestsCount,
+				placement: 'jetpack_ai_assistant_extension',
+			} );
+
 			autosaveAndRedirect( event );
 		},
-		[ autosaveAndRedirect ]
+		[ autosaveAndRedirect, currentTier?.slug, requestsCount, tracks ]
 	);
 
 	const handleTryAgain = useCallback( () => {
+		tracks.recordEvent( 'jetpack_ai_assistant_try_again', {
+			block_type: blockType,
+		} );
+
 		tryAgain?.();
-	}, [ tryAgain ] );
+	}, [ blockType, tracks, tryAgain ] );
 
 	// Clears the input value on reset and when the request is done.
 	useEffect( () => {
