@@ -16,11 +16,11 @@ body.jetpack-subscribe-overlay-open {
 }
 
 .jetpack-subscribe-overlay.open {
-	background-color: rgba(0,0,0,0.3);
+	background-color: black; /* TODO: use theme background color? */
 	visibility: visible;
 }
 
-.jetpack-subscribe-overlay__overlay-content {
+.jetpack-subscribe-overlay__content {
 	position: relative;
 	visibility: hidden;
 	overflow: hidden;
@@ -32,10 +32,16 @@ body.jetpack-subscribe-overlay-open {
 	border-radius: 10px;
 	box-sizing: border-box;
 	transition: all 0.4s;
-	text-wrap: balance;
+	text-wrap: pretty;
 }
 
-.jetpack-subscribe-overlay.open .jetpack-subscribe-overlay__overlay-content {
+.jetpack-subscribe-overlay.open .jetpack-subscribe-overlay__content {
 	top: 0;
 	visibility: visible;
+}
+
+@media screen and (max-width: 640px) {
+	.jetpack-subscribe-overlay__content {
+		width: 94%;
+	}
 }

@@ -102,27 +102,27 @@ class Jetpack_Subscribe_Overlay {
 	 * @return string
 	 */
 	public function get_subscribe_overlay_template_content() {
-		// translators: %s is the name of the site.
-		$discover_more_from = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
-		$continue_reading   = __( 'Continue reading', 'jetpack' );
-		$subscribe_text     = __( 'Subscribe now to keep reading and get access to the full archive. Overlay!!!!!!', 'jetpack' );
+		$site_name        = get_bloginfo( 'name' );
+		$site_description = get_bloginfo( 'description' ); // TODO can be empty, how to handle?
+		$skip_to_content  = __( 'Skip to content', 'jetpack' );
 
 		return <<<HTML
 	<!-- wp:group {"style":{"spacing":{"padding":{"top":"32px","bottom":"32px","left":"32px","right":"32px"},"margin":{"top":"0","bottom":"0"}},"border":{"color":"#dddddd","width":"1px"}},"layout":{"type":"constrained","contentSize":"450px"}} -->
 	<div class="wp-block-group has-border-color" style="border-color:#dddddd;border-width:1px;margin-top:0;margin-bottom:0;padding-top:32px;padding-right:32px;padding-bottom:32px;padding-left:32px">
-
-	<!-- wp:heading {"textAlign":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"26px"},"layout":{"selfStretch":"fit","flexSize":null},"spacing":{"margin":{"top":"4px","bottom":"10px"}}}} -->
-		<h2 class="wp-block-heading has-text-align-center" style="margin-top:4px;margin-bottom:10px;font-size:26px;font-style:normal;font-weight:600">$discover_more_from</h2>
+		<!-- wp:site-logo {"width":90,"shouldSyncIcon":true,"align":"center","className":"is-style-rounded"} /-->
+	
+		<!-- wp:heading {"textAlign":"center","level":1} -->
+		<h1 class="wp-block-heading has-text-align-center">$site_name</h1>
 		<!-- /wp:heading -->
 
-		<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"15px"},"spacing":{"margin":{"top":"4px","bottom":"0px"}}}} -->
-		<p class='has-text-align-center' style='margin-top:4px;margin-bottom:0px;font-size:15px'>$subscribe_text</p>
+		<!-- wp:paragraph {"align":"center"} -->
+		<p class='has-text-align-center'>$site_description</p>
 		<!-- /wp:paragraph -->
 
-		<!-- wp:jetpack/subscriptions {"borderRadius":50,"className":"is-style-compact"} /-->
+		<!-- wp:jetpack/subscriptions /-->
 
-		<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"20px"}},"typography":{"fontSize":"14px"}},"className":"jetpack-subscribe-overlay__close"} -->
-		<p class="has-text-align-center jetpack-subscribe-overlay__close" style="margin-top:20px;font-size:14px"><a href="#">$continue_reading</a></p>
+		<!-- wp:paragraph {"align":"center","className":"jetpack-subscribe-overlay__to-content"} -->
+		<p class="has-text-align-center jetpack-subscribe-overlay__to-content"><a href="#">$skip_to_content</a> ↓</p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->
@@ -149,7 +149,8 @@ HTML;
 	public function add_subscribe_overlay_to_frontend() {
 		if ( $this->should_user_see_overlay() ) { ?>
 					<div class="jetpack-subscribe-overlay">
-						<div class="jetpack-subscribe-overlay__overlay-content">
+						<div class="jetpack-subscribe-overlay__close">X</div>
+						<div class="jetpack-subscribe-overlay__content">
 							<?php block_template_part( self::BLOCK_TEMPLATE_PART_SLUG ); ?>
 						</div>
 					</div>

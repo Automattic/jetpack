@@ -11,24 +11,23 @@ domReady( function () {
 	}
 
 	const close = document.getElementsByClassName( 'jetpack-subscribe-overlay__close' )[ 0 ];
+	close.onclick = function ( event ) {
+		event.preventDefault();
+		closeOverlay();
+	};
 
-	// User can edit modal, and could remove close link.
-	if ( close ) {
-		close.onclick = function ( event ) {
+	const toContent = document.getElementsByClassName( 'jetpack-subscribe-overlay__to-content' )[ 0 ];
+	// User can edit overlay, and could remove to content link.
+	if ( toContent ) {
+		toContent.onclick = function ( event ) {
 			event.preventDefault();
-			closeModal();
+			closeOverlay();
 		};
 	}
 
-	window.onclick = function ( event ) {
-		if ( event.target === overlay ) {
-			closeModal();
-		}
-	};
-
 	function closeOverlayOnEscapeKeydown( event ) {
 		if ( event.key === 'Escape' ) {
-			closeModal();
+			closeOverlay();
 		}
 	}
 
@@ -39,7 +38,7 @@ domReady( function () {
 		window.addEventListener( 'keydown', closeOverlayOnEscapeKeydown );
 	}
 
-	function closeModal() {
+	function closeOverlay() {
 		overlay.classList.remove( 'open' );
 		document.body.classList.remove( 'jetpack-subscribe-overlay-open' );
 		window.removeEventListener( 'keydown', closeOverlayOnEscapeKeydown );
