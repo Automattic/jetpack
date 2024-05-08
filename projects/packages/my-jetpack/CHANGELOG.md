@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.23.1] - 2024-05-08
+### Changed
+- Update dependencies.
+
 ## [4.23.0] - 2024-05-06
 ### Added
 - Add a has_free_offering boolean on My Jetpack products. [#36710]
@@ -1460,6 +1464,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.23.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.23.0...4.23.1
 [4.23.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.22.3...4.23.0
 [4.22.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.22.2...4.22.3
 [4.22.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.22.1...4.22.2
