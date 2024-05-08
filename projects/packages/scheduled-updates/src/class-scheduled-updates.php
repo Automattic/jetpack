@@ -34,7 +34,7 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PLUGIN_CRON_FILTER = 'jetpack_scheduled_plugins_update_filter';
+	const PLUGIN_CRON_SYNC_HOOK = 'jetpack_scheduled_plugins_update_sync';
 
 	/**
 	 * Initialize the class.
@@ -202,8 +202,8 @@ class Scheduled_Updates {
 	 * Save the schedules for sync after cron option saving.
 	 */
 	public static function update_option_cron() {
-		// Do not update the option if the filter is set to false.
-		if ( ! apply_filters( self::PLUGIN_CRON_FILTER, true ) ) {
+		// Do not update the option if the filter returns false.
+		if ( ! apply_filters( self::PLUGIN_CRON_SYNC_HOOK, true ) ) {
 			return;
 		}
 
