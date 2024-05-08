@@ -363,6 +363,7 @@ class WPCOM_Features {
 	public const GLOBAL_STYLES                     = 'global-styles';
 	public const GOOGLE_ANALYTICS                  = 'google-analytics';
 	public const GOOGLE_MY_BUSINESS                = 'google-my-business';
+	public const IMAGE_CDN_LIAR                    = 'image-cdn-liar';
 	public const IMAGE_CDN_QUALITY                 = 'image-cdn-quality';
 	public const IMAGE_SIZE_ANALYSIS               = 'image-size-analysis';
 	public const INSTALL_PLUGINS                   = 'install-plugins';
@@ -710,6 +711,10 @@ class WPCOM_Features {
 			self::JETPACK_COMPLETE_PLANS,
 			self::JETPACK_SECURITY_T1_PLANS,
 			self::JETPACK_SECURITY_T2_PLANS,
+		),
+		self::IMAGE_CDN_LIAR                   => array(
+			self::JETPACK_BOOST_PLANS,
+			self::JETPACK_COMPLETE_PLANS,
 		),
 		self::IMAGE_CDN_QUALITY                => array(
 			self::JETPACK_BOOST_PLANS,
