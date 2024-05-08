@@ -149,6 +149,15 @@ SCRIPT_SOURCE;
 			$data        = self::get_default_viewport_size_for_device( $device_type );
 		}
 
+		/**
+		 * Filter the viewport size. This is used for testing.
+		 *
+		 * @param array `$data`: array containing the width and height of the view port
+		 * @param string `$cookie_name`: Name of the viewport cookie
+		 * @param string `$cookie_value`: value of the viewport cookie
+		 *
+		 * @since   1.0.0
+		 */
 		return apply_filters( 'jetpack_boost_viewport_size', $data, self::VIEWPORT_COOKIE, $cookie_value );
 	}
 
@@ -158,6 +167,13 @@ SCRIPT_SOURCE;
 	 * @return array Viewport widths and heights
 	 */
 	public static function get_default_viewport_sizes() {
+		/**
+		 * Filter the supported critical css viewport sizes. This is used for testing.
+		 *
+		 * @param array `$viewport_sizes`: supported viewport sizes
+		 *
+		 * @since   1.0.0
+		 */
 		return apply_filters( 'jetpack_boost_critical_css_viewport_sizes', self::DEFAULT_VIEWPORT_SIZES );
 	}
 
@@ -169,7 +185,21 @@ SCRIPT_SOURCE;
 	 * @return array Viewport width and height.
 	 */
 	public static function get_default_viewport_size_for_device( $device_type ) {
-		$viewport_sizes    = apply_filters( 'jetpack_boost_critical_css_viewport_sizes', self::DEFAULT_VIEWPORT_SIZES );
+		/**
+		 * Filter the supported critical css viewport sizes. This is used for testing.
+		 *
+		 * @param array `$viewport_sizes`: supported viewport sizes
+		 *
+		 * @since   1.0.0
+		 */
+		$viewport_sizes = apply_filters( 'jetpack_boost_critical_css_viewport_sizes', self::DEFAULT_VIEWPORT_SIZES );
+		/**
+		 * Filter the default viewports. This is used for testing.
+		 *
+		 * @param array $viewports: supported viewports
+		 *
+		 * @since   1.0.0
+		 */
 		$default_viewports = apply_filters( 'jetpack_boost_critical_css_default_viewports', self::DEFAULT_VIEWPORTS );
 
 		foreach ( $default_viewports as $default ) {
@@ -202,6 +232,13 @@ SCRIPT_SOURCE;
 	 */
 	public static function pick_viewport( $width, $height ) {
 		// Get defined viewport sizes.
+		/**
+		 * Filter the supported critical css viewport sizes. This is used for testing.
+		 *
+		 * @param array `$viewport_sizes`: supported viewport sizes
+		 *
+		 * @since   1.0.0
+		 */
 		$viewport_sizes = apply_filters( 'jetpack_boost_critical_css_viewport_sizes', self::DEFAULT_VIEWPORT_SIZES );
 
 		// Default to the widest viewport in case we don't match anything.
@@ -244,6 +281,16 @@ SCRIPT_SOURCE;
 			}
 		}
 
+		/**
+		 * Filter the best viewport. This is used for testing.
+		 *
+		 * @param array $best_size: the narrowest defined viewport that is equal or wider than the passed width.
+		 * @param integer $width: the width of the viewport
+		 * @param integer $height: the height of the viewport
+		 * @param array $viewport_sizes: an array of viewport sizes
+		 *
+		 * @since   1.0.0
+		 */
 		return apply_filters( 'jetpack_boost_pick_viewport', $best_size, $width, $height, $viewport_sizes );
 	}
 
