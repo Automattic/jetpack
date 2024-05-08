@@ -107,8 +107,8 @@ class Jetpack_Subscribe_Overlay {
 		$skip_to_content  = __( 'Skip to content', 'jetpack' );
 
 		return <<<HTML
-	<!-- wp:group {"style":{"spacing":{"padding":{"top":"32px","bottom":"32px","left":"32px","right":"32px"},"margin":{"top":"0","bottom":"0"}},"border":{"color":"#dddddd","width":"1px"}},"layout":{"type":"constrained","contentSize":"450px"}} -->
-	<div class="wp-block-group has-border-color" style="border-color:#dddddd;border-width:1px;margin-top:0;margin-bottom:0;padding-top:32px;padding-right:32px;padding-bottom:32px;padding-left:32px">
+	<!-- wp:group {"layout":{"type":"constrained","contentSize":"400px"}} -->
+	<div class="wp-block-group">
 		<!-- wp:site-logo {"width":90,"shouldSyncIcon":true,"align":"center","className":"is-style-rounded"} /-->
 	
 		<!-- wp:heading {"textAlign":"center","level":1} -->
@@ -149,7 +149,11 @@ HTML;
 	public function add_subscribe_overlay_to_frontend() {
 		if ( $this->should_user_see_overlay() ) { ?>
 					<div class="jetpack-subscribe-overlay">
-						<div class="jetpack-subscribe-overlay__close">X</div>
+						<div class="jetpack-subscribe-overlay__close">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+								<path d="M5.40456 5L19 19M5 19L18.5954 5" stroke="black" stroke-width="1.5"/>
+							</svg>
+						</div>
 						<div class="jetpack-subscribe-overlay__content">
 							<?php block_template_part( self::BLOCK_TEMPLATE_PART_SLUG ); ?>
 						</div>
