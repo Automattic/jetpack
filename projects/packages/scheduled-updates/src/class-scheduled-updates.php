@@ -211,13 +211,18 @@ class Scheduled_Updates {
 		Scheduled_Updates_Active::add_active_field();
 		Scheduled_Updates_Health_Paths::add_health_check_paths_field();
 
-		$endpoint = new \WPCOM_REST_API_V2_Endpoint_Update_Schedules();
-		$events   = $endpoint->get_items( new \WP_REST_Request() );
+		$endpoint   = new \WPCOM_REST_API_V2_Endpoint_Update_Schedules();
+		$events     = $endpoint->get_items( new \WP_REST_Request() );
+		$updated_at = time();
 
 		if ( ! is_wp_error( $events ) ) {
 			$option = array_map(
-				function ( $event ) {
-					return (object) $event;
+				function ( $event ) use ( $updated_at ) {
+					$ret = (object) $event;
+					// Add updated_at field to ensure the option is always on sync.
+					$ret->updated_at = $updated_at;
+
+					return $ret;
 				},
 				$events->get_data()
 			);
