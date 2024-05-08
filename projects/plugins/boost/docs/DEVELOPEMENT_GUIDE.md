@@ -16,7 +16,6 @@
 	* [Critical CSS](#critical-css)
 	* [Render Blocking JS](#render-blocking-js)
 	* [Enabling/disabling modules and modules availability](#enabling/disabling-modules-and-modules-availability)
-	* [Bypassing the Jetpack connection](#bypassing-the-jetpack-connection)
 
 # Prerequisite
 
@@ -30,7 +29,7 @@ The following sections will just highlight some additional tips information spec
 
 Because Jetpack Boost as some feature which requires connection to WordPress.com, it is highly recommended that you are running your WordPress site using the [Docker setup](https://github.com/Automattic/jetpack/blob/trunk/tools/docker/README.md) with the [Jurassic Tube Tunneling Service](https://github.com/Automattic/jetpack/blob/trunk/tools/docker/README.md#jurassic-tube-tunneling-service) or [Ngrok](https://github.com/Automattic/jetpack/blob/trunk/tools/docker/README.md#using-ngrok-with-jetpack).
 
-If not, you might need as a prerequisite to [bypass the Jetpack connection](#bypassing-the-jetpack-connection).
+If not, you might need as a prerequisite to bypass the Jetpack connection.
 
 ## Build the project
 
@@ -155,20 +154,6 @@ Check out the inline documentation in the [Module class](https://github.com/Auto
 
 ## Render Blocking JS
 
-### Set up the ignore attribute
-
-Filter hook: `jetpack_boost_render_blocking_js_ignore_attribute`
-
-* Parameter string `$attribute`: the attribute used to ignore blocking. Default value: "data-jetpack-boost"
-
-Usage:
-```php
-add_filter( 'jetpack_boost_render_blocking_js_ignore_attribute', function( $attribute ) {
-        return $attribute;
-    }
-);
-```
-
 ### Filter to disable defer blocking JS
 
 Filter hook: `jetpack_boost_should_defer_js`
@@ -183,49 +168,7 @@ add_filter( 'jetpack_boost_should_defer_js', function( $defer ) {
 );
 ```
 
-### Filter to provide an array of registered script handles that should not be moved to the end of the document.
-
-Filter hook: `jetpack_boost_render_blocking_js_exclude_handles`
-
-* Parameter array `$handles`: an array of script handles
-
-Usage:
-```php
-add_filter( 'jetpack_boost_render_blocking_js_exclude_handles', function( $handles ) {
-        return $handles;
-    }
-);
-```
-
-### Filter to remove any scripts that should not be moved to the end of the document.
-
-Filter hook: `jetpack_boost_render_blocking_js_exclude_scripts`
-
-* Parameter array: Alter the array and remove any scripts that should not be moved to the end of the document.
-
-Usage:
-```php
-add_filter( 'jetpack_boost_render_blocking_js_exclude_scripts', function( $scripts ) {
-        return $scripts;
-    }
-);
-```
-
 ## Enabling/disabling modules and modules availability
-
-## Bypassing the Jetpack connection
-
-Filter hook: `jetpack_boost_connection_bypass`
-
-* Paramter integer `$connected`: return true to fake a connected state. This is useful for debugging and also on WordPress.com
-
-Usage:
-```php
-add_filter( 'jetpack_boost_connection_bypass', function( $connected ) {
-        return $connected;
-    }
-);
-```
 
 Filter hook: `jetpack_boost_connection_user_data`
 
