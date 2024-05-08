@@ -35,7 +35,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs_Test extends \WorDBless\B
 			)
 		);
 		wp_set_current_user( 0 );
-		add_filter( 'jetpack_scheduled_update_verify_plugins', '__return_true', 11 );
 
 		Scheduled_Updates::init();
 	}
@@ -47,7 +46,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs_Test extends \WorDBless\B
 	 */
 	public function tear_down() {
 		wp_delete_user( $this->admin_id );
-		remove_filter( 'jetpack_scheduled_update_verify_plugins', '__return_true', 11 );
 		parent::tear_down_wordbless();
 	}
 

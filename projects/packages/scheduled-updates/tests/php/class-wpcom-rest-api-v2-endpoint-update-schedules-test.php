@@ -56,7 +56,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 			)
 		);
 		wp_set_current_user( 0 );
-		add_filter( 'jetpack_scheduled_update_verify_plugins', '__return_true', 11 );
 
 		Scheduled_Updates::init();
 
@@ -77,7 +76,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		wp_clear_scheduled_hook( Scheduled_Updates::PLUGIN_CRON_HOOK );
 		delete_option( 'jetpack_scheduled_update_statuses' );
 		delete_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
-		remove_filter( 'jetpack_scheduled_update_verify_plugins', '__return_true', 11 );
 
 		self::$sync_counter = 0;
 		remove_action( 'add_option', array( __CLASS__, 'sync_callback' ) );

@@ -399,7 +399,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return $result;
 		}
 
-		$installed_plugins = array_filter( $plugins, array( Scheduled_Updates::class, 'is_plugin_installed' ) );
+		$installed_plugins = array_filter( $plugins, array( $this, 'is_plugin_installed' ) );
 		if ( empty( $installed_plugins ) ) {
 			return new \WP_Error(
 				'rest_forbidden',
@@ -408,7 +408,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			);
 		}
 
-		$unmanaged_plugins = array_diff( $plugins, array_filter( $plugins, array( Scheduled_Updates::class, 'is_plugin_managed' ) ) );
+		$unmanaged_plugins = array_diff( $plugins, array_filter( $plugins, array( Scheduled_Updates::class, 'is_managed_plugin' ) ) );
 		if ( empty( $unmanaged_plugins ) ) {
 			return new \WP_Error(
 				'rest_forbidden',
@@ -418,6 +418,20 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Check if a plugin is installed.
+	 *
+	 * @param string $plugin The plugin to check.
+	 * @return bool
+	 */
+	public function is_plugin_installed( $plugin ) {
+		if ( ! function_exists( 'validate_plugin' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		return 0 === validate_plugin( $plugin );
 	}
 
 	/**
