@@ -39,6 +39,12 @@ const blockExtensionMapper = {
 	'core/heading': 'heading',
 };
 
+type RequestOptions = {
+	promptType: PromptTypeProp;
+	options?: AiAssistantDropdownOnChangeOptionsArgProps;
+	humanText?: string;
+};
+
 // HOC to populate the block's edit component with the AI Assistant bar and button.
 const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 	return props => {
@@ -53,6 +59,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const [ consecutiveRequestCount, setConsecutiveRequestCount ] = useState( 0 );
 		const [ requestsRemaining, setRequestsRemaining ] = useState( 0 );
 		const [ showUpgradeMessage, setShowUpgradeMessage ] = useState( false );
+		const [ lastRequest, setLastRequest ] = useState< RequestOptions | null >( null );
 
 		// Only extend the allowed block types.
 		const possibleToExtendBlock = isPossibleToExtendBlock( {
@@ -103,10 +110,14 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			increaseRequestsCount();
 			setConsecutiveRequestCount( count => count + 1 );
 			inputRef.current?.focus();
+			setAction( '' );
+			setLastRequest( null );
 		}, [ increaseRequestsCount ] );
 
 		const onError = useCallback(
 			error => {
+				setAction( '' );
+
 				// Increase the AI Suggestion counter only for valid errors.
 				if ( error.code === ERROR_NETWORK || error.code === ERROR_QUOTA_EXCEEDED ) {
 					return;
@@ -212,11 +223,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const getRequestMessages = ( {
 			promptType,
 			options,
-			userPrompt,
 		}: {
 			promptType: PromptTypeProp;
 			options?: AiAssistantDropdownOnChangeOptionsArgProps;
-			userPrompt?: string;
 		} ) => {
 			const blockContent = getContent();
 
@@ -228,7 +237,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					context: {
 						type: mapInternalPromptTypeToBackendPromptType( promptType, extension ),
 						content: blockContent,
-						request: userPrompt,
+						request: options?.userPrompt,
 						tone: options?.tone,
 						language: options?.language,
 					},
@@ -247,6 +256,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 			debug( 'onRequestSuggestion', promptType, options );
 
+			setLastRequest( { promptType, options, humanText } );
+
 			/*
 			 * Always dequeue/cancel the AI Assistant feature async request,
 			 * in case there is one pending,
@@ -262,12 +273,17 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			resetSuggestions();
 			setAction( '' );
 			setConsecutiveRequestCount( 0 );
+			setLastRequest( null );
 		}, [ resetSuggestions ] );
 
 		const onUserRequest = ( userPrompt: string ) => {
 			const promptType = 'userPrompt';
-			const options = {};
-			const messages = getRequestMessages( { promptType, options, userPrompt } );
+			const options = { userPrompt };
+			const messages = getRequestMessages( { promptType, options } );
+
+			setLastRequest( { promptType, options } );
+
+			dequeueAsyncRequest();
 
 			request( messages );
 		};
@@ -285,6 +301,12 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			}
 
 			onClose();
+		};
+
+		const onTryAgain = () => {
+			if ( lastRequest ) {
+				onRequestSuggestion( lastRequest.promptType, lastRequest.options, lastRequest.humanText );
+			}
 		};
 
 		return (
@@ -305,6 +327,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 						stopSuggestion={ stopSuggestion }
 						close={ onClose }
 						undo={ onUndo }
+						tryAgain={ onTryAgain }
 					/>
 				) }
 

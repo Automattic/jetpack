@@ -20,6 +20,7 @@ require_once WORDADS_ROOT . '/php/class-wordads-cron.php';
 require_once WORDADS_ROOT . '/php/class-wordads-california-privacy.php';
 require_once WORDADS_ROOT . '/php/class-wordads-ccpa-do-not-sell-link-widget.php';
 require_once WORDADS_ROOT . '/php/class-wordads-consent-management-provider.php';
+require_once WORDADS_ROOT . '/php/class-wordads-smart.php';
 
 /**
  * Primary WordAds class.
@@ -214,6 +215,9 @@ class WordAds {
 			WordAds_Consent_Management_Provider::init();
 		}
 
+		// Initialize Smart.
+		WordAds_Smart::instance()->init( $this->params );
+
 		if ( ( isset( $_SERVER['REQUEST_URI'] ) && '/ads.txt' === $_SERVER['REQUEST_URI'] )
 			|| ( site_url( 'ads.txt', 'relative' ) === $_SERVER['REQUEST_URI'] ) ) {
 
@@ -376,6 +380,22 @@ class WordAds {
 			__ATA.criteo.cmd = __ATA.criteo.cmd || [];
 		</script>
 		<?php
+
+		// Get an inline tag with a macro as id handled on JS side to use as a fallback.
+		$tag_inline = $this->get_dynamic_ad_snippet( $this->params->blog_id . 5, 'square', 'inline', '', '{{unique_id}}' );
+
+		// Remove linebreaks and sanitize.
+		$tag_inline = esc_js( str_replace( array( "\n", "\t", "\r" ), '', $tag_inline ) );
+
+		// phpcs:disable WordPress.Security.EscapeOutput.HeredocOutputNotEscaped
+		echo <<<HTML
+				<script>
+					var sas_fallback = sas_fallback || [];
+					sas_fallback.push(
+						{ tag: "$tag_inline", type: 'inline' }
+					);
+				</script>
+HTML;
 	}
 
 	/**
@@ -689,16 +709,18 @@ HTML;
 	/**
 	 * Returns the dynamic snippet to be inserted into the ad unit
 	 *
-	 * @param  int    $section_id  section_id.
-	 * @param  string $form_factor form_factor.
-	 * @param  string $location    location.
-	 * @param  string $relocate    location to be moved after the fact for themes without required hook.
+	 * @param int           $section_id section_id.
+	 * @param string        $form_factor form_factor.
+	 * @param string        $location location.
+	 * @param string        $relocate location to be moved after the fact for themes without required hook.
+	 * @param string | null $id A unique string ID or placeholder.
+	 *
 	 * @return string
 	 *
 	 * @since 8.7
 	 */
-	public function get_dynamic_ad_snippet( $section_id, $form_factor = 'square', $location = '', $relocate = '' ) {
-		$div_id = 'atatags-' . $section_id . '-' . uniqid();
+	public function get_dynamic_ad_snippet( $section_id, $form_factor = 'square', $location = '', $relocate = '', $id = null ) {
+		$div_id = 'atatags-' . $section_id . '-' . ( $id ?? uniqid() );
 		$div_id = esc_attr( $div_id );
 
 		// Default form factor.
