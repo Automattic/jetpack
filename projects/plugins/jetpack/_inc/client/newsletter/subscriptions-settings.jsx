@@ -101,7 +101,13 @@ function SubscriptionsSettings( props ) {
 			module={ SUBSCRIPTIONS_MODULE_NAME }
 			header={ __( 'Subscriptions', 'jetpack' ) }
 		>
-			<SettingsGroup disableInOfflineMode disableInSiteConnectionMode module={ subscriptions }>
+			<SettingsGroup disableInOfflineMode disableInSiteConnectionMode module={ subscriptions } >
+				<p>
+					{ __(
+						'Automatically add subscription forms to your site and turn visitors into subscribers.',
+						'jetpack'
+					) }
+				</p>
 				<FormFieldset>
 					<ToggleControl
 						checked={ isSubscriptionsActive && isSubscribePostEndEnabled }
@@ -122,39 +128,25 @@ function SubscriptionsSettings( props ) {
 							</>
 						}
 					/>
-					<div className="jp-toggle-set">
-						<ToggleControl
-							checked={ isSubscriptionsActive && isSmEnabled }
-							disabled={ isDisabled }
-							toggling={ isSavingAnyOption( [ 'sm_enabled' ] ) }
-							onChange={ handleSubscribeModalToggleChange }
-							label={
-								<>
-									{ __( 'Show subscription pop-up when scrolling a post', 'jetpack' ) }
-									{ isBlockTheme && subscribeModalEditorUrl && (
-										<>
-											{ '. ' }
-											<ExternalLink href={ subscribeModalEditorUrl }>
-												{ __( 'Preview and edit', 'jetpack' ) }
-											</ExternalLink>
-										</>
-									) }
-								</>
-							}
-						/>
-						<SupportInfo
-							text={ __(
-								'Automatically add a subscription form pop-up to every post and turn visitors into subscribers. It will appear as readers scroll through your posts.',
-								'jetpack'
-							) }
-							link={ getRedirectUrl( 'jetpack-support-subscriptions', {
-								anchor: 'enable-a-subscriber-pop-up-for-your-posts',
-							} ) }
-							privacyLink={ getRedirectUrl( 'jetpack-support-subscriptions', {
-								anchor: 'privacy',
-							} ) }
-						/>
-					</div>
+					<ToggleControl
+						checked={ isSubscriptionsActive && isSmEnabled }
+						disabled={ isDisabled }
+						toggling={ isSavingAnyOption( [ 'sm_enabled' ] ) }
+						onChange={ handleSubscribeModalToggleChange }
+						label={
+							<>
+								{ __( 'Show subscription pop-up when scrolling a post', 'jetpack' ) }
+								{ isBlockTheme && subscribeModalEditorUrl && (
+									<>
+										{ '. ' }
+										<ExternalLink href={ subscribeModalEditorUrl }>
+											{ __( 'Preview and edit', 'jetpack' ) }
+										</ExternalLink>
+									</>
+								) }
+							</>
+						}
+					/>
 					<ToggleControl
 						checked={ isSubscriptionsActive && isStbEnabled }
 						disabled={ isDisabled }
