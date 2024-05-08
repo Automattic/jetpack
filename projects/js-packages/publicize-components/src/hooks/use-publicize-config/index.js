@@ -13,13 +13,11 @@ import { usePostMeta } from '../use-post-meta';
 
 const republicizeFeatureName = 'republicize';
 
-export type PublicizeConfig = ReturnType< typeof usePublicizeConfig >;
-
 /**
  * Hook that provides various elements of Publicize configuration,
  * whether it's enabled, and whether resharing is available.
  *
- * @returns { PublicizeConfig } The various flags and togglePublicizeFeature,
+ * @returns { object } The various flags and togglePublicizeFeature,
  * for toggling support for the current post.
  */
 export default function usePublicizeConfig() {
