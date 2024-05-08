@@ -1,20 +1,25 @@
+import { useConnection } from '@automattic/jetpack-connection';
 import {
 	getJetpackExtensionAvailability,
 	isUpgradable,
 	getJetpackData,
 	getSiteFragment,
+	isSimpleSite,
 } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
+import { store as socialStore } from '../../social-store';
 import { usePostMeta } from '../use-post-meta';
 
 const republicizeFeatureName = 'republicize';
+
+export type PublicizeConfig = ReturnType< typeof usePublicizeConfig >;
 
 /**
  * Hook that provides various elements of Publicize configuration,
  * whether it's enabled, and whether resharing is available.
  *
- * @returns { object } The various flags and togglePublicizeFeature,
+ * @returns { PublicizeConfig } The various flags and togglePublicizeFeature,
  * for toggling support for the current post.
  */
 export default function usePublicizeConfig() {
@@ -25,6 +30,7 @@ export default function usePublicizeConfig() {
 		getJetpackExtensionAvailability( republicizeFeatureName )?.available || isShareLimitEnabled;
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	const currentPostType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+	const { isUserConnected } = useConnection();
 
 	const connectionsRootUrl =
 		getJetpackData()?.social?.publicizeConnectionsUrl ??
@@ -105,6 +111,10 @@ export default function usePublicizeConfig() {
 	 */
 	const isJetpackSocialNote = 'jetpack-social-note' === currentPostType;
 
+	const needsUserConnection = ! isUserConnected && ! isSimpleSite();
+
+	const userConnectionUrl = useSelect( select => select( socialStore ).userConnectionUrl(), [] );
+
 	return {
 		isPublicizeEnabledMeta,
 		isPublicizeEnabled,
@@ -127,5 +137,7 @@ export default function usePublicizeConfig() {
 		isAutoConversionEnabled,
 		jetpackSharingSettingsUrl: getJetpackData()?.social?.jetpackSharingSettingsUrl,
 		isJetpackSocialNote,
+		needsUserConnection,
+		userConnectionUrl,
 	};
 }
