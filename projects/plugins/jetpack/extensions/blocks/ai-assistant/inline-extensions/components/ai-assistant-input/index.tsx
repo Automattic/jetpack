@@ -28,6 +28,7 @@ export type AiAssistantInputProps = {
 	stopSuggestion?: () => void;
 	close?: () => void;
 	undo?: () => void;
+	tryAgain?: () => void;
 };
 
 export default function AiAssistantInput( {
@@ -43,8 +44,10 @@ export default function AiAssistantInput( {
 	stopSuggestion,
 	close,
 	undo,
+	tryAgain,
 }: AiAssistantInputProps ): ReactElement {
 	const [ value, setValue ] = useState( '' );
+	const [ placeholder, setPlaceholder ] = useState( __( 'Ask Jetpack AI to edit…', 'jetpack' ) );
 	const [ showGuideLine, setShowGuideLine ] = useState( false );
 	const disabled = requireUpgrade || [ 'requesting', 'suggesting' ].includes( requestingState );
 	const { autosaveAndRedirect } = useAICheckout();
@@ -72,6 +75,10 @@ export default function AiAssistantInput( {
 		[ autosaveAndRedirect ]
 	);
 
+	function handleTryAgain(): void {
+		tryAgain?.();
+	}
+
 	// Clear the input value on reset and when the request is done.
 	useEffect( () => {
 		if ( [ 'init', 'done' ].includes( requestingState ) ) {
@@ -81,7 +88,12 @@ export default function AiAssistantInput( {
 
 	// Set the value to the quick action text once it changes.
 	useEffect( () => {
-		setValue( action || '' );
+		setPlaceholder( action || __( 'Ask Jetpack AI to edit…', 'jetpack' ) );
+
+		// Clear the input value when the action changes.
+		if ( action ) {
+			setValue( '' );
+		}
 	}, [ action ] );
 
 	// Show the guideline message when there is some text in the input.
@@ -91,7 +103,7 @@ export default function AiAssistantInput( {
 
 	return (
 		<ExtensionAIControl
-			placeholder={ __( 'Ask Jetpack AI to edit…', 'jetpack' ) }
+			placeholder={ placeholder }
 			disabled={ disabled }
 			value={ value }
 			state={ requestingState }
@@ -105,6 +117,7 @@ export default function AiAssistantInput( {
 			onClose={ handleClose }
 			onUndo={ handleUndo }
 			onUpgrade={ handleUpgrade }
+			onTryAgain={ handleTryAgain }
 			wrapperRef={ wrapperRef }
 			ref={ inputRef }
 		/>
