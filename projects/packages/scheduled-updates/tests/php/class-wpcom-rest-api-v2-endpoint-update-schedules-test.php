@@ -61,6 +61,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		Scheduled_Updates::init();
 
 		self::$sync_counter = 0;
+		add_action( 'add_option', array( __CLASS__, 'sync_callback' ) );
 		add_action( 'update_option', array( __CLASS__, 'sync_callback' ) );
 	}
 
