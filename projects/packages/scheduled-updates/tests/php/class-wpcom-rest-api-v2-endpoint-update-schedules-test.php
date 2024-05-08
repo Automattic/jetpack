@@ -826,6 +826,65 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	}
 
 	/**
+	 * The sync option should have a different updated field when the schedule is updated.
+	 *
+	 * @covers ::create_item
+	 */
+	public function test_sync_option_should_have_different_updated_at_field() {
+		wp_set_current_user( $this->admin_id );
+
+		$data    = array(
+			'plugins'  => array(
+				'custom-plugin/custom-plugin.php',
+				'gutenberg/gutenberg.php',
+			),
+			'schedule' => $this->get_schedule(),
+		);
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$request->set_body_params( $data );
+
+		// Create.
+		$schedule_id = Scheduled_Updates::generate_schedule_id( $data['plugins'] );
+		$result      = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( $schedule_id, $result->get_data() );
+		$this->assertSame( 1, self::$sync_counter );
+
+		$option = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
+		$this->assertArrayHasKey( $schedule_id, $option );
+		$this->assertLessThanOrEqual( time(), $option[ $schedule_id ]->updated_at );
+
+		// Update.
+		$request          = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . $schedule_id );
+		$data['schedule'] = $this->get_schedule( 'next Monday 9:00' );
+		$request->set_body_params( $data );
+
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( $schedule_id, $result->get_data() );
+		$this->assertSame( 2, self::$sync_counter );
+
+		$option_2 = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
+		$this->assertArrayHasKey( $schedule_id, $option );
+		$this->assertLessThanOrEqual( $option[ $schedule_id ]->updated_at, $option_2[ $schedule_id ]->updated_at );
+
+		$request          = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . $schedule_id );
+		$data['schedule'] = $this->get_schedule();
+		$request->set_body_params( $data );
+
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( $schedule_id, $result->get_data() );
+		$this->assertSame( 3, self::$sync_counter );
+
+		$option_3 = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
+		$this->assertArrayHasKey( $schedule_id, $option );
+		$this->assertLessThanOrEqual( $option_2[ $schedule_id ]->updated_at, $option_3[ $schedule_id ]->updated_at );
+	}
+	/**
 	 * A callback run when a sync is performed.
 	 *
 	 * @param string $option Option name.
