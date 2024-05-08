@@ -221,7 +221,7 @@ jobs:
           echo "::endgroup::"
 
           # Ensure that wp debug.log exists and the web process can write to it
-          mkdir -p $(dirname "$WP_DEBUG_PATH")
+          mkdir -p "$(dirname "$WP_DEBUG_PATH")"
           touch "$WP_DEBUG_PATH"
           chmod 0666 "$WP_DEBUG_PATH"
 
