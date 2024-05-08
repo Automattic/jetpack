@@ -1,9 +1,10 @@
 import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
+import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chevronDown } from '@wordpress/icons';
 import classNames from 'classnames';
-import { useCallback, useState } from 'react';
 import { store } from '../../social-store';
 import ConnectButton from '../connect-button';
 import { ConnectPage } from './connect-page/connect-page';
@@ -19,17 +20,17 @@ const AddConnectionModal = ( { onCloseModal } ) => {
 			.reduce(
 				( serviceData, service ) => ( {
 					...serviceData,
-					[ service.ID ]: service.connect_Url,
+					[ service.ID ]: service.connect_URL,
 				} ),
 				{}
 			);
 
 		return supportedConnections
 			.filter( connection => Object.hasOwn( services, connection.name ) )
-			.map( connection => {
-				connection.connectUrl = services[ connection.name ];
-				return connection;
-			} );
+			.map( connection => ( {
+				...connection,
+				connectUrl: services[ connection.name ],
+			} ) );
 	}, [] );
 
 	const [ currentService, setCurrentService ] = useState( null );

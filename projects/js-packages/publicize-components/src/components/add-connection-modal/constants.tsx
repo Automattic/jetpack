@@ -80,7 +80,7 @@ export const getSupportedConnections = (): Connection[] => {
 				'Share photos from your site to your Instagram Business account.',
 				'jetpack'
 			),
-			name: 'instagram',
+			name: 'instagram-business',
 			examples: [
 				() => (
 					<>

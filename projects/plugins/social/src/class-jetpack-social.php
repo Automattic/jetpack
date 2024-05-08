@@ -265,6 +265,7 @@ class Jetpack_Social {
 			);
 		}
 
+		error_log( print_r( $state, true ) );
 		return $state;
 	}
 
