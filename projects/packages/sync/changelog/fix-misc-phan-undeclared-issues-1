@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Reimplement `Replicastore::get_user()` to not try to call a nonexistent method.

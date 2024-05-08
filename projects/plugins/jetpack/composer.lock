@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "2d56d2e8cbc747ab23d1b1699a16ef76",
+	"content-hash": "aabdf7e6c89c547ee123802392e66866",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -1137,7 +1137,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
-				"reference": "a7f72c97950c8fa07ba69d2e5946b80fa56ae225"
+				"reference": "4c1d11d5592918996f3031a463c539f44a15fb67"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1165,7 +1165,7 @@
 					"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.30.x-dev"
+					"dev-trunk": "0.31.x-dev"
 				},
 				"textdomain": "jetpack-forms",
 				"version-constants": {
@@ -1208,6 +1208,66 @@
 				"GPL-2.0-or-later"
 			],
 			"description": "Jetpack Forms",
+			"transport-options": {
+				"relative": true
+			}
+		},
+		{
+			"name": "automattic/jetpack-google-analytics",
+			"version": "dev-trunk",
+			"dist": {
+				"type": "path",
+				"url": "../../packages/google-analytics",
+				"reference": "982ff9228fdeb5333cf46d46a17ee4997b160cf1"
+			},
+			"require": {
+				"php": ">=7.0"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"yoast/phpunit-polyfills": "1.1.0"
+			},
+			"suggest": {
+				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+			},
+			"type": "jetpack-library",
+			"extra": {
+				"autotagger": true,
+				"branch-alias": {
+					"dev-trunk": "0.1.x-dev"
+				},
+				"changelogger": {
+					"link-template": "https://github.com/Automattic/jetpack-google-analytics/compare/v${old}...v${new}"
+				},
+				"mirror-repo": "Automattic/jetpack-google-analytics",
+				"textdomain": "jetpack-google-analytics",
+				"version-constants": {
+					"::PACKAGE_VERSION": "src/class-ga-manager.php"
+				}
+			},
+			"autoload": {
+				"classmap": [
+					"src/"
+				]
+			},
+			"scripts": {
+				"build-development": [
+					"echo 'Add your build step to composer.json, please!'"
+				],
+				"build-production": [
+					"echo 'Add your build step to composer.json, please!'"
+				],
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"description": "Set up Google Analytics without touching a line of code.",
 			"transport-options": {
 				"relative": true
 			}
@@ -2049,7 +2109,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "cdf843add1fb7328d3b3c5f265d1a6b6ce9cd792"
+				"reference": "81b0b1f69ea4cf23a5a0dce2312b89487a029120"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -2077,7 +2137,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.42.x-dev"
+					"dev-trunk": "0.43.x-dev"
 				}
 			},
 			"autoload": {
@@ -2511,7 +2571,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/sync",
-				"reference": "6c08210f41958cbad899f8cf8f92435b91eaa932"
+				"reference": "4415298e32ada09dc9880eb8d4ec5b979efa4889"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2545,7 +2605,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "2.15.x-dev"
+					"dev-trunk": "2.16.x-dev"
 				},
 				"dependencies": {
 					"test-only": [
@@ -5691,6 +5751,7 @@
 		"automattic/jetpack-device-detection": 20,
 		"automattic/jetpack-error": 20,
 		"automattic/jetpack-forms": 20,
+		"automattic/jetpack-google-analytics": 20,
 		"automattic/jetpack-google-fonts-provider": 20,
 		"automattic/jetpack-identity-crisis": 20,
 		"automattic/jetpack-image-cdn": 20,
