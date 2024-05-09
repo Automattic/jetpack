@@ -75,3 +75,4 @@ export { default as ProgressBar } from './components/progress-bar';
 export { default as UpsellBanner } from './components/upsell-banner';
 export { getUserLocale, cleanLocale } from './lib/locale';
 export { default as RadioControl } from './components/radio-control';
+export * from './components/global-notices';

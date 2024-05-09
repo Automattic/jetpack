@@ -231,6 +231,10 @@ class Jetpack_Memberships {
 	 * Logs the subscriber out by clearing out the premium content cookie.
 	 */
 	public function subscriber_logout() {
+		if ( ! class_exists( 'Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service' ) ) {
+			return;
+		}
+
 		Abstract_Token_Subscription_Service::clear_token_cookie();
 	}
 

@@ -152,7 +152,8 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async isImageCdnUpgradeSectionVisible() {
-		const selector = '[data-testid="module-image_cdn"] >> text=For more control over image quality';
+		const selector =
+			'[data-testid="module-image_cdn"] >> text=Auto-resize lazy images and adjust their quality.';
 		return this.page.isVisible( selector );
 	}
 

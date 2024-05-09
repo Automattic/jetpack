@@ -11,7 +11,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { isCurrentUserLinked, isUnavailableInOfflineMode, isOfflineMode } from 'state/connection';
 import { getModule } from 'state/modules';
-import { siteUsesWpAdminInterface } from 'state/site';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 
 const trackViewSubsClick = () => {
@@ -32,7 +31,6 @@ function Newsletter( props ) {
 		isSavingAnyOption,
 		isLinked,
 		isOffline,
-		isWpAdminInterface,
 		isSubscriptionsActive,
 		unavailableInOfflineMode,
 		subscriptions,
@@ -43,16 +41,12 @@ function Newsletter( props ) {
 			return '';
 		}
 
-		const source = isWpAdminInterface
-			? 'jetpack-settings-jetpack-manage-subscribers'
-			: 'calypso-subscribers';
-
 		return (
 			<Card
 				compact
 				className="jp-settings-card__configure-link"
 				onClick={ trackViewSubsClick }
-				href={ getRedirectUrl( source, {
+				href={ getRedirectUrl( 'jetpack-settings-jetpack-manage-subscribers', {
 					site: blogID ?? siteRawUrl,
 				} ) }
 				target="_blank"
@@ -114,7 +108,6 @@ export default withModuleSettingsFormHelpers(
 		return {
 			isLinked: isCurrentUserLinked( state ),
 			isOffline: isOfflineMode( state ),
-			isWpAdminInterface: siteUsesWpAdminInterface( state ),
 			isSubscriptionsActive: ownProps.getOptionValue( SUBSCRIPTIONS_MODULE_NAME ),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
 			subscriptions: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),

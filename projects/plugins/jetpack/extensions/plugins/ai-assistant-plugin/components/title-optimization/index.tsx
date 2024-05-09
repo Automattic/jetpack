@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { useAiSuggestions } from '@automattic/jetpack-ai-client';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Spinner } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
@@ -16,9 +17,11 @@ import TitleOptimizationOptions from './title-optimization-options';
 import './style.scss';
 
 export default function TitleOptimization( {
+	placement,
 	busy,
 	disabled,
 }: {
+	placement: string;
 	busy: boolean;
 	disabled: boolean;
 } ) {
@@ -29,9 +32,12 @@ export default function TitleOptimization( {
 	const [ isTitleOptimizationModalVisible, setIsTitleOptimizationModalVisible ] = useState( false );
 	const [ generating, setGenerating ] = useState( false );
 	const [ options, setOptions ] = useState( [] );
+	const [ error, setError ] = useState( false );
 	const { editPost } = useDispatch( 'core/editor' );
 	const { autosave } = useAutoSaveAndRedirect();
 	const { increaseAiAssistantRequestsCount } = useDispatch( 'wordpress-com/plans' );
+	const { tracks } = useAnalytics();
+	const { recordEvent } = tracks;
 
 	const toggleTitleOptimizationModal = useCallback( () => {
 		setIsTitleOptimizationModalVisible( ! isTitleOptimizationModalVisible );
@@ -56,6 +62,7 @@ export default function TitleOptimization( {
 	const { request, stopSuggestion } = useAiSuggestions( {
 		onDone: handleDone,
 		onError: () => {
+			setError( true );
 			setGenerating( false );
 		},
 	} );
@@ -76,13 +83,29 @@ export default function TitleOptimization( {
 	}, [ postContent, request ] );
 
 	const handleTitleOptimization = useCallback( () => {
+		// track the generate title optimization options
+		recordEvent( 'jetpack_ai_title_optimization_generate', {
+			placement,
+		} );
+
 		setGenerating( true );
 		toggleTitleOptimizationModal();
 		handleRequest();
-	}, [ handleRequest, toggleTitleOptimizationModal ] );
+	}, [ handleRequest, placement, recordEvent, toggleTitleOptimizationModal ] );
+
+	const handleTryAgain = useCallback( () => {
+		setError( false );
+		setGenerating( true );
+		handleRequest();
+	}, [ handleRequest ] );
 
 	const handleAccept = useCallback(
 		( event: MouseEvent ) => {
+			// track the generated title acceptance
+			recordEvent( 'jetpack_ai_title_optimization_accept', {
+				placement,
+			} );
+
 			editPost( { title: selected } );
 			toggleTitleOptimizationModal();
 
@@ -92,7 +115,7 @@ export default function TitleOptimization( {
 				// Do nothing since the user can save manually
 			}
 		},
-		[ autosave, editPost, selected, toggleTitleOptimizationModal ]
+		[ autosave, editPost, placement, recordEvent, selected, toggleTitleOptimizationModal ]
 	);
 
 	const handleClose = useCallback( () => {
@@ -105,7 +128,7 @@ export default function TitleOptimization( {
 			<p>{ __( 'Use AI to optimize key details of your post.', 'jetpack' ) }</p>
 			<Button
 				isBusy={ busy }
-				disabled={ disabled }
+				disabled={ ! postContent || disabled }
 				onClick={ handleTitleOptimization }
 				variant="secondary"
 			>
@@ -125,25 +148,42 @@ export default function TitleOptimization( {
 						</div>
 					) : (
 						<>
-							<span className="jetpack-ai-title-optimization__intro">
-								{ __( 'Choose an optimized title below:', 'jetpack' ) }
-							</span>
-							<TitleOptimizationOptions
-								onChangeValue={ e => setSelected( e.target.value ) }
-								selected={ selected }
-								options={ options?.map?.( option => ( {
-									value: option.title,
-									label: option.title,
-									description: option.explanation,
-								} ) ) }
-							/>
+							{ error ? (
+								<div className="jetpack-ai-title-optimization__error">
+									{ __(
+										'The generation of your suggested titles failed. Please try again.',
+										'jetpack'
+									) }
+								</div>
+							) : (
+								<>
+									<span className="jetpack-ai-title-optimization__intro">
+										{ __( 'Choose an optimized title below:', 'jetpack' ) }
+									</span>
+									<TitleOptimizationOptions
+										onChangeValue={ e => setSelected( e.target.value ) }
+										selected={ selected }
+										options={ options?.map?.( option => ( {
+											value: option.title,
+											label: option.title,
+											description: option.explanation,
+										} ) ) }
+									/>
+								</>
+							) }
 							<div className="jetpack-ai-title-optimization__cta">
 								<Button variant="secondary" onClick={ toggleTitleOptimizationModal }>
 									{ __( 'Cancel', 'jetpack' ) }
 								</Button>
-								<Button variant="primary" onClick={ handleAccept }>
-									{ __( 'Replace title', 'jetpack' ) }
-								</Button>
+								{ error ? (
+									<Button variant="primary" onClick={ handleTryAgain }>
+										{ __( 'Try again', 'jetpack' ) }
+									</Button>
+								) : (
+									<Button variant="primary" onClick={ handleAccept }>
+										{ __( 'Replace title', 'jetpack' ) }
+									</Button>
+								) }
 							</div>
 						</>
 					) }

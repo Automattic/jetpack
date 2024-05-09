@@ -8,15 +8,16 @@ import {
 } from '@automattic/jetpack-ai-client';
 import { BlockControls, useBlockProps } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { select, useDispatch } from '@wordpress/data';
-import { useCallback, useEffect, useState, useRef } from '@wordpress/element';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { useCallback, useEffect, useState, useRef, useMemo } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import debugFactory from 'debug';
 import React from 'react';
 /*
  * Internal dependencies
  */
-import { EXTENDED_INLINE_BLOCKS } from '../extensions/ai-assistant';
+import useAiFeature from '../hooks/use-ai-feature';
+import { mapInternalPromptTypeToBackendPromptType } from '../lib/prompt/backend-prompt';
 import { blockHandler } from './block-handler';
 import AiAssistantInput from './components/ai-assistant-input';
 import AiAssistantExtensionToolbarDropdown from './components/ai-assistant-toolbar-dropdown';
@@ -24,53 +25,155 @@ import { isPossibleToExtendBlock } from './lib/is-possible-to-extend-block';
 /*
  * Types
  */
-import type { OnRequestSuggestion } from '../components/ai-assistant-toolbar-dropdown/dropdown-content';
+import type {
+	AiAssistantDropdownOnChangeOptionsArgProps,
+	OnRequestSuggestion,
+} from '../components/ai-assistant-toolbar-dropdown/dropdown-content';
 import type { ExtendedInlineBlockProp } from '../extensions/ai-assistant';
+import type { PromptTypeProp } from '../lib/prompt';
 
 const debug = debugFactory( 'jetpack-ai-assistant:extensions:with-ai-extension' );
 
-// HOC to populate the block's edit component with the AI Assistant bar and button.
+const blockExtensionMapper = {
+	'core/heading': 'heading',
+};
+
+// Defines where the block controls should be placed in the toolbar
+const blockControlsProps = {
+	group: 'block' as const,
+};
+
+type RequestOptions = {
+	promptType: PromptTypeProp;
+	options?: AiAssistantDropdownOnChangeOptionsArgProps;
+	humanText?: string;
+};
+
+type CoreEditorDispatch = { undo: () => Promise< void > };
+type CoreEditorSelect = { getCurrentPostId: () => number };
+
+// HOC to populate the block's edit component with the AI Assistant control inpuit and toolbar button.
 const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 	return props => {
 		const { clientId, isSelected, name: blockName } = props;
+		// Ref to the control wrapper, its height and its ResizeObserver, for positioning adjustments.
 		const controlRef: React.MutableRefObject< HTMLDivElement | null > = useRef( null );
+		const controlHeight = useRef< number >( 0 );
 		const controlObserver = useRef< ResizeObserver | null >( null );
+		// Ref to the original block style to reset it when the AI Control is closed.
 		const blockStyle = useRef< string >( '' );
-		const [ block, setBlock ] = useState< HTMLElement | null >( null );
-
-		// Only extend the allowed block types.
-		const possibleToExtendBlock = isPossibleToExtendBlock( {
-			blockName,
-			clientId,
-		} );
-
+		// Ref to the input element to focus on it when the AI Control is displayed or when a request is done.
+		// Also used to determine the ownerDocument, as the editor can be in an iframe.
+		const inputRef: React.MutableRefObject< HTMLInputElement | null > = useRef( null );
+		const ownerDocument = useRef< Document >( document );
+		// A human-readable action to be displayed in the input when a toolbar suggestion is requested, like "Translate: Japanese".
+		const [ action, setAction ] = useState< string >( '' );
+		// Count of consecutive successful AI Assistant requests for the Undo button.
+		const [ consecutiveRequestCount, setConsecutiveRequestCount ] = useState( 0 );
+		// The last request made by the user, to be used when the user clicks the "Try Again" button.
+		const [ lastRequest, setLastRequest ] = useState< RequestOptions | null >( null );
+		// State to display the AI Control or not.
 		const [ showAiControl, setShowAiControl ] = useState( false );
+		// Data and functions from the editor.
+		const { undo } = useDispatch( 'core/editor' ) as CoreEditorDispatch;
+		const { postId } = useSelect( select => {
+			const { getCurrentPostId } = select( 'core/editor' ) as CoreEditorSelect;
 
-		const { getCurrentPostId } = select( 'core/editor' );
-		const postId = getCurrentPostId();
+			return { postId: getCurrentPostId() };
+		}, [] );
+		// The block's id to find it in the DOM for the positioning adjustments.
+		const { id } = useBlockProps();
+		// Jetpack AI Assistant feature functions.
+		const { increaseRequestsCount, dequeueAsyncRequest } = useAiFeature();
 
-		const { increaseAiAssistantRequestsCount } = useDispatch( 'wordpress-com/plans' );
+		// Data and functions with block-specific implementations.
+		const { onSuggestion: onBlockSuggestion, getContent } = useMemo(
+			() => blockHandler( blockName, clientId ),
+			[ blockName, clientId ]
+		);
 
+		// Called when the user clicks the "Ask AI Assistant" button.
+		const handleAskAiAssistant = useCallback( () => {
+			setShowAiControl( true );
+		}, [] );
+
+		// Function to get the messages array for the request.
+		const getRequestMessages = useCallback(
+			( {
+				promptType,
+				options,
+			}: {
+				promptType: PromptTypeProp;
+				options?: AiAssistantDropdownOnChangeOptionsArgProps;
+			} ) => {
+				const blockContent = getContent();
+
+				const extension = blockExtensionMapper[ blockName ];
+
+				return [
+					{
+						role: 'jetpack-ai' as const,
+						context: {
+							type: mapInternalPromptTypeToBackendPromptType( promptType, extension ),
+							content: blockContent,
+							request: options?.userPrompt,
+							tone: options?.tone,
+							language: options?.language,
+						},
+					},
+				];
+			},
+			[ blockName, getContent ]
+		);
+
+		// Called when a suggestion chunk is received.
+		const onSuggestion = useCallback(
+			( suggestion: string ) => {
+				onBlockSuggestion( suggestion );
+
+				// Make sure the block element has the necessary bottom padding, as it can be replaced or changed
+				const block = ownerDocument.current.getElementById( id );
+
+				if ( block && controlRef.current ) {
+					block.style.paddingBottom = `${ controlHeight.current + 16 }px`;
+				}
+			},
+			[ id, onBlockSuggestion ]
+		);
+
+		// Called after the last suggestion chunk is received.
 		const onDone = useCallback( () => {
-			increaseAiAssistantRequestsCount();
-		}, [ increaseAiAssistantRequestsCount ] );
+			increaseRequestsCount();
+			setConsecutiveRequestCount( count => count + 1 );
+			inputRef.current?.focus();
+			setAction( '' );
+			setLastRequest( null );
+		}, [ increaseRequestsCount ] );
 
+		// Called when an error is received.
 		const onError = useCallback(
 			error => {
+				setAction( '' );
+
+				debug( 'Request error', error );
+
 				// Increase the AI Suggestion counter only for valid errors.
 				if ( error.code === ERROR_NETWORK || error.code === ERROR_QUOTA_EXCEEDED ) {
 					return;
 				}
 
-				increaseAiAssistantRequestsCount();
+				increaseRequestsCount();
 			},
-			[ increaseAiAssistantRequestsCount ]
+			[ increaseRequestsCount ]
 		);
 
-		// Data and functions with block-specific implementations.
-		const { onSuggestion } = blockHandler( blockName, clientId );
-
-		const { request, stopSuggestion, requestingState, error, suggestion } = useAiSuggestions( {
+		const {
+			request,
+			stopSuggestion,
+			requestingState,
+			error,
+			reset: resetSuggestions,
+		} = useAiSuggestions( {
 			onSuggestion,
 			onDone,
 			onError,
@@ -80,22 +183,102 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			},
 		} );
 
-		// Close the AI Control if the block is deselected.
+		// Called when a suggestion from the toolbar is requested, like "Change tone".
+		const handleRequestSuggestion = useCallback< OnRequestSuggestion >(
+			( promptType, options, humanText ) => {
+				setShowAiControl( true );
+
+				if ( humanText ) {
+					setAction( humanText );
+				}
+
+				const messages = getRequestMessages( { promptType, options } );
+
+				debug( 'Request suggestion', promptType, options );
+
+				setLastRequest( { promptType, options, humanText } );
+
+				/*
+				 * Always dequeue/cancel the AI Assistant feature async request,
+				 * in case there is one pending,
+				 * when performing a new AI suggestion request.
+				 */
+				dequeueAsyncRequest();
+
+				request( messages );
+			},
+			[ dequeueAsyncRequest, getRequestMessages, request ]
+		);
+
+		// Called when the user types a custom prompt.
+		const handleUserRequest = useCallback(
+			( userPrompt: string ) => {
+				const promptType = 'userPrompt';
+				const options = { userPrompt };
+
+				handleRequestSuggestion( promptType, options );
+			},
+			[ handleRequestSuggestion ]
+		);
+
+		// Called when the user clicks the "Stop" button in the input.
+		const handleStopSuggestion = useCallback( () => {
+			stopSuggestion();
+
+			inputRef.current?.focus();
+		}, [ stopSuggestion ] );
+
+		// Called when the user clicks the "Try Again" button in the input error message.
+		const handleTryAgain = useCallback( () => {
+			if ( lastRequest ) {
+				handleRequestSuggestion(
+					lastRequest.promptType,
+					lastRequest.options,
+					lastRequest.humanText
+				);
+			}
+		}, [ lastRequest, handleRequestSuggestion ] );
+
+		// Cleanup function.
+		const handleClose = useCallback( () => {
+			setShowAiControl( false );
+			resetSuggestions();
+			setAction( '' );
+			setConsecutiveRequestCount( 0 );
+			setLastRequest( null );
+		}, [ resetSuggestions ] );
+
+		// Called when the user clicks the "Undo" button after a successful request.
+		const handleUndo = useCallback( async () => {
+			for ( let i = 0; i < consecutiveRequestCount; i++ ) {
+				await undo();
+			}
+
+			handleClose();
+		}, [ consecutiveRequestCount, handleClose, undo ] );
+
+		// Closes the AI Control if the block is deselected.
 		useEffect( () => {
 			if ( ! isSelected ) {
-				setShowAiControl( false );
-				// TODO: reset all extension data.
+				handleClose();
 			}
-		}, [ isSelected ] );
+		}, [ isSelected, handleClose ] );
 
-		const { id } = useBlockProps();
-
+		// Focus the input when the AI Control is displayed and set the ownerDocument.
 		useEffect( () => {
-			// Keep the block reference.
-			setBlock( document.getElementById( id ) );
-		}, [ id ] );
+			if ( inputRef.current ) {
+				// Save the block's ownerDocument to use it later, as the editor can be in an iframe.
+				ownerDocument.current = inputRef.current.ownerDocument;
+				// Focus the input when the AI Control is displayed.
+				inputRef.current.focus();
+			}
+		}, [ showAiControl ] );
 
+		// Adjusts the input position in the editor by increasing the block's bottom-padding
+		// and setting the control's margin-top, "wrapping" the input with the block.
 		useEffect( () => {
+			let block = ownerDocument.current.getElementById( id );
+
 			if ( ! block ) {
 				return;
 			}
@@ -107,11 +290,13 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				// Observe the control's height to adjust the block's bottom-padding.
 				controlObserver.current = new ResizeObserver( ( [ entry ] ) => {
-					const { height } = entry.contentRect;
+					// The block element can be replaced or changed, so we need to get it again.
+					block = ownerDocument.current.getElementById( id );
+					controlHeight.current = entry.contentRect.height;
 
-					if ( block && controlRef.current && height > 0 ) {
-						block.style.paddingBottom = `${ height + 16 }px`;
-						controlRef.current.style.marginTop = `-${ height }px`;
+					if ( block && controlRef.current && controlHeight.current > 0 ) {
+						block.style.paddingBottom = `${ controlHeight.current + 16 }px`;
+						controlRef.current.style.marginTop = `-${ controlHeight.current }px`;
 					}
 				} );
 
@@ -122,37 +307,15 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				controlObserver.current.disconnect();
 				controlObserver.current = null;
+				controlHeight.current = 0;
 			}
-		}, [ block, clientId, controlObserver, id, showAiControl ] );
 
-		// Only extend the target block.
-		if ( ! possibleToExtendBlock ) {
-			return <BlockEdit { ...props } />;
-		}
-
-		// Defines where the block controls should be placed in the toolbar
-		const blockControlsProps = {
-			group: 'block' as const,
-		};
-
-		const onAskAiAssistant = () => {
-			setShowAiControl( true );
-		};
-
-		const onRequestSuggestion: OnRequestSuggestion = ( promptType, options ) => {
-			setShowAiControl( true );
-			// TODO: handle the promptType and options to request the suggestion.
-			debug( 'onRequestSuggestion', promptType, options );
-		};
-
-		const onClose = () => {
-			setShowAiControl( false );
-		};
-
-		const onUndo = () => {
-			// TODO: handle the undo action.
-			debug( 'onUndo' );
-		};
+			return () => {
+				if ( controlObserver.current ) {
+					controlObserver.current.disconnect();
+				}
+			};
+		}, [ clientId, controlObserver, id, showAiControl ] );
 
 		return (
 			<>
@@ -160,24 +323,25 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				{ showAiControl && (
 					<AiAssistantInput
-						clientId={ clientId }
-						postId={ postId }
 						requestingState={ requestingState }
 						requestingError={ error }
-						suggestion={ suggestion }
 						wrapperRef={ controlRef }
-						request={ request }
-						stopSuggestion={ stopSuggestion }
-						close={ onClose }
-						undo={ onUndo }
+						inputRef={ inputRef }
+						action={ action }
+						blockType={ blockName }
+						request={ handleUserRequest }
+						stopSuggestion={ handleStopSuggestion }
+						close={ handleClose }
+						undo={ handleUndo }
+						tryAgain={ handleTryAgain }
 					/>
 				) }
 
 				<BlockControls { ...blockControlsProps }>
 					<AiAssistantExtensionToolbarDropdown
 						blockType={ blockName }
-						onAskAiAssistant={ onAskAiAssistant }
-						onRequestSuggestion={ onRequestSuggestion }
+						onAskAiAssistant={ handleAskAiAssistant }
+						onRequestSuggestion={ handleRequestSuggestion }
 					/>
 				</BlockControls>
 			</>
@@ -193,8 +357,10 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
  * @returns {object}          The extended block settings.
  */
 function blockWithInlineExtension( settings, name: ExtendedInlineBlockProp ) {
-	// Only extend the allowed block types.
-	if ( ! EXTENDED_INLINE_BLOCKS.includes( name ) ) {
+	// Only extend the allowed block types and when AI is enabled
+	const possibleToExtendBlock = isPossibleToExtendBlock( name );
+
+	if ( ! possibleToExtendBlock ) {
 		return settings;
 	}
 

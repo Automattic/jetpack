@@ -3,7 +3,6 @@ import { recordBoostEvent, TracksEventProperties } from '$lib/utils/analytics';
 import { castToNumber } from '$lib/utils/cast-to-number';
 import { logPreCriticalCSSGeneration } from '$lib/utils/console';
 import { isSameOrigin } from '$lib/utils/is-same-origin';
-import { loadCriticalCssLibrary } from '$lib/utils/load-critical-css-library';
 import { prepareAdminAjaxRequest } from '$lib/utils/make-admin-ajax-request';
 import { standardizeError } from '$lib/utils/standardize-error';
 import { SuccessTargetError } from 'jetpack-boost-critical-css-gen';
@@ -89,9 +88,6 @@ async function generateCriticalCss(
 	signal: AbortSignal
 ) {
 	try {
-		// Load Critical CSS gen library if not already loaded.
-		await loadCriticalCssLibrary();
-
 		// Prepare GET parameters to include with each request.
 		const requestGetParameters = {
 			'jb-generate-critical-css': Date.now().toString(),

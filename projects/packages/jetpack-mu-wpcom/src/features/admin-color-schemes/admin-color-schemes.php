@@ -167,7 +167,7 @@ function enqueue_color_scheme_for_sidebar_notice() {
 	}
 }
 
-if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
+if ( defined( 'JETPACK__PLUGIN_FILE' ) && function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
 	add_action( 'admin_init', 'register_calypso_admin_color_schemes' );
 	add_action( 'admin_enqueue_scripts', 'enqueue_color_scheme_for_sidebar_notice' );
 	add_filter( 'css_do_concat', 'disable_css_concat_for_color_schemes', 10, 2 );

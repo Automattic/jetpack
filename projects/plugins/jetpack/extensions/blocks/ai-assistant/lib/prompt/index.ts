@@ -108,7 +108,7 @@ export type BuildPromptOptionsProps = {
 };
 
 export type BuildPromptProps = {
-	generatedContent: string;
+	generatedContent?: string;
 	allPostContent?: string;
 	postContentAbove?: string;
 	currentPostTitle?: string;
@@ -153,3 +153,10 @@ export function buildPromptForBlock( {
 
 	return [ initialMessage, ...userMessages ];
 }
+
+export type BuildExtensionPromptProps = {
+	blockContent: string;
+	options: BuildPromptOptionsProps;
+	type: PromptTypeProp;
+	userPrompt?: string;
+};

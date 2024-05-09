@@ -183,21 +183,22 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.2.2 - 2024-04-02
+### 3.3.0 - 2024-05-08
 #### Added
-- Cache: Ensure cache engine is loading every time the Settings page loads.
-- Cache: Clear cache if Boost module settings are changed
-- Cache: Show notification in site health if cache system isn't loading.
-- Compatibility: Improved compatibility with SEO plugins for smoother Cloud CSS generation.
+- General: Add endpoint to list source providers.
+- General: Add end to end tests for modules.
+- Auto-Resize Lazy Images: Added feature to optimize lazy loading image performance
+- JS Concatenation: Added compatibility with event-tickets by The Events Calendar.
+- Speed Score: Add the speed changed popup back.
 
 #### Changed
-- Cloud CSS: Optimize regeneration time.
-- Cloud CSS: Update REST API endpoint to be available even if the module is turned off.
-- Performance History: Sanitize graph annotation text.
-- Speed Score: More accurately detect which modules are active when a speed score is requested.
-- General: Only show installation errors on plugins page.
-- General: Updated package dependencies.
-- General: Update getting started and upgrade copies.
+- Cache: remove Beta tag
+- General: improved compatibility with WP 6.4.
+- Image CDN: Update UI.
+
+#### Fixed
+- CLI: Fix fatal error when using 'activate' without a module name.
+- Critical CSS: Update the way generation library is loaded.
 
 --------
 

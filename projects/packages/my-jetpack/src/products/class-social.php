@@ -56,6 +56,13 @@ class Social extends Hybrid_Product {
 	);
 
 	/**
+	 * Whether this product has a free offering
+	 *
+	 * @var bool
+	 */
+	public static $has_free_offering = true;
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string

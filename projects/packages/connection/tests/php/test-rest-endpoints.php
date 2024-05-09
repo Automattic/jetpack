@@ -1816,6 +1816,5 @@ class Test_REST_Endpoints extends TestCase {
 		}
 
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
-		remove_filter( 'pre_http_request', array( $this, 'intercept_validate_tokens_request' ), 10 );
 	}
 }

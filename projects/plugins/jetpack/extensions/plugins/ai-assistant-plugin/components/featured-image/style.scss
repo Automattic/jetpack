@@ -34,6 +34,10 @@
 			padding: 12px;
 			color: var(--studio-black);
 		}
+
+		textarea:disabled {
+			opacity: 0.5;
+		}
 	}
 
 	&__actions-left {

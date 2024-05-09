@@ -4,6 +4,7 @@ import { FormLegend } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import analytics from 'lib/analytics';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { isUnavailableInOfflineMode, isUnavailableInSiteConnectionMode } from 'state/connection';
@@ -16,10 +17,6 @@ const subscriptionsAndNewslettersSupportUrl =
 const FEATURED_IMAGE_IN_EMAIL_OPTION = 'wpcom_featured_image_in_email';
 const SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION = 'wpcom_subscription_emails_use_excerpt';
 const REPLY_TO_OPTION = 'jetpack_subscriptions_reply_to';
-
-//Check for feature flag
-const urlParams = new URLSearchParams( window.location.search );
-const isNewsletterReplyToEnabled = urlParams.get( 'enable-newsletter-replyto' ) === 'true';
 
 const EmailSettings = props => {
 	const {
@@ -34,10 +31,11 @@ const EmailSettings = props => {
 	} = props;
 
 	const handleEnableFeaturedImageInEmailToggleChange = useCallback( () => {
-		updateFormStateAndSaveOptionValue(
-			FEATURED_IMAGE_IN_EMAIL_OPTION,
-			! isFeaturedImageInEmailEnabled
-		);
+		const value = ! isFeaturedImageInEmailEnabled;
+		updateFormStateAndSaveOptionValue( FEATURED_IMAGE_IN_EMAIL_OPTION, value );
+		analytics.tracks.recordEvent( 'jetpack_newsletter_set_toggle_featured_image_in_email', {
+			value,
+		} );
 	}, [ isFeaturedImageInEmailEnabled, updateFormStateAndSaveOptionValue ] );
 
 	const handleSubscriptionEmailsUseExcerptChange = useCallback(
@@ -46,6 +44,7 @@ const EmailSettings = props => {
 				SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION,
 				value === 'excerpt'
 			);
+			analytics.tracks.recordEvent( 'jetpack_newsletter_set_emails_use_excerpt', { value } );
 		},
 		[ updateFormStateAndSaveOptionValue ]
 	);
@@ -53,6 +52,7 @@ const EmailSettings = props => {
 	const handleSubscriptionReplyToChange = useCallback(
 		value => {
 			updateFormStateAndSaveOptionValue( REPLY_TO_OPTION, value );
+			analytics.tracks.recordEvent( 'jetpack_newsletter_set_reply_to', { value } );
 		},
 		[ updateFormStateAndSaveOptionValue ]
 	);
@@ -122,45 +122,43 @@ const EmailSettings = props => {
 					onChange={ handleSubscriptionEmailsUseExcerptChange }
 				/>
 			</SettingsGroup>
-			{ isNewsletterReplyToEnabled && (
-				<SettingsGroup
-					hasChild
-					disableInOfflineMode
-					disableInSiteConnectionMode
-					module={ subscriptionsModule }
-					support={ {
-						link: getRedirectUrl( 'jetpack-support-subscriptions', {
-							anchor: 'reply-to-email-address',
-						} ),
-						text: __(
-							'Sets the reply to email address for your newsletter emails. This is the email address that your subscribers send email to when they reply to the newsletter.',
-							'jetpack'
-						),
-					} }
-				>
-					<FormLegend className="jp-form-label-wide">
-						{ __( 'Reply-to settings', 'jetpack' ) }
-					</FormLegend>
-					<p>
-						{ __(
-							'Choose who receives emails when subscribers reply to your newsletter.',
-							'jetpack'
-						) }
-					</p>
-					<RadioControl
-						selected={ subscriptionReplyTo || 'no-reply' }
-						disabled={ replyToInputDisabled }
-						options={ [
-							{ label: __( 'Replies are not allowed.', 'jetpack' ), value: 'no-reply' },
-							{
-								label: __( "Replies will be sent to the post author's email.", 'jetpack' ),
-								value: 'author',
-							},
-						] }
-						onChange={ handleSubscriptionReplyToChange }
-					/>
-				</SettingsGroup>
-			) }
+			<SettingsGroup
+				hasChild
+				disableInOfflineMode
+				disableInSiteConnectionMode
+				module={ subscriptionsModule }
+				support={ {
+					link: getRedirectUrl( 'jetpack-support-subscriptions', {
+						anchor: 'reply-to-email-address',
+					} ),
+					text: __(
+						"Sets the reply to email address for your newsletter emails. It's the email where subscribers send their replies.",
+						'jetpack'
+					),
+				} }
+			>
+				<FormLegend className="jp-form-label-wide">
+					{ __( 'Reply-to settings', 'jetpack' ) }
+				</FormLegend>
+				<p>
+					{ __(
+						'Choose who receives emails when subscribers reply to your newsletter.',
+						'jetpack'
+					) }
+				</p>
+				<RadioControl
+					selected={ subscriptionReplyTo || 'no-reply' }
+					disabled={ replyToInputDisabled }
+					options={ [
+						{ label: __( 'Replies are not allowed', 'jetpack' ), value: 'no-reply' },
+						{
+							label: __( "Replies will be sent to the post author's email", 'jetpack' ),
+							value: 'author',
+						},
+					] }
+					onChange={ handleSubscriptionReplyToChange }
+				/>
+			</SettingsGroup>
 		</SettingsCard>
 	);
 };

@@ -164,9 +164,6 @@ for ( const name of [
 	'modules/shortcodes/css/recipes',
 	'modules/shortcodes/css/recipes-print',
 	'modules/shortcodes/css/slideshow-shortcode',
-	'modules/contact-form/css/editor-inline-editing-style',
-	'modules/contact-form/css/editor-style',
-	'modules/contact-form/css/editor-ui',
 	'modules/custom-css/csstidy/cssparse',
 	'modules/custom-css/csstidy/cssparsed',
 	'modules/custom-css/custom-css/css/codemirror',
@@ -190,7 +187,6 @@ for ( const name of [
 // The ltr version is apparently used unminified.
 for ( const name of [
 	'modules/carousel/jetpack-carousel',
-	'modules/contact-form/css/grunion',
 	'modules/related-posts/related-posts',
 	'modules/shortcodes/css/recipes',
 	'modules/shortcodes/css/recipes-print',

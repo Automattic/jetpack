@@ -11,10 +11,18 @@
 
 namespace Automattic\Jetpack\Sync\Queue;
 
+use Automattic\Jetpack\Sync\Sender;
+use Automattic\Jetpack\Sync\Settings;
+
 /**
  * Custom Sync events table storage backend for the Queue.
  */
 class Queue_Storage_Table {
+
+	/**
+	 * The name of the transient to use to disable custom queue table in we get a table doesn't exist error.
+	 */
+	const CUSTOM_QUEUE_TABLE_DISABLE_WPDB_ERROR_NOT_EXIST_FLAG = 'jetpack_sync_custom_queue_table_disable_wpdb_error_not_exist';
 	/**
 	 * The custom Sync events table name, without a prefix.
 	 * A prefix will be added when the class is instantiated,
@@ -316,17 +324,33 @@ class Queue_Storage_Table {
 		global $wpdb;
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		return (int) $wpdb->get_var(
+		$items_count = (int) $wpdb->get_var(
 			$wpdb->prepare(
 				/**
 				 * Ignoring the linting warning, as there's still no placeholder replacement for DB field name,
 				 * in this case this is `$this->table_name`
 				 */
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT count(*) FROM {$this->table_name} WHERE queue_id = %s",
+				"SELECT COUNT(*) FROM {$this->table_name} WHERE queue_id = %s",
 				$this->queue_id
 			)
 		);
+		// If the table does not exist, disable the custom queue table and send an error.
+		if ( ! empty( $wpdb->last_error )
+		&& str_contains( $wpdb->last_error, $this->table_name_no_prefix . "' doesn't exist" )
+		&& ! get_transient( self::CUSTOM_QUEUE_TABLE_DISABLE_WPDB_ERROR_NOT_EXIST_FLAG )
+		) {
+			set_transient( self::CUSTOM_QUEUE_TABLE_DISABLE_WPDB_ERROR_NOT_EXIST_FLAG, true, 6 * HOUR_IN_SECONDS );
+			Settings::update_settings( array( 'custom_queue_table_enabled' => 0 ) );
+			$data   = array(
+				'timestamp' => microtime( true ),
+				'error'     => $wpdb->last_error,
+			);
+			$sender = Sender::get_instance();
+			$sender->send_action( 'jetpack_sync_storage_error_custom_table_not_exist', $data );
+		}
+
+		return $items_count;
 	}
 
 	/**
@@ -608,6 +632,10 @@ class Queue_Storage_Table {
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$count_result = $wpdb->get_row( "SELECT COUNT(*) as item_count FROM {$custom_table_name}" );
+
+		if ( $wpdb->last_error ) {
+			return;
+		}
 
 		$item_count = $count_result->item_count;
 
