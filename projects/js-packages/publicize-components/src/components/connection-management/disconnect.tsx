@@ -1,9 +1,12 @@
 import { Button } from '@automattic/jetpack-components';
+// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
+import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { createInterpolateElement, useCallback, useReducer } from '@wordpress/element';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
+import styles from './style.module.scss';
 
 export type DisconnectProps = {
 	connection: Connection;
@@ -29,6 +32,8 @@ export function Disconnect( {
 	variant = 'secondary',
 	isDestructive = true,
 }: DisconnectProps ) {
+	const [ isConfirmOpen, toggleConfirm ] = useReducer( state => ! state, false );
+
 	const { deleteConnectionById } = useDispatch( socialStore );
 
 	const { isDisconnecting } = useSelect(
@@ -43,6 +48,8 @@ export function Disconnect( {
 	);
 
 	const onClickDisconnect = useCallback( async () => {
+		toggleConfirm();
+
 		await deleteConnectionById( {
 			connectionId: connection.connection_id,
 			showSuccessNotice,
@@ -56,16 +63,35 @@ export function Disconnect( {
 	}
 
 	return (
-		<Button
-			size="small"
-			onClick={ onClickDisconnect }
-			disabled={ isDisconnecting }
-			variant={ variant }
-			isDestructive={ isDestructive }
-		>
-			{ isDisconnecting
-				? __( 'Disconnecting…', 'jetpack' )
-				: label || _x( 'Disconnect', 'Disconnect a social media account', 'jetpack' ) }
-		</Button>
+		<>
+			<ConfirmDialog
+				className={ styles.confirmDialog }
+				isOpen={ isConfirmOpen }
+				onConfirm={ onClickDisconnect }
+				onCancel={ toggleConfirm }
+				cancelButtonText={ __( 'Cancel', 'jetpack' ) }
+				confirmButtonText={ __( 'Yes', 'jetpack' ) }
+			>
+				{ createInterpolateElement(
+					sprintf(
+						// translators: %s: Name of the service the user connects to.
+						__( 'Are you sure you want to disconnect <strong>%s</strong>?', 'jetpack' ),
+						connection.display_name
+					),
+					{ strong: <strong></strong> }
+				) }
+			</ConfirmDialog>
+			<Button
+				size="small"
+				onClick={ toggleConfirm }
+				disabled={ isDisconnecting }
+				variant={ variant }
+				isDestructive={ isDestructive }
+			>
+				{ isDisconnecting
+					? __( 'Disconnecting…', 'jetpack' )
+					: label || _x( 'Disconnect', 'Disconnect a social media account', 'jetpack' ) }
+			</Button>
+		</>
 	);
 }
