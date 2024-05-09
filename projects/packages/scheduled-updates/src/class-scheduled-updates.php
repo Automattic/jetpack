@@ -93,12 +93,6 @@ class Scheduled_Updates {
 		// Active flag saving.
 		add_action( 'add_option_' . Scheduled_Updates_Active::OPTION_NAME, $callback );
 		add_action( 'update_option_' . Scheduled_Updates_Active::OPTION_NAME, $callback );
-
-		// This is a temporary solution for backward compatibility. It will be removed in the future.
-		// It's needed to ensure that preexisting schedules are loaded into the sync option.
-		if ( false === get_option( self::PLUGIN_CRON_HOOK ) ) {
-			call_user_func( $callback );
-		}
 	}
 
 	/**
@@ -211,13 +205,18 @@ class Scheduled_Updates {
 		Scheduled_Updates_Active::add_active_field();
 		Scheduled_Updates_Health_Paths::add_health_check_paths_field();
 
-		$endpoint = new \WPCOM_REST_API_V2_Endpoint_Update_Schedules();
-		$events   = $endpoint->get_items( new \WP_REST_Request() );
+		$endpoint   = new \WPCOM_REST_API_V2_Endpoint_Update_Schedules();
+		$events     = $endpoint->get_items( new \WP_REST_Request() );
+		$updated_at = time();
 
 		if ( ! is_wp_error( $events ) ) {
 			$option = array_map(
-				function ( $event ) {
-					return (object) $event;
+				function ( $event ) use ( $updated_at ) {
+					$ret = (object) $event;
+					// Add updated_at field to ensure the option is always on sync.
+					$ret->updated_at = $updated_at;
+
+					return $ret;
 				},
 				$events->get_data()
 			);

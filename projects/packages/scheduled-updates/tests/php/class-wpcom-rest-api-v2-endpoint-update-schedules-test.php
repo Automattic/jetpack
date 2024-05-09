@@ -61,6 +61,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		Scheduled_Updates::init();
 
 		self::$sync_counter = 0;
+		add_action( 'add_option', array( __CLASS__, 'sync_callback' ) );
 		add_action( 'update_option', array( __CLASS__, 'sync_callback' ) );
 	}
 
@@ -79,6 +80,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		remove_filter( 'jetpack_scheduled_update_verify_plugins', '__return_true', 11 );
 
 		self::$sync_counter = 0;
+		remove_action( 'add_option', array( __CLASS__, 'sync_callback' ) );
 		remove_action( 'update_option', array( __CLASS__, 'sync_callback' ) );
 	}
 
@@ -265,40 +267,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertIsObject( $sync_option[ $schedule_id ] );
 		$this->assertIsObject( $sync_option[ $schedule_id_2 ] );
 		$this->assertSame( 2, self::$sync_counter );
-	}
-
-	/**
-	 * Temporary test to ensure backward compatibility. It will be removed in the future.
-	 */
-	public function test_init_backward_compatibility() {
-		$plugins = array(
-			'custom-plugin/custom-plugin.php',
-			'gutenberg/gutenberg.php',
-		);
-		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
-		$request->set_body_params(
-			array(
-				'plugins'  => $plugins,
-				'schedule' => $this->get_schedule(),
-			)
-		);
-
-		wp_set_current_user( $this->admin_id );
-		$result = rest_do_request( $request );
-
-		$this->assertSame( 200, $result->get_status() );
-
-		$pre_sync_option = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
-		$this->assertIsArray( $pre_sync_option );
-
-		// Force deleting the option to test backward compatibility.
-		$this->assertTrue( delete_option( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
-
-		// Simulate an init.
-		Scheduled_Updates::init();
-		$post_sync_option = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
-		$this->assertEquals( $pre_sync_option, $post_sync_option );
-		$this->assertSame( 1, self::$sync_counter );
 	}
 
 	/**
