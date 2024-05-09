@@ -3,7 +3,7 @@
  */
 import { ExtensionAIControl } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { useState, useEffect, useCallback } from '@wordpress/element';
+import { useState, useEffect, useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 /*
@@ -60,7 +60,11 @@ export default function AiAssistantInput( {
 		nextTier,
 		currentTier,
 	} = useAiFeature();
-	const disabled = requireUpgrade || [ 'requesting', 'suggesting' ].includes( requestingState );
+
+	const disabled = useMemo(
+		() => requireUpgrade || [ 'requesting', 'suggesting' ].includes( requestingState ),
+		[ requireUpgrade, requestingState ]
+	);
 
 	const handleSend = useCallback( () => {
 		tracks.recordEvent( 'jetpack_ai_assistant_extension_generate', {
