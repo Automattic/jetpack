@@ -239,7 +239,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		return isset( $theme_supports[ $feature ] );
 	}
 
-	// meta
+	/** Meta **/
 	public function get_metadata( $type, $object_id, $meta_key = '', $single = false ) {
 
 		$object_id = absint( $object_id );
@@ -267,7 +267,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		return $meta_values;
 	}
 
-	// this is just here to support checksum histograms
+	/** This is just here to support checksum histograms */
 	public function get_post_meta_by_id( $meta_id ) {
 		$matching_metas = array();
 		$metas          = $this->meta[ get_current_blog_id() ]['post'];
@@ -279,7 +279,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		return reset( $matching_metas );
 	}
 
-	// this is just here to support checksum histograms
+	/** This is just here to support checksum histograms */
 	public function get_comment_meta_by_id( $meta_id ) {
 		$matching_metas = array();
 		$metas          = $this->meta[ get_current_blog_id() ]['comment'];
@@ -339,7 +339,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		}
 	}
 
-	// constants
+	/** Constants **/
 	public function get_constant( $constant ) {
 		if ( ! isset( $this->constants[ get_current_blog_id() ][ $constant ] ) ) {
 			return null;
@@ -354,7 +354,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		return $this->constants[ get_current_blog_id() ][ $constant ];
 	}
 
-	// updates
+	/** Updates **/
 	public function get_updates( $type ) {
 		if ( ! isset( $this->updates[ get_current_blog_id() ][ $type ] ) ) {
 			return null;
@@ -367,7 +367,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		$this->updates[ get_current_blog_id() ][ $type ] = $updates;
 	}
 
-	// updates
+	/** Updates **/
 	public function get_callable( $function ) {
 		if ( ! isset( $this->callable[ get_current_blog_id() ][ $function ] ) ) {
 			return null;
@@ -380,7 +380,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		$this->callable[ get_current_blog_id() ][ $name ] = $value;
 	}
 
-	// network options
+	/** Network options **/
 	public function get_site_option( $option ) {
 		return isset( $this->network_options[ get_current_blog_id() ][ $option ] ) ? $this->network_options[ get_current_blog_id() ][ $option ] : false;
 	}
@@ -393,7 +393,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		$this->network_options[ get_current_blog_id() ][ $option ] = false;
 	}
 
-	// terms
+	/** Terms **/
 	public function get_terms( $taxonomy ) {
 		return isset( $this->terms[ get_current_blog_id() ][ $taxonomy ] ) ? $this->terms[ get_current_blog_id() ][ $taxonomy ] : array();
 	}

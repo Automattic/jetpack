@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 753696f231e5c160460266a6f63e5b87cdcbea50.
+ * Stubs automatically generated from WordPress.com commit 3351540394517b0a4b819bcd0c6eaa1496e3a4a5.
  */
 
 namespace {
@@ -62,6 +62,17 @@ namespace {
         public static function find_featured_worthy_media($post)
         {
         }
+    }
+    /**
+     * @param string $id
+     * @param string $title
+     * @param string $callback
+     * @param string $page
+     * @param string $section
+     * @param array $args
+     */
+    function add_settings_field($id, $title, $callback, $page, $section = 'default', $args = array())
+    {
     }
     class Domain_Management
     {
@@ -1229,6 +1240,14 @@ namespace {
         }
     }
     function wp_kses_reject($content, $rejected_item = \false, $is_attribute = \false)
+    {
+    }
+    /**
+     * @param string $option_group
+     * @param string $option_name
+     * @param array $args
+     */
+    function register_setting($option_group, $option_name, $args = array())
     {
     }
     /**

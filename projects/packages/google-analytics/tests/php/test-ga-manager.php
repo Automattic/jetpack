@@ -5,12 +5,15 @@
  * @package automattic/jetpack
  */
 
-require_once JETPACK__PLUGIN_DIR . 'modules/google-analytics/wp-google-analytics.php';
+use Automattic\Jetpack\Google_Analytics\GA_Manager;
+use Automattic\Jetpack\Google_Analytics\Legacy;
+use Automattic\Jetpack\Google_Analytics\Utils;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class WP_Test_Jetpack_Google_Analytics.
  */
-class WP_Test_Jetpack_Google_Analytics extends WP_UnitTestCase {
+class WP_Test_Jetpack_Google_Analytics extends TestCase {
 
 	/**
 	 * Testing Google Analytics account (UA).
@@ -29,10 +32,12 @@ class WP_Test_Jetpack_Google_Analytics extends WP_UnitTestCase {
 	/**
 	 * Runs the routine before each test is executed.
 	 *
+	 * @before
+	 *
 	 * @return void
 	 */
 	public function set_up() {
-		parent::set_up();
+		parent::setUp();
 
 		// Hijack the option for Jetpack_Google_Analytics_Options::get_tracking_code().
 		add_filter(
@@ -85,7 +90,7 @@ class WP_Test_Jetpack_Google_Analytics extends WP_UnitTestCase {
 	 */
 	public function test_amp_analytics_entries() {
 		$this->assertEquals(
-			Jetpack_Google_Analytics::amp_analytics_entries( array() ),
+			GA_Manager::amp_analytics_entries( array() ),
 			$this->get_sample()
 		);
 	}
@@ -95,7 +100,7 @@ class WP_Test_Jetpack_Google_Analytics extends WP_UnitTestCase {
 	 */
 	public function test_amp_analytics_single_entry() {
 		$this->assertEquals(
-			Jetpack_Google_Analytics::amp_analytics_entries( $this->get_sample() ),
+			GA_Manager::amp_analytics_entries( $this->get_sample() ),
 			$this->get_sample()
 		);
 	}
@@ -144,7 +149,8 @@ class WP_Test_Jetpack_Google_Analytics extends WP_UnitTestCase {
 		set_current_screen( 'front' );
 
 		// Mock `Jetpack_Google_Analytics_Legacy` instance to disable the constructor class.
-		$instance = $this->getMockBuilder( Jetpack_Google_Analytics_Legacy::class )
+		// @phan-suppress-next-line PhanDeprecatedFunction -- Conflict between PHPUnit versions, will replace with `anyMethods()` later on.
+		$instance = $this->getMockBuilder( Legacy::class )
 			->setMethods( null )
 			->disableOriginalConstructor()
 			->getMock();
@@ -153,15 +159,8 @@ class WP_Test_Jetpack_Google_Analytics extends WP_UnitTestCase {
 		$instance->insert_code();
 		$actual = ob_get_clean();
 
-		$this->assertStringContainsString(
-			'gtag( "event", "jetpack_testing_event", {"event_category":"somecat","event_label":"somelabel","value":"someval"} )',
-			$actual
-		);
-
-		$this->assertStringContainsString(
-			'gtag( "event", "another_jetpack_testing_event", {"event_category":"foo","event_label":"bar","value":"baz"} );',
-			$actual
-		);
+		$this->assertTrue( false !== strpos( $actual, 'gtag( "event", "jetpack_testing_event", {"event_category":"somecat","event_label":"somelabel","value":"someval"} )' ) );
+		$this->assertTrue( false !== strpos( $actual, 'gtag( "event", "another_jetpack_testing_event", {"event_category":"foo","event_label":"bar","value":"baz"} );' ) );
 	}
 
 	/**
@@ -181,41 +180,41 @@ class WP_Test_Jetpack_Google_Analytics extends WP_UnitTestCase {
 
 		// Test defaults
 		unset( $_SERVER['HTTP_DNT'] );
-		$this->assertFalse( Jetpack_Google_Analytics_Utils::is_dnt_enabled() );
+		$this->assertFalse( Utils::is_dnt_enabled() );
 		$_SERVER['HTTP_DNT'] = 0;
-		$this->assertFalse( Jetpack_Google_Analytics_Utils::is_dnt_enabled() );
+		$this->assertFalse( Utils::is_dnt_enabled() );
 		$_SERVER['HTTP_DNT'] = 1;
-		$this->assertFalse( Jetpack_Google_Analytics_Utils::is_dnt_enabled() );
+		$this->assertFalse( Utils::is_dnt_enabled() );
 
 		// Test ignore DNT header.
 		add_filter( 'jetpack_honor_dnt_header_for_wga', $func_return_false );
 		unset( $_SERVER['HTTP_DNT'] );
-		$this->assertFalse( Jetpack_Google_Analytics_Utils::is_dnt_enabled() );
+		$this->assertFalse( Utils::is_dnt_enabled() );
 		$_SERVER['HTTP_DNT'] = 0;
-		$this->assertFalse( Jetpack_Google_Analytics_Utils::is_dnt_enabled() );
+		$this->assertFalse( Utils::is_dnt_enabled() );
 		$_SERVER['HTTP_DNT'] = 1;
-		$this->assertFalse( Jetpack_Google_Analytics_Utils::is_dnt_enabled() );
+		$this->assertFalse( Utils::is_dnt_enabled() );
 		remove_filter( 'jetpack_honor_dnt_header_for_wga', $func_return_false );
 
 		// Test honor DNT header.
 		add_filter( 'jetpack_honor_dnt_header_for_wga', $func_return_true );
 		unset( $_SERVER['HTTP_DNT'] );
-		$this->assertFalse( Jetpack_Google_Analytics_Utils::is_dnt_enabled() );
+		$this->assertFalse( Utils::is_dnt_enabled() );
 		$_SERVER['HTTP_DNT'] = 0;
-		$this->assertFalse( Jetpack_Google_Analytics_Utils::is_dnt_enabled() );
+		$this->assertFalse( Utils::is_dnt_enabled() );
 		$_SERVER['HTTP_DNT'] = 1;
-		$this->assertTrue( Jetpack_Google_Analytics_Utils::is_dnt_enabled() );
+		$this->assertTrue( Utils::is_dnt_enabled() );
 		remove_filter( 'jetpack_honor_dnt_header_for_wga', $func_return_true );
 
 		// Test filter overrides option.
 		add_filter( 'pre_option_jetpack_wga', $func_enable_honor_dnt );
 		add_filter( 'jetpack_honor_dnt_header_for_wga', $func_return_false );
 		unset( $_SERVER['HTTP_DNT'] );
-		$this->assertFalse( Jetpack_Google_Analytics_Utils::is_dnt_enabled() );
+		$this->assertFalse( Utils::is_dnt_enabled() );
 		$_SERVER['HTTP_DNT'] = 0;
-		$this->assertFalse( Jetpack_Google_Analytics_Utils::is_dnt_enabled() );
+		$this->assertFalse( Utils::is_dnt_enabled() );
 		$_SERVER['HTTP_DNT'] = 1;
-		$this->assertFalse( Jetpack_Google_Analytics_Utils::is_dnt_enabled() );
+		$this->assertFalse( Utils::is_dnt_enabled() );
 		remove_filter( 'jetpack_honor_dnt_header_for_wga', $func_return_false );
 		remove_filter( 'pre_option_jetpack_wga', $func_enable_honor_dnt );
 	}

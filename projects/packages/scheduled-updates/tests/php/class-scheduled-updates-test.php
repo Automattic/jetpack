@@ -497,8 +497,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 * @covers ::deleted_plugin
 	 */
 	public function test_delete_plugin_new_events_inherit_statuses() {
-		$plugins  = $this->create_plugins_for_deletion( 3 );
-		$statuses = array( 'success', 'failure-and-rollback' );
+		$plugins = $this->create_plugins_for_deletion( 3 );
 
 		// Create two events at 08:00 and 09:00 with plugins 0 and 1, and 1 and 2.
 		for ( $i = 0; $i < 2; ++$i ) {
@@ -519,16 +518,17 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 			$result = rest_do_request( $request );
 			$this->assertSame( 200, $result->get_status() );
 
-			$request = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules/' . $result->get_data() . '/status' );
-			$request->set_body_params(
-				array(
-					'last_run_timestamp' => time() + $i,
-					'last_run_status'    => $statuses[ $i ],
-				)
+			// Log a start and success.
+			Scheduled_Updates_Logs::log(
+				$result->get_data(),
+				Scheduled_Updates_Logs::PLUGIN_UPDATES_START,
+				'no_plugins_to_update'
 			);
-
-			$result = rest_do_request( $request );
-			$this->assertSame( 200, $result->get_status() );
+			Scheduled_Updates_Logs::log(
+				$result->get_data(),
+				Scheduled_Updates_Logs::PLUGIN_UPDATES_SUCCESS,
+				'no_plugins_to_update'
+			);
 		}
 
 		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/update-schedules' );
