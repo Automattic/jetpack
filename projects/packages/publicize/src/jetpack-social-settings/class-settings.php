@@ -225,9 +225,11 @@ class Settings {
 		}
 		$body = json_decode( wp_remote_retrieve_body( $response ) );
 
+		$services = $body->services ?? array();
+
 		return array_values(
 			array_filter(
-				$body->services ?? array(),
+				(array) $services,
 				function ( $service ) {
 					return isset( $service->type ) && 'publicize' === $service->type;
 				}
