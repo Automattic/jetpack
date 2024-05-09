@@ -1,4 +1,4 @@
-import { Button } from '@automattic/jetpack-components';
+import { Button, useGlobalNotices } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import { useCallback } from 'react';
@@ -12,7 +12,11 @@ type ConnectFormProps = {
 	onConfirm: ( data: unknown ) => void;
 	onSubmit?: VoidFunction;
 	displayInputs?: boolean;
+	isMastodonAlreadyConnected?: ( username: string ) => boolean;
 };
+
+const isValidMastodonUsername = ( username: string ) =>
+	/^@?\b([A-Z0-9_]+)@([A-Z0-9.-]+\.[A-Z]{2,})$/gi.test( username );
 
 /**
  * Connect form component
@@ -27,7 +31,10 @@ export function ConnectForm( {
 	onConfirm,
 	onSubmit,
 	displayInputs,
+	isMastodonAlreadyConnected,
 }: ConnectFormProps ) {
+	const { createErrorNotice } = useGlobalNotices();
+
 	const onSubmitForm = useCallback(
 		( event: React.FormEvent ) => {
 			event.preventDefault();
@@ -41,9 +48,24 @@ export function ConnectForm( {
 			const url = new URL( service.connect_URL );
 
 			switch ( service.ID ) {
-				case 'mastodon':
+				case 'mastodon': {
+					const instance = formData.get( 'instance' ).toString().trim();
+
+					if ( ! isValidMastodonUsername( instance ) ) {
+						createErrorNotice( __( 'Invalid Mastodon username', 'jetpack' ) );
+
+						return;
+					}
+
+					if ( isMastodonAlreadyConnected?.( instance ) ) {
+						createErrorNotice( __( 'This Mastodon account is already connected', 'jetpack' ) );
+
+						return;
+					}
+
 					url.searchParams.set( 'instance', formData.get( 'instance' ) as string );
 					break;
+				}
 
 				default:
 					break;
@@ -51,7 +73,14 @@ export function ConnectForm( {
 
 			requestExternalAccess( url.toString(), onConfirm );
 		},
-		[ onConfirm, onSubmit, service.ID, service.connect_URL ]
+		[
+			createErrorNotice,
+			isMastodonAlreadyConnected,
+			onConfirm,
+			onSubmit,
+			service.ID,
+			service.connect_URL,
+		]
 	);
 
 	return (
