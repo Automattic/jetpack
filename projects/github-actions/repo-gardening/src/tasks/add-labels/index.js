@@ -161,6 +161,12 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 			keywords.add( '[Feature] WooCommerce Analytics' );
 		}
 
+		// The Masterbar feature now lives in both a package and a Jetpack module.
+		const masterbar = file.match( /^projects\/packages\/masterbar\// );
+		if ( masterbar !== null ) {
+			keywords.add( '[Feature] Masterbar' );
+		}
+
 		// Docker.
 		const docker = file.match( /^(projects\/plugins\/boost\/docker|tools\/docker)\// );
 		if ( docker !== null ) {
