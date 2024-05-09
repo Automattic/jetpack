@@ -11,6 +11,7 @@ import React from 'react';
  */
 import useAICheckout from '../../../hooks/use-ai-checkout';
 import useAiFeature from '../../../hooks/use-ai-feature';
+import './style.scss';
 /*
  * Types
  */
@@ -157,6 +158,7 @@ export default function AiAssistantInput( {
 
 	return (
 		<ExtensionAIControl
+			className="jetpack-ai-assistant-extension-ai-input"
 			placeholder={ placeholder }
 			disabled={ disabled }
 			value={ value }
