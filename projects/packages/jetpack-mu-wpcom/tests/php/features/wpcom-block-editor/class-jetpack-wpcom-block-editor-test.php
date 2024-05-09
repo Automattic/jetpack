@@ -5,8 +5,8 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\Jetpack_WPCOM_Block_Editor;
-
 /**
  * Class WP_Test_Jetpack_WPCOM_Block_Editor.
  *
@@ -46,7 +46,7 @@ class WP_Test_Jetpack_WPCOM_Block_Editor extends WP_UnitTestCase {
 		// No Jetpack token.
 		$this->assertFalse( $wpcom_block_editor->verify_frame_nonce( $this->create_nonce(), 'action' ) );
 
-		( new Automattic\Jetpack\Connection\Tokens() )->update_user_token( $this->user_id, sprintf( '%s.%d.%d', 'token', JETPACK__API_VERSION, $this->user_id ), true );
+		( new Automattic\Jetpack\Connection\Tokens() )->update_user_token( $this->user_id, sprintf( '%s.%d.%d', 'token', Constants::get_constant( 'JETPACK__API_VERSION' ), $this->user_id ), true );
 
 		$nonce = $this->create_nonce();
 

@@ -71,12 +71,12 @@ class Jetpack_WPCOM_Block_Editor {
 		}
 
 		require_once __DIR__ . '/functions.editor-type.php';
-		add_action( 'edit_form_top', 'Jetpack\EditorType\remember_classic_editor' );
+		add_action( 'edit_form_top', 'Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\EditorType\remember_classic_editor' );
 		add_action( 'login_init', array( $this, 'allow_block_editor_login' ), 1 );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ), 9 );
 		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ) );
 		add_filter( 'mce_external_plugins', array( $this, 'add_tinymce_plugins' ) );
-		add_filter( 'block_editor_settings_all', 'Jetpack\EditorType\remember_block_editor', 10, 2 );
+		add_filter( 'block_editor_settings_all', 'Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\EditorType\remember_block_editor', 10, 2 );
 
 		$this->enable_cross_site_auth_cookies();
 	}
@@ -496,11 +496,11 @@ class Jetpack_WPCOM_Block_Editor {
 	public function maybe_send_cookies( $send_cookies ) {
 
 		if ( ! empty( $this->set_cookie_args ) && $send_cookies ) {
-			array_map(
+			array_walk(
+				$this->set_cookie_args,
 				function ( $cookie ) {
 					call_user_func_array( 'jetpack_shim_setcookie', $cookie );
-				},
-				$this->set_cookie_args
+				}
 			);
 			$this->set_cookie_args = array();
 			return false;
@@ -541,7 +541,7 @@ class Jetpack_WPCOM_Block_Editor {
 	 * @param string $scheme      Authentication scheme. Values include 'auth' or 'secure_auth'.
 	 */
 	public function set_samesite_auth_cookies( $auth_cookie, $expire, $expiration, $user_id, $scheme ) {
-		if ( wp_startswith( $scheme, 'secure_' ) ) {
+		if ( $scheme && is_scalar( $scheme ) && str_starts_with( (string) $scheme, 'secure_' ) ) {
 			$secure           = true;
 			$auth_cookie_name = SECURE_AUTH_COOKIE;
 		} else {
