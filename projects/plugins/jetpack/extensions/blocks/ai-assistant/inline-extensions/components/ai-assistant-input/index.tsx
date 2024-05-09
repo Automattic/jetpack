@@ -2,16 +2,19 @@
  * External dependencies
  */
 import { ExtensionAIControl } from '@automattic/jetpack-ai-client';
-import { useState, useEffect, useCallback } from '@wordpress/element';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { useState, useEffect, useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 /*
  * Internal dependencies
  */
 import useAICheckout from '../../../hooks/use-ai-checkout';
+import useAiFeature from '../../../hooks/use-ai-feature';
 /*
  * Types
  */
+import type { ExtendedInlineBlockProp } from '../../../extensions/ai-assistant';
 import type { RequestingErrorProps, RequestingStateProp } from '@automattic/jetpack-ai-client';
 import type { ReactElement, MouseEvent } from 'react';
 
@@ -21,9 +24,7 @@ export type AiAssistantInputProps = {
 	inputRef?: React.MutableRefObject< HTMLInputElement | null >;
 	wrapperRef?: React.MutableRefObject< HTMLDivElement | null >;
 	action?: string;
-	showUpgradeMessage?: boolean;
-	requireUpgrade?: boolean;
-	requestsRemaining?: number;
+	blockType: ExtendedInlineBlockProp;
 	request: ( question: string ) => void;
 	stopSuggestion?: () => void;
 	close?: () => void;
@@ -37,9 +38,7 @@ export default function AiAssistantInput( {
 	inputRef,
 	wrapperRef,
 	action,
-	showUpgradeMessage = false,
-	requireUpgrade = false,
-	requestsRemaining = 0,
+	blockType,
 	request,
 	stopSuggestion,
 	close,
@@ -49,44 +48,81 @@ export default function AiAssistantInput( {
 	const [ value, setValue ] = useState( '' );
 	const [ placeholder, setPlaceholder ] = useState( __( 'Ask Jetpack AI to edit…', 'jetpack' ) );
 	const [ showGuideLine, setShowGuideLine ] = useState( false );
-	const disabled = requireUpgrade || [ 'requesting', 'suggesting' ].includes( requestingState );
 	const { autosaveAndRedirect } = useAICheckout();
+	const { tracks } = useAnalytics();
+	const [ requestsRemaining, setRequestsRemaining ] = useState( 0 );
+	const [ showUpgradeMessage, setShowUpgradeMessage ] = useState( false );
+	const {
+		requireUpgrade,
+		requestsCount,
+		requestsLimit,
+		loading: loadingAiFeature,
+		nextTier,
+		currentTier,
+	} = useAiFeature();
 
-	function handleSend(): void {
+	const disabled = useMemo(
+		() => requireUpgrade || [ 'requesting', 'suggesting' ].includes( requestingState ),
+		[ requireUpgrade, requestingState ]
+	);
+
+	const handleSend = useCallback( () => {
+		tracks.recordEvent( 'jetpack_ai_assistant_extension_generate', {
+			block_type: blockType,
+		} );
+
 		request?.( value );
-	}
+	}, [ blockType, request, tracks, value ] );
 
-	function handleStopSuggestion(): void {
+	const handleStopSuggestion = useCallback( () => {
+		tracks.recordEvent( 'jetpack_ai_assistant_extension_stop', {
+			block_type: blockType,
+		} );
+
 		stopSuggestion?.();
-	}
+	}, [ blockType, stopSuggestion, tracks ] );
 
 	function handleClose(): void {
 		close?.();
 	}
 
-	function handleUndo(): void {
+	const handleUndo = useCallback( () => {
+		tracks.recordEvent( 'jetpack_ai_assistant_undo', {
+			block_type: blockType,
+		} );
+
 		undo?.();
-	}
+	}, [ blockType, tracks, undo ] );
 
 	const handleUpgrade = useCallback(
 		( event: MouseEvent< HTMLButtonElement > ) => {
+			tracks.recordEvent( 'jetpack_ai_upgrade_button', {
+				current_tier_slug: currentTier?.slug,
+				requests_count: requestsCount,
+				placement: 'jetpack_ai_assistant_extension',
+			} );
+
 			autosaveAndRedirect( event );
 		},
-		[ autosaveAndRedirect ]
+		[ autosaveAndRedirect, currentTier?.slug, requestsCount, tracks ]
 	);
 
-	function handleTryAgain(): void {
-		tryAgain?.();
-	}
+	const handleTryAgain = useCallback( () => {
+		tracks.recordEvent( 'jetpack_ai_assistant_try_again', {
+			block_type: blockType,
+		} );
 
-	// Clear the input value on reset and when the request is done.
+		tryAgain?.();
+	}, [ blockType, tracks, tryAgain ] );
+
+	// Clears the input value on reset and when the request is done.
 	useEffect( () => {
 		if ( [ 'init', 'done' ].includes( requestingState ) ) {
 			setValue( '' );
 		}
 	}, [ requestingState ] );
 
-	// Set the value to the quick action text once it changes.
+	// Sets the placeholder to the quick action text once it changes and clear the input value.
 	useEffect( () => {
 		setPlaceholder( action || __( 'Ask Jetpack AI to edit…', 'jetpack' ) );
 
@@ -96,10 +132,28 @@ export default function AiAssistantInput( {
 		}
 	}, [ action ] );
 
-	// Show the guideline message when there is some text in the input.
+	// Shows the guideline message when there is some text in the input.
 	useEffect( () => {
 		setShowGuideLine( value.length > 0 );
 	}, [ value ] );
+
+	// Updates the remaining requests count and controls when to show the upgrade message.
+	useEffect( () => {
+		const remaining = Math.max( requestsLimit - requestsCount, 0 );
+		setRequestsRemaining( remaining );
+
+		const quarterPlanLimit = requestsLimit ? requestsLimit / 4 : 5;
+		setShowUpgradeMessage(
+			// if the feature is not loading
+			! loadingAiFeature &&
+				// and there is a next plan
+				!! nextTier &&
+				// and the user requires an upgrade
+				( requireUpgrade ||
+					// or the user has reached a multiple of the quarter plan limit, e.g. 100, 75, 50, 25, and 0 on the 100 tier.
+					remaining % quarterPlanLimit === 0 )
+		);
+	}, [ requestsLimit, requestsCount, loadingAiFeature, nextTier, requireUpgrade ] );
 
 	return (
 		<ExtensionAIControl
