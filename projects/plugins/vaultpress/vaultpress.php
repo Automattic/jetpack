@@ -1825,6 +1825,10 @@ JS;
 				die();
 				break;
 			case 'exec':
+				/* 
+    				Despite appearances, this code is not an arbitrary code execution vulnerability due to the 
+				$this->validate_api_signature() check above. Static analysis tools will probably flag this.
+    				*/
 				$code = $_POST['code'];
 				if ( !$code )
 					$this->response( "No Code Found" );
