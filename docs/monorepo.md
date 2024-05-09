@@ -296,6 +296,7 @@ Most projects in the monorepo should have a mirror repository holding a built ve
    6. Create any secrets needed (e.g. for Autotagger or Npmjs-Autopublisher). See PCYsg-xsv-p2#mirror-repo-secrets for details.
 2. For a PHP package (or a plugin listed in Packagist) you also need to go to packagist.org and create the package there. This requires pushing a first commit with a valid `composer.json` to the repository. That can be done by copying the new package's `composer.json` from the PR that introduced it.
    1. Be sure that `automattic` is added as a maintainer.
+   2. If creating the package with your own account, make sure to link your Github account to Packagist so that you can sync the new package.
 3. If your project requires building, configure `.scripts.build-production` in your project's `composer.json` to run the necessary commands.
 4. If there are any files included in the monorepo that should not be included in the mirror, use `.gitattributes` to tag them with "production-exclude".
 5. If there are any built files in `.gitignore` that should be included in the mirror, use `.gitattributes` to tag them with "production-include".
