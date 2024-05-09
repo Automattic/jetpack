@@ -566,6 +566,19 @@ function wpcom_maybe_enable_link_manager() {
 add_action( 'init', 'wpcom_maybe_enable_link_manager' );
 
 /**
+ * Get the plugin menu stub.
+ *
+ * The stub is used as the URL and also to identify the menu item in the admin menu.
+ */
+function wpcom_get_plugin_stub() {
+	if ( ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+		$domain = wp_parse_url( home_url(), PHP_URL_HOST );
+		return 'https://wordpress.com/plugins/' . $domain;
+	}
+	return 'plugins.php';
+}
+
+/**
  * Add the Scheduled Updates menu item to the Plugins menu.
  *
  * Limited to sites with scheduled updates feature.
@@ -595,7 +608,7 @@ function wpcom_add_scheduled_updates_menu() {
 	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 
 	add_submenu_page(
-		'plugins.php',
+		wpcom_get_plugin_stub(),
 		esc_attr__( 'Scheduled Updates', 'jetpack-mu-wpcom' ),
 		__( 'Scheduled Updates', 'jetpack-mu-wpcom' ),
 		'update_plugins',
@@ -603,30 +616,36 @@ function wpcom_add_scheduled_updates_menu() {
 		null
 	);
 }
-add_action( 'admin_menu', 'wpcom_add_scheduled_updates_menu' );
+add_action( 'admin_menu', 'wpcom_add_scheduled_updates_menu', 100 );
 
 /**
- * Add the Plugins menu item to the admin menu on simple sites.
+ * Add the Plugins menu item to the admin menu
  */
 function wpcom_add_plugins_menu() {
-
-	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
 		return;
 	}
 
-	if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
-		$domain              = wp_parse_url( home_url(), PHP_URL_HOST );
-		$can_install_plugins = function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( WPCOM_Features::INSTALL_PLUGINS );
+	global $menu;
+	$plugin_nav_url = wpcom_get_plugin_stub();
 
-		add_menu_page(
-			__( 'Plugins', 'jetpack-mu-wpcom' ),
-			__( 'Plugins', 'jetpack-mu-wpcom' ),
-			'manage_options', // Roughly means "is a site admin"
-			$can_install_plugins ? 'https://wordpress.com/plugins/' . $domain : 'plugins.php',
-			null,
-			'dashicons-admin-plugins',
-			65
-		);
+	foreach ( $menu as &$menu_item ) {
+		if ( 'plugins.php' === $menu_item[2] ) {
+			$menu_item[1] = 'manage_options'; // Roughly means "is a site admin"
+			$menu_item[2] = $plugin_nav_url;
+			return;
+		}
 	}
+
+	// Didn't find an existing plugins menu, so add one.
+	add_menu_page(
+		__( 'Plugins', 'jetpack-mu-wpcom' ),
+		__( 'Plugins', 'jetpack-mu-wpcom' ),
+		'manage_options', // Roughly means "is a site admin"
+		$plugin_nav_url,
+		null,
+		'dashicons-admin-plugins',
+		65
+	);
 }
-add_action( 'admin_menu', 'wpcom_add_plugins_menu' );
+add_action( 'admin_menu', 'wpcom_add_plugins_menu', 99 );
