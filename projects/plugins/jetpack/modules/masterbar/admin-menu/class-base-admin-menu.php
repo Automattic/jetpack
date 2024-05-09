@@ -538,7 +538,7 @@ abstract class Base_Admin_Menu {
 		global $submenu;
 
 		foreach ( $submenu as $menu_slug => $submenu_items ) {
-			if ( empty( $submenu_items ) ) {
+			if ( ! $submenu_items ) {
 				continue;
 			}
 
