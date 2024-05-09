@@ -216,15 +216,23 @@ class Settings {
 	public function get_services() {
 		$site_id = Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
-			return [];
+			return array();
 		}
 		$path     = sprintf( '/sites/%d/external-services', $site_id );
 		$response = Client::wpcom_json_api_request_as_user( $path );
 		if ( is_wp_error( $response ) ) {
-			return [];
+			return array();
 		}
 		$body = json_decode( wp_remote_retrieve_body( $response ) );
-		return array_values( (array) $body->services ) ?? [];
+
+		return array_values(
+			array_filter(
+				(array) $body->services ?? array(),
+				function ( $service ) {
+					return isset( $service->type ) && 'publicize' === $service->type;
+				}
+			)
+		);
 	}
 
 	/**
