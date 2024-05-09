@@ -620,7 +620,7 @@ function wpcom_add_plugins_menu() {
 
 		$plugins_nav_url = 'plugins.php';
 
-		if ( $can_install_plugins || wp_is_serving_rest_request() ) {
+		if ( $can_install_plugins || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
 			$domain          = wp_parse_url( home_url(), PHP_URL_HOST );
 			$plugins_nav_url = 'https://wordpress.com/plugins/' . $domain;
 		}
