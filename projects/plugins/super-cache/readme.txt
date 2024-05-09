@@ -268,33 +268,14 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 == Changelog ==
-### 1.12.0 - 2024-03-11
-#### Added
-- Setup: Detect Jetpack Boost cache and suggest troubleshooting steps
-- WP Super Cache: added WPSC_PRELOAD_POST_INTERVAL and WPSC_PRELOAD_LOOP_INTERVAL to modify preload timings
-
+### 1.12.1 - 2024-05-09
 #### Changed
-- Code Modernization: Replace usage of strpos() with str_contains()
-- Code Modernization: Replace usage of strpos() with str_starts_with().
-- Code Modernization: Replace usage of substr() with str_starts_with() and str_ends_with().
-- Fix blurry Automattic logo.
-- General: avoid deprecation warnings when trying to get URLs in PHP 8.2
-- General: indicate compatibility with the upcoming version of WordPress, 6.5.
-- General: updated PHP requirement to PHP 7.0+
-- General: update WordPress version requirements to WordPress 6.3.
-- WP Super Cache: check for Boost Cache when creating advanced-cache.php
-- WP Super Cache: fixed labels on advanced settings page
-- WP Super Cache: remove notifications that preload started working again.
+- General: update WordPress version requirements to WordPress 6.4.
+- General: use wp_admin_notice function introduced in WP 6.4 to display notices.
 
 #### Fixed
-- Supercache: add "days" to "Next preload scheduled" message.
-- Super Cache: with rebuild enabled, apply that to subdirectories instead of deleting them.
-- WP Super Cache - fix the wp_super_cache_clear_post_cache filter so the homepage cache isn't deleted too.
-- WP Super Cache: bail if the request uri isn't set. It means the plugin isn't configured yet.
-- WP Super Cache: don't create an output buffer if there's already one active
-- WP Super Cache: fixed serving a cached page on POST with late init enabled.
-- WP Super Cache: fix the output buffer check, and make debug logs pre-formatted.
-- WP Super Cache: if the preload number of posts is not in the list, then add it
+- Fix the CDN functionality when cache is disabled
+- Do not define DONOTCACHEPAGE if it is already defined
 
 --------
 
