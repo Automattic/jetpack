@@ -12,7 +12,7 @@
  * @package automattic/jetpack
  */
 
-_deprecated_file( __FILE__, 'jetpack-$$next-version$$' );
+_deprecated_file( __FILE__, 'jetpack-13.4' );
 /**
  * Enqueue the devicepx JS library, if enabled. The feature must
  * be enabled earlier during `after_setup_theme`.
@@ -21,7 +21,7 @@ _deprecated_file( __FILE__, 'jetpack-$$next-version$$' );
  */
 function jetpack_devicepx_init() {
 	if ( current_theme_supports( 'jetpack-devicepx' ) ) {
-		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __FUNCTION__, 'jetpack-13.4' );
 		add_action( 'wp_enqueue_scripts', 'jetpack_devicepx_enqueue' );
 		add_action( 'customize_controls_enqueue_scripts', 'jetpack_devicepx_enqueue' );
 		add_action( 'admin_enqueue_scripts', 'jetpack_devicepx_enqueue' );
@@ -37,6 +37,6 @@ add_action( 'init', 'jetpack_devicepx_init', 99 );
  * @uses wp_enqueue_script
  */
 function jetpack_devicepx_enqueue() {
-	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+	_deprecated_function( __FUNCTION__, 'jetpack-13.4' );
 	wp_enqueue_script( 'devicepx', 'https://s0.wp.com/wp-content/js/devicepx-jetpack.js', array(), gmdate( 'oW' ), true );
 }

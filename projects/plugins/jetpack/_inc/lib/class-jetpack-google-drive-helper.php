@@ -2,6 +2,7 @@
 /**
  * Google Drive helper.
  *
+ * @deprecated 13.4 Use automattic/jetpack-forms
  * @package automattic/jetpack
  */
 
@@ -11,15 +12,19 @@ use Automattic\Jetpack\Status\Visitor;
 
 /**
  * Class Jetpack_Google_Drive_Helper
+ *
+ * @deprecated 13.4 Use Automattic\Jetpack\Forms\Service\Google_Drive_Helper
  */
 class Jetpack_Google_Drive_Helper {
 	/**
 	 * Checks if the user has a valid connection to Google Drive
 	 *
+	 * @deprecated 13.4 Use Automattic\Jetpack\Forms\Service\Google_Drive_Helper->has_valid_connection
 	 * @param int $user_id The user ID.
 	 * @return array       Array with single 'valid' (bool) entry.
 	 */
 	public static function has_valid_connection( $user_id ) {
+		_deprecated_function( __METHOD__, 'jetpack-13.4', 'Automattic\Jetpack\Forms\Service\Google_Drive_Helper->has_valid_connection' );
 		$site_id = Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return false;
@@ -63,12 +68,14 @@ class Jetpack_Google_Drive_Helper {
 	/**
 	 * Creates a Google Spreadsheet and returns some of its meta
 	 *
+	 * @deprecated 13.4 Use Automattic\Jetpack\Forms\Service\Google_Drive_Helper->create_sheet
 	 * @param int    $user_id The user ID.
 	 * @param string $title   The spreadsheet title.
 	 * @param array  $rows    Array of arrays with values.
 	 * @return array|WP_Error
 	 */
 	public static function create_sheet( $user_id, $title, $rows = array() ) {
+		_deprecated_function( __METHOD__, 'jetpack-13.4', 'Automattic\Jetpack\Forms\Service\Google_Drive_Helper->create_sheet' );
 		$site_id = Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return false;

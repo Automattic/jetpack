@@ -321,6 +321,9 @@ class Test_Status extends TestCase {
 		$wpdb->prefix   = 'wp_';
 		$wpdb->site     = 'wp_site';
 		$wpdb->usermeta = 'wp_usermeta';
+
+		// Reset class so Phan doesn't get confused.
+		'@phan-var \wpdb $wpdb';
 	}
 
 	/**

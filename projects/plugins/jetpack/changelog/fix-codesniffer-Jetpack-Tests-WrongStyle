@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Update comments in tests to fix `Squiz.Commenting.*.WrongStyle`.
+
+

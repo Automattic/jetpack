@@ -4,6 +4,7 @@ import {
 	AdminSectionHero,
 	Container,
 	Col,
+	GlobalNotices,
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { store as socialStore } from '@automattic/jetpack-publicize-components';
@@ -33,7 +34,6 @@ const Admin = () => {
 
 	const onUpgradeToggle = useCallback( () => setForceDisplayPricingPage( true ), [] );
 	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
-	const useAdminUiV1 = useSelect( select => select( socialStore ).useAdminUiV1(), [] );
 
 	const {
 		isModuleEnabled,
@@ -94,6 +94,7 @@ const Admin = () => {
 
 	return (
 		<AdminPage moduleName={ moduleName } header={ <AdminPageHeader /> }>
+			<GlobalNotices />
 			{ ( isShareLimitEnabled && ! hasPaidPlan && showPricingPage ) || forceDisplayPricingPage ? (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
@@ -110,7 +111,6 @@ const Admin = () => {
 					<AdminSection>
 						{ shouldShowAdvancedPlanNudge && <AdvancedUpsellNotice /> }
 						<InstagramNotice onUpgrade={ onUpgradeToggle } />
-						{ useAdminUiV1 ? <span>New connections UI goes here</span> : null }
 						<SocialModuleToggle />
 						{ isModuleEnabled && <SocialNotesToggle disabled={ isUpdatingJetpackSettings } /> }
 						{ isModuleEnabled && isAutoConversionAvailable && (

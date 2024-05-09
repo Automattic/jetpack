@@ -90,7 +90,7 @@ if ( '1' !== getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 require __DIR__ . '/lib/mock-functions.php';
 require $test_root . '/includes/functions.php';
 
-// Activates this plugin in WordPress so it can be tested.
+/** Activates this plugin in WordPress so it can be tested. */
 function _manually_load_plugin() {
 	if ( '1' === getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 		require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/woocommerce.php';

@@ -855,7 +855,7 @@ class Plugin {
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
-		$errors = $upgrader->skin->get_errors();
+		$errors = $skin->get_errors();
 		if ( is_wp_error( $errors ) && $errors->get_error_code() ) {
 			return $errors;
 		}

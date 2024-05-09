@@ -70,7 +70,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Context;
 
 final class Data_Sync {
 
-	const PACKAGE_VERSION = '0.4.5-alpha';
+	const PACKAGE_VERSION = '0.4.5';
 
 	/**
 	 * @var Registry
@@ -221,7 +221,7 @@ final class Data_Sync {
 		 * ```
 		 */
 		if ( method_exists( $parser, 'set_context' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredMethod -- Checked for just above.
+			// @phan-suppress-next-line PhanUndeclaredMethod -- Phan misses the method_exists(). See https://github.com/phan/phan/issues/1204.
 			$parser->set_context( new Schema_Context( $key ) );
 		}
 		$entry_adapter = new Data_Sync_Entry_Adapter( $entry, $parser );

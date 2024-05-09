@@ -5,7 +5,7 @@ import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { ToolbarButton, Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import React, { useCallback } from 'react';
 /*
  * Internal dependencies
  */
@@ -35,8 +35,8 @@ function AiAssistantExtensionToolbarDropdownContent( {
 	onAskAiAssistant,
 	onRequestSuggestion,
 }: AiAssistantExtensionToolbarDropdownContentProps ) {
-	const handleRequestSuggestion: OnRequestSuggestion = ( promptType, options ) => {
-		onRequestSuggestion?.( promptType, options );
+	const handleRequestSuggestion: OnRequestSuggestion = ( ...args ) => {
+		onRequestSuggestion?.( ...args );
 		onClose?.();
 	};
 
@@ -70,13 +70,36 @@ export default function AiAssistantExtensionToolbarDropdown( {
 }: AiAssistantExtensionToolbarDropdownProps ): ReactElement {
 	const { tracks } = useAnalytics();
 
-	const toggleHandler = ( isOpen: boolean ) => {
-		if ( isOpen ) {
-			tracks.recordEvent( 'jetpack_ai_assistant_extension_toolbar_menu_show', {
+	const toggleHandler = useCallback(
+		( isOpen: boolean ) => {
+			if ( isOpen ) {
+				tracks.recordEvent( 'jetpack_ai_assistant_extension_toolbar_menu_show', {
+					block_type: blockType,
+				} );
+			}
+		},
+		[ blockType, tracks ]
+	);
+
+	const handleAskAiAssistant = useCallback( () => {
+		tracks.recordEvent( 'jetpack_editor_ai_assistant_extension_toolbar_prompt_show', {
+			block_type: blockType,
+		} );
+
+		onAskAiAssistant?.();
+	}, [ blockType, onAskAiAssistant, tracks ] );
+
+	const handleRequestSuggestion = useCallback< OnRequestSuggestion >(
+		( promptType, options, humanText ) => {
+			tracks.recordEvent( 'jetpack_editor_ai_assistant_extension_toolbar_button_click', {
+				suggestion: promptType,
 				block_type: blockType,
 			} );
-		}
-	};
+
+			onRequestSuggestion?.( promptType, options, humanText );
+		},
+		[ blockType, onRequestSuggestion, tracks ]
+	);
 
 	return (
 		<Dropdown
@@ -101,8 +124,8 @@ export default function AiAssistantExtensionToolbarDropdown( {
 				<AiAssistantExtensionToolbarDropdownContent
 					onClose={ onClose }
 					blockType={ blockType }
-					onAskAiAssistant={ onAskAiAssistant }
-					onRequestSuggestion={ onRequestSuggestion }
+					onAskAiAssistant={ handleAskAiAssistant }
+					onRequestSuggestion={ handleRequestSuggestion }
 				/>
 			) }
 		/>

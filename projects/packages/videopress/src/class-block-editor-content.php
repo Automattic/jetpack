@@ -86,8 +86,12 @@ class Block_Editor_Content {
 			}
 		}
 
-		if ( isset( $atts['preload'] ) ) {
+		if ( isset( $atts['preload'] ) && videopress_is_valid_preload( $atts['preload'] ) ) {
 			$atts['preloadcontent'] = $atts['preload'];
+		}
+
+		if ( isset( $atts['preloadcontent'] ) && ! videopress_is_valid_preload( $atts['preloadcontent'] ) ) {
+			unset( $atts['preloadcontent'] );
 		}
 
 		$atts = shortcode_atts( $defaults, $atts, 'videopress' );

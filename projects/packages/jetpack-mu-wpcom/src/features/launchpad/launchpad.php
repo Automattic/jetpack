@@ -1063,11 +1063,6 @@ function wpcom_launchpad_is_paid_newsletter_enabled() {
 	return wpcom_launchpad_has_goal_paid_subscribers() && apply_filters( 'wpcom_launchpad_intent_paid_newsletter_enabled', false );
 }
 
-// Unhook our old mu-plugin - this current file is being loaded on 0 priority for `plugins_loaded`.
-if ( class_exists( 'WPCOM_Launchpad' ) ) {
-	remove_action( 'plugins_loaded', array( WPCOM_Launchpad::get_instance(), 'init' ) );
-}
-
 /**
  * Add launchpad options to Jetpack Sync.
  *

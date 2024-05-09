@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fixed a warning thrown by the gravatar profile widget.

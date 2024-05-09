@@ -71,30 +71,27 @@ class Scheduled_Updates_Active {
 	}
 
 	/**
-	 * Update the active value for a scheduled update hook.
-	 *
-	 * @param string           $id      The ID of the schedule.
-	 * @param object           $event   The event object.
-	 * @param \WP_REST_Request $request The request object.
-	 * @return bool
+	 * Registers the active field for the update-schedule REST API.
 	 */
-	public static function updates_active( $id, $event, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$schedule = $request['schedule'];
-		$active   = $schedule['active'] ?? true;
-
-		return self::update( $id, $active );
-	}
-
-	/**
-	 * REST prepare_item_for_response filter.
-	 *
-	 * @param array            $item    WP Cron event.
-	 * @param \WP_REST_Request $request Request object.
-	 * @return array Response array on success.
-	 */
-	public static function response_filter( $item, $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$item['active'] = self::get( $item['schedule_id'] );
-
-		return $item;
+	public static function add_active_field() {
+		register_rest_field(
+			'update-schedule',
+			'active',
+			array(
+				/**
+				 * Populates the active field.
+				 *
+				 * @param array $item Prepared response array.
+				 * @return bool
+				 */
+				'get_callback' => function ( $item ) {
+					return self::get( $item['schedule_id'] );
+				},
+				'schema'       => array(
+					'description' => 'Whether the schedule is active or paused.',
+					'type'        => 'boolean',
+				),
+			)
+		);
 	}
 }

@@ -962,9 +962,17 @@ class User_Admin {
 			)
 		);
 
+		$tooltip_string = esc_attr__( 'Jetpack SSO allows a seamless and secure experience on WordPress.com. Join millions of WordPress users who trust us to keep their accounts safe.', 'jetpack-connection' );
+
+		wp_add_inline_script(
+			'jetpack-sso-users',
+			"var Jetpack_SSOTooltip = { 'tooltipString': '{$tooltip_string}' }",
+			'before'
+		);
+
 		$columns['user_jetpack'] = sprintf(
-			'<span class="jetpack-sso-invitation-tooltip-icon" role="tooltip" aria-label="%3$s: %1$s" tabindex="0">%2$s [?]<span class="jetpack-sso-invitation-tooltip jetpack-sso-th-tooltip">%1$s</span></span>',
-			esc_attr__( 'Jetpack SSO allows a seamless and secure experience on WordPress.com. Join millions of WordPress users who trust us to keep their accounts safe.', 'jetpack-connection' ),
+			'<span class="jetpack-sso-invitation-tooltip-icon jetpack-sso-status-column" role="tooltip" aria-label="%3$s: %1$s" tabindex="0">%2$s</span>',
+			$tooltip_string,
 			esc_html__( 'SSO Status', 'jetpack-connection' ),
 			esc_attr__( 'Tooltip', 'jetpack-connection' )
 		);

@@ -46,6 +46,7 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_scheduled_update_verify_plugins', '__return_true', 11 );
 
 		Scheduled_Updates::init();
 	}
@@ -58,7 +59,7 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 	public function tear_down() {
 		wp_delete_user( $this->admin_id );
 		delete_option( Scheduled_Updates_Health_Paths::OPTION_NAME );
-
+		remove_filter( 'jetpack_scheduled_update_verify_plugins', '__return_true', 11 );
 		parent::tear_down_wordbless();
 	}
 
@@ -156,12 +157,12 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
 		$request->set_body_params(
 			array(
-				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Monday 8:00' ),
-					'interval'           => 'weekly',
-					'health_check_paths' => $paths,
+				'plugins'            => $plugins,
+				'schedule'           => array(
+					'timestamp' => strtotime( 'next Monday 8:00' ),
+					'interval'  => 'weekly',
 				),
+				'health_check_paths' => $paths,
 			)
 		);
 		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
@@ -185,6 +186,31 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test create item with too many paths.
+	 *
+	 * @covers WPCOM_REST_API_V2_Endpoint_Update_Schedules::create_item
+	 */
+	public function test_create_item_with_too_many_paths() {
+		$plugins = array( 'gutenberg/gutenberg.php' );
+		$paths   = array_fill( 0, 6, '/a' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$request->set_body_params(
+			array(
+				'plugins'            => $plugins,
+				'schedule'           => array(
+					'timestamp' => strtotime( 'next Monday 8:00' ),
+					'interval'  => 'weekly',
+				),
+				'health_check_paths' => $paths,
+			)
+		);
+		$result = rest_do_request( $request )->get_data();
+
+		$this->assertSame( 'rest_invalid_param', $result['code'] );
+		$this->assertSame( 400, $result['data']['status'] );
+	}
+
+	/**
 	 * Test remove item with paths.
 	 *
 	 * @covers WPCOM_REST_API_V2_Endpoint_Update_Schedules::create_item
@@ -195,12 +221,12 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 
 		$request->set_body_params(
 			array(
-				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Monday 8:00' ),
-					'interval'           => 'weekly',
-					'health_check_paths' => array( 'a', 'b' ),
+				'plugins'            => $plugins,
+				'schedule'           => array(
+					'timestamp' => strtotime( 'next Monday 8:00' ),
+					'interval'  => 'weekly',
 				),
+				'health_check_paths' => array( 'a', 'b' ),
 			)
 		);
 		$schedule_id_1 = Scheduled_Updates::generate_schedule_id( $plugins );
@@ -219,12 +245,12 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 		$schedule_id_2 = Scheduled_Updates::generate_schedule_id( $plugins );
 		$request->set_body_params(
 			array(
-				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Monday 11:00' ),
-					'interval'           => 'daily',
-					'health_check_paths' => array( 'c', 'd' ),
+				'plugins'            => $plugins,
+				'schedule'           => array(
+					'timestamp' => strtotime( 'next Monday 11:00' ),
+					'interval'  => 'daily',
 				),
+				'health_check_paths' => array( 'c', 'd' ),
 			)
 		);
 
