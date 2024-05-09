@@ -162,8 +162,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				return wp_admin_notice( __( 'User invite revoked successfully.', 'jetpack' ), array( 'type' => 'success' ) );
 			}
 
-			if ( $_GET['jetpack-sso-invite-user'] === 'failed' && isset( $_GET['jetpack-sso-invite-api-error-message'] ) ) {
-				return wp_admin_notice( wp_kses( wp_unslash( $_GET['jetpack-sso-invite-api-error-message'] ), array() ), array( 'type' => 'error' ) );
+			if ( $_GET['jetpack-sso-invite-user'] === 'failed' && isset( $_GET['jetpack-sso-api-error-message'] ) ) {
+				return wp_admin_notice( wp_kses( wp_unslash( $_GET['jetpack-sso-api-error-message'] ), array() ), array( 'type' => 'error' ) );
 			}
 
 			if ( $_GET['jetpack-sso-invite-user'] === 'failed' && isset( $_GET['jetpack-sso-invite-error'] ) ) {
@@ -270,8 +270,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 
 					$body = json_decode( wp_remote_retrieve_body( $response ) );
 					if ( ! empty( $body ) && ! empty( $body->message ) ) {
-						$query_params['jetpack-sso-invite-api-error-message'] = $body->message;
-						$tracking_event_data['error_message']                 = $body->message;
+						$query_params['jetpack-sso-api-error-message'] = $body->message;
+						$tracking_event_data['error_message']          = $body->message;
 					}
 
 					self::$tracking->record_user_event(
@@ -409,12 +409,21 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						'jetpack-sso-invite-error' => $error, // general error message
 						'_wpnonce'                 => $nonce,
 					);
+
+					$tracking_event_data = array(
+						'success'    => 'false',
+						'error_code' => $error,
+					);
+
+					$body = json_decode( wp_remote_retrieve_body( $response ) );
+					if ( ! empty( $body ) && ! empty( $body->message ) ) {
+						$query_params['jetpack-sso-api-error-message'] = $body->message;
+						$tracking_event_data['error_message']          = $body->message;
+					}
+
 					self::$tracking->record_user_event(
 						$event,
-						array(
-							'success'       => 'false',
-							'error_message' => $error,
-						)
+						$tracking_event_data
 					);
 					return self::create_error_notice_and_redirect( $query_params );
 				}
