@@ -104,7 +104,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 						? userConnectionContent.buttonLabel
 						: siteConnectionContent.buttonLabel,
 					isLoading: siteIsRegistering,
-					loadingText: __( 'Conecting…', 'jetpack-my-jetpack' ),
+					loadingText: __( 'Connecting…', 'jetpack-my-jetpack' ),
 					onClick: onActionButtonClick,
 					noDefaultClasses: true,
 				},
