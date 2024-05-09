@@ -13,6 +13,8 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
+use WP_Error;
+use WP_Post;
 
 /**
  * WordPress.com Block editor for Jetpack
@@ -182,7 +184,7 @@ class Jetpack_WPCOM_Block_Editor {
 	 */
 	public function add_login_message( $errors ) {
 		$errors->remove( 'expired' );
-		$errors->add( 'info', __( 'Before we continue, please log in to your Jetpack site.', 'jetpack' ), 'message' );
+		$errors->add( 'info', __( 'Before we continue, please log in to your Jetpack site.', 'jetpack-mu-wpcom' ), 'message' );
 
 		return $errors;
 	}
@@ -197,7 +199,7 @@ class Jetpack_WPCOM_Block_Editor {
 		<script type="application/javascript">
 			document.getElementById( 'loginform' ).addEventListener( 'submit' , function() {
 				document.getElementById( 'wp-submit' ).setAttribute( 'disabled', 'disabled' );
-				document.getElementById( 'wp-submit' ).value = '<?php echo esc_js( __( 'Logging In...', 'jetpack' ) ); ?>';
+				document.getElementById( 'wp-submit' ).value = '<?php echo esc_js( __( 'Logging In...', 'jetpack-mu-wpcom' ) ); ?>';
 			} );
 		</script>
 		<?php
@@ -352,8 +354,8 @@ class Jetpack_WPCOM_Block_Editor {
 			'wpcomGutenberg',
 			array(
 				'richTextToolbar' => array(
-					'justify'   => __( 'Justify', 'jetpack' ),
-					'underline' => __( 'Underline', 'jetpack' ),
+					'justify'   => __( 'Justify', 'jetpack-mu-wpcom' ),
+					'underline' => __( 'Underline', 'jetpack-mu-wpcom' ),
 				),
 			)
 		);
