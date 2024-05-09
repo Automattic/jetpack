@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add updated_at field to ensure the option is always on sync.

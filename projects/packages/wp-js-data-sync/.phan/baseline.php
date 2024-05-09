@@ -10,8 +10,7 @@
 return [
     // # Issue statistics:
     // PhanNonClassMethodCall : 10+ occurrences
-    // PhanParamTooFew : 10+ occurrences
-    // PhanUndeclaredMethod : 3 occurrences
+    // PhanParamTooFew : 9 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 2 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 2 occurrences
     // PhanImpossibleCondition : 1 occurrence
@@ -28,7 +27,6 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-data-sync-entry-adapter.php' => ['PhanParamTooFew'],
-        'src/class-data-sync.php' => ['PhanParamTooFew', 'PhanUndeclaredMethod'],
         'src/class-ds-utils.php' => ['PhanImpossibleCondition', 'PhanRedundantCondition'],
         'src/class-registry.php' => ['PhanUndeclaredTypeParameter'],
         'src/contracts/interface-lazy-entry.php' => ['PhanUnreferencedUseNormal'],

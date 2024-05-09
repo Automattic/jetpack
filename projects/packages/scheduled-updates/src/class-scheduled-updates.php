@@ -20,7 +20,7 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.11.0-alpha';
+	const PACKAGE_VERSION = '0.12.0-alpha';
 
 	/**
 	 * The cron event hook for the scheduled plugins update.
@@ -28,6 +28,13 @@ class Scheduled_Updates {
 	 * @var string
 	 */
 	const PLUGIN_CRON_HOOK = 'jetpack_scheduled_plugins_update';
+
+	/**
+	 * The cron event filter for the scheduled plugins update.
+	 *
+	 * @var string
+	 */
+	const PLUGIN_CRON_SYNC_HOOK = 'jetpack_scheduled_plugins_update_sync';
 
 	/**
 	 * Initialize the class.
@@ -49,16 +56,19 @@ class Scheduled_Updates {
 		}
 
 		add_action( self::PLUGIN_CRON_HOOK, array( __CLASS__, 'run_scheduled_update' ), 10, 10 );
-		add_action( 'rest_api_init', array( __CLASS__, 'add_is_managed_extension_field' ) );
 		add_filter( 'auto_update_plugin', array( __CLASS__, 'allowlist_scheduled_plugins' ), 10, 2 );
 		add_action( 'deleted_plugin', array( __CLASS__, 'deleted_plugin' ), 10, 2 );
+
+		add_action( 'rest_api_init', array( __CLASS__, 'add_is_managed_extension_field' ) );
+		add_action( 'rest_api_init', array( Scheduled_Updates_Logs::class, 'add_log_fields' ) );
+		add_action( 'rest_api_init', array( Scheduled_Updates_Active::class, 'add_active_field' ) );
+		add_action( 'rest_api_init', array( Scheduled_Updates_Health_Paths::class, 'add_health_check_paths_field' ) );
 
 		add_filter( 'plugins_list', array( Scheduled_Updates_Admin::class, 'add_scheduled_updates_context' ) );
 		add_filter( 'views_plugins', array( Scheduled_Updates_Admin::class, 'add_scheduled_updates_view' ) );
 		add_filter( 'plugin_auto_update_setting_html', array( Scheduled_Updates_Admin::class, 'show_scheduled_updates' ), 10, 2 );
 
 		add_action( 'jetpack_scheduled_update_created', array( __CLASS__, 'maybe_disable_autoupdates' ), 10, 3 );
-		add_action( 'jetpack_scheduled_update_created', array( Scheduled_Updates_Health_Paths::class, 'updates_health_paths' ), 10, 3 );
 
 		add_action( 'jetpack_scheduled_update_updated', array( Scheduled_Updates_Logs::class, 'replace_logs_schedule_id' ), 10, 2 );
 
@@ -67,9 +77,7 @@ class Scheduled_Updates {
 		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Health_Paths::class, 'clear' ) );
 		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Logs::class, 'delete_logs_schedule_id' ), 10, 3 );
 
-		add_filter( 'jetpack_scheduled_response_item', array( __CLASS__, 'response_filter' ), 10, 2 );
-		add_filter( 'jetpack_scheduled_response_item', array( Scheduled_Updates_Active::class, 'response_filter' ), 10, 2 );
-		add_filter( 'jetpack_scheduled_response_item', array( Scheduled_Updates_Health_Paths::class, 'response_filter' ), 10, 2 );
+		add_filter( 'jetpack_scheduled_update_verify_plugins', array( __CLASS__, 'verify_plugins' ) );
 
 		// Update cron sync option after options update.
 		$callback = array( __CLASS__, 'update_option_cron' );
@@ -85,12 +93,6 @@ class Scheduled_Updates {
 		// Active flag saving.
 		add_action( 'add_option_' . Scheduled_Updates_Active::OPTION_NAME, $callback );
 		add_action( 'update_option_' . Scheduled_Updates_Active::OPTION_NAME, $callback );
-
-		// This is a temporary solution for backward compatibility. It will be removed in the future.
-		// It's needed to ensure that preexisting schedules are loaded into the sync option.
-		if ( false === get_option( self::PLUGIN_CRON_HOOK ) ) {
-			call_user_func( $callback );
-		}
 	}
 
 	/**
@@ -111,7 +113,6 @@ class Scheduled_Updates {
 		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules' );
 		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities' );
 		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs' );
-		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules_Status' );
 		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active' );
 	}
 
@@ -194,13 +195,27 @@ class Scheduled_Updates {
 	 * Save the schedules for sync after cron option saving.
 	 */
 	public static function update_option_cron() {
-		$endpoint = new \WPCOM_REST_API_V2_Endpoint_Update_Schedules();
-		$events   = $endpoint->get_items( new \WP_REST_Request() );
+		// Do not update the option if the filter returns false.
+		if ( ! apply_filters( self::PLUGIN_CRON_SYNC_HOOK, true ) ) {
+			return;
+		}
+
+		Scheduled_Updates_Logs::add_log_fields();
+		Scheduled_Updates_Active::add_active_field();
+		Scheduled_Updates_Health_Paths::add_health_check_paths_field();
+
+		$endpoint   = new \WPCOM_REST_API_V2_Endpoint_Update_Schedules();
+		$events     = $endpoint->get_items( new \WP_REST_Request() );
+		$updated_at = time();
 
 		if ( ! is_wp_error( $events ) ) {
 			$option = array_map(
-				function ( $event ) {
-					return (object) $event;
+				function ( $event ) use ( $updated_at ) {
+					$ret = (object) $event;
+					// Add updated_at field to ensure the option is always on sync.
+					$ret->updated_at = $updated_at;
+
+					return $ret;
 				},
 				$events->get_data()
 			);
@@ -356,10 +371,7 @@ class Scheduled_Updates {
 				* @return bool
 				*/
 				'get_callback' => function ( $data ) {
-					$folder = WP_PLUGIN_DIR . '/' . strtok( $data['plugin'], '/' );
-					$target = is_link( $folder ) ? realpath( $folder ) : false;
-
-					return $target && 0 === strpos( $target, '/wordpress/' );
+					return self::is_plugin_managed( $data['plugin'] );
 				},
 				'schema'       => array(
 					'description' => 'Whether the plugin is managed by the host.',
@@ -423,28 +435,6 @@ class Scheduled_Updates {
 	}
 
 	/**
-	 * REST prepare_item_for_response filter.
-	 *
-	 * @param array            $item    WP Cron event.
-	 * @param \WP_REST_Request $request Request object.
-	 * @return array Response array on success.
-	 */
-	public static function response_filter( $item, $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$status = self::get_scheduled_update_status( $item['schedule_id'] );
-
-		if ( ! $status ) {
-			$status = array(
-				'last_run_timestamp' => null,
-				'last_run_status'    => null,
-			);
-		}
-
-		$item = array_merge( $item, $status );
-
-		return $item;
-	}
-
-	/**
 	 * Generates a unique schedule ID.
 	 *
 	 * @see wp_schedule_event()
@@ -454,5 +444,58 @@ class Scheduled_Updates {
 	 */
 	public static function generate_schedule_id( $args ) {
 		return md5( serialize( $args ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+	}
+
+	/**
+	 * Check if a plugin is installed.
+	 *
+	 * @param string $plugin The plugin to check.
+	 * @return bool
+	 */
+	public static function is_plugin_installed( $plugin ) {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		$installed_plugins = get_plugins();
+		return array_key_exists( $plugin, $installed_plugins );
+	}
+
+	/**
+	 * Check if a plugin is managed by the host.
+	 *
+	 * @param string $plugin The plugin to check.
+	 * @return bool
+	 */
+	public static function is_plugin_managed( $plugin ) {
+		$folder = WP_PLUGIN_DIR . '/' . strtok( $plugin, '/' );
+		$target = is_link( $folder ) ? realpath( $folder ) : false;
+		return $target && 0 === strpos( $target, '/wordpress/' );
+	}
+
+	/**
+	 * Verify that the plugins are installed.
+	 *
+	 * @param array $plugins List of plugins to update.
+	 * @return bool|\WP_Error
+	 */
+	public static function verify_plugins( $plugins ) {
+		$request_plugins_not_installed_or_managed = true;
+
+		foreach ( $plugins as $plugin ) {
+			if ( self::is_plugin_installed( $plugin ) && ! self::is_plugin_managed( $plugin ) ) {
+				$request_plugins_not_installed_or_managed = false;
+				break;
+			}
+		}
+
+		if ( $request_plugins_not_installed_or_managed ) {
+			return new \WP_Error(
+				'rest_forbidden',
+				__( 'None of the specified plugins are installed or all of them are managed.', 'jetpack-scheduled-updates' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		return true;
 	}
 }

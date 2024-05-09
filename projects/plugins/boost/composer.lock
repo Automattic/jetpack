@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ea35d215b43d75885759488ee7b3023c",
+    "content-hash": "3f538a67cb0a0821066aa66be8498fa9",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1588,7 +1588,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "6c08210f41958cbad899f8cf8f92435b91eaa932"
+                "reference": "4415298e32ada09dc9880eb8d4ec5b979efa4889"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1622,7 +1622,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.15.x-dev"
+                    "dev-trunk": "2.16.x-dev"
                 },
                 "dependencies": {
                     "test-only": [

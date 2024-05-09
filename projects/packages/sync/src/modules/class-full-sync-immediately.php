@@ -87,7 +87,9 @@ class Full_Sync_Immediately extends Module {
 		}
 
 		if ( isset( $full_sync_config['users'] ) && 'initial' === $full_sync_config['users'] ) {
-			$full_sync_config['users'] = Modules::get_module( 'users' )->get_initial_sync_user_config();
+			$users_module = Modules::get_module( 'users' );
+			'@phan-var Users $users_module';
+			$full_sync_config['users'] = $users_module->get_initial_sync_user_config();
 		}
 
 		$this->update_status(

@@ -247,9 +247,21 @@ class IgnoreFileTest extends TestCase {
 		$ignore->add( array(), '.' );
 	}
 
-	/** Test add() with a prefix containing newlines. */
+	/** Test add() with a pattern containing newlines. */
 	public function testAdd_badNewlines() {
 		$ignore = new IgnoreFile();
+		$ignore->add( array( 'foo', "bar\nbaz", 'xxx' ) );
+		$this->assertTrue( $ignore->ignores( 'foo' ) );
+		$this->assertTrue( $ignore->ignores( 'xxx' ) );
+		$this->assertFalse( $ignore->ignores( 'bar' ) );
+		$this->assertFalse( $ignore->ignores( 'baz' ) );
+		$this->assertFalse( $ignore->ignores( "bar\nbaz" ) );
+	}
+
+	/** Test add() with a pattern containing newlines, strict mode. */
+	public function testAdd_badNewlines_strictMode() {
+		$ignore             = new IgnoreFile();
+		$ignore->strictMode = true;
 
 		$this->expectException( InvalidPatternException::class );
 		$this->expectExceptionMessage( 'Pattern at index 1 may not contain newlines' );
@@ -259,6 +271,15 @@ class IgnoreFileTest extends TestCase {
 	/** Test add() with an empty pattern. */
 	public function testAdd_emptyPattern() {
 		$ignore = new IgnoreFile();
+		$ignore->add( array( '', '!bar', '\\!', '!', 'xxx' ) );
+		$this->assertTrue( $ignore->ignores( '!' ) );
+		$this->assertTrue( $ignore->ignores( 'xxx' ) );
+	}
+
+	/** Test add() with an empty pattern, strict mode. */
+	public function testAdd_emptyPattern_strictMode() {
+		$ignore             = new IgnoreFile();
+		$ignore->strictMode = true;
 
 		$this->expectException( InvalidPatternException::class );
 		$this->expectExceptionMessage( 'Pattern at index 3 consists of only `!`' );
@@ -387,14 +408,28 @@ class IgnoreFileTest extends TestCase {
 	}
 
 	/**
-	 * Test handling of bad patterns.
+	 * Test handling of bad patterns in non-strict mode.
+	 *
+	 * @dataProvider provideBadPattern
+	 * @param string $pattern Pattern.
+	 */
+	public function testBadPattern( $pattern ) {
+		$ignore = new IgnoreFile();
+		$ignore->add( array( 'aaa', $pattern, 'bbb' ) );
+		$this->assertTrue( $ignore->ignores( 'aaa' ) );
+		$this->assertTrue( $ignore->ignores( 'bbb' ) );
+	}
+
+	/**
+	 * Test handling of bad patterns in strict mode.
 	 *
 	 * @dataProvider provideBadPattern
 	 * @param string $pattern Pattern.
 	 * @param string $msg Exception message.
 	 */
-	public function testBadPattern( $pattern, $msg ) {
-		$ignore = new IgnoreFile();
+	public function testBadPattern_strictMode( $pattern, $msg ) {
+		$ignore             = new IgnoreFile();
+		$ignore->strictMode = true;
 		$this->expectException( InvalidPatternException::class );
 		$this->expectExceptionMessage( $msg );
 		$ignore->add( array( $pattern ) );

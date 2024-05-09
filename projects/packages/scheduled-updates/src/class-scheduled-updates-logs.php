@@ -246,6 +246,56 @@ class Scheduled_Updates_Logs {
 	}
 
 	/**
+	 * Registers the last_run_timestamp field for the update-schedule REST API.
+	 */
+	public static function add_log_fields() {
+		register_rest_field(
+			'update-schedule',
+			'last_run_timestamp',
+			array(
+				/**
+				 * Populates the last_run_timestamp field.
+				 *
+				 * @param array $item Prepared response array.
+				 * @return int|null
+				 */
+				'get_callback' => function ( $item ) {
+					$status = static::infer_status_from_logs( $item['schedule_id'] );
+
+					return $status['last_run_timestamp'] ?? null;
+				},
+				'schema'       => array(
+					'description' => 'Unix timestamp (UTC) for when the last run occurred.',
+					'type'        => 'integer',
+				),
+			)
+		);
+
+		register_rest_field(
+			'update-schedule',
+			'last_run_status',
+			array(
+				/**
+				 * Populates the last_run_status field.
+				 *
+				 * @param array $item Prepared response array.
+				 * @return string|null
+				 */
+				'get_callback' => function ( $item ) {
+					$status = static::infer_status_from_logs( $item['schedule_id'] );
+
+					return $status['last_run_status'] ?? null;
+				},
+				'schema'       => array(
+					'description' => 'Status of last run.',
+					'type'        => 'string',
+					'enum'        => array( 'success', 'failure-and-rollback', 'failure-and-rollback-fail' ),
+				),
+			)
+		);
+	}
+
+	/**
 	 * Splits the logs into runs based on the PLUGIN_UPDATES_START action.
 	 *
 	 * @param array $logs The logs to split into runs.

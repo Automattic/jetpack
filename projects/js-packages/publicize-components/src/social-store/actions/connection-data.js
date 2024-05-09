@@ -1,4 +1,3 @@
-import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { store as editorStore } from '@wordpress/editor';
 import { SET_CONNECTIONS, TOGGLE_CONNECTION } from './constants';
@@ -74,11 +73,9 @@ export function mergeConnections( freshConnections ) {
  * @returns {Function} Refresh connection test results action.
  */
 export function refreshConnectionTestResults( syncToMeta = false ) {
-	return async function ( { dispatch } ) {
+	return async function ( { dispatch, select } ) {
 		try {
-			const path =
-				getJetpackData()?.social?.connectionRefreshPath ||
-				'/wpcom/v2/publicize/connection-test-results';
+			const path = select.connectionRefreshPath() || '/wpcom/v2/publicize/connection-test-results';
 
 			const freshConnections = await apiFetch( { path } );
 
