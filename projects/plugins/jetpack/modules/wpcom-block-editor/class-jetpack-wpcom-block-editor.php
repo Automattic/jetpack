@@ -16,7 +16,7 @@ use Automattic\Jetpack\Status\Host;
 /**
  * WordPress.com Block editor for Jetpack
  *
- * @deprecated jetpack-$$next-version$$
+ * @deprecated $$next-version$$
  */
 class Jetpack_WPCOM_Block_Editor {
 	/**
@@ -36,7 +36,7 @@ class Jetpack_WPCOM_Block_Editor {
 	/**
 	 * Singleton
 	 *
-	 * @deprecated jetpack-$$next-version$$
+	 * @deprecated $$next-version$$
 	 */
 	public static function init() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Jetpack_Mu_Wpcom\\WPCOM_Block_Editor\\Jetpack_WPCOM_Block_Editor::init' );
@@ -52,7 +52,7 @@ class Jetpack_WPCOM_Block_Editor {
 	/**
 	 * Jetpack_WPCOM_Block_Editor constructor.
 	 *
-	 * @deprecated jetpack-$$next-version$$
+	 * @deprecated $$next-version$$
 	 */
 	private function __construct() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Jetpack_Mu_Wpcom\\WPCOM_Block_Editor\\Jetpack_WPCOM_Block_Editor::__construct' );
