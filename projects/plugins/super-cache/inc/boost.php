@@ -31,7 +31,7 @@ function wpsc_delete_boost_loader_form() {
 	<div style="padding: 10px; width: 50%" class="notice notice-error"><h2><?php esc_html_e( 'Warning! Jetpack Boost Cache Detected', 'wp-super-cache' ); ?></h2>
 	<?php // translators: %s is the filename of the advanced-cache.php file ?>
 	<p><?php printf( esc_html__( 'The file %s was created by the Jetpack Boost plugin.', 'wp-super-cache' ), esc_html( $wpsc_advanced_cache_filename ) ); ?></p>
-	<p><?php esc_html_e( 'Please confirm that you want to use WP Super Cache instead of Jetpack Boost for caching:', 'wp-super-cache' ); ?></p>
+	<p><?php esc_html_e( 'Please confirm that you want to use WP Super Cache instead of Jetpack Boost for caching.', 'wp-super-cache' ); ?></p>
 	<form method="POST">
 		<input type="hidden" name="action" value="wpsc_delete_boost_loader" />
 		<?php wp_nonce_field( 'wpsc_delete_boost_loader' ); ?>
