@@ -31,6 +31,7 @@ class Jetpack_Custom_CSS_Enhancements {
 
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'wp_enqueue_scripts' ) );
 		add_action( 'admin_footer', array( __CLASS__, 'update_initial_state' ) );
+		add_action( 'wp_body_open', array( __CLASS__, 'display_frontend_warning' ) );
 
 		// Handle Sass/LESS.
 		add_filter( 'customize_value_custom_css', array( __CLASS__, 'customize_value_custom_css' ), 10, 2 );
@@ -1003,6 +1004,45 @@ class Jetpack_Custom_CSS_Enhancements {
 		}
 
 		return $content_width;
+	}
+
+	/**
+	 * Display a deprecation warning on the frontend for site admins only
+	 */
+	public static function display_frontend_warning() {
+		if ( ! current_user_can( 'edit_themes' ) || ! current_user_can( 'edit_theme_options' ) ) {
+			return;
+		}
+
+		$notice  = '';
+		$notice .= '<div class="jp-custom-css__deprecation-warning">';
+		$notice .= '<p>' . wp_kses(
+			sprintf(
+				// translators: 1: URL to the CSS customization panel, 2: URL to the theme stylesheet documentation.
+				__(
+					'The <i>Start Fresh</i> option in the <a href="%1$s">CSS customization panel</a> is enabled, which means the theme\'s original CSS is not applied. <b>This option will no longer be supported after August 6, 2024</b> and you\'ll need to modify your <a href="%2$s">theme stylesheet</a>.',
+					'jetpack'
+				),
+				esc_url( admin_url( 'customize.php?autofocus%5Bsection%5D=custom_css' ) ),
+				esc_url( 'https://developer.wordpress.org/themes/basics/main-stylesheet-style-css/' )
+			),
+			array(
+				'i' => array(),
+				'b' => array(),
+				'a' => array(
+					'href'   => array(),
+					'target' => array(),
+				),
+			)
+		) . '</p>';
+		$notice .= '<button aria-label="' . esc_html__( 'Dismiss', 'jetpack' ) . '">&times;</button>';
+		$notice .= '</div>';
+		$notice .= '<script>';
+		$notice .= 'document.querySelector(".jp-custom-css__deprecation-warning button").addEventListener("click", (e) => e.currentTarget.parentNode.remove() );';
+		$notice .= '</script>';
+
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo $notice;
 	}
 
 	/**

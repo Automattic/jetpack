@@ -1,1 +1,35 @@
 /* */
+.jp-custom-css__deprecation-warning {
+	position: absolute;
+	top: 2.5rem;
+	left: 50%;
+	z-index: 99999;
+	transform: translateX( -50% );
+
+	display: flex;
+	align-items: flex-start;
+	width: 80ch;
+
+	background-color: #fef8ee;
+	border: solid 1px #ccc;
+	border-left: solid 5px #f0b849;
+	box-shadow: 0 0 4px 4px rgba( 0, 0, 0, 0.1 );
+
+	font-size: 1rem;
+}
+
+.jp-custom-css__deprecation-warning p {
+	margin: 0;
+	padding: 1em;
+}
+
+.jp-custom-css__deprecation-warning button {
+	min-width: 48px;
+	min-height: 48px;
+
+	border-color: transparent;
+	background-color: transparent;
+
+	font-size: 1.25rem;
+	font-weight: bold;
+}
