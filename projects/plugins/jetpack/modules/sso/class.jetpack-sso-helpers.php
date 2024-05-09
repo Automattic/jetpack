@@ -9,6 +9,7 @@
 
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\SSO\Helpers;
+use Automattic\Jetpack\Connection\Utils;
 
 if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 
@@ -167,9 +168,9 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 * @param object $user_data WordPress.com user information.
 		 */
 		public static function generate_user( $user_data ) {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::generate_user' );
+			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Utils::generate_user' );
 
-			return Helpers::generate_user( $user_data );
+			return Utils::generate_user( $user_data );
 		}
 
 		/**

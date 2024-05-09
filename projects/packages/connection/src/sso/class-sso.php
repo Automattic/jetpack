@@ -880,7 +880,7 @@ class SSO {
 					$user_data->role = $new_user_override_role;
 				}
 
-				$user = Helpers::generate_user( $user_data );
+				$user = Utils::generate_user( $user_data );
 				if ( ! $user ) {
 					$tracking->record_user_event(
 						'sso_login_failed',
