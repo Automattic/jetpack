@@ -9,7 +9,6 @@
  */
 return [
     // # Issue statistics:
-    // PhanUnextractableAnnotation : 45+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 10+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 9 occurrences
     // PhanTypeMismatchArgument : 7 occurrences
@@ -20,12 +19,10 @@ return [
     // PhanDeprecatedFunction : 4 occurrences
     // PhanImpossibleCondition : 4 occurrences
     // PhanTypeMismatchProperty : 4 occurrences
-    // PhanUndeclaredClassMethod : 4 occurrences
     // PhanPluginMixedKeyNoKey : 3 occurrences
     // PhanTypeSuspiciousEcho : 3 occurrences
+    // PhanUndeclaredClassMethod : 3 occurrences
     // PhanNoopNew : 2 occurrences
-    // PhanTypePossiblyInvalidDimOffset : 2 occurrences
-    // PhanUndeclaredFunctionInCallable : 2 occurrences
     // PhanDeprecatedPartiallySupportedCallable : 1 occurrence
     // PhanPluginRedundantAssignment : 1 occurrence
     // PhanPluginSimplifyExpressionBool : 1 occurrence
@@ -35,8 +32,8 @@ return [
     // PhanTypeMismatchDeclaredParamNullable : 1 occurrence
     // PhanTypeMismatchDefault : 1 occurrence
     // PhanTypeMismatchDimAssignment : 1 occurrence
+    // PhanTypePossiblyInvalidDimOffset : 1 occurrence
     // PhanUndeclaredClassReference : 1 occurrence
-    // PhanUndeclaredTypeProperty : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
@@ -44,20 +41,18 @@ return [
         'src/class-cli.php' => ['PhanTypeMismatchArgument'],
         'src/class-helper.php' => ['PhanDeprecatedPartiallySupportedCallable', 'PhanImpossibleCondition', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference'],
         'src/class-options.php' => ['PhanPluginSimplifyExpressionBool'],
-        'src/class-plan.php' => ['PhanDeprecatedFunction', 'PhanUnextractableAnnotation'],
+        'src/class-plan.php' => ['PhanDeprecatedFunction'],
         'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-template-tags.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'src/classic-search/class-classic-search.php' => ['PhanImpossibleCondition', 'PhanPluginRedundantAssignment', 'PhanRedundantCondition', 'PhanTypeComparisonToArray', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchDeclaredParamNullable', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturn', 'PhanTypePossiblyInvalidDimOffset'],
         'src/customizer/customize-controls/class-excluded-post-types-control.php' => ['PhanRedundantCondition', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/dashboard/class-dashboard.php' => ['PhanUnextractableAnnotation'],
         'src/dashboard/class-initial-state.php' => ['PhanTypeMismatchArgument'],
-        'src/initializers/class-initializer.php' => ['PhanNoopNew', 'PhanUndeclaredFunctionInCallable'],
-        'src/instant-search/class-instant-search.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUnextractableAnnotation'],
-        'src/widgets/class-search-widget.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeSuspiciousEcho', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeProperty'],
+        'src/initializers/class-initializer.php' => ['PhanNoopNew'],
+        'src/instant-search/class-instant-search.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/widgets/class-search-widget.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeSuspiciousEcho'],
         'src/wpes/class-query-builder.php' => ['PhanImpossibleCondition', 'PhanRedundantCondition', 'PhanTypeMismatchDimAssignment', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredProperty'],
         'src/wpes/class-query-parser.php' => ['PhanUndeclaredProperty'],
-        'tests/php/test-get-ios-version.php' => ['PhanUndeclaredFunctionInCallable'],
-        'tests/php/test-helpers.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchArgument', 'PhanTypePossiblyInvalidDimOffset', 'PhanUnextractableAnnotation'],
+        'tests/php/test-helpers.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchArgument'],
         'tests/php/test-plan.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgumentProbablyReal'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

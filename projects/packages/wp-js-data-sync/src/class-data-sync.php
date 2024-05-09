@@ -65,11 +65,12 @@ namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Context;
 
 final class Data_Sync {
 
-	const PACKAGE_VERSION = '0.4.5-alpha';
+	const PACKAGE_VERSION = '0.4.5';
 
 	/**
 	 * @var Registry
@@ -170,19 +171,6 @@ final class Data_Sync {
 		wp_localize_script( $this->script_handle, $this->namespace, $data );
 	}
 
-	/**
-	 * Create a new instance of the Data_Sync class.
-	 *
-	 * @param $namespace     string - Each registry should have a unique name, typically plugin name, like `jetpack_boost`
-	 * @param $script_handle string - The script handle name to pass the variables to, typically the same as the plugin name,
-	 *                       but with a dash instead of underscore, like `jetpack-boost`
-	 * @param $plugin_page   string   - The slug name of the plugin page. If null, it will be assumed to be the same as the
-	 *                       registry name, formatted as a http parameter. `jetpack_boost` -> `jetpack-boost`
-	 * @param $parent_page   string   - The slug name for the parent menu (or the file name of a standard WordPress admin page).
-	 *                       Defaults to `admin`
-	 *
-	 * @return Data_Sync - A new instance of the Data_Sync class.
-	 */
 	public function attach_to_plugin( $script_handle, $plugin_page_hook ) {
 		$this->script_handle = $script_handle;
 		add_action( $plugin_page_hook, array( $this, '_print_options_script_tag' ) );
@@ -201,9 +189,9 @@ final class Data_Sync {
 	 * However, you can provide an `$entry` instance that subscribes Entry_Can_* methods.
 	 * If you do, `Entry_Can_Get` interface is required, and all other Entry_Can_* interfaces are optional.
 	 *
-	 * @param $key    string - The key to register the entry under.
-	 * @param $parser Parser - The parser to use for the entry.
-	 * @param $entry  Entry_Can_Get - The entry to register. If null, a new Data_Sync_Option will be created.
+	 * @param string        $key    - The key to register the entry under.
+	 * @param Parser        $parser - The parser to use for the entry.
+	 * @param Entry_Can_Get $custom_entry_instance - The entry to register. If null, a new Data_Sync_Option will be created.
 	 *
 	 * @return void
 	 */
@@ -233,6 +221,7 @@ final class Data_Sync {
 		 * ```
 		 */
 		if ( method_exists( $parser, 'set_context' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- Phan misses the method_exists(). See https://github.com/phan/phan/issues/1204.
 			$parser->set_context( new Schema_Context( $key ) );
 		}
 		$entry_adapter = new Data_Sync_Entry_Adapter( $entry, $parser );

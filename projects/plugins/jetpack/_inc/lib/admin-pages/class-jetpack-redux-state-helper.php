@@ -298,13 +298,14 @@ class Jetpack_Redux_State_Helper {
 	 */
 	public static function get_publicize_initial_state() {
 		$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
-		$settings                = $jetpack_social_settings->get_settings( true );
 
-		if ( empty( $settings ) ) {
+		$initial_state = $jetpack_social_settings->get_initial_state();
+
+		if ( empty( $initial_state ) ) {
 			return null;
 		}
 
-		return $settings;
+		return $initial_state;
 	}
 
 	/**

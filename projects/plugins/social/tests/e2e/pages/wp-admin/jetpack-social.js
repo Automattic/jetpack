@@ -5,7 +5,7 @@ import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
 export default class JetpackSocialPage extends WpPage {
 	constructor( page ) {
 		const url = resolveSiteUrl() + '/wp-admin/admin.php?page=jetpack-social';
-		super( page, { expectedSelectors: [ '#jetpack-social-root' ], url } );
+		super( page, { expectedSelectors: [], url } );
 	}
 
 	async getStarted() {

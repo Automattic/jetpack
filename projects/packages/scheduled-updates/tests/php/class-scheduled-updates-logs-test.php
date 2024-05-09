@@ -38,8 +38,6 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 		parent::set_up_before_class();
 
 		static::defineFunctionMock( 'Automattic\Jetpack', 'realpath' );
-		Scheduled_Updates::init();
-		Scheduled_Updates::load_rest_api_endpoints();
 	}
 
 	/**
@@ -61,6 +59,7 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_scheduled_update_verify_plugins', '__return_true', 11 );
 	}
 
 	/**
@@ -70,7 +69,7 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 	 */
 	protected function tear_down() {
 		delete_option( Scheduled_Updates_Logs::OPTION_NAME );
-
+		remove_filter( 'jetpack_scheduled_update_verify_plugins', '__return_true', 11 );
 		parent::tear_down_wordbless();
 	}
 

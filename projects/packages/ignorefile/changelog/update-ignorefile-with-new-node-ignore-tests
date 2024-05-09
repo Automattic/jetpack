@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Add "strict mode", defaulting to off. When off, InvalidPatternException will no longer be thrown, instead the pattern will just be ignored to match `git` behavior.

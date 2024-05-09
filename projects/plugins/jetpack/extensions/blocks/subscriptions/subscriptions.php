@@ -182,7 +182,17 @@ function register_block() {
 		}
 	);
 
-	Jetpack_Subscription_Site::init()->handle_subscribe_block_placements();
+	// If called via REST API, we need to register later in the lifecycle
+	if ( ( new Host() )->is_wpcom_platform() && ! jetpack_is_frontend() ) {
+		add_action(
+			'restapi_theme_init',
+			function () {
+				Jetpack_Subscription_Site::init()->handle_subscribe_block_placements();
+			}
+		);
+	} else {
+		Jetpack_Subscription_Site::init()->handle_subscribe_block_placements();
+	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
 
@@ -644,7 +654,7 @@ function render_block( $attributes ) {
 		'success_message'               => get_attribute(
 			$attributes,
 			'successMessage',
-			esc_html__( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing.", 'jetpack' )
+			esc_html__( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm' to start subscribing.", 'jetpack' )
 		),
 		'show_subscribers_total'        => (bool) get_attribute( $attributes, 'showSubscribersTotal' ),
 		'subscribers_total'             => get_subscriber_count( $include_social_followers ),
@@ -721,7 +731,7 @@ function render_for_website( $data, $classes, $styles ) {
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
 		<div class="wp-block-jetpack-subscriptions__container<?php echo ! $is_subscribed ? ' is-not-subscriber' : ''; ?>">
 			<?php if ( is_top_subscription() ) : ?>
-				<p id="subscribe-submit"
+				<p id="subscribe-submit" class="is-link"
 					<?php if ( ! empty( $styles['submit_button_wrapper'] ) ) : ?>
 						style="<?php echo esc_attr( $styles['submit_button_wrapper'] ); ?>"
 					<?php endif; ?>
@@ -1170,7 +1180,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
  * Returns Get Access question for the paywall
  *
  * @param string $post_access_level The newsletter access level.
- * @return string.
+ * @return string
  */
 function get_paywall_access_question( $post_access_level ) {
 	switch ( $post_access_level ) {
@@ -1267,12 +1277,19 @@ function get_paywall_simple() {
 	return '
 <!-- wp:columns -->
 <div class="wp-block-columns" style="display: inline-block; width: 90%">
+    <!-- wp:column -->
+    <div class="wp-block-column" style="background-color: #F6F7F7; padding: 32px; 24px;">
+        <!-- wp:paragraph -->
+        <p class="has-text-align-center"
+           style="text-align: center;
+                  color: #50575E;
+                  font-weight: 400;
+                  font-size: 16px;
                   font-family: \'SF Pro Text\', sans-serif;
                   line-height: 28.8px;">
         ' . $access_heading . '
         </p>
         <!-- /wp:paragraph -->
-
         <!-- wp:buttons -->
         <div class="wp-block-buttons" style="text-align: center;">
             <!-- wp:button -->

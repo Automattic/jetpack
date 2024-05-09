@@ -1,5 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { RefreshJetpackSocialSettingsWrapper } from '@automattic/jetpack-publicize-components';
+import {
+	ConnectionManagement,
+	RefreshJetpackSocialSettingsWrapper,
+} from '@automattic/jetpack-publicize-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
@@ -11,6 +14,7 @@ import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import React, { Component } from 'react';
 import './style.scss';
+import { FormFieldset } from '../components/forms';
 import AutoConversionSection from './features/auto-conversion-section';
 import SocialImageGeneratorSection from './features/social-image-generator-section';
 
@@ -21,6 +25,14 @@ export const Publicize = withModuleSettingsFormHelpers(
 				target: 'configure-publicize',
 				page: 'sharing',
 			} );
+		}
+
+		componentDidUpdate() {
+			const isActive = this.props.getOptionValue( 'publicize' );
+			// Reload the page if Publicize is enabled.
+			if ( isActive && ! window.Initial_State.socialInitialState.is_publicize_enabled ) {
+				window.location.reload();
+			}
 		}
 
 		render() {
@@ -37,7 +49,8 @@ export const Publicize = withModuleSettingsFormHelpers(
 				hasAutoConversion = this.props.hasAutoConversion,
 				isAtomicSite = this.props.isAtomicSite,
 				activeFeatures = this.props.activeFeatures,
-				userCanManageModules = this.props.userCanManageModules;
+				userCanManageModules = this.props.userCanManageModules,
+				useAdminUiV1 = this.props.useAdminUiV1;
 
 			const showUpgradeLink =
 				! isAtomicSite &&
@@ -166,6 +179,14 @@ export const Publicize = withModuleSettingsFormHelpers(
 								{ shouldShowChildElements && hasSocialImageGenerator && (
 									<SocialImageGeneratorSection />
 								) }
+								{ isActive &&
+								isLinked &&
+								useAdminUiV1 &&
+								! this.props.isSavingAnyOption( 'publicize' ) ? (
+									<FormFieldset>
+										<ConnectionManagement />
+									</FormFieldset>
+								) : null }
 							</RefreshJetpackSocialSettingsWrapper>
 						</SettingsGroup>
 					) }
@@ -178,7 +199,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 						/>
 					) }
 
-					{ isActive && configCard() }
+					{ isActive && ! useAdminUiV1 && configCard() }
 				</SettingsCard>
 			);
 		}

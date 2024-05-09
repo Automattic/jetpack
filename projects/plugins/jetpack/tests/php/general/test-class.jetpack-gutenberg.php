@@ -115,7 +115,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		$this->assertEquals( 'missing_module', $availability['grape']['unavailable_reason'], 'unavailable_reason is not "missing_module"' );
 	}
 
-	// Plugins
+	/** Plugins **/
 	public function test_registered_plugin_is_available() {
 		Jetpack_Gutenberg::set_extension_available( 'jetpack/onion' );
 		$availability = Jetpack_Gutenberg::get_availability();

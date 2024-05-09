@@ -11,11 +11,9 @@ return [
     // # Issue statistics:
     // PhanTypeMismatchArgumentProbablyReal : 3 occurrences
     // PhanTypeMismatchArgument : 2 occurrences
-    // PhanUnextractableAnnotationSuffix : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-constants.php' => ['PhanUnextractableAnnotationSuffix'],
         'tests/php/test-constants.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

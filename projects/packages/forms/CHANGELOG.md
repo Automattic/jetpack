@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.31.1] - 2024-05-07
+### Fixed
+- Contact Form: Prevent an editor error when using the Classic Editor and contact forms are enabled. [#37270]
+
+## [0.31.0] - 2024-05-06
+### Added
+- Add missing package dependencies. [#37141]
+
+### Changed
+- Updated package dependencies. [#37147]
+
+### Removed
+- Contact Form: Removing code and renaming relevant references to ensure we use the package version of the contact form. [#37157]
+
+### Fixed
+- Fix reference to `Jetpack_Options` class in `Contact_Form_Plugin::record_tracks_event()`. [#37201]
+
+## [0.30.18] - 2024-04-29
+### Changed
+- General: Use wp_admin_notice function introduced in WP 6.4 to display notices. [#37051]
+
 ## [0.30.17] - 2024-04-25
 ### Fixed
 - Set correct `textdomain` in `block.json`. [#37057]
@@ -547,6 +568,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.31.1]: https://github.com/automattic/jetpack-forms/compare/v0.31.0...v0.31.1
+[0.31.0]: https://github.com/automattic/jetpack-forms/compare/v0.30.18...v0.31.0
+[0.30.18]: https://github.com/automattic/jetpack-forms/compare/v0.30.17...v0.30.18
 [0.30.17]: https://github.com/automattic/jetpack-forms/compare/v0.30.16...v0.30.17
 [0.30.16]: https://github.com/automattic/jetpack-forms/compare/v0.30.15...v0.30.16
 [0.30.15]: https://github.com/automattic/jetpack-forms/compare/v0.30.14...v0.30.15

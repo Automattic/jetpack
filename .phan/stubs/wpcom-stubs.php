@@ -1,10 +1,10 @@
 <?php
 /**
- * Stubs automatically generated from WordPress.com commit bfb2ad18f8fd904ad916be5877a31c975ae02df2.
- *
  * Do not edit this directly! Update the definition file in the wpcom repo at
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
+ *
+ * Stubs automatically generated from WordPress.com commit 3351540394517b0a4b819bcd0c6eaa1496e3a4a5.
  */
 
 namespace {
@@ -62,6 +62,17 @@ namespace {
         public static function find_featured_worthy_media($post)
         {
         }
+    }
+    /**
+     * @param string $id
+     * @param string $title
+     * @param string $callback
+     * @param string $page
+     * @param string $section
+     * @param array $args
+     */
+    function add_settings_field($id, $title, $callback, $page, $section = 'default', $args = array())
+    {
     }
     class Domain_Management
     {
@@ -321,6 +332,18 @@ namespace {
         {
         }
     }
+    class Memberships_Store_Sandbox
+    {
+        public function init($force = \false)
+        {
+        }
+        /**
+         * @return Memberships_Store_Sandbox
+         */
+        public static function get_instance(): \Memberships_Store_Sandbox
+        {
+        }
+    }
     /**
      * @param int $user_id
      * @param int $blog_id
@@ -354,7 +377,7 @@ namespace {
         public function request_dalle_generation(string $prompt, string $model = 'dall-e-2', array $options = array())
         {
         }
-        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [])
+        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [], $response_format = 'text')
         {
         }
         /**
@@ -1121,9 +1144,11 @@ namespace {
     {
         public const ATOMIC = 'atomic';
         public const EMAIL_SUBSCRIPTION = 'email-subscription';
+        public const INSTALL_PLUGINS = 'install-plugins';
         public const LEGACY_CONTACT = 'legacy-contact';
         public const LOCKED_MODE = 'locked-mode';
         public const MANAGE_PLUGINS = 'manage-plugins';
+        public const SCHEDULED_UPDATES = 'scheduled-updates';
         public const SUBSCRIPTION_GIFTING = 'subscription-gifting';
     }
     /**
@@ -1218,6 +1243,14 @@ namespace {
     {
     }
     /**
+     * @param string $option_group
+     * @param string $option_name
+     * @param array $args
+     */
+    function register_setting($option_group, $option_name, $args = array())
+    {
+    }
+    /**
      * @param int $blog_id
      * @return string
      */
@@ -1251,6 +1284,15 @@ namespace {
      * @return int|false
      */
     function get_lang_id_by_code($lang_code)
+    {
+    }
+}
+namespace A8C\Billingdaddy\Users {
+    /**
+     * @param int $user_id
+     * @return \WP_User|false
+     */
+    function get_wpcom_user($user_id)
     {
     }
 }

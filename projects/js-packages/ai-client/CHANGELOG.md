@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2024-05-06
+### Added
+- AI Client: Add wrapper ref to AI Control. [#37145]
+- AI Featured Image: Support custom user prompt on the image generation. [#37086]
+
+### Changed
+- Updated package dependencies. [#37147] [#37148] [#37160]
+
+## [0.12.4] - 2024-04-29
+### Added
+- AI Client: Export ExtensionAIControl. [#37087]
+
 ## [0.12.3] - 2024-04-25
 ### Changed
 - AI Client: Separate AIControl UI from block logic. [#36967]
@@ -294,6 +306,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies. [#31659]
 - Updated package dependencies. [#31785]
 
+[0.13.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.12.4...v0.13.0
+[0.12.4]: https://github.com/Automattic/jetpack-ai-client/compare/v0.12.3...v0.12.4
 [0.12.3]: https://github.com/Automattic/jetpack-ai-client/compare/v0.12.2...v0.12.3
 [0.12.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.12.1...v0.12.2
 [0.12.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.12.0...v0.12.1

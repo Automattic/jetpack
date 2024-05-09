@@ -271,7 +271,6 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 
 		$server = new Jetpack_XMLRPC_Server();
 
-		add_filter( 'pre_http_request', array( $this, '__return_token' ) );
 		$response = $server->remote_connect(
 			array(
 				'nonce'      => '1234',

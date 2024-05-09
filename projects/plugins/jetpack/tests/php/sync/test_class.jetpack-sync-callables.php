@@ -36,6 +36,8 @@ function jetpack_foo_is_anon_callable() {
 class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 	protected $post;
+
+	/** @var \Automattic\Jetpack\Sync\Modules\Callables */
 	protected $callable_module;
 
 	protected static $admin_id; // used in mock_xml_rpc_request
@@ -1330,7 +1332,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that all options are returned by get_objects_by_id
 	 */
 	public function test_get_objects_by_id_all() {
-		$module        = Modules::get_module( 'functions' );
+		$module = Modules::get_module( 'functions' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Callables $module';
 		$all_callables = $module->get_objects_by_id( 'callable', array( 'all' ) );
 		$this->assertEquals( $module->get_all_callables(), $all_callables );
 	}
@@ -1339,7 +1342,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that get_object_by_id returns a allowed option
 	 */
 	public function test_get_objects_by_id_singular() {
-		$module       = Modules::get_module( 'functions' );
+		$module = Modules::get_module( 'functions' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Callables $module';
 		$callables    = $module->get_all_callables();
 		$get_callable = $module->get_objects_by_id( 'callable', array( 'has_file_system_write_access' ) );
 		$this->assertEquals( $callables['has_file_system_write_access'], $get_callable['has_file_system_write_access'] );

@@ -3,6 +3,7 @@
 	"include": [
 		"app/assets/src/js/**/*",
 		"app/modules/image-guide/src/**/*",
+		"app/modules/optimizations/image-cdn/src/**/*",
 		"../../js-packages/image-guide/src/boost-ui/stores"
 	],
 	"exclude": [

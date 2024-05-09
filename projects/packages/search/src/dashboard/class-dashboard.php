@@ -135,7 +135,7 @@ class Dashboard {
 	/**
 	 * Test whether we should show Search menu.
 	 *
-	 * @return {boolean} Show search sub menu or not.
+	 * @return boolean Show search sub menu or not.
 	 */
 	protected function should_add_search_submenu() {
 		/**

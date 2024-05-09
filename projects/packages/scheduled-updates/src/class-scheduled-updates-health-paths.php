@@ -84,7 +84,7 @@ class Scheduled_Updates_Health_Paths {
 	/**
 	 * Validate a path.
 	 *
-	 * @param string $path An health path.
+	 * @param string $path Path to validate.
 	 * @return string|WP_Error
 	 */
 	public static function validate( $path ) {
@@ -134,5 +134,48 @@ class Scheduled_Updates_Health_Paths {
 		}
 
 		return $ret;
+	}
+
+	/**
+	 * Registers the health_check_paths field for the update-schedule REST API.
+	 */
+	public static function add_health_check_paths_field() {
+		register_rest_field(
+			'update-schedule',
+			'health_check_paths',
+			array(
+				/**
+				 * Populates the health_check_paths field.
+				 *
+				 * @param array $item Prepared response array.
+				 * @return array List of health check paths.
+				 */
+				'get_callback'    => function ( $item ) {
+					return static::get( $item['schedule_id'] );
+				},
+
+				/**
+				 * Updates the health_check_paths field.
+				 *
+				 * @param array  $paths List of health check paths.
+				 * @param object $event Event object.
+				 * @return bool
+				 */
+				'update_callback' => function ( $paths, $event ) {
+					return static::update( $event->schedule_id, $paths );
+				},
+				'schema'          => array(
+					'description' => 'List of paths to check for site health after the update.',
+					'type'        => 'array',
+					'maxItems'    => 5,
+					'items'       => array(
+						'type'        => 'string',
+						'arg_options' => array(
+							'validate_callback' => array( __CLASS__, 'validate' ),
+						),
+					),
+				),
+			)
+		);
 	}
 }

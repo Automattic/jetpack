@@ -29,7 +29,7 @@ class Constants {
 	 * @access public
 	 * @static
 	 *
-	 * @var array.
+	 * @var array
 	 */
 	public static $set_constants = array();
 
