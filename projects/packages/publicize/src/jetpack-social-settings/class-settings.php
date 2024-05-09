@@ -227,7 +227,7 @@ class Settings {
 
 		return array_values(
 			array_filter(
-				(array) $body->services ?? array(),
+				$body->services ?? array(),
 				function ( $service ) {
 					return isset( $service->type ) && 'publicize' === $service->type;
 				}
