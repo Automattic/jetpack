@@ -1,19 +1,29 @@
 import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chevronDown } from '@wordpress/icons';
 import classNames from 'classnames';
 import { store } from '../../social-store';
 import ConnectButton from '../connect-button';
 import { ConnectPage } from './connect-page/connect-page';
-import { getSupportedConnections } from './constants';
+import { SupportedService, getSupportedServices } from './constants';
 import styles from './style.module.scss';
 
-const AddConnectionModal = ( { onCloseModal } ) => {
+type AddConnectionModalProps = {
+	onCloseModal: VoidFunction;
+	currentService: SupportedService | null;
+	setCurrentService: ( service: SupportedService | null ) => void;
+};
+
+const AddConnectionModal = ( {
+	onCloseModal,
+	currentService,
+	setCurrentService,
+}: AddConnectionModalProps ) => {
 	const supportedServices = useSelect( select => {
-		const supportedConnections = getSupportedConnections();
+		const supportedConnections = getSupportedServices();
 		const services = select( store )
 			.getServices()
 			.filter( service => service.type === 'publicize' )
@@ -33,20 +43,18 @@ const AddConnectionModal = ( { onCloseModal } ) => {
 			} ) );
 	}, [] );
 
-	const [ currentService, setCurrentService ] = useState( null );
-
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
 	const onServiceSelected = useCallback(
 		service => () => {
 			setCurrentService( service );
 		},
-		[]
+		[ setCurrentService ]
 	);
 
 	const onBackClicked = useCallback( () => {
 		setCurrentService( null );
-	}, [] );
+	}, [ setCurrentService ] );
 
 	return (
 		<Modal

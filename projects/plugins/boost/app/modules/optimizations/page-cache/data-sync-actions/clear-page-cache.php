@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync_Ac
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Action;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 
 /**
  * Page Cache: Clear page cache
@@ -18,7 +19,7 @@ class Clear_Page_Cache implements Data_Sync_Action {
 	 */
 	public function handle( $_data, $_request ) {
 		$cache  = new Boost_Cache();
-		$delete = $cache->delete_cache();
+		$delete = $cache->invalidate_cache( Filesystem_Utils::DELETE_ALL );
 
 		if ( $delete === null || is_wp_error( $delete ) ) {
 			return array(

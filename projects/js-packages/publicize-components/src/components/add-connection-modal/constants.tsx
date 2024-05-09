@@ -13,7 +13,7 @@ import connectionsTumblr from '../../assets/connections-tumblr.png';
 
 const sharingButtonLink = 'https://wordpress.com/support/sharing/';
 
-export interface Connection {
+export interface SupportedService {
 	title: string;
 	icon: React.ComponentType< { iconSize: number } >;
 	description: string;
@@ -22,7 +22,7 @@ export interface Connection {
 	connectUrl?: string;
 }
 
-export const getSupportedConnections = (): Connection[] => {
+export const getSupportedServices = (): SupportedService[] => {
 	return [
 		{
 			title: __( 'Facebook', 'jetpack' ),
