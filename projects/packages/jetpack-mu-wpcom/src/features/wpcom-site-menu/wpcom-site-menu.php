@@ -568,6 +568,19 @@ function wpcom_maybe_enable_link_manager() {
 add_action( 'init', 'wpcom_maybe_enable_link_manager' );
 
 /**
+ * Add the Links menu item to the admin menu.
+ */
+function wpcom_get_plugin_stub() {
+	$can_install_plugins = function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( WPCOM_Features::INSTALL_PLUGINS );
+
+	if ( $can_install_plugins || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+		$domain = wp_parse_url( home_url(), PHP_URL_HOST );
+		return 'https://wordpress.com/plugins/' . $domain;
+	}
+	return 'plugins.php';
+}
+
+/**
  * Add the Scheduled Updates menu item to the Plugins menu.
  *
  * Limited to sites with scheduled updates feature.
@@ -597,7 +610,7 @@ function wpcom_add_scheduled_updates_menu() {
 	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 
 	add_submenu_page(
-		'plugins.php',
+		wpcom_get_plugin_stub(),
 		esc_attr__( 'Scheduled Updates', 'jetpack-mu-wpcom' ),
 		__( 'Scheduled Updates', 'jetpack-mu-wpcom' ),
 		'update_plugins',
@@ -605,7 +618,7 @@ function wpcom_add_scheduled_updates_menu() {
 		null
 	);
 }
-add_action( 'admin_menu', 'wpcom_add_scheduled_updates_menu' );
+add_action( 'admin_menu', 'wpcom_add_scheduled_updates_menu', 100 );
 
 /**
  * Add the Plugins menu item to the admin menu on simple sites.
@@ -616,24 +629,17 @@ function wpcom_add_plugins_menu() {
 	}
 
 	if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
-		$can_install_plugins = function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( WPCOM_Features::INSTALL_PLUGINS );
-
-		$plugins_nav_url = 'plugins.php';
-
-		if ( $can_install_plugins || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
-			$domain          = wp_parse_url( home_url(), PHP_URL_HOST );
-			$plugins_nav_url = 'https://wordpress.com/plugins/' . $domain;
-		}
+		$plugin_nav_url = wpcom_get_plugin_stub();
 
 		add_menu_page(
 			__( 'Plugins', 'jetpack-mu-wpcom' ),
 			__( 'Plugins', 'jetpack-mu-wpcom' ),
 			'manage_options', // Roughly means "is a site admin"
-			$plugins_nav_url,
+			$plugin_nav_url,
 			null,
 			'dashicons-admin-plugins',
 			65
 		);
 	}
 }
-add_action( 'admin_menu', 'wpcom_add_plugins_menu' );
+add_action( 'admin_menu', 'wpcom_add_plugins_menu', 99 );
