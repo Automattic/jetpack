@@ -28,7 +28,7 @@ export type Connection = {
 
 export type ConnectionData = {
 	connections: Connection[];
-	deletingConnection?: number | string | null;
+	deletingConnections?: Array< number | string >;
 };
 
 export type JetpackSettings = {

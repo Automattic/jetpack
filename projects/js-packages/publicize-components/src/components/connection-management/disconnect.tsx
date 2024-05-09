@@ -31,13 +31,16 @@ export function Disconnect( {
 }: DisconnectProps ) {
 	const { deleteConnectionById } = useDispatch( socialStore );
 
-	const { deletingConnection } = useSelect( select => {
-		const store = select( socialStore );
+	const { isDisconnecting } = useSelect(
+		select => {
+			const { getDeletingConnections } = select( socialStore );
 
-		return {
-			deletingConnection: store.getDeletingConnection(),
-		};
-	}, [] );
+			return {
+				isDisconnecting: getDeletingConnections().includes( connection.connection_id ),
+			};
+		},
+		[ connection.connection_id ]
+	);
 
 	const onClickDisconnect = useCallback( async () => {
 		await deleteConnectionById( {
@@ -52,18 +55,15 @@ export function Disconnect( {
 		return null;
 	}
 
-	const isDisconnectingThis = deletingConnection === connection.connection_id;
-	const isDisconnectingAny = Boolean( deletingConnection );
-
 	return (
 		<Button
 			size="small"
 			onClick={ onClickDisconnect }
-			disabled={ isDisconnectingAny }
+			disabled={ isDisconnecting }
 			variant={ variant }
 			isDestructive={ isDestructive }
 		>
-			{ isDisconnectingThis
+			{ isDisconnecting
 				? __( 'Disconnecting…', 'jetpack' )
 				: label || _x( 'Disconnect', 'Disconnect a social media account', 'jetpack' ) }
 		</Button>

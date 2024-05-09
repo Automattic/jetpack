@@ -149,13 +149,15 @@ export function deleteConnection( connectionId ) {
  * Marks a connection as being deleted.
  *
  * @param {string} connectionId - Connection ID to delete.
+ * @param {boolean} deleting - Whether the connection is being deleted.
  *
  * @returns {object} Deleting connection action.
  */
-export function deletingConnection( connectionId ) {
+export function deletingConnection( connectionId, deleting = true ) {
 	return {
 		type: DELETING_CONNECTION,
 		connectionId,
+		deleting,
 	};
 }
 
@@ -196,7 +198,7 @@ export function deleteConnectionById( { connectionId, showSuccessNotice = true }
 
 			createErrorNotice( message, { type: 'snackbar', isDismissible: true } );
 		} finally {
-			dispatch( deletingConnection( null ) );
+			dispatch( deletingConnection( connectionId, false ) );
 		}
 	};
 }

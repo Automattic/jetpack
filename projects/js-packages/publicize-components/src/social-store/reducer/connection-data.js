@@ -27,11 +27,17 @@ const connectionData = ( state = {}, action ) => {
 				} ),
 			};
 
-		case DELETING_CONNECTION:
+		case DELETING_CONNECTION: {
+			const deleting = new Set( state.deletingConnections );
+			action.deleting
+				? deleting.add( action.connectionId )
+				: deleting.delete( action.connectionId );
+
 			return {
 				...state,
-				deletingConnection: action.connectionId,
+				deletingConnections: [ ...deleting ],
 			};
+		}
 
 		case TOGGLE_CONNECTION:
 			return {
