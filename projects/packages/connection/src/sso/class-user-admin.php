@@ -112,12 +112,18 @@ class User_Admin {
 				$event    = 'sso_user_invite_revoked';
 
 				if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+					$body                = json_decode( wp_remote_retrieve_body( $response ) );
+					$tracking_event_data = array(
+						'success'    => 'false',
+						'error_code' => 'invalid-revoke-api-error',
+					);
+
+					if ( ! empty( $body ) && ! empty( $body->message ) ) {
+						$tracking_event_data['error_message'] = $body->message;
+					}
 					self::$tracking->record_user_event(
 						$event,
-						array(
-							'success'       => 'false',
-							'error_message' => 'invalid-revoke-api-error',
-						)
+						$tracking_event_data
 					);
 					return $response;
 				}
