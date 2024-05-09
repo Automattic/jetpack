@@ -20,6 +20,7 @@ import type { RequestingStateProp } from '../../types.js';
 import type { ReactElement, MouseEvent } from 'react';
 
 type ExtensionAIControlProps = {
+	className?: string;
 	disabled?: boolean;
 	value: string;
 	placeholder?: string;
@@ -49,6 +50,7 @@ type ExtensionAIControlProps = {
  */
 export function ExtensionAIControl(
 	{
+		className,
 		disabled = false,
 		value = '',
 		placeholder = '',
@@ -212,6 +214,7 @@ export function ExtensionAIControl(
 
 	return (
 		<AIControl
+			className={ className }
 			disabled={ disabled || loading }
 			value={ value }
 			placeholder={ placeholder }
