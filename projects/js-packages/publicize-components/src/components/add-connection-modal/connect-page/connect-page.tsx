@@ -1,15 +1,21 @@
 import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
-import { SupportedService } from '../constants';
+import { ConnectForm } from '../connect-form';
 import styles from './style.module.scss';
+import type { SupportedService } from '../use-supported-services';
 
 type ConnectPageProps = {
 	service: SupportedService;
 	onBackClicked: VoidFunction;
+	onConfirm: ( data: unknown ) => void;
 };
 
-export const ConnectPage: React.FC< ConnectPageProps > = ( { service, onBackClicked } ) => {
+export const ConnectPage: React.FC< ConnectPageProps > = ( {
+	service,
+	onBackClicked,
+	onConfirm,
+} ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
 	return (
@@ -20,7 +26,7 @@ export const ConnectPage: React.FC< ConnectPageProps > = ( { service, onBackClic
 				} ) }
 			>
 				{ service.examples.map( ( Example, idx ) => (
-					<div key={ service.name + idx } className={ styles.example }>
+					<div key={ service.ID + idx } className={ styles.example }>
 						<Example />
 					</div>
 				) ) }
@@ -33,19 +39,12 @@ export const ConnectPage: React.FC< ConnectPageProps > = ( { service, onBackClic
 				>
 					{ __( 'Back', 'jetpack' ) }
 				</Button>
-				<form className={ classNames( styles[ 'connect-form' ], { [ styles.small ]: isSmall } ) }>
-					{ 'mastodon' === service.name ? (
-						<input
-							required
-							type="text"
-							aria-label={ __( 'Mastodon username', 'jetpack' ) }
-							placeholder={ '@mastodon@mastodon.social' }
-						/>
-					) : null }
-					<Button type="submit" variant="primary">
-						{ __( 'Connect', 'jetpack' ) }
-					</Button>
-				</form>
+				<ConnectForm
+					service={ service }
+					isSmall={ isSmall }
+					onConfirm={ onConfirm }
+					displayInputs
+				/>
 			</div>
 		</>
 	);

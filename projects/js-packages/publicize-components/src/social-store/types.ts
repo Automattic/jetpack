@@ -26,6 +26,14 @@ export type Connection = {
 	status: ConnectionStatus;
 };
 
+export type ConnectionService = {
+	ID: string;
+	label: string;
+	type: 'publicize' | 'other';
+	description: string;
+	connect_URL: string;
+};
+
 export type ConnectionData = {
 	connections: Connection[];
 	deletingConnections?: Array< number | string >;
