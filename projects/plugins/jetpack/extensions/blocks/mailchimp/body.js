@@ -23,7 +23,7 @@ const innerButtonBlock = {
 	},
 };
 
-const Body = ( { attributes, setAttributes, className, audition } ) => {
+const Body = ( { attributes, setAttributes, audition } ) => {
 	const {
 		emailPlaceholder = DEFAULT_EMAIL_PLACEHOLDER,
 		consentText = DEFAULT_CONSENT_TEXT,
@@ -40,7 +40,7 @@ const Body = ( { attributes, setAttributes, className, audition } ) => {
 
 	return (
 		<div
-			className={ classnames( className, {
+			className={ classnames( {
 				[ `${ BLOCK_CLASS }_notication-audition` ]: audition,
 			} ) }
 		>

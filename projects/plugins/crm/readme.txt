@@ -2,7 +2,7 @@
 Contributors: automattic, kallehauge, cleacos, diegogarciarodrigues, bradshawtm, wpkaren, robertf4, woodyhayday, mikemayhem3030
 Tags: CRM, Invoice, Woocommerce CRM, Clients, Lead Generation, contacts, customers, billing, email marketing, Marketing Automation, contact form, automations
 Tested up to: 6.5
-Stable tag: 6.4.1
+Stable tag: 6.4.2
 Requires at least: 6.0
 Requires PHP: 7.4
 License: GPLv2
@@ -265,6 +265,10 @@ We haven't published our roadmap since v3, but we may do in the future. You can 
 #### Where can I see the CRM extensions?
 
 You can see all the CRM power-ups here: https://jetpackcrm.com/extensions/
+
+#### How can I contribute to Jetpack CRM?
+
+The core [Jetpack CRM plugin code](https://github.com/Automattic/jetpack/tree/trunk/projects/plugins/crm) is on GitHub and is open-source. The code is part of the Jetpack monorepo, and the [Jetpack contributing guide](https://github.com/Automattic/jetpack/blob/trunk/docs/CONTRIBUTING.md) is also relevant to Jetpack CRM.
 
 #### Is there a contact search feature on Jetpack CRM?
 

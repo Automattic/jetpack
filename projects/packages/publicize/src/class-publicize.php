@@ -74,6 +74,20 @@ class Publicize extends Publicize_Base {
 	}
 
 	/**
+	 * Whether to use the v1 admin UI.
+	 */
+	public static function use_admin_ui_v1(): bool {
+
+		// If the option is set, use it.
+		if ( get_option( 'jetpack_social_use_admin_ui_v1', false ) ) {
+			return true;
+		}
+
+		// Otherwise, use the constant.
+		return defined( 'JETPACK_SOCIAL_USE_ADMIN_UI_V1' ) && JETPACK_SOCIAL_USE_ADMIN_UI_V1;
+	}
+
+	/**
 	 * Force user connection before showing the Publicize UI.
 	 */
 	public function force_user_connection() {
@@ -239,7 +253,19 @@ class Publicize extends Publicize_Base {
 					$user_id = (int) $connection['connection_data']['user_id'];
 					// phpcs:ignore WordPress.PHP.YodaConditions.NotYoda
 					if ( $user_id === 0 || $this->user_id() === $user_id ) {
-						$connections_to_return[ $service_name ][ $id ] = $connection;
+						if ( self::use_admin_ui_v1() ) {
+							$connections_to_return[] = array_merge(
+								$connection,
+								array(
+									'service_name'   => $service_name,
+									'connection_id'  => $connection['connection_data']['id'],
+									'can_disconnect' => current_user_can( 'edit_others_posts' ) || get_current_user_id() === $user_id,
+									'profile_link'   => $this->get_profile_link( $service_name, $connection ),
+								)
+							);
+						} else {
+							$connections_to_return[ $service_name ][ $id ] = $connection;
+						}
 					}
 				}
 			}

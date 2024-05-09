@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2024-05-06
+### Added
+- AI Client: Add wrapper ref to AI Control. [#37145]
+- AI Featured Image: Support custom user prompt on the image generation. [#37086]
+
+### Changed
+- Updated package dependencies. [#37147] [#37148] [#37160]
+
+## [0.12.4] - 2024-04-29
+### Added
+- AI Client: Export ExtensionAIControl. [#37087]
+
+## [0.12.3] - 2024-04-25
+### Changed
+- AI Client: Separate AIControl UI from block logic. [#36967]
+
+## [0.12.2] - 2024-04-22
+### Added
+- AI Client: Add Markdown and HTML conversions. [#36906]
+
+## [0.12.1] - 2024-04-15
+### Added
+- AI Client: Add callbacks, initial requesting state and change error handling. [#36869]
+
+## [0.12.0] - 2024-04-08
+### Added
+- Add error rejection in image generation. [#36709]
+
+### Changed
+- Updated package dependencies. [#36756] [#36760] [#36761]
+
+### Fixed
+- AI Featured Image: handle posts longer than the limit of Dall-e generation prompt. [#36703]
+
 ## [0.11.0] - 2024-04-01
 ### Added
 - AI Client: include prompt to generate featured image based on post content. [#36591]
@@ -272,6 +306,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies. [#31659]
 - Updated package dependencies. [#31785]
 
+[0.13.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.12.4...v0.13.0
+[0.12.4]: https://github.com/Automattic/jetpack-ai-client/compare/v0.12.3...v0.12.4
+[0.12.3]: https://github.com/Automattic/jetpack-ai-client/compare/v0.12.2...v0.12.3
+[0.12.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.12.1...v0.12.2
+[0.12.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.12.0...v0.12.1
+[0.12.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.10.1...v0.11.0
 [0.10.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.10.0...v0.10.1
 [0.10.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.9.0...v0.10.0

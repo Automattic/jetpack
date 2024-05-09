@@ -61,7 +61,7 @@ class Jetpack_Podcast_Helper {
 	/**
 	 * Retrieves tracks quantity.
 	 *
-	 * @returns int number of tracks
+	 * @return int number of tracks
 	 */
 	public static function get_tracks_quantity() {
 		/**

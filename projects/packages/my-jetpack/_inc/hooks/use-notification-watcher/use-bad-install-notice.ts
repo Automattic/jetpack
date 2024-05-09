@@ -41,6 +41,7 @@ const useBadInstallNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		};
 
 		const noticeOptions = {
+			id: 'bad-installation-notice',
 			level: 'error',
 			actions: [
 				{
@@ -50,7 +51,6 @@ const useBadInstallNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 				},
 			],
 			priority: NOTICE_PRIORITY_MEDIUM,
-			isRedBubble: true,
 		};
 
 		setNotice( {

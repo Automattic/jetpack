@@ -5,6 +5,94 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.29.0] - 2024-05-09
+### Added
+- Jetpack-mu-wpcom: Add classic theme helper package as a requirement [#37284]
+- Settings: Add Admin Interface Style options. [#37273]
+
+### Removed
+- Nav Redesign: Revert Hosting menu changes [#37254]
+
+### Fixed
+- Themes: Fixed an issue that was showing a broken Theme Showcase action in the active theme details [#37258]
+- WordPress.com Features: Don't load admin color schemes if Jetpack is not active [#37233]
+
+## [5.28.0] - 2024-05-06
+### Added
+- Add plugins link to menu for simple classic users. [#37182]
+- Launchpad: Add completion handler to eCommerce plan tasks. [#37131]
+- Navigation Redesign: Add Hosting -> Overview menu. [#37228]
+- Scheduled Updates: Add Scheduled Updates submenu item in wpcom-site-menu.php. [#37070]
+
+### Changed
+- Admin Menu: Record events in Tracks for sidebar notices. [#37214]
+- Fix navigation upsell and notification RTL spacing. [#37125]
+- Updated package dependencies. [#37147] [#37148]
+
+### Removed
+- Remove reference to `WPCOM_Launchpad`, which was removed from wpcom in D111041-code (May 2023). [#37201]
+- Remove reference to `wpcom_subs_js`, which was removed from wpcom in D104342-code (March 2023). [#37201]
+
+## [5.27.0] - 2024-04-29
+### Added
+- Launchpad: Add Entrepreneur plan launchpad tasks [#37094]
+
+## [5.26.1] - 2024-04-26
+### Added
+- CloudFlare Analytics: add tracking code management (originally in the Jetpack plugin). [#37061]
+
+### Changed
+- General: use wp_admin_notice function introduced in WP 6.4 to display notices. [#37051]
+
+### Fixed
+- Calypso: Prevent CSS concat on colors handle instead of reenqueuing colors from CDN. [#37063]
+
+## [5.26.0] - 2024-04-25
+### Added
+- Admin menu: Show sidebar notices on classic interface. [#36797]
+
+### Changed
+- Admin menu: Sidebar notices can be dismissed now. [#37031]
+
+### Fixed
+- Update project dependencies to explicitly reflect the current state. [#37035]
+
+## [5.25.0] - 2024-04-22
+### Added
+- Add missing dependency on `automattic/jetpack-status`. [#36881]
+
+### Changed
+- Launch the WP.com themes banner in WP Admin for all users. [#36935]
+- Monetize: Move menu item into the Jetpack menu for all Classic interface users. [#36995]
+
+### Fixed
+- Added completed callback for site_launched task. [#36839]
+- Fixed a WP.com only issue that forced the Themes menu to always point to Calypso even when the classic interface was set. [#36934]
+- Fix enqueuing editor styles. [#36983]
+- Themes: Fixed an issue that was showing a broken Theme Showcase action in the active theme details. [#36986]
+
+## [5.24.0] - 2024-04-15
+### Added
+- WP.com Patterns: Hide WP.com categories that start with underscore. [#36763]
+- Calypso: Add Theme Showcase menu. [#36851]
+- Display a banner before the theme browser that links to the WP.com Theme Showcase. [#36801]
+
+### Changed
+- Conditionally enable link manager on Simple and Atomic sites. [#36770]
+- Hide Customize on block themes on Simple Classic sites. [#36856]
+- Monetize: Move into Jetpack menu and open the page on Jetpack Cloud. [#36799]
+- Update Monetize Launchpad links to Jetpack Cloud. [#36728]
+
+### Removed
+- Removed All Sites menu option from sidebar. [#36632]
+
+### Fixed
+- Add translation support for the Launchpad API endpoint. [#36802]
+
+## [5.23.2] - 2024-04-08
+### Changed
+- Updated package dependencies. [#36760] [#36761] [#36788]
+
 ## [5.23.1] - 2024-04-05
 ### Changed
 - Update dependencies.
@@ -707,6 +795,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.29.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.28.0...v5.29.0
+[5.28.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.27.0...v5.28.0
+[5.27.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.26.1...v5.27.0
+[5.26.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.26.0...v5.26.1
+[5.26.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.25.0...v5.26.0
+[5.25.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.24.0...v5.25.0
+[5.24.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.23.2...v5.24.0
+[5.23.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.23.1...v5.23.2
 [5.23.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.23.0...v5.23.1
 [5.23.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.22.0...v5.23.0
 [5.22.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.21.0...v5.22.0

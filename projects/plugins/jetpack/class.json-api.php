@@ -1020,18 +1020,17 @@ class WPCOM_JSON_API {
 	 * Get avatar URL.
 	 *
 	 * @param string $email Email.
-	 * @param array  $avatar_size Args for `get_avatar_url()`.
+	 * @param array  $args Args for `get_avatar_url()`.
 	 * @return string|false
 	 */
-	public function get_avatar_url( $email, $avatar_size = null ) {
+	public function get_avatar_url( $email, $args = null ) {
 		if ( function_exists( 'wpcom_get_avatar_url' ) ) {
-			return null === $avatar_size
-				? wpcom_get_avatar_url( $email )
-				: wpcom_get_avatar_url( $email, $avatar_size );
+			$ret = wpcom_get_avatar_url( $email, $args['size'] ?? 96, $args['default'] ?? '', false, $args['force_default'] ?? false );
+			return $ret ? $ret[0] : false;
 		} else {
-			return null === $avatar_size
+			return null === $args
 				? get_avatar_url( $email )
-				: get_avatar_url( $email, $avatar_size );
+				: get_avatar_url( $email, $args );
 		}
 	}
 

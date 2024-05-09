@@ -18,7 +18,7 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 		add_filter( 'pre_http_request', array( __CLASS__, 'do_not_verify_mapbox' ), 10, 3 );
 	}
 
-	// GET
+	/** GET **/
 	public function test_get_services_api_key_mapbox() {
 		wp_set_current_user( self::$subscriber_user_id );
 		$request  = new WP_REST_Request( 'GET', '/wpcom/v2/service-api-keys/mapbox' );
@@ -41,7 +41,7 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 		$this->assertTrue( isset( $data['message'] ) );
 	}
 
-	// UPDATE
+	/** UPDATE **/
 	public function test_update_services_api_key_mapbox_with_permission() {
 		wp_set_current_user( self::$editor_user_id );
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/service-api-keys/mapbox' );
@@ -102,7 +102,7 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 		$this->assertTrue( isset( $data['message'] ) );
 	}
 
-	// DELETE
+	/** DELETE **/
 	public function test_delete_service_api_key_mapbox_with_permission() {
 		wp_set_current_user( self::$editor_user_id );
 		$request  = new WP_REST_Request( 'DELETE', '/wpcom/v2/service-api-keys/mapbox' );

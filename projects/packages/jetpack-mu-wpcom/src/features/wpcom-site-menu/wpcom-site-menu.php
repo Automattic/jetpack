@@ -8,6 +8,10 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Check if the current user has a WordPress.com account connected.
@@ -19,7 +23,6 @@ function current_user_has_wpcom_account() {
 
 	if ( function_exists( '\A8C\Billingdaddy\Users\get_wpcom_user' ) ) {
 		// On Simple sites, use get_wpcom_user function to check if the user has a WordPress.com account.
-		// @phan-suppress-next-line PhanUndeclaredFunction
 		$user        = \A8C\Billingdaddy\Users\get_wpcom_user( $user_id );
 		$has_account = isset( $user->ID );
 	} else {
@@ -52,46 +55,15 @@ function wpcom_add_wpcom_menu_item() {
 	}
 
 	/**
-	 * Don't show `All Sites` and `Hosting` to administrators without a WordPress.com account being attached,
+	 * Don't show `Hosting` to administrators without a WordPress.com account being attached,
 	 * as they don't have access to any of the pages.
 	 */
 	if ( ! current_user_has_wpcom_account() ) {
 		return;
 	}
 
-	global $menu;
-
 	$parent_slug = 'wpcom-hosting-menu';
 	$domain      = wp_parse_url( home_url(), PHP_URL_HOST );
-
-	add_menu_page(
-		esc_attr__( 'All Sites', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'All Sites', 'jetpack-mu-wpcom' ),
-		// We should show `All Sites` for all users roles if they have a WordPress.com account connected.
-		'read',
-		'https://wordpress.com/sites',
-		null,
-		'dashicons-arrow-left-alt2',
-		0
-	);
-
-	// Position a separator below the `All Sites` menu item.
-	// Inspired by https://github.com/Automattic/jetpack/blob/b6b6e86c5491869782857141ca48168dfa195635/projects/plugins/jetpack/modules/masterbar/admin-menu/class-base-admin-menu.php#L239
-	$separator = array(
-		'',
-		'read',
-		wp_unique_id( 'separator-custom-' ),
-		'',
-		'wp-menu-separator',
-	);
-
-	$position = 0;
-	if ( isset( $menu[ "$position" ] ) ) {
-		$position            = $position + substr( base_convert( md5( $separator[2] . $separator[0] ), 16, 10 ), -5 ) * 0.00001;
-		$menu[ "$position" ] = $separator; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-	} else {
-		$menu[ "$position" ] = $separator; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-	}
 
 	add_menu_page(
 		esc_attr__( 'Hosting', 'jetpack-mu-wpcom' ),
@@ -179,15 +151,6 @@ function wpcom_add_wpcom_menu_item() {
 
 	add_submenu_page(
 		$parent_slug,
-		esc_attr__( 'Monetize', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Monetize', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/earn/$domain" ),
-		null
-	);
-
-	add_submenu_page(
-		$parent_slug,
 		esc_attr__( 'Connections', 'jetpack-mu-wpcom' ),
 		esc_attr__( 'Connections', 'jetpack-mu-wpcom' ),
 		'manage_options',
@@ -211,6 +174,209 @@ function wpcom_add_wpcom_menu_item() {
 	);
 }
 add_action( 'admin_menu', 'wpcom_add_wpcom_menu_item' );
+
+/**
+ * Add All Sites menu to the right side of the WP logo on the masterbar.
+ *
+ * @param WP_Admin_Bar $wp_admin_bar - The WP_Admin_Bar instance.
+ */
+function add_all_sites_menu_to_masterbar( $wp_admin_bar ) {
+	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
+		return;
+	}
+
+	/**
+	 * Don't show `All Sites` to administrators without a WordPress.com account being attached,
+	 * as they don't have access to any of the pages.
+	 */
+	if ( ! current_user_has_wpcom_account() ) {
+		return;
+	}
+
+	$wp_admin_bar->add_node(
+		array(
+			'id'    => 'all-sites',
+			'title' => __( 'All Sites', 'jetpack-mu-wpcom' ),
+			'href'  => 'https://wordpress.com/sites',
+			'meta'  => array(
+				'class' => 'wp-admin-bar-all-sites',
+			),
+		)
+	);
+}
+add_action( 'admin_bar_menu', 'add_all_sites_menu_to_masterbar', 15 );
+
+/**
+ * Enqueue scripts and styles needed by the WP.com menu.
+ */
+function wpcom_site_menu_enqueue_scripts() {
+	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
+		return;
+	}
+
+	wp_enqueue_style(
+		'wpcom-site-menu',
+		plugins_url( 'build/wpcom-site-menu/wpcom-site-menu.css', Jetpack_Mu_Wpcom::BASE_FILE ),
+		array(),
+		Jetpack_Mu_Wpcom::PACKAGE_VERSION
+	);
+
+	wp_enqueue_script(
+		'wpcom-site-menu',
+		plugins_url( 'wpcom-site-menu.js', __FILE__ ),
+		array(),
+		Jetpack_Mu_Wpcom::PACKAGE_VERSION,
+		array(
+			'strategy'  => 'defer',
+			'in_footer' => true,
+		)
+	);
+
+	$notice = wpcom_get_sidebar_notice();
+	if ( $notice ) {
+		$link = $notice['link'];
+		if ( str_starts_with( $link, '/' ) ) {
+			$link = 'https://wordpress.com' . $link;
+		}
+
+		$user_id    = null;
+		$user_login = null;
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			global $current_user;
+			$user_id    = $current_user->ID;
+			$user_login = $current_user->user_login;
+		} else {
+			$connection_manager = new Connection_Manager();
+			$wpcom_user_data    = $connection_manager->get_connected_user_data();
+			if ( $wpcom_user_data ) {
+				$user_id    = $wpcom_user_data['ID'];
+				$user_login = $wpcom_user_data['login'];
+			}
+		}
+
+		$data = array(
+			'url'          => esc_url( $link ),
+			'text'         => wp_kses( $notice['content'], array() ),
+			'action'       => wp_kses( $notice['cta'], array() ),
+			'dismissible'  => $notice['dismissible'],
+			'dismissLabel' => esc_html__( 'Dismiss', 'jetpack-mu-wpcom' ),
+			'id'           => $notice['id'],
+			'featureClass' => $notice['feature_class'],
+			'dismissNonce' => wp_create_nonce( 'wpcom_dismiss_sidebar_notice' ),
+			'tracks'       => $notice['tracks'],
+			'user'         => array(
+				'ID'       => $user_id,
+				'username' => $user_login,
+			),
+		);
+
+		wp_add_inline_script(
+			'wpcom-site-menu',
+			'window.wpcomSidebarNotice = ' . wp_json_encode( $data ) . ';'
+		);
+	}
+}
+add_action( 'admin_enqueue_scripts', 'wpcom_site_menu_enqueue_scripts' );
+
+/**
+ * Returns the first available sidebar notice.
+ *
+ * @return array | null
+ */
+function wpcom_get_sidebar_notice() {
+	$message_path = 'calypso:sites:sidebar_notice';
+
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		require_lib( 'jetpack-jitm/jitm-engine' );
+		$jitm_engine = new \JITM\Engine();
+
+		$current_user = wp_get_current_user();
+		$user_id      = $current_user->ID;
+		$user_roles   = implode( ',', $current_user->roles );
+		$query_string = array( 'message_path' => $message_path );
+
+		$message = $jitm_engine->get_top_messages( $message_path, $user_id, $user_roles, $query_string );
+	} else {
+		$jitm    = \Automattic\Jetpack\JITMS\JITM::get_instance();
+		$message = $jitm->get_messages( $message_path, wp_json_encode( array( 'message_path' => $message_path ) ), false );
+	}
+
+	if ( ! isset( $message[0] ) ) {
+		return null;
+	}
+
+	// Serialize message as object (on Simple sites we have an array, on Atomic sites we have an object).
+	$message = json_decode( wp_json_encode( $message[0] ) );
+
+	return array(
+		'content'       => $message->content->message,
+		'cta'           => $message->CTA->message, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		'link'          => $message->CTA->link, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		'dismissible'   => $message->is_dismissible,
+		'feature_class' => $message->feature_class,
+		'id'            => $message->id,
+		'tracks'        => $message->tracks ?? null,
+	);
+}
+
+/**
+ * Handle AJAX requests to dismiss a sidebar notice;
+ */
+function wpcom_dismiss_sidebar_notice() {
+	check_ajax_referer( 'wpcom_dismiss_sidebar_notice' );
+	if ( isset( $_REQUEST['id'] ) && isset( $_REQUEST['feature_class'] ) ) {
+		$id            = sanitize_text_field( wp_unslash( $_REQUEST['id'] ) );
+		$feature_class = sanitize_text_field( wp_unslash( $_REQUEST['feature_class'] ) );
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			require_lib( 'jetpack-jitm/jitm-engine' );
+			\JITM\Engine::dismiss( $id, $feature_class );
+		} else {
+			$jitm = \Automattic\Jetpack\JITMS\JITM::get_instance();
+			$jitm->dismiss( $id, $feature_class );
+		}
+	}
+	wp_die();
+}
+add_action( 'wp_ajax_wpcom_dismiss_sidebar_notice', 'wpcom_dismiss_sidebar_notice' );
+
+/**
+ * Add the WordPress.com submenu items related to Jetpack under the Jetpack menu on the wp-admin sidebar.
+ */
+function wpcom_add_jetpack_menu_item() {
+	/*
+	 * Do not display any menu on WoA and WordPress.com Simple sites (unless Classic wp-admin is enabled).
+	 * They already get a menu item under Users via nav-unification.
+	 */
+	if ( ( new Host() )->is_wpcom_platform() && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+		return;
+	}
+
+	/**
+	 * Don't show to administrators without a WordPress.com account being attached,
+	 * as they don't have access to any of the pages.
+	 */
+	if ( ! current_user_has_wpcom_account() ) {
+		return;
+	}
+
+	/*
+	 * Do not display if we're in Offline mode, or if the user is not connected.
+	 */
+	if ( ( new Status() )->is_offline_mode() || ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) {
+		return;
+	}
+
+	add_submenu_page(
+		'jetpack',
+		__( 'Monetize', 'jetpack-mu-wpcom' ),
+		__( 'Monetize', 'jetpack-mu-wpcom' ) . ' <span class="dashicons dashicons-external"></span>',
+		'manage_options',
+		esc_url( Redirect::get_url( 'calypso-monetize' ) ),
+		null
+	);
+}
+add_action( 'jetpack_admin_menu', 'wpcom_add_jetpack_menu_item' );
 
 /**
  * Helper function to determine if the admin notice should be shown.
@@ -292,7 +458,7 @@ function wpcom_add_hosting_menu_intro_notice() {
 
 		.wpcom-site-menu-intro-notice a.close-button {
 			height: 16px;
-			margin-left: auto;
+			margin-inline-start: auto;
 		}
 	</style>
 	<div class="wpcom-site-menu-intro-notice notice notice-info" role="alert">
@@ -344,11 +510,10 @@ function wpcom_site_menu_handle_dismiss_notice() {
 add_action( 'wp_ajax_dismiss_wpcom_site_menu_intro_notice', 'wpcom_site_menu_handle_dismiss_notice' );
 
 /**
- * Ensures customizer menu and adminbar items are not visible on a block theme for atomic sites.
+ * Ensures customizer menu and adminbar items are not visible on a block theme.
  */
 function hide_customizer_menu_on_block_theme() {
-	$is_wpcom = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
-	if ( ! $is_wpcom && wp_is_block_theme() && ! is_customize_preview() ) {
+	if ( wp_is_block_theme() && ! is_customize_preview() ) {
 		remove_action( 'customize_register', 'add_logotool_button', 20 );
 		remove_action( 'customize_register', 'footercredits_register', 99 );
 		remove_action( 'customize_register', 'wpcom_disable_customizer_site_icon', 20 );
@@ -367,3 +532,103 @@ function hide_customizer_menu_on_block_theme() {
 	}
 }
 add_action( 'init', 'hide_customizer_menu_on_block_theme' );
+
+/**
+ * Links were removed in 3.5 core, but we've kept them active on dotcom.
+ *
+ * This function will check to see if Links should be enabled based on the number of links in the database
+ * and then set an option to minimize repeat queries later. The Links menu is visible when the Link Manager is enabled.
+ *
+ * @return void
+ */
+function wpcom_maybe_enable_link_manager() {
+	if ( get_option( 'link_manager_check' ) ) {
+		return;
+	}
+
+	// The max ID number of the auto-generated links.
+	// See /wp-content/mu-plugins/wpcom-wp-install-defaults.php in WP.com.
+	$max_default_id = 10;
+
+	// We are only checking the latest entry link_id so are limiting the query to 1.
+	$link_manager_links = get_bookmarks(
+		array(
+			'orderby'        => 'link_id',
+			'order'          => 'DESC',
+			'limit'          => 1,
+			'hide_invisible' => 0,
+		)
+	);
+
+	$has_links = is_countable( $link_manager_links ) && count( $link_manager_links ) > 0 && $link_manager_links[0]->link_id > $max_default_id;
+
+	update_option( 'link_manager_enabled', intval( $has_links ) );
+	update_option( 'link_manager_check', time() );
+}
+add_action( 'init', 'wpcom_maybe_enable_link_manager' );
+
+/**
+ * Add the Scheduled Updates menu item to the Plugins menu.
+ *
+ * Limited to sites with scheduled updates feature.
+ */
+function wpcom_add_scheduled_updates_menu() {
+	// Bail on Simple sites
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		return;
+	}
+
+	/**
+	 * Don't show `Scheduled Updates` to administrators without a WordPress.com account being attached,
+	 * as they don't have access to any of the pages.
+	 */
+	if ( ! current_user_has_wpcom_account() ) {
+		return;
+	}
+
+	if ( ! function_exists( 'wpcom_site_has_feature' ) ) {
+		return;
+	}
+
+	if ( ! wpcom_site_has_feature( \WPCOM_Features::SCHEDULED_UPDATES ) ) {
+		return;
+	}
+
+	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
+
+	add_submenu_page(
+		'plugins.php',
+		esc_attr__( 'Scheduled Updates', 'jetpack-mu-wpcom' ),
+		__( 'Scheduled Updates', 'jetpack-mu-wpcom' ),
+		'update_plugins',
+		esc_url( "https://wordpress.com/plugins/scheduled-updates/$domain" ),
+		null
+	);
+}
+add_action( 'admin_menu', 'wpcom_add_scheduled_updates_menu' );
+
+/**
+ * Add the Plugins menu item to the admin menu on simple sites.
+ */
+function wpcom_add_plugins_menu() {
+
+	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+		return;
+	}
+
+	if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
+		$domain              = wp_parse_url( home_url(), PHP_URL_HOST );
+		$can_install_plugins = function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( WPCOM_Features::INSTALL_PLUGINS );
+
+		add_menu_page(
+			__( 'Plugins', 'jetpack-mu-wpcom' ),
+			__( 'Plugins', 'jetpack-mu-wpcom' ),
+			'manage_options', // Roughly means "is a site admin"
+			$can_install_plugins ? 'https://wordpress.com/plugins/' . $domain : 'plugins.php',
+			null,
+			'dashicons-admin-plugins',
+			65
+		);
+	}
+}
+add_action( 'admin_menu', 'wpcom_add_plugins_menu' );

@@ -5,6 +5,63 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.23.1] - 2024-05-08
+### Changed
+- Update dependencies.
+
+## [4.23.0] - 2024-05-06
+### Added
+- Add a has_free_offering boolean on My Jetpack products. [#36710]
+- Add copy for AI features on connection screen. [#37218]
+- Define `$module_name` static property on `Hybrid_Product` (defaulting to null). [#37201]
+- Jetpack AI: Add new badge to Featured Image video on the product page. [#37197]
+- My Jetpack: Add errors from the connection package to the new notice component. [#36840]
+
+### Changed
+- Change "go back" in My Jetpack interstitials to always return to the My Jetpack page. [#36685]
+- Fix z-index issue and close action button dropdown when clicked outside. [#37169]
+- Jetpack AI: Add featured image generation as a feature on the product interstitial. [#37199]
+- Jetpack AI: Include video about featured image generation on the product page. [#37192]
+- Updated package dependencies. [#37147] [#37148] [#37160]
+
+## [4.22.3] - 2024-04-29
+### Changed
+- Internal updates.
+
+## [4.22.2] - 2024-04-25
+### Fixed
+- My Jetpack: Fix issue where the TOS component was being called inside of a <p>, throwing a warning that <p> can't be a descendant of <p>. This also fixes the font size of the TOS text. [#37034]
+
+## [4.22.1] - 2024-04-22
+### Changed
+- Internal updates.
+
+## [4.22.0] - 2024-04-11
+### Added
+- Add new tracking event for product activations made through My Jetpack [#36745]
+- My Jetpack: add a way to connect a Jetpack site to WordPress.com asynchronously and update the message in the notice to reflect that. [#36771]
+
+### Fixed
+- Ensure page_view gets loaded before product_card_loaded [#36790]
+
+## [4.21.0] - 2024-04-08
+### Added
+- Add 'from' property to connection call to WP.com. [#36741]
+- My Jetpack: Update Notice component to allow adding a loading text when an action is in a loading state. Add a new resetNotice action to NoticeContext. [#36614]
+
+### Changed
+- My Jetpack: Show Boost score increase in Boost product card. [#36072]
+- Updated package dependencies. [#36756] [#36760] [#36761]
+- Update My Jetpack to use the Notice component from @automattic/jetpack-components and be more consistent with the other notices in Jetpack. [#36711]
+
+### Removed
+- My Jetpack: Removed custom Notice component from My Jetpack. [#36772]
+- My Jetpack: Remove red bubble from connection notice in favor of using the status of the Notice component. [#36773]
+
+### Fixed
+- Fix cache on front end request for boost speed scores [#36700]
+- fix tier upgrades in my Jetpack [#36705]
+
 ## [4.20.2] - 2024-04-02
 ### Fixed
 - Fix Boost score inconsistency [#36679]
@@ -1407,6 +1464,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.23.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.23.0...4.23.1
+[4.23.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.22.3...4.23.0
+[4.22.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.22.2...4.22.3
+[4.22.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.22.1...4.22.2
+[4.22.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.22.0...4.22.1
+[4.22.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.21.0...4.22.0
+[4.21.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.20.2...4.21.0
 [4.20.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.20.1...4.20.2
 [4.20.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.20.0...4.20.1
 [4.20.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.19.0...4.20.0

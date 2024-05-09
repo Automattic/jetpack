@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.23.20] - 2024-05-07
+### Fixed
+- Sanitize the preload value for video shortcodes and blocks. [#37271]
+
+## [0.23.19] - 2024-05-06
+### Added
+- Add missing package dependencies. [#37141]
+
+### Changed
+- Updated package dependencies. [#37147] [#37148] [#37160]
+
+## [0.23.18] - 2024-04-29
+### Changed
+- Update button's prop to match latest changes in WordPress 6.5. [#36318]
+
+## [0.23.17] - 2024-04-25
+### Fixed
+- Set correct `textdomain` in `block.json`. [#37057]
+
+## [0.23.16] - 2024-04-22
+### Changed
+- Bump VideoPress block API version. [#36864]
+
+## [0.23.15] - 2024-04-11
+### Changed
+- Update dependencies.
+
+## [0.23.14] - 2024-04-08
+### Changed
+- Updated package dependencies. [#36756] [#36760] [#36761]
+
 ## [0.23.13] - 2024-04-02
 ### Changed
 - Updated package dependencies. [#36665]
@@ -1306,6 +1337,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.23.20]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.19...v0.23.20
+[0.23.19]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.18...v0.23.19
+[0.23.18]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.17...v0.23.18
+[0.23.17]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.16...v0.23.17
+[0.23.16]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.15...v0.23.16
+[0.23.15]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.14...v0.23.15
+[0.23.14]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.13...v0.23.14
 [0.23.13]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.12...v0.23.13
 [0.23.12]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.11...v0.23.12
 [0.23.11]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.10...v0.23.11

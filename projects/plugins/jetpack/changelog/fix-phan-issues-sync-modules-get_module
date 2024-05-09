@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Add `@phan-var` for many calls to `Sync\Modules::get_module()` to specify which module subclass it returned. Should be no change to functionality.
+
+

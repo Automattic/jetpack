@@ -14,14 +14,12 @@ return [
     // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
     // PhanTypeMismatchReturnNullable : 1 occurrence
-    // PhanUndeclaredStaticProperty : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-notices.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn'],
         'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-wpcom-client.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
-        'tests/php/test-stats-dashboard.php' => ['PhanUndeclaredStaticProperty'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

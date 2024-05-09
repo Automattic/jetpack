@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Theme tools: Use integer casting method that doesn't cause deprecation notices.

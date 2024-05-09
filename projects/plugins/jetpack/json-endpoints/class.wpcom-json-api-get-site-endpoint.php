@@ -83,6 +83,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'was_migration_trial'         => '(bool) If the site ever used a migration trial.',
 		'was_hosting_trial'           => '(bool) If the site ever used a hosting trial.',
 		'wpcom_site_setup'            => '(string) The WP.com site setup identifier.',
+		'is_deleted'                  => '(bool) If the site flagged as deleted.',
 	);
 
 	/**
@@ -116,6 +117,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_core_site_editor_enabled',
 		'is_wpcom_atomic',
 		'is_wpcom_staging_site',
+		'is_deleted',
 	);
 
 	/**
@@ -196,7 +198,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'was_created_with_blank_canvas_design',
 		'videopress_storage_used',
 		'is_difm_lite_in_progress',
-		'difm_lite_site_options',
 		'site_intent',
 		'site_vertical_id',
 		'blogging_prompts_settings',
@@ -210,17 +211,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_commercial_reasons',
 		'wpcom_admin_interface',
 		'wpcom_classic_early_release',
-	);
-
-	/**
-	 * List of DIFM Lite options to be displayed
-	 *
-	 * @var array $displayed_difm_lite_site_options
-	 */
-	protected static $displayed_difm_lite_site_options = array(
-		'site_category',
-		'is_website_content_submitted',
-		'selected_page_titles',
 	);
 
 	/**
@@ -615,6 +605,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'was_upgraded_from_trial':
 				$response[ $key ] = $this->site->was_upgraded_from_trial();
 				break;
+			case 'is_deleted':
+				$response[ $key ] = $this->site->is_deleted();
+				break;
 		}
 
 		do_action( 'post_render_site_response_key', $key );
@@ -872,21 +865,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'is_difm_lite_in_progress':
 					$options[ $key ] = $site->is_difm_lite_in_progress();
-					break;
-				case 'difm_lite_site_options':
-					$difm_lite_options          = $site->get_difm_lite_site_options();
-					$visible_options            = self::$displayed_difm_lite_site_options;
-					$filtered_difm_lite_options = new stdClass();
-					if ( $difm_lite_options ) {
-						$filtered_difm_lite_options = array_filter(
-							$difm_lite_options,
-							function ( $key ) use ( $visible_options ) {
-								return in_array( $key, $visible_options, true );
-							},
-							ARRAY_FILTER_USE_KEY
-						);
-					}
-					$options[ $key ] = $filtered_difm_lite_options;
 					break;
 				case 'site_intent':
 					$options[ $key ] = $site->get_site_intent();

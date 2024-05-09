@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.7] - 2024-05-09
+### Fixed
+- SSO: Fix tooltip display on view all users page [#37257]
+
+## [2.7.6] - 2024-05-06
+### Added
+- Bring in authentication methods needed for SSO feature. [#36924]
+
+### Changed
+- SSO: rely on Connection methods instead of relying on methods from the Jetpack plugin. [#36989]
+- Updated package dependencies. [#37147]
+
+## [2.7.5] - 2024-04-30
+### Changed
+- Internal updates.
+
+## [2.7.4] - 2024-04-26
+### Changed
+- General: use wp_admin_notice function introduced in WP 6.4 to display notices. [#37051]
+
+## [2.7.3] - 2024-04-25
+### Changed
+- General: Remove code that was added to remain compatible with versions of WordPress lower than 6.4. [#37049]
+
+### Fixed
+- Disconnect connection owner on removal. [#36888]
+- Improve phpdoc comments in Client class, and remove some unnecessary boolean checks. [#37056]
+
+## [2.7.2] - 2024-04-22
+### Added
+- SSO: Add SSO feature to the package. [#36587]
+
+### Fixed
+- Jetpack Connection: Prevent unnecessary jetpack_connection_active_plugins option updates. [#36896]
+
+## [2.7.1] - 2024-04-08
+### Changed
+- Updated package dependencies. [#36760]
+
 ## [2.7.0] - 2024-03-27
 ### Added
 - Add 'test_connection' endpoint to check for blog token validity. [#36471]
@@ -1012,6 +1051,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[2.7.7]: https://github.com/Automattic/jetpack-connection/compare/v2.7.6...v2.7.7
+[2.7.6]: https://github.com/Automattic/jetpack-connection/compare/v2.7.5...v2.7.6
+[2.7.5]: https://github.com/Automattic/jetpack-connection/compare/v2.7.4...v2.7.5
+[2.7.4]: https://github.com/Automattic/jetpack-connection/compare/v2.7.3...v2.7.4
+[2.7.3]: https://github.com/Automattic/jetpack-connection/compare/v2.7.2...v2.7.3
+[2.7.2]: https://github.com/Automattic/jetpack-connection/compare/v2.7.1...v2.7.2
+[2.7.1]: https://github.com/Automattic/jetpack-connection/compare/v2.7.0...v2.7.1
 [2.7.0]: https://github.com/Automattic/jetpack-connection/compare/v2.6.2...v2.7.0
 [2.6.2]: https://github.com/Automattic/jetpack-connection/compare/v2.6.1...v2.6.2
 [2.6.1]: https://github.com/Automattic/jetpack-connection/compare/v2.6.0...v2.6.1

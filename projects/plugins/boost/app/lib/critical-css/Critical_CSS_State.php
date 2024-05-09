@@ -93,7 +93,7 @@ class Critical_CSS_State {
 	 * Set a provider's state to error.
 	 *
 	 * @param string $provider_key The provider key.
-	 * @param array $errors        A list of errors to store with this provider.
+	 * @param array  $errors        A list of errors to store with this provider.
 	 * @return bool|WP_Error True on success, WP_Error on failure.
 	 */
 	public function set_provider_errors( $provider_key, $errors ) {

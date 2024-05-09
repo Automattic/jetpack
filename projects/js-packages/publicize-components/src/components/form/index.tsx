@@ -42,8 +42,13 @@ export default function PublicizeForm() {
 	const refreshConnections = useRefreshConnections();
 	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
 	const { shouldShowNotice, NOTICES } = useDismissNotice();
-	const { isPublicizeEnabled, isPublicizeDisabledBySitePlan, connectionsAdminUrl } =
-		usePublicizeConfig();
+	const {
+		isPublicizeEnabled,
+		isPublicizeDisabledBySitePlan,
+		connectionsAdminUrl,
+		needsUserConnection,
+		userConnectionUrl,
+	} = usePublicizeConfig();
 
 	const { numberOfSharesRemaining } = useSelect( select => {
 		return {
@@ -113,13 +118,44 @@ export default function PublicizeForm() {
 							/>
 						) ) }
 				</>
-			) : (
-				<PanelRow>
-					<ExternalLink href={ connectionsAdminUrl }>
-						{ __( 'Connect an account', 'jetpack' ) }
-					</ExternalLink>
-				</PanelRow>
-			) }
+			) : null }
+			<PanelRow>
+				{
+					// Use IIFE make it more readable and avoid nested ternary operators.
+					( () => {
+						if ( needsUserConnection ) {
+							return (
+								<p>
+									{ __(
+										'You must connect your WordPress.com account to be able to add social media connections.',
+										'jetpack'
+									) }
+									&nbsp;
+									<a href={ userConnectionUrl }>{ __( 'Connect now', 'jetpack' ) }</a>
+								</p>
+							);
+						}
+
+						if ( ! hasConnections ) {
+							return (
+								<p>
+									{ __(
+										'Sharing is disabled because there are no social media accounts connected.',
+										'jetpack'
+									) }
+									<br />
+									<ExternalLink href={ connectionsAdminUrl }>
+										{ __( 'Connect an account', 'jetpack' ) }
+									</ExternalLink>
+								</p>
+							);
+						}
+
+						return null;
+					} )()
+				}
+			</PanelRow>
+
 			{ ! isPublicizeDisabledBySitePlan && (
 				<Fragment>
 					{ isPublicizeEnabled && hasEnabledConnections && <SharePostForm /> }

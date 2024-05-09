@@ -286,7 +286,7 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 	/**
 	 * Data provider that contains keys we expect to see returned by the settings endpoint and their default value.
 	 *
-	 * @return array[ $setting_name, $expected_default_value ]
+	 * @return array<string,array{string, mixed}> [ $setting_name, $expected_default_value ]
 	 */
 	public function setting_default_key_values() {
 		return array(
@@ -318,7 +318,7 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 	/**
 	 * Data provider to test setting value pairs in GET request.
 	 *
-	 * @return array[ $setting_name, $setting_value ]
+	 * @return array<string,array{string,string,mixed}> [ $setting_name, $setting_value ]
 	 */
 	public function setting_value_pairs_get_request() {
 		return array(
@@ -351,7 +351,7 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 	/**
 	 * Data provider to test setting value pairs in POST request.
 	 *
-	 * @return array[ $setting_name, $setting_value, $expected_value ]
+	 * @return array<string,array{string,mixed,mixed}> [ $setting_name, $setting_value, $expected_value ]
 	 */
 	public function setting_value_pairs_post_request() {
 		return array(
