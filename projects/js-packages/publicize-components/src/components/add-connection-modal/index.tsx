@@ -22,11 +22,10 @@ const AddConnectionModal = ( {
 	currentService,
 	setCurrentService,
 }: AddConnectionModalProps ) => {
-	const supportedServices = useSelect( select => {
-		const supportedConnections = getSupportedServices();
+	const availableServices = useSelect( select => {
+		const supportedServices = getSupportedServices();
 		const services = select( store )
 			.getServices()
-			.filter( service => service.type === 'publicize' )
 			.reduce(
 				( serviceData, service ) => ( {
 					...serviceData,
@@ -35,7 +34,7 @@ const AddConnectionModal = ( {
 				{}
 			);
 
-		return supportedConnections
+		return supportedServices
 			.filter( connection => Object.hasOwn( services, connection.name ) )
 			.map( connection => ( {
 				...connection,
@@ -55,6 +54,11 @@ const AddConnectionModal = ( {
 	const onBackClicked = useCallback( () => {
 		setCurrentService( null );
 	}, [ setCurrentService ] );
+
+	const onConfirm = useCallback( data => {
+		// eslint-disable-next-line no-console
+		console.log( data );
+	}, [] );
 
 	return (
 		<Modal
@@ -85,7 +89,7 @@ const AddConnectionModal = ( {
 						</tr>
 					</thead>
 					<tbody>
-						{ supportedServices.map( service => (
+						{ availableServices.map( service => (
 							<tr key={ service.name }>
 								<td>
 									<service.icon iconSize={ isSmall ? 36 : 48 } />
@@ -104,7 +108,7 @@ const AddConnectionModal = ( {
 									<div className={ styles[ 'column-actions' ] }>
 										<ConnectButton
 											connectUrl={ service.connectUrl }
-											onClose={ res => console.log( res ) }
+											onConfirm={ onConfirm }
 											key={ service.name }
 											size={ isSmall ? 'small' : 'normal' }
 										/>
