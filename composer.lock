@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ea0720f27be9bac14e63538bec9535f0",
+    "content-hash": "c960b34b962b3def5a734fbe02e056d0",
     "packages": [],
     "packages-dev": [
         {
@@ -113,6 +113,55 @@
                 "phpcs",
                 "standards",
                 "testing"
+            ],
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-phan-plugins",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "projects/packages/phan-plugins",
+                "reference": "099a7efa4db98a1ca52144eb528eabc7db49511f"
+            },
+            "require": {
+                "phan/phan": "^5.4",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "yoast/phpunit-polyfills": "1.1.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Phan plugins created for the Jetpack monorepo.",
+            "keywords": [
+                "phan",
+                "plugin",
+                "static analysis",
+                "templating"
             ],
             "transport-options": {
                 "relative": true
@@ -3023,6 +3072,7 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "automattic/jetpack-codesniffer": 20,
+        "automattic/jetpack-phan-plugins": 20,
         "automattic/jetpack-phpcs-filter": 20
     },
     "prefer-stable": true,
