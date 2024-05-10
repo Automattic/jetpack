@@ -171,7 +171,7 @@ function register_block() {
 
 	add_action( 'init', __NAMESPACE__ . '\maybe_prevent_super_cache_caching' );
 
-	add_action( 'save_post_post', __NAMESPACE__ . '\add_paywalled_content_post_meta', 99, 1 );
+	add_action( 'wp_after_insert_post', __NAMESPACE__ . '\add_paywalled_content_post_meta', 99, 1 );
 
 	add_filter(
 		'jetpack_options_whitelist',
@@ -237,7 +237,12 @@ function add_paywalled_content_post_meta( int $post_id ) {
 		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS:
 			$is_paywalled = true;
 	}
-	update_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, $is_paywalled );
+	if ( $is_paywalled ) {
+		update_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, $is_paywalled );
+	}
+	if ( ! $is_paywalled ) {
+		delete_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT );
+	}
 }
 
 /**
