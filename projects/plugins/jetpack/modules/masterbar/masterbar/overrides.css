@@ -3,6 +3,11 @@
     min-height: unset !important;
 }
 
+/* Remove margin between icon and text since the my-sites menu does not have text */
+#wpadminbar .my-sites .ab-item:before {
+	margin-right: 0;
+}
+
 /* Overwrite a core style which breaks the overflow for .my-sites in Safari */
 #wpadminbar li.menupop.my-sites {
 	overflow: visible;
