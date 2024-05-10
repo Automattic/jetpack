@@ -15,6 +15,7 @@ export type DisconnectProps = {
 	showSuccessNotice?: boolean;
 	variant?: React.ComponentProps< typeof Button >[ 'variant' ];
 	isDestructive?: boolean;
+	showConfirmation?: boolean;
 };
 
 /**
@@ -31,6 +32,7 @@ export function Disconnect( {
 	showSuccessNotice = true,
 	variant = 'secondary',
 	isDestructive = true,
+	showConfirmation = true,
 }: DisconnectProps ) {
 	const [ isConfirmOpen, toggleConfirm ] = useReducer( state => ! state, false );
 
@@ -64,26 +66,28 @@ export function Disconnect( {
 
 	return (
 		<>
-			<ConfirmDialog
-				className={ styles.confirmDialog }
-				isOpen={ isConfirmOpen }
-				onConfirm={ onClickDisconnect }
-				onCancel={ toggleConfirm }
-				cancelButtonText={ __( 'Cancel', 'jetpack' ) }
-				confirmButtonText={ __( 'Yes', 'jetpack' ) }
-			>
-				{ createInterpolateElement(
-					sprintf(
-						// translators: %s: The name of the connection the user is disconnecting.
-						__( 'Are you sure you want to disconnect <strong>%s</strong>?', 'jetpack' ),
-						connection.display_name
-					),
-					{ strong: <strong></strong> }
-				) }
-			</ConfirmDialog>
+			{ showConfirmation && (
+				<ConfirmDialog
+					className={ styles.confirmDialog }
+					isOpen={ isConfirmOpen }
+					onConfirm={ onClickDisconnect }
+					onCancel={ toggleConfirm }
+					cancelButtonText={ __( 'Cancel', 'jetpack' ) }
+					confirmButtonText={ __( 'Yes', 'jetpack' ) }
+				>
+					{ createInterpolateElement(
+						sprintf(
+							// translators: %s: The name of the connection the user is disconnecting.
+							__( 'Are you sure you want to disconnect <strong>%s</strong>?', 'jetpack' ),
+							connection.display_name
+						),
+						{ strong: <strong></strong> }
+					) }
+				</ConfirmDialog>
+			) }
 			<Button
 				size="small"
-				onClick={ toggleConfirm }
+				onClick={ showConfirmation ? toggleConfirm : onClickDisconnect }
 				disabled={ isDisconnecting }
 				variant={ variant }
 				isDestructive={ isDestructive }
