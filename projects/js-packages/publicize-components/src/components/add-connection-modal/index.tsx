@@ -3,26 +3,34 @@ import { Modal } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chevronDown } from '@wordpress/icons';
 import classNames from 'classnames';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { ConnectPage } from './connect-page/connect-page';
-import { getSupportedConnections } from './constants';
+import { SupportedService, getSupportedServices } from './constants';
 import styles from './style.module.scss';
 
-const AddConnectionModal = ( { onCloseModal } ) => {
-	const [ currentService, setCurrentService ] = useState( null );
+type AddConnectionModalProps = {
+	onCloseModal: VoidFunction;
+	currentService: SupportedService | null;
+	setCurrentService: ( service: SupportedService | null ) => void;
+};
 
+const AddConnectionModal = ( {
+	onCloseModal,
+	currentService,
+	setCurrentService,
+}: AddConnectionModalProps ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
 	const onServiceSelected = useCallback(
 		service => () => {
 			setCurrentService( service );
 		},
-		[]
+		[ setCurrentService ]
 	);
 
 	const onBackClicked = useCallback( () => {
 		setCurrentService( null );
-	}, [] );
+	}, [ setCurrentService ] );
 
 	return (
 		<Modal
@@ -53,7 +61,7 @@ const AddConnectionModal = ( { onCloseModal } ) => {
 						</tr>
 					</thead>
 					<tbody>
-						{ getSupportedConnections().map( service => (
+						{ getSupportedServices().map( service => (
 							<tr key={ service.name }>
 								<td>
 									<service.icon iconSize={ isSmall ? 36 : 48 } />
