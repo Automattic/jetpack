@@ -474,7 +474,7 @@ class Jetpack_WPCOM_Block_Editor {
 		/**
 		 * Allow plugins to disable the cross-site auth cookies.
 		 *
-		 * @since 8.1.1
+		 * @since jetpack-8.1.1
 		 *
 		 * @param false bool Whether auth cookies should be disabled for cross-site access. False by default.
 		 */
@@ -522,7 +522,7 @@ class Jetpack_WPCOM_Block_Editor {
 		 *
 		 * @param string $samesite SameSite attribute to use in auth cookies.
 		 *
-		 * @since 8.1.1
+		 * @since jetpack-8.1.1
 		 */
 		$samesite = apply_filters( 'jetpack_auth_cookie_samesite', $samesite );
 
