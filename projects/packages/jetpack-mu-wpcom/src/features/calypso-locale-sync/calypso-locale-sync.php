@@ -24,7 +24,7 @@ if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign
 				array(
 					'method' => 'POST',
 				),
-				(object) array( 'language' => $locale ),
+				array( 'language' => $locale ),
 				'wpcom'
 			);
 		},
