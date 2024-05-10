@@ -1,4 +1,4 @@
 Significance: major
 Type: added
 
-Add Social Logos to monorepo
+Social Logos is now developed in the [Jetpack monorepo](https://github.com/Automattic/jetpack).
