@@ -69,7 +69,6 @@ class Jetpack_WPCOM_Block_Editor {
 			add_filter( 'admin_body_class', array( $this, 'add_iframed_body_class' ) );
 		}
 
-		require_once __DIR__ . '/functions.editor-type.php';
 		add_action( 'edit_form_top', 'Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\EditorType\remember_classic_editor' );
 		add_action( 'login_init', array( $this, 'allow_block_editor_login' ), 1 );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ), 9 );
