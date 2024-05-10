@@ -274,5 +274,8 @@ export function useSupportedServices(): Array< SupportedService > {
 				),
 			],
 		},
-	];
+	].filter(
+		// Return only the ones that are present in the available services.
+		service => Boolean( service.ID )
+	);
 }
