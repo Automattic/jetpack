@@ -74,7 +74,7 @@ export function Disconnect( {
 			>
 				{ createInterpolateElement(
 					sprintf(
-						// translators: %s: Name of the connections the user disconnects.
+						// translators: %s: The name of the connection the user is disconnecting.
 						__( 'Are you sure you want to disconnect <strong>%s</strong>?', 'jetpack' ),
 						connection.display_name
 					),
