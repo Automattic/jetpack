@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fixed TS compile error for image imports in js-packages

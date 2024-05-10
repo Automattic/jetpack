@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Super-cache: Fix the CDN functionality when cache is disabled

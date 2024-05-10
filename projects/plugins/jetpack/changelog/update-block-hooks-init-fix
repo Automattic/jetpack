@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Subscriptions: Fix registering block hooks for REST API calls

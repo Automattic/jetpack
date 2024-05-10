@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Reset the type on `$wpdb` in a test after assigning a mock to it, so Phan doesn't get confused in the real code.
-
-

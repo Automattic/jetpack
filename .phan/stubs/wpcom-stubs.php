@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit f6d233645c2221d27ad1cc39ac0d4b8cdc1930ed.
+ * Stubs automatically generated from WordPress.com commit 4d47b3912b5c94f3fce6eb218ac453ab6b5cbcf6.
  */
 
 namespace {
@@ -62,6 +62,17 @@ namespace {
         public static function find_featured_worthy_media($post)
         {
         }
+    }
+    /**
+     * @param string $id
+     * @param string $title
+     * @param string $callback
+     * @param string $page
+     * @param string $section
+     * @param array $args
+     */
+    function add_settings_field($id, $title, $callback, $page, $section = 'default', $args = array())
+    {
     }
     class Domain_Management
     {
@@ -321,8 +332,11 @@ namespace {
         {
         }
     }
-    class Memberships_Store_Sandbox extends \Store_Sandbox
+    class Memberships_Store_Sandbox
     {
+        public function init($force = \false)
+        {
+        }
         /**
          * @return Memberships_Store_Sandbox
          */
@@ -363,7 +377,7 @@ namespace {
         public function request_dalle_generation(string $prompt, string $model = 'dall-e-2', array $options = array())
         {
         }
-        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [])
+        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [], $response_format = 'text')
         {
         }
         /**
@@ -732,6 +746,14 @@ namespace {
         }
     }
     class Keyring_Access_Token extends \Keyring_Token
+    {
+    }
+    /**
+     * @param string $service
+     * @param string $for
+     * @return string
+     */
+    function wpcom_keyring_get_connect_url($service, $for)
     {
     }
     class Likes
@@ -1226,6 +1248,14 @@ namespace {
         }
     }
     function wp_kses_reject($content, $rejected_item = \false, $is_attribute = \false)
+    {
+    }
+    /**
+     * @param string $option_group
+     * @param string $option_name
+     * @param array $args
+     */
+    function register_setting($option_group, $option_name, $args = array())
     {
     }
     /**

@@ -45,6 +45,9 @@ const Index = () => {
 		pageCacheSetup.isSuccess && !! pageCache?.active
 	);
 
+	const hasPremiumCdnFeatures =
+		premiumFeatures.includes( 'image-cdn-liar' ) && premiumFeatures.includes( 'image-cdn-quality' );
+
 	const [ removePageCacheNotice ] = useMutationNotice(
 		'page-cache-setup',
 		{
@@ -159,12 +162,7 @@ const Index = () => {
 			</Module>
 			<Module
 				slug="page_cache"
-				title={
-					<>
-						{ __( 'Cache Site Pages', 'jetpack-boost' ) }
-						<span className={ styles.beta }>Beta</span>
-					</>
-				}
+				title={ __( 'Cache Site Pages', 'jetpack-boost' ) }
 				onBeforeToggle={ status => {
 					setIsPageCacheSettingUp( status );
 					if ( status === false ) {
@@ -294,7 +292,12 @@ const Index = () => {
 			</Module>
 			<Module
 				slug="image_cdn"
-				title={ __( 'Image CDN', 'jetpack-boost' ) }
+				title={
+					<>
+						{ __( 'Image CDN', 'jetpack-boost' ) }
+						{ hasPremiumCdnFeatures && <Upgraded /> }
+					</>
+				}
 				description={
 					<p>
 						{ __(
@@ -304,7 +307,15 @@ const Index = () => {
 					</p>
 				}
 			>
-				<ImageCdnLiar />
+				{ ! hasPremiumCdnFeatures && (
+					<UpgradeCTA
+						description={ __(
+							'Auto-resize lazy images and adjust their quality.',
+							'jetpack-boost'
+						) }
+					/>
+				) }
+				<ImageCdnLiar isPremium={ premiumFeatures.includes( 'image-cdn-liar' ) } />
 				<QualitySettings isPremium={ premiumFeatures.includes( 'image-cdn-quality' ) } />
 			</Module>
 

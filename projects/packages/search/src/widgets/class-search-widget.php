@@ -41,7 +41,7 @@ class Search_Widget extends \WP_Widget {
 	 * Never used.
 	 *
 	 * @since 5.7.0
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.44.5
 	 * @var null
 	 */
 	protected $jetpack_search;

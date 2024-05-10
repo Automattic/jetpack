@@ -9,25 +9,15 @@ import { select } from '@wordpress/data';
 import {
 	EXTENDED_INLINE_BLOCKS,
 	isAiAssistantExtensionsSupportEnabled,
+	isAiAssistantSupportEnabled,
 } from '../../extensions/ai-assistant';
-
-export type isPossibleToExtendBlockProps = {
-	blockName?: string;
-	clientId: string;
-};
 
 /**
  * Check if it is possible to extend the block as an inline extension.
- *
- * @param {isPossibleToExtendBlockProps} options - The options.
- * @param {string} options.blockName             - The block name.
- * @param {string} options.clientId              - The block client ID.
- * @returns {boolean} Whether it is possible to extend the block.
+ * @param {string} blockName - The block name.
+ * @returns {boolean}          Whether it is possible to extend the block.
  */
-export function isPossibleToExtendBlock( {
-	blockName,
-	clientId,
-}: isPossibleToExtendBlockProps ): boolean {
+export function isPossibleToExtendBlock( blockName: string ): boolean {
 	// Check if the AI Assistant block is registered. If not, we understand that Jetpack AI is not active.
 	const isBlockRegistered = getBlockType( 'jetpack/ai-assistant' );
 
@@ -35,22 +25,17 @@ export function isPossibleToExtendBlock( {
 		return false;
 	}
 
-	// Check if there is a block name.
-	if ( typeof blockName !== 'string' ) {
+	// Check if AI Assistant support is enabled
+	if ( ! isAiAssistantSupportEnabled ) {
 		return false;
 	}
 
-	// Check if Jetpack extensions support is enabled.
+	// Check if AI Assistant extensions support is enabled.
 	if ( ! isAiAssistantExtensionsSupportEnabled ) {
 		return false;
 	}
 
-	// clientId is required
-	if ( ! clientId?.length ) {
-		return false;
-	}
-
-	// Only extend the Heading block.
+	// Only extend the blocks in the inline blocks list
 	if ( ! EXTENDED_INLINE_BLOCKS.includes( blockName ) ) {
 		return false;
 	}

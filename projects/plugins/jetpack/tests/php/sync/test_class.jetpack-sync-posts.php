@@ -48,6 +48,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	public function test_post_content_limit() {
 
 		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
 
 		$this->post->post_content = str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_CONTENT_LENGTH - 1 );
 		$filtered_post            = $post_sync_module->filter_post_content_and_add_links( $this->post );
@@ -64,6 +65,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $this->post->ID, $event->args[0] );
 
 		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
 
 		$this->post = $post_sync_module->filter_post_content_and_add_links( $this->post );
 		$this->assertEqualsObject( $this->post, $event->args[1], 'Synced post does not match local post.' );
@@ -74,6 +76,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertSame( 1, $this->server_replica_storage->post_count() );
 
 		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
 
 		$this->post = $post_sync_module->filter_post_content_and_add_links( $this->post );
 		$this->assertEquals( $this->post, $this->server_replica_storage->get_post( $this->post->ID ) );
@@ -519,6 +522,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$post    = get_post( $post_id );
 
 		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
 		$post_sync_module->filter_post_content_and_add_links( $this->post );
 
 		$this->assertSame( $post_id, $post->ID );
@@ -1535,7 +1539,8 @@ That was a cool video.';
 
 		);
 
-		$post_sync_module             = Modules::get_module( 'posts' );
+		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
 		list( ,, $filtered_metadata ) = $post_sync_module->filter_posts_and_metadata_max_size( array( $this->post ), $metadata );
 
 		$this->assertNotEmpty( $filtered_metadata[0]->meta_value, 'Filtered metadata meta_value is not empty for strings of allowed length.' );
@@ -1593,6 +1598,7 @@ That was a cool video.';
 		);
 
 		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
 		list( $filtered_post_ids, $filtered_posts, $filtered_metadata ) = $post_sync_module->filter_posts_and_metadata_max_size( $posts, $metadata );
 
 		$this->assertEquals( $filtered_post_ids, $post_ids );
@@ -1639,6 +1645,7 @@ That was a cool video.';
 		$metadata = array_merge( $post_metadata_1, $post_metadata_2 );
 
 		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
 		list( $filtered_post_ids, $filtered_posts, $filtered_metadata ) = $post_sync_module->filter_posts_and_metadata_max_size( $posts, $metadata );
 
 		$this->assertEquals( $filtered_post_ids, array( $post_id_1 ) );
