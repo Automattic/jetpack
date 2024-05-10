@@ -326,26 +326,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.4 - 2024-05-07
-#### Enhancements
-- Jetpack AI: Add an AI Featured Image Generator.
-- Newsletters: Manage subscribers in Jetpack Cloud.
-- Newsletters: Add a "Reply-to" setting for newsletter emails.
-- Newsletters: Add filters for controlling the Subscribe Modal load time and the edit capability for the Newsletter Block Meta.
-- Paid Content Block: Use a login flow matching the Subscribe Block.
-- WordAds: Ensure that ads.txt works on subdirectory websites.
-
-#### Improved compatibility
-- General: WordPress 6.4 is now the minimum required version.
-- Theme Tools: Site-logo and devicepx are deprecated. Use WordPress Core's custom-logo or logo block instead.
-- WordPress.com Toolbar: Avoid fatal errors when using other menu management plugins while the WordPress.com Toolbar feature is active.
-
+### 13.4.1 - 2024-05-10
 #### Bug fixes
-- Google Fonts: Avoid theme fonts overriding the default fonts so fonts with a specific font weight that are not supported by the provided theme can be rendered correctly.
-- Secure Sign-On: Disable the WordPress.com invitation setup on Multisite.
-- Sidebar: Fix double arrows being shown on active menu items in RTL mode.
-- Theme Tools: Fix deprecation notices in the color management library.
-- VideoPress: Fix an XSS vulnerability in VideoPress shortcodes.
+- Contact Form: Unhook the jetpack_form_register_pattern function to prevent unwanted deprecation notices.
 
 --------
 
