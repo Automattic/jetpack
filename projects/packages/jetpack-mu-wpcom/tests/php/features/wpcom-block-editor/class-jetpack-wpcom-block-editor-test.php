@@ -7,12 +7,13 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\Jetpack_WPCOM_Block_Editor;
+
 /**
- * Class WP_Test_Jetpack_WPCOM_Block_Editor.
+ * Class Jetpack_WPCOM_Block_Editor.
  *
  * @covers Jetpack_WPCOM_Block_Editor
  */
-class WP_Test_Jetpack_WPCOM_Block_Editor extends WP_UnitTestCase {
+class Jetpack_WPCOM_Block_Editor_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * User ID.
 	 *
@@ -25,11 +26,14 @@ class WP_Test_Jetpack_WPCOM_Block_Editor extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		$this->user_id = self::factory()->user->create(
+		$this->user_id = wp_insert_user(
 			array(
-				'role' => 'administrator',
+				'user_login' => 'test_user',
+				'user_pass'  => '123',
+				'role'       => 'administrator',
 			)
 		);
+		Constants::set_constant( 'JETPACK__API_VERSION', '1' );
 	}
 	/**
 	 * Test_verify_frame_nonce.
@@ -93,5 +97,15 @@ class WP_Test_Jetpack_WPCOM_Block_Editor extends WP_UnitTestCase {
 		}
 
 		return $salt;
+	}
+
+	/**
+	 * Asserts that the given value is an instance of WP_Error.
+	 *
+	 * @param mixed  $actual  The value to check.
+	 * @param string $message Optional. Message to display when the assertion fails.
+	 */
+	public function assertWPError( $actual, $message = '' ) {
+		$this->assertInstanceOf( 'WP_Error', $actual, $message );
 	}
 }
