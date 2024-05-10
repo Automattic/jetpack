@@ -62,17 +62,9 @@ So to summarize:
 - **Do** use Social Logos at 48px, 36px, 24px, 18px, 12px. Prioritize 24px or above if you can.
 - **Try to avoid** using Social logos at 16px, 17px, or any arbitrary pixel-size that's incompatible with the base 24px grid. For example, don't size the icon font in EMs. 
 
-## Generate New Artifacts using Grunt
+## Building
 
-### Installing
-
-1. Go to http://nodejs.org/ and press "Install". Follow instructions.
-2. Open a terminal. Change to your social-logo directory.
-3. Type `npm install`
-
-### Running
-
-In the commandline, type `npm run build`. This will clean up, polish, and generate a build folder containing the following:
+In the commandline, type `npm run build`. This will clean up, polish, and generate a build folder that contains the following:
 
 - A folder called `font`. This folder contains a WOFF2 font file as well as a CSS file with the font file included inline.
 - A folder called `php`. This folder contains a PHP file that allows one to retrieve a logo SVG using the `get_social_logo()` function.
@@ -82,7 +74,7 @@ In the commandline, type `npm run build`. This will clean up, polish, and genera
 
 Do remember to update the React components where they are used when you add a new icon.
 
-### Publishing to NPM
+## Publishing to NPM
 
 - Follow install instructions
 - Check in changes if any and follow PR process.
