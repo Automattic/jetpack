@@ -2,7 +2,6 @@
 /**
  * WordPress.com Block Editor
  * Allow new block editor posts to be composed on WordPress.com.
- * This is auto-loaded as of Jetpack v7.4 for sites connected to WordPress.com only.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -17,7 +16,7 @@ use WP_Error;
 use WP_Post;
 
 /**
- * WordPress.com Block editor for Jetpack
+ * WordPress.com Block editor
  */
 class Jetpack_WPCOM_Block_Editor {
 	/**
@@ -60,7 +59,7 @@ class Jetpack_WPCOM_Block_Editor {
 	 */
 	public function init_actions() {
 		// Bail early if Jetpack's block editor extensions are disabled on the site.
-		/* This filter is documented in class.jetpack-gutenberg.php */
+		/* This filter is documented in projects/plugins/jetpack/class.jetpack-gutenberg.php */
 		if ( ! apply_filters( 'jetpack_gutenberg', true ) ) {
 			return;
 		}
