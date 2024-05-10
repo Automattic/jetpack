@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 13.4
+Stable tag: 13.4.1
 Requires at least: 6.4
 Requires PHP: 7.0
 Tested up to: 6.5
@@ -326,26 +326,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.4 - 2024-05-07
-#### Enhancements
-- Jetpack AI: Add an AI Featured Image Generator.
-- Newsletters: Manage subscribers in Jetpack Cloud.
-- Newsletters: Add a "Reply-to" setting for newsletter emails.
-- Newsletters: Add filters for controlling the Subscribe Modal load time and the edit capability for the Newsletter Block Meta.
-- Paid Content Block: Use a login flow matching the Subscribe Block.
-- WordAds: Ensure that ads.txt works on subdirectory websites.
-
-#### Improved compatibility
-- General: WordPress 6.4 is now the minimum required version.
-- Theme Tools: Site-logo and devicepx are deprecated. Use WordPress Core's custom-logo or logo block instead.
-- WordPress.com Toolbar: Avoid fatal errors when using other menu management plugins while the WordPress.com Toolbar feature is active.
-
+### 13.4.1 - 2024-05-10
 #### Bug fixes
-- Google Fonts: Avoid theme fonts overriding the default fonts so fonts with a specific font weight that are not supported by the provided theme can be rendered correctly.
-- Secure Sign-On: Disable the WordPress.com invitation setup on Multisite.
-- Sidebar: Fix double arrows being shown on active menu items in RTL mode.
-- Theme Tools: Fix deprecation notices in the color management library.
-- VideoPress: Fix an XSS vulnerability in VideoPress shortcodes.
+- Contact Form: Unhook the jetpack_form_register_pattern function to prevent unwanted deprecation notices.
 
 --------
 
