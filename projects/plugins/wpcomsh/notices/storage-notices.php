@@ -9,6 +9,7 @@
  * Adds an admin notice if the site's space_used is 95% or higher of its space_quota.
  */
 function wpcomsh_storage_notices() {
+	global $pagenow;
 	$site_info = wpcomsh_get_at_site_info();
 
 	if ( empty( $site_info['space_used'] ) || empty( $site_info['space_quota'] ) ) {
@@ -18,17 +19,22 @@ function wpcomsh_storage_notices() {
 	$space_used  = $site_info['space_used'];
 	$space_quota = wpcomsh_pro_plan_storage_override( $site_info['space_quota'] );
 
-	// If usage is 0-95%, do not display warning.
-	if ( $space_used <= $space_quota * 0.95 ) {
-		return;
+	// Info (0-95% usage)
+	$notice_class = 'info';
+
+	// Warning (95%-99% usage)
+	if ( $space_used > $space_quota * 0.95 ) {
+		$notice_class = 'warning';
 	}
 
-	// Warning (95%-99% usage): Orange
-	$notice_color_class = 'notice__icon-wrapper-orange';
-
-	// Error (100%+ usage): Red
+	// Error (100%+ usage)
 	if ( $space_used > $space_quota ) {
-		$notice_color_class = 'notice__icon-wrapper-red';
+		$notice_class = 'error';
+	}
+
+	// Show the info notice only on the media library page.
+	if ( $notice_class === 'info' && $pagenow !== 'upload.php' ) {
+		return;
 	}
 
 	$message = sprintf(
@@ -43,15 +49,10 @@ function wpcomsh_storage_notices() {
 	);
 
 	printf(
-		'<div class="notice wpcomsh-notice">
-			<span class="notice__icon-wrapper %s">
-				<span class="dashicons dashicons-warning"></span>
-			</span>
-			<span class="notice__content">
-				<span class="notice__text">%s</span>
-			</span>
+		'<div class="notice notice-%s">
+			<p>%s</p>
 		</div>',
-		esc_attr( $notice_color_class ),
+		esc_attr( $notice_class ),
 		wp_kses_post( $message )
 	);
 }
