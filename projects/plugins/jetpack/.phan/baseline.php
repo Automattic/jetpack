@@ -28,8 +28,8 @@ return [
     // PhanTypeMismatchArgumentInternal : 45+ occurrences
     // PhanPluginDuplicateAdjacentStatement : 40+ occurrences
     // PhanUndeclaredProperty : 35+ occurrences
-    // PhanUndeclaredMethod : 30+ occurrences
     // PhanTypeInvalidDimOffset : 30+ occurrences
+    // PhanUndeclaredMethod : 30+ occurrences
     // PhanParamSignatureMismatch : 25+ occurrences
     // PhanPluginSimplifyExpressionBool : 25+ occurrences
     // PhanTypeMismatchDefault : 25+ occurrences
