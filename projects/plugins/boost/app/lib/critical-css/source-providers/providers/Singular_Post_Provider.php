@@ -121,7 +121,21 @@ class Singular_Post_Provider extends Provider {
 			$provider_post_types[ $post_type->name ] = $post_type->name;
 		}
 
-		return apply_filters( 'jetpack_boost_critical_css_post_types', $provider_post_types, $post_types );
+		return apply_filters(
+			'jetpack_boost_critical_css_post_types_singular',
+			array(
+				apply_filters_deprecated(
+					'jetpack_boost_critical_css_post_types',
+					array(
+						$provider_post_types,
+						$post_types,
+					),
+					'$$next-version$$',
+					'jetpack_boost_critical_css_post_types_singular'
+				),
+				$post_types,
+			)
+		);
 	}
 
 	/**

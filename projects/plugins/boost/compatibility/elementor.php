@@ -28,5 +28,5 @@ function exclude_elementor_library_custom_post_type( $post_types ) {
 	return $post_types;
 }
 
-add_filter( 'jetpack_boost_critical_css_post_types', __NAMESPACE__ . '\exclude_elementor_library_custom_post_type' );
+add_filter( 'jetpack_boost_critical_css_post_types_singular', __NAMESPACE__ . '\exclude_elementor_library_custom_post_type' );
 add_filter( 'jetpack_boost_critical_css_post_types_archives', __NAMESPACE__ . '\exclude_elementor_library_custom_post_type' );

@@ -107,10 +107,18 @@ class Archive_Provider extends Provider {
 
 		return apply_filters(
 			'jetpack_boost_critical_css_post_types_archives',
-			// Keep this for backwards compatibility.
-			apply_filters( 'jetpack_boost_critical_css_post_types', $provider_post_types ),
-			$provider_post_types,
-			$post_types
+			array(
+				apply_filters_deprecated(
+					'jetpack_boost_critical_css_post_types',
+					array(
+						$provider_post_types,
+						$post_types,
+					),
+					'$$next-version$$',
+					'jetpack_boost_critical_css_post_types_archives'
+				),
+				$post_types,
+			)
 		);
 	}
 
