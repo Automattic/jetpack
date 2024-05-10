@@ -91,5 +91,11 @@ function wpcom_themes_remove_wpcom_actions() {
 			'in_footer' => true,
 		)
 	);
+	wp_enqueue_style(
+		'wpcom-themes-ui-fixes',
+		plugins_url( 'css/ui-fixes.css', __FILE__ ),
+		array(),
+		Jetpack_Mu_Wpcom::PACKAGE_VERSION
+	);
 }
 add_action( 'load-themes.php', 'wpcom_themes_remove_wpcom_actions' );
