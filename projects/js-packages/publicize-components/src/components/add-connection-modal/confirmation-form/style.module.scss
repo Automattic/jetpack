@@ -1,0 +1,36 @@
+.confirmation {
+	.form {
+		margin-top: 2rem;
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+
+		.accounts-list {
+			display: flex;
+			flex-direction: column;
+			gap: 1rem;
+		}
+
+		.account-input {
+			flex-shrink: 0;
+		}
+
+		.propfile-pic {
+			width: 2rem;
+			height: 2rem;
+		}
+
+		.account-label {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+		}
+
+		.submit-wrap {
+			display: flex;
+			gap: 1rem;
+			align-items: center;
+			justify-content: end;
+		}
+	}
+}
