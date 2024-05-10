@@ -93,4 +93,4 @@ Do remember to update the React components where they are used when you add a ne
 
 ## License
 
-Social Logos is licensed under [GNU General Public License v2 (or later)](./LICENSE.md).
+Social Logos is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt).
