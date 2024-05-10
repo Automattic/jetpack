@@ -936,6 +936,7 @@ class Woo_Sync_Background_Sync_Job {
 		}
 
 		// Add/update invoice (if enabled) (previously `add_or_update_invoice`), while checking for a 'Do not create' status to avoid creating this invoice if the mapping doesn't allow it
+		// @phan-suppress PhanTypeInvalidDimOffset
 		if ( $settings['wcinv'] == 1 && isset( $crm_object_data['invoice'] ) && isset( $crm_object_data['invoice']['status'] ) && $crm_object_data['invoice']['status'] !== JPCRM_WOOSYNC_DO_NOT_CREATE['id'] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 
 			// retrieve existing invoice
