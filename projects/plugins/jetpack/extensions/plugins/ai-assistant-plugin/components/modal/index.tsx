@@ -36,16 +36,23 @@ export default function AiAssistantModal( {
 	hideHeader = true,
 	requestingState = 'init',
 	title = __( 'AI Assistant', 'jetpack' ),
+	maxWidth = 720,
 }: {
 	children: React.ReactNode;
 	handleClose: () => void;
 	hideHeader?: boolean;
 	requestingState?: RequestingStateProp;
 	title?: string;
+	maxWidth?: number;
 } ) {
 	return (
-		<Modal __experimentalHideHeader={ hideHeader }>
-			<div className="ai-assistant-modal__content">
+		<Modal
+			__experimentalHideHeader={ hideHeader }
+			className="ai-assistant-modal"
+			shouldCloseOnClickOutside={ false }
+			onRequestClose={ handleClose }
+		>
+			<div className="ai-assistant-modal__content" style={ { maxWidth } }>
 				<ModalHeader requestingState={ requestingState } onClose={ handleClose } title={ title } />
 				<hr className="ai-assistant-modal__divider" />
 				{ children }

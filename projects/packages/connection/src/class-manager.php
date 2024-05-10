@@ -16,8 +16,10 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use IXR_Error;
 use Jetpack_IXR_Client;
 use Jetpack_Options;
+use Jetpack_XMLRPC_Server;
 use WP_Error;
 use WP_User;
 
@@ -70,6 +72,13 @@ class Manager {
 	 * @var array
 	 */
 	private static $extra_register_params = array();
+
+	/**
+	 * We store ID's of users already disconnected to prevent multiple disconnect requests.
+	 *
+	 * @var array
+	 */
+	private static $disconnected_users = array();
 
 	/**
 	 * Initialize the object.
@@ -127,6 +136,10 @@ class Manager {
 
 		Webhooks::init( $manager );
 
+		// Unlink user before deleting the user from WP.com.
+		add_action( 'deleted_user', array( $manager, 'disconnect_user_force' ), 9, 1 );
+		add_action( 'remove_user_from_blog', array( $manager, 'disconnect_user_force' ), 9, 1 );
+
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
 
@@ -149,16 +162,16 @@ class Manager {
 	 *
 	 * @since 1.25.0 Deprecate $is_active param.
 	 *
-	 * @param array                  $request_params incoming request parameters.
-	 * @param bool                   $has_connected_owner Whether the site has a connected owner.
-	 * @param bool                   $is_signed whether the signature check has been successful.
-	 * @param \Jetpack_XMLRPC_Server $xmlrpc_server (optional) an instance of the server to use instead of instantiating a new one.
+	 * @param array                 $request_params incoming request parameters.
+	 * @param bool                  $has_connected_owner Whether the site has a connected owner.
+	 * @param bool                  $is_signed whether the signature check has been successful.
+	 * @param Jetpack_XMLRPC_Server $xmlrpc_server (optional) an instance of the server to use instead of instantiating a new one.
 	 */
 	public function setup_xmlrpc_handlers(
 		$request_params,
 		$has_connected_owner,
 		$is_signed,
-		\Jetpack_XMLRPC_Server $xmlrpc_server = null
+		Jetpack_XMLRPC_Server $xmlrpc_server = null
 	) {
 		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ), 1000, 2 );
 
@@ -193,7 +206,7 @@ class Manager {
 		if ( $xmlrpc_server ) {
 			$this->xmlrpc_server = $xmlrpc_server;
 		} else {
-			$this->xmlrpc_server = new \Jetpack_XMLRPC_Server();
+			$this->xmlrpc_server = new Jetpack_XMLRPC_Server();
 		}
 
 		$this->require_jetpack_authentication();
@@ -864,6 +877,22 @@ class Manager {
 	}
 
 	/**
+	 * Force user disconnect.
+	 *
+	 * @param int $user_id Local (external) user ID.
+	 *
+	 * @return bool
+	 */
+	public function disconnect_user_force( $user_id ) {
+		if ( ! (int) $user_id ) {
+			// Missing user ID.
+			return false;
+		}
+
+		return $this->disconnect_user( $user_id, true, true );
+	}
+
+	/**
 	 * Unlinks the current user from the linked WordPress.com user.
 	 *
 	 * @access public
@@ -881,6 +910,11 @@ class Manager {
 		$is_primary_user = Jetpack_Options::get_option( 'master_user' ) === $user_id;
 
 		if ( $is_primary_user && ! $can_overwrite_primary_user ) {
+			return false;
+		}
+
+		if ( in_array( $user_id, self::$disconnected_users, true ) ) {
+			// The user is already disconnected.
 			return false;
 		}
 
@@ -912,6 +946,8 @@ class Manager {
 				}
 			}
 		}
+
+		self::$disconnected_users[] = $user_id;
 
 		return $is_disconnected_from_wpcom && $is_disconnected_locally;
 	}
@@ -1842,11 +1878,16 @@ class Manager {
 	/**
 	 * Builds a URL to the Jetpack connection auth page.
 	 *
-	 * @param WP_User $user (optional) defaults to the current logged in user.
-	 * @param String  $redirect (optional) a redirect URL to use instead of the default.
+	 * @since 2.7.6 Added optional $from and $raw parameters.
+	 *
+	 * @param WP_User     $user     (optional) defaults to the current logged in user.
+	 * @param string      $redirect (optional) a redirect URL to use instead of the default.
+	 * @param bool|string $from     If not false, adds 'from=$from' param to the connect URL.
+	 * @param bool        $raw If true, URL will not be escaped.
+	 *
 	 * @return string Connect URL.
 	 */
-	public function get_authorization_url( $user = null, $redirect = null ) {
+	public function get_authorization_url( $user = null, $redirect = null, $from = false, $raw = false ) {
 		if ( empty( $user ) ) {
 			$user = wp_get_current_user();
 		}
@@ -1939,8 +1980,28 @@ class Manager {
 
 		$url = add_query_arg( $body, $api_url );
 
-		/** This filter is documented in plugins/jetpack/class-jetpack.php  */
-		return apply_filters( 'jetpack_build_authorize_url', $url );
+		if ( is_network_admin() ) {
+			$url = add_query_arg( 'is_multisite', network_admin_url( 'admin.php?page=jetpack-settings' ), $url );
+		}
+
+		if ( $from ) {
+			$url = add_query_arg( 'from', $from, $url );
+		}
+
+		if ( $raw ) {
+			$url = esc_url_raw( $url );
+		}
+
+		/**
+		 * Filter the URL used when connecting a user to a WordPress.com account.
+		 *
+		 * @since 2.0.0
+		 * @since 2.7.6 Added $raw parameter.
+		 *
+		 * @param string $url Connection URL.
+		 * @param bool   $raw If true, URL will not be escaped.
+		 */
+		return apply_filters( 'jetpack_build_authorize_url', $url, $raw );
 	}
 
 	/**
@@ -2287,7 +2348,7 @@ class Manager {
 	 * Handles a getOptions XMLRPC method call.
 	 *
 	 * @param array $args method call arguments.
-	 * @return an amended XMLRPC server options array.
+	 * @return array|IXR_Error An amended XMLRPC server options array.
 	 */
 	public function jetpack_get_options( $args ) {
 		global $wp_xmlrpc_server;

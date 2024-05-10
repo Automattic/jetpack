@@ -174,7 +174,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		$this->modify_comment_helper( $comment, $expected_variable );
 	}
 
-	/*
+	/**
 	 * Updates comment, checks that event args match expected, checks event is not duplicated
 	 */
 	private function modify_comment_helper( $comment, $expected_variable ) {
@@ -394,6 +394,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	 */
 	public function test_allows_custom_comment_types() {
 		$comments_sync_module = Modules::get_module( 'comments' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Comments $comments_sync_module';
 
 		$this->assertNotContains( 'product_feedback', $comments_sync_module->get_whitelisted_comment_types() );
 

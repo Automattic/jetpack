@@ -10,7 +10,8 @@
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-config": "@dev",
-		"automattic/jetpack-my-jetpack": "@dev"
+		"automattic/jetpack-my-jetpack": "@dev",
+		"automattic/jetpack-sync": "@dev"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",

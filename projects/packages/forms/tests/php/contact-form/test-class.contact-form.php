@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use DOMDocument;
+use DOMElement;
 use WorDBless\BaseTestCase;
 use WorDBless\Posts;
 
@@ -928,7 +930,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	 * @return DOMElement The first div element.
 	 */
 	public function getCommonDiv( $html ) {
-		$doc = new \DOMDocument();
+		$doc = new DOMDocument();
 		$doc->loadHTML( $html );
 		return $this->getFirstElement( $doc, 'div' );
 	}
@@ -936,15 +938,16 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	/**
 	 * Gets the first element in the given DOMDocument object.
 	 *
-	 * @param DOMDocument $dom The DOMDocument object.
-	 * @param string      $tag The tag name.
-	 * @param int         $index The index.
+	 * @param DOMDocument|DOMElement $dom The DOMDocument object.
+	 * @param string                 $tag The tag name.
+	 * @param int                    $index The index.
 	 *
-	 * @return DOMElement The first element with the given tag.
+	 * @return DOMElement|null The first element with the given tag.
 	 */
 	public function getFirstElement( $dom, $tag, $index = 0 ) {
 		$elements = $dom->getElementsByTagName( $tag );
-		return $elements->item( $index );
+		$element  = $elements->item( $index );
+		return $element instanceof DOMElement ? $element : null;
 	}
 
 	/**
@@ -981,7 +984,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		$expected = 'date' === $type ? $attributes['label'] . ' ' . $attributes['format'] : $attributes['label'];
 
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$this->assertEquals( $expected, trim( $label->nodeValue ), 'Label is not what we expect it to be...' );
+		$this->assertEquals( $expected, trim( (string) $label->nodeValue ), 'Label is not what we expect it to be...' );
 	}
 
 	/**
@@ -1063,6 +1066,9 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		$label = $wrapper_div->getElementsByTagName( 'label' )->item( 0 );
 		$input = $wrapper_div->getElementsByTagName( 'input' )->item( 0 );
 
+		$this->assertInstanceOf( DOMElement::class, $label );
+		$this->assertInstanceOf( DOMElement::class, $input );
+
 		$this->assertEquals( $label->getAttribute( 'class' ), 'grunion-field-label ' . $attributes['type'], 'label class doesn\'t match' );
 
 		$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'], 'Input name doesn\'t match' );
@@ -1115,6 +1121,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 			$this->assertCount( $n, $attributes['values'], 'Number of inputs doesn\'t match number of values' );
 			for ( $i = 0; $i < $n; $i++ ) {
 				$option = $options->item( $i );
+				$this->assertInstanceOf( DOMElement::class, $option );
 				$this->assertEquals( $option->getAttribute( 'value' ), $attributes['values'][ $i ], 'Input value doesn\'t match' );
 				if ( 0 === $i ) {
 					$this->assertEquals( 'selected', $option->getAttribute( 'selected' ), 'Input is not selected' );
@@ -1139,8 +1146,8 @@ class WP_Test_Contact_Form extends BaseTestCase {
 				//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				$this->assertEquals( $item_label->nodeValue, $attributes['options'][ $i ] );
 
-				//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				$input = $item_label->parentNode->getElementsByTagName( 'input' )->item( 0 );
+				// @phan-suppress-next-line PhanUndeclaredMethod -- parentElement was only added in PHP 8.3, and Phan can't know that parentNode will be an element.
+				$input = $item_label->parentNode->getElementsByTagName( 'input' )->item( 0 ); //phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				$this->assertEquals( $input->getAttribute( 'type' ), $attributes['input_type'], 'Type doesn\'t match' );
 				if ( 'radio' === $attributes['input_type'] ) {
 					$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'], 'Input name doesn\'t match' );

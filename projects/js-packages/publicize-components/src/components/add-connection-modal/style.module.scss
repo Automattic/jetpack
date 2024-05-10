@@ -1,0 +1,66 @@
+.modal.modal {
+	width: 65rem;
+	&.service-selector {
+		min-height: 700px;
+	}
+
+	&:not(.small) {
+		display: table;
+	}
+}
+
+.title {
+	margin: 0;
+}
+
+.description {
+	font-size: 15px;
+	margin-top: 0.7rem;
+	margin-bottom: 0;
+}
+
+.chevron {
+	display: block;
+}
+
+// Table padding
+td {
+	padding-top: 0.8rem;
+	padding-bottom: 0.8rem;
+
+	&:first-child {
+		padding-inline-start: 1rem;
+		padding-inline-end: 1rem;
+	}
+
+	&:last-child {
+		padding-inline-end: 1rem;
+	}
+}
+
+// Table border
+table {
+	border-collapse: separate;
+	border-spacing: 0;
+	border-radius: 4px;
+	outline: 1px solid  var(--jp-gray-5);
+}
+
+tr:not(:last-child) > td {
+	border-bottom: solid 1px var(--jp-gray-5);
+}
+
+.column-description {
+	padding-inline-end: 6rem;
+}
+
+.column-actions {
+	display: grid;
+	grid-auto-flow: column;
+}
+
+.chevron-button.chevron-button.chevron-button {
+	padding-inline-start: 0.5rem;
+	padding-inline-end: 0.5rem;
+	margin-inline-start: 0.4rem;
+}

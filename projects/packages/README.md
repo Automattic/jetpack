@@ -82,6 +82,10 @@ You may run unit tests locally for any given package by running `composer phpuni
 
 ### Creating a New Package
 
+#### Using Jetpack Generate Wizard to create a new Package
+
+You can use the steps explained in [Jetpack Generate Wizard](https://github.com/Automattic/jetpack/blob/trunk/docs/monorepo.md#jetpack-generate-wizard) to jumpstart the files you need for your new package.
+
 #### Should my code be in a Package?
 
 Not sure if your code should be in a Package? Here are some general guidelines we follow when deciding: 
@@ -94,7 +98,6 @@ Not sure if your code should be in a Package? Here are some general guidelines w
 | ✅ | Other plugins will find this code useful. |
 | ✅ | You are building a completely new plugin. |
 | ✅ | Your code has dependencies that are only within itself or other Packages. |
-
 
 ### Package Autoloading
 

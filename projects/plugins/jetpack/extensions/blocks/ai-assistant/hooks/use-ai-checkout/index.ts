@@ -9,6 +9,10 @@ import {
 } from '@automattic/jetpack-shared-extension-utils';
 import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
 import useAiFeature from '../use-ai-feature';
+/*
+ * Types
+ */
+import type { MouseEvent } from 'react';
 
 const getWPComRedirectToURL = () => {
 	const searchParams = new URLSearchParams( window.location.search );
@@ -24,8 +28,7 @@ const getWPComRedirectToURL = () => {
 
 export default function useAICheckout(): {
 	checkoutUrl: string;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	autosaveAndRedirect: ( event: any ) => void;
+	autosaveAndRedirect: ( event: MouseEvent< HTMLButtonElement > ) => void;
 	isRedirecting: boolean;
 } {
 	const { nextTier, tierPlansEnabled } = useAiFeature();
@@ -34,12 +37,12 @@ export default function useAICheckout(): {
 
 	const wpcomCheckoutUrl = tierPlansEnabled
 		? getRedirectUrl( 'jetpack-ai-yearly-tier-upgrade-nudge', {
-				site: getSiteFragment(),
+				site: getSiteFragment() as string,
 				path: `jetpack_ai_yearly:-q-${ nextTier?.limit }`,
 				query: `redirect_to=${ encodeURIComponent( wpcomRedirectToURL ) }`,
 		  } )
 		: getRedirectUrl( 'jetpack-ai-monthly-plan-ai-assistant-block-banner', {
-				site: getSiteFragment(),
+				site: getSiteFragment() as string,
 		  } );
 
 	const checkoutUrl =

@@ -458,6 +458,9 @@ body.settings_page_sharing .advanced input[type=submit] {
 	margin-right:1rem;
 }
 
+.sharing-block-message__buttons-wrapper .button-primary:visited {
+	color: #fff;
+}
 
 .admin-sharing-settings__block-theme-description {
 	margin-top: 1rem;

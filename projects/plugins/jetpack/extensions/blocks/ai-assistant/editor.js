@@ -11,6 +11,7 @@ import './editor.scss';
 import './supports';
 import './extensions/ai-assistant';
 import './extensions/jetpack-contact-form';
+import './inline-extensions/with-ai-extension';
 
 registerJetpackBlockFromMetadata( metadata, {
 	edit,

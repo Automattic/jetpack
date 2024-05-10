@@ -75,6 +75,7 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 
 	public function test_do_initial_sync_during_full_sync() {
 		$full_sync = Modules::get_module( 'full-sync' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync $full_sync';
 		$full_sync->start();
 
 		$initial_sync = Actions::do_initial_sync();
@@ -141,6 +142,7 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 
 		// Initialize a Full Sync (all modules).
 		$full_sync = Modules::get_module( 'full-sync' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync $full_sync';
 		$full_sync->start();
 
 		$executions = Actions::do_cron_sync_by_type( 'full_sync' );
