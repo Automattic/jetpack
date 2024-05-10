@@ -187,6 +187,6 @@ trait HttpRequestCacheTrait {
 	 * Fail tests if `$update_cache` is set.
 	 */
 	public function test_update_cache_setting() {
-		\PHPUnit\Framework\assertFalse( static::$update_cache, __CLASS__ . '::$update_cache cannot be set for tests to pass' );
+		\PHPUnit\Framework\Assert::assertFalse( static::$update_cache, __CLASS__ . '::$update_cache cannot be set for tests to pass' );
 	}
 }
