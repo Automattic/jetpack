@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.29.0] - 2024-05-09
+### Added
+- Jetpack-mu-wpcom: Add classic theme helper package as a requirement [#37284]
+- Settings: Add Admin Interface Style options. [#37273]
+
+### Removed
+- Nav Redesign: Revert Hosting menu changes [#37254]
+
+### Fixed
+- Themes: Fixed an issue that was showing a broken Theme Showcase action in the active theme details [#37258]
+- WordPress.com Features: Don't load admin color schemes if Jetpack is not active [#37233]
+
+## [5.28.0] - 2024-05-06
+### Added
+- Add plugins link to menu for simple classic users. [#37182]
+- Launchpad: Add completion handler to eCommerce plan tasks. [#37131]
+- Navigation Redesign: Add Hosting -> Overview menu. [#37228]
+- Scheduled Updates: Add Scheduled Updates submenu item in wpcom-site-menu.php. [#37070]
+
+### Changed
+- Admin Menu: Record events in Tracks for sidebar notices. [#37214]
+- Fix navigation upsell and notification RTL spacing. [#37125]
+- Updated package dependencies. [#37147] [#37148]
+
+### Removed
+- Remove reference to `WPCOM_Launchpad`, which was removed from wpcom in D111041-code (May 2023). [#37201]
+- Remove reference to `wpcom_subs_js`, which was removed from wpcom in D104342-code (March 2023). [#37201]
+
 ## [5.27.0] - 2024-04-29
 ### Added
 - Launchpad: Add Entrepreneur plan launchpad tasks [#37094]
@@ -767,6 +795,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.29.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.28.0...v5.29.0
+[5.28.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.27.0...v5.28.0
 [5.27.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.26.1...v5.27.0
 [5.26.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.26.0...v5.26.1
 [5.26.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.25.0...v5.26.0

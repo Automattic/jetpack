@@ -6,7 +6,6 @@
  * sharing message.
  */
 
-import { useConnection } from '@automattic/jetpack-connection';
 import { Disabled, ExternalLink, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { Fragment, useMemo } from '@wordpress/element';
@@ -43,10 +42,13 @@ export default function PublicizeForm() {
 	const refreshConnections = useRefreshConnections();
 	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
 	const { shouldShowNotice, NOTICES } = useDismissNotice();
-	const { isPublicizeEnabled, isPublicizeDisabledBySitePlan, connectionsAdminUrl } =
-		usePublicizeConfig();
-
-	const useConnectionUrl = useSelect( select => select( socialStore ).userConnectionUrl(), [] );
+	const {
+		isPublicizeEnabled,
+		isPublicizeDisabledBySitePlan,
+		connectionsAdminUrl,
+		needsUserConnection,
+		userConnectionUrl,
+	} = usePublicizeConfig();
 
 	const { numberOfSharesRemaining } = useSelect( select => {
 		return {
@@ -93,8 +95,6 @@ export default function PublicizeForm() {
 
 	refreshConnections();
 
-	const { isUserConnected } = useConnection();
-
 	return (
 		<Wrapper>
 			{ hasConnections ? (
@@ -123,7 +123,7 @@ export default function PublicizeForm() {
 				{
 					// Use IIFE make it more readable and avoid nested ternary operators.
 					( () => {
-						if ( ! isUserConnected ) {
+						if ( needsUserConnection ) {
 							return (
 								<p>
 									{ __(
@@ -131,7 +131,7 @@ export default function PublicizeForm() {
 										'jetpack'
 									) }
 									&nbsp;
-									<a href={ useConnectionUrl }>{ __( 'Connect now', 'jetpack' ) }</a>
+									<a href={ userConnectionUrl }>{ __( 'Connect now', 'jetpack' ) }</a>
 								</p>
 							);
 						}

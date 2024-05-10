@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Define `$module_name` static property on `Hybrid_Product` (defaulting to null).

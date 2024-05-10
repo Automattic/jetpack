@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Adjusted the webpack config so the social icon colours are picked up by PostCSS

@@ -280,7 +280,7 @@ class Host {
 	/**
 	 * Add public-api.wordpress.com to the safe redirect allowed list - only added when someone allows API access.
 	 *
-	 * @since $$next-version$$ Ported from Jetpack to the Status package.
+	 * @since 3.0.2 Ported from Jetpack to the Status package.
 	 *
 	 * To be used with a filter of allowed domains for a redirect.
 	 *

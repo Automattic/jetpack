@@ -32,8 +32,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active extends WP_REST_Control
 	 * WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active constructor.
 	 */
 	public function __construct() {
-		// Priority 9 to run before the main endpoint and avoid "/active" being treated as a schedule ID.
-		add_action( 'rest_api_init', array( $this, 'register_routes' ), 9 );
+		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
 	/**

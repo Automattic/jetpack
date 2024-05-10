@@ -25,6 +25,7 @@ export const colors = {
 	// Gray
 	'--jp-gray': '#dcdcde',
 	'--jp-gray-0': '#F6F7F7',
+	'--jp-gray-5': 'var(--jp-gray)',
 	'--jp-gray-10': '#C3C4C7',
 	'--jp-gray-20': '#A7AAAD',
 	'--jp-gray-40': '#787C82',
