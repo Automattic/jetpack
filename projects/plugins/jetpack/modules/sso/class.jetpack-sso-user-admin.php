@@ -937,17 +937,26 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * @return array
 		 */
 		public function jetpack_user_connected_th( $columns ) {
+
+			$tooltip_string = esc_attr__( 'Jetpack SSO allows a seamless and secure experience on WordPress.com. Join millions of WordPress users who trust us to keep their accounts safe.', 'jetpack' );
+
 			wp_enqueue_script(
 				'jetpack-sso-users',
-				plugins_url( 'modules/sso/jetpack-sso-users.js', JETPACK__PLUGIN_FILE ),
+				plugins_url( 'jetpack_vendor/automattic/jetpack-connection/src/sso/jetpack-sso-users.js', JETPACK__PLUGIN_FILE ),
 				array(),
 				JETPACK__VERSION,
 				false
 			);
 
+			wp_add_inline_script(
+				'jetpack-sso-users',
+				"var Jetpack_SSOTooltip = { 'tooltipString': '{$tooltip_string}' }",
+				'before'
+			);
+
 			$columns['user_jetpack'] = sprintf(
-				'<span class="jetpack-sso-invitation-tooltip-icon" role="tooltip" aria-label="%3$s: %1$s" tabindex="0">%2$s [?]<span class="jetpack-sso-invitation-tooltip jetpack-sso-th-tooltip">%1$s</span></span>',
-				esc_attr__( 'Jetpack SSO allows a seamless and secure experience on WordPress.com. Join millions of WordPress users who trust us to keep their accounts safe.', 'jetpack' ),
+				'<span class="jetpack-sso-invitation-tooltip-icon jetpack-sso-status-column" role="tooltip" aria-label="%3$s: %1$s" tabindex="0">%2$s</span>',
+				$tooltip_string,
 				esc_html__( 'SSO Status', 'jetpack' ),
 				esc_attr__( 'Tooltip', 'jetpack' )
 			);

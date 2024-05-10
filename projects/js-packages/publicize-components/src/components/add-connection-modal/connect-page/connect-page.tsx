@@ -1,12 +1,12 @@
 import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
-import { Connection } from '../constants';
+import { SupportedService } from '../constants';
 import styles from './style.module.scss';
 
 type ConnectPageProps = {
-	service: Connection;
-	onBackClicked: () => void;
+	service: SupportedService;
+	onBackClicked: VoidFunction;
 };
 
 export const ConnectPage: React.FC< ConnectPageProps > = ( { service, onBackClicked } ) => {
