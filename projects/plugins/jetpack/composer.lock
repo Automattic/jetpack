@@ -733,7 +733,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/classic-theme-helper",
-				"reference": "98baef7a5afbfa44f8c89f0502f42764fbe94858"
+				"reference": "1f539cfa5e1c50e5b889f72bb96e8f52834a4295"
 			},
 			"require": {
 				"php": ">=7.0"
@@ -750,7 +750,7 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.1.x-dev"
+					"dev-trunk": "0.2.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/jetpack-classic-theme-helper/compare/v${old}...v${new}"
