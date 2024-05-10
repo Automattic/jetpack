@@ -244,9 +244,9 @@ function jpcrm_woosync_is_hpos_enabled() {
 }
 
 // If we ever have more WooSync constants we should create a separate php file.
-if ( ! defined( 'WOOSYNC_DO_NOT_CREATE' ) ) {
+if ( ! defined( 'JPCRM_WOOSYNC_DO_NOT_CREATE' ) ) {
 	define(
-		'WOOSYNC_DO_NOT_CREATE',
+		'JPCRM_WOOSYNC_DO_NOT_CREATE',
 		array(
 			'id'    => 'woo_do_not_create',
 			'label' => __( 'Do not create', 'zero-bs-crm' ),

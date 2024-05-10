@@ -1558,7 +1558,7 @@ class Woo_Sync {
 			&& 
 			( 
 				$zbs->DAL->is_valid_obj_status( $obj_type_id, $settings[ $woo_order_status_mapping[ $order_status ] ] ) // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				|| $settings[ $woo_order_status_mapping[ $order_status ] ] === WOOSYNC_DO_NOT_CREATE['id'] // Our 'Do not create' status is also a valid one.
+				|| $settings[ $woo_order_status_mapping[ $order_status ] ] === JPCRM_WOOSYNC_DO_NOT_CREATE['id'] // Our 'Do not create' status is also a valid one.
 			)
 		) {
 			// there's a valid mapping in settings, so use that

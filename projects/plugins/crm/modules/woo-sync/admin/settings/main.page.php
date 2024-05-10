@@ -359,7 +359,7 @@ function jpcrm_settings_page_html_woosync_main() {
 												$selected = $settings[ $mapping_key ];
 											}
 
-											if ( ! $zbs->DAL->is_valid_obj_status( $obj_type_id, $selected ) && $selected !== WOOSYNC_DO_NOT_CREATE['id'] ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+											if ( ! $zbs->DAL->is_valid_obj_status( $obj_type_id, $selected ) && $selected !== JPCRM_WOOSYNC_DO_NOT_CREATE['id'] ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 												$selected = false;
 											}
 
@@ -376,7 +376,7 @@ function jpcrm_settings_page_html_woosync_main() {
 
 													// Include a DO_NOT_CREATE option, except for Contacts
 													if ( $obj_type_id !== ZBS_TYPE_CONTACT ) {
-														printf( '<option value="%s" %s>%s</option>', esc_attr( WOOSYNC_DO_NOT_CREATE['id'] ), ( $selected === WOOSYNC_DO_NOT_CREATE['id'] ? 'selected' : '' ), esc_html( WOOSYNC_DO_NOT_CREATE['label'] ) );
+														printf( '<option value="%s" %s>%s</option>', esc_attr( JPCRM_WOOSYNC_DO_NOT_CREATE['id'] ), ( $selected === JPCRM_WOOSYNC_DO_NOT_CREATE['id'] ? 'selected' : '' ), esc_html( JPCRM_WOOSYNC_DO_NOT_CREATE['label'] ) );
 													}
 
 													foreach ( $map_type_value['statuses'] as $status ) {
