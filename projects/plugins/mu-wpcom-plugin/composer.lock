@@ -755,7 +755,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "8799f144e6c8311238ff217cb99a10bdf525baea"
+                "reference": "05fc78019eb12e7c234523b1dc7eb3e25ce838c4"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
