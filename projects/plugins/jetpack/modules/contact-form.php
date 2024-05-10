@@ -127,5 +127,3 @@ function jetpack_form_register_pattern() {
 		register_block_pattern( $name, $pattern );
 	}
 }
-
-add_action( 'init', 'jetpack_form_register_pattern' );

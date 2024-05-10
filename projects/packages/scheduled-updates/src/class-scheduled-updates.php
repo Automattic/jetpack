@@ -20,7 +20,7 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.12.0-alpha';
+	const PACKAGE_VERSION = '0.12.0';
 
 	/**
 	 * The cron event hook for the scheduled plugins update.
@@ -28,6 +28,13 @@ class Scheduled_Updates {
 	 * @var string
 	 */
 	const PLUGIN_CRON_HOOK = 'jetpack_scheduled_plugins_update';
+
+	/**
+	 * The cron event filter for the scheduled plugins update.
+	 *
+	 * @var string
+	 */
+	const PLUGIN_CRON_SYNC_HOOK = 'jetpack_scheduled_plugins_update_sync';
 
 	/**
 	 * Initialize the class.
@@ -86,12 +93,6 @@ class Scheduled_Updates {
 		// Active flag saving.
 		add_action( 'add_option_' . Scheduled_Updates_Active::OPTION_NAME, $callback );
 		add_action( 'update_option_' . Scheduled_Updates_Active::OPTION_NAME, $callback );
-
-		// This is a temporary solution for backward compatibility. It will be removed in the future.
-		// It's needed to ensure that preexisting schedules are loaded into the sync option.
-		if ( false === get_option( self::PLUGIN_CRON_HOOK ) ) {
-			call_user_func( $callback );
-		}
 	}
 
 	/**
@@ -112,7 +113,6 @@ class Scheduled_Updates {
 		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules' );
 		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities' );
 		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs' );
-		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules_Status' );
 		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active' );
 	}
 
@@ -195,17 +195,27 @@ class Scheduled_Updates {
 	 * Save the schedules for sync after cron option saving.
 	 */
 	public static function update_option_cron() {
+		// Do not update the option if the filter returns false.
+		if ( ! apply_filters( self::PLUGIN_CRON_SYNC_HOOK, true ) ) {
+			return;
+		}
+
 		Scheduled_Updates_Logs::add_log_fields();
 		Scheduled_Updates_Active::add_active_field();
 		Scheduled_Updates_Health_Paths::add_health_check_paths_field();
 
-		$endpoint = new \WPCOM_REST_API_V2_Endpoint_Update_Schedules();
-		$events   = $endpoint->get_items( new \WP_REST_Request() );
+		$endpoint   = new \WPCOM_REST_API_V2_Endpoint_Update_Schedules();
+		$events     = $endpoint->get_items( new \WP_REST_Request() );
+		$updated_at = time();
 
 		if ( ! is_wp_error( $events ) ) {
 			$option = array_map(
-				function ( $event ) {
-					return (object) $event;
+				function ( $event ) use ( $updated_at ) {
+					$ret = (object) $event;
+					// Add updated_at field to ensure the option is always on sync.
+					$ret->updated_at = $updated_at;
+
+					return $ret;
 				},
 				$events->get_data()
 			);

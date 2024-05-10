@@ -250,7 +250,7 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 	public static function uninstall() {
 		self::deactivate();
 
-		$result = Filesystem_Utils::delete_directory( WP_CONTENT_DIR . '/boost-cache', Filesystem_Utils::DELETE_ALL );
+		$result = Filesystem_Utils::walk_directory( WP_CONTENT_DIR . '/boost-cache', Filesystem_Utils::DELETE_ALL );
 		if ( $result instanceof Boost_Cache_Error ) {
 			return $result->to_wp_error();
 		}

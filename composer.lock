@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
-                "reference": "89185202e00673d6c11a84c10b6da8373e0f371c"
+                "reference": "8bec1af06b593110bf4aeca06b05c1ba1841960c"
             },
             "require": {
                 "php": ">=7.0"
@@ -30,7 +30,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "2.0.x-dev"
+                    "dev-trunk": "2.1.x-dev"
                 }
             },
             "autoload": {

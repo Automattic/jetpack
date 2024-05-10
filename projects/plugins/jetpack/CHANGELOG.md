@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 13.4-beta - 2024-05-06
+## 13.4 - 2024-05-07
 ### Enhancements
 - Jetpack AI: Add an AI Featured Image Generator. [#36709] [#36806] [#36812] [#36822] [#36831] [#36863] [#36865] [#36868] [#36899] [#36926] [#36963] [#36965] [#37086] [#37166] [#37209] [#37219]
 - Newsletters: Manage subscribers in Jetpack Cloud. [#37155]
@@ -21,7 +21,7 @@
 - Secure Sign-On: Disable the WordPress.com invitation setup on Multisite. [#36690]
 - Sidebar: Fix double arrows being shown on active menu items in RTL mode. [#37204]
 - Theme Tools: Fix deprecation notices in the color management library. [#36789]
-- VideoPress: Fix an XSS vulnerability in VideoPress shortcodes.
+- VideoPress: Fix an XSS vulnerability in VideoPress shortcodes. [#37271]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - AI Assistant: Add acceptance for title optimization. [#37078]
