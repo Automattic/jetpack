@@ -45,6 +45,12 @@ function wpcom_themes_show_banner() {
 		array(),
 		Jetpack_Mu_Wpcom::PACKAGE_VERSION
 	);
+	wp_enqueue_style(
+		'wpcom-themes-ui-fixes',
+		plugins_url( 'css/ui-fixes.css', __FILE__ ),
+		array(),
+		Jetpack_Mu_Wpcom::PACKAGE_VERSION
+	);
 }
 add_action( 'load-theme-install.php', 'wpcom_themes_show_banner' );
 
