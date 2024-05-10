@@ -4,6 +4,8 @@ import { dispatch as coreDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import {
+	ADD_CONNECTION,
+	CREATING_CONNECTION,
 	DELETE_CONNECTION,
 	DELETING_CONNECTION,
 	SET_CONNECTIONS,
@@ -12,13 +14,25 @@ import {
 
 /**
  * Set connections list
- * @param {Array} connections - list of connections
+ * @param {Array<import('../types').Connection>} connections - list of connections
  * @returns {object} - an action object.
  */
 export function setConnections( connections ) {
 	return {
 		type: SET_CONNECTIONS,
 		connections,
+	};
+}
+
+/**
+ * Add connection to the list
+ * @param {import('../types').Connection} connection - connection object
+ * @returns {object} - an action object.
+ */
+export function addConnection( connection ) {
+	return {
+		type: ADD_CONNECTION,
+		connection,
 	};
 }
 
@@ -162,6 +176,19 @@ export function deletingConnection( connectionId, deleting = true ) {
 }
 
 /**
+ * Whether a connection is being created.
+ *
+ * @param {boolean} creating - Whether the connection is being creating.
+ * @returns {object} Creating connection action.
+ */
+export function creatingConnection( creating = true ) {
+	return {
+		type: CREATING_CONNECTION,
+		creating,
+	};
+}
+
+/**
  * Deletes a connection by disconnecting it.
  *
  * @param {object} args - Arguments.
@@ -199,6 +226,57 @@ export function deleteConnectionById( { connectionId, showSuccessNotice = true }
 			createErrorNotice( message, { type: 'snackbar', isDismissible: true } );
 		} finally {
 			dispatch( deletingConnection( connectionId, false ) );
+		}
+	};
+}
+
+/**
+ * Creates a connection.
+ *
+ * @param {Record<string, any>} data - The data for API call.
+ * @returns {void}
+ */
+export function createConnection( data ) {
+	return async function ( { dispatch } ) {
+		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
+
+		try {
+			const path = `/jetpack/v4/social/connections/`;
+
+			dispatch( creatingConnection() );
+
+			const connection = await apiFetch( { method: 'POST', path, data } );
+
+			if ( connection ) {
+				dispatch(
+					addConnection( {
+						...connection,
+						// TODO fix this messy data structure
+						connection_id: connection.ID.toString(),
+						display_name: connection.external_display,
+						service_name: connection.service,
+						external_id: connection.external_ID,
+						profile_link: connection.external_profile_URL,
+						profile_picture: connection.external_profile_picture,
+						can_disconnect: true,
+					} )
+				);
+
+				createSuccessNotice( __( 'Connection successful.', 'jetpack' ), {
+					type: 'snackbar',
+					isDismissible: true,
+				} );
+			}
+		} catch ( error ) {
+			let message = __( 'Error connecting account.', 'jetpack' );
+
+			if ( typeof error === 'object' && 'message' in error && error.message ) {
+				message = `${ message } ${ error.message }`;
+			}
+
+			createErrorNotice( message, { type: 'snackbar', isDismissible: true } );
+		} finally {
+			dispatch( creatingConnection( false ) );
 		}
 	};
 }
