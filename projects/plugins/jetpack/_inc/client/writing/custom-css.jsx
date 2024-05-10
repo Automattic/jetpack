@@ -42,16 +42,14 @@ const CustomizerLink = ( { children, siteAdminUrl } ) => (
 export const StartFreshDeprecationWarning = ( { siteAdminUrl } ) =>
 	createInterpolateElement(
 		__(
-			"The <i>Start Fresh</i> option in the <a1>CSS customization panel</a1> is enabled, which means the theme's original CSS is not applied. <b>This option will no longer be supported after August 6, 2024.</b> and you'll need to modify your <a2>theme stylesheet</a2>.",
+			"The <i>Start Fresh</i> option in the <a1>CSS customization panel</a1> is enabled, which means the theme's original CSS is not applied. <b>This option will no longer be supported after August 6, 2024.</b> <a2>See how to keep your site intact</a2>.",
 			'jetpack'
 		),
 		{
 			i: <i />,
 			b: <b />,
 			a1: <CustomizerLink siteAdminUrl={ siteAdminUrl } />,
-			a2: (
-				<ExternalLink href="https://developer.wordpress.org/themes/basics/main-stylesheet-style-css/" />
-			),
+			a2: <ExternalLink href={ getRedirectUrl( 'jetpack-support-custom-css' ) } />,
 		}
 	);
 

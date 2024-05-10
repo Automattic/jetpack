@@ -3,6 +3,7 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Redirect;
 
 /**
  * Alternate Custom CSS source for 4.7 compat.
@@ -1020,11 +1021,11 @@ class Jetpack_Custom_CSS_Enhancements {
 			sprintf(
 				// translators: 1: URL to the CSS customization panel, 2: URL to the theme stylesheet documentation.
 				__(
-					'The <i>Start Fresh</i> option in the <a href="%1$s">CSS customization panel</a> is enabled, which means the theme\'s original CSS is not applied. <b>This option will no longer be supported after August 6, 2024</b> and you\'ll need to modify your <a href="%2$s">theme stylesheet</a>.',
+					'The <i>Start Fresh</i> option in the <a href="%1$s">CSS customization panel</a> is enabled, which means the theme\'s original CSS is not applied. <b>This option will no longer be supported after August 6, 2024.</b> <a href="%2$s">See how to keep your site intact.</a>',
 					'jetpack'
 				),
 				esc_url( admin_url( 'customize.php?autofocus%5Bsection%5D=custom_css' ) ),
-				esc_url( 'https://developer.wordpress.org/themes/basics/main-stylesheet-style-css/' )
+				esc_url( Redirect::get_url( 'jetpack-support-custom-css' ) )
 			),
 			array(
 				'i' => array(),
