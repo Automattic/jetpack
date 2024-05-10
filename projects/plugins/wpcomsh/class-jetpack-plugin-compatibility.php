@@ -61,6 +61,7 @@ class Jetpack_Plugin_Compatibility {
 		'backup-wd/backup-wd.php'                          => '"backup-wd" has been deactivated, WordPress.com handles managing your site backups for you.',
 		'backupwordpress/backupwordpress.php'              => '"backupwordpress" has been deactivated, WordPress.com handles managing your site backups for you.',
 		'backwpup/backwpup.php'                            => '"backwpup" has been deactivated, WordPress.com handles managing your site backups for you.',
+		'backwpup-pro/backwpup.php'                        => '"backwpup-pro" has been deactivated, WordPress.com handles managing your site backups for you.',
 		'jetpack-backup/jetpack-backup.php'                => '"jetpack-backup" has been deactivated, WordPress.com handles managing your site backups for you.',
 		'wp-db-backup/wp-db-backup.php'                    => '"wp-db-backup" has been deactivated, WordPress.com handles managing your site backups for you.',
 
