@@ -2,7 +2,6 @@
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
-use Automattic\Jetpack\Connection\SSO;
 use Automattic\Jetpack\Connection\SSO\Helpers;
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants;
@@ -62,8 +61,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$this->callable_module = Modules::get_module( 'functions' );
 		set_current_screen( 'post-user' ); // this only works in is_admin()
-
-		SSO::get_instance();
 	}
 
 	public function test_white_listed_function_is_synced() {

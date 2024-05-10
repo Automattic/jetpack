@@ -1,7 +1,5 @@
 <?php
 
-use Automattic\Jetpack\Connection\SSO;
-
 /**
  * Testing sync of values for SSO.
  */
@@ -13,8 +11,6 @@ class WP_Test_Jetpack_Sync_SSO extends WP_Test_Jetpack_Sync_Base {
 		parent::set_up();
 		$this->sender->do_sync();
 		$this->resetCallableAndConstantTimeouts();
-
-		SSO::get_instance();
 	}
 
 	public function test_sync_sso_is_two_step_required_filter_true() {
