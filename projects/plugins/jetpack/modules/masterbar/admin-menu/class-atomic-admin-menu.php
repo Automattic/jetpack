@@ -154,12 +154,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$plugins_slug = 'https://wordpress.com/plugins/' . $this->domain;
 
 		// Link to the Marketplace from Plugins > Add New on Atomic sites where the wpcom_admin_interface option is set to wp-admin.
-		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && ! wpcom_is_nav_redesign_enabled() ) {
-			if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'plugins.php' ) ) {
-				$submenus_to_update = array( 'plugin-install.php' => $plugins_slug );
-				$this->update_submenus( 'plugins.php', $submenus_to_update );
-				return;
-			}
+		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'plugins.php' ) ) {
+			$submenus_to_update = array( 'plugin-install.php' => $plugins_slug );
+			$this->update_submenus( 'plugins.php', $submenus_to_update );
+			return;
 		}
 
 		// Link to the Marketplace on sites that can't manage plugins.

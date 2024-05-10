@@ -628,8 +628,18 @@ function wpcom_add_plugins_menu() {
 		return;
 	}
 
+	global $menu;
 	$plugin_nav_url = wpcom_get_plugin_stub();
 
+	foreach ( $menu as &$menu_item ) {
+		if ( 'plugins.php' === $menu_item[2] ) {
+			$menu_item[1] = 'manage_options'; // Roughly means "is a site admin"
+			$menu_item[2] = $plugin_nav_url;
+			return;
+		}
+	}
+
+	// Didn't find an existing plugins menu, so add one.
 	add_menu_page(
 		__( 'Plugins', 'jetpack-mu-wpcom' ),
 		__( 'Plugins', 'jetpack-mu-wpcom' ),
