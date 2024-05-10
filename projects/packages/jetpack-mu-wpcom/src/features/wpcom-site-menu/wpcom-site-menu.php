@@ -573,9 +573,7 @@ add_action( 'init', 'wpcom_maybe_enable_link_manager' );
  * The stub is used as the URL and also to identify the menu item in the admin menu.
  */
 function wpcom_get_plugin_stub() {
-	$can_install_plugins = function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( WPCOM_Features::INSTALL_PLUGINS );
-
-	if ( $can_install_plugins || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+	if ( ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
 		$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 		return 'https://wordpress.com/plugins/' . $domain;
 	}
