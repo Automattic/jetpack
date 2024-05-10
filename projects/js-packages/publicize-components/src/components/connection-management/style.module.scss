@@ -5,17 +5,18 @@
 	gap: 1.5rem;
 
 	.profile-link {
-		&:global(.components-external-link) {
-			color: inherit;
+		color: inherit;
+
+		> span {
 			text-decoration: none;
+		}
 
-			&:hover {
-				text-decoration: underline;
-			}
+		&:hover {
+			text-decoration: underline;
+		}
 
-			>svg {
-				vertical-align: bottom;
-			}
+		>svg {
+			vertical-align: bottom;
 		}
 	}
 }
@@ -32,7 +33,9 @@
 	cursor: default;
 }
 
-
+.confirmDialog span {
+	font-size: 15px;
+}
 
 // Table padding
 td {
@@ -59,4 +62,9 @@ table {
 
 tr:not(:last-child)>td {
 	border-bottom: solid 1px var(--jp-gray-5);
+}
+
+.actions {
+	display: flex;
+	justify-content: end;
 }

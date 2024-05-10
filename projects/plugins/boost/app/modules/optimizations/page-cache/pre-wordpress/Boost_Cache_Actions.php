@@ -5,6 +5,7 @@
  */
 
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 
 /**
  * Delete all cache.
@@ -43,7 +44,7 @@ add_action( 'jetpack_boost_clear_page_cache_post', 'jetpack_boost_delete_cache_b
  */
 function jetpack_boost_delete_cache() {
 	$boost_cache = new Boost_Cache();
-	$boost_cache->delete_cache();
+	$boost_cache->invalidate_cache( Filesystem_Utils::DELETE_ALL );
 }
 
 /**
@@ -51,7 +52,7 @@ function jetpack_boost_delete_cache() {
  */
 function jetpack_boost_delete_cache_for_home() {
 	$boost_cache = new Boost_Cache();
-	$boost_cache->delete_cache_for_front_page();
+	$boost_cache->invalidate_cache_for_front_page( Filesystem_Utils::DELETE_ALL );
 }
 
 /**
@@ -61,7 +62,7 @@ function jetpack_boost_delete_cache_for_home() {
  */
 function jetpack_boost_delete_cache_for_url( $url ) {
 	$boost_cache = new Boost_Cache();
-	$boost_cache->delete_cache_for_url( $url );
+	$boost_cache->invalidate_cache_for_url( $url, Filesystem_Utils::DELETE_ALL );
 }
 
 /**
@@ -71,5 +72,5 @@ function jetpack_boost_delete_cache_for_url( $url ) {
  */
 function jetpack_boost_delete_cache_by_post_id( $post_id ) {
 	$boost_cache = new Boost_Cache();
-	$boost_cache->delete_cache_by_post_id( (int) $post_id );
+	$boost_cache->invalidate_cache_by_post_id( (int) $post_id, Filesystem_Utils::DELETE_ALL );
 }

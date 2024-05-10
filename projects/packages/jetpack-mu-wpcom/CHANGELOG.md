@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.29.0] - 2024-05-09
+### Added
+- Jetpack-mu-wpcom: Add classic theme helper package as a requirement [#37284]
+- Settings: Add Admin Interface Style options. [#37273]
+
+### Removed
+- Nav Redesign: Revert Hosting menu changes [#37254]
+
+### Fixed
+- Themes: Fixed an issue that was showing a broken Theme Showcase action in the active theme details [#37258]
+- WordPress.com Features: Don't load admin color schemes if Jetpack is not active [#37233]
+
 ## [5.28.0] - 2024-05-06
 ### Added
 - Add plugins link to menu for simple classic users. [#37182]
@@ -783,6 +795,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.29.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.28.0...v5.29.0
 [5.28.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.27.0...v5.28.0
 [5.27.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.26.1...v5.27.0
 [5.26.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.26.0...v5.26.1
