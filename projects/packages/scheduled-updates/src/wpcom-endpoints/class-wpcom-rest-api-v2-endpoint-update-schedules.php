@@ -401,19 +401,23 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 
 		$installed_plugins = array_filter( $plugins, array( $this, 'is_plugin_installed' ) );
 		if ( empty( $installed_plugins ) ) {
+			add_filter( 'rest_request_after_callbacks', array( $this, 'transform_error_response' ) );
+
 			return new \WP_Error(
 				'rest_forbidden',
 				__( 'None of the specified plugins are installed.', 'jetpack-scheduled-updates' ),
-				array( 'status' => 403 )
+				array( 'status' => 400 )
 			);
 		}
 
 		$unmanaged_plugins = array_diff( $plugins, array_filter( $plugins, array( Scheduled_Updates::class, 'is_managed_plugin' ) ) );
 		if ( empty( $unmanaged_plugins ) ) {
+			add_filter( 'rest_request_after_callbacks', array( $this, 'transform_error_response' ) );
+
 			return new \WP_Error(
 				'rest_forbidden',
 				__( 'All of the specified plugins are managed.', 'jetpack-scheduled-updates' ),
-				array( 'status' => 403 )
+				array( 'status' => 400 )
 			);
 		}
 
@@ -505,6 +509,23 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Transforms nested error message for the plugins parameter to a top-level error.
+	 *
+	 * @see WP_REST_Request::has_valid_params()
+	 *
+	 * @param WP_REST_Response|WP_HTTP_Response|WP_Error|mixed $response Result to send to the client.
+	 * @return mixed
+	 */
+	public function transform_error_response( $response ) {
+		if ( is_wp_error( $response ) && 'rest_invalid_param' === $response->get_error_code() && isset( $response->get_error_data()['details']['plugins'] ) ) {
+			$error    = $response->get_error_data()['details']['plugins'];
+			$response = new WP_Error( $error['code'], $error['message'], $error['data'] );
+		}
+
+		return $response;
 	}
 
 	/**

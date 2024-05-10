@@ -680,7 +680,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		$result = rest_do_request( $request );
 
 		$this->assertSame( 400, $result->get_status() );
-		$this->assertSame( 'None of the specified plugins are installed.', $result->get_data()['data']['params']['plugins'] );
+		$this->assertSame( 'None of the specified plugins are installed.', $result->get_data()['message'] );
 	}
 
 	/**
@@ -707,7 +707,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		$result = rest_do_request( $request );
 
 		$this->assertSame( 400, $result->get_status() );
-		$this->assertSame( 'None of the specified plugins are installed.', $result->get_data()['data']['params']['plugins'] );
+		$this->assertSame( 'None of the specified plugins are installed.', $result->get_data()['message'] );
 	}
 
 	/**
