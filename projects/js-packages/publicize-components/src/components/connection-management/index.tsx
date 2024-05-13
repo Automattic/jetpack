@@ -82,8 +82,10 @@ const ConnectionManagement = ( { className = null } ) => {
 										onReconnect={ onReconnect( connection.service_name ) }
 									/>
 								</td>
-								<td className={ styles.actions }>
-									<Disconnect connection={ connection } />
+								<td>
+									<div className={ styles.actions }>
+										<Disconnect connection={ connection } />
+									</div>
 								</td>
 							</tr>
 						) ) }
