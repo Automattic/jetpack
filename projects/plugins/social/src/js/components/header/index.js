@@ -16,7 +16,6 @@ import {
 	useShareLimits,
 } from '@automattic/jetpack-publicize-components';
 import { useSelect } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, postList } from '@wordpress/icons';
 import StatCards from '../stat-cards';
@@ -96,15 +95,12 @@ const Header = () => {
 								className={ styles[ 'bar-wrapper' ] }
 							/>
 							<Text variant="small" className={ styles[ 'bar-description' ] }>
-								{ createInterpolateElement(
-									__(
-										'<i>As a free Jetpack Social user, you get 30 shares within every rolling 30-day window.</i>',
+								<i>
+									{ __(
+										'As a free Jetpack Social user, you get 30 shares within every rolling 30-day window.',
 										'jetpack-social'
-									),
-									{
-										i: <i />,
-									}
-								) }
+									) }
+								</i>
 							</Text>
 							<ContextualUpgradeTrigger
 								className={ styles.cut }
