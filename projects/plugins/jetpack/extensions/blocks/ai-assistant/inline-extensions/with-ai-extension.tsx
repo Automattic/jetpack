@@ -84,7 +84,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		// The block's id to find it in the DOM for the positioning adjustments.
 		const { id } = useBlockProps();
 		// Jetpack AI Assistant feature functions.
-		const { increaseRequestsCount, dequeueAsyncRequest } = useAiFeature();
+		const { increaseRequestsCount, dequeueAsyncRequest, requireUpgrade } = useAiFeature();
 
 		// Data and functions with block-specific implementations.
 		const {
@@ -208,6 +208,11 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			( promptType, options, humanText ) => {
 				setShowAiControl( true );
 
+				// If the user needs to upgrade, don't make the request, but show the input with the upgrade message.
+				if ( requireUpgrade ) {
+					return;
+				}
+
 				if ( humanText ) {
 					setAction( humanText );
 				}
@@ -227,7 +232,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				request( messages );
 			},
-			[ dequeueAsyncRequest, getRequestMessages, request ]
+			[ dequeueAsyncRequest, getRequestMessages, request, requireUpgrade ]
 		);
 
 		// Called when the user types a custom prompt.
