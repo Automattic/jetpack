@@ -26,7 +26,7 @@ export const ShareCountInfo: React.FC = () => {
 				<ThemeProvider>
 					<div className={ styles[ 'title-container' ] }>
 						<Text variant="body-extra-small" className={ styles[ 'auto-share-title' ] }>
-							{ __( 'Auto-share usage', 'jetpack' ) }
+							{ __( 'Auto-shares this cycle', 'jetpack' ) }
 						</Text>
 						<IconTooltip inline={ false } shift iconSize={ 16 } placement="top-end">
 							<Text variant="body-small">

@@ -90,6 +90,7 @@ const Header = () => {
 								usedCount={ usedCount }
 								scheduledCount={ scheduledCount }
 								remainingCount={ remainingCount }
+								remainingLabel={ __( 'left in this cycle', 'jetpack-social' ) }
 								legendCaption={ __( 'Auto-share usage', 'jetpack-social' ) }
 								noticeType={ noticeType }
 								className={ styles[ 'bar-wrapper' ] }
