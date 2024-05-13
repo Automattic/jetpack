@@ -6,6 +6,15 @@ import React from 'react';
 /**
  * Internal dependencies
  */
+import {
+	ERROR_SERVICE_UNAVAILABLE,
+	ERROR_QUOTA_EXCEEDED,
+	ERROR_MODERATION,
+	ERROR_CONTEXT_TOO_LARGE,
+	ERROR_NETWORK,
+	ERROR_UNCLEAR_PROMPT,
+	ERROR_RESPONSE,
+} from '../../../types.js';
 import Message, {
 	GuidelineMessage,
 	UpgradeMessage,
@@ -82,12 +91,45 @@ Upgrade.argTypes = {
 };
 
 const ErrorTemplate = args => {
-	return <ErrorMessage error={ args.error } onTryAgainClick={ action( 'onTryAgainClick' ) } />;
+	return (
+		<ErrorMessage
+			error={ args.error }
+			code={ args.code }
+			onTryAgainClick={ action( 'onTryAgainClick' ) }
+			onUpgradeClick={ action( 'onUpgradeClick' ) }
+		/>
+	);
 };
 
 const ErrorArgs = {
-	error: 'An error occurred',
+	error: 'An error occurred.',
+	code: 'error_service_unavailable',
 };
 
 export const Error = ErrorTemplate.bind( {} );
 Error.args = ErrorArgs;
+Error.argTypes = {
+	code: {
+		control: {
+			type: 'select',
+		},
+		options: [
+			'Service Unavailable',
+			'Quota Exceeded',
+			'Moderation',
+			'Context Too Large',
+			'Network',
+			'Unclear Prompt',
+			'Response',
+		],
+		mapping: {
+			'Service Unavailable': ERROR_SERVICE_UNAVAILABLE,
+			'Quota Exceeded': ERROR_QUOTA_EXCEEDED,
+			Moderation: ERROR_MODERATION,
+			'Context Too Large': ERROR_CONTEXT_TOO_LARGE,
+			Network: ERROR_NETWORK,
+			'Unclear Prompt': ERROR_UNCLEAR_PROMPT,
+			Response: ERROR_RESPONSE,
+		},
+	},
+};

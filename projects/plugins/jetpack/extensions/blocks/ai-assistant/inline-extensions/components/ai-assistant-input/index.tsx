@@ -162,7 +162,7 @@ export default function AiAssistantInput( {
 			value={ value }
 			state={ requestingState }
 			showGuideLine={ true }
-			error={ requestingError?.message }
+			error={ requestingError }
 			requestsRemaining={ requestsRemaining }
 			showUpgradeMessage={ showUpgradeMessage }
 			onChange={ setValue }

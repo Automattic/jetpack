@@ -10,9 +10,11 @@ import classNames from 'classnames';
  */
 import './style.scss';
 import errorExclamation from '../../icons/error-exclamation.js';
+import { ERROR_QUOTA_EXCEEDED } from '../../types.js';
 /**
  * Types
  */
+import type { SuggestionErrorCode } from '../../types.js';
 import type React from 'react';
 
 export const MESSAGE_SEVERITY_WARNING = 'warning';
@@ -37,15 +39,19 @@ export type MessageProps = {
 	children: React.ReactNode;
 };
 
+export type OnUpgradeClick = ( event?: React.MouseEvent< HTMLButtonElement > ) => void;
+
 export type UpgradeMessageProps = {
 	requestsRemaining: number;
 	severity?: MessageSeverityProp;
-	onUpgradeClick: ( event?: React.MouseEvent< HTMLButtonElement > ) => void;
+	onUpgradeClick: OnUpgradeClick;
 };
 
 export type ErrorMessageProps = {
 	error?: string;
+	code?: SuggestionErrorCode;
 	onTryAgainClick: () => void;
+	onUpgradeClick: OnUpgradeClick;
 };
 
 const messageIconsMap = {
@@ -145,7 +151,12 @@ export function UpgradeMessage( {
  * @param {number} requestsRemaining - Number of requests remaining.
  * @returns {React.ReactElement } - Message component.
  */
-export function ErrorMessage( { error, onTryAgainClick }: ErrorMessageProps ): React.ReactElement {
+export function ErrorMessage( {
+	error,
+	code,
+	onTryAgainClick,
+	onUpgradeClick,
+}: ErrorMessageProps ): React.ReactElement {
 	const errorMessage = error || __( 'Something went wrong', 'jetpack-ai-client' );
 
 	return (
@@ -157,9 +168,15 @@ export function ErrorMessage( { error, onTryAgainClick }: ErrorMessageProps ): R
 					errorMessage
 				) }
 			</span>
-			<Button variant="link" onClick={ onTryAgainClick }>
-				{ __( 'Try Again', 'jetpack-ai-client' ) }
-			</Button>
+			{ code === ERROR_QUOTA_EXCEEDED ? (
+				<Button variant="link" onClick={ onUpgradeClick }>
+					{ __( 'Upgrade now', 'jetpack-ai-client' ) }
+				</Button>
+			) : (
+				<Button variant="link" onClick={ onTryAgainClick }>
+					{ __( 'Try Again', 'jetpack-ai-client' ) }
+				</Button>
+			) }
 		</Message>
 	);
 }
