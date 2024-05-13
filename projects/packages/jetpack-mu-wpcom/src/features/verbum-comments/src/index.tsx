@@ -22,10 +22,11 @@ import {
 	commentUrl,
 	commentParent,
 	subscribeModalStatus,
+	canAccessCookies,
+	isPublicAPIReady,
 } from './state';
 import {
 	classNames,
-	canWeAccessCookies,
 	setUserInfoCookie,
 	addWordPressDomain,
 	hasSubscriptionOptionsVisible,
@@ -44,6 +45,8 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 	const [ ignoreSubscriptionModal, setIgnoreSubscriptionModal ] = useState( false );
 	const { login, loginWindowRef, logout } = useSocialLogin();
 	useFormMutations();
+
+	const requestPermissionFromIframe = ! canAccessCookies.value || ! isPublicAPIReady.value;
 
 	const dispose = effect( () => {
 		// The tray, when there is no sub options, is pretty minimal.
@@ -217,6 +220,13 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 
 	return (
 		<>
+			{ requestPermissionFromIframe && (
+				<iframe
+					title="placeholder"
+					className="placeholder-frame"
+					src={ `https://public-api.wordpress.com/wp-admin/rest-proxy/?v=2.0#${ VerbumComments.homeURL }` }
+				></iframe>
+			) }
 			<CommentInputField ref={ commentTextarea } handleOnKeyUp={ showTrayIfNewUser } />
 			<div
 				className={ classNames( 'comment-form__subscription-options', {
@@ -226,11 +236,7 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 				{ userLoggedIn.value ? (
 					<LoggedIn siteId={ siteId } toggleTray={ handleTrayToggle } logout={ logout } />
 				) : (
-					<LoggedOut
-						login={ login }
-						canWeAccessCookies={ canWeAccessCookies() }
-						loginWindow={ loginWindowRef }
-					/>
+					<LoggedOut login={ login } loginWindow={ loginWindowRef } />
 				) }
 			</div>
 			<CommentFooter toggleTray={ handleTrayToggle } />
@@ -245,5 +251,12 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 const { siteId } = {
 	...VerbumComments,
 };
+
+window.addEventListener( 'message', event => {
+	if ( event.origin === 'https://public-api.wordpress.com' && event.data === 'ready' ) {
+		isPublicAPIReady.value = true;
+		canAccessCookies.value = true;
+	}
+} );
 
 render( <Verbum siteId={ siteId } />, document.getElementById( 'comment-form__verbum' ) );

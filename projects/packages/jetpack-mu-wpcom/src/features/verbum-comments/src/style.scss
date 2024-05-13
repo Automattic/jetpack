@@ -72,6 +72,16 @@
 
 	&.comment-respond form#commentform {
 		background-color: transparent;
+		position: relative;
+
+		iframe.placeholder-frame {
+			position: absolute;
+			top: 0;
+			left: 0;
+			height: 100%;
+			width: 100%;
+			border: 0;
+		}
 
 		>p {
 			display: none;

@@ -1,5 +1,5 @@
 import { signal, computed } from '@preact/signals';
-import { canWeAccessCookies, getUserInfoCookie, isAuthRequired, isEmptyEditor } from './utils';
+import { getUserInfoCookie, isAuthRequired, isEmptyEditor } from './utils';
 import type { UserInfo, SubscriptionDetails } from './types';
 import type { Signal } from '@preact/signals';
 
@@ -15,8 +15,7 @@ export const userInfo: Signal< UserInfo > = signal( getUserInfoCookie() );
 export const userLoggedIn = computed( () => {
 	return (
 		VerbumComments.isJetpackCommentsLoggedIn ||
-		( canWeAccessCookies() &&
-			userInfo.value &&
+		( userInfo.value &&
 			userInfo.value?.service !== 'guest' &&
 			userInfo.value?.service !== 'jetpack' )
 	);
@@ -108,3 +107,7 @@ export const commentParent = signal( 0 );
  * Can be one of these values: 'showed', 'hidden_cookies_disabled', 'hidden_subscribe_not_enabled', 'hidden_views_limit' and 'hidden_already_subscribed'.
  */
 export const subscribeModalStatus = signal( undefined );
+
+export const canAccessCookies = signal( false );
+
+export const isPublicAPIReady = signal( false );
