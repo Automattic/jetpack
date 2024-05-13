@@ -11,7 +11,13 @@ if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign
 	add_filter(
 		'profile_update',
 		function ( $user_id, $old_user_data, $user_data ) {
-			$locale = $user_data['locale'];
+			$locale     = $user_data['locale'];
+			$old_locale = $old_user_data['locale'];
+
+			if ( $locale && $old_locale === $locale ) {
+				// No locale changes
+				return;
+			}
 
 			if ( ! $locale ) {
 				// No locale means the "Site Default" option which is the Site language (WPLANG).
@@ -19,12 +25,12 @@ if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign
 			}
 
 			Client::wpcom_json_api_request_as_user(
-				'/me/language',
+				'/me/locale',
 				'2',
 				array(
 					'method' => 'POST',
 				),
-				array( 'language' => $locale ),
+				array( 'locale' => $locale ),
 				'wpcom'
 			);
 		},
