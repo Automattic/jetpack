@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cc86cbc064b55ee2a73e2db3051b9a90",
+    "content-hash": "29c85045ad2e7cb82ce89b4c204c9b04",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -381,16 +381,16 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "v2.7.7",
+            "version": "v2.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-connection.git",
-                "reference": "dd3bdb9031df9a4911fc1797898e7adf49352ccc"
+                "reference": "d85caaf5c6add37e2c4e1de7a6e3d436cf34de38"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/dd3bdb9031df9a4911fc1797898e7adf49352ccc",
-                "reference": "dd3bdb9031df9a4911fc1797898e7adf49352ccc",
+                "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/d85caaf5c6add37e2c4e1de7a6e3d436cf34de38",
+                "reference": "d85caaf5c6add37e2c4e1de7a6e3d436cf34de38",
                 "shasum": ""
             },
             "require": {
@@ -426,7 +426,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.7.x-dev"
+                    "dev-trunk": "2.8.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -448,9 +448,9 @@
             ],
             "description": "Everything needed to connect to the Jetpack infrastructure",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-connection/tree/v2.7.7"
+                "source": "https://github.com/Automattic/jetpack-connection/tree/v2.8.0"
             },
-            "time": "2024-05-09T09:26:51+00:00"
+            "time": "2024-05-13T12:25:41+00:00"
         },
         {
             "name": "automattic/jetpack-constants",
@@ -782,23 +782,23 @@
         },
         {
             "name": "automattic/jetpack-mu-wpcom",
-            "version": "v5.29.0",
+            "version": "v5.29.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-mu-wpcom.git",
-                "reference": "f886b89b17747c6315f6c597e47fe2af73e21c77"
+                "reference": "ef73426d788a9f94f8ac72d0bf04b878964cec69"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/f886b89b17747c6315f6c597e47fe2af73e21c77",
-                "reference": "f886b89b17747c6315f6c597e47fe2af73e21c77",
+                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/ef73426d788a9f94f8ac72d0bf04b878964cec69",
+                "reference": "ef73426d788a9f94f8ac72d0bf04b878964cec69",
                 "shasum": ""
             },
             "require": {
                 "automattic/jetpack-assets": "^2.1.9",
                 "automattic/jetpack-blocks": "^2.0.3",
                 "automattic/jetpack-classic-theme-helper": "^0.1.0",
-                "automattic/jetpack-connection": "^2.7.7",
+                "automattic/jetpack-connection": "^2.8.0",
                 "automattic/jetpack-redirect": "^2.0.2",
                 "automattic/jetpack-stats-admin": "^0.19.1",
                 "automattic/jetpack-status": "^3.0.3",
@@ -839,9 +839,9 @@
             ],
             "description": "Enhances your site with features powered by WordPress.com",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v5.29.0"
+                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v5.29.1"
             },
-            "time": "2024-05-09T09:27:31+00:00"
+            "time": "2024-05-13T12:26:10+00:00"
         },
         {
             "name": "automattic/jetpack-password-checker",
