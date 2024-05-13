@@ -50,7 +50,11 @@ function wpcom_maybe_redirect_from_woo_my_home_to_calypso_my_home() {
 
 	$is_arriving_from_design_with_ai = (
 		isset( $_GET['page'] ) && $_GET['page'] === 'wc-admin' && // phpcs:ignore WordPress.Security
-		isset( $_GET['ref'] ) && $_GET['ref'] === 'entrepreneur-signup' // phpcs:ignore WordPress.Security
+		isset( $_GET['ref'] ) && $_GET['ref'] === 'entrepreneur-signup' && // phpcs:ignore WordPress.Security
+		// As &ref=entrepreneur-signup is also used when entering Design With AI,
+		// we need to make sure we're really landing on the main wc-admin page
+		// and not any other pages.
+		empty( $_GET['path'] ) // phpcs:ignore WordPress.Security
 	);
 
 	if ( $is_arriving_from_design_with_ai ) {
