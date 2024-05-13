@@ -30,7 +30,7 @@ class Admin_Color_Schemes {
 			'admin_color',
 			array(
 				'auth_callback' => array( $this, 'update_admin_color_permissions_check' ),
-				'description'   => __( 'Slug of the admin color scheme.', 'jetpack' ),
+				'description'   => __( 'Slug of the admin color scheme.', 'jetpack-masterbar' ),
 				'single'        => true,
 				'show_in_rest'  => array(
 					'schema' => array( 'default' => 'fresh' ),
@@ -59,7 +59,7 @@ class Admin_Color_Schemes {
 	 * @return string
 	 */
 	public function get_admin_color_scheme_url( $color_scheme ) {
-		return plugins_url( 'colors/' . $color_scheme . '/colors.css', __FILE__ );
+		return plugins_url( '../../build/admin-color-schemes/colors/' . $color_scheme . '/colors.css', __FILE__ );
 	}
 
 	/**
@@ -69,7 +69,7 @@ class Admin_Color_Schemes {
 
 		wp_admin_css_color(
 			'aquatic',
-			__( 'Aquatic', 'jetpack' ),
+			__( 'Aquatic', 'jetpack-masterbar' ),
 			$this->get_admin_color_scheme_url( 'aquatic' ),
 			array( '#135e96', '#007e65', '#043959', '#c5d9ed' ),
 			array(
@@ -81,7 +81,7 @@ class Admin_Color_Schemes {
 
 		wp_admin_css_color(
 			'classic-blue',
-			__( 'Classic Blue', 'jetpack' ),
+			__( 'Classic Blue', 'jetpack-masterbar' ),
 			$this->get_admin_color_scheme_url( 'classic-blue' ),
 			array( '#135e96', '#b26200', '#dcdcde', '#646970' ),
 			array(
@@ -93,7 +93,7 @@ class Admin_Color_Schemes {
 
 		wp_admin_css_color(
 			'classic-bright',
-			__( 'Classic Bright', 'jetpack' ),
+			__( 'Classic Bright', 'jetpack-masterbar' ),
 			$this->get_admin_color_scheme_url( 'classic-bright' ),
 			array( '#135e96', '#c9256e', '#ffffff', '#e9eff5' ),
 			array(
@@ -105,7 +105,7 @@ class Admin_Color_Schemes {
 
 		wp_admin_css_color(
 			'classic-dark',
-			__( 'Classic Dark', 'jetpack' ),
+			__( 'Classic Dark', 'jetpack-masterbar' ),
 			$this->get_admin_color_scheme_url( 'classic-dark' ),
 			array( '#101517', '#c9356e', '#32373c', '#0073aa' ),
 			array(
@@ -117,7 +117,7 @@ class Admin_Color_Schemes {
 
 		wp_admin_css_color(
 			'contrast',
-			__( 'Contrast', 'jetpack' ),
+			__( 'Contrast', 'jetpack-masterbar' ),
 			$this->get_admin_color_scheme_url( 'contrast' ),
 			array( '#101517', '#ffffff', '#32373c', '#b4b9be' ),
 			array(
@@ -129,7 +129,7 @@ class Admin_Color_Schemes {
 
 		wp_admin_css_color(
 			'nightfall',
-			__( 'Nightfall', 'jetpack' ),
+			__( 'Nightfall', 'jetpack-masterbar' ),
 			$this->get_admin_color_scheme_url( 'nightfall' ),
 			array( '#00131c', '#043959', '#2271b1', '#9ec2e6' ),
 			array(
@@ -141,7 +141,7 @@ class Admin_Color_Schemes {
 
 		wp_admin_css_color(
 			'powder-snow',
-			__( 'Powder Snow', 'jetpack' ),
+			__( 'Powder Snow', 'jetpack-masterbar' ),
 			$this->get_admin_color_scheme_url( 'powder-snow' ),
 			array( '#101517', '#2271b1', '#dcdcde', '#646970' ),
 			array(
@@ -153,7 +153,7 @@ class Admin_Color_Schemes {
 
 		wp_admin_css_color(
 			'sakura',
-			__( 'Sakura', 'jetpack' ),
+			__( 'Sakura', 'jetpack-masterbar' ),
 			$this->get_admin_color_scheme_url( 'sakura' ),
 			array( '#005042', '#f2ceda', '#2271b1', '#8c1749' ),
 			array(
@@ -165,7 +165,7 @@ class Admin_Color_Schemes {
 
 		wp_admin_css_color(
 			'sunset',
-			__( 'Sunset', 'jetpack' ),
+			__( 'Sunset', 'jetpack-masterbar' ),
 			$this->get_admin_color_scheme_url( 'sunset' ),
 			array( '#691c1c', '#b26200', '#f0c930', '#facfd2' ),
 			array(

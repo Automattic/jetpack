@@ -252,28 +252,33 @@ abstract class Base_Admin_Menu {
 	 * Enqueues scripts and styles.
 	 */
 	public function enqueue_scripts() {
+		$assets_base_path = '../../build/admin-menu/';
 		if ( $this->is_rtl() ) {
-			$css_path = 'admin-menu-rtl.css';
+			$css_path = 'admin-menu.rtl.css';
 		} else {
 			$css_path = 'admin-menu.css';
 		}
+
+		$css_path = $assets_base_path . $css_path;
 
 		wp_enqueue_style(
 			'jetpack-admin-menu',
 			plugins_url( $css_path, __FILE__ ),
 			array(),
-			JETPACK__VERSION
+			Main::PACKAGE_VERSION
 		);
 
 		wp_style_add_data( 'jetpack-admin-menu', 'rtl', $this->is_rtl() );
 
 		// Load nav unification styles when the user isn't using wp-admin interface style.
 		if ( ! $this->use_wp_admin_interface() ) {
+			$nav_unification_css_path = $this->is_rtl() ? 'admin-menu-nav-unification.rtl.css' : 'admin-menu-nav-unification.css';
+			$nav_unification_css_path = $assets_base_path . $nav_unification_css_path;
 			wp_enqueue_style(
 				'jetpack-admin-nav-unification',
-				plugins_url( 'admin-menu-nav-unification.css', __FILE__ ),
+				plugins_url( $nav_unification_css_path, __FILE__ ),
 				array(),
-				JETPACK__VERSION
+				Main::PACKAGE_VERSION
 			);
 
 			wp_style_add_data( 'jetpack-admin-nav-unification', 'rtl', $this->is_rtl() );
@@ -283,9 +288,9 @@ abstract class Base_Admin_Menu {
 
 		wp_enqueue_script(
 			'jetpack-admin-menu',
-			plugins_url( 'admin-menu.js', __FILE__ ),
+			plugins_url( $assets_base_path . 'admin-menu.js', __FILE__ ),
 			array(),
-			JETPACK__VERSION,
+			Main::PACKAGE_VERSION,
 			true
 		);
 
@@ -572,18 +577,18 @@ abstract class Base_Admin_Menu {
 		}
 		?>
 		<div id="view-link-wrap" class="hide-if-no-js screen-meta-toggle">
-			<button type="button" id="view-link" class="button show-settings" aria-expanded="false"><?php echo esc_html_x( 'View', 'View options to switch between', 'jetpack' ); ?></button>
+			<button type="button" id="view-link" class="button show-settings" aria-expanded="false"><?php echo esc_html_x( 'View', 'View options to switch between', 'jetpack-masterbar' ); ?></button>
 		</div>
 		<div id="view-wrap" class="screen-options-tab__wrapper hide-if-no-js hidden" tabindex="-1">
 			<div class="screen-options-tab__dropdown" data-testid="screen-options-dropdown">
 				<div class="screen-switcher">
 					<a class="screen-switcher__button" href="<?php echo esc_url( add_query_arg( 'preferred-view', 'default' ) ); ?>" data-view="default">
-						<strong><?php esc_html_e( 'Default view', 'jetpack' ); ?></strong>
-						<?php esc_html_e( 'Our WordPress.com redesign for a better experience.', 'jetpack' ); ?>
+						<strong><?php esc_html_e( 'Default view', 'jetpack-masterbar' ); ?></strong>
+						<?php esc_html_e( 'Our WordPress.com redesign for a better experience.', 'jetpack-masterbar' ); ?>
 					</a>
 					<button class="screen-switcher__button"  data-view="classic">
-						<strong><?php esc_html_e( 'Classic view', 'jetpack' ); ?></strong>
-						<?php esc_html_e( 'The classic WP-Admin WordPress interface.', 'jetpack' ); ?>
+						<strong><?php esc_html_e( 'Classic view', 'jetpack-masterbar' ); ?></strong>
+						<?php esc_html_e( 'The classic WP-Admin WordPress interface.', 'jetpack-masterbar' ); ?>
 					</button>
 				</div>
 			</div>
