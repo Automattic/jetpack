@@ -7,10 +7,18 @@
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
-if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
+if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() && $_SERVER['REQUEST_METHOD'] !== 'POST' ) {
 	add_filter(
 		'admin_init',
 		function () {
+			// If we are on the profile update page.
+			if ( strpos( $_SERVER['REQUEST_URI'], '/wp-admin/profile.php' ) !== false ) {
+				// Check if the 'updated' query parameter is set to '1'
+				if ( isset( $_GET['updated'] ) && $_GET['updated'] === '1' ) {
+					return;
+				}
+			}
+
 			// Get user connection
 			$connection_manager = new Connection_Manager( 'jetpack' );
 			if ( ! $connection_manager->is_user_connected( get_current_user_id() ) ) {
@@ -28,8 +36,9 @@ if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign
 				// Update user meta
 				update_user_option( get_current_user_id(), 'locale', $locale, true );
 
-				// @TODO: Apply the new locale to the sidebar
-				// Other wise, it needs a browser refresh.
+				// Redirect to the same page to refresh changes.
+				wp_redirect( $_SERVER['REQUEST_URI'] );
+				exit;
 			}
 		}
 	);
