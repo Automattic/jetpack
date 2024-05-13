@@ -63,7 +63,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const controlHeight = useRef< number >( 0 );
 		const controlObserver = useRef< ResizeObserver | null >( null );
 		// Ref to the original block padding to reset it when the AI Control is closed.
-		const blockPaddingBottom = useRef< string >( '' );
+		const blockOriginalPaddingBottom = useRef< string >( '' );
 		// Ref to the input element to focus on it when the AI Control is displayed or when a request is done.
 		// Also used to determine the ownerDocument, as the editor can be in an iframe.
 		const inputRef: React.MutableRefObject< HTMLInputElement | null > = useRef( null );
@@ -127,35 +127,48 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			[ blockName, getContent ]
 		);
 
+		const adjustBlockPadding = useCallback(
+			( blockElement?: HTMLElement | null ) => {
+				const block = blockElement || ownerDocument.current.getElementById( id );
+
+				if ( block && controlRef.current ) {
+					// The gap between the input and the block's bottom is set at BLOCK_INPUT_GAP, regardless of the theme
+					block.style.setProperty(
+						'padding-bottom',
+						`calc(${ controlHeight.current + BLOCK_INPUT_GAP }px + ${
+							blockOriginalPaddingBottom.current || '0px'
+						} )`,
+						'important'
+					);
+				}
+			},
+			[ id ]
+		);
+
 		// Called when a suggestion chunk is received.
 		const onSuggestion = useCallback(
 			( suggestion: string ) => {
 				onBlockSuggestion( suggestion );
 
 				// Make sure the block element has the necessary bottom padding, as it can be replaced or changed
-				const block = ownerDocument.current.getElementById( id );
-
-				if ( block && controlRef.current ) {
-					block.style.setProperty(
-						'padding-bottom',
-						`calc(${ controlHeight.current + BLOCK_INPUT_GAP }px + ${
-							blockPaddingBottom.current || '0px'
-						} )`,
-						'important'
-					);
-				}
+				adjustBlockPadding();
 			},
-			[ id, onBlockSuggestion ]
+			[ onBlockSuggestion, adjustBlockPadding ]
 		);
 
 		// Called after the last suggestion chunk is received.
 		const onDone = useCallback( () => {
 			onBlockDone();
 			increaseRequestsCount();
-			inputRef.current?.focus();
 			setAction( '' );
 			setLastRequest( null );
-		}, [ onBlockDone, increaseRequestsCount ] );
+
+			// Make sure the block element has the necessary bottom padding, as it can be replaced or changed
+			setTimeout( () => {
+				adjustBlockPadding();
+				inputRef.current?.focus();
+			}, 100 );
+		}, [ onBlockDone, increaseRequestsCount, adjustBlockPadding ] );
 
 		// Called when an error is received.
 		const onError = useCallback(
@@ -290,7 +303,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			// Once when the AI Control is displayed
 			if ( showAiControl && ! controlObserver.current && controlRef.current ) {
 				// Save the block bottom padding to reset it later.
-				blockPaddingBottom.current = block.style.paddingBottom;
+				blockOriginalPaddingBottom.current = block.style.paddingBottom;
 
 				// Observe the control's height to adjust the block's bottom padding.
 				controlObserver.current = new ResizeObserver( ( [ entry ] ) => {
@@ -299,14 +312,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					controlHeight.current = entry.contentRect.height;
 
 					if ( block && controlRef.current && controlHeight.current > 0 ) {
-						// The gap between the input and the block's bottom is set at BLOCK_INPUT_GAP, regardless of the theme
-						block.style.setProperty(
-							'padding-bottom',
-							`calc(${ controlHeight.current + BLOCK_INPUT_GAP }px + ${
-								blockPaddingBottom.current || '0px'
-							} )`,
-							'important'
-						);
+						adjustBlockPadding( block );
 
 						const { marginBottom } = getComputedStyle( block );
 						const bottom = parseFloat( marginBottom );
@@ -331,7 +337,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				controlObserver.current.observe( controlRef.current );
 			} else if ( controlObserver.current ) {
-				block.style.paddingBottom = blockPaddingBottom.current;
+				block.style.paddingBottom = blockOriginalPaddingBottom.current;
 
 				controlObserver.current.disconnect();
 				controlObserver.current = null;
@@ -343,7 +349,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					controlObserver.current.disconnect();
 				}
 			};
-		}, [ clientId, controlObserver, id, showAiControl ] );
+		}, [ adjustBlockPadding, clientId, controlObserver, id, showAiControl ] );
 
 		return (
 			<>
