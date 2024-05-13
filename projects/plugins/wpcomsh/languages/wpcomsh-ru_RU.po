@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-04-30 20:10:15+0000\n"
+"PO-Revision-Date: 2024-05-09 15:54:02+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,296 +11,438 @@ msgstr ""
 "Language: ru\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
+#: wpcom-plugins/plugins.php:42
+msgid "Explore plugins"
+msgstr "Открыть плагины"
+
+#: wpcom-plugins/plugins.php:40
+msgid "Access a variety of free and paid plugins that can enhance your site's functionality and features."
+msgstr ""
+
+#: wpcom-plugins/plugins.php:39
+msgid "Flex your site's features with plugins"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:62
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:63
+msgid "Theme Showcase"
+msgstr "Выставка тем"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:38
+msgid "Explore themes"
+msgstr "Просмотр тем"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:36
+msgid "Dive deep into the world of WordPress.com themes. Discover the responsive and stunning designs waiting to bring your site to life."
+msgstr "Исследуйте вселенную тем WordPress.com. Найдите множество великолепных вариантов адаптивного дизайна, готовых оживить ваш сайт прямо сейчас."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:35
+msgid "Find the perfect theme for your site"
+msgstr "Найдите идеальную тему для вашего сайта."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:155
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:156
+msgid "Connections"
+msgstr "Подключения"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:220
+msgid "A few catchy words to motivate your readers to comment"
+msgstr "Несколько слов, чтобы побудить читателей оставлять комментарии"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:182
+msgid "Enable blocks in comments"
+msgstr "Включить блоки в комментариях"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:171
+msgid "Let visitors use a WordPress.com or Facebook account to comment"
+msgstr "Разрешить посетителям использовать учётные записи WordPress.com или Facebook, чтобы оставлять комментарии"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:160
+msgid "Adjust your Comments form with a clever greeting and color-scheme."
+msgstr "Настройте форму для комментариев с помощью приветственного текста и цветовой схемы."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:140
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:252
+msgid "Color Scheme"
+msgstr "Цветовая схема"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:124
+msgid "Greeting Text"
+msgstr "Текст Приветствия"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:108
+msgid "Allow Blocks"
+msgstr "Разрешить блоки"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:95
+msgid "Verbum"
+msgstr "Verbum"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:82
+msgid "Dark"
+msgstr "Тёмная"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:81
+msgid "Light"
+msgstr "Светлый"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:80
+msgid "Transparent"
+msgstr "Прозрачность"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:802
+msgid "Launch your store"
+msgstr "Запустите ваш магазин"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:792
+msgid "Add a domain"
+msgstr "Добавить домен"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:782
+msgid "Grow your business"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:772
+msgid "Collect sales tax"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:762
+msgid "Get paid with WooPayments"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:752
+msgid "Add your products"
+msgstr "Добавить товары"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:742
+msgid "Customize your store"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:126
+msgid "Sunset"
+msgstr "Закат"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:114
+msgid "Sakura"
+msgstr "Сакура"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:102
+msgid "Powder Snow"
+msgstr "Снегопад"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:90
+msgid "Nightfall"
+msgstr "Сумерки"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:78
+msgid "Contrast"
+msgstr "Контраст"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:66
+msgid "Classic Dark"
+msgstr "Классическая тёмная"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:54
+msgid "Classic Bright"
+msgstr "Классический яркий"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:42
+msgid "Classic Blue"
+msgstr "Классический синий"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:30
+msgid "Aquatic"
+msgstr "Морская"
+
+#: feature-plugins/nav-redesign.php:43 feature-plugins/nav-redesign.php:44
+msgid "Overview"
+msgstr "Обзор"
+
 #. translators: post title
 #: vendor/automattic/jetpack-post-list/src/class-post-list.php:174
 msgid "Share &#8220;%s&#8221; via Jetpack Social"
 msgstr "Поделиться \"%s\" через Jetpack Social"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:255
-msgid "To access settings for plans, domains, subscribers, etc., click \"Hosting\" in the sidebar."
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:449
+msgid "To access settings for plans, domains, emails, etc., click \"Hosting\" in the sidebar."
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:253
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:447
 msgid "WordPress.com"
 msgstr "WordPress.com"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:166
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:167
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:164
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:165
 msgid "Settings"
 msgstr "Настройки"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:157
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:158
-msgid "Subscribers"
-msgstr "Подписчики"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:148
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:149
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:350
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:351
 msgid "Monetize"
 msgstr "Монетизация"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:139
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:140
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:146
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:147
 msgid "Monitoring"
 msgstr "Мониторинг"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:130
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:131
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:137
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:138
 msgid "Configuration"
 msgstr "Конфигурация"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:121
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:122
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:128
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:129
 msgid "Purchases"
 msgstr "Покупки"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:112
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:113
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:119
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:120
 msgid "Emails"
 msgstr "Электронная почта"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:103
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:104
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:110
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:111
 msgid "Domains"
 msgstr "Домен"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:93
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:94
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:100
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:101
 msgid "Add-ons"
 msgstr "Дополнения"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:83
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:84
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:90
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:91
 msgid "Plans"
 msgstr "Тарифы"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:63
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:64
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:70
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:71
 msgid "Hosting"
 msgstr "Хостинг"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:35
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:36
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:200
 msgid "All Sites"
 msgstr "Все сайты"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:456
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:465
 msgid "Error: please try commenting again."
 msgstr "Ошибка, попробуйте оставить комментарий ещё раз."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:381
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:387
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:394
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:390
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:396
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:403
 msgid "Error: your Facebook login has expired."
 msgstr "Ошибка: срок действия вашего логина Facebook истёк."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:292
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:301
 msgid "Cancel reply"
 msgstr "Отменить ответ"
 
 #. translators: % is the original posters name
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:291
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:300
 msgid "Leave a reply to %s"
 msgstr "Ответить на %s"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:289
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:73
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:283
 msgid "Leave a comment"
 msgstr "Оставьте комментарий"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:231
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:233
 msgid "Save my name, email, and website in this browser for the next time I comment."
 msgstr "Сохранить моё имя, email и адрес сайта в этом браузере для последующих моих комментариев."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:230
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:232
 msgid "Comment sent successfully"
 msgstr "Комментарий отправлен."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:229
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:231
 msgid "Subscribe"
 msgstr "Подписаться"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:228
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:230
 msgid "Enter your email address"
 msgstr "Введите свой адрес электронной почты"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:227
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:229
 msgid "Interested in getting blog post updates? Simply click the button below to stay in the loop!"
 msgstr "Хотите получать уведомления о новых записях в блоге? Чтобы всегда быть в курсе новостей, просто нажмите кнопку ниже!"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:226
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:228
 msgid "Never miss a beat!"
 msgstr "Не упустите ничего!"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:225
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:227
 msgid "Continue reading"
 msgstr "Читать дальше"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:224
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:226
 msgid "Subscribe now to keep reading and get access to the full archive."
 msgstr "Подпишитесь на рассылку, чтобы продолжить чтение и получить доступ к полному архиву."
 
 #. translators: %s is the name of the site
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:223
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:225
 msgid "Discover more from %s"
 msgstr "Больше на %s"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:221
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:223
 msgid "Loading your comment..."
 msgstr "Загрузка комментария…"
 
 #. translators: Success message of a modal when user subscribes
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:220
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:222
 msgid "We'll keep you in the loop!"
 msgstr "Мы будем держать вас в курсе."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:218
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:220
 msgid "Optional"
 msgstr "Опционально"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:217
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:219
 msgid "Website"
 msgstr "Вебсайт"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:216
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:218
 msgid "Write a reply..."
 msgstr "Написать ответ..."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:214
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:216
 msgid "Cancel"
 msgstr "Отменить"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:213
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:215
 msgid "Email me new comments"
 msgstr "Отправлять мне email о новых комментариях"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:212
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:214
 msgid "Email me new posts"
 msgstr "Уведомлять меня о новых записях почтой"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:211
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:213
 msgid "Notify me of new posts"
 msgstr "Уведомлять меня о новых записях"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:210
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:212
 msgid "Weekly"
 msgstr "Еженедельно"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:209
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:211
 msgid "WordPress"
 msgstr "WordPress"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:208
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:210
 msgid "Comment"
 msgstr "Комментарий"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:207
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:209
 msgid "Reply"
 msgstr "Ответить"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:206
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:208
 msgid "Daily"
 msgstr "Ежедневно"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:205
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:207
 msgid "Instantly"
 msgstr "Мгновенно"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:204
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:206
 msgid "(Address never made public)"
 msgstr "(Адрес никогда не будет опубликован)"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:202
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:204
 msgid "Log out"
 msgstr "Выйти"
 
 #. translators: %s is the name of the provider (WordPress, Facebook, Twitter)
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:201
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:203
 msgid "Logged in via %s"
 msgstr "Выполнен вход через %s"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:199
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:201
 msgid "Log in to leave a comment."
 msgstr "Войдите, чтобы добавить комментарий."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:198
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:200
 msgid "Log in to leave a reply."
 msgstr "Войдите, чтобы добавить ответ."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:197
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:199
 msgid "Leave a comment. (log in optional)"
 msgstr "Оставить комментарий (вход в систему по желанию)"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:196
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:198
 msgid "Leave a reply. (log in optional)"
 msgstr "Ответить. (Вход в систему не обязателен.)"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:195
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:197
 msgid "Website (optional)"
 msgstr "Веб-сайт (необязательно)"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:194
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:196
 msgid "Email (address never made public)"
 msgstr "Адрес электронной почты (никогда не будет опубликован)"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:192
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:194
 msgid "Receive web and mobile notifications for posts on this site."
 msgstr "Получайте уведомления о новых записях на этом сайте через Интернет или по мобильной связи."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:191
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:193
 msgid "Log in or provide your name and email to leave a comment."
 msgstr "Чтобы оставить комментарий, войдите в систему или укажите ваше имя и адрес электронной почты."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:190
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:192
 msgid "Log in or provide your name and email to leave a reply."
 msgstr "Чтобы ответить, войдите в систему или укажите ваше имя и адрес электронной почты."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-gutenberg-editor.php:30
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:215
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:217
 msgid "Write a comment..."
 msgstr "Опубликовать комментарий..."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:42
+#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:39
 msgid "Get started"
 msgstr "Начало работы"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:40
+#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:37
 msgid "Use WordPress.com’s guided importer to import posts and comments from Medium, Substack, Squarespace, Wix, and more."
 msgstr "Воспользуйтесь мастером пошагового импорта WordPress.com, чтобы импортировать записи и комментарии из Medium, Substack, Squarespace, Wix и других платформ."
 
 #: notices/feature-moved-to-jetpack-notices.php:21
 msgid "Visit %1$sJetpack Settings%2$s for more writing settings powered by Jetpack."
-msgstr ""
+msgstr "Перейдите в %1$sНастройки Jetpack%2$s, чтобы получить доступ ко множеству настроек письма, поддерживаемых Jetpack."
 
 #: feature-plugins/scheduled-updates.php:37
 #: feature-plugins/scheduled-updates.php:38
 msgid "Scheduled Updates"
 msgstr "Запланированные обновления"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:689
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:730
 msgid "Verify the email address for your domains"
 msgstr "Подтвердите адрес эл. почты для своих доменов"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:271
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:277
 msgid "Site setup"
 msgstr "Настройка сайта"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:679
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:720
 msgid "Finish Sensei setup"
 msgstr "Завершите настройку Sensei"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:669
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:710
 msgid "Finish store setup"
 msgstr "Завершить настройку магазина"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:652
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:693
 msgid "Update your site's design"
 msgstr "Обновите дизайн вашего сайта"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:643
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:684
 msgid "Enable post sharing"
 msgstr "Включите возможность делиться записями"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:634
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:675
 msgid "Install the mobile app"
 msgstr "Установите мобильное приложение"
 
@@ -377,117 +519,113 @@ msgstr "Импорт уже запущен."
 msgid "The backup import has been cancelled."
 msgstr "Импорт резервной копии отменён."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:30
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:44
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:59
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:72
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:85
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:101
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:113
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:126
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:139
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:153
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:170
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:184
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:198
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:239
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:255
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:36
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:50
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:65
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:78
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:91
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:107
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:119
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:132
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:145
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:159
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:176
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:190
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:204
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:245
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:261
 msgid "Next steps for your site"
 msgstr "Следующий шаги для вашего сайта"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:624
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:665
 msgid "Add the Subscribe Block to your site"
 msgstr "Добавьте блок подписки на свой сайт"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:613
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:651
 msgid "Import existing subscribers"
 msgstr "Импортировать подписчиков"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:604
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:642
 msgid "View site metrics"
 msgstr "Просмотр показателей сайта"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:595
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:633
 msgid "Set up ssh"
 msgstr "Настройка ssh"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:583
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:621
 msgid "Install a custom plugin"
 msgstr "Установка пользовательского плагина"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:571
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:609
 msgid "Choose a theme"
 msgstr "Выбрать тему"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:559
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:594
 msgid "Set up an offer for your supporters"
 msgstr "Создайте предложение для своих подписчиков"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:542
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:574
 msgid "Connect a Stripe account to collect payments"
 msgstr "Подключите учётную запись Stripe, чтобы получать платежи"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:527
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:559
 msgid "Add your About page"
 msgstr "Добавьте страницу «Обо мне»."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:517
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:549
 msgid "Manage your paid Newsletter plan"
 msgstr "Управляйте платной подпиской на рассылку"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:509
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:541
 msgid "Connect your social media accounts"
 msgstr "Подключить ваши аккаунты в соцсетях"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:498
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:527
 msgid "Manage your subscribers"
 msgstr "Управление подписчиками"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:485
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:514
 msgid "Write 3 posts"
 msgstr "Сделайте три записи"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:473
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:499
 msgid "Get your first 10 subscribers"
 msgstr "Найдите первые десять подписчиков"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:464
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:487
 msgid "Enable subscribers modal"
 msgstr "Включить модальное окно подписчиков"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:455
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:475
 msgid "Customize welcome message"
 msgstr "Редактировать приветственное сообщение"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:445
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:465
 msgid "Earn money with your newsletter"
 msgstr "Зарабатывайте на рассылке"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:388
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:408
 msgid "Update your About page"
 msgstr "Обновите страницу с информацией о вас"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:226
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:246
 msgid "Migrate content"
 msgstr "Переносите контент"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:150
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:167
 msgid "Verify email address"
 msgstr "Проверяйте адрес эл. почты"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:102
-msgid "Blog Posts"
-msgstr "Записи в блоге"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:118
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:120
 msgid "Prevents new post and page from being created as well as existing posts and pages from being edited, and closes comments site wide."
 msgstr "Не допускает создания новых и редактирования существующих записей и страниц, а также закрывает комментарии на всём сайте."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:117
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:119
 msgid "Enable Locked Mode"
 msgstr "Включить режим блокировки"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:100
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:102
 msgid "Locked Mode"
 msgstr "Режим блокировки"
 
@@ -505,7 +643,7 @@ msgid "Legacy Contact"
 msgstr "Контактные данные наследника"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:73
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:93
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:95
 msgid "Enhanced Ownership"
 msgstr "Усовершенствованный протокол передачи собственности"
 
@@ -538,36 +676,36 @@ msgstr "Файла не существует"
 msgid "Could not determine importer type."
 msgstr "Не удалось определить тип средства импорта"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:437
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:457
 msgid "Share your site"
 msgstr "Делитесь содержимым сайта"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:407
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:427
 msgid "Edit a page"
 msgstr "Редактировать страницу"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1529
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1665
 msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
 msgstr "Ваш сайт содержит стили Premium. Перейдите на платный тарифный план, чтобы их опубликовать и получить массу других возможностей."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:422
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:442
 msgid "Customize your domain"
 msgstr "Измените доменное имя"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:375
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:395
 msgid "Add a new page"
 msgstr "Добавить новую страницу"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:365
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:385
 msgid "Drive traffic to your site"
 msgstr "Привлекайте посетителей на сайт"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:130
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:351
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:146
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:371
 msgid "Give your site a name"
 msgstr "Дайте имя своему сайту"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:61
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:77
 msgid "Claim your free one-year domain"
 msgstr "Получите домен бесплатно на год"
 
@@ -586,87 +724,87 @@ msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "Поделиться"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:991
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1544
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1127
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1680
 msgid "Upgrade plan"
 msgstr "Обновить план"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:177
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:194
 msgid "Create paid Newsletter"
 msgstr "Создайте платную рассылку"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:199
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:216
 msgid "Set up payment method"
 msgstr "Настройте способ оплаты"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:72
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:88
 msgid "Choose a domain"
 msgstr "Выберите домен"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:308
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:328
 msgid "Launch your blog"
 msgstr "Запустите свой блог"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:28
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:44
 msgid "Edit site design"
 msgstr "Измените дизайн сайта"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:342
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:362
 msgid "Set up your site"
 msgstr "Настройте ваш сайт"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:316
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:336
 msgid "Name your blog"
 msgstr "Название блога"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:328
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:348
 msgid "Personalize your site"
 msgstr "Персонализируйте ваш сайт"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:287
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:307
 msgid "Upload your first video"
 msgstr "Загрузите ваше первое видео"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:280
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:300
 msgid "Set up your video site"
 msgstr "Настройте ваш видео-сайт"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:143
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:241
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:159
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:261
 msgid "Launch your site"
 msgstr "Запустите свой сайт"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:249
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:269
 msgid "Add links"
 msgstr "Добавить ссылки"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:261
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:281
 msgid "Personalize Link in Bio"
 msgstr "Персонализировать сайт-биографию"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:41
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:51
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:57
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:67
 msgid "Select a design"
 msgstr "Выберите дизайн"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:163
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:180
 msgid "Start writing"
 msgstr "Начать писать"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:87
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:103
 msgid "Write your first post"
 msgstr "Напишите свою первую запись"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:216
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:233
 msgid "Add subscribers"
 msgstr "Добавить подписчиков"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:107
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:119
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:123
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:135
 msgid "Choose a plan"
 msgstr "Выбрать тариф"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:187
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:204
 msgid "Personalize newsletter"
 msgstr "Персонализировать рассылку"
 
@@ -1134,8 +1272,8 @@ msgid "Edit"
 msgstr "Править"
 
 #: private-site/logged-in-banner.php:165
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:74
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:75
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:81
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:82
 msgid "My Home"
 msgstr "Главная"
 
@@ -1179,7 +1317,7 @@ msgstr "Внимание! Индексация сайта поисковыми �
 #. translators: 1: opening anchor tag; 2: closing anchor tag.
 #: feature-plugins/full-site-editing.php:127
 msgid "Heads up! Your site is currently in Coming Soon mode. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
-msgstr "Внимание! Ваш сайт находится в режиме «Скоро запуск». Чтобы этот сайт отображался в результатах поиска, запустите сайт. %1$sНажмите здесь%2$s, чтобы изменить настройки приватности сайта."
+msgstr "Внимание! Ваш сайт находится в режиме «Скоро запуск». Чтобы этот сайт отображался в результатах поиска, запустите сайт. %1$sНажмите здесь%2$s, чтобы изме��ить настройки приватности сайта."
 
 #: feature-plugins/class-theme-homepage-switcher.php:111
 msgid "Home"
@@ -1289,7 +1427,7 @@ msgstr "Исключить:"
 
 #: widgets/class-wpcom-category-cloud-widget.php:146
 msgid "Maximum number of categories to show:"
-msgstr "Максим��льное количество отображаемых рубрик:"
+msgstr "Максимальное количество отображаемых рубрик:"
 
 #: widgets/class-wpcom-category-cloud-widget.php:117
 msgid "If you use more <a href=\"%s\">categories</a> on your site, they will appear here."
@@ -1313,11 +1451,12 @@ msgid "Update visibility"
 msgstr "Изменение настроек отображения"
 
 #: private-site/logged-in-banner.php:87
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:273
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:293
 msgid "Launch site"
 msgstr "Запустить сайт"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:258
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:251
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:452
 msgid "Dismiss"
 msgstr "Закрыть"
 
@@ -1514,11 +1653,11 @@ msgid "Display your about.me profile with thumbnail"
 msgstr "Отображать профиль about.me с эскизом"
 
 #: safeguard/utils.php:68
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1194
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1205
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1259
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1270
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1278
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1330
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1341
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1395
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1406
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1414
 msgid "Unable to fetch the requested data."
 msgstr "Не удалось получить запрошенные данные."
 
@@ -1731,7 +1870,7 @@ msgstr "Телефон"
 msgid "Email"
 msgstr "Электронная почта"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:193
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:195
 #: widgets/class-aboutme-widget.php:129
 #: widgets/class-wpcom-widget-reservations.php:22
 msgid "Name"

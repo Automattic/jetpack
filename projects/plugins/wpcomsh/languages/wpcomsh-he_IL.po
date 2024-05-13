@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-04-30 20:10:15+0000\n"
+"PO-Revision-Date: 2024-05-09 15:54:02+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,296 +11,438 @@ msgstr ""
 "Language: he_IL\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
+#: wpcom-plugins/plugins.php:42
+msgid "Explore plugins"
+msgstr "סקירת תוספים"
+
+#: wpcom-plugins/plugins.php:40
+msgid "Access a variety of free and paid plugins that can enhance your site's functionality and features."
+msgstr ""
+
+#: wpcom-plugins/plugins.php:39
+msgid "Flex your site's features with plugins"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:62
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:63
+msgid "Theme Showcase"
+msgstr "ערכות עיצוב ותבניות"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:38
+msgid "Explore themes"
+msgstr "לעיון בערכות העיצוב"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:36
+msgid "Dive deep into the world of WordPress.com themes. Discover the responsive and stunning designs waiting to bring your site to life."
+msgstr "זו ההזדמנות שלך לצלול לעומק בעולם של ערכות העיצוב לבלוג של WordPress.com. כאן תהיה לך אפשרות לגלות את העיצובים הריספונסיביים והמרהיבים שממתינים להפיח חיים באתר האינטרנט שלך."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:35
+msgid "Find the perfect theme for your site"
+msgstr "למצוא את ערכת העיצוב המושלמת לאתר שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:155
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:156
+msgid "Connections"
+msgstr "חיבורים"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:220
+msgid "A few catchy words to motivate your readers to comment"
+msgstr "הכניסו כמה מילים שיגרמו לקוראים שלכם להגיב"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:182
+msgid "Enable blocks in comments"
+msgstr "להפעיל בלוקים בתגובות"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:171
+msgid "Let visitors use a WordPress.com or Facebook account to comment"
+msgstr "מבקרים יוכלו להגיב דרך חשבונות WordPress.com או פייסבוק"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:160
+msgid "Adjust your Comments form with a clever greeting and color-scheme."
+msgstr "התאמת טופס התגובה עם ברכת שלום שנונה וערכת צבעים."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:140
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:252
+msgid "Color Scheme"
+msgstr "סכימת צבעים"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:124
+msgid "Greeting Text"
+msgstr "טקסט ברכה"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:108
+msgid "Allow Blocks"
+msgstr "לאפשר בלוקים"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:95
+msgid "Verbum"
+msgstr "Verbum"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:82
+msgid "Dark"
+msgstr "כהה"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:81
+msgid "Light"
+msgstr "צבעים בהירים"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:80
+msgid "Transparent"
+msgstr "שקוף"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:802
+msgid "Launch your store"
+msgstr "להשיק את החנות שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:792
+msgid "Add a domain"
+msgstr "הוספת דומיין"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:782
+msgid "Grow your business"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:772
+msgid "Collect sales tax"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:762
+msgid "Get paid with WooPayments"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:752
+msgid "Add your products"
+msgstr "להוסיף את המוצרים שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:742
+msgid "Customize your store"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:126
+msgid "Sunset"
+msgstr "שקיעה"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:114
+msgid "Sakura"
+msgstr "פריחת הדובדבן"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:102
+msgid "Powder Snow"
+msgstr "שלג לבן"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:90
+msgid "Nightfall"
+msgstr "שעת בין ערביים"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:78
+msgid "Contrast"
+msgstr "ניגודיות"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:66
+msgid "Classic Dark"
+msgstr "כהה קלאסי"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:54
+msgid "Classic Bright"
+msgstr "בהיר קלסי"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:42
+msgid "Classic Blue"
+msgstr "כחול קלסי"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:30
+msgid "Aquatic"
+msgstr "ימי"
+
+#: feature-plugins/nav-redesign.php:43 feature-plugins/nav-redesign.php:44
+msgid "Overview"
+msgstr "סקירה"
+
 #. translators: post title
 #: vendor/automattic/jetpack-post-list/src/class-post-list.php:174
 msgid "Share &#8220;%s&#8221; via Jetpack Social"
 msgstr "לשתף את \"%s\" באמצעות Jetpack Social"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:255
-msgid "To access settings for plans, domains, subscribers, etc., click \"Hosting\" in the sidebar."
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:449
+msgid "To access settings for plans, domains, emails, etc., click \"Hosting\" in the sidebar."
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:253
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:447
 msgid "WordPress.com"
 msgstr "וורדפרס.קום"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:166
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:167
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:164
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:165
 msgid "Settings"
 msgstr "הגדרות"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:157
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:158
-msgid "Subscribers"
-msgstr "מנויים"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:148
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:149
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:350
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:351
 msgid "Monetize"
 msgstr "להפיק רווחים"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:139
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:140
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:146
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:147
 msgid "Monitoring"
 msgstr "מעקב"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:130
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:131
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:137
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:138
 msgid "Configuration"
 msgstr "הגדרות"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:121
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:122
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:128
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:129
 msgid "Purchases"
 msgstr "רכישות"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:112
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:113
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:119
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:120
 msgid "Emails"
-msgstr "כתובות אימייל"
+msgstr "הודעות אימייל"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:103
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:104
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:110
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:111
 msgid "Domains"
 msgstr "דומיינים (שמות מתחם)"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:93
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:94
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:100
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:101
 msgid "Add-ons"
 msgstr "תוספים"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:83
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:84
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:90
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:91
 msgid "Plans"
 msgstr "תוכניות"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:63
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:64
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:70
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:71
 msgid "Hosting"
 msgstr "שירותי אחסון"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:35
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:36
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:200
 msgid "All Sites"
 msgstr "כל האתרים"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:456
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:465
 msgid "Error: please try commenting again."
 msgstr "שגיאה: יש להזין את התגובה שוב."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:381
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:387
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:394
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:390
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:396
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:403
 msgid "Error: your Facebook login has expired."
 msgstr "שגיאה: כניסת Facebook שלך פגה."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:292
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:301
 msgid "Cancel reply"
 msgstr "בטל תשובה"
 
 #. translators: % is the original posters name
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:291
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:300
 msgid "Leave a reply to %s"
 msgstr "כתוב תגובה ל%s"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:289
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:73
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:283
 msgid "Leave a comment"
 msgstr "כתיבת תגובה"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:231
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:233
 msgid "Save my name, email, and website in this browser for the next time I comment."
 msgstr "לשמור בדפדפן זה את השם, האימייל והאתר שלי לפעם הבאה שאגיב."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:230
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:232
 msgid "Comment sent successfully"
 msgstr "תגובה נשלחה בהצלחה"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:229
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:231
 msgid "Subscribe"
 msgstr "הרשמה"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:228
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:230
 msgid "Enter your email address"
 msgstr "יש להקליד את כתובת האימייל שלך"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:227
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:229
 msgid "Interested in getting blog post updates? Simply click the button below to stay in the loop!"
 msgstr "מעניין אותך לקבל עדכון על פוסטים בבלוג? פשוט לוחצים על הכפתור שלהלן כדי להיות בעניינים!"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:226
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:228
 msgid "Never miss a beat!"
 msgstr "ככה לא מפספסים שום דבר!"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:225
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:227
 msgid "Continue reading"
 msgstr "להמשיך לקרוא"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:224
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:226
 msgid "Subscribe now to keep reading and get access to the full archive."
 msgstr "כדי להמשיך לקרוא ולקבל גישה לארכיון המלא יש להירשם עכשיו."
 
 #. translators: %s is the name of the site
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:223
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:225
 msgid "Discover more from %s"
 msgstr "לגלות עוד בנושא %s"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:221
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:223
 msgid "Loading your comment..."
 msgstr "טוען את התגובה שלך..."
 
 #. translators: Success message of a modal when user subscribes
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:220
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:222
 msgid "We'll keep you in the loop!"
 msgstr "אנו נמשיך לעדכן אותך!"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:218
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:220
 msgid "Optional"
 msgstr "אופציונאלי"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:217
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:219
 msgid "Website"
 msgstr "אתר אינטרנט"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:216
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:218
 msgid "Write a reply..."
 msgstr "לכתוב תגובה..."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:214
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:216
 msgid "Cancel"
 msgstr "לבטל"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:213
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:215
 msgid "Email me new comments"
 msgstr "שלחו לי אימייל על תגובות חדשות"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:212
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:214
 msgid "Email me new posts"
 msgstr "שלח לי אימייל על פוסטים חדשים"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:211
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:213
 msgid "Notify me of new posts"
 msgstr "שלח לי הודעות על פוסטים חדשים"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:210
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:212
 msgid "Weekly"
 msgstr "אחת לשבוע"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:209
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:211
 msgid "WordPress"
 msgstr "WordPress"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:208
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:210
 msgid "Comment"
 msgstr "תגובה"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:207
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:209
 msgid "Reply"
 msgstr "להגיב"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:206
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:208
 msgid "Daily"
 msgstr "יומי"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:205
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:207
 msgid "Instantly"
 msgstr "מיידית"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:204
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:206
 msgid "(Address never made public)"
 msgstr "(הכתובת לעולם לא תפורסם)"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:202
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:204
 msgid "Log out"
 msgstr "התנתק"
 
 #. translators: %s is the name of the provider (WordPress, Facebook, Twitter)
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:201
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:203
 msgid "Logged in via %s"
 msgstr "התחברת דרך %s"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:199
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:201
 msgid "Log in to leave a comment."
 msgstr "להתחבר כדי להגיב."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:198
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:200
 msgid "Log in to leave a reply."
 msgstr "יש להתחבר כדי להשאיר תגובה."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:197
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:199
 msgid "Leave a comment. (log in optional)"
 msgstr "להגיב. (לא נדרש להתחבר)"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:196
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:198
 msgid "Leave a reply. (log in optional)"
 msgstr "להשאיר תגובה. (התחברות אופציונלית)"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:195
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:197
 msgid "Website (optional)"
 msgstr "אתר אינטרנט (אופציונאלי)"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:194
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:196
 msgid "Email (address never made public)"
 msgstr "אימייל (הכתובת לעולם לא תפורסם)"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:192
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:194
 msgid "Receive web and mobile notifications for posts on this site."
 msgstr "לקבל הודעות ברשת ובנייד על פוסטים באתר זה."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:191
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:193
 msgid "Log in or provide your name and email to leave a comment."
 msgstr "יש להתחבר או למסור את השם וכתובת האימייל שלך כדי להגיב."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:190
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:192
 msgid "Log in or provide your name and email to leave a reply."
 msgstr "יש להתחבר או לספק את שמך וכתובת האימייל שלך כדי להשאיר תגובה."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-gutenberg-editor.php:30
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:215
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:217
 msgid "Write a comment..."
 msgstr "לכתוב תגובה..."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:42
+#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:39
 msgid "Get started"
 msgstr "מתחילים כאן"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:40
+#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:37
 msgid "Use WordPress.com’s guided importer to import posts and comments from Medium, Substack, Squarespace, Wix, and more."
 msgstr "להשתמש במייבא של WordPress.com שידריך אותך בייבוא של פוסטים ותגובות מ-Medium, מ-Substack, מ-Squarespace, מ-Wix ועוד."
 
 #: notices/feature-moved-to-jetpack-notices.php:21
 msgid "Visit %1$sJetpack Settings%2$s for more writing settings powered by Jetpack."
-msgstr ""
+msgstr "להגדרות כתיבה נוספות שמופעלות על ידי Jetpack, יש לעבור אל ⁦%1$s⁩הגדרות Jetpack%2$s."
 
 #: feature-plugins/scheduled-updates.php:37
 #: feature-plugins/scheduled-updates.php:38
 msgid "Scheduled Updates"
 msgstr "עדכונים מתוזמנים"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:689
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:730
 msgid "Verify the email address for your domains"
 msgstr "לאמת את כתובת האימייל עבור הדומיינים שלך"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:271
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:277
 msgid "Site setup"
 msgstr "עריכת הגדרות האתר"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:679
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:720
 msgid "Finish Sensei setup"
 msgstr "להשלים את ההגדרה של Sensei"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:669
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:710
 msgid "Finish store setup"
 msgstr "להשלים את ההגדרה של החנות"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:652
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:693
 msgid "Update your site's design"
 msgstr "לעדכן את העיצוב של האתר שלך"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:643
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:684
 msgid "Enable post sharing"
 msgstr "הפעלת השיתוף של הפוסטים"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:634
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:675
 msgid "Install the mobile app"
 msgstr "התקנת האפליקציה למכשירים ניידים"
 
@@ -377,117 +519,113 @@ msgstr "ייבוא כבר פועל."
 msgid "The backup import has been cancelled."
 msgstr "ייבוא הגיבוי בוטל."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:30
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:44
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:59
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:72
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:85
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:101
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:113
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:126
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:139
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:153
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:170
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:184
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:198
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:239
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:255
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:36
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:50
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:65
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:78
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:91
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:107
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:119
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:132
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:145
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:159
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:176
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:190
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:204
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:245
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:261
 msgid "Next steps for your site"
 msgstr "השלבים הבאים בבניית האתר שלך"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:624
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:665
 msgid "Add the Subscribe Block to your site"
 msgstr "להוסיף את הבלוק 'להירשם' לאתר שלך"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:613
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:651
 msgid "Import existing subscribers"
 msgstr "לייבא מנויים קיימים"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:604
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:642
 msgid "View site metrics"
 msgstr "הצגת מדדי האתר"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:595
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:633
 msgid "Set up ssh"
 msgstr "הגדרת SSH"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:583
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:621
 msgid "Install a custom plugin"
 msgstr "להתקין תוסף מותאם אישית"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:571
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:609
 msgid "Choose a theme"
 msgstr "לבחור ערכת עיצוב"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:559
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:594
 msgid "Set up an offer for your supporters"
 msgstr "להגדיר מבצע עבור התומכים שלך"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:542
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:574
 msgid "Connect a Stripe account to collect payments"
 msgstr "לחבר חשבון Stripe כדי לגבות תשלומים"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:527
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:559
 msgid "Add your About page"
 msgstr "להוסיף עמוד 'אודות' באתר שלך"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:517
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:549
 msgid "Manage your paid Newsletter plan"
 msgstr "לנהל את תוכנית הניוזלטר שלך בתשלום"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:509
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:541
 msgid "Connect your social media accounts"
 msgstr "חיבור חשבונות אישיים של רשתות חברתיות"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:498
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:527
 msgid "Manage your subscribers"
 msgstr "לנהל את המנויים שלך"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:485
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:514
 msgid "Write 3 posts"
 msgstr "לכתוב שלושה פוסטים"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:473
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:499
 msgid "Get your first 10 subscribers"
 msgstr "לקבל את 10 המנויים הראשונים שלך"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:464
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:487
 msgid "Enable subscribers modal"
 msgstr "להפעיל מודאל מנויים"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:455
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:475
 msgid "Customize welcome message"
 msgstr "להתאים אישית הודעת הצטרפות"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:445
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:465
 msgid "Earn money with your newsletter"
 msgstr "להרוויח כסף מהניוזלטר שלך"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:388
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:408
 msgid "Update your About page"
 msgstr "לעדכן את עמוד 'אודות' שלך"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:226
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:246
 msgid "Migrate content"
 msgstr "להעביר תוכן"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:150
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:167
 msgid "Verify email address"
 msgstr "לאמת את כתובת האימייל"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:102
-msgid "Blog Posts"
-msgstr "פוסטים בבלוג"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:118
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:120
 msgid "Prevents new post and page from being created as well as existing posts and pages from being edited, and closes comments site wide."
 msgstr "אפשרות זאת מונעת יצירה של פוסטים ועמודים חדשים ועריכה של פוסטים ועמודים קיימים; היא גם סוגרת תגובות באתר כולו."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:117
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:119
 msgid "Enable Locked Mode"
 msgstr "להפעיל מצב 'נעול'"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:100
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:102
 msgid "Locked Mode"
 msgstr "מצב נעול"
 
@@ -505,7 +643,7 @@ msgid "Legacy Contact"
 msgstr "איש קשר לענייני הורשה"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:73
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:93
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:95
 msgid "Enhanced Ownership"
 msgstr "בעלות משופרת"
 
@@ -538,36 +676,36 @@ msgstr "הקובץ לא קיים"
 msgid "Could not determine importer type."
 msgstr "לא ניתן לקבוע סוג מייבא"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:437
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:457
 msgid "Share your site"
 msgstr "שיתוף האתר שלך"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:407
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:427
 msgid "Edit a page"
 msgstr "לערוך עמוד"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1529
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1665
 msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
 msgstr "האתר שלך כולל סגנונות פרימיום. כדאי לשדרג עכשיו כדי לפרסם את השינויים שביצעת בצבעים ולנצל המון אפשרויות אחרות."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:422
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:442
 msgid "Customize your domain"
 msgstr "להתאים אישית את הדומיין שלך"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:375
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:395
 msgid "Add a new page"
 msgstr "עמוד חדש"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:365
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:385
 msgid "Drive traffic to your site"
 msgstr "להפנות תעבורה אל האתר שלך"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:130
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:351
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:146
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:371
 msgid "Give your site a name"
 msgstr "בחירת שם לאתר"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:61
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:77
 msgid "Claim your free one-year domain"
 msgstr "לקבל דומיין בחינם לשנה"
 
@@ -586,87 +724,87 @@ msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "לשתף"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:991
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1544
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1127
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1680
 msgid "Upgrade plan"
 msgstr "שדרוג התוכנית"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:177
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:194
 msgid "Create paid Newsletter"
 msgstr "ליצור ניוזלטר בתשלום"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:199
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:216
 msgid "Set up payment method"
 msgstr "להגדיר אמצעי תשלום"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:72
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:88
 msgid "Choose a domain"
 msgstr "לבחור דומיין"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:308
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:328
 msgid "Launch your blog"
 msgstr "להשיק את הבלוג שלך"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:28
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:44
 msgid "Edit site design"
 msgstr "עריכת עיצוב האתר"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:342
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:362
 msgid "Set up your site"
 msgstr "להגדיר את האתר שלך"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:316
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:336
 msgid "Name your blog"
 msgstr "שם לבלוג שלך"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:328
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:348
 msgid "Personalize your site"
 msgstr "להתאים אישית את האתר שלך"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:287
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:307
 msgid "Upload your first video"
 msgstr "להעלות את הסרטון הראשון שלך"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:280
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:300
 msgid "Set up your video site"
 msgstr "להגדיר את אתר הסרטונים שלך"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:143
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:241
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:159
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:261
 msgid "Launch your site"
 msgstr "להשיק את האתר שלך"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:249
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:269
 msgid "Add links"
 msgstr "להוסיף קישורים"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:261
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:281
 msgid "Personalize Link in Bio"
 msgstr "'קישור בביוגרפיה' מותאם אישית"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:41
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:51
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:57
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:67
 msgid "Select a design"
 msgstr "לבחור עיצוב"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:163
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:180
 msgid "Start writing"
 msgstr "להתחיל לכתוב"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:87
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:103
 msgid "Write your first post"
 msgstr "לכתוב את הפוסט הראשון שלך"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:216
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:233
 msgid "Add subscribers"
 msgstr "להוסיף מנויים"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:107
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:119
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:123
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:135
 msgid "Choose a plan"
 msgstr "בחירת תוכנית"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:187
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:204
 msgid "Personalize newsletter"
 msgstr "ניוזלטר מותאם אישית"
 
@@ -1133,8 +1271,8 @@ msgid "Edit"
 msgstr "ערוך"
 
 #: private-site/logged-in-banner.php:165
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:74
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:75
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:81
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:82
 msgid "My Home"
 msgstr "הבית שלי"
 
@@ -1312,11 +1450,12 @@ msgid "Update visibility"
 msgstr "לעדכן את הנראות"
 
 #: private-site/logged-in-banner.php:87
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:273
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:293
 msgid "Launch site"
 msgstr "השקת האתר"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:258
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:251
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:452
 msgid "Dismiss"
 msgstr "לסגור הודעה זו"
 
@@ -1513,11 +1652,11 @@ msgid "Display your about.me profile with thumbnail"
 msgstr "הצג את פרופיל about.me שלך יחד עם תמונה ממוזערת"
 
 #: safeguard/utils.php:68
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1194
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1205
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1259
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1270
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1278
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1330
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1341
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1395
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1406
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1414
 msgid "Unable to fetch the requested data."
 msgstr "אין אפשרות להביא את הנתונים שביקשת."
 
@@ -1730,7 +1869,7 @@ msgstr "טלפון"
 msgid "Email"
 msgstr "אימייל"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:193
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:195
 #: widgets/class-aboutme-widget.php:129
 #: widgets/class-wpcom-widget-reservations.php:22
 msgid "Name"

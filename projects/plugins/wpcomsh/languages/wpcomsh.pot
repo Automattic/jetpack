@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP.com Site Helper\n"
 "Report-Msgid-Bugs-To: help@wordpress.com\n"
-"POT-Creation-Date: 2024-05-07 16:31-0500\n"
+"POT-Creation-Date: 2024-05-13 11:17-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -470,18 +470,18 @@ msgid ""
 "custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr ""
 
-#: notices/storage-notices.php:37 notices/storage-notices.php:76
+#: notices/storage-notices.php:43 notices/storage-notices.php:77
 #, php-format
 msgid ""
 "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> "
 "upload limit (%3$s%%)."
 msgstr ""
 
-#: notices/storage-notices.php:111
+#: notices/storage-notices.php:112
 msgid "Disk space used"
 msgstr ""
 
-#: notices/storage-notices.php:115
+#: notices/storage-notices.php:116
 msgid "Disk space quota"
 msgstr ""
 
