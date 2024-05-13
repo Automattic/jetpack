@@ -80,6 +80,8 @@ class GA_Manager {
 	/**
 	 * Includes the GA settings into site settings during a fetch request.
 	 *
+	 * @phan-suppress PhanUndeclaredTypeParameter,PhanUndeclaredClassInstanceof,PhanUndeclaredClassProperty
+	 *
 	 * @param array                                  $settings The fetched settings.
 	 * @param \WPCOM_JSON_API_Site_Settings_Endpoint $api_handler The API handler object.
 	 *
@@ -102,6 +104,8 @@ class GA_Manager {
 
 	/**
 	 * Modifies the GA settings into site settings during an update request.
+	 *
+	 * @phan-suppress PhanUndeclaredTypeParameter,PhanUndeclaredClassInstanceof,PhanUndeclaredClassProperty
 	 *
 	 * @param array                                  $value The settings to update.
 	 * @param \WPCOM_JSON_API_Site_Settings_Endpoint $api_handler The API handler object.

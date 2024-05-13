@@ -117,7 +117,7 @@ class Utils {
 			return false;
 		}
 
-		switch ( strtolower( (string) $value ) ) {
+		switch ( strtolower( $value ) ) {
 			case '1':
 			case 't':
 			case 'true':

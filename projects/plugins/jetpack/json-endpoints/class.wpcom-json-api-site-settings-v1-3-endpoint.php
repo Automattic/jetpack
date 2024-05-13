@@ -152,6 +152,7 @@ class WPCOM_JSON_API_Site_Settings_V1_3_Endpoint extends WPCOM_JSON_API_Site_Set
 		if ( class_exists( GA_Manager::class ) ) {
 			$option_name = GA_Manager::get_instance()->get_google_analytics_option_name();
 		} else {
+			// @phan-suppress-next-line PhanDeprecatedFunction
 			$option_name = $this->get_google_analytics_option_name();
 		}
 

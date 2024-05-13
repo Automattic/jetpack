@@ -14,8 +14,8 @@ return [
     // PhanPluginDuplicateConditionalNullCoalescing : 280+ occurrences
     // PhanNoopNew : 200+ occurrences
     // PhanTypeMismatchReturn : 160+ occurrences
-    // PhanTypeMismatchReturnProbablyReal : 150+ occurrences
-    // PhanDeprecatedFunction : 120+ occurrences
+    // PhanTypeMismatchReturnProbablyReal : 140+ occurrences
+    // PhanDeprecatedFunction : 130+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 110+ occurrences
     // PhanTypeArraySuspiciousNullable : 95+ occurrences
     // PhanRedundantCondition : 70+ occurrences
@@ -293,7 +293,7 @@ return [
         'json-endpoints/class.wpcom-json-api-render-endpoint.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchArgument'],
         'json-endpoints/class.wpcom-json-api-render-shortcode-endpoint.php' => ['PhanNoopNew', 'PhanTypeMismatchReturn'],
         'json-endpoints/class.wpcom-json-api-sharing-buttons-endpoint.php' => ['PhanNoopNew', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypePossiblyInvalidDimOffset'],
-        'json-endpoints/class.wpcom-json-api-site-settings-endpoint.php' => ['PhanDeprecatedFunction', 'PhanNoopNew', 'PhanParamTooMany', 'PhanRedundantCondition', 'PhanRedundantConditionInLoop', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset'],
+        'json-endpoints/class.wpcom-json-api-site-settings-endpoint.php' => ['PhanDeprecatedFunction', 'PhanNoopNew', 'PhanParamTooMany', 'PhanRedundantCondition', 'PhanRedundantConditionInLoop', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypePossiblyInvalidDimOffset'],
         'json-endpoints/class.wpcom-json-api-site-settings-v1-2-endpoint.php' => ['PhanNoopNew'],
         'json-endpoints/class.wpcom-json-api-site-settings-v1-3-endpoint.php' => ['PhanNoopNew'],
         'json-endpoints/class.wpcom-json-api-site-settings-v1-4-endpoint.php' => ['PhanNoopNew'],
