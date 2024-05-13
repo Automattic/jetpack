@@ -6,21 +6,23 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
 	add_filter(
 		'insert_user_meta',
 		function ( $meta, $user, $update ) {
-			$locale     = $meta['locale'];
-			$old_locale = get_user_locale( $user );
+			$locale            = $meta['locale'];
+			$old_locale        = get_user_locale( $user );
+			$is_user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected();
 
-			if ( ! $update || $old_locale === $locale ) {
-				// Only for locale changes on an existing user
+			if ( ! $update || $old_locale === $locale || ! $is_user_connected ) {
+				// Only proceed for locale changes on an existing connected WPCOM user.
 				return $meta;
 			}
 
 			if ( ! $locale ) {
-				// No locale means the "Site Default" option which is the Site language (WPLANG).
+				// No locale means the "Site Default" option, which is the Site language (WPLANG).
 				$locale = get_option( 'WPLANG', '' );
 			}
 
