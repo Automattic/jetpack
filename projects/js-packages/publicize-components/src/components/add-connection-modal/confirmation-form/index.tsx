@@ -132,6 +132,8 @@ export function ConfirmationForm( { keyringResult, onComplete }: ConfirmationFor
 		return <div>{ __( 'No accounts/pages found.', 'jetpack' ) }</div>;
 	}
 
+	let defaultSelected = false;
+
 	return (
 		<section className={ styles.confirmation }>
 			<p>
@@ -152,8 +154,14 @@ export function ConfirmationForm( { keyringResult, onComplete }: ConfirmationFor
 					 */
 				 }
 				<div className={ styles[ 'accounts-list' ] }>
-					{ accountOptions.map( ( option, index ) => {
+					{ accountOptions.map( option => {
 						const alreadyConnected = isAlreadyConnected( option.value );
+						const defaultChecked = ! alreadyConnected && ! defaultSelected;
+
+						if ( defaultChecked ) {
+							defaultSelected = true;
+						}
+
 						return (
 							<label
 								key={ option.value }
@@ -165,7 +173,7 @@ export function ConfirmationForm( { keyringResult, onComplete }: ConfirmationFor
 									type="radio"
 									name="external_user_ID"
 									value={ option.value }
-									defaultChecked={ index === 0 && ! alreadyConnected }
+									defaultChecked={ defaultChecked }
 									className={ styles[ 'account-input' ] }
 									disabled={ alreadyConnected }
 									required
