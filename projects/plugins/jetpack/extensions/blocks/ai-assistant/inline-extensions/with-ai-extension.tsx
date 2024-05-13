@@ -70,8 +70,6 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const ownerDocument = useRef< Document >( document );
 		// A human-readable action to be displayed in the input when a toolbar suggestion is requested, like "Translate: Japanese".
 		const [ action, setAction ] = useState< string >( '' );
-		// Count of consecutive successful AI Assistant requests for the Undo button.
-		const [ consecutiveRequestCount, setConsecutiveRequestCount ] = useState( 0 );
 		// The last request made by the user, to be used when the user clicks the "Try Again" button.
 		const [ lastRequest, setLastRequest ] = useState< RequestOptions | null >( null );
 		// State to display the AI Control or not.
@@ -89,10 +87,11 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const { increaseRequestsCount, dequeueAsyncRequest } = useAiFeature();
 
 		// Data and functions with block-specific implementations.
-		const { onSuggestion: onBlockSuggestion, getContent } = useMemo(
-			() => blockHandler( blockName, clientId ),
-			[ blockName, clientId ]
-		);
+		const {
+			onSuggestion: onBlockSuggestion,
+			onDone: onBlockDone,
+			getContent,
+		} = useMemo( () => blockHandler( blockName, clientId ), [ blockName, clientId ] );
 
 		// Called when the user clicks the "Ask AI Assistant" button.
 		const handleAskAiAssistant = useCallback( () => {
@@ -151,12 +150,12 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		// Called after the last suggestion chunk is received.
 		const onDone = useCallback( () => {
+			onBlockDone();
 			increaseRequestsCount();
-			setConsecutiveRequestCount( count => count + 1 );
 			inputRef.current?.focus();
 			setAction( '' );
 			setLastRequest( null );
-		}, [ increaseRequestsCount ] );
+		}, [ onBlockDone, increaseRequestsCount ] );
 
 		// Called when an error is received.
 		const onError = useCallback(
@@ -252,18 +251,15 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			setShowAiControl( false );
 			resetSuggestions();
 			setAction( '' );
-			setConsecutiveRequestCount( 0 );
 			setLastRequest( null );
 		}, [ resetSuggestions ] );
 
 		// Called when the user clicks the "Undo" button after a successful request.
 		const handleUndo = useCallback( async () => {
-			for ( let i = 0; i < consecutiveRequestCount; i++ ) {
-				await undo();
-			}
+			await undo();
 
 			handleClose();
-		}, [ consecutiveRequestCount, handleClose, undo ] );
+		}, [ undo, handleClose ] );
 
 		// Closes the AI Control if the block is deselected.
 		useEffect( () => {
