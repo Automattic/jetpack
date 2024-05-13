@@ -94,7 +94,6 @@ export const updateAutoConversionSettings = settings => {
 	};
 };
 
-
 /**
  * createConnection action
  *
