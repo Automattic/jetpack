@@ -296,22 +296,6 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 			'woocommerce_default_country'    => array( 'woocommerce_default_country', '' ),
 			'woocommerce_store_postcode'     => array( 'woocommerce_store_postcode', '' ),
 			'woocommerce_onboarding_profile' => array( 'woocommerce_onboarding_profile', array() ),
-			'wga'                            => array(
-				'wga',
-				array(
-					'code'                          => '',
-					'anonymize_ip'                  => false,
-					'honor_dnt'                     => false,
-					'ec_track_purchases'            => false,
-					'ec_track_add_to_cart'          => false,
-					'enh_ec_tracking'               => false,
-					'enh_ec_track_remove_from_cart' => false,
-					'enh_ec_track_prod_impression'  => false,
-					'enh_ec_track_prod_click'       => false,
-					'enh_ec_track_prod_detail_view' => false,
-					'enh_ec_track_checkout_started' => false,
-				),
-			),
 		);
 	}
 
@@ -328,23 +312,6 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 			'woocommerce_default_country'    => array( 'woocommerce_default_country', 'woocommerce_default_country', 'US:NY' ),
 			'woocommerce_store_postcode'     => array( 'woocommerce_store_postcode', 'woocommerce_store_postcode', '98738' ),
 			'woocommerce_onboarding_profile' => array( 'woocommerce_onboarding_profile', 'woocommerce_onboarding_profile', array( 'test' => 'test value' ) ),
-			'wga'                            => array(
-				'jetpack_wga',
-				'wga',
-				array(
-					'code'                          => 'G-TESTING',
-					'anonymize_ip'                  => false,
-					'honor_dnt'                     => false,
-					'ec_track_purchases'            => false,
-					'ec_track_add_to_cart'          => false,
-					'enh_ec_tracking'               => false,
-					'enh_ec_track_remove_from_cart' => false,
-					'enh_ec_track_prod_impression'  => false,
-					'enh_ec_track_prod_click'       => false,
-					'enh_ec_track_prod_detail_view' => false,
-					'enh_ec_track_checkout_started' => false,
-				),
-			),
 		);
 	}
 
@@ -376,15 +343,6 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 				array(
 					'invitation'     => 'Test string <a href="#">link</a>',
 					'comment_follow' => "Test string 2\n\n Other line",
-				),
-			),
-			'wga'                                       => array(
-				'wga',
-				array(
-					'code' => 'G-TESTING',
-				),
-				array(
-					'code' => 'G-TESTING',
 				),
 			),
 		);
