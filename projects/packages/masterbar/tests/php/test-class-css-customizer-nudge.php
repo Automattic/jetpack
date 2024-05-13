@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 require_once ABSPATH . WPINC . '/class-wp-customize-manager.php';
 require_once ABSPATH . WPINC . '/class-wp-customize-control.php';
 
-require_once  dirname( __DIR__, 2 ) . '/src/nudges/bootstrap.php';
+require_once dirname( __DIR__, 2 ) . '/src/nudges/bootstrap.php';
 
 /**
  * @covers Automattic\Jetpack\Masterbar\WPCOM_CSS_Customizer_Nudge
