@@ -39,6 +39,7 @@ export type MessageProps = {
 
 export type UpgradeMessageProps = {
 	requestsRemaining: number;
+	severity?: MessageSeverityProp;
 	onUpgradeClick: ( event?: React.MouseEvent< HTMLButtonElement > ) => void;
 };
 
@@ -113,10 +114,17 @@ export function GuidelineMessage(): React.ReactElement {
  */
 export function UpgradeMessage( {
 	requestsRemaining,
+	severity,
 	onUpgradeClick,
 }: UpgradeMessageProps ): React.ReactElement {
+	let messageSeverity = severity;
+
+	if ( messageSeverity == null ) {
+		messageSeverity = requestsRemaining > 0 ? MESSAGE_SEVERITY_INFO : MESSAGE_SEVERITY_WARNING;
+	}
+
 	return (
-		<Message severity={ MESSAGE_SEVERITY_WARNING }>
+		<Message severity={ messageSeverity }>
 			<span>
 				{ sprintf(
 					// translators: %1$d: number of requests remaining
