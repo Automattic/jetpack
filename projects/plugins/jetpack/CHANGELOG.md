@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.4.1 - 2024-05-10
+### Bug fixes
+- Contact Form: Unhook the jetpack_form_register_pattern function to prevent unwanted deprecation notices. [#37278]
+
 ## 13.4 - 2024-05-07
 ### Enhancements
 - Jetpack AI: Add an AI Featured Image Generator. [#36709] [#36806] [#36812] [#36822] [#36831] [#36863] [#36865] [#36868] [#36899] [#36926] [#36963] [#36965] [#37086] [#37166] [#37209] [#37219]

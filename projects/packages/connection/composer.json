@@ -69,7 +69,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "2.7.x-dev"
+			"dev-trunk": "2.8.x-dev"
 		},
 		"dependencies": {
 			"test-only": [

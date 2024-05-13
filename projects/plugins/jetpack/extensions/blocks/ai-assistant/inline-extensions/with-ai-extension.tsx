@@ -43,6 +43,8 @@ const blockControlsProps = {
 	group: 'block' as const,
 };
 
+const BLOCK_INPUT_GAP = 16;
+
 type RequestOptions = {
 	promptType: PromptTypeProp;
 	options?: AiAssistantDropdownOnChangeOptionsArgProps;
@@ -60,8 +62,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const controlRef: React.MutableRefObject< HTMLDivElement | null > = useRef( null );
 		const controlHeight = useRef< number >( 0 );
 		const controlObserver = useRef< ResizeObserver | null >( null );
-		// Ref to the original block style to reset it when the AI Control is closed.
-		const blockStyle = useRef< string >( '' );
+		// Ref to the original block padding to reset it when the AI Control is closed.
+		const blockPaddingBottom = useRef< string >( '' );
 		// Ref to the input element to focus on it when the AI Control is displayed or when a request is done.
 		// Also used to determine the ownerDocument, as the editor can be in an iframe.
 		const inputRef: React.MutableRefObject< HTMLInputElement | null > = useRef( null );
@@ -135,7 +137,13 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				const block = ownerDocument.current.getElementById( id );
 
 				if ( block && controlRef.current ) {
-					block.style.paddingBottom = `${ controlHeight.current + 16 }px`;
+					block.style.setProperty(
+						'padding-bottom',
+						`calc(${ controlHeight.current + BLOCK_INPUT_GAP }px + ${
+							blockPaddingBottom.current || '0px'
+						} )`,
+						'important'
+					);
 				}
 			},
 			[ id, onBlockSuggestion ]
@@ -285,25 +293,49 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 			// Once when the AI Control is displayed
 			if ( showAiControl && ! controlObserver.current && controlRef.current ) {
-				// Save the block and control styles to adjust them later.
-				blockStyle.current = block.style.cssText;
+				// Save the block bottom padding to reset it later.
+				blockPaddingBottom.current = block.style.paddingBottom;
 
-				// Observe the control's height to adjust the block's bottom-padding.
+				// Observe the control's height to adjust the block's bottom padding.
 				controlObserver.current = new ResizeObserver( ( [ entry ] ) => {
 					// The block element can be replaced or changed, so we need to get it again.
 					block = ownerDocument.current.getElementById( id );
 					controlHeight.current = entry.contentRect.height;
 
 					if ( block && controlRef.current && controlHeight.current > 0 ) {
-						block.style.paddingBottom = `${ controlHeight.current + 16 }px`;
-						controlRef.current.style.marginTop = `-${ controlHeight.current }px`;
+						// The gap between the input and the block's bottom is set at BLOCK_INPUT_GAP, regardless of the theme
+						block.style.setProperty(
+							'padding-bottom',
+							`calc(${ controlHeight.current + BLOCK_INPUT_GAP }px + ${
+								blockPaddingBottom.current || '0px'
+							} )`,
+							'important'
+						);
+
+						const { marginBottom } = getComputedStyle( block );
+						const bottom = parseFloat( marginBottom );
+
+						// The control's margin-top is the negative of the control's height plus the block's bottom margin, to end up with the intended gap.
+						// P2 uses "!important", so we need to add it to override the theme's styles.
+						controlRef.current.style.setProperty(
+							'margin-top',
+							`-${ controlHeight.current + bottom }px`,
+							'important'
+						);
+
+						// The control's bottom margin is set to at least the same value as the block's bottom margin, to keep the distance to the next block.
+						// The gap height is added for a bit more space on themes with a smaller bottom margin.
+						controlRef.current.style.setProperty(
+							'margin-bottom',
+							`${ bottom + BLOCK_INPUT_GAP }px`,
+							'important'
+						);
 					}
 				} );
 
 				controlObserver.current.observe( controlRef.current );
 			} else if ( controlObserver.current ) {
-				// Reset the block's bottom-padding.
-				block.setAttribute( 'style', blockStyle.current );
+				block.style.paddingBottom = blockPaddingBottom.current;
 
 				controlObserver.current.disconnect();
 				controlObserver.current = null;
