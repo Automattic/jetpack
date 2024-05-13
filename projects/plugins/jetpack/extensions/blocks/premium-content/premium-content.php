@@ -151,6 +151,10 @@ function stripe_nudge( $checkout_url, $description, $button_text ) {
  * @return void
  */
 function add_paid_content_post_meta( int $post_id, WP_Post $post ) {
+	if ( $post->post_type !== 'post' ) {
+		return;
+	}
+
 	$contains_paid_content = has_block( 'premium-content/container', $post );
 	if ( $contains_paid_content ) {
 		update_post_meta(
