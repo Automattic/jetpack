@@ -19,13 +19,21 @@
 		}
 	}
 
-
 	&-content {
 		display: flex;
 		flex-direction: column;
 	}
 
 	&-label {
+		font-size: 15px;
 		font-weight: 600;
+		line-height: 22px;
+	}
+
+	&-description {
+		font-size: 13px;
+		font-weight: 400;
+		line-height: 20px;
+		padding-top: 4px;
 	}
 }

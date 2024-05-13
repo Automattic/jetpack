@@ -36,6 +36,7 @@ export function ConnectionStatus( { connection, onReconnect }: ConnectionStatusP
 				onDisconnect={ onReconnect }
 				variant="link"
 				isDestructive={ false }
+				showConfirmation={ false }
 			/>
 		</div>
 	);

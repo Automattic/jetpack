@@ -1735,6 +1735,8 @@ importers:
 
   projects/packages/boost-core: {}
 
+  projects/packages/calypsoify: {}
+
   projects/packages/chatbot: {}
 
   projects/packages/classic-theme-helper: {}

@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 3351540394517b0a4b819bcd0c6eaa1496e3a4a5.
+ * Stubs automatically generated from WordPress.com commit 4d47b3912b5c94f3fce6eb218ac453ab6b5cbcf6.
  */
 
 namespace {
@@ -127,7 +127,7 @@ namespace {
     class WPCOM_Store
     {
         /**
-         * @deprecated 
+         * @deprecated
          * @param int $user_id
          * @param int $blog_id
          * @param false $ids_only
@@ -343,6 +343,9 @@ namespace {
         public static function get_instance(): \Memberships_Store_Sandbox
         {
         }
+		public static function init(bool $force = false)
+		{
+		}
     }
     /**
      * @param int $user_id
@@ -748,6 +751,14 @@ namespace {
     class Keyring_Access_Token extends \Keyring_Token
     {
     }
+    /**
+     * @param string $service
+     * @param string $for
+     * @return string
+     */
+    function wpcom_keyring_get_connect_url($service, $for)
+    {
+    }
     class Likes
     {
         /**
@@ -830,7 +841,7 @@ namespace {
     /**
      * @param  string $url
      * @return string
-     * @internal 
+     * @internal
      */
     function staticize_subdomain($url)
     {
@@ -900,7 +911,7 @@ namespace {
     {
     }
     /**
-     * @deprecated 
+     * @deprecated
      * @return bool
     */
     function wpcom_is_jetpack_search_supported($blog_id)
