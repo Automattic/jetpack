@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.4.2 - 2024-05-13
+### Bug fixes
+- Tiled Gallery: Fix view rendering issues. [#37213]
+
 ## 13.4.1 - 2024-05-10
 ### Bug fixes
 - Contact Form: Unhook the jetpack_form_register_pattern function to prevent unwanted deprecation notices. [#37278]
