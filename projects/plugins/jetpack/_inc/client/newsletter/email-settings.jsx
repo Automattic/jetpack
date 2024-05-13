@@ -26,6 +26,9 @@ const FEATURED_IMAGE_IN_EMAIL_OPTION = 'wpcom_featured_image_in_email';
 const SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION = 'wpcom_subscription_emails_use_excerpt';
 const REPLY_TO_OPTION = 'jetpack_subscriptions_reply_to';
 const REPLY_TO_NAME_OPTION = 'jetpack_subscriptions_reply_to_name';
+//Check for feature flag
+const urlParams = new URLSearchParams( window.location.search );
+const isNewsletterReplyToNameEnabled = urlParams.get( 'enable-newsletter-replyto-name' ) === 'true';
 
 const EmailSettings = props => {
 	const {
@@ -213,48 +216,52 @@ const EmailSettings = props => {
 					onChange={ handleSubscriptionReplyToChange }
 				/>
 			</SettingsGroup>
-			<SettingsGroup
-				hasChild
-				disableInOfflineMode
-				disableInSiteConnectionMode
-				module={ subscriptionsModule }
-				support={ {
-					link: getRedirectUrl( 'jetpack-support-subscriptions', {
-						anchor: 'reply-to-email-address',
-					} ),
-					text: __(
-						"Sets the reply to email address for your newsletter emails. It's the email where subscribers send their replies.",
-						'jetpack'
-					),
-				} }
-			>
-				<FormLegend className="jp-form-label-wide">{ __( 'Reply-to name', 'jetpack' ) }</FormLegend>
-				<p>
-					{ __(
-						'Set the name that shows up when subscribers receive your newsletter emails.',
-						'jetpack'
-					) }
-				</p>
-				<Container horizontalGap={ 0 } fluid>
-					<Col sm={ 3 } md={ 7 } lg={ 11 }>
-						<TextInput
-							value={ replyToNameState }
-							disabled={ replyToNameInputDisabled }
-							onChange={ handleSubscriptionReplyToNameChange }
-						/>
-					</Col>
-					<Col sm={ 1 } md={ 1 } lg={ 1 }>
-						<Button
-							primary
-							rna
-							onClick={ handleSubscriptionReplyToNameChangeClick }
-							disabled={ replyToNameInputDisabled }
-						>
-							{ __( 'Save', 'jetpack' ) }
-						</Button>
-					</Col>
-				</Container>
-			</SettingsGroup>
+			{ isNewsletterReplyToNameEnabled && (
+				<SettingsGroup
+					hasChild
+					disableInOfflineMode
+					disableInSiteConnectionMode
+					module={ subscriptionsModule }
+					support={ {
+						link: getRedirectUrl( 'jetpack-support-subscriptions', {
+							anchor: 'reply-to-email-address',
+						} ),
+						text: __(
+							"Sets the reply to email address for your newsletter emails. It's the email where subscribers send their replies.",
+							'jetpack'
+						),
+					} }
+				>
+					<FormLegend className="jp-form-label-wide">
+						{ __( 'Reply-to name', 'jetpack' ) }
+					</FormLegend>
+					<p>
+						{ __(
+							'Set the name that shows up when subscribers receive your newsletter emails.',
+							'jetpack'
+						) }
+					</p>
+					<Container horizontalGap={ 0 } fluid>
+						<Col sm={ 3 } md={ 7 } lg={ 11 }>
+							<TextInput
+								value={ replyToNameState }
+								disabled={ replyToNameInputDisabled }
+								onChange={ handleSubscriptionReplyToNameChange }
+							/>
+						</Col>
+						<Col sm={ 1 } md={ 1 } lg={ 1 }>
+							<Button
+								primary
+								rna
+								onClick={ handleSubscriptionReplyToNameChangeClick }
+								disabled={ replyToNameInputDisabled }
+							>
+								{ __( 'Save', 'jetpack' ) }
+							</Button>
+						</Col>
+					</Container>
+				</SettingsGroup>
+			) }
 		</SettingsCard>
 	);
 };
