@@ -133,15 +133,15 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		if ( ! $this->use_wp_admin_interface() ) {
 			// The 'Subscribers' menu exists in the Jetpack menu for Classic wp-admin interface, so only add it for non-wp-admin interfaces.
-			add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null );
+			add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack-masterbar' ), __( 'Subscribers', 'jetpack-masterbar' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null );
 
 			// When the interface is not set to wp-admin, we replace the Profile submenu.
 			remove_submenu_page( 'users.php', 'profile.php' );
-			add_submenu_page( 'users.php', esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', 'https://wordpress.com/me/', null );
+			add_submenu_page( 'users.php', esc_attr__( 'My Profile', 'jetpack-masterbar' ), __( 'My Profile', 'jetpack-masterbar' ), 'read', 'https://wordpress.com/me/', null );
 		}
 
 		// Users who can't 'list_users' will see "Profile" menu & "Profile > Account Settings" as submenu.
-		add_submenu_page( $slug, esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', 'https://wordpress.com/me/account' );
+		add_submenu_page( $slug, esc_attr__( 'Account Settings', 'jetpack-masterbar' ), __( 'Account Settings', 'jetpack-masterbar' ), 'read', 'https://wordpress.com/me/account' );
 	}
 
 	/**
@@ -166,7 +166,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			function_exists( 'wpcom_site_has_feature' ) &&
 			! wpcom_site_has_feature( \WPCOM_Features::MANAGE_PLUGINS )
 		) {
-			add_menu_page( __( 'Plugins', 'jetpack' ), __( 'Plugins', 'jetpack' ), 'manage_options', $plugins_slug, null, 'dashicons-admin-plugins', '65' );
+			add_menu_page( __( 'Plugins', 'jetpack-masterbar' ), __( 'Plugins', 'jetpack-masterbar' ), 'manage_options', $plugins_slug, null, 'dashicons-admin-plugins', '65' );
 			return;
 		}
 
@@ -199,7 +199,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		}
 
 		// Add the menu item.
-		add_menu_page( __( 'site-switcher', 'jetpack' ), __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/sites', null, 'dashicons-arrow-left-alt2', 0 );
+		add_menu_page( __( 'site-switcher', 'jetpack-masterbar' ), __( 'Browse sites', 'jetpack-masterbar' ), 'read', 'https://wordpress.com/sites', null, 'dashicons-arrow-left-alt2', 0 );
 		add_filter( 'add_menu_classes', array( $this, 'set_browse_sites_link_class' ) );
 	}
 
@@ -232,7 +232,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			return;
 		}
 
-		add_menu_page( __( 'Add New Site', 'jetpack' ), __( 'Add New Site', 'jetpack' ), 'read', 'https://wordpress.com/start?ref=calypso-sidebar', null, 'dashicons-plus-alt' );
+		add_menu_page( __( 'Add New Site', 'jetpack-masterbar' ), __( 'Add New Site', 'jetpack-masterbar' ), 'read', 'https://wordpress.com/start?ref=calypso-sidebar', null, 'dashicons-plus-alt' );
 	}
 
 	/**
@@ -247,13 +247,13 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$badge = '';
 
 		if ( get_option( 'wpcom_is_staging_site' ) ) {
-			$badge .= '<span class="site__badge site__badge-staging">' . esc_html__( 'Staging', 'jetpack' ) . '</span>';
+			$badge .= '<span class="site__badge site__badge-staging">' . esc_html__( 'Staging', 'jetpack-masterbar' ) . '</span>';
 		}
 
 		if ( ( function_exists( 'site_is_private' ) && site_is_private() ) || $is_coming_soon ) {
 			$badge .= sprintf(
 				'<span class="site__badge site__badge-private">%s</span>',
-				$is_coming_soon ? esc_html__( 'Coming Soon', 'jetpack' ) : esc_html__( 'Private', 'jetpack' )
+				$is_coming_soon ? esc_html__( 'Coming Soon', 'jetpack-masterbar' ) : esc_html__( 'Private', 'jetpack-masterbar' )
 			);
 		}
 
@@ -354,7 +354,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds Stats menu.
 	 */
 	public function add_stats_menu() {
-		$menu_title = __( 'Stats', 'jetpack' );
+		$menu_title = __( 'Stats', 'jetpack-masterbar' );
 		if (
 			! $this->is_api_request &&
 			( new Modules() )->is_active( 'stats' ) &&
@@ -363,12 +363,12 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$img_src = esc_attr(
 				stats_get_image_chart_src( 'admin-bar-hours-scale-2x', array( 'masterbar' => '' ) )
 			);
-			$alt     = esc_attr__( 'Hourly views', 'jetpack' );
+			$alt     = esc_attr__( 'Hourly views', 'jetpack-masterbar' );
 
 			$menu_title .= "<img class='sidebar-unified__sparkline' src='$img_src' width='80' height='20' alt='$alt'>";
 		}
 
-		add_menu_page( __( 'Stats', 'jetpack' ), $menu_title, 'view_stats', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
+		add_menu_page( __( 'Stats', 'jetpack-masterbar' ), $menu_title, 'view_stats', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
 	}
 
 	/**
@@ -389,7 +389,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		$last_upgrade_submenu_position = $this->get_submenu_item_count( 'paid-upgrades.php' );
 
-		add_submenu_page( 'paid-upgrades.php', __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, $last_upgrade_submenu_position - 1 );
+		add_submenu_page( 'paid-upgrades.php', __( 'Domains', 'jetpack-masterbar' ), __( 'Domains', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, $last_upgrade_submenu_position - 1 );
 
 		/**
 		 * Whether to show the WordPress.com Emails submenu under the main Upgrades menu.
@@ -402,7 +402,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		 * @param bool $show_wpcom_upgrades_email_menu Load the WordPress.com Emails submenu item. Default to false.
 		 */
 		if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
-			add_submenu_page( 'paid-upgrades.php', __( 'Emails', 'jetpack' ), __( 'Emails', 'jetpack' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain, null, $last_upgrade_submenu_position );
+			add_submenu_page( 'paid-upgrades.php', __( 'Emails', 'jetpack-masterbar' ), __( 'Emails', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain, null, $last_upgrade_submenu_position );
 		}
 	}
 
@@ -415,8 +415,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		if ( Jetpack_Plan::supports( 'security-settings' ) ) {
 			add_submenu_page(
 				'options-general.php',
-				esc_attr__( 'Security', 'jetpack' ),
-				__( 'Security', 'jetpack' ),
+				esc_attr__( 'Security', 'jetpack-masterbar' ),
+				__( 'Security', 'jetpack-masterbar' ),
 				'manage_options',
 				'https://wordpress.com/settings/security/' . $this->domain,
 				null,
@@ -424,7 +424,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			);
 		}
 
-		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 11 );
+		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack-masterbar' ), __( 'Hosting Configuration', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 11 );
 
 		// Page Optimize is active by default on all Atomic sites and registers a Settings > Performance submenu which
 		// would conflict with our own Settings > Performance that links to Calypso, so we hide it it since the Calypso
@@ -446,18 +446,18 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		// Link the Tools menu to Available Tools when the interface is set to wp-admin.
 		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
-			add_submenu_page( 'tools.php', esc_attr__( 'Available Tools', 'jetpack' ), __( 'Available Tools', 'jetpack' ), 'edit_posts', 'tools.php', null, 0 );
+			add_submenu_page( 'tools.php', esc_attr__( 'Available Tools', 'jetpack-masterbar' ), __( 'Available Tools', 'jetpack-masterbar' ), 'edit_posts', 'tools.php', null, 0 );
 		}
 
 		/**
 		 * Adds the WordPress.com Site Monitoring submenu under the main Tools menu.
 		 */
-		add_submenu_page( 'tools.php', esc_attr__( 'Site Monitoring', 'jetpack' ), __( 'Site Monitoring', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-monitoring/' . $this->domain, null, 7 );
+		add_submenu_page( 'tools.php', esc_attr__( 'Site Monitoring', 'jetpack-masterbar' ), __( 'Site Monitoring', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/site-monitoring/' . $this->domain, null, 7 );
 
 		/**
 		 * Adds the WordPress.com GitHub Deployments submenu under the main Tools menu.
 		 */
-		add_submenu_page( 'tools.php', esc_attr__( 'GitHub Deployments', 'jetpack' ), __( 'GitHub Deployments', 'jetpack' ), 'manage_options', 'https://wordpress.com/github-deployments/' . $this->domain, null, 8 );
+		add_submenu_page( 'tools.php', esc_attr__( 'GitHub Deployments', 'jetpack-masterbar' ), __( 'GitHub Deployments', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/github-deployments/' . $this->domain, null, 8 );
 	}
 
 	/**
@@ -552,7 +552,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 				wp_kses(
 					sprintf(
 						// translators: %s is a link to the Calypso settings page.
-						__( 'You are currently using the Classic view, which doesn’t offer the same set of features as the Default view. To access additional settings and features, <a href="%s">switch to the Default view</a>. ', 'jetpack' ),
+						__( 'You are currently using the Classic view, which doesn’t offer the same set of features as the Default view. To access additional settings and features, <a href="%s">switch to the Default view</a>. ', 'jetpack-masterbar' ),
 						esc_url( $switch_url )
 					),
 					array( 'a' => array( 'href' => array() ) )

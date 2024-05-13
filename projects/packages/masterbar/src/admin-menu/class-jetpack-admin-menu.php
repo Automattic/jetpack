@@ -90,7 +90,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 * Adds Media menu.
 	 */
 	public function add_media_menu() {
-		add_menu_page( __( 'Media', 'jetpack' ), __( 'Media', 'jetpack' ), 'upload_files', 'https://wordpress.com/media/' . $this->domain, null, 'dashicons-admin-media' );
+		add_menu_page( __( 'Media', 'jetpack-masterbar' ), __( 'Media', 'jetpack-masterbar' ), 'upload_files', 'https://wordpress.com/media/' . $this->domain, null, 'dashicons-admin-media' );
 	}
 
 	/**
@@ -133,7 +133,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 * Adds Comments menu.
 	 */
 	public function add_comments_menu() {
-		add_menu_page( esc_attr__( 'Comments', 'jetpack' ), __( 'Comments', 'jetpack' ), 'edit_posts', 'https://wordpress.com/comments/all/' . $this->domain, null, 'dashicons-admin-comments' );
+		add_menu_page( esc_attr__( 'Comments', 'jetpack-masterbar' ), __( 'Comments', 'jetpack-masterbar' ), 'edit_posts', 'https://wordpress.com/comments/all/' . $this->domain, null, 'dashicons-admin-comments' );
 	}
 
 	/**
@@ -148,7 +148,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		}
 
 		$slug       = 'edit.php?post_type=' . $post_type;
-		$name       = __( 'Feedback', 'jetpack' );
+		$name       = __( 'Feedback', 'jetpack-masterbar' );
 		$capability = $ptype_obj->cap->edit_posts;
 		$icon       = $ptype_obj->menu_icon;
 		$position   = 45; // Before Jetpack.
@@ -181,18 +181,18 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		parent::add_jetpack_menu();
 
 		/* translators: Jetpack sidebar menu item. */
-		add_submenu_page( 'jetpack', esc_attr__( 'Search', 'jetpack' ), __( 'Search', 'jetpack' ), 'manage_options', 'jetpack-search', admin_url( 'admin.php?page=jetpack-search' ), 4 );
+		add_submenu_page( 'jetpack', esc_attr__( 'Search', 'jetpack-masterbar' ), __( 'Search', 'jetpack-masterbar' ), 'manage_options', 'jetpack-search', admin_url( 'admin.php?page=jetpack-search' ), 4 );
 
 		// Place "Scan" submenu after Backup.
 		$position = 0;
 		global $submenu;
 		foreach ( $submenu['jetpack'] as $submenu_item ) {
 			++$position;
-			if ( __( 'Backup', 'jetpack' ) === $submenu_item[3] ) {
+			if ( __( 'Backup', 'jetpack-masterbar' ) === $submenu_item[3] ) {
 				break;
 			}
 		}
-		add_submenu_page( 'jetpack', esc_attr__( 'Scan', 'jetpack' ), __( 'Scan', 'jetpack' ), 'manage_options', 'https://wordpress.com/scan/' . $this->domain, null, $position );
+		add_submenu_page( 'jetpack', esc_attr__( 'Scan', 'jetpack-masterbar' ), __( 'Scan', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/scan/' . $this->domain, null, $position );
 	}
 
 	/**
@@ -205,14 +205,14 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		// Customize on Jetpack sites is always done on WP Admin (unsupported by Calypso).
 		$customize_url = 'customize.php';
 
-		add_menu_page( esc_attr__( 'Appearance', 'jetpack' ), __( 'Appearance', 'jetpack' ), 'switch_themes', $themes_url, null, 'dashicons-admin-appearance', 60 );
-		add_submenu_page( $themes_url, esc_attr__( 'Themes', 'jetpack' ), __( 'Themes', 'jetpack' ), 'switch_themes', 'https://wordpress.com/themes/' . $this->domain );
+		add_menu_page( esc_attr__( 'Appearance', 'jetpack-masterbar' ), __( 'Appearance', 'jetpack-masterbar' ), 'switch_themes', $themes_url, null, 'dashicons-admin-appearance', 60 );
+		add_submenu_page( $themes_url, esc_attr__( 'Themes', 'jetpack-masterbar' ), __( 'Themes', 'jetpack-masterbar' ), 'switch_themes', 'https://wordpress.com/themes/' . $this->domain );
 
 		if ( ! has_action( 'customize_register' ) && wp_is_block_theme() ) {
 			return $customize_url;
 		}
 
-		add_submenu_page( $themes_url, esc_attr__( 'Customize', 'jetpack' ), __( 'Customize', 'jetpack' ), 'customize', $customize_url );
+		add_submenu_page( $themes_url, esc_attr__( 'Customize', 'jetpack-masterbar' ), __( 'Customize', 'jetpack-masterbar' ), 'customize', $customize_url );
 
 		return $customize_url;
 	}
@@ -221,7 +221,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 * Adds Plugins menu.
 	 */
 	public function add_plugins_menu() {
-		add_menu_page( esc_attr__( 'Plugins', 'jetpack' ), __( 'Plugins', 'jetpack' ), 'activate_plugins', 'https://wordpress.com/plugins/' . $this->domain, null, 'dashicons-admin-plugins', 65 );
+		add_menu_page( esc_attr__( 'Plugins', 'jetpack-masterbar' ), __( 'Plugins', 'jetpack-masterbar' ), 'activate_plugins', 'https://wordpress.com/plugins/' . $this->domain, null, 'dashicons-admin-plugins', 65 );
 	}
 
 	/**
@@ -230,14 +230,14 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	public function add_users_menu() {
 		if ( current_user_can( 'list_users' ) ) {
 			$users_url = 'https://wordpress.com/people/team/' . $this->domain;
-			add_menu_page( esc_attr__( 'Users', 'jetpack' ), __( 'Users', 'jetpack' ), 'list_users', $users_url, null, 'dashicons-admin-users', 70 );
-			add_submenu_page( $users_url, esc_attr__( 'All Users', 'jetpack' ), __( 'All Users', 'jetpack' ), 'list_users', $users_url, null, 10 );
-			add_submenu_page( $users_url, esc_attr__( 'Add New User', 'jetpack' ), __( 'Add New User', 'jetpack' ), 'promote_users', 'https://wordpress.com/people/new/' . $this->domain, null, 20 );
-			add_submenu_page( $users_url, esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 30 );
-			add_submenu_page( $users_url, esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', 'https://wordpress.com/me', null, 40 );
-			add_submenu_page( $users_url, esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', 'https://wordpress.com/me/account', null, 50 );
+			add_menu_page( esc_attr__( 'Users', 'jetpack-masterbar' ), __( 'Users', 'jetpack-masterbar' ), 'list_users', $users_url, null, 'dashicons-admin-users', 70 );
+			add_submenu_page( $users_url, esc_attr__( 'All Users', 'jetpack-masterbar' ), __( 'All Users', 'jetpack-masterbar' ), 'list_users', $users_url, null, 10 );
+			add_submenu_page( $users_url, esc_attr__( 'Add New User', 'jetpack-masterbar' ), __( 'Add New User', 'jetpack-masterbar' ), 'promote_users', 'https://wordpress.com/people/new/' . $this->domain, null, 20 );
+			add_submenu_page( $users_url, esc_attr__( 'Subscribers', 'jetpack-masterbar' ), __( 'Subscribers', 'jetpack-masterbar' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 30 );
+			add_submenu_page( $users_url, esc_attr__( 'My Profile', 'jetpack-masterbar' ), __( 'My Profile', 'jetpack-masterbar' ), 'read', 'https://wordpress.com/me', null, 40 );
+			add_submenu_page( $users_url, esc_attr__( 'Account Settings', 'jetpack-masterbar' ), __( 'Account Settings', 'jetpack-masterbar' ), 'read', 'https://wordpress.com/me/account', null, 50 );
 		} else {
-			add_menu_page( esc_attr__( 'My Profile', 'jetpack' ), __( 'Profile', 'jetpack' ), 'read', 'https://wordpress.com/me', null, 'dashicons-admin-users', 70 );
+			add_menu_page( esc_attr__( 'My Profile', 'jetpack-masterbar' ), __( 'Profile', 'jetpack-masterbar' ), 'read', 'https://wordpress.com/me', null, 'dashicons-admin-users', 70 );
 		}
 	}
 
@@ -245,19 +245,19 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 * Adds Tools menu.
 	 */
 	public function add_tools_menu() {
-		add_menu_page( esc_attr__( 'Tools', 'jetpack' ), __( 'Tools', 'jetpack' ), 'publish_posts', 'tools.php', null, 'dashicons-admin-tools', 75 );
+		add_menu_page( esc_attr__( 'Tools', 'jetpack-masterbar' ), __( 'Tools', 'jetpack-masterbar' ), 'publish_posts', 'tools.php', null, 'dashicons-admin-tools', 75 );
 
-		add_submenu_page( 'tools.php', esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain );
+		add_submenu_page( 'tools.php', esc_attr__( 'Marketing', 'jetpack-masterbar' ), __( 'Marketing', 'jetpack-masterbar' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain );
 
 		if ( Blaze::should_initialize() ) {
-			add_submenu_page( 'tools.php', esc_attr__( 'Advertising', 'jetpack' ), __( 'Advertising', 'jetpack' ), 'manage_options', 'https://wordpress.com/advertising/' . $this->domain, null, 1 );
+			add_submenu_page( 'tools.php', esc_attr__( 'Advertising', 'jetpack-masterbar' ), __( 'Advertising', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/advertising/' . $this->domain, null, 1 );
 		}
 
-		add_submenu_page( 'tools.php', esc_attr__( 'Monetize', 'jetpack' ), __( 'Monetize', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain );
+		add_submenu_page( 'tools.php', esc_attr__( 'Monetize', 'jetpack-masterbar' ), __( 'Monetize', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain );
 
 		// Import/Export on Jetpack sites is always handled on WP Admin.
-		add_submenu_page( 'tools.php', esc_attr__( 'Import', 'jetpack' ), __( 'Import', 'jetpack' ), 'import', 'import.php' );
-		add_submenu_page( 'tools.php', esc_attr__( 'Export', 'jetpack' ), __( 'Export', 'jetpack' ), 'export', 'export.php' );
+		add_submenu_page( 'tools.php', esc_attr__( 'Import', 'jetpack-masterbar' ), __( 'Import', 'jetpack-masterbar' ), 'import', 'import.php' );
+		add_submenu_page( 'tools.php', esc_attr__( 'Export', 'jetpack-masterbar' ), __( 'Export', 'jetpack-masterbar' ), 'export', 'export.php' );
 
 		// Remove the submenu auto-created by Core.
 		$this->hide_submenu_page( 'tools.php', 'tools.php' );
@@ -268,14 +268,14 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 */
 	public function add_options_menu() {
 		$slug = 'https://wordpress.com/settings/general/' . $this->domain;
-		add_menu_page( esc_attr__( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'manage_options', $slug, null, 'dashicons-admin-settings', 80 );
-		add_submenu_page( $slug, esc_attr__( 'General', 'jetpack' ), __( 'General', 'jetpack' ), 'manage_options', $slug );
-		add_submenu_page( $slug, esc_attr__( 'Security', 'jetpack' ), __( 'Security', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/security/' . $this->domain );
-		add_submenu_page( $slug, esc_attr__( 'Performance', 'jetpack' ), __( 'Performance', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/performance/' . $this->domain );
-		add_submenu_page( $slug, esc_attr__( 'Writing', 'jetpack' ), __( 'Writing', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/writing/' . $this->domain );
-		add_submenu_page( $slug, esc_attr__( 'Reading', 'jetpack' ), __( 'Reading', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/reading/' . $this->domain );
-		add_submenu_page( $slug, esc_attr__( 'Discussion', 'jetpack' ), __( 'Discussion', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/discussion/' . $this->domain );
-		add_submenu_page( $slug, esc_attr__( 'Newsletter', 'jetpack' ), __( 'Newsletter', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/newsletter/' . $this->domain );
+		add_menu_page( esc_attr__( 'Settings', 'jetpack-masterbar' ), __( 'Settings', 'jetpack-masterbar' ), 'manage_options', $slug, null, 'dashicons-admin-settings', 80 );
+		add_submenu_page( $slug, esc_attr__( 'General', 'jetpack-masterbar' ), __( 'General', 'jetpack-masterbar' ), 'manage_options', $slug );
+		add_submenu_page( $slug, esc_attr__( 'Security', 'jetpack-masterbar' ), __( 'Security', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/security/' . $this->domain );
+		add_submenu_page( $slug, esc_attr__( 'Performance', 'jetpack-masterbar' ), __( 'Performance', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/performance/' . $this->domain );
+		add_submenu_page( $slug, esc_attr__( 'Writing', 'jetpack-masterbar' ), __( 'Writing', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/writing/' . $this->domain );
+		add_submenu_page( $slug, esc_attr__( 'Reading', 'jetpack-masterbar' ), __( 'Reading', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/reading/' . $this->domain );
+		add_submenu_page( $slug, esc_attr__( 'Discussion', 'jetpack-masterbar' ), __( 'Discussion', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/discussion/' . $this->domain );
+		add_submenu_page( $slug, esc_attr__( 'Newsletter', 'jetpack-masterbar' ), __( 'Newsletter', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/newsletter/' . $this->domain );
 
 		$plan_supports_scan = Jetpack_Plan::supports( 'scan' );
 		$products           = Jetpack_Plan::get_products();
@@ -294,7 +294,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		$rewind_state = get_transient( 'jetpack_rewind_state' );
 		$has_backup   = $rewind_state && in_array( $rewind_state->state, array( 'awaiting_credentials', 'provisioning', 'active' ), true );
 		if ( $has_scan || $has_backup ) {
-			add_submenu_page( $slug, esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/jetpack/' . $this->domain );
+			add_submenu_page( $slug, esc_attr__( 'Jetpack', 'jetpack-masterbar' ), __( 'Jetpack', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/jetpack/' . $this->domain );
 		}
 	}
 
@@ -310,6 +310,6 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		$position = key( $menu );
 
 		$this->add_admin_menu_separator( ++$position );
-		add_menu_page( __( 'WP Admin', 'jetpack' ), __( 'WP Admin', 'jetpack' ), 'read', 'index.php', null, 'dashicons-wordpress-alt', $position );
+		add_menu_page( __( 'WP Admin', 'jetpack-masterbar' ), __( 'WP Admin', 'jetpack-masterbar' ), 'read', 'index.php', null, 'dashicons-wordpress-alt', $position );
 	}
 }

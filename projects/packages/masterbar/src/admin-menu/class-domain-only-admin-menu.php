@@ -56,13 +56,13 @@ class Domain_Only_Admin_Menu extends Base_Admin_Menu {
 		$menu    = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$submenu = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
-		add_menu_page( esc_attr__( 'Manage Domain', 'jetpack' ), __( 'Manage Domain', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain . '/edit/' . $this->domain, null, 'dashicons-admin-settings' );
+		add_menu_page( esc_attr__( 'Manage Domain', 'jetpack-masterbar' ), __( 'Manage Domain', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain . '/edit/' . $this->domain, null, 'dashicons-admin-settings' );
 
 		if ( $this->email_subscriptions_checker->has_email() ) {
-			add_menu_page( esc_attr__( 'Manage Email', 'jetpack' ), __( 'Manage Email', 'jetpack' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain . '/manage/' . $this->domain, null, 'dashicons-admin-settings' );
+			add_menu_page( esc_attr__( 'Manage Email', 'jetpack-masterbar' ), __( 'Manage Email', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain . '/manage/' . $this->domain, null, 'dashicons-admin-settings' );
 		}
 
-		add_menu_page( esc_attr__( 'Manage Purchases', 'jetpack' ), __( 'Manage Purchases', 'jetpack' ), 'manage_options', 'https://wordpress.com/purchases/subscriptions/' . $this->domain, null, 'dashicons-cart' );
-		add_menu_page( esc_attr__( 'My Mailboxes', 'jetpack' ), __( 'My Mailboxes', 'jetpack' ), 'manage_options', 'https://wordpress.com/mailboxes/' . $this->domain, null, 'dashicons-email' );
+		add_menu_page( esc_attr__( 'Manage Purchases', 'jetpack-masterbar' ), __( 'Manage Purchases', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/purchases/subscriptions/' . $this->domain, null, 'dashicons-cart' );
+		add_menu_page( esc_attr__( 'My Mailboxes', 'jetpack-masterbar' ), __( 'My Mailboxes', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/mailboxes/' . $this->domain, null, 'dashicons-email' );
 	}
 }

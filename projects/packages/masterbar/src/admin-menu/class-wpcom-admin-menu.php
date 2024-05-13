@@ -110,7 +110,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		}
 
 		// Add the menu item.
-		add_menu_page( __( 'site-switcher', 'jetpack' ), __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/sites', null, 'dashicons-arrow-left-alt2', 0 );
+		add_menu_page( __( 'site-switcher', 'jetpack-masterbar' ), __( 'Browse sites', 'jetpack-masterbar' ), 'read', 'https://wordpress.com/sites', null, 'dashicons-arrow-left-alt2', 0 );
 		add_filter( 'add_menu_classes', array( $this, 'set_browse_sites_link_class' ) );
 	}
 
@@ -142,7 +142,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		}
 
 		$this->add_admin_menu_separator();
-		add_menu_page( __( 'Add New Site', 'jetpack' ), __( 'Add New Site', 'jetpack' ), 'read', 'https://wordpress.com/start?ref=calypso-sidebar', null, 'dashicons-plus-alt' );
+		add_menu_page( __( 'Add New Site', 'jetpack-masterbar' ), __( 'Add New Site', 'jetpack-masterbar' ), 'read', 'https://wordpress.com/start?ref=calypso-sidebar', null, 'dashicons-plus-alt' );
 	}
 
 	/**
@@ -164,16 +164,16 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		if ( $is_private_site || $is_coming_soon ) {
 			$badge .= sprintf(
 				'<span class="site__badge site__badge-private">%s</span>',
-				$is_coming_soon ? esc_html__( 'Coming Soon', 'jetpack' ) : esc_html__( 'Private', 'jetpack' )
+				$is_coming_soon ? esc_html__( 'Coming Soon', 'jetpack-masterbar' ) : esc_html__( 'Private', 'jetpack-masterbar' )
 			);
 		}
 
 		if ( function_exists( 'is_simple_site_redirect' ) && is_simple_site_redirect( $this->domain ) ) {
-			$badge .= '<span class="site__badge site__badge-redirect">' . esc_html__( 'Redirect', 'jetpack' ) . '</span>';
+			$badge .= '<span class="site__badge site__badge-redirect">' . esc_html__( 'Redirect', 'jetpack-masterbar' ) . '</span>';
 		}
 
 		if ( ! empty( get_option( 'options' )['is_domain_only'] ) ) {
-			$badge .= '<span class="site__badge site__badge-domain-only">' . esc_html__( 'Domain', 'jetpack' ) . '</span>';
+			$badge .= '<span class="site__badge site__badge-domain-only">' . esc_html__( 'Domain', 'jetpack-masterbar' ) . '</span>';
 		}
 
 		$site_card = '
@@ -260,17 +260,17 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * Adds Stats menu.
 	 */
 	public function add_stats_menu() {
-		$menu_title = __( 'Stats', 'jetpack' );
+		$menu_title = __( 'Stats', 'jetpack-masterbar' );
 
 		if ( ! $this->is_api_request ) {
 			$menu_title .= sprintf(
 				'<img class="sidebar-unified__sparkline" width="80" height="20" src="%1$s" alt="%2$s">',
 				esc_url( site_url( 'wp-includes/charts/admin-bar-hours-scale-2x.php?masterbar=1&s=' . get_current_blog_id() ) ),
-				esc_attr__( 'Hourly views', 'jetpack' )
+				esc_attr__( 'Hourly views', 'jetpack-masterbar' )
 			);
 		}
 
-		add_menu_page( __( 'Stats', 'jetpack' ), $menu_title, 'read', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
+		add_menu_page( __( 'Stats', 'jetpack-masterbar' ), $menu_title, 'read', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
 	}
 
 	/**
@@ -300,15 +300,15 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		$last_upgrade_submenu_position = $this->get_submenu_item_count( 'paid-upgrades.php' );
 
-		add_submenu_page( 'paid-upgrades.php', __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, $last_upgrade_submenu_position - 1 );
+		add_submenu_page( 'paid-upgrades.php', __( 'Domains', 'jetpack-masterbar' ), __( 'Domains', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, $last_upgrade_submenu_position - 1 );
 
 		/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
 		if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
-			add_submenu_page( 'paid-upgrades.php', __( 'Emails', 'jetpack' ), __( 'Emails', 'jetpack' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain, null, $last_upgrade_submenu_position );
+			add_submenu_page( 'paid-upgrades.php', __( 'Emails', 'jetpack-masterbar' ), __( 'Emails', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain, null, $last_upgrade_submenu_position );
 		}
 
 		if ( defined( 'WPCOM_ENABLE_ADD_ONS_MENU_ITEM' ) && WPCOM_ENABLE_ADD_ONS_MENU_ITEM ) {
-			add_submenu_page( 'paid-upgrades.php', __( 'Add-Ons', 'jetpack' ), __( 'Add-Ons', 'jetpack' ), 'manage_options', 'https://wordpress.com/add-ons/' . $this->domain, null, 1 );
+			add_submenu_page( 'paid-upgrades.php', __( 'Add-Ons', 'jetpack-masterbar' ), __( 'Add-Ons', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/add-ons/' . $this->domain, null, 1 );
 		}
 	}
 
@@ -332,7 +332,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		if ( $user_can_customize ) {
 			$customize_custom_css_url = add_query_arg( array( 'autofocus' => array( 'section' => 'jetpack_custom_css' ) ), $customize_url );
-			add_submenu_page( 'themes.php', esc_attr__( 'Additional CSS', 'jetpack' ), __( 'Additional CSS', 'jetpack' ), 'customize', esc_url( $customize_custom_css_url ), null, 20 );
+			add_submenu_page( 'themes.php', esc_attr__( 'Additional CSS', 'jetpack-masterbar' ), __( 'Additional CSS', 'jetpack-masterbar' ), 'customize', esc_url( $customize_custom_css_url ), null, 20 );
 		}
 	}
 
@@ -351,8 +351,8 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		$slug = current_user_can( 'list_users' ) ? 'users.php' : 'profile.php';
 		$this->update_submenus( $slug, $submenus_to_update );
-		add_submenu_page( 'users.php', esc_attr__( 'Add New User', 'jetpack' ), __( 'Add New User', 'jetpack' ), 'promote_users', 'https://wordpress.com/people/new/' . $this->domain, null, 1 );
-		add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 3 );
+		add_submenu_page( 'users.php', esc_attr__( 'Add New User', 'jetpack-masterbar' ), __( 'Add New User', 'jetpack-masterbar' ), 'promote_users', 'https://wordpress.com/people/new/' . $this->domain, null, 1 );
+		add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack-masterbar' ), __( 'Subscribers', 'jetpack-masterbar' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 3 );
 	}
 
 	/**
@@ -361,14 +361,14 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	public function add_options_menu() {
 		parent::add_options_menu();
 
-		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 10 );
+		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack-masterbar' ), __( 'Hosting Configuration', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 10 );
 	}
 
 	/**
 	 * Adds My Home menu.
 	 */
 	public function add_my_home_menu() {
-		$this->update_menu( 'index.php', 'https://wordpress.com/home/' . $this->domain, __( 'My Home', 'jetpack' ), 'read', 'dashicons-admin-home' );
+		$this->update_menu( 'index.php', 'https://wordpress.com/home/' . $this->domain, __( 'My Home', 'jetpack-masterbar' ), 'read', 'dashicons-admin-home' );
 	}
 
 	/**
@@ -410,7 +410,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			);
 		}
 		/* translators: %s: Number of pending plugin updates. */
-		add_menu_page( esc_attr__( 'Plugins', 'jetpack' ), sprintf( __( 'Plugins %s', 'jetpack' ), $count ), 'activate_plugins', 'plugins.php', null, 'dashicons-admin-plugins', 65 );
+		add_menu_page( esc_attr__( 'Plugins', 'jetpack-masterbar' ), sprintf( __( 'Plugins %s', 'jetpack-masterbar' ), $count ), 'activate_plugins', 'plugins.php', null, 'dashicons-admin-plugins', 65 );
 
 		parent::add_plugins_menu();
 	}

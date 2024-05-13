@@ -145,7 +145,7 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 		remove_submenu_page( $this->tools_slug, 'https://wordpress.com/earn/' . $this->domain );
 		remove_submenu_page( $this->tools_slug, 'https://wordpress.com/import/' . $this->domain );
 		remove_submenu_page( $this->tools_slug, 'https://wordpress.com/export/' . $this->domain );
-		add_submenu_page( $this->tools_slug, __( 'Integrations', 'jetpack' ), __( 'Integrations', 'jetpack' ), 'manage_options', 'https://wordpress.com/marketing/connections/' . $this->domain, null, 0 );
+		add_submenu_page( $this->tools_slug, __( 'Integrations', 'jetpack-masterbar' ), __( 'Integrations', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/marketing/connections/' . $this->domain, null, 0 );
 		// Hide settings.
 		remove_submenu_page( 'options-general.php', 'options-reading.php' );
 		remove_submenu_page( 'options-general.php', 'options-writing.php' );

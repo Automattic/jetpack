@@ -37,7 +37,7 @@ class WPCOM_Additional_CSS_Manager {
 	 */
 	public function register_nudge( \WP_Customize_Manager $wp_customize_manager ) {
 		$nudge_url  = $this->get_nudge_url();
-		$nudge_text = __( 'Purchase the Explorer plan to<br> activate CSS customization', 'jetpack' );
+		$nudge_text = __( 'Purchase the Explorer plan to<br> activate CSS customization', 'jetpack-masterbar' );
 
 		$nudge = new CSS_Customizer_Nudge(
 			$nudge_url,

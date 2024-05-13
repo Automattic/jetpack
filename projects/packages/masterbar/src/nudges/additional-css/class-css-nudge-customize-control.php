@@ -40,7 +40,7 @@ class CSS_Nudge_Customize_Control extends \WP_Customize_Control {
 	public function render_content() {
 		$cta_url           = $this->cta_url;
 		$nudge_copy        = $this->nudge_copy;
-		$nudge_button_copy = __( 'Upgrade now', 'jetpack' );
+		$nudge_button_copy = __( 'Upgrade now', 'jetpack-masterbar' );
 
 		echo '<div class="nudge-container">
 				<p>
