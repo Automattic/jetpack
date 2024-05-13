@@ -15,22 +15,30 @@
 			flex-shrink: 0;
 		}
 
-		.propfile-pic {
-			width: 2rem;
-			height: 2rem;
-		}
-
 		.account-label {
 			display: flex;
 			align-items: center;
 			gap: 0.5rem;
 		}
 
-		.submit-wrap {
-			display: flex;
-			gap: 1rem;
-			align-items: center;
-			justify-content: end;
-		}
+	}
+
+	.submit-wrap {
+		margin-top: 3rem;
+		display: flex;
+		gap: 1rem;
+		align-items: center;
+		justify-content: end;
+	}
+
+	.propfile-pic {
+		width: 2rem;
+		height: 2rem;
+	}
+
+	.account-info {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem
 	}
 }
