@@ -1,11 +1,19 @@
-import { RadioControl, ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import {
+	RadioControl,
+	ToggleControl,
+	getRedirectUrl,
+	Container,
+	Col,
+} from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import Button from 'components/button';
 import { FormLegend } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import TextInput from 'components/text-input';
 import analytics from 'lib/analytics';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
 import { isUnavailableInOfflineMode, isUnavailableInSiteConnectionMode } from 'state/connection';
 import { getModule } from 'state/modules';
@@ -17,6 +25,7 @@ const subscriptionsAndNewslettersSupportUrl =
 const FEATURED_IMAGE_IN_EMAIL_OPTION = 'wpcom_featured_image_in_email';
 const SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION = 'wpcom_subscription_emails_use_excerpt';
 const REPLY_TO_OPTION = 'jetpack_subscriptions_reply_to';
+const REPLY_TO_NAME_OPTION = 'jetpack_subscriptions_reply_to_name';
 
 const EmailSettings = props => {
 	const {
@@ -26,6 +35,7 @@ const EmailSettings = props => {
 		isFeaturedImageInEmailEnabled,
 		subscriptionEmailsUseExcerpt,
 		subscriptionReplyTo,
+		subscriptionReplyToName,
 		updateFormStateAndSaveOptionValue,
 		unavailableInSiteConnectionMode,
 	} = props;
@@ -64,6 +74,23 @@ const EmailSettings = props => {
 		disabled || isSavingAnyOption( [ SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION ] );
 
 	const replyToInputDisabled = disabled || isSavingAnyOption( [ REPLY_TO_OPTION ] );
+	const replyToNameInputDisabled = disabled || isSavingAnyOption( [ REPLY_TO_NAME_OPTION ] );
+
+	const [ replyToNameState, setReplyToNameState ] = useState( subscriptionReplyToName );
+
+	const handleSubscriptionReplyToNameChange = useCallback(
+		event => {
+			setReplyToNameState( event.target.value );
+		},
+		[ setReplyToNameState ]
+	);
+
+	const handleSubscriptionReplyToNameChangeClick = useCallback( () => {
+		updateFormStateAndSaveOptionValue( REPLY_TO_NAME_OPTION, replyToNameState );
+		analytics.tracks.recordEvent( 'jetpack_newsletter_set_reply_to_name', {
+			value: replyToNameState,
+		} );
+	}, [ replyToNameState, updateFormStateAndSaveOptionValue ] );
 
 	return (
 		<SettingsCard
@@ -153,7 +180,7 @@ const EmailSettings = props => {
 				} }
 			>
 				<FormLegend className="jp-form-label-wide">
-					{ __( 'Reply-to settings', 'jetpack' ) }
+					{ __( 'Reply-to email', 'jetpack' ) }
 				</FormLegend>
 				<p>
 					{ __(
@@ -186,6 +213,48 @@ const EmailSettings = props => {
 					onChange={ handleSubscriptionReplyToChange }
 				/>
 			</SettingsGroup>
+			<SettingsGroup
+				hasChild
+				disableInOfflineMode
+				disableInSiteConnectionMode
+				module={ subscriptionsModule }
+				support={ {
+					link: getRedirectUrl( 'jetpack-support-subscriptions', {
+						anchor: 'reply-to-email-address',
+					} ),
+					text: __(
+						"Sets the reply to email address for your newsletter emails. It's the email where subscribers send their replies.",
+						'jetpack'
+					),
+				} }
+			>
+				<FormLegend className="jp-form-label-wide">{ __( 'Reply-to name', 'jetpack' ) }</FormLegend>
+				<p>
+					{ __(
+						'Set the name that shows up when subscribers receive your newsletter emails.',
+						'jetpack'
+					) }
+				</p>
+				<Container horizontalGap={ 0 } fluid>
+					<Col sm={ 3 } md={ 7 } lg={ 11 }>
+						<TextInput
+							value={ replyToNameState }
+							disabled={ replyToNameInputDisabled }
+							onChange={ handleSubscriptionReplyToNameChange }
+						/>
+					</Col>
+					<Col sm={ 1 } md={ 1 } lg={ 1 }>
+						<Button
+							primary
+							rna
+							onClick={ handleSubscriptionReplyToNameChangeClick }
+							disabled={ replyToNameInputDisabled }
+						>
+							{ __( 'Save', 'jetpack' ) }
+						</Button>
+					</Col>
+				</Container>
+			</SettingsGroup>
 		</SettingsCard>
 	);
 };
@@ -201,6 +270,7 @@ export default withModuleSettingsFormHelpers(
 				SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION
 			),
 			subscriptionReplyTo: ownProps.getOptionValue( REPLY_TO_OPTION ),
+			subscriptionReplyToName: ownProps.getOptionValue( REPLY_TO_NAME_OPTION ),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
 			unavailableInSiteConnectionMode: isUnavailableInSiteConnectionMode(
 				state,
