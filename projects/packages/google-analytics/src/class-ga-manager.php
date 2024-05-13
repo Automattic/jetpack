@@ -10,6 +10,8 @@
 
 namespace Automattic\Jetpack\Google_Analytics;
 
+use WP_Error;
+
 /**
  * The Facade class of the package.
  */
@@ -32,6 +34,18 @@ class GA_Manager {
 	public static $analytics = false;
 
 	/**
+	 * Defaults for the API version >=1.3.
+	 *
+	 * @var array
+	 */
+	private $api_defaults = array(
+		'code'                 => '',
+		'anonymize_ip'         => false,
+		'ec_track_purchases'   => false,
+		'ec_track_add_to_cart' => false,
+	);
+
+	/**
 	 * This is our constructor, which is private to force the use of get_instance()
 	 *
 	 * @return void
@@ -46,6 +60,10 @@ class GA_Manager {
 		} else {
 			self::$analytics = new Legacy();
 		}
+
+		add_filter( 'site_settings_endpoint_get', array( $this, 'site_settings_fetch' ), 10, 2 );
+		add_filter( 'site_settings_endpoint_update_wga', array( $this, 'site_settings_update' ), 10, 2 );
+		add_filter( 'site_settings_endpoint_update_jetpack_wga', array( $this, 'site_settings_update' ) );
 	}
 
 	/**
@@ -57,6 +75,123 @@ class GA_Manager {
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Includes the GA settings into site settings during a fetch request.
+	 *
+	 * @param array                                  $settings The fetched settings.
+	 * @param \WPCOM_JSON_API_Site_Settings_Endpoint $api_handler The API handler object.
+	 *
+	 * @return array|mixed
+	 */
+	public function site_settings_fetch( $settings = array(), $api_handler = null ) {
+		if ( ! is_array( $settings ) || ! $api_handler instanceof \WPCOM_JSON_API_Site_Settings_Endpoint ) {
+			// Safeguard against something that should never happen.
+			return $settings;
+		}
+
+		$settings['wga'] = $this->get_google_analytics_settings();
+
+		if ( version_compare( $api_handler->min_version, '1.3', '>=' ) ) {
+			$settings['wga'] = wp_parse_args( $settings['wga'], $this->api_defaults );
+		}
+
+		return $settings;
+	}
+
+	/**
+	 * Modifies the GA settings into site settings during an update request.
+	 *
+	 * @param array                                  $value The settings to update.
+	 * @param \WPCOM_JSON_API_Site_Settings_Endpoint $api_handler The API handler object.
+	 *
+	 * @return array|mixed
+	 */
+	public function site_settings_update( $value, $api_handler = null ) {
+		if ( ! is_array( $value ) || ! $api_handler instanceof \WPCOM_JSON_API_Site_Settings_Endpoint ) {
+			// This should never happen.
+			return $value;
+		}
+
+		if ( ! isset( $value['code'] ) || ! preg_match( '/^$|^(UA-\d+-\d+)|(G-[A-Z0-9]+)$/i', $value['code'] ) ) {
+			return new WP_Error( 'invalid_code', 'Invalid UA ID' );
+		}
+
+		$option_name = $this->get_google_analytics_option_name();
+
+		$wga         = get_option( $option_name, array() );
+		$wga['code'] = $value['code'];
+
+		/**
+		 * Allow newer versions of this endpoint to filter in additional fields for Google Analytics
+		 *
+		 * @since Jetpack 5.4.0
+		 * @since $$next-version$$
+		 *
+		 * @param array $wga Associative array of existing Google Analytics settings.
+		 * @param array $value Associative array of new Google Analytics settings passed to the endpoint.
+		 */
+		$wga = apply_filters( 'site_settings_update_wga', $wga, $value );
+
+		if ( version_compare( $api_handler->min_version, '1.3', '>=' ) ) {
+			$wga_keys = array_keys( $this->api_defaults );
+			foreach ( $wga_keys as $wga_key ) {
+				// Skip code since it's already handled.
+				if ( 'code' === $wga_key ) {
+					continue;
+				}
+
+				// All our new keys are booleans, so let's coerce each key's value
+				// before updating the value in settings
+				if ( array_key_exists( $wga_key, $value ) ) {
+					$wga[ $wga_key ] = Utils::is_truthy( $value[ $wga_key ] );
+				}
+			}
+		}
+
+		$is_updated = update_option( $option_name, $wga );
+
+		$enabled_or_disabled = $wga['code'] ? 'enabled' : 'disabled';
+
+		/**
+		 * Fires for each settings update.
+		 *
+		 * @since Jetpack 3.6.0
+		 * @since $$next-version$$
+		 *
+		 * @param string $action_type Type of settings to track.
+		 * @param string $val The settings value.
+		 */
+		do_action( 'jetpack_bump_stats_extras', 'google-analytics', $enabled_or_disabled );
+
+		return $is_updated ? $wga : null;
+	}
+
+	/**
+	 * Get the GA settings option name.
+	 *
+	 * @return string
+	 */
+	public function get_google_analytics_option_name() {
+		/**
+		 * Filter whether the current site is a Jetpack site.
+		 *
+		 * @since Jetpack 3.3.0
+		 * @since $$next-version$$
+		 *
+		 * @param bool $is_jetpack Is the current site a Jetpack site. Default to false.
+		 * @param int $blog_id Blog ID.
+		 */
+		$is_jetpack = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
+		return $is_jetpack ? 'jetpack_wga' : 'wga';
+	}
+
+	/**
+	 * Get GA settings.
+	 */
+	public function get_google_analytics_settings() {
+		return get_option( $this->get_google_analytics_option_name() );
 	}
 
 	/**
