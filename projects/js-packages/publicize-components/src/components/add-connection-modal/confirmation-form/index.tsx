@@ -95,9 +95,14 @@ export function ConfirmationForm( { keyringResult, onComplete }: ConfirmationFor
 			const form = event.target as HTMLFormElement;
 			const formData = new FormData( form );
 
-			const external_user_ID = formData.get( 'external_user_ID' ).toString();
+			const external_user_ID = formData.get( 'external_user_ID' );
 
-			if ( isAlreadyConnected( external_user_ID ) ) {
+			if ( ! external_user_ID ) {
+				createErrorNotice( __( 'Please select an account to connect.', 'jetpack' ) );
+				return;
+			}
+
+			if ( isAlreadyConnected( external_user_ID.toString() ) ) {
 				createErrorNotice( __( 'This account is already connected.', 'jetpack' ) );
 				return;
 			}
