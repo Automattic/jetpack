@@ -15,6 +15,7 @@ require_once ABSPATH . WPINC . '/class-wp-customize-section.php';
 
 /**
  * Class Test_WPCOM_Additional_Css_Manager
+ *
  * @covers Automattic\Jetpack\Masterbar\WPCOM_Additional_CSS_Manager
  */
 class Test_WPCOM_Additional_Css_Manager extends TestCase {

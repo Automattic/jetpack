@@ -7,10 +7,9 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
-use Automattic\Jetpack\Status;
 use PHPUnit\Framework\TestCase;
-use WorDBless\Users as WorDBless_Users;
 use WorDBless\Options as WorDBless_Options;
+use WorDBless\Users as WorDBless_Users;
 
 require_once ABSPATH . WPINC . '/class-wp-customize-manager.php';
 require_once ABSPATH . WPINC . '/class-wp-customize-control.php';

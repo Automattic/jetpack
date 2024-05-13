@@ -7,13 +7,13 @@
 namespace Automattic\Jetpack\Masterbar;
 
 use PHPUnit\Framework\TestCase;
-use WorDBless\Users as WorDBless_Users;
 use WorDBless\Options as WorDBless_Options;
-use WpOrg\Requests\Requests;
+use WorDBless\Users as WorDBless_Users;
 use WP_Http;
-use WP_REST_Users_Controller;
 use WP_REST_Request;
 use WP_REST_Server;
+use WP_REST_Users_Controller;
+use WpOrg\Requests\Requests;
 
 /**
  * Class Test_Admin_Color_Schemes.

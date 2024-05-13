@@ -2,15 +2,15 @@
 /**
  * Tests for Atomic_Admin_Menu class.
  *
-  * @package jetpack-masterbar
+ * @package jetpack-masterbar
  */
 
 namespace Automattic\Jetpack\Masterbar;
 
 use Automattic\Jetpack\Status;
 use PHPUnit\Framework\TestCase;
-use WorDBless\Users as WorDBless_Users;
 use WorDBless\Options as WorDBless_Options;
+use WorDBless\Users as WorDBless_Users;
 
 require_once __DIR__ . '/data/admin-menu.php';
 

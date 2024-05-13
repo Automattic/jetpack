@@ -8,10 +8,9 @@
 namespace Automattic\Jetpack\Masterbar;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Status;
 use PHPUnit\Framework\TestCase;
-use WorDBless\Users as WorDBless_Users;
 use WorDBless\Options as WorDBless_Options;
+use WorDBless\Users as WorDBless_Users;
 
 /**
  * Class Test_WPCOM_User_Profile_Fields_Revert

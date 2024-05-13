@@ -9,8 +9,8 @@ namespace Automattic\Jetpack\Masterbar;
 
 use Automattic\Jetpack\Tracking;
 use PHPUnit\Framework\TestCase;
-use WorDBless\Users as WorDBless_Users;
 use WorDBless\Options as WorDBless_Options;
+use WorDBless\Users as WorDBless_Users;
 
 /**
  * Class Test_Dashboard_Switcher_Tracking

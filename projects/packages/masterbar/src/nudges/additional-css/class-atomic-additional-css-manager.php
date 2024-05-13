@@ -11,7 +11,6 @@ namespace Automattic\Jetpack\Masterbar;
 
 /**
  * Class Atomic_Additional_CSS_Manager
- *
  */
 class Atomic_Additional_CSS_Manager {
 
