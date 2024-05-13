@@ -64,3 +64,17 @@ tr:not(:last-child) > td {
 	padding-inline-end: 0.5rem;
 	margin-inline-start: 0.4rem;
 }
+
+.connect-form {
+	display: grid;
+	gap: 0.5rem;
+
+	& > input {
+		height: 100%;
+		width: 18rem;
+	}
+
+	&:not(.small) {
+		grid-auto-flow: column;
+	}
+}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed notices z-index for global notices when modal is open
