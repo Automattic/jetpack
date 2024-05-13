@@ -2,7 +2,7 @@ import { globalNoticesStore } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch as coreDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import {
 	ADD_CONNECTION,
 	CREATING_CONNECTION,
@@ -262,10 +262,17 @@ export function createConnection( data ) {
 					} )
 				);
 
-				createSuccessNotice( __( 'Connection successful.', 'jetpack' ), {
-					type: 'snackbar',
-					isDismissible: true,
-				} );
+				createSuccessNotice(
+					sprintf(
+						/* translators: %s is the name of the social media platform e.g. "Facebook" */
+						__( '%s account connected successfully.', 'jetpack' ),
+						connection.label
+					),
+					{
+						type: 'snackbar',
+						isDismissible: true,
+					}
+				);
 			}
 		} catch ( error ) {
 			let message = __( 'Error connecting account.', 'jetpack' );
