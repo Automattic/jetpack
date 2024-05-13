@@ -9,14 +9,14 @@ use Automattic\Jetpack\Connection\Client;
 
 if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
 	add_filter(
-		'profile_update',
-		function ( $user_id, $old_user_data, $user_data ) {
-			$locale     = $user_data['locale'];
-			$old_locale = $old_user_data['locale'];
+		'insert_user_meta',
+		function ( $meta, $user, $update ) {
+			$locale     = $meta['locale'];
+			$old_locale = get_user_locale( $user );
 
-			if ( $locale && $old_locale === $locale ) {
-				// No locale changes
-				return;
+			if ( ! $update || $old_locale === $locale ) {
+				// Only for locale changes on an existing user
+				return $meta;
 			}
 
 			if ( ! $locale ) {
@@ -33,6 +33,8 @@ if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign
 				array( 'locale' => $locale ),
 				'wpcom'
 			);
+
+			return $meta;
 		},
 		8,
 		3
