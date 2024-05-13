@@ -1218,7 +1218,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/google-analytics",
-				"reference": "0d84900e8c06cdb72abcc2d37f04b3dfdec33034"
+				"reference": "10874bea4538723174807e03c17c17c3dac6ef3a"
 			},
 			"require": {
 				"php": ">=7.0"
@@ -1235,7 +1235,7 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.1.x-dev"
+					"dev-trunk": "0.2.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/jetpack-google-analytics/compare/v${old}...v${new}"
