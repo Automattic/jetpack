@@ -139,11 +139,6 @@ export function ConfirmationForm( { keyringResult, onComplete }: ConfirmationFor
 				return;
 			}
 
-			if ( isAlreadyConnected( external_user_ID.toString() ) ) {
-				createErrorNotice( __( 'This account is already connected.', 'jetpack' ) );
-				return;
-			}
-
 			const data = {
 				external_user_ID: service.multiple_external_user_ID_support ? external_user_ID : undefined,
 				keyring_connection_ID: keyringResult.ID,
@@ -157,7 +152,6 @@ export function ConfirmationForm( { keyringResult, onComplete }: ConfirmationFor
 		[
 			createConnection,
 			createErrorNotice,
-			isAlreadyConnected,
 			keyringResult.ID,
 			onComplete,
 			service.multiple_external_user_ID_support,
