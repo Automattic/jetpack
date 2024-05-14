@@ -96,7 +96,6 @@ class Callables extends Module {
 
 	/**
 	 * Set module defaults.
-	 * Define the callable whitelist based on whether this is a single site or a multisite installation.
 	 *
 	 * @access public
 	 */
@@ -107,6 +106,28 @@ class Callables extends Module {
 			$this->callable_whitelist = Defaults::get_callable_whitelist();
 		}
 		$this->force_send_callables_on_next_tick = false; // Resets here as well mostly for tests.
+	}
+
+	/**
+	 * Set module defaults at a later time.
+	 *
+	 * @see Automattic\Jetpack\Sync\Modules::set_module_defaults
+	 * @access public
+	 */
+	public function set_late_default() {
+		if ( is_multisite() ) {
+			$late_callables = array_merge(
+				apply_filters( 'jetpack_sync_callable_whitelist', array() ),
+				apply_filters( 'jetpack_sync_multisite_callable_whitelist', array() )
+			);
+		} else {
+			$late_callables = apply_filters( 'jetpack_sync_callable_whitelist', array() );
+		}
+		if ( ! empty( $late_callables ) && is_array( $late_callables ) ) {
+			if ( count( $late_callables ) > count( $this->callable_whitelist ) ) {
+				$this->callable_whitelist = array_merge( $this->callable_whitelist, $late_callables );
+			}
+		}
 	}
 
 	/**
