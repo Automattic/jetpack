@@ -31,6 +31,7 @@ class Jetpack_Plugin_Compatibility {
 		'extended-wp-reset/extended-wp-reset.php'          => '"extended-wp-reset" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
 		'file-manager-advanced/file_manager_advanced.php'  => '"file-manager-advanced" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'file-manager/file-manager.php'                    => '"file-manager" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'hide-my-wp/index.php'                             => '"hide-my-wp" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'plugins-garbage-collector/plugins-garbage-collector.php' => '"plugins-garbage-collector" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'post-type-switcher/post-type-switcher.php'        => '"post-type-switcher" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'reset-wp/reset-wp.php'                            => '"reset-wp" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
@@ -66,6 +67,7 @@ class Jetpack_Plugin_Compatibility {
 		'wp-db-backup/wp-db-backup.php'                    => '"wp-db-backup" has been deactivated, WordPress.com handles managing your site backups for you.',
 
 		// Caching/performance.
+		'breeze/breeze.php'                                => '"breeze" has been deactivated, WordPress.com automatically handles caching for your site.',
 		'cache-enabler/cache-enabler.php'                  => '"cache-enabler" has been deactivated, WordPress.com automatically handles caching for your site.',
 		'comet-cache/comet-cache.php'                      => '"comet-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
 		'hyper-cache/plugin.php'                           => '"hyper-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
