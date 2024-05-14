@@ -58,9 +58,11 @@ if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign
  * @return string Jetpack locale.
  */
 function get_jetpack_locale( $slug = '' ) {
+	$jetpack_locale = '';
+
 	if ( ! class_exists( 'GP_Locales' ) ) {
-		if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
-			require JETPACK__GLOTPRESS_LOCALES_PATH;
+		if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && file_exists( (string) JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
+			require_once JETPACK__GLOTPRESS_LOCALES_PATH;
 		}
 	}
 
