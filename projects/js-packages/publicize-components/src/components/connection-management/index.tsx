@@ -6,7 +6,10 @@ import classNames from 'classnames';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store } from '../../social-store';
 import AddConnectionModal from '../add-connection-modal';
-import { SupportedService, getSupportedServices } from '../add-connection-modal/constants';
+import {
+	SupportedService,
+	useSupportedServices,
+} from '../add-connection-modal/use-supported-services';
 import ConnectionIcon from '../connection-icon';
 import { ConnectionInfo } from './connection-info';
 import { Disconnect } from './disconnect';
@@ -34,14 +37,16 @@ const ConnectionManagement = ( { className = null } ) => {
 		refresh();
 	}, [ refresh ] );
 
+	const supportedServices = useSupportedServices();
+
 	const onReconnect = useCallback(
 		( serviceName: string ) => () => {
-			const service = getSupportedServices().find( _service => _service.name === serviceName );
+			const service = supportedServices.find( _service => _service.ID === serviceName );
 
 			setCurrentService( service );
 			toggleModal();
 		},
-		[]
+		[ supportedServices ]
 	);
 
 	const onCloseModal = useCallback( () => {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack Sync: Ensure 'jetpack_sync_callable_whitelist' filter is respected when added late

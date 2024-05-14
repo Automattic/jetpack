@@ -232,6 +232,26 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/**
+	 * Tests that calling set_late_default works as expected.
+	 *
+	 * Return null
+	 */
+	public function test_sync_callable_set_late_default() {
+		$this->callable_module->set_callable_whitelist( array() );
+
+		add_filter( 'jetpack_sync_callable_whitelist', array( $this, 'filter_sync_callable_whitelist' ) );
+
+		$this->callable_module->set_late_default();
+
+		remove_filter( 'jetpack_sync_callable_whitelist', array( $this, 'filter_sync_callable_whitelist' ) );
+
+		$this->sender->do_sync();
+
+		$synced_value = $this->server_replica_storage->get_callable( 'jetpack_foo' );
+		$this->assertEquals( jetpack_foo_is_callable(), $synced_value );
+	}
+
+	/**
 	 * Tests that updating the theme should result in the no callabled transient being set.
 	 *
 	 * Return null
@@ -975,6 +995,18 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$parsed_url = wp_parse_url( $url );
 
 		return "{$parsed_url['scheme']}://www.{$parsed_url['host']}";
+	}
+
+	/**
+	 * Filters the sync callable whitelist.
+	 *
+	 * @param array $whitelist The sync callable whitelist.
+	 * @return array
+	 */
+	public function filter_sync_callable_whitelist( $whitelist ) {
+		$whitelist['jetpack_foo'] = 'jetpack_foo_is_callable';
+
+		return $whitelist;
 	}
 
 	/**
