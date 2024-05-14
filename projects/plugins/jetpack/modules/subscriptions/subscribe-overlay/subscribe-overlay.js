@@ -39,7 +39,7 @@ domReady( function () {
 	function openOverlay() {
 		overlay.classList.add( 'open' );
 		document.body.classList.add( 'jetpack-subscribe-overlay-open' );
-		// setOverlayDismissedCookie();
+		setOverlayDismissedCookie();
 		window.addEventListener( 'keydown', closeOverlayOnEscapeKeydown );
 	}
 
@@ -50,8 +50,8 @@ domReady( function () {
 	}
 
 	function setOverlayDismissedCookie() {
-		// Expires in 1 day (TODO: change it)
-		const expires = new Date( Date.now() + 86400 * 1000 ).toUTCString();
+		// Expires in 7 days
+		const expires = new Date( Date.now() + 7 * 86400 * 1000 ).toUTCString();
 		document.cookie = `${ overlayDismissedCookie }=true; expires=${ expires };path=/;`;
 	}
 
