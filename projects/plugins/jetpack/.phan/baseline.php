@@ -9,7 +9,7 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgument : 530+ occurrences
+    // PhanTypeMismatchArgument : 520+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 300+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 280+ occurrences
     // PhanNoopNew : 200+ occurrences
@@ -50,9 +50,9 @@ return [
     // PhanTypeInvalidLeftOperandOfNumericOp : 10+ occurrences
     // PhanTypeMismatchProperty : 10+ occurrences
     // PhanTypeMismatchReturnNullable : 10+ occurrences
-    // PhanUndeclaredFunctionInCallable : 9 occurrences
     // PhanDeprecatedClass : 8 occurrences
     // PhanPluginRedundantAssignment : 8 occurrences
+    // PhanUndeclaredClassMethod : 8 occurrences
     // PhanTypeArraySuspiciousNull : 7 occurrences
     // PhanTypeMismatchArgumentInternalReal : 7 occurrences
     // PhanCommentAbstractOnInheritedMethod : 6 occurrences
