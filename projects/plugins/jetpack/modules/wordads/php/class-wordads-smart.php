@@ -154,9 +154,7 @@ class WordAds_Smart {
 			if ( $this->is_inline_enabled ) {
 				add_filter(
 					'the_content',
-					function ( $content ) {
-						return $this->insert_inline_marker( $content );
-					},
+					array( $this, 'insert_inline_marker' ),
 					10
 				);
 			}
