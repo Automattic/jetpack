@@ -37,7 +37,7 @@ class Jetpack_Subscribe_Overlay {
 	 * Jetpack_Subscribe_Overlay class constructor.
 	 */
 	public function __construct() {
-		if ( get_option( 'jetpack-subscribe-overlay-enabled', false ) ) {
+		if ( apply_filters( 'jetpack_subscribe_overlay_enabled', false ) ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 			add_action( 'wp_footer', array( $this, 'add_subscribe_overlay_to_frontend' ) );
 		}
