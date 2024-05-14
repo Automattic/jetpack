@@ -359,7 +359,7 @@ class SelectDropdown extends Component {
 	}
 
 	handleOutsideClick( event ) {
-		if ( ! ReactDom.findDOMNode( this.dropdownContainerRef.current ).contains( event.target ) ) {
+		if ( ! this.dropdownContainerRef.current.contains( event.target ) ) {
 			this.closeDropdown();
 		}
 	}

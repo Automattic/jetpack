@@ -1,7 +1,6 @@
 import Popover from 'components/popover';
 import PropTypes from 'prop-types';
 import React from 'react';
-import ReactDom from 'react-dom';
 
 class PopoverMenu extends React.Component {
 	static propTypes = {
@@ -65,7 +64,7 @@ class PopoverMenu extends React.Component {
 	};
 
 	_onShow = () => {
-		const elementToFocus = ReactDom.findDOMNode( this.menuRef.current );
+		const elementToFocus = this.menuRef.current;
 
 		this._previouslyFocusedElement = document.activeElement;
 
@@ -85,7 +84,7 @@ class PopoverMenu extends React.Component {
 	 * bottom.
 	 */
 	_getClosestSibling = ( target, isDownwardMotion = true ) => {
-		const menu = ReactDom.findDOMNode( this.menuRef.current );
+		const menu = this.menuRef.current;
 
 		let first = menu.firstChild,
 			last = menu.lastChild;

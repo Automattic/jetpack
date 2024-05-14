@@ -5,7 +5,6 @@ import analytics from 'lib/analytics';
 import { debounce, noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
-import ReactDom from 'react-dom';
 
 import './style.scss';
 
@@ -191,19 +190,15 @@ class Search extends React.Component {
 	focus = () => {
 		// if we call focus before the element has been entirely synced up with the DOM, we stand a decent chance of
 		// causing the browser to scroll somewhere odd. Instead, defer the focus until a future turn of the event loop.
-		setTimeout(
-			() =>
-				this.searchInputRef.current && ReactDom.findDOMNode( this.searchInputRef.current ).focus(),
-			0
-		);
+		setTimeout( () => this.searchInputRef.current && this.searchInputRef.current.focus(), 0 );
 	};
 
 	blur = () => {
-		ReactDom.findDOMNode( this.searchInputRef.current ).blur();
+		this.searchInputRef.current.blur();
 	};
 
 	getCurrentSearchValue = () => {
-		return ReactDom.findDOMNode( this.searchInputRef.current ).value;
+		return this.searchInputRef.current.value;
 	};
 
 	clear = () => {
@@ -242,7 +237,7 @@ class Search extends React.Component {
 			return;
 		}
 
-		const input = ReactDom.findDOMNode( this.searchInputRef.current );
+		const input = this.searchInputRef.current;
 
 		this.setState( {
 			keyword: '',
@@ -253,7 +248,7 @@ class Search extends React.Component {
 		input.blur();
 
 		if ( this.props.pinned ) {
-			ReactDom.findDOMNode( this.openIconRef.current ).focus();
+			this.openIconRef.current.focus();
 		}
 
 		this.props.onSearchClose( event );
@@ -288,7 +283,7 @@ class Search extends React.Component {
 	// Puts the cursor at end of the text when starting
 	// with `initialValue` set.
 	onFocus = () => {
-		const input = ReactDom.findDOMNode( this.searchInputRef.current ),
+		const input = this.searchInputRef.current,
 			setValue = input.value;
 
 		if ( setValue ) {
