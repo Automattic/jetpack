@@ -208,7 +208,7 @@ class WordAds_Smart {
 	 * @param string|null $content The post content.
 	 * @return string|null The post content with the marker appended.
 	 */
-	private function insert_inline_marker( $content ) {
+	public function insert_inline_marker( $content ) {
 		if ( $content === null ) {
 			return $content;
 		}
