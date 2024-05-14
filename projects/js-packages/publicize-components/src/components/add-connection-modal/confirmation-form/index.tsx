@@ -77,30 +77,32 @@ export function ConfirmationForm( { keyringResult, onComplete }: ConfirmationFor
 	);
 
 	const { connected, not_connected } = useMemo( () => {
+		// Better safe than sorry
+		if ( ! service ) {
+			return {};
+		}
+
 		const options: Array< AccountOption > = [];
 
-		// Better safe than sorry
-		if ( service ) {
-			// If user account is supported, add it to the list
-			if ( ! service.external_users_only ) {
-				options.push( {
-					label: keyringResult.external_display,
-					value: keyringResult.external_ID,
-					profile_picture: keyringResult.external_profile_picture,
-				} );
-			}
+		// If user account is supported, add it to the list
+		if ( ! service.external_users_only ) {
+			options.push( {
+				label: keyringResult.external_display,
+				value: keyringResult.external_ID,
+				profile_picture: keyringResult.external_profile_picture,
+			} );
+		}
 
-			if (
-				service.multiple_external_user_ID_support &&
-				keyringResult.additional_external_users?.length
-			) {
-				for ( const user of keyringResult.additional_external_users ) {
-					options.push( {
-						label: user.external_name,
-						value: user.external_ID,
-						profile_picture: user.external_profile_picture,
-					} );
-				}
+		if (
+			service.multiple_external_user_ID_support &&
+			keyringResult.additional_external_users?.length
+		) {
+			for ( const user of keyringResult.additional_external_users ) {
+				options.push( {
+					label: user.external_name,
+					value: user.external_ID,
+					profile_picture: user.external_profile_picture,
+				} );
 			}
 		}
 
