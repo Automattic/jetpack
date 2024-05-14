@@ -138,6 +138,7 @@ class Jetpack {
 		'wpcom_instagram_widget',
 		'milestone-widget',
 		'subscribe-modal-css',
+		'subscribe-overlay-css',
 	);
 
 	/**
