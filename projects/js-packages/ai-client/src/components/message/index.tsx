@@ -174,7 +174,7 @@ export function ErrorMessage( {
 				</Button>
 			) : (
 				<Button variant="link" onClick={ onTryAgainClick }>
-					{ __( 'Try Again', 'jetpack-ai-client' ) }
+					{ __( 'Try again', 'jetpack-ai-client' ) }
 				</Button>
 			) }
 		</Message>
