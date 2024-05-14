@@ -1,3 +1,5 @@
+/* eslint-disable jsdoc/require-returns,jsdoc/require-description,jsdoc/require-param-description, jsdoc/require-param-type */
+
 ( function () {
 	// eslint-disable-next-line strict
 	'use strict';
