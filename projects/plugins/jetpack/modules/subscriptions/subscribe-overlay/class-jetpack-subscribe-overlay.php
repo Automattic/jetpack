@@ -6,9 +6,6 @@
  * @since $$next-version$$
  */
 
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
-use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
-
 /**
  * Jetpack_Subscribe_Overlay class.
  */
@@ -197,25 +194,13 @@ HTML;
 			return false;
 		}
 
-		// Don't show if post is for subscribers only or has paywall block
-		global $post;
-		if ( defined( 'Automattic\\Jetpack\\Extensions\\Subscriptions\\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS' ) ) {
-			$access_level = get_post_meta( $post->ID, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
-		} else {
-			$access_level = get_post_meta( $post->ID, '_jetpack_newsletter_access', true );
-		}
-		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
-		$is_accessible_by_everyone = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $access_level || empty( $access_level );
-		if ( ! $is_accessible_by_everyone ) {
-			return false;
-		}
-
 		// Don't show if user is subscribed to blog.
 		require_once __DIR__ . '/../views.php';
 		if ( ! class_exists( 'Jetpack_Memberships' ) || Jetpack_Memberships::is_current_user_subscribed() ) {
 			return false;
 		}
-		return true;
+
+		return is_home() || is_front_page();
 	}
 }
 
