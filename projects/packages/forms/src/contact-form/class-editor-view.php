@@ -11,7 +11,6 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Constants as Jetpack_Constants;
 
 /**
  * Grunion editor view class.
@@ -60,8 +59,7 @@ class Editor_View {
 	 * @return array
 	 */
 	public static function mce_external_plugins( $plugin_array ) {
-		$plugin_array['grunion_form'] = plugins_url( 'jetpack_vendor/automattic/jetpack-forms/dist/contact-form/js/tinymce-plugin-form-button.js', Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) );
-
+		$plugin_array['grunion_form'] = plugins_url( '../../dist/contact-form/js/tinymce-plugin-form-button.js', __FILE__ );
 		return $plugin_array;
 	}
 
