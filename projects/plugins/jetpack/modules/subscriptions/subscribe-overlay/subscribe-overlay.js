@@ -1,7 +1,7 @@
 const { domReady } = wp;
 
 domReady( function () {
-	const overlay = document.getElementsByClassName( 'jetpack-subscribe-overlay' )[ 0 ];
+	const overlay = document.querySelector( '.jetpack-subscribe-overlay' );
 	const overlayDismissedCookie = 'jetpack_post_subscribe_overlay_dismissed';
 	const hasOverlayDismissedCookie =
 		document.cookie && document.cookie.indexOf( overlayDismissedCookie ) > -1;
@@ -10,19 +10,24 @@ domReady( function () {
 		return;
 	}
 
-	const close = document.getElementsByClassName( 'jetpack-subscribe-overlay__close' )[ 0 ];
+	const close = document.querySelector( '.jetpack-subscribe-overlay__close' );
 	close.onclick = function ( event ) {
 		event.preventDefault();
 		closeOverlay();
 	};
 
-	const toContent = document.getElementsByClassName( 'jetpack-subscribe-overlay__to-content' )[ 0 ];
+	const toContent = document.querySelector( '.jetpack-subscribe-overlay__to-content' );
 	// User can edit overlay, and could remove to content link.
 	if ( toContent ) {
 		toContent.onclick = function ( event ) {
 			event.preventDefault();
 			closeOverlay();
 		};
+	}
+
+	const form = document.querySelector( '.jetpack-subscribe-overlay form' );
+	if ( form ) {
+		form.addEventListener( 'submit', closeOverlay );
 	}
 
 	function closeOverlayOnEscapeKeydown( event ) {

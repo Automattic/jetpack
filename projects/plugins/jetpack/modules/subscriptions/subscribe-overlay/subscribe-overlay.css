@@ -37,6 +37,10 @@ body.jetpack-subscribe-overlay-open {
   height: 24px;
 }
 
+body.admin-bar .jetpack-subscribe-overlay__close {
+  top: 64px;
+}
+
 .jetpack-subscribe-overlay__to-content {
   display: none;
   position: fixed;
