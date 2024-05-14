@@ -150,8 +150,8 @@ HTML;
 		if ( $this->should_user_see_overlay() ) { ?>
 					<div class="jetpack-subscribe-overlay">
 						<div class="jetpack-subscribe-overlay__close">
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-								<path d="M5.40456 5L19 19M5 19L18.5954 5" stroke="black" stroke-width="1.5"/>
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+								<path d="M5.40456 5L19 19M5 19L18.5954 5" stroke="currentColor" stroke-width="1.5"/>
 							</svg>
 						</div>
 						<div class="jetpack-subscribe-overlay__content">
