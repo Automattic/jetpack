@@ -44,7 +44,10 @@ function sync_wp_admin_locale_to_calypso( $meta, $user, $update ) {
 
 	if ( ! $locale ) {
 		// No locale means the "Site Default" option, which is the Site language (WPLANG) or "en".
-		$locale = get_option( 'WPLANG', 'en' );
+		$locale = get_option( 'WPLANG' );
+		if ( ! $locale ) {
+			$locale = 'en';
+		}
 	}
 
 	update_calypso_locale( $locale );
