@@ -21,6 +21,7 @@ class Classic_Theme_Helper {
 	 */
 	public $modules = array(
 		'class-featured-content.php',
+		'responsive-videos.php',
 	);
 
 	/**
