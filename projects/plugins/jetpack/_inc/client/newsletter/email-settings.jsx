@@ -192,7 +192,7 @@ const EmailSettings = props => {
 						) }
 					</p>
 					<Container horizontalGap={ 0 } fluid className="sender-name">
-						<Col sm={ 4 } md={ 4 } lg={ 4 }>
+						<Col sm={ 3 } md={ 4 } lg={ 4 }>
 							<TextInput
 								value={ replyToNameState.value }
 								disabled={ replyToNameInputDisabled }
