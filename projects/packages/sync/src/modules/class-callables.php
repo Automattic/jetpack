@@ -96,6 +96,7 @@ class Callables extends Module {
 
 	/**
 	 * Set module defaults.
+	 * Define the callable whitelist based on whether this is a single site or a multisite installation.
 	 *
 	 * @access public
 	 */
@@ -110,6 +111,8 @@ class Callables extends Module {
 
 	/**
 	 * Set module defaults at a later time.
+	 * Reset the callable whitelist if needed to account for plugins adding the 'jetpack_sync_callable_whitelist'
+	 * and 'jetpack_sync_multisite_callable_whitelist' filters late.
 	 *
 	 * @see Automattic\Jetpack\Sync\Modules::set_module_defaults
 	 * @access public
