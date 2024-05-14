@@ -1280,8 +1280,9 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertFalse( $functions->get_hosting_provider_by_known_class() );
 
-		$class_mock = $this->getMockBuilder( '\\WPaaS\\Plugin' ) // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-					->getMock();
+		// Fake that the class exists for the test.
+		// @phan-suppress-next-line PhanUndeclaredClassReference
+		$this->getMockBuilder( '\\WPaaS\\Plugin' )->getMock();
 
 		$this->assertEquals( 'gd-managed-wp', $functions->get_hosting_provider_by_known_class() );
 	}

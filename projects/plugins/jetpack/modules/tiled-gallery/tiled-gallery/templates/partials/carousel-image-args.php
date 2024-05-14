@@ -5,7 +5,11 @@
  * @package automattic/jetpack
  */
 
-$item             = $context['item']; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Defined by the caller. Let Phan handle it.
+'@phan-var-force Jetpack_Tiled_Gallery_Layout $this';
+'@phan-var-force array $context';
+
+$item             = $context['item'];
 $fuzzy_image_meta = $item->fuzzy_image_meta(); // See https://github.com/Automattic/jetpack/issues/2765 .
 if ( isset( $fuzzy_image_meta['keywords'] ) ) {
 	unset( $fuzzy_image_meta['keywords'] );

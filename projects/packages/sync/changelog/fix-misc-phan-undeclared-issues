@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix phpdoc type on `Replicastore_Interface::get_term()` `$taxonomy` arg.

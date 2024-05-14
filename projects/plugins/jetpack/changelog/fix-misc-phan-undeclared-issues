@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: #16434 removed the jetpack-device-detect function this was calling, but missed this caller.
+
+Remove `Jetpack_User_Agent_Info::is_OperaMobile()`, it would have thrown fatals since October 2021.

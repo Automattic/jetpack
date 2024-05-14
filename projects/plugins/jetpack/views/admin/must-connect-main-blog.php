@@ -5,6 +5,9 @@
  * @package automattic/jetpack
  */
 
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Defined by the caller. Let Phan handle it.
+'@phan-var-force array $data'; // From Jetpack::load_view().
+
 ?>
 <div class="wrap">
 	<div class="jetpack-wrap-container dops-card">
@@ -15,7 +18,7 @@
 			</p>
 		</div>
 		<div class="jetpack-install-container">
-			<p class="submit"><a href="<?php echo esc_url( $data['url'] ); // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable  -- $data is loaded by Jetpack::load_view(). ?>" class="button-connector dops-button is-primary" id="wpcom-connect"><?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?></a></p>
+			<p class="submit"><a href="<?php echo esc_url( $data['url'] ); ?>" class="button-connector dops-button is-primary" id="wpcom-connect"><?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?></a></p>
 			<p class="jetpack-install-blurb">
 				<?php jetpack_render_tos_blurb(); ?>
 			</p>
