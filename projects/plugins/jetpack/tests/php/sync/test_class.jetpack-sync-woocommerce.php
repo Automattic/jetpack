@@ -17,6 +17,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 
 	protected $post;
 	protected $callable_module;
+	/** @var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync */
 	protected $full_sync;
 
 	/**
@@ -35,7 +36,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( (bool) Modules::get_module( 'woocommerce' ) );
 	}
 
-	// Incremental sync
+	/** Incremental sync **/
 	public function test_orders_are_synced() {
 		$order = $this->createOrderWithItem();
 
@@ -219,8 +220,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( (bool) $comment_approved_to_unapproved_event );
 	}
 
-	// Full Sync
-
+	/** Full Sync **/
 	public function test_full_sync_order_items() {
 		$this->markTestSkipped( 'Temporarily skip this test.' );
 		// @phan-suppress-next-line PhanPluginUnreachableCode
@@ -293,8 +293,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $has_meta_entry );
 	}
 
-	// Utility functions
-
+	/** Utility functions **/
 	public function add_custom_order_status( $statuses ) {
 		$statuses['wc-custom'] = 'Custom';
 		return $statuses;

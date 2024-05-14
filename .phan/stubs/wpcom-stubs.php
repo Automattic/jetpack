@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit e060d49d53909b256abff72b5ffe22152e96eadd.
+ * Stubs automatically generated from WordPress.com commit 4d47b3912b5c94f3fce6eb218ac453ab6b5cbcf6.
  */
 
 namespace {
@@ -63,6 +63,17 @@ namespace {
         {
         }
     }
+    /**
+     * @param string $id
+     * @param string $title
+     * @param string $callback
+     * @param string $page
+     * @param string $section
+     * @param array $args
+     */
+    function add_settings_field($id, $title, $callback, $page, $section = 'default', $args = array())
+    {
+    }
     class Domain_Management
     {
         public static function get_paid_domains_with_icann_verification_status()
@@ -116,7 +127,7 @@ namespace {
     class WPCOM_Store
     {
         /**
-         * @deprecated 
+         * @deprecated
          * @param int $user_id
          * @param int $blog_id
          * @param false $ids_only
@@ -321,14 +332,20 @@ namespace {
         {
         }
     }
-    class Memberships_Store_Sandbox extends \Store_Sandbox
+    class Memberships_Store_Sandbox
     {
+        public function init($force = \false)
+        {
+        }
         /**
          * @return Memberships_Store_Sandbox
          */
         public static function get_instance(): \Memberships_Store_Sandbox
         {
         }
+		public static function init(bool $force = false)
+		{
+		}
     }
     /**
      * @param int $user_id
@@ -734,6 +751,14 @@ namespace {
     class Keyring_Access_Token extends \Keyring_Token
     {
     }
+    /**
+     * @param string $service
+     * @param string $for
+     * @return string
+     */
+    function wpcom_keyring_get_connect_url($service, $for)
+    {
+    }
     class Likes
     {
         /**
@@ -816,7 +841,7 @@ namespace {
     /**
      * @param  string $url
      * @return string
-     * @internal 
+     * @internal
      */
     function staticize_subdomain($url)
     {
@@ -886,7 +911,7 @@ namespace {
     {
     }
     /**
-     * @deprecated 
+     * @deprecated
      * @return bool
     */
     function wpcom_is_jetpack_search_supported($blog_id)
@@ -1226,6 +1251,14 @@ namespace {
         }
     }
     function wp_kses_reject($content, $rejected_item = \false, $is_attribute = \false)
+    {
+    }
+    /**
+     * @param string $option_group
+     * @param string $option_name
+     * @param array $args
+     */
+    function register_setting($option_group, $option_name, $args = array())
     {
     }
     /**

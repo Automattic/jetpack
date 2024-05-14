@@ -240,6 +240,7 @@ class Comments extends Module {
 	public function filter_blacklisted_post_types( $args ) {
 		$post_id      = $args[0];
 		$posts_module = Modules::get_module( 'posts' );
+		'@phan-var Posts $posts_module';
 
 		if ( false !== $posts_module && ! $posts_module->is_post_type_allowed( $post_id ) ) {
 			return false;

@@ -145,7 +145,7 @@ export function ErrorMessage( { error, onTryAgainClick }: ErrorMessageProps ): R
 			<span>
 				{ sprintf(
 					// translators: %1$d: A dynamic error message
-					__( 'Error: %1$s.', 'jetpack-ai-client' ),
+					__( 'Error: %1$s', 'jetpack-ai-client' ),
 					errorMessage
 				) }
 			</span>
