@@ -8,7 +8,6 @@ import DropdownSeparator from 'components/select-dropdown/separator';
 import { filter, find, findIndex, map, result } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
-import ReactDom from 'react-dom';
 
 import './style.scss';
 
@@ -354,7 +353,7 @@ class SelectDropdown extends Component {
 			return;
 		}
 
-		ReactDom.findDOMNode( this.itemRefs[ 'item-' + newIndex ].current.itemLinkRef.current ).focus();
+		this.itemRefs[ 'item-' + newIndex ].current.itemLinkRef.current.focus();
 		this.focused = newIndex;
 	}
 
