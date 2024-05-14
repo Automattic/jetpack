@@ -100,22 +100,16 @@ class Jetpack_Subscribe_Overlay {
 	 * @return string
 	 */
 	public function get_subscribe_overlay_template_content() {
-		$site_name        = get_bloginfo( 'name' );
-		$site_description = get_bloginfo( 'description' ); // TODO can be empty, how to handle?
-		$skip_to_content  = __( 'Skip to content', 'jetpack' );
+		$skip_to_content = __( 'Skip to content', 'jetpack' );
 
 		return <<<HTML
 	<!-- wp:group {"layout":{"type":"constrained","contentSize":"400px"}} -->
 	<div class="wp-block-group">
 		<!-- wp:site-logo {"width":90,"shouldSyncIcon":true,"align":"center","className":"is-style-rounded"} /-->
 	
-		<!-- wp:heading {"textAlign":"center","level":1} -->
-		<h1 class="wp-block-heading has-text-align-center">$site_name</h1>
-		<!-- /wp:heading -->
+		<!-- wp:site-title {"textAlign":"center","isLink":false} /-->
 
-		<!-- wp:paragraph {"align":"center"} -->
-		<p class='has-text-align-center'>$site_description</p>
-		<!-- /wp:paragraph -->
+		<!-- wp:site-tagline {"textAlign":"center"} /-->
 
 		<!-- wp:jetpack/subscriptions /-->
 
