@@ -76,10 +76,13 @@ export function ConfirmationForm( { keyringResult, onComplete }: ConfirmationFor
 		[ existingConnections, service.ID ]
 	);
 
-	const { connected, not_connected } = useMemo( () => {
+	const accounts = useMemo( () => {
+		const connected: Array< AccountOption > = [];
+		const not_connected: Array< AccountOption > = [];
+
 		// Better safe than sorry
 		if ( ! service ) {
-			return {};
+			return { connected, not_connected };
 		}
 
 		const options: Array< AccountOption > = [];
@@ -106,9 +109,16 @@ export function ConfirmationForm( { keyringResult, onComplete }: ConfirmationFor
 			}
 		}
 
-		return Object.groupBy( options, ( { value } ) => {
-			return isAlreadyConnected( value ) ? 'connected' : 'not_connected';
-		} );
+		// Split the options into connected and not connected
+		for ( const option of options ) {
+			if ( isAlreadyConnected( option.value ) ) {
+				connected.push( option );
+			} else {
+				not_connected.push( option );
+			}
+		}
+
+		return { connected, not_connected };
 	}, [ isAlreadyConnected, keyringResult, service ] );
 
 	const { createConnection } = useDispatch( socialStore );
@@ -156,11 +166,11 @@ export function ConfirmationForm( { keyringResult, onComplete }: ConfirmationFor
 
 	return (
 		<section className={ styles.confirmation }>
-			{ ! not_connected?.length ? (
+			{ ! accounts.not_connected.length ? (
 				<div>
 					{
 						// TODO Make this more useful. For example, in case of Instagram, we could show a message that only Instagra business accounts are supported.
-						connected?.length
+						accounts.connected.length
 							? _x(
 									'No more accounts/pages found.',
 									'Message shown when there are no connections found to connect',
@@ -189,7 +199,7 @@ export function ConfirmationForm( { keyringResult, onComplete }: ConfirmationFor
 							 */
 						 }
 						<div className={ styles[ 'accounts-list' ] }>
-							{ not_connected.map( ( option, index ) => {
+							{ accounts.not_connected.map( ( option, index ) => {
 								return (
 									<label key={ option.value } className={ styles[ 'account-label' ] } aria-required>
 										<input
@@ -231,11 +241,11 @@ export function ConfirmationForm( { keyringResult, onComplete }: ConfirmationFor
 				</div>
 			) }
 
-			{ connected?.length ? (
+			{ accounts.connected.length ? (
 				<section>
 					<h3>{ __( 'Already connected', 'jetpack' ) }</h3>
 					<ul>
-						{ connected.map( ( connection, i ) => (
+						{ accounts.connected.map( ( connection, i ) => (
 							<li key={ connection.label + i }>
 								<AccountInfo
 									label={ connection.label }
