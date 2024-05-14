@@ -4,7 +4,6 @@ import Button from 'components/button';
 import { omit, noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
-import ReactDom from 'react-dom';
 
 export default class ClipboardButton extends React.Component {
 	static displayName = 'ClipboardButton';
@@ -25,7 +24,7 @@ export default class ClipboardButton extends React.Component {
 	buttonRef = React.createRef();
 
 	componentDidMount() {
-		const button = ReactDom.findDOMNode( this.buttonRef.current );
+		const button = this.buttonRef.current.domNode;
 		this.clipboard = new Clipboard( button, {
 			text: () => this.props.text,
 		} );
