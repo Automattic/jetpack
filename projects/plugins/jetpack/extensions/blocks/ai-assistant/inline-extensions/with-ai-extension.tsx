@@ -18,9 +18,9 @@ import React from 'react';
  */
 import useAiFeature from '../hooks/use-ai-feature';
 import { mapInternalPromptTypeToBackendPromptType } from '../lib/prompt/backend-prompt';
-import { blockHandler } from './block-handler';
 import AiAssistantInput from './components/ai-assistant-input';
 import AiAssistantExtensionToolbarDropdown from './components/ai-assistant-toolbar-dropdown';
+import { getBlockHandler } from './get-block-handler';
 import { isPossibleToExtendBlock } from './lib/is-possible-to-extend-block';
 /*
  * Types
@@ -91,7 +91,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			onSuggestion: onBlockSuggestion,
 			onDone: onBlockDone,
 			getContent,
-		} = useMemo( () => blockHandler( blockName, clientId ), [ blockName, clientId ] );
+		} = useMemo( () => getBlockHandler( blockName, clientId ), [ blockName, clientId ] );
 
 		// Called when the user clicks the "Ask AI Assistant" button.
 		const handleAskAiAssistant = useCallback( () => {
