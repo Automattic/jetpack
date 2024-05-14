@@ -61,7 +61,7 @@ class Jetpack_Subscribe_Overlay {
 	 * @param string            $id Template unique identifier (example: theme_slug//template_slug).
 	 * @param string            $template_type Template type: `'wp_template'` or '`wp_template_part'`.
 	 *
-	 * @return WP_Block_Template
+	 * @return WP_Block_Template|null
 	 */
 	public function get_block_template_filter( $block_template, $id, $template_type ) {
 		if ( empty( $block_template ) && $template_type === 'wp_template_part' ) {
