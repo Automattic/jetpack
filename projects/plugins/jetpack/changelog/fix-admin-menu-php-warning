@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Fix an occasional PHP warning when iterating over menu items in the masterbar module.
