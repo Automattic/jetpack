@@ -100,11 +100,11 @@ msgstr "Domain hinzufügen"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:782
 msgid "Grow your business"
-msgstr ""
+msgstr "Dein Geschäft ausbauen"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:772
 msgid "Collect sales tax"
-msgstr ""
+msgstr "Umsatzsteuer erheben"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:762
 msgid "Get paid with WooPayments"
@@ -1392,11 +1392,11 @@ msgstr "Erstelle eine Website. Verkaufe deine Produkte. Schreib ein Blog. Und so
 msgid "Coming Soon"
 msgstr "Demnächst verfügbar"
 
-#: notices/storage-notices.php:115
+#: notices/storage-notices.php:116
 msgid "Disk space quota"
 msgstr "Speicherplatzkontingent"
 
-#: notices/storage-notices.php:111
+#: notices/storage-notices.php:112
 msgid "Disk space used"
 msgstr "Belegter Speicherplatz"
 

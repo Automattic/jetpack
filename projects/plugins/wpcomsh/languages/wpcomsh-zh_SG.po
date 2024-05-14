@@ -100,15 +100,15 @@ msgstr "添加域"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:782
 msgid "Grow your business"
-msgstr ""
+msgstr "拓展业务"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:772
 msgid "Collect sales tax"
-msgstr ""
+msgstr "收取销售税"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:762
 msgid "Get paid with WooPayments"
-msgstr ""
+msgstr "通过 WooPayments 收款"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:752
 msgid "Add your products"
@@ -116,7 +116,7 @@ msgstr "添加产品"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:742
 msgid "Customize your store"
-msgstr ""
+msgstr "自定义您的商店"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:126
 msgid "Sunset"
@@ -1391,11 +1391,11 @@ msgstr "创建网站。销售商品。撰写博客。还有更多用途待您发
 msgid "Coming Soon"
 msgstr "快来了"
 
-#: notices/storage-notices.php:115
+#: notices/storage-notices.php:116
 msgid "Disk space quota"
 msgstr "磁盘空间配额"
 
-#: notices/storage-notices.php:111
+#: notices/storage-notices.php:112
 msgid "Disk space used"
 msgstr "已用磁盘空间"
 
@@ -1590,7 +1590,7 @@ msgstr "未找到任何 Instagram 图像。"
 
 #: widgets/instagram/instagram.php:186
 msgid "There was an error retrieving images from Instagram. An attempt will be remade in a few minutes."
-msgstr "从 Instagram 中检索图像时出现错误。几分钟后将重新尝试。"
+msgstr "从 Instagram 中检索图像时出现错���。几分钟后将重新尝试。"
 
 #: widgets/instagram/instagram.php:30
 msgid "Display your latest Instagram photos."

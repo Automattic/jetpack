@@ -1392,11 +1392,11 @@ msgstr "Сайт туса лартăр. Суту-илÿ тăвăр. Блог ç�
 msgid "Coming Soon"
 msgstr "Часах"
 
-#: notices/storage-notices.php:115
+#: notices/storage-notices.php:116
 msgid "Disk space quota"
 msgstr "Уйăрса панă диск уçлăхĕ"
 
-#: notices/storage-notices.php:111
+#: notices/storage-notices.php:112
 msgid "Disk space used"
 msgstr "Усă курнă диск уçлăхĕ"
 

@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-05-09 09:54:04+0000\n"
+"PO-Revision-Date: 2024-05-14 09:39:41+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -100,15 +100,15 @@ msgstr "添加域"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:782
 msgid "Grow your business"
-msgstr ""
+msgstr "拓展业务"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:772
 msgid "Collect sales tax"
-msgstr ""
+msgstr "收取销售税"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:762
 msgid "Get paid with WooPayments"
-msgstr ""
+msgstr "通过 WooPayments 收款"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:752
 msgid "Add your products"
@@ -116,7 +116,7 @@ msgstr "添加产品"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:742
 msgid "Customize your store"
-msgstr ""
+msgstr "自定义您的商店"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:126
 msgid "Sunset"
@@ -1391,11 +1391,11 @@ msgstr "创建网站。销售商品。撰写博客。还有更多用途待您发
 msgid "Coming Soon"
 msgstr "快来了"
 
-#: notices/storage-notices.php:115
+#: notices/storage-notices.php:116
 msgid "Disk space quota"
 msgstr "磁盘空间配额"
 
-#: notices/storage-notices.php:111
+#: notices/storage-notices.php:112
 msgid "Disk space used"
 msgstr "已用磁盘空间"
 

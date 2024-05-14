@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-05-09 15:54:02+0000\n"
+"PO-Revision-Date: 2024-05-14 09:37:40+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -104,7 +104,7 @@ msgstr "Expanda seus negócios"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:772
 msgid "Collect sales tax"
-msgstr "Receber taxas de vendas"
+msgstr "Receber imposto sobre as vendas"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:762
 msgid "Get paid with WooPayments"
@@ -1392,11 +1392,11 @@ msgstr "Crie um site. Venda suas coisas. Escreva um blog. E muito mais."
 msgid "Coming Soon"
 msgstr "Em breve"
 
-#: notices/storage-notices.php:115
+#: notices/storage-notices.php:116
 msgid "Disk space quota"
 msgstr "Cota de espaço de disco"
 
-#: notices/storage-notices.php:111
+#: notices/storage-notices.php:112
 msgid "Disk space used"
 msgstr "Espaço de disco usado"
 

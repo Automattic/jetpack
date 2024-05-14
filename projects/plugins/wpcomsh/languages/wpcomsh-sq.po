@@ -1392,11 +1392,11 @@ msgstr "Krijoni një sajt. Shitni gjërat tuaja. Shkruani një blog. Dhe plot gj
 msgid "Coming Soon"
 msgstr "Së Shpejti"
 
-#: notices/storage-notices.php:115
+#: notices/storage-notices.php:116
 msgid "Disk space quota"
 msgstr "Kuota hapësire disku"
 
-#: notices/storage-notices.php:111
+#: notices/storage-notices.php:112
 msgid "Disk space used"
 msgstr "Hapësirë disku e përdorur"
 

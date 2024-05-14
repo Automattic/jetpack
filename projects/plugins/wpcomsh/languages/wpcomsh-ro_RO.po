@@ -1393,11 +1393,11 @@ msgstr "Construiești un site web. Vinzi produse și alte lucruri. Scrii pe un b
 msgid "Coming Soon"
 msgstr "În curând"
 
-#: notices/storage-notices.php:115
+#: notices/storage-notices.php:116
 msgid "Disk space quota"
 msgstr "Cotă spațiu pe disc"
 
-#: notices/storage-notices.php:111
+#: notices/storage-notices.php:112
 msgid "Disk space used"
 msgstr "Spațiu utilizat pe disc"
 

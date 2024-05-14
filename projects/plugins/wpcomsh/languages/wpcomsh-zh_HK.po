@@ -1391,11 +1391,11 @@ msgstr "建立網站。銷售你的商品。撰寫網誌。優點不止於此。
 msgid "Coming Soon"
 msgstr "即將推出"
 
-#: notices/storage-notices.php:115
+#: notices/storage-notices.php:116
 msgid "Disk space quota"
 msgstr ""
 
-#: notices/storage-notices.php:111
+#: notices/storage-notices.php:112
 msgid "Disk space used"
 msgstr ""
 

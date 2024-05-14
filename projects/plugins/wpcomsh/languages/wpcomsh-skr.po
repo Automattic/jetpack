@@ -1392,11 +1392,11 @@ msgstr "ویب سائٹ اُسارو، آپݨاں سامان ویچو۔ بلاگ
 msgid "Coming Soon"
 msgstr "جلدی آندا پئے"
 
-#: notices/storage-notices.php:115
+#: notices/storage-notices.php:116
 msgid "Disk space quota"
 msgstr "ڈسک سپیس کوٹہ"
 
-#: notices/storage-notices.php:111
+#: notices/storage-notices.php:112
 msgid "Disk space used"
 msgstr "ڈسک سپیس استعمال تھئی"
 

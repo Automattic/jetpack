@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-05-08 02:10:12+0000\n"
+"PO-Revision-Date: 2024-05-14 09:38:52+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -100,19 +100,19 @@ msgstr "Een domein toevoegen"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:782
 msgid "Grow your business"
-msgstr ""
+msgstr "Laat je bedrijf groeien"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:772
 msgid "Collect sales tax"
-msgstr ""
+msgstr "Btw innen"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:762
 msgid "Get paid with WooPayments"
-msgstr ""
+msgstr "Krijg betaald met WooPayments"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:752
 msgid "Add your products"
-msgstr ""
+msgstr "Voeg je producten toe"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:742
 msgid "Customize your store"
@@ -411,7 +411,7 @@ msgstr "Gebruik de begeleide importer van WordPress.com om berichten en reacties
 
 #: notices/feature-moved-to-jetpack-notices.php:21
 msgid "Visit %1$sJetpack Settings%2$s for more writing settings powered by Jetpack."
-msgstr ""
+msgstr "Ga naar %1$sJetpack-instellingen%2$s voor meer schrijfinstellingen van Jetpack."
 
 #: feature-plugins/scheduled-updates.php:37
 #: feature-plugins/scheduled-updates.php:38
@@ -1392,11 +1392,11 @@ msgstr "Bouw een website. Verkoop je spullen. Schrijf een blog. En nog veel meer
 msgid "Coming Soon"
 msgstr "Binnenkort beschikbaar"
 
-#: notices/storage-notices.php:115
+#: notices/storage-notices.php:116
 msgid "Disk space quota"
 msgstr "Schijfruimte-quota"
 
-#: notices/storage-notices.php:111
+#: notices/storage-notices.php:112
 msgid "Disk space used"
 msgstr "Schijfruimte gebruikt"
 

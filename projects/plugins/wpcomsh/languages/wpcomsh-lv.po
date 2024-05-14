@@ -1393,11 +1393,11 @@ msgstr "Veidojiet vietni. Pārdodiet savas lietas. Rakstiet emuāru. Un vēl dau
 msgid "Coming Soon"
 msgstr "Drīzumā"
 
-#: notices/storage-notices.php:115
+#: notices/storage-notices.php:116
 msgid "Disk space quota"
 msgstr "Diska vietas kvota"
 
-#: notices/storage-notices.php:111
+#: notices/storage-notices.php:112
 msgid "Disk space used"
 msgstr "Izmantotā diska vieta"
 

@@ -1391,11 +1391,11 @@ msgstr "یک وبسایت بسازید. چیزهایی بفروشید. یک وب
 msgid "Coming Soon"
 msgstr "به زودی"
 
-#: notices/storage-notices.php:115
+#: notices/storage-notices.php:116
 msgid "Disk space quota"
 msgstr "میزان فضای دیسک"
 
-#: notices/storage-notices.php:111
+#: notices/storage-notices.php:112
 msgid "Disk space used"
 msgstr "حجم فضای استفاده شده"
 

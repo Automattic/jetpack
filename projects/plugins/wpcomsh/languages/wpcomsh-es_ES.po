@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-05-09 13:54:03+0000\n"
+"PO-Revision-Date: 2024-05-14 15:54:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -17,11 +17,11 @@ msgstr "Explorar plugins"
 
 #: wpcom-plugins/plugins.php:40
 msgid "Access a variety of free and paid plugins that can enhance your site's functionality and features."
-msgstr ""
+msgstr "Accede a diversos plugins gratuitos y de pago con los que podrás mejorar las características y la funcionalidad de tu sitio."
 
 #: wpcom-plugins/plugins.php:39
 msgid "Flex your site's features with plugins"
-msgstr ""
+msgstr "Usa los plugins para dar versatilidad a las funciones de tu sitio"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:62
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:63
@@ -104,11 +104,11 @@ msgstr "Haz crecer tu negocio"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:772
 msgid "Collect sales tax"
-msgstr ""
+msgstr "Cobra impuesto sobre las ventas"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:762
 msgid "Get paid with WooPayments"
-msgstr ""
+msgstr "Recibe los pagos con WooPayments"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:752
 msgid "Add your products"
@@ -116,7 +116,7 @@ msgstr "Añade tus productos"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:742
 msgid "Customize your store"
-msgstr ""
+msgstr "Personaliza tu tienda"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:126
 msgid "Sunset"
@@ -165,7 +165,7 @@ msgstr "Compartir “%s” a través de Jetpack Social"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:449
 msgid "To access settings for plans, domains, emails, etc., click \"Hosting\" in the sidebar."
-msgstr ""
+msgstr "Para acceder a los ajustes de los planes, dominios, correos electrónicos, etc., haz clic en \"Alojamiento\" en la barra lateral."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:447
 msgid "WordPress.com"
@@ -1392,11 +1392,11 @@ msgstr "Crea una página web. Vende lo que quieras. Escribe un blog. Y mucho má
 msgid "Coming Soon"
 msgstr "Próximamente"
 
-#: notices/storage-notices.php:115
+#: notices/storage-notices.php:116
 msgid "Disk space quota"
 msgstr "Cuota de espacio del disco"
 
-#: notices/storage-notices.php:111
+#: notices/storage-notices.php:112
 msgid "Disk space used"
 msgstr "Espacio del disco utilizado"
 
