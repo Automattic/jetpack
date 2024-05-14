@@ -61,9 +61,6 @@ function wpcom_maybe_redirect_from_woo_my_home_to_calypso_my_home() {
 		$blog_domain = ( new Status() )->get_site_suffix();
 		$my_home_url = 'https://wordpress.com/home/' . $blog_domain . '?ref=entrepreneur-signup';
 
-		// TODO: Remove this when launching to production.
-		$my_home_url .= '&flags=entrepreneur-my-home';
-
 		wp_safe_redirect( $my_home_url );
 		exit;
 	}
