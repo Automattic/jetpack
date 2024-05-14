@@ -15,7 +15,7 @@ use Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify;
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.29.1-alpha';
+	const PACKAGE_VERSION = '5.29.1';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;

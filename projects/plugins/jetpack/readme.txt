@@ -326,9 +326,10 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.4.1 - 2024-05-10
-#### Bug fixes
-- Contact Form: Unhook the jetpack_form_register_pattern function to prevent unwanted deprecation notices.
+### 13.5-a.1 - 2024-05-13
+#### Enhancements
+- SSO: Improve accessibility of tooltips on WP Admin users page.
+- WordAds: Add inline ads within post content.
 
 --------
 
