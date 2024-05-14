@@ -33,7 +33,7 @@ class Jetpack_Calypsoify {
 	/**
 	 * Jetpack_Calypsoify constructor.
 	 */
-	private function __construct() {
+	public function __construct() {
 		add_action( 'admin_init', array( $this, 'setup' ), 4 );
 	}
 
