@@ -10,6 +10,8 @@ import {
 	DELETING_CONNECTION,
 	SET_CONNECTIONS,
 	TOGGLE_CONNECTION,
+	UPDATE_CONNECTION,
+	UPDATING_CONNECTION,
 } from './constants';
 
 /**
@@ -284,6 +286,78 @@ export function createConnection( data ) {
 			createErrorNotice( message, { type: 'snackbar', isDismissible: true } );
 		} finally {
 			dispatch( creatingConnection( false ) );
+		}
+	};
+}
+
+/**
+ * Updates a connection.
+ *
+ * @param {string} connectionId - Connection ID to update.
+ * @param {Record<string, any>} data - The data.
+ *
+ * @returns {object} Delete connection action.
+ */
+export function updateConnection( connectionId, data ) {
+	return {
+		type: UPDATE_CONNECTION,
+		connectionId,
+		data,
+	};
+}
+
+/**
+ * Marks a connection as being updating.
+ *
+ * @param {string} connectionId - Connection ID being updated.
+ * @param {boolean} updating - Whether the connection is being updated.
+ *
+ * @returns {object} Deleting connection action.
+ */
+export function updatingConnection( connectionId, updating = true ) {
+	return {
+		type: UPDATING_CONNECTION,
+		connectionId,
+		updating,
+	};
+}
+
+/**
+ * Updates a connection.
+ *
+ * @param {string} connectionId - Connection ID to update.
+ * @param {Record<string, any>} data - The data for API call.
+ * @returns {void}
+ */
+export function updateConnectionById( connectionId, data ) {
+	return async function ( { dispatch } ) {
+		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
+
+		try {
+			const path = `/jetpack/v4/social/connections/${ connectionId }`;
+
+			dispatch( updatingConnection( connectionId ) );
+
+			const connection = await apiFetch( { method: 'POST', path, data } );
+
+			if ( connection ) {
+				dispatch( updateConnection( connectionId, data ) );
+
+				createSuccessNotice( __( 'Account updated successfully.', 'jetpack' ), {
+					type: 'snackbar',
+					isDismissible: true,
+				} );
+			}
+		} catch ( error ) {
+			let message = __( 'Error updating account.', 'jetpack' );
+
+			if ( typeof error === 'object' && 'message' in error && error.message ) {
+				message = `${ message } ${ error.message }`;
+			}
+
+			createErrorNotice( message, { type: 'snackbar', isDismissible: true } );
+		} finally {
+			dispatch( updatingConnection( connectionId, false ) );
 		}
 	};
 }
