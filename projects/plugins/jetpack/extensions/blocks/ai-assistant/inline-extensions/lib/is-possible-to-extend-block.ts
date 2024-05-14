@@ -10,6 +10,7 @@ import {
 	EXTENDED_INLINE_BLOCKS,
 	isAiAssistantExtensionsSupportEnabled,
 	isAiAssistantSupportEnabled,
+	releasedInlineExtensions,
 } from '../../extensions/ai-assistant';
 
 /**
@@ -30,8 +31,11 @@ export function isPossibleToExtendBlock( blockName: string ): boolean {
 		return false;
 	}
 
-	// Check if AI Assistant extensions support is enabled.
-	if ( ! isAiAssistantExtensionsSupportEnabled ) {
+	// Check if AI Assistant extensions support is enabled or the block is in the released list
+	if (
+		! isAiAssistantExtensionsSupportEnabled &&
+		! releasedInlineExtensions.includes( blockName )
+	) {
 		return false;
 	}
 
