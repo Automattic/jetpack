@@ -215,10 +215,10 @@ export function ConfirmationForm( { keyringResult, onComplete }: ConfirmationFor
 
 						<BaseControl
 							id="mark-connection-as-shared"
-							help={ __(
+							help={ `${ __(
 								'If enabled, the connection will be available to all administrators, editors, and authors.',
 								'jetpack'
-							) }
+							) } ${ __( 'You can change this later.', 'jetpack' ) }` }
 						>
 							<HStack justify="flex-start" spacing={ 3 }>
 								<span>
