@@ -170,7 +170,7 @@ HTML;
 	 * @return bool
 	 */
 	public function should_user_see_overlay() {
-		// Only show when viewing frontend single post.
+		// Only show when viewing frontend.
 		if ( is_admin() ) {
 			return false;
 		}
