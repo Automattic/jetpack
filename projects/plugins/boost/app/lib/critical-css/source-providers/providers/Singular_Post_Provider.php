@@ -50,7 +50,7 @@ class Singular_Post_Provider extends Provider {
 
 			foreach ( $query->posts as $post ) {
 				$url = get_permalink( $post );
-				if ( $url ) {
+				if ( ! empty( $url ) ) {
 					$links[ $post_type ][] = $url;
 				}
 			}
