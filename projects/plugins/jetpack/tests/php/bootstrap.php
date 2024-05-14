@@ -151,6 +151,11 @@ if ( ! function_exists( 'shortcode_new_to_old_params' ) && ! in_running_uninstal
 	require __DIR__ . '/../../modules/shortcodes.php';
 }
 
+// Load the sso module to test properly.
+if ( ! in_running_uninstall_group() ) {
+	require __DIR__ . '/../../modules/sso.php';
+}
+
 // Load attachment helper methods.
 require __DIR__ . '/attachment_test_case.php';
 

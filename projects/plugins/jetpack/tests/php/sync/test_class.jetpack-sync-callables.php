@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Connection\SSO\Helpers;
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Defaults;
@@ -116,11 +117,11 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'post_type_features'               => Functions::get_post_type_features(),
 			'rest_api_allowed_post_types'      => Functions::rest_api_allowed_post_types(),
 			'rest_api_allowed_public_metadata' => Functions::rest_api_allowed_public_metadata(),
-			'sso_is_two_step_required'         => Jetpack_SSO_Helpers::is_two_step_required(),
-			'sso_should_hide_login_form'       => Jetpack_SSO_Helpers::should_hide_login_form(),
-			'sso_match_by_email'               => Jetpack_SSO_Helpers::match_by_email(),
-			'sso_new_user_override'            => Jetpack_SSO_Helpers::new_user_override(),
-			'sso_bypass_default_login_form'    => Jetpack_SSO_Helpers::bypass_login_forward_wpcom(),
+			'sso_is_two_step_required'         => Helpers::is_two_step_required(),
+			'sso_should_hide_login_form'       => Helpers::should_hide_login_form(),
+			'sso_match_by_email'               => Helpers::match_by_email(),
+			'sso_new_user_override'            => Helpers::new_user_override(),
+			'sso_bypass_default_login_form'    => Helpers::bypass_login_forward_wpcom(),
 			'wp_version'                       => Functions::wp_version(),
 			'get_plugins'                      => Functions::get_plugins(),
 			'get_plugins_action_links'         => Functions::get_plugins_action_links(),

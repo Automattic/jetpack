@@ -65,7 +65,6 @@ return [
     // PhanUndeclaredVariableDim : 6 occurrences
     // PhanImpossibleCondition : 5 occurrences
     // PhanNonClassMethodCall : 5 occurrences
-    // PhanPluginUnreachableCode : 5 occurrences
     // PhanTypeMismatchDimAssignment : 5 occurrences
     // PhanTypeSuspiciousStringExpression : 5 occurrences
     // PhanUndeclaredStaticProperty : 5 occurrences
@@ -79,6 +78,7 @@ return [
     // PhanTypeInvalidRightOperandOfNumericOp : 4 occurrences
     // PhanDeprecatedFunctionInternal : 3 occurrences
     // PhanDeprecatedTrait : 3 occurrences
+    // PhanPluginUnreachableCode : 3 occurrences
     // PhanStaticPropIsStaticType : 3 occurrences
     // PhanTypeConversionFromArray : 3 occurrences
     // PhanTypeMismatchArgumentReal : 3 occurrences
@@ -459,10 +459,6 @@ return [
         'modules/sitemaps/sitemap-librarian.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/sitemaps/sitemap-logger.php' => ['PhanTypeMismatchProperty'],
         'modules/sitemaps/sitemaps.php' => ['PhanNoopNew', 'PhanTypeMismatchArgument'],
-        'modules/sso.php' => ['PhanNoopNew', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
-        'modules/sso/class-jetpack-force-2fa.php' => ['PhanDeprecatedFunction'],
-        'modules/sso/class.jetpack-sso-helpers.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn'],
-        'modules/sso/class.jetpack-sso-user-admin.php' => ['PhanPluginUnreachableCode', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal'],
         'modules/stats.php' => ['PhanDeprecatedFunction', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn'],
         'modules/subscriptions.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeSuspiciousNonTraversableForeach'],
         'modules/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.php' => ['PhanTypeMismatchReturnNullable'],
