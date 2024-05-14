@@ -7,6 +7,7 @@ import {
 	SocialIcon,
 	getRedirectUrl,
 	getUserLocale,
+	Text,
 } from '@automattic/jetpack-components';
 import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import {
@@ -88,10 +89,19 @@ const Header = () => {
 								usedCount={ usedCount }
 								scheduledCount={ scheduledCount }
 								remainingCount={ remainingCount }
+								remainingLabel={ __( 'left in this cycle', 'jetpack-social' ) }
 								legendCaption={ __( 'Auto-share usage', 'jetpack-social' ) }
 								noticeType={ noticeType }
 								className={ styles[ 'bar-wrapper' ] }
 							/>
+							<Text variant="small" className={ styles[ 'bar-description' ] }>
+								<i>
+									{ __(
+										'As a free Jetpack Social user, you get 30 shares within every rolling 30-day window.',
+										'jetpack-social'
+									) }
+								</i>
+							</Text>
 							<ContextualUpgradeTrigger
 								className={ styles.cut }
 								description={ __(
