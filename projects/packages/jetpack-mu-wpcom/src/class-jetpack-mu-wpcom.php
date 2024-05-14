@@ -88,6 +88,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-site-menu/wpcom-site-menu.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 		require_once __DIR__ . '/features/calypso-locale-sync/sync-wp-admin-to-calypso.php';
+		require_once __DIR__ . '/features/calypso-locale-sync/sync-calypso-to-wp-admin.php';
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
