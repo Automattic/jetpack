@@ -124,9 +124,7 @@ class Callables extends Module {
 			$late_callables = apply_filters( 'jetpack_sync_callable_whitelist', array() );
 		}
 		if ( ! empty( $late_callables ) && is_array( $late_callables ) ) {
-			if ( count( $late_callables ) > count( $this->callable_whitelist ) ) {
-				$this->callable_whitelist = array_merge( $this->callable_whitelist, $late_callables );
-			}
+			$this->callable_whitelist = array_merge( $this->callable_whitelist, $late_callables );
 		}
 	}
 
