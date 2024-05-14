@@ -15,6 +15,8 @@ class PopoverMenu extends React.Component {
 		position: 'top',
 	};
 
+	menuRef = React.createRef();
+
 	componentWillUnmount() {
 		// Make sure we don't hold on to reference to the DOM reference
 		this._previouslyFocusedElement = null;
@@ -33,7 +35,7 @@ class PopoverMenu extends React.Component {
 				className={ this.props.className }
 			>
 				<div
-					ref="menu"
+					ref={ this.menuRef }
 					role="menu"
 					className="dops-popover__menu"
 					onKeyDown={ this._onKeyDown }
@@ -63,7 +65,7 @@ class PopoverMenu extends React.Component {
 	};
 
 	_onShow = () => {
-		const elementToFocus = ReactDom.findDOMNode( this.refs.menu );
+		const elementToFocus = ReactDom.findDOMNode( this.menuRef.current );
 
 		this._previouslyFocusedElement = document.activeElement;
 
@@ -83,7 +85,7 @@ class PopoverMenu extends React.Component {
 	 * bottom.
 	 */
 	_getClosestSibling = ( target, isDownwardMotion = true ) => {
-		const menu = ReactDom.findDOMNode( this.refs.menu );
+		const menu = ReactDom.findDOMNode( this.menuRef.current );
 
 		let first = menu.firstChild,
 			last = menu.lastChild;

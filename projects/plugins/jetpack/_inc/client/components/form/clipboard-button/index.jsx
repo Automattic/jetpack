@@ -22,8 +22,10 @@ export default class ClipboardButton extends React.Component {
 		rna: false,
 	};
 
+	buttonRef = React.createRef();
+
 	componentDidMount() {
-		const button = ReactDom.findDOMNode( this.refs.button );
+		const button = ReactDom.findDOMNode( this.buttonRef.current );
 		this.clipboard = new Clipboard( button, {
 			text: () => this.props.text,
 		} );
@@ -45,7 +47,7 @@ export default class ClipboardButton extends React.Component {
 		return (
 			<Button
 				rna={ this.props.rna }
-				ref="button"
+				ref={ this.buttonRef }
 				{ ...omit( this.props, Object.keys( this.constructor.propTypes ) ) }
 				className={ classes }
 			/>
