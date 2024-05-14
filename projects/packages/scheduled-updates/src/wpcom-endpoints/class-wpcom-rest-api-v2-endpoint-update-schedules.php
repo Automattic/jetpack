@@ -404,8 +404,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			add_filter( 'rest_request_after_callbacks', array( $this, 'transform_error_response' ) );
 
 			return new \WP_Error(
-				'rest_forbidden',
-				__( 'None of the specified plugins are installed.', 'jetpack-scheduled-updates' ),
+				'rest_invalid_param',
+				__( 'The specified plugins are not installed on the website. Please make sure the plugins are installed before attempting to schedule updates.', 'jetpack-scheduled-updates' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -415,8 +415,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			add_filter( 'rest_request_after_callbacks', array( $this, 'transform_error_response' ) );
 
 			return new \WP_Error(
-				'rest_forbidden',
-				__( 'All of the specified plugins are managed.', 'jetpack-scheduled-updates' ),
+				'rest_invalid_param',
+				__( 'The specified plugins are managed and auto-updated by WordPress.com.', 'jetpack-scheduled-updates' ),
 				array( 'status' => 400 )
 			);
 		}
