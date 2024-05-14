@@ -13,6 +13,7 @@ export type Connection = {
 	id: string;
 	service_name: string;
 	display_name: string;
+	external_display?: string;
 	username: string;
 	enabled: boolean;
 	done: boolean;
@@ -24,6 +25,14 @@ export type Connection = {
 	profile_picture: string;
 	profile_link: string;
 	status: ConnectionStatus;
+};
+
+export type ConnectionService = {
+	ID: string;
+	label: string;
+	type: 'publicize' | 'other';
+	description: string;
+	connect_URL: string;
 };
 
 export type ConnectionData = {

@@ -5,6 +5,7 @@ import { ExtensionAIControl } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useState, useEffect, useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import React from 'react';
 /*
  * Internal dependencies
@@ -32,6 +33,11 @@ export type AiAssistantInputProps = {
 	undo?: () => void;
 	tryAgain?: () => void;
 };
+
+const className = classNames(
+	'jetpack-ai-assistant-extension-ai-input',
+	'wp-block' // Some themes, like Twenty Twenty, use this class to set the element's side margins.
+);
 
 export default function AiAssistantInput( {
 	requestingState,
@@ -158,7 +164,7 @@ export default function AiAssistantInput( {
 
 	return (
 		<ExtensionAIControl
-			className="jetpack-ai-assistant-extension-ai-input"
+			className={ className }
 			placeholder={ placeholder }
 			disabled={ disabled }
 			value={ value }

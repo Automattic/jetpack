@@ -1,12 +1,13 @@
 import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
+import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chevronDown } from '@wordpress/icons';
 import classNames from 'classnames';
-import { useCallback } from 'react';
+import { ConnectForm } from './connect-form';
 import { ConnectPage } from './connect-page/connect-page';
-import { SupportedService, getSupportedServices } from './constants';
 import styles from './style.module.scss';
+import { SupportedService, useSupportedServices } from './use-supported-services';
 
 type AddConnectionModalProps = {
 	onCloseModal: VoidFunction;
@@ -19,6 +20,8 @@ const AddConnectionModal = ( {
 	currentService,
 	setCurrentService,
 }: AddConnectionModalProps ) => {
+	const supportedServices = useSupportedServices();
+
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
 	const onServiceSelected = useCallback(
@@ -32,6 +35,11 @@ const AddConnectionModal = ( {
 		setCurrentService( null );
 	}, [ setCurrentService ] );
 
+	const onConfirm = useCallback( ( data: unknown ) => {
+		// eslint-disable-next-line no-console
+		console.log( data );
+	}, [] );
+
 	return (
 		<Modal
 			className={ classNames( styles.modal, {
@@ -44,13 +52,17 @@ const AddConnectionModal = ( {
 					? sprintf(
 							// translators: %s: Name of the service the user connects to.
 							__( 'Connecting a new %s account', 'jetpack' ),
-							currentService.title
+							currentService.label
 					  )
 					: __( 'Add a new connection to Jetpack Social', 'jetpack' )
 			}
 		>
 			{ currentService ? (
-				<ConnectPage service={ currentService } onBackClicked={ onBackClicked } />
+				<ConnectPage
+					service={ currentService }
+					onBackClicked={ onBackClicked }
+					onConfirm={ onConfirm }
+				/>
 			) : (
 				<table>
 					<thead>
@@ -61,8 +73,8 @@ const AddConnectionModal = ( {
 						</tr>
 					</thead>
 					<tbody>
-						{ getSupportedServices().map( service => (
-							<tr key={ service.name }>
+						{ supportedServices.map( service => (
+							<tr key={ service.ID }>
 								<td>
 									<service.icon iconSize={ isSmall ? 36 : 48 } />
 								</td>
@@ -71,16 +83,21 @@ const AddConnectionModal = ( {
 										[ styles.small ]: ! isSmall,
 									} ) }
 								>
-									<h2 className={ styles.title }>{ service.title }</h2>
+									<h2 className={ styles.title }>{ service.label }</h2>
 									{ ! isSmall ? (
 										<p className={ styles.description }>{ service.description }</p>
 									) : null }
 								</td>
 								<td>
 									<div className={ styles[ 'column-actions' ] }>
-										<Button type="submit" variant="primary" size={ isSmall ? 'small' : 'normal' }>
-											{ __( 'Connect', 'jetpack' ) }
-										</Button>
+										<ConnectForm
+											service={ service }
+											isSmall={ isSmall }
+											onConfirm={ onConfirm }
+											onSubmit={
+												service.needsCustomInputs ? onServiceSelected( service ) : undefined
+											}
+										/>
 										<Button
 											size={ isSmall ? 'small' : 'normal' }
 											className={ styles[ 'chevron-button' ] }

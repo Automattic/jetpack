@@ -457,7 +457,7 @@ abstract class SAL_Site {
 	 *
 	 * @see class.json-api-site-jetpack.php for implementation.
 	 */
-	abstract protected function is_wpforteams_site();
+	abstract public function is_wpforteams_site();
 
 	/**
 	 * Get hub blog id for P2 sites.
@@ -1596,4 +1596,18 @@ abstract class SAL_Site {
 	public function get_wpcom_classic_early_release() {
 		return ! empty( get_option( 'wpcom_classic_early_release' ) );
 	}
+
+	/**
+	 * Get Zendesk site meta.
+	 *
+	 * @return array|null
+	 */
+	abstract public function get_zendesk_site_meta();
+
+	/**
+	 * Detect whether there's a pending plan for this site.
+	 *
+	 * @return bool
+	 */
+	abstract public function is_pending_plan();
 }

@@ -15,7 +15,7 @@ namespace Automattic\Jetpack\Google_Analytics;
  */
 class GA_Manager {
 
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.0';
 
 	/**
 	 * Jetpack_Google_Analytics singleton instance.

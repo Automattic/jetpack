@@ -32,7 +32,7 @@ function custom_css_loaded() {
 		'https://wordpress.org/documentation/article/styles-overview/#applying-custom-css'
 	);
 
-	_deprecated_hook( 'custom_css_loaded', 'jetpack-$$next-version$$', 'WordPress Custom CSS', esc_html( $message ) );
+	_deprecated_hook( 'custom_css_loaded', 'jetpack-13.5', 'WordPress Custom CSS', esc_html( $message ) );
 
 	Jetpack::enable_module_configurable( __FILE__ );
 	add_filter( 'jetpack_module_configuration_url_custom-css', 'jetpack_custom_css_configuration_url' );
