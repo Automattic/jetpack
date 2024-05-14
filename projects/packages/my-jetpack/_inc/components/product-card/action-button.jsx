@@ -206,7 +206,7 @@ const ActionButton = ( {
 	);
 
 	const recordDropdownStateChange = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_dropdown_toggled', {
+		recordEvent( 'jetpack_myjetpack_product_card_dropdown_toggle', {
 			product: slug,
 			state: ! isDropdownOpen ? 'open' : 'closed',
 		} );
@@ -251,7 +251,7 @@ const ActionButton = ( {
 						setCurrentAction( allActions[ index ] );
 						setIsDropdownOpen( false );
 
-						recordEvent( 'jetpack_myjetpack_product_card_dropdown_action_clicked', {
+						recordEvent( 'jetpack_myjetpack_product_card_dropdown_action_click', {
 							product: slug,
 							action: label,
 						} );
