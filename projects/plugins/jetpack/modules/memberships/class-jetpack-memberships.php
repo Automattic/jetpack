@@ -231,6 +231,10 @@ class Jetpack_Memberships {
 	 * Logs the subscriber out by clearing out the premium content cookie.
 	 */
 	public function subscriber_logout() {
+		if ( ! class_exists( 'Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service' ) ) {
+			return;
+		}
+
 		Abstract_Token_Subscription_Service::clear_token_cookie();
 	}
 
@@ -410,6 +414,7 @@ class Jetpack_Memberships {
 				return $this->render_button_error( new WP_Error( 'jetpack-memberships-rb-npf', __( 'Could not find a plan for this button.', 'jetpack' ) . ' ' . __( 'Edit this post and confirm that the selected payment plan still exists and is available for purchase.', 'jetpack' ) ) );
 			}
 			if ( is_wp_error( $product ) ) {
+				'@phan-var WP_Error $product'; // `get_post` isn't supposed to return a WP_Error, so Phan is confused here. See also https://github.com/phan/phan/issues/3127
 				return $this->render_button_error( new WP_Error( 'jetpack-memberships-rb-npf-we', __( 'Encountered an error when getting the plan associated with this button:', 'jetpack' ) . ' ' . $product->get_error_message() . '. ' . __( ' Edit this post and confirm that the selected payment plan still exists and is available for purchase.', 'jetpack' ) ) );
 			}
 			if ( $product->post_type !== self::$post_type_plan ) {

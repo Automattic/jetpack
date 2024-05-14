@@ -243,6 +243,17 @@ function jpcrm_woosync_is_hpos_enabled() {
 	return false;
 }
 
+// If we ever have more WooSync constants we should create a separate php file.
+if ( ! defined( 'JPCRM_WOOSYNC_DO_NOT_CREATE' ) ) {
+	define(
+		'JPCRM_WOOSYNC_DO_NOT_CREATE',
+		array(
+			'id'    => 'woo_do_not_create',
+			'label' => __( 'Do not create', 'zero-bs-crm' ),
+		)
+	);
+}
+
 // Extension legacy definitions
 if ( ! defined( 'JPCRM_WOO_SYNC_ROOT_FILE' ) ) {
   define( 'JPCRM_WOO_SYNC_ROOT_FILE', __FILE__ );

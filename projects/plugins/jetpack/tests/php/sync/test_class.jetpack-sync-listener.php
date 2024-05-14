@@ -33,12 +33,13 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$this->assertSame( 0, $queue->size() );
 	}
 
-	// This is trickier than you would expect because we only check against
-	// maximum queue size periodically (to avoid a counts on every request), and then
-	// we cache the "blocked on queue size" status.
-	// In addition, we should only enforce the queue size limit if the oldest (aka frontmost)
-	// item in the queue is gt 15 minutes old.
 	public function test_detects_if_exceeded_queue_size_limit_and_oldest_item_gt_15_mins() {
+		// This is trickier than you would expect because we only check against
+		// maximum queue size periodically (to avoid a counts on every request), and then
+		// we cache the "blocked on queue size" status.
+		// In addition, we should only enforce the queue size limit if the oldest (aka frontmost)
+		// item in the queue is gt 15 minutes old.
+
 		$this->listener->get_sync_queue()->reset();
 
 		// first, let's try overriding the default queue limit

@@ -7,10 +7,13 @@ export type SharesData = {
 	shared_posts_count: number;
 };
 
+export type ConnectionStatus = 'ok' | 'must_reauth' | 'invalid' | 'broken' | 'refresh-failed';
+
 export type Connection = {
 	id: string;
 	service_name: string;
 	display_name: string;
+	external_display?: string;
 	username: string;
 	enabled: boolean;
 	done: boolean;
@@ -18,10 +21,23 @@ export type Connection = {
 	connection_id: string;
 	is_healthy?: boolean;
 	error_code?: string;
+	can_disconnect: boolean;
+	profile_picture: string;
+	profile_link: string;
+	status: ConnectionStatus;
+};
+
+export type ConnectionService = {
+	ID: string;
+	label: string;
+	type: 'publicize' | 'other';
+	description: string;
+	connect_URL: string;
 };
 
 export type ConnectionData = {
 	connections: Connection[];
+	deletingConnections?: Array< number | string >;
 };
 
 export type JetpackSettings = {
@@ -41,6 +57,8 @@ export type SocialStoreState = {
 
 declare global {
 	interface Window {
-		jetpackSocialInitialState?: SocialStoreState;
+		jetpackSocialInitialState?: SocialStoreState & {
+			is_publicize_enabled: boolean;
+		};
 	}
 }

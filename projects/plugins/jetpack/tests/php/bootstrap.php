@@ -90,7 +90,7 @@ if ( '1' !== getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 require __DIR__ . '/lib/mock-functions.php';
 require $test_root . '/includes/functions.php';
 
-// Activates this plugin in WordPress so it can be tested.
+/** Activates this plugin in WordPress so it can be tested. */
 function _manually_load_plugin() {
 	if ( '1' === getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 		require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/woocommerce.php';
@@ -149,6 +149,11 @@ require $test_root . '/includes/bootstrap.php';
 // Load the shortcodes module to test properly.
 if ( ! function_exists( 'shortcode_new_to_old_params' ) && ! in_running_uninstall_group() ) {
 	require __DIR__ . '/../../modules/shortcodes.php';
+}
+
+// Load the sso module to test properly.
+if ( ! in_running_uninstall_group() ) {
+	require __DIR__ . '/../../modules/sso.php';
 }
 
 // Load attachment helper methods.

@@ -53,6 +53,10 @@ export class HeadingHandler implements IBlockHandler {
 		this.replaceBlockContent( HTML );
 	}
 
+	public onDone(): void {
+		this.firstUpdate = true;
+	}
+
 	private replaceBlockContent( newContent: string ): void {
 		// Create a new block with the raw HTML content.
 		const [ newBlock ] = rawHandler( { HTML: newContent } );

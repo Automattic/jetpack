@@ -170,7 +170,7 @@ class Admin {
 	 * Ajax handler for wp_ajax_grunion_export_to_gdrive.
 	 * Exports data to Google Drive, based on POST data.
 	 *
-	 * @see Grunion_Contact_Form_Plugin::get_feedback_entries_from_post
+	 * @see Contact_Form_Plugin::get_feedback_entries_from_post
 	 */
 	public function export_to_gdrive() {
 		$post_data = wp_unslash( $_POST );

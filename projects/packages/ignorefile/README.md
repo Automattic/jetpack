@@ -42,9 +42,13 @@ foreach ( $iter as $file ) {
 }
 ```
 
+### Strict mode
+
+To match `git`'s behavior, invalid patterns passed to `add()` will be silently ignored. If you'd rather have exceptions thrown, set `$ignore->strictMode` to true.
+
 ## Known incompatibilities with git
 
-As of git 2.32.0-rc0.
+As of git 2.43.0.
 
 The [gitignore documentation](gitignore) refers to [fnmatch] for specifics of `*`, `?`, and bracket expressions.
 That in turn refers to a few other documents.

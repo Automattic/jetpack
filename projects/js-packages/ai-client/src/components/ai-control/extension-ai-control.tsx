@@ -16,10 +16,11 @@ import './style.scss';
 /**
  * Types
  */
-import type { RequestingStateProp } from '../../types.js';
-import type { ReactElement } from 'react';
+import type { RequestingErrorProps, RequestingStateProp } from '../../types.js';
+import type { ReactElement, MouseEvent } from 'react';
 
 type ExtensionAIControlProps = {
+	className?: string;
 	disabled?: boolean;
 	value: string;
 	placeholder?: string;
@@ -27,7 +28,7 @@ type ExtensionAIControlProps = {
 	isTransparent?: boolean;
 	state?: RequestingStateProp;
 	showGuideLine?: boolean;
-	error?: string;
+	error?: RequestingErrorProps;
 	requestsRemaining?: number;
 	showUpgradeMessage?: boolean;
 	wrapperRef?: React.MutableRefObject< HTMLDivElement | null >;
@@ -36,7 +37,8 @@ type ExtensionAIControlProps = {
 	onStop?: () => void;
 	onClose?: () => void;
 	onUndo?: () => void;
-	onUpgrade?: () => void;
+	onUpgrade?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+	onTryAgain?: () => void;
 };
 
 /**
@@ -48,6 +50,7 @@ type ExtensionAIControlProps = {
  */
 export function ExtensionAIControl(
 	{
+		className,
 		disabled = false,
 		value = '',
 		placeholder = '',
@@ -65,6 +68,7 @@ export function ExtensionAIControl(
 		onClose,
 		onUndo,
 		onUpgrade,
+		onTryAgain,
 	}: ExtensionAIControlProps,
 	ref: React.MutableRefObject< HTMLInputElement >
 ): ReactElement {
@@ -118,9 +122,16 @@ export function ExtensionAIControl(
 		onUndo?.();
 	}, [ onUndo ] );
 
-	const upgradeHandler = useCallback( () => {
-		onUpgrade?.();
-	}, [ onUpgrade ] );
+	const upgradeHandler = useCallback(
+		( event: MouseEvent< HTMLButtonElement > ) => {
+			onUpgrade?.( event );
+		},
+		[ onUpgrade ]
+	);
+
+	const tryAgainHandler = useCallback( () => {
+		onTryAgain?.();
+	}, [ onTryAgain ] );
 
 	useKeyboardShortcut(
 		'enter',
@@ -191,8 +202,16 @@ export function ExtensionAIControl(
 	);
 
 	let message = null;
-	if ( error ) {
-		message = <ErrorMessage error={ error } onTryAgainClick={ sendHandler } />;
+
+	if ( error?.message ) {
+		message = (
+			<ErrorMessage
+				error={ error.message }
+				code={ error.code }
+				onTryAgainClick={ tryAgainHandler }
+				onUpgradeClick={ upgradeHandler }
+			/>
+		);
 	} else if ( showUpgradeMessage ) {
 		message = (
 			<UpgradeMessage requestsRemaining={ requestsRemaining } onUpgradeClick={ upgradeHandler } />
@@ -203,6 +222,7 @@ export function ExtensionAIControl(
 
 	return (
 		<AIControl
+			className={ className }
 			disabled={ disabled || loading }
 			value={ value }
 			placeholder={ placeholder }

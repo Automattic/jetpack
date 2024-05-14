@@ -1,5 +1,0 @@
-Significance: patch
-Type: added
-Comment: Reset type of `$wp_filesystem` in tests after assigning a mock to it, so Phan doesn't get confused in the real code.
-
-
