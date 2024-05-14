@@ -445,9 +445,8 @@ abstract class Product {
 			$status = 'active';
 			// We only consider missing site & user connection an error when the Product is active.
 			if ( static::$requires_site_connection && ! ( new Connection_Manager() )->is_connected() ) {
-				// Site has never been connected before and the standalone plugin is NOT active
-				// If the standalone plugin is active for something, we'll show the connection error
-				if ( ! \Jetpack_Options::get_option( 'id' ) && ! self::is_plugin_active() ) {
+				// Site has never been connected before
+				if ( ! \Jetpack_Options::get_option( 'id' ) ) {
 					$status = 'needs_first_site_connection';
 				} else {
 					$status = 'site_connection_error';
@@ -455,7 +454,6 @@ abstract class Product {
 			} elseif ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
 				$status = 'user_connection_error';
 			} elseif ( static::is_upgradable() ) {
-				// Upgradable plans should ignore whether or not they have the required plan.
 				$status = 'can_upgrade';
 			}
 		} elseif ( ! static::has_any_plan_for_product() ) {
@@ -476,7 +474,7 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function is_active() {
-		return static::is_plugin_active() && ( ( static::$requires_plan && static::has_any_plan_for_product() ) || ( ! static::$requires_plan && static::$has_free_offering ) );
+		return static::is_plugin_active() && ( static::has_any_plan_for_product() || ( ! static::$requires_plan && static::$has_free_offering ) );
 	}
 
 	/**
