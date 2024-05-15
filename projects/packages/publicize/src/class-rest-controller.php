@@ -441,7 +441,7 @@ class REST_Controller {
 			$body['shared'] = $shared;
 		}
 
-		$response = Client::wpcom_json_api_request_as_user(
+		Client::wpcom_json_api_request_as_user(
 			$path,
 			'2',
 			array(
@@ -451,7 +451,9 @@ class REST_Controller {
 			$body,
 			'wpcom'
 		);
-		return rest_ensure_response( $this->make_proper_response( $response ) );
+
+		global $publicize;
+		return rest_ensure_response( $publicize->get_connections_for_user( (int) $connection_id ) );
 	}
 
 	/**
@@ -511,6 +513,14 @@ class REST_Controller {
 			$body,
 			'wpcom'
 		);
-		return rest_ensure_response( $this->make_proper_response( $response ) );
+
+		if ( isset( $response['body'] ) ) {
+			$body = json_decode( wp_remote_retrieve_body( $response ), true );
+			if ( isset( $body['ID'] ) ) {
+				global $publicize;
+				return rest_ensure_response( $publicize->get_connections_for_user( (int) $body['ID'] ) );
+			}
+		}
+		return rest_ensure_response( $response );
 	}
 }

@@ -187,6 +187,13 @@ class Publicize extends Publicize_Base {
 	}
 
 	/**
+	 * The old JETPACK_SOCIAL_CONNECTIONS_OPTION_OLD is grouped into the big `jetpack_options` leading to some caching issues. We are migrating to use the newly added JETPACK_SOCIAL_CONNECTIONS_OPTION.
+	 */
+	public function migrate_social_options() {
+		Jetpack_Options::update_option( self::JETPACK_SOCIAL_CONNECTIONS_OPTION, Jetpack_Options::get_option( self::JETPACK_SOCIAL_CONNECTIONS_OPTION_OLD ) );
+	}
+
+	/**
 	 * Get connections for a specific service.
 	 *
 	 * @param string    $service_name 'facebook', 'twitter', etc.
@@ -251,6 +258,27 @@ class Publicize extends Publicize_Base {
 			}
 		}
 		return $connections_to_return;
+	}
+
+	/**
+	 * Get a connections for a user.
+	 *
+	 * @param int $connection_id The connection_id.
+
+	 * @return object
+	 */
+	public function get_connections_for_user( $connection_id ) {
+		$connections = array_filter(
+			$this->get_all_connections_for_user(),
+			function ( $connection ) use ( $connection_id ) {
+				return (int) $connection['connection_id'] === (int) $connection_id;
+			}
+		);
+
+		if ( count( $connections ) === 0 ) {
+			return (object) array();
+		}
+		return $connections[0];
 	}
 
 	/**

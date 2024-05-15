@@ -73,6 +73,7 @@ class Jetpack_Options {
 					'mailchimp',                   // (string) Mailchimp keyring data, for mailchimp block.
 					'xmlrpc_errors',               // (array) Keys are XML-RPC signature error codes. Values are truthy.
 					'dismissed_wizard_banner',     // (int) (DEPRECATED) True if the Wizard banner has been dismissed.
+					'social_connections',          // (array)  An array of Jetpack Social connections from WordPress.com.
 				);
 
 			case 'private':
@@ -218,7 +219,6 @@ class Jetpack_Options {
 			if ( self::is_network_option( $name ) ) {
 				return get_site_option( "jetpack_$name", $default );
 			}
-
 			return get_option( "jetpack_$name", $default );
 		}
 
