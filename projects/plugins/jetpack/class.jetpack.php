@@ -2416,6 +2416,8 @@ class Jetpack {
 	 * @param bool $catch True to start catching, False to stop.
 	 *
 	 * @static
+	 * @deprecated $$next-version$$
+	 * @see \Automattic\Jetpack\Errors
 	 */
 	public static function catch_errors( $catch ) {
 		return ( new Errors() )->catch_errors( $catch );
@@ -2550,7 +2552,7 @@ class Jetpack {
 		// Check each module for fatal errors, a la wp-admin/plugins.php::activate before activating.
 		if ( $send_state_messages ) {
 			self::restate();
-			self::catch_errors( true );
+			( new Errors() )->catch_errors( true );
 		}
 
 		$active = self::get_active_modules();
@@ -2621,7 +2623,7 @@ class Jetpack {
 			self::state( 'module', false );
 		}
 
-		self::catch_errors( false );
+		( new Errors() )->catch_errors( false );
 		/**
 		 * Fires when default modules are activated.
 		 *
