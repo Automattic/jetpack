@@ -286,7 +286,7 @@ class Publicize extends Publicize_Base {
 		return array_map(
 			function ( $connection ) use ( $connection_results_map ) {
 				if ( isset( $connection_results_map[ $connection['connection_id'] ] ) ) {
-						$connection['connection_health'] = $connection_results_map[ $connection['connection_id'] ] ? 'Healthy' : 'Unhealthy';
+						$connection['connection_health'] = $connection_results_map[ $connection['connection_id'] ] ? 'Healthy' : '	';
 				}
 				return $connection;
 			},
