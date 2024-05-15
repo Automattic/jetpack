@@ -27,6 +27,10 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			 * Remove the tooltip textbox.
 			 */
 			function removeTooltip() {
+				// Only remove tooltip if the element isn't currently active.
+				if ( document.activeElement === tooltip ) {
+					return;
+				}
 				tooltip.removeChild( tooltipTextbox );
 			}
 		} );
