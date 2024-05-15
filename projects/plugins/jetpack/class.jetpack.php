@@ -2623,6 +2623,7 @@ class Jetpack {
 			self::state( 'module', false );
 		}
 
+		// Restore the original error reporting settings.
 		( new Errors() )->catch_errors( false );
 		/**
 		 * Fires when default modules are activated.
