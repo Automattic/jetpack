@@ -456,6 +456,21 @@ abstract class Product {
 			} elseif ( static::is_upgradable() ) {
 				$status = 'can_upgrade';
 			}
+			// We've got the plugin active and the plan situation sorted out (either the product has a plan or does not need one)
+			// But, the product has another restriction for activation (there could be a module that needs to be activated)
+		} elseif ( self::is_active() && ! static::is_active() ) {
+			// assuming "inactive" here as a fallback
+			$status = 'inactive';
+			if ( static::$requires_site_connection && ! ( new Connection_Manager() )->is_connected() ) {
+				// Site has never been connected before
+				if ( ! \Jetpack_Options::get_option( 'id' ) ) {
+					$status = 'needs_first_site_connection';
+				} else {
+					$status = 'site_connection_error';
+				}
+			} elseif ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
+				$status = 'user_connection_error';
+			}
 		} elseif ( ! static::has_any_plan_for_product() ) {
 			if ( static::$has_free_offering ) {
 				$status = 'needs_purchase_or_free';
