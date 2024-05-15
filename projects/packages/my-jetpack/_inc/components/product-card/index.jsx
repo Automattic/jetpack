@@ -23,7 +23,17 @@ export const PRODUCT_STATUSES_LABELS = {
 
 // SecondaryButton component
 const SecondaryButton = props => {
-	const { shouldShowButton, positionFirst, ...buttonProps } = props;
+	const {
+		shouldShowButton = () => true,
+		positionFirst,
+		...buttonProps
+	} = {
+		size: 'small',
+		variant: 'secondary',
+		weight: 'regular',
+		label: __( 'Learn more', 'jetpack-my-jetpack' ),
+		...props,
+	};
 
 	if ( ! shouldShowButton() ) {
 		return false;
@@ -49,17 +59,14 @@ SecondaryButton.propTypes = {
 	className: PropTypes.string,
 };
 
-SecondaryButton.defaultProps = {
-	size: 'small',
-	variant: 'secondary',
-	weight: 'regular',
-	label: __( 'Learn more', 'jetpack-my-jetpack' ),
-	shouldShowButton: () => true,
-	positionFirst: false,
-};
-
 // ProductCard component
-const ProductCard = props => {
+const ProductCard = inprops => {
+	const props = {
+		isFetching: false,
+		isInstallingStandalone: false,
+		onActivate: () => {},
+		...inprops,
+	};
 	const {
 		name,
 		Description,
@@ -253,12 +260,6 @@ ProductCard.propTypes = {
 		PRODUCT_STATUSES.CAN_UPGRADE,
 		PRODUCT_STATUSES.MODULE_DISABLED,
 	] ).isRequired,
-};
-
-ProductCard.defaultProps = {
-	isFetching: false,
-	isInstallingStandalone: false,
-	onActivate: () => {},
 };
 
 export { PRODUCT_STATUSES };

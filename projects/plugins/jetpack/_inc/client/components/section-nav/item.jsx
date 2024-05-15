@@ -23,6 +23,8 @@ class NavItem extends React.PureComponent {
 		count: PropTypes.number,
 	};
 
+	domNode = null;
+
 	render() {
 		const itemClassPrefix = this.props.itemType ? this.props.itemType : 'tab';
 		const itemClasses = {
@@ -38,7 +40,7 @@ class NavItem extends React.PureComponent {
 		}
 
 		return (
-			<li className={ itemClassName }>
+			<li ref={ node => ( this.domNode = node ) } className={ itemClassName }>
 				{ ! this.props.isExternalLink && (
 					<a
 						href={ this.props.path }

@@ -28,7 +28,12 @@ const onModalCloseDefault = event => {
  * @param {Function} props.tokenRedeemed - If their token is already redeemed.
  * @returns {React.Component} - GoldenToken component.
  */
-function GoldenTokenModal( { redeemClick, displayName, onModalClose, tokenRedeemed } ) {
+function GoldenTokenModal( {
+	redeemClick,
+	displayName,
+	onModalClose = onModalCloseDefault,
+	tokenRedeemed = false,
+} ) {
 	const [ hasAnimated, setIsAnimating ] = useState( false );
 	const videoRef = useRef( null );
 
@@ -174,11 +179,6 @@ function GoldenTokenModal( { redeemClick, displayName, onModalClose, tokenRedeem
 		</div>
 	);
 }
-
-GoldenTokenModal.defaultProps = {
-	tokenRedeemed: false,
-	onModalClose: onModalCloseDefault,
-};
 
 GoldenTokenModal.propTypes = {
 	redeemClick: PropTypes.func,
