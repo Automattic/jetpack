@@ -1,4 +1,6 @@
 import {
+	ADD_CONNECTION,
+	CREATING_CONNECTION,
 	DELETE_CONNECTION,
 	DELETING_CONNECTION,
 	SET_CONNECTIONS,
@@ -7,6 +9,12 @@ import {
 
 const connectionData = ( state = {}, action ) => {
 	switch ( action.type ) {
+		case ADD_CONNECTION:
+			return {
+				...state,
+				connections: [ ...state.connections, action.connection ],
+			};
+
 		case SET_CONNECTIONS:
 			return {
 				...state,
@@ -38,6 +46,12 @@ const connectionData = ( state = {}, action ) => {
 				deletingConnections: [ ...deleting ],
 			};
 		}
+
+		case CREATING_CONNECTION:
+			return {
+				...state,
+				creatingConnection: action.creating,
+			};
 
 		case TOGGLE_CONNECTION:
 			return {

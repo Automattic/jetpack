@@ -25,7 +25,7 @@ import './style.scss';
 /**
  * Types and constants
  */
-import type { ExtendedBlockProp } from '../../extensions/ai-assistant';
+import type { ExtendedBlockProp, ExtendedInlineBlockProp } from '../../extensions/ai-assistant';
 import type { PromptTypeProp } from '../../lib/prompt';
 import type { ToneProp } from '../tone-dropdown-control';
 import type { ReactElement } from 'react';
@@ -118,7 +118,7 @@ export type OnRequestSuggestion = (
 ) => void;
 
 type AiAssistantToolbarDropdownContentProps = {
-	blockType: ExtendedBlockProp;
+	blockType: ExtendedBlockProp | ExtendedInlineBlockProp;
 	disabled?: boolean;
 	onAskAiAssistant: () => void;
 	onRequestSuggestion: OnRequestSuggestion;

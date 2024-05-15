@@ -116,3 +116,23 @@ export function getConnectionProfileDetails( state, service, { forceDefaults = f
 export function getDeletingConnections( state ) {
 	return state.connectionData?.deletingConnections ?? [];
 }
+
+/**
+ * Whether a connection is being created.
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @returns {boolean} Whether a connection is being created.
+ */
+export function isCreatingConnection( state ) {
+	return state.connectionData?.creatingConnection ?? false;
+}
+
+/**
+ * Returns the services list from the store.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ *
+ * @returns {Array<import("../types").ConnectionService>} The services list
+ */
+export function getServices( state ) {
+	return state.connectionData?.services ?? [];
+}

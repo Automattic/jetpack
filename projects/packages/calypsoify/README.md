@@ -1,8 +1,10 @@
-# calypsoify
+# Calypsoify
 
 Calypsoify is designed to make sure specific wp-admin pages include navigation that prioritizes the Calypso navigation experience.
 
-## How to install calypsoify
+![](https://cldup.com/awmrHOWz7t.png)
+
+## How to install Calypsoify
 
 ### Installation From Git Repo
 
@@ -20,5 +22,5 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-calypsoify is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
+Calypsoify is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
 

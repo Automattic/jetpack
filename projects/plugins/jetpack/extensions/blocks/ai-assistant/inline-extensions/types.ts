@@ -11,6 +11,7 @@ export type OnSuggestion = ( suggestion: string ) => void;
 
 export interface IBlockHandler {
 	onSuggestion: OnSuggestion;
+	onDone: () => void;
 	getContent: () => string;
 }
 

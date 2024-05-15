@@ -1,6 +1,6 @@
 document.addEventListener( 'DOMContentLoaded', function () {
 	document
-		.querySelectorAll( '.jetpack-sso-invitation-tooltip-icon:not(.sso-disconnected-user-icon)' )
+		.querySelectorAll( '.jetpack-sso-invitation-tooltip-icon:not(.sso-disconnected-user)' )
 		.forEach( function ( tooltip ) {
 			tooltip.innerHTML += ' [?]';
 
@@ -10,22 +10,46 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			const tooltipString = window.Jetpack_SSOTooltip.tooltipString;
 			tooltipTextbox.innerHTML += tooltipString;
 
-			tooltip.addEventListener( 'mouseenter', function () {
+			tooltip.addEventListener( 'mouseenter', appendTooltip );
+			tooltip.addEventListener( 'focus', appendTooltip );
+			tooltip.addEventListener( 'mouseleave', removeTooltip );
+			tooltip.addEventListener( 'blur', removeTooltip );
+
+			/**
+			 * Display the tooltip textbox.
+			 */
+			function appendTooltip() {
 				tooltip.appendChild( tooltipTextbox );
 				tooltipTextbox.style.display = 'block';
-			} );
-			tooltip.addEventListener( 'mouseleave', function () {
+			}
+
+			/**
+			 * Remove the tooltip textbox.
+			 */
+			function removeTooltip() {
 				tooltip.removeChild( tooltipTextbox );
-			} );
+			}
 		} );
 	document
 		.querySelectorAll( '.jetpack-sso-invitation-tooltip-icon:not(.jetpack-sso-status-column)' )
 		.forEach( function ( tooltip ) {
-			tooltip.addEventListener( 'mouseenter', function () {
-				this.querySelector( '.jetpack-sso-invitation-tooltip' ).style.display = 'block';
-			} );
-			tooltip.addEventListener( 'mouseleave', function () {
-				this.querySelector( '.jetpack-sso-invitation-tooltip' ).style.display = 'none';
-			} );
+			tooltip.addEventListener( 'mouseenter', appendSSOInvitationTooltip );
+			tooltip.addEventListener( 'focus', appendSSOInvitationTooltip );
+			tooltip.addEventListener( 'mouseleave', removeSSOInvitationTooltip );
+			tooltip.addEventListener( 'blur', removeSSOInvitationTooltip );
 		} );
+
+	/**
+	 * Display the SSO invitation tooltip textbox.
+	 */
+	function appendSSOInvitationTooltip() {
+		this.querySelector( '.jetpack-sso-invitation-tooltip' ).style.display = 'block';
+	}
+
+	/**
+	 * Remove the SSO invitation tooltip textbox.
+	 */
+	function removeSSOInvitationTooltip() {
+		this.querySelector( '.jetpack-sso-invitation-tooltip' ).style.display = 'none';
+	}
 } );

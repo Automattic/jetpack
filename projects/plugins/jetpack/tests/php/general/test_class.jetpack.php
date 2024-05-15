@@ -863,6 +863,7 @@ EXPECTED;
 			'jetpack.subscriptions.subscribe',
 			'jetpack.updatePublicizeConnections',
 			'jetpack.getHeartbeatData',
+			'jetpack.userDisconnect',
 		);
 
 		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
@@ -919,6 +920,7 @@ EXPECTED;
 			'jetpack.subscriptions.subscribe',
 			'jetpack.updatePublicizeConnections',
 			'jetpack.getHeartbeatData',
+			'jetpack.userDisconnect',
 		);
 
 		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
