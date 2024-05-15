@@ -43,7 +43,7 @@ function add_hosting_overview_menu() {
 		esc_attr__( 'Overview', 'wpcomsh' ),
 		esc_attr__( 'Overview', 'wpcomsh' ) . ' <span class="dashicons dashicons-external"></span>',
 		'manage_options',
-		esc_url( "https://wordpress.com/hosting/$domain" ),
+		esc_url( "https://wordpress.com/overview/$domain" ),
 		'',
 		1
 	);
