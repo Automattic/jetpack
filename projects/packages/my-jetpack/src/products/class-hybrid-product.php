@@ -125,9 +125,13 @@ abstract class Hybrid_Product extends Product {
 			}
 		}
 
-		// Only activate the module if the plan supports it
-		// We don't want to throw an error for a missing plan here since we try activation before purchase
-		if ( static::has_any_plan_for_product() && ! empty( static::$module_name ) ) {
+		if ( ! empty( static::$module_name ) ) {
+			// Only activate the module if the plan supports it
+			// We don't want to throw an error for a missing plan here since we try activation before purchase
+			if ( static::$requires_plan && ! static::has_any_plan_for_product() ) {
+				return true;
+			}
+
 			$module_activation = ( new Modules() )->activate( static::$module_name, false, false );
 
 			if ( ! $module_activation ) {
