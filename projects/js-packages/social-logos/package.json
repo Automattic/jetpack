@@ -6,7 +6,18 @@
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Social Logos"
 	},
-	"main": "build/react/index.jsx",
+	"exports": {
+		".": {
+			"jetpack:src": "./src/react/index.jsx",
+			"default": "./build/react/index.jsx"
+		},
+		"./svg-sprite/social-logos.svg": {
+			"default": "./build/svg-sprite/social-logos.svg"
+		},
+		"./font/*": {
+			"default": "./build/font/*"
+		}
+	},
 	"peerDependencies": {
 		"react": "^18.0.0",
 		"react-dom": "^18.0.0"
@@ -17,11 +28,6 @@
 		"directory": "projects/js-packages/social-logos"
 	},
 	"license": "GPL-2.0+",
-	"files": [
-		"build/",
-		"!build/svg-clean",
-		"!build/php"
-	],
 	"dependencies": {
 		"prop-types": "^15.5.7",
 		"react": "18.2.0",
