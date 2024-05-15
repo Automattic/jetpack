@@ -145,7 +145,7 @@ class Publicize extends Publicize_Base {
 	}
 
 	/**
-	 * Set updated Publicize connections.
+	 * Set updated Publicize connections in a transient.
 	 *
 	 * @param mixed $publicize_connections Updated connections.
 	 * @return true
@@ -179,18 +179,17 @@ class Publicize extends Publicize_Base {
 	 */
 	public function get_all_connections() {
 		$this->refresh_connections();
+
 		$connections = get_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT );
+
+		if ( $connections === false ) {
+			$connections = array();
+		}
+
 		if ( isset( $connections['google_plus'] ) ) {
 			unset( $connections['google_plus'] );
 		}
 		return $connections;
-	}
-
-	/**
-	 * The old JETPACK_SOCIAL_CONNECTIONS_OPTION_OLD is grouped into the big `jetpack_options` leading to some caching issues. We are migrating to use the newly added JETPACK_SOCIAL_CONNECTIONS_OPTION.
-	 */
-	public function migrate_social_options() {
-		Jetpack_Options::update_option( self::JETPACK_SOCIAL_CONNECTIONS_OPTION, Jetpack_Options::get_option( self::JETPACK_SOCIAL_CONNECTIONS_OPTION_OLD ) );
 	}
 
 	/**
@@ -461,7 +460,6 @@ class Publicize extends Publicize_Base {
 	}
 
 	/**
-	 * Grabs a fresh copy of the publicize connections data.
 	 * Only refreshes once every 4 hours or retry immediately.
 	 */
 	public function refresh_connections() {
@@ -479,9 +477,7 @@ class Publicize extends Publicize_Base {
 		}
 	}
 
-	/**
-	 * Delete the connections transient, so we force refresh the connection data.
-	 */
+
 	public function clear_connections_transient() {
 		delete_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT );
 	}
