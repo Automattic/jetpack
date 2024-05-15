@@ -173,7 +173,7 @@ class Publicize extends Publicize_Base {
 	 * @return true
 	 */
 	public function receive_updated_publicize_connections( $publicize_connections ) {
-		Jetpack_Options::update_option( self::JETPACK_SOCIAL_CONNECTIONS_OPTION, $publicize_connections );
+		Jetpack_Options::update_option( self::JETPACK_SOCIAL_CONNECTIONS_OPTION, $publicize_connections, false );
 		return true;
 	}
 
@@ -1033,7 +1033,7 @@ class Publicize extends Publicize_Base {
 
 		if ( ! $xml->isError() ) {
 			$response = $xml->getResponse();
-			Jetpack_Options::update_option( self::JETPACK_SOCIAL_CONNECTIONS_OPTION, $response );
+			Jetpack_Options::update_option( self::JETPACK_SOCIAL_CONNECTIONS_OPTION, $response, false );
 			$this->globalization( $id );
 		}
 	}
