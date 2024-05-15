@@ -166,7 +166,7 @@ function MediaBrowser( props ) {
 		const disabled = selected.length === 0 || isCopying;
 		const defaultLabel = selectProps?.labelText
 			? selectProps?.labelText( selected.length )
-			: __( 'Selecting', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
+			: __( 'Select', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 
 		const label = isCopying ? __( 'Inserting…', 'jetpack' ) : defaultLabel;
 

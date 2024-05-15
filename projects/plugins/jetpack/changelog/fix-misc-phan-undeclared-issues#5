@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Add some missing abstract methods to SAL_Site, and implement in Jetpack_Site.

@@ -10,7 +10,6 @@ import './extended-blocks/core-embed';
 import './extended-blocks/core-social-links';
 import './extended-blocks/paid-blocks';
 import './shared/styles/slideshow-fix.scss';
-import './shared/styles/external-link-fix.scss';
 // Register media source store to the centralized data registry.
 import './store/media-source';
 import './store/membership-products';
