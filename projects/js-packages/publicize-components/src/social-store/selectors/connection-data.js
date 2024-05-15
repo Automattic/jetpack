@@ -118,6 +118,15 @@ export function getDeletingConnections( state ) {
 }
 
 /**
+ * Whether a connection is being created.
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @returns {boolean} Whether a connection is being created.
+ */
+export function isCreatingConnection( state ) {
+	return state.connectionData?.creatingConnection ?? false;
+}
+
+/**
  * Returns the services list from the store.
  *
  * @param {import("../types").SocialStoreState} state - State object.
