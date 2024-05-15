@@ -89,7 +89,7 @@ class Test_REST_Controller extends TestCase {
 		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/publicize/connections' );
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
 		$this->assertEquals( 401, $response->get_status() );
-		$this->assertEquals( 'You are not allowed to perform this action.', $response->get_data()['message'] );
+		$this->assertEquals( 'Sorry, you are not allowed to do that.', $response->get_data()['message'] );
 	}
 
 	/**

@@ -350,7 +350,7 @@ class Automation_Engine {
 
 				$step->validate_and_execute( $data_type );
 
-				//todo: return Step instance instead of array
+				// todo: return Step instance instead of array
 				$step_id   = $step->get_next_step_id();
 				$step_data = $workflow->get_step( $step_id );
 

@@ -17,1393 +17,6 @@ interface Exception extends \Throwable
 namespace PHPUnit\Framework;
 
 /**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class ActualValueIsNotAnObjectException extends \PHPUnit\Framework\Exception
-{
-    public function __construct()
-    {
-    }
-    public function __toString(): string
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class ComparisonMethodDoesNotDeclareBoolReturnTypeException extends \PHPUnit\Framework\Exception
-{
-    public function __construct(string $className, string $methodName)
-    {
-    }
-    public function __toString(): string
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class InvalidDataProviderException extends \PHPUnit\Framework\Exception
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class ComparisonMethodDoesNotExistException extends \PHPUnit\Framework\Exception
-{
-    public function __construct(string $className, string $methodName)
-    {
-    }
-    public function __toString(): string
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class ComparisonMethodDoesNotDeclareExactlyOneParameterException extends \PHPUnit\Framework\Exception
-{
-    public function __construct(string $className, string $methodName)
-    {
-    }
-    public function __toString(): string
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class CoveredCodeNotExecutedException extends \PHPUnit\Framework\RiskyTestError
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class SyntheticSkippedError extends \PHPUnit\Framework\SyntheticError implements \PHPUnit\Framework\SkippedTest
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class ComparisonMethodDoesNotAcceptParameterTypeException extends \PHPUnit\Framework\Exception
-{
-    public function __construct(string $className, string $methodName, string $type)
-    {
-    }
-    public function __toString(): string
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class ComparisonMethodDoesNotDeclareParameterTypeException extends \PHPUnit\Framework\Exception
-{
-    public function __construct(string $className, string $methodName)
-    {
-    }
-    public function __toString(): string
-    {
-    }
-}
-/**
- * Exception for expectations which failed their check.
- *
- * The exception contains the error message and optionally a
- * SebastianBergmann\Comparator\ComparisonFailure which is used to
- * generate diff output of the failed expectations.
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class ExpectationFailedException extends \PHPUnit\Framework\AssertionFailedError
-{
-    public function __construct(string $message, ?\SebastianBergmann\Comparator\ComparisonFailure $comparisonFailure = null, ?\Exception $previous = null)
-    {
-    }
-    public function getComparisonFailure(): ?\SebastianBergmann\Comparator\ComparisonFailure
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-class AssertionFailedError extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\SelfDescribing
-{
-    /**
-     * Wrapper for getMessage() which is declared as final.
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class SkippedTestSuiteError extends \PHPUnit\Framework\AssertionFailedError implements \PHPUnit\Framework\SkippedTest
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class OutputError extends \PHPUnit\Framework\AssertionFailedError
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class InvalidArgumentException extends \PHPUnit\Framework\Exception
-{
-    public static function create(int $argument, string $type): self
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class Warning extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\SelfDescribing
-{
-    /**
-     * Wrapper for getMessage() which is declared as final.
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class Error extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\SelfDescribing
-{
-    /**
-     * Wrapper for getMessage() which is declared as final.
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class InvalidCoversTargetException extends \PHPUnit\Framework\CodeCoverageException
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class IncompleteTestError extends \PHPUnit\Framework\AssertionFailedError implements \PHPUnit\Framework\IncompleteTest
-{
-}
-/**
- * Base class for all PHPUnit Framework exceptions.
- *
- * Ensures that exceptions thrown during a test run do not leave stray
- * references behind.
- *
- * Every Exception contains a stack trace. Each stack frame contains the 'args'
- * of the called function. The function arguments can contain references to
- * instantiated objects. The references prevent the objects from being
- * destructed (until test results are eventually printed), so memory cannot be
- * freed up.
- *
- * With enabled process isolation, test results are serialized in the child
- * process and unserialized in the parent process. The stack trace of Exceptions
- * may contain objects that cannot be serialized or unserialized (e.g., PDO
- * connections). Unserializing user-space objects from the child process into
- * the parent would break the intended encapsulation of process isolation.
- *
- * @see http://fabien.potencier.org/article/9/php-serialization-stack-traces-and-exceptions
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-class Exception extends \RuntimeException implements \PHPUnit\Exception
-{
-    /**
-     * @var array
-     */
-    protected $serializableTrace;
-    public function __construct($message = '', $code = 0, ?\Throwable $previous = null)
-    {
-    }
-    public function __toString(): string
-    {
-    }
-    public function __sleep(): array
-    {
-    }
-    /**
-     * Returns the serializable trace (without 'args').
-     */
-    public function getSerializableTrace(): array
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-class CodeCoverageException extends \PHPUnit\Framework\Exception
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class NoChildTestSuiteException extends \PHPUnit\Framework\Exception
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-class RiskyTestError extends \PHPUnit\Framework\AssertionFailedError
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class UnintentionallyCoveredCodeError extends \PHPUnit\Framework\RiskyTestError
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-class SyntheticError extends \PHPUnit\Framework\AssertionFailedError
-{
-    /**
-     * The synthetic file.
-     *
-     * @var string
-     */
-    protected $syntheticFile = '';
-    /**
-     * The synthetic line number.
-     *
-     * @var int
-     */
-    protected $syntheticLine = 0;
-    /**
-     * The synthetic trace.
-     *
-     * @var array
-     */
-    protected $syntheticTrace = [];
-    public function __construct(string $message, int $code, string $file, int $line, array $trace)
-    {
-    }
-    public function getSyntheticFile(): string
-    {
-    }
-    public function getSyntheticLine(): int
-    {
-    }
-    public function getSyntheticTrace(): array
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class SkippedTestError extends \PHPUnit\Framework\AssertionFailedError implements \PHPUnit\Framework\SkippedTest
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class MissingCoversAnnotationException extends \PHPUnit\Framework\RiskyTestError
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class PHPTAssertionFailedError extends \PHPUnit\Framework\SyntheticError
-{
-    public function __construct(string $message, int $code, string $file, int $line, array $trace, string $diff)
-    {
-    }
-    public function getDiff(): string
-    {
-    }
-}
-/**
- * @template-implements \RecursiveIterator<int, Test>
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class TestSuiteIterator implements \RecursiveIterator
-{
-    public function __construct(\PHPUnit\Framework\TestSuite $testSuite)
-    {
-    }
-    public function rewind(): void
-    {
-    }
-    public function valid(): bool
-    {
-    }
-    public function key(): int
-    {
-    }
-    public function current(): \PHPUnit\Framework\Test
-    {
-    }
-    public function next(): void
-    {
-    }
-    /**
-     * @throws NoChildTestSuiteException
-     */
-    public function getChildren(): self
-    {
-    }
-    public function hasChildren(): bool
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class DataProviderTestSuite extends \PHPUnit\Framework\TestSuite
-{
-    /**
-     * @param list<ExecutionOrderDependency> $dependencies
-     */
-    public function setDependencies(array $dependencies): void
-    {
-    }
-    /**
-     * @return list<ExecutionOrderDependency>
-     */
-    public function provides(): array
-    {
-    }
-    /**
-     * @return list<ExecutionOrderDependency>
-     */
-    public function requires(): array
-    {
-    }
-    /**
-     * Returns the size of the each test created using the data provider(s).
-     *
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     */
-    public function getSize(): int
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Framework\Reorderable, \PHPUnit\Framework\SelfDescribing, \PHPUnit\Framework\Test
-{
-    /**
-     * @var ?bool
-     */
-    protected $backupGlobals;
-    /**
-     * @var string[]
-     */
-    protected $backupGlobalsExcludeList = [];
-    /**
-     * @var string[]
-     *
-     * @deprecated Use $backupGlobalsExcludeList instead
-     */
-    protected $backupGlobalsBlacklist = [];
-    /**
-     * @var ?bool
-     */
-    protected $backupStaticAttributes;
-    /**
-     * @var array<string,array<int,string>>
-     */
-    protected $backupStaticAttributesExcludeList = [];
-    /**
-     * @var array<string,array<int,string>>
-     *
-     * @deprecated Use $backupStaticAttributesExcludeList instead
-     */
-    protected $backupStaticAttributesBlacklist = [];
-    /**
-     * @var ?bool
-     */
-    protected $runTestInSeparateProcess;
-    /**
-     * @var bool
-     */
-    protected $preserveGlobalState = true;
-    /**
-     * @var list<ExecutionOrderDependency>
-     */
-    protected $providedTests = [];
-    /**
-     * Returns a matcher that matches when the method is executed
-     * zero or more times.
-     */
-    public static function any(): \PHPUnit\Framework\MockObject\Rule\AnyInvokedCount
-    {
-    }
-    /**
-     * Returns a matcher that matches when the method is never executed.
-     */
-    public static function never(): \PHPUnit\Framework\MockObject\Rule\InvokedCount
-    {
-    }
-    /**
-     * Returns a matcher that matches when the method is executed
-     * at least N times.
-     */
-    public static function atLeast(int $requiredInvocations): \PHPUnit\Framework\MockObject\Rule\InvokedAtLeastCount
-    {
-    }
-    /**
-     * Returns a matcher that matches when the method is executed at least once.
-     */
-    public static function atLeastOnce(): \PHPUnit\Framework\MockObject\Rule\InvokedAtLeastOnce
-    {
-    }
-    /**
-     * Returns a matcher that matches when the method is executed exactly once.
-     */
-    public static function once(): \PHPUnit\Framework\MockObject\Rule\InvokedCount
-    {
-    }
-    /**
-     * Returns a matcher that matches when the method is executed
-     * exactly $count times.
-     */
-    public static function exactly(int $count): \PHPUnit\Framework\MockObject\Rule\InvokedCount
-    {
-    }
-    /**
-     * Returns a matcher that matches when the method is executed
-     * at most N times.
-     */
-    public static function atMost(int $allowedInvocations): \PHPUnit\Framework\MockObject\Rule\InvokedAtMostCount
-    {
-    }
-    /**
-     * Returns a matcher that matches when the method is executed
-     * at the given index.
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/4297
-     *
-     * @codeCoverageIgnore
-     */
-    public static function at(int $index): \PHPUnit\Framework\MockObject\Rule\InvokedAtIndex
-    {
-    }
-    public static function returnValue($value): \PHPUnit\Framework\MockObject\Stub\ReturnStub
-    {
-    }
-    public static function returnValueMap(array $valueMap): \PHPUnit\Framework\MockObject\Stub\ReturnValueMap
-    {
-    }
-    public static function returnArgument(int $argumentIndex): \PHPUnit\Framework\MockObject\Stub\ReturnArgument
-    {
-    }
-    public static function returnCallback($callback): \PHPUnit\Framework\MockObject\Stub\ReturnCallback
-    {
-    }
-    /**
-     * Returns the current object.
-     *
-     * This method is useful when mocking a fluent interface.
-     */
-    public static function returnSelf(): \PHPUnit\Framework\MockObject\Stub\ReturnSelf
-    {
-    }
-    public static function throwException(\Throwable $exception): \PHPUnit\Framework\MockObject\Stub\Exception
-    {
-    }
-    public static function onConsecutiveCalls(...$args): \PHPUnit\Framework\MockObject\Stub\ConsecutiveCalls
-    {
-    }
-    /**
-     * @param int|string $dataName
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function __construct(?string $name = null, array $data = [], $dataName = '')
-    {
-    }
-    /**
-     * This method is called before the first test of this test class is run.
-     */
-    public static function setUpBeforeClass(): void
-    {
-    }
-    /**
-     * This method is called after the last test of this test class is run.
-     */
-    public static function tearDownAfterClass(): void
-    {
-    }
-    /**
-     * This method is called before each test.
-     */
-    protected function setUp(): void
-    {
-    }
-    /**
-     * Performs assertions shared by all tests of a test case.
-     *
-     * This method is called between setUp() and test.
-     */
-    protected function assertPreConditions(): void
-    {
-    }
-    /**
-     * Performs assertions shared by all tests of a test case.
-     *
-     * This method is called between test and tearDown().
-     */
-    protected function assertPostConditions(): void
-    {
-    }
-    /**
-     * This method is called after each test.
-     */
-    protected function tearDown(): void
-    {
-    }
-    /**
-     * Returns a string representation of the test case.
-     *
-     * @throws Exception
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     */
-    public function toString(): string
-    {
-    }
-    public function count(): int
-    {
-    }
-    public function getActualOutputForAssertion(): string
-    {
-    }
-    public function expectOutputRegex(string $expectedRegex): void
-    {
-    }
-    public function expectOutputString(string $expectedString): void
-    {
-    }
-    /**
-     * @phan-param class-string<\Throwable> $exception
-     */
-    public function expectException(string $exception): void
-    {
-    }
-    /**
-     * @param int|string $code
-     */
-    public function expectExceptionCode($code): void
-    {
-    }
-    public function expectExceptionMessage(string $message): void
-    {
-    }
-    public function expectExceptionMessageMatches(string $regularExpression): void
-    {
-    }
-    /**
-     * Sets up an expectation for an exception to be raised by the code under test.
-     * Information for expected exception class, expected exception message, and
-     * expected exception code are retrieved from a given Exception object.
-     */
-    public function expectExceptionObject(\Exception $exception): void
-    {
-    }
-    public function expectNotToPerformAssertions(): void
-    {
-    }
-    /**
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5062
-     */
-    public function expectDeprecation(): void
-    {
-    }
-    /**
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5062
-     */
-    public function expectDeprecationMessage(string $message): void
-    {
-    }
-    /**
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5062
-     */
-    public function expectDeprecationMessageMatches(string $regularExpression): void
-    {
-    }
-    /**
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5062
-     */
-    public function expectNotice(): void
-    {
-    }
-    /**
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5062
-     */
-    public function expectNoticeMessage(string $message): void
-    {
-    }
-    /**
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5062
-     */
-    public function expectNoticeMessageMatches(string $regularExpression): void
-    {
-    }
-    /**
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5062
-     */
-    public function expectWarning(): void
-    {
-    }
-    /**
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5062
-     */
-    public function expectWarningMessage(string $message): void
-    {
-    }
-    /**
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5062
-     */
-    public function expectWarningMessageMatches(string $regularExpression): void
-    {
-    }
-    /**
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5062
-     */
-    public function expectError(): void
-    {
-    }
-    /**
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5062
-     */
-    public function expectErrorMessage(string $message): void
-    {
-    }
-    /**
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5062
-     */
-    public function expectErrorMessageMatches(string $regularExpression): void
-    {
-    }
-    public function getStatus(): int
-    {
-    }
-    public function markAsRisky(): void
-    {
-    }
-    public function getStatusMessage(): string
-    {
-    }
-    public function hasFailed(): bool
-    {
-    }
-    /**
-     * Runs the test case and collects the results in a TestResult object.
-     * If no TestResult object is passed a new one will be created.
-     *
-     * @throws \SebastianBergmann\CodeCoverage\InvalidArgumentException
-     * @throws CodeCoverageException
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws \SebastianBergmann\CodeCoverage\UnintentionallyCoveredCodeException
-     * @throws \PHPUnit\Util\Exception
-     */
-    public function run(?\PHPUnit\Framework\TestResult $result = null): \PHPUnit\Framework\TestResult
-    {
-    }
-    /**
-     * Returns a builder object to create mock objects using a fluent interface.
-     *
-     * @phan-template RealInstanceType of object
-     *
-     * @phan-param class-string<RealInstanceType> $className
-     *
-     * @phan-return MockObject\MockBuilder<RealInstanceType>
-     */
-    public function getMockBuilder(string $className): \PHPUnit\Framework\MockObject\MockBuilder
-    {
-    }
-    public function registerComparator(\SebastianBergmann\Comparator\Comparator $comparator): void
-    {
-    }
-    /**
-     * @return string[]
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function doubledTypes(): array
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function getGroups(): array
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function setGroups(array $groups): void
-    {
-    }
-    /**
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function getName(bool $withDataSet = true): string
-    {
-    }
-    /**
-     * Returns the size of the test.
-     *
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function getSize(): int
-    {
-    }
-    /**
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function hasSize(): bool
-    {
-    }
-    /**
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function isSmall(): bool
-    {
-    }
-    /**
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function isMedium(): bool
-    {
-    }
-    /**
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function isLarge(): bool
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function getActualOutput(): string
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function hasOutput(): bool
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function doesNotPerformAssertions(): bool
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function hasExpectationOnOutput(): bool
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function getExpectedException(): ?string
-    {
-    }
-    /**
-     * @return null|int|string
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function getExpectedExceptionCode()
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function getExpectedExceptionMessage(): ?string
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function getExpectedExceptionMessageRegExp(): ?string
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function setRegisterMockObjectsFromTestArgumentsRecursively(bool $flag): void
-    {
-    }
-    /**
-     * @throws \Throwable
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function runBare(): void
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function setName(string $name): void
-    {
-    }
-    /**
-     * @param list<ExecutionOrderDependency> $dependencies
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function setDependencies(array $dependencies): void
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function setDependencyInput(array $dependencyInput): void
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function setBeStrictAboutChangesToGlobalState(?bool $beStrictAboutChangesToGlobalState): void
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function setBackupGlobals(?bool $backupGlobals): void
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function setBackupStaticAttributes(?bool $backupStaticAttributes): void
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function setRunTestInSeparateProcess(bool $runTestInSeparateProcess): void
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function setRunClassInSeparateProcess(bool $runClassInSeparateProcess): void
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function setPreserveGlobalState(bool $preserveGlobalState): void
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function setInIsolation(bool $inIsolation): void
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function isInIsolation(): bool
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function getResult()
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function setResult($result): void
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function setOutputCallback(callable $callback): void
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function getTestResultObject(): ?\PHPUnit\Framework\TestResult
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function setTestResultObject(\PHPUnit\Framework\TestResult $result): void
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function registerMockObject(\PHPUnit\Framework\MockObject\MockObject $mockObject): void
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function addToAssertionCount(int $count): void
-    {
-    }
-    /**
-     * Returns the number of assertions performed by this test.
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function getNumAssertions(): int
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function usesDataProvider(): bool
-    {
-    }
-    /**
-     * @return int|string
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function dataName()
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function getDataSetAsString(bool $includeData = true): string
-    {
-    }
-    /**
-     * Gets the data set of a TestCase.
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function getProvidedData(): array
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function addWarning(string $warning): void
-    {
-    }
-    public function sortId(): string
-    {
-    }
-    /**
-     * Returns the normalized test name as class::method.
-     *
-     * @return list<ExecutionOrderDependency>
-     */
-    public function provides(): array
-    {
-    }
-    /**
-     * Returns a list of normalized dependency names, class::method.
-     *
-     * This list can differ from the raw dependencies as the resolver has
-     * no need for the [!][shallow]clone prefix that is filtered out
-     * during normalization.
-     *
-     * @return list<ExecutionOrderDependency>
-     */
-    public function requires(): array
-    {
-    }
-    /**
-     * Override to run the test and assert its state.
-     *
-     * @throws \SebastianBergmann\ObjectEnumerator\InvalidArgumentException
-     * @throws AssertionFailedError
-     * @throws Exception
-     * @throws ExpectationFailedException
-     * @throws \Throwable
-     */
-    protected function runTest()
-    {
-    }
-    /**
-     * This method is a wrapper for the ini_set() function that automatically
-     * resets the modified php.ini setting to its original value after the
-     * test is run.
-     *
-     * @throws Exception
-     */
-    protected function iniSet(string $varName, string $newValue): void
-    {
-    }
-    /**
-     * This method is a wrapper for the setlocale() function that automatically
-     * resets the locale to its original value after the test is run.
-     *
-     * @throws Exception
-     */
-    protected function setLocale(...$args): void
-    {
-    }
-    /**
-     * Makes configurable stub for the specified class.
-     *
-     * @phan-template RealInstanceType of object
-     *
-     * @phan-param    class-string<RealInstanceType> $originalClassName
-     *
-     * @phan-return   MockObject\Stub&RealInstanceType
-     */
-    protected function createStub(string $originalClassName): \PHPUnit\Framework\MockObject\Stub
-    {
-    }
-    /**
-     * Returns a mock object for the specified class.
-     *
-     * @phan-template RealInstanceType of object
-     *
-     * @phan-param class-string<RealInstanceType> $originalClassName
-     *
-     * @phan-return MockObject\MockObject&RealInstanceType
-     */
-    protected function createMock(string $originalClassName): \PHPUnit\Framework\MockObject\MockObject
-    {
-    }
-    /**
-     * Returns a configured mock object for the specified class.
-     *
-     * @phan-template RealInstanceType of object
-     *
-     * @phan-param class-string<RealInstanceType> $originalClassName
-     *
-     * @phan-return MockObject\MockObject&RealInstanceType
-     */
-    protected function createConfiguredMock(string $originalClassName, array $configuration): \PHPUnit\Framework\MockObject\MockObject
-    {
-    }
-    /**
-     * Returns a partial mock object for the specified class.
-     *
-     * @param string[] $methods
-     *
-     * @phan-template RealInstanceType of object
-     *
-     * @phan-param class-string<RealInstanceType> $originalClassName
-     *
-     * @phan-return MockObject\MockObject&RealInstanceType
-     */
-    protected function createPartialMock(string $originalClassName, array $methods): \PHPUnit\Framework\MockObject\MockObject
-    {
-    }
-    /**
-     * Returns a test proxy for the specified class.
-     *
-     * @phan-template RealInstanceType of object
-     *
-     * @phan-param class-string<RealInstanceType> $originalClassName
-     *
-     * @phan-return MockObject\MockObject&RealInstanceType
-     */
-    protected function createTestProxy(string $originalClassName, array $constructorArguments = []): \PHPUnit\Framework\MockObject\MockObject
-    {
-    }
-    /**
-     * Mocks the specified class and returns the name of the mocked class.
-     *
-     * @param null|array $methods $methods
-     *
-     * @phan-template RealInstanceType of object
-     *
-     * @phan-param class-string<RealInstanceType>|string $originalClassName
-     *
-     * @phan-return class-string<MockObject\MockObject&RealInstanceType>
-     *
-     * @deprecated
-     */
-    protected function getMockClass(string $originalClassName, $methods = [], array $arguments = [], string $mockClassName = '', bool $callOriginalConstructor = false, bool $callOriginalClone = true, bool $callAutoload = true, bool $cloneArguments = false): string
-    {
-    }
-    /**
-     * Returns a mock object for the specified abstract class with all abstract
-     * methods of the class mocked. Concrete methods are not mocked by default.
-     * To mock concrete methods, use the 7th parameter ($mockedMethods).
-     *
-     * @phan-template RealInstanceType of object
-     *
-     * @phan-param class-string<RealInstanceType> $originalClassName
-     *
-     * @phan-return MockObject\MockObject&RealInstanceType
-     */
-    protected function getMockForAbstractClass(string $originalClassName, array $arguments = [], string $mockClassName = '', bool $callOriginalConstructor = true, bool $callOriginalClone = true, bool $callAutoload = true, array $mockedMethods = [], bool $cloneArguments = false): \PHPUnit\Framework\MockObject\MockObject
-    {
-    }
-    /**
-     * Returns a mock object based on the given WSDL file.
-     *
-     * @phan-template RealInstanceType of object
-     *
-     * @phan-param class-string<RealInstanceType>|string $originalClassName
-     *
-     * @phan-return MockObject\MockObject&RealInstanceType
-     */
-    protected function getMockFromWsdl(string $wsdlFile, string $originalClassName = '', string $mockClassName = '', array $methods = [], bool $callOriginalConstructor = true, array $options = []): \PHPUnit\Framework\MockObject\MockObject
-    {
-    }
-    /**
-     * Returns a mock object for the specified trait with all abstract methods
-     * of the trait mocked. Concrete methods to mock can be specified with the
-     * `$mockedMethods` parameter.
-     *
-     * @phan-param trait-string $traitName
-     */
-    protected function getMockForTrait(string $traitName, array $arguments = [], string $mockClassName = '', bool $callOriginalConstructor = true, bool $callOriginalClone = true, bool $callAutoload = true, array $mockedMethods = [], bool $cloneArguments = false): \PHPUnit\Framework\MockObject\MockObject
-    {
-    }
-    /**
-     * Returns an object for the specified trait.
-     *
-     * @phan-param trait-string $traitName
-     */
-    protected function getObjectForTrait(string $traitName, array $arguments = [], string $traitClassName = '', bool $callOriginalConstructor = true, bool $callOriginalClone = true, bool $callAutoload = true): object
-    {
-    }
-    /**
-     * @throws \Prophecy\Exception\Doubler\ClassNotFoundException
-     * @throws \Prophecy\Exception\Doubler\DoubleException
-     * @throws \Prophecy\Exception\Doubler\InterfaceNotFoundException
-     *
-     * @phan-param class-string|null $classOrInterface
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/4141
-     */
-    protected function prophesize(?string $classOrInterface = null): \Prophecy\Prophecy\ObjectProphecy
-    {
-    }
-    /**
-     * Creates a default TestResult object.
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    protected function createResult(): \PHPUnit\Framework\TestResult
-    {
-    }
-    /**
-     * This method is called when a test method did not execute successfully.
-     *
-     * @throws \Throwable
-     */
-    protected function onNotSuccessfulTest(\Throwable $t): void
-    {
-    }
-    protected function recordDoubledType(string $originalClassName): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class TestFailure
-{
-    /**
-     * Returns a description for an exception.
-     */
-    public static function exceptionToString(\Throwable $e): string
-    {
-    }
-    /**
-     * Constructs a TestFailure with the given test and exception.
-     */
-    public function __construct(\PHPUnit\Framework\Test $failedTest, \Throwable $t)
-    {
-    }
-    /**
-     * Returns a short description of the failure.
-     */
-    public function toString(): string
-    {
-    }
-    /**
-     * Returns a description for the thrown exception.
-     */
-    public function getExceptionAsString(): string
-    {
-    }
-    /**
-     * Returns the name of the failing test (including data set, if any).
-     */
-    public function getTestName(): string
-    {
-    }
-    /**
-     * Returns the failing test.
-     *
-     * Note: The test object is not set when the test is executed in process
-     * isolation.
-     *
-     * @see Exception
-     */
-    public function failedTest(): ?\PHPUnit\Framework\Test
-    {
-    }
-    /**
-     * Gets the thrown exception.
-     */
-    public function thrownException(): \Throwable
-    {
-    }
-    /**
-     * Returns the exception's message.
-     */
-    public function exceptionMessage(): string
-    {
-    }
-    /**
-     * Returns true if the thrown exception
-     * is of type AssertionFailedError.
-     */
-    public function isFailure(): bool
-    {
-    }
-}
-/**
- * This interface, as well as the associated mechanism for extending PHPUnit,
- * will be removed in PHPUnit 10. There is no alternative available in this
- * version of PHPUnit.
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @deprecated
- * @see https://github.com/sebastianbergmann/phpunit/issues/4676
- */
-interface TestListener
-{
-    public function addError(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void;
-    public function addWarning(\PHPUnit\Framework\Test $test, \PHPUnit\Framework\Warning $e, float $time): void;
-    public function addFailure(\PHPUnit\Framework\Test $test, \PHPUnit\Framework\AssertionFailedError $e, float $time): void;
-    public function addIncompleteTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void;
-    public function addRiskyTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void;
-    public function addSkippedTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void;
-    public function startTestSuite(\PHPUnit\Framework\TestSuite $suite): void;
-    public function endTestSuite(\PHPUnit\Framework\TestSuite $suite): void;
-    public function startTest(\PHPUnit\Framework\Test $test): void;
-    public function endTest(\PHPUnit\Framework\Test $test, float $time): void;
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-interface SelfDescribing
-{
-    /**
-     * Returns a string representation of the object.
-     */
-    public function toString(): string;
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-interface IncompleteTest extends \Throwable
-{
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-interface Test extends \Countable
-{
-    /**
-     * Runs a test and collects its result in a TestResult instance.
-     */
-    public function run(?\PHPUnit\Framework\TestResult $result = null): \PHPUnit\Framework\TestResult;
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class ExecutionOrderDependency
-{
-    public static function createFromDependsAnnotation(string $className, string $annotation): self
-    {
-    }
-    /**
-     * @phan-param list<ExecutionOrderDependency> $dependencies
-     *
-     * @phan-return list<ExecutionOrderDependency>
-     */
-    public static function filterInvalid(array $dependencies): array
-    {
-    }
-    /**
-     * @phan-param list<ExecutionOrderDependency> $existing
-     * @phan-param list<ExecutionOrderDependency> $additional
-     *
-     * @phan-return list<ExecutionOrderDependency>
-     */
-    public static function mergeUnique(array $existing, array $additional): array
-    {
-    }
-    /**
-     * @phan-param list<ExecutionOrderDependency> $left
-     * @phan-param list<ExecutionOrderDependency> $right
-     *
-     * @phan-return list<ExecutionOrderDependency>
-     */
-    public static function diff(array $left, array $right): array
-    {
-    }
-    public function __construct(string $classOrCallableName, ?string $methodName = null, ?string $option = null)
-    {
-    }
-    public function __toString(): string
-    {
-    }
-    public function isValid(): bool
-    {
-    }
-    public function useShallowClone(): bool
-    {
-    }
-    public function useDeepClone(): bool
-    {
-    }
-    public function targetIsClass(): bool
-    {
-    }
-    public function getTarget(): string
-    {
-    }
-    public function getTargetClassName(): string
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class TestBuilder
-{
-    public function build(\ReflectionClass $theClass, string $methodName): \PHPUnit\Framework\Test
-    {
-    }
-}
-/**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
 abstract class Assert
@@ -2212,7 +825,7 @@ abstract class Assert
      *
      * @phan-param ExpectedType $expected
      *
-     * @phan-assert =ExpectedType $actual
+     * @phan-assert ExpectedType $actual
      */
     public static function assertSame($expected, $actual, string $message = ''): void
     {
@@ -2239,7 +852,7 @@ abstract class Assert
      *
      * @phan-param class-string<ExpectedType> $expected
      *
-     * @phan-assert =ExpectedType $actual
+     * @phan-assert ExpectedType $actual
      */
     public static function assertInstanceOf(string $expected, $actual, string $message = ''): void
     {
@@ -3053,320 +1666,6 @@ abstract class Assert
      * Reset the assertion counter.
      */
     public static function resetCount(): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-interface SkippedTest extends \Throwable
-{
-}
-/**
- * @template-implements \IteratorAggregate<int, Test>
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-class TestSuite implements \IteratorAggregate, \PHPUnit\Framework\Reorderable, \PHPUnit\Framework\SelfDescribing, \PHPUnit\Framework\Test
-{
-    /**
-     * Enable or disable the backup and restoration of the $GLOBALS array.
-     *
-     * @var bool
-     */
-    protected $backupGlobals;
-    /**
-     * Enable or disable the backup and restoration of static attributes.
-     *
-     * @var bool
-     */
-    protected $backupStaticAttributes;
-    /**
-     * @var bool
-     */
-    protected $runTestInSeparateProcess = false;
-    /**
-     * The name of the test suite.
-     *
-     * @var string
-     */
-    protected $name = '';
-    /**
-     * The test groups of the test suite.
-     *
-     * @phan-var array<string,list<Test>>
-     */
-    protected $groups = [];
-    /**
-     * The tests in the test suite.
-     *
-     * @var Test[]
-     */
-    protected $tests = [];
-    /**
-     * The number of tests in the test suite.
-     *
-     * @var int
-     */
-    protected $numTests = -1;
-    /**
-     * @var bool
-     */
-    protected $testCase = false;
-    /**
-     * @var string[]
-     */
-    protected $foundClasses = [];
-    /**
-     * @var null|list<ExecutionOrderDependency>
-     */
-    protected $providedTests;
-    /**
-     * @var null|list<ExecutionOrderDependency>
-     */
-    protected $requiredTests;
-    /**
-     * Constructs a new TestSuite.
-     *
-     *   - PHPUnit\Framework\TestSuite() constructs an empty TestSuite.
-     *
-     *   - PHPUnit\Framework\TestSuite(ReflectionClass) constructs a
-     *     TestSuite from the given class.
-     *
-     *   - PHPUnit\Framework\TestSuite(ReflectionClass, String)
-     *     constructs a TestSuite from the given class with the given
-     *     name.
-     *
-     *   - PHPUnit\Framework\TestSuite(String) either constructs a
-     *     TestSuite from the given class (if the passed string is the
-     *     name of an existing class) or constructs an empty TestSuite
-     *     with the given name.
-     *
-     * @param \ReflectionClass|string $theClass
-     *
-     * @throws Exception
-     */
-    public function __construct($theClass = '', string $name = '')
-    {
-    }
-    /**
-     * Returns a string representation of the test suite.
-     */
-    public function toString(): string
-    {
-    }
-    /**
-     * Adds a test to the suite.
-     *
-     * @param array $groups
-     */
-    public function addTest(\PHPUnit\Framework\Test $test, $groups = []): void
-    {
-    }
-    /**
-     * Adds the tests from the given class to the suite.
-     *
-     * @phan-param object|class-string $testClass
-     *
-     * @throws Exception
-     */
-    public function addTestSuite($testClass): void
-    {
-    }
-    public function addWarning(string $warning): void
-    {
-    }
-    /**
-     * Wraps both <code>addTest()</code> and <code>addTestSuite</code>
-     * as well as the separate import statements for the user's convenience.
-     *
-     * If the named file cannot be read or there are no new tests that can be
-     * added, a <code>PHPUnit\Framework\WarningTestCase</code> will be created instead,
-     * leaving the current test run untouched.
-     *
-     * @throws Exception
-     */
-    public function addTestFile(string $filename): void
-    {
-    }
-    /**
-     * Wrapper for addTestFile() that adds multiple test files.
-     *
-     * @throws Exception
-     */
-    public function addTestFiles(iterable $fileNames): void
-    {
-    }
-    /**
-     * Counts the number of test cases that will be run by this test.
-     *
-     * @todo refactor usage of numTests in DefaultResultPrinter
-     */
-    public function count(): int
-    {
-    }
-    /**
-     * Returns the name of the suite.
-     */
-    public function getName(): string
-    {
-    }
-    /**
-     * Returns the test groups of the suite.
-     *
-     * @phan-return list<string>
-     */
-    public function getGroups(): array
-    {
-    }
-    public function getGroupDetails(): array
-    {
-    }
-    /**
-     * Set tests groups of the test case.
-     */
-    public function setGroupDetails(array $groups): void
-    {
-    }
-    /**
-     * Runs the tests and collects their result in a TestResult.
-     *
-     * @throws \SebastianBergmann\CodeCoverage\InvalidArgumentException
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws CodeCoverageException
-     * @throws \SebastianBergmann\CodeCoverage\UnintentionallyCoveredCodeException
-     * @throws Warning
-     */
-    public function run(?\PHPUnit\Framework\TestResult $result = null): \PHPUnit\Framework\TestResult
-    {
-    }
-    public function setRunTestInSeparateProcess(bool $runTestInSeparateProcess): void
-    {
-    }
-    public function setName(string $name): void
-    {
-    }
-    /**
-     * Returns the tests as an enumeration.
-     *
-     * @return Test[]
-     */
-    public function tests(): array
-    {
-    }
-    /**
-     * Set tests of the test suite.
-     *
-     * @param Test[] $tests
-     */
-    public function setTests(array $tests): void
-    {
-    }
-    /**
-     * Mark the test suite as skipped.
-     *
-     * @param string $message
-     *
-     * @throws SkippedTestSuiteError
-     *
-     * @phan-return never-return
-     */
-    public function markTestSuiteSkipped($message = ''): void
-    {
-    }
-    /**
-     * @param bool $beStrictAboutChangesToGlobalState
-     */
-    public function setBeStrictAboutChangesToGlobalState($beStrictAboutChangesToGlobalState): void
-    {
-    }
-    /**
-     * @param bool $backupGlobals
-     */
-    public function setBackupGlobals($backupGlobals): void
-    {
-    }
-    /**
-     * @param bool $backupStaticAttributes
-     */
-    public function setBackupStaticAttributes($backupStaticAttributes): void
-    {
-    }
-    /**
-     * Returns an iterator for this test suite.
-     */
-    public function getIterator(): \Iterator
-    {
-    }
-    public function injectFilter(\PHPUnit\Runner\Filter\Factory $filter): void
-    {
-    }
-    /**
-     * @phan-return array<int,string>
-     */
-    public function warnings(): array
-    {
-    }
-    /**
-     * @return list<ExecutionOrderDependency>
-     */
-    public function provides(): array
-    {
-    }
-    /**
-     * @return list<ExecutionOrderDependency>
-     */
-    public function requires(): array
-    {
-    }
-    public function sortId(): string
-    {
-    }
-    /**
-     * Creates a default TestResult object.
-     */
-    protected function createResult(): \PHPUnit\Framework\TestResult
-    {
-    }
-    /**
-     * @throws Exception
-     */
-    protected function addTestMethod(\ReflectionClass $class, \ReflectionMethod $method): void
-    {
-    }
-}
-/**
- * Wraps Exceptions thrown by code under test.
- *
- * Re-instantiates Exceptions thrown by user-space code to retain their original
- * class names, properties, and stack traces (but without arguments).
- *
- * Unlike PHPUnit\Framework\Exception, the complete stack of previous Exceptions
- * is processed.
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class ExceptionWrapper extends \PHPUnit\Framework\Exception
-{
-    public function __construct(\Throwable $t)
-    {
-    }
-    public function __toString(): string
-    {
-    }
-    public function getClassName(): string
-    {
-    }
-    public function getPreviousWrapped(): ?self
-    {
-    }
-    public function setClassName(string $className): void
-    {
-    }
-    public function setOriginalException(\Throwable $t): void
-    {
-    }
-    public function getOriginalException(): ?\Throwable
     {
     }
 }
@@ -4474,7 +2773,7 @@ function assertObjectNotHasProperty(string $attributeName, object $object, strin
  *
  * @phan-param ExpectedType $expected
  *
- * @phan-assert =ExpectedType $actual
+ * @phan-assert ExpectedType $actual
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
@@ -4509,7 +2808,7 @@ function assertNotSame($expected, $actual, string $message = '', ...$func_get_ar
  *
  * @phan-param class-string<ExpectedType> $expected
  *
- * @phan-assert =ExpectedType $actual
+ * @phan-assert ExpectedType $actual
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
@@ -5578,7 +3877,462 @@ function onConsecutiveCalls(...$func_get_args): \PHPUnit\Framework\MockObject\St
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class SkippedTestCase extends \PHPUnit\Framework\TestCase
+final class DataProviderTestSuite extends \PHPUnit\Framework\TestSuite
+{
+    /**
+     * @param list<ExecutionOrderDependency> $dependencies
+     */
+    public function setDependencies(array $dependencies): void
+    {
+    }
+    /**
+     * @return list<ExecutionOrderDependency>
+     */
+    public function provides(): array
+    {
+    }
+    /**
+     * @return list<ExecutionOrderDependency>
+     */
+    public function requires(): array
+    {
+    }
+    /**
+     * Returns the size of the each test created using the data provider(s).
+     *
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     */
+    public function getSize(): int
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class ErrorTestCase extends \PHPUnit\Framework\TestCase
+{
+    public function __construct(string $message = '')
+    {
+    }
+    public function getMessage(): string
+    {
+    }
+    /**
+     * Returns a string representation of the test case.
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class ActualValueIsNotAnObjectException extends \PHPUnit\Framework\Exception
+{
+    public function __construct()
+    {
+    }
+    public function __toString(): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+class AssertionFailedError extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\SelfDescribing
+{
+    /**
+     * Wrapper for getMessage() which is declared as final.
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+class CodeCoverageException extends \PHPUnit\Framework\Exception
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class ComparisonMethodDoesNotAcceptParameterTypeException extends \PHPUnit\Framework\Exception
+{
+    public function __construct(string $className, string $methodName, string $type)
+    {
+    }
+    public function __toString(): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class ComparisonMethodDoesNotDeclareBoolReturnTypeException extends \PHPUnit\Framework\Exception
+{
+    public function __construct(string $className, string $methodName)
+    {
+    }
+    public function __toString(): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class ComparisonMethodDoesNotDeclareExactlyOneParameterException extends \PHPUnit\Framework\Exception
+{
+    public function __construct(string $className, string $methodName)
+    {
+    }
+    public function __toString(): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class ComparisonMethodDoesNotDeclareParameterTypeException extends \PHPUnit\Framework\Exception
+{
+    public function __construct(string $className, string $methodName)
+    {
+    }
+    public function __toString(): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class ComparisonMethodDoesNotExistException extends \PHPUnit\Framework\Exception
+{
+    public function __construct(string $className, string $methodName)
+    {
+    }
+    public function __toString(): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class CoveredCodeNotExecutedException extends \PHPUnit\Framework\RiskyTestError
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class Error extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\SelfDescribing
+{
+    /**
+     * Wrapper for getMessage() which is declared as final.
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * Base class for all PHPUnit Framework exceptions.
+ *
+ * Ensures that exceptions thrown during a test run do not leave stray
+ * references behind.
+ *
+ * Every Exception contains a stack trace. Each stack frame contains the 'args'
+ * of the called function. The function arguments can contain references to
+ * instantiated objects. The references prevent the objects from being
+ * destructed (until test results are eventually printed), so memory cannot be
+ * freed up.
+ *
+ * With enabled process isolation, test results are serialized in the child
+ * process and unserialized in the parent process. The stack trace of Exceptions
+ * may contain objects that cannot be serialized or unserialized (e.g., PDO
+ * connections). Unserializing user-space objects from the child process into
+ * the parent would break the intended encapsulation of process isolation.
+ *
+ * @see http://fabien.potencier.org/article/9/php-serialization-stack-traces-and-exceptions
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+class Exception extends \RuntimeException implements \PHPUnit\Exception
+{
+    /**
+     * @var array
+     */
+    protected $serializableTrace;
+    public function __construct($message = '', $code = 0, ?\Throwable $previous = null)
+    {
+    }
+    public function __toString(): string
+    {
+    }
+    public function __sleep(): array
+    {
+    }
+    /**
+     * Returns the serializable trace (without 'args').
+     */
+    public function getSerializableTrace(): array
+    {
+    }
+}
+/**
+ * Exception for expectations which failed their check.
+ *
+ * The exception contains the error message and optionally a
+ * SebastianBergmann\Comparator\ComparisonFailure which is used to
+ * generate diff output of the failed expectations.
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class ExpectationFailedException extends \PHPUnit\Framework\AssertionFailedError
+{
+    public function __construct(string $message, ?\SebastianBergmann\Comparator\ComparisonFailure $comparisonFailure = null, ?\Exception $previous = null)
+    {
+    }
+    public function getComparisonFailure(): ?\SebastianBergmann\Comparator\ComparisonFailure
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class IncompleteTestError extends \PHPUnit\Framework\AssertionFailedError implements \PHPUnit\Framework\IncompleteTest
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class InvalidArgumentException extends \PHPUnit\Framework\Exception
+{
+    public static function create(int $argument, string $type): self
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class InvalidCoversTargetException extends \PHPUnit\Framework\CodeCoverageException
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class InvalidDataProviderException extends \PHPUnit\Framework\Exception
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class MissingCoversAnnotationException extends \PHPUnit\Framework\RiskyTestError
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class NoChildTestSuiteException extends \PHPUnit\Framework\Exception
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class OutputError extends \PHPUnit\Framework\AssertionFailedError
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class PHPTAssertionFailedError extends \PHPUnit\Framework\SyntheticError
+{
+    public function __construct(string $message, int $code, string $file, int $line, array $trace, string $diff)
+    {
+    }
+    public function getDiff(): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+class RiskyTestError extends \PHPUnit\Framework\AssertionFailedError
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class SkippedTestError extends \PHPUnit\Framework\AssertionFailedError implements \PHPUnit\Framework\SkippedTest
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class SkippedTestSuiteError extends \PHPUnit\Framework\AssertionFailedError implements \PHPUnit\Framework\SkippedTest
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+class SyntheticError extends \PHPUnit\Framework\AssertionFailedError
+{
+    /**
+     * The synthetic file.
+     *
+     * @var string
+     */
+    protected $syntheticFile = '';
+    /**
+     * The synthetic line number.
+     *
+     * @var int
+     */
+    protected $syntheticLine = 0;
+    /**
+     * The synthetic trace.
+     *
+     * @var array
+     */
+    protected $syntheticTrace = [];
+    public function __construct(string $message, int $code, string $file, int $line, array $trace)
+    {
+    }
+    public function getSyntheticFile(): string
+    {
+    }
+    public function getSyntheticLine(): int
+    {
+    }
+    public function getSyntheticTrace(): array
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class SyntheticSkippedError extends \PHPUnit\Framework\SyntheticError implements \PHPUnit\Framework\SkippedTest
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class UnintentionallyCoveredCodeError extends \PHPUnit\Framework\RiskyTestError
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class Warning extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\SelfDescribing
+{
+    /**
+     * Wrapper for getMessage() which is declared as final.
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * Wraps Exceptions thrown by code under test.
+ *
+ * Re-instantiates Exceptions thrown by user-space code to retain their original
+ * class names, properties, and stack traces (but without arguments).
+ *
+ * Unlike PHPUnit\Framework\Exception, the complete stack of previous Exceptions
+ * is processed.
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class ExceptionWrapper extends \PHPUnit\Framework\Exception
+{
+    public function __construct(\Throwable $t)
+    {
+    }
+    public function __toString(): string
+    {
+    }
+    public function getClassName(): string
+    {
+    }
+    public function getPreviousWrapped(): ?self
+    {
+    }
+    public function setClassName(string $className): void
+    {
+    }
+    public function setOriginalException(\Throwable $t): void
+    {
+    }
+    public function getOriginalException(): ?\Throwable
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class ExecutionOrderDependency
+{
+    public static function createFromDependsAnnotation(string $className, string $annotation): self
+    {
+    }
+    /**
+     * @phan-param list<ExecutionOrderDependency> $dependencies
+     *
+     * @phan-return list<ExecutionOrderDependency>
+     */
+    public static function filterInvalid(array $dependencies): array
+    {
+    }
+    /**
+     * @phan-param list<ExecutionOrderDependency> $existing
+     * @phan-param list<ExecutionOrderDependency> $additional
+     *
+     * @phan-return list<ExecutionOrderDependency>
+     */
+    public static function mergeUnique(array $existing, array $additional): array
+    {
+    }
+    /**
+     * @phan-param list<ExecutionOrderDependency> $left
+     * @phan-param list<ExecutionOrderDependency> $right
+     *
+     * @phan-return list<ExecutionOrderDependency>
+     */
+    public static function diff(array $left, array $right): array
+    {
+    }
+    public function __construct(string $classOrCallableName, ?string $methodName = null, ?string $option = null)
+    {
+    }
+    public function __toString(): string
+    {
+    }
+    public function isValid(): bool
+    {
+    }
+    public function useShallowClone(): bool
+    {
+    }
+    public function useDeepClone(): bool
+    {
+    }
+    public function targetIsClass(): bool
+    {
+    }
+    public function getTarget(): string
+    {
+    }
+    public function getTargetClassName(): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+interface IncompleteTest extends \Throwable
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class IncompleteTestCase extends \PHPUnit\Framework\TestCase
 {
     public function __construct(string $className, string $methodName, string $message = '')
     {
@@ -5600,6 +4354,1035 @@ final class SkippedTestCase extends \PHPUnit\Framework\TestCase
  */
 final class InvalidParameterGroupException extends \PHPUnit\Framework\Exception
 {
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+interface Reorderable
+{
+    public function sortId(): string;
+    /**
+     * @return list<ExecutionOrderDependency>
+     */
+    public function provides(): array;
+    /**
+     * @return list<ExecutionOrderDependency>
+     */
+    public function requires(): array;
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+interface SelfDescribing
+{
+    /**
+     * Returns a string representation of the object.
+     */
+    public function toString(): string;
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+interface SkippedTest extends \Throwable
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class SkippedTestCase extends \PHPUnit\Framework\TestCase
+{
+    public function __construct(string $className, string $methodName, string $message = '')
+    {
+    }
+    public function getMessage(): string
+    {
+    }
+    /**
+     * Returns a string representation of the test case.
+     *
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+interface Test extends \Countable
+{
+    /**
+     * Runs a test and collects its result in a TestResult instance.
+     */
+    public function run(?\PHPUnit\Framework\TestResult $result = null): \PHPUnit\Framework\TestResult;
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class TestBuilder
+{
+    public function build(\ReflectionClass $theClass, string $methodName): \PHPUnit\Framework\Test
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Framework\Reorderable, \PHPUnit\Framework\SelfDescribing, \PHPUnit\Framework\Test
+{
+    /**
+     * @var ?bool
+     */
+    protected $backupGlobals;
+    /**
+     * @var string[]
+     */
+    protected $backupGlobalsExcludeList = [];
+    /**
+     * @var string[]
+     *
+     * @deprecated Use $backupGlobalsExcludeList instead
+     */
+    protected $backupGlobalsBlacklist = [];
+    /**
+     * @var ?bool
+     */
+    protected $backupStaticAttributes;
+    /**
+     * @var array<string,array<int,string>>
+     */
+    protected $backupStaticAttributesExcludeList = [];
+    /**
+     * @var array<string,array<int,string>>
+     *
+     * @deprecated Use $backupStaticAttributesExcludeList instead
+     */
+    protected $backupStaticAttributesBlacklist = [];
+    /**
+     * @var ?bool
+     */
+    protected $runTestInSeparateProcess;
+    /**
+     * @var bool
+     */
+    protected $preserveGlobalState = true;
+    /**
+     * @var list<ExecutionOrderDependency>
+     */
+    protected $providedTests = [];
+    /**
+     * Returns a matcher that matches when the method is executed
+     * zero or more times.
+     */
+    public static function any(): \PHPUnit\Framework\MockObject\Rule\AnyInvokedCount
+    {
+    }
+    /**
+     * Returns a matcher that matches when the method is never executed.
+     */
+    public static function never(): \PHPUnit\Framework\MockObject\Rule\InvokedCount
+    {
+    }
+    /**
+     * Returns a matcher that matches when the method is executed
+     * at least N times.
+     */
+    public static function atLeast(int $requiredInvocations): \PHPUnit\Framework\MockObject\Rule\InvokedAtLeastCount
+    {
+    }
+    /**
+     * Returns a matcher that matches when the method is executed at least once.
+     */
+    public static function atLeastOnce(): \PHPUnit\Framework\MockObject\Rule\InvokedAtLeastOnce
+    {
+    }
+    /**
+     * Returns a matcher that matches when the method is executed exactly once.
+     */
+    public static function once(): \PHPUnit\Framework\MockObject\Rule\InvokedCount
+    {
+    }
+    /**
+     * Returns a matcher that matches when the method is executed
+     * exactly $count times.
+     */
+    public static function exactly(int $count): \PHPUnit\Framework\MockObject\Rule\InvokedCount
+    {
+    }
+    /**
+     * Returns a matcher that matches when the method is executed
+     * at most N times.
+     */
+    public static function atMost(int $allowedInvocations): \PHPUnit\Framework\MockObject\Rule\InvokedAtMostCount
+    {
+    }
+    /**
+     * Returns a matcher that matches when the method is executed
+     * at the given index.
+     *
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/4297
+     *
+     * @codeCoverageIgnore
+     */
+    public static function at(int $index): \PHPUnit\Framework\MockObject\Rule\InvokedAtIndex
+    {
+    }
+    public static function returnValue($value): \PHPUnit\Framework\MockObject\Stub\ReturnStub
+    {
+    }
+    public static function returnValueMap(array $valueMap): \PHPUnit\Framework\MockObject\Stub\ReturnValueMap
+    {
+    }
+    public static function returnArgument(int $argumentIndex): \PHPUnit\Framework\MockObject\Stub\ReturnArgument
+    {
+    }
+    public static function returnCallback($callback): \PHPUnit\Framework\MockObject\Stub\ReturnCallback
+    {
+    }
+    /**
+     * Returns the current object.
+     *
+     * This method is useful when mocking a fluent interface.
+     */
+    public static function returnSelf(): \PHPUnit\Framework\MockObject\Stub\ReturnSelf
+    {
+    }
+    public static function throwException(\Throwable $exception): \PHPUnit\Framework\MockObject\Stub\Exception
+    {
+    }
+    public static function onConsecutiveCalls(...$args): \PHPUnit\Framework\MockObject\Stub\ConsecutiveCalls
+    {
+    }
+    /**
+     * @param int|string $dataName
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
+    {
+    }
+    /**
+     * This method is called before the first test of this test class is run.
+     */
+    public static function setUpBeforeClass(): void
+    {
+    }
+    /**
+     * This method is called after the last test of this test class is run.
+     */
+    public static function tearDownAfterClass(): void
+    {
+    }
+    /**
+     * This method is called before each test.
+     */
+    protected function setUp(): void
+    {
+    }
+    /**
+     * Performs assertions shared by all tests of a test case.
+     *
+     * This method is called between setUp() and test.
+     */
+    protected function assertPreConditions(): void
+    {
+    }
+    /**
+     * Performs assertions shared by all tests of a test case.
+     *
+     * This method is called between test and tearDown().
+     */
+    protected function assertPostConditions(): void
+    {
+    }
+    /**
+     * This method is called after each test.
+     */
+    protected function tearDown(): void
+    {
+    }
+    /**
+     * Returns a string representation of the test case.
+     *
+     * @throws Exception
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     */
+    public function toString(): string
+    {
+    }
+    public function count(): int
+    {
+    }
+    public function getActualOutputForAssertion(): string
+    {
+    }
+    public function expectOutputRegex(string $expectedRegex): void
+    {
+    }
+    public function expectOutputString(string $expectedString): void
+    {
+    }
+    /**
+     * @phan-param class-string<\Throwable> $exception
+     */
+    public function expectException(string $exception): void
+    {
+    }
+    /**
+     * @param int|string $code
+     */
+    public function expectExceptionCode($code): void
+    {
+    }
+    public function expectExceptionMessage(string $message): void
+    {
+    }
+    public function expectExceptionMessageMatches(string $regularExpression): void
+    {
+    }
+    /**
+     * Sets up an expectation for an exception to be raised by the code under test.
+     * Information for expected exception class, expected exception message, and
+     * expected exception code are retrieved from a given Exception object.
+     */
+    public function expectExceptionObject(\Exception $exception): void
+    {
+    }
+    public function expectNotToPerformAssertions(): void
+    {
+    }
+    /**
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5062
+     */
+    public function expectDeprecation(): void
+    {
+    }
+    /**
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5062
+     */
+    public function expectDeprecationMessage(string $message): void
+    {
+    }
+    /**
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5062
+     */
+    public function expectDeprecationMessageMatches(string $regularExpression): void
+    {
+    }
+    /**
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5062
+     */
+    public function expectNotice(): void
+    {
+    }
+    /**
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5062
+     */
+    public function expectNoticeMessage(string $message): void
+    {
+    }
+    /**
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5062
+     */
+    public function expectNoticeMessageMatches(string $regularExpression): void
+    {
+    }
+    /**
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5062
+     */
+    public function expectWarning(): void
+    {
+    }
+    /**
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5062
+     */
+    public function expectWarningMessage(string $message): void
+    {
+    }
+    /**
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5062
+     */
+    public function expectWarningMessageMatches(string $regularExpression): void
+    {
+    }
+    /**
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5062
+     */
+    public function expectError(): void
+    {
+    }
+    /**
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5062
+     */
+    public function expectErrorMessage(string $message): void
+    {
+    }
+    /**
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5062
+     */
+    public function expectErrorMessageMatches(string $regularExpression): void
+    {
+    }
+    public function getStatus(): int
+    {
+    }
+    public function markAsRisky(): void
+    {
+    }
+    public function getStatusMessage(): string
+    {
+    }
+    public function hasFailed(): bool
+    {
+    }
+    /**
+     * Runs the test case and collects the results in a TestResult object.
+     * If no TestResult object is passed a new one will be created.
+     *
+     * @throws \SebastianBergmann\CodeCoverage\InvalidArgumentException
+     * @throws CodeCoverageException
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     * @throws \SebastianBergmann\CodeCoverage\UnintentionallyCoveredCodeException
+     * @throws \PHPUnit\Util\Exception
+     */
+    public function run(?\PHPUnit\Framework\TestResult $result = null): \PHPUnit\Framework\TestResult
+    {
+    }
+    /**
+     * Returns a builder object to create mock objects using a fluent interface.
+     *
+     * @phan-template RealInstanceType of object
+     *
+     * @phan-param class-string<RealInstanceType> $className
+     *
+     * @phan-return MockObject\MockBuilder<RealInstanceType>
+     */
+    public function getMockBuilder(string $className): \PHPUnit\Framework\MockObject\MockBuilder
+    {
+    }
+    public function registerComparator(\SebastianBergmann\Comparator\Comparator $comparator): void
+    {
+    }
+    /**
+     * @return string[]
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function doubledTypes(): array
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function getGroups(): array
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function setGroups(array $groups): void
+    {
+    }
+    /**
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function getName(bool $withDataSet = true): string
+    {
+    }
+    /**
+     * Returns the size of the test.
+     *
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function getSize(): int
+    {
+    }
+    /**
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function hasSize(): bool
+    {
+    }
+    /**
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function isSmall(): bool
+    {
+    }
+    /**
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function isMedium(): bool
+    {
+    }
+    /**
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function isLarge(): bool
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function getActualOutput(): string
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function hasOutput(): bool
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function doesNotPerformAssertions(): bool
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function hasExpectationOnOutput(): bool
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function getExpectedException(): ?string
+    {
+    }
+    /**
+     * @return null|int|string
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function getExpectedExceptionCode()
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function getExpectedExceptionMessage(): ?string
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function getExpectedExceptionMessageRegExp(): ?string
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function setRegisterMockObjectsFromTestArgumentsRecursively(bool $flag): void
+    {
+    }
+    /**
+     * @throws \Throwable
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function runBare(): void
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function setName(string $name): void
+    {
+    }
+    /**
+     * @param list<ExecutionOrderDependency> $dependencies
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function setDependencies(array $dependencies): void
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function setDependencyInput(array $dependencyInput): void
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function setBeStrictAboutChangesToGlobalState(?bool $beStrictAboutChangesToGlobalState): void
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function setBackupGlobals(?bool $backupGlobals): void
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function setBackupStaticAttributes(?bool $backupStaticAttributes): void
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function setRunTestInSeparateProcess(bool $runTestInSeparateProcess): void
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function setRunClassInSeparateProcess(bool $runClassInSeparateProcess): void
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function setPreserveGlobalState(bool $preserveGlobalState): void
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function setInIsolation(bool $inIsolation): void
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function isInIsolation(): bool
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function getResult()
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function setResult($result): void
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function setOutputCallback(callable $callback): void
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function getTestResultObject(): ?\PHPUnit\Framework\TestResult
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function setTestResultObject(\PHPUnit\Framework\TestResult $result): void
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function registerMockObject(\PHPUnit\Framework\MockObject\MockObject $mockObject): void
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function addToAssertionCount(int $count): void
+    {
+    }
+    /**
+     * Returns the number of assertions performed by this test.
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function getNumAssertions(): int
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function usesDataProvider(): bool
+    {
+    }
+    /**
+     * @return int|string
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function dataName()
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function getDataSetAsString(bool $includeData = true): string
+    {
+    }
+    /**
+     * Gets the data set of a TestCase.
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function getProvidedData(): array
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function addWarning(string $warning): void
+    {
+    }
+    public function sortId(): string
+    {
+    }
+    /**
+     * Returns the normalized test name as class::method.
+     *
+     * @return list<ExecutionOrderDependency>
+     */
+    public function provides(): array
+    {
+    }
+    /**
+     * Returns a list of normalized dependency names, class::method.
+     *
+     * This list can differ from the raw dependencies as the resolver has
+     * no need for the [!][shallow]clone prefix that is filtered out
+     * during normalization.
+     *
+     * @return list<ExecutionOrderDependency>
+     */
+    public function requires(): array
+    {
+    }
+    /**
+     * Override to run the test and assert its state.
+     *
+     * @throws \SebastianBergmann\ObjectEnumerator\InvalidArgumentException
+     * @throws AssertionFailedError
+     * @throws Exception
+     * @throws ExpectationFailedException
+     * @throws \Throwable
+     */
+    protected function runTest()
+    {
+    }
+    /**
+     * This method is a wrapper for the ini_set() function that automatically
+     * resets the modified php.ini setting to its original value after the
+     * test is run.
+     *
+     * @throws Exception
+     */
+    protected function iniSet(string $varName, string $newValue): void
+    {
+    }
+    /**
+     * This method is a wrapper for the setlocale() function that automatically
+     * resets the locale to its original value after the test is run.
+     *
+     * @throws Exception
+     */
+    protected function setLocale(...$args): void
+    {
+    }
+    /**
+     * Makes configurable stub for the specified class.
+     *
+     * @phan-template RealInstanceType of object
+     *
+     * @phan-param    class-string<RealInstanceType> $originalClassName
+     *
+     * @phan-return   MockObject\Stub&RealInstanceType
+     */
+    protected function createStub(string $originalClassName): \PHPUnit\Framework\MockObject\Stub
+    {
+    }
+    /**
+     * Returns a mock object for the specified class.
+     *
+     * @phan-template RealInstanceType of object
+     *
+     * @phan-param class-string<RealInstanceType> $originalClassName
+     *
+     * @phan-return MockObject\MockObject&RealInstanceType
+     */
+    protected function createMock(string $originalClassName): \PHPUnit\Framework\MockObject\MockObject
+    {
+    }
+    /**
+     * Returns a configured mock object for the specified class.
+     *
+     * @phan-template RealInstanceType of object
+     *
+     * @phan-param class-string<RealInstanceType> $originalClassName
+     *
+     * @phan-return MockObject\MockObject&RealInstanceType
+     */
+    protected function createConfiguredMock(string $originalClassName, array $configuration): \PHPUnit\Framework\MockObject\MockObject
+    {
+    }
+    /**
+     * Returns a partial mock object for the specified class.
+     *
+     * @param string[] $methods
+     *
+     * @phan-template RealInstanceType of object
+     *
+     * @phan-param class-string<RealInstanceType> $originalClassName
+     *
+     * @phan-return MockObject\MockObject&RealInstanceType
+     */
+    protected function createPartialMock(string $originalClassName, array $methods): \PHPUnit\Framework\MockObject\MockObject
+    {
+    }
+    /**
+     * Returns a test proxy for the specified class.
+     *
+     * @phan-template RealInstanceType of object
+     *
+     * @phan-param class-string<RealInstanceType> $originalClassName
+     *
+     * @phan-return MockObject\MockObject&RealInstanceType
+     */
+    protected function createTestProxy(string $originalClassName, array $constructorArguments = []): \PHPUnit\Framework\MockObject\MockObject
+    {
+    }
+    /**
+     * Mocks the specified class and returns the name of the mocked class.
+     *
+     * @param null|array $methods $methods
+     *
+     * @phan-template RealInstanceType of object
+     *
+     * @phan-param class-string<RealInstanceType>|string $originalClassName
+     *
+     * @phan-return class-string<MockObject\MockObject&RealInstanceType>
+     *
+     * @deprecated
+     */
+    protected function getMockClass(string $originalClassName, $methods = [], array $arguments = [], string $mockClassName = '', bool $callOriginalConstructor = false, bool $callOriginalClone = true, bool $callAutoload = true, bool $cloneArguments = false): string
+    {
+    }
+    /**
+     * Returns a mock object for the specified abstract class with all abstract
+     * methods of the class mocked. Concrete methods are not mocked by default.
+     * To mock concrete methods, use the 7th parameter ($mockedMethods).
+     *
+     * @phan-template RealInstanceType of object
+     *
+     * @phan-param class-string<RealInstanceType> $originalClassName
+     *
+     * @phan-return MockObject\MockObject&RealInstanceType
+     */
+    protected function getMockForAbstractClass(string $originalClassName, array $arguments = [], string $mockClassName = '', bool $callOriginalConstructor = true, bool $callOriginalClone = true, bool $callAutoload = true, array $mockedMethods = [], bool $cloneArguments = false): \PHPUnit\Framework\MockObject\MockObject
+    {
+    }
+    /**
+     * Returns a mock object based on the given WSDL file.
+     *
+     * @phan-template RealInstanceType of object
+     *
+     * @phan-param class-string<RealInstanceType>|string $originalClassName
+     *
+     * @phan-return MockObject\MockObject&RealInstanceType
+     */
+    protected function getMockFromWsdl(string $wsdlFile, string $originalClassName = '', string $mockClassName = '', array $methods = [], bool $callOriginalConstructor = true, array $options = []): \PHPUnit\Framework\MockObject\MockObject
+    {
+    }
+    /**
+     * Returns a mock object for the specified trait with all abstract methods
+     * of the trait mocked. Concrete methods to mock can be specified with the
+     * `$mockedMethods` parameter.
+     *
+     * @phan-param trait-string $traitName
+     */
+    protected function getMockForTrait(string $traitName, array $arguments = [], string $mockClassName = '', bool $callOriginalConstructor = true, bool $callOriginalClone = true, bool $callAutoload = true, array $mockedMethods = [], bool $cloneArguments = false): \PHPUnit\Framework\MockObject\MockObject
+    {
+    }
+    /**
+     * Returns an object for the specified trait.
+     *
+     * @phan-param trait-string $traitName
+     */
+    protected function getObjectForTrait(string $traitName, array $arguments = [], string $traitClassName = '', bool $callOriginalConstructor = true, bool $callOriginalClone = true, bool $callAutoload = true): object
+    {
+    }
+    /**
+     * @throws \Prophecy\Exception\Doubler\ClassNotFoundException
+     * @throws \Prophecy\Exception\Doubler\DoubleException
+     * @throws \Prophecy\Exception\Doubler\InterfaceNotFoundException
+     *
+     * @phan-param class-string|null $classOrInterface
+     *
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/4141
+     */
+    protected function prophesize(?string $classOrInterface = null): \Prophecy\Prophecy\ObjectProphecy
+    {
+    }
+    /**
+     * Creates a default TestResult object.
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    protected function createResult(): \PHPUnit\Framework\TestResult
+    {
+    }
+    /**
+     * This method is called when a test method did not execute successfully.
+     *
+     * @throws \Throwable
+     */
+    protected function onNotSuccessfulTest(\Throwable $t): void
+    {
+    }
+    protected function recordDoubledType(string $originalClassName): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class TestFailure
+{
+    /**
+     * Returns a description for an exception.
+     */
+    public static function exceptionToString(\Throwable $e): string
+    {
+    }
+    /**
+     * Constructs a TestFailure with the given test and exception.
+     */
+    public function __construct(\PHPUnit\Framework\Test $failedTest, \Throwable $t)
+    {
+    }
+    /**
+     * Returns a short description of the failure.
+     */
+    public function toString(): string
+    {
+    }
+    /**
+     * Returns a description for the thrown exception.
+     */
+    public function getExceptionAsString(): string
+    {
+    }
+    /**
+     * Returns the name of the failing test (including data set, if any).
+     */
+    public function getTestName(): string
+    {
+    }
+    /**
+     * Returns the failing test.
+     *
+     * Note: The test object is not set when the test is executed in process
+     * isolation.
+     *
+     * @see Exception
+     */
+    public function failedTest(): ?\PHPUnit\Framework\Test
+    {
+    }
+    /**
+     * Gets the thrown exception.
+     */
+    public function thrownException(): \Throwable
+    {
+    }
+    /**
+     * Returns the exception's message.
+     */
+    public function exceptionMessage(): string
+    {
+    }
+    /**
+     * Returns true if the thrown exception
+     * is of type AssertionFailedError.
+     */
+    public function isFailure(): bool
+    {
+    }
+}
+/**
+ * This interface, as well as the associated mechanism for extending PHPUnit,
+ * will be removed in PHPUnit 10. There is no alternative available in this
+ * version of PHPUnit.
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @deprecated
+ * @see https://github.com/sebastianbergmann/phpunit/issues/4676
+ */
+interface TestListener
+{
+    public function addError(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void;
+    public function addWarning(\PHPUnit\Framework\Test $test, \PHPUnit\Framework\Warning $e, float $time): void;
+    public function addFailure(\PHPUnit\Framework\Test $test, \PHPUnit\Framework\AssertionFailedError $e, float $time): void;
+    public function addIncompleteTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void;
+    public function addRiskyTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void;
+    public function addSkippedTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void;
+    public function startTestSuite(\PHPUnit\Framework\TestSuite $suite): void;
+    public function endTestSuite(\PHPUnit\Framework\TestSuite $suite): void;
+    public function startTest(\PHPUnit\Framework\Test $test): void;
+    public function endTest(\PHPUnit\Framework\Test $test, float $time): void;
+}
+/**
+ * @deprecated The `TestListener` interface is deprecated
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+trait TestListenerDefaultImplementation
+{
+    public function addError(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
+    {
+    }
+    public function addWarning(\PHPUnit\Framework\Test $test, \PHPUnit\Framework\Warning $e, float $time): void
+    {
+    }
+    public function addFailure(\PHPUnit\Framework\Test $test, \PHPUnit\Framework\AssertionFailedError $e, float $time): void
+    {
+    }
+    public function addIncompleteTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
+    {
+    }
+    public function addRiskyTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
+    {
+    }
+    public function addSkippedTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
+    {
+    }
+    public function startTestSuite(\PHPUnit\Framework\TestSuite $suite): void
+    {
+    }
+    public function endTestSuite(\PHPUnit\Framework\TestSuite $suite): void
+    {
+    }
+    public function startTest(\PHPUnit\Framework\Test $test): void
+    {
+    }
+    public function endTest(\PHPUnit\Framework\Test $test, float $time): void
+    {
+    }
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
@@ -6024,93 +5807,310 @@ final class TestResult implements \Countable
     }
 }
 /**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-interface Reorderable
-{
-    public function sortId(): string;
-    /**
-     * @return list<ExecutionOrderDependency>
-     */
-    public function provides(): array;
-    /**
-     * @return list<ExecutionOrderDependency>
-     */
-    public function requires(): array;
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class ErrorTestCase extends \PHPUnit\Framework\TestCase
-{
-    public function __construct(string $message = '')
-    {
-    }
-    public function getMessage(): string
-    {
-    }
-    /**
-     * Returns a string representation of the test case.
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @deprecated The `TestListener` interface is deprecated
+ * @template-implements \IteratorAggregate<int, Test>
  *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-trait TestListenerDefaultImplementation
+class TestSuite implements \IteratorAggregate, \PHPUnit\Framework\Reorderable, \PHPUnit\Framework\SelfDescribing, \PHPUnit\Framework\Test
 {
-    public function addError(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
+    /**
+     * Enable or disable the backup and restoration of the $GLOBALS array.
+     *
+     * @var bool
+     */
+    protected $backupGlobals;
+    /**
+     * Enable or disable the backup and restoration of static attributes.
+     *
+     * @var bool
+     */
+    protected $backupStaticAttributes;
+    /**
+     * @var bool
+     */
+    protected $runTestInSeparateProcess = false;
+    /**
+     * The name of the test suite.
+     *
+     * @var string
+     */
+    protected $name = '';
+    /**
+     * The test groups of the test suite.
+     *
+     * @phan-var array<string,list<Test>>
+     */
+    protected $groups = [];
+    /**
+     * The tests in the test suite.
+     *
+     * @var Test[]
+     */
+    protected $tests = [];
+    /**
+     * The number of tests in the test suite.
+     *
+     * @var int
+     */
+    protected $numTests = -1;
+    /**
+     * @var bool
+     */
+    protected $testCase = false;
+    /**
+     * @var string[]
+     */
+    protected $foundClasses = [];
+    /**
+     * @var null|list<ExecutionOrderDependency>
+     */
+    protected $providedTests;
+    /**
+     * @var null|list<ExecutionOrderDependency>
+     */
+    protected $requiredTests;
+    /**
+     * Constructs a new TestSuite.
+     *
+     *   - PHPUnit\Framework\TestSuite() constructs an empty TestSuite.
+     *
+     *   - PHPUnit\Framework\TestSuite(ReflectionClass) constructs a
+     *     TestSuite from the given class.
+     *
+     *   - PHPUnit\Framework\TestSuite(ReflectionClass, String)
+     *     constructs a TestSuite from the given class with the given
+     *     name.
+     *
+     *   - PHPUnit\Framework\TestSuite(String) either constructs a
+     *     TestSuite from the given class (if the passed string is the
+     *     name of an existing class) or constructs an empty TestSuite
+     *     with the given name.
+     *
+     * @param \ReflectionClass|string $theClass
+     *
+     * @throws Exception
+     */
+    public function __construct($theClass = '', string $name = '')
     {
     }
-    public function addWarning(\PHPUnit\Framework\Test $test, \PHPUnit\Framework\Warning $e, float $time): void
+    /**
+     * Returns a string representation of the test suite.
+     */
+    public function toString(): string
     {
     }
-    public function addFailure(\PHPUnit\Framework\Test $test, \PHPUnit\Framework\AssertionFailedError $e, float $time): void
+    /**
+     * Adds a test to the suite.
+     *
+     * @param array $groups
+     */
+    public function addTest(\PHPUnit\Framework\Test $test, $groups = []): void
     {
     }
-    public function addIncompleteTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
+    /**
+     * Adds the tests from the given class to the suite.
+     *
+     * @phan-param object|class-string $testClass
+     *
+     * @throws Exception
+     */
+    public function addTestSuite($testClass): void
     {
     }
-    public function addRiskyTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
+    public function addWarning(string $warning): void
     {
     }
-    public function addSkippedTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
+    /**
+     * Wraps both <code>addTest()</code> and <code>addTestSuite</code>
+     * as well as the separate import statements for the user's convenience.
+     *
+     * If the named file cannot be read or there are no new tests that can be
+     * added, a <code>PHPUnit\Framework\WarningTestCase</code> will be created instead,
+     * leaving the current test run untouched.
+     *
+     * @throws Exception
+     */
+    public function addTestFile(string $filename): void
     {
     }
-    public function startTestSuite(\PHPUnit\Framework\TestSuite $suite): void
+    /**
+     * Wrapper for addTestFile() that adds multiple test files.
+     *
+     * @throws Exception
+     */
+    public function addTestFiles(iterable $fileNames): void
     {
     }
-    public function endTestSuite(\PHPUnit\Framework\TestSuite $suite): void
+    /**
+     * Counts the number of test cases that will be run by this test.
+     *
+     * @todo refactor usage of numTests in DefaultResultPrinter
+     */
+    public function count(): int
     {
     }
-    public function startTest(\PHPUnit\Framework\Test $test): void
+    /**
+     * Returns the name of the suite.
+     */
+    public function getName(): string
     {
     }
-    public function endTest(\PHPUnit\Framework\Test $test, float $time): void
+    /**
+     * Returns the test groups of the suite.
+     *
+     * @phan-return list<string>
+     */
+    public function getGroups(): array
+    {
+    }
+    public function getGroupDetails(): array
+    {
+    }
+    /**
+     * Set tests groups of the test case.
+     */
+    public function setGroupDetails(array $groups): void
+    {
+    }
+    /**
+     * Runs the tests and collects their result in a TestResult.
+     *
+     * @throws \SebastianBergmann\CodeCoverage\InvalidArgumentException
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     * @throws CodeCoverageException
+     * @throws \SebastianBergmann\CodeCoverage\UnintentionallyCoveredCodeException
+     * @throws Warning
+     */
+    public function run(?\PHPUnit\Framework\TestResult $result = null): \PHPUnit\Framework\TestResult
+    {
+    }
+    public function setRunTestInSeparateProcess(bool $runTestInSeparateProcess): void
+    {
+    }
+    public function setName(string $name): void
+    {
+    }
+    /**
+     * Returns the tests as an enumeration.
+     *
+     * @return Test[]
+     */
+    public function tests(): array
+    {
+    }
+    /**
+     * Set tests of the test suite.
+     *
+     * @param Test[] $tests
+     */
+    public function setTests(array $tests): void
+    {
+    }
+    /**
+     * Mark the test suite as skipped.
+     *
+     * @param string $message
+     *
+     * @throws SkippedTestSuiteError
+     *
+     * @phan-return never-return
+     */
+    public function markTestSuiteSkipped($message = ''): void
+    {
+    }
+    /**
+     * @param bool $beStrictAboutChangesToGlobalState
+     */
+    public function setBeStrictAboutChangesToGlobalState($beStrictAboutChangesToGlobalState): void
+    {
+    }
+    /**
+     * @param bool $backupGlobals
+     */
+    public function setBackupGlobals($backupGlobals): void
+    {
+    }
+    /**
+     * @param bool $backupStaticAttributes
+     */
+    public function setBackupStaticAttributes($backupStaticAttributes): void
+    {
+    }
+    /**
+     * Returns an iterator for this test suite.
+     */
+    public function getIterator(): \Iterator
+    {
+    }
+    public function injectFilter(\PHPUnit\Runner\Filter\Factory $filter): void
+    {
+    }
+    /**
+     * @phan-return array<int,string>
+     */
+    public function warnings(): array
+    {
+    }
+    /**
+     * @return list<ExecutionOrderDependency>
+     */
+    public function provides(): array
+    {
+    }
+    /**
+     * @return list<ExecutionOrderDependency>
+     */
+    public function requires(): array
+    {
+    }
+    public function sortId(): string
+    {
+    }
+    /**
+     * Creates a default TestResult object.
+     */
+    protected function createResult(): \PHPUnit\Framework\TestResult
+    {
+    }
+    /**
+     * @throws Exception
+     */
+    protected function addTestMethod(\ReflectionClass $class, \ReflectionMethod $method): void
     {
     }
 }
 /**
+ * @template-implements \RecursiveIterator<int, Test>
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class IncompleteTestCase extends \PHPUnit\Framework\TestCase
+final class TestSuiteIterator implements \RecursiveIterator
 {
-    public function __construct(string $className, string $methodName, string $message = '')
+    public function __construct(\PHPUnit\Framework\TestSuite $testSuite)
     {
     }
-    public function getMessage(): string
+    public function rewind(): void
+    {
+    }
+    public function valid(): bool
+    {
+    }
+    public function key(): int
+    {
+    }
+    public function current(): \PHPUnit\Framework\Test
+    {
+    }
+    public function next(): void
     {
     }
     /**
-     * Returns a string representation of the test case.
-     *
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     * @throws NoChildTestSuiteException
      */
-    public function toString(): string
+    public function getChildren(): self
+    {
+    }
+    public function hasChildren(): bool
     {
     }
 }
@@ -6137,61 +6137,7 @@ namespace PHPUnit\Framework\Constraint;
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class ExceptionMessageRegularExpression extends \PHPUnit\Framework\Constraint\Constraint
-{
-    public function __construct(string $expected)
-    {
-    }
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class ExceptionMessage extends \PHPUnit\Framework\Constraint\Constraint
-{
-    public function __construct(string $expected)
-    {
-    }
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class ExceptionCode extends \PHPUnit\Framework\Constraint\Constraint
-{
-    /**
-     * @param int|string $expected
-     */
-    public function __construct($expected)
-    {
-    }
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class Exception extends \PHPUnit\Framework\Constraint\Constraint
-{
-    public function __construct(string $className)
-    {
-    }
-    /**
-     * Returns a string representation of the constraint.
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class IsReadable extends \PHPUnit\Framework\Constraint\Constraint
+final class IsFalse extends \PHPUnit\Framework\Constraint\Constraint
 {
     /**
      * Returns a string representation of the constraint.
@@ -6203,7 +6149,7 @@ final class IsReadable extends \PHPUnit\Framework\Constraint\Constraint
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class DirectoryExists extends \PHPUnit\Framework\Constraint\Constraint
+final class IsTrue extends \PHPUnit\Framework\Constraint\Constraint
 {
     /**
      * Returns a string representation of the constraint.
@@ -6213,283 +6159,16 @@ final class DirectoryExists extends \PHPUnit\Framework\Constraint\Constraint
     }
 }
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class FileExists extends \PHPUnit\Framework\Constraint\Constraint
-{
-    /**
-     * Returns a string representation of the constraint.
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class IsWritable extends \PHPUnit\Framework\Constraint\Constraint
-{
-    /**
-     * Returns a string representation of the constraint.
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class JsonMatchesErrorMessageProvider
-{
-    /**
-     * Translates JSON error to a human readable string.
-     */
-    public static function determineJsonError(string $error, string $prefix = ''): ?string
-    {
-    }
-    /**
-     * Translates a given type to a human readable message prefix.
-     */
-    public static function translateTypeToPrefix(string $type): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class IsEqualCanonicalizing extends \PHPUnit\Framework\Constraint\Constraint
-{
-    public function __construct($value)
-    {
-    }
-    /**
-     * Evaluates the constraint for parameter $other.
-     *
-     * If $returnResult is set to false (the default), an exception is thrown
-     * in case of a failure. null is returned otherwise.
-     *
-     * If $returnResult is true, the result of the evaluation is returned as
-     * a boolean value instead: true in case of success, false in case of a
-     * failure.
-     *
-     * @throws \PHPUnit\Framework\ExpectationFailedException
-     */
-    public function evaluate($other, string $description = '', bool $returnResult = false): ?bool
-    {
-    }
-    /**
-     * Returns a string representation of the constraint.
-     *
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class IsEqual extends \PHPUnit\Framework\Constraint\Constraint
-{
-    public function __construct($value, float $delta = 0.0, bool $canonicalize = false, bool $ignoreCase = false)
-    {
-    }
-    /**
-     * Evaluates the constraint for parameter $other.
-     *
-     * If $returnResult is set to false (the default), an exception is thrown
-     * in case of a failure. null is returned otherwise.
-     *
-     * If $returnResult is true, the result of the evaluation is returned as
-     * a boolean value instead: true in case of success, false in case of a
-     * failure.
-     *
-     * @throws \PHPUnit\Framework\ExpectationFailedException
-     */
-    public function evaluate($other, string $description = '', bool $returnResult = false): ?bool
-    {
-    }
-    /**
-     * Returns a string representation of the constraint.
-     *
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class IsEqualWithDelta extends \PHPUnit\Framework\Constraint\Constraint
-{
-    public function __construct($value, float $delta)
-    {
-    }
-    /**
-     * Evaluates the constraint for parameter $other.
-     *
-     * If $returnResult is set to false (the default), an exception is thrown
-     * in case of a failure. null is returned otherwise.
-     *
-     * If $returnResult is true, the result of the evaluation is returned as
-     * a boolean value instead: true in case of success, false in case of a
-     * failure.
-     *
-     * @throws \PHPUnit\Framework\ExpectationFailedException
-     */
-    public function evaluate($other, string $description = '', bool $returnResult = false): ?bool
-    {
-    }
-    /**
-     * Returns a string representation of the constraint.
-     *
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class IsEqualIgnoringCase extends \PHPUnit\Framework\Constraint\Constraint
-{
-    public function __construct($value)
-    {
-    }
-    /**
-     * Evaluates the constraint for parameter $other.
-     *
-     * If $returnResult is set to false (the default), an exception is thrown
-     * in case of a failure. null is returned otherwise.
-     *
-     * If $returnResult is true, the result of the evaluation is returned as
-     * a boolean value instead: true in case of success, false in case of a
-     * failure.
-     *
-     * @throws \PHPUnit\Framework\ExpectationFailedException
-     */
-    public function evaluate($other, string $description = '', bool $returnResult = false): ?bool
-    {
-    }
-    /**
-     * Returns a string representation of the constraint.
-     *
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class TraversableContainsOnly extends \PHPUnit\Framework\Constraint\Constraint
-{
-    /**
-     * @throws \PHPUnit\Framework\Exception
-     */
-    public function __construct(string $type, bool $isNativeType = true)
-    {
-    }
-    /**
-     * Evaluates the constraint for parameter $other.
-     *
-     * If $returnResult is set to false (the default), an exception is thrown
-     * in case of a failure. null is returned otherwise.
-     *
-     * If $returnResult is true, the result of the evaluation is returned as
-     * a boolean value instead: true in case of success, false in case of a
-     * failure.
-     *
-     * @param mixed|\Traversable $other
-     *
-     * @throws \PHPUnit\Framework\ExpectationFailedException
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     */
-    public function evaluate($other, string $description = '', bool $returnResult = false): ?bool
-    {
-    }
-    /**
-     * Returns a string representation of the constraint.
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-abstract class TraversableContains extends \PHPUnit\Framework\Constraint\Constraint
-{
-    public function __construct($value)
-    {
-    }
-    /**
-     * Returns a string representation of the constraint.
-     *
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     */
-    public function toString(): string
-    {
-    }
-    /**
-     * Returns the description of the failure.
-     *
-     * The beginning of failure messages is "Failed asserting that" in most
-     * cases. This method should return the second part of that sentence.
-     *
-     * @param mixed $other evaluated value or object
-     *
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     */
-    protected function failureDescription($other): string
-    {
-    }
-    protected function value()
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class TraversableContainsEqual extends \PHPUnit\Framework\Constraint\TraversableContains
-{
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class ArrayHasKey extends \PHPUnit\Framework\Constraint\Constraint
-{
-    /**
-     * @param int|string $key
-     */
-    public function __construct($key)
-    {
-    }
-    /**
-     * Returns a string representation of the constraint.
-     *
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class TraversableContainsIdentical extends \PHPUnit\Framework\Constraint\TraversableContains
-{
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ * @phan-template CallbackInput of mixed
  *
- * @deprecated https://github.com/sebastianbergmann/phpunit/issues/4601
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class ClassHasStaticAttribute extends \PHPUnit\Framework\Constraint\ClassHasAttribute
+final class Callback extends \PHPUnit\Framework\Constraint\Constraint
 {
+    /** @phan-param callable(CallbackInput $input): bool $callback */
+    public function __construct(callable $callback)
+    {
+    }
     /**
      * Returns a string representation of the constraint.
      */
@@ -6500,28 +6179,11 @@ final class ClassHasStaticAttribute extends \PHPUnit\Framework\Constraint\ClassH
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class ObjectEquals extends \PHPUnit\Framework\Constraint\Constraint
+class Count extends \PHPUnit\Framework\Constraint\Constraint
 {
-    public function __construct(object $object, string $method = 'equals')
+    public function __construct(int $expected)
     {
     }
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @deprecated https://github.com/sebastianbergmann/phpunit/issues/4601
- */
-class ClassHasAttribute extends \PHPUnit\Framework\Constraint\Constraint
-{
-    public function __construct(string $attributeName)
-    {
-    }
-    /**
-     * Returns a string representation of the constraint.
-     */
     public function toString(): string
     {
     }
@@ -6529,9 +6191,22 @@ class ClassHasAttribute extends \PHPUnit\Framework\Constraint\Constraint
      * Evaluates the constraint for parameter $other. Returns true if the
      * constraint is met, false otherwise.
      *
-     * @param mixed $other value or object to evaluate
+     * @throws \PHPUnit\Framework\Exception
      */
     protected function matches($other): bool
+    {
+    }
+    /**
+     * @throws \PHPUnit\Framework\Exception
+     */
+    protected function getCountOf($other): ?int
+    {
+    }
+    /**
+     * Returns the total number of iterations from a generator.
+     * This will fully exhaust the generator.
+     */
+    protected function getCountOfGenerator(\Generator $generator): int
     {
     }
     /**
@@ -6545,91 +6220,48 @@ class ClassHasAttribute extends \PHPUnit\Framework\Constraint\Constraint
     protected function failureDescription($other): string
     {
     }
-    protected function attributeName(): string
-    {
-    }
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class ObjectHasProperty extends \PHPUnit\Framework\Constraint\Constraint
-{
-    public function __construct(string $propertyName)
-    {
-    }
-    /**
-     * Returns a string representation of the constraint.
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @deprecated https://github.com/sebastianbergmann/phpunit/issues/4601
- */
-final class ObjectHasAttribute extends \PHPUnit\Framework\Constraint\ClassHasAttribute
-{
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class IsFinite extends \PHPUnit\Framework\Constraint\Constraint
+final class GreaterThan extends \PHPUnit\Framework\Constraint\Constraint
 {
     /**
-     * Returns a string representation of the constraint.
+     * @param float|int $value
      */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class IsNan extends \PHPUnit\Framework\Constraint\Constraint
-{
-    /**
-     * Returns a string representation of the constraint.
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class IsInfinite extends \PHPUnit\Framework\Constraint\Constraint
-{
-    /**
-     * Returns a string representation of the constraint.
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class IsIdentical extends \PHPUnit\Framework\Constraint\Constraint
-{
     public function __construct($value)
     {
     }
     /**
-     * Evaluates the constraint for parameter $other.
+     * Returns a string representation of the constraint.
      *
-     * If $returnResult is set to false (the default), an exception is thrown
-     * in case of a failure. null is returned otherwise.
-     *
-     * If $returnResult is true, the result of the evaluation is returned as
-     * a boolean value instead: true in case of success, false in case of a
-     * failure.
-     *
-     * @throws \PHPUnit\Framework\ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      */
-    public function evaluate($other, string $description = '', bool $returnResult = false): ?bool
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class IsEmpty extends \PHPUnit\Framework\Constraint\Constraint
+{
+    /**
+     * Returns a string representation of the constraint.
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class LessThan extends \PHPUnit\Framework\Constraint\Constraint
+{
+    /**
+     * @param float|int $value
+     */
+    public function __construct($value)
     {
     }
     /**
@@ -6638,6 +6270,15 @@ final class IsIdentical extends \PHPUnit\Framework\Constraint\Constraint
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      */
     public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class SameSize extends \PHPUnit\Framework\Constraint\Count
+{
+    public function __construct(iterable $expected)
     {
     }
 }
@@ -6829,32 +6470,552 @@ abstract class Constraint implements \Countable, \PHPUnit\Framework\SelfDescribi
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-abstract class Operator extends \PHPUnit\Framework\Constraint\Constraint
+final class IsEqual extends \PHPUnit\Framework\Constraint\Constraint
+{
+    public function __construct($value, float $delta = 0.0, bool $canonicalize = false, bool $ignoreCase = false)
+    {
+    }
+    /**
+     * Evaluates the constraint for parameter $other.
+     *
+     * If $returnResult is set to false (the default), an exception is thrown
+     * in case of a failure. null is returned otherwise.
+     *
+     * If $returnResult is true, the result of the evaluation is returned as
+     * a boolean value instead: true in case of success, false in case of a
+     * failure.
+     *
+     * @throws \PHPUnit\Framework\ExpectationFailedException
+     */
+    public function evaluate($other, string $description = '', bool $returnResult = false): ?bool
+    {
+    }
+    /**
+     * Returns a string representation of the constraint.
+     *
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class IsEqualCanonicalizing extends \PHPUnit\Framework\Constraint\Constraint
+{
+    public function __construct($value)
+    {
+    }
+    /**
+     * Evaluates the constraint for parameter $other.
+     *
+     * If $returnResult is set to false (the default), an exception is thrown
+     * in case of a failure. null is returned otherwise.
+     *
+     * If $returnResult is true, the result of the evaluation is returned as
+     * a boolean value instead: true in case of success, false in case of a
+     * failure.
+     *
+     * @throws \PHPUnit\Framework\ExpectationFailedException
+     */
+    public function evaluate($other, string $description = '', bool $returnResult = false): ?bool
+    {
+    }
+    /**
+     * Returns a string representation of the constraint.
+     *
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class IsEqualIgnoringCase extends \PHPUnit\Framework\Constraint\Constraint
+{
+    public function __construct($value)
+    {
+    }
+    /**
+     * Evaluates the constraint for parameter $other.
+     *
+     * If $returnResult is set to false (the default), an exception is thrown
+     * in case of a failure. null is returned otherwise.
+     *
+     * If $returnResult is true, the result of the evaluation is returned as
+     * a boolean value instead: true in case of success, false in case of a
+     * failure.
+     *
+     * @throws \PHPUnit\Framework\ExpectationFailedException
+     */
+    public function evaluate($other, string $description = '', bool $returnResult = false): ?bool
+    {
+    }
+    /**
+     * Returns a string representation of the constraint.
+     *
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class IsEqualWithDelta extends \PHPUnit\Framework\Constraint\Constraint
+{
+    public function __construct($value, float $delta)
+    {
+    }
+    /**
+     * Evaluates the constraint for parameter $other.
+     *
+     * If $returnResult is set to false (the default), an exception is thrown
+     * in case of a failure. null is returned otherwise.
+     *
+     * If $returnResult is true, the result of the evaluation is returned as
+     * a boolean value instead: true in case of success, false in case of a
+     * failure.
+     *
+     * @throws \PHPUnit\Framework\ExpectationFailedException
+     */
+    public function evaluate($other, string $description = '', bool $returnResult = false): ?bool
+    {
+    }
+    /**
+     * Returns a string representation of the constraint.
+     *
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class Exception extends \PHPUnit\Framework\Constraint\Constraint
+{
+    public function __construct(string $className)
+    {
+    }
+    /**
+     * Returns a string representation of the constraint.
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class ExceptionCode extends \PHPUnit\Framework\Constraint\Constraint
 {
     /**
-     * Returns the name of this operator.
+     * @param int|string $expected
      */
-    abstract public function operator(): string;
+    public function __construct($expected)
+    {
+    }
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class ExceptionMessage extends \PHPUnit\Framework\Constraint\Constraint
+{
+    public function __construct(string $expected)
+    {
+    }
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class ExceptionMessageRegularExpression extends \PHPUnit\Framework\Constraint\Constraint
+{
+    public function __construct(string $expected)
+    {
+    }
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class DirectoryExists extends \PHPUnit\Framework\Constraint\Constraint
+{
     /**
-     * Returns this operator's precedence.
+     * Returns a string representation of the constraint.
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class FileExists extends \PHPUnit\Framework\Constraint\Constraint
+{
+    /**
+     * Returns a string representation of the constraint.
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class IsReadable extends \PHPUnit\Framework\Constraint\Constraint
+{
+    /**
+     * Returns a string representation of the constraint.
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class IsWritable extends \PHPUnit\Framework\Constraint\Constraint
+{
+    /**
+     * Returns a string representation of the constraint.
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class IsAnything extends \PHPUnit\Framework\Constraint\Constraint
+{
+    /**
+     * Evaluates the constraint for parameter $other.
      *
-     * @see https://www.php.net/manual/en/language.operators.precedence.php
+     * If $returnResult is set to false (the default), an exception is thrown
+     * in case of a failure. null is returned otherwise.
+     *
+     * If $returnResult is true, the result of the evaluation is returned as
+     * a boolean value instead: true in case of success, false in case of a
+     * failure.
+     *
+     * @throws \PHPUnit\Framework\ExpectationFailedException
      */
-    abstract public function precedence(): int;
+    public function evaluate($other, string $description = '', bool $returnResult = false): ?bool
+    {
+    }
     /**
-     * Returns the number of operands.
+     * Returns a string representation of the constraint.
      */
-    abstract public function arity(): int;
+    public function toString(): string
+    {
+    }
     /**
-     * Validates $constraint argument.
+     * Counts the number of constraint elements.
      */
-    protected function checkConstraint($constraint): \PHPUnit\Framework\Constraint\Constraint
+    public function count(): int
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class IsIdentical extends \PHPUnit\Framework\Constraint\Constraint
+{
+    public function __construct($value)
+    {
+    }
+    /**
+     * Evaluates the constraint for parameter $other.
+     *
+     * If $returnResult is set to false (the default), an exception is thrown
+     * in case of a failure. null is returned otherwise.
+     *
+     * If $returnResult is true, the result of the evaluation is returned as
+     * a boolean value instead: true in case of success, false in case of a
+     * failure.
+     *
+     * @throws \PHPUnit\Framework\ExpectationFailedException
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     */
+    public function evaluate($other, string $description = '', bool $returnResult = false): ?bool
+    {
+    }
+    /**
+     * Returns a string representation of the constraint.
+     *
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class JsonMatches extends \PHPUnit\Framework\Constraint\Constraint
+{
+    public function __construct(string $value)
+    {
+    }
+    /**
+     * Returns a string representation of the object.
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class JsonMatchesErrorMessageProvider
+{
+    /**
+     * Translates JSON error to a human readable string.
+     */
+    public static function determineJsonError(string $error, string $prefix = ''): ?string
+    {
+    }
+    /**
+     * Translates a given type to a human readable message prefix.
+     */
+    public static function translateTypeToPrefix(string $type): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class IsFinite extends \PHPUnit\Framework\Constraint\Constraint
+{
+    /**
+     * Returns a string representation of the constraint.
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class IsInfinite extends \PHPUnit\Framework\Constraint\Constraint
+{
+    /**
+     * Returns a string representation of the constraint.
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class IsNan extends \PHPUnit\Framework\Constraint\Constraint
+{
+    /**
+     * Returns a string representation of the constraint.
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @deprecated https://github.com/sebastianbergmann/phpunit/issues/4601
+ */
+class ClassHasAttribute extends \PHPUnit\Framework\Constraint\Constraint
+{
+    public function __construct(string $attributeName)
+    {
+    }
+    /**
+     * Returns a string representation of the constraint.
+     */
+    public function toString(): string
+    {
+    }
+    /**
+     * Evaluates the constraint for parameter $other. Returns true if the
+     * constraint is met, false otherwise.
+     *
+     * @param mixed $other value or object to evaluate
+     */
+    protected function matches($other): bool
+    {
+    }
+    /**
+     * Returns the description of the failure.
+     *
+     * The beginning of failure messages is "Failed asserting that" in most
+     * cases. This method should return the second part of that sentence.
+     *
+     * @param mixed $other evaluated value or object
+     */
+    protected function failureDescription($other): string
+    {
+    }
+    protected function attributeName(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @deprecated https://github.com/sebastianbergmann/phpunit/issues/4601
+ */
+final class ClassHasStaticAttribute extends \PHPUnit\Framework\Constraint\ClassHasAttribute
+{
+    /**
+     * Returns a string representation of the constraint.
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class ObjectEquals extends \PHPUnit\Framework\Constraint\Constraint
+{
+    public function __construct(object $object, string $method = 'equals')
+    {
+    }
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @deprecated https://github.com/sebastianbergmann/phpunit/issues/4601
+ */
+final class ObjectHasAttribute extends \PHPUnit\Framework\Constraint\ClassHasAttribute
+{
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class ObjectHasProperty extends \PHPUnit\Framework\Constraint\Constraint
+{
+    public function __construct(string $propertyName)
+    {
+    }
+    /**
+     * Returns a string representation of the constraint.
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+abstract class BinaryOperator extends \PHPUnit\Framework\Constraint\Operator
+{
+    public static function fromConstraints(\PHPUnit\Framework\Constraint\Constraint ...$constraints): self
+    {
+    }
+    /**
+     * @param mixed[] $constraints
+     */
+    public function setConstraints(array $constraints): void
+    {
+    }
+    /**
+     * Returns the number of operands (constraints).
+     */
+    final public function arity(): int
+    {
+    }
+    /**
+     * Returns a string representation of the constraint.
+     */
+    public function toString(): string
+    {
+    }
+    /**
+     * Counts the number of constraint elements.
+     */
+    public function count(): int
+    {
+    }
+    /**
+     * Returns the nested constraints.
+     */
+    final protected function constraints(): array
     {
     }
     /**
      * Returns true if the $constraint needs to be wrapped with braces.
      */
-    protected function constraintNeedsParentheses(\PHPUnit\Framework\Constraint\Constraint $constraint): bool
+    final protected function constraintNeedsParentheses(\PHPUnit\Framework\Constraint\Constraint $constraint): bool
+    {
+    }
+    /**
+     * Reduces the sub-expression starting at $this by skipping degenerate
+     * sub-expression and returns first descendant constraint that starts
+     * a non-reducible sub-expression.
+     *
+     * See Constraint::reduce() for more.
+     */
+    protected function reduce(): \PHPUnit\Framework\Constraint\Constraint
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class LogicalAnd extends \PHPUnit\Framework\Constraint\BinaryOperator
+{
+    /**
+     * Returns the name of this operator.
+     */
+    public function operator(): string
+    {
+    }
+    /**
+     * Returns this operator's precedence.
+     *
+     * @see https://www.php.net/manual/en/language.operators.precedence.php
+     */
+    public function precedence(): int
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class LogicalNot extends \PHPUnit\Framework\Constraint\UnaryOperator
+{
+    public static function negate(string $string): string
+    {
+    }
+    /**
+     * Returns the name of this operator.
+     */
+    public function operator(): string
+    {
+    }
+    /**
+     * Returns this operator's precedence.
+     *
+     * @see https://www.php.net/manual/en/language.operators.precedence.php
+     */
+    public function precedence(): int
     {
     }
 }
@@ -6913,6 +7074,38 @@ final class LogicalXor extends \PHPUnit\Framework\Constraint\BinaryOperator
      * @param mixed $other value or object to evaluate
      */
     public function matches($other): bool
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+abstract class Operator extends \PHPUnit\Framework\Constraint\Constraint
+{
+    /**
+     * Returns the name of this operator.
+     */
+    abstract public function operator(): string;
+    /**
+     * Returns this operator's precedence.
+     *
+     * @see https://www.php.net/manual/en/language.operators.precedence.php
+     */
+    abstract public function precedence(): int;
+    /**
+     * Returns the number of operands.
+     */
+    abstract public function arity(): int;
+    /**
+     * Validates $constraint argument.
+     */
+    protected function checkConstraint($constraint): \PHPUnit\Framework\Constraint\Constraint
+    {
+    }
+    /**
+     * Returns true if the $constraint needs to be wrapped with braces.
+     */
+    protected function constraintNeedsParentheses(\PHPUnit\Framework\Constraint\Constraint $constraint): bool
     {
     }
 }
@@ -6988,64 +7181,21 @@ abstract class UnaryOperator extends \PHPUnit\Framework\Constraint\Operator
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class LogicalAnd extends \PHPUnit\Framework\Constraint\BinaryOperator
+final class IsJson extends \PHPUnit\Framework\Constraint\Constraint
 {
     /**
-     * Returns the name of this operator.
+     * Returns a string representation of the constraint.
      */
-    public function operator(): string
-    {
-    }
-    /**
-     * Returns this operator's precedence.
-     *
-     * @see https://www.php.net/manual/en/language.operators.precedence.php
-     */
-    public function precedence(): int
+    public function toString(): string
     {
     }
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class LogicalNot extends \PHPUnit\Framework\Constraint\UnaryOperator
+class RegularExpression extends \PHPUnit\Framework\Constraint\Constraint
 {
-    public static function negate(string $string): string
-    {
-    }
-    /**
-     * Returns the name of this operator.
-     */
-    public function operator(): string
-    {
-    }
-    /**
-     * Returns this operator's precedence.
-     *
-     * @see https://www.php.net/manual/en/language.operators.precedence.php
-     */
-    public function precedence(): int
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-abstract class BinaryOperator extends \PHPUnit\Framework\Constraint\Operator
-{
-    public static function fromConstraints(\PHPUnit\Framework\Constraint\Constraint ...$constraints): self
-    {
-    }
-    /**
-     * @param mixed[] $constraints
-     */
-    public function setConstraints(array $constraints): void
-    {
-    }
-    /**
-     * Returns the number of operands (constraints).
-     */
-    final public function arity(): int
+    public function __construct(string $pattern)
     {
     }
     /**
@@ -7055,39 +7205,145 @@ abstract class BinaryOperator extends \PHPUnit\Framework\Constraint\Operator
     {
     }
     /**
-     * Counts the number of constraint elements.
-     */
-    public function count(): int
-    {
-    }
-    /**
-     * Returns the nested constraints.
-     */
-    final protected function constraints(): array
-    {
-    }
-    /**
-     * Returns true if the $constraint needs to be wrapped with braces.
-     */
-    final protected function constraintNeedsParentheses(\PHPUnit\Framework\Constraint\Constraint $constraint): bool
-    {
-    }
-    /**
-     * Reduces the sub-expression starting at $this by skipping degenerate
-     * sub-expression and returns first descendant constraint that starts
-     * a non-reducible sub-expression.
+     * Evaluates the constraint for parameter $other. Returns true if the
+     * constraint is met, false otherwise.
      *
-     * See Constraint::reduce() for more.
+     * @param mixed $other value or object to evaluate
      */
-    protected function reduce(): \PHPUnit\Framework\Constraint\Constraint
+    protected function matches($other): bool
     {
     }
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class IsAnything extends \PHPUnit\Framework\Constraint\Constraint
+final class StringContains extends \PHPUnit\Framework\Constraint\Constraint
 {
+    public function __construct(string $string, bool $ignoreCase = false)
+    {
+    }
+    /**
+     * Returns a string representation of the constraint.
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class StringEndsWith extends \PHPUnit\Framework\Constraint\Constraint
+{
+    public function __construct(string $suffix)
+    {
+    }
+    /**
+     * Returns a string representation of the constraint.
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class StringMatchesFormatDescription extends \PHPUnit\Framework\Constraint\RegularExpression
+{
+    public function __construct(string $string)
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class StringStartsWith extends \PHPUnit\Framework\Constraint\Constraint
+{
+    public function __construct(string $prefix)
+    {
+    }
+    /**
+     * Returns a string representation of the constraint.
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class ArrayHasKey extends \PHPUnit\Framework\Constraint\Constraint
+{
+    /**
+     * @param int|string $key
+     */
+    public function __construct($key)
+    {
+    }
+    /**
+     * Returns a string representation of the constraint.
+     *
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     */
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+abstract class TraversableContains extends \PHPUnit\Framework\Constraint\Constraint
+{
+    public function __construct($value)
+    {
+    }
+    /**
+     * Returns a string representation of the constraint.
+     *
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     */
+    public function toString(): string
+    {
+    }
+    /**
+     * Returns the description of the failure.
+     *
+     * The beginning of failure messages is "Failed asserting that" in most
+     * cases. This method should return the second part of that sentence.
+     *
+     * @param mixed $other evaluated value or object
+     *
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     */
+    protected function failureDescription($other): string
+    {
+    }
+    protected function value()
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class TraversableContainsEqual extends \PHPUnit\Framework\Constraint\TraversableContains
+{
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class TraversableContainsIdentical extends \PHPUnit\Framework\Constraint\TraversableContains
+{
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class TraversableContainsOnly extends \PHPUnit\Framework\Constraint\Constraint
+{
+    /**
+     * @throws \PHPUnit\Framework\Exception
+     */
+    public function __construct(string $type, bool $isNativeType = true)
+    {
+    }
     /**
      * Evaluates the constraint for parameter $other.
      *
@@ -7098,7 +7354,10 @@ final class IsAnything extends \PHPUnit\Framework\Constraint\Constraint
      * a boolean value instead: true in case of success, false in case of a
      * failure.
      *
+     * @param mixed|\Traversable $other
+     *
      * @throws \PHPUnit\Framework\ExpectationFailedException
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      */
     public function evaluate($other, string $description = '', bool $returnResult = false): ?bool
     {
@@ -7109,10 +7368,19 @@ final class IsAnything extends \PHPUnit\Framework\Constraint\Constraint
     public function toString(): string
     {
     }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class IsInstanceOf extends \PHPUnit\Framework\Constraint\Constraint
+{
+    public function __construct(string $className)
+    {
+    }
     /**
-     * Counts the number of constraint elements.
+     * Returns a string representation of the constraint.
      */
-    public function count(): int
+    public function toString(): string
     {
     }
 }
@@ -7198,274 +7466,6 @@ final class IsType extends \PHPUnit\Framework\Constraint\Constraint
     {
     }
 }
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class IsInstanceOf extends \PHPUnit\Framework\Constraint\Constraint
-{
-    public function __construct(string $className)
-    {
-    }
-    /**
-     * Returns a string representation of the constraint.
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class SameSize extends \PHPUnit\Framework\Constraint\Count
-{
-    public function __construct(iterable $expected)
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-class Count extends \PHPUnit\Framework\Constraint\Constraint
-{
-    public function __construct(int $expected)
-    {
-    }
-    public function toString(): string
-    {
-    }
-    /**
-     * Evaluates the constraint for parameter $other. Returns true if the
-     * constraint is met, false otherwise.
-     *
-     * @throws \PHPUnit\Framework\Exception
-     */
-    protected function matches($other): bool
-    {
-    }
-    /**
-     * @throws \PHPUnit\Framework\Exception
-     */
-    protected function getCountOf($other): ?int
-    {
-    }
-    /**
-     * Returns the total number of iterations from a generator.
-     * This will fully exhaust the generator.
-     */
-    protected function getCountOfGenerator(\Generator $generator): int
-    {
-    }
-    /**
-     * Returns the description of the failure.
-     *
-     * The beginning of failure messages is "Failed asserting that" in most
-     * cases. This method should return the second part of that sentence.
-     *
-     * @param mixed $other evaluated value or object
-     */
-    protected function failureDescription($other): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class LessThan extends \PHPUnit\Framework\Constraint\Constraint
-{
-    /**
-     * @param float|int $value
-     */
-    public function __construct($value)
-    {
-    }
-    /**
-     * Returns a string representation of the constraint.
-     *
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class GreaterThan extends \PHPUnit\Framework\Constraint\Constraint
-{
-    /**
-     * @param float|int $value
-     */
-    public function __construct($value)
-    {
-    }
-    /**
-     * Returns a string representation of the constraint.
-     *
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class IsEmpty extends \PHPUnit\Framework\Constraint\Constraint
-{
-    /**
-     * Returns a string representation of the constraint.
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class JsonMatches extends \PHPUnit\Framework\Constraint\Constraint
-{
-    public function __construct(string $value)
-    {
-    }
-    /**
-     * Returns a string representation of the object.
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class IsTrue extends \PHPUnit\Framework\Constraint\Constraint
-{
-    /**
-     * Returns a string representation of the constraint.
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class IsFalse extends \PHPUnit\Framework\Constraint\Constraint
-{
-    /**
-     * Returns a string representation of the constraint.
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class StringStartsWith extends \PHPUnit\Framework\Constraint\Constraint
-{
-    public function __construct(string $prefix)
-    {
-    }
-    /**
-     * Returns a string representation of the constraint.
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class IsJson extends \PHPUnit\Framework\Constraint\Constraint
-{
-    /**
-     * Returns a string representation of the constraint.
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class StringEndsWith extends \PHPUnit\Framework\Constraint\Constraint
-{
-    public function __construct(string $suffix)
-    {
-    }
-    /**
-     * Returns a string representation of the constraint.
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-class RegularExpression extends \PHPUnit\Framework\Constraint\Constraint
-{
-    public function __construct(string $pattern)
-    {
-    }
-    /**
-     * Returns a string representation of the constraint.
-     */
-    public function toString(): string
-    {
-    }
-    /**
-     * Evaluates the constraint for parameter $other. Returns true if the
-     * constraint is met, false otherwise.
-     *
-     * @param mixed $other value or object to evaluate
-     */
-    protected function matches($other): bool
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class StringMatchesFormatDescription extends \PHPUnit\Framework\Constraint\RegularExpression
-{
-    public function __construct(string $string)
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class StringContains extends \PHPUnit\Framework\Constraint\Constraint
-{
-    public function __construct(string $string, bool $ignoreCase = false)
-    {
-    }
-    /**
-     * Returns a string representation of the constraint.
-     */
-    public function toString(): string
-    {
-    }
-}
-/**
- * @phan-template CallbackInput of mixed
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class Callback extends \PHPUnit\Framework\Constraint\Constraint
-{
-    /** @phan-param callable(CallbackInput $input): bool $callback */
-    public function __construct(callable $callback)
-    {
-    }
-    /**
-     * Returns a string representation of the constraint.
-     */
-    public function toString(): string
-    {
-    }
-}
 namespace PHPUnit\Framework\Error;
 
 /**
@@ -7473,6 +7473,15 @@ namespace PHPUnit\Framework\Error;
  */
 final class Deprecated extends \PHPUnit\Framework\Error\Error
 {
+}
+/**
+ * @internal
+ */
+class Error extends \PHPUnit\Framework\Exception
+{
+    public function __construct(string $message, int $code, string $file, int $line, ?\Exception $previous = null)
+    {
+    }
 }
 /**
  * @internal
@@ -7486,23 +7495,231 @@ final class Notice extends \PHPUnit\Framework\Error\Error
 final class Warning extends \PHPUnit\Framework\Error\Error
 {
 }
-/**
- * @internal
- */
-class Error extends \PHPUnit\Framework\Exception
-{
-    public function __construct(string $message, int $code, string $file, int $line, ?\Exception $previous = null)
-    {
-    }
-}
 namespace PHPUnit\Framework\MockObject;
 
 /**
+ * @internal This trait is not covered by the backward compatibility promise for PHPUnit
+ */
+trait Api
+{
+    /**
+     * @var ConfigurableMethod[]
+     */
+    private static $__phpunit_configurableMethods;
+    /**
+     * @var object
+     */
+    private $__phpunit_originalObject;
+    /**
+     * @var bool
+     */
+    private $__phpunit_returnValueGeneration = true;
+    /**
+     * @var InvocationHandler
+     */
+    private $__phpunit_invocationMocker;
+    /** @noinspection MagicMethodsValidityInspection */
+    public static function __phpunit_initConfigurableMethods(\PHPUnit\Framework\MockObject\ConfigurableMethod ...$configurableMethods): void
+    {
+    }
+    /** @noinspection MagicMethodsValidityInspection */
+    public function __phpunit_setOriginalObject($originalObject): void
+    {
+    }
+    /** @noinspection MagicMethodsValidityInspection */
+    public function __phpunit_setReturnValueGeneration(bool $returnValueGeneration): void
+    {
+    }
+    /** @noinspection MagicMethodsValidityInspection */
+    public function __phpunit_getInvocationHandler(): \PHPUnit\Framework\MockObject\InvocationHandler
+    {
+    }
+    /** @noinspection MagicMethodsValidityInspection */
+    public function __phpunit_hasMatchers(): bool
+    {
+    }
+    /** @noinspection MagicMethodsValidityInspection */
+    public function __phpunit_verify(bool $unsetInvocationMocker = true): void
+    {
+    }
+    public function expects(\PHPUnit\Framework\MockObject\Rule\InvocationOrder $matcher): \PHPUnit\Framework\MockObject\Builder\InvocationMocker
+    {
+    }
+}
+/**
+ * @internal This trait is not covered by the backward compatibility promise for PHPUnit
+ */
+trait Method
+{
+    public function method(...$func_get_args)
+    {
+    }
+}
+/**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class UnknownTypeException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
+final class ConfigurableMethod
 {
-    public function __construct(string $type)
+    public function __construct(string $name, \SebastianBergmann\Type\Type $returnType)
+    {
+    }
+    public function getName(): string
+    {
+    }
+    public function mayReturn($value): bool
+    {
+    }
+    public function getReturnTypeDeclaration(): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class BadMethodCallException extends \BadMethodCallException implements \PHPUnit\Framework\MockObject\Exception
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class CannotUseAddMethodsException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
+{
+    public function __construct(string $type, string $methodName)
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class CannotUseOnlyMethodsException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
+{
+    public function __construct(string $type, string $methodName)
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class ClassAlreadyExistsException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
+{
+    public function __construct(string $className)
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class ClassIsFinalException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
+{
+    public function __construct(string $className)
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class ClassIsReadonlyException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
+{
+    public function __construct(string $className)
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class ConfigurableMethodsAlreadyInitializedException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class DuplicateMethodException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
+{
+    /**
+     * @phan-param list<string> $methods
+     */
+    public function __construct(array $methods)
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+interface Exception extends \Throwable
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class IncompatibleReturnValueException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
+{
+    /**
+     * @param mixed $value
+     */
+    public function __construct(\PHPUnit\Framework\MockObject\ConfigurableMethod $method, $value)
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class InvalidMethodNameException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
+{
+    public function __construct(string $method)
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class MatchBuilderNotFoundException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
+{
+    public function __construct(string $id)
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class MatcherAlreadyRegisteredException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
+{
+    public function __construct(string $id)
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class MethodCannotBeConfiguredException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
+{
+    public function __construct(string $method)
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class MethodNameAlreadyConfiguredException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
+{
+    public function __construct()
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class MethodNameNotConfiguredException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
+{
+    public function __construct()
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class MethodParametersAlreadyConfiguredException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
+{
+    public function __construct()
     {
     }
 }
@@ -7514,6 +7731,12 @@ final class OriginalConstructorInvocationRequiredException extends \PHPUnit\Fram
     public function __construct()
     {
     }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class ReflectionException extends \RuntimeException implements \PHPUnit\Framework\MockObject\Exception
+{
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
@@ -7533,55 +7756,7 @@ final class RuntimeException extends \RuntimeException implements \PHPUnit\Frame
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class DuplicateMethodException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
-{
-    /**
-     * @phan-param list<string> $methods
-     */
-    public function __construct(array $methods)
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
 final class SoapExtensionNotAvailableException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
-{
-    public function __construct()
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class CannotUseOnlyMethodsException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
-{
-    public function __construct(string $type, string $methodName)
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class CannotUseAddMethodsException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
-{
-    public function __construct(string $type, string $methodName)
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class ClassIsFinalException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
-{
-    public function __construct(string $className)
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class MethodParametersAlreadyConfiguredException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
 {
     public function __construct()
     {
@@ -7599,54 +7774,6 @@ final class UnknownClassException extends \PHPUnit\Framework\Exception implement
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class ConfigurableMethodsAlreadyInitializedException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class BadMethodCallException extends \BadMethodCallException implements \PHPUnit\Framework\MockObject\Exception
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class ClassIsReadonlyException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
-{
-    public function __construct(string $className)
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class MethodCannotBeConfiguredException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
-{
-    public function __construct(string $method)
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class MatcherAlreadyRegisteredException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
-{
-    public function __construct(string $id)
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class MethodNameAlreadyConfiguredException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
-{
-    public function __construct()
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
 final class UnknownTraitException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
 {
     public function __construct(string $traitName)
@@ -7656,62 +7783,11 @@ final class UnknownTraitException extends \PHPUnit\Framework\Exception implement
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class MethodNameNotConfiguredException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
+final class UnknownTypeException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
 {
-    public function __construct()
+    public function __construct(string $type)
     {
     }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-interface Exception extends \Throwable
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class InvalidMethodNameException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
-{
-    public function __construct(string $method)
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class IncompatibleReturnValueException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
-{
-    /**
-     * @param mixed $value
-     */
-    public function __construct(\PHPUnit\Framework\MockObject\ConfigurableMethod $method, $value)
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class ClassAlreadyExistsException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
-{
-    public function __construct(string $className)
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class MatchBuilderNotFoundException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
-{
-    public function __construct(string $id)
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class ReflectionException extends \RuntimeException implements \PHPUnit\Framework\MockObject\Exception
-{
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
@@ -7852,12 +7928,83 @@ final class Generator
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class MethodNameConstraint extends \PHPUnit\Framework\Constraint\Constraint
+final class Invocation implements \PHPUnit\Framework\SelfDescribing
 {
-    public function __construct(string $methodName)
+    public function __construct(string $className, string $methodName, array $parameters, string $returnType, object $object, bool $cloneObjects = false, bool $proxiedCall = false)
+    {
+    }
+    public function getClassName(): string
+    {
+    }
+    public function getMethodName(): string
+    {
+    }
+    public function getParameters(): array
+    {
+    }
+    /**
+     * @throws RuntimeException
+     *
+     * @return mixed Mocked return value
+     */
+    public function generateReturnValue()
     {
     }
     public function toString(): string
+    {
+    }
+    public function getObject(): object
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class InvocationHandler
+{
+    public function __construct(array $configurableMethods, bool $returnValueGeneration)
+    {
+    }
+    public function hasMatchers(): bool
+    {
+    }
+    /**
+     * Looks up the match builder with identification $id and returns it.
+     *
+     * @param string $id The identification of the match builder
+     */
+    public function lookupMatcher(string $id): ?\PHPUnit\Framework\MockObject\Matcher
+    {
+    }
+    /**
+     * Registers a matcher with the identification $id. The matcher can later be
+     * looked up using lookupMatcher() to figure out if it has been invoked.
+     *
+     * @param string  $id      The identification of the matcher
+     * @param Matcher $matcher The builder which is being registered
+     *
+     * @throws MatcherAlreadyRegisteredException
+     */
+    public function registerMatcher(string $id, \PHPUnit\Framework\MockObject\Matcher $matcher): void
+    {
+    }
+    public function expects(\PHPUnit\Framework\MockObject\Rule\InvocationOrder $rule): \PHPUnit\Framework\MockObject\Builder\InvocationMocker
+    {
+    }
+    /**
+     * @throws \Exception
+     * @throws RuntimeException
+     */
+    public function invoke(\PHPUnit\Framework\MockObject\Invocation $invocation)
+    {
+    }
+    public function matches(\PHPUnit\Framework\MockObject\Invocation $invocation): bool
+    {
+    }
+    /**
+     * @throws \Throwable
+     */
+    public function verify(): void
     {
     }
 }
@@ -7927,62 +8074,14 @@ final class Matcher
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class ConfigurableMethod
+final class MethodNameConstraint extends \PHPUnit\Framework\Constraint\Constraint
 {
-    public function __construct(string $name, \SebastianBergmann\Type\Type $returnType)
+    public function __construct(string $methodName)
     {
     }
-    public function getName(): string
+    public function toString(): string
     {
     }
-    public function mayReturn($value): bool
-    {
-    }
-    public function getReturnTypeDeclaration(): string
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class MockMethod
-{
-    /**
-     * @throws ReflectionException
-     * @throws RuntimeException
-     */
-    public static function fromReflection(\ReflectionMethod $method, bool $callOriginalMethod, bool $cloneArguments): self
-    {
-    }
-    public static function fromName(string $fullClassName, string $methodName, bool $cloneArguments): self
-    {
-    }
-    public function __construct(string $className, string $methodName, bool $cloneArguments, string $modifier, string $argumentsForDeclaration, string $argumentsForCall, \SebastianBergmann\Type\Type $returnType, string $reference, bool $callOriginalMethod, bool $static, ?string $deprecation)
-    {
-    }
-    public function getName(): string
-    {
-    }
-    /**
-     * @throws RuntimeException
-     */
-    public function generateCode(): string
-    {
-    }
-    public function getReturnType(): \SebastianBergmann\Type\Type
-    {
-    }
-}
-/**
- * @method Builder\InvocationStubber method($constraint)
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-interface Stub
-{
-    public function __phpunit_getInvocationHandler(): \PHPUnit\Framework\MockObject\InvocationHandler;
-    public function __phpunit_hasMatchers(): bool;
-    public function __phpunit_setReturnValueGeneration(bool $returnValueGeneration): void;
 }
 /**
  * @phan-template MockedType
@@ -8241,93 +8340,70 @@ final class MockBuilder
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class Invocation implements \PHPUnit\Framework\SelfDescribing
+final class MockClass implements \PHPUnit\Framework\MockObject\MockType
 {
-    public function __construct(string $className, string $methodName, array $parameters, string $returnType, object $object, bool $cloneObjects = false, bool $proxiedCall = false)
-    {
-    }
-    public function getClassName(): string
-    {
-    }
-    public function getMethodName(): string
-    {
-    }
-    public function getParameters(): array
-    {
-    }
     /**
-     * @throws RuntimeException
-     *
-     * @return mixed Mocked return value
+     * @phan-param class-string $mockName
      */
-    public function generateReturnValue()
+    public function __construct(string $classCode, string $mockName, array $configurableMethods)
     {
     }
-    public function toString(): string
-    {
-    }
-    public function getObject(): object
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-interface MockType
-{
     /**
      * @phan-return class-string
      */
-    public function generate(): string;
+    public function generate(): string
+    {
+    }
+    public function getClassCode(): string
+    {
+    }
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class InvocationHandler
+final class MockMethod
 {
-    public function __construct(array $configurableMethods, bool $returnValueGeneration)
-    {
-    }
-    public function hasMatchers(): bool
-    {
-    }
     /**
-     * Looks up the match builder with identification $id and returns it.
-     *
-     * @param string $id The identification of the match builder
-     */
-    public function lookupMatcher(string $id): ?\PHPUnit\Framework\MockObject\Matcher
-    {
-    }
-    /**
-     * Registers a matcher with the identification $id. The matcher can later be
-     * looked up using lookupMatcher() to figure out if it has been invoked.
-     *
-     * @param string  $id      The identification of the matcher
-     * @param Matcher $matcher The builder which is being registered
-     *
-     * @throws MatcherAlreadyRegisteredException
-     */
-    public function registerMatcher(string $id, \PHPUnit\Framework\MockObject\Matcher $matcher): void
-    {
-    }
-    public function expects(\PHPUnit\Framework\MockObject\Rule\InvocationOrder $rule): \PHPUnit\Framework\MockObject\Builder\InvocationMocker
-    {
-    }
-    /**
-     * @throws \Exception
+     * @throws ReflectionException
      * @throws RuntimeException
      */
-    public function invoke(\PHPUnit\Framework\MockObject\Invocation $invocation)
+    public static function fromReflection(\ReflectionMethod $method, bool $callOriginalMethod, bool $cloneArguments): self
     {
     }
-    public function matches(\PHPUnit\Framework\MockObject\Invocation $invocation): bool
+    public static function fromName(string $fullClassName, string $methodName, bool $cloneArguments): self
+    {
+    }
+    public function __construct(string $className, string $methodName, bool $cloneArguments, string $modifier, string $argumentsForDeclaration, string $argumentsForCall, \SebastianBergmann\Type\Type $returnType, string $reference, bool $callOriginalMethod, bool $static, ?string $deprecation)
+    {
+    }
+    public function getName(): string
     {
     }
     /**
-     * @throws \Throwable
+     * @throws RuntimeException
      */
-    public function verify(): void
+    public function generateCode(): string
+    {
+    }
+    public function getReturnType(): \SebastianBergmann\Type\Type
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class MockMethodSet
+{
+    public function addMethods(\PHPUnit\Framework\MockObject\MockMethod ...$methods): void
+    {
+    }
+    /**
+     * @return MockMethod[]
+     */
+    public function asArray(): array
+    {
+    }
+    public function hasMethod(string $methodName): bool
     {
     }
 }
@@ -8366,20 +8442,23 @@ final class MockTrait implements \PHPUnit\Framework\MockObject\MockType
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class MockMethodSet
+interface MockType
 {
-    public function addMethods(\PHPUnit\Framework\MockObject\MockMethod ...$methods): void
-    {
-    }
     /**
-     * @return MockMethod[]
+     * @phan-return class-string
      */
-    public function asArray(): array
-    {
-    }
-    public function hasMethod(string $methodName): bool
-    {
-    }
+    public function generate(): string;
+}
+/**
+ * @method Builder\InvocationStubber method($constraint)
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+interface Stub
+{
+    public function __phpunit_getInvocationHandler(): \PHPUnit\Framework\MockObject\InvocationHandler;
+    public function __phpunit_hasMatchers(): bool;
+    public function __phpunit_setReturnValueGeneration(bool $returnValueGeneration): void;
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
@@ -8394,101 +8473,21 @@ interface Verifiable
      */
     public function verify(): void;
 }
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class MockClass implements \PHPUnit\Framework\MockObject\MockType
-{
-    /**
-     * @phan-param class-string $mockName
-     */
-    public function __construct(string $classCode, string $mockName, array $configurableMethods)
-    {
-    }
-    /**
-     * @phan-return class-string
-     */
-    public function generate(): string
-    {
-    }
-    public function getClassCode(): string
-    {
-    }
-}
-/**
- * @internal This trait is not covered by the backward compatibility promise for PHPUnit
- */
-trait Api
-{
-    /**
-     * @var ConfigurableMethod[]
-     */
-    private static $__phpunit_configurableMethods;
-    /**
-     * @var object
-     */
-    private $__phpunit_originalObject;
-    /**
-     * @var bool
-     */
-    private $__phpunit_returnValueGeneration = true;
-    /**
-     * @var InvocationHandler
-     */
-    private $__phpunit_invocationMocker;
-    /** @noinspection MagicMethodsValidityInspection */
-    public static function __phpunit_initConfigurableMethods(\PHPUnit\Framework\MockObject\ConfigurableMethod ...$configurableMethods): void
-    {
-    }
-    /** @noinspection MagicMethodsValidityInspection */
-    public function __phpunit_setOriginalObject($originalObject): void
-    {
-    }
-    /** @noinspection MagicMethodsValidityInspection */
-    public function __phpunit_setReturnValueGeneration(bool $returnValueGeneration): void
-    {
-    }
-    /** @noinspection MagicMethodsValidityInspection */
-    public function __phpunit_getInvocationHandler(): \PHPUnit\Framework\MockObject\InvocationHandler
-    {
-    }
-    /** @noinspection MagicMethodsValidityInspection */
-    public function __phpunit_hasMatchers(): bool
-    {
-    }
-    /** @noinspection MagicMethodsValidityInspection */
-    public function __phpunit_verify(bool $unsetInvocationMocker = true): void
-    {
-    }
-    public function expects(\PHPUnit\Framework\MockObject\Rule\InvocationOrder $matcher): \PHPUnit\Framework\MockObject\Builder\InvocationMocker
-    {
-    }
-}
-/**
- * @internal This trait is not covered by the backward compatibility promise for PHPUnit
- */
-trait Method
-{
-    public function method(...$func_get_args)
-    {
-    }
-}
 namespace PHPUnit\Framework\MockObject\Builder;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-interface MethodNameMatch extends \PHPUnit\Framework\MockObject\Builder\ParametersMatch
+interface Identity
 {
     /**
-     * Adds a new method name match and returns the parameter match object for
-     * further matching possibilities.
+     * Sets the identification of the expectation to $id.
      *
-     * @param \PHPUnit\Framework\Constraint\Constraint $constraint Constraint for matching method, if a string is passed it will use the PHPUnit_Framework_Constraint_IsEqual
+     * @note The identifier is unique per mock object.
      *
-     * @return ParametersMatch
+     * @param string $id unique identification of expectation
      */
-    public function method($constraint);
+    public function id($id);
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -8642,27 +8641,17 @@ interface InvocationStubber
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-interface Stub extends \PHPUnit\Framework\MockObject\Builder\Identity
+interface MethodNameMatch extends \PHPUnit\Framework\MockObject\Builder\ParametersMatch
 {
     /**
-     * Stubs the matching method with the stub object $stub. Any invocations of
-     * the matched method will now be handled by the stub instead.
-     */
-    public function will(\PHPUnit\Framework\MockObject\Stub\Stub $stub): \PHPUnit\Framework\MockObject\Builder\Identity;
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-interface Identity
-{
-    /**
-     * Sets the identification of the expectation to $id.
+     * Adds a new method name match and returns the parameter match object for
+     * further matching possibilities.
      *
-     * @note The identifier is unique per mock object.
+     * @param \PHPUnit\Framework\Constraint\Constraint $constraint Constraint for matching method, if a string is passed it will use the PHPUnit_Framework_Constraint_IsEqual
      *
-     * @param string $id unique identification of expectation
+     * @return ParametersMatch
      */
-    public function id($id);
+    public function method($constraint);
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
@@ -8709,37 +8698,96 @@ interface ParametersMatch extends \PHPUnit\Framework\MockObject\Builder\Stub
      */
     public function withAnyParameters();
 }
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+interface Stub extends \PHPUnit\Framework\MockObject\Builder\Identity
+{
+    /**
+     * Stubs the matching method with the stub object $stub. Any invocations of
+     * the matched method will now be handled by the stub instead.
+     */
+    public function will(\PHPUnit\Framework\MockObject\Stub\Stub $stub): \PHPUnit\Framework\MockObject\Builder\Identity;
+}
 namespace PHPUnit\Framework\MockObject\Rule;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class InvokedCount extends \PHPUnit\Framework\MockObject\Rule\InvocationOrder
+final class AnyInvokedCount extends \PHPUnit\Framework\MockObject\Rule\InvocationOrder
 {
-    /**
-     * @param int $expectedCount
-     */
-    public function __construct($expectedCount)
-    {
-    }
-    public function isNever(): bool
-    {
-    }
     public function toString(): string
+    {
+    }
+    public function verify(): void
     {
     }
     public function matches(\PHPUnit\Framework\MockObject\Invocation $invocation): bool
     {
     }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class AnyParameters implements \PHPUnit\Framework\MockObject\Rule\ParametersRule
+{
+    public function toString(): string
+    {
+    }
+    public function apply(\PHPUnit\Framework\MockObject\Invocation $invocation): void
+    {
+    }
+    public function verify(): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @deprecated
+ */
+final class ConsecutiveParameters implements \PHPUnit\Framework\MockObject\Rule\ParametersRule
+{
     /**
-     * Verifies that the current expectation is valid. If everything is OK the
-     * code should just return, if not it must throw an exception.
-     *
+     * @throws \PHPUnit\Framework\Exception
+     */
+    public function __construct(array $parameterGroups)
+    {
+    }
+    public function toString(): string
+    {
+    }
+    /**
      * @throws \PHPUnit\Framework\ExpectationFailedException
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     */
+    public function apply(\PHPUnit\Framework\MockObject\Invocation $invocation): void
+    {
+    }
+    /**
+     * @throws \PHPUnit\Framework\ExpectationFailedException
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      */
     public function verify(): void
     {
     }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+abstract class InvocationOrder implements \PHPUnit\Framework\SelfDescribing, \PHPUnit\Framework\MockObject\Verifiable
+{
+    public function getInvocationCount(): int
+    {
+    }
+    public function hasBeenInvoked(): bool
+    {
+    }
+    final public function invoked(\PHPUnit\Framework\MockObject\Invocation $invocation)
+    {
+    }
+    abstract public function matches(\PHPUnit\Framework\MockObject\Invocation $invocation): bool;
+    abstract protected function invokedDo(\PHPUnit\Framework\MockObject\Invocation $invocation);
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
@@ -8775,15 +8823,136 @@ final class InvokedAtIndex extends \PHPUnit\Framework\MockObject\Rule\Invocation
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class AnyParameters implements \PHPUnit\Framework\MockObject\Rule\ParametersRule
+final class InvokedAtLeastCount extends \PHPUnit\Framework\MockObject\Rule\InvocationOrder
+{
+    /**
+     * @param int $requiredInvocations
+     */
+    public function __construct($requiredInvocations)
+    {
+    }
+    public function toString(): string
+    {
+    }
+    /**
+     * Verifies that the current expectation is valid. If everything is OK the
+     * code should just return, if not it must throw an exception.
+     *
+     * @throws \PHPUnit\Framework\ExpectationFailedException
+     */
+    public function verify(): void
+    {
+    }
+    public function matches(\PHPUnit\Framework\MockObject\Invocation $invocation): bool
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class InvokedAtLeastOnce extends \PHPUnit\Framework\MockObject\Rule\InvocationOrder
 {
     public function toString(): string
     {
     }
-    public function apply(\PHPUnit\Framework\MockObject\Invocation $invocation): void
+    /**
+     * Verifies that the current expectation is valid. If everything is OK the
+     * code should just return, if not it must throw an exception.
+     *
+     * @throws \PHPUnit\Framework\ExpectationFailedException
+     */
+    public function verify(): void
     {
     }
+    public function matches(\PHPUnit\Framework\MockObject\Invocation $invocation): bool
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class InvokedAtMostCount extends \PHPUnit\Framework\MockObject\Rule\InvocationOrder
+{
+    /**
+     * @param int $allowedInvocations
+     */
+    public function __construct($allowedInvocations)
+    {
+    }
+    public function toString(): string
+    {
+    }
+    /**
+     * Verifies that the current expectation is valid. If everything is OK the
+     * code should just return, if not it must throw an exception.
+     *
+     * @throws \PHPUnit\Framework\ExpectationFailedException
+     */
     public function verify(): void
+    {
+    }
+    public function matches(\PHPUnit\Framework\MockObject\Invocation $invocation): bool
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class InvokedCount extends \PHPUnit\Framework\MockObject\Rule\InvocationOrder
+{
+    /**
+     * @param int $expectedCount
+     */
+    public function __construct($expectedCount)
+    {
+    }
+    public function isNever(): bool
+    {
+    }
+    public function toString(): string
+    {
+    }
+    public function matches(\PHPUnit\Framework\MockObject\Invocation $invocation): bool
+    {
+    }
+    /**
+     * Verifies that the current expectation is valid. If everything is OK the
+     * code should just return, if not it must throw an exception.
+     *
+     * @throws \PHPUnit\Framework\ExpectationFailedException
+     */
+    public function verify(): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class MethodName
+{
+    /**
+     * @param \PHPUnit\Framework\Constraint\Constraint|string $constraint
+     *
+     * @throws \PHPUnit\Framework\InvalidArgumentException
+     */
+    public function __construct($constraint)
+    {
+    }
+    public function toString(): string
+    {
+    }
+    /**
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     * @throws \PHPUnit\Framework\ExpectationFailedException
+     */
+    public function matches(\PHPUnit\Framework\MockObject\Invocation $invocation): bool
+    {
+    }
+    /**
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     * @throws \PHPUnit\Framework\ExpectationFailedException
+     */
+    public function matchesName(string $methodName): bool
     {
     }
 }
@@ -8830,226 +8999,14 @@ interface ParametersRule extends \PHPUnit\Framework\SelfDescribing, \PHPUnit\Fra
     public function apply(\PHPUnit\Framework\MockObject\Invocation $invocation): void;
     public function verify(): void;
 }
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-abstract class InvocationOrder implements \PHPUnit\Framework\SelfDescribing, \PHPUnit\Framework\MockObject\Verifiable
-{
-    public function getInvocationCount(): int
-    {
-    }
-    public function hasBeenInvoked(): bool
-    {
-    }
-    final public function invoked(\PHPUnit\Framework\MockObject\Invocation $invocation)
-    {
-    }
-    abstract public function matches(\PHPUnit\Framework\MockObject\Invocation $invocation): bool;
-    abstract protected function invokedDo(\PHPUnit\Framework\MockObject\Invocation $invocation);
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class InvokedAtLeastOnce extends \PHPUnit\Framework\MockObject\Rule\InvocationOrder
-{
-    public function toString(): string
-    {
-    }
-    /**
-     * Verifies that the current expectation is valid. If everything is OK the
-     * code should just return, if not it must throw an exception.
-     *
-     * @throws \PHPUnit\Framework\ExpectationFailedException
-     */
-    public function verify(): void
-    {
-    }
-    public function matches(\PHPUnit\Framework\MockObject\Invocation $invocation): bool
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class InvokedAtLeastCount extends \PHPUnit\Framework\MockObject\Rule\InvocationOrder
-{
-    /**
-     * @param int $requiredInvocations
-     */
-    public function __construct($requiredInvocations)
-    {
-    }
-    public function toString(): string
-    {
-    }
-    /**
-     * Verifies that the current expectation is valid. If everything is OK the
-     * code should just return, if not it must throw an exception.
-     *
-     * @throws \PHPUnit\Framework\ExpectationFailedException
-     */
-    public function verify(): void
-    {
-    }
-    public function matches(\PHPUnit\Framework\MockObject\Invocation $invocation): bool
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class AnyInvokedCount extends \PHPUnit\Framework\MockObject\Rule\InvocationOrder
-{
-    public function toString(): string
-    {
-    }
-    public function verify(): void
-    {
-    }
-    public function matches(\PHPUnit\Framework\MockObject\Invocation $invocation): bool
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class MethodName
-{
-    /**
-     * @param \PHPUnit\Framework\Constraint\Constraint|string $constraint
-     *
-     * @throws \PHPUnit\Framework\InvalidArgumentException
-     */
-    public function __construct($constraint)
-    {
-    }
-    public function toString(): string
-    {
-    }
-    /**
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws \PHPUnit\Framework\ExpectationFailedException
-     */
-    public function matches(\PHPUnit\Framework\MockObject\Invocation $invocation): bool
-    {
-    }
-    /**
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws \PHPUnit\Framework\ExpectationFailedException
-     */
-    public function matchesName(string $methodName): bool
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class InvokedAtMostCount extends \PHPUnit\Framework\MockObject\Rule\InvocationOrder
-{
-    /**
-     * @param int $allowedInvocations
-     */
-    public function __construct($allowedInvocations)
-    {
-    }
-    public function toString(): string
-    {
-    }
-    /**
-     * Verifies that the current expectation is valid. If everything is OK the
-     * code should just return, if not it must throw an exception.
-     *
-     * @throws \PHPUnit\Framework\ExpectationFailedException
-     */
-    public function verify(): void
-    {
-    }
-    public function matches(\PHPUnit\Framework\MockObject\Invocation $invocation): bool
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @deprecated
- */
-final class ConsecutiveParameters implements \PHPUnit\Framework\MockObject\Rule\ParametersRule
-{
-    /**
-     * @throws \PHPUnit\Framework\Exception
-     */
-    public function __construct(array $parameterGroups)
-    {
-    }
-    public function toString(): string
-    {
-    }
-    /**
-     * @throws \PHPUnit\Framework\ExpectationFailedException
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     */
-    public function apply(\PHPUnit\Framework\MockObject\Invocation $invocation): void
-    {
-    }
-    /**
-     * @throws \PHPUnit\Framework\ExpectationFailedException
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     */
-    public function verify(): void
-    {
-    }
-}
 namespace PHPUnit\Framework\MockObject\Stub;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-interface Stub extends \PHPUnit\Framework\SelfDescribing
+final class ConsecutiveCalls implements \PHPUnit\Framework\MockObject\Stub\Stub
 {
-    /**
-     * Fakes the processing of the invocation $invocation by returning a
-     * specific value.
-     *
-     * @param \PHPUnit\Framework\MockObject\Invocation $invocation The invocation which was mocked and matched by the current method and argument matchers
-     */
-    public function invoke(\PHPUnit\Framework\MockObject\Invocation $invocation);
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class ReturnCallback implements \PHPUnit\Framework\MockObject\Stub\Stub
-{
-    public function __construct($callback)
-    {
-    }
-    public function invoke(\PHPUnit\Framework\MockObject\Invocation $invocation)
-    {
-    }
-    public function toString(): string
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class ReturnArgument implements \PHPUnit\Framework\MockObject\Stub\Stub
-{
-    public function __construct($argumentIndex)
-    {
-    }
-    public function invoke(\PHPUnit\Framework\MockObject\Invocation $invocation)
-    {
-    }
-    public function toString(): string
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class ReturnStub implements \PHPUnit\Framework\MockObject\Stub\Stub
-{
-    public function __construct($value)
+    public function __construct(array $stack)
     {
     }
     public function invoke(\PHPUnit\Framework\MockObject\Invocation $invocation)
@@ -9080,9 +9037,9 @@ final class Exception implements \PHPUnit\Framework\MockObject\Stub\Stub
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class ConsecutiveCalls implements \PHPUnit\Framework\MockObject\Stub\Stub
+final class ReturnArgument implements \PHPUnit\Framework\MockObject\Stub\Stub
 {
-    public function __construct(array $stack)
+    public function __construct($argumentIndex)
     {
     }
     public function invoke(\PHPUnit\Framework\MockObject\Invocation $invocation)
@@ -9095,9 +9052,24 @@ final class ConsecutiveCalls implements \PHPUnit\Framework\MockObject\Stub\Stub
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class ReturnValueMap implements \PHPUnit\Framework\MockObject\Stub\Stub
+final class ReturnCallback implements \PHPUnit\Framework\MockObject\Stub\Stub
 {
-    public function __construct(array $valueMap)
+    public function __construct($callback)
+    {
+    }
+    public function invoke(\PHPUnit\Framework\MockObject\Invocation $invocation)
+    {
+    }
+    public function toString(): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class ReturnReference implements \PHPUnit\Framework\MockObject\Stub\Stub
+{
+    public function __construct(&$reference)
     {
     }
     public function invoke(\PHPUnit\Framework\MockObject\Invocation $invocation)
@@ -9125,9 +9097,9 @@ final class ReturnSelf implements \PHPUnit\Framework\MockObject\Stub\Stub
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class ReturnReference implements \PHPUnit\Framework\MockObject\Stub\Stub
+final class ReturnStub implements \PHPUnit\Framework\MockObject\Stub\Stub
 {
-    public function __construct(&$reference)
+    public function __construct($value)
     {
     }
     public function invoke(\PHPUnit\Framework\MockObject\Invocation $invocation)
@@ -9137,400 +9109,36 @@ final class ReturnReference implements \PHPUnit\Framework\MockObject\Stub\Stub
     {
     }
 }
-namespace PHPUnit\Runner;
-
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class Version
-{
-    /**
-     * Returns the current version of PHPUnit.
-     *
-     * @phan-return non-empty-string
-     */
-    public static function id(): string
-    {
-    }
-    /**
-     * @phan-return non-empty-string
-     */
-    public static function series(): string
-    {
-    }
-    /**
-     * @phan-return non-empty-string
-     */
-    public static function getVersionString(): string
-    {
-    }
-}
-/**
- * This interface, as well as the associated mechanism for extending PHPUnit,
- * will be removed in PHPUnit 10. There is no alternative available in this
- * version of PHPUnit.
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @see https://github.com/sebastianbergmann/phpunit/issues/4676
- */
-interface AfterIncompleteTestHook extends \PHPUnit\Runner\TestHook
-{
-    public function executeAfterIncompleteTest(string $test, string $message, float $time): void;
-}
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class TestListenerAdapter implements \PHPUnit\Framework\TestListener
+final class ReturnValueMap implements \PHPUnit\Framework\MockObject\Stub\Stub
 {
-    public function add(\PHPUnit\Runner\TestHook $hook): void
+    public function __construct(array $valueMap)
     {
     }
-    public function startTest(\PHPUnit\Framework\Test $test): void
+    public function invoke(\PHPUnit\Framework\MockObject\Invocation $invocation)
     {
     }
-    public function addError(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
-    {
-    }
-    public function addWarning(\PHPUnit\Framework\Test $test, \PHPUnit\Framework\Warning $e, float $time): void
-    {
-    }
-    public function addFailure(\PHPUnit\Framework\Test $test, \PHPUnit\Framework\AssertionFailedError $e, float $time): void
-    {
-    }
-    public function addIncompleteTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
-    {
-    }
-    public function addRiskyTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
-    {
-    }
-    public function addSkippedTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
-    {
-    }
-    public function endTest(\PHPUnit\Framework\Test $test, float $time): void
-    {
-    }
-    public function startTestSuite(\PHPUnit\Framework\TestSuite $suite): void
-    {
-    }
-    public function endTestSuite(\PHPUnit\Framework\TestSuite $suite): void
-    {
-    }
-}
-/**
- * This interface, as well as the associated mechanism for extending PHPUnit,
- * will be removed in PHPUnit 10. There is no alternative available in this
- * version of PHPUnit.
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @see https://github.com/sebastianbergmann/phpunit/issues/4676
- */
-interface AfterLastTestHook extends \PHPUnit\Runner\Hook
-{
-    public function executeAfterLastTest(): void;
-}
-/**
- * This interface, as well as the associated mechanism for extending PHPUnit,
- * will be removed in PHPUnit 10. There is no alternative available in this
- * version of PHPUnit.
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @see https://github.com/sebastianbergmann/phpunit/issues/4676
- */
-interface AfterSuccessfulTestHook extends \PHPUnit\Runner\TestHook
-{
-    public function executeAfterSuccessfulTest(string $test, float $time): void;
-}
-/**
- * This interface, as well as the associated mechanism for extending PHPUnit,
- * will be removed in PHPUnit 10. There is no alternative available in this
- * version of PHPUnit.
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @see https://github.com/sebastianbergmann/phpunit/issues/4676
- */
-interface BeforeFirstTestHook extends \PHPUnit\Runner\Hook
-{
-    public function executeBeforeFirstTest(): void;
-}
-/**
- * This interface, as well as the associated mechanism for extending PHPUnit,
- * will be removed in PHPUnit 10. There is no alternative available in this
- * version of PHPUnit.
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @see https://github.com/sebastianbergmann/phpunit/issues/4676
- */
-interface AfterSkippedTestHook extends \PHPUnit\Runner\TestHook
-{
-    public function executeAfterSkippedTest(string $test, string $message, float $time): void;
-}
-/**
- * This interface, as well as the associated mechanism for extending PHPUnit,
- * will be removed in PHPUnit 10. There is no alternative available in this
- * version of PHPUnit.
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @see https://github.com/sebastianbergmann/phpunit/issues/4676
- */
-interface AfterTestWarningHook extends \PHPUnit\Runner\TestHook
-{
-    public function executeAfterTestWarning(string $test, string $message, float $time): void;
-}
-/**
- * This interface, as well as the associated mechanism for extending PHPUnit,
- * will be removed in PHPUnit 10. There is no alternative available in this
- * version of PHPUnit.
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @see https://github.com/sebastianbergmann/phpunit/issues/4676
- */
-interface AfterRiskyTestHook extends \PHPUnit\Runner\TestHook
-{
-    public function executeAfterRiskyTest(string $test, string $message, float $time): void;
-}
-/**
- * This interface, as well as the associated mechanism for extending PHPUnit,
- * will be removed in PHPUnit 10. There is no alternative available in this
- * version of PHPUnit.
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @see https://github.com/sebastianbergmann/phpunit/issues/4676
- */
-interface AfterTestErrorHook extends \PHPUnit\Runner\TestHook
-{
-    public function executeAfterTestError(string $test, string $message, float $time): void;
-}
-/**
- * This interface, as well as the associated mechanism for extending PHPUnit,
- * will be removed in PHPUnit 10. There is no alternative available in this
- * version of PHPUnit.
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @see https://github.com/sebastianbergmann/phpunit/issues/4676
- */
-interface TestHook extends \PHPUnit\Runner\Hook
-{
-}
-/**
- * This interface, as well as the associated mechanism for extending PHPUnit,
- * will be removed in PHPUnit 10. There is no alternative available in this
- * version of PHPUnit.
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @see https://github.com/sebastianbergmann/phpunit/issues/4676
- */
-interface AfterTestHook extends \PHPUnit\Runner\TestHook
-{
-    /**
-     * This hook will fire after any test, regardless of the result.
-     *
-     * For more fine grained control, have a look at the other hooks
-     * that extend PHPUnit\Runner\Hook.
-     */
-    public function executeAfterTest(string $test, float $time): void;
-}
-/**
- * This interface, as well as the associated mechanism for extending PHPUnit,
- * will be removed in PHPUnit 10. There is no alternative available in this
- * version of PHPUnit.
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @see https://github.com/sebastianbergmann/phpunit/issues/4676
- */
-interface BeforeTestHook extends \PHPUnit\Runner\TestHook
-{
-    public function executeBeforeTest(string $test): void;
-}
-/**
- * This interface, as well as the associated mechanism for extending PHPUnit,
- * will be removed in PHPUnit 10. There is no alternative available in this
- * version of PHPUnit.
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @see https://github.com/sebastianbergmann/phpunit/issues/4676
- */
-interface AfterTestFailureHook extends \PHPUnit\Runner\TestHook
-{
-    public function executeAfterTestFailure(string $test, string $message, float $time): void;
-}
-/**
- * This interface, as well as the associated mechanism for extending PHPUnit,
- * will be removed in PHPUnit 10. There is no alternative available in this
- * version of PHPUnit.
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @see https://github.com/sebastianbergmann/phpunit/issues/4676
- */
-interface Hook
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class PhptTestCase implements \PHPUnit\Framework\Reorderable, \PHPUnit\Framework\SelfDescribing, \PHPUnit\Framework\Test
-{
-    /**
-     * Constructs a test case with the given filename.
-     *
-     * @throws Exception
-     */
-    public function __construct(string $filename, ?\PHPUnit\Util\PHP\AbstractPhpProcess $phpUtil = null)
-    {
-    }
-    /**
-     * Counts the number of test cases executed by run(TestResult result).
-     */
-    public function count(): int
-    {
-    }
-    /**
-     * Runs a test and collects its result in a TestResult instance.
-     *
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws Exception
-     * @throws \SebastianBergmann\CodeCoverage\InvalidArgumentException
-     * @throws \SebastianBergmann\CodeCoverage\UnintentionallyCoveredCodeException
-     */
-    public function run(?\PHPUnit\Framework\TestResult $result = null): \PHPUnit\Framework\TestResult
-    {
-    }
-    /**
-     * Returns the name of the test case.
-     */
-    public function getName(): string
-    {
-    }
-    /**
-     * Returns a string representation of the test case.
-     */
     public function toString(): string
     {
     }
-    public function usesDataProvider(): bool
-    {
-    }
-    public function getNumAssertions(): int
-    {
-    }
-    public function getActualOutput(): string
-    {
-    }
-    public function hasOutput(): bool
-    {
-    }
-    public function sortId(): string
-    {
-    }
-    /**
-     * @return list<\PHPUnit\Framework\ExecutionOrderDependency>
-     */
-    public function provides(): array
-    {
-    }
-    /**
-     * @return list<\PHPUnit\Framework\ExecutionOrderDependency>
-     */
-    public function requires(): array
-    {
-    }
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class TestSuiteSorter
+interface Stub extends \PHPUnit\Framework\SelfDescribing
 {
     /**
-     * @var int
-     */
-    public const ORDER_DEFAULT = 0;
-    /**
-     * @var int
-     */
-    public const ORDER_RANDOMIZED = 1;
-    /**
-     * @var int
-     */
-    public const ORDER_REVERSED = 2;
-    /**
-     * @var int
-     */
-    public const ORDER_DEFECTS_FIRST = 3;
-    /**
-     * @var int
-     */
-    public const ORDER_DURATION = 4;
-    /**
-     * Order tests by @size annotation 'small', 'medium', 'large'.
+     * Fakes the processing of the invocation $invocation by returning a
+     * specific value.
      *
-     * @var int
+     * @param \PHPUnit\Framework\MockObject\Invocation $invocation The invocation which was mocked and matched by the current method and argument matchers
      */
-    public const ORDER_SIZE = 5;
-    public function __construct(?\PHPUnit\Runner\TestResultCache $cache = null)
-    {
-    }
-    /**
-     * @throws Exception
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     */
-    public function reorderTestsInSuite(\PHPUnit\Framework\Test $suite, int $order, bool $resolveDependencies, int $orderDefects, bool $isRootTestSuite = true): void
-    {
-    }
-    public function getOriginalExecutionOrder(): array
-    {
-    }
-    public function getExecutionOrder(): array
-    {
-    }
+    public function invoke(\PHPUnit\Framework\MockObject\Invocation $invocation);
 }
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class ResultCacheExtension implements \PHPUnit\Runner\AfterIncompleteTestHook, \PHPUnit\Runner\AfterLastTestHook, \PHPUnit\Runner\AfterRiskyTestHook, \PHPUnit\Runner\AfterSkippedTestHook, \PHPUnit\Runner\AfterSuccessfulTestHook, \PHPUnit\Runner\AfterTestErrorHook, \PHPUnit\Runner\AfterTestFailureHook, \PHPUnit\Runner\AfterTestWarningHook
-{
-    public function __construct(\PHPUnit\Runner\TestResultCache $cache)
-    {
-    }
-    public function flush(): void
-    {
-    }
-    public function executeAfterSuccessfulTest(string $test, float $time): void
-    {
-    }
-    public function executeAfterIncompleteTest(string $test, string $message, float $time): void
-    {
-    }
-    public function executeAfterRiskyTest(string $test, string $message, float $time): void
-    {
-    }
-    public function executeAfterSkippedTest(string $test, string $message, float $time): void
-    {
-    }
-    public function executeAfterTestError(string $test, string $message, float $time): void
-    {
-    }
-    public function executeAfterTestFailure(string $test, string $message, float $time): void
-    {
-    }
-    public function executeAfterTestWarning(string $test, string $message, float $time): void
-    {
-    }
-    public function executeAfterLastTest(): void
-    {
-    }
-}
+namespace PHPUnit\Runner;
+
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
@@ -9611,63 +9219,6 @@ abstract class BaseTestRunner
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class Exception extends \RuntimeException implements \PHPUnit\Exception
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class NullTestResultCache implements \PHPUnit\Runner\TestResultCache
-{
-    public function setState(string $testName, int $state): void
-    {
-    }
-    public function getState(string $testName): int
-    {
-    }
-    public function setTime(string $testName, float $time): void
-    {
-    }
-    public function getTime(string $testName): float
-    {
-    }
-    public function load(): void
-    {
-    }
-    public function persist(): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @deprecated see https://github.com/sebastianbergmann/phpunit/issues/4039
- */
-final class StandardTestSuiteLoader implements \PHPUnit\Runner\TestSuiteLoader
-{
-    /**
-     * @throws Exception
-     */
-    public function load(string $suiteClassFile): \ReflectionClass
-    {
-    }
-    public function reload(\ReflectionClass $aClass): \ReflectionClass
-    {
-    }
-}
-/**
- * @deprecated see https://github.com/sebastianbergmann/phpunit/issues/4039
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-interface TestSuiteLoader
-{
-    public function load(string $suiteClassFile): \ReflectionClass;
-    public function reload(\ReflectionClass $aClass): \ReflectionClass;
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
 final class DefaultTestResultCache implements \PHPUnit\Runner\TestResultCache
 {
     public function __construct(?string $filepath = null)
@@ -9698,6 +9249,371 @@ final class DefaultTestResultCache implements \PHPUnit\Runner\TestResultCache
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
+final class Exception extends \RuntimeException implements \PHPUnit\Exception
+{
+}
+/**
+ * This interface, as well as the associated mechanism for extending PHPUnit,
+ * will be removed in PHPUnit 10. There is no alternative available in this
+ * version of PHPUnit.
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @see https://github.com/sebastianbergmann/phpunit/issues/4676
+ */
+interface AfterIncompleteTestHook extends \PHPUnit\Runner\TestHook
+{
+    public function executeAfterIncompleteTest(string $test, string $message, float $time): void;
+}
+/**
+ * This interface, as well as the associated mechanism for extending PHPUnit,
+ * will be removed in PHPUnit 10. There is no alternative available in this
+ * version of PHPUnit.
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @see https://github.com/sebastianbergmann/phpunit/issues/4676
+ */
+interface AfterLastTestHook extends \PHPUnit\Runner\Hook
+{
+    public function executeAfterLastTest(): void;
+}
+/**
+ * This interface, as well as the associated mechanism for extending PHPUnit,
+ * will be removed in PHPUnit 10. There is no alternative available in this
+ * version of PHPUnit.
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @see https://github.com/sebastianbergmann/phpunit/issues/4676
+ */
+interface AfterRiskyTestHook extends \PHPUnit\Runner\TestHook
+{
+    public function executeAfterRiskyTest(string $test, string $message, float $time): void;
+}
+/**
+ * This interface, as well as the associated mechanism for extending PHPUnit,
+ * will be removed in PHPUnit 10. There is no alternative available in this
+ * version of PHPUnit.
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @see https://github.com/sebastianbergmann/phpunit/issues/4676
+ */
+interface AfterSkippedTestHook extends \PHPUnit\Runner\TestHook
+{
+    public function executeAfterSkippedTest(string $test, string $message, float $time): void;
+}
+/**
+ * This interface, as well as the associated mechanism for extending PHPUnit,
+ * will be removed in PHPUnit 10. There is no alternative available in this
+ * version of PHPUnit.
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @see https://github.com/sebastianbergmann/phpunit/issues/4676
+ */
+interface AfterSuccessfulTestHook extends \PHPUnit\Runner\TestHook
+{
+    public function executeAfterSuccessfulTest(string $test, float $time): void;
+}
+/**
+ * This interface, as well as the associated mechanism for extending PHPUnit,
+ * will be removed in PHPUnit 10. There is no alternative available in this
+ * version of PHPUnit.
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @see https://github.com/sebastianbergmann/phpunit/issues/4676
+ */
+interface AfterTestErrorHook extends \PHPUnit\Runner\TestHook
+{
+    public function executeAfterTestError(string $test, string $message, float $time): void;
+}
+/**
+ * This interface, as well as the associated mechanism for extending PHPUnit,
+ * will be removed in PHPUnit 10. There is no alternative available in this
+ * version of PHPUnit.
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @see https://github.com/sebastianbergmann/phpunit/issues/4676
+ */
+interface AfterTestFailureHook extends \PHPUnit\Runner\TestHook
+{
+    public function executeAfterTestFailure(string $test, string $message, float $time): void;
+}
+/**
+ * This interface, as well as the associated mechanism for extending PHPUnit,
+ * will be removed in PHPUnit 10. There is no alternative available in this
+ * version of PHPUnit.
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @see https://github.com/sebastianbergmann/phpunit/issues/4676
+ */
+interface AfterTestHook extends \PHPUnit\Runner\TestHook
+{
+    /**
+     * This hook will fire after any test, regardless of the result.
+     *
+     * For more fine grained control, have a look at the other hooks
+     * that extend PHPUnit\Runner\Hook.
+     */
+    public function executeAfterTest(string $test, float $time): void;
+}
+/**
+ * This interface, as well as the associated mechanism for extending PHPUnit,
+ * will be removed in PHPUnit 10. There is no alternative available in this
+ * version of PHPUnit.
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @see https://github.com/sebastianbergmann/phpunit/issues/4676
+ */
+interface AfterTestWarningHook extends \PHPUnit\Runner\TestHook
+{
+    public function executeAfterTestWarning(string $test, string $message, float $time): void;
+}
+/**
+ * This interface, as well as the associated mechanism for extending PHPUnit,
+ * will be removed in PHPUnit 10. There is no alternative available in this
+ * version of PHPUnit.
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @see https://github.com/sebastianbergmann/phpunit/issues/4676
+ */
+interface BeforeFirstTestHook extends \PHPUnit\Runner\Hook
+{
+    public function executeBeforeFirstTest(): void;
+}
+/**
+ * This interface, as well as the associated mechanism for extending PHPUnit,
+ * will be removed in PHPUnit 10. There is no alternative available in this
+ * version of PHPUnit.
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @see https://github.com/sebastianbergmann/phpunit/issues/4676
+ */
+interface BeforeTestHook extends \PHPUnit\Runner\TestHook
+{
+    public function executeBeforeTest(string $test): void;
+}
+/**
+ * This interface, as well as the associated mechanism for extending PHPUnit,
+ * will be removed in PHPUnit 10. There is no alternative available in this
+ * version of PHPUnit.
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @see https://github.com/sebastianbergmann/phpunit/issues/4676
+ */
+interface Hook
+{
+}
+/**
+ * This interface, as well as the associated mechanism for extending PHPUnit,
+ * will be removed in PHPUnit 10. There is no alternative available in this
+ * version of PHPUnit.
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @see https://github.com/sebastianbergmann/phpunit/issues/4676
+ */
+interface TestHook extends \PHPUnit\Runner\Hook
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class TestListenerAdapter implements \PHPUnit\Framework\TestListener
+{
+    public function add(\PHPUnit\Runner\TestHook $hook): void
+    {
+    }
+    public function startTest(\PHPUnit\Framework\Test $test): void
+    {
+    }
+    public function addError(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
+    {
+    }
+    public function addWarning(\PHPUnit\Framework\Test $test, \PHPUnit\Framework\Warning $e, float $time): void
+    {
+    }
+    public function addFailure(\PHPUnit\Framework\Test $test, \PHPUnit\Framework\AssertionFailedError $e, float $time): void
+    {
+    }
+    public function addIncompleteTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
+    {
+    }
+    public function addRiskyTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
+    {
+    }
+    public function addSkippedTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
+    {
+    }
+    public function endTest(\PHPUnit\Framework\Test $test, float $time): void
+    {
+    }
+    public function startTestSuite(\PHPUnit\Framework\TestSuite $suite): void
+    {
+    }
+    public function endTestSuite(\PHPUnit\Framework\TestSuite $suite): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class NullTestResultCache implements \PHPUnit\Runner\TestResultCache
+{
+    public function setState(string $testName, int $state): void
+    {
+    }
+    public function getState(string $testName): int
+    {
+    }
+    public function setTime(string $testName, float $time): void
+    {
+    }
+    public function getTime(string $testName): float
+    {
+    }
+    public function load(): void
+    {
+    }
+    public function persist(): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class PhptTestCase implements \PHPUnit\Framework\Reorderable, \PHPUnit\Framework\SelfDescribing, \PHPUnit\Framework\Test
+{
+    /**
+     * Constructs a test case with the given filename.
+     *
+     * @throws Exception
+     */
+    public function __construct(string $filename, ?\PHPUnit\Util\PHP\AbstractPhpProcess $phpUtil = null)
+    {
+    }
+    /**
+     * Counts the number of test cases executed by run(TestResult result).
+     */
+    public function count(): int
+    {
+    }
+    /**
+     * Runs a test and collects its result in a TestResult instance.
+     *
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     * @throws Exception
+     * @throws \SebastianBergmann\CodeCoverage\InvalidArgumentException
+     * @throws \SebastianBergmann\CodeCoverage\UnintentionallyCoveredCodeException
+     */
+    public function run(?\PHPUnit\Framework\TestResult $result = null): \PHPUnit\Framework\TestResult
+    {
+    }
+    /**
+     * Returns the name of the test case.
+     */
+    public function getName(): string
+    {
+    }
+    /**
+     * Returns a string representation of the test case.
+     */
+    public function toString(): string
+    {
+    }
+    public function usesDataProvider(): bool
+    {
+    }
+    public function getNumAssertions(): int
+    {
+    }
+    public function getActualOutput(): string
+    {
+    }
+    public function hasOutput(): bool
+    {
+    }
+    public function sortId(): string
+    {
+    }
+    /**
+     * @return list<\PHPUnit\Framework\ExecutionOrderDependency>
+     */
+    public function provides(): array
+    {
+    }
+    /**
+     * @return list<\PHPUnit\Framework\ExecutionOrderDependency>
+     */
+    public function requires(): array
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class ResultCacheExtension implements \PHPUnit\Runner\AfterIncompleteTestHook, \PHPUnit\Runner\AfterLastTestHook, \PHPUnit\Runner\AfterRiskyTestHook, \PHPUnit\Runner\AfterSkippedTestHook, \PHPUnit\Runner\AfterSuccessfulTestHook, \PHPUnit\Runner\AfterTestErrorHook, \PHPUnit\Runner\AfterTestFailureHook, \PHPUnit\Runner\AfterTestWarningHook
+{
+    public function __construct(\PHPUnit\Runner\TestResultCache $cache)
+    {
+    }
+    public function flush(): void
+    {
+    }
+    public function executeAfterSuccessfulTest(string $test, float $time): void
+    {
+    }
+    public function executeAfterIncompleteTest(string $test, string $message, float $time): void
+    {
+    }
+    public function executeAfterRiskyTest(string $test, string $message, float $time): void
+    {
+    }
+    public function executeAfterSkippedTest(string $test, string $message, float $time): void
+    {
+    }
+    public function executeAfterTestError(string $test, string $message, float $time): void
+    {
+    }
+    public function executeAfterTestFailure(string $test, string $message, float $time): void
+    {
+    }
+    public function executeAfterTestWarning(string $test, string $message, float $time): void
+    {
+    }
+    public function executeAfterLastTest(): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @deprecated see https://github.com/sebastianbergmann/phpunit/issues/4039
+ */
+final class StandardTestSuiteLoader implements \PHPUnit\Runner\TestSuiteLoader
+{
+    /**
+     * @throws Exception
+     */
+    public function load(string $suiteClassFile): \ReflectionClass
+    {
+    }
+    public function reload(\ReflectionClass $aClass): \ReflectionClass
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
 interface TestResultCache
 {
     public function setState(string $testName, int $state): void;
@@ -9706,6 +9622,90 @@ interface TestResultCache
     public function getTime(string $testName): float;
     public function load(): void;
     public function persist(): void;
+}
+/**
+ * @deprecated see https://github.com/sebastianbergmann/phpunit/issues/4039
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+interface TestSuiteLoader
+{
+    public function load(string $suiteClassFile): \ReflectionClass;
+    public function reload(\ReflectionClass $aClass): \ReflectionClass;
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class TestSuiteSorter
+{
+    /**
+     * @var int
+     */
+    public const ORDER_DEFAULT = 0;
+    /**
+     * @var int
+     */
+    public const ORDER_RANDOMIZED = 1;
+    /**
+     * @var int
+     */
+    public const ORDER_REVERSED = 2;
+    /**
+     * @var int
+     */
+    public const ORDER_DEFECTS_FIRST = 3;
+    /**
+     * @var int
+     */
+    public const ORDER_DURATION = 4;
+    /**
+     * Order tests by @size annotation 'small', 'medium', 'large'.
+     *
+     * @var int
+     */
+    public const ORDER_SIZE = 5;
+    public function __construct(?\PHPUnit\Runner\TestResultCache $cache = null)
+    {
+    }
+    /**
+     * @throws Exception
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     */
+    public function reorderTestsInSuite(\PHPUnit\Framework\Test $suite, int $order, bool $resolveDependencies, int $orderDefects, bool $isRootTestSuite = true): void
+    {
+    }
+    public function getOriginalExecutionOrder(): array
+    {
+    }
+    public function getExecutionOrder(): array
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class Version
+{
+    /**
+     * Returns the current version of PHPUnit.
+     *
+     * @phan-return non-empty-string
+     */
+    public static function id(): string
+    {
+    }
+    /**
+     * @phan-return non-empty-string
+     */
+    public static function series(): string
+    {
+    }
+    /**
+     * @phan-return non-empty-string
+     */
+    public static function getVersionString(): string
+    {
+    }
 }
 namespace PHPUnit\Runner\Extension;
 
@@ -9746,6 +9746,12 @@ namespace PHPUnit\Runner\Filter;
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
+final class ExcludeGroupFilterIterator extends \PHPUnit\Runner\Filter\GroupFilterIterator
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
 final class Factory
 {
     /**
@@ -9757,24 +9763,6 @@ final class Factory
     {
     }
     public function factory(\Iterator $iterator, \PHPUnit\Framework\TestSuite $suite): \FilterIterator
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class NameFilterIterator extends \RecursiveFilterIterator
-{
-    /**
-     * @throws \Exception
-     */
-    public function __construct(\RecursiveIterator $iterator, string $filter)
-    {
-    }
-    /**
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     */
-    public function accept(): bool
     {
     }
 }
@@ -9798,82 +9786,29 @@ abstract class GroupFilterIterator extends \RecursiveFilterIterator
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class ExcludeGroupFilterIterator extends \PHPUnit\Runner\Filter\GroupFilterIterator
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
 final class IncludeGroupFilterIterator extends \PHPUnit\Runner\Filter\GroupFilterIterator
 {
 }
-namespace PHPUnit\TextUI;
-
-/**
- * @internal This interface is not covered by the backward compatibility promise for PHPUnit
- */
-final class RuntimeException extends \RuntimeException implements \PHPUnit\TextUI\Exception
-{
-}
-/**
- * @internal This interface is not covered by the backward compatibility promise for PHPUnit
- */
-final class TestDirectoryNotFoundException extends \RuntimeException implements \PHPUnit\TextUI\Exception
-{
-    public function __construct(string $path)
-    {
-    }
-}
-/**
- * @internal This interface is not covered by the backward compatibility promise for PHPUnit
- */
-interface Exception extends \Throwable
-{
-}
-/**
- * @internal This interface is not covered by the backward compatibility promise for PHPUnit
- */
-final class TestFileNotFoundException extends \RuntimeException implements \PHPUnit\TextUI\Exception
-{
-    public function __construct(string $path)
-    {
-    }
-}
-/**
- * @internal This interface is not covered by the backward compatibility promise for PHPUnit
- */
-final class ReflectionException extends \RuntimeException implements \PHPUnit\TextUI\Exception
-{
-}
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class TestRunner extends \PHPUnit\Runner\BaseTestRunner
+final class NameFilterIterator extends \RecursiveFilterIterator
 {
-    public const SUCCESS_EXIT = 0;
-    public const FAILURE_EXIT = 1;
-    public const EXCEPTION_EXIT = 2;
-    public function __construct(?\PHPUnit\Runner\TestSuiteLoader $loader = null, ?\SebastianBergmann\CodeCoverage\Filter $filter = null)
+    /**
+     * @throws \Exception
+     */
+    public function __construct(\RecursiveIterator $iterator, string $filter)
     {
     }
     /**
-     * @throws \PHPUnit\Runner\Exception
-     * @throws \PHPUnit\Framework\Exception
-     * @throws XmlConfiguration\Exception
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      */
-    public function run(\PHPUnit\Framework\TestSuite $suite, array $arguments = [], array $warnings = [], bool $exit = true): \PHPUnit\Framework\TestResult
-    {
-    }
-    /**
-     * Returns the loader to be used.
-     */
-    public function getLoader(): \PHPUnit\Runner\TestSuiteLoader
-    {
-    }
-    public function addExtension(\PHPUnit\Runner\Hook $extension): void
+    public function accept(): bool
     {
     }
 }
+namespace PHPUnit\TextUI;
+
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
@@ -9988,43 +9923,6 @@ class Command
      * Custom callback for test suite discovery.
      */
     protected function handleCustomTestSuite(): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class Help
-{
-    public function __construct(?int $width = null, ?bool $withColor = null)
-    {
-    }
-    /**
-     * Write the help file to the CLI, adapting width and colors to the console.
-     */
-    public function writeToConsole(): void
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-interface ResultPrinter extends \PHPUnit\Framework\TestListener
-{
-    public function printResult(\PHPUnit\Framework\TestResult $result): void;
-    public function write(string $buffer): void;
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class TestSuiteMapper
-{
-    /**
-     * @throws RuntimeException
-     * @throws TestDirectoryNotFoundException
-     * @throws TestFileNotFoundException
-     */
-    public function map(\PHPUnit\TextUI\XmlConfiguration\TestSuiteCollection $configuration, string $filter): \PHPUnit\Framework\TestSuite
     {
     }
 }
@@ -10217,8 +10115,119 @@ class DefaultResultPrinter extends \PHPUnit\Util\Printer implements \PHPUnit\Tex
     {
     }
 }
+/**
+ * @internal This interface is not covered by the backward compatibility promise for PHPUnit
+ */
+interface Exception extends \Throwable
+{
+}
+/**
+ * @internal This interface is not covered by the backward compatibility promise for PHPUnit
+ */
+final class ReflectionException extends \RuntimeException implements \PHPUnit\TextUI\Exception
+{
+}
+/**
+ * @internal This interface is not covered by the backward compatibility promise for PHPUnit
+ */
+final class RuntimeException extends \RuntimeException implements \PHPUnit\TextUI\Exception
+{
+}
+/**
+ * @internal This interface is not covered by the backward compatibility promise for PHPUnit
+ */
+final class TestDirectoryNotFoundException extends \RuntimeException implements \PHPUnit\TextUI\Exception
+{
+    public function __construct(string $path)
+    {
+    }
+}
+/**
+ * @internal This interface is not covered by the backward compatibility promise for PHPUnit
+ */
+final class TestFileNotFoundException extends \RuntimeException implements \PHPUnit\TextUI\Exception
+{
+    public function __construct(string $path)
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class Help
+{
+    public function __construct(?int $width = null, ?bool $withColor = null)
+    {
+    }
+    /**
+     * Write the help file to the CLI, adapting width and colors to the console.
+     */
+    public function writeToConsole(): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+interface ResultPrinter extends \PHPUnit\Framework\TestListener
+{
+    public function printResult(\PHPUnit\Framework\TestResult $result): void;
+    public function write(string $buffer): void;
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class TestRunner extends \PHPUnit\Runner\BaseTestRunner
+{
+    public const SUCCESS_EXIT = 0;
+    public const FAILURE_EXIT = 1;
+    public const EXCEPTION_EXIT = 2;
+    public function __construct(?\PHPUnit\Runner\TestSuiteLoader $loader = null, ?\SebastianBergmann\CodeCoverage\Filter $filter = null)
+    {
+    }
+    /**
+     * @throws \PHPUnit\Runner\Exception
+     * @throws \PHPUnit\Framework\Exception
+     * @throws XmlConfiguration\Exception
+     */
+    public function run(\PHPUnit\Framework\TestSuite $suite, array $arguments = [], array $warnings = [], bool $exit = true): \PHPUnit\Framework\TestResult
+    {
+    }
+    /**
+     * Returns the loader to be used.
+     */
+    public function getLoader(): \PHPUnit\Runner\TestSuiteLoader
+    {
+    }
+    public function addExtension(\PHPUnit\Runner\Hook $extension): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class TestSuiteMapper
+{
+    /**
+     * @throws RuntimeException
+     * @throws TestDirectoryNotFoundException
+     * @throws TestFileNotFoundException
+     */
+    public function map(\PHPUnit\TextUI\XmlConfiguration\TestSuiteCollection $configuration, string $filter): \PHPUnit\Framework\TestSuite
+    {
+    }
+}
 namespace PHPUnit\TextUI\CliArguments;
 
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class Builder
+{
+    public function fromParameters(array $parameters, array $additionalLongOptions): \PHPUnit\TextUI\CliArguments\Configuration
+    {
+    }
+}
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  *
@@ -11049,6 +11058,12 @@ final class Configuration
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
+final class Exception extends \RuntimeException implements \PHPUnit\Exception
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
 final class Mapper
 {
     /**
@@ -11058,281 +11073,8 @@ final class Mapper
     {
     }
 }
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class Builder
-{
-    public function fromParameters(array $parameters, array $additionalLongOptions): \PHPUnit\TextUI\CliArguments\Configuration
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class Exception extends \RuntimeException implements \PHPUnit\Exception
-{
-}
 namespace PHPUnit\TextUI\XmlConfiguration;
 
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
- *
- * @template-implements \IteratorAggregate<int, TestFile>
- */
-final class TestFileCollection implements \Countable, \IteratorAggregate
-{
-    /**
-     * @param TestFile[] $files
-     */
-    public static function fromArray(array $files): self
-    {
-    }
-    /**
-     * @return TestFile[]
-     */
-    public function asArray(): array
-    {
-    }
-    public function count(): int
-    {
-    }
-    public function getIterator(): \PHPUnit\TextUI\XmlConfiguration\TestFileCollectionIterator
-    {
-    }
-    public function isEmpty(): bool
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
- *
- * @template-implements \IteratorAggregate<int, TestDirectory>
- */
-final class TestDirectoryCollection implements \Countable, \IteratorAggregate
-{
-    /**
-     * @param TestDirectory[] $directories
-     */
-    public static function fromArray(array $directories): self
-    {
-    }
-    /**
-     * @return TestDirectory[]
-     */
-    public function asArray(): array
-    {
-    }
-    public function count(): int
-    {
-    }
-    public function getIterator(): \PHPUnit\TextUI\XmlConfiguration\TestDirectoryCollectionIterator
-    {
-    }
-    public function isEmpty(): bool
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
- */
-final class TestDirectory
-{
-    public function __construct(string $path, string $prefix, string $suffix, string $phpVersion, \PHPUnit\Util\VersionComparisonOperator $phpVersionOperator)
-    {
-    }
-    public function path(): string
-    {
-    }
-    public function prefix(): string
-    {
-    }
-    public function suffix(): string
-    {
-    }
-    public function phpVersion(): string
-    {
-    }
-    public function phpVersionOperator(): \PHPUnit\Util\VersionComparisonOperator
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @template-implements \Iterator<int, TestFile>
- */
-final class TestFileCollectionIterator implements \Countable, \Iterator
-{
-    public function __construct(\PHPUnit\TextUI\XmlConfiguration\TestFileCollection $files)
-    {
-    }
-    public function count(): int
-    {
-    }
-    public function rewind(): void
-    {
-    }
-    public function valid(): bool
-    {
-    }
-    public function key(): int
-    {
-    }
-    public function current(): \PHPUnit\TextUI\XmlConfiguration\TestFile
-    {
-    }
-    public function next(): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
- */
-final class TestSuite
-{
-    public function __construct(string $name, \PHPUnit\TextUI\XmlConfiguration\TestDirectoryCollection $directories, \PHPUnit\TextUI\XmlConfiguration\TestFileCollection $files, \PHPUnit\TextUI\XmlConfiguration\FileCollection $exclude)
-    {
-    }
-    public function name(): string
-    {
-    }
-    public function directories(): \PHPUnit\TextUI\XmlConfiguration\TestDirectoryCollection
-    {
-    }
-    public function files(): \PHPUnit\TextUI\XmlConfiguration\TestFileCollection
-    {
-    }
-    public function exclude(): \PHPUnit\TextUI\XmlConfiguration\FileCollection
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
- */
-final class TestFile
-{
-    public function __construct(string $path, string $phpVersion, \PHPUnit\Util\VersionComparisonOperator $phpVersionOperator)
-    {
-    }
-    public function path(): string
-    {
-    }
-    public function phpVersion(): string
-    {
-    }
-    public function phpVersionOperator(): \PHPUnit\Util\VersionComparisonOperator
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @template-implements \Iterator<int, TestDirectory>
- */
-final class TestDirectoryCollectionIterator implements \Countable, \Iterator
-{
-    public function __construct(\PHPUnit\TextUI\XmlConfiguration\TestDirectoryCollection $directories)
-    {
-    }
-    public function count(): int
-    {
-    }
-    public function rewind(): void
-    {
-    }
-    public function valid(): bool
-    {
-    }
-    public function key(): int
-    {
-    }
-    public function current(): \PHPUnit\TextUI\XmlConfiguration\TestDirectory
-    {
-    }
-    public function next(): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
- *
- * @template-implements \IteratorAggregate<int, TestSuite>
- */
-final class TestSuiteCollection implements \Countable, \IteratorAggregate
-{
-    /**
-     * @param TestSuite[] $testSuites
-     */
-    public static function fromArray(array $testSuites): self
-    {
-    }
-    /**
-     * @return TestSuite[]
-     */
-    public function asArray(): array
-    {
-    }
-    public function count(): int
-    {
-    }
-    public function getIterator(): \PHPUnit\TextUI\XmlConfiguration\TestSuiteCollectionIterator
-    {
-    }
-    public function isEmpty(): bool
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @template-implements \Iterator<int, TestSuite>
- */
-final class TestSuiteCollectionIterator implements \Countable, \Iterator
-{
-    public function __construct(\PHPUnit\TextUI\XmlConfiguration\TestSuiteCollection $testSuites)
-    {
-    }
-    public function count(): int
-    {
-    }
-    public function rewind(): void
-    {
-    }
-    public function valid(): bool
-    {
-    }
-    public function key(): int
-    {
-    }
-    public function current(): \PHPUnit\TextUI\XmlConfiguration\TestSuite
-    {
-    }
-    public function next(): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class Generator
-{
-    public function generateDefaultConfiguration(string $phpunitVersion, string $bootstrapScript, string $testsDirectory, string $srcDirectory, string $cacheDirectory): string
-    {
-    }
-}
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  *
@@ -11382,59 +11124,21 @@ final class Configuration
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @template-implements \Iterator<int, Directory>
  */
-final class DirectoryCollectionIterator implements \Countable, \Iterator
+final class Exception extends \RuntimeException implements \PHPUnit\Exception
 {
-    public function __construct(\PHPUnit\TextUI\XmlConfiguration\DirectoryCollection $directories)
-    {
-    }
-    public function count(): int
-    {
-    }
-    public function rewind(): void
-    {
-    }
-    public function valid(): bool
-    {
-    }
-    public function key(): int
-    {
-    }
-    public function current(): \PHPUnit\TextUI\XmlConfiguration\Directory
-    {
-    }
-    public function next(): void
-    {
-    }
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  *
- * @template-implements \Iterator<int, File>
+ * @phan-side-effect-free
  */
-final class FileCollectionIterator implements \Countable, \Iterator
+final class Directory
 {
-    public function __construct(\PHPUnit\TextUI\XmlConfiguration\FileCollection $files)
+    public function __construct(string $path)
     {
     }
-    public function count(): int
-    {
-    }
-    public function rewind(): void
-    {
-    }
-    public function valid(): bool
-    {
-    }
-    public function key(): int
-    {
-    }
-    public function current(): \PHPUnit\TextUI\XmlConfiguration\File
-    {
-    }
-    public function next(): void
+    public function path(): string
     {
     }
 }
@@ -11472,14 +11176,29 @@ final class DirectoryCollection implements \Countable, \IteratorAggregate
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  *
- * @phan-side-effect-free
+ * @template-implements \Iterator<int, Directory>
  */
-final class File
+final class DirectoryCollectionIterator implements \Countable, \Iterator
 {
-    public function __construct(string $path)
+    public function __construct(\PHPUnit\TextUI\XmlConfiguration\DirectoryCollection $directories)
     {
     }
-    public function path(): string
+    public function count(): int
+    {
+    }
+    public function rewind(): void
+    {
+    }
+    public function valid(): bool
+    {
+    }
+    public function key(): int
+    {
+    }
+    public function current(): \PHPUnit\TextUI\XmlConfiguration\Directory
+    {
+    }
+    public function next(): void
     {
     }
 }
@@ -11488,7 +11207,7 @@ final class File
  *
  * @phan-side-effect-free
  */
-final class Directory
+final class File
 {
     public function __construct(string $path)
     {
@@ -11525,6 +11244,730 @@ final class FileCollection implements \Countable, \IteratorAggregate
     {
     }
     public function isEmpty(): bool
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @template-implements \Iterator<int, File>
+ */
+final class FileCollectionIterator implements \Countable, \Iterator
+{
+    public function __construct(\PHPUnit\TextUI\XmlConfiguration\FileCollection $files)
+    {
+    }
+    public function count(): int
+    {
+    }
+    public function rewind(): void
+    {
+    }
+    public function valid(): bool
+    {
+    }
+    public function key(): int
+    {
+    }
+    public function current(): \PHPUnit\TextUI\XmlConfiguration\File
+    {
+    }
+    public function next(): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class Generator
+{
+    public function generateDefaultConfiguration(string $phpunitVersion, string $bootstrapScript, string $testsDirectory, string $srcDirectory, string $cacheDirectory): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phan-side-effect-free
+ */
+final class Group
+{
+    public function __construct(string $name)
+    {
+    }
+    public function name(): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phan-side-effect-free
+ *
+ * @template-implements \IteratorAggregate<int, Group>
+ */
+final class GroupCollection implements \IteratorAggregate
+{
+    /**
+     * @param Group[] $groups
+     */
+    public static function fromArray(array $groups): self
+    {
+    }
+    /**
+     * @return Group[]
+     */
+    public function asArray(): array
+    {
+    }
+    /**
+     * @return string[]
+     */
+    public function asArrayOfStrings(): array
+    {
+    }
+    public function isEmpty(): bool
+    {
+    }
+    public function getIterator(): \PHPUnit\TextUI\XmlConfiguration\GroupCollectionIterator
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @template-implements \Iterator<int, Group>
+ */
+final class GroupCollectionIterator implements \Countable, \Iterator
+{
+    public function __construct(\PHPUnit\TextUI\XmlConfiguration\GroupCollection $groups)
+    {
+    }
+    public function count(): int
+    {
+    }
+    public function rewind(): void
+    {
+    }
+    public function valid(): bool
+    {
+    }
+    public function key(): int
+    {
+    }
+    public function current(): \PHPUnit\TextUI\XmlConfiguration\Group
+    {
+    }
+    public function next(): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phan-side-effect-free
+ */
+final class Groups
+{
+    public function __construct(\PHPUnit\TextUI\XmlConfiguration\GroupCollection $include, \PHPUnit\TextUI\XmlConfiguration\GroupCollection $exclude)
+    {
+    }
+    public function hasInclude(): bool
+    {
+    }
+    public function include(): \PHPUnit\TextUI\XmlConfiguration\GroupCollection
+    {
+    }
+    public function hasExclude(): bool
+    {
+    }
+    public function exclude(): \PHPUnit\TextUI\XmlConfiguration\GroupCollection
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class Loader
+{
+    /**
+     * @throws Exception
+     */
+    public function load(string $filename): \PHPUnit\TextUI\XmlConfiguration\Configuration
+    {
+    }
+    public function logging(string $filename, \DOMXPath $xpath): \PHPUnit\TextUI\XmlConfiguration\Logging\Logging
+    {
+    }
+    public function legacyLogging(string $filename, \DOMXPath $xpath): \PHPUnit\TextUI\XmlConfiguration\Logging\Logging
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class MigrationBuilder
+{
+    /**
+     * @throws MigrationBuilderException
+     */
+    public function build(string $fromVersion): array
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class MigrationBuilderException extends \RuntimeException implements \PHPUnit\Exception
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class MigrationException extends \RuntimeException implements \PHPUnit\Exception
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class ConvertLogTypes implements \PHPUnit\TextUI\XmlConfiguration\Migration
+{
+    public function migrate(\DOMDocument $document): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class CoverageCloverToReport extends \PHPUnit\TextUI\XmlConfiguration\LogToReportMigration
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class CoverageCrap4jToReport extends \PHPUnit\TextUI\XmlConfiguration\LogToReportMigration
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class CoverageHtmlToReport extends \PHPUnit\TextUI\XmlConfiguration\LogToReportMigration
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class CoveragePhpToReport extends \PHPUnit\TextUI\XmlConfiguration\LogToReportMigration
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class CoverageTextToReport extends \PHPUnit\TextUI\XmlConfiguration\LogToReportMigration
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class CoverageXmlToReport extends \PHPUnit\TextUI\XmlConfiguration\LogToReportMigration
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class IntroduceCoverageElement implements \PHPUnit\TextUI\XmlConfiguration\Migration
+{
+    public function migrate(\DOMDocument $document): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+abstract class LogToReportMigration implements \PHPUnit\TextUI\XmlConfiguration\Migration
+{
+    /**
+     * @throws MigrationException
+     */
+    public function migrate(\DOMDocument $document): void
+    {
+    }
+    protected function migrateAttributes(\DOMElement $src, \DOMElement $dest, array $attributes): void
+    {
+    }
+    abstract protected function forType(): string;
+    abstract protected function toReportFormat(\DOMElement $logNode): \DOMElement;
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+interface Migration
+{
+    public function migrate(\DOMDocument $document): void;
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class MoveAttributesFromFilterWhitelistToCoverage implements \PHPUnit\TextUI\XmlConfiguration\Migration
+{
+    /**
+     * @throws MigrationException
+     */
+    public function migrate(\DOMDocument $document): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class MoveAttributesFromRootToCoverage implements \PHPUnit\TextUI\XmlConfiguration\Migration
+{
+    /**
+     * @throws MigrationException
+     */
+    public function migrate(\DOMDocument $document): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class MoveWhitelistExcludesToCoverage implements \PHPUnit\TextUI\XmlConfiguration\Migration
+{
+    /**
+     * @throws MigrationException
+     */
+    public function migrate(\DOMDocument $document): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class MoveWhitelistIncludesToCoverage implements \PHPUnit\TextUI\XmlConfiguration\Migration
+{
+    /**
+     * @throws MigrationException
+     */
+    public function migrate(\DOMDocument $document): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class RemoveCacheTokensAttribute implements \PHPUnit\TextUI\XmlConfiguration\Migration
+{
+    public function migrate(\DOMDocument $document): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class RemoveEmptyFilter implements \PHPUnit\TextUI\XmlConfiguration\Migration
+{
+    /**
+     * @throws MigrationException
+     */
+    public function migrate(\DOMDocument $document): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class RemoveLogTypes implements \PHPUnit\TextUI\XmlConfiguration\Migration
+{
+    public function migrate(\DOMDocument $document): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class UpdateSchemaLocationTo93 implements \PHPUnit\TextUI\XmlConfiguration\Migration
+{
+    public function migrate(\DOMDocument $document): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class Migrator
+{
+    /**
+     * @throws Exception
+     * @throws MigrationBuilderException
+     * @throws MigrationException
+     * @throws \PHPUnit\Util\Xml\Exception
+     */
+    public function migrate(string $filename): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phan-side-effect-free
+ */
+final class Constant
+{
+    public function __construct(string $name, $value)
+    {
+    }
+    public function name(): string
+    {
+    }
+    public function value()
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phan-side-effect-free
+ *
+ * @template-implements \IteratorAggregate<int, Constant>
+ */
+final class ConstantCollection implements \Countable, \IteratorAggregate
+{
+    /**
+     * @param Constant[] $constants
+     */
+    public static function fromArray(array $constants): self
+    {
+    }
+    /**
+     * @return Constant[]
+     */
+    public function asArray(): array
+    {
+    }
+    public function count(): int
+    {
+    }
+    public function getIterator(): \PHPUnit\TextUI\XmlConfiguration\ConstantCollectionIterator
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @template-implements \Iterator<int, Constant>
+ */
+final class ConstantCollectionIterator implements \Countable, \Iterator
+{
+    public function __construct(\PHPUnit\TextUI\XmlConfiguration\ConstantCollection $constants)
+    {
+    }
+    public function count(): int
+    {
+    }
+    public function rewind(): void
+    {
+    }
+    public function valid(): bool
+    {
+    }
+    public function key(): int
+    {
+    }
+    public function current(): \PHPUnit\TextUI\XmlConfiguration\Constant
+    {
+    }
+    public function next(): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phan-side-effect-free
+ */
+final class IniSetting
+{
+    public function __construct(string $name, string $value)
+    {
+    }
+    public function name(): string
+    {
+    }
+    public function value(): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phan-side-effect-free
+ *
+ * @template-implements \IteratorAggregate<int, IniSetting>
+ */
+final class IniSettingCollection implements \Countable, \IteratorAggregate
+{
+    /**
+     * @param IniSetting[] $iniSettings
+     */
+    public static function fromArray(array $iniSettings): self
+    {
+    }
+    /**
+     * @return IniSetting[]
+     */
+    public function asArray(): array
+    {
+    }
+    public function count(): int
+    {
+    }
+    public function getIterator(): \PHPUnit\TextUI\XmlConfiguration\IniSettingCollectionIterator
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @template-implements \Iterator<int, IniSetting>
+ */
+final class IniSettingCollectionIterator implements \Countable, \Iterator
+{
+    public function __construct(\PHPUnit\TextUI\XmlConfiguration\IniSettingCollection $iniSettings)
+    {
+    }
+    public function count(): int
+    {
+    }
+    public function rewind(): void
+    {
+    }
+    public function valid(): bool
+    {
+    }
+    public function key(): int
+    {
+    }
+    public function current(): \PHPUnit\TextUI\XmlConfiguration\IniSetting
+    {
+    }
+    public function next(): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phan-side-effect-free
+ */
+final class Php
+{
+    public function __construct(\PHPUnit\TextUI\XmlConfiguration\DirectoryCollection $includePaths, \PHPUnit\TextUI\XmlConfiguration\IniSettingCollection $iniSettings, \PHPUnit\TextUI\XmlConfiguration\ConstantCollection $constants, \PHPUnit\TextUI\XmlConfiguration\VariableCollection $globalVariables, \PHPUnit\TextUI\XmlConfiguration\VariableCollection $envVariables, \PHPUnit\TextUI\XmlConfiguration\VariableCollection $postVariables, \PHPUnit\TextUI\XmlConfiguration\VariableCollection $getVariables, \PHPUnit\TextUI\XmlConfiguration\VariableCollection $cookieVariables, \PHPUnit\TextUI\XmlConfiguration\VariableCollection $serverVariables, \PHPUnit\TextUI\XmlConfiguration\VariableCollection $filesVariables, \PHPUnit\TextUI\XmlConfiguration\VariableCollection $requestVariables)
+    {
+    }
+    public function includePaths(): \PHPUnit\TextUI\XmlConfiguration\DirectoryCollection
+    {
+    }
+    public function iniSettings(): \PHPUnit\TextUI\XmlConfiguration\IniSettingCollection
+    {
+    }
+    public function constants(): \PHPUnit\TextUI\XmlConfiguration\ConstantCollection
+    {
+    }
+    public function globalVariables(): \PHPUnit\TextUI\XmlConfiguration\VariableCollection
+    {
+    }
+    public function envVariables(): \PHPUnit\TextUI\XmlConfiguration\VariableCollection
+    {
+    }
+    public function postVariables(): \PHPUnit\TextUI\XmlConfiguration\VariableCollection
+    {
+    }
+    public function getVariables(): \PHPUnit\TextUI\XmlConfiguration\VariableCollection
+    {
+    }
+    public function cookieVariables(): \PHPUnit\TextUI\XmlConfiguration\VariableCollection
+    {
+    }
+    public function serverVariables(): \PHPUnit\TextUI\XmlConfiguration\VariableCollection
+    {
+    }
+    public function filesVariables(): \PHPUnit\TextUI\XmlConfiguration\VariableCollection
+    {
+    }
+    public function requestVariables(): \PHPUnit\TextUI\XmlConfiguration\VariableCollection
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class PhpHandler
+{
+    public function handle(\PHPUnit\TextUI\XmlConfiguration\Php $configuration): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phan-side-effect-free
+ */
+final class Variable
+{
+    public function __construct(string $name, $value, bool $force)
+    {
+    }
+    public function name(): string
+    {
+    }
+    public function value()
+    {
+    }
+    public function force(): bool
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phan-side-effect-free
+ *
+ * @template-implements \IteratorAggregate<int, Variable>
+ */
+final class VariableCollection implements \Countable, \IteratorAggregate
+{
+    /**
+     * @param Variable[] $variables
+     */
+    public static function fromArray(array $variables): self
+    {
+    }
+    /**
+     * @return Variable[]
+     */
+    public function asArray(): array
+    {
+    }
+    public function count(): int
+    {
+    }
+    public function getIterator(): \PHPUnit\TextUI\XmlConfiguration\VariableCollectionIterator
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @template-implements \Iterator<int, Variable>
+ */
+final class VariableCollectionIterator implements \Countable, \Iterator
+{
+    public function __construct(\PHPUnit\TextUI\XmlConfiguration\VariableCollection $variables)
+    {
+    }
+    public function count(): int
+    {
+    }
+    public function rewind(): void
+    {
+    }
+    public function valid(): bool
+    {
+    }
+    public function key(): int
+    {
+    }
+    public function current(): \PHPUnit\TextUI\XmlConfiguration\Variable
+    {
+    }
+    public function next(): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phan-side-effect-free
+ */
+final class Extension
+{
+    /**
+     * @phan-param class-string $className
+     */
+    public function __construct(string $className, string $sourceFile, array $arguments)
+    {
+    }
+    /**
+     * @phan-return class-string
+     */
+    public function className(): string
+    {
+    }
+    public function hasSourceFile(): bool
+    {
+    }
+    public function sourceFile(): string
+    {
+    }
+    public function hasArguments(): bool
+    {
+    }
+    public function arguments(): array
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phan-side-effect-free
+ *
+ * @template-implements \IteratorAggregate<int, Extension>
+ */
+final class ExtensionCollection implements \IteratorAggregate
+{
+    /**
+     * @param Extension[] $extensions
+     */
+    public static function fromArray(array $extensions): self
+    {
+    }
+    /**
+     * @return Extension[]
+     */
+    public function asArray(): array
+    {
+    }
+    public function getIterator(): \PHPUnit\TextUI\XmlConfiguration\ExtensionCollectionIterator
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @template-implements \Iterator<int, Extension>
+ */
+final class ExtensionCollectionIterator implements \Countable, \Iterator
+{
+    public function __construct(\PHPUnit\TextUI\XmlConfiguration\ExtensionCollection $extensions)
+    {
+    }
+    public function count(): int
+    {
+    }
+    public function rewind(): void
+    {
+    }
+    public function valid(): bool
+    {
+    }
+    public function key(): int
+    {
+    }
+    public function current(): \PHPUnit\TextUI\XmlConfiguration\Extension
+    {
+    }
+    public function next(): void
     {
     }
 }
@@ -11775,29 +12218,26 @@ final class PHPUnit
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  *
- * @template-implements \Iterator<int, Extension>
+ * @phan-side-effect-free
  */
-final class ExtensionCollectionIterator implements \Countable, \Iterator
+final class TestDirectory
 {
-    public function __construct(\PHPUnit\TextUI\XmlConfiguration\ExtensionCollection $extensions)
+    public function __construct(string $path, string $prefix, string $suffix, string $phpVersion, \PHPUnit\Util\VersionComparisonOperator $phpVersionOperator)
     {
     }
-    public function count(): int
+    public function path(): string
     {
     }
-    public function rewind(): void
+    public function prefix(): string
     {
     }
-    public function valid(): bool
+    public function suffix(): string
     {
     }
-    public function key(): int
+    public function phpVersion(): string
     {
     }
-    public function current(): \PHPUnit\TextUI\XmlConfiguration\Extension
-    {
-    }
-    public function next(): void
+    public function phpVersionOperator(): \PHPUnit\Util\VersionComparisonOperator
     {
     }
 }
@@ -11806,346 +12246,18 @@ final class ExtensionCollectionIterator implements \Countable, \Iterator
  *
  * @phan-side-effect-free
  *
- * @template-implements \IteratorAggregate<int, Extension>
+ * @template-implements \IteratorAggregate<int, TestDirectory>
  */
-final class ExtensionCollection implements \IteratorAggregate
+final class TestDirectoryCollection implements \Countable, \IteratorAggregate
 {
     /**
-     * @param Extension[] $extensions
+     * @param TestDirectory[] $directories
      */
-    public static function fromArray(array $extensions): self
+    public static function fromArray(array $directories): self
     {
     }
     /**
-     * @return Extension[]
-     */
-    public function asArray(): array
-    {
-    }
-    public function getIterator(): \PHPUnit\TextUI\XmlConfiguration\ExtensionCollectionIterator
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
- */
-final class Extension
-{
-    /**
-     * @phan-param class-string $className
-     */
-    public function __construct(string $className, string $sourceFile, array $arguments)
-    {
-    }
-    /**
-     * @phan-return class-string
-     */
-    public function className(): string
-    {
-    }
-    public function hasSourceFile(): bool
-    {
-    }
-    public function sourceFile(): string
-    {
-    }
-    public function hasArguments(): bool
-    {
-    }
-    public function arguments(): array
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class Migrator
-{
-    /**
-     * @throws Exception
-     * @throws MigrationBuilderException
-     * @throws MigrationException
-     * @throws \PHPUnit\Util\Xml\Exception
-     */
-    public function migrate(string $filename): string
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class MigrationBuilderException extends \RuntimeException implements \PHPUnit\Exception
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class MigrationException extends \RuntimeException implements \PHPUnit\Exception
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class CoverageCloverToReport extends \PHPUnit\TextUI\XmlConfiguration\LogToReportMigration
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class UpdateSchemaLocationTo93 implements \PHPUnit\TextUI\XmlConfiguration\Migration
-{
-    public function migrate(\DOMDocument $document): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class IntroduceCoverageElement implements \PHPUnit\TextUI\XmlConfiguration\Migration
-{
-    public function migrate(\DOMDocument $document): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-interface Migration
-{
-    public function migrate(\DOMDocument $document): void;
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class CoverageXmlToReport extends \PHPUnit\TextUI\XmlConfiguration\LogToReportMigration
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class CoverageTextToReport extends \PHPUnit\TextUI\XmlConfiguration\LogToReportMigration
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class RemoveLogTypes implements \PHPUnit\TextUI\XmlConfiguration\Migration
-{
-    public function migrate(\DOMDocument $document): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class MoveAttributesFromFilterWhitelistToCoverage implements \PHPUnit\TextUI\XmlConfiguration\Migration
-{
-    /**
-     * @throws MigrationException
-     */
-    public function migrate(\DOMDocument $document): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class CoveragePhpToReport extends \PHPUnit\TextUI\XmlConfiguration\LogToReportMigration
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class CoverageCrap4jToReport extends \PHPUnit\TextUI\XmlConfiguration\LogToReportMigration
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-abstract class LogToReportMigration implements \PHPUnit\TextUI\XmlConfiguration\Migration
-{
-    /**
-     * @throws MigrationException
-     */
-    public function migrate(\DOMDocument $document): void
-    {
-    }
-    protected function migrateAttributes(\DOMElement $src, \DOMElement $dest, array $attributes): void
-    {
-    }
-    abstract protected function forType(): string;
-    abstract protected function toReportFormat(\DOMElement $logNode): \DOMElement;
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class MoveAttributesFromRootToCoverage implements \PHPUnit\TextUI\XmlConfiguration\Migration
-{
-    /**
-     * @throws MigrationException
-     */
-    public function migrate(\DOMDocument $document): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class RemoveCacheTokensAttribute implements \PHPUnit\TextUI\XmlConfiguration\Migration
-{
-    public function migrate(\DOMDocument $document): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class ConvertLogTypes implements \PHPUnit\TextUI\XmlConfiguration\Migration
-{
-    public function migrate(\DOMDocument $document): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class CoverageHtmlToReport extends \PHPUnit\TextUI\XmlConfiguration\LogToReportMigration
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class MoveWhitelistExcludesToCoverage implements \PHPUnit\TextUI\XmlConfiguration\Migration
-{
-    /**
-     * @throws MigrationException
-     */
-    public function migrate(\DOMDocument $document): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class MoveWhitelistIncludesToCoverage implements \PHPUnit\TextUI\XmlConfiguration\Migration
-{
-    /**
-     * @throws MigrationException
-     */
-    public function migrate(\DOMDocument $document): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class RemoveEmptyFilter implements \PHPUnit\TextUI\XmlConfiguration\Migration
-{
-    /**
-     * @throws MigrationException
-     */
-    public function migrate(\DOMDocument $document): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class MigrationBuilder
-{
-    /**
-     * @throws MigrationBuilderException
-     */
-    public function build(string $fromVersion): array
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class Loader
-{
-    /**
-     * @throws Exception
-     */
-    public function load(string $filename): \PHPUnit\TextUI\XmlConfiguration\Configuration
-    {
-    }
-    public function logging(string $filename, \DOMXPath $xpath): \PHPUnit\TextUI\XmlConfiguration\Logging\Logging
-    {
-    }
-    public function legacyLogging(string $filename, \DOMXPath $xpath): \PHPUnit\TextUI\XmlConfiguration\Logging\Logging
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
- */
-final class Variable
-{
-    public function __construct(string $name, $value, bool $force)
-    {
-    }
-    public function name(): string
-    {
-    }
-    public function value()
-    {
-    }
-    public function force(): bool
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @template-implements \Iterator<int, Constant>
- */
-final class ConstantCollectionIterator implements \Countable, \Iterator
-{
-    public function __construct(\PHPUnit\TextUI\XmlConfiguration\ConstantCollection $constants)
-    {
-    }
-    public function count(): int
-    {
-    }
-    public function rewind(): void
-    {
-    }
-    public function valid(): bool
-    {
-    }
-    public function key(): int
-    {
-    }
-    public function current(): \PHPUnit\TextUI\XmlConfiguration\Constant
-    {
-    }
-    public function next(): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
- *
- * @template-implements \IteratorAggregate<int, Variable>
- */
-final class VariableCollection implements \Countable, \IteratorAggregate
-{
-    /**
-     * @param Variable[] $variables
-     */
-    public static function fromArray(array $variables): self
-    {
-    }
-    /**
-     * @return Variable[]
+     * @return TestDirectory[]
      */
     public function asArray(): array
     {
@@ -12153,259 +12265,21 @@ final class VariableCollection implements \Countable, \IteratorAggregate
     public function count(): int
     {
     }
-    public function getIterator(): \PHPUnit\TextUI\XmlConfiguration\VariableCollectionIterator
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
- */
-final class Php
-{
-    public function __construct(\PHPUnit\TextUI\XmlConfiguration\DirectoryCollection $includePaths, \PHPUnit\TextUI\XmlConfiguration\IniSettingCollection $iniSettings, \PHPUnit\TextUI\XmlConfiguration\ConstantCollection $constants, \PHPUnit\TextUI\XmlConfiguration\VariableCollection $globalVariables, \PHPUnit\TextUI\XmlConfiguration\VariableCollection $envVariables, \PHPUnit\TextUI\XmlConfiguration\VariableCollection $postVariables, \PHPUnit\TextUI\XmlConfiguration\VariableCollection $getVariables, \PHPUnit\TextUI\XmlConfiguration\VariableCollection $cookieVariables, \PHPUnit\TextUI\XmlConfiguration\VariableCollection $serverVariables, \PHPUnit\TextUI\XmlConfiguration\VariableCollection $filesVariables, \PHPUnit\TextUI\XmlConfiguration\VariableCollection $requestVariables)
-    {
-    }
-    public function includePaths(): \PHPUnit\TextUI\XmlConfiguration\DirectoryCollection
-    {
-    }
-    public function iniSettings(): \PHPUnit\TextUI\XmlConfiguration\IniSettingCollection
-    {
-    }
-    public function constants(): \PHPUnit\TextUI\XmlConfiguration\ConstantCollection
-    {
-    }
-    public function globalVariables(): \PHPUnit\TextUI\XmlConfiguration\VariableCollection
-    {
-    }
-    public function envVariables(): \PHPUnit\TextUI\XmlConfiguration\VariableCollection
-    {
-    }
-    public function postVariables(): \PHPUnit\TextUI\XmlConfiguration\VariableCollection
-    {
-    }
-    public function getVariables(): \PHPUnit\TextUI\XmlConfiguration\VariableCollection
-    {
-    }
-    public function cookieVariables(): \PHPUnit\TextUI\XmlConfiguration\VariableCollection
-    {
-    }
-    public function serverVariables(): \PHPUnit\TextUI\XmlConfiguration\VariableCollection
-    {
-    }
-    public function filesVariables(): \PHPUnit\TextUI\XmlConfiguration\VariableCollection
-    {
-    }
-    public function requestVariables(): \PHPUnit\TextUI\XmlConfiguration\VariableCollection
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
- *
- * @template-implements \IteratorAggregate<int, IniSetting>
- */
-final class IniSettingCollection implements \Countable, \IteratorAggregate
-{
-    /**
-     * @param IniSetting[] $iniSettings
-     */
-    public static function fromArray(array $iniSettings): self
-    {
-    }
-    /**
-     * @return IniSetting[]
-     */
-    public function asArray(): array
-    {
-    }
-    public function count(): int
-    {
-    }
-    public function getIterator(): \PHPUnit\TextUI\XmlConfiguration\IniSettingCollectionIterator
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @template-implements \Iterator<int, IniSetting>
- */
-final class IniSettingCollectionIterator implements \Countable, \Iterator
-{
-    public function __construct(\PHPUnit\TextUI\XmlConfiguration\IniSettingCollection $iniSettings)
-    {
-    }
-    public function count(): int
-    {
-    }
-    public function rewind(): void
-    {
-    }
-    public function valid(): bool
-    {
-    }
-    public function key(): int
-    {
-    }
-    public function current(): \PHPUnit\TextUI\XmlConfiguration\IniSetting
-    {
-    }
-    public function next(): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @template-implements \Iterator<int, Variable>
- */
-final class VariableCollectionIterator implements \Countable, \Iterator
-{
-    public function __construct(\PHPUnit\TextUI\XmlConfiguration\VariableCollection $variables)
-    {
-    }
-    public function count(): int
-    {
-    }
-    public function rewind(): void
-    {
-    }
-    public function valid(): bool
-    {
-    }
-    public function key(): int
-    {
-    }
-    public function current(): \PHPUnit\TextUI\XmlConfiguration\Variable
-    {
-    }
-    public function next(): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
- *
- * @template-implements \IteratorAggregate<int, Constant>
- */
-final class ConstantCollection implements \Countable, \IteratorAggregate
-{
-    /**
-     * @param Constant[] $constants
-     */
-    public static function fromArray(array $constants): self
-    {
-    }
-    /**
-     * @return Constant[]
-     */
-    public function asArray(): array
-    {
-    }
-    public function count(): int
-    {
-    }
-    public function getIterator(): \PHPUnit\TextUI\XmlConfiguration\ConstantCollectionIterator
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class PhpHandler
-{
-    public function handle(\PHPUnit\TextUI\XmlConfiguration\Php $configuration): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
- */
-final class IniSetting
-{
-    public function __construct(string $name, string $value)
-    {
-    }
-    public function name(): string
-    {
-    }
-    public function value(): string
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
- */
-final class Constant
-{
-    public function __construct(string $name, $value)
-    {
-    }
-    public function name(): string
-    {
-    }
-    public function value()
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class Exception extends \RuntimeException implements \PHPUnit\Exception
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
- *
- * @template-implements \IteratorAggregate<int, Group>
- */
-final class GroupCollection implements \IteratorAggregate
-{
-    /**
-     * @param Group[] $groups
-     */
-    public static function fromArray(array $groups): self
-    {
-    }
-    /**
-     * @return Group[]
-     */
-    public function asArray(): array
-    {
-    }
-    /**
-     * @return string[]
-     */
-    public function asArrayOfStrings(): array
+    public function getIterator(): \PHPUnit\TextUI\XmlConfiguration\TestDirectoryCollectionIterator
     {
     }
     public function isEmpty(): bool
     {
     }
-    public function getIterator(): \PHPUnit\TextUI\XmlConfiguration\GroupCollectionIterator
-    {
-    }
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  *
- * @template-implements \Iterator<int, Group>
+ * @template-implements \Iterator<int, TestDirectory>
  */
-final class GroupCollectionIterator implements \Countable, \Iterator
+final class TestDirectoryCollectionIterator implements \Countable, \Iterator
 {
-    public function __construct(\PHPUnit\TextUI\XmlConfiguration\GroupCollection $groups)
+    public function __construct(\PHPUnit\TextUI\XmlConfiguration\TestDirectoryCollection $directories)
     {
     }
     public function count(): int
@@ -12420,7 +12294,7 @@ final class GroupCollectionIterator implements \Countable, \Iterator
     public function key(): int
     {
     }
-    public function current(): \PHPUnit\TextUI\XmlConfiguration\Group
+    public function current(): \PHPUnit\TextUI\XmlConfiguration\TestDirectory
     {
     }
     public function next(): void
@@ -12432,12 +12306,78 @@ final class GroupCollectionIterator implements \Countable, \Iterator
  *
  * @phan-side-effect-free
  */
-final class Group
+final class TestFile
 {
-    public function __construct(string $name)
+    public function __construct(string $path, string $phpVersion, \PHPUnit\Util\VersionComparisonOperator $phpVersionOperator)
     {
     }
-    public function name(): string
+    public function path(): string
+    {
+    }
+    public function phpVersion(): string
+    {
+    }
+    public function phpVersionOperator(): \PHPUnit\Util\VersionComparisonOperator
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phan-side-effect-free
+ *
+ * @template-implements \IteratorAggregate<int, TestFile>
+ */
+final class TestFileCollection implements \Countable, \IteratorAggregate
+{
+    /**
+     * @param TestFile[] $files
+     */
+    public static function fromArray(array $files): self
+    {
+    }
+    /**
+     * @return TestFile[]
+     */
+    public function asArray(): array
+    {
+    }
+    public function count(): int
+    {
+    }
+    public function getIterator(): \PHPUnit\TextUI\XmlConfiguration\TestFileCollectionIterator
+    {
+    }
+    public function isEmpty(): bool
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @template-implements \Iterator<int, TestFile>
+ */
+final class TestFileCollectionIterator implements \Countable, \Iterator
+{
+    public function __construct(\PHPUnit\TextUI\XmlConfiguration\TestFileCollection $files)
+    {
+    }
+    public function count(): int
+    {
+    }
+    public function rewind(): void
+    {
+    }
+    public function valid(): bool
+    {
+    }
+    public function key(): int
+    {
+    }
+    public function current(): \PHPUnit\TextUI\XmlConfiguration\TestFile
+    {
+    }
+    public function next(): void
     {
     }
 }
@@ -12446,21 +12386,81 @@ final class Group
  *
  * @phan-side-effect-free
  */
-final class Groups
+final class TestSuite
 {
-    public function __construct(\PHPUnit\TextUI\XmlConfiguration\GroupCollection $include, \PHPUnit\TextUI\XmlConfiguration\GroupCollection $exclude)
+    public function __construct(string $name, \PHPUnit\TextUI\XmlConfiguration\TestDirectoryCollection $directories, \PHPUnit\TextUI\XmlConfiguration\TestFileCollection $files, \PHPUnit\TextUI\XmlConfiguration\FileCollection $exclude)
     {
     }
-    public function hasInclude(): bool
+    public function name(): string
     {
     }
-    public function include(): \PHPUnit\TextUI\XmlConfiguration\GroupCollection
+    public function directories(): \PHPUnit\TextUI\XmlConfiguration\TestDirectoryCollection
     {
     }
-    public function hasExclude(): bool
+    public function files(): \PHPUnit\TextUI\XmlConfiguration\TestFileCollection
     {
     }
-    public function exclude(): \PHPUnit\TextUI\XmlConfiguration\GroupCollection
+    public function exclude(): \PHPUnit\TextUI\XmlConfiguration\FileCollection
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phan-side-effect-free
+ *
+ * @template-implements \IteratorAggregate<int, TestSuite>
+ */
+final class TestSuiteCollection implements \Countable, \IteratorAggregate
+{
+    /**
+     * @param TestSuite[] $testSuites
+     */
+    public static function fromArray(array $testSuites): self
+    {
+    }
+    /**
+     * @return TestSuite[]
+     */
+    public function asArray(): array
+    {
+    }
+    public function count(): int
+    {
+    }
+    public function getIterator(): \PHPUnit\TextUI\XmlConfiguration\TestSuiteCollectionIterator
+    {
+    }
+    public function isEmpty(): bool
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @template-implements \Iterator<int, TestSuite>
+ */
+final class TestSuiteCollectionIterator implements \Countable, \Iterator
+{
+    public function __construct(\PHPUnit\TextUI\XmlConfiguration\TestSuiteCollection $testSuites)
+    {
+    }
+    public function count(): int
+    {
+    }
+    public function rewind(): void
+    {
+    }
+    public function valid(): bool
+    {
+    }
+    public function key(): int
+    {
+    }
+    public function current(): \PHPUnit\TextUI\XmlConfiguration\TestSuite
+    {
+    }
+    public function next(): void
     {
     }
 }
@@ -12617,29 +12617,23 @@ namespace PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Filter;
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  *
- * @template-implements \Iterator<int, Directory>
+ * @phan-side-effect-free
  */
-final class DirectoryCollectionIterator implements \Countable, \Iterator
+final class Directory
 {
-    public function __construct(\PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Filter\DirectoryCollection $directories)
+    public function __construct(string $path, string $prefix, string $suffix, string $group)
     {
     }
-    public function count(): int
+    public function path(): string
     {
     }
-    public function rewind(): void
+    public function prefix(): string
     {
     }
-    public function valid(): bool
+    public function suffix(): string
     {
     }
-    public function key(): int
-    {
-    }
-    public function current(): \PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Filter\Directory
-    {
-    }
-    public function next(): void
+    public function group(): string
     {
     }
 }
@@ -12674,23 +12668,29 @@ final class DirectoryCollection implements \Countable, \IteratorAggregate
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  *
- * @phan-side-effect-free
+ * @template-implements \Iterator<int, Directory>
  */
-final class Directory
+final class DirectoryCollectionIterator implements \Countable, \Iterator
 {
-    public function __construct(string $path, string $prefix, string $suffix, string $group)
+    public function __construct(\PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Filter\DirectoryCollection $directories)
     {
     }
-    public function path(): string
+    public function count(): int
     {
     }
-    public function prefix(): string
+    public function rewind(): void
     {
     }
-    public function suffix(): string
+    public function valid(): bool
     {
     }
-    public function group(): string
+    public function key(): int
+    {
+    }
+    public function current(): \PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Filter\Directory
+    {
+    }
+    public function next(): void
     {
     }
 }
@@ -12702,6 +12702,71 @@ namespace PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report;
  * @phan-side-effect-free
  */
 final class Clover
+{
+    public function __construct(\PHPUnit\TextUI\XmlConfiguration\File $target)
+    {
+    }
+    public function target(): \PHPUnit\TextUI\XmlConfiguration\File
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phan-side-effect-free
+ */
+final class Cobertura
+{
+    public function __construct(\PHPUnit\TextUI\XmlConfiguration\File $target)
+    {
+    }
+    public function target(): \PHPUnit\TextUI\XmlConfiguration\File
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phan-side-effect-free
+ */
+final class Crap4j
+{
+    public function __construct(\PHPUnit\TextUI\XmlConfiguration\File $target, int $threshold)
+    {
+    }
+    public function target(): \PHPUnit\TextUI\XmlConfiguration\File
+    {
+    }
+    public function threshold(): int
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phan-side-effect-free
+ */
+final class Html
+{
+    public function __construct(\PHPUnit\TextUI\XmlConfiguration\Directory $target, int $lowUpperBound, int $highLowerBound)
+    {
+    }
+    public function target(): \PHPUnit\TextUI\XmlConfiguration\Directory
+    {
+    }
+    public function lowUpperBound(): int
+    {
+    }
+    public function highLowerBound(): int
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phan-side-effect-free
+ */
+final class Php
 {
     public function __construct(\PHPUnit\TextUI\XmlConfiguration\File $target)
     {
@@ -12744,101 +12809,8 @@ final class Xml
     {
     }
 }
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
- */
-final class Php
-{
-    public function __construct(\PHPUnit\TextUI\XmlConfiguration\File $target)
-    {
-    }
-    public function target(): \PHPUnit\TextUI\XmlConfiguration\File
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
- */
-final class Html
-{
-    public function __construct(\PHPUnit\TextUI\XmlConfiguration\Directory $target, int $lowUpperBound, int $highLowerBound)
-    {
-    }
-    public function target(): \PHPUnit\TextUI\XmlConfiguration\Directory
-    {
-    }
-    public function lowUpperBound(): int
-    {
-    }
-    public function highLowerBound(): int
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
- */
-final class Cobertura
-{
-    public function __construct(\PHPUnit\TextUI\XmlConfiguration\File $target)
-    {
-    }
-    public function target(): \PHPUnit\TextUI\XmlConfiguration\File
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
- */
-final class Crap4j
-{
-    public function __construct(\PHPUnit\TextUI\XmlConfiguration\File $target, int $threshold)
-    {
-    }
-    public function target(): \PHPUnit\TextUI\XmlConfiguration\File
-    {
-    }
-    public function threshold(): int
-    {
-    }
-}
 namespace PHPUnit\TextUI\XmlConfiguration\Logging;
 
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
- */
-final class TeamCity
-{
-    public function __construct(\PHPUnit\TextUI\XmlConfiguration\File $target)
-    {
-    }
-    public function target(): \PHPUnit\TextUI\XmlConfiguration\File
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
- */
-final class Text
-{
-    public function __construct(\PHPUnit\TextUI\XmlConfiguration\File $target)
-    {
-    }
-    public function target(): \PHPUnit\TextUI\XmlConfiguration\File
-    {
-    }
-}
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  *
@@ -12900,8 +12872,50 @@ final class Logging
     {
     }
 }
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phan-side-effect-free
+ */
+final class TeamCity
+{
+    public function __construct(\PHPUnit\TextUI\XmlConfiguration\File $target)
+    {
+    }
+    public function target(): \PHPUnit\TextUI\XmlConfiguration\File
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phan-side-effect-free
+ */
+final class Text
+{
+    public function __construct(\PHPUnit\TextUI\XmlConfiguration\File $target)
+    {
+    }
+    public function target(): \PHPUnit\TextUI\XmlConfiguration\File
+    {
+    }
+}
 namespace PHPUnit\TextUI\XmlConfiguration\Logging\TestDox;
 
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phan-side-effect-free
+ */
+final class Html
+{
+    public function __construct(\PHPUnit\TextUI\XmlConfiguration\File $target)
+    {
+    }
+    public function target(): \PHPUnit\TextUI\XmlConfiguration\File
+    {
+    }
+}
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  *
@@ -12930,31 +12944,46 @@ final class Xml
     {
     }
 }
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
- */
-final class Html
-{
-    public function __construct(\PHPUnit\TextUI\XmlConfiguration\File $target)
-    {
-    }
-    public function target(): \PHPUnit\TextUI\XmlConfiguration\File
-    {
-    }
-}
 namespace PHPUnit\Util;
 
 /**
+ * @deprecated Use ExcludeList instead
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class Blacklist
+{
+    public static function addDirectory(string $directory): void
+    {
+    }
+    /**
+     * @throws Exception
+     *
+     * @return string[]
+     */
+    public function getBlacklistedDirectories(): array
+    {
+    }
+    /**
+     * @throws Exception
+     */
+    public function isBlacklisted(string $file): bool
+    {
+    }
+}
+/**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class XmlTestListRenderer
+final class Cloner
 {
     /**
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     * @phan-template OriginalType
+     *
+     * @phan-param OriginalType $original
+     *
+     * @phan-return OriginalType
      */
-    public function render(\PHPUnit\Framework\TestSuite $suite): string
+    public static function clone(object $original): object
     {
     }
 }
@@ -12979,44 +13008,134 @@ final class Color
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class Type
+final class ErrorHandler
 {
-    public static function isType(string $type): bool
+    public static function invokeIgnoringWarnings(callable $callable)
+    {
+    }
+    public function __construct(bool $convertDeprecationsToExceptions, bool $convertErrorsToExceptions, bool $convertNoticesToExceptions, bool $convertWarningsToExceptions)
+    {
+    }
+    public function __invoke(int $errorNumber, string $errorString, string $errorFile, int $errorLine): bool
+    {
+    }
+    public function register(): void
+    {
+    }
+    public function unregister(): void
     {
     }
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class Xml
+final class Exception extends \RuntimeException implements \PHPUnit\Exception
+{
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class ExcludeList
+{
+    public static function addDirectory(string $directory): void
+    {
+    }
+    /**
+     * @throws Exception
+     *
+     * @return string[]
+     */
+    public function getExcludedDirectories(): array
+    {
+    }
+    /**
+     * @throws Exception
+     */
+    public function isExcluded(string $file): bool
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class FileLoader
 {
     /**
-     * @deprecated Only used by assertEqualXMLStructure()
-     */
-    public static function import(\DOMElement $element): \DOMElement
-    {
-    }
-    /**
-     * @deprecated Only used by assertEqualXMLStructure()
-     */
-    public static function removeCharacterDataNodes(\DOMNode $node): void
-    {
-    }
-    /**
-     * Escapes a string for the use in XML documents.
+     * Checks if a PHP sourcecode file is readable. The sourcecode file is loaded through the load() method.
      *
-     * Any Unicode character is allowed, excluding the surrogate blocks, FFFE,
-     * and FFFF (not even as character reference).
+     * As a fallback, PHP looks in the directory of the file executing the stream_resolve_include_path function.
+     * We do not want to load the Test.php file here, so skip it if it found that.
+     * PHP prioritizes the include_path setting, so if the current directory is in there, it will first look in the
+     * current working directory.
      *
-     * @see https://www.w3.org/TR/xml/#charsets
+     * @throws Exception
      */
-    public static function prepareString(string $string): string
+    public static function checkAndLoad(string $filename): string
     {
     }
     /**
-     * "Convert" a DOMElement object into a PHP variable.
+     * Loads a PHP sourcefile.
      */
-    public static function xmlToVariable(\DOMElement $element)
+    public static function load(string $filename): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class Filesystem
+{
+    /**
+     * Maps class names to source file names.
+     *
+     *   - PEAR CS:   Foo_Bar_Baz -> Foo/Bar/Baz.php
+     *   - Namespace: Foo\Bar\Baz -> Foo/Bar/Baz.php
+     */
+    public static function classNameToFilename(string $className): string
+    {
+    }
+    public static function createDirectory(string $directory): bool
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class Filter
+{
+    /**
+     * @throws \PHPUnit\Framework\Exception
+     */
+    public static function getFilteredStacktrace(\Throwable $t): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class GlobalState
+{
+    /**
+     * @throws Exception
+     */
+    public static function getIncludedFilesAsString(): string
+    {
+    }
+    /**
+     * @param string[] $files
+     *
+     * @throws Exception
+     */
+    public static function processIncludedFilesAsString(array $files): string
+    {
+    }
+    public static function getIniSettingsAsString(): string
+    {
+    }
+    public static function getConstantsAsString(): string
+    {
+    }
+    public static function getGlobalsAsString(): string
     {
     }
 }
@@ -13028,29 +13147,76 @@ final class InvalidDataSetException extends \RuntimeException implements \PHPUni
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
  */
-final class VersionComparisonOperator
+final class Json
 {
-    public function __construct(string $operator)
+    /**
+     * Prettify json string.
+     *
+     * @throws \PHPUnit\Framework\Exception
+     */
+    public static function prettify(string $json): string
     {
     }
     /**
-     * @return '!='|'<'|'<='|'<>'|'='|'=='|'>'|'>='|'eq'|'ge'|'gt'|'le'|'lt'|'ne'
+     * To allow comparison of JSON strings, first process them into a consistent
+     * format so that they can be compared as strings.
+     *
+     * @return array ($error, $canonicalized_json)  The $error parameter is used
+     *               to indicate an error decoding the json. This is used to avoid ambiguity
+     *               with JSON strings consisting entirely of 'null' or 'false'.
      */
-    public function asString(): string
+    public static function canonicalize(string $json): array
     {
     }
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @deprecated
  */
-final class XdebugFilterScriptGenerator
+class Printer
 {
-    public function generate(\PHPUnit\TextUI\XmlConfiguration\CodeCoverage\CodeCoverage $filter): string
+    /**
+     * @param null|resource|string $out
+     *
+     * @throws Exception
+     */
+    public function __construct($out = null)
+    {
+    }
+    public function write(string $buffer): void
+    {
+    }
+    public function flush(): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class Reflection
+{
+    /**
+     * @phan-return list<\ReflectionMethod>
+     */
+    public function publicMethodsInTestClass(\ReflectionClass $class): array
+    {
+    }
+    /**
+     * @phan-return list<\ReflectionMethod>
+     */
+    public function methodsInTestClass(\ReflectionClass $class): array
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class RegularExpression
+{
+    /**
+     * @return false|int
+     */
+    public static function safeMatch(string $pattern, string $subject)
     {
     }
 }
@@ -13191,257 +13357,91 @@ final class Test
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class ErrorHandler
-{
-    public static function invokeIgnoringWarnings(callable $callable)
-    {
-    }
-    public function __construct(bool $convertDeprecationsToExceptions, bool $convertErrorsToExceptions, bool $convertNoticesToExceptions, bool $convertWarningsToExceptions)
-    {
-    }
-    public function __invoke(int $errorNumber, string $errorString, string $errorFile, int $errorLine): bool
-    {
-    }
-    public function register(): void
-    {
-    }
-    public function unregister(): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class Reflection
-{
-    /**
-     * @phan-return list<\ReflectionMethod>
-     */
-    public function publicMethodsInTestClass(\ReflectionClass $class): array
-    {
-    }
-    /**
-     * @phan-return list<\ReflectionMethod>
-     */
-    public function methodsInTestClass(\ReflectionClass $class): array
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class Filesystem
-{
-    /**
-     * Maps class names to source file names.
-     *
-     *   - PEAR CS:   Foo_Bar_Baz -> Foo/Bar/Baz.php
-     *   - Namespace: Foo\Bar\Baz -> Foo/Bar/Baz.php
-     */
-    public static function classNameToFilename(string $className): string
-    {
-    }
-    public static function createDirectory(string $directory): bool
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class RegularExpression
-{
-    /**
-     * @return false|int
-     */
-    public static function safeMatch(string $pattern, string $subject)
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-class Printer
-{
-    /**
-     * @param null|resource|string $out
-     *
-     * @throws Exception
-     */
-    public function __construct($out = null)
-    {
-    }
-    public function write(string $buffer): void
-    {
-    }
-    public function flush(): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class Exception extends \RuntimeException implements \PHPUnit\Exception
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class Filter
-{
-    /**
-     * @throws \PHPUnit\Framework\Exception
-     */
-    public static function getFilteredStacktrace(\Throwable $t): string
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class FileLoader
-{
-    /**
-     * Checks if a PHP sourcecode file is readable. The sourcecode file is loaded through the load() method.
-     *
-     * As a fallback, PHP looks in the directory of the file executing the stream_resolve_include_path function.
-     * We do not want to load the Test.php file here, so skip it if it found that.
-     * PHP prioritizes the include_path setting, so if the current directory is in there, it will first look in the
-     * current working directory.
-     *
-     * @throws Exception
-     */
-    public static function checkAndLoad(string $filename): string
-    {
-    }
-    /**
-     * Loads a PHP sourcefile.
-     */
-    public static function load(string $filename): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class Json
-{
-    /**
-     * Prettify json string.
-     *
-     * @throws \PHPUnit\Framework\Exception
-     */
-    public static function prettify(string $json): string
-    {
-    }
-    /**
-     * To allow comparison of JSON strings, first process them into a consistent
-     * format so that they can be compared as strings.
-     *
-     * @return array ($error, $canonicalized_json)  The $error parameter is used
-     *               to indicate an error decoding the json. This is used to avoid ambiguity
-     *               with JSON strings consisting entirely of 'null' or 'false'.
-     */
-    public static function canonicalize(string $json): array
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class Cloner
-{
-    /**
-     * @phan-template OriginalType
-     *
-     * @phan-param OriginalType $original
-     *
-     * @phan-return OriginalType
-     */
-    public static function clone(object $original): object
-    {
-    }
-}
-/**
- * @deprecated Use ExcludeList instead
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class Blacklist
-{
-    public static function addDirectory(string $directory): void
-    {
-    }
-    /**
-     * @throws Exception
-     *
-     * @return string[]
-     */
-    public function getBlacklistedDirectories(): array
-    {
-    }
-    /**
-     * @throws Exception
-     */
-    public function isBlacklisted(string $file): bool
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class GlobalState
-{
-    /**
-     * @throws Exception
-     */
-    public static function getIncludedFilesAsString(): string
-    {
-    }
-    /**
-     * @param string[] $files
-     *
-     * @throws Exception
-     */
-    public static function processIncludedFilesAsString(array $files): string
-    {
-    }
-    public static function getIniSettingsAsString(): string
-    {
-    }
-    public static function getConstantsAsString(): string
-    {
-    }
-    public static function getGlobalsAsString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class ExcludeList
-{
-    public static function addDirectory(string $directory): void
-    {
-    }
-    /**
-     * @throws Exception
-     *
-     * @return string[]
-     */
-    public function getExcludedDirectories(): array
-    {
-    }
-    /**
-     * @throws Exception
-     */
-    public function isExcluded(string $file): bool
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
 final class TextTestListRenderer
+{
+    /**
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     */
+    public function render(\PHPUnit\Framework\TestSuite $suite): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class Type
+{
+    public static function isType(string $type): bool
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phan-side-effect-free
+ */
+final class VersionComparisonOperator
+{
+    public function __construct(string $operator)
+    {
+    }
+    /**
+     * @return '!='|'<'|'<='|'<>'|'='|'=='|'>'|'>='|'eq'|'ge'|'gt'|'le'|'lt'|'ne'
+     */
+    public function asString(): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @deprecated
+ */
+final class XdebugFilterScriptGenerator
+{
+    public function generate(\PHPUnit\TextUI\XmlConfiguration\CodeCoverage\CodeCoverage $filter): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class Xml
+{
+    /**
+     * @deprecated Only used by assertEqualXMLStructure()
+     */
+    public static function import(\DOMElement $element): \DOMElement
+    {
+    }
+    /**
+     * @deprecated Only used by assertEqualXMLStructure()
+     */
+    public static function removeCharacterDataNodes(\DOMNode $node): void
+    {
+    }
+    /**
+     * Escapes a string for the use in XML documents.
+     *
+     * Any Unicode character is allowed, excluding the surrogate blocks, FFFE,
+     * and FFFF (not even as character reference).
+     *
+     * @see https://www.w3.org/TR/xml/#charsets
+     */
+    public static function prepareString(string $string): string
+    {
+    }
+    /**
+     * "Convert" a DOMElement object into a PHP variable.
+     */
+    public static function xmlToVariable(\DOMElement $element)
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class XmlTestListRenderer
 {
     /**
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
@@ -13452,34 +13452,6 @@ final class TextTestListRenderer
 }
 namespace PHPUnit\Util\Annotation;
 
-/**
- * Reflection information, and therefore DocBlock information, is static within
- * a single PHP process. It is therefore okay to use a Singleton registry here.
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class Registry
-{
-    public static function getInstance(): self
-    {
-    }
-    /**
-     * @throws \PHPUnit\Util\Exception
-     *
-     * @phan-param class-string $class
-     */
-    public function forClassName(string $class): \PHPUnit\Util\Annotation\DocBlock
-    {
-    }
-    /**
-     * @throws \PHPUnit\Util\Exception
-     *
-     * @phan-param class-string $classInHierarchy
-     */
-    public function forMethod(string $classInHierarchy, string $method): \PHPUnit\Util\Annotation\DocBlock
-    {
-    }
-}
 /**
  * This is an abstraction around a PHPUnit-specific docBlock,
  * allowing us to ask meaningful questions about a specific
@@ -13553,80 +13525,36 @@ final class DocBlock
     {
     }
 }
-namespace PHPUnit\Util\Log;
-
 /**
+ * Reflection information, and therefore DocBlock information, is static within
+ * a single PHP process. It is therefore okay to use a Singleton registry here.
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class TeamCity extends \PHPUnit\TextUI\DefaultResultPrinter
+final class Registry
 {
-    public function printResult(\PHPUnit\Framework\TestResult $result): void
+    public static function getInstance(): self
     {
     }
     /**
-     * An error occurred.
+     * @throws \PHPUnit\Util\Exception
+     *
+     * @phan-param class-string $class
      */
-    public function addError(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
+    public function forClassName(string $class): \PHPUnit\Util\Annotation\DocBlock
     {
     }
     /**
-     * A warning occurred.
+     * @throws \PHPUnit\Util\Exception
+     *
+     * @phan-param class-string $classInHierarchy
      */
-    public function addWarning(\PHPUnit\Framework\Test $test, \PHPUnit\Framework\Warning $e, float $time): void
-    {
-    }
-    /**
-     * A failure occurred.
-     */
-    public function addFailure(\PHPUnit\Framework\Test $test, \PHPUnit\Framework\AssertionFailedError $e, float $time): void
-    {
-    }
-    /**
-     * Incomplete test.
-     */
-    public function addIncompleteTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
-    {
-    }
-    /**
-     * Risky test.
-     */
-    public function addRiskyTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
-    {
-    }
-    /**
-     * Skipped test.
-     */
-    public function addSkippedTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
-    {
-    }
-    public function printIgnoredTest(string $testName, \Throwable $t, float $time): void
-    {
-    }
-    /**
-     * A testsuite started.
-     */
-    public function startTestSuite(\PHPUnit\Framework\TestSuite $suite): void
-    {
-    }
-    /**
-     * A testsuite ended.
-     */
-    public function endTestSuite(\PHPUnit\Framework\TestSuite $suite): void
-    {
-    }
-    /**
-     * A test started.
-     */
-    public function startTest(\PHPUnit\Framework\Test $test): void
-    {
-    }
-    /**
-     * A test ended.
-     */
-    public function endTest(\PHPUnit\Framework\Test $test, float $time): void
+    public function forMethod(string $classInHierarchy, string $method): \PHPUnit\Util\Annotation\DocBlock
     {
     }
 }
+namespace PHPUnit\Util\Log;
+
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
@@ -13711,52 +13639,80 @@ final class JUnit extends \PHPUnit\Util\Printer implements \PHPUnit\Framework\Te
     {
     }
 }
-namespace PHPUnit\Util\PHP;
-
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-class DefaultPhpProcess extends \PHPUnit\Util\PHP\AbstractPhpProcess
+final class TeamCity extends \PHPUnit\TextUI\DefaultResultPrinter
 {
-    /**
-     * @var string
-     */
-    protected $tempFile;
-    /**
-     * Runs a single job (PHP code) using a separate PHP process.
-     *
-     * @throws \PHPUnit\Framework\Exception
-     */
-    public function runJob(string $job, array $settings = []): array
+    public function printResult(\PHPUnit\Framework\TestResult $result): void
     {
     }
     /**
-     * Returns an array of file handles to be used in place of pipes.
+     * An error occurred.
      */
-    protected function getHandles(): array
+    public function addError(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
     {
     }
     /**
-     * Handles creating the child process and returning the STDOUT and STDERR.
-     *
-     * @throws \PHPUnit\Framework\Exception
+     * A warning occurred.
      */
-    protected function runProcess(string $job, array $settings): array
+    public function addWarning(\PHPUnit\Framework\Test $test, \PHPUnit\Framework\Warning $e, float $time): void
     {
     }
     /**
-     * @param resource $pipe
+     * A failure occurred.
      */
-    protected function process($pipe, string $job): void
+    public function addFailure(\PHPUnit\Framework\Test $test, \PHPUnit\Framework\AssertionFailedError $e, float $time): void
     {
     }
-    protected function cleanup(): void
+    /**
+     * Incomplete test.
+     */
+    public function addIncompleteTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
     {
     }
-    protected function useTemporaryFile(): bool
+    /**
+     * Risky test.
+     */
+    public function addRiskyTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
+    {
+    }
+    /**
+     * Skipped test.
+     */
+    public function addSkippedTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
+    {
+    }
+    public function printIgnoredTest(string $testName, \Throwable $t, float $time): void
+    {
+    }
+    /**
+     * A testsuite started.
+     */
+    public function startTestSuite(\PHPUnit\Framework\TestSuite $suite): void
+    {
+    }
+    /**
+     * A testsuite ended.
+     */
+    public function endTestSuite(\PHPUnit\Framework\TestSuite $suite): void
+    {
+    }
+    /**
+     * A test started.
+     */
+    public function startTest(\PHPUnit\Framework\Test $test): void
+    {
+    }
+    /**
+     * A test ended.
+     */
+    public function endTest(\PHPUnit\Framework\Test $test, float $time): void
     {
     }
 }
+namespace PHPUnit\Util\PHP;
+
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
@@ -13880,6 +13836,50 @@ abstract class AbstractPhpProcess
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+class DefaultPhpProcess extends \PHPUnit\Util\PHP\AbstractPhpProcess
+{
+    /**
+     * @var string
+     */
+    protected $tempFile;
+    /**
+     * Runs a single job (PHP code) using a separate PHP process.
+     *
+     * @throws \PHPUnit\Framework\Exception
+     */
+    public function runJob(string $job, array $settings = []): array
+    {
+    }
+    /**
+     * Returns an array of file handles to be used in place of pipes.
+     */
+    protected function getHandles(): array
+    {
+    }
+    /**
+     * Handles creating the child process and returning the STDOUT and STDERR.
+     *
+     * @throws \PHPUnit\Framework\Exception
+     */
+    protected function runProcess(string $job, array $settings): array
+    {
+    }
+    /**
+     * @param resource $pipe
+     */
+    protected function process($pipe, string $job): void
+    {
+    }
+    protected function cleanup(): void
+    {
+    }
+    protected function useTemporaryFile(): bool
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
  *
  * @see https://bugs.php.net/bug.php?id=51800
  */
@@ -13951,6 +13951,15 @@ class CliTestDoxPrinter extends \PHPUnit\Util\TestDox\TestDoxPrinter
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
+final class HtmlResultPrinter extends \PHPUnit\Util\TestDox\ResultPrinter
+{
+    public function printResult(\PHPUnit\Framework\TestResult $result): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
 final class NamePrettifier
 {
     public function __construct(bool $useColor = false)
@@ -13977,97 +13986,6 @@ final class NamePrettifier
      * Prettifies the name of a test method.
      */
     public function prettifyTestMethod(string $name): string
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class XmlResultPrinter extends \PHPUnit\Util\Printer implements \PHPUnit\Framework\TestListener
-{
-    /**
-     * @param resource|string $out
-     *
-     * @throws \PHPUnit\Framework\Exception
-     */
-    public function __construct($out = null)
-    {
-    }
-    /**
-     * Flush buffer and close output.
-     */
-    public function flush(): void
-    {
-    }
-    /**
-     * An error occurred.
-     */
-    public function addError(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
-    {
-    }
-    /**
-     * A warning occurred.
-     */
-    public function addWarning(\PHPUnit\Framework\Test $test, \PHPUnit\Framework\Warning $e, float $time): void
-    {
-    }
-    /**
-     * A failure occurred.
-     */
-    public function addFailure(\PHPUnit\Framework\Test $test, \PHPUnit\Framework\AssertionFailedError $e, float $time): void
-    {
-    }
-    /**
-     * Incomplete test.
-     */
-    public function addIncompleteTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
-    {
-    }
-    /**
-     * Risky test.
-     */
-    public function addRiskyTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
-    {
-    }
-    /**
-     * Skipped test.
-     */
-    public function addSkippedTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
-    {
-    }
-    /**
-     * A test suite started.
-     */
-    public function startTestSuite(\PHPUnit\Framework\TestSuite $suite): void
-    {
-    }
-    /**
-     * A test suite ended.
-     */
-    public function endTestSuite(\PHPUnit\Framework\TestSuite $suite): void
-    {
-    }
-    /**
-     * A test started.
-     */
-    public function startTest(\PHPUnit\Framework\Test $test): void
-    {
-    }
-    /**
-     * A test ended.
-     *
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     */
-    public function endTest(\PHPUnit\Framework\Test $test, float $time): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class HtmlResultPrinter extends \PHPUnit\Util\TestDox\ResultPrinter
-{
-    public function printResult(\PHPUnit\Framework\TestResult $result): void
     {
     }
 }
@@ -14237,15 +14155,6 @@ abstract class ResultPrinter extends \PHPUnit\Util\Printer implements \PHPUnit\T
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class TextResultPrinter extends \PHPUnit\Util\TestDox\ResultPrinter
-{
-    public function printResult(\PHPUnit\Framework\TestResult $result): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
 class TestDoxPrinter extends \PHPUnit\TextUI\DefaultResultPrinter
 {
     /**
@@ -14402,8 +14311,113 @@ class TestDoxPrinter extends \PHPUnit\TextUI\DefaultResultPrinter
     {
     }
 }
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class TextResultPrinter extends \PHPUnit\Util\TestDox\ResultPrinter
+{
+    public function printResult(\PHPUnit\Framework\TestResult $result): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class XmlResultPrinter extends \PHPUnit\Util\Printer implements \PHPUnit\Framework\TestListener
+{
+    /**
+     * @param resource|string $out
+     *
+     * @throws \PHPUnit\Framework\Exception
+     */
+    public function __construct($out = null)
+    {
+    }
+    /**
+     * Flush buffer and close output.
+     */
+    public function flush(): void
+    {
+    }
+    /**
+     * An error occurred.
+     */
+    public function addError(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
+    {
+    }
+    /**
+     * A warning occurred.
+     */
+    public function addWarning(\PHPUnit\Framework\Test $test, \PHPUnit\Framework\Warning $e, float $time): void
+    {
+    }
+    /**
+     * A failure occurred.
+     */
+    public function addFailure(\PHPUnit\Framework\Test $test, \PHPUnit\Framework\AssertionFailedError $e, float $time): void
+    {
+    }
+    /**
+     * Incomplete test.
+     */
+    public function addIncompleteTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
+    {
+    }
+    /**
+     * Risky test.
+     */
+    public function addRiskyTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
+    {
+    }
+    /**
+     * Skipped test.
+     */
+    public function addSkippedTest(\PHPUnit\Framework\Test $test, \Throwable $t, float $time): void
+    {
+    }
+    /**
+     * A test suite started.
+     */
+    public function startTestSuite(\PHPUnit\Framework\TestSuite $suite): void
+    {
+    }
+    /**
+     * A test suite ended.
+     */
+    public function endTestSuite(\PHPUnit\Framework\TestSuite $suite): void
+    {
+    }
+    /**
+     * A test started.
+     */
+    public function startTest(\PHPUnit\Framework\Test $test): void
+    {
+    }
+    /**
+     * A test ended.
+     *
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     */
+    public function endTest(\PHPUnit\Framework\Test $test, float $time): void
+    {
+    }
+}
 namespace PHPUnit\Util\Xml;
 
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class Exception extends \RuntimeException implements \PHPUnit\Exception
+{
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phan-side-effect-free
+ */
+final class FailedSchemaDetectionResult extends \PHPUnit\Util\Xml\SchemaDetectionResult
+{
+}
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
@@ -14419,6 +14433,73 @@ final class Loader
      * @throws Exception
      */
     public function load(string $actual, bool $isHtml = false, string $filename = '', bool $xinclude = false, bool $strict = false): \DOMDocument
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @phan-side-effect-free
+ */
+abstract class SchemaDetectionResult
+{
+    /**
+     * @psalm-assert-if-true SuccessfulSchemaDetectionResult $this
+     */
+    public function detected(): bool
+    {
+    }
+    /**
+     * @throws Exception
+     */
+    public function version(): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class SchemaDetector
+{
+    /**
+     * @throws Exception
+     */
+    public function detect(string $filename): \PHPUnit\Util\Xml\SchemaDetectionResult
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class SchemaFinder
+{
+    /**
+     * @phan-return non-empty-list<non-empty-string>
+     */
+    public function available(): array
+    {
+    }
+    /**
+     * @throws Exception
+     */
+    public function find(string $version): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @template-implements \IteratorAggregate<int, \DOMNode>
+ */
+final class SnapshotNodeList implements \Countable, \IteratorAggregate
+{
+    public static function fromNodeList(\DOMNodeList $list): self
+    {
+    }
+    public function count(): int
+    {
+    }
+    public function getIterator(): \ArrayIterator
     {
     }
 }
@@ -14450,36 +14531,6 @@ final class SuccessfulSchemaDetectionResult extends \PHPUnit\Util\Xml\SchemaDete
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class SchemaFinder
-{
-    /**
-     * @phan-return non-empty-list<non-empty-string>
-     */
-    public function available(): array
-    {
-    }
-    /**
-     * @throws Exception
-     */
-    public function find(string $version): string
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class SchemaDetector
-{
-    /**
-     * @throws Exception
-     */
-    public function detect(string $filename): \PHPUnit\Util\Xml\SchemaDetectionResult
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
  *
  * @phan-side-effect-free
  */
@@ -14501,62 +14552,11 @@ final class ValidationResult
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class Exception extends \RuntimeException implements \PHPUnit\Exception
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
 final class Validator
 {
     public function validate(\DOMDocument $document, string $xsdFilename): \PHPUnit\Util\Xml\ValidationResult
     {
     }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @template-implements \IteratorAggregate<int, \DOMNode>
- */
-final class SnapshotNodeList implements \Countable, \IteratorAggregate
-{
-    public static function fromNodeList(\DOMNodeList $list): self
-    {
-    }
-    public function count(): int
-    {
-    }
-    public function getIterator(): \ArrayIterator
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
- */
-abstract class SchemaDetectionResult
-{
-    /**
-     * @psalm-assert-if-true SuccessfulSchemaDetectionResult $this
-     */
-    public function detected(): bool
-    {
-    }
-    /**
-     * @throws Exception
-     */
-    public function version(): string
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phan-side-effect-free
- */
-final class FailedSchemaDetectionResult extends \PHPUnit\Util\Xml\SchemaDetectionResult
-{
 }
 namespace SebastianBergmann;
 
@@ -14571,33 +14571,6 @@ final class Version
 }
 namespace SebastianBergmann\CliParser;
 
-final class UnknownOptionException extends \RuntimeException implements \SebastianBergmann\CliParser\Exception
-{
-    public function __construct(string $option)
-    {
-    }
-}
-final class OptionDoesNotAllowArgumentException extends \RuntimeException implements \SebastianBergmann\CliParser\Exception
-{
-    public function __construct(string $option)
-    {
-    }
-}
-interface Exception extends \Throwable
-{
-}
-final class RequiredOptionArgumentMissingException extends \RuntimeException implements \SebastianBergmann\CliParser\Exception
-{
-    public function __construct(string $option)
-    {
-    }
-}
-final class AmbiguousOptionException extends \RuntimeException implements \SebastianBergmann\CliParser\Exception
-{
-    public function __construct(string $option)
-    {
-    }
-}
 final class Parser
 {
     /**
@@ -14613,65 +14586,35 @@ final class Parser
     {
     }
 }
-namespace SebastianBergmann\CodeCoverage;
-
-final class BranchAndPathCoverageNotSupportedException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+final class AmbiguousOptionException extends \RuntimeException implements \SebastianBergmann\CliParser\Exception
 {
-}
-final class ReportAlreadyFinalizedException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
-{
-    public function __construct()
+    public function __construct(string $option)
     {
     }
-}
-final class ParserException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
-{
-}
-final class NoCodeCoverageDriverWithPathCoverageSupportAvailableException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
-{
-    public function __construct()
-    {
-    }
-}
-final class NoCodeCoverageDriverAvailableException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
-{
-    public function __construct()
-    {
-    }
-}
-final class InvalidArgumentException extends \InvalidArgumentException implements \SebastianBergmann\CodeCoverage\Exception
-{
-}
-final class XmlException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
-{
-}
-final class TestIdMissingException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
-{
-    public function __construct()
-    {
-    }
-}
-final class StaticAnalysisCacheNotConfiguredException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
-{
 }
 interface Exception extends \Throwable
 {
 }
-final class DeadCodeDetectionNotSupportedException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+final class OptionDoesNotAllowArgumentException extends \RuntimeException implements \SebastianBergmann\CliParser\Exception
 {
-}
-final class UnintentionallyCoveredCodeException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
-{
-    public function __construct(array $unintentionallyCoveredUnits)
-    {
-    }
-    public function getUnintentionallyCoveredUnits(): array
+    public function __construct(string $option)
     {
     }
 }
-final class ReflectionException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+final class RequiredOptionArgumentMissingException extends \RuntimeException implements \SebastianBergmann\CliParser\Exception
 {
+    public function __construct(string $option)
+    {
+    }
 }
+final class UnknownOptionException extends \RuntimeException implements \SebastianBergmann\CliParser\Exception
+{
+    public function __construct(string $option)
+    {
+    }
+}
+namespace SebastianBergmann\CodeCoverage;
+
 /**
  * Provides collection functionality for PHP code coverage information.
  */
@@ -14830,11 +14773,62 @@ final class CodeCoverage
     {
     }
 }
-final class Version
+final class BranchAndPathCoverageNotSupportedException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
 {
-    public static function id(): string
+}
+final class DeadCodeDetectionNotSupportedException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+{
+}
+interface Exception extends \Throwable
+{
+}
+final class InvalidArgumentException extends \InvalidArgumentException implements \SebastianBergmann\CodeCoverage\Exception
+{
+}
+final class NoCodeCoverageDriverAvailableException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+{
+    public function __construct()
     {
     }
+}
+final class NoCodeCoverageDriverWithPathCoverageSupportAvailableException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+{
+    public function __construct()
+    {
+    }
+}
+final class ParserException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+{
+}
+final class ReflectionException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+{
+}
+final class ReportAlreadyFinalizedException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+{
+    public function __construct()
+    {
+    }
+}
+final class StaticAnalysisCacheNotConfiguredException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+{
+}
+final class TestIdMissingException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+{
+    public function __construct()
+    {
+    }
+}
+final class UnintentionallyCoveredCodeException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+{
+    public function __construct(array $unintentionallyCoveredUnits)
+    {
+    }
+    public function getUnintentionallyCoveredUnits(): array
+    {
+    }
+}
+final class XmlException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+{
 }
 final class Filter
 {
@@ -14869,6 +14863,39 @@ final class Filter
     {
     }
     public function isEmpty(): bool
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class ProcessedCodeCoverageData
+{
+    public function initializeUnseenData(\SebastianBergmann\CodeCoverage\RawCodeCoverageData $rawData): void
+    {
+    }
+    public function markCodeAsExecutedByTestCase(string $testCaseId, \SebastianBergmann\CodeCoverage\RawCodeCoverageData $executedCode): void
+    {
+    }
+    public function setLineCoverage(array $lineCoverage): void
+    {
+    }
+    public function lineCoverage(): array
+    {
+    }
+    public function setFunctionCoverage(array $functionCoverage): void
+    {
+    }
+    public function functionCoverage(): array
+    {
+    }
+    public function coveredFiles(): array
+    {
+    }
+    public function renameFile(string $oldFile, string $newFile): void
+    {
+    }
+    public function merge(self $newData): void
     {
     }
 }
@@ -14926,109 +14953,14 @@ final class RawCodeCoverageData
     {
     }
 }
-/**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- */
-final class ProcessedCodeCoverageData
+final class Version
 {
-    public function initializeUnseenData(\SebastianBergmann\CodeCoverage\RawCodeCoverageData $rawData): void
-    {
-    }
-    public function markCodeAsExecutedByTestCase(string $testCaseId, \SebastianBergmann\CodeCoverage\RawCodeCoverageData $executedCode): void
-    {
-    }
-    public function setLineCoverage(array $lineCoverage): void
-    {
-    }
-    public function lineCoverage(): array
-    {
-    }
-    public function setFunctionCoverage(array $functionCoverage): void
-    {
-    }
-    public function functionCoverage(): array
-    {
-    }
-    public function coveredFiles(): array
-    {
-    }
-    public function renameFile(string $oldFile, string $newFile): void
-    {
-    }
-    public function merge(self $newData): void
+    public static function id(): string
     {
     }
 }
 namespace SebastianBergmann\CodeCoverage\Driver;
 
-final class Xdebug2NotEnabledException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
-{
-    public function __construct()
-    {
-    }
-}
-final class Xdebug3NotEnabledException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
-{
-    public function __construct()
-    {
-    }
-}
-final class WrongXdebugVersionException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
-{
-}
-final class PathExistsButIsNotDirectoryException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
-{
-    public function __construct(string $path)
-    {
-    }
-}
-final class PcovNotAvailableException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
-{
-    public function __construct()
-    {
-    }
-}
-final class XdebugNotAvailableException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
-{
-    public function __construct()
-    {
-    }
-}
-final class WriteOperationFailedException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
-{
-    public function __construct(string $path)
-    {
-    }
-}
-final class PhpdbgNotAvailableException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
-{
-    public function __construct()
-    {
-    }
-}
-final class Selector
-{
-    /**
-     * @throws \SebastianBergmann\CodeCoverage\NoCodeCoverageDriverAvailableException
-     * @throws PcovNotAvailableException
-     * @throws PhpdbgNotAvailableException
-     * @throws Xdebug2NotEnabledException
-     * @throws Xdebug3NotEnabledException
-     * @throws XdebugNotAvailableException
-     */
-    public function forLineCoverage(\SebastianBergmann\CodeCoverage\Filter $filter): \SebastianBergmann\CodeCoverage\Driver\Driver
-    {
-    }
-    /**
-     * @throws \SebastianBergmann\CodeCoverage\NoCodeCoverageDriverWithPathCoverageSupportAvailableException
-     * @throws Xdebug2NotEnabledException
-     * @throws Xdebug3NotEnabledException
-     * @throws XdebugNotAvailableException
-     */
-    public function forLineAndPathCoverage(\SebastianBergmann\CodeCoverage\Filter $filter): \SebastianBergmann\CodeCoverage\Driver\Driver
-    {
-    }
-}
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
@@ -15125,20 +15057,12 @@ abstract class Driver
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
-final class Xdebug2Driver extends \SebastianBergmann\CodeCoverage\Driver\Driver
+final class PcovDriver extends \SebastianBergmann\CodeCoverage\Driver\Driver
 {
     /**
-     * @throws WrongXdebugVersionException
-     * @throws Xdebug2NotEnabledException
-     * @throws XdebugNotAvailableException
+     * @throws PcovNotAvailableException
      */
     public function __construct(\SebastianBergmann\CodeCoverage\Filter $filter)
-    {
-    }
-    public function canCollectBranchAndPathCoverage(): bool
-    {
-    }
-    public function canDetectDeadCode(): bool
     {
     }
     public function start(): void
@@ -15160,6 +15084,58 @@ final class PhpdbgDriver extends \SebastianBergmann\CodeCoverage\Driver\Driver
      * @throws PhpdbgNotAvailableException
      */
     public function __construct()
+    {
+    }
+    public function start(): void
+    {
+    }
+    public function stop(): \SebastianBergmann\CodeCoverage\RawCodeCoverageData
+    {
+    }
+    public function nameAndVersion(): string
+    {
+    }
+}
+final class Selector
+{
+    /**
+     * @throws \SebastianBergmann\CodeCoverage\NoCodeCoverageDriverAvailableException
+     * @throws PcovNotAvailableException
+     * @throws PhpdbgNotAvailableException
+     * @throws Xdebug2NotEnabledException
+     * @throws Xdebug3NotEnabledException
+     * @throws XdebugNotAvailableException
+     */
+    public function forLineCoverage(\SebastianBergmann\CodeCoverage\Filter $filter): \SebastianBergmann\CodeCoverage\Driver\Driver
+    {
+    }
+    /**
+     * @throws \SebastianBergmann\CodeCoverage\NoCodeCoverageDriverWithPathCoverageSupportAvailableException
+     * @throws Xdebug2NotEnabledException
+     * @throws Xdebug3NotEnabledException
+     * @throws XdebugNotAvailableException
+     */
+    public function forLineAndPathCoverage(\SebastianBergmann\CodeCoverage\Filter $filter): \SebastianBergmann\CodeCoverage\Driver\Driver
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class Xdebug2Driver extends \SebastianBergmann\CodeCoverage\Driver\Driver
+{
+    /**
+     * @throws WrongXdebugVersionException
+     * @throws Xdebug2NotEnabledException
+     * @throws XdebugNotAvailableException
+     */
+    public function __construct(\SebastianBergmann\CodeCoverage\Filter $filter)
+    {
+    }
+    public function canCollectBranchAndPathCoverage(): bool
+    {
+    }
+    public function canDetectDeadCode(): bool
     {
     }
     public function start(): void
@@ -15201,80 +15177,53 @@ final class Xdebug3Driver extends \SebastianBergmann\CodeCoverage\Driver\Driver
     {
     }
 }
-/**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- */
-final class PcovDriver extends \SebastianBergmann\CodeCoverage\Driver\Driver
+final class PathExistsButIsNotDirectoryException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
 {
-    /**
-     * @throws PcovNotAvailableException
-     */
-    public function __construct(\SebastianBergmann\CodeCoverage\Filter $filter)
+    public function __construct(string $path)
     {
     }
-    public function start(): void
+}
+final class PcovNotAvailableException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+{
+    public function __construct()
     {
     }
-    public function stop(): \SebastianBergmann\CodeCoverage\RawCodeCoverageData
+}
+final class PhpdbgNotAvailableException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+{
+    public function __construct()
     {
     }
-    public function nameAndVersion(): string
+}
+final class WriteOperationFailedException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+{
+    public function __construct(string $path)
+    {
+    }
+}
+final class WrongXdebugVersionException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+{
+}
+final class Xdebug2NotEnabledException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+{
+    public function __construct()
+    {
+    }
+}
+final class Xdebug3NotEnabledException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+{
+    public function __construct()
+    {
+    }
+}
+final class XdebugNotAvailableException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+{
+    public function __construct()
     {
     }
 }
 namespace SebastianBergmann\CodeCoverage\Node;
 
-/**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- */
-final class Iterator implements \RecursiveIterator
-{
-    public function __construct(\SebastianBergmann\CodeCoverage\Node\Directory $node)
-    {
-    }
-    /**
-     * Rewinds the Iterator to the first element.
-     */
-    public function rewind(): void
-    {
-    }
-    /**
-     * Checks if there is a current element after calls to rewind() or next().
-     */
-    public function valid(): bool
-    {
-    }
-    /**
-     * Returns the key of the current element.
-     */
-    public function key(): int
-    {
-    }
-    /**
-     * Returns the current element.
-     */
-    public function current(): ?\SebastianBergmann\CodeCoverage\Node\AbstractNode
-    {
-    }
-    /**
-     * Moves forward to next element.
-     */
-    public function next(): void
-    {
-    }
-    /**
-     * Returns the sub iterator for the current element.
-     */
-    public function getChildren(): self
-    {
-    }
-    /**
-     * Checks whether the current element has children.
-     */
-    public function hasChildren(): bool
-    {
-    }
-}
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
@@ -15377,81 +15326,12 @@ final class Builder
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
-final class File extends \SebastianBergmann\CodeCoverage\Node\AbstractNode
+final class CrapIndex
 {
-    /**
-     * @phan-param array{linesOfCode: int, commentLinesOfCode: int, nonCommentLinesOfCode: int} $linesOfCode
-     */
-    public function __construct(string $name, \SebastianBergmann\CodeCoverage\Node\AbstractNode $parent, array $lineCoverageData, array $functionCoverageData, array $testData, array $classes, array $traits, array $functions, array $linesOfCode)
+    public function __construct(int $cyclomaticComplexity, float $codeCoverage)
     {
     }
-    public function count(): int
-    {
-    }
-    public function lineCoverageData(): array
-    {
-    }
-    public function functionCoverageData(): array
-    {
-    }
-    public function testData(): array
-    {
-    }
-    public function classes(): array
-    {
-    }
-    public function traits(): array
-    {
-    }
-    public function functions(): array
-    {
-    }
-    /**
-     * @phan-return array{linesOfCode: int, commentLinesOfCode: int, nonCommentLinesOfCode: int}
-     */
-    public function linesOfCode(): array
-    {
-    }
-    public function numberOfExecutableLines(): int
-    {
-    }
-    public function numberOfExecutedLines(): int
-    {
-    }
-    public function numberOfExecutableBranches(): int
-    {
-    }
-    public function numberOfExecutedBranches(): int
-    {
-    }
-    public function numberOfExecutablePaths(): int
-    {
-    }
-    public function numberOfExecutedPaths(): int
-    {
-    }
-    public function numberOfClasses(): int
-    {
-    }
-    public function numberOfTestedClasses(): int
-    {
-    }
-    public function numberOfTraits(): int
-    {
-    }
-    public function numberOfTestedTraits(): int
-    {
-    }
-    public function numberOfMethods(): int
-    {
-    }
-    public function numberOfTestedMethods(): int
-    {
-    }
-    public function numberOfFunctions(): int
-    {
-    }
-    public function numberOfTestedFunctions(): int
+    public function asString(): string
     {
     }
 }
@@ -15542,12 +15422,132 @@ final class Directory extends \SebastianBergmann\CodeCoverage\Node\AbstractNode 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
-final class CrapIndex
+final class File extends \SebastianBergmann\CodeCoverage\Node\AbstractNode
 {
-    public function __construct(int $cyclomaticComplexity, float $codeCoverage)
+    /**
+     * @phan-param array{linesOfCode: int, commentLinesOfCode: int, nonCommentLinesOfCode: int} $linesOfCode
+     */
+    public function __construct(string $name, \SebastianBergmann\CodeCoverage\Node\AbstractNode $parent, array $lineCoverageData, array $functionCoverageData, array $testData, array $classes, array $traits, array $functions, array $linesOfCode)
     {
     }
-    public function asString(): string
+    public function count(): int
+    {
+    }
+    public function lineCoverageData(): array
+    {
+    }
+    public function functionCoverageData(): array
+    {
+    }
+    public function testData(): array
+    {
+    }
+    public function classes(): array
+    {
+    }
+    public function traits(): array
+    {
+    }
+    public function functions(): array
+    {
+    }
+    /**
+     * @phan-return array{linesOfCode: int, commentLinesOfCode: int, nonCommentLinesOfCode: int}
+     */
+    public function linesOfCode(): array
+    {
+    }
+    public function numberOfExecutableLines(): int
+    {
+    }
+    public function numberOfExecutedLines(): int
+    {
+    }
+    public function numberOfExecutableBranches(): int
+    {
+    }
+    public function numberOfExecutedBranches(): int
+    {
+    }
+    public function numberOfExecutablePaths(): int
+    {
+    }
+    public function numberOfExecutedPaths(): int
+    {
+    }
+    public function numberOfClasses(): int
+    {
+    }
+    public function numberOfTestedClasses(): int
+    {
+    }
+    public function numberOfTraits(): int
+    {
+    }
+    public function numberOfTestedTraits(): int
+    {
+    }
+    public function numberOfMethods(): int
+    {
+    }
+    public function numberOfTestedMethods(): int
+    {
+    }
+    public function numberOfFunctions(): int
+    {
+    }
+    public function numberOfTestedFunctions(): int
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class Iterator implements \RecursiveIterator
+{
+    public function __construct(\SebastianBergmann\CodeCoverage\Node\Directory $node)
+    {
+    }
+    /**
+     * Rewinds the Iterator to the first element.
+     */
+    public function rewind(): void
+    {
+    }
+    /**
+     * Checks if there is a current element after calls to rewind() or next().
+     */
+    public function valid(): bool
+    {
+    }
+    /**
+     * Returns the key of the current element.
+     */
+    public function key(): int
+    {
+    }
+    /**
+     * Returns the current element.
+     */
+    public function current(): ?\SebastianBergmann\CodeCoverage\Node\AbstractNode
+    {
+    }
+    /**
+     * Moves forward to next element.
+     */
+    public function next(): void
+    {
+    }
+    /**
+     * Returns the sub iterator for the current element.
+     */
+    public function getChildren(): self
+    {
+    }
+    /**
+     * Checks whether the current element has children.
+     */
+    public function hasChildren(): bool
     {
     }
 }
@@ -15559,21 +15559,6 @@ final class Clover
      * @throws \SebastianBergmann\CodeCoverage\Driver\WriteOperationFailedException
      */
     public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, ?string $target = null, ?string $name = null): string
-    {
-    }
-}
-final class Text
-{
-    public function __construct(int $lowUpperBound = 50, int $highLowerBound = 90, bool $showUncoveredFiles = false, bool $showOnlySummary = false)
-    {
-    }
-    public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, bool $showColors = false): string
-    {
-    }
-}
-final class PHP
-{
-    public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, ?string $target = null): string
     {
     }
 }
@@ -15598,32 +15583,29 @@ final class Crap4j
     {
     }
 }
+final class PHP
+{
+    public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, ?string $target = null): string
+    {
+    }
+}
+final class Text
+{
+    public function __construct(int $lowUpperBound = 50, int $highLowerBound = 90, bool $showUncoveredFiles = false, bool $showOnlySummary = false)
+    {
+    }
+    public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, bool $showColors = false): string
+    {
+    }
+}
 namespace SebastianBergmann\CodeCoverage\Report\Html;
 
-/**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- */
-final class Dashboard extends \SebastianBergmann\CodeCoverage\Report\Html\Renderer
+final class Facade
 {
-    public function render(\SebastianBergmann\CodeCoverage\Node\Directory $node, string $file): void
+    public function __construct(int $lowUpperBound = 50, int $highLowerBound = 90, string $generator = '')
     {
     }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- */
-final class File extends \SebastianBergmann\CodeCoverage\Report\Html\Renderer
-{
-    public function render(\SebastianBergmann\CodeCoverage\Node\File $node, string $file): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- */
-final class Directory extends \SebastianBergmann\CodeCoverage\Report\Html\Renderer
-{
-    public function render(\SebastianBergmann\CodeCoverage\Node\Directory $node, string $file): void
+    public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, string $target): void
     {
     }
 }
@@ -15688,17 +15670,131 @@ abstract class Renderer
     {
     }
 }
-final class Facade
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class Dashboard extends \SebastianBergmann\CodeCoverage\Report\Html\Renderer
 {
-    public function __construct(int $lowUpperBound = 50, int $highLowerBound = 90, string $generator = '')
+    public function render(\SebastianBergmann\CodeCoverage\Node\Directory $node, string $file): void
     {
     }
-    public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, string $target): void
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class Directory extends \SebastianBergmann\CodeCoverage\Report\Html\Renderer
+{
+    public function render(\SebastianBergmann\CodeCoverage\Node\Directory $node, string $file): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class File extends \SebastianBergmann\CodeCoverage\Report\Html\Renderer
+{
+    public function render(\SebastianBergmann\CodeCoverage\Node\File $node, string $file): void
     {
     }
 }
 namespace SebastianBergmann\CodeCoverage\Report\Xml;
 
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class BuildInformation
+{
+    public function __construct(\DOMElement $contextNode)
+    {
+    }
+    public function setRuntimeInformation(\SebastianBergmann\Environment\Runtime $runtime): void
+    {
+    }
+    public function setBuildTime(\DateTimeImmutable $date): void
+    {
+    }
+    public function setGeneratorVersions(string $phpUnitVersion, string $coverageVersion): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class Coverage
+{
+    public function __construct(\DOMElement $context, string $line)
+    {
+    }
+    /**
+     * @throws \SebastianBergmann\CodeCoverage\ReportAlreadyFinalizedException
+     */
+    public function addTest(string $test): void
+    {
+    }
+    public function finalize(): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class Directory extends \SebastianBergmann\CodeCoverage\Report\Xml\Node
+{
+}
+final class Facade
+{
+    public function __construct(string $version)
+    {
+    }
+    /**
+     * @throws \SebastianBergmann\CodeCoverage\XmlException
+     */
+    public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, string $target): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+class File
+{
+    public function __construct(\DOMElement $context)
+    {
+    }
+    public function totals(): \SebastianBergmann\CodeCoverage\Report\Xml\Totals
+    {
+    }
+    public function lineCoverage(string $line): \SebastianBergmann\CodeCoverage\Report\Xml\Coverage
+    {
+    }
+    protected function contextNode(): \DOMElement
+    {
+    }
+    protected function dom(): \DOMDocument
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class Method
+{
+    public function __construct(\DOMElement $context, string $name)
+    {
+    }
+    public function setSignature(string $signature): void
+    {
+    }
+    public function setLines(string $start, ?string $end = null): void
+    {
+    }
+    public function setTotals(string $executable, string $executed, string $coverage): void
+    {
+    }
+    public function setCrap(string $crap): void
+    {
+    }
+}
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
@@ -15723,18 +15819,6 @@ abstract class Node
     {
     }
     protected function contextNode(): \DOMElement
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- */
-final class Source
-{
-    public function __construct(\DOMElement $context)
-    {
-    }
-    public function setSourceCode(string $source): void
     {
     }
 }
@@ -15786,6 +15870,30 @@ final class Report extends \SebastianBergmann\CodeCoverage\Report\Xml\File
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
+final class Source
+{
+    public function __construct(\DOMElement $context)
+    {
+    }
+    public function setSourceCode(string $source): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class Tests
+{
+    public function __construct(\DOMElement $context)
+    {
+    }
+    public function addTest(string $test, array $result): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
 final class Totals
 {
     public function __construct(\DOMElement $container)
@@ -15813,63 +15921,6 @@ final class Totals
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
-final class Coverage
-{
-    public function __construct(\DOMElement $context, string $line)
-    {
-    }
-    /**
-     * @throws \SebastianBergmann\CodeCoverage\ReportAlreadyFinalizedException
-     */
-    public function addTest(string $test): void
-    {
-    }
-    public function finalize(): void
-    {
-    }
-}
-final class Facade
-{
-    public function __construct(string $version)
-    {
-    }
-    /**
-     * @throws \SebastianBergmann\CodeCoverage\XmlException
-     */
-    public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, string $target): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- */
-class File
-{
-    public function __construct(\DOMElement $context)
-    {
-    }
-    public function totals(): \SebastianBergmann\CodeCoverage\Report\Xml\Totals
-    {
-    }
-    public function lineCoverage(string $line): \SebastianBergmann\CodeCoverage\Report\Xml\Coverage
-    {
-    }
-    protected function contextNode(): \DOMElement
-    {
-    }
-    protected function dom(): \DOMDocument
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- */
-final class Directory extends \SebastianBergmann\CodeCoverage\Report\Xml\Node
-{
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- */
 final class Unit
 {
     public function __construct(\DOMElement $context, string $name)
@@ -15888,137 +15939,8 @@ final class Unit
     {
     }
 }
-/**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- */
-final class Tests
-{
-    public function __construct(\DOMElement $context)
-    {
-    }
-    public function addTest(string $test, array $result): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- */
-final class Method
-{
-    public function __construct(\DOMElement $context, string $name)
-    {
-    }
-    public function setSignature(string $signature): void
-    {
-    }
-    public function setLines(string $start, ?string $end = null): void
-    {
-    }
-    public function setTotals(string $executable, string $executed, string $coverage): void
-    {
-    }
-    public function setCrap(string $crap): void
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- */
-final class BuildInformation
-{
-    public function __construct(\DOMElement $contextNode)
-    {
-    }
-    public function setRuntimeInformation(\SebastianBergmann\Environment\Runtime $runtime): void
-    {
-    }
-    public function setBuildTime(\DateTimeImmutable $date): void
-    {
-    }
-    public function setGeneratorVersions(string $phpUnitVersion, string $coverageVersion): void
-    {
-    }
-}
 namespace SebastianBergmann\CodeCoverage\StaticAnalysis;
 
-/**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- */
-final class CodeUnitFindingVisitor extends \PhpParser\NodeVisitorAbstract
-{
-    public function enterNode(\PhpParser\Node $node): void
-    {
-    }
-    /**
-     * @phan-return array<string,array{name: string, namespacedName: string, namespace: string, startLine: int, endLine: int, methods: array<string,array{methodName: string, signature: string, visibility: string, startLine: int, endLine: int, ccn: int}>}>
-     */
-    public function classes(): array
-    {
-    }
-    /**
-     * @phan-return array<string,array{name: string, namespacedName: string, namespace: string, startLine: int, endLine: int, methods: array<string,array{methodName: string, signature: string, visibility: string, startLine: int, endLine: int, ccn: int}>}>
-     */
-    public function traits(): array
-    {
-    }
-    /**
-     * @phan-return array<string,array{name: string, namespacedName: string, namespace: string, signature: string, startLine: int, endLine: int, ccn: int}>
-     */
-    public function functions(): array
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- */
-final class IgnoredLinesFindingVisitor extends \PhpParser\NodeVisitorAbstract
-{
-    public function __construct(bool $useAnnotationsForIgnoringCode, bool $ignoreDeprecated)
-    {
-    }
-    public function enterNode(\PhpParser\Node $node): void
-    {
-    }
-    /**
-     * @phan-return list<int>
-     */
-    public function ignoredLines(): array
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- */
-final class ExecutableLinesFindingVisitor extends \PhpParser\NodeVisitorAbstract
-{
-    public function __construct(string $source)
-    {
-    }
-    public function enterNode(\PhpParser\Node $node): void
-    {
-    }
-    public function afterTraverse(array $nodes): void
-    {
-    }
-    public function executableLinesGroupedByBranch(): array
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- */
-interface FileAnalyser
-{
-    public function classesIn(string $filename): array;
-    public function traitsIn(string $filename): array;
-    public function functionsIn(string $filename): array;
-    /**
-     * @phan-return array{linesOfCode: int, commentLinesOfCode: int, nonCommentLinesOfCode: int}
-     */
-    public function linesOfCodeFor(string $filename): array;
-    public function executableLinesIn(string $filename): array;
-    public function ignoredLinesFor(string $filename): array;
-}
 final class CacheWarmer
 {
     public function warmCache(string $cacheDirectory, bool $useAnnotationsForIgnoringCode, bool $ignoreDeprecatedCode, \SebastianBergmann\CodeCoverage\Filter $filter): void
@@ -16055,6 +15977,84 @@ final class CachingFileAnalyser implements \SebastianBergmann\CodeCoverage\Stati
     {
     }
     public function process(string $filename): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class CodeUnitFindingVisitor extends \PhpParser\NodeVisitorAbstract
+{
+    public function enterNode(\PhpParser\Node $node): void
+    {
+    }
+    /**
+     * @phan-return array<string,array{name: string, namespacedName: string, namespace: string, startLine: int, endLine: int, methods: array<string,array{methodName: string, signature: string, visibility: string, startLine: int, endLine: int, ccn: int}>}>
+     */
+    public function classes(): array
+    {
+    }
+    /**
+     * @phan-return array<string,array{name: string, namespacedName: string, namespace: string, startLine: int, endLine: int, methods: array<string,array{methodName: string, signature: string, visibility: string, startLine: int, endLine: int, ccn: int}>}>
+     */
+    public function traits(): array
+    {
+    }
+    /**
+     * @phan-return array<string,array{name: string, namespacedName: string, namespace: string, signature: string, startLine: int, endLine: int, ccn: int}>
+     */
+    public function functions(): array
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class ExecutableLinesFindingVisitor extends \PhpParser\NodeVisitorAbstract
+{
+    public function __construct(string $source)
+    {
+    }
+    public function enterNode(\PhpParser\Node $node): void
+    {
+    }
+    public function afterTraverse(array $nodes): void
+    {
+    }
+    public function executableLinesGroupedByBranch(): array
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+interface FileAnalyser
+{
+    public function classesIn(string $filename): array;
+    public function traitsIn(string $filename): array;
+    public function functionsIn(string $filename): array;
+    /**
+     * @phan-return array{linesOfCode: int, commentLinesOfCode: int, nonCommentLinesOfCode: int}
+     */
+    public function linesOfCodeFor(string $filename): array;
+    public function executableLinesIn(string $filename): array;
+    public function ignoredLinesFor(string $filename): array;
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class IgnoredLinesFindingVisitor extends \PhpParser\NodeVisitorAbstract
+{
+    public function __construct(bool $useAnnotationsForIgnoringCode, bool $ignoreDeprecated)
+    {
+    }
+    public function enterNode(\PhpParser\Node $node): void
+    {
+    }
+    /**
+     * @phan-return list<int>
+     */
+    public function ignoredLines(): array
     {
     }
 }
@@ -16125,51 +16125,6 @@ final class Percentage
 }
 namespace SebastianBergmann\CodeUnit;
 
-final class NoTraitException extends \RuntimeException implements \SebastianBergmann\CodeUnit\Exception
-{
-}
-interface Exception extends \Throwable
-{
-}
-final class InvalidCodeUnitException extends \RuntimeException implements \SebastianBergmann\CodeUnit\Exception
-{
-}
-final class ReflectionException extends \RuntimeException implements \SebastianBergmann\CodeUnit\Exception
-{
-}
-/**
- * @phan-side-effect-free
- */
-final class FunctionUnit extends \SebastianBergmann\CodeUnit\CodeUnit
-{
-    /**
-     * @psalm-assert-if-true FunctionUnit $this
-     */
-    public function isFunction(): bool
-    {
-    }
-}
-final class CodeUnitCollectionIterator implements \Iterator
-{
-    public function __construct(\SebastianBergmann\CodeUnit\CodeUnitCollection $collection)
-    {
-    }
-    public function rewind(): void
-    {
-    }
-    public function valid(): bool
-    {
-    }
-    public function key(): int
-    {
-    }
-    public function current(): \SebastianBergmann\CodeUnit\CodeUnit
-    {
-    }
-    public function next(): void
-    {
-    }
-}
 /**
  * @phan-side-effect-free
  */
@@ -16185,12 +16140,12 @@ final class ClassMethodUnit extends \SebastianBergmann\CodeUnit\CodeUnit
 /**
  * @phan-side-effect-free
  */
-final class InterfaceUnit extends \SebastianBergmann\CodeUnit\CodeUnit
+final class ClassUnit extends \SebastianBergmann\CodeUnit\CodeUnit
 {
     /**
-     * @psalm-assert-if-true InterfaceUnit $this
+     * @psalm-assert-if-true ClassUnit $this
      */
-    public function isInterface(): bool
+    public function isClass(): bool
     {
     }
 }
@@ -16296,70 +16251,6 @@ abstract class CodeUnit
     {
     }
 }
-/**
- * @phan-side-effect-free
- */
-final class TraitMethodUnit extends \SebastianBergmann\CodeUnit\CodeUnit
-{
-    /**
-     * @psalm-assert-if-true TraitMethodUnit $this
-     */
-    public function isTraitMethod(): bool
-    {
-    }
-}
-final class Mapper
-{
-    /**
-     * @phan-return array<string,list<int>>
-     */
-    public function codeUnitsToSourceLines(\SebastianBergmann\CodeUnit\CodeUnitCollection $codeUnits): array
-    {
-    }
-    /**
-     * @throws InvalidCodeUnitException
-     * @throws ReflectionException
-     */
-    public function stringToCodeUnits(string $unit): \SebastianBergmann\CodeUnit\CodeUnitCollection
-    {
-    }
-}
-/**
- * @phan-side-effect-free
- */
-final class TraitUnit extends \SebastianBergmann\CodeUnit\CodeUnit
-{
-    /**
-     * @psalm-assert-if-true TraitUnit $this
-     */
-    public function isTrait(): bool
-    {
-    }
-}
-/**
- * @phan-side-effect-free
- */
-final class ClassUnit extends \SebastianBergmann\CodeUnit\CodeUnit
-{
-    /**
-     * @psalm-assert-if-true ClassUnit $this
-     */
-    public function isClass(): bool
-    {
-    }
-}
-/**
- * @phan-side-effect-free
- */
-final class InterfaceMethodUnit extends \SebastianBergmann\CodeUnit\CodeUnit
-{
-    /**
-     * @psalm-assert-if-true InterfaceMethod $this
-     */
-    public function isInterfaceMethod(): bool
-    {
-    }
-}
 final class CodeUnitCollection implements \Countable, \IteratorAggregate
 {
     /**
@@ -16390,6 +16281,115 @@ final class CodeUnitCollection implements \Countable, \IteratorAggregate
     {
     }
 }
+final class CodeUnitCollectionIterator implements \Iterator
+{
+    public function __construct(\SebastianBergmann\CodeUnit\CodeUnitCollection $collection)
+    {
+    }
+    public function rewind(): void
+    {
+    }
+    public function valid(): bool
+    {
+    }
+    public function key(): int
+    {
+    }
+    public function current(): \SebastianBergmann\CodeUnit\CodeUnit
+    {
+    }
+    public function next(): void
+    {
+    }
+}
+/**
+ * @phan-side-effect-free
+ */
+final class FunctionUnit extends \SebastianBergmann\CodeUnit\CodeUnit
+{
+    /**
+     * @psalm-assert-if-true FunctionUnit $this
+     */
+    public function isFunction(): bool
+    {
+    }
+}
+/**
+ * @phan-side-effect-free
+ */
+final class InterfaceMethodUnit extends \SebastianBergmann\CodeUnit\CodeUnit
+{
+    /**
+     * @psalm-assert-if-true InterfaceMethod $this
+     */
+    public function isInterfaceMethod(): bool
+    {
+    }
+}
+/**
+ * @phan-side-effect-free
+ */
+final class InterfaceUnit extends \SebastianBergmann\CodeUnit\CodeUnit
+{
+    /**
+     * @psalm-assert-if-true InterfaceUnit $this
+     */
+    public function isInterface(): bool
+    {
+    }
+}
+final class Mapper
+{
+    /**
+     * @phan-return array<string,list<int>>
+     */
+    public function codeUnitsToSourceLines(\SebastianBergmann\CodeUnit\CodeUnitCollection $codeUnits): array
+    {
+    }
+    /**
+     * @throws InvalidCodeUnitException
+     * @throws ReflectionException
+     */
+    public function stringToCodeUnits(string $unit): \SebastianBergmann\CodeUnit\CodeUnitCollection
+    {
+    }
+}
+/**
+ * @phan-side-effect-free
+ */
+final class TraitMethodUnit extends \SebastianBergmann\CodeUnit\CodeUnit
+{
+    /**
+     * @psalm-assert-if-true TraitMethodUnit $this
+     */
+    public function isTraitMethod(): bool
+    {
+    }
+}
+/**
+ * @phan-side-effect-free
+ */
+final class TraitUnit extends \SebastianBergmann\CodeUnit\CodeUnit
+{
+    /**
+     * @psalm-assert-if-true TraitUnit $this
+     */
+    public function isTrait(): bool
+    {
+    }
+}
+interface Exception extends \Throwable
+{
+}
+final class InvalidCodeUnitException extends \RuntimeException implements \SebastianBergmann\CodeUnit\Exception
+{
+}
+final class NoTraitException extends \RuntimeException implements \SebastianBergmann\CodeUnit\Exception
+{
+}
+final class ReflectionException extends \RuntimeException implements \SebastianBergmann\CodeUnit\Exception
+{
+}
 namespace SebastianBergmann\CodeUnitReverseLookup;
 
 /**
@@ -16409,372 +16409,14 @@ class Wizard
 }
 namespace SebastianBergmann\Comparator;
 
-final class RuntimeException extends \RuntimeException implements \SebastianBergmann\Comparator\Exception
-{
-}
-interface Exception extends \Throwable
-{
-}
 /**
- * Compares objects for equality.
- */
-class ObjectComparator extends \SebastianBergmann\Comparator\ArrayComparator
-{
-    /**
-     * Returns whether the comparator can compare two values.
-     *
-     * @param mixed $expected The first value to compare
-     * @param mixed $actual   The second value to compare
-     *
-     * @return bool
-     */
-    public function accepts($expected, $actual)
-    {
-    }
-    /**
-     * Asserts that two values are equal.
-     *
-     * @param mixed $expected     First value to compare
-     * @param mixed $actual       Second value to compare
-     * @param float $delta        Allowed numerical distance between two values to consider them equal
-     * @param bool  $canonicalize Arrays are sorted before comparison when set to true
-     * @param bool  $ignoreCase   Case is ignored when set to true
-     * @param array $processed    List of already processed elements (used to prevent infinite recursion)
-     *
-     * @throws ComparisonFailure
-     */
-    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false, array &$processed = [])
-    {
-    }
-    /**
-     * Converts an object to an array containing all of its private, protected
-     * and public properties.
-     *
-     * @param object $object
-     *
-     * @return array
-     */
-    protected function toArray($object)
-    {
-    }
-}
-/**
- * Compares resources for equality.
- */
-class ResourceComparator extends \SebastianBergmann\Comparator\Comparator
-{
-    /**
-     * Returns whether the comparator can compare two values.
-     *
-     * @param mixed $expected The first value to compare
-     * @param mixed $actual   The second value to compare
-     *
-     * @return bool
-     */
-    public function accepts($expected, $actual)
-    {
-    }
-    /**
-     * Asserts that two values are equal.
-     *
-     * @param mixed $expected     First value to compare
-     * @param mixed $actual       Second value to compare
-     * @param float $delta        Allowed numerical distance between two values to consider them equal
-     * @param bool  $canonicalize Arrays are sorted before comparison when set to true
-     * @param bool  $ignoreCase   Case is ignored when set to true
-     *
-     * @throws ComparisonFailure
-     */
-    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false)
-    {
-    }
-}
-/**
- * Compares DOMNode instances for equality.
- */
-class DOMNodeComparator extends \SebastianBergmann\Comparator\ObjectComparator
-{
-    /**
-     * Returns whether the comparator can compare two values.
-     *
-     * @param mixed $expected The first value to compare
-     * @param mixed $actual   The second value to compare
-     *
-     * @return bool
-     */
-    public function accepts($expected, $actual)
-    {
-    }
-    /**
-     * Asserts that two values are equal.
-     *
-     * @param mixed $expected     First value to compare
-     * @param mixed $actual       Second value to compare
-     * @param float $delta        Allowed numerical distance between two values to consider them equal
-     * @param bool  $canonicalize Arrays are sorted before comparison when set to true
-     * @param bool  $ignoreCase   Case is ignored when set to true
-     * @param array $processed    List of already processed elements (used to prevent infinite recursion)
-     *
-     * @throws ComparisonFailure
-     */
-    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false, array &$processed = [])
-    {
-    }
-}
-/**
- * Factory for comparators which compare values for equality.
- */
-class Factory
-{
-    /**
-     * @return Factory
-     */
-    public static function getInstance()
-    {
-    }
-    /**
-     * Constructs a new factory.
-     */
-    public function __construct()
-    {
-    }
-    /**
-     * Returns the correct comparator for comparing two values.
-     *
-     * @param mixed $expected The first value to compare
-     * @param mixed $actual   The second value to compare
-     *
-     * @return Comparator
-     */
-    public function getComparatorFor($expected, $actual)
-    {
-    }
-    /**
-     * Registers a new comparator.
-     *
-     * This comparator will be returned by getComparatorFor() if its accept() method
-     * returns TRUE for the compared values. It has higher priority than the
-     * existing comparators, meaning that its accept() method will be invoked
-     * before those of the other comparators.
-     *
-     * @param Comparator $comparator The comparator to be registered
-     */
-    public function register(\SebastianBergmann\Comparator\Comparator $comparator)
-    {
-    }
-    /**
-     * Unregisters a comparator.
-     *
-     * This comparator will no longer be considered by getComparatorFor().
-     *
-     * @param Comparator $comparator The comparator to be unregistered
-     */
-    public function unregister(\SebastianBergmann\Comparator\Comparator $comparator)
-    {
-    }
-    /**
-     * Unregisters all non-default comparators.
-     */
-    public function reset()
-    {
-    }
-}
-/**
- * Compares DateTimeInterface instances for equality.
- */
-class DateTimeComparator extends \SebastianBergmann\Comparator\ObjectComparator
-{
-    /**
-     * Returns whether the comparator can compare two values.
-     *
-     * @param mixed $expected The first value to compare
-     * @param mixed $actual   The second value to compare
-     *
-     * @return bool
-     */
-    public function accepts($expected, $actual)
-    {
-    }
-    /**
-     * Asserts that two values are equal.
-     *
-     * @param mixed $expected     First value to compare
-     * @param mixed $actual       Second value to compare
-     * @param float $delta        Allowed numerical distance between two values to consider them equal
-     * @param bool  $canonicalize Arrays are sorted before comparison when set to true
-     * @param bool  $ignoreCase   Case is ignored when set to true
-     * @param array $processed    List of already processed elements (used to prevent infinite recursion)
-     *
-     * @throws \Exception
-     * @throws ComparisonFailure
-     */
-    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false, array &$processed = [])
-    {
-    }
-}
-/**
- * Compares PHPUnit\Framework\MockObject\MockObject instances for equality.
- */
-class MockObjectComparator extends \SebastianBergmann\Comparator\ObjectComparator
-{
-    /**
-     * Returns whether the comparator can compare two values.
-     *
-     * @param mixed $expected The first value to compare
-     * @param mixed $actual   The second value to compare
-     *
-     * @return bool
-     */
-    public function accepts($expected, $actual)
-    {
-    }
-    /**
-     * Converts an object to an array containing all of its private, protected
-     * and public properties.
-     *
-     * @param object $object
-     *
-     * @return array
-     */
-    protected function toArray($object)
-    {
-    }
-}
-/**
- * Compares Exception instances for equality.
- */
-class ExceptionComparator extends \SebastianBergmann\Comparator\ObjectComparator
-{
-    /**
-     * Returns whether the comparator can compare two values.
-     *
-     * @param mixed $expected The first value to compare
-     * @param mixed $actual   The second value to compare
-     *
-     * @return bool
-     */
-    public function accepts($expected, $actual)
-    {
-    }
-    /**
-     * Converts an object to an array containing all of its private, protected
-     * and public properties.
-     *
-     * @param object $object
-     *
-     * @return array
-     */
-    protected function toArray($object)
-    {
-    }
-}
-/**
- * Compares scalar or NULL values for equality.
- */
-class ScalarComparator extends \SebastianBergmann\Comparator\Comparator
-{
-    /**
-     * Returns whether the comparator can compare two values.
-     *
-     * @param mixed $expected The first value to compare
-     * @param mixed $actual   The second value to compare
-     *
-     * @return bool
-     *
-     * @since  Method available since Release 3.6.0
-     */
-    public function accepts($expected, $actual)
-    {
-    }
-    /**
-     * Asserts that two values are equal.
-     *
-     * @param mixed $expected     First value to compare
-     * @param mixed $actual       Second value to compare
-     * @param float $delta        Allowed numerical distance between two values to consider them equal
-     * @param bool  $canonicalize Arrays are sorted before comparison when set to true
-     * @param bool  $ignoreCase   Case is ignored when set to true
-     *
-     * @throws ComparisonFailure
-     */
-    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false)
-    {
-    }
-}
-/**
- * Compares numerical values for equality.
- */
-class NumericComparator extends \SebastianBergmann\Comparator\ScalarComparator
-{
-    /**
-     * Returns whether the comparator can compare two values.
-     *
-     * @param mixed $expected The first value to compare
-     * @param mixed $actual   The second value to compare
-     *
-     * @return bool
-     */
-    public function accepts($expected, $actual)
-    {
-    }
-    /**
-     * Asserts that two values are equal.
-     *
-     * @param mixed $expected     First value to compare
-     * @param mixed $actual       Second value to compare
-     * @param float $delta        Allowed numerical distance between two values to consider them equal
-     * @param bool  $canonicalize Arrays are sorted before comparison when set to true
-     * @param bool  $ignoreCase   Case is ignored when set to true
-     *
-     * @throws ComparisonFailure
-     */
-    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false)
-    {
-    }
-}
-/**
- * Compares doubles for equality.
+ * Compares arrays for equality.
  *
- * @deprecated since v3.0.5 and v4.0.8
+ * Arrays are equal if they contain the same key-value pairs.
+ * The order of the keys does not matter.
+ * The types of key-value pairs do not matter.
  */
-class DoubleComparator extends \SebastianBergmann\Comparator\NumericComparator
-{
-    /**
-     * Smallest value available in PHP.
-     *
-     * @var float
-     */
-    public const EPSILON = 1.0E-10;
-    /**
-     * Returns whether the comparator can compare two values.
-     *
-     * @param mixed $expected The first value to compare
-     * @param mixed $actual   The second value to compare
-     *
-     * @return bool
-     */
-    public function accepts($expected, $actual)
-    {
-    }
-    /**
-     * Asserts that two values are equal.
-     *
-     * @param mixed $expected     First value to compare
-     * @param mixed $actual       Second value to compare
-     * @param float $delta        Allowed numerical distance between two values to consider them equal
-     * @param bool  $canonicalize Arrays are sorted before comparison when set to true
-     * @param bool  $ignoreCase   Case is ignored when set to true
-     *
-     * @throws ComparisonFailure
-     */
-    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false)
-    {
-    }
-}
-/**
- * Compares values for type equality.
- */
-class TypeComparator extends \SebastianBergmann\Comparator\Comparator
+class ArrayComparator extends \SebastianBergmann\Comparator\Comparator
 {
     /**
      * Returns whether the comparator can compare two values.
@@ -16788,17 +16430,21 @@ class TypeComparator extends \SebastianBergmann\Comparator\Comparator
     {
     }
     /**
-     * Asserts that two values are equal.
+     * Asserts that two arrays are equal.
      *
      * @param mixed $expected     First value to compare
      * @param mixed $actual       Second value to compare
      * @param float $delta        Allowed numerical distance between two values to consider them equal
      * @param bool  $canonicalize Arrays are sorted before comparison when set to true
      * @param bool  $ignoreCase   Case is ignored when set to true
+     * @param array $processed    List of already processed elements (used to prevent infinite recursion)
      *
      * @throws ComparisonFailure
      */
-    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false)
+    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false, array &$processed = [])
+    {
+    }
+    protected function indent($lines)
     {
     }
 }
@@ -16929,6 +16575,362 @@ class ComparisonFailure extends \RuntimeException
     }
 }
 /**
+ * Compares DOMNode instances for equality.
+ */
+class DOMNodeComparator extends \SebastianBergmann\Comparator\ObjectComparator
+{
+    /**
+     * Returns whether the comparator can compare two values.
+     *
+     * @param mixed $expected The first value to compare
+     * @param mixed $actual   The second value to compare
+     *
+     * @return bool
+     */
+    public function accepts($expected, $actual)
+    {
+    }
+    /**
+     * Asserts that two values are equal.
+     *
+     * @param mixed $expected     First value to compare
+     * @param mixed $actual       Second value to compare
+     * @param float $delta        Allowed numerical distance between two values to consider them equal
+     * @param bool  $canonicalize Arrays are sorted before comparison when set to true
+     * @param bool  $ignoreCase   Case is ignored when set to true
+     * @param array $processed    List of already processed elements (used to prevent infinite recursion)
+     *
+     * @throws ComparisonFailure
+     */
+    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false, array &$processed = [])
+    {
+    }
+}
+/**
+ * Compares DateTimeInterface instances for equality.
+ */
+class DateTimeComparator extends \SebastianBergmann\Comparator\ObjectComparator
+{
+    /**
+     * Returns whether the comparator can compare two values.
+     *
+     * @param mixed $expected The first value to compare
+     * @param mixed $actual   The second value to compare
+     *
+     * @return bool
+     */
+    public function accepts($expected, $actual)
+    {
+    }
+    /**
+     * Asserts that two values are equal.
+     *
+     * @param mixed $expected     First value to compare
+     * @param mixed $actual       Second value to compare
+     * @param float $delta        Allowed numerical distance between two values to consider them equal
+     * @param bool  $canonicalize Arrays are sorted before comparison when set to true
+     * @param bool  $ignoreCase   Case is ignored when set to true
+     * @param array $processed    List of already processed elements (used to prevent infinite recursion)
+     *
+     * @throws \Exception
+     * @throws ComparisonFailure
+     */
+    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false, array &$processed = [])
+    {
+    }
+}
+/**
+ * Compares doubles for equality.
+ *
+ * @deprecated since v3.0.5 and v4.0.8
+ */
+class DoubleComparator extends \SebastianBergmann\Comparator\NumericComparator
+{
+    /**
+     * Smallest value available in PHP.
+     *
+     * @var float
+     */
+    public const EPSILON = 1.0E-10;
+    /**
+     * Returns whether the comparator can compare two values.
+     *
+     * @param mixed $expected The first value to compare
+     * @param mixed $actual   The second value to compare
+     *
+     * @return bool
+     */
+    public function accepts($expected, $actual)
+    {
+    }
+    /**
+     * Asserts that two values are equal.
+     *
+     * @param mixed $expected     First value to compare
+     * @param mixed $actual       Second value to compare
+     * @param float $delta        Allowed numerical distance between two values to consider them equal
+     * @param bool  $canonicalize Arrays are sorted before comparison when set to true
+     * @param bool  $ignoreCase   Case is ignored when set to true
+     *
+     * @throws ComparisonFailure
+     */
+    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false)
+    {
+    }
+}
+/**
+ * Compares Exception instances for equality.
+ */
+class ExceptionComparator extends \SebastianBergmann\Comparator\ObjectComparator
+{
+    /**
+     * Returns whether the comparator can compare two values.
+     *
+     * @param mixed $expected The first value to compare
+     * @param mixed $actual   The second value to compare
+     *
+     * @return bool
+     */
+    public function accepts($expected, $actual)
+    {
+    }
+    /**
+     * Converts an object to an array containing all of its private, protected
+     * and public properties.
+     *
+     * @param object $object
+     *
+     * @return array
+     */
+    protected function toArray($object)
+    {
+    }
+}
+/**
+ * Factory for comparators which compare values for equality.
+ */
+class Factory
+{
+    /**
+     * @return Factory
+     */
+    public static function getInstance()
+    {
+    }
+    /**
+     * Constructs a new factory.
+     */
+    public function __construct()
+    {
+    }
+    /**
+     * Returns the correct comparator for comparing two values.
+     *
+     * @param mixed $expected The first value to compare
+     * @param mixed $actual   The second value to compare
+     *
+     * @return Comparator
+     */
+    public function getComparatorFor($expected, $actual)
+    {
+    }
+    /**
+     * Registers a new comparator.
+     *
+     * This comparator will be returned by getComparatorFor() if its accept() method
+     * returns TRUE for the compared values. It has higher priority than the
+     * existing comparators, meaning that its accept() method will be invoked
+     * before those of the other comparators.
+     *
+     * @param Comparator $comparator The comparator to be registered
+     */
+    public function register(\SebastianBergmann\Comparator\Comparator $comparator)
+    {
+    }
+    /**
+     * Unregisters a comparator.
+     *
+     * This comparator will no longer be considered by getComparatorFor().
+     *
+     * @param Comparator $comparator The comparator to be unregistered
+     */
+    public function unregister(\SebastianBergmann\Comparator\Comparator $comparator)
+    {
+    }
+    /**
+     * Unregisters all non-default comparators.
+     */
+    public function reset()
+    {
+    }
+}
+/**
+ * Compares PHPUnit\Framework\MockObject\MockObject instances for equality.
+ */
+class MockObjectComparator extends \SebastianBergmann\Comparator\ObjectComparator
+{
+    /**
+     * Returns whether the comparator can compare two values.
+     *
+     * @param mixed $expected The first value to compare
+     * @param mixed $actual   The second value to compare
+     *
+     * @return bool
+     */
+    public function accepts($expected, $actual)
+    {
+    }
+    /**
+     * Converts an object to an array containing all of its private, protected
+     * and public properties.
+     *
+     * @param object $object
+     *
+     * @return array
+     */
+    protected function toArray($object)
+    {
+    }
+}
+/**
+ * Compares numerical values for equality.
+ */
+class NumericComparator extends \SebastianBergmann\Comparator\ScalarComparator
+{
+    /**
+     * Returns whether the comparator can compare two values.
+     *
+     * @param mixed $expected The first value to compare
+     * @param mixed $actual   The second value to compare
+     *
+     * @return bool
+     */
+    public function accepts($expected, $actual)
+    {
+    }
+    /**
+     * Asserts that two values are equal.
+     *
+     * @param mixed $expected     First value to compare
+     * @param mixed $actual       Second value to compare
+     * @param float $delta        Allowed numerical distance between two values to consider them equal
+     * @param bool  $canonicalize Arrays are sorted before comparison when set to true
+     * @param bool  $ignoreCase   Case is ignored when set to true
+     *
+     * @throws ComparisonFailure
+     */
+    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false)
+    {
+    }
+}
+/**
+ * Compares objects for equality.
+ */
+class ObjectComparator extends \SebastianBergmann\Comparator\ArrayComparator
+{
+    /**
+     * Returns whether the comparator can compare two values.
+     *
+     * @param mixed $expected The first value to compare
+     * @param mixed $actual   The second value to compare
+     *
+     * @return bool
+     */
+    public function accepts($expected, $actual)
+    {
+    }
+    /**
+     * Asserts that two values are equal.
+     *
+     * @param mixed $expected     First value to compare
+     * @param mixed $actual       Second value to compare
+     * @param float $delta        Allowed numerical distance between two values to consider them equal
+     * @param bool  $canonicalize Arrays are sorted before comparison when set to true
+     * @param bool  $ignoreCase   Case is ignored when set to true
+     * @param array $processed    List of already processed elements (used to prevent infinite recursion)
+     *
+     * @throws ComparisonFailure
+     */
+    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false, array &$processed = [])
+    {
+    }
+    /**
+     * Converts an object to an array containing all of its private, protected
+     * and public properties.
+     *
+     * @param object $object
+     *
+     * @return array
+     */
+    protected function toArray($object)
+    {
+    }
+}
+/**
+ * Compares resources for equality.
+ */
+class ResourceComparator extends \SebastianBergmann\Comparator\Comparator
+{
+    /**
+     * Returns whether the comparator can compare two values.
+     *
+     * @param mixed $expected The first value to compare
+     * @param mixed $actual   The second value to compare
+     *
+     * @return bool
+     */
+    public function accepts($expected, $actual)
+    {
+    }
+    /**
+     * Asserts that two values are equal.
+     *
+     * @param mixed $expected     First value to compare
+     * @param mixed $actual       Second value to compare
+     * @param float $delta        Allowed numerical distance between two values to consider them equal
+     * @param bool  $canonicalize Arrays are sorted before comparison when set to true
+     * @param bool  $ignoreCase   Case is ignored when set to true
+     *
+     * @throws ComparisonFailure
+     */
+    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false)
+    {
+    }
+}
+/**
+ * Compares scalar or NULL values for equality.
+ */
+class ScalarComparator extends \SebastianBergmann\Comparator\Comparator
+{
+    /**
+     * Returns whether the comparator can compare two values.
+     *
+     * @param mixed $expected The first value to compare
+     * @param mixed $actual   The second value to compare
+     *
+     * @return bool
+     *
+     * @since  Method available since Release 3.6.0
+     */
+    public function accepts($expected, $actual)
+    {
+    }
+    /**
+     * Asserts that two values are equal.
+     *
+     * @param mixed $expected     First value to compare
+     * @param mixed $actual       Second value to compare
+     * @param float $delta        Allowed numerical distance between two values to consider them equal
+     * @param bool  $canonicalize Arrays are sorted before comparison when set to true
+     * @param bool  $ignoreCase   Case is ignored when set to true
+     *
+     * @throws ComparisonFailure
+     */
+    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false)
+    {
+    }
+}
+/**
  * Compares \SplObjectStorage instances for equality.
  */
 class SplObjectStorageComparator extends \SebastianBergmann\Comparator\Comparator
@@ -16960,13 +16962,9 @@ class SplObjectStorageComparator extends \SebastianBergmann\Comparator\Comparato
     }
 }
 /**
- * Compares arrays for equality.
- *
- * Arrays are equal if they contain the same key-value pairs.
- * The order of the keys does not matter.
- * The types of key-value pairs do not matter.
+ * Compares values for type equality.
  */
-class ArrayComparator extends \SebastianBergmann\Comparator\Comparator
+class TypeComparator extends \SebastianBergmann\Comparator\Comparator
 {
     /**
      * Returns whether the comparator can compare two values.
@@ -16980,71 +16978,63 @@ class ArrayComparator extends \SebastianBergmann\Comparator\Comparator
     {
     }
     /**
-     * Asserts that two arrays are equal.
+     * Asserts that two values are equal.
      *
      * @param mixed $expected     First value to compare
      * @param mixed $actual       Second value to compare
      * @param float $delta        Allowed numerical distance between two values to consider them equal
      * @param bool  $canonicalize Arrays are sorted before comparison when set to true
      * @param bool  $ignoreCase   Case is ignored when set to true
-     * @param array $processed    List of already processed elements (used to prevent infinite recursion)
      *
      * @throws ComparisonFailure
      */
-    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false, array &$processed = [])
+    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false)
     {
     }
-    protected function indent($lines)
-    {
-    }
-}
-namespace SebastianBergmann\Complexity;
-
-final class ComplexityCalculatingVisitor extends \PhpParser\NodeVisitorAbstract
-{
-    public function __construct(bool $shortCircuitTraversal)
-    {
-    }
-    public function enterNode(\PhpParser\Node $node): ?int
-    {
-    }
-    public function result(): \SebastianBergmann\Complexity\ComplexityCollection
-    {
-    }
-}
-final class CyclomaticComplexityCalculatingVisitor extends \PhpParser\NodeVisitorAbstract
-{
-    public function enterNode(\PhpParser\Node $node): void
-    {
-    }
-    public function cyclomaticComplexity(): int
-    {
-    }
-}
-final class RuntimeException extends \RuntimeException implements \SebastianBergmann\Complexity\Exception
-{
 }
 interface Exception extends \Throwable
 {
 }
-final class ComplexityCollectionIterator implements \Iterator
+final class RuntimeException extends \RuntimeException implements \SebastianBergmann\Comparator\Exception
 {
-    public function __construct(\SebastianBergmann\Complexity\ComplexityCollection $items)
+}
+namespace SebastianBergmann\Complexity;
+
+final class Calculator
+{
+    /**
+     * @throws RuntimeException
+     */
+    public function calculateForSourceFile(string $sourceFile): \SebastianBergmann\Complexity\ComplexityCollection
     {
     }
-    public function rewind(): void
+    /**
+     * @throws RuntimeException
+     */
+    public function calculateForSourceString(string $source): \SebastianBergmann\Complexity\ComplexityCollection
     {
     }
-    public function valid(): bool
+    /**
+     * @param \PhpParser\Node[] $nodes
+     *
+     * @throws RuntimeException
+     */
+    public function calculateForAbstractSyntaxTree(array $nodes): \SebastianBergmann\Complexity\ComplexityCollection
     {
     }
-    public function key(): int
+}
+/**
+ * @phan-side-effect-free
+ */
+final class Complexity
+{
+    public function __construct(string $name, int $cyclomaticComplexity)
     {
     }
-    public function current(): \SebastianBergmann\Complexity\Complexity
+    public function name(): string
     {
     }
-    public function next(): void
+    public function cyclomaticComplexity(): int
     {
     }
 }
@@ -17075,57 +17065,85 @@ final class ComplexityCollection implements \Countable, \IteratorAggregate
     {
     }
 }
-/**
- * @phan-side-effect-free
- */
-final class Complexity
+final class ComplexityCollectionIterator implements \Iterator
 {
-    public function __construct(string $name, int $cyclomaticComplexity)
+    public function __construct(\SebastianBergmann\Complexity\ComplexityCollection $items)
     {
     }
-    public function name(): string
+    public function rewind(): void
+    {
+    }
+    public function valid(): bool
+    {
+    }
+    public function key(): int
+    {
+    }
+    public function current(): \SebastianBergmann\Complexity\Complexity
+    {
+    }
+    public function next(): void
+    {
+    }
+}
+interface Exception extends \Throwable
+{
+}
+final class RuntimeException extends \RuntimeException implements \SebastianBergmann\Complexity\Exception
+{
+}
+final class ComplexityCalculatingVisitor extends \PhpParser\NodeVisitorAbstract
+{
+    public function __construct(bool $shortCircuitTraversal)
+    {
+    }
+    public function enterNode(\PhpParser\Node $node): ?int
+    {
+    }
+    public function result(): \SebastianBergmann\Complexity\ComplexityCollection
+    {
+    }
+}
+final class CyclomaticComplexityCalculatingVisitor extends \PhpParser\NodeVisitorAbstract
+{
+    public function enterNode(\PhpParser\Node $node): void
     {
     }
     public function cyclomaticComplexity(): int
     {
     }
 }
-final class Calculator
-{
-    /**
-     * @throws RuntimeException
-     */
-    public function calculateForSourceFile(string $sourceFile): \SebastianBergmann\Complexity\ComplexityCollection
-    {
-    }
-    /**
-     * @throws RuntimeException
-     */
-    public function calculateForSourceString(string $source): \SebastianBergmann\Complexity\ComplexityCollection
-    {
-    }
-    /**
-     * @param \PhpParser\Node[] $nodes
-     *
-     * @throws RuntimeException
-     */
-    public function calculateForAbstractSyntaxTree(array $nodes): \SebastianBergmann\Complexity\ComplexityCollection
-    {
-    }
-}
 namespace SebastianBergmann\Diff;
 
-class InvalidArgumentException extends \InvalidArgumentException implements \SebastianBergmann\Diff\Exception
+final class Chunk
 {
-}
-final class ConfigurationException extends \SebastianBergmann\Diff\InvalidArgumentException
-{
-    public function __construct(string $option, string $expected, $value, int $code = 0, ?\Exception $previous = null)
+    public function __construct(int $start = 0, int $startRange = 1, int $end = 0, int $endRange = 1, array $lines = [])
     {
     }
-}
-interface Exception extends \Throwable
-{
+    public function getStart(): int
+    {
+    }
+    public function getStartRange(): int
+    {
+    }
+    public function getEnd(): int
+    {
+    }
+    public function getEndRange(): int
+    {
+    }
+    /**
+     * @return Line[]
+     */
+    public function getLines(): array
+    {
+    }
+    /**
+     * @param Line[] $lines
+     */
+    public function setLines(array $lines): void
+    {
+    }
 }
 final class Diff
 {
@@ -17151,22 +17169,6 @@ final class Diff
      * @param Chunk[] $chunks
      */
     public function setChunks(array $chunks): void
-    {
-    }
-}
-interface LongestCommonSubsequenceCalculator
-{
-    /**
-     * Calculates the longest common subsequence of two arrays.
-     */
-    public function calculate(array $from, array $to): array;
-}
-final class TimeEfficientLongestCommonSubsequenceCalculator implements \SebastianBergmann\Diff\LongestCommonSubsequenceCalculator
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function calculate(array $from, array $to): array
     {
     }
 }
@@ -17213,6 +17215,18 @@ final class Differ
     {
     }
 }
+final class ConfigurationException extends \SebastianBergmann\Diff\InvalidArgumentException
+{
+    public function __construct(string $option, string $expected, $value, int $code = 0, ?\Exception $previous = null)
+    {
+    }
+}
+interface Exception extends \Throwable
+{
+}
+class InvalidArgumentException extends \InvalidArgumentException implements \SebastianBergmann\Diff\Exception
+{
+}
 final class Line
 {
     public const ADDED = 1;
@@ -17227,6 +17241,13 @@ final class Line
     public function getType(): int
     {
     }
+}
+interface LongestCommonSubsequenceCalculator
+{
+    /**
+     * Calculates the longest common subsequence of two arrays.
+     */
+    public function calculate(array $from, array $to): array;
 }
 final class MemoryEfficientLongestCommonSubsequenceCalculator implements \SebastianBergmann\Diff\LongestCommonSubsequenceCalculator
 {
@@ -17249,52 +17270,17 @@ final class Parser
     {
     }
 }
-final class Chunk
+final class TimeEfficientLongestCommonSubsequenceCalculator implements \SebastianBergmann\Diff\LongestCommonSubsequenceCalculator
 {
-    public function __construct(int $start = 0, int $startRange = 1, int $end = 0, int $endRange = 1, array $lines = [])
-    {
-    }
-    public function getStart(): int
-    {
-    }
-    public function getStartRange(): int
-    {
-    }
-    public function getEnd(): int
-    {
-    }
-    public function getEndRange(): int
-    {
-    }
     /**
-     * @return Line[]
+     * {@inheritdoc}
      */
-    public function getLines(): array
-    {
-    }
-    /**
-     * @param Line[] $lines
-     */
-    public function setLines(array $lines): void
+    public function calculate(array $from, array $to): array
     {
     }
 }
 namespace SebastianBergmann\Diff\Output;
 
-/**
- * Strict Unified diff output builder.
- *
- * Generates (strict) Unified diff's (unidiffs) with hunks.
- */
-final class StrictUnifiedDiffOutputBuilder implements \SebastianBergmann\Diff\Output\DiffOutputBuilderInterface
-{
-    public function __construct(array $options = [])
-    {
-    }
-    public function getDiff(array $diff): string
-    {
-    }
-}
 abstract class AbstractChunkOutputBuilder implements \SebastianBergmann\Diff\Output\DiffOutputBuilderInterface
 {
     /**
@@ -17302,26 +17288,6 @@ abstract class AbstractChunkOutputBuilder implements \SebastianBergmann\Diff\Out
      * Iterates through diff line by line.
      */
     protected function getCommonChunks(array $diff, int $lineThreshold = 5): array
-    {
-    }
-}
-/**
- * Defines how an output builder should take a generated
- * diff array and return a string representation of that diff.
- */
-interface DiffOutputBuilderInterface
-{
-    public function getDiff(array $diff): string;
-}
-/**
- * Builds a diff string representation in unified diff format in chunks.
- */
-final class UnifiedDiffOutputBuilder extends \SebastianBergmann\Diff\Output\AbstractChunkOutputBuilder
-{
-    public function __construct(string $header = "--- Original\n+++ New\n", bool $addLineNumbers = false)
-    {
-    }
-    public function getDiff(array $diff): string
     {
     }
 }
@@ -17338,8 +17304,95 @@ final class DiffOnlyOutputBuilder implements \SebastianBergmann\Diff\Output\Diff
     {
     }
 }
+/**
+ * Defines how an output builder should take a generated
+ * diff array and return a string representation of that diff.
+ */
+interface DiffOutputBuilderInterface
+{
+    public function getDiff(array $diff): string;
+}
+/**
+ * Strict Unified diff output builder.
+ *
+ * Generates (strict) Unified diff's (unidiffs) with hunks.
+ */
+final class StrictUnifiedDiffOutputBuilder implements \SebastianBergmann\Diff\Output\DiffOutputBuilderInterface
+{
+    public function __construct(array $options = [])
+    {
+    }
+    public function getDiff(array $diff): string
+    {
+    }
+}
+/**
+ * Builds a diff string representation in unified diff format in chunks.
+ */
+final class UnifiedDiffOutputBuilder extends \SebastianBergmann\Diff\Output\AbstractChunkOutputBuilder
+{
+    public function __construct(string $header = "--- Original\n+++ New\n", bool $addLineNumbers = false)
+    {
+    }
+    public function getDiff(array $diff): string
+    {
+    }
+}
 namespace SebastianBergmann\Environment;
 
+final class Console
+{
+    /**
+     * @var int
+     */
+    public const STDIN = 0;
+    /**
+     * @var int
+     */
+    public const STDOUT = 1;
+    /**
+     * @var int
+     */
+    public const STDERR = 2;
+    /**
+     * Returns true if STDOUT supports colorization.
+     *
+     * This code has been copied and adapted from
+     * Symfony\Component\Console\Output\StreamOutput.
+     */
+    public function hasColorSupport(): bool
+    {
+    }
+    /**
+     * Returns the number of columns of the terminal.
+     *
+     * @codeCoverageIgnore
+     */
+    public function getNumberOfColumns(): int
+    {
+    }
+    /**
+     * Returns if the file descriptor is an interactive terminal or not.
+     *
+     * Normally, we want to use a resource as a parameter, yet sadly it's not always awailable,
+     * eg when running code in interactive console (`php -a`), STDIN/STDOUT/STDERR constants are not defined.
+     *
+     * @param int|resource $fileDescriptor
+     */
+    public function isInteractive($fileDescriptor = self::STDOUT): bool
+    {
+    }
+}
+final class OperatingSystem
+{
+    /**
+     * Returns PHP_OS_FAMILY (if defined (which it is on PHP >= 7.2)).
+     * Returns a string (compatible with PHP_OS_FAMILY) derived from PHP_OS otherwise.
+     */
+    public function getFamily(): string
+    {
+    }
+}
 /**
  * Utility class for HHVM/PHP environment handling.
  */
@@ -17441,59 +17494,6 @@ final class Runtime
     {
     }
 }
-final class OperatingSystem
-{
-    /**
-     * Returns PHP_OS_FAMILY (if defined (which it is on PHP >= 7.2)).
-     * Returns a string (compatible with PHP_OS_FAMILY) derived from PHP_OS otherwise.
-     */
-    public function getFamily(): string
-    {
-    }
-}
-final class Console
-{
-    /**
-     * @var int
-     */
-    public const STDIN = 0;
-    /**
-     * @var int
-     */
-    public const STDOUT = 1;
-    /**
-     * @var int
-     */
-    public const STDERR = 2;
-    /**
-     * Returns true if STDOUT supports colorization.
-     *
-     * This code has been copied and adapted from
-     * Symfony\Component\Console\Output\StreamOutput.
-     */
-    public function hasColorSupport(): bool
-    {
-    }
-    /**
-     * Returns the number of columns of the terminal.
-     *
-     * @codeCoverageIgnore
-     */
-    public function getNumberOfColumns(): int
-    {
-    }
-    /**
-     * Returns if the file descriptor is an interactive terminal or not.
-     *
-     * Normally, we want to use a resource as a parameter, yet sadly it's not always awailable,
-     * eg when running code in interactive console (`php -a`), STDIN/STDOUT/STDERR constants are not defined.
-     *
-     * @param int|resource $fileDescriptor
-     */
-    public function isInteractive($fileDescriptor = self::STDOUT): bool
-    {
-    }
-}
 namespace SebastianBergmann\Exporter;
 
 /**
@@ -17580,6 +17580,20 @@ class Exporter
 }
 namespace SebastianBergmann\FileIterator;
 
+class Facade
+{
+    /**
+     * @param array|string $paths
+     * @param array|string $suffixes
+     * @param array|string $prefixes
+     */
+    public function getFilesAsArray($paths, $suffixes = '', $prefixes = '', array $exclude = [], bool $commonPath = false): array
+    {
+    }
+    protected function getCommonPath(array $files): string
+    {
+    }
+}
 class Factory
 {
     /**
@@ -17605,28 +17619,8 @@ class Iterator extends \FilterIterator
     {
     }
 }
-class Facade
-{
-    /**
-     * @param array|string $paths
-     * @param array|string $suffixes
-     * @param array|string $prefixes
-     */
-    public function getFilesAsArray($paths, $suffixes = '', $prefixes = '', array $exclude = [], bool $commonPath = false): array
-    {
-    }
-    protected function getCommonPath(array $files): string
-    {
-    }
-}
 namespace SebastianBergmann\GlobalState;
 
-final class RuntimeException extends \RuntimeException implements \SebastianBergmann\GlobalState\Exception
-{
-}
-interface Exception extends \Throwable
-{
-}
 /**
  * Exports parts of a Snapshot as PHP code.
  */
@@ -17639,6 +17633,33 @@ final class CodeExporter
     {
     }
     public function iniSettings(\SebastianBergmann\GlobalState\Snapshot $snapshot): string
+    {
+    }
+}
+final class ExcludeList
+{
+    public function addGlobalVariable(string $variableName): void
+    {
+    }
+    public function addClass(string $className): void
+    {
+    }
+    public function addSubclassesOf(string $className): void
+    {
+    }
+    public function addImplementorsOf(string $interfaceName): void
+    {
+    }
+    public function addClassNamePrefix(string $classNamePrefix): void
+    {
+    }
+    public function addStaticAttribute(string $className, string $attributeName): void
+    {
+    }
+    public function isGlobalVariableExcluded(string $variableName): bool
+    {
+    }
+    public function isStaticAttributeExcluded(string $className, string $attributeName): bool
     {
     }
 }
@@ -17718,44 +17739,14 @@ class Snapshot
     {
     }
 }
-final class ExcludeList
-{
-    public function addGlobalVariable(string $variableName): void
-    {
-    }
-    public function addClass(string $className): void
-    {
-    }
-    public function addSubclassesOf(string $className): void
-    {
-    }
-    public function addImplementorsOf(string $interfaceName): void
-    {
-    }
-    public function addClassNamePrefix(string $classNamePrefix): void
-    {
-    }
-    public function addStaticAttribute(string $className, string $attributeName): void
-    {
-    }
-    public function isGlobalVariableExcluded(string $variableName): bool
-    {
-    }
-    public function isStaticAttributeExcluded(string $className, string $attributeName): bool
-    {
-    }
-}
-namespace SebastianBergmann\Invoker;
-
-final class ProcessControlExtensionNotLoadedException extends \RuntimeException implements \SebastianBergmann\Invoker\Exception
-{
-}
 interface Exception extends \Throwable
 {
 }
-final class TimeoutException extends \RuntimeException implements \SebastianBergmann\Invoker\Exception
+final class RuntimeException extends \RuntimeException implements \SebastianBergmann\GlobalState\Exception
 {
 }
+namespace SebastianBergmann\Invoker;
+
 final class Invoker
 {
     /**
@@ -17768,20 +17759,17 @@ final class Invoker
     {
     }
 }
-namespace SebastianBergmann\LinesOfCode;
-
-final class RuntimeException extends \RuntimeException implements \SebastianBergmann\LinesOfCode\Exception
-{
-}
-final class IllogicalValuesException extends \LogicException implements \SebastianBergmann\LinesOfCode\Exception
-{
-}
-final class NegativeValueException extends \InvalidArgumentException implements \SebastianBergmann\LinesOfCode\Exception
-{
-}
 interface Exception extends \Throwable
 {
 }
+final class ProcessControlExtensionNotLoadedException extends \RuntimeException implements \SebastianBergmann\Invoker\Exception
+{
+}
+final class TimeoutException extends \RuntimeException implements \SebastianBergmann\Invoker\Exception
+{
+}
+namespace SebastianBergmann\LinesOfCode;
+
 final class Counter
 {
     /**
@@ -17804,6 +17792,18 @@ final class Counter
     public function countInAbstractSyntaxTree(int $linesOfCode, array $nodes): \SebastianBergmann\LinesOfCode\LinesOfCode
     {
     }
+}
+interface Exception extends \Throwable
+{
+}
+final class IllogicalValuesException extends \LogicException implements \SebastianBergmann\LinesOfCode\Exception
+{
+}
+final class NegativeValueException extends \InvalidArgumentException implements \SebastianBergmann\LinesOfCode\Exception
+{
+}
+final class RuntimeException extends \RuntimeException implements \SebastianBergmann\LinesOfCode\Exception
+{
 }
 final class LineCountingVisitor extends \PhpParser\NodeVisitorAbstract
 {
@@ -17847,12 +17847,6 @@ final class LinesOfCode
 }
 namespace SebastianBergmann\ObjectEnumerator;
 
-class InvalidArgumentException extends \InvalidArgumentException implements \SebastianBergmann\ObjectEnumerator\Exception
-{
-}
-interface Exception extends \Throwable
-{
-}
 /**
  * Traverses array structures and object graphs
  * to enumerate all referenced objects.
@@ -17871,12 +17865,18 @@ class Enumerator
     {
     }
 }
-namespace SebastianBergmann\ObjectReflector;
-
-class InvalidArgumentException extends \InvalidArgumentException implements \SebastianBergmann\ObjectReflector\Exception
+interface Exception extends \Throwable
 {
 }
+class InvalidArgumentException extends \InvalidArgumentException implements \SebastianBergmann\ObjectEnumerator\Exception
+{
+}
+namespace SebastianBergmann\ObjectReflector;
+
 interface Exception extends \Throwable
+{
+}
+class InvalidArgumentException extends \InvalidArgumentException implements \SebastianBergmann\ObjectReflector\Exception
 {
 }
 class ObjectReflector
@@ -17943,10 +17943,10 @@ final class Context
     {
     }
 }
-final class InvalidArgumentException extends \InvalidArgumentException implements \SebastianBergmann\RecursionContext\Exception
+interface Exception extends \Throwable
 {
 }
-interface Exception extends \Throwable
+final class InvalidArgumentException extends \InvalidArgumentException implements \SebastianBergmann\RecursionContext\Exception
 {
 }
 namespace SebastianBergmann\ResourceOperations;
@@ -17962,15 +17962,6 @@ final class ResourceOperations
 }
 namespace SebastianBergmann\Template;
 
-final class RuntimeException extends \InvalidArgumentException implements \SebastianBergmann\Template\Exception
-{
-}
-final class InvalidArgumentException extends \InvalidArgumentException implements \SebastianBergmann\Template\Exception
-{
-}
-interface Exception extends \Throwable
-{
-}
 final class Template
 {
     /**
@@ -17998,29 +17989,17 @@ final class Template
     {
     }
 }
-namespace SebastianBergmann\Timer;
-
-final class TimeSinceStartOfRequestNotAvailableException extends \RuntimeException implements \SebastianBergmann\Timer\Exception
-{
-}
-final class NoActiveTimerException extends \LogicException implements \SebastianBergmann\Timer\Exception
-{
-}
 interface Exception extends \Throwable
 {
 }
-final class Timer
+final class InvalidArgumentException extends \InvalidArgumentException implements \SebastianBergmann\Template\Exception
 {
-    public function start(): void
-    {
-    }
-    /**
-     * @throws NoActiveTimerException
-     */
-    public function stop(): \SebastianBergmann\Timer\Duration
-    {
-    }
 }
+final class RuntimeException extends \InvalidArgumentException implements \SebastianBergmann\Template\Exception
+{
+}
+namespace SebastianBergmann\Timer;
+
 /**
  * @phan-side-effect-free
  */
@@ -18060,8 +18039,128 @@ final class ResourceUsageFormatter
     {
     }
 }
+final class Timer
+{
+    public function start(): void
+    {
+    }
+    /**
+     * @throws NoActiveTimerException
+     */
+    public function stop(): \SebastianBergmann\Timer\Duration
+    {
+    }
+}
+interface Exception extends \Throwable
+{
+}
+final class NoActiveTimerException extends \LogicException implements \SebastianBergmann\Timer\Exception
+{
+}
+final class TimeSinceStartOfRequestNotAvailableException extends \RuntimeException implements \SebastianBergmann\Timer\Exception
+{
+}
 namespace SebastianBergmann\Type;
 
+final class Parameter
+{
+    /**
+     * @phan-param non-empty-string $name
+     */
+    public function __construct(string $name, \SebastianBergmann\Type\Type $type)
+    {
+    }
+    public function name(): string
+    {
+    }
+    public function type(): \SebastianBergmann\Type\Type
+    {
+    }
+}
+final class ReflectionMapper
+{
+    /**
+     * @phan-return list<Parameter>
+     */
+    public function fromParameterTypes(\ReflectionFunctionAbstract $functionOrMethod): array
+    {
+    }
+    public function fromReturnType(\ReflectionFunctionAbstract $functionOrMethod): \SebastianBergmann\Type\Type
+    {
+    }
+}
+final class TypeName
+{
+    public static function fromQualifiedName(string $fullClassName): self
+    {
+    }
+    public static function fromReflection(\ReflectionClass $type): self
+    {
+    }
+    public function __construct(?string $namespaceName, string $simpleName)
+    {
+    }
+    public function namespaceName(): ?string
+    {
+    }
+    public function simpleName(): string
+    {
+    }
+    public function qualifiedName(): string
+    {
+    }
+    public function isNamespaced(): bool
+    {
+    }
+}
+interface Exception extends \Throwable
+{
+}
+final class RuntimeException extends \RuntimeException implements \SebastianBergmann\Type\Exception
+{
+}
+final class CallableType extends \SebastianBergmann\Type\Type
+{
+    public function __construct(bool $nullable)
+    {
+    }
+    /**
+     * @throws RuntimeException
+     */
+    public function isAssignable(\SebastianBergmann\Type\Type $other): bool
+    {
+    }
+    public function name(): string
+    {
+    }
+    public function allowsNull(): bool
+    {
+    }
+    /**
+     * @psalm-assert-if-true CallableType $this
+     */
+    public function isCallable(): bool
+    {
+    }
+}
+final class FalseType extends \SebastianBergmann\Type\Type
+{
+    public function isAssignable(\SebastianBergmann\Type\Type $other): bool
+    {
+    }
+    public function name(): string
+    {
+    }
+    public function allowsNull(): bool
+    {
+    }
+    /**
+     * @psalm-assert-if-true FalseType $this
+     */
+    public function isFalse(): bool
+    {
+    }
+}
 final class GenericObjectType extends \SebastianBergmann\Type\Type
 {
     public function __construct(bool $nullable)
@@ -18083,7 +18182,7 @@ final class GenericObjectType extends \SebastianBergmann\Type\Type
     {
     }
 }
-final class UnionType extends \SebastianBergmann\Type\Type
+final class IntersectionType extends \SebastianBergmann\Type\Type
 {
     /**
      * @throws RuntimeException
@@ -18104,18 +18203,99 @@ final class UnionType extends \SebastianBergmann\Type\Type
     {
     }
     /**
-     * @psalm-assert-if-true UnionType $this
+     * @psalm-assert-if-true IntersectionType $this
      */
-    public function isUnion(): bool
-    {
-    }
-    public function containsIntersectionTypes(): bool
+    public function isIntersection(): bool
     {
     }
     /**
      * @phan-return non-empty-list<Type>
      */
     public function types(): array
+    {
+    }
+}
+final class IterableType extends \SebastianBergmann\Type\Type
+{
+    public function __construct(bool $nullable)
+    {
+    }
+    /**
+     * @throws RuntimeException
+     */
+    public function isAssignable(\SebastianBergmann\Type\Type $other): bool
+    {
+    }
+    public function name(): string
+    {
+    }
+    public function allowsNull(): bool
+    {
+    }
+    /**
+     * @psalm-assert-if-true IterableType $this
+     */
+    public function isIterable(): bool
+    {
+    }
+}
+final class MixedType extends \SebastianBergmann\Type\Type
+{
+    public function isAssignable(\SebastianBergmann\Type\Type $other): bool
+    {
+    }
+    public function asString(): string
+    {
+    }
+    public function name(): string
+    {
+    }
+    public function allowsNull(): bool
+    {
+    }
+    /**
+     * @psalm-assert-if-true MixedType $this
+     */
+    public function isMixed(): bool
+    {
+    }
+}
+final class NeverType extends \SebastianBergmann\Type\Type
+{
+    public function isAssignable(\SebastianBergmann\Type\Type $other): bool
+    {
+    }
+    public function name(): string
+    {
+    }
+    public function allowsNull(): bool
+    {
+    }
+    /**
+     * @psalm-assert-if-true NeverType $this
+     */
+    public function isNever(): bool
+    {
+    }
+}
+final class NullType extends \SebastianBergmann\Type\Type
+{
+    public function isAssignable(\SebastianBergmann\Type\Type $other): bool
+    {
+    }
+    public function name(): string
+    {
+    }
+    public function asString(): string
+    {
+    }
+    public function allowsNull(): bool
+    {
+    }
+    /**
+     * @psalm-assert-if-true NullType $this
+     */
+    public function isNull(): bool
     {
     }
 }
@@ -18140,6 +18320,69 @@ final class ObjectType extends \SebastianBergmann\Type\Type
      * @psalm-assert-if-true ObjectType $this
      */
     public function isObject(): bool
+    {
+    }
+}
+final class SimpleType extends \SebastianBergmann\Type\Type
+{
+    public function __construct(string $name, bool $nullable, $value = null)
+    {
+    }
+    public function isAssignable(\SebastianBergmann\Type\Type $other): bool
+    {
+    }
+    public function name(): string
+    {
+    }
+    public function allowsNull(): bool
+    {
+    }
+    public function value()
+    {
+    }
+    /**
+     * @psalm-assert-if-true SimpleType $this
+     */
+    public function isSimple(): bool
+    {
+    }
+}
+final class StaticType extends \SebastianBergmann\Type\Type
+{
+    public function __construct(\SebastianBergmann\Type\TypeName $className, bool $allowsNull)
+    {
+    }
+    public function isAssignable(\SebastianBergmann\Type\Type $other): bool
+    {
+    }
+    public function name(): string
+    {
+    }
+    public function allowsNull(): bool
+    {
+    }
+    /**
+     * @psalm-assert-if-true StaticType $this
+     */
+    public function isStatic(): bool
+    {
+    }
+}
+final class TrueType extends \SebastianBergmann\Type\Type
+{
+    public function isAssignable(\SebastianBergmann\Type\Type $other): bool
+    {
+    }
+    public function name(): string
+    {
+    }
+    public function allowsNull(): bool
+    {
+    }
+    /**
+     * @psalm-assert-if-true TrueType $this
+     */
+    public function isTrue(): bool
     {
     }
 }
@@ -18248,92 +18491,14 @@ abstract class Type
     abstract public function name(): string;
     abstract public function allowsNull(): bool;
 }
-final class SimpleType extends \SebastianBergmann\Type\Type
+final class UnionType extends \SebastianBergmann\Type\Type
 {
-    public function __construct(string $name, bool $nullable, $value = null)
-    {
-    }
-    public function isAssignable(\SebastianBergmann\Type\Type $other): bool
-    {
-    }
-    public function name(): string
-    {
-    }
-    public function allowsNull(): bool
-    {
-    }
-    public function value()
-    {
-    }
-    /**
-     * @psalm-assert-if-true SimpleType $this
-     */
-    public function isSimple(): bool
-    {
-    }
-}
-final class VoidType extends \SebastianBergmann\Type\Type
-{
-    public function isAssignable(\SebastianBergmann\Type\Type $other): bool
-    {
-    }
-    public function name(): string
-    {
-    }
-    public function allowsNull(): bool
-    {
-    }
-    /**
-     * @psalm-assert-if-true VoidType $this
-     */
-    public function isVoid(): bool
-    {
-    }
-}
-final class IterableType extends \SebastianBergmann\Type\Type
-{
-    public function __construct(bool $nullable)
-    {
-    }
     /**
      * @throws RuntimeException
      */
-    public function isAssignable(\SebastianBergmann\Type\Type $other): bool
+    public function __construct(\SebastianBergmann\Type\Type ...$types)
     {
     }
-    public function name(): string
-    {
-    }
-    public function allowsNull(): bool
-    {
-    }
-    /**
-     * @psalm-assert-if-true IterableType $this
-     */
-    public function isIterable(): bool
-    {
-    }
-}
-final class NeverType extends \SebastianBergmann\Type\Type
-{
-    public function isAssignable(\SebastianBergmann\Type\Type $other): bool
-    {
-    }
-    public function name(): string
-    {
-    }
-    public function allowsNull(): bool
-    {
-    }
-    /**
-     * @psalm-assert-if-true NeverType $this
-     */
-    public function isNever(): bool
-    {
-    }
-}
-final class MixedType extends \SebastianBergmann\Type\Type
-{
     public function isAssignable(\SebastianBergmann\Type\Type $other): bool
     {
     }
@@ -18347,48 +18512,18 @@ final class MixedType extends \SebastianBergmann\Type\Type
     {
     }
     /**
-     * @psalm-assert-if-true MixedType $this
+     * @psalm-assert-if-true UnionType $this
      */
-    public function isMixed(): bool
+    public function isUnion(): bool
     {
     }
-}
-final class NullType extends \SebastianBergmann\Type\Type
-{
-    public function isAssignable(\SebastianBergmann\Type\Type $other): bool
-    {
-    }
-    public function name(): string
-    {
-    }
-    public function asString(): string
-    {
-    }
-    public function allowsNull(): bool
+    public function containsIntersectionTypes(): bool
     {
     }
     /**
-     * @psalm-assert-if-true NullType $this
+     * @phan-return non-empty-list<Type>
      */
-    public function isNull(): bool
-    {
-    }
-}
-final class TrueType extends \SebastianBergmann\Type\Type
-{
-    public function isAssignable(\SebastianBergmann\Type\Type $other): bool
-    {
-    }
-    public function name(): string
-    {
-    }
-    public function allowsNull(): bool
-    {
-    }
-    /**
-     * @psalm-assert-if-true TrueType $this
-     */
-    public function isTrue(): bool
+    public function types(): array
     {
     }
 }
@@ -18413,7 +18548,7 @@ final class UnknownType extends \SebastianBergmann\Type\Type
     {
     }
 }
-final class FalseType extends \SebastianBergmann\Type\Type
+final class VoidType extends \SebastianBergmann\Type\Type
 {
     public function isAssignable(\SebastianBergmann\Type\Type $other): bool
     {
@@ -18425,144 +18560,9 @@ final class FalseType extends \SebastianBergmann\Type\Type
     {
     }
     /**
-     * @psalm-assert-if-true FalseType $this
+     * @psalm-assert-if-true VoidType $this
      */
-    public function isFalse(): bool
-    {
-    }
-}
-final class IntersectionType extends \SebastianBergmann\Type\Type
-{
-    /**
-     * @throws RuntimeException
-     */
-    public function __construct(\SebastianBergmann\Type\Type ...$types)
-    {
-    }
-    public function isAssignable(\SebastianBergmann\Type\Type $other): bool
-    {
-    }
-    public function asString(): string
-    {
-    }
-    public function name(): string
-    {
-    }
-    public function allowsNull(): bool
-    {
-    }
-    /**
-     * @psalm-assert-if-true IntersectionType $this
-     */
-    public function isIntersection(): bool
-    {
-    }
-    /**
-     * @phan-return non-empty-list<Type>
-     */
-    public function types(): array
-    {
-    }
-}
-final class StaticType extends \SebastianBergmann\Type\Type
-{
-    public function __construct(\SebastianBergmann\Type\TypeName $className, bool $allowsNull)
-    {
-    }
-    public function isAssignable(\SebastianBergmann\Type\Type $other): bool
-    {
-    }
-    public function name(): string
-    {
-    }
-    public function allowsNull(): bool
-    {
-    }
-    /**
-     * @psalm-assert-if-true StaticType $this
-     */
-    public function isStatic(): bool
-    {
-    }
-}
-final class CallableType extends \SebastianBergmann\Type\Type
-{
-    public function __construct(bool $nullable)
-    {
-    }
-    /**
-     * @throws RuntimeException
-     */
-    public function isAssignable(\SebastianBergmann\Type\Type $other): bool
-    {
-    }
-    public function name(): string
-    {
-    }
-    public function allowsNull(): bool
-    {
-    }
-    /**
-     * @psalm-assert-if-true CallableType $this
-     */
-    public function isCallable(): bool
-    {
-    }
-}
-final class Parameter
-{
-    /**
-     * @phan-param non-empty-string $name
-     */
-    public function __construct(string $name, \SebastianBergmann\Type\Type $type)
-    {
-    }
-    public function name(): string
-    {
-    }
-    public function type(): \SebastianBergmann\Type\Type
-    {
-    }
-}
-final class ReflectionMapper
-{
-    /**
-     * @phan-return list<Parameter>
-     */
-    public function fromParameterTypes(\ReflectionFunctionAbstract $functionOrMethod): array
-    {
-    }
-    public function fromReturnType(\ReflectionFunctionAbstract $functionOrMethod): \SebastianBergmann\Type\Type
-    {
-    }
-}
-final class RuntimeException extends \RuntimeException implements \SebastianBergmann\Type\Exception
-{
-}
-interface Exception extends \Throwable
-{
-}
-final class TypeName
-{
-    public static function fromQualifiedName(string $fullClassName): self
-    {
-    }
-    public static function fromReflection(\ReflectionClass $type): self
-    {
-    }
-    public function __construct(?string $namespaceName, string $simpleName)
-    {
-    }
-    public function namespaceName(): ?string
-    {
-    }
-    public function simpleName(): string
-    {
-    }
-    public function qualifiedName(): string
-    {
-    }
-    public function isNamespaced(): bool
+    public function isVoid(): bool
     {
     }
 }

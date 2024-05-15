@@ -139,6 +139,9 @@ class Jetpack_Notifications {
 		wp_enqueue_script( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-v2.js' ), array( 'wpcom-notes-common' ), JETPACK_NOTES__CACHE_BUSTER, true );
 		$script_handles[] = 'wpcom-notes-admin-bar';
 
+		$wp_notes_args = 'var wpNotesArgs = ' . wp_json_encode( array( 'cacheBuster' => JETPACK_NOTES__CACHE_BUSTER ) ) . ';';
+		wp_add_inline_script( 'wpcom-notes-admin-bar', $wp_notes_args, 'before' );
+
 		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 			add_filter(
 				'script_loader_tag',

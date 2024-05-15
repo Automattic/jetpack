@@ -52,6 +52,13 @@ class Backup extends Hybrid_Product {
 	public static $has_standalone_plugin = true;
 
 	/**
+	 * Whether this product has a free offering
+	 *
+	 * @var bool
+	 */
+	public static $has_free_offering = false;
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string

@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Context;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 
 class Type_Array implements Parser {
@@ -18,13 +19,15 @@ class Type_Array implements Parser {
 		$this->parser = $parser;
 	}
 
-	/*
+	/**
 	 * This parse method expects that the $data passed to it is
 	 * an array of other Parser instances.
 	 *
-	 * @param $data - an array of something to be parsed.
+	 * @param array          $value - an array of something to be parsed.
+	 * @param Schema_Context $context - Schema context.
 	 *
 	 * @return array
+	 * @throws Schema_Error If $value is not an array.
 	 */
 	public function parse( $value, $context ) {
 		if ( ! is_array( $value ) ) {

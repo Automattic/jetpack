@@ -965,7 +965,7 @@ class Jetpack_Subscriptions {
 		 *
 		 * @module subscriptions
 		 *
-		 * @since $$next-version$$
+		 * @since 13.4
 		 *
 		 * @param string $capability User capability needed to view if a post was ever published. Default to publish_posts.
 		 */
@@ -1026,13 +1026,8 @@ class Jetpack_Subscriptions {
 
 		$blog_id = Connection_Manager::get_site_id( true );
 
-		$source = 'jetpack-menu-calypso-subscribers';
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
-			$source = 'jetpack-menu-jetpack-manage-subscribers';
-		}
-
 		$link = Redirect::get_url(
-			$source,
+			'jetpack-menu-jetpack-manage-subscribers',
 			array( 'site' => $blog_id ? $blog_id : $status->get_site_suffix() )
 		);
 

@@ -11,14 +11,12 @@ return [
     // # Issue statistics:
     // PhanTypeMismatchReturnProbablyReal : 15+ occurrences
     // PhanTypeMismatchReturn : 6 occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 3 occurrences
     // PhanUndeclaredStaticMethod : 2 occurrences
     // PhanPossiblyUndeclaredVariable : 1 occurrence
-    // PhanUndeclaredClassMethod : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-jetpack-backup.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredStaticMethod'],
+        'src/class-jetpack-backup.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredStaticMethod'],
         'src/class-rest-controller.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

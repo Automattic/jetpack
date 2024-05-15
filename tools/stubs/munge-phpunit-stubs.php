@@ -18,6 +18,9 @@ $stubs = strtr(
 		'@psalm-template'  => '@phan-template',
 		'@psalm-var'       => '@phan-var',
 		'@psalm-immutable' => '@phan-side-effect-free', // https://psalm.dev/docs/annotating_code/supported_annotations/#psalm-immutable vs https://github.com/phan/phan/wiki/Annotating-Your-Source-Code#phan-side-effect-free-on-classes
+
+		// Psalm allows asserting "=Foo" versus "Foo", with the difference being that with "=Foo" does not imply "!Foo" when the call throws. Phan doesn't make that assumption in any case.
+		'@psalm-assert ='  => '@phan-assert ',
 	)
 );
 

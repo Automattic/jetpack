@@ -36,8 +36,6 @@ class Cloud_CSS_Followup {
 	/**
 	 * Add a cron-job to maintain cloud CSS
 	 *
-	 * @param int $when Timestamp of when to schedule the event.
-	 *
 	 * @return void
 	 */
 	public static function schedule() {

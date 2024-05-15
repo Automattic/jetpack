@@ -2,7 +2,7 @@ import { Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import React, { useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
 import Card from '../card';
 import ActionButton, { PRODUCT_STATUSES } from './action-button';

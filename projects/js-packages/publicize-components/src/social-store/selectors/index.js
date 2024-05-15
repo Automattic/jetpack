@@ -12,6 +12,9 @@ const selectors = {
 	...sharesData,
 	...socialImageGeneratorSettingsSelectors,
 	...autoConversionSettingsSelectors,
+	userConnectionUrl: state => state.userConnectionUrl,
+	useAdminUiV1: state => state.useAdminUiV1,
+	connectionRefreshPath: state => state.connectionRefreshPath,
 };
 
 export default selectors;

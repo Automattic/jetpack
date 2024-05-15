@@ -26,6 +26,10 @@ class Module {
 		return $this->status->is_enabled();
 	}
 
+	public function is_available() {
+		return $this->status->is_available();
+	}
+
 	/**
 	 * Check if the module is active and ready to serve optimized output.
 	 */

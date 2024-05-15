@@ -78,28 +78,28 @@ if ( ! is_readable( $autoload_packages_path ) ) {
 		if ( get_current_screen()->id !== 'plugins' ) {
 			return;
 		}
-		?>
-		<div class="notice notice-error is-dismissible">
-			<p>
-				<?php
-				printf(
-					wp_kses(
-					/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Jetpack Search is incomplete. If you installed Jetpack Search from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Search must have Composer dependencies installed and built via the build command.', 'jetpack-search' ),
-						array(
-							'a' => array(
-								'href'   => array(),
-								'target' => array(),
-								'rel'    => array(),
-							),
-						)
+
+		$message = sprintf(
+			wp_kses(
+				/* translators: Placeholder is a link to a support document. */
+				__( 'Your installation of Jetpack Search is incomplete. If you installed Jetpack Search from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Search must have Composer dependencies installed and built via the build command.', 'jetpack-search' ),
+				array(
+					'a' => array(
+						'href'   => array(),
+						'target' => array(),
+						'rel'    => array(),
 					),
-					'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
-				);
-				?>
-			</p>
-		</div>
-		<?php
+				)
+			),
+			'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
+		);
+		wp_admin_notice(
+			$message,
+			array(
+				'type'        => 'error',
+				'dismissible' => true,
+			)
+		);
 	}
 
 	add_action( 'admin_notices', __NAMESPACE__ . '\jetpack_search_admin_missing_files' );

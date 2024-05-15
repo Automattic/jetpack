@@ -21,6 +21,7 @@
 		"yoast/phpunit-polyfills": "1.1.0",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "@dev",
+		"automattic/jetpack-search": "@dev",
 		"automattic/jetpack-videopress": "@dev"
 	},
 	"suggest": {
@@ -78,10 +79,16 @@
 			"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "4.22.x-dev"
+			"dev-trunk": "4.23.x-dev"
 		},
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-initializer.php"
+		},
+		"dependencies": {
+			"test-only": [
+				"packages/search",
+				"packages/videopress"
+			]
 		}
 	},
 	"config": {

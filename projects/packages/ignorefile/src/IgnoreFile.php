@@ -22,6 +22,14 @@ use SplFileInfo;
  * @link https://git-scm.com/docs/gitignore
  */
 class IgnoreFile {
+
+	/**
+	 * Set true to throw on invalid patterns.
+	 *
+	 * @var bool
+	 */
+	public $strictMode = false;
+
 	/**
 	 * Loaded patterns.
 	 *
@@ -43,7 +51,7 @@ class IgnoreFile {
 	 * @param string                                  $prefix All (string) patterns must match relative to this prefix.
 	 *   This is not applied to patterns copied from another Ignore instance.
 	 * @throws InvalidArgumentException If arguments are invalid.
-	 * @throws InvalidPatternException If patterns are invalid.
+	 * @throws InvalidPatternException If patterns are invalid and `$this->strictMode` is set.
 	 */
 	public function add( $patterns, $prefix = '' ) {
 		if ( '' !== $prefix && substr( $prefix, -1 ) !== '/' ) {
@@ -51,6 +59,9 @@ class IgnoreFile {
 		}
 
 		if ( is_string( $patterns ) ) {
+			if ( substr( $patterns, 0, 3 ) === "\xef\xbb\xbf" ) { // UTF-8 BOM
+				$patterns = substr( $patterns, 3 );
+			}
 			$patterns = explode( "\n", $patterns );
 		} elseif ( ! is_array( $patterns ) ) {
 			$patterns = array( $patterns );
@@ -67,7 +78,10 @@ class IgnoreFile {
 			// Line may not contain newlines. But DWIM and ignore trailing newlines.
 			$pat = rtrim( $pat, "\r\n" );
 			if ( strpos( $pat, "\r" ) !== false || strpos( $pat, "\n" ) !== false ) {
-				throw new InvalidPatternException( "Pattern at index $idx may not contain newlines" );
+				if ( $this->strictMode ) {
+					throw new InvalidPatternException( "Pattern at index $idx may not contain newlines" );
+				}
+				continue;
 			}
 
 			// A blank line matches no files. Trailing spaces are ignored unless they are quoted with backslash ("\").
@@ -86,15 +100,27 @@ class IgnoreFile {
 			if ( $negate ) {
 				$pat = (string) substr( $pat, 1 );
 				if ( '' === $pat ) {
-					throw new InvalidPatternException( "Pattern at index $idx consists of only `!`" );
+					if ( $this->strictMode ) {
+						throw new InvalidPatternException( "Pattern at index $idx consists of only `!`" );
+					}
+					continue;
 				}
+			}
+
+			try {
+				$regex = $this->patternToRegex( $pat, $idx );
+			} catch ( InvalidPatternException $ex ) {
+				if ( $this->strictMode ) {
+					throw $ex;
+				}
+				continue;
 			}
 
 			$this->patterns[] = array(
 				'prefix'  => $prefix,
 				'negate'  => $negate,
 				'pattern' => $orig,
-				'regex'   => $this->patternToRegex( $pat, $idx ),
+				'regex'   => $regex,
 			);
 		}
 	}
@@ -442,6 +468,8 @@ class IgnoreFile {
 
 			// Outside of a range, backslash escapes a character.
 			if ( '\\' === $pat ) {
+				// If a pattern ends with an unescaped <backslash>, it is unspecified whether the pattern does not match anything or the pattern is treated as invalid.
+				// We treat it as invalid here.
 				throw new InvalidPatternException( "Unexpected trailing backslash in pattern `$orig` at index $idx" );
 			}
 			if ( '\\' === $pat[0] ) {

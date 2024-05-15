@@ -874,9 +874,9 @@ class Replicastore implements Replicastore_Interface {
 	 *
 	 * @access public
 	 *
-	 * @param string $taxonomy   Taxonomy slug.
-	 * @param int    $term_id    ID of the term.
-	 * @param string $term_key   ID Field `term_id` or `term_taxonomy_id`.
+	 * @param string|false $taxonomy   Taxonomy slug.
+	 * @param int          $term_id    ID of the term.
+	 * @param string       $term_key   ID Field `term_id` or `term_taxonomy_id`.
 	 *
 	 * @return \WP_Term|WP_Error Term object on success, \WP_Error object on failure.
 	 */
@@ -1086,10 +1086,11 @@ class Replicastore implements Replicastore_Interface {
 	 * @access public
 	 *
 	 * @param int $user_id User ID.
-	 * @return \WP_User User object.
+	 * @return \WP_User|null User object, or `null` if user invalid/not found.
 	 */
 	public function get_user( $user_id ) {
-		return \WP_User::get_instance( $user_id );
+		$user = get_user_by( 'id', $user_id );
+		return $user instanceof \WP_User ? $user : null;
 	}
 
 	/**

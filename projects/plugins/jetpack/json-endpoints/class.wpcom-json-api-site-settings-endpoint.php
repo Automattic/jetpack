@@ -45,6 +45,8 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 		),
 
 		'request_format'      => array(
+			'migration_source_site_domain'            => '(string) The source site URL, from the migration flow',
+			'in_site_migration_flow'                  => '(string) The migration flow the site is in',
 			'blogname'                                => '(string) Blog name',
 			'blogdescription'                         => '(string) Blog description',
 			'default_pingback_flag'                   => '(bool) Notify blogs linked from article?',
@@ -459,6 +461,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
 						'wpcom_reader_views_enabled'       => (bool) get_option( 'wpcom_reader_views_enabled', true ),
 						'wpcom_subscription_emails_use_excerpt' => $this->get_wpcom_subscription_emails_use_excerpt_option(),
+						'jetpack_subscriptions_reply_to'   => (string) $this->get_subscriptions_reply_to_option(),
 						'show_on_front'                    => (string) get_option( 'show_on_front' ),
 						'page_on_front'                    => (string) get_option( 'page_on_front' ),
 						'page_for_posts'                   => (string) get_option( 'page_for_posts' ),
@@ -468,6 +471,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'enable_blocks_comments'           => (bool) get_option( 'enable_blocks_comments', true ),
 						'highlander_comment_form_prompt'   => $this->get_highlander_comment_form_prompt_option(),
 						'jetpack_comment_form_color_scheme' => (string) get_option( 'jetpack_comment_form_color_scheme' ),
+						'in_site_migration_flow'           => (string) get_option( 'in_site_migration_flow', '' ),
+						'migration_source_site_domain'     => (string) get_option( 'migration_source_site_domain' ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -1022,6 +1027,16 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$updated[ $key ] = (bool) $value;
 					break;
 
+				case 'jetpack_subscriptions_reply_to':
+					require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-settings.php';
+					$to_set_value = Automattic\Jetpack\Modules\Subscriptions\Settings::is_valid_reply_to( $value )
+						? $value
+						: Automattic\Jetpack\Modules\Subscriptions\Settings::get_default_reply_to();
+
+					update_option( 'jetpack_subscriptions_reply_to', (string) $to_set_value );
+					$updated[ $key ] = (bool) $value;
+					break;
+
 				case 'instant_search_enabled':
 					update_option( 'instant_search_enabled', (bool) $value );
 					$updated[ $key ] = (bool) $value;
@@ -1135,6 +1150,41 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 					break;
 
+				case 'in_site_migration_flow':
+					if ( empty( $value ) ) {
+						delete_option( 'in_site_migration_flow' );
+						break;
+					}
+
+					$migration_flow_whitelist = array(
+						'site-migration',
+						'migration-signup',
+					);
+
+					if ( ! in_array( $value, $migration_flow_whitelist, true ) ) {
+						break;
+					}
+
+					update_option( 'in_site_migration_flow', $value );
+					$updated[ $key ] = $value;
+					break;
+
+				case 'migration_source_site_domain':
+					// If we get an empty value, delete the option
+					if ( empty( $value ) ) {
+						delete_option( 'migration_source_site_domain' );
+						break;
+					}
+
+					// If we get a non-url value, don't update the option.
+					if ( wp_http_validate_url( $value ) === false ) {
+						break;
+					}
+
+					update_option( 'migration_source_site_domain', $value );
+					$updated[ $key ] = $value;
+					break;
+
 				default:
 					// allow future versions of this endpoint to support additional settings keys.
 					if ( has_filter( 'site_settings_endpoint_update_' . $key ) ) {
@@ -1234,6 +1284,21 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		return (bool) $wpcom_subscription_emails_use_excerpt;
+	}
+
+	/**
+	 * Get the string value of the jetpack_subscriptions_reply_to option.
+	 * When the option is not set, it will retun 'no-reply'.
+	 *
+	 * @return string
+	 */
+	protected function get_subscriptions_reply_to_option() {
+		$reply_to = get_option( 'jetpack_subscriptions_reply_to', null );
+		if ( $reply_to === null ) {
+			require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-settings.php';
+			return Automattic\Jetpack\Modules\Subscriptions\Settings::get_default_reply_to();
+		}
+		return $reply_to;
 	}
 
 	/**
