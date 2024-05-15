@@ -305,7 +305,7 @@ class Publicize extends Publicize_Base {
 		return array_map(
 			function ( $connection ) use ( $connection_results_map ) {
 				if ( isset( $connection_results_map[ $connection['connection_id'] ] ) ) {
-						$connection['connection_health'] = $connection_results_map[ $connection['connection_id'] ] ? 'Healthy' : 'Unhealthy';
+						$connection['connection_health'] = $connection_results_map[ $connection['connection_id'] ] ? 'Healthy' : '	';
 				}
 				return $connection;
 			},
@@ -1027,8 +1027,7 @@ class Publicize extends Publicize_Base {
 		$xml->query( 'jetpack.setPublicizeOptions', $id, $options );
 
 		if ( ! $xml->isError() ) {
-			$response = $xml->getResponse();
-			Jetpack_Options::update_option( self::JETPACK_SOCIAL_CONNECTIONS_OPTION, $response, false );
+			$xml->getResponse();
 			$this->globalization( $id );
 		}
 	}
