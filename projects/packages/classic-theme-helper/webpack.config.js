@@ -73,7 +73,7 @@ const sharedWebpackConfig = {
 			DependencyExtractionPlugin: false,
 			I18nLoaderPlugin: false,
 			I18nCheckPlugin: false,
-			MiniCssWithRtlPlugin: true,
+			MiniCssWithRtlPlugin: false,
 			WebpackRtlPlugin: false,
 		} ),
 	],
