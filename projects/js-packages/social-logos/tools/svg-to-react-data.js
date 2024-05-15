@@ -16,7 +16,6 @@ process.chdir( rootDir );
 
 /**
  * Transforms kebab case names to camel case
- * Legacy code with limited purpose.
  * @param {string} name - e.g.: foo-bar-baz
  * @returns {string} e.g.: fooBarBaz
  */
