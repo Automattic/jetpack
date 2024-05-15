@@ -219,6 +219,7 @@ class Jetpack_Options {
 			if ( self::is_network_option( $name ) ) {
 				return get_site_option( "jetpack_$name", $default );
 			}
+
 			return get_option( "jetpack_$name", $default );
 		}
 
