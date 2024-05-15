@@ -24,8 +24,7 @@ npx svgstore -o "$dest_sprite_filename" --inline "$src_svg_dir"/*.svg
 sed -E -i.bak 's|<svg><defs/>|<svg xmlns="http://www.w3.org/2000/svg">|' "$dest_sprite_filename" && rm "$dest_sprite_filename.bak"
 
 # Copy example files.
-cp "$src_sprite_dir"/example.html "$dest_sprite_dir"
-cp "$src_css_dir"/example.css "$dest_sprite_dir"
+cp "$src_sprite_dir/"* "$dest_sprite_dir"
 
 # Inject SVG into example file.
 sed -i.bak "s|{{SVG_HERE}}|$(cat "$dest_sprite_filename")|" "$dest_sprite_dir/example.html" && rm "$dest_sprite_dir/example.html.bak"

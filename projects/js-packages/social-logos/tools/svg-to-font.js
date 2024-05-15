@@ -40,6 +40,7 @@ const writeCodepoints = () => {
 				throw err;
 			}
 			// console.log('Wrote codepoints file.');
+			fs.copyFileSync( codepointsFile, destFontDir + '/codepoints.json' );
 		}
 	);
 };

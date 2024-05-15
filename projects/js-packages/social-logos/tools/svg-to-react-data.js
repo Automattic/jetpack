@@ -3,6 +3,7 @@
 const svgDir = 'build/svg-clean';
 const destReactDir = 'build/react';
 const destDataFile = destReactDir + '/social-logo-data.jsx';
+const srcDataFile = 'src/react/social-logo-data.jsx';
 
 const fs = require( 'fs' );
 const path = require( 'path' );
@@ -70,5 +71,6 @@ files.forEach( file => {
 } );
 socialLogoData += '\n];\n';
 
+fs.writeFileSync( srcDataFile, socialLogoData );
 fs.writeFileSync( destDataFile, socialLogoData );
 console.log( `Created React SVG data file in '${ destReactDir }'.` );
