@@ -111,7 +111,6 @@ class Manager {
 		);
 
 		$manager->setup_xmlrpc_handlers(
-			$_GET, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$manager->has_connected_owner(),
 			$manager->verify_xml_rpc_signature()
 		);
@@ -161,32 +160,27 @@ class Manager {
 	 * Sets up the XMLRPC request handlers.
 	 *
 	 * @since 1.25.0 Deprecate $is_active param.
+	 * @since $$next-version$$ Deprecate $request_params param.
 	 *
-	 * @param array                 $request_params incoming request parameters.
 	 * @param bool                  $has_connected_owner Whether the site has a connected owner.
 	 * @param bool                  $is_signed whether the signature check has been successful.
 	 * @param Jetpack_XMLRPC_Server $xmlrpc_server (optional) an instance of the server to use instead of instantiating a new one.
 	 */
 	public function setup_xmlrpc_handlers(
-		$request_params,
 		$has_connected_owner,
 		$is_signed,
 		Jetpack_XMLRPC_Server $xmlrpc_server = null
 	) {
 		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ), 1000, 2 );
 
-		if (
-			! isset( $request_params['for'] )
-			|| 'jetpack' !== $request_params['for']
-		) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- We are using the 'for' request param to early return unless it's 'jetpack'.
+		if ( ! isset( $_GET['for'] ) || 'jetpack' !== $_GET['for'] ) {
 			return false;
 		}
 
 		// Alternate XML-RPC, via ?for=jetpack&jetpack=comms.
-		if (
-			isset( $request_params['jetpack'] )
-			&& 'comms' === $request_params['jetpack']
-		) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- We are using the 'jetpack' request param to handle this request as an XML-RPC request if it's set to 'comms'.
+		if ( isset( $_GET['jetpack'] ) && 'comms' === $_GET['jetpack'] ) {
 			if ( ! Constants::is_defined( 'XMLRPC_REQUEST' ) ) {
 				// Use the real constant here for WordPress' sake.
 				define( 'XMLRPC_REQUEST', true );
