@@ -255,16 +255,18 @@ export function ConfirmationForm( { keyringResult, onComplete }: ConfirmationFor
 				<Button variant="secondary" onClick={ onComplete }>
 					{ __( 'Cancel', 'jetpack' ) }
 				</Button>
-				<Button
-					form="connection-confirmation-form"
-					type="submit"
-					disabled={ isCreatingConnection }
-					isLoading={ isCreatingConnection }
-				>
-					{ isCreatingConnection
-						? _x( 'Connecting…', 'Connecting a social media account', 'jetpack' )
-						: __( 'Confirm', 'jetpack' ) }
-				</Button>
+				{ accounts.not_connected.length ? (
+					<Button
+						form="connection-confirmation-form"
+						type="submit"
+						disabled={ isCreatingConnection }
+						isLoading={ isCreatingConnection }
+					>
+						{ isCreatingConnection
+							? _x( 'Connecting…', 'Connecting a social media account', 'jetpack' )
+							: __( 'Confirm', 'jetpack' ) }
+					</Button>
+				) : null }
 			</div>
 		</section>
 	);
