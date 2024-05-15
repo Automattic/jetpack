@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Block Editor: remove External Link icon styling fix, now that the change has been made in WordPress itself.

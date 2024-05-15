@@ -14,7 +14,7 @@ function render() {
 	}
 
 	const component = (
-		<ThemeProvider>
+		<ThemeProvider targetDom={ document.body }>
 			<AdminPage />
 		</ThemeProvider>
 	);
