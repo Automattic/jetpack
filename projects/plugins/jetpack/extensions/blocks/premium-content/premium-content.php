@@ -151,7 +151,7 @@ function stripe_nudge( $checkout_url, $description, $button_text ) {
  * @return void
  */
 function add_paid_content_post_meta( int $post_id, WP_Post $post ) {
-	if ( $post->post_type !== 'post' ) {
+	if ( $post->post_type !== 'post' && $post->post_type !== 'page' ) {
 		return;
 	}
 
