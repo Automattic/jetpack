@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Updated tests after migrating the option for jetpack social connections.
