@@ -325,30 +325,37 @@ class Jetpack_Social {
 		$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
 		$initial_state           = $jetpack_social_settings->get_initial_state();
 
+		$social_state = array(
+			'adminUrl'                        => esc_url_raw( admin_url( 'admin.php?page=jetpack-social' ) ),
+			'sharesData'                      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+			'connectionRefreshPath'           => '/jetpack/v4/publicize/connection-test-results',
+			'resharePath'                     => '/jetpack/v4/publicize/{postId}',
+			'publicizeConnectionsUrl'         => esc_url_raw(
+				'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site='
+			),
+			'hasPaidPlan'                     => $publicize->has_paid_plan(),
+			'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
+			'isSocialImageGeneratorAvailable' => $initial_state['socialImageGeneratorSettings']['available'],
+			'isSocialImageGeneratorEnabled'   => $initial_state['socialImageGeneratorSettings']['enabled'],
+			'autoConversionSettings'          => $initial_state['autoConversionSettings'],
+			'useAdminUiV1'                    => $initial_state['useAdminUiV1'],
+			'dismissedNotices'                => Dismissed_Notices::get_dismissed_notices(),
+			'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
+			'userConnectionUrl'               => esc_url_raw( admin_url( 'admin.php?page=my-jetpack#/connection' ) ),
+		);
+
+		// Add connectionData if we are using the new Connection UI.
+		if ( $initial_state['useAdminUiV1'] ) {
+			$social_state['connectionData'] = $initial_state['connectionData'];
+		}
+
 		wp_localize_script(
 			'jetpack-social-editor',
 			'Jetpack_Editor_Initial_State',
 			array(
 				'siteFragment' => ( new Status() )->get_site_suffix(),
 				'wpcomBlogId'  => Connection_Manager::get_site_id( true ),
-				'social'       => array(
-					'adminUrl'                        => esc_url_raw( admin_url( 'admin.php?page=jetpack-social' ) ),
-					'sharesData'                      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
-					'connectionRefreshPath'           => '/jetpack/v4/publicize/connection-test-results',
-					'resharePath'                     => '/jetpack/v4/publicize/{postId}',
-					'publicizeConnectionsUrl'         => esc_url_raw(
-						'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site='
-					),
-					'hasPaidPlan'                     => $publicize->has_paid_plan(),
-					'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
-					'isSocialImageGeneratorAvailable' => $initial_state['socialImageGeneratorSettings']['available'],
-					'isSocialImageGeneratorEnabled'   => $initial_state['socialImageGeneratorSettings']['enabled'],
-					'autoConversionSettings'          => $initial_state['autoConversionSettings'],
-					'useAdminUiV1'                    => $initial_state['useAdminUiV1'],
-					'dismissedNotices'                => Dismissed_Notices::get_dismissed_notices(),
-					'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
-					'userConnectionUrl'               => esc_url_raw( admin_url( 'admin.php?page=my-jetpack#/connection' ) ),
-				),
+				'social'       => $social_state,
 			)
 		);
 
