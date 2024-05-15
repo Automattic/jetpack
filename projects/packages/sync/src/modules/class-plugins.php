@@ -287,7 +287,7 @@ class Plugins extends Module {
 	 */
 	public function plugin_edit_ajax() {
 		// This validation is based on wp_edit_theme_plugin_file().
-		$args = wp_unslash( $_POST );
+		$args = wp_unslash( $_POST ); // We need all of $_POST since we are validating all args, same as core does in wp_ajax_edit_theme_plugin_file.
 		if ( empty( $args['file'] ) ) {
 			return;
 		}

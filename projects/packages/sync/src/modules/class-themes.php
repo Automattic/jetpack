@@ -224,7 +224,8 @@ class Themes extends Module {
 	 * @todo Refactor to use WP_Filesystem instead of fopen()/fclose().
 	 */
 	public function theme_edit_ajax() {
-		$args = wp_unslash( $_POST );
+		// This validation is based on wp_edit_theme_plugin_file().
+		$args = wp_unslash( $_POST ); // We need all of $_POST since we are validating all args, same as core does in wp_ajax_edit_theme_plugin_file.
 
 		if ( empty( $args['theme'] ) ) {
 			return;
