@@ -33,7 +33,7 @@ export let EXTENDED_TRANSFORMATIVE_BLOCKS: string[] = [ ...ALL_EXTENDED_BLOCKS ]
 export const EXTENDED_INLINE_BLOCKS: string[] = [];
 
 // Temporarily keep track of inline extensions that have been released to production.
-export const releasedInlineExtensions = [ 'core/heading' ];
+const releasedInlineExtensions = [ 'core/heading' ];
 // Temporarily keep track of inline extensions that are being worked on.
 const unreleasedTransformativeExtensions = [];
 
