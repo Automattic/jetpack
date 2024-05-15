@@ -39,10 +39,25 @@ class GA_Manager {
 	 * @var array
 	 */
 	private $api_defaults = array(
-		'code'                 => '',
-		'anonymize_ip'         => false,
-		'ec_track_purchases'   => false,
-		'ec_track_add_to_cart' => false,
+		'1.3' => array(
+			'code'                 => '',
+			'anonymize_ip'         => false,
+			'ec_track_purchases'   => false,
+			'ec_track_add_to_cart' => false,
+		),
+		'1.4' => array(
+			'code'                          => '',
+			'anonymize_ip'                  => false,
+			'honor_dnt'                     => false,
+			'ec_track_purchases'            => false,
+			'ec_track_add_to_cart'          => false,
+			'enh_ec_tracking'               => false,
+			'enh_ec_track_remove_from_cart' => false,
+			'enh_ec_track_prod_impression'  => false,
+			'enh_ec_track_prod_click'       => false,
+			'enh_ec_track_prod_detail_view' => false,
+			'enh_ec_track_checkout_started' => false,
+		),
 	);
 
 	/**
@@ -95,8 +110,8 @@ class GA_Manager {
 
 		$settings['wga'] = $this->get_google_analytics_settings();
 
-		if ( version_compare( $api_handler->min_version, '1.3', '>=' ) ) {
-			$settings['wga'] = wp_parse_args( $settings['wga'], $this->api_defaults );
+		if ( array_key_exists( $api_handler->min_version, $this->api_defaults ) ) {
+			$settings['wga'] = wp_parse_args( $settings['wga'], $this->api_defaults[ $api_handler->min_version ] );
 		}
 
 		return $settings;
@@ -138,8 +153,8 @@ class GA_Manager {
 		 */
 		$wga = apply_filters( 'site_settings_update_wga', $wga, $value );
 
-		if ( version_compare( $api_handler->min_version, '1.3', '>=' ) ) {
-			$wga_keys = array_keys( $this->api_defaults );
+		if ( array_key_exists( $api_handler->min_version, $this->api_defaults ) ) {
+			$wga_keys = array_keys( $this->api_defaults[ $api_handler->min_version ] );
 			foreach ( $wga_keys as $wga_key ) {
 				// Skip code since it's already handled.
 				if ( 'code' === $wga_key ) {
