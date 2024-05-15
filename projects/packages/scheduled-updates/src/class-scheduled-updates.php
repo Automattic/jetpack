@@ -169,10 +169,15 @@ class Scheduled_Updates {
 	 * @param int    $timestamp Timestamp of the first run.
 	 * @param string $interval  Interval of the update.
 	 * @param array  $plugins   List of plugins to update.
-	 * @return \WP_Error|bool True on success, WP_Error on failure.
+	 * @return \WP_Error|true True on success, WP_Error on failure.
 	 */
 	public static function create_scheduled_update( $timestamp, $interval, $plugins ) {
-		return wp_schedule_event( $timestamp, $interval, self::PLUGIN_CRON_HOOK, $plugins, true );
+		$res = wp_schedule_event( $timestamp, $interval, self::PLUGIN_CRON_HOOK, $plugins, true );
+
+		// Be sure to clear the cron cache after adding a cron entry.
+		self::clear_cron_cache();
+
+		return $res;
 	}
 
 	/**
