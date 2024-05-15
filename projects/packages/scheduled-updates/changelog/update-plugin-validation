@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Moves install/managed check for plugins into API endpoint validation callback
