@@ -210,6 +210,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 
 		if ( $this->is_wpcom() ) {
 			require_lib( 'memberships' );
+			Memberships_Store_Sandbox::get_instance()->init( true );
 
 			$result = Memberships_Product::generate_default_products( get_current_blog_id(), $request['type'], $request['currency'], $is_editable );
 
@@ -382,6 +383,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 
 		if ( $this->is_wpcom() ) {
 			require_lib( 'memberships' );
+			Memberships_Store_Sandbox::get_instance()->init( true );
 			$blog_id             = get_current_blog_id();
 			$membership_settings = get_memberships_settings_for_site( $blog_id, $product_type, $is_editable, $source );
 
@@ -504,6 +506,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 */
 	private function list_products_from_wpcom( WP_REST_Request $request, $type, $is_editable ) {
 		$this->prevent_running_outside_of_wpcom();
+		Memberships_Store_Sandbox::get_instance()->init( true );
 		$blog_id = $request->get_param( 'blog_id' );
 		if ( is_wp_error( $blog_id ) ) {
 			throw new \Exception( 'Unknown blog' );
@@ -524,6 +527,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 */
 	private function find_product_from_wpcom( $product_id ) {
 		$this->prevent_running_outside_of_wpcom();
+		Memberships_Store_Sandbox::get_instance()->init( true );
 		$product = Memberships_Product::get_from_post( get_current_blog_id(), $product_id );
 		if ( is_wp_error( $product ) ) {
 			throw new \Exception( $product->get_error_message() );
@@ -543,6 +547,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 */
 	private function create_product_from_wpcom( $payload ) {
 		$this->prevent_running_outside_of_wpcom();
+		Memberships_Store_Sandbox::get_instance()->init( true );
 		$product = Memberships_Product::create( get_current_blog_id(), $payload );
 		if ( is_wp_error( $product ) ) {
 			throw new \Exception( __( 'Creating product has failed.', 'jetpack' ) );
@@ -559,6 +564,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 * @return object The newly updated product.
 	 */
 	private function update_product_from_wpcom( $product_id, $payload ) {
+		Memberships_Store_Sandbox::get_instance()->init( true );
 		$product         = $this->find_product_from_wpcom( $product_id ); // prevents running outside of wpcom
 		$updated_product = $product->update( $payload );
 		if ( is_wp_error( $updated_product ) ) {
@@ -576,6 +582,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 * @return void
 	 */
 	private function delete_product_from_wpcom( $product_id, $cancel_subscriptions = false ) {
+		Memberships_Store_Sandbox::get_instance()->init( true );
 		$product = $this->find_product_from_wpcom( $product_id ); // prevents running outside of wpcom
 		$result  = $product->delete( $cancel_subscriptions ? Memberships_Product::CANCEL_SUBSCRIPTIONS : Memberships_Product::KEEP_SUBSCRIPTIONS );
 		if ( is_wp_error( $result ) ) {

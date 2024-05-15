@@ -8,6 +8,8 @@ use Automattic\Jetpack\Sync\Settings;
  */
 class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	protected $post;
+
+	/** @var \Automattic\Jetpack\Sync\Modules\Options */
 	protected $options_module;
 
 	/**
@@ -16,7 +18,9 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	public function set_up() {
 		parent::set_up();
 
-		$this->options_module = Modules::get_module( 'options' );
+		$options_module = Modules::get_module( 'options' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Options $options_module';
+		$this->options_module = $options_module;
 
 		$this->options_module->set_options_whitelist( array( 'test_option' ) );
 
@@ -332,7 +336,8 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that all options are returned by get_objects_by_id
 	 */
 	public function test_get_objects_by_id_all() {
-		$module      = Modules::get_module( 'options' );
+		$module = Modules::get_module( 'options' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Options $module';
 		$all_options = $module->get_objects_by_id( 'option', array( 'all' ) );
 		$this->assertEquals( $module->get_all_options(), $all_options );
 	}
@@ -341,7 +346,8 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that get_object_by_id returns a allowed option.
 	 */
 	public function test_get_objects_by_id_singular() {
-		$module      = Modules::get_module( 'options' );
+		$module = Modules::get_module( 'options' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Options $module';
 		$options     = $module->get_all_options();
 		$get_options = $module->get_objects_by_id( 'option', array( 'test_option' ) );
 		$this->assertEquals( $options['test_option'], $get_options['test_option'] );
@@ -351,7 +357,8 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that get_object_by_id returns settings logic for jetpack_sync_settings_* options.
 	 */
 	public function test_get_objects_by_id_sync_settings() {
-		$module   = Modules::get_module( 'options' );
+		$module = Modules::get_module( 'options' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Options $module';
 		$settings = Settings::get_settings();
 		// Reload the proper allowlist of options, as `setUp` only lists `test_option`.
 		$this->options_module->update_options_whitelist();

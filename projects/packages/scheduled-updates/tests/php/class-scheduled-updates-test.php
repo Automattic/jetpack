@@ -22,6 +22,20 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	use \phpmock\phpunit\PHPMock;
 
 	/**
+	 * Admin user ID.
+	 *
+	 * @var int
+	 */
+	public $admin_id;
+
+	/**
+	 * WordPress filesystem.
+	 *
+	 * @var \WP_Filesystem_Direct
+	 */
+	public $wp_filesystem;
+
+	/**
 	 * Set up before class.
 	 *
 	 * @see Restrictions here: https://github.com/php-mock/php-mock-phpunit?tab=readme-ov-file#restrictions
@@ -48,8 +62,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		WP_Filesystem();
 		$this->wp_filesystem = $wp_filesystem;
 
-		$this->plugin_dir = WP_PLUGIN_DIR;
-		$this->admin_id   = wp_insert_user(
+		$this->admin_id = wp_insert_user(
 			array(
 				'user_login' => 'dumasdasdasmy_user',
 				'user_pass'  => 'dummy_pass',
@@ -57,9 +70,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 		wp_set_current_user( $this->admin_id );
-
-		// Ensure plugin directory exists.
-		$this->wp_filesystem->mkdir( $this->plugin_dir );
 	}
 
 	/**
@@ -68,8 +78,12 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 * @after
 	 */
 	protected function tear_down() {
-		// Clean up the temporary plugin directory.
-		$this->wp_filesystem->rmdir( $this->plugin_dir, true );
+		$this->wp_filesystem->delete( WP_PLUGIN_DIR . '/deleted-plugin-0', true );
+		$this->wp_filesystem->delete( WP_PLUGIN_DIR . '/deleted-plugin-1', true );
+		$this->wp_filesystem->delete( WP_PLUGIN_DIR . '/deleted-plugin-2', true );
+		if ( file_exists( WP_PLUGIN_DIR . '/managed-plugin' ) ) {
+			wp_delete_file( WP_PLUGIN_DIR . '/managed-plugin' );
+		}
 
 		// Clean up the plugins cache created by get_plugins().
 		wp_cache_delete( 'plugins', 'plugins' );
@@ -87,19 +101,12 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 * @covers ::add_is_managed_extension_field
 	 */
 	public function test_unmanaged_plugins() {
-		// Direct.
-		$plugin_name = 'direct-plugin';
-		$this->wp_filesystem->mkdir( "$this->plugin_dir/$plugin_name" );
-		$this->populate_file_with_plugin_header( "$this->plugin_dir/$plugin_name/$plugin_name.php", 'direct-plugin' );
-
-		// Make sure the directory exists.
-		$this->assertTrue( $this->wp_filesystem->is_dir( "$this->plugin_dir/direct-plugin" ) );
-
 		$request       = new \WP_REST_Request( 'GET', '/wp/v2/plugins' );
 		$result        = rest_do_request( $request );
-		$plugin_result = $result->get_data()[0];
+		$plugin_result = wp_list_filter( $result->get_data(), array( 'plugin' => 'gutenberg/gutenberg' ) );
+		$plugin_result = reset( $plugin_result );
 
-		$this->assertSame( 'direct-plugin', $plugin_result['textdomain'] );
+		$this->assertSame( 'gutenberg', $plugin_result['textdomain'] );
 		$this->assertSame( false, $plugin_result['is_managed'] );
 	}
 
@@ -110,21 +117,12 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 * @covers ::add_is_managed_extension_field
 	 */
 	public function test_unmanaged_plugins_not_in_root_directory() {
-		// We simulate a symlink to a subdirectory inside a wp directory.
-		$plugin_name = 'managed-plugin';
-		$target_dir  = "$this->plugin_dir/wordpress";
-		$this->wp_filesystem->mkdir( $target_dir );
-		$this->wp_filesystem->mkdir( "$target_dir/$plugin_name" );
-		$this->populate_file_with_plugin_header( "$target_dir/$plugin_name/$plugin_name.php", 'managed-plugin' );
-		symlink( "$target_dir/$plugin_name", "$this->plugin_dir/$plugin_name" );
-
-		// Make sure the symlink exists.
-		$this->assertFalse( $this->wp_filesystem->is_dir( "$this->plugin_dir/direct-plugin" ) );
-		$this->assertTrue( is_link( "$this->plugin_dir/managed-plugin" ) );
+		symlink( WP_PLUGIN_DIR . '/wordpress/managed-plugin', WP_PLUGIN_DIR . '/managed-plugin' );
 
 		$request       = new \WP_REST_Request( 'GET', '/wp/v2/plugins' );
 		$result        = rest_do_request( $request );
-		$plugin_result = $result->get_data()[0];
+		$plugin_result = wp_list_filter( $result->get_data(), array( 'plugin' => 'managed-plugin/managed-plugin' ) );
+		$plugin_result = reset( $plugin_result );
 
 		$this->assertSame( 'managed-plugin', $plugin_result['textdomain'] );
 		$this->assertSame( false, $plugin_result['is_managed'] );
@@ -137,25 +135,16 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 * @covers ::add_is_managed_extension_field
 	 */
 	public function test_managed_plugins() {
-		// We simulate a symlink to a subdirectory inside a wp directory.
-		$plugin_name = 'managed-plugin';
-		$target_dir  = "$this->plugin_dir/wordpress";
-		$this->wp_filesystem->mkdir( $target_dir );
-		$this->wp_filesystem->mkdir( "$target_dir/$plugin_name" );
-		$this->populate_file_with_plugin_header( "$target_dir/$plugin_name/$plugin_name.php", 'managed-plugin' );
-		symlink( "$target_dir/$plugin_name", "$this->plugin_dir/$plugin_name" );
-
-		// Make sure the symlink exists.
-		$this->assertFalse( $this->wp_filesystem->is_dir( "$this->plugin_dir/direct-plugin" ) );
-		$this->assertTrue( is_link( "$this->plugin_dir/managed-plugin" ) );
+		symlink( WP_PLUGIN_DIR . '/wordpress/managed-plugin', WP_PLUGIN_DIR . '/managed-plugin' );
 
 		// Tweak realpath so that it returns `/wordpress/...`.
 		$realpath = $this->getFunctionMock( __NAMESPACE__, 'realpath' );
-		$realpath->expects( $this->once() )->willReturn( "/wordpress/plugins/$plugin_name" );
+		$realpath->expects( $this->once() )->willReturn( '/wordpress/plugins/managed-plugin' );
 
 		$request       = new \WP_REST_Request( 'GET', '/wp/v2/plugins' );
 		$result        = rest_do_request( $request );
-		$plugin_result = $result->get_data()[0];
+		$plugin_result = wp_list_filter( $result->get_data(), array( 'plugin' => 'managed-plugin/managed-plugin' ) );
+		$plugin_result = reset( $plugin_result );
 
 		$this->assertSame( 'managed-plugin', $plugin_result['textdomain'] );
 		$this->assertSame( true, $plugin_result['is_managed'] );
@@ -171,9 +160,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		$plugin_file = "$plugin_name/$plugin_name.php";
 		$is_deleted  = false;
 
-		$this->wp_filesystem->mkdir( "$this->plugin_dir/$plugin_name" );
-		$this->populate_file_with_plugin_header( "$this->plugin_dir/$plugin_file", $plugin_name );
-
 		$delete_hook = function ( $plugin_file, $deleted ) use ( &$is_deleted ) {
 			$is_deleted = $deleted;
 		};
@@ -183,7 +169,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		$this->assertTrue( delete_plugins( array( $plugin_file ) ) );
 
 		$this->assertTrue( $is_deleted );
-		$this->assertFalse( $this->wp_filesystem->is_dir( "$this->plugin_dir/$plugin_name" ) );
+		$this->assertFalse( $this->wp_filesystem->is_dir( WP_PLUGIN_DIR . '/' . $plugin_name ) );
 		$this->assertCount( 0, wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
 
 		remove_action( 'deleted_plugin', $delete_hook );
@@ -497,8 +483,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 * @covers ::deleted_plugin
 	 */
 	public function test_delete_plugin_new_events_inherit_statuses() {
-		$plugins  = $this->create_plugins_for_deletion( 3 );
-		$statuses = array( 'success', 'failure-and-rollback' );
+		$plugins = $this->create_plugins_for_deletion( 3 );
 
 		// Create two events at 08:00 and 09:00 with plugins 0 and 1, and 1 and 2.
 		for ( $i = 0; $i < 2; ++$i ) {
@@ -519,16 +504,17 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 			$result = rest_do_request( $request );
 			$this->assertSame( 200, $result->get_status() );
 
-			$request = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules/' . $result->get_data() . '/status' );
-			$request->set_body_params(
-				array(
-					'last_run_timestamp' => time() + $i,
-					'last_run_status'    => $statuses[ $i ],
-				)
+			// Log a start and success.
+			Scheduled_Updates_Logs::log(
+				$result->get_data(),
+				Scheduled_Updates_Logs::PLUGIN_UPDATES_START,
+				'no_plugins_to_update'
 			);
-
-			$result = rest_do_request( $request );
-			$this->assertSame( 200, $result->get_status() );
+			Scheduled_Updates_Logs::log(
+				$result->get_data(),
+				Scheduled_Updates_Logs::PLUGIN_UPDATES_SUCCESS,
+				'no_plugins_to_update'
+			);
 		}
 
 		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/update-schedules' );
@@ -642,8 +628,8 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 			$plugin_file = "$plugin_name/$plugin_name.php";
 			$plugins[]   = $plugin_file;
 
-			$this->wp_filesystem->mkdir( "$this->plugin_dir/$plugin_name" );
-			$this->populate_file_with_plugin_header( "$this->plugin_dir/$plugin_file", $plugin_name );
+			$this->wp_filesystem->mkdir( WP_PLUGIN_DIR . '/' . $plugin_name );
+			$this->populate_file_with_plugin_header( WP_PLUGIN_DIR . '/' . $plugin_file, $plugin_name );
 		}
 
 		return $plugins;
@@ -681,20 +667,20 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
 		$request->set_body_params(
 			array(
-				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Monday 8:00' ),
-					'interval'           => 'weekly',
-					'health_check_paths' => array(),
+				'plugins'            => $plugins,
+				'schedule'           => array(
+					'timestamp' => strtotime( 'next Monday 8:00' ),
+					'interval'  => 'weekly',
 				),
+				'health_check_paths' => array(),
 			)
 		);
 
 		wp_set_current_user( $this->admin_id );
 		$result = rest_do_request( $request );
 
-		$this->assertSame( 403, $result->get_status() );
-		$this->assertSame( 'None of the specified plugins are installed or all of them are managed.', $result->get_data()['message'] );
+		$this->assertSame( 400, $result->get_status() );
+		$this->assertSame( 'rest_invalid_param', $result->get_data()['code'] );
 	}
 
 	/**
@@ -705,41 +691,23 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	public function test_verify_plugins_all_managed() {
 		$plugins = array( 'managed-plugin-1/managed-plugin-1.php', 'managed-plugin-2/managed-plugin-2.php' );
 
-		foreach ( $plugins as $plugin ) {
-			$plugin_name = explode( '/', $plugin )[0];
-			$plugin_file = "$plugin_name/$plugin_name.php";
-			$target_dir  = "$this->plugin_dir/wordpress";
-			$this->wp_filesystem->mkdir( $target_dir );
-			$this->wp_filesystem->mkdir( "$target_dir/$plugin_name" );
-			$this->populate_file_with_plugin_header( "$target_dir/$plugin_file", $plugin_name );
-			symlink( "$target_dir/$plugin_name", "$this->plugin_dir/$plugin_name" );
-		}
-
-		// Tweak realpath so that it returns `/wordpress/...`.
-		$realpath = $this->getFunctionMock( __NAMESPACE__, 'realpath' );
-		$realpath->expects( $this->exactly( count( $plugins ) ) )->willReturnCallback(
-			function ( $path ) {
-				return str_replace( $this->plugin_dir, '/wordpress/plugins', $path );
-			}
-		);
-
 		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
 		$request->set_body_params(
 			array(
-				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Monday 8:00' ),
-					'interval'           => 'weekly',
-					'health_check_paths' => array(),
+				'plugins'            => $plugins,
+				'schedule'           => array(
+					'timestamp' => strtotime( 'next Monday 8:00' ),
+					'interval'  => 'weekly',
 				),
+				'health_check_paths' => array(),
 			)
 		);
 
 		wp_set_current_user( $this->admin_id );
 		$result = rest_do_request( $request );
 
-		$this->assertSame( 403, $result->get_status() );
-		$this->assertSame( 'None of the specified plugins are installed or all of them are managed.', $result->get_data()['message'] );
+		$this->assertSame( 400, $result->get_status() );
+		$this->assertSame( 'rest_invalid_param', $result->get_data()['code'] );
 	}
 
 	/**
@@ -749,39 +717,25 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_verify_plugins_installed_mixed() {
 		$plugins = array( 'managed-plugin/managed-plugin.php', 'installed-plugin/installed-plugin.php' );
-
-		// Create a managed plugin.
-		$managed_plugin_name = 'managed-plugin';
-		$managed_plugin_file = "$managed_plugin_name/$managed_plugin_name.php";
-		$target_dir          = "$this->plugin_dir/wordpress";
-		$this->wp_filesystem->mkdir( $target_dir );
-		$this->wp_filesystem->mkdir( "$target_dir/$managed_plugin_name" );
-		$this->populate_file_with_plugin_header( "$target_dir/$managed_plugin_file", $managed_plugin_name );
-		symlink( "$target_dir/$managed_plugin_name", "$this->plugin_dir/$managed_plugin_name" );
+		symlink( WP_PLUGIN_DIR . '/wordpress/managed-plugin', WP_PLUGIN_DIR . '/managed-plugin' );
 
 		// Tweak realpath so that it returns `/wordpress/...` for the managed plugin.
 		$realpath = $this->getFunctionMock( __NAMESPACE__, 'realpath' );
 		$realpath->expects( $this->once() )->willReturnCallback(
 			function ( $path ) {
-				return str_replace( $this->plugin_dir, '/wordpress/plugins', $path );
+				return str_replace( WP_PLUGIN_DIR, '/wordpress/plugins', $path );
 			}
 		);
-
-		// Create an installed plugin that is not managed.
-		$installed_plugin_name = 'installed-plugin';
-		$installed_plugin_file = "$installed_plugin_name/$installed_plugin_name.php";
-		$this->wp_filesystem->mkdir( "$this->plugin_dir/$installed_plugin_name" );
-		$this->populate_file_with_plugin_header( "$this->plugin_dir/$installed_plugin_file", $installed_plugin_name );
 
 		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
 		$request->set_body_params(
 			array(
-				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( 'next Monday 8:00' ),
-					'interval'           => 'weekly',
-					'health_check_paths' => array(),
+				'plugins'            => $plugins,
+				'schedule'           => array(
+					'timestamp' => strtotime( 'next Monday 8:00' ),
+					'interval'  => 'weekly',
 				),
+				'health_check_paths' => array(),
 			)
 		);
 

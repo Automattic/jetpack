@@ -43,9 +43,6 @@
 		<testsuite name="widgets">
 			<directory prefix="test_" suffix=".php">php/modules/widgets</directory>
 		</testsuite>
-		<testsuite name="sso">
-			<directory prefix="test_" suffix=".php">php/modules/sso</directory>
-		</testsuite>
 		<testsuite name="subscriptions">
 			<directory prefix="test_" suffix=".php">php/modules/subscriptions</directory>
 		</testsuite>

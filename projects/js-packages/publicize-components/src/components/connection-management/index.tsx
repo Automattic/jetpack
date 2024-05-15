@@ -1,17 +1,24 @@
-import { Button, Spinner } from '@automattic/jetpack-components';
-import apiFetch from '@wordpress/api-fetch';
-import { ExternalLink } from '@wordpress/components';
+import { Button } from '@automattic/jetpack-components';
 import { useSelect } from '@wordpress/data';
+import { useCallback, useEffect, useReducer, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
-import { useCallback, useEffect } from 'react';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store } from '../../social-store';
+import AddConnectionModal from '../add-connection-modal';
+import {
+	SupportedService,
+	useSupportedServices,
+} from '../add-connection-modal/use-supported-services';
 import ConnectionIcon from '../connection-icon';
+import { ConnectionInfo } from './connection-info';
+import { Disconnect } from './disconnect';
 import styles from './style.module.scss';
 
 const ConnectionManagement = ( { className = null } ) => {
 	const { refresh } = useSocialMediaConnections();
+
+	const [ currentService, setCurrentService ] = useState< SupportedService >( null );
 
 	const connections = useSelect( select => {
 		return select( store ).getConnections();
@@ -24,37 +31,28 @@ const ConnectionManagement = ( { className = null } ) => {
 		return a.service_name.localeCompare( b.service_name );
 	} );
 
-	// const [ isModalOpen, toggleModal ] = useReducer( state => ! state, false );
+	const [ isModalOpen, toggleModal ] = useReducer( state => ! state, false );
 
 	useEffect( () => {
 		refresh();
 	}, [ refresh ] );
 
-	const onDisconnect = useCallback(
-		conn_id => () => {
-			apiFetch( {
-				method: 'POST',
-				path: '/jetpack/v4/publicize/delete-connection/' + conn_id,
-			} ).then( () => {
-				// Handle disconnection
-			} );
+	const supportedServices = useSupportedServices();
+
+	const onReconnect = useCallback(
+		( serviceName: string ) => () => {
+			const service = supportedServices.find( _service => _service.ID === serviceName );
+
+			setCurrentService( service );
+			toggleModal();
 		},
-		[]
+		[ supportedServices ]
 	);
 
-	const renderConnectionName = connection => {
-		if ( connection.display_name ) {
-			if ( ! connection.profile_link ) {
-				return connection.display_name;
-			}
-			return (
-				<ExternalLink className={ styles[ 'profile-link' ] } href={ connection.profile_link }>
-					{ connection.display_name }
-				</ExternalLink>
-			);
-		}
-		return <Spinner color="black" />;
-	};
+	const onCloseModal = useCallback( () => {
+		setCurrentService( null );
+		toggleModal();
+	}, [] );
 
 	return (
 		<div className={ classNames( styles.wrapper, className ) }>
@@ -78,17 +76,16 @@ const ConnectionManagement = ( { className = null } ) => {
 										profilePicture={ connection.profile_picture }
 									/>
 								</td>
-								<td className={ styles.name }>{ renderConnectionName( connection ) }</td>
+								<td className={ styles.name }>
+									<ConnectionInfo
+										connection={ connection }
+										onReconnect={ onReconnect( connection.service_name ) }
+									/>
+								</td>
 								<td>
-									{ connection.can_disconnect && (
-										<Button
-											size="small"
-											variant="secondary"
-											onClick={ onDisconnect( connection.connection_id ) }
-										>
-											{ __( 'Disconnect', 'jetpack' ) }
-										</Button>
-									) }
+									<div className={ styles.actions }>
+										<Disconnect connection={ connection } />
+									</div>
 								</td>
 							</tr>
 						) ) }
@@ -97,8 +94,16 @@ const ConnectionManagement = ( { className = null } ) => {
 			) : (
 				<span>{ __( 'There are no connections added yet.', 'jetpack' ) }</span>
 			) }
-			<Button size="small">{ __( 'Add new connection', 'jetpack' ) }</Button>
-			{ /* { isModalOpen && <AddConnectionModal onCloseModal={ toggleModal } /> } */ }
+			<Button onClick={ toggleModal } size="small">
+				{ __( 'Add new connection', 'jetpack' ) }
+			</Button>
+			{ isModalOpen && (
+				<AddConnectionModal
+					onCloseModal={ onCloseModal }
+					currentService={ currentService }
+					setCurrentService={ setCurrentService }
+				/>
+			) }
 		</div>
 	);
 };

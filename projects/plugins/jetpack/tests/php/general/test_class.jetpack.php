@@ -12,7 +12,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 
-// Extend with a public constructor so that can be mocked in tests
+/** Extend with a public constructor so that can be mocked in tests. */
 class MockJetpack extends Jetpack {
 
 	/**
@@ -199,7 +199,7 @@ EXPECTED;
 		$this->assertEquals( $expected, $result );
 	}
 
-	/*
+	/**
 	 * @author tonykova
 	 */
 	public function test_implode_frontend_css_enqueues_bundle_file_handle() {
@@ -341,7 +341,7 @@ EXPECTED;
 		$this->assertEquals( $active_modules, array( 'monitor', 'stats' ) );
 	}
 
-	// This filter overrides the 'monitor' module.
+	/** This filter overrides the 'monitor' module. */
 	public static function e2e_test_filter( $modules ) {
 		$disabled_modules = array( 'monitor' );
 
@@ -863,6 +863,7 @@ EXPECTED;
 			'jetpack.subscriptions.subscribe',
 			'jetpack.updatePublicizeConnections',
 			'jetpack.getHeartbeatData',
+			'jetpack.userDisconnect',
 		);
 
 		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
@@ -919,6 +920,7 @@ EXPECTED;
 			'jetpack.subscriptions.subscribe',
 			'jetpack.updatePublicizeConnections',
 			'jetpack.getHeartbeatData',
+			'jetpack.userDisconnect',
 		);
 
 		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );

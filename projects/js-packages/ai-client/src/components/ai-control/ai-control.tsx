@@ -16,6 +16,7 @@ import type { RequestingStateProp } from '../../types.js';
 import type { ReactElement } from 'react';
 
 type AIControlProps = {
+	className?: string;
 	disabled?: boolean;
 	value: string;
 	placeholder?: string;
@@ -37,6 +38,7 @@ type AIControlProps = {
  * @returns {ReactElement}       Rendered component
  */
 export default function AIControl( {
+	className,
 	disabled = false,
 	value = '',
 	placeholder = '',
@@ -51,7 +53,10 @@ export default function AIControl( {
 	wrapperRef = null,
 }: AIControlProps ): ReactElement {
 	return (
-		<div className="jetpack-components-ai-control__container-wrapper" ref={ wrapperRef }>
+		<div
+			className={ classNames( 'jetpack-components-ai-control__container-wrapper', className ) }
+			ref={ wrapperRef }
+		>
 			{ error }
 			<div className="jetpack-components-ai-control__container">
 				{ banner }

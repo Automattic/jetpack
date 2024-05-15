@@ -901,7 +901,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/connection",
-				"reference": "ef847deea958cb05bab52cbc11f924f5b8eab365"
+				"reference": "bba49ffca10ebb3868ca3db25ddbf34c5eb72120"
 			},
 			"require": {
 				"automattic/jetpack-a8c-mc-stats": "@dev",
@@ -936,7 +936,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "2.7.x-dev"
+					"dev-trunk": "2.8.x-dev"
 				},
 				"dependencies": {
 					"test-only": [
@@ -1218,13 +1218,14 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/google-analytics",
-				"reference": "982ff9228fdeb5333cf46d46a17ee4997b160cf1"
+				"reference": "0d84900e8c06cdb72abcc2d37f04b3dfdec33034"
 			},
 			"require": {
 				"php": ">=7.0"
 			},
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
+				"automattic/wordbless": "^0.4.2",
 				"yoast/phpunit-polyfills": "1.1.0"
 			},
 			"suggest": {
@@ -1262,6 +1263,12 @@
 				],
 				"test-php": [
 					"@composer phpunit"
+				],
+				"post-install-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"post-update-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
 				]
 			},
 			"license": [
@@ -1330,7 +1337,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/identity-crisis",
-				"reference": "abd4079c124a2d3560838cf5370043763e81cccd"
+				"reference": "e42a81c98788be332c6e5409b4bc901ececcd3d8"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1360,7 +1367,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.18.x-dev"
+					"dev-trunk": "0.19.x-dev"
 				}
 			},
 			"autoload": {
@@ -2109,7 +2116,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "81b0b1f69ea4cf23a5a0dce2312b89487a029120"
+				"reference": "f1711a2e043a4ae86e9a812c951cd214f70d979b"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -2137,7 +2144,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.43.x-dev"
+					"dev-trunk": "0.44.x-dev"
 				}
 			},
 			"autoload": {
