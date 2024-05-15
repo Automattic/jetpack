@@ -14,7 +14,7 @@ import {
 /**
  * Types
  */
-import type { ExtendedBlockProp } from '../extensions/ai-assistant';
+import type { ExtendedBlockProp, ExtendedInlineBlockProp } from '../extensions/ai-assistant';
 import type { PromptItemProps } from '../lib/prompt';
 
 const from: unknown[] = [];
@@ -26,7 +26,10 @@ const from: unknown[] = [];
  * @param {object} attrs                - Block attributes.
  * @returns {object}                      AI Assistant block instance.
  */
-export function transformToAIAssistantBlock( blockType: ExtendedBlockProp, attrs ) {
+export function transformToAIAssistantBlock(
+	blockType: ExtendedBlockProp | ExtendedInlineBlockProp,
+	attrs
+) {
 	const { content, ...restAttrs } = attrs;
 	let htmlContent = content;
 
