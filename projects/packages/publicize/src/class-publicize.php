@@ -19,9 +19,7 @@ use WP_Post;
  */
 class Publicize extends Publicize_Base {
 
-	const CONNECTION_REFRESH_WAIT_TRANSIENT     = 'jetpack_publicize_connection_refresh_wait';
-	const JETPACK_SOCIAL_CONNECTIONS_OPTION     = 'social_connections';
-	const JETPACK_SOCIAL_CONNECTIONS_OPTION_OLD = 'publicize_connections';
+	const JETPACK_SOCIAL_CONNECTIONS_TRANSIENT = 'jetpack_social_connections';
 
 	/**
 	 * Transitory storage of connection testing results.
@@ -64,8 +62,6 @@ class Publicize extends Publicize_Base {
 		add_action( 'connection_disconnected', array( $this, 'add_disconnect_notice' ) );
 
 		add_filter( 'jetpack_sharing_twitter_via', array( $this, 'get_publicized_twitter_account' ), 10, 2 );
-
-		add_action( 'updating_jetpack_version', array( $this, 'init_refresh_transient' ) );
 	}
 
 	/**
@@ -168,13 +164,13 @@ class Publicize extends Publicize_Base {
 	}
 
 	/**
-	 * Set updated Publicize conntections.
+	 * Set updated Publicize connections in a transient.
 	 *
 	 * @param mixed $publicize_connections Updated connections.
 	 * @return true
 	 */
 	public function receive_updated_publicize_connections( $publicize_connections ) {
-		Jetpack_Options::update_option( self::JETPACK_SOCIAL_CONNECTIONS_OPTION, $publicize_connections, false );
+		set_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT, $publicize_connections, 3600 * 10 );
 		return true;
 	}
 
@@ -203,24 +199,16 @@ class Publicize extends Publicize_Base {
 	public function get_all_connections() {
 		$this->refresh_connections();
 
-		$connections = Jetpack_Options::get_option( self::JETPACK_SOCIAL_CONNECTIONS_OPTION, false );
+		$connections = get_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT );
 
 		if ( $connections === false ) {
-			$this->migrate_social_options();
-			$connections = Jetpack_Options::get_option( 'social_connections' );
+			$connections = array();
 		}
 
 		if ( isset( $connections['google_plus'] ) ) {
 			unset( $connections['google_plus'] );
 		}
 		return $connections;
-	}
-
-	/**
-	 * The old JETPACK_SOCIAL_CONNECTIONS_OPTION_OLD is grouped into the big `jetpack_options` leading to some caching issues. We are migrating to use the newly added JETPACK_SOCIAL_CONNECTIONS_OPTION.
-	 */
-	public function migrate_social_options() {
-		Jetpack_Options::update_option( self::JETPACK_SOCIAL_CONNECTIONS_OPTION, Jetpack_Options::get_option( self::JETPACK_SOCIAL_CONNECTIONS_OPTION_OLD ) );
 	}
 
 	/**
@@ -480,48 +468,19 @@ class Publicize extends Publicize_Base {
 	}
 
 	/**
-	 * As Jetpack updates set the refresh transient to a random amount
-	 * in order to spread out updates to the connection data.
-	 *
-	 * @param string $version The Jetpack version being updated to.
-	 */
-	public function init_refresh_transient( $version ) {
-		if ( version_compare( $version, '10.2.1', '>=' ) && ! get_transient( self::CONNECTION_REFRESH_WAIT_TRANSIENT ) ) {
-			$this->set_refresh_wait_transient( wp_rand( 10, HOUR_IN_SECONDS * 24 ) );
-		}
-	}
-
-	/**
 	 * Grabs a fresh copy of the publicize connections data.
-	 * Only refreshes once every 12 hours or retries after an hour with an error.
+	 * Only refreshes once every 10 hours or retries after 10 mins in case an error.
 	 */
 	public function refresh_connections() {
-		if ( get_transient( self::CONNECTION_REFRESH_WAIT_TRANSIENT ) ) {
-			return;
+		$connections = get_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT );
+		if ( $connections === false ) {
+			$xml = new Jetpack_IXR_Client();
+			$xml->query( 'jetpack.fetchPublicizeConnections' );
+			if ( ! $xml->isError() ) {
+				$response = $xml->getResponse();
+				$this->receive_updated_publicize_connections( $response );
+			}
 		}
-		$xml = new Jetpack_IXR_Client();
-		$xml->query( 'jetpack.fetchPublicizeConnections' );
-		$wait_time = HOUR_IN_SECONDS * 24;
-
-		if ( ! $xml->isError() ) {
-			$response = $xml->getResponse();
-			$this->receive_updated_publicize_connections( $response );
-		} else {
-			// Retry a bit quicker, but still wait.
-			$wait_time = HOUR_IN_SECONDS;
-		}
-
-		$this->set_refresh_wait_transient( $wait_time );
-	}
-
-	/**
-	 * Sets the transient to expire at the specified time in seconds.
-	 * This prevents us from attempting to refresh the data too often.
-	 *
-	 * @param int $wait_time The number of seconds before the transient should expire.
-	 */
-	public function set_refresh_wait_transient( $wait_time ) {
-		set_transient( self::CONNECTION_REFRESH_WAIT_TRANSIENT, microtime( true ), $wait_time );
 	}
 
 	/**
