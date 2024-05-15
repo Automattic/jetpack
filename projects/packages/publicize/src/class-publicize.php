@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Redirect;
 use Jetpack_IXR_Client;
@@ -245,9 +246,11 @@ class Publicize extends Publicize_Base {
 	/**
 	 * Get all connections for a specific user.
 	 *
+	 * @param boolean $include_connection_health To retrieve the connection health in the response.
+
 	 * @return array
 	 */
-	public function get_all_connections_for_user() {
+	public function get_all_connections_for_user( $include_connection_health = false ) {
 		$connections = $this->get_all_connections();
 
 		$connections_to_return = array();
@@ -261,11 +264,12 @@ class Publicize extends Publicize_Base {
 							$connections_to_return[] = array_merge(
 								$connection,
 								array(
-									'service_name'   => $service_name,
-									'connection_id'  => $connection['connection_data']['id'],
-									'can_disconnect' => current_user_can( 'edit_others_posts' ) || get_current_user_id() === $user_id,
-									'profile_link'   => $this->get_profile_link( $service_name, $connection ),
-									'shared'         => $connection['connection_data']['user_id'] === '0',
+									'service_name'      => $service_name,
+									'connection_id'     => $connection['connection_data']['id'],
+									'can_disconnect'    => current_user_can( 'edit_others_posts' ) || get_current_user_id() === $user_id,
+									'profile_link'      => $this->get_profile_link( $service_name, $connection ),
+									'shared'            => $connection['connection_data']['user_id'] === '0',
+									'connection_health' => 'Unknown',
 								)
 							);
 						} else {
@@ -275,7 +279,39 @@ class Publicize extends Publicize_Base {
 				}
 			}
 		}
+
+		if ( self::use_admin_ui_v1() && $include_connection_health && count( $connections_to_return ) > 0 ) {
+			$connections_to_return = $this->add_connection_test_results( $connections_to_return );
+		}
+
 		return $connections_to_return;
+	}
+
+	/**
+	 * To add the connection test results to the connections.
+	 *
+	 * @param array $connections The Jetpack Social connections.
+
+	 * @return array
+	 */
+	public function add_connection_test_results( $connections ) {
+		$path                   = sprintf( '/sites/%d/publicize/connection-test-results', absint( Jetpack_Options::get_option( 'id' ) ) );
+		$response               = Client::wpcom_json_api_request_as_user( $path, '2', array(), null, 'wpcom' );
+		$connection_results     = json_decode( wp_remote_retrieve_body( $response ), true );
+		$connection_results_map = array();
+		foreach ( $connection_results as $connection_result ) {
+			$connection_results_map[ $connection_result['connection_id'] ] = $connection_result['test_success'];
+		}
+
+		return array_map(
+			function ( $connection ) use ( $connection_results_map ) {
+				if ( isset( $connection_results_map[ $connection['connection_id'] ] ) ) {
+						$connection['connection_health'] = $connection_results_map[ $connection['connection_id'] ] ? 'Healthy' : 'Unhealthy';
+				}
+				return $connection;
+			},
+			$connections
+		);
 	}
 
 	/**
