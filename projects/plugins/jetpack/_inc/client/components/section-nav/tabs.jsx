@@ -7,7 +7,6 @@ import DropdownItem from 'components/select-dropdown/item';
 import { debounce } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
-import ReactDom from 'react-dom';
 
 /**
  * Internal Variables
@@ -90,7 +89,7 @@ class NavTabs extends React.Component {
 				if ( ! child ) {
 					return;
 				}
-				const tabWidth = ReactDom.findDOMNode( self.tabRefs[ 'tab-' + index ].current ).offsetWidth;
+				const tabWidth = self.tabRefs[ 'tab-' + index ].current.domNode.offsetWidth;
 				totalWidth += tabWidth;
 			}.bind( this )
 		);
