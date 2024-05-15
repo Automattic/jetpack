@@ -52,10 +52,6 @@ body.admin-bar .jetpack-subscribe-overlay__close {
 	left: 0;
 	right: 0;
 	margin: 0 auto;
-
-	a {
-		color: var(--jetpack-subscribe-overlay--text-color);
-	}
 }
 
 .jetpack-subscribe-overlay.open {

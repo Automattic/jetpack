@@ -114,7 +114,7 @@ class Jetpack_Subscribe_Overlay {
 		<!-- wp:jetpack/subscriptions /-->
 
 		<!-- wp:paragraph {"align":"center","className":"jetpack-subscribe-overlay__to-content"} -->
-		<p class="has-text-align-center jetpack-subscribe-overlay__to-content"><a href="#">$skip_to_content</a> ↓</p>
+		<p class="has-text-align-center jetpack-subscribe-overlay__to-content"><a href="#">$skip_to_content ↓</a></p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->
