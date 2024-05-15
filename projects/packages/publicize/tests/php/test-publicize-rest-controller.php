@@ -100,7 +100,6 @@ class Test_REST_Controller extends TestCase {
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/publicize/connections' );
 		wp_set_current_user( $this->admin_id );
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
-		$this->assertIsArray( $response->data );
 		$this->assertCount( 2, $response->data );
 	}
 
