@@ -23,7 +23,7 @@ const noop = () => {};
 
 class SelectDropdown extends Component {
 	itemRefs = {};
-	dropdownContainerRef = null;
+	dropdownContainerRef = React.createRef();
 
 	constructor( props ) {
 		super( props );
