@@ -1,9 +1,15 @@
-<?php // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+<?php
 /**
  * AMP Widget for Cookies and Consent.
  *
  * @package automattic/jetpack
  */
+
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Defined by the caller. Let Phan handle it.
+'@phan-var-force Jetpack_EU_Cookie_Law_Widget $this';
+'@phan-var-force array $instance';
+'@phan-var-force array<string,string> $classes';
+
 ?>
 
 <amp-consent id="eu-cookie-consent" layout="nodisplay" class="widget widget_eu_cookie_law_widget<?php echo esc_attr( ! empty( $instance['position'] ) && 'top' === $instance['position'] ? ' top' : '' ); ?>">

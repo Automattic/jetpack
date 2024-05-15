@@ -5,7 +5,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { PageCacheError } from '$lib/stores/page-cache';
 
 const cacheIssuesLink = ( issue: string ) => {
-	return getRedirectUrl( `jb-cache-issue-${ issue }` );
+	return getRedirectUrl( `jetpack-boost-cache-issue-${ issue }` );
 };
 
 const messages: { [ key: string ]: { title: string; message: React.ReactNode } } = {

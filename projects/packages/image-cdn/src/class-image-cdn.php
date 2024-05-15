@@ -7,14 +7,12 @@
 
 namespace Automattic\Jetpack\Image_CDN;
 
-use Automattic\Jetpack\Assets;
-
 /**
  * Class Image_CDN
  */
 final class Image_CDN {
 
-	const PACKAGE_VERSION = '0.3.2';
+	const PACKAGE_VERSION = '0.4.0';
 
 	/**
 	 * Singleton.
@@ -113,9 +111,6 @@ final class Image_CDN {
 		// Responsive image srcset substitution.
 		add_filter( 'wp_calculate_image_srcset', array( $this, 'filter_srcset_array' ), 10, 5 );
 		add_filter( 'wp_calculate_image_sizes', array( $this, 'filter_sizes' ), 1, 2 ); // Early so themes can still easily filter.
-
-		// Helpers for maniuplated images.
-		add_action( 'wp_enqueue_scripts', array( $this, 'action_wp_enqueue_scripts' ), 9 );
 
 		/**
 		 * Allow Photon to disable uploaded images resizing and use its own resize capabilities instead.
@@ -368,9 +363,9 @@ final class Image_CDN {
 				 *
 				 * @since 2.0.3
 				 *
-				 * @param bool false Should Photon ignore this image. Default to false.
-				 * @param string $src Image URL.
-				 * @param string $tag Image Tag (Image HTML output).
+				 * @param bool              false Should Photon ignore this image. Default to false.
+				 * @param string            $src  Image URL.
+				 * @param string|array|null $tag  Image Tag (Image HTML output) or array of image details for srcset.
 				 */
 				if ( apply_filters( 'jetpack_photon_skip_image', false, $src, $tag ) ) {
 					continue;
@@ -1226,30 +1221,6 @@ final class Image_CDN {
 		}
 
 		return is_array( self::$image_sizes ) ? self::$image_sizes : array();
-	}
-
-	/**
-	 * Enqueue Photon helper script
-	 *
-	 * @uses wp_enqueue_script, plugins_url
-	 * @action wp_enqueue_script
-	 * @return null
-	 */
-	public function action_wp_enqueue_scripts() {
-		if ( self::is_amp_endpoint() ) {
-			return;
-		}
-
-		Assets::register_script(
-			'jetpack-photon',
-			'../dist/image-cdn.js',
-			__FILE__,
-			array(
-				'enqueue'    => true,
-				'nonminpath' => 'js/image-cdn.js',
-				'in_footer'  => true,
-			)
-		);
 	}
 
 	/**

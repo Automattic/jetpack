@@ -43,6 +43,42 @@ class File_Storage implements Storage {
 	}
 
 	/**
+	 * Given a request_uri and its parameters, reset the filename of a rebuild
+	 * cache file and return true, or false otherwise.
+	 * If a rebuild file is too old, it will be deleted and false will be returned.
+	 *
+	 * @param string $request_uri - The URI of this request (excluding GET parameters)
+	 * @param array  $parameters  - An associative array of all the things that make this request special/different. Includes GET parameters and COOKIEs normally.
+	 */
+	public function reset_rebuild_file( $request_uri, $parameters ) {
+		$directory = self::get_uri_directory( $request_uri );
+		$filename  = Filesystem_Utils::get_request_filename( $parameters ) . Filesystem_Utils::REBUILD_FILE_EXTENSION;
+		$hash_path = $directory . $filename;
+
+		if ( file_exists( $hash_path ) ) {
+			$expired = ( filemtime( $hash_path ) + JETPACK_BOOST_CACHE_REBUILD_DURATION ) <= time();
+
+			if ( $expired ) {
+				if ( Filesystem_Utils::delete_file( $hash_path ) ) {
+					Logger::debug( "Deleted expired rebuilt file: $hash_path" );
+				} else {
+					Logger::debug( "Could not delete expired rebuilt file: $hash_path" );
+				}
+				return false;
+			}
+
+			if ( Filesystem_Utils::restore_file( $hash_path ) ) {
+				Logger::debug( "Restored rebuilt file: $hash_path" );
+				return true;
+			} else {
+				Logger::debug( "Could not restore rebuilt file: $hash_path" );
+				return false;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Given a request_uri and its parameters, return any stored data from the cache, or false otherwise.
 	 *
 	 * @param string $request_uri - The URI of this request (excluding GET parameters)
@@ -83,7 +119,7 @@ class File_Storage implements Storage {
 			return false;
 		}
 
-		$count = Filesystem_Utils::delete_expired_files( $this->root_path, JETPACK_BOOST_CACHE_DURATION );
+		$count = Filesystem_Utils::gc_expired_files( $this->root_path, JETPACK_BOOST_CACHE_DURATION, Filesystem_Utils::REBUILD );
 
 		Logger::debug( "Garbage collected $count files" );
 	}
@@ -119,16 +155,18 @@ class File_Storage implements Storage {
 	 * Delete all cached data for the given path.
 	 *
 	 * @param string $path - The path to delete. File or directory.
-	 * @param string $type - defines what files/directories are deleted: DELETE_FILE, DELETE_FILES, DELETE_ALL.
+	 * @param string $type - defines what files/directories are deleted or rebuilt.
 	 */
 	public function invalidate( $path, $type ) {
 		Logger::debug( "invalidate: $path $type" );
 		$normalized_path = $this->root_path . Boost_Cache_Utils::normalize_request_uri( $path );
 
-		if ( in_array( $type, array( Filesystem_Utils::DELETE_FILES, Filesystem_Utils::DELETE_ALL ), true ) && is_dir( $normalized_path ) ) {
-			return Filesystem_Utils::delete_directory( $normalized_path, $type );
+		if ( ! in_array( $type, array( Filesystem_Utils::DELETE_FILE, Filesystem_Utils::REBUILD_FILE ), true ) && is_dir( $normalized_path ) ) {
+			return Filesystem_Utils::walk_directory( $normalized_path, $type );
 		} elseif ( $type === Filesystem_Utils::DELETE_FILE && is_file( $normalized_path ) ) {
 			return Filesystem_Utils::delete_file( $normalized_path );
+		} elseif ( $type === Filesystem_Utils::REBUILD_FILE && is_file( $normalized_path ) ) {
+			return Filesystem_Utils::rebuild_file( $normalized_path );
 		} else {
 			return new Boost_Cache_Error( 'no-cache-files-to-delete', 'No cache files to delete.' );
 		}

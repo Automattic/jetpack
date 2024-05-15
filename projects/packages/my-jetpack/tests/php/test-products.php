@@ -28,7 +28,7 @@ class Test_Products extends TestCase {
 	/**
 	 * Filter that returns a non existent class
 	 *
-	 * @param arrray $classes The Products classes.
+	 * @param array $classes The Products classes.
 	 * @return array
 	 */
 	public function return_non_existent_class( $classes ) {
@@ -39,7 +39,7 @@ class Test_Products extends TestCase {
 	/**
 	 * Filter that returns an invalid class
 	 *
-	 * @param arrray $classes The Products classes.
+	 * @param array $classes The Products classes.
 	 * @return array
 	 */
 	public function return_invalid_class( $classes ) {
@@ -50,7 +50,7 @@ class Test_Products extends TestCase {
 	/**
 	 * Filter that returns a valid class
 	 *
-	 * @param arrray $classes The Products classes.
+	 * @param array $classes The Products classes.
 	 * @return array
 	 */
 	public function return_valid_class( $classes ) {

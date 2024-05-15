@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Social;
  */
 class Note {
 	const JETPACK_SOCIAL_NOTE_CPT     = 'jetpack-social-note';
+	const JETPACK_SOCIAL_NOTES_CONFIG = 'jetpack_social_notes_config';
 	const FLUSH_REWRITE_RULES_FLUSHED = 'jetpack_social_rewrite_rules_flushed';
 
 	/**
@@ -28,6 +29,8 @@ class Note {
 		if ( ! self::enabled() ) {
 			return;
 		}
+		add_filter( 'allowed_block_types', array( $this, 'restrict_blocks_for_social_note' ), 10, 2 );
+
 		self::register_cpt();
 		add_action( 'wp_insert_post_data', array( $this, 'set_empty_title' ), 10, 2 );
 		add_action( 'admin_init', array( $this, 'admin_init_actions' ) );
@@ -84,8 +87,8 @@ class Note {
 	 */
 	public function register_cpt() {
 		$args = array(
-			'public'        => true,
-			'labels'        => array(
+			'public'       => true,
+			'labels'       => array(
 				'name'                  => esc_html__( 'Social Notes', 'jetpack-social' ),
 				'singular_name'         => esc_html__( 'Social Note', 'jetpack-social' ),
 				'menu_name'             => esc_html__( 'Social Notes', 'jetpack-social' ),
@@ -107,23 +110,45 @@ class Note {
 				'items_list_navigation' => esc_html__( 'Notes list navigation', 'jetpack-social' ),
 				'items_list'            => esc_html__( 'Notes list', 'jetpack-social' ),
 			),
-			'show_in_rest'  => true,
-			'has_archive'   => true,
-			'supports'      => array( 'editor', 'thumbnail', 'publicize', 'enhanced_post_list', 'activitypub' ),
-			'menu_icon'     => 'dashicons-welcome-write-blog',
-			'rewrite'       => array( 'slug' => 'sn' ),
-			'template'      => array(
+			'show_in_rest' => true,
+			'has_archive'  => true,
+			'supports'     => array( 'editor', 'comments', 'thumbnail', 'publicize', 'enhanced_post_list', 'activitypub' ),
+			'menu_icon'    => 'dashicons-welcome-write-blog',
+			'rewrite'      => array( 'slug' => 'sn' ),
+			'template'     => array(
 				array(
 					'core/paragraph',
 					array(
 						'placeholder' => __( "What's on your mind?", 'jetpack-social' ),
 					),
 				),
+				// We should add this back when the double featured image issue is fixed.
+				// array(
+				// 'core/post-featured-image',
+				// ),
 			),
-			'template_lock' => 'all',
 		);
 		register_post_type( self::JETPACK_SOCIAL_NOTE_CPT, $args );
 		self::maybe_flush_rewrite_rules();
+	}
+
+	/**
+	 * Restrict the blocks for the Social Note CPT.
+	 *
+	 * @param array    $allowed_blocks The allowed blocks.
+	 * @param \WP_Post $post The post.
+	 * @return array The allowed blocks.
+	 */
+	public function restrict_blocks_for_social_note( $allowed_blocks, $post ) {
+		if ( 'jetpack-social-note' === $post->post_type ) {
+			// Only allow the paragraph block and the featured image block.
+			$allowed_blocks = array(
+				'core/paragraph',
+				'core/post-featured-image',
+			);
+		}
+
+		return $allowed_blocks;
 	}
 
 	/**
@@ -158,6 +183,32 @@ class Note {
 	}
 
 	/**
+	 * Get the social notes config.
+	 *
+	 * @return array The social notes config.
+	 */
+	public function get_config() {
+		return get_option(
+			self::JETPACK_SOCIAL_NOTES_CONFIG,
+			// Append link by default.
+			array(
+				'append_link' => true,
+			)
+		);
+	}
+
+	/**
+	 * Update social notes config
+	 *
+	 * @param array $config The config to update.
+	 */
+	public function update_config( $config ) {
+		$old_config = get_option( self::JETPACK_SOCIAL_NOTES_CONFIG, array() );
+		$new_config = array_merge( $old_config, $config );
+		update_option( self::JETPACK_SOCIAL_NOTES_CONFIG, $new_config );
+	}
+
+	/**
 	 * Use the_title hook so we show the social note's exceprt in the post list view.
 	 *
 	 * @param array $title The title of the post, which we have set to be an empty string for Social Notes.
@@ -168,7 +219,7 @@ class Note {
 			return wp_trim_words( get_the_excerpt(), 10 );
 		}
 
-		// Return the original title for other cases
+		// Return the original title for other cases.
 		return $title;
 	}
 }

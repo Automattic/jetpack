@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Uncheck users-new.php Invite user on load if WooCommerce plugin is activated

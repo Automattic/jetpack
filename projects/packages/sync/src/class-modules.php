@@ -90,9 +90,11 @@ class Modules {
 	 *
 	 * @param string $module_name A module name.
 	 *
-	 * @return bool|Automattic\Jetpack\Sync\Modules\Module
+	 * @return bool|\Automattic\Jetpack\Sync\Modules\Module
 	 */
 	public static function get_module( $module_name ) {
+		// @todo Better type hinting for Phan if https://github.com/phan/phan/issues/3842 gets fixed. Then clean up the `@phan-var` on all the callers.
+
 		foreach ( self::get_modules() as $module ) {
 			if ( $module->name() === $module_name ) {
 				return $module;
@@ -134,7 +136,7 @@ class Modules {
 	 *
 	 * @param string $module_class The classname of a Jetpack sync module.
 	 *
-	 * @return Automattic\Jetpack\Sync\Modules\Module
+	 * @return \Automattic\Jetpack\Sync\Modules\Module
 	 */
 	public static function load_module( $module_class ) {
 		return new $module_class();
@@ -146,13 +148,14 @@ class Modules {
 	 * @access public
 	 * @static
 	 *
-	 * @param Automattic\Jetpack\Sync\Modules\Module $module Instance of a Jetpack sync module.
+	 * @param \Automattic\Jetpack\Sync\Modules\Module $module Instance of a Jetpack sync module.
 	 *
-	 * @return Automattic\Jetpack\Sync\Modules\Module
+	 * @return \Automattic\Jetpack\Sync\Modules\Module
 	 */
 	public static function set_module_defaults( $module ) {
 		$module->set_defaults();
 		if ( method_exists( $module, 'set_late_default' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredMethodInCallable -- https://github.com/phan/phan/issues/1204
 			add_action( 'init', array( $module, 'set_late_default' ), 90 );
 		}
 		return $module;

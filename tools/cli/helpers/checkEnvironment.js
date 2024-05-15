@@ -108,7 +108,8 @@ export async function getPhpVersion() {
 		}
 		return;
 	}
-	return res.stdout.toString().trim();
+	// Strip any `-1` or the like, as various sources (e.g. sury) indicate patched versions in this manner which confuses `semver.satisfies`.
+	return res.stdout.toString().trim().replace( /-.*/, '' );
 }
 
 /**

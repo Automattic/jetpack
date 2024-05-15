@@ -1,5 +1,5 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
-import { RichText } from '@wordpress/block-editor';
+import { RichText, useBlockProps } from '@wordpress/block-editor';
 import { Placeholder } from '@wordpress/components';
 import { createRef, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -12,12 +12,12 @@ import { getUrl, getSelectedGiphyAttributes } from './utils';
 
 const icon = getBlockIconComponent( metadata );
 
-function GifEdit( { attributes, setAttributes, className, isSelected } ) {
+function GifEdit( { attributes, setAttributes, isSelected } ) {
 	const { align, caption, giphyUrl, searchText, paddingTop } = attributes;
-	const classes = classNames( className, `align${ align }` );
 	const [ captionFocus, setCaptionFocus ] = useState( false );
 	const searchFormInputRef = createRef();
 	const { isFetching, giphyData, fetchGiphyData } = useFetchGiphyData();
+	const blockProps = useBlockProps();
 
 	const setSearchInputFocus = () => {
 		searchFormInputRef.current.focus();
@@ -48,7 +48,7 @@ function GifEdit( { attributes, setAttributes, className, isSelected } ) {
 	const onSelectThumbnail = thumbnail => setAttributes( getSelectedGiphyAttributes( thumbnail ) );
 
 	return (
-		<div className={ classes }>
+		<div { ...blockProps } className={ classNames( blockProps.className, `align${ align }` ) }>
 			<Controls />
 			{ ! giphyUrl ? (
 				<Placeholder

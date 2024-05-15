@@ -13,7 +13,9 @@ use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
+use Automattic\Jetpack_Boost\Modules\Modules_Index;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 
 class Admin {
 	/**
@@ -25,7 +27,7 @@ class Admin {
 		Environment_Change_Detector::init();
 
 		// Initiate speed scores.
-		new Speed_Score( $modules, 'boost-plugin' );
+		new Speed_Score( $modules->get_ready_active_optimization_modules(), 'boost-plugin' );
 
 		add_action( 'init', array( new Analytics(), 'init' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_BOOST_PLUGIN_BASE, array( $this, 'plugin_page_settings_link' ) );
@@ -84,12 +86,32 @@ class Admin {
 	public function enqueue_scripts() {
 		$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
 
+		$critical_css_gen_handle = 'jetpack-boost-critical-css-gen';
+
+		wp_register_script(
+			$critical_css_gen_handle,
+			plugins_url( $internal_path . 'critical-css-gen.js', JETPACK_BOOST_PATH ),
+			array(),
+			JETPACK_BOOST_VERSION,
+			true
+		);
+
 		$admin_js_handle = 'jetpack-boost-admin';
+
+		$admin_js_dependencies = array(
+			'wp-i18n',
+			'wp-components',
+		);
+
+		// Enqueue the critical CSS generator script if Critical CSS is available.
+		if ( ( new Modules_Index() )->is_module_available( Critical_CSS::get_slug() ) ) {
+			$admin_js_dependencies[] = $critical_css_gen_handle;
+		}
 
 		wp_register_script(
 			$admin_js_handle,
 			plugins_url( $internal_path . 'jetpack-boost.js', JETPACK_BOOST_PATH ),
-			array( 'wp-i18n', 'wp-components' ),
+			$admin_js_dependencies,
 			JETPACK_BOOST_VERSION,
 			true
 		);

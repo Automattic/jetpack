@@ -11,6 +11,8 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
+use Jetpack_Options;
+use WP_Error;
 
 /**
  * Sets up various actions, filters, post types, post statuses, shortcodes.
@@ -129,7 +131,7 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Class uses singleton pattern; use Grunion_Contact_Form_Plugin::init() to initialize.
+	 * Class uses singleton pattern; use Contact_Form_Plugin::init() to initialize.
 	 */
 	protected function __construct() {
 		$this->add_shortcode();
@@ -612,7 +614,7 @@ class Contact_Form_Plugin {
 				);
 				// This is lamer - no API for outputting a given widget by ID
 				ob_start();
-				// Process the widget to populate Grunion_Contact_Form::$last
+				// Process the widget to populate Contact_Form::$last
 				call_user_func( $widget['callback'], $widget_args, $widget['params'][0] );
 				ob_end_clean();
 			}
@@ -667,13 +669,13 @@ class Contact_Form_Plugin {
 			// Ensure 'block_template' attribute is added to any shortcodes in the template.
 			$template = Util::grunion_contact_form_set_block_template_attribute( $template );
 
-			// Process the block template to populate Grunion_Contact_Form::$last
+			// Process the block template to populate Contact_Form::$last
 			get_the_block_template_html();
 		} elseif ( $is_block_template_part ) {
 			$block_template_part_id   = str_replace( 'block-template-part-', '', $id );
 			$bits                     = explode( '//', $block_template_part_id );
 			$block_template_part_slug = array_pop( $bits );
-			// Process the block part template to populate Grunion_Contact_Form::$last
+			// Process the block part template to populate Contact_Form::$last
 			$attributes = array(
 				'theme'   => wp_get_theme()->get_stylesheet(),
 				'slug'    => $block_template_part_slug,
@@ -684,7 +686,7 @@ class Contact_Form_Plugin {
 			// It's a form embedded in a post
 			$post = get_post( $id );
 
-			// Process the content to populate Grunion_Contact_Form::$last
+			// Process the content to populate Contact_Form::$last
 			if ( $post ) {
 				/** This filter is already documented in core. wp-includes/post-template.php */
 				apply_filters( 'the_content', $post->post_content );
@@ -736,6 +738,8 @@ class Contact_Form_Plugin {
 
 	/**
 	 * Handle the ajax request.
+	 *
+	 * @return never
 	 */
 	public function ajax_request() {
 		$submission_result = self::process_form_submission();
@@ -768,7 +772,7 @@ class Contact_Form_Plugin {
 	 * Ensure the post author is always zero for contact-form feedbacks
 	 * Attached to `wp_insert_post_data`
 	 *
-	 * @see Grunion_Contact_Form::process_submission()
+	 * @see Contact_Form::process_submission()
 	 *
 	 * @param array $data the data to insert.
 	 * @param array $postarr the data sent to wp_insert_post().
@@ -993,7 +997,7 @@ class Contact_Form_Plugin {
 
 	/**
 	 * Submit contact-form data to Akismet to check for spam.
-	 * If you're accepting a new item via $_POST, run it Grunion_Contact_Form_Plugin::prepare_for_akismet() first
+	 * If you're accepting a new item via $_POST, run it Contact_Form_Plugin::prepare_for_akismet() first
 	 * Attached to `jetpack_contact_form_is_spam`
 	 *
 	 * @param bool  $is_spam - if the submission is spam.
@@ -1031,7 +1035,7 @@ class Contact_Form_Plugin {
 		$result = false;
 
 		if ( isset( $response[0]['x-akismet-pro-tip'] ) && 'discard' === trim( $response[0]['x-akismet-pro-tip'] ) && get_option( 'akismet_strictness' ) === '1' ) {
-			$result = new \WP_Error( 'feedback-discarded', __( 'Feedback discarded.', 'jetpack-forms' ) );
+			$result = new WP_Error( 'feedback-discarded', __( 'Feedback discarded.', 'jetpack-forms' ) );
 		} elseif ( isset( $response[1] ) && 'true' === trim( $response[1] ) ) { // 'true' is spam
 			$result = true;
 		}

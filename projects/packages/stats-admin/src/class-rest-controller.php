@@ -12,6 +12,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Jetpack_Options;
 use WP_Error;
+use WP_REST_Request;
 use WP_REST_Server;
 
 /**
@@ -364,6 +365,41 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_email_stats_time_series' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+			)
+		);
+
+		// Get UTM stats time series.
+		register_rest_route(
+			static::$namespace,
+			// /stats/utm/utm_campaign,utm_source,utm_medium
+			sprintf( '/sites/%d/stats/utm/(?P<utm_params>[_,\-\w]+)', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_utm_stats_time_series' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+			)
+		);
+
+		// Get Devices stats time series.
+		register_rest_route(
+			static::$namespace,
+			// /stats/devices/screensize
+			sprintf( '/sites/%d/stats/devices/(?P<device_property>[\w]+)', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_devices_stats_time_series' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+			)
+		);
+
+		// Rerun commercial classificiation.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/commercial-classification', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'run_commercial_classification' ),
 				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
@@ -827,6 +863,48 @@ class REST_Controller {
 	}
 
 	/**
+	 * Get UTM stats time series.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function get_utm_stats_time_series( $req ) {
+		return WPCOM_Client::request_as_blog_cached(
+			sprintf(
+				'/sites/%d/stats/utm/%s?%s',
+				Jetpack_Options::get_option( 'id' ),
+				$req->get_param( 'utm_params' ),
+				$this->filter_and_build_query_string(
+					$req->get_params()
+				)
+			),
+			'v1.1',
+			array( 'timeout' => 10 )
+		);
+	}
+
+	/**
+	 * Get Devices stats time series.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function get_devices_stats_time_series( $req ) {
+		return WPCOM_Client::request_as_blog_cached(
+			sprintf(
+				'/sites/%d/stats/devices/%s?%s',
+				Jetpack_Options::get_option( 'id' ),
+				$req->get_param( 'device_property' ),
+				$this->filter_and_build_query_string(
+					$req->get_params()
+				)
+			),
+			'v1.1',
+			array( 'timeout' => 10 )
+		);
+	}
+
+	/**
 	 * Dismiss or delay stats notices.
 	 *
 	 * @param WP_REST_Request $req The request object.
@@ -996,6 +1074,31 @@ class REST_Controller {
 			'wpcom',
 			true,
 			static::JETPACK_STATS_DASHBOARD_MODULE_SETTINGS_CACHE_KEY
+		);
+	}
+
+	/**
+	 * Run commercial classification.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function run_commercial_classification( $req ) {
+		return WPCOM_Client::request_as_blog(
+			sprintf(
+				'/sites/%d/commercial-classification?%s',
+				Jetpack_Options::get_option( 'id' ),
+				$this->filter_and_build_query_string(
+					$req->get_query_params()
+				)
+			),
+			'v2',
+			array(
+				'timeout' => 5,
+				'method'  => 'POST',
+			),
+			null,
+			'wpcom'
 		);
 	}
 

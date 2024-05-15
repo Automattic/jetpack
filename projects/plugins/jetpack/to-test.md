@@ -1,4 +1,4 @@
-## Jetpack 13.3
+## Jetpack 13.5
 
 ### Before you start:
 
@@ -8,10 +8,6 @@
 - Blocks in beta status require a small change for you to be able to test them. You can do either of the following:
   - Edit your `wp-config.php` file to include: `define( 'JETPACK_BLOCKS_VARIATION', 'beta' );`
   - Or add the following to something like a code snippet plugin: `add_filter( 'jetpack_blocks_variation', function () { return 'beta'; } );`
-
-### Todo Section
-
-- Todo Content
 
 ### Todo Section
 

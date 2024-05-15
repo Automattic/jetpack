@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-AI Client: Fix audio recording where WebM is not supported (iOS for example).

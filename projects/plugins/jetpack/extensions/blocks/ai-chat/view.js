@@ -1,13 +1,14 @@
 import domReady from '@wordpress/dom-ready';
 import { render } from '@wordpress/element';
+import { DEFAULT_ASK_BUTTON_LABEL, DEFAULT_PLACEHOLDER } from './constants';
 import QuestionAnswer from './question-answer';
 import './view.scss';
 
 const AiChat = ( {
-	askButtonLabel,
+	askButtonLabel = DEFAULT_ASK_BUTTON_LABEL,
 	blogId,
 	blogType,
-	placeholder,
+	placeholder = DEFAULT_PLACEHOLDER,
 	showCopy,
 	showFeedback,
 	showSources,

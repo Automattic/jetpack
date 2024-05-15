@@ -20,7 +20,7 @@ class Woocommerce_Analytics {
 	/**
 	 * Package version.
 	 */
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.5';
 
 	/**
 	 * Initializer.
@@ -29,6 +29,10 @@ class Woocommerce_Analytics {
 	 * @return void
 	 */
 	public static function init() {
+		if ( ! self::should_track_store() || did_action( 'woocommerce_analytics_init' ) ) {
+			return;
+		}
+
 		// loading _wca.
 		add_action( 'wp_head', array( __CLASS__, 'wp_head_top' ), 1 );
 
@@ -43,6 +47,13 @@ class Woocommerce_Analytics {
 		) {
 			add_action( 'init', array( new Checkout_Flow(), 'init_hooks' ) );
 		}
+
+		/**
+		 * Fires after the WooCommerce Analytics package is initialized
+		 *
+		 * @since 0.1.5
+		 */
+		do_action( 'woocommerce_analytics_init' );
 	}
 
 	/**
@@ -52,6 +63,11 @@ class Woocommerce_Analytics {
 	 * @return bool
 	 */
 	public static function should_track_store() {
+		// Ensure this is available, even with mu-plugins.
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
 		/**
 		 * Make sure WooCommerce is installed and active
 		 *

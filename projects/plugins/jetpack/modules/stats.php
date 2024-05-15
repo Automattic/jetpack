@@ -137,7 +137,7 @@ function stats_template_redirect() {
  *
  * @deprecated 11.5
  * @access public
- * @return array.
+ * @return array
  */
 function stats_build_view_data() {
 	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Tracking_Pixel::build_view_data' );
@@ -150,7 +150,7 @@ function stats_build_view_data() {
  * @deprecated 11.5
  *
  * @access public
- * @return array.
+ * @return array
  */
 function stats_get_options() {
 	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Options::get_options' );
@@ -164,7 +164,7 @@ function stats_get_options() {
  *
  * @access public
  * @param mixed $option Option.
- * @return mixed|null.
+ * @return mixed|null
  */
 function stats_get_option( $option ) {
 	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Options::get_option' );
@@ -179,7 +179,7 @@ function stats_get_option( $option ) {
  * @access public
  * @param mixed $option Option.
  * @param mixed $value Value.
- * @return bool.
+ * @return bool
  */
 function stats_set_option( $option, $value ) {
 	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Options::set_option' );
@@ -419,7 +419,8 @@ function jetpack_admin_ui_stats_report_page_wrapper() {
  */
 function stats_reports_page( $main_chart_only = false ) {
 	if ( isset( $_GET['dashboard'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		return stats_dashboard_widget_content();
+		stats_dashboard_widget_content();
+		exit; // @phan-suppress-current-line PhanPluginUnreachableCode -- Safer to include it even though stats_dashboard_widget_content() never returns.
 	}
 
 	$blog_id = Stats_Options::get_option( 'blog_id' );
@@ -1216,7 +1217,7 @@ function stats_jetpack_dashboard_widget() {
  * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
  *
  * @access public
- * @return void
+ * @return never
  */
 function stats_dashboard_widget_content() {
 	$width  = isset( $_GET['width'] ) ? intval( $_GET['width'] ) / 2 : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -1550,7 +1551,7 @@ function stats_get_remote_csv( $url ) {
  * @since 9.7.0 Remove custom handling since str_getcsv is available on all servers running this now.
  *
  * @param mixed $csv CSV.
- * @return array.
+ * @return array
  */
 function stats_str_getcsv( $csv ) {
 	$lines = str_getcsv( $csv, "\n" );
@@ -1576,7 +1577,7 @@ function jetpack_stats_api_path( $resource = '' ) {
  * @deprecated 11.5 Use WPCOM_Stats available methodsinstead.
  * @param array  $args (default: array())  The args that are passed to the endpoint.
  * @param string $resource (default: '') Optional sub-endpoint following /stats/.
- * @return array|WP_Error.
+ * @return array|WP_Error
  */
 function stats_get_from_restapi( $args = array(), $resource = '' ) {
 	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Please checkout the methods available in Automattic\Jetpack\Stats\WPCOM_Stats' );

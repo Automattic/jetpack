@@ -15,11 +15,11 @@ add_action( 'wp_footer', 'e2e_jetpack_search_maybe_show_link_in_footer' );
 /**
  * Intercept WPCOM plan data request and replaces it with mocked data
  *
- * @param result $return result.
- * @param r      $r not used.
- * @param string $url request URL.
+ * @param false|array|WP_Error $return result.
+ * @param array                $_parsed_args not used.
+ * @param string               $url request URL.
  */
-function e2e_jetpack_search_intercept_plan_data_request( $return, $r, $url ) {
+function e2e_jetpack_search_intercept_plan_data_request( $return, $_parsed_args, $url ) {
 	if ( ! class_exists( 'Jetpack_Options' ) ) {
 		return $return;
 	}

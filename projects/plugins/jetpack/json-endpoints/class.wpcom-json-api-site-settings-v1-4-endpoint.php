@@ -35,6 +35,8 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 		),
 
 		'request_format'  => array(
+			'migration_source_site_domain'            => '(string) The source site URL, from the migration flow',
+			'in_site_migration_flow'                  => '(string) Whether the site is currently in the Site Migration signup flow.',
 			'blogname'                                => '(string) Blog name',
 			'blogdescription'                         => '(string) Blog description',
 			'default_pingback_flag'                   => '(bool) Notify blogs linked from article?',
@@ -122,15 +124,21 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 			'wpcom_newsletter_categories_enabled'     => '(bool) Whether the newsletter categories are enabled or not',
 			'sm_enabled'                              => '(bool) Whether the newsletter Subscribe Modal is enabled or not',
 			'jetpack_subscriptions_subscribe_post_end_enabled' => '(bool) Whether adding Subscribe block at the end of each post is enabled or not',
+			'jetpack_subscriptions_login_navigation_enabled' => '(bool) Whether the Subscriber Login block navigation placement is enabled or not',
 			'wpcom_gifting_subscription'              => '(bool) Whether gifting is enabled for non auto-renew sites',
 			'wpcom_reader_views_enabled'              => '(bool) Whether showing post views in WordPress.com Reader is enabled for the site',
 			'wpcom_subscription_emails_use_excerpt'   => '(bool) Whether site subscription emails (e.g. New Post email notification) will use post excerpts',
+			'jetpack_subscriptions_reply_to'          => '(string) The reply to email behaviour for newsletter emails',
 			'show_on_front'                           => '(string) Whether homepage should display related posts or a static page. The expected value is \'posts\' or \'page\'.',
 			'page_on_front'                           => '(string) The page ID of the page to use as the site\'s homepage. It will apply only if \'show_on_front\' is set to \'page\'.',
 			'page_for_posts'                          => '(string) The page ID of the page to use as the site\'s posts page. It will apply only if \'show_on_front\' is set to \'page\'.',
 			'subscription_options'                    => '(array) Array of three options used in subscription email templates: \'invitation\', \'welcome\' and \'comment_follow\' strings.',
 			'jetpack_verbum_subscription_modal'       => '(bool) Whether Subscription modal is enabled in Verbum comments',
 			'wpcom_ai_site_prompt'                    => '(string) User input in the AI site prompt',
+			'enable_verbum_commenting'                => '(bool) Whether Verbum commenting is enabled',
+			'enable_blocks_comments'                  => '(bool) Whether blocks comments are enabled',
+			'highlander_comment_form_prompt'          => '(string) The prompt for the comment form',
+			'jetpack_comment_form_color_scheme'       => '(string) The color scheme for the comment form',
 		),
 
 		'response_format' => array(

@@ -26,7 +26,12 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.17.1';
+	const PACKAGE_VERSION = '0.19.0-alpha';
+
+	/**
+	 * Package Slug
+	 */
+	const PACKAGE_SLUG = 'identity-crisis';
 
 	/**
 	 * Persistent WPCOM blog ID that stays in the options after disconnect.
@@ -58,7 +63,7 @@ class Identity_Crisis {
 	/**
 	 * The current screen, which is set if the current user is a non-admin and this is an admin page.
 	 *
-	 * @var WP_Screen
+	 * @var \WP_Screen
 	 */
 	public static $current_screen;
 
@@ -98,6 +103,9 @@ class Identity_Crisis {
 		add_filter( 'jetpack_register_request_body', array( static::class, 'register_request_body' ) );
 		add_action( 'jetpack_site_registered', array( static::class, 'site_registered' ) );
 
+		// Set up package version hook.
+		add_filter( 'jetpack_package_versions', array( static::class, 'send_package_version_to_tracker' ) );
+
 		$urls_in_crisis = self::check_identity_crisis();
 		if ( false === $urls_in_crisis ) {
 			return;
@@ -105,6 +113,19 @@ class Identity_Crisis {
 
 		self::$wpcom_home_url = $urls_in_crisis['wpcom_home'];
 		add_action( 'init', array( $this, 'wordpress_init' ) );
+	}
+
+	/**
+	 * Adds the package slug and version to the package version tracker's data.
+	 *
+	 * @param array $package_versions The package version array.
+	 *
+	 * @return array The package version array.
+	 */
+	public static function send_package_version_to_tracker( $package_versions ) {
+		$package_versions[ self::PACKAGE_SLUG ] = self::PACKAGE_VERSION;
+
+		return $package_versions;
 	}
 
 	/**
@@ -614,11 +635,11 @@ class Identity_Crisis {
 		<div class="jp-idc-notice__first-step">
 			<div class="jp-idc-notice__content-header">
 				<h3 class="jp-idc-notice__content-header__lead">
-					<?php echo $this->get_first_step_header_lead(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php echo esc_html( $this->get_first_step_header_lead() ); ?>
 				</h3>
 
 				<p class="jp-idc-notice__content-header__explanation">
-					<?php echo $this->get_first_step_header_explanation(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php echo esc_html( $this->get_first_step_header_explanation() ); ?>
 				</p>
 			</div>
 
@@ -627,19 +648,19 @@ class Identity_Crisis {
 			<div class="jp-idc-notice__actions">
 				<div class="jp-idc-notice__action">
 					<p class="jp-idc-notice__action__explanation">
-						<?php echo $this->get_confirm_safe_mode_action_explanation(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php echo esc_html( $this->get_confirm_safe_mode_action_explanation() ); ?>
 					</p>
 					<button id="jp-idc-confirm-safe-mode-action" class="dops-button">
-						<?php echo $this->get_confirm_safe_mode_button_text(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php echo esc_html( $this->get_confirm_safe_mode_button_text() ); ?>
 					</button>
 				</div>
 
 				<div class="jp-idc-notice__action">
 					<p class="jp-idc-notice__action__explanation">
-						<?php echo $this->get_first_step_fix_connection_action_explanation(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php echo esc_html( $this->get_first_step_fix_connection_action_explanation() ); ?>
 					</p>
 					<button id="jp-idc-fix-connection-action" class="dops-button">
-						<?php echo $this->get_first_step_fix_connection_button_text(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php echo esc_html( $this->get_first_step_fix_connection_button_text() ); ?>
 					</button>
 				</div>
 			</div>
@@ -660,7 +681,7 @@ class Identity_Crisis {
 		<div class="jp-idc-notice__second-step">
 			<div class="jp-idc-notice__content-header">
 				<h3 class="jp-idc-notice__content-header__lead">
-					<?php echo $this->get_second_step_header_lead(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php echo esc_html( $this->get_second_step_header_lead() ); ?>
 				</h3>
 			</div>
 
@@ -669,26 +690,26 @@ class Identity_Crisis {
 			<div class="jp-idc-notice__actions">
 				<div class="jp-idc-notice__action">
 					<p class="jp-idc-notice__action__explanation">
-						<?php echo $this->get_migrate_site_action_explanation(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php echo esc_html( $this->get_migrate_site_action_explanation() ); ?>
 					</p>
 					<button id="jp-idc-migrate-action" class="dops-button">
-						<?php echo $this->get_migrate_site_button_text(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php echo esc_html( $this->get_migrate_site_button_text() ); ?>
 					</button>
 				</div>
 
 				<div class="jp-idc-notice__action">
 					<p class="jp-idc-notice__action__explanation">
-						<?php echo $this->get_start_fresh_action_explanation(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php echo esc_html( $this->get_start_fresh_action_explanation() ); ?>
 					</p>
 					<button id="jp-idc-reconnect-site-action" class="dops-button">
-						<?php echo $this->get_start_fresh_button_text(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php echo esc_html( $this->get_start_fresh_button_text() ); ?>
 					</button>
 				</div>
 
 			</div>
 
 			<p class="jp-idc-notice__unsure-prompt">
-				<?php echo $this->get_unsure_prompt(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<?php echo esc_html( $this->get_unsure_prompt() ); ?>
 			</p>
 		</div>
 		<?php
@@ -1138,6 +1159,7 @@ class Identity_Crisis {
 	 * @param array $response The endpoint response that we're modifying.
 	 *
 	 * @return array
+	 *
 	 * phpcs:ignore Squiz.Commenting.FunctionCommentThrowTag -- The exception is being caught, false positive.
 	 */
 	public static function add_secret_to_url_validation_response( array $response ) {

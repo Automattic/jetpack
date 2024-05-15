@@ -78,6 +78,13 @@ abstract class Product {
 	public static $has_standalone_plugin = false;
 
 	/**
+	 * Whether this product has a free offering
+	 *
+	 * @var bool
+	 */
+	public static $has_free_offering = false;
+
+	/**
 	 * Get the plugin slug
 	 *
 	 * @return ?string
@@ -141,12 +148,14 @@ abstract class Product {
 			'pricing_for_ui'            => static::get_pricing_for_ui(),
 			'is_bundle'                 => static::is_bundle_product(),
 			'is_plugin_active'          => static::is_plugin_active(),
+			'is_upgradable'             => static::is_upgradable(),
 			'is_upgradable_by_bundle'   => static::is_upgradable_by_bundle(),
 			'supported_products'        => static::get_supported_products(),
 			'wpcom_product_slug'        => static::get_wpcom_product_slug(),
 			'requires_user_connection'  => static::$requires_user_connection,
 			'has_required_plan'         => static::has_required_plan(),
 			'has_paid_plan_for_product' => static::has_paid_plan_for_product(),
+			'has_free_offering'         => static::$has_free_offering,
 			'has_required_tier'         => static::has_required_tier(),
 			'manage_url'                => static::get_manage_url(),
 			'purchase_url'              => static::get_purchase_url(),

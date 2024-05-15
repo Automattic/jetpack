@@ -10,6 +10,7 @@ import React, { useCallback, useState, useMemo } from 'react';
  */
 import { QUERY_LICENSES_KEY } from '../../data/constants';
 import useJetpackApiQuery from '../../data/use-jetpack-api-query';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import GoBackLink from '../go-back-link';
 
@@ -49,6 +50,8 @@ export default function AddLicenseScreen() {
 		[ licenses ]
 	);
 
+	const { siteSuffix = '', adminUrl = '' } = getMyJetpackWindowInitialState();
+
 	return (
 		<AdminPage showHeader={ false } showBackground={ false }>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
@@ -61,8 +64,8 @@ export default function AddLicenseScreen() {
 						availableLicenses={ availableLicenses }
 						fetchingAvailableLicenses={ fetchingAvailableLicenses }
 						onActivationSuccess={ handleActivationSuccess }
-						siteAdminUrl={ window?.myJetpackInitialState?.adminUrl }
-						siteRawUrl={ window?.myJetpackInitialState?.siteSuffix }
+						siteAdminUrl={ adminUrl }
+						siteRawUrl={ siteSuffix }
 						displayName={ displayName }
 					/>
 				</Col>

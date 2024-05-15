@@ -1,6 +1,3 @@
-// eslint-disable-next-line no-unused-vars
-/* global myJetpackInitialState */
-
 import { getCurrencyObject } from '@automattic/format-currency';
 import {
 	CheckmarkIcon,
@@ -18,6 +15,7 @@ import { Icon, check, plus } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useCallback } from 'react';
 import useProduct from '../../data/products/use-product';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 import ProductDetailButton from '../product-detail-button';
@@ -86,8 +84,12 @@ const ProductDetailCard = ( {
 	highlightLastFeature = false,
 	isFetching = false,
 } ) => {
-	const { fileSystemWriteAccess, siteSuffix, adminUrl, myJetpackCheckoutUri } =
-		window?.myJetpackInitialState ?? {};
+	const {
+		fileSystemWriteAccess = 'no',
+		siteSuffix = '',
+		adminUrl = '',
+		myJetpackCheckoutUri = '',
+	} = getMyJetpackWindowInitialState();
 
 	const { detail } = useProduct( slug );
 
@@ -100,7 +102,7 @@ const ProductDetailCard = ( {
 		pricingForUi,
 		isBundle,
 		supportedProducts,
-		hasRequiredPlan,
+		hasPaidPlanForProduct,
 		status,
 		pluginSlug,
 		postCheckoutUrl,
@@ -130,7 +132,7 @@ const ProductDetailCard = ( {
 	 * Or when:
 	 * - it's a quantity-based product
 	 */
-	const needsPurchase = ( ! isFree && ! hasRequiredPlan ) || quantity != null;
+	const needsPurchase = ( ! isFree && ! hasPaidPlanForProduct ) || quantity != null;
 
 	// Redirect to the referrer URL when the `redirect_to_referrer` query param is present.
 	const referrerURL = useRedirectToReferrer();
@@ -259,12 +261,13 @@ const ProductDetailCard = ( {
 		);
 	}
 
-	const hasTrialButton = ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && trialAvailable;
+	const hasTrialButton =
+		( ! isBundle || ( isBundle && ! hasPaidPlanForProduct ) ) && trialAvailable;
 
 	// If we prefer the product name, use that everywhere instead of the title
 	const productMoniker = name && preferProductName ? name : title;
 	const defaultCtaLabel =
-		! isBundle && hasRequiredPlan
+		! isBundle && hasPaidPlanForProduct
 			? sprintf(
 					/* translators: placeholder is product name. */
 					__( 'Install %s', 'jetpack-my-jetpack' ),
@@ -359,7 +362,7 @@ const ProductDetailCard = ( {
 					</div>
 				) }
 
-				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
+				{ ( ! isBundle || ( isBundle && ! hasPaidPlanForProduct ) ) && (
 					<Text
 						component={ ProductDetailButton }
 						onClick={ clickHandler }
@@ -373,7 +376,7 @@ const ProductDetailCard = ( {
 					</Text>
 				) }
 
-				{ ! isBundle && trialAvailable && ! hasRequiredPlan && (
+				{ ! isBundle && trialAvailable && ! hasPaidPlanForProduct && (
 					<Text
 						component={ ProductDetailButton }
 						onClick={ trialClickHandler }
@@ -413,7 +416,7 @@ const ProductDetailCard = ( {
 					</div>
 				) }
 
-				{ isBundle && hasRequiredPlan && (
+				{ isBundle && hasPaidPlanForProduct && (
 					<div className={ styles[ 'product-has-required-plan' ] }>
 						<CheckmarkIcon size={ 36 } />
 						<Text>{ __( 'Active on your site', 'jetpack-my-jetpack' ) }</Text>

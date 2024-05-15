@@ -504,7 +504,7 @@ abstract class Base_Admin_Menu {
 			$has_submenus = isset( $submenu[ $menu_item[2] ] );
 
 			// Skip if the menu doesn't have submenus.
-			if ( ! $has_submenus ) {
+			if ( ! $has_submenus || ! is_array( $submenu[ $menu_item[2] ] ) ) {
 				continue;
 			}
 
@@ -538,6 +538,10 @@ abstract class Base_Admin_Menu {
 		global $submenu;
 
 		foreach ( $submenu as $menu_slug => $submenu_items ) {
+			if ( ! $submenu_items ) {
+				continue;
+			}
+
 			foreach ( $submenu_items as $submenu_index => $submenu_item ) {
 				if ( $this->is_item_visible( $submenu_item ) ) {
 					continue;

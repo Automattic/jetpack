@@ -1,6 +1,10 @@
-import { RichText } from '@wordpress/block-editor';
+import { RichText, useBlockProps } from '@wordpress/block-editor';
+import { getDefaultTexts } from './utils';
+
+const DEFAULT_TEXTS = getDefaultTexts();
 
 const Save = ( { attributes } ) => {
+	const blockProps = useBlockProps.save();
 	const { fallbackLinkUrl, oneTimeDonation, monthlyDonation, annualDonation } = attributes;
 
 	if (
@@ -13,44 +17,53 @@ const Save = ( { attributes } ) => {
 	}
 
 	return (
-		<div>
-			<RichText.Content tagName="h4" value={ oneTimeDonation.heading } />
-			<RichText.Content tagName="p" value={ oneTimeDonation.extraText } />
+		<div { ...blockProps }>
+			<RichText.Content tagName="h4" value={ DEFAULT_TEXTS.oneTimeDonation?.heading } />
+			<RichText.Content
+				tagName="p"
+				value={ oneTimeDonation.extraText ?? DEFAULT_TEXTS.extraText }
+			/>
 			<RichText.Content
 				tagName="a"
 				className="jetpack-donations-fallback-link"
 				href={ fallbackLinkUrl }
 				rel="noopener noreferrer noamphtml"
 				target="_blank"
-				value={ oneTimeDonation.buttonText }
+				value={ DEFAULT_TEXTS.oneTimeDonation?.buttonText }
 			/>
 			{ monthlyDonation.show && (
 				<>
 					<hr className="donations__separator" />
-					<RichText.Content tagName="h4" value={ monthlyDonation.heading } />
-					<RichText.Content tagName="p" value={ monthlyDonation.extraText } />
+					<RichText.Content tagName="h4" value={ DEFAULT_TEXTS.monthlyDonation?.heading } />
+					<RichText.Content
+						tagName="p"
+						value={ monthlyDonation.extraText ?? DEFAULT_TEXTS.extraText }
+					/>
 					<RichText.Content
 						tagName="a"
 						className="jetpack-donations-fallback-link"
 						href={ fallbackLinkUrl }
 						rel="noopener noreferrer noamphtml"
 						target="_blank"
-						value={ monthlyDonation.buttonText }
+						value={ DEFAULT_TEXTS.monthlyDonation?.buttonText }
 					/>
 				</>
 			) }
 			{ annualDonation.show && (
 				<>
 					<hr className="donations__separator" />
-					<RichText.Content tagName="h4" value={ annualDonation.heading } />
-					<RichText.Content tagName="p" value={ annualDonation.extraText } />
+					<RichText.Content tagName="h4" value={ DEFAULT_TEXTS.annualDonation?.heading } />
+					<RichText.Content
+						tagName="p"
+						value={ annualDonation.extraText ?? DEFAULT_TEXTS.extraText }
+					/>
 					<RichText.Content
 						tagName="a"
 						className="jetpack-donations-fallback-link"
 						href={ fallbackLinkUrl }
 						rel="noopener noreferrer noamphtml"
 						target="_blank"
-						value={ annualDonation.buttonText }
+						value={ DEFAULT_TEXTS.annualDonation?.buttonText }
 					/>
 				</>
 			) }

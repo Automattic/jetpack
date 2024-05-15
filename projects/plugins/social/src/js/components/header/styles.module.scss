@@ -56,7 +56,7 @@
 }
 
 .cut {
-	margin-top: calc( var( --spacing-base ) * 3 );
+	margin-top: calc( var( --spacing-base ) * 2 );
 }
 
 .connection-error-col {
@@ -64,6 +64,8 @@
 }
 
 .bar-wrapper {
+	margin-bottom: var( --spacing-base );
+	
 	:global .record-meter-bar {
 		padding-block: 0;
 	}

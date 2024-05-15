@@ -171,7 +171,8 @@ function wpme_rest_register_shortlinks() {
  * @return string
  */
 function wpme_rest_get_shortlink( $object ) {
-	return wpme_get_shortlink( $object['id'], array() );
+	$object_id = $object['id'] ?? 0;
+	return wpme_get_shortlink( $object_id, array() );
 }
 
 // Add shortlinks to the REST API Post response.

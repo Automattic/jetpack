@@ -1,4 +1,5 @@
 import { translate } from '../i18n';
+import { commentParent } from '../state';
 import { classNames } from '../utils';
 import { CustomLoadingSpinner } from './custom-loading-spinner';
 
@@ -26,7 +27,9 @@ export const EditorPlaceholder = ( { onClick, loading } ) => {
 							class="block-editor-block-list__layout__content"
 							style={ { margin: '18px 0', fontSize: '16px' } }
 						>
-							{ translate( 'Leave a comment' ) }
+							{ commentParent.value
+								? translate( 'Write a reply...' )
+								: translate( 'Write a comment...' ) }
 						</p>
 					) }
 				</div>

@@ -83,12 +83,20 @@ class Request {
 			$request_uri = $this->request_uri;
 		}
 
+		// Check if the query parameters `jb-disable-modules` or `jb-generate-critical-css` exist.
+		$query_params = isset( $this->request_parameters['get'] ) ? $this->request_parameters['get'] : array();
+		if ( isset( $query_params ) &&
+			( isset( $query_params['jb-disable-modules'] ) || isset( $query_params['jb-generate-critical-css'] ) )
+		) {
+			return true;
+		}
+
 		$bypass_patterns = Boost_Cache_Settings::get_instance()->get_bypass_patterns();
 
 		/**
 		 * Filters the bypass patterns for the page cache.
 		 *
-		 * @since $$next-version$$
+		 * @since 3.2.0
 		 *
 		 * @param array $bypass_patterns An array of regex patterns that define URLs that bypass caching.
 		 */
@@ -119,11 +127,12 @@ class Request {
 		 *
 		 * Can be used to prevent a request from being cached.
 		 *
-		 * @since $$next-version$$
+		 * @since 3.2.0
 		 *
-		 * @param string $request_uri The request URI to be evaluated for cacheability.
+		 * @param bool $default_status The default cacheability status (true for cacheable).
+		 * @param string $request_uri  The request URI to be evaluated for cacheability.
 		 */
-		if ( ! apply_filters( 'jetpack_boost_cache_request_cacheable', $this->request_uri ) ) {
+		if ( ! apply_filters( 'jetpack_boost_cache_request_cacheable', true, $this->request_uri ) ) {
 			return false;
 		}
 
@@ -169,6 +178,10 @@ class Request {
 			return false;
 		}
 
+		if ( $this->is_module_disabled() ) {
+			return false;
+		}
+
 		/**
 		 * Filters the accept headers to determine if the request should be cached.
 		 *
@@ -177,7 +190,7 @@ class Request {
 		 * matches one of these content types the request will not be cached,
 		 * or a cached file served to this visitor.
 		 *
-		 * @since $$next-version$$
+		 * @since 3.2.0
 		 *
 		 * @param array $accept_headers An array of header values that should prevent a request from being cached.
 		 */
@@ -287,5 +300,34 @@ class Request {
 		}
 
 		return \is_feed();
+	}
+
+	/**
+	 * Return true if the Page Cache module is disabled, or null if we don't know yet.
+	 *
+	 * If Status and Page_Cache are not available, it means the plugin is not loaded.
+	 * This function will be called later when writing a cache file to disk.
+	 * It's then that we can check if the module is active.
+	 *
+	 * @return null|bool
+	 */
+	public function is_module_disabled() {
+
+		// A simple check to make sure we're in the output buffer callback.
+		if ( ! function_exists( '\is_feed' ) ) {
+			return null;
+		}
+
+		if (
+			class_exists( '\Automattic\Jetpack_Boost\Lib\Status' ) &&
+			class_exists( '\Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache' )
+		) {
+			$page_cache_status = new \Automattic\Jetpack_Boost\Lib\Status(
+				\Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache::get_slug()
+			);
+			return ! $page_cache_status->is_enabled();
+		} else {
+			return true; // if the classes aren't available, the plugin isn't loaded.
+		}
 	}
 }

@@ -105,15 +105,23 @@ class Broken_Token_Connection_Errors {
 			<p>
 				This page helps you to trigger connection errors with invalid signatures.
 			</p>
-			<?php if ( $this->dev_debug_on ) : ?>
-				<div class="notice notice-success">
-					<p>JETPACK_DEV_DEBUG constant is ON. This means every error will be reported. You're good to test.</p>
-				</div>
-			<?php else : ?>
-				<div class="notice notice-warning">
-					<p>JETPACK_DEV_DEBUG constant is OFF. This means an error will only be reported once evey hour. Set it to true so you can test it.</p>
-				</div>
-			<?php endif; ?>
+			<?php
+			if ( $this->dev_debug_on ) {
+				wp_admin_notice(
+					'JETPACK_DEV_DEBUG constant is ON. This means every error will be reported. You’re good to test.',
+					array(
+						'type' => 'success',
+					)
+				);
+			} else {
+				wp_admin_notice(
+					'JETPACK_DEV_DEBUG constant is OFF. This means an error will only be reported once evey hour. Set it to true so you can test it.',
+					array(
+						'type' => 'warning',
+					)
+				);
+			}
+			?>
 
 			<p>
 				Now head to <a href="https://jetpack.com/debug/?url=<?php echo esc_url_raw( get_home_url() ); ?>">Jetpack Debugger</a> and trigger some requests!
@@ -252,7 +260,9 @@ class Broken_Token_Connection_Errors {
 	}
 
 	/**
-	 * Return the list of verified errors to dynamically refresh the interface
+	 * Print the list of verified errors to dynamically refresh the interface
+	 *
+	 * @return never
 	 */
 	public function admin_post_refresh_verified_errors_list() {
 		check_admin_referer( 'refresh-verified-errors' );
@@ -281,7 +291,6 @@ class Broken_Token_Connection_Errors {
 	 * @return \WP_Error
 	 */
 	public function get_sample_error( $error_code, $user_id, $error_type = 'xmlrpc' ) {
-
 		$signature_details = array(
 			'token'     => 'dhj938djh938d:1:' . $user_id,
 			'timestamp' => time(),

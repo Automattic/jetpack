@@ -11,6 +11,8 @@ use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Redirect;
 use Jetpack_IXR_Client;
 use Jetpack_Options;
+use WP_Error;
+use WP_Post;
 
 /**
  * Extend the base class with Jetpack-specific functionality.
@@ -69,6 +71,20 @@ class Publicize extends Publicize_Base {
 	 */
 	public function add_disconnect_notice() {
 		add_action( 'admin_notices', array( $this, 'display_disconnected' ) );
+	}
+
+	/**
+	 * Whether to use the v1 admin UI.
+	 */
+	public static function use_admin_ui_v1(): bool {
+
+		// If the option is set, use it.
+		if ( get_option( 'jetpack_social_use_admin_ui_v1', false ) ) {
+			return true;
+		}
+
+		// Otherwise, use the constant.
+		return defined( 'JETPACK_SOCIAL_USE_ADMIN_UI_V1' ) && JETPACK_SOCIAL_USE_ADMIN_UI_V1;
 	}
 
 	/**
@@ -225,7 +241,7 @@ class Publicize extends Publicize_Base {
 	/**
 	 * Get all connections for a specific user.
 	 *
-	 * @return array|false
+	 * @return array
 	 */
 	public function get_all_connections_for_user() {
 		$connections = $this->get_all_connections();
@@ -237,15 +253,24 @@ class Publicize extends Publicize_Base {
 					$user_id = (int) $connection['connection_data']['user_id'];
 					// phpcs:ignore WordPress.PHP.YodaConditions.NotYoda
 					if ( $user_id === 0 || $this->user_id() === $user_id ) {
-						$connections_to_return[ $service_name ][ $id ] = $connection;
+						if ( self::use_admin_ui_v1() ) {
+							$connections_to_return[] = array_merge(
+								$connection,
+								array(
+									'service_name'   => $service_name,
+									'connection_id'  => $connection['connection_data']['id'],
+									'can_disconnect' => current_user_can( 'edit_others_posts' ) || get_current_user_id() === $user_id,
+									'profile_link'   => $this->get_profile_link( $service_name, $connection ),
+								)
+							);
+						} else {
+							$connections_to_return[ $service_name ][ $id ] = $connection;
+						}
 					}
 				}
 			}
-
-			return $connections_to_return;
 		}
-
-		return false;
+		return $connections_to_return;
 	}
 
 	/**
@@ -621,7 +646,7 @@ class Publicize extends Publicize_Base {
 			'refresh_url'      => $refresh_url,
 		);
 
-		$this->test_connection_results[ $id ] = new \WP_Error( $connection_error_code, $connection_test_message, $error_data );
+		$this->test_connection_results[ $id ] = new WP_Error( $connection_error_code, $connection_test_message, $error_data );
 
 		return $this->test_connection_results[ $id ];
 	}
@@ -654,8 +679,8 @@ class Publicize extends Publicize_Base {
 	 * Save a flag locally to indicate that this post has already been Publicized via the selected
 	 * connections.
 	 *
-	 * @param int      $post_ID Post ID.
-	 * @param \WP_Post $post Post object.
+	 * @param int     $post_ID Post ID.
+	 * @param WP_Post $post Post object.
 	 */
 	public function save_publicized( $post_ID, $post = null ) {
 		if ( $post === null ) {
@@ -673,8 +698,8 @@ class Publicize extends Publicize_Base {
 	/**
 	 * Set post flags for Publicize.
 	 *
-	 * @param array    $flags List of flags.
-	 * @param \WP_Post $post Post object.
+	 * @param array   $flags List of flags.
+	 * @param WP_Post $post Post object.
 	 * @return array
 	 */
 	public function set_post_flags( $flags, $post ) {

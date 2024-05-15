@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-WP Super Cache: added WPSC_PRELOAD_POST_INTERVAL and WPSC_PRELOAD_LOOP_INTERVAL to modify preload timings

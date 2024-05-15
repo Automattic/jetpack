@@ -263,10 +263,10 @@ async function getStatusChecks( payload, octokit ) {
 	const { name: repo, owner } = payload.repository;
 	const ownerLogin = owner.login;
 
-	const hasLongDescription = body.length > 200;
+	const hasLongDescription = body?.length > 200;
 	const isLabeled = await hasStatusLabels( octokit, ownerLogin, repo, number );
-	const hasTesting = body.includes( 'Testing instructions' );
-	const hasPrivacy = body.includes( 'data or activity we track or use' );
+	const hasTesting = !! body?.includes( 'Testing instructions' );
+	const hasPrivacy = !! body?.includes( 'data or activity we track or use' );
 	const projectsWithoutChangelog = await getChangelogEntries( octokit, ownerLogin, repo, number );
 	const isFromContributor = head.repo.full_name === base.repo.full_name;
 
@@ -465,6 +465,14 @@ async function checkDescription( payload, octokit ) {
 
 	if ( ref.startsWith( 'renovate/' ) && ( author === 'renovate[bot]' || author === 'matticbot' ) ) {
 		debug( `check-description: Renovate PR, skipping` );
+		return;
+	}
+
+	if (
+		( ref === 'update/phan-wpcom-stubs' || ref === 'update/phan-custom-stubs' ) &&
+		( author === 'matticbot' || author === 'github-actions[bot]' )
+	) {
+		debug( `check-description: Automated stub update, skipping` );
 		return;
 	}
 

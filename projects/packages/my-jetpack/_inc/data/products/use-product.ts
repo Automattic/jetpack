@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { REST_API_SITE_PRODUCTS_ENDPOINT } from '../constants';
 import { QUERY_PRODUCT_KEY } from '../constants';
 import useSimpleQuery from '../use-simple-query';
+import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
 import mapObjectKeysToCamel from '../utils/to-camel';
 import type { ProductCamelCase, ProductSnakeCase, WP_Error } from '../types';
 import type { RefetchOptions, QueryObserverResult } from '@tanstack/react-query';
@@ -18,11 +19,13 @@ const getDiscountPricePerMonth = ( product: ProductCamelCase ) => {
 		: product.pricingForUi.discountPrice;
 };
 
-export const useAllProducts = () => {
-	const initialState = window?.myJetpackInitialState;
-	const products = initialState?.products?.items || {};
+export const useAllProducts = (): { [ key: string ]: ProductCamelCase } => {
+	const { items: products } = getMyJetpackWindowInitialState( 'products' );
 
-	return products;
+	return Object.entries( products ).reduce(
+		( acc, [ key, product ] ) => ( { ...acc, [ key ]: prepareProductData( product ) } ),
+		{}
+	);
 };
 
 // Create query to fetch new product data from the server
@@ -68,11 +71,10 @@ const prepareProductData = ( product: ProductSnakeCase ) => {
 const useProduct = ( productId: string ) => {
 	const allProducts = useAllProducts();
 	const product = allProducts?.[ productId ];
-	const camelProduct = prepareProductData( product );
 	const { refetch, isLoading } = useFetchProduct( productId );
 
 	return {
-		detail: camelProduct,
+		detail: product,
 		refetch: useCallback( () => refetchProduct( productId, refetch ), [ productId, refetch ] ),
 		isLoading,
 	};

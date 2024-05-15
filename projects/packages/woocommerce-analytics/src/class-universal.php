@@ -112,7 +112,7 @@ class Universal {
 	 * @param string $url Full HTML a tag of the link to remove an item from the cart.
 	 * @param string $key Unique Key ID for a cart item.
 	 *
-	 * @return mixed.
+	 * @return string
 	 */
 	public function remove_from_cart_attributes( $url, $key ) {
 		if ( str_contains( $url, 'data-product_id' ) ) {
@@ -244,14 +244,16 @@ class Universal {
 						if ( true === cartItem_{$cart_item_key}_logged ) {
 							return;
 						}
-						wp.hooks.addAction( 'wcpay.payment-request.availability', 'wcpay', function ( args ) {
-							properties.express_checkout = args.paymentRequestType;
-						} );
-							properties.checkout_page_contains_checkout_block = '0';
-							properties.checkout_page_contains_checkout_shortcode = '1';
+						if ( typeof wp !== 'undefined' && typeof wp.hooks !== 'undefined' && typeof wp.hooks.addAction === 'function' ) {
+							wp.hooks.addAction( 'wcpay.payment-request.availability', 'wcpay', function ( args ) {
+								properties.express_checkout = args.paymentRequestType;
+							} );
+						}
+						properties.checkout_page_contains_checkout_block = '0';
+						properties.checkout_page_contains_checkout_shortcode = '1';
 
-							_wca.push( properties );
-							cartItem_{$cart_item_key}_logged = true;
+						_wca.push( properties );
+						cartItem_{$cart_item_key}_logged = true;
 
 					} );
 				}
@@ -341,6 +343,7 @@ class Universal {
 
 		// loop through products in the order and queue a purchase event.
 		foreach ( $order->get_items() as $order_item ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- Checked before being called. See also https://github.com/phan/phan/issues/1204.
 			$product_id = is_callable( array( $order_item, 'get_product_id' ) ) ? $order_item->get_product_id() : -1;
 
 			$order_items       = $order->get_items();

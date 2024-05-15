@@ -1,0 +1,70 @@
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: start;
+	gap: 1.5rem;
+
+	.profile-link {
+		color: inherit;
+
+		> span {
+			text-decoration: none;
+		}
+
+		&:hover {
+			text-decoration: underline;
+		}
+
+		>svg {
+			vertical-align: bottom;
+		}
+	}
+}
+
+.name {
+	font-size: 15px;
+}
+
+.column-name {
+	width: 25rem;
+}
+
+.icon>div {
+	cursor: default;
+}
+
+.confirmDialog span {
+	font-size: 15px;
+}
+
+// Table padding
+td {
+	padding-top: 0.8rem;
+	padding-bottom: 0.8rem;
+
+	&:first-child {
+		padding-left: 1rem;
+		padding-right: 0.6rem;
+	}
+
+	&:last-child {
+		padding-right: 1rem;
+	}
+}
+
+// Table border
+table {
+	border-collapse: separate;
+	border-spacing: 0;
+	border-radius: 4px;
+	outline: 1px solid var(--jp-gray-5);
+}
+
+tr:not(:last-child)>td {
+	border-bottom: solid 1px var(--jp-gray-5);
+}
+
+.actions {
+	display: flex;
+	justify-content: end;
+}

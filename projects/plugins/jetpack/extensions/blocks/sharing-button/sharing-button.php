@@ -13,6 +13,7 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
+use WP_Block_Template;
 
 require_once __DIR__ . '/class-sharing-source-block.php';
 require_once __DIR__ . '/components/social-icons.php';
@@ -65,7 +66,11 @@ function render_block( $attr, $content, $block ) {
 		$post_id
 	);
 
-	$services        = get_services();
+	$services = get_services();
+	if ( ! array_key_exists( $service_name, $services ) ) {
+		return $content;
+	}
+
 	$service         = new $services[ $service_name ]( $service_name, array() );
 	$link_props      = $service->get_link(
 		$post_id,
@@ -82,6 +87,29 @@ function render_block( $attr, $content, $block ) {
 		/* translators: %s refers to a string representation of sharing service, e.g. Facebook  */
 		esc_html__( 'Share on %s', 'jetpack' ),
 		esc_html( $title )
+	);
+
+	$link_props = $service->get_link(
+		$post_id,
+		'share=' . esc_attr( $service_name ) . '&nb=1',
+		false,
+		esc_attr( $data_shared )
+	);
+
+	$block_class_name = 'jetpack-sharing-button__list-item';
+
+	if ( $service_name === 'share' ) {
+		$block_class_name .= ' tooltip';
+		/* translators: aria label for SMS sharing button */
+		$link_aria_label = esc_attr__( 'Share using Native tools', 'jetpack' );
+		$link_props      = $service->get_link( $post_id );
+	}
+
+	$link_url     = $link_props['url'];
+	$link_classes = sprintf(
+		'jetpack-sharing-button__button style-%1$s share-%2$s',
+		$style_type,
+		$service_name
 	);
 
 	$styles = array();
@@ -104,7 +132,7 @@ function render_block( $attr, $content, $block ) {
 
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
-	$component  = '<li class="jetpack-sharing-button__list-item">';
+	$component  = '<li class="' . esc_attr( $block_class_name ) . '">';
 	$component .= sprintf(
 		'<a href="%1$s" target="_blank" rel="nofollow noopener noreferrer" class="%2$s" style="%3$s" data-service="%4$s" data-shared="%5$s" aria-label="%6$s">',
 		esc_url( $link_url ),
@@ -114,8 +142,12 @@ function render_block( $attr, $content, $block ) {
 		esc_attr( $data_shared ),
 		esc_attr( $link_aria_label )
 	);
+
 	$component .= $style_type !== 'text' ? $icon : '';
 	$component .= '<span class="jetpack-sharing-button__service-label" aria-hidden="true">' . esc_html( $title ) . '</span>';
+	if ( $service_name === 'share' ) {
+		$component .= '<span class="tooltiptext" aria-live="assertive">' . esc_html__( 'Copied to clipboard', 'jetpack' ) . '</span>';
+	}
 	$component .= '</a>';
 	$component .= '</li>';
 
@@ -139,10 +171,13 @@ function get_services() {
 		'pinterest' => Share_Pinterest_Block::class,
 		'pocket'    => Share_Pocket_Block::class,
 		'telegram'  => Share_Telegram_Block::class,
+		'threads'   => Share_Threads_Block::class,
 		'whatsapp'  => Jetpack_Share_WhatsApp_Block::class,
 		'mastodon'  => Share_Mastodon_Block::class,
 		'nextdoor'  => Share_Nextdoor_Block::class,
+		'bluesky'   => Share_Bluesky_Block::class,
 		'x'         => Share_X_Block::class,
+		'share'     => Share_Native_Block::class,
 	);
 
 	return $services;
@@ -223,7 +258,7 @@ function add_block_to_single_posts_template( $hooked_block_types, $relative_posi
 
 	// Only hook into page and single post templates.
 	if (
-		! $context instanceof \WP_Block_Template
+		! $context instanceof WP_Block_Template
 		|| ! property_exists( $context, 'slug' )
 		|| empty( $context->slug )
 		|| ! preg_match( '/^(page|single)/', $context->slug )

@@ -7,7 +7,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import AiAssistantDropdown from '../../components/ai-assistant-controls';
+import AiAssistantBlockToolbarDropdown from '../../components/ai-assistant-toolbar-dropdown';
 
 export function getStoreBlockId( clientId ) {
 	return `ai-assistant-block-${ clientId }`;
@@ -22,7 +22,7 @@ export const withAIAssistant = createHigherOrderComponent(
 		const { name: blockType } = props;
 
 		const blockControlProps = {
-			group: 'block',
+			group: 'block' as const,
 		};
 
 		/*
@@ -35,7 +35,7 @@ export const withAIAssistant = createHigherOrderComponent(
 				<BlockEdit { ...props } />
 
 				<BlockControls { ...blockControlProps }>
-					<AiAssistantDropdown blockType={ blockType } />
+					<AiAssistantBlockToolbarDropdown blockType={ blockType } />
 				</BlockControls>
 			</>
 		);

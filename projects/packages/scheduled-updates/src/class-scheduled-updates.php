@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack;
 
+// Load dependencies.
+require_once __DIR__ . '/pluggable.php';
+
 /**
  * Scheduled Updates class.
  */
@@ -17,7 +20,21 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.3.2-alpha';
+	const PACKAGE_VERSION = '0.12.1-alpha';
+
+	/**
+	 * The cron event hook for the scheduled plugins update.
+	 *
+	 * @var string
+	 */
+	const PLUGIN_CRON_HOOK = 'jetpack_scheduled_plugins_update';
+
+	/**
+	 * The cron event filter for the scheduled plugins update.
+	 *
+	 * @var string
+	 */
+	const PLUGIN_CRON_SYNC_HOOK = 'jetpack_scheduled_plugins_update_sync';
 
 	/**
 	 * Initialize the class.
@@ -38,21 +55,63 @@ class Scheduled_Updates {
 			return;
 		}
 
-		add_action( 'jetpack_scheduled_update', array( __CLASS__, 'run_scheduled_update' ) );
-		add_action( 'rest_api_init', array( __CLASS__, 'add_is_managed_extension_field' ) );
+		add_action( self::PLUGIN_CRON_HOOK, array( __CLASS__, 'run_scheduled_update' ), 10, 10 );
 		add_filter( 'auto_update_plugin', array( __CLASS__, 'allowlist_scheduled_plugins' ), 10, 2 );
-		add_filter( 'plugin_auto_update_setting_html', array( __CLASS__, 'show_scheduled_updates' ), 10, 2 );
+		add_action( 'deleted_plugin', array( __CLASS__, 'deleted_plugin' ), 10, 2 );
+
+		add_action( 'rest_api_init', array( __CLASS__, 'add_is_managed_extension_field' ) );
+		add_action( 'rest_api_init', array( Scheduled_Updates_Logs::class, 'add_log_fields' ) );
+		add_action( 'rest_api_init', array( Scheduled_Updates_Active::class, 'add_active_field' ) );
+		add_action( 'rest_api_init', array( Scheduled_Updates_Health_Paths::class, 'add_health_check_paths_field' ) );
+
+		add_filter( 'plugins_list', array( Scheduled_Updates_Admin::class, 'add_scheduled_updates_context' ) );
+		add_filter( 'views_plugins', array( Scheduled_Updates_Admin::class, 'add_scheduled_updates_view' ) );
+		add_filter( 'plugin_auto_update_setting_html', array( Scheduled_Updates_Admin::class, 'show_scheduled_updates' ), 10, 2 );
+
+		add_action( 'jetpack_scheduled_update_created', array( __CLASS__, 'maybe_disable_autoupdates' ), 10, 3 );
+
+		add_action( 'jetpack_scheduled_update_updated', array( Scheduled_Updates_Logs::class, 'replace_logs_schedule_id' ), 10, 2 );
+
+		add_action( 'jetpack_scheduled_update_deleted', array( __CLASS__, 'enable_autoupdates' ), 10, 2 );
+		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Active::class, 'clear' ) );
+		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Health_Paths::class, 'clear' ) );
+		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Logs::class, 'delete_logs_schedule_id' ), 10, 3 );
+
+		// Update cron sync option after options update.
+		$callback = array( __CLASS__, 'update_option_cron' );
+
+		// Main cron saving.
+		add_action( 'add_option_cron', $callback );
+		add_action( 'update_option_cron', $callback );
+
+		// Logs saving.
+		add_action( 'add_option_' . Scheduled_Updates_Logs::OPTION_NAME, $callback );
+		add_action( 'update_option_' . Scheduled_Updates_Logs::OPTION_NAME, $callback );
+
+		// Active flag saving.
+		add_action( 'add_option_' . Scheduled_Updates_Active::OPTION_NAME, $callback );
+		add_action( 'update_option_' . Scheduled_Updates_Active::OPTION_NAME, $callback );
 	}
 
 	/**
 	 * Load the REST API endpoints.
+	 *
+	 * @suppress PhanUndeclaredFunction
 	 */
 	public static function load_rest_api_endpoints() {
 		if ( ! function_exists( 'wpcom_rest_api_v2_load_plugin' ) ) {
 			return;
 		}
 
-		require_once __DIR__ . '/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-update-schedules.php';
+		$endpoints = glob( __DIR__ . '/wpcom-endpoints/*.php' );
+		foreach ( array_filter( (array) $endpoints, 'is_file' ) as $endpoint ) {
+			require_once $endpoint;
+		}
+
+		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules' );
+		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities' );
+		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs' );
+		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active' );
 	}
 
 	/**
@@ -61,23 +120,161 @@ class Scheduled_Updates {
 	 * @param string ...$plugins List of plugins to update.
 	 */
 	public static function run_scheduled_update( ...$plugins ) {
+		$schedule_id = self::generate_schedule_id( $plugins );
+
+		if ( ! Scheduled_Updates_Active::get( $schedule_id ) ) {
+			// The schedule is not active, return.
+			return false;
+		}
+
 		$available_updates = get_site_transient( 'update_plugins' );
-		$plugins           = array_filter(
-			$plugins,
-			function ( $plugin ) use ( $available_updates ) {
-				return isset( $available_updates->response[ $plugin ] );
-			}
-		);
+		$plugins_to_update = $available_updates->response ?? array();
+		$plugins_to_update = array_intersect_key( $plugins_to_update, array_flip( $plugins ) );
 
-		$body = empty( $plugins ) ? null : array( 'plugins' => $plugins );
+		if ( empty( $plugins_to_update ) ) {
 
-		( new Connection\Client() )->wpcom_json_api_request_as_blog(
+			// Log a start and success.
+			Scheduled_Updates_Logs::log(
+				$schedule_id,
+				Scheduled_Updates_Logs::PLUGIN_UPDATES_START,
+				'no_plugins_to_update'
+			);
+			Scheduled_Updates_Logs::log(
+				$schedule_id,
+				Scheduled_Updates_Logs::PLUGIN_UPDATES_SUCCESS,
+				'no_plugins_to_update'
+			);
+
+			return false;
+		}
+
+		$response = ( new Connection\Client() )->wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/hosting/scheduled-update', \Jetpack_Options::get_option( 'id' ) ),
 			'2',
 			array( 'method' => 'POST' ),
-			$body,
+			array(
+				'health_check_paths' => Scheduled_Updates_Health_Paths::get( $schedule_id ),
+				'plugins'            => $plugins_to_update,
+				'schedule_id'        => $schedule_id,
+			),
 			'wpcom'
 		);
+
+		return is_array( $response );
+	}
+
+	/**
+	 * Create a scheduled update.
+	 *
+	 * @param int    $timestamp Timestamp of the first run.
+	 * @param string $interval  Interval of the update.
+	 * @param array  $plugins   List of plugins to update.
+	 * @return \WP_Error|bool True on success, WP_Error on failure.
+	 */
+	public static function create_scheduled_update( $timestamp, $interval, $plugins ) {
+		return wp_schedule_event( $timestamp, $interval, self::PLUGIN_CRON_HOOK, $plugins, true );
+	}
+
+	/**
+	 * Remove a scheduled update.
+	 *
+	 * @param int   $timestamp Timestamp of the first run.
+	 * @param array $plugins   List of plugins to update.
+	 * @return \WP_Error|bool True on success, WP_Error on failure.
+	 */
+	public static function delete_scheduled_update( $timestamp, $plugins ) {
+		// Be sure to clear the cron cache before removing a cron entry.
+		self::clear_cron_cache();
+
+		return wp_unschedule_event( $timestamp, self::PLUGIN_CRON_HOOK, $plugins, true );
+	}
+
+	/**
+	 * Save the schedules for sync after cron option saving.
+	 */
+	public static function update_option_cron() {
+		// Do not update the option if the filter returns false.
+		if ( ! apply_filters( self::PLUGIN_CRON_SYNC_HOOK, true ) ) {
+			return;
+		}
+
+		Scheduled_Updates_Logs::add_log_fields();
+		Scheduled_Updates_Active::add_active_field();
+		Scheduled_Updates_Health_Paths::add_health_check_paths_field();
+
+		$endpoint   = new \WPCOM_REST_API_V2_Endpoint_Update_Schedules();
+		$events     = $endpoint->get_items( new \WP_REST_Request() );
+		$updated_at = time();
+
+		if ( ! is_wp_error( $events ) ) {
+			$option = array_map(
+				function ( $event ) use ( $updated_at ) {
+					$ret = (object) $event;
+					// Add updated_at field to ensure the option is always on sync.
+					$ret->updated_at = $updated_at;
+
+					return $ret;
+				},
+				$events->get_data()
+			);
+			update_option( self::PLUGIN_CRON_HOOK, $option );
+		}
+	}
+
+	/**
+	 * Clear the cron cache.
+	 */
+	public static function clear_cron_cache() {
+		wp_cache_delete( 'alloptions', 'options' );
+	}
+
+	/**
+	 * Updates last status of a scheduled update.
+	 *
+	 * @param string      $schedule_id Request ID.
+	 * @param int|null    $timestamp   Timestamp of the last run.
+	 * @param string|null $status      Status of the last run.
+	 * @return false|array Updated statuses or false if not found.
+	 */
+	public static function set_scheduled_update_status( $schedule_id, $timestamp, $status ) {
+		$events = wp_get_scheduled_events( self::PLUGIN_CRON_HOOK );
+
+		if ( empty( $events[ $schedule_id ] ) ) {
+			// Scheduled update not found.
+			return false;
+		}
+
+		$statuses = get_option( 'jetpack_scheduled_update_statuses', array() );
+		$option   = array();
+
+		// Reset the last statuses for the schedule.
+		foreach ( array_keys( $events ) as $status_id ) {
+			if ( ! empty( $statuses[ $status_id ] ) ) {
+				$option[ $status_id ] = $statuses[ $status_id ];
+			} else {
+				$option[ $status_id ] = null;
+			}
+		}
+
+		// Update the last status for the schedule.
+		$option[ $schedule_id ] = array(
+			'last_run_timestamp' => $timestamp,
+			'last_run_status'    => $status,
+		);
+
+		update_option( 'jetpack_scheduled_update_statuses', $option );
+
+		return $option;
+	}
+
+	/**
+	 * Get the last status of a scheduled update.
+	 *
+	 * @param string $schedule_id Request ID.
+	 * @return array|false Last status of the scheduled update or false if not found.
+	 */
+	public static function get_scheduled_update_status( $schedule_id ) {
+		return Scheduled_Updates_Logs::infer_status_from_logs( $schedule_id );
 	}
 
 	/**
@@ -90,10 +287,13 @@ class Scheduled_Updates {
 	 */
 	public static function allowlist_scheduled_plugins( $update, $item ) {
 		if ( Constants::get_constant( 'SCHEDULED_AUTOUPDATE' ) ) {
-			$schedules = get_option( 'jetpack_update_schedules', array() );
+			if ( ! function_exists( 'wp_get_scheduled_events' ) ) {
+				require_once __DIR__ . '/pluggable.php';
+			}
 
-			foreach ( $schedules as $plugins ) {
-				if ( isset( $item->plugin ) && in_array( $item->plugin, $plugins, true ) ) {
+			$events = wp_get_scheduled_events( self::PLUGIN_CRON_HOOK );
+			foreach ( $events as $event ) {
+				if ( isset( $item->plugin ) && in_array( $item->plugin, $event->args, true ) ) {
 					return true;
 				}
 			}
@@ -103,64 +303,50 @@ class Scheduled_Updates {
 	}
 
 	/**
-	 * Filters the HTML of the auto-updates setting for each plugin in the Plugins list table.
+	 * Maybe disable autoupdates.
 	 *
-	 * @param string $html        The HTML of the plugin's auto-update column content,
-	 *                            including toggle auto-update action links and
-	 *                            time to next update.
-	 * @param string $plugin_file Path to the plugin file relative to the plugin directory.
+	 * @param string           $id      The ID of the schedule.
+	 * @param object           $event   The event object.
+	 * @param \WP_REST_Request $request The request object.
 	 */
-	public static function show_scheduled_updates( $html, $plugin_file ) {
-		$schedules = get_option( 'jetpack_update_schedules', array() );
+	public static function maybe_disable_autoupdates( $id, $event, $request ) {
+		require_once ABSPATH . 'wp-admin/includes/update.php';
 
-		$schedule = false;
-		foreach ( $schedules as $plugins ) {
-			if ( in_array( $plugin_file, $plugins, true ) ) {
-				$schedule = wp_get_scheduled_event( 'jetpack_scheduled_update', $plugins );
-				break;
-			}
+		if ( wp_is_auto_update_enabled_for_type( 'plugin' ) ) {
+			// Remove the plugins that are now updated on a schedule from the auto-update list.
+			$auto_update_plugins = get_option( 'auto_update_plugins', array() );
+			$auto_update_plugins = array_diff( $auto_update_plugins, $request['plugins'] );
+			update_option( 'auto_update_plugins', $auto_update_plugins );
+		}
+	}
+
+	/**
+	 * Enable autoupdates.
+	 *
+	 * @param string $id    The ID of the schedule.
+	 * @param object $event The deleted event object.
+	 */
+	public static function enable_autoupdates( $id, $event ) {
+		require_once ABSPATH . 'wp-admin/includes/update.php';
+
+		if ( ! wp_is_auto_update_enabled_for_type( 'plugin' ) ) {
+			return;
 		}
 
-		// Plugin is not part of an update schedule.
-		if ( ! $schedule ) {
-			return $html;
+		$events = wp_get_scheduled_events( static::PLUGIN_CRON_HOOK );
+		unset( $events[ $id ] );
+
+		// Find the plugins that are not part of any other schedule.
+		$plugins = $event->args;
+		foreach ( wp_list_pluck( $events, 'args' ) as $args ) {
+			$plugins = array_diff( $plugins, $args );
 		}
 
-		if ( DAY_IN_SECONDS === $schedule->interval ) {
-			$html = sprintf(
-				/* translators: %s is the time of day. Daily at 10 am. */
-				esc_html__( 'Daily at %s.', 'jetpack-scheduled-updates' ),
-				date_i18n( get_option( 'time_format' ), $schedule->timestamp )
-			);
-		} else {
-			// Not getting smart about passing in weekdays makes it easier to translate.
-			$weekdays = array(
-				/* translators: %s is the time of day. Sundays at 10 am. */
-				__( 'Sundays at %s.', 'jetpack-scheduled-updates' ),
-				/* translators: %s is the time of day. Mondays at 10 am. */
-				__( 'Mondays at %s.', 'jetpack-scheduled-updates' ),
-				/* translators: %s is the time of day. Tuesdays at 10 am. */
-				__( 'Tuesdays at %s.', 'jetpack-scheduled-updates' ),
-				/* translators: %s is the time of day. Wednesdays at 10 am. */
-				__( 'Wednesdays at %s.', 'jetpack-scheduled-updates' ),
-				/* translators: %s is the time of day. Thursdays at 10 am. */
-				__( 'Thursdays at %s.', 'jetpack-scheduled-updates' ),
-				/* translators: %s is the time of day. Fridays at 10 am. */
-				__( 'Fridays at %s.', 'jetpack-scheduled-updates' ),
-				/* translators: %s is the time of day. Saturdays at 10 am. */
-				__( 'Saturdays at %s.', 'jetpack-scheduled-updates' ),
-			);
-
-			$html = sprintf(
-				$weekdays[ date_i18n( 'N', $schedule->timestamp ) ],
-				date_i18n( get_option( 'time_format' ), $schedule->timestamp )
-			);
-		}
-
-		$html  = '<p style="margin: 0 0 8px">' . $html . '</p>';
-		$html .= '<a href="' . esc_url( admin_url( 'admin.php?page=jetpack#jetpack-autoupdates' ) ) . '">' . esc_html__( 'Edit', 'jetpack-scheduled-updates' ) . '</a>';
-
-		return $html;
+		// Add the plugins that are no longer updated on a schedule to the auto-update list.
+		$auto_update_plugins = get_option( 'auto_update_plugins', array() );
+		$auto_update_plugins = array_unique( array_merge( $auto_update_plugins, $plugins ) );
+		usort( $auto_update_plugins, 'strnatcasecmp' );
+		update_option( 'auto_update_plugins', $auto_update_plugins );
 	}
 
 	/**
@@ -174,19 +360,11 @@ class Scheduled_Updates {
 				/**
 				* Populates the is_managed field.
 				*
-				* Users could have their own plugins folder with symlinks pointing to it, so we need to check if the
-				* link target is within the `/wordpress` directory to determine if the plugin is managed.
-				*
-				* @see p9o2xV-3Nx-p2#comment-8728
-				*
 				* @param array $data Prepared response array.
 				* @return bool
 				*/
 				'get_callback' => function ( $data ) {
-					$folder = WP_PLUGIN_DIR . '/' . strtok( $data['plugin'], '/' );
-					$target = is_link( $folder ) ? realpath( $folder ) : false;
-
-					return $target && 0 === strpos( $target, '/wordpress/' );
+					return self::is_managed_plugin( $data['plugin'] );
 				},
 				'schema'       => array(
 					'description' => 'Whether the plugin is managed by the host.',
@@ -197,84 +375,85 @@ class Scheduled_Updates {
 	}
 
 	/**
-	 * Return file and update modification capabilities for the site.
+	 * Hook run when a plugin is deleted.
 	 *
-	 * @see Jetpack_JSON_API_Plugins_Endpoint::file_mod_capabilities
+	 * @param string $plugin_file Path to the plugin file relative to the plugins directory.
+	 * @param bool   $deleted     Whether the plugin deletion was successful.
 	 */
-	public static function get_file_mod_capabilities() {
-		$reasons_can_not_autoupdate   = array();
-		$reasons_can_not_modify_files = array();
-
-		$has_file_system_write_access = self::file_system_write_access();
-		if ( ! $has_file_system_write_access ) {
-			$reasons_can_not_modify_files['has_no_file_system_write_access'] = __( 'The file permissions on this host prevent editing files.', 'jetpack-scheduled-updates' );
+	public static function deleted_plugin( $plugin_file, $deleted ) {
+		if ( ! $deleted ) {
+			return;
 		}
 
-		$disallow_file_mods = \Automattic\Jetpack\Constants::get_constant( 'DISALLOW_FILE_MODS' );
-		if ( $disallow_file_mods ) {
-			$reasons_can_not_modify_files['disallow_file_mods'] = __( 'File modifications are explicitly disabled by a site administrator.', 'jetpack-scheduled-updates' );
+		$events = wp_get_scheduled_events( self::PLUGIN_CRON_HOOK );
+
+		if ( ! count( $events ) ) {
+			return;
 		}
 
-		$automatic_updater_disabled = \Automattic\Jetpack\Constants::get_constant( 'AUTOMATIC_UPDATER_DISABLED' );
-		if ( $automatic_updater_disabled ) {
-			$reasons_can_not_autoupdate['automatic_updater_disabled'] = __( 'Any autoupdates are explicitly disabled by a site administrator.', 'jetpack-scheduled-updates' );
-		}
-
-		if ( is_multisite() ) {
-			// is it the main network ? is really is multi network
-			if ( Jetpack::is_multi_network() ) {
-				$reasons_can_not_modify_files['is_multi_network'] = __( 'Multi network install are not supported.', 'jetpack-scheduled-updates' );
+		foreach ( $events as $id => $event ) {
+			// Continue if the plugin is not part of the schedule.
+			if ( ! in_array( $plugin_file, $event->args, true ) ) {
+				continue;
 			}
-			// Is the site the main site here.
-			if ( ! is_main_site() ) {
-				$reasons_can_not_modify_files['is_sub_site'] = __( 'The site is not the main network site', 'jetpack-scheduled-updates' );
+
+			// Remove the schedule.
+			$result = self::delete_scheduled_update( $event->timestamp, $event->args );
+
+			if ( is_wp_error( $result ) || false === $result ) {
+				continue;
 			}
-		}
 
-		$file_mod_capabilities = array(
-			'modify_files'     => (bool) empty( $reasons_can_not_modify_files ), // install, remove, update
-			'autoupdate_files' => (bool) empty( $reasons_can_not_modify_files ) && empty( $reasons_can_not_autoupdate ), // enable autoupdates
-		);
+			$plugins = array_values( array_diff( $event->args, array( $plugin_file ) ) );
 
-		$errors = array();
-
-		if ( ! empty( $reasons_can_not_modify_files ) ) {
-			foreach ( $reasons_can_not_modify_files as $error_code => $error_message ) {
-					$errors[] = array(
-						'code'    => $error_code,
-						'message' => $error_message,
-					);
+			if ( ! count( $plugins ) ) {
+				continue;
 			}
-		}
 
-		if ( ! $file_mod_capabilities['autoupdate_files'] ) {
-			foreach ( $reasons_can_not_autoupdate as $error_code => $error_message ) {
-				$errors[] = array(
-					'code'    => $error_code,
-					'message' => $error_message,
-				);
+			// There are still plugins to update. Schedule a new event.
+			$result = self::create_scheduled_update( $event->timestamp, $event->schedule, $plugins );
+
+			if ( is_wp_error( $result ) || false === $result ) {
+				continue;
+			}
+
+			$schedule_id = self::generate_schedule_id( $plugins );
+			$status      = self::get_scheduled_update_status( $id );
+
+			// Inherit the status from the previous schedule.
+			if ( $status ) {
+				Scheduled_Updates_Logs::replace_logs_schedule_id( $id, $schedule_id );
 			}
 		}
-
-		$errors = array_unique( $errors );
-		if ( ! empty( $errors ) ) {
-			$file_mod_capabilities['errors'] = $errors;
-		}
-
-		return $file_mod_capabilities;
 	}
 
 	/**
-	 * Returns if the file system is writeable.
-	 * Used mostly for mocking during tests.
+	 * Generates a unique schedule ID.
 	 *
-	 * @see Automattic\Jetpack\Sync\Functions::file_system_write_access
+	 * @see wp_schedule_event()
+	 *
+	 * @param array $args Schedule arguments.
+	 * @return string
 	 */
-	private static function file_system_write_access() {
-		if ( ! class_exists( 'Automattic\Jetpack\Sync\Functions' ) ) {
-			return false;
-		}
+	public static function generate_schedule_id( $args ) {
+		return md5( serialize( $args ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+	}
 
-		return \Automattic\Jetpack\Sync\Functions::file_system_write_access();
+	/**
+	 * Check if a plugin is managed by the host.
+	 *
+	 * Users could have their own plugins folder with symlinks pointing to it, so we need to check if the
+	 * link target is within the `/wordpress` directory to determine if the plugin is managed.
+	 *
+	 * @see p9o2xV-3Nx-p2#comment-8728
+	 *
+	 * @param string $plugin The plugin to check.
+	 * @return bool
+	 */
+	public static function is_managed_plugin( $plugin ) {
+		$folder = WP_PLUGIN_DIR . '/' . strtok( $plugin, '/' );
+		$target = is_link( $folder ) ? realpath( $folder ) : false;
+
+		return $target && 0 === strpos( $target, '/wordpress/' );
 	}
 }

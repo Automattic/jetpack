@@ -218,7 +218,7 @@ class Jetpack_RelatedPosts {
 	 *
 	 * @param string $content Post content.
 	 *
-	 * @returns string
+	 * @return string
 	 */
 	public function filter_add_target_to_dom( $content ) {
 		// Do not output related posts for ActivityPub requests.
@@ -318,7 +318,7 @@ EOT;
 	/**
 	 * Returns the HTML for the related posts section if it's running in the loop or other instances where we don't support related posts.
 	 *
-	 * @returns string
+	 * @return string
 	 */
 	public function get_client_rendered_html_unsupported() {
 		if ( Settings::is_syncing() ) {
@@ -687,7 +687,6 @@ EOT;
 	 * HTML for admin settings page.
 	 *
 	 * @uses self::get_options, checked, esc_html__
-	 * @returns null
 	 */
 	public function print_setting_html() {
 		$options = $this->get_options();
@@ -763,7 +762,7 @@ EOT;
 	 * Head JS/CSS for admin settings page.
 	 *
 	 * @uses esc_html__
-	 * @returns null
+	 * @return null
 	 */
 	public function print_setting_head() {
 
@@ -1162,6 +1161,7 @@ EOT;
 	 *
 	 * @param array $excludes array of post_ids to exclude.
 	 * @uses send_nosniff_header, self::get_for_post_id, get_the_ID
+	 * @return never
 	 */
 	protected function action_frontend_init_ajax( array $excludes ) {
 		define( 'DOING_AJAX', true );
@@ -2051,6 +2051,10 @@ EOT;
 	 * @return array
 	 */
 	public function rest_get_related_posts( $object ) {
+		if ( ! isset( $object['id'] ) ) {
+			return array();
+		}
+
 		// If the Related Posts option is turned off, don't get the related posts.
 		$options = \Jetpack_Options::get_option( 'relatedposts', array() );
 		if ( empty( $options['enabled'] ) || ! $options['enabled'] ) {

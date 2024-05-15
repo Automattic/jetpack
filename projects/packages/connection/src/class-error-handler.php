@@ -702,11 +702,15 @@ class Error_Handler {
 			return;
 		}
 
-		?>
-		<div class="notice notice-error is-dismissible jetpack-message jp-connect" style="display:block !important;">
-			<p><?php echo esc_html( $message ); ?></p>
-		</div>
-		<?php
+		wp_admin_notice(
+			esc_html( $message ),
+			array(
+				'type'               => 'error',
+				'dismissible'        => true,
+				'additional_classes' => array( 'jetpack-message', 'jp-connect' ),
+				'attributes'         => array( 'style' => 'display:block !important;' ),
+			)
+		);
 	}
 
 	/**

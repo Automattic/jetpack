@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Import\Endpoints;
 
+use WP_Error;
+use WP_REST_Request;
+use WP_REST_Response;
+
 /**
  * Class Attachment
  */
@@ -110,7 +114,7 @@ class Attachment extends \WP_REST_Attachments_Controller {
 				return $response;
 			}
 
-			return new \WP_Error(
+			return new WP_Error(
 				'attachment_exists',
 				__( 'The attachment already exists.', 'jetpack-import' ),
 				array(
@@ -178,7 +182,7 @@ class Attachment extends \WP_REST_Attachments_Controller {
 	/**
 	 * Add a filter that rewrites the upload path.
 	 *
-	 * @param \WP_REST_Request $request Full details about the request.
+	 * @param WP_REST_Request $request Full details about the request.
 	 *
 	 * @return void
 	 * @throws \Exception If the date is invalid.
@@ -207,7 +211,7 @@ class Attachment extends \WP_REST_Attachments_Controller {
 	 * Prepares a single attachment for create or update. This function overrides the parent function
 	 *
 	 * @param WP_REST_Request $request Request object.
-	 * @return stdClass|WP_Error Post object.
+	 * @return \stdClass|WP_Error Post object.
 	 */
 	protected function prepare_item_for_database( $request ) {
 		$prepared_attachment = parent::prepare_item_for_database( $request );

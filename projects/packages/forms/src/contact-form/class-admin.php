@@ -36,7 +36,7 @@ class Admin {
 	/**
 	 * Instantiates this singleton class
 	 *
-	 * @return Grunion_Admin The Grunion Admin class instance.
+	 * @return Admin The Admin class instance.
 	 */
 	public static function init() {
 		static $instance = false;
@@ -49,7 +49,7 @@ class Admin {
 	}
 
 	/**
-	 * Grunion_Admin constructor
+	 * Admin constructor
 	 */
 	public function __construct() {
 		add_action( 'media_buttons', array( $this, 'grunion_media_button' ), 999 );
@@ -170,7 +170,7 @@ class Admin {
 	 * Ajax handler for wp_ajax_grunion_export_to_gdrive.
 	 * Exports data to Google Drive, based on POST data.
 	 *
-	 * @see Grunion_Contact_Form_Plugin::get_feedback_entries_from_post
+	 * @see Contact_Form_Plugin::get_feedback_entries_from_post
 	 */
 	public function export_to_gdrive() {
 		$post_data = wp_unslash( $_POST );
@@ -433,7 +433,7 @@ class Admin {
 	/**
 	 * Display edit form view.
 	 *
-	 * @return void
+	 * @return never
 	 */
 	public function grunion_display_form_view() {
 		if ( current_user_can( 'edit_posts' ) ) {
@@ -839,7 +839,7 @@ class Admin {
 	/**
 	 * Filter feedback posts by parent_id if present.
 	 *
-	 * @param WP_Query $query Current query.
+	 * @param \WP_Query $query Current query.
 	 *
 	 * @return void
 	 */
@@ -951,6 +951,8 @@ class Admin {
 	/**
 	 * Take an array of field types from the form builder, and construct a shortcode form.
 	 * returns both the shortcode form, and HTML markup representing a preview of the form
+	 *
+	 * @return never
 	 */
 	public function grunion_ajax_shortcode() {
 		check_ajax_referer( 'grunion_shortcode' );
@@ -998,6 +1000,8 @@ class Admin {
 	/**
 	 * Takes a post_id, extracts the contact-form shortcode from that post (if there is one), parses it,
 	 * and constructs a json object representing its contents and attributes.
+	 *
+	 * @return never
 	 */
 	public function grunion_ajax_shortcode_to_json() {
 		global $post;
@@ -1086,13 +1090,13 @@ class Admin {
 			$post->post_status = 'spam';
 			$status            = wp_insert_post( $post );
 
-			/** This action is already documented in modules/contact-form/admin.php */
+			/** This action is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 			do_action( 'contact_form_akismet', 'spam', $akismet_values );
 		} elseif ( $_POST['make_it'] === 'ham' ) {
 			$post->post_status = 'publish';
 			$status            = wp_insert_post( $post );
 
-			/** This action is already documented in modules/contact-form/admin.php */
+			/** This action is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 			do_action( 'contact_form_akismet', 'ham', $akismet_values );
 
 			$comment_author_email = false;
@@ -1432,7 +1436,7 @@ class Admin {
 						'post_status' => 'spam',
 					)
 				);
-				/** This action is already documented in modules/contact-form/admin.php */
+				/** This action is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 				do_action( 'contact_form_akismet', 'spam', $meta );
 			}
 		}
@@ -1514,10 +1518,23 @@ class Admin {
 	 * Show an admin notice if the "Empty Spam" or "Check Spam" process was unable to complete, probably due to a permissions error.
 	 */
 	public function grunion_feedback_admin_notice() {
+		$message = '';
+
 		if ( isset( $_GET['jetpack_empty_feedback_spam_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			echo '<div class="notice notice-error"><p>' . esc_html( __( 'An error occurred while trying to empty the Feedback spam folder.', 'jetpack-forms' ) ) . '</p></div>';
+			$message = esc_html__( 'An error occurred while trying to empty the Feedback spam folder.', 'jetpack-forms' );
 		} elseif ( isset( $_GET['jetpack_check_feedback_spam_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			echo '<div class="notice notice-error"><p>' . esc_html( __( 'An error occurred while trying to check for spam among the feedback you received.', 'jetpack-forms' ) ) . '</p></div>';
+			$message = esc_html__( 'An error occurred while trying to check for spam among the feedback you received.', 'jetpack-forms' );
 		}
+
+		if ( empty( $message ) ) {
+			return;
+		}
+
+		wp_admin_notice(
+			$message,
+			array(
+				'type' => 'error',
+			)
+		);
 	}
 }

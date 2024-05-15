@@ -30,6 +30,16 @@ function fixDeps( pkg ) {
 		pkg.peerDependencies.react = '^18';
 	}
 
+	// Missing dep or peer dep.
+	// https://github.com/actions/toolkit/issues/1684
+	if (
+		pkg.name === '@actions/github' &&
+		! pkg.dependencies?.undici &&
+		! pkg.peerDependencies?.undici
+	) {
+		pkg.dependencies.undici = '*';
+	}
+
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
 	// https://github.com/WordPress/gutenberg/issues/39810
 	if ( pkg.name === '@wordpress/eslint-plugin' ) {
@@ -84,6 +94,13 @@ function fixDeps( pkg ) {
 	if ( pkg.name === 'ajv-formats' && pkg.dependencies?.ajv && pkg.peerDependencies?.ajv ) {
 		delete pkg.dependencies.ajv;
 		delete pkg.peerDependenciesMeta?.ajv;
+	}
+
+	// Missing deps.
+	// https://github.com/storybookjs/test-runner/issues/414
+	if ( pkg.name === '@storybook/test-runner' ) {
+		pkg.dependencies.semver ??= '*';
+		pkg.dependencies[ 'detect-package-manager' ] ??= '*';
 	}
 
 	// Types packages have outdated deps. Reset all their `@wordpress/*` deps to star-version,

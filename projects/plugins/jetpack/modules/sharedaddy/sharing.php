@@ -122,21 +122,21 @@ class Sharing_Admin {
 	}
 
 	/**
-	 * Register Sharing settings menu page in offline mode.
+	 * Register Sharing settings menu page in offline mode or when wp-admin interface is enabled.
 	 */
 	public function subscription_menu() {
-		if ( ! ( new Status() )->is_offline_mode() ) {
-			return;
-		}
+		$wpcom_is_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
 
-		add_submenu_page(
-			'options-general.php',
-			__( 'Sharing Settings', 'jetpack' ),
-			__( 'Sharing', 'jetpack' ),
-			'manage_options',
-			'sharing',
-			array( $this, 'wrapper_admin_page' )
-		);
+		if ( ( new Status() )->is_offline_mode() || $wpcom_is_wp_admin_interface ) {
+			add_submenu_page(
+				'options-general.php',
+				__( 'Sharing Settings', 'jetpack' ),
+				__( 'Sharing', 'jetpack' ),
+				'manage_options',
+				'sharing',
+				array( $this, 'wrapper_admin_page' )
+			);
+		}
 	}
 
 	/**
@@ -164,7 +164,7 @@ class Sharing_Admin {
 	/**
 	 * Create a new custom sharing service via AJAX.
 	 *
-	 * @return void
+	 * @return never
 	 */
 	public function ajax_new_service() {
 		if (
@@ -723,8 +723,18 @@ class Sharing_Admin {
 			new Share_Email( 'email', array() ),
 			new Share_Reddit( 'reddit', array() ),
 		);
+
+		global $submenu;
+		// Hide the link to Jetpack Sharing settings if no Jetpack Settings found in submenu list
+		$show_jetpack_admin_settings_link = array_reduce(
+			$submenu['jetpack'],
+			function ( $carry, $item ) {
+				return $carry || ( isset( $item[2] ) && $item[2] === 'jetpack#/settings' );
+			},
+			false
+		);
 		?>
-		
+
 		<div class="share_manage_options">
 			<br class="clearing" />
 			<h2><?php esc_html_e( 'Sharing Buttons', 'jetpack' ); ?></h2>
@@ -752,6 +762,7 @@ class Sharing_Admin {
 						</div>
 					</div>
 				</div>
+				<?php if ( $show_jetpack_admin_settings_link ) : ?>
 				<p class="settings-sharing__block-theme-description">
 					<?php
 					printf(
@@ -766,6 +777,7 @@ class Sharing_Admin {
 					);
 					?>
 				</p>
+				<?php endif; ?>
 			</div>
 			<br class="clearing" />
 		</div>
@@ -785,6 +797,10 @@ class Sharing_Admin {
  * @return bool
  */
 function jetpack_post_sharing_get_value( array $post ) {
+	if ( ! isset( $post['id'] ) ) {
+		return false;
+	}
+
 	// if sharing IS disabled on this post, enabled=false, so negate the meta
 	return (bool) ! get_post_meta( $post['id'], 'sharing_disabled', true );
 }

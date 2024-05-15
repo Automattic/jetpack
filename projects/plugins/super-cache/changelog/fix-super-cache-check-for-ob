@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-WP Super Cache: don't create an output buffer if there's already one active

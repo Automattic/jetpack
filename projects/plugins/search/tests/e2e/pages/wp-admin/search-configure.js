@@ -52,7 +52,7 @@ export default class SearchConfigure extends WpPage {
 	}
 
 	async isHighlightPink() {
-		const pinkColorSelector = 'button.is-pressed[aria-label="Color: Pale pink"]';
+		const pinkColorSelector = 'button[aria-selected="true"][aria-label="Color: Pale pink"]';
 		return await this.isElementVisible( pinkColorSelector, 200 );
 	}
 

@@ -5,7 +5,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress;
 
-/*
+/**
  * Cache settings class.
  * Settings are stored in a file in the boost-cache directory.
  */
@@ -17,6 +17,8 @@ class Boost_Cache_Settings {
 
 	/**
 	 * An uninitialized config holds these settings.
+	 *
+	 * @var array
 	 */
 	private $default_settings = array(
 		'enabled'         => false,
@@ -45,20 +47,23 @@ class Boost_Cache_Settings {
 
 	/**
 	 * Ensure a settings file exists, if one isn't there already.
-	 * @return mixed - True on success, or a Boost_Cache_Error on failure.
+	 *
+	 * @return Boost_Cache_Error|bool - True if it was changed, or a Boost_Cache_Error on failure, false if it was already created.
 	 */
 	public function create_settings_file() {
+		if ( file_exists( $this->config_file ) ) {
+			return false;
+		}
+
 		if ( ! file_exists( $this->config_file_path ) ) {
 			if ( ! Filesystem_Utils::create_directory( $this->config_file_path ) ) {
 				return new Boost_Cache_Error( 'failed-settings-write', 'Failed to create settings directory at ' . $this->config_file_path );
 			}
 		}
 
-		if ( ! file_exists( $this->config_file ) ) {
-			$write_result = $this->set( $this->default_settings );
-			if ( $write_result instanceof Boost_Cache_Error ) {
-				return $write_result;
-			}
+		$write_result = $this->set( $this->default_settings );
+		if ( $write_result instanceof Boost_Cache_Error ) {
+			return $write_result;
 		}
 
 		return true;
@@ -76,7 +81,7 @@ class Boost_Cache_Settings {
 		}
 	}
 
-	/*
+	/**
 	 * Load the settings from the config file, if available. Falls back to defaults if not.
 	 */
 	private function init_settings() {
@@ -109,7 +114,7 @@ class Boost_Cache_Settings {
 		$this->settings = $file_settings;
 	}
 
-	/*
+	/**
 	 * Returns the value of the given setting.
 	 *
 	 * @param string $setting - The setting to get.
@@ -123,7 +128,7 @@ class Boost_Cache_Settings {
 		return $this->settings[ $setting ];
 	}
 
-	/*
+	/**
 	 * Returns true if the cache is enabled.
 	 *
 	 * @return bool
@@ -132,7 +137,7 @@ class Boost_Cache_Settings {
 		return $this->get( 'enabled', false );
 	}
 
-	/*
+	/**
 	 * Returns an array of URLs that should not be cached.
 	 *
 	 * @return array
@@ -150,14 +155,15 @@ class Boost_Cache_Settings {
 		return $this->get( 'logging', false );
 	}
 
-	/*
+	/**
 	 * Sets the given settings, and saves them to the config file.
+	 *
 	 * @param array $settings - The settings to set in a key => value associative
 	 * array. This will be merged with the existing settings.
 	 * Example:
 	 * $result = $this->set( array( 'enabled' => true ) );
 	 *
-	 * @return mixed - true if the settings were saved, Boost_Cache_Error otherwise.
+	 * @return Boost_Cache_Error|true - true if the settings were saved, Boost_Cache_Error otherwise.
 	 */
 	public function set( $settings ) {
 		// If the settings file does not exist, attempt to create one.

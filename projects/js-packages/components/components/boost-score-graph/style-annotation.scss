@@ -46,25 +46,30 @@ $white: #ffffff;
 			height: 0;
 			border-left: 8px solid transparent;
 			border-right: 8px solid transparent;
-			border-bottom: 8px solid $black;
+			border-top: 8px solid $black;
 			position: absolute;
-			top: -7px;
+			bottom: -7px;
 			left: 50%;
 			transform: translateX(-50%);
 		}
 
 		display: none;
-		top: 100%;
+		bottom: 100%;
 		background-color: $black;
 		color: $white;
 		width: fit-content;
+		width: 20em;
 		padding: 16px 24px;
 		border-radius: 4px;
 		font-size: 14px;
-		position: relative;
+		position: absolute;
 		box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
 		text-align: center;
 		transform: translateX(-50%);
 		z-index: 2;
+
+		a {
+			color: $white !important;
+		}
 	}
 }

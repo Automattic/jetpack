@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix: add check for wp_unschedule_event return value

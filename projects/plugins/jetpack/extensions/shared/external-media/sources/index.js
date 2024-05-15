@@ -1,3 +1,4 @@
+import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
 import { __ } from '@wordpress/i18n';
 import { GooglePhotosIcon, OpenverseIcon, PexelsIcon, JetpackMobileAppIcon } from '../../icons';
 import {
@@ -6,13 +7,33 @@ import {
 	SOURCE_OPENVERSE,
 	SOURCE_PEXELS,
 	SOURCE_JETPACK_APP_MEDIA,
+	SOURCE_JETPACK_AI_FEATURED_IMAGE,
 } from '../constants';
 import GooglePhotosMedia from './google-photos';
+import JetpackAIFeaturedImage from './jetpack-ai-featured-image';
 import JetpackAppMedia from './jetpack-app-media';
 import OpenverseMedia from './openverse';
 import PexelsMedia from './pexels';
 
-export const mediaSources = [
+export const internalMediaSources = [
+	{
+		id: SOURCE_JETPACK_APP_MEDIA,
+		label: __( 'Your Phone', 'jetpack' ),
+		icon: <JetpackMobileAppIcon className="components-menu-items__item-icon" />,
+		keyword: 'jetpack mobile app',
+	},
+];
+
+export const featuredImageExclusiveMediaSources = [
+	{
+		id: SOURCE_JETPACK_AI_FEATURED_IMAGE,
+		label: __( 'Generate with AI', 'jetpack' ),
+		icon: aiAssistantIcon,
+		keyword: 'jetpack ai',
+	},
+];
+
+export const externalMediaSources = [
 	{
 		id: SOURCE_GOOGLE_PHOTOS,
 		label: __( 'Google Photos', 'jetpack' ),
@@ -31,13 +52,9 @@ export const mediaSources = [
 		icon: <OpenverseIcon className="components-menu-items__item-icon" />,
 		keyword: 'openverse',
 	},
-	{
-		id: SOURCE_JETPACK_APP_MEDIA,
-		label: __( 'Jetpack Mobile App', 'jetpack' ),
-		icon: <JetpackMobileAppIcon className="components-menu-items__item-icon" />,
-		keyword: 'jetpack mobile app',
-	},
 ];
+
+export const mediaSources = externalMediaSources.concat( internalMediaSources );
 
 export function canDisplayPlaceholder( props ) {
 	const { disableMediaButtons, dropZoneUIOnly } = props;
@@ -73,6 +90,8 @@ export function getExternalLibrary( type ) {
 		return OpenverseMedia;
 	} else if ( type === SOURCE_JETPACK_APP_MEDIA ) {
 		return JetpackAppMedia;
+	} else if ( type === SOURCE_JETPACK_AI_FEATURED_IMAGE ) {
+		return JetpackAIFeaturedImage;
 	}
 	return null;
 }

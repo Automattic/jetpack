@@ -55,7 +55,7 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 	 * @param bool       $cache_add                 What we want Wpcom_Block_Patterns_Utils->cache_add() to return.
 	 * @param string     $get_patterns_cache_key    What we want Wpcom_Block_Patterns_Utils->get_patterns_cache_key() to return.
 	 * @param string     $get_block_patterns_locale What we want Wpcom_Block_Patterns_Utils->get_block_patterns_locale() to return.
-	 * @return obj PHP Unit mock object.
+	 * @return Wpcom_Block_Patterns_Utils&\PHPUnit\Framework\MockObject\MockObject PHP Unit mock object.
 	 */
 	public function createBlockPatternsUtilsMock( $pattern_mock_response, $cache_get = false, $cache_add = true, $get_patterns_cache_key = 'key-largo', $get_block_patterns_locale = 'fr' ) {
 		$mock = $this->createMock( Wpcom_Block_Patterns_Utils::class );
@@ -87,7 +87,7 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 
 		$utils_mock->expects( $this->once() )
 			->method( 'cache_add' )
-			->with( $this->stringContains( 'key-largo' ), array( $this->pattern_mock_object ), 'ptk_patterns', DAY_IN_SECONDS );
+			->with( $this->stringContains( 'key-largo' ), array( $this->pattern_mock_object ), 'ptk_patterns', 5 * MINUTE_IN_SECONDS );
 
 		$this->assertEquals( array( 'a8c/' . $this->pattern_mock_object['name'] => true ), $block_patterns_from_api->register_patterns() );
 	}
@@ -102,7 +102,7 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 		$utils_mock->expects( $this->once() )
 			->method( 'remote_get' )
 			->withConsecutive(
-				array( 'https://public-api.wordpress.com/rest/v1/ptk/patterns/fr?tags=pattern&pattern_meta=is_web&patterns_source=block_patterns' )
+				array( 'https://public-api.wordpress.com/rest/v1/ptk/patterns/fr?post_type=wp_block' )
 			);
 
 		$this->assertEquals( array( 'a8c/' . $this->pattern_mock_object['name'] => true ), $block_patterns_from_api->register_patterns() );
@@ -138,14 +138,11 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 		$block_patterns_from_api = new Wpcom_Block_Patterns_From_Api( $utils_mock );
 
 		$utils_mock->expects( $this->never() )
-			->method( 'cache_get' );
-
-		$utils_mock->expects( $this->never() )
 			->method( 'cache_add' );
 
 		$utils_mock->expects( $this->once() )
 			->method( 'remote_get' )
-			->with( 'https://public-api.wordpress.com/rest/v1/ptk/patterns/fr?site=dotcom&tags=pattern&pattern_meta=is_web' );
+			->with( 'https://public-api.wordpress.com/rest/v1/ptk/patterns/fr?site=dotcom&post_type=wp_block' );
 
 		$this->assertEquals( array( 'a8c/' . $this->pattern_mock_object['name'] => true ), $block_patterns_from_api->register_patterns() );
 

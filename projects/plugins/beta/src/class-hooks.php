@@ -179,7 +179,7 @@ class Hooks {
 	 *
 	 * @param string[] $actions Array of plugin action links.
 	 * @param string   $plugin_file Plugin file.
-	 * @return $actions
+	 * @return string[]
 	 */
 	public function remove_activate_link( $actions, $plugin_file ) {
 		if ( isset( $actions['activate'] ) ) {
@@ -489,8 +489,8 @@ class Hooks {
 		// This avoids the plugin to be deactivated.
 		// Using bulk upgrade puts the site into maintenance mode during the upgrades.
 		$result = $upgrader->bulk_upgrade( $plugins );
-		$errors = $upgrader->skin->get_errors();
-		$log    = $upgrader->skin->get_upgrade_messages();
+		$errors = $skin->get_errors();
+		$log    = $skin->get_upgrade_messages();
 
 		if ( is_wp_error( $errors ) && $errors->get_error_code() ) {
 			return $errors;

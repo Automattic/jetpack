@@ -24,12 +24,6 @@ class Jetpack_AMP_Support {
 			add_action( 'amp_post_template_footer', array( 'Jetpack_AMP_Support', 'add_stats_pixel' ) );
 		}
 
-		/**
-		 * Remove this during the init hook in case users have enabled it during
-		 * the after_setup_theme hook, which triggers before init.
-		 */
-		remove_theme_support( 'jetpack-devicepx' );
-
 		// Sharing.
 		add_filter( 'jetpack_sharing_display_markup', array( 'Jetpack_AMP_Support', 'render_sharing_html' ), 10, 2 );
 		add_filter( 'sharing_enqueue_scripts', array( 'Jetpack_AMP_Support', 'amp_disable_sharedaddy_css' ) );
@@ -55,9 +49,6 @@ class Jetpack_AMP_Support {
 
 		// Transitional mode AMP should not have comment likes.
 		add_filter( 'the_content', array( 'Jetpack_AMP_Support', 'disable_comment_likes_before_the_content' ) );
-
-		// Remove the Likes button from the admin bar.
-		add_filter( 'jetpack_admin_bar_likes_enabled', array( 'Jetpack_AMP_Support', 'disable_likes_admin_bar' ) );
 
 		// Add post template metadata for legacy AMP.
 		add_filter( 'amp_post_template_metadata', array( 'Jetpack_AMP_Support', 'amp_post_template_metadata' ), 10, 2 );
@@ -158,18 +149,6 @@ class Jetpack_AMP_Support {
 			remove_filter( 'comment_text', 'comment_like_button', 12, 2 );
 		}
 		return $content;
-	}
-
-	/**
-	 * Do not display the Likes' Admin bar on AMP requests.
-	 *
-	 * @param bool $is_admin_bar_button_visible Should the Like button be visible in the Admin bar. Default to true.
-	 */
-	public static function disable_likes_admin_bar( $is_admin_bar_button_visible ) {
-		if ( self::is_amp_request() ) {
-			return false;
-		}
-		return $is_admin_bar_button_visible;
 	}
 
 	/**

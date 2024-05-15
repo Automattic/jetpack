@@ -4,6 +4,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
+import { gmdateI18n } from '@wordpress/date';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
@@ -24,39 +25,21 @@ import {
 } from '../../../../shared/use-plan-type';
 import UsageControl from '../usage-bar';
 import './style.scss';
-import type { UsagePanelProps } from './types';
+import type { UsagePanelProps, InternalUsagePanelProps } from './types';
 
 /**
  * Simple hook to get the days until the next reset
  *
  * @param {string} nextStartDate - the next start date from the AI Feature data
- * @returns {number} an integer with the days until the next reset
+ * @returns {string} an string with the the next reset date
  */
-const useDaysUntilReset = ( nextStartDate: string ): number => {
+const useNextResetDate = ( nextStartDate: string ): string => {
 	// Bail early if we don't have a next start date
 	if ( ! nextStartDate ) {
 		return null;
 	}
 
-	// Build an object from the next start date
-	const parsedNextStartDate = new Date( nextStartDate );
-
-	/*
-	 * Get the miliseconds difference between now and the next start date
-	 * nextStartDate is in UTC, so we need to use UTC methods.
-	 */
-	const differenceInMiliseconds =
-		Date.UTC(
-			parsedNextStartDate.getFullYear(),
-			parsedNextStartDate.getMonth(),
-			parsedNextStartDate.getDate()
-		) - Date.now();
-
-	/*
-	 * Convert the difference in miliseconds to days. Use ceil to round up,
-	 * counting partial days as a full day.
-	 */
-	return Math.ceil( differenceInMiliseconds / ( 1000 * 60 * 60 * 24 ) );
+	return gmdateI18n( 'F j', nextStartDate );
 };
 
 /**
@@ -104,62 +87,25 @@ const useContactUsLink = (): {
 	};
 };
 
-export default function UsagePanel( { placement = null }: UsagePanelProps ) {
-	const { checkoutUrl, autosaveAndRedirect, isRedirecting } = useAICheckout();
-	const { contactUsURL, autosaveAndRedirectContactUs } = useContactUsLink();
-	const { tracks } = useAnalytics();
-	const canUpgrade = canUserPurchasePlan();
-
-	// fetch usage data
-	const {
-		requestsCount: allTimeRequestsCount,
-		requestsLimit: freeRequestsLimit,
-		isOverLimit,
-		usagePeriod,
-		currentTier,
-		nextTier,
-		requireUpgrade,
-		loading,
-	} = useAiFeature();
-	const planType = usePlanType( currentTier );
-	const daysUntilReset = useDaysUntilReset( usagePeriod?.nextStart );
-
-	const requestsCount =
-		planType === PLAN_TYPE_TIERED ? usagePeriod?.requestsCount : allTimeRequestsCount;
-	const requestsLimit = planType === PLAN_TYPE_FREE ? freeRequestsLimit : currentTier?.limit;
-
-	const trackUpgradeClick = useCallback(
-		( event: React.MouseEvent< HTMLElement > ) => {
-			event.preventDefault();
-			tracks.recordEvent( 'jetpack_ai_upgrade_button', {
-				current_tier_slug: currentTier?.slug,
-				requests_count: requestsCount,
-				...( placement ? { placement } : {} ),
-			} );
-			autosaveAndRedirect( event );
-		},
-		[ tracks, currentTier, requestsCount, placement, autosaveAndRedirect ]
-	);
-
-	const trackContactUsClick = useCallback(
-		( event: React.MouseEvent< HTMLElement > ) => {
-			event.preventDefault();
-			tracks.recordEvent( 'jetpack_ai_upgrade_button', {
-				current_tier_slug: currentTier?.slug,
-				requests_count: requestsCount,
-				...( placement ? { placement } : {} ),
-			} );
-			autosaveAndRedirectContactUs();
-		},
-		[ tracks, currentTier, requestsCount, placement, autosaveAndRedirectContactUs ]
-	);
-
+export function UsagePanel( {
+	isOverLimit,
+	requestsCount,
+	requestsLimit,
+	nextStart,
+	planType,
+	loading,
+	canUpgrade,
+	showContactUsCallToAction,
+	isRedirecting,
+	nextLimit,
+	contactUsURL,
+	handleContactUsClick,
+	checkoutUrl,
+	handleUpgradeClick,
+}: InternalUsagePanelProps ) {
 	// Determine the upgrade button text
-	const upgradeButtonText = useUpgradeButtonText( planType, nextTier?.limit );
-
-	// Handle upgrade for simple and atomic sites on the last plan
-	const showContactUsCallToAction =
-		( isSimpleSite() || isAtomicSite() ) && planType === PLAN_TYPE_TIERED && ! nextTier;
+	const upgradeButtonText = useUpgradeButtonText( planType, nextLimit );
+	const nextResetDate = useNextResetDate( nextStart );
 
 	return (
 		<div className="jetpack-ai-usage-panel">
@@ -168,9 +114,8 @@ export default function UsagePanel( { placement = null }: UsagePanelProps ) {
 					isOverLimit={ isOverLimit }
 					requestsCount={ requestsCount }
 					requestsLimit={ requestsLimit }
-					daysUntilReset={ daysUntilReset }
+					nextResetDate={ nextResetDate }
 					planType={ planType }
-					requireUpgrade={ requireUpgrade }
 					loading={ loading }
 				/>
 
@@ -185,7 +130,7 @@ export default function UsagePanel( { placement = null }: UsagePanelProps ) {
 										variant="primary"
 										label={ __( 'Contact us for more requests', 'jetpack' ) }
 										href={ contactUsURL }
-										onClick={ trackContactUsClick }
+										onClick={ handleContactUsClick }
 									>
 										{ __( 'Contact Us', 'jetpack' ) }
 									</Button>
@@ -196,7 +141,7 @@ export default function UsagePanel( { placement = null }: UsagePanelProps ) {
 									variant="primary"
 									label={ __( 'Upgrade your Jetpack AI plan', 'jetpack' ) }
 									href={ checkoutUrl }
-									onClick={ trackUpgradeClick }
+									onClick={ handleUpgradeClick }
 									disabled={ isRedirecting }
 								>
 									{ upgradeButtonText }
@@ -206,5 +151,66 @@ export default function UsagePanel( { placement = null }: UsagePanelProps ) {
 					) }
 			</>
 		</div>
+	);
+}
+
+export default function ConnectedUsagePanel( { placement = null }: UsagePanelProps ) {
+	const { checkoutUrl, autosaveAndRedirect, isRedirecting } = useAICheckout();
+	const { contactUsURL, autosaveAndRedirectContactUs } = useContactUsLink();
+	const { tracks } = useAnalytics();
+	const canUpgrade = canUserPurchasePlan();
+
+	// fetch usage data
+	const { requestsCount, requestsLimit, isOverLimit, usagePeriod, currentTier, nextTier, loading } =
+		useAiFeature();
+	const planType = usePlanType( currentTier );
+
+	const handleUpgradeClick = useCallback(
+		( event: React.MouseEvent< HTMLButtonElement > ) => {
+			event.preventDefault();
+			tracks.recordEvent( 'jetpack_ai_upgrade_button', {
+				current_tier_slug: currentTier?.slug,
+				requests_count: requestsCount,
+				...( placement ? { placement } : {} ),
+			} );
+			autosaveAndRedirect( event );
+		},
+		[ tracks, currentTier, requestsCount, placement, autosaveAndRedirect ]
+	);
+
+	const handleContactUsClick = useCallback(
+		( event: React.MouseEvent< HTMLButtonElement > ) => {
+			event.preventDefault();
+			tracks.recordEvent( 'jetpack_ai_upgrade_button', {
+				current_tier_slug: currentTier?.slug,
+				requests_count: requestsCount,
+				...( placement ? { placement } : {} ),
+			} );
+			autosaveAndRedirectContactUs();
+		},
+		[ tracks, currentTier, requestsCount, placement, autosaveAndRedirectContactUs ]
+	);
+
+	// Handle upgrade for simple and atomic sites on the last plan
+	const showContactUsCallToAction =
+		( isSimpleSite() || isAtomicSite() ) && planType === PLAN_TYPE_TIERED && ! nextTier;
+
+	return (
+		<UsagePanel
+			isOverLimit={ isOverLimit }
+			requestsCount={ requestsCount }
+			requestsLimit={ requestsLimit }
+			nextStart={ usagePeriod?.nextStart }
+			nextLimit={ nextTier?.limit }
+			planType={ planType }
+			loading={ loading }
+			canUpgrade={ canUpgrade }
+			showContactUsCallToAction={ showContactUsCallToAction }
+			isRedirecting={ isRedirecting }
+			contactUsURL={ contactUsURL }
+			handleContactUsClick={ handleContactUsClick }
+			checkoutUrl={ checkoutUrl }
+			handleUpgradeClick={ handleUpgradeClick }
+		/>
 	);
 }

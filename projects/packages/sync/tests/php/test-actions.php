@@ -169,6 +169,100 @@ class Test_Actions extends BaseTestCase {
 	}
 
 	/**
+	 * Data provider for test_send_data_with_wpcom_rest_api_enabled.
+	 *
+	 * @return array The test data.
+	 */
+	public function send_data_with_wpcom_rest_api_enabled_data_provider() {
+		return array(
+			'successful_response'               => array(
+				'data'     => array(
+					'dummy' => 'encoded_dummy',
+				),
+				'callback' => function () {
+					return array(
+						'response'    => array(
+							'code' => 200,
+						),
+						'status_code' => 200,
+						'body'        => wp_json_encode(
+							array(
+								'processed_items' => array( 'dummy' ),
+							)
+						),
+					);
+				},
+				'expected' => array( 'dummy' ),
+			),
+			'success_response_unable_to_decode' => array(
+				'data'     => array(
+					'dummy' => 'encoded_dummy',
+				),
+				'callback' => function () {
+					return array(
+						'response'    => array(
+							'code' => 200,
+						),
+						'status_code' => 200,
+						'body'        => 'not a json',
+					);
+				},
+				'expected' => new \WP_Error( 'sync_rest_api_response_decoding_failed', 'Sync REST API response decoding failed', 'not a json' ),
+			),
+			'wp_error_response'                 => array(
+				'data'     => array(
+					'dummy' => 'encoded_dummy',
+				),
+				'callback' => function () {
+					return new \WP_Error( 'http_request_failed', 'A connection issue occurred', array( 'status' => 500 ) );
+				},
+				'expected' => new \WP_Error( 'http_request_failed', 'A connection issue occurred', array( 'status' => 500 ) ),
+			),
+			'api_error_response'                => array(
+				'data'     => array(
+					'dummy' => 'encoded_dummy',
+				),
+				'callback' => function () {
+					return array(
+						'response'    => array(
+							'code' => 400,
+						),
+						'status_code' => 400,
+						'body'        => wp_json_encode(
+							array(
+								'code'    => 'rest_invalid_param',
+								'message' => 'Invalid parameter(s): sync',
+								'data'    => array( 'status' => 400 ),
+							)
+						),
+					);
+				},
+				'expected' => new \WP_Error( 'jetpack_sync_send_error_rest_invalid_param', 'Invalid parameter(s): sync', array( 'status' => 400 ) ),
+			),
+		);
+	}
+
+	/**
+	 * Tests send_data with wpcom_rest_api_enabled setting enabled.
+	 *
+	 * @dataProvider send_data_with_wpcom_rest_api_enabled_data_provider
+	 * @param array    $data The data to send.
+	 * @param callable $callback The callback to use for the pre_http_request filter.
+	 * @param mixed    $expected The expected result.
+	 */
+	public function test_send_data_with_wpcom_rest_api_enabled( $data, $callback, $expected ) {
+
+		Settings::update_settings( array( 'wpcom_rest_api_enabled' => 1 ) );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		add_filter( 'pre_http_request', $callback, 10, 0 );
+		$items = Actions::send_data( $data, 'dummy', microtime(), 'sync', 1, 1 );
+		remove_filter( 'pre_http_request', $callback );
+
+		$this->assertEquals( $expected, $items );
+	}
+
+	/**
 	 * Intercept jetpack.syncActions XML-RPC request and return 'Jetpack-Dedicated-Sync' header with value 'on'.
 	 *
 	 * @param false  $preempt A preemptive return value of an HTTP request.

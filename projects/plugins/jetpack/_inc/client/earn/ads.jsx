@@ -123,6 +123,10 @@ export const Ads = withModuleSettingsFormHelpers(
 				'wordads_second_belowpost',
 				'wordads'
 			);
+			const wordads_inline_enabled = this.props.getOptionValue(
+				'wordads_inline_enabled',
+				'wordads'
+			);
 			const wordads_display_front_page = this.props.getOptionValue(
 				'wordads_display_front_page',
 				'wordads'
@@ -269,6 +273,17 @@ export const Ads = withModuleSettingsFormHelpers(
 								toggling={ this.props.isSavingAnyOption( [ 'wordads_second_belowpost' ] ) }
 								onChange={ this.handleChange( 'wordads_second_belowpost' ) }
 								label={ __( 'Second ad below post', 'jetpack' ) }
+							/>
+							<ToggleControl
+								checked={ wordads_inline_enabled }
+								disabled={
+									! isAdsActive ||
+									unavailableInOfflineMode ||
+									this.props.isSavingAnyOption( [ 'wordads' ] )
+								}
+								toggling={ this.props.isSavingAnyOption( [ 'wordads_inline_enabled' ] ) }
+								onChange={ this.handleChange( 'wordads_inline_enabled' ) }
+								label={ __( 'Inline within post content', 'jetpack' ) }
 							/>
 						</FormFieldset>
 					</SettingsGroup>

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use WP_Error;
 
 /**
  * Class responsible for handling the Boost product
@@ -49,6 +50,13 @@ class Boost extends Product {
 	 * @var string
 	 */
 	public static $requires_user_connection = false;
+
+	/**
+	 * Whether this product has a free offering
+	 *
+	 * @var bool
+	 */
+	public static $has_free_offering = true;
 
 	/**
 	 * Get the product name
@@ -303,7 +311,7 @@ class Boost extends Product {
 	 * Activates the product by installing and activating its plugin
 	 *
 	 * @param bool|WP_Error $current_result Is the result of the top level activation actions. You probably won't do anything if it is an WP_Error.
-	 * @return boolean|\WP_Error
+	 * @return boolean|WP_Error
 	 */
 	public static function do_product_specific_activation( $current_result ) {
 
