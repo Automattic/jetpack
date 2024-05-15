@@ -105,7 +105,7 @@ class Jetpack_Subscribe_Overlay {
 		return <<<HTML
 	<!-- wp:group {"layout":{"type":"constrained","contentSize":"400px"}} -->
 	<div class="wp-block-group">
-		<!-- wp:site-logo {"width":90,"shouldSyncIcon":true,"align":"center","className":"is-style-rounded"} /-->
+		<!-- wp:site-logo {"width":90,"isLink":false,"shouldSyncIcon":true,"align":"center","className":"is-style-rounded"} /-->
 	
 		<!-- wp:site-title {"textAlign":"center","isLink":false} /-->
 
