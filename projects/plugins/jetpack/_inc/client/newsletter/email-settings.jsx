@@ -16,6 +16,7 @@ import analytics from 'lib/analytics';
 import { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
 import { isUnavailableInOfflineMode, isUnavailableInSiteConnectionMode } from 'state/connection';
+import { getSiteTitle } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 
@@ -30,8 +31,6 @@ const FROM_NAME_OPTION = 'jetpack_subscriptions_from_name';
 const urlParams = new URLSearchParams( window.location.search );
 const isNewsletterFromNameEnabled = urlParams.get( 'enable-newsletter-from-name' ) === 'true';
 
-const { blogname } = window?.JP_CONNECTION_INITIAL_STATE ? window.JP_CONNECTION_INITIAL_STATE : {};
-
 const EmailSettings = props => {
 	const {
 		isSavingAnyOption,
@@ -43,6 +42,7 @@ const EmailSettings = props => {
 		subscriptionFromName,
 		updateFormStateAndSaveOptionValue,
 		unavailableInSiteConnectionMode,
+		siteName,
 	} = props;
 
 	const handleEnableFeaturedImageInEmailToggleChange = useCallback( () => {
@@ -103,7 +103,8 @@ const EmailSettings = props => {
 		} );
 		setFromNameState( { value: fromNameState.value, hasChanged: false } );
 	}, [ fromNameState, updateFormStateAndSaveOptionValue ] );
-
+	const exampleEmail =
+		subscriptionReplyTo !== 'author' ? 'noreply@wordpress.com' : 'author-name@example.com';
 	return (
 		<SettingsCard
 			{ ...props }
@@ -197,7 +198,7 @@ const EmailSettings = props => {
 								value={ fromNameState.value }
 								disabled={ fromNameInputDisabled }
 								onChange={ handleSubscriptionFromNameChange }
-								placeholder={ blogname || __( 'Enter sender name', 'jetpack' ) }
+								placeholder={ siteName || __( 'Enter sender name', 'jetpack' ) }
 							/>
 						</Col>
 						<Col sm={ 1 } md={ 1 } lg={ 1 }>
@@ -209,6 +210,10 @@ const EmailSettings = props => {
 							>
 								{ __( 'Save', 'jetpack' ) }
 							</Button>
+						</Col>
+						<Col className="sender-name-example">
+							{ __( 'Example: ', 'jetpack' ) } { fromNameState.value || siteName }{ ' ' }
+							{ '<' + exampleEmail + '>' }{ ' ' }
 						</Col>
 					</Container>
 				</SettingsGroup>
@@ -276,6 +281,7 @@ export default withModuleSettingsFormHelpers(
 			subscriptionEmailsUseExcerpt: ownProps.getOptionValue(
 				SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION
 			),
+			siteName: getSiteTitle( state ),
 			subscriptionReplyTo: ownProps.getOptionValue( REPLY_TO_OPTION ),
 			subscriptionFromName: ownProps.getOptionValue( FROM_NAME_OPTION ),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),

@@ -58,3 +58,8 @@
 .jp-form-settings-group.newsletter-group .sender-name {
 	--vertical-gutter: 8px;
 }
+.sender-name-example {
+	font-size: var( --font-body-small );
+	color: var( --jp-gray-20 );
+	margin-top: 8px;
+}
