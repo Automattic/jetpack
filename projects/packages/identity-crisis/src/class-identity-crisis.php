@@ -26,7 +26,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.18.6';
+	const PACKAGE_VERSION = '0.19.0-alpha';
 
 	/**
 	 * Package Slug
@@ -635,11 +635,11 @@ class Identity_Crisis {
 		<div class="jp-idc-notice__first-step">
 			<div class="jp-idc-notice__content-header">
 				<h3 class="jp-idc-notice__content-header__lead">
-					<?php echo $this->get_first_step_header_lead(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php echo esc_html( $this->get_first_step_header_lead() ); ?>
 				</h3>
 
 				<p class="jp-idc-notice__content-header__explanation">
-					<?php echo $this->get_first_step_header_explanation(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php echo esc_html( $this->get_first_step_header_explanation() ); ?>
 				</p>
 			</div>
 
@@ -648,19 +648,19 @@ class Identity_Crisis {
 			<div class="jp-idc-notice__actions">
 				<div class="jp-idc-notice__action">
 					<p class="jp-idc-notice__action__explanation">
-						<?php echo $this->get_confirm_safe_mode_action_explanation(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php echo esc_html( $this->get_confirm_safe_mode_action_explanation() ); ?>
 					</p>
 					<button id="jp-idc-confirm-safe-mode-action" class="dops-button">
-						<?php echo $this->get_confirm_safe_mode_button_text(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php echo esc_html( $this->get_confirm_safe_mode_button_text() ); ?>
 					</button>
 				</div>
 
 				<div class="jp-idc-notice__action">
 					<p class="jp-idc-notice__action__explanation">
-						<?php echo $this->get_first_step_fix_connection_action_explanation(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php echo esc_html( $this->get_first_step_fix_connection_action_explanation() ); ?>
 					</p>
 					<button id="jp-idc-fix-connection-action" class="dops-button">
-						<?php echo $this->get_first_step_fix_connection_button_text(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php echo esc_html( $this->get_first_step_fix_connection_button_text() ); ?>
 					</button>
 				</div>
 			</div>
@@ -681,7 +681,7 @@ class Identity_Crisis {
 		<div class="jp-idc-notice__second-step">
 			<div class="jp-idc-notice__content-header">
 				<h3 class="jp-idc-notice__content-header__lead">
-					<?php echo $this->get_second_step_header_lead(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php echo esc_html( $this->get_second_step_header_lead() ); ?>
 				</h3>
 			</div>
 
@@ -690,26 +690,26 @@ class Identity_Crisis {
 			<div class="jp-idc-notice__actions">
 				<div class="jp-idc-notice__action">
 					<p class="jp-idc-notice__action__explanation">
-						<?php echo $this->get_migrate_site_action_explanation(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php echo esc_html( $this->get_migrate_site_action_explanation() ); ?>
 					</p>
 					<button id="jp-idc-migrate-action" class="dops-button">
-						<?php echo $this->get_migrate_site_button_text(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php echo esc_html( $this->get_migrate_site_button_text() ); ?>
 					</button>
 				</div>
 
 				<div class="jp-idc-notice__action">
 					<p class="jp-idc-notice__action__explanation">
-						<?php echo $this->get_start_fresh_action_explanation(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php echo esc_html( $this->get_start_fresh_action_explanation() ); ?>
 					</p>
 					<button id="jp-idc-reconnect-site-action" class="dops-button">
-						<?php echo $this->get_start_fresh_button_text(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php echo esc_html( $this->get_start_fresh_button_text() ); ?>
 					</button>
 				</div>
 
 			</div>
 
 			<p class="jp-idc-notice__unsure-prompt">
-				<?php echo $this->get_unsure_prompt(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<?php echo esc_html( $this->get_unsure_prompt() ); ?>
 			</p>
 		</div>
 		<?php

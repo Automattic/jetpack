@@ -55,7 +55,10 @@ class Taxonomy_Provider extends Provider {
 			}
 
 			foreach ( $terms as $term ) {
-				$results[ $taxonomy ][] = get_term_link( $term, $taxonomy );
+				$url = get_term_link( $term, $taxonomy );
+				if ( ! is_wp_error( $url ) && ! empty( $url ) ) {
+					$results[ $taxonomy ][] = $url;
+				}
 			}
 		}
 
