@@ -25,10 +25,10 @@ const subscriptionsAndNewslettersSupportUrl =
 const FEATURED_IMAGE_IN_EMAIL_OPTION = 'wpcom_featured_image_in_email';
 const SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION = 'wpcom_subscription_emails_use_excerpt';
 const REPLY_TO_OPTION = 'jetpack_subscriptions_reply_to';
-const SENDER_NAME_OPTION = 'jetpack_subscriptions_sender_name';
+const FROM_NAME_OPTION = 'jetpack_subscriptions_from_name';
 //Check for feature flag
 const urlParams = new URLSearchParams( window.location.search );
-const isNewsletterReplyToNameEnabled = urlParams.get( 'enable-newsletter-sender-name' ) === 'true';
+const isNewsletterFromNameEnabled = urlParams.get( 'enable-newsletter-from-name' ) === 'true';
 
 const { blogname } = window?.JP_CONNECTION_INITIAL_STATE ? window.JP_CONNECTION_INITIAL_STATE : {};
 
@@ -40,7 +40,7 @@ const EmailSettings = props => {
 		isFeaturedImageInEmailEnabled,
 		subscriptionEmailsUseExcerpt,
 		subscriptionReplyTo,
-		subscriptionReplyToName,
+		subscriptionFromName,
 		updateFormStateAndSaveOptionValue,
 		unavailableInSiteConnectionMode,
 	} = props;
@@ -79,30 +79,30 @@ const EmailSettings = props => {
 		disabled || isSavingAnyOption( [ SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION ] );
 
 	const replyToInputDisabled = disabled || isSavingAnyOption( [ REPLY_TO_OPTION ] );
-	const replyToNameInputDisabled = disabled || isSavingAnyOption( [ SENDER_NAME_OPTION ] );
+	const fromNameInputDisabled = disabled || isSavingAnyOption( [ FROM_NAME_OPTION ] );
 
-	const [ replyToNameState, setReplyToNameState ] = useState( {
-		value: subscriptionReplyToName,
+	const [ fromNameState, setFromNameState ] = useState( {
+		value: subscriptionFromName,
 		hasChanged: false,
 	} );
 
-	const handleSubscriptionReplyToNameChange = useCallback(
+	const handleSubscriptionFromNameChange = useCallback(
 		event => {
-			setReplyToNameState( {
+			setFromNameState( {
 				value: event.target.value,
-				hasChanged: subscriptionReplyToName !== event.target.value,
+				hasChanged: subscriptionFromName !== event.target.value,
 			} );
 		},
-		[ setReplyToNameState, subscriptionReplyToName ]
+		[ setFromNameState, subscriptionFromName ]
 	);
 
-	const handleSubscriptionReplyToNameChangeClick = useCallback( () => {
-		updateFormStateAndSaveOptionValue( SENDER_NAME_OPTION, replyToNameState.value );
+	const handleSubscriptionFromNameChangeClick = useCallback( () => {
+		updateFormStateAndSaveOptionValue( FROM_NAME_OPTION, fromNameState.value );
 		analytics.tracks.recordEvent( 'jetpack_newsletter_set_reply_to_name', {
-			value: replyToNameState.value,
+			value: fromNameState.value,
 		} );
-		setReplyToNameState( { value: replyToNameState.value, hasChanged: false } );
-	}, [ replyToNameState, updateFormStateAndSaveOptionValue ] );
+		setFromNameState( { value: fromNameState.value, hasChanged: false } );
+	}, [ fromNameState, updateFormStateAndSaveOptionValue ] );
 
 	return (
 		<SettingsCard
@@ -176,7 +176,7 @@ const EmailSettings = props => {
 					onChange={ handleSubscriptionEmailsUseExcerptChange }
 				/>
 			</SettingsGroup>
-			{ isNewsletterReplyToNameEnabled && (
+			{ isNewsletterFromNameEnabled && (
 				<SettingsGroup
 					hasChild
 					disableInOfflineMode
@@ -194,9 +194,9 @@ const EmailSettings = props => {
 					<Container horizontalGap={ 0 } fluid className="sender-name">
 						<Col sm={ 3 } md={ 4 } lg={ 4 }>
 							<TextInput
-								value={ replyToNameState.value }
-								disabled={ replyToNameInputDisabled }
-								onChange={ handleSubscriptionReplyToNameChange }
+								value={ fromNameState.value }
+								disabled={ fromNameInputDisabled }
+								onChange={ handleSubscriptionFromNameChange }
 								placeholder={ blogname || __( 'Enter sender name', 'jetpack' ) }
 							/>
 						</Col>
@@ -204,8 +204,8 @@ const EmailSettings = props => {
 							<Button
 								primary
 								rna
-								onClick={ handleSubscriptionReplyToNameChangeClick }
-								disabled={ replyToNameInputDisabled || ! replyToNameState.hasChanged }
+								onClick={ handleSubscriptionFromNameChangeClick }
+								disabled={ fromNameInputDisabled || ! fromNameState.hasChanged }
 							>
 								{ __( 'Save', 'jetpack' ) }
 							</Button>
@@ -277,7 +277,7 @@ export default withModuleSettingsFormHelpers(
 				SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION
 			),
 			subscriptionReplyTo: ownProps.getOptionValue( REPLY_TO_OPTION ),
-			subscriptionReplyToName: ownProps.getOptionValue( SENDER_NAME_OPTION ),
+			subscriptionFromName: ownProps.getOptionValue( FROM_NAME_OPTION ),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
 			unavailableInSiteConnectionMode: isUnavailableInSiteConnectionMode(
 				state,

@@ -2652,8 +2652,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_subscriptions_reply_to',
 				'jp_group'          => 'subscriptions',
 			),
-			'jetpack_subscriptions_sender_name'     => array(
-				'description'       => esc_html__( 'Reply to name for newsletters emails', 'jetpack' ),
+			'jetpack_subscriptions_from_name'       => array(
+				'description'       => esc_html__( 'From name for newsletters emails', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
 				'validate_callback' => __CLASS__ . '::validate_subscriptions_reply_to_name',

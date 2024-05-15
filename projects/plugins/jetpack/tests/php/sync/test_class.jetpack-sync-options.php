@@ -90,7 +90,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_subscriptions_subscribe_post_end_enabled' => false,
 			'jetpack_subscriptions_login_navigation_enabled' => false,
 			'jetpack_subscriptions_reply_to'               => 'no-reply',
-			'jetpack_subscriptions_sender_name'            => 'newsletter name',
+			'jetpack_subscriptions_from_name'              => 'newsletter name',
 			'comment_registration'                         => 'pineapple',
 			'show_avatars'                                 => 'pineapple',
 			'avatar_default'                               => 'pineapple',
