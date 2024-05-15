@@ -262,6 +262,7 @@ class Publicize extends Publicize_Base {
 									'connection_id'  => $connection['connection_data']['id'],
 									'can_disconnect' => current_user_can( 'edit_others_posts' ) || get_current_user_id() === $user_id,
 									'profile_link'   => $this->get_profile_link( $service_name, $connection ),
+									'shared'         => $connection['connection_data']['user_id'] === '0',
 								)
 							);
 						} else {
