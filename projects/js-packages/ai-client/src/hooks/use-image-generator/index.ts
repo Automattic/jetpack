@@ -30,7 +30,7 @@ const truncateContent = ( content: string, currentPromptLength: number ): string
  * @param {string} userPrompt - the user prompt for the image generation, if provided. Max length is 1000 characters, will be truncated.
  * @returns {string} the prompt string
  */
-const getImageGenerationPrompt = ( postContent: string, userPrompt?: string ): string => {
+const getDalleImageGenerationPrompt = ( postContent: string, userPrompt?: string ): string => {
 	/**
 	 * If the user provide some custom prompt for the image generation,
 	 * we will use it, add the post content as additional context and
@@ -102,7 +102,7 @@ const useImageGenerator = () => {
 		try {
 			debug( 'Generating image' );
 
-			const imageGenerationPrompt = getImageGenerationPrompt( postContent, userPrompt );
+			const imageGenerationPrompt = getDalleImageGenerationPrompt( postContent, userPrompt );
 
 			const URL = 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-image';
 
