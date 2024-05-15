@@ -15,7 +15,7 @@ body.jetpack-subscribe-overlay-open {
 	height: 100%;
 	overflow: hidden;
 	background-color: transparent;
-	transition: all 0.4s;
+	transition: background-color 0.4s, visibility 0.4s;
 	color: var(--jetpack-subscribe-overlay--text-color);
 }
 
@@ -27,7 +27,7 @@ body.jetpack-subscribe-overlay-open {
 	margin: 15% auto;
 	width: 100%;
 	max-width: 600px;
-	transition: all 0.4s;
+	transition: top 0.4s, visibility 0.4s;
 	text-wrap: pretty;
 }
 
