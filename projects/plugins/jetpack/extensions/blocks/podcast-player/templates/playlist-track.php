@@ -14,6 +14,7 @@ namespace Automattic\Jetpack\Extensions\Podcast_Player;
  *
  * @var array $template_props
  */
+'@phan-var-force array $template_props';
 
 $track_title    = $template_props['attachment']['title'];
 $track_link     = empty( $template_props['attachment']['link'] ) ? $template_props['attachment']['src'] : $template_props['attachment']['link'];

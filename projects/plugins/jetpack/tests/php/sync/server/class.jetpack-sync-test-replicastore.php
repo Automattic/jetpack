@@ -11,6 +11,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 
 	private $posts;
 	private $post_status;
+	/** @var array<int,array<int|string,WP_Comment>> */
 	private $comments;
 	private $comment_status;
 	private $options;
@@ -172,7 +173,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		return false;
 	}
 
-	public function upsert_comment( $comment ) {
+	public function upsert_comment( $comment, $silent = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$this->comments[ get_current_blog_id() ][ $comment->comment_ID ] = $comment;
 	}
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed CSS variables not loaded for modals on Social admin page

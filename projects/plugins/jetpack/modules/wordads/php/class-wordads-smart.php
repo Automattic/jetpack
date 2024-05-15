@@ -154,9 +154,7 @@ class WordAds_Smart {
 			if ( $this->is_inline_enabled ) {
 				add_filter(
 					'the_content',
-					function ( $content ) {
-						return $this->insert_inline_marker( $content );
-					},
+					array( $this, 'insert_inline_marker' ),
 					10
 				);
 			}
@@ -207,10 +205,13 @@ class WordAds_Smart {
 	/**
 	 * Places marker at the end of the content so inline can identify the post content container.
 	 *
-	 * @param string $content The post content.
-	 * @return string The post content with the marker appended.
+	 * @param string|null $content The post content.
+	 * @return string|null The post content with the marker appended.
 	 */
-	private function insert_inline_marker( string $content ): string {
+	public function insert_inline_marker( $content ) {
+		if ( $content === null ) {
+			return $content;
+		}
 		$inline_ad_marker = '<span id="wordads-inline-marker" style="display: none;"></span>';
 
 		// Append the ad to the post content.

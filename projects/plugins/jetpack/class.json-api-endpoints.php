@@ -77,6 +77,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * Maximum version of the api for which to serve this endpoint
 	 *
 	 * @var string
+	 * @phan-suppress PhanUndeclaredConstant -- https://github.com/phan/phan/issues/4855
 	 */
 	public $max_version = WPCOM_JSON_API__CURRENT_VERSION;
 
@@ -98,6 +99,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * Version of the endpoint this endpoint is deprecated in favor of.
 	 *
 	 * @var string
+	 * @phan-suppress PhanUndeclaredConstant -- https://github.com/phan/phan/issues/4855
 	 */
 	protected $new_version = WPCOM_JSON_API__CURRENT_VERSION;
 
@@ -2596,8 +2598,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 		 */
 		if ( function_exists( 'idn_to_utf8' ) ) {
 			// The third parameter is set explicitly to prevent issues with newer PHP versions compiled with an old ICU version.
-			// phpcs:ignore PHPCompatibility.Constants.RemovedConstants.intl_idna_variant_2003Deprecated, PHPCompatibility.Constants.RemovedConstants.intl_idna_variant_2003DeprecatedRemoved
-			$host = idn_to_utf8( $host, IDNA_DEFAULT, defined( 'INTL_IDNA_VARIANT_UTS46' ) ? INTL_IDNA_VARIANT_UTS46 : INTL_IDNA_VARIANT_2003 );
+			$variant = defined( 'INTL_IDNA_VARIANT_UTS46' )
+				? INTL_IDNA_VARIANT_UTS46
+				// phpcs:ignore PHPCompatibility.Constants.RemovedConstants.intl_idna_variant_2003Deprecated, PHPCompatibility.Constants.RemovedConstants.intl_idna_variant_2003DeprecatedRemoved
+				: INTL_IDNA_VARIANT_2003; // @phan-suppress-current-line PhanUndeclaredConstant
+			$host = idn_to_utf8( $host, IDNA_DEFAULT, $variant );
 		}
 		$subdomain = str_replace( array( '-', '.' ), array( '--', '-' ), $host );
 		return array(
