@@ -19,7 +19,9 @@ use WP_Post;
  */
 class Publicize extends Publicize_Base {
 
-	const CONNECTION_REFRESH_WAIT_TRANSIENT = 'jetpack_publicize_connection_refresh_wait';
+	const CONNECTION_REFRESH_WAIT_TRANSIENT     = 'jetpack_publicize_connection_refresh_wait';
+	const JETPACK_SOCIAL_CONNECTIONS_OPTION     = 'social_connections';
+	const JETPACK_SOCIAL_CONNECTIONS_OPTION_OLD = 'publicize_connections';
 
 	/**
 	 * Transitory storage of connection testing results.
@@ -171,8 +173,7 @@ class Publicize extends Publicize_Base {
 	 * @return true
 	 */
 	public function receive_updated_publicize_connections( $publicize_connections ) {
-		Jetpack_Options::update_option( 'publicize_connections', $publicize_connections );
-
+		Jetpack_Options::update_option( self::JETPACK_SOCIAL_CONNECTIONS_OPTION, $publicize_connections );
 		return true;
 	}
 
@@ -200,11 +201,25 @@ class Publicize extends Publicize_Base {
 	 */
 	public function get_all_connections() {
 		$this->refresh_connections();
-		$connections = Jetpack_Options::get_option( 'publicize_connections' );
+
+		$connections = Jetpack_Options::get_option( self::JETPACK_SOCIAL_CONNECTIONS_OPTION, false );
+
+		if ( $connections === false ) {
+			$this->migrate_social_options();
+			$connections = Jetpack_Options::get_option( 'social_connections' );
+		}
+
 		if ( isset( $connections['google_plus'] ) ) {
 			unset( $connections['google_plus'] );
 		}
 		return $connections;
+	}
+
+	/**
+	 * The old JETPACK_SOCIAL_CONNECTIONS_OPTION_OLD is grouped into the big `jetpack_options` leading to some caching issues. We are migrating to use the newly added JETPACK_SOCIAL_CONNECTIONS_OPTION.
+	 */
+	public function migrate_social_options() {
+		Jetpack_Options::update_option( self::JETPACK_SOCIAL_CONNECTIONS_OPTION, Jetpack_Options::get_option( self::JETPACK_SOCIAL_CONNECTIONS_OPTION_OLD ) );
 	}
 
 	/**
@@ -272,6 +287,27 @@ class Publicize extends Publicize_Base {
 			}
 		}
 		return $connections_to_return;
+	}
+
+	/**
+	 * Get a connections for a user.
+	 *
+	 * @param int $connection_id The connection_id.
+
+	 * @return object
+	 */
+	public function get_connections_for_user( $connection_id ) {
+		$connections = array_filter(
+			$this->get_all_connections_for_user(),
+			function ( $connection ) use ( $connection_id ) {
+				return (int) $connection['connection_id'] === (int) $connection_id;
+			}
+		);
+
+		if ( count( $connections ) === 0 ) {
+			return (object) array();
+		}
+		return $connections[0];
 	}
 
 	/**
@@ -997,7 +1033,7 @@ class Publicize extends Publicize_Base {
 
 		if ( ! $xml->isError() ) {
 			$response = $xml->getResponse();
-			Jetpack_Options::update_option( 'publicize_connections', $response );
+			Jetpack_Options::update_option( self::JETPACK_SOCIAL_CONNECTIONS_OPTION, $response );
 			$this->globalization( $id );
 		}
 	}
