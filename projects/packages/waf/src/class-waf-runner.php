@@ -257,8 +257,9 @@ class Waf_Runner {
 
 		// remove the custom error handler, so we don't interfere with the site.
 		restore_error_handler();
-		// phpcs:ignore
-		ini_set( 'display_errors', $display_errors );
+
+		// Restore the original value.
+		ini_set( 'display_errors', $display_errors ); // phpcs:ignore
 	}
 
 	/**
