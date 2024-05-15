@@ -63,8 +63,6 @@ class Themes extends Module {
 	 *
 	 * @access public
 	 *
-	 * @todo Implement nonce verification
-	 *
 	 * @param array      $instance      The current widget instance's settings.
 	 * @param array      $new_instance  Array of new widget settings.
 	 * @param array      $old_instance  Array of old widget settings.
@@ -77,7 +75,7 @@ class Themes extends Module {
 		}
 
 		// Don't trigger sync action if this is an ajax request, because Customizer makes them during preview before saving changes.
-		// phpcs:disable WordPress.Security.NonceVerification.Missing
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- We are using $_POST['customized'] to early return if this is an ajax request from Customizer.
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX && isset( $_POST['customized'] ) ) {
 			return $instance;
 		}
@@ -192,7 +190,7 @@ class Themes extends Module {
 		$query_params = array();
 		wp_parse_str( $url['query'], $query_params );
 		if (
-			! isset( $_POST['newcontent'] ) ||
+			! isset( $_POST['newcontent'] ) || // phpcs:disable WordPress.Security.NonceVerification.Missing -- We are using $_POST['newcontent'] to detect if this is a theme edit during a redirect.
 			! isset( $query_params['file'] ) ||
 			! isset( $query_params['theme'] ) ||
 			! isset( $query_params['updated'] )
