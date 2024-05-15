@@ -132,7 +132,7 @@ class SSO {
 	/**
 	 * Add SSO callables to the sync whitelist.
 	 *
-	 * @since $$next-version$$
+	 * @since 2.8.1
 	 *
 	 * @param array $callables list of callables.
 	 *

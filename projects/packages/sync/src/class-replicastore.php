@@ -874,9 +874,9 @@ class Replicastore implements Replicastore_Interface {
 	 *
 	 * @access public
 	 *
-	 * @param string $taxonomy   Taxonomy slug.
-	 * @param int    $term_id    ID of the term.
-	 * @param string $term_key   ID Field `term_id` or `term_taxonomy_id`.
+	 * @param string|false $taxonomy   Taxonomy slug.
+	 * @param int          $term_id    ID of the term.
+	 * @param string       $term_key   ID Field `term_id` or `term_taxonomy_id`.
 	 *
 	 * @return \WP_Term|WP_Error Term object on success, \WP_Error object on failure.
 	 */

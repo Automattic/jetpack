@@ -37,7 +37,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.23.2';
+	const PACKAGE_VERSION = '4.23.3-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.

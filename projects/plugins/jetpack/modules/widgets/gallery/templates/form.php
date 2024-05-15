@@ -5,7 +5,12 @@
  * @package automattic/jetpack
  */
 
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Defined by the caller. Let Phan handle it.
+// @phan-file-suppress PhanContextNotObject -- It's in Jetpack_Gallery_Widget
+'@phan-var-force Jetpack_Gallery_Widget $this';
+'@phan-var-force array $instance';
+'@phan-var-force array $allowed_values';
+
 ?>
 <p>
 	<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'jetpack' ); ?>

@@ -63,15 +63,13 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const controlHeight = useRef< number >( 0 );
 		const controlObserver = useRef< ResizeObserver | null >( null );
 		// Ref to the original block padding to reset it when the AI Control is closed.
-		const blockPaddingBottom = useRef< string >( '' );
+		const blockOriginalPaddingBottom = useRef< string >( '' );
 		// Ref to the input element to focus on it when the AI Control is displayed or when a request is done.
 		// Also used to determine the ownerDocument, as the editor can be in an iframe.
 		const inputRef: React.MutableRefObject< HTMLInputElement | null > = useRef( null );
 		const ownerDocument = useRef< Document >( document );
 		// A human-readable action to be displayed in the input when a toolbar suggestion is requested, like "Translate: Japanese".
 		const [ action, setAction ] = useState< string >( '' );
-		// Count of consecutive successful AI Assistant requests for the Undo button.
-		const [ consecutiveRequestCount, setConsecutiveRequestCount ] = useState( 0 );
 		// The last request made by the user, to be used when the user clicks the "Try Again" button.
 		const [ lastRequest, setLastRequest ] = useState< RequestOptions | null >( null );
 		// State to display the AI Control or not.
@@ -86,13 +84,14 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		// The block's id to find it in the DOM for the positioning adjustments.
 		const { id } = useBlockProps();
 		// Jetpack AI Assistant feature functions.
-		const { increaseRequestsCount, dequeueAsyncRequest } = useAiFeature();
+		const { increaseRequestsCount, dequeueAsyncRequest, requireUpgrade } = useAiFeature();
 
 		// Data and functions with block-specific implementations.
-		const { onSuggestion: onBlockSuggestion, getContent } = useMemo(
-			() => blockHandler( blockName, clientId ),
-			[ blockName, clientId ]
-		);
+		const {
+			onSuggestion: onBlockSuggestion,
+			onDone: onBlockDone,
+			getContent,
+		} = useMemo( () => blockHandler( blockName, clientId ), [ blockName, clientId ] );
 
 		// Called when the user clicks the "Ask AI Assistant" button.
 		const handleAskAiAssistant = useCallback( () => {
@@ -128,35 +127,48 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			[ blockName, getContent ]
 		);
 
+		const adjustBlockPadding = useCallback(
+			( blockElement?: HTMLElement | null ) => {
+				const block = blockElement || ownerDocument.current.getElementById( id );
+
+				if ( block && controlRef.current ) {
+					// The gap between the input and the block's bottom is set at BLOCK_INPUT_GAP, regardless of the theme
+					block.style.setProperty(
+						'padding-bottom',
+						`calc(${ controlHeight.current + BLOCK_INPUT_GAP }px + ${
+							blockOriginalPaddingBottom.current || '0px'
+						} )`,
+						'important'
+					);
+				}
+			},
+			[ id ]
+		);
+
 		// Called when a suggestion chunk is received.
 		const onSuggestion = useCallback(
 			( suggestion: string ) => {
 				onBlockSuggestion( suggestion );
 
 				// Make sure the block element has the necessary bottom padding, as it can be replaced or changed
-				const block = ownerDocument.current.getElementById( id );
-
-				if ( block && controlRef.current ) {
-					block.style.setProperty(
-						'padding-bottom',
-						`calc(${ controlHeight.current + BLOCK_INPUT_GAP }px + ${
-							blockPaddingBottom.current || '0px'
-						} )`,
-						'important'
-					);
-				}
+				adjustBlockPadding();
 			},
-			[ id, onBlockSuggestion ]
+			[ onBlockSuggestion, adjustBlockPadding ]
 		);
 
 		// Called after the last suggestion chunk is received.
 		const onDone = useCallback( () => {
+			onBlockDone();
 			increaseRequestsCount();
-			setConsecutiveRequestCount( count => count + 1 );
-			inputRef.current?.focus();
 			setAction( '' );
 			setLastRequest( null );
-		}, [ increaseRequestsCount ] );
+
+			// Make sure the block element has the necessary bottom padding, as it can be replaced or changed
+			setTimeout( () => {
+				adjustBlockPadding();
+				inputRef.current?.focus();
+			}, 100 );
+		}, [ onBlockDone, increaseRequestsCount, adjustBlockPadding ] );
 
 		// Called when an error is received.
 		const onError = useCallback(
@@ -196,6 +208,11 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			( promptType, options, humanText ) => {
 				setShowAiControl( true );
 
+				// If the user needs to upgrade, don't make the request, but show the input with the upgrade message.
+				if ( requireUpgrade ) {
+					return;
+				}
+
 				if ( humanText ) {
 					setAction( humanText );
 				}
@@ -215,7 +232,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				request( messages );
 			},
-			[ dequeueAsyncRequest, getRequestMessages, request ]
+			[ dequeueAsyncRequest, getRequestMessages, request, requireUpgrade ]
 		);
 
 		// Called when the user types a custom prompt.
@@ -252,18 +269,15 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			setShowAiControl( false );
 			resetSuggestions();
 			setAction( '' );
-			setConsecutiveRequestCount( 0 );
 			setLastRequest( null );
 		}, [ resetSuggestions ] );
 
 		// Called when the user clicks the "Undo" button after a successful request.
 		const handleUndo = useCallback( async () => {
-			for ( let i = 0; i < consecutiveRequestCount; i++ ) {
-				await undo();
-			}
+			await undo();
 
 			handleClose();
-		}, [ consecutiveRequestCount, handleClose, undo ] );
+		}, [ undo, handleClose ] );
 
 		// Closes the AI Control if the block is deselected.
 		useEffect( () => {
@@ -294,7 +308,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			// Once when the AI Control is displayed
 			if ( showAiControl && ! controlObserver.current && controlRef.current ) {
 				// Save the block bottom padding to reset it later.
-				blockPaddingBottom.current = block.style.paddingBottom;
+				blockOriginalPaddingBottom.current = block.style.paddingBottom;
 
 				// Observe the control's height to adjust the block's bottom padding.
 				controlObserver.current = new ResizeObserver( ( [ entry ] ) => {
@@ -303,14 +317,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					controlHeight.current = entry.contentRect.height;
 
 					if ( block && controlRef.current && controlHeight.current > 0 ) {
-						// The gap between the input and the block's bottom is set at BLOCK_INPUT_GAP, regardless of the theme
-						block.style.setProperty(
-							'padding-bottom',
-							`calc(${ controlHeight.current + BLOCK_INPUT_GAP }px + ${
-								blockPaddingBottom.current || '0px'
-							} )`,
-							'important'
-						);
+						adjustBlockPadding( block );
 
 						const { marginBottom } = getComputedStyle( block );
 						const bottom = parseFloat( marginBottom );
@@ -335,7 +342,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				controlObserver.current.observe( controlRef.current );
 			} else if ( controlObserver.current ) {
-				block.style.paddingBottom = blockPaddingBottom.current;
+				block.style.paddingBottom = blockOriginalPaddingBottom.current;
 
 				controlObserver.current.disconnect();
 				controlObserver.current = null;
@@ -347,7 +354,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					controlObserver.current.disconnect();
 				}
 			};
-		}, [ clientId, controlObserver, id, showAiControl ] );
+		}, [ adjustBlockPadding, clientId, controlObserver, id, showAiControl ] );
 
 		return (
 			<>
