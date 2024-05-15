@@ -48,7 +48,6 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field_Inactive extends W
 		);
 
 		self::$user_id = $factory->user->create( array( 'role' => 'administrator' ) );
-
 		set_transient(
 			'jetpack_social_connections',
 			array(

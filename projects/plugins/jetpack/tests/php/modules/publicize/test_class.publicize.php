@@ -271,7 +271,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 				'facebook' => $facebook_connection,
 				'twitter'  => $twitter_connection,
 			),
-			3600 * 4
+			3600 * 10
 		);
 
 		$publicize = publicize_init();
