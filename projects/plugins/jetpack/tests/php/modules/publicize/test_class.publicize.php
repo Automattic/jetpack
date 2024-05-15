@@ -83,7 +83,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 
 		Jetpack_Options::update_options(
 			array(
-				'publicize_connections' => array(
+				'social_connections' => array(
 					// Normally connected facebook.
 					'facebook' => array(
 						'id_number' => array(
@@ -152,7 +152,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	public function test_does_not_fire_jetpack_publicize_post_on_save_as_published() {
 		$this->post->post_status = 'publish';
 
-		Jetpack_Options::delete_option( array( 'publicize_connections' ) );
+		Jetpack_Options::delete_option( array( 'social_connections' ) );
 		wp_insert_post( $this->post->to_array() );
 
 		$this->assertPublicized( false, $this->post );
@@ -269,7 +269,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		);
 		Jetpack_Options::update_options(
 			array(
-				'publicize_connections' => array(
+				'social_connections' => array(
 					'facebook' => $facebook_connection,
 					'twitter'  => $twitter_connection,
 				),
