@@ -455,9 +455,9 @@ class Manager {
 		}
 
 		$jetpack_signature = new \Jetpack_Signature( $token->secret, (int) \Jetpack_Options::get_option( 'time_diff' ) );
-		// phpcs:disable WordPress.Security.NonceVerification.Missing
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Used to verify a cryptographic signature of the post data.
 		if ( isset( $_POST['_jetpack_is_multipart'] ) ) {
-			$post_data   = $_POST;
+			$post_data   = $_POST; // We need all of $_POST in order to verify a cryptographic signature of the post data.
 			$file_hashes = array();
 			foreach ( $post_data as $post_data_key => $post_data_value ) {
 				if ( ! str_starts_with( $post_data_key, '_jetpack_file_hmac_' ) ) {

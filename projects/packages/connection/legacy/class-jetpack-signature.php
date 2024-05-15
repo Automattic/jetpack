@@ -95,7 +95,7 @@ class Jetpack_Signature {
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 				// phpcs:ignore WordPress.Security.NonceVerification.Missing
 				if ( empty( $body ) && is_array( $_POST ) && $_POST !== array() ) {
-					$body = $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					$body = $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- We need all of $_POST in order to verify a cryptographic signature of the post data.
 				}
 			}
 		} elseif ( isset( $_SERVER['REQUEST_METHOD'] ) && 'PUT' === strtoupper( $_SERVER['REQUEST_METHOD'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
