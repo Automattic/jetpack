@@ -26,7 +26,7 @@ body.jetpack-subscribe-overlay-open {
 	top: 100%;
 	margin: 15% auto;
 	width: 100%;
-	max-width: 600px;
+	max-width: 400px;
 	transition: top 0.4s, visibility 0.4s;
 	text-wrap: pretty;
 }
