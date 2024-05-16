@@ -7,7 +7,6 @@
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-backup": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
-		"automattic/jetpack-plugins-installer": "@dev",
 		"automattic/jetpack-my-jetpack": "@dev"
 	},
 	"require-dev": {
