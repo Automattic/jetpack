@@ -21,7 +21,7 @@ if (
 
 var editPostHeaderInception = setInterval( function () {
 	var closeButton = document.querySelector( '.edit-post-fullscreen-mode-close__toolbar a' );
-	if ( closeButton.length < 1 ) {
+	if ( closeButton ) {
 		return;
 	}
 	clearInterval( editPostHeaderInception );
@@ -32,9 +32,9 @@ var editPostHeaderInception = setInterval( function () {
 	}
 } );
 
-$( 'body.revision-php a' ).each( function () {
-	var href = $( this ).getAttribute( 'href' );
+for ( const node of document.querySelectorAll( 'body.revision-php a' ) ) {
+	const href = node.getAttribute( 'href' );
 	if ( href ) {
-		$( this ).setAttribute( 'href', href.replace( '&classic-editor', '' ) );
+		node.setAttribute( 'href', href.replace( '&classic-editor', '' ) );
 	}
-} );
+}

@@ -92,7 +92,7 @@ class Jetpack_Mu_Wpcom {
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
-		\Jetpack_Calypsoify::get_instance();
+		\Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify::get_instance();
 
 		// Gets autoloaded from the Scheduled_Updates package.
 		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
