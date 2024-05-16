@@ -152,7 +152,7 @@ const weirdRtlEntries = {
 		'modules/widgets/social-icons/social-icons.css',
 		'modules/widgets/milestone/milestone-widget.css',
 		'modules/subscriptions/subscribe-modal/subscribe-modal.css',
-		'modules/subscriptions/subscribe-modal/subscribe-overlay.css',
+		'modules/subscriptions/subscribe-overlay/subscribe-overlay.css',
 	].map( n => path.join( __dirname, '..', n ) ),
 };
 
