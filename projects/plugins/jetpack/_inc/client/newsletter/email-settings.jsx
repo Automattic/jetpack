@@ -5,7 +5,7 @@ import {
 	Container,
 	Col,
 } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import Button from 'components/button';
 import { FormLegend } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -104,7 +104,7 @@ const EmailSettings = props => {
 		setFromNameState( { value: fromNameState.value, hasChanged: false } );
 	}, [ fromNameState, updateFormStateAndSaveOptionValue ] );
 	const exampleEmail =
-		subscriptionReplyTo !== 'author' ? 'noreply@wordpress.com' : 'author-name@example.com';
+		subscriptionReplyTo !== 'author' ? 'donotreply@wordpress.com' : 'author-name@example.com';
 	return (
 		<SettingsCard
 			{ ...props }
@@ -212,8 +212,12 @@ const EmailSettings = props => {
 							</Button>
 						</Col>
 						<Col className="sender-name-example">
-							{ __( 'Example: ', 'jetpack' ) } { fromNameState.value || siteName }{ ' ' }
-							{ '<' + exampleEmail + '>' }{ ' ' }
+							{ sprintf(
+								/* translators: 1. placeholder is the user entered value for From Name, 2. is the example email */
+								__( 'Example: %1$s <%2$s>', 'jetpack' ),
+								fromNameState.value || siteName,
+								exampleEmail
+							) }
 						</Col>
 					</Container>
 				</SettingsGroup>
