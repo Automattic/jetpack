@@ -459,9 +459,15 @@ abstract class Product {
 			// We've got the plugin active and the plan situation sorted out (either the product has a plan or does not need one)
 			// But, the product has another restriction for activation (there could be a module that needs to be activated)
 		} elseif ( self::is_active() && ! static::is_active() ) {
-			// assuming "inactive" here as a fallback
-			$status = 'inactive';
-			if ( static::$requires_site_connection && ! ( new Connection_Manager() )->is_connected() ) {
+			$status = 'module_inactive';
+			// If there is not a plan associated with the disabled module, encourage a plan first
+			// Getting a plan set up should help resolve any connection issues
+			if ( ! static::has_any_plan_for_product() ) {
+				$status = 'needs_purchase_or_free';
+				if ( ! static::$has_free_offering ) {
+					$status = 'needs_purchase';
+				}
+			} elseif ( static::$requires_site_connection && ! ( new Connection_Manager() )->is_connected() ) {
 				// Site has never been connected before
 				if ( ! \Jetpack_Options::get_option( 'id' ) ) {
 					$status = 'needs_first_site_connection';
