@@ -25,6 +25,8 @@
 namespace Automattic\Jetpack_Boost;
 
 // If this file is called directly, abort.
+use Automattic\Jetpack\Paths;
+
 if ( ! defined( 'WPINC' ) ) {
 	die;
 }
@@ -183,7 +185,7 @@ add_action( 'activated_plugin', __NAMESPACE__ . '\jetpack_boost_plugin_activatio
 function jetpack_boost_plugin_activation( $plugin ) {
 	if (
 		JETPACK_BOOST_PLUGIN_BASE === $plugin &&
-		\Automattic\Jetpack\Plugins_Installer::is_current_request_activating_plugin_from_plugins_screen( JETPACK_BOOST_PLUGIN_BASE )
+		Paths::is_current_request_activating_plugin_from_plugins_screen( JETPACK_BOOST_PLUGIN_BASE )
 	) {
 		wp_safe_redirect( esc_url( admin_url( 'admin.php?page=jetpack-boost' ) ) );
 		exit;

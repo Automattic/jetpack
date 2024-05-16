@@ -107,7 +107,7 @@ add_action( 'activated_plugin', 'jetpack_starter_plugin_activation' );
 function jetpack_starter_plugin_activation( $plugin ) {
 	if (
 		AUTOMATTIC_FOR_AGENCIES_CLIENT_ROOT_FILE_RELATIVE_PATH === $plugin &&
-		\Automattic\Jetpack\Plugins_Installer::is_current_request_activating_plugin_from_plugins_screen( AUTOMATTIC_FOR_AGENCIES_CLIENT_ROOT_FILE_RELATIVE_PATH )
+		\Automattic\Jetpack\Paths::is_current_request_activating_plugin_from_plugins_screen( AUTOMATTIC_FOR_AGENCIES_CLIENT_ROOT_FILE_RELATIVE_PATH )
 	) {
 		wp_safe_redirect( esc_url( admin_url( 'options-general.php?page=' . AUTOMATTIC_FOR_AGENCIES_CLIENT_SLUG ) ) );
 		exit;
