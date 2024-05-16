@@ -41,7 +41,7 @@
 	"prefer-stable": true,
 	"extra": {
 		"branch-alias": {
-			"dev-trunk": "0.3.x-dev"
+			"dev-trunk": "0.4.x-dev"
 		},
 		"mirror-repo": "Automattic/jetpack-plugins-installer",
 		"changelogger": {

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the 'is_current_request_activating_plugin_from_plugins_screen' method extracted from the Plugin Install package.
