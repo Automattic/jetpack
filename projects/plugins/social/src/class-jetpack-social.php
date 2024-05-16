@@ -355,7 +355,7 @@ class Jetpack_Social {
 			array(
 				'siteFragment' => ( new Status() )->get_site_suffix(),
 				'wpcomBlogId'  => Connection_Manager::get_site_id( true ),
-				'social'       => $social_state,
+				'social'       => $initial_state,
 			)
 		);
 
