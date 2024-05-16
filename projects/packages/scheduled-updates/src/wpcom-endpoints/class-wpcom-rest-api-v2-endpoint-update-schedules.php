@@ -175,12 +175,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return $result;
 		}
 
-		$verified_plugins = apply_filters( 'jetpack_scheduled_update_verify_plugins', $request['plugins'] );
-
-		if ( is_wp_error( $verified_plugins ) ) {
-			return $verified_plugins;
-		}
-
 		$schedule = $request['schedule'];
 		$plugins  = $request['plugins'];
 		usort( $plugins, 'strnatcasecmp' );
@@ -270,12 +264,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$result = $this->validate_schedule( $request );
 		if ( is_wp_error( $result ) ) {
 			return $result;
-		}
-
-		$verified_plugins = apply_filters( 'jetpack_scheduled_update_verify_plugins', $request['plugins'] );
-
-		if ( is_wp_error( $verified_plugins ) ) {
-			return $verified_plugins;
 		}
 
 		// Prevent the sync option to be updated during deletion. This will ensure that the sync is performed only once.
@@ -398,6 +386,59 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	}
 
 	/**
+	 * Checks that the "plugins" parameter is not empty.
+	 *
+	 * @param array           $plugins List of plugins to update.
+	 * @param WP_REST_Request $request Request object.
+	 * @param string          $param   The parameter name.
+	 * @return bool|WP_Error
+	 */
+	public function validate_plugins_param( $plugins, $request, $param ) {
+		$result = rest_validate_request_arg( $plugins, $request, $param );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		$installed_plugins = array_filter( $plugins, array( $this, 'is_plugin_installed' ) );
+		if ( empty( $installed_plugins ) ) {
+			add_filter( 'rest_request_after_callbacks', array( $this, 'transform_error_response' ) );
+
+			return new \WP_Error(
+				'rest_invalid_param',
+				__( 'The specified plugins are not installed on the website. Please make sure the plugins are installed before attempting to schedule updates.', 'jetpack-scheduled-updates' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$unmanaged_plugins = array_diff( $plugins, array_filter( $plugins, array( Scheduled_Updates::class, 'is_managed_plugin' ) ) );
+		if ( empty( $unmanaged_plugins ) ) {
+			add_filter( 'rest_request_after_callbacks', array( $this, 'transform_error_response' ) );
+
+			return new \WP_Error(
+				'rest_invalid_param',
+				__( 'The specified plugins are managed and auto-updated by WordPress.com.', 'jetpack-scheduled-updates' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check if a plugin is installed.
+	 *
+	 * @param string $plugin The plugin to check.
+	 * @return bool
+	 */
+	public function is_plugin_installed( $plugin ) {
+		if ( ! function_exists( 'validate_plugin' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		return 0 === validate_plugin( $plugin );
+	}
+
+	/**
 	 * Checks that the "plugin" parameter is a valid path.
 	 *
 	 * @param string $file The plugin file parameter.
@@ -471,6 +512,23 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	}
 
 	/**
+	 * Transforms nested error message for the plugins parameter to a top-level error.
+	 *
+	 * @see WP_REST_Request::has_valid_params()
+	 *
+	 * @param WP_REST_Response|WP_HTTP_Response|WP_Error|mixed $response Result to send to the client.
+	 * @return mixed
+	 */
+	public function transform_error_response( $response ) {
+		if ( is_wp_error( $response ) && 'rest_invalid_param' === $response->get_error_code() && isset( $response->get_error_data()['details']['plugins'] ) ) {
+			$error    = $response->get_error_data()['details']['plugins'];
+			$response = new WP_Error( $error['code'], $error['message'], $error['data'] );
+		}
+
+		return $response;
+	}
+
+	/**
 	 * Retrieves the update schedule's schema, conforming to JSON Schema.
 	 *
 	 * @return array Item schema data.
@@ -532,6 +590,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 					'description' => 'List of plugin slugs to update.',
 					'type'        => 'array',
 					'maxItems'    => 10,
+					'arg_options' => array(
+						'validate_callback' => array( $this, 'validate_plugins_param' ),
+					),
 					'items'       => array(
 						'type'        => 'string',
 						'arg_options' => array(

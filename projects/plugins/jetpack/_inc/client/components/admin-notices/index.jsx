@@ -2,8 +2,10 @@ import jQuery from 'jquery';
 import React from 'react';
 
 class AdminNotices extends React.Component {
+	adminNoticesRef = React.createRef();
+
 	componentDidMount() {
-		const $adminNotices = jQuery( this.refs.adminNotices );
+		const $adminNotices = jQuery( this.adminNoticesRef.current );
 		const dismiss =
 			'<span role="button" tabindex="0" class="dops-notice__dismiss"><svg class="gridicon gridicons-cross" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg><span class="screen-reader-text"/></span>';
 
@@ -115,7 +117,7 @@ class AdminNotices extends React.Component {
 	}
 
 	render() {
-		return <div id="jp-admin-notices" ref="adminNotices" aria-live="polite" />;
+		return <div id="jp-admin-notices" ref={ this.adminNoticesRef } aria-live="polite" />;
 	}
 }
 
