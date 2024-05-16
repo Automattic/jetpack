@@ -651,7 +651,7 @@ class Assets {
 	 */
 	public static function filter_gettext( $translation, $text, $domain ) {
 		if ( $translation === $text ) {
-			// phpcs:ignore WordPress.WP.I18n
+			// phpcs:ignore WordPress.WP.I18n -- we're including text domains from the most recent dependency package versions, of which there are generally a fair number, to ensure we have the most recent translations.
 			$newtext = __( $text, self::$domain_map[ $domain ][0] );
 			if ( $newtext !== $text ) {
 				return $newtext;
@@ -673,7 +673,7 @@ class Assets {
 	 */
 	public static function filter_ngettext( $translation, $single, $plural, $number, $domain ) {
 		if ( $translation === $single || $translation === $plural ) {
-			// phpcs:ignore WordPress.WP.I18n
+			// phpcs:ignore WordPress.WP.I18n -- we're including text domains from the most recent dependency package versions, of which there are generally a fair number, to ensure we have the most recent translations.
 			$translation = _n( $single, $plural, $number, self::$domain_map[ $domain ][0] );
 		}
 		return $translation;
@@ -691,7 +691,7 @@ class Assets {
 	 */
 	public static function filter_gettext_with_context( $translation, $text, $context, $domain ) {
 		if ( $translation === $text ) {
-			// phpcs:ignore WordPress.WP.I18n
+			// phpcs:ignore WordPress.WP.I18n -- we're including text domains from the most recent dependency package versions, of which there are generally a fair number, to ensure we have the most recent translations.
 			$translation = _x( $text, $context, self::$domain_map[ $domain ][0] );
 		}
 		return $translation;
@@ -711,7 +711,7 @@ class Assets {
 	 */
 	public static function filter_ngettext_with_context( $translation, $single, $plural, $number, $context, $domain ) {
 		if ( $translation === $single || $translation === $plural ) {
-			// phpcs:ignore WordPress.WP.I18n
+			// phpcs:ignore WordPress.WP.I18n -- we're including text domains from the most recent dependency package versions, of which there are generally a fair number, to ensure we have the most recent translations.
 			$translation = _nx( $single, $plural, $number, $context, self::$domain_map[ $domain ][0] );
 		}
 		return $translation;

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Assets: Adding comments to explain why we use variables within translation functions

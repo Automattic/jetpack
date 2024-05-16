@@ -1,39 +1,79 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
-import { HeadingHandler } from './heading';
+import { renderMarkdownFromHTML, renderHTMLFromMarkdown } from '@automattic/jetpack-ai-client';
+import { rawHandler, getBlockContent } from '@wordpress/blocks';
+import { select, dispatch } from '@wordpress/data';
 /**
  * Types
  */
-import type { IBlockHandler } from './types';
-import type { ExtendedInlineBlockProp } from '../extensions/ai-assistant';
+import type { BlockEditorDispatch, BlockEditorSelect } from './types';
+import type { Block, RenderHTMLRules } from '@automattic/jetpack-ai-client';
 
-const handlers = {
-	'core/heading': HeadingHandler,
-};
+export function getMarkdown( html: string ) {
+	return renderMarkdownFromHTML( { content: html } );
+}
 
-/**
- * Gets the block handler based on the block type.
- * The block handler is used to handle the request suggestions.
- * @param {ExtendedInlineBlockProp} blockType - The block type.
- * @param {string} clientId                   - The block client ID.
- * @returns {IBlockHandler}                     The block handler.
- */
-export function blockHandler(
-	blockType: ExtendedInlineBlockProp,
-	clientId: string
-): IBlockHandler {
-	const HandlerClass = handlers[ blockType ];
+export function renderContent( markdown: string, rules: RenderHTMLRules = [] ) {
+	return renderHTMLFromMarkdown( { content: markdown, rules } );
+}
 
-	if ( ! HandlerClass ) {
-		throw new Error( `No handler found for block type: ${ blockType }` );
+export class BlockHandler {
+	public clientId: string;
+	public renderRules: RenderHTMLRules = [];
+	public firstUpdate: boolean = true;
+
+	constructor( clientId: string, renderRules: RenderHTMLRules = [] ) {
+		this.clientId = clientId;
+		this.renderRules = renderRules;
 	}
 
-	const handler = new HandlerClass( clientId );
+	public getBlock(): Block {
+		const { getBlock } = select( 'core/block-editor' ) as BlockEditorSelect;
 
-	return {
-		onSuggestion: handler.onSuggestion.bind( handler ),
-		onDone: handler.onDone.bind( handler ),
-		getContent: handler.getContent.bind( handler ),
-	};
+		return getBlock( this.clientId );
+	}
+
+	public getContent() {
+		const block = this.getBlock();
+
+		return getMarkdown( getBlockContent( block ) );
+	}
+
+	public renderContent( markdown: string ) {
+		return renderContent( markdown, this.renderRules );
+	}
+
+	public onSuggestion( suggestion: string ): void {
+		const HTML = renderContent( suggestion );
+
+		this.replaceBlockContent( HTML );
+	}
+
+	public onDone(): void {
+		this.firstUpdate = true;
+	}
+
+	public replaceBlockContent( newContent: string ): void {
+		// Create a new block with the raw HTML content.
+		const [ newBlock ] = rawHandler( { HTML: newContent } );
+
+		if ( ! newBlock ) {
+			return;
+		}
+
+		const { updateBlockAttributes, __unstableMarkNextChangeAsNotPersistent } = dispatch(
+			'core/block-editor'
+		) as BlockEditorDispatch;
+
+		if ( ! this.firstUpdate ) {
+			// Mark the change as not persistent so we can undo all the changes in one step.
+			__unstableMarkNextChangeAsNotPersistent();
+		} else {
+			this.firstUpdate = false;
+		}
+
+		// Replace the original block attributes with the new block attributes.
+		updateBlockAttributes( this.clientId, newBlock.attributes );
+	}
 }

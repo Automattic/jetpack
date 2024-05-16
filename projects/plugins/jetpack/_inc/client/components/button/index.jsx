@@ -28,6 +28,8 @@ export default class Button extends React.Component {
 		borderless: false,
 	};
 
+	domNode = null;
+
 	render() {
 		const element = this.props.href ? 'a' : 'button';
 		const { primary, compact, scary, borderless, rna, className, ...props } = this.props;
@@ -42,6 +44,7 @@ export default class Button extends React.Component {
 		} );
 
 		props.className = classNames( className, buttonClasses );
+		props.ref = node => ( this.domNode = node );
 
 		return React.createElement( element, props, this.props.children );
 	}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack Sync: Fixed undefined array key Warnings in HPOS orders module
