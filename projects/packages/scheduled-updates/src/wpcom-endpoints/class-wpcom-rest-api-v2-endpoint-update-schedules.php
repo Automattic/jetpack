@@ -592,6 +592,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 					'description' => 'List of plugin slugs to update.',
 					'type'        => 'array',
 					'maxItems'    => 10,
+					'required'    => true,
 					'arg_options' => array(
 						'validate_callback' => array( $this, 'validate_plugins_param' ),
 					),
