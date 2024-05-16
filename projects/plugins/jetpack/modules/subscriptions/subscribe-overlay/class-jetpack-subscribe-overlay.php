@@ -88,7 +88,7 @@ class Jetpack_Subscribe_Overlay {
 		$template->status         = 'publish';
 		$template->has_theme_file = false;
 		$template->is_custom      = true;
-		$template->description    = __( 'An overlay that shows up when someone visits your site', 'jetpack' );
+		$template->description    = __( 'An overlay that shows up when someone visits your site.', 'jetpack' );
 
 		return $template;
 	}
