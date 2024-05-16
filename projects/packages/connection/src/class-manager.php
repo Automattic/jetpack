@@ -160,7 +160,7 @@ class Manager {
 	 * Sets up the XMLRPC request handlers.
 	 *
 	 * @since 1.25.0 Deprecate $is_active param.
-	 * @since $$next-version$$ Deprecate $request_params param.
+	 * @since $$next-version$$ Remove $request_params param.
 	 *
 	 * @param bool                  $has_connected_owner Whether the site has a connected owner.
 	 * @param bool                  $is_signed whether the signature check has been successful.
