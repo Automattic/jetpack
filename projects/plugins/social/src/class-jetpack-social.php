@@ -323,9 +323,9 @@ class Jetpack_Social {
 		Assets::enqueue_script( 'jetpack-social-editor' );
 
 		$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
-		$initial_state           = $jetpack_social_settings->get_initial_state();
+		$social_state            = $jetpack_social_settings->get_initial_state();
 
-		$social_state = array(
+		$initial_state = array(
 			'adminUrl'                        => esc_url_raw( admin_url( 'admin.php?page=jetpack-social' ) ),
 			'sharesData'                      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
 			'connectionRefreshPath'           => '/jetpack/v4/publicize/connection-test-results',
@@ -345,8 +345,8 @@ class Jetpack_Social {
 		);
 
 		// Add connectionData if we are using the new Connection UI.
-		if ( $initial_state['useAdminUiV1'] ) {
-			$social_state['connectionData'] = $initial_state['connectionData'];
+		if ( $social_state['useAdminUiV1'] ) {
+			$initial_state['connectionData'] = $social_state['connectionData'];
 		}
 
 		wp_localize_script(

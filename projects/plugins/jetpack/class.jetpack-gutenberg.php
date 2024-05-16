@@ -746,8 +746,6 @@ class Jetpack_Gutenberg {
 			$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
 			$social_initial_state    = $jetpack_social_settings->get_initial_state();
 
-			l( $social_initial_state );
-
 			$initial_state['social'] = array(
 				'sharesData'                      => $publicize->get_publicize_shares_info( $blog_id ),
 				'hasPaidPlan'                     => $publicize->has_paid_plan(),
