@@ -81,7 +81,9 @@ export default function FeaturedImage( {
 		costs,
 	} = useAiFeature();
 	const planType = usePlanType( currentTier );
-	const featuredImageCost = costs?.[ FEATURED_IMAGE_FEATURE_NAME ]?.image;
+	const featuredImageCost = isAiAssistantExperimentalImageGenerationSupportEnabled
+		? costs?.[ FEATURED_IMAGE_FEATURE_NAME ]?.stableDiffusion ?? 1
+		: costs?.[ FEATURED_IMAGE_FEATURE_NAME ]?.image;
 	const isUnlimited = planType === PLAN_TYPE_UNLIMITED;
 	const requestsBalance = requestsLimit - requestsCount;
 	const notEnoughRequests = requestsBalance < featuredImageCost;
@@ -335,11 +337,16 @@ export default function FeaturedImage( {
 	}, [ placement, handleGenerate ] );
 
 	const modalTitle = __( 'Generate a featured image with AI', 'jetpack' );
-	const costTooltipText = sprintf(
+
+	const costTooltipTextSingular = __( '1 request per image', 'jetpack' );
+
+	const costTooltipTextPlural = sprintf(
 		// Translators: %d is the cost of generating one image.
 		__( '%d requests per image', 'jetpack' ),
 		featuredImageCost
 	);
+
+	const costTooltipText = featuredImageCost === 1 ? costTooltipTextSingular : costTooltipTextPlural;
 
 	const acceptButton = (
 		<Button
