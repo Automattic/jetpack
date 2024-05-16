@@ -90,7 +90,11 @@ const EmailSettings = props => {
 					disabled={ featuredImageInputDisabled }
 					checked={ isFeaturedImageInEmailEnabled }
 					toogling={ isSavingAnyOption( [ FEATURED_IMAGE_IN_EMAIL_OPTION ] ) }
-					label={ __( 'Enable featured image on your new post emails', 'jetpack' ) }
+					label={
+						<span className="jp-form-toggle-explanation">
+							{ __( 'Enable featured image on your new post emails', 'jetpack' ) }
+						</span>
+					}
 					onChange={ handleEnableFeaturedImageInEmailToggleChange }
 				/>
 			</SettingsGroup>
@@ -113,11 +117,22 @@ const EmailSettings = props => {
 				</FormLegend>
 
 				<RadioControl
+					className="jp-form-radio-gap"
 					selected={ subscriptionEmailsUseExcerpt ? 'excerpt' : 'full' }
 					disabled={ excerptInputDisabled }
 					options={ [
-						{ label: __( 'Full text', 'jetpack' ), value: 'full' },
-						{ label: __( 'Excerpt', 'jetpack' ), value: 'excerpt' },
+						{
+							label: (
+								<span className="jp-form-toggle-explanation">{ __( 'Full text', 'jetpack' ) }</span>
+							),
+							value: 'full',
+						},
+						{
+							label: (
+								<span className="jp-form-toggle-explanation">{ __( 'Excerpt', 'jetpack' ) }</span>
+							),
+							value: 'excerpt',
+						},
 					] }
 					onChange={ handleSubscriptionEmailsUseExcerptChange }
 				/>
@@ -147,12 +162,24 @@ const EmailSettings = props => {
 					) }
 				</p>
 				<RadioControl
+					className="jp-form-radio-gap"
 					selected={ subscriptionReplyTo || 'no-reply' }
 					disabled={ replyToInputDisabled }
 					options={ [
-						{ label: __( 'Replies are not allowed', 'jetpack' ), value: 'no-reply' },
 						{
-							label: __( "Replies will be sent to the post author's email", 'jetpack' ),
+							label: (
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Replies are not allowed', 'jetpack' ) }
+								</span>
+							),
+							value: 'no-reply',
+						},
+						{
+							label: (
+								<span className="jp-form-toggle-explanation">
+									{ __( "Replies will be sent to the post author's email", 'jetpack' ) }
+								</span>
+							),
 							value: 'author',
 						},
 					] }
