@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Removed esc_html on echoes with links
