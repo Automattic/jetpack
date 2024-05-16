@@ -491,7 +491,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	public function validate_schedule( $request ) {
 		$events = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
 
-		$plugins = $request['plugins'];
+		$plugins = $request['plugins'] ?? array();
 		usort( $plugins, 'strnatcasecmp' );
 
 		foreach ( $events as $key => $event ) {
