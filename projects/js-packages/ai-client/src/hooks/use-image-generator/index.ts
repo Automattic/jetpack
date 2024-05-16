@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -192,6 +193,16 @@ const useImageGenerator = () => {
 					body: JSON.stringify( data ),
 				}
 			);
+
+			if ( ! response?.ok ) {
+				debug( 'Error generating image: %o', response );
+				return Promise.reject( {
+					data: {
+						status: response.status,
+					},
+					message: __( 'Error generating image. Please try again later.', 'jetpack-ai-client' ),
+				} );
+			}
 
 			const blob = await response.blob();
 
