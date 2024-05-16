@@ -75,7 +75,7 @@ class Jetpack_Calypsoify {
 			'../dist/index.js',
 			__FILE__,
 			array(
-				'jquery',
+				'jquery'  => true,
 				'enqueue' => true,
 			)
 		);
