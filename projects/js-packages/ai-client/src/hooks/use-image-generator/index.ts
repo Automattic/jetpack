@@ -213,6 +213,7 @@ const useImageGenerator = () => {
 				data: [
 					{
 						b64_json: base64 as string,
+						revised_prompt: prompt,
 					},
 				],
 			};
