@@ -50,6 +50,7 @@ function jetpack_responsive_videos_embed_html( $html ) {
 	}
 
 	// Short-circuit for AMP responses, since custom scripts are not allowed in AMP and videos are naturally responsive.
+	// @phan-suppress-next-line PhanUndeclaredClassMethod
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 		return $html;
 	}
@@ -95,6 +96,7 @@ function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url = null ) {
 	}
 
 	// Short-circuit for AMP responses, since custom scripts are not allowed in AMP and videos are naturally responsive.
+	// @phan-suppress-next-line PhanUndeclaredClassMethod
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 		return $html;
 	}
