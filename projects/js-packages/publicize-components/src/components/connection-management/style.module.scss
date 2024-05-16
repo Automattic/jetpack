@@ -1,3 +1,5 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
 .wrapper {
 	display: flex;
 	flex-direction: column;
@@ -67,4 +69,14 @@ tr:not(:last-child)>td {
 .actions {
 	display: flex;
 	justify-content: end;
+	gap: 1rem;
+	flex-direction: column;
+
+	@include break-medium {
+		flex-direction: row;
+	}
+
+	button {
+		width: 100%;
+	}
 }
