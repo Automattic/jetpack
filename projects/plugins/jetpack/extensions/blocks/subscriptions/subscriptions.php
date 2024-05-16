@@ -171,7 +171,7 @@ function register_block() {
 
 	add_action( 'init', __NAMESPACE__ . '\maybe_prevent_super_cache_caching' );
 
-	add_action( 'save_post_post', __NAMESPACE__ . '\add_paywalled_content_post_meta', 99, 1 );
+	add_action( 'wp_after_insert_post', __NAMESPACE__ . '\add_paywalled_content_post_meta', 99, 2 );
 
 	add_filter(
 		'jetpack_options_whitelist',
@@ -224,10 +224,15 @@ function register_newsletter_access_column( $columns ) {
 /**
  * Add a meta to prevent publication on firehose, ES AI or Reader
  *
- * @param int $post_id Post id being saved.
+ * @param int      $post_id Post id being saved.
+ * @param \WP_Post $post Post being saved.
  * @return void
  */
-function add_paywalled_content_post_meta( int $post_id ) {
+function add_paywalled_content_post_meta( int $post_id, \WP_Post $post ) {
+	if ( $post->post_type !== 'post' ) {
+		return;
+	}
+
 	$access_level = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
 
 	$is_paywalled = false;
@@ -237,7 +242,12 @@ function add_paywalled_content_post_meta( int $post_id ) {
 		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS:
 			$is_paywalled = true;
 	}
-	update_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, $is_paywalled );
+	if ( $is_paywalled ) {
+		update_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, $is_paywalled );
+	}
+	if ( ! $is_paywalled ) {
+		delete_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT );
+	}
 }
 
 /**
