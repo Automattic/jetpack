@@ -1242,10 +1242,11 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/plugins-installer",
-				"reference": "bdfc2fdd83370ee884a2ba1456c3886585eac847"
+				"reference": "410fd88891db0040925f902c676f52b0e5bdd472"
 			},
 			"require": {
 				"automattic/jetpack-a8c-mc-stats": "@dev",
+				"automattic/jetpack-status": "@dev",
 				"php": ">=7.0"
 			},
 			"require-dev": {
