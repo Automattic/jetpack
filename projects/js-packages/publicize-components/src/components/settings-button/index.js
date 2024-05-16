@@ -9,7 +9,7 @@ import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useReducer, useState } from 'react';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
-import { SOCIAL_STORE_ID } from '../../social-store';
+import { store } from '../../social-store';
 import AddConnectionModal from '../add-connection-modal';
 import styles from './styles.module.scss';
 
@@ -19,7 +19,7 @@ import styles from './styles.module.scss';
  * @returns {object} The link/button component.
  */
 export default function PublicizeSettingsButton() {
-	const useAdminUiV1 = useSelect( select => select( SOCIAL_STORE_ID ).useAdminUiV1() );
+	const useAdminUiV1 = useSelect( select => select( store ).useAdminUiV1() );
 
 	const [ currentService, setCurrentService ] = useState( null );
 	const [ isModalOpen, toggleModal ] = useReducer( state => ! state, false );
@@ -30,6 +30,7 @@ export default function PublicizeSettingsButton() {
 				className={ styles[ 'settings-link' ] }
 				onClick={ toggleModal }
 				title={ __( 'Connect an account', 'jetpack' ) }
+				aria-label={ __( 'Connect an account', 'jetpack' ) }
 			>
 				<svg
 					width="24"
@@ -84,6 +85,7 @@ const OldPublicizeSettingsButton = () => {
 			target="_blank"
 			rel="noreferrer"
 			title={ __( 'Connect an account', 'jetpack' ) }
+			aria-label={ __( 'Connect an account', 'jetpack' ) }
 		>
 			<svg
 				width="24"
