@@ -18,6 +18,8 @@ export default class ModuleChartBar extends React.Component {
 		count: PropTypes.number,
 	};
 
+	valueBarRef = React.createRef();
+
 	state = { showPopover: false };
 
 	buildSections = () => {
@@ -59,7 +61,7 @@ export default class ModuleChartBar extends React.Component {
 
 		sections.push(
 			<div
-				ref="valueBar"
+				ref={ this.valueBarRef }
 				key="value"
 				className="dops-chart__bar-section is-bar"
 				style={ valueStyle }
@@ -136,7 +138,7 @@ export default class ModuleChartBar extends React.Component {
 				className="dops-chart__tooltip"
 				id="popover__chart-bar"
 				showDelay={ 200 }
-				context={ this.refs && this.refs.valueBar }
+				context={ this.valueBarRef.current }
 				isVisible={ this.state.showPopover }
 				position={ this.props.tooltipPosition }
 			>

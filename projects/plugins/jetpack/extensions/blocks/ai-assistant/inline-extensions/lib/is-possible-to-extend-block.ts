@@ -6,11 +6,7 @@ import { select } from '@wordpress/data';
 /*
  * Internal dependencies
  */
-import {
-	EXTENDED_INLINE_BLOCKS,
-	isAiAssistantExtensionsSupportEnabled,
-	isAiAssistantSupportEnabled,
-} from '../../extensions/ai-assistant';
+import { EXTENDED_INLINE_BLOCKS, isAiAssistantSupportEnabled } from '../../extensions/ai-assistant';
 
 /**
  * Check if it is possible to extend the block as an inline extension.
@@ -27,11 +23,6 @@ export function isPossibleToExtendBlock( blockName: string ): boolean {
 
 	// Check if AI Assistant support is enabled
 	if ( ! isAiAssistantSupportEnabled ) {
-		return false;
-	}
-
-	// Check if AI Assistant extensions support is enabled.
-	if ( ! isAiAssistantExtensionsSupportEnabled ) {
 		return false;
 	}
 
