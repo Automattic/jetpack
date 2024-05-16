@@ -72,7 +72,7 @@ function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 	}
 
 	global $pagenow;
-	if ( 'options.php' === $pagenow ) {
+	if ( isset( $pagenow ) && 'options.php' === $pagenow ) {
 		wpcom_admin_interface_track_changed_event( $new_value );
 	}
 
