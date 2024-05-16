@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Connection: Ensuring direct file access is disabled in class-jetpack-ixr-client.php
