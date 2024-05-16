@@ -523,6 +523,10 @@ class REST_Controller {
 			'wpcom'
 		);
 
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
 		if ( isset( $response['body'] ) ) {
 			$body = json_decode( wp_remote_retrieve_body( $response ), true );
 			if ( isset( $body['ID'] ) ) {
