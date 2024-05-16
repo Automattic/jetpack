@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Publicize\Jetpack_Social_Settings;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Modules;
-use Automattic\Jetpack\Publicize\Publicize;
 use Automattic\Jetpack\Publicize\Social_Image_Generator\Templates;
 
 /**
@@ -183,7 +182,7 @@ class Settings {
 
 		$settings = $this->get_settings( true );
 
-		$settings['useAdminUiV1'] = Publicize::use_admin_ui_v1();
+		$settings['useAdminUiV1'] = $publicize->use_admin_ui_v1();
 
 		$settings['is_publicize_enabled'] = false;
 
