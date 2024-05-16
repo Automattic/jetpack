@@ -238,7 +238,7 @@ abstract class Publicize_Base {
 
 		// Default checkbox state for each Connection.
 		add_filter( 'publicize_checkbox_default', array( $this, 'publicize_checkbox_default' ), 10, 2 );
-		add_filter( 'jetpack_open_graph_tags', array( $this, 'add_jetpack_social_og_image' ), 12, 1 ); // $priority = 12, to run after Jetpack adds the tags in the Jetpack_Twitter_Cards class.
+		add_filter( 'jetpack_open_graph_tags', array( $this, 'add_jetpack_social_og_images' ), 12, 1 ); // $priority = 12, to run after Jetpack adds the tags in the Jetpack_Twitter_Cards class.
 
 		// Alter the "Post Publish" admin notice to mention the Connections we Publicized to.
 		add_filter( 'post_updated_messages', array( $this, 'update_published_message' ), 20, 1 );

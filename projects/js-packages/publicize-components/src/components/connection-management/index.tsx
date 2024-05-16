@@ -13,6 +13,7 @@ import {
 import ConnectionIcon from '../connection-icon';
 import { ConnectionInfo } from './connection-info';
 import { Disconnect } from './disconnect';
+import { MarkAsShared } from './mark-as-shared';
 import styles from './style.module.scss';
 
 const ConnectionManagement = ( { className = null } ) => {
@@ -85,6 +86,7 @@ const ConnectionManagement = ( { className = null } ) => {
 								<td>
 									<div className={ styles.actions }>
 										<Disconnect connection={ connection } />
+										<MarkAsShared connection={ connection } />
 									</div>
 								</td>
 							</tr>
