@@ -4,11 +4,10 @@ import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import { KeyringResult } from '../../social-store/types';
+import { ServicesList } from '../services/services-list';
+import { SupportedService } from '../services/use-supported-services';
 import { ConfirmationForm } from './confirmation-form';
-import { ConnectPage } from './connect-page/connect-page';
-import { ServicesList } from './services-list';
 import styles from './style.module.scss';
-import { SupportedService } from './use-supported-services';
 
 type AddConnectionModalProps = {
 	onCloseModal: VoidFunction;
@@ -24,10 +23,6 @@ const AddConnectionModal = ( {
 	const [ keyringResult, setKeyringResult ] = useState< KeyringResult | null >( null );
 
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
-
-	const onBackClicked = useCallback( () => {
-		setCurrentService( null );
-	}, [ setCurrentService ] );
 
 	const onConfirm = useCallback( ( result: KeyringResult ) => {
 		setKeyringResult( result );
@@ -71,16 +66,6 @@ const AddConnectionModal = ( {
 				( () => {
 					if ( hasKeyringResult ) {
 						return <ConfirmationForm keyringResult={ keyringResult } onComplete={ onComplete } />;
-					}
-
-					if ( currentService ) {
-						return (
-							<ConnectPage
-								service={ currentService }
-								onBackClicked={ onBackClicked }
-								onConfirm={ onConfirm }
-							/>
-						);
 					}
 
 					return <ServicesList onSelectService={ setCurrentService } onConfirm={ onConfirm } />;
