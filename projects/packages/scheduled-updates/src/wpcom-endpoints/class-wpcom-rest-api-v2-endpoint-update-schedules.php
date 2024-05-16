@@ -176,7 +176,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		}
 
 		$schedule = $request['schedule'];
-		$plugins  = $request['plugins'] ?? array();
+		$plugins  = $request['plugins'];
 		usort( $plugins, 'strnatcasecmp' );
 
 		$event = Scheduled_Updates::create_scheduled_update( $schedule['timestamp'], $schedule['interval'], $plugins );
@@ -491,7 +491,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	public function validate_schedule( $request ) {
 		$events = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
 
-		$plugins = $request['plugins'] ?? array();
+		$plugins = $request['plugins'];
 		usort( $plugins, 'strnatcasecmp' );
 
 		foreach ( $events as $key => $event ) {
@@ -592,6 +592,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 					'description' => 'List of plugin slugs to update.',
 					'type'        => 'array',
 					'maxItems'    => 10,
+					'required'    => true,
 					'arg_options' => array(
 						'validate_callback' => array( $this, 'validate_plugins_param' ),
 					),
