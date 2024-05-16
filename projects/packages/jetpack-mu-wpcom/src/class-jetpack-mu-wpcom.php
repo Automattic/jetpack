@@ -9,8 +9,6 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify;
-
 /**
  * Jetpack_Mu_Wpcom main class.
  */
@@ -94,15 +92,11 @@ class Jetpack_Mu_Wpcom {
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
+		\Jetpack_Calypsoify::get_instance();
 
 		// Gets autoloaded from the Scheduled_Updates package.
 		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
 			Scheduled_Updates::init();
-		}
-
-		// Gets autoloaded from the Scheduled_Updates package.
-		if ( class_exists( 'Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify' ) ) {
-			Jetpack_Calypsoify::get_instance();
 		}
 	}
 

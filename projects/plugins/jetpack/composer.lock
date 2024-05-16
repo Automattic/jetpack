@@ -733,9 +733,10 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/calypsoify",
-				"reference": "0aea227ff770266d83dc07e5a093b2ee66e8e246"
+				"reference": "10f1e08f3ac93e9c6f004d1d733443370e15334f"
 			},
 			"require": {
+				"automattic/jetpack-assets": "@dev",
 				"automattic/jetpack-status": "@dev",
 				"php": ">=7.0"
 			},
