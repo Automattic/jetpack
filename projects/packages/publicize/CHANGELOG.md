@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.43.1] - 2024-05-16
+### Fixed
+- Add back the OpenGraph filter function to prevent uncached multiple uncached requests for images during frontend requests. [#37368] [#37411]
+
 ## [0.43.0] - 2024-05-06
 ### Added
 - Added feature flag for new social admin UI. [#37134]
@@ -542,6 +546,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.43.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.43.0...v0.43.1
 [0.43.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.13...v0.43.0
 [0.42.13]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.12...v0.42.13
 [0.42.12]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.11...v0.42.12

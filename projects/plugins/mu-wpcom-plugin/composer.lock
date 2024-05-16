@@ -224,16 +224,16 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "v2.7.6",
+            "version": "v2.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-connection.git",
-                "reference": "475e683682978ad73b217aa8c830faeb2ec2cbbe"
+                "reference": "aa38dd1c8e7af2bb9fb521cea9b80bf5d71cbe52"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/475e683682978ad73b217aa8c830faeb2ec2cbbe",
-                "reference": "475e683682978ad73b217aa8c830faeb2ec2cbbe",
+                "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/aa38dd1c8e7af2bb9fb521cea9b80bf5d71cbe52",
+                "reference": "aa38dd1c8e7af2bb9fb521cea9b80bf5d71cbe52",
                 "shasum": ""
             },
             "require": {
@@ -243,7 +243,7 @@
                 "automattic/jetpack-constants": "^2.0.2",
                 "automattic/jetpack-redirect": "^2.0.2",
                 "automattic/jetpack-roles": "^2.0.2",
-                "automattic/jetpack-status": "^3.0.2",
+                "automattic/jetpack-status": "^3.0.3",
                 "php": ">=7.0"
             },
             "require-dev": {
@@ -269,7 +269,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.7.x-dev"
+                    "dev-trunk": "2.8.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -291,9 +291,9 @@
             ],
             "description": "Everything needed to connect to the Jetpack infrastructure",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-connection/tree/v2.7.6"
+                "source": "https://github.com/Automattic/jetpack-connection/tree/v2.8.1"
             },
-            "time": "2024-05-06T17:33:47+00:00"
+            "time": "2024-05-14T16:01:34+00:00"
         },
         {
             "name": "automattic/jetpack-constants",
@@ -1011,16 +1011,16 @@
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "v3.0.2",
+            "version": "v3.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-status.git",
-                "reference": "daa57daa8f5e75aba8e33f3837434d1f4a52dbc8"
+                "reference": "dee3a6f2dcc129bd3869c44ba661484adda0a2f8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-status/zipball/daa57daa8f5e75aba8e33f3837434d1f4a52dbc8",
-                "reference": "daa57daa8f5e75aba8e33f3837434d1f4a52dbc8",
+                "url": "https://api.github.com/repos/Automattic/jetpack-status/zipball/dee3a6f2dcc129bd3869c44ba661484adda0a2f8",
+                "reference": "dee3a6f2dcc129bd3869c44ba661484adda0a2f8",
                 "shasum": ""
             },
             "require": {
@@ -1068,32 +1068,32 @@
             ],
             "description": "Used to retrieve information about the current status of Jetpack and the site overall.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-status/tree/v3.0.2"
+                "source": "https://github.com/Automattic/jetpack-status/tree/v3.0.3"
             },
-            "time": "2024-05-06T17:33:02+00:00"
+            "time": "2024-05-08T10:06:11+00:00"
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "v2.15.1",
+            "version": "v2.16.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-sync.git",
-                "reference": "9376f787835a3b86c3ca310e590303502e6bf680"
+                "reference": "3cc8c8e41ce38bea7fe27faf7e8ae9902b2dc702"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/9376f787835a3b86c3ca310e590303502e6bf680",
-                "reference": "9376f787835a3b86c3ca310e590303502e6bf680",
+                "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/3cc8c8e41ce38bea7fe27faf7e8ae9902b2dc702",
+                "reference": "3cc8c8e41ce38bea7fe27faf7e8ae9902b2dc702",
                 "shasum": ""
             },
             "require": {
-                "automattic/jetpack-connection": "^2.7.6",
+                "automattic/jetpack-connection": "^2.8.1",
                 "automattic/jetpack-constants": "^2.0.2",
                 "automattic/jetpack-identity-crisis": "^0.18.6",
                 "automattic/jetpack-ip": "^0.2.2",
                 "automattic/jetpack-password-checker": "^0.3.1",
                 "automattic/jetpack-roles": "^2.0.2",
-                "automattic/jetpack-status": "^3.0.2",
+                "automattic/jetpack-status": "^3.0.3",
                 "php": ">=7.0"
             },
             "require-dev": {
@@ -1118,7 +1118,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.15.x-dev"
+                    "dev-trunk": "2.16.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1138,22 +1138,22 @@
             ],
             "description": "Everything needed to allow syncing to the WP.com infrastructure.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-sync/tree/v2.15.1"
+                "source": "https://github.com/Automattic/jetpack-sync/tree/v2.16.2"
             },
-            "time": "2024-05-06T17:34:26+00:00"
+            "time": "2024-05-14T16:02:00+00:00"
         },
         {
             "name": "automattic/scheduled-updates",
-            "version": "v0.11.0",
+            "version": "v0.11.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/scheduled-updates.git",
-                "reference": "23390950c2369da33b2ffa3ee225a0d52715d547"
+                "reference": "5c46631d61cafdcbf7b98427193695a496dfa393"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/scheduled-updates/zipball/23390950c2369da33b2ffa3ee225a0d52715d547",
-                "reference": "23390950c2369da33b2ffa3ee225a0d52715d547",
+                "url": "https://api.github.com/repos/Automattic/scheduled-updates/zipball/5c46631d61cafdcbf7b98427193695a496dfa393",
+                "reference": "5c46631d61cafdcbf7b98427193695a496dfa393",
                 "shasum": ""
             },
             "require": {
@@ -1199,9 +1199,9 @@
             ],
             "description": "Runs plugin and (eventually) theme updates on a set schedule.",
             "support": {
-                "source": "https://github.com/Automattic/scheduled-updates/tree/v0.11.0"
+                "source": "https://github.com/Automattic/scheduled-updates/tree/v0.11.1"
             },
-            "time": "2024-05-06T17:34:28+00:00"
+            "time": "2024-05-07T05:10:58+00:00"
         }
     ],
     "packages-dev": [
