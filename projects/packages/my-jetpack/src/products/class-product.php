@@ -462,7 +462,9 @@ abstract class Product {
 			$status = 'module_inactive';
 			// If there is not a plan associated with the disabled module, encourage a plan first
 			// Getting a plan set up should help resolve any connection issues
-			if ( ! static::has_any_plan_for_product() ) {
+			// However if the standalone plugin for this product is active, then we will defer to showing errors that prevent the module from being active
+			// This is because if a standalone plugin is installed, we expect the product to not show as "inactive" on My Jetpack
+			if ( ! static::has_any_plan_for_product() && static::$has_standalone_plugin && ! self::is_plugin_active() ) {
 				$status = 'needs_purchase_or_free';
 				if ( ! static::$has_free_offering ) {
 					$status = 'needs_purchase';
