@@ -10,7 +10,7 @@ import { useCallback, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { store as socialStore } from '../../../social-store';
 import { KeyringResult } from '../../../social-store/types';
-import { useSupportedServices } from '../use-supported-services';
+import { useSupportedServices } from '../../services/use-supported-services';
 import styles from './style.module.scss';
 
 type ConfirmationFormProps = {

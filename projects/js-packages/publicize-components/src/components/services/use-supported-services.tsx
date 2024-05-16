@@ -44,10 +44,7 @@ export function useSupportedServices(): Array< SupportedService > {
 		{
 			...availableServices.facebook,
 			icon: props => <SocialServiceIcon serviceName="facebook" { ...props } />,
-			description: __(
-				"Facebook's massive active user base makes for a great place to share your posts and connect with your followers.",
-				'jetpack'
-			),
+			description: __( 'Share to your pages', 'jetpack' ),
 			examples: [
 				() => (
 					<>
@@ -92,10 +89,7 @@ export function useSupportedServices(): Array< SupportedService > {
 		{
 			...availableServices[ 'instagram-business' ],
 			icon: props => <SocialServiceIcon serviceName="instagram" { ...props } />,
-			description: __(
-				'Share photos from your site to your Instagram Business account.',
-				'jetpack'
-			),
+			description: __( 'Share to your Instagram Business account.', 'jetpack' ),
 			examples: [
 				() => (
 					<>
@@ -143,10 +137,7 @@ export function useSupportedServices(): Array< SupportedService > {
 		{
 			...availableServices.linkedin,
 			icon: props => <SocialServiceIcon serviceName="linkedin" { ...props } />,
-			description: __(
-				'Reach a professional audience and contribute valuable content by sharing your posts with the LinkedIn community.',
-				'jetpack'
-			),
+			description: __( 'Share with your LinkedIn community.', 'jetpack' ),
 			examples: [
 				() => (
 					<>
@@ -191,10 +182,7 @@ export function useSupportedServices(): Array< SupportedService > {
 		{
 			...availableServices.nextdoor,
 			icon: props => <SocialServiceIcon serviceName="nextdoor" { ...props } />,
-			description: __(
-				'Share your posts with your local community on Nextdoor, facilitating meaningful interactions and fostering a sense of belonging among neighbors.',
-				'jetpack'
-			),
+			description: __( 'Share on communities', 'jetpack' ),
 			examples: [
 				() => (
 					<>
@@ -213,10 +201,7 @@ export function useSupportedServices(): Array< SupportedService > {
 		{
 			...availableServices.tumblr,
 			icon: props => <SocialServiceIcon serviceName="tumblr-alt" { ...props } />,
-			description: __(
-				'Share posts on your Tumblr blog to expand your reach to a diverse younger audience in a fun and creative community.',
-				'jetpack'
-			),
+			description: __( 'Share to your Tumblr blog.', 'jetpack' ),
 			examples: [
 				() => (
 					<>
@@ -259,10 +244,7 @@ export function useSupportedServices(): Array< SupportedService > {
 			...availableServices.mastodon,
 			needsCustomInputs: true,
 			icon: props => <SocialServiceIcon serviceName="mastodon" { ...props } />,
-			description: __(
-				'Share your posts to an open-source social network with a community that values privacy and freedom.',
-				'jetpack'
-			),
+			description: __( 'Share with your network.', 'jetpack' ),
 			examples: [
 				() => (
 					<>
