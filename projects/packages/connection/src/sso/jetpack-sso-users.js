@@ -52,8 +52,13 @@ document.addEventListener( 'DOMContentLoaded', function () {
 
 	/**
 	 * Remove the SSO invitation tooltip textbox.
+	 *
+	 * @param {Event} event - Triggering event.
 	 */
-	function removeSSOInvitationTooltip() {
+	function removeSSOInvitationTooltip( event ) {
+		if ( document.activeElement === event.target ) {
+			return;
+		}
 		this.querySelector( '.jetpack-sso-invitation-tooltip' ).style.display = 'none';
 	}
 } );
