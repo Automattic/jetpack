@@ -14,6 +14,7 @@ import { Icon, external } from '@wordpress/icons';
 import './style.scss';
 import UpgradePrompt from '../../../../blocks/ai-assistant/components/upgrade-prompt';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
+import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import { PLAN_TYPE_UNLIMITED, usePlanType } from '../../../../shared/use-plan-type';
 import usePostContent from '../../hooks/use-post-content';
 import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library';
@@ -27,6 +28,15 @@ import UsageCounter from './usage-counter';
 
 const FEATURED_IMAGE_FEATURE_NAME = 'featured-post-image';
 export const FEATURED_IMAGE_PLACEMENT_MEDIA_SOURCE_DROPDOWN = 'media-source-dropdown';
+
+/**
+ * Control experimental image generation for the featured image.
+ */
+const AI_ASSISTANT_EXPERIMENTAL_IMAGE_GENERATION_SUPPORT =
+	'ai-assistant-experimental-image-generation-support';
+const isAiAssistantExperimentalImageGenerationSupportEnabled = getFeatureAvailability(
+	AI_ASSISTANT_EXPERIMENTAL_IMAGE_GENERATION_SUPPORT
+);
 
 export default function FeaturedImage( {
 	busy,
@@ -53,7 +63,7 @@ export default function FeaturedImage( {
 	const triggeredAutoGeneration = useRef( false );
 
 	const { enableComplementaryArea } = useDispatch( 'core/interface' );
-	const { generateImage } = useImageGenerator();
+	const { generateImage, generateImageWithStableDiffusion } = useImageGenerator();
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
@@ -166,12 +176,21 @@ export default function FeaturedImage( {
 			return;
 		}
 
-		generateImage( {
-			feature: FEATURED_IMAGE_FEATURE_NAME,
-			postContent,
-			responseFormat: 'b64_json',
-			userPrompt,
-		} )
+		/** Decide between standard or experimental generation */
+		const generateImagePromise = isAiAssistantExperimentalImageGenerationSupportEnabled
+			? generateImageWithStableDiffusion( {
+					feature: FEATURED_IMAGE_FEATURE_NAME,
+					postContent,
+					userPrompt,
+			  } )
+			: generateImage( {
+					feature: FEATURED_IMAGE_FEATURE_NAME,
+					postContent,
+					responseFormat: 'b64_json',
+					userPrompt,
+			  } );
+
+		generateImagePromise
 			.then( result => {
 				if ( result.data.length > 0 ) {
 					const image = 'data:image/png;base64,' + result.data[ 0 ].b64_json;
@@ -195,6 +214,7 @@ export default function FeaturedImage( {
 		notEnoughRequests,
 		updateImages,
 		generateImage,
+		generateImageWithStableDiffusion,
 		postContent,
 		userPrompt,
 		updateRequestsCount,
