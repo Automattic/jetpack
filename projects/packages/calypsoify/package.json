@@ -19,8 +19,8 @@
 		"build-js": "webpack --config ./webpack.config.calypsoify.js",
 		"build-production": "pnpm run clean && pnpm run build-production-js && pnpm run validate",
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
-		"clean": "rm -rf build/ .cache/",
-		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
+		"clean": "rm -rf dist/ .cache/",
+		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern dist/",
 		"watch": "pnpm run build && pnpm webpack watch"
 	},
 	"dependencies": {

@@ -1,5 +1,6 @@
 /* eslint-disable no-var */
 /* global wp, calypsoifyGutenberg */
+import '../scss/style-gutenberg.scss';
 
 jQuery( function ( $ ) {
 	// Force fullscreen mode for iframed post editor.
