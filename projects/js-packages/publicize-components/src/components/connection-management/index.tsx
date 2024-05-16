@@ -6,14 +6,10 @@ import classNames from 'classnames';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store } from '../../social-store';
 import AddConnectionModal from '../add-connection-modal';
-import {
-	SupportedService,
-	useSupportedServices,
-} from '../add-connection-modal/use-supported-services';
 import ConnectionIcon from '../connection-icon';
+import { SupportedService, useSupportedServices } from '../services/use-supported-services';
 import { ConnectionInfo } from './connection-info';
 import { Disconnect } from './disconnect';
-import { MarkAsShared } from './mark-as-shared';
 import styles from './style.module.scss';
 
 const ConnectionManagement = ( { className = null } ) => {
@@ -86,7 +82,6 @@ const ConnectionManagement = ( { className = null } ) => {
 								<td>
 									<div className={ styles.actions }>
 										<Disconnect connection={ connection } />
-										<MarkAsShared connection={ connection } />
 									</div>
 								</td>
 							</tr>

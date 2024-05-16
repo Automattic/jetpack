@@ -6,12 +6,15 @@
 	align-items: start;
 	gap: 1.5rem;
 
-	.profile-link {
-		color: inherit;
+}
 
-		> span {
-			text-decoration: none;
-		}
+.profile-link {
+	&:global(.components-external-link) {
+
+		color: inherit;
+		text-decoration: none;
+		font-size: 1rem;
+		font-weight: 400;
 
 		&:hover {
 			text-decoration: underline;
@@ -29,10 +32,6 @@
 
 .column-name {
 	width: 25rem;
-}
-
-.icon>div {
-	cursor: default;
 }
 
 .confirmDialog span {
