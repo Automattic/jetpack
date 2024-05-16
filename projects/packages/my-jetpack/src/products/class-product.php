@@ -456,9 +456,8 @@ abstract class Product {
 			} elseif ( static::is_upgradable() ) {
 				$status = 'can_upgrade';
 			}
-			// We've got the plugin active and the plan situation sorted out (either the product has a plan or does not need one)
-			// But, the product has another restriction for activation (there could be a module that needs to be activated)
-		} elseif ( self::is_active() && ! static::is_active() ) {
+			// Check specifically for inactive modules, which will prevent a product from being active
+		} elseif ( static::$module_name && ! static::is_module_active() ) {
 			$status = 'module_inactive';
 			// If there is not a plan associated with the disabled module, encourage a plan first
 			// Getting a plan set up should help resolve any connection issues
