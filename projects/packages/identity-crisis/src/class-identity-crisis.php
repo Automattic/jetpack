@@ -194,7 +194,7 @@ class Identity_Crisis {
 		if ( current_user_can( 'jetpack_disconnect' ) ) {
 			if (
 					isset( $_GET['jetpack_idc_clear_confirmation'] ) && isset( $_GET['_wpnonce'] ) &&
-					wp_verify_nonce( $_GET['_wpnonce'], 'jetpack_idc_clear_confirmation' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
+					wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'jetpack_idc_clear_confirmation' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
 			) {
 				Jetpack_Options::delete_option( 'safe_mode_confirmed' );
 				self::$is_safe_mode_confirmed = false;

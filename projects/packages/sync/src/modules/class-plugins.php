@@ -314,7 +314,7 @@ class Plugins extends Module {
 			return;
 		}
 
-		if ( ! wp_verify_nonce( $args['nonce'], 'edit-plugin_' . $file ) ) {
+		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $args['nonce'] ) ), 'edit-plugin_' . $file ) ) {
 			return;
 		}
 		$plugins = get_plugins();

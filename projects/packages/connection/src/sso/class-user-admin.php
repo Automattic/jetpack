@@ -160,7 +160,7 @@ class User_Admin {
 	 */
 	public function handle_invitation_results() {
 		$valid_nonce = isset( $_GET['_wpnonce'] )
-			? wp_verify_nonce( sanitize_key( $_GET['_wpnonce'] ), 'jetpack-sso-invite-user' )
+			? wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'jetpack-sso-invite-user' )
 			: false;
 
 		if ( ! $valid_nonce || ! isset( $_GET['jetpack-sso-invite-user'] ) ) {
@@ -862,7 +862,7 @@ class User_Admin {
 		// check for a valid nonce.
 		if (
 			! isset( $_POST['_wpnonce_create-user'] )
-			|| ! wp_verify_nonce( sanitize_key( $_POST['_wpnonce_create-user'] ), 'create-user' )
+			|| ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce_create-user'] ) ), 'create-user' )
 		) {
 			return $errors;
 		}

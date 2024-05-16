@@ -121,9 +121,18 @@ class Jetpack_Signature {
 		foreach ( array( 'token', 'timestamp', 'nonce', 'body-hash' ) as $parameter ) {
 			if ( isset( $override[ $parameter ] ) ) {
 				$a[ $parameter ] = $override[ $parameter ];
-			} else {
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$a[ $parameter ] = isset( $_GET[ $parameter ] ) ? filter_var( wp_unslash( $_GET[ $parameter ] ) ) : '';
+			} elseif ( isset( $_GET[ $parameter ] ) ) {
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				if ( in_array( $parameter, array( 'token', 'nonce', 'body-hash' ), true ) ) {
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.NonceVerification.Recommended
+					$a[ $parameter ] = filter_var( wp_unslash( $_GET[ $parameter ] ), FILTER_SANITIZE_STRING );
+				} elseif ( 'timestamp' === $parameter ) {
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.NonceVerification.Recommended
+					$a[ $parameter ] = filter_var( wp_unslash( $_GET[ $parameter ] ), FILTER_SANITIZE_NUMBER_INT );
+				}
+			} else {
+				$a[ $parameter ] = '';
 			}
 		}
 

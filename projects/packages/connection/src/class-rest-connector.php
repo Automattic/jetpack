@@ -667,7 +667,7 @@ class REST_Connector {
 		}
 
 		// signature timestamp must be within 5min of current time.
-		if ( abs( time() - (int) $_GET['timestamp'] ) > 300 ) {
+		if ( abs( time() - filter_var( wp_unslash( $_GET['timestamp'] ), FILTER_SANITIZE_NUMBER_INT ) ) > 300 ) {
 			return false;
 		}
 
@@ -675,9 +675,9 @@ class REST_Connector {
 
 		$signature_data = wp_json_encode(
 			array(
-				'rest_route' => filter_var( wp_unslash( $_GET['rest_route'] ) ),
-				'timestamp'  => (int) $_GET['timestamp'],
-				'url'        => filter_var( wp_unslash( $_GET['url'] ) ),
+				'rest_route' => filter_var( wp_unslash( $_GET['rest_route'] ), FILTER_SANITIZE_STRING ),
+				'timestamp'  => filter_var( wp_unslash( $_GET['timestamp'] ), FILTER_SANITIZE_NUMBER_INT ),
+				'url'        => filter_var( wp_unslash( $_GET['url'] ), FILTER_SANITIZE_URL ),
 			)
 		);
 

@@ -86,7 +86,7 @@ class Dedicated_Sender {
 		}
 
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Recommended
-		$check_url = self::prepare_url_for_dedicated_request_check( wp_unslash( $_SERVER['REQUEST_URI'] ) );
+		$check_url = self::prepare_url_for_dedicated_request_check( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ), FILTER_SANITIZE_URL ) );
 		if ( strpos( $check_url, 'jetpack/v4/sync/spawn-sync' ) !== false ) {
 			return true;
 		}
@@ -102,7 +102,7 @@ class Dedicated_Sender {
 		}
 
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Recommended
-		$check_url = self::prepare_url_for_dedicated_request_check( wp_unslash( $_GET['rest_route'] ) );
+		$check_url = self::prepare_url_for_dedicated_request_check( filter_var( wp_unslash( $_GET['rest_route'] ), FILTER_SANITIZE_STRING ) );
 		if ( strpos( $check_url, 'jetpack/v4/sync/spawn-sync' ) !== false ) {
 			return true;
 		}
@@ -284,7 +284,7 @@ class Dedicated_Sender {
 			return null;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Validation happened above.
 		return wp_unslash( $_GET[ self::DEDICATED_SYNC_REQUEST_LOCK_QUERY_PARAM_NAME ] );
 	}
 

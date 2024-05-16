@@ -72,7 +72,7 @@ class Tracking {
 		// Check for nonce.
 		if (
 			empty( $_REQUEST['tracksNonce'] )
-			|| ! wp_verify_nonce( $_REQUEST['tracksNonce'], 'jp-tracks-ajax-nonce' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
+			|| ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_REQUEST['tracksNonce'] ) ), 'jp-tracks-ajax-nonce' )
 		) {
 			wp_send_json_error(
 				__( 'You aren’t authorized to do that.', 'jetpack-connection' ),
@@ -89,14 +89,18 @@ class Tracking {
 
 		$tracks_data = array();
 		if ( 'click' === $_REQUEST['tracksEventType'] && isset( $_REQUEST['tracksEventProp'] ) ) {
-			if ( is_array( $_REQUEST['tracksEventProp'] ) ) {
-				$tracks_data = array_map( 'filter_var', wp_unslash( $_REQUEST['tracksEventProp'] ) );
+			$event_prop = wp_unslash( $_REQUEST['tracksEventProp'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Happens below
+
+			if ( is_array( $event_prop ) ) {
+				foreach ( $event_prop as $key => $value ) {
+					$tracks_data[ $key ] = filter_var( wp_unslash( $value ), FILTER_SANITIZE_STRING );
+				}
 			} else {
-				$tracks_data = array( 'clicked' => filter_var( wp_unslash( $_REQUEST['tracksEventProp'] ) ) );
+				$tracks_data = array( 'clicked' => filter_var( $event_prop, FILTER_SANITIZE_STRING ) );
 			}
 		}
 
-		$this->record_user_event( filter_var( wp_unslash( $_REQUEST['tracksEventName'] ) ), $tracks_data, null, false );
+		$this->record_user_event( filter_var( wp_unslash( $_REQUEST['tracksEventName'] ), FILTER_SANITIZE_STRING ), $tracks_data, null, false );
 
 		wp_send_json_success();
 	}
@@ -169,9 +173,9 @@ class Tracking {
 		}
 		$site_url = get_option( 'siteurl' );
 
-		$data['_via_ua']  = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
-		$data['_via_ip']  = isset( $_SERVER['REMOTE_ADDR'] ) ? filter_var( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
-		$data['_lg']      = isset( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ) : '';
+		$data['_via_ua']  = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ), FILTER_SANITIZE_STRING ) : '';
+		$data['_via_ip']  = isset( $_SERVER['REMOTE_ADDR'] ) ? filter_var( wp_unslash( $_SERVER['REMOTE_ADDR'] ), FILTER_SANITIZE_STRING ) : '';
+		$data['_lg']      = isset( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ), FILTER_SANITIZE_STRING ) : '';
 		$data['blog_url'] = $site_url;
 		$data['blog_id']  = \Jetpack_Options::get_option( 'id' );
 

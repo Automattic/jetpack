@@ -432,7 +432,7 @@ class Listener {
 			$ip = IP_Utils::get_ip();
 
 			$actor['ip']         = $ip ? $ip : '';
-			$actor['user_agent'] = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : 'unknown';
+			$actor['user_agent'] = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ), FILTER_SANITIZE_STRING ) : 'unknown';
 		}
 
 		return $actor;

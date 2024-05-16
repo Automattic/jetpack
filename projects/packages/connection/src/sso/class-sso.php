@@ -434,7 +434,7 @@ class SSO {
 		$wants_to_login = false;
 
 		// Cover default WordPress behavior.
-		$action = isset( $_REQUEST['action'] ) ? filter_var( wp_unslash( $_REQUEST['action'] ) ) : 'login'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$action = isset( $_REQUEST['action'] ) ? filter_var( wp_unslash( $_REQUEST['action'], FILTER_SANITIZE_STRING ) ) : 'login'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		// And now the exceptions.
 		$action = isset( $_GET['loggedout'] ) ? 'loggedout' : $action; // phpcs:ignore WordPress.Security.NonceVerification.Recommended

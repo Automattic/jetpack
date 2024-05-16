@@ -394,19 +394,19 @@ class Manager {
 		}
 
 		$signature_details = array(
-			'token'     => isset( $_GET['token'] ) ? wp_unslash( $_GET['token'] ) : '',
-			'timestamp' => isset( $_GET['timestamp'] ) ? wp_unslash( $_GET['timestamp'] ) : '',
-			'nonce'     => isset( $_GET['nonce'] ) ? wp_unslash( $_GET['nonce'] ) : '',
-			'body_hash' => isset( $_GET['body-hash'] ) ? wp_unslash( $_GET['body-hash'] ) : '',
-			'method'    => isset( $_SERVER['REQUEST_METHOD'] ) ? wp_unslash( $_SERVER['REQUEST_METHOD'] ) : null,
-			'url'       => wp_unslash( ( isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : null ) . ( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null ) ), // Temp - will get real signature URL later.
-			'signature' => isset( $_GET['signature'] ) ? wp_unslash( $_GET['signature'] ) : '',
+			'token'     => isset( $_GET['token'] ) ? filter_var( wp_unslash( $_GET['token'] ), FILTER_SANITIZE_STRING ) : '',
+			'timestamp' => isset( $_GET['timestamp'] ) ? filter_var( wp_unslash( $_GET['timestamp'] ), FILTER_SANITIZE_NUMBER_INT ) : '',
+			'nonce'     => isset( $_GET['nonce'] ) ? filter_var( wp_unslash( $_GET['nonce'] ), FILTER_SANITIZE_STRING ) : '',
+			'body_hash' => isset( $_GET['body-hash'] ) ? filter_var( wp_unslash( $_GET['body-hash'] ), FILTER_SANITIZE_STRING ) : '',
+			'method'    => isset( $_SERVER['REQUEST_METHOD'] ) ? filter_var( wp_unslash( $_SERVER['REQUEST_METHOD'] ), FILTER_SANITIZE_STRING ) : null,
+			'url'       => filter_var( wp_unslash( ( isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : null ) . ( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null ) ), FILTER_SANITIZE_URL ), // Temp - will get real signature URL later.
+			'signature' => isset( $_GET['signature'] ) ? filter_var( wp_unslash( $_GET['signature'] ), FILTER_SANITIZE_STRING ) : '',
 		);
 
 		$error_type = 'xmlrpc';
 
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-		@list( $token_key, $version, $user_id ) = explode( ':', wp_unslash( $_GET['token'] ) );
+		@list( $token_key, $version, $user_id ) = explode( ':', filter_var( wp_unslash( $_GET['token'] ), FILTER_SANITIZE_STRING ) );
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		$jetpack_api_version = Constants::get_constant( 'JETPACK__API_VERSION' );
@@ -499,8 +499,8 @@ class Manager {
 		}
 
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		$timestamp = (int) $_GET['timestamp'];
-		$nonce     = wp_unslash( (string) $_GET['nonce'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- WP Core doesn't sanitize nonces either.
+		$timestamp = filter_var( wp_unslash( $_GET['timestamp'] ), FILTER_SANITIZE_NUMBER_INT );
+		$nonce     = filter_var( wp_unslash( $_GET['nonce'] ), FILTER_SANITIZE_STRING );
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		// Use up the nonce regardless of whether the signature matches.
@@ -518,7 +518,7 @@ class Manager {
 		$signature_details['expected'] = $signature;
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! hash_equals( $signature, wp_unslash( $_GET['signature'] ) ) ) {
+		if ( ! hash_equals( $signature, filter_var( wp_unslash( $_GET['signature'] ), FILTER_SANITIZE_STRING ) ) ) {
 			return new \WP_Error(
 				'signature_mismatch',
 				'Signature mismatch',

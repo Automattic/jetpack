@@ -262,7 +262,7 @@ class Themes extends Module {
 			return;
 		}
 
-		if ( ! wp_verify_nonce( $args['nonce'], 'edit-theme_' . $stylesheet . '_' . $file ) ) {
+		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $args['nonce'] ) ), 'edit-theme_' . $stylesheet . '_' . $file ) ) {
 			return;
 		}
 
