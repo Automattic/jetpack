@@ -22,6 +22,7 @@ function should_load_wpcom_command_palette() {
 		'post-new.php',
 		'site-editor.php',
 	);
+	// @phan-suppress-next-line PhanImpossibleTypeComparison -- Not sure how to resolve it as Phan expects the value is 'options.php' that uses in the another place.
 	return isset( $pagenow ) && ! in_array( $pagenow, $excluded_pages, true );
 }
 

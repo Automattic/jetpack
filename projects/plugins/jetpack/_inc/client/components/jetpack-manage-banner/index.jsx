@@ -5,7 +5,16 @@ import PropTypes from 'prop-types';
 import React, { useCallback, useEffect } from 'react';
 import jetpackManageIcon from './jetpack-manage.svg';
 
-const JetpackManageBanner = props => {
+const JetpackManageBanner = inprops => {
+	const props = {
+		path: '',
+		isUserLinked: false,
+		isOwner: false,
+		isFetchingData: false,
+		isAgencyAccount: false,
+		...inprops,
+	};
+
 	// Track banner view.
 	useEffect( () => {
 		analytics.tracks.recordEvent( 'jetpack_manage_banner_view', {
@@ -78,14 +87,6 @@ JetpackManageBanner.propTypes = {
 	isOwner: PropTypes.bool,
 	isFetchingData: PropTypes.bool,
 	isAgencyAccount: PropTypes.bool,
-};
-
-JetpackManageBanner.defaultProps = {
-	path: '',
-	isUserLinked: false,
-	isOwner: false,
-	isFetchingData: false,
-	isAgencyAccount: false,
 };
 
 export default JetpackManageBanner;

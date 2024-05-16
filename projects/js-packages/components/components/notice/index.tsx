@@ -51,11 +51,11 @@ const getIconByLevel = ( level: NoticeProps[ 'level' ] ) => {
  * @returns {React.ReactElement}              The `Notice` component.
  */
 const Notice: React.FC< NoticeProps > = ( {
-	level,
+	level = 'info',
 	title,
 	children,
 	actions,
-	hideCloseButton,
+	hideCloseButton = false,
 	onClose,
 } ) => {
 	const classes = classNames( styles.container, styles[ `is-${ level }` ] );
@@ -88,11 +88,6 @@ const Notice: React.FC< NoticeProps > = ( {
 			) }
 		</div>
 	);
-};
-
-Notice.defaultProps = {
-	level: 'info',
-	hideCloseButton: false,
 };
 
 export default Notice;

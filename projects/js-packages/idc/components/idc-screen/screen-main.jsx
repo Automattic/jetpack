@@ -18,15 +18,15 @@ const ScreenMain = props => {
 	const {
 		wpcomHomeUrl,
 		currentUrl,
-		isMigrating,
+		isMigrating = false,
 		migrateCallback,
-		isStartingFresh,
+		isStartingFresh = false,
 		startFreshCallback,
-		customContent,
-		hasMigrateError,
-		hasFreshError,
-		hasStaySafeError,
-		possibleDynamicSiteUrlDetected,
+		customContent = {},
+		hasMigrateError = false,
+		hasFreshError = false,
+		hasStaySafeError = false,
+		possibleDynamicSiteUrlDetected = false,
 	} = props;
 
 	return (
@@ -125,33 +125,23 @@ ScreenMain.propTypes = {
 	/** The current site URL */
 	currentUrl: PropTypes.string.isRequired,
 	/** Whether the migration is in progress. */
-	isMigrating: PropTypes.bool.isRequired,
+	isMigrating: PropTypes.bool,
 	/** Migration callback. */
 	migrateCallback: PropTypes.func,
 	/** Whether starting fresh is in progress. */
-	isStartingFresh: PropTypes.bool.isRequired,
+	isStartingFresh: PropTypes.bool,
 	/** "Start Fresh" callback. */
 	startFreshCallback: PropTypes.func,
 	/** Custom text content. */
 	customContent: PropTypes.shape( customContentShape ),
 	/** Whether the component encountered the migration error. */
-	hasMigrateError: PropTypes.bool.isRequired,
+	hasMigrateError: PropTypes.bool,
 	/** Whether the component encountered the "Fresh Connection" error. */
-	hasFreshError: PropTypes.bool.isRequired,
+	hasFreshError: PropTypes.bool,
 	/** Whether the component encountered the "Stay in Safe Mode" error. */
-	hasStaySafeError: PropTypes.bool.isRequired,
+	hasStaySafeError: PropTypes.bool,
 	/** If potentially dynamic HTTP_HOST usage was detected for site URLs in wp-config which can lead to a JP IDC. */
 	possibleDynamicSiteUrlDetected: PropTypes.bool,
-};
-
-ScreenMain.defaultProps = {
-	isMigrating: false,
-	isStartingFresh: false,
-	customContent: {},
-	hasMigrateError: false,
-	hasFreshError: false,
-	hasStaySafeError: false,
-	possibleDynamicSiteUrlDetected: false,
 };
 
 export default ScreenMain;
