@@ -96,7 +96,6 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 
 		global $wp_filesystem;
 		$wp_filesystem = $filesystem_mock;
-		'@phan-var \WP_Filesystem_Base $wp_filesystem'; // Reset type so Phan isn't confused.
 
 		$mock_builder = $this->getMockBuilder( Waf_Standalone_Bootstrap::class );
 		$mock_builder->setMethods( array( 'initialize_filesystem' ) );
@@ -135,7 +134,6 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 
 		global $wp_filesystem;
 		$wp_filesystem = $filesystem_mock;
-		'@phan-var \WP_Filesystem_Base $wp_filesystem'; // Reset type so Phan isn't confused.
 
 		$mock_builder = $this->getMockBuilder( Waf_Standalone_Bootstrap::class );
 		$mock_builder->setMethods( array( 'initialize_filesystem' ) );
@@ -175,7 +173,6 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 
 		global $wp_filesystem;
 		$wp_filesystem = $filesystem_mock;
-		'@phan-var \WP_Filesystem_Base $wp_filesystem'; // Reset type so Phan isn't confused.
 
 		$mock_builder = $this->getMockBuilder( Waf_Standalone_Bootstrap::class );
 		$mock_builder->setMethods( array( 'initialize_filesystem' ) );
@@ -211,7 +208,6 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 
 		global $wp_filesystem;
 		$wp_filesystem = $filesystem_mock;
-		'@phan-var \WP_Filesystem_Base $wp_filesystem'; // Reset type so Phan isn't confused.
 
 		$mock_builder = $this->getMockBuilder( Waf_Standalone_Bootstrap::class );
 		$mock_builder->setMethods( array( 'initialize_filesystem' ) );
