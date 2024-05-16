@@ -39,7 +39,13 @@ import {
 import { getModuleOverride, getModule } from 'state/modules';
 import { siteHasFeature, isFetchingSiteData } from 'state/site';
 
-export const SettingsCard = props => {
+export const SettingsCard = inprops => {
+	const props = {
+		action: '',
+		saveDisabled: false,
+		...inprops,
+	};
+
 	const trackBannerClick = feature => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'upgrade-banner',
@@ -458,11 +464,6 @@ export const SettingsCard = props => {
 SettingsCard.propTypes = {
 	action: PropTypes.string,
 	saveDisabled: PropTypes.bool,
-};
-
-SettingsCard.defaultProps = {
-	action: '',
-	saveDisabled: false,
 };
 
 export default connect(

@@ -696,4 +696,22 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	public function get_wpcom_admin_interface() {
 		return null;
 	}
+
+	/**
+	 * Get Zendesk site meta. Not used in Jetpack.
+	 *
+	 * @return null
+	 */
+	public function get_zendesk_site_meta() {
+		return null;
+	}
+
+	/**
+	 * Detect whether there's a pending plan for this site. Not used in Jetpack.
+	 *
+	 * @return false
+	 */
+	public function is_pending_plan() {
+		return false;
+	}
 }

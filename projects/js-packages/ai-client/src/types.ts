@@ -108,3 +108,8 @@ export type Block = {
  * Transcription types
  */
 export type TranscriptionState = RecordingState | 'validating' | 'processing' | 'error';
+
+/*
+ * Lib types
+ */
+export type { RenderHTMLRules } from './libs/index.js';

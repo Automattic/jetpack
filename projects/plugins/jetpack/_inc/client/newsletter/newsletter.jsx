@@ -85,7 +85,7 @@ function Newsletter( props ) {
 					toggleModule={ toggleModuleNow }
 				>
 					<span className="jp-form-toggle-explanation">
-						{ __( 'Let visitors to subscribe to this site', 'jetpack' ) }
+						{ __( 'Let visitors subscribe to this site', 'jetpack' ) }
 					</span>
 				</ModuleToggle>
 			</SettingsGroup>

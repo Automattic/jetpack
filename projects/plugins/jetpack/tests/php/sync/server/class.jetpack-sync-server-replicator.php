@@ -10,6 +10,9 @@ class Jetpack_Sync_Server_Replicator {
 	private $store;
 
 	public function __construct( Replicastore_Interface $store ) {
+		if ( ! $store instanceof Jetpack_Sync_Test_Replicastore ) {
+			throw new InvalidArgumentException( 'Expected Jetpack_Sync_Test_Replicastore, got ' . get_class( $store ) );
+		}
 		$this->store = $store;
 	}
 

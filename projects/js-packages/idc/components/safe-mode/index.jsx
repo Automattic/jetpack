@@ -82,7 +82,7 @@ const SafeMode = props => {
 		setIsActionInProgress,
 		setErrorType,
 		clearErrorType,
-		hasError,
+		hasError = false,
 		customContent,
 	} = props;
 	const [ isStayingSafe, setIsStayingSafe ] = useState( false );
@@ -134,13 +134,9 @@ SafeMode.propTypes = {
 	/** Function to clear the error. */
 	clearErrorType: PropTypes.func.isRequired,
 	/** Whether the component has an error. */
-	hasError: PropTypes.bool.isRequired,
+	hasError: PropTypes.bool,
 	/** Custom text content. */
 	customContent: PropTypes.shape( customContentShape ),
-};
-
-SafeMode.defaultProps = {
-	hasError: false,
 };
 
 export default compose( [
