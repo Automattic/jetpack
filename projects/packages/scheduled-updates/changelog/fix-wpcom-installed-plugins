@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Remove plugins check on WPCOM environment
