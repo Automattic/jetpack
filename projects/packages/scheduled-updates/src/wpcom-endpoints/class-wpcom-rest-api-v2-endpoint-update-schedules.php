@@ -176,7 +176,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		}
 
 		$schedule = $request['schedule'];
-		$plugins  = $request['plugins'];
+		$plugins  = $request['plugins'] ?? array();
 		usort( $plugins, 'strnatcasecmp' );
 
 		$event = Scheduled_Updates::create_scheduled_update( $schedule['timestamp'], $schedule['interval'], $plugins );
