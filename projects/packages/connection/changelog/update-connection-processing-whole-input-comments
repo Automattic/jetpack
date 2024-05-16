@@ -1,0 +1,4 @@
+Significance: major
+Type: changed
+
+Jetpack Connection Manager: Remove `request_params` parameter from `setup_xmlrpc_handlers` method
