@@ -399,7 +399,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return $result;
 		}
 
-		$installed_plugins = array_filter( $plugins, array( $this, 'is_plugin_installed' ) );
+		// We don't need to check if plugins are installed if we're on WPCOM.
+		$installed_plugins = defined( 'IS_WPCOM' ) && IS_WPCOM ? $plugins : array_filter( $plugins, array( $this, 'is_plugin_installed' ) );
+
 		if ( empty( $installed_plugins ) ) {
 			add_filter( 'rest_request_after_callbacks', array( $this, 'transform_error_response' ) );
 
