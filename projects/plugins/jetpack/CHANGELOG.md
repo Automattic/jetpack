@@ -2,6 +2,9 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.4.3 - 2024-05-16
+- Social: Prevent multiple uncached requests for images during frontend requests. [#37368] [#37411]
+
 ## 13.4.2 - 2024-05-13
 ### Bug fixes
 - Tiled Gallery: Fix view rendering issues. [#37213]
