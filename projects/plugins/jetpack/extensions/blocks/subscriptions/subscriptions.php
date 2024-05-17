@@ -446,6 +446,22 @@ function get_element_class_names_from_attributes( $attributes ) {
 }
 
 /**
+ * Checks if block style is "button only"
+ *
+ * @param string $class_name Block attribute className; multiple names are spearated by space.
+ *
+ * @return bool
+ */
+function is_button_only_style( $class_name ) {
+	if ( empty( $class_name ) ) {
+		return false;
+	}
+
+	$class_names = explode( ' ', $class_name );
+	return in_array( 'is-style-button', $class_names, true );
+}
+
+/**
  * Uses block attributes to generate an array containing the styles for various block elements.
  * Based on Jetpack_Subscriptions_Widget::do_subscription_form() which the block was originally using.
  *
@@ -454,7 +470,7 @@ function get_element_class_names_from_attributes( $attributes ) {
  * @return array
  */
 function get_element_styles_from_attributes( $attributes ) {
-	$is_button_only_style = get_attribute( $attributes, 'className' ) === 'is-style-button';
+	$is_button_only_style = is_button_only_style( get_attribute( $attributes, 'className' ) );
 
 	$button_background_style = ! has_attribute( $attributes, 'buttonBackgroundColor' ) && has_attribute( $attributes, 'customButtonGradient' )
 		? get_attribute( $attributes, 'customButtonGradient' )
@@ -719,7 +735,7 @@ function render_for_website( $data, $classes, $styles ) {
 	$form_id              = 'subscribe-blog' . $widget_id_suffix;
 	$form_url             = 'https://wordpress.com/email-subscriptions';
 	$post_access_level    = get_post_access_level_for_current_post();
-	$is_button_only_style = $data['class_name'] === 'is-style-button';
+	$is_button_only_style = isset( $data['class_name'] ) ? is_button_only_style( $data['class_name'] ) : false;
 
 	// Post ID is used for pulling post-specific paid status, and returning to the right post after confirming subscription
 	$post_id = null;
