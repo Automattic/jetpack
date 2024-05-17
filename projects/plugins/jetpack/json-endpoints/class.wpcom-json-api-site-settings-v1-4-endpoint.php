@@ -123,6 +123,7 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 			'wpcom_newsletter_categories'             => '(array) Array of post category ids that are marked as newsletter categories',
 			'wpcom_newsletter_categories_enabled'     => '(bool) Whether the newsletter categories are enabled or not',
 			'sm_enabled'                              => '(bool) Whether the newsletter Subscribe Modal is enabled or not',
+			'jetpack_subscribe_overlay_enabled'       => '(bool) Whether the newsletter Subscribe Overlay is enabled or not',
 			'jetpack_subscriptions_subscribe_post_end_enabled' => '(bool) Whether adding Subscribe block at the end of each post is enabled or not',
 			'jetpack_subscriptions_login_navigation_enabled' => '(bool) Whether the Subscriber Login block navigation placement is enabled or not',
 			'wpcom_gifting_subscription'              => '(bool) Whether gifting is enabled for non auto-renew sites',
