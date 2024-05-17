@@ -169,7 +169,7 @@ class Manager {
 	 * @param Jetpack_XMLRPC_Server $xmlrpc_server (optional) an instance of the server to use instead of instantiating a new one.
 	 */
 	public function setup_xmlrpc_handlers(
-		$request_params = null,
+		$request_params,
 		$has_connected_owner,
 		$is_signed,
 		Jetpack_XMLRPC_Server $xmlrpc_server = null
