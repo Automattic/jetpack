@@ -83,6 +83,15 @@
 		color: var(--jp-green-50);
 		white-space: nowrap;
 	}
+
+	.service-connection-list {
+		border-top: 1px solid var(--jp-gray-5);
+		padding-top: 1rem;
+
+		li:not(:last-child) {
+			margin-bottom: 1rem;
+		}
+	}
 }
 
 .example-wrapper {
@@ -132,18 +141,13 @@
 		height: 38px;
 	}
 
-	.service-connection-list {
-		border-top: 1px solid var(--jp-gray-5);
-
-		li {
-			margin-bottom: 0px;
-		}
-	}
 
 	.disconnect {
-		font-size: 1rem;
-		font-weight: 400;
-		color: var(--jp-gray-50);
+		&:global(.components-button) {
+			font-size: 1rem;
+			font-weight: 400;
+			color: var(--jp-gray-50);
+		}
 	}
 }
 
@@ -156,4 +160,9 @@
 			line-height: 20px;
 		}
 	}
+}
+
+.mark-shared-wrap {
+	display: flex;
+	gap: 0.5rem;
 }

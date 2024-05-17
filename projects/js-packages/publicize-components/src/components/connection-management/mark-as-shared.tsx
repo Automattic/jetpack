@@ -45,15 +45,6 @@ export function MarkAsShared( { connection }: MarkAsSharedProps ) {
 			onChange={ onChange }
 			disabled={ isUpdating }
 			label={ __( 'Mark the connection as shared', 'jetpack' ) }
-			help={
-				isUpdating
-					? __( 'Updating…', 'jetpack' )
-					: _x(
-							'If enabled, the connection will be available to all administrators, editors, and authors.',
-							'',
-							'jetpack'
-					  )
-			}
 		/>
 	);
 }

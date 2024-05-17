@@ -1,3 +1,5 @@
+import { IconTooltip } from '@automattic/jetpack-components';
+import { __ } from '@wordpress/i18n';
 import { Connection } from '../../social-store/types';
 import { ConnectionName } from '../connection-management/connection-name';
 import { Disconnect } from '../connection-management/disconnect';
@@ -26,8 +28,14 @@ export const ServiceConnectionInfo = ( { connection, service }: ServiceConnectio
 			</div>
 			<div className={ styles[ 'connection-details' ] }>
 				<ConnectionName connection={ connection } />
-				<div>
+				<div className={ styles[ 'mark-shared-wrap' ] }>
 					<MarkAsShared connection={ connection } />
+					<IconTooltip>
+						{ __(
+							'If enabled, the connection will be available to all administrators, editors, and authors.',
+							'jetpack'
+						) }
+					</IconTooltip>
 				</div>
 			</div>
 			<div className={ styles[ 'connection-actions' ] }>
