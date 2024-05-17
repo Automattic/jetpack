@@ -15,3 +15,6 @@ phpunit.xml.dist  production-exclude
 .phpcs.dir.xml    production-exclude
 tests/**          production-exclude
 .phpcsignore      production-exclude
+
+# Files needed in the production build.
+dist/**         production-include
