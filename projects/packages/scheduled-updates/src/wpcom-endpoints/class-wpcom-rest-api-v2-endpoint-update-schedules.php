@@ -287,14 +287,16 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		remove_filter( Scheduled_Updates::PLUGIN_CRON_SYNC_HOOK, '__return_false' );
 		$item = $this->create_item( $request );
 
-		/**
-		 * Fires when a scheduled update is updated.
-		 *
-		 * @param string          $old_id  The ID of the schedule to update.
-		 * @param string          $new_id  The ID of the updated event.
-		 * @param WP_REST_Request $request The request object.
-		 */
-		do_action( 'jetpack_scheduled_update_updated', $request['schedule_id'], $item->data, $request );
+		if ( ! is_wp_error( $item ) ) {
+			/**
+			 * Fires when a scheduled update is updated.
+			 *
+			 * @param string          $old_id  The ID of the schedule to update.
+			 * @param string          $new_id  The ID of the updated event.
+			 * @param WP_REST_Request $request The request object.
+			 */
+			do_action( 'jetpack_scheduled_update_updated', $request['schedule_id'], $item->data, $request );
+		}
 
 		return $item;
 	}

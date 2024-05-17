@@ -232,11 +232,8 @@ class Scheduled_Updates {
 	 * Clear the cron cache.
 	 */
 	public static function clear_cron_cache() {
-		wp_cache_delete( 'alloptions', 'options' );
-
-		$alloptions = wp_load_alloptions( true );
-		unset( $alloptions['cron'] );
-		wp_cache_set( 'alloptions', $alloptions, 'options' );
+		wp_cache_delete( 'cron', 'options' );
+		wp_load_alloptions( true );
 	}
 
 	/**
