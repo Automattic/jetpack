@@ -46,6 +46,7 @@ body.jetpack-subscribe-overlay-open {
 	right: 32px;
 	width: 24px;
 	height: 24px;
+	z-index: 50001;
 }
 
 body.admin-bar .jetpack-subscribe-overlay__close {
