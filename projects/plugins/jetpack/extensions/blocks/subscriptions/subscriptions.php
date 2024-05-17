@@ -470,7 +470,7 @@ function is_button_only_style( $class_name ) {
  * @return array
  */
 function get_element_styles_from_attributes( $attributes ) {
-	$is_button_only_style = is_button_only_style( get_attribute( $attributes, 'className' ) );
+	$is_button_only_style = is_button_only_style( get_attribute( $attributes, 'className', '' ) );
 
 	$button_background_style = ! has_attribute( $attributes, 'buttonBackgroundColor' ) && has_attribute( $attributes, 'customButtonGradient' )
 		? get_attribute( $attributes, 'customButtonGradient' )
@@ -735,7 +735,7 @@ function render_for_website( $data, $classes, $styles ) {
 	$form_id              = 'subscribe-blog' . $widget_id_suffix;
 	$form_url             = 'https://wordpress.com/email-subscriptions';
 	$post_access_level    = get_post_access_level_for_current_post();
-	$is_button_only_style = isset( $data['class_name'] ) ? is_button_only_style( $data['class_name'] ) : false;
+	$is_button_only_style = ! empty( $data['class_name'] ) ? is_button_only_style( $data['class_name'] ) : false;
 
 	// Post ID is used for pulling post-specific paid status, and returning to the right post after confirming subscription
 	$post_id = null;
