@@ -163,7 +163,7 @@ class Manager {
 	 * @since 1.25.0 Deprecate $is_active param.
 	 * @since $$next-version$$ Deprecate $request_params param.
 	 *
-	 * @param array                 $request_params incoming request parameters.
+	 * @param array|null            $request_params incoming request parameters.
 	 * @param bool                  $has_connected_owner Whether the site has a connected owner.
 	 * @param bool                  $is_signed whether the signature check has been successful.
 	 * @param Jetpack_XMLRPC_Server $xmlrpc_server (optional) an instance of the server to use instead of instantiating a new one.
