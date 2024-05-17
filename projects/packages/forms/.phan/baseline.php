@@ -16,12 +16,12 @@ return [
     // PhanTypeMismatchArgumentProbablyReal : 6 occurrences
     // PhanDeprecatedFunction : 5 occurrences
     // PhanRedundantCondition : 4 occurrences
-    // PhanTypeMismatchReturn : 3 occurrences
     // PhanTypePossiblyInvalidDimOffset : 3 occurrences
     // PhanUndeclaredClassMethod : 3 occurrences
     // PhanPluginRedundantAssignment : 2 occurrences
     // PhanTypeConversionFromArray : 2 occurrences
     // PhanTypeMismatchArgumentNullableInternal : 2 occurrences
+    // PhanTypeMismatchReturn : 2 occurrences
     // PhanUndeclaredFunction : 2 occurrences
     // PhanParamTooMany : 1 occurrence
     // PhanPluginDuplicateAdjacentStatement : 1 occurrence
@@ -40,7 +40,7 @@ return [
         'src/class-wpcom-rest-api-v2-endpoint-forms.php' => ['PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredFunction'],
         'src/contact-form/class-admin.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn'],
         'src/contact-form/class-contact-form-field.php' => ['PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyNullTypeMismatchProperty', 'PhanTypeConversionFromArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredProperty'],
-        'src/contact-form/class-contact-form-plugin.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginRedundantAssignment', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/contact-form/class-contact-form-plugin.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginRedundantAssignment', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal'],
         'src/contact-form/class-contact-form-shortcode.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
         'src/contact-form/class-contact-form.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginRedundantAssignment', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal'],
         'src/dashboard/class-dashboard-view-switch.php' => ['PhanUnreferencedUseNormal'],

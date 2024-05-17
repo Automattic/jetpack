@@ -82,7 +82,8 @@ class Replicastore implements Replicastore_Interface {
 	 */
 	public function term_count() {
 		global $wpdb;
-		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->terms" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->terms" );
 	}
 
 	/**
@@ -94,7 +95,8 @@ class Replicastore implements Replicastore_Interface {
 	 */
 	public function term_taxonomy_count() {
 		global $wpdb;
-		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_taxonomy" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_taxonomy" );
 	}
 
 	/**
@@ -106,7 +108,8 @@ class Replicastore implements Replicastore_Interface {
 	 */
 	public function term_relationship_count() {
 		global $wpdb;
-		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_relationships" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_relationships" );
 	}
 
 	/**
@@ -140,8 +143,8 @@ class Replicastore implements Replicastore_Interface {
 			$where .= ' AND ID <= ' . (int) $max_id;
 		}
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->posts WHERE $where" );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->posts WHERE $where" );
 	}
 
 	/**
@@ -319,8 +322,8 @@ class Replicastore implements Replicastore_Interface {
 			$where .= ' AND comment_ID <= ' . (int) $max_id;
 		}
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->comments WHERE $where" );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->comments WHERE $where" );
 	}
 
 	/**

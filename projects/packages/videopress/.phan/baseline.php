@@ -13,9 +13,9 @@ return [
     // PhanUndeclaredClassMethod : 10+ occurrences
     // PhanUndeclaredProperty : 8 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 7 occurrences
-    // PhanTypeMismatchReturn : 7 occurrences
     // PhanTypeMismatchReturnProbablyReal : 7 occurrences
     // PhanTypeArraySuspicious : 6 occurrences
+    // PhanTypeMismatchReturn : 6 occurrences
     // PhanCommentOverrideOnNonOverrideMethod : 4 occurrences
     // PhanNonClassMethodCall : 4 occurrences
     // PhanTypeArraySuspiciousNullable : 4 occurrences
@@ -66,7 +66,7 @@ return [
         'src/tus/class-transient-store.php' => ['PhanParamTooMany'],
         'src/tus/class-tus-abstract-cache.php' => ['PhanTypeMismatchArgumentInternal'],
         'src/tus/class-tus-client.php' => ['PhanNonClassMethodCall', 'PhanTypeMismatchArgument'],
-        'src/tus/class-tus-file.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeThrowsType'],
+        'src/tus/class-tus-file.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspiciousNullable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeThrowsType'],
         'src/utility-functions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginUnreachableCode', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredConstant'],
         'src/videopress-divi/class-videopress-divi-extension.php' => ['PhanCommentOverrideOnNonOverrideMethod', 'PhanUndeclaredClass', 'PhanUndeclaredClassMethod', 'PhanUndeclaredExtendedClass', 'PhanUndeclaredMethod', 'PhanUndeclaredMethodInCallable', 'PhanUndeclaredProperty'],
         'src/videopress-divi/class-videopress-divi-module.php' => ['PhanUndeclaredExtendedClass', 'PhanUndeclaredProperty'],
