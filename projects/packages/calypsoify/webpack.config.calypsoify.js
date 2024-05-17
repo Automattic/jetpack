@@ -1,5 +1,5 @@
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-
+//
 module.exports = [
 	{
 		entry: {
@@ -15,11 +15,7 @@ module.exports = [
 			...jetpackWebpackConfig.resolve,
 		},
 		node: false,
-		plugins: [
-			...jetpackWebpackConfig.StandardPlugins( {
-				DependencyExtractionPlugin: { injectPolyfill: true },
-			} ),
-		],
+		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
 		module: {
 			strictExportPresence: true,
 			rules: [
