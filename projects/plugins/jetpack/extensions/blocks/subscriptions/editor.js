@@ -70,6 +70,7 @@ registerJetpackPlugin( blockName, {
 	),
 } );
 
+// Allows block to be inserted inside core navigation block
 addFilter( 'blocks.registerBlockType', 'jetpack-subscriptions-nav-item', ( settings, name ) => {
 	if ( name === 'core/navigation' ) {
 		return {
