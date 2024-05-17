@@ -107,7 +107,7 @@ class Webhooks {
 		}
 		do_action( 'jetpack_client_authorize_processing' );
 
-		$data              = stripslashes_deep( $_GET ); // We need all request data under the context of an authorization request.
+		$data              = stripslashes_deep( $_GET );
 		$data['auth_type'] = 'client';
 		$roles             = new Roles();
 		$role              = $roles->translate_current_user_to_role();
