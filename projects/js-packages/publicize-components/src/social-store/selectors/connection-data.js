@@ -118,6 +118,16 @@ export function getDeletingConnections( state ) {
 }
 
 /**
+ * Get the connections being updated.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @returns {import("../types").ConnectionData['updatingConnections']} The connection being updated.
+ */
+export function getUpdatingConnections( state ) {
+	return state.connectionData?.updatingConnections ?? [];
+}
+
+/**
  * Whether a connection is being created.
  * @param {import("../types").SocialStoreState} state - State object.
  * @returns {boolean} Whether a connection is being created.

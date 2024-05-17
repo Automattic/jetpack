@@ -25,6 +25,7 @@ export type Connection = {
 	can_disconnect: boolean;
 	profile_picture: string;
 	profile_link: string;
+	shared: boolean;
 	status: ConnectionStatus;
 };
 
@@ -41,6 +42,7 @@ export type ConnectionService = {
 export type ConnectionData = {
 	connections: Connection[];
 	deletingConnections?: Array< number | string >;
+	updatingConnections?: Array< number | string >;
 	creatingConnection?: boolean;
 };
 

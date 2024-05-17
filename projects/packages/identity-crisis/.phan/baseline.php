@@ -9,7 +9,6 @@
  */
 return [
     // # Issue statistics:
-    // PhanDeprecatedFunction : 20+ occurrences
     // PhanTypeMismatchArgument : 5 occurrences
     // PhanNoopNew : 1 occurrence
     // PhanParamTooMany : 1 occurrence
@@ -22,7 +21,7 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-identity-crisis.php' => ['PhanDeprecatedFunction', 'PhanPluginRedundantAssignment', 'PhanRedundantCondition'],
+        'src/class-identity-crisis.php' => ['PhanPluginRedundantAssignment', 'PhanRedundantCondition'],
         'src/class-rest-endpoints.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'src/class-url-secret.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchReturnNullable'],
         'tests/php/test-identity-crisis.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgument'],

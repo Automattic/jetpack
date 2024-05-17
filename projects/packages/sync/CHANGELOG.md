@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.16.3] - 2024-05-16
+### Fixed
+- Jetpack Sync: Fixed undefined array key Warnings in HPOS orders module [#37401]
+
 ## [2.16.2] - 2024-05-14
 ### Fixed
 - Fix phpdoc type on `Replicastore_Interface::get_term()` `$taxonomy` arg. [#37344]
@@ -1144,6 +1148,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[2.16.3]: https://github.com/Automattic/jetpack-sync/compare/v2.16.2...v2.16.3
 [2.16.2]: https://github.com/Automattic/jetpack-sync/compare/v2.16.1...v2.16.2
 [2.16.1]: https://github.com/Automattic/jetpack-sync/compare/v2.16.0...v2.16.1
 [2.16.0]: https://github.com/Automattic/jetpack-sync/compare/v2.15.1...v2.16.0
