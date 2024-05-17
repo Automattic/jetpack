@@ -5,7 +5,9 @@
  * @package automattic/jetpack
  */
 
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Defined by the caller. Let Phan handle it.
+'@phan-var-force array{href:string,icon:string,svg_allowed:array} $args';
+
 ?>
 
 <div class="a8c-faux-inline-help">

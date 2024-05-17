@@ -11,9 +11,7 @@ namespace Automattic\Jetpack\Extensions\Donations;
 
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
-
-const FEATURE_NAME = 'donations';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
+use WP_Post;
 
 /**
  * Registers the block for use in Gutenberg
@@ -22,64 +20,9 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  */
 function register_block() {
 	Blocks::jetpack_register_block(
-		BLOCK_NAME,
+		__DIR__,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
-			'plan_check'      => true,
-			'attributes'      => array(
-				'currency'         => array(
-					'type'    => 'string',
-					'default' => 'USD',
-				),
-				'oneTimeDonation'  => array(
-					'type'    => 'object',
-					'default' => array(
-						'show'       => true,
-						'planId'     => null,
-						'amounts'    => array( 5, 15, 100 ),
-						'heading'    => __( 'Make a one-time donation', 'jetpack' ),
-						'extraText'  => __( 'Your contribution is appreciated.', 'jetpack' ),
-						'buttonText' => __( 'Donate', 'jetpack' ),
-					),
-				),
-				'monthlyDonation'  => array(
-					'type'    => 'object',
-					'default' => array(
-						'show'       => true,
-						'planId'     => null,
-						'amounts'    => array( 5, 15, 100 ),
-						'heading'    => __( 'Make a monthly donation', 'jetpack' ),
-						'extraText'  => __( 'Your contribution is appreciated.', 'jetpack' ),
-						'buttonText' => __( 'Donate monthly', 'jetpack' ),
-					),
-				),
-				'annualDonation'   => array(
-					'type'    => 'object',
-					'default' => array(
-						'show'       => true,
-						'planId'     => null,
-						'amounts'    => array( 5, 15, 100 ),
-						'heading'    => __( 'Make a yearly donation', 'jetpack' ),
-						'extraText'  => __( 'Your contribution is appreciated.', 'jetpack' ),
-						'buttonText' => __( 'Donate yearly', 'jetpack' ),
-					),
-				),
-				'showCustomAmount' => array(
-					'type'    => 'boolean',
-					'default' => true,
-				),
-				'chooseAmountText' => array(
-					'type'    => 'string',
-					'default' => __( 'Choose an amount', 'jetpack' ),
-				),
-				'customAmountText' => array(
-					'type'    => 'string',
-					'default' => __( 'Or enter a custom amount', 'jetpack' ),
-				),
-				'fallbackLinkUrl'  => array(
-					'type' => 'string',
-				),
-			),
 		)
 	);
 }
@@ -102,20 +45,23 @@ function render_block( $attr, $content ) {
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 
 	// If stripe isn't connected don't show anything to potential donors - they can't actually make a donation.
-	if ( ! \Jetpack_Memberships::get_connected_account_id() ) {
+	if ( ! \Jetpack_Memberships::has_connected_account() ) {
 		return '';
 	}
 
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'thickbox' ) );
-	add_thickbox();
+	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
-	jetpack_require_lib( 'class-jetpack-currencies' );
+	require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-currencies.php';
+
+	$default_texts = get_default_texts();
 
 	$donations = array(
 		'one-time' => array_merge(
 			array(
-				'title' => __( 'One-Time', 'jetpack' ),
-				'class' => 'donations__one-time-item',
+				'title'      => __( 'One-Time', 'jetpack' ),
+				'class'      => 'donations__one-time-item',
+				'heading'    => $default_texts['oneTimeDonation']['heading'],
+				'buttonText' => $default_texts['oneTimeDonation']['buttonText'],
 			),
 			$attr['oneTimeDonation']
 		),
@@ -123,8 +69,10 @@ function render_block( $attr, $content ) {
 	if ( $attr['monthlyDonation']['show'] ) {
 		$donations['1 month'] = array_merge(
 			array(
-				'title' => __( 'Monthly', 'jetpack' ),
-				'class' => 'donations__monthly-item',
+				'title'      => __( 'Monthly', 'jetpack' ),
+				'class'      => 'donations__monthly-item',
+				'heading'    => $default_texts['monthlyDonation']['heading'],
+				'buttonText' => $default_texts['monthlyDonation']['buttonText'],
 			),
 			$attr['monthlyDonation']
 		);
@@ -132,19 +80,23 @@ function render_block( $attr, $content ) {
 	if ( $attr['annualDonation']['show'] ) {
 		$donations['1 year'] = array_merge(
 			array(
-				'title' => __( 'Yearly', 'jetpack' ),
-				'class' => 'donations__annual-item',
+				'title'      => __( 'Yearly', 'jetpack' ),
+				'class'      => 'donations__annual-item',
+				'heading'    => $default_texts['annualDonation']['heading'],
+				'buttonText' => $default_texts['annualDonation']['buttonText'],
 			),
 			$attr['annualDonation']
 		);
 	}
 
-	$currency   = $attr['currency'];
-	$nav        = '';
-	$headings   = '';
-	$amounts    = '';
-	$extra_text = '';
-	$buttons    = '';
+	$choose_amount_text = isset( $attr['chooseAmountText'] ) && ! empty( $attr['chooseAmountText'] ) ? $attr['chooseAmountText'] : $default_texts['chooseAmountText'];
+	$custom_amount_text = isset( $attr['customAmountText'] ) && ! empty( $attr['customAmountText'] ) ? $attr['customAmountText'] : $default_texts['customAmountText'];
+	$currency           = $attr['currency'];
+	$nav                = '';
+	$headings           = '';
+	$amounts            = '';
+	$extra_text         = '';
+	$buttons            = '';
 	foreach ( $donations as $interval => $donation ) {
 		$plan_id = (int) $donation['planId'];
 		$plan    = get_post( $plan_id );
@@ -182,7 +134,7 @@ function render_block( $attr, $content ) {
 		$extra_text .= sprintf(
 			'<p class="%1$s">%2$s</p>',
 			esc_attr( $donation['class'] ),
-			wp_kses_post( $donation['extraText'] )
+			wp_kses_post( $donation['extraText'] ?? $default_texts['extraText'] )
 		);
 		$buttons    .= sprintf(
 			'<a class="wp-block-button__link donations__donate-button %1$s" href="%2$s">%3$s</a>',
@@ -199,7 +151,7 @@ function render_block( $attr, $content ) {
 	if ( $attr['showCustomAmount'] ) {
 		$custom_amount        .= sprintf(
 			'<p>%s</p>',
-			wp_kses_post( $attr['customAmountText'] )
+			wp_kses_post( $custom_amount_text )
 		);
 		$default_custom_amount = \Jetpack_Memberships::SUPPORTED_CURRENCIES[ $currency ] * 100;
 		$custom_amount        .= sprintf(
@@ -232,16 +184,62 @@ function render_block( $attr, $content ) {
 	</div>
 </div>
 ',
-		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
+		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
 		$nav,
 		$headings,
-		$attr['chooseAmountText'],
+		$choose_amount_text,
 		$amounts,
 		$custom_amount,
 		$extra_text,
 		$buttons
 	);
 }
+
+/**
+ * Get the default texts for the block.
+ *
+ * @return array
+ */
+function get_default_texts() {
+	return array(
+		'chooseAmountText' => __( 'Choose an amount', 'jetpack' ),
+		'customAmountText' => __( 'Or enter a custom amount', 'jetpack' ),
+		'extraText'        => __( 'Your contribution is appreciated.', 'jetpack' ),
+		'oneTimeDonation'  => array(
+			'heading'    => __( 'Make a one-time donation', 'jetpack' ),
+			'buttonText' => __( 'Donate', 'jetpack' ),
+		),
+		'monthlyDonation'  => array(
+			'heading'    => __( 'Make a monthly donation', 'jetpack' ),
+			'buttonText' => __( 'Donate monthly', 'jetpack' ),
+		),
+		'annualDonation'   => array(
+			'heading'    => __( 'Make a yearly donation', 'jetpack' ),
+			'buttonText' => __( 'Donate yearly', 'jetpack' ),
+		),
+	);
+}
+
+/**
+ * Make default texts available to the editor.
+ */
+function load_editor_scripts() {
+	// Only relevant to the editor right now.
+	if ( ! is_admin() ) {
+		return;
+	}
+
+	$data = array(
+		'defaultTexts' => get_default_texts(),
+	);
+
+	wp_add_inline_script(
+		'jetpack-blocks-editor',
+		'var Jetpack_DonationsBlock = ' . wp_json_encode( $data, JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+		'before'
+	);
+}
+add_action( 'enqueue_block_assets', __NAMESPACE__ . '\load_editor_scripts' );
 
 /**
  * Determine if AMP should be disabled on posts having Donations blocks.
@@ -255,7 +253,7 @@ function render_block( $attr, $content ) {
 function amp_skip_post( $skip, $post_id, $post ) {
 	// When AMP is on standard mode, there are no non-AMP posts to link to where the donation can be completed, so let's
 	// prevent the post from being available in AMP.
-	if ( function_exists( 'amp_is_canonical' ) && \amp_is_canonical() && has_block( BLOCK_NAME, $post->post_content ) ) {
+	if ( function_exists( 'amp_is_canonical' ) && \amp_is_canonical() && has_block( Blocks::get_block_name( __DIR__ ), $post->post_content ) ) {
 		return true;
 	}
 	return $skip;

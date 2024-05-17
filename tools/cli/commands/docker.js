@@ -1,11 +1,13 @@
-/**
- * External dependencies
- */
 import { spawnSync } from 'child_process';
+import fs from 'fs';
 import chalk from 'chalk';
 import * as envfile from 'envfile';
-import fs from 'fs';
 import { dockerFolder, setConfig } from '../helpers/docker-config.js';
+
+/**
+ * How to run Docker compose.
+ */
+let dockerComposeCmd = null;
 
 /**
  * Sets default options that are common for most of the commands
@@ -45,7 +47,7 @@ const getProjectName = argv => {
 		project = argv.name ? argv.name : 'e2e';
 	}
 
-	return project;
+	return 'jetpack_' + project;
 };
 
 /**
@@ -60,7 +62,7 @@ const buildEnv = argv => {
 		envOpts.PORT_WORDPRESS = argv.port ? argv.port : 8889;
 	}
 
-	envOpts.COMPOSE_PROJECT_NAME = 'jetpack_' + getProjectName( argv );
+	envOpts.COMPOSE_PROJECT_NAME = getProjectName( argv );
 	return envOpts;
 };
 
@@ -106,6 +108,7 @@ const printPostCmdMsg = argv => {
 	}
 };
 
+// eslint-disable-next-line jsdoc/require-returns-check -- false positive
 /**
  * Default executor with error handler
  *
@@ -156,16 +159,28 @@ const checkProcessResult = res => {
 };
 
 /**
- * Executor for `docker-compose` commands
+ * Executor for `docker compose` commands
  *
  * @param {object} argv - Yargs
  * @param {Array} opts - Array of arguments
  * @param {object} envOpts - key-value pairs of the ENV variables to set
  */
 const composeExecutor = ( argv, opts, envOpts ) => {
-	const res = executor( argv, () =>
-		shellExecutor( argv, 'docker-compose', opts, { env: envOpts } )
-	);
+	if ( dockerComposeCmd === null ) {
+		if ( argv.v ) {
+			console.log( chalk.green( 'Checking how to run Docker compose' ) );
+		}
+		if ( spawnSync( 'docker', [ 'compose', 'version' ], { stdio: 'ignore' } ).status === 0 ) {
+			dockerComposeCmd = [ 'docker', 'compose' ];
+		} else if ( spawnSync( 'docker-compose', [ '--version' ], { stdio: 'ignore' } ).status === 0 ) {
+			dockerComposeCmd = [ 'docker-compose' ];
+		} else {
+			console.error( chalk.red( `Neither 'docker compose' nor 'docker-compose' is available.` ) );
+			process.exit( 1 );
+		}
+	}
+	const [ cmd, ...args ] = dockerComposeCmd.concat( opts );
+	const res = executor( argv, () => shellExecutor( argv, cmd, args, { env: envOpts } ) );
 	checkProcessResult( res );
 };
 
@@ -335,14 +350,16 @@ const buildExecCmd = argv => {
 		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack plugin.' ) );
 		console.warn(
 			chalk.yellow(
-				'Other projects do not require a working database, so you can run them locally or directly within jetpadk docker sh'
+				'Other projects do not require a working database, so you can run them locally or directly within jetpack docker sh'
 			)
 		);
 		const unitArgs = argv._.slice( 2 );
 
 		opts.splice( 1, 0, '-w', '/var/www/html/wp-content/plugins/jetpack' ); // Need to add this option to `exec` before the container name.
 		opts.push(
-			'vendor/bin/phpunit',
+			...( argv.php
+				? [ '/var/scripts/phpunit-version-wrapper.sh', argv.php ]
+				: [ 'vendor/bin/phpunit' ] ),
 			'--configuration=/var/www/html/wp-content/plugins/jetpack/phpunit.xml.dist',
 			...unitArgs
 		);
@@ -351,15 +368,55 @@ const buildExecCmd = argv => {
 		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack plugin.' ) );
 		console.warn(
 			chalk.yellow(
-				'Other projects do not require a working database, so you can run them locally or directly within jetpadk docker sh'
+				'Other projects do not require a working database, so you can run them locally or directly within jetpack docker sh'
 			)
 		);
 		const unitArgs = argv._.slice( 2 );
 
 		opts.splice( 1, 0, '-w', '/var/www/html/wp-content/plugins/jetpack' ); // Need to add this option to `exec` before the container name.
 		opts.push(
-			'vendor/bin/phpunit',
+			...( argv.php
+				? [ '/var/scripts/phpunit-version-wrapper.sh', argv.php ]
+				: [ 'vendor/bin/phpunit' ] ),
 			'--configuration=/var/www/html/wp-content/plugins/jetpack/tests/php.multisite.xml',
+			...unitArgs
+		);
+	} else if ( cmd === 'phpunit-woocommerce' ) {
+		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack plugin.' ) );
+		console.warn(
+			chalk.yellow(
+				'Other projects do not require a working database, so you can run them locally or directly within jetpack docker sh'
+			)
+		);
+		const unitArgs = argv._.slice( 2 );
+
+		opts.splice(
+			1,
+			0,
+			'-w',
+			'/var/www/html/wp-content/plugins/jetpack',
+			'-e',
+			'JETPACK_TEST_WOOCOMMERCE=1'
+		); // Need to add this option to `exec` before the container name.
+		opts.push(
+			...( argv.php
+				? [ '/var/scripts/phpunit-version-wrapper.sh', argv.php ]
+				: [ 'vendor/bin/phpunit' ] ),
+			'--configuration=/var/www/html/wp-content/plugins/jetpack/phpunit.xml.dist',
+			'--group=woocommerce',
+			...unitArgs
+		);
+	} else if ( cmd === 'phpunit-crm' ) {
+		// @todo: Make this scale.
+		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack CRM plugin.' ) );
+		const unitArgs = argv._.slice( 2 );
+
+		opts.splice( 1, 0, '-w', '/var/www/html/wp-content/plugins/crm' ); // Need to add this option to `exec` before the container name.
+		opts.push(
+			...( argv.php
+				? [ '/var/scripts/phpunit-version-wrapper.sh', argv.php ]
+				: [ 'vendor/bin/phpunit' ] ),
+			'--configuration=/var/www/html/wp-content/plugins/crm/phpunit.xml.dist',
 			...unitArgs
 		);
 	} else if ( cmd === 'wp' ) {
@@ -438,6 +495,14 @@ const execJtCmdHandler = argv => {
 		cmd = jtTunnelFile;
 		opts.push( 'break' );
 	} else if ( arg === 'jt-up' ) {
+		const dockerPs = spawnSync( 'docker', [ 'ps' ] );
+		if ( dockerPs.status !== 0 ) {
+			console.warn(
+				chalk.yellow( 'Docker status unreachable. Make sure that the Docker service has started.' )
+			);
+			process.exit( dockerPs.status );
+		}
+
 		cmd = jtTunnelFile;
 		console.warn(
 			chalk.yellow(
@@ -447,12 +512,40 @@ const execJtCmdHandler = argv => {
 	}
 
 	const jtResult = executor( argv, () => shellExecutor( argv, cmd, opts.concat( jtOpts ) ) );
+
+	if ( jtResult.status !== 0 ) {
+		// Try to check if the default named Jetpack container is up.
+		const dockerPs = spawnSync(
+			'docker',
+			[
+				"ps --filter 'name=jetpack_dev[_-]wordpress' --filter 'status=running' --format='{{.ID}} {{.Names}}'",
+			],
+			{
+				encoding: 'utf8',
+				shell: true,
+			}
+		);
+
+		if ( dockerPs.status === 0 && dockerPs.stdout.length === 0 ) {
+			console.warn(
+				chalk.yellow(
+					'Unable to establish Jurassic Tube connection. Is your Jetpack Docker container up? If not, try: jetpack docker up -d'
+				)
+			);
+
+			process.exit( jtResult.status );
+		}
+	}
+
 	checkProcessResult( jtResult );
-	console.warn(
-		chalk.yellow(
-			'Remember! This is creating a tunnel to your local machine. Please use jetpack docker jt-down as soon as you are done with your testing.'
-		)
-	);
+
+	if ( arg !== 'jt-down' ) {
+		console.warn(
+			chalk.yellow(
+				'Remember! This is creating a tunnel to your local machine. Please use jetpack docker jt-down as soon as you are done with your testing.'
+			)
+		);
+	}
 };
 
 /**
@@ -504,12 +597,10 @@ export function dockerDefine( yargs ) {
 								'rm',
 								[
 									'-rf',
-									`${ dockerFolder }/wordpress/*`,
-									`${ dockerFolder }/wordpress/.htaccess`,
+									`${ dockerFolder }/wordpress/`,
 									`${ dockerFolder }/wordpress-develop/*`,
 									`${ dockerFolder }/logs/${ project }/`,
-									`${ dockerFolder }/logs/${ project }_mysql/`,
-									`${ dockerFolder }/data/${ project }_mysql/*`,
+									`${ dockerFolder }/data/${ project }_mysql/`,
 								],
 								{ shell: true }
 							)
@@ -525,20 +616,25 @@ export function dockerDefine( yargs ) {
 							fs.readFileSync( `${ dockerFolder }/../../.github/versions.sh`, 'utf8' )
 						);
 						const res = executor( argv, () =>
-							shellExecutor( argv, 'docker', [
-								'build',
-								'-t',
-								'automattic/jetpack-wordpress-dev',
-								'--build-arg',
-								`PHP_VERSION=${ versions.PHP_VERSION }`,
-								'--build-arg',
-								`COMPOSER_VERSION=${ versions.COMPOSER_VERSION }`,
-								'--build-arg',
-								`NODE_VERSION=${ versions.NODE_VERSION }`,
-								'--build-arg',
-								`PNPM_VERSION=${ versions.PNPM_VERSION }`,
-								dockerFolder,
-							] )
+							shellExecutor(
+								argv,
+								'docker',
+								[
+									'build',
+									'-t',
+									'automattic/jetpack-wordpress-dev',
+									'--build-arg',
+									`PHP_VERSION=${ versions.PHP_VERSION }`,
+									'--build-arg',
+									`COMPOSER_VERSION=${ versions.COMPOSER_VERSION }`,
+									'--build-arg',
+									`NODE_VERSION=${ versions.NODE_VERSION }`,
+									'--build-arg',
+									`PNPM_VERSION=${ versions.PNPM_VERSION }`,
+									dockerFolder,
+								],
+								{ env: { DOCKER_BUILDKIT: 1 } }
+							)
 						);
 						checkProcessResult( res );
 					},
@@ -577,9 +673,25 @@ export function dockerDefine( yargs ) {
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				.command( {
+					command: 'select-php <version>',
+					description:
+						'Select the version of PHP for use inside the container. See documentation for important notes!',
+					builder: yargCmd => {
+						yargCmd.positional( 'version', {
+							describe: 'The version to select, or "default".',
+							type: 'string',
+						} );
+					},
+					handler: argv => execDockerCmdHandler( argv ),
+				} )
+				.command( {
 					command: 'phpunit',
 					description: 'Run PHPUnit tests inside container',
-					builder: yargExec => defaultOpts( yargExec ),
+					builder: yargCmd =>
+						defaultOpts( yargCmd ).option( 'php', {
+							describe: 'Use the specified version of PHP.',
+							type: 'string',
+						} ),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				.command( {
@@ -604,7 +716,33 @@ export function dockerDefine( yargs ) {
 					command: 'phpunit-multisite',
 					alias: 'phpunit:multisite',
 					description: 'Run multisite PHPUnit tests inside container ',
-					builder: yargExec => defaultOpts( yargExec ),
+					builder: yargCmd =>
+						defaultOpts( yargCmd ).option( 'php', {
+							describe: 'Use the specified version of PHP.',
+							type: 'string',
+						} ),
+					handler: argv => execDockerCmdHandler( argv ),
+				} )
+				.command( {
+					command: 'phpunit-woocommerce',
+					alias: 'phpunit:woocommerce',
+					description: 'Run PHPUnit tests with WooCommerce inside container ',
+					builder: yargCmd =>
+						defaultOpts( yargCmd ).option( 'php', {
+							describe: 'Use the specified version of PHP.',
+							type: 'string',
+						} ),
+					handler: argv => execDockerCmdHandler( argv ),
+				} )
+				.command( {
+					command: 'phpunit-crm',
+					alias: 'phpunit:crm',
+					description: 'Run Jetpack CRM PHPUnit inside container',
+					builder: yargCmd =>
+						defaultOpts( yargCmd ).option( 'php', {
+							describe: 'Use the specified version of PHP.',
+							type: 'string',
+						} ),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				.command( {

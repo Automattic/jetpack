@@ -1,5 +1,5 @@
 import WpPage from 'jetpack-e2e-commons/pages/wp-page.js';
-import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
+import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
 
 export default class SearchDashboard extends WpPage {
 	static SEARCH_SETTING_API_PATTERN = /^https?:\/\/.*jetpack\/v4\/search\/settings/;
@@ -54,19 +54,17 @@ export default class SearchDashboard extends WpPage {
 
 	async isSearchModuleToggleOn() {
 		const moduleToggleSelector = '.form-toggle__switch[aria-label="Enable Jetpack Search"]';
-		return await this.page.$eval(
-			moduleToggleSelector,
-			e => e.getAttribute( 'aria-checked' ) === 'true'
-		);
+		return await this.page
+			.locator( moduleToggleSelector )
+			.evaluate( e => e.getAttribute( 'aria-checked' ) === 'true' );
 	}
 
 	async isInstantSearchToggleOn() {
 		const instantSearchToggleSelector =
 			'.form-toggle__switch[aria-label="Enable instant search experience (recommended)"]';
-		return await this.page.$eval(
-			instantSearchToggleSelector,
-			e => e.getAttribute( 'aria-checked' ) === 'true'
-		);
+		return await this.page
+			.locator( instantSearchToggleSelector )
+			.evaluate( e => e.getAttribute( 'aria-checked' ) === 'true' );
 	}
 
 	async waitForToggling() {
@@ -90,7 +88,7 @@ export default class SearchDashboard extends WpPage {
 	async isCustomizeButtonDisabled() {
 		const customizeButtonSelector =
 			'.jp-form-search-settings-group-buttons__button.is-customize-search';
-		return await this.page.$eval( customizeButtonSelector, e => e.disabled );
+		return await this.page.locator( customizeButtonSelector ).evaluate( e => e.disabled );
 	}
 
 	async isEditWidgetButtonVisible() {

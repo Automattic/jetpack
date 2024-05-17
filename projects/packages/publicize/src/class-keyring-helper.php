@@ -104,13 +104,14 @@ class Keyring_Helper {
 	 * @param string $service Shortname of a specific service.
 	 * @param array  $params  Parameters to append to an API connection URL.
 	 *
-	 * @return URL to specific public-api process
+	 * @return string URL to specific public-api process
 	 */
 	private static function api_url( $service = false, $params = array() ) {
 		/**
 		 * Filters the API URL used to interact with WordPress.com.
 		 *
-		 * @since 2.0.0
+		 * @since 0.1.0
+		 * @since-jetpack 2.0.0
 		 *
 		 * @param string https://public-api.wordpress.com/connect/?jetpack=publicize Default Publicize API URL.
 		 */
@@ -120,7 +121,7 @@ class Keyring_Helper {
 			$url = add_query_arg( array( 'service' => $service ), $url );
 		}
 
-		if ( count( $params ) ) {
+		if ( array() !== $params ) {
 			$url = add_query_arg( $params, $url );
 		}
 
@@ -191,6 +192,8 @@ class Keyring_Helper {
 	 */
 	public static function admin_page_load() {
 		if ( isset( $_GET['action'] ) ) {
+			$service_name = null;
+
 			if ( isset( $_GET['service'] ) ) {
 				$service_name = filter_var( wp_unslash( $_GET['service'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- We verify below.
 			}

@@ -1,6 +1,6 @@
 <?php
 
-require_jetpack_file( '_inc/lib/class.media-extractor.php' );
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media-extractor.php';
 
 class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
@@ -10,13 +10,13 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_extract_empty_array() {
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_content' => '',
 			)
 		);
 
-		$extract = Jetpack_Media_Meta_Extractor::extract( Jetpack_Options::get_option( 'id' ), $post_id );
+		$extract = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id );
 
 		$this->assertIsArray( $extract );
 		$this->assertEmpty( $extract );
@@ -28,19 +28,43 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_extract_image() {
-		$img_title = 'title.jpg';
+		$img_title = 'alt_title.jpg';
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
-				'post_content' => "<img src='$img_title' width='200' height='200'>",
+				'post_content' => "<img src='$img_title' width='250' height='200'>",
 			)
 		);
 
-		$extract = Jetpack_Media_Meta_Extractor::extract( Jetpack_Options::get_option( 'id' ), $post_id );
+		$extract = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id );
 
 		$this->assertIsArray( $extract );
 		$this->assertArrayHasKey( 'image', $extract );
 		$this->assertEquals( $extract['image'][0]['url'], $img_title );
+	}
+
+	/**
+	 * @author robfelty
+	 * @covers Jetpack_Media_Meta_Extractor::extract
+	 * @since 13.1
+	 */
+	public function test_mediaextractor_extract_image_with_alttext() {
+		$img_title = 'title.jpg';
+
+		$post_id = self::factory()->post->create(
+			array(
+				'post_content' => "<img alt='alt text' src='$img_title' width='250' height='200'>",
+			)
+		);
+
+		$extract = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id, Jetpack_Media_Meta_Extractor::ALL, true );
+
+		$this->assertIsArray( $extract );
+		$this->assertArrayHasKey( 'image', $extract );
+		$this->assertEquals( $extract['image'][0]['url'], $img_title );
+		$this->assertEquals( 'alt text', $extract['image'][0]['alt_text'] );
+		$this->assertEquals( 250, $extract['image'][0]['src_width'] );
+		$this->assertEquals( 200, $extract['image'][0]['src_height'] );
 	}
 
 	public function shortcode_nop() {
@@ -55,13 +79,13 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 		$shortcode = 'test_mediaextractor_shortcode';
 		add_shortcode( $shortcode, array( $this, 'shortcode_nop' ) );
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_content' => "[$shortcode]",
 			)
 		);
 
-		$extract = Jetpack_Media_Meta_Extractor::extract( Jetpack_Options::get_option( 'id' ), $post_id );
+		$extract = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id );
 
 		$this->assertIsArray( $extract );
 		$this->assertArrayHasKey( 'shortcode', $extract );
@@ -78,13 +102,13 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 		$url_link = WP_TESTS_DOMAIN;
 		$url      = "<a href='http://$url_link'>";
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_content' => "$url",
 			)
 		);
 
-		$extract = Jetpack_Media_Meta_Extractor::extract( Jetpack_Options::get_option( 'id' ), $post_id );
+		$extract = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id );
 
 		$this->assertIsArray( $extract );
 		$this->assertArrayHasKey( 'link', $extract );
@@ -99,7 +123,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	public function test_mediaextractor_extract_mention() {
 		$mention = 'user';
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_content' => "@$mention",
 			)
@@ -121,7 +145,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 		$embed_link = 'wordpress.tv/embed';
 		$embed      = "\nhttp://$embed_link\n";
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_content' => "$embed",
 			)
@@ -164,6 +188,28 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'image', $image_struct );
 		$this->assertCount( 1, $image_struct['image'] );
 		$this->assertEquals( $image_struct['image'][0]['url'], $img_name );
+		$this->assertSame( 1, $image_struct['has']['image'] );
+	}
+
+	/**
+	 * @author robfelty
+	 * @covers Jetpack_Media_Meta_Extractor::extract_images_from_content
+	 * @since 13.1
+	 */
+	public function test_mediaextractor_extract_images_from_content_with_alttext_return_correct_image_struct() {
+		$img_name = 'image.jpg';
+		$content  = "<img src='$img_name' width='250' height='200' alt='alternative image'>";
+
+		$image_struct = Jetpack_Media_Meta_Extractor::extract_images_from_content( $content, array(), true );
+
+		$this->assertIsArray( $image_struct );
+		$this->assertArrayHasKey( 'has', $image_struct );
+		$this->assertArrayHasKey( 'image', $image_struct );
+		$this->assertCount( 1, $image_struct['image'] );
+		$this->assertEquals( $image_struct['image'][0]['url'], $img_name );
+		$this->assertEquals( 'alternative image', $image_struct['image'][0]['alt_text'] );
+		$this->assertEquals( 250, $image_struct['image'][0]['src_width'] );
+		$this->assertEquals( 200, $image_struct['image'][0]['src_height'] );
 		$this->assertSame( 1, $image_struct['has']['image'] );
 	}
 
@@ -212,8 +258,44 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	}
 
 	private function add_test_post() {
-		$post_id = $this->factory->post->create(
+		$post_id        = self::factory()->post->create();
+		$img_name       = 'image1.jpg';
+		$alt_text       = 'one image';
+		$img_dimensions = array(
+			'width'  => 300,
+			'height' => 250,
+		);
+
+		$attachment_id_1 = self::factory()->attachment->create_object(
+			$img_name,
+			$post_id,
 			array(
+				'post_mime_type' => 'image/jpeg',
+				'post_type'      => 'attachment',
+			)
+		);
+		wp_update_attachment_metadata( $attachment_id_1, $img_dimensions );
+		update_post_meta( $attachment_id_1, '_wp_attachment_image_alt', $alt_text );
+		$img_name       = 'image2.jpg';
+		$alt_text       = 'second image';
+		$img_dimensions = array(
+			'width'  => 350,
+			'height' => 240,
+		);
+
+		$attachment_id_2 = self::factory()->attachment->create_object(
+			$img_name,
+			$post_id,
+			array(
+				'post_mime_type' => 'image/jpeg',
+				'post_type'      => 'attachment',
+			)
+		);
+		wp_update_attachment_metadata( $attachment_id_2, $img_dimensions );
+		update_post_meta( $attachment_id_2, '_wp_attachment_image_alt', $alt_text );
+		wp_update_post(
+			array(
+				'ID'                    => $post_id,
 				'post_author'           => '1046316',
 				'post_date'             => '2013-03-15 22:55:05',
 				'post_date_gmt'         => '2013-03-15 22:55:05',
@@ -268,13 +350,13 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 			An Image:
 
-			<a href="http://mrwpsandbox.files.wordpress.com/2013/03/screen-shot-2013-03-15-at-1-27-05-pm.png"><img class="alignnone size-full wp-image-32" alt="Screen Shot 2013-03-15 at 1.27.05 PM" src="http://mrwpsandbox.files.wordpress.com/2013/03/screen-shot-2013-03-15-at-1-27-05-pm.png?w=519" width="519" height="317" /></a>
+			<a href="http://example.org/wp-content/uploads/image1.jpg"><img class="alignnone size-full wp-image-32" alt="Screen Shot 2013-03-15 at 1.27.05 PM" src="http://example.org/wp-content/uploads/image1.jpg" width="519" height="317" /></a>
 
 			&nbsp;
 
 			A Gallery:
 
-			[gallery ids="37,36"]
+			[gallery ids="' . $attachment_id_1 . ',' . $attachment_id_2 . '"]
 
 			Twitter:
 
@@ -311,11 +393,11 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
-	function test_mediaextractor_extract_links() {
+	public function test_mediaextractor_extract_links() {
 		$post_id = $this->add_test_post();
 
 		$expected = array(
-			'has'  => array( 'link' => 8 ),
+			'has'  => array( 'link' => 7 ),
 			'link' => array(
 				array(
 					'url'           => 'alink.com',
@@ -343,14 +425,9 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 					'host_reversed' => 'com.anotherlink',
 				),
 				array(
-					'url'           => 'mrwpsandbox.files.wordpress.com/2013/03/screen-shot-2013-03-15-at-1-27-05-pm.png',
-					'host_reversed' => 'com.wordpress.files.mrwpsandbox',
-					'host'          => 'mrwpsandbox.files.wordpress.com',
-				),
-				array(
-					'url'           => 'mrwpsandbox.files.wordpress.com/2013/03/screen-shot-2013-03-15-at-1-27-05-pm.png?w=519',
-					'host_reversed' => 'com.wordpress.files.mrwpsandbox',
-					'host'          => 'mrwpsandbox.files.wordpress.com',
+					'url'           => 'example.org/wp-content/uploads/image1.jpg',
+					'host_reversed' => 'org.example',
+					'host'          => 'example.org',
 				),
 				array(
 					'host_reversed' => 'com.twitter',
@@ -370,16 +447,17 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
-	function test_extract_images() {
+	public function test_extract_images() {
 		$post_id = $this->add_test_post();
 
 		$expected = array(
 			'image' => array(
-				0 => array( 'url' => 'http://mrwpsandbox.files.wordpress.com/2013/03/screen-shot-2013-03-15-at-1-27-05-pm.png' ),
+				0 => array( 'url' => 'http://example.org/wp-content/uploads/image1.jpg' ),
+				1 => array( 'url' => 'http://example.org/wp-content/uploads/image2.jpg' ),
 			),
 			'has'   => array(
-				'image'   => 1,
-				'gallery' => 0,
+				'image'   => 2,
+				'gallery' => 1,
 			),
 		);
 
@@ -393,7 +471,47 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
-	function test_extract_mentions() {
+	public function test_extract_images_with_alt_text() {
+		$post_id = $this->add_test_post();
+
+		$expected = array(
+			'image' => array(
+				0 => array(
+					'url'        => 'http://example.org/wp-content/uploads/image1.jpg',
+					'src_width'  => 300,
+					'src_height' => 250,
+					'alt_text'   => 'one image',
+				),
+				1 => array(
+					'url'        => 'http://example.org/wp-content/uploads/image2.jpg',
+					'src_width'  => 350,
+					'src_height' => 240,
+					'alt_text'   => 'second image',
+				),
+				2 => array(
+					'url'        => 'http://example.org/wp-content/uploads/image1.jpg',
+					'alt_text'   => 'Screen Shot 2013-03-15 at 1.27.05 PM',
+					'src_width'  => 519,
+					'src_height' => 317,
+				),
+			),
+			'has'   => array(
+				'image'   => 3,
+				'gallery' => 1,
+			),
+		);
+
+		$result = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id, Jetpack_Media_Meta_Extractor::IMAGES, true );
+
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * @author scotchfield
+	 * @covers Jetpack_Media_Meta_Extractor::extract
+	 * @since 3.2
+	 */
+	public function test_extract_mentions() {
 		$post_id = $this->add_test_post();
 
 		$expected = array(
@@ -416,7 +534,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
-	function test_extract_shortcodes() {
+	public function test_extract_shortcodes() {
 		$post_id = $this->add_test_post();
 
 		$expected = array(
@@ -473,7 +591,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
-	function test_extract_embeds() {
+	public function test_extract_embeds() {
 		$post_id = $this->add_test_post();
 
 		$expected = array(
@@ -499,7 +617,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @covers Jetpack_Media_Meta_Extractor::get_images_from_html
 	 * @since 3.2
 	 */
-	function test_extract_image_from_html() {
+	public function test_extract_image_from_html() {
 		$html = <<<EOT
 <p><a href="http://paulbernal.files.wordpress.com/2013/05/mr-gove-cover.jpeg"><img class="aligncenter size-full wp-image-1027" alt="Mr Gove Cover" src="http://paulbernal.files.wordpress.com/2013/05/mr-gove-cover.jpeg" width="612" height="547" /></a></p>
 <p>Mr Gove was extraordinarily arrogant.</p>
@@ -532,7 +650,7 @@ EOT;
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_exclude_video_links() {
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_author'           => '23314024',
 				'post_date'             => '2013-10-25 16:43:34',
@@ -586,7 +704,7 @@ EOT;
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_alt_text() {
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_content' => 'Sed dapibus ut mauris imperdiet volutpat. <img src="https://example.org/assets/test.jpg" alt="red green" /> yellow <img src="https://example.org/assets/test2.jpg" />Nullam in dolor vel nulla pulvinar accumsan facilisis quis lorem.',
 			)
@@ -628,5 +746,4 @@ EOT;
 
 		$this->assertEquals( $expected, $result );
 	}
-
 }

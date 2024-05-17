@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import restApi from '@automattic/jetpack-api';
 import {
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,
@@ -25,6 +22,10 @@ import {
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH,
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_FAIL,
+	JETPACK_RECOMMENDATIONS_SITE_DISCOUNT_VIEWED,
+	JETPACK_RECOMMENDATIONS_FEATURE_INSTALL_START,
+	JETPACK_RECOMMENDATIONS_FEATURE_INSTALL_END,
+	JETPACK_RECOMMENDATIONS_DATA_ONBOARDING_DATA_UPDATE,
 } from 'state/action-types';
 
 export const fetchRecommendationsData = () => {
@@ -103,6 +104,20 @@ export const updateRecommendationsStep = step => {
 	};
 };
 
+export const updateRecommendationsOnboardingData = onboardingData => {
+	return ( dispatch, getState ) => {
+		dispatch( { type: JETPACK_RECOMMENDATIONS_DATA_ONBOARDING_DATA_UPDATE, onboardingData } );
+		return saveRecommendations( dispatch, getState );
+	};
+};
+
+export const markSiteDiscountAsViewedInRecommendations = step => {
+	return {
+		type: JETPACK_RECOMMENDATIONS_SITE_DISCOUNT_VIEWED,
+		step,
+	};
+};
+
 export const fetchRecommendationsProductSuggestions = () => {
 	return dispatch => {
 		dispatch( { type: JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH } );
@@ -149,5 +164,17 @@ export const fetchRecommendationsConditional = () => {
 			.catch( error =>
 				dispatch( { type: JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_FAIL, error } )
 			);
+	};
+};
+
+export const startFeatureInstall = featureSlug => {
+	return dispatch => {
+		dispatch( { type: JETPACK_RECOMMENDATIONS_FEATURE_INSTALL_START, feature: featureSlug } );
+	};
+};
+
+export const endFeatureInstall = featureSlug => {
+	return dispatch => {
+		dispatch( { type: JETPACK_RECOMMENDATIONS_FEATURE_INSTALL_END, feature: featureSlug } );
 	};
 };

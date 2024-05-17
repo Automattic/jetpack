@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
-import inquirer from 'inquirer';
-
-/**
- * Internal dependencies
- */
+import enquirer from 'enquirer';
 import { dirs, projectTypes, allProjects } from './projectHelpers.js';
 
 /**
@@ -29,16 +22,16 @@ export default async function promptForProject( options ) {
 			typeAnswer = { type: options.type };
 		}
 		questions.push( {
-			type: 'list',
+			type: 'autocomplete',
 			name: 'project',
 			message: 'Please choose which project',
 			choices: dirs( './projects/' + typeAnswer.type ),
 		} );
 	} else if ( ! allProjects().includes( options.project ) ) {
-		return new Error( 'Must be an existing project.' );
+		throw new Error( 'Must be an existing project.' );
 	}
 
-	const finalAnswers = await inquirer.prompt( questions );
+	const finalAnswers = await enquirer.prompt( questions );
 
 	return {
 		...options,
@@ -57,14 +50,14 @@ export default async function promptForProject( options ) {
 export async function promptForType( options = { type: '' } ) {
 	let typeAnswer;
 	if ( ! options.type || options.type.length === 0 ) {
-		typeAnswer = await inquirer.prompt( {
-			type: 'list',
+		typeAnswer = await enquirer.prompt( {
+			type: 'select',
 			name: 'type',
 			message: 'What type of project are you working on today?',
-			choices: projectTypes.sort(),
+			choices: [ ...projectTypes.sort() ],
 		} );
 	} else if ( ! projectTypes.includes( options.type ) ) {
-		return new Error( 'Must be an accepted project type.' );
+		throw new Error( 'Must be an accepted project type.' );
 	}
 
 	return {
@@ -85,7 +78,7 @@ export async function promptForName( options = { name: '' } ) {
 	let nameAnswer;
 
 	if ( ! options.name || options.name.length === 0 ) {
-		nameAnswer = await inquirer.prompt( {
+		nameAnswer = await enquirer.prompt( {
 			type: 'input',
 			name: 'name',
 			message: 'What is your project called?',

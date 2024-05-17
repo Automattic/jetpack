@@ -7,45 +7,67 @@
  * It also hooks into our dedicated Jetpack plugin sidebar and
  * displays the Publicize UI there.
  */
-
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
-import { PluginPrePublishPanel } from '@wordpress/edit-post';
+import {
+	PublicizePanel,
+	SocialImageGeneratorPanel,
+	usePublicizeConfig,
+} from '@automattic/jetpack-publicize-components';
+import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { PostTypeSupportCheck } from '@wordpress/editor';
-
-/**
- * Internal dependencies
- */
-import './editor.scss';
-import './store';
-import TwitterThreadListener from './components/twitter';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
-import PublicizePanel from './components/panel';
+import { PublicizePlaceholder } from './components/placeholder';
+import PublicizeSkeletonLoader from './components/skeleton-loader';
+import UpsellNotice from './components/upsell';
+import PostPublishPanels from './post-publish';
+import PrePublishPanels from './pre-publish';
+
+import './editor.scss';
 
 export const name = 'publicize';
 
-export const settings = {
-	render: () => (
+const PublicizeSettings = () => {
+	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
+		useModuleStatus( name );
+	const { isSocialImageGeneratorAvailable } = usePublicizeConfig();
+
+	let children = null;
+	let panels = null;
+
+	if ( isLoadingModules ) {
+		children = <PublicizeSkeletonLoader />;
+	} else if ( ! isModuleActive ) {
+		children = (
+			<PublicizePlaceholder
+				changeStatus={ changeStatus }
+				isModuleActive={ isModuleActive }
+				isLoading={ isChangingStatus }
+			/>
+		);
+	} else {
+		children = (
+			<>
+				<PublicizePanel>
+					<UpsellNotice />
+				</PublicizePanel>
+				{ isSocialImageGeneratorAvailable && <SocialImageGeneratorPanel /> }
+			</>
+		);
+		panels = (
+			<>
+				<PrePublishPanels isSocialImageGeneratorAvailable={ isSocialImageGeneratorAvailable } />
+				<PostPublishPanels />
+			</>
+		);
+	}
+
+	return (
 		<PostTypeSupportCheck supportKeys="publicize">
-			<TwitterThreadListener />
-
-			<JetpackPluginSidebar>
-				<PublicizePanel />
-			</JetpackPluginSidebar>
-
-			<PluginPrePublishPanel
-				initialOpen
-				id="publicize-title"
-				title={
-					<span id="publicize-defaults" key="publicize-title-span">
-						{ __( 'Share this post', 'jetpack' ) }
-					</span>
-				}
-			>
-				<PublicizePanel prePublish={ true } />
-			</PluginPrePublishPanel>
+			<JetpackPluginSidebar>{ children }</JetpackPluginSidebar>
+			{ panels }
 		</PostTypeSupportCheck>
-	),
+	);
+};
+
+export const settings = {
+	render: PublicizeSettings,
 };

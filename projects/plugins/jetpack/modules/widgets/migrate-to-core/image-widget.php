@@ -89,7 +89,7 @@ function jetpack_migrate_image_widget() {
 			)
 		);
 
-		if ( count( $non_allowed_keys ) > 0 ) {
+		if ( $non_allowed_keys !== array() ) {
 			// skipping the widget in question.
 			continue;
 		}
@@ -200,7 +200,7 @@ function jetpack_migrate_image_widget() {
 
 		// Now un-register old widgets and register new.
 		foreach ( $widgets_to_unregister as $id ) {
-			wp_unregister_sidebar_widget( "image-${id}" );
+			wp_unregister_sidebar_widget( "image-{$id}" );
 
 			// register new widget.
 			$media_image_widget = new WP_Widget_Media_Image();

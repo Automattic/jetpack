@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 
-require_jetpack_file( 'modules/widgets/contact-info.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/widgets/contact-info.php';
 
 /**
  * Test class for the Contact Info & Map Widget.
@@ -10,6 +10,8 @@ require_jetpack_file( 'modules/widgets/contact-info.php' );
 class WP_Test_Contact_Info_Widget extends WP_UnitTestCase {
 
 	const TEST_API_KEY = '12345abcde';
+
+	private $contact_info_widget;
 
 	/**
 	 * This method is called before each test.
@@ -30,8 +32,7 @@ class WP_Test_Contact_Info_Widget extends WP_UnitTestCase {
 		$this->contact_info_widget->form( null );
 		$output_string = ob_get_clean();
 
-		$apikey_field_displayed = false === strpos( $output_string, '<input type="hidden" id="widget-widget_contact_info' );
-		$this->assertTrue( $apikey_field_displayed );
+		$this->assertStringNotContainsString( '<input type="hidden" id="widget-widget_contact_info', $output_string );
 	}
 
 	/**
@@ -53,8 +54,7 @@ class WP_Test_Contact_Info_Widget extends WP_UnitTestCase {
 		$this->contact_info_widget->form( $instance );
 		$output_string = ob_get_clean();
 
-		$apikey_field_displayed = false === strpos( $output_string, '<input type="hidden" id="widget-widget_contact_info' );
-		$this->assertFalse( $apikey_field_displayed );
+		$this->assertStringContainsString( '<input type="hidden" id="widget-widget_contact_info', $output_string );
 	}
 
 	/**
@@ -76,7 +76,6 @@ class WP_Test_Contact_Info_Widget extends WP_UnitTestCase {
 		$this->contact_info_widget->form( $instance );
 		$output_string = ob_get_clean();
 
-		$apikey_field_displayed = false === strpos( $output_string, '<input type="hidden" id="widget-widget_contact_info' );
-		$this->assertTrue( $apikey_field_displayed );
+		$this->assertStringNotContainsString( '<input type="hidden" id="widget-widget_contact_info', $output_string );
 	}
 }

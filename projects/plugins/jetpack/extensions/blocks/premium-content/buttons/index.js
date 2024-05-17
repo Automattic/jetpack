@@ -1,18 +1,12 @@
-/**
- * WordPress dependencies
- */
+import { InnerBlocks } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { button as icon } from '@wordpress/icons';
-import { InnerBlocks } from '@wordpress/block-editor';
-/**
- * Internal dependencies
- */
 import edit from './edit';
 import save from './save';
 
 const name = 'premium-content/buttons';
 const settings = {
-	apiVersion: 2,
+	apiVersion: 3,
 	title: __( 'Premium Content buttons', 'jetpack' ),
 	description: __(
 		'Prompt Premium Content visitors to take action with a group of button-style links.',
@@ -29,7 +23,7 @@ const settings = {
 	keywords: [ __( 'link', 'jetpack' ) ],
 	edit,
 	save,
-	usesContext: [ 'premium-content/planId', 'premium-content/isPreview' ],
+	usesContext: [ 'premium-content/planIds', 'premium-content/isPreview' ],
 	deprecated: [
 		{
 			attributes: {},

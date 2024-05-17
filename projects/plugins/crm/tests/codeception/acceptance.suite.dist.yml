@@ -1,0 +1,32 @@
+# Codeception Test Suite Configuration
+#
+# Suite for acceptance tests.
+# Perform tests in browser using the WebDriver or PhpBrowser.
+# If you need both WebDriver and PHPBrowser tests - create a separate suite.
+
+actor: AcceptanceTester
+modules:
+    enabled:
+        - Db:
+            user: 'some_db_user'
+            password: 'some_db_pass'
+            dsn: 'mysql:host=localhost;dbname=jpcrm_testing'
+            initial_queries:
+                - 'DROP DATABASE IF EXISTS jpcrm_testing'
+                - 'CREATE DATABASE jpcrm_testing'
+                - 'USE jpcrm_testing;'
+            dump: 'tests/codeception/_data/55853.sql'
+            populate: true
+            populator: 'mysql -u $user -p$password $dbname < $dump'
+        - \Helper\JPCRM_Acceptance:
+            url: http://localhost:8000
+            adminUsername: 'admin_tester'
+            adminPassword: 'Tester1234_'
+            adminPath: '/wp-admin'
+            database: 'jpcrm_testing'
+            wp_prefix: 'wp_'
+            jpcrm_prefix: 'wp_zbs_'
+            server_host: 'localhost:8000'
+            wp_path: '/path/to/test/file/must-overwrite-it-in-acceptance.suite.yml'
+step_decorators: ~
+error_level: E_ALL

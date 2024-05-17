@@ -75,7 +75,7 @@ class IDC_Simulator {
 	 * @param string $url the siteurl value.
 	 */
 	public static function spoof_url( $url ) {
-		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
+		if ( ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
 			return $url;
 		}
 
@@ -115,8 +115,8 @@ class IDC_Simulator {
 	 * @param string $hook Called hook.
 	 */
 	public function enqueue_scripts( $hook ) {
-		if ( strpos( $hook, 'jetpack_page_broken-token' ) === 0 ) {
-			wp_enqueue_style( 'broken_token_style', plugin_dir_url( __FILE__ ) . '/css/style.css', array(), JETPACK_DEBUG_HELPER_VERSION );
+		if ( str_starts_with( $hook, 'jetpack-debug_page_idc-simulator' ) ) {
+			wp_enqueue_style( 'broken_token_style', plugin_dir_url( __FILE__ ) . 'inc/css/idc-simulator.css', array(), JETPACK_DEBUG_HELPER_VERSION );
 		}
 	}
 
@@ -399,33 +399,39 @@ class IDC_Simulator {
 	 * Shows a simple success notice.
 	 */
 	public function admin_notice__stored_success() {
-		?>
-		<div class="notice notice-success is-dismissible">
-			<p>IDC simulation settings have been saved!</p>
-		</div>
-		<?php
+		wp_admin_notice(
+			'IDC simulation settings have been saved!',
+			array(
+				'type'        => 'success',
+				'dismissible' => true,
+			)
+		);
 	}
 
 	/**
 	 * Shows a simple success notice.
 	 */
 	public function admin_notice__request_success() {
-		?>
-		<div class="notice notice-success is-dismissible">
-			<p>The remote request was successfully sent!</p>
-		</div>
-		<?php
+		wp_admin_notice(
+			'The remote request was successfully sent!',
+			array(
+				'type'        => 'success',
+				'dismissible' => true,
+			)
+		);
 	}
 
 	/**
 	 * Shows a simple error notice.
 	 */
 	public function admin_notice__unknown_error() {
-		?>
-		<div class="notice notice-error is-dismissible">
-			<p>Something went wrong.</p>
-		</div>
-		<?php
+		wp_admin_notice(
+			'Something went wrong.',
+			array(
+				'type'        => 'error',
+				'dismissible' => true,
+			)
+		);
 	}
 
 	/**
@@ -451,8 +457,12 @@ class IDC_Simulator {
 	 * Display a notice when Sync is disabled by this module.
 	 */
 	public function display_sync_disabled_notice() {
-		echo '<div class="notice notice-warning"><p>Sync has been disabled by the Jetpack Debug Helper plugin\'s IDC Simulator module.</p></div>';
-
+		wp_admin_notice(
+			'Sync has been disabled by the Jetpack Debug Helper plugin\'s IDC Simulator module.',
+			array(
+				'type' => 'warning',
+			)
+		);
 	}
 
 	/**
@@ -515,6 +525,8 @@ class IDC_Simulator {
 	}
 }
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
+
 add_action( 'plugins_loaded', 'register_idc_simulator', 1000 );
 
 /**
@@ -532,7 +544,12 @@ function register_idc_simulator() {
  * Notice for if Jetpack is not active.
  */
 function idc_simulator_jetpack_not_active() {
-	echo '<div class="notice info"><p>Jetpack Debug tools: Jetpack_Options package must be present for the IDC Simulator to work.</p></div>';
+	wp_admin_notice(
+		'Jetpack Debug tools: Jetpack_Options package must be present for the IDC Simulator to work.',
+		array(
+			'type' => 'info',
+		)
+	);
 }
 
 IDC_Simulator::early_init();

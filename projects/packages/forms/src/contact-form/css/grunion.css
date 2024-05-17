@@ -1,0 +1,817 @@
+:root {
+	--jetpack--contact-form--border: 1px solid #8c8f94;
+	--jetpack--contact-form--border-color: #8c8f94;
+	--jetpack--contact-form--border-size: 1px;
+	--jetpack--contact-form--border-style: solid;
+	--jetpack--contact-form--border-radius: 0px;
+	--jetpack--contact-form--input-padding: 16px;
+	--jetpack--contact-form--font-size: 16px;
+	--jetpack--contact-form--error-color: #b32d2e;
+	--jetpack--contact-form--inverted-text-color: #ffffff;
+}
+
+.contact-form .clear-form {
+	clear: both;
+}
+
+.contact-form input::placeholder {
+	transition: opacity 0.3s ease-out;
+}
+.contact-form input:hover::placeholder {
+	opacity: 0.5;
+}
+.contact-form input:focus::placeholder {
+	opacity: 0.3;
+}
+
+/*
+	Using :where we will keep a lower CSS specificity,
+	allowing themes to easily override these styles
+ */
+:where(
+	.contact-form input[type='text'],
+	.contact-form input[type='email'],
+	.contact-form input[type='tel'],
+	.contact-form input[type='url'],
+	.contact-form textarea
+) {
+	box-sizing: border-box;
+	width: 100%;
+	padding: 16px;
+	font: inherit;
+	border: 1px solid #8c8f94;
+	border-radius: 0;
+}
+
+:where(.contact-form textarea) {
+	height: 200px;
+}
+
+.contact-form .grunion-field {
+	padding-left: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
+	padding-right: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
+}
+
+.contact-form .grunion-field-wrap input,
+.contact-form .grunion-field-wrap textarea {
+	margin: 0;
+}
+
+.contact-form select {
+	padding: 14px 7px;
+	min-width: 150px;
+}
+
+.contact-form input[type='radio'],
+.contact-form input[type='checkbox'] {
+	width: 1rem;
+	height: 1rem;
+	margin: 0 0.75rem 0 0;
+}
+
+.contact-form input[type='checkbox'] {
+	top: 0;
+	margin-left: 0;
+}
+
+.contact-form label {
+	margin-bottom: 0.25em;
+	float: none;
+	font-weight: bold;
+	display: block;
+}
+
+.contact-form label.consent {
+	font-size: 13px;
+	font-weight: normal;
+	text-transform: uppercase;
+	display: flex;
+	align-items: center;
+}
+
+.contact-form label.consent-implicit input {
+	display: none;
+}
+
+.contact-form label.checkbox {
+	font-weight: normal;
+}
+
+.contact-form label.checkbox-multiple,
+.contact-form label.radio {
+	margin-bottom: 0;
+	font-weight: normal;
+	flex: 1;
+}
+
+.contact-form .grunion-checkbox-multiple-options,
+.contact-form .grunion-radio-options {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+
+	margin: 0;
+	padding: 0;
+
+	border: none;
+}
+
+.contact-form .is-style-outlined .grunion-checkbox-multiple-options,
+.contact-form .is-style-outlined .grunion-radio-options {
+	border: solid 1px var( --jetpack--contact-form--border-color );
+}
+
+.contact-form .grunion-checkbox-multiple-options legend,
+.contact-form .grunion-radio-options legend {
+	margin-bottom: 0.25em;
+	padding: 0;
+
+	font-weight: 700;
+}
+
+.contact-form .is-style-outlined .grunion-checkbox-multiple-options legend,
+.contact-form .is-style-outlined .grunion-radio-options legend {
+	margin: 0 0 -0.75em;
+	padding: 0 0.25em;
+
+	font-size: 0.8em;
+	font-weight: 300;
+}
+
+.contact-form .grunion-checkbox-multiple-options .contact-form-field,
+.contact-form .grunion-radio-options .contact-form-field {
+	display: flex;
+	align-items: baseline;
+
+	margin: 0;
+}
+
+.contact-form label span.required,
+.grunion-label-required {
+	font-size: 85%;
+	margin-left: 0.25em;
+	font-weight: normal;
+	opacity: 0.6;
+}
+
+.contact-form-submission {
+	margin-bottom: 4em;
+	padding: 1.5em 1em;
+	width: 100%;
+	border-top: 1px solid #000;
+	border-bottom: 1px solid #000;
+}
+
+.contact-form-submission p {
+	margin: 0 auto;
+	word-wrap: break-word;
+}
+
+.contact-form-submission h4 {
+	margin-top: 32px;
+	margin-bottom: 32px;
+	font-weight: 200;
+}
+
+.contact-form-submission .go-back-message {
+	margin-top: 20px;
+	margin-bottom: 32px;
+	text-align: left;
+}
+
+.contact-form-submission .go-back-message .link {
+	font-weight: 200;
+	color: #000;
+}
+
+.contact-form-submission .field-name {
+	font-weight: 200;
+}
+
+.contact-form-submission .field-value {
+	margin-bottom: 20px;
+	font-weight: 600;
+}
+
+.form-errors .form-error-message {
+	color: var(--jetpack--contact-form--error-color);
+}
+
+.textwidget .contact-form input[type='text'],
+.textwidget .contact-form input[type='email'],
+.textwidget .contact-form input[type='tel'],
+.textwidget .contact-form input[type='url'],
+.textwidget .contact-form textarea,
+.wp-block-column .contact-form input[type='text'],
+.wp-block-column .contact-form input[type='email'],
+.wp-block-column .contact-form input[type='tel'],
+.wp-block-column .contact-form input[type='url'],
+.wp-block-column .contact-form textarea {
+	width: 100%;
+}
+
+#jetpack-check-feedback-spam {
+	margin: 1px 8px 0px 0px;
+}
+
+.jetpack-check-feedback-spam-spinner {
+	display: inline-block;
+	margin-top: 7px;
+}
+
+.wp-block-jetpack-contact-form {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	flex-direction: row;
+	flex-grow: 1;
+	gap: var(--wp--style--block-gap, 1.5rem);
+}
+
+.wp-block-jetpack-contact-form > * {
+	flex: 0 0 100%;
+	box-sizing: border-box;
+}
+
+/* Added circa Nov 2022: container class assigned to topmost block div */
+.wp-block-jetpack-contact-form-container.alignfull .wp-block-jetpack-contact-form {
+	padding-right: 0;
+	padding-left: 0;
+}
+
+.wp-block-jetpack-button.alignright button {
+	float: right;
+}
+
+.wp-block-jetpack-contact-form .grunion-field-wrap {
+	box-sizing: border-box;
+	position: relative;
+}
+
+.wp-block-jetpack-contact-form .grunion-field-width-25-wrap {
+	flex: 1 1 calc( 25% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+	max-width: 25%;
+}
+
+.wp-block-jetpack-contact-form .grunion-field-width-50-wrap {
+	flex: 1 1 calc( 50% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+	max-width: 50%;
+}
+
+.wp-block-jetpack-contact-form .grunion-field-width-75-wrap {
+	flex: 1 1 calc( 75% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+	max-width: 75%;
+}
+
+@media only screen and ( max-width: 480px ) {
+	.wp-block-jetpack-contact-form .grunion-field-wrap {
+		flex-basis: 100%;
+		max-width: none;
+	}
+}
+
+.grunion-field-consent-wrap {
+	align-self: center;
+}
+
+@media only screen and ( min-width: 600px ) {
+	.contact-form input[type='text'],
+	.contact-form input[type='email'],
+	.contact-form input[type='tel'],
+	.contact-form input[type='url'] {
+		width: 50%;
+	}
+
+	/****
+	 * Older users keep the 50% width to avoid breaking
+	 * designs, but newer users using the contact
+	 * form block get 100% width.
+	 */
+	.wp-block-jetpack-contact-form input[type='text'],
+	.wp-block-jetpack-contact-form input[type='email'],
+	.wp-block-jetpack-contact-form input[type='tel'],
+	.wp-block-jetpack-contact-form input[type='url'] {
+		width: 100%;
+	}
+}
+
+/** For the "Empty Spam" button on /wp-admin/edit.php?post_status=spam&post_type=feedback **/
+.jetpack-empty-spam-container {
+	display: inline-block;
+}
+.jetpack-empty-spam {
+	display: inline-block;
+}
+.jetpack-empty-spam-spinner {
+	display: inline-block;
+	margin-top: 7px;
+}
+
+/* Make sure the set height of the Spacer block nested inside the Contact Form block is respected */
+.wp-block-jetpack-contact-form .wp-block-spacer {
+	width: 100%;
+}
+
+.contact-form .contact-form__select-wrapper {
+	position: relative;
+}
+
+.contact-form .contact-form__select-wrapper::after {
+	position: absolute;
+	inset-inline-end: calc(var(--jetpack--contact-form--input-padding) + 4px);
+	top: calc(var(--jetpack--contact-form--input-padding) + var(--jetpack--contact-form--line-height) / 2);  
+
+  content: "";
+  display: block;
+	width: 8px;
+	height: 8px;
+  
+	border-bottom: 2px solid;
+  border-right: 2px solid;
+  
+	transform: translateY(-50%) rotate(45deg);
+	transform-origin: center center;
+
+	pointer-events: none;
+}
+
+.contact-form .contact-form__select-wrapper select {
+	box-sizing: border-box;
+	width: 100%;
+	padding: var(--jetpack--contact-form--input-padding);
+	padding-inline-end: calc(var(--jetpack--contact-form--input-padding) * 3);
+
+	appearance: none;
+	background-color: var(--jetpack--contact-form--input-background);
+	border: var(--jetpack--contact-form--border);
+	border-color: var(--jetpack--contact-form--border-color);
+	border-style: var(--jetpack--contact-form--border-style);
+	border-width: var(--jetpack--contact-form--border-size);
+	border-radius: var(--jetpack--contact-form--border-radius);
+	color: var(--jetpack--contact-form--text-color);
+
+	font-size: var(--jetpack--contact-form--font-size);
+	font-family: var(--jetpack--contact-form--font-family);
+	line-height: var(--jetpack--contact-form--line-height);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.contact-form .is-style-outlined,
+.contact-form .is-style-animated {
+	--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap:not(.grunion-field-checkbox-wrap):not(.grunion-field-consent-wrap):not(.grunion-field-checkbox-multiple-wrap):not(.grunion-field-radio-wrap):not(.grunion-field-select-wrap),
+.contact-form .is-style-animated .grunion-field-wrap:not(.grunion-field-checkbox-wrap):not(.grunion-field-consent-wrap):not(.grunion-field-checkbox-multiple-wrap):not(.grunion-field-radio-wrap):not(.grunion-field-select-wrap) {
+	position: relative;
+	display: flex;
+	flex-direction: row-reverse;
+}
+
+.contact-form .is-style-outlined .grunion-field-checkbox-multiple-wrap,
+.contact-form .is-style-outlined .grunion-field-radio-wrap {
+	background-color: var(--jetpack--contact-form--input-background);
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options
+{
+	padding: var(--jetpack--contact-form--input-padding, 16px);
+	padding-top: calc(var(--jetpack--contact-form--input-padding-top, 16px) + 4px);
+	flex-grow: 1;
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label {
+	position: absolute;
+	right: 0;
+	left: 0;
+	width: 100%;
+	max-width: 100%;
+	height: 100%;
+	display: flex;
+	box-sizing: border-box;
+	text-align: left;
+	pointer-events: none;
+}
+
+.contact-form .contact-form__select-wrapper + .notched-label {
+	top: 0;
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__leading {
+	width: var(--notch-width);
+	border-radius: var(--jetpack--contact-form--border-radius);
+	border: var(--jetpack--contact-form--border);
+	border-color: var(--jetpack--contact-form--border-color);
+	border-style: var(--jetpack--contact-form--border-style);
+	border-width: var(--jetpack--contact-form--border-size);
+	border-right: none;
+	border-top-right-radius: unset;
+	border-bottom-right-radius: unset;
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__notch {
+	border-radius: unset;
+	border: var(--jetpack--contact-form--border);
+	border-color: var(--jetpack--contact-form--border-color);
+	border-style: var(--jetpack--contact-form--border-style);
+	border-width: var(--jetpack--contact-form--border-size);
+	padding: 0 4px;
+	transition: border 150ms linear;
+}
+
+/*
+For some reason, when keeping the rule below together with the above selector,
+on production builds, the attributes are being reordered, causing side-effects
+*/
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__notch {
+	border-left: none;
+	border-right: none;
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap.no-label .notched-label__notch {
+	padding: 0;
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__label {
+	position: relative;
+	top: 50%;
+	transform: translateY(-50%);
+	pointer-events: none;
+	will-change: transform;
+	transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+	margin: 0;
+	font-weight: 300;
+}
+
+.contact-form .is-style-outlined .grunion-field-textarea-wrap .notched-label .notched-label__label {
+	top: var(--jetpack--contact-form--input-padding-top, 16px);
+	transform: unset;
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__trailing {
+	flex-grow: 1;
+	border-radius: var(--jetpack--contact-form--border-radius);
+	border: var(--jetpack--contact-form--border);
+	border-color: var(--jetpack--contact-form--border-color);
+	border-style: var(--jetpack--contact-form--border-style);
+	border-width: var(--jetpack--contact-form--border-size);
+	border-left: none;
+	border-top-left-radius: unset;
+	border-bottom-left-radius: unset;
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:focus ~ .notched-label .notched-label__notch,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .notched-label .notched-label__notch,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-field.has-placeholder ~ .notched-label .notched-label__notch,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options ~ .notched-label .notched-label__notch,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options ~ .notched-label .notched-label__notch,
+.contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__notch
+{
+	border-top-color: transparent;
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:focus ~ .notched-label .notched-label__label,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .notched-label .notched-label__label,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-field.has-placeholder ~ .notched-label .notched-label__label,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options ~ .notched-label .notched-label__label,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options ~ .notched-label .notched-label__label,
+.contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__label
+{
+	top: calc(var(--jetpack--contact-form--border-size) * -1);
+	transform: translateY(-50%);
+	font-size: 0.8em;
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap > input,
+.contact-form .is-style-outlined .grunion-field-wrap > textarea,
+.contact-form .is-style-outlined .grunion-field-wrap select
+{
+	border-color: transparent !important; /* Need to override styles coming from the style attribute*/
+	outline: none;
+	padding-left: calc(var(--notch-width) + 4px);
+	padding-right: calc(var(--notch-width) + 4px);
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap textarea {
+	padding: var(--jetpack--contact-form--input-padding, 16px);
+	padding-left: calc(var(--notch-width) + 4px);
+	padding-right: calc(var(--notch-width) + 4px);
+}
+
+.contact-form .is-style-animated .grunion-field-wrap {
+	--left-offset: calc(var(--jetpack--contact-form--input-padding-left, 16px) + var(--jetpack--contact-form--border-size));
+	--label-left: max(var(--left-offset), var(--jetpack--contact-form--border-radius));
+	--field-padding: calc(var(--label-left) - var(--jetpack--contact-form--border-size));
+}
+
+.contact-form .is-style-animated .grunion-field-wrap input:not([type="checkbox"]):not([type="radio"]) {
+	outline: none;
+}
+
+.contact-form .is-style-animated .grunion-field-wrap textarea {
+	padding: var(--jetpack--contact-form--input-padding, 16px);
+	outline: none;
+}
+
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > input,
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > textarea,
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) select
+{
+	padding-top: 1.4em;
+	padding-left: var(--field-padding);
+	padding-right: var(--field-padding);
+}
+
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label {
+	position: absolute;
+	top: 50%;
+	left: var(--label-left);
+	width: 100%;
+	max-width: 100%;
+	box-sizing: border-box;
+	pointer-events: none;
+	margin: 0;
+	transform: translateY(-50%);
+	transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.contact-form .is-style-animated .grunion-field-textarea-wrap .animated-label__label {
+	transform: unset;
+	top: var(--jetpack--contact-form--input-padding-top, 16px);
+}
+
+.contact-form .is-style-animated .grunion-field-wrap .grunion-field:focus ~ .animated-label__label,
+.contact-form .is-style-animated .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .animated-label__label,
+.contact-form .is-style-animated .grunion-field-wrap .grunion-field.has-placeholder ~ .animated-label__label,
+.contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label
+{
+	font-size: 0.75em;
+	transform: translateY(0);
+	top: calc(2px + var(--jetpack--contact-form--border-size));
+}
+
+.contact-form .is-style-animated .grunion-field-wrap .grunion-checkbox-multiple-options ~ .animated-label__label,
+.contact-form .is-style-animated .grunion-field-wrap .grunion-radio-options ~ .animated-label__label {
+	top: 0;
+	left: 0;
+	transform: translateY(0);
+}
+
+.contact-form .is-style-below .grunion-field-wrap .below-label__label {
+	margin-left: var(--jetpack--contact-form--border-size);
+}
+
+.contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-checkbox-multiple-options,
+.contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-radio-options {
+	padding-top: 8px;
+}
+
+.contact-form .grunion-field-wrap input.checkbox-multiple,
+.contact-form .grunion-field-wrap input.radio {
+	position: relative;
+
+	box-sizing: border-box;
+	width: var(--jetpack--contact-form--font-size);
+	height: var(--jetpack--contact-form--font-size);
+	margin-inline-end: calc(var(--jetpack--contact-form--font-size) / 2);
+	padding: 0;
+
+	appearance: none;
+	border: solid 1px var(--jetpack--contact-form--text-color);
+
+	outline-offset: 4px;
+}
+
+.contact-form .grunion-field-wrap input.radio {
+	border-radius: 50%;
+
+	transform: translateY(15%); /* Small offset to compensate the slightly odd perceived alignment that's due to the circular shape */
+}
+
+.contact-form .grunion-field-wrap input.checkbox-multiple:checked::before {
+	content: "\2713";
+	
+	position: absolute;
+	top: calc(var(--jetpack--contact-form--font-size) / 2);
+	left: calc(var(--jetpack--contact-form--font-size) / 2);
+
+	display: block;
+
+	font-size: var(--jetpack--contact-form--font-size);
+	line-height: 1;
+	
+  transform: translate(-50%, -50%);
+}
+
+.contact-form .grunion-field-wrap input.radio:checked::before {
+	background: currentColor;
+	border-radius: 50%;
+	content: '';
+	height: calc(var(--jetpack--contact-form--font-size) / 2);
+	margin-left: 50%;
+	margin-top: 50%;
+	position: absolute;
+	transform: translate(-50%, -50%);
+	width: calc(var(--jetpack--contact-form--font-size) / 2);
+}
+
+.contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field,
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-radio-label {
+	display: inline-flex;
+  align-items: center;
+
+	padding: var(--jetpack--contact-form--button-outline--padding);
+
+	background: var(--jetpack--contact-form--button-outline--background-color);
+	border: var(--jetpack--contact-form--button-outline--border);
+	border-radius: var(--jetpack--contact-form--button-outline--border-radius);
+	color: var(--jetpack--contact-form--button-outline--text-color);
+
+	line-height: var(--jetpack--contact-form--button-outline--line-height);
+}
+
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio.is-style-button {
+	/* visually-hidden */
+	clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio.is-style-button:checked + .grunion-radio-label {
+	display: inline-flex;
+	gap: 0.5em;
+}
+
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio.is-style-button:checked + .grunion-radio-label:before {
+	content: "\2713";
+}
+
+.contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field:focus-within,
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio.is-style-button:focus + .grunion-radio-label {
+	outline: var(--jetpack--contact-form--button-outline--border);
+	outline-offset: 2px;
+}
+
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple.is-style-button {
+	border-radius: var(--jetpack--contact-form--button-outline--border-radius);
+	color: var(--jetpack--contact-form--button-outline--text-color);
+
+	font-family: var(--wp--preset--font-family--body);
+}
+
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple.is-style-button:focus {
+	outline-width: 0; /* focus style defined on parent */
+}
+
+.contact-form input.grunion-field.is-style-button + .grunion-field-text::before {
+	background: var(--jetpack--contact-form--button-outline--background-color);
+	border: var(--jetpack--contact-form--button-outline--border);
+	border-color: currentColor;
+	border-radius: var(--jetpack--contact-form--button-outline--border-radius);
+	box-sizing: initial;
+	content: '';
+	display: block;
+	height: 100%;
+	left: calc(var(--jetpack--contact-form--button-outline--border-size) * -1);
+	position: absolute;
+	top: calc(var(--jetpack--contact-form--button-outline--border-size) * -1);
+	width: 100%;
+	z-index: -1;
+}
+
+.contact-form input.grunion-field.is-style-button {
+	color: var(--jetpack--contact-form--button-outline--color);
+}
+
+.contact-form input.grunion-field.is-style-button:checked,
+.contact-form input.grunion-field.is-style-button:checked + .grunion-field-text {
+	color: var(--jetpack--contact-form--button-outline--background-color-fallback);
+}
+
+.contact-form input.grunion-field.is-style-button:checked + .grunion-field-text::before {
+	background: var(--jetpack--contact-form--button-outline--text-color);
+	border-color: var(--jetpack--contact-form--button-outline--text-color);
+}
+
+.contact-form__error,
+.contact-form__input-error {
+	--warning-icon-size: 1.25em;
+	--warning-icon-margin: 0.75em;
+
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+
+	font-size: 1rem;
+}
+
+.contact-form__error {
+	margin-bottom: var(--wp--style--block-gap, 1.5rem);
+	padding: 1em;
+	gap: var(--warning-icon-margin);
+
+	background-color: var(--jetpack--contact-form--error-color);
+	color: var(--jetpack--contact-form--inverted-text-color);
+}
+
+.contact-form__error ul {
+	flex-basis: 100%;
+	margin: 0;
+	padding-inline-start: calc(var(--warning-icon-size) + var(--warning-icon-margin));
+
+	list-style-position: inside;
+}
+
+.contact-form__error ul:empty {
+	display: none;
+}
+
+.contact-form__error ul li {
+	padding: 0.25em 0;
+}
+
+.contact-form__error a {
+	color: inherit;
+}
+
+.contact-form__input-error {
+	margin: 0.25rem 0;
+	gap: 0.33em;
+
+	color: var(--jetpack--contact-form--error-color);
+}
+
+.contact-form__error:empty,
+.contact-form__input-error:empty {
+	display: none;
+}
+
+.contact-form [aria-invalid="true"]:not(fieldset),
+.contact-form .wp-block-jetpack-contact-form.is-style-outlined fieldset[aria-invalid="true"] {
+	border: solid 1px var(--jetpack--contact-form--error-color);
+}
+
+.contact-form .wp-block-jetpack-contact-form:not(.is-style-outlined) fieldset[aria-invalid="true"] {
+	outline: solid 1px var(--jetpack--contact-form--error-color);
+	outline-offset: 0.5em;
+}
+
+.contact-form__warning-icon {
+	width: var(--warning-icon-size);
+	height: var(--warning-icon-size);
+
+	background-color: var(--jetpack--contact-form--error-color);
+	border-radius: 50%;
+	border: solid 1px var(--jetpack--contact-form--inverted-text-color);
+	color: var(--jetpack--contact-form--inverted-text-color);
+}
+
+.contact-form__warning-icon i::after {
+	content: "\0021";
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	font-size: 0.8em;
+	font-style: normal;
+	font-weight: bold;
+}
+
+.contact-form__checkbox-wrap {
+	display: inline-flex;
+	align-items: baseline;
+}
+
+.contact-form :is([type="submit"],button:not([type="reset"])) {
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	gap: 0.5em;
+}
+
+.contact-form .contact-form__spinner {
+	fill: currentColor;
+}
+
+.contact-form .contact-form__spinner svg {
+	/* Ensure container is of the exact same dimension */
+	display: block;
+}
+
+.visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}

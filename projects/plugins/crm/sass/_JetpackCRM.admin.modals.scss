@@ -1,0 +1,421 @@
+/*!
+ * Jetpack CRM: Modal style overrides
+ */
+
+.ui.modals.page {
+
+  // forces modals to a higher z-index than wp admin bar and hopscotch tour
+  z-index: 999999;
+
+  // overriding annoying jquery modal (maybe mike included? or I did ages ago)
+  .modal, .ui.modal {
+    /* max-width: 500px; */
+    max-width: 1400px !important;
+    padding: 0 !important;
+
+    /* styles introduced with first-use-dash gh-1822 */
+    border-radius: 8px !important;
+    overflow-y: auto !important;
+  }
+
+  // hide (unless mobile variant)
+  .jpcrm-modal-mobile-only {
+    display: none;
+  }
+
+  // close button
+  .jpcrm-modal-close {
+
+    // top top (esp noticable on mobile)
+    z-index: 100000;
+
+    width: 24px;
+    height: 24px;
+    // converted from i/modal-close.png:
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAKcSURBVHgB7ZgxjhoxFIY9IAGigK0QEgJNmZLtUrIdZXKC7B4hJwjbpUubLqRMleQEpEu65QizICRKQhUhAXk/8kNmMpP12I/VSutPQho/xvb/+9kzYysVCAQCgcBzodvtfur1eu/UmUDb6KNInbLtjWg4iqJruhw0m83fxC8liB6YEfXRbzQa8Xq9/m5Tr2RzUxzHF2jYCH2gDt8oIXRbIy6jL/RpUzdSlqDB3W43oUvTyPVsNvusPNDix0ZoWiqVrpIkWdnUtzYAtIk7XBphZxMZ4hMtPrFswm4KHVunUUEHuDTCY5fpJCEeFMoAQ5mI9XSKObbdbi8Xi8XUpn6n0+mXy+U7I+QkHhTKwLE3Ip0JEjSBsIfqavETszlX8cApA0xGJlaUiau8TBji+QnjJR54GQC2Js4hHngbAFkmNpvN5XK5TFBot9txpVLBnBcVD0QMgAwTCZnAOlEk/iQuJR6IGQDaxMlI819clhQPRA0A8tDXmUh/Cqy0eKtHrS1Oj9H/AYH7/f4mHUdMWjwQz4BesCcvOc1hTfDClkLUQIZ4/iA7rglpE2IGskaeps3rQydR9NW4VdSEyBrIEX8zn8+/4ZdaE4d7UUcJYL0jy+OCqNfrP9W/4sdcpt3VlHZZ95SJV1yN3soDKn/5QygPvAxAPAnDyL/gWFo8k2GiXa1Wh74mnA0Y4s0v0Lck/mNeHZjAfpouhzrkbcLJQI74W9qZvX+oLg4DyAQeHgMd8jLhZKDVamHOp8WPbOuTiR9pE7Va7SXFC29NCxvQxytDI1RIPJNhIi5ynMIUMmCcDTFO4pm0iaJnQsDlYIvxEs/4mrAycC7xjI8JqzcxNXhvFEXFM7rN25w+/aFznBF+6sw8Vj+BQCAQCDwJ/gLKn3smB8hfvQAAAABJRU5ErkJggg==);
+    background-size: 24px;
+
+    position: absolute;
+    top: 10px;
+    right: 10px;
+
+  }
+  .jpcrm-modal-close:hover {
+    cursor: pointer;
+  }
+
+  // ui grid
+  .jpcrm-modal-body {
+    
+    // eight wide column
+    .jpcrm-modal-cta-group {
+
+      padding-left: 80px;
+      padding-right: 50px;
+
+      .jpcrm-modal-title {
+        
+        font-size: 36px;
+        font-weight: bold;
+        line-height: 40px;
+        margin-bottom: 16px;
+
+      }
+
+      .jpcrm-modal-paragraph {
+
+        font-size: 16px;
+        line-height: 24px;
+        margin-bottom: 12px;
+        
+      }
+
+      .jpcrm-modal-actions {
+
+        .ui.button {
+          
+          margin-top: 12px;
+          margin-right: 24px;
+
+        }
+        
+      }
+
+    }
+
+    // eight wide column
+    .jpcrm-modal-illustration {
+
+
+      img {
+        /*
+
+        original:
+        max-width: 1094px;
+        max-height: 1029px;
+
+        1/2
+        max-width: 515px;
+        max-height: 515px;
+
+        40%
+        
+        */
+        max-width: 438px;
+        max-height: 412px;
+        vertical-align: middle;
+
+        // attempting to more centralise on typical desktop view
+        margin: 15px 0 10px 0;
+
+      }
+
+    }
+
+  }
+
+  .jpcrm-modal-footer {
+
+    position: fixed;
+    bottom: 0;
+    left: 0;
+
+    background-color: #F9F9F6;
+    padding-top: 50px;
+    padding-bottom: 50px;
+    
+    .jpcrm-modal-learn-footer {
+
+      padding-left: 80px;
+      padding-right: 50px;
+
+      .jpcrm-modal-learn-footer-title {
+        
+        display: flex;
+        align-items: center;
+        font-size: 16px;
+        font-weight: bold;
+        line-height: 24px;
+        margin-bottom: 8px;
+
+        img {
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+        }
+
+      }
+
+      .jpcrm-modal-learn-footer-paragraph {
+
+        margin-bottom: 16px;
+        font-size: 14px;
+        line-height: 24px;
+
+
+      }
+
+      .jpcrm-modal-learn-footer-actions {
+
+        a {
+
+          display: flex;
+          align-items: center;
+          font-size: 14px;
+          color: #000;
+          text-decoration: underline;
+
+          img {
+            
+            margin-right: 8px;
+
+          }
+
+        }
+
+      }
+
+    }
+
+    .jpcrm-modal-learn-footer-videos {
+
+      .jpcrm-modal-learn-footer-video {
+
+          img {
+
+            max-width: 100%;
+            border-radius: 4px;
+
+          }
+
+          a {
+
+            font-size: 14px;
+            font-weight: bold;
+            line-height: 20px;
+            color: #000;
+
+          }
+
+      }
+
+    }
+
+  }
+
+}
+
+/* Position modal in middle of page */
+#jpcrm-first-use-dash {
+  position: static !important;
+ 	height: 95%;
+	margin: auto auto !important;
+	overflow-x: hidden;
+}
+
+/* Fix an apparent bug in Semantic UI CSS, which had the width larger than the screen min-width */
+@media only screen and (min-width: 768px) and (max-width: 1199px) {
+	#jpcrm-first-use-dash.ui.large.modal {
+		height: 720px;
+		width: 95%;
+		max-width: 1080px !important;
+	}
+}
+
+@media only screen and (min-width: 1200px) {
+	#jpcrm-first-use-dash.ui.large.modal {
+		height: 700px;
+	}
+}
+
+
+
+// Woo variant of first use dashboard:
+#jpcrm-first-use-dash.woovariant {
+
+  // bigger button needs more space
+  .jpcrm-modal-cta-group {
+
+    padding-left: 50px;
+    padding-right: 40px;
+
+  }
+
+}
+
+// ==============================
+// === Responsive tweaks ========
+// ==============================
+
+// sub 1200px
+@media only screen and (max-width: 1199px) {
+
+  // Woo variant of first use dashboard:
+  // bigger button needs even more space
+  #jpcrm-first-use-dash.woovariant .jpcrm-modal-cta-group {
+
+      padding-left: 40px;
+      padding-right: 30px;
+
+  }
+
+}
+
+
+// sub 768px
+@media only screen and (max-width: 767px) {
+
+  // stop margin overflow, kill border radius, add footer padding
+  .ui.modals.page .ui.modal {
+
+    overflow-x: hidden;
+    border-radius: 0 !important;
+    padding-bottom: 40px;
+
+  }
+
+  // show mobile elements
+  .jpcrm-modal-mobile-only {
+    
+    display: block !important;
+    margin: 0;
+    padding: 0;
+
+    // replacement img
+    img {
+      
+      max-width: 220px;
+      margin-top: 24px;
+
+    }
+
+  }
+
+  // widen
+  #jpcrm-modal-cta-group{
+
+    width: 100% !important;
+    padding: 0 !important;
+    text-align: center;
+    padding: 5px;
+
+      // font adaptations
+      .jpcrm-modal-title {
+
+        font-size: 24px;
+        font-weight: bold;
+        line-height: 32px;
+        text-align: center;
+
+        margin-top: 32px;
+        margin-bottom: 16px;
+        padding-left: 30px;
+        padding-right: 30px;
+
+      }
+      .jpcrm-modal-paragraph {
+
+        font-size: 14px;
+        line-height: 24px;
+        margin-bottom: 16px;
+        text-align: center;
+        
+      }
+
+      // add contact button full width
+      .jpcrm-modal-action-add {
+        
+        width: 100%;
+
+      }
+
+  }
+
+  .jpcrm-modal-illustration img {
+    
+    margin: 0 !important;
+
+  }
+
+  // specifics
+  .jpcrm-modal-mobile-watch-videos-link {
+    
+    text-align: center;
+    margin-top: 24px;
+    width: 100%;
+
+    a {
+
+      font-size: 16px;
+      font-weight: bold;
+      line-height: 20px;
+      color: #000;
+
+    }
+
+  }
+
+  // hide these
+  .jpcrm-modal-body .jpcrm-modal-illustration, 
+  .ui.modals.page .jpcrm-modal-footer, 
+  .jpcrm-modal-body .jpcrm-modal-actions .jpcrm-modal-action-import {
+
+    display: none !important;
+
+  }
+
+  // Woo variant of first use dashboard:
+  // bigger button needs even even more space
+  #jpcrm-first-use-dash.woovariant{
+
+    .jpcrm-modal-cta-group {
+
+      padding-left: 20px;
+      padding-right: 5px;
+
+    }
+
+    // show this (woo button)
+    .jpcrm-modal-body .jpcrm-modal-actions .jpcrm-modal-action-import {
+
+      display: inline-block !important;
+      width: 100%;
+
+    }
+
+  }
+
+}
+
+
+// Safari workarounds
+/* Safari 10.1+ (alternate method) */
+@media not all and (min-resolution:.001dpcm)
+{ @supports (-webkit-appearance:none) {
+
+    // fixed footer was borked in safari
+    .jpcrm-modal-footer { 
+
+      position: relative !important;
+      margin-top: 80px !important;
+
+    }
+
+    // recover lost close icon
+    .jpcrm-modal-close {
+
+      position: relative !important;
+      float: right !important;
+      margin: 0;
+      padding: 0;
+
+    }
+
+    // when in modals in safari the jpcrm top bar logo shows on top of the modal, this hides it
+    body.dimmed #zbs-main-logo-cube-wrap {
+
+      display:none;
+
+    }
+
+}}

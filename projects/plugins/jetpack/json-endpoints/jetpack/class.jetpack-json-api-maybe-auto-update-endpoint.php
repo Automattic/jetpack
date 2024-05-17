@@ -53,5 +53,4 @@ class Jetpack_JSON_API_Maybe_Auto_Update_Endpoint extends Jetpack_JSON_API_Endpo
 	public function get_update_results( $results ) {
 		$this->update_results = $results;
 	}
-
 }

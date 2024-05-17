@@ -8,7 +8,7 @@ function die {
 }
 
 [[ "$GITHUB_EVENT_NAME" == "push" ]] || die "Must be a push event"
-[[ "$GITHUB_REF" == "refs/heads/master" ]] || die "Must be a push to master"
+[[ "$GITHUB_REF" == "refs/heads/trunk" ]] || die "Must be a push to trunk"
 
 export GIT_AUTHOR_NAME=matticbot
 export GIT_AUTHOR_EMAIL=matticbot@users.noreply.github.com

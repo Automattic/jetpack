@@ -1,30 +1,22 @@
-/**
- * External dependencies
- */
-import path from 'path';
-import pluralize from 'pluralize';
-import inquirer from 'inquirer';
-import chalk from 'chalk';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
-import semver from 'semver';
-import yaml from 'js-yaml';
 import { execSync } from 'child_process';
-
-/**
- * Internal dependencies
- */
-import { promptForType, promptForName } from '../helpers/promptForProject.js';
-import { projectTypes, checkNameValid } from '../helpers/projectHelpers.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import chalk from 'chalk';
+import enquirer from 'enquirer';
+import yaml from 'js-yaml';
+import pluralize from 'pluralize';
+import semver from 'semver';
+import { doesRepoExist } from '../helpers/github.js';
 import {
 	readPackageJson,
 	readComposerJson,
 	writePackageJson,
 	writeComposerJson,
 } from '../helpers/json.js';
-import { normalizeGenerateArgv } from '../helpers/normalizeArgv.js';
 import mergeDirs, { copyFile } from '../helpers/mergeDirs.js';
-import searchReplaceInFolder from '../helpers/searchReplaceInFolder.js';
+import { normalizeGenerateArgv } from '../helpers/normalizeArgv.js';
+import { projectTypes, checkNameValid } from '../helpers/projectHelpers.js';
 import {
 	transformToReadableName,
 	transformToPhpClassName,
@@ -32,8 +24,9 @@ import {
 	normalizeSlug,
 	transformToCamelCase,
 } from '../helpers/projectNameTransformations.js';
+import { promptForType, promptForName } from '../helpers/promptForProject.js';
+import searchReplaceInFolder from '../helpers/searchReplaceInFolder.js';
 import { chalkJetpackGreen } from '../helpers/styling.js';
-import { doesRepoExist } from '../helpers/github.js';
 
 /**
  * Entry point for the CLI.
@@ -140,7 +133,7 @@ async function promptForGenerate( options ) {
 	}
 
 	// Give the list of questions
-	const finalAnswers = await inquirer.prompt( questions );
+	const finalAnswers = await enquirer.prompt( questions );
 
 	return {
 		...options,
@@ -165,54 +158,122 @@ export function getQuestions( type ) {
 			message: 'Succinctly describe your project:',
 		},
 		{
-			type: 'checkbox',
+			type: 'multiselect',
 			name: 'buildScripts',
-			message: 'Does your project require build steps?',
+			message: 'Select production and/or development build steps to generate:',
+			initial: [ 'production', 'development' ],
 			choices: [
 				{
-					name: 'Production Build Step',
-					checked: true,
+					message: 'Production Build Step',
 					value: 'production',
 				},
 				{
-					name: 'Development or Generic Build Step',
-					checked: true,
+					message: 'Development or Generic Build Step',
 					value: 'development',
 				},
 			],
+			skip() {
+				if ( type === 'js-packages' ) {
+					// https://github.com/enquirer/enquirer/issues/298
+					this.state._choices = this.state.choices;
+					return true;
+				}
+				return false;
+			},
 		},
 		{
 			type: 'confirm',
 			name: 'wordbless',
-			message: 'Will you need WorDBless for integration testing?',
-			default: false,
+			message: 'Do you plan to use WordPress core functions in your PHPUnit tests?',
+			initial: false,
+			skip: type === 'js-packages',
 		},
 		{
 			type: 'confirm',
 			name: 'mirrorrepo',
-			message: 'Will this project require a mirror repo?',
+			message: 'Does this project need to be deployed publicly? (Create a mirror repo?)',
+			initial: true,
 		},
 	];
 	const packageQuestions = [];
-	const jsPackageQuestions = [];
+	const jsPackageQuestions = [
+		{
+			type: 'select',
+			name: 'typescript',
+			message: 'Which best describes this package?',
+			choices: [
+				{
+					message: 'This JS-only package will be source-only, no bundling or minification.',
+					value: 'js-src',
+				},
+				{
+					message:
+						'This JS-only package will contain pre-built code, bundled and minified using webpack.',
+					value: 'js-webpack',
+				},
+				{
+					message: 'This TypeScript package will be source-only, no built version.',
+					value: 'ts-src',
+				},
+				{
+					message:
+						'This TypeScript package will contain pre-built code, bundled and minified using webpack.',
+					value: 'ts-webpack',
+				},
+				{
+					message:
+						'This TypeScript package will contain pre-built code, built using tsc (no bundling or minification).',
+					value: 'ts-tsc',
+				},
+			],
+		},
+	];
 	const pluginQuestions = [
+		{
+			type: 'select',
+			name: 'versioningMethod',
+			message: 'How do you want versioning to work for your plugin?',
+			choices: [
+				// Note: There's no actual reason for recommending either option. Neither method is
+				// objectively better. We're not going to actually have consistency, tooling is
+				// already pretty simple in this respect (and without mandatory consistency it can't
+				// be simplified anyway), cognitive load would need research to determine the extent
+				// to which it's an issue, and WordPress core explicitly doesn't take a side on it.
+				// It comes down to which way the developers actually working on the plugin think
+				// about versioning for it.
+				//
+				// But everyone else wants to make an arbitrary recommendation anyway, so 🤷.
+				{
+					message:
+						'WordPress-style ("recommended"): Like 1.2, with each non-bugfix release always incrementing by 0.1.',
+					value: 'wordpress',
+				},
+				{
+					message:
+						'Semver: Like 1.2.3, with the next version depending on what kinds of changes are included.',
+					value: 'semver',
+				},
+			],
+		},
 		{
 			type: 'input',
 			name: 'version',
 			message: "What is the plugin's starting version?:",
-			default: '0.1.0-alpha',
+			initial() {
+				return this.state.answers.versioningMethod === 'semver' ? '0.1.0-alpha' : '0.0-alpha';
+			},
 		},
 		{
-			type: 'list',
+			type: 'select',
 			name: 'pluginTemplate',
 			message: 'Create a blank plugin or use the Starter plugin?',
 			choices: [
 				{
-					name: 'Blank plugin',
+					message: 'Blank plugin',
 					value: 'blank',
 				},
 				{
-					name: 'Use Jetpack Starter plugin',
+					message: 'Use Jetpack Starter plugin',
 					value: 'starter',
 				},
 			],
@@ -246,15 +307,19 @@ export async function generateProject(
 ) {
 	const type = pluralize( answers.type );
 	const project = type + '/' + answers.name;
-	const projDir = fileURLToPath(
-		new URL( `../../../projects/${ type }/${ answers.name }`, import.meta.url )
+	const projDir = path.join(
+		fileURLToPath( new URL( './', import.meta.url ) ),
+		`../../../projects/${ type }/${ answers.name }`
 	);
+	answers.project = project;
+	answers.projDir = projDir;
 
 	if ( 'plugin' === answers.type && 'starter' === answers.pluginTemplate ) {
 		return generatePluginFromStarter( projDir, answers );
 	}
 
 	createSkeleton( type, projDir, answers.name );
+	await searchReplaceInFolder( projDir, 'package-name', normalizeSlug( answers.name ) );
 
 	// Generate the composer.json file
 	const composerJson = readComposerJson( project );
@@ -272,8 +337,15 @@ export async function generateProject(
 
 	switch ( answers.type ) {
 		case 'package':
+			await renameClassFile( projDir, answers.name );
+			await searchReplaceInFolder(
+				projDir,
+				'Package_Name',
+				transformToPhpClassName( answers.name, false )
+			);
 			break;
 		case 'js-package':
+			generateJsPackage( answers, projDir );
 			break;
 		case 'plugin':
 			generatePlugin( answers, projDir );
@@ -305,10 +377,17 @@ async function generatePluginFromStarter( projDir, answers ) {
 	} );
 	files = files.split( '\n' ).map( str => str.replace( 'projects/plugins/starter-plugin', '' ) );
 	files.forEach( file => {
-		if ( file ) {
+		if ( file && ! file.startsWith( 'changelog/' ) ) {
 			copyFile( path.join( projDir, file ), path.join( starterDir, file ) );
 		}
 	} );
+
+	// Initialize changelog dir.
+	mergeDirs(
+		fileURLToPath( new URL( '../skeletons/common/changelog', import.meta.url ) ),
+		path.join( projDir, 'changelog' ),
+		answers.name
+	);
 
 	// Replace strings.
 	await searchReplaceInFolder( projDir, 'jetpack-starter-plugin', normalizeSlug( answers.name ) );
@@ -355,6 +434,13 @@ async function generatePluginFromStarter( projDir, answers ) {
 		path.join( projDir, 'src/class-jetpack-starter-plugin.php' ),
 		path.join( projDir, 'src/class-jetpack-' + answers.name + '.php' )
 	);
+
+	// Update composer.json.
+	const composerJson = readComposerJson( answers.project );
+	composerJson.extra ||= {};
+	composerJson.extra.changelogger ||= {};
+	composerJson.extra.changelogger.versioning = answers.versioningMethod;
+	writeComposerJson( answers.project, composerJson, answers.projDir );
 }
 
 /**
@@ -375,6 +461,110 @@ function generatePlugin( answers, pluginDir ) {
 	);
 	const readmeTxtData = fs.readFileSync( readmeTxtPath, 'utf8' );
 	writeToFile( pluginDir + '/README.txt', readmeTxtContent + readmeTxtData );
+}
+
+/**
+ * Generate js-package files
+ *
+ * @param {object} answers - Answers from questions.
+ * @param {string} pkgDir - Github action directory path.
+ */
+function generateJsPackage( answers, pkgDir ) {
+	const ts = answers.typescript.startsWith( 'ts' );
+	let filename, opts, xtends;
+
+	if ( ts ) {
+		filename = 'tsconfig.json';
+		opts = {
+			typeRoots: [ './node_modules/@types/', 'src/*' ],
+			outDir: './build/',
+		};
+		switch ( answers.typescript ) {
+			case 'ts-src':
+				xtends = '\n\t"extends": "jetpack-js-tools/tsconfig.base.json",';
+				break;
+			case 'ts-webpack':
+				xtends = '\n\t"extends": "jetpack-js-tools/tsconfig.tsc-declaration-only.json",';
+				break;
+			case 'ts-tsc':
+				xtends = '\n\t"extends": "jetpack-js-tools/tsconfig.tsc.json",';
+				break;
+		}
+
+		fs.renameSync( path.join( pkgDir, '/src/index.jsx' ), path.join( pkgDir, '/src/index.ts' ) );
+	} else {
+		filename = 'jsconfig.json';
+		opts = {
+			jsx: 'react',
+		};
+		xtends = '';
+	}
+	writeToFile(
+		path.join( pkgDir, filename ),
+		`{${ xtends }
+			"compilerOptions": ${ JSON.stringify( opts, null, '\t' ).replace( /\n/g, '\n\t\t\t' ) },
+			// List all sources and source-containing subdirs.
+			"include": [ "./src" ]
+		}
+		`.replace( /^\t\t/gm, '' )
+	);
+
+	if ( answers.typescript.endsWith( '-webpack' ) ) {
+		writeToFile(
+			pkgDir + '/webpack.config.cjs',
+			`const path = require( 'path' );
+			const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
+
+			module.exports = {
+				entry: './src/index.${ ts ? 'ts' : 'jsx' }',
+				mode: jetpackWebpackConfig.mode,
+				devtool: jetpackWebpackConfig.devtool,
+				output: {
+					...jetpackWebpackConfig.output,
+					path: path.resolve( __dirname, 'build' ),
+				},
+				optimization: {
+					...jetpackWebpackConfig.optimization,
+				},
+				resolve: {
+					...jetpackWebpackConfig.resolve,
+				},
+				module: {
+					strictExportPresence: true,
+					rules: [
+						// ${ ts ? 'Transpile JavaScript and TypeScript' : 'Transpile JavaScript' }
+						jetpackWebpackConfig.TranspileRule( {
+							exclude: /node_modules\\//,
+						} ),
+
+						// Transpile @automattic/jetpack-* in node_modules too.
+						jetpackWebpackConfig.TranspileRule( {
+							includeNodeModules: [ '@automattic/jetpack-' ],
+						} ),
+
+						// Handle CSS.
+						jetpackWebpackConfig.CssRule(),
+
+						// Handle images.
+						jetpackWebpackConfig.FileRule(),
+					],
+				},
+				plugins: [${
+					ts
+						? `
+					...jetpackWebpackConfig.StandardPlugins( {
+						// Generate \`.d.ts\` files per tsconfig settings.
+						ForkTSCheckerPlugin: {},
+					} ),
+				`
+						: `
+					...jetpackWebpackConfig.StandardPlugins(),
+				`
+				}],
+			};
+			`.replace( /^\t\t\t/gm, '' )
+		);
+	}
 }
 
 /**
@@ -418,29 +608,78 @@ function createPackageJson( packageJson, answers ) {
 	packageJson.description = answers.description;
 	packageJson.name = `@automattic/jetpack-${ answers.name }`;
 	packageJson.version = '0.1.0-alpha';
+	packageJson.repository.directory = `projects/${ pluralize( answers.type ) }/${ answers.name }`;
+
+	if ( answers.type !== 'plugin' ) {
+		packageJson.homepage = `https://github.com/Automattic/jetpack/tree/HEAD/${ packageJson.repository.directory }/#readme`;
+	}
+
+	const prefix = {
+		'editor-extension': 'Block',
+		'github-action': 'Action',
+		package: 'Package',
+		plugin: 'Plugin',
+		'js-package': 'JS Package',
+	}[ answers.type ];
+	// Note we intentionally don't URI-encode here, because `npm bugs` will double-encode. Sigh.
+	packageJson.bugs.url =
+		`https://github.com/Automattic/jetpack/labels/[${ prefix }] ` +
+		answers.name
+			.split( '-' )
+			.map( word => `${ word[ 0 ].toUpperCase() }${ word.slice( 1 ) }` )
+			.join( ' ' );
 
 	if ( answers.type === 'js-package' ) {
+		const ts = answers.typescript.startsWith( 'ts' );
+
 		packageJson.exports = {
-			'.': './index.jsx',
+			'.': `./src/index.${ ts ? 'ts' : 'jsx' }`,
 			'./state': './src/state',
 			'./action-types': './src/state/action-types',
 		};
 		packageJson.scripts = {
-			test:
-				"NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'",
+			test: 'jest tests',
 		};
-		packageJson.devDependencies = { 'jetpack-js-test-runner': 'workspace:*' };
 
-		// Since `createComposerJson()` adds a use of `nyc`, we need to depend on it here too.
-		// Look for which version is currently in use.
-		const yamlFile = yaml.load(
-			fs.readFileSync( new URL( '../../../pnpm-lock.yaml', import.meta.url ), 'utf8' )
-		);
-		const nycVersion = Object.keys( yamlFile.packages ).reduce( ( value, cur ) => {
-			const ver = cur.match( /^\/nyc\/([^_]+)/ )?.[ 1 ];
-			return ! value || ( ver && semver.gt( ver, value ) ) ? ver : value;
-		}, null );
-		packageJson.devDependencies.nyc = nycVersion || '*';
+		packageJson.devDependencies.jest = findVersionFromPnpmLock( 'jest' );
+
+		if ( answers.typescript.endsWith( '-webpack' ) ) {
+			packageJson.devDependencies[ '@automattic/jetpack-webpack-config' ] = 'workspace:*';
+			packageJson.devDependencies.webpack = findVersionFromPnpmLock( 'webpack' );
+			packageJson.devDependencies[ 'webpack-cli' ] = findVersionFromPnpmLock( 'webpack-cli' );
+			packageJson.scripts = {
+				...packageJson.scripts,
+				build: 'pnpm run clean && pnpm exec webpack',
+				clean: 'rm -rf build/',
+			};
+			packageJson.exports = {
+				'.': {
+					'jetpack:src': './src/index.' + ( ts ? 'ts' : 'jsx' ),
+					types: ts ? './build/index.d.ts' : undefined,
+					default: './build/index.js',
+				},
+			};
+		}
+		if ( ts ) {
+			packageJson.devDependencies.typescript = findVersionFromPnpmLock( 'typescript' );
+			if ( answers.typescript === 'ts-tsc' ) {
+				packageJson.scripts = {
+					...packageJson.scripts,
+					build: 'pnpm run clean && pnpm exec tsc --pretty',
+					clean: 'rm -rf build/',
+				};
+				packageJson.exports = {
+					'.': {
+						'jetpack:src': './src/index.ts',
+						types: './build/index.d.ts',
+						default: './build/index.js',
+					},
+				};
+			}
+		}
+
+		packageJson.devDependencies = sortByKey( packageJson.devDependencies );
+		packageJson.scripts = sortByKey( packageJson.scripts );
 	}
 }
 
@@ -473,9 +712,12 @@ async function createComposerJson( composerJson, answers ) {
 			"echo 'Add your build step to composer.json, please!'";
 	}
 	if ( answers.wordbless ) {
-		composerJson.scripts[ 'post-update-cmd' ] =
-			"php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"";
+		composerJson.scripts[ 'post-install-cmd' ] = 'WorDBless\\Composer\\InstallDropin::copy';
+		composerJson.scripts[ 'post-update-cmd' ] = 'WorDBless\\Composer\\InstallDropin::copy';
 		composerJson[ 'require-dev' ][ 'automattic/wordbless' ] = 'dev-master';
+		composerJson.config = composerJson.config || {};
+		composerJson.config[ 'allow-plugins' ] = composerJson.config[ 'allow-plugins' ] || {};
+		composerJson.config[ 'allow-plugins' ][ 'roots/wordpress-core-installer' ] = true;
 	}
 
 	try {
@@ -492,22 +734,60 @@ async function createComposerJson( composerJson, answers ) {
 
 	switch ( answers.type ) {
 		case 'package':
+			composerJson.require = composerJson.require || {};
+			composerJson.require.php = '>=7.0';
 			composerJson.extra = composerJson.extra || {};
 			composerJson.extra[ 'branch-alias' ] = composerJson.extra[ 'branch-alias' ] || {};
-			composerJson.extra[ 'branch-alias' ][ 'dev-master' ] = '0.1.x-dev';
+			composerJson.extra[ 'branch-alias' ][ 'dev-trunk' ] = '0.1.x-dev';
 			composerJson.extra.textdomain = name;
+			composerJson.extra[ 'version-constants' ] = {
+				'::PACKAGE_VERSION': `src/class-${ answers.name }.php`,
+			};
+			composerJson.type = 'jetpack-library';
+			composerJson.suggest ||= {};
+			composerJson.suggest[ 'automattic/jetpack-autoloader' ] =
+				'Allow for better interoperability with other plugins that use this package.';
 			break;
 		case 'plugin':
 			composerJson.extra = composerJson.extra || {};
 			composerJson.extra[ 'release-branch-prefix' ] = answers.name;
 			composerJson.type = 'wordpress-plugin';
+			composerJson.extra.changelogger ||= {};
+			composerJson.extra.changelogger.versioning = answers.versioningMethod;
 			break;
 		case 'js-package':
+			delete composerJson[ 'require-dev' ][ 'yoast/phpunit-polyfills' ];
 			composerJson.scripts = {
 				'test-js': [ 'pnpm run test' ],
-				'test-coverage': [ 'pnpx nyc --report-dir="$COVERAGE_DIR" pnpm run test' ],
 			};
+			if ( ! answers.typescript.endsWith( '-src' ) ) {
+				composerJson.scripts = {
+					...composerJson.scripts,
+					'build-development': [ 'pnpm run build' ],
+					'build-production': [ 'NODE_ENV=production pnpm run build' ],
+				};
+			}
+			break;
 	}
+
+	if ( composerJson.extra ) {
+		composerJson.extra = sortByKey( composerJson.extra );
+	}
+	composerJson.scripts = sortByKey( composerJson.scripts );
+}
+
+/**
+ * Renames the class-example.php file to use the new project name.
+ *
+ * @param {string} projDir - the new project directory.
+ * @param {string} name - the name of the new project.
+ */
+async function renameClassFile( projDir, name ) {
+	fs.rename( `${ projDir }/src/class-example.php`, `${ projDir }/src/class-${ name }.php`, err => {
+		if ( err ) {
+			console.log( err );
+		}
+	} );
 }
 
 /**
@@ -521,38 +801,42 @@ async function createComposerJson( composerJson, answers ) {
 async function mirrorRepo( composerJson, name, type, org = 'Automattic' ) {
 	const repo = org + '/' + name;
 	const exists = await doesRepoExist( name, org );
-	const answers = await inquirer.prompt( [
+	const answers = await enquirer.prompt( [
 		{
 			type: 'confirm',
 			name: 'useExisting',
-			default: false,
+			initial: false,
 			message:
 				'The repo ' +
 				repo +
 				' already exists. Do you want to use it? THIS WILL OVERRIDE ANYTHING ALREADY IN THIS REPO.',
-			when: exists, // If the repo exists, confirm we want to use it.
+			skip: ! exists, // If the repo exists, confirm we want to use it.
 		},
 		{
-			type: 'string',
+			type: 'input',
 			name: 'newName',
 			message: 'What name do you want to use for the repo?',
-			when: newAnswers => exists && ! newAnswers.useExisting, // When there is an existing repo, but we don't want to use it.
+			skip() {
+				return ! exists || this.state.answers.useExisting; // When there is an existing repo, but we don't want to use it.
+			},
 		},
 		// Code for auto-adding repo to be added later.
 		/* 		{
 			type: 'confirm',
 			name: 'createNew',
-			default: false,
+			initial: false,
 			message: 'There is not an ' + repo + ' repo already. Shall I create one?',
-			when: ! exists, // When the repo does not exist, do we want to ask to make it.
+			skip: exists, // When the repo does not exist, do we want to ask to make it.
 		}, */
 
 		{
 			type: 'confirm',
 			name: 'autotagger',
-			default: true,
+			initial: true,
 			message: 'Configure mirror repo to create new tags automatically (based on CHANGELOG.md)?',
-			when: type !== 'plugin',
+			skip() {
+				return type === 'plugin' || this.state.answers.newName;
+			},
 		},
 	] );
 
@@ -619,6 +903,10 @@ function createReadMeMd( answers ) {
 		'\n' +
 		'## Get Help\n' +
 		'\n' +
+		'## Using this package in your WordPress plugin\n' +
+		'\n' +
+		'If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.\n' +
+		'\n' +
 		'## Security\n' +
 		'\n' +
 		'Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).\n' +
@@ -668,9 +956,9 @@ function createReadMeTxt( answers ) {
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 5.8\n' +
-		'Requires PHP: 5.6\n' +
-		'Tested up to: 5.9\n' +
+		'Requires at least: 6.4\n' +
+		'Requires PHP: 7.0\n' +
+		'Tested up to: 6.5\n' +
 		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +
@@ -685,7 +973,7 @@ function createReadMeTxt( answers ) {
  *
  * @param {string} dir - file path we're writing to.
  * @param {string} answers - the answers to fill in the skeleton.
- * @returns {string} yamlFile - the YAML file we've created.
+ * @returns {string|null} yamlFile - the YAML file we've created.
  */
 function createYaml( dir, answers ) {
 	try {
@@ -695,6 +983,7 @@ function createYaml( dir, answers ) {
 		return yamlFile;
 	} catch ( err ) {
 		console.error( chalk.red( `Couldn't create the YAML file.` ), err );
+		return null;
 	}
 }
 
@@ -710,4 +999,41 @@ function writeToFile( file, content ) {
 	} catch ( err ) {
 		console.error( chalk.red( `Ah, couldn't write to the file.` ), err );
 	}
+}
+
+/**
+ * Find JS package version from pnpm-lock.
+ *
+ * @param {string} pkg - package we're looking for.
+ * @returns {string} Version number or '*'
+ */
+function findVersionFromPnpmLock( pkg ) {
+	if ( ! findVersionFromPnpmLock.packages ) {
+		findVersionFromPnpmLock.packages = yaml.load(
+			fs.readFileSync( new URL( '../../../pnpm-lock.yaml', import.meta.url ), 'utf8' )
+		).packages;
+	}
+
+	const version = Object.keys( findVersionFromPnpmLock.packages ).reduce( ( value, cur ) => {
+		if ( ! cur.startsWith( '/' + pkg + '@' ) ) {
+			return value;
+		}
+		const ver = cur.substring( pkg.length + 2 ).replace( /\(.*/, '' );
+		return ! value || ( ver && semver.gt( ver, value ) ) ? ver : value;
+	}, null );
+	return version || '*';
+}
+
+/**
+ * Sort a JS object by key.
+ *
+ * @param {object} obj - input object
+ * @returns {object} sorted object
+ */
+function sortByKey( obj ) {
+	const ret = {};
+	for ( const k of Object.keys( obj ).sort() ) {
+		ret[ k ] = obj[ k ];
+	}
+	return ret;
 }

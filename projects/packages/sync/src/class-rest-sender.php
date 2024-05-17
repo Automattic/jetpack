@@ -74,6 +74,7 @@ class REST_Sender {
 			'skipped_items'  => $skipped_items_ids,
 			'codec'          => $encode ? $sender->get_codec()->name() : null,
 			'sent_timestamp' => time(),
+			'queue_size'     => $queue->size(),
 		);
 	}
 
@@ -140,5 +141,4 @@ class REST_Sender {
 
 		return $buffer;
 	}
-
 }

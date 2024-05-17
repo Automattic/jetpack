@@ -15,7 +15,7 @@
 	&.alignleft {
 		min-width: 300px;
 	}
-	// Mirroring Gutenberg caption-style mixin: https://github.com/WordPress/gutenberg/blob/master/assets/stylesheets/_mixins.scss#L312-L318
+	// Mirroring Gutenberg caption-style mixin: https://github.com/WordPress/gutenberg/blob/trunk/packages/base-styles/_mixins.scss#L189-L203
 	.wp-block-jetpack-gif-caption {
 		margin-top: 0.5em;
 		margin-bottom: 1em;
@@ -30,7 +30,7 @@
 		width: 100%;
 		iframe {
 			border: 0;
-			left: 0;
+			inset-inline-start: 0;
 			height: 100%;
 			position: absolute;
 			top: 0;

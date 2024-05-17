@@ -1,5 +1,5 @@
 const pluginName = require( '../package.json' ).name;
-const debug = require( 'debug' )( pluginName );
+const debug = require( 'debug' )( pluginName ); // eslint-disable-line import/order
 
 const defaultFunctions = Object.freeze( {
 	__: 1,
@@ -45,9 +45,11 @@ module.exports = ( babel, opts ) => {
 		name: pluginName,
 		visitor: {
 			CallExpression( path ) {
-				const funcName = t.isMemberExpression( path.node.callee )
-					? path.node.callee.property.name
-					: path.node.callee.name;
+				let callee = path.node.callee;
+				if ( t.isSequenceExpression( callee ) ) {
+					callee = callee.expressions[ callee.expressions.length - 1 ];
+				}
+				const funcName = t.isMemberExpression( callee ) ? callee.property.name : callee.name;
 				if ( ! functions.hasOwnProperty( funcName ) ) {
 					return;
 				}

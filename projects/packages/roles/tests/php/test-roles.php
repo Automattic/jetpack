@@ -21,6 +21,13 @@ class Test_Roles extends TestCase {
 	use MockeryPHPUnitIntegration;
 
 	/**
+	 * Roles instance.
+	 *
+	 * @var Roles
+	 */
+	protected $roles;
+
+	/**
 	 * Test setup.
 	 *
 	 * @before
@@ -67,7 +74,9 @@ class Test_Roles extends TestCase {
 		);
 
 		$this->assertTrue( current_user_can( 'edit_others_posts' ) );
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown
 		$this->assertFalse( current_user_can( 'foobar' ) );
+		// phpcs:ignore WordPress.WP.Capabilities.RoleFound
 		$this->assertFalse( current_user_can( 'administrator' ) );
 
 		$this->assertEquals( 'editor', $this->roles->translate_current_user_to_role() );
@@ -145,5 +154,4 @@ class Test_Roles extends TestCase {
 	public function test_role_to_cap_non_existing_role() {
 		$this->assertFalse( $this->roles->translate_role_to_cap( 'follower' ) );
 	}
-
 }

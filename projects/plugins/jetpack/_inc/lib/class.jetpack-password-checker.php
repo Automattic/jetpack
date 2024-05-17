@@ -410,7 +410,7 @@ class Jetpack_Password_Checker {
 	 *
 	 * @param Mixed $needle the needle.
 	 * @param array $haystack the haystack.
-	 * @return is the needle not in the haystack?
+	 * @return bool is the needle not in the haystack?
 	 */
 	protected function negative_in_array( $needle, $haystack ) {
 		if ( in_array( $needle, $haystack, true ) ) {
@@ -490,7 +490,7 @@ class Jetpack_Password_Checker {
 
 		// Spaces.
 		if ( strpos( $password, ' ' ) ) {
-			$size++;
+			++$size;
 		}
 
 		return $size;

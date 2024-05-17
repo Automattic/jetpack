@@ -23,7 +23,7 @@ function should_customize_nav( $admin_menu_class ) {
 		return false;
 	}
 
-	$is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST || 0 === strpos( $_SERVER['REQUEST_URI'], '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
+	$is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST || isset( $_SERVER['REQUEST_URI'] ) && str_starts_with( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
 
 	// No nav customizations on WP Admin of Atomic sites when SSO is disabled.
 	if ( is_a( $admin_menu_class, Atomic_Admin_Menu::class, true ) && ! $is_api_request && ! \Jetpack::is_module_active( 'sso' ) ) {
@@ -39,13 +39,56 @@ function should_customize_nav( $admin_menu_class ) {
 }
 
 /**
+ * Hides the Customizer menu items when the block theme is active by removing the dotcom-specific actions.
+ * They are not needed for block themes.
+ *
+ * @see https://github.com/Automattic/jetpack/pull/36017
+ */
+function hide_customizer_menu_on_block_theme() {
+	add_action(
+		'init',
+		function () {
+			if ( wp_is_block_theme() && ! is_customize_preview() ) {
+				remove_action( 'customize_register', 'add_logotool_button', 20 );
+				remove_action( 'customize_register', 'footercredits_register', 99 );
+				remove_action( 'customize_register', 'wpcom_disable_customizer_site_icon', 20 );
+
+				if ( class_exists( '\Jetpack_Fonts' ) ) {
+					$jetpack_fonts_instance = \Jetpack_Fonts::get_instance();
+					remove_action( 'customize_register', array( $jetpack_fonts_instance, 'register_controls' ) );
+					remove_action( 'customize_register', array( $jetpack_fonts_instance, 'maybe_prepopulate_option' ), 0 );
+				}
+
+				remove_action( 'customize_register', array( 'Jetpack_Fonts_Typekit', 'maybe_override_for_advanced_mode' ), 20 );
+
+				remove_action( 'customize_register', 'Automattic\Jetpack\Dashboard_Customizations\register_css_nudge_control' );
+
+				remove_action( 'customize_register', array( 'Jetpack_Custom_CSS_Enhancements', 'customize_register' ) );
+			}
+		}
+	);
+}
+
+/**
  * Gets the name of the class that customizes the admin menu.
  *
  * @return string Class name.
  */
 function get_admin_menu_class() {
+	hide_customizer_menu_on_block_theme();
+
 	// WordPress.com Atomic sites.
 	if ( ( new Host() )->is_woa_site() ) {
+
+		// DIFM Lite In Progress Atomic Sites. Uses the same menu used for domain-only sites.
+		// Ignore this check if we are in a support session.
+		$is_difm_lite_in_progress = wpcomsh_is_site_sticker_active( 'difm-lite-in-progress' );
+		$is_support_session       = defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION;
+		if ( $is_difm_lite_in_progress && ! $is_support_session ) {
+			require_once __DIR__ . '/class-domain-only-admin-menu.php';
+			return Domain_Only_Admin_Menu::class;
+		}
+
 		require_once __DIR__ . '/class-atomic-admin-menu.php';
 		return Atomic_Admin_Menu::class;
 	}

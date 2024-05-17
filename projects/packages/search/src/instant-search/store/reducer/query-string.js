@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { VALID_SORT_KEYS } from '../../lib/constants';
 import { getFilterKeys, getStaticFilterKeys } from '../../lib/filters';
 

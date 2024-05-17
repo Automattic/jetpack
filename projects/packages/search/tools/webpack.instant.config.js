@@ -1,18 +1,12 @@
-/**
- * External dependencies
- */
+const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const {
 	defaultRequestToExternal,
 	defaultRequestToHandle,
 } = require( '@wordpress/dependency-extraction-webpack-plugin/lib/util' );
-const path = require( 'path' );
-const webpack = jetpackWebpackConfig.webpack;
-
-/**
- * Internal dependencies
- */
 const definePaletteColorsAsStaticVariables = require( './define-palette-colors-as-static-variables' );
+
+const webpack = jetpackWebpackConfig.webpack;
 
 /**
  * Used to determine if the module import request should be externalized.
@@ -25,14 +19,14 @@ const definePaletteColorsAsStaticVariables = require( './define-palette-colors-a
 function requestToExternal( request ) {
 	// Ensure that React will be aliased to preact/compat by preventing externalization.
 	if ( request === 'react' || request === 'react-dom' ) {
-		return;
+		return undefined;
 	}
 	return defaultRequestToExternal( request );
 }
 
 module.exports = {
 	mode: jetpackWebpackConfig.mode,
-	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
+	devtool: jetpackWebpackConfig.devtool,
 	entry: {
 		'jp-search': path.join( __dirname, '../src/instant-search/loader.js' ),
 	},
@@ -43,21 +37,24 @@ module.exports = {
 	optimization: {
 		...jetpackWebpackConfig.optimization,
 		splitChunks: {
-			cacheGroups: {
-				vendors: false,
-			},
+			// Unused keys are prefixed with underscores, as per eslint recommendation.
+			name: ( _module, _chunks, key ) => `jp-search.${ key }`,
 		},
 	},
 	resolve: {
 		...jetpackWebpackConfig.resolve,
 		alias: {
 			...jetpackWebpackConfig.resolve.alias,
-			react: 'preact/compat',
-			'react-dom/test-utils': 'preact/test-utils',
-			'react-dom': 'preact/compat', // Must be aliased after test-utils
+			react: require.resolve( 'preact/compat' ),
+			'react-dom/test-utils': require.resolve( 'preact/test-utils' ),
+			'react-dom': require.resolve( 'preact/compat' ), // Must be aliased after test-utils
 			fs: false,
 		},
-		modules: [ path.resolve( __dirname, '../src/instant-search' ), 'node_modules' ],
+		modules: [
+			path.resolve( __dirname, '../src/instant-search' ),
+			'node_modules',
+			path.resolve( __dirname, '../node_modules' ), // For core-js
+		],
 	},
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
@@ -67,7 +64,6 @@ module.exports = {
 				requestToExternal,
 				requestToHandle: defaultRequestToHandle,
 			},
-			I18nLoaderPlugin: { textdomain: 'jetpack-search-pkg' },
 		} ),
 		// Replace 'debug' module with a dummy implementation in production
 		...( jetpackWebpackConfig.isDevelopment

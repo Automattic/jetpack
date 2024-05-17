@@ -32,6 +32,21 @@ class Users extends Module {
 	protected $flags = array();
 
 	/**
+	 * Mapping between user fields to flags.
+	 *
+	 * @var array
+	 */
+	protected $user_fields_to_flags_mapping = array(
+		'user_pass'           => 'password_changed',
+		'user_email'          => 'email_changed',
+		'user_nicename'       => 'nicename_changed',
+		'user_url'            => 'url_changed',
+		'user_registered'     => 'registration_date_changed',
+		'user_activation_key' => 'activation_key_changed',
+		'display_name'        => 'display_name_changed',
+	);
+
+	/**
 	 * Sync module name.
 	 *
 	 * @access public
@@ -112,9 +127,9 @@ class Users extends Module {
 		add_action( 'jetpack_removed_user_from_blog', $callable, 10, 2 );
 
 		// User roles.
-		add_action( 'add_user_role', array( $this, 'save_user_role_handler' ), 10, 2 );
+		add_action( 'add_user_role', array( $this, 'add_user_role_handler' ), 10, 2 );
 		add_action( 'set_user_role', array( $this, 'save_user_role_handler' ), 10, 3 );
-		add_action( 'remove_user_role', array( $this, 'save_user_role_handler' ), 10, 2 );
+		add_action( 'remove_user_role', array( $this, 'remove_user_role_handler' ), 10, 2 );
 
 		// User capabilities.
 		add_action( 'added_user_meta', array( $this, 'maybe_save_user_meta' ), 10, 4 );
@@ -127,13 +142,15 @@ class Users extends Module {
 
 		add_action( 'jetpack_wp_login', $callable, 10, 3 );
 
-		add_action( 'wp_logout', $callable, 10, 0 );
+		add_action( 'wp_logout', $callable, 10, 1 );
 		add_action( 'wp_masterbar_logout', $callable, 10, 1 );
 
 		// Add on init.
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_add_user', array( $this, 'expand_action' ) );
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_register_user', array( $this, 'expand_action' ) );
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_user', array( $this, 'expand_action' ) );
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_wp_login', array( $this, 'expand_login_username' ), 10, 1 );
+		add_filter( 'jetpack_sync_before_enqueue_wp_logout', array( $this, 'expand_logout_username' ), 10, 1 );
 	}
 
 	/**
@@ -153,9 +170,6 @@ class Users extends Module {
 	 * @access public
 	 */
 	public function init_before_send() {
-		add_filter( 'jetpack_sync_before_send_jetpack_wp_login', array( $this, 'expand_login_username' ), 10, 1 );
-		add_filter( 'jetpack_sync_before_send_wp_logout', array( $this, 'expand_logout_username' ), 10, 2 );
-
 		// Full sync.
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_users', array( $this, 'expand_users' ) );
 	}
@@ -166,7 +180,7 @@ class Users extends Module {
 	 * @access private
 	 *
 	 * @param mixed $user User object or ID.
-	 * @return \WP_User User object, or `null` if user invalid/not found.
+	 * @return \WP_User|null User object, or `null` if user invalid/not found.
 	 */
 	private function get_user( $user ) {
 		if ( is_numeric( $user ) ) {
@@ -280,7 +294,7 @@ class Users extends Module {
 	}
 
 	/**
-	 * Expand the user username at login before being sent to the server.
+	 * Expand the user username at login before enqueuing.
 	 *
 	 * @access public
 	 *
@@ -295,15 +309,16 @@ class Users extends Module {
 	}
 
 	/**
-	 * Expand the user username at logout before being sent to the server.
+	 * Expand the user username at logout before enqueuing.
 	 *
 	 * @access public
 	 *
 	 * @param  array $args The hook arguments.
-	 * @param  int   $user_id ID of the user.
-	 * @return array $args Expanded hook arguments.
+	 * @return false|array $args Expanded hook arguments or false if we don't have a user.
 	 */
-	public function expand_logout_username( $args, $user_id ) {
+	public function expand_logout_username( $args ) {
+		list( $user_id ) = $args;
+
 		$user = get_userdata( $user_id );
 		$user = $this->sanitize_user( $user );
 
@@ -312,7 +327,7 @@ class Users extends Module {
 			$login = $user->data->user_login;
 		}
 
-		// If we don't have a user here lets not send anything.
+		// If we don't have a user here lets not enqueue anything.
 		if ( empty( $login ) ) {
 			return false;
 		}
@@ -433,7 +448,6 @@ class Users extends Module {
 		 */
 		do_action( 'jetpack_sync_register_user', $user_id, $this->get_flags( $user_id ) );
 		$this->clear_flags( $user_id );
-
 	}
 
 	/**
@@ -488,31 +502,90 @@ class Users extends Module {
 			$old_user = $old_user_data;
 		}
 
-		if ( null !== $old_user && $user->user_pass !== $old_user->user_pass ) {
-			$this->flags[ $user_id ]['password_changed'] = true;
+		if ( ! is_object( $old_user ) ) {
+			return;
 		}
-		if ( null !== $old_user && $user->data->user_email !== $old_user->user_email ) {
-			/**
-			 * The '_new_email' user meta is deleted right after the call to wp_update_user
-			 * that got us to this point so if it's still set then this was a user confirming
-			 * their new email address.
-			 */
-			if ( 1 === (int) get_user_meta( $user->ID, '_new_email', true ) ) {
-				$this->flags[ $user_id ]['email_changed'] = true;
+
+		$old_user_array = get_object_vars( $old_user );
+
+		foreach ( $old_user_array as $user_field => $field_value ) {
+			if ( false === $user->has_prop( $user_field ) ) {
+				continue;
+			}
+			if ( 'ID' === $user_field ) {
+				continue;
+			}
+			if ( $user->$user_field !== $field_value ) {
+				if ( 'user_email' === $user_field ) {
+					/**
+					 * The '_new_email' user meta is deleted right after the call to wp_update_user
+					 * that got us to this point so if it's still set then this was a user confirming
+					 * their new email address.
+					 */
+					if ( 1 === (int) get_user_meta( $user->ID, '_new_email', true ) ) {
+						$this->flags[ $user_id ]['email_changed'] = true;
+					}
+					continue;
+				}
+
+				$flag = isset( $this->user_fields_to_flags_mapping[ $user_field ] ) ? $this->user_fields_to_flags_mapping[ $user_field ] : 'unknown_field_changed';
+
+				$this->flags[ $user_id ][ $flag ] = true;
 			}
 		}
 
-		/**
-		 * Fires when the client needs to sync an updated user.
-		 *
-		 * @since 1.6.3
-		 * @since-jetpack 4.2.0
-		 *
-		 * @param \WP_User The WP_User object
-		 * @param array    State - New since 5.8.0
-		 */
-		do_action( 'jetpack_sync_save_user', $user_id, $this->get_flags( $user_id ) );
-		$this->clear_flags( $user_id );
+		if ( isset( $this->flags[ $user_id ] ) ) {
+
+			/**
+			 * Fires when the client needs to sync an updated user.
+			 *
+			 * @since 1.6.3
+			 * @since-jetpack 4.2.0
+			 *
+			 * @param \WP_User The WP_User object
+			 * @param array    State - New since 5.8.0
+			 */
+			do_action( 'jetpack_sync_save_user', $user_id, $this->get_flags( $user_id ) );
+			$this->clear_flags( $user_id );
+		}
+	}
+
+	/**
+	 * Handler for add user role change.
+	 *
+	 * @access public
+	 *
+	 * @param int    $user_id   ID of the user.
+	 * @param string $role      New user role.
+	 */
+	public function add_user_role_handler( $user_id, $role ) {
+		$this->add_flags(
+			$user_id,
+			array(
+				'role_added' => $role,
+			)
+		);
+
+		$this->save_user_role_handler( $user_id, $role );
+	}
+
+	/**
+	 * Handler for remove user role change.
+	 *
+	 * @access public
+	 *
+	 * @param int    $user_id   ID of the user.
+	 * @param string $role      Removed user role.
+	 */
+	public function remove_user_role_handler( $user_id, $role ) {
+		$this->add_flags(
+			$user_id,
+			array(
+				'role_removed' => $role,
+			)
+		);
+
+		$this->save_user_role_handler( $user_id, $role );
 	}
 
 	/**
@@ -653,8 +726,8 @@ class Users extends Module {
 			$query .= ' WHERE ' . $where_sql;
 		}
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$count = $wpdb->get_var( $query );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$count = (int) $wpdb->get_var( $query );
 
 		return (int) ceil( $count / self::ARRAY_CHUNK_SIZE );
 	}
@@ -705,8 +778,9 @@ class Users extends Module {
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$user_ids = $wpdb->get_col( "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}user_level' AND meta_value > 0 LIMIT " . ( self::MAX_INITIAL_SYNC_USERS + 1 ) );
+		$user_ids_count = is_countable( $user_ids ) ? count( $user_ids ) : 0;
 
-		if ( count( $user_ids ) <= self::MAX_INITIAL_SYNC_USERS ) {
+		if ( $user_ids_count <= self::MAX_INITIAL_SYNC_USERS ) {
 			return $user_ids;
 		} else {
 			return false;
@@ -852,20 +926,9 @@ class Users extends Module {
 		}
 		$names_as_keys = array_flip( $names );
 
-		// Do check in constant O(1) time for PHP5.5+.
-		if ( function_exists( 'array_column' ) ) {
-			$backtrace_functions         = array_column( $backtrace, 'function' ); // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions.array_columnFound
-			$backtrace_functions_as_keys = array_flip( $backtrace_functions );
-			$intersection                = array_intersect_key( $backtrace_functions_as_keys, $names_as_keys );
-			return ! empty( $intersection );
-		}
-
-		// Do check in linear O(n) time for < PHP5.5 ( using isset at least prevents O(n^2) ).
-		foreach ( $backtrace as $call ) {
-			if ( isset( $names_as_keys[ $call['function'] ] ) ) {
-				return true;
-			}
-		}
-		return false;
+		$backtrace_functions         = array_column( $backtrace, 'function' );
+		$backtrace_functions_as_keys = array_flip( $backtrace_functions );
+		$intersection                = array_intersect_key( $backtrace_functions_as_keys, $names_as_keys );
+		return ! empty( $intersection );
 	}
 }

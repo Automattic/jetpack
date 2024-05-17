@@ -1,18 +1,12 @@
-/**
- * External dependencies
- */
-import { combineReducers } from 'redux';
 import { assign, get } from 'lodash';
-
-/**
- * Internal dependencies
- */
+import { combineReducers } from 'redux';
 import {
 	REWIND_STATUS_FETCH,
 	REWIND_STATUS_FETCH_RECEIVE,
 	REWIND_STATUS_FETCH_FAIL,
 	MOCK_SWITCH_REWIND_STATE,
 } from 'state/action-types';
+import preflightReducer from './preflight/reducer';
 
 export const data = ( state = {}, action ) => {
 	switch ( action.type ) {
@@ -48,6 +42,7 @@ export const requests = ( state = initialRequestsState, action ) => {
 export const reducer = combineReducers( {
 	data,
 	requests,
+	preflight: preflightReducer,
 } );
 
 /**

@@ -91,7 +91,9 @@ fi
 CURRENT_STABLE_VERSION=$(jq -r .version <<<"$JSON")
 
 # Get all versions, strip anything with alpha characters such as -beta or trunk.
-LAST_STABLE_TAG=$(jq -r '.versions | delpaths([paths | select(.[] | test("[A-Za-z]+"; "i"))]) | keys[-2]' <<<"$JSON")
+SVN_TMP=$(jq -r '.versions | keys[] | select( test( "^[0-9]+(\\.[0-9]+)+$" ) )' <<<"$JSON"  | sort -V )
+mapfile -t SVN_TAGS <<<"$SVN_TMP"
+LAST_STABLE_TAG=${SVN_TAGS[-2]}
 
 red CAUTION
 echo "This script does one thing, which is to revert stable tag in WordPress.org svn to the prior tag."

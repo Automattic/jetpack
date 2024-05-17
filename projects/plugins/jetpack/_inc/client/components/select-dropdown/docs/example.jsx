@@ -1,59 +1,43 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-/**
- * External dependencies
- */
-import React from 'react';
 
-import PureRenderMixin from 'react-pure-render/mixin';
-import createReactClass from 'create-react-class';
-
-/**
- * Internal dependencies
- */
 import SelectDropdown from 'components/select-dropdown';
-
 import DropdownItem from 'components/select-dropdown/item';
 import DropdownLabel from 'components/select-dropdown/label';
 import DropdownSeparator from 'components/select-dropdown/separator';
+import React from 'react';
 
-const SelectDropdownDemo = createReactClass( {
-	displayName: 'SelectDropdown',
+class SelectDropdownDemo extends React.PureComponent {
+	static displayName = 'SelectDropdown';
 
-	mixins: [ PureRenderMixin ],
+	state = {
+		childSelected: 'Published',
+		selectedCount: 10,
+		compactButtons: false,
+	};
 
-	getInitialState: function () {
-		return {
-			childSelected: 'Published',
-			selectedCount: 10,
-			compactButtons: false,
-		};
-	},
+	static defaultProps = {
+		options: [
+			{ value: 'status-options', label: 'Statuses', isLabel: true },
+			{ value: 'published', label: 'Published' },
+			{ value: 'scheduled', label: 'Scheduled' },
+			{ value: 'drafts', label: 'Drafts' },
+			null,
+			{ value: 'trashed', label: 'Trashed' },
+		],
+	};
 
-	getDefaultProps: function () {
-		return {
-			options: [
-				{ value: 'status-options', label: 'Statuses', isLabel: true },
-				{ value: 'published', label: 'Published' },
-				{ value: 'scheduled', label: 'Scheduled' },
-				{ value: 'drafts', label: 'Drafts' },
-				null,
-				{ value: 'trashed', label: 'Trashed' },
-			],
-		};
-	},
-
-	handleSelectItem: function ( childSelected, count ) {
+	handleSelectItem( childSelected, count ) {
 		return event => {
 			event.preventDefault();
 			this.selectItem( childSelected, count );
 		};
-	},
+	}
 
-	toggleButtons: function () {
+	toggleButtons = () => {
 		this.setState( { compactButtons: ! this.state.compactButtons } );
-	},
+	};
 
-	render: function () {
+	render() {
 		const toggleButtonsText = this.state.compactButtons ? 'Normal Buttons' : 'Compact Buttons';
 
 		return (
@@ -123,16 +107,16 @@ const SelectDropdownDemo = createReactClass( {
 				</SelectDropdown>
 			</div>
 		);
-	},
+	}
 
-	selectItem: function ( childSelected, count ) {
+	selectItem( childSelected, count ) {
 		this.setState( {
 			childSelected: childSelected,
 			selectedCount: count,
 		} );
-	},
+	}
 
-	onDropdownSelect: function () {},
-} );
+	onDropdownSelect() {}
+}
 
 export default SelectDropdownDemo;

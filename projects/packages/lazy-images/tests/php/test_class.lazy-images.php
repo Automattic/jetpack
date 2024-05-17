@@ -2,6 +2,7 @@
 
 require __DIR__ . '/../../src/lazy-images.php';
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Lazy_Images;
 use WorDBless\BaseTestCase;
 
@@ -13,8 +14,6 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 
 	/**
 	 * Setup.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		add_filter( 'lazyload_images_placeholder_image', array( $this, 'override_image_placeholder' ) );
@@ -41,7 +40,7 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 					'img',
 					' src="image.jpg"',
 				),
-				'<img src="image.jpg" data-lazy-src="http://image.jpg?is-pending-load=1" srcset="placeholder.jpg" class=" jetpack-lazy-image"><noscript><img src="image.jpg" /></noscript>',
+				'<img src="image.jpg" data-lazy-src="http://image.jpg?is-pending-load=1" srcset="placeholder.jpg" class=" jetpack-lazy-image"><noscript><img data-lazy-fallback="1" src="image.jpg" /></noscript>',
 			),
 			'img_with_other_attributes' => array(
 				array(
@@ -49,7 +48,7 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 					'img',
 					' src="image.jpg" alt="Alt!"',
 				),
-				'<img src="image.jpg" alt="Alt!" data-lazy-src="http://image.jpg?is-pending-load=1" srcset="placeholder.jpg" class=" jetpack-lazy-image"><noscript><img src="image.jpg" alt="Alt!" /></noscript>',
+				'<img src="image.jpg" alt="Alt!" data-lazy-src="http://image.jpg?is-pending-load=1" srcset="placeholder.jpg" class=" jetpack-lazy-image"><noscript><img data-lazy-fallback="1" src="image.jpg" alt="Alt!" /></noscript>',
 			),
 			'img_with_srcset'           => array(
 				array(
@@ -58,7 +57,7 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 					' src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w"',
 
 				),
-				'<img src="image.jpg" data-lazy-srcset="medium.jpg 1000w, large.jpg 2000w" data-lazy-src="http://image.jpg?is-pending-load=1" srcset="placeholder.jpg" class=" jetpack-lazy-image"><noscript><img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" /></noscript>',
+				'<img src="image.jpg" data-lazy-srcset="medium.jpg 1000w, large.jpg 2000w" data-lazy-src="http://image.jpg?is-pending-load=1" srcset="placeholder.jpg" class=" jetpack-lazy-image"><noscript><img data-lazy-fallback="1" src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" /></noscript>',
 			),
 			'img_with_sizes'            => array(
 				array(
@@ -67,7 +66,7 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 					' src="image.jpg" sizes="(min-width: 36em) 33.3vw, 100vw"',
 
 				),
-				'<img src="image.jpg" data-lazy-sizes="(min-width: 36em) 33.3vw, 100vw" data-lazy-src="http://image.jpg?is-pending-load=1" srcset="placeholder.jpg" class=" jetpack-lazy-image"><noscript><img src="image.jpg" sizes="(min-width: 36em) 33.3vw, 100vw" /></noscript>',
+				'<img src="image.jpg" data-lazy-sizes="(min-width: 36em) 33.3vw, 100vw" data-lazy-src="http://image.jpg?is-pending-load=1" srcset="placeholder.jpg" class=" jetpack-lazy-image"><noscript><img data-lazy-fallback="1" src="image.jpg" sizes="(min-width: 36em) 33.3vw, 100vw" /></noscript>',
 			),
 		);
 	}
@@ -277,7 +276,7 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 	 * @dataProvider get_process_image_attributes_data
 	 */
 	public function test_process_image_attributes( $input, $expected_output ) {
-		$this->assertSame( Jetpack_Lazy_Images::process_image_attributes( $input ), $expected_output );
+		$this->assertSame( $expected_output, Jetpack_Lazy_Images::process_image_attributes( $input ) );
 	}
 
 	/**
@@ -470,6 +469,55 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 		);
 	}
 
+	/**
+	 * Test that processing the_content handles adding lazy image support and removing the loading attribute.
+	 */
+	public function test_processing_removes_loading_attribute() {
+		$instance = Jetpack_Lazy_Images::instance();
+		$instance->setup_filters();
+
+		$src = '<img loading="lazy" src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" class="wp-post-image"/>';
+
+		$processed = apply_filters( 'the_content', $src );
+		$img_tag   = preg_replace( '/<noscript>.*<\/noscript>/', '', $processed );
+
+		$this->assertStringContainsString( 'srcset="placeholder.jpg"', $img_tag );
+		$this->assertStringContainsString( 'src="image.jpg"', $img_tag );
+		$this->assertStringNotContainsString( 'loading="', $img_tag );
+
+		$instance->remove_filters();
+	}
+
+	/**
+	 * Test that processing more than once results in the same output.
+	 */
+	public function test_processing_more_than_once() {
+		$instance = Jetpack_Lazy_Images::instance();
+		$instance->setup_filters();
+
+		$src = '<img loading="lazy" src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" class="wp-post-image"/>';
+
+		$processed = apply_filters( 'the_content', $src );
+
+		$processed_again = apply_filters( 'the_content', $processed );
+
+		$this->assertSame( $processed, $processed_again );
+
+		$attributes = array(
+			'src'    => 'image.jpg',
+			'srcset' => 'medium.jpg 1000w, large.jpg 2000w',
+		);
+
+		$processed_attrs = $instance->process_image_attributes( $attributes );
+
+		$processed_attrs_again = $instance->process_image_attributes( $processed_attrs );
+
+		// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual, WordPress.PHP.StrictComparisons.LooseEqual.
+		$this->assertTrue( $processed_attrs == $processed_attrs_again, 'Attributes are not the same after processing twice.' );
+
+		$instance->remove_filters();
+	}
+
 	/*
 	 * Helpers
 	 */
@@ -552,5 +600,82 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 	public function add_skip_lazy_class_to_attributes( $attributes ) {
 		$attributes['class'] .= ' skip-lazy';
 		return $attributes;
+	}
+
+	/**
+	 * Confirms that the lazy images module is not loaded with Gutenberg 16.6.
+	 *
+	 * @covers Jetpack_Lazy_Images::should_force_deactivate
+	 * @dataProvider get_should_force_deactivate_data
+	 *
+	 * @param array $version_details Version details (WP and Gutenberg).
+	 * @param bool  $expected        Whether or not the module should be deactivated.
+	 */
+	public function test_should_force_deactivate( $version_details, $expected ) {
+		global $wp_version;
+		$previous_version = $wp_version;
+
+		Constants::set_constant( 'IS_JETPACK_LAZY_IMAGES_TESTS', false ); // disable hack for this test
+
+		Constants::set_constant( 'IS_GUTENBERG_PLUGIN', $version_details['gutenberg'] );
+		Constants::set_constant( 'GUTENBERG_VERSION', $version_details['gutenberg_version'] );
+		if ( true === $version_details['is_gutenberg_dev'] ) {
+			Constants::set_constant( 'GUTENBERG_DEVELOPMENT_MODE', true );
+		}
+
+		$wp_version = $version_details['wp']; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		try {
+			$this->assertSame( $expected, Jetpack_Lazy_Images::should_force_deactivate() );
+		} finally {
+			Constants::clear_constants();
+			$wp_version = $previous_version; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		}
+	}
+
+	/**
+	 * Data provider for test.
+	 *
+	 * @return array
+	 */
+	public function get_should_force_deactivate_data() {
+		return array(
+			'Gutenberg 16.5.0'                 => array(
+				array(
+					'wp'                => '6.3.0',
+					'gutenberg'         => true,
+					'gutenberg_version' => '16.5.0',
+					'is_gutenberg_dev'  => false,
+				),
+				false,
+			),
+			'Gutenberg 16.6.0'                 => array(
+				array(
+					'wp'                => '6.3.0',
+					'gutenberg'         => true,
+					'gutenberg_version' => '16.6.0',
+					'is_gutenberg_dev'  => false,
+				),
+				true,
+			),
+			'WordPress 6.4'                    => array(
+				array(
+					'wp'                => '6.4.0',
+					'gutenberg'         => false,
+					'gutenberg_version' => false,
+					'is_gutenberg_dev'  => false,
+				),
+				true,
+			),
+			'Development version of Gutenberg' => array(
+				array(
+					'wp'                => '6.3.0',
+					'gutenberg'         => true,
+					'gutenberg_version' => '15.6.0',
+					'is_gutenberg_dev'  => true,
+				),
+				true,
+			),
+		);
 	}
 }

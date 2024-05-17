@@ -1,12 +1,10 @@
-// Additional eslint config for react-using projects.
-require( '@rushstack/eslint-patch/modern-module-resolution' );
-
 /**
  * @type {import("eslint").Linter.Config}
  */
 module.exports = {
 	extends: [
-		'wpcalypso/react',
+		'./preload.js',
+		'plugin:wpcalypso/react',
 		// Re-extend our base to re-override wpcalypso.
 		'./base.js',
 	],
@@ -20,7 +18,7 @@ module.exports = {
 	},
 	rules: {
 		'react/jsx-curly-spacing': [ 2, 'always' ],
-		'react/jsx-no-bind': 2,
+		'react/jsx-no-bind': [ 2, { ignoreRefs: true } ],
 		// 'react/jsx-space-before-closing': 2,
 		'react/jsx-tag-spacing': [ 2, { beforeSelfClosing: 'always' } ],
 		'react/no-danger': 2,

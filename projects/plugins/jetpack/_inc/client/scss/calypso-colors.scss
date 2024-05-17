@@ -26,6 +26,11 @@ $gray:                   desaturate( $gray-original, 100% ); // Intermediary tra
 
 $gray-light:             lighten( $gray, 33% ); //#f6f6f6
 $gray-dark:              darken( $gray, 38% ); //#404040
+$gray-0:                 #F6F7F7;
+$gray-5:                 #DCDCDE;
+$gray-30:                #8C8F94;
+$gray-60:                #50575E;
+$gray-80:                #2C3338;
 
 // $gray-text: ideal for standard, non placeholder text
 // $gray-text-min: minimum contrast needed for WCAG 2.0 AA on white background
@@ -43,6 +48,11 @@ $gray-darken-30:  darken( $gray, 30% );  // #3d596d
 // Oranges
 $orange-jazzy:           #f0821e;
 $orange-fire:            #d63638;
+$orange-warning:         #e68b28;
+
+$red-50:                 #D63638;
+
+$yellow-30:              #DEB100;
 
 // Alerts
 $alert-yellow:           #f0b849;
@@ -55,6 +65,7 @@ $link-highlight:         tint($blue-medium, 20%);
 
 // Essentials
 $white:                  rgba(255,255,255,1);
+$black:                  rgba(0,0,0,1);
 $transparent:            rgba(255,255,255,0);
 
 $border-ultra-light-gray: #e8f0f5;

@@ -1,16 +1,17 @@
 [
-    {
-        "clientId": "_clientId_0",
-        "name": "jetpack/related-posts",
-        "isValid": true,
-        "attributes": {
-            "postLayout": "list",
-            "displayDate": false,
-            "displayThumbnails": true,
-            "displayContext": true,
-            "postsToShow": 4
-        },
-        "innerBlocks": [],
-        "originalContent": ""
-    }
+	{
+		"clientId": "_clientId_0",
+		"name": "jetpack/related-posts",
+		"isValid": true,
+		"attributes": {
+			"postLayout": "list",
+			"displayDate": false,
+			"displayAuthor": false,
+			"displayThumbnails": true,
+			"displayContext": true,
+			"postsToShow": 4
+		},
+		"innerBlocks": [],
+		"originalContent": ""
+	}
 ]

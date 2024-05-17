@@ -4,11 +4,14 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-a8c-mc-stats": "^1.4",
-		"automattic/jetpack-options": "^1.15"
+		"php": ">=7.0",
+		"automattic/jetpack-connection": "@dev"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.0"
+		"automattic/jetpack-changelogger": "@dev"
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
 	"autoload": {
 		"classmap": [
@@ -34,7 +37,8 @@
 			"link-template": "https://github.com/Automattic/jetpack-heartbeat/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.4.x-dev"
+			"dev-trunk": "2.0.x-dev"
 		}
-	}
+	},
+	"abandoned": "automattic/jetpack-connection"
 }

@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { __ } from '@wordpress/i18n';
 import { ActionButton } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
+import React from 'react';
 import useConnection from '../use-connection';
 
 /**
@@ -21,11 +14,11 @@ const ConnectButton = props => {
 	const {
 		apiRoot,
 		apiNonce,
-		connectLabel,
+		connectLabel = __( 'Connect', 'jetpack' ),
 		registrationNonce,
-		redirectUri,
+		redirectUri = null,
 		from,
-		autoTrigger,
+		autoTrigger = false,
 	} = props;
 
 	const {
@@ -73,12 +66,6 @@ ConnectButton.propTypes = {
 	registrationNonce: PropTypes.string.isRequired,
 	/** Whether to initiate the connection process automatically upon rendering the component. */
 	autoTrigger: PropTypes.bool,
-};
-
-ConnectButton.defaultProps = {
-	connectLabel: __( 'Connect', 'jetpack' ),
-	redirectUri: null,
-	autoTrigger: false,
 };
 
 export default ConnectButton;

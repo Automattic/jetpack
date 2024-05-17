@@ -1,0 +1,11 @@
+.tooltip {
+	margin-left: 8px;
+}
+
+.tooltip p:first-child {
+	margin-top: 0;
+}
+
+.tooltip button svg {
+	fill: var( --gray-30 );
+}

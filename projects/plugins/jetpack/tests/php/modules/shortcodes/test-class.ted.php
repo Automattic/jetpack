@@ -27,14 +27,14 @@ class WP_Test_Jetpack_Shortcodes_Ted extends WP_UnitTestCase {
 	}
 
 	public function pre_http_request( $response, $args, $url ) {
-		if ( 0 !== strpos( $url, 'https://www.ted.com/services/v1/oembed.json?' ) ) {
+		if ( ! str_starts_with( $url, 'https://www.ted.com/services/v1/oembed.json?' ) ) {
 			return $response;
 		}
 
 		$oembed_query      = wp_parse_url( $url, PHP_URL_QUERY );
 		$oembed_query_args = null;
 		wp_parse_str( $oembed_query, $oembed_query_args );
-		if ( ! isset( $oembed_query_args['maxheight'], $oembed_query_args['maxwidth'], $oembed_query_args['url'], $oembed_query_args['lang'] ) ) {
+		if ( ! isset( $oembed_query_args['maxheight'] ) || ! isset( $oembed_query_args['maxwidth'] ) || ! isset( $oembed_query_args['url'] ) || ! isset( $oembed_query_args['lang'] ) ) {
 			return new WP_Error( 'unexpected-http-request', 'Test is making an unexpected HTTP request.' );
 		}
 
@@ -101,7 +101,7 @@ BODY;
 	 * @since 3.2
 	 */
 	public function test_shortcodes_ted_exists() {
-		$this->assertEquals( shortcode_exists( 'ted' ), true );
+		$this->assertTrue( shortcode_exists( 'ted' ) );
 	}
 
 	/**
@@ -126,7 +126,7 @@ BODY;
 		$ted_id  = '1969';
 		$content = '[ted id=' . $ted_id . ']';
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post-content' => $content,
 			)
@@ -153,7 +153,7 @@ BODY;
 		$height  = '315';
 		$content = '[ted id=' . $ted_id . ' width=' . $width . ' height=' . $height . ']';
 
-		$post_id         = $this->factory->post->create(
+		$post_id         = self::factory()->post->create(
 			array(
 				'post-content' => $content,
 			)
@@ -178,7 +178,7 @@ BODY;
 		$lang    = 'fr';
 		$content = '[ted id=' . $ted_id . ' lang=' . $lang . ']';
 
-		$post_id         = $this->factory->post->create(
+		$post_id         = self::factory()->post->create(
 			array(
 				'post-content' => $content,
 			)
@@ -205,7 +205,7 @@ BODY;
 		$ted_id  = '1969';
 		$content = '[ted id=' . $ted_id . ']';
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post-content' => $content,
 			)

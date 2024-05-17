@@ -1,6 +1,4 @@
-/**
- * Internal dependencies
- */
+import restApi from '@automattic/jetpack-api';
 import {
 	JETPACK_SITE_DATA_FETCH,
 	JETPACK_SITE_DATA_FETCH_RECEIVE,
@@ -11,6 +9,9 @@ import {
 	JETPACK_SITE_BENEFITS_FETCH,
 	JETPACK_SITE_BENEFITS_FETCH_RECEIVE,
 	JETPACK_SITE_BENEFITS_FETCH_FAIL,
+	JETPACK_SITE_DISCOUNT_FETCH,
+	JETPACK_SITE_DISCOUNT_FETCH_RECEIVE,
+	JETPACK_SITE_DISCOUNT_FETCH_FAIL,
 	JETPACK_SITE_PLANS_FETCH,
 	JETPACK_SITE_PLANS_FETCH_RECEIVE,
 	JETPACK_SITE_PLANS_FETCH_FAIL,
@@ -21,7 +22,6 @@ import {
 	JETPACK_SITE_CONNECTED_PLUGINS_FETCH_RECEIVE,
 	JETPACK_SITE_CONNECTED_PLUGINS_FETCH_FAIL,
 } from 'state/action-types';
-import restApi from '@automattic/jetpack-api';
 
 export const fetchSiteData = () => {
 	return dispatch => {
@@ -62,6 +62,28 @@ export const fetchSiteBenefits = () => {
 			.catch( error => {
 				dispatch( {
 					type: JETPACK_SITE_BENEFITS_FETCH_FAIL,
+					error: error,
+				} );
+			} );
+	};
+};
+
+export const fetchSiteDiscount = () => {
+	return dispatch => {
+		dispatch( {
+			type: JETPACK_SITE_DISCOUNT_FETCH,
+		} );
+		return restApi
+			.fetchSiteDiscount()
+			.then( siteDiscount => {
+				dispatch( {
+					type: JETPACK_SITE_DISCOUNT_FETCH_RECEIVE,
+					siteDiscount,
+				} );
+			} )
+			.catch( error => {
+				dispatch( {
+					type: JETPACK_SITE_DISCOUNT_FETCH_FAIL,
 					error: error,
 				} );
 			} );

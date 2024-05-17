@@ -1,20 +1,14 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { get } from 'lodash';
+import { Status, getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _n, _x } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
 import Button from 'components/button';
-import { getPlanClass } from 'lib/plans/constants';
-import { getSiteRawUrl, getSiteAdminUrl, getUpgradeUrl } from 'state/initial-state';
+import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
+import QuerySitePlugins from 'components/data/query-site-plugins';
+import QueryVaultPressData from 'components/data/query-vaultpress-data';
+import analytics from 'lib/analytics';
+import { get } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 import {
 	getVaultPressScanThreatCount,
 	getVaultPressData,
@@ -23,22 +17,18 @@ import {
 	isAkismetKeyValid,
 	isFetchingAkismetData,
 } from 'state/at-a-glance';
-import { getSitePlan, isFetchingSiteData } from 'state/site';
+import { isOfflineMode } from 'state/connection';
+import { getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
 import { getRewindStatus } from 'state/rewind';
 import { getScanStatus } from 'state/scan';
-import { isOfflineMode } from 'state/connection';
+import { getSitePlan, siteHasFeature, isFetchingSiteData } from 'state/site';
 import { isFetchingPluginsData, isPluginActive, isPluginInstalled } from 'state/site/plugins';
-import QuerySitePlugins from 'components/data/query-site-plugins';
-import QueryVaultPressData from 'components/data/query-vaultpress-data';
-import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
-import SimpleNotice from 'components/notice';
 
 /**
  * Track click on Pro status badge.
  *
- * @param {string} type    Status of a certain feature.
- * @param {string} feature Slug of plugin or service.
- *
+ * @param {string} type    - Status of a certain feature.
+ * @param {string} feature - Slug of plugin or service.
  * @returns {undefined}
  */
 const trackProStatusClick = ( type, feature ) =>
@@ -51,10 +41,9 @@ const trackProStatusClick = ( type, feature ) =>
 /**
  * Build function to pass as onClick property.
  *
- * @param {string} type    Status of a certain feature.
- * @param {string} feature Slug of plugin or service.
- *
- * @returns {function} Function to track a click.
+ * @param {string} type    - Status of a certain feature.
+ * @param {string} feature - Slug of plugin or service.
+ * @returns {Function} Function to track a click.
  */
 const handleClickForTracking = ( type, feature ) => () => trackProStatusClick( type, feature );
 
@@ -76,17 +65,17 @@ class ProStatus extends React.Component {
 		switch ( this.props.rewindStatus.state ) {
 			case 'provisioning':
 				return {
-					status: 'is-info',
+					status: 'initializing',
 					text: __( 'Setting up', 'jetpack' ),
 				};
 			case 'awaiting_credentials':
 				return {
-					status: 'is-warning',
+					status: 'action',
 					text: __( 'Action needed', 'jetpack' ),
 				};
 			case 'active':
 				return {
-					status: 'is-success',
+					status: 'active',
 					text: __( 'Connected', 'jetpack' ),
 				};
 			default:
@@ -101,28 +90,17 @@ class ProStatus extends React.Component {
 			actionUrl = '';
 		switch ( type ) {
 			case 'threats':
-				status = 'is-error';
-				if ( this.props.isCompact ) {
-					action = _x(
-						'Threats',
-						'A caption for a small button to fix security issues.',
-						'jetpack'
-					);
-				} else {
-					action = _x(
-						'See threats',
-						'A caption for a small button to fix security issues.',
-						'jetpack'
-					);
-				}
+				status = 'error';
+				action = _x(
+					'Threats detected',
+					'A caption for a small button to fix security issues.',
+					'jetpack'
+				);
+
 				actionUrl = getRedirectUrl( 'vaultpress-dashboard' );
 				break;
-			case 'free':
-			case 'personal':
-			case 'pro':
-				return;
 			case 'secure':
-				status = 'is-success';
+				status = 'active';
 				message = _x(
 					'Secure',
 					'Short message informing user that the site is secure.',
@@ -133,16 +111,13 @@ class ProStatus extends React.Component {
 				return;
 			case 'rewind_connected':
 				const rewindMessage = this.getRewindMessage();
-				return (
-					<SimpleNotice showDismiss={ false } status={ rewindMessage.status } isCompact>
-						{ rewindMessage.text }
-					</SimpleNotice>
-				);
+				return <Status status={ rewindMessage.status } text={ rewindMessage.text } />;
 			case 'active':
-				return <span className="jp-dash-item__active-label">{ __( 'ACTIVE', 'jetpack' ) }</span>;
+				return <Status status="active" />;
 		}
-		return (
-			<SimpleNotice showDismiss={ false } status={ status } isCompact={ true }>
+
+		const label = (
+			<>
 				{ message }
 				{ action && (
 					<a
@@ -153,16 +128,17 @@ class ProStatus extends React.Component {
 						{ action }
 					</a>
 				) }
-			</SimpleNotice>
+			</>
 		);
+
+		return <Status status={ status } label={ label } />;
 	};
 
 	/**
 	 * Return a button to Set Up a feature.
 	 *
-	 * @param {string} feature Slug of the feature to set up.
-	 *
-	 * @return {component} A Button component.
+	 * @param {string} feature - Slug of the feature to set up.
+	 * @returns {React.ReactElement} A Button component.
 	 */
 	getSetUpButton = feature => {
 		return (
@@ -181,6 +157,7 @@ class ProStatus extends React.Component {
 	};
 
 	render() {
+		const { purchasedVaultPressBackups, purchasedVaultPressScan, scanStatus } = this.props;
 		const sitePlan = this.props.sitePlan,
 			vpData = this.props.getVaultPressData();
 		let pluginSlug = '';
@@ -195,22 +172,20 @@ class ProStatus extends React.Component {
 			pluginSlug = 'akismet/akismet.php';
 		}
 
-		const hasPersonal = /jetpack_personal*/.test( sitePlan.product_slug ),
-			hasFree = /jetpack_free*/.test( sitePlan.product_slug ),
-			hasPremium = /jetpack_premium*/.test( sitePlan.product_slug ),
-			hasBackups = get( vpData, [ 'data', 'features', 'backups' ], false ),
-			hasVPScan = get( vpData, [ 'data', 'features', 'security' ], false );
-
-		const { scanStatus } = this.props;
+		const hasFree = /jetpack_free*/.test( sitePlan.product_slug ),
+			usingVPBackups = get( vpData, [ 'data', 'features', 'backups' ], false ),
+			usingVPScan = get( vpData, [ 'data', 'features', 'security' ], false );
 
 		const getStatus = ( feature, active, installed ) => {
 			switch ( feature ) {
 				case 'rewind':
+					// This is the newer backup technology powered by Jetpack Backup.
 					return this.getProActions( 'rewind_connected', 'rewind' );
 
 				case 'backups':
-					if ( hasFree && ! hasBackups && this.props.isCompact ) {
-						return this.getProActions( 'free', 'backups' );
+					// This is the older backup technology powered by VaultPress.
+					if ( hasFree && ! usingVPBackups && this.props.isCompact ) {
+						return '';
 					}
 					break;
 
@@ -219,54 +194,43 @@ class ProStatus extends React.Component {
 						return '';
 					}
 					if ( 'N/A' !== vpData ) {
-						if ( ( hasFree || hasPersonal ) && ! hasVPScan ) {
-							if ( this.props.isCompact ) {
-								return this.getProActions( 'free', 'scan' );
-							} else if ( hasPersonal && ! hasBackups ) {
-								// Personal plans doesn't have scan but it does have backups.
-								return this.getSetUpButton( 'backups' );
+						if ( purchasedVaultPressScan ) {
+							if ( usingVPScan ) {
+								return this.getProActions(
+									0 === this.props.getScanThreats() ? 'secure' : 'threats',
+									'scan'
+								);
 							}
-							return '';
-						}
-						if ( ! hasVPScan ) {
 							return this.getSetUpButton( 'scan' );
+						} else if ( purchasedVaultPressBackups && ! usingVPBackups && ! this.props.isCompact ) {
+							return this.getSetUpButton( 'backups' );
 						}
-
-						return this.getProActions(
-							0 === this.props.getScanThreats() ? 'secure' : 'threats',
-							'scan'
-						);
+						return '';
 					} else if ( scanStatus && scanStatus.state !== 'unavailable' ) {
 						if ( Array.isArray( scanStatus.threats ) && scanStatus.threats.length > 0 ) {
 							return (
-								<SimpleNotice showDismiss={ false } status="is-error" isCompact>
-									{ _n( 'Threat', 'Threats', scanStatus.threats.length, 'jetpack' ) }
-								</SimpleNotice>
+								<Status
+									status="error"
+									label={ _n( 'Threat', 'Threats', scanStatus.threats.length, 'jetpack' ) }
+								/>
 							);
 						}
 						if ( ! scanStatus.credentials ) {
 							return '';
 						}
 						if ( scanStatus.credentials.length === 0 ) {
-							return (
-								<SimpleNotice showDismiss={ false } status="is-warning" isCompact>
-									{ __( 'Action needed', 'jetpack' ) }
-								</SimpleNotice>
-							);
+							return <Status status="action" />;
 						}
 						return this.getProActions( 'secure', 'scan' );
 					}
 					break;
 
 				case 'search':
-					if ( hasFree || hasPersonal || hasPremium ) {
-						return this.getProActions( 'pro', 'search' );
-					}
 					return '';
 
 				case 'akismet':
 					if ( hasFree && ! ( active && installed ) ) {
-						return this.props.isCompact ? this.getProActions( 'free', 'anti-spam' ) : '';
+						return '';
 					}
 
 					if (
@@ -318,7 +282,6 @@ export default connect( state => {
 		getAkismetData: () => getAkismetData( state ),
 		isFetchingVaultPressData: isFetchingVaultPressData( state ),
 		sitePlan,
-		planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
 		fetchingPluginsData: isFetchingPluginsData( state ),
 		pluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
 		pluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),
@@ -326,9 +289,9 @@ export default connect( state => {
 		fetchingSiteData: isFetchingSiteData( state ),
 		isAkismetKeyValid: isAkismetKeyValid( state ),
 		fetchingAkismetData: isFetchingAkismetData( state ),
-		paidFeatureUpgradeUrl: getUpgradeUrl( state, 'upgrade' ),
-		planProUpgradeUrl: getUpgradeUrl( state, 'plans-business' ),
 		rewindStatus: getRewindStatus( state ),
 		scanStatus: getScanStatus( state ),
+		purchasedVaultPressBackups: siteHasFeature( state, 'vaultpress-backups' ),
+		purchasedVaultPressScan: siteHasFeature( state, 'vaultpress-security-scanning' ),
 	};
 } )( ProStatus );

@@ -1,5 +1,3 @@
-import { expect } from 'chai';
-
 import {
 	isDisconnectingSite,
 	isFetchingConnectUrl,
@@ -13,7 +11,7 @@ import {
 	getHasSeenWCConnectionModal,
 } from '../reducer';
 
-let state = {
+const state = {
 	jetpack: {
 		connection: {
 			requests: {
@@ -28,107 +26,107 @@ let state = {
 				siteConnected: {
 					isActive: true,
 					offlineMode: {
-						isActive: false
-					}
-				}
+						isActive: false,
+					},
+				},
 			},
 			connectUrl: '/asd',
 			user: {
 				currentUser: {
-					isConnected: true
-				}
+					isConnected: true,
+				},
 			},
 			hasSeenWCConnectionModal: false,
 		},
-	}
+	},
 };
 
 describe( 'requests selectors', () => {
 	describe( '#isDisconnectingSite', () => {
-		it( 'should return state.jetpack.connection.requests.disconnectingSite', () => {
+		test( 'should return state.jetpack.connection.requests.disconnectingSite', () => {
 			const stateIn = state;
 			const output = isDisconnectingSite( stateIn );
-			expect( output ).to.be.equal( state.jetpack.connection.requests.disconnectingSite );
+			expect( output ).toEqual( state.jetpack.connection.requests.disconnectingSite );
 		} );
 	} );
 
 	describe( '#isReconnectingSite', () => {
-		it( 'should return state.jetpack.connection.requests.reconnectingSite', () => {
+		test( 'should return state.jetpack.connection.requests.reconnectingSite', () => {
 			const stateIn = state;
 			const output = isReconnectingSite( stateIn );
-			expect( output ).to.be.equal( state.jetpack.connection.requests.reconnectingSite );
+			expect( output ).toEqual( state.jetpack.connection.requests.reconnectingSite );
 		} );
 	} );
 
 	describe( '#isFetchingConnectUrl', () => {
-		it( 'should return state.jetpack.connection.requests.fetchingConnectUrl', () => {
+		test( 'should return state.jetpack.connection.requests.fetchingConnectUrl', () => {
 			const stateIn = state;
 			const output = isFetchingConnectUrl( stateIn );
-			expect( output ).to.be.equal( state.jetpack.connection.requests.fetchingConnectUrl );
+			expect( output ).toEqual( state.jetpack.connection.requests.fetchingConnectUrl );
 		} );
 	} );
 
 	describe( '#isUnlinkingUser', () => {
-		it( 'should return state.jetpack.connection.requests.unlinkingUser', () => {
+		test( 'should return state.jetpack.connection.requests.unlinkingUser', () => {
 			const stateIn = state;
 			const output = isUnlinkingUser( stateIn );
-			expect( output ).to.be.equal( state.jetpack.connection.requests.unlinkingUser );
+			expect( output ).toEqual( state.jetpack.connection.requests.unlinkingUser );
 		} );
 	} );
 
 	describe( '#fetchingUserData', () => {
-		it( 'should return state.jetpack.connection.requests.fetchingUserData', () => {
+		test( 'should return state.jetpack.connection.requests.fetchingUserData', () => {
 			const stateIn = state;
 			const output = isFetchingUserData( stateIn );
-			expect( output ).to.be.equal( state.jetpack.connection.requests.fetchingUserData );
+			expect( output ).toEqual( state.jetpack.connection.requests.fetchingUserData );
 		} );
 	} );
 
 	describe( '#isConnectingUser', () => {
-		it( 'should return state.jetpack.connection.requests.connectingUser', () => {
+		test( 'should return state.jetpack.connection.requests.connectingUser', () => {
 			const stateIn = state;
 			const output = isConnectingUser( stateIn );
-			expect( output ).to.be.equal( state.jetpack.connection.requests.connectingUser );
+			expect( output ).toEqual( state.jetpack.connection.requests.connectingUser );
 		} );
 	} );
 } );
 
 describe( 'status selectors', () => {
 	describe( '#getSiteConnectionStatus', () => {
-		it( 'should return state.jetpack.connection.status.siteConnected', () => {
+		test( 'should return state.jetpack.connection.status.siteConnected', () => {
 			const stateIn = state;
 			const output = getSiteConnectionStatus( stateIn );
-			expect( output ).to.be.equal( state.jetpack.connection.status.siteConnected.isActive );
+			expect( output ).toEqual( state.jetpack.connection.status.siteConnected.isActive );
 		} );
 	} );
 } );
 
 describe( 'connectUrl selectors', () => {
 	describe( '#getConnectUrl', () => {
-		it( 'should return state.jetpack.connection.connectUrl', () => {
+		test( 'should return state.jetpack.connection.connectUrl', () => {
 			const stateIn = state;
 			const output = getConnectUrl( stateIn );
-			expect( output ).to.be.equal( state.jetpack.connection.connectUrl );
+			expect( output ).toEqual( state.jetpack.connection.connectUrl );
 		} );
 	} );
 } );
 
 describe( 'user selectors', () => {
 	describe( '#isCurrentUserLinked', () => {
-		it( 'should return state.jetpack.connection.user.currentUser.isConnected', () => {
+		test( 'should return state.jetpack.connection.user.currentUser.isConnected', () => {
 			const stateIn = state;
 			const output = isCurrentUserLinked( stateIn );
-			expect( output ).to.be.equal( state.jetpack.connection.user.currentUser.isConnected );
+			expect( output ).toEqual( state.jetpack.connection.user.currentUser.isConnected );
 		} );
 	} );
 } );
 
 describe( 'getHasSeenWCConnectionModal selector', () => {
 	describe( '#getHasSeenWCConnectionModal', () => {
-		it( 'should return state.jetpack.connection.hasSeenWCConnectionModal', () => {
+		test( 'should return state.jetpack.connection.hasSeenWCConnectionModal', () => {
 			const stateIn = state;
 			const output = getHasSeenWCConnectionModal( stateIn );
-			expect( output ).to.be.equal( state.jetpack.connection.hasSeenWCConnectionModal );
+			expect( output ).toEqual( state.jetpack.connection.hasSeenWCConnectionModal );
 		} );
 	} );
 } );

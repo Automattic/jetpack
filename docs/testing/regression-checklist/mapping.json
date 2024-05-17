@@ -28,5 +28,9 @@
 	{
 		"regex": "extensions/blocks/",
 		"testFile": [ "extensions/blocks/checklist.md" ]
+	},
+	{
+		"regex": "^projects/plugins/jetpack/extensions/(blocks/(subscriptions|premium-content)/|shared/memberships.js)",
+		"testFile": [ "extensions/blocks/subscriptions.md" ]
 	}
 ]

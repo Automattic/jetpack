@@ -13,7 +13,7 @@
 
 	.jetpack-ratings-button {
 		display: inline-flex;
-		margin-right: 0.3em;
+		margin-inline-end: 0.3em;
 
 		// Mimic core focus style.
 		border-radius: $radius-block-ui;
@@ -51,7 +51,7 @@
 	// Put the star together.
 	// This immediate span is a whole star.
 	> span { // Frontend.
-		margin-right: 0.3em;
+		margin-inline-end: 0.3em;
 	}
 
 	// There are two stars in every whole stars, but they should be cropped as halves.
@@ -90,6 +90,6 @@
 	}
 
 	.jetpack-ratings-button {
-		margin-right: 0.3em;
+		margin-inline-end: 0.3em;
 	}
 }

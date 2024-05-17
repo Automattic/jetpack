@@ -1,0 +1,38 @@
+import { Meta, Story, Canvas } from '@storybook/blocks';
+import VideoStorageMeter from '../index';
+import * as VideoStorageMeterStories from './index.stories';
+
+<Meta of={VideoStorageMeterStories} />
+
+# VideoStorageMeter
+Component that shows cloud storage usage.
+
+<Canvas withSource="open">
+  <Story id="packages-videopress-video-storage-meter--default" />
+</Canvas>
+
+## API
+
+### total
+
+- type: `number`
+
+The total available cloud space for the user, in bytes.
+
+### used
+
+- type: `number`
+
+The used cloud space, in bytes.
+
+### className
+
+- type: `string`
+
+Optional classname to apply to the root element.
+
+### progressBarClassName
+
+- type: `string`
+
+* Optional classname to apply to the progress bar element.

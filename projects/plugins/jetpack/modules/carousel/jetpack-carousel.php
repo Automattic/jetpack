@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status;
 /**
  * Jetpack_Carousel class.
@@ -17,6 +18,13 @@ class Jetpack_Carousel {
 	 * @var array
 	 */
 	public $prebuilt_widths = array( 370, 700, 1000, 1200, 1400, 2000 );
+
+	/**
+	 * Localization strings and other data for the JavaScript
+	 *
+	 * @var array
+	 */
+	public $localize_strings;
 
 	/**
 	 * Represents whether or not this is the first load of Carousel on a page. Default is true.
@@ -88,6 +96,9 @@ class Jetpack_Carousel {
 			add_action( 'wp_ajax_nopriv_get_attachment_comments', array( $this, 'get_attachment_comments' ) );
 			add_action( 'wp_ajax_post_attachment_comment', array( $this, 'post_attachment_comment' ) );
 			add_action( 'wp_ajax_nopriv_post_attachment_comment', array( $this, 'post_attachment_comment' ) );
+
+			// Disable core lightbox when Carousel is enabled.
+			add_action( 'wp_theme_json_data_theme', array( $this, 'disable_core_lightbox' ) );
 		} else {
 			if ( ! $this->in_jetpack ) {
 				if ( 0 === $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) ) {
@@ -110,15 +121,33 @@ class Jetpack_Carousel {
 			add_filter( 'post_gallery', array( $this, 'set_in_gallery' ), -1000 );
 			add_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
 			add_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_data_to_images' ), 10, 2 );
-			add_filter( 'the_content', array( $this, 'check_content_for_blocks' ), 1 );
 			add_filter( 'jetpack_tiled_galleries_block_content', array( $this, 'add_data_img_tags_and_enqueue_assets' ) );
 			if ( $this->single_image_gallery_enabled ) {
 				add_filter( 'the_content', array( $this, 'add_data_img_tags_and_enqueue_assets' ) );
 			}
+
+			// `is_amp_request()` can't be called until the 'wp' filter.
+			add_action( 'wp', array( $this, 'check_amp_support' ) );
+
+			// Disable core lightbox when Carousel is enabled.
+			add_action( 'wp_theme_json_data_theme', array( $this, 'disable_core_lightbox' ) );
 		}
 
 		if ( $this->in_jetpack ) {
 			Jetpack::enable_module_configurable( dirname( __DIR__ ) . '/carousel.php' );
+		}
+	}
+
+	/**
+	 * Check AMP and add filters.
+	 */
+	public function check_amp_support() {
+		if (
+			! class_exists( 'Jetpack_AMP_Support' )
+			|| ! Jetpack_AMP_Support::is_amp_request()
+		) {
+			add_filter( 'render_block_core/gallery', array( $this, 'filter_gallery_block_render' ), 10, 2 );
+			add_filter( 'render_block_jetpack/tiled-gallery', array( $this, 'filter_gallery_block_render' ), 10, 2 );
 		}
 	}
 
@@ -181,6 +210,32 @@ class Jetpack_Carousel {
 		 * @param bool false Should Carousel be enabled for single images linking to 'Media File'? Default to false.
 		 */
 		return apply_filters( 'jp_carousel_load_for_images_linked_to_file', false );
+	}
+
+	/**
+	 * Disable the "Lightbox" option offered in WordPress core
+	 * whenever Jetpack's Carousel feature is enabled.
+	 *
+	 * @since 13.3
+	 *
+	 * @param WP_Theme_JSON_Data $theme_json Class to access and update theme.json data.
+	 */
+	public function disable_core_lightbox( $theme_json ) {
+		return $theme_json->update_with(
+			array(
+				'version'  => 2,
+				'settings' => array(
+					'blocks' => array(
+						'core/image' => array(
+							'lightbox' => array(
+								'allowEditing' => false,
+								'enabled'      => false,
+							),
+						),
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -287,12 +342,15 @@ class Jetpack_Carousel {
 	 * Check if the content of a post uses gallery blocks. To be used by 'the_content' filter.
 	 *
 	 * @since 6.8.0
+	 * @deprecated since 11.3 We now hook into the 'block_render_{block_name}' hook to add markup.
 	 *
 	 * @param string $content Post content.
 	 *
 	 * @return string $content Post content.
 	 */
 	public function check_content_for_blocks( $content ) {
+		_deprecated_function( __METHOD__, 'jetpack-11.3' );
+
 		if (
 			class_exists( 'Jetpack_AMP_Support' )
 			&& Jetpack_AMP_Support::is_amp_request()
@@ -304,7 +362,79 @@ class Jetpack_Carousel {
 			$this->enqueue_assets();
 			$content = $this->add_data_to_container( $content );
 		}
+
 		return $content;
+	}
+
+	/**
+	 * Enrich the gallery block content using the render_block_{$this->name} filter.
+	 * This function is triggered after block render to make sure we track galleries within
+	 * reusable blocks.
+	 *
+	 * @see https://developer.wordpress.org/reference/hooks/render_block_this-name/
+	 *
+	 * @param string $block_content The rendered HTML for the carousel or gallery block.
+	 * @param array  $block         The parsed block details for the block.
+	 * @return string The fully-processed HTML for the carousel or gallery block.
+	 *
+	 * @since 11.3
+	 */
+	public function filter_gallery_block_render( $block_content, $block ) {
+		global $post;
+
+		if ( empty( $block['blockName'] ) || ! in_array( $block['blockName'], array( 'core/gallery', 'jetpack/tiled-gallery' ), true ) ) {
+			return $block_content;
+		}
+
+		$this->enqueue_assets();
+
+		if ( ! isset( $post ) ) {
+			return $block_content;
+		}
+
+		$blog_id = (int) get_current_blog_id();
+
+		$extra_data = array(
+			'data-carousel-extra' => array(
+				'blog_id'   => $blog_id,
+				'permalink' => get_permalink( $post->ID ),
+			),
+		);
+
+		/**
+		 * Filter the data added to the Gallery container.
+		 *
+		 * @module carousel
+		 *
+		 * @since 1.6.0
+		 *
+		 * @param array $extra_data Array of data about the site and the post.
+		 */
+		$extra_data = apply_filters( 'jp_carousel_add_data_to_container', $extra_data );
+		$extra_data = (array) $extra_data;
+
+		if ( empty( $extra_data ) ) {
+			return $block_content;
+		}
+
+		$extra_attributes = implode(
+			' ',
+			array_map(
+				function ( $data_key, $data_values ) {
+					return esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "'";
+				},
+				array_keys( $extra_data ),
+				array_values( $extra_data )
+			)
+		);
+
+		// Add extra attributes to first HTML element (which may have leading whitespace)
+		return preg_replace(
+			'/^(\s*<(div|ul|figure))/',
+			'$1 ' . $extra_attributes . ' ',
+			$block_content,
+			1
+		);
 	}
 
 	/**
@@ -394,9 +524,9 @@ class Jetpack_Carousel {
 				$localize_strings['stats'] = 'blog=' . Jetpack_Options::get_option( 'id' ) . '&host=' . wp_parse_url( get_option( 'home' ), PHP_URL_HOST ) . '&v=ext&j=' . JETPACK__API_VERSION . ':' . JETPACK__VERSION;
 
 				// Set the stats as empty if user is logged in but logged-in users shouldn't be tracked.
-				if ( is_user_logged_in() && function_exists( 'stats_get_options' ) ) {
-					$stats_options        = stats_get_options();
-					$track_loggedin_users = isset( $stats_options['reg_users'] ) ? (bool) $stats_options['reg_users'] : false;
+				if ( is_user_logged_in() ) {
+					$stats_options        = Stats_Options::get_options();
+					$track_loggedin_users = isset( $stats_options['count_roles'] ) ? (bool) $stats_options['count_roles'] : false;
 
 					if ( ! $track_loggedin_users ) {
 						$localize_strings['stats'] = '';
@@ -634,7 +764,7 @@ class Jetpack_Carousel {
 								<div class="jp-carousel-photo-description"></div>
 							</div>
 							<ul class="jp-carousel-image-exif" style="display: none;"></ul>
-							<a class="jp-carousel-image-download" target="_blank" style="display: none;">
+							<a class="jp-carousel-image-download" href="#" target="_blank" style="display: none;">
 								<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<mask id="mask0" mask-type="alpha" maskUnits="userSpaceOnUse" x="3" y="3" width="19" height="18">
 										<path fill-rule="evenodd" clip-rule="evenodd" d="M5.84615 5V19H19.7775V12H21.7677V19C21.7677 20.1 20.8721 21 19.7775 21H5.84615C4.74159 21 3.85596 20.1 3.85596 19V5C3.85596 3.9 4.74159 3 5.84615 3H12.8118V5H5.84615ZM14.802 5V3H21.7677V10H19.7775V6.41L9.99569 16.24L8.59261 14.83L18.3744 5H14.802Z" fill="white"/>
@@ -699,9 +829,28 @@ class Jetpack_Carousel {
 		}
 		$selected_images = array();
 		foreach ( $matches[0] as $image_html ) {
-			if ( preg_match( '/(wp-image-|data-id=)\"?([0-9]+)\"?/i', $image_html, $class_id ) &&
-				! preg_match( '/wp-block-jetpack-slideshow_image/', $image_html ) ) {
-				$attachment_id = absint( $class_id[2] );
+			if (
+				preg_match( '/(wp-image-|data-id=)\"?([0-9]+)\"?/i', $image_html, $class_id )
+				&& ! preg_match( '/wp-block-jetpack-slideshow_image/', $image_html )
+			) {
+				/**
+				 * Allow filtering the attachment ID used to fetch and populate metadata about an image in a gallery.
+				 *
+				 * @module carousel
+				 *
+				 * @since 12.6
+				 *
+				 * @param int    $attachment_id Attachment ID pulled from image HTML.
+				 * @param string $image_html    Full HTML image tag.
+				 */
+				$attachment_id = absint(
+					apply_filters(
+						'jetpack_carousel_image_attachment_id',
+						$class_id[2],
+						$image_html
+					)
+				);
+
 				/**
 				 * The same image tag may be used more than once but with different attribs,
 				 * so save each of them against the attachment id.
@@ -728,7 +877,26 @@ class Jetpack_Carousel {
 		);
 
 		foreach ( $attachments as $attachment ) {
+			/*
+			 * If the item from get_posts isn't an attachment, skip. This can occur when copy-pasta from another WP site.
+			 * For example, if one copies "<img class="wp-image-7 size-full" src="https://twentysixteendemo.files.wordpress.com/2015/11/post.png" alt="post" width="1000" height="563" />"
+			 * then, we're going to look up post 7 below, which making sure it is an attachment.
+			 *
+			 * This is meant as a relatively quick fix, as a better fix is likely to update the get_posts call above to only
+			 * include attachments.
+			 */
+			if (
+				! isset( $attachment->ID )
+				|| ! wp_attachment_is_image( $attachment->ID )
+				|| ! isset( $selected_images[ $attachment->ID ] )
+			) {
+				continue;
+			}
 			$image_elements = $selected_images[ $attachment->ID ];
+
+			if ( ! is_array( $image_elements ) ) {
+				continue;
+			}
 
 			$attributes      = $this->add_data_to_images( array(), $attachment );
 			$attributes_html = '';
@@ -810,15 +978,16 @@ class Jetpack_Carousel {
 
 		$img_meta = wp_json_encode( array_map( 'strval', array_filter( $img_meta, 'is_scalar' ) ) );
 
-		$attr['data-attachment-id']     = $attachment_id;
-		$attr['data-permalink']         = esc_attr( get_permalink( $attachment_id ) );
-		$attr['data-orig-file']         = esc_attr( $orig_file );
-		$attr['data-orig-size']         = $size;
-		$attr['data-comments-opened']   = $comments_opened;
-		$attr['data-image-meta']        = esc_attr( $img_meta );
-		$attr['data-image-title']       = esc_attr( htmlspecialchars( $attachment_title ) );
-		$attr['data-image-description'] = esc_attr( htmlspecialchars( $attachment_desc ) );
-		$attr['data-image-caption']     = esc_attr( htmlspecialchars( $attachment_caption ) );
+		$attr['data-attachment-id']   = $attachment_id;
+		$attr['data-permalink']       = esc_attr( get_permalink( $attachment_id ) );
+		$attr['data-orig-file']       = esc_attr( $orig_file );
+		$attr['data-orig-size']       = $size;
+		$attr['data-comments-opened'] = $comments_opened;
+		$attr['data-image-meta']      = esc_attr( $img_meta );
+		// The lines below use `esc_attr( htmlspecialchars( ) )` because esc_attr tries to be too smart and won't double-encode, and we need that here.
+		$attr['data-image-title']       = esc_attr( htmlspecialchars( $attachment_title, ENT_COMPAT ) );
+		$attr['data-image-description'] = esc_attr( htmlspecialchars( $attachment_desc, ENT_COMPAT ) );
+		$attr['data-image-caption']     = esc_attr( htmlspecialchars( $attachment_caption, ENT_COMPAT ) );
 		$attr['data-medium-file']       = esc_attr( $medium_file );
 		$attr['data-large-file']        = esc_attr( $large_file );
 
@@ -1038,19 +1207,21 @@ class Jetpack_Carousel {
 
 	/**
 	 * Adds a new comment to the database
+	 *
+	 * @return never
 	 */
 	public function post_attachment_comment() {
 		if ( ! headers_sent() ) {
 			header( 'Content-type: text/javascript' );
 		}
 
-		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'carousel_nonce' ) ) {
+		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'carousel_nonce' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP Core doesn't unslash or sanitize nonces either
 			die( wp_json_encode( array( 'error' => __( 'Nonce verification failed.', 'jetpack' ) ) ) );
 		}
 
-		$_blog_id = (int) $_POST['blog_id'];
-		$_post_id = (int) $_POST['id'];
-		$comment  = $_POST['comment'];
+		$_blog_id = isset( $_POST['blog_id'] ) ? (int) $_POST['blog_id'] : 0;
+		$_post_id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
+		$comment  = isset( $_POST['comment'] ) ? filter_var( wp_unslash( $_POST['comment'] ) ) : null;
 
 		if ( empty( $_blog_id ) ) {
 			die( wp_json_encode( array( 'error' => __( 'Missing target blog ID.', 'jetpack' ) ) ) );
@@ -1096,9 +1267,9 @@ class Jetpack_Carousel {
 			}
 		} else {
 			$user_id      = 0;
-			$display_name = $_POST['author'];
-			$email        = $_POST['email'];
-			$url          = $_POST['url'];
+			$display_name = isset( $_POST['author'] ) ? sanitize_text_field( wp_unslash( $_POST['author'] ) ) : null;
+			$email        = isset( $_POST['email'] ) ? wp_unslash( $_POST['email'] ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Checked or sanitized below.
+			$url          = isset( $_POST['url'] ) ? esc_url_raw( wp_unslash( $_POST['url'] ) ) : null;
 
 			if ( get_option( 'require_name_email' ) ) {
 				if ( empty( $display_name ) ) {
@@ -1121,6 +1292,8 @@ class Jetpack_Carousel {
 					}
 					die( wp_json_encode( array( 'error' => __( 'Please provide a valid email address.', 'jetpack' ) ) ) );
 				}
+			} else {
+				$email = $email !== null ? sanitize_email( $email ) : null;
 			}
 		}
 
@@ -1184,7 +1357,6 @@ class Jetpack_Carousel {
 
 		add_settings_field( 'carousel_display_comments', __( 'Comments', 'jetpack' ), array( $this, 'carousel_display_comments_callback' ), 'media', 'carousel_section' );
 		register_setting( 'media', 'carousel_display_comments', array( $this, 'carousel_display_comments_sanitize' ) );
-
 	}
 
 	/**
@@ -1291,7 +1463,7 @@ class Jetpack_Carousel {
 	 *
 	 * @param mixed $value User input setting value.
 	 *
-	 * @return number Sanitized value, only 1 or 0.
+	 * @return int Sanitized value, only 1 or 0.
 	 */
 	public function carousel_display_exif_sanitize( $value ) {
 		return $this->sanitize_1or0_option( $value );
@@ -1300,9 +1472,9 @@ class Jetpack_Carousel {
 	/**
 	 * Return sanitized option for value that controls whether comments will be hidden or not.
 	 *
-	 * @param number $value Value to sanitize.
+	 * @param mixed $value Value to sanitize.
 	 *
-	 * @return number Sanitized value, only 1 or 0.
+	 * @return int Sanitized value, only 1 or 0.
 	 */
 	public function carousel_display_comments_sanitize( $value ) {
 		return $this->sanitize_1or0_option( $value );
@@ -1344,7 +1516,7 @@ class Jetpack_Carousel {
 	 *
 	 * @param mixed $value User input.
 	 *
-	 * @return number Sanitized value, only 1 or 0.
+	 * @return int Sanitized value, only 1 or 0.
 	 */
 	public function carousel_enable_it_sanitize( $value ) {
 		return $this->sanitize_1or0_option( $value );

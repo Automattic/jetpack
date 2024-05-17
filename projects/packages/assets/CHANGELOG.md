@@ -5,6 +5,238 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.10] - 2024-05-16
+### Added
+- Assets: Adding comments to explain why we use variables within translation functions [#37397]
+
+### Changed
+- Updated package dependencies. [#37379]
+
+## [2.1.9] - 2024-05-06
+### Changed
+- Updated package dependencies. [#37147]
+
+## [2.1.8] - 2024-04-22
+### Changed
+- Internal updates.
+
+## [2.1.7] - 2024-04-08
+### Changed
+- Updated package dependencies. [#36760]
+
+## [2.1.6] - 2024-03-27
+### Changed
+- Updated package dependencies. [#36585]
+
+## [2.1.5] - 2024-03-18
+### Changed
+- Internal updates.
+
+## [2.1.4] - 2024-03-12
+### Changed
+- Internal updates.
+
+## [2.1.3] - 2024-03-12
+### Changed
+- Updated package dependencies. [#36325]
+
+## [2.1.2] - 2024-03-04
+### Changed
+- Updated package dependencies. [#36095]
+
+## [2.1.1] - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+## [2.1.0] - 2024-02-05
+### Added
+- Add support for script enqueuing strategies implemented in WordPress 6.3 [#34072]
+
+### Changed
+- Updated package dependencies. [#35384]
+
+## [2.0.4] - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815]
+
+## [2.0.3] - 2023-12-11
+### Changed
+- Updated package dependencies. [#34492]
+
+## [2.0.2] - 2023-12-03
+### Changed
+- Updated package dependencies. [#34411] [#34427]
+
+## [2.0.1] - 2023-11-21
+
+## [2.0.0] - 2023-11-20
+### Changed
+- Updated required PHP version to >= 7.0. [#34192]
+
+## [1.18.15] - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## [1.18.14] - 2023-11-03
+
+## [1.18.13] - 2023-10-19
+### Changed
+- Updated package dependencies. [#33687]
+
+## [1.18.12] - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
+### Fixed
+- Pass `false`, not `null`, to `WP_Scripts->add()`. [#33513]
+
+## [1.18.11] - 2023-09-19
+
+- Minor internal updates.
+
+## [1.18.10] - 2023-09-04
+### Changed
+- Updated package dependencies. [#32803]
+
+## [1.18.9] - 2023-08-23
+### Changed
+- Updated package dependencies. [#32605]
+
+## [1.18.8] - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+## [1.18.7] - 2023-07-11
+### Changed
+- Updated package dependencies. [#31785]
+
+## [1.18.6] - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+
+## [1.18.5] - 2023-06-21
+### Changed
+- Updated package dependencies. [#31468]
+
+## [1.18.4] - 2023-06-06
+### Changed
+- Updated package dependencies. [#31129]
+
+## [1.18.3] - 2023-05-15
+### Changed
+- Internal updates.
+
+## [1.18.2] - 2023-05-02
+### Changed
+- Updated package dependencies. [#30375]
+
+## [1.18.1] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [1.18.0] - 2023-04-04
+### Changed
+- Async script enqueuing: switch to static method. [#29780]
+- Updated package dependencies. [#29854]
+
+## [1.17.34] - 2023-03-20
+### Changed
+- Updated package dependencies. [#29471]
+
+## [1.17.33] - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
+## [1.17.32] - 2023-02-20
+### Changed
+- Minor internal updates.
+
+## [1.17.31] - 2023-02-15
+### Changed
+- Update to React 18. [#28710]
+
+## [1.17.30] - 2023-01-25
+### Changed
+- Minor internal updates.
+
+## [1.17.29] - 2023-01-11
+### Changed
+- Updated package dependencies.
+
+## [1.17.28] - 2022-12-02
+### Changed
+- Updated package dependencies.
+
+## [1.17.27] - 2022-11-28
+### Changed
+- Updated package dependencies. [#27576]
+
+## [1.17.26] - 2022-11-22
+### Changed
+- Updated package dependencies. [#27043]
+
+## [1.17.25] - 2022-11-08
+### Changed
+- Updated package dependencies. [#27289]
+
+## [1.17.24] - 2022-11-01
+### Changed
+- Updated package dependencies.
+
+## [1.17.23] - 2022-10-13
+### Changed
+- Updated package dependencies. [#26791]
+
+## [1.17.22] - 2022-10-05
+### Changed
+- Updated package dependencies. [#26568]
+
+## [1.17.21] - 2022-08-25
+### Changed
+- Updated package dependencies. [#25814]
+
+## [1.17.20] - 2022-07-26
+### Changed
+- Updated package dependencies. [#25158]
+
+## [1.17.19] - 2022-07-12
+### Changed
+- Updated package dependencies.
+
+## [1.17.18] - 2022-07-06
+### Changed
+- Updated package dependencies
+
+## [1.17.17] - 2022-06-21
+### Changed
+- Renaming master to trunk.
+
+## [1.17.16] - 2022-06-14
+
+## [1.17.15] - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+
+## [1.17.14] - 2022-05-18
+### Changed
+- Updated package dependencies [#24372]
+
+## [1.17.13] - 2022-05-10
+### Changed
+- Updated package dependencies. [#24302]
+
+## [1.17.12] - 2022-05-04
+### Added
+- Add missing JavaScript dependencies, and fix a test. [#24096]
+
+## [1.17.11] - 2022-04-26
+### Changed
+- Updated package dependencies.
+
+## [1.17.10] - 2022-04-19
+### Fixed
+- Assets: Defer the enqueued script instead of its translations
+
 ## [1.17.9] - 2022-04-05
 ### Changed
 - Updated package dependencies.
@@ -214,6 +446,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Statically access asset tools
 
+[2.1.10]: https://github.com/Automattic/jetpack-assets/compare/v2.1.9...v2.1.10
+[2.1.9]: https://github.com/Automattic/jetpack-assets/compare/v2.1.8...v2.1.9
+[2.1.8]: https://github.com/Automattic/jetpack-assets/compare/v2.1.7...v2.1.8
+[2.1.7]: https://github.com/Automattic/jetpack-assets/compare/v2.1.6...v2.1.7
+[2.1.6]: https://github.com/Automattic/jetpack-assets/compare/v2.1.5...v2.1.6
+[2.1.5]: https://github.com/Automattic/jetpack-assets/compare/v2.1.4...v2.1.5
+[2.1.4]: https://github.com/Automattic/jetpack-assets/compare/v2.1.3...v2.1.4
+[2.1.3]: https://github.com/Automattic/jetpack-assets/compare/v2.1.2...v2.1.3
+[2.1.2]: https://github.com/Automattic/jetpack-assets/compare/v2.1.1...v2.1.2
+[2.1.1]: https://github.com/Automattic/jetpack-assets/compare/v2.1.0...v2.1.1
+[2.1.0]: https://github.com/Automattic/jetpack-assets/compare/v2.0.4...v2.1.0
+[2.0.4]: https://github.com/Automattic/jetpack-assets/compare/v2.0.3...v2.0.4
+[2.0.3]: https://github.com/Automattic/jetpack-assets/compare/v2.0.2...v2.0.3
+[2.0.2]: https://github.com/Automattic/jetpack-assets/compare/v2.0.1...v2.0.2
+[2.0.1]: https://github.com/Automattic/jetpack-assets/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/Automattic/jetpack-assets/compare/v1.18.15...v2.0.0
+[1.18.15]: https://github.com/Automattic/jetpack-assets/compare/v1.18.14...v1.18.15
+[1.18.14]: https://github.com/Automattic/jetpack-assets/compare/v1.18.13...v1.18.14
+[1.18.13]: https://github.com/Automattic/jetpack-assets/compare/v1.18.12...v1.18.13
+[1.18.12]: https://github.com/Automattic/jetpack-assets/compare/v1.18.11...v1.18.12
+[1.18.11]: https://github.com/Automattic/jetpack-assets/compare/v1.18.10...v1.18.11
+[1.18.10]: https://github.com/Automattic/jetpack-assets/compare/v1.18.9...v1.18.10
+[1.18.9]: https://github.com/Automattic/jetpack-assets/compare/v1.18.8...v1.18.9
+[1.18.8]: https://github.com/Automattic/jetpack-assets/compare/v1.18.7...v1.18.8
+[1.18.7]: https://github.com/Automattic/jetpack-assets/compare/v1.18.6...v1.18.7
+[1.18.6]: https://github.com/Automattic/jetpack-assets/compare/v1.18.5...v1.18.6
+[1.18.5]: https://github.com/Automattic/jetpack-assets/compare/v1.18.4...v1.18.5
+[1.18.4]: https://github.com/Automattic/jetpack-assets/compare/v1.18.3...v1.18.4
+[1.18.3]: https://github.com/Automattic/jetpack-assets/compare/v1.18.2...v1.18.3
+[1.18.2]: https://github.com/Automattic/jetpack-assets/compare/v1.18.1...v1.18.2
+[1.18.1]: https://github.com/Automattic/jetpack-assets/compare/v1.18.0...v1.18.1
+[1.18.0]: https://github.com/Automattic/jetpack-assets/compare/v1.17.34...v1.18.0
+[1.17.34]: https://github.com/Automattic/jetpack-assets/compare/v1.17.33...v1.17.34
+[1.17.33]: https://github.com/Automattic/jetpack-assets/compare/v1.17.32...v1.17.33
+[1.17.32]: https://github.com/Automattic/jetpack-assets/compare/v1.17.31...v1.17.32
+[1.17.31]: https://github.com/Automattic/jetpack-assets/compare/v1.17.30...v1.17.31
+[1.17.30]: https://github.com/Automattic/jetpack-assets/compare/v1.17.29...v1.17.30
+[1.17.29]: https://github.com/Automattic/jetpack-assets/compare/v1.17.28...v1.17.29
+[1.17.28]: https://github.com/Automattic/jetpack-assets/compare/v1.17.27...v1.17.28
+[1.17.27]: https://github.com/Automattic/jetpack-assets/compare/v1.17.26...v1.17.27
+[1.17.26]: https://github.com/Automattic/jetpack-assets/compare/v1.17.25...v1.17.26
+[1.17.25]: https://github.com/Automattic/jetpack-assets/compare/v1.17.24...v1.17.25
+[1.17.24]: https://github.com/Automattic/jetpack-assets/compare/v1.17.23...v1.17.24
+[1.17.23]: https://github.com/Automattic/jetpack-assets/compare/v1.17.22...v1.17.23
+[1.17.22]: https://github.com/Automattic/jetpack-assets/compare/v1.17.21...v1.17.22
+[1.17.21]: https://github.com/Automattic/jetpack-assets/compare/v1.17.20...v1.17.21
+[1.17.20]: https://github.com/Automattic/jetpack-assets/compare/v1.17.19...v1.17.20
+[1.17.19]: https://github.com/Automattic/jetpack-assets/compare/v1.17.18...v1.17.19
+[1.17.18]: https://github.com/Automattic/jetpack-assets/compare/v1.17.17...v1.17.18
+[1.17.17]: https://github.com/Automattic/jetpack-assets/compare/v1.17.16...v1.17.17
+[1.17.16]: https://github.com/Automattic/jetpack-assets/compare/v1.17.15...v1.17.16
+[1.17.15]: https://github.com/Automattic/jetpack-assets/compare/v1.17.14...v1.17.15
+[1.17.14]: https://github.com/Automattic/jetpack-assets/compare/v1.17.13...v1.17.14
+[1.17.13]: https://github.com/Automattic/jetpack-assets/compare/v1.17.12...v1.17.13
+[1.17.12]: https://github.com/Automattic/jetpack-assets/compare/v1.17.11...v1.17.12
+[1.17.11]: https://github.com/Automattic/jetpack-assets/compare/v1.17.10...v1.17.11
+[1.17.10]: https://github.com/Automattic/jetpack-assets/compare/v1.17.9...v1.17.10
 [1.17.9]: https://github.com/Automattic/jetpack-assets/compare/v1.17.8...v1.17.9
 [1.17.8]: https://github.com/Automattic/jetpack-assets/compare/v1.17.7...v1.17.8
 [1.17.7]: https://github.com/Automattic/jetpack-assets/compare/v1.17.6...v1.17.7

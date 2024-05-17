@@ -1,0 +1,96 @@
+@import '@automattic/jetpack-base-styles/root-variables';
+
+.jetpack-components-ai-control__container-wrapper {
+	position: sticky;
+	bottom: 16px;
+}
+
+.jetpack-components-ai-control__container {
+	color: var( --jp-gray-80 );
+	background-color: var( --jp-white );
+	box-shadow: 0px 12px 15px 0px rgba(0, 0, 0, 0.12), 0px 3px 9px 0px rgba(0, 0, 0, 0.12), 0px 1px 3px 0px rgba(0, 0, 0, 0.15);
+	font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	border-radius: 6px;
+	border: 1px solid var(--gutenberg-gray-400, #CCC);
+}
+
+.jetpack-components-ai-control__wrapper {
+	display: flex;
+	padding: 8px 8px 8px var(--grid-unit-15, 12px);
+	align-items: flex-end;
+	box-sizing: border-box;
+	border-radius: 6px 6px 0 0;
+	gap: 6px;
+
+	&.is-transparent {
+		opacity: 0.4;
+	}
+}
+
+.jetpack-components-ai-control__input-wrapper {
+	display: flex;
+	flex-grow: 1;
+	align-self: center;
+	min-height: 36px; // need compat height with buttons wrapper
+	align-items: center;
+
+	textarea.jetpack-components-ai-control__input {
+		background-color: var( --jp-white );
+		width: 100%;
+		min-height: 20px;
+		border-radius: 2px;
+		padding: 6px 8px;
+
+		resize: none !important;
+		border: none;
+		box-shadow: none;
+		color: var( --jp-gray-80 );
+
+		font-size: 16px;
+		font-weight: 400;
+		line-height: 20px;
+
+		transition: box-shadow 0.1s linear 0s;
+
+		&:focus {
+			box-shadow: none;
+			color: var( --jp-gray-80 );
+		}
+
+		@media (min-width: 600px) {
+			font-size: 13px;
+		}
+
+		&::placeholder {
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			opacity: 0.75;
+		}
+	}
+}
+
+.jetpack-components-ai-control__controls-prompt_button_wrapper {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+
+	.components-button.is-small:not(.has-label) {
+		padding: 0;
+	}
+
+	.components-button-group .components-button {
+		box-shadow: none;
+		padding: 6px 8px;
+	}
+
+	.components-button-group {
+		display: flex;
+	}
+}
+
+.jetpack-components-ai-control__controls-prompt_button {
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+}

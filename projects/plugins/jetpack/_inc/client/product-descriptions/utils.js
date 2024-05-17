@@ -1,12 +1,16 @@
-/**
- * External dependencies
- */
 import { getSiteAdminUrl } from 'state/initial-state';
+import { productDescriptionRoutes, myJetpackRoutes } from './constants';
 
 /**
- * Internal dependencies
+ * This affects search "Upgrade" buttons, and changes them into "Start for free".
+ * It should use API to check if feature is enabled, but we didn't make it in time.
+ *
+ * Todo: Make it return true once we fully ship and enable new search pricing.
+ *
+ * @returns {boolean} Whether new search pricing and free plan is forced by URL parameter.
  */
-import { productDescriptionRoutes } from './constants';
+export const isSearchNewPricingLaunched202208 = () =>
+	URLSearchParams && !! new URLSearchParams( window.location?.search ).get( 'new_pricing_202208' );
 
 /**
  * Get product description URL by product key.
@@ -20,6 +24,16 @@ import { productDescriptionRoutes } from './constants';
  */
 export const getProductDescriptionUrl = ( state, productKey ) => {
 	const baseUrl = `${ getSiteAdminUrl( state ) }admin.php?page=jetpack#`;
+	const myJetpackUrl = `${ getSiteAdminUrl( state ) }admin.php?page=my-jetpack#`;
+
+	// TODO: remove the && condition on Search new pricing launch.
+	if ( productKey === 'search' ) {
+		return `${ getSiteAdminUrl( state ) }admin.php?page=jetpack-search`;
+	}
+
+	if ( myJetpackRoutes.includes( `/add-${ productKey }` ) ) {
+		return `${ myJetpackUrl }/add-${ productKey }`;
+	}
 
 	if ( productDescriptionRoutes.includes( `/product/${ productKey }` ) ) {
 		return `${ baseUrl }/product/${ productKey }`;

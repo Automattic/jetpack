@@ -39,5 +39,4 @@ class PluginTraitTest extends TestCase {
 		$class = get_class( $mock );
 		$this->assertInstanceOf( $class, call_user_func( array( $class, 'instantiate' ), array() ) );
 	}
-
 }

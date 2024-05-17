@@ -31,12 +31,18 @@ class WP_Core_Provider extends Provider {
 
 		$front_page = get_option( 'page_on_front' );
 		if ( ! empty( $front_page ) ) {
-			$urls['front_page'] = (array) get_permalink( $front_page );
+			$permalink = get_permalink( $front_page );
+			if ( ! empty( $permalink ) ) {
+				$urls['front_page'] = array( $permalink );
+			}
 		}
 
 		$posts_page = get_option( 'page_for_posts' );
 		if ( ! empty( $posts_page ) ) {
-			$urls['posts_page'] = (array) get_permalink( $posts_page );
+			$permalink = get_permalink( $posts_page );
+			if ( ! empty( $permalink ) ) {
+				$urls['posts_page'] = array( $permalink );
+			}
 		} else {
 			$urls['posts_page'] = (array) home_url( '/' );
 		}
@@ -71,6 +77,19 @@ class WP_Core_Provider extends Provider {
 
 		// For example: "core_posts_page".
 		return array( self::$name . '_' . $key );
+	}
+
+	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	/** @inheritdoc */
+	public static function get_edit_url( $provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+		if ( $provider_key === 'core_front_page' ) {
+			$front_page_id = get_option( 'page_on_front' );
+			if ( ! empty( $front_page_id ) ) {
+				return get_edit_post_link( $front_page_id, 'link' );
+			}
+		}
+
+		return null;
 	}
 
 	// phpcs:ignore

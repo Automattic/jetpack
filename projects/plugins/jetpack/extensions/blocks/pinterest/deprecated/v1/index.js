@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { pinType } from '../../utils';
 
 export default {

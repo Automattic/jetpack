@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { BlockControls, BlockIcon, MediaPlaceholder, MediaUpload } from '@wordpress/block-editor';
-import { Fragment } from '@wordpress/element';
-import { get } from 'lodash';
 import { ToolbarGroup, ToolbarButton, ToolbarItem } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
+import { Fragment } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { get } from 'lodash';
 import EditButton from '../../shared/edit-button';
 
 const onSelectMedia = setAttributes => media =>

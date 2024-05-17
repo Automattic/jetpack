@@ -306,6 +306,27 @@ class REST_Endpoints {
 			)
 		);
 
+		// Trigger Dedicated Sync request.
+		register_rest_route(
+			'jetpack/v4',
+			'/sync/spawn-sync',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::spawn_sync',
+				'permission_callback' => '__return_true',
+			)
+		);
+
+		// Reset Sync locks.
+		register_rest_route(
+			'jetpack/v4',
+			'/sync/locks',
+			array(
+				'methods'             => WP_REST_Server::DELETABLE,
+				'callback'            => __CLASS__ . '::reset_locks',
+				'permission_callback' => __CLASS__ . '::verify_default_permissions',
+			)
+		);
 	}
 
 	/**
@@ -332,7 +353,7 @@ class REST_Endpoints {
 				$modules['users'] = 'initial';
 			} elseif ( is_array( $request->get_param( $module_name ) ) ) {
 				$ids = $request->get_param( $module_name );
-				if ( count( $ids ) > 0 ) {
+				if ( array() !== $ids ) {
 					$modules[ $module_name ] = $ids;
 				}
 			}
@@ -601,7 +622,16 @@ class REST_Endpoints {
 			return rest_ensure_response( $sender->immediate_full_sync_pull( $number_of_items ) );
 		}
 
-		return rest_ensure_response( $sender->queue_pull( $queue_name, $number_of_items, $args ) );
+		$response = $sender->queue_pull( $queue_name, $number_of_items, $args );
+		// Disable sending while pulling.
+		if ( ! is_wp_error( $response ) ) {
+			set_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME, time(), Sender::TEMP_SYNC_DISABLE_TRANSIENT_EXPIRY );
+		} elseif ( 'queue_size' === $response->get_error_code() ) {
+			// Re-enable sending if the queue is empty.
+			delete_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME );
+		}
+
+		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -658,7 +688,7 @@ class REST_Endpoints {
 		}
 
 		// Limit to A-Z,a-z,0-9,_,- .
-		$request_body['buffer_id'] = preg_replace( '/[^A-Za-z0-9]/', '', $request_body['buffer_id'] );
+		$request_body['buffer_id'] = preg_replace( '/[^A-Za-z0-9\-_\.]/', '', $request_body['buffer_id'] );
 		$request_body['item_ids']  = array_filter( array_map( array( 'Automattic\Jetpack\Sync\REST_Endpoints', 'sanitize_item_ids' ), $request_body['item_ids'] ) );
 
 		$queue = new Queue( $queue_name );
@@ -668,6 +698,7 @@ class REST_Endpoints {
 		// Update Full Sync Status if queue is "full_sync".
 		if ( 'full_sync' === $queue_name ) {
 			$full_sync_module = Modules::get_module( 'full-sync' );
+			'@phan-var Modules\Full_Sync_Immediately|Modules\Full_Sync $full_sync_module';
 			$full_sync_module->update_sent_progress_action( $items );
 		}
 
@@ -679,11 +710,9 @@ class REST_Endpoints {
 			if ( in_array( $queue_name, array( 'full_sync', 'immediate' ), true ) ) {
 				// Send Full Sync Actions.
 				Sender::get_instance()->do_full_sync();
-			} else {
+			} elseif ( $queue->has_any_items() ) {
 				// Send Incremental Sync Actions.
-				if ( $queue->has_any_items() ) {
-					Sender::get_instance()->do_sync();
-				}
+				Sender::get_instance()->do_sync();
 			}
 		}
 
@@ -721,6 +750,55 @@ class REST_Endpoints {
 		return rest_ensure_response(
 			array(
 				'ranges' => $module->get_min_max_object_ids_for_batches( $batch_size ),
+			)
+		);
+	}
+
+	/**
+	 * This endpoint is used by Sync to spawn a
+	 * dedicated Sync request which will trigger Sync to run.
+	 *
+	 * If Dedicated Sync is enabled, this callback should never run as
+	 * processing of Sync actions will occur earlier and exit.
+	 *
+	 * @see Actions::init
+	 * @see Sender::do_dedicated_sync_and_exit
+	 *
+	 * @since $$next_version$$
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function spawn_sync() {
+		nocache_headers();
+
+		if ( ! Settings::is_dedicated_sync_enabled() ) {
+			return new WP_Error(
+				'dedicated_sync_disabled',
+				'Dedicated Sync flow is disabled.',
+				array( 'status' => 422 )
+			);
+		}
+
+		return new WP_Error(
+			'dedicated_sync_failed',
+			'Failed to process Dedicated Sync request',
+			array( 'status' => 500 )
+		);
+	}
+
+	/**
+	 * Reset Sync locks.
+	 *
+	 * @since 1.43.0
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function reset_locks() {
+		Actions::reset_sync_locks();
+
+		return rest_ensure_response(
+			array(
+				'success' => true,
 			)
 		);
 	}
@@ -794,11 +872,10 @@ class REST_Endpoints {
 	 */
 	protected static function sanitize_item_ids( $item ) {
 		// lets not delete any options that don't start with jpsq_sync- .
-		if ( ! is_string( $item ) || substr( $item, 0, 5 ) !== 'jpsq_' ) {
+		if ( ! is_string( $item ) || ! str_starts_with( $item, 'jpsq_' ) ) {
 			return null;
 		}
 		// Limit to A-Z,a-z,0-9,_,-,. .
 		return preg_replace( '/[^A-Za-z0-9-_.]/', '', $item );
 	}
-
 }

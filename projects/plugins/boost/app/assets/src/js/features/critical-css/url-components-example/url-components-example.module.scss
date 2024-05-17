@@ -1,0 +1,32 @@
+.container {
+	margin-top: 20px;
+	display: flex;
+	margin-bottom: 24px;
+
+	.segment {
+		font-size: 24px;
+		line-height: 28px;
+		font-weight: bold;
+		align-self: flex-end;
+	}
+
+	.label {
+		font-size: 10px;
+		color: gray;
+		position: relative;
+		left: 8px;
+		line-height: 12px;
+		margin-bottom: 4px;
+		font-weight: normal;
+	}
+
+	.arrows {
+		border-image: url( '$images/arrows.png' );
+		border-image-slice: 22;
+		border-bottom: solid 16px transparent;
+		border-left: solid 16px transparent;
+		border-right: solid 16px transparent;
+		margin-bottom: 2px;
+		min-width: 48px;
+	}
+}

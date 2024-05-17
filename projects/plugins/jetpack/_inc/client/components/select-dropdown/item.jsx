@@ -1,21 +1,13 @@
 /** @ssr-ready **/
 
-/**
- * External Dependencies
- */
-import PropTypes from 'prop-types';
-
-import React from 'react';
 import classNames from 'classnames';
-
-/**
- * Internal dependencies
- */
 import Count from 'components/count';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 class SelectDropdownItem extends React.Component {
 	static propTypes = {
-		children: PropTypes.string.isRequired,
+		children: PropTypes.node.isRequired,
 		path: PropTypes.string,
 		selected: PropTypes.bool,
 		onClick: PropTypes.func,
@@ -25,6 +17,8 @@ class SelectDropdownItem extends React.Component {
 	static defaultProps = {
 		selected: false,
 	};
+
+	itemLinkRef = React.createRef();
 
 	render() {
 		const optionClassName = classNames( this.props.className, {
@@ -36,7 +30,7 @@ class SelectDropdownItem extends React.Component {
 		return (
 			<li className="dops-select-dropdown__option">
 				<a
-					ref="itemLink"
+					ref={ this.itemLinkRef }
 					href={ this.props.path }
 					className={ optionClassName }
 					onClick={ this.props.disabled ? null : this.props.onClick }

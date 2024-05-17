@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 const { getInput, setFailed } = require( '@actions/core' );
-
-/**
- * Internal dependencies
- */
-const debug = require( '../../debug' );
-const getLabels = require( '../../get-labels' );
-const sendSlackMessage = require( '../../send-slack-message' );
+const debug = require( '../../utils/debug' );
+const getLabels = require( '../../utils/labels/get-labels' );
+const sendSlackMessage = require( '../../utils/slack/send-slack-message' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -105,7 +98,6 @@ async function notifyEditorial( payload, octokit ) {
 		await sendSlackMessage(
 			`Someone would be interested in input from the Editorial team on this topic.`,
 			channel,
-			slackToken,
 			payload
 		);
 	}
@@ -119,7 +111,6 @@ async function notifyEditorial( payload, octokit ) {
 		await sendSlackMessage(
 			`Someone is looking for a review from the Editorial team.`,
 			channel,
-			slackToken,
 			payload
 		);
 	}

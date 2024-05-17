@@ -1,0 +1,18 @@
+.jetpack-blogroll__appender-spinner {
+	margin: 0 !important;
+}
+
+.jetpack-blogroll__appender .components-popover__content {
+	width: 318px;
+	height: 300px;
+	overflow-y: hidden !important;
+
+	button.block-editor-button-blogroll-block-appender {
+		background: #1e1e1e;
+		border-radius: 2px;
+		color: #fff;
+		height: 24px;
+		min-width: 24px;
+		padding: 0;
+	}
+}

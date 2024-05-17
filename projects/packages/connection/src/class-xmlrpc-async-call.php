@@ -60,6 +60,7 @@ class XMLRPC_Async_Call {
 			self::$clients[ $client_blog_id ][ $user_id ] = new Jetpack_IXR_ClientMulticall( array( 'user_id' => $user_id ) );
 		}
 
+		// https://plugins.trac.wordpress.org/ticket/2041
 		if ( function_exists( 'ignore_user_abort' ) ) {
 			ignore_user_abort( true );
 		}
@@ -81,7 +82,7 @@ class XMLRPC_Async_Call {
 	public static function do_calls() {
 		foreach ( self::$clients as $client_blog_id => $blog_clients ) {
 			if ( $client_blog_id > 0 ) {
-				$switch_success = switch_to_blog( $client_blog_id, true );
+				$switch_success = switch_to_blog( $client_blog_id );
 
 				if ( ! $switch_success ) {
 					continue;

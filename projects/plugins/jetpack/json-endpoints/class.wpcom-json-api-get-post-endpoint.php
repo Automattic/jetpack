@@ -81,7 +81,7 @@ class WPCOM_JSON_API_Get_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 		$args = $this->query_args();
 
-		if ( false === strpos( $path, '/posts/slug:' ) && false === strpos( $path, '/posts/name:' ) ) {
+		if ( ! str_contains( $path, '/posts/slug:' ) && ! str_contains( $path, '/posts/name:' ) ) {
 			$get_by = 'ID';
 		} else {
 			$get_by = 'name';

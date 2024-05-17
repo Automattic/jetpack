@@ -1,0 +1,123 @@
+.jetpack-blogroll__appender-results {
+	padding: 0 18px 18px 18px;
+
+	.jetpack-blogroll__appender-result-list-header-text {
+		padding: 6px 0;
+		font-size: 11px;
+		line-height: 16px;
+		color: var(--gutenberg-gray-700, #757575);
+		text-transform: uppercase;
+	}
+
+	.jetpack-blogroll__appender-no-results-message {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: flex-start;
+		gap: 2px;
+		overflow: hidden;
+	}
+
+	.jetpack-blogroll__appender-no-results-message-main-text {
+		color: var(--gray-gray-100, #101517);
+		font-size: 14px;
+		font-weight: 500;
+		line-height: 20px;
+		letter-spacing: -0.15px;
+	}
+
+	.jetpack-blogroll__appender-no-results-message-secondary-text {
+		color: var(--gutenberg-gray-700, #757575);
+		font-size: 12px;
+		line-height: 16px;
+		font-weight: 400;
+	}
+
+	> ul {
+		margin: 0;
+		max-height: 200px;
+		list-style: none;
+		padding-left: 0px !important;
+		overflow-y: auto;
+
+		.jetpack-blogroll__appender-result-container {
+			margin: 0;
+
+			button {
+				display: flex;
+				align-items: center;
+				align-self: stretch;
+				gap: 12px;
+				text-decoration: none;
+				border: none;
+				padding: 8px 4px;
+				width: 100%;
+				background: none;
+				cursor: pointer;
+
+				&[disabled] {
+					background: var(--wp-gray-gray-0, #F6F7F7);
+					cursor: not-allowed;
+
+					> * {
+						opacity: 0.5;
+					}
+				}
+			}
+
+			.jetpack-blogroll__appender-result-image {
+				width: 40px;
+				height: 40px;
+				flex-shrink: 0;
+
+				&.empty-site-icon {
+					background: url('../../placeholder-site-icon.svg');
+					background-size: cover;
+	
+					img {
+						display: none;
+					}
+				}
+
+				img {
+					border-radius: 50%;
+					width: 40px;
+					height: 40px;
+				}
+			}
+
+			.jetpack-blogroll__appender-result-text {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: flex-start;
+				gap: 2px;
+				overflow: hidden;
+				text-align: left;
+
+				> * {
+					overflow: hidden;
+					white-space: nowrap;
+					text-overflow: ellipsis;
+					width: 100%;
+				}
+
+				.jetpack-blogroll__appender-result-title {
+					color: var(--gray-gray-100, #101517);
+					font-size: 14px;
+					font-weight: 500;
+					line-height: 20px;
+					letter-spacing: -0.15px;
+				}
+
+				.jetpack-blogroll__appender-result-description {
+					color: var(--gray-gray-50, #646970);
+					font-size: 14px;
+					line-height: 20px;
+					letter-spacing: -0.15px;
+				}
+			}
+		}
+	}
+
+}

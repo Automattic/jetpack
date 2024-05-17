@@ -6,90 +6,103 @@
  * The Gutenberg block
  */
 
-.jp-related-posts-i2__row {
-	display: flex;
+.jp-related-posts-i2 {
 	margin-top: 1.5rem;
 }
 
-.jp-related-posts-i2__row:first-child {
-	margin-top: 0;
+.jp-related-posts-i2__list {
+	--hgap: 1rem;
+
+	display: flex;
+	flex-wrap: wrap;
+	column-gap: var(--hgap);
+	row-gap: 2rem;
+
+	margin: 0;
+	padding: 0;
+
+	list-style-type: none;
 }
 
 .jp-related-posts-i2__post {
-	flex-grow: 1;
-	flex-basis: 0;
-	margin: 0 10px;
 	display: flex;
 	flex-direction: column;
-	padding-left: 0;
+	/* Default: 2 items by row */
+	flex-basis: calc( ( 100% - var(--hgap) ) / 2 );
 }
 
-.jp-related-posts-i2__row[data-post-count="3"] .jp-related-posts-i2__post {
-	max-width: calc(33% - 20px);
+/* Quantity qeuries: see https://alistapart.com/article/quantity-queries-for-css/ */
+.jp-related-posts-i2__post:nth-last-child(n+3):first-child,
+.jp-related-posts-i2__post:nth-last-child(n+3):first-child ~ * {
+	/* From 3 total items on, 3 items by row */
+	flex-basis: calc( ( 100% - var(--hgap) * 2 ) / 3 );
 }
 
-.jp-related-posts-i2__row[data-post-count="2"] .jp-related-posts-i2__post,
-.jp-related-posts-i2__row[data-post-count="1"] .jp-related-posts-i2__post {
-	max-width: calc(50% - 20px);
-}
-
-.jp-related-posts-i2__post-heading, .jp-related-posts-i2__post-img-link,
-.jp-related-posts-i2__post-date, .jp-related-posts-i2__post-context {
-	flex-direction: row;
-	display: block;
-}
-
-.jp-related-posts-i2__post-heading {
-	margin: 0.5rem 0;
-	font-size: 1rem;
-	line-height: 1.2em;
+.jp-related-posts-i2__post:nth-last-child(4):first-child,
+.jp-related-posts-i2__post:nth-last-child(4):first-child ~ * {
+	/* Exception for 4 total items: 2 items by row */
+	flex-basis: calc( ( 100% - var(--hgap) ) / 2 );
 }
 
 .jp-related-posts-i2__post-link {
-	display: block;
+	display: flex;
+	flex-direction: column;
+	row-gap: 0.5rem;
+
 	width: 100%;
-	line-height: 1.2em;
+	margin-bottom: 1rem;
+	
+	line-height: 1.2;
 }
 
-.jp-related-posts-i2__post-img-link {
-	order: -1;
+.jp-related-posts-i2__post-link:focus-visible {
+	outline-offset: 2px;
 }
-.jp-related-posts-i2__post-img-link img {
-	width: 100%;
+
+.jp-related-posts-i2__post-img {
+	order: -1;
+
+	max-width: 100%;
+}
+
+.jp-related-posts-i2__post-defs {
+	margin: 0;
+
+	list-style-type: unset;
+}
+
+/* Hide, except from screen readers */
+.jp-related-posts-i2__post-defs dt {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(1px, 1px, 1px, 1px); white-space: nowrap;
+}
+
+.jp-related-posts-i2__post-defs dd {
+	margin: 0;
 }
 
 /* List view */
 
-.jp-relatedposts-i2[data-layout="list"] .jp-related-posts-i2__row{
-	margin-top: 0;
+.jp-relatedposts-i2[data-layout="list"] .jp-related-posts-i2__list {
 	display: block;
 }
 
 .jp-relatedposts-i2[data-layout="list"] .jp-related-posts-i2__post {
-	max-width: none;
-	margin: 0;
-}
-
-.jp-relatedposts-i2[data-layout="list"].jp-related-posts-i2__post-img-link {
-	margin-top: 1rem;
+	margin-bottom: 2rem;
 }
 
 /* Breakpoints */
+
 @media only screen and (max-width: 640px) {
-	.jp-related-posts-i2__row {
-		margin-top: 0;
+	.jp-related-posts-i2__list {
 		display: block;
 	}
-	.jp-related-posts-i2__row[data-post-count] .jp-related-posts-i2__post {
-		max-width: none;
-		margin: 0;
-		margin-top: 1rem;
-	}
-	.jp-related-posts-i2__post-img-link {
-		margin-top: 1rem;
-	}
-	.jp-related-posts-i2__post-img-link img {
-		width: 350px;
+
+	.jp-related-posts-i2__post {
+		margin-bottom: 2rem;
 	}
 }
 

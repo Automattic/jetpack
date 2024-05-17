@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Use new tsconfig presets. Should be no change to the package itself.
+
+

@@ -1,11 +1,4 @@
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { PRODUCT_TYPE_PAYMENT_PLAN, PRODUCT_TYPE_SUBSCRIPTION } from './constants';
 
 /**
@@ -89,8 +82,23 @@ const messages = {
 			'jetpack'
 		),
 	},
+	'mark this product as a donation': {
+		[ PRODUCT_TYPE_PAYMENT_PLAN ]: __( 'Mark this payment plan as a donation', 'jetpack' ),
+		[ PRODUCT_TYPE_SUBSCRIPTION ]: __( 'Mark this subscription as a donation', 'jetpack' ),
+	},
 };
 
 export function getMessageByProductType( message, productType = PRODUCT_TYPE_PAYMENT_PLAN ) {
 	return messages?.[ message ]?.[ productType ] || null;
+}
+
+const titles = {
+	'1 month': __( 'Monthly Subscription', 'jetpack' ),
+	'1 year': __( 'Yearly Subscription', 'jetpack' ),
+	'one-time': __( 'Subscription', 'jetpack' ),
+};
+
+export function getTitleByProps( interval ) {
+	const key = [ interval ];
+	return titles[ key ] ?? '';
 }

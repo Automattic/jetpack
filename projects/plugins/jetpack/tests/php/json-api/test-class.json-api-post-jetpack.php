@@ -1,10 +1,10 @@
 <?php
 
-require_jetpack_file( 'sal/class.json-api-platform.php' );
+require_once JETPACK__PLUGIN_DIR . 'sal/class.json-api-platform.php';
 
 class SalPostsTest extends WP_UnitTestCase {
-	static $token;
-	static $site;
+	public static $token;
+	public static $site;
 
 	/**
 	 * Set up before class.
@@ -24,7 +24,7 @@ class SalPostsTest extends WP_UnitTestCase {
 		self::$site = $platform->get_site( self::$token->blog_id );
 	}
 
-	function test_returns_content_wrapped_in_a_post_object() {
+	public function test_returns_content_wrapped_in_a_post_object() {
 		// Insert the post into the database
 		$post_id = wp_insert_post(
 			array(

@@ -1,19 +1,12 @@
-/**
- * External dependencies
- */
-import { __, sprintf } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
-
-/**
- * Internal dependencies
- */
+import { LAYOUT_CIRCLE, MAX_ROUNDED_CORNERS } from '../constants';
 import GalleryImageEdit from '../gallery-image/edit';
 import GalleryImageSave from '../gallery-image/save';
+import { isSquareishLayout, photonizedImgProps } from '../utils';
 import Mosaic from './mosaic';
 import Square from './square';
-import { isSquareishLayout, photonizedImgProps } from '../utils';
-import { LAYOUT_CIRCLE, MAX_ROUNDED_CORNERS } from '../constants';
 
 export default class Layout extends Component {
 	// This is tricky:

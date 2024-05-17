@@ -9,7 +9,7 @@
  * Service API Keys: Exposes 3rd party api keys that are used on a site.
  *
  * [
- *   { # Availabilty Object. See schema for more detail.
+ *   { # Availability Object. See schema for more detail.
  *      code:                   (string) Displays success if the operation was successfully executed and an error code if it was not
  *      service:                (string) The name of the service in question
  *      service_api_key:        (string) The API key used by the service empty if one is not set yet
@@ -138,7 +138,7 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 		switch ( $service ) {
 			case 'mapbox':
 				if ( ! class_exists( 'Jetpack_Mapbox_Helper' ) ) {
-					jetpack_require_lib( 'class-jetpack-mapbox-helper' );
+					require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-mapbox-helper.php';
 				}
 				$mapbox                 = Jetpack_Mapbox_Helper::get_access_token();
 				$service_api_key        = $mapbox['key'];
@@ -180,7 +180,7 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 		$service_api_key = trim( $params['service_api_key'] );
 		$option          = self::key_for_api_service( $service );
 
-		$validation = self::validate_service_api_key( $service_api_key, $service, $params );
+		$validation = self::validate_service_api_key( $service_api_key, $service );
 		if ( ! $validation['status'] ) {
 			return new WP_Error( 'invalid_key', esc_html__( 'Invalid API Key', 'jetpack' ), array( 'status' => 404 ) );
 		}
@@ -217,7 +217,7 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 			case 'mapbox':
 				// After deleting a custom Mapbox key, try to revert to the WordPress.com one if available.
 				if ( ! class_exists( 'Jetpack_Mapbox_Helper' ) ) {
-					jetpack_require_lib( 'class-jetpack-mapbox-helper' );
+					require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-mapbox-helper.php';
 				}
 				$mapbox                 = Jetpack_Mapbox_Helper::get_access_token();
 				$service_api_key        = $mapbox['key'];

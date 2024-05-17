@@ -1,0 +1,39 @@
+import { Meta, Story, Canvas } from '@storybook/blocks';
+import Banner from '../index';
+import * as BannerStories from './index.stories';
+
+<Meta of={BannerStories} />
+
+# Banner
+A banner to show a message, with loading state control and customizable icon and call-to-action.
+
+<Canvas withSource="open">
+  <Story id="packages-videopress-block-editor-banner--default" />
+</Canvas>
+
+## API
+
+### children
+
+- type: `ReactNode`;
+
+Component to render into the banner.
+
+### isLoading
+
+- type: `boolean`
+
+It shows a spinner icon when true.
+
+### icon
+
+- type: `ReactNode`
+- default: `warning` core icon
+
+An optional icon.
+
+### action
+
+- type: `ReactNode`;
+
+Action component to render at the right of the banner. Usually, it's a button.

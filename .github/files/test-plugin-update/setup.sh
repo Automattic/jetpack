@@ -28,5 +28,9 @@ echo "::group::Install WordPress"
 wp --allow-root core install --url="$WP_DOMAIN" --title="$WP_TITLE" --admin_user="$WP_ADMIN_USER" --admin_password="$WP_ADMIN_PASSWORD" --admin_email="$WP_ADMIN_EMAIL" --skip-email
 rm -f index.html
 mkdir -p wp-content/mu-plugins
-cp "$GITHUB_WORKSPACE/monorepo/.github/files/test-plugin-update/mu-plugin.php" wp-content/mu-plugins/hack.php
+cp "$GITHUB_WORKSPACE/trunk/.github/files/test-plugin-update/mu-plugin.php" wp-content/mu-plugins/hack.php
+echo "::endgroup::"
+
+echo "::group::Backing up database"
+mysqldump --add-drop-database --add-drop-table --databases wordpress > "$GITHUB_WORKSPACE/db.sql"
 echo "::endgroup::"

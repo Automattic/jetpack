@@ -5,14 +5,11 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.0"
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"scripts": {
 		"test-js": [
 			"pnpm run test"
-		],
-		"test-coverage": [
-			"pnpm run test-coverage"
 		]
 	},
 	"repositories": [
@@ -34,7 +31,7 @@
 			"link-template": "https://github.com/Automattic/i18n-check-webpack-plugin/compare/v${old}...v${new}"
 		},
 		"dependencies": {
-			"test": [
+			"test-only": [
 				"js-packages/webpack-config"
 			]
 		}

@@ -5,7 +5,56 @@
 	}
 
 	.jetpack-subscribe-reader-count {
-		text-decoration: underline;
+		font-weight: bold;
 		white-space: nowrap; // Prevent reader counts from being broken into separate lines.
+	}
+
+	&__heading {
+		margin-inline-start: 3px;
+		font-weight: normal;
+	}
+
+	.components-notice__content {
+		margin-top: 0px;
+	}
+
+	&__notice {
+		&.components-notice {
+			margin: 0px;
+			padding: 0px;
+			margin-top: 0px;
+
+			&.is-info {
+				border-inline-start-color: #fff;
+
+				a {
+					text-decoration: underline;
+				}
+			}
+		}
+	}
+}
+
+.paid-newsletters-post-publish-panel {
+	&__external_icon {
+		height: 1.55em;
+		margin: -0.2em 0.1em 0;
+		vertical-align: middle;
+		fill: currentColor;
+	}
+
+	.post-publish-panel__postpublish-buttons {
+		.components-button {
+			padding-top: 0.5em;
+			padding-bottom: 0.4em;
+		}
+	}
+
+	.components-panel__body-toggle svg {
+		margin: 0 0 0 0.5em;
+	}
+
+	p {
+		margin-top: 0px;
 	}
 }

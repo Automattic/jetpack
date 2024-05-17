@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-import { combineReducers } from 'redux';
 import { assign, get } from 'lodash';
-
-/**
- * Internal dependencies
- */
+import { combineReducers } from 'redux';
 import {
 	JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY,
 	JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY_SUCCESS,

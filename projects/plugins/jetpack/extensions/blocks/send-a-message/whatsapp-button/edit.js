@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-import { useEffect, useCallback } from '@wordpress/element';
-import { useDispatch } from '@wordpress/data';
 import { BlockControls, InspectorControls, RichText } from '@wordpress/block-editor';
-
-/**
- * Internal dependencies
- */
+import { useDispatch } from '@wordpress/data';
+import { useEffect, useCallback } from '@wordpress/element';
+import classnames from 'classnames';
 import { countryCodes } from '../shared/countrycodes.js';
 import WhatsAppButtonConfiguration from './configuration';
 import '../view.scss';

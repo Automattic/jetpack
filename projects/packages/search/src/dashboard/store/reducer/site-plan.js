@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { SET_SEARCH_PLAN_INFO } from '../actions/site-plan';
 
 const sitePlan = ( state = {}, action ) => {

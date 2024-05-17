@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
-import classNames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 
 import './style.scss';
 
@@ -16,12 +9,13 @@ export const Nudge = ( {
 	className,
 	title,
 	description,
-	buttonText,
+	buttonText = null,
 	visible = true,
 	context,
-	checkoutUrl,
-	goToCheckoutPage,
+	checkoutUrl = null,
+	goToCheckoutPage = null,
 	isRedirecting = false,
+	showButton = true,
 } ) => {
 	const cssClasses = classNames( className, 'jetpack-upgrade-plan-banner', {
 		'wp-block': context === 'editor-canvas',
@@ -46,7 +40,7 @@ export const Nudge = ( {
 						{ description }
 					</span>
 				) }
-				{
+				{ showButton && (
 					<Button
 						href={ isRedirecting ? null : checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
 						onClick={ goToCheckoutPage }
@@ -58,7 +52,7 @@ export const Nudge = ( {
 					>
 						{ isRedirecting ? redirectingText : buttonText }
 					</Button>
-				}
+				) }
 			</div>
 		</div>
 	);

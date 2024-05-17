@@ -100,6 +100,7 @@ class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_En
 		// Clear the cache.
 		wp_update_themes();
 
+		$result = null;
 		foreach ( $this->themes as $theme ) {
 			/**
 			 * Pre-upgrade action
@@ -142,6 +143,7 @@ class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_En
 			return new WP_Error( 'nothing_to_translate' );
 		}
 
+		$result = null;
 		foreach ( $available_themes_updates->translations as $translation ) {
 			$theme = $translation['slug'];
 			if ( ! in_array( $translation['slug'], $this->themes, true ) ) {
@@ -173,5 +175,4 @@ class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_En
 
 		return true;
 	}
-
 }

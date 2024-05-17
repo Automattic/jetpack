@@ -41,6 +41,9 @@ function jetpack_less_css_preprocess( $less ) {
 
 	$compiler = new lessc();
 
+	// Don't try to load from the filesystem.
+	$compiler->setImportDir( array() );
+
 	try {
 		return $compiler->compile( $less );
 	} catch ( Exception $e ) {
@@ -54,13 +57,13 @@ function jetpack_less_css_preprocess( $less ) {
  * @param string $sass - sass.
  */
 function jetpack_sass_css_preprocess( $sass ) {
-	require_once __DIR__ . '/preprocessors/scss.inc.php';
+	$compiler = new ScssPhp\ScssPhp\Compiler();
 
-	$compiler = new scssc();
-	$compiler->setFormatter( 'scss_formatter' );
+	// Don't try to load from the filesystem.
+	$compiler->setImportPaths( array() );
 
 	try {
-		return $compiler->compile( $sass );
+		return $compiler->compileString( $sass )->getCss();
 	} catch ( Exception $e ) {
 		return $sass;
 	}

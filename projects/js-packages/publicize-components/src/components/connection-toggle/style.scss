@@ -1,0 +1,25 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.components-connection-toggle {
+	position: relative;
+	display: flex;
+	align-items: center;
+	width: 100%;
+
+	// Unchecked state.
+	&.is-not-checked {
+		.components-connection-icon__picture img {
+			filter: saturate(0);
+		}
+		.jetpack-publicize-gutenberg-social-icon {
+			fill: $gray-600;
+			filter: saturate(0);
+		}
+	}
+
+	// Disabled state:
+	&.is-disabled {
+		width: 100%;
+		opacity: 0.5;
+	}
+}

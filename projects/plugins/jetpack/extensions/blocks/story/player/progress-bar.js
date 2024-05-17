@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
-import { range } from 'lodash';
-
-/**
- * Internal dependencies
- */
-import { Bullet } from './components';
 import { useSelect } from '@wordpress/data';
+import { range } from 'lodash';
+import { Bullet } from './components';
 
 export const ProgressBullet = ( { key, playerId, index, disabled, isSelected, onClick } ) => {
 	const progress = useSelect(

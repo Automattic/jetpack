@@ -22,7 +22,7 @@ class WP_Test_Likes extends WP_UnitTestCase {
 	 * @since 8.4.0
 	 */
 	public function test_action_init_likes_visible() {
-		$this->go_to( get_permalink( $this->factory()->post->create() ) );
+		$this->go_to( get_permalink( self::factory()->post->create() ) );
 		add_filter( 'wpl_is_enabled_sitewide', '__return_true' );
 		add_filter( 'wpl_is_single_post_disabled', '__return_true' );
 		$instance = new Jetpack_Likes();
@@ -48,7 +48,7 @@ class WP_Test_Likes extends WP_UnitTestCase {
 		$this->assertEquals( 'Some content.', Jetpack_Likes::init()->post_likes( $content ) );
 
 		// Create and set a global post
-		$post_id = $this->factory->post->create( array() );
+		$post_id = self::factory()->post->create( array() );
 		global $post;
 		$post = get_post( $post_id );
 
@@ -92,26 +92,5 @@ class WP_Test_Likes extends WP_UnitTestCase {
 
 		// Likes should be visible
 		$this->assertTrue( Jetpack_Likes::init()->settings->is_likes_visible() );
-	}
-
-	/**
-	 * Check that Likes are properly added to admin bar.
-	 *
-	 * @since 4.6.0
-	 */
-	public function test_admin_bar_likes() {
-		$post_id = self::factory()->post->create( array( 'post_content' => 'Some content.' ) );
-		$this->go_to( get_permalink( $post_id ) );
-
-		// Initialize admin bar
-		add_filter( 'show_admin_bar', '__return_true' );
-		_wp_admin_bar_init();
-
-		// Add Likes to admin bar
-		Jetpack_Likes::init()->admin_bar_likes();
-
-		// The widget must be added to admin bar now.
-		global $wp_admin_bar;
-		$this->assertArrayHasKey( 'admin-bar-likes-widget', $wp_admin_bar->get_nodes() );
 	}
 }

@@ -1,11 +1,11 @@
 const fs = require( 'fs/promises' );
 const babel = require( '@babel/core' );
-const PLUGIN_NAME = require( './plugin-name.js' );
 const GettextEntries = require( './GettextEntries' );
 const GettextEntry = require( './GettextEntry' );
+const PLUGIN_NAME = require( './plugin-name.js' );
+const debug = require( 'debug' )( `${ PLUGIN_NAME }:gettext` ); // eslint-disable-line import/order
 
 const { parseAsync, parseSync, traverse, types: t } = babel;
-const debug = require( 'debug' )( `${ PLUGIN_NAME }:gettext` );
 
 // Some typedefs for jsdoc. Babel doesn't export the actual constructors for us.
 /** @typedef babel.Node */
@@ -40,7 +40,7 @@ class GettextExtractor {
 	 *
 	 * @param {object} options - Configuration options.
 	 * @param {object} options.babelOptions - Options for Babel.
-	 * @param {object<string, (string | null)[]>} options.functions - Functions to extract. Defaults are available as a static property `defaultFunctions`.
+	 * @param {Object<string, (string | null)[]>} options.functions - Functions to extract. Defaults are available as a static property `defaultFunctions`.
 	 * @param {Function} options.lintLogger - Lint logging callback. See `this.setLintLogger()`.
 	 */
 	constructor( options = {} ) {

@@ -1,0 +1,226 @@
+@import '@automattic/jetpack-base-styles/style';
+
+/**
+ * Editor styles for Jetpack AI Assistant
+ */
+
+.block-editor-block-toolbar__slot {
+	flex-shrink: 0;
+}
+
+.wp-block-ai-generate-suggestion {
+	padding: 0;
+}
+
+.wp-block-ai-generate-suggestion .components-text-control__input {
+	margin: 10px;
+	width:80%;
+}
+
+.wp-block-ai-generate-suggestion .components-button.is-primary {
+	margin: 10px;
+}
+
+.wp-block-jetpack-ai-assistant {
+	.jetpack-ai-assistant__content {
+		opacity: 1;
+		transition: opacity 0.2s ease-in-out;
+	}
+	&.is-waiting-response .jetpack-ai-assistant__content {
+		opacity: 0.5;
+	}
+}
+
+.jetpack-ai-assistant__error {
+	margin: 0 0 8px 0;
+	color: var( --wp--preset--color--black );
+}
+
+.jetpack-ai-assistant__accept {
+	margin: 12px;
+	display: flex;
+	justify-content: right;
+}
+
+.jetpack-ai-assistant__content {
+
+	overflow-x: auto;
+
+	table {
+		border-collapse: collapse;
+		width: 100%;
+	}
+
+	thead {
+		border-bottom: 3px solid;
+	}
+
+	tfoot {
+		border-top: 3px solid;
+	}
+
+	// Match default border style to default style in editor
+	td,
+	th {
+		border: 1px solid;
+		padding: 0.5em;
+	}
+
+	// Fixed layout toggle
+	.has-fixed-layout {
+		table-layout: fixed;
+		width: 100%;
+
+		td,
+		th {
+			word-break: break-word;
+		}
+	}
+
+	&.alignleft,
+	&.aligncenter,
+	&.alignright {
+		// Override default display property for align styles.
+		// The table element needs to be kept as display table
+		// for table features to work reliably.
+		display: table;
+		// Table cannot be 100% width if it is aligned, so set
+		// width as auto.
+		width: auto;
+
+		td,
+		th {
+			word-break: break-word;
+		}
+	}
+
+	// Border Styles
+	//
+	// Allow any custom border color, style or width selections to be inherited
+	// from the table element that receives the border support props.
+
+	.has-border-color {
+		> *,
+		tr,
+		th,
+		td {
+			border-color: inherit;
+		}
+	}
+
+	table[style*="border-top-color"] {
+		> *,
+		tr:first-child {
+			border-top-color: inherit;
+
+			th,
+			td {
+				border-top-color: inherit;
+			}
+		}
+
+		tr:not(:first-child) {
+			border-top-color: currentColor;
+		}
+	}
+	table[style*="border-right-color"] {
+		> *,
+		tr,
+		th,
+		td:last-child {
+			border-right-color: inherit;
+		}
+	}
+	table[style*="border-bottom-color"] {
+		> *,
+		tr:last-child {
+			border-bottom-color: inherit;
+
+			th,
+			td {
+				border-bottom-color: inherit;
+			}
+		}
+
+		// Border support classes and styles are applied on the table block
+		// itself. This means that without the rule below every table row would
+		// have a bottom border matching the color of the table's border.
+		// This style gives the best visual appearance and most expected result
+		// until we can control individual table rows or cells via inner blocks.
+		tr:not(:last-child) {
+			border-bottom-color: currentColor;
+		}
+	}
+	table[style*="border-left-color"] {
+		> *,
+		tr,
+		th,
+		td:first-child {
+			border-left-color: inherit;
+		}
+	}
+
+	table[style*="border-style"] {
+		> *,
+		tr,
+		th,
+		td {
+			border-style: inherit;
+		}
+	}
+
+	table[style*="border-width"] {
+		> *,
+		tr,
+		th,
+		td {
+			border-width: inherit;
+			border-style: inherit;
+		}
+	}
+}
+
+.wp-block-ai-image-image {
+	cursor: pointer;
+	width: 128px;
+	height: 128px;
+}
+
+.jetpack-ai-assistant__templates-control {
+	svg {
+		padding-right: 4px;
+	}
+}
+
+.jetpack-ai-upgrade-banner,
+.jetpack-ai-connect-banner {
+	.jetpack-upgrade-plan-banner__wrapper {
+		flex-wrap: nowrap;
+
+		.jetpack-ai-upgrade-banner__description,
+		.jetpack-ai-connect-banner__description {
+			line-height: 24px;
+		}
+
+		.components-button.is-primary {
+			background-color: var( --jp-white );
+			color: var( --jp-black );
+			margin-top: 8px;
+			margin-bottom: 8px;
+
+			&:hover{
+				background-color: var( --jp-gray-0 );
+			}
+		}
+	}
+}
+
+.jetpack-ai-assistant__custom-prompt {
+	width: 800px;
+}
+
+.jetpack-ai-assistant__custom-prompt__footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+}

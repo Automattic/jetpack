@@ -1,0 +1,9 @@
+.title {
+	margin-bottom: 8px;
+	font-weight: bold;
+	font-size: 16px;
+}
+
+.attribute-container:not(:last-child) {
+	margin-bottom: 16px;
+}

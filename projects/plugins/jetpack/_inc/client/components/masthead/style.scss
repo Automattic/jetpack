@@ -3,9 +3,6 @@
 .jp-masthead {
 	background-color: $white;
 	text-align: center;
-	box-shadow:
-		0 1px 0 $light-gray-700,
-		0 1px 1px 1px  rgba(0,0,0,.04);
 
 	@media (max-width: rem( 782px ) ) {
 		padding: 0 rem( 24px );
@@ -19,12 +16,15 @@
 .jp-masthead__inside-container {
 	display: flex;
 	flex-wrap: wrap;
-	margin: 0 auto;
 	width: 100%;
-	max-width: rem( 1040px );
 	padding-bottom: rem( 6px );
+}
 
-	@media (max-width: 1250px) {
+.jp-masthead-middle .jp-masthead__inside-container {
+	margin: 0 auto;
+	max-width: rem( 1040px );
+
+	@media (max-width: 1360px) {
 		max-width: 95%;
 	}
 }
@@ -32,9 +32,10 @@
 .jp-masthead__logo-container {
 	flex-grow: 0;
 	flex-shrink: 0;
-	padding: rem( 11px ) 0 0;
+	padding: rem( 40px ) 0 rem( 20px ) 0;
 
 	@include breakpoint( "<480px" ) {
+		padding: rem( 11px ) 0 0;
 		margin-right: rem( 16px );
 	}
 }
@@ -76,6 +77,28 @@
 	}
 	@include breakpoint( "<480px" ) {
 		text-align: left;
+	}
+
+	.dops-button {
+		background: $white;
+		color: $black;
+		font-weight: 600;
+		border: 1.5px solid $black;
+		box-shadow: none;
+
+		&:first-child {
+			border-right: 0;
+		}
+
+		&.is-primary {
+			background: $black;
+			color: white;
+			border: 1.5px solid $black;
+
+			&:last-child {
+				border-left: 0;
+			}
+		}
 	}
 }
 

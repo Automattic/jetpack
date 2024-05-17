@@ -220,7 +220,7 @@ class Options extends Module {
 		$options       = array();
 		$random_string = wp_generate_password();
 		foreach ( $this->options_whitelist as $option ) {
-			if ( 0 === strpos( $option, Settings::SETTINGS_OPTION_PREFIX ) ) {
+			if ( str_starts_with( $option, Settings::SETTINGS_OPTION_PREFIX ) ) {
 				$option_value       = Settings::get_setting( str_replace( Settings::SETTINGS_OPTION_PREFIX, '', $option ) );
 				$options[ $option ] = $option_value;
 			} else {
@@ -308,7 +308,7 @@ class Options extends Module {
 		}
 
 		// Filter our weird array( false ) value for theme_mods_*.
-		if ( 'theme_mods_' === substr( $args[0], 0, 11 ) ) {
+		if ( str_starts_with( $args[0], 'theme_mods_' ) ) {
 			$this->filter_theme_mods( $args[1] );
 			if ( isset( $args[2] ) ) {
 				$this->filter_theme_mods( $args[2] );
@@ -335,7 +335,7 @@ class Options extends Module {
 	 * @return boolean Whether the option is whitelisted.
 	 */
 	public function is_whitelisted_option( $option ) {
-		return in_array( $option, $this->options_whitelist, true ) || 'theme_mods_' === substr( $option, 0, 11 );
+		return in_array( $option, $this->options_whitelist, true ) || str_starts_with( $option, 'theme_mods_' );
 	}
 
 	/**
@@ -461,7 +461,7 @@ class Options extends Module {
 			$random_string = wp_generate_password();
 			// Only whitelisted options can be returned.
 			if ( in_array( $id, $this->options_whitelist, true ) ) {
-				if ( 0 === strpos( $id, Settings::SETTINGS_OPTION_PREFIX ) ) {
+				if ( str_starts_with( $id, Settings::SETTINGS_OPTION_PREFIX ) ) {
 					$option_value = Settings::get_setting( str_replace( Settings::SETTINGS_OPTION_PREFIX, '', $id ) );
 					return $option_value;
 				} else {
@@ -477,5 +477,4 @@ class Options extends Module {
 
 		return 'OPTION-DOES-NOT-EXIST';
 	}
-
 }

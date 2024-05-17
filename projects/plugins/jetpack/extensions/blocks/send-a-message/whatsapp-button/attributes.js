@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 
 export default {
@@ -15,8 +12,8 @@ export default {
 		default: __( 'Hi, I got your WhatsApp information from your website.', 'jetpack' ),
 	},
 	buttonText: {
-		type: 'array',
-		source: 'children',
+		type: 'string',
+		source: 'html',
 		selector: 'a.whatsapp-block__button',
 		default: __( 'Chat on WhatsApp', 'jetpack' ),
 	},

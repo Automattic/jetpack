@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import SearchSort from './search-sort';
 import './search-controls.scss';
 

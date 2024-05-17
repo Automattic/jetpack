@@ -1,0 +1,28 @@
+{
+	"name": "automattic/jetpack-doc-parser",
+	"description": "A parser for Jetpack Monorepo to gather inline documentation.",
+	"type": "jetpack-library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"php": ">=8.2",
+		"wordpress/phpdoc-parser": "dev-master",
+		"michelf/php-markdown": "^2.0"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"installer-disable": [
+			"wordpress"
+		]
+	},
+	"config": {
+		"allow-plugins": {
+			"composer/installers": true
+		}
+	}
+}

@@ -1,9 +1,6 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import classNames from 'classnames';
 import { omit } from 'lodash';
+import React from 'react';
 
 import './style.scss';
 
@@ -17,8 +14,10 @@ export default class TextInput extends React.Component {
 		type: 'text',
 	};
 
+	textFieldRef = React.createRef();
+
 	focus = () => {
-		this.refs.textField.focus();
+		this.textFieldRef.current.focus();
 	};
 
 	render() {
@@ -32,7 +31,7 @@ export default class TextInput extends React.Component {
 		return (
 			<input
 				{ ...forwardedProps }
-				ref="textField"
+				ref={ this.textFieldRef }
 				className={ classes }
 				onClick={ selectOnFocus ? this.selectOnFocus : null }
 			/>

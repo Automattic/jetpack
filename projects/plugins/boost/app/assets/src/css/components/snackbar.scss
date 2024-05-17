@@ -1,0 +1,11 @@
+/*
+ * Styles to make Gutenberg snackbar to integrate into Boost.
+ */
+.jb-dashboard .stackable-snackbars,
+.jb-dashboard :not(.stackable-snackbars) .components-snackbar {
+	box-sizing: content-box;
+	position: fixed;
+	bottom: 100px;
+	right: 100px;
+	z-index: 900;
+}

@@ -184,7 +184,7 @@ class Site_Logo {
 			wp_enqueue_script(
 				'site-logo-header-text',
 				plugins_url( '../js/site-logo-header-text.js', __FILE__ ),
-				array( 'media-views' ),
+				array( 'jquery', 'media-views' ),
 				JETPACK__VERSION,
 				true
 			);
@@ -365,7 +365,7 @@ class Site_Logo {
 	/**
 	 * Sanitize our header text Customizer setting.
 	 *
-	 * @param any $input The input value to sanitize.
+	 * @param mixed $input The input value to sanitize.
 	 * @return bool|string 1 if checked, empty string if not checked.
 	 */
 	public function sanitize_checkbox( $input ) {
@@ -375,7 +375,7 @@ class Site_Logo {
 	/**
 	 * Validate and sanitize a new site logo setting.
 	 *
-	 * @param any $input Logo setting value to sanitize.
+	 * @param mixed $input Logo setting value to sanitize.
 	 * @return int Attachment post ID, or 0 if invalid.
 	 */
 	public function sanitize_logo_setting( $input ) {
@@ -400,6 +400,8 @@ class Site_Logo {
 		return ob_get_clean();
 	}
 }
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
 
 /**
  * Allow themes and plugins to access Site_Logo methods and properties.

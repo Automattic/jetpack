@@ -1,18 +1,10 @@
-/**
- * External dependencies
- */
-import classNames from 'classnames';
 import { isMobile } from '@automattic/viewport';
+import classNames from 'classnames';
+import Gridicon from 'components/gridicon';
+import analytics from 'lib/analytics';
+import { debounce, noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
-import ReactDom from 'react-dom';
-import { debounce, noop } from 'lodash';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
-import Gridicon from 'components/gridicon';
 
 import './style.scss';
 
@@ -82,6 +74,10 @@ class Search extends React.Component {
 		fitsContainer: false,
 		hideClose: false,
 	};
+
+	overlayRef = React.createRef();
+	searchInputRef = React.createRef();
+	openIconRef = React.createRef();
 
 	state = {
 		keyword: this.props.initialValue || '',
@@ -162,10 +158,10 @@ class Search extends React.Component {
 	}
 
 	scrollOverlay = () => {
-		this.refs.overlay &&
+		this.overlayRef.current &&
 			window.requestAnimationFrame( () => {
-				if ( this.refs.overlay && this.refs.searchInput ) {
-					this.refs.overlay.scrollLeft = this.getScrollLeft( this.refs.searchInput );
+				if ( this.overlayRef.current && this.searchInputRef.current ) {
+					this.overlayRef.current.scrollLeft = this.getScrollLeft( this.searchInputRef.current );
 				}
 			} );
 	};
@@ -194,18 +190,15 @@ class Search extends React.Component {
 	focus = () => {
 		// if we call focus before the element has been entirely synced up with the DOM, we stand a decent chance of
 		// causing the browser to scroll somewhere odd. Instead, defer the focus until a future turn of the event loop.
-		setTimeout(
-			() => this.refs.searchInput && ReactDom.findDOMNode( this.refs.searchInput ).focus(),
-			0
-		);
+		setTimeout( () => this.searchInputRef.current && this.searchInputRef.current.focus(), 0 );
 	};
 
 	blur = () => {
-		ReactDom.findDOMNode( this.refs.searchInput ).blur();
+		this.searchInputRef.current.blur();
 	};
 
 	getCurrentSearchValue = () => {
-		return ReactDom.findDOMNode( this.refs.searchInput ).value;
+		return this.searchInputRef.current.value;
 	};
 
 	clear = () => {
@@ -244,7 +237,7 @@ class Search extends React.Component {
 			return;
 		}
 
-		const input = ReactDom.findDOMNode( this.refs.searchInput );
+		const input = this.searchInputRef.current;
 
 		this.setState( {
 			keyword: '',
@@ -255,7 +248,7 @@ class Search extends React.Component {
 		input.blur();
 
 		if ( this.props.pinned ) {
-			ReactDom.findDOMNode( this.refs.openIcon ).focus();
+			this.openIconRef.current.focus();
 		}
 
 		this.props.onSearchClose( event );
@@ -290,7 +283,7 @@ class Search extends React.Component {
 	// Puts the cursor at end of the text when starting
 	// with `initialValue` set.
 	onFocus = () => {
-		const input = ReactDom.findDOMNode( this.refs.searchInput ),
+		const input = this.searchInputRef.current,
 			setValue = input.value;
 
 		if ( setValue ) {
@@ -333,7 +326,7 @@ class Search extends React.Component {
 				<div
 					role="button"
 					className="dops-search__icon-navigation"
-					ref="openIcon"
+					ref={ this.openIconRef }
 					onClick={ enableOpenIcon ? this.openSearch : this.focus }
 					tabIndex={ enableOpenIcon ? '0' : null }
 					onKeyDown={ enableOpenIcon ? this.openListener : null }
@@ -351,7 +344,7 @@ class Search extends React.Component {
 						placeholder={ placeholder }
 						role="searchbox"
 						value={ searchValue }
-						ref="searchInput"
+						ref={ this.searchInputRef }
 						onKeyUp={ this.keyUp }
 						onKeyDown={ this.keyDown }
 						onMouseUp={ this.props.onClick }
@@ -373,7 +366,7 @@ class Search extends React.Component {
 
 	renderStylingDiv = () => {
 		return (
-			<div className="dops-search__text-overlay" ref="overlay">
+			<div className="dops-search__text-overlay" ref={ this.overlayRef }>
 				{ this.props.overlayStyling( this.state.keyword ) }
 			</div>
 		);

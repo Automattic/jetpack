@@ -1,0 +1,83 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.jetpack-blogging-prompt {
+	border: 1px solid $gray-300;
+	border-radius: 2px;
+	box-sizing: border-box;
+	padding: 24px;
+
+	&__label {
+		background: no-repeat url('./icon.svg');
+		background-position: -5px center;
+		background-size: 24px 24px;
+		font-size: 14px;
+		margin-bottom: $grid-unit-20;
+		padding-inline-start: 22px;
+		&.is-bloganuary-icon {
+			background: no-repeat url('./bloganuary-icon.svg');
+			background-position: 0px center;
+			padding-inline-start: 26px;
+		}
+	}
+
+	&__text {
+		font-size: 24px;
+		margin-bottom: $grid-unit-20;
+	}
+
+	&__answers-link {
+		display: inline-block;
+		margin-inline-start: 10px;
+		text-decoration: underline;
+	}
+
+	&__answers {
+		font-size: 16px;
+	}
+
+	&__answers-gravatar {
+		border: 2px solid $white;
+		border-radius: 50%;
+		height: 24px;
+		vertical-align: middle;
+		width: 24px;
+
+		&:first-child {
+			margin-inline-start: -2px;
+		}
+
+		&:not(:first-child) {
+			margin-inline-start: -15px;
+		}
+	}
+
+	&__spinner {
+		text-align: center;
+	}
+
+	&.is-style-quote {
+		border: none;
+		border-inline-start: 4px solid $gray-800;
+		margin-bottom: $grid-unit-20;
+		padding: 0 24px;
+	}
+
+	@media only email {
+		&__label {
+			background: none;
+			padding-inline-start: 0;
+		}
+
+		&__answers {
+			margin-bottom: 0;
+		}
+
+		&__answers-gravatar {
+			margin-bottom: 0;
+
+			&:not(:first-child) {
+				margin-inline-start: 0;
+			}
+		}
+	}
+}

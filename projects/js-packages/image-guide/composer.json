@@ -1,0 +1,50 @@
+{
+	"name": "automattic/jetpack-image-guide",
+	"description": "Go through the dom to analyze image size on screen vs actual file size.",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.1.0",
+		"automattic/jetpack-changelogger": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"build-development": [
+			"pnpm run build"
+		],
+		"build-production": [
+			"NODE_ENV=production pnpm run build"
+		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		],
+		"test-js": [
+			"pnpm run test"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"npmjs-autopublish": true,
+		"mirror-repo": "Automattic/jetpack-image-guide",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-image-guide/compare/v${old}...v${new}"
+		},
+		"autotagger": true
+	}
+}

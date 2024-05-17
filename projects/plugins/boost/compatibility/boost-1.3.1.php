@@ -18,7 +18,6 @@ function jetpack_boost_131_option_fallback( $default, $option ) {
 }
 
 add_filter( 'default_option_jetpack_boost_state_critical-css', 'jetpack_boost_131_option_fallback', 10, 2 );
-add_filter( 'default_option_jetpack_boost_state_lazy-images', 'jetpack_boost_131_option_fallback', 10, 2 );
 add_filter( 'default_option_jetpack_boost_state_render-blocking-js', 'jetpack_boost_131_option_fallback', 10, 2 );
 
 /**
@@ -26,7 +25,6 @@ add_filter( 'default_option_jetpack_boost_state_render-blocking-js', 'jetpack_bo
  * silently migrate the options to the new format,
  * that way the code above is never run.
  */
-
 function jetpack_boost_131_option_migration() {
 
 	/**
@@ -48,7 +46,7 @@ function jetpack_boost_131_option_migration() {
 		return;
 	}
 
-	$migration_keys = array( 'critical-css', 'lazy-images', 'render-blocking-js' );
+	$migration_keys = array( 'critical-css', 'render-blocking-js' );
 	foreach ( $migration_keys as $migration_key ) {
 		if ( ! isset( $old_config[ $migration_key ] ) || ! isset( $old_config[ $migration_key ]['enabled'] ) ) {
 			continue;
@@ -60,5 +58,4 @@ function jetpack_boost_131_option_migration() {
 }
 
 add_action( 'add_option_jetpack_boost_state_critical-css', 'jetpack_boost_131_option_migration', 10, 0 );
-add_action( 'add_option_jetpack_boost_state_lazy-images', 'jetpack_boost_131_option_migration', 10, 0 );
 add_action( 'add_option_jetpack_boost_state_render-blocking-js', 'jetpack_boost_131_option_migration', 10, 0 );

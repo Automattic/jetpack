@@ -1,28 +1,14 @@
-/**
- * @jest-environment jsdom
- */
-
-/**
- * External dependencies
- */
-import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
+import userEvent from '@testing-library/user-event';
+import { RepeatVisitorEdit } from '../components/edit';
+import { CRITERIA_BEFORE, CRITERIA_AFTER, DEFAULT_THRESHOLD } from '../constants';
 
-// Need to mock InnerBlocks before importing the RepeatVisitorEdit component as it
-// requires the Gutenberg store setup to operate.
 jest.mock( '@wordpress/block-editor', () => ( {
 	...jest.requireActual( '@wordpress/block-editor' ),
 	InnerBlocks: () => <p>Mocked inner block</p>,
 } ) );
 
-/**
- * Internal dependencies
- */
-import { RepeatVisitorEdit } from '../components/edit';
-import { CRITERIA_BEFORE, CRITERIA_AFTER, DEFAULT_THRESHOLD } from '../constants';
-
-describe( '', () => {
+describe( 'Repeat-visitor', () => {
 	const defaultAttributes = {
 		// 👀 Setup default block attributes.
 		criteria: CRITERIA_AFTER,
@@ -44,6 +30,7 @@ describe( '', () => {
 		const propsSelected = { ...defaultProps, isSelected: true };
 		const { container } = render( <RepeatVisitorEdit { ...propsSelected } /> );
 
+		// eslint-disable-next-line testing-library/no-node-access
 		expect( container.firstChild ).not.toHaveClass(
 			'wp-block-jetpack-repeat-visitor--is-unselected'
 		);
@@ -60,10 +47,11 @@ describe( '', () => {
 	} );
 
 	test( 'changing visit count threshold updates attributes and notice', async () => {
+		const user = userEvent.setup();
 		const propsSelected = { ...defaultProps, isSelected: true };
 		const { rerender } = render( <RepeatVisitorEdit { ...propsSelected } /> );
 
-		userEvent.type( screen.getByLabelText( 'Visit count threshold' ), '0' );
+		await user.type( screen.getByLabelText( 'Visit count threshold' ), '0' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { threshold: 30 } );
 
@@ -80,13 +68,14 @@ describe( '', () => {
 	} );
 
 	test( 'clicking show before threshold updates attributes and notice', async () => {
+		const user = userEvent.setup();
 		const propsSelected = { ...defaultProps, isSelected: true };
 		const { rerender } = render( <RepeatVisitorEdit { ...propsSelected } /> );
 
 		expect( screen.getByLabelText( 'Show before threshold' ) ).not.toBeChecked();
 		expect( screen.getByLabelText( 'Show after threshold' ) ).toBeChecked();
 
-		userEvent.click( screen.getByLabelText( 'Show before threshold' ) );
+		await user.click( screen.getByLabelText( 'Show before threshold' ) );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { criteria: CRITERIA_BEFORE } );
 
@@ -108,6 +97,7 @@ describe( '', () => {
 	} );
 
 	test( 'clicking show after threshold updates attributes and notice', async () => {
+		const user = userEvent.setup();
 		const propsSelected = { ...defaultProps, isSelected: true };
 		propsSelected.attributes = { ...defaultAttributes, criteria: CRITERIA_BEFORE };
 
@@ -116,7 +106,7 @@ describe( '', () => {
 		expect( screen.getByLabelText( 'Show before threshold' ) ).toBeChecked();
 		expect( screen.getByLabelText( 'Show after threshold' ) ).not.toBeChecked();
 
-		userEvent.click( screen.getByLabelText( 'Show after threshold' ) );
+		await user.click( screen.getByLabelText( 'Show after threshold' ) );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { criteria: CRITERIA_AFTER } );
 
@@ -141,6 +131,7 @@ describe( '', () => {
 		const propsNotSelected = { ...defaultProps, isSelected: false };
 		const { container } = render( <RepeatVisitorEdit { ...propsNotSelected } /> );
 
+		// eslint-disable-next-line testing-library/no-node-access
 		expect( container.firstChild ).toHaveClass( 'wp-block-jetpack-repeat-visitor--is-unselected' );
 	} );
 } );

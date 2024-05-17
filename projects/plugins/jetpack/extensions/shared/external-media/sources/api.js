@@ -1,8 +1,5 @@
-/**
- * External dependencies
- */
-import { addQueryArgs } from '@wordpress/url';
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { addQueryArgs } from '@wordpress/url';
 
 const ENDPOINTS = {
 	list: '/wpcom/v2/external-media/list/',

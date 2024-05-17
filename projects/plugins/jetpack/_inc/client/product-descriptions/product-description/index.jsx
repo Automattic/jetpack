@@ -1,20 +1,14 @@
-/**
- * External dependencies
- */
-import React, { useEffect } from 'react';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import { isEmpty } from 'lodash';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
+import classNames from 'classnames';
 import JetpackProductCard from 'components/jetpack-product-card';
 import { MoneyBackGuarantee } from 'components/money-back-guarantee';
+import analytics from 'lib/analytics';
+import { isEmpty } from 'lodash';
+import PropTypes from 'prop-types';
+import { useEffect } from 'react';
+import { connect } from 'react-redux';
 import { getProductsForPurchase } from 'state/initial-state';
+import { getIntroOffers } from 'state/intro-offers';
 import { productIllustrations } from '../constants';
 import {
 	cloud as cloudIcon,
@@ -42,9 +36,7 @@ const getRelatedProductPlan = ( product, availableProductsAndPlans ) => {
 	return availableProductsAndPlans[ upsellPlan ];
 };
 
-const renderProduct = ( product, priority, hasRelatedPlan, arePromotionsActive ) => {
-	const discount =
-		arePromotionsActive && product.showPromotion ? product.promotionPercentage : undefined;
+const renderProduct = ( product, offers, priority, hasRelatedPlan ) => {
 	const illustration =
 		! hasRelatedPlan && productIllustrations.hasOwnProperty( product.key )
 			? productIllustrations[ product.key ]
@@ -52,6 +44,7 @@ const renderProduct = ( product, priority, hasRelatedPlan, arePromotionsActive )
 	let cta, icon;
 
 	switch ( product.slug ) {
+		case 'jetpack_backup_t0_yearly':
 		case 'jetpack_backup_t1_yearly':
 			icon = cloudIcon;
 			break;
@@ -61,6 +54,7 @@ const renderProduct = ( product, priority, hasRelatedPlan, arePromotionsActive )
 		case 'jetpack_anti_spam':
 			icon = bugIcon;
 			break;
+		case 'jetpack_security_t0_yearly':
 		case 'jetpack_security_t1_yearly':
 			icon = bundleIcon;
 
@@ -70,6 +64,12 @@ const renderProduct = ( product, priority, hasRelatedPlan, arePromotionsActive )
 			break;
 	}
 
+	const offer = offers?.find( ( { product_slug } ) => product_slug === product.slug );
+	const price = offer?.original_price || product.fullPrice;
+	// Sale discount defaults to 1 so no change is made to discounted price if null
+	const saleDiscount = product?.saleCoupon?.discount ? 1 - product.saleCoupon.discount / 100 : 1;
+	const discountedPrice = ( offer?.raw_price || price ) * saleDiscount;
+
 	return (
 		<JetpackProductCard
 			icon={ icon }
@@ -77,10 +77,11 @@ const renderProduct = ( product, priority, hasRelatedPlan, arePromotionsActive )
 			productSlug={ product.slug }
 			description={ product.description }
 			features={ product.features }
+			disclaimer={ product.disclaimer }
 			currencyCode={ product.currencyCode }
-			price={ product.fullPrice / 12 }
-			discount={ discount }
-			billingDescription={ __( '/month, paid yearly', 'jetpack' ) }
+			price={ price / 12 }
+			discountedPrice={ discountedPrice && discountedPrice !== price ? discountedPrice / 12 : null }
+			billingDescription={ __( 'per month, paid yearly', 'jetpack' ) }
 			callToAction={ cta }
 			priority={ priority }
 			illustrationPath={ illustration }
@@ -95,7 +96,7 @@ const renderProduct = ( product, priority, hasRelatedPlan, arePromotionsActive )
 };
 
 const ProductDescription = props => {
-	const { arePromotionsActive, availableProductsAndPlans, product } = props;
+	const { availableProductsAndPlans, product, offers } = props;
 
 	const relatedPlan = getRelatedProductPlan( product, availableProductsAndPlans );
 
@@ -113,9 +114,8 @@ const ProductDescription = props => {
 	return (
 		<>
 			<div className={ classes }>
-				{ renderProduct( product, 'primary', !! relatedPlan, arePromotionsActive ) }
-				{ !! relatedPlan &&
-					renderProduct( relatedPlan, 'secondary', !! relatedPlan, arePromotionsActive ) }
+				{ renderProduct( product, offers, 'primary', !! relatedPlan ) }
+				{ !! relatedPlan && renderProduct( relatedPlan, offers, 'secondary', !! relatedPlan ) }
 			</div>
 
 			<div className="jp-product-description__introductory-pricing">
@@ -130,18 +130,15 @@ const ProductDescription = props => {
 
 ProductDescription.propTypes = {
 	product: PropTypes.object.isRequired,
-	arePromotionsActive: PropTypes.bool,
 
 	// From connect HoC.
 	availableProductsAndPlans: PropTypes.object.isRequired,
-};
-
-ProductDescription.defaultProps = {
-	arePromotionsActive: false,
+	offers: PropTypes.arrayOf( PropTypes.object ).isRequired,
 };
 
 export default connect( state => {
 	return {
 		availableProductsAndPlans: getProductsForPurchase( state ),
+		offers: getIntroOffers( state ),
 	};
 } )( ProductDescription );

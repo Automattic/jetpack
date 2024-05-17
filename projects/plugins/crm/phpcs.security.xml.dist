@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<ruleset name="JPCRM Coding Standards">
+	<description>Verifies JPCRM code is up to snuff</description>
+
+	<config name="installed_paths" value="vendor/wp-coding-standards/wpcs"/>
+
+	<!-- Args to PHPCS: show (p)rogress, show (s)niff codes -->
+	<arg value="ps"/>
+	<arg name="parallel" value="10"/>
+	<arg name="extensions" value="php"/>
+
+	<file>.</file>
+
+	<exclude-pattern>./vendor/*</exclude-pattern>
+	<exclude-pattern>./node_modules/*</exclude-pattern>
+	<exclude-pattern>./tests/*</exclude-pattern>
+
+	<rule ref="WordPress.Security">
+	</rule>
+
+	<rule ref="WordPress.Security.EscapeOutput">
+	    <properties>
+	        <property name="customAutoEscapedFunctions" type="array" value="zbsLink,jpcrm_esc_link"/>
+	    </properties>
+	</rule>
+
+</ruleset>

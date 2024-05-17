@@ -1,13 +1,6 @@
-/**
- * External Dependencies
- */
-import React from 'react';
-
-/**
- * Internal Dependencies
- */
 import SimpleNotice from 'components/notice/index.jsx';
 import NoticeAction from 'components/notice/notice-action';
+import React from 'react';
 
 import './style.scss';
 

@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import photon from 'photon';
 import { useEffect, useState } from 'react';
 
@@ -31,8 +28,10 @@ export function usePhoton( initialSrc, width, height, isPhotonEnabled = true ) {
 	const initialSrcWithoutQueryString = stripQueryString( initialSrc );
 
 	// Photon only supports GIF, JPG, PNG and WebP images
+	// Photon also has partial support for HEIC which currently always
+	// reencodes as JPG regardless of advertised support from the browser
 	// @see https://developer.wordpress.com/docs/photon/
-	const supportedImageTypes = [ 'gif', 'jpg', 'jpeg', 'png', 'webp' ];
+	const supportedImageTypes = [ 'gif', 'jpg', 'jpeg', 'png', 'webp', 'heic' ];
 	const fileExtension = initialSrcWithoutQueryString
 		?.substring( initialSrcWithoutQueryString.lastIndexOf( '.' ) + 1 )
 		.toLowerCase();

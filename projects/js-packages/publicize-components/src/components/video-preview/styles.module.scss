@@ -1,0 +1,26 @@
+.wrapper {
+	position: relative;
+}
+
+.progress {
+	position: absolute;
+	bottom: 8px;
+	left: 8px;
+	padding: 4px;
+	display: flex;
+	align-items: center;
+	background-color: rgba( 44, 51, 56, 0.9 ); // --jp-black-80
+	border-radius: 2px;
+	font-variant-numeric: tabular-nums;
+
+	svg {
+		margin-right: 2px;
+	}
+}
+
+.duration.duration {
+	font-weight: 600;
+	font-size: 9px;
+	line-height: 8px;
+	color: var( --jp-white );
+}

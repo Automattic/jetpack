@@ -1,0 +1,22 @@
+/* JP vars */
+@use 'emerald/_jp_vars.scss';
+@use 'emerald/_jpcrm_vars.scss';
+
+/* base file */
+@use 'emerald/_emerald_base.scss';
+
+/* top menu */
+@use 'emerald/_jpcrm_top_menu.scss';
+
+/* components */
+@use 'emerald/_buttons.scss';
+@use 'emerald/_dashcard.scss';
+@use 'emerald/_dashcount.scss';
+@use 'emerald/_dropdown-buttons.scss';
+@use 'emerald/_edit-page.scss';
+@use 'emerald/_learn-menu.scss';
+@use 'emerald/_listview.scss';
+@use 'emerald/_listview-footer.scss';
+@use 'emerald/_listview-header.scss';
+@use 'emerald/_listview-table.scss';
+@use 'emerald/_pagination.scss';

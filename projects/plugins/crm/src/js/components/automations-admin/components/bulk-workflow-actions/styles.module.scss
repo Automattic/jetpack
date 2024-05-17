@@ -1,0 +1,42 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.dropdown-menu {
+    background: white;
+    border: 1px solid var(--jp-gray-10);
+    border-radius: 2px;
+	 position: relative;
+}
+
+.icon {
+	display: flex;
+	width: 100%;
+    color: var( --jp-gray-50 );
+    font-size: var(--font-body);
+
+    svg {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+.text {
+	display: flex;
+	width: 100%;
+	align-items: center;
+	justify-content: flex-start;
+	font-weight: 400;
+	font-size: 14px;
+}
+
+:global(.components-dropdown-menu__toggle) {
+	width: 100%;
+}
+
+:global(.components-dropdown__content) {
+    width: 100%;
+	 z-index: 4;
+}
+
+:global(.components-popover__content) {
+    width: 100%;
+}

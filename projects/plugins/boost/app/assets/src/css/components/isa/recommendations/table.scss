@@ -1,0 +1,61 @@
+.jb-loading-spinner {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate( -50%, -50% );
+	z-index: 9000;
+
+	&:not( .active ) {
+		display: none;
+	}
+}
+
+.jb-table {
+	will-change: opacity, filter;
+	transition:
+		opacity 0.3s ease-in-out,
+		filter 0.3s ease-in-out;
+
+	h1 {
+		padding-top: 16px;
+		width: 100%;
+		text-align: center;
+	}
+
+	&.jb-loading {
+		filter: grayscale( 0.5 );
+		opacity: 0.2;
+		position: relative;
+	}
+}
+
+.jb-table-header {
+	@media ( max-width: 782px ) {
+		display: none !important;
+	}
+
+	font-size: 0.875rem;
+	color: var( --gray-60 );
+	border: var( --border );
+	border-top-left-radius: var( --border-radius );
+	border-top-right-radius: var( --border-radius );
+	border-bottom: 0;
+	background-color: #fff;
+}
+
+.jb-table-header__image {
+	grid-column: thumbnail / title;
+}
+
+.jb-table-header__device {
+	grid-column: device;
+	text-align: center;
+}
+
+.jb-table-header__potential-size {
+	grid-column: potential-size;
+}
+
+.jb-table-header__page {
+	grid-column: page / expand;
+}

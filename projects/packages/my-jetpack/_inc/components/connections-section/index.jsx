@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { ConnectionStatusCard } from '@automattic/jetpack-connection';
-import { useSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
+import { MyJetpackRoutes } from '../../constants';
+import { useAllProducts } from '../../data/products/use-product';
+import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
-import { STORE_ID } from '../../state/store';
+import ConnectionStatusCard from '../connection-status-card';
 
 /**
  * Plan section component.
@@ -18,20 +11,22 @@ import { STORE_ID } from '../../state/store';
  * @returns {object} ConnectionsSection React component.
  */
 export default function ConnectionsSection() {
-	const { apiRoot, apiNonce, redirectUrl, connectedPlugins } = useMyJetpackConnection();
-	const navigate = useMyJetpackNavigate( '/connection' );
-	const productsThatRequiresUserConnection = useSelect( select =>
-		select( STORE_ID ).getProductsThatRequiresUserConnection()
-	);
+	const { apiRoot, apiNonce, topJetpackMenuItemUrl, connectedPlugins } = useMyJetpackConnection();
+	const navigate = useMyJetpackNavigate( MyJetpackRoutes.Connection );
+	const products = useAllProducts();
+	const onDisconnected = () => document?.location?.reload( true ); // TODO: replace with a better experience.
+	const productsThatRequireUserConnection = getProductSlugsThatRequireUserConnection( products );
 
 	return (
 		<ConnectionStatusCard
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
-			redirectUri={ redirectUrl }
+			redirectUri={ topJetpackMenuItemUrl }
 			onConnectUser={ navigate }
 			connectedPlugins={ connectedPlugins }
-			requiresUserConnection={ productsThatRequiresUserConnection.length > 0 }
+			requiresUserConnection={ productsThatRequireUserConnection.length > 0 }
+			// eslint-disable-next-line react/jsx-no-bind
+			onDisconnected={ onDisconnected }
 		/>
 	);
 }

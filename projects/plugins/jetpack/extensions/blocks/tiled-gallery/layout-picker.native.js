@@ -1,23 +1,12 @@
-/**
- * External dependencies
- */
-import { Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-
-/**
- * WordPress dependencies
- */
-import { useState } from '@wordpress/element';
-import { Icon, chevronRight } from '@wordpress/icons';
-import { BottomSheet } from '@wordpress/components';
 import { BlockStyles } from '@wordpress/block-editor';
+import { BottomSheet } from '@wordpress/components';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import { Icon, chevronRight } from '@wordpress/icons';
+import { Text } from 'react-native';
+import metadata from './block.json';
 import styles from './styles.scss';
-import { settings } from './index';
 
 const LayoutPicker = props => {
 	const [ showSubSheet, setShowSubSheet ] = useState( false );
@@ -34,7 +23,7 @@ const LayoutPicker = props => {
 	};
 
 	const currentStyleName = props.className
-		? settings.styles.find( style => `is-style-${ style.name }` === props.className ).label
+		? metadata.styles.find( style => `is-style-${ style.name }` === props.className ).label
 		: null;
 
 	return (

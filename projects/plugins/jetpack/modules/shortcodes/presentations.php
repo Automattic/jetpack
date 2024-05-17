@@ -1,7 +1,4 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
-
-use Automattic\Jetpack\Assets;
-
 /**
  * Presentations
  * Presentations plugin based on the work done by <a href="http://darylkoop.com/">Daryl Koopersmith</a>. Powered by jmpress.js
@@ -56,6 +53,8 @@ use Automattic\Jetpack\Assets;
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Assets;
+
 if ( ! class_exists( 'Presentations' ) ) :
 	/**
 	 * Create a shortcode to display Presentations and slides.
@@ -106,7 +105,7 @@ if ( ! class_exists( 'Presentations' ) ) :
 			}
 
 			foreach ( $GLOBALS['posts'] as $p ) {
-				if ( has_shortcode( $p->post_content, 'presentation' ) ) {
+				if ( isset( $p->post_content ) && has_shortcode( $p->post_content, 'presentation' ) ) {
 					$this->scripts_and_style_included = true;
 					break;
 				}
@@ -249,26 +248,23 @@ if ( ! class_exists( 'Presentations' ) ) :
 			$out .= "<p class='not-supported-msg' style='display: inherit; padding: 25%; text-align: center;'>";
 			$out .= __( 'This slideshow could not be started. Try refreshing the page or viewing it in another browser.', 'jetpack' ) . '</p>';
 
-			// Bail out unless the scripts were added.
-			if ( $this->scripts_and_style_included ) {
-				$out .= sprintf(
-					'<div class="presentation" duration="%s" data-autoplay="%s" style="%s">',
-					esc_attr( $duration ),
-					esc_attr( $autoplay ),
-					esc_attr( $style )
-				);
-				$out .= "<div class='nav-arrow-left'></div>";
-				$out .= "<div class='nav-arrow-right'></div>";
-				$out .= "<div class='nav-fullscreen-button'></div>";
+			$out .= sprintf(
+				'<div class="presentation" duration="%s" data-autoplay="%s" style="%s">',
+				esc_attr( $duration ),
+				esc_attr( $autoplay ),
+				esc_attr( $style )
+			);
+			$out .= "<div class='nav-arrow-left'></div>";
+			$out .= "<div class='nav-arrow-right'></div>";
+			$out .= "<div class='nav-fullscreen-button'></div>";
 
-				if ( $autoplay ) {
-					$out .= '<div class="autoplay-overlay" style="display: none;"><p class="overlay-msg">';
-					$out .= __( 'Click to autoplay the presentation!', 'jetpack' );
-					$out .= '</p></div>';
-				}
-
-				$out .= do_shortcode( $content );
+			if ( $autoplay ) {
+				$out .= '<div class="autoplay-overlay" style="display: none;"><p class="overlay-msg">';
+				$out .= __( 'Click to autoplay the presentation!', 'jetpack' );
+				$out .= '</p></div>';
 			}
+
+			$out .= do_shortcode( $content );
 
 			$out .= '</section>';
 

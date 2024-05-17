@@ -172,11 +172,11 @@ class Jetpack_Media_Meta_Extractor {
 
 					$attr = shortcode_parse_atts( $matches[3][ $key ] );
 
-					$shortcode_total_count++;
+					++$shortcode_total_count;
 					if ( ! isset( $shortcode_type_counts[ $shortcode_name ] ) ) {
 						$shortcode_type_counts[ $shortcode_name ] = 0;
 					}
-					$shortcode_type_counts[ $shortcode_name ]++;
+					++$shortcode_type_counts[ $shortcode_name ];
 
 					// Store (uniquely) presence of all shortcode regardless of whether it's a keeper (for those, get ID below)
 					// @todo Store number of occurrences?
@@ -294,12 +294,14 @@ class Jetpack_Media_Meta_Extractor {
 						}
 					}
 
-					// @todo Check unique before adding
-					$links[] = array(
+					$link = array(
 						'url'           => $link_all_but_proto,
 						'host_reversed' => $host_reversed,
 						'host'          => $url['host'],
 					);
+					if ( ! in_array( $link, $links, true ) ) {
+						$links[] = $link;
+					}
 				}
 			}
 
@@ -427,7 +429,7 @@ class Jetpack_Media_Meta_Extractor {
 				$srcs       = wp_list_pluck( $from_gallery, 'src' );
 				$image_list = array_merge( $image_list, $srcs );
 			}
-			$image_booleans['gallery']++; // @todo This count isn't correct, will only every count 1
+			++$image_booleans['gallery']; // @todo This count isn't correct, will only every count 1
 		}
 
 		// @todo Can we check width/height of these efficiently?  Could maybe use query args at least, before we strip them out
@@ -437,7 +439,7 @@ class Jetpack_Media_Meta_Extractor {
 	}
 
 	/**
-	 * Given an extracted image array reduce to src and alt_text.
+	 * Given an extracted image array reduce to src,  alt_text, src_width, and src_height.
 	 *
 	 * @param array $images extracted image array.
 	 *
@@ -450,14 +452,19 @@ class Jetpack_Media_Meta_Extractor {
 			if ( empty( $image['src'] ) ) {
 				continue;
 			}
-			if ( ! empty( $image['alt_text'] ) ) {
-				$ret_images[] = array(
-					'url'      => $image['src'],
-					'alt_text' => $image['alt_text'],
-				);
-			} else {
-				$ret_images[] = $image['src'];
+			$ret_image = array(
+				'url' => $image['src'],
+			);
+			if ( ! empty( $image['src_height'] ) || ! empty( $image['src_width'] ) ) {
+				$ret_image['src_width']  = $image['src_width'] ?? '';
+				$ret_image['src_height'] = $image['src_height'] ?? '';
 			}
+			if ( ! empty( $image['alt_text'] ) ) {
+				$ret_image['alt_text'] = $image['alt_text'];
+			} else {
+				$ret_image = $image['src'];
+			}
+			$ret_images[] = $ret_image;
 		}
 		return $ret_images;
 	}
@@ -467,11 +474,12 @@ class Jetpack_Media_Meta_Extractor {
 	 *
 	 * @param string $content HTML content.
 	 * @param array  $image_list Array of already found images.
+	 * @param string $extract_alt_text Whether or not to extract the alt text.
 	 *
 	 * @return array|array[] Array of images.
 	 */
-	public static function extract_images_from_content( $content, $image_list ) {
-		$image_list = self::get_images_from_html( $content, $image_list );
+	public static function extract_images_from_content( $content, $image_list, $extract_alt_text = false ) {
+		$image_list = self::get_images_from_html( $content, $image_list, $extract_alt_text );
 		return self::build_image_struct( $image_list, array() );
 	}
 
@@ -526,7 +534,7 @@ class Jetpack_Media_Meta_Extractor {
 			$length    = strpos( $image_url, '?' );
 			$src       = wp_parse_url( $image_url );
 
-			if ( $src && isset( $src['scheme'], $src['host'], $src['path'] ) ) {
+			if ( $src && isset( $src['scheme'] ) && isset( $src['host'] ) && isset( $src['path'] ) ) {
 				// Rebuild the URL without the query string.
 				$queryless = $src['scheme'] . '://' . $src['host'] . $src['path'];
 			} elseif ( $length ) {
@@ -543,14 +551,21 @@ class Jetpack_Media_Meta_Extractor {
 			}
 
 			if ( ! in_array( $queryless, $image_list, true ) ) {
-				if ( $extract_alt_text && ! empty( $extracted_image['alt_text'] ) ) {
-					$image_list[] = array(
-						'url'      => $queryless,
-						'alt_text' => $extracted_image['alt_text'],
-					);
+				$image_to_add = array(
+					'url' => $queryless,
+				);
+				if ( $extract_alt_text ) {
+					if ( ! empty( $extracted_image['alt_text'] ) ) {
+						$image_to_add['alt_text'] = $extracted_image['alt_text'];
+					}
+					if ( ! empty( $extracted_image['src_width'] ) || ! empty( $extracted_image['src_height'] ) ) {
+							$image_to_add['src_width']  = $extracted_image['src_width'];
+							$image_to_add['src_height'] = $extracted_image['src_height'];
+					}
 				} else {
-					$image_list[] = $queryless;
+					$image_to_add = $queryless;
 				}
+				$image_list[] = $image_to_add;
 			}
 		}
 		return $image_list;
@@ -565,7 +580,7 @@ class Jetpack_Media_Meta_Extractor {
 	 */
 	private static function get_stripped_content( $content ) {
 		$clean_content = wp_strip_all_tags( $content );
-		$clean_content = html_entity_decode( $clean_content );
+		$clean_content = html_entity_decode( $clean_content, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 		// completely strip shortcodes and any content they enclose.
 		$clean_content = strip_shortcodes( $clean_content );
 		return $clean_content;

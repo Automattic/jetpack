@@ -1,21 +1,14 @@
-/**
- * External dependencies
- */
-import React, { useEffect, useState, useCallback } from 'react';
-import PropTypes from 'prop-types';
 import restApi from '@automattic/jetpack-api';
 import { useSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
-import IDCScreenVisual from './visual';
-import trackAndBumpMCStats, { initializeAnalytics } from '../../tools/tracking';
+import PropTypes from 'prop-types';
+import React, { useEffect, useState, useCallback } from 'react';
 import useMigration from '../../hooks/use-migration';
 import useMigrationFinished from '../../hooks/use-migration-finished';
 import useStartFresh from '../../hooks/use-start-fresh';
-import customContentShape from '../../tools/custom-content-shape';
 import { STORE_ID } from '../../state/store';
+import customContentShape from '../../tools/custom-content-shape';
+import trackAndBumpMCStats, { initializeAnalytics } from '../../tools/tracking';
+import IDCScreenVisual from './visual';
 
 /**
  * The IDC screen component.
@@ -26,7 +19,7 @@ import { STORE_ID } from '../../state/store';
 const IDCScreen = props => {
 	const {
 		logo,
-		customContent,
+		customContent = {},
 		wpcomHomeUrl,
 		currentUrl,
 		apiNonce,
@@ -119,10 +112,6 @@ IDCScreen.propTypes = {
 	isAdmin: PropTypes.bool.isRequired,
 	/** If potentially dynamic HTTP_HOST usage was detected for site URLs in wp-config which can lead to a JP IDC. */
 	possibleDynamicSiteUrlDetected: PropTypes.bool,
-};
-
-IDCScreen.defaultProps = {
-	customContent: {},
 };
 
 export default IDCScreen;

@@ -26,7 +26,7 @@ class Test_Status extends TestCase {
 	/**
 	 * Status instance.
 	 *
-	 * @var Automattic\Jetpack\Status
+	 * @var \Automattic\Jetpack\Status
 	 */
 	private $status_obj;
 
@@ -75,6 +75,9 @@ class Test_Status extends TestCase {
 				return array_key_exists( $const, $this->mocked_constants ) ? $this->mocked_constants[ $const ] : constant( $const );
 			}
 		);
+
+		// Alias-mock Identity_Crisis so the tests don't try to call into it.
+		\Mockery::mock( 'alias:Automattic\\Jetpack\\Identity_Crisis' );
 
 		Status\Cache::clear();
 		$this->status_obj = new Status();
@@ -308,7 +311,7 @@ class Test_Status extends TestCase {
 	protected function mock_wpdb_get_var( $return_value = null ) {
 		global $wpdb;
 
-		$wpdb = $this->getMockBuilder( 'Mock_wpdb' ) // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wpdb = $this->getMockBuilder( \stdClass::class ) // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 					->setMockClassName( 'wpdb' )
 					->setMethods( array( 'get_var' ) )
 					->getMock();
@@ -388,6 +391,22 @@ class Test_Status extends TestCase {
 				'http://staging.wpengine.com.example.com/',
 				false,
 			),
+			'pantheon_dev'          => array(
+				'http://dev-site-name.pantheonsite.io',
+				true,
+			),
+			'pantheon_test'         => array(
+				'http://test-site-name.pantheonsite.io',
+				true,
+			),
+			'pantheon_multi'        => array(
+				'http://multidev-env-site-name.pantheonsite.io',
+				true,
+			),
+			'pantheon_live'         => array(
+				'http://live-site-name.pantheonsite.io',
+				false,
+			),
 		);
 	}
 
@@ -458,6 +477,7 @@ class Test_Status extends TestCase {
 	 */
 	public function test_jetpack_get_site_suffix( $site, $expected ) {
 		Functions\when( 'home_url' )->justReturn( $this->site_url );
+		Functions\when( 'get_option' )->justReturn();
 		$suffix = $this->status_obj->get_site_suffix( $site );
 
 		$this->assertSame( $expected, $suffix );
@@ -537,4 +557,44 @@ class Test_Status extends TestCase {
 		);
 	}
 
+	/**
+	 * Test that is_private_site returns true when get_option is set to -1.
+	 *
+	 * @covers Automattic\Jetpack\Status::is_private_site
+	 */
+	public function test_is_private_site() {
+		Functions\when( 'get_option' )->justReturn( '-1' );
+
+		$this->assertTrue( $this->status_obj->is_private_site() );
+	}
+
+	/**
+	 * Test that is_coming_soon returns true when a site is set to coming soon.
+	 *
+	 * @covers Automattic\Jetpack\Status::is_coming_soon
+	 * @dataProvider get_coming_soon_status
+	 *
+	 * @param bool $site_is_coming_soon      Site is coming soon value.
+	 * @param int  $wpcom_public_coming_soon wpcom_public_coming_soon option value.
+	 * @param bool $expected                 Expected result.
+	 */
+	public function test_is_coming_soon( $site_is_coming_soon, $wpcom_public_coming_soon, $expected ) {
+		Functions\when( 'site_is_coming_soon' )->justReturn( $site_is_coming_soon );
+		Functions\when( 'get_option' )->justReturn( $wpcom_public_coming_soon );
+		$this->assertSame( $expected, $this->status_obj->is_coming_soon() );
+	}
+
+	/**
+	 * Mock data for test_is_coming_soon
+	 *
+	 * @return array
+	 */
+	public function get_coming_soon_status() {
+		return array(
+			'Jetpack public site'       => array( null, false, false ),
+			'WoA public site'           => array( false, false, false ),
+			'WoA private site'          => array( true, false, true ),
+			'wpcom simple private site' => array( null, true, true ),
+		);
+	}
 }

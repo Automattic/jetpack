@@ -1,16 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName
+<?php
 /**
  * Autoload Processor.
  *
  * @package automattic/jetpack-autoloader
  */
-
-// phpcs:disable WordPress.Files.FileName.InvalidClassFileName
-// phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
-// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-// phpcs:disable WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase
-// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-// phpcs:disable WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
 
 namespace Automattic\Jetpack\Autoloader;
 
@@ -118,6 +111,8 @@ class AutoloadProcessor {
 				}
 			}
 		}
+
+		ksort( $processed );
 
 		return $processed;
 	}

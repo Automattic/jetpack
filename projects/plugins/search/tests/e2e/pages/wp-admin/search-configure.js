@@ -1,5 +1,5 @@
 import WpPage from 'jetpack-e2e-commons/pages/wp-page.js';
-import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
+import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
 
 export default class SearchConfigure extends WpPage {
 	static SEARCH_SETTING_API_PATTERN = /^https?:\/\/.*%2Fwp%2Fv2%2Fsettings/;
@@ -42,26 +42,28 @@ export default class SearchConfigure extends WpPage {
 
 	async isDarkTheme() {
 		const darkThemeButtonSelector = 'span[aria-label="Dark Theme"]';
-		return await this.page.$eval( darkThemeButtonSelector, e =>
-			e.parentElement
-				.getAttribute( 'class' )
-				.includes( 'jp-search-configure-theme-button--selected' )
-		);
+		return await this.page
+			.locator( darkThemeButtonSelector )
+			.evaluate( e =>
+				e.parentElement
+					.getAttribute( 'class' )
+					.includes( 'jp-search-configure-theme-button--selected' )
+			);
 	}
 
 	async isHighlightPink() {
-		const pinkColorSelector = 'button.is-pressed[aria-label="Color: Pale pink"]';
+		const pinkColorSelector = 'button[aria-selected="true"][aria-label="Color: Pale pink"]';
 		return await this.isElementVisible( pinkColorSelector, 200 );
 	}
 
 	async isFormatProduct() {
 		const productFormatSelector = 'input[type=radio][value="product"]';
-		return await this.page.$eval( productFormatSelector, e => e.checked );
+		return await this.page.locator( productFormatSelector ).evaluate( e => e.checked );
 	}
 
 	async isDefaultSortNewest() {
 		const defaultSortSelector = '.jp-search-configure-default-sort-select select';
-		return await this.page.$eval( defaultSortSelector, e => e.value === 'newest' );
+		return await this.page.locator( defaultSortSelector ).evaluate( e => e.value === 'newest' );
 	}
 
 	async isPreviewDarkTheme() {
@@ -82,7 +84,9 @@ export default class SearchConfigure extends WpPage {
 		const previewDefaultSortSelectSelector = '#jetpack-instant-search__search-sort-select';
 		return (
 			( await this.isElementVisible( previewDefaultSortLinkSelector, 200 ) ) ||
-			( await this.page.$eval( previewDefaultSortSelectSelector, e => e.value === 'newest' ) )
+			( await this.page
+				.locator( previewDefaultSortSelectSelector )
+				.evaluate( e => e.value === 'newest' ) )
 		);
 	}
 

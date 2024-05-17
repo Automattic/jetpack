@@ -1,0 +1,15 @@
+.jetpack-block-width-controls {
+	display: flex;
+	align-items: center;
+
+	.components-button-group {
+		display: flex;
+		margin-right: 1em;
+	}
+
+	&:not(.is-aligned) {
+		.components-unit-control-wrapper {
+			flex: 1;
+		}
+	}
+}

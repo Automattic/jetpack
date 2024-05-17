@@ -1,19 +1,12 @@
-/**
- * WordPress dependencies
- */
 import { combineReducers } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
-import siteData from './site-data';
-import userData from './user-data';
+import notices from 'components/global-notices/store/reducer';
+import features from './feature';
 import jetpackSettings from './jetpack-settings';
+import searchPricing from './search-pricing';
+import siteData from './site-data';
 import sitePlan from './site-plan';
 import siteStats from './site-stats';
-import features from './feature';
-import notices from 'components/global-notices/store/reducer';
-import searchPricing from './search-pricing';
+import userData from './user-data';
 
 const reducer = combineReducers( {
 	siteData,

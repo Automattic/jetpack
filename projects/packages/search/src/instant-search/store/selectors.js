@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { RELEVANCE_SORT_KEY } from '../lib/constants';
 import { getUnselectableFilterKeys, mapFilterKeyToFilter } from '../lib/filters';
 
@@ -118,9 +115,8 @@ function hasStaticFilters( state ) {
 export function hasActiveQuery( state ) {
 	return (
 		getSearchQuery( state ) !== null ||
-		hasFilters( state ) ||
-		hasStaticFilters( state ) ||
-		state.sort !== null
+		( hasFilters( state ) && state.serverOptions.overlayOptions.enableFilteringOpensOverlay ) ||
+		hasStaticFilters( state )
 	);
 }
 

@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { useEffect } from '@wordpress/element';
 
 const useDebounce = ( callback, delay, deps ) => {

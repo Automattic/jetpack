@@ -25,7 +25,7 @@ This is optional and allows you to pass an object with more parameters to build 
 
 This is not a complete list as any argument passed here will be sent to as a query parameter to the Redirect server. These parameters will not necessarily be passed over to the final destination URL. If you want to add a parameter to the final destination URL, use the `query` argument.
 
-* **site**: Optional (but recommended). This is used to identify the site and also to fill in the `[site]` placeholder in the target. Will default to the value of `jetpack_redirects.currentSiteRawUrl`, if available.
+* **site**: Optional (but recommended). This is used to identify the site and also to fill in the `[site]` placeholder in the target. Will default to the value of `jetpack_redirects.currentBlogID` or `jetpack_redirects.currentSiteRawUrl`, if available.
 
 * **path**: Optional. Used to fill in the `[path]` placeholder in the target.
 

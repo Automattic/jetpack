@@ -41,7 +41,10 @@ class Post_ID_Provider extends Provider {
 
 		foreach ( $query->posts as $post ) {
 			if ( empty( $context_post_ids ) || in_array( $post->ID, $context_post_ids, true ) ) {
-				$results[ $post->ID ] = array( get_permalink( $post ) );
+				$url = get_permalink( $post );
+				if ( ! empty( $url ) ) {
+					$results[ $post->ID ] = array( $url );
+				}
 			}
 		}
 
@@ -62,7 +65,23 @@ class Post_ID_Provider extends Provider {
 	// phpcs:ignore
 	/** @inheritdoc */
 	public static function describe_key( $provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
-		return $provider_key;
+		$post_id = (int) substr( $provider_key, strlen( self::$name ) + 1 );
+
+		$post = get_post( $post_id );
+		if ( ! $post ) {
+			/* translators: %d is the id of a post which cannot be found. */
+			return sprintf( __( 'Post %d', 'jetpack-boost' ), $post_id );
+		}
+
+		return $post->post_title;
+	}
+
+	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	/** @inheritdoc */
+	public static function get_edit_url( $provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+		$post_id = (int) substr( $provider_key, strlen( self::$name ) + 1 );
+
+		return get_edit_post_link( $post_id, 'link' );
 	}
 
 	/**

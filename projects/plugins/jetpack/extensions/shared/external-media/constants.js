@@ -1,15 +1,14 @@
-/**
- * External dependencies
- */
-
-import { __ } from '@wordpress/i18n';
 import { dateI18n } from '@wordpress/date';
+import { __ } from '@wordpress/i18n';
 import { map, range } from 'lodash';
 
 export const SOURCE_WORDPRESS = 'wordpress';
 export const SOURCE_GOOGLE_PHOTOS = 'google_photos';
 export const SOURCE_OPENVERSE = 'openverse';
 export const SOURCE_PEXELS = 'pexels';
+export const SOURCE_JETPACK_APP_MEDIA = 'jetpack_app_media';
+export const SOURCE_JETPACK_AI_FEATURED_IMAGE = 'jetpack_ai_featured_image';
+
 export const PATH_RECENT = 'recent';
 export const PATH_ROOT = '/';
 export const PATH_OPTIONS = [

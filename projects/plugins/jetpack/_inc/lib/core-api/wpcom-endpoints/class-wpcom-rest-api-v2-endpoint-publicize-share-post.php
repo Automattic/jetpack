@@ -116,7 +116,7 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 				return new WP_Error( 'not_found', 'Cannot find that post', array( 'status' => 404 ) );
 			}
 			if ( 'publish' !== $post->post_status ) {
-				return new WP_Error( 'not_published', 'Cannot publicize an unpublished post', array( 'status' => 400 ) );
+				return new WP_Error( 'not_published', 'Cannot share an unpublished post', array( 'status' => 400 ) );
 			}
 
 			$publicize = publicize_init();
@@ -170,7 +170,6 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 				'skipped_connections' => $skip_connection_ids,
 			)
 		);
-
 	}
 }
 

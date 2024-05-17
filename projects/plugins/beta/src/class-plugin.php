@@ -9,6 +9,8 @@ namespace Automattic\JetpackBeta;
 
 use Composer\Semver\Comparator as Semver;
 use InvalidArgumentException;
+use Plugin_Upgrader;
+use WP_Ajax_Upgrader_Skin;
 use WP_Error;
 
 /**
@@ -243,7 +245,7 @@ class Plugin {
 	 */
 	protected function is_valid_url( &$v ) {
 		$v = filter_var( $v, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED );
-		return $v && substr( $v, 0, 8 ) === 'https://';
+		return $v && str_starts_with( $v, 'https://' );
 	}
 
 	/**
@@ -343,6 +345,11 @@ class Plugin {
 					sprintf( __( 'Failed to download manifest for plugin \'%s\'. Check your Internet connection.', 'jetpack-beta' ), $this->slug )
 				);
 			}
+			// Update old data.
+			if ( ! isset( $data->trunk ) && isset( $data->master ) ) {
+				$data->trunk = $data->master;
+			}
+			unset( $data->master );
 			$this->manifest_data = $data;
 		}
 		return $this->manifest_data;
@@ -393,6 +400,10 @@ class Plugin {
 		}
 		global $wp_filesystem;
 		$info = json_decode( $wp_filesystem->get_contents( $file ) );
+		if ( is_object( $info ) && $info->source === 'master' ) {
+			// Update old data.
+			$info->source = 'trunk';
+		}
 		return is_object( $info ) ? $info : null;
 	}
 
@@ -453,7 +464,7 @@ class Plugin {
 	/**
 	 * Install & activate the plugin for the given branch.
 	 *
-	 * @param string $source Source of installation: "stable", "master", "rc", "pr", or "release".
+	 * @param string $source Source of installation: "stable", "trunk", "rc", "pr", or "release".
 	 * @param string $id When `$source` is "pr", the PR branch name. When "release", the version.
 	 * @return null|WP_Error
 	 * @throws InvalidArgumentException If `$source` is invalid.
@@ -525,7 +536,7 @@ class Plugin {
 	/**
 	 * Get branch info for a source and ID.
 	 *
-	 * @param string $source Source of installation: "stable", "master", "rc", "pr", or "release".
+	 * @param string $source Source of installation: "stable", "trunk", "rc", "pr", or "release".
 	 * @param string $id When `$source` is "pr", the PR branch name. When "release", the version.
 	 * @return object|WP_Error
 	 * @throws InvalidArgumentException If `$source` is invalid.
@@ -559,9 +570,9 @@ class Plugin {
 		$slug     = $this->dev_plugin_slug();
 		$info     = null;
 
-		if ( 'pr' === $dev_info->source && ! isset( $manifest->pr->{$dev_info->id} ) && isset( $manifest->master ) ) {
-			// It's a PR that is gone. Update to master.
-			list( , $info ) = $this->get_which_and_info( 'master', '' );
+		if ( 'pr' === $dev_info->source && ! isset( $manifest->pr->{$dev_info->id} ) && isset( $manifest->trunk ) ) {
+			// It's a PR that is gone. Update to trunk.
+			list( , $info ) = $this->get_which_and_info( 'trunk', '' );
 		} elseif ( 'pr' === $dev_info->source && isset( $manifest->pr->{$dev_info->id} ) &&
 			Semver::greaterThan( $manifest->pr->{$dev_info->id}->version, $dev_info->version )
 		) {
@@ -572,11 +583,11 @@ class Plugin {
 		) {
 			// It's an RC that has a new version.
 			list( , $info ) = $this->get_which_and_info( 'rc', '' );
-		} elseif ( 'master' === $dev_info->source && isset( $manifest->master ) &&
-			Semver::greaterThan( $manifest->master->version, $dev_info->version )
+		} elseif ( 'trunk' === $dev_info->source && isset( $manifest->trunk ) &&
+			Semver::greaterThan( $manifest->trunk->version, $dev_info->version )
 		) {
-			// Master has been updated.
-			list( , $info ) = $this->get_which_and_info( 'master', '' );
+			// Trunk has been updated.
+			list( , $info ) = $this->get_which_and_info( 'trunk', '' );
 		}
 
 		if ( $info ) {
@@ -695,7 +706,7 @@ class Plugin {
 	 */
 	private function pretty_version( $info ) {
 		switch ( $info->source ) {
-			case 'master':
+			case 'trunk':
 				return __( 'Bleeding Edge', 'jetpack-beta' );
 
 			case 'rc':
@@ -720,7 +731,7 @@ class Plugin {
 	/**
 	 * Get the "which" and info for the requested source and ID.
 	 *
-	 * @param string $source Source of installation: "stable", "master", "rc", "pr", or "release".
+	 * @param string $source Source of installation: "stable", "trunk", "rc", "pr", or "release".
 	 * @param string $id When `$source` is "pr", the PR branch name. When "release", the version.
 	 * @return array|WP_Error ( $which, $info )
 	 * @throws InvalidArgumentException If `$source` is invalid.
@@ -747,18 +758,21 @@ class Plugin {
 				$id     = $wporg_data->version;
 				break;
 
+			// Master case remains purely for back-compatibility (in case anyone has bookmarked URLs).
 			case 'master':
+				$source = 'trunk'; // Change source to trunk, then fall-through to the 'trunk' case.
+			case 'trunk':
 				$id       = '';
 				$which    = 'dev';
 				$manifest = $this->get_manifest();
-				if ( ! isset( $manifest->master->download_url ) ) {
+				if ( ! isset( $manifest->trunk->download_url ) ) {
 					return new WP_Error(
-						'master_missing',
-						// translators: %s: Plugin slug. Also, "master" is the branch name and should not be translated.
-						sprintf( __( 'No master build is available for %s.', 'jetpack-beta' ), $this->plugin_slug() )
+						'trunk_missing',
+						// translators: %s: Plugin slug. Also, "trunk" is the branch name and should not be translated.
+						sprintf( __( 'No trunk build is available for %s.', 'jetpack-beta' ), $this->plugin_slug() )
 					);
 				}
-				$info             = $manifest->master;
+				$info             = $manifest->trunk;
 				$info->plugin_url = sprintf( 'https://github.com/%s', $this->mirror_repo() );
 				break;
 
@@ -826,35 +840,33 @@ class Plugin {
 	 * @return null|WP_Error
 	 */
 	private function install( $which, $info ) {
-		// Download the required version of the plugin.
-		$temp_path = download_url( $info->download_url );
-		if ( is_wp_error( $temp_path ) ) {
-			return new WP_Error(
-				'download_error',
-				// translators: %1$s: download url, %2$s: error message.
-				sprintf( __( 'Error Downloading: <a href="%1$s">%1$s</a> - Error: %2$s', 'jetpack-beta' ), $info->download_url, $temp_path->get_error_message() )
-			);
-		}
+		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
-		// Init the WP_Filesystem API.
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-		$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, false, array() );
-		if ( ! WP_Filesystem( $creds ) ) {
-			return new WP_Error( 'fs_api_error', __( 'Jetpack Beta: No File System access', 'jetpack-beta' ) );
-		}
+		$skin     = new WP_Ajax_Upgrader_Skin();
+		$upgrader = new Plugin_Upgrader( $skin );
+		$upgrader->init();
+		$result = $upgrader->install(
+			$info->download_url,
+			array(
+				'overwrite_package' => true,
+			)
+		);
 
-		// Unzip the downloaded plugin.
-		global $wp_filesystem;
-		$plugin_path = str_replace( ABSPATH, $wp_filesystem->abspath(), WP_PLUGIN_DIR );
-		$result      = unzip_file( $temp_path, $plugin_path );
 		if ( is_wp_error( $result ) ) {
-			// translators: %1$s: error message.
-			return new WP_Error( 'unzip_error', sprintf( __( 'Error Unziping file: Error: %1$s', 'jetpack-beta' ), $result->get_error_message() ) );
+			return $result;
+		}
+		$errors = $skin->get_errors();
+		if ( is_wp_error( $errors ) && $errors->get_error_code() ) {
+			return $errors;
+		}
+		if ( $result === false ) {
+			return new WP_Error( 'install_error', __( 'There was an error installing your plugin.', 'jetpack-beta' ) );
 		}
 
 		// Record the source info, if it's a dev version.
 		if ( 'dev' === $which ) {
-			$wp_filesystem->put_contents( "$plugin_path/{$this->dev_plugin_slug()}/.jpbeta.json", wp_json_encode( $info, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
+			global $wp_filesystem; // Should have been set up by the upgrader already.
+			$wp_filesystem->put_contents( WP_PLUGIN_DIR . '/' . $this->dev_plugin_slug() . '/.jpbeta.json', wp_json_encode( $info, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 		}
 
 		return null;

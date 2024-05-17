@@ -16,9 +16,14 @@ class Error_Handler_Test extends BaseTestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
-	 * Initialize tests
+	 * Error_Handler instance.
 	 *
-	 * @before
+	 * @var Error_Handler
+	 */
+	public $error_handler;
+
+	/**
+	 * Initialize tests
 	 */
 	public function set_up() {
 		$this->error_handler = Error_Handler::get_instance();
@@ -29,9 +34,11 @@ class Error_Handler_Test extends BaseTestCase {
 	 *
 	 * @param string $error_code The error code you want the error to have.
 	 * @param string $user_id The user id you want the token to have.
+	 * @param string $error_type The error type: 'xmlrpc' or 'rest'.
+	 *
 	 * @return \WP_Error
 	 */
-	public function get_sample_error( $error_code, $user_id ) {
+	public function get_sample_error( $error_code, $user_id, $error_type = 'xmlrpc' ) {
 
 		$signature_details = array(
 			'token'     => 'dhj938djh938d:1:' . $user_id,
@@ -46,9 +53,8 @@ class Error_Handler_Test extends BaseTestCase {
 		return new \WP_Error(
 			$error_code,
 			'An error was triggered',
-			compact( 'signature_details' )
+			compact( 'signature_details', 'error_type' )
 		);
-
 	}
 
 	/**
@@ -58,7 +64,7 @@ class Error_Handler_Test extends BaseTestCase {
 
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
-		$error = $this->get_sample_error( 'invalid_token', 1 );
+		$error = $this->get_sample_error( 'invalid_token', 1, 'xmlrpc' );
 
 		$this->error_handler->report_error( $error );
 
@@ -79,7 +85,8 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->arrayHasKey( 'error_data', $stored_errors['invalid_token']['1'] );
 		$this->arrayHasKey( 'timestamp', $stored_errors['invalid_token']['1'] );
 		$this->arrayHasKey( 'nonce', $stored_errors['invalid_token']['1'] );
-
+		$this->arrayHasKey( 'error_type', $stored_errors['invalid_token']['1'] );
+		$this->assertEquals( 'xmlrpc', $stored_errors['invalid_token']['1']['error_type'] );
 	}
 
 	/**
@@ -89,22 +96,28 @@ class Error_Handler_Test extends BaseTestCase {
 
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
-		$error  = $this->get_sample_error( 'invalid_token', 1 );
-		$error2 = $this->get_sample_error( 'unknown_user', 1 );
+		$error  = $this->get_sample_error( 'invalid_token', 1, 'xmlrpc' );
+		$error2 = $this->get_sample_error( 'unknown_user', 1, 'rest' );
+		$error3 = $this->get_sample_error( 'invalid_connection_owner', 'invalid', 'connection' );
 
 		$this->error_handler->report_error( $error );
 		$this->error_handler->report_error( $error2 );
+		$this->error_handler->report_error( $error3 );
 
 		$stored_errors = $this->error_handler->get_stored_errors();
 
-		$this->assertCount( 2, $stored_errors );
+		$this->assertCount( 3, $stored_errors );
 
 		$this->arrayHasKey( 'invalid_token', $stored_errors );
 
 		$this->assertCount( 1, $stored_errors['invalid_token'] );
 		$this->assertCount( 1, $stored_errors['unknown_user'] );
+		$this->assertCount( 1, $stored_errors['invalid_connection_owner'] );
 
 		$this->arrayHasKey( '1', $stored_errors['unknown_user'] );
+
+		$this->arrayHasKey( 'error_type', $stored_errors['invalid_token']['1'] );
+		$this->assertEquals( 'xmlrpc', $stored_errors['invalid_token']['1']['error_type'] );
 
 		$this->arrayHasKey( 'nonce', $stored_errors['unknown_user']['1'] );
 		$this->arrayHasKey( 'error_code', $stored_errors['unknown_user']['1'] );
@@ -113,7 +126,12 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->arrayHasKey( 'error_data', $stored_errors['unknown_user']['1'] );
 		$this->arrayHasKey( 'timestamp', $stored_errors['unknown_user']['1'] );
 		$this->arrayHasKey( 'nonce', $stored_errors['unknown_user']['1'] );
+		$this->arrayHasKey( 'error_type', $stored_errors['unknown_user']['1'] );
+		$this->assertEquals( 'rest', $stored_errors['unknown_user']['1']['error_type'] );
 
+		$this->arrayHasKey( 'invalid', $stored_errors['invalid_connection_owner'] );
+		$this->arrayHasKey( 'error_type', $stored_errors['invalid_connection_owner']['invalid'] );
+		$this->assertEquals( 'connection', $stored_errors['invalid_connection_owner']['invalid']['error_type'] );
 	}
 
 	/**
@@ -125,7 +143,7 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$error  = $this->get_sample_error( 'invalid_token', 1 );
 		$error2 = $this->get_sample_error( 'unknown_user', 1 );
-		$error3 = $this->get_sample_error( 'unknown_user', 2 );
+		$error3 = $this->get_sample_error( 'unknown_user', 2, 'xmlrpc' );
 
 		$this->error_handler->report_error( $error );
 		$this->error_handler->report_error( $error2 );
@@ -149,7 +167,7 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->arrayHasKey( 'error_data', $stored_errors['unknown_user']['2'] );
 		$this->arrayHasKey( 'timestamp', $stored_errors['unknown_user']['2'] );
 		$this->arrayHasKey( 'nonce', $stored_errors['unknown_user']['2'] );
-
+		$this->arrayHasKey( 'error_type', $stored_errors['unknown_user']['2'] );
 	}
 
 	/**
@@ -164,7 +182,6 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertTrue( $this->error_handler->should_report_error( $error ) );
 		$this->assertFalse( $this->error_handler->should_report_error( $error2 ), 'second attempt to report the same error code should be stopped by the gate' );
 		$this->assertTrue( $this->error_handler->should_report_error( $error3 ) );
-
 	}
 
 	/**
@@ -194,7 +211,6 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$this->assertArrayNotHasKey( '3', $stored_errors['unknown_user'], 'first inserted error must have been excluded' );
 		$this->assertArrayHasKey( '8', $stored_errors['unknown_user'], 'sixth inserted error must be present' );
-
 	}
 
 	/**
@@ -290,8 +306,7 @@ class Error_Handler_Test extends BaseTestCase {
 		$encrypted = $this->error_handler->encrypt_data_to_wpcom( $stored_errors['unknown_user']['3'] );
 
 		$this->assertIsString( $encrypted );
-		$this->assertEquals( 472, strlen( $encrypted ) );
-
+		$this->assertEquals( 500, strlen( $encrypted ) );
 	}
 
 	/**
@@ -325,6 +340,70 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertArrayNotHasKey( 'invalid_token', $errors );
 
 		$this->assertCount( 1, $errors['no_user_tokens'] );
+	}
 
+	/**
+	 * Test `Error_Handler::check_api_response_for_errors()`.
+	 */
+	public function test_check_api_response_for_errors() {
+		$this->error_handler->check_api_response_for_errors(
+			array(
+				'response' => array(
+					'code' => 500,
+				),
+				'body'     => '{"error":"unknown_token","message":"It looks like your Jetpack connection is broken."}',
+			),
+			array( 'token' => 'broken:1:0' ),
+			'https://localhost/',
+			'POST',
+			'rest'
+		);
+
+		$stored_errors   = $this->error_handler->get_stored_errors();
+		$verified_errors = $this->error_handler->get_verified_errors();
+
+		$this->assertCount( 1, $stored_errors );
+		$this->arrayHasKey( 'unknown_token', $stored_errors );
+		$this->assertCount( 1, $stored_errors['unknown_token'] );
+		$this->arrayHasKey( '1', $stored_errors['unknown_token'] );
+		$this->arrayHasKey( 'error_code', $stored_errors['unknown_token']['0'] );
+		$this->arrayHasKey( 'error_type', $stored_errors['unknown_token']['0'] );
+		$this->assertEquals( 'rest', $stored_errors['unknown_token']['0']['error_type'] );
+
+		$this->assertCount( 1, $verified_errors );
+		$this->arrayHasKey( 'unknown_token', $verified_errors );
+		$this->assertCount( 1, $verified_errors['unknown_token'] );
+		$this->arrayHasKey( '1', $verified_errors['unknown_token'] );
+		$this->arrayHasKey( 'error_code', $verified_errors['unknown_token']['0'] );
+		$this->assertEquals( 'rest', $verified_errors['unknown_token']['0']['error_type'] );
+	}
+
+	/**
+	 * Test storing errors
+	 */
+	public function test_delete_all_api_errors() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$error  = $this->get_sample_error( 'invalid_token', 1, 'xmlrpc' );
+		$error2 = $this->get_sample_error( 'unknown_user', 1, 'rest' );
+		$error3 = $this->get_sample_error( 'invalid_connection_owner', 'invalid', 'connection' );
+
+		$this->error_handler->report_error( $error );
+		$this->error_handler->report_error( $error2 );
+		$this->error_handler->report_error( $error3 );
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+
+		$this->assertCount( 3, $stored_errors );
+
+		$this->error_handler->delete_all_api_errors();
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+
+		$this->assertCount( 1, $stored_errors );
+
+		$this->assertArrayNotHasKey( 'invalid_token', $stored_errors );
+		$this->assertArrayNotHasKey( 'unknown_user', $stored_errors );
+		$this->assertArrayHasKey( 'invalid_connection_owner', $stored_errors );
 	}
 }

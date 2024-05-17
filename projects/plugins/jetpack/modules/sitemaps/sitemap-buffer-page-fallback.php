@@ -14,8 +14,10 @@
  * A buffer for constructing sitemap page xml files for users with no libxml support.
  *
  * @since 5.3.0
+ * @phan-suppress PhanRedefinedClassReference -- Don't conflict with real version.
  */
 class Jetpack_Sitemap_Buffer_Page extends Jetpack_Sitemap_Buffer_Fallback {
+	// @phan-suppress-previous-line UnusedSuppression -- It's used.
 	/**
 	 * Returns a DOM element that contains all single page sitemap elements.
 	 */
@@ -50,7 +52,7 @@ class Jetpack_Sitemap_Buffer_Page extends Jetpack_Sitemap_Buffer_Fallback {
 				'</urlset>',
 			);
 
-			$this->byte_capacity -= strlen( join( '', $this->root ) );
+			$this->byte_capacity -= strlen( implode( '', $this->root ) );
 		}
 
 		return $this->root;

@@ -1,0 +1,42 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V1.1.18
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 11/10/16
+ */
+
+// global WP feature hide
+
+// Mikes addition
+.post-type-zerobs_customer, .post-type-zerobs_company, .post-type-zerobs_quote, .post-type-zerobs_invoice, .post-type-zerobs_transaction, .post-type-zerobs_quo_template {
+	#misc-publishing-actions, #minor-publishing{
+		display:none;
+	}
+	#postbox-container-2{
+		margin-top:0px;
+	}
+    // also add customer image/featured image centering:
+    #postimagediv .inside p {
+    	text-align:center;
+    }
+}
+
+
+// hide < on wp menu item select (looks duff with our headers v2.4+)
+ul#adminmenu {
+	
+	#toplevel_page_zerobscrm-dash,
+	#toplevel_page_zerobscrm-datatools,
+	#admin_page_zerobscrm-plugin,
+	#toplevel_page_zerobscrm-logout {
+
+		a.wp-has-current-submenu:after, ul#adminmenu>li.current>a.current:after {
+			display:none !important;
+		}
+
+	}
+
+}

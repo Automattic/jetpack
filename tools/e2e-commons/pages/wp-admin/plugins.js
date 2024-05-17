@@ -1,5 +1,5 @@
 import WpPage from '../wp-page.js';
-import { resolveSiteUrl } from '../../helpers/utils-helper.cjs';
+import { resolveSiteUrl } from '../../helpers/utils-helper.js';
 
 export default class PluginsPage extends WpPage {
 	constructor( page ) {
@@ -20,8 +20,9 @@ export default class PluginsPage extends WpPage {
 	}
 
 	async isFullScreenPopupShown() {
-		const fullScreenCardSelector = '.jp-connect-full__container-card';
-		const connectButtonSelector = ".jp-connect-full__button-container a[href*='register']";
+		const fullScreenCardSelector = '.jp-connection__portal-contents';
+		const connectButtonSelector =
+			".jp-connection__portal-contents button[aria-label='Set up Jetpack']";
 		const isCardVisible = await this.isElementVisible( fullScreenCardSelector );
 		const isConnectButtonVisible = await this.isElementVisible( connectButtonSelector );
 		return isCardVisible && isConnectButtonVisible;

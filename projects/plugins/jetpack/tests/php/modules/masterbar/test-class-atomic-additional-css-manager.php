@@ -12,9 +12,9 @@ require_once ABSPATH . WPINC . '/class-wp-customize-manager.php';
 require_once ABSPATH . WPINC . '/class-wp-customize-control.php';
 require_once ABSPATH . WPINC . '/class-wp-customize-section.php';
 
-require_jetpack_file( 'modules/masterbar/nudges/additional-css/class-atomic-additional-css-manager.php' );
-require_jetpack_file( 'modules/masterbar/nudges/additional-css/class-css-nudge-customize-control.php' );
-require_jetpack_file( 'modules/masterbar/nudges/additional-css/class-css-customizer-nudge.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/nudges/additional-css/class-atomic-additional-css-manager.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/nudges/additional-css/class-css-nudge-customize-control.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/nudges/additional-css/class-css-customizer-nudge.php';
 
 /**
  * Class Test_Atomic_Additional_CSS_Manager
@@ -45,12 +45,14 @@ class Test_Atomic_Additional_CSS_Manager extends \WP_UnitTestCase {
 		$manager = new Atomic_Additional_CSS_Manager( 'foo.com' );
 
 		$manager->register_nudge( $this->wp_customize );
+
 		$this->assertEquals(
 			'/checkout/foo.com/business',
 			$this->wp_customize->controls()['custom_css_control']->cta_url
 		);
+
 		$this->assertEquals(
-			'Purchase a Business Plan to<br> activate CSS customization',
+			'Purchase the Creator plan to<br> activate CSS customization',
 			$this->wp_customize->controls()['custom_css_control']->nudge_copy
 		);
 	}

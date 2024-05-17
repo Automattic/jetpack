@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 /**
  * Jetpack Beta wp-admin page to select a plugin to manage.
  *
@@ -57,7 +57,7 @@ $plugins = Plugin::get_all_plugins( true );
 		);
 
 		?>
-		<div data-plugin="<?php echo esc_attr( $slug ); ?>" class="<?php echo esc_attr( join( ' ', $classes ) ); ?>">
+		<div data-plugin="<?php echo esc_attr( $slug ); ?>" class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>">
 			<div class="dops-foldable-card__header has-border" >
 				<span class="dops-foldable-card__main">
 					<div class="dops-foldable-card__header-text">

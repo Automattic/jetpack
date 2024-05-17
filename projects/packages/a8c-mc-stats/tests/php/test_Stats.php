@@ -53,7 +53,6 @@ class StatsTest extends TestCase {
 		$this->assertFalse( $stats->add( 'group2', 'test3' ) );
 		$this->assertFalse( $stats->add( true, 'test3' ) );
 		$this->assertFalse( $stats->add( array( 123 ), 'test3' ) );
-
 	}
 
 	/**
@@ -72,7 +71,5 @@ class StatsTest extends TestCase {
 		$this->assertCount( 1, $check );
 		$this->assertArrayHasKey( 'x_jetpack-group', $check );
 		$this->assertEquals( 'test,test2', $check['x_jetpack-group'] );
-
 	}
-
 }

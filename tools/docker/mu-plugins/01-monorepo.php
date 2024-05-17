@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Plugin Name: Monorepo Helper
  * Description: A common place for monorepo things.
@@ -39,7 +39,14 @@ class Monorepo {
 	 * Class constructor.
 	 */
 	public function __construct() {
-		$this->monorepo = '/usr/local/src/jetpack-monorepo/';
+		/**
+		 * Filter the monorepo path for development environments.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $path Monorepo file path.
+		 */
+		$this->monorepo = apply_filters( 'jetpack_monorepo_path', '/usr/local/src/jetpack-monorepo/' );
 		$this->plugins  = $this->monorepo . 'projects/plugins/';
 		$this->packages = $this->monorepo . 'projects/packages/';
 	}
@@ -84,7 +91,7 @@ class Monorepo {
 		$plugin_files = array();
 
 		if ( $plugins_dir ) {
-			while ( ( $file = readdir( $plugins_dir ) ) !== false ) { // phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+			while ( ( $file = readdir( $plugins_dir ) ) !== false ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 				if ( '.' === substr( $file, 0, 1 ) ) {
 					continue;
 				}
@@ -93,7 +100,7 @@ class Monorepo {
 					$plugins_subdir = @opendir( $plugin_root . '/' . $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
 					if ( $plugins_subdir ) {
-						while ( ( $subfile = readdir( $plugins_subdir ) ) !== false ) { // phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+						while ( ( $subfile = readdir( $plugins_subdir ) ) !== false ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 							if ( '.' === substr( $subfile, 0, 1 ) ) {
 								continue;
 							}

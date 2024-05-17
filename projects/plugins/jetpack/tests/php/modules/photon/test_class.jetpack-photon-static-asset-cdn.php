@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-require_jetpack_file( 'modules/photon-cdn.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/photon-cdn.php';
 
 /**
  * Unit tests for the Jetpack_Photon_Static_Assets_CDN class.

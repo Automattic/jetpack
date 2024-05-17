@@ -20,7 +20,6 @@
 - [ ] Star rating
 - [ ] Recurring Payments
 - [ ] Repeat Visitor
-- [ ] Revue
 - [ ] Simple Payments
 - [ ] Slideshow
 

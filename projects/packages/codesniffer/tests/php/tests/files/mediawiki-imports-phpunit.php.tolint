@@ -35,6 +35,12 @@ class Dummy_Test extends TestCase {
 		$this->assertEquals( $u->var, 1 );
 		$this->assertSame( $u->var, 1 );
 
+		// MediaWiki.PHPUnit.MockBoilerplate
+		$mock = $this->getMockBuilder( Foo::class )->setMethods( array( 'foobar' ) )->getMock();
+		$mock->expects( $this->exactly( 1 ) )
+			->method( 'foobar' )
+			->will( $this->returnValue( 42 ) );
+
 		// MediaWiki.PHPUnit.SpecificAssertions.
 		$this->assertTrue( array_key_exists( 'foo', $u->var ) );
 		$this->assertFalse( array_key_exists( 'foo', $u->var ) );
@@ -44,5 +50,4 @@ class Dummy_Test extends TestCase {
 		$this->assertNotFalse( strpos( $u->var, 'foo' ) );
 		$this->assertIsInt( strpos( $u->var, 'foo' ) );
 	}
-
 }

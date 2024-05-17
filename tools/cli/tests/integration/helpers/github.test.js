@@ -1,31 +1,14 @@
-/**
- * External dependencies
- */
-import chai from 'chai';
-
-/**
- * Internal dependencies
- */
 import { doesRepoExist } from '../../../helpers/github.js';
 
-/** @todo Fix these tests and un-skip them. */
+/** @todo Fix these tests and un-skip them. They work locally, but not in CI. */
 describe.skip( 'doesRepoExist Integration Tests', function () {
-	it( 'checks for an existing mirror repo', async function () {
-		this.timeout( 0 );
-		return doesRepoExist( 'jetpack' ).then( data => {
-			chai.expect( data ).to.be.true;
-		} );
-	} );
-	it( 'checks for an non-existent repo', async function () {
-		this.timeout( 0 );
-		return doesRepoExist( 'jetpack-zzz-test-not-exist' ).then( data => {
-			chai.expect( data ).to.be.false;
-		} );
-	} );
-	it( 'checks for an existent private repo', async function () {
-		this.timeout( 0 );
-		return doesRepoExist( 'jpop-issues' ).then( data => {
-			chai.expect( data ).to.be.true;
-		} );
-	} );
+	test( 'checks for an existing mirror repo', async () => {
+		await expect( doesRepoExist( 'jetpack' ) ).resolves.toBe( true );
+	}, 60000 );
+	test( 'checks for an non-existent repo', async () => {
+		await expect( doesRepoExist( 'jetpack-zzz-test-not-exist' ) ).resolves.toBe( false );
+	}, 60000 );
+	test( 'checks for an existent private repo', async () => {
+		await expect( doesRepoExist( 'jpop-issues' ) ).resolves.toBe( true );
+	}, 60000 );
 } );

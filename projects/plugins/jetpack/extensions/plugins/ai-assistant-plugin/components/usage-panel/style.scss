@@ -1,0 +1,13 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.jetpack-ai-usage-panel {
+	width: 100%;
+
+	p.muted {
+		color: var( --jp-gray-50 );
+	}
+
+	.jetpack-ai-usage-panel-upgrade-button {
+		margin-top: 1em;
+	}
+}

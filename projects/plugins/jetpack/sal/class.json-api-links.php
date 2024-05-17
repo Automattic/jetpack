@@ -76,6 +76,8 @@ class WPCOM_JSON_API_Links {
 
 	/**
 	 * Overriding PHP's default __wakeup method to prvent unserializing of the instance, and return an error message.
+	 *
+	 * @return never
 	 */
 	public function __wakeup() {
 		die( "Please don't __wakeup WPCOM_JSON_API_Links" );

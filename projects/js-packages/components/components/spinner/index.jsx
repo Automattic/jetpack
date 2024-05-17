@@ -1,31 +1,25 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 
-/**
- * Internal dependencies
- */
 import './style.scss';
 
-const Spinner = props => {
-	const className = props.className + ' jp-components-spinner';
+const Spinner = ( { color = '#FFFFFF', className = '', size = 20 } ) => {
+	const theClassName = className + ' jp-components-spinner';
 
 	const styleOuter = {
-		width: props.size,
-		height: props.size,
-		fontSize: props.size, // allows border-width to be specified in em units
-		borderTopColor: props.color,
+		width: size,
+		height: size,
+		fontSize: size, // allows border-width to be specified in em units
+		borderTopColor: color,
 	};
 
 	const styleInner = {
-		borderTopColor: props.color,
-		borderRightColor: props.color,
+		borderTopColor: color,
+		borderRightColor: color,
 	};
 
 	return (
-		<div className={ className }>
+		<div className={ theClassName }>
 			<div className="jp-components-spinner__outer" style={ styleOuter }>
 				<div className="jp-components-spinner__inner" style={ styleInner } />
 			</div>
@@ -40,12 +34,6 @@ Spinner.propTypes = {
 	className: PropTypes.string,
 	/** The spinner size. */
 	size: PropTypes.number,
-};
-
-Spinner.defaultProps = {
-	color: '#FFFFFF',
-	className: '',
-	size: 20,
 };
 
 export default Spinner;

@@ -1,0 +1,6 @@
+/* DO NOT USE THIS TO OVERRIDE STYLES */
+.global {
+	& * {
+		box-sizing: border-box;
+	}
+}

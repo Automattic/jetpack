@@ -5,6 +5,14 @@
 	}
 }
 .wp-block[data-type='jetpack/map'] {
+	.wp-block-group-is-layout-flex:not(.is-vertical) > & {
+		flex-basis: 100%;
+	}
+
+	.wp-block-group-is-layout-flex.is-vertical > & {
+		width: 100%;
+	}
+
 	.components-placeholder__label {
 		svg {
 			fill: currentColor;
@@ -13,9 +21,13 @@
 		}
 	}
 
-	.components-placeholder__instructions .components-external-link {
-		display: inline-block;
-		margin: 1em auto;
+	.components-placeholder__instructions {
+		margin-top: 0;
+
+		.components-external-link {
+			display: inline-block;
+			margin: 1em auto;
+		}
 	}
 }
 

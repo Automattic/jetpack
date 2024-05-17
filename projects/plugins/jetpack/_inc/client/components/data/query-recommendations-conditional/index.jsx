@@ -1,18 +1,11 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
+import { isOfflineMode } from 'state/connection';
 import {
 	fetchRecommendationsConditional,
 	isFetchingRecommendationsConditional,
 } from 'state/recommendations';
-import { isOfflineMode } from 'state/connection';
 
 class QueryRecommendationsConditional extends Component {
 	static propTypes = {

@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 

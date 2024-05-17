@@ -1,5 +1,0 @@
-Significance: minor
-Type: added
-Comment: Prepare for adding missing WordPress rules.
-
-Import rules from `WordPress` instead of `WordPress-Core`, `WordPress-Docs`, and `WordPress-Extra` individually. This adds two new rules.

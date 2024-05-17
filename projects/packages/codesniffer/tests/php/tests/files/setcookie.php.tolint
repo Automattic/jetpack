@@ -1,0 +1,95 @@
+<?php
+/**
+ * A dummy file to test the (Jetpack.Functions.SetCookie.
+ *
+ * @package automattic/jetpack-codesniffer
+ */
+
+// This one is good.
+setcookie( 'jetpack_test_1', 'test', time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, true, true );
+
+// This one should flag as false.
+setcookie( 'jetpack_test_2', 'test', time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, true, false );
+
+// This one is bad (no declaration).
+setcookie( 'jetpack_test_2', 'test', time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, true );
+
+// This one too.
+setcookie( 'jetpack_test_2', 'test' );
+
+// This is just something random.
+setcookie( 'jetpack_test_2', 'test', time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, true, 'hello' );
+
+// Multi-line call
+setcookie(
+	'jetpack_test_2',
+	'test',
+	time() + HOUR_IN_SECONDS,
+	COOKIEPATH,
+	COOKIE_DOMAIN,
+	true,
+	false
+);
+
+// This one uses PHP 7.3+ syntax, and is good.
+setcookie(
+	'jetpack_test_1',
+	'test',
+	array(
+		'expires'  => time() + HOUR_IN_SECONDS,
+		'path'     => COOKIEPATH,
+		'domain'   => COOKIE_DOMAIN,
+		'secure'   => true,
+		'httponly' => true,
+		'samesite' => 'Strict',
+	)
+);
+
+// This one uses PHP 7.3+ syntax, and should flag as false.
+setcookie(
+	'jetpack_test_1',
+	'test',
+	array(
+		'expires'  => time() + HOUR_IN_SECONDS,
+		'path'     => COOKIEPATH,
+		'domain'   => COOKIE_DOMAIN,
+		'secure'   => true,
+		'httponly' => false,
+		'samesite' => 'Strict',
+	)
+);
+
+// This one uses PHP 7.3+ syntax, and should flag as no declaration.
+setcookie(
+	'jetpack_test_1',
+	'test',
+	array(
+		'expires'  => time() + HOUR_IN_SECONDS,
+		'path'     => COOKIEPATH,
+		'domain'   => COOKIE_DOMAIN,
+		'secure'   => true,
+		true,
+		'samesite' => 'Lax',
+	)
+);
+
+// This one too.
+setcookie(
+	'jetpack_test_1',
+	'test',
+	array()
+);
+
+// This one uses PHP 7.3+ syntax, and is just something random.
+setcookie(
+	'jetpack_test_1',
+	'test',
+	array(
+		'expires'  => time() + HOUR_IN_SECONDS,
+		'path'     => COOKIEPATH,
+		'domain'   => COOKIE_DOMAIN,
+		'secure'   => true,
+		'httponly' => 'hello',
+		'samesite' => 'None',
+	)
+);

@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
-import { createHigherOrderComponent } from '@wordpress/compose';
 import { RichText, useBlockProps } from '@wordpress/block-editor';
+import { createHigherOrderComponent } from '@wordpress/compose';
 import classnames from 'classnames';
-
-/**
- * Internal dependencies
- */
 import { getVideoPressUrl } from './url';
 
 const VideoPressSave = CoreVideoSave => props => {

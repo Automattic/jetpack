@@ -45,21 +45,35 @@ class Backup extends Hybrid_Product {
 	public static $plugin_slug = 'jetpack-backup';
 
 	/**
-	 * Get the internationalized product name
+	 * Backup has a standalone plugin
+	 *
+	 * @var bool
+	 */
+	public static $has_standalone_plugin = true;
+
+	/**
+	 * Whether this product has a free offering
+	 *
+	 * @var bool
+	 */
+	public static $has_free_offering = false;
+
+	/**
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'Backup', 'jetpack-my-jetpack' );
+		return 'VaultPress Backup';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack Backup', 'jetpack-my-jetpack' );
+		return 'Jetpack VaultPress Backup';
 	}
 
 	/**
@@ -68,7 +82,11 @@ class Backup extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Save every change', 'jetpack-my-jetpack' );
+		if ( static::is_active() ) {
+			return __( 'Save every change', 'jetpack-my-jetpack' );
+		}
+
+		return __( 'Your site is not backed up', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -89,8 +107,23 @@ class Backup extends Hybrid_Product {
 		return array(
 			_x( 'Real-time cloud backups', 'Backup Product Feature', 'jetpack-my-jetpack' ),
 			_x( '10GB of backup storage', 'Backup Product Feature', 'jetpack-my-jetpack' ),
-			_x( '30-day archive & activity log', 'Backup Product Feature', 'jetpack-my-jetpack' ),
+			_x( '30-day archive & activity log*', 'Backup Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'One-click restores', 'Backup Product Feature', 'jetpack-my-jetpack' ),
+		);
+	}
+
+	/**
+	 * Get disclaimers corresponding to a feature
+	 *
+	 * @return array Backup disclaimers list
+	 */
+	public static function get_disclaimers() {
+		return array(
+			array(
+				'text'      => _x( '* Subject to your usage and storage limit.', 'Backup Product Disclaimer', 'jetpack-my-jetpack' ),
+				'link_text' => _x( 'Learn more', 'Backup Product Disclaimer', 'jetpack-my-jetpack' ),
+				'url'       => Redirect::get_url( 'jetpack-faq-backup-disclaimer' ),
+			),
 		);
 	}
 
@@ -101,6 +134,13 @@ class Backup extends Hybrid_Product {
 	 */
 	public static function get_wpcom_product_slug() {
 		return 'jetpack_backup_t1_yearly';
+	}
+
+	/**
+	 * Get the URL where the user should be redirected after checkout
+	 */
+	public static function get_post_checkout_url() {
+		return self::get_manage_url();
 	}
 
 	/**
@@ -183,10 +223,12 @@ class Backup extends Hybrid_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		if ( static::is_jetpack_plugin_active() ) {
-			return Redirect::get_url( 'my-jetpack-manage-backup' );
-		} elseif ( static::is_plugin_active() ) {
+		// check standalone first
+		if ( static::is_standalone_plugin_active() ) {
 			return admin_url( 'admin.php?page=jetpack-backup' );
+			// otherwise, check for the main Jetpack plugin
+		} elseif ( static::is_jetpack_plugin_active() ) {
+			return Redirect::get_url( 'my-jetpack-manage-backup' );
 		}
 	}
 

@@ -152,7 +152,7 @@ class Filter_Embedded_HTML_Objects {
 			}
 		}
 
-		if ( count( $unfiltered_content_tokens ) > 0 ) {
+		if ( $unfiltered_content_tokens !== array() ) {
 			// Replace any tokens generated earlier with their original unfiltered text.
 			$html = str_replace( array_keys( $unfiltered_content_tokens ), $unfiltered_content_tokens, $html );
 		}
@@ -194,12 +194,10 @@ class Filter_Embedded_HTML_Objects {
 			} else {
 				self::$html_strpos_filters[ $match ] = $callback;
 			}
+		} elseif ( $is_regexp ) {
+			self::$regexp_filters[ $match ] = $callback;
 		} else {
-			if ( $is_regexp ) {
-				self::$regexp_filters[ $match ] = $callback;
-			} else {
-				self::$strpos_filters[ $match ] = $callback;
-			}
+			self::$strpos_filters[ $match ] = $callback;
 		}
 	}
 
@@ -223,7 +221,7 @@ class Filter_Embedded_HTML_Objects {
 	 */
 	private static function dispatch_entities( $matches ) {
 		$orig_html       = $matches[0];
-		$decoded_matches = array( html_entity_decode( $matches[0] ) );
+		$decoded_matches = array( html_entity_decode( $matches[0], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ) );
 
 		return self::dispatch( $decoded_matches, $orig_html );
 	}
@@ -247,7 +245,7 @@ class Filter_Embedded_HTML_Objects {
 		} else {
 			// no src found, search html.
 			foreach ( self::$html_strpos_filters as $match => $callback ) {
-				if ( false !== strpos( $html, $match ) ) {
+				if ( str_contains( $html, $match ) ) {
 					return call_user_func( $callback, $attrs );
 				}
 			}
@@ -265,7 +263,7 @@ class Filter_Embedded_HTML_Objects {
 
 		// check source filter.
 		foreach ( self::$strpos_filters as $match => $callback ) {
-			if ( false !== strpos( $src, $match ) ) {
+			if ( str_contains( $src, $match ) ) {
 				return call_user_func( $callback, $attrs );
 			}
 		}
@@ -278,7 +276,7 @@ class Filter_Embedded_HTML_Objects {
 
 		// check html filters.
 		foreach ( self::$html_strpos_filters as $match => $callback ) {
-			if ( false !== strpos( $html, $match ) ) {
+			if ( str_contains( $html, $match ) ) {
 				return call_user_func( $callback, $attrs );
 			}
 		}
@@ -343,7 +341,7 @@ class Filter_Embedded_HTML_Objects {
 	 */
 	public static function get_attrs( $html ) {
 		if (
-			! ( class_exists( 'DOMDocument' ) && function_exists( 'libxml_use_internal_errors' ) && function_exists( 'simplexml_load_string' ) ) ) {
+			! ( class_exists( 'DOMDocument' ) && function_exists( 'simplexml_load_string' ) ) ) {
 			trigger_error( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 				esc_html__( 'PHP’s XML extension is not available. Please contact your hosting provider to enable PHP’s XML extension.', 'jetpack' )
 			);

@@ -1,0 +1,129 @@
+name: Monorepo Auto-tagger
+
+on:
+  push:
+    branches:
+      - trunk
+      - prerelease
+      - '*/branch-*'
+
+jobs:
+  tag:
+    name: Tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch tags, shallowly and blobless
+        run: |
+          git fetch --depth=1 --filter=blob:none origin 'refs/tags/*:refs/tags/*'
+
+      - name: Determine needed tags
+        id: get-tags
+        run: |
+          REF=${GITHUB_REF#refs/heads/}
+          if [[ "$REF" == */branch-* ]]; then
+            PROJECTS="$(jq -r --arg P "${REF%%/branch-*}" '.extra["release-branch-prefix"] | if type == "array" then . else [ . ] end | if index( $P ) then input_filename | match( "^projects/([^/]+/[^/]+)/composer.json$" ).captures[0].string else empty end' projects/*/*/composer.json)"
+            if [[ -n "$PROJECTS" ]]; then
+              echo "Branch $REF seems to be a release branch, checking matching projects."
+            else
+              echo "::notice::Branch $REF seems to be a release branch, but nothing uses that prefix so not checking any projects."
+              echo "any=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          else
+            PROJECTS="$(jq -r 'if .extra["release-branch-prefix"] then empty else input_filename | match( "^projects/([^/]+/[^/]+)/composer.json$" ).captures[0].string end' projects/*/*/composer.json)"
+            if [[ -n "$PROJECTS" ]]; then
+              echo "Branch $REF is not a release branch, checking only projects without a release-branch-prefix."
+            else
+              echo "::notice::Branch $REF is not a release branch, but somehow no projects lack a release-branch-prefix?"
+              echo "any=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+
+          TAGS=()
+          while IFS= read -r SLUG; do
+            echo "Checking $SLUG..."
+            cd "$GITHUB_WORKSPACE/projects/$SLUG"
+
+            CHANGES_DIR=$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)
+            if [[ ! -d "$CHANGES_DIR" || -n "$(ls -- "$CHANGES_DIR")" ]]; then
+              echo " Project $SLUG has changes in projects/$SLUG/$CHANGES_DIR/, not tagging."
+              continue
+            fi
+
+            VER=$(sed -nEe 's/^## \[?([^]]*)\]? - .*/\1/;T;p;q' CHANGELOG.md || true)
+            echo " Version from changelog is ${VER:-<unknown>}"
+            if [[ "$VER" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
+              if [[ -n "$( git tag -l "$SLUG@$VER" )" ]]; then
+                echo " Version $VER is already tagged"
+              else
+                echo " Version $VER ok to tag"
+                TAGS+=( "$SLUG@$VER" )
+              fi
+            else
+              echo " Not tagging version $VER"
+            fi
+          done <<<"$PROJECTS"
+
+          if [[ ${#TAGS[@]} -eq 0 ]]; then
+            echo "::notice::Nothing to tag."
+            echo "any=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          printf "%s\n" "${TAGS[@]}" > "$GITHUB_WORKSPACE/to-tag.txt"
+          echo "any=true" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for prior instances of the workflow to finish
+        if: steps.get-tags.outputs.any == 'true'
+        uses: ./.github/actions/turnstile
+        with:
+          # Tagging should be reasonably quick, so poll more frequently.
+          poll-interval: 15
+
+      - name: Fetch tags, shallowly and blobless
+        if: steps.get-tags.outputs.any == 'true'
+        run: |
+          git fetch --depth=1 --filter=blob:none origin 'refs/tags/*:refs/tags/*'
+
+      - name: Tag projects
+        if: steps.get-tags.outputs.any == 'true'
+        run: |
+          export GIT_AUTHOR_NAME=matticbot
+          export GIT_AUTHOR_EMAIL=matticbot@users.noreply.github.com
+          export GIT_COMMITTER_NAME=matticbot
+          export GIT_COMMITTER_EMAIL=matticbot@users.noreply.github.com
+
+          EXIT=0
+          echo "Creating tags..."
+          TOPUSH=()
+          while IFS= read -r T; do
+            if git tag "$T"; then
+              TOPUSH+=( "$T" )
+            fi
+          done < "$GITHUB_WORKSPACE/to-tag.txt"
+
+          if [[ ${#TOPUSH[@]} -gt 0 ]]; then
+            echo "Pushing tags..."
+            # GitHub has a limit on the number of tags that can be updated in a single push. So do them in batches.
+            # See https://github.blog/changelog/2022-06-15-block-potentially-destructive-git-pushes/
+            DONE=()
+            while [[ ${#TOPUSH[@]} -gt 0 ]]; do
+              BATCH=( "${TOPUSH[@]:0:5}" )
+              if git push origin "${BATCH[@]}"; then
+                DONE+=( "${BATCH[@]}" )
+              else
+                echo "::error::Failed to create tags: ${BATCH[*]}"
+                EXIT=1
+              fi
+              TOPUSH=( "${TOPUSH[@]:5}" )
+            done
+            if [[ ${#DONE[@]} -gt 0 ]]; then
+              echo "::notice::Created tags: ${DONE[*]}"
+            fi
+          else
+            echo "::notice::No tags needed creation."
+          fi
+          exit $EXIT

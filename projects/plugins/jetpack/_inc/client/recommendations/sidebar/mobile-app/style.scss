@@ -1,8 +1,69 @@
-.jp-recommendations-sidebar-card__apps-badge {
+@import '../../../scss/variables/_colors';
+@import '../../../scss/typography';
+@import '../../../scss/mixin_breakpoint.scss';
+
+.jp-recommendations-sidebar-mobile__apps-badge {
 	display: flex;
 	margin-top: 32px;
 
 	.apps-badge {
 		width: 50%;
+	}
+}
+
+.jp-recommendations-sidebar-mobile__header-container {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	flex-direction: row;
+	padding: 1.5rem 1.5rem 0;
+}
+
+.jp-recommendation-sidebar-mobile__jetpack-icon {
+	margin-left: -0.3rem;
+
+	&.underside {
+		margin-left: -0.42rem;
+	}
+}
+
+h2.jp-recommendation-sidebar-mobile__heading {
+	margin-top: 0.5rem;
+}
+
+.jp-recommendations-sidebar-mobile__qr-code-section {
+	align-items: center;
+	display: flex;
+
+	padding: 0.625rem;
+
+	background-color: $gray-light;
+
+	@include breakpoint( '<1040px' ) {
+		flex-direction: column;
+	}
+}
+
+p.jp-recommendations-sidebar-mobile__qr-code-body {
+	flex-shrink: 2;
+
+	font-size: $font-body-extra-small;
+	padding: 0 1rem 0 1.5rem;
+	word-wrap: break-word;
+
+	a {
+		color: var( --jp-green-50 );
+		word-wrap: break-word;
+	}
+}
+
+.jp-recommendations-sidebar-mobile__qr-code-image {
+	flex-shrink: 0;
+
+	@include breakpoint( '<1040px' ) {
+		margin-top: 0.75rem;
+
+		width: 125px;
+		height: 125px;
 	}
 }

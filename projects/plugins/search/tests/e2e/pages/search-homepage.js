@@ -1,8 +1,9 @@
 import WpPage from 'jetpack-e2e-commons/pages/wp-page.js';
-import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
+import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
 
 export default class SearchHomepage extends WpPage {
-	static SEARCH_API_PATTERN = /^https:\/\/public-api\.wordpress.com\/rest\/v1.3\/sites\/\d+\/search.*/;
+	static SEARCH_API_PATTERN =
+		/^https:\/\/public-api\.wordpress.com\/rest\/v1.3\/sites\/\d+\/search.*/;
 
 	constructor( page ) {
 		const url = `${ resolveSiteUrl() }/?result_format=expanded`;
@@ -83,7 +84,9 @@ export default class SearchHomepage extends WpPage {
 	async isOverlayVisible() {
 		const overlaySelector = '.jetpack-instant-search__overlay';
 		await this.waitForTimeout( 500 );
-		const classes = await this.page.$eval( overlaySelector, e => e.getAttribute( 'class' ) );
+		const classes = await this.page
+			.locator( overlaySelector )
+			.evaluate( e => e.getAttribute( 'class' ) );
 		return ! classes.includes( 'is-hidden' );
 	}
 

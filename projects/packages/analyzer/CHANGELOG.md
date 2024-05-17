@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2024-02-07
+### Added
+- Set keywords to have `composer require` prompt for `--dev` on installation. [#30756]
+
+### Changed
+- The package now requires PHP >= 7.0. [#34192]
+
+## [1.7.3] - 2023-02-07
+### Changed
+- Minor internal updates.
+
+## [1.7.2] - 2022-11-01
+### Changed
+- Updated package dependencies.
+
+## [1.7.1] - 2022-07-06
+### Changed
+- Renaming `master` references to `trunk`. [#24712]
+- Updated package dependencies. [#24045]
+
 ## [1.7.0] - 2022-02-23
 ### Added
 - API for anayzer service
@@ -81,6 +101,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Jetpack code analyzer
 
+[2.0.0]: https://github.com/Automattic/jetpack-analyzer/compare/v1.7.3...v2.0.0
+[1.7.3]: https://github.com/Automattic/jetpack-analyzer/compare/v1.7.2...v1.7.3
+[1.7.2]: https://github.com/Automattic/jetpack-analyzer/compare/v1.7.1...v1.7.2
+[1.7.1]: https://github.com/Automattic/jetpack-analyzer/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/Automattic/jetpack-analyzer/compare/v1.6.2...v1.7.0
 [1.6.2]: https://github.com/Automattic/jetpack-analyzer/compare/v1.6.1...v1.6.2
 [1.6.1]: https://github.com/Automattic/jetpack-analyzer/compare/v1.6.0...v1.6.1

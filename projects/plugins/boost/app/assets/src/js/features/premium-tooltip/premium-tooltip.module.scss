@@ -1,0 +1,29 @@
+.tooltip {
+	margin-left: 6px;
+	line-height: 24px;
+}
+
+.tooltip :global(.icon-tooltip-title) {
+	margin-bottom: 20px;
+	color: #23282d;
+	font-weight: 600;
+	font-size: 20px;
+	line-height: 1.3;
+}
+
+.tooltip :global(.icon-tooltip-content) {
+	font-size: 16px;
+	color: #2c3338;
+}
+
+.tooltip :global(.icon-tooltip-content ul).list {
+	margin: 30px 0 30px 30px;
+	list-style-type: disc;
+}
+
+.tooltip svg {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	fill: #8c8f94;
+}

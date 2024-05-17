@@ -15,8 +15,8 @@ while IFS=$'\t' read -r SRC MIRROR SLUG; do
 	rm -rf "work/$SLUG"
 	echo "::endgroup::"
 
-	echo "::group::Fetching $SLUG-master.zip..."
-	BETASLUG="$(jq -r '.extra["beta-plugin-slug"] // .extra["wp-plugin-slug"] // ""' "monorepo/$SRC/composer.json")"
+	echo "::group::Fetching $SLUG-trunk.zip..."
+	BETASLUG="$(jq -r '.extra["beta-plugin-slug"] // .extra["wp-plugin-slug"] // ""' "commit/$SRC/composer.json")"
 	if [[ -z "$BETASLUG" ]]; then
 		echo "No beta-plugin-slug or wp-plugin-slug in composer.json, skipping"
 	else
@@ -26,19 +26,20 @@ while IFS=$'\t' read -r SRC MIRROR SLUG; do
 		else
 			JSON="$(curl -L --fail --url "$URL")"
 			if jq -e '.' <<<"$JSON" &>/dev/null; then
-				URL="$(jq -r '.master.download_url // ""' <<<"$JSON")"
+				URL="$(jq -r '.trunk.download_url // .master.download_url // ""' <<<"$JSON")"
 				if [[ -z "$URL" ]]; then
-					echo "Plugin has no master build."
+					echo "Plugin has no trunk build."
 				else
 					curl -L --fail --url "$URL" --output "work/tmp.zip" 2>&1
 					(cd work && unzip -q tmp.zip)
 					mv "work/$BETASLUG-dev" "work/$SLUG"
-					(cd work && zip -qr "../zips/${SLUG}-master.zip" "$SLUG")
+					(cd work && zip -qr "../zips/${SLUG}-trunk.zip" "$SLUG")
 					rm -rf "work/$SLUG" "work/tmp.zip"
 				fi
 			else
 				echo "::error::Unexpected response from betadownload.jetpack.me for $SLUG"
 				echo "$JSON"
+				echo "info=❌ Unexpected response from betadownload.jetpack.me for $SLUG" >> "$GITHUB_OUTPUT"
 				exit 1
 			fi
 		fi
@@ -59,7 +60,10 @@ while IFS=$'\t' read -r SRC MIRROR SLUG; do
 	else
 		echo "::error::Unexpected response from WordPress.org API for $SLUG"
 		echo "$JSON"
+		echo "info=❌ Unexpected response from WordPress.org API for $SLUG" >> "$GITHUB_OUTPUT"
 		exit 1
 	fi
 	echo "::endgroup::"
 done < build/plugins.tsv
+
+echo 'info=' >> "$GITHUB_OUTPUT"

@@ -1,0 +1,40 @@
+{
+	"name": "@automattic/jetpack-videopress-core",
+	"version": "0.1.0-alpha",
+	"description": "VideoPress Core Functionality",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/videopress-core/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Videopress Core"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/videopress-core"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "pnpm run clean && webpack",
+		"clean": "rm -rf build/",
+		"watch": "pnpm run build && pnpm webpack watch",
+		"reformat-files": "../../../tools/js-tools/node_modules/.bin/prettier --ignore-path .eslintignore --write --plugin-search-dir=. ./src/**/*.ts",
+		"lint": "pnpm run reformat-files && echo 'Running eslint...' && pnpm eslint src --fix && echo '✔ prettier and eslint ran successfully.'",
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest tests"
+	},
+	"devDependencies": {
+		"jest": "*",
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@babel/core": "7.24.0",
+		"@babel/preset-react": "7.23.3",
+		"@types/jest": "29.5.12",
+		"tslib": "2.5.0",
+		"typescript": "5.0.4",
+		"webpack": "5.76.0",
+		"webpack-cli": "4.9.1"
+	},
+	"exports": {
+		".": "./index.jsx",
+		"./state": "./src/state",
+		"./action-types": "./src/state/action-types"
+	}
+}

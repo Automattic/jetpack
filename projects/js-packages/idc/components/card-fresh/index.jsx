@@ -1,20 +1,13 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
+import { getRedirectUrl, Spinner } from '@automattic/jetpack-components';
 import { Button, Dashicon } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { getRedirectUrl, Spinner } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import PropTypes from 'prop-types';
+import React from 'react';
 import { STORE_ID } from '../../state/store';
-import extractHostname from '../../tools/extract-hostname';
 import customContentShape from '../../tools/custom-content-shape';
+import extractHostname from '../../tools/extract-hostname';
 import ErrorMessage from '../error-message';
 
 /**
@@ -49,7 +42,12 @@ const renderError = supportURL => {
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const CardFresh = props => {
-	const { isStartingFresh, startFreshCallback, customContent, hasError } = props;
+	const {
+		isStartingFresh = false,
+		startFreshCallback = () => {},
+		customContent = {},
+		hasError = false,
+	} = props;
 
 	const wpcomHostName = extractHostname( props.wpcomHomeUrl );
 	const currentHostName = extractHostname( props.currentUrl );
@@ -120,20 +118,13 @@ CardFresh.propTypes = {
 	/** The current site URL. */
 	currentUrl: PropTypes.string.isRequired,
 	/** Whether starting fresh is in progress. */
-	isStartingFresh: PropTypes.bool.isRequired,
+	isStartingFresh: PropTypes.bool,
 	/** "Start Fresh" callback. */
-	startFreshCallback: PropTypes.func.isRequired,
+	startFreshCallback: PropTypes.func,
 	/** Custom text content. */
 	customContent: PropTypes.shape( customContentShape ),
 	/** Whether the component has an error. */
-	hasError: PropTypes.bool.isRequired,
-};
-
-CardFresh.defaultProps = {
-	isStartingFresh: false,
-	startFreshCallback: () => {},
-	customContent: {},
-	hasError: false,
+	hasError: PropTypes.bool,
 };
 
 export default CardFresh;

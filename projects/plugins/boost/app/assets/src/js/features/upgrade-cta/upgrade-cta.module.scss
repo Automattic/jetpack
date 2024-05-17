@@ -1,0 +1,27 @@
+@import '$css/main/variables.scss';
+
+.upgrade-cta {
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 16px 24px;
+	margin: 32px 0;
+	border: 2px solid $jetpack-green;
+	border-radius: $border-radius;
+	background-color: #ffffff;
+	text-align: left;
+	cursor: pointer;
+
+	.body p {
+		margin: 0;
+	}
+
+	.action-line {
+		font-weight: bold;
+	}
+
+	.icon svg {
+		fill: $jetpack-green;
+	}
+}

@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName
+<?php
 /**
  * Integration test suite for the manifest reading.
  *
@@ -7,8 +7,6 @@
 
 // We live in the namespace of the test autoloader to avoid many use statements.
 namespace Automattic\Jetpack\Autoloader\jpCurrent;
-
-// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
 
 use Automattic\Jetpack\Autoloader\ManifestGenerator;
 use PHPUnit\Framework\TestCase;

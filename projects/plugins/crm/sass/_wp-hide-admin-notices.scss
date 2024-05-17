@@ -1,0 +1,16 @@
+/*!
+ * Jetpack CRM
+ * http://zerobscrm.com
+ * V2.96+
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 10/12/2018
+ */
+
+// Hides all wp notices on zbs pages (where this is included via global styles)
+//https://wordpress.stackexchange.com/questions/208129/to-remove-plugin-notices-for-non-admin-users
+//https://gist.github.com/digisavvy/174a8a65accce24d9bc8c8f2441e9bdb
+.update-nag, .updated, .error, .is-dismissible { display:none; }
+// WH found some others #ZBS-757
+.notice, .notice-info, .notice-error { display:none; }

@@ -1,134 +1,101 @@
-/**
- * External dependencies
- */
-import React, { useCallback } from 'react';
-import PropTypes from 'prop-types';
+import { Button } from '@automattic/jetpack-components';
+import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
-import { __, sprintf } from '@wordpress/i18n';
-import { Button } from '@wordpress/components';
-import { Text } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import styles from './style.module.scss';
+import PropTypes from 'prop-types';
+import { useCallback, useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
+import Card from '../card';
+import ActionButton, { PRODUCT_STATUSES } from './action-button';
+import Status from './status';
+import styles from './style.module.scss';
 
-export const PRODUCT_STATUSES = {
-	ACTIVE: 'active',
-	INACTIVE: 'inactive',
-	ERROR: 'error',
-	ABSENT: 'plugin_absent',
-	NEEDS_PURCHASE: 'needs_purchase',
-};
-
-const PRODUCT_STATUSES_LABELS = {
+export const PRODUCT_STATUSES_LABELS = {
 	[ PRODUCT_STATUSES.ACTIVE ]: __( 'Active', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.INACTIVE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.MODULE_DISABLED ]: __( 'Module disabled', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.NEEDS_PURCHASE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
-	[ PRODUCT_STATUSES.ERROR ]: __( 'Error', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.ABSENT ]: __( 'Inactive', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.ABSENT_WITH_PLAN ]: __( 'Needs Plugin', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.ERROR ]: __( 'Needs connection', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.CAN_UPGRADE ]: __( 'Active', 'jetpack-my-jetpack' ),
 };
 
-const ActionButton = ( {
-	status,
-	admin,
-	name,
-	onActivate,
-	onManage,
-	onFixConnection,
-	isFetching,
-	className,
-	onAdd,
-} ) => {
-	if ( ! admin ) {
-		return (
-			<span className={ styles[ 'action-link-button' ] }>
-				{
-					/* translators: placeholder is product name. */
-					sprintf( __( 'Learn about %s', 'jetpack-my-jetpack' ), name )
-				}
-			</span>
-		);
-	}
-
-	const buttonState = {
-		variant: ! isFetching ? 'primary' : undefined,
-		disabled: isFetching,
-		className,
+// SecondaryButton component
+const SecondaryButton = props => {
+	const {
+		shouldShowButton = () => true,
+		positionFirst,
+		...buttonProps
+	} = {
+		size: 'small',
+		variant: 'secondary',
+		weight: 'regular',
+		label: __( 'Learn more', 'jetpack-my-jetpack' ),
+		...props,
 	};
 
-	switch ( status ) {
-		case PRODUCT_STATUSES.ABSENT:
-			return (
-				<span className={ styles[ 'action-link-button' ] }>
-					{
-						/* translators: placeholder is product name. */
-						sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), name )
-					}
-				</span>
-			);
-		case PRODUCT_STATUSES.NEEDS_PURCHASE:
-			return (
-				<Button { ...buttonState } onClick={ onAdd }>
-					{ __( 'Purchase', 'jetpack-my-jetpack' ) }
-				</Button>
-			);
-		case PRODUCT_STATUSES.ACTIVE:
-			return (
-				<Button { ...buttonState } variant="secondary" onClick={ onManage }>
-					{ __( 'Manage', 'jetpack-my-jetpack' ) }
-				</Button>
-			);
-		case PRODUCT_STATUSES.ERROR:
-			return (
-				<Button { ...buttonState } onClick={ onFixConnection }>
-					{ __( 'Fix connection', 'jetpack-my-jetpack' ) }
-				</Button>
-			);
-		case PRODUCT_STATUSES.INACTIVE:
-			return (
-				<Button { ...buttonState } variant="secondary" onClick={ onActivate }>
-					{ __( 'Activate', 'jetpack-my-jetpack' ) }
-				</Button>
-			);
-
-		default:
-			return null;
+	if ( ! shouldShowButton() ) {
+		return false;
 	}
+
+	return <Button { ...buttonProps }>{ buttonProps.label }</Button>;
 };
 
-const ProductCard = props => {
+SecondaryButton.propTypes = {
+	href: PropTypes.string,
+	size: PropTypes.oneOf( [ 'normal', 'small' ] ),
+	variant: PropTypes.oneOf( [ 'primary', 'secondary', 'link', 'tertiary' ] ),
+	weight: PropTypes.oneOf( [ 'bold', 'regular' ] ),
+	label: PropTypes.string,
+	shouldShowButton: PropTypes.func,
+	onClick: PropTypes.func,
+	positionFirst: PropTypes.bool,
+	isExternalLink: PropTypes.bool,
+	icon: PropTypes.node,
+	iconSize: PropTypes.number,
+	disabled: PropTypes.bool,
+	isLoading: PropTypes.bool,
+	className: PropTypes.string,
+};
+
+// ProductCard component
+const ProductCard = inprops => {
+	const props = {
+		isFetching: false,
+		isInstallingStandalone: false,
+		onActivate: () => {},
+		...inprops,
+	};
 	const {
 		name,
-		description,
-		icon,
+		Description,
 		status,
 		onActivate,
-		onAdd,
-		onFixConnection,
-		onManage,
 		isFetching,
+		isDataLoading,
+		isInstallingStandalone,
 		slug,
+		additionalActions,
+		primaryActionOverride,
+		secondaryAction,
+		children,
+		onInstallStandalone,
+		onActivateStandalone,
 	} = props;
-	const isActive = status === PRODUCT_STATUSES.ACTIVE;
-	const isError = status === PRODUCT_STATUSES.ERROR;
-	const isInactive = status === PRODUCT_STATUSES.INACTIVE;
-	const isAbsent = status === PRODUCT_STATUSES.ABSENT;
-	const isPurchaseRequired = status === PRODUCT_STATUSES.NEEDS_PURCHASE;
-	const flagLabel = PRODUCT_STATUSES_LABELS[ status ];
 
-	const containerClassName = classNames( styles.container, {
+	const isError = status === PRODUCT_STATUSES.ERROR;
+	const isAbsent =
+		status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.ABSENT_WITH_PLAN;
+	const isPurchaseRequired =
+		status === PRODUCT_STATUSES.NEEDS_PURCHASE ||
+		status === PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE;
+
+	const containerClassName = classNames( {
 		[ styles.plugin_absent ]: isAbsent,
 		[ styles[ 'is-purchase-required' ] ]: isPurchaseRequired,
 		[ styles[ 'is-link' ] ]: isAbsent,
 		[ styles[ 'has-error' ] ]: isError,
-	} );
-
-	const statusClassName = classNames( styles.status, {
-		[ styles.active ]: isActive,
-		[ styles.inactive ]: isInactive || isPurchaseRequired,
-		[ styles.error ]: isError,
-		[ styles[ 'is-fetching' ] ]: isFetching,
 	} );
 
 	const { recordEvent } = useAnalytics();
@@ -136,29 +103,25 @@ const ProductCard = props => {
 	/**
 	 * Calls the passed function onActivate after firing Tracks event
 	 */
-	const activateHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_activate_click', {
-			product: slug,
-		} );
-		onActivate();
-	}, [ slug, onActivate, recordEvent ] );
+	const activateHandler = useCallback(
+		event => {
+			event.preventDefault();
+			recordEvent( 'jetpack_myjetpack_product_card_activate_click', {
+				product: slug,
+			} );
+			onActivate();
+		},
+		[ slug, onActivate, recordEvent ]
+	);
 
 	/**
 	 * Calls the passed function onAdd after firing Tracks event
 	 */
-	const addHandler = useCallback(
-		ev => {
-			if ( ev?.preventDefault ) {
-				ev.preventDefault();
-			}
-
-			recordEvent( 'jetpack_myjetpack_product_card_add_click', {
-				product: slug,
-			} );
-			onAdd();
-		},
-		[ slug, onAdd, recordEvent ]
-	);
+	const addHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_add_click', {
+			product: slug,
+		} );
+	}, [ slug, recordEvent ] );
 
 	/**
 	 * Calls the passed function onManage after firing Tracks event
@@ -167,8 +130,7 @@ const ProductCard = props => {
 		recordEvent( 'jetpack_myjetpack_product_card_manage_click', {
 			product: slug,
 		} );
-		onManage();
-	}, [ slug, onManage, recordEvent ] );
+	}, [ slug, recordEvent ] );
 
 	/**
 	 * Calls the passed function onManage after firing Tracks event
@@ -177,71 +139,128 @@ const ProductCard = props => {
 		recordEvent( 'jetpack_myjetpack_product_card_fixconnection_click', {
 			product: slug,
 		} );
-		onFixConnection();
-	}, [ slug, onFixConnection, recordEvent ] );
+	}, [ slug, recordEvent ] );
 
-	const CardWrapper = isAbsent
-		? ( { children, ...cardProps } ) => (
-				<a { ...cardProps } href="#" onClick={ addHandler }>
-					{ children }
-				</a>
-		  )
-		: ( { children, ...cardProps } ) => <div { ...cardProps }>{ children }</div>;
+	/**
+	 * Calls when the "Learn more" button is clicked
+	 */
+	const learnMoreHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_learnmore_click', {
+			product: slug,
+		} );
+	}, [ slug, recordEvent ] );
+
+	/**
+	 * Use a Tracks event to count a standalone plugin install request
+	 */
+	const installStandaloneHandler = useCallback(
+		event => {
+			event.preventDefault();
+			recordEvent( 'jetpack_myjetpack_product_card_install_standalone_plugin_click', {
+				product: slug,
+			} );
+			onInstallStandalone();
+		},
+		[ slug, onInstallStandalone, recordEvent ]
+	);
+
+	/**
+	 * Use a Tracks event to count a standalone plugin activation request
+	 */
+	// eslint-disable-next-line no-unused-vars
+	const activateStandaloneHandler = useCallback(
+		event => {
+			event.preventDefault();
+			recordEvent( 'jetpack_myjetpack_product_card_activate_standalone_plugin_click', {
+				product: slug,
+			} );
+			onActivateStandalone();
+		},
+		[ slug, onActivateStandalone, recordEvent ]
+	);
+
+	/**
+	 * Sends an event when the card loads
+	 */
+	useEffect( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_loaded', {
+			product: slug,
+			status: status,
+		} );
+	}, [ recordEvent, slug, status ] );
 
 	return (
-		<CardWrapper className={ containerClassName }>
-			<div className={ styles.name }>
-				<Text variant="title-medium">{ name }</Text>
-				{ icon }
-			</div>
-			<Text variant="body-small" className={ styles.description }>
-				{ description }
-			</Text>
+		<Card
+			title={ name }
+			className={ classNames( styles.container, containerClassName ) }
+			headerRightContent={ null }
+		>
+			<Description />
+
+			{ isDataLoading ? (
+				<span className={ styles.loading }>{ __( 'Loading…', 'jetpack-my-jetpack' ) }</span>
+			) : (
+				children
+			) }
+
 			<div className={ styles.actions }>
-				<ActionButton
-					{ ...props }
-					onActivate={ activateHandler }
-					onFixConnection={ fixConnectionHandler }
-					onManage={ manageHandler }
-					className={ styles.button }
+				<div className={ styles.buttons }>
+					{ secondaryAction && secondaryAction?.positionFirst && (
+						<SecondaryButton { ...secondaryAction } />
+					) }
+					<ActionButton
+						{ ...props }
+						onActivate={ activateHandler }
+						onFixConnection={ fixConnectionHandler }
+						onManage={ manageHandler }
+						onAdd={ addHandler }
+						onInstall={ installStandaloneHandler }
+						onLearnMore={ learnMoreHandler }
+						className={ styles.button }
+						additionalActions={ additionalActions }
+						primaryActionOverride={ primaryActionOverride }
+					/>
+					{ secondaryAction && ! secondaryAction?.positionFirst && (
+						<SecondaryButton { ...secondaryAction } />
+					) }
+				</div>
+				<Status
+					status={ status }
+					isFetching={ isFetching }
+					isInstallingStandalone={ isInstallingStandalone }
 				/>
-				{ ! isAbsent && (
-					<Text variant="label" className={ statusClassName }>
-						{ flagLabel }
-					</Text>
-				) }
 			</div>
-		</CardWrapper>
+		</Card>
 	);
 };
 
 ProductCard.propTypes = {
+	children: PropTypes.node,
 	name: PropTypes.string.isRequired,
-	description: PropTypes.string.isRequired,
-	icon: PropTypes.element,
+	Description: PropTypes.func.isRequired,
 	admin: PropTypes.bool.isRequired,
 	isFetching: PropTypes.bool,
-	onManage: PropTypes.func,
-	onFixConnection: PropTypes.func,
+	isInstallingStandalone: PropTypes.bool,
+	isManageDisabled: PropTypes.bool,
 	onActivate: PropTypes.func,
-	onAdd: PropTypes.func,
 	slug: PropTypes.string.isRequired,
+	additionalActions: PropTypes.array,
+	primaryActionOverride: PropTypes.object,
+	secondaryAction: PropTypes.object,
+	onInstallStandalone: PropTypes.func,
+	onActivateStandalone: PropTypes.func,
 	status: PropTypes.oneOf( [
 		PRODUCT_STATUSES.ACTIVE,
 		PRODUCT_STATUSES.INACTIVE,
 		PRODUCT_STATUSES.ERROR,
 		PRODUCT_STATUSES.ABSENT,
+		PRODUCT_STATUSES.ABSENT_WITH_PLAN,
 		PRODUCT_STATUSES.NEEDS_PURCHASE,
+		PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE,
+		PRODUCT_STATUSES.CAN_UPGRADE,
+		PRODUCT_STATUSES.MODULE_DISABLED,
 	] ).isRequired,
 };
 
-ProductCard.defaultProps = {
-	icon: null,
-	isFetching: false,
-	onManage: () => {},
-	onFixConnection: () => {},
-	onActivate: () => {},
-	onAdd: () => {},
-};
-
+export { PRODUCT_STATUSES };
 export default ProductCard;

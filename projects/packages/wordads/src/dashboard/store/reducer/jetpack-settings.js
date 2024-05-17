@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { SET_WORDADS_SETTINGS } from '../actions/jetpack-settings';
 
 const jetpackSettings = ( state = {}, action ) => {

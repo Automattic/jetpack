@@ -1,0 +1,50 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.star-icon {
+	fill: black;
+}
+
+.jetpack,
+.checkmark-icon {
+	fill: var(--jp-green-primary);
+}
+
+.socialIcon {
+	fill: $gray-700;
+	&.bluesky {
+		fill: var( --color-bluesky );
+	}
+	&.facebook {
+		fill: var( --color-facebook );
+		border-radius: 50% !important;
+	}
+	&.instagram {
+		fill: var( --color-instagram );
+	}
+	&.twitter {
+		fill: var( --color-twitter );
+	}
+	&.linkedin {
+		fill: var( --color-linkedin );
+	}
+	&.tumblr {
+		fill: var( --color-tumblr );
+	}
+	&.google {
+		fill: var( --color-gplus );
+	}
+	&.mastodon {
+		fill: var( --color-mastodon );
+	}
+	&.nextdoor {
+		fill: var( --color-nextdoor );
+		border-radius: 50%;
+	}
+	&.instagram {
+		fill: var( --color-instagram );
+	}
+	&.whatsapp {
+		fill: var( --color-whatsapp );
+	}
+}
+

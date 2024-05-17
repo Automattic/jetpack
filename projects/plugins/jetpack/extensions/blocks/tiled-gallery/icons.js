@@ -1,10 +1,7 @@
-/**
- * External dependencies
- */
 import { Path, SVG } from '@wordpress/components';
 
 /**
- * @todo: Replace with `@wordpress/icons` when available
+ * @todo Replace with `@wordpress/icons` when available
  */
 export const leftChevron = (
 	<SVG width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -13,7 +10,7 @@ export const leftChevron = (
 );
 
 /**
- * @todo: Replace with `@wordpress/icons` when available
+ * @todo Replace with `@wordpress/icons` when available
  */
 export const rightChevron = (
 	<SVG width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -22,7 +19,7 @@ export const rightChevron = (
 );
 
 /**
- * @todo: Replace with `@wordpress/icons` when available
+ * @todo Replace with `@wordpress/icons` when available
  */
 export const downChevron = (
 	<SVG viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -31,7 +28,7 @@ export const downChevron = (
 );
 
 /**
- * @todo: Replace with `@wordpress/icons` when available
+ * @todo Replace with `@wordpress/icons` when available
  */
 export const upChevron = (
 	<SVG viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -40,7 +37,7 @@ export const upChevron = (
 );
 
 /**
- * @todo: Replace with `@wordpress/icons` when available
+ * @todo Replace with `@wordpress/icons` when available
  */
 export const close = (
 	<SVG width="18" height="18" viewBox="-2 -2 24 24" xmlns="http://www.w3.org/2000/svg">

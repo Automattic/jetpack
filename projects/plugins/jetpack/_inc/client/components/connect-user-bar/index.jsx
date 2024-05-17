@@ -1,22 +1,17 @@
-/**
- * External dependencies
- */
+import { __, sprintf } from '@wordpress/i18n';
+import Card from 'components/card';
+import ConnectButton from 'components/connect-button';
+import analytics from 'lib/analytics';
+import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
-import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import ConnectButton from 'components/connect-button';
-import Card from 'components/card';
-import analytics from 'lib/analytics';
 import { connectUser } from 'state/connection';
 import './style.scss';
 
 const ConnectUserBar = props => {
 	const { feature, featureLabel, text, doConnectUser } = props;
+
+	const from = 'unlinked-user-connect';
 
 	const customConnect = useCallback( () => {
 		analytics.tracks.recordJetpackClick( {
@@ -26,27 +21,27 @@ const ConnectUserBar = props => {
 			is_connection_owner: 'no',
 		} );
 
-		doConnectUser( featureLabel );
-	}, [ doConnectUser, feature, featureLabel ] );
+		doConnectUser( featureLabel, from );
+	}, [ doConnectUser, feature, featureLabel, from ] );
 
 	return (
 		<Card compact className="jp-connect-user-bar__card">
-			<div className="jp-connect-user-bar__text">
+			<span>
 				{ sprintf(
 					/* translators: placeholder is text adding extra instructions on what to do next. */
 					__( 'This feature is provided by the WordPress.com cloud. %s', 'jetpack' ),
 					text
 				) }
-			</div>
+			</span>
 
-			<div className="jp-connect-user-bar__button">
-				<ConnectButton
-					connectUser={ true }
-					from="unlinked-user-connect"
-					connectLegend={ __( 'Connect your WordPress.com account', 'jetpack' ) }
-					customConnect={ customConnect }
-				/>
-			</div>
+			<ConnectButton
+				connectUser={ true }
+				from={ from }
+				connectLegend={ __( 'Connect your WordPress.com account', 'jetpack' ) }
+				customConnect={ customConnect }
+				rna={ true }
+				compact={ true }
+			/>
 		</Card>
 	);
 };
@@ -58,7 +53,5 @@ ConnectUserBar.propTypes = {
 };
 
 export default connect( null, dispatch => ( {
-	doConnectUser: featureLabel => {
-		return dispatch( connectUser( featureLabel ) );
-	},
+	doConnectUser: ( featureLabel, from ) => dispatch( connectUser( featureLabel, from ) ),
 } ) )( ConnectUserBar );

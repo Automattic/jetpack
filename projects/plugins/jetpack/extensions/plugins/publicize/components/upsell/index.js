@@ -1,76 +1,50 @@
-/**
- * External dependencies
- */
-import classNames from 'classnames';
+import {
+	useSocialMediaConnections,
+	usePublicizeConfig,
+} from '@automattic/jetpack-publicize-components';
 import {
 	isAtomicSite,
 	isSimpleSite,
 	getRequiredPlan,
 } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * WordPress dependencies
- */
-import { __, sprintf } from '@wordpress/i18n';
 import { Button, ExternalLink } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
+import { __, sprintf } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
-
-/**
- * Internal dependencies
- */
+import classNames from 'classnames';
 import useUpgradeFlow from '../../../../shared/use-upgrade-flow';
-import usePublicizeConfig from '../../hooks/use-publicize-config';
-import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 
-function getPanelDescription(
-	isPostPublished,
-	isRePublicizeFeatureEnabled,
-	isPublicizeEnabled,
-	hasConnections,
-	hasEnabledConnections
-) {
-	// Use constants when the string is used in multiple places.
-	const start_your_posts_string = __(
-		'Start sharing your posts by connecting your social media accounts.',
+const getDescriptions = () => ( {
+	start: __( 'Start sharing your posts by connecting your social media accounts.', 'jetpack' ),
+	enabled: __(
+		'Click on the social icons below to control where you want to share your post.',
 		'jetpack'
-	);
-	const this_post_will_string = __(
-		'This post will be shared on all your enabled social media accounts the moment you publish the post.',
+	),
+	disabled: __( 'Use this tool to share your post on all your social media accounts.', 'jetpack' ),
+	reshare: __(
+		'Enable the social media accounts where you want to re-share your post, then click on the "Share post" button below.',
 		'jetpack'
-	);
+	),
+} );
 
-	// RePublicize feature is disabled.
-	if ( ! isRePublicizeFeatureEnabled ) {
-		if ( isPostPublished ) {
-			return start_your_posts_string;
-		}
+function getPanelDescription( isPostPublished, isPublicizeEnabled, hasConnections ) {
+	const descriptions = getDescriptions();
 
-		return this_post_will_string;
-	}
-
-	// RePublicize feature is enabled.
-	// No connections.
 	if ( ! hasConnections ) {
-		return start_your_posts_string;
+		return descriptions.start;
 	}
 
-	if ( ! isPublicizeEnabled || ! hasEnabledConnections ) {
-		return __( 'Use this tool to share your post on all your social media accounts.', 'jetpack' );
+	if ( isPostPublished ) {
+		// For published posts, always show the reshare description.
+		return descriptions.reshare;
 	}
 
-	if ( isPublicizeEnabled && hasEnabledConnections && ! isPostPublished ) {
-		return this_post_will_string;
-	}
-
-	return __(
-		'Share this post on all your enabled social media accounts by clicking on the share post button.',
-		'jetpack'
-	);
+	return isPublicizeEnabled ? descriptions.enabled : descriptions.disabled;
 }
 
-export default function UpsellNotice( { isPostPublished } ) {
+export default function UpsellNotice() {
 	const {
-		isRePublicizeFeatureEnabled,
 		isRePublicizeUpgradableViaUpsell,
 		isRePublicizeFeatureAvailable,
 		isPublicizeEnabled: isPublicizeEnabledFromConfig,
@@ -78,9 +52,8 @@ export default function UpsellNotice( { isPostPublished } ) {
 	const requiredPlan = getRequiredPlan( 'republicize' );
 	const [ checkoutUrl, goToCheckoutPage, isRedirecting, planData ] = useUpgradeFlow( requiredPlan );
 	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();
-	const isPublicizeEnabled =
-		isPublicizeEnabledFromConfig &&
-		! ( isRePublicizeUpgradableViaUpsell && isRePublicizeFeatureEnabled );
+	const isPublicizeEnabled = isPublicizeEnabledFromConfig && ! isRePublicizeUpgradableViaUpsell;
+	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
 	/*
 	 * Publicize:
@@ -88,16 +61,11 @@ export default function UpsellNotice( { isPostPublished } ) {
 	 * or when the feature flag is disabled,
 	 * just show the feature description and bail early.
 	 */
-	if (
-		! isPostPublished ||
-		! isRePublicizeFeatureEnabled ||
-		( isPostPublished && isRePublicizeFeatureAvailable )
-	) {
+	if ( ! isPostPublished || ( isPostPublished && isRePublicizeFeatureAvailable ) ) {
 		return (
-			<div>
+			<div className="jetpack-publicize__upsell">
 				{ getPanelDescription(
 					isPostPublished,
-					isRePublicizeFeatureEnabled,
 					isPublicizeEnabled,
 					hasConnections,
 					hasEnabledConnections
@@ -116,8 +84,8 @@ export default function UpsellNotice( { isPostPublished } ) {
 
 	// Doc page URL.
 	const docPageUrl = isPureJetpackSite
-		? 'https://jetpack.com/support/publicize/#re-sharing-your-content'
-		: 'https://wordpress.com/support/publicize/#share-your-content-again';
+		? 'https://jetpack.com/support/jetpack-social/#re-sharing-your-content'
+		: 'https://wordpress.com/support/jetpack-social/#share-your-content-again';
 
 	const buttonText = __( 'Upgrade now', 'jetpack' );
 

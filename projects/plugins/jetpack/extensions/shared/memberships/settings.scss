@@ -1,0 +1,46 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.jetpack-inspector-notice {
+	span.jetpack-subscribe-notice-visibility{
+		margin: 0;
+		padding: 0;
+		width: 100%;
+	}
+}
+
+.jetpack-newsletter-link {
+	text-decoration: none;
+}
+
+.jetpack-newsletter-access-radio-buttons {
+	input[type=radio] {
+		flex-shrink: 0;
+	}
+
+	label {
+		text-wrap: balance;
+	}
+}
+
+.jetpack-subscribe-newsletters-panel {
+	.edit-post-post-misconfiguration {
+		&__warning {
+			margin: 0;
+			font-size: 12px;
+
+			.components-notice__content {
+				margin-right: 0;
+			}
+		}
+	}
+}
+
+.jetpack-editor-post-tiers {
+	padding-left: 35px;
+	padding-top: 5px;
+}
+
+.jetpack-subscribe-affirmation-loading {
+	background: $gray-400;
+	color: $gray-400;
+}

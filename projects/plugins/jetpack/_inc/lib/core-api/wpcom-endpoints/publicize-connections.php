@@ -9,7 +9,7 @@
  * Publicize: List Connections
  *
  * [
- *   { # Connnection Object. See schema for more detail.
+ *   { # Connection Object. See schema for more detail.
  *     id:           (string)  Connection unique_id
  *     service_name: (string)  Service slug
  *     display_name: (string)  User name/display name of user/connection on Service
@@ -67,14 +67,18 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 	protected function get_connection_schema_properties() {
 		return array(
 			'id'                   => array(
-				'description' => __( 'Unique identifier for the Publicize Connection', 'jetpack' ),
+				'description' => __( 'Unique identifier for the Jetpack Social connection', 'jetpack' ),
 				'type'        => 'string',
 			),
 			'service_name'         => array(
-				'description' => __( 'Alphanumeric identifier for the Publicize Service', 'jetpack' ),
+				'description' => __( 'Alphanumeric identifier for the Jetpack Social service', 'jetpack' ),
 				'type'        => 'string',
 			),
 			'display_name'         => array(
+				'description' => __( 'Display name of the connected account', 'jetpack' ),
+				'type'        => 'string',
+			),
+			'username'             => array(
 				'description' => __( 'Username of the connected account', 'jetpack' ),
 				'type'        => 'string',
 			),
@@ -128,8 +132,10 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 
 				$items[] = array(
 					'id'                   => (string) $publicize->get_connection_unique_id( $connection ),
+					'connection_id'        => (string) $publicize->get_connection_id( $connection ),
 					'service_name'         => $service_name,
 					'display_name'         => $publicize->get_display_name( $service_name, $connection ),
+					'username'             => $publicize->get_username( $service_name, $connection ),
 					'profile_display_name' => ! empty( $connection_meta['profile_display_name'] ) ? $connection_meta['profile_display_name'] : '',
 					'profile_picture'      => ! empty( $connection_meta['profile_picture'] ) ? $connection_meta['profile_picture'] : '',
 					// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- We expect an integer, but do loose comparison below in case some other type is stored.
@@ -198,7 +204,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 		if ( ! $publicize ) {
 			return new WP_Error(
 				'publicize_not_available',
-				__( 'Sorry, Publicize is not available on your site right now.', 'jetpack' ),
+				__( 'Sorry, Jetpack Social is not available on your site right now.', 'jetpack' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
@@ -209,7 +215,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 
 		return new WP_Error(
 			'invalid_user_permission_publicize',
-			__( 'Sorry, you are not allowed to access Publicize data on this site.', 'jetpack' ),
+			__( 'Sorry, you are not allowed to access Jetpack Social data on this site.', 'jetpack' ),
 			array( 'status' => rest_authorization_required_code() )
 		);
 	}

@@ -1,9 +1,6 @@
-/**
- * External dependencies
- */
 import { readdirSync } from 'fs';
-import pluralize from 'pluralize';
 import chalk from 'chalk';
+import pluralize from 'pluralize';
 
 export const dirs = ( source, prefix = '' ) =>
 	readdirSync( source, { withFileTypes: true } )
@@ -11,7 +8,6 @@ export const dirs = ( source, prefix = '' ) =>
 		.map( dirent => prefix + dirent.name );
 
 export const projectTypes = [ 'github-actions', 'js-packages', 'packages', 'plugins' ];
-// export const projectTypes = [ 'editor-extensions', 'js-packages', 'packages', 'plugins' ], // Swap out line above once there's editor-extensions in place.
 
 /**
  * Returns an array of all projects.

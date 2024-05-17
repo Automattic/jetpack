@@ -32,6 +32,31 @@ Parameters recognized by the plugin are:
    - `babelOptions`: Supply options for Babel.
    - `functions`: Supply a custom list of i18n functions to recognize.
 
+## Export mangling
+
+Webpack's [optimization.mangleExports option](https://webpack.js.org/configuration/optimization/#optimizationmangleexports), enabled by default in production mode, can on occasion mangle an export to the name of one of the i18n functions this module looks for.
+
+If you want export mangling and run into this issue, a slightly modified copy of Webpack's internal `MangleExportsPlugin` is provided. Require it as
+```
+const I18nSafeMangleExportsPlugin = require( '@automattic/i18n-check-webpack-plugin/I18nSafeMangleExportsPlugin' );
+```
+or
+```
+import I18nSafeMangleExportsPlugin from '@automattic/i18n-check-webpack-plugin/I18nSafeMangleExportsPlugin';
+```
+and add it to the `plugins` section of your Webpack config like
+```js
+{
+	plugins: [
+		new I18nSafeMangleExportsPlugin(),
+	],
+};
+```
+
+Parameters recognized by the plugin are:
+
+- `deterministic`: Set false to use the 'size' mode.
+
 ## Known problematic code patterns
 
 These are some code patterns that are known to cause translations to be mangled.
@@ -53,19 +78,11 @@ const
 	/* translators: This is a good example. */
 	example = __( 'Example', 'domain' );
 ```
-In some cases even the assignment may be dropped. In that case, you can attach the comment directly to the function call, or inside a multi-line function call:
+In some cases even the assignment may be dropped. In that case, you can attach the comment directly to the function call:
 ```js
 const example =
 	/* translators: This is a good example. */
 	__( 'Example', 'domain' );
-
-const example2 = __(
-	/* translators: This is a good example. */
-	'Example',
-	'domain'
-);
-
-const example3 = __( /* translators: This won't work. The comment must be on a line after the `__(`. */ 'Example', 'domain' );
 ```
 
 Similarly in jsx, a comment placed like this may wind up misplaced:
@@ -147,6 +164,26 @@ if ( value === 'foo' ) {
 	// Then do some other stuff...
 }
 ```
+
+This can also happen if you use different translator comments for the same string in multiple places, whether in the same file or different files.
+```js
+export const usedFunction = v => {
+	return sprintf(
+		/* translators: A thing */
+		__( 'Thing: %s', 'domain' ),
+		v
+	);
+};
+
+export const unusedFunction = v => {
+	return sprintf(
+		/* translators: A munged thing */
+		__( 'Thing: %s', 'domain' ),
+		munge( v )
+	);
+};
+```
+In that case a good fix would be to use identical translator comments for all instances of the string. Or, if the comments need to be different, that's a good sign you should be using `_x()` with differing contexts too.
 
 ## Caveats
 

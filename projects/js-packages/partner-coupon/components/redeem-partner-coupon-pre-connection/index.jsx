@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import classNames from 'classnames';
-import React from 'react';
-import PropTypes from 'prop-types';
 import { ActionButton } from '@automattic/jetpack-components';
 import { ConnectScreen } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import { usePartnerCouponRedemption } from '../../hooks';
+import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { usePartnerCouponRedemption } from '../../hooks.js';
 
 /**
  * Import styles
@@ -40,7 +33,8 @@ const RedeemPartnerCouponPreConnection = props => {
 	);
 
 	const classes = classNames( 'jetpack-redeem-partner-coupon-pre-connection', {
-		'jetpack-redeem-partner-coupon-pre-connection--connected': !! connectionStatus.hasConnectedOwner,
+		'jetpack-redeem-partner-coupon-pre-connection--connected':
+			!! connectionStatus.hasConnectedOwner,
 	} );
 
 	return (

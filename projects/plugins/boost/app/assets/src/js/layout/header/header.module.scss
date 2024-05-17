@@ -1,0 +1,44 @@
+.header {
+	background-color: var( --primary-white );
+	overflow: auto;
+}
+
+.masthead {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 40px;
+	margin-bottom: 20px;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 24px;
+}
+
+.nav-area {
+	display: flex;
+	align-items: center;
+	flex-direction: row;
+}
+
+.logo {
+	cursor: pointer;
+
+	:global( svg ) {
+		height: 42px;
+		width: 100%;
+	}
+}
+
+.chevron {
+	margin-left: 16px;
+	margin-right: 16px;
+	width: 24px;
+	height: 24px;
+	padding-top: 2px;
+	text-align: center;
+}
+
+.subpage {
+	color: var( --gray-40 );
+	font-size: 16px;
+	margin-top: -2px;
+}

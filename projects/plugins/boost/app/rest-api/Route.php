@@ -46,5 +46,4 @@ class Route {
 		}
 		return true;
 	}
-
 }

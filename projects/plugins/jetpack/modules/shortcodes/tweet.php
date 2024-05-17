@@ -80,129 +80,17 @@ class Jetpack_Tweet {
 			}
 		}
 
+		// Add shortcode arguments to provider URL.
+		add_filter( 'oembed_fetch_url', array( 'Jetpack_Tweet', 'jetpack_tweet_url_extra_args' ), 10, 3 );
+
 		/*
-		 * Fetch tweet.
-		 *
-		 * On WordPress.com, we also cache tweets for better performance and less requests.
-		 */
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			/*
-			 * See if we have the tweet stored in our tweet store
-			 * if not get_tweet_store queues up a job to request
-			 */
-			$data = get_tweet_store( $tweet_id );
-			if ( $data ) {
-				$tweet_handler = new Tweet_Handler();
+			* In Jetpack, we use $wp_embed->shortcode() to return the tweet output.
+			* @see https://github.com/Automattic/jetpack/pull/11173
+			*/
+		$output = $wp_embed->shortcode( $atts, $id );
 
-				/*
-				 * Replace Unicode characters with ther entities like Blackbird Pie v 0.3.2 did
-				 * to store tweets from other languages (important for non-english bloggers)
-				 */
-				$data->text              = $tweet_handler->unicode_replace_entities( $data->text );
-				$data->user->screen_name = $tweet_handler->unicode_replace_entities( $data->user->screen_name );
-				$data->user->name        = $tweet_handler->unicode_replace_entities( $data->user->name );
-
-				$tweet = esc_html( $data->text );
-				$tweet = $tweet_handler->expand_tco_links( $tweet, $data );
-
-				$tweet = $tweet_handler->autolink( $tweet );
-
-				$screen_name = esc_html( $data->user->screen_name );
-				$name        = esc_html( $data->user->name );
-
-				$url = 'https://twitter.com/' . $screen_name . '/status/' . (int) $data->id;
-
-				// Only show the user's real name if they set it to something different from their screename.
-				if ( $screen_name !== $name ) {
-					$real_name = '<br />' . $name;
-				} else {
-					$real_name = '<br />&nbsp;';
-				}
-
-				$time           = strtotime( $data->created_at );
-				$human_readable = gmdate( 'F d, Y', $time );
-				$data_datetime  = gmdate( 'Y-m-d\TH:i:sP', $time );
-
-				/*
-				 * Additional params.
-				 */
-
-				// align (float).
-				$extra_classes = '';
-				if ( in_array( $attr['align'], array( 'left', 'right', 'center' ), true ) ) {
-					$extra_classes = ' tw-align-' . $attr['align'];
-				}
-
-				if ( 'true' === $attr['hide_thread'] ) {
-					$extra_classes .= ' tw-hide-thread';
-				}
-
-				if ( 'true' === $attr['hide_media'] ) {
-					$extra_classes .= ' tw-hide-media';
-				}
-
-				// lang.
-				$lang = substr( $attr['lang'], 0, 2 );
-				if ( empty( $lang ) ) {
-					$lang = 'en';
-				}
-
-				// width.
-				$width_html = '';
-				$width      = (int) $attr['width'];
-				if ( $width > 100 ) {
-					$width_html = ' width="' . esc_attr( $width ) . '"';
-				}
-
-				// in reply to id (conversation tweets).
-				$in_reply_to_html = '';
-				$in_reply_to      = (int) $data->in_reply_to_status_id;
-				if ( ! empty( $in_reply_to ) && 'false' === $attr['hide_thread'] ) {
-					$in_reply_to_html = ' data-in-reply-to="' . esc_attr( $in_reply_to ) . '"';
-				}
-
-				// Generate the HTML output.
-				$output = sprintf(
-					'<blockquote class="twitter-tweet%1$s"%2$s%3$s lang="%4$s"><p>%5$s</p>&mdash; %6$s (@%7$s) <a href="%8$s" data-datetime="%9$s">%10$s</a></blockquote>',
-					esc_attr( $extra_classes ),
-					$width_html,
-					$in_reply_to_html,
-					esc_attr( $lang ),
-					$tweet,
-					wp_kses( $real_name, array( 'br' => array() ) ),
-					esc_html( $screen_name ),
-					esc_url( $url ),
-					esc_attr( $data_datetime ),
-					esc_html( $human_readable )
-				);
-			} else {
-				/**
-				 * Filter the default display when a tweet is not available in the store.
-				 * Not available in Jetpack.
-				 *
-				 * @module shortcodes
-				 *
-				 * @since 5.1.0
-				 *
-				 * @param string $message Default display when a tweet is not available.
-				 * @param string $id      Twitter URL.
-				 * @param array  $attr    Shortcode attributes.
-				 */
-				return apply_filters( 'tweet_shortcode_pending_tweet', '', $id, $attr );
-			}
-		} else {
-			// Add shortcode arguments to provider URL.
-			add_filter( 'oembed_fetch_url', array( 'Jetpack_Tweet', 'jetpack_tweet_url_extra_args' ), 10, 3 );
-
-			/*
-			 * In Jetpack, we use $wp_embed->shortcode() to return the tweet output.
-			 * @see https://github.com/Automattic/jetpack/pull/11173
-			 */
-			$output = $wp_embed->shortcode( $atts, $id );
-
-			// Clean up filter.
-			remove_filter( 'oembed_fetch_url', array( 'Jetpack_Tweet', 'jetpack_tweet_url_extra_args' ), 10 );
-		}
+		// Clean up filter.
+		remove_filter( 'oembed_fetch_url', array( 'Jetpack_Tweet', 'jetpack_tweet_url_extra_args' ), 10 );
 
 		/** This action is documented in modules/widgets/social-media-icons.php */
 		do_action( 'jetpack_bump_stats_extras', 'embeds', 'tweet' );
@@ -283,5 +171,4 @@ class Jetpack_Tweet {
 			wp_print_scripts( 'twitter-widgets' );
 		}
 	}
-
 } // class end

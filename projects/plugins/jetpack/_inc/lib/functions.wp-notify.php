@@ -66,7 +66,7 @@ function jetpack_notify_postauthor( $emails, $comment_id ) {
 	}
 
 	// If there's no email to send the comment to, bail, otherwise flip array back around for use below.
-	if ( ! count( $emails ) ) {
+	if ( array() === $emails ) {
 		return array(); // Original function modified. Return empty array instead of false.
 	} else {
 		$emails = array_flip( $emails );
@@ -183,7 +183,7 @@ function jetpack_notify_postauthor( $emails, $comment_id ) {
 		) . "\r\n";
 	}
 
-	$wp_email = 'wordpress@' . preg_replace( '#^www\.#', '', strtolower( $_SERVER['SERVER_NAME'] ) );
+	$wp_email = 'wordpress@' . preg_replace( '#^www\.#', '', strtolower( isset( $_SERVER['SERVER_NAME'] ) ? filter_var( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : '' ) );
 
 	if ( '' === $comment->comment_author ) {
 		$from = "From: \"$blogname\" <$wp_email>";
@@ -281,7 +281,8 @@ function jetpack_notify_moderator( $notify_moderator, $comment_id ) {
 	if ( WP_Http::is_ip_address( $comment->comment_author_IP ) ) {
 		$comment_author_domain = gethostbyaddr( $comment->comment_author_IP );
 	}
-	$comments_waiting = $wpdb->get_var( "SELECT count(comment_ID) FROM $wpdb->comments WHERE comment_approved = '0'" );
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+	$comments_waiting = (int) $wpdb->get_var( "SELECT count(comment_ID) FROM $wpdb->comments WHERE comment_approved = '0'" );
 
 	// The blogname option is escaped with esc_html on the way into the database in sanitize_option
 	// we want to reverse this for the plain text arena of emails.

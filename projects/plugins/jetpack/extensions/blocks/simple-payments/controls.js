@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import { BaseControl, PanelBody, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 

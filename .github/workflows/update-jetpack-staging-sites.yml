@@ -1,0 +1,64 @@
+name: Update Jetpack Staging Test Sites
+# Ran as part of the `UpdateJetpackStaging` TeamCity build.
+# After updating the sites, runs k6 tests against the same sites.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run_shell_script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Env config
+        env:
+          SSH_KEY: ${{ secrets.UPDATEJETPACKSTAGING_SSH_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.UPDATEJETPACKSTAGING_SSH_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          echo "$SSH_KEY" > ~/.ssh/id_rsa
+          chmod 0600 ~/.ssh/id_rsa
+
+      - name: Execute shell script
+        shell: bash
+        run: .github/files/jetpack-staging-sites/update-jetpack-staging-sites.sh
+
+  run_k6_tests:
+    needs: run_shell_script
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Run k6 frontend tests
+        uses: grafana/k6-action@v0.3.0
+        with:
+          filename: .github/files/jetpack-staging-sites/k6-frontend.js
+        env:
+          JETPACKSTAGING_K6_USERNAME: ${{ secrets.JETPACKSTAGING_K6_USERNAME }}
+          JETPACKSTAGING_K6_PASSWORD: ${{ secrets.JETPACKSTAGING_K6_PASSWORD }}
+
+      - name: Run k6 backend tests
+        uses: grafana/k6-action@v0.3.0
+        with:
+          filename: .github/files/jetpack-staging-sites/k6-backend.js
+        env:
+          JETPACKSTAGING_K6_USERNAME: ${{ secrets.JETPACKSTAGING_K6_USERNAME }}
+          JETPACKSTAGING_K6_PASSWORD: ${{ secrets.JETPACKSTAGING_K6_PASSWORD }}
+
+  trigger_e2e_tests:
+    needs: run_shell_script
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Execute shell script
+        shell: bash
+        run: .github/files/jetpack-staging-sites/run-atomic-deploy-e2e-tests.sh
+        env:
+          SIGNATURE_KEY: ${{ secrets.ATOMIC_DEPLOY_E2E_TESTS_KEY }}
+          TRIGGER_URL: ${{ secrets.ATOMIC_DEPLOY_E2E_TESTS_URL }}

@@ -1,0 +1,58 @@
+.no-backup-stats {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1rem;
+    color: var( --jp-black );
+
+    .main-stats {
+        display: flex;
+        gap: 1.5rem;
+    }
+
+    .main-stat {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        margin: 0;
+
+        font-size: var(--font-body-small);
+    }
+
+    .visual-stat{
+        display: flex;
+        align-items: center;
+        gap: 2px;
+    }
+
+    .more-stats {
+        margin: 0;
+
+        font-size: var(--font-body-small);
+    }
+}
+
+.activity {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 1rem;
+    color: var( --jp-black );
+
+    .summary {
+        font-size: var(--font-body-small);
+        margin: 0;
+    }
+}
+
+.description {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    flex-grow: 1;
+}
+
+.time {
+    color: var( --jp-gray-40 );
+}

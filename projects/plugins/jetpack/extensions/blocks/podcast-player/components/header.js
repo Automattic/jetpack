@@ -1,16 +1,5 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import { memo } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
+import classnames from 'classnames';
 import { default as linkIcon } from '../icons/link';
 
 const Header = memo(

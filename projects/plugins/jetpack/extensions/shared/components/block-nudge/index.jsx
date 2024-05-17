@@ -1,26 +1,21 @@
-/**
- * Internal dependencies
- */
-import classNames from 'classnames';
-
-/**
- * External dependencies
- */
-import { Button } from '@wordpress/components';
 import { Warning } from '@wordpress/block-editor';
+import { Button, ExternalLink } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
+import useAutosaveAndRedirect from '../../../shared/use-autosave-and-redirect/index';
 
 import './style.scss';
-import useAutosaveAndRedirect from '../../../shared/use-autosave-and-redirect/index';
 
 export default function BlockNudge( {
 	blockName,
 	buttonLabel,
+	className,
 	href,
 	icon,
 	onClick,
+	readMoreUrl,
 	subtitle,
 	title,
-	className,
 } ) {
 	const { autosaveAndRedirect } = useAutosaveAndRedirect( href );
 
@@ -40,6 +35,7 @@ export default function BlockNudge( {
 						onClick={ handleClick }
 						target="_top"
 						variant="secondary"
+						className="jetpack-stripe-nudge__link"
 					>
 						{ buttonLabel }
 					</Button>,
@@ -51,7 +47,19 @@ export default function BlockNudge( {
 				{ icon }
 				<span className="jetpack-block-nudge__text-container">
 					<span className="jetpack-block-nudge__title">{ title }</span>
-					{ subtitle && <span className="jetpack-block-nudge__message">{ subtitle }</span> }
+					{ subtitle && (
+						<span className="jetpack-block-nudge__message">
+							{ subtitle }
+							{ readMoreUrl && (
+								<>
+									<br />
+									<ExternalLink href={ readMoreUrl }>
+										{ __( 'Learn more about the block and fees', 'jetpack' ) }
+									</ExternalLink>
+								</>
+							) }
+						</span>
+					) }
 				</span>
 			</span>
 		</Warning>

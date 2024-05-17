@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Adjust an `is_countable()` test so Phan can correctly infer something is countable.
+
+

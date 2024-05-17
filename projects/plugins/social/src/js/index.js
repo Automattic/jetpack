@@ -1,12 +1,6 @@
-/**
- * External dependencies
- */
+import { ThemeProvider } from '@automattic/jetpack-components';
+import * as WPElement from '@wordpress/element';
 import React from 'react';
-import ReactDOM from 'react-dom';
-
-/**
- * Internal dependencies
- */
 import AdminPage from './components/admin-page';
 
 /**
@@ -19,7 +13,12 @@ function render() {
 		return;
 	}
 
-	ReactDOM.render( <AdminPage />, container );
+	const component = (
+		<ThemeProvider targetDom={ document.body }>
+			<AdminPage />
+		</ThemeProvider>
+	);
+	WPElement.createRoot( container ).render( component );
 }
 
 render();

@@ -35,5 +35,4 @@ class Tools {
 
 		return $string;
 	}
-
 }

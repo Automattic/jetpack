@@ -1,0 +1,68 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/top-posts",
+	"title": "Top Posts & Pages",
+	"description": "Display your most popular content.",
+	"keywords": [ "ranking", "views", "trending", "popular" ],
+	"version": "1.0",
+	"textdomain": "jetpack",
+	"category": "embed",
+	"icon": "<svg xmlns='http://www.w3.org/2000/svg' height='24px' viewBox='0 0 24 24' width='24px'><rect fill='none' height='24' width='24'/><path d='M19,5h-2V3H7v2H5C3.9,5,3,5.9,3,7v1c0,2.55,1.92,4.63,4.39,4.94c0.63,1.5,1.98,2.63,3.61,2.96V19H7v2h10v-2h-4v-3.1 c1.63-0.33,2.98-1.46,3.61-2.96C19.08,12.63,21,10.55,21,8V7C21,5.9,20.1,5,19,5z M5,8V7h2v3.82C5.84,10.4,5,9.3,5,8z M19,8 c0,1.3-0.84,2.4-2,2.82V7h2V8z'/></svg>",
+	"supports": {
+		"align": [ "wide", "full" ],
+		"html": false,
+		"multiple": true,
+		"reusable": true,
+		"color": {
+			"gradients": true,
+			"link": true
+		},
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"typography": {
+			"__experimentalFontFamily": true,
+			"fontSize": true,
+			"lineHeight": true
+		}
+	},
+	"attributes": {
+		"layout": {
+			"type": "string",
+			"default": "grid"
+		},
+		"displayAuthor": {
+			"type": "boolean",
+			"default": true
+		},
+		"displayDate": {
+			"type": "boolean",
+			"default": true
+		},
+		"displayThumbnail": {
+			"type": "boolean",
+			"default": true
+		},
+		"displayContext": {
+			"type": "boolean",
+			"default": false
+		},
+		"period": {
+			"type": "string",
+			"default": "7"
+		},
+		"postsToShow": {
+			"type": "number",
+			"default": 3
+		},
+		"postTypes": {
+			"type": "object",
+			"default": {
+				"post": true,
+				"page": true
+			}
+		}
+	}
+}

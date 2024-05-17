@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { Buffer } from 'buffer';
-
-/**
- * Internal dependencies
- */
 import FilterStream from './filter-stream.js';
 import formatDuration from './format-duration.js';
 

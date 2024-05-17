@@ -25,5 +25,4 @@ class Jetpack_JSON_API_Modules_List_Endpoint extends Jetpack_JSON_API_Modules_En
 		$this->modules = Jetpack::get_available_modules();
 		return true;
 	}
-
 }

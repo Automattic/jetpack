@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import TokenList from '@wordpress/token-list';
 import { find } from 'lodash';
 

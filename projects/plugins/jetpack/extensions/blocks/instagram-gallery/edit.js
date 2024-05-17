@@ -1,37 +1,26 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-import { find, isEmpty, isEqual, map, times } from 'lodash';
-
-/**
- * WordPress dependencies
- */
-import { InspectorControls } from '@wordpress/block-editor';
+import { isCurrentUserConnected } from '@automattic/jetpack-shared-extension-utils';
+import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { Button, Placeholder, RadioControl, Spinner, withNotices } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import defaultAttributes from './attributes';
-import { NEW_INSTAGRAM_CONNECTION } from './constants';
+import classnames from 'classnames';
+import { find, isEmpty, isEqual, map, times } from 'lodash';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
+import metadata from './block.json';
+import { NEW_INSTAGRAM_CONNECTION } from './constants';
+import InstagramGalleryInspectorControls from './controls';
+import ImageTransition from './image-transition';
 import useConnectInstagram from './use-connect-instagram';
 import useConnectWpcom from './use-connect-wpcom';
 import useInstagramGallery from './use-instagram-gallery';
-import ImageTransition from './image-transition';
-import isCurrentUserConnected from '../../shared/is-current-user-connected';
-import InstagramGalleryInspectorControls from './controls';
 import './editor.scss';
 
 const InstagramGalleryEdit = props => {
-	const { attributes, className, isSelected, noticeOperations, noticeUI, setAttributes } = props;
+	const blockProps = useBlockProps();
+	const { attributes, isSelected, noticeOperations, noticeUI, setAttributes } = props;
 	const { accessToken, align, columns, count, isStackedOnMobile, spacing } = attributes;
-
 	useEffect( () => {
-		const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
+		const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
 		if ( ! isEqual( validatedAttributes, attributes ) ) {
 			setAttributes( validatedAttributes );
 		}
@@ -68,7 +57,7 @@ const InstagramGalleryEdit = props => {
 	const showLoadingSpinner = accessToken && isLoadingGallery && isEmpty( images );
 	const showGallery = ! showPlaceholder && ! showLoadingSpinner;
 
-	const blockClasses = classnames( className, { [ `align${ align }` ]: align } );
+	const blockClasses = classnames( blockProps.className, { [ `align${ align }` ]: align } );
 	const gridClasses = classnames(
 		'wp-block-jetpack-instagram-gallery__grid',
 		`wp-block-jetpack-instagram-gallery__grid-columns-${ columns }`,
@@ -170,7 +159,7 @@ const InstagramGalleryEdit = props => {
 	};
 
 	return (
-		<div className={ blockClasses }>
+		<div { ...blockProps } className={ blockClasses }>
 			{ showPlaceholder && (
 				<Placeholder
 					icon="instagram"

@@ -1,17 +1,9 @@
-/**
- * External dependencies
- */
-import PropTypes from 'prop-types';
-import ReactDom from 'react-dom';
-import React from 'react';
-import Clipboard from 'clipboard';
-import { omit, noop } from 'lodash';
 import classNames from 'classnames';
-
-/**
- * Internal dependencies
- */
+import Clipboard from 'clipboard';
 import Button from 'components/button';
+import { omit, noop } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 export default class ClipboardButton extends React.Component {
 	static displayName = 'ClipboardButton';
@@ -21,14 +13,18 @@ export default class ClipboardButton extends React.Component {
 		text: PropTypes.string,
 		prompt: PropTypes.string,
 		onCopy: PropTypes.func,
+		rna: PropTypes.bool,
 	};
 
 	static defaultProps = {
 		onCopy: noop,
+		rna: false,
 	};
 
+	buttonRef = React.createRef();
+
 	componentDidMount() {
-		const button = ReactDom.findDOMNode( this.refs.button );
+		const button = this.buttonRef.current.domNode;
 		this.clipboard = new Clipboard( button, {
 			text: () => this.props.text,
 		} );
@@ -49,7 +45,8 @@ export default class ClipboardButton extends React.Component {
 		const classes = classNames( 'dops-clipboard-button', this.props.className );
 		return (
 			<Button
-				ref="button"
+				rna={ this.props.rna }
+				ref={ this.buttonRef }
 				{ ...omit( this.props, Object.keys( this.constructor.propTypes ) ) }
 				className={ classes }
 			/>

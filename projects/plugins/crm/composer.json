@@ -1,0 +1,89 @@
+{
+	"name": "automattic/jetpackcrm",
+	"description": "[Jetpack CRM](https://jetpackcrm.com) Core CRM Plugin - WordPress.org Hosted",
+	"require-dev": {
+		"automattic/jetpack-changelogger": "@dev",
+		"codeception/codeception": "^4.1 || ^5.0",
+		"codeception/module-asserts": "^2.0 || ^3.0",
+		"codeception/module-phpbrowser": "^2.0 || ^3.0",
+		"codeception/module-webdriver": "^2.0 || ^3.0 || ^4.0",
+		"codeception/module-db": "^2.0 || 3.1.0 || ^3.1.2",
+		"codeception/module-filesystem": "^2.0 || ^3.0",
+		"codeception/util-universalframework": "^1.0",
+		"yoast/phpunit-polyfills": "1.1.0"
+	},
+	"scripts": {
+		"build-development": [
+			"pnpm run build"
+		],
+		"build-production": [
+			"pnpm run build-production"
+		],
+		"tests": "vendor/bin/codecept run acceptance --fail-fast",
+		"tests-debug": "vendor/bin/codecept run acceptance --fail-fast --debug",
+		"create-test": "vendor/bin/codecept generate:cest acceptance $1",
+		"build-tests": "vendor/bin/codecept build",
+		"cs": "temp=$(git diff --diff-filter=d --name-only trunk HEAD | grep '.php'); [[ -n $temp ]] && phpcs-changed -s --always-exit-zero --git --git-base trunk $temp || echo 'No changes found.'",
+		"cs-security": "temp=$(git diff --diff-filter=d --name-only trunk HEAD | grep '.php'); [[ -n $temp ]] && phpcs-changed -s --standard=phpcs.security.xml$([[ ! -f phpcs.security.xml ]] && echo .dist) --always-exit-zero --git --git-base trunk $temp || echo 'No changes found.'",
+		"cs-staged": "temp=$(git diff --diff-filter=d --name-only --cached | grep '.php'); [[ -n $temp ]] && phpcs-changed -s --always-exit-zero --git --git-staged $temp || echo 'No changes found.'",
+		"cs-unstaged": "temp=$(git diff --diff-filter=d --name-only | grep '.php'); [[ -n $temp ]] && phpcs-changed -s --always-exit-zero --git --git-unstaged $temp || echo 'No changes found.'",
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"skip-test-php": "tests/action-skip-test-php.sh",
+		"test-php": [
+			"@composer phpunit",
+			"tests/action-test-php.sh"
+		],
+		"test-js": "pnpm run test",
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		]
+	},
+	"config": {
+		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ6_4_3_alpha",
+		"allow-plugins": {
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true,
+			"roots/wordpress-core-installer": true
+		}
+	},
+	"require": {
+		"php": ">=7.4",
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-composer-plugin": "@dev",
+		"automattic/woocommerce": "^3.0",
+		"dompdf/dompdf": "2.0.4"
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": {
+			"v": false
+		},
+		"autorelease": true,
+		"mirror-repo": "Automattic/jetpack-crm",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-crm/compare/${old}...${new}"
+		},
+		"release-branch-prefix": "crm",
+		"wp-plugin-slug": "zero-bs-crm",
+		"wp-svn-autopublish": true
+	}
+}

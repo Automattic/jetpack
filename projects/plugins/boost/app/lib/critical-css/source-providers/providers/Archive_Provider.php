@@ -32,7 +32,11 @@ class Archive_Provider extends Provider {
 			$post_types = array_intersect( $post_types, $context_post_types );
 		}
 		foreach ( $post_types as $post_type ) {
-			$links[ $post_type ][] = get_post_type_archive_link( $post_type );
+			$link = get_post_type_archive_link( $post_type );
+
+			if ( ! empty( $link ) ) {
+				$links[ $post_type ][] = $link;
+			}
 		}
 
 		return $links;
@@ -53,6 +57,12 @@ class Archive_Provider extends Provider {
 	/** @inheritdoc */
 	public static function get_keys() { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
 		return self::get_post_types();
+	}
+
+	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	/** @inheritdoc */
+	public static function get_edit_url( $_provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+		return null;
 	}
 
 	// phpcs:ignore

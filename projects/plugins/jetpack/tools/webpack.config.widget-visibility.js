@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
-
-/**
- * Internal dependencies
- */
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const { definePaletteColorsAsStaticVariables } = require( './webpack.helpers' );
 
 module.exports = {
 	mode: jetpackWebpackConfig.mode,
-	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
+	devtool: jetpackWebpackConfig.devtool,
 	entry: {
 		index: {
 			import: path.join( __dirname, '../modules/widget-visibility/editor/index.jsx' ),
@@ -40,10 +33,15 @@ module.exports = {
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
 			DependencyExtractionPlugin: { injectPolyfill: true },
-			I18nLoaderPlugin: { textdomain: 'jetpack' },
 		} ),
 		definePaletteColorsAsStaticVariables(),
 	],
+	externals: {
+		...jetpackWebpackConfig.externals,
+		jetpackConfig: JSON.stringify( {
+			consumer_slug: 'jetpack',
+		} ),
+	},
 	module: {
 		strictExportPresence: true,
 		rules: [

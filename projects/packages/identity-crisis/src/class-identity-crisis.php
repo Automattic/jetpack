@@ -7,13 +7,11 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Urls;
-use Automattic\Jetpack\Constants as Constants;
+use Automattic\Jetpack\IdentityCrisis\Exception;
 use Automattic\Jetpack\IdentityCrisis\UI;
-use Automattic\Jetpack\Status as Status;
-use Automattic\Jetpack\Tracking as Tracking;
+use Automattic\Jetpack\IdentityCrisis\URL_Secret;
 use Jetpack_Options;
 use WP_Error;
 
@@ -28,7 +26,17 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.8.7-alpha';
+	const PACKAGE_VERSION = '0.20.0-alpha';
+
+	/**
+	 * Package Slug
+	 */
+	const PACKAGE_SLUG = 'identity-crisis';
+
+	/**
+	 * Persistent WPCOM blog ID that stays in the options after disconnect.
+	 */
+	const PERSISTENT_BLOG_ID_OPTION_NAME = 'jetpack_persistent_blog_id';
 
 	/**
 	 * Instance of the object.
@@ -55,7 +63,7 @@ class Identity_Crisis {
 	/**
 	 * The current screen, which is set if the current user is a non-admin and this is an admin page.
 	 *
-	 * @var WP_Screen
+	 * @var \WP_Screen
 	 */
 	public static $current_screen;
 
@@ -87,6 +95,17 @@ class Identity_Crisis {
 
 		add_filter( 'jetpack_remote_request_url', array( $this, 'add_idc_query_args_to_url' ) );
 
+		add_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', array( static::class, 'add_secret_to_url_validation_response' ) );
+		add_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', array( static::class, 'add_ip_requester_to_url_validation_response' ) );
+
+		add_filter( 'jetpack_options', array( static::class, 'reverse_wpcom_urls_for_idc' ) );
+
+		add_filter( 'jetpack_register_request_body', array( static::class, 'register_request_body' ) );
+		add_action( 'jetpack_site_registered', array( static::class, 'site_registered' ) );
+
+		// Set up package version hook.
+		add_filter( 'jetpack_package_versions', array( static::class, 'send_package_version_to_tracker' ) );
+
 		$urls_in_crisis = self::check_identity_crisis();
 		if ( false === $urls_in_crisis ) {
 			return;
@@ -94,6 +113,19 @@ class Identity_Crisis {
 
 		self::$wpcom_home_url = $urls_in_crisis['wpcom_home'];
 		add_action( 'init', array( $this, 'wordpress_init' ) );
+	}
+
+	/**
+	 * Adds the package slug and version to the package version tracker's data.
+	 *
+	 * @param array $package_versions The package version array.
+	 *
+	 * @return array The package version array.
+	 */
+	public static function send_package_version_to_tracker( $package_versions ) {
+		$package_versions[ self::PACKAGE_SLUG ] = self::PACKAGE_VERSION;
+
+		return $package_versions;
 	}
 
 	/**
@@ -109,6 +141,8 @@ class Identity_Crisis {
 		} else {
 			$connection->disconnect_site( false );
 		}
+
+		delete_option( static::PERSISTENT_BLOG_ID_OPTION_NAME );
 
 		// Clear IDC options.
 		self::clear_all_idc_options();
@@ -126,15 +160,6 @@ class Identity_Crisis {
 	}
 
 	/**
-	 * Gets the link to the support document used to explain Safe Mode to users.
-	 *
-	 * @return string
-	 */
-	public static function get_safe_mod_doc_url() {
-		return Redirect::get_url( 'jetpack-support-safe-mode' );
-	}
-
-	/**
 	 * This method loops through the array of processed items from sync and checks if one of the items was the
 	 * home_url or site_url callable. If so, then we delete the jetpack_migrate_for_idc option.
 	 *
@@ -144,14 +169,14 @@ class Identity_Crisis {
 		foreach ( (array) $processed_items as $item ) {
 
 			// First, is this item a jetpack_sync_callable action? If so, then proceed.
-			$callable_args = ( is_array( $item ) && isset( $item[0], $item[1] ) && 'jetpack_sync_callable' === $item[0] )
+			$callable_args = ( is_array( $item ) && isset( $item[0] ) && isset( $item[1] ) && 'jetpack_sync_callable' === $item[0] )
 				? $item[1]
 				: null;
 
 			// Second, if $callable_args is set, check if the callable was home_url or site_url. If so,
 			// clear the migrate option.
 			if (
-				isset( $callable_args, $callable_args[0] )
+				isset( $callable_args[0] )
 				&& ( 'home_url' === $callable_args[0] || 'site_url' === $callable_args[1] )
 			) {
 				Jetpack_Options::delete_option( 'migrate_for_idc' );
@@ -168,7 +193,7 @@ class Identity_Crisis {
 	public function wordpress_init() {
 		if ( current_user_can( 'jetpack_disconnect' ) ) {
 			if (
-					isset( $_GET['jetpack_idc_clear_confirmation'], $_GET['_wpnonce'] ) &&
+					isset( $_GET['jetpack_idc_clear_confirmation'] ) && isset( $_GET['_wpnonce'] ) &&
 					wp_verify_nonce( $_GET['_wpnonce'], 'jetpack_idc_clear_confirmation' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
 			) {
 				Jetpack_Options::delete_option( 'safe_mode_confirmed' );
@@ -196,10 +221,18 @@ class Identity_Crisis {
 			|| self::validate_sync_error_idc_option() ) {
 			return $url;
 		}
+		$home_url = Urls::home_url();
+		$site_url = Urls::site_url();
+		$hostname = wp_parse_url( $site_url, PHP_URL_HOST );
+
+		// If request is from an IP, make sure ip_requester option is set
+		if ( self::url_is_ip( $hostname ) ) {
+			self::maybe_update_ip_requester( $hostname );
+		}
 
 		$query_args = array(
-			'home'    => Urls::home_url(),
-			'siteurl' => Urls::site_url(),
+			'home'    => $home_url,
+			'siteurl' => $site_url,
 		);
 
 		if ( self::should_handle_idc() ) {
@@ -210,26 +243,11 @@ class Identity_Crisis {
 			$query_args['migrate_for_idc'] = true;
 		}
 
-		return add_query_arg( $query_args, $url );
-	}
-
-	/**
-	 * Non-admins current screen check.
-	 *
-	 * @param object $current_screen Current screen.
-	 *
-	 * @return null
-	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
-	 */
-	public function non_admins_current_screen_check( $current_screen ) {
-		_deprecated_function( __METHOD__, '0.5.0' );
-
-		self::$current_screen = $current_screen;
-		if ( isset( $current_screen->id ) && 'toplevel_page_jetpack' === $current_screen->id ) {
-			return null;
+		if ( is_multisite() ) {
+			$query_args['multisite'] = true;
 		}
 
-		return null;
+		return add_query_arg( $query_args, $url );
 	}
 
 	/**
@@ -284,7 +302,6 @@ class Identity_Crisis {
 		if ( ! $connection->is_connected() || ( new Status() )->is_offline_mode() || ! self::validate_sync_error_idc_option() ) {
 			return false;
 		}
-
 		return Jetpack_Options::get_option( 'sync_error_idc' );
 	}
 
@@ -335,7 +352,7 @@ class Identity_Crisis {
 			);
 
 			if ( in_array( $error_code, $allowed_idc_error_codes, true ) ) {
-				\Jetpack_Options::update_option(
+				Jetpack_Options::update_option(
 					'sync_error_idc',
 					self::get_sync_error_idc_option( $response )
 				);
@@ -345,17 +362,6 @@ class Identity_Crisis {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Prepare URL for display.
-	 *
-	 * @param string $url URL to display.
-	 *
-	 * @return string
-	 */
-	public static function prepare_url_for_display( $url ) {
-		return untrailingslashit( self::normalize_url_protocol_agnostic( $url ) );
 	}
 
 	/**
@@ -437,6 +443,24 @@ class Identity_Crisis {
 	}
 
 	/**
+	 * Reverses WP.com URLs stored in sync_error_idc option.
+	 *
+	 * @param array $sync_error error option containing reversed URLs.
+	 * @return array
+	 */
+	public static function reverse_wpcom_urls_for_idc( $sync_error ) {
+		if ( isset( $sync_error['reversed_url'] ) ) {
+			if ( array_key_exists( 'wpcom_siteurl', $sync_error ) ) {
+				$sync_error['wpcom_siteurl'] = strrev( $sync_error['wpcom_siteurl'] );
+			}
+			if ( array_key_exists( 'wpcom_home', $sync_error ) ) {
+				$sync_error['wpcom_home'] = strrev( $sync_error['wpcom_home'] );
+			}
+		}
+		return $sync_error;
+	}
+
+	/**
 	 * Normalizes a url by doing three things:
 	 *  - Strips protocol
 	 *  - Strips www
@@ -505,32 +529,22 @@ class Identity_Crisis {
 
 			$returned_values[ $key ] = $normalized_url;
 		}
+		// We need to protect WPCOM URLs from search & replace by reversing them. See https://wp.me/pf5801-3R
+		// Add 'reversed_url' key for backward compatibility
+		if ( array_key_exists( 'wpcom_home', $returned_values ) && array_key_exists( 'wpcom_siteurl', $returned_values ) ) {
+			$returned_values['reversed_url'] = true;
+			$returned_values                 = self::reverse_wpcom_urls_for_idc( $returned_values );
+		}
 
 		return $returned_values;
-	}
-
-	/**
-	 * Returns the value of the jetpack_sync_idc_optin filter, or constant.
-	 * If set to true, the site will be put into staging mode.
-	 *
-	 * @return bool
-	 * @since 0.2.0
-	 * @since-jetpack 4.3.2
-	 * @deprecated 0.2.6 Use should_handle_idc()
-	 * @see Automattic\Jetpack\Identity_Crisis::should_handle_idc
-	 */
-	public static function sync_idc_optin() {
-		_deprecated_function( __METHOD__, '0.2.6', 'Automattic\\Jetpack\\Identity_Crisis::should_handle_idc' );
-		return self::should_handle_idc();
 	}
 
 	/**
 	 * Returns the value of the jetpack_should_handle_idc filter or constant.
 	 * If set to true, the site will be put into staging mode.
 	 *
-	 * This method uses both the current jetpack_should_handle_idc filter and constant and the
-	 * legacy jetpack_sync_idc_optin filter and constant to determine whether an IDC should be
-	 * handled.
+	 * This method uses both the current jetpack_should_handle_idc filter
+	 * and constant to determine whether an IDC should be handled.
 	 *
 	 * @return bool
 	 * @since 0.2.6
@@ -538,15 +552,9 @@ class Identity_Crisis {
 	public static function should_handle_idc() {
 		if ( Constants::is_defined( 'JETPACK_SHOULD_HANDLE_IDC' ) ) {
 			$default = Constants::get_constant( 'JETPACK_SHOULD_HANDLE_IDC' );
-		} elseif ( Constants::is_defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) {
-			// Check the legacy constant. This constant should be considered deprecated as of version 0.2.6.
-			$default = Constants::get_constant( 'JETPACK_SYNC_IDC_OPTIN' );
 		} else {
 			$default = ! Constants::is_defined( 'SUNRISE' ) && ! is_multisite();
 		}
-
-		// Add a callback which uses the legacy filter 'jetpack_sync_idc_optin'.
-		add_filter( 'jetpack_should_handle_idc', array( __CLASS__, 'legacy_jetpack_sync_idc_optin_filter' ) );
 
 		/**
 		 * Allows sites to opt in for IDC mitigation which blocks the site from syncing to WordPress.com when the home
@@ -558,614 +566,6 @@ class Identity_Crisis {
 		 * @since 0.2.6
 		 */
 		return (bool) apply_filters( 'jetpack_should_handle_idc', $default );
-	}
-
-	/**
-	 * Returns the value for the deprecated filter, 'jetpack_sync_idc_optin'. That filter has been replaced with the
-	 * 'jetpack_should_handle_idc' filter.
-	 *
-	 * @since 0.2.6
-	 *
-	 * @param bool $default Whether the site is opted in to IDC mitigation.
-	 */
-	public static function legacy_jetpack_sync_idc_optin_filter( $default ) {
-		/**
-		 * Allows sites to opt in for IDC mitigation which blocks the site from syncing to WordPress.com when the home
-		 * URL or site URL do not match what WordPress.com expects. The default value is either true, or the value of
-		 * JETPACK_SYNC_IDC_OPTIN constant if set.
-		 *
-		 * @param bool $default Whether the site is opted in to IDC mitigation.
-		 *
-		 * @since 0.2.0
-		 * @since-jetpack 4.3.2
-		 * @deprecated 0.2.6 Use jetpack_should_handle_idc
-		 */
-		return (bool) apply_filters_deprecated( 'jetpack_sync_idc_optin', array( $default ), '0.2.6', 'jetpack_should_handle_idc' );
-	}
-
-	/**
-	 * Does the current admin page have help tabs?
-	 *
-	 * @return bool
-	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
-	 */
-	public function admin_page_has_help_tabs() {
-		_deprecated_function( __METHOD__, '0.5.0' );
-
-		if ( ! function_exists( 'get_current_screen' ) ) {
-			return false;
-		}
-
-		$current_screen = get_current_screen();
-		$tabs           = $current_screen->get_help_tabs();
-
-		return ! empty( $tabs );
-	}
-
-	/**
-	 * Renders the non-admin IDC notice.
-	 *
-	 * @return void
-	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
-	 */
-	public function display_non_admin_idc_notice() {
-		_deprecated_function( __METHOD__, '0.5.0' );
-
-		$classes = 'jp-idc-notice inline is-non-admin notice notice-warning';
-		if ( isset( self::$current_screen ) && 'toplevel_page_jetpack' !== self::$current_screen->id ) {
-			$classes .= ' is-dismissible';
-		}
-
-		if ( $this->admin_page_has_help_tabs() ) {
-			$classes .= ' has-help-tabs';
-		}
-		?>
-
-		<div class="<?php echo esc_attr( $classes ); ?>">
-			<?php $this->render_notice_header(); ?>
-			<div class="jp-idc-notice__content-header">
-				<h3 class="jp-idc-notice__content-header__lead">
-					<?php echo $this->get_non_admin_notice_text(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				</h3>
-
-				<p class="jp-idc-notice__content-header__explanation">
-					<?php echo $this->get_non_admin_contact_admin_text(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				</p>
-			</div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * First "step" of the IDC mitigation. Will provide some messaging and two options/buttons.
-	 * "Confirm Staging" - Dismiss the notice and continue on with our lives in staging mode.
-	 * "Fix Jetpack Connection" - Will disconnect the site and start the mitigation...
-	 *
-	 * @return void
-	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
-	 */
-	public function display_idc_notice() {
-		_deprecated_function( __METHOD__, '0.5.0' );
-
-		$classes = 'jp-idc-notice inline notice notice-warning';
-		if ( $this->admin_page_has_help_tabs() ) {
-			$classes .= ' has-help-tabs';
-		}
-		?>
-		<div class="<?php echo esc_attr( $classes ); ?>">
-			<?php $this->render_notice_header(); ?>
-			<?php $this->render_notice_first_step(); ?>
-			<?php $this->render_notice_second_step(); ?>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Enqueue CSS for the admin bar.
-	 *
-	 * @return void
-	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
-	 */
-	public function enqueue_admin_bar_css() {
-		_deprecated_function( __METHOD__, '0.5.0' );
-	}
-
-	/**
-	 * Enqueue scripts for the notice.
-	 *
-	 * @return void
-	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
-	 */
-	public function enqueue_idc_notice_files() {
-		_deprecated_function( __METHOD__, '0.5.0' );
-
-		// Register and Enqueue jp-tracks-functions.
-		Tracking::register_tracks_functions_scripts( true );
-	}
-
-	/**
-	 * Renders the notice header.
-	 *
-	 * @return void
-	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
-	 */
-	public function render_notice_header() {
-		_deprecated_function( __METHOD__, '0.5.0' );
-
-		?>
-		<div class="jp-idc-notice__header">
-			<div class="jp-idc-notice__header__emblem">
-				<?php
-				$jetpack_logo = new Jetpack_Logo();
-				echo $jetpack_logo->get_jp_emblem(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				?>
-			</div>
-			<p class="jp-idc-notice__header__text">
-				<?php esc_html_e( 'Jetpack Safe Mode', 'jetpack-idc' ); ?>
-			</p>
-		</div>
-
-		<div class="jp-idc-notice__separator"></div>
-		<?php
-	}
-
-	/**
-	 * Is a container for the error notices.
-	 * Will be shown/controlled by jQuery in idc-notice.js.
-	 *
-	 * @return void
-	 */
-	public function render_error_notice() {
-		?>
-		<div class="jp-idc-error__notice dops-notice is-error">
-			<svg class="gridicon gridicons-notice dops-notice__icon" height="24" width="24" viewBox="0 0 24 24">
-				<g>
-					<path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"></path>
-				</g>
-			</svg>
-			<div class="dops-notice__content">
-				<span class="dops-notice__text">
-					<?php esc_html_e( 'Something went wrong:', 'jetpack-idc' ); ?>
-					<span class="jp-idc-error__desc"></span>
-				</span>
-				<a class="dops-notice__action" href="javascript:void(0);">
-					<span id="jp-idc-error__action">
-						<?php esc_html_e( 'Try Again', 'jetpack-idc' ); ?>
-					</span>
-				</a>
-			</div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Renders the first step notice.
-	 *
-	 * @return void
-	 */
-	public function render_notice_first_step() {
-		?>
-		<div class="jp-idc-notice__first-step">
-			<div class="jp-idc-notice__content-header">
-				<h3 class="jp-idc-notice__content-header__lead">
-					<?php echo $this->get_first_step_header_lead(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				</h3>
-
-				<p class="jp-idc-notice__content-header__explanation">
-					<?php echo $this->get_first_step_header_explanation(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				</p>
-			</div>
-
-			<?php $this->render_error_notice(); ?>
-
-			<div class="jp-idc-notice__actions">
-				<div class="jp-idc-notice__action">
-					<p class="jp-idc-notice__action__explanation">
-						<?php echo $this->get_confirm_safe_mode_action_explanation(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-					</p>
-					<button id="jp-idc-confirm-safe-mode-action" class="dops-button">
-						<?php echo $this->get_confirm_safe_mode_button_text(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-					</button>
-				</div>
-
-				<div class="jp-idc-notice__action">
-					<p class="jp-idc-notice__action__explanation">
-						<?php echo $this->get_first_step_fix_connection_action_explanation(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-					</p>
-					<button id="jp-idc-fix-connection-action" class="dops-button">
-						<?php echo $this->get_first_step_fix_connection_button_text(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-					</button>
-				</div>
-			</div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Renders the second step notice.
-	 *
-	 * @return void
-	 */
-	public function render_notice_second_step() {
-		?>
-		<div class="jp-idc-notice__second-step">
-			<div class="jp-idc-notice__content-header">
-				<h3 class="jp-idc-notice__content-header__lead">
-					<?php echo $this->get_second_step_header_lead(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				</h3>
-			</div>
-
-			<?php $this->render_error_notice(); ?>
-
-			<div class="jp-idc-notice__actions">
-				<div class="jp-idc-notice__action">
-					<p class="jp-idc-notice__action__explanation">
-						<?php echo $this->get_migrate_site_action_explanation(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-					</p>
-					<button id="jp-idc-migrate-action" class="dops-button">
-						<?php echo $this->get_migrate_site_button_text(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-					</button>
-				</div>
-
-				<div class="jp-idc-notice__action">
-					<p class="jp-idc-notice__action__explanation">
-						<?php echo $this->get_start_fresh_action_explanation(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-					</p>
-					<button id="jp-idc-reconnect-site-action" class="dops-button">
-						<?php echo $this->get_start_fresh_button_text(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-					</button>
-				</div>
-
-			</div>
-
-			<p class="jp-idc-notice__unsure-prompt">
-				<?php echo $this->get_unsure_prompt(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-			</p>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Returns the first step header lead.
-	 *
-	 * @return string
-	 */
-	public function get_first_step_header_lead() {
-		$html = wp_kses(
-			sprintf(
-			/* translators: %s: Safe mode docs URL and site URL. */
-				__( 'Jetpack has been placed into <a href="%1$s">Safe mode</a> because we noticed this is an exact copy of <a href="%2$s">%3$s</a>.', 'jetpack-idc' ),
-				esc_url( self::get_safe_mod_doc_url() ),
-				esc_url( self::$wpcom_home_url ),
-				self::prepare_url_for_display( esc_url_raw( self::$wpcom_home_url ) )
-			),
-			array( 'a' => array( 'href' => array() ) )
-		);
-
-		/**
-		 * Allows overriding of the default header text in the first step of the Safe Mode notice.
-		 *
-		 * @param string $html The HTML to be displayed.
-		 *
-		 * @since 0.2.0
-		 * @since-jetpack 4.4.0
-		 */
-		return apply_filters( 'jetpack_idc_first_step_header_lead', $html );
-	}
-
-	/**
-	 * Returns the first step header explanation.
-	 *
-	 * @return string
-	 */
-	public function get_first_step_header_explanation() {
-		$html = wp_kses(
-			sprintf(
-			/* translators: %s: Safe mode docs URL. */
-				__( 'Please confirm Safe Mode or fix the Jetpack connection. Select one of the options below or <a href="%1$s">learn more about Safe Mode</a>.', 'jetpack-idc' ),
-				esc_url( self::get_safe_mod_doc_url() )
-			),
-			array( 'a' => array( 'href' => array() ) )
-		);
-
-		/**
-		 * Allows overriding of the default header explanation text in the first step of the Safe Mode notice.
-		 *
-		 * @param string $html The HTML to be displayed.
-		 *
-		 * @since 0.2.0
-		 * @since-jetpack 4.4.0
-		 */
-		return apply_filters( 'jetpack_idc_first_step_header_explanation', $html );
-	}
-
-	/**
-	 * Returns the confirm safe mode explanation.
-	 *
-	 * @return string
-	 */
-	public function get_confirm_safe_mode_action_explanation() {
-		$html = wp_kses(
-			sprintf(
-			/* translators: %s: Site URL. */
-				__( 'Is this website a temporary duplicate of <a href="%1$s">%2$s</a> for the purposes of testing, staging or development? If so, we recommend keeping it in Safe Mode.', 'jetpack-idc' ),
-				esc_url( untrailingslashit( self::$wpcom_home_url ) ),
-				self::prepare_url_for_display( esc_url( self::$wpcom_home_url ) )
-			),
-			array( 'a' => array( 'href' => array() ) )
-		);
-
-		/**
-		 * Allows overriding of the default text used to explain the confirm safe mode action.
-		 *
-		 * @param string $html The HTML to be displayed.
-		 *
-		 * @since 0.2.0
-		 * @since-jetpack 4.4.0
-		 */
-		return apply_filters( 'jetpack_idc_confirm_safe_mode_explanation', $html );
-	}
-
-	/**
-	 * Returns the confirm safe mode button text.
-	 *
-	 * @return string
-	 */
-	public function get_confirm_safe_mode_button_text() {
-		$string = esc_html__( 'Confirm Safe Mode', 'jetpack-idc' );
-
-		/**
-		 * Allows overriding of the default text used for the confirm safe mode action button.
-		 *
-		 * @param string $string The string to be displayed.
-		 *
-		 * @since 0.2.0
-		 * @since-jetpack 4.4.0
-		 */
-		return apply_filters( 'jetpack_idc_confirm_safe_mode_button_text', $string );
-	}
-
-	/**
-	 * Returns the first step fix connection action explanation.
-	 *
-	 * @return string
-	 */
-	public function get_first_step_fix_connection_action_explanation() {
-		$html = wp_kses(
-			sprintf(
-			/* translators: %s: Site URL. */
-				__( 'If this is a separate and new website, or the new home of <a href="%1$s">%2$s</a>, we recommend turning Safe Mode off, and re-establishing your connection to WordPress.com.', 'jetpack-idc' ),
-				esc_url( untrailingslashit( self::$wpcom_home_url ) ),
-				self::prepare_url_for_display( esc_url( self::$wpcom_home_url ) )
-			),
-			array( 'a' => array( 'href' => array() ) )
-		);
-
-		/**
-		 * Allows overriding of the default text used to explain the fix Jetpack connection action.
-		 *
-		 * @param string $html The HTML to be displayed.
-		 *
-		 * @since 0.2.0
-		 * @since-jetpack 4.4.0
-		 */
-		return apply_filters( 'jetpack_idc_first_fix_connection_explanation', $html );
-	}
-
-	/**
-	 * Returns the first step fix connection button text.
-	 *
-	 * @return string
-	 */
-	public function get_first_step_fix_connection_button_text() {
-		$string = esc_html__( "Fix Jetpack's Connection", 'jetpack-idc' );
-
-		/**
-		 * Allows overriding of the default text used for the fix Jetpack connection action button.
-		 *
-		 * @param string $string The string to be displayed.
-		 *
-		 * @since 0.2.0
-		 * @since-jetpack 4.4.0
-		 */
-		return apply_filters( 'jetpack_idc_first_step_fix_connection_button_text', $string );
-	}
-
-	/**
-	 * Returns the second step header lead.
-	 *
-	 * @return string
-	 */
-	public function get_second_step_header_lead() {
-		$string = sprintf(
-		/* translators: %s: Site URL. */
-			esc_html__( 'Is %1$s the new home of %2$s?', 'jetpack-idc' ),
-			untrailingslashit( self::normalize_url_protocol_agnostic( get_home_url() ) ),
-			untrailingslashit( self::normalize_url_protocol_agnostic( esc_url_raw( self::$wpcom_home_url ) ) )
-		);
-
-		/**
-		 * Allows overriding of the default header text in the second step of the Safe Mode notice.
-		 *
-		 * @param string $html The HTML to be displayed.
-		 *
-		 * @since 0.2.0
-		 * @since-jetpack 4.4.0
-		 */
-		return apply_filters( 'jetpack_idc_second_step_header_lead', $string );
-	}
-
-	/**
-	 * Returns the site action explanation.
-	 *
-	 * @return string
-	 */
-	public function get_migrate_site_action_explanation() {
-		$html = wp_kses(
-			sprintf(
-			/* translators: %s: Site URL. */
-				__( 'Yes. <a href="%1$s">%2$s</a> is replacing <a href="%3$s">%4$s</a>. I would like to migrate my stats and subscribers from <a href="%3$s">%4$s</a> to <a href="%1$s">%2$s</a>.', 'jetpack-idc' ),
-				esc_url( get_home_url() ),
-				self::prepare_url_for_display( get_home_url() ),
-				esc_url( self::$wpcom_home_url ),
-				untrailingslashit( self::normalize_url_protocol_agnostic( esc_url_raw( self::$wpcom_home_url ) ) )
-			),
-			array( 'a' => array( 'href' => array() ) )
-		);
-
-		/**
-		 * Allows overriding of the default text for explaining the migrate site action.
-		 *
-		 * @param string $html The HTML to be displayed.
-		 *
-		 * @since 0.2.0
-		 * @since-jetpack 4.4.0
-		 */
-		return apply_filters( 'jetpack_idc_migrate_site_explanation', $html );
-	}
-
-	/**
-	 * Returns the migrate site button text.
-	 *
-	 * @return string
-	 */
-	public function get_migrate_site_button_text() {
-		$string = esc_html__( 'Migrate Stats &amp; Subscribers', 'jetpack-idc' );
-
-		/**
-		 * Allows overriding of the default text used for the migrate site action button.
-		 *
-		 * @param string $string The string to be displayed.
-		 *
-		 * @since 0.2.0
-		 * @since-jetpack 4.4.0
-		 */
-		return apply_filters( 'jetpack_idc_migrate_site_button_text', $string );
-	}
-
-	/**
-	 * Returns the start fresh explanation.
-	 *
-	 * @return string
-	 */
-	public function get_start_fresh_action_explanation() {
-		$html = wp_kses(
-			sprintf(
-			/* translators: %s: Site URL. */
-				__( 'No. <a href="%1$s">%2$s</a> is a new and different website that\'s separate from <a href="%3$s">%4$s</a>. It requires  a new connection to WordPress.com for new stats and subscribers.', 'jetpack-idc' ),
-				esc_url( get_home_url() ),
-				self::prepare_url_for_display( get_home_url() ),
-				esc_url( self::$wpcom_home_url ),
-				untrailingslashit( self::normalize_url_protocol_agnostic( esc_url_raw( self::$wpcom_home_url ) ) )
-			),
-			array( 'a' => array( 'href' => array() ) )
-		);
-
-		/**
-		 * Allows overriding of the default text for explaining the start fresh action.
-		 *
-		 * @param string $html The HTML to be displayed.
-		 *
-		 * @since 0.2.0
-		 * @since-jetpack 4.4.0
-		 */
-		return apply_filters( 'jetpack_idc_start_fresh_explanation', $html );
-	}
-
-	/**
-	 * Returns the start fresh button text.
-	 *
-	 * @return string
-	 */
-	public function get_start_fresh_button_text() {
-		$string = esc_html__( 'Start Fresh &amp; Create New Connection', 'jetpack-idc' );
-
-		/**
-		 * Allows overriding of the default text used for the start fresh action button.
-		 *
-		 * @param string $string The string to be displayed.
-		 *
-		 * @since 0.2.0
-		 * @since-jetpack 4.4.0
-		 */
-		return apply_filters( 'jetpack_idc_start_fresh_button_text', $string );
-	}
-
-	/**
-	 * Returns the unsure prompt text.
-	 *
-	 * @return string
-	 */
-	public function get_unsure_prompt() {
-		$html = wp_kses(
-			sprintf(
-			/* translators: %s: Safe mode docs URL. */
-				__( 'Unsure what to do? <a href="%1$s">Read more about Jetpack Safe Mode</a>', 'jetpack-idc' ),
-				esc_url( self::get_safe_mod_doc_url() )
-			),
-			array( 'a' => array( 'href' => array() ) )
-		);
-
-		/**
-		 * Allows overriding of the default text using in the "Unsure what to do?" prompt.
-		 *
-		 * @param string $html The HTML to be displayed.
-		 *
-		 * @since 0.2.0
-		 * @since-jetpack 4.4.0
-		 */
-		return apply_filters( 'jetpack_idc_unsure_prompt', $html );
-	}
-
-	/**
-	 * Returns the non-admin notice text.
-	 *
-	 * @return string
-	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
-	 */
-	public function get_non_admin_notice_text() {
-		_deprecated_function( __METHOD__, '0.5.0' );
-
-		$html = wp_kses(
-			sprintf(
-			/* translators: %s: Safe mode docs URL. */
-				__( 'Jetpack has been placed into Safe Mode. Learn more about <a href="%1$s">Safe Mode</a>.', 'jetpack-idc' ),
-				esc_url( self::get_safe_mod_doc_url() )
-			),
-			array( 'a' => array( 'href' => array() ) )
-		);
-
-		/**
-		 * Allows overriding of the default text that is displayed to non-admin on the Jetpack admin page.
-		 *
-		 * @param string $html The HTML to be displayed.
-		 *
-		 * @since 0.2.0
-		 * @since-jetpack 4.4.0
-		 */
-		return apply_filters( 'jetpack_idc_non_admin_notice_text', $html );
-	}
-
-	/**
-	 * Returns the non-admin contact admin text.
-	 *
-	 * @return string
-	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
-	 */
-	public function get_non_admin_contact_admin_text() {
-		_deprecated_function( __METHOD__, '0.5.0' );
-
-		$string = esc_html__( 'An administrator of this site can take Jetpack out of Safe Mode.', 'jetpack-idc' );
-
-		/**
-		 * Allows overriding of the default text that is displayed to non-admins prompting them to contact an admin.
-		 *
-		 * @param string $string The string to be displayed.
-		 *
-		 * @since 0.2.0
-		 * @since-jetpack 4.4.0
-		 */
-		return apply_filters( 'jetpack_idc_non_admin_contact_admin_text', $string );
 	}
 
 	/**
@@ -1285,5 +685,180 @@ class Identity_Crisis {
 		}
 
 		return $path;
+	}
+
+	/**
+	 * Adds `url_secret` to the `jetpack.idcUrlValidation` URL validation endpoint.
+	 * Adds `url_secret_error` in case of an error.
+	 *
+	 * @param array $response The endpoint response that we're modifying.
+	 *
+	 * @return array
+	 *
+	 * phpcs:ignore Squiz.Commenting.FunctionCommentThrowTag -- The exception is being caught, false positive.
+	 */
+	public static function add_secret_to_url_validation_response( array $response ) {
+		try {
+			$secret = new URL_Secret();
+
+			$secret->create();
+
+			if ( $secret->exists() ) {
+				$response['url_secret'] = $secret->get_secret();
+			}
+		} catch ( Exception $e ) {
+			$response['url_secret_error'] = new WP_Error( 'unable_to_create_url_secret', $e->getMessage() );
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Check if URL is an IP.
+	 *
+	 * @param string $hostname The hostname to check.
+	 * @return bool
+	 */
+	public static function url_is_ip( $hostname = null ) {
+
+		if ( ! $hostname ) {
+			$hostname = wp_parse_url( Urls::site_url(), PHP_URL_HOST );
+		}
+
+		$is_ip = filter_var( $hostname, FILTER_VALIDATE_IP ) !== false ? $hostname : false;
+		return $is_ip;
+	}
+
+	/**
+	 * Add IDC-related data to the registration query.
+	 *
+	 * @param array $params The existing query params.
+	 *
+	 * @return array
+	 */
+	public static function register_request_body( array $params ) {
+		$persistent_blog_id = get_option( static::PERSISTENT_BLOG_ID_OPTION_NAME );
+		if ( $persistent_blog_id ) {
+			$params['persistent_blog_id'] = $persistent_blog_id;
+			$params['url_secret']         = URL_Secret::create_secret( 'registration_request_url_secret_failed' );
+		}
+
+		return $params;
+	}
+
+	/**
+	 * Set the necessary options when site gets registered.
+	 *
+	 * @param int $blog_id The blog ID.
+	 *
+	 * @return void
+	 */
+	public static function site_registered( $blog_id ) {
+		update_option( static::PERSISTENT_BLOG_ID_OPTION_NAME, (int) $blog_id, false );
+	}
+
+	/**
+	 * Check if we need to update the ip_requester option.
+	 *
+	 * @param string $hostname The hostname to check.
+	 *
+	 * @return void
+	 */
+	public static function maybe_update_ip_requester( $hostname ) {
+		// Check if transient exists
+		$transient_key = ip2long( $hostname );
+		if ( $transient_key && ! get_transient( 'jetpack_idc_ip_requester_' . $transient_key ) ) {
+			self::set_ip_requester_for_idc( $hostname, $transient_key );
+		}
+	}
+
+	/**
+	 * If URL is an IP, add the IP value to the ip_requester option with its expiry value.
+	 *
+	 * @param string $hostname The hostname to check.
+	 * @param int    $transient_key The transient key.
+	 */
+	public static function set_ip_requester_for_idc( $hostname, $transient_key ) {
+		// Check if option exists
+		$data = Jetpack_Options::get_option( 'identity_crisis_ip_requester' );
+
+		$ip_requester = array(
+			'ip'         => $hostname,
+			'expires_at' => time() + 360,
+		);
+
+		// If not set, initialize it
+		if ( empty( $data ) ) {
+			$data = array( $ip_requester );
+		} else {
+			$updated_data  = array();
+			$updated_value = false;
+
+			// Remove expired values and update existing IP
+			foreach ( $data as $item ) {
+				if ( time() > $item['expires_at'] ) {
+					continue; // Skip expired IP
+				}
+
+				if ( $item['ip'] === $hostname ) {
+					$item['expires_at'] = time() + 360;
+					$updated_value      = true;
+				}
+
+				$updated_data[] = $item;
+			}
+
+			if ( ! $updated_value || empty( $updated_data ) ) {
+				$updated_data[] = $ip_requester;
+			}
+
+			$data = $updated_data;
+		}
+
+		self::update_ip_requester( $data, $transient_key );
+	}
+
+	/**
+	 * Update the ip_requester option and set a transient to expire in 5 minutes.
+	 *
+	 * @param array $data The data to be updated.
+	 * @param int   $transient_key The transient key.
+	 *
+	 * @return void
+	 */
+	public static function update_ip_requester( $data, $transient_key ) {
+		// Update the option
+		$updated = Jetpack_Options::update_option( 'identity_crisis_ip_requester', $data );
+		// Set a transient to expire in 5 minutes
+		if ( $updated ) {
+			$transient_name = 'jetpack_idc_ip_requester_' . $transient_key;
+			set_transient( $transient_name, $data, 300 );
+		}
+	}
+
+	/**
+	 * Adds `ip_requester` to the `jetpack.idcUrlValidation` URL validation endpoint.
+	 *
+	 * @param array $response The enpoint response that we're modifying.
+	 *
+	 * @return array
+	 */
+	public static function add_ip_requester_to_url_validation_response( array $response ) {
+		$requesters = Jetpack_Options::get_option( 'identity_crisis_ip_requester' );
+		if ( $requesters ) {
+			// Loop through the requesters and add the IP to the response if it's not expired
+			$i = 0;
+			foreach ( $requesters as $ip ) {
+				if ( $ip['expires_at'] > time() ) {
+					$response['ip_requester'][] = $ip['ip'];
+				}
+				// Limit the response to five IPs
+				$i = ++$i;
+				if ( $i === 5 ) {
+					break;
+				}
+			}
+		}
+		return $response;
 	}
 }

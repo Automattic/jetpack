@@ -1,20 +1,10 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import { ToolbarGroup, ToolbarButton, ToolbarItem } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-/**
- * Internal dependencies
- */
+import classnames from 'classnames';
 import './style.scss';
-import { ControlBackFiveIcon, ControlForwardFiveIcon } from '../../icons';
 import { STATE_PAUSED, STORE_ID } from '../../../store/media-source/constants';
+import { ControlBackFiveIcon, ControlForwardFiveIcon } from '../../icons';
 import { convertSecondsToTimeCode } from './utils';
 
 export function MediaPlayerControl( {

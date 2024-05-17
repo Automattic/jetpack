@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 /**
  * CSSTidy - CSS Parser and Optimiser
  *
@@ -50,4 +50,3 @@ if ( ! function_exists( 'ctype_alpha' ) ) {
 		return preg_match( '/[a-zA-Z]/', $text );
 	}
 }
-

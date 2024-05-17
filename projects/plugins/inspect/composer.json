@@ -1,0 +1,70 @@
+{
+	"name": "automattic/jetpack-inspect",
+	"description": "A debugging plugin to inspect Jetpack interactions with WordPress.com.",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"authors": [
+		{
+			"name": "pyronaur",
+			"email": "hi@pyronaur.com"
+		}
+	],
+	"autoload": {
+		"psr-4": {
+			"Automattic\\Jetpack_Inspect\\": "app/",
+			"Automattic\\Jetpack\\Packages\\": "packages/"
+		}
+	},
+	"require": {
+		"php": ">=7.4",
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-composer-plugin": "@dev",
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-config": "@dev"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.1.0",
+		"automattic/jetpack-changelogger": "@dev"
+	},
+	"config": {
+		"allow-plugins": {
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true
+		},
+		"autoloader-suffix": "2662d159b2161b86f56c5059a9d397af_inspectⓥ0_1_0_alpha"
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"skip-test-php": "tests/action-skip-test-php.sh",
+		"test-php": [
+			"@composer phpunit"
+		],
+		"build-development": "pnpm run build",
+		"build-production": "pnpm run build-production"
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autorelease": true,
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-inspect",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-inspect/compare/v${old}...v${new}",
+			"versioning": "semver"
+		},
+		"release-branch-prefix": "inspect",
+		"beta-plugin-slug": "jetpack-inspect"
+	}
+}

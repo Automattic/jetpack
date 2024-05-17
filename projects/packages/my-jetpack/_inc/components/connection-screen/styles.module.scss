@@ -19,11 +19,17 @@
 .account-images {
 	display: flex;
 	align-items: center;
+	
+	li {
+		background: none !important;
+		margin: 0 !important;
+		padding: 0 !important;
+	}
 }
 
 .wordpress {
 	margin-right: 8px;
-	width: 100px;
+	max-width: 110px;
 }
 
 .google {

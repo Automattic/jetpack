@@ -1,0 +1,9 @@
+{
+	"extends": "jetpack-js-tools/tsconfig.tsc-declaration-only.json",
+	"include": [ "./src/*", "./src/utils/*" ],
+	"compilerOptions": {
+		"typeRoots": [ "./node_modules/@types/", "src/*" ],
+		"sourceMap": true,
+		"outDir": "./build/"
+	}
+}

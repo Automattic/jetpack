@@ -21,14 +21,29 @@
 		</properties>
 	</rule>
 
+	<rule ref="WordPress.WP.Capabilities">
+		<properties>
+			<property name="custom_capabilities" type="array">
+				<element value="jetpack_activate_modules" />
+				<element value="jetpack_admin_page" />
+				<element value="jetpack_configure_modules" />
+				<element value="jetpack_connect" />
+				<element value="jetpack_connect_user" />
+				<element value="jetpack_deactivate_modules" />
+				<element value="jetpack_disconnect" />
+				<element value="jetpack_manage_modules" />
+				<element value="jetpack_network_admin_page" />
+				<element value="jetpack_network_settings_page" />
+				<element value="jetpack_network_sites_page" />
+				<element value="jetpack_reconnect" />
+				<element value="view_stats" />
+			</property>
+		</properties>
+	</rule>
+
 	<!-- WordPress-Extra pulls this in. But PHP linting can be run more efficiently via bin/parallel-lint.sh than by having phpcs shell out to `php -l`. -->
 	<rule ref="Generic.PHP.Syntax">
 		<exclude name="Generic.PHP.Syntax" />
-	</rule>
-
-	<!-- Temporarily disable this until it passes. -->
-	<rule ref="WordPress.DB.DirectDatabaseQuery">
-		<exclude name="WordPress.DB.DirectDatabaseQuery"/>
 	</rule>
 
 </ruleset>

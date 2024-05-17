@@ -118,5 +118,4 @@ class Semver {
 		}
 		return $al - $bl;
 	}
-
 }

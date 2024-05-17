@@ -6,18 +6,15 @@
  * and we can load it using `Assets::register_module()` instead of the ad hoc manner it's done currently.
  */
 
-/**
- * External dependencies
- */
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const glob = require( 'glob' );
 const path = require( 'path' );
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
+const glob = require( 'glob' );
 
 const webpack = jetpackWebpackConfig.webpack;
 const sharedWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
-	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
+	devtool: jetpackWebpackConfig.devtool,
 	output: {
 		...jetpackWebpackConfig.output,
 		path: path.join( __dirname, '..' ),
@@ -50,7 +47,7 @@ const sharedWebpackConfig = {
 					{
 						loader: 'postcss-loader',
 						options: {
-							postcssOptions: { plugins: { autoprefixer: {} } },
+							postcssOptions: { plugins: [ require( 'autoprefixer' ) ] },
 						},
 					},
 					{
@@ -126,7 +123,7 @@ const weirdRtlEntries = {
 		// When making changes to that list, you must also update $concatenated_style_handles in class.jetpack.php.
 		'modules/carousel/swiper-bundle.css',
 		'modules/carousel/jetpack-carousel.css',
-		'modules/contact-form/css/grunion.css',
+		'jetpack_vendor/automattic/jetpack-forms/src/contact-form/css/grunion.css',
 		'modules/infinite-scroll/infinity.css',
 		'modules/likes/style.css',
 		'modules/related-posts/related-posts.css',
@@ -154,6 +151,8 @@ const weirdRtlEntries = {
 		'modules/widgets/simple-payments/style.css',
 		'modules/widgets/social-icons/social-icons.css',
 		'modules/widgets/milestone/milestone-widget.css',
+		'modules/subscriptions/subscribe-modal/subscribe-modal.css',
+		'modules/subscriptions/subscribe-overlay/subscribe-overlay.css',
 	].map( n => path.join( __dirname, '..', n ) ),
 };
 
@@ -166,16 +165,10 @@ for ( const name of [
 	'modules/shortcodes/css/recipes',
 	'modules/shortcodes/css/recipes-print',
 	'modules/shortcodes/css/slideshow-shortcode',
-	'modules/contact-form/css/editor-inline-editing-style',
-	'modules/contact-form/css/editor-style',
-	'modules/contact-form/css/editor-ui',
 	'modules/custom-css/csstidy/cssparse',
 	'modules/custom-css/csstidy/cssparsed',
 	'modules/custom-css/custom-css/css/codemirror',
-	'modules/custom-css/custom-css/css/css-editor',
-	'modules/custom-css/custom-css/css/use-codemirror',
 	'modules/post-by-email/post-by-email',
-	'modules/protect/protect-dashboard-widget',
 	'modules/sharedaddy/admin-sharing',
 	'modules/videopress/videopress-admin',
 	'modules/videopress/css/editor',
@@ -183,7 +176,9 @@ for ( const name of [
 	'modules/widget-visibility/widget-conditions/widget-conditions',
 	'modules/widgets/gallery/css/admin',
 	'modules/sso/jetpack-sso-login',
+	'modules/sso/jetpack-sso-admin-create-user',
 	'modules/masterbar/admin-menu/admin-menu',
+	'modules/masterbar/admin-menu/admin-menu-nav-unification',
 ] ) {
 	weirdRtlNominEntries[ name ] = path.join( __dirname, '..', name + '.css' );
 	weirdRtlEntries[ name + '.min' ] = path.join( __dirname, '..', name + '.css' );
@@ -193,7 +188,6 @@ for ( const name of [
 // The ltr version is apparently used unminified.
 for ( const name of [
 	'modules/carousel/jetpack-carousel',
-	'modules/contact-form/css/grunion',
 	'modules/related-posts/related-posts',
 	'modules/shortcodes/css/recipes',
 	'modules/shortcodes/css/recipes-print',

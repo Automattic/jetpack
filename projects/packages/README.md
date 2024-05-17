@@ -4,7 +4,7 @@ These Composer packages offer a unified code base that we will share among proje
 
 ## Installing Composer
 
-You need Composer to use the packages. If you don't have it installed, go and check how to [install Composer](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#installing-composer) and then continue here.
+You need Composer to use the packages. If you don't have it installed, go and check how to [install Composer](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#composer) and then continue here.
 
 ## Defining required packages
 
@@ -41,6 +41,10 @@ and that will install the required Composer packages.
 
 ### Using packages
 
+Before using a package within another project, you will need to require the package in the project's `composer.json` file. Then, run `tools/fixup-project-versions.sh` to update the `composer.lock` file in the proect, and reinstall the project with the `jetpack install` command.
+
+As an example, if you want to require the Logo package in the Jetpack plugin, add `"automattic/jetpack-logo": "@dev",` underneath `require` in the Jetpack plugin's `composer.json` file to require it. After updating the project versions run `jetpack install plugins/jetpack` to pull the new package.
+
 To use something from a package, you have to declare it at the top of the file before any other instruction, and then use it in the code. For example, the logo can be used like this:
 
 ```php
@@ -68,12 +72,12 @@ While the script we use to deploy the package takes care of everything, we might
 1. Before you merge the PR introducing the new package in Jetpack, run through the steps below.
 2. Create an online repository in GitHub for the package. In this case, it's https://github.com/Automattic/jetpack-autoloader.
 3. Add an initial valid `composer.json` to the repository. You can copy it from your PR in the Jetpack repo.
-4. You'll want to update the repository settings to be just like the Autoloader repo; check the repository description, disable issues, set up branch protection rules for the `master` branch.
+4. You'll want to update the repository settings to be just like the Autoloader repo; check the repository description, disable issues, set up branch protection rules for the `trunk` branch.
 5. Go to https://packagist.org/packages/submit and insert the URL of the GitHub repository.
 6. Upon submission, add Crew members as package maintainers, as well as the `automattic` account.
 
 
-Once this is all done, you can merge your PR in the Jetpack repo. When you do so, the changes will be automatically pushed to the new package repo, and your changes will become available in the `dev-master` version of the package available to the public.
+Once this is all done, you can merge your PR in the Jetpack repo. When you do so, the changes will be automatically pushed to the new package repo, and your changes will become available in the `dev-trunk` version of the package available to the public.
 
 ## Unit Tests
 You may run unit tests locally for any given package by running `composer phpunit` within the package directory.
@@ -81,6 +85,10 @@ You may run unit tests locally for any given package by running `composer phpuni
 ## Developing Jetpack Packages
 
 ### Creating a New Package
+
+#### Using Jetpack Generate Wizard to create a new Package
+
+You can use the steps explained in [Jetpack Generate Wizard](https://github.com/Automattic/jetpack/blob/trunk/docs/monorepo.md#jetpack-generate-wizard) to jumpstart the files you need for your new package.
 
 #### Should my code be in a Package?
 
@@ -94,7 +102,6 @@ Not sure if your code should be in a Package? Here are some general guidelines w
 | ✅ | Other plugins will find this code useful. |
 | ✅ | You are building a completely new plugin. |
 | ✅ | Your code has dependencies that are only within itself or other Packages. |
-
 
 ### Package Autoloading
 

@@ -5,7 +5,7 @@
  * Sort Order: 35
  * Recommendation Order: 15
  * First Introduced: 4.4
- * Requires Connection: Yes
+ * Requires Connection: No
  * Requires User Connection: No
  * Auto Activate: No
  * Module Tags: Social, Appearance
@@ -26,6 +26,8 @@ $jetpack_seo_conflicting_plugins = array(
 	'slim-seo/slim-seo.php',
 	'wp-seopress/seopress.php',
 	'wp-seopress-pro/seopress-pro.php',
+	'seo-key/seo-key.php',
+	'seo-key-pro/seo-key.php',
 );
 
 foreach ( $jetpack_seo_conflicting_plugins as $seo_plugin ) {

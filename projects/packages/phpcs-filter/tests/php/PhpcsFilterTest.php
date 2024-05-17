@@ -220,7 +220,7 @@ class PhpcsFilterTest extends TestCase {
 				}
 				sort( $data[ $line ] );
 			}
-			foreach ( $file->getWarnings() as $line => $msgs ) {
+			foreach ( $file->getWarnings() as $line => $cols ) {
 				foreach ( $cols as $msgs ) {
 					foreach ( $msgs as $msg ) {
 						$data[ $line ][] = $msg['source'];
@@ -251,5 +251,4 @@ class PhpcsFilterTest extends TestCase {
 			'Custom per-directory file name' => array( __DIR__ . '/../../tests/fixtures/perdir-custom' ),
 		);
 	}
-
 }

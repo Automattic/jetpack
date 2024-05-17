@@ -4,7 +4,7 @@
 // See https://jetpackdesignhandbook.wordpress.com/rna-components/
 // ==========================================================================
 
-@mixin rna-link {
+@mixin rna-link( $has-focus-state: true ) {
 	$resting-shadow: 0 1px 0 0 currentColor;
 	$hover-shadow: 0 3px 0 0 currentColor;
 
@@ -53,11 +53,13 @@
 		}
 	}
 
-	&:focus {
-		border-radius: 2px;
-		box-shadow: none !important;
-		outline: 2px solid currentColor;
-		outline-offset: 3px;
+	@if $has-focus-state {
+		&:focus {
+			border-radius: 2px;
+			box-shadow: none !important;
+			outline: 2px solid currentColor;
+			outline-offset: 3px;
+		}
 	}
 
 	&:disabled,

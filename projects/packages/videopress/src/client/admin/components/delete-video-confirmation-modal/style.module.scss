@@ -1,0 +1,9 @@
+.modal-actions {
+	display: flex;
+	justify-content: right;
+	margin-top: calc( var( --spacing-base ) * 3 );
+
+	.modal-action-button {
+		margin-left: var( --spacing-base );
+	}
+}

@@ -1,20 +1,16 @@
-/**
- * WordPress dependencies
- */
-import { CheckboxControl } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
-import { store as editorStore, PostTypeSupportCheck } from '@wordpress/editor';
+import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
+import { ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
+import { store as editorStore, PostTypeSupportCheck } from '@wordpress/editor';
+import { __ } from '@wordpress/i18n';
 import JetpackLikesAndSharingPanel from '../../../../shared/jetpack-likes-and-sharing-panel';
+import { SharingPlaceholder } from '../placeholder';
+import SharingSkeletonLoader from '../skeleton-loader';
 
 function ShowSharingCheckbox( { checked, onChange } ) {
 	return (
-		<CheckboxControl
-			label={ __( 'Show sharing buttons.', 'jetpack' ) }
+		<ToggleControl
+			label={ __( 'Show sharing buttons', 'jetpack' ) }
 			checked={ checked }
 			onChange={ value => {
 				onChange( { jetpack_sharing_enabled: value } );
@@ -24,12 +20,33 @@ function ShowSharingCheckbox( { checked, onChange } ) {
 }
 
 export default function SharingCheckbox() {
+	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
+		useModuleStatus( 'sharedaddy' );
+
 	const isSharingEnabled = useSelect(
 		select => select( editorStore ).getEditedPostAttribute( 'jetpack_sharing_enabled' ),
 		[]
 	);
 
 	const { editPost } = useDispatch( editorStore );
+
+	if ( ! isModuleActive ) {
+		return (
+			<PostTypeSupportCheck supportKeys="jetpack-sharing-buttons">
+				<JetpackLikesAndSharingPanel>
+					{ isLoadingModules ? (
+						<SharingSkeletonLoader />
+					) : (
+						<SharingPlaceholder
+							changeStatus={ changeStatus }
+							isModuleActive={ isModuleActive }
+							isLoading={ isChangingStatus }
+						/>
+					) }
+				</JetpackLikesAndSharingPanel>
+			</PostTypeSupportCheck>
+		);
+	}
 
 	return (
 		<PostTypeSupportCheck supportKeys="jetpack-sharing-buttons">

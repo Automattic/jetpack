@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { ExternalLink, Path, SVG } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
-import { DEFAULT_CURRENCY } from '../../constants';
+import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../../../shared/block-icons';
+import { DEFAULT_CURRENCY } from '../../constants';
 import edit from './edit';
 import save from './save';
 
@@ -49,7 +42,7 @@ const settings = {
 		foreground: getIconColor(),
 	},
 
-	category: 'earn',
+	category: 'monetize',
 
 	keywords: [
 		_x( 'buy', 'block search term', 'jetpack' ),

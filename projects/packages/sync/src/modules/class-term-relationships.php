@@ -119,10 +119,10 @@ class Term_Relationships extends Module {
 			 */
 			$objects = $wpdb->get_results( $wpdb->prepare( "SELECT object_id, term_taxonomy_id FROM $wpdb->term_relationships WHERE ( object_id = %d AND term_taxonomy_id < %d ) OR ( object_id < %d ) ORDER BY object_id DESC, term_taxonomy_id DESC LIMIT %d", $last_object_enqueued['object_id'], $last_object_enqueued['term_taxonomy_id'], $last_object_enqueued['object_id'], $limit ), ARRAY_A );
 			// Request term relationships in groups of N for efficiency.
-			$objects_count = count( $objects );
-			if ( ! count( $objects ) ) {
+			if ( ! is_countable( $objects ) || count( $objects ) === 0 ) {
 				return array( $items_enqueued_count, true );
 			}
+			$objects_count         = count( $objects );
 			$items                 = array_chunk( $objects, $term_relationships_full_sync_item_size );
 			$last_object_enqueued  = $this->bulk_enqueue_full_sync_term_relationships( $items, $last_object_enqueued );
 			$items_enqueued_count += count( $items );
@@ -179,6 +179,25 @@ class Term_Relationships extends Module {
 	}
 
 	/**
+	 * Return last_item to send for Module Full Sync Configuration.
+	 *
+	 * @param array $config This module Full Sync configuration.
+	 *
+	 * @return array|object|null
+	 */
+	public function get_last_item( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.DirectQuery
+		return $wpdb->get_results(
+			"SELECT object_id, term_taxonomy_id 
+			FROM $wpdb->term_relationships 
+			ORDER BY object_id , term_taxonomy_id
+			LIMIT 1",
+			ARRAY_A
+		);
+	}
+
+	/**
 	 *
 	 * Enqueue all $items within `jetpack_full_sync_term_relationships` actions.
 	 *
@@ -208,8 +227,8 @@ class Term_Relationships extends Module {
 
 		$query = "SELECT COUNT(*) FROM $wpdb->term_relationships";
 
-		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
-		$count = $wpdb->get_var( $query );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$count = (int) $wpdb->get_var( $query );
 
 		return (int) ceil( $count / Settings::get_setting( 'term_relationships_full_sync_item_size' ) );
 	}

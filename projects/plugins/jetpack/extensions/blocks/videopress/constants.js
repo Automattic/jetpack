@@ -15,3 +15,5 @@ export const VIDEO_PRIVACY = {
 	PRIVATE: 1,
 	SITE_DEFAULT: 2,
 };
+
+export const DEFAULT_EMBED_BLOCK = 'core/embed';

@@ -41,7 +41,6 @@ and any files that happen to be in parent directories should not affect the oper
 The base directory is determined by the first of these that are available:
 
 * The `jetpack-filter-basedir` config setting.
-* The `--basepath` command line option.
 * The current working directory.
 
 ### Per-directory configuration file name: `jetpack-filter-perdir-file`
@@ -101,6 +100,11 @@ You can still exclude such a rule by setting its severity to zero. The 4-compone
 
   <!-- This works too. -->
   <exclude name="Standard.Category.Rule.Message" />
+</rule>
+
+<!-- P.S. Don't do this, it doesn't work like you'd expect (it implicitly sets severity 0 for Standard.Category.Rule too). Use `<exclude>` as above for individual messages. -->
+<rule ref="Standard.Category.Rule.Message">
+  <severity>0</severity>
 </rule>
 ```
 

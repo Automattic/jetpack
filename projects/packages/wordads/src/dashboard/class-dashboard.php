@@ -22,14 +22,14 @@ class Dashboard {
 	/**
 	 * Connection manager instance
 	 *
-	 * @var Automattic\Jetpack\Connection\Manager
+	 * @var \Automattic\Jetpack\Connection\Manager
 	 */
 	protected $connection_manager;
 
 	/**
 	 * Contructor
 	 *
-	 * @param Automattic\Jetpack\Connection\Manager $connection_manager - Connection Manager instance.
+	 * @param \Automattic\Jetpack\Connection\Manager $connection_manager - Connection Manager instance.
 	 */
 	public function __construct( $connection_manager = null ) {
 		$this->connection_manager = $connection_manager ? $connection_manager : new Connection_Manager( Package::SLUG );
@@ -55,8 +55,7 @@ class Dashboard {
 			_x( 'WordAds', 'product name shown in menu', 'jetpack-wordads' ),
 			'manage_options',
 			'jetpack-wordads',
-			array( $this, 'render' ),
-			100
+			array( $this, 'render' )
 		);
 
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
@@ -76,13 +75,13 @@ class Dashboard {
 	/**
 	 * Test whether we should show Search menu.
 	 *
-	 * @return {boolean} Show search sub menu or not.
+	 * @return boolean Show search sub menu or not.
 	 */
 	protected function should_add_wordads_submenu() {
 		/**
 		 * The filter allows to ommit adding a submenu item for WordAds.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		 *
 		 * @param boolean $should_add_wordads_submenu Default value is true.
 		 */

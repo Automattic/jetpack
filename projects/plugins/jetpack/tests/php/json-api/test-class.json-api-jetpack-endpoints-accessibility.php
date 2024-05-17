@@ -3,14 +3,17 @@
  * Generic tests for Jetpack_JSON_API_Endpoint accessibility.
  *
  * @package automattic/jetpack
+ *
  * @phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
+
+use Automattic\Jetpack\Status\Cache as StatusCache;
 
 if ( defined( 'JETPACK__PLUGIN_DIR' ) && JETPACK__PLUGIN_DIR ) {
 	require_once JETPACK__PLUGIN_DIR . 'modules/module-extras.php';
 }
 
-require_jetpack_file( 'class.json-api-endpoints.php' );
+require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
 /**
  * Generic tests for Jetpack_JSON_API_Endpoint accessibility.
@@ -19,13 +22,13 @@ class WP_Test_Jetpack_Json_Api_Endpoints_Accessibility extends WP_UnitTestCase {
 	/**
 	 * An admin user_id.
 	 *
-	 * @var number $admin_user_id.
+	 * @var int $admin_user_id.
 	 */
 	private static $admin_user_id;
 	/**
 	 * The user_id of a user without read capabilities.
 	 *
-	 * @var number $no_read_user_id.
+	 * @var int $no_read_user_id.
 	 */
 	private static $no_read_user_id;
 
@@ -111,7 +114,9 @@ class WP_Test_Jetpack_Json_Api_Endpoints_Accessibility extends WP_UnitTestCase {
 	 * @param WP_Error|string $result The expected result.
 	 */
 	public function test_private_site_accessibility( $allow_jetpack_site_auth, $use_blog_token, $user_can_read, $result ) {
+		StatusCache::clear();
 		// Private site.
+		add_filter( 'jetpack_is_private_site', '__return_true' );
 		update_option( 'blog_public', '-1' );
 
 		$endpoint = new Jetpack_JSON_API_Dummy_Endpoint(
@@ -126,6 +131,9 @@ class WP_Test_Jetpack_Json_Api_Endpoints_Accessibility extends WP_UnitTestCase {
 			wp_set_current_user( $user_id );
 		}
 		$this->assertEquals( $result, $endpoint->api->process_request( $endpoint, array() ) );
+
+		remove_filter( 'jetpack_is_private_site', '__return_true' );
+		StatusCache::clear();
 	}
 
 	/**

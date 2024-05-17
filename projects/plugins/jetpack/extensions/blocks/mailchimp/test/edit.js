@@ -1,23 +1,13 @@
-/**
- * External dependencies
- */
-import '@testing-library/jest-dom/extend-expect';
-import { render, screen, act, waitFor } from '@testing-library/react';
 import { JETPACK_DATA_PATH } from '@automattic/jetpack-shared-extension-utils';
+import { render, screen, act, waitFor } from '@testing-library/react';
+import { registerBlocks } from '../../../shared/test/block-fixtures';
+import { settings } from '../../button';
+import MailchimpSubscribeEdit from '../edit';
 
-// We need to mock InnerBlocks before importing our edit component as it requires the Gutenberg store setup
-// to operate
 jest.mock( '@wordpress/block-editor', () => ( {
 	...jest.requireActual( '@wordpress/block-editor' ),
 	InnerBlocks: () => <button>Mocked button</button>,
 } ) );
-
-/**
- * Internal dependencies
- */
-import MailchimpSubscribeEdit from '../edit';
-import { settings } from '../../button';
-import { registerBlocks } from '../../../shared/test/block-fixtures';
 
 registerBlocks( [ { name: 'jetpack/button', settings } ] );
 
@@ -26,7 +16,7 @@ const originalFetch = window.fetch;
 /**
  * Mock return value for a successful fetch JSON return value.
  *
- * @return {Promise} Mock return value.
+ * @returns {Promise} Mock return value.
  */
 const NOT_CONNECTED_RESOLVED_FETCH_PROMISE = Promise.resolve( {
 	connected: undefined,
@@ -49,12 +39,9 @@ const CONNECTED_FETCH_MOCK_RETURN = Promise.resolve( {
 
 describe( 'Mailchimp block edit component', () => {
 	beforeEach( () => {
+		// eslint-disable-next-line jest/prefer-spy-on -- Nothing to spy on.
 		window.fetch = jest.fn();
 		window.fetch.mockReturnValue( DEFAULT_FETCH_MOCK_RETURN );
-	} );
-
-	afterEach( async () => {
-		await act( () => NOT_CONNECTED_RESOLVED_FETCH_PROMISE );
 	} );
 
 	afterAll( () => {
@@ -91,7 +78,16 @@ describe( 'Mailchimp block edit component', () => {
 				is_current_user_connected: false,
 			},
 		};
-		render( <MailchimpSubscribeEdit { ...defaultProps } /> );
+		const { container } = render( <MailchimpSubscribeEdit { ...defaultProps } /> );
+
+		// Wait for API call to "finish".
+		await waitFor( () => {
+			expect(
+				// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+				container.querySelector( '.wp-block-jetpack-mailchimp .components-spinner' )
+			).not.toBeInTheDocument();
+		} );
+
 		expect( window.fetch ).toHaveBeenCalledWith(
 			expect.stringContaining( '/jetpack/v4/connection/url?from=jetpack-block-editor&redirect=' ),
 			expect.anything()
@@ -99,7 +95,16 @@ describe( 'Mailchimp block edit component', () => {
 	} );
 
 	test( 'fetches mailchimp connect url on mount if current user is connected', async () => {
-		render( <MailchimpSubscribeEdit { ...defaultProps } /> );
+		const { container } = render( <MailchimpSubscribeEdit { ...defaultProps } /> );
+
+		// Wait for API call to "finish".
+		await waitFor( () => {
+			expect(
+				// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+				container.querySelector( '.wp-block-jetpack-mailchimp .components-spinner' )
+			).not.toBeInTheDocument();
+		} );
+
 		expect( window.fetch ).toHaveBeenCalledWith(
 			'/wpcom/v2/mailchimp?_locale=user',
 			expect.anything()
@@ -108,8 +113,7 @@ describe( 'Mailchimp block edit component', () => {
 
 	test( 'shows set up mailchimp button and recheck connection if not connected', async () => {
 		render( <MailchimpSubscribeEdit { ...defaultProps } /> );
-		await waitFor( () => screen.getByText( 'Set up Mailchimp form' ) );
-		expect( screen.getByText( 'Set up Mailchimp form' ) ).toBeInTheDocument();
+		await expect( screen.findByText( 'Set up Mailchimp form' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Re-check Connection' ) ).toBeInTheDocument();
 	} );
 
@@ -117,7 +121,10 @@ describe( 'Mailchimp block edit component', () => {
 		window.fetch.mockReturnValue( CONNECTED_FETCH_MOCK_RETURN );
 		const connectedProps = { ...defaultProps, attributes: { ...attributes, preview: true } };
 		render( <MailchimpSubscribeEdit { ...connectedProps } /> );
-		await waitFor( () => screen.getByLabelText( 'Enter your email' ) );
-		expect( screen.getByLabelText( 'Enter your email' ) ).toBeInTheDocument();
+		await expect( screen.findByLabelText( 'Enter your email' ) ).resolves.toBeInTheDocument();
+
+		// Wait for the API call to happen. It makes no differnce to the component, so there's nothing to waitFor for.
+		// eslint-disable-next-line testing-library/no-unnecessary-act
+		await act( () => {} );
 	} );
 } );

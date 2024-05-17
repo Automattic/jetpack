@@ -17,28 +17,29 @@
 	margin: 0 0 17px 0;
 	background: $white;
 	box-sizing: border-box;
-	box-shadow:
-		0 0 0 1px $light-gray-700,
-		0 1px 1px 1px  rgba(0,0,0,.04);
 
 	&.is-empty .dops-section-nav__panel {
 		visibility: hidden;
 	}
 
-	@include breakpoint( "<480px" ) {
+	@include breakpoint( "<660px" ) {
+		box-shadow:
+			0 0 0 1px $light-gray-700,
+			0 1px 1px 1px  rgba(0,0,0,.04);
+
 		&.is-open {
 			box-shadow: 0 0 0 1px $gray,
 				0 2px 4px lighten( $gray, 20 );
 		}
 	}
 
-	@include breakpoint( ">480px" ) {
+	@include breakpoint( ">660px" ) {
 		&.has-pinned-items {
 			padding-right: 60px;
 		}
 	}
 
-	@include breakpoint( "480px-660px" ) {
+	@include breakpoint( "660px-660px" ) {
 		&.has-pinned-items {
 			padding-right: 50px;
 		}
@@ -81,7 +82,7 @@
 		}
 	}
 
-	@include breakpoint( ">480px" ) {
+	@include breakpoint( ">660px" ) {
 		display: none;
 	}
 }
@@ -111,7 +112,7 @@
 	box-sizing: border-box;
 	width: 100%;
 
-	@include breakpoint( "<480px" ) {
+	@include breakpoint( "<660px" ) {
 		.dops-section-nav.is-open & {
 			padding-bottom: 15px;
 			border-top: solid 1px lighten( $gray, 20% );
@@ -119,7 +120,7 @@
 		}
 	}
 
-	@include breakpoint( ">480px" ) {
+	@include breakpoint( ">660px" ) {
 		display: flex;
 		align-items: center;
 
@@ -141,7 +142,7 @@
 		border-top: none;
 	}
 
-	@include breakpoint( "<480px" ) {
+	@include breakpoint( "<660px" ) {
 		display: none;
 
 		.dops-section-nav.is-open & {
@@ -149,7 +150,7 @@
 		}
 	}
 
-	@include breakpoint( ">480px" ) {
+	@include breakpoint( ">660px" ) {
 		margin-top: 0;
 		padding-top: 0;
 		border-top: none;
@@ -172,18 +173,18 @@
 }
 
 // -------- Labels --------
-// used above nav group < 480px with sibling control groups
+// used above nav group < 660px with sibling control groups
 .dops-section-nav-group__label {
 	display: none;
 	margin-bottom: 8px;
 	padding: 0 15px;
 	font-size: 11px;
-	color: $gray;
+	color: $black;
 	font-weight: 600;
 	text-transform: uppercase;
 	line-height: 12px;
 
-	@include breakpoint( "<480px" ) {
+	@include breakpoint( "<660px" ) {
 		.has-siblings & {
 			display: block;
 		}
@@ -204,7 +205,7 @@
 // -------- Nav Tabs --------
 // which contain items
 .dops-section-nav-tabs {
-	@include breakpoint( ">480px" ) {
+	@include breakpoint( ">660px" ) {
 		width: 0;
 		flex: 1 0 auto;
 
@@ -222,7 +223,7 @@
 	margin: 0;
 	list-style: none;
 
-	@include breakpoint( ">480px" ) {
+	@include breakpoint( ">660px" ) {
 		display: flex;
 		width: 100%;
 		overflow: hidden;
@@ -237,15 +238,28 @@
 .dops-section-nav-tab {
 	margin-bottom: 0;
 
-	@include breakpoint( ">480px" ) {
+	a.dops-section-nav-tab__link {
+		text-decoration: none;
+	}
+
+	@include breakpoint( ">660px" ) {
 		width: auto;
 		flex: none;
 		border-bottom: 2px solid transparent;
 		border-top: none;
 		text-align: center;
+		margin: 0 16px;
+
+		&:first-of-type {
+			margin-left: 0;
+		}
+
+		&:last-of-type {
+			margin-right: 0;
+		}
 
 		&.is-selected {
-			border-bottom-color: $gray-dark;
+			box-shadow: inset 0px -1px 0px $black;
 		}
 	}
 }
@@ -263,19 +277,15 @@
 	box-sizing: border-box;
 	padding: 15px;
 	width: 100%;
-	font-size: $font-body-small;
-	font-weight: 600;
-	line-height: 18px;
-	color: $gray-dark;
+	font-size: $font-body;
+	font-weight: 400;
+	line-height: 24px;
+	color: $black;
 	cursor: pointer;
-
-	&:visited {
-		color: $gray-dark;
-	}
 
 	&[disabled],
 	.notouch &[disabled]:hover {
-		color: lighten( $gray, 30% );
+		color: lighten( $black, 30% );
 		cursor: default;
 	}
 
@@ -294,20 +304,14 @@
 	}
 
 	.is-external & {
+		svg {
+			color: currentColor;
+		}
+
 		&:after {
 			// @include noticon('\f442');
 			font-size: 18px;
 			padding-left: 2px;
-		}
-	}
-
-	&:hover {
-		color: $blue-grey-dark;
-	}
-
-	.notouch & {
-		&:hover {
-			color: $blue-medium-dark;
 		}
 	}
 
@@ -317,19 +321,19 @@
 		}
 	}
 
-	@include breakpoint( ">480px" ) {
+	@include breakpoint( ">660px" ) {
 		display: block;
 		width: auto;
-		padding: 16px 16px 14px 16px;
-		color: $blue-medium-dark;
+		padding: 8px 0;
 		font-weight: 400;
 
-		&:visited {
-			color: $blue-medium-dark;
+		&:hover {
+			color: $black;
+			box-shadow: inset 0px -1px 0px $black;
 		}
 
 		.is-selected & {
-			color: $gray-dark;
+			color: $black;
 			background-color: transparent;
 
 			&:after {
@@ -339,7 +343,7 @@
 
 		.notouch .is-selected & {
 			&:hover {
-				color: $gray-dark;
+				color: $black;
 			}
 		}
 	}
@@ -352,32 +356,27 @@
 	box-sizing: border-box;
 	margin-block-start: 2px;
 	margin-top: -1px;
+	margin-left: 5px;
 	padding: 0 5px;
-	min-width: 18px;
-	height: 18px;
-	border-radius: 9px;
+	min-width: 20px;
+	height: 20px;
+	border-radius: 10px;
 	background-color: $orange-fire;
 	color: #fff;
-	font-size: 11px;
+	font-size: 12px;
 	line-height: 1.6;
 	text-align: center;
 
-	&.count-0 {
+	&.is-hidden {
 		display: none;
 	}
 }
 
 .dops-section-nav-tab__text {
-	display: block;
-	flex: 1 0 auto;
-	width: 0;
 	color: inherit;
-
-	@include breakpoint( ">480px" ) {
-		display: inline;
-		flex: none;
-		width: auto;
-	}
+	display: inline;
+	flex: none;
+	width: auto;
 }
 
 // -------- Nav Tabs - dropdowns --------
@@ -409,7 +408,7 @@
 
 // -------- Search --------
 .dops-section-nav {
-	@include breakpoint( "<480px" ) {
+	@include breakpoint( "<660px" ) {
 		.dops-search.is-pinned {
 			height: 46px;
 		}

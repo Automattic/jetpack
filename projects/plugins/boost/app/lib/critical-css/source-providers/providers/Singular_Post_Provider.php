@@ -49,7 +49,10 @@ class Singular_Post_Provider extends Provider {
 			$query = self::post_type_query( $post_type );
 
 			foreach ( $query->posts as $post ) {
-				$links[ $post_type ][] = get_permalink( $post );
+				$url = get_permalink( $post );
+				if ( ! empty( $url ) ) {
+					$links[ $post_type ][] = $url;
+				}
 			}
 		}
 
@@ -71,6 +74,12 @@ class Singular_Post_Provider extends Provider {
 	/** @inheritdoc */
 	public static function get_keys() {
 		return array_keys( self::get_post_types() );
+	}
+
+	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	/** @inheritdoc */
+	public static function get_edit_url( $_provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+		return null;
 	}
 
 	// phpcs:ignore

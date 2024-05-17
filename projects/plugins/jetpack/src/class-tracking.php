@@ -8,7 +8,11 @@
 namespace Automattic\Jetpack\Plugin;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Tracking as Tracks;
+use IXR_Error;
+use WP_Error;
+use WP_User;
 
 /**
  * Tracks class.
@@ -95,7 +99,7 @@ class Tracking {
 			$this->tracking->record_user_event( '_aliasUser', array( 'anonId' => $anon_id ) );
 			delete_user_meta( $user_id, 'jetpack_tracks_anon_id' );
 			if ( ! headers_sent() ) {
-				setcookie( 'tk_ai', 'expired', time() - 1000 );
+				setcookie( 'tk_ai', 'expired', time() - 1000, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), false );  // phpcs:ignore Jetpack.Functions.SetCookie -- Want this accessible.
 			}
 		}
 
@@ -113,8 +117,8 @@ class Tracking {
 	 *
 	 * @access public
 	 *
-	 * @param string   $action Type of secret (one of 'register', 'authorize', 'publicize').
-	 * @param \WP_User $user The user object.
+	 * @param string  $action Type of secret (one of 'register', 'authorize', 'publicize').
+	 * @param WP_User $user The user object.
 	 */
 	public function jetpack_verify_secrets_begin( $action, $user ) {
 		$this->tracking->record_user_event( "jpc_verify_{$action}_begin", array(), $user );
@@ -125,8 +129,8 @@ class Tracking {
 	 *
 	 * @access public
 	 *
-	 * @param string   $action Type of secret (one of 'register', 'authorize', 'publicize').
-	 * @param \WP_User $user The user object.
+	 * @param string  $action Type of secret (one of 'register', 'authorize', 'publicize').
+	 * @param WP_User $user The user object.
 	 */
 	public function jetpack_verify_secrets_success( $action, $user ) {
 		$this->tracking->record_user_event( "jpc_verify_{$action}_success", array(), $user );
@@ -137,9 +141,9 @@ class Tracking {
 	 *
 	 * @access public
 	 *
-	 * @param string    $action Type of secret (one of 'register', 'authorize', 'publicize').
-	 * @param \WP_User  $user The user object.
-	 * @param \WP_Error $error Error object.
+	 * @param string   $action Type of secret (one of 'register', 'authorize', 'publicize').
+	 * @param WP_User  $user The user object.
+	 * @param WP_Error $error Error object.
 	 */
 	public function jetpack_verify_secrets_fail( $action, $user, $error ) {
 		$this->tracking->record_user_event(
@@ -160,11 +164,10 @@ class Tracking {
 	 * @param string $login Username or email address.
 	 */
 	public function wp_login_failed( $login ) {
-		require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 		$this->tracking->record_user_event(
 			'failed_login',
 			array(
-				'origin_ip' => jetpack_protect_get_ip(),
+				'origin_ip' => IP_Utils::get_ip(),
 				'login'     => $login,
 			)
 		);
@@ -176,7 +179,7 @@ class Tracking {
 	 * @access public
 	 *
 	 * @param string|int $error      The error code.
-	 * @param \WP_Error  $registered The error object.
+	 * @param WP_Error   $registered The error object.
 	 */
 	public function jetpack_connection_register_fail( $error, $registered ) {
 		$this->tracking->record_user_event(
@@ -220,7 +223,7 @@ class Tracking {
 				'error_code'    => $parameters->get_error_code(),
 				'error_message' => $parameters->get_error_message(),
 			);
-		} elseif ( is_a( $parameters, '\\IXR_Error' ) ) {
+		} elseif ( is_a( $parameters, IXR_Error::class ) ) {
 			$parameters = array(
 				'error_code'    => $parameters->code,
 				'error_message' => $parameters->message,

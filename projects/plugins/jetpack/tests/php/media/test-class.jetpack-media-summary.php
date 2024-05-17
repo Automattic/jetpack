@@ -1,7 +1,7 @@
 <?php
 
 if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
-	jetpack_require_lib( 'class.media-summary' );
+	require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media-summary.php';
 }
 
 class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
@@ -13,7 +13,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 	 * @todo find a better way to test this large function
 	 */
 	public function test_mediasummary_get() {
-		$post_id = $this->factory->post->create( array() );
+		$post_id = self::factory()->post->create( array() );
 
 		$get_obj = Jetpack_Media_Summary::get( $post_id );
 
@@ -29,7 +29,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 		$content  = 'http://' . WP_TESTS_DOMAIN . '/';
 		$expected = 'https://' . WP_TESTS_DOMAIN . '/';
 
-		$this->assertEquals( Jetpack_Media_Summary::https( $content ), $expected );
+		$this->assertEquals( $expected, Jetpack_Media_Summary::https( $content ) );
 	}
 
 	/**
@@ -41,7 +41,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 		$content  = 'http://' . WP_TESTS_DOMAIN . '/';
 		$expected = 'https://' . WP_TESTS_DOMAIN . '/';
 
-		$this->assertEquals( Jetpack_Media_Summary::ssl_img( $content ), $expected );
+		$this->assertEquals( $expected, Jetpack_Media_Summary::ssl_img( $content ) );
 	}
 
 	/**
@@ -53,7 +53,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 		$content  = 'http://files.wordpress.com/';
 		$expected = 'https://files.wordpress.com/';
 
-		$this->assertEquals( Jetpack_Media_Summary::ssl_img( $content ), $expected );
+		$this->assertEquals( $expected, Jetpack_Media_Summary::ssl_img( $content ) );
 	}
 
 	/**
@@ -78,7 +78,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 
 		$content = '[' . $shortcode . '] <a href="' . WP_TESTS_DOMAIN . '">test</a>';
 
-		$this->assertEquals( Jetpack_Media_Summary::clean_text( $content ), 'test' );
+		$this->assertEquals( 'test', Jetpack_Media_Summary::clean_text( $content ) );
 	}
 
 	public function shortcode_nop() { }
@@ -137,5 +137,4 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 
 		$this->assertSame( 0, Jetpack_Media_Summary::get_link_count( $content ) );
 	}
-
 }

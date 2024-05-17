@@ -1,0 +1,11 @@
+.dummy {
+	position: relative;
+	min-height: 300px;
+
+	:global(.jp-components-spinner) {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+	}
+}

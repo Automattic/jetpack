@@ -1,0 +1,21 @@
+{
+	"name": "automattic/composer-304-plugin",
+	"description": "A Composer plugin to avoid network traffic for expected 304s.",
+	"type": "composer-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"composer-plugin-api": "^2.0"
+	},
+	"require-dev": {
+		"composer/composer": "^2.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"Automattic\\Jetpack\\Composer304Plugin\\": "src/"
+		}
+	},
+	"extra": {
+		"class": "Automattic\\Jetpack\\Composer304Plugin\\Plugin",
+		"plugin-modifies-downloads": true
+	}
+}

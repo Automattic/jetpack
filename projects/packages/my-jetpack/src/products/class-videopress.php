@@ -7,13 +7,13 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
-use Automattic\Jetpack\My_Jetpack\Module_Product;
+use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
 /**
  * Class responsible for handling the VideoPress product
  */
-class Videopress extends Module_Product {
+class Videopress extends Hybrid_Product {
 
 	/**
 	 * The product slug
@@ -30,21 +30,60 @@ class Videopress extends Module_Product {
 	public static $module_name = 'videopress';
 
 	/**
-	 * Get the internationalized product name
+	 * The slug of the plugin associated with this product.
+	 *
+	 * @var string
+	 */
+	public static $plugin_slug = 'jetpack-videopress';
+
+	/**
+	 * The filename (id) of the plugin associated with this product.
+	 *
+	 * @var string
+	 */
+	public static $plugin_filename = array(
+		'jetpack-videopress/jetpack-videopress.php',
+		'videopress/jetpack-videopress.php',
+		'jetpack-videopress-dev/jetpack-videopress.php',
+	);
+
+	/**
+	 * Search only requires site connection
+	 *
+	 * @var boolean
+	 */
+	public static $requires_user_connection = true;
+
+	/**
+	 * VideoPress has a standalone plugin
+	 *
+	 * @var bool
+	 */
+	public static $has_standalone_plugin = true;
+
+	/**
+	 * Whether this product has a free offering
+	 *
+	 * @var bool
+	 */
+	public static $has_free_offering = true;
+
+	/**
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'VideoPress', 'jetpack-my-jetpack' );
+		return 'VideoPress';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack VideoPress', 'jetpack-my-jetpack' );
+		return 'Jetpack VideoPress';
 	}
 
 	/**
@@ -74,7 +113,7 @@ class Videopress extends Module_Product {
 		return array(
 			_x( '1TB of storage', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'Built into WordPress editor', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
-			_x( 'Ad-free and brandable player', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'Ad-free and customizable player', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'Unlimited users', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
 		);
 	}
@@ -92,6 +131,15 @@ class Videopress extends Module_Product {
 			),
 			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);
+	}
+
+	/**
+	 * Get the URL the user is taken after purchasing the product through the checkout
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_checkout_url() {
+		return self::get_manage_url();
 	}
 
 	/**
@@ -118,8 +166,19 @@ class Videopress extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		if ( static::is_active() ) {
+		if ( method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'should_initialize_admin_ui' ) && \Automattic\Jetpack\VideoPress\Initializer::should_initialize_admin_ui() ) {
+			return \Automattic\Jetpack\VideoPress\Admin_UI::get_admin_page_url();
+		} else {
 			return admin_url( 'admin.php?page=jetpack#/settings?term=videopress' );
 		}
+	}
+
+	/**
+	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 *
+	 * @return boolean
+	 */
+	public static function has_required_plan() {
+		return static::does_site_have_feature( 'videopress' );
 	}
 }

@@ -1,12 +1,11 @@
-/* eslint-disable wpcalypso/import-docblock, jsdoc/require-jsdoc */
-/**
- * WordPress dependencies
- */
-import { InnerBlocks } from '@wordpress/block-editor';
+/* eslint-disable jsdoc/require-jsdoc */
+import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 
 export default function save() {
+	const blockProps = useBlockProps.save();
+
 	return (
-		<div>
+		<div { ...blockProps }>
 			<InnerBlocks.Content />
 		</div>
 	);

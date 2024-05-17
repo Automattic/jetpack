@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import restApi from '@automattic/jetpack-api';
 
 export const FETCH_WORDADS_SETTINGS = 'FETCH_WORDADS_SETTINGS';

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Redirect;
 
 require_once __DIR__ . '/class-base-admin-menu.php';
@@ -22,7 +23,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	public function reregister_menu_items() {
 		// Remove separators.
 		remove_menu_page( 'separator1' );
-
 		$this->add_stats_menu();
 		$this->add_upgrades_menu();
 		$this->add_posts_menu();
@@ -37,7 +37,6 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->add_tools_menu();
 		$this->add_options_menu();
 		$this->add_jetpack_menu();
-		$this->add_gutenberg_menus();
 
 		// Remove Links Manager menu since its usage is discouraged. https://github.com/Automattic/wp-calypso/issues/51188.
 		// @see https://core.trac.wordpress.org/ticket/21307#comment:73.
@@ -58,12 +57,13 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * @return string
 	 */
 	public function get_preferred_view( $screen, $fallback_global_preference = true ) {
+		$force_default_view = in_array( $screen, array( 'users.php', 'options-general.php' ), true );
+		$use_wp_admin       = $this->use_wp_admin_interface();
+
 		// When no preferred view has been set for "Users > All Users" or "Settings > General", keep the previous
 		// behavior that forced the default view regardless of the global preference.
-		if (
-			$fallback_global_preference &&
-			in_array( $screen, array( 'users.php', 'options-general.php' ), true )
-		) {
+		// This behavior is overriden by the wpcom_admin_interface option when it is set to wp-admin.
+		if ( ! $use_wp_admin && $fallback_global_preference && $force_default_view ) {
 			$preferred_view = parent::get_preferred_view( $screen, false );
 			if ( self::UNKNOWN_VIEW === $preferred_view ) {
 				return self::DEFAULT_VIEW;
@@ -93,7 +93,7 @@ class Admin_Menu extends Base_Admin_Menu {
 		);
 
 		// Ordered links by ID descending, check if the first ID is more than $max_default_id.
-		if ( count( $link_manager_links ) > 0 && $link_manager_links[0]->link_id > $max_default_id ) {
+		if ( is_countable( $link_manager_links ) && count( $link_manager_links ) > 0 && $link_manager_links[0]->link_id > $max_default_id ) {
 			return false;
 		}
 
@@ -104,76 +104,20 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Adds My Home menu.
 	 */
 	public function add_my_home_menu() {
-		$this->update_menu( 'index.php', 'https://wordpress.com/home/' . $this->domain, __( 'My Home', 'jetpack' ), 'edit_posts', 'dashicons-admin-home' );
+
+		if ( self::DEFAULT_VIEW !== $this->get_preferred_view( 'index.php' ) ) {
+			add_menu_page( __( 'My Home', 'jetpack' ), __( 'My Home', 'jetpack' ), 'read', 'https://wordpress.com/home/' . $this->domain, null, 'dashicons-admin-home', '1.5' );
+			return;
+		}
+
+		$this->update_menu( 'index.php', 'https://wordpress.com/home/' . $this->domain, __( 'My Home', 'jetpack' ), 'read', 'dashicons-admin-home' );
 	}
 
 	/**
-	 * Adds upsell nudge as a menu.
-	 *
-	 * @param object $nudge The $nudge object containing the content, CTA, link and tracks.
+	 * Adds My Mailboxes menu.
 	 */
-	public function add_upsell_nudge( $nudge ) {
-		$dismiss_button = '';
-		if ( $nudge['dismissible'] ) {
-			$dismiss_button = '<svg xmlns="http://www.w3.org/2000/svg" data-feature_class="%1$s" data-feature_id="%2$s" viewBox="0 0 24 24" class="gridicon gridicons-cross dismissible-card__close-icon" height="24" width="24"><g><path d="M18.36 19.78L12 13.41l-6.36 6.37-1.42-1.42L10.59 12 4.22 5.64l1.42-1.42L12 10.59l6.36-6.36 1.41 1.41L13.41 12l6.36 6.36z"></path></g></svg>';
-			$dismiss_button = sprintf( $dismiss_button, esc_attr( $nudge['feature_class'] ), esc_attr( $nudge['id'] ) );
-		}
-
-		$message = '
-<div class="upsell_banner">
-	<div class="banner__info">
-		<div class="banner__title">%1$s</div>
-	</div>
-	<div class="banner__action">
-		<button type="button" class="button">%2$s</button>
-	</div>%3$s
-</div>';
-
-		$message = sprintf(
-			$message,
-			wp_kses( $nudge['content'], array() ),
-			wp_kses( $nudge['cta'], array() ),
-			$dismiss_button
-		);
-
-		$menu_slug = $nudge['link'];
-		if ( wp_startswith( $menu_slug, '/' ) ) {
-			$menu_slug = 'https://wordpress.com' . $menu_slug;
-		}
-
-		add_menu_page( 'site-notices', $message, 'read', $menu_slug, null, null, 1 );
-		add_filter( 'add_menu_classes', array( $this, 'set_site_notices_menu_class' ) );
-	}
-
-	/**
-	 * Adds a custom element class and id for Site Notices's menu item.
-	 *
-	 * @param array $menu Associative array of administration menu items.
-	 * @return array
-	 */
-	public function set_site_notices_menu_class( array $menu ) {
-		foreach ( $menu as $key => $menu_item ) {
-			if ( 'site-notices' !== $menu_item[3] ) {
-				continue;
-			}
-
-			$classes = ' toplevel_page_site-notices';
-
-			if ( isset( $menu_item[4] ) ) {
-				$menu[ $key ][4] = $menu_item[4] . $classes;
-				$menu[ $key ][5] = 'toplevel_page_site-notices';
-				break;
-			}
-		}
-
-		return $menu;
-	}
-
-	/**
-	 * Adds Inbox menu.
-	 */
-	public function add_inbox_menu() {
-		add_menu_page( __( 'Inbox', 'jetpack' ), __( 'Inbox', 'jetpack' ), 'manage_options', 'https://wordpress.com/inbox/' . $this->domain, null, 'dashicons-email', '4.64424' );
+	public function add_my_mailboxes_menu() {
+		add_menu_page( __( 'My Mailboxes', 'jetpack' ), __( 'My Mailboxes', 'jetpack' ), 'manage_options', 'https://wordpress.com/mailboxes/' . $this->domain, null, 'dashicons-email', '4.64424' );
 	}
 
 	/**
@@ -206,7 +150,8 @@ class Admin_Menu extends Base_Admin_Menu {
 				$site_upgrades = sprintf(
 					$site_upgrades,
 					__( 'Upgrades', 'jetpack' ),
-					$plan
+					// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
+					__( $plan, 'jetpack' )
 				);
 			} else {
 				$site_upgrades = __( 'Upgrades', 'jetpack' );
@@ -233,17 +178,16 @@ class Admin_Menu extends Base_Admin_Menu {
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'edit.php' ) ) {
 			$submenus_to_update['edit.php']     = 'https://wordpress.com/posts/' . $this->domain;
 			$submenus_to_update['post-new.php'] = 'https://wordpress.com/post/' . $this->domain;
+			$this->update_submenus( 'edit.php', $submenus_to_update );
 		}
 
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'edit-tags.php?taxonomy=category' ) ) {
-			$submenus_to_update['edit-tags.php?taxonomy=category'] = 'https://wordpress.com/settings/taxonomies/category/' . $this->domain;
+			$this->update_submenus( 'edit.php', array( 'edit-tags.php?taxonomy=category' => 'https://wordpress.com/settings/taxonomies/category/' . $this->domain ) );
 		}
 
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'edit-tags.php?taxonomy=post_tag' ) ) {
-			$submenus_to_update['edit-tags.php?taxonomy=post_tag'] = 'https://wordpress.com/settings/taxonomies/post_tag/' . $this->domain;
+			$this->update_submenus( 'edit.php', array( 'edit-tags.php?taxonomy=post_tag' => 'https://wordpress.com/settings/taxonomies/post_tag/' . $this->domain ) );
 		}
-
-		$this->update_submenus( 'edit.php', $submenus_to_update );
 	}
 
 	/**
@@ -362,6 +306,9 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Adds Plugins menu.
 	 */
 	public function add_plugins_menu() {
+		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'plugins.php' ) ) {
+			return;
+		}
 		$this->hide_submenu_page( 'plugins.php', 'plugin-install.php' );
 		$this->hide_submenu_page( 'plugins.php', 'plugin-editor.php' );
 
@@ -403,7 +350,9 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->hide_submenu_page( 'tools.php', 'delete-blog' );
 
 		add_submenu_page( 'tools.php', esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain, null, 0 );
-		add_submenu_page( 'tools.php', esc_attr__( 'Earn', 'jetpack' ), __( 'Earn', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain, null, 1 );
+		if ( ! $this->use_wp_admin_interface() ) {
+			add_submenu_page( 'tools.php', esc_attr__( 'Monetize', 'jetpack' ), __( 'Monetize', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain, null, 1 );
+		}
 	}
 
 	/**
@@ -412,7 +361,9 @@ class Admin_Menu extends Base_Admin_Menu {
 	public function add_options_menu() {
 		$submenus_to_update = array();
 
-		$this->hide_submenu_page( 'options-general.php', 'sharing' );
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-general.php' ) ) {
+			$this->hide_submenu_page( 'options-general.php', 'sharing' );
+		}
 
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-general.php' ) ) {
 			$submenus_to_update['options-general.php'] = 'https://wordpress.com/settings/general/' . $this->domain;
@@ -422,38 +373,49 @@ class Admin_Menu extends Base_Admin_Menu {
 			$submenus_to_update['options-writing.php'] = 'https://wordpress.com/settings/writing/' . $this->domain;
 		}
 
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-reading.php' )
+		) {
+			$submenus_to_update['options-reading.php'] = 'https://wordpress.com/settings/reading/' . $this->domain;
+		}
+
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-discussion.php' ) ) {
 			$submenus_to_update['options-discussion.php'] = 'https://wordpress.com/settings/discussion/' . $this->domain;
 		}
 
 		$this->update_submenus( 'options-general.php', $submenus_to_update );
 
-		add_submenu_page( 'options-general.php', esc_attr__( 'Performance', 'jetpack' ), __( 'Performance', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/performance/' . $this->domain, null, 1 );
+		add_submenu_page( 'options-general.php', esc_attr__( 'Newsletter', 'jetpack' ), __( 'Newsletter', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/newsletter/' . $this->domain, null, 7 );
+		add_submenu_page( 'options-general.php', esc_attr__( 'Podcasting', 'jetpack' ), __( 'Podcasting', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/podcasting/' . $this->domain, null, 8 );
+		add_submenu_page( 'options-general.php', esc_attr__( 'Performance', 'jetpack' ), __( 'Performance', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/performance/' . $this->domain, null, 9 );
 	}
 
 	/**
-	 * Adds Jetpack menu.
+	 * Create Jetpack menu.
+	 *
+	 * @param int  $position  Menu position.
+	 * @param bool $separator Whether to add a separator before the menu.
 	 */
-	public function add_jetpack_menu() {
-		$this->add_admin_menu_separator( 50, 'manage_options' );
+	public function create_jetpack_menu( $position = 50, $separator = true ) {
+		if ( $separator ) {
+			$this->add_admin_menu_separator( $position, 'manage_options' );
+			++$position;
+		}
 
-		// TODO: Replace with proper SVG data url.
-		$icon = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 40 40' %3E%3Cpath fill='%23a0a5aa' d='M20 0c11.046 0 20 8.954 20 20s-8.954 20-20 20S0 31.046 0 20 8.954 0 20 0zm11 17H21v19l10-19zM19 4L9 23h10V4z'/%3E%3C/svg%3E";
-
-		$is_menu_updated = $this->update_menu( 'jetpack', null, null, null, $icon, 51 );
+		$icon            = ( new Logo() )->get_base64_logo();
+		$is_menu_updated = $this->update_menu( 'jetpack', null, null, null, $icon, $position );
 		if ( ! $is_menu_updated ) {
-			add_menu_page( esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'jetpack', null, $icon, 51 );
+			add_menu_page( esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'jetpack', null, $icon, $position );
 		}
 
 		add_submenu_page( 'jetpack', esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', 'https://wordpress.com/activity-log/' . $this->domain, null, 2 );
 		add_submenu_page( 'jetpack', esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 3 );
-		/* translators: Jetpack sidebar menu item. */
-		add_submenu_page( 'jetpack', esc_attr__( 'Search', 'jetpack' ), __( 'Search', 'jetpack' ), 'manage_options', 'https://wordpress.com/jetpack-search/' . $this->domain, null, 4 );
 
-		$this->hide_submenu_page( 'jetpack', 'jetpack#/settings' );
-		$this->hide_submenu_page( 'jetpack', 'stats' );
-		$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
-		$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'jetpack' ) ) {
+			$this->hide_submenu_page( 'jetpack', 'jetpack#/settings' );
+			$this->hide_submenu_page( 'jetpack', 'stats' );
+			$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
+			$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
+		}
 
 		if ( ! $is_menu_updated ) {
 			// Remove the submenu auto-created by Core just to be sure that there no issues on non-admin roles.
@@ -462,24 +424,10 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
-	 * Update Site Editor menu item's link and position.
+	 * Adds Jetpack menu.
 	 */
-	public function add_gutenberg_menus() {
-		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'admin.php?page=gutenberg-edit-site' ) ) {
-			return;
-		}
-
-		$this->update_menu( 'gutenberg-edit-site', 'https://wordpress.com/site-editor/' . $this->domain, null, null, null, 59 );
-
-		// Gutenberg 11.9 moves the Site Editor to an Appearance submenu as Editor.
-		$submenus_to_update = array(
-			'gutenberg-edit-site' => 'https://wordpress.com/site-editor/' . $this->domain,
-		);
-		$this->update_submenus( 'themes.php', $submenus_to_update );
-		// Gutenberg 11.9 adds an redundant site editor entry point that requires some calypso work
-		// before it can be exposed.  Note, there are also already discussions to remove this excess
-		// item in Gutenberg.
-		$this->hide_submenu_page( 'themes.php', 'gutenberg-edit-site&styles=open' );
+	public function add_jetpack_menu() {
+		$this->create_jetpack_menu();
 	}
 
 	/**
@@ -507,5 +455,61 @@ class Admin_Menu extends Base_Admin_Menu {
 			// Only show the menu if the user has the capability to activate_plugins.
 			add_menu_page( esc_attr__( 'WooCommerce', 'jetpack' ), esc_attr__( 'WooCommerce', 'jetpack' ), 'activate_plugins', $menu_url, null, $icon_url, 55 );
 		}
+	}
+
+	/**
+	 * AJAX handler for retrieving the upsell nudge.
+	 */
+	public function wp_ajax_upsell_nudge_jitm() {
+		check_ajax_referer( 'upsell_nudge_jitm' );
+
+		$nudge = $this->get_upsell_nudge();
+		if ( ! $nudge ) {
+			wp_die();
+		}
+
+		$link = $nudge['link'];
+		if ( str_starts_with( $link, '/' ) ) {
+			$link = 'https://wordpress.com' . $link;
+		}
+		?>
+		<li class="wp-not-current-submenu menu-top menu-icon-generic toplevel_page_site-notices" id="toplevel_page_site-notices">
+			<a href="<?php echo esc_url( $link ); ?>" class="wp-not-current-submenu menu-top menu-icon-generic toplevel_page_site-notices">
+				<div class="wp-menu-arrow">
+					<div></div>
+				</div>
+				<div class="wp-menu-image dashicons-before dashicons-admin-generic" aria-hidden="true"><br></div>
+				<div class="wp-menu-name">
+					<div class="upsell_banner">
+						<div class="banner__info">
+							<div class="banner__title">
+								<?php echo wp_kses( $nudge['content'], array() ); ?>
+							</div>
+						</div>
+						<div class="banner__action">
+							<button type="button" class="button">
+								<?php echo wp_kses( $nudge['cta'], array() ); ?>
+							</button>
+						</div>
+						<?php if ( $nudge['dismissible'] ) : ?>
+							<svg xmlns="http://www.w3.org/2000/svg" data-feature_class="<?php echo esc_attr( $nudge['feature_class'] ); ?>" data-feature_id="<?php echo esc_attr( $nudge['id'] ); ?>" viewBox="0 0 24 24" class="gridicon gridicons-cross dismissible-card__close-icon" height="24" width="24"><g><path d="M18.36 19.78L12 13.41l-6.36 6.37-1.42-1.42L10.59 12 4.22 5.64l1.42-1.42L12 10.59l6.36-6.36 1.41 1.41L13.41 12l6.36 6.36z"></path></g></svg>
+						<?php endif; ?>
+					</div>
+				</div>
+			</a>
+		</li>
+		<?php
+		wp_die();
+	}
+
+	/**
+	 * Returns the first available upsell nudge.
+	 * Needs to be implemented separately for each child menu class.
+	 * Empty by default.
+	 *
+	 * @return array
+	 */
+	public function get_upsell_nudge() {
+		return array();
 	}
 }

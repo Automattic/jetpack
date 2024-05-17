@@ -1,28 +1,19 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
-import TextInput from 'components/text-input';
-import { isFetchingSiteData } from 'state/site';
-import { FormLabel } from 'components/forms';
-import Gridicon from 'components/gridicon';
 import Button from 'components/button';
+import { FormLabel } from 'components/forms';
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
+import Gridicon from 'components/gridicon';
+import TextInput from 'components/text-input';
+import analytics from 'lib/analytics';
 import requestExternalAccess from 'lib/sharing';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { userCanManageOptions } from 'state/initial-state';
 import { getExternalServiceConnectUrl } from 'state/publicize/reducer';
+import { isFetchingSiteData } from 'state/site';
 import {
 	checkVerifyStatusGoogle,
 	verifySiteGoogle,
@@ -34,8 +25,6 @@ import {
 	getGoogleSiteVerificationError,
 	getGoogleSearchConsoleUrl,
 } from 'state/site-verify';
-import { userCanManageOptions } from 'state/initial-state';
-import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 
 class GoogleVerificationServiceComponent extends React.Component {
 	static propTypes = {
@@ -205,6 +194,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 							<div className="jp-form-site-verification-buttons">
 								<Button
 									primary
+									rna
 									type="button"
 									className="jp-form-site-verification-edit-button"
 									disabled={ this.props.disabled }
@@ -213,6 +203,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 									{ __( 'Save', 'jetpack' ) }
 								</Button>
 								<Button
+									rna
 									type="button"
 									className="jp-form-site-verification-edit-button"
 									disabled={ this.props.disabled }
@@ -237,6 +228,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 							<span>{ __( 'Your site is verified with Google', 'jetpack' ) }</span>
 						</div>
 						<Button
+							rna
 							type="button"
 							className="jp-form-site-verification-edit-button"
 							onClick={ this.handleClickEdit }
@@ -305,17 +297,18 @@ class GoogleVerificationServiceComponent extends React.Component {
 				className="jp-form-input-with-prefix jp-form-google-label-unverified"
 				key="verification_service_google"
 			>
-				<span>{ __( 'Google', 'jetpack' ) }</span>
+				<span>{ __( 'Google:', 'jetpack' ) }</span>
 				<div className="jp-form-google-label-unverified-actions">
 					{ createInterpolateElement(
 						__(
-							'<button1>Verify with Google</button1><span>or</span><button2>Manually Verify</button2>',
+							'<button1>Auto verify with Google</button1><span>or</span><button2>Manually verify with Google</button2>',
 							'jetpack'
 						),
 						{
 							button1: (
 								<Button
 									primary
+									rna
 									type="button"
 									disabled={ disabled }
 									onClick={ this.handleClickAutoVerify }
@@ -324,6 +317,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 							span: <span className="jp-form-google-separator" />,
 							button2: (
 								<Button
+									rna
 									type="button"
 									disabled={ disabled }
 									onClick={ this.handleClickSetManually }

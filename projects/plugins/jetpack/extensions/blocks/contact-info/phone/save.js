@@ -1,7 +1,3 @@
-/**
- * Internal dependencies
- */
-
 export function renderPhone( inputText ) {
 	const arrayOfNumbers = inputText.match( /\d+\.\d+|\d+\b|\d+(?=\w)/g );
 	if ( ! arrayOfNumbers ) {

@@ -16,4 +16,5 @@ $wpcom_json_api_production_versions = array(
 $wpcom_json_api_dev_versions = array(
 	'1.2',
 	'1.3',
+	'1.4',
 );

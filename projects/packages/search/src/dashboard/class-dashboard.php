@@ -28,30 +28,39 @@ class Dashboard {
 	/**
 	 * Plan instance
 	 *
-	 * @var Automattic\Jetpack\Search\Plan
+	 * @var \Automattic\Jetpack\Search\Plan
 	 */
 	protected $plan;
 
 	/**
 	 * Connection manager instance
 	 *
-	 * @var Automattic\Jetpack\Connection\Manager
+	 * @var \Automattic\Jetpack\Connection\Manager
 	 */
 	protected $connection_manager;
 
 	/**
 	 * Module_Control instance
 	 *
-	 * @var Automattic\Jetpack\Search\Module_Control
+	 * @var \Automattic\Jetpack\Search\Module_Control
 	 */
 	protected $module_control;
 
 	/**
+	 * Priority for the dashboard menu
+	 * For Jetpack sites: Jetpack uses 998 and 'Admin_Menu' uses 1000, so we need to use 999.
+	 * For simple site: the value is overriden in a child class with value 100000 to wait for all menus to be registered.
+	 *
+	 * @var int
+	 */
+	protected $search_menu_priority = 999;
+
+	/**
 	 * Contructor
 	 *
-	 * @param Automattic\Jetpack\Search\Plan           $plan - Plan instance.
-	 * @param Automattic\Jetpack\Connection\Manager    $connection_manager - Connection Manager instance.
-	 * @param Automattic\Jetpack\Search\Module_Control $module_control - Module_Control instance.
+	 * @param \Automattic\Jetpack\Search\Plan           $plan - Plan instance.
+	 * @param \Automattic\Jetpack\Connection\Manager    $connection_manager - Connection Manager instance.
+	 * @param \Automattic\Jetpack\Search\Module_Control $module_control - Module_Control instance.
 	 */
 	public function __construct( $plan = null, $connection_manager = null, $module_control = null ) {
 		$this->plan               = $plan ? $plan : new Plan();
@@ -74,7 +83,7 @@ class Dashboard {
 		if ( ! self::$initialized ) {
 			self::$initialized = true;
 			// Jetpack uses 998 and 'Admin_Menu' uses 1000.
-			add_action( 'admin_menu', array( $this, 'add_wp_admin_submenu' ), 999 );
+			add_action( 'admin_menu', array( $this, 'add_wp_admin_submenu' ), $this->search_menu_priority );
 			// Check if the site plan changed and deactivate module accordingly.
 			add_action( 'current_screen', array( $this, 'check_plan_deactivate_search_module' ) );
 		}
@@ -84,23 +93,32 @@ class Dashboard {
 	 * The page to be added to submenu
 	 */
 	public function add_wp_admin_submenu() {
-		if ( ! $this->should_add_search_submenu() ) {
-			return;
-		}
-
 		// Jetpack of version <= 10.5 would register `jetpack-search` submenu with its built-in search module.
 		$this->remove_search_submenu_if_exists();
 
-		$page_suffix = Admin_Menu::add_menu(
-			__( 'Search Settings', 'jetpack-search-pkg' ),
-			_x( 'Search', 'product name shown in menu', 'jetpack-search-pkg' ),
-			'manage_options',
-			'jetpack-search',
-			array( $this, 'render' ),
-			100
-		);
+		if ( $this->should_add_search_submenu() ) {
+			$page_suffix = Admin_Menu::add_menu(
+				__( 'Jetpack Search', 'jetpack-search-pkg' ),
+				_x( 'Search', 'product name shown in menu', 'jetpack-search-pkg' ),
+				'manage_options',
+				'jetpack-search',
+				array( $this, 'render' )
+			);
+		} else {
+			// always add the page, but hide it from the menu.
+			$page_suffix = add_submenu_page(
+				'',
+				__( 'Jetpack Search', 'jetpack-search-pkg' ),
+				_x( 'Search', 'product name shown in menu', 'jetpack-search-pkg' ),
+				'manage_options',
+				'jetpack-search',
+				array( $this, 'render' )
+			);
+		}
 
-		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+		if ( $page_suffix ) {
+			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+		}
 	}
 
 	/**
@@ -109,7 +127,7 @@ class Dashboard {
 	public function render() {
 		?>
 		<div id="jp-search-dashboard" class="jp-search-dashboard">
-			<div class="hide-if-js"><?php esc_html_e( 'Your Search dashboard requires JavaScript to function properly.', 'jetpack-search-pkg' ); ?></div>
+			<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Search dashboard requires JavaScript to function properly.', 'jetpack-search-pkg' ); ?></div>
 		</div>
 		<?php
 	}
@@ -117,7 +135,7 @@ class Dashboard {
 	/**
 	 * Test whether we should show Search menu.
 	 *
-	 * @return {boolean} Show search sub menu or not.
+	 * @return boolean Show search sub menu or not.
 	 */
 	protected function should_add_search_submenu() {
 		/**
@@ -148,7 +166,7 @@ class Dashboard {
 	 * Enqueue admin scripts.
 	 */
 	public function load_admin_scripts() {
-		if ( ! ( new Status() )->is_offline_mode() && $this->connection_manager->is_connected() ) {
+		if ( $this->should_enqueue_tracking_script() ) {
 			// Required for Analytics.
 			Tracking::register_tracks_functions_scripts( true );
 		}
@@ -173,17 +191,20 @@ class Dashboard {
 		);
 
 		// Connection initial state.
-		wp_add_inline_script(
-			'jp-search-dashboard',
-			Connection_Initial_State::render(),
-			'before'
-		);
+		Connection_Initial_State::render_script( 'jp-search-dashboard' );
+	}
+
+	/**
+	 * Check if we should enqueue the tracking script.
+	 */
+	protected function should_enqueue_tracking_script() {
+		return ! ( new Status() )->is_offline_mode() && $this->connection_manager->is_connected();
 	}
 
 	/**
 	 * Deactivate search module if plan doesn't support search.
 	 *
-	 * @param WP_Screen $current_screen Creent screen object.
+	 * @param \WP_Screen $current_screen Creent screen object.
 	 */
 	public function check_plan_deactivate_search_module( $current_screen ) {
 		// Only run on Jetpack admin pages.
@@ -191,10 +212,9 @@ class Dashboard {
 		if (
 			property_exists( $current_screen, 'base' ) &&
 			strpos( $current_screen->base, 'jetpack_page_' ) !== false &&
-			! $this->plan->supports_search()
+			( ! $this->plan->supports_search() || $this->plan->must_upgrade() )
 		) {
 			$this->module_control->deactivate();
 		}
 	}
-
 }

@@ -1,0 +1,32 @@
+import { Meta, Story, Canvas } from '@storybook/blocks';
+import VideoStatsGroup from '../index';
+import * as VideoStatsGroupStories from './index.stories';
+
+<Meta of={VideoStatsGroupStories} />
+
+# VideoStatsGroup
+Component that shows VideoPress user video stats.
+
+<Canvas withSource="open">
+  <Story id="packages-videopress-video-stats-group--default" />
+</Canvas>
+
+## API
+
+### videos
+
+- type: `number`
+
+The number of uploaded videos.
+
+### plays
+
+- type: `number`
+
+The total number of video plays.
+
+### playsToday
+
+- type: `number`
+
+The total number of video plays of the current day.

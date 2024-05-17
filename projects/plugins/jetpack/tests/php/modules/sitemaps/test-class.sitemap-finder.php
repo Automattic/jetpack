@@ -6,8 +6,8 @@
  * @since 4.7.0
  */
 
-require_jetpack_file( 'modules/sitemaps/sitemaps.php' );
-require_jetpack_file( 'modules/sitemaps/sitemap-finder.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemaps.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-finder.php';
 
 /**
  * Test class for Jetpack_Sitemap_Finder.
@@ -35,5 +35,4 @@ class WP_Test_Jetpack_Sitemap_Finder extends WP_UnitTestCase {
 
 		$this->assertEquals( 'sitemap.xml', $result['sitemap_name'] );
 	}
-
 }

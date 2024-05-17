@@ -1,9 +1,10 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 use Automattic\Jetpack\Tracking;
 
-/**
- * Disable direct access/execution to/of the widget code.
- */
+// Disable direct access/execution to/of the widget code.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -249,7 +250,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				wp_send_json_error( 'missing_params', 400 );
 			}
 
-			$params = wp_unslash( $_POST['params'] );
+			$params = wp_unslash( $_POST['params'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Manually validated by validate_ajax_params().
 			$errors = $this->validate_ajax_params( $params );
 			if ( ! empty( $errors->errors ) ) {
 				wp_send_json_error( $errors );
@@ -317,7 +318,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				wp_send_json_error( 'missing_params', 400 );
 			}
 
-			$params         = wp_unslash( $_POST['params'] );
+			$params         = wp_unslash( $_POST['params'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Manually validated just below.
 			$illegal_params = array_diff( array_keys( $params ), array( 'product_post_id' ) );
 			if ( ! empty( $illegal_params ) ) {
 				wp_send_json_error( 'illegal_params', 400 );
@@ -343,7 +344,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * Returns the number of decimal places on string representing a price.
 		 *
 		 * @param string $number Price to check.
-		 * @return number number of decimal places.
+		 * @return int|null number of decimal places.
 		 */
 		private function get_decimal_places( $number ) {
 			$parts = explode( '.', $number );
@@ -503,7 +504,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 
 			// `bumps_stats_extra` only exists on .com
 			if ( function_exists( 'bump_stats_extras' ) ) {
-				jetpack_require_lib( 'tracks/client' );
+				require_lib( 'tracks/client' );
 				tracks_record_event( $current_user, 'simple_payments_button_' . $event_action, $event_properties );
 				/** This action is documented in modules/widgets/social-media-icons.php */
 				do_action( 'jetpack_bump_stats_extra', 'jetpack-simple_payments', $stat_name );

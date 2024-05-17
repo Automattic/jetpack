@@ -1,0 +1,25 @@
+.jetpack-ai-chat-copy-button-container {
+    margin: 1rem 0;
+
+    button {
+        border: none;
+        transition: 0.3s;
+        cursor: pointer;
+        position: relative;
+        display: block;
+        color: var( --wp--preset--color--secondary );
+        background: none;
+        font-size: 16px;
+        padding: inherit;
+
+        &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .copy-icon {
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+    }
+}

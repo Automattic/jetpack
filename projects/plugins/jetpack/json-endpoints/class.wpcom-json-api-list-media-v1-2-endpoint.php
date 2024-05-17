@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-jetpack_require_lib( 'class.media' );
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php';
 
 /**
  * List media v1_2 endpoint.
@@ -73,7 +73,7 @@ class WPCOM_JSON_API_List_Media_v1_2_Endpoint extends WPCOM_JSON_API_List_Media_
 
 		$media_list = $response['media'];
 
-		if ( count( $media_list ) < 1 ) {
+		if ( ! is_countable( $media_list ) || count( $media_list ) === array() ) {
 			return $response;
 		}
 
@@ -88,4 +88,3 @@ class WPCOM_JSON_API_List_Media_v1_2_Endpoint extends WPCOM_JSON_API_List_Media_
 		return $response;
 	}
 }
-

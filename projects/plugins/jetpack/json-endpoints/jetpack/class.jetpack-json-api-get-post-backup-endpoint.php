@@ -66,5 +66,4 @@ class Jetpack_JSON_API_Get_Post_Backup_Endpoint extends Jetpack_JSON_API_Endpoin
 			'terms' => (array) $terms,
 		);
 	}
-
 }

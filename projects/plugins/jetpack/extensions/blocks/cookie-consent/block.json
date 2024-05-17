@@ -1,0 +1,67 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/cookie-consent",
+	"title": "Cookie Consent",
+	"description": "Display a customizable cookie consent banner. To display this block on all pages of your site, please add it inside a Template Part that is present on all your templates, like a Header or a Footer.",
+	"keywords": [ "cookie", "consent", "privacy", "GDPR", "EU" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "grow",
+	"icon": "<svg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><path d='m20.27,11.03c-.02-.31-.05-.62-.11-.92h-3.88v-2.91h-2.87v-3.79c-.32-.06-.64-.1-.97-.12-.15,0-.29,0-.44,0C7.42,3.28,3.71,7,3.71,11.57s3.71,8.3,8.29,8.3,8.29-3.72,8.29-8.3c0-.18,0-.36-.02-.54Zm-8.23,7.79c-4,0-7.24-3.25-7.24-7.25s3.24-7.24,7.24-7.24c.14,0,.27,0,.4.02v3.81h2.9v2.87h3.91c.02.18.03.36.03.54,0,4-3.24,7.25-7.24,7.25Z'/><path d='M 8, 8 a 1,1 0 1,1 2,0 a 1,1 0 1,1 -2,0'/><path d='M 12, 11.5 a 1,1 0 1,1 2,0 a 1,1 0 1,1 -2,0'/><path d='M 13, 16 a 1,1 0 1,1 2,0 a 1,1 0 1,1 -2,0'/><path d='M 8, 14 a 1,1 0 1,1 2,0 a 1,1 0 1,1 -2,0'/></svg>",
+	"supports": {
+		"align": [ "left", "right", "wide", "full" ],
+		"alignWide": true,
+		"anchor": false,
+		"color": {
+			"gradients": true,
+			"link": true
+		},
+		"spacing": {
+			"padding": true
+		},
+		"customClassName": true,
+		"className": true,
+		"html": false,
+		"lock": false,
+		"multiple": false,
+		"reusable": false
+	},
+	"attributes": {
+		"text": {
+			"type": "string",
+			"source": "html",
+			"selector": "p"
+		},
+		"style": {
+			"type": "object",
+			"default": {
+				"color": {
+					"text": "var(--wp--preset--color--contrast)",
+					"background": "var(--wp--preset--color--tertiary)",
+					"link": "var(--wp--preset--color--contrast)"
+				},
+				"spacing": {
+					"padding": {
+						"top": "1em",
+						"right": "1em",
+						"bottom": "1em",
+						"left": "1em"
+					}
+				}
+			}
+		},
+		"align": {
+			"type": "string",
+			"default": "wide"
+		},
+		"consentExpiryDays": {
+			"type": "integer",
+			"default": 365
+		},
+		"showOverlay": {
+			"type": "boolean",
+			"default": false
+		}
+	}
+}

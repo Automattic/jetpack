@@ -58,17 +58,18 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 		 */
 		public function list_crons() {
 
-			$scheduler = VideoPress_Scheduler::init();
-			$crons     = $scheduler->get_crons();
+			$scheduler   = VideoPress_Scheduler::init();
+			$crons       = $scheduler->get_crons();
+			$crons_count = is_countable( $crons ) ? count( $crons ) : 0;
 
 			$schedules = wp_get_schedules();
 
-			if ( count( $crons ) === 0 ) {
+			if ( $crons_count === 0 ) {
 				WP_CLI::success( __( 'Found no available cron jobs.', 'jetpack' ) );
 
 			} else {
 				/* translators: %d is the number of crons */
-				WP_CLI::success( sprintf( _n( 'Found %d available cron job.', 'Found %d available cron jobs.', count( $crons ), 'jetpack' ), count( $crons ) ) );
+				WP_CLI::success( sprintf( _n( 'Found %d available cron job.', 'Found %d available cron jobs.', $crons_count, 'jetpack' ), $crons_count ) );
 			}
 
 			foreach ( $crons as $cron_name => $cron ) {
@@ -185,5 +186,6 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 		}
 	}
 
+	// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- https://github.com/phan/phan/issues/4763
 	WP_CLI::add_command( 'videopress', 'VideoPress_CLI' );
 }

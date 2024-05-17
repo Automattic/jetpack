@@ -141,7 +141,8 @@ class WPCOM_JSON_API_Get_Taxonomies_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		$cats = get_categories( $args );
 		unset( $args['offset'] );
-		$found = wp_count_terms( 'category', $args );
+		$args['taxonomy'] = 'category';
+		$found            = wp_count_terms( $args );
 
 		$cats_obj = array();
 		foreach ( $cats as $cat ) {
@@ -164,7 +165,8 @@ class WPCOM_JSON_API_Get_Taxonomies_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		$tags = (array) get_tags( $args );
 		unset( $args['offset'] );
-		$found = wp_count_terms( 'post_tag', $args );
+		$args['taxonomy'] = 'post_tag';
+		$found            = wp_count_terms( $args );
 
 		$tags_obj = array();
 		foreach ( $tags as $tag ) {

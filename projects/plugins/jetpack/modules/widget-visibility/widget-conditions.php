@@ -53,7 +53,7 @@ class Jetpack_Widget_Conditions {
 		}
 
 		// API call to *list* the widget types doesn't use editing visibility or display widgets.
-		if ( false !== strpos( $_SERVER['REQUEST_URI'], '/widget-types?' ) ) {
+		if ( isset( $_SERVER['REQUEST_URI'] ) && str_contains( $_SERVER['REQUEST_URI'], '/widget-types?' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			return;
 		}
 
@@ -66,7 +66,7 @@ class Jetpack_Widget_Conditions {
 		// the customizer controls in the sidebar should not (so they can be edited).
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$customizer_not_previewer = is_customize_preview() && ! isset( $_GET['customize_changeset_uuid'] );
-		$using_classic_experience = ( ! function_exists( 'wp_use_widgets_block_editor' ) || ! wp_use_widgets_block_editor() );
+		$using_classic_experience = ! wp_use_widgets_block_editor();
 		if ( $using_classic_experience &&
 			( $customizer_not_previewer || 'widgets.php' === $pagenow ||
 				// phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -84,20 +84,20 @@ class Jetpack_Widget_Conditions {
 			}
 
 			// Encoding for a particular widget end point.
-			if ( 1 === preg_match( '|/widget-types/.*/encode|', $_SERVER['REQUEST_URI'] ) ) {
+			if ( isset( $_SERVER['REQUEST_URI'] ) && 1 === preg_match( '|/widget-types/.*/encode|', $_SERVER['REQUEST_URI'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 				$add_html_to_form      = true;
 				$handle_widget_updates = true;
 			}
 
 			// Batch API is usually saving but could be anything.
 			$current_url = ! empty( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
-			if ( false !== strpos( $current_url, '/wp-json/batch/v1' ) || 1 === preg_match( '/^\/wp\/v2\/sites\/\d+\/batch\/v1/', $current_url ) ) {
+			if ( str_contains( $current_url, '/wp-json/batch/v1' ) || 1 === preg_match( '/^\/wp\/v2\/sites\/\d+\/batch\/v1/', $current_url ) ) {
 				$handle_widget_updates = true;
 				$add_html_to_form      = true;
 			}
 
 			// Saving widgets via non-batch API. This isn't used within WordPress but could be used by third parties in theory.
-			if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'GET' !== $_SERVER['REQUEST_METHOD'] && false !== strpos( $_SERVER['REQUEST_URI'], '/wp/v2/widgets' ) ) {
+			if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'GET' !== $_SERVER['REQUEST_METHOD'] && str_contains( $_SERVER['REQUEST_URI'], '/wp/v2/widgets' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 				$handle_widget_updates = true;
 				$add_html_to_form      = true;
 			}
@@ -153,7 +153,7 @@ class Jetpack_Widget_Conditions {
 	 * to know about the new attribute, too.
 	 */
 	public static function add_block_attributes_filter() {
-		$blocks_to_add_visibility_conditions = array(
+		$blocks = array(
 			// These use <ServerSideRender>.
 			'core/calendar',
 			'core/latest-comments',
@@ -162,10 +162,28 @@ class Jetpack_Widget_Conditions {
 			'core/tag-cloud',
 			'core/page-list',
 			'core/latest-posts',
+			'woocommerce/product-categories',
 		);
+		/**
+		 * Filters the list of widget visibility blocks using <ServerSideRender>.
+		 *
+		 * @since 12.4
+		 *
+		 * @module widget-visibility
+		 *
+		 * @param string[] $blocks Array of block names from WordPress core and WooCommerce.
+		 */
+		$blocks_to_add_visibility_conditions = apply_filters( 'jetpack_widget_visibility_server_side_render_blocks', $blocks );
 
-		$filter_metadata_registration = function ( $settings, $metadata ) use ( $blocks_to_add_visibility_conditions ) {
-			if ( in_array( $metadata['name'], $blocks_to_add_visibility_conditions, true ) && ! empty( $settings['attributes'] ) ) {
+		/**
+		 * Block registration filter callback.
+		 *
+		 * @param array $settings Array of arguments for registering a block type.
+		 * @param string $name    Block type name including namespace.
+		 * @return array
+		 */
+		$filter_metadata_registration = function ( $settings, $name ) use ( $blocks_to_add_visibility_conditions ) {
+			if ( in_array( $name, $blocks_to_add_visibility_conditions, true ) && ! empty( $settings['attributes'] ) ) {
 				$settings['attributes']['conditions'] = array(
 					'type' => 'object',
 				);
@@ -173,7 +191,7 @@ class Jetpack_Widget_Conditions {
 			return $settings;
 		};
 
-		add_filter( 'block_type_metadata_settings', $filter_metadata_registration, 10, 2 );
+		add_filter( 'register_block_type_args', $filter_metadata_registration, 10, 2 );
 	}
 
 	/**
@@ -238,13 +256,6 @@ class Jetpack_Widget_Conditions {
 			'capability' => array( 'edit_posts' ),
 			'fields'     => array( 'ID', 'display_name' ),
 		);
-
-		// To-do: remove this once Jetpack requires WordPress 5.9.
-		global $wp_version;
-		if ( version_compare( $wp_version, '5.9-alpha', '<' ) ) {
-			$authors_args['who'] = 'authors';
-			unset( $authors_args['capability'] );
-		}
 
 		$authors = get_users( $authors_args );
 
@@ -516,9 +527,12 @@ class Jetpack_Widget_Conditions {
 			<input type="hidden" name="widget-conditions-visible" value="
 			<?php
 			if ( isset( $_POST['widget-conditions-visible'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				echo esc_attr( $_POST['widget-conditions-visible'] ); } else { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				?>
-				0<?php } ?>" />
+				echo esc_attr( filter_var( wp_unslash( $_POST['widget-conditions-visible'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			} else {
+				echo 0;
+			}
+			?>
+			" />
 			<?php
 			if ( ! isset( $_POST['widget-conditions-visible'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 				?>
@@ -715,6 +729,10 @@ class Jetpack_Widget_Conditions {
 	public static function sidebars_widgets( $widget_areas ) {
 		$settings = array();
 
+		if ( ! is_array( $widget_areas ) ) {
+			return $widget_areas;
+		}
+
 		foreach ( $widget_areas as $widget_area => $widgets ) {
 			if ( empty( $widgets ) ) {
 				continue;
@@ -785,7 +803,7 @@ class Jetpack_Widget_Conditions {
 	public static function filter_widget( $instance ) {
 		// Don't filter widgets from the REST API when it's called via the widgets admin page - otherwise they could get
 		// filtered out and become impossible to edit.
-		if ( strpos( wp_get_raw_referer(), '/wp-admin/widgets.php' ) && false !== strpos( $_SERVER['REQUEST_URI'], '/wp-json/' ) ) {
+		if ( strpos( wp_get_raw_referer(), '/wp-admin/widgets.php' ) && isset( $_SERVER['REQUEST_URI'] ) && str_contains( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/wp-json/' ) ) {
 			return $instance;
 		}
 		// WordPress.com specific check - here, referer ends in /rest-proxy/ and doesn't tell us what's requesting.
@@ -892,9 +910,9 @@ class Jetpack_Widget_Conditions {
 								}
 								break;
 							default:
-								if ( substr( $rule['minor'], 0, 10 ) === 'post_type-' ) {
+								if ( str_starts_with( $rule['minor'], 'post_type-' ) ) {
 									$condition_result = is_singular( substr( $rule['minor'], 10 ) );
-								} elseif ( substr( $rule['minor'], 0, 18 ) === 'post_type_archive-' ) {
+								} elseif ( str_starts_with( $rule['minor'], 'post_type_archive-' ) ) {
 									$condition_result = is_post_type_archive( substr( $rule['minor'], 18 ) );
 								} elseif ( get_option( 'page_for_posts' ) === $rule['minor'] ) {
 									// If $rule['minor'] is a page ID which is also the posts page.
@@ -983,9 +1001,9 @@ class Jetpack_Widget_Conditions {
 						}
 						break;
 					case 'post_type':
-						if ( substr( $rule['minor'], 0, 10 ) === 'post_type-' ) {
+						if ( str_starts_with( $rule['minor'], 'post_type-' ) ) {
 							$condition_result = is_singular( substr( $rule['minor'], 10 ) );
-						} elseif ( substr( $rule['minor'], 0, 18 ) === 'post_type_archive-' ) {
+						} elseif ( str_starts_with( $rule['minor'], 'post_type_archive-' ) ) {
 							$condition_result = is_post_type_archive( substr( $rule['minor'], 18 ) );
 						}
 						break;
@@ -1131,6 +1149,10 @@ class Jetpack_Widget_Conditions {
 				$opts      = $wp_registered_widgets[ $widget ];
 				$instances = get_option( $opts['callback'][0]->option_name );
 
+				if ( ! is_array( $instances ) || empty( $instances ) ) {
+					continue;
+				}
+
 				// Going through each instance of the widget.
 				foreach ( $instances as $number => $instance ) {
 					if (
@@ -1152,9 +1174,9 @@ class Jetpack_Widget_Conditions {
 						$rule_type = false;
 
 						// Post type or type archive rule.
-						if ( 0 === strpos( $rule['minor'], 'post_type_archive' ) ) {
+						if ( str_starts_with( $rule['minor'], 'post_type_archive' ) ) {
 							$rule_type = 'post_type_archive';
-						} elseif ( 0 === strpos( $rule['minor'], 'post_type' ) ) {
+						} elseif ( str_starts_with( $rule['minor'], 'post_type' ) ) {
 							$rule_type = 'post_type';
 						}
 
@@ -1172,7 +1194,6 @@ class Jetpack_Widget_Conditions {
 			}
 		}
 	}
-
 }
 
 add_action( 'init', array( 'Jetpack_Widget_Conditions', 'init' ) );
@@ -1181,6 +1202,10 @@ add_action( 'init', array( 'Jetpack_Widget_Conditions', 'init' ) );
 // 'init' happens too late to hook on block registration.
 global $pagenow;
 $current_url = ! empty( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
-if ( is_customize_preview() || 'widgets.php' === $pagenow || ( false !== strpos( $current_url, '/wp-json/wp/v2/block-renderer' ) ) ) {
+if ( is_customize_preview()
+	|| 'widgets.php' === $pagenow
+	|| str_contains( $current_url, '/wp-json/wp/v2/block-renderer' )
+	|| 1 === preg_match( '~^/wp/v2/sites/\d+/block-renderer~', $current_url )
+) {
 	Jetpack_Widget_Conditions::add_block_attributes_filter();
 }

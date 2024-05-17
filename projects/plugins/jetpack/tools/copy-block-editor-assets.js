@@ -1,6 +1,6 @@
+const path = require( 'path' );
 const fs = require( 'fs-extra' );
 const glob = require( 'glob' );
-const path = require( 'path' );
 
 const PLUGIN_NAME = 'CopyEditorAssetsPlugin';
 const EXPORT_PATH = '_inc/blocks/editor-assets';

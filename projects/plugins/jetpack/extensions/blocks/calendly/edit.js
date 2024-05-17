@@ -1,62 +1,49 @@
-/**
- * External Dependencies
- */
-import 'url-polyfill';
-import { isEqual } from 'lodash';
-import queryString from 'query-string';
-
-/**
- * WordPress dependencies
- */
-import { InnerBlocks } from '@wordpress/block-editor';
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
+import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
+import { getBlockDefaultClassName } from '@wordpress/blocks';
 import { Button, ExternalLink, Placeholder, Spinner, withNotices } from '@wordpress/components';
+import { select, dispatch } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { getBlockDefaultClassName } from '@wordpress/blocks';
-import { select, dispatch } from '@wordpress/data';
+import classNames from 'classnames';
+import { isEqual } from 'lodash';
+import { getValidatedAttributes } from '../../shared/get-validated-attributes';
+import testEmbedUrl from '../../shared/test-embed-url';
+import metadata from './block.json';
+import { CALENDLY_EXAMPLE_URL } from './constants';
+import CalendlyControls from './controls';
+import { getAttributesFromEmbedCode } from './utils';
 
-/**
- * Internal dependencies
- */
 import './editor.scss';
 import './view.scss';
-import icon from './icon';
-import attributeDetails from './attributes';
-import { getValidatedAttributes } from '../../shared/get-validated-attributes';
-import { getAttributesFromEmbedCode } from './utils';
-import { CALENDLY_EXAMPLE_URL, innerButtonBlock } from './';
-import testEmbedUrl from '../../shared/test-embed-url';
-import CalendlyControls from './controls';
+
+const innerButtonBlock = {
+	name: 'jetpack/button',
+	attributes: {
+		element: 'a',
+		text: __( 'Schedule time with me', 'jetpack' ),
+		uniqueId: 'calendly-widget-id',
+		url: CALENDLY_EXAMPLE_URL,
+	},
+};
+const icon = getBlockIconComponent( metadata );
 
 export function CalendlyEdit( props ) {
-	const {
-		attributes,
-		className,
-		clientId,
-		name,
-		noticeOperations,
-		noticeUI,
-		setAttributes,
-	} = props;
+	const { attributes, clientId, name, noticeOperations, noticeUI, setAttributes } = props;
 	const defaultClassName = getBlockDefaultClassName( name );
-	const validatedAttributes = getValidatedAttributes( attributeDetails, attributes );
+	const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
 
 	if ( ! isEqual( validatedAttributes, attributes ) ) {
 		setAttributes( validatedAttributes );
 	}
 
-	const {
-		backgroundColor,
-		hideEventTypeDetails,
-		primaryColor,
-		textColor,
-		style,
-		url,
-	} = validatedAttributes;
+	const { backgroundColor, hideEventTypeDetails, primaryColor, textColor, style, url } =
+		validatedAttributes;
 	const [ embedCode, setEmbedCode ] = useState( url );
 	const [ isEditingUrl, setIsEditingUrl ] = useState( false );
 	const [ isResolvingUrl, setIsResolvingUrl ] = useState( false );
 	const [ embedButtonAttributes, setEmbedButtonAttributes ] = useState( {} );
+	const blockProps = useBlockProps();
 
 	const setErrorNotice = () => {
 		noticeOperations.removeAllNotices();
@@ -106,7 +93,7 @@ export function CalendlyEdit( props ) {
 
 		testEmbedUrl( newAttributes.url, setIsResolvingUrl )
 			.then( () => {
-				const newValidatedAttributes = getValidatedAttributes( attributeDetails, newAttributes );
+				const newValidatedAttributes = getValidatedAttributes( metadata.attributes, newAttributes );
 				setAttributes( newValidatedAttributes );
 				setIsEditingUrl( false );
 				noticeOperations.removeAllNotices();
@@ -155,7 +142,7 @@ export function CalendlyEdit( props ) {
 	);
 
 	const iframeSrc = () => {
-		const query = queryString.stringify( {
+		const query = new URLSearchParams( {
 			embed_domain: 'wordpress.com',
 			embed_type: 'Inline',
 			hide_event_type_details: hideEventTypeDetails ? 1 : 0,
@@ -209,13 +196,13 @@ export function CalendlyEdit( props ) {
 		return blockEmbedding;
 	}
 
-	let classes = className;
-	if ( url && ! isEditingUrl ) {
-		classes += ` calendly-style-${ style }`;
-	}
-
 	return (
-		<div className={ classes }>
+		<div
+			{ ...blockProps }
+			className={ classNames( blockProps.className, {
+				[ `calendly-style-${ style }` ]: url && ! isEditingUrl,
+			} ) }
+		>
 			<CalendlyControls
 				{ ...{
 					...props,

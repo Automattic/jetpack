@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import React from 'react';
+import { _x } from '@wordpress/i18n';
 import classNames from 'classnames';
-import { isEmpty, forOwn, omit } from 'lodash';
-import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import Button from 'components/button';
 import SelectDropdown from 'components/select-dropdown';
+import { isEmpty, forOwn, omit } from 'lodash';
+import React from 'react';
 
 export const FormFieldset = props => {
 	return (
@@ -81,8 +74,10 @@ export class FormTextInput extends React.Component {
 		type: 'text',
 	};
 
+	textFieldRef = React.createRef();
+
 	focus = () => {
-		this.refs.textField.focus();
+		this.textFieldRef.current.focus();
 	};
 
 	render() {
@@ -104,7 +99,7 @@ export class FormTextInput extends React.Component {
 		return (
 			<input
 				{ ...filteredProps }
-				ref="textField"
+				ref={ this.textFieldRef }
 				className={ classes }
 				onClick={ selectOnFocus ? this.selectOnFocus : null }
 			/>
@@ -158,8 +153,13 @@ export class FormButton extends React.Component {
 
 	getDefaultButtonAction = () => {
 		return this.props.isSubmitting
-			? __( 'Saving…', 'jetpack' )
-			: __( 'Save Settings', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
+			? _x( 'Saving…', 'Button caption', 'jetpack' )
+			: _x(
+					'Save Settings',
+					'Button caption',
+					'jetpack',
+					/* dummy arg to avoid bad minification */ 0
+			  );
 	};
 
 	render() {
@@ -201,6 +201,7 @@ export class FormSelect extends React.Component {
 				onSelect={ this.handleOnSelect }
 				disabled={ this.props.disabled }
 				initialSelected={ this.props.value }
+				rna={ this.props.rna }
 			/>
 		);
 	}

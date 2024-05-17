@@ -1,14 +1,12 @@
-/**
- * Internal dependencies
- */
 import { convertShareableUrl, extractAttributesFromIframe, parseEmbed } from '../utils';
 
 const shareableUrl = 'https://calendar.google.com/calendar?cid=Z2xlbi5kYXZpZXNAYThjLmNvbQ';
 const shareableData = {
 	url: 'https://calendar.google.com/calendar/embed?src=glen.davies%40a8c.com',
-}
+};
 
-const iframeEmbed = '<iframe src="https://calendar.google.com/calendar/embed?src=test.user%40a8c.com&ctz=Pacific%2FAuckland" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe>';
+const iframeEmbed =
+	'<iframe src="https://calendar.google.com/calendar/embed?src=test.user%40a8c.com&ctz=Pacific%2FAuckland" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe>';
 const iframeData = {
 	url: 'https://calendar.google.com/calendar/embed?src=test.user%40a8c.com&ctz=Pacific%2FAuckland',
 	height: '600',

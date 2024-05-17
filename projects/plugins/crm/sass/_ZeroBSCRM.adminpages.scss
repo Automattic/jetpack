@@ -1,0 +1,442 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V1.0
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 27/06/16
+ */
+
+// global hider :)
+.zbs-hide{
+	display:none !important;
+}
+
+ // woody added wp button override classes
+ .button.xl {
+ 	font-size: 18px !important;
+    margin-top: 14px !important;
+    padding: 4px 18px !important;
+    height: 41px !important;
+ }
+
+ //for the admin field slug label (needs margin top 5px;
+ .zbscrm-cf{
+	 .label{
+		 margin-top:5px;
+	 }
+ }
+
+// Deletion page... e.g. "customer 123 moved to trash"
+#zbsDeletionPage {
+
+  	position: relative;
+	width:100%;
+    margin-top: 30px;
+    min-height: 400px;
+
+	#zbsDeletionMsgWrap {
+
+		// centralise
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+
+		text-align: center;
+
+		// big ico
+		#zbsDeletionIco {
+
+			text-align: center;
+
+			.fa {
+
+				font-size:80px;
+				color:green;
+    			margin-bottom: 8px;
+
+			}
+
+		}
+
+		// actual msg str
+		.zbsDeletionMsg {
+
+			text-align: center;
+		    font-size: 18px;
+		    margin-bottom: 20px;
+
+		}
+
+		// next buttons
+		.zbsDeletionAction {
+
+			text-align: center;
+
+			button {
+
+				font-size:16px;
+
+			}
+
+		}
+
+	}
+
+}
+
+.zbs-settings_page_zerobscrm-plugin-settings{
+	.wfieldname{
+		text-align:left !important;
+		width:30%;
+	}
+
+	.wtab th.wmid{
+			text-align:left !important;
+	}
+
+
+
+}
+
+
+
+#notes{
+	font-size: 14px;
+}
+
+
+
+// No Access Page
+#zbsNoAccessPage {
+
+  	position: relative;
+	width:100%;
+    margin-top: 30px;
+    min-height: 400px;
+
+	#zbsNoAccessMsgWrap {
+
+		// centralise
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+
+		text-align: center;
+
+		// big ico
+		#zbsNoAccessIco {
+
+			text-align: center;
+
+			.fa {
+
+				font-size:80px;
+				color:green;
+    			margin-bottom: 8px;
+
+			}
+
+		}
+
+		// actual msg str
+		.zbsNoAccessMsg {
+
+			text-align: center;
+		    font-size: 18px;
+		    margin-bottom: 20px;
+
+		}
+
+		// next buttons
+		.zbsNoAccessAction {
+
+			text-align: center;
+
+			button {
+
+				font-size:16px;
+
+			}
+
+		}
+
+	}
+
+}
+
+
+// upsell / feedback boxes from func zeroBSCRM_UI2_squareFeedbackUpsell
+.zbs-upgrade-banner{
+    background: black;
+    color:white;
+    padding:20px;
+    text-align:center;
+}
+.zbs-upgrade-banner h4{
+    font-weight: 600;
+    color: #f3f3f3;
+    text-transform: uppercase;
+}
+.zbs-upgrade-banner p{
+        color: #999;
+}
+.zbs-upgrade-banner .btn{
+    margin-top:20px;
+    margin-bottom:20px;
+    padding:10px;
+    color:white;
+    background: #1a6ecc;
+}
+
+.jpcrm-learn-menu-container {
+	padding: 10px 20px;
+	margin: 0 auto;
+	max-width: 1551px;
+
+	.jpcrm-learn-menu {
+		.ui.popup {
+			max-width: 800px !important;
+		}
+	}
+
+	&.jpcrm-full-width {
+		max-width: none;
+	}
+}
+
+div.ui.learn.button {
+	background: transparent;
+	padding: 0;
+	vertical-align: text-bottom;
+
+	.jpcrm-info-gridicon {
+		vertical-align: text-bottom;
+		margin-left: 4px;
+	}
+}
+
+.item:focus{
+	outline: none;
+    box-shadow: none !important;
+}
+
+.popover.right .arrow{
+    top: 50%;
+    left: 25px !important;
+    margin-top: -11px;
+    border-left-width: 0;
+    border-right-color: white !important;
+}
+
+.popover.bottom .arrow {
+    border-bottom-color: white !important;
+}
+
+.popover.right .arrow:after {
+    content: " ";
+    left: 1px;
+    bottom: -10px;
+    border-left-width: 0;
+    border-right-color: transparent;
+}
+
+.tour-step-background {
+    background: none !important;
+}
+
+//TEAM STUFF BELOW HERE
+#zbs-team-user-table{
+	.dn{
+		line-height:30px;
+		float:left;
+	}
+	img{
+		border-radius:50%;
+		margin-right:5px;
+		float:left;
+	}
+}
+
+#zbs-team-mechanics{
+	padding:10px;
+}
+
+#zbs-team-mechanics:after{
+	clear:both;
+}
+
+.clear{
+	clear:both;
+}
+
+// File Edit page
+.zbs-cp-file-edit-page {
+
+	margin-right:1em !important;
+
+	.zbs-file-thumb {
+		float:right;
+		margin:0.5em;
+		max-width:50px;
+	    -webkit-box-shadow: 0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08);
+	    box-shadow: 0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08);
+
+	}
+
+	// not for normal file type imgs
+	.zbs-file-thumb.zbs-cp-file-img-default {
+		-webkit-box-shadow:none !important;
+		box-shadow:none !important;
+	}
+
+}
+
+
+// NAV for transactions + invs
+#zbs-quote-learn-nav,
+#zbs-invoice-learn-nav,
+#zbs-transaction-learn-nav,
+#jpcrm-task-learn-nav {
+    display: flex;
+}
+
+//UI tweak for contact fiew
+#zbs-vitals-box .item{
+	cursor:pointer;
+}
+
+
+// Email template editor
+.jpcrm-email-template-label-content {
+	
+	position: absolute;
+	bottom: 1em;
+	
+}
+
+// generic loading.loaded classes
+// these are toggled by js once x has loaded :)
+// see func "zeroBSCRMJS_genericLoaded()"
+.zbs-generic-loaded {
+	display:none;
+}
+
+
+// placeholder select insert
+.jpcrm-placeholder-select-wrap {
+
+	margin: 0.5em;
+
+	i.icon {
+
+		position: absolute;
+	    right: 1em;
+	    font-size: 1.3em;
+	    margin: .5em;
+	    margin-right: .8em;
+
+	}
+
+}
+
+
+// system assistant 
+// jobs
+.jpcrm-assistant-job {
+
+
+    margin-bottom: 1em;
+    padding-bottom: 1em;
+    border-bottom: 1px solid #f5eeee;
+
+	.iconWrap {
+
+    	text-align: center;
+
+    	i {
+
+			font-size: 4em;
+	    	line-height: 1.5em;
+
+    	}
+
+	}
+
+	h4.ui.header {
+
+		margin-top: 1em;
+		
+	}
+
+}
+
+// incomplete job
+.jpcrm-assistant-job.jpcrm-assistant-state-0 {
+
+	.state-complete {
+
+		display:none;
+
+	}
+
+	.iconWrap i {
+
+    	opacity: 0.4;
+
+	}
+
+}
+
+// completed job
+.jpcrm-assistant-job.jpcrm-assistant-state-1 {
+
+	.state-incomplete {
+
+		display:none;
+		
+	}
+
+
+}
+
+// hover-over cursor for semanti ui tabs (system asssistant)
+.ui.top.attached.tabular.menu .item:hover {
+    cursor: pointer;
+}
+
+// remove 'avatar' wp class effects from this card img:
+.ui.card.jpcrm-user-profile img.avatar {
+
+    width: 100%;
+    height: auto;
+    
+}
+
+/* allow for long file titles and descriptions */
+table#zbsFilesTable td {
+  word-break: break-word;
+}
+
+// Custom field csv builder labels can be clicked!
+.jpcrm-custom-field-builder span.ui.label:hover {
+	cursor: pointer;
+}
+
+// https://stackoverflow.com/questions/34520569/sweetalert-change-modal-width
+.swal-wide{
+    width:550px !important;
+}
+.swal-wider{
+    width:850px !important;
+}
+.jpcrm-external-link-icon {
+	width: 1em;
+	height: 1em;
+	vertical-align: middle;
+	margin: 0px;
+	margin-left: 4px;
+}

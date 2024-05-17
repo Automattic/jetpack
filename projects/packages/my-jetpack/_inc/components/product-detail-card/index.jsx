@@ -1,21 +1,25 @@
-/**
- * External dependencies
- */
-import React, { useCallback } from 'react';
-import classnames from 'classnames';
-import { Icon, check, plus } from '@wordpress/icons';
 import { getCurrencyObject } from '@automattic/format-currency';
+import {
+	CheckmarkIcon,
+	getIconBySlug,
+	StarIcon,
+	Text,
+	H3,
+	Alert,
+	TermsOfService,
+} from '@automattic/jetpack-components';
+import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { CheckmarkIcon, getIconBySlug, StarIcon, Text, H3 } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import styles from './style.module.scss';
-import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
-import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import { Icon, check, plus } from '@wordpress/icons';
+import classnames from 'classnames';
+import React, { useCallback } from 'react';
+import useProduct from '../../data/products/use-product';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import useAnalytics from '../../hooks/use-analytics';
+import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 import ProductDetailButton from '../product-detail-button';
-import { useProduct } from '../../hooks/use-product';
+import styles from './style.module.scss';
 
 /**
  * React component to render the price.
@@ -53,45 +57,129 @@ function Price( { value, currency, isOld } ) {
 /**
  * Product Detail component.
  *
- * @param {object} props                    - Component props.
- * @param {string} props.slug               - Product slug
- * @param {Function} props.onClick          - Callback for Call To Action button click
- * @param {Function} props.trackButtonClick - Function to call for tracking clicks on Call To Action button
- * @param {string} props.className					- A className to be concat with default ones
- * @returns {object}                          ProductDetailCard react component.
+ * @param {object} props                         - Component props.
+ * @param {string} props.slug                    - Product slug
+ * @param {Function} props.onClick               - Callback for Call To Action button click
+ * @param {Function} props.trackButtonClick      - Function to call for tracking clicks on Call To Action button
+ * @param {string} props.className               - A className to be concat with default ones
+ * @param {boolean} props.preferProductName      - Use product name instead of title
+ * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
+ * @param {string} [props.ctaButtonLabel]        - The label for the Call To Action button
+ * @param {boolean} [props.hideTOS]              - Whether to hide the Terms of Service text
+ * @param {number} [props.quantity]              - The quantity of the product to purchase
+ * @param {boolean} [props.highlightLastFeature] - Whether to highlight the last feature of the list of features
+ * @param {boolean} [props.isFetching]           - Whether the product is being fetched
+ * @returns {object}                               ProductDetailCard react component.
  */
-const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => {
-	const { detail, isFetching } = useProduct( slug );
+const ProductDetailCard = ( {
+	slug,
+	onClick,
+	trackButtonClick = () => {},
+	className,
+	preferProductName,
+	supportingInfo,
+	ctaButtonLabel = null,
+	hideTOS = false,
+	quantity = null,
+	highlightLastFeature = false,
+	isFetching = false,
+} ) => {
 	const {
+		fileSystemWriteAccess = 'no',
+		siteSuffix = '',
+		adminUrl = '',
+		myJetpackCheckoutUri = '',
+	} = getMyJetpackWindowInitialState();
+
+	const { detail } = useProduct( slug );
+
+	const {
+		name,
 		title,
 		longDescription,
 		features,
+		disclaimers,
 		pricingForUi,
 		isBundle,
 		supportedProducts,
-		hasRequiredPlan,
+		hasPaidPlanForProduct,
+		status,
+		pluginSlug,
+		postCheckoutUrl,
 	} = detail;
+
+	const cantInstallPlugin = status === 'plugin_absent' && 'no' === fileSystemWriteAccess;
 
 	const {
 		isFree,
+		trialAvailable,
 		fullPricePerMonth: price,
 		currencyCode,
 		discountPricePerMonth: discountPrice,
 		wpcomProductSlug,
+		wpcomFreeProductSlug,
+		introductoryOffer,
+		productTerm,
 	} = pricingForUi;
-	const { isUserConnected } = useMyJetpackConnection();
+
+	const { recordEvent } = useAnalytics();
 
 	/*
 	 * Product needs purchase when:
 	 * - it's not free
 	 * - it does not have a required plan
+	 *
+	 * Or when:
+	 * - it's a quantity-based product
 	 */
-	const needsPurchase = ! isFree && ! hasRequiredPlan;
+	const needsPurchase = ( ! isFree && ! hasPaidPlanForProduct ) || quantity != null;
 
-	const addProductUrl =
-		needsPurchase && wpcomProductSlug
-			? getProductCheckoutUrl( wpcomProductSlug, isUserConnected ) // @ToDo: Remove this when we have a new product structure.
-			: null;
+	// Redirect to the referrer URL when the `redirect_to_referrer` query param is present.
+	const referrerURL = useRedirectToReferrer();
+
+	/*
+	 * Function to handle the redirect URL selection.
+	 * - postCheckoutUrl is the URL provided by the product API and is the preferred URL
+	 * - referrerURL is the referrer URL, in case the redirect_to_referrer flag was provided
+	 * - myJetpackCheckoutUri is the default URL
+	 */
+	const getCheckoutRedirectUrl = useCallback( () => {
+		if ( postCheckoutUrl ) {
+			return postCheckoutUrl;
+		}
+
+		if ( referrerURL ) {
+			return referrerURL;
+		}
+
+		return myJetpackCheckoutUri;
+	}, [ postCheckoutUrl, referrerURL, myJetpackCheckoutUri ] );
+
+	const checkoutRedirectUrl = getCheckoutRedirectUrl();
+
+	const { run: mainCheckoutRedirect, hasCheckoutStarted: hasMainCheckoutStarted } =
+		useProductCheckoutWorkflow( {
+			productSlug: wpcomProductSlug,
+			redirectUrl: checkoutRedirectUrl,
+			siteSuffix,
+			adminUrl,
+			connectAfterCheckout: true,
+			from: 'my-jetpack',
+			quantity,
+			useBlogIdSuffix: true,
+		} );
+
+	const { run: trialCheckoutRedirect, hasCheckoutStarted: hasTrialCheckoutStarted } =
+		useProductCheckoutWorkflow( {
+			productSlug: wpcomFreeProductSlug,
+			redirectUrl: checkoutRedirectUrl,
+			siteSuffix,
+			adminUrl,
+			connectAfterCheckout: true,
+			from: 'my-jetpack',
+			quantity,
+			useBlogIdSuffix: true,
+		} );
 
 	// Suppported products icons.
 	const icons = isBundle
@@ -115,12 +203,41 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => 
 				} )
 		: null;
 
+	let priceDescription;
+	if ( introductoryOffer?.intervalUnit === 'month' && introductoryOffer?.intervalCount === 1 ) {
+		priceDescription = sprintf(
+			// translators: %s is the monthly price for a product
+			__( 'trial for the first month, then $%s /month, billed yearly', 'jetpack-my-jetpack' ),
+			price
+		);
+	} else if ( productTerm === 'year' ) {
+		priceDescription = __( '/month, paid yearly', 'jetpack-my-jetpack' );
+	} else {
+		priceDescription = __(
+			'/month',
+			'jetpack-my-jetpack',
+			/* dummy arg to avoid bad minification */ 0
+		);
+	}
 	const clickHandler = useCallback( () => {
 		trackButtonClick();
-		if ( onClick ) {
-			onClick();
-		}
-	}, [ onClick, trackButtonClick ] );
+		onClick?.( mainCheckoutRedirect, detail );
+	}, [ onClick, trackButtonClick, mainCheckoutRedirect, detail ] );
+
+	const trialClickHandler = useCallback( () => {
+		trackButtonClick( true, wpcomFreeProductSlug, detail );
+		onClick?.( trialCheckoutRedirect, detail );
+	}, [ onClick, trackButtonClick, trialCheckoutRedirect, wpcomFreeProductSlug, detail ] );
+
+	const disclaimerClickHandler = useCallback(
+		id => {
+			recordEvent( 'jetpack_myjetpack_product_card_disclaimer_click', {
+				id: id,
+				product: slug,
+			} );
+		},
+		[ slug, recordEvent ]
+	);
 
 	/**
 	 * Temporary ProductIcon component.
@@ -134,7 +251,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => 
 	function ProductIcon( { slug: iconSlug } ) {
 		const ProIcon = getIconBySlug( iconSlug );
 		if ( ! ProIcon ) {
-			return () => null;
+			return null;
 		}
 
 		return (
@@ -143,6 +260,25 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => 
 			</div>
 		);
 	}
+
+	const hasTrialButton =
+		( ! isBundle || ( isBundle && ! hasPaidPlanForProduct ) ) && trialAvailable;
+
+	// If we prefer the product name, use that everywhere instead of the title
+	const productMoniker = name && preferProductName ? name : title;
+	const defaultCtaLabel =
+		! isBundle && hasPaidPlanForProduct
+			? sprintf(
+					/* translators: placeholder is product name. */
+					__( 'Install %s', 'jetpack-my-jetpack' ),
+					productMoniker
+			  )
+			: sprintf(
+					/* translators: placeholder is product name. */
+					__( 'Get %s', 'jetpack-my-jetpack' ),
+					productMoniker
+			  );
+	const ctaLabel = ctaButtonLabel || defaultCtaLabel;
 
 	return (
 		<div
@@ -161,10 +297,14 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => 
 				{ isBundle && <div className={ styles[ 'product-bundle-icons' ] }>{ icons }</div> }
 				<ProductIcon slug={ slug } />
 
-				<H3>{ title }</H3>
+				<H3>{ productMoniker }</H3>
 				<Text mb={ 3 }>{ longDescription }</Text>
 
-				<ul className={ styles.features }>
+				<ul
+					className={ classnames( styles.features, {
+						[ styles[ 'highlight-last-feature' ] ]: highlightLastFeature,
+					} ) }
+				>
 					{ features.map( ( feature, id ) => (
 						<Text component="li" key={ `feature-${ id }` } variant="body">
 							<Icon icon={ check } size={ 24 } />
@@ -173,50 +313,124 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => 
 					) ) }
 				</ul>
 
-				{ needsPurchase && (
+				{ needsPurchase && discountPrice && (
 					<>
 						<div className={ styles[ 'price-container' ] }>
-							<Price value={ price } currency={ currencyCode } isOld={ true } />
 							<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
+							{ discountPrice < price && (
+								<Price value={ price } currency={ currencyCode } isOld={ true } />
+							) }
 						</div>
-						<Text className={ styles[ 'price-description' ] }>
-							{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
-						</Text>
+						<Text className={ styles[ 'price-description' ] }>{ priceDescription }</Text>
 					</>
 				) }
 
 				{ isFree && <H3>{ __( 'Free', 'jetpack-my-jetpack' ) }</H3> }
 
-				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
+				{ cantInstallPlugin && (
+					<Alert>
+						<Text>
+							{ sprintf(
+								// translators: %s is the plugin name.
+								__(
+									"Due to your server settings, we can't automatically install the plugin for you. Please manually install the %s plugin.",
+									'jetpack-my-jetpack'
+								),
+								productMoniker
+							) }
+							&nbsp;
+							<ExternalLink href={ `https://wordpress.org/plugins/${ pluginSlug }` }>
+								{ __( 'Get plugin', 'jetpack-my-jetpack' ) }
+							</ExternalLink>
+						</Text>
+					</Alert>
+				) }
+
+				{ ! hideTOS && (
+					<div className={ styles[ 'tos-container' ] }>
+						<TermsOfService
+							agreeButtonLabel={
+								hasTrialButton
+									? sprintf(
+											/* translators: placeholder is cta label. */
+											__( '%s or Start for free', 'jetpack-my-jetpack' ),
+											ctaLabel
+									  )
+									: ctaLabel
+							}
+						/>
+					</div>
+				) }
+
+				{ ( ! isBundle || ( isBundle && ! hasPaidPlanForProduct ) ) && (
 					<Text
 						component={ ProductDetailButton }
 						onClick={ clickHandler }
-						isLoading={ isFetching }
+						isLoading={ isFetching || hasMainCheckoutStarted }
+						disabled={ cantInstallPlugin }
 						isPrimary={ ! isBundle }
-						href={ onClick ? undefined : addProductUrl }
 						className={ styles[ 'checkout-button' ] }
 						variant="body"
 					>
-						{
-							/* translators: placeholder is product name. */
-							sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
-						}
+						{ ctaLabel }
 					</Text>
 				) }
 
-				{ isBundle && hasRequiredPlan && (
+				{ ! isBundle && trialAvailable && ! hasPaidPlanForProduct && (
+					<Text
+						component={ ProductDetailButton }
+						onClick={ trialClickHandler }
+						isLoading={ isFetching || hasTrialCheckoutStarted }
+						disabled={ cantInstallPlugin }
+						isPrimary={ false }
+						className={ [ styles[ 'checkout-button' ], styles[ 'free-product-checkout-button' ] ] }
+						variant="body"
+					>
+						{ __( 'Start for free', 'jetpack-my-jetpack' ) }
+					</Text>
+				) }
+
+				{ disclaimers.length > 0 && (
+					<div className={ styles.disclaimers }>
+						{ disclaimers.map( ( disclaimer, id ) => {
+							const { text, link_text = null, url = null } = disclaimer;
+
+							return (
+								<Text key={ `disclaimer-${ id }` } component="p" variant="body-small">
+									{ `${ text } ` }
+									{ url && link_text && (
+										<ExternalLink
+											// Ignoring rule so I can pass ID to analytics in order to tell which disclaimer was clicked if there is more than one
+											/* eslint-disable react/jsx-no-bind */
+											onClick={ () => disclaimerClickHandler( id ) }
+											href={ url }
+											target="_blank"
+											rel="noopener noreferrer"
+										>
+											{ link_text }
+										</ExternalLink>
+									) }
+								</Text>
+							);
+						} ) }
+					</div>
+				) }
+
+				{ isBundle && hasPaidPlanForProduct && (
 					<div className={ styles[ 'product-has-required-plan' ] }>
 						<CheckmarkIcon size={ 36 } />
 						<Text>{ __( 'Active on your site', 'jetpack-my-jetpack' ) }</Text>
 					</div>
 				) }
+
+				{ supportingInfo && (
+					<Text className={ styles[ 'supporting-info' ] } variant="body-extra-small">
+						{ supportingInfo }
+					</Text>
+				) }
 			</div>
 		</div>
 	);
-};
-
-ProductDetailCard.defaultProps = {
-	trackButtonClick: () => {},
 };
 
 export default ProductDetailCard;

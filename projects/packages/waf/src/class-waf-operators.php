@@ -259,7 +259,7 @@ class Waf_Operators {
 			if ( ! $valid ) {
 				return $input[ $i ];
 			}
-			$i++;
+			++$i;
 		}
 
 		// if there weren't any invalid bytes, return false.
@@ -279,7 +279,7 @@ class Waf_Operators {
 			return false;
 		}
 
-		return stripos( $test, $input ) !== false
+		return strpos( $test, $input ) !== false
 		? $input
 		: false;
 	}

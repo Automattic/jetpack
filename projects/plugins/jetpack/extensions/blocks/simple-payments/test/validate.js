@@ -1,26 +1,29 @@
-/**
- * Internal dependencies
- */
-import { settings } from '../';
 import runBlockFixtureTests from '../../../shared/test/block-fixtures';
+import metadata from '../block.json';
+import deprecatedV1 from '../deprecated/v1';
+import deprecatedV2 from '../deprecated/v2';
+import edit from '../edit';
+import save from '../save';
 
-// this is necessary because block editor store becomes unregistered during jest initialization
-import { register } from '@wordpress/data';
-import { store as blockEditorStore } from '@wordpress/block-editor';
-register( blockEditorStore );
-
+const intlNumberFormatSpy = jest.spyOn( Intl, 'NumberFormat' );
 beforeEach( () => {
-	Intl.NumberFormat = jest
-		.fn()
+	intlNumberFormatSpy
+		.mockReset()
 		.mockImplementation( () => ( { format: value => `A$${ value.toString() }.00` } ) );
 } );
 
-afterEach( () => {
-	jest.resetAllMocks();
-} );
+const { name } = metadata;
+const blocks = [
+	{
+		name,
+		settings: {
+			...metadata,
+			edit,
+			save,
 
-// Need to include all the blocks involved in rendering this block.
-// The main block should be the first in the array.
-const blocks = [ { name: 'jetpack/simple-payments', settings } ];
+			deprecated: [ deprecatedV1, deprecatedV2 ],
+		},
+	},
+];
 
-runBlockFixtureTests( 'jetpack/simple-payments', blocks, __dirname );
+runBlockFixtureTests( name, blocks, __dirname );

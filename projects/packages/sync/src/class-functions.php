@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Modules as Jetpack_Modules;
 
 /**
  * Utility functions to generate data synced to wpcom
@@ -401,8 +402,8 @@ class Functions {
 	 *
 	 * @deprecated 1.23.1
 	 *
-	 * @param callable $callable Function to retrieve URL option.
-	 * @param string   $new_value URL Protocol to set URLs to.
+	 * @param string $callable Function name that was used to retrieve URL option.
+	 * @param string $new_value URL Protocol to set URLs to.
 	 * @return string Normalized URL.
 	 */
 	public static function get_protocol_normalized_url( $callable, $new_value ) {
@@ -582,10 +583,12 @@ class Functions {
 	/**
 	 * Returns if the current theme is a Full Site Editing theme.
 	 *
+	 * @since 1.49.0 Uses wp_is_block_theme() instead of deprecated gutenberg_is_fse_theme().
+	 *
 	 * @return bool Theme is a Full Site Editing theme.
 	 */
 	public static function get_is_fse_theme() {
-		return function_exists( 'gutenberg_is_fse_theme' ) && gutenberg_is_fse_theme();
+		return wp_is_block_theme();
 	}
 
 	/**
@@ -593,8 +596,8 @@ class Functions {
 	 *
 	 * @since 1.21.0
 	 *
-	 * @param array|obj $any        Source data to be cleaned up.
-	 * @param array     $seen_nodes Built array of nodes.
+	 * @param mixed $any        Source data to be cleaned up.
+	 * @param array $seen_nodes Built array of nodes.
 	 *
 	 * @return array
 	 */
@@ -626,18 +629,19 @@ class Functions {
 		}
 
 		return $any;
-
 	}
 
 	/**
 	 * Return the list of installed themes
+	 *
+	 * @since 1.31.0
 	 *
 	 * @return array
 	 */
 	public static function get_themes() {
 		$current_stylesheet = get_stylesheet();
 		$installed_themes   = wp_get_themes();
-		$synced_headers     = array( 'Name', 'ThemeURI', 'Description', 'Author', 'Version', 'Template', 'Status', 'TextDomain', 'RequiresWP', 'RequiresPHP' );
+		$synced_headers     = array( 'Name', 'ThemeURI', 'Author', 'Version', 'Template', 'Status', 'TextDomain', 'RequiresWP', 'RequiresPHP' );
 		$themes             = array();
 		foreach ( $installed_themes as $stylesheet => $theme ) {
 			$themes[ $stylesheet ] = array();
@@ -649,6 +653,60 @@ class Functions {
 				$themes[ $stylesheet ]['is_block_theme'] = $theme->is_block_theme();
 			}
 		}
-		return $themes;
+		/**
+		 * Filters the output of Sync's get_theme callable
+		 *
+		 * @since 1.31.0
+		 *
+		 * @param array $themes The list of installed themes formatted in an array with a collection of information extracted from the Theme's headers
+		 */
+		return apply_filters( 'jetpack_sync_get_themes_callable', $themes );
+	}
+
+	/**
+	 * Return the list of active Jetpack modules.
+	 *
+	 * @since $$next_version$$
+	 *
+	 * @return array
+	 */
+	public static function get_active_modules() {
+		return ( new Jetpack_Modules() )->get_active();
+	}
+
+	/**
+	 * Return a list of PHP modules that we want to track.
+	 *
+	 * @since $$next_version$$
+	 *
+	 * @return array
+	 */
+	public static function get_loaded_extensions() {
+		if ( function_exists( 'get_loaded_extensions' ) ) {
+			return get_loaded_extensions();
+		}
+
+		// If a hosting provider has blocked get_loaded_extensions for any reason,
+		// we check extensions manually.
+
+		$extensions_to_check = array(
+			'libxml' => array( 'class' => 'libXMLError' ),
+			'xml'    => array( 'function' => 'xml_parse' ),
+			'dom'    => array( 'class' => 'DOMDocument' ),
+			'xdebug' => array( 'function' => 'xdebug_break' ),
+		);
+
+		$enabled_extensions = array();
+		foreach ( $extensions_to_check as $extension_name => $extension ) {
+			if (
+				( isset( $extension['function'] )
+				&& function_exists( $extension['function'] ) )
+				|| class_exists( $extension['class'] )
+			) {
+				$enabled_extensions[] = $extension_name;
+			}
+		}
+
+		return $enabled_extensions;
 	}
 }

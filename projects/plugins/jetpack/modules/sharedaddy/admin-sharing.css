@@ -64,7 +64,6 @@ body.settings_page_sharing .services {
 }
 
 body.settings_page_sharing .services ul li {
-	float: left;
 	cursor: move;
 }
 
@@ -81,19 +80,26 @@ body.settings_page_sharing ul.services-hidden {
 
 /* Generic style */
 #available-services .service, #enabled-services .service {
-	margin-right: 10px;
-	padding: 5px 10px 5px 5px;
-	border-radius: 3px;
-	border: 1px solid #bbb;
-	background: #f8f8f8;
-	background-repeat: no-repeat;
-	background-position: center center;
+	color: #2C3338 !important;
+	display: inline-block;
+	font-family: "Open Sans", sans-serif;
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 23px;
+	margin: 0 8px 8px 0;
+	padding: 3px 11px 4px 9px;
+	border-radius: 4px;
+	background: #fff;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+#available-services .service .options-left, #enabled-services .service .options-left {
+	align-items: center;
+	display: flex;
 }
 
 #available-services .service:hover, #enabled-services .service:hover {
-	background: #fff;
-	border: 1px solid #bbb;
-	box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.22);
 }
 
 #available-services .service.share-deprecated,
@@ -109,17 +115,13 @@ body.settings_page_sharing ul.services-hidden {
 
 /* Generic style icons */
 li.service span:before {
-	color: #555;
-	display: inline-block;
 	-webkit-font-smoothing: antialiased;
 	font: normal 18px/1 'social-logos';
-	vertical-align: top;
 	position: relative;
-	top: 1px;
-	margin-right: 3px;
+	top: -1px;
+	margin-right: 6px;
 	width: 16px;
 	height: 16px;
-	text-align: center;
 }
 li.service.share-print span:before {
 	content: '\f469';
@@ -157,11 +159,23 @@ li.service.share-press-this span:before {	/* Fixme: remove this button in favor 
 li.service.share-telegram span:before {
 	content: '\f606';
 }
+li.service.share-threads span:before {
+	content: '\f10d';
+}
 li.service.share-jetpack-whatsapp span:before {
 	content: '\f608';
 }
-li.service.share-skype span:before {
-	content: '\f220';
+li.service.share-mastodon span:before {
+	content: '\f10a';
+}
+li.service.share-nextdoor span:before {
+	content: '\f10c';
+}
+li.service.share-x span:before {
+	content: '\f10e';
+}
+li.service.share-bluesky span:before {
+	content: '\f10f';
 }
 
 /**
@@ -169,8 +183,9 @@ li.service.share-skype span:before {
  */
 
 body.settings_page_sharing ul.preview {
+	display: flex;
+	flex-wrap: wrap;
 	float: left;
-	margin: 0px;
 }
 
 body.settings_page_sharing ul.preview li.preview-item, body.settings_page_sharing ul.preview li.preview-item a {
@@ -299,22 +314,17 @@ body.settings_page_sharing .advanced input[type=submit] {
 	margin-top: 2px;
 }
 
-.preview-reddit .option-smart-on {
-	background: url(images/smart-reddit.png) no-repeat top left;
-	background-size: 104px 21px;
-	width:104px;
-	height:21px;
-}
-
 .preview-facebook .option-smart-on {
 	background: url(images/smart-like.png) no-repeat top left;
 	background-size: 85px 20px;
 	width:85px;
 	height:20px;
+	margin-left: -4px;
 }
 
-.preview-twitter .option-smart-on {
-	background: url(images/smart-twitter.png?1) no-repeat top left;
+.preview-twitter .option-smart-on,
+.preview-x .option-smart-on {
+	background: url(images/smart-x.png?1) no-repeat top left;
 	background-size: 60px 20px;
 	width:60px;
 	height:20px;
@@ -348,13 +358,6 @@ body.settings_page_sharing .advanced input[type=submit] {
 	height: 20px;
 }
 
-.preview-skype .option-smart-on {
-	background: url(images/smart-skype.png) no-repeat top left;
-	background-size: 60px 20px;
-	width: 60px;
-	height: 20px;
-}
-
 .preview-item.share-deprecated {
 	opacity: 0.5;
 }
@@ -370,16 +373,13 @@ body.settings_page_sharing .advanced input[type=submit] {
 		background-image: url(images/smart-digg@2x.png);
 	}
 
-	.preview-reddit .option-smart-on {
-		background-image: url(images/smart-reddit@2x.png);
-	}
-
 	.preview-facebook .option-smart-on {
 		background-image: url(images/smart-like@2x.png);
 	}
 
-	.preview-twitter .option-smart-on {
-		background-image: url(images/smart-twitter@2x.png?1);
+	.preview-twitter .option-smart-on,
+	.preview-x .option-smart-on {
+		background-image: url(images/smart-x@2x.png?1);
 	}
 
 	.preview-linkedin .option-smart-on {
@@ -396,10 +396,6 @@ body.settings_page_sharing .advanced input[type=submit] {
 
 	.preview-pocket .option-smart-on {
 		background-image: url(images/smart-pocket@2x.png);
-	}
-
-	.preview-skype .option-smart-on {
-		background-image: url(images/smart-skype@2x.png);
 	}
 }
 
@@ -449,4 +445,32 @@ body.settings_page_sharing .advanced input[type=submit] {
 	overflow: hidden;
 	width: 0;
 	text-indent: 100%;
+}
+
+.sharing-block-message__items-wrapper {
+	display: flex;
+	flex-wrap: wrap;
+	column-gap: 6rem;
+}
+
+
+.sharing-block-message__buttons-wrapper .button {
+	margin-right:1rem;
+}
+
+.sharing-block-message__buttons-wrapper .button-primary:visited {
+	color: #fff;
+}
+
+.admin-sharing-settings__block-theme-description {
+	margin-top: 1rem;
+	font-style: italic;
+}
+
+a.dops-card__link {
+	cursor: pointer;
+}
+
+.settings-sharing__block-theme-description {
+	font-style: italic;
 }

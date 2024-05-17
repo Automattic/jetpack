@@ -4,7 +4,7 @@ Custom configuration page for Jetpack Search, henceforth referred to as "Customb
 
 ## Build (& Watch)
 
-This package will be built via `pnpm run build-search-configure`, which is invoked in both `pnpm build` and `pnpm run build-search`. Alternatively, you can watch for changes via `pnpm run build-search-configure -- --watch` or `pnpm watch-search`.
+This package will be built via `pnpm run build-search-configure`, which is invoked in both `pnpm build` and `pnpm run build-search`. Alternatively, you can watch for changes via `pnpm run build-search-configure --watch` or `pnpm watch-search`.
 
 ## How this works
 

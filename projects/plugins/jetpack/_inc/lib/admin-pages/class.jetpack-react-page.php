@@ -1,4 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
+use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
@@ -30,7 +32,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @return string|false Return value from WordPress's `add_menu_page()`.
 	 */
 	public function get_page_hook() {
-		return add_menu_page( 'Jetpack', 'Jetpack', 'jetpack_admin_page', 'jetpack', array( $this, 'render' ), 'div', 3 );
+		$icon = ( new Logo() )->get_base64_logo();
+		return add_menu_page( 'Jetpack', 'Jetpack', 'jetpack_admin_page', 'jetpack', array( $this, 'render' ), $icon, 3 );
 	}
 
 	/**
@@ -74,7 +77,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 */
 	public function jetpack_add_dashboard_sub_nav_item() {
 		if ( ( new Status() )->is_offline_mode() || Jetpack::is_connection_ready() ) {
-			add_submenu_page( 'jetpack', __( 'Dashboard', 'jetpack' ), __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', 'jetpack#/dashboard', '__return_null' );
+			add_submenu_page( 'jetpack', __( 'Dashboard', 'jetpack' ), __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', 'jetpack#/dashboard', '__return_null', 1 );
 			remove_submenu_page( 'jetpack', 'jetpack' );
 		}
 	}
@@ -178,19 +181,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
-	 * Custom menu order.
-	 *
-	 * @deprecated since 9.2.0
-	 * @param array $menu_order Menu order.
-	 * @return array
-	 */
-	public function jetpack_menu_order( $menu_order ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.2' );
-
-		return $menu_order;
-	}
-
-	/**
 	 * Add action to render page specific HTML.
 	 *
 	 * @return void
@@ -207,7 +197,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			// If we still have nothing, display an error.
 			echo '<p>';
 			esc_html_e( 'Error fetching static.html. Try running: ', 'jetpack' );
-			echo '<code>pnpm run distclean && pnpx jetpack build plugins/jetpack</code>';
+			echo '<code>pnpm run distclean && pnpm jetpack build plugins/jetpack</code>';
 			echo '</p>';
 		} else {
 			// We got the static.html so let's display it.
@@ -236,7 +226,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		);
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$target = sanitize_text_field( (string) $_GET['jp-react-redirect'] );
+		$target = sanitize_text_field( wp_unslash( $_GET['jp-react-redirect'] ) );
 		if ( isset( $allowed_paths[ $target ] ) ) {
 			wp_safe_redirect( $allowed_paths[ $target ] );
 			exit;
@@ -262,12 +252,20 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		$is_offline_mode     = $status->is_offline_mode();
 		$site_suffix         = $status->get_site_suffix();
 		$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/admin.asset.php';
-		$script_dependencies = array( 'wp-polyfill' );
+		$script_dependencies = array( 'jquery', 'wp-polyfill' );
 		$version             = JETPACK__VERSION;
 		if ( file_exists( $script_deps_path ) ) {
 			$asset_manifest      = include $script_deps_path;
 			$script_dependencies = $asset_manifest['dependencies'];
 			$version             = $asset_manifest['version'];
+		}
+
+		$blog_id_prop = '';
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			$blog_id = Connection_Manager::get_site_id( true );
+			if ( $blog_id ) {
+				$blog_id_prop = ', currentBlogID: "' . (int) $blog_id . '"';
+			}
 		}
 
 		wp_enqueue_script(
@@ -290,9 +288,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		wp_add_inline_script( 'react-plugin', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Redux_State_Helper::get_initial_state() ) ) . '"));', 'before' );
 
 		// This will set the default URL of the jp_redirects lib.
-		wp_add_inline_script( 'react-plugin', 'var jetpack_redirects = { currentSiteRawUrl: "' . $site_suffix . '" };', 'before' );
+		wp_add_inline_script( 'react-plugin', 'var jetpack_redirects = { currentSiteRawUrl: "' . $site_suffix . '"' . $blog_id_prop . ' };', 'before' );
 
 		// Adds Connection package initial state.
-		wp_add_inline_script( 'react-plugin', Connection_Initial_State::render(), 'before' );
+		Connection_Initial_State::render_script( 'react-plugin' );
 	}
 }

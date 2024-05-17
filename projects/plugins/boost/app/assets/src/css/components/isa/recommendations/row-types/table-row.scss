@@ -1,0 +1,126 @@
+.jb-table-row-container {
+	background-color: #fff;
+	border-top: var(--border);
+	border-left: var(--border);
+	border-right: var(--border);
+	margin: 0;
+	transition: margin 100ms ease;
+
+	// This is a workaround for box shadows.
+	// If the shadow was applied to the row directly
+	// it would cast a shadow on other rows
+	// This puts the shadow on a pseudo element
+	// and moves it behind the row
+	// The downside of this approach is that I can't use
+	// overflow: hidden to clip border radius here.
+	position: relative;
+
+	&:before {
+		content: '';
+		position: absolute;
+		box-shadow: 0px 4px 24px 0px hsla(0, 0%, 0%, 0.08);
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		z-index: -1;
+	}
+
+	&:last-child {
+		border-bottom-right-radius: var(--border-radius);
+		border-bottom-left-radius: var(--border-radius);
+		border-bottom: var(--border);
+	}
+}
+
+// Expanded view, but not the one at the very top.
+:not(.jb-table-header) + .jb-table-row-container.expanded {
+	margin-top: var(--expanded-gap);
+	border-top-right-radius: var(--border-radius);
+	border-top-left-radius: var(--border-radius);
+}
+
+// The row after the expanded view.
+.expanded + .jb-table-row-container {
+	border-top-right-radius: var(--border-radius);
+	border-top-left-radius: var(--border-radius);
+}
+
+// The row before the expanded view.
+.jb-table-row-container:has(+ .expanded) {
+	border-bottom-right-radius: var(--border-radius);
+	border-bottom-left-radius: var(--border-radius);
+	border-bottom: var(--border);
+}
+
+.jb-table-row {
+	min-height: 115px;
+	cursor: pointer;
+
+	.jb-table-row__hover-content {
+		display: none;
+	}
+
+	&:hover {
+		background-color: #f6f7f7;
+
+		// Can't use overflow because of the box-shadow workaround above.
+		// So instead, repeating the border radius.
+		.jb-table-row__expanded & {
+			border-top-right-radius: var(--border-radius);
+			border-top-left-radius: var(--border-radius);
+		}
+
+		.jb-table-row__hover-content {
+			display: block;
+
+			@media (max-width: 782px) {
+				display: none;
+			}
+		}
+
+		.jb-table-row__device,
+		.jb-table-row__page {
+			display: none;
+		}
+	}
+
+	.jb-table-row__page a {
+		text-decoration: none;
+	}
+}
+
+.jb-table-row__expand {
+	cursor: pointer;
+	text-align: center;
+	grid-column: expand;
+	.expanded & {
+		svg {
+			transform: rotate(180deg);
+		}
+	}
+}
+
+.jb-table-row__expanded {
+	display: flex;
+	justify-content: space-between;
+	padding: var(--gap);
+	padding-left: calc(var(--thumbnail-size) + var(--gap) * 2);
+
+	.expanded & {
+		margin-bottom: var(--expanded-gap);
+		border-bottom-right-radius: var(--border-radius);
+		border-bottom-left-radius: var(--border-radius);
+		border-bottom: var(--border);
+	}
+
+
+	@media (max-width: 782px) {
+		flex-direction: column;
+		padding-left: var(--gap);
+	}
+}
+
+.jb-table-row__title {
+	grid-column: title;
+}

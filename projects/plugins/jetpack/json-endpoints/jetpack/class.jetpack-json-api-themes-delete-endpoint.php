@@ -78,5 +78,4 @@ class Jetpack_JSON_API_Themes_Delete_Endpoint extends Jetpack_JSON_API_Themes_En
 
 		return true;
 	}
-
 }

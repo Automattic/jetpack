@@ -18,8 +18,6 @@ class Test_Server_Sandbox extends BaseTestCase {
 
 	/**
 	 * Set up.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		Monkey\setUp();
@@ -27,8 +25,6 @@ class Test_Server_Sandbox extends BaseTestCase {
 
 	/**
 	 * Tear down.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		Monkey\tearDown();
@@ -145,7 +141,12 @@ class Test_Server_Sandbox extends BaseTestCase {
 		Constants::set_constant( 'JETPACK__SANDBOX_DOMAIN', $sandbox_constant );
 		$headers = array();
 
-		( new Server_Sandbox() )->server_sandbox( $url, $headers );
+		ini_set( 'error_log', '/dev/null' );
+		try {
+			( new Server_Sandbox() )->server_sandbox( $url, $headers );
+		} finally {
+			ini_restore( 'error_log' );
+		}
 
 		$this->assertSame( $expected_url, $url );
 		$this->assertSame( $expected_headers, $headers );
@@ -209,7 +210,12 @@ class Test_Server_Sandbox extends BaseTestCase {
 			add_filter( 'jetpack_sandbox_add_profile_parameter', '__return_true' );
 		}
 
-		( new Server_Sandbox() )->server_sandbox( $url, $headers, $body, $method );
+		ini_set( 'error_log', '/dev/null' );
+		try {
+			( new Server_Sandbox() )->server_sandbox( $url, $headers, $body, $method );
+		} finally {
+			ini_restore( 'error_log' );
+		}
 
 		$this->assertSame( $expected_url, $url );
 
@@ -249,7 +255,7 @@ class Test_Server_Sandbox extends BaseTestCase {
 	 * admin bar menu when the JETPACK__DOMAIN_SANDBOX constant is not set.
 	 */
 	public function test_admin_bar_add_sandbox_item_constant_not_set() {
-		require_once dirname( dirname( __DIR__ ) ) . '/wordpress/wp-includes/class-wp-admin-bar.php';
+		require_once dirname( __DIR__, 2 ) . '/wordpress/wp-includes/class-wp-admin-bar.php';
 
 		$wp_admin_bar = new \WP_Admin_Bar();
 		( new Server_Sandbox() )->admin_bar_add_sandbox_item( $wp_admin_bar );
@@ -264,7 +270,7 @@ class Test_Server_Sandbox extends BaseTestCase {
 	 */
 	public function test_admin_bar_add_sandbox_item_constant_set() {
 		Constants::set_constant( 'JETPACK__SANDBOX_DOMAIN', 'www.example.com' );
-		require_once dirname( dirname( __DIR__ ) ) . '/wordpress/wp-includes/class-wp-admin-bar.php';
+		require_once dirname( __DIR__, 2 ) . '/wordpress/wp-includes/class-wp-admin-bar.php';
 
 		$wp_admin_bar = new \WP_Admin_Bar();
 		( new Server_Sandbox() )->admin_bar_add_sandbox_item( $wp_admin_bar );
@@ -346,5 +352,4 @@ class Test_Server_Sandbox extends BaseTestCase {
 			),
 		);
 	}
-
 }

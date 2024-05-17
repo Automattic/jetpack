@@ -125,6 +125,7 @@ class Full_Sync extends Module {
 			}
 
 			if ( 'users' === $module_name && 'initial' === $module_config ) {
+				'@phan-var Users $module';
 				$module_config = $module->get_initial_sync_user_config();
 			}
 
@@ -212,7 +213,7 @@ class Full_Sync extends Module {
 			/**
 			 * Select configured and not finished modules.
 			 *
-			 * @var $module Module
+			 * @param Module $module
 			 * @return bool
 			 */
 			function ( $module ) use ( $configs, $enqueue_status ) {
@@ -726,5 +727,4 @@ class Full_Sync extends Module {
 	private function get_config() {
 		return \Jetpack_Options::get_raw_option( 'jetpack_sync_full_config' );
 	}
-
 }

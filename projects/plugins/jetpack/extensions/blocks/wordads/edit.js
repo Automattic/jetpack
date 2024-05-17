@@ -1,21 +1,22 @@
-/**
- * Internal dependencies
- */
-import AdControls from './controls';
+import { ThemeProvider } from '@automattic/jetpack-components';
+import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
+import { useBlockProps } from '@wordpress/block-editor';
+import { WordAdsPlaceholder } from './components/jetpack-wordads-placeholder';
+import { WordAdsSkeletonLoader } from './components/jetpack-wordads-skeleton-loader';
 import { AD_FORMATS } from './constants';
+import AdControls from './controls';
+import wideSkyscraperExample from './example_160x600.png';
+import rectangleExample from './example_300x250.png';
+import mobileLeaderboardExample from './example_320x50.png';
+import leaderboardExample from './example_728x90.png';
 
 import './editor.scss';
 
-/**
- * Example images
- */
-import rectangleExample from './example_300x250.png';
-import leaderboardExample from './example_728x90.png';
-import mobileLeaderboardExample from './example_320x50.png';
-import wideSkyscraperExample from './example_160x600.png';
-
 const WordAdsEdit = ( { attributes, setAttributes } ) => {
+	const blockProps = useBlockProps();
 	const { format } = attributes;
+	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
+		useModuleStatus( 'wordads' );
 	const selectedFormatObject = AD_FORMATS.find( ( { tag } ) => tag === format );
 
 	const getExampleAd = formatting => {
@@ -31,21 +32,44 @@ const WordAdsEdit = ( { attributes, setAttributes } ) => {
 		}
 	};
 
-	return (
-		<>
-			<AdControls { ...{ attributes, setAttributes } } />
-			<div className={ `wp-block-jetpack-wordads jetpack-wordads-${ format }` }>
-				<div
-					className="jetpack-wordads__ad"
-					style={ {
-						width: selectedFormatObject.width,
-						height: selectedFormatObject.height,
-						backgroundImage: `url( ${ getExampleAd( format ) } )`,
-						backgroundSize: 'cover',
-					} }
-				></div>
-			</div>
-		</>
-	);
+	let content;
+
+	if ( ! isModuleActive ) {
+		if ( isLoadingModules ) {
+			content = (
+				<ThemeProvider>
+					<WordAdsSkeletonLoader />
+				</ThemeProvider>
+			);
+		} else {
+			content = (
+				<WordAdsPlaceholder
+					changeStatus={ changeStatus }
+					isModuleActive={ isModuleActive }
+					isLoading={ isChangingStatus }
+				/>
+			);
+		}
+	} else {
+		content = (
+			<>
+				<AdControls { ...{ attributes, setAttributes } } />
+				<div className={ `wp-block-jetpack-wordads jetpack-wordads-${ format }` }>
+					<div
+						className="jetpack-wordads__ad"
+						style={ {
+							width: selectedFormatObject.width,
+							height: selectedFormatObject.height,
+							backgroundImage: `url( ${ getExampleAd( format ) } )`,
+							backgroundSize: 'cover',
+						} }
+					></div>
+				</div>
+			</>
+		);
+	}
+
+	return <div { ...blockProps }>{ content }</div>;
 };
+
 export default WordAdsEdit;

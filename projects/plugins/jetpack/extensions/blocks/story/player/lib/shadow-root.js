@@ -1,15 +1,4 @@
-/**
- * External dependencies
- */
-
-/**
- * WordPress dependencies
- */
 import { createPortal, useCallback, useEffect, useState } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 
 export const shadowRootSupported =
 	window && window.Element && window.Element.prototype.hasOwnProperty( 'attachShadow' );

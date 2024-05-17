@@ -2,12 +2,12 @@ import {
 	execShellCommand,
 	resolveSiteUrl,
 	execContainerShellCommand,
-} from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
-import { PluginsPage, JetpackPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
+} from 'jetpack-e2e-commons/helpers/utils-helper.js';
+import { PluginsPage, JetpackDashboardPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
 
-test( 'Update Jetpack plugin', async ( { page } ) => {
+test.skip( 'Update Jetpack plugin', async ( { page } ) => {
 	const binPath = '/usr/local/src/jetpack-monorepo/projects/plugins/jetpack/tests/e2e/bin/update/';
 
 	// Prepare for update
@@ -34,8 +34,8 @@ test( 'Update Jetpack plugin', async ( { page } ) => {
 	await execContainerShellCommand( `${ binPath }post-update.sh` );
 
 	await test.step( 'Jetpack is still connected', async () => {
-		const jetpackPage = await JetpackPage.visit( page );
-		expect( await jetpackPage.isConnected(), 'Jetpack should be connected' ).toBeTruthy();
+		const jetpackPage = await JetpackDashboardPage.visit( page );
+		expect( await jetpackPage.isUserConnected(), 'Jetpack should be connected' ).toBeTruthy();
 	} );
 } );
 

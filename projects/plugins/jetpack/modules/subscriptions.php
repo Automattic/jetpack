@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName)
 /**
- * Module Name: Subscriptions
+ * Module Name: Newsletter
  * Module Description: Let visitors subscribe to new posts and comments via email
  * Sort Order: 9
  * Recommendation Order: 8
@@ -10,12 +10,21 @@
  * Auto Activate: No
  * Module Tags: Social
  * Feature: Engagement
- * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup
+ * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup, newsletter, creator
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
+use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
+
+// Loads the User Content Link Redirection feature.
+require_once __DIR__ . '/subscriptions/jetpack-user-content-link-redirection.php';
 
 /**
  * Loads the Subscriptions module.
@@ -35,11 +44,11 @@ function jetpack_subscriptions_cherry_pick_server_data() {
 	$data = array();
 
 	foreach ( $_SERVER as $key => $value ) {
-		if ( ! is_string( $value ) || 0 === strpos( $key, 'HTTP_COOKIE' ) ) {
+		if ( ! is_string( $value ) || str_starts_with( $key, 'HTTP_COOKIE' ) ) {
 			continue;
 		}
 
-		if ( 0 === strpos( $key, 'HTTP_' ) || in_array( $key, array( 'REMOTE_ADDR', 'REQUEST_URI', 'DOCUMENT_URI' ), true ) ) {
+		if ( str_starts_with( $key, 'HTTP_' ) || in_array( $key, array( 'REMOTE_ADDR', 'REQUEST_URI', 'DOCUMENT_URI' ), true ) ) {
 			$data[ $key ] = $value;
 		}
 	}
@@ -119,6 +128,24 @@ class Jetpack_Subscriptions {
 
 		// Set "social_notifications_subscribe" option during the first-time activation.
 		add_action( 'jetpack_activate_module_subscriptions', array( $this, 'set_social_notifications_subscribe' ) );
+
+		// Hide subscription messaging in Publish panel for posts that were published in the past
+		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
+		add_action( 'transition_post_status', array( $this, 'maybe_set_first_published_status' ), 10, 3 );
+
+		// Add Subscribers menu to Jetpack navigation.
+		add_action( 'jetpack_admin_menu', array( $this, 'add_subscribers_menu' ) );
+
+		// Customize the configuration URL to lead to the Subscriptions settings.
+		add_filter(
+			'jetpack_module_configuration_url_subscriptions',
+			function () {
+				return Jetpack::admin_url( array( 'page' => 'jetpack#/newsletter' ) );
+			}
+		);
+
+		// Track categories created through the category editor page
+		add_action( 'wp_ajax_add-tag', array( $this, 'track_newsletter_category_creation' ), 1 );
 	}
 
 	/**
@@ -197,7 +224,7 @@ class Jetpack_Subscriptions {
 		}
 
 		// Make sure that the checkbox is preseved.
-		if ( ! empty( $_POST['disable_subscribe_nonce'] ) && wp_verify_nonce( $_POST['disable_subscribe_nonce'], 'disable_subscribe' ) ) {
+		if ( ! empty( $_POST['disable_subscribe_nonce'] ) && wp_verify_nonce( $_POST['disable_subscribe_nonce'], 'disable_subscribe' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP Core doesn't unslash or sanitize nonces either.
 			$set_checkbox = isset( $_POST['_jetpack_dont_email_post_to_subs'] ) ? 1 : 0;
 			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', $set_checkbox );
 		}
@@ -342,12 +369,27 @@ class Jetpack_Subscriptions {
 			'stc_enabled'
 		);
 
-		/** Email me whenever: Someone follows my blog */
+		/** Enable Subscribe Modal */
+
+		add_settings_field(
+			'jetpack_subscriptions_comment_subscribe',
+			__( 'Enable Subscribe Modal', 'jetpack' ),
+			array( $this, 'subscribe_modal_setting' ),
+			'discussion',
+			'jetpack_subscriptions'
+		);
+
+		register_setting(
+			'discussion',
+			'sm_enabled'
+		);
+
+		/** Email me whenever: Someone subscribes to my blog */
 		/* @since 8.1 */
 
 		add_settings_section(
 			'notifications_section',
-			__( 'Someone follows my blog', 'jetpack' ),
+			__( 'Someone subscribes to my blog', 'jetpack' ),
 			array( $this, 'social_notifications_subscribe_section' ),
 			'discussion'
 		);
@@ -364,37 +406,6 @@ class Jetpack_Subscriptions {
 			'discussion',
 			'social_notifications_subscribe',
 			array( $this, 'social_notifications_subscribe_validate' )
-		);
-
-		/** Subscription Messaging Options */
-
-		register_setting(
-			'reading',
-			'subscription_options',
-			array( $this, 'validate_settings' )
-		);
-
-		add_settings_section(
-			'email_settings',
-			__( 'Follower Settings', 'jetpack' ),
-			array( $this, 'reading_section' ),
-			'reading'
-		);
-
-		add_settings_field(
-			'invitation',
-			__( 'Blog follow email text', 'jetpack' ),
-			array( $this, 'setting_invitation' ),
-			'reading',
-			'email_settings'
-		);
-
-		add_settings_field(
-			'comment-follow',
-			__( 'Comment follow email text', 'jetpack' ),
-			array( $this, 'setting_comment_follow' ),
-			'reading',
-			'email_settings'
 		);
 	}
 
@@ -456,7 +467,23 @@ class Jetpack_Subscriptions {
 	}
 
 	/**
-	 * Someone follows my blog section
+	 * Subscribe Modal Toggle.
+	 */
+	public function subscribe_modal_setting() {
+
+		$sm_enabled = get_option( 'sm_enabled', 1 );
+		?>
+
+		<p class="description">
+			<input type="checkbox" name="sm_enabled" id="jetpack-subscribe-modal" value="1" <?php checked( $sm_enabled, 1 ); ?> />
+			<?php esc_html_e( 'Show a popup subscribe modal to readers.', 'jetpack' ); ?>
+		</p>
+
+		<?php
+	}
+
+	/**
+	 * Someone subscribes to my blog section
 	 *
 	 * @since 8.1
 	 */
@@ -482,7 +509,7 @@ class Jetpack_Subscriptions {
 	}
 
 	/**
-	 * Someone follows my blog Toggle
+	 * Someone subscribes to my blog Toggle
 	 *
 	 * @since 8.1
 	 */
@@ -494,14 +521,14 @@ class Jetpack_Subscriptions {
 			<input type="checkbox" name="social_notifications_subscribe" id="social_notifications_subscribe" value="1" <?php checked( $checked ); ?> />
 			<?php
 				/* translators: this is a label for a setting that starts with "Email me whenever" */
-				esc_html_e( 'Someone follows my blog', 'jetpack' );
+				esc_html_e( 'Someone subscribes to my blog', 'jetpack' );
 			?>
 		</label>
 		<?php
 	}
 
 	/**
-	 * Validate "Someone follows my blog" option
+	 * Validate "Someone subscribes to my blog" option
 	 *
 	 * @since 8.1
 	 *
@@ -516,75 +543,6 @@ class Jetpack_Subscriptions {
 
 		// Otherwise we return 'on'.
 		return 'on';
-	}
-
-	/**
-	 * Validate settings for the Subscriptions module.
-	 *
-	 * @param array $settings Settings to be validated.
-	 */
-	public function validate_settings( $settings ) {
-		global $allowedposttags;
-
-		$default = $this->get_default_settings();
-
-		// Blog Follow.
-		$settings['invitation'] = trim( wp_kses( $settings['invitation'], $allowedposttags ) );
-		if ( empty( $settings['invitation'] ) ) {
-			$settings['invitation'] = $default['invitation'];
-		}
-
-		// Comments Follow (single post).
-		$settings['comment_follow'] = trim( wp_kses( $settings['comment_follow'], $allowedposttags ) );
-		if ( empty( $settings['comment_follow'] ) ) {
-			$settings['comment_follow'] = $default['comment_follow'];
-		}
-
-		return $settings;
-	}
-
-	/**
-	 * HTML output helper for Reading section.
-	 */
-	public function reading_section() {
-		echo '<p id="follower-settings">';
-		esc_html_e( 'These settings change emails sent from your blog to followers.', 'jetpack' );
-		echo '</p>';
-	}
-
-	/**
-	 * HTML output helper for Invitation section.
-	 */
-	public function setting_invitation() {
-		$settings = $this->get_settings();
-		echo '<textarea name="subscription_options[invitation]" class="large-text" cols="50" rows="5">' . esc_textarea( $settings['invitation'] ) . '</textarea>';
-		echo '<p><span class="description">' . esc_html__( 'Introduction text sent when someone follows your blog. (Site and confirmation details will be automatically added for you.)', 'jetpack' ) . '</span></p>';
-	}
-
-	/**
-	 * HTML output helper for Comment Follow section.
-	 */
-	public function setting_comment_follow() {
-		$settings = $this->get_settings();
-		echo '<textarea name="subscription_options[comment_follow]" class="large-text" cols="50" rows="5">' . esc_textarea( $settings['comment_follow'] ) . '</textarea>';
-		echo '<p><span class="description">' . esc_html__( 'Introduction text sent when someone follows a post on your blog. (Site and confirmation details will be automatically added for you.)', 'jetpack' ) . '</span></p>';
-	}
-
-	/**
-	 * Get default settings for the Subscriptions module.
-	 */
-	public function get_default_settings() {
-		return array(
-			'invitation'     => __( "Howdy.\n\nYou recently followed this blog's posts. This means you will receive each new post by email.\n\nTo activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again.", 'jetpack' ),
-			'comment_follow' => __( "Howdy.\n\nYou recently followed one of my posts. This means you will receive an email when new comments are posted.\n\nTo activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again.", 'jetpack' ),
-		);
-	}
-
-	/**
-	 * Reeturn merged `subscription_options` option with module default settings.
-	 */
-	public function get_settings() {
-		return wp_parse_args( (array) get_option( 'subscription_options', array() ), $this->get_default_settings() );
 	}
 
 	/**
@@ -689,8 +647,8 @@ class Jetpack_Subscriptions {
 	 */
 	public function widget_submit() {
 		// Check the nonce.
-		if ( is_user_logged_in() ) {
-			check_admin_referer( 'blogsub_subscribe_' . get_current_blog_id() );
+		if ( ! wp_verify_nonce( isset( $_REQUEST['_wpnonce'] ) ? sanitize_key( $_REQUEST['_wpnonce'] ) : '', 'blogsub_subscribe_' . \Jetpack_Options::get_option( 'id' ) ) ) {
+			return false;
 		}
 
 		if ( empty( $_REQUEST['email'] ) || ! is_string( $_REQUEST['email'] ) ) {
@@ -699,14 +657,14 @@ class Jetpack_Subscriptions {
 
 		$redirect_fragment = false;
 		if ( isset( $_REQUEST['redirect_fragment'] ) ) {
-			$redirect_fragment = preg_replace( '/[^a-z0-9_-]/i', '', $_REQUEST['redirect_fragment'] );
+			$redirect_fragment = preg_replace( '/[^a-z0-9_-]/i', '', $_REQUEST['redirect_fragment'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is manually unslashing and sanitizing.
 		}
 		if ( ! $redirect_fragment || ! is_string( $redirect_fragment ) ) {
 			$redirect_fragment = 'subscribe-blog';
 		}
 
 		$subscribe = self::subscribe(
-			$_REQUEST['email'],
+			isset( $_REQUEST['email'] ) ? wp_unslash( $_REQUEST['email'] ) : null, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Validated inside self::subscribe().
 			0,
 			false,
 			array(
@@ -779,6 +737,11 @@ class Jetpack_Subscriptions {
 	 */
 	public function comment_subscribe_init( $submit_button ) {
 		global $post;
+
+		// Subscriptions are only available for posts so far.
+		if ( ! $post || 'post' !== $post->post_type ) {
+			return $submit_button;
+		}
 
 		$comments_checked = '';
 		$blog_checked     = '';
@@ -949,15 +912,15 @@ class Jetpack_Subscriptions {
 		$cookie_domain = apply_filters( 'jetpack_comment_cookie_domain', COOKIE_DOMAIN );
 
 		if ( $subscribe_to_post && $post_id >= 0 ) {
-			setcookie( 'jetpack_comments_subscribe_' . self::$hash . '_' . $post_id, 1, time() + $cookie_lifetime, $cookie_path, $cookie_domain );
+			setcookie( 'jetpack_comments_subscribe_' . self::$hash . '_' . $post_id, 1, time() + $cookie_lifetime, $cookie_path, $cookie_domain, is_ssl(), true );
 		} else {
-			setcookie( 'jetpack_comments_subscribe_' . self::$hash . '_' . $post_id, '', time() - 3600, $cookie_path, $cookie_domain );
+			setcookie( 'jetpack_comments_subscribe_' . self::$hash . '_' . $post_id, '', time() - 3600, $cookie_path, $cookie_domain, is_ssl(), true );
 		}
 
 		if ( $subscribe_to_blog ) {
-			setcookie( 'jetpack_blog_subscribe_' . self::$hash, 1, time() + $cookie_lifetime, $cookie_path, $cookie_domain );
+			setcookie( 'jetpack_blog_subscribe_' . self::$hash, 1, time() + $cookie_lifetime, $cookie_path, $cookie_domain, is_ssl(), true );
 		} else {
-			setcookie( 'jetpack_blog_subscribe_' . self::$hash, '', time() - 3600, $cookie_path, $cookie_domain );
+			setcookie( 'jetpack_blog_subscribe_' . self::$hash, '', time() - 3600, $cookie_path, $cookie_domain, is_ssl(), true );
 		}
 	}
 
@@ -974,8 +937,143 @@ class Jetpack_Subscriptions {
 		}
 	}
 
+	/**
+	 * Save a flag when a post was ever published.
+	 *
+	 * It saves the post meta when the post was published and becomes a draft.
+	 * Then this meta is used to hide subscription messaging in Publish panel.
+	 *
+	 * @param string $new_status Tthe "new" post status of the transition when saved.
+	 * @param string $old_status The "old" post status of the transition when saved.
+	 * @param object $post obj The post object.
+	 */
+	public function maybe_set_first_published_status( $new_status, $old_status, $post ) {
+		$was_post_ever_published = get_post_meta( $post->ID, '_jetpack_post_was_ever_published', true );
+		if ( ! $was_post_ever_published && 'publish' === $old_status && 'draft' === $new_status ) {
+			update_post_meta( $post->ID, '_jetpack_post_was_ever_published', true );
+		}
+	}
+
+	/**
+	 * Checks if the current user can publish posts.
+	 *
+	 * @return bool
+	 */
+	public function first_published_status_meta_auth_callback() {
+		/**
+		 * Filter the capability to view if a post was ever published in the Subscription Module.
+		 *
+		 * @module subscriptions
+		 *
+		 * @since 13.4
+		 *
+		 * @param string $capability User capability needed to view if a post was ever published. Default to publish_posts.
+		 */
+		$capability = apply_filters( 'jetpack_subscriptions_post_was_ever_published_capability', 'publish_posts' );
+		if ( current_user_can( $capability ) ) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Registers the 'post_was_ever_published' post meta for use in the REST API.
+	 */
+	public function register_post_meta() {
+		$jetpack_post_was_ever_published = array(
+			'type'          => 'boolean',
+			'description'   => __( 'Whether the post was ever published.', 'jetpack' ),
+			'single'        => true,
+			'default'       => false,
+			'show_in_rest'  => array(
+				'name' => 'jetpack_post_was_ever_published',
+			),
+			'auth_callback' => array( $this, 'first_published_status_meta_auth_callback' ),
+		);
+
+		register_meta( 'post', '_jetpack_post_was_ever_published', $jetpack_post_was_ever_published );
+	}
+
+	/**
+	 * Create a Subscribers menu displayed on self-hosted sites.
+	 *
+	 * - It is not displayed on WordPress.com sites.
+	 * - It directs you to Calypso to the existing Subscribers page.
+	 *
+	 * @return void
+	 */
+	public function add_subscribers_menu() {
+		/*
+		 * Do not display any menu on WoA and WordPress.com Simple sites (unless Classic wp-admin is enabled).
+		 * They already get a menu item under Users via nav-unification.
+		 */
+		if ( ( new Host() )->is_wpcom_platform() && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+			return;
+		}
+
+		$status = new Status();
+
+		/*
+		 * Do not display if we're in Offline mode,
+		 * or if the user is not connected.
+		 */
+		if (
+			$status->is_offline_mode()
+			|| ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected()
+		) {
+			return;
+		}
+
+		$blog_id = Connection_Manager::get_site_id( true );
+
+		$link = Redirect::get_url(
+			'jetpack-menu-jetpack-manage-subscribers',
+			array( 'site' => $blog_id ? $blog_id : $status->get_site_suffix() )
+		);
+
+		add_submenu_page(
+			'jetpack',
+			esc_attr__( 'Subscribers', 'jetpack' ),
+			__( 'Subscribers', 'jetpack' ) . ' <span class="dashicons dashicons-external"></span>',
+			'manage_options',
+			esc_url( $link ),
+			null
+		);
+	}
+
+	/**
+	 * Record tracks event if categories is created when user enters
+	 * the edit category page through the newsletter settings page.
+	 *
+	 * @return void
+	 */
+	public function track_newsletter_category_creation() {
+
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
+		if ( empty( $_POST['_wp_http_referer'] ) ) {
+			return;
+		}
+
+		if ( strpos( sanitize_url( wp_unslash( $_POST['_wp_http_referer'] ) ), 'referer=newsletter-categories' ) > -1 ) {
+
+			$parent = filter_var( empty( $_POST['parent'] ) ? 0 : wp_unslash( $_POST['parent'] ), FILTER_SANITIZE_NUMBER_INT );
+
+			$is_child_category = $parent > 0;
+
+			$tracking = new Automattic\Jetpack\Tracking();
+			$tracking->tracks_record_event(
+				wp_get_current_user(),
+				'jetpack_newsletter_add_category',
+				array(
+					'is_child_category' => $is_child_category,
+				)
+			);
+		}
+	}
 }
 
 Jetpack_Subscriptions::init();
 
 require __DIR__ . '/subscriptions/views.php';
+require __DIR__ . '/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.php';
+require __DIR__ . '/subscriptions/subscribe-overlay/class-jetpack-subscribe-overlay.php';

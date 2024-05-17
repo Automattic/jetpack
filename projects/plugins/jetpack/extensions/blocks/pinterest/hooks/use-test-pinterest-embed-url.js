@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import { useEffect, useState } from '@wordpress/element';
 import testEmbedUrl from '../../../shared/test-embed-url';
-
-/**
- * Internal dependencies
- */
-import { PINTEREST_EXAMPLE_URL } from '../';
+import { PINTEREST_EXAMPLE_URL } from '../constants';
 
 const useTestPinterestEmbedUrl = ( initialValue = '' ) => {
 	const [ isFetching, setIsFetching ] = useState( false );

@@ -43,6 +43,8 @@ if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 	require_once __DIR__ . '/sitemap-logger.php';
 }
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 /**
  * Governs the generation, storage, and serving of sitemaps.
  *
@@ -93,7 +95,7 @@ class Jetpack_Sitemap_Manager {
 
 		// Add callback for sitemap URL handler.
 		add_action(
-			'init',
+			'wp_loaded',
 			array( $this, 'callback_action_catch_sitemap_urls' ),
 			defined( 'IS_WPCOM' ) && IS_WPCOM ? 100 : 10
 		);
@@ -145,6 +147,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @param string $the_content_type The content type to be served.
 	 * @param string $the_content The string to be echoed.
+	 * @return never
 	 */
 	private function serve_raw_and_die( $the_content_type, $the_content ) {
 		header( 'Content-Type: ' . $the_content_type . '; charset=UTF-8' );
@@ -556,7 +559,6 @@ class Jetpack_Sitemap_Manager {
 			)
 		);
 	}
-
 } // End Jetpack_Sitemap_Manager class.
 
 new Jetpack_Sitemap_Manager();

@@ -38,10 +38,12 @@ class Atomic_Additional_CSS_Manager {
 	 * @param \WP_Customize_Manager $wp_customize_manager Core customize manager.
 	 */
 	public function register_nudge( \WP_Customize_Manager $wp_customize_manager ) {
+		$nudge_url  = $this->get_nudge_url();
+		$nudge_text = __( 'Purchase the Creator plan to<br> activate CSS customization', 'jetpack' );
 
 		$nudge = new CSS_Customizer_Nudge(
-			$this->get_nudge_url(),
-			__( 'Purchase a Business Plan to<br> activate CSS customization', 'jetpack' )
+			$nudge_url,
+			$nudge_text
 		);
 
 		$wp_customize_manager->remove_control( 'custom_css' );

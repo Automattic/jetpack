@@ -11,27 +11,11 @@ use Automattic\Jetpack\Changelog\ChangeEntry;
 use Symfony\Component\Console\Helper\DebugFormatterHelper;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
-use function error_clear_last; // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions.error_clear_lastFound
-use function Wikimedia\quietCall;
 
 /**
  * Utilities for the changelogger tool.
  */
 class Utils {
-
-	/**
-	 * Calls `error_clear_last()` or emulates it.
-	 */
-	public static function error_clear_last() {
-		if ( is_callable( 'error_clear_last' ) ) {
-			// phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions.error_clear_lastFound
-			error_clear_last();
-		} else {
-			// @codeCoverageIgnoreStart
-			quietCall( 'trigger_error', '', E_USER_NOTICE );
-			// @codeCoverageIgnoreEnd
-		}
-	}
 
 	/**
 	 * Helper to run a process.
@@ -80,42 +64,45 @@ class Utils {
 	 * string key.
 	 *
 	 * @param string $filename File to load.
-	 * @param mixed  $diagnostics Output variable, set to an array with diagnostic data.
+	 * @param array  $diagnostics Output variable, set to an array with diagnostic data.
 	 *   - warnings: An array of warning messages and applicable lines.
 	 *   - lines: An array mapping headers to line numbers.
 	 * @return array
-	 * @throws \RuntimeException On error.
+	 * @throws LoadChangeFileException On error.
+	 * @phan-param array{warnings:array{string,int}[],lines:array<string,int>} $diagnostics @phan-output-reference
 	 */
 	public static function loadChangeFile( $filename, &$diagnostics = null ) {
 		$diagnostics = array(
 			'warnings' => array(),
 			'lines'    => array(),
 		);
+		'@phan-var array{warnings:array{string,int}[],lines:array<string,int>} $diagnostics';
 
 		if ( ! file_exists( $filename ) ) {
-			$ex           = new \RuntimeException( 'File does not exist.' );
+			$ex           = new LoadChangeFileException( 'File does not exist.' );
 			$ex->fileLine = null;
 			throw $ex;
 		}
 
 		$fileinfo = new \SplFileInfo( $filename );
 		if ( $fileinfo->getType() !== 'file' ) {
-			$ex           = new \RuntimeException( "Expected a file, got {$fileinfo->getType()}." );
+			$ex           = new LoadChangeFileException( "Expected a file, got {$fileinfo->getType()}." );
 			$ex->fileLine = null;
 			throw $ex;
 		}
 		if ( ! $fileinfo->isReadable() ) {
-			$ex           = new \RuntimeException( 'File is not readable.' );
+			$ex           = new LoadChangeFileException( 'File is not readable.' );
 			$ex->fileLine = null;
 			throw $ex;
 		}
 
-		self::error_clear_last();
-		$contents = quietCall( 'file_get_contents', $filename );
+		error_clear_last();
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$contents = @file_get_contents( $filename );
 		// @codeCoverageIgnoreStart
 		if ( false === $contents ) {
 			$err          = error_get_last();
-			$ex           = new \RuntimeException( "Failed to read file: {$err['message']}" );
+			$ex           = new LoadChangeFileException( "Failed to read file: {$err['message']}" );
 			$ex->fileLine = null;
 			throw $ex;
 		}
@@ -138,7 +125,7 @@ class Utils {
 		}
 
 		if ( '' !== $contents && "\n" !== $contents[0] ) {
-			$ex           = new \RuntimeException( 'Invalid header.' );
+			$ex           = new LoadChangeFileException( 'Invalid header.' );
 			$ex->fileLine = $line;
 			throw $ex;
 		}
@@ -151,18 +138,55 @@ class Utils {
 	/**
 	 * Get a timestamp for a file.
 	 *
+	 * @deprecated since 3.1.0
 	 * @param string               $file File.
 	 * @param OutputInterface      $output OutputInterface to write debug output to.
 	 * @param DebugFormatterHelper $formatter Formatter to use to format debug output.
 	 * @return string|null
+	 * @codeCoverageIgnore
 	 */
 	public static function getTimestamp( $file, OutputInterface $output, DebugFormatterHelper $formatter ) {
+		return self::getRepoData( $file, $output, $formatter )['timestamp'];
+	}
+
+	/**
+	 * Get miscellaneous repo data for a file.
+	 *
+	 * @param string               $file Filepath.
+	 * @param OutputInterface      $output OutputInterface to write debug output to.
+	 * @param DebugFormatterHelper $formatter Formatter to use to format debug output.
+	 * @return array With keys 'timestamp' and 'pr-num'.
+	 */
+	public static function getRepoData( $file, OutputInterface $output, DebugFormatterHelper $formatter ) {
+		$repo_data = array(
+			'timestamp' => null,
+			'pr-num'    => null,
+		);
+
 		try {
-			$process = self::runCommand( array( 'git', 'log', '-1', '--format=%cI', $file ), $output, $formatter );
+			$process = self::runCommand( array( 'git', 'log', '-1', '--first-parent', "--format=%cI\n%s", $file ), $output, $formatter );
 			if ( $process->isSuccessful() ) {
-				$ret = trim( $process->getOutput() );
-				if ( preg_match( '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/', $ret ) ) {
-					return $ret;
+				$cmd_output = explode( "\n", trim( $process->getOutput() ) );
+
+				// Timestamp.
+				if ( isset( $cmd_output[0] ) && preg_match( '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/', $cmd_output[0] ) ) {
+					$repo_data['timestamp'] = $cmd_output[0];
+					// Normalize UTC
+					if ( substr( $repo_data['timestamp'], -6 ) === '+00:00' ) {
+						$repo_data['timestamp'] = substr( $repo_data['timestamp'], 0, -6 ) . 'Z';
+					}
+				}
+
+				// PR number.
+				if ( isset( $cmd_output[1] ) ) {
+					$matches = array();
+					preg_match( '/(?:^Merge pull request #(\d+))|(?:\(#(\d+)\)$)/', $cmd_output[1], $matches );
+					if ( ! empty( $matches[1] ) ) {
+						$repo_data['pr-num'] = $matches[1];
+					}
+					if ( ! empty( $matches[2] ) ) {
+						$repo_data['pr-num'] = $matches[2];
+					}
 				}
 			}
 		// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
@@ -170,12 +194,15 @@ class Utils {
 			// Don't care.
 		}
 
-		$mtime = quietCall( 'filemtime', $file );
-		if ( false !== $mtime ) {
-			return gmdate( 'Y-m-d\\TH:i:s\\Z', $mtime );
+		if ( ! $repo_data['timestamp'] ) {
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			$mtime = @filemtime( $file );
+			if ( false !== $mtime ) {
+				$repo_data['timestamp'] = gmdate( 'Y-m-d\\TH:i:s\\Z', $mtime );
+			}
 		}
 
-		return null;
+		return $repo_data;
 	}
 
 	/**
@@ -187,9 +214,11 @@ class Utils {
 	 * @param OutputInterface $output OutputInterface to write diagnostics too.
 	 * @param mixed           $files Output parameter. An array is written to this parameter, with
 	 *   keys being filenames in `$dir` and values being 0 for success, 1 for warnings, 2 for errors.
+	 * @param array|null      $input_options Options for the extraction.
+	 *   - add-pr-num: (bool) Whether to try to read a `(#12345)`-like PR number from the git commit creating each change entry. Default false.
 	 * @return ChangeEntry[] Keys are filenames in `$dir`.
 	 */
-	public static function loadAllChanges( $dir, array $subheadings, FormatterPlugin $formatter, OutputInterface $output, &$files = null ) {
+	public static function loadAllChanges( $dir, array $subheadings, FormatterPlugin $formatter, OutputInterface $output, &$files = null, $input_options = null ) {
 		$debugHelper = new DebugFormatterHelper();
 		$files       = array();
 		$ret         = array();
@@ -207,7 +236,7 @@ class Utils {
 			$files[ $name ] = 0;
 			try {
 				$data = self::loadChangeFile( $path, $diagnostics );
-			} catch ( \RuntimeException $ex ) {
+			} catch ( LoadChangeFileException $ex ) {
 				$output->writeln( "<error>$name: {$ex->getMessage()}</>" );
 				$files[ $name ] = 2;
 				continue;
@@ -220,12 +249,13 @@ class Utils {
 				}
 			}
 			try {
+				$repo_data    = self::getRepoData( $path, $output, $debugHelper );
 				$ret[ $name ] = $formatter->newChangeEntry(
 					array(
-						'significance' => isset( $data['Significance'] ) ? $data['Significance'] : null,
-						'subheading'   => isset( $data['Type'] ) ? ( isset( $subheadings[ $data['Type'] ] ) ? $subheadings[ $data['Type'] ] : ucfirst( $data['Type'] ) ) : null,
-						'content'      => $data[''],
-						'timestamp'    => isset( $data['Date'] ) ? $data['Date'] : self::getTimestamp( $path, $output, $debugHelper ),
+						'significance' => $data['Significance'] ?? null,
+						'subheading'   => isset( $data['Type'] ) ? ( $subheadings[ $data['Type'] ] ?? ucfirst( $data['Type'] ) ) : null,
+						'content'      => ( ! empty( $input_options['add-pr-num'] ) && $repo_data['pr-num'] && $data[''] ) ? ( $data[''] . " [#{$repo_data['pr-num']}]" ) : $data[''],
+						'timestamp'    => $data['Date'] ?? $repo_data['timestamp'],
 					)
 				);
 			} catch ( \InvalidArgumentException $ex ) {
@@ -236,6 +266,4 @@ class Utils {
 
 		return $ret;
 	}
-
 }
-

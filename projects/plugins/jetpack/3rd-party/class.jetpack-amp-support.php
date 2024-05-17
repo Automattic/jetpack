@@ -1,6 +1,7 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Stats\Tracking_Pixel as Stats_Tracking_Pixel;
 use Automattic\Jetpack\Sync\Functions;
 
 /**
@@ -22,12 +23,6 @@ class Jetpack_AMP_Support {
 		) {
 			add_action( 'amp_post_template_footer', array( 'Jetpack_AMP_Support', 'add_stats_pixel' ) );
 		}
-
-		/**
-		 * Remove this during the init hook in case users have enabled it during
-		 * the after_setup_theme hook, which triggers before init.
-		 */
-		remove_theme_support( 'jetpack-devicepx' );
 
 		// Sharing.
 		add_filter( 'jetpack_sharing_display_markup', array( 'Jetpack_AMP_Support', 'render_sharing_html' ), 10, 2 );
@@ -54,9 +49,6 @@ class Jetpack_AMP_Support {
 
 		// Transitional mode AMP should not have comment likes.
 		add_filter( 'the_content', array( 'Jetpack_AMP_Support', 'disable_comment_likes_before_the_content' ) );
-
-		// Remove the Likes button from the admin bar.
-		add_filter( 'jetpack_admin_bar_likes_enabled', array( 'Jetpack_AMP_Support', 'disable_likes_admin_bar' ) );
 
 		// Add post template metadata for legacy AMP.
 		add_filter( 'amp_post_template_metadata', array( 'Jetpack_AMP_Support', 'amp_post_template_metadata' ), 10, 2 );
@@ -139,7 +131,6 @@ class Jetpack_AMP_Support {
 	 */
 	public static function amp_disable_the_content_filters() {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			add_filter( 'videopress_show_2015_player', '__return_true' );
 			add_filter( 'protected_embeds_use_form_post', '__return_false' );
 			remove_filter( 'the_title', 'widont' );
 		}
@@ -161,27 +152,17 @@ class Jetpack_AMP_Support {
 	}
 
 	/**
-	 * Do not display the Likes' Admin bar on AMP requests.
-	 *
-	 * @param bool $is_admin_bar_button_visible Should the Like button be visible in the Admin bar. Default to true.
-	 */
-	public static function disable_likes_admin_bar( $is_admin_bar_button_visible ) {
-		if ( self::is_amp_request() ) {
-			return false;
-		}
-		return $is_admin_bar_button_visible;
-	}
-
-	/**
 	 * Add Jetpack stats pixel.
 	 *
 	 * @since 6.2.1
 	 */
 	public static function add_stats_pixel() {
-		if ( ! has_action( 'wp_footer', 'stats_footer' ) ) {
+		if ( ! has_action( 'wp_footer', array( Stats_Tracking_Pixel::class, 'add_amp_pixel' ) ) ) {
 			return;
 		}
-		stats_render_amp_footer( stats_build_view_data() );
+
+		$stats_data = Stats_Tracking_Pixel::build_view_data();
+		Stats_Tracking_Pixel::render_amp_footer( $stats_data );
 	}
 
 	/**
@@ -334,10 +315,10 @@ class Jetpack_AMP_Support {
 	 * @return array Dimensions.
 	 */
 	private static function extract_image_dimensions_from_getimagesize( $dimensions ) {
-		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'jetpack_require_lib' ) ) ) {
+		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'require_lib' ) ) ) {
 			return $dimensions;
 		}
-		jetpack_require_lib( 'wpcom/imagesize' );
+		require_lib( 'wpcom/imagesize' );
 
 		foreach ( $dimensions as $url => $value ) {
 			if ( is_array( $value ) ) {
@@ -498,7 +479,7 @@ class Jetpack_AMP_Support {
 		}
 
 		// Percentage-based dimensions are not allowed in AMP, so this shouldn't happen, but short-circuit just in case.
-		if ( false !== strpos( $details['width_orig'], '%' ) || false !== strpos( $details['height_orig'], '%' ) ) {
+		if ( str_contains( $details['width_orig'], '%' ) || str_contains( $details['height_orig'], '%' ) ) {
 			return $args;
 		}
 
@@ -556,7 +537,3 @@ class Jetpack_AMP_Support {
 		return $options_safelist;
 	}
 }
-
-add_action( 'init', array( 'Jetpack_AMP_Support', 'init' ), 1 );
-
-add_action( 'admin_init', array( 'Jetpack_AMP_Support', 'admin_init' ), 1 );

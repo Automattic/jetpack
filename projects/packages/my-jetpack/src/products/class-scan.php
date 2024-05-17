@@ -34,21 +34,21 @@ class Scan extends Module_Product {
 	public static $module_name = 'scan';
 
 	/**
-	 * Get the internationalized product name
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'Scan', 'jetpack-my-jetpack' );
+		return 'Scan';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack Scan', 'jetpack-my-jetpack' );
+		return 'Jetpack Scan';
 	}
 
 	/**
@@ -57,7 +57,7 @@ class Scan extends Module_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Stay one step ahead of threats', 'jetpack-my-jetpack' );
+		return __( 'Powerful, automated site security', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -72,13 +72,14 @@ class Scan extends Module_Product {
 	/**
 	 * Get the internationalized features list
 	 *
-	 * @return array Boost features list
+	 * @return array Scan features list
 	 */
 	public static function get_features() {
 		return array(
 			_x( 'Automated daily scanning', 'Scan Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'One-click fixes for most issues', 'Scan Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'Instant email notifications', 'Scan Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'Access to latest Firewall rules', 'Scan Product Feature', 'jetpack-my-jetpack' ),
 		);
 	}
 
@@ -160,11 +161,12 @@ class Scan extends Module_Product {
 	/**
 	 * Activates the product by installing and activating its plugin
 	 *
+	 * @param bool|WP_Error $current_result Is the result of the top level activation actions. You probably won't do anything if it is an WP_Error.
 	 * @return boolean|\WP_Error
 	 */
-	public static function activate() {
+	public static function do_product_specific_activation( $current_result ) {
 
-		$product_activation = parent::activate();
+		$product_activation = parent::do_product_specific_activation( $current_result );
 
 		if ( is_wp_error( $product_activation ) && 'module_activation_failed' === $product_activation->get_error_code() ) {
 			// Scan is not a module. There's nothing in the plugin to be activated, so it's ok to fail to activate the module.
@@ -172,7 +174,6 @@ class Scan extends Module_Product {
 		}
 
 		return $product_activation;
-
 	}
 
 	/**
@@ -212,5 +213,19 @@ class Scan extends Module_Product {
 	 */
 	public static function get_manage_url() {
 		return Redirect::get_url( 'my-jetpack-manage-scan' );
+	}
+
+	/**
+	 * Get the URL where the user should be redirected after checkout
+	 */
+	public static function get_post_checkout_url() {
+		if ( static::is_jetpack_plugin_active() ) {
+			return 'admin.php?page=jetpack#/recommendations';
+		}
+
+		// If Jetpack is not active, it means that the user has another standalone plugin active
+		// and it follows the `Protect` plugin flow instead of `Scan` so for now it would be safe
+		// to return null and let the user go back to the My Jetpack page.
+		return null;
 	}
 }

@@ -1,7 +1,15 @@
 {
 	"extends": "./tsconfig.json",
-	"include": [ "app/assets/src/js/**/*", "../../js-packages/components/**/*" ],
+	"include": [
+		"../../js-packages/components/**/*",
+		"../../js-packages/image-guide/**/*",
+		"../../js-packages/boost-score-api/**/*",
+		"../../js-packages/react-data-sync-client/**/*",
+		"app/assets/src/js/**/*",
+		"app/modules/image-guide/src/**/*"
+	],
 	"compilerOptions": {
-		"jsx": "react-jsx"
+		"jsx": "react-jsx",
+		"strict": false
 	}
 }

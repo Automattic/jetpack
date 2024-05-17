@@ -1,0 +1,12 @@
+.activate-license {
+	font-size: 13px;
+}
+
+.link {
+	color: var( --blue-50 ) !important;
+
+	&:hover,
+	&:active {
+		color: var( --blue-60 ) !important;
+	}
+}

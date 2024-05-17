@@ -9,7 +9,10 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
-use Automattic\Jetpack_Boost\Jetpack_Boost;
+use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Garbage_Collection;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
 
 /**
  * Control your local Jetpack Boost installation.
@@ -23,7 +26,7 @@ class CLI {
 	 */
 	private $jetpack_boost;
 
-	const MAKE_E2E_TESTS_WORK_MODULES = array( 'critical-css', 'lazy-images', 'render-blocking-js' );
+	const MAKE_E2E_TESTS_WORK_MODULES = array( 'critical_css', 'render_blocking_js', 'page_cache', 'minify_js', 'minify_css', 'image_cdn', 'image_guide' );
 
 	/**
 	 * CLI constructor.
@@ -52,27 +55,25 @@ class CLI {
 	 *
 	 * ## EXAMPLES
 	 *
-	 * wp jetpack-boost module activate critical-css
-	 * wp jetpack-boost module deactivate critical-css
+	 * wp jetpack-boost module activate critical_css
+	 * wp jetpack-boost module deactivate critical_css
 	 *
 	 * @param array $args Command arguments.
 	 */
 	public function module( $args ) {
-		$action = isset( $args[0] ) ? $args[0] : null;
+		$action      = isset( $args[0] ) ? $args[0] : null;
+		$module_slug = isset( $args[1] ) ? $args[1] : null;
 
-		$module_slug = null;
-
-		if ( isset( $args[1] ) ) {
-			$module_slug = $args[1];
-			if ( ! in_array( $module_slug, self::MAKE_E2E_TESTS_WORK_MODULES, true ) ) {
-				\WP_CLI::error(
-				/* translators: %s refers to the module slug like 'critical-css' */
-					sprintf( __( "The '%s' module slug is invalid", 'jetpack-boost' ), $module_slug )
-				);
-			}
-		} else {
+		if ( $module_slug === null ) {
 			/* translators: Placeholder is list of available modules. */
-			\WP_CLI::error( sprintf( __( 'Please specify a valid module. It should be one of %s', 'jetpack-boost' ), wp_json_encode( Jetpack_Boost::AVAILABLE_MODULES_DEFAULT ) ) );
+			\WP_CLI::error( sprintf( __( 'Please specify a valid module. It should be one of %s', 'jetpack-boost' ), wp_json_encode( self::MAKE_E2E_TESTS_WORK_MODULES ) ) );
+		}
+
+		if ( ! in_array( $module_slug, self::MAKE_E2E_TESTS_WORK_MODULES, true ) ) {
+			\WP_CLI::error(
+				/* translators: %1$s refers to the module slug like 'critical-css', %2$s is the list of available modules. */
+				sprintf( __( "The '%1\$s' module slug is invalid. It should be one of %2\$s", 'jetpack-boost' ), $module_slug, wp_json_encode( self::MAKE_E2E_TESTS_WORK_MODULES ) )
+			);
 		}
 
 		switch ( $action ) {
@@ -85,6 +86,24 @@ class CLI {
 		}
 	}
 
+	public function getting_started( $args ) {
+		$status = isset( $args[0] ) ? $args[0] : null;
+
+		if ( ! in_array( $status, array( 'true', 'false' ), true ) ) {
+			\WP_CLI::error(
+				/* translators: %s refers to the module slug like 'critical-css' */
+				sprintf( __( "The '%s' status is invalid", 'jetpack-boost' ), $status )
+			);
+		}
+
+		( new Getting_Started_Entry() )->set( 'true' === $status );
+
+		\WP_CLI::success(
+			/* translators: %s refers to 'true' or 'false' */
+			sprintf( __( 'Getting started is set to %s', 'jetpack-boost' ), $status )
+		);
+	}
+
 	/**
 	 * Set a module status.
 	 *
@@ -93,6 +112,23 @@ class CLI {
 	 */
 	private function set_module_status( $module_slug, $status ) {
 		( new Status( $module_slug ) )->update( $status );
+
+		if ( $module_slug === 'page_cache' && $status ) {
+			$setup_result = Page_Cache_Setup::run_setup();
+			if ( is_wp_error( $setup_result ) ) {
+				\WP_CLI::error(
+					sprintf(
+						/* translators: %s refers to the error code */
+						__( 'Setup: %s', 'jetpack-boost' ),
+						$setup_result->get_error_code()
+					)
+				);
+			}
+
+			Garbage_Collection::activate();
+			Boost_Cache_Settings::get_instance()->set( array( 'enabled' => true ) );
+		}
+
 		$status_label = $status ? __( 'activated', 'jetpack-boost' ) : __( 'deactivated', 'jetpack-boost' );
 
 		/* translators: The %1$s refers to the module slug, %2$s refers to the module state (either activated or deactivated)*/

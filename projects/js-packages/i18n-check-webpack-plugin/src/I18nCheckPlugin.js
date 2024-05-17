@@ -1,13 +1,12 @@
-const babel = require( '@babel/core' );
 const npath = require( 'path' );
+const babel = require( '@babel/core' );
 const webpack = require( 'webpack' );
-const PLUGIN_NAME = require( './plugin-name.js' );
-const GettextEntry = require( './GettextEntry.js' );
 const GettextEntries = require( './GettextEntries.js' );
+const GettextEntry = require( './GettextEntry.js' );
 const GettextExtractor = require( './GettextExtractor.js' );
-
-const debug = require( 'debug' )( PLUGIN_NAME + ':plugin' );
-const debugtiming = require( 'debug' )( PLUGIN_NAME + ':timing' );
+const PLUGIN_NAME = require( './plugin-name.js' );
+const debug = require( 'debug' )( PLUGIN_NAME + ':plugin' ); // eslint-disable-line import/order
+const debugtiming = require( 'debug' )( PLUGIN_NAME + ':timing' ); // eslint-disable-line import/order
 
 const schema = {
 	title: `${ PLUGIN_NAME } plugin options`,

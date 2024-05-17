@@ -1,16 +1,12 @@
-/**
- * WordPress dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { Placeholder } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 
-const LoadingError = ( { className, error } ) => {
+const LoadingError = ( { error } ) => {
 	return (
 		<Placeholder
 			icon="lock"
 			label={ __( 'Donations', 'jetpack' ) }
 			instructions={ error }
-			className={ className }
 		></Placeholder>
 	);
 };

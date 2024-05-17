@@ -6,6 +6,8 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Publicize\Publicize;
+use Automattic\Jetpack\Stats\WPCOM_Stats;
 
 /**
  * This is the endpoint class for `/site` endpoints.
@@ -149,18 +151,17 @@ class Jetpack_Core_API_Site_Endpoint {
 		 * - Followers (only if subs module is active)
 		 * - Sharing counts (not currently supported in Jetpack -- https://github.com/Automattic/jetpack/issues/844 )
 		 */
-		$stats = null;
-		if ( function_exists( 'stats_get_from_restapi' ) ) {
-			$stats = stats_get_from_restapi( array( 'fields' => 'stats' ) );
-		}
-
-		$has_stats = null !== $stats && ! is_wp_error( $stats );
+		$wpcom_stats = new WPCOM_Stats();
+		$stats       = $wpcom_stats->convert_stats_array_to_object(
+			$wpcom_stats->get_stats( array( 'fields' => 'stats' ) )
+		);
+		$has_stats   = null !== $stats && ! is_wp_error( $stats );
 
 		// Yearly visitors.
 		if ( $has_stats && $stats->stats->visitors > 0 ) {
 			$benefits[] = array(
 				'name'        => 'jetpack-stats',
-				'title'       => esc_html__( 'Site Stats', 'jetpack' ),
+				'title'       => esc_html__( 'Jetpack Stats', 'jetpack' ),
 				'description' => esc_html__( 'Visitors tracked by Jetpack', 'jetpack' ),
 				'value'       => absint( $stats->stats->visitors ),
 			);
@@ -253,7 +254,7 @@ class Jetpack_Core_API_Site_Endpoint {
 		}
 
 		// Number of active Publicize connections.
-		if ( Jetpack::is_module_active( 'publicize' ) && class_exists( 'Publicize' ) ) {
+		if ( Jetpack::is_module_active( 'publicize' ) && class_exists( Publicize::class ) ) {
 			$publicize   = new Publicize();
 			$connections = $publicize->get_all_connections();
 
@@ -265,7 +266,7 @@ class Jetpack_Core_API_Site_Endpoint {
 			if ( $number_of_connections > 0 ) {
 				$benefits[] = array(
 					'name'        => 'publicize',
-					'title'       => esc_html__( 'Publicize', 'jetpack' ),
+					'title'       => esc_html__( 'Jetpack Social', 'jetpack' ),
 					'description' => esc_html__( 'Live social media site connections, powered by Jetpack', 'jetpack' ),
 					'value'       => absint( $number_of_connections ),
 				);

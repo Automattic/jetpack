@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { PRODUCT_SORT_OPTIONS, RESULT_FORMAT_PRODUCT, SORT_OPTIONS } from './constants';
 
 /**

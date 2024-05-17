@@ -17,7 +17,7 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 	 */
 	public function __construct() {
 		if ( ! class_exists( 'Jetpack_Podcast_Helper' ) ) {
-			jetpack_require_lib( 'class-jetpack-podcast-helper' );
+			require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-helper.php';
 		}
 
 		$this->namespace = 'wpcom/v2';
@@ -98,7 +98,7 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 	}
 
 	/**
-	 * Retreives data needed to display a podcast player from RSS feed.
+	 * Retrieves data needed to display a podcast player from RSS feed.
 	 *
 	 * @param WP_REST_Request $request The REST API request data.
 	 * @return WP_REST_Response The REST API response.

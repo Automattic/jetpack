@@ -1,9 +1,6 @@
-/**
- * External dependencies
- */
-import { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import restApi from '@automattic/jetpack-api';
+import PropTypes from 'prop-types';
+import { useState, useEffect } from 'react';
 
 /**
  * The user connection component.
@@ -16,7 +13,12 @@ import restApi from '@automattic/jetpack-api';
  * @returns {null} -- Nothing to return.
  */
 const ConnectUser = props => {
-	const { redirectFunc, connectUrl, redirectUri, from } = props;
+	const {
+		redirectFunc = url => window.location.assign( url ),
+		connectUrl,
+		redirectUri = null,
+		from,
+	} = props;
 
 	const [ authorizationUrl, setAuthorizationUrl ] = useState( null );
 
@@ -57,11 +59,6 @@ ConnectUser.propTypes = {
 	redirectUri: PropTypes.string.isRequired,
 	from: PropTypes.string,
 	redirectFunc: PropTypes.func,
-};
-
-ConnectUser.defaultProps = {
-	redirectFunc: url => window.location.assign( url ),
-	redirectUri: null,
 };
 
 export default ConnectUser;

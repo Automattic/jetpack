@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName
+<?php
 /**
  * Autoloader guard test suite.
  *
@@ -19,21 +19,21 @@ class LatestAutoloaderGuardTest extends TestCase {
 	/**
 	 * The mock Plugins_Handler instance.
 	 *
-	 * @var Plugins_Handler|\PHPUnit\Framework\MockObject\MockObject
+	 * @var Plugins_Handler&\PHPUnit\Framework\MockObject\MockObject
 	 */
 	private $plugins_handler;
 
 	/**
 	 * The mock Autoloader_Handler instance.
 	 *
-	 * @var Autoloader_Handler|\PHPUnit\Framework\MockObject\MockObject
+	 * @var Autoloader_Handler&\PHPUnit\Framework\MockObject\MockObject
 	 */
 	private $autoloader_handler;
 
 	/**
 	 * The mock Autoloader_Locator instance.
 	 *
-	 * @var Autoloader_Locator|\PHPUnit\Framework\MockObject\MockObject
+	 * @var Autoloader_Locator&\PHPUnit\Framework\MockObject\MockObject
 	 */
 	private $autoloader_locator;
 

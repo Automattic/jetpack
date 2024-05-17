@@ -1,0 +1,5 @@
+pre {
+	max-height: 200px;
+	max-width: 800px;
+	overflow: auto;
+}

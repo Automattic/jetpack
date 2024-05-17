@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 bootstrap="bootstrap.php"
+		 backupGlobals="false"
+		 colors="true"
+		 convertDeprecationsToExceptions="true"
+		 xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
+>
+  <coverage processUncoveredFiles="false">
+    <include>
+	  <!-- Better to only include "src" than to add "." and then exclude "tests", "vendor", and so on, as PHPUnit still scans the excluded directories. -->
+	  <!-- Add additional lines for any files or directories outside of src/ that need coverage. -->
+      <directory suffix=".php">../../../src</directory>
+    </include>
+  </coverage>
+  <testsuites>
+    <testsuite name="main">
+      <directory prefix="test" suffix=".php">.</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>

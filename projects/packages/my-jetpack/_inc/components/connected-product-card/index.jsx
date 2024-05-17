@@ -1,54 +1,101 @@
 /**
  * External dependencies
  */
-import React, { useCallback } from 'react';
+import { Text } from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
 import PropTypes from 'prop-types';
-import { getIconBySlug } from '@automattic/jetpack-components';
-
+import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
-import ProductCard from '../product-card';
-import { useProduct } from '../../hooks/use-product';
+import { MyJetpackRoutes } from '../../constants';
+import useActivate from '../../data/products/use-activate';
+import useInstallStandalonePlugin from '../../data/products/use-install-standalone-plugin';
+import useProduct from '../../data/products/use-product';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
+import ProductCard from '../product-card';
 
-const ConnectedProductCard = ( { admin, slug } ) => {
-	const { detail, status, activate, deactivate, isFetching } = useProduct( slug );
-	const { name, description, manageUrl } = detail;
+const ConnectedProductCard = ( {
+	admin,
+	slug,
+	children,
+	isDataLoading,
+	Description = null,
+	additionalActions = null,
+	secondaryAction = null,
+	upgradeInInterstitial = false,
+	primaryActionOverride,
+} ) => {
+	const { isRegistered, isUserConnected } = useConnection();
 
-	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
-	const navigateToAddProductPage = useMyJetpackNavigate( `add-${ slug }` );
+	const { install: installStandalonePlugin, isPending: isInstalling } =
+		useInstallStandalonePlugin( slug );
+	const { activate, isPending: isActivating } = useActivate( slug );
+	const { detail } = useProduct( slug );
+	const { name, description: defaultDescription, requiresUserConnection, status } = detail;
+
+	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.Connection );
 
 	/*
-	 * Redirect to manage URL
+	 * Redirect only if connected
 	 */
-	const onManage = useCallback( () => {
-		window.location = manageUrl;
-	}, [ manageUrl ] );
+	const handleActivate = useCallback( () => {
+		if ( ( ! isRegistered || ! isUserConnected ) && requiresUserConnection ) {
+			navigateToConnectionPage();
+			return;
+		}
 
-	const Icon = getIconBySlug( slug );
+		activate();
+	}, [
+		activate,
+		isRegistered,
+		isUserConnected,
+		requiresUserConnection,
+		navigateToConnectionPage,
+	] );
+
+	const DefaultDescription = () => {
+		// Replace the last space with a non-breaking space to prevent widows
+		const cardDescription = defaultDescription.replace( /\s(?=[^\s]*$)/, '\u00A0' );
+
+		return (
+			<Text variant="body-small" style={ { flexGrow: 1 } }>
+				{ cardDescription }
+			</Text>
+		);
+	};
 
 	return (
 		<ProductCard
 			name={ name }
-			description={ description }
+			Description={ Description ? Description : DefaultDescription }
 			status={ status }
-			icon={ <Icon opacity={ 0.4 } /> }
 			admin={ admin }
-			isFetching={ isFetching }
-			onDeactivate={ deactivate }
+			isFetching={ isActivating || isInstalling }
+			isDataLoading={ isDataLoading }
+			isInstallingStandalone={ isInstalling }
+			additionalActions={ additionalActions }
+			primaryActionOverride={ primaryActionOverride }
+			secondaryAction={ secondaryAction }
 			slug={ slug }
-			onActivate={ activate }
-			onAdd={ navigateToAddProductPage }
-			onFixConnection={ navigateToConnectionPage }
-			onManage={ onManage }
-		/>
+			onActivate={ handleActivate }
+			onInstallStandalone={ installStandalonePlugin }
+			onActivateStandalone={ installStandalonePlugin }
+			upgradeInInterstitial={ upgradeInInterstitial }
+		>
+			{ children }
+		</ProductCard>
 	);
 };
 
 ConnectedProductCard.propTypes = {
+	children: PropTypes.node,
 	admin: PropTypes.bool.isRequired,
 	slug: PropTypes.string.isRequired,
+	isDataLoading: PropTypes.bool,
+	additionalActions: PropTypes.array,
+	primaryActionOverride: PropTypes.object,
+	secondaryAction: PropTypes.object,
 };
 
 export default ConnectedProductCard;

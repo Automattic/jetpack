@@ -57,7 +57,6 @@ class Admin_Menu_Test extends TestCase {
 		$wp_suffix  = add_submenu_page( 'jetpack', 'Test', 'Test', 'read', $menu_slug, '__return_null' );
 
 		$this->assertSame( $our_suffix, $wp_suffix );
-
 	}
 
 	/**
@@ -94,5 +93,4 @@ class Admin_Menu_Test extends TestCase {
 
 		$this->assertSame( 'menu_2', $first );
 	}
-
 }

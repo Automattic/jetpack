@@ -80,6 +80,11 @@ body.enable-search-modal .cover-modal.show-modal.search-modal.active {
 		color: $color-dark-text-lighter;
 	}
 
+	.jetpack-instant-search__jetpack-colophon {
+		border-color: $color-dark-layout-borders;
+		background-color: $color-dark-modal-background;
+	}
+
 	.jetpack-instant-search__box,
 	button.jetpack-instant-search__overlay-close {
 		border-color: $color-dark-layout-borders;
@@ -118,6 +123,10 @@ body.enable-search-modal .cover-modal.show-modal.search-modal.active {
 			background: $color-dark-modal-background; // necessary to override theme styles
 			color: $color-dark-text;
 		}
+
+		&:focus {
+			outline: dotted thin $color-layout-borders;
+		}
 	}
 
 	.jetpack-instant-search__search-results {
@@ -153,12 +162,13 @@ body.enable-search-modal .cover-modal.show-modal.search-modal.active {
 		}
 	}
 
-	.jetpack-instant-search__search-sort-option {
+	.jetpack-instant-search__search-form-controls
+		.jetpack-instant-search__search-sort
+		button.jetpack-instant-search__search-sort-option {
+		// Extra specificity to override overly agressive theme styles.
+		// Without this, we need to use "!important" to get our default styling.
 		color: $color-dark-text-lighter;
 
-		&::after {
-			color: $color-dark-text-lighter;
-		}
 		&.is-selected {
 			color: $color-dark-link-alt;
 		}
@@ -168,7 +178,7 @@ body.enable-search-modal .cover-modal.show-modal.search-modal.active {
 		color: $studio-gray-80;
 	}
 
-	#jetpack-instant-search__search-sort-select {
+	.jetpack-instant-search__search-sort-select {
 		background: $color-dark-modal-background;
 		border-color: $color-dark-layout-borders;
 		color: $color-dark-text;

@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
 import { RichText } from '@wordpress/block-editor';
-
-/**
- * Internal dependencies
- */
+import classnames from 'classnames';
 import { whatsAppURL } from './index';
 
 export default function SendAMessageSave( { attributes, className } ) {

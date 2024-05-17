@@ -1,14 +1,13 @@
-/**
- * External dependencies
- */
-import debugFactory from 'debug';
-import { debounce, noop } from 'lodash';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * WordPress dependencies
- */
-import { useCallback, useEffect, useState, useRef, useReducer, useMemo } from '@wordpress/element';
+import {
+	BlockControls,
+	InspectorControls,
+	withColors,
+	PanelColorSettings,
+	ContrastChecker,
+	useBlockProps,
+} from '@wordpress/block-editor';
+import { createBlock } from '@wordpress/blocks';
 import {
 	Button,
 	ExternalLink,
@@ -24,32 +23,24 @@ import {
 	ComboboxControl,
 } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
-import { __ } from '@wordpress/i18n';
-import {
-	BlockControls,
-	InspectorControls,
-	withColors,
-	PanelColorSettings,
-	ContrastChecker,
-} from '@wordpress/block-editor';
 import { withDispatch } from '@wordpress/data';
-import { createBlock } from '@wordpress/blocks';
+import { useCallback, useEffect, useState, useRef, useReducer, useMemo } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { isURL, prependHTTP } from '@wordpress/url';
-
-/**
- * Internal dependencies
- */
-import { getValidatedAttributes } from '../../shared/get-validated-attributes';
-import './editor.scss';
-import { queueMusic } from './icons/';
-import attributesValidation from './attributes';
-import PodcastPlayer from './components/podcast-player';
-import { makeCancellable } from './utils';
-import { fetchPodcastFeed, fetchTrackQuantity } from './api';
-import { podcastPlayerReducer, actions } from './state';
+import debugFactory from 'debug';
+import { debounce, noop } from 'lodash';
 import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
-import { PODCAST_FEED, EMBED_BLOCK } from './constants';
 import { maybeCopyElementsToSiteEditorContext } from '../../shared/block-editor-asset-loader';
+import { getValidatedAttributes } from '../../shared/get-validated-attributes';
+import { fetchPodcastFeed, fetchTrackQuantity } from './api';
+import metadata from './block.json';
+import PodcastPlayer from './components/podcast-player';
+import { PODCAST_FEED, EMBED_BLOCK } from './constants';
+import { queueMusic } from './icons/';
+import { podcastPlayerReducer, actions } from './state';
+import { makeCancellable } from './utils';
+
+import './editor.scss';
 
 const DEFAULT_MIN_ITEMS = 1;
 const debug = debugFactory( 'jetpack:podcast-player:edit' );
@@ -62,7 +53,6 @@ const supportUrl =
 
 const PodcastPlayerEdit = ( {
 	instanceId,
-	className,
 	attributes,
 	setAttributes,
 	noticeOperations: { createErrorNotice, removeAllNotices },
@@ -79,7 +69,7 @@ const PodcastPlayerEdit = ( {
 	replaceWithEmbedBlock,
 } ) => {
 	// Validated attributes.
-	const validatedAttributes = getValidatedAttributes( attributesValidation, attributes );
+	const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
 	const {
 		url,
 		selectedEpisodes,
@@ -92,6 +82,7 @@ const PodcastPlayerEdit = ( {
 
 	const playerId = `jetpack-podcast-player-block-${ instanceId }`;
 
+	const blockProps = useBlockProps();
 	const [ hasMigratedStyles, setHasMigratedStyles ] = useState( false );
 	const [ defaultMaxItems, setDefaultMaxItems ] = useState( 10 );
 
@@ -266,8 +257,10 @@ const PodcastPlayerEdit = ( {
 		dispatch( { type: actions.FINISH_EDITING, payload: prependedURL } );
 	};
 
+	let content;
+
 	if ( state.isEditing ) {
-		return (
+		content = (
 			<Placeholder
 				icon={ queueMusic }
 				label={ __( 'Podcast Player', 'jetpack' ) }
@@ -299,8 +292,8 @@ const PodcastPlayerEdit = ( {
 
 	// With no tracks data, this is either the first load or the URL has changed
 	// and we need the data to refresh before displaying the other controls.
-	if ( ! state.feedData.tracks?.length ) {
-		return (
+	else if ( ! state.feedData.tracks?.length ) {
+		content = (
 			<Placeholder
 				icon={ queueMusic }
 				label={ __( 'Podcast Player', 'jetpack' ) }
@@ -309,127 +302,129 @@ const PodcastPlayerEdit = ( {
 				<Spinner />
 			</Placeholder>
 		);
+	} else {
+		const createColorChangeHandler = ( colorAttr, handler ) => color => {
+			setAttributes( { [ colorAttr ]: color } );
+			handler( color );
+		};
+
+		content = (
+			<>
+				<BlockControls>
+					<ToolbarGroup>
+						<ToolbarButton
+							aria-label={ __( 'Edit Podcast Feed URL', 'jetpack' ) }
+							onClick={ () => dispatch( { type: actions.START_EDITING } ) }
+						>
+							{ __( 'Replace', 'jetpack' ) }
+						</ToolbarButton>
+					</ToolbarGroup>
+				</BlockControls>
+				<InspectorControls>
+					<PanelBody title={ __( 'Podcast settings', 'jetpack' ) }>
+						{ ( ComboboxControl || 0 === selectedEpisodes.length ) && (
+							<RangeControl
+								label={ __( 'Number of items', 'jetpack' ) }
+								value={ itemsToShow }
+								onChange={ value => setAttributes( { itemsToShow: selectedGuid ? 1 : value } ) }
+								min={ DEFAULT_MIN_ITEMS }
+								max={ defaultMaxItems }
+								required
+								disabled={ !! selectedGuid }
+							/>
+						) }
+						{ ComboboxControl && (
+							<ComboboxControl
+								className="jetpack-podcast-player__episode-selector"
+								value={ selectedGuid }
+								onChange={ guid => dispatch( { type: actions.SELECT_EPISODE, payload: guid } ) }
+								options={ state.feedData.options || [] }
+								label={ __( 'Episode', 'jetpack' ) }
+								onFilterValueChange={ noop }
+							/>
+						) }
+						<ToggleControl
+							label={ __( 'Show Cover Art', 'jetpack' ) }
+							checked={ showCoverArt }
+							onChange={ value => setAttributes( { showCoverArt: value } ) }
+						/>
+
+						<ToggleControl
+							label={ __( 'Show Episode Title', 'jetpack' ) }
+							checked={ showEpisodeTitle }
+							onChange={ value => setAttributes( { showEpisodeTitle: value } ) }
+						/>
+
+						<ToggleControl
+							label={ __( 'Show Episode Description', 'jetpack' ) }
+							checked={ showEpisodeDescription }
+							onChange={ value => setAttributes( { showEpisodeDescription: value } ) }
+						/>
+					</PanelBody>
+					<PanelColorSettings
+						title={ __( 'Color Settings', 'jetpack' ) }
+						colorSettings={ [
+							{
+								value: primaryColorProp.color,
+								onChange: createColorChangeHandler( 'hexPrimaryColor', setPrimaryColor ),
+								label: __( 'Primary Color', 'jetpack' ),
+							},
+							{
+								value: secondaryColorProp.color,
+								onChange: createColorChangeHandler( 'hexSecondaryColor', setSecondaryColor ),
+								label: __( 'Secondary Color', 'jetpack' ),
+							},
+							{
+								value: backgroundColorProp.color,
+								onChange: createColorChangeHandler( 'hexBackgroundColor', setBackgroundColor ),
+								label: __( 'Background Color', 'jetpack' ),
+							},
+						] }
+					>
+						<ContrastChecker
+							isLargeText={ false }
+							textColor={ secondaryColorProp.color }
+							backgroundColor={ backgroundColorProp.color }
+							fallbackBackgroundColor={ fallbackBackgroundColor }
+							fallbackTextColor={ fallbackTextColor }
+						/>
+					</PanelColorSettings>
+				</InspectorControls>
+
+				<div id={ playerId } ref={ podCastPlayerRef }>
+					<PodcastPlayer
+						playerId={ playerId }
+						attributes={ validatedAttributes }
+						tracks={ state.feedData.tracks }
+						cover={ state.feedData.cover }
+						title={ state.feedData.title }
+						link={ state.feedData.link }
+					/>
+					{ /*
+					 * Disabled because the overlay div doesn't actually have a role or
+					 * functionality as far as the user is concerned. We're just catching
+					 * the first click so that the block can be selected without
+					 * interacting with the embed preview that the overlay covers.
+					 */ }
+					{ /* eslint-disable jsx-a11y/no-static-element-interactions */ }
+					{ ! state.isInteractive && ! state.isLoading && (
+						<div
+							className="jetpack-podcast-player__interactive-overlay"
+							onMouseUp={ () => dispatch( { type: actions.MAKE_INTERACTIVE } ) }
+						/>
+					) }
+					{ /* eslint-enable jsx-a11y/no-static-element-interactions */ }
+					{ state.isLoading && (
+						<div className="jetpack-podcast-player__loading-overlay">
+							<Spinner />
+						</div>
+					) }
+				</div>
+			</>
+		);
 	}
 
-	const createColorChangeHandler = ( colorAttr, handler ) => color => {
-		setAttributes( { [ colorAttr ]: color } );
-		handler( color );
-	};
-
-	return (
-		<>
-			<BlockControls>
-				<ToolbarGroup>
-					<ToolbarButton
-						aria-label={ __( 'Edit Podcast Feed URL', 'jetpack' ) }
-						onClick={ () => dispatch( { type: actions.START_EDITING } ) }
-					>
-						{ __( 'Replace', 'jetpack' ) }
-					</ToolbarButton>
-				</ToolbarGroup>
-			</BlockControls>
-			<InspectorControls>
-				<PanelBody title={ __( 'Podcast settings', 'jetpack' ) }>
-					{ ( ComboboxControl || 0 === selectedEpisodes.length ) && (
-						<RangeControl
-							label={ __( 'Number of items', 'jetpack' ) }
-							value={ itemsToShow }
-							onChange={ value => setAttributes( { itemsToShow: selectedGuid ? 1 : value } ) }
-							min={ DEFAULT_MIN_ITEMS }
-							max={ defaultMaxItems }
-							required
-							disabled={ !! selectedGuid }
-						/>
-					) }
-					{ ComboboxControl && (
-						<ComboboxControl
-							className="jetpack-podcast-player__episode-selector"
-							value={ selectedGuid }
-							onChange={ guid => dispatch( { type: actions.SELECT_EPISODE, payload: guid } ) }
-							options={ state.feedData.options || [] }
-							label={ __( 'Episode', 'jetpack' ) }
-							onFilterValueChange={ noop }
-						/>
-					) }
-					<ToggleControl
-						label={ __( 'Show Cover Art', 'jetpack' ) }
-						checked={ showCoverArt }
-						onChange={ value => setAttributes( { showCoverArt: value } ) }
-					/>
-
-					<ToggleControl
-						label={ __( 'Show Episode Title', 'jetpack' ) }
-						checked={ showEpisodeTitle }
-						onChange={ value => setAttributes( { showEpisodeTitle: value } ) }
-					/>
-
-					<ToggleControl
-						label={ __( 'Show Episode Description', 'jetpack' ) }
-						checked={ showEpisodeDescription }
-						onChange={ value => setAttributes( { showEpisodeDescription: value } ) }
-					/>
-				</PanelBody>
-				<PanelColorSettings
-					title={ __( 'Color Settings', 'jetpack' ) }
-					colorSettings={ [
-						{
-							value: primaryColorProp.color,
-							onChange: createColorChangeHandler( 'hexPrimaryColor', setPrimaryColor ),
-							label: __( 'Primary Color', 'jetpack' ),
-						},
-						{
-							value: secondaryColorProp.color,
-							onChange: createColorChangeHandler( 'hexSecondaryColor', setSecondaryColor ),
-							label: __( 'Secondary Color', 'jetpack' ),
-						},
-						{
-							value: backgroundColorProp.color,
-							onChange: createColorChangeHandler( 'hexBackgroundColor', setBackgroundColor ),
-							label: __( 'Background Color', 'jetpack' ),
-						},
-					] }
-				>
-					<ContrastChecker
-						isLargeText={ false }
-						textColor={ secondaryColorProp.color }
-						backgroundColor={ backgroundColorProp.color }
-						fallbackBackgroundColor={ fallbackBackgroundColor }
-						fallbackTextColor={ fallbackTextColor }
-					/>
-				</PanelColorSettings>
-			</InspectorControls>
-
-			<div id={ playerId } className={ className } ref={ podCastPlayerRef }>
-				<PodcastPlayer
-					playerId={ playerId }
-					attributes={ validatedAttributes }
-					tracks={ state.feedData.tracks }
-					cover={ state.feedData.cover }
-					title={ state.feedData.title }
-					link={ state.feedData.link }
-				/>
-				{ /*
-				 * Disabled because the overlay div doesn't actually have a role or
-				 * functionality as far as the user is concerned. We're just catching
-				 * the first click so that the block can be selected without
-				 * interacting with the embed preview that the overlay covers.
-				 */ }
-				{ /* eslint-disable jsx-a11y/no-static-element-interactions */ }
-				{ ! state.isInteractive && ! state.isLoading && (
-					<div
-						className="jetpack-podcast-player__interactive-overlay"
-						onMouseUp={ () => dispatch( { type: actions.MAKE_INTERACTIVE } ) }
-					/>
-				) }
-				{ /* eslint-enable jsx-a11y/no-static-element-interactions */ }
-				{ state.isLoading && (
-					<div className="jetpack-podcast-player__loading-overlay">
-						<Spinner />
-					</div>
-				) }
-			</div>
-		</>
-	);
+	return <div { ...blockProps }>{ content }</div>;
 };
 
 export default compose( [

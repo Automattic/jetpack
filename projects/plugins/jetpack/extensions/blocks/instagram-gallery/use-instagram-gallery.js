@@ -1,19 +1,8 @@
-/**
- * External dependencies
- */
-import { isArray, isEmpty } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-
-/**
- * Internal dependencies
- */
+import { isArray, isEmpty } from 'lodash';
 import { MAX_IMAGE_COUNT } from './constants';
 
 export default function useInstagramGallery( {

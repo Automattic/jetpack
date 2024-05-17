@@ -1,3 +1,4 @@
 .section-hero {
+	padding-top: 1px; // prevent margin collapse for interior sections
 	background: var( --jp-white-off );
 }

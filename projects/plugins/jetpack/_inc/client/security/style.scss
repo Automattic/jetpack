@@ -1,0 +1,202 @@
+.brute-force__current-ip {
+    margin-bottom: 16px;
+}
+
+.waf__header {
+    align-items: center;
+    display: flex;
+
+    .waf__header__badge {
+        background-color: #D0E6B8;
+        border-radius: 3px;
+        font-size: 10px;
+        line-height: 18px;
+        margin-left: 10px;
+        padding: 0px 6px;
+
+        &,
+        &:link,
+        &:active,
+        &:focus,
+        &:hover,
+        &:visited {
+            color: #008710;
+            text-decoration: none;
+        }
+    }
+
+    .waf__standalone__mode {
+        margin-left: auto;
+    }
+
+}
+
+.waf__settings {
+    margin-top: 24px;
+    margin-left: 64px;
+
+    &__toggle-setting {
+        flex-wrap: wrap;
+        display: flex;
+        margin-bottom: 16px;
+
+        &__label {
+            display: flex;
+            align-items: center;
+        }
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    .form-toggle__label {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    &__ips {
+        width: 100%;
+        margin-top: 24px;
+    }
+
+    &__ips:last-of-type {
+        margin-bottom: 12px;
+    }
+
+    &__ips__save-button {
+        margin-top: 6px;
+        float: right;
+    }
+
+    &__share-data-popover {
+        margin-left: 8px;
+    }
+
+    &__upgrade-popover {
+        vertical-align: middle;
+        margin-left: 8px;
+    }
+
+}
+
+.waf__enhanced-protection {
+    &, &.dops-card.is-expanded {
+        margin-bottom: 0;
+    }
+
+    &.dops-foldable-card.is-expanded .dops-foldable-card__content {
+        border-top: none;
+        padding-top: 0;
+    }
+
+    ul {
+        list-style: disc;
+        margin-top: 0;
+        margin-bottom: 0;
+        padding-left: 32px;
+    }
+
+    code {
+        white-space: nowrap;
+    }
+}
+
+
+.modal-survey-notice {
+	position: fixed;
+	left: 0;
+	top: 0;
+	height: 100%;
+	width: 100%;
+	z-index: 1000;
+
+	.modal-survey-notice__backdrop {
+		background: var(--studio-black);
+		opacity: 0.2;
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 100%;
+		cursor: default;
+	}
+
+
+	.modal-survey-notice__popup {
+		position: absolute;
+		right: 25px;
+		bottom: 25px;
+		width: 416px;
+		max-width: calc(100% - 50px);
+		z-index: 2;
+		border-radius: 2px;
+		box-shadow: 0 3px 1px 0 rgba(0, 0, 0, 0.04), 0 3px 8px 0 rgba(0, 0, 0, 0.12);
+		overflow: hidden;
+
+		.modal-survey-notice__popup-head {
+			background: #0675c4;
+			border-bottom: 1px solid #f6f7f7;
+			height: 56px;
+			padding: 0 14px 0 16px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+
+			.modal-survey-notice__popup-head-title {
+				color: var(--studio-white);
+				font-size: rem(14px);
+				font-weight: 500;
+				line-height: 20px;
+				letter-spacing: -0.15px;
+			}
+
+			.modal-survey-notice__popup-head-close svg {
+				fill: var(--studio-white);
+			}
+		}
+
+		.modal-survey-notice__popup-content {
+			padding: 1rem;
+			background: var(--studio-white);
+
+			.modal-survey-notice__popup-content-title {
+				font-size: rem(16px);
+				font-weight: 500;
+				line-height: 24px;
+				letter-spacing: -0.32px;
+				padding-bottom: 8px;
+			}
+
+			.modal-survey-notice__popup-content-description {
+				font-size: rem(14px);
+				line-height: 20px;
+				letter-spacing: -0.15px;
+				padding-bottom: 18px;
+			}
+
+			.modal-survey-notice__popup-content-buttons {
+				display: flex;
+				justify-content: flex-end;
+
+				.modal-survey-notice__popup-content-buttons-ok {
+					padding: 8px 14px;
+					background: var(--studio-blue-50);
+					color: var(--studio-white);
+					font-size: rem(14px);
+					line-height: 20px;
+					letter-spacing: -0.15px;
+				}
+
+				.modal-survey-notice__popup-content-buttons-cancel {
+					padding: 8px 14px;
+					color: var(--studio-blue-50);
+					text-align: center;
+					font-size: rem(14px);
+					line-height: 20px;
+					letter-spacing: -0.15px;
+				}
+			}
+		}
+	}
+}

@@ -26,6 +26,27 @@ require_once __DIR__ . '/likes/jetpack-likes-settings.php';
 class Jetpack_Comment_Likes {
 
 	/**
+	 * Jetpack_Likes_Settings object
+	 *
+	 * @var Jetpack_Likes_Settings
+	 */
+	public $settings;
+
+	/**
+	 * Blog ID
+	 *
+	 * @var int
+	 */
+	public $blog_id;
+
+	/**
+	 * Site home URL domain
+	 *
+	 * @var string
+	 */
+	public $domain;
+
+	/**
 	 * Initialize comment like module
 	 */
 	public static function init() {
@@ -42,22 +63,16 @@ class Jetpack_Comment_Likes {
 	 * Construct comment like module.
 	 */
 	private function __construct() {
-		$this->settings  = new Jetpack_Likes_Settings();
-		$this->blog_id   = Jetpack_Options::get_option( 'id' );
-		$this->url       = home_url();
-		$this->url_parts = wp_parse_url( $this->url );
-		$this->domain    = $this->url_parts['host'];
+		$this->settings = new Jetpack_Likes_Settings();
+		$this->blog_id  = Jetpack_Options::get_option( 'id' );
+		$url_parts      = wp_parse_url( home_url() );
+		$this->domain   = $url_parts['host'];
 
 		add_action( 'template_redirect', array( $this, 'frontend_init' ) );
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
 		if ( ! Jetpack::is_module_active( 'likes' ) ) {
 			$active = Jetpack::get_active_modules();
-
-			if ( ! in_array( 'sharedaddy', $active, true ) && ! in_array( 'publicize', $active, true ) ) {
-				// we don't have a sharing page yet.
-				add_action( 'admin_menu', array( $this->settings, 'sharing_menu' ) );
-			}
 
 			if ( in_array( 'publicize', $active, true ) && ! in_array( 'sharedaddy', $active, true ) ) {
 				// we have a sharing page but not the global options area.
@@ -147,7 +162,7 @@ class Jetpack_Comment_Likes {
 	 * Initialize front end
 	 */
 	public function frontend_init() {
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if ( class_exists( Jetpack_AMP_Support::class ) && Jetpack_AMP_Support::is_amp_request() ) {
 			return;
 		}
 

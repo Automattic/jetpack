@@ -1,0 +1,119 @@
+// Animation
+
+@keyframes pulse {
+	0% {
+		transform: scale( 1 );
+	}
+
+	50% {
+		transform: scale( 1.1 );
+	}
+
+	100% {
+		transform: scale( 1 );
+	}
+}
+
+// Classes
+
+.thumbnail {
+	--videopress-video-item-aspect-radio: calc( 16 / 9 );
+	position: relative;
+
+	.thumbnail-placeholder {
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+		background-color: var( --jp-gray-0 );
+
+		> * {
+			aspect-ratio: var( --videopress-video-item-aspect-radio );
+		}
+
+		> img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			display: block;
+		}
+
+		.thumbnail-blank {
+			height: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			fill: var( --jp-gray-50 );
+		}
+	}
+
+	.video-thumbnail-duration {
+		position: absolute;
+		bottom: var( --spacing-base );
+		right: var( --spacing-base );
+		padding-left: var( --spacing-base );
+		padding-right: var( --spacing-base );
+		border-radius: var( --jp-border-radius );
+		color: var( --jp-white );
+		background-color: rgba( 44, 51, 56, 0.9 ); // (--jp-gray-80) Todo: figure how to apply opacity with HEXA colors
+		z-index: 1;
+	}
+
+	&:not( .is-small ) {
+		> img {
+			border-radius: var( --jp-border-radius );
+		}
+	}
+}
+
+.video-thumbnail-edit {
+	position: absolute;
+	top: var( --spacing-base );
+	right: var( --spacing-base );
+	z-index: 3;
+
+	.thumbnail__edit-button:global(.components-button) {
+		padding: var( --spacing-base );
+
+		> svg {
+			margin: 0;
+		}
+	}
+}
+
+.custom-thumbnail {
+	// Change spinner color
+	--wp-admin-theme-color: var( --jp-green-50 );
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	gap: var( --spacing-base );
+
+	.pulse {
+		animation: pulse 1.5s infinite;
+	}
+
+	&.is-row {
+		.progress-bar {
+			max-width: 80px;
+		}
+
+		.upload-text {
+			margin-top: 0;
+		}
+	}
+}
+
+.progress-bar {
+	max-width: 112px;
+}
+
+.upload-text {
+	margin-top: calc( var( --spacing-base ) * 3 );
+}
+
+// TODO: Remove when implement use default thumbnail
+.disabled {
+	display: none;
+}

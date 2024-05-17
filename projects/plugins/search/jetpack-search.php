@@ -3,14 +3,14 @@
  *
  * Plugin Name: Jetpack Search
  * Plugin URI: https://jetpack.com/search/
- * Description: A cloud-powered replacement for WordPress' search.
- * Version: 0.1.0-alpha
- * Author: Automattic
+ * Description: Easily add cloud-powered instant search and filters to your website or WooCommerce store with advanced algorithms that boost your search results based on traffic to your site.
+ * Version: 2.1.0-alpha
+ * Author: Automattic - Jetpack Search team
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
  * Text Domain: jetpack-search
  *
- * @package automattic/jetpack-search
+ * @package automattic/jetpack-search-plugin
  */
 
 namespace Automattic\Jetpack\Search_Plugin;
@@ -23,8 +23,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Constant definitions.
 define( 'JETPACK_SEARCH_PLUGIN__DIR', plugin_dir_path( __FILE__ ) );
+define( 'JETPACK_SEARCH_PLUGIN__FILE', __FILE__ );
+define( 'JETPACK_SEARCH_PLUGIN__FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
 define( 'JETPACK_SEARCH_PLUGIN__SLUG', 'jetpack-search' );
-define( 'JETPACK_SEARCH_PLUGIN__VERSION', '0.1.0-alpha' );
+define( 'JETPACK_SEARCH_PLUGIN__VERSION', '2.1.0-alpha' );
 
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) || define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
 
@@ -48,10 +50,24 @@ if ( ! is_readable( $autoload_packages_path ) ) {
 			sprintf(
 			/* translators: Placeholder is a link to a support document. */
 				__( 'Your installation of Jetpack Search is incomplete. If you installed Jetpack Search from GitHub, please refer to this document to set up your development environment: %1$s', 'jetpack-search' ),
-				'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md'
+				'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md'
 			)
 		);
 	}
+
+	// Add a red bubble notification to My Jetpack if the installation is bad.
+	add_filter(
+		'my_jetpack_red_bubble_notification_slugs',
+		function ( $slugs ) {
+			$slugs['jetpack-search-plugin-bad-installation'] = array(
+				'data' => array(
+					'plugin' => 'Jetpack Search',
+				),
+			);
+
+			return $slugs;
+		}
+	);
 
 	/**
 	 * Outputs an admin notice for folks running Jetpack Search without having run composer install.
@@ -59,28 +75,31 @@ if ( ! is_readable( $autoload_packages_path ) ) {
 	 * @since 1.2.0
 	 */
 	function jetpack_search_admin_missing_files() {
-		?>
-		<div class="notice notice-error is-dismissible">
-			<p>
-				<?php
-				printf(
-					wp_kses(
-					/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Jetpack Search is incomplete. If you installed Jetpack Search from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Search must have Composer dependencies installed and built via the build command.', 'jetpack-search' ),
-						array(
-							'a' => array(
-								'href'   => array(),
-								'target' => array(),
-								'rel'    => array(),
-							),
-						)
+		if ( get_current_screen()->id !== 'plugins' ) {
+			return;
+		}
+
+		$message = sprintf(
+			wp_kses(
+				/* translators: Placeholder is a link to a support document. */
+				__( 'Your installation of Jetpack Search is incomplete. If you installed Jetpack Search from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Search must have Composer dependencies installed and built via the build command.', 'jetpack-search' ),
+				array(
+					'a' => array(
+						'href'   => array(),
+						'target' => array(),
+						'rel'    => array(),
 					),
-					'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#building-your-project'
-				);
-				?>
-			</p>
-		</div>
-		<?php
+				)
+			),
+			'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
+		);
+		wp_admin_notice(
+			$message,
+			array(
+				'type'        => 'error',
+				'dismissible' => true,
+			)
+		);
 	}
 
 	add_action( 'admin_notices', __NAMESPACE__ . '\jetpack_search_admin_missing_files' );

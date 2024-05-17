@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import { BlockControls } from '@wordpress/block-editor';
 import { MenuGroup, MenuItem, ToolbarButton, ToolbarDropdownMenu } from '@wordpress/components';
 
@@ -48,7 +45,7 @@ export default function ViewSelector( props ) {
 							selectAction( optionDefinition );
 						} }
 						className="components-tab-button"
-						isPressed={ isSelected }
+						aria-pressed={ isSelected }
 						key={ `jetpack-premium-content-tab-${ optionDefinition.id }` }
 					>
 						<span>{ optionDefinition.label }</span>

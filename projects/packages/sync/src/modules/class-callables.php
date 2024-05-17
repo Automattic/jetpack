@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
+use Automattic\Jetpack\Sync\Dedicated_Sender;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Settings;
@@ -77,8 +78,9 @@ class Callables extends Module {
 	 */
 	const OPTION_NAMES_TO_CALLABLE_NAMES = array(
 		// @TODO: Audit the other option names for differences between the option names and callable names.
-		'home'    => 'home_url',
-		'siteurl' => 'site_url',
+		'home'                   => 'home_url',
+		'siteurl'                => 'site_url',
+		'jetpack_active_modules' => 'active_modules',
 	);
 
 	/**
@@ -105,6 +107,28 @@ class Callables extends Module {
 			$this->callable_whitelist = Defaults::get_callable_whitelist();
 		}
 		$this->force_send_callables_on_next_tick = false; // Resets here as well mostly for tests.
+	}
+
+	/**
+	 * Set module defaults at a later time.
+	 * Reset the callable whitelist if needed to account for plugins adding the 'jetpack_sync_callable_whitelist'
+	 * and 'jetpack_sync_multisite_callable_whitelist' filters late.
+	 *
+	 * @see Automattic\Jetpack\Sync\Modules::set_module_defaults
+	 * @access public
+	 */
+	public function set_late_default() {
+		if ( is_multisite() ) {
+			$late_callables = array_merge(
+				apply_filters( 'jetpack_sync_callable_whitelist', array() ),
+				apply_filters( 'jetpack_sync_multisite_callable_whitelist', array() )
+			);
+		} else {
+			$late_callables = apply_filters( 'jetpack_sync_callable_whitelist', array() );
+		}
+		if ( ! empty( $late_callables ) && is_array( $late_callables ) ) {
+			$this->callable_whitelist = array_merge( $this->callable_whitelist, $late_callables );
+		}
 	}
 
 	/**
@@ -346,7 +370,6 @@ class Callables extends Module {
 	public function set_plugin_action_links() {
 		if (
 			! class_exists( '\DOMDocument' ) ||
-			! function_exists( 'libxml_use_internal_errors' ) ||
 			! function_exists( 'mb_convert_encoding' )
 		) {
 			return;
@@ -374,6 +397,10 @@ class Callables extends Module {
 			);
 			/** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
 			$action_links = apply_filters( 'plugin_action_links', $action_links, $plugin_file, null, 'all' );
+			// Verify $action_links is still an array.
+			if ( ! is_array( $action_links ) ) {
+				$action_links = array();
+			}
 			/** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
 			$action_links = apply_filters( "plugin_action_links_{$plugin_file}", $action_links, $plugin_file, null, 'all' );
 			// Verify $action_links is still an array to resolve warnings from filters not returning an array.
@@ -383,13 +410,13 @@ class Callables extends Module {
 				$action_links = array();
 			}
 			$formatted_action_links = null;
-			if ( ! empty( $action_links ) && count( $action_links ) > 0 ) {
+			if ( $action_links ) {
 				$dom_doc = new \DOMDocument();
 				foreach ( $action_links as $action_link ) {
 					// The @ is not enough to suppress errors when dealing with libxml,
 					// we have to tell it directly how we want to handle errors.
 					libxml_use_internal_errors( true );
-					$dom_doc->loadHTML( mb_convert_encoding( $action_link, 'HTML-ENTITIES', 'UTF-8' ) );
+					$dom_doc->loadHTML( '<?xml encoding="utf-8" ?>' . $action_link );
 					libxml_use_internal_errors( false );
 
 					$link_elements = $dom_doc->getElementsByTagName( 'a' );
@@ -399,7 +426,7 @@ class Callables extends Module {
 
 					$link_element = $link_elements->item( 0 );
 					// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					if ( $link_element->hasAttribute( 'href' ) && $link_element->nodeValue ) {
+					if ( $link_element instanceof \DOMElement && $link_element->hasAttribute( 'href' ) && $link_element->nodeValue ) {
 						$link_url = trim( $link_element->getAttribute( 'href' ) );
 
 						// Add the full admin path to the url if the plugin did not provide it.
@@ -453,7 +480,12 @@ class Callables extends Module {
 	public function maybe_sync_callables() {
 		$callables = $this->get_all_callables();
 		if ( ! apply_filters( 'jetpack_check_and_send_callables', false ) ) {
-			if ( ! is_admin() ) {
+			/**
+			 * Treating Dedicated Sync requests a bit differently from normal. We want to send callables
+			 * normally with all Sync actions, no matter if they were with admin action origin or not,
+			 * since Dedicated Sync runs out of bound and the requests are never coming from an admin.
+			 */
+			if ( ! is_admin() && ! Dedicated_Sender::is_dedicated_sync_request() ) {
 				// If we're not an admin and we're not doing cron and this isn't WP_CLI, don't sync anything.
 				if ( ! Settings::is_doing_cron() && ! Jetpack_Constants::get_constant( 'WP_CLI' ) ) {
 					return;
@@ -631,5 +663,4 @@ class Callables extends Module {
 
 		return 'CALLABLE-DOES-NOT-EXIST';
 	}
-
 }

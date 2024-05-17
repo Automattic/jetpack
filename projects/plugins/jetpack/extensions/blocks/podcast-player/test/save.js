@@ -1,7 +1,11 @@
-/**
- * Internal dependencies
- */
 import save from '../save';
+
+jest.mock( '@wordpress/block-editor', () => ( {
+	...jest.requireActual( '@wordpress/block-editor' ),
+	useBlockProps: {
+		save: () => ( {} ),
+	},
+} ) );
 
 const exampleSettings = {
 	attributes: {

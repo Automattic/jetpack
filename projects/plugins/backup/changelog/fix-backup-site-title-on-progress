@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed progress state in admin page to use real site title (name)

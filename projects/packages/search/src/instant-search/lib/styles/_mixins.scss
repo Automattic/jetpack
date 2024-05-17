@@ -87,6 +87,7 @@ $customberg-container-selector: '.jp-search-configure-app-wrapper' !default;
 	appearance: none;
 	background: none;
 	border: none;
+	border-radius: 0;
 	box-shadow: none;
 	margin: 0;
 	outline: none;
@@ -102,4 +103,25 @@ $customberg-container-selector: '.jp-search-configure-app-wrapper' !default;
 		box-shadow: none;
 		outline: none;
 	}
+}
+
+@mixin remove-header-styling() {
+	letter-spacing: inherit;
+}
+
+@mixin apply-default-overlay-colors() {
+	background-color: inherit;
+	color: #646970;
+}
+
+@mixin apply-default-overlay-font-metrics() {
+	font-size: inherit;
+	font-weight: inherit;
+}
+
+// The !important is necessary to get the system highlight color on macOS.
+@mixin apply-overlay-focus-styling() {
+	outline: 1px auto Highlight;
+	outline: 1px auto -webkit-focus-ring-color !important;
+	outline-offset: inherit;
 }

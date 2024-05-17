@@ -146,7 +146,6 @@ class Server_Sandbox {
 		} else {
 			$this->log_new_signature_error( 'Empty Authorization Header' );
 		}
-
 	}
 
 	/**
@@ -224,7 +223,7 @@ class Server_Sandbox {
 	 *
 	 * Attached to the `admin_bar_menu` action.
 	 *
-	 * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar instance.
+	 * @param \WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar instance.
 	 */
 	public function admin_bar_add_sandbox_item( $wp_admin_bar ) {
 		if ( ! Constants::get_constant( 'JETPACK__SANDBOX_DOMAIN' ) ) {

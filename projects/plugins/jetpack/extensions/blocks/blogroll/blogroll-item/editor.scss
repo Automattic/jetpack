@@ -1,0 +1,41 @@
+.wp-block-jetpack-blogroll-item {
+	display: flex;
+	padding: 20px 8px;
+	gap: 20px;
+
+	font-style: normal;
+	font-weight: 400;
+
+		figure {
+			margin: 0;
+			height: 48px;
+			width: 48px;
+
+			&.empty-site-icon {
+				background: url('../placeholder-site-icon.svg');
+				background-size: cover;
+
+				.blogroll-item-image {
+					display: none;
+				}
+			}
+		}
+
+	.blogroll-item-image {
+		border-radius: 50%;
+		width: 48px;
+		height: 48px;
+		max-width: 48px;
+	}
+
+	h3.jetpack-blogroll-item-title.rich-text {
+		color: inherit;
+		font-size: 1.2em;
+		font-weight: 500;
+		margin: 0;
+	}
+
+	.jetpack-blogroll-item-description {
+		word-break: break-word;
+	}
+}

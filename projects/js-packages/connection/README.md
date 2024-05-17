@@ -17,7 +17,7 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 function my_app_enqueue_script() {
 	// ...
 	wp_enqueue_script( 'my-app-script' );
-	wp_add_inline_script( 'my-app-script', Connection_Initial_State::render(), 'before' );
+	Connection_Initial_State::render_script( 'my-app-script' );
 }
 ```
 
@@ -56,7 +56,7 @@ const statusCallback = useCallback(
 	apiRoot="https://example.org/wp-json/" 
 	apiNonce="12345"
 	registrationNonce="54321"
-	from="connection-ui"
+	from="my-jetpack"
 	redirectUri="tools.php?page=wpcom-connection-manager"
 	statusCallback={ statusCallback }
 >
@@ -90,7 +90,7 @@ const onUserConnected = useCallback( () => alert( 'User Connected' ) );
 	apiRoot="https://example.org/wp-json/" 
 	apiNonce="12345"
 	registrationNonce="54321"
-	from="connection-ui"
+	from="my-jetpack"
 	redirectUri="tools.php?page=wpcom-connection-manager"
 	connectionStatus={ connectionStatus }
 	connectionStatusIsFetching={ isFetching }
@@ -117,7 +117,7 @@ import { ConnectUser } from '@automattic/jetpack-connection';
 <ConnectUser
 	connectUrl="https://jetpack.wordpress.com/jetpack.authorize/1/"
 	redirectUri="tools.php?page=wpcom-connection-manager"
-	from="connection-ui"
+	from="my-jetpack"
 />
 ```
 

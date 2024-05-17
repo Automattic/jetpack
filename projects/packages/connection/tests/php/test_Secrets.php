@@ -105,5 +105,4 @@ class SecretsTest extends TestCase {
 		$this->assertSame( '', $secret ); // We are just assuring that we are not entering an infinite loop. In a situation like this, the site would be broken.
 		remove_filter( 'random_password', '__return_empty_string' );
 	}
-
 }

@@ -1,18 +1,11 @@
-/**
- * External dependencies
- */
-import { RawHTML } from '@wordpress/element';
 import {
 	getColorClassName,
-	__experimentalGetGradientClass as getGradientClass,
+	__experimentalGetGradientClass as getGradientClass, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 	getFontSizeClass,
 } from '@wordpress/block-editor';
+import { RawHTML } from '@wordpress/element';
 import classnames from 'classnames';
 import { reduce } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import defaultAttributes from './attributes';
 
 const DEFAULT_BORDER_RADIUS_VALUE = 0;

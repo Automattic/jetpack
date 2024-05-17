@@ -1,77 +1,42 @@
-/**
- * External dependencies
- */
-import React, { useCallback, useEffect } from 'react';
+import { __ } from '@wordpress/i18n';
+import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
+import { MoneyBackGuarantee } from 'components/money-back-guarantee';
+import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
-import { __, _x } from '@wordpress/i18n';
-import { ProgressBar } from '@automattic/components';
-
-/**
- * Internal dependencies
- */
-import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
-import { PromptLayout } from '../prompt-layout';
-import { ProductSuggestion } from '../product-suggestion';
-import { MoneyBackGuarantee } from 'components/money-back-guarantee';
-import analytics from 'lib/analytics';
 import {
-	addSkippedRecommendation as addSkippedRecommendationAction,
-	getProductSuggestions,
 	getNextRoute,
-	isFetchingRecommendationsProductSuggestions as isFetchingSuggestionsAction,
 	isProductSuggestionsAvailable as isProductSuggestionsAvailableCheck,
-	updateRecommendationsStep as updateRecommendationsStepAction,
+	getProductSuggestions,
+	isFetchingRecommendationsProductSuggestions,
+	isFetchingRecommendationsUpsell,
 } from 'state/recommendations';
+import { isFetchingSiteDiscount, getSiteDiscount } from 'state/site/reducer';
+import BackButton from '../../back-button';
+import Timer from '../../timer';
+import { isCouponValid } from '../../utils';
+import { ProductSuggestion } from '../product-suggestion';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
-const ProductSuggestionsComponent = props => {
-	const {
-		addSkippedRecommendation,
-		nextRoute,
-		isFetchingSuggestions,
-		isProductSuggestionsAvailable,
-		updateRecommendationsStep,
-		suggestions,
-	} = props;
+const ProductSuggestionsComponent = ( {
+	nextRoute,
+	isProductSuggestionsAvailable,
+	isFetchingSuggestions,
+	isFetchingDiscount,
+	isFetchingUpsell,
+	suggestions,
+	discountData,
+} ) => {
+	const { expiry_date: expiryDate } = discountData;
+	const hasDiscount = useMemo( () => isCouponValid( discountData ), [ discountData ] );
 
-	useEffect( () => {
-		updateRecommendationsStep( 'product-suggestions' );
-	}, [ updateRecommendationsStep ] );
-
-	const onContinueClick = useCallback( () => {
-		analytics.tracks.recordEvent(
-			'jetpack_recommendations_product_suggestions_decide_later_click'
-		);
-		addSkippedRecommendation( 'product-suggestions' );
-	}, [ addSkippedRecommendation ] );
-
-	// Display a loading indicator if we are waiting for data.
-	// This should only happen if the "step" is accessed directly and not
-	// as part of the initial flow where the user selects the site type.
-	if ( isFetchingSuggestions ) {
+	if ( isFetchingSuggestions || isFetchingUpsell ) {
 		return <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
 	}
 
 	// Redirect the user to the next step if they are not eligible for the product
-	// suggestions step. We need to check this for the individual step because:
-	// 1. A user can access the step directly through the URL with the current
-	//    implementation of the Recommendations routes.
-	// 2. If the user stopped at the product suggestions step the last time they
-	//    used the Assistant - so the system has registered this step as the active
-	//    step - but have since purchased a Jetpack product.
-	// 3. Something could have gone wrong while fetching the product suggestions
-	//    and we are therefore not able to display anything relevant.
-	// @todo This logic could be moved to the recommendations routing logic instead
-	//       of existing inside the step component but would probably require a small
-	//       refactor of the already large main file of the Jetpack React app.
-	// @todo We could potentially show a fallback text that will prompt the user
-	//       to visit the "plans" page if the suggestions request failed but they
-	//       are still using a Free connection.
+	// suggestions step.
 	if ( ! isProductSuggestionsAvailable ) {
 		// We have to remove the first "#" value from the next route value
 		// so React Router will match it with one of the other recommendations paths.
@@ -79,56 +44,55 @@ const ProductSuggestionsComponent = props => {
 		return <Redirect to={ nextRoute.substring( 1 ) } />;
 	}
 
-	const answerSection = (
-		<div className="jp-recommendations-product-suggestion__container">
-			<div className="jp-recommendations-product-suggestion__items">
-				{ suggestions.map( ( item, key ) => (
-					<div className="jp-recommendations-product-suggestion__item" key={ key }>
-						<ProductSuggestion product={ item } />
-					</div>
-				) ) }
-			</div>
-			<div className="jp-recommendations-product-suggestion__money-back-guarantee">
-				<MoneyBackGuarantee text={ __( '14-day money-back guarantee', 'jetpack' ) } />
-			</div>
-			<div className="jp-recommendations-product-suggestion__skip-container">
-				<a
-					className="jp-recommendations-product-suggestion__skip"
-					href={ nextRoute }
-					onClick={ onContinueClick }
-				>
-					{ __( 'Decide later', 'jetpack' ) }
-				</a>
-			</div>
-			<div className="jp-recommendations-product-suggestion__footer">
-				{ __( 'Special introductory pricing, all renewals are at full price.', 'jetpack' ) }
-			</div>
-		</div>
-	);
-
 	return (
-		<PromptLayout
-			progressBar={ <ProgressBar color={ '#00A32A' } value={ '33' } /> }
-			question={ _x( 'Choose a plan', 'Recommendations Product Suggestions', 'jetpack' ) }
-			description={ _x(
-				'These are the most popular Jetpack plans for sites like yours:',
-				'Recommendations Product Suggestions',
-				'jetpack'
+		<section className="jp-recommendations-question__main">
+			<header className="jp-recommendations-product-suggestion__header">
+				<BackButton />
+			</header>
+			<div className="jp-recommendations-product-suggestion__container">
+				<div className="jp-recommendations-product-suggestion__items">
+					{ suggestions.map( ( item, key ) => (
+						<div className="jp-recommendations-product-suggestion__item" key={ key }>
+							<ProductSuggestion product={ item } />
+						</div>
+					) ) }
+				</div>
+				<div className="jp-recommendations-product-suggestion__money-back-guarantee">
+					<MoneyBackGuarantee text={ __( '14-day money-back guarantee', 'jetpack' ) } />
+				</div>
+			</div>
+			{ ! isFetchingDiscount && (
+				<footer className="jp-recommendations-product-suggestion__footer">
+					<span>
+						{ hasDiscount &&
+							__(
+								'* Discount is for first term only, all renewals are at full price.',
+								'jetpack'
+							) }
+						{ ! hasDiscount &&
+							__( 'Special introductory pricing, all renewals are at full price.', 'jetpack' ) }
+					</span>
+					{ hasDiscount && expiryDate && (
+						<div className="jp-recommendations-product-suggestion__timer">
+							<Timer
+								timeClassName="jp-recommendations-product-suggestion__time"
+								label={ __( 'Discount ends in:', 'jetpack' ) }
+								expiryDate={ expiryDate }
+							/>
+						</div>
+					) }
+				</footer>
 			) }
-			answer={ answerSection }
-		/>
+		</section>
 	);
 };
 
-export const ProductSuggestions = connect(
-	state => ( {
-		nextRoute: getNextRoute( state ),
-		suggestions: getProductSuggestions( state ),
-		isFetchingSuggestions: isFetchingSuggestionsAction( state ),
-		isProductSuggestionsAvailable: isProductSuggestionsAvailableCheck( state ),
-	} ),
-	dispatch => ( {
-		addSkippedRecommendation: stepSlug => dispatch( addSkippedRecommendationAction( stepSlug ) ),
-		updateRecommendationsStep: step => dispatch( updateRecommendationsStepAction( step ) ),
-	} )
-)( ProductSuggestionsComponent );
+export const ProductSuggestions = connect( state => ( {
+	nextRoute: getNextRoute( state ),
+	isProductSuggestionsAvailable: isProductSuggestionsAvailableCheck( state ),
+	isFetchingSuggestions: isFetchingRecommendationsProductSuggestions( state ),
+	isFetchingDiscount: isFetchingSiteDiscount( state ),
+	isFetchingUpsell: isFetchingRecommendationsUpsell( state ),
+	suggestions: getProductSuggestions( state ),
+	discountData: getSiteDiscount( state ),
+} ) )( ProductSuggestionsComponent );

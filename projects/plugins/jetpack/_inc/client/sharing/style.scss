@@ -1,0 +1,23 @@
+@import '../scss/calypso-colors';
+
+.jp-settings-sharing__sig-toggle {
+	span  {
+		margin: 0 auto auto auto;
+	}
+}
+
+.jp-settings-sharing__template-picker {
+	margin-top: 8px;
+}
+
+#jp-settings-sharing {
+	.jp-settings-sharing__block-theme-description a {
+		color: $white;
+	}
+
+	.dops-card {
+		a.dops-card__link {
+			cursor: pointer;
+		}
+	}
+}

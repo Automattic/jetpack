@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/class-user-agent-info.php';
 
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use function Automattic\Jetpack\Device_Detection\wp_unslash;
@@ -16,6 +17,9 @@ use function Automattic\Jetpack\Device_Detection\wp_unslash;
  * Class Device_Detection
  *
  * Determine if the current User Agent matches the passed $kind.
+ *
+ * Note: str_contains() and other PHP8+ functions that have a polyfill in core are not used here,
+ * as wp-includes/compat.php may not be loaded yet.
  */
 class Device_Detection {
 
@@ -45,6 +49,8 @@ class Device_Detection {
 			'is_smartphone'       => self::is_mobile( 'smart', false, $ua_info ),
 			'is_tablet'           => $ua_info->is_tablet(),
 			'platform'            => $ua_info->get_platform(),
+			'desktop_platform'    => $ua_info->get_desktop_platform(),
+			'browser'             => $ua_info->get_browser(),
 		);
 
 		$info['is_handheld'] = $info['is_phone'] || $info['is_tablet'];

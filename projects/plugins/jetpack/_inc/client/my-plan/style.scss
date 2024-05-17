@@ -3,17 +3,65 @@
 @import '../scss/typography';
 
 .jp-landing__plans {
-	margin-bottom: 32px;
+	margin-top: 48px;
+	margin-bottom: 24px;
+	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
 
 	.dops-button {
 		margin-right: 10px;
+	}
+
+	.dops-card.is-compact {
+		margin-bottom: 0;
+		border-bottom: 1px solid var(--jp-gray);
+
+		@include breakpoint( "<960px" ) {
+			border-bottom: 0;
+		}
+	}
+
+	.dops-card:first-child {
+		border-radius: 4px 4px 0 0;
+	}
+
+	.dops-card:last-child {
+		border-radius: 0 0 4px 4px;
+
+		@include breakpoint( "<960px" ) {
+			padding-top: 0;
+		}
+	}
+
+	.dops-card:nth-last-child(2) {
+		@include breakpoint( "<960px" ) {
+			border-bottom: 0;
+		}
+	}
+
+	.my-plan-card__tag-line a,
+	a.jp-landing__licensing-actions-link {
+		color: $black;
+		text-decoration-line: underline;
+
+		&:hover {
+			text-decoration-thickness: 3px;
+		}
+
+		&:focus {
+			text-decoration-line: none;
+			border-radius: 2px;
+			box-shadow: 0 0 0 var(--wp-admin-border-width-focus) black;
+			outline: 3px solid transparent;
+		}
 	}
 }
 
 .jp-landing__card-header {
 	margin-top: 0;
-	font-size: $font-body;
-	color: $gray-darken-20;
+	margin-bottom: 8px;
+	font-size: 20px;
+	font-weight: 500;
+	color: $black;
 }
 
 .jp-landing__licensing-actions {
@@ -44,12 +92,13 @@
 		}
 
 		@include breakpoint( "<660px" ) {
-			justify-content: space-between;
+			flex-direction: unset;
 			flex: 1;
 		}
 
 		.dops-button {
 			margin-right: 0;
+			margin-left: 16px;
 		}
 	}
 
@@ -60,6 +109,17 @@
 
 	.jp-landing__licensing-actions-item.no-licenses {
 		justify-content: flex-end;
+
+		@include breakpoint( "<660px" ) {
+			justify-content: space-around;
+			a {
+				margin: 0;
+
+				&.is-compact {
+					width: 48%;
+				}
+			}
+		}
 	}
 }
 
@@ -91,11 +151,10 @@
 	flex-wrap: nowrap;
 	flex-grow: 1;
 	box-sizing: border-box;
-	margin: rem( 8px );
+	margin: 0 rem( 8px );
 	background-color: $white;
-	box-shadow:
-		0 0 0 1px $light-gray-700,
-		0 1px 1px 1px  rgba(0,0,0,.04);
+	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+	border-radius: 4px;
 
 	&:last-child {
 		max-width: 100%;
@@ -106,7 +165,7 @@
 	}
 
 	@include breakpoint( ">660px" ) {
-		margin-bottom: 1%;
+		margin-bottom: 24px;
 	}
 
 	@include breakpoint( "<660px" ) {
@@ -115,7 +174,7 @@
 	}
 
 	@include breakpoint( ">480px" ) {
-		padding: rem( 32px );
+		padding: rem( 24px );
 	}
 
 	@include breakpoint( "<480px" ) {
@@ -129,33 +188,37 @@
 }
 
 .jp-landing__plan-features-img {
-	width: rem( 90px );
-	margin-right: rem( 8px );
+	width: rem( 48px );
+	padding: 24px 24px 24px 0;
 	line-height: 1;
+	display: flex;
 
 	@include breakpoint( ">960px" ) {
-		width: rem( 120px );
-		margin-right: rem( 18px );
+		width: rem( 48px );
 	}
 }
 
 .jp-landing__plan-features-icon {
 	display: block;
-	margin-left: rem( -8px );
-
-	@include breakpoint( ">480px" ) {
-		margin-left: rem( -16px );
-	}
+	width: 48px;
 }
 
-.jp-landing__plan-features-text {
+.jp-landing__plan-features-text,
+.jp-landing__licensing-actions{
 	flex: 1;
 	font-size: $font-body-small;
+	color: var(--jp-gray-80);
+
+	a,
+	button {
+		font-weight: 500;
+		font-size: var(--font-body-extra-small);
+	}
 }
 
 .jp-landing__plan-features-title {
 	margin: 0;
-	font-size: $font-title-small;
+	font-size: 20px;
 }
 
 .jp-landing__plan-features {
@@ -173,6 +236,21 @@
 	}
 }
 
+.jp-landing__plan-features-card:nth-child(odd) {
+	margin-right: 24px;
+
+	@include breakpoint( "<660px" ) {
+		margin-right: 8px;
+	}
+}
+
+.jp-landing__plan-features-card:nth-child(even) {
+	margin-left: 0;
+
+	@include breakpoint( "<660px" ) {
+		margin-left: 8px;
+	}
+}
 
 .jp-landing__plan-features-title.is-placeholder {
 	height: rem( 24px );
@@ -199,3 +277,4 @@
 		float: right;
 	}
 }
+

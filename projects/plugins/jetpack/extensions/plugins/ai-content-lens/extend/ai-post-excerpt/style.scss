@@ -1,0 +1,32 @@
+.jetpack-ai-post-excerpt .components-textarea-control__input {
+	width: 100%;
+	margin-bottom: 10px;
+}
+
+.jetpack-generated-excerpt__ai-container {
+	margin-top: 12px;
+
+	.jetpack-ai-assistant__error {
+		margin: 0 0 12px;
+	}
+}
+
+.jetpack-generated-excerpt__generate-buttons-container {
+	display: flex;
+	justify-content: end;
+	margin-bottom: 10px;
+	gap: 12px;
+	justify-content:space-around;
+}
+
+// Upgrade banner
+.jetpack-ai-post-excerpt .jetpack-upgrade-plan-banner__wrapper {
+	flex-direction: column;
+	margin: 0 0 12px;
+	padding: 0 10px;
+
+	.jetpack-ai-upgrade-banner__description {
+		margin: 10px 0 0;
+	}
+}
+

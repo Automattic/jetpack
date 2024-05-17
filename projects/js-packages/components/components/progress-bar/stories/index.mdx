@@ -1,0 +1,22 @@
+import { Meta, Story, Canvas } from '@storybook/blocks';
+import ProgressBar from '../index';
+import * as ProgressBarStories from './index.stories';
+
+<Meta of={ProgressBarStories} />
+
+# ProgressBar
+A simple progress bar.
+
+<Canvas withSource="open">
+  <Story id="js-packages-components-progress-bar--default" />
+</Canvas>
+
+## API
+
+### progress
+
+- type: `number`
+
+The current progress percentage. A number between 0 and 1, inclusive.
+Will round up to 0 if less than 0.
+Will round down to 1 if above 1.

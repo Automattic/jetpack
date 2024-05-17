@@ -1,22 +1,11 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-import { debounce } from 'lodash';
-
-/**
- * WordPress dependencies
- */
-import { memo, useCallback, useState, useRef, useEffect } from '@wordpress/element';
 import { Button } from '@wordpress/components';
+import { memo, useCallback, useState, useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { UP, DOWN, LEFT, RIGHT, SPACE, ENTER } from '@wordpress/keycodes';
-
-/**
- * Internal dependencies
- */
-import MediaPlaceholder from './placeholder';
+import classnames from 'classnames';
+import { debounce } from 'lodash';
 import MediaItem from './media-item';
+import MediaPlaceholder from './placeholder';
 
 const MAX_SELECTED = 10;
 
@@ -37,6 +26,7 @@ function MediaBrowser( props ) {
 		setPath,
 		nextPage,
 		onCopy,
+		selectButtonText,
 	} = props;
 	const [ selected, setSelected ] = useState( [] );
 	const [ focused, setFocused ] = useState( -1 );
@@ -172,11 +162,13 @@ function MediaBrowser( props ) {
 		}
 	};
 
-	const SelectButton = () => {
+	const SelectButton = selectProps => {
 		const disabled = selected.length === 0 || isCopying;
-		const label = isCopying
-			? __( 'Inserting…', 'jetpack' )
+		const defaultLabel = selectProps?.labelText
+			? selectProps?.labelText( selected.length )
 			: __( 'Select', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
+
+		const label = isCopying ? __( 'Inserting…', 'jetpack' ) : defaultLabel;
 
 		return (
 			<div className="jetpack-external-media-browser__media__toolbar">
@@ -223,7 +215,7 @@ function MediaBrowser( props ) {
 				) }
 			</ul>
 
-			{ hasMediaItems && <SelectButton /> }
+			{ hasMediaItems && <SelectButton labelText={ selectButtonText } /> }
 		</div>
 	);
 }

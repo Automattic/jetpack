@@ -1,0 +1,31 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.wp-block-jetpack-videopress {
+	position: relative;
+
+	figcaption {
+		margin-bottom: 1em;
+    	margin-top: 0.5em;
+		@include caption-style-theme();
+	}
+
+	.jetpack-videopress-player__wrapper {
+		position: relative;
+		display: flex;
+	}
+
+	.jetpack-videopress-player__overlay {
+		cursor: pointer;
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		opacity: 1;
+		transition: opacity 300ms ease-in-out;
+
+		&:hover {
+			opacity: 0;
+		}
+	}
+}

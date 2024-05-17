@@ -1,0 +1,69 @@
+{
+	"name": "@automattic/jetpack-image-guide",
+	"version": "0.5.8",
+	"description": "Go through the dom to analyze image size on screen vs actual file size.",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/image-guide/#readme",
+	"type": "module",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Image Guide"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/image-guide"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "rollup -c && tsc --emitDeclarationOnly",
+		"build-concurrently": "pnpm run clear-dist && concurrently 'pnpm:validate-ts' 'rollup -c'",
+		"build-development": "pnpm run build-concurrently",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build-concurrently",
+		"validate-ts": "tsc --pretty --strict false",
+		"dev-validate-ts": "tsc --watch --pretty --strict false # Note: Disable Strict mode to avoid noisy development, while keeping strict errors visible in IDEs.",
+		"dev-compile": "pnpm run clear-dist && rollup -c -w",
+		"dev": "concurrently 'pnpm:dev-validate-ts' 'pnpm:dev-compile'",
+		"reformat-files": "../../../tools/js-tools/node_modules/.bin/prettier --ignore-path .eslintignore --write --plugin-search-dir=. ./**/*.{svelte,js,ts,json}",
+		"lint": "pnpm run reformat-files && echo 'Running eslint...' && pnpm eslint app/assets/src/js tests/e2e --fix && echo '✔ prettier and eslint ran successfully.'",
+		"clear-dist": "rm -rf app/assets/dist/*",
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
+	},
+	"browser": {
+		"@automattic/jetpack-image-guide": false
+	},
+	"devDependencies": {
+		"@babel/core": "^7.0.0",
+		"@babel/preset-env": "7.24.0",
+		"@babel/preset-react": "7.23.3",
+		"@babel/preset-typescript": "7.23.3",
+		"@rollup/plugin-babel": "5.3.1",
+		"@rollup/plugin-commonjs": "25.0.7",
+		"@rollup/plugin-json": "4.1.0",
+		"@rollup/plugin-node-resolve": "13.3.0",
+		"@rollup/plugin-replace": "5.0.2",
+		"@rollup/plugin-terser": "0.4.3",
+		"@rollup/plugin-typescript": "8.3.3",
+		"@typescript-eslint/parser": "6.7.5",
+		"eslint": "8.51.0",
+		"jest": "29.7.0",
+		"postcss": "8.4.31",
+		"rollup": "2.79.1",
+		"rollup-plugin-postcss": "4.0.2",
+		"rollup-plugin-svelte": "7.1.0",
+		"rollup-plugin-svelte-svg": "0.2.3",
+		"sass": "1.64.1",
+		"svelte": "3.58.0",
+		"svelte-preprocess": "5.0.4",
+		"tslib": "2.5.0",
+		"typescript": "5.0.4",
+		"webpack": "5.76.0",
+		"webpack-cli": "4.9.1"
+	},
+	"exports": {
+		".": {
+			"types": "./build/index.d.ts",
+			"default": "./build/index.js"
+		}
+	},
+	"main": "./src/index.ts"
+}

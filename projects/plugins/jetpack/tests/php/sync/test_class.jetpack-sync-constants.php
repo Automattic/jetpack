@@ -1,7 +1,7 @@
 <?php
 
-use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Constants;
 
 /**
@@ -9,7 +9,7 @@ use Automattic\Jetpack\Sync\Modules\Constants;
  */
 class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 	protected $post_id;
-	protected $constants_module;
+	protected $constant_module;
 
 	/**
 	 * Set up.
@@ -19,19 +19,21 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 
 		$this->resetCallableAndConstantTimeouts();
 
-		$this->constant_module = Modules::get_module( "constants" );
+		$this->constant_module = Modules::get_module( 'constants' );
 	}
 
 	// TODO:
 	// Add tests for Syncing data on shutdown
 	// Add tests that prove that we know constants change
-	function test_white_listed_constant_is_synced() {
-		$helper = new Jetpack_Sync_Test_Helper();
+	// phpcs:ignore Squiz.Commenting.FunctionComment.WrongStyle -- Confuses this for a function comment.
+
+	public function test_white_listed_constant_is_synced() {
+		$helper                 = new Jetpack_Sync_Test_Helper();
 		$helper->array_override = array( 'TEST_FOO' );
 		add_filter( 'jetpack_sync_constants_whitelist', array( $helper, 'filter_override_array' ) );
 
-		define( 'TEST_FOO', sprintf( "%.8f", microtime( true ) ) );
-		define( 'TEST_BAR', sprintf( "%.8f", microtime( true ) ) );
+		define( 'TEST_FOO', sprintf( '%.8f', microtime( true ) ) );
+		define( 'TEST_BAR', sprintf( '%.8f', microtime( true ) ) );
 
 		$this->sender->do_sync();
 
@@ -42,7 +44,7 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNotEquals( TEST_BAR, $synced_bar_value );
 	}
 
-	function test_does_not_fire_if_constants_havent_changed() {
+	public function test_does_not_fire_if_constants_havent_changed() {
 		$this->constant_module->set_defaults(); // use the default constants
 		$this->sender->do_sync();
 
@@ -59,8 +61,8 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
-	function test_white_listed_constant_doesnt_get_synced_twice() {
-		$helper = new Jetpack_Sync_Test_Helper();
+	public function test_white_listed_constant_doesnt_get_synced_twice() {
+		$helper                 = new Jetpack_Sync_Test_Helper();
 		$helper->array_override = array( 'TEST_ABC' );
 		add_filter( 'jetpack_sync_constants_whitelist', array( $helper, 'filter_override_array' ) );
 
@@ -75,14 +77,15 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 		delete_transient( Constants::CONSTANTS_AWAIT_TRANSIENT_NAME );
 		$this->sender->do_sync();
 
-		$this->assertEquals( null, $this->server_replica_storage->get_constant( 'TEST_ABC' ) );
+		$this->assertNull( $this->server_replica_storage->get_constant( 'TEST_ABC' ) );
 	}
 
 	/**
 	 * Verify that all constants are returned by get_objects_by_id.
 	 */
 	public function test_get_objects_by_id_all() {
-		$module        = Modules::get_module( 'constants' );
+		$module = Modules::get_module( 'constants' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Constants $module';
 		$all_constants = $module->get_objects_by_id( 'constant', array( 'all' ) );
 		$this->assertEquals( $module->get_all_constants(), $all_constants );
 	}
@@ -91,10 +94,10 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that get_object_by_id returns a allowed constant.
 	 */
 	public function test_get_objects_by_id_singular() {
-		$module        = Modules::get_module( 'constants' );
+		$module = Modules::get_module( 'constants' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Constants $module';
 		$constants     = $module->get_all_constants();
 		$get_constants = $module->get_objects_by_id( 'constant', array( 'EMPTY_TRASH_DAYS' ) );
 		$this->assertEquals( $constants['EMPTY_TRASH_DAYS'], $get_constants['EMPTY_TRASH_DAYS'] );
 	}
-
 }

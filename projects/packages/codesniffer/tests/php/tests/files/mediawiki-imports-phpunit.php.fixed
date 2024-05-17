@@ -35,6 +35,12 @@ class Dummy_Test extends TestCase {
 		$this->assertSame( 1, $u->var );
 		$this->assertSame( 1, $u->var );
 
+		// MediaWiki.PHPUnit.MockBoilerplate
+		$mock = $this->getMockBuilder( Foo::class )->setMethods( array( 'foobar' ) )->getMock();
+		$mock->expects( $this->once() )
+			->method( 'foobar' )
+			->willReturn( 42 );
+
 		// MediaWiki.PHPUnit.SpecificAssertions.
 		$this->assertArrayHasKey( 'foo', $u->var );
 		$this->assertArrayNotHasKey( 'foo', $u->var );
@@ -44,5 +50,4 @@ class Dummy_Test extends TestCase {
 		$this->assertStringContainsString( 'foo', $u->var );
 		$this->assertStringContainsString( 'foo', $u->var );
 	}
-
 }

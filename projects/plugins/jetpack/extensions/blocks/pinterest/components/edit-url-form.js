@@ -1,13 +1,9 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import { Placeholder, Button } from '@wordpress/components';
+import { __, _x } from '@wordpress/i18n';
+import metadata from '../block.json';
 
-/**
- * Internal dependencies
- */
-import { icon } from '../';
+const icon = getBlockIconComponent( metadata );
 
 export default function EditUrlForm( { className, onSubmit, noticeUI, url, setUrl } ) {
 	const onChange = event => setUrl( event.target.value );

@@ -35,7 +35,7 @@ class WP_Test_Jetpack_Shortcodes_Others extends WP_UnitTestCase {
 	public function test_shortcodes_songlink( $embed_link, $expected ) {
 		global $post;
 
-		$post = $this->factory()->post->create_and_get( array( 'post_content' => $embed_link ) );
+		$post = self::factory()->post->create_and_get( array( 'post_content' => $embed_link ) );
 
 		setup_postdata( $post );
 
@@ -62,7 +62,7 @@ class WP_Test_Jetpack_Shortcodes_Others extends WP_UnitTestCase {
 		// 'How To Install a WordPress Plugin' example.
 		$embed_id = 'e3dcec661c37487b818b8e3b8225ec27';
 		global $post;
-		$post = $this->factory()->post->create_and_get(
+		$post = self::factory()->post->create_and_get(
 			array(
 				'post_content' => sprintf(
 					'https://www.loom.com/share/%s',
@@ -148,5 +148,10 @@ class WP_Test_Jetpack_Shortcodes_Others extends WP_UnitTestCase {
 		}
 
 		return $test_data;
+	}
+
+	public function test_oembed_timeout_for_icloud_embed() {
+		$timeout = apply_filters( 'http_request_timeout', 5, 'https://iwmb.icloud.com.cn/iwmb/oembed?maxwidth=600&maxheight=750&url=https://www.icloud.com.cn/keynote/0ccKYFwX7dNwplSTdXuXLzvlQ%23Presentation_9&dnt=1&format=json' );
+		$this->assertEquals( 10, $timeout );
 	}
 }

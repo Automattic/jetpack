@@ -9,7 +9,7 @@ default:
     tools/docker/mu-plugins: /var/www/html/wp-content/mu-plugins
 
   # Extra configuration (none by default). Anything set under this key will be written out as
-  # an extra docker-compose configuration file.
+  # an extra Docker compose configuration file.
   extras:
 
 # Dev environment overrides. None by default.
@@ -34,6 +34,10 @@ dev:
         ports:
           - '${PORT_MAILDEV:-1080}:80'
           - '${PORT_SMTP:-25}:25'
+        environment:
+          # It runs in its own container, it may as well use the standard ports instead of 1080 and 1025 so we don't have to reconfigure everything trying to send mail to it.
+          MAILDEV_WEB_PORT: 80
+          MAILDEV_SMTP_PORT: 25
 
       ## SFTP server running at localhost:1022
       sftp:
@@ -56,5 +60,9 @@ e2e:
   volumeMappings:
     tools/e2e-commons/plugins/e2e-plugin-updater.php: /var/www/html/wp-content/plugins/e2e-plugin-updater.php
     tools/e2e-commons/plugins/e2e-plan-data-interceptor.php: /var/www/html/wp-content/plugins/e2e-plan-data-interceptor.php
+    tools/e2e-commons/plugins/e2e-waf-data-interceptor.php: /var/www/html/wp-content/plugins/e2e-waf-data-interceptor.php
+    projects/plugins/boost/tests/e2e/plugins/e2e-concatenate-enqueue/: /var/www/html/wp-content/plugins/e2e-concatenate-enqueue/
+    projects/plugins/boost/tests/e2e/plugins/e2e-appended-image/: /var/www/html/wp-content/plugins/e2e-appended-image/
     projects/plugins/boost/tests/e2e/plugins/e2e-mock-speed-score-api.php: /var/www/html/wp-content/plugins/e2e-mock-speed-score-api.php
     tools/e2e-commons/plugins/e2e-search-test-helper.php: /var/www/html/wp-content/plugins/e2e-search-test-helper.php
+    tools/e2e-commons/plugins/e2e-wpcom-request-interceptor.php: /var/www/html/wp-content/plugins/e2e-wpcom-request-interceptor.php

@@ -55,7 +55,10 @@ class Taxonomy_Provider extends Provider {
 			}
 
 			foreach ( $terms as $term ) {
-				$results[ $taxonomy ][] = get_term_link( $term, $taxonomy );
+				$url = get_term_link( $term, $taxonomy );
+				if ( ! is_wp_error( $url ) && ! empty( $url ) ) {
+					$results[ $taxonomy ][] = $url;
+				}
 			}
 		}
 
@@ -98,6 +101,12 @@ class Taxonomy_Provider extends Provider {
 			default:
 				return __( 'View for custom taxonomy', 'jetpack-boost' );
 		}
+	}
+
+	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	/** @inheritdoc */
+	public static function get_edit_url( $_provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+		return null;
 	}
 
 	/**

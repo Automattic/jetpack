@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-E2E tests: removed duplicated test fixture and use the one in e2e-commons

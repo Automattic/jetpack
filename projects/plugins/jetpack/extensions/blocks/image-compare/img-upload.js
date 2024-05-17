@@ -1,9 +1,6 @@
-/**
- * External dependencies
- */
-import { compose } from '@wordpress/compose';
 import { MediaPlaceholder } from '@wordpress/block-editor';
 import { withNotices } from '@wordpress/components';
+import { compose } from '@wordpress/compose';
 import { Fragment } from '@wordpress/element';
 
 export const ImgUpload = props => {

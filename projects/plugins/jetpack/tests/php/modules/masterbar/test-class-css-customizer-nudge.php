@@ -12,7 +12,7 @@ require_once ABSPATH . WPINC . '/class-wp-customize-manager.php';
 require_once ABSPATH . WPINC . '/class-wp-customize-control.php';
 require_once ABSPATH . WPINC . '/class-wp-customize-section.php';
 
-require_jetpack_file( 'modules/masterbar/nudges/bootstrap.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/nudges/bootstrap.php';
 
 /**
  * Class Test_CSS_Customizer_Nudge
@@ -80,5 +80,4 @@ class Test_CSS_Customizer_Nudge extends \WP_UnitTestCase {
 		$this->assertEquals( 'url', $this->wp_customize->controls()['custom_css_control']->cta_url );
 		$this->assertEquals( 'message', $this->wp_customize->controls()['custom_css_control']->nudge_copy );
 	}
-
 }

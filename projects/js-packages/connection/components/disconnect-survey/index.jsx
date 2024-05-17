@@ -1,14 +1,7 @@
-/**
- * External Dependencies
- */
-import React, { useCallback, useState } from 'react';
-import PropTypes from 'prop-types';
-
-/**
- * Internal Dependencies
- */
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
+import React, { useCallback, useState } from 'react';
 import SurveyChoice from './survey-choice';
 
 /**
@@ -136,6 +129,7 @@ const DisconnectSurvey = props => {
 		return (
 			<SurveyChoice
 				id={ customOption.id }
+				key={ customOption.id }
 				onClick={ setSelectedAnswer }
 				onKeyDown={ handleAnswerKeyDown }
 				className={ 'card jp-connect__disconnect-survey-card ' + selectedClass( customOption.id ) }

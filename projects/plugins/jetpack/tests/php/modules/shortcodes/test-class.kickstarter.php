@@ -11,7 +11,7 @@ class WP_Test_Jetpack_Shortcodes_Kickstarter extends WP_UnitTestCase {
 	 * @since  4.5.0
 	 */
 	public function test_shortcodes_kickstarter_exists() {
-		$this->assertEquals( shortcode_exists( 'kickstarter' ), true );
+		$this->assertTrue( shortcode_exists( 'kickstarter' ) );
 	}
 
 	/**
@@ -48,6 +48,7 @@ class WP_Test_Jetpack_Shortcodes_Kickstarter extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_kickstarter_image() {
 		$this->markTestSkipped();
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		$url     = 'https://www.kickstarter.com/projects/peaktoplateau/yak-wool-baselayers-from-tibet-to-the-world';
 		$content = "[kickstarter url='$url']";
 

@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-import { isEmpty, omit, pick, some } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import { createBlock } from '@wordpress/blocks';
+import { isEmpty, omit, pick, some } from 'lodash';
 
 const deprecatedAttributes = [
 	'submitButtonText',

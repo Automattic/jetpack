@@ -6,6 +6,7 @@ cd "$( dirname "${BASH_SOURCE[0]}" )/.."
 BASE="$PWD"
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
+. "$BASE/tools/includes/changelogger.sh"
 . "$BASE/tools/includes/alpha-tag.sh"
 
 # Print help and exit.
@@ -74,11 +75,7 @@ else
 	fi
 fi
 
-if [[ ! -e projects/packages/changelogger/vendor/autoload.php ]]; then
-	spin
-	debug "Executing composer update in projects/packages/changelogger"
-	(cd projects/packages/changelogger && composer update $($VERBOSE || echo "--quiet") )
-fi
+init_changelogger
 
 function err {
 	if [[ -n "$CI" ]]; then
@@ -95,28 +92,19 @@ for FILE in projects/*/*/composer.json; do
 	SLUG="${DIR#projects/}"
 	cd "$BASE/$DIR"
 
-	if [[ -x vendor/bin/changelogger ]]; then
-		CHANGELOGGER=vendor/bin/changelogger
-	elif jq -e '.["require"]["automattic/jetpack-changelogger"] // .["require-dev"]["automattic/jetpack-changelogger"] // false' composer.json > /dev/null; then
-		CHANGELOGGER="$BASE/projects/packages/changelogger/bin/changelogger"
-	else
-		debug "$SLUG does not use changelogger"
-		continue
-	fi
-
 	debug "Validating change entries for $SLUG"
-	if ! $CHANGELOGGER validate "${ARGS[@]}"; then
+	if ! changelogger validate "${ARGS[@]}"; then
 		EXIT=1
 		continue
 	fi
 
 	debug "Checking version numbers $SLUG"
 	CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
-	PRERELEASE=$(alpha_tag $CHANGELOGGER composer.json 0)
+	PRERELEASE=$(alpha_tag composer.json 0)
 	if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
-		VER=$($CHANGELOGGER version next --default-first-version --prerelease=$PRERELEASE) || { err "$VER"; EXIT=1; continue; }
+		VER=$(changelogger version next --default-first-version --prerelease=$PRERELEASE) || { err "$VER"; EXIT=1; continue; }
 	else
-		VER=$($CHANGELOGGER version current --default-first-version --prerelease=$PRERELEASE) || { err "$VER"; EXIT=1; continue; }
+		VER=$(changelogger version current --default-first-version --prerelease=$PRERELEASE) || { err "$VER"; EXIT=1; continue; }
 	fi
 	if ! $BASE/tools/project-version.sh "${ARGS2[@]}" $CHECK_OR_UPDATE "$VER" "$SLUG"; then
 		EXIT=1

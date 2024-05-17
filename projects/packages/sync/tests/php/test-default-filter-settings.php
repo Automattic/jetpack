@@ -90,5 +90,4 @@ class Test_Default_Filter_Settings extends TestCase {
 
 		$this->assertSame( $output, ( new Default_Filter_Settings() )->get_all_filters_default_settings() );
 	}
-
 }

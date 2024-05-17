@@ -6,4 +6,5 @@ node_modules      export-ignore
 /changelog/**     production-exclude
 /.eslintrc.cjs    production-exclude
 /.gitignore       production-exclude
-/.nycrc           production-exclude
+/jest.config.cjs  production-exclude
+/test/**          production-exclude

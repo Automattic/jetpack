@@ -16,12 +16,13 @@ add_action( 'init', function() {
 
 ### Conditionally loading licensing UI behind a feature flag
 
-To access the licensing UI at `/wp-admin/admin.php?page=my-jetpack#/add-license` do one of the following:
-
-- Set the `JETPACK_ENABLE_MY_JETPACK_LICENSE` constant to true: `define( 'JETPACK_ENABLE_MY_JETPACK_LICENSE', false );`
-- Add a filter on `jetpack_my_jetpack_should_enable_add_license_screen` and return true: `add_filter( 'jetpack_my_jetpack_should_enable_add_license_screen', '__return_true' );`
+To disable the licensing UI at `/wp-admin/admin.php?page=my-jetpack#/add-license`, add a filter on `jetpack_my_jetpack_should_enable_add_license_screen` and return false: `add_filter( 'jetpack_my_jetpack_should_enable_add_license_screen', '__return_false' );`
 
 That's all!
+
+## Using this package in your WordPress plugin
+
+If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.
 
 ## Security
 

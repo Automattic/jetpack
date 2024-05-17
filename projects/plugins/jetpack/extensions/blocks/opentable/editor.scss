@@ -9,8 +9,8 @@
 	display: inline-block;
 	position: relative;
 
-	&.is-style-wide,
-	&.is-placeholder {
+	& > .is-style-wide,
+	& > .is-placeholder {
 		display: block;
 	}
 
@@ -26,8 +26,13 @@
 
 		form {
 			flex-direction: row;
+			flex-wrap: nowrap;
 			@media screen and ( max-width: 479px ) {
 				display: block;
+			}
+
+			.components-form-token-field {
+				flex-grow: 1;
 			}
 
 			.components-form-token-field__label {
@@ -112,7 +117,7 @@
 		}
 	}
 
-	&.is-style-button {
+	& > .is-style-button {
 		&.has-no-margin {
 			iframe {
 				margin: -14px;
@@ -127,7 +132,7 @@
 		margin: 0;
 	}
 
-	.wp-block > &.is-style-wide {
+	&.wp-block > .is-style-wide {
 		&.alignright {
 			left: auto;
 			right: 0;

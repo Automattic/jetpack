@@ -181,8 +181,8 @@ class Terms extends Module {
 			$query .= ' WHERE ' . $where_sql;
 		}
 
-		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
-		$count = $wpdb->get_var( $query );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$count = (int) $wpdb->get_var( $query );
 
 		return (int) ceil( $count / self::ARRAY_CHUNK_SIZE );
 	}
@@ -310,5 +310,4 @@ class Terms extends Module {
 	public function expand_terms_for_relationship( $relationship ) {
 		return get_term_by( 'term_taxonomy_id', $relationship->term_taxonomy_id );
 	}
-
 }

@@ -4,12 +4,12 @@
 # like the one above, because poor OS X users will have the new bash at
 # /usr/local/bin/bash instead of /bin/bash like the rest of the world expects.
 
-if [[ -z "${BASH_VERSINFO}" || -z "${BASH_VERSINFO[0]}" || ${BASH_VERSINFO[0]} -lt 4 ]]; then
+if [[ -z "${BASH_VERSINFO}" || -z "${BASH_VERSINFO[0]}" || ${BASH_VERSINFO[0]} -lt 4 || ${BASH_VERSINFO[0]} -eq 4 && ${BASH_VERSINFO[1]} -lt 3 ]]; then
 	. "$(dirname "$BASH_SOURCE[0]")/chalk-lite.sh"
 
 	[[ "$BASH_VERSION" ]] && V=" You have $BASH_VERSION." || V=
 	error <<-EOM
-		This script requires Bash version >= 4.$V
+		This script requires Bash version >= 4.3.$V
 
 		If you're on Mac OS, you can install an updated version of bash with
 		  brew install bash

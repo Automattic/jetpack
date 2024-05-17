@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 
 /**
  * Register a VideoPress extension to replace the default Core Video block.
@@ -196,17 +197,6 @@ class VideoPress_Gutenberg {
 				'modules/videopress/js/gutenberg-video-upload.js'
 			),
 			array( 'wp-api-fetch', 'wp-polyfill', 'lodash' ),
-			JETPACK__VERSION,
-			false
-		);
-
-		wp_enqueue_script(
-			'jetpack-videopress-gutenberg-playback-jwt',
-			Assets::get_file_url_for_environment(
-				'modules/videopress/js/videopress-token-bridge.js',
-				'modules/videopress/js/videopress-token-bridge.js'
-			),
-			array(),
 			JETPACK__VERSION,
 			false
 		);

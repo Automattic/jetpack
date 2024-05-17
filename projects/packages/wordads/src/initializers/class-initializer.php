@@ -25,7 +25,7 @@ class Initializer {
 		/**
 		 * The filter allows abortion of the WordAds package initialization.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		 *
 		 * @param boolean $init_wordads_package Default value is true.
 		 */
@@ -66,7 +66,7 @@ class Initializer {
 		/**
 		 * Fires when the WordAds package has been initialized.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		 */
 		do_action( 'jetpack_wordads_loaded' );
 	}
@@ -88,6 +88,7 @@ class Initializer {
 	 */
 	protected static function init_cli() {
 		if ( defined( 'WP_CLI' ) && \WP_CLI ) {
+			// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- https://github.com/phan/phan/issues/4763
 			\WP_CLI::add_command( 'wordads', __NAMESPACE__ . '\CLI' );
 		}
 	}

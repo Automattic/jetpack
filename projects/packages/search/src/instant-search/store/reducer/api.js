@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { setDocumentCountsToZero } from '../../lib/api';
 
 let cachedAggregations = {};
@@ -92,6 +89,10 @@ export function response( state = {}, action ) {
 			}
 
 			return newState;
+		}
+		case 'RECORD_FAILED_SEARCH_REQUEST': {
+			state.error = action.error;
+			return state;
 		}
 	}
 

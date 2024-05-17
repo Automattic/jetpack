@@ -1,14 +1,7 @@
-/**
- * WordPress dependencies
- */
 import { InnerBlocks } from '@wordpress/block-editor';
-import { __ } from '@wordpress/i18n';
-import { withSelect } from '@wordpress/data';
 import { compose } from '@wordpress/compose';
-
-/**
- * Internal dependencies
- */
+import { withSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 import Context from '../_inc/context';
 import { usePremiumContentAllowedBlocks } from '../_inc/premium';
 
@@ -17,11 +10,10 @@ function Edit( { hasInnerBlocks } ) {
 
 	return (
 		<Context.Consumer>
-			{ ( { selectedTab, stripeNudge } ) => (
+			{ ( { selectedTab } ) => (
 				/** @see https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/no-static-element-interactions.md#case-the-event-handler-is-only-being-used-to-capture-bubbled-events */
 				// eslint-disable-next-line
 				<div hidden={ selectedTab.id === 'wall' } className={ selectedTab.className }>
-					{ stripeNudge }
 					<InnerBlocks
 						allowedBlocks={ allowedInnerBlocks }
 						renderAppender={ ! hasInnerBlocks && InnerBlocks.ButtonBlockAppender }

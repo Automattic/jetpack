@@ -1,0 +1,34 @@
+.settings {
+	border-top: 1px solid hsl( 0, 0%, 90% );
+	padding-top: 20px;
+}
+.beta {
+	background: var( --jp-green-5 );
+	color: var( --jp-green-60 );
+	padding: 2px 5px;
+	border-radius: 3px;
+	font-size: 0.8rem;
+	margin-left: 10px;
+	transform: translateY( -4.5px );
+	display: inline-block;
+}
+
+.tooltip-wrapper {
+	margin: 1em 0;
+}
+
+.tooltip-wrapper p {
+	display: inline;
+}
+
+@media (max-width: 768px) {
+	.tooltip-wrapper :global(.icon-tooltip-wrapper) {
+		display: block;
+		margin-left: 50%;
+		left: -12px;
+
+		:global(.icon-tooltip-container .components-popover__content) {
+			width: 70vw;
+		}
+	}
+}

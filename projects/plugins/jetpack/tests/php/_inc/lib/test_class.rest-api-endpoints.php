@@ -11,7 +11,11 @@ use Automattic\Jetpack\Status\Cache as StatusCache;
 
 require_once __DIR__ . '/../../../../modules/widgets/milestone.php';
 
+/**
+ * phpcs:disable PEAR.NamingConventions.ValidClassName.Invalid
+ */
 class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
+	// phpcs:enable PEAR.NamingConventions.ValidClassName.Invalid
 
 	/**
 	 * Used to store an instance of the WP_REST_Server.
@@ -80,7 +84,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * @return WP_User
 	 */
 	protected function create_and_get_user( $role = '' ) {
-		return $this->factory->user->create_and_get(
+		return self::factory()->user->create_and_get(
 			array(
 				'role' => empty( $role ) ? 'subscriber' : $role,
 			)
@@ -92,10 +96,10 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 *
 	 * @since 4.4.0
 	 *
-	 * @param string $route       REST API path to be append to /jetpack/v4/
-	 * @param array  $json_params When present, parameters are added to request in JSON format
-	 * @param string $method      Request method to use, GET or POST
-	 * @param array  $params      Parameters to add to endpoint
+	 * @param string $route       REST API path to be appended to /jetpack/v4/.
+	 * @param array  $json_params When present, parameters are added to request in JSON format.
+	 * @param string $method      Request method to use, GET or POST.
+	 * @param array  $params      Parameters to add to endpoint.
 	 *
 	 * @return WP_REST_Response
 	 */
@@ -301,7 +305,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// User has capability so this should work this time
 		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::disconnect_site_permission_callback() );
-
 	}
 
 	/**
@@ -340,7 +343,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// User has capability so this should work this time
 		$this->assertTrue( REST_Connector::activate_plugins_permission_check() );
-
 	}
 
 	/**
@@ -673,6 +675,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		wp_set_current_user( $user->ID );
 
 		// Mock site already registered
+		Jetpack_Options::update_option( 'blog_token', 'h0n3y.b4dg3r' );
 		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
 
 		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
@@ -704,7 +707,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// No way. Master user can't be unlinked. This is intended
 		$this->assertResponseStatus( 403, $response );
-
 	}
 
 	/** Test unlinking a user will also remove related cached data.
@@ -719,6 +721,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		wp_set_current_user( $user->ID );
 
 		// Mock site already registered.
+		Jetpack_Options::update_option( 'blog_token', 'h0n3y.b4dg3r' );
 		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
 		// Add a dummy transient.
 		$transient_key = "jetpack_connected_user_data_$user->ID";
@@ -879,7 +882,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$widget_instances[3] = array_merge(
 			$widget_instances[3],
 			array(
-				'year' => date( 'Y' ) + 1,
+				'year' => gmdate( 'Y' ) + 1,
 				'unit' => 'months',
 			)
 		);
@@ -952,7 +955,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		);
 
 		foreach ( wp_get_sidebars_widgets() as $sidebar ) {
-			$this->assertFalse( array_search( 'milestone_widget-3', $sidebar ) );
+			$this->assertFalse( array_search( 'milestone_widget-3', $sidebar, true ) );
 		}
 
 		$response = $this->create_and_get_request( 'widgets/milestone_widget-3', array(), 'GET' );

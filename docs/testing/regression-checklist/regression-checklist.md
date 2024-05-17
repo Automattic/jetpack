@@ -21,7 +21,7 @@ NOTE: it might become outdated, so it could be a good idea to generate this file
 
 ### PHP versions(Low)
 
-- 5.6 - current
+- 7.0 - current
 
 ### Hosting providers(High)
 
@@ -50,7 +50,7 @@ NOTE: it might become outdated, so it could be a good idea to generate this file
 
 ## Features
 
-- [ ] Publicize: Connect and share a post
+- [ ] Jetpack Social: Connect and share a post
 - [ ] SSO login
 - [ ] Stats registers views
 - [ ] Stats registers views in AMP views
@@ -88,6 +88,5 @@ Test using Core’s block editor and latest Gutenberg plugin.
 - [ ] Star rating
 - [ ] Recurring Payments
 - [ ] Repeat Visitor
-- [ ] Revue
 - [ ] Simple Payments
 - [ ] Slideshow

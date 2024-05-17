@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import GooglePhotosDisconnect from './google-photos-disconnect';
 
 const GooglePhotosAccount = ( { account, setAuthenticated } ) => {

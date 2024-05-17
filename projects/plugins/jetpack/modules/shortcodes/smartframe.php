@@ -55,7 +55,7 @@ function jetpack_shortcodereverse_smartframe( $content ) {
 
 		foreach ( $matches as $match ) {
 			// We need at least a script ID and an image ID.
-			if ( ! isset( $match[1], $match[2] ) ) {
+			if ( ! isset( $match[1] ) || ! isset( $match[2] ) ) {
 				continue;
 			}
 			$shortcode = sprintf(

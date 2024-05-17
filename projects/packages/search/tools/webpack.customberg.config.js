@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
-
-/**
- * Internal dependencies
- */
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const definePaletteColorsAsStaticVariables = require( './define-palette-colors-as-static-variables' );
 
 module.exports = {
 	mode: jetpackWebpackConfig.mode,
-	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
+	devtool: jetpackWebpackConfig.devtool,
 	entry: {
 		'jp-search-configure': path.join( __dirname, '../src/customberg/index.jsx' ),
 	},
@@ -29,12 +22,15 @@ module.exports = {
 			fs: false,
 			'instant-search': path.join( __dirname, '../src/instant-search' ),
 		},
-		modules: [ path.resolve( __dirname, '../src/customberg' ), 'node_modules' ],
+		modules: [
+			path.resolve( __dirname, '../src/customberg' ),
+			'node_modules',
+			path.resolve( __dirname, '../node_modules' ), // For core-js
+		],
 	},
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
 			DependencyExtractionPlugin: { injectPolyfill: true },
-			I18nLoaderPlugin: { textdomain: 'jetpack-search-pkg' },
 		} ),
 		definePaletteColorsAsStaticVariables(),
 	],

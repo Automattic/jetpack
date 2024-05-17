@@ -4,11 +4,13 @@
  *
  * @package automattic/jetpack
  * @since 4.7.0
+ *
+ * phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
 
-require_jetpack_file( 'modules/sitemaps/sitemap-constants.php' );
-require_jetpack_file( 'modules/sitemaps/sitemap-buffer.php' );
-require_jetpack_file( 'modules/sitemaps/sitemap-buffer-fallback.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-constants.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-buffer.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-buffer-fallback.php';
 
 /**
  * Test class for Jetpack_Sitemap_Buffer.
@@ -45,11 +47,11 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 		$buffer->append( 'foo' );
 		$buffer->append( 'bar' );
 		$this->assertEquals(
-			$buffer->contents(),
 			'<?xml version="1.0" encoding="UTF-8"?>'
 			. PHP_EOL
 			. '<dummy>foobar</dummy>'
-			. PHP_EOL
+			. PHP_EOL,
+			$buffer->contents()
 		);
 	}
 
@@ -79,11 +81,11 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 		$buffer->append( 'foo' );
 		$buffer->append( 'bar' );
 		$this->assertEquals(
-			$buffer->contents(),
 			'<?xml version="1.0" encoding="UTF-8"?>'
 			. PHP_EOL
 			. '<dummy>foo</dummy>'
-			. PHP_EOL
+			. PHP_EOL,
+			$buffer->contents()
 		);
 	}
 
@@ -99,11 +101,11 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 		$buffer->append( 'foobarbazxyzzy' );
 		$buffer->append( 'quux' );
 		$this->assertEquals(
-			$buffer->contents(),
 			'<?xml version="1.0" encoding="UTF-8"?>'
 			. PHP_EOL
 			. '<dummy>foobarbazxyzzy</dummy>'
-			. PHP_EOL
+			. PHP_EOL,
+			$buffer->contents()
 		);
 	}
 
@@ -119,11 +121,11 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 		$buffer->append( 'foobarbazquux' );
 		$buffer->append( 'crunchly' );
 		$this->assertEquals(
-			$buffer->contents(),
 			'<?xml version="1.0" encoding="UTF-8"?>'
 			. PHP_EOL
 			. '<dummy>foobarbazquux</dummy>'
-			. PHP_EOL
+			. PHP_EOL,
+			$buffer->contents()
 		);
 	}
 
@@ -207,7 +209,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 * @since 5.1.0
 	 */
 	public function test_news_sitemap_item_to_xml() {
-		$timestamp = date( 'r' );
+		$timestamp = gmdate( 'r' );
 		$array     = array(
 			'url' => array(
 				'loc'       => 'http://example.com/blog-url-about-stuff',
@@ -225,19 +227,19 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 		);
 
 		$xml = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL
-			 . '<dummy>'
-			 . '<url><loc>http://example.com/blog-url-about-stuff</loc>'
-			 . "<lastmod>$timestamp</lastmod>"
-			 . '<news:news>'
-			 . '<news:publication>'
-			 . '<news:name>Blog about stuff</news:name>'
-			 . '<news:language>en</news:language>'
-			 . '</news:publication>'
-			 . '<news:title>Stuff with stuff to escape, like less than signs: &lt; and ampersands: &amp;</news:title>'
-			 . "<news:publication_date>$timestamp</news:publication_date>"
-			 . '<news:genres>Blog with some already escaped stuff: &amp;amp;&amp;#321;</news:genres>'
-			 . '</news:news>'
-			 . '</url></dummy>' . PHP_EOL;
+		. '<dummy>'
+		. '<url><loc>http://example.com/blog-url-about-stuff</loc>'
+		. "<lastmod>$timestamp</lastmod>"
+		. '<news:news>'
+		. '<news:publication>'
+		. '<news:name>Blog about stuff</news:name>'
+		. '<news:language>en</news:language>'
+		. '</news:publication>'
+		. '<news:title>Stuff with stuff to escape, like less than signs: &lt; and ampersands: &amp;</news:title>'
+		. "<news:publication_date>$timestamp</news:publication_date>"
+		. '<news:genres>Blog with some already escaped stuff: &amp;amp;&amp;#321;</news:genres>'
+		. '</news:news>'
+		. '</url></dummy>' . PHP_EOL;
 
 		foreach (
 			array(

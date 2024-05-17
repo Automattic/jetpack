@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import { get, pickBy, startsWith, flatten, map, keys, values } from 'lodash';
 

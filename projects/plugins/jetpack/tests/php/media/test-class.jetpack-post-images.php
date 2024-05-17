@@ -1,6 +1,6 @@
 <?php
 
-require_jetpack_file( 'modules/shortcodes/slideshow.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/shortcodes/slideshow.php';
 
 class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
@@ -16,8 +16,10 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$result = Jetpack_PostImages::from_html( $s );
 
 		$this->assertIsArray( $result );
-		$this->assertFalse( empty( $result ) );
+		$this->assertNotEmpty( $result );
 		$this->assertEquals( 'Alt Text.', $result[0]['alt_text'] );
+		$this->assertEquals( 200, $result[0]['src_width'] );
+		$this->assertEquals( 200, $result[0]['src_height'] );
 	}
 
 	/**
@@ -32,8 +34,39 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$result = Jetpack_PostImages::from_html( $s );
 
 		$this->assertIsArray( $result );
-		$this->assertFalse( empty( $result ) );
+		$this->assertNotEmpty( $result );
 		$this->assertEquals( 'Alt Text.', $result[0]['alt_text'] );
+		$this->assertEquals( 200, $result[0]['src_width'] );
+		$this->assertEquals( 200, $result[0]['src_height'] );
+	}
+
+	/**
+	 * Test image size extract in src filename
+	 *
+	 * @covers Jetpack_PostImages::from_html
+	 */
+	public function test_from_html_size() {
+		$s = "<img src='img-2300x1300.jpg' />";
+
+		$result = Jetpack_PostImages::from_html( $s );
+
+		$this->assertIsArray( $result );
+		$this->assertNotEmpty( $result );
+		$this->assertEquals( 2300, $result[0]['src_width'] );
+		$this->assertEquals( 1300, $result[0]['src_height'] );
+	}
+
+	/**
+	 * Test ignoring unrealistic image sizes from src filename
+	 *
+	 * @covers Jetpack_PostImages::from_html
+	 */
+	public function test_from_html_no_size() {
+		$s = "<img src='img-851958915511220x220.jpg' />";
+
+		$result = Jetpack_PostImages::from_html( $s );
+
+		$this->assertEquals( array(), $result );
 	}
 
 	/**
@@ -42,9 +75,9 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_from_slideshow_is_array() {
-		$slideshow = new Jetpack_Slideshow_Shortcode();
+		$slideshow = new Jetpack_Slideshow_Shortcode(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_content' => '[slideshow]',
 			)
@@ -56,20 +89,98 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Create a post with a gallery shortcode containing a few images attached to the post.
+	 *
+	 * @since 13.2.0
+	 *
+	 * @return array $post_info {
+	 * An array of information about our post.
+	 *  @type int   $post_id  Post ID.
+	 *  @type array $img_urls Image URLs we'll look to extract.
+	 * }
+	 */
+	protected function get_post_with_gallery_shortcode() {
+		$img_urls       = array(
+			'image.jpg'  => 'http://' . WP_TESTS_DOMAIN . '/wp-content/uploads/image.jpg',
+			'image2.jpg' => 'http://' . WP_TESTS_DOMAIN . '/wp-content/uploads/image2.jpg',
+		);
+		$img_dimensions = array(
+			'width'  => 300,
+			'height' => 250,
+		);
+		$alt_text       = 'An image in a gallery shortcode';
+
+		// Create post.
+		$post_id = self::factory()->post->create();
+		// Attach images.
+		foreach ( $img_urls as $img_name => $img_url ) {
+			$attachment_id = self::factory()->attachment->create_object(
+				$img_name,
+				$post_id,
+				array(
+					'post_mime_type' => 'image/jpeg',
+					'post_type'      => 'attachment',
+				)
+			);
+			wp_update_attachment_metadata( $attachment_id, $img_dimensions );
+			update_post_meta( $attachment_id, '_wp_attachment_image_alt', $alt_text );
+
+			// Update our array to store attachment IDs. We'll need them later.
+			$img_urls[ $attachment_id ] = wp_get_attachment_url( $attachment_id );
+			unset( $img_urls[ $img_name ] );
+		}
+
+		// Gallery markup.
+		$gallery_html = sprintf(
+			'[gallery ids="%s"]',
+			implode( ',', array_keys( $img_urls ) )
+		);
+		wp_update_post(
+			array(
+				'ID'           => $post_id,
+				'post_content' => $gallery_html,
+			)
+		);
+
+		return array(
+			'post_id'  => $post_id,
+			'img_urls' => array_values( $img_urls ),
+		);
+	}
+
+	/**
 	 * @author scotchfield
 	 * @covers Jetpack_PostImages::from_gallery
 	 * @since 3.2
 	 */
 	public function test_from_gallery_is_array() {
-		$post_id = $this->factory->post->create(
-			array(
-				'post_content' => '[gallery 1,2,3]',
-			)
-		);
+		$post_info = $this->get_post_with_gallery_shortcode();
 
-		$images = Jetpack_PostImages::from_gallery( $post_id );
+		$images = Jetpack_PostImages::from_gallery( $post_info['post_id'] );
 
 		$this->assertIsArray( $images );
+	}
+
+	/**
+	 * @author robfelty
+	 * @covers Jetpack_PostImages::from_gallery
+	 * @since 13.2
+	 */
+	public function test_from_gallery_is_correct_array() {
+		$post_info = $this->get_post_with_gallery_shortcode();
+
+		$images   = Jetpack_PostImages::from_gallery( $post_info['post_id'] );
+		$alt_text = 'An image in a gallery shortcode';
+
+		$this->assertIsArray( $images );
+		$this->assertCount( 2, $images );
+		$this->assertEquals( $post_info['img_urls'][0], $images[0]['src'] );
+		$this->assertEquals( 300, $images[0]['src_width'] );
+		$this->assertEquals( 250, $images[0]['src_height'] );
+		$this->assertEquals( $alt_text, $images[0]['alt_text'] );
+		$this->assertEquals( $post_info['img_urls'][1], $images[1]['src'] );
+		$this->assertEquals( 300, $images[1]['src_width'] );
+		$this->assertEquals( 250, $images[1]['src_height'] );
 	}
 
 	/**
@@ -82,12 +193,12 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$img_name       = 'image.jpg';
 		$alt_text       = 'Alt Text.';
 		$img_dimensions = array(
-			'width'  => 250,
+			'width'  => 300,
 			'height' => 250,
 		);
 
-		$post_id       = $this->factory->post->create();
-		$attachment_id = $this->factory->attachment->create_object(
+		$post_id       = self::factory()->post->create();
+		$attachment_id = self::factory()->attachment->create_object(
 			$img_name,
 			$post_id,
 			array(
@@ -99,7 +210,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		update_post_meta( $attachment_id, '_wp_attachment_image_alt', $alt_text );
 
 		$img_url  = wp_get_attachment_url( $attachment_id );
-		$img_html = '<img src="' . $img_url . '" width="250" height="250" alt="' . $alt_text . '"/>';
+		$img_html = '<img src="' . $img_url . '" width="300" height="250" alt="' . $alt_text . '"/>';
 
 		wp_update_post(
 			array(
@@ -112,6 +223,54 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 		$this->assertCount( 1, $images );
 		$this->assertEquals( $img_url, $images[0]['src'] );
+		$this->assertEquals( 300, $images[0]['src_width'] );
+		$this->assertEquals( 250, $images[0]['src_height'] );
+		$this->assertEquals( $alt_text, $images[0]['alt_text'] );
+	}
+
+	/**
+	 * @author robfelty
+	 * @covers Jetpack_PostImages::from_attachment
+	 * @since 13.2
+	 */
+	public function test_from_attachment_without_meta_is_correct_array() {
+		$img_name = 'image-250x200.jpg';
+		$alt_text = '250 x 200 image.';
+
+		$post_id       = self::factory()->post->create();
+		$attachment_id = self::factory()->attachment->create_object(
+			$img_name,
+			$post_id,
+			array(
+				'post_mime_type' => 'image/jpeg',
+				'post_type'      => 'attachment',
+			)
+		);
+		$img_meta      = array(
+			'width'  => 1024,
+			'height' => 768,
+		);
+		wp_update_attachment_metadata( $attachment_id, $img_meta );
+		update_post_meta( $attachment_id, '_wp_attachment_image_alt', $alt_text );
+
+		$img_url  = wp_get_attachment_url( $attachment_id );
+		$img_html = '<img src="' . $img_url . '" alt="' . $alt_text . '"/>';
+
+		wp_update_post(
+			array(
+				'ID'           => $post_id,
+				'post_content' => $img_html,
+			)
+		);
+
+		add_filter( 'jetpack_postimages_ignore_minimum_dimensions', '__return_true', 66 );
+		$images = Jetpack_PostImages::from_html( $post_id );
+		remove_filter( 'jetpack_postimages_ignore_minimum_dimensions', '__return_true', 66 );
+
+		$this->assertCount( 1, $images );
+		$this->assertEquals( $img_url, $images[0]['src'] );
+		$this->assertEquals( 250, $images[0]['src_width'] );
+		$this->assertEquals( 200, $images[0]['src_height'] );
 		$this->assertEquals( $alt_text, $images[0]['alt_text'] );
 	}
 
@@ -130,12 +289,12 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$img_name       = 'image.jpg';
 		$alt_text       = 'Alt Text.';
 		$img_dimensions = array(
-			'width'  => 250,
+			'width'  => 300,
 			'height' => 250,
 		);
 
-		$post_id       = $this->factory->post->create();
-		$attachment_id = $this->factory->attachment->create_object(
+		$post_id       = self::factory()->post->create();
+		$attachment_id = self::factory()->attachment->create_object(
 			$img_name,
 			$post_id,
 			array(
@@ -155,7 +314,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 			$attachment_id
 		);
 
-		$second_post_id = $this->factory->post->create(
+		$second_post_id = self::factory()->post->create(
 			array(
 				'post_content' => $post_html,
 			)
@@ -177,14 +336,14 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	public function test_from_image_block_from_post_id_is_array() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		$post_info = $this->get_post_with_image_block();
 
 		$images = Jetpack_PostImages::from_blocks( $post_info['post_id'] );
 
-		$this->assertEquals( count( $images ), 1 );
+		$this->assertCount( 1, $images );
 	}
 
 	/**
@@ -196,7 +355,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	public function test_from_image_block_from_post_id_is_correct_array() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		$post_info = $this->get_post_with_image_block();
@@ -205,6 +364,8 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 		$this->assertEquals( $post_info['img_url'], $images[0]['src'] );
 		$this->assertEquals( $post_info['alt_text'], $images[0]['alt_text'] );
+		$this->assertEquals( 300, $images[0]['src_width'] );
+		$this->assertEquals( 250, $images[0]['src_height'] );
 	}
 
 	/**
@@ -216,7 +377,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	public function test_from_image_block_from_html_is_empty_array() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		$html = '<!-- wp:image --><div class="wp-block-image"><figure class="wp-block-image"><img src="https://example.com/image.jpg" alt=""/></figure></div><!-- /wp:image -->';
@@ -243,15 +404,15 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 			'image2.jpg' => 'http://' . WP_TESTS_DOMAIN . '/wp-content/uploads/image2.jpg',
 		);
 		$img_dimensions = array(
-			'width'  => 250,
+			'width'  => 300,
 			'height' => 250,
 		);
 
 		// Create post.
-		$post_id = $this->factory->post->create();
+		$post_id = self::factory()->post->create();
 		// Attach images.
 		foreach ( $img_urls as $img_name => $img_url ) {
-			$attachment_id = $this->factory->attachment->create_object(
+			$attachment_id = self::factory()->attachment->create_object(
 				$img_name,
 				$post_id,
 				array(
@@ -281,7 +442,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$gallery_html .= '</ul><!-- /wp:gallery -->';
 
 		// Create another post with those pictures.
-		$second_post_id = $this->factory->post->create(
+		$second_post_id = self::factory()->post->create(
 			array(
 				'post_content' => $gallery_html,
 			)
@@ -302,7 +463,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	public function test_from_gallery_block_from_post_id_is_correct_array() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		$post_info = $this->get_post_with_gallery_block();
@@ -311,6 +472,8 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 		$this->assertEquals( $images[0]['src'], $post_info['img_urls'][0] );
 		$this->assertEquals( $images[1]['src'], $post_info['img_urls'][1] );
+		$this->assertEquals( 300, $images[0]['src_width'] );
+		$this->assertEquals( 250, $images[0]['src_height'] );
 	}
 
 	/**
@@ -346,12 +509,12 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$img_name       = 'image.jpg';
 		$alt_text       = 'Alt Text.';
 		$img_dimensions = array(
-			'width'  => 250,
+			'width'  => 300,
 			'height' => 250,
 		);
 
-		$post_id       = $this->factory->post->create();
-		$attachment_id = $this->factory->attachment->create_object(
+		$post_id       = self::factory()->post->create();
+		$attachment_id = self::factory()->attachment->create_object(
 			$img_name,
 			$post_id,
 			array(
@@ -371,7 +534,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 			$attachment_id
 		);
 
-		$second_post_id = $this->factory->post->create(
+		$second_post_id = self::factory()->post->create(
 			array(
 				'post_content' => $post_html,
 			)
@@ -394,14 +557,14 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	public function test_from_columns_block_from_post_id_is_array() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		$post_info = $this->get_post_with_columns_block();
 
 		$images = Jetpack_PostImages::from_blocks( $post_info['post_id'] );
 
-		$this->assertEquals( count( $images ), 1 );
+		$this->assertCount( 1, $images );
 	}
 
 	/**
@@ -414,7 +577,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	public function test_from_columns_block_from_post_id_is_correct_array() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		$post_info = $this->get_post_with_columns_block();
@@ -423,6 +586,8 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 		$this->assertEquals( $post_info['img_url'], $images[0]['src'] );
 		$this->assertEquals( $post_info['alt_text'], $images[0]['alt_text'] );
+		$this->assertEquals( 300, $images[0]['src_width'] );
+		$this->assertEquals( 250, $images[0]['src_height'] );
 	}
 
 	/**
@@ -434,7 +599,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	public function test_from_columns_block_from_html_is_empty_array() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		$html = '<!-- wp:columns --><div class="wp-block-columns has-2-columns"><!-- wp:column --><div class="wp-block-column"><!-- wp:image --><figure class="wp-block-image"><img src="https://example.com/image.jpg" alt=""/></figure><!-- /wp:image --></div><!-- /wp:column --><!-- wp:column --><div class="wp-block-column"><!-- wp:paragraph --><p>Some text</p><!-- /wp:paragraph --></div><!-- /wp:column --></div><!-- /wp:columns -->';
@@ -485,10 +650,10 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 			'height' => 1920,
 		);
 
-		$post_id = $this->factory->post->create();
+		$post_id = self::factory()->post->create();
 
 		foreach ( $media_items as $key => $media ) {
-			$attachment_id = $this->factory->attachment->create_object(
+			$attachment_id = self::factory()->attachment->create_object(
 				$media['name'],
 				$post_id,
 				array(
@@ -539,7 +704,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$story_html .= ']} --><div class="wp-block-jetpack-story wp-story"></div><!-- /wp:jetpack/story -->';
 
 		// Create another post with that story.
-		$second_post_id = $this->factory->post->create( array( 'post_content' => $story_html ) );
+		$second_post_id = self::factory()->post->create( array( 'post_content' => $story_html ) );
 
 		$image_urls = array_map(
 			function ( $element ) {
@@ -563,7 +728,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	public function test_from_story_block_from_post_id_is_correct_array_no_videopress() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		$media_types = array( 'image', 'video' );
@@ -589,7 +754,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	public function test_from_story_block_from_post_id_is_correct_array_videopress() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		$media_types = array( 'image', 'videopress' );
@@ -617,7 +782,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	public function test_from_story_block_from_post_id_is_correct_array_videopress_wpcom() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		$media_types = array( 'image', 'videopress' );
@@ -632,5 +797,59 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		// The second media is a VideoPress video, so expect a poster URL.
 		$expected_poster_url = str_replace( 'mp4', 'jpg', $post_info['img_urls'][1] );
 		$this->assertEquals( $expected_poster_url, $images[1]['src'] );
+	}
+
+	/**
+	 * Test if the array extracted is empty in case post_id is invalid.
+	 *
+	 * @covers Jetpack_PostImages::from_gravatar
+	 * @dataProvider provider_gravatar_invalid_posts
+	 *
+	 * @since 11.4
+	 *
+	 * @param int|string|null $post_id  The post ID.
+	 */
+	public function test_from_gravatar_invalid( $post_id ) {
+		$image_details = Jetpack_PostImages::from_gravatar( $post_id );
+		$this->assertEquals( array(), $image_details );
+	}
+
+	/**
+	 * Test data for our tests for Jetpack_PostImages::from_gravatar.
+	 *
+	 * @return array
+	 */
+	public function provider_gravatar_invalid_posts() {
+
+		return array(
+			'invalid (null) post id'                  => array(
+				null,
+			),
+			'post id does not match an existing post' => array(
+				5,
+			),
+		);
+	}
+
+	/**
+	 * Test if the array extracted has a valid image when sending a valid post.
+	 *
+	 * @covers Jetpack_PostImages::from_gravatar
+	 * @since 11.4
+	 */
+	public function test_from_gravatar_returns_valid_image() {
+
+		$post_id = self::factory()->post->create();
+
+		$images = Jetpack_PostImages::from_gravatar( $post_id );
+
+		$this->assertCount( 1, $images );
+		$this->assertEquals( 'image', $images[0]['type'] );
+		$this->assertEquals( 'gravatar', $images[0]['from'] );
+		$this->assertStringContainsString( 'gravatar.com/avatar/?s=96&d=mm&r=g', $images[0]['src'] );
+		$this->assertEquals( 96, $images[0]['src_width'] );
+		$this->assertEquals( 96, $images[0]['src_height'] );
+		$this->assertNotEmpty( $images[0]['href'] );
+		$this->assertSame( '', $images[0]['alt_text'] );
 	}
 } // end class

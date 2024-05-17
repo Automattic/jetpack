@@ -6,7 +6,6 @@
  */
 
 use Automattic\Jetpack\Assets\Logo;
-
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -27,5 +26,4 @@ class Test_Logo extends TestCase {
 		$this->assertEquals( 2, preg_match_all( '/class="jetpack-logo__icon-triangle"/', $logo_render ) );
 		$this->assertStringContainsString( 'class="jetpack-logo__text"', $logo_render );
 	}
-
 }

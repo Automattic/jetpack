@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * The VersionSelectorTest class file.
  *
@@ -14,6 +14,13 @@ use PHPUnit\Framework\TestCase;
  * Provides unit tests for the methods in the Version_Selector class.
  */
 class VersionSelectorTest extends TestCase {
+
+	/**
+	 * The Version_Selector instance.
+	 *
+	 * @var Version_Selector
+	 */
+	private $version_selector;
 
 	/**
 	 * This is called before each test.

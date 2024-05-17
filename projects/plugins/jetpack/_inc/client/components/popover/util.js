@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import getBoundingClientRect from 'bounding-client-rect';
 import debugFactory from 'debug';
 

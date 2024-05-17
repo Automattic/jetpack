@@ -1,0 +1,22 @@
+[
+	{
+		"clientId": "_clientId_0",
+		"name": "jetpack/top-posts",
+		"isValid": true,
+		"attributes": {
+			"layout": "grid",
+			"displayAuthor": true,
+			"displayDate": true,
+			"displayThumbnail": true,
+			"displayContext": false,
+			"period": "7",
+			"postsToShow": 3,
+			"postTypes": {
+				"post": true,
+				"page": false
+			}
+		},
+		"innerBlocks": [],
+		"originalContent": ""
+	}
+]

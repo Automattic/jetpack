@@ -1,0 +1,67 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/related-posts",
+	"title": "Related Posts",
+	"description": "Display a list of related posts.",
+	"keywords": [ "similar content", "linked", "connected" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "embed",
+	"icon": "<svg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><path d='m19.5,3.5H3.5v4.94s.01,6,.01,6v4s-.01,0-.01,0v1h15.97v-.06h.05l-.02-15.88Zm-11,1v3.94s-3.99,0-3.99,0v-3.94s3.99,0,3.99,0Zm.01,4.94v4h-4v-4h4Zm-3.99,9v-4s3.99,0,3.99,0v4s-3.99,0-3.99,0Zm13.98-13.94v3.94s-8.99,0-8.99,0v-3.94s8.99,0,8.99,0Zm.01,4.94v4h-9v-4h9Zm-8.99,9v-4s8.99,0,8.99,0v4s-8.99,0-8.99,0Z'/></svg>",
+	"supports": {
+		"html": false,
+		"multiple": false,
+		"reusable": false,
+		"color": {
+			"gradients": true,
+			"link": true
+		},
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"typography": {
+			"__experimentalFontFamily": true,
+			"fontSize": true,
+			"lineHeight": true
+		},
+		"align": [ "wide", "full" ]
+	},
+	"attributes": {
+		"postLayout": {
+			"type": "string",
+			"default": "grid"
+		},
+		"displayAuthor": {
+			"type": "boolean",
+			"default": false
+		},
+		"displayDate": {
+			"type": "boolean",
+			"default": true
+		},
+		"displayThumbnails": {
+			"type": "boolean",
+			"default": false
+		},
+		"displayContext": {
+			"type": "boolean",
+			"default": false
+		},
+		"postsToShow": {
+			"type": "number",
+			"default": 3
+		}
+	},
+	"example": {
+		"attributes": {
+			"postLayout": "grid",
+			"displayAuthor": false,
+			"displayDate": true,
+			"displayThumbnails": true,
+			"displayContext": false,
+			"postsToShow": 2
+		}
+	}
+}

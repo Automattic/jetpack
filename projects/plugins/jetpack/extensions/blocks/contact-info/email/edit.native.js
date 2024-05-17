@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import save from './save';
 import CommonChildEdit from '../common';
+import save from './save';
 
 const EmailEdit = props => (
 	<CommonChildEdit

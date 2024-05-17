@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { Buffer } from 'buffer';
 import * as stream from 'stream';
 

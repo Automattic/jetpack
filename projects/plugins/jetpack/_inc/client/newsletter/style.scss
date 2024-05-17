@@ -1,0 +1,56 @@
+@keyframes categories-slide-down {
+	0% {
+		overflow: hidden;
+	}
+	99% {
+		overflow: hidden;
+	}
+	100% {
+		overflow: unset;
+	}
+}
+
+@keyframes categories-slide-up {
+	0% {
+		overflow: unset;
+	}
+	1% {
+		overflow: hidden;
+	}
+	100% {
+		overflow: hidden;
+	}
+}
+  
+.newsletter-colapsable {
+	grid-template-rows: 1fr;
+	transition: grid-template-rows 500ms;
+	display: grid;
+	position: relative;
+	.tree-dropdown {
+		animation: categories-slide-down 500ms;
+		overflow: unset;
+	}
+	&.hide {
+		.tree-dropdown {
+			animation: categories-slide-up 500ms;
+			overflow: hidden;
+		}
+		grid-template-rows: 0fr;
+    }
+}
+
+.newsletter-card-colapsable {
+    transition: max-height 500ms;
+    max-height: 60px;
+        
+    &.hide {
+        max-height: 0px;
+        overflow: hidden;
+    }
+}
+
+.newsletter-categories-toggle-wrapper {
+	display: flex;
+	margin-bottom: 16px;
+}

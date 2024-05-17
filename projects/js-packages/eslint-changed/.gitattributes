@@ -1,5 +1,5 @@
 /changelog/**    production-exclude
+/.eslintrc.cjs   production-exclude
 /.gitattributes  production-exclude
 /.gitignore      production-exclude
-/.nycrc          production-exclude
 /tests/**        production-exclude

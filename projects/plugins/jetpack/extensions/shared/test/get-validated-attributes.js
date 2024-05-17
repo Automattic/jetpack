@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import colorValidator from '../colorValidator';
 import { getValidatedAttributes } from '../get-validated-attributes';
 

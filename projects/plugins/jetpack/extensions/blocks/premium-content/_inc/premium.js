@@ -1,13 +1,6 @@
-/**
- * WordPress dependencies
- */
-import { select, useSelect } from '@wordpress/data';
 import { store as blocksStore } from '@wordpress/blocks';
-
-/**
- * Internal dependencies
- */
-import { name } from '../index';
+import { select, useSelect } from '@wordpress/data';
+import metadata from '../block.json';
 
 export const blockContainsPremiumBlock = block => {
 	if ( block.name.indexOf( 'premium-content/' ) === 0 ) {
@@ -27,7 +20,7 @@ export function usePremiumContentAllowedBlocks() {
 	const blockTypes = useSelect( selector => selector( blocksStore ).getBlockTypes(), [] );
 
 	return blockTypes.reduce( ( allowedBlocks, block ) => {
-		if ( block.name !== name ) {
+		if ( block.name !== metadata.name ) {
 			allowedBlocks.push( block.name );
 		}
 		return allowedBlocks;

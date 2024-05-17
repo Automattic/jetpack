@@ -1,10 +1,7 @@
-/**
- * Internal dependencies
- */
-const debug = require( '../../debug' );
-const getAssociatedPullRequest = require( '../../get-associated-pull-request' );
-const getNextValidMilestone = require( '../../get-next-valid-milestone' );
-const getPluginNames = require( '../../get-plugin-names' );
+const debug = require( '../../utils/debug' );
+const getAssociatedPullRequest = require( '../../utils/get-associated-pull-request' );
+const getNextValidMilestone = require( '../../utils/get-next-valid-milestone' );
+const getPluginNames = require( '../../utils/get-plugin-names' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -19,9 +16,9 @@ async function addMilestone( payload, octokit ) {
 	const { name: repo, owner } = repository;
 	const ownerLogin = owner.login;
 
-	// We should not get to that point as the action is triggered on pushes to master, but...
-	if ( ref !== 'refs/heads/master' ) {
-		debug( 'add-milestone: Commit is not to `master`. Aborting' );
+	// We should not get to that point as the action is triggered on pushes to trunk, but...
+	if ( ref !== 'refs/heads/trunk' ) {
+		debug( 'add-milestone: Commit is not to `trunk`. Aborting' );
 		return;
 	}
 

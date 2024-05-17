@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { getPath } from '@wordpress/url';
-
-/**
- * Internal dependencies
- */
-import { URL_REGEX } from '.';
+import { URL_REGEX } from './constants';
 
 /**
  * Determines the Pinterest embed type from the URL.

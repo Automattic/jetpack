@@ -16,9 +16,7 @@
  * Require the VideoPress files.
  */
 require_once __DIR__ . '/videopress/shortcode.php';
-require_once __DIR__ . '/videopress/class.videopress-options.php';
 require_once __DIR__ . '/videopress/class.videopress-scheduler.php';
-require_once __DIR__ . '/videopress/class.videopress-xmlrpc.php';
 require_once __DIR__ . '/videopress/class.videopress-cli.php';
 require_once __DIR__ . '/videopress/class.jetpack-videopress.php';
 
@@ -27,5 +25,4 @@ require_once __DIR__ . '/videopress/class-videopress-attachment-metadata.php';
 if ( is_admin() ) {
 	include_once __DIR__ . '/videopress/editor-media-view.php';
 	include_once __DIR__ . '/videopress/class.videopress-edit-attachment.php';
-	include_once __DIR__ . '/videopress/class.videopress-ajax.php';
 }

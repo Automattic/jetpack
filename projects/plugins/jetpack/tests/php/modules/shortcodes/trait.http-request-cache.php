@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 /**
  * Trait to cache HTTP requests for unit tests.
  *
@@ -8,17 +8,24 @@
 namespace Automattic\Jetpack\Tests;
 
 use ReflectionClass;
-use Requests_Utility_CaseInsensitiveDictionary;
 use UnexpectedValueException;
+use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
 
 /**
  * Trait to cache HTTP requests for unit tests.
  *
  * The trait can be used in two ways. By default, it reads the cache file.
- * If you create a static property `$update_cache` set to true, it will instead
+ * If you set the static property `$update_cache` to true, it will instead
  * write to the cache file.
  */
 trait HttpRequestCacheTrait {
+
+	/**
+	 * Whether to update the cache instead of reading it.
+	 *
+	 * @var bool
+	 */
+	protected static $update_cache = false;
 
 	/**
 	 * Cache array.
@@ -35,6 +42,16 @@ trait HttpRequestCacheTrait {
 	protected static $request_args = array( 'method', 'body' );
 
 	/**
+	 * From WP_UnitTestCase_Base.
+	 *
+	 * @var array
+	 */
+	protected static $hooks_saved = array();
+
+	/** From WP_UnitTestCase_Base. */
+	abstract protected function _backup_hooks(); // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+
+	/**
 	 * Determine the cache filename.
 	 *
 	 * @return string
@@ -42,7 +59,7 @@ trait HttpRequestCacheTrait {
 	private static function get_http_request_cache_filename() {
 		$rc       = new ReflectionClass( static::class );
 		$filename = $rc->getFileName();
-		if ( substr( $filename, -4 ) === '.php' ) {
+		if ( str_ends_with( $filename, '.php' ) ) {
 			$filename = substr( $filename, 0, -4 );
 		}
 		return $filename . '-HttpRequestCache.json';
@@ -54,10 +71,9 @@ trait HttpRequestCacheTrait {
 	 * @beforeClass
 	 */
 	public static function setup_http_request_cache_before_class() {
-		if ( empty( static::$update_cache ) ) {
+		if ( ! static::$update_cache ) {
 			$filename = self::get_http_request_cache_filename();
 			if ( file_exists( $filename ) ) {
-				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 				static::$request_cache = (array) json_decode( file_get_contents( $filename ), true );
 			}
 		}
@@ -69,13 +85,11 @@ trait HttpRequestCacheTrait {
 	 * @afterClass
 	 */
 	public static function teardown_http_request_cache_after_class() {
-		if ( ! empty( static::$update_cache ) ) {
+		if ( static::$update_cache ) {
 			$filename = self::get_http_request_cache_filename();
 			if ( array() !== static::$request_cache ) {
-				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
 				file_put_contents(
 					$filename,
-					// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 					json_encode( static::$request_cache, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
 				);
 			} elseif ( file_exists( $filename ) ) {
@@ -97,7 +111,7 @@ trait HttpRequestCacheTrait {
 		}
 
 		$request_args = array_flip( static::$request_args );
-		if ( empty( static::$update_cache ) ) {
+		if ( ! static::$update_cache ) {
 			add_filter(
 				'pre_http_request',
 				function ( $preempt, $parsed_args, $url ) use ( $request_args ) {
@@ -114,10 +128,9 @@ trait HttpRequestCacheTrait {
 						if ( $data['args'] === $args ) {
 							$ret = $data['response'];
 							if ( is_string( $ret ) ) {
-								// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
 								$ret = unserialize( $ret );
 							} elseif ( is_array( $ret ) && isset( $ret['headers'] ) ) {
-								$headers = new Requests_Utility_CaseInsensitiveDictionary();
+								$headers = new CaseInsensitiveDictionary();
 								foreach ( $ret['headers'] as $k => $v ) {
 									$headers[ $k ] = $v;
 								}
@@ -126,8 +139,7 @@ trait HttpRequestCacheTrait {
 							return $ret;
 						}
 					}
-					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
-					throw new UnexpectedValueException( "No cache for $url with the specified arguments\n" . var_export( $args, 1 ) );
+					throw new UnexpectedValueException( "No cache for $url with the specified arguments\n" . var_export( $args, true ) );
 				},
 				90,
 				3
@@ -141,7 +153,6 @@ trait HttpRequestCacheTrait {
 
 					if ( is_object( $response ) ) {
 						// Probably a WP_Error.
-						// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 						$response = serialize( $response );
 					} elseif ( is_array( $response ) ) {
 						// We probably don't care about most of these fields. If it turns out you do, comment
@@ -176,6 +187,6 @@ trait HttpRequestCacheTrait {
 	 * Fail tests if `$update_cache` is set.
 	 */
 	public function test_update_cache_setting() {
-		$this->assertTrue( empty( static::$update_cache ), __CLASS__ . '::$update_cache cannot be set for tests to pass' );
+		\PHPUnit\Framework\Assert::assertFalse( static::$update_cache, __CLASS__ . '::$update_cache cannot be set for tests to pass' );
 	}
 }

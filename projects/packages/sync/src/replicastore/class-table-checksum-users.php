@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Sync\Replicastore;
 
+use Exception;
+
 /**
  * Class to handle Table Checksums for the Users table.
  */
@@ -180,5 +182,4 @@ class Table_Checksum_Users extends Table_Checksum {
 
 		return $result;
 	}
-
 }

@@ -1,5 +1,0 @@
-Significance: patch
-Type: added
-Comment: Add `jsconfig.json` file for typescript and vscode support. Not included in the mirror.
-
-

@@ -1,0 +1,11 @@
+{
+	"extends": "jetpack-js-tools/tsconfig.tsc-declaration-only.json",
+	"include": [ "./src/**/*" ],
+	"compilerOptions": {
+		"declarationDir": "./build/",
+		"typeRoots": [ "./node_modules/@types/" ],
+		"sourceMap": true,
+		"outDir": "./build/",
+		"target": "es2019"
+	}
+}

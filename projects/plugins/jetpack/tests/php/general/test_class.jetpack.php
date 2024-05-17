@@ -1,12 +1,18 @@
 <?php
+/**
+ * Tests for the main Jetpack class.
+ *
+ * @package automattic/jetpack
+ *
+ * phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+ */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 
-// Extend with a public constructor so that can be mocked in tests
+/** Extend with a public constructor so that can be mocked in tests. */
 class MockJetpack extends Jetpack {
 
 	/**
@@ -35,14 +41,14 @@ class MockJetpack extends Jetpack {
 }
 
 class MockJetpack_XMLRPC_Server extends Jetpack_XMLRPC_Server {
-	private $mockLoginUser = false;
+	private $mockLoginUser = false; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
 
 	public function __construct( $user ) {
-		$this->mockLoginUser = $user;
+		$this->mockLoginUser = $user; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 
 	public function login() {
-		return $this->mockLoginUser;
+		return $this->mockLoginUser; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 }
 
@@ -53,21 +59,21 @@ class MockJetpack_XMLRPC_Server extends Jetpack_XMLRPC_Server {
  */
 class WP_Test_Jetpack extends WP_UnitTestCase {
 
-	static $admin_id = 0;
+	public static $admin_id = 0;
 
 	/**
 	 * Activated modules.
 	 *
 	 * @var array
 	 */
-	static $activated_modules = array();
+	public static $activated_modules = array();
 
 	/**
 	 * Deactivated modules.
 	 *
 	 * @var array
 	 */
-	static $deactivated_modules = array();
+	public static $deactivated_modules = array();
 
 	public static function wpSetupBeforeClass() {
 		self::$admin_id = self::factory()->user->create(
@@ -90,6 +96,7 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		parent::tear_down();
+		unset( $_GET['for'] );
 		Constants::clear_constants();
 		StatusCache::clear();
 	}
@@ -191,15 +198,14 @@ EXPECTED;
 
 		$result = Jetpack::absolutize_css_urls( $css, 'http://example.com/dir1/dir2/style.css' );
 		$this->assertEquals( $expected, $result );
-
 	}
 
-	/*
+	/**
 	 * @author tonykova
 	 */
 	public function test_implode_frontend_css_enqueues_bundle_file_handle() {
 		global $wp_styles;
-		$wp_styles = new WP_styles();
+		$wp_styles = new WP_Styles();
 
 		add_filter( 'jetpack_implode_frontend_css', '__return_true' );
 
@@ -209,7 +215,7 @@ EXPECTED;
 
 		// Enqueue some script on the $to_dequeue list
 		$style_handle = 'jetpack-carousel';
-		wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ) );
+		wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ) ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 
 		Jetpack::init()->implode_frontend_css( true );
 
@@ -232,13 +238,12 @@ EXPECTED;
 	 */
 	public function test_implode_frontend_css_does_not_enqueue_bundle_when_disabled_through_filter() {
 		global $wp_styles;
-		$wp_styles = new WP_styles();
+		$wp_styles = new WP_Styles();
 
 		add_filter( 'jetpack_implode_frontend_css', '__return_false' );
 
 		// Enqueue some script on the $to_dequeue list
-		$style_handle = 'jetpack-carousel';
-		wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ) );
+		wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ) ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 
 		Jetpack::init()->implode_frontend_css();
 
@@ -337,12 +342,12 @@ EXPECTED;
 		$this->assertEquals( $active_modules, array( 'monitor', 'stats' ) );
 	}
 
-	 // This filter overrides the 'monitor' module.
+	/** This filter overrides the 'monitor' module. */
 	public static function e2e_test_filter( $modules ) {
 		$disabled_modules = array( 'monitor' );
 
 		foreach ( $disabled_modules as $module_slug ) {
-			$found = array_search( $module_slug, $modules );
+			$found = array_search( $module_slug, $modules, true );
 			if ( false !== $found ) {
 				unset( $modules[ $found ] );
 			}
@@ -360,8 +365,8 @@ EXPECTED;
 
 	public function test_get_other_linked_admins_more_than_one_not_false() {
 		delete_transient( 'jetpack_other_linked_admins' );
-		$master_user     = $this->factory->user->create( array( 'role' => 'administrator' ) );
-		$connected_admin = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$master_user     = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$connected_admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
 
 		Jetpack_Options::update_option( 'master_user', $master_user );
 		Jetpack_Options::update_option(
@@ -379,7 +384,7 @@ EXPECTED;
 
 	public function test_promoting_admin_clears_other_linked_admins_transient() {
 		set_transient( 'jetpack_other_linked_admins', 2, HOUR_IN_SECONDS );
-		$editor_user = $this->factory->user->create( array( 'role' => 'editor' ) );
+		$editor_user = self::factory()->user->create( array( 'role' => 'editor' ) );
 		wp_update_user(
 			array(
 				'ID'   => $editor_user,
@@ -392,7 +397,7 @@ EXPECTED;
 
 	public function test_demoting_admin_clear_other_linked_admins_transiet() {
 		set_transient( 'jetpack_other_linked_admins', 2, HOUR_IN_SECONDS );
-		$admin_user = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$admin_user = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_update_user(
 			array(
 				'ID'   => $admin_user,
@@ -405,7 +410,7 @@ EXPECTED;
 
 	public function test_null_old_roles_clears_linked_admins_transient() {
 		set_transient( 'jetpack_other_linked_admins', 2, HOUR_IN_SECONDS );
-		$admin_user = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$admin_user = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_update_user(
 			array(
 				'ID'   => $admin_user,
@@ -419,9 +424,9 @@ EXPECTED;
 		$this->assertFalse( get_transient( 'jetpack_other_linked_admins' ) );
 	}
 
-	function test_changing_non_admin_roles_does_not_clear_other_linked_admins_transient() {
+	public function test_changing_non_admin_roles_does_not_clear_other_linked_admins_transient() {
 		set_transient( 'jetpack_other_linked_admins', 2, HOUR_IN_SECONDS );
-		$user_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$user_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
 
 		foreach ( array( 'contributor', 'author', 'editor' ) as $role ) {
 			wp_update_user(
@@ -435,32 +440,32 @@ EXPECTED;
 		$this->assertEquals( 2, get_transient( 'jetpack_other_linked_admins' ) );
 	}
 
-	function test_other_linked_admins_transient_set_to_zero_returns_false() {
+	public function test_other_linked_admins_transient_set_to_zero_returns_false() {
 		set_transient( 'jetpack_other_linked_admins', 0, HOUR_IN_SECONDS );
 		$this->assertFalse( Jetpack::get_other_linked_admins() );
 	}
 
-	function test_is_dev_version_true_with_alpha() {
+	public function test_is_dev_version_true_with_alpha() {
 		Constants::set_constant( 'JETPACK__VERSION', '4.3.1-alpha' );
 		$this->assertTrue( Jetpack::is_development_version() );
 	}
 
-	function test_is_dev_version_true_with_beta() {
+	public function test_is_dev_version_true_with_beta() {
 		Constants::set_constant( 'JETPACK__VERSION', '4.3-beta2' );
 		$this->assertTrue( Jetpack::is_development_version() );
 	}
 
-	function test_is_dev_version_true_with_rc() {
+	public function test_is_dev_version_true_with_rc() {
 		Constants::set_constant( 'JETPACK__VERSION', '4.3-rc2' );
 		$this->assertTrue( Jetpack::is_development_version() );
 	}
 
-	function test_is_dev_version_false_with_number_dot_number() {
+	public function test_is_dev_version_false_with_number_dot_number() {
 		Constants::set_constant( 'JETPACK__VERSION', '4.3' );
 		$this->assertFalse( Jetpack::is_development_version() );
 	}
 
-	function test_is_dev_version_false_with_number_dot_number_dot_number() {
+	public function test_is_dev_version_false_with_number_dot_number_dot_number() {
 		Constants::set_constant( 'JETPACK__VERSION', '4.3.1' );
 		$this->assertFalse( Jetpack::is_development_version() );
 	}
@@ -483,7 +488,7 @@ EXPECTED;
 		remove_filter( 'jetpack_offline_mode', '__return_zero' );
 	}
 
-	function test_normalize_url_protocol_agnostic_strips_protocol_and_www_for_subdir_subdomain() {
+	public function test_normalize_url_protocol_agnostic_strips_protocol_and_www_for_subdir_subdomain() {
 		$url            = 'https://www.subdomain.myfaketestsite.com/what';
 		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
 		$this->assertTrue( 'subdomain.myfaketestsite.com/what/' === $url_normalized );
@@ -497,7 +502,7 @@ EXPECTED;
 		$this->assertTrue( 'subdomain.myfaketestsite.com/' === $url_normalized );
 	}
 
-	function test_normalize_url_protocol_agnostic_strips_protocol_and_www_for_normal_urls() {
+	public function test_normalize_url_protocol_agnostic_strips_protocol_and_www_for_normal_urls() {
 		$url            = 'https://www.myfaketestsite.com';
 		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
 		$this->assertTrue( 'myfaketestsite.com/' === $url_normalized );
@@ -511,7 +516,7 @@ EXPECTED;
 		$this->assertTrue( 'myfaketestsite.com/' === $url_normalized );
 	}
 
-	function test_normalize_url_protocol_agnostic_strips_protocol_for_ip() {
+	public function test_normalize_url_protocol_agnostic_strips_protocol_for_ip() {
 		$url            = 'http://123.456.789.0';
 		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
 		$this->assertTrue( '123.456.789.0/' === $url_normalized );
@@ -529,7 +534,7 @@ EXPECTED;
 	 * - plugins list
 	 * - other
 	 */
-	function test_get_activation_source() {
+	public function test_get_activation_source() {
 		$plugins_url        = admin_url( 'plugins.php' );
 		$plugin_install_url = admin_url( 'plugin-install.php' );
 		$unknown_url        = admin_url( 'unknown.php' );
@@ -548,14 +553,14 @@ EXPECTED;
 	/**
 	 * @author tyxla
 	 */
-	function test_get_assumed_site_creation_date_user_earliest() {
-		$user_id = $this->factory->user->create(
+	public function test_get_assumed_site_creation_date_user_earliest() {
+		$user_id = self::factory()->user->create(
 			array(
 				'role'            => 'administrator',
 				'user_registered' => '1990-01-01 00:00:00',
 			)
 		);
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_date' => '1995-01-01 00:00:00',
 			)
@@ -571,14 +576,14 @@ EXPECTED;
 	/**
 	 * @author tyxla
 	 */
-	function test_get_assumed_site_creation_date_post_earliest() {
-		$user_id = $this->factory->user->create(
+	public function test_get_assumed_site_creation_date_post_earliest() {
+		$user_id = self::factory()->user->create(
 			array(
 				'role'            => 'administrator',
 				'user_registered' => '1994-01-01 00:00:00',
 			)
 		);
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_date' => '1991-01-01 00:00:00',
 			)
@@ -594,14 +599,14 @@ EXPECTED;
 	/**
 	 * @author tyxla
 	 */
-	function test_get_assumed_site_creation_date_only_admins() {
-		$admin_id  = $this->factory->user->create(
+	public function test_get_assumed_site_creation_date_only_admins() {
+		$admin_id  = self::factory()->user->create(
 			array(
 				'role'            => 'administrator',
 				'user_registered' => '1994-01-01 00:00:00',
 			)
 		);
-		$editor_id = $this->factory->user->create(
+		$editor_id = self::factory()->user->create(
 			array(
 				'role'            => 'editor',
 				'user_registered' => '1992-01-01 00:00:00',
@@ -619,7 +624,7 @@ EXPECTED;
 	 * @author ebinnion
 	 * @dataProvider get_file_url_for_environment_data_provider
 	 */
-	function test_get_file_url_for_environment( $min_path, $non_min_path, $is_script_debug, $expected, $not_expected ) {
+	public function test_get_file_url_for_environment( $min_path, $non_min_path, $is_script_debug, $expected, $not_expected ) {
 		Constants::set_constant( 'SCRIPT_DEBUG', $is_script_debug );
 		$file_url = Jetpack::get_file_url_for_environment( $min_path, $non_min_path );
 
@@ -627,7 +632,7 @@ EXPECTED;
 		$this->assertStringNotContainsString( $$not_expected, $file_url );
 	}
 
-	function get_file_url_for_environment_data_provider() {
+	public function get_file_url_for_environment_data_provider() {
 		return array(
 			'script-debug-true'  => array(
 				'_inc/build/shortcodes/js/recipes.js',
@@ -766,11 +771,13 @@ EXPECTED;
 	private function mocked_setup_xmlrpc_handlers( $request_params, $has_connected_owner, $is_signed, $user = false ) {
 		$GLOBALS['HTTP_RAW_POST_DATA'] = '';
 
+		$_GET['for'] = $request_params['for'];
+
 		Constants::set_constant( 'XMLRPC_REQUEST', true );
 
 		$jetpack       = new MockJetpack();
 		$xmlrpc_server = new MockJetpack_XMLRPC_Server( $user );
-		return $jetpack::connection()->setup_xmlrpc_handlers( $request_params, $has_connected_owner, $is_signed, $xmlrpc_server );
+		return $jetpack::connection()->setup_xmlrpc_handlers( null, $has_connected_owner, $is_signed, $xmlrpc_server );
 	}
 
 	/**
@@ -859,6 +866,7 @@ EXPECTED;
 			'jetpack.subscriptions.subscribe',
 			'jetpack.updatePublicizeConnections',
 			'jetpack.getHeartbeatData',
+			'jetpack.userDisconnect',
 		);
 
 		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
@@ -915,6 +923,7 @@ EXPECTED;
 			'jetpack.subscriptions.subscribe',
 			'jetpack.updatePublicizeConnections',
 			'jetpack.getHeartbeatData',
+			'jetpack.userDisconnect',
 		);
 
 		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
@@ -1015,56 +1024,6 @@ EXPECTED;
 	}
 
 	/**
-	 * Tests if Partner codes are added to the connect url.
-	 *
-	 * @dataProvider partner_code_provider
-	 *
-	 * @param string $code_type Partner code type.
-	 * @param string $option_name Option and filter name.
-	 * @param string $query_string_name Query string variable name.
-	 */
-	public function test_partner_codes_are_added_to_authorize_url( $code_type, $option_name, $query_string_name ) {
-		$test_code = 'abc-123';
-		Partner::init();
-		add_filter(
-			$option_name,
-			function () use ( $test_code ) {
-				return $test_code;
-			}
-		);
-		$jetpack = \Jetpack::init();
-		$url     = $jetpack->build_authorize_url();
-
-		$parsed_vars = array();
-		parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $parsed_vars );
-
-		$this->assertArrayHasKey( $query_string_name, $parsed_vars );
-		$this->assertSame( $test_code, $parsed_vars[ $query_string_name ] );
-	}
-
-	/**
-	 * Provides code for test_partner_codes_are_added_to_authorize_url.
-	 *
-	 * @return array
-	 */
-	public function partner_code_provider() {
-		return array(
-			'subsidiary_code' =>
-				array(
-					Partner::SUBSIDIARY_CODE,            // Code type.
-					'jetpack_partner_subsidiary_id',     // filter/option key.
-					'subsidiaryId',                      // Query string parameter.
-				),
-			'affiliate_code'  =>
-				array(
-					Partner::AFFILIATE_CODE,
-					'jetpack_affiliate_code',
-					'aff',
-				),
-		);
-	}
-
-	/**
 	 * Tests login URL only adds redirect param when redirect param is in original request.
 	 *
 	 * @since 8.4.0
@@ -1089,6 +1048,9 @@ EXPECTED;
 	public function test_login_init_redirect() {
 		tests_add_filter(
 			'wp_redirect',
+			/**
+			 * @return never
+			 */
 			function ( $location ) {
 				$expected_location = add_query_arg(
 					array(

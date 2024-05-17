@@ -5,7 +5,10 @@
  * @package automattic/jetpack
  */
 
-//phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Defined by the caller. Let Phan handle it.
+'@phan-var-force Jetpack_Flickr_Widget $this';
+'@phan-var-force array $instance';
+
 ?>
 <p>
 	<label>
@@ -38,7 +41,7 @@
 <p>
 	<small>
 		<?php
-		echo sprintf(
+		printf(
 			wp_kses(
 				/* Translators: %s is the URL to an example Flickr RSS feed. */
 				__( 'Leave the Flickr RSS URL field blank to display <a target="_blank" href="%s">interesting</a> Flickr photos.', 'jetpack' ),

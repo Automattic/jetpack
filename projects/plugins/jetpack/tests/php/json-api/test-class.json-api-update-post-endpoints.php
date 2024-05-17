@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-require_jetpack_file( 'class.json-api-endpoints.php' );
+require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
 /**
  * Jetpack `sites/%s/posts/%d` endpoint unit tests.
@@ -67,7 +67,7 @@ class WP_Test_Json_Api_Update_Post_Endpoints extends WP_UnitTestCase {
 
 		$updated_input = $this->invoke_method( $endpoint, 'untrash_post', array( $post, $input ) );
 		// Tests that we remove the slug id it contains the '__trashed' suffix.
-		$this->assertTrue( empty( $updated_input ) );
+		$this->assertEmpty( $updated_input );
 	}
 
 	/**
@@ -83,7 +83,6 @@ class WP_Test_Json_Api_Update_Post_Endpoints extends WP_UnitTestCase {
 				'post_status'  => 'publish',
 			)
 		);
-
 	}
 
 	/**

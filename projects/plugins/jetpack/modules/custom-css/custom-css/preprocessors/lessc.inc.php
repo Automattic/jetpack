@@ -1,6 +1,6 @@
 <?php // phpcs:disable -- Copy-pasted library. Not reformatting to facilitate identification of actual changes.
 /**
- * lessphp v0.5.0
+ * lessphp v0.5.0 + php 8 compatibility changes by a8c (project is unmaintained)
  * https://leafo.net/lessphp
  *
  * LESS CSS compiler, adapted from http://lesscss.org
@@ -234,7 +234,7 @@ class lessc {
 
 		$this->compileProps($media, $this->scope);
 
-		if (count($this->scope->lines) > 0) {
+		if ( is_countable( $this->scope->lines ) && count( $this->scope->lines ) > 0 ) {
 			$orphanSelelectors = $this->findClosestSelectors();
 			if (!is_null($orphanSelelectors)) {
 				$orphan = $this->makeOutputBlock(null, $orphanSelelectors);
@@ -570,7 +570,8 @@ class lessc {
 		} else {
 			$numMatched = $i + 1;
 			// greater than becuase default values always match
-			return $numMatched >= count($orderedArgs);
+			$orderedArgsCount = is_countable( $orderedArgs ) ? count( $orderedArgs ) : 0;
+			return $numMatched >= $orderedArgsCount;
 		}
 	}
 
@@ -600,7 +601,7 @@ class lessc {
 
 		if (isset($searchIn->children[$name])) {
 			$blocks = $searchIn->children[$name];
-			if (count($path) == 1) {
+			if ( is_countable( $path ) && count( $path ) == 1 ) {
 				$matches = $this->patternMatchAll($blocks, $orderedArgs, $keywordArgs, $seen);
 				if (!empty($matches)) {
 					// This will return all blocks that match in the closest
@@ -662,7 +663,8 @@ class lessc {
 		// check for a rest
 		$last = end($args);
 		if ($last[0] == "rest") {
-			$rest = array_slice($orderedValues, count($args) - 1);
+			$argsCount = is_countable( $args ) ? count( $args ) : 0;
+			$rest = array_slice($orderedValues, $argsCount - 1);
 			$this->set($last[1], $this->reduce(array("list", " ", $rest)));
 		}
 
@@ -859,7 +861,7 @@ class lessc {
 			$g = round($g);
 			$b = round($b);
 
-			if (count($value) == 5 && $value[4] != 1) { // rgba
+			if ( is_countable( $value ) && count( $value ) == 5 && $value[4] != 1 ) { // rgba
 				return 'rgba('.$r.','.$g.','.$b.','.$value[4].')';
 			}
 
@@ -1092,7 +1094,7 @@ class lessc {
 	 * takes a list that contains a color like thing and a percentage
 	 */
 	public function colorArgs($args) {
-		if ($args[0] != 'list' || count($args[2]) < 2) {
+		if ( $args[0] != 'list' || ! is_countable( $args[2] ) || count( $args[2] ) < 2 ) {
 			return array(array('color', 0, 0, 0), 0);
 		}
 		list($color, $delta) = $args[2];
@@ -1196,8 +1198,9 @@ class lessc {
 	// mix(@color1, @color2, [@weight: 50%]);
 	// https://sass-lang.com/documentation/functions/color#mix
 	protected function lib_mix($args) {
-		if ($args[0] != "list" || count($args[2]) < 2)
+		if ( $args[0] != "list" || ! is_countable( $args[2] ) || count( $args[2] ) < 2 ) {
 			$this->throwError("mix expects (color1, color2, weight)");
+		}
 
 		list($first, $second) = $args[2];
 		$first = $this->assertColor($first);
@@ -1287,7 +1290,7 @@ class lessc {
 		} else {
 			if ($value[0] !== "list" || $value[1] != ",") $this->throwError("expecting list");
 			$values = $value[2];
-			$numValues = count($values);
+			$numValues = is_countable( $values ) ? count( $values ) : 0;
 			if ($expectedArgs != $numValues) {
 				if ($name) {
 					$name = $name . ": ";
@@ -1321,7 +1324,7 @@ class lessc {
 
 			if ($r == $max) $H = ($g - $b)/($max - $min);
 			elseif ($g == $max) $H = 2.0 + ($b - $r)/($max - $min);
-			elseif ($b == $max) $H = 4.0 + ($r - $g)/($max - $min);
+			else $H = 4.0 + ($r - $g)/($max - $min);
 
 		}
 
@@ -1331,7 +1334,9 @@ class lessc {
 			$L*100,
 		);
 
-		if (count($color) > 4) $out[] = $color[4]; // copy alpha
+		if ( is_countable( $color ) && count( $color ) > 4 ) {
+			$out[] = $color[4]; // copy alpha
+		}
 		return $out;
 	}
 
@@ -1373,7 +1378,9 @@ class lessc {
 
 		// $out = array('color', round($r*255), round($g*255), round($b*255));
 		$out = array('color', $r*255, $g*255, $b*255);
-		if (count($color) > 4) $out[] = $color[4]; // copy alpha
+		if ( is_countable( $color ) && count( $color ) > 4 ) {
+			$out[] = $color[4]; // copy alpha
+		}
 		return $out;
 	}
 
@@ -1596,7 +1603,7 @@ class lessc {
 
 	// turn list of length 1 into value type
 	protected function flattenList($value) {
-		if ($value[0] == "list" && count($value[2]) == 1) {
+		if ( $value[0] == "list" && is_countable( $value[2] ) && count( $value[2] ) == 1 ) {
 			return $this->flattenList($value[2][0]);
 		}
 		return $value;
@@ -1688,13 +1695,16 @@ class lessc {
 	protected function op_color_number($op, $lft, $rgt) {
 		if ($rgt[0] == '%') $rgt[1] /= 100;
 
+		$lftCount = is_countable( $lft ) ? count( $lft ) : 1;
 		return $this->op_color_color($op, $lft,
-			array_fill(1, count($lft) - 1, $rgt[1]));
+			array_fill(1, $lftCount - 1, $rgt[1]));
 	}
 
 	protected function op_color_color($op, $left, $right) {
 		$out = array('color');
-		$max = count($left) > count($right) ? count($left) : count($right);
+		$leftCount  = is_countable( $left ) ? count( $left ) : 0;
+		$rightCount = is_countable( $right ) ? count( $right) : 0;
+		$max = $leftCount > $rightCount ? $leftCount : $rightCount;
 		foreach (range(1, $max - 1) as $i) {
 			$lval = isset($left[$i]) ? $left[$i] : 0;
 			$rval = isset($right[$i]) ? $right[$i] : 0;
@@ -2503,6 +2513,7 @@ class lessc_parser {
 			} catch (exception $e) {
 				$this->seek($s);
 				$this->throwError($e->getMessage());
+				$block = null; // Rector.
 			}
 
 			$hidden = false;
@@ -3009,6 +3020,9 @@ class lessc_parser {
 	// arguments are separated by , unless a ; is in the list, then ; is the
 	// delimiter.
 	protected function argumentDef(&$args, &$isVararg) {
+		$value  = null; // Initialize output variable to make wpcom's rector happy.
+		$rhs    = null; // Initialize output variable to make wpcom's rector happy.
+		$newArg = null; // Initialize variable for rector.
 		$s = $this->seek();
 		if (!$this->literal('(')) return false;
 
@@ -3441,6 +3455,7 @@ class lessc_parser {
 	}
 
 	protected function genericList(&$out, $parseItem, $delim="", $flatten=true) {
+		$value = null; // Initialize output parameter to make wpcom's rector happy.
 		$s = $this->seek();
 		$items = array();
 		while ($this->$parseItem($value)) {
@@ -3690,7 +3705,7 @@ class lessc_formatter_classic {
 		$inner = $pre = $this->indentStr();
 
 		$isSingle = !$this->disableSingle &&
-			is_null($block->type) && count($block->lines) == 1;
+			is_null( $block->type ) && is_countable( $block->lines ) && count( $block->lines ) == 1;
 
 		if (!empty($block->selectors)) {
 			$this->indentLevel++;

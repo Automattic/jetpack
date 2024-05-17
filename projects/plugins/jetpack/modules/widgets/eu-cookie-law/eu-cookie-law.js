@@ -90,8 +90,7 @@
 		overlay.classList.add( 'hide' );
 		setTimeout( function () {
 			overlay.parentNode.removeChild( overlay );
-			var widgetSection = document.querySelector( '.widget.widget_eu_cookie_law_widget' );
-			widgetSection.parentNode.removeChild( widgetSection );
+			widget.parentNode.removeChild( widget );
 		}, 400 );
 	}
 } )();

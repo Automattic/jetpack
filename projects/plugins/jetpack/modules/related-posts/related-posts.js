@@ -171,6 +171,8 @@
 						post.img.width +
 						'" height="' +
 						post.img.height +
+						( post.img.srcset ? '" srcset="' + post.img.srcset : '' ) +
+						( post.img.sizes ? '" sizes="' + post.img.sizes : '' ) +
 						'" alt="' +
 						post.img.alt_text +
 						'" />' +

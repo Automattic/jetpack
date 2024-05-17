@@ -10,6 +10,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Secrets;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Connection\Urls;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Roles;
 
 /**
@@ -268,7 +269,7 @@ class Jetpack_XMLRPC_Server {
 	 * This XML-RPC method is called from the /jpphp/provision endpoint on WPCOM in order to
 	 * register this site so that a plan can be provisioned.
 	 *
-	 * @param array $request An array containing at minimum nonce and local_user keys.
+	 * @param array|ArrayAccess $request An array containing at minimum nonce and local_user keys.
 	 *
 	 * @return \WP_Error|array
 	 */
@@ -372,7 +373,7 @@ class Jetpack_XMLRPC_Server {
 	 * This XML-RPC method is called from the /jpphp/provision endpoint on WPCOM in order to
 	 * register this site so that a plan can be provisioned.
 	 *
-	 * @param array $request An array containing at minimum a nonce key and a local_username key.
+	 * @param array|ArrayAccess $request An array containing at minimum a nonce key and a local_username key.
 	 *
 	 * @return \WP_Error|array
 	 */
@@ -407,7 +408,7 @@ class Jetpack_XMLRPC_Server {
 		$secrets = ( new Secrets() )->generate( 'authorize', $user->ID );
 
 		$response = array(
-			'jp_version'   => JETPACK__VERSION,
+			'jp_version'   => Constants::get_constant( 'JETPACK__VERSION' ),
 			'redirect_uri' => $redirect_uri,
 			'user_id'      => $user->ID,
 			'user_email'   => $user->user_email,
@@ -439,8 +440,8 @@ class Jetpack_XMLRPC_Server {
 	 * Given an array containing a local user identifier and a nonce, will attempt to fetch and set
 	 * an access token for the given user.
 	 *
-	 * @param array       $request    An array containing local_user and nonce keys at minimum.
-	 * @param \IXR_Client $ixr_client The client object, optional.
+	 * @param array|ArrayAccess $request An array containing local_user and nonce keys at minimum.
+	 * @param \IXR_Client       $ixr_client The client object, optional.
 	 * @return mixed
 	 */
 	public function remote_connect( $request, $ixr_client = false ) {
@@ -761,17 +762,28 @@ class Jetpack_XMLRPC_Server {
 	}
 
 	/**
-	 * Returns the home URL and site URL for the current site which can be used on the WPCOM side for
+	 * Returns the home URL, site URL, and URL secret for the current site which can be used on the WPCOM side for
 	 * IDC mitigation to decide whether sync should be allowed if the home and siteurl values differ between WPCOM
 	 * and the remote Jetpack site.
+	 *
+	 * @since 1.56.0 Additional data may be added via filter `jetpack_connection_validate_urls_for_idc_mitigation_response`.
 	 *
 	 * @return array
 	 */
 	public function validate_urls_for_idc_mitigation() {
-		return array(
+		$response = array(
 			'home'    => Urls::home_url(),
 			'siteurl' => Urls::site_url(),
 		);
+
+		/**
+		 * Allows modifying the response.
+		 *
+		 * @since 1.56.0
+		 *
+		 * @param array $response
+		 */
+		return apply_filters( 'jetpack_connection_validate_urls_for_idc_mitigation_response', $response );
 	}
 
 	/**
@@ -862,5 +874,4 @@ class Jetpack_XMLRPC_Server {
 		}
 		return array();
 	}
-
 }

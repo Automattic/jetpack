@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { SERVER_OBJECT_NAME } from '../../lib/constants';
 
 /**

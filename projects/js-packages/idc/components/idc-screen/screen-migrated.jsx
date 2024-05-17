@@ -1,18 +1,11 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
+import { Spinner } from '@automattic/jetpack-components';
 import { Button, Dashicon } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Spinner } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import extractHostname from '../../tools/extract-hostname';
+import PropTypes from 'prop-types';
+import React from 'react';
 import customContentShape from '../../tools/custom-content-shape';
+import extractHostname from '../../tools/extract-hostname';
 
 /**
  * Retrieve the migrated screen body.
@@ -21,7 +14,7 @@ import customContentShape from '../../tools/custom-content-shape';
  * @returns {React.Component} The ScreenMigrated component.
  */
 const ScreenMigrated = props => {
-	const { finishCallback, isFinishing, customContent } = props;
+	const { finishCallback = () => {}, isFinishing = false, customContent = {} } = props;
 
 	const wpcomHostName = extractHostname( props.wpcomHomeUrl );
 	const currentHostName = extractHostname( props.currentUrl );
@@ -86,15 +79,9 @@ ScreenMigrated.propTypes = {
 	/** Callback to be called when migration is complete, and user clicks the OK button. */
 	finishCallback: PropTypes.func,
 	/** Whether the migration finishing process is in progress. */
-	isFinishing: PropTypes.bool.isRequired,
+	isFinishing: PropTypes.bool,
 	/** Custom text content. */
 	customContent: PropTypes.shape( customContentShape ),
-};
-
-ScreenMigrated.defaultProps = {
-	finishCallback: () => {},
-	isFinishing: false,
-	customContent: {},
 };
 
 export default ScreenMigrated;

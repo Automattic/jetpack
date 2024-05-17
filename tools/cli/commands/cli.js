@@ -1,30 +1,32 @@
-/**
- * External dependencies
- */
 import path from 'path';
-import Listr from 'listr';
-import VerboseRenderer from 'listr-verbose-renderer';
-import UpdateRenderer from 'listr-update-renderer';
-import execa from 'execa';
-import PATH from 'path-name';
 import { fileURLToPath } from 'url';
-
-/**
- * Internal dependencies
- */
+import { execaCommand, execaCommandSync } from 'execa';
+import Listr from 'listr';
+import UpdateRenderer from 'listr-update-renderer';
+import VerboseRenderer from 'listr-verbose-renderer';
+import PATH from 'path-name';
+import { setAnalyticsEnabled } from '../helpers/analytics.js';
 import { chalkJetpackGreen } from '../helpers/styling.js';
 
 /**
  * Show us the status of the cli, such as the currenet linked directory.
  */
 function cliStatus() {
-	console.log(
-		chalkJetpackGreen(
-			'Jetpack CLI is currently linked to ' +
-				fileURLToPath( new URL( `../../../`, import.meta.url ) )
-		)
-	);
-	console.log( 'To change the linked directory of the CLI, run `pnpx jetpack cli link` ' );
+	if ( process.env.JETPACK_CLI_DID_REEXEC ) {
+		console.log(
+			chalkJetpackGreen(
+				'Jetpack CLI is apparently linked to ' + process.env.JETPACK_CLI_DID_REEXEC
+			)
+		);
+	} else {
+		console.log(
+			chalkJetpackGreen(
+				'Jetpack CLI is currently linked to ' +
+					fileURLToPath( new URL( `../../../`, import.meta.url ) )
+			)
+		);
+	}
+	console.log( 'To change the linked directory of the CLI, run `pnpm jetpack cli link` ' );
 }
 /**
  * CLI link.
@@ -97,7 +99,16 @@ function cliUnlink( options ) {
 }
 
 /**
- * Command definition for the build subcommand.
+ * Sets the analytics tracking preference for the CLI.
+ *
+ * @param {string} preference - The state to set the analytics tracking to, 'on' or 'off'.
+ */
+function cliAnalytics( preference ) {
+	setAnalyticsEnabled( preference === 'on' );
+}
+
+/**
+ * Command definition for the cli subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
  * @returns {object} Yargs with the CLI commands defined.
@@ -137,6 +148,23 @@ export function cliDefine( yargs ) {
 						console.log( argv );
 					}
 				}
+			)
+			.command(
+				'analytics <preference>',
+				'Set analytics tracking preference',
+				() => {
+					return yargs.positional( 'preference', {
+						describe: 'Turn on or off analytics tracking',
+						type: 'string',
+						choices: [ 'on', 'off' ],
+					} );
+				},
+				argv => {
+					cliAnalytics( argv.preference );
+					if ( argv.v ) {
+						console.log( argv );
+					}
+				}
 			);
 	} );
 
@@ -168,6 +196,6 @@ function command( cmd, verbose, cwd ) {
 	}
 
 	return verbose
-		? execa.commandSync( `${ cmd }`, { cwd: cwd, env: env, stdio: 'inherit' } )
-		: execa.command( `${ cmd }`, { cwd: cwd, env: env } );
+		? execaCommandSync( `${ cmd }`, { cwd: cwd, env: env, stdio: 'inherit' } )
+		: execaCommand( `${ cmd }`, { cwd: cwd, env: env } );
 }

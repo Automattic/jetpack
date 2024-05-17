@@ -19,8 +19,9 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 	}
 
-	function check_for_updates_to_sync() {
+	public function check_for_updates_to_sync() {
 		$updates_module = Modules::get_module( 'updates' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Updates $updates_module';
 		$updates_module->sync_last_event();
 	}
 
@@ -59,8 +60,8 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		$response = $this->new_plugin_response( '3' );
 		set_site_transient( 'update_plugins', $response );
 
-		//
 		$updates_module = Modules::get_module( 'updates' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Updates $updates_module';
 		$updates_module->sync_last_event();
 		$has_action = has_action( 'shutdown', array( $updates_module, 'sync_last_event' ) );
 		$this->sender->do_sync();
@@ -70,21 +71,21 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		set_site_transient( 'update_plugins', $current );
 
 		// Only 1 event should be recorded..
-		$this->assertEquals( 1, sizeof( $events ) );
+		$this->assertCount( 1, $events );
 		$this->assertEquals( $events[0]->args[0], $response );
 		$this->assertTrue( (bool) $has_action );
 	}
 
-	function new_plugin_response( $new_version ) {
+	public function new_plugin_response( $new_version ) {
 		return (object) array(
-			'response' => array(
+			'response'  => array(
 				'hello' => (object) array(
-					'new_version' => $new_version
-				)
+					'new_version' => $new_version,
+				),
 			),
 			'no_update' => array(
 				'jetpack/jetpack.php' => true,
-			)
+			),
 		);
 	}
 
@@ -99,7 +100,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		$this->check_for_updates_to_sync();
 		$this->sender->do_sync();
 		$updates = $this->server_replica_storage->get_updates( 'themes' );
-		$theme = reset( $updates->response );
+		$theme   = reset( $updates->response );
 
 		$this->assertSame( 'hello', $theme['name'] );
 		$this->assertTrue( is_int( $updates->last_checked ) );
@@ -121,8 +122,8 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		$response = $this->new_theme_response( '3' );
 		set_site_transient( 'update_themes', $response );
 
-		//
 		$updates_module = Modules::get_module( 'updates' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Updates $updates_module';
 		$updates_module->sync_last_event();
 
 		$has_action = has_action( 'shutdown', array( $updates_module, 'sync_last_event' ) );
@@ -134,7 +135,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		set_site_transient( 'update_plugins', $current );
 
 		// Only 1 event should be recorded..
-		$this->assertEquals( 1, sizeof( $events ) );
+		$this->assertCount( 1, $events );
 		$this->assertEquals( $events[0]->args[0], $response );
 		$this->assertTrue( (bool) $has_action );
 	}
@@ -144,10 +145,10 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 			'response' => array(
 				'hello' => array(
 					'new_version' => $new_version,
-					'name' => 'hello'
-				)
+					'name'        => 'hello',
+				),
 			),
-			'checked' => true
+			'checked'  => true,
 		);
 	}
 
@@ -171,8 +172,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		// Since the transient gets updates twice and we only care about the
 		// last update we only want to see 1 sync event.
 		$events = $this->server_event_storage->get_all_events( 'jetpack_update_core_change' );
-		$this->assertEquals( 1, count( $events ) );
-
+		$this->assertCount( 1, $events );
 	}
 
 	public function test_sync_wp_version() {
@@ -186,7 +186,14 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		$wp_version = 'bar';
 
 		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
-		do_action( 'upgrader_process_complete', null, array( 'action' => 'update', 'type' => 'core' ) );
+		do_action(
+			'upgrader_process_complete',
+			null,
+			array(
+				'action' => 'update',
+				'type'   => 'core',
+			)
+		);
 		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
 
 		$this->sender->do_sync();
@@ -196,18 +203,23 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_automatic_updates_complete_sync_action() {
-		// wp_maybe_auto_update();
-		do_action( 'automatic_updates_complete', array( 'core' => array(
-			'item'     => array( 'somedata' ),
-			'result'   => 'some more data',
-			'name'     => 'WordPress 4.7',
-			'messages' => array( 'it worked.' ) ) ) );
+		// Commenting this out for now. wp_maybe_auto_update();
+		do_action(
+			'automatic_updates_complete',
+			array(
+				'core' => array(
+					'item'     => array( 'somedata' ),
+					'result'   => 'some more data',
+					'name'     => 'WordPress 4.7',
+					'messages' => array( 'it worked.' ),
+				),
+			)
+		);
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'automatic_updates_complete' );
 		$this->assertTrue( (bool) $event );
 	}
-
 
 	public function test_network_core_update_sync_action() {
 		if ( ! is_multisite() ) {
@@ -215,7 +227,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		}
 
 		global $wp_db_version, $wp_version;
-		update_site_option( 'wpmu_upgrade_site', (int)$wp_db_version + 1 );
+		update_site_option( 'wpmu_upgrade_site', (int) $wp_db_version + 1 );
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_core_update_network' );
@@ -239,7 +251,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_core_updated_successfully' );
 
 		$this->assertTrue( (bool) $event );
-		$this->assertEquals( $event->args[0], 'foo' ); // Old Version
+		$this->assertEquals( 'foo', $event->args[0] ); // Old Version
 		$this->assertEquals( $event->args[1], $wp_version ); // New version
 	}
 
@@ -254,7 +266,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_core_autoupdated_successfully' );
 
 		$this->assertTrue( (bool) $event );
-		$this->assertEquals( $event->args[0], 'foo' ); // Old Version
+		$this->assertEquals( 'foo', $event->args[0] ); // Old Version
 		$this->assertEquals( $event->args[1], $wp_version ); // New version
 	}
 
@@ -263,16 +275,18 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertFalse( $pagenow === 'update-core.php' );
 		Constants::set_constant( 'REST_API_REQUEST', true );
-		Modules::get_module( "updates" )->update_core( 'new_version' );
+		$updates_module = Modules::get_module( 'updates' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Updates $updates_module';
+		$updates_module->update_core( 'new_version' );
 		$this->sender->do_sync();
 
 		Constants::clear_single_constant( 'REST_API_REQUEST' );
 
 		$autoupdate_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_core_autoupdated_successfully' );
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_core_updated_successfully' );
+		$event            = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_core_updated_successfully' );
 		$this->assertFalse( (bool) $autoupdate_event );
 		$this->assertTrue( (bool) $event );
-		$this->assertEquals( $event->args[0], 'new_version' ); // Old Version
+		$this->assertEquals( 'new_version', $event->args[0] ); // Old Version
 		$this->assertEquals( $event->args[1], $wp_version ); // New version
 	}
 
@@ -290,14 +304,15 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_core_reinstalled_successfully' );
 
 		$this->assertTrue( (bool) $event );
-		$this->assertEquals( $event->args[0], 'foo' ); // New version
+		$this->assertEquals( 'foo', $event->args[0] ); // New version
 	}
 
 	/**
 	 * Verify that all updates are returned by get_objects_by_id.
 	 */
 	public function test_get_objects_by_id_all() {
-		$module      = Modules::get_module( 'updates' );
+		$module = Modules::get_module( 'updates' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Updates $module';
 		$all_updates = $module->get_objects_by_id( 'update', array( 'all' ) );
 		$this->assertEquals( $module->get_all_updates(), $all_updates );
 	}
@@ -306,7 +321,8 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that get_object_by_id returns an allowed update.
 	 */
 	public function test_get_objects_by_id_singular() {
-		$module      = Modules::get_module( 'updates' );
+		$module = Modules::get_module( 'updates' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Updates $module';
 		$updates     = $module->get_all_updates();
 		$get_updates = $module->get_objects_by_id( 'update', array( 'core' ) );
 		$this->assertEquals( $updates['core'], $get_updates['core'] );

@@ -1,11 +1,10 @@
-/**
- * WordPress dependencies
- */
+import {
+	useFocusReturn,
+	useConstrainedTabbing,
+	useFocusOnMount,
+	useMergeRefs,
+} from '@wordpress/compose';
 import { ESCAPE, SPACE } from '@wordpress/keycodes';
-import { useFocusReturn, useConstrainedTabbing, useFocusOnMount } from '@wordpress/compose';
-
-// TODO: replace with `import { useMergeRefs } from '@wordpress/compose';` when package is upgraded to ^3.24.4
-import useMergeRefs from '../lib/use-merge-refs';
 
 export default function ModalFrame( {
 	overlayClassName,

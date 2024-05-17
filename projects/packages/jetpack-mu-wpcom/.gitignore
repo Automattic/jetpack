@@ -1,0 +1,6 @@
+.cache/
+src/build/
+vendor/
+node_modules/
+wordpress/
+playwright-report/

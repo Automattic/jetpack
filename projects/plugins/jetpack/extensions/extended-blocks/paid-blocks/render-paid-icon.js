@@ -1,16 +1,4 @@
-/**
- * WordPress dependencies
- */
-import { cloneElement } from '@wordpress/element';
-
-/**
- * External dependencies
- */
 import { isUpgradable } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
 import PaidSymbol from './paid-symbol';
 
 /**
@@ -20,19 +8,26 @@ import PaidSymbol from './paid-symbol';
  * @returns {object} The default icon enhanced with the PaidSymbol
  */
 const renderPaidIcon = icon => {
+	const paidSymbol = <PaidSymbol key="paid-symbol" />;
+
 	if ( icon?.src ) {
-		icon = {
+		return {
 			...icon,
-			src: cloneElement( icon.src, {
-				children: [ icon.src.props.children, <PaidSymbol key="paid-symbol" /> ],
-			} ),
+			src: (
+				<>
+					{ icon.src }
+					{ paidSymbol }
+				</>
+			),
 		};
-	} else if ( icon?.props?.children ) {
-		icon = cloneElement( icon, {
-			children: [ icon.props.children, <PaidSymbol key="paid-symbol" /> ],
-		} );
 	}
-	return icon;
+
+	return (
+		<>
+			{ icon }
+			{ paidSymbol }
+		</>
+	);
 };
 
 export default renderPaidIcon;

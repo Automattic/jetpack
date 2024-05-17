@@ -1,0 +1,1 @@
+ 18 | ERROR | The function array_key_first() is not present in PHP version 7.2 or earlier (PHPCompatibility.FunctionUse.NewFunctions.array_key_firstFound)

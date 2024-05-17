@@ -1,3 +1,5 @@
+@import '../../scss/calypso-colors';
+
 .dops-notice {
 	ul {
 		@include breakpoint( "<480px" ) {
@@ -12,10 +14,14 @@
 	}
 }
 
-.jp-unlinked-notice .jp-connection-banner__icon {
-	align-self: center;
-	margin-right: 1rem;
-	line-height: 0;
+.jp-unlinked-notice {
+	background: $white;
+
+	.jp-connection-banner__icon {
+		align-self: center;
+		margin-right: 1rem;
+		line-height: 0;
+	}
 }
 
 .loading-notice {

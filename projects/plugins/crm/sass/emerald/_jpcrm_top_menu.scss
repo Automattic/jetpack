@@ -1,0 +1,103 @@
+#jpcrm-top-menu {
+	padding: 20px 20px 0px 20px;
+	display: block;
+	background-color: white;
+
+	/* handle top menu logo cube */
+	.logo-cube {
+		cursor:pointer;
+		height: 40px;
+		width: 200px;
+		line-height: 1;
+		transition: transform 0.33s;
+		transform-style: preserve-3d;
+
+		&:hover {
+			-webkit-transform: rotateX(90deg);
+			transform: rotateX(90deg); /* Text bleed at 90º */
+		}
+		
+		.cube-side {
+			height: 40px;
+			background-color: white;
+			text-align: center;
+
+			&.side1 {
+				-webkit-transform: translateZ(20px);
+				transform: translateZ(20px);
+
+				img {
+					max-width: 100%;
+					max-height: 40px;
+				}
+			}
+
+			&.side2 {
+				font-size: 40px;
+				-webkit-transform: rotateX(-90deg) translateZ(-20px);
+				transform: rotateX(-90deg) translateZ(-20px);
+			}
+		}
+	}
+
+	menu-bar {
+		margin-top: 10px;
+		display: flex;
+		justify-content: space-between;
+		align-items: end;
+
+		menu-section {
+
+			font-size: 14px;
+			font-family: "Lato", "Helvetica Neue", Arial, Helvetica, sans-serif;
+			display: flex;
+			align-items: center;
+
+			.item {
+				color: var(--jp-black);
+				padding: 1em;
+				line-height: 1;
+
+				&.current_menu_item {
+					border-bottom: 2px solid var(--jp-black);
+				}
+			}
+
+			#jpcrm-user-menu-item {
+				img {
+					border-radius: 50%;
+				}
+			}
+
+			#jpcrm-user-menu {
+				width:580px;
+				min-width:580px;
+
+				i.icon {
+					margin-right: 8px;
+				}
+			}
+
+			.jpcrm-user-menu-link {
+				display: flex;
+				align-items: flex-start;
+
+				.item {
+					display: flex;
+					align-items: center;
+
+					i {
+						margin-right: 10px;
+						color: rgba(0, 0, 0, 0.4);
+					}
+				}
+
+				&:hover {
+					.item i {
+						color: rgba(0, 0, 0, 0.87);
+					}
+				}
+			}
+		}
+	}
+}

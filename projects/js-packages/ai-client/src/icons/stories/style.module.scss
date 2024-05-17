@@ -1,0 +1,21 @@
+.icons-container {
+	display: flex;
+	flex-wrap: wrap;
+	margin-bottom: 20px;
+	flex-direction: column;
+}
+
+.icon-container {
+	padding: 10px;
+	box-shadow: 0 0 1px inset rgba(0, 0, 0 , 0.5 );
+	background-color: white;
+	border-radius: 5px;
+	margin: 2px;
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.icon-name {
+	font-size: 14px;
+}

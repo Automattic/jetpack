@@ -1,0 +1,33 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-plugin-deactivation",
+	"version": "0.2.1",
+	"description": "Intercept plugin deactivation with a dialog",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/plugin-deactivation/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Plugin Deactivation"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/plugin-deactivation"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "pnpm run clean && pnpm run build-client",
+		"build-client": "pnpm webpack --config webpack.config.js",
+		"clean": "rm -rf build/",
+		"watch": "pnpm run build && pnpm webpack watch",
+		"test": "jest --config=tests/jest.config.js"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"sass": "1.64.1",
+		"sass-loader": "12.4.0",
+		"tslib": "2.5.0",
+		"typescript": "5.0.4",
+		"webpack": "5.76.0",
+		"webpack-cli": "4.9.1"
+	}
+}

@@ -1,12 +1,12 @@
 const path = require( 'path' );
-const mock_PLUGIN_NAME = require( '../src/plugin-name.js' );
+const mock_PLUGIN_NAME = require( '../src/plugin-name.js' ); // eslint-disable-line import/order
 
 const mockDebug = jest.fn();
 mockDebug.enabled = true;
 jest.mock( 'debug', () => name => ( name.startsWith( mock_PLUGIN_NAME ) ? mockDebug : () => {} ) );
 
-const GettextEntry = require( '../src/GettextEntry' );
 const GettextEntries = require( '../src/GettextEntries' );
+const GettextEntry = require( '../src/GettextEntry' );
 const GettextExtractor = require( '../src/GettextExtractor' );
 
 jest.useFakeTimers().setSystemTime( 1638988613000 );

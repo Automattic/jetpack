@@ -1,14 +1,8 @@
-/**
- * External dependencies
- */
-import PropTypes from 'prop-types';
-import React from 'react';
 import classNames from 'classnames';
 import { noop } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
 
-/**
- * Internal dependencies
- */
 import './style.scss';
 
 export default class Button extends React.Component {
@@ -34,6 +28,8 @@ export default class Button extends React.Component {
 		borderless: false,
 	};
 
+	domNode = null;
+
 	render() {
 		const element = this.props.href ? 'a' : 'button';
 		const { primary, compact, scary, borderless, rna, className, ...props } = this.props;
@@ -48,6 +44,7 @@ export default class Button extends React.Component {
 		} );
 
 		props.className = classNames( className, buttonClasses );
+		props.ref = node => ( this.domNode = node );
 
 		return React.createElement( element, props, this.props.children );
 	}

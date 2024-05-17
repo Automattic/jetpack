@@ -115,6 +115,10 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 			'https://wordpress.com/customize/' . $this->domain
 		);
 		remove_submenu_page( $this->appearance_slug, $customize_custom_css_url );
+
+		// Tools
+		remove_submenu_page( $this->tools_slug, 'https://wordpress.com/marketing/tools/' . $this->domain );
+		remove_submenu_page( $this->tools_slug, 'https://wordpress.com/earn/' . $this->domain );
 	}
 
 	/**
@@ -126,8 +130,6 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 		remove_submenu_page( $this->upgrades_slug, 'https://wordpress.com/email/' . $this->domain );
 		// Stats.
 		remove_menu_page( 'https://wordpress.com/stats/day/' . $this->domain );
-		// Hide all Jetpack for hubs.
-		remove_menu_page( $this->jetpack_slug );
 		// Hide posts.
 		remove_menu_page( 'edit.php' );
 		// Hide pages.
@@ -139,7 +141,11 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 		// Hide appearance.
 		remove_menu_page( $this->appearance_slug );
 		// Tools.
-		remove_menu_page( $this->tools_slug );
+		remove_submenu_page( $this->tools_slug, 'https://wordpress.com/marketing/tools/' . $this->domain );
+		remove_submenu_page( $this->tools_slug, 'https://wordpress.com/earn/' . $this->domain );
+		remove_submenu_page( $this->tools_slug, 'https://wordpress.com/import/' . $this->domain );
+		remove_submenu_page( $this->tools_slug, 'https://wordpress.com/export/' . $this->domain );
+		add_submenu_page( $this->tools_slug, __( 'Integrations', 'jetpack' ), __( 'Integrations', 'jetpack' ), 'manage_options', 'https://wordpress.com/marketing/connections/' . $this->domain, null, 0 );
 		// Hide settings.
 		remove_submenu_page( 'options-general.php', 'options-reading.php' );
 		remove_submenu_page( 'options-general.php', 'options-writing.php' );
@@ -150,10 +156,8 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 	 * Remove menu items that are not applicable for all P2s.
 	 */
 	private function remove_menus_for_all_p2s() {
-		// For free sites remove Jetpack menu item.
-		if ( ! $this->is_paid ) {
-			remove_menu_page( $this->jetpack_slug );
-		}
+		// Remove Jetpack menu item.
+		remove_menu_page( $this->jetpack_slug );
 
 		// The following menu items are hidden for both hubs and P2 sites.
 		remove_menu_page( 'link-manager.php' );
@@ -161,9 +165,6 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 		remove_menu_page( $this->plugins_slug );
 		remove_menu_page( 'https://wordpress.com/plugins/' . $this->domain );
 		remove_menu_page( 'https://wordpress.com/inbox/' . $this->domain );
-
-		remove_submenu_page( $this->tools_slug, 'https://wordpress.com/marketing/tools/' . $this->domain );
-		remove_submenu_page( $this->tools_slug, 'https://wordpress.com/earn/' . $this->domain );
 
 		remove_submenu_page( 'https://wordpress.com/settings/general/' . $this->domain, 'sharing' );
 		remove_submenu_page( 'https://wordpress.com/settings/general/' . $this->domain, 'polls&action=options' );

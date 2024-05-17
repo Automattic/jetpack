@@ -19,7 +19,7 @@ new Jetpack_JSON_API_Plugins_New_Endpoint(
 			'$site' => '(int|string) Site ID or domain',
 		),
 		'request_format'          => array(
-			'zip' => '(zip) Plugin package zip file. multipart/form-data encoded. ',
+			'zip' => '(array) Reference to an uploaded plugin package zip file.',
 		),
 		'response_format'         => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
 		'allow_jetpack_site_auth' => true,
@@ -44,7 +44,7 @@ new Jetpack_JSON_API_Plugins_New_Endpoint(
 			'$site' => '(int|string) Site ID or domain',
 		),
 		'request_format'          => array(
-			'zip' => '(zip) Plugin package zip file. multipart/form-data encoded. ',
+			'zip' => '(array) Reference to an uploaded plugin package zip file.',
 		),
 		'response_format'         => Jetpack_JSON_API_Plugins_Endpoint::$_response_format_v1_2,
 		'allow_jetpack_site_auth' => true,
@@ -142,8 +142,8 @@ class Jetpack_JSON_API_Plugins_New_Endpoint extends Jetpack_JSON_API_Plugins_End
 			$plugin                    = array_values( array_diff( array_keys( $after_install_plugin_list ), array_keys( $pre_install_plugin_list ) ) );
 
 			if ( ! $result ) {
-				$error_code = $upgrader->skin->get_main_error_code();
-				$message    = $upgrader->skin->get_main_error_message();
+				$error_code = $skin->get_main_error_code();
+				$message    = $skin->get_main_error_message();
 				if ( empty( $message ) ) {
 					$message = __( 'An unknown error occurred during installation', 'jetpack' );
 				}

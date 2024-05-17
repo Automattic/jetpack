@@ -1,0 +1,47 @@
+# Files to include in the mirror repo, but excluded via gitignore
+# Remember to end all directories with `/**` to properly tag every file.
+# /src/js/example.min.js  production-include
+/build/**                                       production-include
+/jetpack_vendor/**                              production-include
+/vendor/autoload.php                            production-include
+/vendor/autoload_packages.php                   production-include
+/vendor/automattic/**                           production-include
+/vendor/composer/**                             production-include
+/vendor/jetpack-autoloader/**                   production-include
+/vendor/dompdf/**                               production-include
+/vendor/phenx/**                                production-include
+/vendor/masterminds/html5/**                    production-include
+/vendor/sabberworm/php-css-parser/**            production-include
+**/css/**                                       production-include
+**/js/*.min.js                                  production-include
+**/js/welcome-to-zbs/*.min.js                   production-include
+**/js/*.min.js.LICENSE.txt                      production-include
+
+
+# Files to exclude from the mirror repo, but included in the monorepo.
+# Remember to end all directories with `/**` to properly tag every file.
+/.babelrc                                        production-exclude
+/.eslintrc.js                                    production-exclude
+/.eslintignore                                   production-exclude
+/.gitattributes                                  production-exclude
+/.gitignore                                      production-exclude
+/.wp-env.json                                    production-exclude
+/.phpcs.dir.xml                                  production-exclude
+/.phpcs.dir.phpcompatibility.xml                 production-exclude
+/codeception.dist.yml                            production-exclude
+/gulpfile.esm.js                                 production-exclude
+/jest.config.js                                  production-exclude
+/phpcs.security.xml.dist                         production-exclude
+/phpcs.xml.dist                                  production-exclude
+/babel.config.js                                 production-exclude
+/changelog/**                                   production-exclude
+/composer.lock                                   production-exclude
+/package.json                                    production-exclude
+/README.md                                       production-exclude
+/tsconfig.json                                   production-exclude
+/sass/**                                        production-exclude
+/tests/**                                       production-exclude
+/vendor/automattic/jetpack-autoloader/**        production-exclude
+/vendor/automattic/jetpack-changelogger/**      production-exclude
+/vendor/automattic/jetpack-composer-plugin/**   production-exclude
+/webpack.config.js                               production-exclude

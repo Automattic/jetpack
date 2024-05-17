@@ -2,15 +2,12 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 
-/**
- * External Dependencies
- */
+import classNames from 'classnames';
+import { createFocusTrap } from 'focus-trap';
+import jQuery from 'jquery';
+import { assign, omit } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
-import ReactDOM from 'react-dom';
-import classNames from 'classnames';
-import { assign, omit } from 'lodash';
-import { createFocusTrap } from 'focus-trap';
 
 // this flag will prevent ANY modals from closing.
 // use with caution!
@@ -43,6 +40,8 @@ class Modal extends React.Component {
 		style: {},
 	};
 
+	domNode = null;
+
 	state = {
 		overlayMouseDown: false,
 	};
@@ -51,7 +50,7 @@ class Modal extends React.Component {
 		jQuery( 'body' ).addClass( 'dops-modal-showing' ).on( 'touchmove.dopsmodal', false );
 		jQuery( document ).keyup( this.handleEscapeKey );
 		try {
-			this.focusTrap = createFocusTrap( ReactDOM.findDOMNode( this ) );
+			this.focusTrap = createFocusTrap( this.domNode );
 			this.focusTrap.activate( {
 				// onDeactivate: this.maybeClose,
 				initialFocus: this.props.initialFocus,
@@ -72,8 +71,7 @@ class Modal extends React.Component {
 	}
 
 	handleEscapeKey = e => {
-		if ( e.keyCode === 27 ) {
-			// escape key maps to keycode `27`
+		if ( e.code === 'Escape' ) {
 			this.maybeClose();
 		}
 	};
@@ -125,6 +123,7 @@ class Modal extends React.Component {
 		const combinedStyle = assign( {}, style, containerStyle );
 		return (
 			<div
+				ref={ node => ( this.domNode = node ) }
 				className="dops-modal-wrapper"
 				onClick={ this.handleClickOverlay }
 				onMouseDown={ this.handleMouseDownOverlay }

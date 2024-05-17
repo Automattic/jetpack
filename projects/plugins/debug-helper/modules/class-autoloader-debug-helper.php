@@ -155,7 +155,7 @@ class Autoloader_Debug_Helper {
 		$parts = explode( '\\', $classname );
 		array_pop( $parts );
 
-		return join( '\\', $parts );
+		return implode( '\\', $parts );
 	}
 
 	/**
@@ -268,6 +268,8 @@ class Autoloader_Debug_Helper {
 	}
 }
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
+
 add_action( 'plugins_loaded', 'register_autoloader_debug_helper', 1000 );
 
 /**
@@ -285,7 +287,12 @@ function register_autoloader_debug_helper() {
  * Notice for if Jetpack is not active.
  */
 function autoloader_debug_helper_jetpack_not_active() {
-	echo '<div class="notice info"><p>Jetpack Debug tools: Jetpack_Options package must be present for the Autoloader Debug Helper to work.</p></div>';
+	wp_admin_notice(
+		'Jetpack Debug tools: Jetpack_Options package must be present for the Autoloader Debug Helper to work.',
+		array(
+			'type' => 'info',
+		)
+	);
 }
 
 // phpcs:enable

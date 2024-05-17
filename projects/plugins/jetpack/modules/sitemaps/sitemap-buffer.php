@@ -266,6 +266,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	 * @return string|DOMDocument The rendered XML string or an object if root element is specified.
 	 */
 	protected function array_to_xml_string( $array, $parent = null, $root = null ) {
+		$element       = null;
 		$return_string = false;
 
 		if ( null === $parent ) {

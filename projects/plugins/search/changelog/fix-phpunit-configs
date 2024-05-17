@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.

@@ -1,11 +1,4 @@
-/**
- * WordPress dependencies
- */
 import { Platform } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 import { GUTTER_WIDTH } from '../../constants';
 
 /**

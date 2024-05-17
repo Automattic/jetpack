@@ -1,18 +1,22 @@
-( function ( d, c, j ) {
-	var crowdsignal_shortcode_options;
+( function ( w, d, c, j ) {
 	if (
-		crowdsignal_shortcode_options &&
-		crowdsignal_shortcode_options.script_url &&
+		w.crowdsignal_shortcode_options &&
+		w.crowdsignal_shortcode_options.script_url &&
 		! d.getElementById( j )
 	) {
 		var pd = d.createElement( c ),
 			s;
 		pd.id = j;
 		pd.async = true;
-		pd.src = crowdsignal_shortcode_options.script_url;
+		pd.src = w.crowdsignal_shortcode_options.script_url;
 		s = d.getElementsByTagName( c )[ 0 ];
 		s.parentNode.insertBefore( pd, s );
-	} else if ( typeof jQuery !== 'undefined' ) {
-		jQuery( d.body ).trigger( 'pd-script-load' );
+	} else {
+		// In environments where jQuery is present, dispatch with jQuery.
+		if ( typeof w.jQuery !== 'undefined' ) {
+			w.jQuery( d.body ).trigger( 'pd-script-load' );
+		} else {
+			d.body.dispatchEvent( new Event( 'pd-script-load' ) );
+		}
 	}
-} )( document, 'script', 'pd-polldaddy-loader' );
+} )( window, document, 'script', 'pd-polldaddy-loader' );

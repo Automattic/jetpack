@@ -1,0 +1,13 @@
+[
+	{
+		"clientId": "_clientId_0",
+		"name": "jetpack/blog-stats",
+		"isValid": true,
+		"attributes": {
+			"statsData": "views",
+			"statsOption": "site"
+		},
+		"innerBlocks": [],
+		"originalContent": ""
+	}
+]

@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-BREAKING: Changed the default value for the `status` input.

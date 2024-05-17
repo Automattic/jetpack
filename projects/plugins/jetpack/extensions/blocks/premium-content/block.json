@@ -1,0 +1,71 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "premium-content/container",
+	"title": "Paid Content",
+	"description": "Restrict access to your content for paying subscribers.",
+	"keywords": [
+		"buy",
+		"credit card",
+		"debit card",
+		"monetize",
+		"earn",
+		"exclusive",
+		"gated",
+		"gofundme",
+		"memberships",
+		"money",
+		"newsletter",
+		"paid",
+		"patreon",
+		"pay",
+		"payments",
+		"paywall",
+		"premium content",
+		"purchase",
+		"recurring",
+		"repeat",
+		"signin",
+		"stripe",
+		"subscribe",
+		"subscriptions",
+		"support",
+		"sponsor",
+		"square",
+		"toast",
+		"venmo",
+		"stripe",
+		"substack"
+	],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "monetize",
+	"icon": "<svg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><path d='m12.74,14.43l-4.1-1.26-.13.71-.42,6.87c-.03.49.52.81.93.54l3.72-2.48,4,2.51c.42.26.96-.07.92-.56l-.64-6.87v-.71l-4.28,1.26Z'/><path d='m12.74,15.14c-3.55,0-6.44-2.89-6.44-6.44s2.89-6.44,6.44-6.44,6.44,2.89,6.44,6.44-2.89,6.44-6.44,6.44Zm0-11.89c-3,0-5.44,2.44-5.44,5.44s2.44,5.44,5.44,5.44,5.44-2.44,5.44-5.44-2.44-5.44-5.44-5.44Z'/><path d='M11.95 11.08 9.36 8.48 10.06 7.77 11.95 9.66 15.42 6.19 16.13 6.9 11.95 11.08z'/></svg>",
+	"supports": {
+		"html": false
+	},
+	"providesContext": {
+		"premium-content/planIds": "selectedPlanIds",
+		"premium-content/isPreview": "isPreview",
+		"isPremiumContentChild": "isPremiumContentChild"
+	},
+	"attributes": {
+		"selectedPlanIds": {
+			"type": "array",
+			"default": []
+		},
+		"isPreview": {
+			"type": "boolean",
+			"default": false
+		},
+		"isPremiumContentChild": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"example": {
+		"attributes": {
+			"isPreview": true
+		}
+	}
+}

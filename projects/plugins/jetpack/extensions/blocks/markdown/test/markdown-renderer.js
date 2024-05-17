@@ -1,19 +1,10 @@
-/**
- * External dependencies
- */
-import { shallow } from 'enzyme';
-import React from 'react';
-
-/**
- * Internal dependencies
- */
-import { source } from './fixtures/source';
+import { render } from '@testing-library/react';
 import MarkdownRenderer from '../renderer';
+import { source } from './fixtures/source';
 
 describe( 'MarkdownRenderer', () => {
 	test( 'renders markdown to HTML as expected', () => {
-		expect(
-			shallow( <MarkdownRenderer className="markdown" source={ source } /> )
-		).toMatchSnapshot();
+		const { container } = render( <MarkdownRenderer className="markdown" source={ source } /> );
+		expect( container ).toMatchSnapshot( 'source' );
 	} );
 } );

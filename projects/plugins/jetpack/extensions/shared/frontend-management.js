@@ -1,8 +1,5 @@
-/**
- * External dependencies
- */
-import { assign, kebabCase } from 'lodash';
 import { createElement, render } from '@wordpress/element';
+import { assign, kebabCase } from 'lodash';
 
 export class FrontendManagement {
 	blockIterator( rootNode, blocks ) {

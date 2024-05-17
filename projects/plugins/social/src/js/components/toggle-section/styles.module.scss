@@ -1,0 +1,86 @@
+.column {
+	grid-column: 1 / -1;
+	display: grid;
+	grid-template-columns: auto 1fr;
+	grid-template-rows: repeat( 2, auto );
+	column-gap: calc( var( --spacing-base ) * 3 );
+	row-gap: calc( var( --spacing-base ) * 2 );
+
+	> * + * {
+		margin-top: calc( var( --spacing-base ) * 2 );
+	}
+
+	@supports ( display: grid ) {
+		> * + * {
+			margin-top: 0;
+		}
+	}
+
+	@media ( min-width: 600px ) {
+		grid-column: 2 / span 6;
+	}
+
+	@media ( min-width: 960px ) {
+		column-gap: calc( var( --spacing-base ) * 6 );
+		grid-column: 3 / span 8;
+	}
+}
+
+.title {
+	grid-row: 1;
+
+	@media ( min-width: 600px ) {
+		grid-column: 2;
+	}
+}
+
+.toggle.toggle {
+	align-self: center;
+	grid-column: 2;
+	margin-bottom: 0;
+
+	@media ( min-width: 600px ) {
+		grid-column: 1;
+	}
+	// Specific, "ugly" selector is required to overwrite the default styling
+	:global {
+		.components-base-control__field {
+			--wp-admin-theme-color: var( --jp-green-40 );
+			margin-bottom: 0;
+
+			.components-form-toggle {
+				margin-right: 0;
+			}
+		}
+
+		.components-form-toggle__track {
+			width: 48px;
+			height: 24px;
+			border-radius: 12px;
+			border-width: 1.5px;
+		}
+
+		.components-form-toggle__thumb {
+			width: 14px;
+			height: 14px;
+			top: 5px;
+			left: 5px;
+		}
+
+		.components-form-toggle.is-checked .components-form-toggle__thumb {
+			transform: translateX( 24px );
+		}
+	}
+}
+
+.beta {
+	background: var( --jp-green-5 );
+	color: var( --jp-green-60 );
+	padding: 0.5px 6px;
+	border-radius: 3px;
+	font-size: 0.9rem;
+	display: inline-block;
+	margin-inline-start: 16px;
+	transform: translateY(-2px);
+	line-height: 22px;
+}

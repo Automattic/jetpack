@@ -1,0 +1,402 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V2.80+
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 29/04/18
+ */
+
+/*
+	Global styles for ZBS Mobile and Tablet layouts. 
+*/
+
+/* Semantic UI has these classes, however they're only applicable to*/
+/* grids, containers, rows and columns.*/
+/* plus, there isn't any `mobile hidden`, `X hidden` class.*/
+/* this snippet is using the same class names and same approach*/
+/* plus a bit more but to all elements.*/
+/* see https://github.com/Semantic-Org/Semantic-UI/issues/1114/
+
+/* Mobile */
+@media only screen and (max-width: 767px) {
+    [class*="mobile hidden"],
+    [class*="tablet only"]:not(.mobile),
+    [class*="computer only"]:not(.mobile),
+    [class*="large screen only"]:not(.mobile),
+    [class*="widescreen only"]:not(.mobile),
+    [class*="or lower hidden"] {
+      display: none !important;
+    }
+  }
+  
+  /* Tablet / iPad Portrait */
+  @media only screen and (min-width: 768px) and (max-width: 991px) {
+    [class*="mobile only"]:not(.tablet),
+    [class*="tablet hidden"],
+    [class*="computer only"]:not(.tablet),
+    [class*="large screen only"]:not(.tablet),
+    [class*="widescreen only"]:not(.tablet),
+    [class*="or lower hidden"]:not(.mobile) {
+      display: none !important;
+    }
+  }
+  
+  /* Computer / Desktop / iPad Landscape */
+  @media only screen and (min-width: 992px) and (max-width: 1199px) {
+    [class*="mobile only"]:not(.computer),
+    [class*="tablet only"]:not(.computer),
+    [class*="computer hidden"],
+    [class*="large screen only"]:not(.computer),
+    [class*="widescreen only"]:not(.computer),
+    [class*="or lower hidden"]:not(.tablet):not(.mobile) {
+      display: none !important;
+    }
+  }
+  
+  /* Large Monitor */
+  @media only screen and (min-width: 1200px) and (max-width: 1919px) {
+    [class*="mobile only"]:not([class*="large screen"]),
+    [class*="tablet only"]:not([class*="large screen"]),
+    [class*="computer only"]:not([class*="large screen"]),
+    [class*="large screen hidden"],
+    [class*="widescreen only"]:not([class*="large screen"]),
+    [class*="or lower hidden"]:not(.computer):not(.tablet):not(.mobile) {
+      display: none !important;
+    }
+  }
+  
+  /* Widescreen Monitor */
+  @media only screen and (min-width: 1920px) {
+    [class*="mobile only"]:not([class*="widescreen"]),
+    [class*="tablet only"]:not([class*="widescreen"]),
+    [class*="computer only"]:not([class*="widescreen"]),
+    [class*="large screen only"]:not([class*="widescreen"]),
+    [class*="widescreen hidden"],
+    [class*="widescreen or lower hidden"] {
+      display: none !important;
+    }
+  }
+
+/* Main Mobile Style */
+@media only screen and (max-width: 767px) {
+
+    #zbs-doc-menu{
+        .bottom{
+            overflow-x:scroll;
+            ::-webkit-scrollbar {
+                width: 0px;  /* remove scrollbar space */
+                background: transparent;  /* optional: just make scrollbar invisible */
+            }
+        }
+    }
+
+    #wpcontent {
+
+        .label{
+            white-space: pre-wrap;
+        }
+
+        .grid{
+            max-width:100%;
+        }
+
+        #zbs-mobile-nav{
+            background: #2c2e2f;
+            cursor: pointer;
+        }
+
+        #wpbody-content{
+            //margin-top:-45px;
+            margin-top:0;
+        }
+        
+        #zbs-mobile-navigation-toggle{
+            display:none;
+        }
+
+
+        #zbs-main-logo-mobile{
+            img{
+                width:85px;
+                cursor:pointer;
+                height:auto;
+            }
+        }
+
+        .ui.grid>.row>[class*="eight wide"].column, .ui.grid>.column.row>[class*="eight wide"].column, .ui.grid>[class*="eight wide"].column, .ui.column.grid>[class*="eight wide"].column{
+            width: 100% !important;
+            overflow:hidden;
+        }
+
+        .ui.grid>.row>[class*="five wide"].column, .ui.grid>.column.row>[class*="five wide"].column, .ui.grid>[class*="five wide"].column, .ui.column.grid>[class*="five wide"].column{
+            width: 100% !important;
+        }
+        .ui.grid>.row>[class*="eleven wide"].column, .ui.grid>.column.row>[class*="eleven wide"].column, .ui.grid>[class*="eleven wide"].column, .ui.column.grid>[class*="eleven wide"].column{
+            width:100% !important;
+        }
+        .ui.grid>.row>[class*="twelve wide"].column, .ui.grid>.column.row>[class*="twelve wide"].column, .ui.grid>[class*="twelve wide"].column, .ui.column.grid>[class*="twelve wide"].column{
+            width: 100% !important;
+        }
+        .ui.grid>.row>[class*="four wide"].column, .ui.grid>.column.row>[class*="four wide"].column, .ui.grid>[class*="four wide"].column, .ui.column.grid>[class*="four wide"].column{
+            width:100% !important;
+        }
+
+        .ui.grid>.row>[class*="thirteen wide"].column, .ui.grid>.column.row>[class*="thirteen wide"].column, .ui.grid>[class*="thirteen wide"].column, .ui.column.grid>[class*="thirteen wide"].column{
+            width:100% !important;
+        }
+
+        .ui.grid>.row>[class*="three wide"].column, .ui.grid>.column.row>[class*="three wide"].column, .ui.grid>[class*="three wide"].column, .ui.column.grid>[class*="three wide"].column{
+            width:100%!important;
+        }
+
+        #zbs-customer-panel{
+            padding-right:0px;
+        }
+
+        #zbs-customer-panel .three.wide.column img {
+            max-width: 100%;
+            width: 95% !important;
+        }
+
+        //specific targets
+        #email-template-submenu-admin{
+            a{
+                font-size: 12px;
+            }
+        }
+
+    }
+
+    //sort the padding out - semantic really should do this out the box!!
+    #zbs-customer-panel,  #zbs-custom-quicklinks, #zbs-edit-table-wrap, #zbs-edit-sidebar-wrap{
+        width:100% !important;
+        overflow:hidden;
+    }
+
+    #zbs-edit-master-wrap{
+        overflow:hidden;
+    }
+
+    .ui.divided.grid:not([class*="vertically divided"])>.column:not(.row), .ui.divided.grid:not([class*="vertically divided"])>.row>.column{
+        box-shadow:0px;
+    }
+
+    #back-to-list{
+        display:none;
+    }
+
+    //need to hide learn on mobile
+    #learn{
+        display:none;
+    }
+
+    .auto-fold #adminmenu a.menu-top {
+        height: inherit !important;
+    }
+
+    //invoice 
+    .post-type-zerobs_invoice #zbs_top_wrapper .zbs-invoice-topper input, .post-type-zerobs_invoice #zbs_top_wrapper .zbs-invoice-topper select{
+        width:100%;
+    }
+
+    .btn-zbs-save{
+        display:none;
+    }
+
+    .zbs-invoice-topper, #zbs_invoice_logos, #zbs-business-info-wrapper, #billing-to, #assign-to, .zbs-controls{
+        width:100% !important;
+    }
+
+}
+
+/* TINY old Mobile Style */
+@media only screen and (max-width: 600px) {
+    #wpcontent {
+            #zbs-mobile-nav.ui.mobile.only{
+                padding-top: 55px;
+            }
+    }
+}
+
+
+/* quick table fix */
+@media only screen and (max-width: 1120px) {
+    table.wh-metatab {
+        min-width:auto;
+    }
+}
+
+#zbs-mobile-nav {
+	padding: 10px 20px;
+	background: #2c2e2f;
+	cursor: pointer;
+}
+
+/* Tablet / iPad Portrait */
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+    #wpcontent {
+
+        .label{
+            white-space: pre-wrap;
+        }
+
+        .grid{
+            max-width:100%;
+        }
+        
+        #zbs-mobile-navigation-toggle{
+            display:none;
+        }
+
+
+        #zbs-main-logo-mobile{
+            img{
+                width:85px;
+                cursor:pointer;
+                height:auto;
+            }
+        }
+
+        .ui.grid>.row>[class*="eight wide"].column, .ui.grid>.column.row>[class*="eight wide"].column, .ui.grid>[class*="eight wide"].column, .ui.column.grid>[class*="eight wide"].column{
+            width: 100% !important;
+            overflow:hidden;
+        }
+
+        .ui.grid>.row>[class*="five wide"].column, .ui.grid>.column.row>[class*="five wide"].column, .ui.grid>[class*="five wide"].column, .ui.column.grid>[class*="five wide"].column{
+            width: 100% !important;
+        }
+        .ui.grid>.row>[class*="eleven wide"].column, .ui.grid>.column.row>[class*="eleven wide"].column, .ui.grid>[class*="eleven wide"].column, .ui.column.grid>[class*="eleven wide"].column{
+            width:100% !important;
+        }
+        .ui.grid>.row>[class*="twelve wide"].column, .ui.grid>.column.row>[class*="twelve wide"].column, .ui.grid>[class*="twelve wide"].column, .ui.column.grid>[class*="twelve wide"].column{
+            width: 100% !important;
+        }
+        .ui.grid>.row>[class*="four wide"].column, .ui.grid>.column.row>[class*="four wide"].column, .ui.grid>[class*="four wide"].column, .ui.column.grid>[class*="four wide"].column{
+            width:100% !important;
+        }
+
+  
+ 
+
+        #zbs-customer-panel{
+            padding-right:0px;
+        }
+
+        //specific targets
+        #email-template-submenu-admin{
+            a{
+                font-size: 12px;
+            }
+        }
+
+    }
+
+    //sort the padding out - semantic really should do this out the box!!
+    #zbs-customer-panel,  #zbs-custom-quicklinks, #zbs-edit-table-wrap, #zbs-edit-sidebar-wrap{
+        width:100% !important;
+        overflow:hidden;
+    }
+
+    #zbs-edit-master-wrap{
+        overflow:hidden;
+    }
+
+    .ui.divided.grid:not([class*="vertically divided"])>.column:not(.row), .ui.divided.grid:not([class*="vertically divided"])>.row>.column{
+        box-shadow:0px;
+    }
+
+    #back-to-list{
+        display:none;
+    }
+
+    //need to hide learn on mobile
+    #learn{
+        display:none;
+    }
+
+    .auto-fold #adminmenu a.menu-top {
+        height: inherit !important;
+    }
+
+    //invoice 
+    .post-type-zerobs_invoice #zbs_top_wrapper .zbs-invoice-topper input, .post-type-zerobs_invoice #zbs_top_wrapper .zbs-invoice-topper select{
+        width:100%;
+    }
+
+    .btn-zbs-save{
+        display:none;
+    }
+
+    .zbs-invoice-topper, #zbs_invoice_logos, #zbs-business-info-wrapper, #billing-to, #assign-to, .zbs-controls{
+        width:100% !important;
+    }
+
+    // Email template editor
+    .jpcrm-email-template-label-content {
+        
+        position: relative;
+        bottom: auto;
+        
+    }
+
+
+}
+
+
+//general remove stackable on tables
+
+/* Use .unstackable to remove table auto-stacking behavior!  Issue #947. */
+// https://github.com/Semantic-Org/Semantic-UI/issues/947
+.ui.unstackable.table {
+    display: table;
+  }
+  
+  .ui.unstackable.table thead {
+    display: table-header-group;
+  }
+  
+  .ui.unstackable.table tbody {
+    display: table-row-group;
+  }
+  
+  .ui.unstackable.table tfoot {
+    display: table-footer-group;
+  }
+  
+  .ui.unstackable.table tr {
+    display: table-row;
+  }
+  
+  .ui.unstackable.table td:first-child {
+    font-weight: normal;
+  }
+  
+  .ui.unstackable.table tr > td {
+    width: auto !important;
+    display: table-cell;
+    padding: 0.4em 0.7em;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+  }
+  
+  .ui.unstackable.celled.table.segment th:first-child,
+  .ui.unstackable.celled.table.segment td:first-child {
+    border-left: none !important;
+  }
+  
+  .ui.unstackable.celled.table.segment th:last-child,
+  .ui.unstackable.celled.table.segment td:last-child {
+    border-right: none !important;
+  }
+  
+  .ui.unstackable.celled.table.segment > *:first-child > tr:first-child > th,
+  .ui.unstackable.celled.table.segment > *:first-child > tr:first-child > td {
+    border-top: none !important;
+  }
+  
+  .ui.unstackable.celled.table.segment > *:last-child > tr:last-child > th,
+  .ui.unstackable.celled.table.segment > *:last-child > tr:last-child > td {
+    border-bottom: none !important;
+  }

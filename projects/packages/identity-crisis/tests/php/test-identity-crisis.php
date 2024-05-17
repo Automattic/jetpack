@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\IdentityCrisis\URL_Secret;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
 use WorDBless\BaseTestCase;
@@ -21,8 +22,6 @@ class Test_Identity_Crisis extends BaseTestCase {
 
 	/**
 	 * Set up tests.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		Constants::set_constant( 'JETPACK_DISABLE_RAW_OPTIONS', true );
@@ -31,8 +30,6 @@ class Test_Identity_Crisis extends BaseTestCase {
 
 	/**
 	 * Tear down tests.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		Constants::clear_constants();
@@ -141,42 +138,6 @@ class Test_Identity_Crisis extends BaseTestCase {
 		remove_filter( 'jetpack_should_handle_idc', '__return_false' );
 
 		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Test that should_handle_idc returns true when the legacy JETPACK_SYNC_IDC_OPTIN constant is true.
-	 */
-	public function test_should_handle_idc_true_when_legacy_constant_true() {
-		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', true );
-		$this->assertTrue( Identity_Crisis::should_handle_idc() );
-	}
-
-	/**
-	 * Test that should_handle_idc returns false when the legacy JETPACK_SYNC_IDC_OPTIN constant is false.
-	 */
-	public function test_should_handle_idc_false_when_legacy_constant_false() {
-		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
-		$this->assertFalse( Identity_Crisis::should_handle_idc() );
-	}
-
-	/**
-	 * Test that the legacy jetpack_sync_idc_optin filter is used by should_handle_idc.
-	 */
-	public function test_should_handle_idc_uses_legacy_filter() {
-		add_filter( 'jetpack_sync_idc_optin', '__return_false' );
-		$result = Identity_Crisis::should_handle_idc();
-		remove_filter( 'jetpack_sync_idc_optin', '__return_false' );
-
-		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Test that current JETPACK_SHOULD_HANDLE_IDC constant overrides the legacy JETPACK_SYNC_IDC_OPTIN constant.
-	 */
-	public function test_should_handle_idc_current_constant_overrides_legacy_constant() {
-		Constants::set_constant( 'JETPACK_SHOULD_HANDLE_IDC', true );
-		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
-		$this->assertTrue( Identity_Crisis::should_handle_idc() );
 	}
 
 	/**
@@ -587,6 +548,8 @@ class Test_Identity_Crisis extends BaseTestCase {
 				),
 				$input
 			);
+			// Add reversed_url key
+			$expected_option['reversed_url'] = true;
 		} else {
 			$expected_option = false;
 		}
@@ -601,7 +564,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 	/**
 	 * Data provider for test_check_response_for_idc_with_error_code
 	 *
-	 * @return The test data with the structure:
+	 * @return array[] The test data with the structure:
 	 *    'input'           => The input for the check_response_for_idc method.
 	 *     'option_updated' => Whether the check_response_for_idc method should update
 	 *                         the sync_error_idc option.
@@ -705,7 +668,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 	/**
 	 * Data provider for test_check_http_response_for_idc_detected_idc_detected.
 	 *
-	 * @return The test data with the structure:
+	 * @return array[] The test data with the structure:
 	 *    'input'           => The input for the check_response_for_idc method.
 	 *     'option_updated' => Whether the check_response_for_idc method should update
 	 *                         the sync_error_idc option.
@@ -982,5 +945,202 @@ class Test_Identity_Crisis extends BaseTestCase {
 	 */
 	public function return_string_1() {
 		return '1';
+	}
+
+	/**
+	 * Test the `add_secret_to_url_validation_response()` method.
+	 *
+	 * @return void
+	 */
+	public static function test_add_secret_to_url_validation_response() {
+		$data = array(
+			'key1' => 'value1',
+			'key2' => 'value2',
+		);
+
+		$data_updated = Identity_Crisis::add_secret_to_url_validation_response( $data );
+
+		$secret_db          = Jetpack_Options::get_option( URL_Secret::OPTION_KEY );
+		$data['url_secret'] = $secret_db['secret'];
+
+		static::assertEquals( $data, $data_updated );
+		static::assertArrayNotHasKey( 'url_secret_error', $data_updated );
+	}
+
+	/**
+	 * Test the `reverse_wpcom_urls_for_idc()` method.
+	 *
+	 * @return void
+	 */
+	public function testReverseWpcomUrlsForIdc() {
+		// Create a sample input array for testing
+		$sync_error = array(
+			'reversed_url'  => true,
+			'wpcom_siteurl' => 'example.com',
+			'wpcom_home'    => 'example.org',
+		);
+
+		// Call the method to be tested
+		$result = Identity_Crisis::reverse_wpcom_urls_for_idc( $sync_error );
+
+		// Assert that the 'wpcom_siteurl' and 'wpcom_home' keys have been reversed
+		$this->assertEquals( 'moc.elpmaxe', $result['wpcom_siteurl'] );
+		$this->assertEquals( 'gro.elpmaxe', $result['wpcom_home'] );
+
+		// Test with an array that doesn't contain 'reversed_url'
+		$sync_error2 = array(
+			'wpcom_siteurl' => 'example.com',
+			'wpcom_home'    => 'example.org',
+		);
+
+		$result2 = Identity_Crisis::reverse_wpcom_urls_for_idc( $sync_error2 );
+
+		// Assert that 'wpcom_siteurl' and 'wpcom_home' keys have been reversed
+		$this->assertEquals( 'example.com', $result2['wpcom_siteurl'] );
+		$this->assertEquals( 'example.org', $result2['wpcom_home'] );
+
+		// Assert that 'reversed_url' key is not present, and other keys are not changed
+		$this->assertArrayNotHasKey( 'reversed_url', $result2 );
+	}
+
+	/**
+	 * Test the 'register_request_body' filter.
+	 *
+	 * @return void
+	 */
+	public function test_register_request_body_ip() {
+		Identity_Crisis::init();
+
+		$body = array(
+			'key1' => 'val1',
+			'key2' => 'val2',
+		);
+		update_option( 'jetpack_persistent_blog_id', '12345' );
+
+		$new_body = apply_filters( 'jetpack_register_request_body', $body );
+
+		$secret = ( new URL_Secret() )->get_secret();
+
+		delete_option( 'jetpack_persistent_blog_id' );
+		delete_option( 'jetpack_identity_crisis_url_secret' );
+
+		$this->assertTrue( (bool) $secret );
+		$this->assertEquals(
+			array_merge(
+				$body,
+				array(
+					'persistent_blog_id' => '12345',
+					'url_secret'         => $secret,
+				)
+			),
+			$new_body
+		);
+	}
+
+	/**
+	 * Register saving the persistent blog ID on 'site_registered' action.
+	 *
+	 * @return void
+	 */
+	public function test_site_registered() {
+		Identity_Crisis::init();
+		$blog_id = 54321;
+
+		$option_before = get_option( 'jetpack_persistent_blog_id' );
+		do_action( 'jetpack_site_registered', $blog_id );
+		$option_after = get_option( 'jetpack_persistent_blog_id' );
+
+		$this->assertFalse( $option_before );
+		$this->assertSame( $blog_id, $option_after );
+	}
+
+	/**
+	 * Test the `set_ip_requester_for_idc()` method.
+	 *
+	 * @return void
+	 */
+	public function testAddIPRequesterForIdc() {
+		Identity_Crisis::init();
+
+		update_option( 'siteurl', 'http://72.182.131.109/' );
+		$hostname      = wp_parse_url( get_site_url(), PHP_URL_HOST );
+		$transient_key = ip2long( $hostname );
+
+		// Call the method to be tested
+		Identity_Crisis::set_ip_requester_for_idc( $hostname, $transient_key );
+		$result = Jetpack_Options::get_option( 'identity_crisis_ip_requester' );
+
+		// Assert that the the ip was added to the option
+		$this->assertIsArray( $result );
+
+		// Assert that the ip and expiry date are added
+		$expected_ip = '72.182.131.109';
+		foreach ( $result as $ip ) {
+			$this->assertEquals( $expected_ip, $ip['ip'] );
+			$this->assertTrue( is_int( $ip['expires_at'] ) );
+		}
+
+		// Test with another IP address
+		update_option( 'siteurl', 'http://33.182.100.200/' );
+		$hostname      = wp_parse_url( get_site_url(), PHP_URL_HOST );
+		$transient_key = ip2long( $hostname );
+		Identity_Crisis::set_ip_requester_for_idc( $hostname, $transient_key );
+		$result2 = Jetpack_Options::get_option( 'identity_crisis_ip_requester' );
+
+		$expected_ip2      = '33.182.100.200';
+		$expected_ip_array = array( $expected_ip, $expected_ip2 );
+
+		foreach ( $result2 as $ip ) {
+			$this->assertContains( $ip['ip'], $expected_ip_array );
+		}
+
+		// Test deleting expired IPs
+		$expired_ip = array(
+			'ip'         => '99.182.100.777',
+			'expires_at' => 1111,
+		);
+		$result2[]  = $expired_ip;
+
+		$expected_ip3 = '99.182.100.777';
+
+		Identity_Crisis::set_ip_requester_for_idc( $hostname, $transient_key );
+		$result3 = Jetpack_Options::get_option( 'identity_crisis_ip_requester' );
+
+		foreach ( $result3 as $ip ) {
+			$this->assertNotContains( $expected_ip3, $ip );
+		}
+	}
+
+	/**
+	 * Tests that the identity-crisis package version is added to the package versions array obtained by the
+	 * Package_Version_Tracker.
+	 */
+	public function test_send_package_version_to_tracker_empty_array() {
+		Identity_Crisis::init();
+
+		$expected = array(
+			Identity_Crisis::PACKAGE_SLUG => Identity_Crisis::PACKAGE_VERSION,
+		);
+
+		$this->assertSame( $expected, apply_filters( 'jetpack_package_versions', array() ) );
+	}
+
+	/**
+	 * Tests that the identity-crisis package version is added to the package versions array obtained by the
+	 * Package_Version_Tracker.
+	 */
+	public function test_send_package_version_to_tracker_existing_array() {
+		$existing_array = array(
+			'test-package-slug' => '1.0.0',
+		);
+
+		$expected = array_merge(
+			$existing_array,
+			array( Identity_Crisis::PACKAGE_SLUG => Identity_Crisis::PACKAGE_VERSION )
+		);
+
+		add_filter( 'jetpack_package_versions', 'Automattic\\Jetpack\\Identity_Crisis::send_package_version_to_tracker' );
+
+		$this->assertSame( $expected, apply_filters( 'jetpack_package_versions', $existing_array ) );
 	}
 }

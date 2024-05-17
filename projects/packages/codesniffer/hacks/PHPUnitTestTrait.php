@@ -25,7 +25,6 @@ trait PHPUnitTestTrait {
 	 * @var string[]
 	 */
 	private static $PHPUNIT_CLASSES = [
-		// @phan-suppress-previous-line PhanReadOnlyPrivateProperty Traits cannot have constants
 		'MediaWikiTestCase' => 'MediaWikiTestCase',
 		'MediaWikiUnitTestCase' => 'MediaWikiUnitTestCase',
 		'MediaWikiIntegrationTestCase' => 'MediaWikiIntegrationTestCase',
@@ -86,7 +85,9 @@ trait PHPUnitTestTrait {
 				$phpcsFile->getDeclarationName( $classToken )
 			) ||
 			// HACK: Add logic to look for extending anything ending in "TestCase"
-			(bool)preg_match( '/(?:Test(?i:Case)?(?i:Base)?|Suite)$/', $extendedClass );
+			(bool)preg_match( '/(?:Test(?i:Case)?(?i:Base)?|Suite)$/', $extendedClass ) ||
+			// HACK: Add logic to look for extending anything like "WP_Test_.*_Case"
+			(bool)preg_match( '/^WP_Test_.*_(?:Case|Base|Suite)$/', $extendedClass );
 	}
 
 	/**
