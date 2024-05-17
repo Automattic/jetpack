@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Fix test by always using `Z`, not `+00:00`, for UTC timezones. No functionality change as both are equivalent ISO timestamps.
+
+
