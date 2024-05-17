@@ -106,7 +106,6 @@ export default class FormToggle extends Component {
 						aria-checked={ this.props.checked }
 						aria-label={ this.props[ 'aria-label' ] }
 						tabIndex={ this.props.disabled ? -1 : 0 }
-						ref="toggleSwitch"
 					/>
 				</div>
 				<label

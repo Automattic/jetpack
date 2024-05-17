@@ -171,7 +171,7 @@ function register_block() {
 
 	add_action( 'init', __NAMESPACE__ . '\maybe_prevent_super_cache_caching' );
 
-	add_action( 'save_post_post', __NAMESPACE__ . '\add_paywalled_content_post_meta', 99, 1 );
+	add_action( 'wp_after_insert_post', __NAMESPACE__ . '\add_paywalled_content_post_meta', 99, 2 );
 
 	add_filter(
 		'jetpack_options_whitelist',
@@ -224,10 +224,15 @@ function register_newsletter_access_column( $columns ) {
 /**
  * Add a meta to prevent publication on firehose, ES AI or Reader
  *
- * @param int $post_id Post id being saved.
+ * @param int      $post_id Post id being saved.
+ * @param \WP_Post $post Post being saved.
  * @return void
  */
-function add_paywalled_content_post_meta( int $post_id ) {
+function add_paywalled_content_post_meta( int $post_id, \WP_Post $post ) {
+	if ( $post->post_type !== 'post' ) {
+		return;
+	}
+
 	$access_level = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
 
 	$is_paywalled = false;
@@ -237,7 +242,12 @@ function add_paywalled_content_post_meta( int $post_id ) {
 		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS:
 			$is_paywalled = true;
 	}
-	update_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, $is_paywalled );
+	if ( $is_paywalled ) {
+		update_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, $is_paywalled );
+	}
+	if ( ! $is_paywalled ) {
+		delete_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT );
+	}
 }
 
 /**
@@ -1144,7 +1154,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 <!-- /wp:paragraph -->';
 		}
 	} else {
-		$access_question = get_paywall_access_question( $newsletter_access_level );
+		$access_question = $is_paid_post ? esc_html__( 'Already a paid subscriber?', 'jetpack' ) : esc_html__( 'Already a subscriber?', 'jetpack' );
 		$login_block     = '<!-- wp:group {"style":{"typography":{"fontSize":"14px"}},"layout":{"type":"flex","justifyContent":"center"}} -->
 <div class="wp-block-group" style="font-size:14px">
 	<!-- wp:jetpack/subscriber-login {"logInLabel":"' . $access_question . '"} /-->
@@ -1174,31 +1184,6 @@ function get_paywall_blocks( $newsletter_access_level ) {
 </div>
 <!-- /wp:group -->
 ';
-}
-
-/**
- * Returns Get Access question for the paywall
- *
- * @param string $post_access_level The newsletter access level.
- * @return string
- */
-function get_paywall_access_question( $post_access_level ) {
-	switch ( $post_access_level ) {
-		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS:
-		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS:
-			$tier = Jetpack_Memberships::get_post_tier();
-			if ( $tier !== null ) {
-				return sprintf(
-				// translators:  Placeholder is the tier name
-					__( 'Already a higher-tier paid subscriber?', 'jetpack' ),
-					esc_html( $tier->post_title )
-				);
-			} else {
-				return esc_html__( 'Already a paid subscriber?', 'jetpack' );
-			}
-		default:
-			return esc_html__( 'Already a subscriber?', 'jetpack' );
-	}
 }
 
 /**

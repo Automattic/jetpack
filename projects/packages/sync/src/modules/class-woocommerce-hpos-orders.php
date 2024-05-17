@@ -262,7 +262,7 @@ class WooCommerce_HPOS_Orders extends Module {
 			 *
 			 * @see Automattic\Jetpack\Sync\Functions::json_wrap as the return value of get_object_vars can vary depending on PHP version.
 			 */
-			if ( in_array( $key, array( 'date_created', 'date_modified', 'date_paid', 'date_completed' ), true ) ) {
+			if ( in_array( $key, array( 'date_created', 'date_modified', 'date_paid', 'date_completed' ), true ) && isset( $order_data[ $key ] ) ) {
 				if ( is_a( $order_data[ $key ], 'WC_DateTime' ) ) {
 					$filtered_order_data[ $key ] = (object) (array) $order_data[ $key ];
 					continue;
