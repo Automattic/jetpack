@@ -1,7 +1,7 @@
 import { CheckboxControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
 
