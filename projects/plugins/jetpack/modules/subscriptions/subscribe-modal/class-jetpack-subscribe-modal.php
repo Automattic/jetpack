@@ -131,7 +131,7 @@ class Jetpack_Subscribe_Modal {
 		$template->status         = 'publish';
 		$template->has_theme_file = false;
 		$template->is_custom      = true;
-		$template->description    = __( 'A subscribe form that pops up when someone visits your site', 'jetpack' );
+		$template->description    = __( 'A subscribe form that pops up when someone visits your site.', 'jetpack' );
 
 		return $template;
 	}
