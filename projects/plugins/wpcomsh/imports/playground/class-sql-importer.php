@@ -24,7 +24,7 @@ class SQL_Importer {
 	public static function import( string $sql_file_path, $verbose = false ) {
 		// Bail if the file doesn't exist.
 		if ( ! is_file( $sql_file_path ) || ! is_readable( $sql_file_path ) ) {
-			return new WP_Error( 'sql-file-not-exists', __( 'SQL file not exists' ) );
+			return new WP_Error( 'sql-file-not-exists', __( 'SQL file not exists', 'wpcomsh' ) );
 		}
 
 		$output  = null;
@@ -42,6 +42,6 @@ class SQL_Importer {
 		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec
 		exec( $command, $output, $ret );
 
-		return $ret === 0 ? true : new WP_Error( 'sql-import-failed', __( 'SQL import failed' ) );
+		return $ret === 0 ? true : new WP_Error( 'sql-import-failed', __( 'SQL import failed', 'wpcomsh' ) );
 	}
 }

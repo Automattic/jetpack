@@ -17,7 +17,7 @@ class WPCOMSH_Require_Connection_Owner {
 	/**
 	 * Filters the Jetpack::is_connection_ready to ensure a connectino owner is always needed
 	 *
-	 * @param bool                                  $is_connection_ready Is the connection ready?
+	 * @param bool                                  $is_connection_ready True if connection is ready; elsewise false.
 	 * @param Automattic\Jetpack\Connection\Manager $connection_manager Instance of the Manager class, can be used to check the connection status.
 	 * @return bool
 	 */

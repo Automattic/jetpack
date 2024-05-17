@@ -93,18 +93,3 @@ add_filter(
 		return $data;
 	}
 );
-
-
-/*
- * It's possible trying to catch the uploading process when
- * the package cames from the REST API, instead of the wp-admin uploading page
- * TODO: let's keep yhis
- */
-// add_filter( 'upgrader_pre_download', function ( $reply, $package, $wp_upgrader ) use( $attachment_data ) {
-// avoid checking if the package source is an URL
-// $package_is_url = filter_var( $package, FILTER_VALIDATE_URL );
-// if ( $package_is_url ) {
-// return false;
-// }
-
-// }, 1, 3 );

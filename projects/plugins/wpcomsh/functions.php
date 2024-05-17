@@ -188,7 +188,7 @@ function wpcomsh_is_wpcom_child_theme( $theme_slug = null ) {
 /**
  * Count the number of child themes with the specified template.
  *
- * @param string $template The theme template name
+ * @param string $template The theme template name.
  *
  * @return int
  */
@@ -338,7 +338,7 @@ function wpcomsh_get_at_site_info() {
 /**
  * Whether the current request is an XML-RPC request from Calypso to install a theme or plugin.
  *
- * @param string $path_regex Regular expression of paths to allow
+ * @param string $path_regex Regular expression of paths to allow.
  * @return bool
  */
 function wpcomsh_is_xmlrpc_request_matching( $path_regex ) {

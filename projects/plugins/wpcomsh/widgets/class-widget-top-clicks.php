@@ -1,16 +1,30 @@
-<?php
+<?php // phpcs:ignore Squiz.Commenting.FileComment.Missing
 /**
  * Top Clicks Widget (retired) from WordPress.com
  * Copied from: fbhepr%2Skers%2Sgehax%2Sjc%2Qpbagrag%2Szh%2Qcyhtvaf%2Sfgngf.cuc%234198-og
  */
 class Widget_Top_Clicks extends WP_Widget {
-	var $alt_option_name = 'widget_stats_topclicks';
-	var $defaults        = array(
+	/**
+	 * Alt option name.
+	 *
+	 * @var string $alt_option_name
+	 */
+	public $alt_option_name = 'widget_stats_topclicks';
+
+	/**
+	 * Widget default settings.
+	 *
+	 * @var array{ title: string, count: int, len: int } $defaults
+	 */
+	public $defaults = array(
 		'title' => '',
 		'count' => 10,
 		'len'   => 25,
 	);
 
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
 		parent::__construct(
 			'top-clicks',
@@ -19,6 +33,12 @@ class Widget_Top_Clicks extends WP_Widget {
 		);
 	}
 
+	/**
+	 * Display the widget.
+	 *
+	 * @param array $args     Widget arguments.
+	 * @param array $instance Widget instance.
+	 */
 	public function widget( $args, $instance ) {
 		$instance = wp_parse_args( $instance, $this->defaults );
 
@@ -31,33 +51,38 @@ class Widget_Top_Clicks extends WP_Widget {
 			$instance['count'] = 10;
 		}
 
-		echo $args['before_widget'];
-		echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title'];
+		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		$this->display_top_clicks( $instance['count'], $instance['len'] );
-		echo $args['after_widget'];
+		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		do_action( 'jetpack_stats_extra', 'widget_view', 'top_clicks' );
 	}
 
+	/**
+	 * Display the widget settings form.
+	 *
+	 * @param array $instance Current settings.
+	 */
 	public function form( $instance ) {
 		$instance = wp_parse_args( $instance, $this->defaults );
 		?>
 		<p>
 			<label>
 				<?php esc_html_e( 'Title:', 'wpcomsh' ); ?>
-				<input class="widefat" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
+				<input class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
 			</label>
 		</p>
 		<p>
 			<label>
 				<?php esc_html_e( 'Display length:', 'wpcomsh' ); ?>
-				<input style="width: 60px;" name="<?php echo $this->get_field_name( 'len' ); ?>" type="text" value="<?php echo esc_attr( $instance['len'] ); ?>" />
+				<input style="width: 60px;" name="<?php echo esc_attr( $this->get_field_name( 'len' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['len'] ); ?>" />
 			</label>
 		</p>
 		<p>
 			<label>
 				<?php esc_html_e( 'URLs to show:', 'wpcomsh' ); ?>
-				<select name="<?php echo $this->get_field_name( 'count' ); ?>">
+				<select name="<?php echo esc_attr( $this->get_field_name( 'count' ) ); ?>">
 					<?php for ( $i = 1; $i <= 12; ++$i ) { ?>
 						<option value="<?php echo esc_attr( $i ); ?>" <?php selected( $i, $instance['count'] ); ?>><?php echo esc_html( $i ); ?></option>
 					<?php } ?>
@@ -68,7 +93,13 @@ class Widget_Top_Clicks extends WP_Widget {
 		<?php
 	}
 
-	public function update( $new_instance, $old_instance ) {
+	/**
+	 * Update the widget settings.
+	 *
+	 * @param array $new_instance New settings.
+	 * @param array $old_instance Old settings.
+	 */
+	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$new_instance          = wp_parse_args(
 			$new_instance,
 			array(
@@ -77,7 +108,7 @@ class Widget_Top_Clicks extends WP_Widget {
 				'len'   => 25,
 			)
 		);
-		$new_instance['title'] = strip_tags( $new_instance['title'] );
+		$new_instance['title'] = wp_strip_all_tags( $new_instance['title'] );
 		$new_instance['count'] = intval( $new_instance['count'] );
 		$new_instance['len']   = intval( $new_instance['len'] );
 
@@ -90,6 +121,12 @@ class Widget_Top_Clicks extends WP_Widget {
 		return $new_instance;
 	}
 
+	/**
+	 * Display top clicks widget content.
+	 *
+	 * @param int       $number Number of links to show.
+	 * @param int|false $len Trim link text to X chars, or false to not trim.
+	 */
 	protected function display_top_clicks( $number, $len = 25 ) {
 		$html = wp_cache_get( 'display_top_clicks', 'output' );
 		if ( empty( $html ) ) {
@@ -128,9 +165,16 @@ class Widget_Top_Clicks extends WP_Widget {
 			$html  = preg_replace( '|<a (.+?)>|', "<a $1 rel='nofollow'>", $html );
 			wp_cache_add( 'display_top_clicks', $html, 'output', 3600 );
 		}
-		echo $html;
+		echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- as it's HTML that is already escaped in shrink_link().
 	}
 
+	/**
+	 * Get click count by URL.
+	 *
+	 * @param object $stats Stats.
+	 *
+	 * @return array
+	 */
 	protected function get_urls_from_stats( $stats ) {
 		if ( is_wp_error( $stats ) || ! is_object( $stats ) || empty( $stats->days ) ) {
 			return array();
@@ -148,6 +192,14 @@ class Widget_Top_Clicks extends WP_Widget {
 		return $urls;
 	}
 
+	/**
+	 * Trim link text.
+	 *
+	 * @param string    $url Raw URL.
+	 * @param int|false $len Trim link text to X chars, or false to not trim.
+	 *
+	 * @return string
+	 */
 	protected function shrink_link( $url, $len = false ) {
 		$text = preg_replace( '!^(mailto:|https?://(www\.)?)!', '', $url );
 		$text = trim( $text, '/' );
@@ -162,6 +214,13 @@ class Widget_Top_Clicks extends WP_Widget {
 		return "<a href='$url' target='_blank'>$text</a>";
 	}
 
+	/**
+	 * Determine if URL is presentable.
+	 *
+	 * @param string $url URL.
+	 *
+	 * @return bool
+	 */
 	protected function is_presentable_url( $url ) {
 		if ( empty( $url ) ) {
 			return false;
@@ -173,17 +232,18 @@ class Widget_Top_Clicks extends WP_Widget {
 			array(
 				'internal',
 				'DOCUMENT_REFERRER',
-			)
+			),
+			true
 		) ) {
 			return false;
 		}
-		$parts = @ parse_url( $url );
+		$parts = @ wp_parse_url( $url ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		if ( empty( $parts['host'] ) ) {
 			return true;
 		}
 
 		// ALL NON-HTTP REFERRERS FAIL
-		if ( $parts['scheme'] != 'http' && $parts['scheme'] != 'https' ) {
+		if ( $parts['scheme'] !== 'http' && $parts['scheme'] !== 'https' ) {
 			return false;
 		}
 
@@ -193,13 +253,14 @@ class Widget_Top_Clicks extends WP_Widget {
 			array(
 				'redirect.ad-feeds.com',
 				'shots.snap.com',
-			)
+			),
+			true
 		) ) {
 			return false;
 		}
 
 		// Filter out wp-admin links
-		if ( '/wp-admin/' == substr( $parts['path'], 0, 10 ) ) {
+		if ( str_starts_with( $parts['path'], '/wp-admin/' ) ) {
 			return false;
 		}
 
@@ -216,7 +277,10 @@ class Widget_Top_Clicks extends WP_Widget {
 	}
 }
 
-function wpcomsh_register_top_clicks_widget() {
+/**
+ * Register the widget.
+ */
+function wpcomsh_register_top_clicks_widget() { // phpcs:ignore Universal.Files.SeparateFunctionsFromOO.Mixed
 	// Only register the widget if the Jetpack Stats module is active and we already have an existing instance (since the widget is retired).
 	if ( function_exists( 'stats_get_from_restapi' ) && is_active_widget( false, false, 'top-clicks' ) ) {
 		register_widget( 'Widget_Top_Clicks' );

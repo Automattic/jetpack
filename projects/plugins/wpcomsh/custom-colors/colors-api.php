@@ -1,11 +1,36 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName,Squiz.Commenting.FileComment.Missing
 
+/**
+ * Colors API class.
+ */
 class Colors_API {
-	static $valid_routes = array( 'palettes', 'patterns' );
-	static $valid_args   = array( 'colors', 'color', 'limit', 'offset' );
-	static $base         = 'colors/';
+	/**
+	 * List of valid routes.
+	 *
+	 * @var array
+	 */
+	public static $valid_routes = array( 'palettes', 'patterns' );
+	/**
+	 * List of valid args.
+	 *
+	 * @var array
+	 */
+	public static $valid_args = array( 'colors', 'color', 'limit', 'offset' );
+	/**
+	 * API base route.
+	 *
+	 * @var string
+	 */
+	public static $base = 'colors/';
 
-	static function call( $route = false, $args = array(), $id = false ) {
+	/**
+	 * Make a call to the Colors API.
+	 *
+	 * @param string|false $route API route.
+	 * @param array        $args API args.
+	 * @param int|false    $id Item ID if available, false otherwise.
+	 */
+	public static function call( $route = false, $args = array(), $id = false ) {
 		if ( ! self::is_valid_route( $route ) ) {
 			return new WP_Error( 'Invalid route.' );
 		}
@@ -27,17 +52,31 @@ class Colors_API {
 		return json_decode( $response['body'], true );
 	}
 
-	static function is_valid_route( $route ) {
-		return in_array( $route, self::$valid_routes );
+	/**
+	 * Check if route is valid.
+	 *
+	 * @param string|false $route Color API route.
+	 *
+	 * @return bool
+	 */
+	public static function is_valid_route( $route ) {
+		return in_array( $route, self::$valid_routes, true );
 	}
 
-	static function validate_args( $args ) {
+	/**
+	 * Validate args.
+	 *
+	 * @param array $args Color API args.
+	 *
+	 * @return array
+	 */
+	public static function validate_args( $args ) {
 		if ( ! is_array( $args ) ) {
 			return false;
 		}
 		$valid_args = array();
 		foreach ( $args as $arg => $value ) {
-			if ( in_array( $arg, self::$valid_args ) ) {
+			if ( in_array( $arg, self::$valid_args, true ) ) {
 				$valid_args[ $arg ] = $value;
 			}
 		}
@@ -50,14 +89,15 @@ class Colors_API {
 	 * Based on `wpcom_json_api_request_as_blog` in fbhepr%2Skers%2Swrgcnpx%2Spynff.wrgcnpx%2Qpyvrag.cuc-og
 	 * Modified to work with v2 wpcom endpoints
 	 *
-	 * @param string $path
-	 * @param string $version
-	 * @param array  $args
-	 * @param string $body
-	 * @param string $base_api_path Determines the base API path for jetpack requests; defaults to 'rest'
+	 * @param string            $path Request path.
+	 * @param string            $version API version.
+	 * @param array             $args Request args.
+	 * @param array|string|null $body Request body.
+	 * @param string            $base_api_path Determines the base API path for jetpack requests; defaults to 'rest'.
+	 *
 	 * @return array|WP_Error $response Data.
 	 */
-	static function wpcom_json_api_request_as_blog( $path, $version = 1, $args = array(), $body = null, $base_api_path = 'rest' ) {
+	public static function wpcom_json_api_request_as_blog( $path, $version = 1, $args = array(), $body = null, $base_api_path = 'rest' ) {
 		$filtered_args = array_intersect_key(
 			$args,
 			array(
@@ -103,4 +143,3 @@ class Colors_API {
 }
 
 new Colors_API();
-

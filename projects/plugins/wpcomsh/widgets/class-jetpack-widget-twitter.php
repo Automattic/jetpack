@@ -7,22 +7,6 @@
  * @package widgets
  */
 
-// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
-
-/**
- * Register the widget for use in Appearance -> Widgets
- */
-function jetpack_twitter_widget_init() {
-	// Don't load this Widget for users who don't have preferences for it.
-	$widgets = get_option( 'widget_twitter' );
-	if ( ! is_array( $widgets ) ) {
-		return;
-	}
-
-	register_widget( 'Jetpack_Widget_Twitter' );
-}
-add_action( 'widgets_init', 'jetpack_twitter_widget_init' );
-
 /**
  * Twitter widget class.
  */
@@ -53,10 +37,19 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 
 		if ( empty( $account ) ) {
 			if ( current_user_can( 'edit_theme_options' ) ) {
-				echo $args['before_widget'];
+				echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				/* translators: %s is the URL to the widgets page */
-				echo '<p>' . sprintf( __( 'Please configure your Twitter username for the <a href="%s">Twitter Widget</a>.', 'wpcomsh' ), admin_url( 'widgets.php' ) ) . '</p>';
-				echo $args['after_widget'];
+				echo '<p>';
+				printf(
+					wp_kses(
+						// translators: %s is a link to the widget settings page.
+						__( 'Please configure your Twitter username for the <a href="%s">Twitter Widget</a>.', 'wpcomsh' ),
+						array( 'a' => array( 'href' => array() ) )
+					),
+					esc_url( admin_url( 'widgets.php' ) )
+				);
+				echo '</p>';
+				echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 
 			return;
@@ -67,10 +60,10 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 			$title = __( 'Twitter Updates', 'wpcomsh' );
 		}
 
-		echo "{$args['before_widget']}{$args['before_title']}<a href='" . esc_url( "http://twitter.com/{$account}" ) . "'>" . esc_html( $title ) . "</a>{$args['after_title']}";
+		echo "{$args['before_widget']}{$args['before_title']}<a href='" . esc_url( "http://twitter.com/{$account}" ) . "'>" . esc_html( $title ) . "</a>{$args['after_title']}"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		$anchor_text = sprintf(
-		/* translators: %s is the Twitter account name */
+			/* translators: %s is the Twitter account name */
 			__( 'Tweets by %s', 'wpcomsh' ),
 			esc_html( $account )
 		);
@@ -78,12 +71,12 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 		printf(
 			'<a class="twitter-timeline" data-height="600" data-dnt="true" href="https://twitter.com/%1$s">%2$s</a>',
 			esc_attr( $account ),
-			$anchor_text
+			esc_html( $anchor_text )
 		);
 
 		wp_enqueue_script( 'twitter-widgets', 'https://platform.twitter.com/widgets.js', array(), '20111117', true );
 
-		echo $args['after_widget'];
+		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		/** This action is documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'widget_view', 'twitter' );
@@ -95,7 +88,7 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 	 * @param array $new_instance New settings.
 	 * @param array $old_instance Old settings.
 	 */
-	public function update( $new_instance, $old_instance ) {
+	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$instance = array();
 
 		$instance['title']   = wp_kses( $new_instance['title'], array() );
@@ -138,22 +131,36 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 		 * @see http://socialp2.wordpress.com/2013/04/19/following-on-from-justins-previous-post-its-time/
 		 */
 		?>
-		<p><em><?php printf( __( "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization.", 'wpcomsh' ) ); ?></em></p>
+		<p><em><?php echo esc_html__( "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization.", 'wpcomsh' ); ?></em></p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'title' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>">
 				<?php esc_html_e( 'Title:', 'wpcomsh' ); ?>
-				<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
+				<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
 			</label>
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'account' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'account' ) ); ?>">
 				<?php esc_html_e( 'Twitter username:', 'wpcomsh' ); ?> <a href="http://support.wordpress.com/widgets/twitter-widget/#twitter-username" target="_blank">( ? )</a>
-				<input class="widefat" id="<?php echo $this->get_field_id( 'account' ); ?>" name="<?php echo $this->get_field_name( 'account' ); ?>" type="text" value="<?php echo esc_attr( $account ); ?>" />
+				<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'account' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'account' ) ); ?>" type="text" value="<?php echo esc_attr( $account ); ?>" />
 			</label>
 		</p>
 
 		<?php
 	}
 }
+
+/**
+ * Register the widget for use in Appearance -> Widgets
+ */
+function jetpack_twitter_widget_init() { // phpcs:ignore Universal.Files.SeparateFunctionsFromOO.Mixed
+	// Don't load this Widget for users who don't have preferences for it.
+	$widgets = get_option( 'widget_twitter' );
+	if ( ! is_array( $widgets ) ) {
+		return;
+	}
+
+	register_widget( 'Jetpack_Widget_Twitter' );
+}
+add_action( 'widgets_init', 'jetpack_twitter_widget_init' );

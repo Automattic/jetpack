@@ -1,4 +1,5 @@
-<?php
+<?php // phpcs:ignore Squiz.Commenting.FileComment.Missing
+
 /*
 Plugin Name: Tlkio
 Description: Widget to add a tlk.io webchat.
@@ -12,20 +13,25 @@ License: GPLv2 or later
  * This widget has been copied verbatum from WordPress.com.
  */
 
-function tlkio_widget_init() {
-	register_widget( 'Tlkio_Widget' );
-}
-add_action( 'widgets_init', 'tlkio_widget_init' );
-
+/**
+ * Tlkio widget from WordPress.com
+ */
 class Tlkio_Widget extends WP_Widget {
-
+	/**
+	 * Widget settings.
+	 *
+	 * @var array $defaults
+	 */
 	private $defaults = array(
 		'title'   => '',
 		'channel' => 'lobby',
 		'height'  => '400',
 	);
 
-	function __construct() {
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
 		$widget_ops = array(
 			'classname'   => 'tlkio-widget',
 			'description' => __( 'Add a tlk.io webchat.', 'wpcomsh' ),
@@ -33,13 +39,19 @@ class Tlkio_Widget extends WP_Widget {
 		parent::__construct( 'tlkio_widget', __( 'tlk.io Webchat', 'wpcomsh' ), $widget_ops );
 	}
 
-	function widget( $args, $instance ) {
+	/**
+	 * Display the widget.
+	 *
+	 * @param array $args     Widget arguments.
+	 * @param array $instance Widget instance.
+	 */
+	public function widget( $args, $instance ) {
 		$instance          = wp_parse_args( (array) $instance, $this->defaults );
 		$instance['title'] = apply_filters( 'widget_title', $instance['title'], $instance, $this->id_base );
 
-		echo $args['before_widget'];
+		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		if ( $instance['title'] ) {
-			echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title'];
+			echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		echo '<div id="tlkio" class="tlkio-container" data-channel="' . esc_attr( $instance['channel'] ) . '" style="width:100%; height:' . esc_attr( $instance['height'] ) . 'px;"></div>';
@@ -48,10 +60,15 @@ class Tlkio_Widget extends WP_Widget {
 			wp_enqueue_script( 'tlkio-js', plugins_url( 'tlkio.js', __FILE__ ), array(), 140115, true );
 		}
 
-		echo $args['after_widget'];
+		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
-	function form( $instance ) {
+	/**
+	 * Display the widget settings form.
+	 *
+	 * @param array $instance Current settings.
+	 */
+	public function form( $instance ) {
 		$instance = wp_parse_args( (array) $instance, $this->defaults );
 		?>
 		<p>
@@ -69,13 +86,26 @@ class Tlkio_Widget extends WP_Widget {
 		<?php
 	}
 
-	function update( $new_instance, $old_instance ) {
+	/**
+	 * Update the widget settings.
+	 *
+	 * @param array $new_instance New settings.
+	 * @param array $old_instance Old settings.
+	 */
+	public function update( $new_instance, $old_instance ) {
 		$instance            = $old_instance;
-		$instance['title']   = strip_tags( $new_instance['title'] );
-		$instance['channel'] = strip_tags( $new_instance['channel'] );
+		$instance['title']   = wp_strip_all_tags( $new_instance['title'] );
+		$instance['channel'] = wp_strip_all_tags( $new_instance['channel'] );
 		$instance['height']  = intval( $new_instance['height'] );
 
 		return $instance;
 	}
-
 }
+
+/**
+ * Register widget.
+ */
+function tlkio_widget_init() { // phpcs:ignore Universal.Files.SeparateFunctionsFromOO.Mixed
+	register_widget( 'Tlkio_Widget' );
+}
+add_action( 'widgets_init', 'tlkio_widget_init' );

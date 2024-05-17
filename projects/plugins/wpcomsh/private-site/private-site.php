@@ -8,12 +8,11 @@
 
 namespace Private_Site;
 
-use Jetpack;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Status;
+use Jetpack;
 use WP_Error;
 use WP_REST_Request;
-use function get_home_url;
 use function esc_html_e;
 use function get_current_blog_id;
 use function get_option;
@@ -406,6 +405,10 @@ function get_read_access_cookies( $args ) {
 		},
 		1000
 	);
+
+	$logged_in_cookie            = null;
+	$logged_in_cookie_expiration = null;
+
 	add_action(
 		'set_logged_in_cookie',
 		function ( $_cookie, $args ) use ( &$logged_in_cookie, &$logged_in_cookie_expiration ) {
@@ -503,8 +506,8 @@ function original_request_url() {
  * whenever `wpcom_coming_soon` option is changed on WP.com and this plugin
  * is notified via Jetpack-WPCOM REST API bridge.
  *
- * @param array $input            Filtered POST input
- * @param array $unfiltered_input Raw and unfiltered POST input
+ * @param array $input            Filtered POST input.
+ * @param array $unfiltered_input Raw and unfiltered POST input.
  *
  * @return array
  */
@@ -629,7 +632,7 @@ function blog_user_can( $capability = 'read' ) {
 	}
 
 	// Check if the user has read permissions.
-	$the_user = clone( $user );
+	$the_user = clone $user;
 	$the_user->for_site( $blog_id );
 	return $the_user->has_cap( $capability );
 }
@@ -696,8 +699,10 @@ function is_site_preview() {
  * @return false|string
  */
 function site_preview_source() {
-	// phpcs:disable WordPress.Security
-	$ua                = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : '';
+	// phpcs:disable WordPress.Security.NonceVerification.Recommended -- This request doesn't change any data.
+	$ua                = isset( $_SERVER['HTTP_USER_AGENT'] )
+			? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) )
+			: '';
 	$apps_ua_fragments = array(
 		'iphone-app'  => ' wp-iphone/',
 		'android-app' => ' wp-android/',
@@ -710,18 +715,25 @@ function site_preview_source() {
 	}
 
 	if (
-		isset( $_GET['iframe'] ) && 'true' === $_GET['iframe'] && (
-			( isset( $_GET['theme_preview'] ) && 'true' === $_GET['theme_preview'] ) ||
-			( isset( $_GET['preview'] ) && 'true' === $_GET['preview'] )
-		) ||
-		isset( $_GET['widgetPreview'] ) || // Gutenberg < 9.2
-		isset( $_GET['widget-preview'] ) // Gutenberg >= 9.2
+		(
+			isset( $_GET['iframe'] )
+			&& 'true' === $_GET['iframe']
+			&& (
+				( isset( $_GET['theme_preview'] ) && 'true' === $_GET['theme_preview'] )
+				|| (
+					isset( $_GET['preview'] )
+					&& 'true' === $_GET['preview']
+				)
+			)
+		)
+		|| isset( $_GET['widgetPreview'] ) // Gutenberg < 9.2
+		|| isset( $_GET['widget-preview'] ) // Gutenberg >= 9.2
 	) {
 		return 'browser-iframe';
 	}
-	// phpcs:enable
 
 	return false;
+	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 }
 
 /**

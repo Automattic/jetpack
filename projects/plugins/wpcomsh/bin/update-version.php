@@ -5,17 +5,16 @@
  * @package bin
  */
 
-$package_json = file_get_contents( 'package.json' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-$package      = json_decode( $package_json );
-$version      = $package->version;
-
 /**
  * Updates the WPCOMSH version in the files that keep them.
  *
  * @param string $filename File name.
  */
 function replace_version( $filename ) {
-	global $version;
+
+	$package_json = file_get_contents( 'package.json' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+	$package      = json_decode( $package_json );
+	$version      = $package->version;
 
 	$lines = array();
 	$file  = file( $filename );

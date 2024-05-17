@@ -7,13 +7,13 @@
 
 namespace Safeguard;
 
-use ZipArchive;
+use Automattic\Jetpack\Connection\Client as Jetpack_Client;
+use Jetpack_Options;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use WP_Error;
 use WPCOMSH_Log;
-use Jetpack_Options;
-use Automattic\Jetpack\Connection\Client as Jetpack_Client;
+use ZipArchive;
 
 const DOTORG_API_HOST             = 'https://api.wordpress.org';
 const DOTORG_PLUGINS_HOST         = DOTORG_API_HOST . '/plugins';

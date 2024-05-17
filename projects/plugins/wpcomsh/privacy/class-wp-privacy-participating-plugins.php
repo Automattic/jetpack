@@ -62,7 +62,7 @@ if ( ! class_exists( 'WP_Privacy_Participating_Plugins' ) ) {
 			}
 
 			$screen = get_current_screen();
-			if ( is_null( $screen ) ) {
+			if ( $screen === null ) {
 				return;
 			}
 
@@ -114,7 +114,7 @@ time:',
 			}
 
 			$screen = get_current_screen();
-			if ( is_null( $screen ) ) {
+			if ( $screen === null ) {
 				return;
 			}
 
@@ -165,7 +165,7 @@ includes only the following items at this time:',
 			}
 
 			$screen = get_current_screen();
-			if ( is_null( $screen ) ) {
+			if ( $screen === null ) {
 				return;
 			}
 

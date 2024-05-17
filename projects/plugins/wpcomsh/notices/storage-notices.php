@@ -89,7 +89,7 @@ add_action( 'pre-upload-ui', 'wpcomsh_display_disk_space_usage' );
 /**
  * Debug information disk usage - /wp-admin/site-health.php?tab=debug
  *
- * @param array $args The arguments
+ * @param array $args The arguments.
  *
  * @return array
  */

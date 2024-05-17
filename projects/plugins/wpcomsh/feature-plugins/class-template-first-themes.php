@@ -40,7 +40,7 @@ class Template_First_Themes {
 	 * @param \WP_Theme $theme WP_Theme the theme.
 	 */
 	public function has_auto_loading_homepage( $theme ) {
-		return ! ! $this->get_front_page_template( $theme->get_stylesheet() ) &&
+		return (bool) $this->get_front_page_template( $theme->get_stylesheet() ) &&
 			in_array( 'auto-loading-homepage', $theme->tags, true );
 	}
 
@@ -167,7 +167,7 @@ class Template_First_Themes {
 					array(
 						'post_author'  => get_current_user_id(),
 						'post_content' => '',
-						'post_title'   => __( 'Blog' ),
+						'post_title'   => __( 'Blog' ), // phpcs:ignore WordPress.WP.I18n.MissingArgDomain
 						'post_type'    => 'page',
 						'post_status'  => 'publish',
 						'meta_input'   => array( '_tft_posts_page' => '1' ),
@@ -224,12 +224,6 @@ class Template_First_Themes {
 			return false;
 		}
 
-		// Add required slug and preview screenshot.
-		// $demo_site_url = add_query_arg( 'theme_preview', 'true', wpcom_get_theme_demo_site( $theme ) );
-		// $mshot_url     = 'https://s.wordpress.com/mshots/v1/' . rawurlencode( $demo_site_url ) . '?w=332&h=332&vpw=960&wph=960';
-
-		// phpcs:ignore WordPress.PHP.DisallowShortTernary
-		// $front_page['hs_template_preview'] = $this->homepage_template_preview[ $theme ] ?: $mshot_url;
 		$front_page['post_slug'] = sanitize_title_with_dashes( $front_page['post_title'] );
 
 		wp_cache_set( $cache_key, (object) $front_page, 'themes', DAY_IN_SECONDS );

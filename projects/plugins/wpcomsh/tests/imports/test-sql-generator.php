@@ -45,7 +45,7 @@ class SQLGeneratorTest extends WP_UnitTestCase {
 	 * Test empty dump and current table.
 	 */
 	public function test_empty_dump_and_current_table() {
-		$this->assertEquals( '', $this->generator->get_dump() );
+		$this->assertSame( '', $this->generator->get_dump() );
 		$this->assertNull( $this->generator->get_current_table() );
 	}
 
@@ -58,7 +58,7 @@ class SQLGeneratorTest extends WP_UnitTestCase {
 		$this->generator->output( 'This is a query' );
 		$this->generator->header( 'This is an header' );
 
-		$this->assertEquals( 8, $this->get_dump_count() );
+		$this->assertSame( 8, $this->get_dump_count() );
 	}
 
 	/**
@@ -67,7 +67,7 @@ class SQLGeneratorTest extends WP_UnitTestCase {
 	public function test_error_end_before_not_starting() {
 		$this->generator->end();
 
-		$this->assertEquals( '', $this->generator->get_dump() );
+		$this->assertSame( '', $this->generator->get_dump() );
 	}
 
 	/**
@@ -76,7 +76,7 @@ class SQLGeneratorTest extends WP_UnitTestCase {
 	public function test_error_start_insert_without_table() {
 		$this->generator->start_table_inserts();
 
-		$this->assertEquals( '', $this->generator->get_dump() );
+		$this->assertSame( '', $this->generator->get_dump() );
 	}
 
 	/**
@@ -85,7 +85,7 @@ class SQLGeneratorTest extends WP_UnitTestCase {
 	public function test_error_start_table_insert_without_table() {
 		$this->generator->table_insert( '', '' );
 
-		$this->assertEquals( '', $this->generator->get_dump() );
+		$this->assertSame( '', $this->generator->get_dump() );
 	}
 
 	/**
@@ -94,17 +94,17 @@ class SQLGeneratorTest extends WP_UnitTestCase {
 	public function test_error_end_table_without_table() {
 		$this->generator->end_table_inserts();
 
-		$this->assertEquals( '', $this->generator->get_dump() );
+		$this->assertSame( '', $this->generator->get_dump() );
 	}
 
 	/**
 	 * Test error get column.
 	 */
 	public function test_error_get_column() {
-		$this->assertEquals( '', $this->generator->get_column( '', array() ) );
-		$this->assertEquals( '', $this->generator->get_column( 'test', array() ) );
-		$this->assertEquals( '', $this->generator->get_column( 'test', array( 'type' => 'text' ) ) );
-		$this->assertEquals( '', $this->generator->get_column( 'test', array( 'sqlite_type' => 'text' ) ) );
+		$this->assertSame( '', $this->generator->get_column( '', array() ) );
+		$this->assertSame( '', $this->generator->get_column( 'test', array() ) );
+		$this->assertSame( '', $this->generator->get_column( 'test', array( 'type' => 'text' ) ) );
+		$this->assertSame( '', $this->generator->get_column( 'test', array( 'sqlite_type' => 'text' ) ) );
 	}
 
 	/**
@@ -208,12 +208,12 @@ class SQLGeneratorTest extends WP_UnitTestCase {
 	 * Test valid index names.
 	 */
 	public function test_valid_index_name() {
-		$this->assertEquals( '', SQL_Generator::get_index_name( '' ) );
-		$this->assertEquals( '', SQL_Generator::get_index_name( 'abc' ) );
-		$this->assertEquals( '', SQL_Generator::get_index_name( 'abcd' ) );
-		$this->assertEquals( '', SQL_Generator::get_index_name( 'abcdefgh' ) );
-		$this->assertEquals( '', SQL_Generator::get_index_name( 'abc__' ) );
-		$this->assertEquals( 'def', SQL_Generator::get_index_name( 'abc__def' ) );
+		$this->assertSame( '', SQL_Generator::get_index_name( '' ) );
+		$this->assertSame( '', SQL_Generator::get_index_name( 'abc' ) );
+		$this->assertSame( '', SQL_Generator::get_index_name( 'abcd' ) );
+		$this->assertSame( '', SQL_Generator::get_index_name( 'abcdefgh' ) );
+		$this->assertSame( '', SQL_Generator::get_index_name( 'abc__' ) );
+		$this->assertSame( 'def', SQL_Generator::get_index_name( 'abc__def' ) );
 	}
 
 	/**

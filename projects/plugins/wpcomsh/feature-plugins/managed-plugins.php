@@ -253,7 +253,8 @@ add_filter( 'bulk_actions-plugins', 'wpcomsh_disable_bulk_plugin_deactivation' )
 function wpcom_hide_jetpack_version_number( $plugin_meta, $plugin_file, $plugin_data ) {
 	if (
 		is_array( $plugin_meta )
-		&& isset( $plugin_data['slug'], $plugin_data['Version'] )
+		&& isset( $plugin_data['slug'] )
+		&& isset( $plugin_data['Version'] )
 		&& 'jetpack' === $plugin_data['slug']
 		&& false !== strpos( $plugin_meta[0], $plugin_data['Version'] )
 	) {

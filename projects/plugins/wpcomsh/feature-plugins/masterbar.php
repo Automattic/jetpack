@@ -29,7 +29,6 @@ function wpcomsh_activate_masterbar_module() {
 }
 add_action( 'init', 'wpcomsh_activate_masterbar_module', 0, 0 );
 
-
 /**
  * Disable the Masterbar for nav redesign.
  *
@@ -304,7 +303,6 @@ add_action( 'admin_menu', 'wpcomsh_update_plugin_add_filter' );
  */
 add_filter( 'jetpack_show_wpcom_inbox_menu', '__return_true' );
 
-
 /**
  * Ensure that when getting the wpcom_admin_interface option, we return a value from the persistent data store if
  * available, otherwise fall back to the option value.
@@ -328,7 +326,6 @@ function wpcomsh_get_wpcom_admin_interface_option() {
 }
 // This pre_option_{$option} hook runs before the option is retrieved from the database with get_option().
 add_filter( 'pre_option_wpcom_admin_interface', 'wpcomsh_get_wpcom_admin_interface_option' );
-
 
 /**
  * Color scheme from Calypso (/me/account) is stored as user option,

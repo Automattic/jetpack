@@ -16,7 +16,7 @@ final class Atomic_Persistent_Data {
 	 *
 	 * @return null
 	 */
-	public function __get( $key ) { //phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
+	public function __get( $key ) { //phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found, VariableAnalysis.CodeAnalysis.VariableAnalysis
 		return null;
 	}
 }

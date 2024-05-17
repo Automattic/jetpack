@@ -31,7 +31,7 @@ class WPCom_Themes_Api {
 	/**
 	 * Class constructor.
 	 *
-	 * @param WPCom_Themes_Cache $cache Cache handler
+	 * @param WPCom_Themes_Cache $cache Cache handler.
 	 */
 	public function __construct( WPCom_Themes_Cache $cache ) {
 		$this->cache = $cache;
@@ -87,7 +87,7 @@ class WPCom_Themes_Api {
 	/**
 	 * Returns the WP.com theme with the given slug.
 	 *
-	 * @param string $slug Theme slug
+	 * @param string $slug Theme slug.
 	 *
 	 * @return stdClass|null A WPCom theme object or null if not found.
 	 */

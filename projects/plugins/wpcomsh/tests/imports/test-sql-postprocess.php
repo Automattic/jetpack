@@ -114,8 +114,6 @@ class PlaygroundPostprocessTest extends WP_UnitTestCase {
 	 * Open a database without the valid temporary tables.
 	 */
 	public function test_error_open_database_without_valid_tables(): void {
-		global $wpdb;
-
 		$processor = new SQL_Postprocessor( 'test', 'test', 'not_valid_' );
 		$result    = $processor->get_tables_replace_query();
 
@@ -224,10 +222,6 @@ class PlaygroundPostprocessTest extends WP_UnitTestCase {
 		// Previous values are not touched.
 		$this->assertEquals( $previous_home, get_option( 'home' ) );
 		$this->assertEquals( $previous_site, get_option( 'siteurl' ) );
-
-		// Raw SQL calls to check new values.
-		// $this->assertEquals( 'https://example.com', $wpdb->get_var( "SELECT option_value FROM {$tmp_prefix}options WHERE option_name = 'home'" ) );
-		// $this->assertEquals( 'https://example.net', $wpdb->get_var( "SELECT option_value FROM {$tmp_prefix}options WHERE option_name = 'siteurl'" ) );
 	}
 }
 // phpcs:enable

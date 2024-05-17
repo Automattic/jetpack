@@ -1,27 +1,22 @@
-<?php
-
-/**
- * Register the widget for use in Appearance -> Widgets
- */
-add_action( 'widgets_init', 'jetpack_posts_i_like_widget_init' );
-
-function jetpack_posts_i_like_widget_init() {
-	register_widget( 'Jetpack_Posts_I_Like_Widget' );
-}
+<?php // phpcs:ignore Squiz.Commenting.FileComment.Missing
 
 /**
  * Posts I Like Widget
  */
-
 class Jetpack_Posts_I_Like_Widget extends WP_Widget {
-	var $defaults = array();
+	/**
+	 * Widget settings.
+	 *
+	 * @var array $defaults
+	 */
+	public $defaults = array();
 
 	/**
 	 * Registers the widget with WordPress.
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct(
-			'jetpack_posts_i_like',          // Base ID
+			'jetpack_posts_i_like', // Base ID
 			__( 'Posts I Like', 'wpcomsh' ), // Name
 			array(
 				'description' => __( 'A list of the posts I most recently liked', 'wpcomsh' ),
@@ -41,11 +36,17 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 		}
 	}
 
-	function enqueue_style() {
+	/**
+	 * Enqueue style.
+	 */
+	public function enqueue_style() {
 		wp_enqueue_style( 'widget-grid-and-list' );
 	}
 
-	function enqueue_script() {
+	/**
+	 * Enqueue script.
+	 */
+	public function enqueue_script() {
 		wp_enqueue_script( 'widget-bump-view' );
 	}
 
@@ -56,7 +57,7 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 	 *
 	 * @param array $instance Previously saved values from database.
 	 */
-	function form( $instance ) {
+	public function form( $instance ) {
 		// outputs the options form on admin
 		$instance = array_merge( $this->defaults, $instance );
 
@@ -82,20 +83,20 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 
 		?>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php esc_html_e( 'Title:', 'wpcomsh' ); ?></label>
-			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'wpcomsh' ); ?></label>
+			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'number' ); ?>"><?php esc_html_e( 'Number of posts to show (1 to 15):', 'wpcomsh' ); ?></label>
-			<input id="<?php echo $this->get_field_id( 'number' ); ?>" name="<?php echo $this->get_field_name( 'number' ); ?>" type="number" value="<?php echo $number; ?>" min="1" max="15" />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'number' ) ); ?>"><?php esc_html_e( 'Number of posts to show (1 to 15):', 'wpcomsh' ); ?></label>
+			<input id="<?php echo esc_attr( $this->get_field_id( 'number' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'number' ) ); ?>" type="number" value="<?php echo (int) $number; ?>" min="1" max="15" />
 		</p>
 
 		<p>
 			<label><?php esc_html_e( 'Display as:', 'wpcomsh' ); ?></label>
 				<ul>
-					<li><label><input id="<?php echo $this->get_field_id( 'display' ); ?>-list" name="<?php echo $this->get_field_name( 'display' ); ?>" type="radio" value="list" <?php checked( 'list', $display ); ?> /> <?php esc_html_e( 'List', 'wpcomsh' ); ?></label></li>
-					<li><label><input id="<?php echo $this->get_field_id( 'display' ); ?>-grid" name="<?php echo $this->get_field_name( 'display' ); ?>" type="radio" value="grid" <?php checked( 'grid', $display ); ?> /> <?php esc_html_e( 'Grid', 'wpcomsh' ); ?></label></li>
+					<li><label><input id="<?php echo esc_attr( $this->get_field_id( 'display' ) ); ?>-list" name="<?php echo esc_attr( $this->get_field_name( 'display' ) ); ?>" type="radio" value="list" <?php checked( 'list', $display ); ?> /> <?php esc_html_e( 'List', 'wpcomsh' ); ?></label></li>
+					<li><label><input id="<?php echo esc_attr( $this->get_field_id( 'display' ) ); ?>-grid" name="<?php echo esc_attr( $this->get_field_name( 'display' ) ); ?>" type="radio" value="grid" <?php checked( 'grid', $display ); ?> /> <?php esc_html_e( 'Grid', 'wpcomsh' ); ?></label></li>
 				</ul>
 		</p>
 		<?php
@@ -113,13 +114,13 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 		if ( $liker_dropdown ) :
 			?>
 			<p>
-				<label for="<?php echo $this->get_field_id( 'liker' ); ?>"><?php esc_html_e( "Author's likes to display:", 'wpcomsh' ); ?></label>
-				<?php echo $liker_dropdown; ?>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'liker' ) ); ?>"><?php esc_html_e( "Author's likes to display:", 'wpcomsh' ); ?></label>
+				<?php echo $liker_dropdown; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- as this is HTML code from core's wp_dropdown_users() */ ?>
 			</p>
 		<?php else : ?>
 			<input type="hidden"
-				id="<?php echo $this->get_field_id( 'liker' ); ?>"
-				name="<?php echo $this->get_field_name( 'liker' ); ?>"
+				id="<?php echo esc_attr( $this->get_field_id( 'liker' ) ); ?>"
+				name="<?php echo esc_attr( $this->get_field_name( 'liker' ) ); ?>"
 				value="<?php echo (int) $liker; ?>"
 			/>
 			<?php
@@ -136,7 +137,7 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 	 *
 	 * @return array Updated safe values to be saved.
 	 */
-	function update( $new_instance, $old_instance ) {
+	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// processes widget options to be saved
 
 		$instance          = array();
@@ -152,7 +153,7 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 			$instance['number'] = 15;
 		}
 
-		$instance['display'] = isset( $new_instance['display'] ) && 'grid' == $new_instance['display'] ? 'grid' : 'list';
+		$instance['display'] = isset( $new_instance['display'] ) && 'grid' === $new_instance['display'] ? 'grid' : 'list';
 
 		$instance['liker'] = (int) $new_instance['liker'];
 		if ( ! is_user_member_of_blog( $instance['liker'] ) ) {
@@ -172,7 +173,7 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 	 * @param array $args     Widget arguments.
 	 * @param array $instance Saved values from database.
 	 */
-	function widget( $args, $instance ) {
+	public function widget( $args, $instance ) {
 		// Set default values to avoid displaying undeinfed index notices
 		$instance = array_merge( $this->defaults, $instance );
 		$title    = apply_filters( 'widget_title', $instance['title'] );
@@ -223,20 +224,21 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 			}
 		}
 
-		echo $args['before_widget'];
+		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		if ( ! empty( $title ) ) {
-			echo $args['before_title'] . $title . $args['after_title'];
+			echo $args['before_title'] . esc_html( $title ) . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		if ( $posts_i_like ) {
-			if ( 'grid' == $instance['display'] ) {
+			if ( 'grid' === $instance['display'] ) {
 				$output = '';
 
 				echo "<div class='widgets-grid-layout no-grav'>";
 
 				foreach ( $posts_i_like as $post ) {
 					$hover_text = sprintf(
+						/* translators: %1$s is the post title, %1$s is the blog name. */
 						_x( '%1$s on %2$s', '1: Post Title, 2: Blog Name', 'wpcomsh' ),
 						wp_kses( $post->post_title, array() ),
 						wp_kses( $post->blog_name, array() )
@@ -249,7 +251,7 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 					$output .= '</div>';
 				}
 
-				echo $output;
+				echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- as this is intentially complex HTML and the vars have been escaped already.
 
 				echo '</div>';
 
@@ -260,7 +262,7 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 					echo '<li>';
 					echo "<img src='" . esc_url( $post->post_image ) . "' class='widgets-list-layout-blavatar' />";
 					echo "<div class='widgets-list-layout-links'><a href='" . esc_url( $post->post_permalink ) . "' class='bump-view' data-bump-view='pil'>" . esc_html( $post->post_title ) . '</a> ';
-					echo '<span>' . __( 'on', 'wpcomsh' );
+					echo '<span>' . esc_html__( 'on', 'wpcomsh' );
 					echo "&nbsp;<a href='" . esc_url( $post->blog_url ) . "' class='bump-view' data-bump-view='pil'>" . esc_html( $post->blog_name ) . '</a>';
 					echo '</span></div>';
 					echo '</li>';
@@ -270,15 +272,28 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 			}
 		} elseif ( $current_user_controls_widget ) {
 			echo '<p>' . sprintf(
-				__( 'You have not recently liked any posts. Once you do, this <a href="%s">Posts I Like</a> widget will display them.', 'wpcomsh' ),
-				admin_url( 'widgets.php' )
+				wp_kses(
+					// translators: %s is a URL to the widgets settings page.
+					__( 'You have not recently liked any posts. Once you do, this <a href="%s">Posts I Like</a> widget will display them.', 'wpcomsh' ),
+					array(
+						'a' => array( 'href' => array() ),
+					)
+				),
+				esc_url( admin_url( 'widgets.php' ) )
 			) . '</p>';
 		}
 
-		echo $args['after_widget'];
+		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
-	function get_liked_posts( $user_id, $post_count = 5, $force_update = false ) {
+	/**
+	 * Gets posts that are marked as liked.
+	 *
+	 * @param int  $user_id User ID.
+	 * @param int  $post_count Count of posts to retrieve.
+	 * @param bool $force_update Whether or not to use cached results if available.
+	 */
+	public function get_liked_posts( $user_id, $post_count = 5, $force_update = false ) {
 		$transient_key = implode( '|', array( 'wpcomsh-post-i-like-widget', $user_id, $post_count ) );
 
 		if ( ! $force_update ) {
@@ -289,12 +304,11 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 			}
 		}
 
-		$proto   = apply_filters( 'jetpack_can_make_outbound_https', true ) ? 'https' : 'http';
 		$version = 2;
 		$path    = 'liked-posts';
 
 		$args = array(
-			'url'     => sprintf( '%s://%s/wpcom/v%s/%s?count=%s', $proto, JETPACK__WPCOM_JSON_API_HOST, $version, $path, $post_count ),
+			'url'     => sprintf( '%s/wpcom/v%s/%s?count=%s', JETPACK__WPCOM_JSON_API_BASE, $version, $path, $post_count ),
 			'method'  => 'GET',
 			'user_id' => $user_id,
 			'blog_id' => (int) Jetpack_Options::get_option( 'id' ),
@@ -318,10 +332,10 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 	 * @param int $user_id wpcom user id.
 	 * @return int local user id that connected to the passed wpcom user id. Returns 0 if no result is found.
 	 */
-	static function get_local_user_from_wpcom_user( $user_id ) {
+	public static function get_local_user_from_wpcom_user( $user_id ) {
 		global $wpdb;
 
-		return (int) $wpdb->get_var(
+		return (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->prepare(
 				"SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key=%s AND meta_value=%s",
 				'wpcom_user_id',
@@ -331,3 +345,10 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 	}
 }
 
+/**
+ * Register the widget for use in Appearance -> Widgets
+ */
+function jetpack_posts_i_like_widget_init() { // phpcs:ignore Universal.Files.SeparateFunctionsFromOO.Mixed
+	register_widget( 'Jetpack_Posts_I_Like_Widget' );
+}
+add_action( 'widgets_init', 'jetpack_posts_i_like_widget_init' );

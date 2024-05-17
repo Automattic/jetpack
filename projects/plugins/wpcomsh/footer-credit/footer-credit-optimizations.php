@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore Squiz.Commenting.FileComment.MissingPackageTag
 /**
  * This file is taken from wp-content/blog-plugins/theme-optimizations.php on wpcom and is split into this and 'theme-optimizations.php'.
  */
@@ -63,7 +63,7 @@ function wpcom_better_footer_links( $footer ) {
 
 	// Replace separator from content, since we are replacing theme and designer credits.
 	// Any span separator with a .sep class will be matched and replaced by the regular expression.
-	$footer = preg_replace("/\s\|\s(?=\<a)|\<span class=\"([^\"]+\s)?sep(\s[^\"]+)?\">.*<\/span>/i", '', $footer);
+	$footer = preg_replace( '/\s\|\s(?=\<a)|\<span class="([^"]+\s)?sep(\s[^"]+)?">.*<\/span>/i', '', $footer );
 
 	// Handle WP.com footer text.
 	$lang = get_bloginfo( 'language' );
@@ -72,17 +72,20 @@ function wpcom_better_footer_links( $footer ) {
 	$credit_link = apply_filters( 'wpcom_better_footer_credit_link', '', $lang );
 
 	// The regular expression to match the credit link replacement.
-	$credit_regex = implode( '', array(
-		'#' , // Open delimiter
-			'<a[^>]*href="http(s?)://(([a-z]{2}(-[A-Z]{2})?|www)\.)?(wordpress|wordpress-fr|wpfr)\.(com|org|net)/?"([^>]+)?>' , // Opening link tag
-			    '\s*'   , // Optional whitespace
-			    '(.+?)' , // Any word or sentence
-			    '\s*'   , // Optional whitespace
-			'</a>'      , // Closing link tag
-			'\.?'       , // Optional period
-			'(\s*&[^;]+;\s*)?' , // Optional HTML Entity
-		'#i' , // Ending delimiter & modifier
-	) );
+	$credit_regex = implode(
+		'',
+		array(
+			'#',                // Open delimiter
+			'<a[^>]*href="http(s?)://(([a-z]{2}(-[A-Z]{2})?|www)\.)?(wordpress|wordpress-fr|wpfr)\.(com|org|net)/?"([^>]+)?>', // Opening link tag
+			'\s*',              // Optional whitespace
+			'(.+?)',            // Any word or sentence
+			'\s*',              // Optional whitespace
+			'</a>',             // Closing link tag
+			'\.?',              // Optional period
+			'(\s*&[^;]+;\s*)?', // Optional HTML Entity
+			'#i',               // Ending delimiter & modifier
+		)
+	);
 
 	// Add filter for specific themes that may need to tweak the regex a bit.
 	$credit_regex = apply_filters( 'wpcom_better_footer_credit_regex', $credit_regex, $theme );
@@ -91,12 +94,12 @@ function wpcom_better_footer_links( $footer ) {
 	if ( preg_match_all( $credit_regex, $footer, $matches, PREG_OFFSET_CAPTURE ) ) {
 
 		// Get last match and offset.
-		$match = array_pop( $matches[0] );
+		$match  = array_pop( $matches[0] );
 		$offset = $match[1];
 
 		// Split the content into two parts, which we will join later on.
 		$before = substr( $footer, 0, $offset );
-		$after = substr( $footer, $offset );
+		$after  = substr( $footer, $offset );
 
 		// Replace on the last part. Ensure we only do one replacement to avoid duplicates.
 		$after = preg_replace( $credit_regex, $credit_link, $after, 1 );
@@ -112,53 +115,60 @@ function wpcom_better_footer_links( $footer ) {
 	);
 
 	// Remove "Proudly powered by WordPress" on selected themes.
-	if ( in_array( $theme->stylesheet, $powered_by_themes ) ) {
-		$powered_string = preg_quote( __( 'Proudly powered by WordPress' ), '#' );
+	if ( in_array( $theme->stylesheet, $powered_by_themes, true ) ) {
+		$powered_string = preg_quote( __( 'Proudly powered by WordPress', 'wpcomsh' ), '#' );
+		// phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 		$powered_regex = sprintf( '#<a[^>]*href="http(s?)://(([a-z]{2}|www)\.)?wordpress\.(com|org)/?"([^>]+)?>%s</a>\.?#i', $powered_string );
-		$footer = preg_replace( $powered_regex, '', $footer );
+		$footer        = preg_replace( $powered_regex, '', $footer );
 	}
 
 	// Handle adding Theme Name and colophon link to footer text.
+	$theme_regex = array(
+		'(?:\s*\|\s*)?',       // Optional pipe with spaces (non-capturing)
+		'(?:<span\s[^>]+>)?',  // Optional opening span tag (non-capturing)
+		'(Theme|%s)',          // $1: "Theme" or the localized equivalent
+		'\s*(?:&nbsp;)?:?\s*', // Zero or more whitespace characters, an optional colon, zero or more whitespace characters
+		'(%s|<a[^>]+>%s</a>)', // $2: The theme name, or link
+		'\.?',                 // Optional period
+		'(?:</span>)?',        // Optional closing span tag (non-capturing)
+		'\.?',                 // Optional period
+	);
 	$theme_match = sprintf(
-		'(?:\s*\|\s*)?'        . // Optional pipe with spaces (non-capturing)
-		'(?:<span\s[^>]+>)?'   . // Optional opening span tag (non-capturing)
-		'(Theme|%s)'           . // $1: "Theme" or the localized equivalent
-		'\s*(?:&nbsp;)?:?\s*'  . // Zero or more whitespace characters, an optional colon, zero or more whitespace characters
-		'(%s|<a[^>]+>%s</a>)'  . // $2: The theme name, or link
-		'\.?'                  . // Optional period
-		'(?:</span>)?'         . // Optional closing span tag (non-capturing)
-		'\.?'                    // Optional period
-
-		, preg_quote( __( 'Theme' ), '#' )
-		, preg_quote( $theme->name, '#' )
-		, preg_quote( $theme->name, '#' )
+		implode( $theme_regex ),
+		preg_quote( __( 'Theme', 'wpcomsh' ), '#' ),
+		preg_quote( $theme->name, '#' ),
+		preg_quote( $theme->name, '#' )
 	);
 
 	// Theme designer match.
+	$designer_regex = array(
+		'(',                  // Start $3
+		'\s*',                // Zero or more whitespace characters
+		'(?:<span\s[^>]+>)?', // Optional opening span tag (non-capturing)
+		'(?:by|%s)',          // "by" or the localized equivalent (non-capturing)
+		'(?:</span>)?',       // Optional closing span tag (non-capturing)
+		'\s*',                // Zero or more whitespace characters
+		'(<a[^>]+>.+?</a>)?', // $4: Maybe a full <a> element
+		')',                  // End $3
+		'\.?',                // Optional period
+	);
 	$designer_match = $theme_match . sprintf(
-		'('                       . // Start $3
-		    '\s*'                 . // Zero or more whitespace characters
-		    '(?:<span\s[^>]+>)?'  . // Optional opening span tag (non-capturing)
-		    '(?:by|%s)'           . // "by" or the localized equivalent (non-capturing)
-		    '(?:</span>)?'        . // Optional closing span tag (non-capturing)
-		    '\s*'                 . // Zero or more whitespace characters
-		    '(<a[^>]+>.+?</a>)?'  . // $4: Maybe a full <a> element
-		')'                       . // End $3
-		'\.?'                       // Optional period
-
-		, preg_quote( __( 'by' ), '#' ) // localized "by" preposition
+		implode( $designer_regex ),
+		preg_quote( __( 'by', 'wpcomsh' ), '#' ) // localized "by" preposition
 	);
 
 	// Match "Design by <shop>".
-	$design_by = preg_quote( $credit_link, '#' ) . sprintf(
-		'\.?'                . // Optional period
-		'\s*'                . // Optional whitespace
-		'(Design by|%s)'     . // "Design by" or localized equivalent
-		'\s*'                . // Optional whitespace
-		'(<a[^>]+>.+?</a>)'  . // Full link element
-		'\.?'                  // Optional period
-
-		, preg_quote( __( 'Design by' ), '#' )
+	$design_by_regex = array(
+		'\.?',               // Optional period
+		'\s*',               // Optional whitespace
+		'(Design by|%s)',    // "Design by" or localized equivalent
+		'\s*',               // Optional whitespace
+		'(<a[^>]+>.+?</a>)', // Full link element
+		'\.?',               // Optional period
+	);
+	$design_by       = preg_quote( $credit_link, '#' ) . sprintf(
+		implode( $design_by_regex ),
+		preg_quote( __( 'Design by', 'wpcomsh' ), '#' )
 	);
 
 	if ( preg_match( "#$designer_match#i", $footer ) ) {
@@ -176,7 +186,9 @@ function wpcom_better_footer_links( $footer ) {
 	return $footer;
 }
 
-// Enable filters for footer content for all themes, except VIP sites.
+/**
+ * Enable filters for footer content for all themes, except VIP sites.
+ */
 function better_wpcom_link_init() {
 	if ( apply_filters( 'wpcom_better_footer_credit_apply', true ) && ! wp_is_json_request() ) {
 		ob_start( 'wpcom_better_footer_links_buffer' );
@@ -184,7 +196,9 @@ function better_wpcom_link_init() {
 }
 add_action( 'get_footer', 'better_wpcom_link_init' );
 
-// Enable filters on those themes that need special treatment.
+/**
+ * Enable filters on those themes that need special treatment.
+ */
 function better_wpcom_link_workarounds_init() {
 	if ( function_exists( 'blogly_widgets_init' ) && 'premium/blogly' === wp_get_theme()->stylesheet ) {
 		add_action( 'get_sidebar', 'better_wpcom_link_init' );
@@ -204,7 +218,7 @@ if ( ! apply_filters( 'wpcom_better_footer_credit_apply', true ) ) {
  * Filters the default footer credits regex.
  *
  * @param string $credit_regex The regular expression for the footer credit.
- * @param object $theme The object returned by `wp_get_theme()`
+ * @param object $theme The object returned by `wp_get_theme()`.
  * @return string
  */
 function wpcom_better_footer_credit_regex_filter( $credit_regex, $theme ) {
@@ -281,4 +295,3 @@ function wpcomthemes_twentysixteen_credits() {
 	echo 'Theme: Twenty Sixteen.'; // leave untranslated for regex match, will be translated in final output
 }
 add_action( 'twentysixteen_credits', 'wpcomthemes_twentysixteen_credits' );
-

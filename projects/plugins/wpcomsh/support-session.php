@@ -1,8 +1,11 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * This file provides support session detection and safety.
  * Support session "safety" means avoiding certain actions on behalf of users (e.g., accepting ToS).
+ *
+ * @package automattic/wpcomsh
  */
+// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
 
 if ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) {
 	if ( ! WPCOMSH_Support_Session_Detect::has_detection_result() ) {
@@ -21,12 +24,16 @@ if ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) {
 class WPCOMSH_Support_Session_Detect {
 	const COOKIE_NAME                  = '_wpcomsh_support_session_detected';
 	const DETECTION_URI                = '/_wpcomsh_detect_support_session';
-	const NONCE_ACTION                 = 'support-session-detect';
+	const NONCE_ACTION                 = 'support-session-detect-get';
+	const NONCE_ACTION_POST            = 'support-session-detect-post';
 	const NONCE_NAME                   = 'nonce';
 	const LOGIN_PATH                   = '/wp-login.php';
 	const QUERY_PARAM_TO_SHORT_CIRCUIT = 'disable-support-session-detection';
 	const EMERGENCY_LOGIN_PATH         = '/wp-login.php?' . self::QUERY_PARAM_TO_SHORT_CIRCUIT;
 
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
 		// Detect support session on WordPress.com SSO success
 		add_action( 'muplugins_loaded', array( __CLASS__, 'detect_support_session_sso_success' ) );
@@ -51,6 +58,7 @@ class WPCOMSH_Support_Session_Detect {
 			! is_user_logged_in() &&
 			! static::has_detection_result() &&
 			! ( class_exists( 'Jetpack' ) && Jetpack::is_connection_ready() && Jetpack::is_module_active( 'sso' ) ) &&
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Query parameters are used to categorize requests, nonce verification is done elsewhere.
 			! isset( $_GET[ static::QUERY_PARAM_TO_SHORT_CIRCUIT ] )
 		);
 	}
@@ -77,15 +85,18 @@ class WPCOMSH_Support_Session_Detect {
 	/**
 	 * Answers whether a value is a valid detection result
 	 *
-	 * @param $candidate_result
+	 * @param mixed $candidate_result the value to be validated.
 	 * @return bool
 	 */
 	public static function is_valid_detection_result( $candidate_result ) {
-		return in_array( $candidate_result, array( 'true', 'false' ) );
+		return in_array( $candidate_result, array( 'true', 'false' ), true );
 	}
 
 	/**
 	 * Saves the detection result (in a cookie)
+	 *
+	 * @param string $result the cookie value.
+	 * @param int    $expires cookie expiration time.
 	 */
 	public static function set_detection_result( $result, $expires = 0 ) {
 		if ( static::is_valid_detection_result( $result ) ) {
@@ -103,7 +114,7 @@ class WPCOMSH_Support_Session_Detect {
 				)
 			);
 		} else {
-			error_log( __CLASS__ . ": unexpected detection result '$result'" );
+			error_log( __CLASS__ . ": unexpected detection result '$result'" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		}
 	}
 
@@ -111,23 +122,38 @@ class WPCOMSH_Support_Session_Detect {
 	 * Looks for an is_support_session flag on a WordPress.com SSO success request
 	 */
 	public static function detect_support_session_sso_success() {
+		/**
+		 * TODO: Review nonce verification procedures.
+		 * This code works in the connection flow with a support session and makes sure that the support engineer
+		 * is not accepting the ToS on the user's behalf. The detection is based on Jetpack SSO fields in the request.
+		 * Jetpack handles nonce verification in this particular flow.
+		 * Could we switch from 'muplugins_loaded' to 'jetpack_sso_handle_login' so this runs after Jetpack's nonce verification happens?
+		 */
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- See above.
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$login_path = '/wp-login.php?';
 		if (
-			0 === strncmp( $_SERVER['REQUEST_URI'], $login_path, strlen( $login_path ) ) &&
-			'GET' === $_SERVER['REQUEST_METHOD'] &&
-			isset( $_GET['action'] ) && 'jetpack-sso' === $_GET['action'] &&
-			isset( $_GET['result'] ) && 'success' === $_GET['result']
+			isset( $_SERVER['REQUEST_URI'] )
+				&& 0 === strncmp( wp_unslash( $_SERVER['REQUEST_URI'] ), $login_path, strlen( $login_path ) )
+				&& isset( $_SERVER['REQUEST_METHOD'] )
+				&& 'GET' === $_SERVER['REQUEST_METHOD']
+				&& isset( $_GET['action'] )
+				&& 'jetpack-sso' === $_GET['action']
+				&& isset( $_GET['result'] )
+				&& 'success' === $_GET['result']
 		) {
 			$is_probably_support_session =
 				isset( $_GET['is_support_session'] ) ? 'true' : 'false';
 
 			$expires = 0;
-			if ( isset( $_GET['expires'] ) && ctype_digit( $_GET['expires'] ) ) {
-				$expires = time() + $_GET['expires'];
+			if ( isset( $_GET['expires'] ) && ctype_digit( wp_unslash( $_GET['expires'] ) ) ) {
+				$expires = time() + wp_unslash( $_GET['expires'] );
 			}
 
 			static::set_detection_result( $is_probably_support_session, $expires );
 		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 	}
 
 	/**
@@ -139,12 +165,16 @@ class WPCOMSH_Support_Session_Detect {
 			return;
 		}
 
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- No change is being made to the site. We're only redirecting to an interstitial page.
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$is_simple_login_page_request =
-			'GET' === $_SERVER['REQUEST_METHOD'] &&
-			static::LOGIN_PATH === parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH ) &&
-			( empty( $_GET['action'] ) || 'jetpack-sso' !== $_GET['action'] );
+			isset( $_SERVER['REQUEST_METHOD'] )
+				&& 'GET' === $_SERVER['REQUEST_METHOD']
+				&& isset( $_SERVER['REQUEST_URI'] )
+				&& static::LOGIN_PATH === wp_parse_url( wp_unslash( $_SERVER['REQUEST_URI'] ), PHP_URL_PATH )
+				&& ( empty( $_GET['action'] ) || 'jetpack-sso' !== $_GET['action'] );
 
-		if ( $is_simple_login_page_request ) {
+		if ( isset( $_SERVER['REQUEST_URI'] ) && $is_simple_login_page_request ) {
 			// After detection, we will redirect to this login URL.
 			// Add a query param to short-circuit detection so that if something goes wrong
 			// we do not end up in a login->detect redirect loop.
@@ -152,17 +182,19 @@ class WPCOMSH_Support_Session_Detect {
 				static::QUERY_PARAM_TO_SHORT_CIRCUIT,
 				// empty value because this query param is just a flag
 				'',
-				$_SERVER['REQUEST_URI']
+				wp_unslash( $_SERVER['REQUEST_URI'] )
 			);
 
+			// phpcs:enable WordPress.Security.NonceVerification.Recommended
+			// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$detection_uri = add_query_arg(
 				array(
-					'redirect' => urlencode( $destination_login_uri ),
+					'redirect' => rawurlencode( $destination_login_uri ),
 					'nonce'    => wp_create_nonce( static::NONCE_ACTION ),
 				),
 				static::DETECTION_URI
 			);
-			wp_redirect( $detection_uri );
+			wp_redirect( $detection_uri ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
 			die;
 		}
 	}
@@ -171,33 +203,57 @@ class WPCOMSH_Support_Session_Detect {
 	 * Handles GETs and POSTs to the client-side support session detection page
 	 */
 	public static function handle_detection_requests() {
-		if ( 0 !== strncmp( $_SERVER['REQUEST_URI'], static::DETECTION_URI, strlen( static::DETECTION_URI ) ) ) {
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		if (
+			isset( $_SERVER['REQUEST_URI'] )
+				&& 0 !== strncmp(
+					wp_unslash( $_SERVER['REQUEST_URI'] ),
+					static::DETECTION_URI,
+					strlen( static::DETECTION_URI )
+				)
+		) {
 			return;
 		}
 
-		if ( 'GET' === $_SERVER['REQUEST_METHOD'] ) {
+		if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'GET' === $_SERVER['REQUEST_METHOD'] ) {
+
+			$nonce = wp_unslash( $_GET['nonce'] ?? '' );
+			if ( ! wp_verify_nonce( $nonce, static::NONCE_ACTION ) ) {
+
+				// phpcs:ignore -- Using an i18n call without a domain to use WordPress translations.
+				wp_die( __( 'Sorry, you are not allowed to access this page.' ) );
+			}
+
 			static::print_detection_ui();
 			die;
 		}
 
 		if ( 'POST' === $_SERVER['REQUEST_METHOD'] ) {
-			if ( isset( $_POST['result'] ) && static::is_valid_detection_result( $_POST['result'] ) ) {
-				static::set_detection_result( $_POST['result'] );
+			$nonce = wp_unslash( $_POST['nonce'] ?? '' );
+			if ( ! wp_verify_nonce( $nonce, static::NONCE_ACTION_POST ) ) {
+
+				// phpcs:ignore -- Using an i18n call without a domain to use WordPress translations.
+				wp_die( __( 'Sorry, you are not allowed to access this page.' ) );
+			}
+
+			if ( isset( $_POST['result'] ) && static::is_valid_detection_result( wp_unslash( $_POST['result'] ) ) ) {
+				static::set_detection_result( wp_unslash( $_POST['result'] ) );
 			}
 
 			// Return to original login path
+			$redirect = isset( $_GET['redirect'] ) ? wp_unslash( $_GET['redirect'] ) : null;
 			if (
-				'/' === substr( $_GET['redirect'], 0, 1 ) &&
-				static::LOGIN_PATH === parse_url( $_GET['redirect'], PHP_URL_PATH )
+				! is_string( $redirect )
+					|| '/' !== substr( $redirect, 0, 1 )
+					|| static::LOGIN_PATH !== wp_parse_url( $redirect, PHP_URL_PATH )
 			) {
-				$redirect = $_GET['redirect'];
-			} else {
 				// Use "emergency" login path to avoid infinite login->detect redirect loop
 				$redirect = static::EMERGENCY_LOGIN_PATH;
 			}
-			wp_redirect( $redirect );
+			wp_redirect( $redirect ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
 			die;
 		}
+		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 	}
 
 	/**
@@ -206,6 +262,7 @@ class WPCOMSH_Support_Session_Detect {
 	 * or an extension-managed support session.
 	 */
 	public static function print_detection_ui() {
+		$post_nonce = wp_create_nonce( static::NONCE_ACTION_POST );
 		?>
 		<!DOCTYPE html>
 		<html>
@@ -259,6 +316,7 @@ class WPCOMSH_Support_Session_Detect {
 				</div>
 				<form id="result-form" method="POST">
 					<input id="result-field" type="hidden" name="result" value="">
+					<input id="result-nonce-field" type="hidden" name="nonce" value="<?php esc_attr( $post_nonce ); ?>">
 				</form>
 				<script>
 					function wpcomshHandleFailure( message ) {
@@ -336,6 +394,10 @@ class WPCOMSH_Support_Session_Detect {
  * while in a support session.
  */
 class WPCOMSH_Support_Session_Safety {
+
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
 		add_action( 'admin_body_class', array( __CLASS__, 'enable_writing_support_session_css_rules' ) );
 		// Use `admin_print_styles` instead of `admin_enqueue_scripts` to match
@@ -363,7 +425,7 @@ class WPCOMSH_Support_Session_Safety {
 	 * Adds a support-session class to admin body tags so we can write CSS rules
 	 * that apply only for support sessions.
 	 *
-	 * @param $body_element_classes
+	 * @param string $body_element_classes class strings for the body element.
 	 * @return string
 	 */
 	public static function enable_writing_support_session_css_rules( $body_element_classes ) {
@@ -390,8 +452,8 @@ class WPCOMSH_Support_Session_Safety {
 	/**
 	 * Prevent updates to the `jetpack_tos_agreed` option
 	 *
-	 * @param $new_value
-	 * @param $old_value
+	 * @param string $new_value the new value to be set.
+	 * @param string $old_value the old value to be set instead.
 	 *
 	 * @return string the old option value
 	 */
@@ -403,8 +465,7 @@ class WPCOMSH_Support_Session_Safety {
 	/**
 	 * Filter out the wpcom-tos tool from the tools Jetpack wants to load
 	 *
-	 * @param $jetpack_tools
-	 *
+	 * @param array $jetpack_tools the array of Jetpack tools being loaded.
 	 * @return array the Jetpack tools without the wpcom-tos tool
 	 */
 	public static function remove_jetpack_wpcom_tos_tool( $jetpack_tools ) {

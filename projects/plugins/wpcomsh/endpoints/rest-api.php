@@ -6,13 +6,12 @@
  */
 
 // Require endpoint files.
-require_once 'class-marketplace-webhook-response.php';
-require_once 'class-backup-import-response.php';
-require_once 'class-rest-api-code-deployment-logs-controller.php';
-require_once 'rest-api-export.php';
-require_once 'rest-api-logout.php';
-require_once 'rest-api-reconnect.php';
-
+require_once __DIR__ . '/class-marketplace-webhook-response.php';
+require_once __DIR__ . '/class-backup-import-response.php';
+require_once __DIR__ . '/class-rest-api-code-deployment-logs-controller.php';
+require_once __DIR__ . '/rest-api-export.php';
+require_once __DIR__ . '/rest-api-logout.php';
+require_once __DIR__ . '/rest-api-reconnect.php';
 
 /**
  * Initialize REST API.

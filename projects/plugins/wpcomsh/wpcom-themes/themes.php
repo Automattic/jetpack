@@ -192,9 +192,9 @@ function wpcomsh_remove_symlink_wp_error( $code, $message, $data, WP_Error $erro
 /**
  * Install WPCom themes by creating a symlink instead of downloading the theme package.
  *
- * @param mixed  $reply    The result object
- * @param string $package  The package to install
- * @param mixed  $upgrader The upgrader component
+ * @param mixed  $reply    The result object.
+ * @param string $package  The package to install.
+ * @param mixed  $upgrader The upgrader component.
  *
  * @return bool|mixed|WP_Error
  */

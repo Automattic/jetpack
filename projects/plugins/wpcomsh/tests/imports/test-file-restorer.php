@@ -5,7 +5,6 @@
  * @package wpcomsh
  */
 
-use PHPUnit\Framework\TestCase;
 use Imports\Utils\FileRestorer;
 
 /**

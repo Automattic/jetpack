@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 3.20.21
+ * Version: 3.21.0
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
@@ -10,7 +10,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '3.20.21' );
+define( 'WPCOMSH_VERSION', '3.21.0' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -176,8 +176,8 @@ if (
  * Once the files have been transferred, the 'wpcom_attachment_subdomain' will
  * be removed, preventing further stats.
  *
- * @param string $url The attachment URL
- * @param int    $post_id The post id
+ * @param string $url The attachment URL.
+ * @param int    $post_id The post id.
  * @return string The filtered attachment URL
  */
 function wpcomsh_get_attachment_url( $url, $post_id ) {
@@ -200,7 +200,7 @@ add_filter( 'wp_get_attachment_url', 'wpcomsh_get_attachment_url', 11, 2 );
  * When WordPress.com passes along an expiration for auth cookies and it is smaller
  * than the value set by Jetpack by default (YEAR_IN_SECONDS), use the smaller value.
  *
- * @param int $seconds The cookie expiration in seconds
+ * @param int $seconds The cookie expiration in seconds.
  * @return int The filtered cookie expiration in seconds
  */
 function wpcomsh_jetpack_sso_auth_cookie_expiration( $seconds ) {
@@ -242,7 +242,7 @@ add_action( 'admin_enqueue_scripts', 'wpcomsh_admin_enqueue_style', 999 );
 /**
  * Allow custom wp options
  *
- * @param array $options The options
+ * @param array $options The options.
  *
  * @return array
  */
@@ -275,7 +275,7 @@ add_filter( 'jetpack_site_pending_automated_transfer', 'check_site_has_pending_a
 /**
  * Require library helper function
  *
- * @param mixed $slug Slug of library
+ * @param mixed $slug Slug of library.
  * @return void
  */
 function require_lib( $slug ) {
@@ -315,7 +315,7 @@ function require_lib( $slug ) {
  *
  * @see p5j4vm-1gT-p2
  *
- * @param string $api_key Google Maps API key
+ * @param string $api_key Google Maps API key.
  * @return string Google Maps API key
  */
 function wpcomsh_google_maps_api_key( $api_key ) {
@@ -324,14 +324,13 @@ function wpcomsh_google_maps_api_key( $api_key ) {
 }
 add_filter( 'jetpack_google_maps_api_key', 'wpcomsh_google_maps_api_key' );
 
-
 /**
  * We have some instances where `track_number` of an audio attachment is `??0` and shows up as type string.
  * However the problem is, that if post has nested property attachments with this track_number, `json_serialize` fails silently.
  * Of course, this should be fixed during audio upload, but we need this fix until we can clean this up properly.
  * More detail here: 235-gh-Automattic/automated-transfer
  *
- * @param array $exif_data The file exif data
+ * @param array $exif_data The file exif data.
  *
  * @return array
  */
@@ -349,7 +348,7 @@ add_filter( 'jetpack_development_version', '__return_false' );
 /**
  * Make User Agent consistent with the rest of WordPress.com.
  *
- * @param mixed $agent The agent
+ * @param mixed $agent The agent.
  */
 function wpcomsh_filter_outgoing_user_agent( $agent ) {
 	global $wp_version;
@@ -361,7 +360,7 @@ add_filter( 'http_headers_useragent', 'wpcomsh_filter_outgoing_user_agent', 999 
 /**
  * Allow redirects to WordPress.com from Customizer.
  *
- * @param array $hosts The hosts
+ * @param array $hosts The hosts.
  */
 function wpcomsh_allowed_redirect_hosts( $hosts ) {
 	if ( is_array( $hosts ) ) {
@@ -378,7 +377,7 @@ add_filter( 'allowed_redirect_hosts', 'wpcomsh_allowed_redirect_hosts', 11 );
  *
  * Converts all plain-text HTTP URLs in post_content to links on display
  *
- * @param string $content The content
+ * @param string $content The content.
  *
  * @uses make_clickable()
  * @since 20121125
@@ -487,7 +486,7 @@ add_filter( 'the_excerpt', 'wpcomsh_make_content_clickable', 120 );
 /**
  * Hide scan threats from transients
  *
- * @param mixed $response The response
+ * @param mixed $response The response.
  *
  * @return mixed
  */
@@ -513,7 +512,7 @@ add_action( 'wp_before_admin_bar_render', 'wpcomsh_remove_threats_from_toolbar',
 /**
  * Hide scan threats from api
  *
- * @param mixed $response The reponse
+ * @param mixed $response The reponse.
  *
  * @return mixed
  */
@@ -550,8 +549,6 @@ function wpcomsh_footer_rum_js() {
 	$service      = 'atomic';
 	$allow_iframe = '';
 	if ( 'admin_footer' === current_action() ) {
-		global $pagenow;
-
 		$service = 'atomic-wpadmin';
 
 		if ( method_exists( 'Jetpack_WPCOM_Block_Editor', 'init' ) ) {
@@ -578,8 +575,8 @@ add_filter( 'amp_dev_tools_user_default_enabled', '__return_false' );
 /**
  * Tracks helper. Filters Jetpack TOS option if class exists.
  *
- * @param mixed $event The event
- * @param mixed $event_properties The event property
+ * @param mixed $event The event.
+ * @param mixed $event_properties The event property.
  *
  * @return void
  */
@@ -604,8 +601,8 @@ function wpcomsh_record_tracks_event( $event, $event_properties ) {
  * Helper for filtering tos_agreed for tracking purposes.
  * Explicit function so it can be removed afterwards.
  *
- * @param mixed $value The value
- * @param mixed $name Name
+ * @param mixed $value The value.
+ * @param mixed $name Name.
  *
  * @return mixed
  */

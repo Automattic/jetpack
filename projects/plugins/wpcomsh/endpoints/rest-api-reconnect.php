@@ -60,7 +60,7 @@ function verify_jetpack_reconnect_data( $data, $sig ) {
  * @param WP_REST_Request $request Request object.
  * @return WP_REST_Response
  */
-function wpcomsh_rest_api_reconnect( $request = null ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+function wpcomsh_rest_api_reconnect( $request = null ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis
 	// phpcs:disable WordPress.Security
 	$package     = $_POST['package'];
 	$package_sig = $_POST['sig'];

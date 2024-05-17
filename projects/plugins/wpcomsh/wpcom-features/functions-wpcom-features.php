@@ -124,8 +124,6 @@ function wpcom_get_site_purchases( $blog_id = 0 ) {
 		$purchases = (array) json_decode( $persistent_data->WPCOM_PURCHASES ); // phpcs:ignore WordPress.NamingConventions
 
 	} else {
-		global $wpdb;
-
 		// Allow overriding the blog ID for feature checks.
 		$blog_id = apply_filters( 'wpcom_site_has_feature_blog_id', $blog_id );
 
@@ -227,7 +225,7 @@ function _wpcom_features_get_simple_site_purchases( $blog_id ) {
 					FROM
 						`$wpdb->billing_products`
 					WHERE
-						" . $wpdb->build_IN_condition( 'product_id', $billing_product_ids_to_query, '%d' )
+						" . $wpdb->build_IN_condition( 'product_id', $billing_product_ids_to_query, '%d' ) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		);
 
 		foreach ( $billing_products as $billing_product ) {

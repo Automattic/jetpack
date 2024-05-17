@@ -16,14 +16,8 @@ class StagingSitesTest extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_wpcomsh_disable_jetpack_staging_mode_default() {
-		$this->assertEquals(
-			false,
-			apply_filters( 'jetpack_is_staging_site', false ),
-		);
-		$this->assertEquals(
-			true,
-			apply_filters( 'jetpack_is_staging_site', true ),
-		);
+		$this->assertFalse( apply_filters( 'jetpack_is_staging_site', false ) );
+		$this->assertTrue( apply_filters( 'jetpack_is_staging_site', true ) );
 	}
 
 	/**
@@ -33,13 +27,7 @@ class StagingSitesTest extends WP_UnitTestCase {
 	 */
 	public function test_wpcomsh_disable_jetpack_staging_mode_always_false_staging_site() {
 		add_option( WPCOM_IS_STAGING_SITE_OPTION_NAME, 1 );
-		$this->assertEquals(
-			false,
-			apply_filters( 'jetpack_is_staging_site', false ),
-		);
-		$this->assertEquals(
-			false,
-			apply_filters( 'jetpack_is_staging_site', true ),
-		);
+		$this->assertFalse( apply_filters( 'jetpack_is_staging_site', false ) );
+		$this->assertFalse( apply_filters( 'jetpack_is_staging_site', true ) );
 	}
 }

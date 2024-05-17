@@ -103,7 +103,7 @@ function wpcomsh_headstart_log( $input ) {
  *  "80": {
  *    "product_cat": [ "Men", "Women" ],
  *    "product_tag": [ "New Arrivals" ],
- *  },
+ *  }.
  **/
 function wpcomsh_apply_headstart_custom_term_assignments( $custom_term_assignments ) {
 	$filter   = array(
@@ -132,7 +132,7 @@ function wpcomsh_apply_headstart_custom_term_assignments( $custom_term_assignmen
  *  Example: {
  *   "product_cat": [ "Men", "Women" ],
  *   "product_tag": [ "New Arrivals" ],
- *  }
+ *  }.
  */
 function wpcomsh_apply_headstart_custom_term_assignment( $post_id, $assignments ) {
 	$append = true; // Don't ever delete terms
@@ -170,7 +170,7 @@ function wpcomsh_apply_headstart_custom_term_assignment( $post_id, $assignments 
  *      "term_taxonomy_id": 27, "taxonomy": "product_tag", "description": "", "parent": 0,
  *      "count": 4, "filter": "raw" }
  *  ]
- *  }
+ *  }.
  * @return array $term_id_map A mapping of "old" term_ids to "new" term_ids for any terms that were inserted or found.
  */
 function wpcomsh_apply_headstart_custom_terms( $custom_terms_by_taxonomy ) {
@@ -253,9 +253,9 @@ function wpcomsh_apply_headstart_custom_terms( $custom_terms_by_taxonomy ) {
  * "new" term id: 203482 - This represents the "New Arrivals" category's ID on the current site.
  *
  * @param array $custom_term_meta Term_meta assignments by "old" id.
- *  Example: { "1379": { "order": [ 0 ], "another_meta_key": [ "another_meta_value" ] }, ... }
+ *  Example: { "1379": { "order": [ 0 ], "another_meta_key": [ "another_meta_value" ] }, ... }.
  * @param array $term_id_map Mapping of "old" term ids to "new" term ids.
- *  Example: { "1379": "203482", "1380": "203483", ... }
+ *  Example: { "1379": "203482", "1380": "203483", ... }.
  */
 function wpcomsh_apply_headstart_custom_term_meta( $custom_term_meta, $term_id_map ) {
 	foreach ( $custom_term_meta as $old_term_id => $metas ) {

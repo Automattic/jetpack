@@ -108,7 +108,7 @@ class Theme_Homepage_Switcher {
 						$menu->term_id,
 						$menu_item->ID,
 						array(
-							'menu-item-title'  => __( 'Home' ),
+							'menu-item-title'  => __( 'Home' ), // phpcs:ignore WordPress.WP.I18n.MissingArgDomain
 							'menu-item-url'    => '/',
 							'menu-item-status' => 'publish',
 							'menu-item-type'   => 'custom',

@@ -1,22 +1,17 @@
-<?php
+<?php // phpcs:ignore Squiz.Commenting.FileComment.Missing
+
 /*
  * File copied from WP.com
  */
 
 /**
- * Register the widget for use in Appearance -> Widgets
- */
-add_action( 'widgets_init', 'jetpack_gravatar_widget_init' );
-
-function jetpack_gravatar_widget_init() {
-	register_widget( 'Gravatar_Widget' );
-}
-
-/**
  * Gravatar Widget
  */
 class Gravatar_Widget extends WP_Widget {
-	function __construct() {
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
 		$widget_ops = array(
 			'classname'   => 'widget_gravatar',
 			'description' => __( 'Insert a Gravatar image', 'wpcomsh' ),
@@ -28,13 +23,11 @@ class Gravatar_Widget extends WP_Widget {
 	/**
 	 * Display the widget
 	 *
-	 * @param string $args Widget arguments
-	 * @param string $instance Widget instance
+	 * @param array $args Widget arguments.
+	 * @param array $instance Widget instance.
 	 * @return void
 	 **/
-	function widget( $args, $instance ) {
-		extract( $args );
-
+	public function widget( $args, $instance ) {
 		$instance = wp_parse_args(
 			(array) $instance,
 			array(
@@ -49,10 +42,10 @@ class Gravatar_Widget extends WP_Widget {
 		);
 		$title    = apply_filters( 'widget_title', $instance['title'] );
 
-		echo $before_widget;
+		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		if ( $title ) {
-			echo $before_title . stripslashes( $title ) . $after_title;
+			echo $args['before_title'] . esc_html( $title ) . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		// Widget
@@ -60,19 +53,19 @@ class Gravatar_Widget extends WP_Widget {
 		if ( $instance['email'] ) {
 			$text = get_avatar( $instance['email'], $instance['gravatar_size'], '', '', array( 'force_display' => true ) );
 
-			if ( $instance['gravatar_align'] == 'left' ) {
+			if ( $instance['gravatar_align'] === 'left' ) {
 				$text = str_replace(
 					array( '/>', 'avatar-' . $instance['gravatar_size'] ),
 					array( ' style="margin-top: 3px; padding: 0 0.5em 0 0; float: left" />', 'avatar-' . $instance['gravatar_size'] . ' grav-widget-left' ),
 					$text
 				);
-			} elseif ( $instance['gravatar_align'] == 'right' ) {
+			} elseif ( $instance['gravatar_align'] === 'right' ) {
 				$text = str_replace(
 					array( '/>', 'avatar-' . $instance['gravatar_size'] ),
 					array( ' style="margin-top: 3px; padding: 0 0 0 0.5em; float: right" />', 'avatar-' . $instance['gravatar_size'] . ' grav-widget-right' ),
 					$text
 				);
-			} elseif ( $instance['gravatar_align'] == 'center' ) {
+			} elseif ( $instance['gravatar_align'] === 'center' ) {
 				$text = str_replace(
 					array( '/>', 'avatar-' . $instance['gravatar_size'] ),
 					array( ' style="display: block; margin: 0 auto;" />', 'avatar-' . $instance['gravatar_size'] . ' grav-widget-center' ),
@@ -90,36 +83,46 @@ class Gravatar_Widget extends WP_Widget {
 				$text = '<a href="' . esc_url( $instance['gravatar_url'] ) . '">' . $text . '</a>';
 			}
 
-			if ( $instance['gravatar_text'] && 'center' == $instance['gravatar_align'] ) {
+			if ( $instance['gravatar_text'] && 'center' === $instance['gravatar_align'] ) {
 				$text .= '<br />'; // Get the text on its own line
 			}
 
-			if ( $instance['gravatar_text'] && 'none' == $instance['gravatar_align'] ) {
+			if ( $instance['gravatar_text'] && 'none' === $instance['gravatar_align'] ) {
 				$text .= '<br /><br />'; // So that we get a new P tag from autop
 			}
-		} else {
-			if ( current_user_can( 'edit_theme_options' ) ) {
-				echo '<p>' . sprintf( __( 'You need to pick a user or enter an email address in your <a href="%s">Gravatar Widget</a> settings.', 'wpcomsh' ), admin_url( 'widgets.php' ) ) . '</p>';
-			}
+		} elseif ( current_user_can( 'edit_theme_options' ) ) {
+			echo '<p>';
+			printf(
+				wp_kses(
+					// translators: %s is the URL to the widget settings.
+					__( 'You need to pick a user or enter an email address in your <a href="%s">Gravatar Widget</a> settings.', 'wpcomsh' ),
+					array(
+						'a' => array( 'href' => array() ),
+					)
+				),
+				esc_url( admin_url( 'widgets.php' ) )
+			);
+			echo '</p>';
 		}
 
 		if ( $instance['gravatar_text'] ) {
 			$text .= stripslashes( $instance['gravatar_text'] );
 		}
 
-		echo wpautop( $text );
+		echo wpautop( $text ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		// After
-		echo $after_widget;
+		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
 	 * Display config interface
 	 *
-	 * @param string $instance Widget instance
+	 * @param array $instance Widget instance.
+	 *
 	 * @return void
 	 **/
-	function form( $instance ) {
+	public function form( $instance ) {
 		$instance = wp_parse_args(
 			(array) $instance,
 			array(
@@ -154,7 +157,7 @@ class Gravatar_Widget extends WP_Widget {
 			'center' => __( 'Center', 'wpcomsh' ),
 		);
 		?>
-<p><label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php esc_html_e( 'Title:', 'wpcomsh' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" /></label></p>
+<p><label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'wpcomsh' ); ?> <input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" /></label></p>
 
 <p><?php esc_html_e( 'Select a user or pick "custom" and enter a custom email address.', 'wpcomsh' ); ?></p>
 <p>
@@ -169,50 +172,58 @@ class Gravatar_Widget extends WP_Widget {
 		?>
 		</p>
 
-<p id="gravatar_email_user"><label for="<?php echo $this->get_field_id( 'email' ); ?>"><?php esc_html_e( 'Custom Email Address:', 'wpcomsh' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'email' ); ?>" name="<?php echo $this->get_field_name( 'email' ); ?>" type="text" value="<?php echo esc_attr( $email ); ?>" /></label></p>
+<p id="gravatar_email_user"><label for="<?php echo esc_attr( $this->get_field_id( 'email' ) ); ?>"><?php esc_html_e( 'Custom Email Address:', 'wpcomsh' ); ?> <input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'email' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'email' ) ); ?>" type="text" value="<?php echo esc_attr( $email ); ?>" /></label></p>
 
 <p>
-	<label for="<?php echo $this->get_field_id( 'gravatar_size' ); ?>"><?php esc_html_e( 'Size:', 'wpcomsh' ); ?>
-		<select id="<?php echo $this->get_field_id( 'gravatar_size' ); ?>" name="<?php echo $this->get_field_name( 'gravatar_size' ); ?>">
+	<label for="<?php echo esc_attr( $this->get_field_id( 'gravatar_size' ) ); ?>"><?php esc_html_e( 'Size:', 'wpcomsh' ); ?>
+		<select id="<?php echo esc_attr( $this->get_field_id( 'gravatar_size' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'gravatar_size' ) ); ?>">
 			<?php foreach ( $sizes as $size => $name ) : ?>
 				<option value="<?php echo esc_attr( $size ); ?>"
-										  <?php
-											if ( $gravatar_size == $size ) {
-												echo ' selected="selected"';}
-											?>
+					<?php selected( $gravatar_size, $size ); ?>
 				><?php echo esc_html( $name ); ?></option>
 			<?php endforeach; ?>
 		</select>
 	</label>
 </p>
 <p>
-	<label for="<?php echo $this->get_field_id( 'gravatar_align' ); ?>"><?php esc_html_e( 'Gravatar alignment:', 'wpcomsh' ); ?>
-		<select id="<?php echo $this->get_field_id( 'gravatar_align' ); ?>" name="<?php echo $this->get_field_name( 'gravatar_align' ); ?>">
+	<label for="<?php echo esc_attr( $this->get_field_id( 'gravatar_align' ) ); ?>"><?php esc_html_e( 'Gravatar alignment:', 'wpcomsh' ); ?>
+		<select id="<?php echo esc_attr( $this->get_field_id( 'gravatar_align' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'gravatar_align' ) ); ?>">
 			<?php foreach ( $aligns as $align => $name ) : ?>
 				<option value="<?php echo esc_attr( $align ); ?>"
-										  <?php
-											if ( $gravatar_align == $align ) {
-												echo ' selected="selected"';}
-											?>
+					<?php selected( $gravatar_align, $align ); ?>
 				><?php echo esc_html( $name ); ?></option>
 			<?php endforeach; ?>
 		</select>
 	</label>
 </p>
-<p><label for="<?php echo $this->get_field_id( 'gravatar_url' ); ?>"><?php esc_html_e( 'Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:', 'wpcomsh' ); ?> <input  class="widefat" id="<?php echo $this->get_field_id( 'gravatar_url' ); ?>" name="<?php echo $this->get_field_name( 'gravatar_url' ); ?>" type="text" value="<?php echo esc_attr( $gravatar_url ); ?>" /></label></p>
-<p><label for="<?php echo $this->get_field_id( 'gravatar_text' ); ?>"><?php _e( 'Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about.', 'wpcomsh' ); ?><br/> <textarea class="widefat" style="font-size: 0.9em" id="<?php echo $this->get_field_id( 'gravatar_text' ); ?>" name="<?php echo $this->get_field_name( 'gravatar_text' ); ?>" rows="5"><?php echo htmlspecialchars( $gravatar_text ); ?></textarea></label></p>
-<p><?php _e( 'You can modify your Gravatar from your <a href="/wp-admin/profile.php">profile page</a>.', 'wpcomsh' ); ?></p>
+<p><label for="<?php echo esc_attr( $this->get_field_id( 'gravatar_url' ) ); ?>"><?php esc_html_e( 'Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:', 'wpcomsh' ); ?> <input  class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'gravatar_url' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'gravatar_url' ) ); ?>" type="text" value="<?php echo esc_attr( $gravatar_url ); ?>" /></label></p>
+<p><label for="<?php echo esc_attr( $this->get_field_id( 'gravatar_text' ) ); ?>"><?php esc_html_e( 'Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about.', 'wpcomsh' ); ?><br/> <textarea class="widefat" style="font-size: 0.9em" id="<?php echo esc_attr( $this->get_field_id( 'gravatar_text' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'gravatar_text' ) ); ?>" rows="5"><?php echo htmlspecialchars( $gravatar_text ); /* // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?></textarea></label></p>
+<p>
+		<?php
+		printf(
+			wp_kses(
+				// translators: %s is a link to the WordPress user profile.
+				__( 'You can modify your Gravatar from your <a href="%s">profile page</a>.', 'wpcomsh' ),
+				array(
+					'a' => array( 'href' => array() ),
+				)
+			),
+			esc_url( admin_url( 'profile.php' ) )
+		);
+		?>
+	</p>
 		<?php
 	}
 
 	/**
 	 * Save widget data
 	 *
-	 * @param string $new_instance
-	 * @param string $old_instance
-	 * @return void
+	 * @param array $new_instance New widget settings.
+	 * @param array $old_instance Old widget settings.
+	 *
+	 * @return array
 	 **/
-	function update( $new_instance, $old_instance ) {
+	public function update( $new_instance, $old_instance ) {
 		$instance     = $old_instance;
 		$new_instance = wp_parse_args(
 			(array) $new_instance,
@@ -240,15 +251,22 @@ class Gravatar_Widget extends WP_Widget {
 			$instance['email'] = $user->user_email;
 		}
 
-		if ( ! in_array( $instance['gravatar_size'], array( 64, 96, 128, 256 ) ) ) {
+		if ( ! in_array( $instance['gravatar_size'], array( 64, 96, 128, 256 ), true ) ) {
 			$instance['gravatar_size'] = 96;
 		}
 
-		if ( ! in_array( $instance['gravatar_align'], array( 'none', 'left', 'right', 'center' ) ) ) {
+		if ( ! in_array( $instance['gravatar_align'], array( 'none', 'left', 'right', 'center' ), true ) ) {
 			$instance['gravatar_align'] = 'none';
 		}
 
 		return $instance;
 	}
 }
-?>
+
+/**
+ * Register the widget for use in Appearance -> Widgets
+ */
+function jetpack_gravatar_widget_init() { // phpcs:ignore Universal.Files.SeparateFunctionsFromOO.Mixed
+	register_widget( 'Gravatar_Widget' );
+}
+add_action( 'widgets_init', 'jetpack_gravatar_widget_init' );

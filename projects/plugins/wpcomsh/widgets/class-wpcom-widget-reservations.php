@@ -1,9 +1,26 @@
-<?php
+<?php // phpcs:ignore Squiz.Commenting.FileComment.Missing
 
+/**
+ * A WordPress.com Reservations widget.
+ */
 class WPCOM_Widget_Reservations extends WP_Widget {
+	/**
+	 * Widget config fields.
+	 *
+	 * @var array $defaults
+	 */
 	private $defaults = array();
-	private $fields   = array();
 
+	/**
+	 * Reservation form fields.
+	 *
+	 * @var array $fields
+	 */
+	private $fields = array();
+
+	/**
+	 * Constructor
+	 */
 	public function __construct() {
 		parent::__construct(
 			'reservations',
@@ -30,25 +47,30 @@ class WPCOM_Widget_Reservations extends WP_Widget {
 		);
 	}
 
+	/**
+	 * Display the widget settings form.
+	 *
+	 * @param array $instance Current settings.
+	 */
 	public function form( $instance ) {
 		$instance = wp_parse_args( (array) $instance, $this->defaults );
 		?>
 		<p>
 			<label>
 				<?php esc_html_e( 'Title:', 'wpcomsh' ); ?>
-				<input type="text" class="widefat" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" />
+				<input type="text" class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" />
 			</label>
 		</p>
 		<p>
 			<label>
 				<?php esc_html_e( 'Recipient E-mail Address:', 'wpcomsh' ); ?>
-				<input type="text" class="widefat" name="<?php echo $this->get_field_name( 'email_to' ); ?>" value="<?php echo esc_attr( $instance['email_to'] ); ?>" />
+				<input type="text" class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'email_to' ) ); ?>" value="<?php echo esc_attr( $instance['email_to'] ); ?>" />
 			</label>
 		</p>
 		<p>
 			<label>
 				<?php esc_html_e( 'E-mail Subject:', 'wpcomsh' ); ?>
-				<input type="text" class="widefat" name="<?php echo $this->get_field_name( 'subject' ); ?>" value="<?php echo esc_attr( $instance['subject'] ); ?>" />
+				<input type="text" class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'subject' ) ); ?>" value="<?php echo esc_attr( $instance['subject'] ); ?>" />
 			</label>
 		</p>
 		<p>
@@ -56,7 +78,7 @@ class WPCOM_Widget_Reservations extends WP_Widget {
 			<fieldset style="padding: 0 10px;">
 				<?php foreach ( $this->fields as $key => $label ) { ?>
 					<label style="display: block; float: left; width: 50%; margin-bottom: 5px;">
-						<input type="checkbox" name="<?php echo $this->get_field_name( 'show-' . $key ); ?>" value="<?php echo esc_attr( $key ); ?>" <?php checked( in_array( $key, $instance['show'] ) ); ?> /> <?php echo esc_html( $label ); ?>
+						<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'show-' . $key ) ); ?>" value="<?php echo esc_attr( $key ); ?>" <?php checked( in_array( $key, $instance['show'], true ) ); ?> /> <?php echo esc_html( $label ); ?>
 					</label>
 				<?php } ?>
 			</fieldset>
@@ -64,6 +86,12 @@ class WPCOM_Widget_Reservations extends WP_Widget {
 		<?php
 	}
 
+	/**
+	 * Display the widget.
+	 *
+	 * @param array $args     Widget arguments.
+	 * @param array $instance Widget instance.
+	 */
 	public function widget( $args, $instance ) {
 		$instance = wp_parse_args( $instance, $this->defaults );
 
@@ -83,42 +111,48 @@ class WPCOM_Widget_Reservations extends WP_Widget {
 
 		$contact_form_shortcode .= ']';
 
-		if ( in_array( 'name', $instance['show'] ) ) {
+		if ( in_array( 'name', $instance['show'], true ) ) {
 			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['name'] ) . "' type='name'/]";
 		}
-		if ( in_array( 'email', $instance['show'] ) ) {
+		if ( in_array( 'email', $instance['show'], true ) ) {
 			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['email'] ) . "' type='email' required='1'/]";
 		}
-		if ( in_array( 'phone', $instance['show'] ) ) {
+		if ( in_array( 'phone', $instance['show'], true ) ) {
 			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['phone'] ) . "' type='text'/]";
 		}
-		if ( in_array( 'adults', $instance['show'] ) ) {
-			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['adults'] ) . "' type='text' data='" . esc_attr( json_encode( array( 'field-size' => 'small' ) ) ) . "'/]";
+		if ( in_array( 'adults', $instance['show'], true ) ) {
+			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['adults'] ) . "' type='text' data='" . esc_attr( wp_json_encode( array( 'field-size' => 'small' ) ) ) . "'/]";
 		}
-		if ( in_array( 'children', $instance['show'] ) ) {
-			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['children'] ) . "' type='text' data='" . esc_attr( json_encode( array( 'field-size' => 'small' ) ) ) . "'/]";
+		if ( in_array( 'children', $instance['show'], true ) ) {
+			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['children'] ) . "' type='text' data='" . esc_attr( wp_json_encode( array( 'field-size' => 'small' ) ) ) . "'/]";
 		}
-		if ( in_array( 'arrival', $instance['show'] ) ) {
-			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['arrival'] ) . "' type='date' data='" . esc_attr( json_encode( array( 'field-size' => 'small' ) ) ) . "'/]";
+		if ( in_array( 'arrival', $instance['show'], true ) ) {
+			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['arrival'] ) . "' type='date' data='" . esc_attr( wp_json_encode( array( 'field-size' => 'small' ) ) ) . "'/]";
 		}
-		if ( in_array( 'departure', $instance['show'] ) ) {
-			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['departure'] ) . "' type='date' data='" . esc_attr( json_encode( array( 'field-size' => 'small' ) ) ) . "'/]";
+		if ( in_array( 'departure', $instance['show'], true ) ) {
+			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['departure'] ) . "' type='date' data='" . esc_attr( wp_json_encode( array( 'field-size' => 'small' ) ) ) . "'/]";
 		}
-		if ( in_array( 'message', $instance['show'] ) ) {
+		if ( in_array( 'message', $instance['show'], true ) ) {
 			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['message'] ) . "' type='textarea' /]";
 		}
 
 		$contact_form_shortcode .= '[/contact-form]';
 
-		echo $args['before_widget'];
-		echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title'];
+		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo do_shortcode( apply_filters( 'widget_text', $contact_form_shortcode ) );
-		echo $args['after_widget'];
+		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		do_action( 'jetpack_stats_extra', 'widget_view', 'reservations' );
 	}
 
-	public function update( $new_instance, $old_instance ) {
+	/**
+	 * Update the widget settings.
+	 *
+	 * @param array $new_instance New settings.
+	 * @param array $old_instance Old settings.
+	 */
+	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$new_instance['show'] = array();
 
 		foreach ( $this->fields as $field_key => $unused ) {
@@ -144,17 +178,20 @@ class WPCOM_Widget_Reservations extends WP_Widget {
  * Register the Reservations widget for all sites running Stay
  * or with an active widget.
  */
-function reservations_widget_register() {
-	if ( 'stay' == get_stylesheet() || is_active_widget( false, false, 'reservations', false ) ) {
+function reservations_widget_register() { // phpcs:ignore Universal.Files.SeparateFunctionsFromOO.Mixed
+	if ( 'stay' === get_stylesheet() || is_active_widget( false, false, 'reservations', false ) ) {
 		register_widget( 'WPCOM_Widget_Reservations' );
 	}
 }
 add_action( 'widgets_init', 'reservations_widget_register' );
 
+/**
+ * Enqueue widget styles.
+ */
 function reservations_widget_style() {
 	if ( is_active_widget( null, null, 'reservations' ) ) {
-		wp_enqueue_style( 'widget-reservations', plugins_url( 'reservations/css/reservations.css', __FILE__ ) );
-		wp_enqueue_script( 'widget-reservations', plugins_url( 'reservations/js/reservations.js', __FILE__ ), 'jquery', '20130312', true );
+		wp_enqueue_style( 'widget-reservations', plugins_url( 'reservations/css/reservations.css', __FILE__ ), array(), WPCOMSH_VERSION );
+		wp_enqueue_script( 'widget-reservations', plugins_url( 'reservations/js/reservations.js', __FILE__ ), 'jquery', WPCOMSH_VERSION, true );
 	}
 }
 add_action( 'wp_enqueue_scripts', 'reservations_widget_style' );

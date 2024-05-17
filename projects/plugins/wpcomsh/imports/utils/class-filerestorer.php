@@ -9,9 +9,9 @@ namespace Imports\Utils;
 
 require_once __DIR__ . '/../class-backup-import-action.php';
 
-use SplQueue;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use SplQueue;
 use WP_Error;
 
 /**
@@ -74,7 +74,6 @@ class FileRestorer extends \Imports\Backup_Import_Action {
 		$this->symlinked_dirs = array();
 	}
 
-
 	/**
 	 * Enqueues the files to be restored.
 	 *
@@ -95,7 +94,7 @@ class FileRestorer extends \Imports\Backup_Import_Action {
 
 		$this->log( "Total files to copy: $this->total_count" );
 		if ( $this->total_count === 0 ) {
-			return new WP_Error( 'file_queue_failed', __( 'No files are queued.' ) );
+			return new WP_Error( 'file_queue_failed', __( 'No files are queued.', 'wpcomsh' ) );
 		}
 		// This shouldn't be a hard stop, but we should log it.
 		$this->install_default_themes();
@@ -165,7 +164,7 @@ class FileRestorer extends \Imports\Backup_Import_Action {
 		$this->log( "Finished copying $this->total_count files. Copied: $copied_count files. Skipped: $skipped_count files. Failed: $failed_count files." );
 
 		if ( $copied_count === 0 ) {
-			return \WP_Error( 'file_restoration_failed', __( 'No files are restored.' ) );
+			return \WP_Error( 'file_restoration_failed', __( 'No files are restored.', 'wpcomsh' ) );
 		}
 
 		return true;

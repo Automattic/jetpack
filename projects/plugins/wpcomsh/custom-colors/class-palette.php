@@ -1,8 +1,22 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+/**
+ * Custom pallette control.
+ */
 class Palette {
+
+	/**
+	 * Pallete data storage.
+	 *
+	 * @var array
+	 */
 	protected $data;
 
+	/**
+	 * Constructor
+	 *
+	 * @param ?array $initial_data initial pallette data.
+	 */
 	public function __construct( $initial_data = null ) {
 		if ( $initial_data ) {
 			foreach ( $initial_data as $key => $value ) {
@@ -11,14 +25,26 @@ class Palette {
 		}
 	}
 
+	/**
+	 * Data setter method.
+	 *
+	 * @param string $member the data key.
+	 * @param mixed  $value the data value.
+	 */
 	public function __set( $member, $value ) {
 		$this->data[ $member ] = $value;
 
-		if ( 'colors' == $member ) {
+		if ( 'colors' === $member ) {
 			$this->format_colors();
 		}
 	}
 
+	/**
+	 * Data getter method.
+	 *
+	 * @param string $member the data key.
+	 * @return mixed $value
+	 */
 	public function __get( $member ) {
 		return $this->data[ $member ];
 	}
@@ -26,11 +52,10 @@ class Palette {
 	/**
 	 * A search method for palettes. Specify an ID or a set of colors to find the matching palette.
 	 *
-	 * @param array $args [id=>int, colors=>array]
+	 * @param array{id?:int,colors?:array} $args initial arguments.
 	 * @return Palette|false
 	 */
-
-	static function get( $args = array() ) {
+	public static function get( $args = array() ) {
 		$defaults = array(
 			'id'     => 0,
 			'colors' => array(),
@@ -73,7 +98,6 @@ class Palette {
 	 * COLOURLovers formats color sets as arrays of [hex=>, width=>] pairs, but we only care about the hex.
 	 * This function assigns the colors in the array to the five color roles.
 	 */
-
 	public function format_colors() {
 		if ( is_string( $this->data['colors'] ) ) {
 			$this->data['colors'] = json_decode( $this->data['colors'], true );
@@ -84,7 +108,7 @@ class Palette {
 		$colors = array();
 
 		foreach ( array( 'bg', 'txt', 'link', 'fg1', 'fg2' ) as $color_index => $color_key ) {
-			if ( count( $this->data['colors'] ) == $color_index ) {
+			if ( count( $this->data['colors'] ) === $color_index ) {
 				break;
 			}
 

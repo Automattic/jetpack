@@ -1,10 +1,13 @@
-<?php
+<?php // phpcs:ignore Squiz.Commenting.FileComment.Missing
 
-/*
+/**
  * Widget to display a grid of author avatar images
  * Default size is 32px
  */
 class Widget_Authors_Grid extends WP_Widget {
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
 		parent::__construct(
 			'author_grid',
@@ -26,19 +29,27 @@ class Widget_Authors_Grid extends WP_Widget {
 		}
 	}
 
+	/**
+	 * Flush cache.
+	 */
 	public static function flush_cache() {
 		wp_cache_delete( 'widget_author_grid', 'widget' );
 		wp_cache_delete( 'widget_author_grid_ssl', 'widget' );
 	}
 
+	/**
+	 * Display the widget.
+	 *
+	 * @param array $args     Widget arguments.
+	 * @param array $instance Widget instance.
+	 */
 	public function widget( $args, $instance ) {
-		global $wpdb;
-
 		$cache_bucket = is_ssl() ? 'widget_author_grid_ssl' : 'widget_author_grid';
 
-		if ( '%BEG_OF_TITLE%' != $args['before_title'] ) {
-			if ( $output = wp_cache_get( $cache_bucket, 'widget' ) ) {
-				echo $output;
+		if ( '%BEG_OF_TITLE%' !== $args['before_title'] ) {
+			$output = wp_cache_get( $cache_bucket, 'widget' );
+			if ( $output ) {
+				echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				return;
 			}
 
@@ -61,8 +72,8 @@ class Widget_Authors_Grid extends WP_Widget {
 			)
 		);
 
-		echo $args['before_widget'];
-		echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title'];
+		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<ul>';
 
 		foreach ( $authors as $author ) {
@@ -84,22 +95,27 @@ class Widget_Authors_Grid extends WP_Widget {
 			}
 
 			echo '<li>';
-			echo '<a href="' . get_author_posts_url( $author->ID ) . '"> ';
+			echo '<a href="' . esc_url( get_author_posts_url( $author->ID ) ) . '"> ';
 			echo get_avatar( $author->ID, $instance['avatar_size'], '', '', array( 'force_display' => true ) );
 			echo '</a>';
 			echo '</li>';
 		}
 
 		echo '</ul>';
-		echo $args['after_widget'];
+		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		wp_reset_postdata();
 
-		if ( '%BEG_OF_TITLE%' != $args['before_title'] ) {
+		if ( '%BEG_OF_TITLE%' !== $args['before_title'] ) {
 			wp_cache_add( $cache_bucket, ob_get_flush(), 'widget' );
 		}
 	}
 
+	/**
+	 * Display the widget settings form.
+	 *
+	 * @param array $instance Current settings.
+	 */
 	public function form( $instance ) {
 		$instance = wp_parse_args(
 			$instance,
@@ -112,19 +128,19 @@ class Widget_Authors_Grid extends WP_Widget {
 		?>
 		<p>
 			<label>
-				<?php _e( 'Title:', 'wpcomsh' ); ?>
-				<input class="widefat" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
+				<?php esc_html_e( 'Title:', 'wpcomsh' ); ?>
+				<input class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
 			</label>
 		</p>
 		<p>
 			<label class="widget_form-author_grid-checkbox-label">
-				<input class="checkbox" type="checkbox" <?php checked( $instance['all'] ); ?> name="<?php echo $this->get_field_name( 'all' ); ?>" /><?php _e( 'Display all authors (including those who have not written any posts)', 'wpcomsh' ); ?>
+				<input class="checkbox" type="checkbox" <?php checked( $instance['all'] ); ?> name="<?php echo esc_attr( $this->get_field_name( 'all' ) ); ?>" /><?php esc_html_e( 'Display all authors (including those who have not written any posts)', 'wpcomsh' ); ?>
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php _e( 'Avatar Size (px):', 'wpcomsh' ); ?>
-				<select name="<?php echo $this->get_field_name( 'avatar_size' ); ?>">
+				<?php esc_html_e( 'Avatar Size (px):', 'wpcomsh' ); ?>
+				<select name="<?php echo esc_attr( $this->get_field_name( 'avatar_size' ) ); ?>">
 					<?php
 					foreach ( array(
 						'16'  => '16x16',
@@ -142,8 +158,14 @@ class Widget_Authors_Grid extends WP_Widget {
 		<?php
 	}
 
-	public function update( $new_instance, $old_instance ) {
-		$new_instance['title']       = strip_tags( $new_instance['title'] );
+	/**
+	 * Update the widget settings.
+	 *
+	 * @param array $new_instance New settings.
+	 * @param array $old_instance Old settings.
+	 */
+	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$new_instance['title']       = wp_strip_all_tags( $new_instance['title'] );
 		$new_instance['all']         = isset( $new_instance['all'] );
 		$new_instance['avatar_size'] = (int) $new_instance['avatar_size'];
 
@@ -152,12 +174,18 @@ class Widget_Authors_Grid extends WP_Widget {
 		return $new_instance;
 	}
 
+	/**
+	 * Enqueue widget styles.
+	 */
 	public function add_styles() {
-		wp_enqueue_style( 'widget-author_grid', plugins_url( 'author-grid/author-grid.css', __FILE__ ) );
+		wp_enqueue_style( 'widget-author_grid', plugins_url( 'author-grid/author-grid.css', __FILE__ ), array(), WPCOMSH_VERSION );
 	}
 
+	/**
+	 * Enqueue customizer styles.
+	 */
 	public function form_styles() {
-		wp_enqueue_style( 'widget-author_grid_customizer', plugins_url( 'author-grid/author-grid-customizer.css', __FILE__ ) );
+		wp_enqueue_style( 'widget-author_grid_customizer', plugins_url( 'author-grid/author-grid-customizer.css', __FILE__ ), array(), WPCOMSH_VERSION );
 	}
 }
 

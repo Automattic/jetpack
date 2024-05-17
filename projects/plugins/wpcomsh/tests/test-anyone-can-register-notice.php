@@ -30,7 +30,7 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 	/**
 	 * Test show warning for administrators when users_can_register option is active for intended roles: i.e. 'administrator`, `shop_manager`, `editor`, `author`
 	 *
-	 * @param string $role role to test
+	 * @param string $role role to test.
 	 * @dataProvider role_provider_show
 	 */
 	public function test_anyone_register_warning_added_for_administrator( $role ) {
@@ -59,7 +59,7 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 	/**
 	 * Test confirm warning doesn't show for unintended roles: i.e. not 'administrator`, `shop_manager`, `editor`, `author`
 	 *
-	 * @param string $role role to test
+	 * @param string $role role to test.
 	 * @dataProvider role_provider_hide
 	 */
 	public function test_anyone_register_warning_displays_for_specific_roles( $role ) {
@@ -128,7 +128,7 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 		wpcomsh_ajax_anyone_can_register_handle_dismissal();
 
 		// Check if the metadata is added correctly
-		$this->assertEquals( '1', get_user_meta( get_current_user_id(), WPCOMSH_ACR_DISMISSED_METADATA, true ) );
+		$this->assertSame( '1', get_user_meta( get_current_user_id(), WPCOMSH_ACR_DISMISSED_METADATA, true ) );
 	}
 
 	/**
@@ -156,7 +156,7 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 		update_option( 'users_can_register', true );
 		update_user_meta( get_current_user_id(), WPCOMSH_ACR_DISMISSED_METADATA, '1' );
 		update_option( 'users_can_register', false );
-		$this->assertEquals( '', get_user_meta( get_current_user_id(), WPCOMSH_ACR_DISMISSED_METADATA, true ) );
+		$this->assertSame( '', get_user_meta( get_current_user_id(), WPCOMSH_ACR_DISMISSED_METADATA, true ) );
 	}
 
 	/**
@@ -178,7 +178,7 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 		}
 		update_option( 'users_can_register', false );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
-		$this->assertEquals( 0, $wpdb->query( $wpdb->prepare( "SELECT * FROM $wpdb->usermeta WHERE meta_key = %s", $metakey ) ) );
+		$this->assertSame( 0, $wpdb->query( $wpdb->prepare( "SELECT * FROM $wpdb->usermeta WHERE meta_key = %s", $metakey ) ) );
 	}
 
 	/**
@@ -200,7 +200,7 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 		}
 		update_option( 'users_can_register', false );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
-		$this->assertEquals( 0, $wpdb->query( $wpdb->prepare( "SELECT * FROM $wpdb->usermeta WHERE meta_key = %s", $metakey ) ) );
+		$this->assertSame( 0, $wpdb->query( $wpdb->prepare( "SELECT * FROM $wpdb->usermeta WHERE meta_key = %s", $metakey ) ) );
 	}
 
 	/**
@@ -211,6 +211,6 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 		update_option( 'users_can_register', true );
 		update_user_meta( get_current_user_id(), 'wpcomsh_expired_plan_dismissed_notice', '1' );
 		update_option( 'users_can_register', false );
-		$this->assertEquals( '1', get_user_meta( get_current_user_id(), 'wpcomsh_expired_plan_dismissed_notice', true ) );
+		$this->assertSame( '1', get_user_meta( get_current_user_id(), 'wpcomsh_expired_plan_dismissed_notice', true ) );
 	}
 }

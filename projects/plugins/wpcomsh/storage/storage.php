@@ -93,11 +93,6 @@ function wpcomsh_allow_file_uploads_with_invalid_mime_types( $file_data, $file, 
 	// If wp_check_filetype_and_ext already allows it or if the file does not,
 	// exist, don't bother doing the checks
 	if ( ! empty( $file_data['type'] ) ) {
-		$_invalid = array(
-			'ext'             => false,
-			'type'            => false,
-			'proper_filename' => false,
-		);
 		return $file_data;
 	}
 

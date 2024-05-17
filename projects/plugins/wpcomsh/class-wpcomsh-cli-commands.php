@@ -5,6 +5,8 @@
  * @package wpcomsh
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed
+
 /**
  * Plugins that shouldn't be deactivated by the deactivate-user-plugins command.
  */
@@ -218,7 +220,7 @@ function wpcomsh_cli_remember_plugin_deactivation( $file ) {
  * This allows us to neatly maintain the deactivated plugin record in response to both
  * the `wp plugin activate` and `wp wpcomsh reactivate-user-plugins` commands.
  *
- * @param string $file Plugin file
+ * @param string $file Plugin file.
  */
 function wpcomsh_cli_forget_plugin_deactivation( $file ) {
 	$deactivated_plugins = get_option( WPCOMSH_CLI_OPTION_DEACTIVATED_USER_PLUGINS );
@@ -428,7 +430,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 *
 		 * @subcommand post-clone
 		 */
-		public function post_clone( $args, $assoc_args = array() ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		public function post_clone( $args, $assoc_args = array() ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis
 				$plugins = array(
 					'woocommerce-payments' => function () {
 						$account = \WC_Payments::get_account_service();
@@ -554,7 +556,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 *
 		 * @subcommand headstart-terms
 		 */
-		public function headstart_terms( $args, $assoc_args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		public function headstart_terms( $args, $assoc_args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis
 			$results            = wpcomsh_apply_headstart_terms();
 			$missing_taxonomies = $results['missing_taxonomies'];
 			$output             = wp_json_encode( array( 'missing_taxonomies' => $missing_taxonomies ), JSON_PRETTY_PRINT );

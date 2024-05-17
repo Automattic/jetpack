@@ -1,5 +1,8 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName,Squiz.Commenting.FileComment.Missing
 
+/**
+ * Core Background Override class.
+ */
 class Core_Bg_Override {
 
 	/**
@@ -34,7 +37,7 @@ class Core_Bg_Override {
 	 * Crude constructor. Sets up the actions for whether we're in a save override context
 	 * or the default display override context
 	 *
-	 * @param boolean $save_overrides
+	 * @param boolean $save_overrides Whether or not we're in "save override" context.
 	 */
 	public function __construct( $save_overrides = false ) {
 		$this->mods = get_theme_mods();
@@ -85,7 +88,6 @@ class Core_Bg_Override {
 
 		// remove our preview mod
 		remove_theme_mod( $this->post_upgrade_parity_mod );
-
 	}
 
 	/**
@@ -106,12 +108,11 @@ class Core_Bg_Override {
 				$post_upgrade_parity[ $prop ] = $post_save[ $prop ];
 			}
 
-			// case 1: it wasn't set originally. unset it again.
 			if ( ! isset( $pre_save[ $prop ] ) ) {
+				// case 1: it wasn't set originally. unset it again.
 				remove_theme_mod( $prop );
-			}
-			// case 2: the value has changed. change it back.
-			elseif ( $post_save[ $prop ] !== $pre_save[ $prop ] ) {
+			} elseif ( $post_save[ $prop ] !== $pre_save[ $prop ] ) {
+				// case 2: the value has changed. change it back.
 				set_theme_mod( $prop, $pre_save[ $prop ] );
 			}
 		}
@@ -124,7 +125,7 @@ class Core_Bg_Override {
 	 *
 	 * @param  string $name The method we're faking. Conveniently also the property we're overriding.
 	 *                      We do this for all members of $this->props.
-	 * @param  array  $args The arguments called on the method
+	 * @param  array  $args The arguments called on the method.
 	 * @return mixed string|bool The overridden value, if one is applicable, otherwise false.
 	 */
 	public function __call( $name, $args ) {
@@ -136,5 +137,4 @@ class Core_Bg_Override {
 		}
 		return isset( $overrides[ $name ] ) ? $overrides[ $name ] : $value;
 	}
-
 }

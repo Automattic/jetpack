@@ -1,5 +1,4 @@
 <?php // phpcs:ignore WordPress.File.FileName.InvalidClassFileName
-// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain
 /**
  * Show the gifting banner on Simple & Atomic sites.
  * This file is duplicated in WPCOM and WPCOMSH.
@@ -24,13 +23,6 @@ class Gifting_Banner {
 	public $current_plan;
 
 	/**
-	 * Translation domain used for the banner depending on the infrastructure.
-	 *
-	 * @var string Translation domain.
-	 */
-	private $translation_domain = 'gifting-banner';
-
-	/**
 	 * Maybe show the gifting banner for the current site.
 	 */
 	public function init() {
@@ -40,7 +32,6 @@ class Gifting_Banner {
 				return;
 			}
 
-			$this->translation_domain = 'wpcomsh';
 			add_action( 'wp_head', array( $this, 'inject_gifting_banner_wpcomsh' ), 1103 );
 		} else {
 			add_action( 'wp_head', array( $this, 'inject_gifting_banner_wpcom' ), 1103 );
@@ -144,17 +135,13 @@ class Gifting_Banner {
 		$data['i18n']               = array(
 			'title'       => $this->get_title_texts( $days_to_expire ),
 			'subtitle'    => $this->get_subtitle_texts( $this->current_plan, $days_to_expire ),
-			'button_text' => _x(
-				'Gift',
-				'verb',
-				$this->translation_domain
-			),
+			'button_text' => _x( 'Gift', 'verb', 'wpcomsh' ),
 		);
 		// Change the version if associated files are updated, current: 20230103.
 		wp_enqueue_style( 'gifting-banner', plugins_url( 'gifting-banner/css/gifting-banner.css', __FILE__ ), array(), '20230103' );
 		wp_enqueue_script( 'gifting-banner', plugins_url( 'gifting-banner/js/gifting-banner.js', __FILE__ ), array(), '20230103', true );
 		wp_localize_script( 'gifting-banner', 'gifting_banner', $data );
-		wp_set_script_translations( 'gifting-banner', $this->translation_domain );
+		wp_set_script_translations( 'gifting-banner', 'wpcomsh' );
 	}
 
 	/**
@@ -203,7 +190,7 @@ class Gifting_Banner {
 	/**
 	 * Get title based on days.
 	 *
-	 * @param int $days_to_expire Days to expire
+	 * @param int $days_to_expire Days to expire.
 	 * @return string
 	 */
 	private function get_title_texts( $days_to_expire ) {
@@ -211,13 +198,13 @@ class Gifting_Banner {
 		if ( $days_to_expire < 1 ) {
 			return __(
 				'This site\'s plan has expired.',
-				$this->translation_domain
+				'wpcomsh'
 			);
 		}
 
 		return __(
 			'Enjoy this site?',
-			$this->translation_domain
+			'wpcomsh'
 		);
 	}
 
@@ -227,8 +214,8 @@ class Gifting_Banner {
 	 * - Annual Plan < 2 weeks before expiration
 	 * - Monthly Plan or Annual plan > 2 weeks before expiration
 	 *
-	 * @param object $current_plan Current Plan
-	 * @param int    $days_to_expire Days to expire
+	 * @param object $current_plan Current Plan.
+	 * @param int    $days_to_expire Days to expire.
 	 * @return string
 	 */
 	private function get_subtitle_texts( $current_plan, $days_to_expire ) {
@@ -238,7 +225,7 @@ class Gifting_Banner {
 			/* translators: Banner to show the visitor the site gifting option on expired sites. */
 				__(
 					'Gift the author a WordPress.com upgrade.',
-					$this->translation_domain
+					'wpcomsh'
 				),
 				$days_to_expire
 			);
@@ -251,7 +238,7 @@ class Gifting_Banner {
 					'Gift the author a WordPress.com plan before it expires in %d day.',
 					'Gift the author a WordPress.com plan before it expires in %d days.',
 					$days_to_expire,
-					$this->translation_domain
+					'wpcomsh'
 				),
 				$days_to_expire
 			);
@@ -261,7 +248,7 @@ class Gifting_Banner {
 		/* translators: Banner to show the visitor the site gifting option, no days shown. */
 			__(
 				'Gift the author a WordPress.com plan.',
-				$this->translation_domain
+				'wpcomsh'
 			),
 			$days_to_expire
 		);

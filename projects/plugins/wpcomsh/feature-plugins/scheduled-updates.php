@@ -34,8 +34,8 @@ function scheduled_updates_menu() {
 
 	add_submenu_page(
 		'plugins.php',
-		esc_attr__( 'Scheduled Updates', 'scheduled-updates' ),
-		__( 'Scheduled Updates', 'scheduled-updates' ),
+		esc_attr__( 'Scheduled Updates', 'wpcomsh' ),
+		__( 'Scheduled Updates', 'wpcomsh' ),
 		'update_plugins',
 		'https://wordpress.com/plugins/scheduled-updates/' . ( new Automattic\Jetpack\Status() )->get_site_suffix(),
 		null

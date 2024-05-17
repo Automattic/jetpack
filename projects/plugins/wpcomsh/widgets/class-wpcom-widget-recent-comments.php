@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore Squiz.Commenting.FileComment.MissingPackageTag
 /**
  * File copied from WP.com
  */
@@ -12,11 +12,29 @@ add_action(
 	}
 );
 
+/**
+ * A WordPress.com Reservations widget.
+ */
 class WPCOM_Widget_Recent_Comments extends WP_Widget {
-	var $alt_option_name = 'widget_recent_comments';
+	/**
+	 * Alt option name.
+	 *
+	 * @var string $alt_option_name
+	 */
+	public $alt_option_name = 'widget_recent_comments';
 
+	/**
+	 * Allowed post types.
+	 *
+	 * @var string[] $allowed_post_types
+	 */
 	private static $allowed_post_types = null;
 
+	/**
+	 * Widget default settings.
+	 *
+	 * @var array $widget_defaults
+	 */
 	protected static $widget_defaults = array(
 		'title'       => '',
 		'number'      => 5,
@@ -26,6 +44,9 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 		'post_types'  => array( 'post' ),
 	);
 
+	/**
+	 * Constructor
+	 */
 	public function __construct() {
 		parent::__construct(
 			'recent-comments',
@@ -45,6 +66,9 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 		}
 	}
 
+	/**
+	 * Output style tag for widget.
+	 */
 	public function style() {
 		?>
 		<style type="text/css">
@@ -90,10 +114,16 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 		<?php
 	}
 
+	/**
+	 * Flush cache.
+	 */
 	public function flush_cache() {
 		wp_cache_set( 'recent-comments-cache-buster', time(), 'widget' );
 	}
 
+	/**
+	 * Get cache key.
+	 */
 	protected function get_cache_key() {
 		$cache_buster = wp_cache_get( 'recent-comments-cache-buster', 'widget' );
 
@@ -106,9 +136,15 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 		return "{$this->id}-{$cache_buster}";
 	}
 
+	/**
+	 * Check if post is public.
+	 *
+	 * @param WP_Post            $post Post object.
+	 * @param array|string|false $post_types Post type(s) that should have comments.
+	 *
+	 * @return bool True if post checks out, otherwise false.
+	 */
 	public function is_post_public( $post, $post_types = false ) {
-		global $blog_id;
-
 		// For what post types should we display comments?
 		if ( is_string( $post_types ) ) {
 			$post_types = array( $post_types );
@@ -120,7 +156,7 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 
 		// If we're dealing with a comment on an attachment page, base its display off of the parent post's status, but only if it has a parent.
 		if ( 'attachment' === $post->post_type ) {
-			if ( ! in_array( 'attachment', $post_types ) ) {
+			if ( ! in_array( 'attachment', $post_types, true ) ) {
 				return false;
 			}
 
@@ -131,7 +167,7 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 		}
 
 		// Limit to comments on chosen types of content
-		if ( ! in_array( $post->post_type, $post_types ) ) {
+		if ( ! in_array( $post->post_type, $post_types, true ) ) {
 			return false;
 		}
 
@@ -143,9 +179,13 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 		return true;
 	}
 
+	/**
+	 * Display the widget.
+	 *
+	 * @param array $args     Widget arguments.
+	 * @param array $instance Widget instance.
+	 */
 	public function widget( $args, $instance ) {
-		global $wpdb;
-
 		$instance = wp_parse_args( $instance, self::$widget_defaults );
 
 		if ( empty( $instance['title'] ) ) {
@@ -172,6 +212,7 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 			$loop_counter    = 0;
 			$number_of_items = 30;
 
+			// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 			while ( $comments_scoop = get_comments(
 				array(
 					'number' => $number_of_items,
@@ -225,7 +266,7 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 				}
 
 				$comments_offset += $number_of_items;
-				$loop_counter++;
+				++$loop_counter;
 
 				// Prevent sites with many comments and many blog posts causing many queries for certain widget configs.
 				if ( $loop_counter >= 3 ) {
@@ -238,11 +279,11 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 			}
 		}
 
-		echo $args['before_widget'];
-		echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title'];
+		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		if ( $comments ) {
-			if ( isset( $instance['avatar_size'] ) && $instance['avatar_size'] != 1 ) {
+			if ( isset( $instance['avatar_size'] ) && $instance['avatar_size'] != 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 				$avatar_bg = empty( $instance['avatar_bg'] ) ? '' : 'background: ' . $instance['avatar_bg'] . ';';
 				$text_bg   = empty( $instance['text_bg'] ) ? '' : 'background: ' . $instance['text_bg'] . ';';
 
@@ -262,22 +303,24 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 							$avatar = '<a href="' . esc_url( $comment->comment_author_url ) . '" rel="nofollow">' . $avatar . '</a>';
 						}
 
-						echo '<tr><td title="' . esc_attr( $comment->comment_author ) . '" class="' . ( $comment_index == 0 ? 'recentcommentsavatartop' : 'recentcommentsavatarend' ) . '" style="height:' . $instance['avatar_size'] . 'px; width:' . $instance['avatar_size'] . 'px;' . $avatar_bg . '">' . $avatar . '</td>';
-						echo '<td class="' . ( $comment_index == 0 ? 'recentcommentstexttop' : 'recentcommentstextend' ) . '" style="' . $text_bg . '">';
+						echo '<tr><td title="' . esc_attr( $comment->comment_author ) . '" class="' . esc_attr( $comment_index === 0 ? 'recentcommentsavatartop' : 'recentcommentsavatarend' ) . '" style="' . esc_attr( 'height:' . $instance['avatar_size'] . 'px; width:' . $instance['avatar_size'] . 'px;' . $avatar_bg ) . '">';
+						echo $avatar; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- as $avatar has <img> tag.
+						echo '</td>';
+						echo '<td class="' . esc_attr( $comment_index === 0 ? 'recentcommentstexttop' : 'recentcommentstextend' ) . '" style="' . esc_attr( $text_bg ) . '">';
 
-						if ( $comment->comment_author == '' ) {
+						if ( $comment->comment_author === '' ) {
 							$comment->comment_author = __( 'Anonymous', 'wpcomsh' );
 						}
 
 						$author  = $comment->comment_author;
 						$excerpt = wp_html_excerpt( $author, 20 );
 
-						if ( $author != $excerpt ) {
+						if ( $author !== $excerpt ) {
 							$author = $excerpt . '&hellip;';
 						}
 
-						if ( $comment->comment_author_url == '' ) {
-							$authorlink = $author;
+						if ( $comment->comment_author_url === '' ) {
+							$authorlink = esc_html( $author );
 						} else {
 							$authorlink = '<a href="' . esc_url( $comment->comment_author_url ) . '" rel="nofollow">' . esc_html( $author ) . '</a>';
 						}
@@ -285,7 +328,7 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 						$post_title = get_the_title( $comment->comment_post_ID );
 						$excerpt    = wp_html_excerpt( $post_title, 30 );
 
-						if ( $post_title != $excerpt ) {
+						if ( $post_title !== $excerpt ) {
 							$post_title = $excerpt . '&hellip;';
 						}
 
@@ -293,16 +336,29 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 							$post_title = '&hellip;';
 						}
 
-						/* translators: comments widget: 1: comment author, 2: post link */
-						printf( esc_html_x( '%1$s on %2$s', 'widgets', 'wpcomsh' ), $authorlink, '<a href="' . get_comment_link( $comment ) . "\">$post_title</a>" );
+						printf(
+							wp_kses(
+								/* translators: comments widget: 1: comment author, 2: comment link, 3: comment title */
+								_x( '%1$s on <a href="%2$s">%3$s</a>', 'widgets', 'wpcomsh' ),
+								array(
+									'a' => array(
+										'href' => array(),
+										'rel'  => array(),
+									),
+								)
+							),
+							$authorlink, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- may contain HTML but already escaped
+							esc_url( get_comment_link( $comment ) ),
+							esc_html( $post_title )
+						);
 
 						echo '</td></tr>';
 
-						$comments_printed++;
+						++$comments_printed;
 					}
 
-					if ( 0 == $comments_printed ) {
-						echo '<tr><td class="recentcommentstexttop" style="' . $text_bg . '">';
+					if ( 0 === $comments_printed ) {
+						echo '<tr><td class="recentcommentstexttop" style="' . esc_attr( $text_bg ) . '">';
 						esc_html_e( 'There are no public comments available to display.', 'wpcomsh' );
 						echo '</td></tr>';
 					}
@@ -326,17 +382,23 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 							<?php
 
 							printf(
-								/* translators: comments widget: 1: comment author, 2: post link */
-								_x( '%1$s on %2$s', 'widgets', 'wpcomsh' ),
-								get_comment_author_link( $comment->comment_ID ),
-								'<a href="' . esc_url( get_comment_link( $comment ) ) . '">' . get_the_title( $comment->comment_post_ID ) . '</a>'
+								wp_kses(
+									/* translators: comments widget: 1: comment author link HTML, 2: comment link, 3: comment title */
+									_x( '%1$s on <a href="%2$s">%3$s</a>', 'widgets', 'wpcomsh' ),
+									array(
+										'a' => array( 'href' => array() ),
+									)
+								),
+								get_comment_author_link( $comment->comment_ID ), // HTML generated by WordPress
+								esc_url( get_comment_link( $comment ) ),
+								esc_html( get_the_title( $comment->comment_post_ID ) )
 							);
 
 							?>
 						</li>
 
 						<?php
-						$comments_printed++;
+						++$comments_printed;
 					}
 
 					?>
@@ -345,12 +407,18 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 			}
 		}
 
-		echo $args['after_widget'];
+		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
+	/**
+	 * Display the widget settings form.
+	 *
+	 * @param array $instance Current settings.
+	 */
 	public function form( $instance ) {
 		$instance = wp_parse_args( $instance, self::$widget_defaults );
 
+		// phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 		if ( $instance['number'] != (int) $instance['number'] ) {
 			$instance['number'] = 5;
 		}
@@ -365,15 +433,15 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 		<p>
 			<label>
 				<?php esc_html_e( 'Title:', 'wpcomsh' ); ?>
-				<input class="widefat" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
+				<input class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
 			</label>
 		</p>
 		<p>
 			<label>
 				<?php esc_html_e( 'Number of comments to show:', 'wpcomsh' ); ?>
-				<select name="<?php echo $this->get_field_name( 'number' ); ?>">
+				<select name="<?php echo esc_attr( $this->get_field_name( 'number' ) ); ?>">
 					<?php for ( $i = 1; $i <= 15; $i++ ) : ?>
-						<option value="<?php echo $i; ?>" <?php selected( $instance['number'], $i ); ?>><?php echo $i; ?></option>
+						<option value="<?php echo esc_attr( $i ); ?>" <?php selected( $instance['number'], $i ); ?>><?php echo esc_html( $i ); ?></option>
 					<?php endfor; ?>
 				</select>
 				<small><?php esc_html_e( '(at most 15)', 'wpcomsh' ); ?></small>
@@ -382,7 +450,7 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 		<p>
 			<label>
 				<?php esc_html_e( 'Avatar Size (px):', 'wpcomsh' ); ?>
-				<select name="<?php echo $this->get_field_name( 'avatar_size' ); ?>">
+				<select name="<?php echo esc_attr( $this->get_field_name( 'avatar_size' ) ); ?>">
 					<option value="1" <?php selected( $instance['avatar_size'], 1 ); ?>><?php esc_html_e( 'No Avatars', 'wpcomsh' ); ?></option>
 					<option value="16" <?php selected( $instance['avatar_size'], 16 ); ?>>16x16</option>
 					<option value="32" <?php selected( $instance['avatar_size'], 32 ); ?>>32x32</option>
@@ -395,27 +463,33 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 		<p>
 			<label>
 				<?php esc_html_e( 'Avatar background color:', 'wpcomsh' ); ?>
-				<input name="<?php echo $this->get_field_name( 'avatar_bg' ); ?>" type="text" value="<?php echo esc_attr( $instance['avatar_bg'] ); ?>" size="3" />
+				<input name="<?php echo esc_attr( $this->get_field_name( 'avatar_bg' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['avatar_bg'] ); ?>" size="3" />
 			</label>
 		</p>
 		<p>
 			<label>
 				<?php esc_html_e( 'Text background color:', 'wpcomsh' ); ?>
-				<input name="<?php echo $this->get_field_name( 'text_bg' ); ?>" type="text" value="<?php echo esc_attr( $instance['text_bg'] ); ?>" size="3" />
+				<input name="<?php echo esc_attr( $this->get_field_name( 'text_bg' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['text_bg'] ); ?>" size="3" />
 			</label>
 		</p>
 		<p>
 			<label><?php esc_html_e( 'Show comments from:', 'wpcomsh' ); ?></label><br />
 
 			<?php foreach ( $this->get_allowed_post_types() as $post_type => $label ) : ?>
-				<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'post_types' ) ); ?>[]" id="<?php echo esc_attr( $this->get_field_id( 'post_types' ) ); ?>-<?php echo esc_attr( $post_type ); ?>" value="<?php echo esc_attr( $post_type ); ?>"<?php checked( true, in_array( $post_type, (array) $instance['post_types'] ) ); ?> /> <label for="<?php echo esc_attr( $this->get_field_id( 'post_types' ) ); ?>-<?php echo esc_attr( $post_type ); ?>"><?php echo $label; // Don't translate as it's already translated. ?></label><br />
+				<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'post_types' ) ); ?>[]" id="<?php echo esc_attr( $this->get_field_id( 'post_types' ) ); ?>-<?php echo esc_attr( $post_type ); ?>" value="<?php echo esc_attr( $post_type ); ?>"<?php checked( in_array( $post_type, (array) $instance['post_types'], true ) ); ?> /> <label for="<?php echo esc_attr( $this->get_field_id( 'post_types' ) ); ?>-<?php echo esc_attr( $post_type ); ?>"><?php echo esc_html( $label ); // Don't translate as it's already translated. ?></label><br />
 			<?php endforeach; ?>
 		</p>
 		<?php
 	}
 
-	public function update( $new_instance, $old_instance ) {
-		$new_instance['title']       = strip_tags( $new_instance['title'] );
+	/**
+	 * Update the widget settings.
+	 *
+	 * @param array $new_instance New settings.
+	 * @param array $old_instance Old settings.
+	 */
+	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$new_instance['title']       = wp_strip_all_tags( $new_instance['title'] );
 		$new_instance['number']      = (int) $new_instance['number'];
 		$new_instance['avatar_size'] = (int) $new_instance['avatar_size'];
 		$new_instance['avatar_bg']   = preg_replace( '/[^a-z0-9#]/i', '', $new_instance['avatar_bg'] );
@@ -435,7 +509,7 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 	 * @return array
 	 */
 	protected function get_allowed_post_types() {
-		if ( is_null( self::$allowed_post_types ) ) {
+		if ( self::$allowed_post_types === null ) {
 			$post_types = get_post_types(
 				array(
 					'public' => true,

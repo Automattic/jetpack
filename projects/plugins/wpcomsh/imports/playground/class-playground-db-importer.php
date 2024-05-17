@@ -228,8 +228,6 @@ class Playground_DB_Importer {
 	 * @return bool|WP_Error
 	 */
 	private function check_database_integrity() {
-		global $wpdb;
-
 		// Check if the bind table and the sequence table exist.
 		$query = $this->prepare(
 			'SELECT COUNT(*) FROM sqlite_master WHERE type=%s AND (name=%s OR name=%s)',
@@ -258,8 +256,6 @@ class Playground_DB_Importer {
 	 * @return void|WP_Error
 	 */
 	private function generate_inserts( SQL_Generator $generator, string $table_name, string $format, string $field_names ) {
-		global $wpdb;
-
 		$entries = $this->db->query( "SELECT * FROM {$table_name}" );
 
 		if ( ! $entries ) {
@@ -310,8 +306,6 @@ class Playground_DB_Importer {
 	 * @return array|WP_Error
 	 */
 	private function get_table_types_map( string $table_name ) {
-		global $wpdb;
-
 		if ( ! $this->db ) {
 			return new WP_Error( 'no-database-connection', 'No database connection.' );
 		}
@@ -343,13 +337,12 @@ class Playground_DB_Importer {
 		}
 
 		// Our map.
-		$map           = array();
-		$map_by_name   = array();
-		$index         = 0;
-		$has_autoinc   = true;
-		$primary_index = 0;
-		$formats       = array();
-		$field_names   = array();
+		$map         = array();
+		$map_by_name = array();
+		$index       = 0;
+		$has_autoinc = true;
+		$formats     = array();
+		$field_names = array();
 
 		// Schema: cid|name|type|notnull|dflt_value|pk
 		while ( $column = $results->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
@@ -374,10 +367,6 @@ class Playground_DB_Importer {
 			$map_by_name[ $column['name'] ] = $index;
 
 			if ( $is_primary ) {
-				if ( $primary_count === 0 ) {
-					$primary_index = $index;
-				}
-
 				++$primary_count;
 			}
 
@@ -409,8 +398,6 @@ class Playground_DB_Importer {
 			if ( ! array_key_exists( $column['name'], $mysql_map ) ) {
 				continue;
 			}
-
-			// $index = $map_by_name[ $column['name'] ];
 
 			if ( ! in_array( $mysql_map[ $column['name'] ], array( 'KEY', 'UNIQUE' ), true ) ) {
 				return new WP_Error( 'missing-index', 'Query error: not a valid SQLite database, missing index' );
@@ -517,10 +504,6 @@ class Playground_DB_Importer {
 	 * @return int
 	 */
 	private function get_table_autoincrement( $table_name ): int {
-		global $wpdb;
-
-		// return $this->db->querySingle( "SELECT MAX(`{$index_name}`) from `{$table_name}`" ) ?? 0;
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQLITE_SEQUENCE_TABLE is a constant string.
 		$query = $this->prepare( 'SELECT seq from ' . self::SQLITE_SEQUENCE_TABLE . ' WHERE name=%s', $table_name );
 
 		return $this->db->querySingle( $query ) ?? 0;

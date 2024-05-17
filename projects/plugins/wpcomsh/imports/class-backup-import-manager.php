@@ -293,7 +293,7 @@ class Backup_Import_Manager {
 		// Bumping at the same time the status and the type.
 		$query_args = array(
 			'x_backup-import'      => $status,
-			'x_backup-import-type' => is_null( $this->importer_type ) ? 'unknown' : $this->importer_type,
+			'x_backup-import-type' => null === $this->importer_type ? 'unknown' : $this->importer_type,
 			'v'                    => 'wpcom-no-pv',
 		);
 
@@ -341,10 +341,6 @@ class Backup_Import_Manager {
 				require_once __DIR__ . '/playground/class-playground-importer.php';
 				return new Playground_Importer( $zip_or_tar_file_path, $destination_path, self::TEMPORARY_DB_PREFIX );
 
-			// case self::JETPACK_BACKUP:
-			// require_once __DIR__ . '/jetpack-backup/class-jetpack-backup-importer.php';
-			// return new Jetpack_Backup_Importer( $destination_path );
-
 			default:
 				return new WP_Error( 'unknown_importer_type', __( 'Could not determine importer type.', 'wpcomsh' ) );
 		}
@@ -353,7 +349,7 @@ class Backup_Import_Manager {
 	/**
 	 * Checks if an import process is already running.
 	 *
-	 * @return bool Returns true if an import process is running, false otherwise.
+	 * @return false|WP_Error Returns WP_Error if an import process is running, false otherwise.
 	 */
 	private function should_bail_out() {
 		$additional_status_to_check = array( 'unpack_file' );

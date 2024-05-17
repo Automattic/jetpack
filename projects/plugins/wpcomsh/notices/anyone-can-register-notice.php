@@ -71,11 +71,13 @@ function wpcomsh_anyone_register_warning() {
 	$warning_text_main = ( $pagenow !== 'options-general.php' ) ?
 	/* translators: %1$s default role, %2$s support doc URL, %3$s site options URL, %4$s string highlighting risks*/
 	__(
-		'The <a href="%2$s">"Anyone can register" option</a> is currently active. The current default role is %1$s. %4$s <a href="%3$s"><strong>Please consider disabling this option if open registration is not needed.</strong></a>.'
+		'The <a href="%2$s">"Anyone can register" option</a> is currently active. The current default role is %1$s. %4$s <a href="%3$s"><strong>Please consider disabling this option if open registration is not needed.</strong></a>.',
+		'wpcomsh'
 	) :
 	/* translators: %1$s default role, %2$s support doc URL, %3$s site options URL, %4$s string highlighting risks*/
 	__(
-		'The <a href="%2$s">"Anyone can register" option</a> is currently active. The current default role is %1$s. %4$s <strong>Please consider disabling this option if open registration is not needed.<strong>'
+		'The <a href="%2$s">"Anyone can register" option</a> is currently active. The current default role is %1$s. %4$s <strong>Please consider disabling this option if open registration is not needed.<strong>',
+		'wpcomsh'
 	);
 
 	$warning_text_role = '';
@@ -83,27 +85,32 @@ function wpcomsh_anyone_register_warning() {
 	switch ( $default_role ) {
 		case 'administrator':
 			$warning_text_role = __(
-				'It allows a user full control over your site and its contents.'
+				'It allows a user full control over your site and its contents.',
+				'wpcomsh'
 			);
 			break;
 		case 'shop_manager':
 			$warning_text_role = __(
-				'It allows a user control over your orders and products.'
+				'It allows a user control over your orders and products.',
+				'wpcomsh'
 			);
 			break;
 		case 'editor':
 			$warning_text_role = __(
-				'It allows a user to post/modify/delete all content.'
+				'It allows a user to post/modify/delete all content.',
+				'wpcomsh'
 			);
 			break;
 		case 'author':
 			$warning_text_role = __(
-				'It allows a user to post content.'
+				'It allows a user to post content.',
+				'wpcomsh'
 			);
 			break;
 		default:
 			$warning_text_role = __(
-				'This may pose a security risk to your site.'
+				'This may pose a security risk to your site.',
+				'wpcomsh'
 			);
 	}
 

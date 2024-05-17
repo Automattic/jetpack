@@ -26,11 +26,11 @@ class FileExtractor {
 
 		// Check if the file exists.
 		if ( ! is_file( $file ) || ! is_readable( $file ) ) {
-			return new WP_Error( 'file_not_exists', __( 'File not exists' ) );
+			return new WP_Error( 'file_not_exists', __( 'File not exists', 'wpcomsh' ) );
 		}
 
 		if ( ! self::ensure_dir_exists( $destination ) ) {
-			return new WP_Error( 'dest_dir_not_created', __( 'Could not create folder' ) );
+			return new WP_Error( 'dest_dir_not_created', __( 'Could not create folder', 'wpcomsh' ) );
 		}
 
 		switch ( $extension ) {
@@ -40,7 +40,7 @@ class FileExtractor {
 			case 'gz':
 				return self::extract_tar( $file, $destination );
 			default:
-				return new WP_Error( 'file_type_not_supported', __( 'File type is not supported' ) );
+				return new WP_Error( 'file_type_not_supported', __( 'File type is not supported', 'wpcomsh' ) );
 		}
 	}
 
@@ -54,14 +54,14 @@ class FileExtractor {
 	private static function extract_zip( string $file, string $destination ) {
 		$zip = new \ZipArchive();
 		if ( $zip->open( $file ) !== true ) {
-			return new WP_Error( 'zipfile_open_failure', __( 'The ZIP file could not be opened.' ) );
+			return new WP_Error( 'zipfile_open_failure', __( 'The ZIP file could not be opened.', 'wpcomsh' ) );
 		}
 
 		$extracted = $zip->extractTo( $destination );
 		$zip->close();
 
 		if ( $extracted !== true ) {
-			return new WP_Error( 'zipfile_extract_failure', __( 'The ZIP file could not be extracted.' ) );
+			return new WP_Error( 'zipfile_extract_failure', __( 'The ZIP file could not be extracted.', 'wpcomsh' ) );
 		}
 		return true;
 	}
@@ -78,8 +78,8 @@ class FileExtractor {
 		try {
 			$phar = new \PharData( $file );
 			$phar->extractTo( $destination );
-		} catch ( Exception $e ) {
-			return new WP_Error( 'phar_extract_failure', __( 'The TAR file could not be extracted.' ) );
+		} catch ( \Exception $e ) {
+			return new WP_Error( 'phar_extract_failure', __( 'The TAR file could not be extracted.', 'wpcomsh' ) );
 		}
 		return true;
 	}

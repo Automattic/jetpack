@@ -215,8 +215,6 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 	 * Generate a sql dump with custom output prefix.
 	 */
 	public function test_generate_sql_with_custom_output_prefix() {
-		global $wpdb;
-
 		$this->generate_sqlite_database(
 			array(
 				'cache_table' => true,

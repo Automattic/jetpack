@@ -84,7 +84,7 @@ class WPCOM_Block_Theme_Footer_Credits {
 		$lang       = get_bloginfo( 'language' );
 		$credit_url = apply_filters( 'wpcom_better_footer_credit_url', 'https://wordpress.com/?ref=footer_blog', $lang );
 		if ( ! empty( $credit_url ) ) {
-			$credit_link = sprintf( '<a href="%s">%s.</a>', esc_url( $credit_url ), __( 'Blog at WordPress.com' ) );
+			$credit_link = sprintf( '<a href="%s">%s.</a>', esc_url( $credit_url ), __( 'Blog at WordPress.com', 'wpcomsh' ) );
 		} else {
 			$credit_link = '';
 		}
@@ -96,7 +96,7 @@ class WPCOM_Block_Theme_Footer_Credits {
 	 * Should return as early as possible.
 	 * Can be overridden with the WordPress filter: `wpcom_should_show_block_theme_footer_credits`
 	 *
-	 * @param  int $blog_id current blog ID
+	 * @param  int $blog_id current blog ID.
 	 * @return boolean          true if the credits should show, false otherwise.
 	 */
 	public function should_update_footer_credits( $blog_id ) {
@@ -152,7 +152,7 @@ class WPCOM_Block_Theme_Footer_Credits {
 	/**
 	 * Determine if the current site is in coming soon mode.
 	 *
-	 * @param  int $blog_id The blog_id
+	 * @param  int $blog_id The blog_id.
 	 * @return bool         True if the request is in coming soon mode, false otherwise.
 	 */
 	private function is_coming_soon( $blog_id ) {

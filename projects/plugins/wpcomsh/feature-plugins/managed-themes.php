@@ -211,7 +211,7 @@ function wpcomsh_load_theme_compat_file() {
 	}
 
 	// Many wpcom.php files call $themecolors directly. Ease the pain.
-	global $themecolors;
+	global $themecolors; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- included files might need the global.
 
 	$template_path   = get_template_directory();
 	$stylesheet_path = get_stylesheet_directory();

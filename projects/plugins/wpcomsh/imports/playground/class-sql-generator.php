@@ -364,8 +364,6 @@ class SQL_Generator {
 		$this->output( $data, false );
 
 		++$this->current_insert_index;
-
-		// $this->output( $this->prepare( "INSERT INTO `{$this->current_table}` VALUES (%s);", ...$data ) );
 	}
 
 	/**
@@ -425,7 +423,7 @@ class SQL_Generator {
 
 		$ret = "`{$name}` {$column['type']}";
 
-		if ( ! is_null( $this->collation ) && $column['sqlite_type'] === 'text' && $column['type'] !== 'datetime' ) {
+		if ( null !== $this->collation && $column['sqlite_type'] === 'text' && $column['type'] !== 'datetime' ) {
 			$ret .= ' COLLATE ' . $this->collation;
 		}
 
@@ -511,7 +509,7 @@ class SQL_Generator {
 
 		$end .= ' CHARSET=' . $this->charset;
 
-		if ( ! is_null( $this->collation ) ) {
+		if ( null !== $this->collation ) {
 			$end .= ' COLLATE=' . $this->collation;
 		}
 

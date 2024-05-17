@@ -379,7 +379,7 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 		$results = $wpdb->get_results( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $this->tmp_prefix ) . '%' ), ARRAY_N );
 
 		// Check if the temporary tables exist.
-		if ( is_null( $results ) || ( is_array( $results ) && ! count( $results ) ) ) {
+		if ( null === $results || ( is_array( $results ) && ! count( $results ) ) ) {
 			return $this->error( 'missing-tables', __( 'Missing temporary tables.', 'wpcomsh' ) );
 		}
 

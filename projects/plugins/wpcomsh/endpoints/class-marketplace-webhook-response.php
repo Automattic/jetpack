@@ -72,7 +72,7 @@ class Marketplace_Webhook_Response extends WP_REST_Controller {
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return bool True if the request has access, false otherwise.
 	 */
-	public function create_item_permissions_check( $request ) { //phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundInExtendedClass
+	public function create_item_permissions_check( $request ) { //phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundInExtendedClass, VariableAnalysis.CodeAnalysis.VariableAnalysis
 		return method_exists( 'Automattic\Jetpack\Connection\Manager', 'verify_xml_rpc_signature' ) && ( new Automattic\Jetpack\Connection\Manager() )->verify_xml_rpc_signature();
 	}
 

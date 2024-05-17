@@ -1,26 +1,72 @@
-<?php
-/*
-Plugin Name: Custom Colors
-Plugin URI: http://automattic.com/
-Description: Part of the WordPress.com Custom Design upgrade, this plugin allows you to easily add a customized color palette and background pattern to your blog.
-Version: 1.1
-Author: Automattic
-Author URI: http://automattic.com/
-License: GNU General Public License v2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
-*/
+<?php  // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Plugin Name: Custom Colors
+ * Plugin URI: http://automattic.com/
+ * Description: Part of the WordPress.com Custom Design upgrade, this plugin allows you to easily add a customized color palette and background pattern to your blog.
+ * Version: 1.1
+ * Author: Automattic
+ * Author URI: http://automattic.com/
+ * License: GNU General Public License v2 or later
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.html
+ */
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed
+// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
 
 define( 'WPCOM_USE_CACHED_COLORS', false );
 
+/**
+ * The common color manager class.
+ */
 class Colors_Manager_Common {
 
-	protected static $colors         = array();
+	/**
+	 * Colors.
+	 *
+	 * @var array
+	 */
+	protected static $colors = array();
+
+	/**
+	 * Default colors.
+	 *
+	 * @var array
+	 */
 	protected static $default_colors = array();
-	protected static $text_colors    = array();
-	protected static $extra_colors   = array();
-	protected static $labels         = array();
+
+	/**
+	 * Text colors.
+	 *
+	 * @var array
+	 */
+	protected static $text_colors = array();
+
+	/**
+	 * Extra colors.
+	 *
+	 * @var array
+	 */
+	protected static $extra_colors = array();
+
+	/**
+	 * Labels.
+	 *
+	 * @var array
+	 */
+	protected static $labels = array();
+
+	/**
+	 * Color pallettes..
+	 *
+	 * @var array
+	 */
 	protected static $color_palettes = array();
 
+	/**
+	 * If we're using Gutenberg or not.
+	 *
+	 * @var boolean
+	 */
 	protected static $is_gutenberg = false;
 
 	/**
@@ -100,6 +146,9 @@ class Colors_Manager_Common {
 
 	const COLOURLOVERS_HOST = 'http://colourlovers.com.s3.amazonaws.com/';
 
+	/**
+	 * Initialize the object.
+	 */
 	public static function init() {
 		if ( ! apply_filters( 'enable_custom_customizer', true ) ) {
 			return;
@@ -171,8 +220,13 @@ class Colors_Manager_Common {
 		return static::$is_gutenberg;
 	}
 
-	static function enqueue_classic_stats( $hook ) {
-		if ( 'appearance_page_custom-background' == $hook ) {
+	/**
+	 * Adds classic Stats assets to loading queue.
+	 *
+	 * @param string $hook the current hook name.
+	 */
+	public static function enqueue_classic_stats( $hook ) {
+		if ( 'appearance_page_custom-background' === $hook ) {
 			wp_enqueue_script(
 				'custom-bg-classic-stats',
 				plugins_url( 'js/classic-background-stats.js', __FILE__ ),
@@ -194,14 +248,20 @@ class Colors_Manager_Common {
 			return;
 		}
 		$colors_section               = admin_url( 'customize.php?autofocus%5Bsection%5D=colors_manager_tool' );
-		$submenu['themes.php'][20][2] = esc_url( $colors_section );
+		$submenu['themes.php'][20][2] = esc_url( $colors_section ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 	}
 
-	static function core_bg_enqueue_styles() {
-		wp_enqueue_style( 'colors-core-bg-notice', plugins_url( 'css/core-bg-notice.css', __FILE__ ) );
+	/**
+	 * Enqueues styles for Core notices.
+	 */
+	public static function core_bg_enqueue_styles() {
+		wp_enqueue_style( 'colors-core-bg-notice', plugins_url( 'css/core-bg-notice.css', __FILE__ ) ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 	}
 
-	static function core_bg_admin_notice() {
+	/**
+	 * Enqueues styles for Core admin notices.
+	 */
+	public static function core_bg_admin_notice() {
 		// just Appearance -> Background
 		if ( 'appearance_page_custom-background' !== $GLOBALS['page_hook'] ) {
 			return;
@@ -213,7 +273,7 @@ class Colors_Manager_Common {
 	/**
 	 * A helper function to pick an unspecified theme based on the current context.
 	 *
-	 * @param  boolean|string $theme A theme that, if false, the function will specify
+	 * @param  ?boolean|string $theme A theme that, if false, the function will specify.
 	 * @return string         The theme.
 	 */
 	protected static function pick_theme( $theme = false ) {
@@ -230,7 +290,7 @@ class Colors_Manager_Common {
 			if ( ! isset( $_SERVER['HTTP_REFERER'] ) ) {
 				return $theme;
 			}
-			$parsed_url = parse_url( $_SERVER['HTTP_REFERER'] );
+			$parsed_url = wp_parse_url( sanitize_url( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) );
 			if ( $parsed_url && ! isset( $parsed_url['query'] ) ) {
 				return $theme;
 			}
@@ -245,9 +305,10 @@ class Colors_Manager_Common {
 	/**
 	 * Does the theme have annotations? Will load them as well.
 	 *
+	 * @param  ?boolean|string $theme A theme or false.
 	 * @return boolean theme has annotations
 	 */
-	static function has_annotations( $theme = false ) {
+	public static function has_annotations( $theme = false ) {
 		// if we're not gonna support it, avoid the filesys hit
 		if ( self::will_never_support( $theme ) ) {
 			return false;
@@ -271,7 +332,7 @@ class Colors_Manager_Common {
 	 *
 	 * @return boolean active state
 	 */
-	static function theme_has_set_colors() {
+	public static function theme_has_set_colors() {
 		$opts = get_theme_mod( 'colors_manager', array( 'colors' => false ) );
 
 		if ( ! isset( $opts['colors'] ) ) {
@@ -280,7 +341,7 @@ class Colors_Manager_Common {
 
 		$opts = $opts['colors'];
 		// need the softer non-equal on the last in case keys are in different order.
-		return self::has_annotations() && (bool) $opts && $opts != self::get_default_colors();
+		return self::has_annotations() && (bool) $opts && $opts !== self::get_default_colors();
 	}
 
 	/**
@@ -289,36 +350,38 @@ class Colors_Manager_Common {
 	 * @param  boolean|string $theme Optional theme slug. Uses current theme by default.
 	 * @return boolean
 	 */
-	static function will_never_support( $theme = false ) {
+	public static function will_never_support( $theme = false ) {
 		$theme = self::pick_theme( $theme );
-		return in_array( $theme, self::$never_support );
+		return in_array( $theme, self::$never_support, true );
 	}
 
 	/**
 	 * Admin Javascript and CSS
 	 */
-	static function admin_scripts_and_css() {
+	public static function admin_scripts_and_css() {
 		wp_enqueue_style( 'colors-tool' );
 		wp_enqueue_style( 'noticons' );
 		wp_enqueue_script( 'colors-tool' );
-		// wp_enqueue_style( 'hover-bubbles' );
 
 		$settings = array(
 			'defaultColors'     => self::get_default_colors(),
 			'themeSupport'      => array( 'customBackground' => current_theme_supports( 'custom-background' ) ),
 			'defaultImage'      => get_theme_support( 'custom-background', 'default-image' ),
 			'topPatterns'       => self::get_patterns( array( 'limit' => 30 ) ),
-			'genPalette'        => esc_js( __( 'Generating...' ) ),
-			'backgroundTitle'   => esc_js( __( 'Background' ) ),
-			'colorsTitle'       => esc_js( __( 'Colors' ) ),
-			'mediaTitle'        => esc_js( __( 'Select background image' ) ),
-			'mediaSelectButton' => esc_js( __( 'Select' ) ),
+			'genPalette'        => esc_js( __( 'Generating...', 'wpcomsh' ) ),
+			'backgroundTitle'   => esc_js( __( 'Background', 'wpcomsh' ) ),
+			'colorsTitle'       => esc_js( __( 'Colors', 'wpcomsh' ) ),
+			'mediaTitle'        => esc_js( __( 'Select background image', 'wpcomsh' ) ),
+			'mediaSelectButton' => esc_js( __( 'Select', 'wpcomsh' ) ),
 		);
 
 		wp_localize_script( 'colors-tool', 'ColorsTool', $settings );
 	}
 
-	static function register_scripts_and_styles() {
+	/**
+	 * Registers scripts and styles.
+	 */
+	public static function register_scripts_and_styles() {
 		// register styles
 		wp_register_style( 'colors-tool', plugins_url( 'css/colors-control.css', __FILE__ ), null, '20220727' );
 		wp_register_style( 'noticons', '//s0.wp.com/i/noticons/noticons.css', null, '20120621', 'all' );
@@ -332,9 +395,11 @@ class Colors_Manager_Common {
 	}
 
 	/**
-	 * Add a 'custom-colors' body class to blogs with Custom Colors active
+	 * Add a 'custom-colors' body class to blogs with Custom Colors active.
+	 *
+	 * @param array $classes the array of classes to add custom class to.
 	 */
-	static function body_class( $classes ) {
+	public static function body_class( $classes ) {
 		array_push( $classes, 'custom-colors' );
 		return $classes;
 	}
@@ -342,7 +407,7 @@ class Colors_Manager_Common {
 	/**
 	 * Enqueue WP.com spinner scripts.
 	 */
-	static function spinner_scripts() {
+	public static function spinner_scripts() {
 		wp_enqueue_script( 'spin' );
 		wp_enqueue_script( 'jquery.spin' );
 	}
@@ -350,18 +415,24 @@ class Colors_Manager_Common {
 	/**
 	 * Constructs the color array
 	 */
-	static function get_colors() {
+	public static function get_colors() {
 		$opts   = get_theme_mod( 'colors_manager', array( 'colors' => false ) );
 		$colors = ( $opts['colors'] ) ? $opts['colors'] : self::$default_colors;
 		unset( $colors['undefined'] );
 		return $colors;
 	}
 
+	/**
+	 * Returns default colors.
+	 */
 	public static function get_default_colors() {
 		return self::$default_colors;
 	}
 
-	static function get_color_slots() {
+	/**
+	 * Returns color slots.
+	 */
+	public static function get_color_slots() {
 		return array( 'bg', 'txt', 'link', 'fg1', 'fg2' );
 	}
 
@@ -375,45 +446,45 @@ class Colors_Manager_Common {
 		?>
 		<script type="text/template" id="tmpl-background-change">
 			<div class="background-rectangle">
-				<div class="done"><span class="float-button"><?php esc_html_e( 'Done', 'colors' ); ?></span></div>
+				<div class="done"><span class="float-button"><?php esc_html_e( 'Done', 'wpcomsh' ); ?></span></div>
 			</div>
-			<a class="button background-options"><?php esc_html_e( 'Options', 'colors' ); ?></a>
-			<a class="button select-image"><?php esc_html_e( 'Select Image', 'colors' ); ?></a>
+			<a class="button background-options"><?php esc_html_e( 'Options', 'wpcomsh' ); ?></a>
+			<a class="button select-image"><?php esc_html_e( 'Select Image', 'wpcomsh' ); ?></a>
 			<div class="sep"></div>
 			<div class="view background-options"></div>
 		</script>
 
 		<script type="text/template" id="tmpl-background-options">
 			<p class="radios">
-				<?php esc_html_e( 'Position', 'colors' ); ?>
+				<?php esc_html_e( 'Position', 'wpcomsh' ); ?>
 				<input type="radio" id="position_x_right" name="position_x" value="right">
-				<label title="<?php esc_attr_e( 'Right', 'colors' ); ?>" for="position_x_right"><span class="dashicons dashicons-editor-alignright"></span></label>
+				<label title="<?php esc_attr_e( 'Right', 'wpcomsh' ); ?>" for="position_x_right"><span class="dashicons dashicons-editor-alignright"></span></label>
 				<input type="radio" id="position_x_center" name="position_x" value="center">
-				<label title="<?php esc_attr_e( 'Center', 'colors' ); ?>" for="position_x_center"><span class="dashicons dashicons-editor-aligncenter"></span></label>
+				<label title="<?php esc_attr_e( 'Center', 'wpcomsh' ); ?>" for="position_x_center"><span class="dashicons dashicons-editor-aligncenter"></span></label>
 				<input type="radio" id="position_x_left" name="position_x" value="left">
-				<label title="<?php esc_attr_e( 'Left', 'colors' ); ?>" for="position_x_left"><span class="dashicons dashicons-editor-alignleft"></span></label>
+				<label title="<?php esc_attr_e( 'Left', 'wpcomsh' ); ?>" for="position_x_left"><span class="dashicons dashicons-editor-alignleft"></span></label>
 			</p>
 
 			<p class="radios">
-				<?php esc_html_e( 'Repeat', 'colors' ); ?>
+				<?php esc_html_e( 'Repeat', 'wpcomsh' ); ?>
 				<input type="radio" id="repeat" name="repeat" value="repeat">
-				<label title="<?php esc_attr_e( 'Tile', 'colors' ); ?>" for="repeat"><span class="noticon noticon-gridview"></span></label>
+				<label title="<?php esc_attr_e( 'Tile', 'wpcomsh' ); ?>" for="repeat"><span class="noticon noticon-gridview"></span></label>
 				<input type="radio" id="repeat-y" name="repeat" value="repeat-y">
-				<label title="<?php esc_attr_e( 'Vertically', 'colors' ); ?>" for="repeat-y"><span class="noticon noticon-tile-vertically"></label>
+				<label title="<?php esc_attr_e( 'Vertically', 'wpcomsh' ); ?>" for="repeat-y"><span class="noticon noticon-tile-vertically"></label>
 				<input type="radio" id="repeat-x" name="repeat" value="repeat-x">
-				<label title="<?php esc_attr_e( 'Horizontally', 'colors' ); ?>" for="repeat-x"><span class="noticon noticon-tile-horizontally"></label>
+				<label title="<?php esc_attr_e( 'Horizontally', 'wpcomsh' ); ?>" for="repeat-x"><span class="noticon noticon-tile-horizontally"></label>
 				<input type="radio" id="repeat-no-repeat" name="repeat" value="no-repeat">
-				<label title="<?php esc_attr_e( 'None', 'colors' ); ?>" for="repeat-no-repeat"><span class="noticon noticon-tile-none"></label>
+				<label title="<?php esc_attr_e( 'None', 'wpcomsh' ); ?>" for="repeat-no-repeat"><span class="noticon noticon-tile-none"></label>
 			</p>
 
 			<p class="radios">
-				<?php esc_html_e( 'Fixed Position', 'colors' ); ?>
+				<?php esc_html_e( 'Fixed Position', 'wpcomsh' ); ?>
 				<input id="attachment-fixed" type="checkbox" name="attachment" value="fixed">
 				<label for="attachment-fixed"><span class="dashicons dashicons-admin-post"></span></label>
 			</p>
 
 			<p class="radios">
-				<?php esc_html_e( 'Underlying color', 'colors' ); ?>
+				<?php esc_html_e( 'Underlying color', 'wpcomsh' ); ?>
 				<input id="underlying-color" class="underlying-color" name="color">
 				<label for="underlying-color" class="underlying-color"><span class="dashicons"></span></label>
 			</p>
@@ -421,7 +492,7 @@ class Colors_Manager_Common {
 			<div class="iris-container"></div>
 
 			<p class="bottom">
-				<a href="#" class="hide-image"><?php esc_html_e( 'Hide background image', 'colors' ); ?></a>
+				<a href="#" class="hide-image"><?php esc_html_e( 'Hide background image', 'wpcomsh' ); ?></a>
 			</p>
 
 		</script>
@@ -432,28 +503,33 @@ class Colors_Manager_Common {
 			<ul class="color-grid main" id="color-grid">
 				<?php
 				foreach ( self::get_color_slots() as $cat ) {
-					if ( 'bg' == $cat ) {
-						$change = esc_html__( 'Change', 'colors' );
-						$change = "<span class=\"change-background float-button\">{$change}</span>";
-					} else {
-						$change = '';
-					}
-					$title = esc_attr( self::$labels[ $cat ] );
 					$class = isset( self::$colors[ $cat ] ) ? $cat : "{$cat} unavailable";
 					if ( 'bg' === $cat ) {
 						// background is always available for back compat with core
 						$class = 'bg';
 					}
-					echo "<li data-role='{$cat}' class='{$class} clr' data-title='{$title}'>{$change}</li>";
+					printf(
+						'<li data-role="%s" class="%s clr" data-title="%s">',
+						esc_attr( $cat ),
+						esc_attr( $class ),
+						esc_attr( self::$labels[ $cat ] )
+					);
+					if ( 'bg' === $cat ) {
+						printf(
+							'<span class="change-background float-button">%s</span>',
+							esc_html__( 'Change', 'wpcomsh' )
+						);
+					}
+					printf( '</li>' );
 				}
 				?>
 			</ul>
 			<span class="action-button-wrap">
-				<a class="revert revert-default button" title="<?php esc_attr_e( 'Go back to your theme&rsquo;s default colors' ); ?>"><?php esc_html_e( 'Default' ); ?></a>
+				<a class="revert revert-default button" title="<?php esc_attr_e( 'Go back to your theme&rsquo;s default colors', 'wpcomsh' ); ?>"><?php esc_html_e( 'Default', 'wpcomsh' ); ?></a>
 			</span>
 			<span id="color-tooltip"></span>
 			<div id="the-bg-picker-prompt" style="display: none;">
-				<span class="customize-control-title"><?php esc_html_e( 'Customize Your Background', 'colors' ); ?></span>
+				<span class="customize-control-title"><?php esc_html_e( 'Customize Your Background', 'wpcomsh' ); ?></span>
 				<div>
 					<a href="#" class="bg choose-color">O</a>
 					<h4>Change <b>Color</b></h4>
@@ -465,7 +541,7 @@ class Colors_Manager_Common {
 			</div>
 			<div class="the-picker" id="the-picker">
 				<span class="color-label" id="color-reference"></span>
-				<p><?php esc_html_e( 'These are colors that work well with the other colors in your palette:' ); ?></p>
+				<p><?php esc_html_e( 'These are colors that work well with the other colors in your palette:', 'wpcomsh' ); ?></p>
 				<ul class="color-suggestions">
 					<li></li>
 					<li></li>
@@ -480,7 +556,19 @@ class Colors_Manager_Common {
 					<li></li>
 					<li></li>
 				</ul>
-				<p class="iris-launch"><?php _e( 'You can also <a href="#" id="pick-your-nose">pick your own color</a>.' ); ?></p>
+				<p class="iris-launch">
+					<?php
+					echo wp_kses(
+						__( 'You can also <a href="#" id="pick-your-nose">pick your own color</a>.', 'wpcomsh' ),
+						array(
+							'a' => array(
+								'href' => array(),
+								'id'   => array(),
+							),
+						)
+					);
+					?>
+				</p>
 				<div id="iris-container" class="hidden">
 					<input type="text" id="iris" />
 				</div>
@@ -491,6 +579,9 @@ class Colors_Manager_Common {
 		<?php
 	}
 
+	/**
+	 * Prints current color grid.
+	 */
 	public static function print_current_color_grid() {
 		if ( ! self::theme_has_set_colors() ) {
 			return;
@@ -500,56 +591,76 @@ class Colors_Manager_Common {
 			<?php
 			foreach ( self::get_colors() as $cat => $value ) {
 				$class = isset( self::$colors[ $cat ] ) ? $cat : "{$cat} unavailable";
-				$title = esc_attr( self::$labels[ $cat ] );
-				echo "<li class='{$class}' style='background-color: {$value}' title='{$title}'>{$value}</li>";
+				printf(
+					'<li class="%s" style="background-color: %s" title="%s">%s</li>',
+					esc_attr( $class ),
+					esc_attr( $value ),
+					esc_attr( self::$labels[ $cat ] ),
+					esc_html( $value )
+				);
 			}
 			?>
 		</ul>
 		<?php
 	}
 
+	/**
+	 * Outputs color pallettes for AJAX requests.
+	 */
 	public static function ajax_color_palettes() {
-		$palettes = self::get_color_palettes( $_REQUEST );
+		$palettes = self::get_color_palettes( $_REQUEST ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- this is a GET request that doesn't change anything.
 
 		$response = array( 'palettes' => $palettes );
 
 		header( 'Content-Type: text/javascript' );
-		echo json_encode( $response );
+		echo wp_json_encode( $response );
 		die;
 	}
 
+	/**
+	 * Outputs generated color pallette for AJAX requests.
+	 */
 	public static function ajax_generate_palette() {
-		$response = self::get_generated_palette( $_REQUEST );
+		$response = self::get_generated_palette( $_REQUEST );  // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- this is a GET request that doesn't change anything.
 		header( 'Content-Type: text/javascript' );
-		echo json_encode( $response );
+		echo wp_json_encode( $response );
 		die;
 	}
 
+	/**
+	 * Outputs color recommendations for AJAX requests.
+	 */
 	public static function ajax_color_recommendations() {
-		$colors = self::get_color_recommendations( $_REQUEST );
+		$colors = self::get_color_recommendations( $_REQUEST );  // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- this is a GET request that doesn't change anything.
 
 		$response = array( 'colors' => $colors );
 
 		header( 'Content-Type: text/javascript' );
-		echo json_encode( $response );
+		echo wp_json_encode( $response );
 		die;
 	}
 
+	/**
+	 * Outputs pattern recommendations for AJAX requests.
+	 */
 	public static function ajax_pattern_recommendations() {
-		$patterns = self::get_pattern_recommendations( $_REQUEST );
+		$patterns = self::get_pattern_recommendations( $_REQUEST );  // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- this is a GET request that doesn't change anything.
 
 		$response = array( 'patterns' => $patterns );
 
 		header( 'Content-Type: text/javascript' );
-		echo json_encode( $response );
+		echo wp_json_encode( $response );
 		die;
 	}
 
 	/**
 	 * Ensure that COLOURLovers URLs are saved without any imgpress stuff.
+	 *
+	 * @param array $new_theme_mods new theme mods.
+	 * @return array
 	 */
-	public static function format_colourlovers_urls( $new_theme_mods, $old_theme_mods ) {
-		if ( ! empty( $new_theme_mods['background_image'] ) && false !== strpos( $new_theme_mods['background_image'], '/imgpress?url=' . urlencode( self::COLOURLOVERS_HOST ) ) ) {
+	public static function format_colourlovers_urls( $new_theme_mods ) {
+		if ( ! empty( $new_theme_mods['background_image'] ) && false !== strpos( $new_theme_mods['background_image'], '/imgpress?url=' . rawurlencode( self::COLOURLOVERS_HOST ) ) ) {
 			$new_theme_mods['background_image'] = urldecode( array_pop( explode( '/imgpress?url=', $new_theme_mods['background_image'], 2 ) ) );
 		}
 
@@ -566,11 +677,14 @@ class Colors_Manager_Common {
 	 *
 	 * 1. Which color palettes are chosen, and overall number of times a pattern is switched to.
 	 * 2. Which background patterns are chosen, and the overall number of times a pattern is switched to.
+	 *
+	 * @param array $oldvalue old metadata.
+	 * @param array $newvalue new metadata value.
 	 */
 	public static function save_colourlovers_metadata( $oldvalue, $newvalue ) {
 		$mods = $newvalue;
 
-		if ( isset( $oldvalue['background_image'] ) && isset( $newvalue['background_image'] ) && $oldvalue['background_image'] != $newvalue['background_image'] ) {
+		if ( isset( $oldvalue['background_image'] ) && isset( $newvalue['background_image'] ) && $oldvalue['background_image'] !== $newvalue['background_image'] ) {
 			$using_colourlovers_pattern = false;
 
 			if ( 0 === strpos( $mods['background_image'], self::COLOURLOVERS_HOST ) ) {
@@ -581,7 +695,7 @@ class Colors_Manager_Common {
 
 					$pattern_id = $matches[1];
 
-					if ( empty( $mods['background_image_metadata'] ) || $pattern_id != $mods['background_image_metadata']['pattern_id'] ) {
+					if ( empty( $mods['background_image_metadata'] ) || $pattern_id !== $mods['background_image_metadata']['pattern_id'] ) {
 						$pattern = Colors_API::call( 'patterns', array(), $pattern_id );
 						if ( ! is_wp_error( $pattern ) ) {
 							set_theme_mod(
@@ -602,7 +716,7 @@ class Colors_Manager_Common {
 			}
 		}
 
-		if ( isset( $newvalue['background_image'] ) && 0 === strpos( $newvalue['background_image'], self::COLOURLOVERS_HOST ) && $newvalue['background_image'] != $newvalue['background_image_thumb'] ) {
+		if ( isset( $newvalue['background_image'] ) && 0 === strpos( $newvalue['background_image'], self::COLOURLOVERS_HOST ) && $newvalue['background_image'] !== $newvalue['background_image_thumb'] ) {
 			/**
 			 * Due to a bug with percent signs in background_image URLs, we need to make sure that
 			 * our background image is also saved as the background_image_thumb value.  We need to
@@ -612,7 +726,7 @@ class Colors_Manager_Common {
 			set_theme_mod( 'background_image_thumb', $newvalue['background_image'] );
 		}
 
-		if ( isset( $oldvalue['colors_manager'] ) && isset( $newvalue['colors_manager'] ) && $newvalue['colors_manager']['colors'] != $oldvalue['colors_manager']['colors'] ) {
+		if ( isset( $oldvalue['colors_manager'] ) && isset( $newvalue['colors_manager'] ) && $newvalue['colors_manager']['colors'] !== $oldvalue['colors_manager']['colors'] ) {
 			if ( empty( $newvalue['colors_manager']['colors'] ) && $newvalue['color_palette_metadata'] ) {
 				remove_theme_mod( 'color_palette_metadata' );
 			} else {
@@ -621,7 +735,7 @@ class Colors_Manager_Common {
 				$palette = Palette::get( array( 'colors' => $newvalue['colors_manager']['colors'] ) );
 
 				if ( $palette ) {
-					if ( empty( $newvalue['color_palette_metadata'] ) || $palette->id != $newvalue['color_palette_metadata']['palette_id'] ) {
+					if ( empty( $newvalue['color_palette_metadata'] ) || $palette->id !== $newvalue['color_palette_metadata']['palette_id'] ) {
 						set_theme_mod(
 							'color_palette_metadata',
 							array(
@@ -638,13 +752,26 @@ class Colors_Manager_Common {
 		}
 	}
 
-	static function is_same_color( $a, $b ) {
+	/**
+	 * Are colors the same?
+	 *
+	 * @param string $a color A.
+	 * @param string $b color B.
+	 * @return boolean
+	 */
+	public static function is_same_color( $a, $b ) {
 		$a = trim( strtolower( $a ), ' #' );
 		$b = trim( strtolower( $b ), ' #' );
-		return $a == $b;
+		return $a === $b;
 	}
 
-	static function is_default_palette( $colors ) {
+	/**
+	 * Are we on the default pallette?
+	 *
+	 * @param array $colors tested colors.
+	 * @return boolean
+	 */
+	public static function is_default_palette( $colors ) {
 		// a saved palette may have more colors than the default palette. So,
 		// iterate over the default palette
 		foreach ( self::$default_colors as $id => $default_color ) {
@@ -658,7 +785,13 @@ class Colors_Manager_Common {
 		return true;
 	}
 
-	static function is_featured_palette( $colors ) {
+	/**
+	 * Are we on the featured pallette?
+	 *
+	 * @param array $colors tested colors.
+	 * @return boolean
+	 */
+	public static function is_featured_palette( $colors ) {
 
 		$featured_palettes = self::$color_palettes;
 
@@ -674,13 +807,13 @@ class Colors_Manager_Common {
 			foreach ( $p as $i => $c ) {
 				// we don't care about the background color; non-CD users are
 				// free to change it
-				if ( 0 == $i ) {
+				if ( 0 === $i ) {
 					continue;
 				}
 
 				$c = strtolower( $c );
 				// if that color isn't in our palette
-				if ( ! empty( $c ) && ! in_array( $c, $colors ) ) {
+				if ( ! empty( $c ) && ! in_array( $c, $colors, true ) ) {
 					// try another featured palette
 					$found = false;
 					break;
@@ -693,6 +826,9 @@ class Colors_Manager_Common {
 		return false;
 	}
 
+	/**
+	 * Should we enable custom colors?
+	 */
 	public static function should_enable_colors() {
 		$opts = get_theme_mod( 'colors_manager', array( 'colors' => false ) );
 		if ( ! $opts['colors'] ) {
@@ -713,12 +849,10 @@ class Colors_Manager_Common {
 	/**
 	 * Query and return palette data.
 	 *
-	 * @param array $args [color=>string, limit=>int, offset=int]
+	 * @param array{?color:string,?limit:int,?offset:int} $args initial color settings.
 	 * @return array An array of color palettes.
 	 */
 	public static function get_color_palettes( $args = array() ) {
-		global $wpdb;
-
 		$defaults = array(
 			'color'  => false,
 			'limit'  => 6,
@@ -756,7 +890,7 @@ class Colors_Manager_Common {
 				$colors = array();
 
 				foreach ( self::get_color_slots() as $color_index => $color_key ) {
-					if ( count( $palette['colors'] ) == $color_index ) {
+					if ( count( $palette['colors'] ) === $color_index ) {
 						break;
 					}
 
@@ -779,6 +913,12 @@ class Colors_Manager_Common {
 		return $palettes;
 	}
 
+	/**
+	 * Return an image URL based on Gravatar URL.
+	 *
+	 * @param string $image_url URL to be transformed.
+	 * @return string
+	 */
 	public static function gravatar_image_url( $image_url ) {
 		$prefix_http     = preg_quote( 'http://www.gravatar.com/avatar/', '/' );
 		$prefix_https    = preg_quote( 'https://secure.gravatar.com/avatar/', '/' );
@@ -796,7 +936,7 @@ class Colors_Manager_Common {
 	 * Returns a color palette matching a given image thanks to the Tonesque
 	 * lib.
 	 *
-	 * @param array $args [image=>string]
+	 * @param array{?image:string} $args an image URL in the form of an array.
 	 * @return array A single color palette
 	 */
 	public static function get_generated_palette( $args = array() ) {
@@ -816,13 +956,13 @@ class Colors_Manager_Common {
 		);
 
 		$args = wp_parse_args( $args, $defaults );
-		extract( $args, EXTR_SKIP );
+		extract( $args, EXTR_SKIP ); // phpcs:ignore
 
-		if ( ! $image ) {
+		if ( ! $image ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- extract adds this to the scope.
 			return array();
 		}
 
-		$tonesque = new Tonesque( $image );
+		$tonesque = new Tonesque( $image ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 		$points   = $tonesque->grab_points( 'hex' );
 
 		$roles = self::get_color_slots();
@@ -842,6 +982,9 @@ class Colors_Manager_Common {
 		return $palette;
 	}
 
+	/**
+	 * Returns theme color pallettes.
+	 */
 	public static function get_theme_color_palettes() {
 		if ( empty( self::$color_palettes ) ) {
 			return array();
@@ -855,6 +998,9 @@ class Colors_Manager_Common {
 				'colors' => array(),
 			);
 			foreach ( $map as $index => $key ) {
+				if ( ! isset( $palette['palette'][ $index ] ) ) {
+					continue;
+				}
 				$formatted_palette['colors'][ $key ] = str_replace( '#', '', $palette['palette'][ $index ] );
 			}
 
@@ -864,16 +1010,13 @@ class Colors_Manager_Common {
 		return $formatted_palettes;
 	}
 
-
 	/**
 	 * Query and return pattern data.
 	 *
-	 * @param array $args [color=>string, limit=>int, offset=int]
+	 * @param array{?color:string,?limit:int,?offset:int} $args initial settings.
 	 * @return array An array of patterns.
 	 */
 	public static function get_patterns( $args = array() ) {
-		global $wpdb;
-
 		$defaults = array(
 			'color'  => false,
 			'limit'  => 4,
@@ -911,7 +1054,7 @@ class Colors_Manager_Common {
 				$colors = array();
 
 				foreach ( self::get_color_slots() as $color_index => $color_key ) {
-					if ( count( $pattern['colors'] ) == $color_index ) {
+					if ( count( $pattern['colors'] ) === $color_index ) {
 						break;
 					}
 
@@ -951,7 +1094,7 @@ class Colors_Manager_Common {
 		} else {
 			$hex = strtoupper( substr( preg_replace( '/[^0-9A-Z]/i', '', $color ), 0, 6 ) );
 
-			if ( strlen( $hex ) == 3 ) {
+			if ( strlen( $hex ) === 3 ) {
 				$hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
 			} else {
 				for ( $i = strlen( $hex ); $i < 6; $i++ ) {
@@ -966,12 +1109,10 @@ class Colors_Manager_Common {
 	/**
 	 * Finds colors that could be suitable complement to a given set of colors.
 	 *
-	 * @param array $args [colors=>array[string], color=>string, limit=>int, role=>string]
+	 * @param array{?color:string,?role:string,?colors:array,?limit:int} $args initial settings.
 	 * @return array An array of color codes.
 	 */
 	public static function get_color_recommendations( $args ) {
-		global $wpdb;
-
 		$defaults = array(
 			'color'  => false,
 			'role'   => false,
@@ -1010,8 +1151,8 @@ class Colors_Manager_Common {
 
 						// If this palette contains more than one of the guide colors,
 						// give it more weight.
-						if ( in_array( $_color, $args['colors'] ) ) {
-							$multiplier += 1;
+						if ( in_array( $_color, $args['colors'], true ) ) {
+							++$multiplier;
 						}
 					}
 
@@ -1022,7 +1163,7 @@ class Colors_Manager_Common {
 
 						$colors[ $_color ] += ( 1 * $multiplier );
 
-						if ( $role == $args['role'] ) {
+						if ( $role === $args['role'] ) {
 							$colors[ $_color ] += ( 1 * $multiplier );
 						}
 					}
@@ -1059,16 +1200,13 @@ class Colors_Manager_Common {
 		return $colors;
 	}
 
-
 	/**
 	 * Finds patterns that could be suitable complement to a given set of colors.
 	 *
-	 * @param array $args [colors=>array[string], limit=>int]
+	 * @param array{?colors:array,?limit:int} $args initial settings.
 	 * @return array An array of patterns.
 	 */
 	public static function get_pattern_recommendations( $args ) {
-		global $wpdb;
-
 		$defaults = array(
 			'colors' => false,
 			'limit'  => 4,
@@ -1129,12 +1267,12 @@ class Colors_Manager_Common {
 	public static function color_palettes() {
 		?>
 		<div id="colourlovers-palettes-container">
-			<h3><?php esc_html_e( 'Choose a Palette', 'colors' ); ?></h3>
+			<h3><?php esc_html_e( 'Choose a Palette', 'wpcomsh' ); ?></h3>
 			<div id="colourlovers-palettes"></div>
 			<div class="palette-buttons">
-				<a class="button next" id="more-palettes"><?php esc_html_e( 'More' ); ?></a>
-				<a class="button previous" id="less-palettes" style="display: none;"><?php esc_html_e( 'Back' ); ?></a>
-				<a class="button generate" id="generate-palette"><?php esc_html_e( 'Match header image' ); ?></a>
+				<a class="button next" id="more-palettes"><?php esc_html_e( 'More', 'wpcomsh' ); ?></a>
+				<a class="button previous" id="less-palettes" style="display: none;"><?php esc_html_e( 'Back', 'wpcomsh' ); ?></a>
+				<a class="button generate" id="generate-palette"><?php esc_html_e( 'Match header image', 'wpcomsh' ); ?></a>
 			</div>
 		</div>
 		<?php
@@ -1147,22 +1285,24 @@ class Colors_Manager_Common {
 		?>
 		<div class="the-pattern-picker" id="the-pattern-picker" style="display: none;">
 			<span class="customize-control-title">
-				<?php esc_html_e( 'Pick a Background Pattern' ); ?>
+				<?php esc_html_e( 'Pick a Background Pattern', 'wpcomsh' ); ?>
 			</span>
 			<ul id="colourlovers-patterns"></ul>
 			<div class="pagination">
-				<a id="more-patterns" class="button"><?php esc_html_e( 'More' ); ?></a>
-				<a id="less-patterns" class="button previous" style="display: none;"><?php esc_html_e( 'Back' ); ?></a>
+				<a id="more-patterns" class="button"><?php esc_html_e( 'More', 'wpcomsh' ); ?></a>
+				<a id="less-patterns" class="button previous" style="display: none;"><?php esc_html_e( 'Back', 'wpcomsh' ); ?></a>
 			</div>
-			<p class="noresults" style="display: none;"><?php esc_html_e( "There aren't any patterns that match your chosen color scheme. It's just too unique!", 'colors' ); ?></p>
+			<p class="noresults" style="display: none;"><?php esc_html_e( "There aren't any patterns that match your chosen color scheme. It's just too unique!", 'wpcomsh' ); ?></p>
 		</div>
 		<?php
 	}
 
 	/**
-	 * Make this work inside the Customizer
+	 * Make this work inside the Customizer.
+	 *
+	 * @param WP_Customize_Manager $wp_customize the customizer manager instance.
 	 */
-	static function in_customizer( $wp_customize ) {
+	public static function in_customizer( $wp_customize ) {
 		// Include controller class
 		require_once __DIR__ . '/class-colors-controller.php';
 
@@ -1172,7 +1312,7 @@ class Colors_Manager_Common {
 					$wp_customize,
 					'colors_manager_tool',
 					array(
-						'title'    => __( 'Colors & Backgrounds' ),
+						'title'    => __( 'Colors & Backgrounds', 'wpcomsh' ),
 						'priority' => 35,
 						'panel'    => 'custom-design',
 					)
@@ -1182,7 +1322,7 @@ class Colors_Manager_Common {
 			$wp_customize->add_section(
 				'colors_manager_tool',
 				array(
-					'title'    => __( 'Colors & Backgrounds' ),
+					'title'    => __( 'Colors & Backgrounds', 'wpcomsh' ),
 					'priority' => 35,
 				)
 			);
@@ -1190,7 +1330,6 @@ class Colors_Manager_Common {
 
 		$setting_opts = array(
 			'default'    => self::get_colors(),
-			'type'       => 'colorsTool',
 			'capability' => 'edit_theme_options',
 			'transport'  => 'postMessage',
 			'type'       => 'theme_mod',
@@ -1213,7 +1352,7 @@ class Colors_Manager_Common {
 				$wp_customize,
 				'colors-tool',
 				array(
-					'label'    => __( 'Colors' ),
+					'label'    => __( 'Colors', 'wpcomsh' ),
 					'section'  => 'colors_manager_tool',
 					'settings' => 'colors_manager[colors]',
 				)
@@ -1221,14 +1360,26 @@ class Colors_Manager_Common {
 		);
 	}
 
-	static function sanitize_colors_on_save( $set_colors ) {
+	/**
+	 * Sanitizes colors on save.
+	 *
+	 * @param array $set_colors saved colors.
+	 * @return array
+	 */
+	public static function sanitize_colors_on_save( $set_colors ) {
 		// since this function only gets called if the colors changed,
 		// we can safely invalidate without further checks
 		add_action( 'shutdown', array( __CLASS__, 'delete_cached_css_on_shutdown_because_reasons' ) );
 		return self::sanitize_colors( $set_colors );
 	}
 
-	static function sanitize_colors( $set_colors ) {
+	/**
+	 * Sanitizes colors.
+	 *
+	 * @param array $set_colors saved colors.
+	 * @return array
+	 */
+	public static function sanitize_colors( $set_colors ) {
 		// let's make sure all of our keys/values are proper
 		$colors_wanted = array();
 		$cats          = self::get_color_slots();
@@ -1236,37 +1387,47 @@ class Colors_Manager_Common {
 			require_lib( 'class.color' );
 		}
 		foreach ( $set_colors as $key => $color ) {
-			if ( ! in_array( $key, $cats ) || ! $color ) {
+			if ( ! in_array( $key, $cats, true ) || ! $color ) {
 				continue;
 			}
 			try {
 				$color_object          = new Jetpack_Color( $color );
 				$colors_wanted[ $key ] = '#' . $color_object->toHex();
-			} catch ( Exception $e ) {
+			} catch ( Exception $e ) { // phpcs:ignore
+				// Exception not handled to avoid it propagating further, apparently.
 			}
 		}
 		return $colors_wanted;
 	}
 
+	/**
+	 * Goodbye, cache!
+	 */
 	private static function delete_cached_css() {
 		$colors_manager           = (array) get_theme_mod( 'colors_manager' );
 		$colors_manager['cached'] = false;
 		set_theme_mod( 'colors_manager', $colors_manager );
 	}
 
+	/**
+	 * Goodbye, cache. Because reasons.
+	 */
 	public static function delete_cached_css_on_shutdown_because_reasons() {
 		remove_all_filters( 'theme_mod_colors_manager' );
 		self::delete_cached_css();
 	}
 
-
-	static function override_themecolors() {
+	/**
+	 * Overriding theme colors.
+	 */
+	public static function override_themecolors() {
 		global $themecolors;
 
 		if ( ! self::should_enable_colors() ) {
 			return;
 		}
 
+		$opts = get_theme_mod( 'colors_manager', array( 'colors' => false ) );
 		if ( ! isset( $opts ) ) {
 			return;
 		}
@@ -1290,8 +1451,10 @@ class Colors_Manager_Common {
 
 	/**
 	 * Injects our postMessage listener scripts into the theme
+	 *
+	 * @param WP_Customize_Manager $wp_customize the customizer manager instance.
 	 */
-	static function theme_colors_js( $wp_customize ) {
+	public static function theme_colors_js( $wp_customize ) {
 		if ( $wp_customize->is_preview() && ! is_admin() ) {
 			wp_enqueue_script( 'colors-instapreview' );
 			$js_data = array(
@@ -1304,14 +1467,24 @@ class Colors_Manager_Common {
 		}
 	}
 
-	static function print_theme_css() {
+	/**
+	 * Prints theme CSS.
+	 */
+	public static function print_theme_css() {
 		if ( ! self::should_enable_colors() ) {
 			return;
 		}
 		$css = self::get_theme_css();
-		echo '<style type="text/css" id="custom-colors-css">' . "{$css}</style>\n";
+		printf(
+			'<style type="text/css" id="custom-colors-css">%s</style>%s',
+			wp_strip_all_tags( $css ), // phpcs:ignore -- CSS can't be properly escaped with esc_html
+			"\n"
+		);
 	}
 
+	/**
+	 * Print block editor CSS.
+	 */
 	public static function print_block_editor_css() {
 		if ( ! self::should_enable_colors() ) {
 			return;
@@ -1323,7 +1496,10 @@ class Colors_Manager_Common {
 		wp_add_inline_style( 'custom-colors-editor-css', $css ); // Append inline style to our new stylesheet
 	}
 
-	static function get_theme_css() {
+	/**
+	 * Return theme CSS.
+	 */
+	public static function get_theme_css() {
 		$opts       = get_theme_mod(
 			'colors_manager',
 			array(
@@ -1355,7 +1531,6 @@ class Colors_Manager_Common {
 		}
 
 		// Minify & cache for future use.
-		require_once __DIR__ . '/lib/cssmin.php';
 		$minifier = new tubalmartin\CssMin\Minifier();
 		$css      = $minifier->run( $css );
 
@@ -1365,8 +1540,15 @@ class Colors_Manager_Common {
 		return $css;
 	}
 
-	// @todo possibly combine all of this into a keyed array to prevent selector duplication bloat
-	static function css_rule( $rule, $color ) {
+	/**
+	 * Get CSS rule.
+	 *
+	 * @todo possibly combine all of this into a keyed array to prevent selector duplication bloat
+	 * @param array  $rule the CSS rule.
+	 * @param string $color the color string.
+	 * @return string
+	 */
+	public static function css_rule( $rule, $color ) {
 		$css = '';
 
 		if ( isset( $rule[2] ) ) {
@@ -1378,7 +1560,7 @@ class Colors_Manager_Common {
 			try {
 				$working_color = new Jetpack_Color( $color );
 			} catch ( RangeException $e ) {
-				$message .= 'rule: ' . print_r( $rule, 1 ) . "\n";
+				$message  = 'rule: ' . print_r( $rule, 1 ) . "\n"; // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 				$message .= 'call: $working_color = new Jetpack_Color( ' . $color . ' );' . "\n";
 				self::exception_mailer( $message );
 				return '';
@@ -1403,9 +1585,8 @@ class Colors_Manager_Common {
 							self::exception_mailer( $message );
 							return '';
 						}
-					}
-					// set color bg for contrast
-					elseif ( isset( self::$colors[ $rule[2] ] ) ) {
+					} elseif ( isset( self::$colors[ $rule[2] ] ) ) { // set color bg for contrast
+
 						$set_colors = self::get_colors();
 						try {
 							$bg_color = new Jetpack_Color( $set_colors[ $rule[2] ] ?? null );
@@ -1424,9 +1605,7 @@ class Colors_Manager_Common {
 						$color    = $working_color->getReadableContrastingColor( $bg_color, $contrast )->toString();
 					}
 				}
-			}
-			// alpha
-			elseif ( $rule[2] < 1 ) {
+			} elseif ( $rule[2] < 1 ) { // alpha
 				unset( $rule[2] );
 				// back compat for non-rgba browsers
 				$css  .= self::css_rule( $rule, $color );
@@ -1437,7 +1616,12 @@ class Colors_Manager_Common {
 		return $css;
 	}
 
-	static function get_extra_css( $only_callback = false ) {
+	/**
+	 * Get extra CSS.
+	 *
+	 * @param boolean $only_callback no processing, just callback.
+	 */
+	public static function get_extra_css( $only_callback = false ) {
 		$css      = '';
 		$extra_cb = get_theme_support( 'custom_colors_extra_css' );
 
@@ -1467,14 +1651,10 @@ class Colors_Manager_Common {
 	/**
 	 * Function for making theme annotations.
 	 *
-	 * @param string      $category The color category. One of bg, txt, link, fg1, fg2
+	 * @param string      $category The color category. One of bg, txt, link, fg1, fg2.
 	 * @param string      $default_color The default color for this category.
-	 * @param array       $rules Array of rule arrays. $rule: array( selector, property, opacity );
-	 * @param string      $selector CSS selector the color category will change
-	 * @param string      $property The CSS property the CSS selector will set.
-	 * @param float       $opacity Optional, default 1. Values < 1 will set as rgba, with #hex fallbacks for dumb browsers.
-	 * @param bool|string $label Optional. A UI helper label for identifying what a particular color
-	 *        will change in the theme.
+	 * @param array       $rules Array of rule arrays. $rule: array( selector, property, opacity );.
+	 * @param bool|string $label Optional. A UI helper label for identifying what a particular color will change in the theme.
 	 */
 	public static function add_color_rule( $category, $default_color, $rules, $label = false ) {
 		// extra rules
@@ -1500,13 +1680,15 @@ class Colors_Manager_Common {
 	/**
 	 * Allow a theme to declare its own color palettes.
 	 *
-	 * @param array $palette An array with 5 colors.
+	 * @param array  $palette An array with 5 colors.
+	 * @param string $title optional title string.
 	 */
 	public static function add_color_palette( $palette, $title = false ) {
 		if ( ! $title ) {
 			$theme = wp_get_theme();
 			$title = sprintf(
-				__( '%1$s Alternative Scheme %2$s' ),
+				// translators: %1$s is a theme name, %2$s is its custom color scheme number.
+				__( '%1$s Alternative Scheme %2$s', 'wpcomsh' ),
 				$theme->display( 'Name' ),
 				count( self::$color_palettes ) + 1
 			);
@@ -1536,11 +1718,14 @@ class Colors_Manager_Common {
 		return false;
 	}
 
+	/**
+	 * Unset colors that need to be unset.
+	 */
 	protected static function handle_unset_colors() {
 		foreach ( self::$colors as $key => $value ) {
 			if ( empty( $value ) ) {
 				// set Label to Unused
-				self::$labels[ $key ] = __( 'Unused' );
+				self::$labels[ $key ] = __( 'Unused', 'wpcomsh' );
 				unset( self::$colors[ $key ] );
 			}
 		}
@@ -1555,19 +1740,19 @@ class Colors_Manager_Common {
 		}
 
 		self::$labels = array(
-			'bg'   => __( 'Background' ),
-			'txt'  => __( 'Headings' ),
-			'link' => __( 'Links' ),
-			'fg1'  => __( 'Accent #1' ),
-			'fg2'  => __( 'Accent #2' ),
+			'bg'   => __( 'Background', 'wpcomsh' ),
+			'txt'  => __( 'Headings', 'wpcomsh' ),
+			'link' => __( 'Links', 'wpcomsh' ),
+			'fg1'  => __( 'Accent #1', 'wpcomsh' ),
+			'fg2'  => __( 'Accent #2', 'wpcomsh' ),
 		);
 	}
 
 	/**
 	 * Generate color suggestions for a given role from a set of colors.
 	 *
-	 * @param array  $colors
-	 * @param string $role (bg|fg1|fg2|txt|link)
+	 * @param array  $colors color array.
+	 * @param string $role (bg|fg1|fg2|txt|link).
 	 * @return array
 	 */
 	public static function color_suggestions( $colors, $role ) {
@@ -1589,8 +1774,8 @@ class Colors_Manager_Common {
 	 * Generate color suggestions by grabbing a popular palette and applying
 	 * it as a transformation to the colors we're using as a guide.
 	 *
-	 * @param array  $colors
-	 * @param string $role (bg|fg1|fg2|txt|link)
+	 * @param array  $colors color array.
+	 * @param string $role (bg|fg1|fg2|txt|link).
 	 * @return array
 	 */
 	public static function color_suggestions_from_palette( $colors, $role ) {
@@ -1599,7 +1784,7 @@ class Colors_Manager_Common {
 		$top_palette = self::get_color_palettes(
 			array(
 				'limit'  => 1,
-				'offset' => rand(
+				'offset' => wp_rand(
 					0,
 					100
 				),
@@ -1612,7 +1797,7 @@ class Colors_Manager_Common {
 		foreach ( $top_palette['colors'] as $palette_role => $palette_color_hex ) {
 			$base_color_hex = $colors[ $palette_role ];
 			try {
-				// $base_color:$new_color :: $palette_color:$equivalent_color
+				// phpcs:ignore -- $base_color:$new_color :: $palette_color:$equivalent_color
 				$base_color       = new Jetpack_Color( $base_color_hex );
 				$palette_color    = new Jetpack_Color( $palette_color_hex );
 				$equivalent_color = new Jetpack_Color( $equivalent_color_hex );
@@ -1631,7 +1816,7 @@ class Colors_Manager_Common {
 				$message .= "base: $base_color_hex\n";
 				$message .= "palette: $palette_color_hex\n";
 				$message .= "equiv: $equivalent_color_hex\n";
-				$message .= 'colors arg: ' . print_r( $colors, 1 );
+				$message .= 'colors arg: ' . print_r( $colors, 1 ); // phpcs:ignore
 				self::exception_mailer( $message );
 				continue;
 			}
@@ -1640,18 +1825,25 @@ class Colors_Manager_Common {
 		return $suggestions;
 	}
 
-	private static function exception_mailer( $message = 'Needs a message' ) {
+	// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	/**
+	 * Mail the exception.
+	 *
+	 * @param string $message the exception private.
+	 */
+	public static function exception_mailer( $message = 'Needs a message' ) {
 		$message .= "\n\nblog: " . home_url() . "\n";
-		$message .= 'backtrace: ' . wp_debug_backtrace_summary() . "\n";
-		// wp_mail( 'wiebe@automattic.com', 'Color Exception on WordPress.com', $message );
+		$message .= 'backtrace: ' . wp_debug_backtrace_summary() . "\n"; // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_wp_debug_backtrace_summary
+		// phpcs:ignore -- wp_mail( 'wiebe@automattic.com', 'Color Exception on WordPress.com', $message );
 	}
+	// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 	/**
 	 * Use a set of predefined transformations to generate color suggestions
 	 * based on roles.
 	 *
-	 * @param array  $colors
-	 * @param string $role (bg|fg1|fg2|txt|link)
+	 * @param array  $colors color array.
+	 * @param string $role (bg|fg1|fg2|txt|link).
 	 * @return array
 	 */
 	public static function color_suggestions_from_math( $colors, $role ) {
@@ -1683,7 +1875,7 @@ class Colors_Manager_Common {
 		);
 
 		foreach ( $colors as $known_role => $color_code ) {
-			if ( $known_role == $role ) {
+			if ( $known_role === $role ) {
 				continue;
 			}
 
@@ -1752,16 +1944,29 @@ class Colors_Manager_Common {
 	}
 }
 
-class Colors_Manager extends Colors_Manager_Common {
+/**
+ * Nothing to override
+ */
+class Colors_Manager extends Colors_Manager_Common {}
 
-	/* Nothing to override */
-
-}
-
+/**
+ * Adds a color rule.
+ *
+ * @param string      $category The color category. One of bg, txt, link, fg1, fg2.
+ * @param string      $default_color The default color for this category.
+ * @param array       $rules Array of rule arrays. $rule: array( selector, property, opacity );.
+ * @param bool|string $label Optional. A UI helper label for identifying what a particular color will change in the theme.
+ */
 function add_color_rule( $category, $default_color, $rules, $label = false ) {
 	Colors_Manager::add_color_rule( $category, $default_color, $rules, $label );
 }
 
+/**
+ * Adds color palette.
+ *
+ * @param array  $palette An array with 5 colors.
+ * @param string $title optional title string.
+ */
 function add_color_palette( $palette, $title = false ) {
 	return Colors_Manager::add_color_palette( $palette, $title );
 }
@@ -1788,30 +1993,48 @@ function wpcomsh_temporarily_maybe_track_colourlovers_pattern_usage() {
 	wp_cache_set( $cache_key, $bg, 'stats' );
 
 	if ( ! empty( $bg ) && str_contains( $bg, 'colourlovers' ) ) {
-		$event_properties = [
+		$event_properties = array(
 			'siteid'  => (int) Jetpack_Options::get_option( 'id' ),
 			'pattern' => pathinfo( $bg, PATHINFO_FILENAME ),
 			'theme'   => get_stylesheet(),
-		];
+		);
 		wpcomsh_record_tracks_event( 'wpcom_tmp_cl_pattern', $event_properties );
 	}
 }
 add_action( 'wp_footer', 'wpcomsh_temporarily_maybe_track_colourlovers_pattern_usage', 101 );
 
+/**
+ * Gutenberg color manager.
+ */
 class Colors_Manager_Gutenberg extends Colors_Manager_Common {
 
+	/**
+	 * Whether we're in Gutenberg.
+	 *
+	 * @var boolean
+	 */
 	protected static $is_gutenberg = true;
 
+	/**
+	 * Annotations file path.
+	 *
+	 * @var string
+	 */
 	protected static $annotations_file = 'wpcom-editor-colors.php';
-
 }
 
+/**
+ * Load Gutenberg's color manager.
+ */
 function colors_manager_gutenberg_load() {
 	if ( get_current_screen()->is_block_editor() ) {
 		Colors_Manager_Gutenberg::init(); // Gutenberg
 	}
 }
 
+/**
+ * Load corresponding color manager.
+ */
 function load_corresponding_color_manager() {
 	global $pagenow;
 	if ( is_admin() && 'customize.php' !== $pagenow && ! defined( 'DOING_AJAX' ) ) {

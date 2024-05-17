@@ -53,4 +53,5 @@ function wpcomsh_minimum_php_version_notice() {
 		wp_kses_post( $message )
 	);
 }
+// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
 // add_action( 'admin_notices', 'wpcomsh_minimum_php_version_notice' );

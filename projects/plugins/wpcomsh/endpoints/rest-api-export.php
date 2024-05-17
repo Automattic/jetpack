@@ -128,7 +128,7 @@ function wpcomsh_rest_api_export_permission_callback() {
  *
  * @return array
  */
-function wpcomsh_rest_api_export_options( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+function wpcomsh_rest_api_export_options( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis
 	$args = array();
 
 	// phpcs:disable WordPress.Security

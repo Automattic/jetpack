@@ -26,7 +26,8 @@ add_filter( 'cherry_core_base_url', 'wpcomsh_hotfix_cherry_core_base_url' );
  */
 function wpcomsh_woocommerce_download_file_xsendfile_x_accel_redirect_file_path( $xsendfile_path ) {
 	if ( 0 === strpos( $xsendfile_path, 'srv/htdocs/' ) ) {
-		$xsendfile_path = substr_replace( $xsendfile_path, '', 0, /* strlen( 'srv/htdocs/' ) */ 11 );
+		// 11 is the length of the string 'srv/htdocs/'.
+		$xsendfile_path = substr_replace( $xsendfile_path, '', 0, 11 );
 	}
 	return $xsendfile_path;
 }
