@@ -75,7 +75,7 @@ class Themes extends Module {
 		}
 
 		// Don't trigger sync action if this is an ajax request, because Customizer makes them during preview before saving changes.
-		// phpcs:disable WordPress.Security.NonceVerification.Missing -- We are using $_POST['customized'] to early return if this is an ajax request from Customizer.
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Not doing anything with or in response to the $_POST data. We're only using $_POST['customized'] to early return if this is an ajax request from Customizer.
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX && isset( $_POST['customized'] ) ) {
 			return $instance;
 		}
