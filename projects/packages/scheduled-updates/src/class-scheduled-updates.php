@@ -69,6 +69,7 @@ class Scheduled_Updates {
 		add_filter( 'plugin_auto_update_setting_html', array( Scheduled_Updates_Admin::class, 'show_scheduled_updates' ), 10, 2 );
 
 		add_action( 'jetpack_scheduled_update_created', array( __CLASS__, 'maybe_disable_autoupdates' ), 10, 3 );
+		add_action( 'jetpack_scheduled_update_created', array( __CLASS__, 'reload_cron_cache' ), 10, 3 );
 
 		add_action( 'jetpack_scheduled_update_updated', array( Scheduled_Updates_Logs::class, 'replace_logs_schedule_id' ), 10, 2 );
 
@@ -234,6 +235,17 @@ class Scheduled_Updates {
 	public static function clear_cron_cache() {
 		wp_cache_delete( 'cron', 'options' );
 		wp_load_alloptions( true );
+	}
+
+	/**
+	 * Reload the cron cache in jetpack_scheduled_update_created hook.
+	 */
+	public static function reload_cron_cache() {
+		$latest_cron = _get_cron_array();
+		$alloptions  = wp_load_alloptions( true );
+
+		$alloptions['cron'] = $latest_cron;
+		wp_cache_set( 'alloptions', $alloptions, 'options' );
 	}
 
 	/**
