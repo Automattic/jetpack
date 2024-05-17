@@ -93,9 +93,9 @@ class Jetpack_Signature {
 			// Convert the $_POST to the body, if the body was empty. This is how arrays are hashed
 			// and encoded on the Jetpack side.
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-				// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Used to generate a cryptographic signature of the post data.
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing
 				if ( empty( $body ) && is_array( $_POST ) && $_POST !== array() ) {
-					$body = $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- We need all of $_POST in order to generate a cryptographic signature of the post data.
+					$body = $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 				}
 			}
 		} elseif ( isset( $_SERVER['REQUEST_METHOD'] ) && 'PUT' === strtoupper( $_SERVER['REQUEST_METHOD'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
