@@ -1154,7 +1154,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 <!-- /wp:paragraph -->';
 		}
 	} else {
-		$access_question = get_paywall_access_question( $newsletter_access_level );
+		$access_question = $is_paid_post ? esc_html__( 'Already a paid subscriber?', 'jetpack' ) : esc_html__( 'Already a subscriber?', 'jetpack' );
 		$login_block     = '<!-- wp:group {"style":{"typography":{"fontSize":"14px"}},"layout":{"type":"flex","justifyContent":"center"}} -->
 <div class="wp-block-group" style="font-size:14px">
 	<!-- wp:jetpack/subscriber-login {"logInLabel":"' . $access_question . '"} /-->
@@ -1184,31 +1184,6 @@ function get_paywall_blocks( $newsletter_access_level ) {
 </div>
 <!-- /wp:group -->
 ';
-}
-
-/**
- * Returns Get Access question for the paywall
- *
- * @param string $post_access_level The newsletter access level.
- * @return string
- */
-function get_paywall_access_question( $post_access_level ) {
-	switch ( $post_access_level ) {
-		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS:
-		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS:
-			$tier = Jetpack_Memberships::get_post_tier();
-			if ( $tier !== null ) {
-				return sprintf(
-				// translators:  Placeholder is the tier name
-					__( 'Already a higher-tier paid subscriber?', 'jetpack' ),
-					esc_html( $tier->post_title )
-				);
-			} else {
-				return esc_html__( 'Already a paid subscriber?', 'jetpack' );
-			}
-		default:
-			return esc_html__( 'Already a subscriber?', 'jetpack' );
-	}
 }
 
 /**
