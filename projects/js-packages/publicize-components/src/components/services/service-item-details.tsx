@@ -23,19 +23,26 @@ export type ServicesItemDetailsProps = {
 export function ServiceItemDetails( { service, serviceConnections }: ServicesItemDetailsProps ) {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
-	const deletingConnections = useSelect( select => {
-		const { getDeletingConnections } = select( socialStore );
+	const { deletingConnections, updatingConnections } = useSelect( select => {
+		const { getDeletingConnections, getUpdatingConnections } = select( socialStore );
 
-		return getDeletingConnections();
+		return {
+			deletingConnections: getDeletingConnections(),
+			updatingConnections: getUpdatingConnections(),
+		};
 	}, [] );
 
 	if ( serviceConnections.length ) {
 		return (
 			<ul className={ styles[ 'service-connection-list' ] }>
 				{ serviceConnections.map( connection => {
+					const isUpdatingOrDeleting =
+						updatingConnections.includes( connection.connection_id ) ||
+						deletingConnections.includes( connection.connection_id );
+
 					return (
 						<li key={ connection.connection_id }>
-							<Disabled isDisabled={ deletingConnections.includes( connection.connection_id ) }>
+							<Disabled isDisabled={ isUpdatingOrDeleting }>
 								<ServiceConnectionInfo connection={ connection } service={ service } />
 							</Disabled>
 						</li>
