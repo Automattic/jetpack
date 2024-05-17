@@ -18,6 +18,10 @@ import {
 import { getModule } from 'state/modules';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 
+// Check for feature flag
+const urlParams = new URLSearchParams( window.location.search );
+const isWelcomeOverlayEnabled = urlParams.get( 'enable-welcome-overlay' ) === 'true';
+
 /**
  * Subscription settings component.
  *
@@ -160,25 +164,27 @@ function SubscriptionsSettings( props ) {
 							</>
 						}
 					/>
-					<ToggleControl
-						checked={ isSubscriptionsActive && isSubscribeOverlayEnabled }
-						disabled={ isDisabled }
-						toggling={ isSavingAnyOption( [ 'jetpack_subscribe_overlay_enabled' ] ) }
-						onChange={ handleSubscribeOverlayToggleChange }
-						label={
-							<>
-								{ __( 'Subscription overlay on homepage', 'jetpack' ) }
-								{ isBlockTheme && subscribeOverlayEditorUrl && (
-									<>
-										{ '. ' }
-										<ExternalLink href={ subscribeOverlayEditorUrl }>
-											{ __( 'Preview and edit', 'jetpack' ) }
-										</ExternalLink>
-									</>
-								) }
-							</>
-						}
-					/>
+					{ isWelcomeOverlayEnabled && (
+						<ToggleControl
+							checked={ isSubscriptionsActive && isSubscribeOverlayEnabled }
+							disabled={ isDisabled }
+							toggling={ isSavingAnyOption( [ 'jetpack_subscribe_overlay_enabled' ] ) }
+							onChange={ handleSubscribeOverlayToggleChange }
+							label={
+								<>
+									{ __( 'Subscription overlay on homepage', 'jetpack' ) }
+									{ isBlockTheme && subscribeOverlayEditorUrl && (
+										<>
+											{ '. ' }
+											<ExternalLink href={ subscribeOverlayEditorUrl }>
+												{ __( 'Preview and edit', 'jetpack' ) }
+											</ExternalLink>
+										</>
+									) }
+								</>
+							}
+						/>
+					) }
 					<ToggleControl
 						checked={ isSubscriptionsActive && isStbEnabled }
 						disabled={ isDisabled }
