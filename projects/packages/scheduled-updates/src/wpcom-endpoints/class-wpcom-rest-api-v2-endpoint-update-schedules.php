@@ -188,10 +188,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return $res;
 		}
 
-		$id     = Scheduled_Updates::generate_schedule_id( $plugins );
-		$events = wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK );
+		$id    = Scheduled_Updates::generate_schedule_id( $plugins );
+		$event = wp_get_scheduled_event( Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins, $schedule['timestamp'] );
 
-		if ( empty( $events[ $id ] ) ) {
+		if ( ! $event ) {
 			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be created.', 'jetpack-scheduled-updates' ), array( 'status' => 500 ) );
 		}
 
@@ -202,7 +202,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		 * @param object          $event   The event object.
 		 * @param WP_REST_Request $request The request object.
 		 */
-		do_action( 'jetpack_scheduled_update_created', $id, $events[ $id ], $request );
+		do_action( 'jetpack_scheduled_update_created', $id, $event, $request );
 
 		$event              = wp_get_scheduled_event( Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins, $schedule['timestamp'] );
 		$event->schedule_id = $id;
