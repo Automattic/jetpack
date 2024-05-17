@@ -163,19 +163,21 @@ class Manager {
 	 * @since 1.25.0 Deprecate $is_active param.
 	 * @since $$next-version$$ Deprecate $request_params param.
 	 *
-	 * @param array|null            $request_params incoming request parameters.
+	 * @param array|null            $deprecated Deprecated. Not used.
 	 * @param bool                  $has_connected_owner Whether the site has a connected owner.
 	 * @param bool                  $is_signed whether the signature check has been successful.
 	 * @param Jetpack_XMLRPC_Server $xmlrpc_server (optional) an instance of the server to use instead of instantiating a new one.
 	 */
 	public function setup_xmlrpc_handlers(
-		$request_params,
+		$deprecated,
 		$has_connected_owner,
 		$is_signed,
 		Jetpack_XMLRPC_Server $xmlrpc_server = null
 	) {
 		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ), 1000, 2 );
-
+		if ( $deprecated !== null ) {
+			_deprecated_argument( __METHOD__, '$$next-version$$' );
+		}
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- We are using the 'for' request param to early return unless it's 'jetpack'.
 		if ( ! isset( $_GET['for'] ) || 'jetpack' !== $_GET['for'] ) {
 			return false;
