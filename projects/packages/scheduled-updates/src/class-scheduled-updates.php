@@ -188,10 +188,12 @@ class Scheduled_Updates {
 	 * @return \WP_Error|bool True on success, WP_Error on failure.
 	 */
 	public static function delete_scheduled_update( $timestamp, $plugins ) {
-		// Be sure to clear the cron cache before removing a cron entry.
+		$ret = wp_unschedule_event( $timestamp, self::PLUGIN_CRON_HOOK, $plugins, true );
+
+		// Be sure to clear the cron cache after removing a cron entry.
 		self::clear_cron_cache();
 
-		return wp_unschedule_event( $timestamp, self::PLUGIN_CRON_HOOK, $plugins, true );
+		return $ret;
 	}
 
 	/**
@@ -231,6 +233,10 @@ class Scheduled_Updates {
 	 */
 	public static function clear_cron_cache() {
 		wp_cache_delete( 'alloptions', 'options' );
+
+		$alloptions = wp_load_alloptions( true );
+		unset( $alloptions['cron'] );
+		wp_cache_set( 'alloptions', $alloptions, 'options' );
 	}
 
 	/**
