@@ -2,7 +2,7 @@ import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Panel, PanelBody } from '@wordpress/components';
 import { useCallback, useReducer } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, chevronDown } from '@wordpress/icons';
+import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import { KeyringResult } from '../../social-store/types';
 import { ConnectForm } from './connect-form';
 import { ServiceItemDetails, ServicesItemDetailsProps } from './service-item-details';
@@ -76,7 +76,7 @@ export function ServiceItem( {
 						onClick={ togglePanel }
 						aria-label={ __( 'Learn more', 'jetpack' ) }
 					>
-						{ <Icon className={ styles.chevron } icon={ chevronDown } /> }
+						{ <Icon className={ styles.chevron } icon={ isPanelOpen ? chevronUp : chevronDown } /> }
 					</Button>
 				</div>
 			</div>
