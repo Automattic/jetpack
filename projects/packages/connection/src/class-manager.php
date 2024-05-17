@@ -111,6 +111,7 @@ class Manager {
 		);
 
 		$manager->setup_xmlrpc_handlers(
+			null,
 			$manager->has_connected_owner(),
 			$manager->verify_xml_rpc_signature()
 		);
@@ -160,13 +161,15 @@ class Manager {
 	 * Sets up the XMLRPC request handlers.
 	 *
 	 * @since 1.25.0 Deprecate $is_active param.
-	 * @since $$next-version$$ Remove $request_params param.
+	 * @since $$next-version$$ Deprecate $request_params param.
 	 *
+	 * @param array                 $request_params incoming request parameters.
 	 * @param bool                  $has_connected_owner Whether the site has a connected owner.
 	 * @param bool                  $is_signed whether the signature check has been successful.
 	 * @param Jetpack_XMLRPC_Server $xmlrpc_server (optional) an instance of the server to use instead of instantiating a new one.
 	 */
 	public function setup_xmlrpc_handlers(
+		$request_params = null,
 		$has_connected_owner,
 		$is_signed,
 		Jetpack_XMLRPC_Server $xmlrpc_server = null

@@ -777,7 +777,7 @@ EXPECTED;
 
 		$jetpack       = new MockJetpack();
 		$xmlrpc_server = new MockJetpack_XMLRPC_Server( $user );
-		return $jetpack::connection()->setup_xmlrpc_handlers( $has_connected_owner, $is_signed, $xmlrpc_server );
+		return $jetpack::connection()->setup_xmlrpc_handlers( null, $has_connected_owner, $is_signed, $xmlrpc_server );
 	}
 
 	/**
