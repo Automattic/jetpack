@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Changed the connections management feature flag check to include the WPCOM plan feature

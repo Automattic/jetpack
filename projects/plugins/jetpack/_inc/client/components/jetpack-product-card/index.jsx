@@ -15,8 +15,8 @@ const JetpackProductCard = props => {
 		icon,
 		title,
 		productSlug,
-		description,
-		features,
+		description = '',
+		features = [],
 		disclaimer,
 		currencyCode,
 		price,
@@ -25,7 +25,7 @@ const JetpackProductCard = props => {
 		callToAction,
 		checkoutText,
 		checkoutUrl,
-		priority,
+		priority = 'primary',
 		illustrationPath,
 	} = props;
 
@@ -148,13 +148,6 @@ JetpackProductCard.propTypes = {
 	callToAction: PropTypes.string,
 	priority: PropTypes.string,
 	illustrationPath: PropTypes.string,
-};
-
-JetpackProductCard.defaultProps = {
-	description: '',
-	features: [],
-	priority: 'primary',
-	showIllustration: '',
 };
 
 export default JetpackProductCard;

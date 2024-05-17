@@ -128,14 +128,12 @@ class Modules_Setup implements Has_Setup {
 		$status = new Status( $module_slug );
 		$status->on_update( $is_activated );
 
-		$feature        = $this->modules->get_feature_instance_by_slug( $module_slug );
-		$has_activate   = $feature && $feature instanceof Has_Activate;
-		$has_deactivate = $feature && $feature instanceof Has_Deactivate;
-		if ( $is_activated && $has_activate ) {
+		$feature = $this->modules->get_feature_instance_by_slug( $module_slug );
+		if ( $is_activated && $feature instanceof Has_Activate ) {
 			$feature::activate();
 		}
 
-		if ( ! $is_activated && $has_deactivate ) {
+		if ( ! $is_activated && $feature instanceof Has_Deactivate ) {
 			$feature::deactivate();
 		}
 

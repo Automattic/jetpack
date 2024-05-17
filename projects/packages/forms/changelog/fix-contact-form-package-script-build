@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: Ensuring non minified JS file location is also an option when loading the tiny-mce-plugin-form-button script file.

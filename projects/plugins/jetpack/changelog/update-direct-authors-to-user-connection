@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Add the userConnectionUrl to initial state to use in Social sidebar

@@ -12,6 +12,7 @@ class Page_Cache_Setup {
 
 	/**
 	 * Runs setup steps and returns whether setup was successful or not.
+	 *
 	 * @return bool|\WP_Error
 	 */
 	public static function run_setup() {
@@ -76,7 +77,7 @@ class Page_Cache_Setup {
 		}
 	}
 
-	/*
+	/**
 	 * Enable caching step of setup.
 	 *
 	 * @return Boost_Cache_Error|bool - True on success, false if it was already enabled, error otherwise.
@@ -242,14 +243,14 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 		return true;
 	}
 
-	/*
+	/**
 	 * Removes the boost-cache directory, removing all cached files and the config file.
 	 * Fired when the plugin is uninstalled.
 	 */
 	public static function uninstall() {
 		self::deactivate();
 
-		$result = Filesystem_Utils::delete_directory( WP_CONTENT_DIR . '/boost-cache', Filesystem_Utils::DELETE_ALL );
+		$result = Filesystem_Utils::walk_directory( WP_CONTENT_DIR . '/boost-cache', Filesystem_Utils::DELETE_ALL );
 		if ( $result instanceof Boost_Cache_Error ) {
 			return $result->to_wp_error();
 		}

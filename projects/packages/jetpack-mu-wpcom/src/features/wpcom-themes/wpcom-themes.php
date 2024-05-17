@@ -87,3 +87,16 @@ function wpcom_themes_remove_wpcom_actions() {
 	);
 }
 add_action( 'load-themes.php', 'wpcom_themes_remove_wpcom_actions' );
+
+/**
+ * Adds a CSS file to fix UI issues in the theme browser.
+ */
+function wpcom_themes_load_ui_fixes() {
+	wp_enqueue_style(
+		'wpcom-themes-ui-fixes',
+		plugins_url( 'css/ui-fixes.css', __FILE__ ),
+		array(),
+		Jetpack_Mu_Wpcom::PACKAGE_VERSION
+	);
+}
+add_action( 'load-themes.php', 'wpcom_themes_load_ui_fixes' );

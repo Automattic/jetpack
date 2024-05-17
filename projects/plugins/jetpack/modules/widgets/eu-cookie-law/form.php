@@ -7,7 +7,10 @@
 
 use Automattic\Jetpack\Redirect;
 
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Defined by the caller. Let Phan handle it.
+'@phan-var-force Jetpack_EU_Cookie_Law_Widget $this';
+'@phan-var-force array $instance';
+
 ?>
 <p>
 	<strong>

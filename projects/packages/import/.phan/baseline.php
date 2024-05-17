@@ -18,18 +18,16 @@ return [
     // PhanImpossibleTypeComparison : 1 occurrence
     // PhanRedundantArrayValuesCall : 1 occurrence
     // PhanTraitParentReference : 1 occurrence
-    // PhanUndeclaredClassMethod : 1 occurrence
     // PhanUndeclaredMethod : 1 occurrence
-    // PhanUndeclaredTypeReturnType : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/endpoints/class-attachment.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchReturn', 'PhanUndeclaredTypeReturnType'],
+        'src/endpoints/class-attachment.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchReturn'],
         'src/endpoints/class-category.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'src/endpoints/class-end.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchReturnProbablyReal'],
         'src/endpoints/class-global-style.php' => ['PhanTypeMismatchReturn'],
         'src/endpoints/class-menu.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'src/endpoints/class-post.php' => ['PhanAccessMethodInternal', 'PhanImpossibleTypeComparison', 'PhanRedundantArrayValuesCall', 'PhanUndeclaredClassMethod'],
+        'src/endpoints/class-post.php' => ['PhanAccessMethodInternal', 'PhanImpossibleTypeComparison', 'PhanRedundantArrayValuesCall'],
         'src/endpoints/class-start.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchReturnProbablyReal'],
         'src/endpoints/class-tag.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'src/endpoints/trait-import-id.php' => ['PhanTraitParentReference'],

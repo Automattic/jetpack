@@ -21,8 +21,8 @@ return [
     // PhanTypeSuspiciousStringExpression : 10+ occurrences
     // PhanUndeclaredFunctionInCallable : 10+ occurrences
     // PhanTypeMismatchArgument : 9 occurrences
-    // PhanUndeclaredFunction : 9 occurrences
     // PhanTypeInvalidDimOffset : 8 occurrences
+    // PhanUndeclaredFunction : 8 occurrences
     // PhanTypeArraySuspiciousNull : 7 occurrences
     // PhanTypeArraySuspiciousNullable : 7 occurrences
     // PhanUndeclaredVariableDim : 7 occurrences
@@ -60,7 +60,7 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'advanced-cache.php' => ['PhanPluginSimplifyExpressionBool'],
-        'inc/delete-cache-button.php' => ['PhanPluginNeverReturnFunction', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanUndeclaredFunction'],
+        'inc/delete-cache-button.php' => ['PhanPluginNeverReturnFunction', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal'],
         'ossdl-cdn.php' => ['PhanUndeclaredClassMethod'],
         'partials/advanced.php' => ['PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredGlobalVariable', 'PhanRedundantConditionInGlobalScope', 'PhanTypeMismatchArgument', 'PhanTypeNonVarPassByRef', 'PhanUndeclaredGlobalVariable'],
         'partials/debug.php' => ['PhanTypeNonVarPassByRef', 'PhanUndeclaredGlobalVariable'],

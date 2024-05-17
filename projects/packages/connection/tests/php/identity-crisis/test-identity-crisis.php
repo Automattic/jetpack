@@ -564,7 +564,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 	/**
 	 * Data provider for test_check_response_for_idc_with_error_code
 	 *
-	 * @return array The test data with the structure:
+	 * @return array[] The test data with the structure:
 	 *    'input'           => The input for the check_response_for_idc method.
 	 *     'option_updated' => Whether the check_response_for_idc method should update
 	 *                         the sync_error_idc option.
@@ -668,7 +668,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 	/**
 	 * Data provider for test_check_http_response_for_idc_detected_idc_detected.
 	 *
-	 * @return array The test data with the structure:
+	 * @return array[] The test data with the structure:
 	 *    'input'           => The input for the check_response_for_idc method.
 	 *     'option_updated' => Whether the check_response_for_idc method should update
 	 *                         the sync_error_idc option.

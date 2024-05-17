@@ -34,7 +34,7 @@
 		"@babel/core": "7.24.0",
 		"@babel/preset-env": "7.24.0",
 		"@babel/runtime": "7.24.0",
-		"@wordpress/browserslist-config": "5.38.0",
+		"@wordpress/browserslist-config": "5.40.0",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
 		"sass": "1.64.1",

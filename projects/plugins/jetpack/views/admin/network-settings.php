@@ -5,6 +5,9 @@
  * @package automattic/jetpack
  */
 
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Defined by the caller. Let Phan handle it.
+'@phan-var-force array $data'; // From Jetpack::load_view().
+
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 
 if ( isset( $_GET['updated'] ) && 'true' === $_GET['updated'] ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -28,7 +31,7 @@ if ( isset( $_GET['error'] ) && 'jetpack_protect_whitelist' === $_GET['error'] )
 			<tr valign="top">
 				<th scope="row"><label for="sub-site-override"><?php esc_html_e( 'Sub-site override', 'jetpack' ); ?></label></th>
 				<td>
-					<input type="checkbox" name="sub-site-connection-override" id="sub-site-override" value="1" <?php checked( $data['options']['sub-site-connection-override'] ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable ?> />
+					<input type="checkbox" name="sub-site-connection-override" id="sub-site-override" value="1" <?php checked( $data['options']['sub-site-connection-override'] ); ?> />
 					<label for="sub-site-override"><?php esc_html_e( 'Allow individual site administrators to manage their own connections (connect and disconnect) to WordPress.com', 'jetpack' ); ?></label>
 				</td>
 			</tr>
@@ -51,7 +54,7 @@ if ( isset( $_GET['error'] ) && 'jetpack_protect_whitelist' === $_GET['error'] )
 					<?php
 					echo '<textarea name="global-allow-list" style="width: 100%;" rows="8">'; // echo to avoid tabs displayed in textarea. See https://github.com/Automattic/jetpack/pull/21151/files#r713922521.
 
-					foreach ( $data['jetpack_protect_whitelist']['global'] as $ip ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+					foreach ( $data['jetpack_protect_whitelist']['global'] as $ip ) {
 						echo esc_html( $ip ) . "\n";
 					}
 					?>

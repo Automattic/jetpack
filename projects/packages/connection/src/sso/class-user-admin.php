@@ -112,12 +112,18 @@ class User_Admin {
 				$event    = 'sso_user_invite_revoked';
 
 				if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+					$body                = json_decode( wp_remote_retrieve_body( $response ) );
+					$tracking_event_data = array(
+						'success'    => 'false',
+						'error_code' => 'invalid-revoke-api-error',
+					);
+
+					if ( ! empty( $body ) && ! empty( $body->message ) ) {
+						$tracking_event_data['error_message'] = $body->message;
+					}
 					self::$tracking->record_user_event(
 						$event,
-						array(
-							'success'       => 'false',
-							'error_message' => 'invalid-revoke-api-error',
-						)
+						$tracking_event_data
 					);
 					return $response;
 				}
@@ -151,16 +157,13 @@ class User_Admin {
 
 	/**
 	 * Renders invitations errors/success messages in users.php.
-	 *
-	 * @phan-suppress PhanUndeclaredFunction,UnusedSuppression -- Existence of wp_admin_notice (added in WP 6.4) is checked inline.
-	 * @todo Remove suppression and function_exists check when we drop support for WP 6.3.
 	 */
 	public function handle_invitation_results() {
 		$valid_nonce = isset( $_GET['_wpnonce'] )
 			? wp_verify_nonce( sanitize_key( $_GET['_wpnonce'] ), 'jetpack-sso-invite-user' )
 			: false;
 
-		if ( ! $valid_nonce || ! isset( $_GET['jetpack-sso-invite-user'] ) || ! function_exists( 'wp_admin_notice' ) ) {
+		if ( ! $valid_nonce || ! isset( $_GET['jetpack-sso-invite-user'] ) ) {
 			return;
 		}
 		if ( $_GET['jetpack-sso-invite-user'] === 'success' ) {
@@ -172,6 +175,10 @@ class User_Admin {
 
 		if ( $_GET['jetpack-sso-invite-user'] === 'successful-revoke' ) {
 			return wp_admin_notice( __( 'User invite revoked successfully.', 'jetpack-connection' ), array( 'type' => 'success' ) );
+		}
+
+		if ( $_GET['jetpack-sso-invite-user'] === 'failed' && isset( $_GET['jetpack-sso-api-error-message'] ) ) {
+			return wp_admin_notice( wp_kses( wp_unslash( $_GET['jetpack-sso-api-error-message'] ), array() ), array( 'type' => 'error' ) );
 		}
 
 		if ( $_GET['jetpack-sso-invite-user'] === 'failed' && isset( $_GET['jetpack-sso-invite-error'] ) ) {
@@ -264,19 +271,27 @@ class User_Admin {
 			);
 
 			if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-				$error        = 'invalid-invite-api-error';
+				$error_code   = 'invalid-invite-api-error';
 				$query_params = array(
 					'jetpack-sso-invite-user'  => 'failed',
-					'jetpack-sso-invite-error' => $error,
+					'jetpack-sso-invite-error' => $error_code,
 					'_wpnonce'                 => $nonce,
 				);
 
+				$tracking_event_data = array(
+					'success'    => 'false',
+					'error_code' => $error_code,
+				);
+
+				$body = json_decode( wp_remote_retrieve_body( $response ) );
+				if ( ! empty( $body ) && ! empty( $body->message ) ) {
+					$query_params['jetpack-sso-api-error-message'] = $body->message;
+					$tracking_event_data['error_message']          = $body->message;
+				}
+
 				self::$tracking->record_user_event(
 					$event,
-					array(
-						'success'       => 'false',
-						'error_message' => $error,
-					)
+					$tracking_event_data
 				);
 				return self::create_error_notice_and_redirect( $query_params );
 			}
@@ -413,12 +428,21 @@ class User_Admin {
 					'jetpack-sso-invite-error' => $error, // general error message
 					'_wpnonce'                 => $nonce,
 				);
+
+				$tracking_event_data = array(
+					'success'    => 'false',
+					'error_code' => $error,
+				);
+
+				$body = json_decode( wp_remote_retrieve_body( $response ) );
+				if ( ! empty( $body ) && ! empty( $body->message ) ) {
+					$query_params['jetpack-sso-api-error-message'] = $body->message;
+					$tracking_event_data['error_message']          = $body->message;
+				}
+
 				self::$tracking->record_user_event(
 					$event,
-					array(
-						'success'       => 'false',
-						'error_message' => $error,
-					)
+					$tracking_event_data
 				);
 				return self::create_error_notice_and_redirect( $query_params );
 			}
@@ -610,10 +634,6 @@ class User_Admin {
 	 * Render the invitation email message.
 	 */
 	public function render_invitation_email_message() {
-		// @todo Remove function_exists check (and phan suppression below) when we drop support for WP 6.3.
-		if ( ! function_exists( 'wp_admin_notice' ) ) {
-			return;
-		}
 		$message = wp_kses(
 			__(
 				'We highly recommend inviting users to join WordPress.com and log in securely using <a class="jetpack-sso-admin-create-user-invite-message-link-sso" rel="noopener noreferrer" target="_blank" href="https://jetpack.com/support/sso/">Secure Sign On</a> to ensure maximum security and efficiency.',
@@ -628,7 +648,6 @@ class User_Admin {
 				),
 			)
 		);
-		// @phan-suppress-next-line PhanUndeclaredFunction -- Existence of wp_admin_notice (added in WP 6.4) is checked above. @phan-suppress-current-line UnusedPluginSuppression
 		wp_admin_notice(
 			$message,
 			array(
@@ -644,10 +663,6 @@ class User_Admin {
 	 * Render a note that wp.com invites will be automatically revoked.
 	 */
 	public function render_invitations_notices_for_deleted_users() {
-		// @todo Remove function_exists check (and phan suppression below) when we drop support for WP 6.3.
-		if ( ! function_exists( 'wp_admin_notice' ) ) {
-			return;
-		}
 		check_admin_referer( 'bulk-users' );
 
 		// When one user is deleted, the param is `user`, when multiple users are deleted, the param is `users`.
@@ -686,7 +701,6 @@ class User_Admin {
 				),
 				array( 'strong' => true )
 			);
-			// @phan-suppress-next-line PhanUndeclaredFunction -- Existence of wp_admin_notice (added in WP 6.4) is checked above. @phan-suppress-current-line UnusedPluginSuppression
 			wp_admin_notice(
 				$message,
 				array(
@@ -821,7 +835,7 @@ class User_Admin {
 	 * @return boolean Indicating if the core invitation main should be sent.
 	 */
 	public function should_send_wp_mail_new_user( $send_wp_email ) {
-		if ( ! isset( $_POST['invite_user_wpcom'] ) && isset( $_POST['send_user_notification'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( ! isset( $_POST['invite_user_wpcom'] ) && isset( $_POST['send_user_notification'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Hooked to 'wp_send_new_user_notification_to_user' to conditionally disable the core invitation email. At this point nonces should be checked already.
 			return $send_wp_email;
 		}
 		return false;
@@ -975,9 +989,17 @@ class User_Admin {
 			)
 		);
 
+		$tooltip_string = esc_attr__( 'Jetpack SSO allows a seamless and secure experience on WordPress.com. Join millions of WordPress users who trust us to keep their accounts safe.', 'jetpack-connection' );
+
+		wp_add_inline_script(
+			'jetpack-sso-users',
+			"var Jetpack_SSOTooltip = { 'tooltipString': '{$tooltip_string}' }",
+			'before'
+		);
+
 		$columns['user_jetpack'] = sprintf(
-			'<span class="jetpack-sso-invitation-tooltip-icon" role="tooltip" aria-label="%3$s: %1$s" tabindex="0">%2$s [?]<span class="jetpack-sso-invitation-tooltip jetpack-sso-th-tooltip">%1$s</span></span>',
-			esc_attr__( 'Jetpack SSO allows a seamless and secure experience on WordPress.com. Join millions of WordPress users who trust us to keep their accounts safe.', 'jetpack-connection' ),
+			'<span class="jetpack-sso-invitation-tooltip-icon jetpack-sso-status-column" role="tooltip" aria-label="%3$s: %1$s" tabindex="0">%2$s</span>',
+			$tooltip_string,
 			esc_html__( 'SSO Status', 'jetpack-connection' ),
 			esc_attr__( 'Tooltip', 'jetpack-connection' )
 		);
@@ -1178,8 +1200,11 @@ class User_Admin {
 				$nonce           = wp_create_nonce( 'jetpack-sso-invite-user' );
 				$connection_html = sprintf(
 				// Using formmethod and formaction because we can't nest forms and have to submit using the main form.
-					'<a href="%1$s" class="jetpack-sso-invitation sso-disconnected-user">%2$s</a><span tabindex="0" role="tooltip" aria-label="%4$s: %3$s" class="sso-disconnected-user-icon dashicons dashicons-warning jetpack-sso-invitation-tooltip-icon">
-						<span class="jetpack-sso-invitation-tooltip jetpack-sso-td-tooltip" tabindex="0">%3$s</span>
+					'<span tabindex="0" role="tooltip" aria-label="%4$s: %3$s" class="jetpack-sso-invitation-tooltip-icon sso-disconnected-user">
+						<a href="%1$s" class="jetpack-sso-invitation sso-disconnected-user">%2$s</a>
+						<span class="sso-disconnected-user-icon dashicons dashicons-warning">
+							<span class="jetpack-sso-invitation-tooltip jetpack-sso-td-tooltip" tabindex="0">%3$s</span>
+						</span>
 					</span>',
 					add_query_arg(
 						array(

@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Add in_site_migration_flow to the list of available site options to update and retrieve. This will be used as part of the Site Migration on-boarding flow.

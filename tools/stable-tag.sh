@@ -84,6 +84,9 @@ JSON=$(curl -s "https://api.wordpress.org/plugins/info/1.0/$WPSLUG.json")
 if ! jq -e '.' <<<"$JSON" &>/dev/null; then
 	die "Failed to retrieve JSON data from https://api.wordpress.org/plugins/info/1.0/$WPSLUG.json"
 fi
+if jq -e '.error' <<<"$JSON" &>/dev/null; then
+	die "WordPress.org plugin API returned an error when querying $WPSLUG: $( jq -r '.error' <<<"$JSON" )"
+fi
 
 # Current stable version
 CURRENT_STABLE_VERSION=$(jq -r .version <<<"$JSON")
