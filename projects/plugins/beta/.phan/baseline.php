@@ -21,8 +21,6 @@ return [
     // PhanTypeInvalidExpressionArrayDestructuring : 1 occurrence
     // PhanTypeMismatchArgumentInternal : 1 occurrence
     // PhanTypeMismatchArgumentNullable : 1 occurrence
-    // PhanUndeclaredClassMethod : 1 occurrence
-    // PhanUndeclaredClassReference : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
@@ -33,7 +31,7 @@ return [
         'src/admin/plugin-select.template.php' => ['PhanTypeMismatchArgumentNullable'],
         'src/admin/show-needed-updates.template.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable'],
         'src/class-autoupdateself.php' => ['PhanStaticPropIsStaticType', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/class-hooks.php' => ['PhanPossiblyNullTypeMismatchProperty', 'PhanStaticPropIsStaticType', 'PhanTypeInvalidExpressionArrayDestructuring', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference'],
+        'src/class-hooks.php' => ['PhanPossiblyNullTypeMismatchProperty', 'PhanStaticPropIsStaticType', 'PhanTypeInvalidExpressionArrayDestructuring', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal'],
         'src/class-plugin.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

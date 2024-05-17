@@ -9,15 +9,11 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredConstant : 6 occurrences
     // PhanTypeMismatchArgumentInternal : 4 occurrences
-    // PhanUndeclaredFunction : 4 occurrences
     // PhanTypeMismatchArgumentNullableInternal : 3 occurrences
-    // PhanUndeclaredClassMethod : 3 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 2 occurrences
     // PhanPluginSimplifyExpressionBool : 2 occurrences
     // PhanRedefineFunction : 2 occurrences
-    // PhanUndeclaredClassInCallable : 2 occurrences
     // PhanDeprecatedFunction : 1 occurrence
     // PhanParamTooMany : 1 occurrence
     // PhanPluginRedundantAssignment : 1 occurrence
@@ -27,13 +23,14 @@ return [
     // PhanTypeMismatchArgumentNullable : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanTypeMismatchReturnProbablyReal : 1 occurrence
+    // PhanUndeclaredFunction : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-cookiestate.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginRedundantAssignment', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullableInternal'],
-        'src/class-errors.php' => ['PhanTypeMismatchArgumentInternal', 'PhanUndeclaredClassInCallable'],
+        'src/class-errors.php' => ['PhanTypeMismatchArgumentInternal'],
         'src/class-host.php' => ['PhanTypeMismatchArgumentNullable'],
-        'src/class-modules.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction'],
+        'src/class-modules.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'src/class-status.php' => ['PhanRedundantCondition', 'PhanUndeclaredFunction'],
         'tests/php/bootstrap.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturnProbablyReal'],
         'tests/php/test-host.php' => ['PhanParamTooMany'],
