@@ -24,11 +24,18 @@ body.jetpack-subscribe-overlay-open {
 	visibility: hidden;
 	overflow: hidden;
 	top: 100%;
-	margin: 15% auto;
+	/*margin: 15% auto;*/
 	width: 100%;
-	max-width: 400px;
+	/*max-width: 400px;*/
 	transition: top 0.4s, visibility 0.4s;
 	text-wrap: pretty;
+}
+
+/* These should be coming from the editor :-( */
+.jetpack-subscribe-overlay__content .wp-block-group.is-layout-flex {
+	align-items: center;
+	flex-direction: column;
+	justify-content: center;
 }
 
 .jetpack-subscribe-overlay__close {
