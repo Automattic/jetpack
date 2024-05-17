@@ -40,6 +40,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		add_action(
 			'admin_menu',
 			function () {
+				// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- This is temp, pending pf4qpu-nc-p2
 				remove_action( 'admin_menu', 'gutenberg_menu', 9 );
 			},
 			0
@@ -257,6 +258,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$badge .= '<span class="site__badge site__badge-staging">' . esc_html__( 'Staging', 'jetpack-masterbar' ) . '</span>';
 		}
 
+		// @phan-suppress-next-line PhanUndeclaredFunction -- This is temp, pending pf4qpu-nc-p2
 		if ( ( function_exists( 'site_is_private' ) && site_is_private() ) || $is_coming_soon ) {
 			$badge .= sprintf(
 				'<span class="site__badge site__badge-private">%s</span>',
