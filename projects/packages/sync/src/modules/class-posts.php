@@ -621,7 +621,7 @@ class Posts extends Module {
 	 * @return boolean Whether this is a Gutenberg meta box update.
 	 */
 	private function is_gutenberg_meta_box_update() {
-		// phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended -- We are using $_POST['action'] to detect if this is a Gutenberg meta box update.
+		// phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended -- We are using $_POST['action'] to detect if this is a Gutenberg meta box update and set a flag before sending the corresponding action to WPCOM.
 		return (
 			isset( $_POST['action'], $_GET['classic-editor'], $_GET['meta_box'] ) &&
 			'editpost' === $_POST['action'] &&
