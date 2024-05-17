@@ -241,11 +241,7 @@ class Scheduled_Updates {
 	 * Reload the cron cache in jetpack_scheduled_update_created hook.
 	 */
 	public static function reload_cron_cache() {
-		$latest_cron = _get_cron_array();
-		$alloptions  = wp_load_alloptions( true );
-
-		$alloptions['cron'] = $latest_cron;
-		wp_cache_set( 'alloptions', $alloptions, 'options' );
+		wp_cache_delete( 'alloptions', 'options' );
 	}
 
 	/**
