@@ -10606,6 +10606,11 @@ packages:
       simple-html-tokenizer: 0.5.11
       uuid: 9.0.1
 
+  /@wordpress/browserslist-config@5.39.0:
+    resolution: {integrity: sha512-oy5CRWS3WsaFN/KAgOUIE6mmyuFu5qmKZZhQ+voCN+ifXTsj1J6ypR3RyY03Cbojy6kidyVYl3qRyMxbbUwWSQ==}
+    engines: {node: '>=14'}
+    dev: true
+
   /@wordpress/browserslist-config@5.40.0:
     resolution: {integrity: sha512-DkTk/B5Qf32ZQ8HfWZWqC85w8VEv/YoAc+BZyXty/FIFJ5QCy6ddIwuysJtCRghyLPjTI+BOSaRo8poiQvyYfg==}
     engines: {node: '>=14'}
@@ -10952,6 +10957,16 @@ packages:
       '@wordpress/deprecated': 3.57.0
       moment: 2.29.4
       moment-timezone: 0.5.45
+
+  /@wordpress/dependency-extraction-webpack-plugin@5.7.0(webpack@5.76.0):
+    resolution: {integrity: sha512-s/xUnAEKwXmSUZLqrvX4n3tBWegxaiQfXJwd264MRJUmz4JibWJnvevkxM6tooEetu36xGiVHAIPvfvEEEtntQ==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      webpack: ^5.0.0
+    dependencies:
+      json2php: 0.0.7
+      webpack: 5.76.0(webpack-cli@4.9.1)
+    dev: true
 
   /@wordpress/dependency-extraction-webpack-plugin@5.8.0(webpack@5.76.0):
     resolution: {integrity: sha512-DdFjCrBkV0maEh1REY8QFtg6rfgGz+qXw8qJ0HxfH+Uees16oCModxBmbgCTC2w3IkMyHP3kEpvRJHHmYRRmWg==}
