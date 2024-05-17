@@ -111,7 +111,7 @@ class Manager {
 		);
 
 		$manager->setup_xmlrpc_handlers(
-			null,
+			$_GET, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$manager->has_connected_owner(),
 			$manager->verify_xml_rpc_signature()
 		);
@@ -161,31 +161,32 @@ class Manager {
 	 * Sets up the XMLRPC request handlers.
 	 *
 	 * @since 1.25.0 Deprecate $is_active param.
-	 * @since $$next-version$$ Deprecate $request_params param.
 	 *
-	 * @param array|null            $deprecated Deprecated. Not used.
+	 * @param array                 $request_params incoming request parameters.
 	 * @param bool                  $has_connected_owner Whether the site has a connected owner.
 	 * @param bool                  $is_signed whether the signature check has been successful.
 	 * @param Jetpack_XMLRPC_Server $xmlrpc_server (optional) an instance of the server to use instead of instantiating a new one.
 	 */
 	public function setup_xmlrpc_handlers(
-		$deprecated,
+		$request_params,
 		$has_connected_owner,
 		$is_signed,
 		Jetpack_XMLRPC_Server $xmlrpc_server = null
 	) {
 		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ), 1000, 2 );
-		if ( $deprecated !== null ) {
-			_deprecated_argument( __METHOD__, '$$next-version$$' );
-		}
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- We are using the 'for' request param to early return unless it's 'jetpack'.
-		if ( ! isset( $_GET['for'] ) || 'jetpack' !== $_GET['for'] ) {
+
+		if (
+			! isset( $request_params['for'] )
+			|| 'jetpack' !== $request_params['for']
+		) {
 			return false;
 		}
 
 		// Alternate XML-RPC, via ?for=jetpack&jetpack=comms.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This just determines whether to handle the request as an XML-RPC request. The actual XML-RPC endpoints do the appropriate nonce checking where applicable. Plus we make sure to clear all cookies via require_jetpack_authentication called later in method.
-		if ( isset( $_GET['jetpack'] ) && 'comms' === $_GET['jetpack'] ) {
+		if (
+			isset( $request_params['jetpack'] )
+			&& 'comms' === $request_params['jetpack']
+		) {
 			if ( ! Constants::is_defined( 'XMLRPC_REQUEST' ) ) {
 				// Use the real constant here for WordPress' sake.
 				define( 'XMLRPC_REQUEST', true );
@@ -454,9 +455,9 @@ class Manager {
 		}
 
 		$jetpack_signature = new \Jetpack_Signature( $token->secret, (int) \Jetpack_Options::get_option( 'time_diff' ) );
-		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Used to verify a cryptographic signature of the post data.
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
 		if ( isset( $_POST['_jetpack_is_multipart'] ) ) {
-			$post_data   = $_POST; // We need all of $_POST in order to verify a cryptographic signature of the post data.
+			$post_data   = $_POST;
 			$file_hashes = array();
 			foreach ( $post_data as $post_data_key => $post_data_value ) {
 				if ( ! str_starts_with( $post_data_key, '_jetpack_file_hmac_' ) ) {
