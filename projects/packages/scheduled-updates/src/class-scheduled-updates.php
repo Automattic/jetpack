@@ -234,8 +234,8 @@ class Scheduled_Updates {
 	 * Clear the cron cache.
 	 */
 	public static function clear_cron_cache() {
-		wp_cache_delete( 'cron', 'options' );
-		wp_load_alloptions( true );
+		wp_cache_delete( 'alloptions', 'options' );
+		wp_cache_delete( 'notoptions', 'options' );
 	}
 
 	/**
@@ -244,8 +244,7 @@ class Scheduled_Updates {
 	public static function clear_cron_cache_pre() {
 		// If the transient is set, it means that the cron cache must be refreshed.
 		if ( get_transient( 'jetpack_scheduled_update_created_lock' ) ) {
-			wp_cache_delete( 'alloptions', 'options' );
-			wp_cache_delete( 'notoptions', 'options' );
+			self::clear_cron_cache();
 		}
 	}
 
