@@ -457,7 +457,7 @@ abstract class Product {
 				$status = 'can_upgrade';
 			}
 			// Check specifically for inactive modules, which will prevent a product from being active
-		} elseif ( static::$module_name && ! static::is_module_active() ) {
+		} elseif ( property_exists( static::class, 'module_name' ) && static::$module_name && ! static::is_module_active() ) {
 			$status = 'module_inactive';
 			// If there is not a plan associated with the disabled module, encourage a plan first
 			// Getting a plan set up should help resolve any connection issues
