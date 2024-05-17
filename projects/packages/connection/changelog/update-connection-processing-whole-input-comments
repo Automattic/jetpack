@@ -1,0 +1,4 @@
+Significance: patch
+Type: deprecated
+
+Jetpack Connection Manager: Deprecate `request_params` arg in setup_xmlrpc_handlers method
