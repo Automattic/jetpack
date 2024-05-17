@@ -17,7 +17,8 @@ use WP_REST_Server;
 /**
  * This class will handle Identity Crisis Endpoints
  *
- * @since 0.2.0
+ * @since automattic/jetpack-identity-crisis:0.2.0
+ * @since $$next-version$$
  */
 class REST_Endpoints {
 

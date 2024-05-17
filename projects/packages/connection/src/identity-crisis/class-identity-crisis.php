@@ -18,6 +18,8 @@ use WP_Error;
 /**
  * This class will handle everything involved with fixing an Identity Crisis.
  *
+ * @since automattic/jetpack-identity-crisis:0.2.0
+ * @since-jetpack 4.4.0
  * @since $$next-version$$
  */
 class Identity_Crisis {
