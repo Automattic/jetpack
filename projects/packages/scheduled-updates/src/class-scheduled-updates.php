@@ -174,12 +174,12 @@ class Scheduled_Updates {
 	 * @return \WP_Error|true True on success, WP_Error on failure.
 	 */
 	public static function create_scheduled_update( $timestamp, $interval, $plugins ) {
-		$res = wp_schedule_event( $timestamp, $interval, self::PLUGIN_CRON_HOOK, $plugins, true );
+		$event = wp_schedule_event( $timestamp, $interval, self::PLUGIN_CRON_HOOK, $plugins, true );
 
 		// Be sure to clear the cron cache after adding a cron entry.
 		self::clear_cron_cache();
 
-		return $res;
+		return $event;
 	}
 
 	/**
