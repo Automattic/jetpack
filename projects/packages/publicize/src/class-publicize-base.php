@@ -1995,6 +1995,15 @@ abstract class Publicize_Base {
 	}
 
 	/**
+	 * Check if the new connections management is enabled is enabled.
+	 *
+	 * @return bool
+	 */
+	public function has_connections_management_feature() {
+		return Current_Plan::supports( 'social-connections-management' );
+	}
+
+	/**
 	 * Get a list of additional connections that are supported by the current plan.
 	 *
 	 * @return array
