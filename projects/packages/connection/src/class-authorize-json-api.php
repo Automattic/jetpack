@@ -41,7 +41,6 @@ class Authorize_Json_Api {
 	 */
 	public function verify_json_api_authorization_request( $environment = null ) {
 		if ( null === $environment ) {
-			$environment                    = array();
 			$request_params_needed_for_auth = array(
 				'data',
 				'jetpack_json_api_original_query',
@@ -50,9 +49,7 @@ class Authorize_Json_Api {
 				'timestamp',
 				'token',
 			);
-			foreach ( $request_params_needed_for_auth as $param ) {
-				$environment[ $param ] = $_REQUEST[ $param ] ?? null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- nonce verification handled later in function and request data are 1) used to verify a cryptographic signature of the request data and 2) sanitized later in function.
-			}
+			$environment                    = array_intersect_key( $request_params_needed_for_auth, $_REQUEST ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- nonce verification handled later in function and request data are 1) used to verify a cryptographic signature of the request data and 2) sanitized later in function.
 		}
 
 		if ( ! isset( $environment['token'] ) ) {
