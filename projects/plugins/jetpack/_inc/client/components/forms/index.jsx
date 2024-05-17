@@ -74,8 +74,10 @@ export class FormTextInput extends React.Component {
 		type: 'text',
 	};
 
+	textFieldRef = React.createRef();
+
 	focus = () => {
-		this.refs.textField.focus();
+		this.textFieldRef.current.focus();
 	};
 
 	render() {
@@ -97,7 +99,7 @@ export class FormTextInput extends React.Component {
 		return (
 			<input
 				{ ...filteredProps }
-				ref="textField"
+				ref={ this.textFieldRef }
 				className={ classes }
 				onClick={ selectOnFocus ? this.selectOnFocus : null }
 			/>

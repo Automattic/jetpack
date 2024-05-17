@@ -394,7 +394,7 @@ class Sender {
 		 *
 		 * @see \Automattic\Jetpack\Sync\Dedicated_Sender::can_spawn_dedicated_sync_request
 		 */
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- This is just a constant string used for Validation.
 		echo Dedicated_Sender::DEDICATED_SYNC_VALIDATION_STRING;
 
 		// Try to disconnect the request as quickly as possible and process things in the background.

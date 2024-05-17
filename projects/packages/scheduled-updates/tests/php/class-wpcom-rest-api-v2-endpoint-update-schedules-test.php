@@ -56,7 +56,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 			)
 		);
 		wp_set_current_user( 0 );
-		add_filter( 'jetpack_scheduled_update_verify_plugins', '__return_true', 11 );
 
 		Scheduled_Updates::init();
 
@@ -77,7 +76,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		wp_clear_scheduled_hook( Scheduled_Updates::PLUGIN_CRON_HOOK );
 		delete_option( 'jetpack_scheduled_update_statuses' );
 		delete_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
-		remove_filter( 'jetpack_scheduled_update_verify_plugins', '__return_true', 11 );
 
 		self::$sync_counter = 0;
 		remove_action( 'add_option', array( __CLASS__, 'sync_callback' ) );
@@ -297,6 +295,22 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 403, $result->get_status() );
 		$this->assertSame( 'rest_forbidden', $result->get_data()['code'] );
 		$this->assertSame( 1, self::$sync_counter );
+	}
+
+	/**
+	 * Can't submit a schedule without plugins parameter.
+	 *
+	 * @covers ::register_routes
+	 */
+	public function test_creating_schedule_without_plugins_parameter() {
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$request->set_body_params( array( 'schedule' => $this->get_schedule() ) );
+
+		wp_set_current_user( $this->admin_id );
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 400, $result->get_status() );
+		$this->assertSame( 'rest_missing_callback_param', $result->get_data()['code'] );
 	}
 
 	/**
@@ -606,7 +620,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . Scheduled_Updates::generate_schedule_id( array() ) );
 		$request->set_body_params(
 			array(
-				'plugins'  => array(),
+				'plugins'  => array( 'gutenberg/gutenberg.php' ),
 				'schedule' => $this->get_schedule( 'next Tuesday 9:00', 'daily' ),
 			)
 		);

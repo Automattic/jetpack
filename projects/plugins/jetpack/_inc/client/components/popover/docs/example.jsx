@@ -9,6 +9,11 @@ import React from 'react';
 class Popovers extends React.PureComponent {
 	static displayName = 'Popovers';
 
+	popoverButtonRef = React.createRef();
+	popoverMenuButtonRef = React.createRef();
+	popoverRubicRef = React.createRef();
+	targetRefs = {};
+
 	state = {
 		popoverPosition: 'bottom left',
 
@@ -64,7 +69,7 @@ class Popovers extends React.PureComponent {
 	movePopovertoRandomTarget = event => {
 		event.preventDefault();
 		const random = parseInt( Math.random() * 1 * 256 );
-		const ref = this.refs && this.refs[ `target-${ random }` ];
+		const ref = this.targetRefs[ `target-${ random }` ].current;
 		if ( ! ref ) {
 			return null;
 		}
@@ -78,7 +83,11 @@ class Popovers extends React.PureComponent {
 	renderPopover() {
 		return (
 			<div>
-				<button className="button" ref="popoverButton" onClick={ this.swapPopoverVisibility }>
+				<button
+					className="button"
+					ref={ this.popoverButtonRef }
+					onClick={ this.swapPopoverVisibility }
+				>
 					Show Popover
 				</button>
 
@@ -87,7 +96,7 @@ class Popovers extends React.PureComponent {
 					isVisible={ this.state.showPopover }
 					onClose={ this.closePopover }
 					position={ this.state.popoverPosition }
-					context={ this.refs && this.refs.popoverButton }
+					context={ this.popoverButtonRef.current }
 				>
 					<div
 						style={ {
@@ -104,7 +113,11 @@ class Popovers extends React.PureComponent {
 	renderMenuPopover() {
 		return (
 			<div>
-				<button className="button" ref="popoverMenuButton" onClick={ this.showPopoverMenu }>
+				<button
+					className="button"
+					ref={ this.popoverMenuButtonRef }
+					onClick={ this.showPopoverMenu }
+				>
 					Show Popover Menu
 				</button>
 
@@ -115,7 +128,7 @@ class Popovers extends React.PureComponent {
 					isVisible={ this.state.showPopoverMenu }
 					onClose={ this.closePopoverMenu }
 					position={ this.state.popoverPosition }
-					context={ this.refs && this.refs.popoverMenuButton }
+					context={ this.popoverMenuButtonRef.current }
 				>
 					<PopoverMenuItem action="A">Item A</PopoverMenuItem>
 					<PopoverMenuItem action="B" onClick={ this.onPopoverMenuItemBClick }>
@@ -190,7 +203,7 @@ class Popovers extends React.PureComponent {
 		return (
 			<div>
 				<div
-					ref="popover-rubic-reference"
+					ref={ this.popoverRubicRef }
 					style={ {
 						backgroundColor: '#888',
 						width: width + 6,
@@ -205,7 +218,7 @@ class Popovers extends React.PureComponent {
 					onClose={ this.handleClose }
 					isVisible={ this.state.showRubicPopover }
 					position={ this.state.rubicPosition }
-					context={ this.refs && this.refs[ 'popover-rubic-reference' ] }
+					context={ this.popoverRubicRef.current }
 				>
 					<div
 						style={ {
@@ -226,9 +239,10 @@ class Popovers extends React.PureComponent {
 		const targets = [];
 		const targetsCount = 256;
 		for ( let n = 0; n < targetsCount; n++ ) {
+			this.targetRefs[ `target-${ n }` ] = React.createRef();
 			targets.push(
 				<li
-					ref={ `target-${ n }` }
+					ref={ this.targetRefs[ `target-${ n }` ] }
 					className="docs__popover-hover-example__bullet"
 					key={ `bullet-${ n }` }
 					onMouseEnter={ this.updateMultiplePopover }
@@ -241,7 +255,7 @@ class Popovers extends React.PureComponent {
 
 		const context =
 			this.state.currentTarget ||
-			( this.refs && this.refs[ `target-${ parseInt( targetsCount / 2 ) }` ] );
+			this.targetRefs[ `target-${ parseInt( targetsCount / 2 ) }` ].current;
 
 		return (
 			<div className="docs__popover-hover-example">

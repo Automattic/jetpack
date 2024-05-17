@@ -37,12 +37,8 @@ class CardSection extends React.Component {
 
 		return (
 			<div className={ wrapperClassName }>
-				<h4 ref="label" className="dops-card-section-label">
-					{ this.props.title }
-				</h4>
-				<div ref="content" className="dops-card-section-content">
-					{ this.props.children }
-				</div>
+				<h4 className="dops-card-section-label">{ this.props.title }</h4>
+				<div className="dops-card-section-content">{ this.props.children }</div>
 			</div>
 		);
 	};
