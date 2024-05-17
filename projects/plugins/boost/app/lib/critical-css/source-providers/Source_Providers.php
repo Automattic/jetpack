@@ -122,6 +122,9 @@ class Source_Providers {
 			// For each provider,
 			// Gather a list of URLs that are going to be used as Critical CSS source.
 			foreach ( $provider::get_critical_source_urls() as $group => $urls ) {
+				if ( empty( $urls ) ) {
+					continue;
+				}
 				$key = $provider_name . '_' . $group;
 
 				// For each URL

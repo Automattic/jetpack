@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.29.0';
+	const PACKAGE_VERSION = '5.31.1-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -87,6 +87,8 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
 		require_once __DIR__ . '/features/wpcom-site-menu/wpcom-site-menu.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
+		require_once __DIR__ . '/features/calypso-locale-sync/sync-wp-admin-to-calypso.php';
+		require_once __DIR__ . '/features/calypso-locale-sync/sync-calypso-to-wp-admin.php';
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();

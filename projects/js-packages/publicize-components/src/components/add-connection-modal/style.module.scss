@@ -1,12 +1,5 @@
-.modal {
+.modal.modal {
 	width: 65rem;
-	&.service-selector {
-		min-height: 700px;
-	}
-
-	&:not(.small) {
-		display: table;
-	}
 }
 
 .title {
@@ -43,10 +36,10 @@ table {
 	border-collapse: separate;
 	border-spacing: 0;
 	border-radius: 4px;
-	outline: 1px solid  var(--jp-gray-5);
+	outline: 1px solid var(--jp-gray-5);
 }
 
-tr:not(:last-child) > td {
+tr:not(:last-child)>td {
 	border-bottom: solid 1px var(--jp-gray-5);
 }
 
@@ -63,4 +56,18 @@ tr:not(:last-child) > td {
 	padding-inline-start: 0.5rem;
 	padding-inline-end: 0.5rem;
 	margin-inline-start: 0.4rem;
+}
+
+.connect-form {
+	display: grid;
+	gap: 0.5rem;
+
+	&>input {
+		height: 100%;
+		width: 18rem;
+	}
+
+	&:not(.small) {
+		grid-auto-flow: column;
+	}
 }

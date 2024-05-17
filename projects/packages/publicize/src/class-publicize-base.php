@@ -238,7 +238,7 @@ abstract class Publicize_Base {
 
 		// Default checkbox state for each Connection.
 		add_filter( 'publicize_checkbox_default', array( $this, 'publicize_checkbox_default' ), 10, 2 );
-		add_filter( 'jetpack_open_graph_tags', array( $this, 'jetpack_social_open_graph_filter' ), 12, 1 ); // $priority = 12, to run after Jetpack adds the tags in the Jetpack_Twitter_Cards class.
+		add_filter( 'jetpack_open_graph_tags', array( $this, 'add_jetpack_social_og_images' ), 12, 1 ); // $priority = 12, to run after Jetpack adds the tags in the Jetpack_Twitter_Cards class.
 
 		// Alter the "Post Publish" admin notice to mention the Connections we Publicized to.
 		add_filter( 'post_updated_messages', array( $this, 'update_published_message' ), 20, 1 );
@@ -1804,6 +1804,37 @@ abstract class Publicize_Base {
 	}
 
 	/**
+	 * Add the Jetpack Social images (attached media, SIG image) to the OpenGraph tags.
+	 *
+	 * @param array $tags Current tags.
+	 */
+	public function add_jetpack_social_og_images( $tags ) {
+		$opengraph_image = $this->get_social_opengraph_image( get_the_ID() );
+
+		if ( empty( $opengraph_image ) ) {
+			return $tags;
+		}
+
+		// If this code is running in Jetpack, we need to add Twitter cards.
+		// Some active plugins disable Jetpack's Twitter Cards, so we need
+		// to check if the class was instantiated before adding the cards.
+		$needs_twitter_cards = class_exists( 'Jetpack_Twitter_Cards' );
+
+		return array_merge(
+			$tags,
+			array(
+				'og:image'        => $opengraph_image['url'],
+				'og:image:width'  => $opengraph_image['width'],
+				'og:image:height' => $opengraph_image['height'],
+			),
+			$needs_twitter_cards ? array(
+				'twitter:image' => $opengraph_image['url'],
+				'twitter:card'  => 'summary_large_image',
+			) : array()
+		);
+	}
+
+	/**
 	 * Util
 	 */
 
@@ -1961,6 +1992,15 @@ abstract class Publicize_Base {
 	 */
 	public function has_connection_feature( $connection ) {
 		return Current_Plan::supports( "social-$connection-connection" );
+	}
+
+	/**
+	 * Check if the new connections management is enabled is enabled.
+	 *
+	 * @return bool
+	 */
+	public function has_connections_management_feature() {
+		return Current_Plan::supports( 'social-connections-management' );
 	}
 
 	/**

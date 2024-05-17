@@ -76,15 +76,16 @@ class Publicize extends Publicize_Base {
 	/**
 	 * Whether to use the v1 admin UI.
 	 */
-	public static function use_admin_ui_v1(): bool {
+	public function use_admin_ui_v1(): bool {
 
 		// If the option is set, use it.
 		if ( get_option( 'jetpack_social_use_admin_ui_v1', false ) ) {
 			return true;
 		}
 
-		// Otherwise, use the constant.
-		return defined( 'JETPACK_SOCIAL_USE_ADMIN_UI_V1' ) && JETPACK_SOCIAL_USE_ADMIN_UI_V1;
+		// Otherwise, check the constant and the plan feature.
+		return ( defined( 'JETPACK_SOCIAL_USE_ADMIN_UI_V1' ) && JETPACK_SOCIAL_USE_ADMIN_UI_V1 )
+			|| $this->has_connections_management_feature();
 	}
 
 	/**
@@ -241,7 +242,7 @@ class Publicize extends Publicize_Base {
 	/**
 	 * Get all connections for a specific user.
 	 *
-	 * @return array|false
+	 * @return array
 	 */
 	public function get_all_connections_for_user() {
 		$connections = $this->get_all_connections();
@@ -253,13 +254,13 @@ class Publicize extends Publicize_Base {
 					$user_id = (int) $connection['connection_data']['user_id'];
 					// phpcs:ignore WordPress.PHP.YodaConditions.NotYoda
 					if ( $user_id === 0 || $this->user_id() === $user_id ) {
-						if ( self::use_admin_ui_v1() ) {
+						if ( $this->use_admin_ui_v1() ) {
 							$connections_to_return[] = array_merge(
 								$connection,
 								array(
 									'service_name'   => $service_name,
 									'connection_id'  => $connection['connection_data']['id'],
-									'can_disconnect' => current_user_can( 'manage_options' ) || get_current_user_id() === $user_id,
+									'can_disconnect' => current_user_can( 'edit_others_posts' ) || get_current_user_id() === $user_id,
 									'profile_link'   => $this->get_profile_link( $service_name, $connection ),
 								)
 							);
@@ -269,11 +270,8 @@ class Publicize extends Publicize_Base {
 					}
 				}
 			}
-
-			return $connections_to_return;
 		}
-
-		return false;
+		return $connections_to_return;
 	}
 
 	/**

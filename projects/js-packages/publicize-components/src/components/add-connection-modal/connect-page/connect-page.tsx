@@ -1,16 +1,38 @@
 import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
-import { Connection } from '../constants';
+import { useCallback } from 'react';
+import { store as socialStore } from '../../../social-store';
+import { ConnectForm } from '../connect-form';
 import styles from './style.module.scss';
+import type { SupportedService } from '../use-supported-services';
 
 type ConnectPageProps = {
-	service: Connection;
-	onBackClicked: () => void;
+	service: SupportedService;
+	onBackClicked: VoidFunction;
+	onConfirm: ( data: unknown ) => void;
 };
 
-export const ConnectPage: React.FC< ConnectPageProps > = ( { service, onBackClicked } ) => {
+export const ConnectPage: React.FC< ConnectPageProps > = ( {
+	service,
+	onBackClicked,
+	onConfirm,
+} ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
+
+	const connections = useSelect( select => {
+		return select( socialStore ).getConnections();
+	}, [] );
+
+	const isMastodonAlreadyConnected = useCallback(
+		( username: string ) => {
+			return connections.some( connection => {
+				return connection.service_name === 'mastodon' && connection.external_display === username;
+			} );
+		},
+		[ connections ]
+	);
 
 	return (
 		<>
@@ -20,7 +42,7 @@ export const ConnectPage: React.FC< ConnectPageProps > = ( { service, onBackClic
 				} ) }
 			>
 				{ service.examples.map( ( Example, idx ) => (
-					<div key={ service.name + idx } className={ styles.example }>
+					<div key={ service.ID + idx } className={ styles.example }>
 						<Example />
 					</div>
 				) ) }
@@ -33,19 +55,13 @@ export const ConnectPage: React.FC< ConnectPageProps > = ( { service, onBackClic
 				>
 					{ __( 'Back', 'jetpack' ) }
 				</Button>
-				<form className={ classNames( styles[ 'connect-form' ], { [ styles.small ]: isSmall } ) }>
-					{ 'mastodon' === service.name ? (
-						<input
-							required
-							type="text"
-							aria-label={ __( 'Mastodon username', 'jetpack' ) }
-							placeholder={ '@mastodon@mastodon.social' }
-						/>
-					) : null }
-					<Button type="submit" variant="primary">
-						{ __( 'Connect', 'jetpack' ) }
-					</Button>
-				</form>
+				<ConnectForm
+					service={ service }
+					isSmall={ isSmall }
+					onConfirm={ onConfirm }
+					displayInputs
+					isMastodonAlreadyConnected={ isMastodonAlreadyConnected }
+				/>
 			</div>
 		</>
 	);
