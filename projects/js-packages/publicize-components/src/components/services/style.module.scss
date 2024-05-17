@@ -91,6 +91,10 @@
 		li:not(:last-child) {
 			margin-bottom: 1rem;
 		}
+
+		*[inert="true"] {
+			opacity: 0.7;
+		}
 	}
 }
 
