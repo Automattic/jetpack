@@ -30,11 +30,9 @@ class Test_WPCOM_Additional_Css_Manager extends TestCase {
 	/**
 	 * Register a customizer manager.
 	 *
-	 * @return void
+	 * @before
 	 */
 	public function set_up() {
-		parent::set_up();
-
 		$this->wp_customize = new \WP_Customize_Manager();
 	}
 

@@ -17,7 +17,7 @@ require_once __DIR__ . '/data/admin-menu.php';
 /**
  * Class Test_WPcom_Admin_Menu.
  *
- * @coversDefaultClass Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu
+ * @covers Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu
  */
 class Test_WPcom_Admin_Menu extends TestCase {
 
@@ -87,7 +87,7 @@ class Test_WPcom_Admin_Menu extends TestCase {
 
 		$admin_menu = $this->getMockBuilder( WPcom_Admin_Menu::class )
 							->disableOriginalConstructor()
-							->setMethods( array( 'should_link_to_wp_admin' ) )
+							->onlyMethods( array( 'should_link_to_wp_admin' ) )
 							->getMock();
 		$admin_menu->method( 'should_link_to_wp_admin' )->willReturn( false );
 
@@ -110,8 +110,6 @@ class Test_WPcom_Admin_Menu extends TestCase {
 
 	/**
 	 * Tests get_preferred_view
-	 *
-	 * @covers ::get_preferred_view
 	 */
 	public function test_get_preferred_view() {
 		static::$admin_menu->set_preferred_view( 'themes.php', 'unknown' );
@@ -121,44 +119,7 @@ class Test_WPcom_Admin_Menu extends TestCase {
 	}
 
 	/**
-	 * Tests add_browse_sites_link.
-	 *
-	 * @covers ::add_browse_sites_link
-	 */
-	public function test_add_browse_sites_link() {
-		if ( ! function_exists( 'add_user_to_blog' ) ) {
-			$this->markTestSkipped( 'Only used on multisite' );
-		}
-		global $menu;
-
-		// No output when user has just one site.
-		static::$admin_menu->add_browse_sites_link();
-		$this->assertArrayNotHasKey( 0, $menu );
-
-		// Give user a second site.
-		$blog_id = self::factory()->blog->create();
-		add_user_to_blog( $blog_id, get_current_user_id(), 'editor' );
-
-		static::$admin_menu->add_browse_sites_link();
-
-		$browse_sites_menu_item = array(
-			'Browse sites',
-			'read',
-			'https://wordpress.com/sites',
-			'site-switcher',
-			'menu-top toplevel_page_https://wordpress.com/sites',
-			'toplevel_page_https://wordpress.com/sites',
-			'dashicons-arrow-left-alt2',
-		);
-		$this->assertSame( $menu[0], $browse_sites_menu_item );
-
-		remove_user_from_blog( get_current_user_id(), $blog_id );
-	}
-
-	/**
 	 * Tests add_new_site_link.
-	 *
-	 * @covers ::add_new_site_link
 	 */
 	public function test_add_new_site_link() {
 		global $menu;
@@ -179,8 +140,6 @@ class Test_WPcom_Admin_Menu extends TestCase {
 
 	/**
 	 * Tests add_site_card_menu
-	 *
-	 * @covers ::add_site_card_menu
 	 */
 	public function test_add_site_card_menu() {
 		global $menu;
@@ -205,7 +164,7 @@ class Test_WPcom_Admin_Menu extends TestCase {
 			'site-card',
 			'menu-top toplevel_page_' . $home_url,
 			'toplevel_page_' . $home_url,
-			plugins_url( 'modules/masterbar/admin-menu/globe-icon.svg', JETPACK__PLUGIN_FILE ),
+			plugins_url( 'src/admin-menu/globe-icon.svg', dirname( __DIR__ ) ),
 		);
 
 		$this->assertEquals( $menu[1], $site_card_menu_item );
@@ -213,8 +172,6 @@ class Test_WPcom_Admin_Menu extends TestCase {
 
 	/**
 	 * Tests set_site_card_menu_class
-	 *
-	 * @covers ::set_site_card_menu_class
 	 */
 	public function test_set_site_card_menu_class() {
 		global $menu;
@@ -246,8 +203,6 @@ class Test_WPcom_Admin_Menu extends TestCase {
 
 	/**
 	 * Tests add_upgrades_menu
-	 *
-	 * @covers ::add_upgrades_menu
 	 */
 	public function test_add_upgrades_menu() {
 		global $submenu;
@@ -268,8 +223,6 @@ class Test_WPcom_Admin_Menu extends TestCase {
 
 	/**
 	 * Tests add_my_mailboxes_menu
-	 *
-	 * @covers ::add_my_mailboxes_menu
 	 */
 	public function test_add_my_mailboxes_menu() {
 		global $menu;
@@ -281,8 +234,6 @@ class Test_WPcom_Admin_Menu extends TestCase {
 
 	/**
 	 * Tests add_users_menu
-	 *
-	 * @covers ::add_users_menu
 	 */
 	public function test_add_users_menu() {
 		global $submenu;
@@ -296,21 +247,17 @@ class Test_WPcom_Admin_Menu extends TestCase {
 
 	/**
 	 * Tests add_options_menu
-	 *
-	 * @covers ::add_options_menu
 	 */
 	public function test_add_options_menu() {
 		global $submenu;
 
 		static::$admin_menu->add_options_menu();
-
+		'@phan-var array $submenu';
 		$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][10][2] );
 	}
 
 	/**
 	 * Tests remove_gutenberg_menu
-	 *
-	 * @covers ::remove_gutenberg_menu
 	 */
 	public function test_remove_gutenberg_menu() {
 		global $menu;

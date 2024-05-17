@@ -118,7 +118,7 @@ class Test_Base_Admin_Menu extends TestCase {
 
 		static::$admin_menu->add_admin_menu_separator( 15 );
 		static::$admin_menu->add_admin_menu_separator( 10, 'manage_options' );
-
+		'@phan-var non-empty-array $menu';
 		$this->assertSame( 'manage_options', $menu[10][1] );
 		$this->assertStringContainsString( 'separator-custom-', $menu[10][2] );
 		$this->assertSame( 'read', $menu[15][1] );

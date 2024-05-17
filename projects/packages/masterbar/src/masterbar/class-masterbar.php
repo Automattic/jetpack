@@ -11,13 +11,13 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Scan\Admin_Bar_Notice;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use GP_Locale;
 use GP_Locales;
-use Jetpack;
 use Jetpack_AMP_Support;
 use WP_Admin_Bar;
 
@@ -120,12 +120,12 @@ class Masterbar {
 		}
 
 		$this->user_data       = $connection_manager->get_connected_user_data( $this->user_id );
-		$this->user_login      = isset( $this->user_data['login'] ) ? $this->user_data['login'] : '';
-		$this->user_email      = isset( $this->user_data['email'] ) ? $this->user_data['email'] : '';
-		$this->display_name    = isset( $this->user_data['display_name'] ) ? $this->user_data['display_name'] : '';
-		$this->user_site_count = isset( $this->user_data['site_count'] ) ? $this->user_data['site_count'] : '';
+		$this->user_login      = $this->user_data['login'] ?? '';
+		$this->user_email      = $this->user_data['email'] ?? '';
+		$this->display_name    = $this->user_data['display_name'] ?? '';
+		$this->user_site_count = $this->user_data['site_count'] ?? '';
 		$this->is_rtl          = isset( $this->user_data['text_direction'] ) && 'rtl' === $this->user_data['text_direction'];
-		$this->user_locale     = isset( $this->user_data['user_locale'] ) ? $this->user_data['user_locale'] : '';
+		$this->user_locale     = $this->user_data['user_locale'] ?? '';
 		$this->site_woa        = ( new Host() )->is_woa_site();
 
 		// Store part of the connected user data as user options so it can be used
@@ -208,7 +208,7 @@ class Masterbar {
 		add_action( 'wp_enqueue_scripts', array( $this, 'remove_core_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'remove_core_styles' ) );
 
-		if ( Jetpack::is_module_active( 'notes' ) && $this->is_rtl ) {
+		if ( ( new Modules() )->is_active( 'notes' ) && $this->is_rtl ) {
 			// Override Notification module to include RTL styles.
 			add_action( 'a8c_wpcom_masterbar_enqueue_rtl_notification_styles', '__return_true' );
 		}
@@ -287,7 +287,7 @@ class Masterbar {
 		 * so let's not remove them when the module is active.
 		 * Also, don't remove the styles if the user has opted to use wp-admin.
 		 */
-		if ( ! Jetpack::is_module_active( 'notes' ) && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+		if ( ! ( new Modules() )->is_active( 'notes' ) && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 			wp_dequeue_style( 'admin-bar' );
 		}
 	}
@@ -300,31 +300,31 @@ class Masterbar {
 		// These include only styles to enable the "My Sites" and "Reader" links that will be added.
 		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
 			$css_file = $this->is_rtl ? 'masterbar-wp-admin-rtl.css' : 'masterbar-wp-admin.css';
-			wp_enqueue_style( 'a8c-wpcom-masterbar-overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/' . $css_file ), array(), JETPACK__VERSION );
+			wp_enqueue_style( 'a8c-wpcom-masterbar-overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/' . $css_file ), array(), Main::PACKAGE_VERSION );
 			return;
 		}
 
 		if ( $this->is_rtl ) {
-			wp_enqueue_style( 'a8c-wpcom-masterbar-rtl', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/rtl/wpcom-admin-bar-rtl.css' ), array(), JETPACK__VERSION );
-			wp_enqueue_style( 'a8c-wpcom-masterbar-overrides-rtl', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/rtl/masterbar-rtl.css' ), array(), JETPACK__VERSION );
+			wp_enqueue_style( 'a8c-wpcom-masterbar-rtl', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/rtl/wpcom-admin-bar-rtl.css' ), array(), Main::PACKAGE_VERSION );
+			wp_enqueue_style( 'a8c-wpcom-masterbar-overrides-rtl', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/rtl/masterbar-rtl.css' ), array(), Main::PACKAGE_VERSION );
 		} else {
-			wp_enqueue_style( 'a8c-wpcom-masterbar', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/wpcom-admin-bar.css' ), array(), JETPACK__VERSION );
-			wp_enqueue_style( 'a8c-wpcom-masterbar-overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.css' ), array(), JETPACK__VERSION );
+			wp_enqueue_style( 'a8c-wpcom-masterbar', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/wpcom-admin-bar.css' ), array(), Main::PACKAGE_VERSION );
+			wp_enqueue_style( 'a8c-wpcom-masterbar-overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.css' ), array(), Main::PACKAGE_VERSION );
 		}
 
 		// Local overrides.
-		wp_enqueue_style( 'a8c_wpcom_css_override', plugins_url( 'overrides.css', __FILE__ ), array(), JETPACK__VERSION );
+		wp_enqueue_style( 'a8c_wpcom_css_override', plugins_url( 'overrides.css', __FILE__ ), array(), Main::PACKAGE_VERSION );
 
-		if ( ! Jetpack::is_module_active( 'notes ' ) ) {
+		if ( ! ( new Modules() )->is_active( 'notes' ) ) {
 			// Masterbar is relying on some icons from noticons.css.
-			wp_enqueue_style( 'noticons', $this->wpcom_static_url( '/i/noticons/noticons.css' ), array(), JETPACK__VERSION . '-' . gmdate( 'oW' ) );
+			wp_enqueue_style( 'noticons', $this->wpcom_static_url( '/i/noticons/noticons.css' ), array(), Main::PACKAGE_VERSION . '-' . gmdate( 'oW' ) );
 		}
 
 		wp_enqueue_script(
 			'jetpack-accessible-focus',
 			Assets::get_file_url_for_environment( '_inc/build/accessible-focus.min.js', '_inc/accessible-focus.js' ),
 			array(),
-			JETPACK__VERSION,
+			Main::PACKAGE_VERSION,
 			false
 		);
 		wp_enqueue_script(
@@ -334,7 +334,7 @@ class Masterbar {
 				'modules/masterbar/masterbar/tracks-events.js'
 			),
 			array(),
-			JETPACK__VERSION,
+			Main::PACKAGE_VERSION,
 			false
 		);
 
@@ -342,7 +342,7 @@ class Masterbar {
 			'a8c_wpcom_masterbar_overrides',
 			$this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ),
 			array( 'jquery' ),
-			JETPACK__VERSION,
+			Main::PACKAGE_VERSION,
 			false
 		);
 	}
@@ -481,7 +481,7 @@ class Masterbar {
 		$this->add_reader_submenu( $wp_admin_bar );
 
 		// Right part.
-		if ( Jetpack::is_module_active( 'notes' ) && ! \Jetpack_Notifications::is_block_editor() ) {
+		if ( ( new Modules() )->is_active( 'notes' ) && ! \Jetpack_Notifications::is_block_editor() ) {
 			$this->add_notifications( $wp_admin_bar );
 		}
 
@@ -1074,7 +1074,7 @@ class Masterbar {
 		$this->add_my_home_submenu_item( $wp_admin_bar );
 
 		// Stats.
-		if ( Jetpack::is_module_active( 'stats' ) && current_user_can( 'view_stats' ) ) {
+		if ( ( new Modules() )->is_active( 'stats' ) && current_user_can( 'view_stats' ) ) {
 			$wp_admin_bar->add_menu(
 				array(
 					'parent' => 'blog',
@@ -1237,7 +1237,7 @@ class Masterbar {
 		}
 
 		// Testimonials.
-		if ( Jetpack::is_module_active( 'custom-content-types' ) && get_option( 'jetpack_testimonial' ) ) {
+		if ( ( new Modules() )->is_active( 'custom-content-types' ) && get_option( 'jetpack_testimonial' ) ) {
 			$testimonials_title = $this->create_menu_item_pair(
 				array(
 					'url'   => Redirect::get_url( 'calypso-list-jetpack-testimonial', $args ),
@@ -1273,7 +1273,7 @@ class Masterbar {
 		}
 
 		// Portfolio.
-		if ( Jetpack::is_module_active( 'custom-content-types' ) && get_option( 'jetpack_portfolio' ) ) {
+		if ( ( new Modules() )->is_active( 'custom-content-types' ) && get_option( 'jetpack_portfolio' ) ) {
 			$portfolios_title = $this->create_menu_item_pair(
 				array(
 					'url'   => Redirect::get_url( 'calypso-list-jetpack-portfolio', $args ),
@@ -1398,7 +1398,7 @@ class Masterbar {
 				)
 			);
 
-			if ( Jetpack::is_module_active( 'publicize' ) || Jetpack::is_module_active( 'sharedaddy' ) ) {
+			if ( ( new Modules() )->is_active( 'publicize' ) || ( new Modules() )->is_active( 'sharedaddy' ) ) {
 				$wp_admin_bar->add_menu(
 					array(
 						'parent' => 'configuration',

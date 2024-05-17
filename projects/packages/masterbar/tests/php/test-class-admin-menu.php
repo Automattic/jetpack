@@ -132,6 +132,7 @@ class Test_Admin_Menu extends TestCase {
 		static::$admin_menu->add_my_home_menu();
 
 		// Has My Home submenu item when there are other submenu items.
+		'@phan-var non-empty-array $submenu';
 		$this->assertSame( 'https://wordpress.com/home/' . static::$domain, array_shift( $submenu['index.php'] )[2] );
 
 		// Reset data.
@@ -144,8 +145,9 @@ class Test_Admin_Menu extends TestCase {
 		);
 
 		static::$admin_menu->add_my_home_menu();
-
+		'@phan-var non-empty-array $menu';
 		$this->assertSame( 'https://wordpress.com/home/' . static::$domain, $menu[2][2] );
+		'@phan-var non-empty-array $submenu';
 		$this->assertSame( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['index.php'][0][4] );
 	}
 
@@ -158,6 +160,8 @@ class Test_Admin_Menu extends TestCase {
 		global $menu;
 
 		static::$admin_menu->add_stats_menu();
+
+		'@phan-var non-empty-array $menu';
 
 		// Ignore position keys, since the key used for the Stats menu contains a pseudorandom number
 		// that we shouldn't hardcode. The only thing that matters is that the menu should be in the
@@ -178,7 +182,7 @@ class Test_Admin_Menu extends TestCase {
 		global $submenu;
 
 		static::$admin_menu->add_upgrades_menu( 'Test Plan' );
-
+		'@phan-var non-empty-array $submenu';
 		$this->assertSame( 'Upgrades<span class="inline-text" style="display:none">Test Plan</span>', $submenu['paid-upgrades.php'][0][0] );
 		$this->assertSame( 'https://wordpress.com/plans/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
 		$this->assertSame( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, $submenu['paid-upgrades.php'][2][2] );
@@ -193,7 +197,7 @@ class Test_Admin_Menu extends TestCase {
 		global $submenu;
 
 		static::$admin_menu->add_posts_menu();
-
+		'@phan-var non-empty-array $submenu';
 		$this->assertSame( 'https://wordpress.com/posts/' . static::$domain, $submenu['edit.php'][0][2] );
 		$this->assertSame( 'https://wordpress.com/post/' . static::$domain, $submenu['edit.php'][2][2] );
 	}
@@ -221,7 +225,7 @@ class Test_Admin_Menu extends TestCase {
 		global $submenu;
 
 		static::$admin_menu->add_page_menu();
-
+		'@phan-var non-empty-array $submenu';
 		$this->assertSame( 'https://wordpress.com/pages/' . static::$domain, $submenu['edit.php?post_type=page'][0][2] );
 		$this->assertSame( 'https://wordpress.com/page/' . static::$domain, $submenu['edit.php?post_type=page'][2][2] );
 	}
@@ -237,7 +241,7 @@ class Test_Admin_Menu extends TestCase {
 		// Don't show post types that don't want to be shown.
 		get_post_type_object( 'revision' );
 		static::$admin_menu->add_custom_post_type_menu( 'revision' );
-
+		'@phan-var non-empty-array $menu';
 		$last_item = array_pop( $menu );
 		$this->assertNotSame( 'https://wordpress.com/types/revision/' . static::$domain, $last_item[2] );
 
@@ -254,7 +258,7 @@ class Test_Admin_Menu extends TestCase {
 
 		// Clean up.
 		unregister_post_type( 'custom_test_type' );
-
+		'@phan-var non-empty-array $submenu';
 		$this->assertSame( 'https://wordpress.com/types/custom_test_type/' . static::$domain, $submenu['edit.php?post_type=custom_test_type'][0][2] );
 		$this->assertSame( 'https://wordpress.com/edit/custom_test_type/' . static::$domain, $submenu['edit.php?post_type=custom_test_type'][2][2] );
 	}
@@ -336,6 +340,7 @@ class Test_Admin_Menu extends TestCase {
 
 		static::$admin_menu->add_users_menu();
 
+		'@phan-var non-empty-array $submenu';
 		$this->assertSame( 'https://wordpress.com/me', $submenu['profile.php'][0][2] );
 		$this->assertSame( 'https://wordpress.com/me/account', $submenu['profile.php'][2][2] );
 
@@ -371,6 +376,7 @@ class Test_Admin_Menu extends TestCase {
 
 		static::$admin_menu->add_tools_menu();
 
+		'@phan-var non-empty-array $submenu';
 		$this->assertSame( 'https://wordpress.com/marketing/tools/' . static::$domain, $submenu['tools.php'][0][2] );
 		$this->assertSame( 'https://wordpress.com/earn/' . static::$domain, $submenu['tools.php'][1][2] );
 		$this->assertSame( 'https://wordpress.com/import/' . static::$domain, $submenu['tools.php'][4][2] );
@@ -401,6 +407,8 @@ class Test_Admin_Menu extends TestCase {
 
 		static::$admin_menu->add_jetpack_menu();
 
+		'@phan-var non-empty-array $submenu';
+
 		$this->assertSame( 'https://wordpress.com/activity-log/' . static::$domain, $submenu['jetpack'][3][2] );
 		$this->assertSame( 'https://wordpress.com/backup/' . static::$domain, $submenu['jetpack'][4][2] );
 	}
@@ -421,6 +429,8 @@ class Test_Admin_Menu extends TestCase {
 				array( '', 'read', 'test-slug', '', '' ),
 			),
 		);
+
+		'@phan-var non-empty-array $submenu';
 
 		static::$admin_menu->sort_hidden_submenus();
 		$this->assertNotEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][0][4] );

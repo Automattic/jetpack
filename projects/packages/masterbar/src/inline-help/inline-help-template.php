@@ -5,6 +5,7 @@
  * @package jetpack-masterbar
  */
 
+// @phan-file-suppress PhanUndeclaredGlobalVariable
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 ?>
 

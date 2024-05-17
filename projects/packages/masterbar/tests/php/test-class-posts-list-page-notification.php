@@ -37,13 +37,13 @@ class Test_Posts_List_Page_Notification extends TestCase {
 	public function test_it_appends_css_class() {
 		$instance = new Posts_List_Page_Notification( '5', 'page', '4' );
 
-		$classes = $instance->add_posts_page_css_class( array(), 'fox', 5 );
+		$classes = $instance->add_posts_page_css_class( array(), 'fox', '5' );
 		$this->assertEquals( array( 'posts-page' ), $classes );
 
-		$classes = $instance->add_posts_page_css_class( array( 'bar' ), 'fox', 5 );
+		$classes = $instance->add_posts_page_css_class( array( 'bar' ), 'fox', '5' );
 		$this->assertEquals( array( 'bar', 'posts-page' ), $classes );
 
-		$classes = $instance->add_posts_page_css_class( array( 'bar' ), 'fox', 6 );
+		$classes = $instance->add_posts_page_css_class( array( 'bar' ), 'fox', '6' );
 		$this->assertEquals( array( 'bar' ), $classes );
 	}
 

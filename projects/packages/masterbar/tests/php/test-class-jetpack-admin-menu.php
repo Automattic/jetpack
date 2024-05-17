@@ -140,7 +140,7 @@ class Test_Jetpack_Admin_Menu extends TestCase {
 		global $menu;
 
 		static::$admin_menu->add_wp_admin_menu();
-
+		'@phan-var non-empty-array $menu';
 		$this->assertSame( 'index.php', array_pop( $menu )[2] );
 	}
 
@@ -155,7 +155,9 @@ class Test_Jetpack_Admin_Menu extends TestCase {
 		static::$admin_menu->add_appearance_menu();
 
 		// Check Customize menu always links to WP Admin.
-		$this->assertSame( 'customize.php', array_pop( $submenu[ 'https://wordpress.com/themes/' . static::$domain ] )[2] );
+		$key = 'https://wordpress.com/themes/' . static::$domain;
+		'@phan-var non-empty-array $submenu';
+		$this->assertSame( 'customize.php', array_pop( $submenu[ $key ] )[2] );
 	}
 
 	/**
@@ -167,7 +169,7 @@ class Test_Jetpack_Admin_Menu extends TestCase {
 		global $menu;
 
 		static::$admin_menu->add_posts_menu();
-
+		'@phan-var non-empty-array $menu';
 		$this->assertSame( 'https://wordpress.com/posts/' . static::$domain, array_shift( $menu )[2] );
 	}
 
@@ -180,7 +182,7 @@ class Test_Jetpack_Admin_Menu extends TestCase {
 		global $menu;
 
 		static::$admin_menu->add_page_menu();
-
+		'@phan-var non-empty-array $menu';
 		$this->assertSame( 'https://wordpress.com/pages/' . static::$domain, array_shift( $menu )[2] );
 	}
 
@@ -193,7 +195,7 @@ class Test_Jetpack_Admin_Menu extends TestCase {
 		global $menu;
 
 		static::$admin_menu->add_users_menu();
-
+		'@phan-var non-empty-array $menu';
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, array_shift( $menu )[2] );
 	}
 
@@ -206,7 +208,7 @@ class Test_Jetpack_Admin_Menu extends TestCase {
 		global $menu;
 
 		static::$admin_menu->add_feedback_menu();
-
+		'@phan-var non-empty-array $menu';
 		$this->assertSame( 'edit.php?post_type=feedback', array_shift( $menu )[2] );
 	}
 
@@ -221,6 +223,7 @@ class Test_Jetpack_Admin_Menu extends TestCase {
 		static::$admin_menu->add_plugins_menu();
 
 		// Check Plugins menu always links to Calypso.
+		'@phan-var non-empty-array $menu';
 		$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, array_shift( $menu )[2] );
 	}
 }

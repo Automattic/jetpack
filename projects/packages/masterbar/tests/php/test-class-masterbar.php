@@ -91,7 +91,6 @@ class Test_Masterbar extends TestCase {
 
 		$masterbar = $this->getMockBuilder( Masterbar::class )
 			->disableOriginalConstructor()
-			->setMethodsExcept( array( 'unload_non_default_textdomains_on_wpcom_user_locale_switch' ) )
 			->getMock();
 		$masterbar->unload_non_default_textdomains_on_wpcom_user_locale_switch( $detected_wpcom_locale );
 

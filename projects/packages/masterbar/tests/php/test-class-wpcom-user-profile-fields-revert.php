@@ -20,11 +20,18 @@ use WorDBless\Users as WorDBless_Users;
 class Test_WPCOM_User_Profile_Fields_Revert extends TestCase {
 
 	/**
-	 * Fixture user id.
+	 * User ID.
 	 *
 	 * @var int
 	 */
 	private static $user_id;
+
+	/**
+	 * Placeholder for the $l10n global.
+	 *
+	 * @var array
+	 */
+	private $l10n_backup;
 
 	/**
 	 * Set up each test.

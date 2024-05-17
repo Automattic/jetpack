@@ -55,14 +55,14 @@ class CSS_Customizer_Nudge {
 			'additional-css-js',
 			plugins_url( $assets_base_path . 'js/additional-css.js', __FILE__ ),
 			array(),
-			JETPACK__VERSION,
+			Main::PACKAGE_VERSION,
 			true
 		);
 		\wp_enqueue_style(
 			'additional-css',
 			plugins_url( $assets_base_path . 'css/additional-css.css', __FILE__ ),
 			array(),
-			JETPACK__VERSION
+			Main::PACKAGE_VERSION
 		);
 	}
 

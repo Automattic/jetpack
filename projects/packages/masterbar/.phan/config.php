@@ -10,4 +10,5 @@
 // Require base config.
 require __DIR__ . '/../../../../.phan/config.base.php';
 
-return make_phan_config( dirname( __DIR__ ) );
+// We need to load the wpcom and amp stubs too.
+return make_phan_config( dirname( __DIR__ ), array( '+stubs' => array( 'wpcom', 'amp' ) ) );

@@ -88,7 +88,7 @@ class Posts_List_Page_Notification {
 			return $caps;
 		}
 
-		if ( isset( $args[0] ) && $this->posts_page_id === $args[0] ) {
+		if ( isset( $args[0] ) && $this->posts_page_id === (int) $args[0] ) {
 			$caps[] = 'do_not_allow';
 		}
 
@@ -101,7 +101,7 @@ class Posts_List_Page_Notification {
 	 * We would probably need to move this elsewhere when new features are introduced to wp-posts-list.
 	 */
 	public function enqueue_css() {
-		\wp_enqueue_style( 'wp-posts-list', plugins_url( 'wp-posts-list.css', __FILE__ ), array(), JETPACK__VERSION );
+		\wp_enqueue_style( 'wp-posts-list', plugins_url( 'wp-posts-list.css', __FILE__ ), array(), Main::PACKAGE_VERSION );
 	}
 
 	/**
@@ -113,7 +113,7 @@ class Posts_List_Page_Notification {
 	 * @return array
 	 */
 	public function add_posts_page_css_class( $classes, $class, $post_id ) {
-		if ( $this->posts_page_id !== $post_id ) {
+		if ( $this->posts_page_id !== (int) $post_id ) {
 			return $classes;
 		}
 

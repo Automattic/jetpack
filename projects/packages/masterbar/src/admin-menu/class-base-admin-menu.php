@@ -106,19 +106,19 @@ abstract class Base_Admin_Menu {
 	/**
 	 * Updates the menu data of the given menu slug.
 	 *
-	 * @param string $slug Slug of the menu to update.
-	 * @param string $url New menu URL.
-	 * @param string $title New menu title.
-	 * @param string $cap New menu capability.
-	 * @param string $icon New menu icon.
-	 * @param int    $position New menu position.
+	 * @param string  $slug Slug of the menu to update.
+	 * @param ?string $url New menu URL. Defaults to null.
+	 * @param ?string $title New menu title. Defaults to null.
+	 * @param ?string $cap New menu capability. Defaults to null.
+	 * @param ?string $icon New menu icon. Defaults to null.
+	 * @param ?int    $position New menu position. Defaults to null.
 	 * @return bool Whether the menu has been updated.
 	 */
 	public function update_menu( $slug, $url = null, $title = null, $cap = null, $icon = null, $position = null ) {
 		global $menu, $submenu;
 
 		$menu_item     = null;
-		$menu_position = null;
+		$menu_position = 0;
 
 		foreach ( $menu as $i => $item ) {
 			if ( $slug === $item[2] ) {
@@ -127,7 +127,7 @@ abstract class Base_Admin_Menu {
 				break;
 			}
 		}
-
+		'@phan-var array $menu_item';
 		if ( ! $menu_item ) {
 			return false;
 		}
@@ -164,6 +164,7 @@ abstract class Base_Admin_Menu {
 
 		// Only add submenu when there are other submenu items.
 		if ( $url && isset( $submenu[ $slug ] ) && $this->has_visible_items( $submenu[ $slug ] ) ) {
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
 			add_submenu_page( $slug, $menu_item[3], $menu_item[0], $menu_item[1], $url, null, 0 );
 		}
 
@@ -213,17 +214,18 @@ abstract class Base_Admin_Menu {
 		 * to submenu array that might cause an infinite loop.
 		 */
 		foreach ( $submenu_items as $i => $submenu_item ) {
+			'@phan-var array $submenu_item';
 			if ( ! array_key_exists( $submenu_item[2], $submenus_to_update ) ) {
 				continue;
 			}
 
 			add_submenu_page(
 				$slug,
-				isset( $submenu_item[3] ) ? $submenu_item[3] : '',
-				isset( $submenu_item[0] ) ? $submenu_item[0] : '',
-				isset( $submenu_item[1] ) ? $submenu_item[1] : 'read',
+				$submenu_item[3] ?? '',
+				$submenu_item[0] ?? '',
+				$submenu_item[1] ?? 'read',
 				$submenus_to_update[ $submenu_item[2] ],
-				'',
+				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
 				0 === $i ? 0 : $i + 1
 			);
 		}
@@ -420,7 +422,7 @@ abstract class Base_Admin_Menu {
 		if ( null === $position ) {
 			$menu[] = $item; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		} elseif ( isset( $menu[ "$position" ] ) ) {
-			$position            = $position + substr( base_convert( md5( $item[2] . $item[0] ), 16, 10 ), -5 ) * 0.00001;
+			$position           += (int) substr( base_convert( md5( $item[2] . $item[0] ), 16, 10 ), -5 ) * 0.00001;
 			$menu[ "$position" ] = $item; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		} else {
 			$menu[ $position ] = $item; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -443,6 +445,7 @@ abstract class Base_Admin_Menu {
 
 		$svg_items = array();
 		foreach ( $menu as $idx => $menu_item ) {
+			'@phan-var array $menu_item';
 			// Menu items that don't have icons, for example separators, have less than 7
 			// elements, partly because the 7th is the icon. So, if we have less than 7,
 			// let's skip it.
@@ -526,6 +529,7 @@ abstract class Base_Admin_Menu {
 			}
 
 			// if the menu has the same slug as the first submenu then hide the submenu.
+			'@phan-var array $first_submenu_item';
 			if ( $menu_item[2] === $first_submenu_item[2] && ! $is_first_submenu_visible ) {
 				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 				$menu[ $menu_index ][4] = self::HIDE_CSS_CLASS;
@@ -668,7 +672,7 @@ abstract class Base_Admin_Menu {
 				return self::UNKNOWN_VIEW;
 			}
 
-			$should_link_to_wp_admin = $this->should_link_to_wp_admin( $screen ) || $this->use_wp_admin_interface();
+			$should_link_to_wp_admin = $this->should_link_to_wp_admin() || $this->use_wp_admin_interface();
 			return $should_link_to_wp_admin ? self::CLASSIC_VIEW : self::DEFAULT_VIEW;
 		}
 
