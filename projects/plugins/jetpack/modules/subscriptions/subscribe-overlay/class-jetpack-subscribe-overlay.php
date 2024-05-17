@@ -40,6 +40,15 @@ class Jetpack_Subscribe_Overlay {
 		}
 
 		add_filter( 'get_block_template', array( $this, 'get_block_template_filter' ), 10, 3 );
+
+		add_filter(
+			'jetpack_options_whitelist',
+			function ( $options ) {
+				$options[] = 'jetpack_subscribe_overlay_enabled';
+
+				return $options;
+			}
+		);
 	}
 
 	/**
