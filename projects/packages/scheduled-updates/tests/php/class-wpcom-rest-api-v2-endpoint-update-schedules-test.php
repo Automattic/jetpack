@@ -298,6 +298,22 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	}
 
 	/**
+	 * Can't submit a schedule without plugins parameter.
+	 *
+	 * @covers ::register_routes
+	 */
+	public function test_creating_schedule_without_plugins_parameter() {
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$request->set_body_params( array( 'schedule' => $this->get_schedule() ) );
+
+		wp_set_current_user( $this->admin_id );
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 400, $result->get_status() );
+		$this->assertSame( 'rest_missing_callback_param', $result->get_data()['code'] );
+	}
+
+	/**
 	 * Removes plugins from the autoupdate list when creating a schedule.
 	 *
 	 * @covers ::create_item
