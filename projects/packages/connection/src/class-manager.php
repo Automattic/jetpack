@@ -182,7 +182,7 @@ class Manager {
 		}
 
 		// Alternate XML-RPC, via ?for=jetpack&jetpack=comms.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- We are using the 'jetpack' request param to handle this request as an XML-RPC request if it's set to 'comms'.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This just determines whether to handle the request as an XML-RPC request. The actual XML-RPC endpoints do the appropriate nonce checking where applicable. Plus we make sure to clear all cookies via require_jetpack_authentication called later in method.
 		if ( isset( $_GET['jetpack'] ) && 'comms' === $_GET['jetpack'] ) {
 			if ( ! Constants::is_defined( 'XMLRPC_REQUEST' ) ) {
 				// Use the real constant here for WordPress' sake.
