@@ -242,8 +242,11 @@ class Scheduled_Updates {
 	 * Reload the cron cache in pre_schedule_event hook.
 	 */
 	public static function clear_cron_cache_pre() {
-		wp_cache_delete( 'alloptions', 'options' );
-		wp_cache_delete( 'notoptions', 'options' );
+		// If the transient is set, it means that the cron cache must be refreshed.
+		if ( get_transient( 'jetpack_scheduled_update_created_lock' ) ) {
+			wp_cache_delete( 'alloptions', 'options' );
+			wp_cache_delete( 'notoptions', 'options' );
+		}
 	}
 
 	/**
