@@ -14,9 +14,9 @@ return [
     // PhanPluginDuplicateConditionalNullCoalescing : 8 occurrences
     // PhanTypeMismatchReturn : 6 occurrences
     // PhanTypeMismatchReturnProbablyReal : 4 occurrences
-    // PhanUndeclaredClassMethod : 4 occurrences
     // PhanNoopNew : 3 occurrences
     // PhanTypePossiblyInvalidDimOffset : 3 occurrences
+    // PhanUndeclaredClassMethod : 3 occurrences
     // PhanUndeclaredFunction : 3 occurrences
     // PhanEmptyFQSENInCallable : 2 occurrences
     // PhanParamTooMany : 2 occurrences
@@ -37,18 +37,13 @@ return [
     // PhanTypeMismatchReturnNullable : 1 occurrence
     // PhanTypeNonVarPassByRef : 1 occurrence
     // PhanTypeVoidArgument : 1 occurrence
-    // PhanUndeclaredClassInCallable : 1 occurrence
-    // PhanUndeclaredConstant : 1 occurrence
-    // PhanUndeclaredFunctionInCallable : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-jetpack-mu-wpcom.php' => ['PhanNoopNew'],
         'src/features/100-year-plan/enhanced-ownership.php' => ['PhanEmptyFQSENInCallable'],
         'src/features/100-year-plan/locked-mode.php' => ['PhanEmptyFQSENInCallable'],
-        'src/features/admin-color-schemes/admin-color-schemes.php' => ['PhanUndeclaredConstant'],
         'src/features/block-patterns/class-wpcom-block-patterns-utils.php' => ['PhanTypeMismatchReturnNullable'],
-        'src/features/cloudflare-analytics/cloudflare-analytics.php' => ['PhanUndeclaredClassMethod'],
         'src/features/coming-soon/coming-soon.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchArgumentInternal', 'PhanUndeclaredFunction'],
         'src/features/coming-soon/fallback-coming-soon-page.php' => ['PhanTypeMismatchArgument', 'PhanTypeVoidArgument'],
         'src/features/error-reporting/error-reporting.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
@@ -60,7 +55,7 @@ return [
         'src/features/verbum-comments/class-verbum-comments.php' => ['PhanImpossibleTypeComparison', 'PhanNoopNew', 'PhanParamTooMany', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredFunction'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-launchpad.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-site-migration-migrate-guru-key.php' => ['PhanUndeclaredClassMethod'],
-        'src/features/wpcom-site-menu/wpcom-site-menu.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassInCallable', 'PhanUndeclaredFunctionInCallable'],
+        'src/features/wpcom-site-menu/wpcom-site-menu.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'tests/lib/functions-wordpress.php' => ['PhanRedefineFunction'],
         'tests/php/features/block-patterns/class-wpcom-block-patterns-from-api-test.php' => ['PhanDeprecatedFunction'],
         'tests/php/features/coming-soon/class-coming-soon-test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
