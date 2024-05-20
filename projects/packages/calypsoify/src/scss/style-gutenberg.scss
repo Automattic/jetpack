@@ -2,7 +2,7 @@
  * Hide Fullscreen option from post-editor
  *
  * The entire menu group is not rendered on smaller screens so we need a media query.
- * Hide the fourth item of the first group when the screen is big enough.
+ * Hide the last item of the first group when the screen is big enough.
  */
 @media (min-width: 782px) {
   .components-dropdown-menu__menu:first-child .components-menu-group:first-child .components-button:last-of-type {
