@@ -4,7 +4,7 @@
  *
  * Ported from original repo at https://github.com/automattic/jetpack-force-2fa
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Connection\Manager\SSO instead.
+ * @deprecated 13.5 Use Automattic\Jetpack\Connection\Manager\SSO instead.
  *
  * phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
  *
@@ -14,7 +14,7 @@
 /**
  * Force users to use two factor authentication.
  *
- * @deprecated $$next-version$$
+ * @deprecated 13.5
  */
 class Jetpack_Force_2FA {
 
@@ -24,7 +24,7 @@ class Jetpack_Force_2FA {
 	 * Defaults to manage_options via the plugins_loaded function.
 	 * Can be modified with the jetpack_force_2fa_cap filter.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.5
 	 *
 	 * @var string
 	 */
@@ -33,38 +33,38 @@ class Jetpack_Force_2FA {
 	/**
 	 * Constructor.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.5
 	 */
 	public function __construct() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Force_2FA::__construct' );
+		_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Force_2FA::__construct' );
 	}
 
 	/**
 	 * Load the plugin via the plugins_loaded hook.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.5
 	 */
 	public function plugins_loaded() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Force_2FA::plugins_loaded' );
+		_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Force_2FA::plugins_loaded' );
 	}
 
 	/**
 	 * Display an admin notice if Jetpack SSO is not active.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.5
 	 */
 	public function admin_notice() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Force_2FA::admin_notice' );
+		_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Force_2FA::admin_notice' );
 	}
 
 	/**
 	 * Specifically set the two step filter for Jetpack SSO.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.5
 	 *
 	 * @param Object $user_data The user data from WordPress.com.
 	 */
 	public function jetpack_set_two_step( $user_data ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Force_2FA::jetpack_set_two_step' );
+		_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Force_2FA::jetpack_set_two_step' );
 	}
 }
