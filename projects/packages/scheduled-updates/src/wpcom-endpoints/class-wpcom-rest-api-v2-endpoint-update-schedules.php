@@ -179,13 +179,13 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$plugins  = $request['plugins'];
 		usort( $plugins, 'strnatcasecmp' );
 
-		$res = Scheduled_Updates::create_scheduled_update( $schedule['timestamp'], $schedule['interval'], $plugins );
+		$event = Scheduled_Updates::create_scheduled_update( $schedule['timestamp'], $schedule['interval'], $plugins );
 
-		if ( is_wp_error( $res ) ) {
+		if ( is_wp_error( $event ) ) {
 			// If the schedule could not be created, return an error.
-			$res->add_data( array( 'status' => 500 ) );
+			$event->add_data( array( 'status' => 500 ) );
 
-			return $res;
+			return $event;
 		}
 
 		$id    = Scheduled_Updates::generate_schedule_id( $plugins );
