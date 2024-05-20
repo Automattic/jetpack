@@ -8,25 +8,27 @@
 
 }
 
-.profile-link {
-	&:global(.components-external-link) {
+.connection-name {
+	display: inline-block;
 
+	span.profile-link,
+	.profile-link:global(.components-external-link) {
 		color: inherit;
 		text-decoration: none;
 		font-size: 1rem;
 		font-weight: 400;
 
-		&:hover {
-			text-decoration: underline;
-		}
-
 		>svg {
 			vertical-align: bottom;
 		}
+
+		span {
+			text-decoration: none;
+		}
 	}
 
-	span {
-		text-decoration: none;
+	.profile-link:global(.components-external-link):hover {
+		text-decoration: underline;
 	}
 }
 

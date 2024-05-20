@@ -36,9 +36,9 @@ function AccountInfo( { label, profile_picture }: AccountInfoProps ) {
 	return (
 		<div className={ styles[ 'account-info' ] }>
 			{ profile_picture ? (
-				<img className={ styles[ 'propfile-pic' ] } src={ profile_picture } alt={ label } />
+				<img className={ styles[ 'profile-pic' ] } src={ profile_picture } alt={ label } />
 			) : null }
-			{ label }&nbsp;
+			<span>{ label }</span>
 		</div>
 	);
 }
@@ -161,7 +161,7 @@ export function ConfirmationForm( { keyringResult, onComplete }: ConfirmationFor
 	return (
 		<section className={ styles.confirmation }>
 			{ ! accounts.not_connected.length ? (
-				<div>
+				<p className={ styles[ 'header-text' ] }>
 					{
 						// TODO Make this more useful. For example, in case of Instagram, we could show a message that only Instagra business accounts are supported.
 						accounts.connected.length
@@ -172,10 +172,10 @@ export function ConfirmationForm( { keyringResult, onComplete }: ConfirmationFor
 							  )
 							: __( 'No accounts/pages found.', 'jetpack' )
 					}
-				</div>
+				</p>
 			) : (
 				<div>
-					<p>
+					<p className={ styles[ 'header-text' ] }>
 						{ __(
 							`Select the account you'd like to connect. All your new blog posts will be automatically shared to this account. You'll be able to change this option in the editor sidebar when you're writing a post.`,
 							'jetpack'

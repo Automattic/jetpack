@@ -15,13 +15,16 @@ type ConnectionNameProps = {
  */
 export function ConnectionName( { connection }: ConnectionNameProps ) {
 	if ( connection.display_name ) {
-		if ( ! connection.profile_link ) {
-			return <span>{ connection.display_name }</span>;
-		}
 		return (
-			<ExternalLink className={ styles[ 'profile-link' ] } href={ connection.profile_link }>
-				{ connection.display_name }
-			</ExternalLink>
+			<div className={ styles[ 'connection-name' ] }>
+				{ ! connection.profile_link ? (
+					<span className={ styles[ 'profile-link' ] }>{ connection.display_name }</span>
+				) : (
+					<ExternalLink className={ styles[ 'profile-link' ] } href={ connection.profile_link }>
+						{ connection.display_name }
+					</ExternalLink>
+				) }
+			</div>
 		);
 	}
 	return <Spinner color="black" />;
