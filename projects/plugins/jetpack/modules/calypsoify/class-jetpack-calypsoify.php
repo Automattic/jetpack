@@ -30,6 +30,7 @@ class Jetpack_Calypsoify {
 	 * Jetpack_Calypsoify constructor.
 	 */
 	private function __construct() {
+		_deprecated_class( 'Jetpack_Calypsoify', 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify' );
 		add_action( 'admin_init', array( $this, 'setup' ), 4 );
 	}
 
@@ -39,6 +40,7 @@ class Jetpack_Calypsoify {
 	 * @return Jetpack_Calypsoify
 	 */
 	public static function get_instance() {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify\\Jetpack_Calypsoify::get_instance' );
 		if ( ! self::$instance ) {
 			self::$instance = new self();
 		}
@@ -50,6 +52,7 @@ class Jetpack_Calypsoify {
 	 * Setup function that is loaded on the `wp_loaded` hook via the constructor.
 	 */
 	public function setup() {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify\\Jetpack_Calypsoify::setup' );
 		$this->is_calypsoify_enabled = isset( $_GET['calypsoify'] ) && 1 === (int) $_GET['calypsoify'] && $this->is_page_gutenberg(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		$this->check_meta();
@@ -63,6 +66,7 @@ class Jetpack_Calypsoify {
 	 * Enqueues scripts, data, and styles for Gutenberg.
 	 */
 	public function enqueue_for_gutenberg() {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify\\Jetpack_Calypsoify::enqueue_for_gutenberg' );
 		$site_suffix = ( new Status() )->get_site_suffix();
 		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'style-gutenberg.min.css', false, JETPACK__VERSION );
 		wp_style_add_data( 'calypsoify_wpadminmods_css', 'rtl', 'replace' );
@@ -86,6 +90,7 @@ class Jetpack_Calypsoify {
 	 * @return string
 	 */
 	private function get_calypso_origin() {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify\\Jetpack_Calypsoify::get_calypso_origin' );
 		$origin  = ! empty( $_GET['origin'] ) ? wp_unslash( $_GET['origin'] ) : 'https://wordpress.com'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$allowed = array(
 			'http://calypso.localhost:3000',
@@ -106,6 +111,7 @@ class Jetpack_Calypsoify {
 	 * @return string
 	 */
 	public function get_calypso_url( $post_id = null ) {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify\\Jetpack_Calypsoify::get_calypso_url' );
 		$screen      = get_current_screen();
 		$post_type   = $screen->post_type;
 		$site_suffix = ( new Status() )->get_site_suffix();
@@ -133,6 +139,7 @@ class Jetpack_Calypsoify {
 	 * @return string
 	 */
 	public function get_close_gutenberg_url() {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify\\Jetpack_Calypsoify::get_close_gutenberg_url' );
 		return $this->get_calypso_url();
 	}
 
@@ -142,6 +149,7 @@ class Jetpack_Calypsoify {
 	 * @return string
 	 */
 	public function get_switch_to_classic_editor_url() {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify\\Jetpack_Calypsoify::get_switch_to_classic_editor_url' );
 		return add_query_arg(
 			'set-editor',
 			'classic',
@@ -154,6 +162,7 @@ class Jetpack_Calypsoify {
 	 * This is to ensure that Calypsoify is not activated without the URL parameter.
 	 */
 	public function check_meta() {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify\\Jetpack_Calypsoify::check_meta' );
 		if ( ! empty( get_user_meta( get_current_user_id(), 'calypsoify', true ) ) ) {
 			delete_user_meta( get_current_user_id(), 'calypsoify' );
 		}
@@ -167,6 +176,7 @@ class Jetpack_Calypsoify {
 	 * @param string $post_type Post type.
 	 */
 	public function is_post_type_gutenberg( $post_type ) {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify\\Jetpack_Calypsoify::is_post_type_gutenberg' );
 		return use_block_editor_for_post_type( $post_type );
 	}
 
@@ -176,6 +186,7 @@ class Jetpack_Calypsoify {
 	 * @return bool
 	 */
 	public function is_page_gutenberg() {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify\\Jetpack_Calypsoify::is_page_gutenberg' );
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		// Disabling WordPress.Security.NonceVerification.Recommended because this function fires within admin_init and this is only changing display.
 		$page = isset( $_SERVER['REQUEST_URI'] ) ? wp_basename( esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) : '';
