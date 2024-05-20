@@ -33,6 +33,7 @@ export const pickRelevantMediaFiles = ( image, sizeSlug ) => {
 export const SlideshowEdit = ( {
 	attributes,
 	setAttributes,
+	className,
 	isSelected,
 	noticeOperations,
 	noticeUI,
@@ -43,7 +44,9 @@ export const SlideshowEdit = ( {
 } ) => {
 	const { align, autoplay, delay, effect, images, sizeSlug, ids } = attributes;
 
-	const blockProps = useBlockProps();
+	const blockProps = useBlockProps( {
+		className: className,
+	} );
 
 	const setImages = imgs => {
 		setAttributes( {
@@ -135,6 +138,7 @@ export const SlideshowEdit = ( {
 				<Slideshow
 					align={ align }
 					autoplay={ autoplay }
+					className={ blockProps.className }
 					delay={ delay }
 					effect={ effect }
 					images={ images }

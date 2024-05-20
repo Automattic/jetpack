@@ -18,6 +18,8 @@ class SelectDropdownItem extends React.Component {
 		selected: false,
 	};
 
+	itemLinkRef = React.createRef();
+
 	render() {
 		const optionClassName = classNames( this.props.className, {
 			'dops-select-dropdown__item': true,
@@ -28,7 +30,7 @@ class SelectDropdownItem extends React.Component {
 		return (
 			<li className="dops-select-dropdown__option">
 				<a
-					ref="itemLink"
+					ref={ this.itemLinkRef }
 					href={ this.props.path }
 					className={ optionClassName }
 					onClick={ this.props.disabled ? null : this.props.onClick }

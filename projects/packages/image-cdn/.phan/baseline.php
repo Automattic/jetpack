@@ -13,12 +13,10 @@ return [
     // PhanPluginSimplifyExpressionBool : 6 occurrences
     // PhanParamTooMany : 5 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
-    // PhanUndeclaredFunctionInCallable : 4 occurrences
     // PhanPossiblyUndeclaredVariable : 3 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 2 occurrences
     // PhanTypeMismatchPropertyProbablyReal : 2 occurrences
     // PhanTypeMismatchReturn : 2 occurrences
-    // PhanUndeclaredClassMethod : 2 occurrences
     // PhanNonClassMethodCall : 1 occurrence
     // PhanTypeArraySuspicious : 1 occurrence
     // PhanTypeMismatchArgumentInternal : 1 occurrence
@@ -26,17 +24,16 @@ return [
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
     // PhanTypeMismatchReturnProbablyReal : 1 occurrence
     // PhanTypeObjectUnsetDeclaredProperty : 1 occurrence
-    // PhanUndeclaredClassInCallable : 1 occurrence
     // PhanUndeclaredMethod : 1 occurrence
     // PhanUndeclaredStaticMethod : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-image-cdn-core.php' => ['PhanTypeMismatchReturn'],
-        'src/class-image-cdn-image-sizes.php' => ['PhanPluginSimplifyExpressionBool', 'PhanUndeclaredClassInCallable'],
-        'src/class-image-cdn.php' => ['PhanNonClassMethodCall', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredClassMethod'],
-        'src/compatibility/photon.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredFunctionInCallable'],
-        'tests/php/test_class.image_cdn.php' => ['PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredMethod', 'PhanUndeclaredStaticMethod'],
+        'src/class-image-cdn-image-sizes.php' => ['PhanPluginSimplifyExpressionBool'],
+        'src/class-image-cdn.php' => ['PhanNonClassMethodCall', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset'],
+        'src/compatibility/photon.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgumentNullableInternal'],
+        'tests/php/test_class.image_cdn.php' => ['PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyProbablyReal', 'PhanUndeclaredMethod', 'PhanUndeclaredStaticMethod'],
         'tests/php/test_class.image_cdn_core.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeObjectUnsetDeclaredProperty'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

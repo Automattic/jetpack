@@ -2659,6 +2659,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),
+			'jetpack_subscribe_overlay_enabled'     => array(
+				'description'       => esc_html__( 'Show subscribe overlay on homepage.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
 			'jetpack_subscriptions_subscribe_post_end_enabled' => array(
 				'description'       => esc_html__( 'Add Subscribe block at the end of each post.', 'jetpack' ),
 				'type'              => 'boolean',
@@ -3409,8 +3416,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error
 	 */
 	public static function validate_subscriptions_reply_to( $value, $request, $param ) {
-		$valid_values = array( 'author', 'no-reply' );
-		if ( ! empty( $value ) && ! in_array( $value, $valid_values, true ) ) {
+		require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-settings.php';
+		if ( ! empty( $value ) && ! Automattic\Jetpack\Modules\Subscriptions\Settings::is_valid_reply_to( $value ) ) {
 			return new WP_Error(
 				'invalid_param',
 				sprintf(

@@ -48,14 +48,17 @@ const ConnectionStatusCard = props => {
 	const {
 		apiRoot,
 		apiNonce,
-		redirectUri,
-		title,
-		connectionInfoText,
+		redirectUri = null,
+		title = __( 'Connection', 'jetpack-my-jetpack' ),
+		connectionInfoText = __(
+			'Jetpack connects your site and user account to the WordPress.com cloud to provide more powerful features.',
+			'jetpack-my-jetpack'
+		),
 		onDisconnected,
 		connectedPlugins,
 		connectedSiteId,
 		context,
-		onConnectUser,
+		onConnectUser = null,
 	} = props;
 
 	const { isRegistered, isUserConnected, userConnectionData } = useConnection( {
@@ -262,17 +265,6 @@ ConnectionStatusCard.propTypes = {
 	onConnectUser: PropTypes.func,
 	/** Shows an requires user connection message if true and a user connection is missing */
 	requiresUserConnection: PropTypes.bool,
-};
-
-ConnectionStatusCard.defaultProps = {
-	title: __( 'Connection', 'jetpack-my-jetpack' ),
-	connectionInfoText: __(
-		'Jetpack connects your site and user account to the WordPress.com cloud to provide more powerful features.',
-		'jetpack-my-jetpack'
-	),
-	redirectUri: null,
-	onConnectUser: null,
-	requiresUserConnection: true,
 };
 
 export default ConnectionStatusCard;

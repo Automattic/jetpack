@@ -12,6 +12,7 @@ type JetpackSettingsSelectors = {
 
 type ConnectionDataSelectors = {
 	getConnections: () => Array< object >;
+	getServices: () => Array< object >;
 	getConnectionsAdminUrl: () => string;
 	hasConnections: () => boolean;
 };

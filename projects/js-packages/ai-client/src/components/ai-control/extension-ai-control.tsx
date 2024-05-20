@@ -16,10 +16,11 @@ import './style.scss';
 /**
  * Types
  */
-import type { RequestingStateProp } from '../../types.js';
+import type { RequestingErrorProps, RequestingStateProp } from '../../types.js';
 import type { ReactElement, MouseEvent } from 'react';
 
 type ExtensionAIControlProps = {
+	className?: string;
 	disabled?: boolean;
 	value: string;
 	placeholder?: string;
@@ -27,7 +28,7 @@ type ExtensionAIControlProps = {
 	isTransparent?: boolean;
 	state?: RequestingStateProp;
 	showGuideLine?: boolean;
-	error?: string;
+	error?: RequestingErrorProps;
 	requestsRemaining?: number;
 	showUpgradeMessage?: boolean;
 	wrapperRef?: React.MutableRefObject< HTMLDivElement | null >;
@@ -49,6 +50,7 @@ type ExtensionAIControlProps = {
  */
 export function ExtensionAIControl(
 	{
+		className,
 		disabled = false,
 		value = '',
 		placeholder = '',
@@ -200,8 +202,16 @@ export function ExtensionAIControl(
 	);
 
 	let message = null;
-	if ( error ) {
-		message = <ErrorMessage error={ error } onTryAgainClick={ tryAgainHandler } />;
+
+	if ( error?.message ) {
+		message = (
+			<ErrorMessage
+				error={ error.message }
+				code={ error.code }
+				onTryAgainClick={ tryAgainHandler }
+				onUpgradeClick={ upgradeHandler }
+			/>
+		);
 	} else if ( showUpgradeMessage ) {
 		message = (
 			<UpgradeMessage requestsRemaining={ requestsRemaining } onUpgradeClick={ upgradeHandler } />
@@ -212,6 +222,7 @@ export function ExtensionAIControl(
 
 	return (
 		<AIControl
+			className={ className }
 			disabled={ disabled || loading }
 			value={ value }
 			placeholder={ placeholder }

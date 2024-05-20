@@ -49,7 +49,10 @@ class Singular_Post_Provider extends Provider {
 			$query = self::post_type_query( $post_type );
 
 			foreach ( $query->posts as $post ) {
-				$links[ $post_type ][] = get_permalink( $post );
+				$url = get_permalink( $post );
+				if ( ! empty( $url ) ) {
+					$links[ $post_type ][] = $url;
+				}
 			}
 		}
 

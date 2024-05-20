@@ -47,14 +47,6 @@ class SSO {
 
 		self::$instance = $this;
 
-		/*
-		 * This feature currently relies on the Jetpack plugin.
-		 * Bail if Jetpack isn't installed.
-		 */
-		if ( ! class_exists( 'Jetpack' ) ) {
-			return;
-		}
-
 		add_action( 'admin_init', array( $this, 'maybe_authorize_user_after_sso' ), 1 );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'login_init', array( $this, 'login_init' ) );
@@ -70,6 +62,9 @@ class SSO {
 		add_action( 'login_form_jetpack-sso', '__return_true' );
 
 		add_filter( 'wp_login_errors', array( $this, 'sso_reminder_logout_wpcom' ) );
+
+		// Synchronize SSO options with WordPress.com.
+		add_filter( 'jetpack_sync_callable_whitelist', array( $this, 'sync_sso_callables' ), 10, 1 );
 
 		/**
 		 * Filter to include Force 2FA feature.
@@ -132,6 +127,27 @@ class SSO {
 
 		self::$instance = new SSO();
 		return self::$instance;
+	}
+
+	/**
+	 * Add SSO callables to the sync whitelist.
+	 *
+	 * @since 2.8.1
+	 *
+	 * @param array $callables list of callables.
+	 *
+	 * @return array list of callables.
+	 */
+	public function sync_sso_callables( $callables ) {
+		$sso_callables = array(
+			'sso_is_two_step_required'      => array( Helpers::class, 'is_two_step_required' ),
+			'sso_should_hide_login_form'    => array( Helpers::class, 'should_hide_login_form' ),
+			'sso_match_by_email'            => array( Helpers::class, 'match_by_email' ),
+			'sso_new_user_override'         => array( Helpers::class, 'new_user_override' ),
+			'sso_bypass_default_login_form' => array( Helpers::class, 'bypass_login_forward_wpcom' ),
+		);
+
+		return array_merge( $callables, $sso_callables );
 	}
 
 	/**
@@ -864,7 +880,7 @@ class SSO {
 					$user_data->role = $new_user_override_role;
 				}
 
-				$user = Helpers::generate_user( $user_data );
+				$user = Utils::generate_user( $user_data );
 				if ( ! $user ) {
 					$tracking->record_user_event(
 						'sso_login_failed',

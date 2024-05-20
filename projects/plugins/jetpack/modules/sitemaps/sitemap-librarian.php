@@ -299,7 +299,7 @@ class Jetpack_Sitemap_Librarian {
 	 *
 	 * @param int $post_id Post identifier.
 	 *
-	 * @return int Timestamp in 'Y-m-d h:i:s' format (UTC) of the most recent comment on the given post, or null if no such comments exist.
+	 * @return string Timestamp in 'Y-m-d h:i:s' format (UTC) of the most recent comment on the given post, or null if no such comments exist.
 	 */
 	public function query_latest_approved_comment_time_on_post( $post_id ) {
 		global $wpdb;
