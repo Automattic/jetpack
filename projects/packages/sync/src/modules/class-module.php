@@ -293,7 +293,7 @@ abstract class Module {
 	 * @return array|object|null
 	 */
 	public function get_next_chunk( $config, $status, $chunk_size ) {
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,Generic.WhiteSpace.ScopeIndent.Incorrect,WordPress.DB.DirectDatabaseQuery.DirectQuery
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery
 		global $wpdb;
 		return $wpdb->get_col(
 			"
@@ -305,7 +305,7 @@ abstract class Module {
 			DESC LIMIT {$chunk_size}
 			"
 		);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,Generic.WhiteSpace.ScopeIndent.Incorrect,WordPress.DB.DirectDatabaseQuery.DirectQuery
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery
 	}
 
 	/**
@@ -317,7 +317,7 @@ abstract class Module {
 	 */
 	public function get_last_item( $config ) {
 		global $wpdb;
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.DirectQuery,Generic.WhiteSpace.ScopeIndent.Incorrect
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.DirectQuery
 		return $wpdb->get_var(
 			"
 			SELECT {$this->id_field()}
@@ -327,7 +327,7 @@ abstract class Module {
 			LIMIT 1
 			"
 		);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.DirectQuery,Generic.WhiteSpace.ScopeIndent.Incorrect
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.DirectQuery
 	}
 
 	/**
