@@ -44,18 +44,14 @@ const DefaultUpgradePrompt = ( {
 
 	const { tracks } = useAnalytics();
 
-	const handleUpgradeClick = useCallback(
-		event => {
-			debug( 'upgrade', placement );
-			tracks.recordEvent( 'jetpack_ai_upgrade_button', {
-				current_tier_slug: currentTier?.slug,
-				requests_count: requestsCount,
-				placement: placement,
-			} );
-			autosaveAndRedirect( event );
-		},
-		[ autosaveAndRedirect, currentTier, requestsCount, tracks, placement ]
-	);
+	const handleUpgradeClick = useCallback( () => {
+		debug( 'upgrade', placement );
+		tracks.recordEvent( 'jetpack_ai_upgrade_button', {
+			current_tier_slug: currentTier?.slug,
+			requests_count: requestsCount,
+			placement: placement,
+		} );
+	}, [ currentTier, requestsCount, tracks, placement ] );
 
 	const handleContactUsClick = useCallback( () => {
 		debug( 'contact us', placement );
@@ -137,11 +133,11 @@ const DefaultUpgradePrompt = ( {
 				className={ 'jetpack-ai-upgrade-banner' }
 				description={ description || upgradeDescription }
 				goToCheckoutPage={ handleUpgradeClick }
-				isRedirecting={ isRedirecting }
 				visible={ true }
 				align={ 'center' }
 				title={ null }
 				context={ null }
+				target="_blank"
 			/>
 		);
 	}
