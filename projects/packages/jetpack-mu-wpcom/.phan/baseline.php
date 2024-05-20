@@ -14,9 +14,9 @@ return [
     // PhanPluginDuplicateConditionalNullCoalescing : 8 occurrences
     // PhanTypeMismatchReturn : 6 occurrences
     // PhanTypeMismatchReturnProbablyReal : 4 occurrences
-    // PhanUndeclaredClassMethod : 4 occurrences
     // PhanNoopNew : 3 occurrences
     // PhanTypePossiblyInvalidDimOffset : 3 occurrences
+    // PhanUndeclaredClassMethod : 3 occurrences
     // PhanUndeclaredFunction : 3 occurrences
     // PhanEmptyFQSENInCallable : 2 occurrences
     // PhanParamTooMany : 2 occurrences
@@ -38,9 +38,6 @@ return [
     // PhanTypeMismatchReturnNullable : 1 occurrence
     // PhanTypeNonVarPassByRef : 1 occurrence
     // PhanTypeVoidArgument : 1 occurrence
-    // PhanUndeclaredClassInCallable : 1 occurrence
-    // PhanUndeclaredConstant : 1 occurrence
-    // PhanUndeclaredFunctionInCallable : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
