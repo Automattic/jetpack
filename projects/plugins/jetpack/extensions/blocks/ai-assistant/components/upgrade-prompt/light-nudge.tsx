@@ -25,7 +25,7 @@ export const LightNudge = ( {
 							href={ isRedirecting ? null : checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
 							onClick={ goToCheckoutPage }
 							variant="link"
-							target="_top"
+							target="_blank"
 						>
 							{ isRedirecting ? redirectingText : buttonText }
 						</Button>
