@@ -107,6 +107,7 @@ const DefaultUpgradePrompt = ( {
 					title={ null }
 					context={ null }
 					goToCheckoutPage={ handleContactUsClick }
+					target="_blank"
 				/>
 			);
 		}
