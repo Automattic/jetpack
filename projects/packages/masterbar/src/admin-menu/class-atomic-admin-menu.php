@@ -182,7 +182,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$plugins_submenu = $submenu['plugins.php'];
 
 		// Move "Add New" plugin submenu to the top position.
-		'@phan-var array $plugins_submenu';
 		foreach ( $plugins_submenu as $submenu_key => $submenu_keys ) {
 			if ( 'plugin-install.php' === $submenu_keys[2] ) {
 				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited

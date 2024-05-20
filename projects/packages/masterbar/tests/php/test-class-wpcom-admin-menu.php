@@ -252,7 +252,7 @@ class Test_WPcom_Admin_Menu extends TestCase {
 		global $submenu;
 
 		static::$admin_menu->add_options_menu();
-		'@phan-var array $submenu';
+
 		$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][10][2] );
 	}
 

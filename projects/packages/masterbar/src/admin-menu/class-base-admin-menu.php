@@ -127,7 +127,7 @@ abstract class Base_Admin_Menu {
 				break;
 			}
 		}
-		'@phan-var array $menu_item';
+
 		if ( ! $menu_item ) {
 			return false;
 		}
@@ -214,7 +214,6 @@ abstract class Base_Admin_Menu {
 		 * to submenu array that might cause an infinite loop.
 		 */
 		foreach ( $submenu_items as $i => $submenu_item ) {
-			'@phan-var array $submenu_item';
 			if ( ! array_key_exists( $submenu_item[2], $submenus_to_update ) ) {
 				continue;
 			}
@@ -445,7 +444,6 @@ abstract class Base_Admin_Menu {
 
 		$svg_items = array();
 		foreach ( $menu as $idx => $menu_item ) {
-			'@phan-var array $menu_item';
 			// Menu items that don't have icons, for example separators, have less than 7
 			// elements, partly because the 7th is the icon. So, if we have less than 7,
 			// let's skip it.
@@ -529,7 +527,6 @@ abstract class Base_Admin_Menu {
 			}
 
 			// if the menu has the same slug as the first submenu then hide the submenu.
-			'@phan-var array $first_submenu_item';
 			if ( $menu_item[2] === $first_submenu_item[2] && ! $is_first_submenu_visible ) {
 				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 				$menu[ $menu_index ][4] = self::HIDE_CSS_CLASS;

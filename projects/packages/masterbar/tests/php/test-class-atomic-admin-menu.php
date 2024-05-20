@@ -301,7 +301,6 @@ class Test_Atomic_Admin_Menu extends TestCase {
 		global $submenu;
 
 		static::$admin_menu->add_options_menu();
-		'@phan-var non-empty-array $submenu';
 		$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][11][2] );
 	}
 
@@ -314,7 +313,6 @@ class Test_Atomic_Admin_Menu extends TestCase {
 		global $submenu;
 
 		static::$admin_menu->add_users_menu();
-		'@phan-var non-empty-array $submenu';
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, $submenu['users.php'][0][2] );
 		$this->assertSame( 'user-new.php', $submenu['users.php'][2][2] );
 		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][4][2] );
@@ -367,7 +365,7 @@ class Test_Atomic_Admin_Menu extends TestCase {
 
 		static::$admin_menu->add_tools_menu();
 		$menu_position = 7;
-		'@phan-var non-empty-array $submenu';
+
 		$this->assertSame( 'https://wordpress.com/site-monitoring/' . static::$domain, $submenu['tools.php'][ $menu_position ][2] );
 	}
 
