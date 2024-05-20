@@ -1655,7 +1655,8 @@ abstract class Publicize_Base {
 	 * @return string
 	 */
 	public function get_resized_image_url( $image_url, $width, $height ) {
-		return jetpack_photon_url(
+		return apply_filters(
+			'jetpack_photon_url',
 			$image_url,
 			array(
 				'w' => $width,

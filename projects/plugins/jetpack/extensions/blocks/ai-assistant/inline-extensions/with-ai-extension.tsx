@@ -31,6 +31,7 @@ import type {
 } from '../components/ai-assistant-toolbar-dropdown/dropdown-content';
 import type { ExtendedInlineBlockProp } from '../extensions/ai-assistant';
 import type { PromptTypeProp } from '../lib/prompt';
+import type { PromptMessagesProp, PromptItemProps } from '@automattic/jetpack-ai-client';
 
 const debug = debugFactory( 'jetpack-ai-assistant:extensions:with-ai-extension' );
 
@@ -49,6 +50,7 @@ type RequestOptions = {
 	promptType: PromptTypeProp;
 	options?: AiAssistantDropdownOnChangeOptionsArgProps;
 	humanText?: string;
+	message?: PromptItemProps;
 };
 
 type CoreEditorDispatch = { undo: () => Promise< void > };
@@ -68,10 +70,12 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		// Also used to determine the ownerDocument, as the editor can be in an iframe.
 		const inputRef: React.MutableRefObject< HTMLInputElement | null > = useRef( null );
 		const ownerDocument = useRef< Document >( document );
+		// Ref to the chat history to keep track of the messages that were sent and the assistant responses.
+		const chatHistory = useRef< PromptMessagesProp >( [] );
 		// A human-readable action to be displayed in the input when a toolbar suggestion is requested, like "Translate: Japanese".
 		const [ action, setAction ] = useState< string >( '' );
 		// The last request made by the user, to be used when the user clicks the "Try Again" button.
-		const [ lastRequest, setLastRequest ] = useState< RequestOptions | null >( null );
+		const lastRequest = useRef< RequestOptions | null >( null );
 		// State to display the AI Control or not.
 		const [ showAiControl, setShowAiControl ] = useState( false );
 		// Data and functions from the editor.
@@ -112,6 +116,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				const extension = blockExtensionMapper[ blockName ];
 
 				return [
+					...chatHistory.current,
 					{
 						role: 'jetpack-ai' as const,
 						context: {
@@ -120,6 +125,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 							request: options?.userPrompt,
 							tone: options?.tone,
 							language: options?.language,
+							is_follow_up: chatHistory.current.length > 0,
 						},
 					},
 				];
@@ -161,14 +167,43 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			onBlockDone();
 			increaseRequestsCount();
 			setAction( '' );
-			setLastRequest( null );
+
+			if ( lastRequest.current?.message ) {
+				const assistantMessage = {
+					role: 'assistant' as const,
+					content: getContent(),
+				};
+
+				chatHistory.current.push( lastRequest.current.message, assistantMessage );
+
+				// Limit the messages to 20 items.
+				if ( chatHistory.current.length > 20 ) {
+					chatHistory.current.splice( 0, chatHistory.current.length - 20 );
+
+					// Make sure the first message is a 'jetpack-ai' message and not marked as a follow-up.
+					const firstJetpackAiMessageIndex = chatHistory.current.findIndex(
+						message => message.role === 'jetpack-ai'
+					);
+
+					if ( firstJetpackAiMessageIndex !== -1 ) {
+						chatHistory.current = chatHistory.current.slice( firstJetpackAiMessageIndex );
+
+						chatHistory.current[ 0 ].context = {
+							...chatHistory.current[ 0 ].context,
+							is_follow_up: false,
+						};
+					}
+				}
+			}
+
+			lastRequest.current = null;
 
 			// Make sure the block element has the necessary bottom padding, as it can be replaced or changed
 			setTimeout( () => {
 				adjustBlockPadding();
 				inputRef.current?.focus();
 			}, 100 );
-		}, [ onBlockDone, increaseRequestsCount, adjustBlockPadding ] );
+		}, [ onBlockDone, increaseRequestsCount, getContent, adjustBlockPadding ] );
 
 		// Called when an error is received.
 		const onError = useCallback(
@@ -221,7 +256,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				debug( 'Request suggestion', promptType, options );
 
-				setLastRequest( { promptType, options, humanText } );
+				const lastMessage = messages[ messages.length - 1 ];
+				lastRequest.current = { promptType, options, humanText, message: lastMessage };
 
 				/*
 				 * Always dequeue/cancel the AI Assistant feature async request,
@@ -255,11 +291,11 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		// Called when the user clicks the "Try Again" button in the input error message.
 		const handleTryAgain = useCallback( () => {
-			if ( lastRequest ) {
+			if ( lastRequest.current ) {
 				handleRequestSuggestion(
-					lastRequest.promptType,
-					lastRequest.options,
-					lastRequest.humanText
+					lastRequest.current.promptType,
+					lastRequest.current.options,
+					lastRequest.current.humanText
 				);
 			}
 		}, [ lastRequest, handleRequestSuggestion ] );
@@ -269,7 +305,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			setShowAiControl( false );
 			resetSuggestions();
 			setAction( '' );
-			setLastRequest( null );
+			lastRequest.current = null;
+			chatHistory.current = [];
 		}, [ resetSuggestions ] );
 
 		// Called when the user clicks the "Undo" button after a successful request.

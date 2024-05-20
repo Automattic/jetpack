@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Replaced heredoc syntax with strings.
