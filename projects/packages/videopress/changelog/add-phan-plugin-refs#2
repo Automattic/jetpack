@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Make sure a variable is defined by initializing it unconditionally.
+
+
