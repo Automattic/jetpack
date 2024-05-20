@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.4] - 2024-05-20
+### Changed
+- Internal updates.
+
 ## [4.2.3] - 2024-05-06
 ### Changed
 - Internal updates.
@@ -232,6 +236,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - Initial version.
 
+[4.2.4]: https://github.com/Automattic/jetpack-changelogger/compare/4.2.3...4.2.4
 [4.2.3]: https://github.com/Automattic/jetpack-changelogger/compare/4.2.2...4.2.3
 [4.2.2]: https://github.com/Automattic/jetpack-changelogger/compare/4.2.1...4.2.2
 [4.2.1]: https://github.com/Automattic/jetpack-changelogger/compare/4.2.0...4.2.1
