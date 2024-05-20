@@ -35,7 +35,7 @@ export const EXTENDED_INLINE_BLOCKS: string[] = [];
 // Temporarily keep track of inline extensions that have been released to production.
 const releasedInlineExtensions = [ 'core/heading' ];
 // Temporarily keep track of inline extensions that are being worked on.
-const unreleasedInlineExtensions = [];
+const unreleasedInlineExtensions = [ 'core/paragraph' ];
 
 releasedInlineExtensions.forEach( block => {
 	// Add the released inline extension to the inline list...
