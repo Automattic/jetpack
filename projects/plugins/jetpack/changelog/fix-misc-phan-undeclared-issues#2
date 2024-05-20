@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Due to a wrong namespace in #21128, the stubs never actually worked.
-
-Remove `jetpack_server_sandbox()` and `jetpack_server_sandbox_request_parameters()`. They'd have thrown fatals since October 2021.
