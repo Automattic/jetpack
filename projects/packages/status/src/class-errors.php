@@ -19,11 +19,13 @@ class Errors {
 	/**
 	 * Catches PHP errors.  Must be used in conjunction with output buffering.
 	 *
+	 * @deprecated since $$next-version$$
 	 * @param bool $catch True to start catching, False to stop.
 	 *
 	 * @static
 	 */
 	public function catch_errors( $catch ) {
+		_deprecated_function( __FUNCTION__, '$$next-version$$' );
 		static $display_errors, $error_reporting;
 
 		if ( $catch ) {

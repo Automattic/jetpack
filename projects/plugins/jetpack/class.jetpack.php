@@ -21,7 +21,6 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\CookieState;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
-use Automattic\Jetpack\Errors;
 use Automattic\Jetpack\Files;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Licensing;
@@ -2397,24 +2396,6 @@ class Jetpack {
 	}
 
 	/**
-	 * Catches PHP errors.  Must be used in conjunction with output buffering.
-	 *
-	 * @param bool $catch True to start catching, False to stop.
-	 *
-	 * @static
-	 */
-	public static function catch_errors( $catch ) {
-		return ( new Errors() )->catch_errors( $catch );
-	}
-
-	/**
-	 * Saves any generated PHP errors in ::state( 'php_errors', {errors} )
-	 */
-	public static function catch_errors_on_shutdown() {
-		self::state( 'php_errors', self::alias_directories( ob_get_clean() ) );
-	}
-
-	/**
 	 * Rewrite any string to make paths easier to read.
 	 *
 	 * Rewrites ABSPATH (eg `/home/jetpack/wordpress/`) to ABSPATH, and if WP_CONTENT_DIR
@@ -2533,12 +2514,6 @@ class Jetpack {
 		 */
 		do_action( 'jetpack_before_activate_default_modules', $min_version, $max_version, $other_modules, $requires_connection, $requires_user_connection );
 
-		// Check each module for fatal errors, a la wp-admin/plugins.php::activate before activating.
-		if ( $send_state_messages ) {
-			self::restate();
-			self::catch_errors( true );
-		}
-
 		$active = self::get_active_modules();
 
 		foreach ( $modules as $module ) {
@@ -2606,8 +2581,6 @@ class Jetpack {
 			self::state( 'error', false );
 			self::state( 'module', false );
 		}
-
-		self::catch_errors( false );
 		/**
 		 * Fires when default modules are activated.
 		 *

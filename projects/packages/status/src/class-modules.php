@@ -454,10 +454,8 @@ class Modules {
 			}
 
 			// Check the file for fatal errors, a la wp-admin/plugins.php::activate.
-			$errors = new Errors();
 			$state->state( 'module', $module );
 			$state->state( 'error', 'module_activation_failed' ); // we'll override this later if the plugin can be included without fatal error.
-			$errors->catch_errors( true );
 
 			ob_start();
 			$module_path = $this->get_path( $module );
@@ -470,7 +468,6 @@ class Modules {
 
 			$state->state( 'error', false ); // the override.
 			ob_end_clean();
-			$errors->catch_errors( false );
 		} else { // Not a Jetpack plugin.
 			$active[] = $module;
 			$this->update_active( $active );
