@@ -133,7 +133,7 @@ class Source_Providers {
 				}
 
 				if ( $provider !== WP_Core_Provider::class ) {
-					$urls = array_diff( $urls, $flat_wp_core_urls );
+					$urls = array_values( array_diff( $urls, $flat_wp_core_urls ) );
 				}
 
 				if ( empty( $urls ) ) {
