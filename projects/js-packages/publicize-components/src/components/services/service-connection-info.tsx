@@ -30,7 +30,7 @@ export const ServiceConnectionInfo = ( { connection, service }: ServiceConnectio
 				<ConnectionName connection={ connection } />
 				<div className={ styles[ 'mark-shared-wrap' ] }>
 					<MarkAsShared connection={ connection } />
-					<IconTooltip>
+					<IconTooltip placement="top" inline={ false } shift>
 						{ __(
 							'If enabled, the connection will be available to all administrators, editors, and authors.',
 							'jetpack'
