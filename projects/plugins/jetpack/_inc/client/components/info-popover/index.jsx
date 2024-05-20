@@ -29,6 +29,8 @@ export default class extends React.Component {
 		onClick: noop,
 	};
 
+	infoPopoverRef = React.createRef();
+
 	state = {
 		showPopover: false,
 	};
@@ -41,7 +43,7 @@ export default class extends React.Component {
 			this.props.className
 		);
 		return (
-			<button ref="infoPopover" className={ classes } onClick={ this._onClick }>
+			<button ref={ this.infoPopoverRef } className={ classes } onClick={ this._onClick }>
 				<Gridicon icon="info-outline" size={ 18 } />
 				{ this.props.screenReaderText ? (
 					<span className="screen-reader-text">{ this.props.screenReaderText }</span>
@@ -51,7 +53,7 @@ export default class extends React.Component {
 				<Popover
 					id={ this.props.id }
 					isVisible={ this.state.showPopover }
-					context={ this.refs && this.refs.infoPopover }
+					context={ this.infoPopoverRef.current }
 					ignoreContext={ this.props.ignoreContext }
 					position={ this.props.position }
 					onClose={ this._onClose }

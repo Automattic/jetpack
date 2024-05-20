@@ -26,20 +26,35 @@ export const isAiAssistantExtensionsSupportEnabled = getFeatureAvailability(
 	AI_ASSISTANT_EXTENSIONS_SUPPORT_NAME
 );
 
-// The blocks will be converted one by one to inline blocks, so we update the lists accordingly, under the feature flag.
-export let EXTENDED_TRANSFORMATIVE_BLOCKS: string[];
-export let EXTENDED_INLINE_BLOCKS: string[];
+const ALL_EXTENDED_BLOCKS = [ 'core/paragraph', 'core/list', 'core/heading' ];
 
-if ( isAiAssistantExtensionsSupportEnabled ) {
-	EXTENDED_TRANSFORMATIVE_BLOCKS = [ 'core/paragraph', 'core/list' ];
-	EXTENDED_INLINE_BLOCKS = [ 'core/heading' ];
-} else {
-	EXTENDED_TRANSFORMATIVE_BLOCKS = [ 'core/paragraph', 'core/list', 'core/heading' ];
-	EXTENDED_INLINE_BLOCKS = [];
-}
+// The blocks will be converted one by one to inline blocks, so we update the lists accordingly, under the feature flag.
+export let EXTENDED_TRANSFORMATIVE_BLOCKS: string[] = [ ...ALL_EXTENDED_BLOCKS ];
+export const EXTENDED_INLINE_BLOCKS: string[] = [];
+
+// Temporarily keep track of inline extensions that have been released to production.
+const releasedInlineExtensions = [ 'core/heading' ];
+// Temporarily keep track of inline extensions that are being worked on.
+const unreleasedTransformativeExtensions = [];
+
+releasedInlineExtensions.forEach( block => {
+	// Add the released inline extension to the inline list...
+	EXTENDED_INLINE_BLOCKS.push( block );
+	// ...and remove it from the transformative list.
+	EXTENDED_TRANSFORMATIVE_BLOCKS = EXTENDED_TRANSFORMATIVE_BLOCKS.filter( b => b !== block );
+} );
+
+unreleasedTransformativeExtensions.forEach( block => {
+	if ( isAiAssistantExtensionsSupportEnabled ) {
+		// Add the unreleased inline extension to the inline list...
+		EXTENDED_INLINE_BLOCKS.push( block );
+		// ...and remove it from the transformative list.
+		EXTENDED_TRANSFORMATIVE_BLOCKS = EXTENDED_TRANSFORMATIVE_BLOCKS.filter( b => b !== block );
+	}
+} );
 
 // Since the lists depend on the feature flag, we need to define the types manually.
-export type ExtendedBlockProp = 'core/paragraph' | 'core/list' | 'core/heading';
+export type ExtendedBlockProp = 'core/paragraph' | 'core/list';
 export type ExtendedInlineBlockProp = 'core/heading';
 
 type BlockSettingsProps = {

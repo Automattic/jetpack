@@ -128,7 +128,7 @@ init_changelogger
 cd "$BASE/projects/$REL_SLUG"
 CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 if [[ ! -d "$CHANGES_DIR" || -z "$(ls -- "$CHANGES_DIR")" ]]; then
-	proceed_p "Project $SLUG has no changes." 'Do a release anyway?'
+	proceed_p "Project $REL_SLUG has no changes." 'Do a release anyway?'
 	changelogger_add 'Internal updates.' '' --filename=force-a-release
 fi
 

@@ -346,7 +346,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		}
 
 		// 28
-		$original_number_of_term_relationships = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_relationships" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$original_number_of_term_relationships = (int) $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_relationships" );
 		// ceil(28/4) = 7 phpcs:ignore Squiz.PHP.CommentedOutCode.Found
 		$total_items = (int) ceil( $original_number_of_term_relationships / $sync_item_size );
 

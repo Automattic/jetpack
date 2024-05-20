@@ -70,5 +70,8 @@ class Verbum_Gutenberg_Editor {
 			array(),
 			$vbe_cache_buster
 		);
+
+		// phpcs:ignore Jetpack.Functions.I18n.TextDomainMismatch
+		wp_set_script_translations( 'verbum', 'default', ABSPATH . 'widgets.wp.com/verbum-block-editor/languages/' );
 	}
 }

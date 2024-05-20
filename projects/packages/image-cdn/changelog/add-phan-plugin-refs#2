@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Add phan suppression for the remove_filter of old Jetpack functions this package replaces. No point in stubbing those.
+
+

@@ -20,6 +20,7 @@
  *   - exclude_file_list: (array) Individual files to exclude.
  *   - exclude_file_regex: (array) Additional regexes to exclude. Will be anchored at the start.
  *   - file_list: (array) Additional individual files to scan.
+ *   - globals_type_map: (array) Map of global name (no `$`) to Phan type. Class names should be prefixed with `\`.
  *   - parse_file_list: (array) Files to parse but not analyze. Equivalent to listing in both 'file_list' and 'exclude_analysis_directory_list'.
  *   - stubs: (array) Predefined stubs to load. Default is `array( 'wordpress', 'wp-cli' )`.
  *      - akismet: Stubs from .phan/stubs/akismet-stubs.php.
@@ -29,7 +30,7 @@
  *      - woocommerce: Stubs from php-stubs/woocommerce.
  *      - woocommerce-internal: Stubs from .phan/stubs/woocommerce-internal-stubs.php.
  *      - woocommerce-packages: Stubs from php-stubs/woocommerce.
- *      - wordpress: Stubs from php-stubs/wordpress-stubs, php-stubs/wordpress-tests-stubs, php-stubs/wp-cli-stubs, and .phan/stubs/wordpress-constants.php.
+ *      - wordpress: Stubs from php-stubs/wordpress-stubs, php-stubs/wordpress-tests-stubs, php-stubs/wp-cli-stubs, .phan/stubs/wordpress-constants.php, and .phan/stubs/wordpress-globals.jsonc.
  *      - wp-cli: Stubs from php-stubs/wp-cli-stubs.
  *      - wpcom: Stubs from .phan/stubs/wpcom-stubs.php.
  *   - +stubs: (array) Like 'stubs', but setting this does not clear the defaults.
@@ -45,6 +46,7 @@ function make_phan_config( $dir, $options = array() ) {
 		'exclude_file_list'               => array(),
 		'exclude_file_regex'              => array(),
 		'file_list'                       => array(),
+		'globals_type_map'                => array(),
 		'parse_file_list'                 => array(),
 		'stubs'                           => array( 'wordpress', 'wp-cli' ),
 		'+stubs'                          => array(),
@@ -54,7 +56,8 @@ function make_phan_config( $dir, $options = array() ) {
 
 	$root = dirname( __DIR__ );
 
-	$stubs = array();
+	$stubs        = array();
+	$global_stubs = array();
 	foreach ( array_merge( $options['stubs'], $options['+stubs'] ) as $stub ) {
 		switch ( $stub ) {
 			case 'akismet':
@@ -79,9 +82,10 @@ function make_phan_config( $dir, $options = array() ) {
 				$stubs[] = "$root/vendor/php-stubs/woocommerce-stubs/woocommerce-packages-stubs.php";
 				break;
 			case 'wordpress':
-				$stubs[] = "$root/vendor/php-stubs/wordpress-stubs/wordpress-stubs.php";
-				$stubs[] = "$root/vendor/php-stubs/wordpress-tests-stubs/wordpress-tests-stubs.php";
-				$stubs[] = "$root/.phan/stubs/wordpress-constants.php";
+				$stubs[]        = "$root/vendor/php-stubs/wordpress-stubs/wordpress-stubs.php";
+				$stubs[]        = "$root/vendor/php-stubs/wordpress-tests-stubs/wordpress-tests-stubs.php";
+				$stubs[]        = "$root/.phan/stubs/wordpress-constants.php";
+				$global_stubs[] = "$root/.phan/stubs/wordpress-globals.jsonc";
 				break;
 			case 'wp-cli':
 				$stubs[] = "$root/vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php";
@@ -94,6 +98,12 @@ function make_phan_config( $dir, $options = array() ) {
 			default:
 				throw new InvalidArgumentException( "Unknown stub '$stub'" );
 		}
+	}
+
+	$globals = array();
+	foreach ( $global_stubs as $file ) {
+		$contents = preg_replace( '#^\s*//.*$#m', '', file_get_contents( $file ) );
+		$globals  = array_merge( $globals, json_decode( $contents, true ) );
 	}
 
 	$config = array(
@@ -122,6 +132,12 @@ function make_phan_config( $dir, $options = array() ) {
 			// Others to consider:
 			// https://github.com/wikimedia/mediawiki-tools-phan/blob/master/src/Plugin/RedundantExistenceChecksPlugin.php
 			// https://packagist.org/packages/mediawiki/phan-taint-check-plugin
+		),
+
+		// Override to hardcode existence and types of (non-builtin) globals in the global scope.
+		'globals_type_map'                => array_merge(
+			$globals,
+			$options['globals_type_map']
 		),
 
 		// Issues to disable globally.

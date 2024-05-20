@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Correct phpdoc return type on `Tus_File::get_wp_filesystem()`
+
+

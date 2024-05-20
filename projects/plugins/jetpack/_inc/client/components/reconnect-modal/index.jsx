@@ -26,7 +26,7 @@ import './style.scss';
  */
 export function ReconnectModal( props ) {
 	const {
-		show,
+		show = false,
 		onHide,
 		isSiteConnected: isSiteConnectedProp,
 		isReconnectingSite: isReconnectingSiteProp,
@@ -117,10 +117,6 @@ ReconnectModal.propTypes = {
 	show: PropTypes.bool,
 	onHide: PropTypes.func,
 	clickReconnectSite: PropTypes.func,
-};
-
-ReconnectModal.defaultProps = {
-	show: false,
 };
 
 export default connect(

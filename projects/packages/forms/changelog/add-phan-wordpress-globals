@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix phpdoc return type of `Contact_Form_Plugin::personal_data_search_filter`.
+
+
