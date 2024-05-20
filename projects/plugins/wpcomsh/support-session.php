@@ -262,7 +262,6 @@ class WPCOMSH_Support_Session_Detect {
 	 * or an extension-managed support session.
 	 */
 	public static function print_detection_ui() {
-		$post_nonce = wp_create_nonce( static::NONCE_ACTION_POST );
 		?>
 		<!DOCTYPE html>
 		<html>
@@ -316,7 +315,7 @@ class WPCOMSH_Support_Session_Detect {
 				</div>
 				<form id="result-form" method="POST">
 					<input id="result-field" type="hidden" name="result" value="">
-					<input id="result-nonce-field" type="hidden" name="nonce" value="<?php esc_attr( $post_nonce ); ?>">
+					<?php wp_nonce_field( static::NONCE_ACTION_POST, 'nonce' ); ?>
 				</form>
 				<script>
 					function wpcomshHandleFailure( message ) {
