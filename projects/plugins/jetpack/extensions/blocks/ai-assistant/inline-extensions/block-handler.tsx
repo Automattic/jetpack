@@ -14,7 +14,7 @@ export function getMarkdown( html: string ) {
 	return renderMarkdownFromHTML( { content: html } );
 }
 
-export function renderContent( markdown: string, rules: RenderHTMLRules = [] ) {
+export function renderHTMLContent( markdown: string, rules: RenderHTMLRules = [] ) {
 	return renderHTMLFromMarkdown( { content: markdown, rules } );
 }
 
@@ -41,11 +41,16 @@ export class BlockHandler {
 	}
 
 	public renderContent( markdown: string ) {
-		return renderContent( markdown, this.renderRules );
+		return renderHTMLContent( markdown, this.renderRules );
 	}
 
 	public onSuggestion( suggestion: string ): void {
-		const HTML = renderContent( suggestion );
+		// Ignore an empty suggestion
+		if ( ! suggestion ) {
+			return;
+		}
+
+		const HTML = this.renderContent( suggestion );
 
 		this.replaceBlockContent( HTML );
 	}
