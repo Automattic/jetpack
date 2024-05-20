@@ -179,7 +179,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$plugins  = $request['plugins'];
 		usort( $plugins, 'strnatcasecmp' );
 
-		$event = Scheduled_Updates::create_scheduled_update( $schedule['timestamp'], $schedule['interval'], $plugins );
+		$event = wp_schedule_event( $schedule['timestamp'], $schedule['interval'], Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins, true );
 
 		if ( is_wp_error( $event ) ) {
 			// If the schedule could not be created, return an error.
@@ -208,7 +208,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$event->schedule_id = $id;
 		$this->update_additional_fields_for_object( $event, $request );
 
-		// Lock the cache after a successfull schedule creation.
+		// Clear the case and add a transient to clear it again if in 10 seconds another event is scheduled.
+		Scheduled_Updates::clear_cron_cache();
 		set_transient( 'pre_schedule_event_clear_cron_cache', true, 10 );
 
 		return rest_ensure_response( $id );
@@ -331,9 +332,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
 		}
 
-		$event = $events[ $request['schedule_id'] ];
+		$event  = $events[ $request['schedule_id'] ];
+		$result = wp_unschedule_event( $event->timestamp, Scheduled_Updates::PLUGIN_CRON_HOOK, $event->args, true );
 
-		$result = Scheduled_Updates::delete_scheduled_update( $event->timestamp, $event->args );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
@@ -350,6 +351,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		 * @param WP_REST_Request $request The request object.
 		 */
 		do_action( 'jetpack_scheduled_update_deleted', $request['schedule_id'], $event, $request );
+
+		if ( 'DELETE' === $request->get_method() ) {
+			// In a direct call clear the case and a transient to clear it again if in 10 seconds another event is scheduled.
+			Scheduled_Updates::clear_cron_cache();
+			set_transient( 'pre_schedule_event_clear_cron_cache', true, 10 );
+		}
 
 		return rest_ensure_response( true );
 	}
