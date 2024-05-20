@@ -15,7 +15,6 @@ type ConnectFormProps = {
 	isMastodonAlreadyConnected?: ( username: string ) => boolean;
 	hasConnections?: boolean;
 	buttonLabel?: string;
-	isDisabled?: boolean;
 };
 
 const isValidMastodonUsername = ( username: string ) =>
@@ -37,7 +36,6 @@ export function ConnectForm( {
 	isMastodonAlreadyConnected,
 	hasConnections,
 	buttonLabel,
-	isDisabled,
 }: ConnectFormProps ) {
 	const { createErrorNotice } = useGlobalNotices();
 
@@ -111,7 +109,6 @@ export function ConnectForm( {
 				variant={ hasConnections ? 'secondary' : 'primary' }
 				type="submit"
 				className={ styles[ 'connect-button' ] }
-				disabled={ isDisabled }
 			>
 				{ ( label => {
 					if ( label ) {

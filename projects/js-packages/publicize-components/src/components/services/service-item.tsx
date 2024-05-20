@@ -39,6 +39,8 @@ export function ServiceItem( {
 		[ serviceConnections ]
 	);
 
+	const isMastodonPanelOpen = isPanelOpen && service.ID === 'mastodon';
+
 	return (
 		<div className={ styles[ 'service-item' ] }>
 			<div className={ styles[ 'service-item-info' ] }>
@@ -63,14 +65,16 @@ export function ServiceItem( {
 					) : null }
 				</div>
 				<div className={ styles.actions }>
-					<ConnectForm
-						service={ service }
-						isSmall={ isSmall }
-						onConfirm={ onConfirm }
-						onSubmit={ service.needsCustomInputs ? togglePanel : undefined }
-						hasConnections={ serviceConnections.length > 0 }
-						isDisabled={ isPanelOpen && service.ID === 'mastodon' }
-					/>
+					{ ! isMastodonPanelOpen ? (
+						<ConnectForm
+							service={ service }
+							isSmall={ isSmall }
+							onConfirm={ onConfirm }
+							onSubmit={ service.needsCustomInputs ? togglePanel : undefined }
+							hasConnections={ serviceConnections.length > 0 }
+							isDisabled={ isPanelOpen && service.ID === 'mastodon' }
+						/>
+					) : null }
 					<Button
 						size={ 'small' }
 						className={ styles[ 'learn-more' ] }
