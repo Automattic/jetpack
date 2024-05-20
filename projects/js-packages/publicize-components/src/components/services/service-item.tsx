@@ -7,11 +7,10 @@ import { KeyringResult } from '../../social-store/types';
 import { ConnectForm } from './connect-form';
 import { ServiceItemDetails, ServicesItemDetailsProps } from './service-item-details';
 import styles from './style.module.scss';
-import { SupportedService } from './use-supported-services';
 
 export type ServicesItemProps = ServicesItemDetailsProps & {
-	onSelectService: ( service: SupportedService | null ) => void;
 	onConfirm: ( result: KeyringResult ) => void;
+	initialOpenPanel?: boolean;
 };
 
 /**
@@ -24,19 +23,21 @@ export type ServicesItemProps = ServicesItemDetailsProps & {
 export function ServiceItem( {
 	service,
 	onConfirm,
-	onSelectService,
 	serviceConnections,
+	initialOpenPanel,
 }: ServicesItemProps ) {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
-	const onServiceSelected = useCallback(
-		( selectedService: SupportedService ) => () => {
-			onSelectService( selectedService );
-		},
-		[ onSelectService ]
-	);
+	const [ isPanelOpen, togglePanel ] = useReducer( state => ! state, initialOpenPanel ?? false );
 
-	const [ isPanelOpen, togglePanel ] = useReducer( state => ! state, false );
+	const isMastodonAlreadyConnected = useCallback(
+		( username: string ) => {
+			return serviceConnections.some( connection => {
+				return connection.external_display === username;
+			} );
+		},
+		[ serviceConnections ]
+	);
 
 	return (
 		<div className={ styles[ 'service-item' ] }>
@@ -66,8 +67,9 @@ export function ServiceItem( {
 						service={ service }
 						isSmall={ isSmall }
 						onConfirm={ onConfirm }
-						onSubmit={ service.needsCustomInputs ? onServiceSelected( service ) : undefined }
+						onSubmit={ service.needsCustomInputs ? togglePanel : undefined }
 						hasConnections={ serviceConnections.length > 0 }
+						isDisabled={ isPanelOpen && service.ID === 'mastodon' }
 					/>
 					<Button
 						size={ 'small' }
@@ -84,6 +86,19 @@ export function ServiceItem( {
 			<Panel className={ styles[ 'service-panel' ] }>
 				<PanelBody opened={ isPanelOpen } onToggle={ togglePanel }>
 					<ServiceItemDetails service={ service } serviceConnections={ serviceConnections } />
+
+					{ service.ID === 'mastodon' ? (
+						<div className={ styles[ 'connect-form-wrapper' ] }>
+							<ConnectForm
+								onConfirm={ onConfirm }
+								service={ service }
+								displayInputs
+								isSmall={ false }
+								isMastodonAlreadyConnected={ isMastodonAlreadyConnected }
+								buttonLabel={ __( 'Connect', 'jetpack' ) }
+							/>
+						</div>
+					) : null }
 				</PanelBody>
 			</Panel>
 		</div>

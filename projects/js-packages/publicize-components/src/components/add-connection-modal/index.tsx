@@ -1,7 +1,7 @@
 import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import classNames from 'classnames';
 import { KeyringResult } from '../../social-store/types';
 import { ServicesList } from '../services/services-list';
@@ -11,14 +11,12 @@ import styles from './style.module.scss';
 
 type AddConnectionModalProps = {
 	onCloseModal: VoidFunction;
-	currentService: SupportedService | null;
-	setCurrentService: ( service: SupportedService | null ) => void;
+	defaultExpandedService: SupportedService | null;
 };
 
 const AddConnectionModal = ( {
 	onCloseModal,
-	currentService,
-	setCurrentService,
+	defaultExpandedService,
 }: AddConnectionModalProps ) => {
 	const [ keyringResult, setKeyringResult ] = useState< KeyringResult | null >( null );
 
@@ -35,27 +33,14 @@ const AddConnectionModal = ( {
 
 	const hasKeyringResult = Boolean( keyringResult?.ID );
 
-	// Use IIFE to avoid nested ternary and messed up minification
-	const title = ( selectedService => {
-		if ( hasKeyringResult ) {
-			return __( 'Connection confirmation', 'jetpack' );
-		}
-
-		if ( selectedService ) {
-			return sprintf(
-				// translators: %s: Name of the service the user connects to.
-				__( 'Connecting a new %s account', 'jetpack' ),
-				selectedService.label
-			);
-		}
-
-		return __( 'Add a new connection to Jetpack Social', 'jetpack' );
-	} )( currentService );
+	const title = hasKeyringResult
+		? __( 'Connection confirmation', 'jetpack' )
+		: _x( 'Add a new connection to Jetpack Social', '', 'jetpack' );
 
 	return (
 		<Modal
 			className={ classNames( styles.modal, {
-				[ styles[ 'service-selector' ] ]: ! currentService,
+				[ styles[ 'service-selector' ] ]: ! defaultExpandedService,
 				[ styles.small ]: isSmall,
 			} ) }
 			onRequestClose={ onCloseModal }
@@ -68,7 +53,12 @@ const AddConnectionModal = ( {
 						return <ConfirmationForm keyringResult={ keyringResult } onComplete={ onComplete } />;
 					}
 
-					return <ServicesList onSelectService={ setCurrentService } onConfirm={ onConfirm } />;
+					return (
+						<ServicesList
+							onConfirm={ onConfirm }
+							defaultExpandedService={ defaultExpandedService }
+						/>
+					);
 				} )()
 			}
 		</Modal>

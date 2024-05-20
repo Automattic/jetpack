@@ -15,7 +15,7 @@ import styles from './style.module.scss';
 const ConnectionManagement = ( { className = null } ) => {
 	const { refresh } = useSocialMediaConnections();
 
-	const [ currentService, setCurrentService ] = useState< SupportedService >( null );
+	const [ expandedService, setExpandedService ] = useState< SupportedService >( null );
 
 	const connections = useSelect( select => {
 		return select( store ).getConnections();
@@ -40,14 +40,14 @@ const ConnectionManagement = ( { className = null } ) => {
 		( serviceName: string ) => () => {
 			const service = supportedServices.find( _service => _service.ID === serviceName );
 
-			setCurrentService( service );
+			setExpandedService( service );
 			toggleModal();
 		},
 		[ supportedServices ]
 	);
 
 	const onCloseModal = useCallback( () => {
-		setCurrentService( null );
+		setExpandedService( null );
 		toggleModal();
 	}, [] );
 
@@ -97,8 +97,7 @@ const ConnectionManagement = ( { className = null } ) => {
 			{ isModalOpen && (
 				<AddConnectionModal
 					onCloseModal={ onCloseModal }
-					currentService={ currentService }
-					setCurrentService={ setCurrentService }
+					defaultExpandedService={ expandedService }
 				/>
 			) }
 		</div>

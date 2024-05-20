@@ -77,6 +77,23 @@
 		:global(.components-panel__body.is-opened) {
 			margin-top: 1rem;
 		}
+
+		.connect-form-wrapper {
+			margin-top: 1rem;
+			display: flex;
+
+			form {
+				display: flex;
+				gap: 1rem;
+				flex-direction: column;
+				justify-content: flex-end;
+				width: 100%;
+
+				@include break-small {
+					flex-direction: row;
+				}
+			}
+		}
 	}
 
 	.active-connection {
@@ -104,7 +121,6 @@
 	grid-auto-flow: column;
 	font-size: 15px;
 	margin-top: 0.4rem;
-	min-height: 300px;
 
 	&.small {
 		grid-auto-flow: row;
@@ -162,6 +178,17 @@
 			font-size: 14px;
 			font-weight: 500;
 			line-height: 20px;
+		}
+	}
+
+	input {
+		min-width: 220px;
+
+		// Override the default input styles for small screens
+		@media (max-width: #{ ($break-medium) }) {
+			min-height: 30px;
+			padding: 0 8px;
+			font-size: 14px;
 		}
 	}
 }

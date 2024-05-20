@@ -3,9 +3,11 @@ import { store } from '../../social-store';
 import { Connection } from '../../social-store/types';
 import { ServiceItem, ServicesItemProps } from './service-item';
 import styles from './style.module.scss';
-import { useSupportedServices } from './use-supported-services';
+import { SupportedService, useSupportedServices } from './use-supported-services';
 
-type ServicesListProps = Omit< ServicesItemProps, 'service' >;
+type ServicesListProps = Pick< ServicesItemProps, 'onConfirm' > & {
+	defaultExpandedService?: SupportedService;
+};
 
 /**
  * Services list component
@@ -14,7 +16,7 @@ type ServicesListProps = Omit< ServicesItemProps, 'service' >;
  *
  * @returns {import('react').ReactNode} Services list component
  */
-export function ServicesList( { onSelectService, onConfirm }: ServicesListProps ) {
+export function ServicesList( { onConfirm, defaultExpandedService }: ServicesListProps ) {
 	const supportedServices = useSupportedServices();
 
 	const connections = useSelect( select => {
@@ -38,7 +40,7 @@ export function ServicesList( { onSelectService, onConfirm }: ServicesListProps 
 					<ServiceItem
 						service={ service }
 						onConfirm={ onConfirm }
-						onSelectService={ onSelectService }
+						initialOpenPanel={ service.ID === defaultExpandedService?.ID }
 						serviceConnections={ connections[ service.ID ] || [] }
 					/>
 				</li>
