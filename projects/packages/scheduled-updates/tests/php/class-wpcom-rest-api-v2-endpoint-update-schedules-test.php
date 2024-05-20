@@ -43,6 +43,13 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	public static $scheduled_counter = 0;
 
 	/**
+	 * Number of transients added.
+	 *
+	 * @var int
+	 */
+	public static $transients_added = 0;
+
+	/**
 	 * Set up.
 	 */
 	public function set_up() {
@@ -75,8 +82,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		add_action( 'added_option', array( __CLASS__, 'sync_add_callback' ) );
 		add_action( 'updated_option', array( __CLASS__, 'sync_update_callback' ) );
 		add_filter( 'pre_schedule_event', array( __CLASS__, 'pre_schedule_callback' ), 10, 0 );
+		add_filter( 'pre_set_transient_pre_schedule_event_clear_cron_cache', array( __CLASS__, 'pre_set_transient_callback' ), 10, 0 );
 		self::$sync_counters     = array();
 		self::$scheduled_counter = 0;
+		self::$transients_added  = 0;
 	}
 
 	/**
@@ -98,6 +107,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		remove_filter( 'pre_schedule_event', array( __CLASS__, 'pre_schedule_callback' ) );
 		self::$sync_counters     = array();
 		self::$scheduled_counter = 0;
+		self::$transients_added  = 0;
 	}
 
 	/**
@@ -233,6 +243,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 'rest_forbidden', $result->get_data()['code'] );
 		$this->assertSame( 1, self::get_sync_counter() );
 		$this->assertSame( 1, self::$scheduled_counter );
+		$this->assertSame( 1, self::$transients_added );
 	}
 
 	/**
@@ -288,6 +299,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertIsObject( $sync_option[ $schedule_id_2 ] );
 		$this->assertSame( 2, self::get_sync_counter() );
 		$this->assertSame( 2, self::$scheduled_counter );
+		$this->assertSame( 2, self::$transients_added );
 	}
 
 	/**
@@ -319,6 +331,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 'rest_forbidden', $result->get_data()['code'] );
 		$this->assertSame( 1, self::get_sync_counter() );
 		$this->assertSame( 1, self::$scheduled_counter );
+		$this->assertSame( 0, self::$transients_added );
 	}
 
 	/**
@@ -335,6 +348,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		$this->assertSame( 400, $result->get_status() );
 		$this->assertSame( 'rest_missing_callback_param', $result->get_data()['code'] );
+		$this->assertSame( 0, self::$transients_added );
 	}
 
 	/**
@@ -365,6 +379,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertEquals( $unscheduled_plugins, get_option( 'auto_update_plugins' ) );
 		$this->assertSame( 1, self::get_sync_counter() );
 		$this->assertSame( 1, self::$scheduled_counter );
+		$this->assertSame( 1, self::$transients_added );
 	}
 
 	/**
@@ -413,6 +428,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		);
 		$this->assertSame( 1, self::get_sync_counter() );
 		$this->assertSame( 1, self::$scheduled_counter );
+		$this->assertSame( 1, self::$transients_added );
 	}
 
 	/**
@@ -449,6 +465,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 'rest_invalid_param', $result->get_data()['code'] );
 		$this->assertSame( 0, self::get_sync_counter() );
 		$this->assertSame( 0, self::$scheduled_counter );
+		$this->assertSame( 0, self::$transients_added );
 	}
 
 	/**
@@ -500,6 +517,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		);
 		$this->assertSame( 1, self::get_sync_counter() );
 		$this->assertSame( 1, self::$scheduled_counter );
+		$this->assertSame( 0, self::$transients_added );
 	}
 
 	/**
@@ -517,6 +535,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 'rest_invalid_schedule', $result->get_data()['code'] );
 		$this->assertSame( 0, self::get_sync_counter() );
 		$this->assertSame( 0, self::$scheduled_counter );
+		$this->assertSame( 0, self::$transients_added );
 	}
 
 	/**
@@ -566,6 +585,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( $plugins, $sync_option[ $schedule_id ]->args );
 		$this->assertSame( 2, self::get_sync_counter() );
 		$this->assertSame( 2, self::$scheduled_counter );
+		$this->assertSame( 1, self::$transients_added );
 	}
 
 	/**
@@ -637,6 +657,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 			$this->assertSame( $status, $sync_option[ $schedule_id ]->last_run_status );
 			$this->assertSame( 4, self::get_sync_counter() );
 			$this->assertSame( 2, self::$scheduled_counter );
+			$this->assertSame( 1, self::$transients_added );
 		}
 	}
 
@@ -661,6 +682,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 'rest_invalid_schedule', $result->get_data()['code'] );
 		$this->assertSame( 0, self::get_sync_counter() );
 		$this->assertSame( 0, self::$scheduled_counter );
+		$this->assertSame( 0, self::$transients_added );
 	}
 
 	/**
@@ -707,6 +729,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( array(), $sync_option );
 		$this->assertSame( 2, self::get_sync_counter() );
 		$this->assertSame( 1, self::$scheduled_counter );
+		$this->assertSame( 1, self::$transients_added );
 	}
 
 	/**
@@ -724,6 +747,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 'rest_invalid_schedule', $result->get_data()['code'] );
 		$this->assertSame( 0, self::get_sync_counter() );
 		$this->assertSame( 0, self::$scheduled_counter );
+		$this->assertSame( 0, self::$transients_added );
 	}
 
 	/**
@@ -760,6 +784,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( $expected_result, get_option( 'auto_update_plugins' ) );
 		$this->assertSame( 3, self::get_sync_counter() );
 		$this->assertSame( 2, self::$scheduled_counter );
+		$this->assertSame( 1, self::$transients_added );
 	}
 
 	/**
@@ -841,6 +866,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		// One sync during delete.
 		$this->assertSame( 3, self::get_sync_counter() );
 		$this->assertSame( 2, self::$scheduled_counter );
+		$this->assertSame( 3, self::$transients_added );
 	}
 
 	/**
@@ -888,6 +914,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertArrayHasKey( $schedule_id, wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
 		$this->assertSame( 2, self::get_sync_counter() );
 		$this->assertSame( 2, self::$scheduled_counter );
+		$this->assertSame( 2, self::$transients_added );
 
 		// Insert a full cron sync event.
 		wp_schedule_event( time(), 'jetpack_sync_interval', 'jetpack_sync_full_cron' );
@@ -946,6 +973,13 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		++self::$scheduled_counter;
 
 		return null;
+	}
+
+	/**
+	 * Callback of pre_set_transient filter.
+	 */
+	public static function pre_set_transient_callback() {
+		++self::$transients_added;
 	}
 
 	/**
