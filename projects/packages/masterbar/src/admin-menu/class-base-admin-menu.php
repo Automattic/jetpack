@@ -253,7 +253,7 @@ abstract class Base_Admin_Menu {
 	 * Enqueues scripts and styles.
 	 */
 	public function enqueue_scripts() {
-		$assets_base_path = '../../build/admin-menu/';
+		$assets_base_path = '../../dist/admin-menu/';
 		if ( $this->is_rtl() ) {
 			$css_path = 'admin-menu.rtl.css';
 		} else {

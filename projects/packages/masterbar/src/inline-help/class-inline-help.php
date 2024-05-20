@@ -110,7 +110,7 @@ class Inline_Help {
 	 * @return void
 	 */
 	public function add_fab_styles() {
-		$assets_base_path = '../../build/inline-help/';
+		$assets_base_path = '../../dist/inline-help/';
 		wp_enqueue_style( 'a8c-faux-inline-help', plugins_url( $assets_base_path . 'inline-help.css', __FILE__ ), array(), Main::PACKAGE_VERSION );
 	}
 }

@@ -59,7 +59,7 @@ class Admin_Color_Schemes {
 	 * @return string
 	 */
 	public function get_admin_color_scheme_url( $color_scheme ) {
-		return plugins_url( '../../build/admin-color-schemes/colors/' . $color_scheme . '/colors.css', __FILE__ );
+		return plugins_url( '../../dist/admin-color-schemes/colors/' . $color_scheme . '/colors.css', __FILE__ );
 	}
 
 	/**

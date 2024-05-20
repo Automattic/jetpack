@@ -313,7 +313,7 @@ class Masterbar {
 		}
 
 		// Local overrides.
-		wp_enqueue_style( 'a8c_wpcom_css_override', plugins_url( 'overrides.css', __FILE__ ), array(), Main::PACKAGE_VERSION );
+		wp_enqueue_style( 'a8c_wpcom_css_override', plugins_url( '../../dist/masterbar/overrides.css', __FILE__ ), array(), Main::PACKAGE_VERSION );
 
 		if ( ! ( new Modules() )->is_active( 'notes' ) ) {
 			// Masterbar is relying on some icons from noticons.css.
@@ -329,10 +329,7 @@ class Masterbar {
 		);
 		wp_enqueue_script(
 			'a8c_wpcom_masterbar_tracks_events',
-			Assets::get_file_url_for_environment(
-				'_inc/build/masterbar/masterbar/tracks-events.min.js',
-				'modules/masterbar/masterbar/tracks-events.js'
-			),
+			plugins_url( '../../dist/masterbar/tracks-events.js', __FILE__ ),
 			array(),
 			Main::PACKAGE_VERSION,
 			false

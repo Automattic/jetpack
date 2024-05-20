@@ -50,7 +50,7 @@ class CSS_Customizer_Nudge {
 	 * Register the assets required for the CSS nudge page from the Customizer.
 	 */
 	public function customize_controls_enqueue_scripts_nudge() {
-		$assets_base_path = '../../build/nudges/additional-css/';
+		$assets_base_path = '../../dist/nudges/additional-css/';
 		\wp_enqueue_script(
 			'additional-css-js',
 			plugins_url( $assets_base_path . 'js/additional-css.js', __FILE__ ),
