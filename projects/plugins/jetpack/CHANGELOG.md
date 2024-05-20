@@ -5,15 +5,15 @@
 ## 13.5-a.3 - 2024-05-20
 ### Enhancements
 - AI Assistant: Enable inline Heading extension. [#37386]
-- Subscribe block: Adds button-only style. [#37341]
-- Subscribe block: Allow inside navigation block. [#37439]
+- Subscribe block: Add button-only style. [#37341]
+- Subscribe block: Allow in the Navigation block. [#37439]
 
 ### Improved compatibility
 - Block Editor: Remove External Link icon styling fix now that the change has been made in WordPress itself. [#37394]
 
 ### Bug fixes
-- Slideshow: Fix className issue on frontend - ensures autoplay works properly. [#37378]
-- WordAds: Prevent fatal when post content is null. [#37384]
+- Slideshow: Ensures autoplay works properly. [#37378]
+- WordAds: Prevent fatal error when post content is null. [#37384]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Add some missing abstract methods to SAL_Site, and implement in Jetpack_Site. [#37344]
