@@ -113,7 +113,7 @@ add_action( 'activated_plugin', 'wpcom_migration_activation' );
 function wpcom_migration_activation( $plugin ) {
 	if (
 		WPCOM_MIGRATION_ROOT_FILE_RELATIVE_PATH === $plugin &&
-		\Automattic\Jetpack\Plugins_Installer::is_current_request_activating_plugin_from_plugins_screen( WPCOM_MIGRATION_ROOT_FILE_RELATIVE_PATH )
+		( new \Automattic\Jetpack\Paths() )->is_current_request_activating_plugin_from_plugins_screen( WPCOM_MIGRATION_ROOT_FILE_RELATIVE_PATH )
 	) {
 		wp_safe_redirect( esc_url( admin_url( 'admin.php?page=wpcom-migration' ) ) );
 		exit;

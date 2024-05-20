@@ -1655,7 +1655,8 @@ abstract class Publicize_Base {
 	 * @return string
 	 */
 	public function get_resized_image_url( $image_url, $width, $height ) {
-		return jetpack_photon_url(
+		return apply_filters(
+			'jetpack_photon_url',
 			$image_url,
 			array(
 				'w' => $width,
@@ -1992,6 +1993,15 @@ abstract class Publicize_Base {
 	 */
 	public function has_connection_feature( $connection ) {
 		return Current_Plan::supports( "social-$connection-connection" );
+	}
+
+	/**
+	 * Check if the new connections management is enabled is enabled.
+	 *
+	 * @return bool
+	 */
+	public function has_connections_management_feature() {
+		return Current_Plan::supports( 'social-connections-management' );
 	}
 
 	/**
