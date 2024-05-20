@@ -504,6 +504,7 @@ class Masterbar {
 		$wpcom_locale = get_locale();
 
 		if ( ! class_exists( 'GP_Locales' ) ) {
+			// @phan-suppress-next-line PhanTypeMismatchArgumentNullableInternal -- See https://github.com/Automattic/jetpack/issues/2707#issuecomment-2036701663
 			if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
 				require JETPACK__GLOTPRESS_LOCALES_PATH;
 			}
@@ -527,6 +528,7 @@ class Masterbar {
 	 */
 	public function get_jetpack_locale( $slug = '' ) {
 		if ( ! class_exists( 'GP_Locales' ) ) {
+			// @phan-suppress-next-line PhanTypeMismatchArgumentNullableInternal -- See https://github.com/Automattic/jetpack/issues/2707#issuecomment-2036701663
 			if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
 				require JETPACK__GLOTPRESS_LOCALES_PATH;
 			}
