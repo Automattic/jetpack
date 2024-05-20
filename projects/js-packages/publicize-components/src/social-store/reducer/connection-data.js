@@ -5,6 +5,8 @@ import {
 	DELETING_CONNECTION,
 	SET_CONNECTIONS,
 	TOGGLE_CONNECTION,
+	UPDATE_CONNECTION,
+	UPDATING_CONNECTION,
 } from '../actions/constants';
 
 const connectionData = ( state = {}, action ) => {
@@ -52,6 +54,38 @@ const connectionData = ( state = {}, action ) => {
 				...state,
 				creatingConnection: action.creating,
 			};
+
+		case UPDATE_CONNECTION:
+			return {
+				...state,
+				connections: state.connections.map( connection => {
+					// If the connection has a connection_id, then give it priority.
+					// Otherwise, use the id.
+					const isTargetConnection = connection.connection_id
+						? connection.connection_id === action.connectionId
+						: connection.id === action.connectionId;
+
+					if ( isTargetConnection ) {
+						return {
+							...connection,
+							...action.data,
+						};
+					}
+					return connection;
+				} ),
+			};
+
+		case UPDATING_CONNECTION: {
+			const updating = new Set( state.updatingConnections );
+			action.updating
+				? updating.add( action.connectionId )
+				: updating.delete( action.connectionId );
+
+			return {
+				...state,
+				updatingConnections: [ ...updating ],
+			};
+		}
 
 		case TOGGLE_CONNECTION:
 			return {

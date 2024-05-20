@@ -330,7 +330,7 @@ class WooCommerce_HPOS_Orders extends Module {
 
 		$query = "SELECT count(*) FROM {$this->table_name()} WHERE {$this->get_where_sql( $config ) }";
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Hardcoded query, no user variable
-		$count = $wpdb->get_var( $query );
+		$count = (int) $wpdb->get_var( $query );
 
 		return (int) ceil( $count / self::ARRAY_CHUNK_SIZE );
 	}

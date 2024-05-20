@@ -1,23 +1,34 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
 .wrapper {
 	display: flex;
 	flex-direction: column;
 	align-items: start;
 	gap: 1.5rem;
 
-	.profile-link {
+}
+
+.connection-name {
+	display: inline-block;
+
+	span.profile-link,
+	.profile-link:global(.components-external-link) {
 		color: inherit;
-
-		> span {
-			text-decoration: none;
-		}
-
-		&:hover {
-			text-decoration: underline;
-		}
+		text-decoration: none;
+		font-size: 1rem;
+		font-weight: 400;
 
 		>svg {
 			vertical-align: bottom;
 		}
+
+		span {
+			text-decoration: none;
+		}
+	}
+
+	.profile-link:global(.components-external-link):hover {
+		text-decoration: underline;
 	}
 }
 
@@ -27,10 +38,6 @@
 
 .column-name {
 	width: 25rem;
-}
-
-.icon>div {
-	cursor: default;
 }
 
 .confirmDialog span {
@@ -67,4 +74,14 @@ tr:not(:last-child)>td {
 .actions {
 	display: flex;
 	justify-content: end;
+	gap: 1rem;
+	flex-direction: column;
+
+	@include break-medium {
+		flex-direction: row;
+	}
+
+	button {
+		width: 100%;
+	}
 }

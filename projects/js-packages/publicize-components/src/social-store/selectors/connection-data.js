@@ -10,6 +10,18 @@ export function getConnections( state ) {
 }
 
 /**
+ * Return a connection by its ID.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @param {string} connectionId - The connection ID.
+ *
+ * @returns {import("../types").Connection | undefined} The connection.
+ */
+export function getConnectionById( state, connectionId ) {
+	return getConnections( state ).find( connection => connection.id === connectionId );
+}
+
+/**
  * Returns the connections admin URL from the store.
  * @param {import("../types").SocialStoreState} state - State object.
  * @returns {string|null} The connections admin URL.
@@ -115,6 +127,16 @@ export function getConnectionProfileDetails( state, service, { forceDefaults = f
  */
 export function getDeletingConnections( state ) {
 	return state.connectionData?.deletingConnections ?? [];
+}
+
+/**
+ * Get the connections being updated.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @returns {import("../types").ConnectionData['updatingConnections']} The connection being updated.
+ */
+export function getUpdatingConnections( state ) {
+	return state.connectionData?.updatingConnections ?? [];
 }
 
 /**

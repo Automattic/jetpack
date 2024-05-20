@@ -6,11 +6,8 @@ import classNames from 'classnames';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store } from '../../social-store';
 import AddConnectionModal from '../add-connection-modal';
-import {
-	SupportedService,
-	useSupportedServices,
-} from '../add-connection-modal/use-supported-services';
 import ConnectionIcon from '../connection-icon';
+import { SupportedService, useSupportedServices } from '../services/use-supported-services';
 import { ConnectionInfo } from './connection-info';
 import { Disconnect } from './disconnect';
 import styles from './style.module.scss';
@@ -18,7 +15,7 @@ import styles from './style.module.scss';
 const ConnectionManagement = ( { className = null } ) => {
 	const { refresh } = useSocialMediaConnections();
 
-	const [ currentService, setCurrentService ] = useState< SupportedService >( null );
+	const [ expandedService, setExpandedService ] = useState< SupportedService >( null );
 
 	const connections = useSelect( select => {
 		return select( store ).getConnections();
@@ -43,14 +40,14 @@ const ConnectionManagement = ( { className = null } ) => {
 		( serviceName: string ) => () => {
 			const service = supportedServices.find( _service => _service.ID === serviceName );
 
-			setCurrentService( service );
+			setExpandedService( service );
 			toggleModal();
 		},
 		[ supportedServices ]
 	);
 
 	const onCloseModal = useCallback( () => {
-		setCurrentService( null );
+		setExpandedService( null );
 		toggleModal();
 	}, [] );
 
@@ -100,8 +97,7 @@ const ConnectionManagement = ( { className = null } ) => {
 			{ isModalOpen && (
 				<AddConnectionModal
 					onCloseModal={ onCloseModal }
-					currentService={ currentService }
-					setCurrentService={ setCurrentService }
+					defaultExpandedService={ expandedService }
 				/>
 			) }
 		</div>

@@ -39,6 +39,14 @@
 - Update sizes and spacings on Title Optimization. [#37333]
 - WordPress.com Toolbar: Remove "My Sites" text and only display icon. [#37314]
 
+## 13.4.3 - 2024-05-16
+### Bug fixes
+- Social: Prevent multiple uncached requests for images during frontend requests. [#37368] [#37411]
+
+## 13.4.2 - 2024-05-13
+### Bug fixes
+- Tiled Gallery: Fix view rendering issues. [#37213]
+
 ## 13.4.1 - 2024-05-10
 ### Bug fixes
 - Contact Form: Unhook the jetpack_form_register_pattern function to prevent unwanted deprecation notices. [#37278]

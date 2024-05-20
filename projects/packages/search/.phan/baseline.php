@@ -21,7 +21,6 @@ return [
     // PhanTypeMismatchProperty : 4 occurrences
     // PhanPluginMixedKeyNoKey : 3 occurrences
     // PhanTypeSuspiciousEcho : 3 occurrences
-    // PhanUndeclaredClassMethod : 3 occurrences
     // PhanNoopNew : 2 occurrences
     // PhanDeprecatedPartiallySupportedCallable : 1 occurrence
     // PhanPluginRedundantAssignment : 1 occurrence
@@ -33,13 +32,12 @@ return [
     // PhanTypeMismatchDefault : 1 occurrence
     // PhanTypeMismatchDimAssignment : 1 occurrence
     // PhanTypePossiblyInvalidDimOffset : 1 occurrence
-    // PhanUndeclaredClassReference : 1 occurrence
+    // PhanUndeclaredClassMethod : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'compatibility/jetpack.php' => ['PhanUndeclaredClassMethod'],
         'src/class-cli.php' => ['PhanTypeMismatchArgument'],
-        'src/class-helper.php' => ['PhanDeprecatedPartiallySupportedCallable', 'PhanImpossibleCondition', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference'],
+        'src/class-helper.php' => ['PhanDeprecatedPartiallySupportedCallable', 'PhanImpossibleCondition', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod'],
         'src/class-options.php' => ['PhanPluginSimplifyExpressionBool'],
         'src/class-plan.php' => ['PhanDeprecatedFunction'],
         'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],

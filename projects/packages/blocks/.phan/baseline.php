@@ -10,16 +10,13 @@
 return [
     // # Issue statistics:
     // PhanTypeMismatchArgument : 2 occurrences
-    // PhanUndeclaredClassMethod : 2 occurrences
     // PhanDeprecatedFunction : 1 occurrence
     // PhanPluginDuplicateConditionalNullCoalescing : 1 occurrence
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
-    // PhanUndeclaredClassInCallable : 1 occurrence
-    // PhanUndeclaredClassReference : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-blocks.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredClassInCallable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference'],
+        'src/class-blocks.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentNullableInternal'],
         'tests/php/test-blocks.php' => ['PhanTypeMismatchArgument'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
