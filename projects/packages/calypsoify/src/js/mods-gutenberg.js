@@ -8,12 +8,3 @@ if (
 ) {
 	dispatch( 'core/edit-post' ).toggleFeature( 'fullscreenMode' );
 }
-
-document.addEventListener( 'DOMContentLoaded', function () {
-	document.querySelectorAll( 'body.revision-php a' ).forEach( function ( node ) {
-		const href = node.getAttribute( 'href' );
-		if ( href ) {
-			node.setAttribute( 'href', href.replace( '&classic-editor', '' ) );
-		}
-	} );
-} );
