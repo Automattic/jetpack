@@ -72,7 +72,6 @@ export function ServiceItem( {
 							onConfirm={ onConfirm }
 							onSubmit={ service.needsCustomInputs ? togglePanel : undefined }
 							hasConnections={ serviceConnections.length > 0 }
-							isDisabled={ isPanelOpen && service.ID === 'mastodon' }
 						/>
 					) : null }
 					<Button
