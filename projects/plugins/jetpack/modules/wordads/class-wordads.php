@@ -19,6 +19,8 @@ require_once WORDADS_ROOT . '/php/class-wordads-api.php';
 require_once WORDADS_ROOT . '/php/class-wordads-cron.php';
 require_once WORDADS_ROOT . '/php/class-wordads-california-privacy.php';
 require_once WORDADS_ROOT . '/php/class-wordads-ccpa-do-not-sell-link-widget.php';
+require_once WORDADS_ROOT . '/php/class-wordads-consent-management-provider.php';
+require_once WORDADS_ROOT . '/php/class-wordads-smart.php';
 
 /**
  * Primary WordAds class.
@@ -133,7 +135,7 @@ class WordAds {
 	 *
 	 * @param  string $option the option to grab.
 	 * @param  mixed  $default (optional).
-	 * @return option or $default if not set
+	 * @return mixed option or $default if not set
 	 *
 	 * @since 4.5.0
 	 */
@@ -179,6 +181,7 @@ class WordAds {
 
 		if ( is_admin() ) {
 			WordAds_California_Privacy::init_ajax_actions();
+			WordAds_Consent_Management_Provider::init_ajax_actions();
 		}
 	}
 
@@ -207,7 +210,16 @@ class WordAds {
 			WordAds_California_Privacy::init();
 		}
 
-		if ( isset( $_SERVER['REQUEST_URI'] ) && '/ads.txt' === $_SERVER['REQUEST_URI'] ) {
+		// Initialize CMP  if enabled.
+		if ( isset( $this->params->options['wordads_cmp_enabled'] ) && $this->params->options['wordads_cmp_enabled'] ) {
+			WordAds_Consent_Management_Provider::init();
+		}
+
+		// Initialize Smart.
+		WordAds_Smart::instance()->init( $this->params );
+
+		if ( ( isset( $_SERVER['REQUEST_URI'] ) && '/ads.txt' === $_SERVER['REQUEST_URI'] )
+			|| ( site_url( 'ads.txt', 'relative' ) === $_SERVER['REQUEST_URI'] ) ) {
 
 			$ads_txt_transient = get_transient( 'wordads_ads_txt' );
 
@@ -348,8 +360,6 @@ class WordAds {
 
 	/**
 	 * IPONWEB metadata used by the various scripts
-	 *
-	 * @return [type] [description]
 	 */
 	public function insert_head_meta() {
 		if ( self::is_amp() ) {
@@ -363,13 +373,29 @@ class WordAds {
 		$is_logged_in = is_user_logged_in() ? '1' : '0';
 		?>
 		<script<?php echo esc_attr( $data_tags ); ?> type="text/javascript">
-			var __ATA_PP = { pt: <?php echo esc_js( $pagetype ); ?>, ht: <?php echo esc_js( $hosting_type ); ?>, tn: '<?php echo esc_js( get_stylesheet() ); ?>', uloggedin: <?php echo esc_js( $is_logged_in ); ?>, amp: false, siteid: <?php echo esc_js( $site_id ); ?>, consent: <?php echo esc_js( $consent ); ?>, ad: { label: { text: '<?php echo esc_js( __( 'Advertisements', 'jetpack' ) ); ?>' }, reportAd: { text: '<?php echo esc_js( __( 'Report this ad', 'jetpack' ) ); ?>' } } };
+			var __ATA_PP = { pt: <?php echo esc_js( $pagetype ); ?>, ht: <?php echo esc_js( $hosting_type ); ?>, tn: '<?php echo esc_js( get_stylesheet() ); ?>', uloggedin: <?php echo esc_js( $is_logged_in ); ?>, amp: false, siteid: <?php echo esc_js( $site_id ); ?>, consent: <?php echo esc_js( $consent ); ?>, ad: { label: { text: '<?php echo esc_js( __( 'Advertisements', 'jetpack' ) ); ?>' }, reportAd: { text: '<?php echo esc_js( __( 'Report this ad', 'jetpack' ) ); ?>' }, privacySettings: { text: '<?php echo esc_js( __( 'Privacy', 'jetpack' ) ); ?>', onClick: function() { window.__tcfapi && window.__tcfapi('showUi'); } } } };
 			var __ATA = __ATA || {};
 			__ATA.cmd = __ATA.cmd || [];
 			__ATA.criteo = __ATA.criteo || {};
 			__ATA.criteo.cmd = __ATA.criteo.cmd || [];
 		</script>
 		<?php
+
+		// Get an inline tag with a macro as id handled on JS side to use as a fallback.
+		$tag_inline = $this->get_dynamic_ad_snippet( $this->params->blog_id . 5, 'square', 'inline', '', '{{unique_id}}' );
+
+		// Remove linebreaks and sanitize.
+		$tag_inline = esc_js( str_replace( array( "\n", "\t", "\r" ), '', $tag_inline ) );
+
+		// phpcs:disable WordPress.Security.EscapeOutput.HeredocOutputNotEscaped
+		echo <<<HTML
+				<script>
+					var sas_fallback = sas_fallback || [];
+					sas_fallback.push(
+						{ tag: "$tag_inline", type: 'inline' }
+					);
+				</script>
+HTML;
 	}
 
 	/**
@@ -683,16 +709,18 @@ HTML;
 	/**
 	 * Returns the dynamic snippet to be inserted into the ad unit
 	 *
-	 * @param  int    $section_id  section_id.
-	 * @param  string $form_factor form_factor.
-	 * @param  string $location    location.
-	 * @param  string $relocate    location to be moved after the fact for themes without required hook.
+	 * @param int           $section_id section_id.
+	 * @param string        $form_factor form_factor.
+	 * @param string        $location location.
+	 * @param string        $relocate location to be moved after the fact for themes without required hook.
+	 * @param string | null $id A unique string ID or placeholder.
+	 *
 	 * @return string
 	 *
 	 * @since 8.7
 	 */
-	public function get_dynamic_ad_snippet( $section_id, $form_factor = 'square', $location = '', $relocate = '' ) {
-		$div_id = 'atatags-' . $section_id . '-' . uniqid();
+	public function get_dynamic_ad_snippet( $section_id, $form_factor = 'square', $location = '', $relocate = '', $id = null ) {
+		$div_id = 'atatags-' . $section_id . '-' . ( $id ?? uniqid() );
 		$div_id = esc_attr( $div_id );
 
 		// Default form factor.
@@ -742,6 +770,7 @@ JS;
 						},
 						privacySettings: {
 							text: '{$privacy_settings_text}',
+							onClick: function() { window.__tcfapi && window.__tcfapi('showUi'); },
 						}
 					}
 				});

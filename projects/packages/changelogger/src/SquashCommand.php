@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Changelogger;
 
 use Automattic\Jetpack\Changelog\ChangeEntry;
 use InvalidArgumentException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -16,6 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * "Squash" command for the changelogger tool CLI.
  */
+#[AsCommand( 'squash', 'Squash changelog entries in the changelog file' )]
 class SquashCommand extends WriteCommand {
 
 	/**
@@ -26,10 +28,17 @@ class SquashCommand extends WriteCommand {
 	protected static $defaultName = 'squash';
 
 	/**
+	 * The default command description
+	 *
+	 * @var string|null
+	 */
+	protected static $defaultDescription = 'Squash changelog entries in the changelog file';
+
+	/**
 	 * Configures the command.
 	 */
 	protected function configure() {
-		$this->setDescription( 'Squash changelog entries in the changelog file' )
+		$this->setDescription( static::$defaultDescription )
 			->addOption( 'regex', null, InputOption::VALUE_REQUIRED, 'PCRE regex to match the versions to squash, including delimiters' )
 			->addOption( 'count', null, InputOption::VALUE_REQUIRED, 'Number of versions to squash' )
 			->addOption( 'use-version', null, InputOption::VALUE_REQUIRED, 'Use this version instead of determining the version automatically' )
@@ -132,7 +141,7 @@ EOF
 	 * @param OutputInterface $output OutputInterface.
 	 * @return int 0 If everything went fine, or an exit code.
 	 */
-	protected function execute( InputInterface $input, OutputInterface $output ) {
+	protected function execute( InputInterface $input, OutputInterface $output ): int {
 		try {
 			$this->formatter = Config::formatterPlugin();
 			$this->formatter->setIO( $input, $output );
@@ -159,6 +168,7 @@ EOF
 		if ( $input->getOption( 'regex' ) !== null ) {
 			$regex = $input->getOption( 'regex' );
 			$output->writeln( "Looking for entries matching regex $regex", OutputInterface::VERBOSITY_DEBUG );
+			// @phan-suppress-next-line PhanInfiniteLoop -- Phan isn't realizing that the array_shift might make $inEntries falsey.
 			while ( $inEntries ) {
 				// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 				$ret = @preg_match( $regex, $inEntries[0]->getVersion() );
@@ -195,6 +205,7 @@ EOF
 			}
 			$output->writeln( "Looking for entries matching version $version", OutputInterface::VERBOSITY_DEBUG );
 			$output->writeln( "Will squash version {$entries[0]->getVersion()}", OutputInterface::VERBOSITY_DEBUG );
+			// @phan-suppress-next-line PhanInfiniteLoop -- Phan isn't realizing that the array_shift might make $inEntries falsey.
 			while ( $inEntries ) {
 				try {
 					$version2 = $this->versioning->parseVersion( $inEntries[0]->getVersion() )['version'];

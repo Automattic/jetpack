@@ -4,7 +4,7 @@ import { dispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { waitFor } from '../../wait-for';
-import { JETPACK_MEDIA_STORE } from '../store';
+import { store as mediaStore } from '../store';
 import { MediaSource } from './types';
 
 // Pexels constants
@@ -195,12 +195,28 @@ const isMediaSourceConnected = async ( source: MediaSource ) =>
  *
  * @returns {boolean} True if the inserter is opened false otherwise.
  */
-const isInserterOpened = (): boolean =>
-	select( 'core/edit-post' )?.isInserterOpened() ||
-	select( 'core/edit-site' )?.isInserterOpened() ||
-	select( 'core/edit-widgets' )?.isInserterOpened?.();
+const isInserterOpened = (): boolean => {
+	// Prior to WP 6.5, the isInserterOpened selector was available in core/edit-post.
+	// In WP 6.5, it was moved to core/editor. This check is to support both versions of WordPress.
+	// @to-do: remove exception when Jetpack requires WordPress 6.5.
+	const selectIsInserterOpened =
+		/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+		( select( 'core/editor' ) as any )?.isInserterOpened ??
+		select( 'core/edit-post' )?.isInserterOpened;
+
+	const editorIsInserterOpened = selectIsInserterOpened?.();
+
+	return (
+		editorIsInserterOpened ||
+		select( 'core/edit-site' )?.isInserterOpened() ||
+		select( 'core/edit-widgets' )?.isInserterOpened()
+	);
+};
 
 const registerInInserter = ( mediaCategoryProvider: () => object ) =>
+	// Remove as soon @types/wordpress__block-editor is up to date
+	// eslint-disable-next-line
+	// @ts-ignore
 	dispatch( 'core/block-editor' )?.registerInserterMediaCategory?.( mediaCategoryProvider() );
 
 /**
@@ -224,7 +240,7 @@ const pexelsProvider = () =>
  * @returns {boolean} True if the MediaSource is authenticated false otherwise.
  */
 const isAuthenticatedByWithMediaComponent = ( source: MediaSource ) =>
-	!! select( JETPACK_MEDIA_STORE ).isAuthenticated( source );
+	!! select( mediaStore ).isAuthenticated( source );
 
 /**
  * Adds Google Photos to the media inserter if/when it's connected.
@@ -259,5 +275,5 @@ export const addPexelsToMediaInserter = () => {
  * @param {boolean} isAuthenticated - True if the MediaSource is authenticated false otherwise.
  */
 export const authenticateMediaSource = ( source: MediaSource, isAuthenticated: boolean ) => {
-	dispatch( JETPACK_MEDIA_STORE ).setAuthenticated( source, isAuthenticated );
+	dispatch( mediaStore ).setAuthenticated( source, isAuthenticated );
 };

@@ -22,7 +22,6 @@ for F in README.md .gitkeep .gitignore; do
 done
 
 declare -A PROJECT_PREFIXES=(
-	['editor-extensions']='Block'
 	['github-actions']='Action'
 	['packages']='Package'
 	['plugins']='Plugin'
@@ -180,12 +179,48 @@ for PROJECT in projects/*/*; do
 		fi
 	fi
 
-	# Should have only one of jsconfig.json or tsconfig.json.
+	# - should have only one of jsconfig.json or tsconfig.json.
 	# @todo Having neither is ok in some cases. Can we determine when one is needed to flag that it should be added?
 	if [[ -e "$PROJECT/jsconfig.json" && -e "$PROJECT/tsconfig.json" ]]; then
 		EXIT=1
 		echo "::error file=$PROJECT/jsconfig.json::The project should have either jsconfig.json or tsconfig.json, not both. Keep tsconfig if the project uses TypeScript, or jsconfig if the project is JS-only."
 		echo "::error file=$PROJECT/tsconfig.json::The project should have either jsconfig.json or tsconfig.json, not both. Keep tsconfig if the project uses TypeScript, or jsconfig if the project is JS-only."
+	fi
+
+	# - We want to use @babel/preset-typescript (and fork-ts-checker-webpack-plugin or tsc for definition files) rather than ts-loader.
+	if [[ -e "$PROJECT/package.json" ]] && jq -e '.dependencies["ts-loader"] // .devDependencies["ts-loader"] // .optionalDependencies["ts-loader"]' "$PROJECT/package.json" >/dev/null; then
+		EXIT=1
+		LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["dependencies","ts-loader"] or . == ["devDependencies","ts-loader"] or . == ["optionalDependencies","ts-loader"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json" | head -1)
+		echo "::error file=$PROJECT/package.json${LINE}::For consistency we've settled on using \`@babel/preset-typescript\` (and \`fork-ts-checker-webpack-plugin\` or \`tsc\` for definition files) rather than \`ts-loader\`. Please switch to that."
+	fi
+
+	# - certain tsconfig options should not be used directly.
+	if [[ -e "$PROJECT/tsconfig.json" ]]; then
+		# tsconfig.json files may have comments. Strip those.
+		JSON=$( sed 's#^[ \t]*//.*##' "$PROJECT/tsconfig.json" );
+		if jq -e '.compilerOptions // {} | has( "noEmit" )' <<<"$JSON" >/dev/null; then
+			EXIT=1
+			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["compilerOptions","noEmit"] then ",line=\( input_line_number )" else empty end' <<<"$JSON")
+			echo "::error file=$PROJECT/tsconfig.json${LINE}::Don't set noEmit directly. Extend tsconfig.base.json if you want it false, or tsconfig.tsc.json or tsconfig.tsc-declaration-only.json if you want it true."
+		fi
+		if jq -e '.compilerOptions // {} | has( "module" )' <<<"$JSON" >/dev/null; then
+			EXIT=1
+			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["compilerOptions","module"] then ",line=\( input_line_number )" else empty end' <<<"$JSON")
+			echo "::error file=$PROJECT/tsconfig.json${LINE}::Don't set module directly. Our base configs already set correct values."
+		fi
+		if jq -e '.compilerOptions // {} | has( "moduleResolution" )' <<<"$JSON" >/dev/null; then
+			EXIT=1
+			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["compilerOptions","moduleResolution"] then ",line=\( input_line_number )" else empty end' <<<"$JSON")
+			echo "::error file=$PROJECT/tsconfig.json${LINE}::Don't set moduleResolution directly. Our base configs already set correct values."
+		fi
+	fi
+
+	# - if the project has any php files, a phan config should exist.
+	if [[ -n "$( git ls-files ":!$PROJECT/.phan/*" "$PROJECT/*.php" )" ]]; then
+		if [[ ! -e "$PROJECT/.phan/config.php" ]]; then
+			EXIT=1
+			echo "::error file=$PROJECT/.phan/config.php::Project $SLUG has PHP files but does not contain .phan/config.php. Refer to Static Analysis in docs/monorepo.md."
+		fi
 	fi
 
 	# - composer.json must exist.
@@ -393,6 +428,20 @@ if [[ -n "$DUPS" ]]; then
 	done <<<"$DUPS"
 fi
 
+# - package.json name fields should not be repeated.
+debug "Checking for duplicate package.json names"
+DUPS="$(jq -rn 'reduce inputs as $i ({}; if $i.name then .[$i.name] |= ( . // [] ) + [ input_filename ] else . end) | to_entries[] | .key as $key | .value | select( length > 1 ) | ( [ .[] | capture("^projects/(?<s>.*)/package\\.json$").s ] | .[-1] |= "and " + . | join( if length > 2 then ", " else " " end ) ) as $slugs | .[] | [ ., $key, $slugs ] | @tsv' projects/*/*/package.json projects/*/*/tests/e2e/package.json)"
+if [[ -n "$DUPS" ]]; then
+	while IFS=$'\t' read -r FILE KEY SLUGS; do
+		LINE=$(grep --line-number --max-count=1 '^	"name":' "$FILE" || true)
+		if [[ -n "$LINE" ]]; then
+			LINE=",line=${LINE%%:*}"
+		fi
+		EXIT=1
+		echo "::error file=$FILE$LINE::Name $KEY is in use in package.json by $SLUGS. They must be deduplicated."
+	done <<<"$DUPS"
+fi
+
 # - Text domains from plugins should not be used in packages.
 debug "Checking package textdomain usage vs plugin slugs"
 PLUGDOMAINS="$(jq -n 'reduce inputs as $i ({}; .[$i.extra["wp-plugin-slug"] // $i.extra["wp-theme-slug"] // ""] = ( input_filename | sub("^projects/(?<slug>.*)/composer\\.json$";"\(.slug)"))) | .[""] |= empty' projects/plugins/*/composer.json)"
@@ -458,6 +507,59 @@ for FILE in $(git -c core.quotepath=off ls-files 'projects/packages/**/.eslintrc
 			echo "::error file=$FILE$LINE::Eslint config sets textdomain \"$DOM\", but $SLUG's composer.json sets domain \"$DOM2\"."
 		fi
 	fi
+done
+
+# - Text domains in block.json should match composer.json.
+debug "Checking textdomain usage in block.json"
+for FILE in $(git -c core.quotepath=off ls-files 'projects/packages/**/block.json' 'projects/plugins/**/block.json'); do
+	[[ "$FILE" == projects/packages/blocks/tests/php/fixtures/* ]] && continue  # Ignore test fixtures
+
+	DOM="$(jq -r '.textdomain' "$FILE")"
+	DIR="$FILE"
+	while ! [[ "$DIR" =~ ^projects/[^/]*/[^/]*$ ]]; do
+		DIR="${DIR%/*}"
+	done
+	SLUG="${DIR#projects/}"
+	if [[ "$SLUG" == plugins/* ]]; then
+		DOM2="$(jq -r '.extra["wp-plugin-slug"] // .extra["wp-theme-slug"] // ""' "$DIR/composer.json")"
+	else
+		DOM2="$(jq -r '.extra.textdomain // ""' "$DIR/composer.json")"
+	fi
+	if [[ "$DOM" != "$DOM2" ]]; then
+		EXIT=1
+		LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["textdomain"] then input_line_number - 1 else empty end' package.json)
+		if [[ -n "$LINE" ]]; then
+			LINE=",line=${LINE%%:*}"
+		fi
+		if [[ -z "$DOM2" ]]; then
+			echo "::error file=$FILE$LINE::block.json sets textdomain \"$DOM\", but $SLUG's composer.json does not set \`.extra.textdomain\`."
+		else
+			echo "::error file=$FILE$LINE::block.json sets textdomain \"$DOM\", but $SLUG's composer.json sets domain \"$DOM2\"."
+		fi
+	fi
+done
+
+# - In phpcs config, `<rule ref="Standard.Category.Sniff.Message"><severity>0</severity></rule>` doesn't do what you think.
+debug "Checking for bad message exclusions in phpcs configs"
+for FILE in $(git -c core.quotepath=off ls-files .phpcs.config.xml .phpcs.xml.dist .github/files/php-linting-phpcs.xml .github/files/phpcompatibility-dev-phpcs.xml '*/.phpcs.dir.xml' '*/.phpcs.dir.phpcompatibility.xml'); do
+	while IFS=$'\t' read -r LINE REF; do
+		EXIT=1
+		echo "::error file=$FILE,line=$LINE::PHPCS config attempts to set severity 0 for the sniff message \"$REF\". To exclude a single message from a sniff, use \`<rule ref=\"${REF%.*}\"><exclude name=\"$REF\"/></rule>\` instead."
+	done < <( php -- "$FILE" <<-'PHPDOC'
+		<?php
+		$doc = new DOMDocument();
+		$doc->load( $argv[1] );
+		$xpath = new DOMXPath( $doc );
+		function has_message( $v ) {
+			return count( explode(".", $v[0]->value) ) >= 4;
+		}
+		$xpath->registerNamespace("php", "http://php.net/xpath");
+		$xpath->registerPHPFunctions( "has_message" );
+		foreach ( $xpath->evaluate( "//rule[php:function(\"has_message\", @ref)][severity[normalize-space(.)=\"0\"]]" ) as $node ) {
+			echo "{$node->getLineNo()}\t{$node->getAttribute("ref")}\n";
+		}
+		PHPDOC
+	)
 done
 
 # - .nvmrc should match .github/versions.sh.

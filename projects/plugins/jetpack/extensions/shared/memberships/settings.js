@@ -4,7 +4,6 @@ import {
 	Button,
 	Flex,
 	FlexBlock,
-	PanelRow,
 	RadioControl,
 	Spinner,
 	VisuallyHidden,
@@ -14,7 +13,7 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
-import { useEntityProp } from '@wordpress/core-data';
+import { useEntityId, useEntityProp, store as coreDataStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { useState } from '@wordpress/element';
@@ -276,25 +275,23 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 							</div>
 						</>
 					) }
-					<PanelRow>
-						<Flex direction="column">
-							{ showMisconfigurationWarning && <MisconfigurationWarning /> }
-							<FlexBlock direction="row" justify="flex-start">
-								{ canEdit && (
-									<NewsletterAccessRadioButtons
-										isEditorPanel={ true }
-										accessLevel={ _accessLevel }
-										stripeConnectUrl={ stripeConnectUrl }
-										hasTierPlans={ hasTierPlans }
-										postHasPaywallBlock={ foundPaywallBlock }
-									/>
-								) }
+					<Flex direction="column">
+						{ showMisconfigurationWarning && <MisconfigurationWarning /> }
+						<FlexBlock direction="row" justify="flex-start">
+							{ canEdit && (
+								<NewsletterAccessRadioButtons
+									isEditorPanel={ true }
+									accessLevel={ _accessLevel }
+									stripeConnectUrl={ stripeConnectUrl }
+									hasTierPlans={ hasTierPlans }
+									postHasPaywallBlock={ foundPaywallBlock }
+								/>
+							) }
 
-								{ /* Display the uneditable access level when the user doesn't have edit privileges*/ }
-								{ ! canEdit && <span>{ accessLabel }</span> }
-							</FlexBlock>
-						</Flex>
-					</PanelRow>
+							{ /* Display the uneditable access level when the user doesn't have edit privileges*/ }
+							{ ! canEdit && <span>{ accessLabel }</span> }
+						</FlexBlock>
+					</Flex>
 				</>
 			) }
 		/>
@@ -304,8 +301,9 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 export function NewsletterEmailDocumentSettings() {
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+	const { saveEditedEntityRecord } = useDispatch( coreDataStore );
 	const [ postMeta, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
-
+	const postId = useEntityId( 'postType', postType );
 	const toggleSendEmail = value => {
 		const postMetaUpdate = {
 			...postMeta,
@@ -313,6 +311,7 @@ export function NewsletterEmailDocumentSettings() {
 			[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: ! value,
 		};
 		setPostMeta( postMetaUpdate );
+		saveEditedEntityRecord( 'postType', postType, postId );
 	};
 
 	const isSendEmailEnabled = useSelect( select => {

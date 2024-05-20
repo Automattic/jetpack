@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Boost - use the right directory for the plugin in advanced-cache.php
-
-

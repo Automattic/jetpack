@@ -11,6 +11,8 @@
 
 namespace Automattic\Jetpack;
 
+use Store_Product_List;
+
 /**
  * Fetch data about available Plans from WordPress.com
  */
@@ -32,7 +34,7 @@ class Plans {
 		}
 
 		// We're on Jetpack, so it's safe to use this namespace.
-		$request = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
+		$request = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
 			'/plans?_locale=' . get_user_locale(),
 			// We're using version 1.5 of the endpoint rather than the default version 2
 			// since the latter only returns Jetpack Plans, but we're also interested in
@@ -41,7 +43,7 @@ class Plans {
 			array(
 				'method'  => 'GET',
 				'headers' => array(
-					'X-Forwarded-For' => ( new Automattic\Jetpack\Status\Visitor() )->get_ip( true ),
+					'X-Forwarded-For' => ( new \Automattic\Jetpack\Status\Visitor() )->get_ip( true ),
 				),
 			),
 			null,

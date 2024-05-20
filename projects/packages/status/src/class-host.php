@@ -34,7 +34,7 @@ class Host {
 	 *
 	 * @since 1.9.0
 	 *
-	 * @return bool;
+	 * @return bool
 	 */
 	public function is_atomic_platform() {
 		return Constants::is_true( 'ATOMIC_SITE_ID' ) && Constants::is_true( 'ATOMIC_CLIENT_ID' );
@@ -127,7 +127,7 @@ class Host {
 	 */
 	public function get_source_query() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		$allowed_sources = array( 'jetpack-manage' );
+		$allowed_sources = array( 'jetpack-manage', 'a8c-for-agencies' );
 		if ( isset( $_GET['source'] ) && in_array( $_GET['source'], $allowed_sources, true ) ) {
 			return sanitize_key( $_GET['source'] );
 		}
@@ -139,12 +139,15 @@ class Host {
 	 * Returns an array of nameservers for the current site.
 	 *
 	 * @param string $domain The domain of the site to check.
-	 * @return string
+	 * @return array
 	 */
 	public function get_nameserver_dns_records( $domain ) {
+		if ( ! function_exists( 'dns_get_record' ) ) {
+			return array();
+		}
+
 		$dns_records = dns_get_record( $domain, DNS_NS ); // Fetches the DNS records of type NS (Name Server)
 		$nameservers = array();
-
 		foreach ( $dns_records as $record ) {
 			if ( isset( $record['target'] ) ) {
 				$nameservers[] = $record['target']; // Adds the nameserver to the array
@@ -272,5 +275,21 @@ class Host {
 
 		Cache::set( 'host_guess', $provider );
 		return $provider;
+	}
+
+	/**
+	 * Add public-api.wordpress.com to the safe redirect allowed list - only added when someone allows API access.
+	 *
+	 * @since 3.0.2 Ported from Jetpack to the Status package.
+	 *
+	 * To be used with a filter of allowed domains for a redirect.
+	 *
+	 * @param array $domains Allowed WP.com Environments.
+	 *
+	 * @return array
+	 */
+	public static function allow_wpcom_public_api_domain( $domains ) {
+		$domains[] = 'public-api.wordpress.com';
+		return $domains;
 	}
 }

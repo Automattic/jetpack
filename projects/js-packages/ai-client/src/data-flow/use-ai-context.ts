@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useCallback, useContext, useEffect } from '@wordpress/element';
+import { useCallback, useContext, useEffect } from 'react';
 /**
  * Internal dependencies
  */
@@ -48,7 +48,7 @@ export default function useAiContext( {
 	onSuggestion,
 	onError,
 }: UseAiContextOptions = {} ): AiDataContextProps {
-	const context = useContext( AiDataContext );
+	const context = useContext( AiDataContext ) as AiDataContextProps;
 	const { eventSource } = context;
 
 	const done = useCallback( ( event: CustomEvent ) => onDone?.( event?.detail ), [ onDone ] );

@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
+use WP_Error;
 
 /**
  * Class to handle sync for plugins.
@@ -121,6 +122,7 @@ class Plugins extends Module {
 
 		// For plugin installer.
 		if ( empty( $plugins ) && method_exists( $upgrader, 'plugin_info' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- Checked above. See also https://github.com/phan/phan/issues/1204.
 			$plugins = array( $upgrader->plugin_info() );
 		}
 
@@ -212,6 +214,7 @@ class Plugins extends Module {
 	 * @return array|boolean Error on error, false otherwise.
 	 */
 	private function get_errors( $skin ) {
+		// @phan-suppress-next-line PhanUndeclaredMethod -- Checked before being called. See also https://github.com/phan/phan/issues/1204.
 		$errors = method_exists( $skin, 'get_errors' ) ? $skin->get_errors() : null;
 		if ( is_wp_error( $errors ) ) {
 			$error_code = $errors->get_error_code();

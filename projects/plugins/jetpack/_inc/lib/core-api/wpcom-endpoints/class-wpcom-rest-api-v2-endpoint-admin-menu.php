@@ -83,15 +83,44 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_item( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		require_once JETPACK__PLUGIN_DIR . '/modules/masterbar/admin-menu/load.php';
+		if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
+			require_once JETPACK__PLUGIN_DIR . '/modules/masterbar/admin-menu/load.php';
+		}
 
 		// All globals need to be declared for menu items to properly register.
 		global $admin_page_hooks, $menu, $menu_order, $submenu, $_wp_menu_nopriv, $_wp_submenu_nopriv; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
+		$this->hide_customizer_menu_on_block_theme();
 		require_once ABSPATH . 'wp-admin/includes/admin.php';
 		require_once ABSPATH . 'wp-admin/menu.php';
 
 		return rest_ensure_response( $this->prepare_menu_for_response( $menu ) );
+	}
+
+	/**
+	 * Hides the Customizer menu items when the block theme is active by removing the dotcom-specific actions.
+	 * They are not needed for block themes.
+	 *
+	 * @see https://github.com/Automattic/jetpack/pull/36017
+	 */
+	private function hide_customizer_menu_on_block_theme() {
+		if ( wp_is_block_theme() && ! is_customize_preview() ) {
+			remove_action( 'customize_register', 'add_logotool_button', 20 );
+			remove_action( 'customize_register', 'footercredits_register', 99 );
+			remove_action( 'customize_register', 'wpcom_disable_customizer_site_icon', 20 );
+
+			if ( class_exists( '\Jetpack_Fonts' ) ) {
+				$jetpack_fonts_instance = \Jetpack_Fonts::get_instance();
+				remove_action( 'customize_register', array( $jetpack_fonts_instance, 'register_controls' ) );
+				remove_action( 'customize_register', array( $jetpack_fonts_instance, 'maybe_prepopulate_option' ), 0 );
+			}
+
+			remove_action( 'customize_register', array( 'Jetpack_Fonts_Typekit', 'maybe_override_for_advanced_mode' ), 20 );
+
+			remove_action( 'customize_register', 'Automattic\Jetpack\Dashboard_Customizations\register_css_nudge_control' );
+
+			remove_action( 'customize_register', array( 'Jetpack_Custom_CSS_Enhancements', 'customize_register' ) );
+		}
 	}
 
 	/**

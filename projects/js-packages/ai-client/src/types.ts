@@ -46,6 +46,11 @@ export type {
 	UseTranscriptionPostProcessingReturn,
 	PostProcessingAction,
 } from './hooks/use-transcription-post-processing/index.js';
+export type {
+	UseAudioValidationReturn,
+	ValidatedAudioInformation,
+} from './hooks/use-audio-validation/index.js';
+
 /*
  * Hook constants
  */
@@ -78,19 +83,33 @@ export const AI_MODEL_GPT_4 = 'gpt-4' as const;
 
 export type AiModelTypeProp = typeof AI_MODEL_GPT_3_5_Turbo_16K | typeof AI_MODEL_GPT_4;
 
-// Connection initial state
-// @todo: it should be provided by the connection package
-interface JPConnectionInitialState {
-	apiNonce: string;
-	siteSuffix: string;
-	connectionStatus: {
-		isActive: boolean;
-	};
-}
+/*
+ * Media recording types
+ */
+export type { RecordingState } from './hooks/use-media-recording/index.js';
 
-// Global
-declare global {
-	interface Window {
-		JP_CONNECTION_INITIAL_STATE: JPConnectionInitialState;
-	}
-}
+/*
+ * Utility types
+ */
+export type CancelablePromise< T = void > = Promise< T > & { canceled?: boolean };
+
+export type Block = {
+	attributes?: {
+		[ key: string ]: unknown;
+	};
+	clientId?: string;
+	innerBlocks?: Block[];
+	isValid?: boolean;
+	name?: string;
+	originalContent?: string;
+};
+
+/*
+ * Transcription types
+ */
+export type TranscriptionState = RecordingState | 'validating' | 'processing' | 'error';
+
+/*
+ * Lib types
+ */
+export type { RenderHTMLRules } from './libs/index.js';

@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 1,
+	"apiVersion": 3,
 	"name": "jetpack/subscriptions",
 	"title": "Subscribe",
 	"description": "Subscribe to this blog's posts as a newsletter.",
@@ -18,19 +18,22 @@
 	},
 	"styles": [
 		{
+			"name": "split",
+			"label": "Split",
+			"isDefault": true
+		},
+		{
 			"name": "compact",
 			"label": "Compact"
 		},
 		{
-			"name": "split",
-			"label": "Split",
-			"isDefault": true
+			"name": "button",
+			"label": "Button only"
 		}
 	],
 	"attributes": {
 		"subscribePlaceholder": {
-			"type": "string",
-			"default": "Type your email…"
+			"type": "string"
 		},
 		"showSubscribersTotal": {
 			"type": "boolean",
@@ -47,8 +50,7 @@
 			"type": "string"
 		},
 		"submitButtonText": {
-			"type": "string",
-			"default": "Subscribe"
+			"type": "string"
 		},
 		"emailFieldBackgroundColor": {
 			"type": "string"
@@ -106,9 +108,12 @@
 		},
 		"successMessage": {
 			"type": "string",
-			"default": "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing."
+			"default": "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm' to start subscribing."
 		},
 		"appSource": {
+			"type": "string"
+		},
+		"className": {
 			"type": "string"
 		}
 	},

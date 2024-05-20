@@ -85,6 +85,7 @@ class WordAds_Params {
 			'wordads_unsafe'                  => false,
 			'enable_header_ad'                => true,
 			'wordads_second_belowpost'        => true,
+			'wordads_inline_enabled'          => true,
 			'wordads_display_front_page'      => true,
 			'wordads_display_post'            => true,
 			'wordads_display_page'            => true,
@@ -93,6 +94,7 @@ class WordAds_Params {
 			'wordads_custom_adstxt_enabled'   => false,
 			'wordads_ccpa_enabled'            => false,
 			'wordads_ccpa_privacy_policy_url' => get_option( 'wp_page_for_privacy_policy' ) ? get_permalink( (int) get_option( 'wp_page_for_privacy_policy' ) ) : '',
+			'wordads_cmp_enabled'             => false,
 		);
 
 		// Grab settings, or set as default if it doesn't exist.

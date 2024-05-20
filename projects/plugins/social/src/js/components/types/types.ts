@@ -8,6 +8,7 @@ type JetpackSettingsSelectors = {
 	showPricingPage: () => boolean;
 	isUpdatingJetpackSettings: () => boolean;
 	hasPaidPlan: () => boolean;
+	useAdminUiV1: () => boolean;
 };
 
 type ConnectionDataSelectors = {
@@ -52,6 +53,11 @@ type AutoConversionSettingsSelectors = {
 	isAutoConversionSettingsUpdating: () => boolean;
 };
 
+type SocialNotesSettingsSelectors = {
+	isSocialNotesEnabled: () => boolean;
+	isSocialNotesSettingsUpdating: () => boolean;
+};
+
 /**
  * Types of the Social Store selectors.
  *
@@ -62,4 +68,5 @@ export type SocialStoreSelectors = JetpackSettingsSelectors &
 	SharesDataSelectors &
 	SiteDataSelectors &
 	SocialImageGeneratorSettingsSelectors &
-	AutoConversionSettingsSelectors;
+	AutoConversionSettingsSelectors &
+	SocialNotesSettingsSelectors;

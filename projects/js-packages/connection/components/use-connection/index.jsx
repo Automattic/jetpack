@@ -72,7 +72,7 @@ export default ( {
 			return handleConnectUser();
 		}
 
-		return registerSite( { registrationNonce, redirectUri } ).then( () => {
+		return registerSite( { registrationNonce, redirectUri, from } ).then( () => {
 			return handleConnectUser();
 		} );
 	};

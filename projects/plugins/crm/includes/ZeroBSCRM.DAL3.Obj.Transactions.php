@@ -252,7 +252,26 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
         #} =========== / LOAD ARGS =============
 
 			$this->events_manager = new Events_Manager();
+
+			add_filter( 'jpcrm_listview_filters', array( $this, 'add_listview_filters' ) );
     }
+
+		/**
+		 * Adds items to listview filter using `jpcrm_listview_filters` hook.
+		 *
+		 * @param array $listview_filters Listview filters.
+		 */
+		public function add_listview_filters( $listview_filters ) {
+			global $zbs;
+			// Add statuses if enabled.
+			if ( $zbs->settings->get( 'filtersfromstatus' ) === 1 ) {
+				$statuses = zeroBSCRM_getTransactionsStatuses( true );
+				foreach ( $statuses as $status ) {
+					$listview_filters[ ZBS_TYPE_TRANSACTION ]['status'][ 'status_' . $status ] = $status;
+				}
+			}
+			return $listview_filters;
+		}
 
     // ===============================================================================
     // ===========   TRANSACTION  =======================================================
@@ -899,11 +918,8 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
                         // USE hasStatus above now...
 					if ( str_starts_with( $qFilter, 'status_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-                            $qFilterStatus = substr($qFilter,7);
-                            $qFilterStatus = str_replace('_',' ',$qFilterStatus);
-
-                            // check status
-                            $wheres['quickfilterstatus'] = array('zbst_status','LIKE','%s',ucwords($qFilterStatus));
+						$quick_filter_status         = substr( $qFilter, 7 ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						$wheres['quickfilterstatus'] = array( 'zbst_status', '=', 'convert(%s using utf8mb4) collate utf8mb4_bin', $quick_filter_status );
 
 					} else {
 

@@ -1,0 +1,8 @@
+.wrapper {
+	display: grid;
+	justify-items: end;
+
+	:global(.components-snackbar + .components-snackbar) {
+		margin-top: 16px;
+	}
+}

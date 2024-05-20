@@ -61,6 +61,7 @@ class Settings {
 		'checksum_disable'                       => true,
 		'dedicated_sync_enabled'                 => true,
 		'custom_queue_table_enabled'             => true,
+		'wpcom_rest_api_enabled'                 => true,
 	);
 
 	/**
@@ -269,10 +270,13 @@ class Settings {
 						$sender->send_action( 'jetpack_sync_storage_error_custom_migrate', $data );
 					}
 				} elseif ( $old_value && ! $value ) {
-					/**
-					 * The custom table has been disabled, migrate what we can from the custom table to the options table.
-					 */
-					Queue_Storage_Table::migrate_from_custom_table_to_options_table();
+					if ( ! get_transient( Queue_Storage_Table::CUSTOM_QUEUE_TABLE_DISABLE_WPDB_ERROR_NOT_EXIST_FLAG ) ) {
+						/**
+						 * The custom table has been disabled, migrate what we can from the custom table to the options table unless
+						 * the custom table doesn't exist in the DB.
+						 */
+						Queue_Storage_Table::migrate_from_custom_table_to_options_table();
+					}
 				}
 			}
 
@@ -298,6 +302,26 @@ class Settings {
 			if ( 'dedicated_sync_enabled' === $setting && $updated && (bool) $value ) {
 				if ( ! Dedicated_Sender::can_spawn_dedicated_sync_request() ) {
 					update_option( self::SETTINGS_OPTION_PREFIX . $setting, 0, true );
+				}
+			}
+
+			// Do not enable wpcom rest api if we cannot send a test request.
+
+			if ( 'wpcom_rest_api_enabled' === $setting && $updated && (bool) $value ) {
+				$sender = Sender::get_instance();
+				$data   = array(
+					'timestamp' => microtime( true ),
+				);
+				$items  = $sender->send_action( 'jetpack_sync_wpcom_rest_api_enable_test', $data );
+				// If we can't send a test request, disable the setting and send action tolog the error.
+				if ( is_wp_error( $items ) ) {
+					update_option( self::SETTINGS_OPTION_PREFIX . $setting, 0, true );
+					$data = array(
+						'timestamp'     => microtime( true ),
+						'response_code' => $items->get_error_code(),
+						'response_body' => $items->get_error_message() ?? '',
+					);
+					$sender->send_action( 'jetpack_sync_wpcom_rest_api_enable_error', $data );
 				}
 			}
 		}
@@ -677,5 +701,17 @@ class Settings {
 	 */
 	public static function is_custom_queue_table_enabled() {
 		return (bool) self::get_setting( 'custom_queue_table_enabled' );
+	}
+
+	/**
+	 * Whether wpcom rest api is enabled.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return boolean Whether wpcom rest api is enabled.
+	 */
+	public static function is_wpcom_rest_api_enabled() {
+		return (bool) self::get_setting( 'wpcom_rest_api_enabled' );
 	}
 }

@@ -84,8 +84,35 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
         ); foreach ($defaultArgs as $argK => $argV){ $this->$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $this->$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$this->$argK = $newData;} else { $this->$argK = $args[$argK]; } } }
         #} =========== / LOAD ARGS =============
 
+		add_filter( 'jpcrm_listview_filters', array( $this, 'add_listview_filters' ) );
+	}
 
-    }
+	/**
+	 * Adds items to listview filter using `jpcrm_listview_filters` hook.
+	 *
+	 * @param array $listview_filters Listview filters.
+	 */
+	public function add_listview_filters( $listview_filters ) {
+		global $zbs;
+
+		$listview_filters[ ZBS_TYPE_TASK ]['general']['next30'] = __( 'Next 30 Days', 'zero-bs-crm' );
+		$listview_filters[ ZBS_TYPE_TASK ]['general']['last30'] = __( 'Past 30 Days', 'zero-bs-crm' );
+		$listview_filters[ ZBS_TYPE_TASK ]['general']['next7']  = __( 'Next 7 Days', 'zero-bs-crm' );
+		$listview_filters[ ZBS_TYPE_TASK ]['general']['last7']  = __( 'Past 7 Days', 'zero-bs-crm' );
+
+		// Add statuses if enabled.
+		if ( $zbs->settings->get( 'filtersfromstatus' ) === 1 ) {
+
+			$statuses = array(
+				'incomplete' => __( 'Incomplete', 'zero-bs-crm' ),
+				'completed'  => __( 'Completed', 'zero-bs-crm' ),
+			);
+			foreach ( $statuses as $status_slug => $status_label ) {
+				$listview_filters[ ZBS_TYPE_TASK ]['status'][ 'status_' . $status_slug ] = $status_label;
+			}
+		}
+		return $listview_filters;
+	}
 
 
     // ===============================================================================

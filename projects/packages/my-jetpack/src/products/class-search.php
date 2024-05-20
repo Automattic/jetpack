@@ -48,6 +48,13 @@ class Search extends Hybrid_Product {
 	public static $has_standalone_plugin = true;
 
 	/**
+	 * Whether this product has a free offering
+	 *
+	 * @var bool
+	 */
+	public static $has_free_offering = true;
+
+	/**
 	 * The filename (id) of the plugin associated with this product.
 	 *
 	 * @var string
@@ -66,21 +73,21 @@ class Search extends Hybrid_Product {
 	public static $requires_user_connection = false;
 
 	/**
-	 * Get the internationalized product name
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'Search', 'jetpack-my-jetpack' );
+		return 'Search';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack Search', 'jetpack-my-jetpack' );
+		return 'Jetpack Search';
 	}
 
 	/**
@@ -142,6 +149,15 @@ class Search extends Hybrid_Product {
 		$pricing['estimated_record_count'] = $record_count;
 
 		return array_merge( $pricing, $search_pricing );
+	}
+
+	/**
+	 * Get the URL the user is taken after purchasing the product through the checkout
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_checkout_url() {
+		return self::get_manage_url();
 	}
 
 	/**

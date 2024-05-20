@@ -82,7 +82,8 @@ class Replicastore implements Replicastore_Interface {
 	 */
 	public function term_count() {
 		global $wpdb;
-		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->terms" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->terms" );
 	}
 
 	/**
@@ -94,7 +95,8 @@ class Replicastore implements Replicastore_Interface {
 	 */
 	public function term_taxonomy_count() {
 		global $wpdb;
-		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_taxonomy" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_taxonomy" );
 	}
 
 	/**
@@ -106,7 +108,8 @@ class Replicastore implements Replicastore_Interface {
 	 */
 	public function term_relationship_count() {
 		global $wpdb;
-		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_relationships" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_relationships" );
 	}
 
 	/**
@@ -140,8 +143,8 @@ class Replicastore implements Replicastore_Interface {
 			$where .= ' AND ID <= ' . (int) $max_id;
 		}
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->posts WHERE $where" );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->posts WHERE $where" );
 	}
 
 	/**
@@ -319,8 +322,8 @@ class Replicastore implements Replicastore_Interface {
 			$where .= ' AND comment_ID <= ' . (int) $max_id;
 		}
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->comments WHERE $where" );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->comments WHERE $where" );
 	}
 
 	/**
@@ -874,9 +877,9 @@ class Replicastore implements Replicastore_Interface {
 	 *
 	 * @access public
 	 *
-	 * @param string $taxonomy   Taxonomy slug.
-	 * @param int    $term_id    ID of the term.
-	 * @param string $term_key   ID Field `term_id` or `term_taxonomy_id`.
+	 * @param string|false $taxonomy   Taxonomy slug.
+	 * @param int          $term_id    ID of the term.
+	 * @param string       $term_key   ID Field `term_id` or `term_taxonomy_id`.
 	 *
 	 * @return \WP_Term|WP_Error Term object on success, \WP_Error object on failure.
 	 */
@@ -1086,10 +1089,11 @@ class Replicastore implements Replicastore_Interface {
 	 * @access public
 	 *
 	 * @param int $user_id User ID.
-	 * @return \WP_User User object.
+	 * @return \WP_User|null User object, or `null` if user invalid/not found.
 	 */
 	public function get_user( $user_id ) {
-		return \WP_User::get_instance( $user_id );
+		$user = get_user_by( 'id', $user_id );
+		return $user instanceof \WP_User ? $user : null;
 	}
 
 	/**
@@ -1392,6 +1396,7 @@ class Replicastore implements Replicastore_Interface {
 	 * Used in methods that are not implemented and shouldn't be invoked.
 	 *
 	 * @access private
+	 * @return never
 	 * @throws Exception If this method is invoked.
 	 */
 	private function invalid_call() {

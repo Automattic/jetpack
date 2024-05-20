@@ -2,8 +2,10 @@ import { Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chevronDown, external, check } from '@wordpress/icons';
 import cs from 'classnames';
-import React, { useCallback, useState, useEffect, useMemo } from 'react';
-import { useProduct } from '../../hooks/use-product';
+import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
+import useProduct from '../../data/products/use-product';
+import useAnalytics from '../../hooks/use-analytics';
+import useOutsideAlerter from '../../hooks/use-outside-alerter';
 import styles from './style.module.scss';
 
 export const PRODUCT_STATUSES = {
@@ -30,9 +32,9 @@ const ActionButton = ( {
 	onFixConnection,
 	isFetching,
 	isInstallingStandalone,
-	isDeactivatingStandalone,
 	className,
 	onAdd,
+	onInstall,
 	onLearnMore,
 	upgradeInInterstitial,
 } ) => {
@@ -41,8 +43,11 @@ const ActionButton = ( {
 	const { detail } = useProduct( slug );
 	const { manageUrl, purchaseUrl } = detail;
 	const isManageDisabled = ! manageUrl;
+	const dropdownRef = useRef( null );
+	const chevronRef = useRef( null );
+	const { recordEvent } = useAnalytics();
 
-	const isBusy = isFetching || isInstallingStandalone || isDeactivatingStandalone;
+	const isBusy = isFetching || isInstallingStandalone;
 	const hasAdditionalActions = additionalActions?.length > 0;
 
 	const buttonState = useMemo( () => {
@@ -55,8 +60,7 @@ const ActionButton = ( {
 
 	const getStatusAction = useCallback( () => {
 		switch ( status ) {
-			case PRODUCT_STATUSES.ABSENT:
-			case PRODUCT_STATUSES.ABSENT_WITH_PLAN: {
+			case PRODUCT_STATUSES.ABSENT: {
 				const buttonText = __( 'Learn more', 'jetpack-my-jetpack' );
 				return {
 					...buttonState,
@@ -69,6 +73,18 @@ const ActionButton = ( {
 					...( primaryActionOverride &&
 						PRODUCT_STATUSES.ABSENT in primaryActionOverride &&
 						primaryActionOverride[ PRODUCT_STATUSES.ABSENT ] ),
+				};
+			}
+			case PRODUCT_STATUSES.ABSENT_WITH_PLAN: {
+				const buttonText = __( 'Install Plugin', 'jetpack-my-jetpack' );
+				return {
+					...buttonState,
+					href: '',
+					size: 'small',
+					variant: 'primary',
+					weight: 'regular',
+					label: buttonText,
+					onClick: onInstall,
 					...( primaryActionOverride &&
 						PRODUCT_STATUSES.ABSENT_WITH_PLAN in primaryActionOverride &&
 						primaryActionOverride[ PRODUCT_STATUSES.ABSENT_WITH_PLAN ] ),
@@ -173,6 +189,7 @@ const ActionButton = ( {
 		onAdd,
 		onFixConnection,
 		onActivate,
+		onInstall,
 		onLearnMore,
 		purchaseUrl,
 		upgradeInInterstitial,
@@ -188,15 +205,32 @@ const ActionButton = ( {
 		[ additionalActions, getStatusAction, hasAdditionalActions ]
 	);
 
+	const recordDropdownStateChange = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_dropdown_toggle', {
+			product: slug,
+			state: ! isDropdownOpen ? 'open' : 'closed',
+		} );
+	}, [ isDropdownOpen, recordEvent, slug ] );
+
 	const onChevronClick = useCallback( () => {
 		setIsDropdownOpen( ! isDropdownOpen );
-	}, [ isDropdownOpen ] );
+		recordDropdownStateChange();
+	}, [ isDropdownOpen, recordDropdownStateChange ] );
 
 	// By default, we set the first "addition action" as the current action shown on the card.
 	// If there are none, set it to the status action.
 	useEffect( () => {
 		setCurrentAction( allActions[ 0 ] );
 	}, [ allActions ] );
+
+	// Close the dropdown when clicking outside of it.
+	useOutsideAlerter( dropdownRef, e => {
+		// Don't need to use outside alerter if chevron is clicked, chevron button will handle it
+		if ( ! chevronRef.current.contains( e.target ) ) {
+			setIsDropdownOpen( false );
+			recordDropdownStateChange();
+		}
+	} );
 
 	if ( ! admin ) {
 		return (
@@ -210,12 +244,17 @@ const ActionButton = ( {
 	}
 
 	const dropdown = hasAdditionalActions && (
-		<div className={ styles[ 'action-button-dropdown' ] }>
+		<div ref={ dropdownRef } className={ styles[ 'action-button-dropdown' ] }>
 			<ul className={ styles[ 'dropdown-menu' ] }>
 				{ [ ...additionalActions, getStatusAction() ].map( ( { label, isExternalLink }, index ) => {
 					const onDropdownMenuItemClick = () => {
 						setCurrentAction( allActions[ index ] );
 						setIsDropdownOpen( false );
+
+						recordEvent( 'jetpack_myjetpack_product_card_dropdown_action_click', {
+							product: slug,
+							action: label,
+						} );
 					};
 
 					return (
@@ -258,6 +297,7 @@ const ActionButton = ( {
 							currentAction.variant === 'primary' ? styles.primary : styles.secondary
 						) }
 						onClick={ onChevronClick }
+						ref={ chevronRef }
 					>
 						<Icon
 							icon={ chevronDown }

@@ -14,6 +14,8 @@ function jetpack_boost_page_optimize_types() {
 
 /**
  * Handle serving a minified / concatenated file from the virtual _jb_static dir.
+ *
+ * @return never
  */
 function jetpack_boost_page_optimize_service_request() {
 	$use_wp = defined( 'JETPACK_BOOST_CONCAT_USE_WP' ) && JETPACK_BOOST_CONCAT_USE_WP;
@@ -21,6 +23,11 @@ function jetpack_boost_page_optimize_service_request() {
 
 	$cache_dir = Config::get_cache_dir_path();
 	$use_cache = ! empty( $cache_dir );
+
+	// We handle the cache here, tell other caches not to.
+	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+		define( 'DONOTCACHEPAGE', true );
+	}
 
 	// Ensure the cache directory exists.
 	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir

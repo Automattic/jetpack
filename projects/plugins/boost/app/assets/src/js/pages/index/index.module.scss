@@ -20,3 +20,15 @@
 .tooltip-wrapper p {
 	display: inline;
 }
+
+@media (max-width: 768px) {
+	.tooltip-wrapper :global(.icon-tooltip-wrapper) {
+		display: block;
+		margin-left: 50%;
+		left: -12px;
+
+		:global(.icon-tooltip-container .components-popover__content) {
+			width: 70vw;
+		}
+	}
+}

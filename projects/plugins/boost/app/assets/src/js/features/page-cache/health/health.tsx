@@ -1,40 +1,48 @@
-import { Button, Notice } from '@automattic/jetpack-components';
-import { usePageCacheErrorDS, useRunPageCacheSetupAction } from '$lib/stores/page-cache';
+import { Notice } from '@automattic/jetpack-components';
 import getErrorData from './lib/get-error-data';
-import { __ } from '@wordpress/i18n';
+import { usePageCacheSetup, type PageCacheError } from '$lib/stores/page-cache';
+import { useEffect, useState } from 'react';
+import { useSingleModuleState } from '$features/module/lib/stores';
+type HealthProps = {
+	error?: PageCacheError;
+	setup?: ReturnType< typeof usePageCacheSetup >;
+	setError: ( error: PageCacheError ) => void;
+};
 
-const Health = () => {
-	const pageCacheError = usePageCacheErrorDS();
-	const runPageCacheSetupAction = useRunPageCacheSetupAction();
-
-	const requestRunSetup = () => {
-		runPageCacheSetupAction.mutate();
-	};
-
+const Health = ( { setup, error, setError }: HealthProps ) => {
+	const [ , setPageCache ] = useSingleModuleState( 'page_cache' );
 	// Was there a problem trying to setup cache?
-	if ( pageCacheError !== '' ) {
-		const errorCode = pageCacheError ? pageCacheError : '';
+	const errorData = getErrorData( error );
+	const [ canReset, setCanReset ] = useState( false );
 
-		const errorData = getErrorData( errorCode );
-		if ( errorData ) {
-			return (
+	useEffect( () => {
+		if ( setup?.isError && error && ! error.dismissed ) {
+			setCanReset( true );
+		}
+	}, [ setup?.isError, error, setCanReset ] );
+
+	useEffect( () => {
+		if ( canReset ) {
+			setCanReset( false );
+			setPageCache( false );
+		}
+	}, [ canReset, setCanReset, setPageCache ] );
+
+	return (
+		<>
+			{ errorData && error && error.dismissed !== true && (
 				<Notice
 					level="warning"
-					hideCloseButton={ true }
 					title={ errorData.title }
-					actions={ [
-						<Button size="small" weight="regular" onClick={ requestRunSetup } key="try-again">
-							{ __( 'Try again', 'jetpack-boost' ) }
-						</Button>,
-					] }
+					onClose={ () => {
+						setError( { ...error, dismissed: true } );
+					} }
 				>
 					<p>{ errorData.message }</p>
 				</Notice>
-			);
-		}
-	}
-
-	return null;
+			) }
+		</>
+	);
 };
 
 export default Health;

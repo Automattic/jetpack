@@ -9,7 +9,8 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Icon, info, check } from '@wordpress/icons';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
+import useAnalytics from '../../hooks/use-analytics';
 import cloud from './cloud.svg';
 import emptyAvatar from './empty-avatar.svg';
 import jetpack from './jetpack.svg';
@@ -47,14 +48,17 @@ const ConnectionStatusCard = props => {
 	const {
 		apiRoot,
 		apiNonce,
-		redirectUri,
-		title,
-		connectionInfoText,
+		redirectUri = null,
+		title = __( 'Connection', 'jetpack-my-jetpack' ),
+		connectionInfoText = __(
+			'Jetpack connects your site and user account to the WordPress.com cloud to provide more powerful features.',
+			'jetpack-my-jetpack'
+		),
 		onDisconnected,
 		connectedPlugins,
 		connectedSiteId,
 		context,
-		onConnectUser,
+		onConnectUser = null,
 	} = props;
 
 	const { isRegistered, isUserConnected, userConnectionData } = useConnection( {
@@ -63,21 +67,42 @@ const ConnectionStatusCard = props => {
 		redirectUri,
 	} );
 
+	const { recordEvent } = useAnalytics();
 	const [ isManageConnectionDialogOpen, setIsManageConnectionDialogOpen ] = useState( false );
 	const { setConnectionStatus, setUserIsConnecting } = useDispatch( CONNECTION_STORE_ID );
-	const handleConnectUser = onConnectUser || setUserIsConnecting;
+	const connectUserFn = onConnectUser || setUserIsConnecting;
 	const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
+	const tracksEventData = useMemo( () => {
+		return {
+			isUserConnected: isUserConnected,
+			isRegistered: isRegistered,
+		};
+	}, [ isUserConnected, isRegistered ] );
 
 	/**
-	 * Open the Manage Connection Dialog.
+	 * Open the Manage Connection Dialog, and register the connection type as part of the Tracks event recorded
 	 */
 	const openManageConnectionDialog = useCallback(
-		e => {
+		connectionType => e => {
 			e && e.preventDefault();
+			recordEvent( 'jetpack_myjetpack_connection_manage_dialog_click', {
+				...tracksEventData,
+				connectionType,
+			} );
 			setIsManageConnectionDialogOpen( true );
 		},
-		[ setIsManageConnectionDialogOpen ]
+		[ recordEvent, setIsManageConnectionDialogOpen, tracksEventData ]
 	);
+
+	/**
+	 * Open the Manage User Connection Dialog.
+	 */
+	const openManageUserConnectionDialog = openManageConnectionDialog( 'user' );
+
+	/**
+	 * Open the Manage Site Connection Dialog.
+	 */
+	const openManageSiteConnectionDialog = openManageConnectionDialog( 'site' );
 
 	/**
 	 * Close the Manage Connection Dialog.
@@ -99,6 +124,19 @@ const ConnectionStatusCard = props => {
 		[ onDisconnected, setConnectionStatus ]
 	);
 
+	const onLearnMoreClick = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_connection_learnmore_link_click', tracksEventData );
+	}, [ recordEvent, tracksEventData ] );
+
+	const handleConnectUser = useCallback(
+		e => {
+			e && e.preventDefault();
+			recordEvent( 'jetpack_myjetpack_connection_connect_user_click', tracksEventData );
+			connectUserFn();
+		},
+		[ connectUserFn, recordEvent, tracksEventData ]
+	);
+
 	return (
 		<div className={ styles[ 'connection-status-card' ] }>
 			<H3>{ title }</H3>
@@ -110,6 +148,7 @@ const ConnectionStatusCard = props => {
 					variant="link"
 					weight="regular"
 					isExternalLink={ true }
+					onClick={ onLearnMoreClick }
 				>
 					{ __( 'Learn more about connections', 'jetpack-my-jetpack' ) }
 				</Button>
@@ -143,7 +182,7 @@ const ConnectionStatusCard = props => {
 				) : (
 					<>
 						<ConnectionListItem
-							onClick={ openManageConnectionDialog }
+							onClick={ openManageSiteConnectionDialog }
 							text={ __( 'Site connected.', 'jetpack-my-jetpack' ) }
 							actionText={
 								isUserConnected && userConnectionData.currentUser?.isMaster
@@ -153,7 +192,7 @@ const ConnectionStatusCard = props => {
 						/>
 						{ isUserConnected && (
 							<ConnectionListItem
-								onClick={ openManageConnectionDialog }
+								onClick={ openManageUserConnectionDialog }
 								actionText={ __( 'Manage', 'jetpack-my-jetpack' ) }
 								text={ sprintf(
 									/* translators: first placeholder is user name, second is either the (Owner) string or an empty string */
@@ -226,17 +265,6 @@ ConnectionStatusCard.propTypes = {
 	onConnectUser: PropTypes.func,
 	/** Shows an requires user connection message if true and a user connection is missing */
 	requiresUserConnection: PropTypes.bool,
-};
-
-ConnectionStatusCard.defaultProps = {
-	title: __( 'Connection', 'jetpack-my-jetpack' ),
-	connectionInfoText: __(
-		'Jetpack connects your site and user account to the WordPress.com cloud to provide more powerful features.',
-		'jetpack-my-jetpack'
-	),
-	redirectUri: null,
-	onConnectUser: null,
-	requiresUserConnection: true,
 };
 
 export default ConnectionStatusCard;

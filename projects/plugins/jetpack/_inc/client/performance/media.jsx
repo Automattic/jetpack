@@ -1,5 +1,6 @@
 import { ProgressBar, ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
-import { __, _x } from '@wordpress/i18n';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { FormLegend, FormFieldset } from 'components/forms';
 import JetpackBanner from 'components/jetpack-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -85,8 +86,17 @@ class Media extends React.Component {
 				</p>
 				{ shouldDisplayStorage && (
 					<div className="media__videopress-storage">
-						<span>{ __( 'Video storage used out of 1TB:', 'jetpack' ) }</span>
 						<ProgressBar progress={ videoPressStorageUsed / 1000000 } />
+						<span>
+							{ createInterpolateElement(
+								sprintf(
+									/* translators: %d is a number (disk space used) */
+									__( 'Using <strong>%dGB</strong> of 1TB', 'jetpack' ),
+									Math.round( videoPressStorageUsed / 1024 )
+								),
+								{ strong: <strong /> }
+							) }
+						</span>
 					</div>
 				) }
 				{ hasConnectedOwner && (

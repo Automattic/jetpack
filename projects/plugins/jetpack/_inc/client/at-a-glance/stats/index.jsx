@@ -43,17 +43,14 @@ export class DashStats extends Component {
 	}
 
 	shouldLinkToWpcomStats() {
-		return ! this.props.isOdysseyStatsEnabled || this.props.isAtomicSite;
+		return ! this.props.isOdysseyStatsEnabled;
 	}
 
 	barClick = bar => {
 		if ( bar.data.link ) {
 			analytics.tracks.recordJetpackClick( 'stats_bar' );
 			// Open the link in the same tab if the user has Odyssey enabled or is on at Atomic site.
-			window.open(
-				bar.data.link,
-				this.props.isOdysseyStatsEnabled || this.props.isAtomicSite ? '_self' : '_blank'
-			);
+			window.open( bar.data.link, this.props.isOdysseyStatsEnabled ? '_self' : '_blank' );
 		}
 	};
 

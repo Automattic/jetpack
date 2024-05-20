@@ -47,8 +47,11 @@ abstract class Jetpack_Admin_Page {
 
 	/**
 	 * Should we block the page rendering because the site is in IDC?
+	 * Beware that the property is set early on, and might not always reflect the actual value.
 	 *
 	 * @var bool
+	 *
+	 * @deprecated 13.2 Use `$this->block_page_rendering_for_idc()` instead.
 	 */
 	public static $block_page_rendering_for_idc;
 
@@ -108,10 +111,7 @@ abstract class Jetpack_Admin_Page {
 		add_action( "load-$hook", array( $this, 'admin_page_load' ) );
 		add_action( "admin_print_styles-$hook", array( $this, 'admin_styles' ) );
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts' ) );
-
-		if ( ! self::$block_page_rendering_for_idc ) {
-			add_action( "admin_print_styles-$hook", array( $this, 'additional_styles' ) );
-		}
+		add_action( "admin_print_styles-$hook", array( $this, 'additional_styles' ) );
 
 		// Check if the site plan changed and deactivate modules accordingly.
 		add_action( 'current_screen', array( $this, 'check_plan_deactivate_modules' ) );
@@ -125,7 +125,7 @@ abstract class Jetpack_Admin_Page {
 	 */
 	public function render() {
 		// We're in an IDC: we need a decision made before we show the UI again.
-		if ( self::$block_page_rendering_for_idc ) {
+		if ( $this->block_page_rendering_for_idc() ) {
 			return;
 		}
 
@@ -269,10 +269,10 @@ abstract class Jetpack_Admin_Page {
 	/**
 	 * Build header, content, and footer for admin page.
 	 *
-	 * @param string $callback Callback to produce the content of the page. The callback is responsible for any needed escaping.
-	 * @param array  $args Options for the wrapping. Also passed to the `jetpack_admin_pages_wrap_ui_after_callback` action.
-	 *   - is-wide: (bool) Set the "is-wide" class on the wrapper div, which increases the max width. Default false.
-	 *   - show-nav: (bool) Whether to show the navigation bar at the top of the page. Default true.
+	 * @param callable $callback Callback to produce the content of the page. The callback is responsible for any needed escaping.
+	 * @param array    $args Options for the wrapping. Also passed to the `jetpack_admin_pages_wrap_ui_after_callback` action.
+	 *     - is-wide: (bool) Set the "is-wide" class on the wrapper div, which increases the max width. Default false.
+	 *     - show-nav: (bool) Whether to show the navigation bar at the top of the page. Default true.
 	 */
 	public static function wrap_ui( $callback, $args = array() ) {
 		$defaults = array(
@@ -433,5 +433,14 @@ abstract class Jetpack_Admin_Page {
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Should we block the page rendering because the site is in IDC?
+	 *
+	 * @return bool
+	 */
+	protected function block_page_rendering_for_idc() {
+		return Jetpack::is_connection_ready() && Identity_Crisis::validate_sync_error_idc_option() && ! Jetpack_Options::get_option( 'safe_mode_confirmed' );
 	}
 }

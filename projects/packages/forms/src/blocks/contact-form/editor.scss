@@ -75,6 +75,13 @@
 				max-width: 75%;
 			}
 
+			@media (max-width: #{ ($break-mobile) }) {
+				&[class*=jetpack-field__width-] {
+					flex-basis: 100%;
+					max-width: none;
+				}
+			}
+
 			&[data-type='jetpack/field-checkbox'],
 			&[data-type='jetpack/field-consent'] {
 				align-self: center;

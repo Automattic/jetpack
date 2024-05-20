@@ -140,6 +140,7 @@ class Masterbar {
 		if ( $this->site_woa && 'wp-admin' !== get_option( 'wpcom_admin_interface' ) ) {
 			$this->user_locale = $this->get_jetpack_locale( $this->user_locale );
 			$this->install_locale( $this->user_locale );
+			$this->unload_non_default_textdomains_on_wpcom_user_locale_switch( $this->user_locale );
 			update_user_option( $this->user_id, 'locale', $this->user_locale, true );
 		}
 
@@ -570,6 +571,37 @@ class Masterbar {
 	}
 
 	/**
+	 * Trigger reloading of all non-default textdomains if the user just changed
+	 * their locale on WordPress.com.
+	 *
+	 * User locale changes on WordPress.com are detected and acted upon in the
+	 * constructor of this class. However, at that point, some plugins and their
+	 * translations have already been loaded (including Jetpack's). If we don't
+	 * reload the translations, the user will see a mix of the old and new locale's
+	 * translations until the next page load.
+	 *
+	 * The default textdomain is not affected by this because it's always reloaded
+	 * after all plugins have been loaded, in wp-settings.php.
+	 *
+	 * @param string $wpcom_locale The user's detected WordPress.com locale.
+	 */
+	public function unload_non_default_textdomains_on_wpcom_user_locale_switch( $wpcom_locale ) {
+		$user_switched_locale = get_user_locale() !== $wpcom_locale;
+		if ( ! $user_switched_locale ) {
+			return;
+		}
+
+		global $l10n;
+		$loaded_textdomains      = array_keys( $l10n );
+		$non_default_textdomains = array_diff( $loaded_textdomains, array( 'default' ) );
+		foreach ( $non_default_textdomains as $textdomain ) {
+			// Using $reloadable = true makes sure the correct locale's
+			// translations are loaded just-in-time.
+			unload_textdomain( $textdomain, true );
+		}
+	}
+
+	/**
 	 * Hide language dropdown on user edit form.
 	 */
 	public function hide_language_dropdown() {
@@ -945,18 +977,15 @@ class Masterbar {
 			$blog_name = mb_substr( html_entity_decode( $blog_name, ENT_QUOTES ), 0, 20 ) . '&hellip;';
 		}
 
-		$my_site_url   = 'https://wordpress.com/sites/' . $this->primary_site_url;
-		$my_site_title = _n( 'My Site', 'My Sites', $this->user_site_count, 'jetpack' );
+		$my_site_url = 'https://wordpress.com/sites/' . $this->primary_site_url;
 		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
-			$my_site_url   = 'https://wordpress.com/sites';
-			$my_site_title = esc_html__( 'My Sites', 'jetpack' );
+			$my_site_url = 'https://wordpress.com/sites';
 		}
 
 		$wp_admin_bar->add_menu(
 			array(
 				'parent' => 'root-default',
 				'id'     => 'blog',
-				'title'  => $my_site_title,
 				'href'   => $my_site_url,
 				'meta'   => array(
 					'class' => 'my-sites mb-trackable',

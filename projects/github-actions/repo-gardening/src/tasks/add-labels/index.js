@@ -76,7 +76,6 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 		const project = file.match( /^projects\/(?<ptype>[^/]*)\/(?<pname>[^/]*)\// );
 		if ( project && project.groups.ptype && project.groups.pname ) {
 			const prefix = {
-				'editor-extensions': 'Block',
 				'github-actions': 'Action',
 				packages: 'Package',
 				plugins: 'Plugin',
@@ -136,6 +135,42 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 			if ( contactForm.groups.blocks ) {
 				keywords.add( '[Block] Contact Form' );
 			}
+		}
+
+		// The SSO feature nows lives in both a package and a Jetpack module.
+		const sso = file.match( /^projects\/packages\/connection\/src\/sso\// );
+		if ( sso !== null ) {
+			keywords.add( '[Feature] SSO' );
+		}
+
+		// The Google Analytics feature nows lives in both a package and a Jetpack module.
+		const googleAnalytics = file.match( /^projects\/packages\/google-analytics\// );
+		if ( googleAnalytics !== null ) {
+			keywords.add( '[Feature] Google Analytics' );
+		}
+
+		// Theme Tools have now been extracted to their own package.
+		const themeTools = file.match( /^projects\/packages\/classic-theme-helper\// );
+		if ( themeTools !== null ) {
+			keywords.add( '[Feature] Theme Tools' );
+		}
+
+		// The WooCommerce Analytics feature now lives in both a package and a Jetpack module.
+		const wooCommerceAnalytics = file.match( /^projects\/packages\/woocommerce-analytics\// );
+		if ( wooCommerceAnalytics !== null ) {
+			keywords.add( '[Feature] WooCommerce Analytics' );
+		}
+
+		// The Masterbar feature now lives in both a package and a Jetpack module.
+		const masterbar = file.match( /^projects\/packages\/masterbar\// );
+		if ( masterbar !== null ) {
+			keywords.add( '[Feature] Masterbar' );
+		}
+
+		// The Calypsoify feature now lives in both a package and a Jetpack module.
+		const calypsoify = file.match( /^projects\/packages\/calypsoify\// );
+		if ( calypsoify !== null ) {
+			keywords.add( '[Feature] Calypsoify' );
 		}
 
 		// Docker.
@@ -210,9 +245,9 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 			keywords.add( `[mu wpcom Feature] ${ cleanName( muWpcomFeatureName ) }` );
 		}
 
-		// Boost Critical CSS.
+		// Boost Features
 		const boostModules = file.match(
-			/^projects\/plugins\/boost\/app\/(?:modules|features)\/(?<boostModule>[^/]*)\//
+			/^projects\/plugins\/boost\/app\/(?:modules|features)\/(?:optimizations\/)?(?<boostModule>[^/]*)\//
 		);
 		const boostModuleName = boostModules && boostModules.groups.boostModule;
 		if ( boostModuleName ) {

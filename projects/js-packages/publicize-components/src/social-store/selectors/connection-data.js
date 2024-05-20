@@ -10,6 +10,18 @@ export function getConnections( state ) {
 }
 
 /**
+ * Return a connection by its ID.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @param {string} connectionId - The connection ID.
+ *
+ * @returns {import("../types").Connection | undefined} The connection.
+ */
+export function getConnectionById( state, connectionId ) {
+	return getConnections( state ).find( connection => connection.id === connectionId );
+}
+
+/**
  * Returns the connections admin URL from the store.
  * @param {import("../types").SocialStoreState} state - State object.
  * @returns {string|null} The connections admin URL.
@@ -58,7 +70,7 @@ export function getMustReauthConnections( state ) {
  *
  * @param {import("../types").SocialStoreState} state - State object.
  *
- * @returns {Array} List of enabled connections.
+ * @returns {Array<import("../types").Connection>} List of enabled connections.
  */
 export function getEnabledConnections( state ) {
 	return getConnections( state ).filter( connection => connection.enabled );
@@ -105,4 +117,44 @@ export function getConnectionProfileDetails( state, service, { forceDefaults = f
 	}
 
 	return { displayName, profileImage, username };
+}
+
+/**
+ * Get the connections being deleted.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @returns {import("../types").ConnectionData['deletingConnections']} The connection being deleted.
+ */
+export function getDeletingConnections( state ) {
+	return state.connectionData?.deletingConnections ?? [];
+}
+
+/**
+ * Get the connections being updated.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @returns {import("../types").ConnectionData['updatingConnections']} The connection being updated.
+ */
+export function getUpdatingConnections( state ) {
+	return state.connectionData?.updatingConnections ?? [];
+}
+
+/**
+ * Whether a connection is being created.
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @returns {boolean} Whether a connection is being created.
+ */
+export function isCreatingConnection( state ) {
+	return state.connectionData?.creatingConnection ?? false;
+}
+
+/**
+ * Returns the services list from the store.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ *
+ * @returns {Array<import("../types").ConnectionService>} The services list
+ */
+export function getServices( state ) {
+	return state.connectionData?.services ?? [];
 }

@@ -258,6 +258,11 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 				return new WP_Error( 'invalid_input', 'Invalid request input', 400 );
 			}
 
+			$post = get_post( $post_id );
+			if ( ! $post || is_wp_error( $post ) ) {
+				return new WP_Error( 'unknown_post', 'Unknown post', 404 );
+			}
+
 			if ( isset( $input['status'] ) && 'trash' === $input['status'] && ! current_user_can( 'delete_post', $post_id ) ) {
 				return new WP_Error( 'unauthorized', 'User cannot delete post', 403 );
 			}
@@ -267,20 +272,15 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 				$input['status'] = 'publish';
 			}
 
-			$post = get_post( $post_id );
-			if ( ! $post || is_wp_error( $post ) ) {
-				return new WP_Error( 'unknown_post', 'Unknown post', 404 );
-			}
-
 			$_post_type = ( ! empty( $input['type'] ) ) ? $input['type'] : $post->post_type;
 			$post_type  = get_post_type_object( $_post_type );
 
 			if ( ! current_user_can( 'edit_post', $post->ID ) ) {
 				return new WP_Error( 'unauthorized', 'User cannot edit post', 403 );
 			}
-
-			if ( ! empty( $input['if_not_modified_since'] ) ) {
-				if ( mysql2date( 'U', $post->post_modified_gmt ) > mysql2date( 'U', $input['if_not_modified_since'] ) ) {
+			// The input `if_not_modified_since` input is the format ISO 8601 datetime and get converted to `if_not_modified_since_gmt` and `if_not_modified_since`
+			if ( ! empty( $input['if_not_modified_since_gmt'] ) ) {
+				if ( mysql2date( 'U', $post->post_modified_gmt ) > mysql2date( 'U', $input['if_not_modified_since_gmt'] ) ) {
 					return new WP_Error( 'old-revision', 'There is a revision of this post that is more recent.', 409 );
 				}
 			}
@@ -535,8 +535,11 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 
 		$has_media        = ! empty( $input['media'] ) ? count( $input['media'] ) : false;
 		$has_media_by_url = ! empty( $input['media_urls'] ) ? count( $input['media_urls'] ) : false;
+		$media_files      = array();
+		$media_urls       = array();
+		$media_attrs      = array();
+		$media_id_string  = '';
 
-		$media_id_string = '';
 		if ( $has_media || $has_media_by_url ) {
 			$media_files     = ! empty( $input['media'] ) ? $input['media'] : array();
 			$media_urls      = ! empty( $input['media_urls'] ) ? $input['media_urls'] : array();
@@ -550,6 +553,26 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			$is_dtp_fb_post = true;
 			add_filter( 'rest_api_allowed_public_metadata', array( $this, 'dtp_fb_allowed_metadata' ) );
 		}
+
+		/**
+		 * Log Media details for a Post creation request.
+		 * Temporary logging for media data.
+		 *
+		 * @see p1709028174665519-slack-CDLH4C1UZ
+		 *
+		 * @since 13.2
+		 *
+		 * @param bool  $is_dtp_fb_post Is this for a Facebook import?
+		 * @param int   $blog_id        Blog ID.
+		 * @param array $input          Whole input.
+		 * @param array $media_files    File upload data.
+		 * @param array $media_urls     URLs to fetch.
+		 * @param array $media_attrs    Attributes corresponding to each entry in `$media_files`/`$media_urls`.
+		 * @param array $media_results
+		 *  - media_ids: IDs created, by index in `$media_files`/`$media_urls`.
+		 *  - errors: Errors encountered, by index in `$media_files`/`$media_urls`.
+		 */
+		do_action( 'jetpack_dtp_fb_media', $is_dtp_fb_post, $blog_id, $input, $media_files, $media_urls, $media_attrs, $media_results );
 
 		if ( $new ) {
 			if ( isset( $input['content'] ) && ! has_shortcode( $input['content'], 'gallery' ) && ( $has_media || $has_media_by_url ) ) {

@@ -345,7 +345,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 			static::$admin_menu->add_plugins_menu();
 
 			// Make sure that initial menu item is hidden.
-			$this->assertSame( 'hide-if-js', $submenu['plugins.php'][1][4] );
+			$this->assertSame( 'hide-if-js', $submenu['plugins.php'][1][4] ?? null );
 			// Make sure that the new menu item is inserted.
 			$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $submenu['plugins.php'][0][2] );
 			// Make sure that Installed Plugins menu item is still in place.
@@ -375,18 +375,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_github_deployments_menu() {
 		global $submenu;
 
-		add_filter( 'jetpack_show_wpcom_github_deployments_menu', '__return_false', 99 );
 		static::$admin_menu->add_tools_menu();
-		remove_filter( 'jetpack_show_wpcom_github_deployments_menu', '__return_false', 99 );
-
-		$links = wp_list_pluck( array_values( $submenu['tools.php'] ), 2 );
-
-		$this->assertNotContains( 'https://wordpress.com/github-deployments/' . static::$domain, $links );
-
-		add_filter( 'jetpack_show_wpcom_github_deployments_menu', '__return_true', 99 );
-		static::$admin_menu->add_tools_menu();
-		remove_filter( 'jetpack_show_wpcom_github_deployments_menu', '__return_true', 99 );
-
 		$links = wp_list_pluck( array_values( $submenu['tools.php'] ), 2 );
 
 		$this->assertContains( 'https://wordpress.com/github-deployments/' . static::$domain, $links );

@@ -10,7 +10,6 @@ import { useDispatch, useSelect, dispatch } from '@wordpress/data';
 import { useState, useMemo, useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import React from 'react';
 /**
  * Internal dependencies
  */
@@ -21,15 +20,11 @@ import { AiAssistantUiContextProvider } from './context';
 /**
  * Types
  */
-import type { Block } from '../../../lib/utils/compare-blocks';
+import type { Block } from '@automattic/jetpack-ai-client';
 import type { RequestingErrorProps } from '@automattic/jetpack-ai-client';
 
 // An identifier to use on the extension error notices,
 export const AI_ASSISTANT_JETPACK_FORM_NOTICE_ID = 'ai-assistant';
-
-type BlockEditorDispatch = {
-	selectBlock: ( clientId: string ) => Promise< void >;
-};
 
 type BlockEditorSelect = {
 	getBlock: ( clientId: string ) => Block;
@@ -49,8 +44,9 @@ type CoreEditorSelect = {
  * @returns {void}
  */
 export function selectFormBlock( clientId: string, fn: () => void ): void {
-	const blockEditorDispatch = dispatch( 'core/block-editor' ) as BlockEditorDispatch;
-	blockEditorDispatch.selectBlock( clientId ).then( fn );
+	const blockEditorDispatch = dispatch( 'core/block-editor' );
+	blockEditorDispatch.selectBlock( clientId );
+	fn?.();
 }
 
 const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => {

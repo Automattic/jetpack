@@ -169,6 +169,12 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::DELETABLE,
 					'callback'            => array( $this, 'delete_product' ),
 					'permission_callback' => array( $this, 'can_modify_products_permission_check' ),
+					'args'                => array(
+						'cancel_subscriptions' => array(
+							'type'     => 'boolean',
+							'required' => false,
+						),
+					),
 				),
 			)
 		);
@@ -204,6 +210,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 
 		if ( $this->is_wpcom() ) {
 			require_lib( 'memberships' );
+			Memberships_Store_Sandbox::get_instance()->init( true );
 
 			$result = Memberships_Product::generate_default_products( get_current_blog_id(), $request['type'], $request['currency'], $is_editable );
 
@@ -337,17 +344,22 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 * @return array|WP_Error
 	 */
 	public function delete_product( \WP_REST_Request $request ) {
-		$product_id = $request->get_param( 'product_id' );
+		$product_id           = $request->get_param( 'product_id' );
+		$cancel_subscriptions = $request->get_param( 'cancel_subscriptions' );
 		if ( $this->is_wpcom() ) {
 			require_lib( 'memberships' );
 			try {
-				$this->delete_product_from_wpcom( $product_id );
+				$this->delete_product_from_wpcom( $product_id, $cancel_subscriptions );
 				return array( 'deleted' => true );
 			} catch ( \Exception $e ) {
 				return array( 'error' => $e->getMessage() );
 			}
 		} else {
-			return $this->proxy_request_to_wpcom( "product/$product_id", 'DELETE' );
+			return $this->proxy_request_to_wpcom(
+				"product/$product_id",
+				'DELETE',
+				array( 'cancel_subscriptions' => $cancel_subscriptions )
+			);
 		}
 	}
 
@@ -371,6 +383,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 
 		if ( $this->is_wpcom() ) {
 			require_lib( 'memberships' );
+			Memberships_Store_Sandbox::get_instance()->init( true );
 			$blog_id             = get_current_blog_id();
 			$membership_settings = get_memberships_settings_for_site( $blog_id, $product_type, $is_editable, $source );
 
@@ -487,12 +500,13 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 *
 	 * @param WP_REST_Request $request The request for this endpoint.
 	 * @param ?string         $type The type of the products to list.
-	 * @param ?string         $is_editable This string will be interpreted as a bool to determine if we are looking for editable or non-editable products.
+	 * @param ?bool           $is_editable If we are looking for editable or non-editable products.
 	 * @throws \Exception If blog is not known or if there is an error getting products.
 	 * @return array List of products.
 	 */
 	private function list_products_from_wpcom( WP_REST_Request $request, $type, $is_editable ) {
 		$this->prevent_running_outside_of_wpcom();
+		Memberships_Store_Sandbox::get_instance()->init( true );
 		$blog_id = $request->get_param( 'blog_id' );
 		if ( is_wp_error( $blog_id ) ) {
 			throw new \Exception( 'Unknown blog' );
@@ -513,6 +527,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 */
 	private function find_product_from_wpcom( $product_id ) {
 		$this->prevent_running_outside_of_wpcom();
+		Memberships_Store_Sandbox::get_instance()->init( true );
 		$product = Memberships_Product::get_from_post( get_current_blog_id(), $product_id );
 		if ( is_wp_error( $product ) ) {
 			throw new \Exception( $product->get_error_message() );
@@ -528,10 +543,11 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 *
 	 * @param array $payload The request payload which contains details about the product.
 	 * @throws \Exception When the product failed to be created.
-	 * @return object The newly created product.
+	 * @return array The newly created product.
 	 */
 	private function create_product_from_wpcom( $payload ) {
 		$this->prevent_running_outside_of_wpcom();
+		Memberships_Store_Sandbox::get_instance()->init( true );
 		$product = Memberships_Product::create( get_current_blog_id(), $payload );
 		if ( is_wp_error( $product ) ) {
 			throw new \Exception( __( 'Creating product has failed.', 'jetpack' ) );
@@ -548,6 +564,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 * @return object The newly updated product.
 	 */
 	private function update_product_from_wpcom( $product_id, $payload ) {
+		Memberships_Store_Sandbox::get_instance()->init( true );
 		$product         = $this->find_product_from_wpcom( $product_id ); // prevents running outside of wpcom
 		$updated_product = $product->update( $payload );
 		if ( is_wp_error( $updated_product ) ) {
@@ -560,12 +577,14 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 * Delete a product via the WPCOM-specific Memberships_Product class.
 	 *
 	 * @param string|int $product_id The ID of the product being deleted.
+	 * @param bool       $cancel_subscriptions Whether to cancel subscriptions to the product as well.
 	 * @throws \Exception When there is a problem deleting the product.
 	 * @return void
 	 */
-	private function delete_product_from_wpcom( $product_id ) {
+	private function delete_product_from_wpcom( $product_id, $cancel_subscriptions = false ) {
+		Memberships_Store_Sandbox::get_instance()->init( true );
 		$product = $this->find_product_from_wpcom( $product_id ); // prevents running outside of wpcom
-		$result  = $product->delete();
+		$result  = $product->delete( $cancel_subscriptions ? Memberships_Product::CANCEL_SUBSCRIPTIONS : Memberships_Product::KEEP_SUBSCRIPTIONS );
 		if ( is_wp_error( $result ) ) {
 			throw new \Exception( $result->get_error_message() );
 		}

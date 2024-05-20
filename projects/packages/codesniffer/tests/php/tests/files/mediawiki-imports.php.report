@@ -1,10 +1,10 @@
+  1 | ERROR   | [ ] Class file names should be based on the class name with "class-" prepended. Expected class-dummy-class.php, but found mediawiki-imports.php. (WordPress.Files.FileName.InvalidClassFileName)
  12 | WARNING | [x] Use statements are not alphabetically sorted (MediaWiki.Classes.UnsortedUseStatements.UnsortedUse)
  14 | WARNING | [x] There should not be empty lines between use statements (MediaWiki.WhiteSpace.EmptyLinesBetweenUse.Found)
  16 | WARNING | [x] Unnecessary use statement "Unnecessary" in the same namespace (MediaWiki.Classes.UnusedUseStatement.UnnecessaryUse)
  17 | WARNING | [x] Unused use statement "Unused" (MediaWiki.Classes.UnusedUseStatement.UnusedUse)
  38 | WARNING | [x] Floats should have a leading 0 (MediaWiki.AlternativeSyntax.LeadingZeroInFloat.Found)
- 41 | WARNING | [x] Unicode code points should be expressed using four to six uppercase hex digits, with leading zeros used only as necessary for \u{0FFF} and below
-    |         |     (MediaWiki.AlternativeSyntax.UnicodeEscape.DigitsNotNormalized)
+ 41 | WARNING | [x] Unicode code points should be expressed using four to six uppercase hex digits, with leading zeros used only as necessary for \u{0FFF} and below (MediaWiki.AlternativeSyntax.UnicodeEscape.DigitsNotNormalized)
  44 | WARNING | [x] require_once keyword must not be used as a function. (MediaWiki.ExtraCharacters.ParenthesesAroundKeyword.ParenthesesAroundKeywords)
  44 | ERROR   | [ ] Absolute include path must be used. Use `get_template_directory()`, `get_stylesheet_directory()` or `plugin_dir_path()`. (WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath)
  45 | WARNING | [x] clone keyword must not be used as a function. (MediaWiki.ExtraCharacters.ParenthesesAroundKeyword.ParenthesesAroundKeywords)

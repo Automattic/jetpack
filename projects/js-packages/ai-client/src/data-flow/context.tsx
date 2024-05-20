@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import { createContext } from '@wordpress/element';
-import React from 'react';
+import React, { createContext } from 'react';
 /**
  * Types & Constants
  */
@@ -61,7 +60,7 @@ type AiDataContextProviderProps = {
  *
  * @returns {AiDataContextProps} Context.
  */
-export const AiDataContext = createContext( {} as AiDataContextProps );
+export const AiDataContext = createContext< AiDataContextProps | object >( {} );
 
 /**
  * AI Data Context Provider

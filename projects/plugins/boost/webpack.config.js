@@ -10,18 +10,26 @@ const cssGenPath = path.dirname(
 	path.dirname( require.resolve( 'jetpack-boost-critical-css-gen' ) )
 );
 
-const cssGenCopyPatterns = [
-	{
-		from: path.join( cssGenPath, 'dist/bundle.js' ),
-		to: 'critical-css-gen.js',
-	},
-];
+let cssGenCopyPatterns;
 
-if ( ! isProduction ) {
-	cssGenCopyPatterns.push( {
-		from: path.join( cssGenPath, 'dist/bundle.js.map' ),
-		to: 'critical-css-gen.js.map',
-	} );
+if ( isProduction ) {
+	cssGenCopyPatterns = [
+		{
+			from: path.join( cssGenPath, 'dist/bundle.js' ),
+			to: 'critical-css-gen.js',
+		},
+	];
+} else {
+	cssGenCopyPatterns = [
+		{
+			from: path.join( cssGenPath, 'dist/bundle.full.js' ),
+			to: 'critical-css-gen.js',
+		},
+		{
+			from: path.join( cssGenPath, 'dist/bundle.full.js.map' ),
+			to: 'bundle.full.js.map',
+		},
+	];
 }
 
 const imageGuideCopyPatterns = [
@@ -148,6 +156,41 @@ module.exports = [
 			jetpackConfig: JSON.stringify( {
 				consumer_slug: 'jetpack-boost',
 			} ),
+		},
+	},
+
+	/**
+	 * LIAR - Lazy Image Auto Resizer
+	 */
+	{
+		entry: {
+			inlineScript: './app/modules/optimizations/image-cdn/src/liar.ts',
+		},
+		mode: jetpackWebpackConfig.mode,
+		devtool: jetpackWebpackConfig.devtool,
+		output: {
+			path: path.resolve( './app/modules/optimizations/image-cdn/dist' ),
+			filename: 'inline-liar.js',
+		},
+		optimization: {
+			...jetpackWebpackConfig.optimization,
+		},
+		resolve: {
+			...jetpackWebpackConfig.resolve,
+		},
+		node: false,
+		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
+		module: {
+			strictExportPresence: true,
+			rules: [
+				// Transpile JavaScript
+				jetpackWebpackConfig.TranspileRule( {
+					exclude: /node_modules\//,
+				} ),
+			],
+		},
+		externals: {
+			...jetpackWebpackConfig.externals,
 		},
 	},
 ];

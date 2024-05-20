@@ -25,7 +25,6 @@ add_filter( 'default_option_jetpack_boost_state_render-blocking-js', 'jetpack_bo
  * silently migrate the options to the new format,
  * that way the code above is never run.
  */
-
 function jetpack_boost_131_option_migration() {
 
 	/**

@@ -251,8 +251,6 @@ function jetpack_get_migration_data( $option_name ) {
 /**
  * Prints a TOS blurb used throughout the connection prompts.
  *
- * Note: custom ToS messages are also defined in Jetpack_Pre_Connection_JITMs->get_raw_messages()
- *
  * @since 5.3
  *
  * @echo string
@@ -337,8 +335,8 @@ add_filter( 'upgrader_pre_download', 'jetpack_upgrader_pre_download' );
 
  * @deprecated Automattic\Jetpack\Sync\Functions::json_wrap
  *
- * @param array|obj $any        Source data to be cleaned up.
- * @param array     $seen_nodes Built array of nodes.
+ * @param mixed $any        Source data to be cleaned up.
+ * @param array $seen_nodes Built array of nodes.
  *
  * @return array
  */

@@ -35,6 +35,7 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 				'classname'                   => 'widget_goodreads',
 				'description'                 => __( 'Display your books from Goodreads', 'jetpack' ),
 				'customize_selective_refresh' => true,
+				'show_instance_in_rest'       => true,
 			)
 		);
 		// For user input sanitization and display.
@@ -47,6 +48,18 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		if ( is_active_widget( '', '', 'wpcom-goodreads' ) || is_customize_preview() ) {
 			add_action( 'wp_print_styles', array( $this, 'enqueue_style' ) );
 		}
+		add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_widget_in_block_editor' ) );
+	}
+
+	/**
+	 * Remove the "Goodreads" widget from the Legacy Widget block
+	 *
+	 * @param array $widget_types List of widgets that are currently removed from the Legacy Widget block.
+	 * @return array $widget_types New list of widgets that will be removed.
+	 */
+	public function hide_widget_in_block_editor( $widget_types ) {
+		$widget_types[] = 'wpcom-goodreads';
+		return $widget_types;
 	}
 
 	/**
@@ -116,7 +129,7 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 
 		$goodreads_url = 'https://www.goodreads.com/review/custom_widget/' . rawurlencode( $instance['user_id'] ) . '.' . rawurlencode( $instance['title'] ) . ':%20' . rawurlencode( $instance['shelf'] ) . '?cover_position=&cover_size=small&num_books=5&order=d&shelf=' . rawurlencode( $instance['shelf'] ) . '&sort=date_added&widget_bg_transparent=&widget_id=' . rawurlencode( $this->goodreads_widget_id );
 
-		echo '<div class="gr_custom_widget" id="gr_custom_widget_' . esc_attr( $this->goodreads_widget_id ) . '"></div>' . "\n";
+		echo '<div class="jetpack-goodreads-legacy-widget gr_custom_widget" id="gr_custom_widget_' . esc_attr( $this->goodreads_widget_id ) . '"></div>' . "\n";
 		echo '<script src="' . esc_url( $goodreads_url ) . '"></script>' . "\n"; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 
 		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

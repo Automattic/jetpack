@@ -1,4 +1,4 @@
-import { Text, ThemeProvider } from '@automattic/jetpack-components';
+import { IconTooltip, Text, ThemeProvider } from '@automattic/jetpack-components';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelRow } from '@wordpress/components';
@@ -24,9 +24,19 @@ export const ShareCountInfo: React.FC = () => {
 		<PanelRow>
 			<div className={ styles[ 'share-count-info' ] }>
 				<ThemeProvider>
-					<Text variant="body-extra-small" className={ styles[ 'auto-share-title' ] }>
-						{ __( 'Auto-share usage', 'jetpack' ) }
-					</Text>
+					<div className={ styles[ 'title-container' ] }>
+						<Text variant="body-extra-small" className={ styles[ 'auto-share-title' ] }>
+							{ __( 'Auto-shares this cycle', 'jetpack' ) }
+						</Text>
+						<IconTooltip inline={ false } shift iconSize={ 16 } placement="top-end">
+							<Text variant="body-small">
+								{ __(
+									'As a free Jetpack Social user, you get 30 shares within every rolling 30-day window.',
+									'jetpack'
+								) }
+							</Text>
+						</IconTooltip>
+					</div>
 					<ShareCountNotice />
 					<ShareLimitsBar
 						usedCount={ usedCount }

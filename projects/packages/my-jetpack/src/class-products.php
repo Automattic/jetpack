@@ -36,6 +36,7 @@ class Products {
 			'protect'    => Products\Protect::class,
 			'videopress' => Products\Videopress::class,
 			'stats'      => Products\Stats::class,
+			'ai'         => Products\Jetpack_Ai::class,
 		);
 
 		/**
@@ -179,6 +180,7 @@ class Products {
 			'protect',
 			'crm',
 			'search',
+			'ai',
 		);
 
 		// Add plugin action links for the core Jetpack plugin.

@@ -125,21 +125,6 @@ function JetpackLikesMessageListener( event ) {
 				const sdTextColorStyles = ( sdTextColor && getComputedStyle( sdTextColor ) ) || {};
 				const sdLinkColorStyles = ( sdLinkColor && getComputedStyle( sdLinkColor ) ) || {};
 
-				if ( document.querySelectorAll( 'iframe.admin-bar-likes-widget' ).length > 0 ) {
-					JetpackLikesPostMessage( { event: 'adminBarEnabled' }, window.frames[ 'likes-master' ] );
-
-					const bgSource = document.querySelector(
-						'#wpadminbar .quicklinks li#wp-admin-bar-wpl-like > a'
-					);
-
-					const wpAdminBar = document.querySelector( '#wpadminbar' );
-
-					stylesData.adminBarStyles = {
-						background: bgSource && getComputedStyle( bgSource ).background,
-						isRtl: wpAdminBar && getComputedStyle( wpAdminBar ).direction === 'rtl',
-					};
-				}
-
 				// enable reblogs if we're on a single post page
 				if ( document.body.classList.contains( 'single' ) ) {
 					JetpackLikesPostMessage( { event: 'reblogsEnabled' }, window.frames[ 'likes-master' ] );
@@ -241,7 +226,7 @@ function JetpackLikesMessageListener( event ) {
 				if ( newLayout ) {
 					element.innerHTML = `
 					<a href="${ encodeURI( liker.profile_URL ) }" rel="nofollow" target="_parent" class="wpl-liker">
-						<img src="${ liker.avatar_URL }"
+						<img src="${ encodeURI( liker.avatar_URL ) }"
 							alt=""
 							style="width: 28px; height: 28px;" />
 						<span></span>
@@ -250,7 +235,7 @@ function JetpackLikesMessageListener( event ) {
 				} else {
 					element.innerHTML = `
 					<a href="${ encodeURI( liker.profile_URL ) }" rel="nofollow" target="_parent" class="wpl-liker">
-						<img src="${ liker.avatar_URL }"
+						<img src="${ encodeURI( liker.avatar_URL ) }"
 							alt=""
 							style="width: 30px; height: 30px; padding-right: 3px;" />
 					</a>

@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\Waf;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
 use WP_Error;
+use WP_REST_Request;
+use WP_REST_Response;
 use WP_REST_Server;
 
 /**
@@ -121,7 +123,22 @@ class REST_Controller {
 
 		// Share Data
 		if ( isset( $request[ Waf_Runner::SHARE_DATA_OPTION_NAME ] ) ) {
+			// If a user disabled the regular share we should disable the debug share data option.
+			if ( false === $request[ Waf_Runner::SHARE_DATA_OPTION_NAME ] ) {
+				update_option( Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME, false );
+			}
+
 			update_option( Waf_Runner::SHARE_DATA_OPTION_NAME, (bool) $request[ Waf_Runner::SHARE_DATA_OPTION_NAME ] );
+		}
+
+		// Share Debug Data
+		if ( isset( $request[ Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME ] ) ) {
+			// If a user toggles the debug share we should enable the regular share data option.
+			if ( true === $request[ Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME ] ) {
+				update_option( Waf_Runner::SHARE_DATA_OPTION_NAME, true );
+			}
+
+			update_option( Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME, (bool) $request[ Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME ] );
 		}
 
 		// Brute Force Protection

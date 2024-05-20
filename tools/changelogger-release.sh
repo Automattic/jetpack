@@ -128,7 +128,7 @@ init_changelogger
 cd "$BASE/projects/$REL_SLUG"
 CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 if [[ ! -d "$CHANGES_DIR" || -z "$(ls -- "$CHANGES_DIR")" ]]; then
-	proceed_p "Project $SLUG has no changes." 'Do a release anyway?'
+	proceed_p "Project $REL_SLUG has no changes." 'Do a release anyway?'
 	changelogger_add 'Internal updates.' '' --filename=force-a-release
 fi
 
@@ -277,19 +277,6 @@ cat <<-EOM
 
 	  git diff '**/CHANGELOG.md'
 
-	Feel free to edit them as needed. Then commit and push those changes.
+	Feel free to edit them as needed.
 
 EOM
-
-if [[ "$SLUG" == plugins/* ]]; then
-	cd "$BASE"
-	VER=$(cd "projects/$SLUG" && changelogger version current)
-	if [[ -n "$VER" ]]; then
-		cat <<-EOM
-			When ready, you can create the release branch with
-
-			  tools/create-release-branch.sh $SLUG ${VER%-beta}
-
-		EOM
-	fi
-fi

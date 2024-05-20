@@ -111,6 +111,21 @@ const useWafData = () => {
 	}, [ ensureModuleIsEnabled, refreshWaf, setWafIsUpdating, waf.config.jetpackWafShareData ] );
 
 	/**
+	 * Toggle Share Debug Data
+	 *
+	 * Flips the switch on the share debug data option, and then refreshes the data.
+	 */
+	const toggleShareDebugData = useCallback( () => {
+		setWafIsUpdating( true );
+		return ensureModuleIsEnabled()
+			.then( () =>
+				API.updateWaf( { jetpack_waf_share_debug_data: ! waf.config.jetpackWafShareDebugData } )
+			)
+			.then( refreshWaf )
+			.finally( () => setWafIsUpdating( false ) );
+	}, [ ensureModuleIsEnabled, refreshWaf, setWafIsUpdating, waf.config.jetpackWafShareDebugData ] );
+
+	/**
 	 * Update WAF Config
 	 */
 	const updateConfig = useCallback(
@@ -140,6 +155,7 @@ const useWafData = () => {
 		toggleManualRules,
 		toggleBruteForceProtection,
 		toggleShareData,
+		toggleShareDebugData,
 		updateConfig,
 	};
 };

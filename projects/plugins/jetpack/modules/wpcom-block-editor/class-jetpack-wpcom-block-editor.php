@@ -7,7 +7,9 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -152,7 +154,7 @@ class Jetpack_WPCOM_Block_Editor {
 		if ( ! empty( $args['frame-nonce'] ) && $this->framing_allowed( $args['frame-nonce'] ) ) {
 
 			// If SSO is active, we'll let WordPress.com handle authentication...
-			if ( Jetpack::is_module_active( 'sso' ) ) {
+			if ( ( new Modules() )->is_active( 'sso' ) ) {
 				// ...but only if it's not an Atomic site. They already do that.
 				if ( ! ( new Host() )->is_woa_site() ) {
 					add_filter( 'jetpack_sso_bypass_login_forward_wpcom', '__return_true' );
@@ -201,6 +203,8 @@ class Jetpack_WPCOM_Block_Editor {
 
 	/**
 	 * Does the redirect to the block editor.
+	 *
+	 * @return never
 	 */
 	public function do_redirect() {
 		wp_safe_redirect( $GLOBALS['redirect_to'] );
@@ -214,7 +218,12 @@ class Jetpack_WPCOM_Block_Editor {
 	 * @return bool
 	 */
 	public function framing_allowed( $nonce ) {
-		$verified = $this->verify_frame_nonce( $nonce, 'frame-' . Jetpack_Options::get_option( 'id' ) );
+		$blog_id = Connection_Manager::get_site_id();
+		if ( is_wp_error( $blog_id ) ) {
+			return false;
+		}
+
+		$verified = $this->verify_frame_nonce( $nonce, 'frame-' . $blog_id );
 
 		if ( is_wp_error( $verified ) ) {
 			wp_die( $verified ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

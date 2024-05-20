@@ -146,7 +146,6 @@ module.exports = [
 				},
 			},
 			'plugins-page': path.join( __dirname, '../_inc/client', 'plugins-entry.js' ),
-			'activation-modal': path.join( __dirname, '../_inc/client', 'activation-modal-entry.js' ),
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,

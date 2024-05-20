@@ -1,10 +1,10 @@
 === WP Super Cache ===
 Contributors: donncha, automattic, adnan007, dilirity, mikemayhem3030, pyronaur, thingalon
 Tags: performance, caching, wp-cache, wp-super-cache, cache
-Requires at least: 6.3
+Requires at least: 6.4
 Requires PHP: 7.0
-Tested up to: 6.4
-Stable tag: 1.10.0
+Tested up to: 6.5
+Stable tag: 1.12.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -268,23 +268,14 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 == Changelog ==
-### 1.11.0 - 2023-11-08
-#### Added
-- Super Cache: fix "accept header" check, and add new "wpsc_accept_headers" filter on accept header list
-
+### 1.12.1 - 2024-05-09
 #### Changed
-- General: indicate full compatibility with the latest version of WordPress, 6.4.
-- General: update WordPress version requirements to WordPress 6.2.
-- Overhauled visual styling to match Jetpack branding
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
+- General: update WordPress version requirements to WordPress 6.4.
+- General: use wp_admin_notice function introduced in WP 6.4 to display notices.
 
 #### Fixed
-- Caching: make sure $wp_cache_request_uri is defined to avoid warnings about "NULL" parameters.
-- super-cache: fixed null parameter warning when using $supercachedir
-- Super Cache: cancel the full preload job correctly.
+- Fix the CDN functionality when cache is disabled
+- Do not define DONOTCACHEPAGE if it is already defined
 
 --------
 

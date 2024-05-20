@@ -134,8 +134,29 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 		); foreach ($defaultArgs as $argK => $argV){ $this->$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $this->$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$this->$argK = $newData;} else { $this->$argK = $args[$argK]; } } }
 		#} =========== / LOAD ARGS =============
 
-
+			add_filter( 'jpcrm_listview_filters', array( $this, 'add_listview_filters' ) );
 	}
+
+		/**
+		 * Adds items to listview filter using `jpcrm_listview_filters` hook.
+		 *
+		 * @param array $listview_filters Listview filters.
+		 */
+		public function add_listview_filters( $listview_filters ) {
+			global $zbs;
+			// Add statuses if enabled.
+			if ( $zbs->settings->get( 'filtersfromstatus' ) === 1 ) {
+				$statuses = array(
+					'draft'       => __( 'Draft', 'zero-bs-crm' ),
+					'accepted'    => __( 'Accepted', 'zero-bs-crm' ),
+					'notaccepted' => __( 'Not Accepted', 'zero-bs-crm' ),
+				);
+				foreach ( $statuses as $status_slug => $status_label ) {
+					$listview_filters[ ZBS_TYPE_QUOTE ]['status'][ 'status_' . $status_slug ] = $status_label;
+				}
+			}
+			return $listview_filters;
+		}
 
 	// ===============================================================================
 	// ===========   QUOTE  =======================================================
@@ -681,23 +702,19 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
             #} Quick filters - adapted from DAL1 (probs can be slicker)
             if (is_array($quickFilters) && count($quickFilters) > 0){
 
-                // cycle through
-                foreach ($quickFilters as $qFilter){
+				// cycle through
+				foreach ( $quickFilters as $quick_filter ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
-										// Pre-DAL3 we used firm status's for quotes, now we infer:
-                    if ($qFilter == 'status_accepted'){
-
-                    	$wheres['quickfilterstatus'] = array('zbsq_accepted','>','0');
-
-                    }
-                    if ($qFilter == 'status_notaccepted'){
-
-                    	$wheres['quickfilterstatus'] = array('zbsq_accepted','<','1');
-
-                    }
-
-                }
-
+					if ( $quick_filter === 'status_accepted' ) {
+						$wheres['quickfilterstatus']  = array( 'zbsq_accepted', '>', '0' );
+						$wheres['quickfilterstatus2'] = array( 'zbsq_template', '>', '0' );
+					} elseif ( $quick_filter === 'status_notaccepted' ) {
+						$wheres['quickfilterstatus']  = array( 'zbsq_accepted', '<=', '0' );
+						$wheres['quickfilterstatus2'] = array( 'zbsq_template', '>', '0' );
+					} elseif ( $quick_filter === 'status_draft' ) {
+						$wheres['quickfilterstatus'] = array( 'zbsq_template', '<=', '0' );
+					}
+				}
             } // / quickfilters
 
 			#} Any additionalWhereArr?

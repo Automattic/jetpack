@@ -1,6 +1,6 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
-import { BlockControls, InspectorControls } from '@wordpress/block-editor';
+import { BlockControls, InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import {
 	Button,
 	ExternalLink,
@@ -11,7 +11,7 @@ import {
 } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withDispatch } from '@wordpress/data';
-import { Component, createRef, Fragment } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getActiveStyleName } from '../../shared/block-styles';
 import AddPoint from './add-point';
@@ -44,23 +44,51 @@ const RESIZABLE_BOX_ENABLE_OPTION = {
 	topLeft: false,
 };
 
-class MapEdit extends Component {
-	constructor() {
-		super( ...arguments );
-		this.state = {
-			addPointVisibility: false,
-			apiState: API_STATE_LOADING,
-		};
-		this.mapRef = createRef();
-	}
-	geoCodeAddress = ( address, apiKey ) => {
-		if ( ! apiKey || this.getMapProvider() === 'mapkit' ) {
+const MapEdit = ( {
+	setAttributes,
+	attributes,
+	noticeUI,
+	notices,
+	isSelected,
+	instanceId,
+	onResizeStart,
+	onResizeStop,
+	noticeOperations,
+} ) => {
+	const {
+		address,
+		mapDetails,
+		points,
+		zoom,
+		mapCenter,
+		markerColor,
+		preview,
+		mapHeight,
+		showFullscreenButton,
+	} = attributes;
+
+	const [ addPointVisibility, setAddPointVisibility ] = useState( false );
+	const [ apiState, setApiState ] = useState( API_STATE_LOADING );
+	const [ apiKey, setApiKey ] = useState( null );
+	const [ apiKeyControl, setApiKeyControl ] = useState( null );
+	const [ apiKeySource, setApiKeySource ] = useState( null );
+	const [ apiRequestOutstanding, setApiRequestOutstanding ] = useState( null );
+	const mapRef = useRef( null );
+	const blockProps = useBlockProps();
+	const { className } = blockProps;
+
+	const mapStyle = getActiveStyleName( styles, className );
+	const mapProvider = getMapProvider( { mapStyle } );
+
+	const geoCodeAddress = () => {
+		if ( ! address || ! apiKey || mapProvider === 'mapkit' ) {
 			return;
 		}
+
 		getCoordinates( address, apiKey )
 			.then( result => {
 				if ( ! result.features?.length ) {
-					this.onError(
+					onError(
 						null,
 						__(
 							'Could not find the coordinates of the provided address. Displaying default location. Feel free to add the location manually.',
@@ -81,29 +109,46 @@ class MapEdit extends Component {
 							},
 						},
 					];
-					this.props.setAttributes( { points: newPoint } );
+					setAttributes( { points: newPoint } );
 				}
 			} )
-			.catch( error => this.onError( null, error.message ) );
+			.catch( error => onError( null, error.message ) );
 	};
-	componentDidUpdate = previousProps => {
-		const address = this.props.attributes?.address;
-		const previousAddress = previousProps.attributes?.address;
-		const className = this.props.attributes?.className;
-		const previousClassName = previousProps.attributes?.className;
 
-		if ( address && previousAddress !== address ) {
-			this.geoCodeAddress( address, this.state.apiKey );
-		}
-		// fetch API key when switching from mapkit to mapbox
-		if ( className && previousClassName !== className && ! this.state.apiKey ) {
-			this.setState( { apiState: API_STATE_LOADING } );
-			this.apiCall();
-		}
+	const apiCall = ( serviceApiKey = null, method = 'GET' ) => {
+		return new Promise( ( resolve, reject ) => {
+			const path = '/wpcom/v2/service-api-keys/mapbox';
+			const fetch = serviceApiKey
+				? { path, method, data: { service_api_key: serviceApiKey } }
+				: { path, method };
+
+			setApiRequestOutstanding( true );
+
+			apiFetch( fetch ).then(
+				( { service_api_key: key, service_api_key_source: source } ) => {
+					noticeOperations.removeAllNotices();
+
+					setApiState( key ? API_STATE_SUCCESS : API_STATE_FAILURE );
+					setApiKey( key );
+					setApiKeyControl( 'wpcom' === source ? '' : key );
+					setApiKeySource( source );
+					setApiRequestOutstanding( false );
+
+					resolve();
+				},
+				( { message } ) => {
+					onError( null, message );
+
+					setApiState( API_STATE_FAILURE );
+					setApiRequestOutstanding( false );
+
+					reject();
+				}
+			);
+		} );
 	};
-	addPoint = point => {
-		const { attributes, setAttributes } = this.props;
-		const { points } = attributes;
+
+	const addPoint = point => {
 		const newPoints = points.slice( 0 );
 		let duplicateFound = false;
 		points.map( existingPoint => {
@@ -116,81 +161,20 @@ class MapEdit extends Component {
 		}
 		newPoints.push( point );
 		setAttributes( { points: newPoints } );
-		this.setState( { addPointVisibility: false } );
+		setAddPointVisibility( false );
 	};
-	setPointVisibility = () => {
-		this.setState( { addPointVisibility: true } );
-	};
-	updateAPIKeyControl = event => {
-		this.setState( {
-			apiKeyControl: event.target.value,
-		} );
-	};
-	updateAPIKey = () => {
-		const { noticeOperations } = this.props;
-		const { apiKeyControl } = this.state;
+
+	const updateAPIKey = () => {
 		noticeOperations.removeAllNotices();
-		apiKeyControl && this.apiCall( apiKeyControl, 'POST' );
-	};
-	removeAPIKey = () => {
-		this.apiCall( null, 'DELETE' );
-	};
-	apiCall( serviceApiKey = null, method = 'GET' ) {
-		return new Promise( ( resolve, reject ) => {
-			const { noticeOperations } = this.props;
-			const path = '/wpcom/v2/service-api-keys/mapbox';
-			const fetch = serviceApiKey
-				? { path, method, data: { service_api_key: serviceApiKey } }
-				: { path, method };
-			this.setState( { apiRequestOutstanding: true }, () => {
-				apiFetch( fetch ).then(
-					( { service_api_key: apiKey, service_api_key_source: apiKeySource } ) => {
-						noticeOperations.removeAllNotices();
 
-						const apiState = apiKey ? API_STATE_SUCCESS : API_STATE_FAILURE;
-						const apiKeyControl = 'wpcom' === apiKeySource ? '' : apiKey;
-
-						this.setState( {
-							apiState,
-							apiKey,
-							apiKeyControl,
-							apiKeySource,
-							apiRequestOutstanding: false,
-						} );
-						resolve();
-					},
-					( { message } ) => {
-						this.onError( null, message );
-						this.setState( {
-							apiState: API_STATE_FAILURE,
-							apiRequestOutstanding: false,
-						} );
-						reject();
-					}
-				);
-			} );
-		} );
-	}
-	getMapProvider = () => {
-		const mapStyle = getActiveStyleName( styles, this.props?.attributes?.className );
-		return getMapProvider( { mapStyle } );
-	};
-
-	componentDidMount() {
-		if ( this.getMapProvider() === 'mapbox' ) {
-			this.apiCall().then( () => {
-				if ( this.props.attributes?.address ) {
-					this.geoCodeAddress( this.props.attributes?.address, this.state.apiKey );
-				}
-			} );
-		} else {
-			this.setState( {
-				apiState: API_STATE_SUCCESS,
-			} );
+		if ( apiKeyControl ) {
+			apiCall( apiKeyControl, 'POST' );
 		}
-	}
-	onError = ( code, message ) => {
-		const { noticeOperations } = this.props;
+	};
+
+	const removeAPIKey = () => apiCall( null, 'DELETE' );
+
+	const onError = ( code, message ) => {
 		noticeOperations.removeAllNotices();
 		noticeOperations.createErrorNotice( message );
 	};
@@ -204,12 +188,10 @@ class MapEdit extends Component {
 	 * @param {HTMLElement} elt - A ref to the ResizeableBox's container element.
 	 * @param {object} delta - Information about how far the element was resized.
 	 */
-	onMapResize = ( event, direction, elt, delta ) => {
-		const { onResizeStop, setAttributes } = this.props;
-
+	const onMapResize = ( event, direction, elt, delta ) => {
 		onResizeStop();
 
-		const ref = this.mapRef?.current?.mapRef ?? this.mapRef;
+		const ref = mapRef?.current?.mapRef ?? mapRef;
 
 		if ( ref ) {
 			const height = parseInt( ref.current.offsetHeight + delta.height, 10 );
@@ -224,169 +206,33 @@ class MapEdit extends Component {
 		}
 	};
 
-	render() {
-		const {
-			className,
-			setAttributes,
-			attributes,
-			noticeUI,
-			notices,
-			isSelected,
-			instanceId,
-			onResizeStart,
-		} = this.props;
-		const {
-			address,
-			mapDetails,
-			points,
-			zoom,
-			mapCenter,
-			markerColor,
-			preview,
-			mapHeight,
-			showFullscreenButton,
-		} = attributes;
+	useEffect( () => {
+		if ( mapProvider === 'mapbox' ) {
+			apiCall().then( geoCodeAddress );
+		} else {
+			setApiState( API_STATE_SUCCESS );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 
-		const { addPointVisibility, apiKey, apiKeyControl, apiState, apiRequestOutstanding } =
-			this.state;
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	useEffect( geoCodeAddress, [ address ] );
 
-		const mapProvider = this.getMapProvider();
+	useEffect( () => {
+		// Fetch API key when switching from mapkit to mapbox
+		if ( className && ! apiKey ) {
+			setApiState( API_STATE_LOADING );
+			apiCall();
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ className ] );
 
-		const inspectorControls = (
-			<>
-				<BlockControls>
-					<Controls
-						attributes={ attributes }
-						setAttributes={ setAttributes }
-						state={ this.state }
-						setPointVisibility={ this.setPointVisibility }
-						context="toolbar"
-						mapRef={ this.mapRef }
-						mapProvider={ mapProvider }
-					/>
-				</BlockControls>
-				<InspectorControls>
-					<Controls
-						attributes={ attributes }
-						setAttributes={ setAttributes }
-						state={ this.state }
-						setState={ this.setState }
-						mapRef={ this.mapRef }
-						instanceId={ instanceId }
-						minHeight={ MIN_HEIGHT }
-						removeAPIKey={ this.removeAPIKey }
-						updateAPIKey={ this.updateAPIKey }
-						mapProvider={ mapProvider }
-					/>
-				</InspectorControls>
-			</>
-		);
-		const placholderAPIStateLoading = (
-			<Placeholder icon={ icon }>
-				<Spinner />
-			</Placeholder>
-		);
+	let content;
 
-		const instructions = (
-			<p className="components-placeholder__instructions">
-				{ __( 'To use the map block, you need an Access Token.', 'jetpack' ) }
-				<br />
-				<ExternalLink href="https://www.mapbox.com">
-					{ __( 'Create an account or log in to Mapbox.', 'jetpack' ) }
-				</ExternalLink>
-				<br />
-				{ __(
-					'Locate and copy the default access token. Then, paste it into the field below.',
-					'jetpack'
-				) }
-			</p>
-		);
-		const placeholderAPIStateFailure = (
-			<Placeholder icon={ icon } label={ __( 'Map', 'jetpack' ) } notices={ notices }>
-				<Fragment>
-					{ instructions }
-					<form>
-						<input
-							type="text"
-							className="components-placeholder__input"
-							disabled={ apiRequestOutstanding }
-							placeholder={ __( 'Paste Token Here', 'jetpack' ) }
-							value={ apiKeyControl }
-							onChange={ this.updateAPIKeyControl }
-						/>
-						<Button
-							variant="secondary"
-							disabled={ apiRequestOutstanding || ! apiKeyControl || apiKeyControl.length < 1 }
-							onClick={ this.updateAPIKey }
-						>
-							{ __( 'Set Token', 'jetpack' ) }
-						</Button>
-					</form>
-				</Fragment>
-			</Placeholder>
-		);
-		// Only scroll to zoom when the block is selected, and there's 1 or less points.
-		const allowScrollToZoom = isSelected && points.length <= 1;
-		const mapStyle = getActiveStyleName( styles, attributes.className );
-		const placeholderAPIStateSuccess = (
-			<Fragment>
-				{ inspectorControls }
-				<div className={ className }>
-					<ResizableBox
-						size={ {
-							height: mapHeight || 'auto',
-							width: '100%',
-						} }
-						grid={ [ 10, 10 ] }
-						showHandle={ isSelected }
-						minHeight={ MIN_HEIGHT }
-						enable={ RESIZABLE_BOX_ENABLE_OPTION }
-						onResizeStart={ onResizeStart }
-						onResizeStop={ this.onMapResize }
-					>
-						<div className="wp-block-jetpack-map__map_wrapper">
-							<Map
-								ref={ this.mapRef }
-								address={ address }
-								scrollToZoom={ allowScrollToZoom }
-								showFullscreenButton={ showFullscreenButton }
-								mapStyle={ mapStyle || 'default' }
-								mapDetails={ mapDetails }
-								mapHeight={ mapHeight }
-								points={ points }
-								zoom={ zoom }
-								mapCenter={ mapCenter }
-								markerColor={ markerColor }
-								onSetZoom={ value => {
-									setAttributes( { zoom: value } );
-								} }
-								admin={ true }
-								apiKey={ apiKey }
-								onSetPoints={ value => setAttributes( { points: value } ) }
-								onSetMapCenter={ value => setAttributes( { mapCenter: value } ) }
-								onMapLoaded={ () => this.setState( { addPointVisibility: ! points.length } ) }
-								onMarkerClick={ () => this.setState( { addPointVisibility: false } ) }
-								onError={ this.onError }
-								mapProvider={ mapProvider }
-							>
-								{ isSelected && addPointVisibility && (
-									<AddPoint
-										onAddPoint={ this.addPoint }
-										onClose={ () => this.setState( { addPointVisibility: false } ) }
-										apiKey={ apiKey }
-										onError={ this.onError }
-										tagName="AddPoint"
-										mapProvider={ mapProvider }
-									/>
-								) }
-							</Map>
-						</div>
-					</ResizableBox>
-				</div>
-			</Fragment>
-		);
+	if ( preview ) {
 		const mapStyleObject = styles.find( styleObject => styleObject.name === mapStyle );
-		const placholderPreview = (
+
+		content = (
 			<div>
 				<img
 					alt={ __( 'Map Preview', 'jetpack' ) }
@@ -394,17 +240,150 @@ class MapEdit extends Component {
 				/>
 			</div>
 		);
-		return (
-			<Fragment>
-				{ noticeUI }
-				{ preview && placholderPreview }
-				{ ! preview && apiState === API_STATE_LOADING && placholderAPIStateLoading }
-				{ ! preview && apiState === API_STATE_FAILURE && placeholderAPIStateFailure }
-				{ ! preview && apiState === API_STATE_SUCCESS && placeholderAPIStateSuccess }
-			</Fragment>
+	} else if ( apiState === API_STATE_LOADING ) {
+		content = (
+			<Placeholder icon={ icon }>
+				<Spinner />
+			</Placeholder>
+		);
+	} else if ( apiState === API_STATE_FAILURE ) {
+		content = (
+			<Placeholder icon={ icon } label={ __( 'Map', 'jetpack' ) } notices={ notices }>
+				<>
+					<p className="components-placeholder__instructions">
+						{ __( 'To use the map block, you need an Access Token.', 'jetpack' ) }
+						<br />
+						<ExternalLink href="https://www.mapbox.com">
+							{ __( 'Create an account or log in to Mapbox.', 'jetpack' ) }
+						</ExternalLink>
+						<br />
+						{ __(
+							'Locate and copy the default access token. Then, paste it into the field below.',
+							'jetpack'
+						) }
+					</p>
+
+					<form>
+						<input
+							type="text"
+							className="components-placeholder__input"
+							disabled={ apiRequestOutstanding }
+							placeholder={ __( 'Paste Token Here', 'jetpack' ) }
+							value={ apiKeyControl }
+							onChange={ event => setApiKeyControl( event.target.value ) }
+						/>
+						<Button
+							variant="secondary"
+							disabled={ apiRequestOutstanding || ! apiKeyControl || apiKeyControl.length < 1 }
+							onClick={ updateAPIKey }
+						>
+							{ __( 'Set Token', 'jetpack' ) }
+						</Button>
+					</form>
+				</>
+			</Placeholder>
+		);
+	} else if ( apiState === API_STATE_SUCCESS ) {
+		const onKeyChange = value => setApiKeyControl( value );
+
+		// Only scroll to zoom when the block is selected, and there's 1 or less points.
+		const allowScrollToZoom = isSelected && points.length <= 1;
+
+		content = (
+			<>
+				<BlockControls>
+					<Controls
+						attributes={ attributes }
+						setAttributes={ setAttributes }
+						apiKey={ apiKey }
+						apiKeySource={ apiKeySource }
+						apiKeyControl={ apiKeyControl }
+						onKeyChange={ onKeyChange }
+						setPointVisibility={ () => setAddPointVisibility( true ) }
+						context="toolbar"
+						mapRef={ mapRef }
+						mapProvider={ mapProvider }
+					/>
+				</BlockControls>
+
+				<InspectorControls>
+					<Controls
+						attributes={ attributes }
+						setAttributes={ setAttributes }
+						apiKey={ apiKey }
+						apiKeySource={ apiKeySource }
+						apiKeyControl={ apiKeyControl }
+						onKeyChange={ onKeyChange }
+						mapRef={ mapRef }
+						instanceId={ instanceId }
+						minHeight={ MIN_HEIGHT }
+						removeAPIKey={ removeAPIKey }
+						updateAPIKey={ updateAPIKey }
+						mapProvider={ mapProvider }
+					/>
+				</InspectorControls>
+
+				<ResizableBox
+					size={ {
+						height: mapHeight || 'auto',
+						width: '100%',
+					} }
+					grid={ [ 10, 10 ] }
+					showHandle={ isSelected }
+					minHeight={ MIN_HEIGHT }
+					enable={ RESIZABLE_BOX_ENABLE_OPTION }
+					onResizeStart={ onResizeStart }
+					onResizeStop={ onMapResize }
+				>
+					<div className="wp-block-jetpack-map__map_wrapper">
+						<Map
+							ref={ mapRef }
+							address={ address }
+							scrollToZoom={ allowScrollToZoom }
+							showFullscreenButton={ showFullscreenButton }
+							mapStyle={ mapStyle || 'default' }
+							mapDetails={ mapDetails }
+							mapHeight={ mapHeight }
+							points={ points }
+							zoom={ zoom }
+							mapCenter={ mapCenter }
+							markerColor={ markerColor }
+							onSetZoom={ value => {
+								setAttributes( { zoom: value } );
+							} }
+							admin={ true }
+							apiKey={ apiKey }
+							onSetPoints={ value => setAttributes( { points: value } ) }
+							onSetMapCenter={ value => setAttributes( { mapCenter: value } ) }
+							onMapLoaded={ () => setAddPointVisibility( ! points.length ) }
+							onMarkerClick={ () => setAddPointVisibility( false ) }
+							onError={ onError }
+							mapProvider={ mapProvider }
+						>
+							{ isSelected && addPointVisibility && (
+								<AddPoint
+									onAddPoint={ addPoint }
+									onClose={ () => setAddPointVisibility( false ) }
+									apiKey={ apiKey }
+									onError={ onError }
+									tagName="AddPoint"
+									mapProvider={ mapProvider }
+								/>
+							) }
+						</Map>
+					</div>
+				</ResizableBox>
+			</>
 		);
 	}
-}
+
+	return (
+		<div { ...blockProps }>
+			{ noticeUI }
+			{ content }
+		</div>
+	);
+};
 
 export default compose( [
 	withNotices,

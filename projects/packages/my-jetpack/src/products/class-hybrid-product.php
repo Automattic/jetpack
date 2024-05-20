@@ -19,11 +19,27 @@ use WP_Error;
 abstract class Hybrid_Product extends Product {
 
 	/**
+	 * The Jetpack module name, if any.
+	 *
+	 * @var ?string
+	 */
+	public static $module_name = null;
+
+	/**
 	 * All hybrid products have a standalone plugin
 	 *
 	 * @var bool
 	 */
 	public static $has_standalone_plugin = true;
+
+	/**
+	 * For Hybrid products, we can use either the standalone or Jetpack plugin
+	 *
+	 * @return bool
+	 */
+	public static function is_plugin_installed() {
+		return parent::is_plugin_installed() || parent::is_jetpack_plugin_installed();
+	}
 
 	/**
 	 * Checks whether the Product is active
@@ -49,7 +65,7 @@ abstract class Hybrid_Product extends Product {
 	 * @return bool
 	 */
 	public static function is_module_active() {
-		if ( ! empty( static::$module_name ) ) {
+		if ( static::$module_name ) {
 			return ( new Modules() )->is_active( static::$module_name );
 		}
 		return true;
@@ -109,12 +125,11 @@ abstract class Hybrid_Product extends Product {
 			}
 		}
 
-		if ( ! empty( static::$module_name ) ) {
-			if ( ! static::has_required_plan() ) {
-				// translators: %s is the product name. e.g. Jetpack Search.
-				return new WP_Error( 'not_supported', sprintf( __( 'Your plan does not support %s.', 'jetpack-my-jetpack' ), static::get_title() ) );
-			}
+		// Only activate the module if the plan supports it
+		// We don't want to throw an error for a missing plan here since we try activation before purchase
+		if ( static::has_required_plan() && static::$module_name ) {
 			$module_activation = ( new Modules() )->activate( static::$module_name, false, false );
+
 			if ( ! $module_activation ) {
 				return new WP_Error( 'module_activation_failed', __( 'Error activating Jetpack module', 'jetpack-my-jetpack' ) );
 			}
@@ -130,33 +145,8 @@ abstract class Hybrid_Product extends Product {
 	 *
 	 * @return boolean|WP_Error
 	 */
-	final public static function install_and_activate_standalone() {
-		/**
-		 * Check for the presence of the standalone plugin, ignoring Jetpack presence.
-		 *
-		 * If the standalone plugin is not installed and the user can install plugins, proceed with the installation.
-		 */
-		if ( ! parent::is_plugin_installed() ) {
-			/**
-			 * Check for permissions
-			 */
-			if ( ! current_user_can( 'install_plugins' ) ) {
-				return new WP_Error( 'not_allowed', __( 'You are not allowed to install plugins on this site.', 'jetpack-my-jetpack' ) );
-			}
-
-			/**
-			 * Install the plugin
-			 */
-			$installed = Plugins_Installer::install_plugin( static::get_plugin_slug() );
-			if ( is_wp_error( $installed ) ) {
-				return $installed;
-			}
-		}
-
-		/**
-		 * Activate the installed plugin
-		 */
-		$result = static::activate_plugin();
+	public static function install_and_activate_standalone() {
+		$result = parent::install_and_activate_standalone();
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -166,7 +156,7 @@ abstract class Hybrid_Product extends Product {
 		 * Activate the module as well, if the user has a plan
 		 * or the product does not require a plan to work
 		 */
-		if ( static::has_required_plan() ) {
+		if ( static::has_required_plan() && static::$module_name ) {
 			$module_activation = ( new Modules() )->activate( static::$module_name, false, false );
 
 			if ( ! $module_activation ) {
