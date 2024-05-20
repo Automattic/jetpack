@@ -208,8 +208,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$event->schedule_id = $id;
 		$this->update_additional_fields_for_object( $event, $request );
 
-		// Lock the cache after a successful schedule creation.
-		set_transient( 'jetpack_scheduled_update_created_lock', true, 10 );
+		// Lock the cache after a successfull schedule creation.
+		set_transient( 'pre_schedule_event_clear_cron_cache', true, 10 );
 
 		return rest_ensure_response( $id );
 	}

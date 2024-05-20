@@ -243,7 +243,7 @@ class Scheduled_Updates {
 	 */
 	public static function clear_cron_cache_pre() {
 		// If the transient is set, it means that the cron cache must be refreshed.
-		if ( get_transient( 'jetpack_scheduled_update_created_lock' ) ) {
+		if ( get_transient( 'pre_schedule_event_clear_cron_cache' ) ) {
 			self::clear_cron_cache();
 		}
 	}
