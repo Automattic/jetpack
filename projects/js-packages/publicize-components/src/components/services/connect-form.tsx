@@ -1,10 +1,10 @@
 import { Button, useGlobalNotices } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import classNames from 'classnames';
 import { useCallback } from 'react';
 import { requestExternalAccess } from '../../utils';
+import { SupportedService } from '../services/use-supported-services';
 import styles from './style.module.scss';
-import type { SupportedService } from './use-supported-services';
 
 type ConnectFormProps = {
 	service: SupportedService;
@@ -13,6 +13,8 @@ type ConnectFormProps = {
 	onSubmit?: VoidFunction;
 	displayInputs?: boolean;
 	isMastodonAlreadyConnected?: ( username: string ) => boolean;
+	hasConnections?: boolean;
+	buttonLabel?: string;
 };
 
 const isValidMastodonUsername = ( username: string ) =>
@@ -32,6 +34,8 @@ export function ConnectForm( {
 	onSubmit,
 	displayInputs,
 	isMastodonAlreadyConnected,
+	hasConnections,
+	buttonLabel,
 }: ConnectFormProps ) {
 	const { createErrorNotice } = useGlobalNotices();
 
@@ -101,8 +105,18 @@ export function ConnectForm( {
 					) : null }
 				</>
 			) : null }
-			<Button variant="primary" type="submit" size={ isSmall ? 'small' : 'normal' }>
-				{ __( 'Connect', 'jetpack' ) }
+			<Button
+				variant={ hasConnections ? 'secondary' : 'primary' }
+				type="submit"
+				className={ styles[ 'connect-button' ] }
+			>
+				{ ( label => {
+					if ( label ) {
+						return label;
+					}
+
+					return hasConnections ? _x( 'Connect more', '', 'jetpack' ) : __( 'Connect', 'jetpack' );
+				} )( buttonLabel ) }
 			</Button>
 		</form>
 	);

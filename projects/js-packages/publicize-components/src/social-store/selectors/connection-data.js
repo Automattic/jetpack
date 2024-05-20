@@ -10,6 +10,18 @@ export function getConnections( state ) {
 }
 
 /**
+ * Return a connection by its ID.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @param {string} connectionId - The connection ID.
+ *
+ * @returns {import("../types").Connection | undefined} The connection.
+ */
+export function getConnectionById( state, connectionId ) {
+	return getConnections( state ).find( connection => connection.id === connectionId );
+}
+
+/**
  * Returns the connections admin URL from the store.
  * @param {import("../types").SocialStoreState} state - State object.
  * @returns {string|null} The connections admin URL.
