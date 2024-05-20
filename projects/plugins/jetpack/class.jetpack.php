@@ -2514,6 +2514,11 @@ class Jetpack {
 		 */
 		do_action( 'jetpack_before_activate_default_modules', $min_version, $max_version, $other_modules, $requires_connection, $requires_user_connection );
 
+		// Check each module for fatal errors, a la wp-admin/plugins.php::activate before activating.
+		if ( $send_state_messages ) {
+			self::restate();
+		}
+
 		$active = self::get_active_modules();
 
 		foreach ( $modules as $module ) {
