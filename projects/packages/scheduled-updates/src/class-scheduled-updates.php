@@ -190,12 +190,12 @@ class Scheduled_Updates {
 	 * @return \WP_Error|bool True on success, WP_Error on failure.
 	 */
 	public static function delete_scheduled_update( $timestamp, $plugins ) {
-		$ret = wp_unschedule_event( $timestamp, self::PLUGIN_CRON_HOOK, $plugins, true );
+		$success = wp_unschedule_event( $timestamp, self::PLUGIN_CRON_HOOK, $plugins, true );
 
 		// Be sure to clear the cron cache after removing a cron entry.
 		self::clear_cron_cache();
 
-		return $ret;
+		return $success;
 	}
 
 	/**
