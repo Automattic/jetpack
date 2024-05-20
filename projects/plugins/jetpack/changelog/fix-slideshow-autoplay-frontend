@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Slideshow: Fix className issue on frontend - ensures autoplay works properly.

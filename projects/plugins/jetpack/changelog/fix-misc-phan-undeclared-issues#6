@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Fix `SAL_Token::is_global()`.

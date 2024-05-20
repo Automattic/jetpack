@@ -2,6 +2,37 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.5-a.3 - 2024-05-20
+### Enhancements
+- AI Assistant: Enable inline Heading extension. [#37386]
+- Subscribe block: Adds button-only style. [#37341]
+- Subscribe block: Allow inside navigation block. [#37439]
+
+### Improved compatibility
+- Block Editor: Remove External Link icon styling fix now that the change has been made in WordPress itself. [#37394]
+
+### Bug fixes
+- Slideshow: Fix className issue on frontend - ensures autoplay works properly. [#37378]
+- WordAds: Prevent fatal when post content is null. [#37384]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add some missing abstract methods to SAL_Site, and implement in Jetpack_Site. [#37344]
+- AI Assistant: Add chat history to inline extension [#37429]
+- AI Assistant: Inline extension testing feedback changes [#37365]
+- AI Featured Image: add support to Stable Diffusion image generation. [#37413]
+- Fix `SAL_Token::is_global()`. [#37344]
+- Minor typos [#37387]
+- Monetize: correctly updates and delete paid content meta. [#37346]
+- Prevent JS error when subscription module is not enabled. [#36276]
+- Remove `jetpack_server_sandbox()` and `jetpack_server_sandbox_request_parameters()`. [#37344]
+- Remove `Jetpack_User_Agent_Info::is_OperaMobile()`. [#37344]
+- SSO: Switch to loading feature from the Connection package. [#37153]
+- Subscription paywall: Simplify paid access question for logged out subscribers. [#37434]
+- Subscriptions: Add Subscribe Overlay toggle. [#37433]
+- Subscriptions: Add Welcome Overlay behind the feature flag. [#37372]
+- Subscriptions: Subscribe Overlay default tagline. [#37446]
+- Updated package dependencies. [#37348] [#37379] [#37380] [#37382]
+
 ## 13.5-a.1 - 2024-05-13
 ### Enhancements
 - SSO: Improve accessibility of tooltips on WP Admin users page. [#37302]

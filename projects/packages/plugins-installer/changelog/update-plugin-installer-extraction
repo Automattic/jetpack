@@ -1,4 +1,0 @@
-Significance: minor
-Type: deprecated
-
-Extract the 'is_current_request_activating_plugin_from_plugins_screen' method into Status package.

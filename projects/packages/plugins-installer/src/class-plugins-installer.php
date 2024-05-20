@@ -242,14 +242,14 @@ class Plugins_Installer {
 	/**
 	 * Determine if the current request is activating a plugin from the plugins page.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.4.0
 	 * @see Paths::is_current_request_activating_plugin_from_plugins_screen()
 	 *
 	 * @param string $plugin Plugin file path to check.
 	 * @return bool
 	 */
 	public static function is_current_request_activating_plugin_from_plugins_screen( $plugin ) {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\\Jetpack\\Paths::is_current_request_activating_plugin_from_plugins_screen()' );
+		_deprecated_function( __METHOD__, '0.4.0', 'Automattic\\Jetpack\\Paths::is_current_request_activating_plugin_from_plugins_screen()' );
 		return ( new Paths() )->is_current_request_activating_plugin_from_plugins_screen( $plugin );
 	}
 }
