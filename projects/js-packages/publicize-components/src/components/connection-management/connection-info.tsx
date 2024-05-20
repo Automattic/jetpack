@@ -44,7 +44,7 @@ export function ConnectionInfo( { connection, onReconnect }: ConnectionInfoProps
 					{ <Icon className={ styles.chevron } icon={ isPanelOpen ? chevronUp : chevronDown } /> }
 				</Button>
 			</div>
-			<Panel className={ styles[ 'service-panel' ] }>
+			<Panel className={ styles[ 'connection-panel' ] }>
 				<PanelBody opened={ isPanelOpen } onToggle={ togglePanel }>
 					<div className={ styles[ 'mark-shared-wrap' ] }>
 						<MarkAsShared connection={ connection } />
