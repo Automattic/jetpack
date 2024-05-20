@@ -126,18 +126,16 @@ class Singular_Post_Provider extends Provider {
 
 		return apply_filters(
 			'jetpack_boost_critical_css_post_types_singular',
-			array(
-				apply_filters_deprecated(
-					'jetpack_boost_critical_css_post_types',
-					array(
-						$provider_post_types,
-						$post_types,
-					),
-					'3.4.0',
-					'jetpack_boost_critical_css_post_types_singular'
+			apply_filters_deprecated(
+				'jetpack_boost_critical_css_post_types',
+				array(
+					$provider_post_types,
+					$post_types,
 				),
-				$post_types,
-			)
+				'3.4.0',
+				'jetpack_boost_critical_css_post_types_singular'
+			),
+			$post_types
 		);
 	}
 
