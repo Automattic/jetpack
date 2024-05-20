@@ -44,10 +44,14 @@ function fetch_plugin {
 	echo "Unzipping..."
 	local D=$PWD
 	cd "$WORK_DIR"
-	cols=$( tput cols )
-	unzip "$slug.zip" | while read -r line; do
-		printf '\r\e[0K%.*s' "$cols" "$line"
-	done
+	if [[ -n "$TERM" && -t 1 ]]; then
+		cols=$( tput cols )
+		unzip "$slug.zip" | while read -r line; do
+			printf '\r\e[0K%.*s' "$cols" "$line"
+		done
+	else
+		unzip "$slug.zip"
+	fi
 	cd "$D"
 	printf '\r\e[0KDone!\n'
 }
@@ -80,6 +84,19 @@ fetch_plugin akismet
 echo
 info 'Extracting Akismet stubs'
 "$BASE/projects/packages/stub-generator/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/akismet-stubs.php" "$BASE/tools/stubs/akismet-stub-defs.php"
+
+# Apparently there are two different AMP plugins we have to deal with.
+echo
+info 'Downloading AMP plugin'
+fetch_plugin amp
+
+echo
+info 'Downloading AMP for WP plugin'
+fetch_plugin accelerated-mobile-pages
+
+echo
+info 'Extracting AMP stubs'
+"$BASE/projects/packages/stub-generator/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/amp-stubs.php" "$BASE/tools/stubs/amp-stub-defs.php"
 
 echo
 info 'Downloading WordPress.com Editing Toolkit'

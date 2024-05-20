@@ -18,7 +18,7 @@ use tubalmartin\CssMin\Minifier as CSSMinifier;
 class Minify {
 
 	/**
-	 * @var Minify - Holds the CssMin\Minifier instance, for reuse on subsequent calls.
+	 * @var CSSMinifier - Holds the CssMin\Minifier instance, for reuse on subsequent calls.
 	 */
 	private static $css_minifier;
 

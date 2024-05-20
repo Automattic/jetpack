@@ -40,12 +40,16 @@ export default function () {
 	const [ showNotice, setShowNotice ] = useState( false );
 	const { isRegistered } = useConnection();
 
-	const videoTitle1 = __(
+	const videoTitleContentGeneration = __(
 		'Generate and edit content faster with Jetpack AI Assistant',
 		'jetpack-my-jetpack'
 	);
-	const videoTitle2 = __( 'Build forms using prompts', 'jetpack-my-jetpack' );
-	const videoTitle3 = __( 'Get feedback on posts', 'jetpack-my-jetpack' );
+	const videoTitleFeaturedImages = __(
+		'Create featured images with one click',
+		'jetpack-my-jetpack'
+	);
+	const videoTitleForms = __( 'Build forms using prompts', 'jetpack-my-jetpack' );
+	const videoTitleContentFeedback = __( 'Get feedback on posts', 'jetpack-my-jetpack' );
 
 	debug( aiAssistantFeature );
 	const {
@@ -65,6 +69,11 @@ export default function () {
 	const showAllTimeUsage = hasPaidTier || hasUnlimited;
 	const contactHref = getRedirectUrl( 'jetpack-ai-tiers-more-requests-contact' );
 	const feedbackURL = getRedirectUrl( 'jetpack-ai-feedback' );
+	const videoLinkFeaturedImages = getRedirectUrl( 'jetpack-ai-product-page-featured-image-link' );
+	const videoLinkForms = getRedirectUrl( 'jetpack-ai-product-page-form-link' );
+	const videoLinkContentFeedback = getRedirectUrl(
+		'jetpack-ai-product-page-content-feedback-link'
+	);
 
 	// isRegistered works as a flag to know if the page can link to a post creation or not
 	const ctaURL = isRegistered
@@ -138,6 +147,12 @@ export default function () {
 	useEffect( () => {
 		setShowNotice( showRenewalNotice || showUpgradeNotice );
 	}, [ showRenewalNotice, showUpgradeNotice ] );
+
+	const newBadge = (
+		<span className={ styles[ 'product-interstitial__new-badge' ] }>
+			{ __( 'New', 'jetpack-my-jetpack' ) }{ ' ' }
+		</span>
+	);
 
 	return (
 		<AdminPage showHeader={ false } showBackground={ true }>
@@ -264,13 +279,13 @@ export default function () {
 										src="https://videopress.com/embed/GdXmtVtW?posterUrl=https%3A%2F%2Fjetpackme.files.wordpress.com%2F2024%2F02%2Fimage-37.png%3Fw%3D560"
 										allowFullScreen
 										allow="clipboard-write"
-										title={ videoTitle1 }
+										title={ videoTitleContentGeneration }
 									></iframe>
 									<script src="https://videopress.com/videopress-iframe.js"></script>
 								</div>
 								<div className={ styles[ 'product-interstitial__usage-videos-content' ] }>
 									<div className={ styles[ 'product-interstitial__usage-videos-heading' ] }>
-										{ videoTitle1 }
+										{ videoTitleContentGeneration }
 									</div>
 									<div className={ styles[ 'product-interstitial__usage-videos-text' ] }>
 										{ __(
@@ -287,6 +302,41 @@ export default function () {
 									</Button>
 								</div>
 							</div>
+
+							<div className={ styles[ 'product-interstitial__usage-videos-item' ] }>
+								<div className={ styles[ 'product-interstitial__usage-videos-video' ] }>
+									<iframe
+										width="280"
+										height="157"
+										src="https://videopress.com/embed/HJCf8cXc?posterUrl=https%3A%2F%2Fjetpackme.files.wordpress.com%2F2024%2F02%2Fone-click-featured-images.png%3Fw%3D560"
+										allowFullScreen
+										allow="clipboard-write"
+										title={ videoTitleFeaturedImages }
+									></iframe>
+									<script src="https://videopress.com/videopress-iframe.js"></script>
+								</div>
+								<div className={ styles[ 'product-interstitial__usage-videos-content' ] }>
+									<div className={ styles[ 'product-interstitial__usage-videos-heading' ] }>
+										{ videoTitleFeaturedImages }
+										{ newBadge }
+									</div>
+									<div className={ styles[ 'product-interstitial__usage-videos-text' ] }>
+										{ __(
+											'Create featured images to illustrate your content and make it more engaging with just one click. Use prompts to generate adjusted new featured images.',
+											'jetpack-my-jetpack'
+										) }
+									</div>
+									<Button
+										className={ styles[ 'product-interstitial__usage-videos-link' ] }
+										icon={ help }
+										target="_blank"
+										href={ videoLinkFeaturedImages }
+									>
+										{ __( 'Learn about featured images', 'jetpack-my-jetpack' ) }
+									</Button>
+								</div>
+							</div>
+
 							<div className={ styles[ 'product-interstitial__usage-videos-item' ] }>
 								<div className={ styles[ 'product-interstitial__usage-videos-video' ] }>
 									<iframe
@@ -295,13 +345,13 @@ export default function () {
 										src="https://videopress.com/embed/OMI3zqid?posterUrl=https%3A%2F%2Fjetpackme.files.wordpress.com%2F2024%2F02%2Fimage-38.png%3Fw%3D560"
 										allowFullScreen
 										allow="clipboard-write"
-										title={ videoTitle2 }
+										title={ videoTitleForms }
 									></iframe>
 									<script src="https://videopress.com/videopress-iframe.js"></script>
 								</div>
 								<div className={ styles[ 'product-interstitial__usage-videos-content' ] }>
 									<div className={ styles[ 'product-interstitial__usage-videos-heading' ] }>
-										{ videoTitle2 }
+										{ videoTitleForms }
 									</div>
 									<div className={ styles[ 'product-interstitial__usage-videos-text' ] }>
 										{ __(
@@ -313,12 +363,13 @@ export default function () {
 										className={ styles[ 'product-interstitial__usage-videos-link' ] }
 										icon={ help }
 										target="_blank"
-										href="https://jetpack.com/support/jetpack-blocks/contact-form/#forms-with-ai"
+										href={ videoLinkForms }
 									>
 										{ __( 'Learn about forms', 'jetpack-my-jetpack' ) }
 									</Button>
 								</div>
 							</div>
+
 							<div className={ styles[ 'product-interstitial__usage-videos-item' ] }>
 								<div className={ styles[ 'product-interstitial__usage-videos-video' ] }>
 									<iframe
@@ -327,13 +378,13 @@ export default function () {
 										src="https://videopress.com/embed/0vb0OJm7?posterUrl=https%3A%2F%2Fjetpackme.files.wordpress.com%2F2024%2F02%2Fimage-39.png%3Fw%3D560"
 										allowFullScreen
 										allow="clipboard-write"
-										title={ videoTitle3 }
+										title={ videoTitleContentFeedback }
 									></iframe>
 									<script src="https://videopress.com/videopress-iframe.js"></script>
 								</div>
 								<div className={ styles[ 'product-interstitial__usage-videos-content' ] }>
 									<div className={ styles[ 'product-interstitial__usage-videos-heading' ] }>
-										{ videoTitle3 }
+										{ videoTitleContentFeedback }
 									</div>
 									<div className={ styles[ 'product-interstitial__usage-videos-text' ] }>
 										{ __(
@@ -345,7 +396,7 @@ export default function () {
 										className={ styles[ 'product-interstitial__usage-videos-link' ] }
 										icon={ help }
 										target="_blank"
-										href="https://jetpack.com/support/jetpack-blocks/jetpack-ai-assistant-block/"
+										href={ videoLinkContentFeedback }
 									>
 										{ __( 'Learn more', 'jetpack-my-jetpack' ) }
 									</Button>

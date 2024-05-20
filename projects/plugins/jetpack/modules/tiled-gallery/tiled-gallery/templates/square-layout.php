@@ -5,7 +5,11 @@
  * @package automattic/jetpack
  */
 
-foreach ( $context['rows'] as $row ) : // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Defined by the caller. Let Phan handle it.
+'@phan-var-force Jetpack_Tiled_Gallery_Layout $this';
+'@phan-var-force array $context';
+
+foreach ( $context['rows'] as $row ) :
 	?>
 	<div class="gallery-row"
 		style="width: <?php echo esc_attr( $row->width ); ?>px; height: <?php echo esc_attr( $row->height ); ?>px;"
@@ -19,11 +23,11 @@ foreach ( $context['rows'] as $row ) : // phpcs:ignore VariableAnalysis.CodeAnal
 				data-original-height="<?php echo esc_attr( $row->group_size ); ?>"
 			>
 				<?php
-				$this->partial( // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+				$this->partial( // @phan-suppress-current-line PhanAccessMethodPrivate -- Called in the scope of the class.
 					'item',
 					array(
 						'item' => $item,
-						'link' => $context['link'], // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+						'link' => $context['link'],
 					)
 				);
 				?>

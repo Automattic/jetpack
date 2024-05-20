@@ -110,6 +110,28 @@ class Callables extends Module {
 	}
 
 	/**
+	 * Set module defaults at a later time.
+	 * Reset the callable whitelist if needed to account for plugins adding the 'jetpack_sync_callable_whitelist'
+	 * and 'jetpack_sync_multisite_callable_whitelist' filters late.
+	 *
+	 * @see Automattic\Jetpack\Sync\Modules::set_module_defaults
+	 * @access public
+	 */
+	public function set_late_default() {
+		if ( is_multisite() ) {
+			$late_callables = array_merge(
+				apply_filters( 'jetpack_sync_callable_whitelist', array() ),
+				apply_filters( 'jetpack_sync_multisite_callable_whitelist', array() )
+			);
+		} else {
+			$late_callables = apply_filters( 'jetpack_sync_callable_whitelist', array() );
+		}
+		if ( ! empty( $late_callables ) && is_array( $late_callables ) ) {
+			$this->callable_whitelist = array_merge( $this->callable_whitelist, $late_callables );
+		}
+	}
+
+	/**
 	 * Initialize callables action listeners.
 	 *
 	 * @access public
@@ -404,7 +426,7 @@ class Callables extends Module {
 
 					$link_element = $link_elements->item( 0 );
 					// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					if ( $link_element->hasAttribute( 'href' ) && $link_element->nodeValue ) {
+					if ( $link_element instanceof \DOMElement && $link_element->hasAttribute( 'href' ) && $link_element->nodeValue ) {
 						$link_url = trim( $link_element->getAttribute( 'href' ) );
 
 						// Add the full admin path to the url if the plugin did not provide it.

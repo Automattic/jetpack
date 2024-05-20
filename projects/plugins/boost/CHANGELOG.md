@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.0] - 2024-05-08
+### Added
+- General: Add endpoint to list source providers. [#36373]
+- General: Add end to end tests for modules. [#36501]
+- Auto-Resize Lazy Images: Added feature to optimize lazy loading image performance [#36987]
+- JS Concatenation: Added compatibility with event-tickets by The Events Calendar. [#36750]
+- Speed Score: Add the speed changed popup back. [#36432]
+
+### Changed
+- Cache: remove Beta tag [#37261]
+- General: improved compatibility with WP 6.4. [#37051]
+- Image CDN: Update UI. [#37263]
+
+### Fixed
+- CLI: Fix fatal error when using 'activate' without a module name. [#36873]
+- Critical CSS: Update the way generation library is loaded. [#37118]
+
 ## [3.2.2] - 2024-04-02
 ### Added
 - Cache: Ensure cache engine is loading every time the Settings page loads. [#36339]
@@ -419,6 +436,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[3.3.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.2.2...3.3.0
 [3.2.2]: https://github.com/Automattic/jetpack-boost-production/compare/3.2.0...3.2.2
 [3.2.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.1.1...3.2.0
 [3.1.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.0.2...3.1.1

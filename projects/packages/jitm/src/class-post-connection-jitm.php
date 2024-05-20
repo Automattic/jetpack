@@ -43,9 +43,9 @@ class Post_Connection_JITM extends JITM {
 	/**
 	 * A special filter for WooCommerce, to set a message based on local state.
 	 *
-	 * @param string $content The current message.
+	 * @param object $content The current message.
 	 *
-	 * @return array The new message.
+	 * @return object The new message.
 	 */
 	public static function jitm_woocommerce_services_msg( $content ) {
 		if ( ! function_exists( 'wc_get_base_location' ) ) {

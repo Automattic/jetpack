@@ -9,11 +9,7 @@
  */
 return [
     // # Issue statistics:
-    // PhanDeprecatedFunction : 20+ occurrences
     // PhanTypeMismatchArgument : 5 occurrences
-    // PhanUndeclaredClassMethod : 3 occurrences
-    // PhanTypeMismatchReturnProbablyReal : 2 occurrences
-    // PhanUndeclaredTypeReturnType : 2 occurrences
     // PhanNoopNew : 1 occurrence
     // PhanParamTooMany : 1 occurrence
     // PhanPluginRedundantAssignment : 1 occurrence
@@ -25,10 +21,10 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-identity-crisis.php' => ['PhanDeprecatedFunction', 'PhanPluginRedundantAssignment', 'PhanRedundantCondition'],
+        'src/class-identity-crisis.php' => ['PhanPluginRedundantAssignment', 'PhanRedundantCondition'],
         'src/class-rest-endpoints.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'src/class-url-secret.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchReturnNullable', 'PhanUndeclaredClassMethod'],
-        'tests/php/test-identity-crisis.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredTypeReturnType'],
+        'src/class-url-secret.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchReturnNullable'],
+        'tests/php/test-identity-crisis.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgument'],
         'tests/php/test-rest-endpoints.php' => ['PhanNoopNew'],
         'tests/php/test-url-secret.php' => ['PhanTypeMismatchArgumentInternal'],
     ],

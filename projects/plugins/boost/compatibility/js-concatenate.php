@@ -2,6 +2,7 @@
 /**
  * Exclude known scripts that causes problem when concatenated.
  */
+
 namespace Automattic\Jetpack_Boost\Compatibility\JS_Concatenate;
 
 function maybe_do_not_concat( $do_concat, $handle ) {

@@ -127,6 +127,7 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.extra.changelogger-default-type`: Certain of our tools automatically create Changelogger change entries. This is the value to use for `--type` when doing so. Default type is `changed`.
 * `.extra.dependencies.build`: This optional array specifies the "slugs" of any within-monorepo build dependencies that can't otherwise be inferred. The "slug" consists of the two levels of directory under `projects/`, e.g. `plugins/jetpack` or `packages/lazy-images`.
 * `.extra.dependencies.test`: This optional array specifies the "slugs" of any within-monorepo testing dependencies that can't otherwise be inferred. The "slug" consists of the two levels of directory under `projects/`, e.g. `plugins/jetpack` or `packages/lazy-images`. See [Testing](#testing) for details.
+* `.extra.dependencies.test-only`: This optional array specifies the "slugs" of any within-monorepo dependencies that are only used for testing and/or static analysis and should be ignored otherwise when analyzing intra-monorepo dependencies.
 * `.extra.dev-releases`: Indicate that the plugin will have developer alpha releases. Instead of the mirror repositories showing "VER-alpha", they'll start at "VER-a.0" and you can use the `-a` flag to the release tooling to release "VER-a.1".
 * `.extra.mirror-repo`: This specifies the name of the GitHub mirror repo, i.e. the "Automattic/jetpack-_something_" in "<span>https://</span>github.com/Automattic/jetpack-_something_".
 * `.extra.npmjs-autopublish`: Set truthy to enable automatic publishing of tagged versions to npmjs.com. See [Mirror repositories > Npmjs Auto-publisher](#npmjs-auto-publisher) for details.
@@ -290,11 +291,12 @@ Most projects in the monorepo should have a mirror repository holding a built ve
    2. The default branch should be `trunk`, matching the monorepo.
       * Note that you can't set the default branch until at least one branch is created in the repo.
    3. In the repo's settings, turn off wikis, issues, projects, and so on.
-   4. Make sure that [matticbot](https://github.com/matticbot) can push to the repo. You would do this here: `https://github.com/Automattic/example-reposiroty-name/settings/branches` - creating a new branch protection rule where only Matticbot (and whoever needs access to push, for example Ground Control) can push to that repository.
+   4. Make sure that [matticbot](https://github.com/matticbot) can push to the repo. You would do this here: `https://github.com/Automattic/example-repository-name/settings/branches` - creating a new branch protection rule where only Matticbot (and whoever needs access to push, for example Garage) can push to that repository.
    5. Make sure that Actions are enabled. The build process copies workflows from `.github/files/mirror-.github` into the mirror to do useful things like automatically close PRs with a reference back to the monorepo.
    6. Create any secrets needed (e.g. for Autotagger or Npmjs-Autopublisher). See PCYsg-xsv-p2#mirror-repo-secrets for details.
 2. For a PHP package (or a plugin listed in Packagist) you also need to go to packagist.org and create the package there. This requires pushing a first commit with a valid `composer.json` to the repository. That can be done by copying the new package's `composer.json` from the PR that introduced it.
    1. Be sure that `automattic` is added as a maintainer.
+   2. If creating the package with your own account, make sure to link your Github account to Packagist so that you can sync the new package.
 3. If your project requires building, configure `.scripts.build-production` in your project's `composer.json` to run the necessary commands.
 4. If there are any files included in the monorepo that should not be included in the mirror, use `.gitattributes` to tag them with "production-exclude".
 5. If there are any built files in `.gitignore` that should be included in the mirror, use `.gitattributes` to tag them with "production-include".

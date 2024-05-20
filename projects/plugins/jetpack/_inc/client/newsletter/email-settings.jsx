@@ -1,9 +1,10 @@
-import { RadioControl, ToggleControl } from '@automattic/jetpack-components';
+import { RadioControl, ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { FormLegend } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import analytics from 'lib/analytics';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { isUnavailableInOfflineMode, isUnavailableInSiteConnectionMode } from 'state/connection';
@@ -15,6 +16,7 @@ const subscriptionsAndNewslettersSupportUrl =
 	'https://wordpress.com/support/subscriptions-and-newsletters/';
 const FEATURED_IMAGE_IN_EMAIL_OPTION = 'wpcom_featured_image_in_email';
 const SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION = 'wpcom_subscription_emails_use_excerpt';
+const REPLY_TO_OPTION = 'jetpack_subscriptions_reply_to';
 
 const EmailSettings = props => {
 	const {
@@ -23,15 +25,17 @@ const EmailSettings = props => {
 		unavailableInOfflineMode,
 		isFeaturedImageInEmailEnabled,
 		subscriptionEmailsUseExcerpt,
+		subscriptionReplyTo,
 		updateFormStateAndSaveOptionValue,
 		unavailableInSiteConnectionMode,
 	} = props;
 
 	const handleEnableFeaturedImageInEmailToggleChange = useCallback( () => {
-		updateFormStateAndSaveOptionValue(
-			FEATURED_IMAGE_IN_EMAIL_OPTION,
-			! isFeaturedImageInEmailEnabled
-		);
+		const value = ! isFeaturedImageInEmailEnabled;
+		updateFormStateAndSaveOptionValue( FEATURED_IMAGE_IN_EMAIL_OPTION, value );
+		analytics.tracks.recordEvent( 'jetpack_newsletter_set_toggle_featured_image_in_email', {
+			value,
+		} );
 	}, [ isFeaturedImageInEmailEnabled, updateFormStateAndSaveOptionValue ] );
 
 	const handleSubscriptionEmailsUseExcerptChange = useCallback(
@@ -40,6 +44,15 @@ const EmailSettings = props => {
 				SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION,
 				value === 'excerpt'
 			);
+			analytics.tracks.recordEvent( 'jetpack_newsletter_set_emails_use_excerpt', { value } );
+		},
+		[ updateFormStateAndSaveOptionValue ]
+	);
+
+	const handleSubscriptionReplyToChange = useCallback(
+		value => {
+			updateFormStateAndSaveOptionValue( REPLY_TO_OPTION, value );
+			analytics.tracks.recordEvent( 'jetpack_newsletter_set_reply_to', { value } );
 		},
 		[ updateFormStateAndSaveOptionValue ]
 	);
@@ -49,6 +62,8 @@ const EmailSettings = props => {
 		disabled || isSavingAnyOption( [ FEATURED_IMAGE_IN_EMAIL_OPTION ] );
 	const excerptInputDisabled =
 		disabled || isSavingAnyOption( [ SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION ] );
+
+	const replyToInputDisabled = disabled || isSavingAnyOption( [ REPLY_TO_OPTION ] );
 
 	return (
 		<SettingsCard
@@ -107,6 +122,43 @@ const EmailSettings = props => {
 					onChange={ handleSubscriptionEmailsUseExcerptChange }
 				/>
 			</SettingsGroup>
+			<SettingsGroup
+				hasChild
+				disableInOfflineMode
+				disableInSiteConnectionMode
+				module={ subscriptionsModule }
+				support={ {
+					link: getRedirectUrl( 'jetpack-support-subscriptions', {
+						anchor: 'reply-to-email-address',
+					} ),
+					text: __(
+						"Sets the reply to email address for your newsletter emails. It's the email where subscribers send their replies.",
+						'jetpack'
+					),
+				} }
+			>
+				<FormLegend className="jp-form-label-wide">
+					{ __( 'Reply-to settings', 'jetpack' ) }
+				</FormLegend>
+				<p>
+					{ __(
+						'Choose who receives emails when subscribers reply to your newsletter.',
+						'jetpack'
+					) }
+				</p>
+				<RadioControl
+					selected={ subscriptionReplyTo || 'no-reply' }
+					disabled={ replyToInputDisabled }
+					options={ [
+						{ label: __( 'Replies are not allowed', 'jetpack' ), value: 'no-reply' },
+						{
+							label: __( "Replies will be sent to the post author's email", 'jetpack' ),
+							value: 'author',
+						},
+					] }
+					onChange={ handleSubscriptionReplyToChange }
+				/>
+			</SettingsGroup>
 		</SettingsCard>
 	);
 };
@@ -121,6 +173,7 @@ export default withModuleSettingsFormHelpers(
 			subscriptionEmailsUseExcerpt: ownProps.getOptionValue(
 				SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION
 			),
+			subscriptionReplyTo: ownProps.getOptionValue( REPLY_TO_OPTION ),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
 			unavailableInSiteConnectionMode: isUnavailableInSiteConnectionMode(
 				state,

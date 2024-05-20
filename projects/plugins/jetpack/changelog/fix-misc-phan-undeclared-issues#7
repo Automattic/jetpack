@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Remove views/admin/deactivation-dialog.php, unused since #21048.
+
+
