@@ -411,26 +411,26 @@ class Admin_Menu extends Base_Admin_Menu {
 		}
 
 		$icon            = ( new Logo() )->get_base64_logo();
-		$is_menu_updated = $this->update_menu( 'jetpack-masterbar', null, null, null, $icon, $position );
+		$is_menu_updated = $this->update_menu( 'jetpack', null, null, null, $icon, $position );
 		if ( ! $is_menu_updated ) {
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
-			add_menu_page( esc_attr__( 'Jetpack', 'jetpack-masterbar' ), __( 'Jetpack', 'jetpack-masterbar' ), 'manage_options', 'jetpack-masterbar', null, $icon, $position );
+			add_menu_page( esc_attr__( 'Jetpack', 'jetpack-masterbar' ), __( 'Jetpack', 'jetpack-masterbar' ), 'manage_options', 'jetpack', null, $icon, $position );
 		}
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
-		add_submenu_page( 'jetpack-masterbar', esc_attr__( 'Activity Log', 'jetpack-masterbar' ), __( 'Activity Log', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/activity-log/' . $this->domain, null, 2 );
+		add_submenu_page( 'jetpack', esc_attr__( 'Activity Log', 'jetpack-masterbar' ), __( 'Activity Log', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/activity-log/' . $this->domain, null, 2 );
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
-		add_submenu_page( 'jetpack-masterbar', esc_attr__( 'Backup', 'jetpack-masterbar' ), __( 'Backup', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 3 );
+		add_submenu_page( 'jetpack', esc_attr__( 'Backup', 'jetpack-masterbar' ), __( 'Backup', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 3 );
 
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'jetpack-masterbar' ) ) {
-			$this->hide_submenu_page( 'jetpack-masterbar', 'jetpack#/settings' );
-			$this->hide_submenu_page( 'jetpack-masterbar', 'stats' );
-			$this->hide_submenu_page( 'jetpack-masterbar', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
-			$this->hide_submenu_page( 'jetpack-masterbar', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'jetpack' ) ) {
+			$this->hide_submenu_page( 'jetpack', 'jetpack#/settings' );
+			$this->hide_submenu_page( 'jetpack', 'stats' );
+			$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
+			$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
 		}
 
 		if ( ! $is_menu_updated ) {
 			// Remove the submenu auto-created by Core just to be sure that there no issues on non-admin roles.
-			remove_submenu_page( 'jetpack-masterbar', 'jetpack-masterbar' );
+			remove_submenu_page( 'jetpack', 'jetpack' );
 		}
 	}
 

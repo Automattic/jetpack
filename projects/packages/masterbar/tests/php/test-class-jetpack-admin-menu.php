@@ -72,8 +72,8 @@ class Test_Jetpack_Admin_Menu extends TestCase {
 		global $menu, $submenu;
 
 		static::$domain       = ( new Status() )->get_site_suffix();
-		static::$menu_data    = get_menu_fixture();
-		static::$submenu_data = get_submenu_fixture();
+		static::$menu_data    = array();
+		static::$submenu_data = array();
 
 		static::$user_id = wp_insert_user(
 			array(

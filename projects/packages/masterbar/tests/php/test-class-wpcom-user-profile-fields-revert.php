@@ -44,7 +44,9 @@ class Test_WPCOM_User_Profile_Fields_Revert extends TestCase {
 
 		static::$user_id = wp_insert_user(
 			array(
+				'user_login'   => 'test_admin',
 				'role'         => 'administrator',
+				'user_pass'    => '123',
 				'display_name' => 'old_value',
 				'description'  => 'old_description',
 				'first_name'   => 'old_first_name',

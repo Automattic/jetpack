@@ -90,6 +90,7 @@ class Test_Masterbar extends TestCase {
 		wp_get_current_user()->locale = $stored_user_locale;
 
 		$masterbar = $this->getMockBuilder( Masterbar::class )
+			->addMethods( array() )
 			->disableOriginalConstructor()
 			->getMock();
 		$masterbar->unload_non_default_textdomains_on_wpcom_user_locale_switch( $detected_wpcom_locale );

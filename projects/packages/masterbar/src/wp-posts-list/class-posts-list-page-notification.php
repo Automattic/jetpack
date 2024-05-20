@@ -10,8 +10,6 @@ namespace Automattic\Jetpack\Masterbar;
 
 /**
  * Class Posts_List_Page_Notification
- *
- * @package Automattic\Jetpack\Dashboard_Customizations
  */
 class Posts_List_Page_Notification {
 
