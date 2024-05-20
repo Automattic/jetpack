@@ -16,6 +16,7 @@ export type DisconnectProps = {
 	variant?: React.ComponentProps< typeof Button >[ 'variant' ];
 	isDestructive?: boolean;
 	showConfirmation?: boolean;
+	buttonClassName?: string;
 };
 
 /**
@@ -33,6 +34,7 @@ export function Disconnect( {
 	variant = 'secondary',
 	isDestructive = true,
 	showConfirmation = true,
+	buttonClassName,
 }: DisconnectProps ) {
 	const [ isConfirmOpen, toggleConfirm ] = useReducer( state => ! state, false );
 
@@ -91,6 +93,7 @@ export function Disconnect( {
 				disabled={ isDisconnecting }
 				variant={ variant }
 				isDestructive={ isDestructive }
+				className={ buttonClassName }
 			>
 				{ isDisconnecting
 					? __( 'Disconnecting…', 'jetpack' )
