@@ -390,7 +390,7 @@ class UtilsTest extends TestCase {
 
 		$this->assertSame(
 			array(
-				'timestamp' => '2021-02-02T22:22:22+00:00',
+				'timestamp' => '2021-02-02T22:22:22Z',
 				'pr-num'    => '123',
 			),
 			Utils::getRepoData( 'in-git.txt', $output, $helper )
@@ -399,7 +399,7 @@ class UtilsTest extends TestCase {
 		// Test the second commit.
 		$this->assertSame(
 			array(
-				'timestamp' => '2021-02-02T22:22:22+00:00',
+				'timestamp' => '2021-02-02T22:22:22Z',
 				'pr-num'    => '124',
 			),
 			Utils::getRepoData( 'in-git2.txt', $output, $helper )

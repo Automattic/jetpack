@@ -1,10 +1,12 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
+import askQuestionSync from '../../ask-question/sync.js';
 import requestJwt from '../../jwt/index.js';
 
 const debug = debugFactory( 'ai-client:use-image-generator' );
@@ -30,7 +32,7 @@ const truncateContent = ( content: string, currentPromptLength: number ): string
  * @param {string} userPrompt - the user prompt for the image generation, if provided. Max length is 1000 characters, will be truncated.
  * @returns {string} the prompt string
  */
-const getImageGenerationPrompt = ( postContent: string, userPrompt?: string ): string => {
+const getDalleImageGenerationPrompt = ( postContent: string, userPrompt?: string ): string => {
 	/**
 	 * If the user provide some custom prompt for the image generation,
 	 * we will use it, add the post content as additional context and
@@ -78,7 +80,160 @@ This is the post content:
 	return imageGenerationPrompt + truncateContent( postContent, imageGenerationPrompt.length );
 };
 
+/**
+ * Create the Stable Diffusion pre-processing prompt based on the provided context.
+ * @param {string} postContent - the content of the post.
+ * @param {string} userPrompt - the user prompt for the image generation, if provided. Max length is 1000 characters, will be truncated.
+ * @returns {string} the prompt string to be fed to the AI Assistant model.
+ */
+const getStableDiffusionPreProcessingPrompt = (
+	postContent: string,
+	userPrompt?: string
+): string => {
+	/**
+	 * If the user provide some custom prompt for the image generation,
+	 * we will use it and add the post content as additional context.
+	 */
+	if ( userPrompt ) {
+		const preProcessingPrompt = `I need a Stable Diffusion prompt to generate a featured image for a blog post based on this user-provided image description:
+
+${ userPrompt.length > 1000 ? userPrompt.substring( 0, 1000 ) : userPrompt }
+
+The image should be a photo. Make sure you highlight the main suject of the image description, and include brief details about the light and style of the image.
+Include a request to use high resolution and produce a highly detailed image, with sharp focus.
+Return just the prompt, without comments.
+
+For additional context, this is the post content:
+
+`;
+		// truncating the content so the whole prompt is not longer than 4000 characters, the model limit.
+		return preProcessingPrompt + truncateContent( postContent, preProcessingPrompt.length );
+	}
+
+	/**
+	 * When the user does not provide a custom prompt, we will use the
+	 * standard one, based solely on the post content.
+	 */
+	const preProcessingPrompt = `I need a Stable Diffusion prompt to generate a featured image for a blog post with the following content.
+The image should be a photo. Make sure you highlight the main suject of the content, and include brief details about the light and style of the image.
+Include a request to use high resolution and produce a highly detailed image, with sharp focus.
+Return just the prompt, without comments. The content is:
+
+`;
+
+	// truncating the content so the whole prompt is not longer than 4000 characters, the model limit.
+	return preProcessingPrompt + truncateContent( postContent, preProcessingPrompt.length );
+};
+
+/**
+ * Uses the Jetpack AI query endpoint to produce a prompt for the stable diffusion model.
+ * @param {string} postContent - the content of the post.
+ * @param {string} userPrompt - the user prompt for the image generation, if provided. Max length is 1000 characters, will be truncated
+ * @param {string} feature - the feature to be used for the image generation.
+ * @returns {string} the prompt string to be used on stable diffusion image generation.
+ */
+const getStableDiffusionImageGenerationPrompt = async (
+	postContent: string,
+	userPrompt?: string,
+	feature?: string
+): Promise< string > => {
+	const prompt = getStableDiffusionPreProcessingPrompt( postContent, userPrompt );
+
+	/**
+	 * Request the prompt on the AI Assistant endpoint
+	 */
+	const data = await askQuestionSync( prompt, { feature } );
+
+	return data.choices?.[ 0 ]?.message?.content;
+};
+
 const useImageGenerator = () => {
+	const generateImageWithStableDiffusion = async function ( {
+		feature,
+		postContent,
+		userPrompt,
+	}: {
+		feature: string;
+		postContent: string;
+		userPrompt?: string;
+	} ): Promise< { data: Array< { [ key: string ]: string } > } > {
+		let token = null;
+
+		try {
+			token = await requestJwt();
+		} catch ( error ) {
+			debug( 'Error getting token: %o', error );
+			return Promise.reject( error );
+		}
+
+		try {
+			debug( 'Generating image with Stable Diffusion' );
+
+			const prompt = await getStableDiffusionImageGenerationPrompt(
+				postContent,
+				userPrompt,
+				feature
+			);
+
+			const data = {
+				prompt,
+				style: 'photographic',
+				token: token.token,
+				width: 1024,
+				height: 768,
+			};
+
+			const response = await fetch(
+				`https://public-api.wordpress.com/wpcom/v2/sites/${ token.blogId }/ai-image`,
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify( data ),
+				}
+			);
+
+			if ( ! response?.ok ) {
+				debug( 'Error generating image: %o', response );
+				return Promise.reject( {
+					data: {
+						status: response.status,
+					},
+					message: __( 'Error generating image. Please try again later.', 'jetpack-ai-client' ),
+				} );
+			}
+
+			const blob = await response.blob();
+
+			/**
+			 * Convert the blob to base64 to keep the same format as the Dalle API.
+			 */
+			const base64 = await new Promise( ( resolve, reject ) => {
+				const reader = new FileReader();
+				reader.onloadend = () => {
+					const base64data = reader.result as string;
+					return resolve( base64data.replace( /^data:image\/(png|jpg);base64,/, '' ) );
+				};
+				reader.onerror = reject;
+				reader.readAsDataURL( blob );
+			} );
+
+			// Return the Dalle API format
+			return {
+				data: [
+					{
+						b64_json: base64 as string,
+						revised_prompt: prompt,
+					},
+				],
+			};
+		} catch ( error ) {
+			debug( 'Error generating image: %o', error );
+			return Promise.reject( error );
+		}
+	};
+
 	const generateImage = async function ( {
 		feature,
 		postContent,
@@ -102,7 +257,7 @@ const useImageGenerator = () => {
 		try {
 			debug( 'Generating image' );
 
-			const imageGenerationPrompt = getImageGenerationPrompt( postContent, userPrompt );
+			const imageGenerationPrompt = getDalleImageGenerationPrompt( postContent, userPrompt );
 
 			const URL = 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-image';
 
@@ -138,6 +293,7 @@ const useImageGenerator = () => {
 
 	return {
 		generateImage,
+		generateImageWithStableDiffusion,
 	};
 };
 

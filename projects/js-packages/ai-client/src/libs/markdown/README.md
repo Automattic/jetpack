@@ -35,7 +35,7 @@ const rules = {
 		}
  	}
 };
-const renderer = new HTMLToMarkdown( options, rules );
+const renderer = new HTMLToMarkdown( { options, rules } );
 const markdownContent = renderer.render( { content: htmlContent } );
 // ***Hello world***
 ```

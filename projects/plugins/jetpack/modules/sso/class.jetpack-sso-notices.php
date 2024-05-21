@@ -2,7 +2,7 @@
 /**
  * A collection of helper functions used in the SSO module.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Connection\Manager\SSO instead.
+ * @deprecated 13.5 Use Automattic\Jetpack\Connection\Manager\SSO instead.
  *
  * @package automattic/jetpack
  */
@@ -14,7 +14,7 @@ if ( ! class_exists( 'Jetpack_SSO_Notices' ) ) :
 	/**
 	 * A collection of helper functions used in the SSO module.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.5
 	 *
 	 * @since 4.4.0
 	 */
@@ -25,13 +25,13 @@ if ( ! class_exists( 'Jetpack_SSO_Notices' ) ) :
 		 *
 		 * @since 2.7
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @param string $message Error message.
 		 * @return string
 		 **/
 		public static function error_msg_enable_two_step( $message ) {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::error_msg_enable_two_step' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::error_msg_enable_two_step' );
 
 			return Notices::error_msg_enable_two_step( $message );
 		}
@@ -41,13 +41,13 @@ if ( ! class_exists( 'Jetpack_SSO_Notices' ) ) :
 		 * is off and they already have an account with their email address on
 		 * this site.
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @param string $message Error message.
 		 * @return string
 		 */
 		public static function error_msg_email_already_exists( $message ) {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::error_msg_email_already_exists' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::error_msg_email_already_exists' );
 
 			return Notices::error_msg_email_already_exists( $message );
 		}
@@ -57,14 +57,14 @@ if ( ! class_exists( 'Jetpack_SSO_Notices' ) ) :
 		 *
 		 * @since 4.3.2
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @param string $message Error Message.
 		 *
 		 * @return string
 		 */
 		public static function error_msg_identity_crisis( $message ) {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::error_msg_identity_crisis' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::error_msg_identity_crisis' );
 
 			return Notices::error_msg_identity_crisis( $message );
 		}
@@ -75,14 +75,14 @@ if ( ! class_exists( 'Jetpack_SSO_Notices' ) ) :
 		 *
 		 * @since 4.3.2
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @param string $message Error message.
 		 *
 		 * @return string
 		 */
 		public static function error_invalid_response_data( $message ) {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::error_invalid_response_data' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::error_invalid_response_data' );
 
 			return Notices::error_invalid_response_data( $message );
 		}
@@ -93,14 +93,14 @@ if ( ! class_exists( 'Jetpack_SSO_Notices' ) ) :
 		 *
 		 * @since 4.3.2
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @param string $message Error message.
 		 *
 		 * @return string
 		 */
 		public static function error_unable_to_create_user( $message ) {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::error_unable_to_create_user' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::error_unable_to_create_user' );
 
 			return Notices::error_unable_to_create_user( $message );
 		}
@@ -109,14 +109,14 @@ if ( ! class_exists( 'Jetpack_SSO_Notices' ) ) :
 		 * When the default login form is hidden, this method is called on the 'authenticate' filter with a priority of 30.
 		 * This method disables the ability to submit the default login form.
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @param WP_User|WP_Error $user Either the user attempting to login or an existing authentication failure.
 		 *
 		 * @return WP_Error
 		 */
 		public static function disable_default_login_form( $user ) {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::disable_default_login_form' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::disable_default_login_form' );
 
 			return Notices::disable_default_login_form( $user );
 		}
@@ -127,14 +127,14 @@ if ( ! class_exists( 'Jetpack_SSO_Notices' ) ) :
 		 *
 		 * @since 2.7
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @param string $message Error message.
 		 *
 		 * @return string
 		 **/
 		public static function msg_login_by_jetpack( $message ) {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::msg_login_by_jetpack' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::msg_login_by_jetpack' );
 
 			return Notices::msg_login_by_jetpack( $message );
 		}
@@ -142,12 +142,12 @@ if ( ! class_exists( 'Jetpack_SSO_Notices' ) ) :
 		/**
 		 * Get the message for SSO required.
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @return string
 		 */
 		public static function get_sso_required_message() {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::get_sso_required_message' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::get_sso_required_message' );
 
 			return Notices::get_sso_required_message();
 		}
@@ -155,14 +155,14 @@ if ( ! class_exists( 'Jetpack_SSO_Notices' ) ) :
 		/**
 		 * Message displayed when the user can not be found after approving the SSO process on WordPress.com
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @param string $message Error message.
 		 *
 		 * @return string
 		 */
 		public static function cant_find_user( $message ) {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::cant_find_user' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::cant_find_user' );
 
 			return Notices::cant_find_user( $message );
 		}
@@ -172,14 +172,14 @@ if ( ! class_exists( 'Jetpack_SSO_Notices' ) ) :
 		 *
 		 * @since 4.4.0
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @param string $message Error message.
 		 *
 		 * @return string
 		 */
 		public static function sso_not_allowed_in_staging( $message ) {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::sso_not_allowed_in_staging' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::sso_not_allowed_in_staging' );
 
 			return Notices::sso_not_allowed_in_staging( $message );
 		}

@@ -1355,7 +1355,7 @@ function zeroBSCRM_invoicing_generateInvPart_custTable( $inv_to = array(), $temp
 
 		case 'portal':
 			$invoice_customer_info_table_html .= '<div class="pay-to">';
-			$invoice_customer_info_table_html .= '<div class="zbs-portal-label">' . esc_html__( 'Invoice To', 'zero-bs-crm' ) . '</div><div style="margin-top:18px;">&nbsp;</div>';
+			$invoice_customer_info_table_html .= '<div class="zbs-portal-label">' . esc_html__( 'Invoice To', 'zero-bs-crm' ) . '</div>';
 			$invoice_customer_info_table_html .= '<div class="zbs-portal-biz">';
 			if ( isset( $inv_to['fname'] ) && isset( $inv_to['fname'] ) ) {
 				$invoice_customer_info_table_html .= '<div class="pay-to-name">' . esc_html( $inv_to['fname'] ) . ' ' . esc_html( $inv_to['lname'] ) . '</div>';
