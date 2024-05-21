@@ -1,4 +1,5 @@
 import { Button } from '@automattic/jetpack-components';
+import { Disabled } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useReducer, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -15,8 +16,14 @@ const ConnectionManagement = ( { className = null } ) => {
 
 	const [ expandedService, setExpandedService ] = useState< SupportedService >( null );
 
-	const connections = useSelect( select => {
-		return select( store ).getConnections();
+	const { connections, deletingConnections, updatingConnections } = useSelect( select => {
+		const { getConnections, getDeletingConnections, getUpdatingConnections } = select( store );
+
+		return {
+			connections: getConnections(),
+			deletingConnections: getDeletingConnections(),
+			updatingConnections: getUpdatingConnections(),
+		};
 	}, [] );
 
 	connections.sort( ( a, b ) => {
@@ -54,14 +61,22 @@ const ConnectionManagement = ( { className = null } ) => {
 			<h3>{ __( 'My Connections', 'jetpack' ) }</h3>
 			{ connections.length ? (
 				<ul className={ styles[ 'connection-list' ] }>
-					{ connections.map( connection => (
-						<li className={ styles[ 'connection-list-item' ] } key={ connection.connection_id }>
-							<ConnectionInfo
-								connection={ connection }
-								onReconnect={ onReconnect( connection.service_name ) }
-							/>
-						</li>
-					) ) }
+					{ connections.map( connection => {
+						const isUpdatingOrDeleting =
+							updatingConnections.includes( connection.connection_id ) ||
+							deletingConnections.includes( connection.connection_id );
+
+						return (
+							<li className={ styles[ 'connection-list-item' ] } key={ connection.connection_id }>
+								<Disabled isDisabled={ isUpdatingOrDeleting }>
+									<ConnectionInfo
+										connection={ connection }
+										onReconnect={ onReconnect( connection.service_name ) }
+									/>
+								</Disabled>
+							</li>
+						);
+					} ) }
 				</ul>
 			) : (
 				<span>{ __( 'There are no connections added yet.', 'jetpack' ) }</span>

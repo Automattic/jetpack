@@ -30,10 +30,12 @@ export function ConnectionInfo( { connection, onReconnect }: ConnectionInfoProps
 					label={ connection.display_name }
 					profilePicture={ connection.profile_picture }
 				/>
-				<div className={ styles[ 'connection-item-name' ] }>
-					<ConnectionName connection={ connection } />
+				<div className={ styles[ 'connection-name-wrapper' ] }>
+					<div className={ styles[ 'connection-item-name' ] }>
+						<ConnectionName connection={ connection } />
+					</div>
+					<ConnectionStatus connection={ connection } onReconnect={ onReconnect } />
 				</div>
-				<ConnectionStatus connection={ connection } onReconnect={ onReconnect } />
 				<Button
 					size={ 'small' }
 					className={ styles[ 'learn-more' ] }
