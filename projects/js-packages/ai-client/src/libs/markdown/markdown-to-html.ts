@@ -7,7 +7,7 @@ import MarkdownIt from 'markdown-it';
  */
 import type { Options } from 'markdown-it';
 
-export type Fix = 'list';
+export type Fix = 'list' | 'paragraph';
 type Fixes = {
 	[ key in Fix ]: ( content: string ) => string;
 };
@@ -16,6 +16,10 @@ const fixes: Fixes = {
 	list: ( content: string ) => {
 		// Fix list indentation
 		return content.replace( /<li>\s+<p>/g, '<li>' ).replace( /<\/p>\s+<\/li>/g, '</li>' );
+	},
+	paragraph: ( content: string ) => {
+		// Fix encoding of <br /> tags
+		return content.replaceAll( /\s*&lt;br \/&gt;\s*/g, '<br />' );
 	},
 };
 
