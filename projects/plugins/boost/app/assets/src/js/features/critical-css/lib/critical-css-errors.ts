@@ -62,14 +62,9 @@ export function getPrimaryErrorSet( cssState: CriticalCssState ): ErrorSet | und
 		return undefined;
 	}
 
-	const importantProviders = [
-		'core_front_page',
-		'core_posts_page',
-		'singular_page',
-		'singular_post',
-	];
+	const primaryProviders = [ 'core_front_page', 'core_posts_page' ];
 
-	for ( const key of importantProviders ) {
+	for ( const key of primaryProviders ) {
 		const provider = providersWithErrors.find( p => p.key === key );
 		if ( provider && provider.errors ) {
 			return getPrimaryGroupedError( provider.errors );
