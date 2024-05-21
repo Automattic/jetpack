@@ -15,19 +15,15 @@ export type ConnectionStatusProps = {
  * @returns {import('react').ReactNode} - React element
  */
 export function ConnectionStatus( { connection, onReconnect }: ConnectionStatusProps ) {
-	if ( connection.status === undefined || connection.status === 'ok' ) {
+	if ( connection.status !== 'broken' ) {
 		return null;
-	}
-
-	let notice = __( 'There is an issue with this connection.', 'jetpack' );
-
-	if ( connection.status === 'refresh-failed' ) {
-		notice = __( 'The connection seems to have expired.', 'jetpack' );
 	}
 
 	return (
 		<div>
-			<span className="description">{ notice }</span>
+			<span className="description">
+				{ __( 'There is an issue with this connection.', 'jetpack' ) }
+			</span>
 			&nbsp;
 			<Disconnect
 				connection={ connection }

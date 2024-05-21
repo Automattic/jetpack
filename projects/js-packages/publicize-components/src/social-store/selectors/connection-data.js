@@ -18,7 +18,7 @@ export function getConnections( state ) {
  * @returns {import("../types").Connection | undefined} The connection.
  */
 export function getConnectionById( state, connectionId ) {
-	return getConnections( state ).find( connection => connection.id === connectionId );
+	return getConnections( state ).find( connection => connection.connection_id === connectionId );
 }
 
 /**

@@ -7,10 +7,9 @@ export type SharesData = {
 	shared_posts_count: number;
 };
 
-export type ConnectionStatus = 'ok' | 'must_reauth' | 'invalid' | 'broken' | 'refresh-failed';
+export type ConnectionStatus = 'ok' | 'broken';
 
 export type Connection = {
-	id: string;
 	service_name: string;
 	display_name: string;
 	external_display?: string;
