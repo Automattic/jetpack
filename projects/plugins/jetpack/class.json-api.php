@@ -385,7 +385,7 @@ class WPCOM_JSON_API {
 	 * Checks if the current request is authorized with an upload token.
 	 * This method is overridden by a child class in WPCOM.
 	 *
-	 * @since $$next-version$$
+	 * @since 13.5
 	 * @return boolean
 	 */
 	public function is_authorized_with_upload_token() {
@@ -1031,7 +1031,7 @@ class WPCOM_JSON_API {
 	 * Return a count of comment likes.
 	 * This method is overridden by a child class in WPCOM.
 	 *
-	 * @since $$next-version$$
+	 * @since 13.5
 	 * @return int
 	 */
 	public function comment_like_count() {

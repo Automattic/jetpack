@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Add int casts on various `$wpdb->get_var( "SELECT COUNT(*) ..." )` to make Phan happy
-
-
