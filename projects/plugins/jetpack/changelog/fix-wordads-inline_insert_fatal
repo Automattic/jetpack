@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-WordAds: Prevent fatal when post content is null.
