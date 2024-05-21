@@ -187,7 +187,7 @@ const ActionButton = ( {
 					size: 'small',
 					variant: 'primary',
 					weight: 'regular',
-					label: __( 'Sign In', 'jetpack-my-jetpack' ),
+					label: __( 'Connect', 'jetpack-my-jetpack' ),
 					onClick: onFixConnection,
 					...( primaryActionOverride &&
 						PRODUCT_STATUSES.USER_CONNECTION_ERROR in primaryActionOverride &&
