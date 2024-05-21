@@ -97,6 +97,7 @@ abstract class Base_Admin_Menu {
 		$class = static::class;
 
 		if ( empty( static::$instances[ $class ] ) ) {
+			// @phan-suppress-next-line PhanTypeInstantiateAbstract -- If someone calls `Admin_Menu_Base::get_instance()` they deserve what they get.
 			static::$instances[ $class ] = new $class();
 		}
 
