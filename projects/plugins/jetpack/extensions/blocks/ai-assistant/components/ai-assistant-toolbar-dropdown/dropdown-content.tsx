@@ -13,6 +13,7 @@ import {
 	PROMPT_TYPE_CHANGE_TONE,
 	PROMPT_TYPE_CORRECT_SPELLING,
 	PROMPT_TYPE_MAKE_LONGER,
+	PROMPT_TYPE_MAKE_SHORTER,
 	PROMPT_TYPE_SIMPLIFY,
 	PROMPT_TYPE_SUMMARIZE,
 	PROMPT_TYPE_CHANGE_LANGUAGE,
@@ -41,6 +42,9 @@ export const QUICK_EDIT_KEY_SUMMARIZE = 'summarize' as const;
 
 // Quick edits option: "Make longer"
 export const QUICK_EDIT_KEY_MAKE_LONGER = 'make-longer' as const;
+
+// Quick edits option: "Make longer"
+export const QUICK_EDIT_KEY_MAKE_SHORTER = 'make-shorter' as const;
 
 // Ask AI Assistant option
 export const KEY_ASK_AI_ASSISTANT = 'ask-ai-assistant' as const;
@@ -79,6 +83,12 @@ const quickActionsList: {
 			name: __( 'Expand', 'jetpack' ),
 			key: QUICK_EDIT_KEY_MAKE_LONGER,
 			aiSuggestion: PROMPT_TYPE_MAKE_LONGER,
+			icon: postContent,
+		},
+		{
+			name: __( 'Make shorter', 'jetpack' ),
+			key: QUICK_EDIT_KEY_MAKE_SHORTER,
+			aiSuggestion: PROMPT_TYPE_MAKE_SHORTER,
 			icon: postContent,
 		},
 	],

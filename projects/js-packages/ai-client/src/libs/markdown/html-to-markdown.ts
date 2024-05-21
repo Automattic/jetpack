@@ -5,7 +5,19 @@ import TurndownService from 'turndown';
 /**
  * Types
  */
-import type { Options, Rule } from 'turndown';
+import type { Options, Rule, Filter } from 'turndown';
+
+export type Fix = 'paragraph';
+type Fixes = {
+	[ key in Fix ]: ( content: string ) => string;
+};
+
+const fixesList: Fixes = {
+	paragraph: ( content: string ) => {
+		// Keep <br> tags to prevent paragraphs from being split
+		return content.replaceAll( '\n', '<br />' );
+	},
+};
 
 const defaultTurndownOptions: Options = { emDelimiter: '_', headingStyle: 'atx' };
 const defaultTurndownRules: { [ key: string ]: Rule } = {
@@ -19,14 +31,29 @@ const defaultTurndownRules: { [ key: string ]: Rule } = {
 
 export default class HTMLToMarkdown {
 	turndownService: TurndownService;
+	fixes: Fix[];
 
-	constructor(
-		options: Options = defaultTurndownOptions,
-		rules: { [ key: string ]: Rule } = defaultTurndownRules
-	) {
-		this.turndownService = new TurndownService( options );
-		for ( const rule in rules ) {
-			this.turndownService.addRule( rule, rules[ rule ] );
+	constructor( {
+		options = {},
+		rules = {},
+		keep = [],
+		remove = [],
+		fixes = [],
+	}: {
+		options?: Options;
+		rules?: { [ key: string ]: Rule };
+		keep?: Filter;
+		remove?: Filter;
+		fixes?: Fix[];
+	} = {} ) {
+		this.fixes = fixes;
+		this.turndownService = new TurndownService( { ...defaultTurndownOptions, ...options } );
+		this.turndownService.keep( keep );
+		this.turndownService.remove( remove );
+
+		const allRules = { ...defaultTurndownRules, ...rules };
+		for ( const rule in allRules ) {
+			this.turndownService.addRule( rule, allRules[ rule ] );
 		}
 	}
 
@@ -37,6 +64,10 @@ export default class HTMLToMarkdown {
 	 * @returns {string}                 The rendered Markdown content
 	 */
 	render( { content }: { content: string } ): string {
-		return this.turndownService.turndown( content );
+		const rendered = this.turndownService.turndown( content );
+
+		return this.fixes.reduce( ( renderedContent, fix ) => {
+			return fixesList[ fix ]( renderedContent );
+		}, rendered );
 	}
 }
