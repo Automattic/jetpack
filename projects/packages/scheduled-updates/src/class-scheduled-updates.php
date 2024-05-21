@@ -208,8 +208,8 @@ class Scheduled_Updates {
 	/**
 	 * Reload the cron cache in pre_schedule_event hook. Returns null to prevent short-circuit.
 	 *
-	 * @param null|bool|WP_Error $result The value to return instead. Default null to continue adding the event.
-	 * @param object             $event  The event object.
+	 * @param null|bool|\WP_Error $result The value to return instead. Default null to continue adding the event.
+	 * @param object              $event  The event object.
 	 */
 	public static function clear_cron_cache_pre( $result, $event ) {
 		// If the transient is set and an external event is about to run, it means that the cron cache must be refreshed.
