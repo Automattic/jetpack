@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Critical CSS: Add a friendly error if css gen library is broken/missing.
