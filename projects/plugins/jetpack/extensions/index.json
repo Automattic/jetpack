@@ -67,7 +67,8 @@
 		"goodreads",
 		"voice-to-content",
 		"ai-featured-image-generator",
-		"ai-title-optimization"
+		"ai-title-optimization",
+		"ai-assistant-experimental-image-generation-support"
 	],
 	"beta": [
 		"google-docs-embed",
@@ -77,8 +78,7 @@
 		"videopress/video-chapters",
 		"ai-assistant-backend-prompts",
 		"ai-logo-generator",
-		"ai-assistant-extensions-support",
-		"ai-assistant-experimental-image-generation-support"
+		"ai-assistant-extensions-support"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [
