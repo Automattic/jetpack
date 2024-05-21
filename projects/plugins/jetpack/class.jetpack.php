@@ -2396,6 +2396,16 @@ class Jetpack {
 	}
 
 	/**
+	 * Saves any generated PHP errors in ::state( 'php_errors', {errors} )
+	 *
+	 * @deprecated since $$next-version$$
+	 */
+	public static function catch_errors_on_shutdown() {
+		_deprecated_function( __FUNCTION__, '$$next-version$$' );
+		self::state( 'php_errors', self::alias_directories( ob_get_clean() ) );
+	}
+
+	/**
 	 * Rewrite any string to make paths easier to read.
 	 *
 	 * Rewrites ABSPATH (eg `/home/jetpack/wordpress/`) to ABSPATH, and if WP_CONTENT_DIR
