@@ -2,6 +2,8 @@
 /**
  * This is Calypso skin of the wp-admin interface that is conditionally triggered via the ?calypsoify=1 param.
  *
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Calypsoify instead.
+ *
  * @package automattic/jetpack
  */
 
@@ -9,11 +11,15 @@ use Automattic\Jetpack\Status;
 
 /**
  * Class Jetpack_Calypsoify
+ *
+ * @deprecated $$next-version$$
  */
 class Jetpack_Calypsoify {
 
 	/**
 	 * Singleton instance of `Jetpack_Calypsoify`.
+	 *
+	 * @deprecated $$next-version$$
 	 *
 	 * @var object
 	 */
@@ -22,20 +28,26 @@ class Jetpack_Calypsoify {
 	/**
 	 * Is Calypsoify enabled, based on any value of `calypsoify` user meta.
 	 *
+	 * @deprecated $$next-version$$
+	 *
 	 * @var bool
 	 */
 	public $is_calypsoify_enabled = false;
 
 	/**
 	 * Jetpack_Calypsoify constructor.
+	 *
+	 * @deprecated $$next-version$$
 	 */
 	private function __construct() {
-		_deprecated_class( 'Jetpack_Calypsoify', 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify\\Jetpack_Calypsoify::__construct' );
 		add_action( 'admin_init', array( $this, 'setup' ), 4 );
 	}
 
 	/**
 	 * Singleton.
+	 *
+	 * @deprecated $$next-version$$
 	 *
 	 * @return Jetpack_Calypsoify
 	 */
@@ -50,6 +62,8 @@ class Jetpack_Calypsoify {
 
 	/**
 	 * Setup function that is loaded on the `wp_loaded` hook via the constructor.
+	 *
+	 * @deprecated $$next-version$$
 	 */
 	public function setup() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify\\Jetpack_Calypsoify::setup' );
@@ -64,6 +78,8 @@ class Jetpack_Calypsoify {
 
 	/**
 	 * Enqueues scripts, data, and styles for Gutenberg.
+	 *
+	 * @deprecated $$next-version$$
 	 */
 	public function enqueue_for_gutenberg() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify\\Jetpack_Calypsoify::enqueue_for_gutenberg' );
@@ -87,6 +103,8 @@ class Jetpack_Calypsoify {
 	/**
 	 * Returns the Calypso domain that originated the current request.
 	 *
+	 * @deprecated $$next-version$$
+	 *
 	 * @return string
 	 */
 	private function get_calypso_origin() {
@@ -105,6 +123,8 @@ class Jetpack_Calypsoify {
 	/**
 	 * Returns the Calypso URL that displays either the current post type list (if no args
 	 * are supplied) or the classic editor for the current post (if a post ID is supplied).
+	 *
+	 * @deprecated $$next-version$$
 	 *
 	 * @param int|null $post_id Post ID.
 	 *
@@ -136,6 +156,8 @@ class Jetpack_Calypsoify {
 	 * Returns the URL to be used on the block editor close button for going back to the
 	 * Calypso post list.
 	 *
+	 * @deprecated $$next-version$$
+	 *
 	 * @return string
 	 */
 	public function get_close_gutenberg_url() {
@@ -145,6 +167,8 @@ class Jetpack_Calypsoify {
 
 	/**
 	 * Returns the URL for switching the user's editor to the Calypso (WordPress.com Classic) editor.
+	 *
+	 * @deprecated $$next-version$$
 	 *
 	 * @return string
 	 */
@@ -160,6 +184,8 @@ class Jetpack_Calypsoify {
 	/**
 	 * Checks if the calypsoify user meta value is set, and deletes it if it is.
 	 * This is to ensure that Calypsoify is not activated without the URL parameter.
+	 *
+	 * @deprecated $$next-version$$
 	 */
 	public function check_meta() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify\\Jetpack_Calypsoify::check_meta' );
@@ -170,6 +196,8 @@ class Jetpack_Calypsoify {
 
 	/**
 	 * Return whether a post type should display the Gutenberg/block editor.
+	 *
+	 * @deprecated $$next-version$$
 	 *
 	 * @since 6.7.0
 	 *
@@ -182,6 +210,8 @@ class Jetpack_Calypsoify {
 
 	/**
 	 * Determines if the page is an instance of the Gutenberg block editor.
+	 *
+	 * @deprecated $$next-version$$
 	 *
 	 * @return bool
 	 */
