@@ -541,7 +541,7 @@ class REST_Controller {
 			$body = json_decode( wp_remote_retrieve_body( $response ), true );
 			if ( isset( $body['ID'] ) ) {
 				global $publicize;
-				return rest_ensure_response( $publicize->get_connections_for_user( (int) $body['ID'] ) );
+				return rest_ensure_response( $publicize->get_connection_for_user( (int) $body['ID'] ) );
 			}
 		}
 		return rest_ensure_response( $response );
