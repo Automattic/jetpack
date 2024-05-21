@@ -69,10 +69,10 @@ class RedefinitionTest extends TestCase {
 			getcwd()
 		);
 		if ( ! is_resource( $p ) ) {
-			throw new RuntimeException( 'proc_open failed' );
+			throw new \RuntimeException( 'proc_open failed' );
 		}
 		fclose( $pipes[0] );
-		stream_get_contents( $pipes[1] );
+		$stdout = stream_get_contents( $pipes[1] ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$stderr = stream_get_contents( $pipes[2] );
 		fclose( $pipes[1] );
 		fclose( $pipes[2] );
