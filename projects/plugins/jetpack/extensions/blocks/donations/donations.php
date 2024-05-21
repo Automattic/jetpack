@@ -92,11 +92,16 @@ function render_block( $attr, $content ) {
 	$choose_amount_text = isset( $attr['chooseAmountText'] ) && ! empty( $attr['chooseAmountText'] ) ? $attr['chooseAmountText'] : $default_texts['chooseAmountText'];
 	$custom_amount_text = isset( $attr['customAmountText'] ) && ! empty( $attr['customAmountText'] ) ? $attr['customAmountText'] : $default_texts['customAmountText'];
 	$currency           = $attr['currency'];
-	$nav                = '';
-	$headings           = '';
-	$amounts            = '';
-	$extra_text         = '';
-	$buttons            = '';
+
+	if ( empty( $currency ) ) {
+		$currency = 'USD';
+	}
+
+	$nav        = '';
+	$headings   = '';
+	$amounts    = '';
+	$extra_text = '';
+	$buttons    = '';
 	foreach ( $donations as $interval => $donation ) {
 		$plan_id = (int) $donation['planId'];
 		$plan    = get_post( $plan_id );
@@ -159,8 +164,8 @@ function render_block( $attr, $content ) {
 				%1$s
 				<div class="donations__amount-value" data-currency="%2$s" data-empty-text="%3$s"></div>
 			</div>',
-			esc_html( \Jetpack_Currencies::CURRENCIES[ $attr['currency'] ]['symbol'] ),
-			esc_attr( $attr['currency'] ),
+			esc_html( \Jetpack_Currencies::CURRENCIES[ $currency ]['symbol'] ),
+			esc_attr( $currency ),
 			esc_attr( \Jetpack_Currencies::format_price( $default_custom_amount, $currency, false ) )
 		);
 	}
