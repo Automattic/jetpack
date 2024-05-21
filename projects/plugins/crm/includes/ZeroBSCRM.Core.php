@@ -3251,8 +3251,16 @@ final class ZeroBSCRM {
 		// this batch of option setting ensures we allow remote images (http/s)
 		// ... but they're only allowed from same-site urls
 		$options->set( 'isRemoteEnabled', true );
-		$options->addAllowedProtocol( 'http://', 'jpcrm_dompdf_assist_validate_remote_uri' );
-		$options->addAllowedProtocol( 'https://', 'jpcrm_dompdf_assist_validate_remote_uri' );
+
+		// We have to specify a temporary dir to download the remote images. Not all systems have a writable /tmp dir.
+		$jpcrm_storage_path = wf_jpcrm_storage_dir_path();
+		if ( $jpcrm_storage_path ) {
+			$options->setTempDir( $jpcrm_storage_path . '/tmp' );
+		}
+
+		// Commented: Not necessary. Using CDN sites (Jetpack Boost) for assets will fail because of the validation.
+		// $options->addAllowedProtocol( 'http://', 'jpcrm_dompdf_assist_validate_remote_uri' );
+		// $options->addAllowedProtocol( 'https://', 'jpcrm_dompdf_assist_validate_remote_uri' );
 
 		// use JPCRM storage dir for extra fonts
 		$options->set( 'fontDir', jpcrm_storage_fonts_dir_path() );

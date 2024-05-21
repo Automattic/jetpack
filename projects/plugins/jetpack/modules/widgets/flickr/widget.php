@@ -5,7 +5,12 @@
  * @package automattic/jetpack
  */
 
-//phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Defined by the caller. Let Phan handle it.
+'@phan-var-force Jetpack_Flickr_Widget $this';
+'@phan-var-force array $instance';
+'@phan-var-force string|null $flickr_home';
+'@phan-var-force string $photos';
+
 ?>
 <!-- Start of Flickr Widget -->
 <div class="flickr-wrapper flickr-size-<?php echo esc_attr( $instance['flickr_image_size'] ); ?>">

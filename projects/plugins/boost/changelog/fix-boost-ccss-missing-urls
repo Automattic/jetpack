@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Hotfix: Remove post types with empty Critical CSS URLs

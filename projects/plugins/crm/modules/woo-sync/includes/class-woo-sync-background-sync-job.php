@@ -935,8 +935,9 @@ class Woo_Sync_Background_Sync_Job {
 
 		}
 
-		// Add/update invoice (if enabled) (previously `add_or_update_invoice`)
-		if ( $settings['wcinv'] == 1 ) {
+		// Add/update invoice (if enabled) (previously `add_or_update_invoice`), while checking for a 'Do not create' status to avoid creating this invoice if the mapping doesn't allow it
+		// @phan-suppress-next-line PhanTypeInvalidDimOffset False positive
+		if ( $settings['wcinv'] == 1 && isset( $crm_object_data['invoice'] ) && isset( $crm_object_data['invoice']['status'] ) && $crm_object_data['invoice']['status'] !== JPCRM_WOOSYNC_DO_NOT_CREATE['id'] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 
 			// retrieve existing invoice
 			// note this is substituting $crm_object_data['invoice']['existence_check_args'] for what should be $args, but it works
@@ -1763,143 +1764,143 @@ class Woo_Sync_Background_Sync_Job {
 
 		$transaction_status = $this->woosync()->translate_order_status_to_obj_status( ZBS_TYPE_TRANSACTION, $order_status );
 
-		// fill out transaction header (object)
-		$data['transaction'] = array(
+		if ( $transaction_status !== JPCRM_WOOSYNC_DO_NOT_CREATE['id'] ) {
+			// fill out transaction header (object)
+			$data['transaction'] = array(
 
-			'ref'                  => $order_num,
-			'type'                 => __( 'Sale', 'zero-bs-crm' ),
-			'title'                => $item_title,
-			'status'               => $transaction_status,
-			'total'                => $order_data['total'],
-			'date'                 => $transaction_creation_date_uts,
-			'created'              => $transaction_creation_date_uts,
-			'date_completed'       => $transaction_completed_date_uts,
-			'date_paid'            => $transaction_paid_date_uts,
-			'externalSources'      => array(
-				array(
-					'source' => 'woo',
-					'uid'    => $order_post_id,
-					'origin' => $origin,
-					'owner'  => 0, // for now we hard-type no owner to avoid ownership issues. As we roll out fuller ownership we may want to adapt this.
+				'ref'                  => $order_num,
+				'type'                 => __( 'Sale', 'zero-bs-crm' ),
+				'title'                => $item_title,
+				'status'               => $transaction_status,
+				'total'                => $order_data['total'],
+				'date'                 => $transaction_creation_date_uts,
+				'created'              => $transaction_creation_date_uts,
+				'date_completed'       => $transaction_completed_date_uts,
+				'date_paid'            => $transaction_paid_date_uts,
+				'externalSources'      => array(
+					array(
+						'source' => 'woo',
+						'uid'    => $order_post_id,
+						'origin' => $origin,
+						'owner'  => 0, // for now we hard-type no owner to avoid ownership issues. As we roll out fuller ownership we may want to adapt this.
+					),
 				),
-			),
-			'currency'             => $order_currency,
-			'net'                  => ( (float)$order_data['total'] - (float)$order_data['discount_total'] - (float)$order_data['total_tax'] - (float)$order_data['shipping_total'] ),
-			'tax'                  => $order_data['total_tax'],
-			'fee'                  => 0,
-			'discount'             => $order_data['discount_total'],
-			'shipping'             => $order_data['shipping_total'],
-			'existence_check_args' => $data['source'],
-			'lineitems'            => $data['lineitems'],
+				'currency'             => $order_currency,
+				'net'                  => ( (float) $order_data['total'] - (float) $order_data['discount_total'] - (float) $order_data['total_tax'] - (float) $order_data['shipping_total'] ),
+				'tax'                  => $order_data['total_tax'],
+				'fee'                  => 0,
+				'discount'             => $order_data['discount_total'],
+				'shipping'             => $order_data['shipping_total'],
+				'existence_check_args' => $data['source'],
+				'lineitems'            => $data['lineitems'],
 
-		);
+			);
 
-		// tags (transaction)
-		if ( $tag_transaction_with_item ) {
+			// tags (transaction)
+			if ( $tag_transaction_with_item ) {
 
-			$data['transaction']['tags']     = $order_tags;
-			$data['transaction']['tag_mode'] = 'append';
-
-		}
-
-		// any extra meta?
-		if ( is_array( $extra_meta ) && count( $extra_meta ) > 0 ) {
-
-			$data['transaction_extra_meta'] = $extra_meta;
-
-		}
-
-		// Sub-transactions (refunds)
-		if ( method_exists( $order, 'get_refunds' ) ) {
-
-			// process refunds
-			$refunds = $order->get_refunds();
-			if ( is_array( $refunds ) ) {
-
-				// cycle through and add as secondary transactions
-				foreach ( $refunds as $refund ) {
-
-					// retrieve refund data
-					$refund_data = $refund->get_data();
-
-					// process the refund as a secondary transaction
-					// This mimicks the main transaction, taking from the refund object where sensible
-					$refund_id = $refund->get_id();
-					$refund_title = sprintf( __( 'Refund against transaction #%s', 'zero-bs-crm' ), $order_num );
-					$refund_description = $refund_title . "\r\n" . __( 'Reason: ', 'zero-bs-crm' ) . $refund_data['reason'];
-					$refund_date_uts = strtotime( $refund_data['date_created']->__toString() );
-					if ( isset( $refund_data['currency'] ) && !empty( $refund_data['currency'] ) ) {
-						$refund_currency = $refund_data['currency'];
-					} else {
-						$refund_currency = $order_currency;
-					}
-
-					$refund_transaction = array(
-
-						'ref'                  => $refund_id,
-						'type'                 => __( 'Refund', 'zero-bs-crm' ),
-						'title'                => $refund_title,
-						'status'               => __( 'Refunded', 'zero-bs-crm' ),
-						'total'                => -$refund_data['total'],
-						'desc'                 => $refund_description,
-						'date'                 => $refund_date_uts,
-						'created'              => $refund_date_uts,
-						'date_completed'       => $transaction_completed_date_uts,
-						'date_paid'            => $transaction_paid_date_uts,
-						'externalSources'      => array(
-							array(
-								'source' => 'woo',
-								'uid'    => $refund_id, // rather than order_num, here we use the refund item id
-								'origin' => $origin,
-								'owner'  => 0, // for now we hard-type no owner to avoid ownership issues. As we roll out fuller ownership we may want to adapt this.
-							),
-						),
-						'currency'             => $refund_currency,
-						'net'                  => -( (float)$refund_data['total'] - (float)$refund_data['discount_total'] - (float)$refund_data['total_tax'] - (float)$refund_data['shipping_total'] ),
-						'tax'                  => $refund_data['total_tax'],
-						'fee'                  => 0,
-						'discount'             => $refund_data['discount_total'],
-						'shipping'             => $refund_data['shipping_total'],
-						'existence_check_args' => array(
-							'externalSource'    => 'woo',
-							'externalSourceUID' => $refund_id,
-							'origin'            => $origin,
-							'onlyID'            => true,
-						),
-						'lineitems'            => array(
-							// here we roll a single refund line item
-							array(
-								'order'    => $refund_id,
-								'currency' => $refund_currency,
-								'quantity' => 1,
-								'price'    => -$refund_data['total'],
-								'total'    => -$refund_data['total'],
-								'title'    => $refund_title,
-								'desc'     => $refund_description,
-								'tax'      => $refund_data['total_tax'],
-								'shipping' => 0,
-							),
-						),
-						'extra_meta'           => array(), // this is caught to insert as extraMeta
-
-					);
-
-					// Add any extra meta we can glean in case future useful:
-					$refund_transaction['extra_meta']['order_num'] = $order_num; // backtrace
-					if ( isset( $refund_data['refunded_by'] ) && !empty( $refund_data['refunded_by'] ) ) {
-						$refund_transaction['extra_meta']['refunded_by'] = $refund_data['refunded_by'];
-					}
-					if ( isset( $refund_data['refunded_payment'] ) && !empty( $refund_data['refunded_payment'] ) ) {
-						$refund_transaction['extra_meta']['refunded_payment'] = $refund_data['refunded_payment'];
-					}
-
-					// add it to the stack
-					$data['secondary_transactions'][] = $refund_transaction;
-
-				}
+				$data['transaction']['tags']     = $order_tags;
+				$data['transaction']['tag_mode'] = 'append';
 
 			}
 
+			// any extra meta?
+			if ( is_array( $extra_meta ) && count( $extra_meta ) > 0 ) {
+
+				$data['transaction_extra_meta'] = $extra_meta;
+
+			}
+
+			// Sub-transactions (refunds)
+			if ( method_exists( $order, 'get_refunds' ) ) {
+
+				// process refunds
+				$refunds = $order->get_refunds();
+				if ( is_array( $refunds ) ) {
+
+					// cycle through and add as secondary transactions
+					foreach ( $refunds as $refund ) {
+
+						// retrieve refund data
+						$refund_data = $refund->get_data();
+
+						// process the refund as a secondary transaction
+						// This mimicks the main transaction, taking from the refund object where sensible
+						$refund_id = $refund->get_id();
+						// translators: %s is the order number from WooCommerce.
+						$refund_title       = sprintf( __( 'Refund against transaction #%s', 'zero-bs-crm' ), $order_num );
+						$refund_description = $refund_title . "\r\n" . __( 'Reason: ', 'zero-bs-crm' ) . $refund_data['reason'];
+						$refund_date_uts    = strtotime( $refund_data['date_created']->__toString() );
+						if ( isset( $refund_data['currency'] ) && ! empty( $refund_data['currency'] ) ) {
+							$refund_currency = $refund_data['currency'];
+						} else {
+							$refund_currency = $order_currency;
+						}
+
+						$refund_transaction = array(
+
+							'ref'                  => $refund_id,
+							'type'                 => __( 'Refund', 'zero-bs-crm' ),
+							'title'                => $refund_title,
+							'status'               => __( 'Refunded', 'zero-bs-crm' ),
+							'total'                => -$refund_data['total'],
+							'desc'                 => $refund_description,
+							'date'                 => $refund_date_uts,
+							'created'              => $refund_date_uts,
+							'date_completed'       => $transaction_completed_date_uts,
+							'date_paid'            => $transaction_paid_date_uts,
+							'externalSources'      => array(
+								array(
+									'source' => 'woo',
+									'uid'    => $refund_id, // rather than order_num, here we use the refund item id
+									'origin' => $origin,
+									'owner'  => 0, // for now we hard-type no owner to avoid ownership issues. As we roll out fuller ownership we may want to adapt this.
+								),
+							),
+							'currency'             => $refund_currency,
+							'net'                  => -( (float) $refund_data['total'] - (float) $refund_data['discount_total'] - (float) $refund_data['total_tax'] - (float) $refund_data['shipping_total'] ),
+							'tax'                  => $refund_data['total_tax'],
+							'fee'                  => 0,
+							'discount'             => $refund_data['discount_total'],
+							'shipping'             => $refund_data['shipping_total'],
+							'existence_check_args' => array(
+								'externalSource'    => 'woo',
+								'externalSourceUID' => $refund_id,
+								'origin'            => $origin,
+								'onlyID'            => true,
+							),
+							'lineitems'            => array(
+								// here we roll a single refund line item
+								array(
+									'order'    => $refund_id,
+									'currency' => $refund_currency,
+									'quantity' => 1,
+									'price'    => -$refund_data['total'],
+									'total'    => -$refund_data['total'],
+									'title'    => $refund_title,
+									'desc'     => $refund_description,
+									'tax'      => $refund_data['total_tax'],
+									'shipping' => 0,
+								),
+							),
+							'extra_meta'           => array(), // this is caught to insert as extraMeta
+
+						);
+
+						// Add any extra meta we can glean in case future useful:
+						$refund_transaction['extra_meta']['order_num'] = $order_num; // backtrace
+						if ( isset( $refund_data['refunded_by'] ) && ! empty( $refund_data['refunded_by'] ) ) {
+							$refund_transaction['extra_meta']['refunded_by'] = $refund_data['refunded_by'];
+						}
+						if ( isset( $refund_data['refunded_payment'] ) && ! empty( $refund_data['refunded_payment'] ) ) {
+							$refund_transaction['extra_meta']['refunded_payment'] = $refund_data['refunded_payment'];
+						}
+
+						// add it to the stack
+						$data['secondary_transactions'][] = $refund_transaction;
+					}
+				}
+			}
 		}
 
 		// ==== Invoice

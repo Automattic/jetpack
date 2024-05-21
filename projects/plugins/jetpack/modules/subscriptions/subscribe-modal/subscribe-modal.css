@@ -1,3 +1,7 @@
+body.jetpack-subscribe-modal-open {
+	overflow: hidden;
+}
+
 .jetpack-subscribe-modal {
 	visibility: hidden;
 	position: fixed;
@@ -50,8 +54,4 @@
 	.jetpack-subscribe-modal__modal-content {
 		width: 94%;
 	}
-}
-
-body.jetpack-subscribe-modal-open {
-	overflow: hidden;
 }

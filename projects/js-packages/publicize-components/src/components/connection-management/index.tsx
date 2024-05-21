@@ -6,8 +6,8 @@ import classNames from 'classnames';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store } from '../../social-store';
 import AddConnectionModal from '../add-connection-modal';
-import { SupportedService, getSupportedServices } from '../add-connection-modal/constants';
 import ConnectionIcon from '../connection-icon';
+import { SupportedService, useSupportedServices } from '../services/use-supported-services';
 import { ConnectionInfo } from './connection-info';
 import { Disconnect } from './disconnect';
 import styles from './style.module.scss';
@@ -15,7 +15,7 @@ import styles from './style.module.scss';
 const ConnectionManagement = ( { className = null } ) => {
 	const { refresh } = useSocialMediaConnections();
 
-	const [ currentService, setCurrentService ] = useState< SupportedService >( null );
+	const [ expandedService, setExpandedService ] = useState< SupportedService >( null );
 
 	const connections = useSelect( select => {
 		return select( store ).getConnections();
@@ -34,18 +34,20 @@ const ConnectionManagement = ( { className = null } ) => {
 		refresh();
 	}, [ refresh ] );
 
+	const supportedServices = useSupportedServices();
+
 	const onReconnect = useCallback(
 		( serviceName: string ) => () => {
-			const service = getSupportedServices().find( _service => _service.name === serviceName );
+			const service = supportedServices.find( _service => _service.ID === serviceName );
 
-			setCurrentService( service );
+			setExpandedService( service );
 			toggleModal();
 		},
-		[]
+		[ supportedServices ]
 	);
 
 	const onCloseModal = useCallback( () => {
-		setCurrentService( null );
+		setExpandedService( null );
 		toggleModal();
 	}, [] );
 
@@ -77,8 +79,10 @@ const ConnectionManagement = ( { className = null } ) => {
 										onReconnect={ onReconnect( connection.service_name ) }
 									/>
 								</td>
-								<td className={ styles.actions }>
-									<Disconnect connection={ connection } />
+								<td>
+									<div className={ styles.actions }>
+										<Disconnect connection={ connection } />
+									</div>
 								</td>
 							</tr>
 						) ) }
@@ -93,8 +97,7 @@ const ConnectionManagement = ( { className = null } ) => {
 			{ isModalOpen && (
 				<AddConnectionModal
 					onCloseModal={ onCloseModal }
-					currentService={ currentService }
-					setCurrentService={ setCurrentService }
+					defaultExpandedService={ expandedService }
 				/>
 			) }
 		</div>

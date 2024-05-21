@@ -2,6 +2,86 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.5-a.3 - 2024-05-20
+### Enhancements
+- AI Assistant: Enable inline Heading extension. [#37386]
+- Subscribe block: Add button-only style. [#37341]
+- Subscribe block: Allow in the Navigation block. [#37439]
+
+### Improved compatibility
+- Block Editor: Remove External Link icon styling fix now that the change has been made in WordPress itself. [#37394]
+
+### Bug fixes
+- Slideshow: Ensures autoplay works properly. [#37378]
+- WordAds: Prevent fatal error when post content is null. [#37384]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add some missing abstract methods to SAL_Site, and implement in Jetpack_Site. [#37344]
+- AI Assistant: Add chat history to inline extension [#37429]
+- AI Assistant: Inline extension testing feedback changes [#37365]
+- AI Featured Image: add support to Stable Diffusion image generation. [#37413]
+- Fix `SAL_Token::is_global()`. [#37344]
+- Minor typos [#37387]
+- Monetize: correctly updates and delete paid content meta. [#37346]
+- Prevent JS error when subscription module is not enabled. [#36276]
+- Remove `jetpack_server_sandbox()` and `jetpack_server_sandbox_request_parameters()`. [#37344]
+- Remove `Jetpack_User_Agent_Info::is_OperaMobile()`. [#37344]
+- SSO: Switch to loading feature from the Connection package. [#37153]
+- Subscription paywall: Simplify paid access question for logged out subscribers. [#37434]
+- Subscriptions: Add Subscribe Overlay toggle. [#37433]
+- Subscriptions: Add Welcome Overlay behind the feature flag. [#37372]
+- Subscriptions: Subscribe Overlay default tagline. [#37446]
+- Updated package dependencies. [#37348] [#37379] [#37380] [#37382]
+
+## 13.5-a.1 - 2024-05-13
+### Enhancements
+- SSO: Improve accessibility of tooltips on WP Admin users page. [#37302]
+- WordAds: Add inline ads within post content. [#37170]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Add events to inline extensions. [#37297]
+- AI Assistant: Add messages to inline extensions. [#37224]
+- AI Assistant: Change way messages are built for inline extensions. [#37245]
+- AI Assistant: Fix inline extension styles on P2 and some themes. [#37336]
+- AI Assistant: Fix input z-index on moving block with inline extension. [#37322]
+- AI Assistant: Fix try again behavior on inline extensions. [#37250]
+- Blocks: When outputting JSON data in inline script tags, only use `JSON_UNESCAPED_UNICODE` when the blog charset is UTF-8. [#37285]
+- Custom CSS: Add deprecation warning in codebase. [#37163]
+- External Media: support editor changes in WordPress 6.5. [#36188]
+- Extract Google Analytics tests into the package. [#37246]
+- Fix an occasional PHP warning when iterating over menu items in the masterbar module. [#37315]
+- Fixed a warning thrown by the gravatar profile widget. [#37313]
+- Fixed TS compile error for image imports in js-packages. [#37211]
+- Google Analytics: switch the module to use the package. [#37189]
+- Move title optimization to production. [#37334]
+- Newsletters: Improvements to prepublish panel. [#37247]
+- Newsletters: Add tracks to email settings. [#37121]
+- Notifications: Ensures cache buster is available for wpcom-notes-admin-bar script. [#37215]
+- Remove wp-windows8 gallery shortcode special case in WPCOM API post endpoint. [#37243]
+- Rendered GlobalNotices component. [#37237]
+- Sanitize the preload value for video shortcodes and blocks. [#37271]
+- SSO: Fix tooltip display on view all users page. [#37257]
+- Subscriptions: Add comment as a subscription reply to type only availave for simple sites now. [#37244]
+- Subscriptions: Fix class Abstract_Token_Subscription_Service not found error. [#37206]
+- Subscriptions: Remove extraneous "support info" bubble in settings. [#37281]
+- Tiled Gallery: Fix view rendering issues. [#37213]
+- Updated phan baseline files. [#37151]
+- Update invite user error response logging. [#37144]
+- Update sizes and spacings on Title Optimization. [#37333]
+- WordPress.com Toolbar: Remove "My Sites" text and only display icon. [#37314]
+
+## 13.4.3 - 2024-05-16
+### Bug fixes
+- Social: Prevent multiple uncached requests for images during frontend requests. [#37368] [#37411]
+
+## 13.4.2 - 2024-05-13
+### Bug fixes
+- Tiled Gallery: Fix view rendering issues. [#37213]
+
+## 13.4.1 - 2024-05-10
+### Bug fixes
+- Contact Form: Unhook the jetpack_form_register_pattern function to prevent unwanted deprecation notices. [#37278]
+
 ## 13.4 - 2024-05-07
 ### Enhancements
 - Jetpack AI: Add an AI Featured Image Generator. [#36709] [#36806] [#36812] [#36822] [#36831] [#36863] [#36865] [#36868] [#36899] [#36926] [#36963] [#36965] [#37086] [#37166] [#37209] [#37219]
