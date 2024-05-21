@@ -24,7 +24,7 @@ Official guideline resources:
 - Threads: https://en.wikipedia.org/wiki/File:Threads_(app)_logo.svg
 - X: https://about.twitter.com/en/who-we-are/brand-toolkit
 
-## Using the SocialLogo Component in your project:
+## Using the SocialLogo component in your project:
 
 Note that this component requires [react](https://www.npmjs.com/package/react) to be installed in your project.
 
@@ -39,9 +39,8 @@ npm install social-logos --save
 
 ```
 import SocialLogo from 'social-logos';
-//...
-render() {
-    return <SocialLogo icon="twitter" size={ 48 } />;
+function MyComponent() {
+	return <SocialLogo icon="wordpress" size={ 48 } />;
 }
 ```
 
@@ -61,27 +60,6 @@ So to summarize:
 
 - **Do** use Social Logos at 48px, 36px, 24px, 18px, 12px. Prioritize 24px or above if you can.
 - **Try to avoid** using Social logos at 16px, 17px, or any arbitrary pixel-size that's incompatible with the base 24px grid. For example, don't size the icon font in EMs. 
-
-## Building
-
-In the commandline, type `npm run build`. This will clean up, polish, and generate a build folder that contains the following:
-
-- A folder called `font`. This folder contains a WOFF2 font file as well as a CSS file with the font file included inline.
-- A folder called `php`. This folder contains a PHP file that allows one to retrieve a logo SVG using the `get_social_logo()` function.
-- A folder called `react`. This folder contains the minified SocialLogo component as well as an example component.
-- A folder called `svg-clean`. This folder contains minimized SVGs of every Social Logo. These SVGs can be used in Figma for mockups.
-- A folder called `svg-sprite`. This folder contains an SVG sprite called `social-logos.svg`, which can be referenced using `use`, as well as an example file.
-
-Do remember to update the React components where they are used when you add a new icon.
-
-## Publishing to NPM
-
-- Follow install instructions
-- Check in changes if any and follow PR process.
-- Bump package version in package.json to the next desired version and add an alpha postfix `1.1.0-alpha.1`
-- While testing changes publish using the next tag `npm publish --tag next`
-- If changes look good remove postfix in the version `1.1.0`
-- Publish using the latest tag `npm publish --tag latest`
 
 ## License
 
