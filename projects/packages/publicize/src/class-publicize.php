@@ -191,6 +191,13 @@ class Publicize extends Publicize_Base {
 	}
 
 	/**
+	 * Delete the connections transient, so we force refresh the connection data.
+	 */
+	public function force_refresh_connections() {
+		delete_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT );
+	}
+
+	/**
 	 * Get a list of all connections.
 	 *
 	 * Google Plus is no longer a functional service, so we remove it from the list.
