@@ -99,7 +99,6 @@ require_once __DIR__ . '/feature-plugins/masterbar.php';
 require_once __DIR__ . '/feature-plugins/migrate-guru-canary.php';
 require_once __DIR__ . '/feature-plugins/nav-redesign.php';
 require_once __DIR__ . '/feature-plugins/post-list.php';
-require_once __DIR__ . '/feature-plugins/scheduled-updates.php';
 require_once __DIR__ . '/feature-plugins/sensei-pro-mods.php';
 require_once __DIR__ . '/feature-plugins/smtp-email-priority.php';
 require_once __DIR__ . '/feature-plugins/staging-sites.php';
