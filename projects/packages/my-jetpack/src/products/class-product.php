@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
 use Jetpack_Options;
 use WP_Error;
@@ -24,6 +25,13 @@ abstract class Product {
 	 * @var string
 	 */
 	public static $slug = null;
+
+	/**
+	 * The Jetpack module name, if any.
+	 *
+	 * @var ?string
+	 */
+	public static $module_name = null;
 
 	/**
 	 * The filename (id) of the plugin associated with this product. Can be a string with a single value or a list of possible values
@@ -457,17 +465,14 @@ abstract class Product {
 				$status = 'can_upgrade';
 			}
 			// Check specifically for inactive modules, which will prevent a product from being active
-		} elseif ( property_exists( static::class, 'module_name' ) && static::$module_name && ! static::is_module_active() ) {
-			$status = 'module_inactive';
+		} elseif ( static::$module_name && ! static::is_module_active() ) {
+			$status = 'module_disabled';
 			// If there is not a plan associated with the disabled module, encourage a plan first
 			// Getting a plan set up should help resolve any connection issues
 			// However if the standalone plugin for this product is active, then we will defer to showing errors that prevent the module from being active
 			// This is because if a standalone plugin is installed, we expect the product to not show as "inactive" on My Jetpack
 			if ( ! static::has_any_plan_for_product() && static::$has_standalone_plugin && ! self::is_plugin_active() ) {
-				$status = 'needs_purchase_or_free';
-				if ( ! static::$has_free_offering ) {
-					$status = 'needs_purchase';
-				}
+				$status = static::$has_free_offering ? 'needs_purchase_or_free' : 'needs_purchase';
 			} elseif ( static::$requires_site_connection && ! ( new Connection_Manager() )->is_connected() ) {
 				// Site has never been connected before
 				if ( ! \Jetpack_Options::get_option( 'id' ) ) {
@@ -479,11 +484,7 @@ abstract class Product {
 				$status = 'user_connection_error';
 			}
 		} elseif ( ! static::has_any_plan_for_product() ) {
-			if ( static::$has_free_offering ) {
-				$status = 'needs_purchase_or_free';
-			} else {
-				$status = 'needs_purchase';
-			}
+			$status = static::$has_free_offering ? 'needs_purchase_or_free' : 'needs_purchase';
 		} else {
 			$status = 'inactive';
 		}
@@ -533,6 +534,18 @@ abstract class Product {
 	 */
 	public static function is_jetpack_plugin_active() {
 		return Plugins_Installer::is_plugin_active( static::get_installed_plugin_filename( 'jetpack' ) );
+	}
+
+	/**
+	 * Checks whether the Jetpack module is active only if a module_name is defined
+	 *
+	 * @return bool
+	 */
+	public static function is_module_active() {
+		if ( static::$module_name ) {
+			return ( new Modules() )->is_active( static::$module_name );
+		}
+		return true;
 	}
 
 	/**

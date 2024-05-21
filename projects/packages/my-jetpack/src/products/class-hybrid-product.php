@@ -17,14 +17,6 @@ use WP_Error;
  * Hybrid products are those that may work both as a stand-alone plugin or with the Jetpack plugin.
  */
 abstract class Hybrid_Product extends Product {
-
-	/**
-	 * The Jetpack module name, if any.
-	 *
-	 * @var ?string
-	 */
-	public static $module_name = null;
-
 	/**
 	 * All hybrid products have a standalone plugin
 	 *
@@ -57,18 +49,6 @@ abstract class Hybrid_Product extends Product {
 	 */
 	public static function is_standalone_plugin_active() {
 		return parent::is_plugin_active();
-	}
-
-	/**
-	 * Checks whether the Jetpack module is active only if a module_name is defined
-	 *
-	 * @return bool
-	 */
-	public static function is_module_active() {
-		if ( static::$module_name ) {
-			return ( new Modules() )->is_active( static::$module_name );
-		}
-		return true;
 	}
 
 	/**
