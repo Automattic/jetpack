@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-05-14 09:39:41+0000\n"
+"PO-Revision-Date: 2024-05-15 14:54:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,17 +11,42 @@ msgstr ""
 "Language: zh_TW\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:622
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:623
+msgid "Plugins"
+msgstr "外掛程式"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:29
+msgid "Use WordPress.com’s legacy dashboard to manage your site."
+msgstr "利用 WordPress 傳統儀表板來管理你的網站。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:29
+msgid "Default style"
+msgstr "預設樣式"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
+msgid "Use WP-Admin to manage your site."
+msgstr "利用 WP-Admin 來管理你的網站。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
+msgid "Classic style"
+msgstr "經典樣式"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:26
+msgid "Admin Interface Style"
+msgstr ""
+
 #: wpcom-plugins/plugins.php:42
 msgid "Explore plugins"
 msgstr "探索外掛程式"
 
 #: wpcom-plugins/plugins.php:40
 msgid "Access a variety of free and paid plugins that can enhance your site's functionality and features."
-msgstr ""
+msgstr "存取各式各樣的免費與付費外掛程式，強化網站的功能與特色。"
 
 #: wpcom-plugins/plugins.php:39
 msgid "Flex your site's features with plugins"
-msgstr ""
+msgstr "運用外掛程式展示你的網站功能"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:62
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:63
@@ -40,8 +65,8 @@ msgstr "深入了解 WordPress.com 佈景主題。 探索可自動調整版面�
 msgid "Find the perfect theme for your site"
 msgstr "為你的網站找出最適合的佈景主題"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:155
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:156
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:152
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:153
 msgid "Connections"
 msgstr "第三方服務連接"
 
@@ -163,65 +188,65 @@ msgstr "概觀"
 msgid "Share &#8220;%s&#8221; via Jetpack Social"
 msgstr "透過 Jetpack Social 分享「%s」"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:449
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:469
 msgid "To access settings for plans, domains, emails, etc., click \"Hosting\" in the sidebar."
-msgstr ""
+msgstr "若要存取方案、網域和電子郵件等設定，可在側邊欄按一下「主機服務」。"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:447
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:467
 msgid "WordPress.com"
 msgstr "WordPress.com"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:164
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:165
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:161
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:162
 msgid "Settings"
 msgstr "設定"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:350
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:351
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:370
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:371
 msgid "Monetize"
 msgstr "獲利 "
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:146
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:147
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:143
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:144
 msgid "Monitoring"
 msgstr "監控中"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:137
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:138
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:134
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:135
 msgid "Configuration"
 msgstr "組態"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:128
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:129
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:125
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:126
 msgid "Purchases"
 msgstr "購買項目"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:119
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:120
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:116
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:117
 msgid "Emails"
 msgstr "電子郵件"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:110
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:111
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:107
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:108
 msgid "Domains"
 msgstr "網域"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:100
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:101
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:98
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:99
 msgid "Add-ons"
 msgstr "附加服務"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:89
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:90
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:91
 msgid "Plans"
 msgstr "方案一覽"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:69
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:70
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:71
 msgid "Hosting"
 msgstr "主機服務"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:200
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:197
 msgid "All Sites"
 msgstr "所有網誌"
 
@@ -415,6 +440,8 @@ msgstr "前往「%1$sJetpack 設定%2$s」，深入了解 Jetpack 的編寫設�
 
 #: feature-plugins/scheduled-updates.php:37
 #: feature-plugins/scheduled-updates.php:38
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:599
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:600
 msgid "Scheduled Updates"
 msgstr "已排程的更新"
 
@@ -684,7 +711,7 @@ msgstr "分享你的網站"
 msgid "Edit a page"
 msgstr "編輯頁面"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1665
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1717
 msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
 msgstr "你的網站包含進階版樣式。 立即升級，即可發佈這些樣式，並解鎖多種其他功能。"
 
@@ -724,8 +751,8 @@ msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "分享"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1127
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1680
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1161
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1732
 msgid "Upgrade plan"
 msgstr "方案升級"
 
@@ -1270,8 +1297,8 @@ msgid "Edit"
 msgstr "編輯"
 
 #: private-site/logged-in-banner.php:165
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:80
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:81
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:82
 msgid "My Home"
 msgstr "我的首頁"
 
@@ -1453,8 +1480,8 @@ msgstr "更新能見度"
 msgid "Launch site"
 msgstr "推出網站"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:251
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:452
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:261
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:472
 msgid "Dismiss"
 msgstr "隱藏"
 
@@ -1651,11 +1678,11 @@ msgid "Display your about.me profile with thumbnail"
 msgstr "以縮圖顯示 about.me 個人檔案"
 
 #: safeguard/utils.php:68
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1330
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1341
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1395
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1406
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1414
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1382
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1393
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1447
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1458
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1466
 msgid "Unable to fetch the requested data."
 msgstr "無法擷取要求的資料。"
 

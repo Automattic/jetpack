@@ -2,13 +2,38 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-05-08 02:10:12+0000\n"
+"PO-Revision-Date: 2024-05-14 20:10:07+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:622
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:623
+msgid "Plugins"
+msgstr "Πρόσθετα προγράμματα"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:29
+msgid "Use WordPress.com’s legacy dashboard to manage your site."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:29
+msgid "Default style"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
+msgid "Use WP-Admin to manage your site."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
+msgid "Classic style"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:26
+msgid "Admin Interface Style"
+msgstr ""
 
 #: wpcom-plugins/plugins.php:42
 msgid "Explore plugins"
@@ -39,8 +64,8 @@ msgstr ""
 msgid "Find the perfect theme for your site"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:155
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:156
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:152
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:153
 msgid "Connections"
 msgstr "Συνδέσεις"
 
@@ -162,65 +187,65 @@ msgstr "Ἀνασκόπηση"
 msgid "Share &#8220;%s&#8221; via Jetpack Social"
 msgstr "Μοιρασθῆτε τὸ &#8220;%s&#8221; μέσῳ τοῦ Jetpack Social"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:449
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:469
 msgid "To access settings for plans, domains, emails, etc., click \"Hosting\" in the sidebar."
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:447
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:467
 msgid "WordPress.com"
 msgstr "WordPress.com"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:164
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:165
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:161
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:162
 msgid "Settings"
 msgstr "Ρυθμίσεις"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:350
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:351
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:370
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:371
 msgid "Monetize"
 msgstr "Κερδίστε χρήματα"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:146
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:147
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:143
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:144
 msgid "Monitoring"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:137
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:138
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:134
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:135
 msgid "Configuration"
 msgstr "Ρυθμίσεις"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:128
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:129
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:125
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:126
 msgid "Purchases"
 msgstr "Ἀγορές"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:119
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:120
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:116
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:117
 msgid "Emails"
 msgstr "Ἠλ. μηνύματα:"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:110
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:111
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:107
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:108
 msgid "Domains"
 msgstr "Τομεῖς (domains)"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:100
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:101
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:98
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:99
 msgid "Add-ons"
 msgstr "Ἐπεκτάσεις"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:89
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:90
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:91
 msgid "Plans"
 msgstr "Πακέτα"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:69
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:70
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:71
 msgid "Hosting"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:200
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:197
 msgid "All Sites"
 msgstr "Ὅλα τὰ ἱστολόγια"
 
@@ -414,6 +439,8 @@ msgstr ""
 
 #: feature-plugins/scheduled-updates.php:37
 #: feature-plugins/scheduled-updates.php:38
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:599
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:600
 msgid "Scheduled Updates"
 msgstr ""
 
@@ -683,7 +710,7 @@ msgstr ""
 msgid "Edit a page"
 msgstr "Ἐπεξἐργασθῆτε σελίδα"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1665
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1717
 msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
 msgstr "Ὁ ἱστότοπός σας περιέχει ὕφη ἰδιαίτερης ποιότητας. Ἀναβαθμίστε τώρα ὥστε νὰ τὰ δημοσιεύσετε καὶ νὰ ξεκλειδώσετε πλῆθος ἄλλων δυνατοτήτων."
 
@@ -723,8 +750,8 @@ msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "Μοιρασθῆτε"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1127
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1680
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1161
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1732
 msgid "Upgrade plan"
 msgstr "Ἀναβαθμίστε πακέτο"
 
@@ -1270,8 +1297,8 @@ msgid "Edit"
 msgstr "Ἐπεξεργασία"
 
 #: private-site/logged-in-banner.php:165
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:80
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:81
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:82
 msgid "My Home"
 msgstr "Ἡ ἀρχική μου σελίδα"
 
@@ -1453,8 +1480,8 @@ msgstr "Ὁρατότης ἐνημερώσεων"
 msgid "Launch site"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:251
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:452
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:261
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:472
 msgid "Dismiss"
 msgstr "Ἀγνοῆστε το"
 
@@ -1651,11 +1678,11 @@ msgid "Display your about.me profile with thumbnail"
 msgstr "Ἐμφανίστε μὲ μικρογραφία τὰ στοιχεῖα τοῦ προφίλ σας"
 
 #: safeguard/utils.php:68
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1330
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1341
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1395
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1406
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1414
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1382
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1393
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1447
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1458
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1466
 msgid "Unable to fetch the requested data."
 msgstr ""
 

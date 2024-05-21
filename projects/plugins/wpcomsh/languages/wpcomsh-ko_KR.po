@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-05-14 09:39:41+0000\n"
+"PO-Revision-Date: 2024-05-16 09:54:02+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,17 +11,42 @@ msgstr ""
 "Language: ko_KR\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:622
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:623
+msgid "Plugins"
+msgstr "플러그인"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:29
+msgid "Use WordPress.com’s legacy dashboard to manage your site."
+msgstr "WordPress.com의 이전 알림판을 사용하여 사이트를 관리합니다."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:29
+msgid "Default style"
+msgstr "기본 스타일"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
+msgid "Use WP-Admin to manage your site."
+msgstr "WP-Admin을 사용하여 사이트를 관리합니다."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
+msgid "Classic style"
+msgstr "클래식 스타일"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:26
+msgid "Admin Interface Style"
+msgstr ""
+
 #: wpcom-plugins/plugins.php:42
 msgid "Explore plugins"
 msgstr "플러그인 둘러보기"
 
 #: wpcom-plugins/plugins.php:40
 msgid "Access a variety of free and paid plugins that can enhance your site's functionality and features."
-msgstr ""
+msgstr "사이트의 기능을 향상시킬 수 있는 다양한 무료 및 유료 플러그인을 이용하세요."
 
 #: wpcom-plugins/plugins.php:39
 msgid "Flex your site's features with plugins"
-msgstr ""
+msgstr "플러그인으로 사이트 기능을 향상시키세요."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:62
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:63
@@ -40,8 +65,8 @@ msgstr "워드프레스닷컴 테마에 대해 자세히 알아보세요. 사이
 msgid "Find the perfect theme for your site"
 msgstr "사이트에 적합한 테마 찾기"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:155
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:156
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:152
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:153
 msgid "Connections"
 msgstr "연결"
 
@@ -163,65 +188,65 @@ msgstr "개요"
 msgid "Share &#8220;%s&#8221; via Jetpack Social"
 msgstr "젯팩 소셜을 통해 “%s” 공유"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:449
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:469
 msgid "To access settings for plans, domains, emails, etc., click \"Hosting\" in the sidebar."
-msgstr ""
+msgstr "요금제, 도메인, 이메일 등에 대한 설정에 접근하려면 사이드바에서 \"호스팅\"을 클릭하세요."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:447
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:467
 msgid "WordPress.com"
 msgstr "WordPress.com"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:164
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:165
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:161
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:162
 msgid "Settings"
 msgstr "설정"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:350
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:351
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:370
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:371
 msgid "Monetize"
 msgstr "수익 창출"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:146
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:147
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:143
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:144
 msgid "Monitoring"
 msgstr "모니터링"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:137
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:138
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:134
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:135
 msgid "Configuration"
 msgstr "설정"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:128
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:129
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:125
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:126
 msgid "Purchases"
 msgstr "구매"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:119
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:120
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:116
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:117
 msgid "Emails"
 msgstr "이메일"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:110
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:111
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:107
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:108
 msgid "Domains"
 msgstr "도메인"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:100
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:101
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:98
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:99
 msgid "Add-ons"
 msgstr "애드온"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:89
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:90
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:91
 msgid "Plans"
 msgstr "요금제"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:69
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:70
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:71
 msgid "Hosting"
 msgstr "호스팅"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:200
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:197
 msgid "All Sites"
 msgstr "모든 사이트"
 
@@ -415,6 +440,8 @@ msgstr "젯팩에서 지원되는 쓰기 설정에 대해 더 알아보려면 %1
 
 #: feature-plugins/scheduled-updates.php:37
 #: feature-plugins/scheduled-updates.php:38
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:599
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:600
 msgid "Scheduled Updates"
 msgstr "예약된 업데이트"
 
@@ -684,7 +711,7 @@ msgstr "사이트 공유"
 msgid "Edit a page"
 msgstr "페이지 편집"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1665
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1717
 msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
 msgstr "사이트에 프리미엄 스타일이 있습니다. 지금 업그레이드하여 공개하고 수많은 기타 기능을 사용하세요."
 
@@ -724,8 +751,8 @@ msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "공유"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1127
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1680
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1161
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1732
 msgid "Upgrade plan"
 msgstr "요금제 업그레이드"
 
@@ -1270,8 +1297,8 @@ msgid "Edit"
 msgstr "편집"
 
 #: private-site/logged-in-banner.php:165
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:80
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:81
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:82
 msgid "My Home"
 msgstr "내 홈"
 
@@ -1453,8 +1480,8 @@ msgstr "가시성 업데이트"
 msgid "Launch site"
 msgstr "사이트 시작"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:251
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:452
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:261
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:472
 msgid "Dismiss"
 msgstr "무시"
 
@@ -1492,7 +1519,7 @@ msgstr "분류:"
 
 #: widgets/tag-cloud-widget.php:159
 msgid "The tag cloud will not be displayed since there are no taxonomies that support the tag cloud widget."
-msgstr "택소노미가 태그 클라우드 위젯을 지원하지 않기 때문��� 태그 클라우드가 표시되지 않습니다."
+msgstr "택소노미가 태그 클라우드 위젯을 지원하지 않기 때문에 태그 클라우드가 표시되지 않습니다."
 
 #: widgets/tag-cloud-widget.php:152
 msgid "Show tag counts"
@@ -1651,11 +1678,11 @@ msgid "Display your about.me profile with thumbnail"
 msgstr "about.me 프로필을 썸네일과 함께 표시"
 
 #: safeguard/utils.php:68
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1330
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1341
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1395
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1406
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1414
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1382
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1393
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1447
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1458
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1466
 msgid "Unable to fetch the requested data."
 msgstr "요청한 데이터를 가져올 수 없습니다."
 
