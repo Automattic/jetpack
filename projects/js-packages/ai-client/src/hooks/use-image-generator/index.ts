@@ -1,11 +1,13 @@
 /**
  * External dependencies
  */
+import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
+import apiFetch from '../../api-fetch/index.js';
 import askQuestionSync from '../../ask-question/sync.js';
 import requestJwt from '../../jwt/index.js';
 
@@ -157,6 +159,7 @@ const useImageGenerator = () => {
 		postContent: string;
 		userPrompt?: string;
 	} ): Promise< { data: Array< { [ key: string ]: string } > } > {
+		const isSimple = isSimpleSite();
 		let token = null;
 
 		try {
@@ -183,16 +186,28 @@ const useImageGenerator = () => {
 				height: 768,
 			};
 
-			const response = await fetch(
-				`https://public-api.wordpress.com/wpcom/v2/sites/${ token.blogId }/ai-image`,
-				{
+			let response: Response = null;
+			if ( isSimple ) {
+				response = await apiFetch( {
+					path: `/wpcom/v2/sites/${ token.blogId }/ai-image`,
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify( data ),
-				}
-			);
+				} );
+			} else {
+				response = await fetch(
+					`https://public-api.wordpress.com/wpcom/v2/sites/${ token.blogId }/ai-image`,
+					{
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify( data ),
+					}
+				);
+			}
 
 			if ( ! response?.ok ) {
 				debug( 'Error generating image: %o', response );
