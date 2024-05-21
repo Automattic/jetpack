@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3675138ea1e441a959b985eb3c07ebd0",
+    "content-hash": "2cd26b8d7d8ebd458d0988d3415b1d4e",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1387,10 +1387,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plugins-installer",
-                "reference": "bdfc2fdd83370ee884a2ba1456c3886585eac847"
+                "reference": "c244721eaf5c40706e6275ce995a1f64931d6cd8"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
+                "automattic/jetpack-status": "@dev",
                 "php": ">=7.0"
             },
             "require-dev": {
@@ -1403,7 +1404,7 @@
             "type": "jetpack-library",
             "extra": {
                 "branch-alias": {
-                    "dev-trunk": "0.3.x-dev"
+                    "dev-trunk": "0.4.x-dev"
                 },
                 "mirror-repo": "Automattic/jetpack-plugins-installer",
                 "changelogger": {
@@ -1542,7 +1543,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "eee141b034cb8d535ac9466d8e0434c2e5053aa6"
+                "reference": "f9ecbcc790abd2a7eaca0c926f24a1d3aa026ff0"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -1568,7 +1569,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.0.x-dev"
+                    "dev-trunk": "3.1.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -4552,9 +4553,9 @@
         "automattic/jetpack-config": 20,
         "automattic/jetpack-identity-crisis": 20,
         "automattic/jetpack-my-jetpack": 20,
-        "automattic/jetpack-plugins-installer": 20,
         "automattic/jetpack-sync": 20,
         "automattic/jetpack-backup": 20,
+        "automattic/jetpack-status": 20,
         "automattic/jetpack-changelogger": 20
     },
     "prefer-stable": true,
