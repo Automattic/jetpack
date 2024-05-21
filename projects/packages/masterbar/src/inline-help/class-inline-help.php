@@ -90,9 +90,7 @@ class Inline_Help {
 			'https://wordpress.com/help'
 		);
 
-		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
-		// We trust that output in the template has been escaped.
-		echo load_template(
+		load_template(
 			__DIR__ . '/inline-help-template.php',
 			true,
 			array(
@@ -101,7 +99,6 @@ class Inline_Help {
 				'svg_allowed' => $svg_allowed,
 			)
 		);
-		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
