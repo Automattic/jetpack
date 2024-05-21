@@ -266,19 +266,15 @@ export function createConnection( data ) {
 
 			dispatch( creatingConnection() );
 
+			/**
+			 * @type {import('../types').Connection}
+			 */
 			const connection = await apiFetch( { method: 'POST', path, data } );
 
 			if ( connection ) {
 				dispatch(
 					addConnection( {
 						...connection,
-						// TODO fix this messy data structure
-						connection_id: connection.ID.toString(),
-						display_name: connection.external_display,
-						service_name: connection.service,
-						external_id: connection.external_ID,
-						profile_link: connection.external_profile_URL,
-						profile_picture: connection.external_profile_picture,
 						can_disconnect: true,
 					} )
 				);
