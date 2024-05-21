@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix a wanring that started to happen on old versions of the donation form
