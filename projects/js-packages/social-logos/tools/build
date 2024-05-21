@@ -19,6 +19,7 @@ echo 'Build complete.' ||
 echo 'Build failure!'
 
 if [[ $1 == '--prod' ]] && ! git diff --quiet '.'; then
+  git diff --name-only
 	echo 'Production builds should not generate a diff outside of ./build!'
 	echo 'Did you forget to commit changes to ./src/react/social-logo-data.jsx?'
 	exit 1
