@@ -264,12 +264,12 @@ class Publicize extends Publicize_Base {
 							$connections_to_return[] = array_merge(
 								$connection,
 								array(
-									'service_name'      => $service_name,
-									'connection_id'     => $connection['connection_data']['id'],
-									'can_disconnect'    => current_user_can( 'edit_others_posts' ) || get_current_user_id() === $user_id,
-									'profile_link'      => $this->get_profile_link( $service_name, $connection ),
-									'shared'            => $connection['connection_data']['user_id'] === '0',
-									'connection_health' => 'Unknown',
+									'service_name'   => $service_name,
+									'connection_id'  => $connection['connection_data']['id'],
+									'can_disconnect' => current_user_can( 'edit_others_posts' ) || get_current_user_id() === $user_id,
+									'profile_link'   => $this->get_profile_link( $service_name, $connection ),
+									'shared'         => $connection['connection_data']['user_id'] === '0',
+									'status'         => 'ok',
 								)
 							);
 						} else {
@@ -306,7 +306,7 @@ class Publicize extends Publicize_Base {
 		return array_map(
 			function ( $connection ) use ( $connection_results_map ) {
 				if ( isset( $connection_results_map[ $connection['connection_id'] ] ) ) {
-						$connection['connection_health'] = $connection_results_map[ $connection['connection_id'] ] ? 'Healthy' : '	';
+						$connection['status'] = $connection_results_map[ $connection['connection_id'] ] ? 'ok' : 'broken';
 				}
 				return $connection;
 			},
