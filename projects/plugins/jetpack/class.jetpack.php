@@ -2401,7 +2401,7 @@ class Jetpack {
 	 * @deprecated since $$next-version$$
 	 */
 	public static function catch_errors_on_shutdown() {
-		_deprecated_function( __FUNCTION__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '$$next-version$$' );
 		self::state( 'php_errors', self::alias_directories( ob_get_clean() ) );
 	}
 

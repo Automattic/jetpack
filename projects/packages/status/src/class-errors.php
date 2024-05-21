@@ -25,7 +25,7 @@ class Errors {
 	 * @static
 	 */
 	public function catch_errors( $catch ) {
-		_deprecated_function( __FUNCTION__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '$$next-version$$' );
 		static $display_errors, $error_reporting;
 
 		if ( $catch ) {
