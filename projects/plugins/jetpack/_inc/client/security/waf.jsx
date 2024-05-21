@@ -12,17 +12,22 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import {
 	getJetpackProductUpsellByFeature,
-	FEATURE_SECURITY_SCANNING_JETPACK,
+	FEATURE_WEB_APPLICATION_FIREWALL_JETPACK,
+	PLAN_JETPACK_SCAN,
 } from 'lib/plans/constants';
-import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { getSitePlan, siteHasFeature } from 'state/site';
+import Card from '../components/card';
 import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
 import InfoPopover from '../components/info-popover';
 import { ModuleToggle } from '../components/module-toggle';
+import PlanIcon from '../components/plans/plan-icon';
 import Textarea from '../components/textarea';
+import { getSiteAdminUrl } from '../state/initial-state';
+import { isFeatureActive } from '../state/recommendations';
 import { getSetting } from '../state/settings/reducer';
+import { isFetchingPluginsData } from '../state/site/plugins';
 import { updateWafSettings, updateWafIpAllowList } from '../state/waf/actions';
 import {
 	getAutomaticRulesAvailable,
@@ -200,6 +205,13 @@ export const Waf = class extends Component {
 		}
 
 		this.setState( state, this.onSubmit );
+	};
+
+	/**
+	 * Show the legacy firewall settings UI.
+	 */
+	showLegacySettings = () => {
+		this.setState( { showLegacySettings: true } );
 	};
 
 	render() {
@@ -501,13 +513,77 @@ export const Waf = class extends Component {
 						</InfoPopover>
 					</>
 				}
-				eventFeature="scan"
-				plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
-				feature="jetpack_scan"
-				href={ this.props.scanUpgradeUrl }
+				eventFeature="protect"
+				plan={ getJetpackProductUpsellByFeature( FEATURE_WEB_APPLICATION_FIREWALL_JETPACK ) }
+				feature="jetpack_protect"
+				href={ this.props.protectFirewallUpgradeUrl }
 				rna
 			/>
 		);
+
+		let protectBannerTitle = __(
+			"Protect your site with Jetpack's Web Application Firewall.",
+			'jetpack'
+		);
+		if ( this.props.protectIsActive ) {
+			protectBannerTitle = __(
+				'Manage your Web Application Firewall settings in the Protect dashboard.',
+				'jetpack'
+			);
+		} else if ( isWafActive ) {
+			protectBannerTitle = __(
+				'Unlock access to a dedicated Firewall dashboard by activating Jetpack Protect.',
+				'jetpack'
+			);
+		}
+		const activateProtectBanner = (
+			<Card className="dops-banner has-call-to-action">
+				<div className="dops-banner__icon-plan">
+					<PlanIcon plan={ PLAN_JETPACK_SCAN } />
+				</div>
+				<div className="dops-banner__content">
+					<div className="dops-banner__info">
+						<div className="dops-banner__title">{ protectBannerTitle }</div>
+					</div>
+					{ this.props.protectIsActive && (
+						<div className="dops-banner__action">
+							<Button rna={ true } compact href={ this.props.protectAdminUrl } primary>
+								{ __( 'Open Firewall Settings', 'jetpack' ) }
+							</Button>
+						</div>
+					) }
+					{ ! this.props.protectIsActive && (
+						<div className="dops-banner__action">
+							<Button rna={ true } compact href={ this.props.protectFirewallUpgradeUrl } primary>
+								{ __( 'Activate', 'jetpack' ) }
+							</Button>
+						</div>
+					) }
+					{ ! this.props.protectIsActive && ! this.state.showLegacySettings && (
+						<div className="dops-banner__action">
+							<Button rna={ true } compact onClick={ this.showLegacySettings }>
+								{ __( 'Use Legacy Settings', 'jetpack' ) }
+							</Button>
+						</div>
+					) }
+				</div>
+			</Card>
+		);
+
+		// Loading...
+		if ( this.props.isFetchingPluginsData ) {
+			return null;
+		}
+
+		// Direct users to use Jetpack Protect to manage firewall settings.
+		if ( ! this.state.showLegacySettings ) {
+			return (
+				<SettingsCard header={ moduleHeader } module="waf" hideButton={ true }>
+					{ isWafActive && <QueryWafSettings /> }
+					{ activateProtectBanner }
+				</SettingsCard>
+			);
+		}
 
 		return (
 			<SettingsCard
@@ -548,7 +624,9 @@ export const Waf = class extends Component {
 					) }
 				</SettingsGroup>
 				{ isWafActive && this.props.bootstrapPath && bootstrapInstructions }
-				{ ! this.props.hasScan && ! this.props.isFetchingSettings && upgradeBanner }
+				{ ! this.props.hasScan && ! this.props.isFetchingSettings
+					? upgradeBanner
+					: activateProtectBanner }
 			</SettingsCard>
 		);
 	}
@@ -567,9 +645,14 @@ export default connect(
 					: getSetting( state, 'jetpack_waf_ip_allow_list' ),
 			hasScan: siteHasFeature( state, 'scan' ),
 			isFetchingSettings: isFetchingWafSettings( state ),
+			isFetchingPluginsData: isFetchingPluginsData( state ),
 			isUpdatingWafSettings: isUpdatingWafSettings( state ),
 			settings: getWafSettings( state ),
-			scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
+			protectIsActive: isFeatureActive( state, 'protect' ),
+			protectFirewallUpgradeUrl: `${ getSiteAdminUrl(
+				state
+			) }admin.php?page=my-jetpack#/add-firewall`,
+			protectAdminUrl: `${ getSiteAdminUrl( state ) }admin.php?page=jetpack-protect#/firewall`,
 			sitePlan,
 		};
 	},

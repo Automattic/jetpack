@@ -14,6 +14,7 @@ export const MyJetpackRoutes = {
 	AddJetpackAI: '/add-jetpack-ai',
 	AddExtras: '/add-extras',
 	AddProtect: '/add-protect',
+	AddFirewall: '/add-firewall',
 	AddScan: '/add-scan',
 	AddSocial: '/add-social',
 	AddSearch: '/add-search',

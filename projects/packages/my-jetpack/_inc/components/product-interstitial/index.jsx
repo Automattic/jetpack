@@ -392,6 +392,15 @@ export function ProtectInterstitial() {
 }
 
 /**
+ * ProtectFirewallInterstitial component
+ *
+ * @returns {object} ProtectFirewallInterstitial react component.
+ */
+export function ProtectFirewallInterstitial() {
+	return <ProductInterstitial slug="protect-firewall" installsPlugin={ true } />;
+}
+
+/**
  * ScanInterstitial component
  *
  * @returns {object} ScanInterstitial react component.

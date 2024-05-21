@@ -22,21 +22,22 @@ class Products {
 	 */
 	public static function get_products_classes() {
 		$classes = array(
-			'anti-spam'  => Products\Anti_Spam::class,
-			'backup'     => Products\Backup::class,
-			'boost'      => Products\Boost::class,
-			'crm'        => Products\Crm::class,
-			'creator'    => Products\Creator::class,
-			'extras'     => Products\Extras::class,
-			'jetpack-ai' => Products\Jetpack_Ai::class,
-			'scan'       => Products\Scan::class,
-			'search'     => Products\Search::class,
-			'social'     => Products\Social::class,
-			'security'   => Products\Security::class,
-			'protect'    => Products\Protect::class,
-			'videopress' => Products\Videopress::class,
-			'stats'      => Products\Stats::class,
-			'ai'         => Products\Jetpack_Ai::class,
+			'anti-spam'        => Products\Anti_Spam::class,
+			'backup'           => Products\Backup::class,
+			'boost'            => Products\Boost::class,
+			'crm'              => Products\Crm::class,
+			'creator'          => Products\Creator::class,
+			'extras'           => Products\Extras::class,
+			'jetpack-ai'       => Products\Jetpack_Ai::class,
+			'scan'             => Products\Scan::class,
+			'search'           => Products\Search::class,
+			'social'           => Products\Social::class,
+			'security'         => Products\Security::class,
+			'protect'          => Products\Protect::class,
+			'protect-firewall' => Products\Protect_Firewall::class,
+			'videopress'       => Products\Videopress::class,
+			'stats'            => Products\Stats::class,
+			'ai'               => Products\Jetpack_Ai::class,
 		);
 
 		/**
