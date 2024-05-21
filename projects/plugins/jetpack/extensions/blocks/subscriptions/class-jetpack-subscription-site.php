@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack\Extensions\Subscriptions;
 
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Memberships;
 
 /**
