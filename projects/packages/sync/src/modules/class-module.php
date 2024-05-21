@@ -293,19 +293,19 @@ abstract class Module {
 	 * @return array|object|null
 	 */
 	public function get_next_chunk( $config, $status, $chunk_size ) {
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery
 		global $wpdb;
 		return $wpdb->get_col(
-			<<<SQL
-SELECT {$this->id_field()}
-FROM {$wpdb->{$this->table_name()}}
-WHERE {$this->get_where_sql( $config )}
-AND {$this->id_field()} < {$status['last_sent']}
-ORDER BY {$this->id_field()}
-DESC LIMIT {$chunk_size}
-SQL
+			"
+			SELECT {$this->id_field()}
+			FROM {$wpdb->{$this->table_name()}}
+			WHERE {$this->get_where_sql( $config )}
+			AND {$this->id_field()} < {$status['last_sent']}
+			ORDER BY {$this->id_field()}
+			DESC LIMIT {$chunk_size}
+			"
 		);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery
 	}
 
 	/**
@@ -319,13 +319,13 @@ SQL
 		global $wpdb;
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.DirectQuery
 		return $wpdb->get_var(
-			<<<SQL
-SELECT {$this->id_field()}
-FROM {$wpdb->{$this->table_name()}}
-WHERE {$this->get_where_sql( $config )}
-ORDER BY {$this->id_field()}
-LIMIT 1
-SQL
+			"
+			SELECT {$this->id_field()}
+			FROM {$wpdb->{$this->table_name()}}
+			WHERE {$this->get_where_sql( $config )}
+			ORDER BY {$this->id_field()}
+			LIMIT 1
+			"
 		);
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.DirectQuery
 	}

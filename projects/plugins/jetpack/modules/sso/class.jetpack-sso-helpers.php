@@ -2,7 +2,7 @@
 /**
  * A collection of helper functions used in the SSO module.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Connection\Manager\SSO instead.
+ * @deprecated 13.5 Use Automattic\Jetpack\Connection\Manager\SSO instead.
  *
  * @package automattic/jetpack
  */
@@ -16,7 +16,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 	/**
 	 * A collection of helper functions used in the SSO module.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.5
 	 *
 	 * @since 4.1.0
 	 */
@@ -24,12 +24,12 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		/**
 		 * Determine if the login form should be hidden or not
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @return bool
 		 **/
 		public static function should_hide_login_form() {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::should_hide_login_form' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::should_hide_login_form' );
 
 			return Helpers::should_hide_login_form();
 		}
@@ -38,12 +38,12 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 * Returns a boolean value for whether logging in by matching the WordPress.com user email to a
 		 * Jetpack site user's email is allowed.
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @return bool
 		 */
 		public static function match_by_email() {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::match_by_email' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::match_by_email' );
 
 			return Helpers::match_by_email();
 		}
@@ -52,13 +52,13 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 * Returns a boolean for whether users are allowed to register on the Jetpack site with SSO,
 		 * even though the site disallows normal registrations.
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @param object|null $user_data WordPress.com user information.
 		 * @return bool
 		 */
 		public static function new_user_override( $user_data = null ) {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::new_user_override' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::new_user_override' );
 
 			return Helpers::new_user_override( $user_data );
 		}
@@ -68,12 +68,12 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 *
 		 * @since 4.1.0
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @return bool
 		 */
 		public static function is_two_step_required() {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::is_two_step_required' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::is_two_step_required' );
 
 			return Helpers::is_two_step_required();
 		}
@@ -82,12 +82,12 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 * Returns a boolean for whether a user that is attempting to log in will be automatically
 		 * redirected to WordPress.com to begin the SSO flow.
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @return bool
 		 */
 		public static function bypass_login_forward_wpcom() {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::bypass_login_forward_wpcom' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::bypass_login_forward_wpcom' );
 
 			return Helpers::bypass_login_forward_wpcom();
 		}
@@ -98,12 +98,12 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 *
 		 * @since 4.1.0
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @return bool
 		 */
 		public static function show_sso_login() {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::show_sso_login' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::show_sso_login' );
 
 			return Helpers::show_sso_login();
 		}
@@ -113,12 +113,12 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 *
 		 * @since 4.1.0
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @return bool
 		 */
 		public static function is_require_two_step_checkbox_disabled() {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::is_require_two_step_checkbox_disabled' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::is_require_two_step_checkbox_disabled' );
 
 			return Helpers::is_require_two_step_checkbox_disabled();
 		}
@@ -128,12 +128,12 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 *
 		 * @since 4.1.0
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @return bool
 		 */
 		public static function is_match_by_email_checkbox_disabled() {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::is_match_by_email_checkbox_disabled' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::is_match_by_email_checkbox_disabled' );
 
 			return Helpers::is_match_by_email_checkbox_disabled();
 		}
@@ -147,7 +147,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 * @since 4.3.0
 		 * @since 4.6.0 Added public-api.wordpress.com as an allowed redirect
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @param array  $hosts Allowed redirect hosts.
 		 * @param string $api_base Base API URL.
@@ -155,7 +155,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 * @return array
 		 */
 		public static function allowed_redirect_hosts( $hosts, $api_base = JETPACK__API_BASE ) {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::allowed_redirect_hosts' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::allowed_redirect_hosts' );
 
 			return Helpers::allowed_redirect_hosts( $hosts, $api_base );
 		}
@@ -163,12 +163,12 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		/**
 		 * Generate a new user from a SSO attempt.
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @param object $user_data WordPress.com user information.
 		 */
 		public static function generate_user( $user_data ) {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Utils::generate_user' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Utils::generate_user' );
 
 			return Utils::generate_user( $user_data );
 		}
@@ -176,12 +176,12 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		/**
 		 * Determines how long the auth cookie is valid for when a user logs in with SSO.
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @return int result of the jetpack_sso_auth_cookie_expiration filter.
 		 */
 		public static function extend_auth_cookie_expiration_for_sso() {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::extend_auth_cookie_expiration_for_sso' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::extend_auth_cookie_expiration_for_sso' );
 
 			return Helpers::extend_auth_cookie_expiration_for_sso();
 		}
@@ -191,14 +191,14 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 *
 		 * @since 4.6.0
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @param string $action SSO action being performed.
 		 *
 		 * @return bool  Is SSO allowed for the current action?
 		 */
 		public static function display_sso_form_for_action( $action ) {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::display_sso_form_for_action' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::display_sso_form_for_action' );
 
 			return Helpers::display_sso_form_for_action( $action );
 		}
@@ -209,12 +209,12 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 *
 		 * @since 4.6.0
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @return array|bool
 		 */
 		public static function get_json_api_auth_environment() {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::get_json_api_auth_environment' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::get_json_api_auth_environment' );
 
 			return Helpers::get_json_api_auth_environment();
 		}
@@ -223,12 +223,12 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 * Check if the site has a custom login page URL, and return it.
 		 * If default login page URL is used (`wp-login.php`), `null` will be returned.
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @return string|null
 		 */
 		public static function get_custom_login_url() {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::get_custom_login_url' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::get_custom_login_url' );
 
 			return Helpers::get_custom_login_url();
 		}
@@ -237,10 +237,10 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 * Clear the cookies that store the profile information for the last
 		 * WPCOM user to connect.
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 */
 		public static function clear_wpcom_profile_cookies() {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::clear_wpcom_profile_cookies' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::clear_wpcom_profile_cookies' );
 
 			return Helpers::clear_wpcom_profile_cookies();
 		}
@@ -248,12 +248,12 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		/**
 		 * Remove an SSO connection for a user.
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @param int $user_id The local user id.
 		 */
 		public static function delete_connection_for_user( $user_id ) {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::delete_connection_for_user' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\SSO\\Helpers::delete_connection_for_user' );
 
 			return Helpers::delete_connection_for_user( $user_id );
 		}
@@ -263,12 +263,12 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 *
 		 * @since 13.3
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.5
 		 *
 		 * @param int $user_id Local User information.
 		 */
 		public static function is_user_connected( $user_id = 0 ) {
-			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Manager->is_user_connected' );
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager->is_user_connected' );
 
 			return ( new Manager() )->is_user_connected( $user_id );
 		}

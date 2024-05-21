@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.3] - 2024-05-20
+### Changed
+- Internal updates.
+
 ## [2.8.2] - 2024-05-16
 ### Added
 - Connection: Ensuring direct file access is disabled in class-jetpack-ixr-client.php [#37398]
@@ -1069,6 +1073,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[2.8.3]: https://github.com/Automattic/jetpack-connection/compare/v2.8.2...v2.8.3
 [2.8.2]: https://github.com/Automattic/jetpack-connection/compare/v2.8.1...v2.8.2
 [2.8.1]: https://github.com/Automattic/jetpack-connection/compare/v2.8.0...v2.8.1
 [2.8.0]: https://github.com/Automattic/jetpack-connection/compare/v2.7.7...v2.8.0
