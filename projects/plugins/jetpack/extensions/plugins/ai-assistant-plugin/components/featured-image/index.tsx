@@ -37,6 +37,9 @@ const AI_ASSISTANT_EXPERIMENTAL_IMAGE_GENERATION_SUPPORT =
 	'ai-assistant-experimental-image-generation-support';
 const isAiAssistantExperimentalImageGenerationSupportEnabled =
 	getFeatureAvailability( AI_ASSISTANT_EXPERIMENTAL_IMAGE_GENERATION_SUPPORT ) || blogId % 5 === 0; // enable for 10% of the sites, with ID divisible by 5
+const IMAGE_GENERATION_MODEL = isAiAssistantExperimentalImageGenerationSupportEnabled
+	? 'stable-diffusion'
+	: 'dalle-3';
 
 export default function FeaturedImage( {
 	busy,
@@ -127,6 +130,7 @@ export default function FeaturedImage( {
 				recordEvent( 'jetpack_ai_featured_image_generation_error', {
 					placement,
 					error: data.error?.message,
+					model: IMAGE_GENERATION_MODEL,
 				} );
 			}
 		},
@@ -236,6 +240,7 @@ export default function FeaturedImage( {
 		// track the generate image event
 		recordEvent( 'jetpack_ai_featured_image_generation_generate_image', {
 			placement,
+			model: IMAGE_GENERATION_MODEL,
 		} );
 
 		toggleFeaturedImageModal();
@@ -246,6 +251,7 @@ export default function FeaturedImage( {
 		// track the regenerate image event
 		recordEvent( 'jetpack_ai_featured_image_generation_generate_another_image', {
 			placement,
+			model: IMAGE_GENERATION_MODEL,
 		} );
 
 		processImageGeneration();
@@ -256,6 +262,7 @@ export default function FeaturedImage( {
 		// track the try again event
 		recordEvent( 'jetpack_ai_featured_image_generation_try_again', {
 			placement,
+			model: IMAGE_GENERATION_MODEL,
 		} );
 
 		processImageGeneration();
@@ -278,6 +285,7 @@ export default function FeaturedImage( {
 		// track the accept/use image event
 		recordEvent( 'jetpack_ai_featured_image_generation_use_image', {
 			placement,
+			model: IMAGE_GENERATION_MODEL,
 		} );
 
 		const setAsFeaturedImage = image => {
