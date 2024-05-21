@@ -183,7 +183,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 
 		if ( is_wp_error( $event ) ) {
 			// If the schedule could not be created, return an error.
-			$event->add_data( array( 'status' => 500 ) );
+			$event->add_data( array( 'status' => 404 ) );
 
 			return $event;
 		}
@@ -204,7 +204,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		 */
 		do_action( 'jetpack_scheduled_update_created', $id, $event, $request );
 
-		$event              = wp_get_scheduled_event( Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins, $schedule['timestamp'] );
 		$event->schedule_id = $id;
 		$this->update_additional_fields_for_object( $event, $request );
 

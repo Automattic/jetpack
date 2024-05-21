@@ -92,7 +92,7 @@ class Scheduled_Updates {
 		add_action( 'add_option_' . Scheduled_Updates_Active::OPTION_NAME, $callback );
 		add_action( 'update_option_' . Scheduled_Updates_Active::OPTION_NAME, $callback );
 
-		add_filter( 'pre_schedule_event', array( __CLASS__, 'clear_cron_cache_pre' ) );
+		add_filter( 'pre_schedule_event', array( __CLASS__, 'clear_cron_cache_pre' ), 10, 2 );
 	}
 
 	/**
@@ -206,15 +206,18 @@ class Scheduled_Updates {
 	}
 
 	/**
-	 * Reload the cron cache in pre_schedule_event hook.
+	 * Reload the cron cache in pre_schedule_event hook. Returns null to prevent short-circuit.
 	 *
-	 * @param string $event The event hook name.
+	 * @param null|bool|WP_Error $result The value to return instead. Default null to continue adding the event.
+	 * @param object             $event  The event object.
 	 */
-	public static function clear_cron_cache_pre( $event ) {
+	public static function clear_cron_cache_pre( $result, $event ) {
 		// If the transient is set and an external event is about to run, it means that the cron cache must be refreshed.
-		if ( self::PLUGIN_CRON_HOOK !== $event && get_transient( 'pre_schedule_event_clear_cron_cache' ) ) {
+		if ( self::PLUGIN_CRON_HOOK !== $event->hook && get_transient( 'pre_schedule_event_clear_cron_cache' ) ) {
 			self::clear_cron_cache();
 		}
+
+		return $result;
 	}
 
 	/**
