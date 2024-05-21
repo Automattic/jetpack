@@ -592,6 +592,11 @@ function wpcom_add_scheduled_updates_menu() {
 		return;
 	}
 
+	// Don't show on staging sites.
+	if ( ( new Status() )->is_staging_site() ) {
+		return;
+	}
+
 	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 
 	add_submenu_page(
