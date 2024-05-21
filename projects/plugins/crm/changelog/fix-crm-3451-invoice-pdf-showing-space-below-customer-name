@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Invoices: Remove blank line below contact name in invoices.
+Invoices: Remove the blank line below the contact name.
