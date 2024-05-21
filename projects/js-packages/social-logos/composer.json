@@ -8,8 +8,8 @@
 		"automattic/jetpack-changelogger": "@dev"
 	},
 	"scripts": {
-		"build-development": "./tools/build --dev",
-		"build-production": "./tools/build"
+		"build-development": "./tools/build",
+		"build-production": "./tools/build --prod"
 	},
 	"repositories": [
 		{
