@@ -2,7 +2,6 @@
 /**
  * An errors utility class for Jetpack.
  *
- * @deprecated since $$next-version$$
  * @package automattic/jetpack-status
  */
 
@@ -15,6 +14,8 @@ namespace Automattic\Jetpack;
 
 /**
  * Erros class.
+ *
+ * @deprecated since $$next-version$$
  */
 class Errors {
 	/**
