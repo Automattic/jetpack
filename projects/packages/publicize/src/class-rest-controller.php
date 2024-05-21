@@ -472,7 +472,7 @@ class REST_Controller {
 		}
 
 		global $publicize;
-		return rest_ensure_response( $publicize->get_connections_for_user( (int) $connection_id ) );
+		return rest_ensure_response( $publicize->get_connection_for_user( (int) $connection_id ) );
 	}
 
 	/**
