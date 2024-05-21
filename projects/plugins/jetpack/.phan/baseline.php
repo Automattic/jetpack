@@ -14,7 +14,7 @@ return [
     // PhanPluginDuplicateConditionalNullCoalescing : 280+ occurrences
     // PhanNoopNew : 200+ occurrences
     // PhanTypeMismatchReturn : 150+ occurrences
-    // PhanTypeMismatchReturnProbablyReal : 150+ occurrences
+    // PhanTypeMismatchReturnProbablyReal : 140+ occurrences
     // PhanDeprecatedFunction : 120+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 95+ occurrences
     // PhanRedundantCondition : 70+ occurrences
@@ -49,6 +49,7 @@ return [
     // PhanTypeInvalidLeftOperandOfNumericOp : 10+ occurrences
     // PhanTypeMismatchProperty : 10+ occurrences
     // PhanTypeMismatchReturnNullable : 10+ occurrences
+    // PhanTypeComparisonToArray : 9 occurrences
     // PhanPluginRedundantAssignment : 8 occurrences
     // PhanDeprecatedClass : 7 occurrences
     // PhanTypeMismatchArgumentInternalReal : 7 occurrences
@@ -450,7 +451,6 @@ return [
         'modules/theme-tools/content-options/featured-images-fallback.php' => ['PhanTypeMismatchArgument', 'PhanTypePossiblyInvalidDimOffset'],
         'modules/theme-tools/content-options/featured-images.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchArgument'],
         'modules/theme-tools/content-options/post-details.php' => ['PhanTypeArraySuspiciousNullable'],
-        'modules/theme-tools/featured-content.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeComparisonToArray', 'PhanTypeInvalidCallableArraySize', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn', 'PhanTypePossiblyInvalidDimOffset'],
         'modules/theme-tools/random-redirect.php' => ['PhanTypeMismatchArgument'],
         'modules/theme-tools/site-breadcrumbs.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturn'],
         'modules/theme-tools/site-logo/inc/class-site-logo.php' => ['PhanRedundantCondition', 'PhanTypeComparisonToArray', 'PhanTypeMismatchReturn'],
