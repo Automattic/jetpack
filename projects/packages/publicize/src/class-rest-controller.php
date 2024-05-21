@@ -450,7 +450,7 @@ class REST_Controller {
 			$body['shared'] = $shared;
 		}
 
-		Client::wpcom_json_api_request_as_user(
+		$response = Client::wpcom_json_api_request_as_user(
 			$path,
 			'2',
 			array(
@@ -460,6 +460,10 @@ class REST_Controller {
 			$body,
 			'wpcom'
 		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
 
 		global $publicize;
 		return rest_ensure_response( $publicize->get_connections_for_user( (int) $connection_id ) );
