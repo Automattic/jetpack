@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added "Protect_Firewall" child product, for WAF-specific upgrade flows.
