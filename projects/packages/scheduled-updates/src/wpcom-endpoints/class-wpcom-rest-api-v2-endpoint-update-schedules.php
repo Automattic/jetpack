@@ -179,13 +179,21 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$plugins  = $request['plugins'];
 		usort( $plugins, 'strnatcasecmp' );
 
-		$event = Scheduled_Updates::create_scheduled_update( $schedule['timestamp'], $schedule['interval'], $plugins );
+		$event = wp_schedule_event( $schedule['timestamp'], $schedule['interval'], Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins, true );
 
 		if ( is_wp_error( $event ) ) {
+			// If the schedule could not be created, return an error.
+			$event->add_data( array( 'status' => 404 ) );
+
 			return $event;
 		}
 
-		$id = Scheduled_Updates::generate_schedule_id( $plugins );
+		$id    = Scheduled_Updates::generate_schedule_id( $plugins );
+		$event = wp_get_scheduled_event( Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins, $schedule['timestamp'] );
+
+		if ( ! $event ) {
+			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be created.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
+		}
 
 		/**
 		 * Fires when a scheduled update is created.
@@ -196,9 +204,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		 */
 		do_action( 'jetpack_scheduled_update_created', $id, $event, $request );
 
-		$event              = wp_get_scheduled_event( Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins, $schedule['timestamp'] );
 		$event->schedule_id = $id;
 		$this->update_additional_fields_for_object( $event, $request );
+
+		// Clear the case and add a transient to clear it again if in 10 seconds another event is scheduled.
+		Scheduled_Updates::clear_cron_cache();
+		set_transient( 'pre_schedule_event_clear_cron_cache', true, 10 );
 
 		return rest_ensure_response( $id );
 	}
@@ -279,14 +290,16 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		remove_filter( Scheduled_Updates::PLUGIN_CRON_SYNC_HOOK, '__return_false' );
 		$item = $this->create_item( $request );
 
-		/**
-		 * Fires when a scheduled update is updated.
-		 *
-		 * @param string          $old_id  The ID of the schedule to update.
-		 * @param string          $new_id  The ID of the updated event.
-		 * @param WP_REST_Request $request The request object.
-		 */
-		do_action( 'jetpack_scheduled_update_updated', $request['schedule_id'], $item->data, $request );
+		if ( ! is_wp_error( $item ) ) {
+			/**
+			 * Fires when a scheduled update is updated.
+			 *
+			 * @param string          $old_id  The ID of the schedule to update.
+			 * @param string          $new_id  The ID of the updated event.
+			 * @param WP_REST_Request $request The request object.
+			 */
+			do_action( 'jetpack_scheduled_update_updated', $request['schedule_id'], $item->data, $request );
+		}
 
 		return $item;
 	}
@@ -318,9 +331,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
 		}
 
-		$event = $events[ $request['schedule_id'] ];
+		$event  = $events[ $request['schedule_id'] ];
+		$result = wp_unschedule_event( $event->timestamp, Scheduled_Updates::PLUGIN_CRON_HOOK, $event->args, true );
 
-		$result = Scheduled_Updates::delete_scheduled_update( $event->timestamp, $event->args );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
@@ -337,6 +350,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		 * @param WP_REST_Request $request The request object.
 		 */
 		do_action( 'jetpack_scheduled_update_deleted', $request['schedule_id'], $event, $request );
+
+		if ( 'DELETE' === $request->get_method() ) {
+			// In a direct call clear the case and a transient to clear it again if in 10 seconds another event is scheduled.
+			Scheduled_Updates::clear_cron_cache();
+			set_transient( 'pre_schedule_event_clear_cron_cache', true, 10 );
+		}
 
 		return rest_ensure_response( true );
 	}

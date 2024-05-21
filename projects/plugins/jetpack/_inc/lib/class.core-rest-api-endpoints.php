@@ -2659,6 +2659,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),
+			'jetpack_subscribe_overlay_enabled'     => array(
+				'description'       => esc_html__( 'Show subscribe overlay on homepage.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
 			'jetpack_subscriptions_subscribe_post_end_enabled' => array(
 				'description'       => esc_html__( 'Add Subscribe block at the end of each post.', 'jetpack' ),
 				'type'              => 'boolean',

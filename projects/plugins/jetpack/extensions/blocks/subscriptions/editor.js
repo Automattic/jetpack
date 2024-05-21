@@ -1,12 +1,13 @@
 import { registerJetpackPlugin } from '@automattic/jetpack-shared-extension-utils';
 import { createBlock } from '@wordpress/blocks';
+import { addFilter } from '@wordpress/hooks';
 import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
 import metadata from './block.json';
 import deprecated from './deprecated';
 import edit from './edit';
 import SubscribePanels from './panel';
 
-const name = metadata.name.replace( 'jetpack/', '' );
+const blockName = metadata.name.replace( 'jetpack/', '' );
 
 // Registers Subscribe block.
 registerJetpackBlockFromMetadata( metadata, {
@@ -61,10 +62,22 @@ registerJetpackBlockFromMetadata( metadata, {
 } );
 
 // Registers slot/fill panels defined via settings.render.
-registerJetpackPlugin( name, {
+registerJetpackPlugin( blockName, {
 	render: () => (
 		<>
 			<SubscribePanels />
 		</>
 	),
+} );
+
+// Allows block to be inserted inside core navigation block
+addFilter( 'blocks.registerBlockType', 'jetpack-subscriptions-nav-item', ( settings, name ) => {
+	if ( name === 'core/navigation' ) {
+		return {
+			...settings,
+			allowedBlocks: [ ...( settings.allowedBlocks ?? [] ), 'jetpack/subscriptions' ],
+		};
+	}
+
+	return settings;
 } );

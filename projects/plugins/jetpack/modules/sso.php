@@ -29,6 +29,6 @@ add_action(
 /**
  * Legacy, deprecated class.
  *
- * @deprecated $$next-version$$
+ * @deprecated 13.5
  */
 class Jetpack_SSO extends SSO {}
