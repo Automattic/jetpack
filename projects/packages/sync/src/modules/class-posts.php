@@ -618,12 +618,10 @@ class Posts extends Module {
 	 * The 2nd request is to update post meta, which is not supported on WP REST API.
 	 * When syncing post data, we will include if this was a meta box update.
 	 *
-	 * @todo Implement nonce verification.
-	 *
 	 * @return boolean Whether this is a Gutenberg meta box update.
 	 */
-	public function is_gutenberg_meta_box_update() {
-		// phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended
+	private function is_gutenberg_meta_box_update() {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended -- We only check the request to determine if this is a Gutenberg meta box update, and we only use the result to set a boolean logged in the sync event. If anyone anywhere else gets the flag and does something CSRF-able with it, they should ensure that a nonce has been checked.
 		return (
 			isset( $_POST['action'], $_GET['classic-editor'], $_GET['meta_box'] ) &&
 			'editpost' === $_POST['action'] &&

@@ -287,34 +287,33 @@ class Plugins extends Module {
 	 */
 	public function plugin_edit_ajax() {
 		// This validation is based on wp_edit_theme_plugin_file().
-		$args = wp_unslash( $_POST );
-		if ( empty( $args['file'] ) ) {
+		if ( empty( $_POST['file'] ) ) {
 			return;
 		}
 
-		$file = $args['file'];
+		$file = wp_unslash( $_POST['file'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Validated manually just after.
 		if ( 0 !== validate_file( $file ) ) {
 			return;
 		}
 
-		if ( ! isset( $args['newcontent'] ) ) {
+		if ( ! isset( $_POST['newcontent'] ) ) {
 			return;
 		}
 
-		if ( ! isset( $args['nonce'] ) ) {
+		if ( ! isset( $_POST['nonce'] ) ) {
 			return;
 		}
 
-		if ( empty( $args['plugin'] ) ) {
+		if ( empty( $_POST['plugin'] ) ) {
 			return;
 		}
 
-		$plugin = $args['plugin'];
+		$plugin = wp_unslash( $_POST['plugin'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Validated manually just after.
 		if ( ! current_user_can( 'edit_plugins' ) ) {
 			return;
 		}
 
-		if ( ! wp_verify_nonce( $args['nonce'], 'edit-plugin_' . $file ) ) {
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'edit-plugin_' . $file ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
 			return;
 		}
 		$plugins = get_plugins();
