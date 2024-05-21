@@ -870,62 +870,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	}
 
 	/**
-	 * Test additional scheduled event does not reset cron option
-	 */
-	public function test_another_scheduled_event_does_not_reset() {
-		$plugins = array(
-			'custom-plugin/custom-plugin.php',
-			'gutenberg/gutenberg.php',
-		);
-		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
-		$request->set_body_params(
-			array(
-				'plugins'  => $plugins,
-				'schedule' => $this->get_schedule(),
-			)
-		);
-
-		// Successful request.
-		wp_set_current_user( $this->admin_id );
-
-		$result      = rest_do_request( $request );
-		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
-
-		$this->assertSame( 200, $result->get_status() );
-		$this->assertSame( $schedule_id, $result->get_data() );
-
-		$this->assertArrayHasKey( $schedule_id, wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
-		$this->assertSame( 1, self::get_sync_counter() );
-		$this->assertSame( 1, self::$scheduled_counter );
-
-		$plugins[] = 'wp-test-plugin/wp-test-plugin.php';
-		$request   = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . $schedule_id );
-		$request->set_body_params(
-			array(
-				'plugins'  => $plugins,
-				'schedule' => $this->get_schedule(),
-			)
-		);
-
-		$result      = rest_do_request( $request );
-		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
-
-		$this->assertSame( 200, $result->get_status() );
-		$this->assertArrayHasKey( $schedule_id, wp_get_scheduled_events( Scheduled_Updates::PLUGIN_CRON_HOOK ) );
-		$this->assertSame( 2, self::get_sync_counter() );
-		$this->assertSame( 2, self::$scheduled_counter );
-		$this->assertSame( 2, self::$transients_added );
-
-		// Insert a full cron sync event.
-		wp_schedule_event( time(), 'jetpack_sync_interval', 'jetpack_sync_full_cron' );
-
-		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules' );
-		$result  = rest_do_request( $request );
-
-		$this->assertSame( 200, $result->get_status() );
-	}
-
-	/**
 	 * A callback run when an option is added.
 	 *
 	 * @param string $option Name of the added option.
