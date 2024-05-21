@@ -329,19 +329,12 @@ class Publicize extends Publicize_Base {
 	 * @return object
 	 */
 	public function get_connection_for_user( $connection_id ) {
-		$connections = array_values(
-			array_filter(
-				$this->get_all_connections_for_user(),
-				function ( $connection ) use ( $connection_id ) {
-					return (int) $connection['connection_id'] === (int) $connection_id;
-				}
-			)
-		);
-
-		if ( count( $connections ) === 0 ) {
-			return (object) array();
+		foreach ( $this->get_all_connections_for_user() as $connection ) {
+			if ( (int) $connection['connection_id'] === (int) $connection_id ) {
+				return $connection;
+			}
 		}
-		return $connections[0];
+		return array();
 	}
 
 	/**
