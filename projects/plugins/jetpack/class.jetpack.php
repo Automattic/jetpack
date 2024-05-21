@@ -21,6 +21,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\CookieState;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use Automattic\Jetpack\Errors;
 use Automattic\Jetpack\Files;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Licensing;
@@ -2393,6 +2394,18 @@ class Jetpack {
 	 */
 	public static function is_module( $module ) {
 		return ( new Modules() )->is_module( $module );
+	}
+
+	/**
+	 * Catches PHP errors.  Must be used in conjunction with output buffering.
+	 *
+	 * @param bool $catch True to start catching, False to stop.
+	 *
+	 * @static
+	 */
+	public static function catch_errors( $catch ) {
+		_deprecated_function( __METHOD__, '$$next-version$$' );
+		return ( new Errors() )->catch_errors( $catch );
 	}
 
 	/**
