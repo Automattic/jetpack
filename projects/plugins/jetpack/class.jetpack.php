@@ -2399,6 +2399,7 @@ class Jetpack {
 	/**
 	 * Catches PHP errors.  Must be used in conjunction with output buffering.
 	 *
+	 * @deprecated since $$next-version$$
 	 * @param bool $catch True to start catching, False to stop.
 	 *
 	 * @static
