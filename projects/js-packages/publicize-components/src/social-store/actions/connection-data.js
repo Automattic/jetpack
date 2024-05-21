@@ -330,19 +330,22 @@ export function updatingConnection( connectionId, updating = true ) {
  * @returns {void}
  */
 export function updateConnectionById( connectionId, data ) {
-	return async function ( { dispatch } ) {
+	return async function ( { dispatch, select } ) {
 		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
+
+		const prevConnection = select.getConnectionById( connectionId );
 
 		try {
 			const path = `/jetpack/v4/social/connections/${ connectionId }`;
+
+			// Optimistically update the connection.
+			dispatch( updateConnection( connectionId, data ) );
 
 			dispatch( updatingConnection( connectionId ) );
 
 			const connection = await apiFetch( { method: 'POST', path, data } );
 
 			if ( connection ) {
-				dispatch( updateConnection( connectionId, data ) );
-
 				createSuccessNotice( __( 'Account updated successfully.', 'jetpack' ), {
 					type: 'snackbar',
 					isDismissible: true,
@@ -354,6 +357,9 @@ export function updateConnectionById( connectionId, data ) {
 			if ( typeof error === 'object' && 'message' in error && error.message ) {
 				message = `${ message } ${ error.message }`;
 			}
+
+			// Revert the connection to its previous state.
+			dispatch( updateConnection( connectionId, prevConnection ) );
 
 			createErrorNotice( message, { type: 'snackbar', isDismissible: true } );
 		} finally {

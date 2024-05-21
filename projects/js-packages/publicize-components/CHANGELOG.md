@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.51.1] - 2024-05-20
+### Added
+- Added globalize/unglobalize connection UI. [#37377]
+- Social: Wired up confirmation UI with connect button. [#37295]
+
+### Changed
+- Social: Updated connection modal UI. [#37420]
+- Updated package dependencies. [#37379] [#37380] [#37382]
+
 ## [0.51.0] - 2024-05-13
 ### Added
 - Add connect form/button for connection management. [#37196]
@@ -675,6 +684,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.51.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.51.0...v0.51.1
 [0.51.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.50.0...v0.51.0
 [0.50.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.49.3...v0.50.0
 [0.49.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.49.2...v0.49.3
