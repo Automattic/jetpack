@@ -112,6 +112,13 @@ function SubscriptionsSettings( props ) {
 		);
 	}, [ updateFormStateModuleOption ] );
 
+	const handleSubscribeNavigationToggleChange = useCallback( () => {
+		updateFormStateModuleOption(
+			SUBSCRIPTIONS_MODULE_NAME,
+			'jetpack_subscriptions_subscribe_navigation_enabled'
+		);
+	}, [ updateFormStateModuleOption ] );
+
 	const isDisabled = ! isSubscriptionsActive || unavailableInOfflineMode;
 
 	return (
@@ -223,7 +230,7 @@ function SubscriptionsSettings( props ) {
 									toggling={ isSavingAnyOption( [
 										'jetpack_subscriptions_subscribe_navigation_enabled',
 									] ) }
-									onChange={ handleLoginNavigationToggleChange }
+									onChange={ handleSubscribeNavigationToggleChange }
 									label={
 										<span className="jp-form-toggle-explanation">
 											{ __( 'Add the Subscribe block to the navigation', 'jetpack' ) }
