@@ -41,29 +41,3 @@ function wpcom_maybe_redirect_to_woo_design_with_ai() {
 }
 
 add_action( 'admin_init', 'wpcom_maybe_redirect_to_woo_design_with_ai', 1 );
-
-/**
- * If the user is arriving from Design With AI as part of the
- * Entrpreneur signup flow, redirect the user to Calypso My Home.
- */
-function wpcom_maybe_redirect_from_woo_my_home_to_calypso_my_home() {
-
-	$is_arriving_from_design_with_ai = (
-		isset( $_GET['page'] ) && $_GET['page'] === 'wc-admin' && // phpcs:ignore WordPress.Security
-		isset( $_GET['ref'] ) && $_GET['ref'] === 'entrepreneur-signup' && // phpcs:ignore WordPress.Security
-		// As &ref=entrepreneur-signup is also used when entering Design With AI,
-		// we need to make sure we're really landing on the main wc-admin page
-		// and not any other pages.
-		empty( $_GET['path'] ) // phpcs:ignore WordPress.Security
-	);
-
-	if ( $is_arriving_from_design_with_ai ) {
-		$blog_domain = ( new Status() )->get_site_suffix();
-		$my_home_url = 'https://wordpress.com/home/' . $blog_domain . '?ref=entrepreneur-signup';
-
-		wp_safe_redirect( $my_home_url );
-		exit;
-	}
-}
-
-add_action( 'admin_init', 'wpcom_maybe_redirect_from_woo_my_home_to_calypso_my_home', 1 );
