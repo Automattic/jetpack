@@ -39,6 +39,27 @@ class Jetpack_Subscription_Site {
 	 */
 	public function handle_subscribe_block_placements() {
 		$this->handle_subscribe_block_post_end_placement();
+
+		add_filter(
+			'jetpack_options_whitelist',
+			function ( $options ) {
+				$options[] = 'jetpack_subscriptions_subscribe_navigation_enabled';
+
+				return $options;
+			}
+		);
+
+		// If called via REST API, we need to register later in the lifecycle
+		if ( ( new Host() )->is_wpcom_platform() && ! jetpack_is_frontend() ) {
+			add_action(
+				'restapi_theme_init',
+				function () {
+					Jetpack_Subscription_Site::init()->handle_subscribe_block_navigation_placement();
+				}
+			);
+		} else {
+			self::init()->handle_subscribe_block_navigation_placement();
+		}
 	}
 
 	/**
@@ -86,6 +107,60 @@ class Jetpack_Subscription_Site {
 		}
 
 		return $default_attrs;
+	}
+
+	/**
+	 * Returns true if context is recognized as a header element.
+	 *
+	 * @param WP_Block_Template|WP_Post|array $context The block template, template part, or pattern the anchor block belongs to.
+	 *
+	 * @return bool
+	 */
+	protected function is_header_context( $context ) {
+		if ( $context instanceof WP_Post && $context->post_type === 'wp_navigation' ) {
+			return true;
+		}
+
+		if ( $context instanceof WP_Block_Template && $context->area === 'header' ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Handles Subscription block navigation placement.
+	 *
+	 * @return void
+	 */
+	protected function handle_subscribe_block_navigation_placement() {
+		global $wp_version;
+
+		$is_enabled = get_option( 'jetpack_subscriptions_subscribe_navigation_enabled', false );
+		if ( ! $is_enabled ) {
+			return;
+		}
+
+		if ( ! wp_is_block_theme() || version_compare( $wp_version, '6.5-beta2', '<' ) ) { // TODO Fallback for classic themes and wp core < 6.5-beta2.
+			return;
+		}
+
+		add_filter(
+			'hooked_block_types',
+			function ( $hooked_blocks, $relative_position, $anchor_block, $context ) {
+				if (
+					$anchor_block === 'core/navigation' &&
+					$relative_position === 'last_child' &&
+					self::is_header_context( $context )
+				) {
+					$hooked_blocks[] = 'jetpack/subscriptions';
+				}
+
+				return $hooked_blocks;
+			},
+			10,
+			4
+		);
 	}
 
 	/**
