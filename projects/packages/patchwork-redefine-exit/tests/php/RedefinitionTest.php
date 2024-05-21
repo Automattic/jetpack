@@ -14,6 +14,7 @@ use PHPUnit\Framework\TestCase;
  * Test the redefinition functionality.
  */
 class RedefinitionTest extends TestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * @dataProvider provideRedefinition
