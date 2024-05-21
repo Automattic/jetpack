@@ -328,7 +328,7 @@ class Publicize extends Publicize_Base {
 
 	 * @return object
 	 */
-	public function get_connections_for_user( $connection_id ) {
+	public function get_connection_for_user( $connection_id ) {
 		$connections = array_values(
 			array_filter(
 				$this->get_all_connections_for_user(),
