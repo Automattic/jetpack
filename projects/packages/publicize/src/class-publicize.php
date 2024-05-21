@@ -247,9 +247,10 @@ class Publicize extends Publicize_Base {
 								array(
 									'service_name'   => $service_name,
 									'connection_id'  => $connection['connection_data']['id'],
-									'can_disconnect' => self::can_manage_connection( $connection['connection_data'] ),
+									'can_disconnect' => current_user_can( 'edit_others_posts' ) || get_current_user_id() === $user_id,
 									'profile_link'   => $this->get_profile_link( $service_name, $connection ),
 									'shared'         => $connection['connection_data']['user_id'] === '0',
+									'status'         => 'ok',
 								)
 							);
 						} else {
@@ -286,7 +287,7 @@ class Publicize extends Publicize_Base {
 		return array_map(
 			function ( $connection ) use ( $connection_results_map ) {
 				if ( isset( $connection_results_map[ $connection['connection_id'] ] ) ) {
-						$connection['connection_health'] = $connection_results_map[ $connection['connection_id'] ] ? 'Healthy' : '	';
+						$connection['status'] = $connection_results_map[ $connection['connection_id'] ] ? 'ok' : 'broken';
 				}
 				return $connection;
 			},
