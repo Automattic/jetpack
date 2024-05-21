@@ -513,8 +513,7 @@ class Publicize extends Publicize_Base {
 	}
 
 	/**
-	 * Grabs a fresh copy of the publicize connections data.
-	 * Only refreshes once every 10 hours or retries after 10 mins in case an error.
+	 * Grabs a fresh copy of the publicize connections data, if the cache is busted.
 	 */
 	public function refresh_connections() {
 		$connections = get_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT );
