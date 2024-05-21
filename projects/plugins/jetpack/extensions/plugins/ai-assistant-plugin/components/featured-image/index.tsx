@@ -32,11 +32,11 @@ export const FEATURED_IMAGE_PLACEMENT_MEDIA_SOURCE_DROPDOWN = 'media-source-drop
 /**
  * Control experimental image generation for the featured image.
  */
+const blogId = parseInt( window?.Jetpack_Editor_Initial_State?.wpcomBlogId );
 const AI_ASSISTANT_EXPERIMENTAL_IMAGE_GENERATION_SUPPORT =
 	'ai-assistant-experimental-image-generation-support';
-const isAiAssistantExperimentalImageGenerationSupportEnabled = getFeatureAvailability(
-	AI_ASSISTANT_EXPERIMENTAL_IMAGE_GENERATION_SUPPORT
-);
+const isAiAssistantExperimentalImageGenerationSupportEnabled =
+	getFeatureAvailability( AI_ASSISTANT_EXPERIMENTAL_IMAGE_GENERATION_SUPPORT ) || blogId % 5 === 0; // enable for 10% of the sites, with ID divisible by 5
 
 export default function FeaturedImage( {
 	busy,
