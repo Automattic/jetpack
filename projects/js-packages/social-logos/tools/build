@@ -17,3 +17,7 @@ echo 'Starting full build...'
 ./tools/build-react &&
 echo 'Build complete.' ||
 echo 'Build failure!'
+
+if [[ $1 != '--dev' ]] && ! git diff --quiet; then
+	echo 'Production builds should not generate a diff outside of ./build!' && exit 1
+fi
