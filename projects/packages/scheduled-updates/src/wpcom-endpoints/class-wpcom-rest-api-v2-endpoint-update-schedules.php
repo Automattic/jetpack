@@ -8,7 +8,6 @@
  */
 
 use Automattic\Jetpack\Scheduled_Updates;
-use Automattic\Jetpack\Status;
 
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Update_Schedules
@@ -161,7 +160,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 		}
 
-		if ( ( new Status() )->is_staging_site() ) {
+		if ( get_option( 'wpcom_is_staging_site' ) ) {
 			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 		}
 
@@ -267,7 +266,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 		}
 
-		if ( ( new Status() )->is_staging_site() ) {
+		if ( get_option( 'wpcom_is_staging_site' ) ) {
 			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 		}
 
@@ -321,6 +320,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 */
 	public function delete_item_permissions_check( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
+		}
+
+		if ( get_option( 'wpcom_is_staging_site' ) ) {
 			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 		}
 

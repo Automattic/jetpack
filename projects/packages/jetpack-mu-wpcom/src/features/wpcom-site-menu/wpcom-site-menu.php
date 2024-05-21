@@ -593,7 +593,7 @@ function wpcom_add_scheduled_updates_menu() {
 	}
 
 	// Don't show on staging sites.
-	if ( ( new Status() )->is_staging_site() ) {
+	if ( get_option( 'wpcom_is_staging_site' ) ) {
 		return;
 	}
 
