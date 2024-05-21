@@ -91,7 +91,7 @@ abstract class Base_Admin_Menu {
 	/**
 	 * Returns class instance.
 	 *
-	 * @return Admin_Menu
+	 * @return static
 	 */
 	public static function get_instance() {
 		$class = static::class;
