@@ -358,31 +358,29 @@ class Jetpack_WPCOM_Block_Editor {
 			)
 		);
 
-		if ( ( new Host() )->is_woa_site() ) {
-			wp_enqueue_script(
-				'wpcom-block-editor-wpcom-editor-script',
-				$debug
-					? '//widgets.wp.com/wpcom-block-editor/wpcom.editor.js?minify=false'
-					: '//widgets.wp.com/wpcom-block-editor/wpcom.editor.min.js',
-				array(
-					'lodash',
-					'wp-blocks',
-					'wp-data',
-					'wp-dom-ready',
-					'wp-plugins',
-				),
-				$version,
-				true
-			);
-			wp_enqueue_style(
-				'wpcom-block-editor-wpcom-editor-styles',
-				$debug
-					? '//widgets.wp.com/wpcom-block-editor/wpcom.editor.css?minify=false'
-					: '//widgets.wp.com/wpcom-block-editor/wpcom.editor.min.css',
-				array(),
-				$version
-			);
-		}
+		wp_enqueue_script(
+			'wpcom-block-editor-wpcom-editor-script',
+			$debug
+				? '//widgets.wp.com/wpcom-block-editor/wpcom.editor.js?minify=false'
+				: '//widgets.wp.com/wpcom-block-editor/wpcom.editor.min.js',
+			array(
+				'lodash',
+				'wp-blocks',
+				'wp-data',
+				'wp-dom-ready',
+				'wp-plugins',
+			),
+			$version,
+			true
+		);
+		wp_enqueue_style(
+			'wpcom-block-editor-wpcom-editor-styles',
+			$debug
+				? '//widgets.wp.com/wpcom-block-editor/wpcom.editor.css?minify=false'
+				: '//widgets.wp.com/wpcom-block-editor/wpcom.editor.min.css',
+			array(),
+			$version
+		);
 
 		if ( $this->is_iframed_block_editor() ) {
 			wp_enqueue_script(
