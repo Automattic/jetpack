@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fixed a warning in image autofixer which is under feature flag
+
+
