@@ -172,13 +172,6 @@ class Publicize extends Publicize_Base {
 	}
 
 	/**
-	 * Delete the connections transient, so we force refresh the connection data.
-	 */
-	public function force_refresh_connections() {
-		delete_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT );
-	}
-
-	/**
 	 * Get a list of all connections.
 	 *
 	 * Google Plus is no longer a functional service, so we remove it from the list.
@@ -501,17 +494,16 @@ class Publicize extends Publicize_Base {
 	 * Grabs a fresh copy of the publicize connections data, if the cache is busted.
 	 */
 	public function refresh_connections() {
-		if ( get_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT ) ) {
-			return;
-		}
-		$xml = new Jetpack_IXR_Client();
-		$xml->query( 'jetpack.fetchPublicizeConnections' );
-
-		if ( ! $xml->isError() ) {
-			$response = $xml->getResponse();
-			$this->receive_updated_publicize_connections( $response );
-		} else {
-			$this->clear_connections_transient();
+		$connections = get_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT );
+		if ( $connections === false ) {
+			$xml = new Jetpack_IXR_Client();
+			$xml->query( 'jetpack.fetchPublicizeConnections' );
+			if ( ! $xml->isError() ) {
+				$response = $xml->getResponse();
+				$this->receive_updated_publicize_connections( $response );
+			} else {
+				$this->clear_connections_transient();
+			}
 		}
 	}
 
