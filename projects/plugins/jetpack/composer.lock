@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "830cc48d577b80de43a668d91b20cfd9",
+	"content-hash": "28d59d58a2473bd2de9afe7b1f132040",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -3256,6 +3256,62 @@
 			}
 		},
 		{
+			"name": "automattic/patchwork-redefine-exit",
+			"version": "dev-trunk",
+			"dist": {
+				"type": "path",
+				"url": "../../packages/patchwork-redefine-exit",
+				"reference": "1b602d1100fb99492d38bb7164bdfe7d6dd55b9e"
+			},
+			"require": {
+				"antecedent/patchwork": "^2.1",
+				"php": ">=7.0"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"yoast/phpunit-polyfills": "1.1.0"
+			},
+			"type": "library",
+			"extra": {
+				"autotagger": true,
+				"branch-alias": {
+					"dev-trunk": "0.1.x-dev"
+				},
+				"changelogger": {
+					"link-template": "https://github.com/Automattic/patchwork-redefine-exit/compare/v${old}...v${new}"
+				},
+				"mirror-repo": "Automattic/patchwork-redefine-exit"
+			},
+			"autoload": {
+				"classmap": [
+					"src"
+				]
+			},
+			"scripts": {
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"description": "Use antecedent/patchwork to redefine `exit` and `die` for more robust PHPUnit testing.",
+			"keywords": [
+				"die",
+				"exit",
+				"patchwork",
+				"phpunit",
+				"redefinition",
+				"testing"
+			],
+			"transport-options": {
+				"relative": true
+			}
+		},
+		{
 			"name": "doctrine/instantiator",
 			"version": "2.0.0",
 			"source": {
@@ -5914,7 +5970,8 @@
 		"automattic/jetpack-waf": 20,
 		"automattic/jetpack-wordads": 20,
 		"automattic/woocommerce-analytics": 20,
-		"automattic/jetpack-changelogger": 20
+		"automattic/jetpack-changelogger": 20,
+		"automattic/patchwork-redefine-exit": 20
 	},
 	"prefer-stable": true,
 	"prefer-lowest": false,

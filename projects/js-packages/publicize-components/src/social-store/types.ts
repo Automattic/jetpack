@@ -44,6 +44,7 @@ export type ConnectionData = {
 	deletingConnections?: Array< number | string >;
 	updatingConnections?: Array< number | string >;
 	creatingConnection?: boolean;
+	keyringResult?: KeyringResult;
 };
 
 export type JetpackSettings = {
