@@ -235,46 +235,20 @@ const useImageGenerator = () => {
 		responseFormat?: 'url' | 'b64_json';
 		userPrompt?: string;
 	} ): Promise< { data: Array< { [ key: string ]: string } > } > {
-		let token = '';
-
-		try {
-			token = ( await requestJwt() ).token;
-		} catch ( error ) {
-			debug( 'Error getting token: %o', error );
-			return Promise.reject( error );
-		}
-
 		try {
 			debug( 'Generating image' );
 
 			const imageGenerationPrompt = getDalleImageGenerationPrompt( postContent, userPrompt );
 
-			const URL = 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-image';
-
-			const body = {
+			const parameters = {
 				prompt: imageGenerationPrompt,
 				response_format: responseFormat,
 				feature,
 				size: '1792x1024',
 			};
 
-			const headers = {
-				Authorization: `Bearer ${ token }`,
-				'Content-Type': 'application/json',
-			};
-
-			const data = await fetch( URL, {
-				method: 'POST',
-				headers,
-				body: JSON.stringify( body ),
-			} ).then( response => response.json() );
-
-			if ( data?.data?.status && data?.data?.status > 200 ) {
-				debug( 'Error generating image: %o', data );
-				return Promise.reject( data );
-			}
-
-			return data as { data: { [ key: string ]: string }[] };
+			const data: ImageGenerationResponse = await executeImageGeneration( parameters );
+			return data;
 		} catch ( error ) {
 			debug( 'Error generating image: %o', error );
 			return Promise.reject( error );
