@@ -110,7 +110,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		// Called when the user clicks the "Ask AI Assistant" button.
 		const handleAskAiAssistant = useCallback( () => {
-			setShowAiControl( true );
+			setShowAiControl( current => ! current );
 		}, [] );
 
 		// Function to get the messages array for the request.
