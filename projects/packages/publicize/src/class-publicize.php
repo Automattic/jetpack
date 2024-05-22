@@ -253,12 +253,12 @@ class Publicize extends Publicize_Base {
 	/**
 	 * Get all connections for a specific user.
 	 *
-	 * @param boolean $include_connection_health To retrieve the connection health in the response.
+	 * @param arayy $args Arguments to run operations such as force refresh and connection test results.
 
 	 * @return array
 	 */
-	public function get_all_connections_for_user( $include_connection_health = false ) {
-		if ( $include_connection_health ) {
+	public function get_all_connections_for_user( $args = array() ) {
+		if ( isset( $args['clear_cache'] ) && $args['clear_cache'] ) {
 			$this->force_refresh_connections();
 		}
 		$connections = $this->get_all_connections();
@@ -290,7 +290,7 @@ class Publicize extends Publicize_Base {
 			}
 		}
 
-		if ( self::use_admin_ui_v1() && $include_connection_health && count( $connections_to_return ) > 0 ) {
+		if ( self::use_admin_ui_v1() && isset( $args['run_test_results'] ) && $args['run_test_results'] && count( $connections_to_return ) > 0 ) {
 			$connections_to_return = $this->add_connection_test_results( $connections_to_return );
 		}
 
