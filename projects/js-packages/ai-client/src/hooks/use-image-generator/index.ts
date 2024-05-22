@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -157,10 +156,10 @@ const useImageGenerator = () => {
 		postContent: string;
 		userPrompt?: string;
 	} ): Promise< { data: Array< { [ key: string ]: string } > } > {
-		let token = null;
+		let token = '';
 
 		try {
-			token = await requestJwt();
+			token = ( await requestJwt() ).token;
 		} catch ( error ) {
 			debug( 'Error getting token: %o', error );
 			return Promise.reject( error );
@@ -175,59 +174,31 @@ const useImageGenerator = () => {
 				feature
 			);
 
-			const data = {
+			const URL = 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-image';
+
+			const body = {
 				prompt,
-				style: 'photographic',
-				token: token.token,
-				width: 1024,
-				height: 768,
+				feature,
+				model: 'stable-diffusion',
 			};
 
-			const response: Response = await fetch(
-				`https://public-api.wordpress.com/wpcom/v2/sites/${ token.blogId }/ai-image`,
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify( data ),
-				}
-			);
+			const headers = {
+				Authorization: `Bearer ${ token }`,
+				'Content-Type': 'application/json',
+			};
 
-			if ( ! response?.ok ) {
-				debug( 'Error generating image: %o', response );
-				return Promise.reject( {
-					data: {
-						status: response.status,
-					},
-					message: __( 'Error generating image. Please try again later.', 'jetpack-ai-client' ),
-				} );
+			const data = await fetch( URL, {
+				method: 'POST',
+				headers,
+				body: JSON.stringify( body ),
+			} ).then( response => response.json() );
+
+			if ( data?.data?.status && data?.data?.status > 200 ) {
+				debug( 'Error generating image: %o', data );
+				return Promise.reject( data );
 			}
 
-			const blob = await response.blob();
-
-			/**
-			 * Convert the blob to base64 to keep the same format as the Dalle API.
-			 */
-			const base64 = await new Promise( ( resolve, reject ) => {
-				const reader = new FileReader();
-				reader.onloadend = () => {
-					const base64data = reader.result as string;
-					return resolve( base64data.replace( /^data:image\/(png|jpg);base64,/, '' ) );
-				};
-				reader.onerror = reject;
-				reader.readAsDataURL( blob );
-			} );
-
-			// Return the Dalle API format
-			return {
-				data: [
-					{
-						b64_json: base64 as string,
-						revised_prompt: prompt,
-					},
-				],
-			};
+			return data as { data: { [ key: string ]: string }[] };
 		} catch ( error ) {
 			debug( 'Error generating image: %o', error );
 			return Promise.reject( error );
