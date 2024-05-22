@@ -58,6 +58,13 @@ const ConnectionManagement = ( { className = null } ) => {
 		setIsModalOpen( true );
 	}, [] );
 
+	const shouldModalBeOpen =
+		isModalOpen ||
+		// It's possible that when reconnecting a connection from within the modal,
+		// the user closes the modal immediately, without waiting for the confirmation,
+		// in that case we should show the modal again when the keyringResult is set.
+		keyringResult?.ID;
+
 	return (
 		<div className={ classNames( styles.wrapper, className ) }>
 			<h3>{ __( 'My Connections', 'jetpack' ) }</h3>
@@ -87,9 +94,7 @@ const ConnectionManagement = ( { className = null } ) => {
 			<Button onClick={ openModal } variant={ connections.length ? 'secondary' : 'primary' }>
 				{ __( 'Add connection', 'jetpack' ) }
 			</Button>
-			{ isModalOpen || keyringResult?.ID ? (
-				<AddConnectionModal onCloseModal={ closeModal } />
-			) : null }
+			{ shouldModalBeOpen ? <AddConnectionModal onCloseModal={ closeModal } /> : null }
 		</div>
 	);
 };
