@@ -183,7 +183,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 								isLinked &&
 								useAdminUiV1 &&
 								! this.props.isSavingAnyOption( 'publicize' ) ? (
-									<FormFieldset>
+									<FormFieldset className="jp-settings__connection-management">
 										<ConnectionManagement />
 									</FormFieldset>
 								) : null }
