@@ -11,6 +11,13 @@ import requestJwt from '../../jwt/index.js';
 const debug = debugFactory( 'ai-client:use-image-generator' );
 
 /**
+ * The type of the response from the image generation API.
+ */
+type ImageGenerationResponse = {
+	data: Array< { [ key: string ]: string } >;
+};
+
+/**
  * Cut the post content on a given lenght so the total length of the prompt is not longer than 4000 characters.
  * @param {string} content - the content to be truncated
  * @param {number} currentPromptLength - the length of the prompt already in use
@@ -147,15 +154,9 @@ const getStableDiffusionImageGenerationPrompt = async (
 };
 
 const useImageGenerator = () => {
-	const generateImageWithStableDiffusion = async function ( {
-		feature,
-		postContent,
-		userPrompt,
-	}: {
-		feature: string;
-		postContent: string;
-		userPrompt?: string;
-	} ): Promise< { data: Array< { [ key: string ]: string } > } > {
+	const executeImageGeneration = async function ( parameters: {
+		[ key: string ]: string;
+	} ): Promise< ImageGenerationResponse > {
 		let token = '';
 
 		try {
@@ -166,21 +167,7 @@ const useImageGenerator = () => {
 		}
 
 		try {
-			debug( 'Generating image with Stable Diffusion' );
-
-			const prompt = await getStableDiffusionImageGenerationPrompt(
-				postContent,
-				userPrompt,
-				feature
-			);
-
 			const URL = 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-image';
-
-			const body = {
-				prompt,
-				feature,
-				model: 'stable-diffusion',
-			};
 
 			const headers = {
 				Authorization: `Bearer ${ token }`,
@@ -190,7 +177,7 @@ const useImageGenerator = () => {
 			const data = await fetch( URL, {
 				method: 'POST',
 				headers,
-				body: JSON.stringify( body ),
+				body: JSON.stringify( parameters ),
 			} ).then( response => response.json() );
 
 			if ( data?.data?.status && data?.data?.status > 200 ) {
@@ -199,6 +186,38 @@ const useImageGenerator = () => {
 			}
 
 			return data as { data: { [ key: string ]: string }[] };
+		} catch ( error ) {
+			debug( 'Error generating image: %o', error );
+			return Promise.reject( error );
+		}
+	};
+
+	const generateImageWithStableDiffusion = async function ( {
+		feature,
+		postContent,
+		userPrompt,
+	}: {
+		feature: string;
+		postContent: string;
+		userPrompt?: string;
+	} ): Promise< ImageGenerationResponse > {
+		try {
+			debug( 'Generating image with Stable Diffusion' );
+
+			const prompt = await getStableDiffusionImageGenerationPrompt(
+				postContent,
+				userPrompt,
+				feature
+			);
+
+			const parameters = {
+				prompt,
+				feature,
+				model: 'stable-diffusion',
+			};
+
+			const data: ImageGenerationResponse = await executeImageGeneration( parameters );
+			return data;
 		} catch ( error ) {
 			debug( 'Error generating image: %o', error );
 			return Promise.reject( error );
