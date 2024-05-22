@@ -43,7 +43,7 @@ const isAiAssistantExperimentalImageGenerationSupportEnabled = getFeatureAvailab
 );
 const IMAGE_GENERATION_MODEL = isAiAssistantExperimentalImageGenerationSupportEnabled
 	? 'stable-diffusion'
-	: 'dalle-3';
+	: 'dall-e-3';
 /**
  * Determine the site type for tracking purposes.
  *
