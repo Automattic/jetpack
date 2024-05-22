@@ -34,6 +34,7 @@ const ConnectionScreenBody: React.FC< ConnectScreenProps > = props => {
 					{ __( 'Receive notifications about new likes and comments', 'jetpack-my-jetpack' ) }
 				</li>
 				<li>{ __( 'Let visitors share your content on social media', 'jetpack-my-jetpack' ) }</li>
+				<li>{ __( 'Create better content with powerful AI tools', 'jetpack-my-jetpack' ) }</li>
 				<li>
 					{ __( 'And more!', 'jetpack-my-jetpack' ) }{ ' ' }
 					<a

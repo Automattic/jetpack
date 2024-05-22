@@ -117,8 +117,6 @@ class Jetpack_Boost {
 
 		add_action( 'jetpack_boost_critical_css_environment_changed', array( $this, 'handle_environment_change' ), 10, 2 );
 
-		add_filter( 'query_vars', array( self::class, 'whitelist_query_args' ) );
-
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
 
@@ -147,7 +145,6 @@ class Jetpack_Boost {
 	 * @param array $allowed_query_args The list of allowed query args.
 	 *
 	 * @return array The modified list of allowed query args.
-
 	 */
 	public static function whitelist_query_args( $allowed_query_args ) {
 		$allowed_query_args[] = Generator::GENERATE_QUERY_ACTION;

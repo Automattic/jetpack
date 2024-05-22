@@ -39,6 +39,7 @@ class Boost_Cache_Utils {
 
 	/**
 	 * Returns a sanitized directory path.
+	 *
 	 * @param string $path - The path to sanitize.
 	 * @return string
 	 */

@@ -36,6 +36,18 @@ class Scheduled_Updates_Logs {
 	const PLUGIN_UPDATE_FAILURE_AND_ROLLBACK      = 'PLUGIN_UPDATE_FAILURE_AND_ROLLBACK';
 	const PLUGIN_UPDATE_FAILURE_AND_ROLLBACK_FAIL = 'PLUGIN_UPDATE_FAILURE_AND_ROLLBACK_FAIL';
 
+	const ENUM_ACTIONS = array(
+		self::PLUGIN_UPDATES_START,
+		self::PLUGIN_UPDATES_SUCCESS,
+		self::PLUGIN_UPDATES_FAILURE,
+		self::PLUGIN_UPDATE_SUCCESS,
+		self::PLUGIN_UPDATE_FAILURE,
+		self::PLUGIN_SITE_HEALTH_CHECK_SUCCESS,
+		self::PLUGIN_SITE_HEALTH_CHECK_FAILURE,
+		self::PLUGIN_UPDATE_FAILURE_AND_ROLLBACK,
+		self::PLUGIN_UPDATE_FAILURE_AND_ROLLBACK_FAIL,
+	);
+
 	/**
 	 * Logs a scheduled update event.
 	 *
@@ -231,6 +243,56 @@ class Scheduled_Updates_Logs {
 		if ( $request->get_method() === \WP_REST_Server::DELETABLE ) {
 			self::clear( $schedule_id );
 		}
+	}
+
+	/**
+	 * Registers the last_run_timestamp field for the update-schedule REST API.
+	 */
+	public static function add_log_fields() {
+		register_rest_field(
+			'update-schedule',
+			'last_run_timestamp',
+			array(
+				/**
+				 * Populates the last_run_timestamp field.
+				 *
+				 * @param array $item Prepared response array.
+				 * @return int|null
+				 */
+				'get_callback' => function ( $item ) {
+					$status = static::infer_status_from_logs( $item['schedule_id'] );
+
+					return $status['last_run_timestamp'] ?? null;
+				},
+				'schema'       => array(
+					'description' => 'Unix timestamp (UTC) for when the last run occurred.',
+					'type'        => 'integer',
+				),
+			)
+		);
+
+		register_rest_field(
+			'update-schedule',
+			'last_run_status',
+			array(
+				/**
+				 * Populates the last_run_status field.
+				 *
+				 * @param array $item Prepared response array.
+				 * @return string|null
+				 */
+				'get_callback' => function ( $item ) {
+					$status = static::infer_status_from_logs( $item['schedule_id'] );
+
+					return $status['last_run_status'] ?? null;
+				},
+				'schema'       => array(
+					'description' => 'Status of last run.',
+					'type'        => 'string',
+					'enum'        => array( 'success', 'failure-and-rollback', 'failure-and-rollback-fail' ),
+				),
+			)
+		);
 	}
 
 	/**

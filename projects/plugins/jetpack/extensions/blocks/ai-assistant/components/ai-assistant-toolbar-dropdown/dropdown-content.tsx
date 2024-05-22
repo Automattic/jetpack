@@ -13,18 +13,20 @@ import {
 	PROMPT_TYPE_CHANGE_TONE,
 	PROMPT_TYPE_CORRECT_SPELLING,
 	PROMPT_TYPE_MAKE_LONGER,
+	PROMPT_TYPE_MAKE_SHORTER,
 	PROMPT_TYPE_SIMPLIFY,
 	PROMPT_TYPE_SUMMARIZE,
 	PROMPT_TYPE_CHANGE_LANGUAGE,
 	PROMPT_TYPE_USER_PROMPT,
 } from '../../lib/prompt';
-import { I18nMenuDropdown } from '../i18n-dropdown-control';
-import { ToneDropdownMenu } from '../tone-dropdown-control';
+import { capitalize } from '../../lib/utils/capitalize';
+import { I18nMenuDropdown, TRANSLATE_LABEL } from '../i18n-dropdown-control';
+import { TONE_LABEL, ToneDropdownMenu } from '../tone-dropdown-control';
 import './style.scss';
 /**
  * Types and constants
  */
-import type { ExtendedBlockProp } from '../../extensions/ai-assistant';
+import type { ExtendedBlockProp, ExtendedInlineBlockProp } from '../../extensions/ai-assistant';
 import type { PromptTypeProp } from '../../lib/prompt';
 import type { ToneProp } from '../tone-dropdown-control';
 import type { ReactElement } from 'react';
@@ -41,10 +43,21 @@ export const QUICK_EDIT_KEY_SUMMARIZE = 'summarize' as const;
 // Quick edits option: "Make longer"
 export const QUICK_EDIT_KEY_MAKE_LONGER = 'make-longer' as const;
 
+// Quick edits option: "Make longer"
+export const QUICK_EDIT_KEY_MAKE_SHORTER = 'make-shorter' as const;
+
 // Ask AI Assistant option
 export const KEY_ASK_AI_ASSISTANT = 'ask-ai-assistant' as const;
 
-const quickActionsList = {
+const quickActionsList: {
+	[ key: string ]: {
+		name: string;
+		key: string;
+		aiSuggestion: PromptTypeProp;
+		icon: ReactElement;
+		options?: AiAssistantDropdownOnChangeOptionsArgProps;
+	}[];
+} = {
 	default: [
 		{
 			name: __( 'Correct spelling and grammar', 'jetpack' ),
@@ -70,6 +83,12 @@ const quickActionsList = {
 			name: __( 'Expand', 'jetpack' ),
 			key: QUICK_EDIT_KEY_MAKE_LONGER,
 			aiSuggestion: PROMPT_TYPE_MAKE_LONGER,
+			icon: postContent,
+		},
+		{
+			name: __( 'Make shorter', 'jetpack' ),
+			key: QUICK_EDIT_KEY_MAKE_SHORTER,
+			aiSuggestion: PROMPT_TYPE_MAKE_SHORTER,
 			icon: postContent,
 		},
 	],
@@ -102,14 +121,17 @@ export type AiAssistantDropdownOnChangeOptionsArgProps = {
 	userPrompt?: string;
 };
 
+export type OnRequestSuggestion = (
+	promptType: PromptTypeProp,
+	options?: AiAssistantDropdownOnChangeOptionsArgProps,
+	humanText?: string
+) => void;
+
 type AiAssistantToolbarDropdownContentProps = {
-	blockType: ExtendedBlockProp;
+	blockType: ExtendedBlockProp | ExtendedInlineBlockProp;
 	disabled?: boolean;
 	onAskAiAssistant: () => void;
-	onRequestSuggestion: (
-		promptType: PromptTypeProp,
-		options?: AiAssistantDropdownOnChangeOptionsArgProps
-	) => void;
+	onRequestSuggestion: OnRequestSuggestion;
 };
 
 /**
@@ -152,7 +174,11 @@ export default function AiAssistantToolbarDropdownContent( {
 						iconPosition="left"
 						key={ `key-${ quickAction.key }` }
 						onClick={ () => {
-							onRequestSuggestion( quickAction.aiSuggestion, { ...( quickAction.options ?? {} ) } );
+							onRequestSuggestion(
+								quickAction.aiSuggestion,
+								{ ...( quickAction.options ?? {} ) },
+								quickAction.name
+							);
 						} }
 						disabled={ disabled }
 					>
@@ -162,14 +188,22 @@ export default function AiAssistantToolbarDropdownContent( {
 
 				<ToneDropdownMenu
 					onChange={ tone => {
-						onRequestSuggestion( PROMPT_TYPE_CHANGE_TONE, { tone } );
+						onRequestSuggestion(
+							PROMPT_TYPE_CHANGE_TONE,
+							{ tone },
+							`${ TONE_LABEL }: ${ capitalize( tone ) }`
+						);
 					} }
 					disabled={ disabled }
 				/>
 
 				<I18nMenuDropdown
-					onChange={ language => {
-						onRequestSuggestion( PROMPT_TYPE_CHANGE_LANGUAGE, { language } );
+					onChange={ ( language, name ) => {
+						onRequestSuggestion(
+							PROMPT_TYPE_CHANGE_LANGUAGE,
+							{ language },
+							`${ TRANSLATE_LABEL }: ${ name }`
+						);
 					} }
 					disabled={ disabled }
 				/>

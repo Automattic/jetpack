@@ -8,12 +8,14 @@ import { NoticeContext } from '../../context/notices/noticeContext';
 import { useAllProducts } from '../../data/products/use-product';
 import { getMyJetpackWindowRestState } from '../../data/utils/get-my-jetpack-window-state';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
+import useAnalytics from '../use-analytics';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
 import useMyJetpackNavigate from '../use-my-jetpack-navigate';
 
 type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
 
 const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
+	const { recordEvent } = useAnalytics();
 	const { setNotice, resetNotice } = useContext( NoticeContext );
 	const { apiRoot, apiNonce } = getMyJetpackWindowRestState();
 	const { isRegistered, isUserConnected, hasConnectedOwner } = useMyJetpackConnection();
@@ -42,14 +44,17 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 
 		const onActionButtonClick = () => {
 			if ( requiresUserConnection ) {
+				recordEvent( 'jetpack_my_jetpack_user_connection_notice_cta_click' );
 				navToConnection();
 			}
 
+			recordEvent( 'jetpack_my_jetpack_site_connection_notice_cta_click' );
 			handleRegisterSite().then( () => {
 				resetNotice();
 				setNotice( {
 					message: __( 'Your site has been successfully connected.', 'jetpack-my-jetpack' ),
 					options: {
+						id: 'site-connection-success-notice',
 						level: 'success',
 						actions: [],
 						priority: NOTICE_PRIORITY_HIGH,
@@ -91,6 +96,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		};
 
 		const noticeOptions = {
+			id: requiresUserConnection ? 'user-connection-notice' : 'site-connection-notice',
 			level: 'info',
 			actions: [
 				{
@@ -98,7 +104,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 						? userConnectionContent.buttonLabel
 						: siteConnectionContent.buttonLabel,
 					isLoading: siteIsRegistering,
-					loadingText: __( 'Conecting…', 'jetpack-my-jetpack' ),
+					loadingText: __( 'Connecting…', 'jetpack-my-jetpack' ),
 					onClick: onActionButtonClick,
 					noDefaultClasses: true,
 				},
@@ -129,6 +135,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		isUserConnected,
 		navToConnection,
 		products,
+		recordEvent,
 		redBubbleAlerts,
 		resetNotice,
 		setNotice,

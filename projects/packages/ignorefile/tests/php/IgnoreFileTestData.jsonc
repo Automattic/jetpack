@@ -3,11 +3,56 @@
 
 {
 	//////////////////////
-	// Cases copied from https://github.com/kaelzhang/node-ignore/blob/7cc95d22ea9a647442c06f4383a73e7a439a48d6/test/fixtures/cases.js
+	// Cases copied from https://github.com/kaelzhang/node-ignore/blob/b00eaa3db955da3473265b14997f3cbbaa918b99/test/fixtures/cases.js
 	// Assuming this is original enough to attract copyright in the first place, this data is under the terms of that project's MIT license.
-	// @see https://github.com/kaelzhang/node-ignore/blob/7cc95d22ea9a647442c06f4383a73e7a439a48d6/LICENSE-MIT
+	// @see https://github.com/kaelzhang/node-ignore/blob/b00eaa3db955da3473265b14997f3cbbaa918b99/LICENSE-MIT
 	//////////////////////
 
+	"#108: gitignore rules with BOM": {
+		"rules": "﻿node_modules\n",
+		"expects": {
+			"node_modules": "ignored"
+		}
+	},
+	"charactor ?": {
+		"rules": [
+			"foo?bar"
+		],
+		"expects": {
+			"foo/bar": "nomatch",
+			"fooxbar" :"ignored",
+			"fooxxbar": "nomatch"
+		}
+	},
+	"#57, normal * and normal consecutive *": {
+		"rules": [
+			"**foo",
+			"*bar",
+			"ba*z",
+			"folder/other-folder/**/**js"
+		],
+		"expects": {
+			"foo": "ignored",
+			"a/foo": "ignored",
+			"afoo": "ignored",
+			"abfoo": "ignored",
+			"abcfoo": "ignored",
+			"bar": "ignored",
+			"abar": "ignored",
+			"baz": "ignored",
+			"ba/z": "nomatch",
+			"baaaaaaz": "ignored",
+			"folder/other-folder/dir/main.js": "ignored"
+		}
+	},
+	"#76 (invalid), comments with no heading whitespace": {
+		"rules": [
+			"node_modules# comments"
+		],
+		"expects": {
+			"node_modules/a.js": "nomatch"
+		}
+	},
 	"#59 and more cases about range notation (1)": {
 		"rules": [
 			"src/\\[foo\\]",
@@ -840,6 +885,23 @@
 			"some/special/path/to/目录/test/ignored.js": "ignored"
 		}
 	},
+	"#81: invalid trailing backslash at the end should not throw, test non-windows env only" : {
+		"rules": [
+			"test\\",
+			"testa\\\\",
+			"\\",
+			"foo/*",
+			// test negative pattern
+			"!foo/test\\"
+		],
+		"expects": {
+			"test": "nomatch",
+			"test\\": "nomatch",
+			"testa\\": "ignored",
+			"\\": "nomatch",
+			"foo/test\\": "ignored"
+		}
+	},
 	"linux: back slashes on paths": {
 		"rules": [
 			"a",
@@ -907,6 +969,19 @@
 		"expects": {
 			"folder/folder/testFile.txt": "ignored",
 			"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaafolde": "nomatch"
+		}
+	},
+
+	"#76 (invalid), comments with no heading whitespace - additional tests": {
+		"rules": [
+			"foo # comments",
+			"bar# comments"
+		],
+		"expects": {
+			"foo": "nomatch",
+			"foo # comments": "ignored",
+			"bar": "nomatch",
+			"bar# comments": "ignored"
 		}
 	},
 

@@ -9,17 +9,18 @@ import debugFactory from 'debug';
 /*
  * Internal dependencies
  */
-import { Nudge } from '../../../../shared/components/upgrade-nudge';
-import { PLAN_TYPE_TIERED, usePlanType } from '../../../../shared/use-plan-type';
+import { Nudge as StandardNudge } from '../../../../shared/components/upgrade-nudge';
 import useAICheckout from '../../hooks/use-ai-checkout';
 import useAiFeature from '../../hooks/use-ai-feature';
 import { canUserPurchasePlan } from '../../lib/connection';
+import { LightNudge } from './light-nudge';
 import type { ReactElement } from 'react';
 import './style.scss';
 
 type UpgradePromptProps = {
 	placement?: string;
 	description?: string;
+	useLightNudge?: boolean;
 };
 
 const debug = debugFactory( 'jetpack-ai-assistant:upgrade-prompt' );
@@ -33,20 +34,13 @@ const debug = debugFactory( 'jetpack-ai-assistant:upgrade-prompt' );
 const DefaultUpgradePrompt = ( {
 	placement = null,
 	description = null,
+	useLightNudge = false,
 }: UpgradePromptProps ): ReactElement => {
+	const Nudge = useLightNudge ? LightNudge : StandardNudge;
+
 	const { checkoutUrl, autosaveAndRedirect, isRedirecting } = useAICheckout();
 	const canUpgrade = canUserPurchasePlan();
-	const {
-		nextTier,
-		tierPlansEnabled,
-		currentTier,
-		requestsCount: allTimeRequestsCount,
-		usagePeriod,
-	} = useAiFeature();
-
-	const planType = usePlanType( currentTier );
-	const requestsCount =
-		planType === PLAN_TYPE_TIERED ? usagePeriod?.requestsCount : allTimeRequestsCount;
+	const { nextTier, tierPlansEnabled, currentTier, requestsCount } = useAiFeature();
 
 	const { tracks } = useAnalytics();
 
@@ -181,9 +175,17 @@ const DefaultUpgradePrompt = ( {
  *
  * @param {object} props - Component props.
  * @param {string} props.description - The description to display in the prompt.
+ * @param {boolean} props.useLightNudge - Wheter to use the light variant of the nudge, or the standard one.
  * @returns {ReactElement} the Nudge component with the prompt.
  */
-const VIPUpgradePrompt = ( { description = null }: { description?: string } ): ReactElement => {
+const VIPUpgradePrompt = ( {
+	description = null,
+	useLightNudge = false,
+}: {
+	description?: string;
+	useLightNudge?: boolean;
+} ): ReactElement => {
+	const Nudge = useLightNudge ? LightNudge : StandardNudge;
 	const vipDescription = createInterpolateElement(
 		__(
 			"You've reached the Jetpack AI rate limit. <strong>Please reach out to your VIP account team.</strong>",
@@ -215,7 +217,10 @@ const UpgradePrompt = props => {
 
 	// If the user is on a VIP site, show the VIP upgrade prompt.
 	if ( upgradeType === 'vip' ) {
-		return VIPUpgradePrompt( { description: props.description } );
+		return VIPUpgradePrompt( {
+			description: props.description,
+			useLightNudge: props?.useLightNudge,
+		} );
 	}
 
 	return DefaultUpgradePrompt( props );

@@ -37,13 +37,16 @@ class Automattic_For_Agencies_Client {
 		add_action( 'load-settings_page_' . AUTOMATTIC_FOR_AGENCIES_CLIENT_SLUG, array( static::class, 'load_scripts_styles' ) );
 
 		// Display a modal when trying to deactivate the plugin.
-		Deactivation_Handler::init( AUTOMATTIC_FOR_AGENCIES_CLIENT_SLUG, __DIR__ . '/admin/deactivation-dialog.php' );
+		$manager = new Connection_Manager( 'automattic-for-agencies-client' );
+		if ( $manager->is_connected() ) {
+			Deactivation_Handler::init( AUTOMATTIC_FOR_AGENCIES_CLIENT_SLUG, __DIR__ . '/admin/deactivation-dialog.php' );
+		}
 	}
 
 	/**
 	 * Configure what Jetpack packages should get automatically initialized.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @return void
 	 */
@@ -75,7 +78,7 @@ class Automattic_For_Agencies_Client {
 	/**
 	 * Add submenu.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @return void
 	 */

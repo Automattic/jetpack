@@ -1,7 +1,7 @@
 .ai-assistant-featured-image {
 	&__content {
 		display: flex;
-		margin-top: 16px;
+		margin-top: 32px;
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
@@ -12,6 +12,32 @@
 		width: 100%;
 		display: flex;
 		justify-content: center;
+	}
+
+	&__user-prompt {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		flex-direction: row;
+	}
+
+	&__user-prompt-textarea {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+
+		textarea {
+			width: 100%;
+			outline: none;
+			border: 1px solid #CCC;
+			border-radius: 6px;
+			padding: 12px;
+			color: var(--studio-black);
+		}
+
+		textarea:disabled {
+			opacity: 0.5;
+		}
 	}
 
 	&__actions-left {
@@ -34,6 +60,7 @@
 
 	&__image-canvas {
 		width: 100%;
+		margin-top: 24px;
 		& > .jetpack-ai-upgrade-banner {
 			margin-bottom: 8px;
 		}

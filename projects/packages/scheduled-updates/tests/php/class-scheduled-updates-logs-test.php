@@ -38,8 +38,6 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 		parent::set_up_before_class();
 
 		static::defineFunctionMock( 'Automattic\Jetpack', 'realpath' );
-		Scheduled_Updates::init();
-		Scheduled_Updates::load_rest_api_endpoints();
 	}
 
 	/**
@@ -50,7 +48,10 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 	protected function set_up() {
 		parent::set_up_wordbless();
 		\WorDBless\Users::init()->clear_all_users();
-		Scheduled_Updates::init();
+
+		// Be sure wordbless cron is reset before each test.
+		delete_option( 'cron' );
+		update_option( 'cron', array( 'version' => 2 ), 'yes' );
 
 		// Initialize the admin.
 		$this->admin_id = wp_insert_user(
@@ -61,6 +62,7 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 		wp_set_current_user( $this->admin_id );
+		Scheduled_Updates::init();
 	}
 
 	/**
@@ -70,7 +72,6 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 	 */
 	protected function tear_down() {
 		delete_option( Scheduled_Updates_Logs::OPTION_NAME );
-
 		parent::tear_down_wordbless();
 	}
 
@@ -287,15 +288,16 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 	 */
 	private function create_schedule( $i = 0 ) {
 		$request           = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
-		$scheduled_plugins = array( 'test/test' . $i . '.php' );
+		$scheduled_plugins = array( 'gutenberg/gutenberg.php', 'installed-plugin/installed-plugin.php' );
+		$scheduled_plugins = array_slice( $scheduled_plugins, 0, $i );
 		$request->set_body_params(
 			array(
-				'plugins'  => $scheduled_plugins,
-				'schedule' => array(
-					'timestamp'          => strtotime( "next Monday {$i}:00" ),
-					'interval'           => 'weekly',
-					'health_check_paths' => array(),
+				'plugins'            => $scheduled_plugins,
+				'schedule'           => array(
+					'timestamp' => strtotime( "next Monday {$i}:00" ),
+					'interval'  => 'weekly',
 				),
+				'health_check_paths' => array(),
 			)
 		);
 

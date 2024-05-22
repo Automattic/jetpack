@@ -99,11 +99,13 @@ function activate() {
  * Notify the user that the installation of Creative Mail failed.
  */
 function error_notice() {
-	?>
-	<div class="notice notice-error is-dismissible">
-		<p><?php esc_html_e( 'There was an error installing Creative Mail.', 'jetpack' ); ?></p>
-	</div>
-	<?php
+	wp_admin_notice(
+		esc_html__( 'There was an error installing Creative Mail.', 'jetpack' ),
+		array(
+			'type'        => 'error',
+			'dismissible' => true,
+		)
+	);
 }
 
 /**

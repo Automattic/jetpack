@@ -269,10 +269,10 @@ abstract class Jetpack_Admin_Page {
 	/**
 	 * Build header, content, and footer for admin page.
 	 *
-	 * @param string $callback Callback to produce the content of the page. The callback is responsible for any needed escaping.
-	 * @param array  $args Options for the wrapping. Also passed to the `jetpack_admin_pages_wrap_ui_after_callback` action.
-	 *   - is-wide: (bool) Set the "is-wide" class on the wrapper div, which increases the max width. Default false.
-	 *   - show-nav: (bool) Whether to show the navigation bar at the top of the page. Default true.
+	 * @param callable $callback Callback to produce the content of the page. The callback is responsible for any needed escaping.
+	 * @param array    $args Options for the wrapping. Also passed to the `jetpack_admin_pages_wrap_ui_after_callback` action.
+	 *     - is-wide: (bool) Set the "is-wide" class on the wrapper div, which increases the max width. Default false.
+	 *     - show-nav: (bool) Whether to show the navigation bar at the top of the page. Default true.
 	 */
 	public static function wrap_ui( $callback, $args = array() ) {
 		$defaults = array(

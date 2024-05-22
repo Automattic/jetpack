@@ -28,6 +28,11 @@ if ( ! defined( 'JETPACK_BOOST_CACHE_DURATION' ) ) {
 	define( 'JETPACK_BOOST_CACHE_DURATION', HOUR_IN_SECONDS );
 }
 
+// Define how many seconds the rebuild cache should be considered stale, but usable, for each cached page.
+if ( ! defined( 'JETPACK_BOOST_CACHE_REBUILD_DURATION' ) ) {
+	define( 'JETPACK_BOOST_CACHE_REBUILD_DURATION', 10 );
+}
+
 class Boost_Cache {
 	/**
 	 * @var Boost_Cache_Settings - The settings for the page cache.
@@ -50,7 +55,7 @@ class Boost_Cache {
 	private static $cache_engine_loaded = false;
 
 	/**
-	 * @param $storage - Optionally provide a Boost_Cache_Storage subclass to handle actually storing and retrieving cached content. Defaults to a new instance of File_Storage.
+	 * @param ?Storage\Storage $storage - Optionally provide a Storage subclass to handle actually storing and retrieving cached content. Defaults to a new instance of File_Storage.
 	 */
 	public function __construct( $storage = null ) {
 		$this->settings = Boost_Cache_Settings::get_instance();
@@ -63,11 +68,11 @@ class Boost_Cache {
 	 * Initialize the actions for the cache.
 	 */
 	public function init_actions() {
-		add_action( 'transition_post_status', array( $this, 'delete_on_post_transition' ), 10, 3 );
-		add_action( 'transition_comment_status', array( $this, 'delete_on_comment_transition' ), 10, 3 );
-		add_action( 'comment_post', array( $this, 'delete_on_comment_post' ), 10, 3 );
-		add_action( 'edit_comment', array( $this, 'delete_on_comment_edit' ), 10, 2 );
-		add_action( 'switch_theme', array( $this, 'delete_cache' ) );
+		add_action( 'transition_post_status', array( $this, 'invalidate_on_post_transition' ), 10, 3 );
+		add_action( 'transition_comment_status', array( $this, 'invalidate_on_comment_transition' ), 10, 3 );
+		add_action( 'comment_post', array( $this, 'rebuild_on_comment_post' ), 10, 3 );
+		add_action( 'edit_comment', array( $this, 'rebuild_on_comment_edit' ), 10, 2 );
+		add_action( 'switch_theme', array( $this, 'invalidate_cache' ) );
 		add_action( 'wp_trash_post', array( $this, 'delete_on_post_trash' ), 10, 2 );
 		add_filter( 'wp_php_error_message', array( $this, 'disable_caching_on_error' ) );
 	}
@@ -119,7 +124,15 @@ class Boost_Cache {
 			return false;
 		}
 
-		$cached = $this->storage->read( $this->request->get_uri(), $this->request->get_parameters() );
+		// check if rebuild file exists and rename it to the correct file
+		$rebuild_found = $this->storage->reset_rebuild_file( $this->request->get_uri(), $this->request->get_parameters() );
+		if ( $rebuild_found ) {
+			Logger::debug( 'Rebuild file found. Will be used for cache until new file created.' );
+			$cached = false;
+		} else {
+			$cached = $this->storage->read( $this->request->get_uri(), $this->request->get_parameters() );
+		}
+
 		if ( is_string( $cached ) ) {
 			$this->send_header( 'X-Jetpack-Boost-Cache: hit' );
 			Logger::debug( 'Serving cached page' );
@@ -127,7 +140,8 @@ class Boost_Cache {
 			die();
 		}
 
-		$this->send_header( 'X-Jetpack-Boost-Cache: miss' );
+		$cache_status = $rebuild_found ? 'rebuild' : 'miss';
+		$this->send_header( 'X-Jetpack-Boost-Cache: ' . $cache_status );
 
 		return false;
 	}
@@ -180,96 +194,99 @@ class Boost_Cache {
 	}
 
 	/**
-	 * Delete the cache for the front page and paged archives.
+	 * Delete/rebuild the cache for the front page and paged archives.
 	 * This is called when a post is edited, deleted, or published.
 	 *
-	 * @param WP_Post $post - The post that should be deleted.
+	 * @param string $action - The action to take when deleting the cache.
 	 */
-	public function delete_cache_for_front_page() {
+	public function invalidate_cache_for_front_page( $action = Filesystem_Utils::REBUILD_FILES ) {
 		if ( get_option( 'show_on_front' ) === 'page' ) {
 			$front_page_id = get_option( 'page_on_front' ); // static page
 			if ( $front_page_id ) {
-				Logger::debug( 'delete_cache_for_front_page: deleting front page cache' );
-				$this->delete_cache_for_post( get_post( $front_page_id ) );
+				Logger::debug( 'invalidate_cache_for_front_page: deleting front page cache' );
+				$this->invalidate_cache_for_post( get_post( $front_page_id ), $action );
 			}
 			$posts_page_id = get_option( 'page_for_posts' ); // posts page
 			if ( $posts_page_id ) {
-				Logger::debug( 'delete_cache_for_front_page: deleting posts page cache' );
-				$this->delete_cache_for_post( get_post( $posts_page_id ) );
+				Logger::debug( 'invalidate_cache_for_front_page: deleting posts page cache' );
+				$this->invalidate_cache_for_post( get_post( $posts_page_id ), $action );
 			}
 		} else {
-			$this->storage->invalidate( home_url(), Filesystem_Utils::DELETE_FILES );
+			$this->storage->invalidate( home_url(), $action );
 			Logger::debug( 'delete front page cache ' . Boost_Cache_Utils::normalize_request_uri( home_url() ) );
 		}
 	}
 
 	/**
-	 * Delete the cache for the given post.
+	 * Delete/rebuild the cache for the given post.
 	 *
-	 * @param int $post_id - The ID of the post to delete the cache for.
+	 * @param int    $post_id - The ID of the post to delete the cache for.
+	 * @param string $action - The action to take when deleting the cache.
 	 */
-	public function delete_cache_by_post_id( $post_id ) {
+	public function invalidate_cache_by_post_id( $post_id, $action = Filesystem_Utils::REBUILD_ALL ) {
 		$post = get_post( (int) $post_id );
 		if ( $post ) {
-			$this->delete_cache_for_post( $post );
+			$this->invalidate_cache_for_post( $post, $action );
 		}
 	}
 
 	/**
-	 * Delete the cache for the post if the comment transitioned from one state to another.
+	 * Rebuild the cache for the post if the comment transitioned from one state to another.
 	 *
-	 * @param string $new_status - The new status of the comment.
-	 * @param string $old_status - The old status of the comment.
+	 * @param string     $new_status - The new status of the comment.
+	 * @param string     $old_status - The old status of the comment.
 	 * @param WP_Comment $comment - The comment that transitioned.
 	 */
-	public function delete_on_comment_transition( $new_status, $old_status, $comment ) {
+	public function invalidate_on_comment_transition( $new_status, $old_status, $comment ) {
 		if ( $new_status === $old_status ) {
 			return;
 		}
-		Logger::debug( "delete_on_comment_transition: $new_status, $old_status" );
+		Logger::debug( "invalidate_on_comment_transition: $new_status, $old_status" );
 
 		if ( $new_status !== 'approved' && $old_status !== 'approved' ) {
-			Logger::debug( 'delete_on_comment_transition: comment not approved' );
+			Logger::debug( 'invalidate_on_comment_transition: comment not approved' );
 			return;
 		}
 
 		$post = get_post( $comment->comment_post_ID );
-		$this->delete_cache_for_post( $post );
+
+		$this->invalidate_cache_for_post( $post );
 	}
 
 	/**
-	 * After editing a comment, delete the cache for the post if the comment is approved.
-	 * If changing state and editing, both actions will be called, but the cache will only be deleted once.
+	 * After editing a comment, rebuild the cache for the post if the comment is approved.
+	 * If changing state and editing, both actions will be called, but the cache will only be rebuilt once.
 	 *
-	 * @param int $comment_id - The id of the comment.
+	 * @param int   $comment_id - The id of the comment.
 	 * @param array $commentdata - The comment data.
 	 */
-	public function delete_on_comment_edit( $comment_id, $commentdata ) {
+	public function rebuild_on_comment_edit( $comment_id, $commentdata ) {
 		$post = get_post( $commentdata['comment_post_ID'] );
 
 		if ( (int) $commentdata['comment_approved'] === 1 ) {
-			$this->delete_cache_for_post( $post );
+			$this->invalidate_cache_for_post( $post );
 		}
 	}
 
 	/**
-	 * After a comment is posted, delete the cache for the post if the comment is approved.
-	 * If the comment is not approved, only delete the cache for this post for this visitor.
+	 * After a comment is posted, rebuild the cache for the post if the comment is approved.
+	 * If the comment is not approved, only rebuild the cache for this post for this visitor.
 	 *
-	 * @param int $comment_id - The id of the comment.
-	 * @param int $comment_approved - The approval status of the comment.
+	 * @param int   $comment_id - The id of the comment.
+	 * @param int   $comment_approved - The approval status of the comment.
 	 * @param array $commentdata - The comment data.
 	 */
-	public function delete_on_comment_post( $comment_id, $comment_approved, $commentdata ) {
+	public function rebuild_on_comment_post( $comment_id, $comment_approved, $commentdata ) {
 		$post = get_post( $commentdata['comment_post_ID'] );
-		Logger::debug( "delete_on_comment_post: $comment_id, $comment_approved, {$post->ID}" );
+		Logger::debug( "rebuild_on_comment_post: $comment_id, $comment_approved, {$post->ID}" );
 		/**
 		 * If a comment is not approved, we only need to delete the cache for
 		 * this post for this visitor so the unmoderated comment is shown to them.
 		 */
 		if ( $comment_approved !== 1 ) {
 			$parameters = $this->request->get_parameters();
-			/**
+
+			/*
 			 * if there are no cookies, then visitor did not click "remember me".
 			 * No need to delete the cache for this visitor as they'll be
 			 * redirected to a page with a hash in the URL for the moderation
@@ -282,7 +299,7 @@ class Boost_Cache {
 			return;
 		}
 
-		$this->delete_cache_for_post( $post );
+		$this->invalidate_cache_for_post( $post );
 	}
 
 	/**
@@ -298,16 +315,16 @@ class Boost_Cache {
 	/**
 	 * Delete the cached post if it transitioned from one state to another.
 	 *
-	 * @param string $new_status - The new status of the post.
-	 * @param string $old_status - The old status of the post.
+	 * @param string  $new_status - The new status of the post.
+	 * @param string  $old_status - The old status of the post.
 	 * @param WP_Post $post - The post that transitioned.
 	 */
-	public function delete_on_post_transition( $new_status, $old_status, $post ) {
+	public function invalidate_on_post_transition( $new_status, $old_status, $post ) {
 		// Special case: Delete cache if the post type can effect the whole site.
 		$special_post_types = array( 'wp_template', 'wp_template_part', 'wp_global_styles' );
 		if ( in_array( $post->post_type, $special_post_types, true ) ) {
-			Logger::debug( 'delete_on_post_transition: special post type ' . $post->post_type );
-			$this->delete_cache();
+			Logger::debug( 'invalidate_on_post_transition: special post type ' . $post->post_type );
+			$this->invalidate_cache();
 			return;
 		}
 
@@ -319,51 +336,57 @@ class Boost_Cache {
 			return;
 		}
 
-		Logger::debug( "delete_on_post_transition: $new_status, $old_status, {$post->ID}" );
+		Logger::debug( "invalidate_on_post_transition: $new_status, $old_status, {$post->ID}" );
 
 		// Don't delete the cache for posts that weren't published and aren't published now
 		if ( ! $this->is_published( $new_status ) && ! $this->is_published( $old_status ) ) {
-			Logger::debug( 'delete_on_post_transition: not published' );
+			Logger::debug( 'invalidate_on_post_transition: not published' );
 			return;
 		}
 
-		Logger::debug( "delete_on_post_transition: deleting post {$post->ID}" );
+		// delete the cache files entirely if the post was unpublished
+		if ( 'publish' === $old_status && 'publish' !== $new_status ) {
+			Logger::debug( 'invalidate_on_post_transition: delete cache on new private page' );
+			$this->delete_on_post_trash( $post->ID, $old_status );
+			return;
+		}
+		Logger::debug( "invalidate_on_post_transition: rebuilding post {$post->ID}" );
 
-		$this->delete_cache_for_post( $post );
-		$this->delete_cache_for_post_terms( $post );
-		$this->delete_cache_for_front_page();
-		$this->delete_cache_for_author( $post->post_author );
+		$this->invalidate_cache_for_post( $post );
+		$this->invalidate_cache_for_post_terms( $post );
+		$this->invalidate_cache_for_front_page();
+		$this->invalidate_cache_for_author( $post->post_author );
 	}
 
 	/**
 	 * Delete the cache for the post if it was trashed.
 	 *
-	 * @param int $post_id - The id of the post.
+	 * @param int    $post_id - The id of the post.
 	 * @param string $old_status - The old status of the post.
 	 */
 	public function delete_on_post_trash( $post_id, $old_status ) {
 		if ( $this->is_published( $old_status ) ) {
 			$post = get_post( $post_id );
-			$this->delete_cache_for_post( $post );
-			$this->delete_cache_for_post_terms( $post );
-			$this->delete_cache_for_front_page();
-			$this->delete_cache_for_author( $post->post_author );
+			$this->invalidate_cache_for_post( $post, Filesystem_Utils::DELETE_ALL );
+			$this->invalidate_cache_for_post_terms( $post );
+			$this->invalidate_cache_for_front_page();
+			$this->invalidate_cache_for_author( $post->post_author );
 		}
 	}
 
 	/**
-	 * Deletes cache files for the given post.
+	 * Deletes/rebuilds cache files for the given post.
 	 *
 	 * @param WP_Post $post - The post to delete the cache file for.
 	 */
-	public function delete_cache_for_post( $post ) {
+	public function invalidate_cache_for_post( $post, $action = Filesystem_Utils::REBUILD_ALL ) {
 		static $already_deleted = -1;
 		if ( $already_deleted === $post->ID ) {
 			return;
 		}
 
 		/**
-		 * Don't delete the cache for post types that are not public.
+		 * Don't invalidate the cache for post types that are not public.
 		 */
 		if ( ! Boost_Cache_Utils::is_visible_post_type( $post ) ) {
 			return;
@@ -377,8 +400,8 @@ class Boost_Cache {
 		 * the post name. We need to get the post name from the post object.
 		 */
 		$permalink = get_permalink( $post->ID );
-		Logger::debug( "delete_cache_for_post: $permalink" );
-		$this->delete_cache_for_url( $permalink );
+		Logger::debug( "invalidate_cache_for_post: $permalink" );
+		$this->invalidate_cache_for_url( $permalink, $action );
 	}
 
 	/**
@@ -386,12 +409,12 @@ class Boost_Cache {
 	 *
 	 * @param WP_Post $post - The post to delete the cache for.
 	 */
-	public function delete_cache_for_post_terms( $post ) {
+	public function invalidate_cache_for_post_terms( $post, $action = Filesystem_Utils::REBUILD_ALL ) {
 		$categories = get_the_category( $post->ID );
 		if ( is_array( $categories ) ) {
 			foreach ( $categories as $category ) {
 				$link = trailingslashit( get_category_link( $category->term_id ) );
-				$this->delete_cache_for_url( $link );
+				$this->invalidate_cache_for_url( $link, $action );
 			}
 		}
 
@@ -399,7 +422,7 @@ class Boost_Cache {
 		if ( is_array( $tags ) ) {
 			foreach ( $tags as $tag ) {
 				$link = trailingslashit( get_tag_link( $tag->term_id ) );
-				$this->delete_cache_for_url( $link );
+				$this->invalidate_cache_for_url( $link, $action );
 			}
 		}
 	}
@@ -410,14 +433,14 @@ class Boost_Cache {
 	 * @param int $author_id - The id of the author.
 	 * @return bool|WP_Error - True if the cache was deleted, WP_Error otherwise.
 	 */
-	public function delete_cache_for_author( $author_id ) {
+	public function invalidate_cache_for_author( $author_id, $action = Filesystem_Utils::REBUILD_ALL ) {
 		$author = get_userdata( $author_id );
 		if ( ! $author ) {
 			return;
 		}
 
 		$author_link = get_author_posts_url( $author_id, $author->user_nicename );
-		return $this->delete_cache_for_url( $author_link );
+		return $this->invalidate_cache_for_url( $author_link, $action );
 	}
 
 	/**
@@ -425,17 +448,17 @@ class Boost_Cache {
 	 *
 	 * @param string $url - The url to delete the cache for.
 	 */
-	public function delete_cache_for_url( $url ) {
-		Logger::debug( 'delete_cache_for_url: ' . $url );
+	public function invalidate_cache_for_url( $url, $action = Filesystem_Utils::REBUILD_ALL ) {
+		Logger::debug( 'invalidate_cache_for_url: ' . $url );
 
-		return $this->storage->invalidate( $url, Filesystem_Utils::DELETE_ALL );
+		return $this->storage->invalidate( $url, $action );
 	}
 
 	/**
-	 * Delete the entire cache.
+	 * Invalidate the entire cache.
 	 */
-	public function delete_cache() {
-		return $this->delete_cache_for_url( home_url() );
+	public function invalidate_cache( $action = Filesystem_Utils::REBUILD_ALL ) {
+		return $this->invalidate_cache_for_url( home_url(), $action );
 	}
 
 	public function disable_caching_on_error( $message ) {

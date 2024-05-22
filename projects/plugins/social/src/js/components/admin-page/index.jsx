@@ -4,9 +4,10 @@ import {
 	AdminSectionHero,
 	Container,
 	Col,
+	GlobalNotices,
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
+import { store as socialStore } from '@automattic/jetpack-publicize-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import React from 'react';
@@ -29,7 +30,7 @@ const Admin = () => {
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	const [ forceDisplayPricingPage, setForceDisplayPricingPage ] = useState( false );
 
-	const refreshJetpackSocialSettings = useDispatch( SOCIAL_STORE_ID ).refreshJetpackSocialSettings;
+	const refreshJetpackSocialSettings = useDispatch( socialStore ).refreshJetpackSocialSettings;
 
 	const onUpgradeToggle = useCallback( () => setForceDisplayPricingPage( true ), [] );
 	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
@@ -45,7 +46,7 @@ const Admin = () => {
 		shouldShowAdvancedPlanNudge,
 		isUpdatingJetpackSettings,
 	} = useSelect( select => {
-		const store = select( SOCIAL_STORE_ID );
+		const store = select( socialStore );
 		return {
 			isModuleEnabled: store.isModuleEnabled(),
 			showPricingPage: store.showPricingPage(),
@@ -93,6 +94,7 @@ const Admin = () => {
 
 	return (
 		<AdminPage moduleName={ moduleName } header={ <AdminPageHeader /> }>
+			<GlobalNotices />
 			{ ( isShareLimitEnabled && ! hasPaidPlan && showPricingPage ) || forceDisplayPricingPage ? (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>

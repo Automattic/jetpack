@@ -1,4 +1,4 @@
-import { useConnection } from '@automattic/jetpack-connection';
+import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import PublicizeConnection from '../connection';
 import PublicizeSettingsButton from '../settings-button';
@@ -10,7 +10,7 @@ export const ConnectionsList: React.FC = () => {
 
 	const { canBeTurnedOn, shouldBeDisabled } = useConnectionState();
 
-	const { isUserConnected } = useConnection();
+	const { needsUserConnection } = usePublicizeConfig();
 
 	return (
 		<ul className={ styles[ 'connections-list' ] }>
@@ -31,7 +31,7 @@ export const ConnectionsList: React.FC = () => {
 					/>
 				);
 			} ) }
-			{ isUserConnected ? (
+			{ ! needsUserConnection ? (
 				<li>
 					<PublicizeSettingsButton />
 				</li>

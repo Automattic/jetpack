@@ -12,6 +12,7 @@ use Automattic\Jetpack\Sync\Settings;
  */
 class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
+	/** @var \Automattic\Jetpack\Sync\Modules\Full_Sync */
 	private $full_sync;
 
 	private $full_sync_end_checksum;
@@ -93,7 +94,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( isset( $empty['comments'] ) );
 	}
 
-	// this only applies to the test replicastore - in production we overlay data
+	/** This only applies to the test replicastore - in production we overlay data */
 	public function test_sync_start_resets_storage() {
 		self::factory()->post->create();
 		$this->sender->do_sync();
@@ -345,7 +346,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		}
 
 		// 28
-		$original_number_of_term_relationships = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_relationships" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$original_number_of_term_relationships = (int) $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_relationships" );
 		// ceil(28/4) = 7 phpcs:ignore Squiz.PHP.CommentedOutCode.Found
 		$total_items = (int) ceil( $original_number_of_term_relationships / $sync_item_size );
 
@@ -540,7 +542,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync->reset_data();
 	}
 
-	// phpunit -c tests/php.multisite.xml --filter test_full_sync_sends_only_current_blog_users_in_multisite
 	public function test_full_sync_sends_only_current_blog_users_in_multisite() {
 		if ( ! is_multisite() ) {
 			$this->markTestSkipped( 'Run it in multi site mode' );
@@ -662,7 +663,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_full_sync_sends_all_functions() {
-		Modules::get_module( 'functions' )->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_full_sync_callable' ) );
+		$callables_module = Modules::get_module( 'functions' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Callables $callables_module';
+		$callables_module->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_full_sync_callable' ) );
 		$this->sender->do_sync();
 
 		// reset the storage, check value, and do full sync - storage should be set!
@@ -677,7 +680,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_full_sync_sends_all_functions_inverse() {
-		Modules::get_module( 'functions' )->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_full_sync_callable' ) );
+		$callables_module = Modules::get_module( 'functions' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Callables $callables_module';
+		$callables_module->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_full_sync_callable' ) );
 
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
@@ -699,7 +704,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_full_sync_sends_all_options() {
 		delete_option( 'non_existant' );
-		Modules::get_module( 'options' )->set_options_whitelist( array( 'my_option', 'my_prefix_value', 'non_existant' ) );
+		$options_module = Modules::get_module( 'options' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Options $options_module';
+		$options_module->set_options_whitelist( array( 'my_option', 'my_prefix_value', 'non_existant' ) );
 		update_option( 'my_option', 'foo' );
 		update_option( 'my_prefix_value', 'bar' );
 		update_option( 'my_non_synced_option', 'baz' );
@@ -733,13 +740,14 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( $this->server_replica_storage->get_option( 'non_existant' ) );
 	}
 
-	// to test run phpunit -c tests/php.multisite.xml --filter test_full_sync_sends_all_network_options
 	public function test_full_sync_sends_all_network_options() {
 		if ( ! is_multisite() ) {
 			$this->markTestSkipped( 'Run it in multi site mode' );
 		}
 
-		Modules::get_module( 'network_options' )->set_network_options_whitelist(
+		$network_options_module = Modules::get_module( 'network_options' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Network_Options $network_options_module';
+		$network_options_module->set_network_options_whitelist(
 			array(
 				'my_option',
 				'my_prefix_value',
@@ -923,6 +931,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	public function check_for_updates_to_sync() {
 		$updates_module = Modules::get_module( 'updates' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Updates $updates_module';
 		$updates_module->sync_last_event();
 	}
 
@@ -1586,7 +1595,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 3, $this->server_replica_storage->user_count() );
 		$this->server_replica_storage->reset();
 		$this->assertSame( 0, $this->server_replica_storage->user_count() );
-		$user_ids = Modules::get_module( 'users' )->get_initial_sync_user_config();
+		$users_module = Modules::get_module( 'users' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Users $users_module';
+		$user_ids = $users_module->get_initial_sync_user_config();
 		$this->assertCount( 3, $user_ids );
 		$this->full_sync->start( array( 'users' => 'initial' ) );
 		$this->sender->do_full_sync();

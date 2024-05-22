@@ -23,7 +23,6 @@ function current_user_has_wpcom_account() {
 
 	if ( function_exists( '\A8C\Billingdaddy\Users\get_wpcom_user' ) ) {
 		// On Simple sites, use get_wpcom_user function to check if the user has a WordPress.com account.
-		// @phan-suppress-next-line PhanUndeclaredFunction
 		$user        = \A8C\Billingdaddy\Users\get_wpcom_user( $user_id );
 		$has_account = isset( $user->ID );
 	} else {
@@ -94,16 +93,14 @@ function wpcom_add_wpcom_menu_item() {
 		null
 	);
 
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		add_submenu_page(
-			$parent_slug,
-			esc_attr__( 'Add-ons', 'jetpack-mu-wpcom' ),
-			esc_attr__( 'Add-ons', 'jetpack-mu-wpcom' ),
-			'manage_options',
-			esc_url( "https://wordpress.com/add-ons/$domain" ),
-			null
-		);
-	}
+	add_submenu_page(
+		$parent_slug,
+		esc_attr__( 'Add-ons', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Add-ons', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		esc_url( "https://wordpress.com/add-ons/$domain" ),
+		null
+	);
 
 	add_submenu_page(
 		$parent_slug,
@@ -152,10 +149,10 @@ function wpcom_add_wpcom_menu_item() {
 
 	add_submenu_page(
 		$parent_slug,
-		esc_attr__( 'Connections', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Connections', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Marketing', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Marketing', 'jetpack-mu-wpcom' ),
 		'manage_options',
-		esc_url( "https://wordpress.com/marketing/connections/$domain" ),
+		esc_url( "https://wordpress.com/marketing/$domain" ),
 		null
 	);
 
@@ -194,6 +191,13 @@ function add_all_sites_menu_to_masterbar( $wp_admin_bar ) {
 		return;
 	}
 
+	wp_enqueue_style(
+		'wpcom-site-menu',
+		plugins_url( 'build/wpcom-site-menu/wpcom-site-menu.css', Jetpack_Mu_Wpcom::BASE_FILE ),
+		array(),
+		Jetpack_Mu_Wpcom::PACKAGE_VERSION
+	);
+
 	$wp_admin_bar->add_node(
 		array(
 			'id'    => 'all-sites',
@@ -215,13 +219,6 @@ function wpcom_site_menu_enqueue_scripts() {
 		return;
 	}
 
-	wp_enqueue_style(
-		'wpcom-site-menu',
-		plugins_url( 'build/wpcom-site-menu/wpcom-site-menu.css', Jetpack_Mu_Wpcom::BASE_FILE ),
-		array(),
-		Jetpack_Mu_Wpcom::PACKAGE_VERSION
-	);
-
 	wp_enqueue_script(
 		'wpcom-site-menu',
 		plugins_url( 'wpcom-site-menu.js', __FILE__ ),
@@ -240,19 +237,41 @@ function wpcom_site_menu_enqueue_scripts() {
 			$link = 'https://wordpress.com' . $link;
 		}
 
-		wp_localize_script(
+		$user_id    = null;
+		$user_login = null;
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			global $current_user;
+			$user_id    = $current_user->ID;
+			$user_login = $current_user->user_login;
+		} else {
+			$connection_manager = new Connection_Manager();
+			$wpcom_user_data    = $connection_manager->get_connected_user_data();
+			if ( $wpcom_user_data ) {
+				$user_id    = $wpcom_user_data['ID'];
+				$user_login = $wpcom_user_data['login'];
+			}
+		}
+
+		$data = array(
+			'url'          => esc_url( $link ),
+			'text'         => wp_kses( $notice['content'], array() ),
+			'action'       => wp_kses( $notice['cta'], array() ),
+			'dismissible'  => $notice['dismissible'],
+			'dismissLabel' => esc_html__( 'Dismiss', 'jetpack-mu-wpcom' ),
+			'id'           => $notice['id'],
+			'featureClass' => $notice['feature_class'],
+			'dismissNonce' => wp_create_nonce( 'wpcom_dismiss_sidebar_notice' ),
+			'tracks'       => $notice['tracks'],
+			'user'         => array(
+				'ID'       => $user_id,
+				'username' => $user_login,
+			),
+		);
+
+		wp_add_inline_script(
 			'wpcom-site-menu',
-			'wpcomSidebarNotice',
-			array(
-				'url'          => esc_url( $link ),
-				'text'         => wp_kses( $notice['content'], array() ),
-				'action'       => wp_kses( $notice['cta'], array() ),
-				'dismissible'  => $notice['dismissible'],
-				'dismissLabel' => esc_html__( 'Dismiss', 'jetpack-mu-wpcom' ),
-				'id'           => $notice['id'],
-				'featureClass' => $notice['feature_class'],
-				'dismissNonce' => wp_create_nonce( 'wpcom_dismiss_sidebar_notice' ),
-			)
+			'window.wpcomSidebarNotice = ' . wp_json_encode( $data ) . ';'
 		);
 	}
 }
@@ -295,6 +314,7 @@ function wpcom_get_sidebar_notice() {
 		'dismissible'   => $message->is_dismissible,
 		'feature_class' => $message->feature_class,
 		'id'            => $message->id,
+		'tracks'        => $message->tracks ?? null,
 	);
 }
 
@@ -436,7 +456,7 @@ function wpcom_add_hosting_menu_intro_notice() {
 
 		.wpcom-site-menu-intro-notice a.close-button {
 			height: 16px;
-			margin-left: auto;
+			margin-inline-start: auto;
 		}
 	</style>
 	<div class="wpcom-site-menu-intro-notice notice notice-info" role="alert">
@@ -544,3 +564,74 @@ function wpcom_maybe_enable_link_manager() {
 	update_option( 'link_manager_check', time() );
 }
 add_action( 'init', 'wpcom_maybe_enable_link_manager' );
+
+/**
+ * Add the Scheduled Updates menu item to the Plugins menu.
+ *
+ * Limited to sites with scheduled updates feature.
+ */
+function wpcom_add_scheduled_updates_menu() {
+	// Bail on Simple sites
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		return;
+	}
+
+	/**
+	 * Don't show `Scheduled Updates` to administrators without a WordPress.com account being attached,
+	 * as they don't have access to any of the pages.
+	 */
+	if ( ! current_user_has_wpcom_account() ) {
+		return;
+	}
+
+	// Don't show on staging sites.
+	if ( get_option( 'wpcom_is_staging_site' ) ) {
+		return;
+	}
+
+	if ( ! function_exists( 'wpcom_site_has_feature' ) ) {
+		return;
+	}
+
+	if ( ! wpcom_site_has_feature( \WPCOM_Features::SCHEDULED_UPDATES ) ) {
+		return;
+	}
+
+	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
+
+	add_submenu_page(
+		'plugins.php',
+		esc_attr__( 'Scheduled Updates', 'jetpack-mu-wpcom' ),
+		__( 'Scheduled Updates', 'jetpack-mu-wpcom' ),
+		'update_plugins',
+		esc_url( "https://wordpress.com/plugins/scheduled-updates/$domain" ),
+		null
+	);
+}
+add_action( 'admin_menu', 'wpcom_add_scheduled_updates_menu' );
+
+/**
+ * Add the Plugins menu item to the admin menu on simple sites.
+ */
+function wpcom_add_plugins_menu() {
+
+	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+		return;
+	}
+
+	if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
+		$domain              = wp_parse_url( home_url(), PHP_URL_HOST );
+		$can_install_plugins = function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( WPCOM_Features::INSTALL_PLUGINS );
+
+		add_menu_page(
+			__( 'Plugins', 'jetpack-mu-wpcom' ),
+			__( 'Plugins', 'jetpack-mu-wpcom' ),
+			'manage_options', // Roughly means "is a site admin"
+			$can_install_plugins ? 'https://wordpress.com/plugins/' . $domain : 'plugins.php',
+			null,
+			'dashicons-admin-plugins',
+			65
+		);
+	}
+}
+add_action( 'admin_menu', 'wpcom_add_plugins_menu' );

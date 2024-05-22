@@ -1026,13 +1026,8 @@ class Jetpack_Subscriptions {
 
 		$blog_id = Connection_Manager::get_site_id( true );
 
-		$source = 'jetpack-menu-calypso-subscribers';
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
-			$source = 'jetpack-menu-jetpack-manage-subscribers';
-		}
-
 		$link = Redirect::get_url(
-			$source,
+			'jetpack-menu-jetpack-manage-subscribers',
 			array( 'site' => $blog_id ? $blog_id : $status->get_site_suffix() )
 		);
 
@@ -1081,3 +1076,4 @@ Jetpack_Subscriptions::init();
 
 require __DIR__ . '/subscriptions/views.php';
 require __DIR__ . '/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.php';
+require __DIR__ . '/subscriptions/subscribe-overlay/class-jetpack-subscribe-overlay.php';

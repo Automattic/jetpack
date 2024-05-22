@@ -171,7 +171,7 @@ function register_block() {
 
 	add_action( 'init', __NAMESPACE__ . '\maybe_prevent_super_cache_caching' );
 
-	add_action( 'save_post_post', __NAMESPACE__ . '\add_paywalled_content_post_meta', 99, 1 );
+	add_action( 'wp_after_insert_post', __NAMESPACE__ . '\add_paywalled_content_post_meta', 99, 2 );
 
 	add_filter(
 		'jetpack_options_whitelist',
@@ -182,7 +182,17 @@ function register_block() {
 		}
 	);
 
-	Jetpack_Subscription_Site::init()->handle_subscribe_block_placements();
+	// If called via REST API, we need to register later in the lifecycle
+	if ( ( new Host() )->is_wpcom_platform() && ! jetpack_is_frontend() ) {
+		add_action(
+			'restapi_theme_init',
+			function () {
+				Jetpack_Subscription_Site::init()->handle_subscribe_block_placements();
+			}
+		);
+	} else {
+		Jetpack_Subscription_Site::init()->handle_subscribe_block_placements();
+	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
 
@@ -214,10 +224,15 @@ function register_newsletter_access_column( $columns ) {
 /**
  * Add a meta to prevent publication on firehose, ES AI or Reader
  *
- * @param int $post_id Post id being saved.
+ * @param int      $post_id Post id being saved.
+ * @param \WP_Post $post Post being saved.
  * @return void
  */
-function add_paywalled_content_post_meta( int $post_id ) {
+function add_paywalled_content_post_meta( int $post_id, \WP_Post $post ) {
+	if ( $post->post_type !== 'post' ) {
+		return;
+	}
+
 	$access_level = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
 
 	$is_paywalled = false;
@@ -227,7 +242,12 @@ function add_paywalled_content_post_meta( int $post_id ) {
 		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS:
 			$is_paywalled = true;
 	}
-	update_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, $is_paywalled );
+	if ( $is_paywalled ) {
+		update_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, $is_paywalled );
+	}
+	if ( ! $is_paywalled ) {
+		delete_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT );
+	}
 }
 
 /**
@@ -426,6 +446,22 @@ function get_element_class_names_from_attributes( $attributes ) {
 }
 
 /**
+ * Checks if block style is "button only"
+ *
+ * @param string $class_name Block attribute className; multiple names are spearated by space.
+ *
+ * @return bool
+ */
+function is_button_only_style( $class_name ) {
+	if ( empty( $class_name ) ) {
+		return false;
+	}
+
+	$class_names = explode( ' ', $class_name );
+	return in_array( 'is-style-button', $class_names, true );
+}
+
+/**
  * Uses block attributes to generate an array containing the styles for various block elements.
  * Based on Jetpack_Subscriptions_Widget::do_subscription_form() which the block was originally using.
  *
@@ -434,6 +470,8 @@ function get_element_class_names_from_attributes( $attributes ) {
  * @return array
  */
 function get_element_styles_from_attributes( $attributes ) {
+	$is_button_only_style = is_button_only_style( get_attribute( $attributes, 'className', '' ) );
+
 	$button_background_style = ! has_attribute( $attributes, 'buttonBackgroundColor' ) && has_attribute( $attributes, 'customButtonGradient' )
 		? get_attribute( $attributes, 'customButtonGradient' )
 		: get_attribute( $attributes, 'customButtonBackgroundColor' );
@@ -473,11 +511,14 @@ function get_element_styles_from_attributes( $attributes ) {
 	$email_field_styles   .= $style;
 
 	$button_spacing = get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE );
-	if ( true === get_attribute( $attributes, 'buttonOnNewLine' ) ) {
-		$submit_button_styles .= sprintf( 'margin-top: %dpx;', $button_spacing );
-	} else {
-		$submit_button_styles .= 'margin: 0px; '; // Reset Safari's 2px default margin for buttons affecting input and button union
-		$submit_button_styles .= sprintf( 'margin-left: %dpx;', $button_spacing );
+	if ( ! $is_button_only_style ) {
+		$button_spacing = get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE );
+		if ( true === get_attribute( $attributes, 'buttonOnNewLine' ) ) {
+			$submit_button_styles .= sprintf( 'margin-top: %dpx;', $button_spacing );
+		} else {
+			$submit_button_styles .= 'margin: 0; '; // Reset Safari's 2px default margin for buttons affecting input and button union
+			$submit_button_styles .= sprintf( 'margin-left: %dpx;', $button_spacing );
+		}
 	}
 
 	if ( has_attribute( $attributes, 'borderColor' ) ) {
@@ -611,8 +652,10 @@ function render_block( $attributes ) {
 
 	/** This filter is documented in \Automattic\Jetpack\Forms\ContactForm\Contact_Form */
 	if ( is_wpcom() || false !== apply_filters( 'jetpack_auto_fill_logged_in_user', false ) ) {
-		$current_user    = wp_get_current_user();
-		$subscribe_email = ! empty( $current_user->user_email ) ? $current_user->user_email : '';
+		$current_user = wp_get_current_user();
+		if ( ! empty( $current_user->user_email ) ) {
+			$subscribe_email = $current_user->user_email;
+		}
 	}
 
 	// The block is using the Jetpack_Subscriptions_Widget backend, hence the need to increase the instance count.
@@ -644,7 +687,7 @@ function render_block( $attributes ) {
 		'success_message'               => get_attribute(
 			$attributes,
 			'successMessage',
-			esc_html__( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing.", 'jetpack' )
+			esc_html__( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm' to start subscribing.", 'jetpack' )
 		),
 		'show_subscribers_total'        => (bool) get_attribute( $attributes, 'showSubscribersTotal' ),
 		'subscribers_total'             => get_subscriber_count( $include_social_followers ),
@@ -654,6 +697,7 @@ function render_block( $attributes ) {
 		),
 		'source'                        => 'subscribe-block',
 		'app_source'                    => get_attribute( $attributes, 'appSource', null ),
+		'class_name'                    => get_attribute( $attributes, 'className' ),
 	);
 
 	if ( ! jetpack_is_frontend() ) {
@@ -687,12 +731,13 @@ function get_post_access_level_for_current_post() {
  * @return string
  */
 function render_for_website( $data, $classes, $styles ) {
-	$lang              = get_locale();
-	$blog_id           = \Jetpack_Options::get_option( 'id' );
-	$widget_id_suffix  = Jetpack_Subscriptions_Widget::$instance_count > 1 ? '-' . Jetpack_Subscriptions_Widget::$instance_count : '';
-	$form_id           = 'subscribe-blog' . $widget_id_suffix;
-	$form_url          = 'https://wordpress.com/email-subscriptions';
-	$post_access_level = get_post_access_level_for_current_post();
+	$lang                 = get_locale();
+	$blog_id              = \Jetpack_Options::get_option( 'id' );
+	$widget_id_suffix     = Jetpack_Subscriptions_Widget::$instance_count > 1 ? '-' . Jetpack_Subscriptions_Widget::$instance_count : '';
+	$form_id              = 'subscribe-blog' . $widget_id_suffix;
+	$form_url             = 'https://wordpress.com/email-subscriptions';
+	$post_access_level    = get_post_access_level_for_current_post();
+	$is_button_only_style = ! empty( $data['class_name'] ) ? is_button_only_style( $data['class_name'] ) : false;
 
 	// Post ID is used for pulling post-specific paid status, and returning to the right post after confirming subscription
 	$post_id = null;
@@ -704,10 +749,11 @@ function render_for_website( $data, $classes, $styles ) {
 		$post_id = get_option( 'page_on_front' );
 	}
 
-	$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field' . $widget_id_suffix, $data['widget_id'] );
-	$tier_id            = get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true );
-	$is_subscribed      = Jetpack_Memberships::is_current_user_subscribed();
-	$button_text        = get_submit_button_text( $data );
+	$subscribe_field_id    = apply_filters( 'subscribe_field_id', 'subscribe-field' . $widget_id_suffix, $data['widget_id'] );
+	$tier_id               = get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true );
+	$is_subscribed         = Jetpack_Memberships::is_current_user_subscribed();
+	$button_text           = get_submit_button_text( $data );
+	$show_subscriber_count = $data['show_subscribers_total'] && $data['subscribers_total'] && ! $is_subscribed;
 
 	ob_start();
 
@@ -720,7 +766,7 @@ function render_for_website( $data, $classes, $styles ) {
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
 		<div class="wp-block-jetpack-subscriptions__container<?php echo ! $is_subscribed ? ' is-not-subscriber' : ''; ?>">
 			<?php if ( is_top_subscription() ) : ?>
-				<p id="subscribe-submit"
+				<p id="subscribe-submit" class="is-link"
 					<?php if ( ! empty( $styles['submit_button_wrapper'] ) ) : ?>
 						style="<?php echo esc_attr( $styles['submit_button_wrapper'] ); ?>"
 					<?php endif; ?>
@@ -748,7 +794,7 @@ function render_for_website( $data, $classes, $styles ) {
 					id="<?php echo esc_attr( $form_id ); ?>"
 				>
 					<div class="wp-block-jetpack-subscriptions__form-elements">
-						<?php if ( ! $is_subscribed ) : ?>
+						<?php if ( ! $is_subscribed && ! $is_button_only_style ) : ?>
 						<p id="subscribe-email">
 							<label
 								id="<?php echo esc_attr( $subscribe_field_id . '-label' ); ?>"
@@ -827,11 +873,9 @@ function render_for_website( $data, $classes, $styles ) {
 					</div>
 				</form>
 			<?php endif; ?>
-			<?php if ( $data['show_subscribers_total'] && $data['subscribers_total'] ) : ?>
+			<?php if ( $show_subscriber_count ) : ?>
 				<div class="wp-block-jetpack-subscriptions__subscount">
-					<?php
-					echo esc_html( Jetpack_Memberships::get_join_others_text( $data['subscribers_total'] ) );
-					?>
+					<?php echo esc_html( Jetpack_Memberships::get_join_others_text( $data['subscribers_total'] ) ); ?>
 				</div>
 			<?php endif; ?>
 		</div>
@@ -1135,7 +1179,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 <!-- /wp:paragraph -->';
 		}
 	} else {
-		$access_question = get_paywall_access_question( $newsletter_access_level );
+		$access_question = $is_paid_post ? esc_html__( 'Already a paid subscriber?', 'jetpack' ) : esc_html__( 'Already a subscriber?', 'jetpack' );
 		$login_block     = '<!-- wp:group {"style":{"typography":{"fontSize":"14px"}},"layout":{"type":"flex","justifyContent":"center"}} -->
 <div class="wp-block-group" style="font-size:14px">
 	<!-- wp:jetpack/subscriber-login {"logInLabel":"' . $access_question . '"} /-->
@@ -1165,31 +1209,6 @@ function get_paywall_blocks( $newsletter_access_level ) {
 </div>
 <!-- /wp:group -->
 ';
-}
-
-/**
- * Returns Get Access question for the paywall
- *
- * @param string $post_access_level The newsletter access level.
- * @return string.
- */
-function get_paywall_access_question( $post_access_level ) {
-	switch ( $post_access_level ) {
-		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS:
-		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS:
-			$tier = Jetpack_Memberships::get_post_tier();
-			if ( $tier !== null ) {
-				return sprintf(
-				// translators:  Placeholder is the tier name
-					__( 'Already a higher-tier paid subscriber?', 'jetpack' ),
-					esc_html( $tier->post_title )
-				);
-			} else {
-				return esc_html__( 'Already a paid subscriber?', 'jetpack' );
-			}
-		default:
-			return esc_html__( 'Already a subscriber?', 'jetpack' );
-	}
 }
 
 /**
@@ -1268,12 +1287,19 @@ function get_paywall_simple() {
 	return '
 <!-- wp:columns -->
 <div class="wp-block-columns" style="display: inline-block; width: 90%">
+    <!-- wp:column -->
+    <div class="wp-block-column" style="background-color: #F6F7F7; padding: 32px; 24px;">
+        <!-- wp:paragraph -->
+        <p class="has-text-align-center"
+           style="text-align: center;
+                  color: #50575E;
+                  font-weight: 400;
+                  font-size: 16px;
                   font-family: \'SF Pro Text\', sans-serif;
                   line-height: 28.8px;">
         ' . $access_heading . '
         </p>
         <!-- /wp:paragraph -->
-
         <!-- wp:buttons -->
         <div class="wp-block-buttons" style="text-align: center;">
             <!-- wp:button -->

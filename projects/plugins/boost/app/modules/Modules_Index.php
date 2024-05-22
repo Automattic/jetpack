@@ -24,7 +24,7 @@ class Modules_Index {
 	protected $modules = array();
 
 	/**
-	 * @var Pluggable[] - Classes that handle all Jetpack Boost featues.
+	 * @var class-string<Pluggable>[] - Classes that handle all Jetpack Boost features.
 	 */
 	const MODULES = array(
 		Critical_CSS::class,
@@ -103,6 +103,18 @@ class Modules_Index {
 		$module = $available_modules[ $slug ];
 
 		return $module->is_enabled();
+	}
+
+	public function is_module_available( $slug ) {
+		$available_modules = $this->available_modules();
+
+		if ( ! array_key_exists( $slug, $available_modules ) ) {
+			return false;
+		}
+
+		$module = $available_modules[ $slug ];
+
+		return $module->is_available();
 	}
 
 	/**

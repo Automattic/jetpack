@@ -410,6 +410,13 @@ abstract class SAL_Site {
 	abstract public function get_user_interactions();
 
 	/**
+	 * Flag a site as deleted. Not used in Jetpack.
+	 *
+	 * @see class.json-api-site-jetpack.php for implementation.
+	 */
+	abstract public function is_deleted();
+
+	/**
 	 * Return the user interactions with a site. Not used in Jetpack.
 	 *
 	 * @param string $role The capability to check.
@@ -450,7 +457,7 @@ abstract class SAL_Site {
 	 *
 	 * @see class.json-api-site-jetpack.php for implementation.
 	 */
-	abstract protected function is_wpforteams_site();
+	abstract public function is_wpforteams_site();
 
 	/**
 	 * Get hub blog id for P2 sites.
@@ -1457,15 +1464,6 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * The site options for DIFM lite in the design picker step
-	 *
-	 * @return string
-	 */
-	public function get_difm_lite_site_options() {
-		return get_option( 'difm_lite_site_options' );
-	}
-
-	/**
 	 * Get the option of site intent which value is coming from the Hero Flow
 	 *
 	 * @return string
@@ -1598,4 +1596,18 @@ abstract class SAL_Site {
 	public function get_wpcom_classic_early_release() {
 		return ! empty( get_option( 'wpcom_classic_early_release' ) );
 	}
+
+	/**
+	 * Get Zendesk site meta.
+	 *
+	 * @return array|null
+	 */
+	abstract public function get_zendesk_site_meta();
+
+	/**
+	 * Detect whether there's a pending plan for this site.
+	 *
+	 * @return bool
+	 */
+	abstract public function is_pending_plan();
 }

@@ -74,7 +74,7 @@ function Price( { value, currency, isOld } ) {
 const ProductDetailCard = ( {
 	slug,
 	onClick,
-	trackButtonClick,
+	trackButtonClick = () => {},
 	className,
 	preferProductName,
 	supportingInfo,
@@ -431,10 +431,6 @@ const ProductDetailCard = ( {
 			</div>
 		</div>
 	);
-};
-
-ProductDetailCard.defaultProps = {
-	trackButtonClick: () => {},
 };
 
 export default ProductDetailCard;
