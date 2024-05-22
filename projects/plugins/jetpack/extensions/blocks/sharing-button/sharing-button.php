@@ -225,7 +225,7 @@ function add_block_to_single_posts_template( $hooked_block_types, $relative_posi
 	// Add the block at the end of the post content.
 	if (
 		'after' !== $relative_position
-		&& 'core/post-content' !== $anchor_block_type
+		|| 'core/post-content' !== $anchor_block_type
 	) {
 		return $hooked_block_types;
 	}
