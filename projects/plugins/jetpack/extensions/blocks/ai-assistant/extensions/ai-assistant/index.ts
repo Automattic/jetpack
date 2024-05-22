@@ -35,7 +35,7 @@ export const EXTENDED_INLINE_BLOCKS: string[] = [];
 // Temporarily keep track of inline extensions that have been released to production.
 const releasedInlineExtensions = [ 'core/heading' ];
 // Temporarily keep track of inline extensions that are being worked on.
-const unreleasedTransformativeExtensions = [];
+const unreleasedInlineExtensions = [ 'core/paragraph' ];
 
 releasedInlineExtensions.forEach( block => {
 	// Add the released inline extension to the inline list...
@@ -44,7 +44,7 @@ releasedInlineExtensions.forEach( block => {
 	EXTENDED_TRANSFORMATIVE_BLOCKS = EXTENDED_TRANSFORMATIVE_BLOCKS.filter( b => b !== block );
 } );
 
-unreleasedTransformativeExtensions.forEach( block => {
+unreleasedInlineExtensions.forEach( block => {
 	if ( isAiAssistantExtensionsSupportEnabled ) {
 		// Add the unreleased inline extension to the inline list...
 		EXTENDED_INLINE_BLOCKS.push( block );

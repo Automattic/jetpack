@@ -37,6 +37,7 @@ const debug = debugFactory( 'jetpack-ai-assistant:extensions:with-ai-extension' 
 
 const blockExtensionMapper = {
 	'core/heading': 'heading',
+	'core/paragraph': 'paragraph',
 };
 
 // Defines where the block controls should be placed in the toolbar

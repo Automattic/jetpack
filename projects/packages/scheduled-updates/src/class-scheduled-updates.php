@@ -20,7 +20,7 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.12.2';
+	const PACKAGE_VERSION = '0.12.3-alpha';
 
 	/**
 	 * The cron event hook for the scheduled plugins update.
@@ -91,6 +91,8 @@ class Scheduled_Updates {
 		// Active flag saving.
 		add_action( 'add_option_' . Scheduled_Updates_Active::OPTION_NAME, $callback );
 		add_action( 'update_option_' . Scheduled_Updates_Active::OPTION_NAME, $callback );
+
+		add_filter( 'pre_schedule_event', array( __CLASS__, 'clear_cron_cache_pre' ), 10, 2 );
 	}
 
 	/**
@@ -164,32 +166,6 @@ class Scheduled_Updates {
 	}
 
 	/**
-	 * Create a scheduled update.
-	 *
-	 * @param int    $timestamp Timestamp of the first run.
-	 * @param string $interval  Interval of the update.
-	 * @param array  $plugins   List of plugins to update.
-	 * @return \WP_Error|bool True on success, WP_Error on failure.
-	 */
-	public static function create_scheduled_update( $timestamp, $interval, $plugins ) {
-		return wp_schedule_event( $timestamp, $interval, self::PLUGIN_CRON_HOOK, $plugins, true );
-	}
-
-	/**
-	 * Remove a scheduled update.
-	 *
-	 * @param int   $timestamp Timestamp of the first run.
-	 * @param array $plugins   List of plugins to update.
-	 * @return \WP_Error|bool True on success, WP_Error on failure.
-	 */
-	public static function delete_scheduled_update( $timestamp, $plugins ) {
-		// Be sure to clear the cron cache before removing a cron entry.
-		self::clear_cron_cache();
-
-		return wp_unschedule_event( $timestamp, self::PLUGIN_CRON_HOOK, $plugins, true );
-	}
-
-	/**
 	 * Save the schedules for sync after cron option saving.
 	 */
 	public static function update_option_cron() {
@@ -225,7 +201,23 @@ class Scheduled_Updates {
 	 * Clear the cron cache.
 	 */
 	public static function clear_cron_cache() {
-		wp_cache_delete( 'alloptions', 'options' );
+		wp_cache_delete( 'cron', 'options' );
+		wp_load_alloptions( true );
+	}
+
+	/**
+	 * Reload the cron cache in pre_schedule_event hook. Returns null to prevent short-circuit.
+	 *
+	 * @param null|bool|\WP_Error $result The value to return instead. Default null to continue adding the event.
+	 * @param object              $event  The event object.
+	 */
+	public static function clear_cron_cache_pre( $result, $event ) {
+		// If the transient is set and an external event is about to run, it means that the cron cache must be refreshed.
+		if ( self::PLUGIN_CRON_HOOK !== $event->hook && get_transient( 'pre_schedule_event_clear_cron_cache' ) ) {
+			self::clear_cron_cache();
+		}
+
+		return $result;
 	}
 
 	/**
@@ -398,7 +390,7 @@ class Scheduled_Updates {
 			}
 
 			// Remove the schedule.
-			$result = self::delete_scheduled_update( $event->timestamp, $event->args );
+			$result = wp_unschedule_event( $event->timestamp, self::PLUGIN_CRON_HOOK, $event->args, true );
 
 			if ( is_wp_error( $result ) || false === $result ) {
 				continue;
@@ -411,9 +403,9 @@ class Scheduled_Updates {
 			}
 
 			// There are still plugins to update. Schedule a new event.
-			$result = self::create_scheduled_update( $event->timestamp, $event->schedule, $plugins );
+			$event = wp_schedule_event( $event->timestamp, $event->schedule, self::PLUGIN_CRON_HOOK, $plugins, true );
 
-			if ( is_wp_error( $result ) || false === $result ) {
+			if ( is_wp_error( $event ) || false === $event ) {
 				continue;
 			}
 
