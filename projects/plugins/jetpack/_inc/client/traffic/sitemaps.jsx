@@ -68,7 +68,9 @@ export class Sitemaps extends React.Component {
 						toggling={ this.props.isSavingAnyOption( 'sitemaps' ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
-						{ __( 'Generate XML sitemaps', 'jetpack' ) }
+						<span className="jp-form-toggle-explanation">
+							{ __( 'Generate XML sitemaps', 'jetpack' ) }
+						</span>
 					</ModuleToggle>
 					{ this.props.isSiteVisibleToSearchEngines ? (
 						this.props.getOptionValue( 'sitemaps' ) && (

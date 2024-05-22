@@ -53,7 +53,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.12.x-dev"
+			"dev-trunk": "0.13.x-dev"
 		},
 		"textdomain": "jetpack-scheduled-updates",
 		"version-constants": {
