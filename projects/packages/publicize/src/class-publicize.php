@@ -232,6 +232,9 @@ class Publicize extends Publicize_Base {
 	 * @return array
 	 */
 	public function get_all_connections_for_user( $include_connection_health = false ) {
+		if ( $include_connection_health ) {
+			$this->force_refresh_connections();
+		}
 		$connections = $this->get_all_connections();
 
 		$connections_to_return = array();
