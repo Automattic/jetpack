@@ -84,24 +84,13 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 1.5 - 2023-03-22
+### 1.8 - 2024-05-22
 #### Added
-- Added request and update video poster functionality
-- Added label and help properties support for the TimestampControl component
-- Added basic upload functionality to mobile app block version
-- Added details panel to mobile app block's settings
-- Added check to remove tracks from previous video after replacement on block
+- Trigger a red bubble notification when a bad plugin install is detected.
 
 #### Changed
-- Indicated full compatibility with the latest version of WordPress, 6.2.
-- Updated deprecated core prop
-- Replaced loading placeholder
-- Updated package dependencies
-
-#### Fixed
-- Fixed video details form change detection
-- Fixed race condition when saving the post too fast after uploading a video
-- Fixed video library displaying arbitrary video in first page
-- Fixed opening upload options automatically when  block is inserted from the block inserter menu (mobile)
-- Fixed handling failed uploads on VideoPress block
+- Updated WordPRess tested version to 6.5.
+- Updated minimum WordPress version requirement to WordPress 6.4.
+- Switched to wp_admin_notice function to display notices.
+- Updated to show installation errors only on the plugins page.
 

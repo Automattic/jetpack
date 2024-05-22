@@ -161,7 +161,7 @@ class Manager {
 	 * Sets up the XMLRPC request handlers.
 	 *
 	 * @since 1.25.0 Deprecate $is_active param.
-	 * @since $$next-version$$ Deprecate $request_params param.
+	 * @since 2.8.4 Deprecate $request_params param.
 	 *
 	 * @param array|null            $deprecated Deprecated. Not used.
 	 * @param bool                  $has_connected_owner Whether the site has a connected owner.
@@ -176,7 +176,7 @@ class Manager {
 	) {
 		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ), 1000, 2 );
 		if ( $deprecated !== null ) {
-			_deprecated_argument( __METHOD__, '$$next-version$$' );
+			_deprecated_argument( __METHOD__, '2.8.4' );
 		}
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- We are using the 'for' request param to early return unless it's 'jetpack'.
 		if ( ! isset( $_GET['for'] ) || 'jetpack' !== $_GET['for'] ) {
