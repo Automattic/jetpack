@@ -285,15 +285,21 @@ class REST_Controller {
 	 * @param WP_REST_Request $request The request object, which includes the parameters.
 	 */
 	public function get_publicize_connections( $request ) {
-		$params                    = $request->get_param( '_fields' );
-		$include_connection_health = false;
-		$params                    = $request->get_params();
-		if ( isset( $params['_fields'] ) ) {
-			$requested_params          = explode( ',', $params['_fields'] );
-			$include_connection_health = in_array( 'status', $requested_params, true );
+		$run_test_results = $request->get_param( 'run_test_results' );
+		$clear_cache      = $request->get_param( 'clear_cache' );
+
+		$args = array();
+
+		if ( ! empty( $run_test_results ) ) {
+			$args['run_test_results'] = true;
 		}
+
+		if ( ! empty( $clear_cache ) ) {
+			$args['clear_cache'] = true;
+		}
+
 		global $publicize;
-		return rest_ensure_response( $publicize->get_all_connections_for_user( $include_connection_health ) );
+		return rest_ensure_response( $publicize->get_all_connections_for_user( $args ) );
 	}
 
 	/**
