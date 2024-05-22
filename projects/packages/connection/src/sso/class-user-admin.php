@@ -835,7 +835,7 @@ class User_Admin {
 	 * @return boolean Indicating if the core invitation main should be sent.
 	 */
 	public function should_send_wp_mail_new_user( $send_wp_email ) {
-		if ( ! isset( $_POST['invite_user_wpcom'] ) && isset( $_POST['send_user_notification'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( ! isset( $_POST['invite_user_wpcom'] ) && isset( $_POST['send_user_notification'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Hooked to 'wp_send_new_user_notification_to_user' to conditionally disable the core invitation email. At this point nonces should be checked already.
 			return $send_wp_email;
 		}
 		return false;
