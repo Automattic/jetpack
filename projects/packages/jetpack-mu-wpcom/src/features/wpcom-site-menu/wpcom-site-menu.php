@@ -584,16 +584,16 @@ function wpcom_add_scheduled_updates_menu() {
 		return;
 	}
 
+	// Don't show on staging sites.
+	if ( get_option( 'wpcom_is_staging_site' ) ) {
+		return;
+	}
+
 	if ( ! function_exists( 'wpcom_site_has_feature' ) ) {
 		return;
 	}
 
 	if ( ! wpcom_site_has_feature( \WPCOM_Features::SCHEDULED_UPDATES ) ) {
-		return;
-	}
-
-	// Don't show on staging sites.
-	if ( get_option( 'wpcom_is_staging_site' ) ) {
 		return;
 	}
 
