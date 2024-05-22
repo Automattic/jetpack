@@ -559,7 +559,7 @@ export const Waf = class extends Component {
 							</Button>
 						</div>
 					) }
-					{ ! this.props.protectIsActive && ! this.state.showLegacySettings && (
+					{ ! this.props.protectIsActive && ! this.state.showLegacySettings && isWafActive && (
 						<div className="dops-banner__action">
 							<Button rna={ true } compact onClick={ this.showLegacySettings }>
 								{ __( 'Use Legacy Settings', 'jetpack' ) }
