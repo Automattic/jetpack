@@ -171,7 +171,7 @@ class Publicize extends Publicize_Base {
 	 * @return true
 	 */
 	public function receive_updated_publicize_connections( $publicize_connections ) {
-		set_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT, $publicize_connections, 3600 * 10 );
+		set_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT, $publicize_connections, 3600 * 4 );
 		return true;
 	}
 
@@ -258,6 +258,9 @@ class Publicize extends Publicize_Base {
 	 * @return array
 	 */
 	public function get_all_connections_for_user( $include_connection_health = false ) {
+		if ( $include_connection_health ) {
+			$this->force_refresh_connections();
+		}
 		$connections = $this->get_all_connections();
 
 		$connections_to_return = array();
