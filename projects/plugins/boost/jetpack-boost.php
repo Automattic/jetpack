@@ -219,7 +219,7 @@ function include_compatibility_files() {
 		require_once __DIR__ . '/compatibility/web-stories.php';
 	}
 
-	if ( class_exists( '\Elementor\TemplateLibrary\Source_Local' ) ) {
+	if ( defined( '\Elementor\TemplateLibrary\Source_Local::CPT' ) || defined( '\Elementor\Modules\LandingPages\Module::CPT' ) ) {
 		require_once __DIR__ . '/compatibility/elementor.php';
 	}
 
