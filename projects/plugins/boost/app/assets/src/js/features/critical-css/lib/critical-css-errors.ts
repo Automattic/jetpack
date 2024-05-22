@@ -34,9 +34,11 @@ export function isFatalError( cssState: CriticalCssState ): boolean {
 		return false;
 	}
 
-	return ! cssState.providers.some( provider =>
-		[ 'success', 'pending' ].includes( provider.status )
+	const hasActiveProvider = cssState.providers.some(
+		provider => provider.status === 'success' || provider.status === 'pending'
 	);
+
+	return ! hasActiveProvider;
 }
 
 /**
@@ -44,7 +46,7 @@ export function isFatalError( cssState: CriticalCssState ): boolean {
  *
  * @param cssState - The CSS State object.
  */
-export function getCriticalCssIssues( cssState: CriticalCssState ): Provider[] {
+export function getProvidersWithErrors( cssState: CriticalCssState ): Provider[] {
 	return cssState.providers.filter( provider => ( provider.errors?.length || 0 ) > 0 );
 }
 
@@ -54,42 +56,41 @@ export function getCriticalCssIssues( cssState: CriticalCssState ): Provider[] {
  * @param cssState - The CSS State object.
  */
 export function getPrimaryErrorSet( cssState: CriticalCssState ): ErrorSet | undefined {
-	const issues = getCriticalCssIssues( cssState );
+	const providersWithErrors = getProvidersWithErrors( cssState );
 
-	if ( ! issues.length ) {
+	if ( ! providersWithErrors.length ) {
 		return undefined;
 	}
 
-	const importantProviders = [
-		'core_front_page',
-		'core_posts_page',
-		'singular_page',
-		'singular_post',
-	];
+	const primaryProviders = [ 'core_front_page', 'core_posts_page' ];
 
-	for ( const key of importantProviders ) {
-		const issue = issues.find( r => r.key === key );
-		if ( issue ) {
-			return groupErrorsByFrequency( issue )[ 0 ];
+	for ( const key of primaryProviders ) {
+		const provider = providersWithErrors.find( p => p.key === key );
+		if ( provider && provider.errors ) {
+			return getPrimaryGroupedError( provider.errors );
 		}
 	}
 
 	return undefined;
 }
 
+export function getPrimaryGroupedError( errors: CriticalCssErrorDetails[] ): ErrorSet | undefined {
+	const groupedErrors = groupErrorsByFrequency( errors );
+	return groupedErrors.length > 0 ? groupedErrors[ 0 ] : undefined;
+}
+
 /**
- * Takes a Provider Key set of errors (in an object keyed by URL), and returns
+ * Takes a set of errors (in an object keyed by URL), and returns
  * a SortedErrorSet; an array which contains each type of error grouped. Also
  * groups things like HTTP errors by code.
  *
- * @param provider The recommendation the errors belong to.
+ * @param errors A sorted set of errors.
  */
-export function groupErrorsByFrequency( provider: Provider ): ErrorSet[] {
-	if ( ! provider.errors ) {
+export function groupErrorsByFrequency( errors: CriticalCssErrorDetails[] ): ErrorSet[] {
+	if ( ! errors ) {
 		return [];
 	}
 
-	const { errors } = provider;
 	const groupKeys = errors.map( error => groupKey( error ) );
 	const groupOrder = sortByFrequency( groupKeys );
 
