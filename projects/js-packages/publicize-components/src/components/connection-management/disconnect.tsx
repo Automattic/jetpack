@@ -10,15 +10,10 @@ import styles from './style.module.scss';
 
 export type DisconnectProps = {
 	connection: Connection;
-	label?: string;
-	onDisconnect?: VoidFunction;
-	showSuccessNotice?: boolean;
 	variant?: React.ComponentProps< typeof Button >[ 'variant' ];
 	isDestructive?: boolean;
-	showConfirmation?: boolean;
 	buttonClassName?: string;
 };
-
 /**
  * Disconnect component
  *
@@ -28,12 +23,8 @@ export type DisconnectProps = {
  */
 export function Disconnect( {
 	connection,
-	label,
-	onDisconnect,
-	showSuccessNotice = true,
 	variant = 'secondary',
 	isDestructive = true,
-	showConfirmation = true,
 	buttonClassName,
 }: DisconnectProps ) {
 	const [ isConfirmOpen, toggleConfirm ] = useReducer( state => ! state, false );
@@ -56,11 +47,8 @@ export function Disconnect( {
 
 		await deleteConnectionById( {
 			connectionId: connection.connection_id,
-			showSuccessNotice,
 		} );
-
-		onDisconnect?.();
-	}, [ connection.connection_id, deleteConnectionById, onDisconnect, showSuccessNotice ] );
+	}, [ connection.connection_id, deleteConnectionById ] );
 
 	if ( ! connection.can_disconnect ) {
 		return null;
@@ -68,28 +56,26 @@ export function Disconnect( {
 
 	return (
 		<>
-			{ showConfirmation && (
-				<ConfirmDialog
-					className={ styles.confirmDialog }
-					isOpen={ isConfirmOpen }
-					onConfirm={ onClickDisconnect }
-					onCancel={ toggleConfirm }
-					cancelButtonText={ __( 'Cancel', 'jetpack' ) }
-					confirmButtonText={ __( 'Yes', 'jetpack' ) }
-				>
-					{ createInterpolateElement(
-						sprintf(
-							// translators: %s: The name of the connection the user is disconnecting.
-							__( 'Are you sure you want to disconnect <strong>%s</strong>?', 'jetpack' ),
-							connection.display_name
-						),
-						{ strong: <strong></strong> }
-					) }
-				</ConfirmDialog>
-			) }
+			<ConfirmDialog
+				className={ styles.confirmDialog }
+				isOpen={ isConfirmOpen }
+				onConfirm={ onClickDisconnect }
+				onCancel={ toggleConfirm }
+				cancelButtonText={ __( 'Cancel', 'jetpack' ) }
+				confirmButtonText={ __( 'Yes', 'jetpack' ) }
+			>
+				{ createInterpolateElement(
+					sprintf(
+						// translators: %s: The name of the connection the user is disconnecting.
+						__( 'Are you sure you want to disconnect <strong>%s</strong>?', 'jetpack' ),
+						connection.display_name
+					),
+					{ strong: <strong></strong> }
+				) }
+			</ConfirmDialog>
 			<Button
 				size="small"
-				onClick={ showConfirmation ? toggleConfirm : onClickDisconnect }
+				onClick={ toggleConfirm }
 				disabled={ isDisconnecting }
 				variant={ variant }
 				isDestructive={ isDestructive }
@@ -97,7 +83,7 @@ export function Disconnect( {
 			>
 				{ isDisconnecting
 					? __( 'Disconnecting…', 'jetpack' )
-					: label || _x( 'Disconnect', 'Disconnect a social media account', 'jetpack' ) }
+					: _x( 'Disconnect', 'Disconnect a social media account', 'jetpack' ) }
 			</Button>
 		</>
 	);
