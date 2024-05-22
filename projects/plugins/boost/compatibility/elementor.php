@@ -25,6 +25,10 @@ function exclude_elementor_library_custom_post_type( $post_types ) {
 		unset( $post_types[ Module::CPT ] );
 	}
 
+	if ( isset( $post_types['elementor-hf'] ) ) {
+		unset( $post_types['elementor-hf'] );
+	}
+
 	return $post_types;
 }
 
