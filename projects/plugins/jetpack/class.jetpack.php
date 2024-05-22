@@ -2406,6 +2406,7 @@ class Jetpack {
 	 */
 	public static function catch_errors( $catch ) {
 		_deprecated_function( __METHOD__, '$$next-version$$' );
+		// @phan-suppress-next-line PhanDeprecatedClass
 		return ( new Errors() )->catch_errors( $catch );
 	}
 
