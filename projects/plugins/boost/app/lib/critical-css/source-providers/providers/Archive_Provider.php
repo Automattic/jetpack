@@ -111,7 +111,6 @@ class Archive_Provider extends Provider {
 				'jetpack_boost_critical_css_post_types',
 				array(
 					$provider_post_types,
-					$post_types,
 				),
 				'3.4.0',
 				'jetpack_boost_critical_css_post_types_archives'
