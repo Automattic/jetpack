@@ -349,7 +349,7 @@ class Jetpack_WPCOM_Block_Editor {
 
 		wp_localize_script(
 			'wpcom-block-editor-default-editor-script',
-			'wpcomGutenberg',
+			'jetpackMuWpcomGutenberg',
 			array(
 				'richTextToolbar' => array(
 					'justify'   => __( 'Justify', 'jetpack-mu-wpcom' ),
