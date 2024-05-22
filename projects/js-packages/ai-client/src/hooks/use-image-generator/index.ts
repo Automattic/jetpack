@@ -185,7 +185,7 @@ const useImageGenerator = () => {
 				return Promise.reject( data );
 			}
 
-			return data as { data: { [ key: string ]: string }[] };
+			return data as ImageGenerationResponse;
 		} catch ( error ) {
 			debug( 'Error generating image: %o', error );
 			return Promise.reject( error );
