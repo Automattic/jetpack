@@ -516,6 +516,8 @@ class Publicize extends Publicize_Base {
 			if ( ! $xml->isError() ) {
 				$response = $xml->getResponse();
 				$this->receive_updated_publicize_connections( $response );
+			} else {
+				$this->force_refresh_connections();
 			}
 		}
 	}
