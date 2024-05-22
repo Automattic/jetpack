@@ -41,7 +41,7 @@ class Authorize_Json_Api {
 	 */
 	public function verify_json_api_authorization_request( $environment = null ) {
 		$environment = $environment === null
-			? $_REQUEST // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce verification handled later in function.
+			? $_REQUEST // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce verification handled later in function and request data are 1) used to verify a cryptographic signature of the request data and 2) sanitized later in function.
 			: $environment;
 
 		if ( ! isset( $environment['token'] ) ) {

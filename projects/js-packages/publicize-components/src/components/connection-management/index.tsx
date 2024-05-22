@@ -1,4 +1,5 @@
 import { Button } from '@automattic/jetpack-components';
+import { Disabled } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useReducer, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -6,10 +7,8 @@ import classNames from 'classnames';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store } from '../../social-store';
 import AddConnectionModal from '../add-connection-modal';
-import ConnectionIcon from '../connection-icon';
 import { SupportedService, useSupportedServices } from '../services/use-supported-services';
 import { ConnectionInfo } from './connection-info';
-import { Disconnect } from './disconnect';
 import styles from './style.module.scss';
 
 const ConnectionManagement = ( { className = null } ) => {
@@ -17,8 +16,14 @@ const ConnectionManagement = ( { className = null } ) => {
 
 	const [ expandedService, setExpandedService ] = useState< SupportedService >( null );
 
-	const connections = useSelect( select => {
-		return select( store ).getConnections();
+	const { connections, deletingConnections, updatingConnections } = useSelect( select => {
+		const { getConnections, getDeletingConnections, getUpdatingConnections } = select( store );
+
+		return {
+			connections: getConnections(),
+			deletingConnections: getDeletingConnections(),
+			updatingConnections: getUpdatingConnections(),
+		};
 	}, [] );
 
 	connections.sort( ( a, b ) => {
@@ -53,46 +58,31 @@ const ConnectionManagement = ( { className = null } ) => {
 
 	return (
 		<div className={ classNames( styles.wrapper, className ) }>
-			<h3>{ __( 'Connections', 'jetpack' ) }</h3>
+			<h3>{ __( 'My Connections', 'jetpack' ) }</h3>
 			{ connections.length ? (
-				<table>
-					<thead>
-						<tr>
-							<th className={ styles[ 'column-icon' ] }></th>
-							<th className={ styles[ 'column-name' ] }></th>
-							<th></th>
-						</tr>
-					</thead>
-					<tbody>
-						{ connections.map( connection => (
-							<tr className={ styles.item } key={ connection.connection_id }>
-								<td className={ styles.icon }>
-									<ConnectionIcon
-										serviceName={ connection.service_name }
-										label={ connection.display_name }
-										profilePicture={ connection.profile_picture }
-									/>
-								</td>
-								<td className={ styles.name }>
+				<ul className={ styles[ 'connection-list' ] }>
+					{ connections.map( connection => {
+						const isUpdatingOrDeleting =
+							updatingConnections.includes( connection.connection_id ) ||
+							deletingConnections.includes( connection.connection_id );
+
+						return (
+							<li className={ styles[ 'connection-list-item' ] } key={ connection.connection_id }>
+								<Disabled isDisabled={ isUpdatingOrDeleting }>
 									<ConnectionInfo
 										connection={ connection }
 										onReconnect={ onReconnect( connection.service_name ) }
 									/>
-								</td>
-								<td>
-									<div className={ styles.actions }>
-										<Disconnect connection={ connection } />
-									</div>
-								</td>
-							</tr>
-						) ) }
-					</tbody>
-				</table>
+								</Disabled>
+							</li>
+						);
+					} ) }
+				</ul>
 			) : (
 				<span>{ __( 'There are no connections added yet.', 'jetpack' ) }</span>
 			) }
-			<Button onClick={ toggleModal } size="small">
-				{ __( 'Add new connection', 'jetpack' ) }
+			<Button onClick={ toggleModal } variant={ connections.length ? 'secondary' : 'primary' }>
+				{ __( 'Add connection', 'jetpack' ) }
 			</Button>
 			{ isModalOpen && (
 				<AddConnectionModal
