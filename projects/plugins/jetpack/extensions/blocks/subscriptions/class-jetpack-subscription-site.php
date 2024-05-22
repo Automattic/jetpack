@@ -8,7 +8,6 @@
 
 namespace Automattic\Jetpack\Extensions\Subscriptions;
 
-use Automattic\Jetpack\Status\Host;
 use Jetpack_Memberships;
 use WP_Block_Template;
 use WP_Post;
@@ -42,6 +41,7 @@ class Jetpack_Subscription_Site {
 	 */
 	public function handle_subscribe_block_placements() {
 		$this->handle_subscribe_block_post_end_placement();
+		$this->handle_subscribe_block_navigation_placement();
 
 		add_filter(
 			'jetpack_options_whitelist',
@@ -51,18 +51,6 @@ class Jetpack_Subscription_Site {
 				return $options;
 			}
 		);
-
-		// If called via REST API, we need to register later in the lifecycle
-		if ( ( new Host() )->is_wpcom_platform() && ! jetpack_is_frontend() ) {
-			add_action(
-				'restapi_theme_init',
-				function () {
-					Jetpack_Subscription_Site::init()->handle_subscribe_block_navigation_placement();
-				}
-			);
-		} else {
-			self::init()->handle_subscribe_block_navigation_placement();
-		}
 	}
 
 	/**
