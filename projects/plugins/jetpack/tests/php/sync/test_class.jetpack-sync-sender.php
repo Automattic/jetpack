@@ -7,6 +7,7 @@ use Automattic\Jetpack\Sync\Lock;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Callables;
 use Automattic\Jetpack\Sync\Settings;
+use Automattic\RedefineExit\ExitException;
 
 class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	protected $action_ran;

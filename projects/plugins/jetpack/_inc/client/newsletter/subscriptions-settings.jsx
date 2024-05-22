@@ -133,15 +133,18 @@ function SubscriptionsSettings( props ) {
 						onChange={ handleSubscribePostEndToggleChange }
 						label={
 							<>
-								{ __( 'Add the Subscribe Block at the end of each post', 'jetpack' ) }
-								{ isSubscriptionSiteEditSupported && singlePostTemplateEditorUrl && (
-									<>
-										{ '. ' }
-										<ExternalLink href={ singlePostTemplateEditorUrl }>
-											{ __( 'Preview and edit', 'jetpack' ) }
-										</ExternalLink>
-									</>
-								) }
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Add the Subscribe Block at the end of each post', 'jetpack' ) }
+
+									{ isSubscriptionSiteEditSupported && singlePostTemplateEditorUrl && (
+										<>
+											{ '. ' }
+											<ExternalLink href={ singlePostTemplateEditorUrl }>
+												{ __( 'Preview and edit', 'jetpack' ) }
+											</ExternalLink>
+										</>
+									) }
+								</span>
 							</>
 						}
 					/>
@@ -152,15 +155,17 @@ function SubscriptionsSettings( props ) {
 						onChange={ handleSubscribeModalToggleChange }
 						label={
 							<>
-								{ __( 'Show subscription pop-up when scrolling a post', 'jetpack' ) }
-								{ isBlockTheme && subscribeModalEditorUrl && (
-									<>
-										{ '. ' }
-										<ExternalLink href={ subscribeModalEditorUrl }>
-											{ __( 'Preview and edit', 'jetpack' ) }
-										</ExternalLink>
-									</>
-								) }
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Show subscription pop-up when scrolling a post', 'jetpack' ) }
+									{ isBlockTheme && subscribeModalEditorUrl && (
+										<>
+											{ '. ' }
+											<ExternalLink href={ subscribeModalEditorUrl }>
+												{ __( 'Preview and edit', 'jetpack' ) }
+											</ExternalLink>
+										</>
+									) }
+								</span>
 							</>
 						}
 					/>
@@ -190,17 +195,25 @@ function SubscriptionsSettings( props ) {
 						disabled={ isDisabled }
 						toggling={ isSavingAnyOption( [ 'stb_enabled' ] ) }
 						onChange={ handleSubscribeToBlogToggleChange }
-						label={ __( 'Enable the “subscribe to site” option on your comment form', 'jetpack' ) }
+						label={
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Enable the “subscribe to site” option on your comment form', 'jetpack' ) }
+							</span>
+						}
 					/>
 					<ToggleControl
 						checked={ isSubscriptionsActive && isStcEnabled }
 						disabled={ isDisabled }
 						toggling={ isSavingAnyOption( [ 'stc_enabled' ] ) }
 						onChange={ handleSubscribeToCommentToggleChange }
-						label={ __(
-							'Enable the “subscribe to comments” option on your comment form',
-							'jetpack'
-						) }
+						label={
+							<span className="jp-form-toggle-explanation">
+								{ __(
+									'Enable the “subscribe to comments” option on your comment form',
+									'jetpack'
+								) }
+							</span>
+						}
 					/>
 					{ isSubscriptionSiteEditSupported && (
 						<ToggleControl
@@ -210,15 +223,17 @@ function SubscriptionsSettings( props ) {
 							onChange={ handleLoginNavigationToggleChange }
 							label={
 								<>
-									{ __( 'Add the Subscriber Login Block to the navigation', 'jetpack' ) }
-									{ headerTemplateEditorUrl && (
-										<>
-											{ '. ' }
-											<ExternalLink href={ headerTemplateEditorUrl }>
-												{ __( 'Preview and edit', 'jetpack' ) }
-											</ExternalLink>
-										</>
-									) }
+									<span className="jp-form-toggle-explanation">
+										{ __( 'Add the Subscriber Login Block to the navigation', 'jetpack' ) }
+										{ headerTemplateEditorUrl && (
+											<>
+												{ '. ' }
+												<ExternalLink href={ headerTemplateEditorUrl }>
+													{ __( 'Preview and edit', 'jetpack' ) }
+												</ExternalLink>
+											</>
+										) }
+									</span>
 								</>
 							}
 						/>

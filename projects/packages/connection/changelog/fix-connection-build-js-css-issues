@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+SSO: ensure the dist files are generated properly, without overwriting each other.

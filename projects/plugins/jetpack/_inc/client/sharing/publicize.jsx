@@ -170,7 +170,9 @@ export const Publicize = withModuleSettingsFormHelpers(
 								toggling={ this.props.isSavingAnyOption( 'publicize' ) }
 								toggleModule={ this.props.toggleModuleNow }
 							>
-								{ __( 'Automatically share your posts to social networks', 'jetpack' ) }
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Automatically share your posts to social networks', 'jetpack' ) }
+								</span>
 							</ModuleToggle>
 							<RefreshJetpackSocialSettingsWrapper
 								shouldRefresh={ ! isActive && this.props.isSavingAnyOption( 'publicize' ) }

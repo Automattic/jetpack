@@ -4,6 +4,7 @@ import {
 	DELETE_CONNECTION,
 	DELETING_CONNECTION,
 	SET_CONNECTIONS,
+	SET_KEYRING_RESULT,
 	TOGGLE_CONNECTION,
 	UPDATE_CONNECTION,
 	UPDATING_CONNECTION,
@@ -75,6 +76,12 @@ const connectionData = ( state = {}, action ) => {
 				updatingConnections: [ ...updating ],
 			};
 		}
+
+		case SET_KEYRING_RESULT:
+			return {
+				...state,
+				keyringResult: action.keyringResult,
+			};
 
 		case TOGGLE_CONNECTION:
 			return {
