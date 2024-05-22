@@ -138,7 +138,7 @@ export default function ProductInterstitial( {
 
 	const clickHandler = useCallback(
 		( checkout, product, tier ) => {
-			let postCheckoutUrl = product?.postCheckoutUrl
+			const postCheckoutUrl = product?.postCheckoutUrl
 				? product?.postCheckoutUrl
 				: myJetpackCheckoutUri;
 
@@ -153,10 +153,7 @@ export default function ProductInterstitial( {
 			activate(
 				{ productId: slug },
 				{
-					onSettled: ( { productId: activatedProduct } ) => {
-						postCheckoutUrl = activatedProduct?.post_checkout_url
-							? activatedProduct.post_checkout_url
-							: myJetpackCheckoutUri;
+					onSettled: () => {
 						// there is a separate hasRequiredTier, but it is not implemented
 						const hasPaidPlanForProduct = product?.hasPaidPlanForProduct;
 						const isFree = tier

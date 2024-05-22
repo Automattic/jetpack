@@ -273,7 +273,7 @@ class Protect extends Product {
 	 * @return ?string
 	 */
 	public static function get_post_checkout_url() {
-		return self::get_manage_url();
+		return static::get_manage_url();
 	}
 
 	/**
