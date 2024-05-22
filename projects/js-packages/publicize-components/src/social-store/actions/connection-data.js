@@ -276,6 +276,8 @@ export function createConnection( data ) {
 					addConnection( {
 						...connection,
 						can_disconnect: true,
+						// For editor, we always enable the connection by default.
+						enabled: true,
 					} )
 				);
 
