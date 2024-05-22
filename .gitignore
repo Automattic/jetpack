@@ -56,3 +56,4 @@ phpcs.xml
 # This file indicates we're in draft mode, which reduces checks
 .jetpack-draft
 
+.vscode/settings.json
