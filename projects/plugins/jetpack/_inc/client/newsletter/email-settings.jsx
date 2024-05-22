@@ -27,9 +27,6 @@ const FEATURED_IMAGE_IN_EMAIL_OPTION = 'wpcom_featured_image_in_email';
 const SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION = 'wpcom_subscription_emails_use_excerpt';
 const REPLY_TO_OPTION = 'jetpack_subscriptions_reply_to';
 const FROM_NAME_OPTION = 'jetpack_subscriptions_from_name';
-//Check for feature flag
-const urlParams = new URLSearchParams( window.location.search );
-const isNewsletterFromNameEnabled = urlParams.get( 'enable-newsletter-from-name' ) === 'true';
 
 const EmailSettings = props => {
 	const {
@@ -177,51 +174,50 @@ const EmailSettings = props => {
 					onChange={ handleSubscriptionEmailsUseExcerptChange }
 				/>
 			</SettingsGroup>
-			{ isNewsletterFromNameEnabled && (
-				<SettingsGroup
-					hasChild
-					disableInOfflineMode
-					disableInSiteConnectionMode
-					module={ subscriptionsModule }
-					className="newsletter-group"
-				>
-					<FormLegend className="jp-form-label-wide">{ __( 'Sender name', 'jetpack' ) }</FormLegend>
-					<p>
-						{ __(
-							"This is the name that appears in subscribers' inboxes. It's usually the name of your newsletter or the author.",
-							'jetpack'
+			<SettingsGroup
+				hasChild
+				disableInOfflineMode
+				disableInSiteConnectionMode
+				module={ subscriptionsModule }
+				className="newsletter-group"
+			>
+				<FormLegend className="jp-form-label-wide">{ __( 'Sender name', 'jetpack' ) }</FormLegend>
+				<p>
+					{ __(
+						"This is the name that appears in subscribers' inboxes. It's usually the name of your newsletter or the author.",
+						'jetpack'
+					) }
+				</p>
+				<Container horizontalGap={ 0 } fluid className="sender-name">
+					<Col sm={ 3 } md={ 4 } lg={ 4 }>
+						<TextInput
+							value={ fromNameState.value }
+							disabled={ fromNameInputDisabled }
+							onChange={ handleSubscriptionFromNameChange }
+							placeholder={ siteName || __( 'Enter sender name', 'jetpack' ) }
+						/>
+					</Col>
+					<Col sm={ 1 } md={ 1 } lg={ 1 }>
+						<Button
+							primary
+							rna
+							onClick={ handleSubscriptionFromNameChangeClick }
+							disabled={ fromNameInputDisabled || ! fromNameState.hasChanged }
+						>
+							{ __( 'Save', 'jetpack' ) }
+						</Button>
+					</Col>
+					<Col className="sender-name-example">
+						{ sprintf(
+							/* translators: 1. placeholder is the user entered value for From Name, 2. is the example email */
+							__( 'Example: %1$s <%2$s>', 'jetpack' ),
+							fromNameState.value || siteName,
+							exampleEmail
 						) }
-					</p>
-					<Container horizontalGap={ 0 } fluid className="sender-name">
-						<Col sm={ 3 } md={ 4 } lg={ 4 }>
-							<TextInput
-								value={ fromNameState.value }
-								disabled={ fromNameInputDisabled }
-								onChange={ handleSubscriptionFromNameChange }
-								placeholder={ siteName || __( 'Enter sender name', 'jetpack' ) }
-							/>
-						</Col>
-						<Col sm={ 1 } md={ 1 } lg={ 1 }>
-							<Button
-								primary
-								rna
-								onClick={ handleSubscriptionFromNameChangeClick }
-								disabled={ fromNameInputDisabled || ! fromNameState.hasChanged }
-							>
-								{ __( 'Save', 'jetpack' ) }
-							</Button>
-						</Col>
-						<Col className="sender-name-example">
-							{ sprintf(
-								/* translators: 1. placeholder is the user entered value for From Name, 2. is the example email */
-								__( 'Example: %1$s <%2$s>', 'jetpack' ),
-								fromNameState.value || siteName,
-								exampleEmail
-							) }
-						</Col>
-					</Container>
-				</SettingsGroup>
-			) }
+					</Col>
+				</Container>
+			</SettingsGroup>
+
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
