@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Subscriptions: Do not clear the subscriber email when current user is empty

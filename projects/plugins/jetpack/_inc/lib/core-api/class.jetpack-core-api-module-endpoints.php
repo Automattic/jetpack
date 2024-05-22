@@ -1045,9 +1045,15 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						$old_subscription_options = array();
 					}
 					$new_subscription_options = array_merge( $old_subscription_options, $filtered_value );
+					$updated                  = true;
 
-					if ( update_option( $option, $new_subscription_options ) ) {
-						$updated[ $option ] = true;
+					if ( serialize( $old_subscription_options ) === serialize( $new_subscription_options ) ) { // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+						break; // This prevents the option update to fail when the values are the same.
+					}
+
+					if ( ! update_option( $option, $new_subscription_options ) ) {
+						$updated = false;
+						$error   = esc_html__( 'Subscription Options failed to process.', 'jetpack' );
 					}
 					break;
 

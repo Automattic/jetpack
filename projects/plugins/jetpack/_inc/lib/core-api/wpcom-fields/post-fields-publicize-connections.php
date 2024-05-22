@@ -154,6 +154,12 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
+				'external_id'     => array(
+					'description' => __( 'The external ID of the connected account', 'jetpack' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+				),
 			),
 		);
 	}

@@ -827,6 +827,7 @@ abstract class Publicize_Base {
 	 *     @type bool   'done'             Has this connection already been publicized to?
 	 *     @type bool   'toggleable'       Is the user allowed to change the value for the connection?
 	 *     @type bool   'global'           Is this connection a global one?
+	 *     @type string 'external_id'      External ID for the connection.
 	 * }
 	 */
 	public function get_filtered_connection_data( $selected_post_id = null ) {
@@ -959,6 +960,7 @@ abstract class Publicize_Base {
 					'done'            => $done,
 					'toggleable'      => $toggleable,
 					'global'          => 0 == $connection_data['user_id'], // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual,WordPress.PHP.StrictComparisons.LooseComparison -- Other types can be used at times.
+					'external_id'     => $connection_meta['external_id'] ?? '',
 				);
 			}
 		}
