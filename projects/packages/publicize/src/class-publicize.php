@@ -329,7 +329,7 @@ class Publicize extends Publicize_Base {
 	 *
 	 * @param int $connection_id The connection_id.
 
-	 * @return object
+	 * @return array
 	 */
 	public function get_connection_for_user( $connection_id ) {
 		foreach ( $this->get_all_connections_for_user() as $connection ) {
