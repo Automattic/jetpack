@@ -10,6 +10,7 @@ export type SharesData = {
 export type ConnectionStatus = 'ok' | 'broken';
 
 export type Connection = {
+	id: string;
 	service_name: string;
 	display_name: string;
 	external_display?: string;
