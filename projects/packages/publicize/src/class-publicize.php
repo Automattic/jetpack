@@ -258,7 +258,8 @@ class Publicize extends Publicize_Base {
 	 * @return array
 	 */
 	public function get_all_connections_for_user( $args = array() ) {
-		if ( isset( $args['clear_cache'] ) && $args['clear_cache'] ) {
+		if ( ( isset( $args['clear_cache'] ) && $args['clear_cache'] )
+		|| ( isset( $args['run_test_results'] ) && $args['run_test_results'] ) ) {
 			$this->force_refresh_connections();
 		}
 		$connections = $this->get_all_connections();
