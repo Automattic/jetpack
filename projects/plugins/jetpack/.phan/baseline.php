@@ -134,7 +134,7 @@ return [
         '_inc/lib/class.media-summary.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanRedundantCondition', 'PhanTypeArraySuspiciousNull', 'PhanTypeMismatchArgument'],
         '_inc/lib/class.media.php' => ['PhanTypePossiblyInvalidDimOffset'],
         '_inc/lib/core-api/class-wpcom-rest-field-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn'],
-        '_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php' => ['PhanNonClassMethodCall', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeArraySuspicious', 'PhanTypeComparisonToArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchDimFetch', 'PhanTypeMismatchReturn', 'PhanUndeclaredConstant'],
+        '_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php' => ['PhanNonClassMethodCall', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeComparisonToArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchDimFetch', 'PhanTypeMismatchReturn', 'PhanUndeclaredConstant'],
         '_inc/lib/core-api/class.jetpack-core-api-site-endpoints.php' => ['PhanTypeMismatchReturn'],
         '_inc/lib/core-api/class.jetpack-core-api-widgets-endpoints.php' => ['PhanTypeMismatchReturn'],
         '_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
