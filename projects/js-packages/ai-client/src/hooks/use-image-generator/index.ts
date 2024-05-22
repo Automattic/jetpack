@@ -235,7 +235,7 @@ const useImageGenerator = () => {
 		postContent: string;
 		responseFormat?: 'url' | 'b64_json';
 		userPrompt?: string;
-	} ): Promise< { data: Array< { [ key: string ]: string } > } > {
+	} ): Promise< ImageGenerationResponse > {
 		try {
 			debug( 'Generating image' );
 
