@@ -98,7 +98,7 @@ const EmailSettings = props => {
 
 	const handleSubscriptionFromNameChangeClick = useCallback( () => {
 		updateFormStateAndSaveOptionValue( FROM_NAME_OPTION, fromNameState.value );
-		analytics.tracks.recordEvent( 'jetpack_newsletter_set_reply_to_name', {
+		analytics.tracks.recordEvent( 'jetpack_newsletter_set_from_name_click', {
 			value: fromNameState.value,
 		} );
 		setFromNameState( { value: fromNameState.value, hasChanged: false } );
