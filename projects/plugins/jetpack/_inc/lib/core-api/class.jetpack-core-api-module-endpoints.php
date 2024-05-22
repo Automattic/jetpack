@@ -989,6 +989,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 						$updated = (string) get_option( $option ) !== (string) $sub_value ? update_option( $option, $sub_value ) : true;
 					break;
+				case 'jetpack_subscriptions_from_name':
+					// If option value was the same, consider it done.
+					$sub_value = sanitize_text_field( $value );
+					$updated   = (string) get_option( $option ) !== (string) $sub_value ? update_option( $option, $sub_value ) : true;
+					break;
 
 				case 'stb_enabled':
 				case 'stc_enabled':
