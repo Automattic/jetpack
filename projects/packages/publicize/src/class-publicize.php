@@ -253,7 +253,7 @@ class Publicize extends Publicize_Base {
 	/**
 	 * Get all connections for a specific user.
 	 *
-	 * @param arayy $args Arguments to run operations such as force refresh and connection test results.
+	 * @param array $args Arguments to run operations such as force refresh and connection test results.
 
 	 * @return array
 	 */
