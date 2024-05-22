@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\Extensions\Subscriptions;
 
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Memberships;
+use WP_Block_Template;
+use WP_Post;
 
 /**
  * Jetpack_Subscription_Site class.
