@@ -34,6 +34,7 @@
  *      - wp-cli: Stubs from php-stubs/wp-cli-stubs.
  *      - wpcom: Stubs from .phan/stubs/wpcom-stubs.php.
  *   - +stubs: (array) Like 'stubs', but setting this does not clear the defaults.
+ *   - internal_stubs: (array) Stubs provided by Phan to use with various PHP extensions like xdebug, zip, etc. See https://github.com/phan/phan/wiki/How-To-Use-Stubs#internal-stubs.
  *   - suppress_issue_types: (array) Issues to suppress for the entire project.
  *   - unsuppress_issue_types: (array) Default-suppressed issues to unsuppress for the project.
  * @return array Phan config.
@@ -50,14 +51,16 @@ function make_phan_config( $dir, $options = array() ) {
 		'parse_file_list'                 => array(),
 		'stubs'                           => array( 'wordpress', 'wp-cli' ),
 		'+stubs'                          => array(),
+		'internal_stubs'                  => array(),
 		'suppress_issue_types'            => array(),
 		'unsuppress_issue_types'          => array(),
 	);
 
 	$root = dirname( __DIR__ );
 
-	$stubs        = array();
-	$global_stubs = array();
+	$stubs          = array();
+	$global_stubs   = array();
+	$internal_stubs = array();
 	foreach ( array_merge( $options['stubs'], $options['+stubs'] ) as $stub ) {
 		switch ( $stub ) {
 			case 'akismet':
@@ -106,19 +109,41 @@ function make_phan_config( $dir, $options = array() ) {
 		$globals  = array_merge( $globals, json_decode( $contents, true ) );
 	}
 
+	foreach ( $options['internal_stubs'] as $stub ) {
+		switch ( $stub ) {
+			case 'ast':
+			case 'ctype':
+			case 'igbinary':
+			case 'mbstring':
+			case 'pcntl':
+			case 'phar':
+			case 'posix':
+			case 'readline':
+			case 'simplexml':
+			case 'sqlite3':
+			case 'sysvmsg':
+			case 'sysvsem':
+			case 'sysvshm':
+			case 'xdebug':
+			case 'zip':
+				$internal_stubs[ $stub ] = "$root/vendor/phan/phan/.phan/internal_stubs/$stub.phan_php";
+				break;
+		}
+	}
+
 	$config = array(
 		// Apparently this is only useful when upgrading from php 5, not for 7-to-8.
-		'backward_compatibility_checks'   => false,
+		'backward_compatibility_checks'          => false,
 
 		// If we start depending on class_alias, we might need this true. For now we don't.
-		'enable_class_alias_support'      => false,
+		'enable_class_alias_support'             => false,
 
 		// Seems worthwhile to have these flagged for attention.
 		// Probably either the type inference is wrong or the code could be simplified.
-		'redundant_condition_detection'   => true,
+		'redundant_condition_detection'          => true,
 
 		// Plugins to enable.
-		'plugins'                         => array(
+		'plugins'                                => array(
 			'AddNeverReturnTypePlugin',
 			'DuplicateArrayKeyPlugin',
 			'DuplicateExpressionPlugin',
@@ -135,13 +160,13 @@ function make_phan_config( $dir, $options = array() ) {
 		),
 
 		// Override to hardcode existence and types of (non-builtin) globals in the global scope.
-		'globals_type_map'                => array_merge(
+		'globals_type_map'                       => array_merge(
 			$globals,
 			$options['globals_type_map']
 		),
 
 		// Issues to disable globally.
-		'suppress_issue_types'            => array_merge(
+		'suppress_issue_types'                   => array_merge(
 			array_diff(
 				array(
 					// WordPress coding standards do not allow the `?:` operator.
@@ -155,8 +180,8 @@ function make_phan_config( $dir, $options = array() ) {
 		// Directories and individual files to parse (and, by default, analyze).
 		// Values are relative to the project base, and must begin with `./` for the exclude_file_regex to work right.
 		// Default to scanning the whole project, and including the various WordPress stubs packages.
-		'directory_list'                  => $options['directory_list'],
-		'file_list'                       => array_merge(
+		'directory_list'                         => $options['directory_list'],
+		'file_list'                              => array_merge(
 			array(
 				// Otherwise it complains about the config files trying to call this function. 😀
 				__FILE__,
@@ -169,7 +194,7 @@ function make_phan_config( $dir, $options = array() ) {
 		),
 
 		// Regex to exclude files from parsing.
-		'exclude_file_regex'              => '@^(?:\./)?(?:' . implode(
+		'exclude_file_regex'                     => '@^(?:\./)?(?:' . implode(
 			'|',
 			array_merge(
 				array(
@@ -197,11 +222,11 @@ function make_phan_config( $dir, $options = array() ) {
 		) . ')@',
 
 		// Specific files to exclude from parsing.
-		'exclude_file_list'               => $options['exclude_file_list'],
+		'exclude_file_list'                      => $options['exclude_file_list'],
 
 		// List directories that will be excluded from analysis (but will still be parsed).
 		// Note anything here needs to be listed in `directory_list` or `file_list` to be parsed in the first place.
-		'exclude_analysis_directory_list' => array_merge(
+		'exclude_analysis_directory_list'        => array_merge(
 			array(
 				'jetpack_vendor/',
 				'vendor/',
@@ -212,6 +237,9 @@ function make_phan_config( $dir, $options = array() ) {
 			$options['exclude_analysis_directory_list'],
 			$options['parse_file_list']
 		),
+
+		// @see https://github.com/phan/phan/wiki/How-To-Use-Stubs#internal-stubs
+		'autoload_internal_extension_signatures' => $internal_stubs,
 	);
 
 	// Only use UnusedSuppressionPlugin if we're not doing the CI run with old core stubs.
