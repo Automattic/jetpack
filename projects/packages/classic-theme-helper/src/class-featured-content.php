@@ -598,7 +598,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		public static function enqueue_scripts() {
 			Assets::register_script(
 				'jetpack-featured-content',
-				'../build/featured-content/featured-content.js',
+				'../build/featured-content/suggest.js',
 				__FILE__,
 				array(
 					'in_footer'  => true,
