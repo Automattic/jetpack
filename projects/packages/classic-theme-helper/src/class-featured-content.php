@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\Classic_Theme_Helper;
 use WP_Customize_Manager;
 use WP_Query;
 
-if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
+if ( ! class_exists( __NAMESPACE__ . '\Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
 
 	/**
 	 * Featured Content.
