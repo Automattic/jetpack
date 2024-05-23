@@ -11,9 +11,9 @@
 		"automattic/text-media-widget-styles": "^2.0",
 		"automattic/wc-calypso-bridge": "2.4.1",
 		"wordpress/classic-editor-plugin": "1.5",
-		"automattic/jetpack-config": "^1.5",
-		"automattic/jetpack-post-list": "^0.5.1",
-		"automattic/jetpack-mu-wpcom": "^5.31.0",
+		"automattic/jetpack-config": "@dev",
+		"automattic/jetpack-post-list": "@dev",
+		"automattic/jetpack-mu-wpcom": "@dev",
 		"tubalmartin/cssmin": "^4.1"
 	},
 	"require-dev": {
@@ -26,7 +26,32 @@
 	},
 	"autoload": {
 		"classmap": [
-			"src/"
+			"block-theme-footer-credits",
+			"customizer-fixes",
+			"custom-colors",
+			"endpoints",
+			"feature-plugins",
+			"footer-credit",
+			"frontend-notices",
+			"imports",
+			"jetpack-require-connection-owner",
+			"jetpack-token-error-header",
+			"jetpack-token-resilience",
+			"lib",
+			"logo-tool",
+			"mailpoet",
+			"notices",
+			"privacy",
+			"private-site",
+			"safeguard",
+			"share-post",
+			"storage",
+			"storefront",
+			"widgets",
+			"wpcom-features",
+			"wpcom-migration-helpers",
+			"wpcom-plugins",
+			"wpcom-themes"
 		]
 	},
 	"scripts": {
