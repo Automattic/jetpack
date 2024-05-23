@@ -117,7 +117,7 @@ class Jetpack_Subscribe_Overlay {
 		$skip_to_content = __( 'Skip to content', 'jetpack' );
 
 		return <<<HTML
-	<!-- wp:group {"style":{"spacing":"padding":{"right":"0","left":"0","top":"0","bottom":"0"}}},"layout":{"type":"constrained","contentSize":"400px"}} -->
+	<!-- wp:group {"style":{"spacing":{"padding":{"top":"0","bottom":"0","left":"0","right":"0"}}},"layout":{"type":"constrained","contentSize":"400px"}} -->
 	<div class="wp-block-group" style="padding-top:0;padding-right:0;padding-bottom:0;padding-left:0">
 		<!-- wp:site-logo {"width":90,"isLink":false,"shouldSyncIcon":true,"align":"center","className":"is-style-rounded"} /-->
 	
