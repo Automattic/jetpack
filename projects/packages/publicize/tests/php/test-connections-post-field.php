@@ -256,32 +256,30 @@ class Test_Connections_Post_Field extends TestCase {
 	 */
 	public function get_connections() {
 		return array(
-			'publicize_connections' => array(
-				// Normally connected facebook.
-				'facebook' => array(
-					'id_number' => array(
-						'connection_data' => array(
-							'user_id'       => self::$user_id,
-							'id'            => '456',
-							'connection_id' => '4560',
-							'token_id'      => 'test-unique-id456',
-							'meta'          => array(
-								'display_name' => 'test-display-name456',
-							),
+			// Normally connected facebook.
+			'facebook' => array(
+				'id_number' => array(
+					'connection_data' => array(
+						'user_id'       => self::$user_id,
+						'id'            => '456',
+						'connection_id' => '4560',
+						'token_id'      => 'test-unique-id456',
+						'meta'          => array(
+							'display_name' => 'test-display-name456',
 						),
 					),
 				),
-				// Globally connected tumblr.
-				'tumblr'   => array(
-					'id_number' => array(
-						'connection_data' => array(
-							'user_id'       => 0,
-							'id'            => '123',
-							'connection_id' => '1230',
-							'token_id'      => 'test-unique-id123',
-							'meta'          => array(
-								'display_name' => 'test-display-name123',
-							),
+			),
+			// Globally connected tumblr.
+			'tumblr'   => array(
+				'id_number' => array(
+					'connection_data' => array(
+						'user_id'       => 0,
+						'id'            => '123',
+						'connection_id' => '1230',
+						'token_id'      => 'test-unique-id123',
+						'meta'          => array(
+							'display_name' => 'test-display-name123',
 						),
 					),
 				),
