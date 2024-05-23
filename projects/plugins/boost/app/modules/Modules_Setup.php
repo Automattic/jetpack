@@ -61,6 +61,16 @@ class Modules_Setup implements Has_Setup {
 		return $status;
 	}
 
+	public function get_sub_modules_state() {
+		$state = array();
+		foreach ( $this->available_modules as $slug => $module ) {
+			if ( $module->has_sub_modules() ) {
+				$state[ $slug ] = $module->feature->get_sub_modules_state();
+			}
+		}
+		return $state;
+	}
+
 	/**
 	 * Used to register endpoints that will be available even
 	 * if the module is not enabled.
@@ -102,6 +112,10 @@ class Modules_Setup implements Has_Setup {
 			}
 
 			Setup::add( $module->feature );
+
+			if ( $module->has_sub_modules() ) {
+				$module->feature->setup_sub_modules();
+			}
 
 			$this->register_endpoints( $module->feature );
 
