@@ -110,25 +110,11 @@ function make_phan_config( $dir, $options = array() ) {
 	}
 
 	foreach ( $options['internal_stubs'] as $stub ) {
-		switch ( $stub ) {
-			case 'ast':
-			case 'ctype':
-			case 'igbinary':
-			case 'mbstring':
-			case 'pcntl':
-			case 'phar':
-			case 'posix':
-			case 'readline':
-			case 'simplexml':
-			case 'sqlite3':
-			case 'sysvmsg':
-			case 'sysvsem':
-			case 'sysvshm':
-			case 'xdebug':
-			case 'zip':
-				$internal_stubs[ $stub ] = "$root/vendor/phan/phan/.phan/internal_stubs/$stub.phan_php";
-				break;
+		$stub_file_path = "$root/vendor/phan/phan/.phan/internal_stubs/$stub.phan_php";
+		if ( ! file_exists( $stub_file_path ) ) {
+			throw new InvalidArgumentException( "Can not load internal stubs for '$stub': file $stub_file_path does not exist." );
 		}
+		$internal_stubs[ $stub ] = $stub_file_path;
 	}
 
 	$config = array(
