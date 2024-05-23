@@ -1,7 +1,7 @@
 import { Button } from '@automattic/jetpack-components';
 import { Disabled } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useReducer, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
@@ -14,17 +14,20 @@ import styles from './style.module.scss';
 const ConnectionManagement = ( { className = null } ) => {
 	const { refresh } = useSocialMediaConnections();
 
-	const [ expandedService, setExpandedService ] = useState< SupportedService >( null );
+	const { connections, deletingConnections, updatingConnections, keyringResult } = useSelect(
+		select => {
+			const { getConnections, getDeletingConnections, getUpdatingConnections, getKeyringResult } =
+				select( store );
 
-	const { connections, deletingConnections, updatingConnections } = useSelect( select => {
-		const { getConnections, getDeletingConnections, getUpdatingConnections } = select( store );
-
-		return {
-			connections: getConnections(),
-			deletingConnections: getDeletingConnections(),
-			updatingConnections: getUpdatingConnections(),
-		};
-	}, [] );
+			return {
+				keyringResult: getKeyringResult(),
+				connections: getConnections(),
+				deletingConnections: getDeletingConnections(),
+				updatingConnections: getUpdatingConnections(),
+			};
+		},
+		[]
+	);
 
 	connections.sort( ( a, b ) => {
 		if ( a.service_name === b.service_name ) {
@@ -33,28 +36,34 @@ const ConnectionManagement = ( { className = null } ) => {
 		return a.service_name.localeCompare( b.service_name );
 	} );
 
-	const [ isModalOpen, toggleModal ] = useReducer( state => ! state, false );
+	const [ isModalOpen, setIsModalOpen ] = useState( false );
 
 	useEffect( () => {
 		refresh();
 	}, [ refresh ] );
 
 	const supportedServices = useSupportedServices();
-
-	const onReconnect = useCallback(
-		( serviceName: string ) => () => {
-			const service = supportedServices.find( _service => _service.ID === serviceName );
-
-			setExpandedService( service );
-			toggleModal();
+	const servicesByName = supportedServices.reduce< Record< string, SupportedService > >(
+		( acc, service ) => {
+			acc[ service.ID ] = service;
+			return acc;
 		},
-		[ supportedServices ]
+		{}
 	);
 
-	const onCloseModal = useCallback( () => {
-		setExpandedService( null );
-		toggleModal();
+	const closeModal = useCallback( () => {
+		setIsModalOpen( false );
 	}, [] );
+	const openModal = useCallback( () => {
+		setIsModalOpen( true );
+	}, [] );
+
+	const shouldModalBeOpen =
+		isModalOpen ||
+		// It's possible that when reconnecting a connection from within the modal,
+		// the user closes the modal immediately, without waiting for the confirmation,
+		// in that case we should show the modal again when the keyringResult is set.
+		keyringResult?.ID;
 
 	return (
 		<div className={ classNames( styles.wrapper, className ) }>
@@ -71,7 +80,8 @@ const ConnectionManagement = ( { className = null } ) => {
 								<Disabled isDisabled={ isUpdatingOrDeleting }>
 									<ConnectionInfo
 										connection={ connection }
-										onReconnect={ onReconnect( connection.service_name ) }
+										service={ servicesByName[ connection.service_name ] }
+										onConfirmReconnect={ openModal }
 									/>
 								</Disabled>
 							</li>
@@ -81,15 +91,10 @@ const ConnectionManagement = ( { className = null } ) => {
 			) : (
 				<span>{ __( 'There are no connections added yet.', 'jetpack' ) }</span>
 			) }
-			<Button onClick={ toggleModal } variant={ connections.length ? 'secondary' : 'primary' }>
+			<Button onClick={ openModal } variant={ connections.length ? 'secondary' : 'primary' }>
 				{ __( 'Add connection', 'jetpack' ) }
 			</Button>
-			{ isModalOpen && (
-				<AddConnectionModal
-					onCloseModal={ onCloseModal }
-					defaultExpandedService={ expandedService }
-				/>
-			) }
+			{ shouldModalBeOpen ? <AddConnectionModal onCloseModal={ closeModal } /> : null }
 		</div>
 	);
 };
