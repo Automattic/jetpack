@@ -234,7 +234,7 @@ class Publicize extends Publicize_Base {
 	 */
 	public function get_all_connections_for_user( $args = array() ) {
 		if ( ( isset( $args['clear_cache'] ) && $args['clear_cache'] )
-		|| ( isset( $args['run_connection_tests'] ) && $args['run_connection_tests'] ) ) {
+		|| ( isset( $args['test_connections'] ) && $args['test_connections'] ) ) {
 			$this->clear_connections_transient();
 		}
 		$connections = $this->get_all_connections();
@@ -266,7 +266,7 @@ class Publicize extends Publicize_Base {
 			}
 		}
 
-		if ( self::use_admin_ui_v1() && isset( $args['run_connection_tests'] ) && $args['run_connection_tests'] && count( $connections_to_return ) > 0 ) {
+		if ( self::use_admin_ui_v1() && isset( $args['test_connections'] ) && $args['test_connections'] && count( $connections_to_return ) > 0 ) {
 			$connections_to_return = $this->add_connection_test_results( $connections_to_return );
 		}
 
