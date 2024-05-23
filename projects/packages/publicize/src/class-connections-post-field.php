@@ -138,6 +138,12 @@ class Connections_Post_Field {
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
+				'can_disconnect'  => array(
+					'description' => __( 'Whether the current user can disconnect this connection', 'jetpack-publicize-pkg' ),
+					'type'        => 'boolean',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+				),
 			),
 		);
 	}
@@ -208,6 +214,8 @@ class Connections_Post_Field {
 
 			$output_connection['id']            = (string) $connection['unique_id'];
 			$output_connection['connection_id'] = (string) $connection['id'];
+
+			$output_connection['can_disconnect'] = Publicize::can_manage_connection( $connection );
 
 			$output_connections[] = $output_connection;
 		}
