@@ -37,46 +37,11 @@ const sharedWebpackConfig = {
 
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {
-				extensions: [ 'css', 'sass', 'scss' ],
-				extraLoaders: [
-					{
-						loader: 'postcss-loader',
-						options: {
-							postcssOptions: { plugins: [ require( 'autoprefixer' ) ] },
-						},
-					},
-					{
-						loader: 'sass-loader',
-						options: {
-							sassOptions: {
-								// The minifier will minify if necessary.
-								outputStyle: 'expanded',
-							},
-						},
-					},
-				],
+				extensions: [ 'css' ],
 			} ),
-
-			// Leave fonts and images in place.
-			{
-				test: /\.(eot|ttf|woff|png|svg)$/i,
-				type: 'asset/resource',
-				generator: {
-					emit: false,
-					filename: '[file]',
-				},
-			},
 		],
 	},
-	plugins: [
-		...jetpackWebpackConfig.StandardPlugins( {
-			DependencyExtractionPlugin: false,
-			I18nLoaderPlugin: false,
-			I18nCheckPlugin: false,
-			MiniCssWithRtlPlugin: false,
-			WebpackRtlPlugin: false,
-		} ),
-	],
+	plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
 };
 
 const responsiveVideosFiles = {};

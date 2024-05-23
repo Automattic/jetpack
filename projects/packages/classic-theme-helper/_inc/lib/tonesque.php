@@ -37,7 +37,7 @@ class Tonesque {
 	 * @param string $image_url Image URL.
 	 */
 	public function __construct( $image_url ) {
-		if ( ! class_exists( 'Jetpack_Color' ) ) {
+		if ( ! class_exists( 'Jetpack_Color' ) && defined( 'JETPACK__PLUGIN_DIR' ) ) {
 			require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class.color.php';
 		}
 
