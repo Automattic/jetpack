@@ -49,6 +49,10 @@ class WPCOM_Site_Management_Widget {
 				color: #1e1e1e;
 			}
 
+			#wpcom_site_management_widget .postbox-title-action {
+				display: none;
+			}
+
 			#wpcom_site_management_widget .wpcom_site_management_widget__header {
 				display: flex;
 				align-items: center;
