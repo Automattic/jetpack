@@ -22,6 +22,7 @@
  *   - file_list: (array) Additional individual files to scan.
  *   - globals_type_map: (array) Map of global name (no `$`) to Phan type. Class names should be prefixed with `\`.
  *   - parse_file_list: (array) Files to parse but not analyze. Equivalent to listing in both 'file_list' and 'exclude_analysis_directory_list'.
+ *   - php_extensions_needed: (array) Stubs provided by Phan to use with various PHP extensions like xdebug, zip, etc. See https://github.com/phan/phan/wiki/How-To-Use-Stubs#internal-stubs.
  *   - stubs: (array) Predefined stubs to load. Default is `array( 'wordpress', 'wp-cli' )`.
  *      - akismet: Stubs from .phan/stubs/akismet-stubs.php.
  *      - amp: Stubs from .phan/stubs/amp-stubs.php.
@@ -34,7 +35,6 @@
  *      - wp-cli: Stubs from php-stubs/wp-cli-stubs.
  *      - wpcom: Stubs from .phan/stubs/wpcom-stubs.php.
  *   - +stubs: (array) Like 'stubs', but setting this does not clear the defaults.
- *   - internal_stubs: (array) Stubs provided by Phan to use with various PHP extensions like xdebug, zip, etc. See https://github.com/phan/phan/wiki/How-To-Use-Stubs#internal-stubs.
  *   - suppress_issue_types: (array) Issues to suppress for the entire project.
  *   - unsuppress_issue_types: (array) Default-suppressed issues to unsuppress for the project.
  * @return array Phan config.
@@ -49,9 +49,9 @@ function make_phan_config( $dir, $options = array() ) {
 		'file_list'                       => array(),
 		'globals_type_map'                => array(),
 		'parse_file_list'                 => array(),
+		'php_extensions_needed'           => array(),
 		'stubs'                           => array( 'wordpress', 'wp-cli' ),
 		'+stubs'                          => array(),
-		'internal_stubs'                  => array(),
 		'suppress_issue_types'            => array(),
 		'unsuppress_issue_types'          => array(),
 	);
@@ -109,8 +109,8 @@ function make_phan_config( $dir, $options = array() ) {
 		$globals  = array_merge( $globals, json_decode( $contents, true ) );
 	}
 
-	'@phan-var non-empty-array $options["internal_stubs"]';
-	foreach ( $options['internal_stubs'] as $stub ) {
+	'@phan-var non-empty-array $options["php_extensions_needed"]';
+	foreach ( $options['php_extensions_needed'] as $stub ) {
 		$stub_file_path = "$root/vendor/phan/phan/.phan/internal_stubs/$stub.phan_php";
 		if ( ! file_exists( $stub_file_path ) ) {
 			throw new InvalidArgumentException( "Can not load internal stubs for '$stub': file $stub_file_path does not exist." );
