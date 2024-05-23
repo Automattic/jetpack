@@ -151,7 +151,6 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		$this->post->post_status = 'publish';
 
 		set_transient( 'jetpack_social_connections', array(), 3600 * 10 );
-
 		wp_insert_post( $this->post->to_array() );
 
 		$this->assertPublicized( false, $this->post );
@@ -266,7 +265,6 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 				),
 			),
 		);
-
 		set_transient(
 			'jetpack_social_connections',
 			array(

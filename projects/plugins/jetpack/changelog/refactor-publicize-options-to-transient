@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Changed how jetpack social connections are stored on the local site.

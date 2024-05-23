@@ -79,8 +79,6 @@ interface Window {
 					features: string[];
 					has_paid_plan_for_product: boolean;
 					features_by_tier: Array< string >;
-					has_required_plan: boolean;
-					has_required_tier: Array< string >;
 					is_bundle: boolean;
 					is_plugin_active: boolean;
 					is_upgradable_by_bundle: string[];

@@ -75,7 +75,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 					),
 				),
 			),
-			10 * 3600
+			4 * 3600
 		);
 
 		// Bind the two storage systems to the server events.

@@ -52,20 +52,20 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field_Inactive extends W
 			'jetpack_social_connections',
 			array(
 				// Normally connected facebook.
-					'facebook' => array(
-						'id_number' => array(
-							'connection_data' => array(
-								'user_id'  => self::$user_id,
-								'id'       => '456',
-								'token_id' => 'test-unique-id456',
-								'meta'     => array(
-									'display_name' => 'test-display-name456',
-								),
+				'facebook' => array(
+					'id_number' => array(
+						'connection_data' => array(
+							'user_id'  => self::$user_id,
+							'id'       => '456',
+							'token_id' => 'test-unique-id456',
+							'meta'     => array(
+								'display_name' => 'test-display-name456',
 							),
 						),
 					),
+				),
 				// Globally connected tumblr.
-				'tumblr'       => array(
+				'tumblr'   => array(
 					'id_number' => array(
 						'connection_data' => array(
 							'user_id'  => 0,

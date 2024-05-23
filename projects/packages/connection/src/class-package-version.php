@@ -14,7 +14,7 @@ class Package_Version {
 
 	const PACKAGE_VERSION = '2.9.0-alpha';
 
-	const PACKAGE_SLUG = 'connection';
+  const PACKAGE_SLUG = 'connection';
 
 	/**
 	 * Adds the package slug and version to the package version tracker's data.
