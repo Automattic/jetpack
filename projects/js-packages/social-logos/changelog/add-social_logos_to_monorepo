@@ -1,0 +1,4 @@
+Significance: major
+Type: added
+
+Social Logos is now developed in the [Jetpack monorepo](https://github.com/Automattic/jetpack).

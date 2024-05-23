@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+MailPoet Sync: Fixed the percentage difference issue calculating the pending pages to proces.
