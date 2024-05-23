@@ -148,7 +148,7 @@ class WPCOM_Site_Management_Widget {
 	public function wp_dashboard_setup() {
 		wp_add_dashboard_widget(
 			self::WPCOM_SITE_MANAGEMENT_WIDGET_ID,
-			__( 'Site management panel', 'jetpack-mu-wpcom' ),
+			__( 'Site Management Panel', 'jetpack-mu-wpcom' ),
 			array( $this, 'render_wpcom_site_management_widget' ),
 			function () {},
 			array(),
@@ -190,7 +190,7 @@ class WPCOM_Site_Management_Widget {
 							<?php
 								$dev_tools_items = array(
 									array(
-										'name' => __( 'Hosting config', 'jetpack-mu-wpcom' ),
+										'name' => __( 'Hosting Config', 'jetpack-mu-wpcom' ),
 										'href' => "/hosting-config/$domain",
 									),
 									array(
