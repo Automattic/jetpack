@@ -60,9 +60,17 @@ const connectionData = ( state = {}, action ) => {
 		case UPDATE_CONNECTION:
 			return {
 				...state,
-				connections: state.connections.map(
-					( { connection_id } ) => connection_id === action.connectionId
-				),
+				connections: state.connections.map( connection => {
+					const isTargetConnection = connection.connection_id === action.connectionId;
+
+					if ( isTargetConnection ) {
+						return {
+							...connection,
+							...action.data,
+						};
+					}
+					return connection;
+				} ),
 			};
 
 		case UPDATING_CONNECTION: {
