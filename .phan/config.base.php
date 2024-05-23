@@ -109,6 +109,7 @@ function make_phan_config( $dir, $options = array() ) {
 		$globals  = array_merge( $globals, json_decode( $contents, true ) );
 	}
 
+	'@phan-var non-empty-array $options["internal_stubs"]';
 	foreach ( $options['internal_stubs'] as $stub ) {
 		$stub_file_path = "$root/vendor/phan/phan/.phan/internal_stubs/$stub.phan_php";
 		if ( ! file_exists( $stub_file_path ) ) {
