@@ -20,7 +20,7 @@ class Jetpack_Calypsoify {
 	/**
 	 * Singleton instance of `Jetpack_Calypsoify`.
 	 *
-	 * @var object
+	 * @var self|false
 	 */
 	public static $instance = false;
 
