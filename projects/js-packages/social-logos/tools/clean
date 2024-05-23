@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# Start in the right folder.
+root_dir="$(dirname "${BASH_SOURCE[0]}")/.."
+cd "$root_dir"
+
+# Clean up old build files.
+rm -rf build
+
+# Output.
+echo "Cleaned up old build files."
