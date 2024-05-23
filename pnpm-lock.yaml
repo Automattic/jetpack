@@ -1789,7 +1789,50 @@ importers:
 
   projects/packages/chatbot: {}
 
-  projects/packages/classic-theme-helper: {}
+  projects/packages/classic-theme-helper:
+    devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
+      '@automattic/remove-asset-webpack-plugin':
+        specifier: workspace:*
+        version: link:../../js-packages/remove-asset-webpack-plugin
+      '@babel/core':
+        specifier: 7.24.0
+        version: 7.24.0
+      '@csstools/postcss-global-data':
+        specifier: 2.1.1
+        version: 2.1.1(postcss@8.4.31)
+      '@wordpress/browserslist-config':
+        specifier: 5.39.0
+        version: 5.39.0
+      '@wordpress/dependency-extraction-webpack-plugin':
+        specifier: 5.7.0
+        version: 5.7.0(webpack@5.76.0)
+      autoprefixer:
+        specifier: 10.4.14
+        version: 10.4.14(postcss@8.4.31)
+      core-js:
+        specifier: 3.23.5
+        version: 3.23.5
+      postcss:
+        specifier: 8.4.31
+        version: 8.4.31
+      postcss-loader:
+        specifier: 6.2.0
+        version: 6.2.0(postcss@8.4.31)(webpack@5.76.0)
+      sass:
+        specifier: 1.64.1
+        version: 1.64.1
+      sass-loader:
+        specifier: 12.4.0
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
+      webpack:
+        specifier: 5.76.0
+        version: 5.76.0(webpack-cli@4.9.1)
+      webpack-cli:
+        specifier: 4.9.1
+        version: 4.9.1(webpack@5.76.0)
 
   projects/packages/connection:
     devDependencies:
@@ -10552,6 +10595,11 @@ packages:
       simple-html-tokenizer: 0.5.11
       uuid: 9.0.1
 
+  /@wordpress/browserslist-config@5.39.0:
+    resolution: {integrity: sha512-oy5CRWS3WsaFN/KAgOUIE6mmyuFu5qmKZZhQ+voCN+ifXTsj1J6ypR3RyY03Cbojy6kidyVYl3qRyMxbbUwWSQ==}
+    engines: {node: '>=14'}
+    dev: true
+
   /@wordpress/browserslist-config@5.40.0:
     resolution: {integrity: sha512-DkTk/B5Qf32ZQ8HfWZWqC85w8VEv/YoAc+BZyXty/FIFJ5QCy6ddIwuysJtCRghyLPjTI+BOSaRo8poiQvyYfg==}
     engines: {node: '>=14'}
@@ -10898,6 +10946,16 @@ packages:
       '@wordpress/deprecated': 3.57.0
       moment: 2.29.4
       moment-timezone: 0.5.45
+
+  /@wordpress/dependency-extraction-webpack-plugin@5.7.0(webpack@5.76.0):
+    resolution: {integrity: sha512-s/xUnAEKwXmSUZLqrvX4n3tBWegxaiQfXJwd264MRJUmz4JibWJnvevkxM6tooEetu36xGiVHAIPvfvEEEtntQ==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      webpack: ^5.0.0
+    dependencies:
+      json2php: 0.0.7
+      webpack: 5.76.0(webpack-cli@4.9.1)
+    dev: true
 
   /@wordpress/dependency-extraction-webpack-plugin@5.8.0(webpack@5.76.0):
     resolution: {integrity: sha512-DdFjCrBkV0maEh1REY8QFtg6rfgGz+qXw8qJ0HxfH+Uees16oCModxBmbgCTC2w3IkMyHP3kEpvRJHHmYRRmWg==}
