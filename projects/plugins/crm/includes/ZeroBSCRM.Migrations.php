@@ -1259,7 +1259,13 @@ function zeroBSCRM_migration_gh3465_increase_city_field_size() {
 	$sql = 'ALTER TABLE ' . $ZBSCRM_t['contacts'] . ' MODIFY COLUMN `zbsc_city` VARCHAR(200);'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 
+	$sql = 'ALTER TABLE ' . $ZBSCRM_t['contacts'] . ' MODIFY COLUMN `zbsc_seccity` VARCHAR(200);'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+
 	$sql = 'ALTER TABLE ' . $ZBSCRM_t['companies'] . ' MODIFY COLUMN `zbsco_city` VARCHAR(200);'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+
+	$sql = 'ALTER TABLE ' . $ZBSCRM_t['companies'] . ' MODIFY COLUMN `zbsco_seccity` VARCHAR(200);'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 
 	zeroBSCRM_migrations_markComplete( 'gh3465_increase_city_field_size', array( 'updated' => 1 ) );
