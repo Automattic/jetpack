@@ -285,13 +285,13 @@ class REST_Controller {
 	 * @param WP_REST_Request $request The request object, which includes the parameters.
 	 */
 	public function get_publicize_connections( $request ) {
-		$run_test_results = $request->get_param( 'run_test_results' );
+		$run_test_results = $request->get_param( 'run_connection_tests' );
 		$clear_cache      = $request->get_param( 'clear_cache' );
 
 		$args = array();
 
 		if ( ! empty( $run_test_results ) ) {
-			$args['run_test_results'] = true;
+			$args['run_connection_tests'] = true;
 		}
 
 		if ( ! empty( $clear_cache ) ) {
