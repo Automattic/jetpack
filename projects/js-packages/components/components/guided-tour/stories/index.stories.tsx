@@ -1,20 +1,23 @@
-import { useCallback } from 'react';
-import Button from '../../button';
-import { GuidedTour } from '../index';
-import type { Meta } from '@storybook/react';
+import GuidedTour from '../index';
 
 export default {
 	title: 'JS Packages/Components/GuidedTour',
 	component: GuidedTour,
-	decorators: [ story => <div style={ { padding: '3rem' } }>{ story() }</div> ],
-} satisfies Meta< typeof GuidedTour >;
+	argTypes: {},
+};
 
 const Template = args => {
 	return (
-		<div>
-			<div className="abc">abc</div>
-			<div className="def">def</div>
-			<div className="ghi">ghi</div>
+		<div style={ { display: 'flex', alignItems: 'start', gap: '1rem', flexDirection: 'column' } }>
+			<div className="abc">
+				<input type="button" value="Button 1"></input>
+			</div>
+			<div className="def">
+				<input type="button" value="Button 2"></input>
+			</div>
+			<div className="ghi">
+				<input type="button" value="Button 3"></input>
+			</div>
 			<GuidedTour
 				className="guided-tour"
 				preferenceName="dashboard-tour"
@@ -22,27 +25,26 @@ const Template = args => {
 					{
 						target: '.abc',
 						title: 'tour title 1',
-						description: 'Some description here.',
+						description: 'This is button 1',
 					},
 					{
 						target: '.def',
 						title: 'tour title 2',
-						description: 'Some description here.',
+						description: 'This is button 2.',
 					},
 					{
 						target: '.ghi',
-						popoverPosition: 'bottom left',
 						title: 'tour title 3',
-						description: 'Some description here.',
+						description: 'Finally, this is button 3.',
 					},
 				] }
 				isDismissed={ false }
 				hasFetched={ true }
-				onTourEnd={ () => {
+				onEndTour={ () => {
 					// eslint-disable-next-line no-console
 					console.log( 'Tour ended' );
 				} }
-				onTourStart={ () => {
+				onStartTour={ () => {
 					// eslint-disable-next-line no-console
 					console.log( 'Tour started' );
 				} }
