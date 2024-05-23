@@ -1,12 +1,7 @@
-import page from '@automattic/calypso-router';
-import { Popover, Button } from '@automattic/components';
-import { useDispatch, useSelector } from 'calypso/state';
-import { recordTracksEvent } from 'calypso/state/analytics/actions';
-import { getJetpackDashboardPreference as getPreference } from 'calypso/state/jetpack-agency-dashboard/selectors';
-import { savePreference } from 'calypso/state/preferences/actions';
-import { preferencesLastFetchedTimestamp } from 'calypso/state/preferences/selectors';
+import { Popover, Button } from '@wordpress/components';
+import { useDispatch, useSelector } from '@wordpress/data';
+import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
-import { useTranslate } from 'i18n-calypso';
 import { useState, useEffect, useCallback } from 'react';
 
 import './style.scss';
@@ -32,8 +27,11 @@ interface Props {
 	className?: string;
 	tours: Tour[];
 	preferenceName: string;
-	redirectAfterTourEnds?: string;
 	hideSteps?: boolean;
+	onStartTour: () => void;
+	onEndTour: () => void;
+	hasFetched?: boolean;
+	isDismissed?: boolean;
 }
 
 // This hook will return the async element matching the target selector.
@@ -44,7 +42,7 @@ interface Props {
 //
 // @returns The element matching the target selector, or null if the timeout has passed
 const useAsyncElement = ( target: string, timeoutDuration: number ): HTMLElement | null => {
-	const [ asyncElement, setAsyncElement ] = useState < HTMLElement | null > ( null );
+	const [ asyncElement, setAsyncElement ] = useState< HTMLElement | null >( null );
 
 	useEffect( () => {
 		// Set timeout to ensure we don't wait too long for the element
@@ -71,19 +69,21 @@ const GuidedTour = ( {
 	className,
 	tours,
 	preferenceName,
-	redirectAfterTourEnds,
 	hideSteps = false,
+	isDismissed,
+	hasFetched,
+	onStartTour,
+	onEndTour,
 }: Props ) => {
-	const translate = useTranslate();
 	const dispatch = useDispatch();
 
 	const [ currentStep, setCurrentStep ] = useState( 0 );
 	const [ isVisible, setIsVisible ] = useState( false );
 
-	const preference = useSelector( ( state ) => getPreference( state, preferenceName ) );
-	const hasFetched = !! useSelector( preferencesLastFetchedTimestamp );
-
-	const isDismissed = preference?.dismiss;
+	// const preference = useSelector( state => getPreference( state, preferenceName ) );
+	// const hasFetched = !! useSelector( preferencesLastFetchedTimestamp );
+	//
+	// const isDismissed = preference?.dismiss;
 
 	const {
 		title,
@@ -99,25 +99,13 @@ const GuidedTour = ( {
 	useEffect( () => {
 		if ( targetElement && ! isDismissed && hasFetched ) {
 			setIsVisible( true );
-			dispatch(
-				recordTracksEvent( 'calypso_jetpack_cloud_start_tour', {
-					tour: preferenceName,
-				} )
-			);
+			onStartTour();
 		}
-	}, [ dispatch, isDismissed, preferenceName, targetElement, hasFetched ] );
+	}, [ dispatch, isDismissed, targetElement, hasFetched ] );
 
 	const endTour = useCallback( () => {
-		dispatch( savePreference( preferenceName, { ...preference, dismiss: true } ) );
-		dispatch(
-			recordTracksEvent( 'calypso_jetpack_cloud_end_tour', {
-				tour: preferenceName,
-			} )
-		);
-		if ( redirectAfterTourEnds ) {
-			page.redirect( redirectAfterTourEnds );
-		}
-	}, [ dispatch, preferenceName, preference, redirectAfterTourEnds ] );
+		onEndTour();
+	} );
 
 	const nextStep = useCallback( () => {
 		if ( currentStep < tours.length - 1 ) {
@@ -151,7 +139,7 @@ const GuidedTour = ( {
 		return null;
 	}
 
-	const lastTourLabel = tours.length === 1 ? translate( 'Got it' ) : translate( 'Done' );
+	const lastTourLabel = tours.length === 1 ? __( 'Got it', 'jetpack' ) : __( 'Done', 'jetpack' );
 
 	return (
 		<Popover
@@ -168,9 +156,13 @@ const GuidedTour = ( {
 						// Show the step count if there are multiple steps and we're not on the last step, unless we explicitly choose to hide them
 						tours.length > 1 && ! hideSteps && (
 							<span className="guided-tour__popover-step-count">
-								{ translate( 'Step %(currentStep)d of %(totalSteps)d', {
-									args: { currentStep: currentStep + 1, totalSteps: tours.length },
-								} ) }
+								{ sprintf(
+									'Step %(currentStep)d of %(totalSteps)d',
+									{
+										args: { currentStep: currentStep + 1, totalSteps: tours.length },
+									},
+									'jetpack'
+								) }
 							</span>
 						)
 					}
@@ -181,12 +173,12 @@ const GuidedTour = ( {
 							forceShowSkipButton ) && (
 							// Show the skip button if there are multiple steps and we're not on the last step, unless we explicitly choose to add them
 							<Button borderless onClick={ endTour }>
-								{ translate( 'Skip' ) }
+								{ __( 'Skip', 'jetpack' ) }
 							</Button>
 						) }
 						{ ! nextStepOnTargetClick && (
 							<Button onClick={ nextStep }>
-								{ currentStep === tours.length - 1 ? lastTourLabel : translate( 'Next' ) }
+								{ currentStep === tours.length - 1 ? lastTourLabel : __( 'Next', 'jetpack' ) }
 							</Button>
 						) }
 					</>

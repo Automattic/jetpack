@@ -76,3 +76,4 @@ export { default as UpsellBanner } from './components/upsell-banner';
 export { getUserLocale, cleanLocale } from './lib/locale';
 export { default as RadioControl } from './components/radio-control';
 export * from './components/global-notices';
+export { default as GuidedTour, Tour } from './components/guided-tour';
