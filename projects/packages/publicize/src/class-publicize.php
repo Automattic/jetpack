@@ -260,7 +260,7 @@ class Publicize extends Publicize_Base {
 								array(
 									'service_name'   => $service_name,
 									'connection_id'  => $connection['connection_data']['id'],
-									'can_disconnect' => current_user_can( 'edit_others_posts' ) || get_current_user_id() === $user_id,
+									'can_disconnect' => self::can_manage_connection( $connection['connection_data'] ),
 									'profile_link'   => $this->get_profile_link( $service_name, $connection ),
 								)
 							);
@@ -292,6 +292,17 @@ class Publicize extends Publicize_Base {
 	 */
 	public function get_connection_unique_id( $connection ) {
 		return $connection['connection_data']['token_id'];
+	}
+
+	/**
+	 * Whether the current user can manage a connection.
+	 *
+	 * @param array $connection_data The connection data.
+	 *
+	 * @return bool
+	 */
+	public static function can_manage_connection( $connection_data ) {
+		return current_user_can( 'edit_others_posts' ) || get_current_user_id() === (int) $connection_data['user_id'];
 	}
 
 	/**
