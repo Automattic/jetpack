@@ -234,7 +234,7 @@ class Publicize extends Publicize_Base {
 	public function get_all_connections_for_user( $args = array() ) {
 		if ( ( isset( $args['clear_cache'] ) && $args['clear_cache'] )
 		|| ( isset( $args['run_test_results'] ) && $args['run_test_results'] ) ) {
-			$this->force_refresh_connections();
+			$this->clear_connections_transient();
 		}
 		$connections = $this->get_all_connections();
 
@@ -511,7 +511,9 @@ class Publicize extends Publicize_Base {
 		}
 	}
 
-
+	/**
+	 * Delete the transient.
+	 */
 	public function clear_connections_transient() {
 		delete_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT );
 	}
