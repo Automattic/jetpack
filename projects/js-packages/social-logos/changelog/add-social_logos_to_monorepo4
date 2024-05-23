@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+CSS file with encoded inline font is now automatically generated.
