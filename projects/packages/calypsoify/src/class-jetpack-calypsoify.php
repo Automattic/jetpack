@@ -34,7 +34,7 @@ class Jetpack_Calypsoify {
 	/**
 	 * Jetpack_Calypsoify constructor.
 	 */
-	public function __construct() {
+	private function __construct() {
 		add_action( 'admin_init', array( $this, 'setup' ), 4 );
 	}
 
@@ -217,5 +217,3 @@ class Jetpack_Calypsoify {
 		// phpcs:enable
 	}
 }
-
-Jetpack_Calypsoify::get_instance();
