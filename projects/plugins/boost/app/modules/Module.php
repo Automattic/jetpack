@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack_Boost\Modules;
 
-use Automattic\Jetpack_Boost\Contracts\Has_Sub_Modules;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Status;
@@ -38,9 +37,5 @@ class Module {
 		if ( $this->feature instanceof Optimization && $this->is_enabled() && $this->feature->is_ready() ) {
 			return true;
 		}
-	}
-
-	public function has_sub_modules() {
-		return $this->feature instanceof Has_Sub_Modules;
 	}
 }

@@ -5,6 +5,7 @@ namespace Automattic\Jetpack_Boost\Modules;
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
+use Automattic\Jetpack_Boost\Contracts\Has_Sub_Modules;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Regenerate;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Status;
@@ -61,14 +62,23 @@ class Modules_Setup implements Has_Setup {
 		return $status;
 	}
 
-	public function get_sub_modules_state() {
-		$state = array();
+	public function get_all_sub_modules_state() {
+		$sub_modules_state = array();
 		foreach ( $this->available_modules as $slug => $module ) {
-			if ( $module->has_sub_modules() ) {
-				$state[ $slug ] = $module->feature->get_sub_modules_state();
+			$state = $this->get_feature_sub_modules_state( $module->feature );
+			if ( $state !== false ) {
+				$sub_modules_state[ $slug ] = $state;
 			}
 		}
-		return $state;
+		return $sub_modules_state;
+	}
+
+	public function get_feature_sub_modules_state( $feature ) {
+		if ( ! $feature instanceof Has_Sub_Modules ) {
+			return false;
+		}
+
+		return $feature->get_sub_modules_state();
 	}
 
 	/**
@@ -113,9 +123,7 @@ class Modules_Setup implements Has_Setup {
 
 			Setup::add( $module->feature );
 
-			if ( $module->has_sub_modules() ) {
-				$module->feature->setup_sub_modules();
-			}
+			$this->setup_sub_modules( $module->feature );
 
 			$this->register_endpoints( $module->feature );
 
@@ -130,6 +138,14 @@ class Modules_Setup implements Has_Setup {
 	public function setup() {
 		add_action( 'plugins_loaded', array( $this, 'init_modules' ) );
 		add_action( 'jetpack_boost_module_status_updated', array( $this, 'on_module_status_update' ), 10, 2 );
+	}
+
+	public function setup_sub_modules( $feature ) {
+		if ( ! $feature instanceof Has_Sub_Modules ) {
+			return false;
+		}
+
+		$feature->setup_sub_modules();
 	}
 
 	/**
