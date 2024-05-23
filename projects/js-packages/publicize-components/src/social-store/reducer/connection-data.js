@@ -35,7 +35,7 @@ const connectionData = ( state = {}, action ) => {
 			return {
 				...state,
 				connections: state.connections.filter(
-					( { connection_id } ) => connection_id === action.connectionId
+					( { connection_id } ) => connection_id !== action.connectionId
 				),
 			};
 
