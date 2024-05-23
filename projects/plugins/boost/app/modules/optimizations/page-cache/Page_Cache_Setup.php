@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 
 use Automattic\Jetpack_Boost\Lib\Analytics;
+use Automattic\Jetpack_Boost\Lib\Super_Cache_Config_Compatibility;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Error;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
@@ -149,7 +150,18 @@ class Page_Cache_Setup {
 			$content = file_get_contents( $advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 
 			if ( strpos( $content, 'WP SUPER CACHE' ) !== false ) {
-				return new \WP_Error( 'advanced-cache-for-super-cache' );
+				if ( Super_Cache_Config_Compatibility::is_compatible() && function_exists( 'wpsupercache_deactivate' ) ) {
+					wpsupercache_deactivate();
+					Analytics::record_user_event(
+						'boost_replaced_previous_cache',
+						array(
+							'type'   => 'silent',
+							'reason' => 'super_cache_compatible',
+						)
+					);
+				} else {
+					return new \WP_Error( 'advanced-cache-for-super-cache' );
+				}
 			}
 
 			if ( strpos( $content, Page_Cache::ADVANCED_CACHE_SIGNATURE ) === false ) {
