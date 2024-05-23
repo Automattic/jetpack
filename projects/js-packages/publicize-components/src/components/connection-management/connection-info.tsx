@@ -45,7 +45,9 @@ export function ConnectionInfo( { connection, service, onConfirmReconnect }: Con
 					className={ styles[ 'learn-more' ] }
 					variant="tertiary"
 					onClick={ togglePanel }
-					aria-label={ __( 'Learn more', 'jetpack' ) }
+					aria-label={
+						isPanelOpen ? __( 'Close panel', 'jetpack' ) : __( 'Open panel', 'jetpack' )
+					}
 				>
 					{ <Icon className={ styles.chevron } icon={ isPanelOpen ? chevronUp : chevronDown } /> }
 				</Button>
