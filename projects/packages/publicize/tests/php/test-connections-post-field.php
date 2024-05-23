@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack\Publicize;
 
-use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
@@ -291,8 +290,10 @@ class Test_Connections_Post_Field extends TestCase {
 	 * Dummy function to initialize publicize connections.
 	 */
 	public function setup_jetpack_connections() {
-		Jetpack_Options::update_options(
-			$this->get_connections()
+		set_transient(
+			'jetpack_social_connections',
+			$this->get_connections(),
+			3600
 		);
 	}
 
