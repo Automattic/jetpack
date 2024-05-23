@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
+use Automattic\RedefineExit\ExitException;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -160,8 +161,6 @@ class Test_Base_Admin_Menu extends TestCase {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$this->markTestSkipped( 'Does not work on WP.com as handle_preferred_view() performs a redirect and then terminates the execution.' );
 		}
-
-		$this->markTestSkipped( 'Temporarily skip this test till we update the package with ExitException requirement.' );
 
 		global $pagenow;
 		$pagenow                = 'test.php';
