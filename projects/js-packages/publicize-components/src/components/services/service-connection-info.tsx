@@ -14,28 +14,6 @@ export type ServiceConnectionInfoProps = {
 };
 
 export const ServiceConnectionInfo = ( { connection, service }: ServiceConnectionInfoProps ) => {
-	const renderConnectionActions = () => {
-		if ( connection.can_disconnect ) {
-			return (
-				<div className={ styles[ 'mark-shared-wrap' ] }>
-					<MarkAsShared connection={ connection } />
-					<IconTooltip placement="top" inline={ false } shift>
-						{ __(
-							'If enabled, the connection will be available to all administrators, editors, and authors.',
-							'jetpack'
-						) }
-					</IconTooltip>
-				</div>
-			);
-		}
-
-		return (
-			<Text className={ styles.description }>
-				{ __( 'This connection is added by a site administrator.', 'jetpack' ) }
-			</Text>
-		);
-	};
-
 	return (
 		<div className={ styles[ 'service-connection' ] }>
 			<div>
@@ -51,11 +29,31 @@ export const ServiceConnectionInfo = ( { connection, service }: ServiceConnectio
 			</div>
 			<div className={ styles[ 'connection-details' ] }>
 				<ConnectionName connection={ connection } />
-				{ connection.status === 'broken' ? (
-					<ConnectionStatus connection={ connection } service={ service } />
-				) : (
-					renderConnectionActions()
-				) }
+				{ ( conn => {
+					if ( conn.status === 'broken' ) {
+						return <ConnectionStatus connection={ conn } service={ service } />;
+					}
+
+					if ( conn.can_disconnect ) {
+						return (
+							<div className={ styles[ 'mark-shared-wrap' ] }>
+								<MarkAsShared connection={ conn } />
+								<IconTooltip placement="top" inline={ false } shift>
+									{ __(
+										'If enabled, the connection will be available to all administrators, editors, and authors.',
+										'jetpack'
+									) }
+								</IconTooltip>
+							</div>
+						);
+					}
+
+					return (
+						<Text className={ styles.description }>
+							{ __( 'This connection is added by a site administrator.', 'jetpack' ) }
+						</Text>
+					);
+				} )( connection ) }
 			</div>
 			<div className={ styles[ 'connection-actions' ] }>
 				<Disconnect
