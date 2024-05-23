@@ -10,6 +10,8 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
+use Automattic\Jetpack\Assets;
+
 /**
  * Class Inline_Help.
  */
@@ -108,6 +110,15 @@ class Inline_Help {
 	 */
 	public function add_fab_styles() {
 		$assets_base_path = '../../dist/inline-help/';
-		wp_enqueue_style( 'a8c-faux-inline-help', plugins_url( $assets_base_path . 'inline-help.css', __FILE__ ), array(), Main::PACKAGE_VERSION );
+
+		Assets::register_script(
+			'a8c-faux-inline-help',
+			$assets_base_path . 'inline-help.js',
+			__FILE__,
+			array(
+				'enqueue'  => true,
+				'css_path' => $assets_base_path . 'inline-help.css',
+			)
+		);
 	}
 }

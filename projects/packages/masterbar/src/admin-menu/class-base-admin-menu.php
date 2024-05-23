@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Status;
 
 /**
@@ -263,37 +264,14 @@ abstract class Base_Admin_Menu {
 
 		$css_path = $assets_base_path . $css_path;
 
-		wp_enqueue_style(
+		Assets::register_script(
 			'jetpack-admin-menu',
-			plugins_url( $css_path, __FILE__ ),
-			array(),
-			Main::PACKAGE_VERSION
-		);
-
-		wp_style_add_data( 'jetpack-admin-menu', 'rtl', $this->is_rtl() );
-
-		// Load nav unification styles when the user isn't using wp-admin interface style.
-		if ( ! $this->use_wp_admin_interface() ) {
-			$nav_unification_css_path = $this->is_rtl() ? 'admin-menu-nav-unification.rtl.css' : 'admin-menu-nav-unification.css';
-			$nav_unification_css_path = $assets_base_path . $nav_unification_css_path;
-			wp_enqueue_style(
-				'jetpack-admin-nav-unification',
-				plugins_url( $nav_unification_css_path, __FILE__ ),
-				array(),
-				Main::PACKAGE_VERSION
-			);
-
-			wp_style_add_data( 'jetpack-admin-nav-unification', 'rtl', $this->is_rtl() );
-		}
-
-		$this->configure_colors_for_rtl_stylesheets();
-
-		wp_enqueue_script(
-			'jetpack-admin-menu',
-			plugins_url( $assets_base_path . 'admin-menu.js', __FILE__ ),
-			array(),
-			Main::PACKAGE_VERSION,
-			true
+			$assets_base_path . 'admin-menu.js',
+			__FILE__,
+			array(
+				'enqueue'  => true,
+				'css_path' => $assets_base_path . 'admin-menu.css',
+			)
 		);
 
 		wp_localize_script(
@@ -304,6 +282,21 @@ abstract class Base_Admin_Menu {
 				'jitmDismissNonce' => wp_create_nonce( 'jitm_dismiss' ),
 			)
 		);
+
+		// Load nav unification styles when the user isn't using wp-admin interface style.
+		if ( ! $this->use_wp_admin_interface() ) {
+			Assets::register_script(
+				'jetpack-admin-nav-unification',
+				$assets_base_path . 'admin-menu-nav-unification.js',
+				__FILE__,
+				array(
+					'enqueue'  => true,
+					'css_path' => $assets_base_path . 'admin-menu-nav-unification.css',
+				)
+			);
+		}
+
+		$this->configure_colors_for_rtl_stylesheets();
 	}
 
 	/**

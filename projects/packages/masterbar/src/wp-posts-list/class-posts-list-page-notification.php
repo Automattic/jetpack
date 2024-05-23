@@ -8,6 +8,8 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
+use Automattic\Jetpack\Assets;
+
 /**
  * Class Posts_List_Page_Notification
  */
@@ -99,7 +101,17 @@ class Posts_List_Page_Notification {
 	 * We would probably need to move this elsewhere when new features are introduced to wp-posts-list.
 	 */
 	public function enqueue_css() {
-		\wp_enqueue_style( 'wp-posts-list', plugins_url( 'wp-posts-list.css', __FILE__ ), array(), Main::PACKAGE_VERSION );
+		$assets_base_path = '../../dist/wp-posts-list/';
+
+		Assets::register_script(
+			'wp-posts-list',
+			$assets_base_path . 'wp-posts-list.js',
+			__FILE__,
+			array(
+				'enqueue'  => true,
+				'css_path' => $assets_base_path . 'wp-posts-list.css',
+			)
+		);
 	}
 
 	/**

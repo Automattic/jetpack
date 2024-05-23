@@ -8,6 +8,8 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
+use Automattic\Jetpack\Assets;
+
 /**
  * Class WPCOM_CSS_Customizer
  */
@@ -51,18 +53,15 @@ class CSS_Customizer_Nudge {
 	 */
 	public function customize_controls_enqueue_scripts_nudge() {
 		$assets_base_path = '../../dist/nudges/additional-css/';
-		\wp_enqueue_script(
+
+		Assets::register_script(
 			'additional-css-js',
-			plugins_url( $assets_base_path . 'js/additional-css.js', __FILE__ ),
-			array(),
-			Main::PACKAGE_VERSION,
-			true
-		);
-		\wp_enqueue_style(
-			'additional-css',
-			plugins_url( $assets_base_path . 'css/additional-css.css', __FILE__ ),
-			array(),
-			Main::PACKAGE_VERSION
+			$assets_base_path . 'additional-css.js',
+			__FILE__,
+			array(
+				'enqueue'  => true,
+				'css_path' => $assets_base_path . 'additional-css.css',
+			)
 		);
 	}
 

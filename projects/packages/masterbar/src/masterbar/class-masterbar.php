@@ -296,6 +296,8 @@ class Masterbar {
 	 * Enqueue our own CSS and JS to display our custom admin bar.
 	 */
 	public function add_styles_and_scripts() {
+		$assets_base_path = '../../dist/masterbar/';
+
 		// WoA sites: If wpcom_admin_interface is set to wp-admin, load the wp-admin styles.
 		// These include only styles to enable the "My Sites" and "Reader" links that will be added.
 		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
@@ -313,7 +315,15 @@ class Masterbar {
 		}
 
 		// Local overrides.
-		wp_enqueue_style( 'a8c_wpcom_css_override', plugins_url( '../../dist/masterbar/overrides.css', __FILE__ ), array(), Main::PACKAGE_VERSION );
+		Assets::register_script(
+			'a8c_wpcom_css_override',
+			$assets_base_path . 'overrides.js',
+			__FILE__,
+			array(
+				'enqueue'  => true,
+				'css_path' => $assets_base_path . 'overrides.css',
+			)
+		);
 
 		if ( ! ( new Modules() )->is_active( 'notes' ) ) {
 			// Masterbar is relying on some icons from noticons.css.
@@ -327,12 +337,13 @@ class Masterbar {
 			Main::PACKAGE_VERSION,
 			false
 		);
-		wp_enqueue_script(
+		Assets::register_script(
 			'a8c_wpcom_masterbar_tracks_events',
-			plugins_url( '../../dist/masterbar/tracks-events.js', __FILE__ ),
-			array(),
-			Main::PACKAGE_VERSION,
-			false
+			$assets_base_path . 'tracks-events.js',
+			__FILE__,
+			array(
+				'enqueue' => true,
+			)
 		);
 
 		wp_enqueue_script(

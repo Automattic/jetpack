@@ -96,13 +96,6 @@ for ( const file of glob
 	masterBarJsFiles[ file.substring( 4, file.length - 3 ) ] = './' + file;
 }
 
-const masterBarCssFiles = {};
-for ( const file of glob
-	.sync( 'src/**/*.css' )
-	.filter( name => name.indexOf( '/admin-color-schemes/' ) < 0 ) ) {
-	masterBarCssFiles[ file.substring( 4, file.length - 4 ) ] = './' + file;
-}
-
 module.exports = [
 	{
 		...sharedWebpackConfig,
@@ -118,18 +111,6 @@ module.exports = [
 	{
 		...sharedWebpackConfig,
 		entry: masterBarJsFiles,
-	},
-	{
-		...sharedWebpackConfig,
-		entry: masterBarCssFiles,
-		plugins: [
-			...sharedWebpackConfig.plugins,
-			...jetpackWebpackConfig.MiniCssWithRtlPlugin(),
-			...jetpackWebpackConfig.WebpackRtlPlugin(),
-			// Delete the dummy JS files Webpack would otherwise create.
-			new RemoveAssetWebpackPlugin( {
-				assets: /\.js(\.map)?$/,
-			} ),
-		],
+		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
 	},
 ];
