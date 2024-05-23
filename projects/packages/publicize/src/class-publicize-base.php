@@ -961,6 +961,7 @@ abstract class Publicize_Base {
 					'toggleable'      => $toggleable,
 					'global'          => 0 == $connection_data['user_id'], // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual,WordPress.PHP.StrictComparisons.LooseComparison -- Other types can be used at times.
 					'external_id'     => $connection_meta['external_id'] ?? '',
+					'user_id'         => $connection_data['user_id'],
 				);
 			}
 		}
