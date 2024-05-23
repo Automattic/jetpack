@@ -3,11 +3,26 @@
 	"description": "A helper for connecting WordPress.com sites to external host infrastructure.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"php": ">=7.4",
+		"automattic/at-pressable-podcasting": "^2.0",
+		"automattic/custom-fonts": "^3.0",
+		"automattic/custom-fonts-typekit": "^2.0",
+		"automattic/text-media-widget-styles": "^2.0",
+		"automattic/wc-calypso-bridge": "2.4.1",
+		"wordpress/classic-editor-plugin": "1.5",
+		"automattic/jetpack-config": "^1.5",
+		"automattic/jetpack-post-list": "^0.5.1",
+		"automattic/jetpack-mu-wpcom": "^5.31.0",
+		"tubalmartin/cssmin": "^4.1"
+	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.1.0",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "dev-master"
+		"automattic/wordbless": "dev-master",
+		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+		"phpunit/phpunit": "^9",
+		"yoast/phpunit-polyfills": "1.1.0",
+		"wp-coding-standards/wpcs": "^3.0"
 	},
 	"autoload": {
 		"classmap": [
@@ -21,8 +36,8 @@
 		"test-php": [
 			"@composer phpunit"
 		],
-		"build-production": "echo 'Add your build step to composer.json, please!'",
-		"build-development": "echo 'Add your build step to composer.json, please!'",
+		"build-production": "make clean build",
+		"build-development": "WPCOMSH_DEVMODE=1 make clean build",
 		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
 	},
@@ -33,13 +48,59 @@
 			"options": {
 				"monorepo": true
 			}
+		},
+		{
+			"type": "vcs",
+			"no-api": true,
+			"url": "https://github.com/Automattic/custom-fonts.git"
+		},
+		{
+			"type": "vcs",
+			"no-api": true,
+			"url": "https://github.com/Automattic/custom-fonts-typekit.git"
+		},
+		{
+			"type": "vcs",
+			"no-api": true,
+			"url": "https://github.com/automattic/at-pressable-podcasting.git"
+		},
+		{
+			"type": "vcs",
+			"no-api": true,
+			"url": "https://github.com/Automattic/text-media-widget-styles.git"
+		},
+		{
+			"type": "vcs",
+			"no-api": true,
+			"url": "https://github.com/Automattic/wc-calypso-bridge.git"
+		},
+		{
+			"type": "package",
+			"package": {
+				"name": "wordpress/classic-editor-plugin",
+				"version": "1.5",
+				"dist": {
+					"url": "https://downloads.wordpress.org/plugin/classic-editor.1.5.zip",
+					"type": "zip"
+				},
+				"source": {
+					"url": "https://plugins.svn.wordpress.org/classic-editor/",
+					"type": "svn",
+					"reference": "tags/1.5/"
+				},
+				"autoload": {
+					"classmap": []
+				}
+			}
 		}
 	],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
 		"allow-plugins": {
-			"roots/wordpress-core-installer": true
+			"roots/wordpress-core-installer": true,
+			"composer/installers": true,
+			"dealerdirect/phpcodesniffer-composer-installer": true
 		}
 	},
 	"extra": {
