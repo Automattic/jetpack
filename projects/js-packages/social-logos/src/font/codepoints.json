@@ -56,5 +56,10 @@
 	"threads": 61709,
 	"x": 61710,
 	"bluesky": 61711,
-	"sms": 61712
+	"sms": 61712,
+	"json-feed": 63012,
+	"microblog": 63013,
+	"stackexchange": 63014,
+	"stackoverflow": 63015,
+	"tripadvisor": 63016
 }
