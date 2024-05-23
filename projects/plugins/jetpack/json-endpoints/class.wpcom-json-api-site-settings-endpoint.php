@@ -1038,6 +1038,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					update_option( 'jetpack_subscriptions_reply_to', (string) $to_set_value );
 					$updated[ $key ] = (bool) $value;
 					break;
+				case 'jetpack_subscriptions_from_name':
+					$to_set_value = sanitize_text_field( $value );
+					update_option( 'jetpack_subscriptions_from_name', (string) $to_set_value );
+					$updated[ $key ] = (bool) $value;
+					break;
 
 				case 'instant_search_enabled':
 					update_option( 'instant_search_enabled', (bool) $value );

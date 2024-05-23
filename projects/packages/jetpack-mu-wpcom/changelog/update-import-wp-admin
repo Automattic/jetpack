@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update import flow reference to new `/setup/hosted-site-migration` path

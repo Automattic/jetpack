@@ -1,35 +1,35 @@
 import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
-import { useCallback, useState } from '@wordpress/element';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import classNames from 'classnames';
-import { KeyringResult } from '../../social-store/types';
+import { store } from '../../social-store';
 import { ServicesList } from '../services/services-list';
-import { SupportedService } from '../services/use-supported-services';
 import { ConfirmationForm } from './confirmation-form';
 import styles from './style.module.scss';
 
 type AddConnectionModalProps = {
-	onCloseModal: VoidFunction;
-	defaultExpandedService: SupportedService | null;
+	onCloseModal?: VoidFunction;
 };
 
-const AddConnectionModal = ( {
-	onCloseModal,
-	defaultExpandedService,
-}: AddConnectionModalProps ) => {
-	const [ keyringResult, setKeyringResult ] = useState< KeyringResult | null >( null );
+const AddConnectionModal = ( { onCloseModal }: AddConnectionModalProps ) => {
+	const { keyringResult } = useSelect( select => {
+		const { getKeyringResult } = select( store );
+
+		return {
+			keyringResult: getKeyringResult(),
+		};
+	}, [] );
+
+	const { setKeyringResult } = useDispatch( store );
 
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
-	const onConfirm = useCallback( ( result: KeyringResult ) => {
-		setKeyringResult( result );
-	}, [] );
-
-	const onComplete = useCallback( () => {
+	const closeModal = useCallback( () => {
 		setKeyringResult( null );
-		onCloseModal();
-	}, [ onCloseModal ] );
+		onCloseModal?.();
+	}, [ onCloseModal, setKeyringResult ] );
 
 	const hasKeyringResult = Boolean( keyringResult?.ID );
 
@@ -40,25 +40,19 @@ const AddConnectionModal = ( {
 	return (
 		<Modal
 			className={ classNames( styles.modal, {
-				[ styles[ 'service-selector' ] ]: ! defaultExpandedService,
 				[ styles.small ]: isSmall,
 			} ) }
-			onRequestClose={ onCloseModal }
+			onRequestClose={ closeModal }
 			title={ title }
 		>
 			{
 				//Use IIFE to avoid nested ternary
 				( () => {
 					if ( hasKeyringResult ) {
-						return <ConfirmationForm keyringResult={ keyringResult } onComplete={ onComplete } />;
+						return <ConfirmationForm keyringResult={ keyringResult } onComplete={ closeModal } />;
 					}
 
-					return (
-						<ServicesList
-							onConfirm={ onConfirm }
-							defaultExpandedService={ defaultExpandedService }
-						/>
-					);
+					return <ServicesList />;
 				} )()
 			}
 		</Modal>

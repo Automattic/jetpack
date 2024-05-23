@@ -744,20 +744,26 @@ class Jetpack_Gutenberg {
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
 			$publicize               = publicize_init();
 			$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
-			$settings                = $jetpack_social_settings->get_settings( true );
+			$social_initial_state    = $jetpack_social_settings->get_initial_state();
 
 			$initial_state['social'] = array(
 				'sharesData'                      => $publicize->get_publicize_shares_info( $blog_id ),
 				'hasPaidPlan'                     => $publicize->has_paid_plan(),
 				'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
-				'isSocialImageGeneratorAvailable' => $settings['socialImageGeneratorSettings']['available'],
-				'isSocialImageGeneratorEnabled'   => $settings['socialImageGeneratorSettings']['enabled'],
+				'isSocialImageGeneratorAvailable' => $social_initial_state['socialImageGeneratorSettings']['available'],
+				'isSocialImageGeneratorEnabled'   => $social_initial_state['socialImageGeneratorSettings']['enabled'],
 				'dismissedNotices'                => Dismissed_Notices::get_dismissed_notices(),
 				'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
-				'autoConversionSettings'          => $settings['autoConversionSettings'],
+				'autoConversionSettings'          => $social_initial_state['autoConversionSettings'],
 				'jetpackSharingSettingsUrl'       => esc_url_raw( admin_url( 'admin.php?page=jetpack#/sharing' ) ),
 				'userConnectionUrl'               => esc_url_raw( admin_url( 'admin.php?page=my-jetpack#/connection' ) ),
+				'useAdminUiV1'                    => $social_initial_state['useAdminUiV1'],
 			);
+
+			// Add connectionData if we are using the new Connection UI.
+			if ( $social_initial_state['useAdminUiV1'] ) {
+				$initial_state['social']['connectionData'] = $social_initial_state['connectionData'];
+			}
 		}
 
 		wp_localize_script(
