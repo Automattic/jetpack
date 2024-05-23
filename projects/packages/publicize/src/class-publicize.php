@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Publicize;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Tokens;
 use Jetpack_IXR_Client;
+use Jetpack_Options;
 use WP_Error;
 use WP_Post;
 
