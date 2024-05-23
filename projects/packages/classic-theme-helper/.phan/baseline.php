@@ -19,12 +19,11 @@ return [
     // PhanTypeMismatchProperty : 1 occurrence
     // PhanTypeMismatchPropertyProbablyReal : 1 occurrence
     // PhanTypePossiblyInvalidDimOffset : 1 occurrence
-    // PhanUndeclaredConstant : 1 occurrence
     // PhanUndeclaredTypeReturnType : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        '_inc/lib/tonesque.php' => ['PhanNonClassMethodCall', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant'],
+        '_inc/lib/tonesque.php' => ['PhanNonClassMethodCall', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyProbablyReal', 'PhanUndeclaredClassMethod'],
         'src/class-classic-theme-helper.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredTypeReturnType'],
         'src/class-featured-content.php' => ['PhanTypeComparisonToArray', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument', 'PhanTypeMismatchProperty', 'PhanTypePossiblyInvalidDimOffset'],
     ],
