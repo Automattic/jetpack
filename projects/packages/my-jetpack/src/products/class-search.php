@@ -77,7 +77,7 @@ class Search extends Hybrid_Product {
 	 *
 	 * @var boolean
 	 */
-	public static $requires_user_connection = false;
+	public static $requires_user_connection = true;
 
 	/**
 	 * Get the product name
