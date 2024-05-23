@@ -1,3 +1,25 @@
+## [3.0.0] - 2024-05-23
+### Added
+- CSS file with encoded inline font is now automatically generated. [#36964]
+- New icon: `json-feed` [#37517]
+- New icon: `microblog` [#37517]
+- New icon: `stackexchange` [#37517]
+- New icon: `stackoverflow` [#37517]
+- New icon: `tripadvisor` [#37517]
+- Social logo colors CSS file is now included in source files. [#36964]
+- Social Logos is now developed in the [Jetpack monorepo](https://github.com/Automattic/jetpack). [#36964]
+
+### Changed
+- Cleaned up outdated and irrelevant documentation. [#36964]
+- Rewrote build system. [#36964]
+
+### Removed
+- PDF file is no longer built. [#36964]
+- TTF font file is no longer built. [#36964]
+
+### Fixed
+- Example files are rewritten. [#36964]
+
 ## 2.5.9 - 2024-03-05
 * New icon: `sms`
 
@@ -55,3 +77,5 @@
 
 ## 2.1.0 - 2018-01-31
 * Build: Refactored (aligned build system with Gridicons).
+
+[3.0.0]: https://github.com/Automattic/social-logos/compare/v2.5.9...v3.0.0
