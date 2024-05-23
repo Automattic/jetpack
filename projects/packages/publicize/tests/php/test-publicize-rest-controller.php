@@ -100,7 +100,7 @@ class Test_REST_Controller extends TestCase {
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/publicize/connections' );
 		wp_set_current_user( $this->admin_id );
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
-		$this->assertCount( 2, $response->data );
+		$this->assertCount( 3, $response->data );
 	}
 
 	/**
@@ -214,6 +214,20 @@ class Test_REST_Controller extends TestCase {
 						'token_id'      => 'test-unique-id123',
 						'meta'          => array(
 							'display_name' => 'test-display-name123',
+						),
+					),
+				),
+			),
+			// Globally connected nextdoor.
+			'nextdoor' => array(
+				'id_number' => array(
+					'connection_data' => array(
+						'user_id'       => 0,
+						'id'            => '456',
+						'connection_id' => '1236',
+						'token_id'      => 'test-unique-id1234',
+						'meta'          => array(
+							'display_name' => 'test-display-name1234',
 						),
 					),
 				),
