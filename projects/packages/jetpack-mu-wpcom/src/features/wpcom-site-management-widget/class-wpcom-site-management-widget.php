@@ -14,7 +14,7 @@ class WPCOM_Site_Management_Widget {
 	/**
 	 * Singleton instance of the widget, not to show more than once.
 	 *
-	 * @var array
+	 * @var WPCOM_Site_Management_Widget
 	 */
 	public static $instance = null;
 
@@ -150,7 +150,7 @@ class WPCOM_Site_Management_Widget {
 			self::WPCOM_SITE_MANAGEMENT_WIDGET_ID,
 			__( 'Site management panel', 'jetpack-mu-wpcom' ),
 			array( $this, 'render_wpcom_site_management_widget' ),
-			fn() => '',
+			function () {},
 			array(),
 			'normal',
 			'high'
