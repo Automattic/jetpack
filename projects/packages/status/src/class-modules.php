@@ -166,7 +166,7 @@ class Modules {
 		}
 
 		$key           = md5( $file_name . maybe_serialize( $headers ) );
-		$refresh_cache = is_admin() && isset( $_GET['page'] ) && str_starts_with( $_GET['page'], 'jetpack' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
+		$refresh_cache = is_admin() && isset( $_GET['page'] ) && is_string( $_GET['page'] ) && str_starts_with( $_GET['page'], 'jetpack' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
 
 		// If we don't need to refresh the cache, and already have the value, short-circuit!
 		if ( ! $refresh_cache && isset( $file_data_option[ $key ] ) ) {
@@ -454,10 +454,8 @@ class Modules {
 			}
 
 			// Check the file for fatal errors, a la wp-admin/plugins.php::activate.
-			$errors = new Errors();
 			$state->state( 'module', $module );
 			$state->state( 'error', 'module_activation_failed' ); // we'll override this later if the plugin can be included without fatal error.
-			$errors->catch_errors( true );
 
 			ob_start();
 			$module_path = $this->get_path( $module );
@@ -470,7 +468,6 @@ class Modules {
 
 			$state->state( 'error', false ); // the override.
 			ob_end_clean();
-			$errors->catch_errors( false );
 		} else { // Not a Jetpack plugin.
 			$active[] = $module;
 			$this->update_active( $active );
@@ -534,7 +531,7 @@ class Modules {
 	 *
 	 * @param array $modules Array of active modules to be saved in options.
 	 *
-	 * @return $success bool true for success, false for failure.
+	 * @return bool $success true for success, false for failure.
 	 */
 	public function update_active( $modules ) {
 		$current_modules      = \Jetpack_Options::get_option( 'active_modules', array() );

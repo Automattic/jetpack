@@ -4,18 +4,23 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPres
 
 class Filesystem_Utils {
 
-	const DELETE_ALL   = 'delete-all'; // delete all files and directories in a given directory, recursively.
-	const DELETE_FILE  = 'delete-single'; // delete a single file or recursively delete a single directory in a given directory.
-	const DELETE_FILES = 'delete-files'; // delete all files in a given directory.
-
+	const DELETE_ALL             = 'delete-all'; // delete all files and directories in a given directory, recursively.
+	const DELETE_FILE            = 'delete-single'; // delete a single file or recursively delete a single directory in a given directory.
+	const DELETE_FILES           = 'delete-files'; // delete all files in a given directory.
+	const REBUILD_ALL            = 'rebuild-all'; // rebuild all files and directories in a given directory, recursively.
+	const REBUILD_FILE           = 'rebuild-single'; // rebuild a single file or recursively rebuild a single directory in a given directory.
+	const REBUILD_FILES          = 'rebuild-files'; // rebuild all files in a given directory.
+	const REBUILD                = 'rebuild'; // rebuild mode for managing expired files
+	const DELETE                 = 'delete'; // delete mode for managing expired files
+	const REBUILD_FILE_EXTENSION = '.rebuild.html'; // The extension used for rebuilt files.
 	/**
-	 * Recursively delete a directory.
-	 * @param string $path - The directory to delete.
-	 * @param bool   $type - The type of delete. DELETE_FILES to delete all files in the given directory. DELETE_ALL to delete everything in the given directory, recursively.
+	 * Recursively walk a directory, deleting or rebuilding files.
+	 *
+	 * @param string $path - The directory to delete or rebuild.
+	 * @param bool   $type - The type of action to take, see constants above.
 	 * @return bool|Boost_Cache_Error
 	 */
-	public static function delete_directory( $path, $type ) {
-		Logger::debug( "delete directory: $path $type" );
+	public static function walk_directory( $path, $type ) {
 		$path = realpath( $path );
 		if ( ! $path ) {
 			// translators: %s is the directory that does not exist.
@@ -58,12 +63,34 @@ class Filesystem_Utils {
 					}
 				}
 				break;
+			case self::REBUILD_ALL: // rebuild all files and directories in the given directory.
+				$iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $path, \RecursiveDirectoryIterator::SKIP_DOTS ) );
+				foreach ( $iterator as $file ) {
+					if ( ! $file->isDir() && $file->getFilename() !== 'index.html' ) {
+						// Rebuild all files except index.html. index.html is used to prevent directory listing.
+						Logger::debug( 'rebuild: ' . $file->getPathname() );
+						self::rebuild_file( $file->getPathname() );
+					}
+				}
+				break;
+			case self::REBUILD_FILES: // rebuild all files in the given directory.
+				// Files to delete are all files in the given directory, except index.html. index.html is used to prevent directory listing.
+				$files = array_diff( scandir( $path ), array( '.', '..', 'index.html' ) );
+				foreach ( $files as $file ) {
+					$file = $path . '/' . $file;
+					if ( is_file( $file ) ) {
+						Logger::debug( "rebuild: $file" );
+						self::rebuild_file( $file );
+					}
+				}
+				break;
 		}
 		return true;
 	}
 
 	/**
 	 * Returns true if the given directory is inside the boost-cache directory.
+	 *
 	 * @param string $dir - The directory to check.
 	 * @return bool
 	 */
@@ -75,7 +102,7 @@ class Filesystem_Utils {
 	/**
 	 * Given a request_uri and its parameters, return the filename to use for this cached data. Does not include the file path.
 	 *
-	 * @param array  $parameters  - An associative array of all the things that make this request special/different. Includes GET parameters and COOKIEs normally.
+	 * @param array $parameters  - An associative array of all the things that make this request special/different. Includes GET parameters and COOKIEs normally.
 	 */
 	public static function get_request_filename( $parameters ) {
 
@@ -83,14 +110,26 @@ class Filesystem_Utils {
 
 		return md5( json_encode( $key_components ) ) . '.html'; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 	}
+
+	/**
+	 * Check if a file is a rebuild file.
+	 *
+	 * @param string $file - The file to check.
+	 * @return bool - True if the file is a rebuild file, false otherwise.
+	 */
+	public static function is_rebuild_file( $file ) {
+		return substr( $file, -strlen( self::REBUILD_FILE_EXTENSION ) ) === self::REBUILD_FILE_EXTENSION;
+	}
+
 	/**
 	 * Recursively garbage collect a directory.
 	 *
 	 * @param string $directory - The directory to garbage collect.
 	 * @param int    $file_ttl  - Specify number of seconds after which a file is considered expired.
+	 * @param string $action    - (optional) The action to take on expired files. DELETE to delete expired files, REBUILD to rebuild expired files. Default is DELETE.
 	 * @return int - The number of files deleted.
 	 */
-	public static function delete_expired_files( $directory, $file_ttl ) {
+	public static function gc_expired_files( $directory, $file_ttl, $action = self::DELETE ) {
 		clearstatcache();
 
 		$count  = 0;
@@ -118,15 +157,32 @@ class Filesystem_Utils {
 
 			// Handle directories recursively.
 			if ( is_dir( $file_path ) ) {
-				$count += self::delete_expired_files( $file_path, $file_ttl );
+				$count += self::gc_expired_files( $file_path, $file_ttl, $action );
 				continue;
 			}
 
 			$filemtime = filemtime( $file_path );
-			$expired   = ( $filemtime + $file_ttl ) <= $now;
+
+			// if the file ends with the rebuild file extension, it is a rebuilt file and the ttl is different.
+			if (
+				self::is_rebuild_file( $file )
+				&& ( $filemtime + JETPACK_BOOST_CACHE_REBUILD_DURATION ) <= $now
+			) {
+				Logger::debug( 'Deleting expired rebuilt file: ' . $file_path );
+				$expired = true;
+			} else {
+				$expired = ( $filemtime + $file_ttl ) <= $now;
+			}
+
 			if ( $expired ) {
-				if ( self::delete_file( $file_path ) ) {
-					++$count;
+				if ( $action === self::REBUILD && ! self::is_rebuild_file( $file_path ) ) {
+					if ( self::rebuild_file( $file_path ) ) {
+						++$count;
+					} else {
+						Logger::debug( 'Could not rebuild file: ' . $file_path );
+					}
+				} elseif ( self::delete_file( $file_path ) ) {
+						++$count;
 				} else {
 					Logger::debug( 'Could not delete file: ' . $file_path );
 				}
@@ -134,7 +190,11 @@ class Filesystem_Utils {
 		}
 		closedir( $handle );
 
-		// If the directory is empty after processing it's files, delete it.
+		if ( $action === self::REBUILD ) {
+			return $count;
+		}
+
+		// If the directory is empty after processing its files, delete it.
 		$is_dir_empty = self::is_dir_empty( $directory );
 		if ( $is_dir_empty instanceof Boost_Cache_Error ) {
 			Logger::debug( 'Could not check directory emptiness: ' . $is_dir_empty->get_error_message() );
@@ -142,7 +202,7 @@ class Filesystem_Utils {
 		}
 
 		if ( $is_dir_empty === true ) {
-			// Directory is considered empty even if it has an index.html file. Delete it it first.
+			// Directory is considered empty even if it has an index.html file. Delete it first.
 			self::delete_file( $directory . '/index.html' );
 
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
@@ -183,6 +243,42 @@ class Filesystem_Utils {
 			// Create an empty index.html file in the parent directory as well.
 			self::create_empty_index_files( dirname( $path ) );
 		}
+	}
+
+	/**
+	 * Rebuild a file. Make a copy of the file with a different extension instead of deleting it.
+	 *
+	 * @param string $file_path - The file to rebuild.
+	 * @return bool - True if the file was rebuilt, false otherwise.
+	 */
+	public static function rebuild_file( $file_path ) {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
+		if ( is_writable( $file_path ) ) {
+			// only rename the file if it is not already a rebuild file.
+			if ( ! self::is_rebuild_file( $file_path ) ) {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename, WordPress.PHP.NoSilencedErrors.Discouraged
+				@rename( $file_path, $file_path . self::REBUILD_FILE_EXTENSION );
+				@touch( $file_path . self::REBUILD_FILE_EXTENSION ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch, WordPress.PHP.NoSilencedErrors.Discouraged
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Restore a file that was rebuilt so the cache file can be used for other visitors.
+	 *
+	 * @param string $file_path - The rebuilt file
+	 * @return bool - True if the file was restored, false otherwise.
+	 */
+	public static function restore_file( $file_path ) {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
+		if ( is_writable( $file_path ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename, WordPress.PHP.NoSilencedErrors.Discouraged
+			return @rename( $file_path, str_replace( self::REBUILD_FILE_EXTENSION, '', $file_path ) );
+		}
+
+		return false;
 	}
 
 	/**

@@ -23,19 +23,30 @@ import styles from './style.module.scss';
  * @returns {React.Component} The `ActionButton` component.
  */
 const ActionButton = props => {
-	const { label, onClick, isLoading, isDisabled, displayError, errorMessage } = props;
+	const {
+		label,
+		onClick,
+		isLoading = false,
+		loadingText,
+		isDisabled,
+		displayError = false,
+		errorMessage = __( 'An error occurred. Please try again.', 'jetpack' ),
+		customClass,
+	} = props;
+
+	const loadingContent = loadingText || <Spinner />;
 
 	return (
 		<>
 			{
 				<Button
-					className={ classNames( styles.button, 'jp-action-button--button' ) }
+					className={ classNames( styles.button, 'jp-action-button--button', customClass ) }
 					label={ label }
 					onClick={ onClick }
 					variant="primary"
 					disabled={ isLoading || isDisabled }
 				>
-					{ isLoading ? <Spinner /> : label }
+					{ isLoading ? loadingContent : label }
 				</Button>
 			}
 
@@ -59,12 +70,6 @@ ActionButton.propTypes = {
 	displayError: PropTypes.bool,
 	/** The error message string */
 	errorMessage: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
-};
-
-ActionButton.defaultProps = {
-	isLoading: false,
-	displayError: false,
-	errorMessage: __( 'An error occurred. Please try again.', 'jetpack' ),
 };
 
 export default ActionButton;

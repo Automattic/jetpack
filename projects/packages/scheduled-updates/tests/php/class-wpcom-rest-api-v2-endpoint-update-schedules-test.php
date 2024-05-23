@@ -29,19 +29,36 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	public $editor_id;
 
 	/**
-	 * Set up before class.
+	 * Sync counter.
+	 *
+	 * @var array
 	 */
-	public static function set_up_before_class() {
-		parent::set_up_before_class();
+	public static $sync_counters = array();
 
-		new WPCOM_REST_API_V2_Endpoint_Update_Schedules();
-	}
+	/**
+	 * Scheduled counter.
+	 *
+	 * @var int
+	 */
+	public static $scheduled_counter = 0;
+
+	/**
+	 * Number of transients added.
+	 *
+	 * @var int
+	 */
+	public static $transients_added = 0;
 
 	/**
 	 * Set up.
 	 */
 	public function set_up() {
-		parent::set_up();
+		parent::set_up_wordbless();
+		\WorDBless\Users::init()->clear_all_users();
+
+		// Be sure wordbless cron is reset before each test.
+		delete_option( 'cron' );
+		update_option( 'cron', array( 'version' => 2 ), 'yes' );
 
 		$this->admin_id  = wp_insert_user(
 			array(
@@ -59,7 +76,16 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		);
 		wp_set_current_user( 0 );
 
-		do_action( 'rest_api_init' );
+		Scheduled_Updates::init();
+
+		// Start sync count.
+		add_action( 'added_option', array( __CLASS__, 'sync_add_callback' ) );
+		add_action( 'updated_option', array( __CLASS__, 'sync_update_callback' ) );
+		add_filter( 'pre_schedule_event', array( __CLASS__, 'pre_schedule_callback' ), 10, 0 );
+		add_filter( 'pre_set_transient_pre_schedule_event_clear_cron_cache', array( __CLASS__, 'pre_set_transient_callback' ), 10, 0 );
+		self::$sync_counters     = array();
+		self::$scheduled_counter = 0;
+		self::$transients_added  = 0;
 	}
 
 	/**
@@ -73,6 +99,15 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		wp_clear_scheduled_hook( Scheduled_Updates::PLUGIN_CRON_HOOK );
 		delete_option( 'jetpack_scheduled_update_statuses' );
+		delete_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
+
+		// End sync count.
+		remove_action( 'added_option', array( __CLASS__, 'sync_add_callback' ) );
+		remove_action( 'updated_option', array( __CLASS__, 'sync_update_callback' ) );
+		remove_filter( 'pre_schedule_event', array( __CLASS__, 'pre_schedule_callback' ) );
+		self::$sync_counters     = array();
+		self::$scheduled_counter = 0;
+		self::$transients_added  = 0;
 	}
 
 	/**
@@ -105,10 +140,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		// Set up some schedules.
 		$plugins = array(
-			'gutenberg/gutenberg.php',
 			'custom-plugin/custom-plugin.php',
+			'gutenberg/gutenberg.php',
 		);
+		$this->assertSame( 0, self::get_sync_counter() );
 		wp_schedule_event( strtotime( 'next Tuesday 9:00' ), 'daily', Scheduled_Updates::PLUGIN_CRON_HOOK, array( 'hello-dolly/hello-dolly.php' ) );
+		$this->assertSame( 1, self::get_sync_counter() );
 		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins );
 
 		// Successful request.
@@ -125,6 +162,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 					'interval'           => DAY_IN_SECONDS,
 					'last_run_timestamp' => null,
 					'last_run_status'    => null,
+					'health_check_paths' => array(),
+					'active'             => true,
 				),
 				Scheduled_Updates::generate_schedule_id( $plugins ) => array(
 					'hook'               => Scheduled_Updates::PLUGIN_CRON_HOOK,
@@ -134,10 +173,15 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 					'interval'           => WEEK_IN_SECONDS,
 					'last_run_timestamp' => null,
 					'last_run_status'    => null,
+					'health_check_paths' => array(),
+					'active'             => true,
 				),
 			),
 			$result->get_data()
 		);
+
+		$this->assertSame( 2, self::get_sync_counter() );
+		$this->assertSame( 2, self::$scheduled_counter );
 	}
 
 	/**
@@ -146,17 +190,15 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	 * @covers ::create_item
 	 */
 	public function test_create_item() {
+		$plugins = array(
+			'custom-plugin/custom-plugin.php',
+			'gutenberg/gutenberg.php',
+		);
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
 		$request->set_body_params(
 			array(
-				'plugins'  => array(
-					'custom-plugin/custom-plugin.php',
-					'gutenberg/gutenberg.php',
-				),
-				'schedule' => array(
-					'timestamp' => strtotime( 'next Monday 8:00' ),
-					'interval'  => 'weekly',
-				),
+				'plugins'  => $plugins,
+				'schedule' => $this->get_schedule(),
 			)
 		);
 		$schedule_id = Scheduled_Updates::generate_schedule_id( $request->get_body_params()['plugins'] );
@@ -180,18 +222,18 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame( $schedule_id, $result->get_data() );
+		$sync_option = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
+		$this->assertIsArray( $sync_option );
+		$this->assertIsObject( $sync_option[ $schedule_id ] );
+		$this->assertSame( $plugins, $sync_option[ $schedule_id ]->args );
+		$this->assertNull( $sync_option[ $schedule_id ]->last_run_timestamp );
+		$this->assertNull( $sync_option[ $schedule_id ]->last_run_status );
 
 		// Can't create a schedule for the same time again.
 		$request->set_body_params(
 			array(
-				'plugins'  => array(
-					'custom-plugin/custom-plugin.php',
-					'gutenberg/gutenberg.php',
-				),
-				'schedule' => array(
-					'timestamp' => strtotime( 'next Monday 8:00' ),
-					'interval'  => 'weekly',
-				),
+				'plugins'  => $plugins,
+				'schedule' => $this->get_schedule(),
 			)
 		);
 
@@ -199,6 +241,65 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		$this->assertSame( 403, $result->get_status() );
 		$this->assertSame( 'rest_forbidden', $result->get_data()['code'] );
+		$this->assertSame( 1, self::get_sync_counter() );
+		$this->assertSame( 1, self::$scheduled_counter );
+		$this->assertSame( 1, self::$transients_added );
+	}
+
+	/**
+	 * Test create multiple item.
+	 *
+	 * @covers ::create_item
+	 */
+	public function test_create_multiple_item() {
+		$plugins = array(
+			'custom-plugin/custom-plugin.php',
+			'gutenberg/gutenberg.php',
+		);
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$request->set_body_params(
+			array(
+				'plugins'  => $plugins,
+				'schedule' => $this->get_schedule(),
+			)
+		);
+		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
+
+		// Successful request.
+		wp_set_current_user( $this->admin_id );
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( $schedule_id, $result->get_data() );
+
+		$sync_option = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
+		$this->assertIsArray( $sync_option );
+		$this->assertIsObject( $sync_option[ $schedule_id ] );
+		$this->assertSame( $plugins, $sync_option[ $schedule_id ]->args );
+		$this->assertNull( $sync_option[ $schedule_id ]->last_run_timestamp );
+		$this->assertNull( $sync_option[ $schedule_id ]->last_run_status );
+
+		$plugins[] = 'wp-test-plugin/wp-test-plugin.php';
+		$request->set_body_params(
+			array(
+				'plugins'  => $plugins,
+				'schedule' => $this->get_schedule( 'next Monday 10:00' ),
+			)
+		);
+
+		$schedule_id_2 = Scheduled_Updates::generate_schedule_id( $request->get_body_params()['plugins'] );
+		$result        = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( $schedule_id_2, $result->get_data() );
+
+		$sync_option = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
+		$this->assertIsArray( $sync_option );
+		$this->assertIsObject( $sync_option[ $schedule_id ] );
+		$this->assertIsObject( $sync_option[ $schedule_id_2 ] );
+		$this->assertSame( 2, self::get_sync_counter() );
+		$this->assertSame( 2, self::$scheduled_counter );
+		$this->assertSame( 2, self::$transients_added );
 	}
 
 	/**
@@ -219,10 +320,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp' => strtotime( 'next Monday 8:00' ),
-					'interval'  => 'weekly',
-				),
+				'schedule' => $this->get_schedule(),
 			)
 		);
 
@@ -231,38 +329,26 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		$this->assertSame( 403, $result->get_status() );
 		$this->assertSame( 'rest_forbidden', $result->get_data()['code'] );
+		$this->assertSame( 1, self::get_sync_counter() );
+		$this->assertSame( 1, self::$scheduled_counter );
+		$this->assertSame( 0, self::$transients_added );
 	}
 
 	/**
-	 * Can't have more than two schedules.
+	 * Can't submit a schedule without plugins parameter.
 	 *
-	 * @covers ::validate_schedule
+	 * @covers ::register_routes
 	 */
-	public function test_creating_more_than_two_schedules() {
-		// Create two schedules.
-		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', Scheduled_Updates::PLUGIN_CRON_HOOK, array( 'gutenberg/gutenberg.php' ) );
-		wp_schedule_event( strtotime( 'next Tuesday 9:00' ), 'daily', Scheduled_Updates::PLUGIN_CRON_HOOK, array( 'custom-plugin/custom-plugin.php' ) );
-
-		// Number 3.
+	public function test_creating_schedule_without_plugins_parameter() {
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
-		$request->set_body_params(
-			array(
-				'plugins'  => array(
-					'gutenberg/gutenberg.php',
-					'custom-plugin/custom-plugin.php',
-				),
-				'schedule' => array(
-					'timestamp' => strtotime( 'next Wednesday 10:00' ),
-					'interval'  => 'daily',
-				),
-			)
-		);
+		$request->set_body_params( array( 'schedule' => $this->get_schedule() ) );
 
 		wp_set_current_user( $this->admin_id );
 		$result = rest_do_request( $request );
 
-		$this->assertSame( 403, $result->get_status() );
-		$this->assertSame( 'rest_forbidden', $result->get_data()['code'] );
+		$this->assertSame( 400, $result->get_status() );
+		$this->assertSame( 'rest_missing_callback_param', $result->get_data()['code'] );
+		$this->assertSame( 0, self::$transients_added );
 	}
 
 	/**
@@ -283,10 +369,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp' => strtotime( 'next Monday 8:00' ),
-					'interval'  => 'weekly',
-				),
+				'schedule' => $this->get_schedule(),
 			)
 		);
 
@@ -294,6 +377,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		rest_do_request( $request );
 
 		$this->assertEquals( $unscheduled_plugins, get_option( 'auto_update_plugins' ) );
+		$this->assertSame( 1, self::get_sync_counter() );
+		$this->assertSame( 1, self::$scheduled_counter );
+		$this->assertSame( 1, self::$transients_added );
 	}
 
 	/**
@@ -308,8 +394,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 			array(
 				'plugins'  => $plugins,
 				'schedule' => array(
-					'timestamp' => strtotime( 'next Wednesday 10:00' ),
-					'interval'  => 'daily',
+					'timestamp'          => strtotime( 'next Wednesday 10:00' ),
+					'interval'           => 'daily',
+					'health_check_paths' => array(),
 				),
 			)
 		);
@@ -333,91 +420,15 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 					'interval'           => DAY_IN_SECONDS,
 					'last_run_timestamp' => null,
 					'last_run_status'    => null,
+					'health_check_paths' => array(),
+					'active'             => true,
 				),
 			),
 			$result->get_data()
 		);
-	}
-
-	/**
-	 * Update event status.
-	 *
-	 * @covers ::update_status
-	 */
-	public function test_update_event_status() {
-		$plugins = array(
-			'custom-plugin/custom-plugin.php',
-			'gutenberg/gutenberg.php',
-		);
-		$id_1    = Scheduled_Updates::generate_schedule_id( $plugins );
-		$body    = array(
-			'last_run_timestamp' => 1,
-			'last_run_status'    => 'success',
-		);
-
-		wp_schedule_event( strtotime( 'next Tuesday 0:00' ), 'daily', Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins );
-
-		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules/' . $id_1 . '/status' );
-		$request->set_body_params( $body );
-
-		wp_set_current_user( $this->admin_id );
-
-		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules/abc/status' );
-		$request->set_body_params( $body );
-		$result = rest_do_request( $request );
-
-		$this->assertSame( 404, $result->get_status() );
-
-		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules/' . $id_1 . '/status' );
-		$request->set_body_params( $body );
-		$result = rest_do_request( $request );
-
-		$this->assertSame( 200, $result->get_status() );
-		$this->assertSame( 1, $result->get_data()['last_run_timestamp'] );
-		$this->assertSame( 'success', $result->get_data()['last_run_status'] );
-
-		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules' );
-		$result  = rest_do_request( $request );
-
-		$this->assertSame( 200, $result->get_status() );
-
-		$events = $result->get_data();
-
-		$this->assertIsArray( $events );
-		$this->assertArrayHasKey( $id_1, $events );
-		$this->assertSame( 1, $events[ $id_1 ]['last_run_timestamp'] );
-		$this->assertSame( 'success', $events[ $id_1 ]['last_run_status'] );
-
-		$plugins = array(
-			'hello-dolly/hello.php',
-		);
-		$id_2    = Scheduled_Updates::generate_schedule_id( $plugins );
-		$body    = array(
-			'last_run_timestamp' => 2,
-			'last_run_status'    => 'failure-and-rollback',
-		);
-
-		wp_schedule_event( strtotime( 'next Tuesday 09:00' ), 'daily', Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins );
-
-		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules/' . $id_2 . '/status' );
-		$request->set_body_params( $body );
-		$result = rest_do_request( $request );
-
-		$this->assertSame( 200, $result->get_status() );
-
-		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules' );
-		$result  = rest_do_request( $request );
-
-		$this->assertSame( 200, $result->get_status() );
-
-		$events = $result->get_data();
-
-		$this->assertArrayHasKey( $id_1, $events );
-		$this->assertSame( 1, $events[ $id_1 ]['last_run_timestamp'] );
-		$this->assertArrayHasKey( $id_2, $events );
-		$this->assertSame( 2, $events[ $id_2 ]['last_run_timestamp'] );
-		$this->assertSame( 'success', $events[ $id_1 ]['last_run_status'] );
-		$this->assertSame( 'failure-and-rollback', $events[ $id_2 ]['last_run_status'] );
+		$this->assertSame( 1, self::get_sync_counter() );
+		$this->assertSame( 1, self::$scheduled_counter );
+		$this->assertSame( 1, self::$transients_added );
 	}
 
 	/**
@@ -444,10 +455,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp' => strtotime( 'next Monday 8:00' ),
-					'interval'  => 'weekly',
-				),
+				'schedule' => $this->get_schedule(),
 			)
 		);
 
@@ -455,6 +463,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$result = rest_do_request( $request );
 		$this->assertSame( 400, $result->get_status() );
 		$this->assertSame( 'rest_invalid_param', $result->get_data()['code'] );
+		$this->assertSame( 0, self::get_sync_counter() );
+		$this->assertSame( 0, self::$scheduled_counter );
+		$this->assertSame( 0, self::$transients_added );
 	}
 
 	/**
@@ -464,8 +475,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	 */
 	public function test_get_item() {
 		$plugins     = array(
-			'gutenberg/gutenberg.php',
 			'custom-plugin/custom-plugin.php',
+			'gutenberg/gutenberg.php',
 		);
 		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
 
@@ -499,9 +510,14 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 				'interval'           => WEEK_IN_SECONDS,
 				'last_run_timestamp' => null,
 				'last_run_status'    => null,
+				'health_check_paths' => array(),
+				'active'             => true,
 			),
 			$result->get_data()
 		);
+		$this->assertSame( 1, self::get_sync_counter() );
+		$this->assertSame( 1, self::$scheduled_counter );
+		$this->assertSame( 0, self::$transients_added );
 	}
 
 	/**
@@ -517,6 +533,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		$this->assertSame( 404, $result->get_status() );
 		$this->assertSame( 'rest_invalid_schedule', $result->get_data()['code'] );
+		$this->assertSame( 0, self::get_sync_counter() );
+		$this->assertSame( 0, self::$scheduled_counter );
+		$this->assertSame( 0, self::$transients_added );
 	}
 
 	/**
@@ -538,10 +557,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp' => strtotime( 'next Tuesday 9:00' ),
-					'interval'  => 'daily',
-				),
+				'schedule' => $this->get_schedule( 'next Tuesday 9:00', 'daily' ),
 			)
 		);
 		$result = rest_do_request( $request );
@@ -562,6 +578,14 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame( $schedule_id, $result->get_data() );
+
+		$sync_option = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
+		$this->assertIsArray( $sync_option );
+		$this->assertIsObject( $sync_option[ $schedule_id ] );
+		$this->assertSame( $plugins, $sync_option[ $schedule_id ]->args );
+		$this->assertSame( 2, self::get_sync_counter() );
+		$this->assertSame( 2, self::$scheduled_counter );
+		$this->assertSame( 1, self::$transients_added );
 	}
 
 	/**
@@ -580,17 +604,30 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
 
 		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins );
+		$this->assertSame( 1, self::get_sync_counter() );
 
-		Scheduled_Updates::set_scheduled_update_status( $schedule_id, $timestamp, $status );
+		// Log a start and success.
+		Scheduled_Updates_Logs::log(
+			$schedule_id,
+			Scheduled_Updates_Logs::PLUGIN_UPDATES_START,
+			'no_plugins_to_update',
+			null,
+			$timestamp
+		);
+		Scheduled_Updates_Logs::log(
+			$schedule_id,
+			Scheduled_Updates_Logs::PLUGIN_UPDATES_SUCCESS,
+			'no_plugins_to_update',
+			null,
+			$timestamp
+		);
+		$this->assertSame( 3, self::get_sync_counter() );
 
 		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . $schedule_id );
 		$request->set_body_params(
 			array(
 				'plugins'  => $plugins,
-				'schedule' => array(
-					'timestamp' => strtotime( 'next Tuesday 9:00' ),
-					'interval'  => 'daily',
-				),
+				'schedule' => $this->get_schedule( 'next Tuesday 9:00', 'daily' ),
 			)
 		);
 
@@ -601,15 +638,26 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 200, $result->get_status() );
 		$schedule_id = $result->get_data();
 
-		// Get the updated status
+		// Get the updated status.
 		$updated_status = Scheduled_Updates::get_scheduled_update_status( $schedule_id );
-		if ( $updated_status === null ) {
-			$this->fail( 'Scheduled_Updates::get_scheduled_update_status() returned null.' );
+
+		if ( $updated_status === false ) {
+			$this->fail( 'Scheduled_Updates::get_scheduled_update_status() returned false.' );
 		} else {
 			$this->assertIsArray( $updated_status, 'Scheduled_Updates::get_scheduled_update_status() should return an array.' );
-			// doing these null checks for the static analyzer
+			// doing these null checks for the static analyzer.
 			$this->assertSame( $timestamp, $updated_status['last_run_timestamp'] ?? null );
 			$this->assertSame( $status, $updated_status['last_run_status'] ?? null );
+
+			$sync_option = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
+			$this->assertIsArray( $sync_option );
+			$this->assertIsObject( $sync_option[ $schedule_id ] );
+			$this->assertSame( $plugins, $sync_option[ $schedule_id ]->args );
+			$this->assertSame( $timestamp, $sync_option[ $schedule_id ]->last_run_timestamp );
+			$this->assertSame( $status, $sync_option[ $schedule_id ]->last_run_status );
+			$this->assertSame( 4, self::get_sync_counter() );
+			$this->assertSame( 2, self::$scheduled_counter );
+			$this->assertSame( 1, self::$transients_added );
 		}
 	}
 
@@ -624,17 +672,17 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . Scheduled_Updates::generate_schedule_id( array() ) );
 		$request->set_body_params(
 			array(
-				'plugins'  => array(),
-				'schedule' => array(
-					'timestamp' => strtotime( 'next Tuesday 9:00' ),
-					'interval'  => 'daily',
-				),
+				'plugins'  => array( 'gutenberg/gutenberg.php' ),
+				'schedule' => $this->get_schedule( 'next Tuesday 9:00', 'daily' ),
 			)
 		);
 		$result = rest_do_request( $request );
 
 		$this->assertSame( 404, $result->get_status() );
 		$this->assertSame( 'rest_invalid_schedule', $result->get_data()['code'] );
+		$this->assertSame( 0, self::get_sync_counter() );
+		$this->assertSame( 0, self::$scheduled_counter );
+		$this->assertSame( 0, self::$transients_added );
 	}
 
 	/**
@@ -644,12 +692,13 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	 */
 	public function test_delete_item() {
 		$plugins     = array(
-			'gutenberg/gutenberg.php',
 			'custom-plugin/custom-plugin.php',
+			'gutenberg/gutenberg.php',
 		);
 		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
 
 		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins );
+		$this->assertSame( 1, self::get_sync_counter() );
 
 		// Unauthenticated request.
 		wp_set_current_user( 0 );
@@ -665,6 +714,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		$this->assertSame( 403, $result->get_status() );
 		$this->assertSame( 'rest_forbidden', $result->get_data()['code'] );
+		$this->assertSame( 1, self::get_sync_counter() );
 
 		// Successful request.
 		wp_set_current_user( $this->admin_id );
@@ -674,6 +724,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertTrue( $result->get_data() );
 
 		$this->assertFalse( wp_get_scheduled_event( Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins ) );
+
+		$sync_option = get_option( Scheduled_Updates::PLUGIN_CRON_HOOK );
+		$this->assertSame( array(), $sync_option );
+		$this->assertSame( 2, self::get_sync_counter() );
+		$this->assertSame( 1, self::$scheduled_counter );
+		$this->assertSame( 1, self::$transients_added );
 	}
 
 	/**
@@ -689,6 +745,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		$this->assertSame( 404, $result->get_status() );
 		$this->assertSame( 'rest_invalid_schedule', $result->get_data()['code'] );
+		$this->assertSame( 0, self::get_sync_counter() );
+		$this->assertSame( 0, self::$scheduled_counter );
+		$this->assertSame( 0, self::$transients_added );
 	}
 
 	/**
@@ -716,184 +775,213 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', Scheduled_Updates::PLUGIN_CRON_HOOK, $plugins_2 );
 
 		update_option( 'auto_update_plugins', $auto_update );
+		$this->assertSame( 2, self::get_sync_counter() );
 
 		$request = new WP_REST_Request( 'DELETE', '/wpcom/v2/update-schedules/' . $schedule_id );
 		wp_set_current_user( $this->admin_id );
 		rest_do_request( $request );
 
 		$this->assertSame( $expected_result, get_option( 'auto_update_plugins' ) );
+		$this->assertSame( 3, self::get_sync_counter() );
+		$this->assertSame( 2, self::$scheduled_counter );
+		$this->assertSame( 1, self::$transients_added );
 	}
 
 	/**
-	 * Make sure unauthorized users can't get in to capabilities.
+	 * A CRUD cycle should sync only three times.
 	 *
-	 * @covers ::get_capabilities
+	 * @covers ::create_item
+	 * @covers ::get_item
+	 * @covers ::update_item
+	 * @covers ::delete_item
 	 */
-	public function test_non_admin_user_capabilities() {
-		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/capabilities' );
-		$result  = rest_do_request( $request );
-
-		$this->assertSame( 401, $result->get_status() );
-	}
-
-	/**
-	 * Make sure authorized users can see data for capabilities
-	 *
-	 * @covers ::get_capabilities
-	 */
-	public function test_admin_user_capabilities() {
-		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/capabilities' );
+	public function test_crud_should_sync_only_three_times() {
 		wp_set_current_user( $this->admin_id );
-		$result = rest_do_request( $request );
-
-		$this->assertSame( 200, $result->get_status() );
-	}
-
-	/**
-	 * Test adding a log entry.
-	 *
-	 * @covers ::add_log
-	 */
-	public function test_add_log() {
-		wp_set_current_user( $this->admin_id );
-
-		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . Scheduled_Updates::generate_schedule_id( array() ) . '/logs' );
+		$plugins       = array(
+			'custom-plugin/custom-plugin.php',
+			'gutenberg/gutenberg.php',
+		);
+		$request       = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$base_schedule = $this->get_schedule();
 		$request->set_body_params(
 			array(
-				'action'  => Scheduled_Updates_Logs::PLUGIN_UPDATES_START,
-				'message' => 'Starting plugin updates.',
+				'plugins'  => $plugins,
+				'schedule' => $base_schedule,
 			)
 		);
-		$result = rest_do_request( $request );
+
+		// Create.
+		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
+		$result      = rest_do_request( $request );
 
 		$this->assertSame( 200, $result->get_status() );
-	}
+		$this->assertSame( $schedule_id, $result->get_data() );
+		// First sync.
+		$this->assertSame( 1, self::get_sync_counter() );
 
-	/**
-	 * Test retrieving logs
-	 *
-	 * @covers ::add_log
-	 */
-	public function test_get_logs() {
-		wp_set_current_user( $this->admin_id );
-
-		$schedule_id = $this->create_test_schedule();
-
-		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/' . $schedule_id . '/logs' );
+		// Read.
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/' . $schedule_id );
 		$result  = rest_do_request( $request );
+		$data    = $result->get_data();
 
 		$this->assertSame( 200, $result->get_status() );
-		$this->assertSame( array(), $result->get_data() );
-	}
+		$this->assertIsArray( $data );
+		$this->assertSame( $base_schedule['timestamp'], $data['timestamp'] );
+		// No sync during read.
+		$this->assertSame( 1, self::get_sync_counter() );
 
-	/**
-	 * Test adding a log entry and retrieving it
-	 *
-	 * @covers ::add_log
-	 * @covers ::get_logs
-	 */
-	public function test_add_and_get_log() {
-		wp_set_current_user( $this->admin_id );
-
-		$schedule_id = $this->create_test_schedule();
-
-		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . $schedule_id . '/logs' );
+		// Update.
+		$request       = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . $schedule_id );
+		$base_schedule = $this->get_schedule( 'next Monday 9:00' );
 		$request->set_body_params(
 			array(
-				'action'  => Scheduled_Updates_Logs::PLUGIN_UPDATES_START,
-				'message' => 'Starting plugin updates.',
+				'plugins'  => $plugins,
+				'schedule' => $base_schedule,
 			)
 		);
+
 		$result = rest_do_request( $request );
+		$data   = $result->get_data();
 
 		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( $schedule_id, $result->get_data() );
 
-		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/' . $schedule_id . '/logs' );
+		// Count here should be 2 despite the fact that the schedule is deleted and added.
+		$this->assertSame( 2, self::get_sync_counter() );
+
+		// Read again.
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/' . $schedule_id );
+		$result  = rest_do_request( $request );
+		$data    = $result->get_data();
+
+		$this->assertSame( $base_schedule['timestamp'], $data['timestamp'] );
+		// No sync during read.
+		$this->assertSame( 2, self::get_sync_counter() );
+
+		// Delete.
+		$request = new WP_REST_Request( 'DELETE', '/wpcom/v2/update-schedules/' . $schedule_id );
 		$result  = rest_do_request( $request );
 
-		$this->assertSame( 200, $result->get_status() );
-		$this->assertCount( 1, $result->get_data() );
-		$this->assertSame( Scheduled_Updates_Logs::PLUGIN_UPDATES_START, $result->get_data()[0][0]['action'] );
+		$this->assertTrue( $result->get_data() );
+		// One sync during delete.
+		$this->assertSame( 3, self::get_sync_counter() );
+		$this->assertSame( 2, self::$scheduled_counter );
+		$this->assertSame( 3, self::$transients_added );
 	}
 
 	/**
-	 * Test adding multiple runs and retrieving them
+	 * A staging environment must be blocked.
 	 *
-	 * @covers ::add_log
-	 * @covers ::get_logs
+	 * @covers ::create_item
+	 * @covers ::update_item
+	 * @covers ::delete_item
 	 */
-	public function test_add_and_get_multiple_logs() {
+	public function test_crud_should_be_blocked_on_staging() {
+		update_option( 'wpcom_is_staging_site', true );
 		wp_set_current_user( $this->admin_id );
 
-		$schedule_id = $this->create_test_schedule();
+		$plugins     = array(
+			'custom-plugin/custom-plugin.php',
+			'gutenberg/gutenberg.php',
+		);
+		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
+		$request     = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$request->set_body_params(
+			array(
+				'plugins'  => $plugins,
+				'schedule' => $this->get_schedule(),
+			)
+		);
 
-		// Simulate 5 runs
-		for ( $i = 0;$i < 5;$i++ ) {
-			$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . $schedule_id . '/logs' );
-			$request->set_body_params(
-				array(
-					'action'  => Scheduled_Updates_Logs::PLUGIN_UPDATES_START,
-					'message' => 'Starting plugin updates.',
-				)
-			);
-			$result = rest_do_request( $request );
-			$this->assertSame( 200, $result->get_status() );
+		// Create.
+		$result = rest_do_request( $request );
+		$this->assertSame( 403, $result->get_status() );
 
-			$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . $schedule_id . '/logs' );
-			$request->set_body_params(
-				array(
-					'action'  => Scheduled_Updates_Logs::PLUGIN_UPDATES_SUCCESS,
-					'message' => 'Ending plugin updates.',
-				)
-			);
-			$result = rest_do_request( $request );
-			$this->assertSame( 200, $result->get_status() );
+		// Update.
+		$request->set_method( 'PUT' );
+		$request->set_route( '/wpcom/v2/update-schedules/' . $schedule_id );
+		$result = rest_do_request( $request );
+		$this->assertSame( 403, $result->get_status() );
+
+		// Delete.
+		$request->set_method( 'DELETE' );
+		$request->set_route( '/wpcom/v2/update-schedules/' . $schedule_id );
+		$result = rest_do_request( $request );
+		$this->assertSame( 403, $result->get_status() );
+
+		delete_option( 'wpcom_is_staging_site' );
+	}
+
+	/**
+	 * A callback run when an option is added.
+	 *
+	 * @param string $option Name of the added option.
+	 */
+	public static function sync_add_callback( $option ) {
+		self::add_sync_count( 'add_' . $option );
+	}
+
+	/**
+	 * A callback run when an option is updated.
+	 *
+	 * @param string $option Name of the updated option.
+	 */
+	public static function sync_update_callback( $option ) {
+		self::add_sync_count( 'update_' . $option );
+	}
+
+	/**
+	 * Add to the sync counter.
+	 *
+	 * @param string $name Name of the sync counter.
+	 */
+	public static function add_sync_count( $name ) {
+		if ( ! array_key_exists( $name, self::$sync_counters ) ) {
+			self::$sync_counters[ $name ] = 0;
 		}
 
-		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/' . $schedule_id . '/logs' );
-		$result  = rest_do_request( $request );
-
-		$this->assertSame( 200, $result->get_status() );
-		$this->assertCount( Scheduled_Updates_Logs::MAX_RUNS_PER_SCHEDULE, $result->get_data() );
-		$this->assertSame( Scheduled_Updates_Logs::PLUGIN_UPDATES_START, $result->get_data()[0][0]['action'] );
+		++self::$sync_counters[ $name ];
 	}
 
 	/**
-	 * Test adding a log when unauthorized
-	 *
-	 * @covers ::add_log
+	 * Get the sync counter.
 	 */
-	public function test_add_log_unauthorized() {
-		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . Scheduled_Updates::generate_schedule_id( array() ) . '/logs' );
-		$request->set_body_params(
-			array(
-				'action'  => Scheduled_Updates_Logs::PLUGIN_UPDATES_START,
-				'message' => 'Starting plugin updates.',
-			)
-		);
-		$result = rest_do_request( $request );
-		$this->assertSame( 401, $result->get_status() );
+	public static function get_sync_counter() {
+		$added   = self::$sync_counters[ 'add_' . Scheduled_Updates::PLUGIN_CRON_HOOK ] ?? 0;
+		$updated = self::$sync_counters[ 'update_' . Scheduled_Updates::PLUGIN_CRON_HOOK ] ?? 0;
+
+		return $added + $updated;
 	}
 
 	/**
-	 * Create schedule
-	 *
-	 * @param int $i Schedule index.
+	 * Callback of pre_schedule_event filter.
 	 */
-	private function create_test_schedule( $i = 0 ) {
-		$request           = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
-		$scheduled_plugins = array( 'test/test' . $i . '.php' );
-		$request->set_body_params(
-			array(
-				'plugins'  => $scheduled_plugins,
-				'schedule' => array(
-					'timestamp' => strtotime( "next Monday {$i}:00" ),
-					'interval'  => 'weekly',
-				),
-			)
-		);
+	public static function pre_schedule_callback() {
+		++self::$scheduled_counter;
 
-		$result = rest_do_request( $request );
-		return $result->get_data();
+		return null;
+	}
+
+	/**
+	 * Callback of pre_set_transient filter.
+	 */
+	public static function pre_set_transient_callback() {
+		++self::$transients_added;
+	}
+
+	/**
+	 * Get a schedule.
+	 *
+	 * @param string $timestamp Schedule timestamp.
+	 * @param string $interval Schedule interval.
+	 * @param array  $health_check_paths Health check paths.
+	 * @return array
+	 */
+	private function get_schedule( $timestamp = 'next Monday 8:00', $interval = 'weekly', $health_check_paths = array() ) {
+		return array(
+			'timestamp'          => strtotime( $timestamp ),
+			'interval'           => $interval,
+			'health_check_paths' => $health_check_paths,
+		);
 	}
 }

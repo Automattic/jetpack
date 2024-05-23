@@ -13,10 +13,9 @@ import {
 	useBreakpointMatch,
 	ActionButton,
 } from '@automattic/jetpack-components';
-import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
-import { useContext, useLayoutEffect, useState } from 'react';
+import { useContext, useEffect, useLayoutEffect, useState } from 'react';
 /*
  * Internal dependencies
  */
@@ -43,11 +42,19 @@ import StatsSection from '../stats-section';
 import WelcomeBanner from '../welcome-banner';
 import styles from './styles.module.scss';
 
-const GlobalNotice = ( { message, options } ) => {
+const GlobalNotice = ( { message, title, options } ) => {
+	const { recordEvent } = useAnalytics();
+
+	useEffect( () => {
+		recordEvent( 'jetpack_myjetpack_global_notice_view', {
+			noticeId: options.id,
+		} );
+	}, [ options.id, recordEvent ] );
+
 	const [ isBiggerThanMedium ] = useBreakpointMatch( [ 'md' ], [ '>' ] );
 
 	const actionButtons = options.actions?.map( action => {
-		return <ActionButton styles={ styles.cta } { ...action } />;
+		return <ActionButton customClass={ styles.cta } { ...action } />;
 	} );
 
 	return (
@@ -56,7 +63,7 @@ const GlobalNotice = ( { message, options } ) => {
 				[ styles[ 'bigger-than-medium' ] ]: isBiggerThanMedium,
 			} ) }
 		>
-			<Notice hideCloseButton={ true } { ...options } actions={ actionButtons }>
+			<Notice hideCloseButton={ true } { ...options } title={ title } actions={ actionButtons }>
 				<div className={ styles.message }>{ message }</div>
 			</Notice>
 		</div>
@@ -76,8 +83,11 @@ export default function MyJetpackScreen() {
 
 	const { isWelcomeBannerVisible } = useWelcomeBanner();
 	const { currentNotice } = useContext( NoticeContext );
-	const { message, options } = currentNotice || {};
-	const { hasConnectionError } = useConnectionErrorNotice();
+	const {
+		message: noticeMessage,
+		title: noticeTitle,
+		options: noticeOptions,
+	} = currentNotice || {};
 	const { data: availabilityData, isLoading: isChatAvailabilityLoading } = useSimpleQuery( {
 		name: QUERY_CHAT_AVAILABILITY_KEY,
 		query: { path: REST_API_CHAT_AVAILABILITY_ENDPOINT },
@@ -130,19 +140,22 @@ export default function MyJetpackScreen() {
 					</Container>
 				) }
 				<WelcomeBanner />
-				<Container horizontalSpacing={ 5 } horizontalGap={ message ? 3 : 6 }>
+				<Container horizontalSpacing={ 5 } horizontalGap={ noticeMessage ? 3 : 6 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>
 						<Text variant="headline-small">
 							{ __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' ) }
 						</Text>
 					</Col>
-					{ hasConnectionError && ! isWelcomeBannerVisible && (
+					{ noticeMessage && ! isWelcomeBannerVisible && (
 						<Col>
-							<ConnectionError />
+							{
+								<GlobalNotice
+									message={ noticeMessage }
+									title={ noticeTitle }
+									options={ noticeOptions }
+								/>
+							}
 						</Col>
-					) }
-					{ message && ! isWelcomeBannerVisible && (
-						<Col>{ <GlobalNotice message={ message } options={ options } /> }</Col>
 					) }
 					{ showFullJetpackStatsCard && (
 						<Col

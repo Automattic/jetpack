@@ -111,11 +111,13 @@ class WC_Services_Installer {
 	 * Notify the user that the installation of WooCommerce Services failed.
 	 */
 	public function error_notice() {
-		?>
-		<div class="notice notice-error is-dismissible">
-			<p><?php esc_html_e( 'There was an error installing WooCommerce Services.', 'jetpack' ); ?></p>
-		</div>
-		<?php
+		wp_admin_notice(
+			esc_html__( 'There was an error installing WooCommerce Services.', 'jetpack' ),
+			array(
+				'type'        => 'error',
+				'dismissible' => true,
+			)
+		);
 	}
 
 	/**

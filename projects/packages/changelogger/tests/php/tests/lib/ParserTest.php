@@ -26,7 +26,6 @@ class ParserTest extends TestCase {
 	 * @return Parser&\PHPUnit\Framework\MockObject\MockObject
 	 */
 	private function getMockParser() {
-		// @phan-suppress-next-line PhanTypeMismatchReturnSuperType -- It's correct, but PHPUnit 9.6 only declares `@psalm-template` and not `@template` and such so Phan can't know the right types.
 		return $this->getMockBuilder( Parser::class )->getMockForAbstractClass();
 	}
 
@@ -58,7 +57,7 @@ class ParserTest extends TestCase {
 		$mock      = $this->getMockParser();
 		$changelog = new Changelog();
 		$mock->method( 'format' )
-			->with( $this->identicalTo( $changelog ) ) // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- PHPUnit 9.6 declares the wrong type for this method.
+			->with( $this->identicalTo( $changelog ) )
 			->willReturn( 'Formatted?' );
 
 		$temp = tempnam( sys_get_temp_dir(), 'phpunit-testFormatToFile-' );

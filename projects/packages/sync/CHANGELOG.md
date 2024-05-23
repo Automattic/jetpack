@@ -5,6 +5,66 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.16.5] - 2024-05-22
+### Changed
+- Internal updates.
+
+## [2.16.4] - 2024-05-20
+### Changed
+- Replaced heredoc syntax with strings. [#37396]
+
+## [2.16.3] - 2024-05-16
+### Fixed
+- Jetpack Sync: Fixed undefined array key Warnings in HPOS orders module [#37401]
+
+## [2.16.2] - 2024-05-14
+### Fixed
+- Fix phpdoc type on `Replicastore_Interface::get_term()` `$taxonomy` arg. [#37344]
+- Jetpack Sync: Ensure 'jetpack_sync_callable_whitelist' filter is respected when added late [#37370]
+
+## [2.16.1] - 2024-05-09
+### Changed
+- Internal updates.
+
+## [2.16.0] - 2024-05-08
+### Added
+- Options: sync WordAds inline ads toggle option [#37170]
+
+## [2.15.1] - 2024-05-06
+### Fixed
+- Reimplement `Replicastore::get_user()` to not try to call a nonexistent method. [#37201]
+- Sync:Disable jetpack_sync_queue custom table in case feature is enabled, but table does not exist in the DB. [#37108]
+
+## [2.15.0] - 2024-04-30
+### Added
+- Add Woocommerce event remove_order_items to Jetpack Sync [#33748]
+
+### Fixed
+- Jetpack Sync: Prevent enqueueing invalid Woo HPOS order data [#37111]
+
+## [2.14.0] - 2024-04-29
+### Added
+- Newsletters: Add reply to behaviour setting [#37011]
+
+### Changed
+- Sync: When publishing post, sending the actual post in the jetpack_published_post action to avoid sending unnecessary extra action. [#37071]
+
+## [2.13.1] - 2024-04-25
+### Changed
+- Update dependencies.
+
+## [2.13.0] - 2024-04-22
+### Changed
+- Added scheduled updates sync option. [#36877]
+
+## [2.12.0] - 2024-04-15
+### Added
+- Add Scheduled Update Plugins option to synched options. [#36849]
+
+## [2.11.1] - 2024-04-11
+### Changed
+- Internal updates.
+
 ## [2.11.0] - 2024-04-08
 ### Added
 - Added social_notes_config option to sync. [#36671]
@@ -1096,6 +1156,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[2.16.5]: https://github.com/Automattic/jetpack-sync/compare/v2.16.4...v2.16.5
+[2.16.4]: https://github.com/Automattic/jetpack-sync/compare/v2.16.3...v2.16.4
+[2.16.3]: https://github.com/Automattic/jetpack-sync/compare/v2.16.2...v2.16.3
+[2.16.2]: https://github.com/Automattic/jetpack-sync/compare/v2.16.1...v2.16.2
+[2.16.1]: https://github.com/Automattic/jetpack-sync/compare/v2.16.0...v2.16.1
+[2.16.0]: https://github.com/Automattic/jetpack-sync/compare/v2.15.1...v2.16.0
+[2.15.1]: https://github.com/Automattic/jetpack-sync/compare/v2.15.0...v2.15.1
+[2.15.0]: https://github.com/Automattic/jetpack-sync/compare/v2.14.0...v2.15.0
+[2.14.0]: https://github.com/Automattic/jetpack-sync/compare/v2.13.1...v2.14.0
+[2.13.1]: https://github.com/Automattic/jetpack-sync/compare/v2.13.0...v2.13.1
+[2.13.0]: https://github.com/Automattic/jetpack-sync/compare/v2.12.0...v2.13.0
+[2.12.0]: https://github.com/Automattic/jetpack-sync/compare/v2.11.1...v2.12.0
+[2.11.1]: https://github.com/Automattic/jetpack-sync/compare/v2.11.0...v2.11.1
 [2.11.0]: https://github.com/Automattic/jetpack-sync/compare/v2.10.5...v2.11.0
 [2.10.5]: https://github.com/Automattic/jetpack-sync/compare/v2.10.4...v2.10.5
 [2.10.4]: https://github.com/Automattic/jetpack-sync/compare/v2.10.3...v2.10.4

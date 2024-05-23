@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-WordPress.com Toolbar: avoid Fatal errors when using other menu management plugins and the WordPress.com Toolbar feature.

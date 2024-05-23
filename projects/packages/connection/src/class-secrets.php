@@ -158,6 +158,7 @@ class Secrets {
 		 */
 		do_action( 'jetpack_verify_secrets_begin', $action, $user );
 
+		/** Closure to run the 'fail' action and return an error. */
 		$return_error = function ( WP_Error $error ) use ( $action, $user ) {
 			/**
 			 * Verifying of the previously generated secret has failed.

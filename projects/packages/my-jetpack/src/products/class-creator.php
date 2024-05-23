@@ -50,6 +50,13 @@ class Creator extends Product {
 	public static $requires_user_connection = false;
 
 	/**
+	 * Whether this product has a free offering
+	 *
+	 * @var bool
+	 */
+	public static $has_free_offering = true;
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string
@@ -316,7 +323,7 @@ class Creator extends Product {
 	 *
 	 * @return boolean
 	 */
-	public static function has_required_plan() {
+	public static function has_paid_plan_for_product() {
 		$purchases_data = Wpcom_Products::get_site_current_purchases();
 		if ( is_wp_error( $purchases_data ) ) {
 			return false;
@@ -338,7 +345,6 @@ class Creator extends Product {
 	 * @return boolean
 	 */
 	public static function is_upgradable() {
-		$has_required_plan = self::has_required_plan();
-		return ! $has_required_plan;
+		return ! self::has_paid_plan_for_product();
 	}
 }

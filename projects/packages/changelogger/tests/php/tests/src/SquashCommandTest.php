@@ -616,7 +616,6 @@ class SquashCommandTest extends CommandTestCase {
 		$command = $this->getMockBuilder( SquashCommand::class )
 			->setMethods( array( 'writeChangelog', 'deleteChanges' ) )
 			->getMock();
-		'@phan-var SquashCommand&\PHPUnit\Framework\MockObject\MockObject $command'; // PHPUnit 9.6 only declares `@psalm-template` and not `@template` and such so Phan can't know the right types.
 		$command->setApplication( $this->getCommand( 'squash' )->getApplication() );
 		$command->method( 'writeChangelog' )->willReturn( SquashCommand::FATAL_EXIT );
 		$command->expects( $this->never() )->method( 'deleteChanges' );

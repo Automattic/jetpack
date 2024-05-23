@@ -9,11 +9,11 @@ const MastodonPreview = props => {
 	const { message } = useSocialMediaMessage();
 	const { content, siteName } = useSelect( select => {
 		const { getEditedPostAttribute } = select( 'core/editor' );
-		const { getSite } = select( 'core' );
+		const { getUnstableBase } = select( 'core' );
 
 		return {
 			content: getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ],
-			siteName: decodeEntities( getSite().title ),
+			siteName: decodeEntities( getUnstableBase().name ),
 		};
 	} );
 	const { shouldUploadAttachedMedia: isSocialPost } = usePostMeta();

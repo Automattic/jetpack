@@ -8,7 +8,7 @@ import { __ } from '@wordpress/i18n';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
 import MinifyMeta from '$features/minify-meta/minify-meta';
-import { QualitySettings } from '$features/image-cdn';
+import { QualitySettings, ImageCdnLiar } from '$features/image-cdn';
 import styles from './index.module.scss';
 import { RecommendationsMeta } from '$features/image-size-analysis';
 import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
@@ -44,6 +44,9 @@ const Index = () => {
 	const showCacheEngineErrorNotice = useShowCacheEngineErrorNotice(
 		pageCacheSetup.isSuccess && !! pageCache?.active
 	);
+
+	const hasPremiumCdnFeatures =
+		premiumFeatures.includes( 'image-cdn-liar' ) && premiumFeatures.includes( 'image-cdn-quality' );
 
 	const [ removePageCacheNotice ] = useMutationNotice(
 		'page-cache-setup',
@@ -159,12 +162,7 @@ const Index = () => {
 			</Module>
 			<Module
 				slug="page_cache"
-				title={
-					<>
-						{ __( 'Cache Site Pages', 'jetpack-boost' ) }
-						<span className={ styles.beta }>Beta</span>
-					</>
-				}
+				title={ __( 'Cache Site Pages', 'jetpack-boost' ) }
 				onBeforeToggle={ status => {
 					setIsPageCacheSettingUp( status );
 					if ( status === false ) {
@@ -294,7 +292,12 @@ const Index = () => {
 			</Module>
 			<Module
 				slug="image_cdn"
-				title={ __( 'Image CDN', 'jetpack-boost' ) }
+				title={
+					<>
+						{ __( 'Image CDN', 'jetpack-boost' ) }
+						{ hasPremiumCdnFeatures && <Upgraded /> }
+					</>
+				}
 				description={
 					<p>
 						{ __(
@@ -304,6 +307,15 @@ const Index = () => {
 					</p>
 				}
 			>
+				{ ! hasPremiumCdnFeatures && (
+					<UpgradeCTA
+						description={ __(
+							'Auto-resize lazy images and adjust their quality.',
+							'jetpack-boost'
+						) }
+					/>
+				) }
+				<ImageCdnLiar isPremium={ premiumFeatures.includes( 'image-cdn-liar' ) } />
 				<QualitySettings isPremium={ premiumFeatures.includes( 'image-cdn-quality' ) } />
 			</Module>
 

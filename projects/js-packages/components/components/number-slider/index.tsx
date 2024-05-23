@@ -47,7 +47,13 @@ const NumberSlider: React.FC< NumberSliderProps > = ( {
 	const renderThumbCallback = renderThumb
 		? renderThumb
 		: ( props, state ) => {
-				return <div { ...props }>{ state.valueNow }</div>;
+				const { key, ...otherProps } = props;
+
+				return (
+					<div key={ key } { ...otherProps }>
+						{ state.valueNow }
+					</div>
+				);
 		  };
 
 	return (

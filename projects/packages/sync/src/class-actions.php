@@ -589,6 +589,7 @@ class Actions {
 
 		// Don't start new sync if a full sync is in process.
 		$full_sync_module = Modules::get_module( 'full-sync' );
+		'@phan-var Modules\Full_Sync_Immediately|Modules\Full_Sync $full_sync_module';
 		if ( $full_sync_module && $full_sync_module->is_started() && ! $full_sync_module->is_finished() ) {
 			return false;
 		}
@@ -611,6 +612,7 @@ class Actions {
 	 */
 	public static function do_only_first_initial_sync() {
 		$full_sync_module = Modules::get_module( 'full-sync' );
+		'@phan-var Modules\Full_Sync_Immediately|Modules\Full_Sync $full_sync_module';
 		if ( $full_sync_module && $full_sync_module->is_started() ) {
 			return false;
 		}
@@ -633,6 +635,7 @@ class Actions {
 		}
 
 		$full_sync_module = Modules::get_module( 'full-sync' );
+		'@phan-var Modules\Full_Sync_Immediately|Modules\Full_Sync $full_sync_module';
 
 		if ( ! $full_sync_module ) {
 			return false;
@@ -1041,7 +1044,8 @@ class Actions {
 		self::initialize_sender();
 
 		$sync_module = Modules::get_module( 'full-sync' );
-		$queue       = self::$sender->get_sync_queue();
+		'@phan-var Modules\Full_Sync_Immediately|Modules\Full_Sync $sync_module';
+		$queue = self::$sender->get_sync_queue();
 
 		// _get_cron_array can be false
 		$cron_timestamps = ( _get_cron_array() ) ? array_keys( _get_cron_array() ) : array();
@@ -1091,7 +1095,7 @@ class Actions {
 		);
 
 		// Verify $sync_module is not false.
-		if ( ( $sync_module ) && ! str_contains( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
+		if ( $sync_module && ! $sync_module instanceof Modules\Full_Sync_Immediately ) {
 			$result['full_queue_size'] = $full_queue->size();
 			$result['full_queue_lag']  = $full_queue->lag();
 		}

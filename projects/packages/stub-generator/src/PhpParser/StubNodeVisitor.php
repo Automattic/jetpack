@@ -12,6 +12,8 @@ namespace Automattic\Jetpack\StubGenerator\PhpParser;
 @phan-type Definitions = array{constant:'*'|string[],function:'*'|string[],class:ClassDefs,interface:ClassDefs,trait:ClassDefs}
 PHAN;
 
+use PhpParser\BuilderFactory;
+use PhpParser\Comment\Doc as DocComment;
 use PhpParser\Node;
 use PhpParser\Node\Expr\BinaryOp\Concat as BinaryOp_Concat;
 use PhpParser\Node\Expr\FuncCall;
@@ -27,7 +29,10 @@ use PhpParser\Node\Stmt\Function_;
 use PhpParser\Node\Stmt\Interface_;
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Property;
+use PhpParser\Node\Stmt\Return_;
 use PhpParser\Node\Stmt\Trait_;
+use PhpParser\NodeFinder;
+use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\PrettyPrinter\Standard as PrettyPrinter_Standard;
 use RuntimeException;
@@ -221,6 +226,8 @@ class StubNodeVisitor extends NodeVisitorAbstract {
 			if ( $this->defs['function'] === '*' || in_array( $node->namespacedName->toString(), $this->defs['function'], true ) ) {
 				// Ignore anything inside the function.
 				if ( $node->stmts ) {
+					$this->addFunctionReturnType( $node );
+					$this->mutateForFuncGetArgs( $node );
 					$node->stmts = array();
 				}
 				$this->debug( "Keeping function {$node->namespacedName}" );
@@ -287,6 +294,7 @@ class StubNodeVisitor extends NodeVisitorAbstract {
 			} elseif ( $defs === '*' || in_array( $node->name->toString(), $defs, true ) ) {
 				// Ignore anything inside the method.
 				if ( $node->stmts ) {
+					$this->mutateForFuncGetArgs( $node );
 					$node->stmts = array();
 				}
 				$this->debug( "Keeping method {$node->name}" );
@@ -370,12 +378,88 @@ class StubNodeVisitor extends NodeVisitorAbstract {
 		) {
 			$nsName = $this->getNamespaceName( $node );
 			if ( ! isset( $this->namespaces[ $nsName ] ) ) {
-				$ns = new Namespace_( $nsName === '' ? null : new Name( $nsName ) );
-				$ns->setAttribute( 'kind', Namespace_::KIND_BRACED );
-				$this->namespaces[ $nsName ] = $ns;
+				$this->namespaces[ $nsName ] = new Namespace_( $nsName === '' ? null : new Name( $nsName ) );
 			}
 			$this->namespaces[ $nsName ]->stmts[] = $node;
 
+		}
+	}
+
+	/**
+	 * Mutate a function/method's signature if it uses `func_get_args()`.
+	 *
+	 * @param Function_|ClassMethod $node Node.
+	 */
+	private function mutateForFuncGetArgs( Node $node ): void {
+		// First, see if the function already uses varargs.
+		foreach ( $node->getParams() as $param ) {
+			if ( $param->variadic ) {
+				return;
+			}
+		}
+
+		// See if the function contains a call to `func_get_args()`.
+		$call = ( new NodeFinder() )->findFirst(
+			$node->stmts,
+			function ( Node $n ) {
+				return $n instanceof FuncCall && $n->name instanceof Name && in_array( $n->name->toString(), array( 'func_get_args', 'func_get_arg', 'func_num_args' ), true );
+			}
+		);
+
+		if ( $call !== null ) {
+			$node->params[] = ( new BuilderFactory() )->param( 'func_get_args' )->makeVariadic()->getNode();
+		}
+	}
+
+	/**
+	 * Add function return type.
+	 *
+	 * If a function stub has no declared return type and no phpdoc, Phan seems
+	 * to assume "void". If there are any non-empty `return` statements in the
+	 * function body, document it as "mixed" so Phan won't give bogus PhanTypeVoidAssignment
+	 * and the like.
+	 *
+	 * This doesn't seem to apply to methods though. 🤷
+	 *
+	 * @param Function_ $node Node.
+	 */
+	private function addFunctionReturnType( Function_ $node ): void {
+		// First, see if the function already has a return type, either declared or phpdoc.
+		if ( $node->getReturnType() !== null ||
+			preg_match( '/@(phan-|phan-real-)?return /', (string) $node->getDocComment() )
+		) {
+			return;
+		}
+
+		$visitor   = new class() extends NodeVisitorAbstract {
+			/**
+			 * Whether a return was found.
+			 *
+			 * @var bool
+			 */
+			public $found = false;
+
+			// phpcs:ignore Squiz.Commenting.FunctionComment.Missing -- Inherited.
+			public function enterNode( Node $n ) {
+				if ( $n instanceof Return_ && $n->expr ) {
+					$this->found = true;
+					return self::STOP_TRAVERSAL;
+				}
+
+				if ( $n instanceof \PhpParser\Node\Expr\Closure || $n instanceof ClassMethod || $n instanceof Function_ ) {
+					return self::DONT_TRAVERSE_CHILDREN;
+				}
+
+				return null;
+			}
+		};
+		$traverser = new NodeTraverser( $visitor );
+		$traverser->traverse( $node->stmts );
+
+		if ( $visitor->found ) {
+			$docComment = $node->getDocComment() ? $node->getDocComment()->getText() : '/** */';
+			$docComment = rtrim( substr( $docComment, 0, -2 ), " \t" ) . "\n * @phan-return mixed Dummy doc for stub.\n */";
+			$node->setDocComment( new DocComment( $docComment ) );
 		}
 	}
 }

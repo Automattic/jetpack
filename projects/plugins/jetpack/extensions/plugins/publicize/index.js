@@ -45,13 +45,15 @@ const PublicizeSettings = () => {
 		);
 	} else {
 		children = (
-			<PublicizePanel>
-				<UpsellNotice />
-			</PublicizePanel>
+			<>
+				<PublicizePanel>
+					<UpsellNotice />
+				</PublicizePanel>
+				{ isSocialImageGeneratorAvailable && <SocialImageGeneratorPanel /> }
+			</>
 		);
 		panels = (
 			<>
-				{ isSocialImageGeneratorAvailable && <SocialImageGeneratorPanel /> }
 				<PrePublishPanels isSocialImageGeneratorAvailable={ isSocialImageGeneratorAvailable } />
 				<PostPublishPanels />
 			</>

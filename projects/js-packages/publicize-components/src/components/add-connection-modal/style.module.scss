@@ -1,0 +1,17 @@
+.modal.modal {
+	width: 65rem;
+}
+
+.connect-form {
+	display: grid;
+	gap: 0.5rem;
+
+	&>input {
+		height: 100%;
+		width: 18rem;
+	}
+
+	&:not(.small) {
+		grid-auto-flow: column;
+	}
+}

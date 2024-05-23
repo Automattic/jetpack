@@ -3,17 +3,18 @@
  */
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
 import askQuestion from '../../ask-question/index.js';
 import {
+	ERROR_CONTEXT_TOO_LARGE,
 	ERROR_MODERATION,
 	ERROR_NETWORK,
 	ERROR_QUOTA_EXCEEDED,
 	ERROR_SERVICE_UNAVAILABLE,
 	ERROR_UNCLEAR_PROMPT,
+	ERROR_RESPONSE,
 } from '../../types.js';
 /**
  * Types & constants
@@ -57,6 +58,11 @@ type useAiSuggestionsOptions = {
 	askQuestionOptions?: AskQuestionOptionsArgProps;
 
 	/*
+	 * Initial requesting state.
+	 */
+	initialRequestingState?: RequestingStateProp;
+
+	/*
 	 * onSuggestion callback.
 	 */
 	onSuggestion?: ( suggestion: string ) => void;
@@ -67,9 +73,19 @@ type useAiSuggestionsOptions = {
 	onDone?: ( content: string ) => void;
 
 	/*
+	 * onStop callback.
+	 */
+	onStop?: () => void;
+
+	/*
 	 * onError callback.
 	 */
 	onError?: ( error: RequestingErrorProps ) => void;
+
+	/*
+	 * Error callback common for all errors.
+	 */
+	onAllErrors?: ( error: RequestingErrorProps ) => void;
 };
 
 type useAiSuggestionsProps = {
@@ -107,9 +123,12 @@ type useAiSuggestionsProps = {
 	 * The handler to stop a suggestion.
 	 */
 	stopSuggestion: () => void;
-};
 
-const debug = debugFactory( 'jetpack-ai-client:use-suggestion' );
+	/*
+	 * The handler to handle the quota exceeded error.
+	 */
+	handleErrorQuotaExceededError: () => void;
+};
 
 /**
  * Get the error data for a given error code.
@@ -149,6 +168,15 @@ export function getErrorData( errorCode: SuggestionErrorCode ): RequestingErrorP
 				),
 				severity: 'info',
 			};
+		case ERROR_CONTEXT_TOO_LARGE:
+			return {
+				code: ERROR_CONTEXT_TOO_LARGE,
+				message: __(
+					'The content is too large to be processed all at once. Please try to shorten it or divide it into smaller parts.',
+					'jetpack-ai-client'
+				),
+				severity: 'info',
+			};
 		case ERROR_NETWORK:
 		default:
 			return {
@@ -173,11 +201,15 @@ export default function useAiSuggestions( {
 	prompt,
 	autoRequest = false,
 	askQuestionOptions = {},
+	initialRequestingState = 'init',
 	onSuggestion,
 	onDone,
+	onStop,
 	onError,
+	onAllErrors,
 }: useAiSuggestionsOptions = {} ): useAiSuggestionsProps {
-	const [ requestingState, setRequestingState ] = useState< RequestingStateProp >( 'init' );
+	const [ requestingState, setRequestingState ] =
+		useState< RequestingStateProp >( initialRequestingState );
 	const [ suggestion, setSuggestion ] = useState< string >( '' );
 	const [ error, setError ] = useState< RequestingErrorProps >();
 
@@ -206,10 +238,18 @@ export default function useAiSuggestions( {
 	 */
 	const handleDone = useCallback(
 		( event: CustomEvent ) => {
+			closeEventSource();
 			onDone?.( event?.detail );
 			setRequestingState( 'done' );
 		},
 		[ onDone ]
+	);
+
+	const handleAnyError = useCallback(
+		( event: CustomEvent ) => {
+			onAllErrors?.( event?.detail );
+		},
+		[ onAllErrors ]
 	);
 
 	const handleError = useCallback(
@@ -250,43 +290,34 @@ export default function useAiSuggestions( {
 			promptArg: PromptProp,
 			options: AskQuestionOptionsArgProps = { ...askQuestionOptions }
 		) => {
-			if ( Array.isArray( promptArg ) && promptArg?.length ) {
-				promptArg.forEach( ( { role, content: promptContent }, i ) =>
-					debug( '(%s/%s) %o\n%s', i + 1, promptArg.length, `[${ role }]`, promptContent )
-				);
-			} else {
-				debug( '%o', promptArg );
-			}
+			// Clear any error.
+			setError( undefined );
 
 			// Set the request status.
 			setRequestingState( 'requesting' );
 
-			try {
-				eventSourceRef.current = await askQuestion( promptArg, options );
+			eventSourceRef.current = await askQuestion( promptArg, options );
 
-				if ( ! eventSourceRef?.current ) {
-					return;
-				}
-
-				// Alias
-				const eventSource = eventSourceRef.current;
-
-				// Set the request status.
-				setRequestingState( 'suggesting' );
-
-				eventSource.addEventListener( 'suggestion', handleSuggestion );
-
-				eventSource.addEventListener( ERROR_QUOTA_EXCEEDED, handleErrorQuotaExceededError );
-				eventSource.addEventListener( ERROR_UNCLEAR_PROMPT, handleUnclearPromptError );
-				eventSource.addEventListener( ERROR_SERVICE_UNAVAILABLE, handleServiceUnavailableError );
-				eventSource.addEventListener( ERROR_MODERATION, handleModerationError );
-				eventSource.addEventListener( ERROR_NETWORK, handleNetworkError );
-
-				eventSource.addEventListener( 'done', handleDone );
-			} catch ( e ) {
-				// eslint-disable-next-line no-console
-				console.error( e );
+			if ( ! eventSourceRef?.current ) {
+				return;
 			}
+
+			// Alias
+			const eventSource = eventSourceRef.current;
+
+			// Set the request status.
+			setRequestingState( 'suggesting' );
+
+			eventSource.addEventListener( 'suggestion', handleSuggestion );
+
+			eventSource.addEventListener( ERROR_QUOTA_EXCEEDED, handleErrorQuotaExceededError );
+			eventSource.addEventListener( ERROR_UNCLEAR_PROMPT, handleUnclearPromptError );
+			eventSource.addEventListener( ERROR_SERVICE_UNAVAILABLE, handleServiceUnavailableError );
+			eventSource.addEventListener( ERROR_MODERATION, handleModerationError );
+			eventSource.addEventListener( ERROR_NETWORK, handleNetworkError );
+			eventSource.addEventListener( ERROR_RESPONSE, handleAnyError );
+
+			eventSource.addEventListener( 'done', handleDone );
 		},
 		[
 			handleDone,
@@ -311,11 +342,11 @@ export default function useAiSuggestions( {
 	}, [] );
 
 	/**
-	 * Stop suggestion handler.
+	 * Close the event source connection.
 	 *
 	 * @returns {void}
 	 */
-	const stopSuggestion = useCallback( () => {
+	const closeEventSource = useCallback( () => {
 		if ( ! eventSourceRef?.current ) {
 			return;
 		}
@@ -336,9 +367,6 @@ export default function useAiSuggestions( {
 		eventSource.removeEventListener( ERROR_NETWORK, handleNetworkError );
 
 		eventSource.removeEventListener( 'done', handleDone );
-
-		// Set requesting state to done since the suggestion stopped.
-		setRequestingState( 'done' );
 	}, [
 		eventSourceRef,
 		handleSuggestion,
@@ -349,6 +377,17 @@ export default function useAiSuggestions( {
 		handleNetworkError,
 		handleDone,
 	] );
+
+	/**
+	 * Stop suggestion handler.
+	 *
+	 * @returns {void}
+	 */
+	const stopSuggestion = useCallback( () => {
+		closeEventSource();
+		onStop?.();
+		setRequestingState( 'done' );
+	}, [ onStop ] );
 
 	// Request suggestions automatically when ready.
 	useEffect( () => {
@@ -378,6 +417,9 @@ export default function useAiSuggestions( {
 		request,
 		stopSuggestion,
 		reset,
+
+		// Error handlers
+		handleErrorQuotaExceededError,
 
 		// SuggestionsEventSource
 		eventSource: eventSourceRef.current,

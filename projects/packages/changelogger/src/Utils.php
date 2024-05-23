@@ -171,6 +171,10 @@ class Utils {
 				// Timestamp.
 				if ( isset( $cmd_output[0] ) && preg_match( '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/', $cmd_output[0] ) ) {
 					$repo_data['timestamp'] = $cmd_output[0];
+					// Normalize UTC
+					if ( substr( $repo_data['timestamp'], -6 ) === '+00:00' ) {
+						$repo_data['timestamp'] = substr( $repo_data['timestamp'], 0, -6 ) . 'Z';
+					}
 				}
 
 				// PR number.

@@ -43,6 +43,12 @@ const socialWebpackConfig = {
 		} ),
 	},
 };
+const postcssLoader = {
+	loader: 'postcss-loader',
+	options: {
+		postcssOptions: { config: path.join( __dirname, 'postcss.config.js' ) },
+	},
+};
 
 module.exports = [
 	{
@@ -57,15 +63,7 @@ module.exports = [
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {
 					extensions: [ 'css', 'sass', 'scss' ],
-					extraLoaders: [
-						{
-							loader: 'postcss-loader',
-							options: {
-								postcssOptions: { config: path.join( __dirname, 'postcss.config.js' ) },
-							},
-						},
-						'sass-loader',
-					],
+					extraLoaders: [ postcssLoader, 'sass-loader' ],
 				} ),
 			],
 		},
@@ -82,22 +80,7 @@ module.exports = [
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {
 					extensions: [ 'css', 'sass', 'scss' ],
-					extraLoaders: [
-						{
-							loader: 'postcss-loader',
-							options: {
-								postcssOptions: {
-									plugins: [
-										require( 'postcss-custom-properties' )( {
-											disableDeprecationNotice: true,
-										} ),
-										require( 'autoprefixer' ),
-									],
-								},
-							},
-						},
-						'sass-loader',
-					],
+					extraLoaders: [ postcssLoader, 'sass-loader' ],
 				} ),
 			],
 		},

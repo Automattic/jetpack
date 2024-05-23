@@ -1,5 +1,20 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
+const glob = require( 'glob' );
+
+const ssoEntries = {};
+// Add all js files in the src/sso directory.
+for ( const file of glob.sync( './src/sso/*.js' ) ) {
+	const name = path.basename( file, path.extname( file ) );
+	ssoEntries[ name ] ??= [];
+	ssoEntries[ name ].push( file );
+}
+// Add all css files as well.
+for ( const file of glob.sync( './src/sso/*.css' ) ) {
+	const name = path.basename( file, path.extname( file ) );
+	ssoEntries[ name ] ??= [];
+	ssoEntries[ name ].push( file );
+}
 
 module.exports = [
 	{
@@ -12,6 +27,7 @@ module.exports = [
 					type: 'window',
 				},
 			},
+			...ssoEntries,
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
@@ -26,12 +42,21 @@ module.exports = [
 			...jetpackWebpackConfig.resolve,
 		},
 		node: false,
-		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
+		plugins: [
+			...jetpackWebpackConfig.StandardPlugins( {
+				MiniCssExtractPlugin: { filename: '[name].css' },
+			} ),
+		],
 		module: {
 			strictExportPresence: true,
 			rules: [
 				// Transpile JavaScript, including node_modules.
 				jetpackWebpackConfig.TranspileRule(),
+
+				// Handle CSS.
+				jetpackWebpackConfig.CssRule( {
+					extensions: [ 'css' ],
+				} ),
 			],
 		},
 	},

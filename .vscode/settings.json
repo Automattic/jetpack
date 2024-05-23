@@ -1,4 +1,7 @@
 {
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": true,
+	},
 	"files.exclude": {
 		"**/.cache/**": true,
 		"**/.DS_Store/**": true,

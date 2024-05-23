@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 2,
+	"apiVersion": 3,
 	"name": "videopress/video",
 	"version": "0.1.0",
 	"title": "VideoPress",
@@ -125,7 +125,7 @@
 			"type": "number"
 		}
 	},
-	"textdomain": "jetpack-videopress",
+	"textdomain": "jetpack-videopress-pkg",
 	"editorScript": "file:./index.js",
 	"editorStyle": "file:./index.css",
 	"style": "file:./style.css",

@@ -343,7 +343,6 @@ class WordpressVersioningTest extends TestCase {
 		$out1 = $this->getMockBuilder( BufferedOutput::class )
 			->setMethods( array( 'getErrorOutput' ) )
 			->getMock();
-		'@phan-var BufferedOutput&\PHPUnit\Framework\MockObject\MockObject $out1'; // PHPUnit 9.6 only declares `@psalm-template` and not `@template` and such so Phan can't know the right types.
 		$out2 = new BufferedOutput();
 		$out1->method( 'getErrorOutput' )->willReturn( $out2 );
 

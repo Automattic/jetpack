@@ -20,11 +20,17 @@
  *   - exclude_file_list: (array) Individual files to exclude.
  *   - exclude_file_regex: (array) Additional regexes to exclude. Will be anchored at the start.
  *   - file_list: (array) Additional individual files to scan.
+ *   - globals_type_map: (array) Map of global name (no `$`) to Phan type. Class names should be prefixed with `\`.
  *   - parse_file_list: (array) Files to parse but not analyze. Equivalent to listing in both 'file_list' and 'exclude_analysis_directory_list'.
- *   - stubs: (array) Predefined stubs to load. Default is `array( 'wordpress', 'wp-cli', 'wpcom' )`.
+ *   - stubs: (array) Predefined stubs to load. Default is `array( 'wordpress', 'wp-cli' )`.
+ *      - akismet: Stubs from .phan/stubs/akismet-stubs.php.
+ *      - amp: Stubs from .phan/stubs/amp-stubs.php.
+ *      - full-site-editing: Stubs from .phan/stubs/full-site-editing-stubs.php.
+ *      - photon-opencv: Stubs from .phan/stubs/photon-opencv-stubs.php.
  *      - woocommerce: Stubs from php-stubs/woocommerce.
+ *      - woocommerce-internal: Stubs from .phan/stubs/woocommerce-internal-stubs.php.
  *      - woocommerce-packages: Stubs from php-stubs/woocommerce.
- *      - wordpress: Stubs from php-stubs/wordpress-stubs, php-stubs/wordpress-tests-stubs, php-stubs/wp-cli-stubs, and .phan/stubs/wordpress-constants.php.
+ *      - wordpress: Stubs from php-stubs/wordpress-stubs, php-stubs/wordpress-tests-stubs, php-stubs/wp-cli-stubs, .phan/stubs/wordpress-constants.php, and .phan/stubs/wordpress-globals.jsonc.
  *      - wp-cli: Stubs from php-stubs/wp-cli-stubs.
  *      - wpcom: Stubs from .phan/stubs/wpcom-stubs.php.
  *   - +stubs: (array) Like 'stubs', but setting this does not clear the defaults.
@@ -40,8 +46,9 @@ function make_phan_config( $dir, $options = array() ) {
 		'exclude_file_list'               => array(),
 		'exclude_file_regex'              => array(),
 		'file_list'                       => array(),
+		'globals_type_map'                => array(),
 		'parse_file_list'                 => array(),
-		'stubs'                           => array( 'wordpress', 'wp-cli', 'wpcom' ),
+		'stubs'                           => array( 'wordpress', 'wp-cli' ),
 		'+stubs'                          => array(),
 		'suppress_issue_types'            => array(),
 		'unsuppress_issue_types'          => array(),
@@ -49,19 +56,36 @@ function make_phan_config( $dir, $options = array() ) {
 
 	$root = dirname( __DIR__ );
 
-	$stubs = array();
+	$stubs        = array();
+	$global_stubs = array();
 	foreach ( array_merge( $options['stubs'], $options['+stubs'] ) as $stub ) {
 		switch ( $stub ) {
+			case 'akismet':
+				$stubs[] = "$root/.phan/stubs/akismet-stubs.php";
+				break;
+			case 'amp':
+				$stubs[] = "$root/.phan/stubs/amp-stubs.php";
+				break;
+			case 'full-site-editing':
+				$stubs[] = "$root/.phan/stubs/full-site-editing-stubs.php";
+				break;
+			case 'photon-opencv':
+				$stubs[] = "$root/.phan/stubs/photon-opencv-stubs.php";
+				break;
 			case 'woocommerce':
 				$stubs[] = "$root/vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php";
+				break;
+			case 'woocommerce-internal':
+				$stubs[] = "$root/.phan/stubs/woocommerce-internal-stubs.php";
 				break;
 			case 'woocommerce-packages':
 				$stubs[] = "$root/vendor/php-stubs/woocommerce-stubs/woocommerce-packages-stubs.php";
 				break;
 			case 'wordpress':
-				$stubs[] = "$root/vendor/php-stubs/wordpress-stubs/wordpress-stubs.php";
-				$stubs[] = "$root/vendor/php-stubs/wordpress-tests-stubs/wordpress-tests-stubs.php";
-				$stubs[] = "$root/.phan/stubs/wordpress-constants.php";
+				$stubs[]        = "$root/vendor/php-stubs/wordpress-stubs/wordpress-stubs.php";
+				$stubs[]        = "$root/vendor/php-stubs/wordpress-tests-stubs/wordpress-tests-stubs.php";
+				$stubs[]        = "$root/.phan/stubs/wordpress-constants.php";
+				$global_stubs[] = "$root/.phan/stubs/wordpress-globals.jsonc";
 				break;
 			case 'wp-cli':
 				$stubs[] = "$root/vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php";
@@ -74,6 +98,12 @@ function make_phan_config( $dir, $options = array() ) {
 			default:
 				throw new InvalidArgumentException( "Unknown stub '$stub'" );
 		}
+	}
+
+	$globals = array();
+	foreach ( $global_stubs as $file ) {
+		$contents = preg_replace( '#^\s*//.*$#m', '', file_get_contents( $file ) );
+		$globals  = array_merge( $globals, json_decode( $contents, true ) );
 	}
 
 	$config = array(
@@ -104,6 +134,12 @@ function make_phan_config( $dir, $options = array() ) {
 			// https://packagist.org/packages/mediawiki/phan-taint-check-plugin
 		),
 
+		// Override to hardcode existence and types of (non-builtin) globals in the global scope.
+		'globals_type_map'                => array_merge(
+			$globals,
+			$options['globals_type_map']
+		),
+
 		// Issues to disable globally.
 		'suppress_issue_types'            => array_merge(
 			array_diff(
@@ -124,6 +160,8 @@ function make_phan_config( $dir, $options = array() ) {
 			array(
 				// Otherwise it complains about the config files trying to call this function. 😀
 				__FILE__,
+				// Assume everything uses PHPUnit.
+				"$root/.phan/stubs/phpunit-stubs.php",
 			),
 			$stubs,
 			$options['file_list'],
@@ -142,15 +180,18 @@ function make_phan_config( $dir, $options = array() ) {
 					// Most of these are probably from our intra-monorepo symlinks.
 					'(?:jetpack_)?vendor/.*/(?:wordpress|(?:jetpack_)?vendor|node_modules)/',
 					// Yoast/phpunit-polyfills triggers a lot of PhanRedefinedXXX errors.
-					// Avoid that by excluding certain files.
-					'vendor/yoast/phpunit-polyfills/src/Polyfills/.*_Empty\.php',
-					'vendor/yoast/phpunit-polyfills/src/TestCases/TestCasePHPUnitGte8\.php',
+					// Avoid that by excluding the versions of the files for PHPUnit < 9.6
+					'vendor/yoast/phpunit-polyfills/src/Polyfills/(?!.*_Empty).*\.php',
+					'vendor/yoast/phpunit-polyfills/src/TestCases/TestCasePHPUnitLte7\.php',
 					// Other stuff to ignore.
 					'node_modules/',
 					'tests/e2e/node_modules/',
 					'wordpress/',
 					'\.cache/',
 				),
+				// PHPUnit 9.6 has some broken phpdocs and missing `@template` annotations. We provide corrected stubs.
+				// This file holds the vendor paths we stubbed.
+				explode( "\n", trim( (string) file_get_contents( "$root/.phan/stubs/phpunit-dirs.txt" ) ) ),
 				$options['exclude_file_regex']
 			)
 		) . ')@',

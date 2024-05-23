@@ -3,59 +3,87 @@
  */
 import { useImageGenerator } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Button, Spinner } from '@wordpress/components';
+import { Button, Tooltip } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { useCallback, useRef, useState, useEffect } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import { Icon, external } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
 import './style.scss';
+import UpgradePrompt from '../../../../blocks/ai-assistant/components/upgrade-prompt';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
-import {
-	PLAN_TYPE_FREE,
-	PLAN_TYPE_TIERED,
-	PLAN_TYPE_UNLIMITED,
-	usePlanType,
-} from '../../../../shared/use-plan-type';
+import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
+import { PLAN_TYPE_UNLIMITED, usePlanType } from '../../../../shared/use-plan-type';
 import usePostContent from '../../hooks/use-post-content';
 import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library';
+import {
+	PLACEMENT_JETPACK_SIDEBAR,
+	PLACEMENT_DOCUMENT_SETTINGS,
+} from '../ai-assistant-plugin-sidebar/types';
 import AiAssistantModal from '../modal';
+import Carrousel, { CarrouselImageData, CarrouselImages } from './carrousel';
 import UsageCounter from './usage-counter';
 
 const FEATURED_IMAGE_FEATURE_NAME = 'featured-post-image';
-const JETPACK_SIDEBAR_PLACEMENT = 'jetpack-sidebar';
+export const FEATURED_IMAGE_PLACEMENT_MEDIA_SOURCE_DROPDOWN = 'media-source-dropdown';
 
-export default function FeaturedImage( { busy, disabled }: { busy: boolean; disabled: boolean } ) {
+/**
+ * Control experimental image generation for the featured image.
+ */
+const AI_ASSISTANT_EXPERIMENTAL_IMAGE_GENERATION_SUPPORT =
+	'ai-assistant-experimental-image-generation-support';
+const isAiAssistantExperimentalImageGenerationSupportEnabled = getFeatureAvailability(
+	AI_ASSISTANT_EXPERIMENTAL_IMAGE_GENERATION_SUPPORT
+);
+
+export default function FeaturedImage( {
+	busy,
+	disabled,
+	placement,
+	onClose = () => {},
+}: {
+	busy: boolean;
+	disabled: boolean;
+	placement: string;
+	onClose?: () => void;
+} ) {
 	const { toggleEditorPanelOpened: toggleEditorPanelOpenedFromEditPost } =
 		useDispatch( 'core/edit-post' );
 	const { editPost, toggleEditorPanelOpened: toggleEditorPanelOpenedFromEditor } =
 		useDispatch( 'core/editor' );
+	const { clearSelectedBlock } = useDispatch( 'core/block-editor' );
+
+	const [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] = useState( false );
+	const [ images, setImages ] = useState< CarrouselImages >( [ { generating: true } ] );
+	const [ current, setCurrent ] = useState( 0 );
+	const pointer = useRef( 0 );
+	const [ userPrompt, setUserPrompt ] = useState( '' );
+	const triggeredAutoGeneration = useRef( false );
 
 	const { enableComplementaryArea } = useDispatch( 'core/interface' );
-	const [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] = useState( false );
-	const [ generating, setGenerating ] = useState( false );
-	const [ imageURL, setImageURL ] = useState( null );
-	const [ error, setError ] = useState( null );
-	const { generateImage } = useImageGenerator();
-	const { isLoading: isSavingToMediaLibrary, saveToMediaLibrary } = useSaveToMediaLibrary();
+	const { generateImage, generateImageWithStableDiffusion } = useImageGenerator();
+	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
 
+	const currentImage = images[ current ];
+	const currentPointer = images[ pointer.current ];
+
 	// Get feature data
 	const {
-		requestsCount: allTimeRequestsCount,
-		requestsLimit: freeRequestsLimit,
-		usagePeriod,
+		requireUpgrade,
+		requestsCount,
+		requestsLimit,
 		currentTier,
 		increaseRequestsCount,
 		costs,
 	} = useAiFeature();
 	const planType = usePlanType( currentTier );
-	const featuredImageCost = costs?.[ FEATURED_IMAGE_FEATURE_NAME ]?.image;
-	const requestsCount =
-		planType === PLAN_TYPE_TIERED ? usagePeriod?.requestsCount : allTimeRequestsCount;
-	const requestsLimit = planType === PLAN_TYPE_FREE ? freeRequestsLimit : currentTier?.limit;
+	const featuredImageCost = isAiAssistantExperimentalImageGenerationSupportEnabled
+		? costs?.[ FEATURED_IMAGE_FEATURE_NAME ]?.stableDiffusion ?? 1
+		: costs?.[ FEATURED_IMAGE_FEATURE_NAME ]?.image;
 	const isUnlimited = planType === PLAN_TYPE_UNLIMITED;
 	const requestsBalance = requestsLimit - requestsCount;
 	const notEnoughRequests = requestsBalance < featuredImageCost;
@@ -82,189 +110,365 @@ export default function FeaturedImage( { busy, disabled }: { busy: boolean; disa
 		increaseRequestsCount( featuredImageCost );
 	}, [ increaseRequestsCount, featuredImageCost ] );
 
+	/* Merge the image data with the new data. */
+	const updateImages = useCallback(
+		( data: CarrouselImageData, index ) => {
+			setImages( currentImages => {
+				const newImages = [ ...currentImages ];
+				newImages[ index ] = {
+					...newImages[ index ],
+					...data,
+				};
+				return newImages;
+			} );
+
+			// Track errors so we can get more insight on the usage
+			if ( data.error ) {
+				recordEvent( 'jetpack_ai_featured_image_generation_error', {
+					placement,
+					error: data.error?.message,
+				} );
+			}
+		},
+		[ placement, recordEvent ]
+	);
+
+	const handlePreviousImage = useCallback( () => {
+		setCurrent( Math.max( current - 1, 0 ) );
+	}, [ current, setCurrent ] );
+
+	const handleNextImage = useCallback( () => {
+		setCurrent( Math.min( current + 1, images.length - 1 ) );
+	}, [ current, images.length ] );
+
 	/*
 	 * Function to generate a new image with the current value of the post content.
 	 */
 	const processImageGeneration = useCallback( () => {
-		setGenerating( true );
-		setError( null );
-		generateImage( {
-			feature: FEATURED_IMAGE_FEATURE_NAME,
-			postContent,
-			responseFormat: 'b64_json',
-		} )
+		updateImages( { generating: true, error: null }, pointer.current );
+
+		// Ensure the site has enough requests to generate the image.
+		if ( notEnoughRequests ) {
+			updateImages(
+				{
+					generating: false,
+					error: new Error(
+						__( "You don't have enough requests to generate another image.", 'jetpack' )
+					),
+				},
+				pointer.current
+			);
+			return;
+		}
+
+		// Ensure the user prompt or the post content are set.
+		if ( ! userPrompt && ! postContent ) {
+			updateImages(
+				{
+					generating: false,
+					error: new Error(
+						__(
+							'No content to generate image. Please type custom instructions and try again.',
+							'jetpack'
+						)
+					),
+				},
+				pointer.current
+			);
+			return;
+		}
+
+		/** Decide between standard or experimental generation */
+		const generateImagePromise = isAiAssistantExperimentalImageGenerationSupportEnabled
+			? generateImageWithStableDiffusion( {
+					feature: FEATURED_IMAGE_FEATURE_NAME,
+					postContent,
+					userPrompt,
+			  } )
+			: generateImage( {
+					feature: FEATURED_IMAGE_FEATURE_NAME,
+					postContent,
+					responseFormat: 'b64_json',
+					userPrompt,
+			  } );
+
+		generateImagePromise
 			.then( result => {
 				if ( result.data.length > 0 ) {
 					const image = 'data:image/png;base64,' + result.data[ 0 ].b64_json;
-					setImageURL( image );
+					updateImages( { image }, pointer.current );
 					updateRequestsCount();
+					saveToMediaLibrary( image )
+						.then( savedImage => {
+							updateImages( { libraryId: savedImage.id, generating: false }, pointer.current );
+							pointer.current += 1;
+						} )
+						.catch( () => {
+							updateImages( { generating: false }, pointer.current );
+							pointer.current += 1;
+						} );
 				}
 			} )
 			.catch( e => {
-				setError( e );
-			} )
-			.finally( () => {
-				setGenerating( false );
+				updateImages( { generating: false, error: e }, pointer.current );
 			} );
-	}, [ postContent, setGenerating, setImageURL, generateImage, updateRequestsCount ] );
+	}, [
+		notEnoughRequests,
+		updateImages,
+		generateImage,
+		generateImageWithStableDiffusion,
+		postContent,
+		userPrompt,
+		updateRequestsCount,
+		saveToMediaLibrary,
+	] );
 
 	const toggleFeaturedImageModal = useCallback( () => {
 		setIsFeaturedImageModalVisible( ! isFeaturedImageModalVisible );
 	}, [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] );
 
+	const handleModalClose = useCallback( () => {
+		toggleFeaturedImageModal();
+		onClose?.();
+	}, [ toggleFeaturedImageModal, onClose ] );
+
 	const handleGenerate = useCallback( () => {
 		// track the generate image event
 		recordEvent( 'jetpack_ai_featured_image_generation_generate_image', {
-			placement: JETPACK_SIDEBAR_PLACEMENT,
+			placement,
 		} );
 
 		toggleFeaturedImageModal();
 		processImageGeneration();
-	}, [ toggleFeaturedImageModal, processImageGeneration, recordEvent ] );
+	}, [ toggleFeaturedImageModal, processImageGeneration, recordEvent, placement ] );
 
 	const handleRegenerate = useCallback( () => {
 		// track the regenerate image event
 		recordEvent( 'jetpack_ai_featured_image_generation_generate_another_image', {
-			placement: JETPACK_SIDEBAR_PLACEMENT,
+			placement,
 		} );
 
 		processImageGeneration();
-	}, [ processImageGeneration, recordEvent ] );
+		setCurrent( crrt => crrt + 1 );
+	}, [ processImageGeneration, recordEvent, placement ] );
 
 	const handleTryAgain = useCallback( () => {
 		// track the try again event
 		recordEvent( 'jetpack_ai_featured_image_generation_try_again', {
-			placement: JETPACK_SIDEBAR_PLACEMENT,
+			placement,
 		} );
 
 		processImageGeneration();
-	}, [ processImageGeneration, recordEvent ] );
+	}, [ processImageGeneration, recordEvent, placement ] );
+
+	const handleUserPromptChange = useCallback(
+		( e: React.ChangeEvent< HTMLTextAreaElement > ) => {
+			setUserPrompt( e.target.value );
+		},
+		[ setUserPrompt ]
+	);
 
 	const triggerComplementaryArea = useCallback( () => {
-		enableComplementaryArea( 'core/edit-post', 'edit-post/document' );
-	}, [ enableComplementaryArea ] );
+		// clear any block selection, because selected blocks have precedence on settings sidebar
+		clearSelectedBlock();
+		return enableComplementaryArea( 'core/edit-post', 'edit-post/document' );
+	}, [ clearSelectedBlock, enableComplementaryArea ] );
 
 	const handleAccept = useCallback( () => {
 		// track the accept/use image event
 		recordEvent( 'jetpack_ai_featured_image_generation_use_image', {
-			placement: JETPACK_SIDEBAR_PLACEMENT,
+			placement,
 		} );
 
-		saveToMediaLibrary( imageURL ).then( image => {
-			editPost( { featured_media: image.id } );
-			toggleFeaturedImageModal();
+		const setAsFeaturedImage = image => {
+			editPost( { featured_media: image } );
+			handleModalClose();
 
 			// Open the featured image panel for users to see the new image.
 			setTimeout( () => {
-				// If the panel is not opened, open it and then trigger the complementary area.
-				if ( ! isEditorPanelOpened( 'featured-image' ) ) {
-					toggleEditorPanelOpened?.( 'featured-image' ).then( () => {
-						triggerComplementaryArea();
-					} );
-				} else {
-					triggerComplementaryArea();
-				}
+				const isFeaturedImagePanelOpened = isEditorPanelOpened( 'featured-image' );
+				const isPostStatusPanelOpened = isEditorPanelOpened( 'post-status' );
+
+				// open the complementary area and then trigger the featured image panel.
+				triggerComplementaryArea().then( () => {
+					if ( ! isFeaturedImagePanelOpened ) {
+						toggleEditorPanelOpened( 'featured-image' );
+					}
+					// handle the case where the featured image panel is not present
+					if ( ! isPostStatusPanelOpened ) {
+						toggleEditorPanelOpened( 'post-status' );
+					}
+				} );
 			}, 500 );
-		} );
+		};
+
+		// If the image is already in the media library, use it directly, if it failed for some reason
+		// save it to the media library and then use it.
+		if ( images[ current ].libraryId ) {
+			setAsFeaturedImage( images[ current ].libraryId );
+		} else {
+			saveToMediaLibrary( images[ current ].image ).then( image => {
+				setAsFeaturedImage( image.id );
+			} );
+		}
 	}, [
+		current,
 		editPost,
-		imageURL,
+		images,
 		isEditorPanelOpened,
 		recordEvent,
 		saveToMediaLibrary,
 		toggleEditorPanelOpened,
-		toggleFeaturedImageModal,
 		triggerComplementaryArea,
+		handleModalClose,
+		placement,
 	] );
 
-	const modalTitleWhenGenerating = __( 'Generating featured image…', 'jetpack' );
-	const modalTitleWhenDone = __( 'Featured Image Generation', 'jetpack' );
+	/**
+	 * When the placement is set to FEATURED_IMAGE_PLACEMENT_MEDIA_SOURCE_DROPDOWN, we generate the image automatically.
+	 */
+	useEffect( () => {
+		if ( placement === FEATURED_IMAGE_PLACEMENT_MEDIA_SOURCE_DROPDOWN ) {
+			if ( ! triggeredAutoGeneration.current ) {
+				triggeredAutoGeneration.current = true;
+				handleGenerate();
+			}
+		}
+	}, [ placement, handleGenerate ] );
+
+	const modalTitle = __( 'Generate a featured image with AI', 'jetpack' );
+
+	const costTooltipTextSingular = __( '1 request per image', 'jetpack' );
+
+	const costTooltipTextPlural = sprintf(
+		// Translators: %d is the cost of generating one image.
+		__( '%d requests per image', 'jetpack' ),
+		featuredImageCost
+	);
+
+	const costTooltipText = featuredImageCost === 1 ? costTooltipTextSingular : costTooltipTextPlural;
+
+	const acceptButton = (
+		<Button
+			onClick={ handleAccept }
+			variant="primary"
+			isBusy={ currentImage?.generating }
+			disabled={ ! currentImage?.image }
+		>
+			{ __( 'Set as featured image', 'jetpack' ) }
+		</Button>
+	);
 
 	return (
 		<div>
-			<p>
-				{ __(
-					'Ask Jetpack AI to generate an image based on your post content, to use as the post featured image.',
-					'jetpack'
-				) }
-			</p>
-			<Button
-				onClick={ handleGenerate }
-				isBusy={ busy }
-				disabled={ ! postContent || disabled || notEnoughRequests }
-				variant="secondary"
-			>
-				{ __( 'Generate image', 'jetpack' ) }
-			</Button>
+			{ ( placement === PLACEMENT_JETPACK_SIDEBAR ||
+				placement === PLACEMENT_DOCUMENT_SETTINGS ) && (
+				<>
+					<p>{ __( 'Create and use an AI generated featured image for your post.', 'jetpack' ) }</p>
+					<Button
+						onClick={ handleGenerate }
+						isBusy={ busy }
+						disabled={ ! postContent || disabled || notEnoughRequests }
+						variant="secondary"
+					>
+						{ __( 'Generate image', 'jetpack' ) }
+					</Button>
+				</>
+			) }
 			{ isFeaturedImageModalVisible && (
-				<AiAssistantModal
-					handleClose={ toggleFeaturedImageModal }
-					title={ generating ? modalTitleWhenGenerating : modalTitleWhenDone }
-				>
-					{ generating ? (
-						<div className="ai-assistant-featured-image__loading">
-							<Spinner
-								style={ {
-									width: '50px',
-									height: '50px',
-								} }
+				<AiAssistantModal handleClose={ handleModalClose } title={ modalTitle }>
+					<div className="ai-assistant-featured-image__content">
+						<div className="ai-assistant-featured-image__user-prompt">
+							<div className="ai-assistant-featured-image__user-prompt-textarea">
+								<textarea
+									disabled={ notEnoughRequests || currentPointer?.generating }
+									maxLength={ 1000 }
+									rows={ 2 }
+									onChange={ handleUserPromptChange }
+									placeholder={ __(
+										'Include optional instructions to generate a new image',
+										'jetpack'
+									) }
+								></textarea>
+							</div>
+						</div>
+						{ ( requireUpgrade || notEnoughRequests ) && ! currentPointer?.generating && (
+							<UpgradePrompt
+								description={
+									notEnoughRequests
+										? sprintf(
+												// Translators: %d is the cost of generating a featured image.
+												__(
+													"Featured image generation costs %d requests per image. You don't have enough requests to generate another image.",
+													'jetpack'
+												),
+												featuredImageCost
+										  )
+										: null
+								}
+								useLightNudge={ true }
+							/>
+						) }
+						<div className="ai-assistant-featured-image__actions">
+							<div className="ai-assistant-featured-image__actions-left">
+								{ ! isUnlimited && featuredImageCost && requestsLimit && (
+									<UsageCounter
+										cost={ featuredImageCost }
+										currentLimit={ requestsLimit }
+										currentUsage={ requestsCount }
+									/>
+								) }
+							</div>
+							<div className="ai-assistant-featured-image__actions-right">
+								<div className="ai-assistant-featured-image__action-buttons">
+									{ currentPointer?.error ? (
+										<Button
+											onClick={ handleTryAgain }
+											variant="secondary"
+											disabled={ ! userPrompt && ! postContent }
+										>
+											{ __( 'Try again', 'jetpack' ) }
+										</Button>
+									) : (
+										<Tooltip text={ costTooltipText } placement="bottom">
+											<Button
+												onClick={ handleRegenerate }
+												variant="secondary"
+												isBusy={ currentPointer?.generating }
+												disabled={
+													notEnoughRequests ||
+													currentPointer?.generating ||
+													( ! userPrompt && ! postContent )
+												}
+											>
+												{ __( 'Generate again', 'jetpack' ) }
+											</Button>
+										</Tooltip>
+									) }
+								</div>
+							</div>
+						</div>
+						<div className="ai-assistant-featured-image__image-canvas">
+							<Carrousel
+								images={ images }
+								current={ current }
+								handlePreviousImage={ handlePreviousImage }
+								handleNextImage={ handleNextImage }
+								actions={ acceptButton }
 							/>
 						</div>
-					) : (
-						<div className="ai-assistant-featured-image__content">
-							<div className="ai-assistant-featured-image__image-canvas">
-								{ error ? (
-									<div className="ai-assistant-featured-image__error">
-										{ __(
-											'An error occurred while generating the image. Please, try again!',
-											'jetpack'
-										) }
-										{ error?.message && (
-											<span className="ai-assistant-featured-image__error-message">
-												{ error?.message }
-											</span>
-										) }
-									</div>
-								) : (
-									<>
-										<img className="ai-assistant-featured-image__image" src={ imageURL } alt="" />
-										{ ! isUnlimited && featuredImageCost && requestsLimit && (
-											<UsageCounter
-												cost={ featuredImageCost }
-												currentLimit={ requestsLimit }
-												currentUsage={ requestsCount }
-											/>
-										) }
-									</>
-								) }
-							</div>
-							<div className="ai-assistant-featured-image__actions">
-								{ ! error && (
-									<Button
-										onClick={ handleAccept }
-										variant="secondary"
-										isBusy={ isSavingToMediaLibrary }
-										disabled={ isSavingToMediaLibrary }
-									>
-										{ __( 'Save and use image', 'jetpack' ) }
-									</Button>
-								) }
-								{ error ? (
-									<Button onClick={ handleTryAgain } variant="secondary">
-										{ __( 'Try again', 'jetpack' ) }
-									</Button>
-								) : (
-									<Button
-										onClick={ handleRegenerate }
-										variant="secondary"
-										disabled={ isSavingToMediaLibrary || notEnoughRequests }
-									>
-										{ __( 'Generate another image', 'jetpack' ) }
-									</Button>
-								) }
-							</div>
-						</div>
-					) }
+					</div>
+					<div className="ai-assistant-featured-image__footer">
+						<Button
+							variant="link"
+							className="ai-assistant-featured-image__feedback-button"
+							href="https://jetpack.com/redirect/?source=jetpack-ai-feedback"
+							target="_blank"
+						>
+							<span>{ __( 'Provide feedback', 'jetpack' ) }</span>
+							<Icon icon={ external } className="icon" />
+						</Button>
+					</div>
 				</AiAssistantModal>
 			) }
 		</div>

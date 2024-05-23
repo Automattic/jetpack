@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Ensure page_view gets loaded before product_card_loaded

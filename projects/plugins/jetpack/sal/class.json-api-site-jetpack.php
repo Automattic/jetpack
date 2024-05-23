@@ -425,6 +425,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	/**
 	 * Defaults to false - this is filled on the WordPress.com side in multiple locations.
 	 *
+	 * @see WPCOM_JSON_API_GET_Site_Endpoint::decorate_jetpack_response.
 	 * @return bool
 	 */
 	public function get_capabilities() {
@@ -644,6 +645,17 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	/**
+	 * Get site deleted status. Not used in Jetpack.
+	 *
+	 * @see /wpcom/public.api/rest/sal/trait.json-api-site-wpcom.php.
+	 *
+	 * @return bool
+	 */
+	public function is_deleted() {
+		return false;
+	}
+
+	/**
 	 * Detect whether a site is WordPress.com Staging Site. Not used in Jetpack.
 	 *
 	 * @see /wpcom/public.api/rest/sal/trait.json-api-site-wpcom.php.
@@ -683,5 +695,23 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 */
 	public function get_wpcom_admin_interface() {
 		return null;
+	}
+
+	/**
+	 * Get Zendesk site meta. Not used in Jetpack.
+	 *
+	 * @return null
+	 */
+	public function get_zendesk_site_meta() {
+		return null;
+	}
+
+	/**
+	 * Detect whether there's a pending plan for this site. Not used in Jetpack.
+	 *
+	 * @return false
+	 */
+	public function is_pending_plan() {
+		return false;
 	}
 }

@@ -1,7 +1,7 @@
 === Jetpack Social  ===
 Contributors: automattic, pabline, siddarthan, gmjuhasz, manzoorwanijk, danielpost
 Tags: social-media, publicize, social-media-manager, social-networking, social marketing, social, social share,  social media scheduling, social media automation, auto post, auto- publish, social share
-Requires at least: 6.3
+Requires at least: 6.4
 Requires PHP: 7.0
 Tested up to: 6.5
 Stable tag: 2.3.0
@@ -100,31 +100,27 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 4.1.0 - 2024-03-07
+### 4.2.0 - 2024-04-11
 #### Added
-- Added a template lock to our Social Note CPT
-- Added endpoint to update post meta
-- Added feature support for the new CPT to support activitypub.
-- Added fix for the post list screen for social notes.
-- Added toggle to Social admin page for the Social Notes
-- Implemented titless permalink fixes.
-- New setting in /sties/$site/settings that is not relevant to this plugin.
-- Register CPT for Social Notes.
-- Social: Added archive page support to notes
+- Added functions to display share urls
+- Added options and UI for link formatting
+- Added support for comments on Social Notes
+- Packages: add version tracking for identity-crisis package.
+- Trigger red bubble notification when bad install is detected
 
 #### Changed
-- Changed the admin page 'Write a post' button to primary if the site has connections
-- General: indicate compatibility with the upcoming version of WordPress, 6.5.
-- Social Notes: Added the post list enhancements
-- Tailored editor for social notes
-- Updated package dependencies. [#35384, #35385, #35591, #35608, #35819, #36095, #36097, #36142, #36143]
-- Update package lock
+- Allow multiple paragraphs for Social Notes
+- Only show custom media picker for normal posts
+- Only show installation errors on plugins page
+- Removed the featured image block from the template
+- Simplified social network selection for post sharing
+- Updated package dependencies. [#36309] [#36325] [#36585] [#36760] [#36761] [#36775]
+- Update to the most recent version of Color Studio, 2.6.0.
 - Update to the most recent version of the @automattic/calypso-color-schemes package.
-- Use Blog ID in links to WPCOM instead of site slug.
 
 #### Fixed
-- Fixed no title from showing up in og:title
-- Fixed og:title having word-breaks.
+- Fixed typos
+- Prevent enqueuing of admin styles on the frontend
 
 == Upgrade Notice ==
 
