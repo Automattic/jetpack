@@ -6,8 +6,8 @@
  */
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { useSelect } from '@wordpress/data';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useReducer, useState } from 'react';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import { store } from '../../social-store';
 import AddConnectionModal from '../add-connection-modal';
@@ -19,16 +19,34 @@ import styles from './styles.module.scss';
  * @returns {object} The link/button component.
  */
 export default function PublicizeSettingsButton() {
-	const useAdminUiV1 = useSelect( select => select( store ).useAdminUiV1() );
+	const { useAdminUiV1, keyringResult } = useSelect( select => {
+		return {
+			useAdminUiV1: select( store ).useAdminUiV1(),
+			keyringResult: select( store ).getKeyringResult(),
+		};
+	}, [] );
 
-	const [ currentService, setCurrentService ] = useState( null );
-	const [ isModalOpen, toggleModal ] = useReducer( state => ! state, false );
+	const [ isModalOpen, setIsModalOpen ] = useState( false );
+
+	const closeModal = useCallback( () => {
+		setIsModalOpen( false );
+	}, [] );
+	const openModal = useCallback( () => {
+		setIsModalOpen( true );
+	}, [] );
+
+	const shouldModalBeOpen =
+		isModalOpen ||
+		// It's possible that when reconnecting a connection from within the modal,
+		// the user closes the modal immediately, without waiting for the confirmation,
+		// in that case we should show the modal again when the keyringResult is set.
+		keyringResult?.ID;
 
 	return useAdminUiV1 ? (
 		<ThemeProvider targetDom={ document.body }>
 			<button
 				className={ styles[ 'settings-link' ] }
-				onClick={ toggleModal }
+				onClick={ openModal }
 				title={ __( 'Connect an account', 'jetpack' ) }
 				aria-label={ __( 'Connect an account', 'jetpack' ) }
 			>
@@ -56,13 +74,7 @@ export default function PublicizeSettingsButton() {
 					/>
 				</svg>
 			</button>
-			{ isModalOpen && (
-				<AddConnectionModal
-					onCloseModal={ toggleModal }
-					currentService={ currentService }
-					setCurrentService={ setCurrentService }
-				/>
-			) }
+			{ shouldModalBeOpen ? <AddConnectionModal onCloseModal={ closeModal } /> : null }
 		</ThemeProvider>
 	) : (
 		<OldPublicizeSettingsButton />
