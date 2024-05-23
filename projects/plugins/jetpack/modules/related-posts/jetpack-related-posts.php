@@ -726,36 +726,25 @@ EOT;
 			esc_html__( 'Preview:', 'jetpack' )
 		);
 
-		if ( ! $this->allow_feature_toggle() ) {
-			$template = <<<EOT
-<input type="hidden" name="jetpack_relatedposts[enabled]" value="1" />
-%s
-EOT;
-			printf(
-				$template, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				$ui_settings // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- data is escaped when variable is set.
-			);
-		} else {
-			$template = <<<EOT
+		$template = <<<EOT
 <ul id="settings-reading-relatedposts">
-	<li>
-		<label><input type="radio" name="jetpack_relatedposts[enabled]" value="0" class="tog" %s /> %s</label>
-	</li>
-	<li>
-		<label><input type="radio" name="jetpack_relatedposts[enabled]" value="1" class="tog" %s /> %s</label>
-		%s
-	</li>
+<li>
+	<label><input type="radio" name="jetpack_relatedposts[enabled]" value="0" class="tog" %s /> %s</label>
+</li>
+<li>
+	<label><input type="radio" name="jetpack_relatedposts[enabled]" value="1" class="tog" %s /> %s</label>
+	%s
+</li>
 </ul>
 EOT;
-			printf(
-				$template, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				checked( $options['enabled'], false, false ),
-				esc_html__( 'Hide related content after posts', 'jetpack' ),
-				checked( $options['enabled'], true, false ),
-				esc_html__( 'Show related content after posts', 'jetpack' ),
-				$ui_settings // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- data is escaped when variable is set.
-			);
-		}
+		printf(
+			$template, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			checked( $options['enabled'], false, false ),
+			esc_html__( 'Hide related content after posts', 'jetpack' ),
+			checked( $options['enabled'], true, false ),
+			esc_html__( 'Show related content after posts', 'jetpack' ),
+			$ui_settings // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- data is escaped when variable is set.
+		);
 	}
 
 	/**
