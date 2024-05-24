@@ -13,6 +13,7 @@ import {
 	WPConfigNotWritableNotice,
 	WPContentNotWritableNotice,
 } from './error-notices';
+import SwitchToBoost from '../switch-to-boost/switch-to-boost';
 
 type HealthProps = {
 	error?: PageCacheError;
@@ -21,7 +22,12 @@ type HealthProps = {
 };
 
 const Health = ( { setup, error, setError }: HealthProps ) => {
-	const [ , setModuleState ] = useSingleModuleState( 'page_cache' );
+	const [ , setModuleState ] = useSingleModuleState( 'page_cache', state => {
+		// Run setup if the module is being enabled
+		if ( state ) {
+			setup.mutate();
+		}
+	} );
 	// Was there a problem trying to setup cache?
 	const [ doingRevert, setDoingRevert ] = useState( false );
 
@@ -53,7 +59,12 @@ const Health = ( { setup, error, setError }: HealthProps ) => {
 		'not-using-permalinks': <NotUsingPermalinksNotice onClose={ onClose } />,
 		'advanced-cache-incompatible': <AdvancedCacheIncompatibleNotice onClose={ onClose } />,
 		'advanced-cache-for-super-cache': (
-			<AdvancedCacheForSuperCacheNotice pageCacheSetup={ setup } onClose={ onClose } />
+			<AdvancedCacheForSuperCacheNotice
+				actions={ [
+					<SwitchToBoost key={ 'switch-to-boost' } onSwitch={ () => setModuleState( true ) } />,
+				] }
+				onClose={ onClose }
+			/>
 		),
 		'unable-to-write-to-advanced-cache': <UnableToWriteToAdvancedCacheNotice onClose={ onClose } />,
 		'wp-cache-defined-not-true': <WPCacheDefinedNotTrueNotice onClose={ onClose } />,

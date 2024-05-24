@@ -2,8 +2,8 @@ import { Notice, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import styles from './health.module.scss';
 import { __, sprintf } from '@wordpress/i18n';
-import { PageCacheError, usePageCacheSetup } from '$lib/stores/page-cache';
-import SwitchToBoost from '../switch-to-boost/switch-to-boost';
+import { PageCacheError } from '$lib/stores/page-cache';
+import { ReactNode } from 'react';
 
 type NoticeProps = {
 	onClose: () => void;
@@ -139,11 +139,11 @@ export const AdvancedCacheIncompatibleNotice = ( { onClose }: NoticeProps ) => {
 };
 
 type AdvancedCacheForSuperCacheNoticeProps = {
-	pageCacheSetup: ReturnType< typeof usePageCacheSetup >;
+	actions: ReactNode[];
 } & NoticeProps;
 
 export const AdvancedCacheForSuperCacheNotice = ( {
-	pageCacheSetup,
+	actions,
 	onClose,
 }: AdvancedCacheForSuperCacheNoticeProps ) => {
 	return (
@@ -151,7 +151,7 @@ export const AdvancedCacheForSuperCacheNotice = ( {
 			level="warning"
 			title={ __( 'Existing Cache System Detected', 'jetpack-boost' ) }
 			onClose={ onClose }
-			actions={ [ <SwitchToBoost key="page-cache-setup" pageCacheSetup={ pageCacheSetup } /> ] }
+			actions={ actions }
 		>
 			<p>
 				{ createInterpolateElement(
