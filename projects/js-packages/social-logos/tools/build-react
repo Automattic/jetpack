@@ -12,7 +12,7 @@ cd "$root_dir"
 mkdir -p "$dest_react_dir"
 
 # Build files using TypeScript.
-pnpm tsc
+pnpm tsc --noEmit false
 
 # Output.
 echo "Created React files in '$dest_react_dir'."

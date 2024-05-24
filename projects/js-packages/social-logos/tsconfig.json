@@ -1,7 +1,6 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
 	"compilerOptions": {
-		"noEmit": false,
 		"declaration": true,
 		"outDir": "./build/react"
 	},
