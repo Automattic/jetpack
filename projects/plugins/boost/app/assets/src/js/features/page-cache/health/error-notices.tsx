@@ -42,24 +42,33 @@ export const FailedSettingsWriteNotice = ( { onClose }: NoticeProps ) => {
 	);
 };
 
-export const WpContentNotWritableNotice = ( { onClose }: NoticeProps ) => {
+export const WPContentNotWritableNotice = ( { onClose }: NoticeProps ) => {
 	return (
 		<Notice
 			level="warning"
-			title={ __( 'The settings file cannot be updated', 'jetpack-boost' ) }
+			title={ sprintf(
+				// translators: %s refers to wp-content.
+				__( `Your site's %s folder doesn't allow updates`, 'jetpack-boost' ),
+				'wp-content'
+			) }
 			onClose={ onClose }
 		>
 			<p>
 				{ createInterpolateElement(
-					__(
-						`This feature cannot be enabled because Jetpack Boost cannot update its settings. To learn more about this, please <link>click here.</link>`,
-						'jetpack-boost'
+					sprintf(
+						// translators: %s refers to wp-content.
+						__(
+							`This feature cannot be enabled because Jetpack Boost cannot create or modify files in <code>%s</code>. To learn more about this, please <link>click here.</link>`,
+							'jetpack-boost'
+						),
+						'wp-content'
 					),
 					{
+						code: <code className={ styles.nowrap } />,
 						link: (
 							// eslint-disable-next-line jsx-a11y/anchor-has-content
 							<a
-								href={ cacheIssuesLink( 'failed-settings-write' ) }
+								href={ cacheIssuesLink( 'wp-content-not-writable' ) }
 								target="_blank"
 								rel="noopener noreferrer"
 							/>

@@ -11,7 +11,7 @@ import {
 	UnableToWriteToAdvancedCacheNotice,
 	WPCacheDefinedNotTrueNotice,
 	WPConfigNotWritableNotice,
-	WpContentNotWritableNotice,
+	WPContentNotWritableNotice,
 } from './error-notices';
 
 type HealthProps = {
@@ -49,7 +49,7 @@ const Health = ( { setup, error, setError }: HealthProps ) => {
 	const code = typeof error === 'string' ? error : error.code;
 	const notices: { [ key: string ]: ReactNode } = {
 		'failed-settings-write': <FailedSettingsWriteNotice onClose={ onClose } />,
-		'wp-content-not-writable': <WpContentNotWritableNotice onClose={ onClose } />,
+		'wp-content-not-writable': <WPContentNotWritableNotice onClose={ onClose } />,
 		'not-using-permalinks': <NotUsingPermalinksNotice onClose={ onClose } />,
 		'advanced-cache-incompatible': <AdvancedCacheIncompatibleNotice onClose={ onClose } />,
 		'advanced-cache-for-super-cache': (
