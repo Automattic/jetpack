@@ -11,12 +11,14 @@ import type { Fix as HTMLFix } from './markdown-to-html.js';
 const defaultMarkdownConverter = new MarkdownToHTML();
 const defaultHTMLConverter = new HTMLToMarkdown();
 
+export type RenderHTMLRules = 'all' | Array< HTMLFix >;
+
 const renderHTMLFromMarkdown = ( {
 	content,
 	rules = 'all',
 }: {
 	content: string;
-	rules?: Array< HTMLFix > | 'all';
+	rules?: RenderHTMLRules;
 } ) => {
 	return defaultMarkdownConverter.render( { content, rules } );
 };

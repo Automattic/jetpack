@@ -31,6 +31,8 @@ export default class FormToggle extends Component {
 		disabledReason: '',
 	};
 
+	toggleSwitchRef = React.createRef();
+
 	state = {
 		showPopover: false,
 	};
@@ -94,7 +96,7 @@ export default class FormToggle extends Component {
 		return (
 			<Popover
 				isVisible={ this.state.showPopover }
-				context={ this.refs && this.refs.toggleSwitch }
+				context={ this.toggleSwitchRef.current }
 				position={ this.props.disabledPopoverPosition }
 				onClose={ this._onPopoverClose }
 				className="dops-info-popover__tooltip"
@@ -130,7 +132,7 @@ export default class FormToggle extends Component {
 						aria-checked={ this.props.checked }
 						aria-label={ this.props[ 'aria-label' ] }
 						tabIndex={ this.props.disabled ? -1 : 0 }
-						ref="toggleSwitch"
+						ref={ this.toggleSwitchRef }
 					/>
 					<span className="form-toggle__label-content" onClick={ this.onLabelClick }>
 						{ this.props.children }

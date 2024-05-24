@@ -20,6 +20,7 @@
 		"automattic/jetpack-blaze": "@dev",
 		"automattic/jetpack-blocks": "@dev",
 		"automattic/jetpack-boost-speed-score": "@dev",
+		"automattic/jetpack-calypsoify": "@dev",
 		"automattic/jetpack-compat": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-config": "@dev",
@@ -57,6 +58,7 @@
 	"require-dev": {
 		"antecedent/patchwork": "^2.1.28",
 		"automattic/jetpack-changelogger": "@dev",
+		"automattic/patchwork-redefine-exit": "@dev",
 		"johnkary/phpunit-speedtrap": "^4.0.0 || ^2.0.0",
 		"yoast/phpunit-polyfills": "1.1.0"
 	},
@@ -103,7 +105,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ13_5_a_2",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ13_5_a_4",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

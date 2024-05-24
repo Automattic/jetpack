@@ -116,12 +116,32 @@ class Source_Providers {
 	public function get_provider_sources() {
 		$sources = array();
 
+		$wp_core_provider_urls = WP_Core_Provider::get_critical_source_urls();
+		$flat_wp_core_urls     = array();
+		foreach ( $wp_core_provider_urls as $urls ) {
+			$flat_wp_core_urls = array_merge( $flat_wp_core_urls, $urls );
+		}
+
 		foreach ( $this->get_providers() as $provider ) {
 			$provider_name = $provider::get_provider_name();
 
 			// For each provider,
 			// Gather a list of URLs that are going to be used as Critical CSS source.
 			foreach ( $provider::get_critical_source_urls() as $group => $urls ) {
+				if ( empty( $urls ) ) {
+					continue;
+				}
+
+				// This removes the home and blog pages from the list of pages,
+				// so they don't belong to two separate groups.
+				if ( $provider !== WP_Core_Provider::class ) {
+					$urls = array_values( array_diff( $urls, $flat_wp_core_urls ) );
+				}
+
+				if ( empty( $urls ) ) {
+					continue;
+				}
+
 				$key = $provider_name . '_' . $group;
 
 				// For each URL

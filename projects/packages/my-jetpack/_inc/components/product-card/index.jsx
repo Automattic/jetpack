@@ -2,7 +2,7 @@ import { Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import React, { useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
 import Card from '../card';
 import ActionButton, { PRODUCT_STATUSES } from './action-button';
@@ -12,18 +12,30 @@ import styles from './style.module.scss';
 export const PRODUCT_STATUSES_LABELS = {
 	[ PRODUCT_STATUSES.ACTIVE ]: __( 'Active', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.INACTIVE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
-	[ PRODUCT_STATUSES.MODULE_DISABLED ]: __( 'Module disabled', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.MODULE_DISABLED ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.NEEDS_PURCHASE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.ABSENT ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.ABSENT_WITH_PLAN ]: __( 'Needs Plugin', 'jetpack-my-jetpack' ),
-	[ PRODUCT_STATUSES.ERROR ]: __( 'Needs connection', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION ]: __( 'Inactive', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.USER_CONNECTION_ERROR ]: __( 'Needs user account', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.SITE_CONNECTION_ERROR ]: __( 'Needs connection', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.CAN_UPGRADE ]: __( 'Active', 'jetpack-my-jetpack' ),
 };
 
 // SecondaryButton component
 const SecondaryButton = props => {
-	const { shouldShowButton, positionFirst, ...buttonProps } = props;
+	const {
+		shouldShowButton = () => true,
+		positionFirst,
+		...buttonProps
+	} = {
+		size: 'small',
+		variant: 'secondary',
+		weight: 'regular',
+		label: __( 'Learn more', 'jetpack-my-jetpack' ),
+		...props,
+	};
 
 	if ( ! shouldShowButton() ) {
 		return false;
@@ -49,17 +61,14 @@ SecondaryButton.propTypes = {
 	className: PropTypes.string,
 };
 
-SecondaryButton.defaultProps = {
-	size: 'small',
-	variant: 'secondary',
-	weight: 'regular',
-	label: __( 'Learn more', 'jetpack-my-jetpack' ),
-	shouldShowButton: () => true,
-	positionFirst: false,
-};
-
 // ProductCard component
-const ProductCard = props => {
+const ProductCard = inprops => {
+	const props = {
+		isFetching: false,
+		isInstallingStandalone: false,
+		onActivate: () => {},
+		...inprops,
+	};
 	const {
 		name,
 		Description,
@@ -245,20 +254,16 @@ ProductCard.propTypes = {
 	status: PropTypes.oneOf( [
 		PRODUCT_STATUSES.ACTIVE,
 		PRODUCT_STATUSES.INACTIVE,
-		PRODUCT_STATUSES.ERROR,
+		PRODUCT_STATUSES.SITE_CONNECTION_ERROR,
 		PRODUCT_STATUSES.ABSENT,
 		PRODUCT_STATUSES.ABSENT_WITH_PLAN,
 		PRODUCT_STATUSES.NEEDS_PURCHASE,
 		PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE,
+		PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION,
+		PRODUCT_STATUSES.USER_CONNECTION_ERROR,
 		PRODUCT_STATUSES.CAN_UPGRADE,
 		PRODUCT_STATUSES.MODULE_DISABLED,
 	] ).isRequired,
-};
-
-ProductCard.defaultProps = {
-	isFetching: false,
-	isInstallingStandalone: false,
-	onActivate: () => {},
 };
 
 export { PRODUCT_STATUSES };

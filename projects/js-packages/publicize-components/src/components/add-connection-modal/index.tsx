@@ -1,119 +1,60 @@
-import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
+import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
-import { Icon, chevronDown } from '@wordpress/icons';
+import { __, _x } from '@wordpress/i18n';
 import classNames from 'classnames';
-import { ConnectForm } from './connect-form';
-import { ConnectPage } from './connect-page/connect-page';
+import { store } from '../../social-store';
+import { ServicesList } from '../services/services-list';
+import { ConfirmationForm } from './confirmation-form';
 import styles from './style.module.scss';
-import { SupportedService, useSupportedServices } from './use-supported-services';
 
 type AddConnectionModalProps = {
-	onCloseModal: VoidFunction;
-	currentService: SupportedService | null;
-	setCurrentService: ( service: SupportedService | null ) => void;
+	onCloseModal?: VoidFunction;
 };
 
-const AddConnectionModal = ( {
-	onCloseModal,
-	currentService,
-	setCurrentService,
-}: AddConnectionModalProps ) => {
-	const supportedServices = useSupportedServices();
+const AddConnectionModal = ( { onCloseModal }: AddConnectionModalProps ) => {
+	const { keyringResult } = useSelect( select => {
+		const { getKeyringResult } = select( store );
+
+		return {
+			keyringResult: getKeyringResult(),
+		};
+	}, [] );
+
+	const { setKeyringResult } = useDispatch( store );
 
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
-	const onServiceSelected = useCallback(
-		service => () => {
-			setCurrentService( service );
-		},
-		[ setCurrentService ]
-	);
+	const closeModal = useCallback( () => {
+		setKeyringResult( null );
+		onCloseModal?.();
+	}, [ onCloseModal, setKeyringResult ] );
 
-	const onBackClicked = useCallback( () => {
-		setCurrentService( null );
-	}, [ setCurrentService ] );
+	const hasKeyringResult = Boolean( keyringResult?.ID );
 
-	const onConfirm = useCallback( ( data: unknown ) => {
-		// eslint-disable-next-line no-console
-		console.log( data );
-	}, [] );
+	const title = hasKeyringResult
+		? __( 'Connection confirmation', 'jetpack' )
+		: _x( 'Add a new connection to Jetpack Social', '', 'jetpack' );
 
 	return (
 		<Modal
 			className={ classNames( styles.modal, {
-				[ styles[ 'service-selector' ] ]: ! currentService,
 				[ styles.small ]: isSmall,
 			} ) }
-			onRequestClose={ onCloseModal }
-			title={
-				currentService
-					? sprintf(
-							// translators: %s: Name of the service the user connects to.
-							__( 'Connecting a new %s account', 'jetpack' ),
-							currentService.label
-					  )
-					: __( 'Add a new connection to Jetpack Social', 'jetpack' )
-			}
+			onRequestClose={ closeModal }
+			title={ title }
 		>
-			{ currentService ? (
-				<ConnectPage
-					service={ currentService }
-					onBackClicked={ onBackClicked }
-					onConfirm={ onConfirm }
-				/>
-			) : (
-				<table>
-					<thead>
-						<tr>
-							<th></th>
-							<th></th>
-							<th></th>
-						</tr>
-					</thead>
-					<tbody>
-						{ supportedServices.map( service => (
-							<tr key={ service.ID }>
-								<td>
-									<service.icon iconSize={ isSmall ? 36 : 48 } />
-								</td>
-								<td
-									className={ classNames( styles[ 'column-description' ], {
-										[ styles.small ]: ! isSmall,
-									} ) }
-								>
-									<h2 className={ styles.title }>{ service.label }</h2>
-									{ ! isSmall ? (
-										<p className={ styles.description }>{ service.description }</p>
-									) : null }
-								</td>
-								<td>
-									<div className={ styles[ 'column-actions' ] }>
-										<ConnectForm
-											service={ service }
-											isSmall={ isSmall }
-											onConfirm={ onConfirm }
-											onSubmit={
-												service.needsCustomInputs ? onServiceSelected( service ) : undefined
-											}
-										/>
-										<Button
-											size={ isSmall ? 'small' : 'normal' }
-											className={ styles[ 'chevron-button' ] }
-											variant="secondary"
-											onClick={ onServiceSelected( service ) }
-											aria-label={ __( 'Learn more', 'jetpack' ) }
-										>
-											{ <Icon className={ styles.chevron } icon={ chevronDown } /> }
-										</Button>
-									</div>
-								</td>
-							</tr>
-						) ) }
-					</tbody>
-				</table>
-			) }
+			{
+				//Use IIFE to avoid nested ternary
+				( () => {
+					if ( hasKeyringResult ) {
+						return <ConfirmationForm keyringResult={ keyringResult } onComplete={ closeModal } />;
+					}
+
+					return <ServicesList />;
+				} )()
+			}
 		</Modal>
 	);
 };

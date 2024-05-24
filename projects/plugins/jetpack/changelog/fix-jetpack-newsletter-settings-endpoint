@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fix settings endpoint when subscription_options is not modified

@@ -186,7 +186,11 @@ export const SSO = withModuleSettingsFormHelpers(
 									}
 									toggling={ this.props.isSavingAnyOption( [ 'jetpack_sso_match_by_email' ] ) }
 									onChange={ this.handleMatchByEmailToggleChange }
-									label={ __( 'Match accounts using email addresses', 'jetpack' ) }
+									label={
+										<span className="jp-form-toggle-explanation">
+											{ __( 'Match accounts using email addresses', 'jetpack' ) }
+										</span>
+									}
 								/>
 								<ToggleControl
 									checked={
@@ -200,10 +204,14 @@ export const SSO = withModuleSettingsFormHelpers(
 									}
 									toggling={ this.props.isSavingAnyOption( [ 'jetpack_sso_require_two_step' ] ) }
 									onChange={ this.handleTwoStepToggleChange }
-									label={ __(
-										'Require accounts to use WordPress.com Two-Step Authentication',
-										'jetpack'
-									) }
+									label={
+										<span className="jp-form-toggle-explanation">
+											{ __(
+												'Require accounts to use WordPress.com Two-Step Authentication',
+												'jetpack'
+											) }
+										</span>
+									}
 								/>
 							</FormFieldset>
 						</SettingsGroup>

@@ -149,10 +149,10 @@ function wpcom_add_wpcom_menu_item() {
 
 	add_submenu_page(
 		$parent_slug,
-		esc_attr__( 'Connections', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Connections', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Marketing', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Marketing', 'jetpack-mu-wpcom' ),
 		'manage_options',
-		esc_url( "https://wordpress.com/marketing/connections/$domain" ),
+		esc_url( "https://wordpress.com/marketing/$domain" ),
 		null
 	);
 
@@ -191,6 +191,13 @@ function add_all_sites_menu_to_masterbar( $wp_admin_bar ) {
 		return;
 	}
 
+	wp_enqueue_style(
+		'wpcom-site-menu',
+		plugins_url( 'build/wpcom-site-menu/wpcom-site-menu.css', Jetpack_Mu_Wpcom::BASE_FILE ),
+		array(),
+		Jetpack_Mu_Wpcom::PACKAGE_VERSION
+	);
+
 	$wp_admin_bar->add_node(
 		array(
 			'id'    => 'all-sites',
@@ -211,13 +218,6 @@ function wpcom_site_menu_enqueue_scripts() {
 	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
 		return;
 	}
-
-	wp_enqueue_style(
-		'wpcom-site-menu',
-		plugins_url( 'build/wpcom-site-menu/wpcom-site-menu.css', Jetpack_Mu_Wpcom::BASE_FILE ),
-		array(),
-		Jetpack_Mu_Wpcom::PACKAGE_VERSION
-	);
 
 	wp_enqueue_script(
 		'wpcom-site-menu',
@@ -581,6 +581,11 @@ function wpcom_add_scheduled_updates_menu() {
 	 * as they don't have access to any of the pages.
 	 */
 	if ( ! current_user_has_wpcom_account() ) {
+		return;
+	}
+
+	// Don't show on staging sites.
+	if ( get_option( 'wpcom_is_staging_site' ) ) {
 		return;
 	}
 

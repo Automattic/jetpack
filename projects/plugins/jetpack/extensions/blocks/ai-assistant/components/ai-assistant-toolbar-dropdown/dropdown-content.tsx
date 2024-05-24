@@ -13,6 +13,7 @@ import {
 	PROMPT_TYPE_CHANGE_TONE,
 	PROMPT_TYPE_CORRECT_SPELLING,
 	PROMPT_TYPE_MAKE_LONGER,
+	PROMPT_TYPE_MAKE_SHORTER,
 	PROMPT_TYPE_SIMPLIFY,
 	PROMPT_TYPE_SUMMARIZE,
 	PROMPT_TYPE_CHANGE_LANGUAGE,
@@ -25,7 +26,7 @@ import './style.scss';
 /**
  * Types and constants
  */
-import type { ExtendedBlockProp } from '../../extensions/ai-assistant';
+import type { ExtendedBlockProp, ExtendedInlineBlockProp } from '../../extensions/ai-assistant';
 import type { PromptTypeProp } from '../../lib/prompt';
 import type { ToneProp } from '../tone-dropdown-control';
 import type { ReactElement } from 'react';
@@ -41,6 +42,9 @@ export const QUICK_EDIT_KEY_SUMMARIZE = 'summarize' as const;
 
 // Quick edits option: "Make longer"
 export const QUICK_EDIT_KEY_MAKE_LONGER = 'make-longer' as const;
+
+// Quick edits option: "Make longer"
+export const QUICK_EDIT_KEY_MAKE_SHORTER = 'make-shorter' as const;
 
 // Ask AI Assistant option
 export const KEY_ASK_AI_ASSISTANT = 'ask-ai-assistant' as const;
@@ -81,6 +85,12 @@ const quickActionsList: {
 			aiSuggestion: PROMPT_TYPE_MAKE_LONGER,
 			icon: postContent,
 		},
+		{
+			name: __( 'Make shorter', 'jetpack' ),
+			key: QUICK_EDIT_KEY_MAKE_SHORTER,
+			aiSuggestion: PROMPT_TYPE_MAKE_SHORTER,
+			icon: postContent,
+		},
 	],
 	'core/list': [
 		{
@@ -118,7 +128,7 @@ export type OnRequestSuggestion = (
 ) => void;
 
 type AiAssistantToolbarDropdownContentProps = {
-	blockType: ExtendedBlockProp;
+	blockType: ExtendedBlockProp | ExtendedInlineBlockProp;
 	disabled?: boolean;
 	onAskAiAssistant: () => void;
 	onRequestSuggestion: OnRequestSuggestion;

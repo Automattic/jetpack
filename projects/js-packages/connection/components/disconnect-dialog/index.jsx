@@ -29,13 +29,13 @@ const DisconnectDialog = props => {
 		apiRoot,
 		apiNonce,
 		connectedPlugins,
-		title,
+		title = __( 'Are you sure you want to disconnect?', 'jetpack' ),
 		pluginScreenDisconnectCallback,
 		onDisconnected,
 		onError,
 		disconnectStepComponent,
-		context,
-		connectedUser,
+		context = 'jetpack-dashboard',
+		connectedUser = {}, // Pass empty object to avoid undefined errors.
 		connectedSiteId,
 		isOpen,
 		onClose,
@@ -398,12 +398,6 @@ DisconnectDialog.propTypes = {
 	isOpen: PropTypes.bool,
 	/** Callback function for when the modal closes. */
 	onClose: PropTypes.func,
-};
-
-DisconnectDialog.defaultProps = {
-	title: __( 'Are you sure you want to disconnect?', 'jetpack' ),
-	context: 'jetpack-dashboard',
-	connectedUser: {}, // Pass empty object to avoid undefined errors.
 };
 
 export default DisconnectDialog;

@@ -81,12 +81,12 @@ class SAL_Token {
 	}
 
 	/**
-	 * Set's the scope variable to 'global'.
+	 * Checks if the scope is 'global'.
 	 *
-	 * @return string
+	 * @return bool
 	 */
 	public function is_global() {
-		return $scope === 'global'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+		return $this->scope === 'global';
 	}
 
 	/**

@@ -1,4 +1,5 @@
 @import '../scss/calypso-colors';
+@import "../scss/mixin_breakpoint";
 
 .jp-settings-sharing__sig-toggle {
 	span  {
@@ -19,5 +20,11 @@
 		a.dops-card__link {
 			cursor: pointer;
 		}
+	}
+}
+
+.jp-settings__connection-management {
+	@include breakpoint( '>960px' ) {
+		width: 60%;
 	}
 }
