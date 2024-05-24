@@ -192,9 +192,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/classic-theme-helper",
-                "reference": "1f539cfa5e1c50e5b889f72bb96e8f52834a4295"
+                "reference": "4851293db36b3c568391618cd733ab7618c95ae6"
             },
             "require": {
+                "automattic/jetpack-assets": "@dev",
                 "php": ">=7.0"
             },
             "require-dev": {
@@ -226,11 +227,11 @@
                 ]
             },
             "scripts": {
-                "build-development": [
-                    "echo 'Add your build step to composer.json, please!'"
-                ],
                 "build-production": [
-                    "echo 'Add your build step to composer.json, please!'"
+                    "pnpm run build-production"
+                ],
+                "build-development": [
+                    "pnpm run build"
                 ],
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
@@ -494,7 +495,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "f9ecbcc790abd2a7eaca0c926f24a1d3aa026ff0"
+                "reference": "aa6dffdf02a0285b3ce1632c4fe211693f4e79fe"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -520,7 +521,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.1.x-dev"
+                    "dev-trunk": "3.2.x-dev"
                 },
                 "dependencies": {
                     "test-only": [

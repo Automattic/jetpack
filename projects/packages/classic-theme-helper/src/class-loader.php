@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Classic_Theme_Helper;
 
+use WP_Error;
 /**
  * Classic Theme Helper.
  */
@@ -21,6 +22,7 @@ class Loader {
 	 */
 	public $modules = array(
 		'class-featured-content.php',
+		'responsive-videos.php',
 	);
 
 	/** Holds the singleton instance of the Loader
@@ -36,6 +38,8 @@ class Loader {
 		if ( ! self::$instance ) {
 			self::$instance = new Loader();
 			add_action( 'plugins_loaded', array( self::$instance, 'load_modules' ) );
+			add_action( 'init', array( __CLASS__, 'jetpack_load_theme_tools' ), 30 );
+			add_action( 'after_setup_theme', array( __CLASS__, 'jetpack_load_theme_compat' ), -1 );
 		}
 
 		return self::$instance;
@@ -52,6 +56,69 @@ class Loader {
 		$modules = apply_filters( 'jetpack_classic_theme_helper_modules', $this->modules );
 		foreach ( $modules as $module ) {
 			require_once __DIR__ . $module;
+		}
+	}
+
+	/**
+	 * Conditionally require the Tonesque lib depending on theme support.
+	 */
+	public static function jetpack_load_theme_tools() {
+		if ( current_theme_supports( 'tonesque' ) ) {
+			require_once __DIR__ . '../_inc/lib/tonesque.php';
+		}
+	}
+
+	/**
+	 * Load theme compat file if it exists.
+	 */
+	public static function jetpack_load_theme_compat() {
+
+		/**
+		 * Filter theme compat files.
+		 *
+		 * Themes can add their own compat files here if they like. For example:
+		 *
+		 * add_filter( 'jetpack_theme_compat_files', 'mytheme_jetpack_compat_file' );
+		 * function mytheme_jetpack_compat_file( $files ) {
+		 *     $files['mytheme'] = locate_template( 'jetpack-compat.php' );
+		 *     return $files;
+		 * }
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array Associative array of theme compat files to load.
+		 */
+		$compat_files = apply_filters(
+			'jetpack_theme_compat_files',
+			array(
+				'twentyfourteen' => __DIR__ . '/compat/twentyfourteen.php',
+				'twentyfifteen'  => __DIR__ . '/compat/twentyfifteen.php',
+				'twentysixteen'  => __DIR__ . '/compat/twentysixteen.php',
+				'twentynineteen' => __DIR__ . '/compat/twentynineteen.php',
+			)
+		);
+
+		self::jetpack_require_compat_file( get_stylesheet(), $compat_files );
+
+		if ( is_child_theme() ) {
+			self::jetpack_require_compat_file( get_template(), $compat_files );
+		}
+	}
+
+	/**
+	 * Requires a file once, if the passed key exists in the files array.
+	 *
+	 * @param string $key The key to check.
+	 * @param array  $files Array of files to check in.
+	 * @return void|WP_Error
+	 */
+	private static function jetpack_require_compat_file( $key, $files ) {
+		if ( ! is_string( $key ) ) {
+			return new WP_Error( 'key_not_string', 'The specified key is not actually a string.', compact( 'key' ) );
+		}
+
+		if ( array_key_exists( $key, $files ) && is_readable( $files[ $key ] ) ) {
+			require_once $files[ $key ];
 		}
 	}
 }

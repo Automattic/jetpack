@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Classic_Theme_Helper;
 
+use Automattic\Jetpack\Assets;
 use WP_Customize_Manager;
 use WP_Query;
 
@@ -599,7 +600,19 @@ if ( ! class_exists( __NAMESPACE__ . '\Featured_Content' ) && isset( $GLOBALS['p
 		 * Enqueue the tag suggestion script.
 		 */
 		public static function enqueue_scripts() {
-			wp_enqueue_script( 'featured-content-suggest', plugins_url( 'js/suggest.js', __FILE__ ), array( 'jquery', 'suggest' ), '20131022', true );
+			Assets::register_script(
+				'featured-content-suggest',
+				'../build/featured-content/suggest.js',
+				__FILE__,
+				array(
+					'dependencies' => array(
+						'jquery',
+						'suggest',
+					),
+					'in_footer'    => true,
+					'enqueue'      => true,
+				)
+			);
 		}
 
 		/**
