@@ -10,23 +10,23 @@ type HealthProps = {
 };
 
 const Health = ( { setup, error, setError }: HealthProps ) => {
-	const [ , setPageCache ] = useSingleModuleState( 'page_cache' );
+	const [ , setModuleState ] = useSingleModuleState( 'page_cache' );
 	// Was there a problem trying to setup cache?
 	const errorData = getErrorData( error );
-	const [ canReset, setCanReset ] = useState( false );
+	const [ doingRevert, setDoingRevert ] = useState( false );
 
 	useEffect( () => {
 		if ( setup?.isError && error && ! error.dismissed ) {
-			setCanReset( true );
+			setDoingRevert( true );
 		}
-	}, [ setup?.isError, error, setCanReset ] );
+	}, [ setup?.isError, error, setDoingRevert ] );
 
 	useEffect( () => {
-		if ( canReset ) {
-			setCanReset( false );
-			setPageCache( false );
+		if ( doingRevert ) {
+			setModuleState( false );
+			setDoingRevert( false );
 		}
-	}, [ canReset, setCanReset, setPageCache ] );
+	}, [ doingRevert, setDoingRevert, setModuleState ] );
 
 	return (
 		<>
