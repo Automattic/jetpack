@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Standardized the rest endpoint structure for jetpack social connections.

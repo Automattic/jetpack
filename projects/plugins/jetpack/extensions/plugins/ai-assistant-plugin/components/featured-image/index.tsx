@@ -2,7 +2,11 @@
  * External dependencies
  */
 import { useImageGenerator } from '@automattic/jetpack-ai-client';
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import {
+	useAnalytics,
+	isAtomicSite,
+	isSimpleSite,
+} from '@automattic/jetpack-shared-extension-utils';
 import { Button, Tooltip } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useRef, useState, useEffect } from '@wordpress/element';
@@ -37,6 +41,24 @@ const AI_ASSISTANT_EXPERIMENTAL_IMAGE_GENERATION_SUPPORT =
 const isAiAssistantExperimentalImageGenerationSupportEnabled = getFeatureAvailability(
 	AI_ASSISTANT_EXPERIMENTAL_IMAGE_GENERATION_SUPPORT
 );
+const IMAGE_GENERATION_MODEL = isAiAssistantExperimentalImageGenerationSupportEnabled
+	? 'stable-diffusion'
+	: 'dall-e-3';
+/**
+ * Determine the site type for tracking purposes.
+ *
+ * @returns {string} The site type, one of atomic, simple, jetpack.
+ */
+const getSiteType = () => {
+	if ( isAtomicSite() ) {
+		return 'atomic';
+	}
+	if ( isSimpleSite() ) {
+		return 'simple';
+	}
+	return 'jetpack';
+};
+const SITE_TYPE = getSiteType();
 
 export default function FeaturedImage( {
 	busy,
@@ -127,6 +149,8 @@ export default function FeaturedImage( {
 				recordEvent( 'jetpack_ai_featured_image_generation_error', {
 					placement,
 					error: data.error?.message,
+					model: IMAGE_GENERATION_MODEL,
+					site_type: SITE_TYPE,
 				} );
 			}
 		},
@@ -236,6 +260,8 @@ export default function FeaturedImage( {
 		// track the generate image event
 		recordEvent( 'jetpack_ai_featured_image_generation_generate_image', {
 			placement,
+			model: IMAGE_GENERATION_MODEL,
+			site_type: SITE_TYPE,
 		} );
 
 		toggleFeaturedImageModal();
@@ -246,6 +272,8 @@ export default function FeaturedImage( {
 		// track the regenerate image event
 		recordEvent( 'jetpack_ai_featured_image_generation_generate_another_image', {
 			placement,
+			model: IMAGE_GENERATION_MODEL,
+			site_type: SITE_TYPE,
 		} );
 
 		processImageGeneration();
@@ -256,6 +284,8 @@ export default function FeaturedImage( {
 		// track the try again event
 		recordEvent( 'jetpack_ai_featured_image_generation_try_again', {
 			placement,
+			model: IMAGE_GENERATION_MODEL,
+			site_type: SITE_TYPE,
 		} );
 
 		processImageGeneration();
@@ -278,6 +308,8 @@ export default function FeaturedImage( {
 		// track the accept/use image event
 		recordEvent( 'jetpack_ai_featured_image_generation_use_image', {
 			placement,
+			model: IMAGE_GENERATION_MODEL,
+			site_type: SITE_TYPE,
 		} );
 
 		const setAsFeaturedImage = image => {
