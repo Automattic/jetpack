@@ -548,7 +548,7 @@ class REST_Controller {
 
 		return new WP_Error(
 			'could_not_create_connection',
-			__( 'Something went wrogn while creating a connection.', 'jetpack-publicize-pkg' )
+			__( 'Something went wrong while creating a connection.', 'jetpack-publicize-pkg' )
 		);
 	}
 }
