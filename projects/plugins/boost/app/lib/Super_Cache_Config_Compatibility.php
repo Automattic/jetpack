@@ -5,82 +5,66 @@ namespace Automattic\Jetpack_Boost\Lib;
 class Super_Cache_Config_Compatibility {
 	public static function is_compatible() {
 		if ( ! self::include_supercache_config() ) {
-			\l( 'WPSC config file not found.' );
 			return true;
 		}
 
 		if ( self::is_mobile_enabled() ) {
-			\l( 'WPSC mobile enabled.' );
 			return false;
 		}
 
 		if ( self::is_late_init_enabled() ) {
-			\l( 'WPSC late init enabled.' );
 			return false;
 		}
 
 		if ( self::is_rejected_cookies_configured() ) {
-			\l( 'WPSC rejected cookies configured.' );
 			return false;
 		}
 
 		if ( self::is_cache_restrictions_configured() ) {
-			\l( 'WPSC cache restrictions configured.' );
 			return false;
 		}
 
 		if ( self::is_preload_enabled() ) {
-			\l( 'WPSC preload enabled.' );
 			return false;
 		}
 
 		if ( self::is_no_cache_for_get_enabled() ) {
-			\l( 'Exclude cache for get parameters enabled.' );
 			return false;
 		}
 
 		if ( self::is_save_headers_enabled() ) {
-			\l( 'WPSC save HTTP headers enabled.' );
 			return false;
 		}
 
 		if ( self::is_make_known_anon_enabled() ) {
-			\l( 'WPSC make known users anonymous enabled.' );
 			return false;
 		}
 
 		if ( self::is_dynamic_cache_enabled() ) {
-			\l( 'WPSC dynamic cache enabled.' );
 			return false;
 		}
 
 		if ( self::is_clear_on_post_edit_enabled() ) {
-			\l( 'WPSC clear cache on post edit enabled.' );
 			return false;
 		}
 
 		if ( self::is_front_page_checks_enabled() ) {
-			\l( 'WPSC extra homepage checks enabled.' );
 			return false;
 		}
 
 		if ( self::is_extra_pages_enabled() ) {
-			\l( 'WPSC extra pages enabled.' );
 			return false;
 		}
 
 		if ( self::is_extra_acceptable_files_enabled() ) {
-			\l( 'WPSC extra acceptable files enabled.' );
 			return false;
 		}
 
 		if ( self::is_extra_rejected_uris_enabled() ) {
-			\l( 'WPSC extra rejected URIs enabled.' );
 			return false;
 		}
 
 		if ( self::is_extra_rejected_user_agents_enabled() ) {
-			\l( 'WPSC extra rejected user agents enabled.' );
 			return false;
 		}
 
