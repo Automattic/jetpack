@@ -36,6 +36,8 @@ export const SocialLogoData = [`;
 
 const files = glob.sync( svgDir + '/*.svg' );
 
+files.sort( ( a, z ) => path.basename( a, '.svg' ).localeCompare( path.basename( z, '.svg' ) ) );
+
 files.forEach( file => {
 	// Get logo name from SVG file
 	const logoName = path.basename( file, '.svg' );
