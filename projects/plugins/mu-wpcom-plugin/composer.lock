@@ -311,9 +311,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/classic-theme-helper",
-                "reference": "cc6afd0d6df89d5645b55abd8b7f2955b187fcff"
+                "reference": "4851293db36b3c568391618cd733ab7618c95ae6"
             },
             "require": {
+                "automattic/jetpack-assets": "@dev",
                 "php": ">=7.0"
             },
             "require-dev": {
@@ -328,7 +329,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-classic-theme-helper/compare/v${old}...v${new}"
@@ -345,11 +346,11 @@
                 ]
             },
             "scripts": {
-                "build-development": [
-                    "echo 'Add your build step to composer.json, please!'"
-                ],
                 "build-production": [
-                    "echo 'Add your build step to composer.json, please!'"
+                    "pnpm run build-production"
+                ],
+                "build-development": [
+                    "pnpm run build"
                 ],
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
