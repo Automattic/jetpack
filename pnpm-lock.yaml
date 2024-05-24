@@ -1229,6 +1229,15 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
     devDependencies:
+      '@types/react':
+        specifier: 18.3.1
+        version: 18.3.1
+      '@types/react-dom':
+        specifier: 18.3.0
+        version: 18.3.0
+      glob:
+        specifier: 7.1.6
+        version: 7.1.6
       svg2ttf:
         specifier: ^6.0.3
         version: 6.0.3
@@ -1241,6 +1250,9 @@ importers:
       svgstore-cli:
         specifier: ^2.0.1
         version: 2.0.1
+      typescript:
+        specifier: 5.0.4
+        version: 5.0.4
       wawoff2:
         specifier: ^2.0.1
         version: 2.0.1
@@ -1771,40 +1783,16 @@ importers:
       '@automattic/calypso-color-schemes':
         specifier: 3.1.3
         version: 3.1.3
-      postcss-custom-properties:
-        specifier: 12.1.7
-        version: 12.1.7(postcss@8.4.31)
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
-      '@automattic/remove-asset-webpack-plugin':
-        specifier: workspace:*
-        version: link:../../js-packages/remove-asset-webpack-plugin
-      '@babel/core':
-        specifier: 7.24.0
-        version: 7.24.0
-      '@csstools/postcss-global-data':
-        specifier: 2.1.1
-        version: 2.1.1(postcss@8.4.31)
       '@wordpress/browserslist-config':
         specifier: 5.40.0
         version: 5.40.0
-      '@wordpress/dependency-extraction-webpack-plugin':
-        specifier: 5.8.0
-        version: 5.8.0(webpack@5.76.0)
-      autoprefixer:
-        specifier: 10.4.14
-        version: 10.4.14(postcss@8.4.31)
       core-js:
         specifier: 3.23.5
         version: 3.23.5
-      postcss:
-        specifier: 8.4.31
-        version: 8.4.31
-      postcss-loader:
-        specifier: 6.2.0
-        version: 6.2.0(postcss@8.4.31)(webpack@5.76.0)
       sass:
         specifier: 1.64.1
         version: 1.64.1

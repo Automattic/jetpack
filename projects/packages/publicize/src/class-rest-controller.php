@@ -281,12 +281,25 @@ class REST_Controller {
 	 * Gets the current Publicize connections for the site.
 	 *
 	 * GET `jetpack/v4/publicize/connections`
+	 *
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
 	 */
-	public function get_publicize_connections() {
-		$blog_id  = $this->get_blog_id();
-		$path     = sprintf( '/sites/%d/publicize/connections', absint( $blog_id ) );
-		$response = Client::wpcom_json_api_request_as_user( $path, '2', array(), null, 'wpcom' );
-		return rest_ensure_response( $this->make_proper_response( $response ) );
+	public function get_publicize_connections( $request ) {
+		$run_test_results = $request->get_param( 'test_connections' );
+		$clear_cache      = $request->get_param( 'clear_cache' );
+
+		$args = array();
+
+		if ( ! empty( $run_test_results ) ) {
+			$args['test_connections'] = true;
+		}
+
+		if ( ! empty( $clear_cache ) ) {
+			$args['clear_cache'] = true;
+		}
+
+		global $publicize;
+		return rest_ensure_response( $publicize->get_all_connections_for_user( $args ) );
 	}
 
 	/**
@@ -453,7 +466,15 @@ class REST_Controller {
 			$body,
 			'wpcom'
 		);
-		return rest_ensure_response( $this->make_proper_response( $response ) );
+
+		$response = $this->make_proper_response( $response );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		global $publicize;
+		return rest_ensure_response( $publicize->get_connection_for_user( (int) $connection_id ) );
 	}
 
 	/**
@@ -513,6 +534,21 @@ class REST_Controller {
 			$body,
 			'wpcom'
 		);
-		return rest_ensure_response( $this->make_proper_response( $response ) );
+
+		$response = $this->make_proper_response( $response );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		if ( isset( $response['ID'] ) ) {
+			global $publicize;
+			return rest_ensure_response( $publicize->get_connection_for_user( (int) $response['ID'] ) );
+		}
+
+		return new WP_Error(
+			'could_not_create_connection',
+			__( 'Something went wrong while creating a connection.', 'jetpack-publicize-pkg' )
+		);
 	}
 }
