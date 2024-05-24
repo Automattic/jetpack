@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "28d59d58a2473bd2de9afe7b1f132040",
+	"content-hash": "b5d024a3770c4f424cbdec8f21fcd463",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -723,6 +723,68 @@
 				"GPL-2.0-or-later"
 			],
 			"description": "A package that handles the API to generate the speed score.",
+			"transport-options": {
+				"relative": true
+			}
+		},
+		{
+			"name": "automattic/jetpack-calypsoify",
+			"version": "dev-trunk",
+			"dist": {
+				"type": "path",
+				"url": "../../packages/calypsoify",
+				"reference": "10f1e08f3ac93e9c6f004d1d733443370e15334f"
+			},
+			"require": {
+				"automattic/jetpack-assets": "@dev",
+				"automattic/jetpack-status": "@dev",
+				"php": ">=7.0"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"yoast/phpunit-polyfills": "1.1.0"
+			},
+			"suggest": {
+				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+			},
+			"type": "jetpack-library",
+			"extra": {
+				"autotagger": true,
+				"branch-alias": {
+					"dev-trunk": "0.1.x-dev"
+				},
+				"changelogger": {
+					"link-template": "https://github.com/Automattic/jetpack-calypsoify/compare/v${old}...v${new}"
+				},
+				"mirror-repo": "Automattic/jetpack-calypsoify",
+				"textdomain": "jetpack-calypsoify",
+				"version-constants": {
+					"::PACKAGE_VERSION": "src/class-jetpack-calypsoify.php"
+				}
+			},
+			"autoload": {
+				"classmap": [
+					"src/"
+				]
+			},
+			"scripts": {
+				"build-production": [
+					"pnpm run build-production"
+				],
+				"build-development": [
+					"pnpm run build"
+				],
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"description": "Calypsoify is designed to make sure specific wp-admin pages include navigation that prioritizes the Calypso navigation experience.",
 			"transport-options": {
 				"relative": true
 			}
@@ -2579,7 +2641,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/sync",
-				"reference": "4415298e32ada09dc9880eb8d4ec5b979efa4889"
+				"reference": "3c3e63c76d1afeaa74586eda69dd79160a100251"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2613,7 +2675,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "2.16.x-dev"
+					"dev-trunk": "3.0.x-dev"
 				},
 				"dependencies": {
 					"test-only": [
@@ -5875,6 +5937,7 @@
 		"automattic/jetpack-blaze": 20,
 		"automattic/jetpack-blocks": 20,
 		"automattic/jetpack-boost-speed-score": 20,
+		"automattic/jetpack-calypsoify": 20,
 		"automattic/jetpack-compat": 20,
 		"automattic/jetpack-composer-plugin": 20,
 		"automattic/jetpack-config": 20,

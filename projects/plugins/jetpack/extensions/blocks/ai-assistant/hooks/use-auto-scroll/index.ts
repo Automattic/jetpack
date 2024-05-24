@@ -7,7 +7,7 @@ import debugFactory from 'debug';
 const debug = debugFactory( 'jetpack-ai-assistant:use-auto-scroll' );
 
 const useAutoScroll = (
-	blockRef: React.MutableRefObject< HTMLElement >,
+	blockRef: React.MutableRefObject< HTMLElement | null >,
 	contentRef?: React.MutableRefObject< HTMLElement >,
 	useBlockAsTarget: boolean = false
 ) => {
@@ -85,7 +85,7 @@ const useAutoScroll = (
 	}, [ blockRef, contentRef, useBlockAsTarget, userScrollHandler ] );
 
 	const getScrollParent = useCallback(
-		( el: HTMLElement | null ): HTMLElement | Document | null => {
+		( el: HTMLElement | null | undefined ): HTMLElement | Document | null => {
 			if ( el == null ) {
 				return null;
 			}
