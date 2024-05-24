@@ -139,10 +139,26 @@ function wpcom_render_classic_tour_templates() {
 		return;
 	}
 	?>
-	<template id="wpcom-classic-tour-step-template">
+	<template id="wpcom-classic-tour-steps-template">
 		<div class="wpcom-classic-tour-step" data-target=".toplevel_page_wpcom-hosting-menu" data-placement="right">
 			<h3><?php esc_html_e( 'Upgrades is now Hosting', 'jetpack-mu-wpcom' ); ?></h3>
 			<p><?php esc_html_e( 'The Hosting drawer contains the My Home page and all items from the Updates drawer, including Plans, Domains, Emails, and Purchases.', 'jetpack-mu-wpcom' ); ?></p>
+		</div>
+		<div class="wpcom-classic-tour-step" data-target=".toplevel_page_wpcom-hosting-menu" data-placement="right">
+			<h3><?php esc_html_e( 'Hosting overview', 'jetpack-mu-wpcom' ); ?></h3>
+			<p><?php esc_html_e( 'Access the new site management panel and all developer tools such as hosting configuration, GitHub deployments, metrics, PHP logs, and server logs.', 'jetpack-mu-wpcom' ); ?></p>
+		</div>
+		<div class="wpcom-classic-tour-step" data-target=".toplevel_page_wpcom-hosting-menu" data-placement="right">
+			<h3><?php esc_html_e( 'All your sites', 'jetpack-mu-wpcom' ); ?></h3>
+			<p><?php esc_html_e( 'All sites consolidates all your sites, domains, notifications, help center, Reader, and more in one place.', 'jetpack-mu-wpcom' ); ?></p>
+		</div>
+	</template>
+	<template id="wpcom-classic-tour-step-footer-template">
+		<div class="wpcom-classic-tour-step-footer">
+			<div class="wpcom-classic-tour-step-current"><?php esc_html_e( 'Step {{currentStep}} of {{totalSteps}}', 'jetpack-mu-wpcom' ); ?></div>
+			<button class="wpcom-classic-tour-step-prev"><?php esc_html_e( 'Previous', 'jetpack-mu-wpcom' ); ?></button>
+			<button class="wpcom-classic-tour-step-next"><?php esc_html_e( 'Next', 'jetpack-mu-wpcom' ); ?></button>
+			<button class="wpcom-classic-tour-step-done"><?php esc_html_e( 'Well done!', 'jetpack-mu-wpcom' ); ?></button>
 		</div>
 	</template>
 	<?php

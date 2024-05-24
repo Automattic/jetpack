@@ -1,10 +1,18 @@
 .wpcom-classic-tour-step {
 	position: absolute;
-	background: #1e1e1e;
+	background: #1d2327;
 	color: #fff;
 	font-size: 0.8125rem;
-	padding: 12px;
-	max-width: 300px;
+	width: 350px;
+	border: 1px solid #3c434a;
+	padding: 16px;
+	box-sizing: border-box;
+}
+
+.wpcom-classic-tour-step::after,
+.wpcom-classic-tour-step::before {
+	content: "";
+	position: absolute;
 }
 
 .wpcom-classic-tour-step[data-placement="right"] {
@@ -12,13 +20,43 @@
 	transform: translateY(-30px);
 }
 
+.wpcom-classic-tour-step[data-placement="right"]::after,
+.wpcom-classic-tour-step[data-placement="right"]::before {
+	top: 0;
+	transform: translateY(30px);
+	border-top: 12px solid transparent;
+	border-bottom: 12px solid transparent;
+	border-right: 12px solid transparent;
+}
+
 .wpcom-classic-tour-step[data-placement="right"]::after {
-	content: "";
-	position: absolute;
-	top: calc( 30px + 8px );
-	left: -8px;
-	border-top: 8px solid transparent;
-	border-bottom: 8px solid transparent;
-	border-right: 8px solid #1e1e1e;
-	visibility: visible;
+	left: -10px;
+	border-right-color: #1d2327;
+}
+
+.wpcom-classic-tour-step[data-placement="right"]::before {
+	left: -12px;
+	border-right-color: #3c434a;
+}
+
+.wpcom-classic-tour-step h3 {
+	color: #fff;
+	font-size: 1rem;
+	line-height: 1.5rem;
+	margin-top: 0;
+	margin-bottom: 8px;
+}
+
+.wpcom-classic-tour-step p {
+	margin-top: 0;
+}
+
+.wpcom-classic-tour-step.is-first-step .wpcom-classic-tour-step-prev,
+.wpcom-classic-tour-step .wpcom-classic-tour-step-done,
+.wpcom-classic-tour-step.is-last-step .wpcom-classic-tour-step-next {
+	display: none;
+}
+
+.wpcom-classic-tour-step.is-last-step .wpcom-classic-tour-step-done {
+	display: block;
 }
