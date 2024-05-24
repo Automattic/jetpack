@@ -9,11 +9,13 @@
  */
 return [
     // # Issue statistics:
-    // PhanDeprecatedFunction : 19 occurrences
+    // PhanDeprecatedFunction : 12 occurrences
+	// PhanDeprecatedProperty : 6 occurrences
+	// PhanDeprecatedClass : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-jetpack-calypsoify.php' => ['PhanDeprecatedFunction'],
+        'src/class-jetpack-calypsoify.php' => ['PhanDeprecatedFunction', 'PhanDeprecatedProperty', 'PhanDeprecatedClass' ],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)
