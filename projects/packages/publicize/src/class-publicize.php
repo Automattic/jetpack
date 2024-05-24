@@ -7,8 +7,10 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Tokens;
 use Jetpack_IXR_Client;
+use Jetpack_Options;
 use WP_Error;
 use WP_Post;
 
@@ -145,7 +147,7 @@ class Publicize extends Publicize_Base {
 	}
 
 	/**
-	 * Set updated Publicize connections.
+	 * Set updated Publicize connections in a transient.
 	 *
 	 * @param mixed $publicize_connections Updated connections.
 	 * @return true
@@ -179,7 +181,13 @@ class Publicize extends Publicize_Base {
 	 */
 	public function get_all_connections() {
 		$this->refresh_connections();
+
 		$connections = get_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT );
+
+		if ( $connections === false ) {
+			$connections = array();
+		}
+
 		if ( isset( $connections['google_plus'] ) ) {
 			unset( $connections['google_plus'] );
 		}
@@ -220,9 +228,15 @@ class Publicize extends Publicize_Base {
 	/**
 	 * Get all connections for a specific user.
 	 *
+	 * @param array $args Arguments to run operations such as force refresh and connection test results.
+
 	 * @return array
 	 */
-	public function get_all_connections_for_user() {
+	public function get_all_connections_for_user( $args = array() ) {
+		if ( ( isset( $args['clear_cache'] ) && $args['clear_cache'] )
+		|| ( isset( $args['test_connections'] ) && $args['test_connections'] ) ) {
+			$this->clear_connections_transient();
+		}
 		$connections = $this->get_all_connections();
 
 		$connections_to_return = array();
@@ -240,6 +254,8 @@ class Publicize extends Publicize_Base {
 									'connection_id'  => $connection['connection_data']['id'],
 									'can_disconnect' => self::can_manage_connection( $connection['connection_data'] ),
 									'profile_link'   => $this->get_profile_link( $service_name, $connection ),
+									'shared'         => $connection['connection_data']['user_id'] === '0',
+									'status'         => 'ok',
 								)
 							);
 						} else {
@@ -249,7 +265,53 @@ class Publicize extends Publicize_Base {
 				}
 			}
 		}
+
+		if ( self::use_admin_ui_v1() && isset( $args['test_connections'] ) && $args['test_connections'] && count( $connections_to_return ) > 0 ) {
+			$connections_to_return = $this->add_connection_test_results( $connections_to_return );
+		}
+
 		return $connections_to_return;
+	}
+
+	/**
+	 * To add the connection test results to the connections.
+	 *
+	 * @param array $connections The Jetpack Social connections.
+
+	 * @return array
+	 */
+	public function add_connection_test_results( $connections ) {
+		$path                   = sprintf( '/sites/%d/publicize/connection-test-results', absint( Jetpack_Options::get_option( 'id' ) ) );
+		$response               = Client::wpcom_json_api_request_as_user( $path, '2', array(), null, 'wpcom' );
+		$connection_results     = json_decode( wp_remote_retrieve_body( $response ), true );
+		$connection_results_map = array();
+
+		foreach ( $connection_results as $connection_result ) {
+			$connection_results_map[ $connection_result['connection_id'] ] = $connection_result['test_success'] ? 'ok' : 'broken';
+		}
+		foreach ( $connections as $key => $connection ) {
+			if ( isset( $connection_results_map[ $connection['connection_id'] ] ) ) {
+				$connections[ $key ]['status'] = $connection_results_map[ $connection['connection_id'] ];
+			}
+		}
+
+		return $connections;
+	}
+
+	/**
+	 * Get a connections for a user.
+	 *
+	 * @param int $connection_id The connection_id.
+
+	 * @return array
+	 */
+	public function get_connection_for_user( $connection_id ) {
+		foreach ( $this->get_all_connections_for_user() as $connection ) {
+			if ( (int) $connection['connection_id'] === (int) $connection_id ) {
+				return $connection;
+			}
+		}
+		return array();
 	}
 
 	/**
@@ -432,26 +494,24 @@ class Publicize extends Publicize_Base {
 	}
 
 	/**
-	 * Grabs a fresh copy of the publicize connections data.
-	 * Only refreshes once every 4 hours or retry immediately.
+	 * Grabs a fresh copy of the publicize connections data, if the cache is busted.
 	 */
 	public function refresh_connections() {
-		if ( get_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT ) ) {
-			return;
-		}
-		$xml = new Jetpack_IXR_Client();
-		$xml->query( 'jetpack.fetchPublicizeConnections' );
-
-		if ( ! $xml->isError() ) {
-			$response = $xml->getResponse();
-			$this->receive_updated_publicize_connections( $response );
-		} else {
-			$this->clear_connections_transient();
+		$connections = get_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT );
+		if ( $connections === false ) {
+			$xml = new Jetpack_IXR_Client();
+			$xml->query( 'jetpack.fetchPublicizeConnections' );
+			if ( ! $xml->isError() ) {
+				$response = $xml->getResponse();
+				$this->receive_updated_publicize_connections( $response );
+			} else {
+				$this->clear_connections_transient();
+			}
 		}
 	}
 
 	/**
-	 * Delete the connections transient, so we force refresh the connection data.
+	 * Delete the transient.
 	 */
 	public function clear_connections_transient() {
 		delete_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT );
