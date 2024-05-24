@@ -234,7 +234,7 @@ class Publicize extends Publicize_Base {
 	 */
 	public function get_all_connections_for_user( $args = array() ) {
 		if ( ( isset( $args['clear_cache'] ) && $args['clear_cache'] )
-		|| ( isset( $args['run_connection_tests'] ) && $args['run_connection_tests'] ) ) {
+		|| ( isset( $args['test_connections'] ) && $args['test_connections'] ) ) {
 			$this->clear_connections_transient();
 		}
 		$connections = $this->get_all_connections();
@@ -266,7 +266,7 @@ class Publicize extends Publicize_Base {
 			}
 		}
 
-		if ( self::use_admin_ui_v1() && isset( $args['run_connection_tests'] ) && $args['run_connection_tests'] && count( $connections_to_return ) > 0 ) {
+		if ( self::use_admin_ui_v1() && isset( $args['test_connections'] ) && $args['test_connections'] && count( $connections_to_return ) > 0 ) {
 			$connections_to_return = $this->add_connection_test_results( $connections_to_return );
 		}
 
@@ -285,19 +285,17 @@ class Publicize extends Publicize_Base {
 		$response               = Client::wpcom_json_api_request_as_user( $path, '2', array(), null, 'wpcom' );
 		$connection_results     = json_decode( wp_remote_retrieve_body( $response ), true );
 		$connection_results_map = array();
+
 		foreach ( $connection_results as $connection_result ) {
-			$connection_results_map[ $connection_result['connection_id'] ] = $connection_result['test_success'];
+			$connection_results_map[ $connection_result['connection_id'] ] = $connection_result['test_success'] ? 'ok' : 'broken';
+		}
+		foreach ( $connections as $key => $connection ) {
+			if ( isset( $connection_results_map[ $connection['connection_id'] ] ) ) {
+				$connections[ $key ]['status'] = $connection_results_map[ $connection['connection_id'] ];
+			}
 		}
 
-		return array_map(
-			function ( $connection ) use ( $connection_results_map ) {
-				if ( isset( $connection_results_map[ $connection['connection_id'] ] ) ) {
-						$connection['status'] = $connection_results_map[ $connection['connection_id'] ] ? 'ok' : 'broken';
-				}
-				return $connection;
-			},
-			$connections
-		);
+		return $connections;
 	}
 
 	/**

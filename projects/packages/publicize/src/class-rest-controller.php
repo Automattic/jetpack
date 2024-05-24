@@ -285,13 +285,13 @@ class REST_Controller {
 	 * @param WP_REST_Request $request The request object, which includes the parameters.
 	 */
 	public function get_publicize_connections( $request ) {
-		$run_test_results = $request->get_param( 'run_connection_tests' );
+		$run_test_results = $request->get_param( 'test_connections' );
 		$clear_cache      = $request->get_param( 'clear_cache' );
 
 		$args = array();
 
 		if ( ! empty( $run_test_results ) ) {
-			$args['run_connection_tests'] = true;
+			$args['test_connections'] = true;
 		}
 
 		if ( ! empty( $clear_cache ) ) {
@@ -467,6 +467,8 @@ class REST_Controller {
 			'wpcom'
 		);
 
+		$response = $this->make_proper_response( $response );
+
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
@@ -533,17 +535,20 @@ class REST_Controller {
 			'wpcom'
 		);
 
+		$response = $this->make_proper_response( $response );
+
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
 
-		if ( isset( $response['body'] ) ) {
-			$body = json_decode( wp_remote_retrieve_body( $response ), true );
-			if ( isset( $body['ID'] ) ) {
-				global $publicize;
-				return rest_ensure_response( $publicize->get_connection_for_user( (int) $body['ID'] ) );
-			}
+		if ( isset( $response['ID'] ) ) {
+			global $publicize;
+			return rest_ensure_response( $publicize->get_connection_for_user( (int) $response['ID'] ) );
 		}
-		return rest_ensure_response( $response );
+
+		return new WP_Error(
+			'could_not_create_connection',
+			__( 'Something went wrong while creating a connection.', 'jetpack-publicize-pkg' )
+		);
 	}
 }
