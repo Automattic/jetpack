@@ -5,6 +5,8 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+
 /**
  * Add the Admin Interface Style setting on the General settings page.
  * This setting allows users to switch between the classic WP-Admin interface and the WordPress.com legacy dashboard.
@@ -91,3 +93,121 @@ function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 	return $new_value;
 }
 add_filter( 'pre_update_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_update_option', 10, 2 );
+
+/**
+ * Determine if the intro tour for the classic admin interface should be shown.
+ *
+ * @return bool
+ */
+function wpcom_should_show_classic_tour() {
+	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
+		return false;
+	}
+
+	$has_admin_interface_changed = ( $_GET['admin-interface-changed'] ?? 'false' ) === 'true';
+	if ( ! $has_admin_interface_changed ) {
+		return false;
+	}
+
+	// Don't show the tour to non-administrators since it highlights features that are unavailable to them.
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return false;
+	}
+
+	if ( get_option( 'wpcom_classic_tour_dismissed' ) ) {
+		return false;
+	}
+
+	global $pagenow;
+	return $pagenow === 'index.php';
+}
+
+/**
+ * Render the HTML templates need by the classic tour scripts.
+ */
+function wpcom_render_classic_tour_templates() {
+	if ( ! wpcom_should_show_classic_tour() ) {
+		return;
+	}
+	?>
+	<template id="wpcom-classic-tour-step-template">
+		<div class="wpcom-classic-tour-step" data-target=".toplevel_page_wpcom-hosting-menu" data-placement="right">
+			<h3><?php esc_html_e( 'Upgrades is now Hosting', 'jetpack-mu-wpcom' ); ?></h3>
+			<p><?php esc_html_e( 'The Hosting drawer contains the My Home page and all items from the Updates drawer, including Plans, Domains, Emails, and Purchases.', 'jetpack-mu-wpcom' ); ?></p>
+		</div>
+	</template>
+	<?php
+}
+add_action( 'admin_footer', 'wpcom_render_classic_tour_templates' );
+
+/**
+ * Enqueue the scripts that show an intro tour with some educational tooltips for folks who turn the classic admin interface on.
+ */
+function wpcom_classic_tour_enqueue_scripts() {
+	if ( ! wpcom_should_show_classic_tour() ) {
+		return;
+	}
+
+	wp_enqueue_style(
+		'wpcom-classic-tour',
+		plugins_url( 'classic-tour.css', __FILE__ ),
+		array(),
+		Jetpack_Mu_Wpcom::PACKAGE_VERSION
+	);
+
+	wp_enqueue_script(
+		'wpcom-classic-tour',
+		plugins_url( 'classic-tour.js', __FILE__ ),
+		array(),
+		Jetpack_Mu_Wpcom::PACKAGE_VERSION,
+		array(
+			'strategy'  => 'defer',
+			'in_footer' => true,
+		)
+	);
+
+	$data = array(
+		'dismissNonce' => wp_create_nonce( 'wpcom_dismiss_classic_tour' ),
+	);
+
+	wp_add_inline_script(
+		'wpcom-site-menu',
+		'window.wpcomClassicTour = ' . wp_json_encode( $data ) . ';'
+	);
+}
+add_action( 'admin_enqueue_scripts', 'wpcom_classic_tour_enqueue_scripts' );
+
+/**
+ * Handles the AJAX requests to dismiss the classic tour.
+ */
+function wpcom_dismiss_classic_tour() {
+	check_ajax_referer( 'wpcom_dismiss_classic_tour' );
+	update_option( 'wpcom_classic_tour_dismissed', 1 );
+	wp_die();
+}
+add_action( 'wp_ajax_wpcom_dismiss_classic_tour', 'wpcom_dismiss_classic_tour' );
+
+function wpcom_show_admin_interface_notice() {
+	$has_admin_interface_changed = ( $_GET['admin-interface-changed'] ?? 'false' ) === 'true';
+	if ( ! $has_admin_interface_changed ) {
+		return;
+	}
+
+	global $pagenow;
+	if ( $pagenow !== 'index.php' ) {
+		return;
+	}
+
+	if ( wpcom_should_show_classic_tour() ) {
+		return;
+	}
+
+	wp_admin_notice(
+		__( 'Admin interface style changed.', 'jetpack-mu-wpcom' ),
+		array(
+			'type'        => 'success',
+			'dismissible' => true,
+		)
+	);
+}
+add_action( 'admin_notices', 'wpcom_show_admin_interface_notice' );

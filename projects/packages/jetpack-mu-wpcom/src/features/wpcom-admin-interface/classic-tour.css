@@ -1,0 +1,24 @@
+.wpcom-classic-tour-step {
+	position: absolute;
+	background: #1e1e1e;
+	color: #fff;
+	font-size: 0.8125rem;
+	padding: 12px;
+	max-width: 300px;
+}
+
+.wpcom-classic-tour-step[data-placement="right"] {
+	margin-left: 16px;
+	transform: translateY(-30px);
+}
+
+.wpcom-classic-tour-step[data-placement="right"]::after {
+	content: "";
+	position: absolute;
+	top: calc( 30px + 8px );
+	left: -8px;
+	border-top: 8px solid transparent;
+	border-bottom: 8px solid transparent;
+	border-right: 8px solid #1e1e1e;
+	visibility: visible;
+}
