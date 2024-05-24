@@ -29,6 +29,7 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
+use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -2249,6 +2250,24 @@ class Jetpack {
 			}
 		}
 
+		$sideloaded_modules = array(
+			'backup' => array(
+				'slug' => 'jetpack-backup',
+				'file' => 'jetpack-backup/jetpack-backup.php',
+			),
+		);
+
+		foreach ( $sideloaded_modules as $module => $replacement ) {
+			if ( self::is_module_active( $module ) ) {
+				if ( Plugins_Installer::is_plugin_active( $replacement['file'] ) ) {
+					self::deactivate_module( $module ); // If the plugin is already active, just deactivate here.
+				} elseif ( Plugins_Installer::install_and_activate_plugin( $replacement['slug'] ) ) {
+						self::deactivate_module( $module ); // If we can plugin and activate the plugin, deactivate.
+				} else { // Plugin not active and couldn't be installed. Report it.
+					( new Tracking() )->tracks_record_event( ( new Connection_Manager() )->get_connection_owner_id(), 'jetpack_sideload_failure' );
+				}
+			}
+		}
 		return array_unique( $modules );
 	}
 

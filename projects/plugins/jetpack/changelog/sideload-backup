@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Use the Backup plugin instead of the Backup module
