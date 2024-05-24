@@ -48,12 +48,12 @@ const useAsyncElement = ( target: string, timeoutDuration: number ): HTMLElement
 		// Set timeout to ensure we don't wait too long for the element
 		const endTime = Date.now() + timeoutDuration;
 
-		const getAsyncElement = ( endTime: number ) => {
+		const getAsyncElement = ( end: number ) => {
 			const element = document.querySelector( target ) as HTMLElement | null;
 			if ( element ) {
 				setAsyncElement( element );
 			} else if ( Date.now() < endTime ) {
-				requestAnimationFrame( () => getAsyncElement( endTime ) );
+				requestAnimationFrame( () => getAsyncElement( end ) );
 			} else {
 				setAsyncElement( null );
 			}
