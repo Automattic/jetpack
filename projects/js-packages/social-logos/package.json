@@ -8,8 +8,8 @@
 	},
 	"exports": {
 		".": {
-			"jetpack:src": "./src/react/index.jsx",
-			"default": "./build/react/index.jsx"
+			"jetpack:src": "./src/react/index.ts",
+			"default": "./build/react/index.js"
 		},
 		"./svg-sprite/social-logos.svg": {
 			"default": "./build/svg-sprite/social-logos.svg"
@@ -34,10 +34,14 @@
 		"react-dom": "18.3.1"
 	},
 	"devDependencies": {
+		"@types/react": "18.3.1",
+		"@types/react-dom": "18.3.0",
+		"glob": "7.1.6",
 		"svg2ttf": "^6.0.3",
 		"svgicons2svgfont": "^12.0.0",
 		"svgo": "^3.3.2",
 		"svgstore-cli": "^2.0.1",
+		"typescript": "5.0.4",
 		"wawoff2": "^2.0.1",
 		"xml2js": "^0.6.2"
 	},
