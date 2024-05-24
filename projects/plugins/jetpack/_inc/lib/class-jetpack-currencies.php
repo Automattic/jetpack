@@ -154,6 +154,7 @@ class Jetpack_Currencies {
 	 * @return string           Formatted price.
 	 */
 	public static function format_price( $price, $currency, $symbol = true ) {
+		$price = (float) $price;
 		// Fall back to unspecified currency symbol like `¤1,234.05`.
 		// @link https://en.wikipedia.org/wiki/Currency_sign_(typography).
 		if ( ! array_key_exists( $currency, self::CURRENCIES ) ) {
