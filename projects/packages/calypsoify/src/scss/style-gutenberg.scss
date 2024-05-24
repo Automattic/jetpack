@@ -5,7 +5,8 @@
  * Hide the last item of the first group when the screen is big enough.
  */
 @media (min-width: 782px) {
-  .components-dropdown-menu__menu:first-child .components-menu-group:first-child .components-button:last-of-type {
+  .interface-more-menu-dropdown__content .components-dropdown-menu__menu:first-child .components-menu-group:first-child .components-button:last-of-type,
+  .more-menu-dropdown__content .components-dropdown-menu__menu:first-child .components-menu-group:first-child .components-button:last-of-type {
 	display: none;
   }
 }
