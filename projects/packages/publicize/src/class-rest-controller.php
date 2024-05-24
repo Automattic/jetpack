@@ -467,6 +467,8 @@ class REST_Controller {
 			'wpcom'
 		);
 
+		$response = $this->make_proper_response( $response );
+
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
@@ -533,17 +535,20 @@ class REST_Controller {
 			'wpcom'
 		);
 
+		$response = $this->make_proper_response( $response );
+
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
 
-		if ( isset( $response['body'] ) ) {
-			$body = json_decode( wp_remote_retrieve_body( $response ), true );
-			if ( isset( $body['ID'] ) ) {
-				global $publicize;
-				return rest_ensure_response( $publicize->get_connection_for_user( (int) $body['ID'] ) );
-			}
+		if ( isset( $response['ID'] ) ) {
+			global $publicize;
+			return rest_ensure_response( $publicize->get_connection_for_user( (int) $response['ID'] ) );
 		}
-		return rest_ensure_response( $response );
+
+		return new WP_Error(
+			'could_not_create_connection',
+			__( 'Something went wrogn while creating a connection.', 'jetpack-publicize-pkg' )
+		);
 	}
 }
