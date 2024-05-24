@@ -249,7 +249,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/classic-theme-helper",
-                "reference": "4851293db36b3c568391618cd733ab7618c95ae6"
+                "reference": "1cdde269fafd252a18a2b62d5e0812290598e300"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
