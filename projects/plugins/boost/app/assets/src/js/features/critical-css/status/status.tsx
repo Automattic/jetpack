@@ -7,7 +7,7 @@ import RefreshIcon from '$svg/refresh';
 import { createInterpolateElement } from '@wordpress/element';
 import { Link } from 'react-router-dom';
 import { useRegenerateCriticalCssAction } from '../lib/stores/critical-css-state';
-import { getCriticalCssIssues, isFatalError } from '../lib/critical-css-errors';
+import { getProvidersWithErrors, isFatalError } from '../lib/critical-css-errors';
 import ShowStopperError from '../show-stopper-error/show-stopper-error';
 import { Button } from '@automattic/jetpack-components';
 import styles from './status.module.scss';
@@ -34,7 +34,7 @@ const Status: React.FC< StatusTypes > = ( {
 	const regenerateAction = useRegenerateCriticalCssAction();
 	const successCount =
 		cssState.providers.filter( provider => provider.status === 'success' ).length || 0;
-	const issues = getCriticalCssIssues( cssState );
+	const providersWithErrors = getProvidersWithErrors( cssState );
 
 	// If there has been a fatal error, show it.
 	if ( isFatalError( cssState ) ) {
@@ -72,7 +72,7 @@ const Status: React.FC< StatusTypes > = ( {
 					</div>
 				) }
 
-				{ cssState.status !== 'pending' && issues.length > 0 && (
+				{ cssState.status !== 'pending' && providersWithErrors.length > 0 && (
 					<div className={ classNames( 'failures', styles.failures ) }>
 						<InfoIcon />
 
@@ -83,10 +83,10 @@ const Status: React.FC< StatusTypes > = ( {
 									_n(
 										'%d file could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize this file.',
 										'%d files could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize these files.',
-										issues.length,
+										providersWithErrors.length,
 										'jetpack-boost'
 									),
-									issues.length
+									providersWithErrors.length
 								),
 								{
 									advanced: <Link to="/critical-css-advanced" />,

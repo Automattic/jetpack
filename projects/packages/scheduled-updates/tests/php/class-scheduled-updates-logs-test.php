@@ -48,7 +48,10 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 	protected function set_up() {
 		parent::set_up_wordbless();
 		\WorDBless\Users::init()->clear_all_users();
-		Scheduled_Updates::init();
+
+		// Be sure wordbless cron is reset before each test.
+		delete_option( 'cron' );
+		update_option( 'cron', array( 'version' => 2 ), 'yes' );
 
 		// Initialize the admin.
 		$this->admin_id = wp_insert_user(
@@ -59,6 +62,7 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 		wp_set_current_user( $this->admin_id );
+		Scheduled_Updates::init();
 	}
 
 	/**

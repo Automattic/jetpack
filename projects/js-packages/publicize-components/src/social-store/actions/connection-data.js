@@ -9,6 +9,7 @@ import {
 	DELETE_CONNECTION,
 	DELETING_CONNECTION,
 	SET_CONNECTIONS,
+	SET_KEYRING_RESULT,
 	TOGGLE_CONNECTION,
 	UPDATE_CONNECTION,
 	UPDATING_CONNECTION,
@@ -23,6 +24,20 @@ export function setConnections( connections ) {
 	return {
 		type: SET_CONNECTIONS,
 		connections,
+	};
+}
+
+/**
+ * Set keyring result
+ *
+ * @param {import('../types').KeyringResult} [keyringResult] - keyring result
+ *
+ * @returns {object} - an action object.
+ */
+export function setKeyringResult( keyringResult ) {
+	return {
+		type: SET_KEYRING_RESULT,
+		keyringResult,
 	};
 }
 
@@ -197,7 +212,7 @@ export function creatingConnection( creating = true ) {
  * @param {string | number} args.connectionId - Connection ID to delete.
  * @param {boolean} [args.showSuccessNotice] - Whether to show a success notice.
  *
- * @returns {void}
+ * @returns {boolean} Whether the connection was deleted.
  */
 export function deleteConnectionById( { connectionId, showSuccessNotice = true } ) {
 	return async function ( { dispatch } ) {
@@ -218,6 +233,8 @@ export function deleteConnectionById( { connectionId, showSuccessNotice = true }
 					isDismissible: true,
 				} );
 			}
+
+			return true;
 		} catch ( error ) {
 			let message = __( 'Error disconnecting account.', 'jetpack' );
 
@@ -229,6 +246,8 @@ export function deleteConnectionById( { connectionId, showSuccessNotice = true }
 		} finally {
 			dispatch( deletingConnection( connectionId, false ) );
 		}
+
+		return false;
 	};
 }
 
@@ -247,20 +266,18 @@ export function createConnection( data ) {
 
 			dispatch( creatingConnection() );
 
+			/**
+			 * @type {import('../types').Connection}
+			 */
 			const connection = await apiFetch( { method: 'POST', path, data } );
 
 			if ( connection ) {
 				dispatch(
 					addConnection( {
 						...connection,
-						// TODO fix this messy data structure
-						connection_id: connection.ID.toString(),
-						display_name: connection.external_display,
-						service_name: connection.service,
-						external_id: connection.external_ID,
-						profile_link: connection.external_profile_URL,
-						profile_picture: connection.external_profile_picture,
 						can_disconnect: true,
+						// For editor, we always enable the connection by default.
+						enabled: true,
 					} )
 				);
 

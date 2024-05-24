@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+Jetpack Sync: Remove 'admin_action_update' hook from Sync Plugins module

@@ -83,7 +83,9 @@ function Blaze( props ) {
 				toggling={ isSavingAnyOption( 'blaze' ) }
 				toggleModule={ toggleModuleNow }
 			>
-				{ __( 'Attract high-quality traffic to your site using Blaze.', 'jetpack' ) }
+				<span className="jp-form-toggle-explanation">
+					{ __( 'Attract high-quality traffic to your site using Blaze.', 'jetpack' ) }
+				</span>
 			</ModuleToggle>
 		);
 	};
