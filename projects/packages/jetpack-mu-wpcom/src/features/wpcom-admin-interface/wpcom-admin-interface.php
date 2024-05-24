@@ -95,6 +95,16 @@ function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 add_filter( 'pre_update_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_update_option', 10, 2 );
 
 /**
+ * Determines whether the admin interface has been recently changed by checking the presence of the `admin-interface-changed` query param.
+ *
+ * @return bool
+ */
+function wpcom_has_admin_interface_changed() {
+	// phpcs:disable WordPress.Security.NonceVerification.Recommended
+	return ( sanitize_key( wp_unslash( $_GET['admin-interface-changed'] ?? 'false' ) ) ) === 'true';
+}
+
+/**
  * Determine if the intro tour for the classic admin interface should be shown.
  *
  * @return bool
@@ -104,8 +114,7 @@ function wpcom_should_show_classic_tour() {
 		return false;
 	}
 
-	$has_admin_interface_changed = ( $_GET['admin-interface-changed'] ?? 'false' ) === 'true';
-	if ( ! $has_admin_interface_changed ) {
+	if ( ! wpcom_has_admin_interface_changed() ) {
 		return false;
 	}
 
@@ -187,9 +196,11 @@ function wpcom_dismiss_classic_tour() {
 }
 add_action( 'wp_ajax_wpcom_dismiss_classic_tour', 'wpcom_dismiss_classic_tour' );
 
+/**
+ * Displays a success notice in the dashboard after changing the admin interface.
+ */
 function wpcom_show_admin_interface_notice() {
-	$has_admin_interface_changed = ( $_GET['admin-interface-changed'] ?? 'false' ) === 'true';
-	if ( ! $has_admin_interface_changed ) {
+	if ( ! wpcom_has_admin_interface_changed() ) {
 		return;
 	}
 
