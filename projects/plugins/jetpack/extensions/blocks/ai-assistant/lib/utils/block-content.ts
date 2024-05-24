@@ -2,8 +2,7 @@
  * External dependencies
  */
 import { renderMarkdownFromHTML } from '@automattic/jetpack-ai-client';
-import { getBlockContent } from '@wordpress/blocks';
-import { serialize } from '@wordpress/blocks';
+import { getBlockContent, serialize } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
 /**
  * Internal dependencies

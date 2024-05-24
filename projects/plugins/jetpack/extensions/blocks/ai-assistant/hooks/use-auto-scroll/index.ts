@@ -7,8 +7,9 @@ import debugFactory from 'debug';
 const debug = debugFactory( 'jetpack-ai-assistant:use-auto-scroll' );
 
 const useAutoScroll = (
-	blockRef: React.MutableRefObject< HTMLDivElement >,
-	contentRef: React.MutableRefObject< HTMLDivElement >
+	blockRef: React.MutableRefObject< HTMLElement | null >,
+	contentRef?: React.MutableRefObject< HTMLElement >,
+	useBlockAsTarget: boolean = false
 ) => {
 	const scrollElementRef = useRef< HTMLElement | Document | null >( null );
 	const styledScrollElementRef = useRef< HTMLElement | null >( null );
@@ -65,7 +66,9 @@ const useAutoScroll = (
 			return;
 		}
 
-		const lastParagraph = contentRef?.current?.firstElementChild?.lastElementChild;
+		const lastParagraph = useBlockAsTarget
+			? blockRef?.current
+			: contentRef?.current?.firstElementChild?.lastElementChild;
 
 		if ( lastParagraph && ! doingAutoScroll.current ) {
 			startedAutoScroll.current = true;
@@ -79,10 +82,10 @@ const useAutoScroll = (
 				scrollElementRef?.current?.addEventListener?.( 'scroll', userScrollHandler );
 			}, 200 );
 		}
-	}, [ contentRef, userScrollHandler ] );
+	}, [ blockRef, contentRef, useBlockAsTarget, userScrollHandler ] );
 
 	const getScrollParent = useCallback(
-		( el: HTMLElement | null ): HTMLElement | Document | null => {
+		( el: HTMLElement | null | undefined ): HTMLElement | Document | null => {
 			if ( el == null ) {
 				return null;
 			}

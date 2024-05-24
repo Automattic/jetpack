@@ -1,7 +1,8 @@
-import { IconTooltip } from '@automattic/jetpack-components';
+import { IconTooltip, Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { Connection } from '../../social-store/types';
 import { ConnectionName } from '../connection-management/connection-name';
+import { ConnectionStatus } from '../connection-management/connection-status';
 import { Disconnect } from '../connection-management/disconnect';
 import { MarkAsShared } from '../connection-management/mark-as-shared';
 import styles from './style.module.scss';
@@ -28,15 +29,31 @@ export const ServiceConnectionInfo = ( { connection, service }: ServiceConnectio
 			</div>
 			<div className={ styles[ 'connection-details' ] }>
 				<ConnectionName connection={ connection } />
-				<div className={ styles[ 'mark-shared-wrap' ] }>
-					<MarkAsShared connection={ connection } />
-					<IconTooltip placement="top" inline={ false } shift>
-						{ __(
-							'If enabled, the connection will be available to all administrators, editors, and authors.',
-							'jetpack'
-						) }
-					</IconTooltip>
-				</div>
+				{ ( conn => {
+					if ( conn.status === 'broken' ) {
+						return <ConnectionStatus connection={ conn } service={ service } />;
+					}
+
+					if ( conn.can_disconnect ) {
+						return (
+							<div className={ styles[ 'mark-shared-wrap' ] }>
+								<MarkAsShared connection={ conn } />
+								<IconTooltip placement="top" inline={ false } shift>
+									{ __(
+										'If enabled, the connection will be available to all administrators, editors, and authors.',
+										'jetpack'
+									) }
+								</IconTooltip>
+							</div>
+						);
+					}
+
+					return (
+						<Text className={ styles.description }>
+							{ __( 'This connection is added by a site administrator.', 'jetpack' ) }
+						</Text>
+					);
+				} )( connection ) }
 			</div>
 			<div className={ styles[ 'connection-actions' ] }>
 				<Disconnect

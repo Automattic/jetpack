@@ -33,9 +33,9 @@ export let EXTENDED_TRANSFORMATIVE_BLOCKS: string[] = [ ...ALL_EXTENDED_BLOCKS ]
 export const EXTENDED_INLINE_BLOCKS: string[] = [];
 
 // Temporarily keep track of inline extensions that have been released to production.
-const releasedInlineExtensions = [ 'core/heading' ];
+const releasedInlineExtensions = [ 'core/heading', 'core/paragraph' ];
 // Temporarily keep track of inline extensions that are being worked on.
-const unreleasedTransformativeExtensions = [];
+const unreleasedInlineExtensions = [];
 
 releasedInlineExtensions.forEach( block => {
 	// Add the released inline extension to the inline list...
@@ -44,7 +44,7 @@ releasedInlineExtensions.forEach( block => {
 	EXTENDED_TRANSFORMATIVE_BLOCKS = EXTENDED_TRANSFORMATIVE_BLOCKS.filter( b => b !== block );
 } );
 
-unreleasedTransformativeExtensions.forEach( block => {
+unreleasedInlineExtensions.forEach( block => {
 	if ( isAiAssistantExtensionsSupportEnabled ) {
 		// Add the unreleased inline extension to the inline list...
 		EXTENDED_INLINE_BLOCKS.push( block );
@@ -54,8 +54,8 @@ unreleasedTransformativeExtensions.forEach( block => {
 } );
 
 // Since the lists depend on the feature flag, we need to define the types manually.
-export type ExtendedBlockProp = 'core/paragraph' | 'core/list';
-export type ExtendedInlineBlockProp = 'core/heading';
+export type ExtendedBlockProp = 'core/list';
+export type ExtendedInlineBlockProp = 'core/heading' | 'core/paragraph';
 
 type BlockSettingsProps = {
 	supports: {

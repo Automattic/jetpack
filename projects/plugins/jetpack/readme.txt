@@ -326,10 +326,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.5-a.1 - 2024-05-13
+### 13.5-a.3 - 2024-05-20
 #### Enhancements
-- SSO: Improve accessibility of tooltips on WP Admin users page.
-- WordAds: Add inline ads within post content.
+- AI Assistant: Enable inline Heading extension.
+- Subscribe block: Adds button-only style.
+- Subscribe block: Allow inside navigation block.
+
+#### Improved compatibility
+- Block Editor: Remove External Link icon styling fix now that the change has been made in WordPress itself.
+
+#### Bug fixes
+- Slideshow: Fix className issue on frontend - ensures autoplay works properly.
+- WordAds: Prevent fatal when post content is null.
 
 --------
 

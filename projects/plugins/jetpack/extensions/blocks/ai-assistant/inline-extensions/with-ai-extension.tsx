@@ -17,6 +17,7 @@ import React from 'react';
  * Internal dependencies
  */
 import useAiFeature from '../hooks/use-ai-feature';
+import useAutoScroll from '../hooks/use-auto-scroll';
 import { mapInternalPromptTypeToBackendPromptType } from '../lib/prompt/backend-prompt';
 import AiAssistantInput from './components/ai-assistant-input';
 import AiAssistantExtensionToolbarDropdown from './components/ai-assistant-toolbar-dropdown';
@@ -37,6 +38,7 @@ const debug = debugFactory( 'jetpack-ai-assistant:extensions:with-ai-extension' 
 
 const blockExtensionMapper = {
 	'core/heading': 'heading',
+	'core/paragraph': 'paragraph',
 };
 
 // Defines where the block controls should be placed in the toolbar
@@ -85,10 +87,24 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 			return { postId: getCurrentPostId() };
 		}, [] );
-		// The block's id to find it in the DOM for the positioning adjustments.
-		const { id } = useBlockProps();
+		// The block's id to find it in the DOM for the positioning adjustments
+		// The classname is used by nested blocks to determine which block's toolbar to display when the input is focused.
+		const { id, className } = useBlockProps();
 		// Jetpack AI Assistant feature functions.
 		const { increaseRequestsCount, dequeueAsyncRequest, requireUpgrade } = useAiFeature();
+
+		// Auto-scroll
+		const { snapToBottom, enableAutoScroll, disableAutoScroll } = useAutoScroll(
+			{
+				current: ownerDocument?.current?.getElementById( id ),
+			},
+			undefined,
+			true
+		);
+
+		const focusInput = useCallback( () => {
+			inputRef.current?.focus();
+		}, [] );
 
 		// Data and functions with block-specific implementations.
 		const {
@@ -99,7 +115,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		// Called when the user clicks the "Ask AI Assistant" button.
 		const handleAskAiAssistant = useCallback( () => {
-			setShowAiControl( true );
+			setShowAiControl( current => ! current );
 		}, [] );
 
 		// Function to get the messages array for the request.
@@ -158,12 +174,16 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				// Make sure the block element has the necessary bottom padding, as it can be replaced or changed
 				adjustBlockPadding();
+
+				// Scroll to the bottom when a new suggestion is received.
+				snapToBottom();
 			},
-			[ onBlockSuggestion, adjustBlockPadding ]
+			[ onBlockSuggestion, adjustBlockPadding, snapToBottom ]
 		);
 
 		// Called after the last suggestion chunk is received.
 		const onDone = useCallback( () => {
+			disableAutoScroll();
 			onBlockDone();
 			increaseRequestsCount();
 			setAction( '' );
@@ -201,13 +221,21 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			// Make sure the block element has the necessary bottom padding, as it can be replaced or changed
 			setTimeout( () => {
 				adjustBlockPadding();
-				inputRef.current?.focus();
+				focusInput();
 			}, 100 );
-		}, [ onBlockDone, increaseRequestsCount, getContent, adjustBlockPadding ] );
+		}, [
+			disableAutoScroll,
+			onBlockDone,
+			increaseRequestsCount,
+			getContent,
+			adjustBlockPadding,
+			focusInput,
+		] );
 
 		// Called when an error is received.
 		const onError = useCallback(
 			error => {
+				disableAutoScroll();
 				setAction( '' );
 
 				debug( 'Request error', error );
@@ -219,7 +247,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				increaseRequestsCount();
 			},
-			[ increaseRequestsCount ]
+			[ disableAutoScroll, increaseRequestsCount ]
 		);
 
 		const {
@@ -266,9 +294,10 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				 */
 				dequeueAsyncRequest();
 
+				enableAutoScroll();
 				request( messages );
 			},
-			[ dequeueAsyncRequest, getRequestMessages, request, requireUpgrade ]
+			[ dequeueAsyncRequest, enableAutoScroll, getRequestMessages, request, requireUpgrade ]
 		);
 
 		// Called when the user types a custom prompt.
@@ -277,17 +306,19 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				const promptType = 'userPrompt';
 				const options = { userPrompt };
 
+				enableAutoScroll();
 				handleRequestSuggestion( promptType, options );
 			},
-			[ handleRequestSuggestion ]
+			[ enableAutoScroll, handleRequestSuggestion ]
 		);
 
 		// Called when the user clicks the "Stop" button in the input.
 		const handleStopSuggestion = useCallback( () => {
+			disableAutoScroll();
 			stopSuggestion();
 
-			inputRef.current?.focus();
-		}, [ stopSuggestion ] );
+			focusInput();
+		}, [ disableAutoScroll, stopSuggestion, focusInput ] );
 
 		// Called when the user clicks the "Try Again" button in the input error message.
 		const handleTryAgain = useCallback( () => {
@@ -329,9 +360,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				// Save the block's ownerDocument to use it later, as the editor can be in an iframe.
 				ownerDocument.current = inputRef.current.ownerDocument;
 				// Focus the input when the AI Control is displayed.
-				inputRef.current.focus();
+				focusInput();
 			}
-		}, [ showAiControl ] );
+		}, [ showAiControl, focusInput ] );
 
 		// Adjusts the input position in the editor by increasing the block's bottom-padding
 		// and setting the control's margin-top, "wrapping" the input with the block.
@@ -399,6 +430,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				{ showAiControl && (
 					<AiAssistantInput
+						className={ className }
 						requestingState={ requestingState }
 						requestingError={ error }
 						wrapperRef={ controlRef }

@@ -71,7 +71,6 @@ class Plugins extends Module {
 		add_action( 'jetpack_plugin_installed', $callable, 10, 1 );
 		add_action( 'jetpack_plugin_update_failed', $callable, 10, 4 );
 		add_action( 'jetpack_plugins_updated', $callable, 10, 2 );
-		add_action( 'admin_action_update', array( $this, 'check_plugin_edit' ) );
 		add_action( 'jetpack_edited_plugin', $callable, 10, 2 );
 		add_action( 'wp_ajax_edit-theme-plugin-file', array( $this, 'plugin_edit_ajax' ), 0 );
 
@@ -246,39 +245,6 @@ class Plugins extends Module {
 	}
 
 	/**
-	 * Handle plugin edit in the administration.
-	 *
-	 * @access public
-	 *
-	 * @todo The `admin_action_update` hook is called only for logged in users, but maybe implement nonce verification?
-	 */
-	public function check_plugin_edit() {
-		$screen = get_current_screen();
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		if ( 'plugin-editor' !== $screen->base || ! isset( $_POST['newcontent'] ) || ! isset( $_POST['plugin'] ) ) {
-			return;
-		}
-
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Validated manually just after.
-		$plugin  = wp_unslash( $_POST['plugin'] );
-		$plugins = get_plugins();
-		if ( ! isset( $plugins[ $plugin ] ) ) {
-			return;
-		}
-
-		/**
-		 * Helps Sync log that a plugin was edited
-		 *
-		 * @since 1.6.3
-		 * @since-jetpack 4.9.0
-		 *
-		 * @param string $plugin, Plugin slug
-		 * @param mixed $plugins[ $plugin ], Array of plugin data
-		 */
-		do_action( 'jetpack_edited_plugin', $plugin, $plugins[ $plugin ] );
-	}
-
-	/**
 	 * Handle plugin ajax edit in the administration.
 	 *
 	 * @access public
@@ -287,34 +253,33 @@ class Plugins extends Module {
 	 */
 	public function plugin_edit_ajax() {
 		// This validation is based on wp_edit_theme_plugin_file().
-		$args = wp_unslash( $_POST );
-		if ( empty( $args['file'] ) ) {
+		if ( empty( $_POST['file'] ) ) {
 			return;
 		}
 
-		$file = $args['file'];
+		$file = wp_unslash( $_POST['file'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Validated manually just after.
 		if ( 0 !== validate_file( $file ) ) {
 			return;
 		}
 
-		if ( ! isset( $args['newcontent'] ) ) {
+		if ( ! isset( $_POST['newcontent'] ) ) {
 			return;
 		}
 
-		if ( ! isset( $args['nonce'] ) ) {
+		if ( ! isset( $_POST['nonce'] ) ) {
 			return;
 		}
 
-		if ( empty( $args['plugin'] ) ) {
+		if ( empty( $_POST['plugin'] ) ) {
 			return;
 		}
 
-		$plugin = $args['plugin'];
+		$plugin = wp_unslash( $_POST['plugin'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Validated manually just after.
 		if ( ! current_user_can( 'edit_plugins' ) ) {
 			return;
 		}
 
-		if ( ! wp_verify_nonce( $args['nonce'], 'edit-plugin_' . $file ) ) {
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'edit-plugin_' . $file ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
 			return;
 		}
 		$plugins = get_plugins();

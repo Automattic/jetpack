@@ -244,14 +244,77 @@
             }
         },
         {
+            "name": "automattic/jetpack-calypsoify",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/calypsoify",
+                "reference": "10f1e08f3ac93e9c6f004d1d733443370e15334f"
+            },
+            "require": {
+                "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-status": "@dev",
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "yoast/phpunit-polyfills": "1.1.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-calypsoify/compare/v${old}...v${new}"
+                },
+                "mirror-repo": "Automattic/jetpack-calypsoify",
+                "textdomain": "jetpack-calypsoify",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-jetpack-calypsoify.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Calypsoify is designed to make sure specific wp-admin pages include navigation that prioritizes the Calypso navigation experience.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-classic-theme-helper",
             "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/classic-theme-helper",
-                "reference": "cc6afd0d6df89d5645b55abd8b7f2955b187fcff"
+                "reference": "4851293db36b3c568391618cd733ab7618c95ae6"
             },
             "require": {
+                "automattic/jetpack-assets": "@dev",
                 "php": ">=7.0"
             },
             "require-dev": {
@@ -266,7 +329,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-classic-theme-helper/compare/v${old}...v${new}"
@@ -283,11 +346,11 @@
                 ]
             },
             "scripts": {
-                "build-development": [
-                    "echo 'Add your build step to composer.json, please!'"
-                ],
                 "build-production": [
-                    "echo 'Add your build step to composer.json, please!'"
+                    "pnpm run build-production"
+                ],
+                "build-development": [
+                    "pnpm run build"
                 ],
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
@@ -717,11 +780,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "51b6a1a93f4252d5a4022868431bddf4211281f2"
+                "reference": "74981d2afd43adb4e2729467088ef7e4e246b843"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-blocks": "@dev",
+                "automattic/jetpack-calypsoify": "@dev",
                 "automattic/jetpack-classic-theme-helper": "@dev",
                 "automattic/jetpack-compat": "@dev",
                 "automattic/jetpack-connection": "@dev",
@@ -747,7 +811,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.31.x-dev"
+                    "dev-trunk": "5.32.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -1153,7 +1217,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "f9ecbcc790abd2a7eaca0c926f24a1d3aa026ff0"
+                "reference": "aa6dffdf02a0285b3ce1632c4fe211693f4e79fe"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -1179,7 +1243,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.1.x-dev"
+                    "dev-trunk": "3.2.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1216,7 +1280,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "180ff850270ae51402d94035852110566188efb1"
+                "reference": "80e8e2fb9c54cab5cd0e3bebcd9d95275d61fbb8"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1249,7 +1313,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.16.x-dev"
+                    "dev-trunk": "3.0.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1291,7 +1355,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/scheduled-updates",
-                "reference": "72fafdc115e7a14df44c589b3c03a193a050107c"
+                "reference": "8c675878023ed9657ebe6b80916afe241af62fc3"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1318,7 +1382,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.12.x-dev"
+                    "dev-trunk": "0.13.x-dev"
                 },
                 "textdomain": "jetpack-scheduled-updates",
                 "version-constants": {
