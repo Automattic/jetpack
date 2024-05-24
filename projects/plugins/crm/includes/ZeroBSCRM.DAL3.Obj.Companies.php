@@ -101,7 +101,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
             'placeholder'=> 'e.g. New York',
             'area'=> 'Main Address',
             'migrate'=>'addresses',
-            'max_len' => 100
+            'max_len' => 200, // phpcs:ignore Generic.WhiteSpace.DisallowSpaceIndent.SpacesUsed, WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned
         ),
         'county'            => array(
             // db model:
@@ -174,7 +174,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
             'area'=> 'Second Address',
             'migrate'=>'addresses',
             'opt'=>'secondaddress',
-            'max_len' => 100,
+            'max_len' => 200, // phpcs:ignore Generic.WhiteSpace.DisallowSpaceIndent.SpacesUsed, WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned
             'dal1key' => 'secaddr_city' // previous field name
         ),
         'seccounty'            => array(
