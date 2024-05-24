@@ -76,6 +76,10 @@ class Initializer {
 			return;
 		}
 
+		add_action( 'jetpack_user_authorized', array( __CLASS__, 'update_historically_active_jetpack_modules' ), 1001 );
+		add_action( 'jetpack_site_before_disconnected', array( __CLASS__, 'update_historically_active_jetpack_modules' ), 1001 );
+		add_action( 'jetpack_before_unlinking_user', array( __CLASS__, 'update_historically_active_jetpack_modules' ), 1001 );
+
 		// Extend jetpack plugins action links.
 		Products::extend_plugins_action_links();
 
@@ -206,6 +210,7 @@ class Initializer {
 			$previous_score = $speed_score_history->latest( 1 );
 		}
 		$latest_score['previousScores'] = $previous_score['scores'] ?? array();
+		self::update_historically_active_jetpack_modules();
 
 		wp_localize_script(
 			'my_jetpack_main_app',
@@ -233,11 +238,12 @@ class Initializer {
 				'userIsAdmin'            => current_user_can( 'manage_options' ),
 				'userIsNewToJetpack'     => self::is_jetpack_user_new(),
 				'lifecycleStats'         => array(
-					'jetpackPlugins'  => self::get_installed_jetpack_plugins(),
-					'isSiteConnected' => $connection->is_connected(),
-					'isUserConnected' => $connection->is_user_connected(),
-					'purchases'       => self::get_purchases(),
-					'modules'         => self::get_active_modules(),
+					'jetpackPlugins'            => self::get_installed_jetpack_plugins(),
+					'historicallyActiveModules' => \Jetpack_Options::get_option( 'historically_active_modules', array() ),
+					'isSiteConnected'           => $connection->is_connected(),
+					'isUserConnected'           => $connection->is_user_connected(),
+					'purchases'                 => self::get_purchases(),
+					'modules'                   => self::get_active_modules(),
 				),
 				'redBubbleAlerts'        => self::get_red_bubble_alerts(),
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
@@ -484,6 +490,67 @@ class Initializer {
 		 * @param bool $shoud_initialize Should we initialize My Jetpack?
 		 */
 		return apply_filters( 'jetpack_my_jetpack_should_initialize', $should );
+	}
+
+	/**
+	 * Update historically active Jetpack plugins
+	 * Historically active is defined as the Jetpack plugins that are installed and active with the required connections
+	 * This array will conxsist of any plugins that were active at one point in time and are still enabled on the site
+	 *
+	 * @return void
+	 */
+	public static function update_historically_active_jetpack_modules() {
+		$historically_active_modules = \Jetpack_Options::get_option( 'historically_active_modules', array() );
+		$products                    = Products::get_products();
+		$active_module_statuses      = array(
+			'active',
+			'can_upgrade',
+		);
+		$broken_module_statuses      = array(
+			'site_connection_error',
+			'user_connection_error',
+		);
+		// This is defined as the statuses in which the user has purposely disabled the module
+		// whether it be by uninstalling the plugin, disabling the module, or not renewing their plan.
+		$disabled_module_statuses = array(
+			'inactive',
+			'module_disabled',
+			'plugin_absent',
+			'plugin_absent_with_plan',
+			'needs_purchase',
+			'needs_purchase_or_free',
+			'needs_first_site_connection',
+		);
+
+		foreach ( $products as $product ) {
+			if ( $product['slug'] === 'social' ) {
+				l( $product );
+			}
+			$status       = $product['status'];
+			$product_slug = $product['slug'];
+			// We want to leave modules in the array if they've been active in the past
+			// and were not manually disabled by the user.
+			if ( in_array( $status, $broken_module_statuses, true ) ) {
+				continue;
+			}
+
+			// If the module is active and not aready in the array, add it
+			if (
+				in_array( $status, $active_module_statuses, true ) &&
+				! in_array( $product_slug, $historically_active_modules, true )
+			) {
+					$historically_active_modules[] = $product_slug;
+			}
+
+			// If the module has been disabled due to a manual user action,
+			// or because of a missing plan error, remove it from the array
+			if ( in_array( $status, $disabled_module_statuses, true ) ) {
+				$historically_active_modules = array_diff( $historically_active_modules, array( $product_slug ) );
+			}
+		}
+		l( $historically_active_modules );
+
+		\Jetpack_Options::update_option( 'historically_active_modules', $historically_active_modules );
 	}
 
 	/**
