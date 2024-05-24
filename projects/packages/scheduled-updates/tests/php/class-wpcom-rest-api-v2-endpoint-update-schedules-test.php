@@ -870,6 +870,49 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	}
 
 	/**
+	 * A staging environment must be blocked.
+	 *
+	 * @covers ::create_item
+	 * @covers ::update_item
+	 * @covers ::delete_item
+	 */
+	public function test_crud_should_be_blocked_on_staging() {
+		update_option( 'wpcom_is_staging_site', true );
+		wp_set_current_user( $this->admin_id );
+
+		$plugins     = array(
+			'custom-plugin/custom-plugin.php',
+			'gutenberg/gutenberg.php',
+		);
+		$schedule_id = Scheduled_Updates::generate_schedule_id( $plugins );
+		$request     = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
+		$request->set_body_params(
+			array(
+				'plugins'  => $plugins,
+				'schedule' => $this->get_schedule(),
+			)
+		);
+
+		// Create.
+		$result = rest_do_request( $request );
+		$this->assertSame( 403, $result->get_status() );
+
+		// Update.
+		$request->set_method( 'PUT' );
+		$request->set_route( '/wpcom/v2/update-schedules/' . $schedule_id );
+		$result = rest_do_request( $request );
+		$this->assertSame( 403, $result->get_status() );
+
+		// Delete.
+		$request->set_method( 'DELETE' );
+		$request->set_route( '/wpcom/v2/update-schedules/' . $schedule_id );
+		$result = rest_do_request( $request );
+		$this->assertSame( 403, $result->get_status() );
+
+		delete_option( 'wpcom_is_staging_site' );
+	}
+
+	/**
 	 * A callback run when an option is added.
 	 *
 	 * @param string $option Name of the added option.

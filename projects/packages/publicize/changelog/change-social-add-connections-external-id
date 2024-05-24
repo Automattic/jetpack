@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Added external_id to connections field

@@ -8,6 +8,7 @@
 require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/admin-menu/class-base-admin-menu.php';
 
 use Automattic\Jetpack\Dashboard_Customizations\Base_Admin_Menu;
+use Automattic\RedefineExit\ExitException;
 
 /**
  * Class Test_Base_Admin_Menu

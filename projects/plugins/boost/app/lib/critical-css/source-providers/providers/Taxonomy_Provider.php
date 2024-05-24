@@ -120,10 +120,18 @@ class Taxonomy_Provider extends Provider {
 				'public'       => true,
 				'show_in_rest' => true,
 			),
-			'names'
+			'objects'
 		);
 
-		return array_filter( $taxonomies, 'is_taxonomy_viewable' );
+		$taxonomies = array_filter( $taxonomies, 'is_taxonomy_viewable' );
+
+		$provider_taxonomies = array();
+		// Generate a name => name array for backwards compatibility.
+		foreach ( $taxonomies as $taxonomy ) {
+			$provider_taxonomies[ $taxonomy->name ] = $taxonomy->name;
+		}
+
+		return $provider_taxonomies;
 	}
 
 	/**

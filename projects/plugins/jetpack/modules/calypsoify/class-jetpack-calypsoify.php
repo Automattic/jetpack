@@ -7,6 +7,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify as Calypsoify;
 use Automattic\Jetpack\Status;
 
 /**
@@ -249,4 +250,4 @@ class Jetpack_Calypsoify {
 	}
 }
 
-Jetpack_Calypsoify::get_instance();
+Calypsoify::get_instance();

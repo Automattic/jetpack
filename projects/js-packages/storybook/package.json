@@ -37,7 +37,7 @@
 		"@storybook/react": "8.0.9",
 		"@storybook/react-webpack5": "8.0.9",
 		"@storybook/source-loader": "8.0.9",
-		"@storybook/test-runner": "0.17.0",
+		"@storybook/test-runner": "0.18.1",
 		"@storybook/theming": "8.0.9",
 		"@wordpress/babel-preset-default": "7.41.0",
 		"@wordpress/base-styles": "4.48.0",

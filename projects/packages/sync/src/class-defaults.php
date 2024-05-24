@@ -198,6 +198,7 @@ class Defaults {
 		'wpcom_site_setup',
 		'wpcom_subscription_emails_use_excerpt',
 		'jetpack_subscriptions_reply_to',
+		'jetpack_subscriptions_from_name',
 		'jetpack_verbum_subscription_modal',
 		'jetpack_blocks_disabled',
 		'jetpack_package_versions',

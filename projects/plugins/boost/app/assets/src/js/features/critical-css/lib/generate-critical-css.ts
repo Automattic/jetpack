@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { CriticalCssErrorDetails, Provider } from './stores/critical-css-state-types';
 import { recordBoostEvent, TracksEventProperties } from '$lib/utils/analytics';
 import { castToNumber } from '$lib/utils/cast-to-number';
@@ -11,6 +12,11 @@ type Viewport = {
 	width: number;
 	height: number;
 };
+
+const CriticalCSSGeneratorSchema = z.object( {
+	BrowserInterfaceIframe: z.function(),
+	generateCriticalCSS: z.function(),
+} );
 
 const defaultViewports: Viewport[] = [
 	{
@@ -181,6 +187,13 @@ async function generateForKeys(
 	callbacks: ProviderCallbacks,
 	signal: AbortSignal
 ): Promise< void > {
+	try {
+		CriticalCSSGeneratorSchema.parse( CriticalCSSGenerator );
+	} catch ( err ) {
+		recordBoostEvent( 'critical_css_library_failure', {} );
+		throw new Error( 'Critical CSS Generator library is either not found or invalid.' );
+	}
+
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return
 	const startTime = Date.now();
 	let totalSize = 0;

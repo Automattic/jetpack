@@ -4,11 +4,19 @@ import {
 	DELETE_CONNECTION,
 	DELETING_CONNECTION,
 	SET_CONNECTIONS,
+	SET_KEYRING_RESULT,
 	TOGGLE_CONNECTION,
 	UPDATE_CONNECTION,
 	UPDATING_CONNECTION,
 } from '../actions/constants';
 
+/**
+ * Connection data reducer
+ *
+ * @param {import('../types').ConnectionData} state - Current state.
+ * @param {object} action - Action object.
+ * @returns {import('../types').ConnectionData} The new state.
+ */
 const connectionData = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case ADD_CONNECTION:
@@ -26,15 +34,9 @@ const connectionData = ( state = {}, action ) => {
 		case DELETE_CONNECTION:
 			return {
 				...state,
-				connections: state.connections.filter( connection => {
-					// If the connection has a connection_id, then give it priority.
-					// Otherwise, use the id.
-					const isTargetConnection = connection.connection_id
-						? connection.connection_id === action.connectionId
-						: connection.id === action.connectionId;
-
-					return ! isTargetConnection;
-				} ),
+				connections: state.connections.filter(
+					( { connection_id } ) => connection_id !== action.connectionId
+				),
 			};
 
 		case DELETING_CONNECTION: {
@@ -59,11 +61,7 @@ const connectionData = ( state = {}, action ) => {
 			return {
 				...state,
 				connections: state.connections.map( connection => {
-					// If the connection has a connection_id, then give it priority.
-					// Otherwise, use the id.
-					const isTargetConnection = connection.connection_id
-						? connection.connection_id === action.connectionId
-						: connection.id === action.connectionId;
+					const isTargetConnection = connection.connection_id === action.connectionId;
 
 					if ( isTargetConnection ) {
 						return {
@@ -86,6 +84,12 @@ const connectionData = ( state = {}, action ) => {
 				updatingConnections: [ ...updating ],
 			};
 		}
+
+		case SET_KEYRING_RESULT:
+			return {
+				...state,
+				keyringResult: action.keyringResult,
+			};
 
 		case TOGGLE_CONNECTION:
 			return {
