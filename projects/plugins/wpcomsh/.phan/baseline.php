@@ -12,13 +12,15 @@ return [
     // PhanPluginMixedKeyNoKey : 25+ occurrences
     // PhanUndeclaredFunction : 20+ occurrences
     // PhanUndeclaredClassMethod : 15+ occurrences
+    // PhanUndeclaredStaticMethod : 15+ occurrences
     // PhanUndeclaredFunctionInCallable : 10+ occurrences
+    // PhanTypeVoidAssignment : 8 occurrences
     // PhanUndeclaredClassProperty : 7 occurrences
+    // PhanTypeMismatchArgument : 6 occurrences
     // PhanTypeMismatchArgumentNullable : 5 occurrences
     // PhanUndeclaredConstant : 5 occurrences
     // PhanRedefinedClassReference : 4 occurrences
     // PhanRedundantCondition : 4 occurrences
-    // PhanTypeMismatchArgumentNullableInternal : 4 occurrences
     // PhanTypeMismatchReturnNullable : 4 occurrences
     // PhanTypeSuspiciousEcho : 4 occurrences
     // PhanUndeclaredClassInCallable : 4 occurrences
@@ -26,24 +28,28 @@ return [
     // PhanUndeclaredTypeParameter : 4 occurrences
     // PhanImpossibleCondition : 3 occurrences
     // PhanTypeArraySuspiciousNullable : 3 occurrences
-    // PhanTypeMismatchArgument : 3 occurrences
-    // PhanUndeclaredClassReference : 3 occurrences
+    // PhanTypeMismatchArgumentNullableInternal : 3 occurrences
     // PhanNoopNew : 2 occurrences
     // PhanRedefineClass : 2 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 2 occurrences
-    // PhanTypeVoidAssignment : 2 occurrences
+    // PhanTypeVoidArgument : 2 occurrences
     // PhanUndeclaredClassInstanceof : 2 occurrences
+    // PhanUndeclaredClassReference : 2 occurrences
     // PhanUndeclaredVariable : 2 occurrences
     // PhanContextNotObject : 1 occurrence
+    // PhanDeprecatedProperty : 1 occurrence
     // PhanEmptyFQSENInCallable : 1 occurrence
     // PhanNoopNewNoSideEffects : 1 occurrence
     // PhanPluginRedundantAssignment : 1 occurrence
+    // PhanPluginUseReturnValueInternalKnown : 1 occurrence
     // PhanPossiblyUndeclaredVariable : 1 occurrence
     // PhanTypeInstantiateTraitStaticOrSelf : 1 occurrence
     // PhanTypeMismatchReturn : 1 occurrence
+    // PhanTypeObjectUnsetDeclaredProperty : 1 occurrence
     // PhanUndeclaredClassConstant : 1 occurrence
     // PhanUndeclaredClassStaticProperty : 1 occurrence
     // PhanUndeclaredMethod : 1 occurrence
+    // PhanUnreferencedUseNormal : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
@@ -52,7 +58,7 @@ return [
         'class-wpcomsh-cli-commands.php' => ['PhanTypeVoidAssignment', 'PhanUndeclaredClassInCallable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunctionInCallable'],
         'custom-colors/class-palette.php' => ['PhanTypeArraySuspiciousNullable'],
         'custom-colors/colors-api.php' => ['PhanNoopNewNoSideEffects'],
-        'custom-colors/colors.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnNullable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredVariable'],
+        'custom-colors/colors.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnNullable', 'PhanUndeclaredVariable', 'PhanUnreferencedUseNormal'],
         'custom-colors/core-bg-admin-notice.php' => ['PhanContextNotObject', 'PhanUndeclaredClassMethod'],
         'endpoints/class-marketplace-webhook-response.php' => ['PhanPluginMixedKeyNoKey'],
         'endpoints/rest-api-export.php' => ['PhanTypeMismatchArgumentProbablyReal'],
@@ -75,6 +81,13 @@ return [
         'private-site/access-denied-private-site-template.php' => ['PhanTypeSuspiciousEcho'],
         'safeguard/utils.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument'],
         'support-session.php' => ['PhanNoopNew'],
+        'tests/feature-manager/test-feature-hooks.php' => ['PhanUndeclaredStaticMethod'],
+        'tests/imports/test-sql-generator.php' => ['PhanTypeObjectUnsetDeclaredProperty'],
+        'tests/test-anyone-can-register-notice.php' => ['PhanTypeMismatchArgument', 'PhanTypeVoidArgument', 'PhanTypeVoidAssignment'],
+        'tests/test-blog-token-resilience.php' => ['PhanUndeclaredStaticMethod'],
+        'tests/test-frontend-notices.php' => ['PhanUndeclaredStaticMethod'],
+        'tests/test-plan-notices.php' => ['PhanDeprecatedProperty', 'PhanPluginUseReturnValueInternalKnown', 'PhanTypeVoidAssignment', 'PhanUndeclaredStaticMethod'],
+        'tests/test-wpcom-features.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredStaticMethod'],
         'widgets/class-pd-top-rated.php' => ['PhanRedundantCondition'],
         'widgets/class-widget-top-clicks.php' => ['PhanUndeclaredFunction'],
         'wp-content/wordbless/src/ClearCacheGroup.php' => ['PhanUndeclaredProperty'],
