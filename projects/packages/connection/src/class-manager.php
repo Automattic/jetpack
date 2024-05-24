@@ -924,7 +924,7 @@ class Manager {
 		 * Fires before the current user has been unlinked from WordPress.com.
 		 *
 		 * @since 2.8.5
-		 * @since-jetpack 13.5.0
+		 * @since-jetpack 13.6.0
 		 *
 		 * @param int $user_id The current user's ID.
 		 */
