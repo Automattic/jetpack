@@ -2,17 +2,13 @@
  * Hide Fullscreen option from post-editor
  *
  * The entire menu group is not rendered on smaller screens so we need a media query.
- * Hide the third item of the first group when the screen is big enough.
+ * Hide the last item of the first group when the screen is big enough.
  */
 @media (min-width: 782px) {
-  .interface-more-menu-dropdown__content .components-menu-group:first-child .components-button:nth-child(3) {
+  .interface-more-menu-dropdown__content .components-dropdown-menu__menu:first-child .components-menu-group:first-child .components-button:last-of-type,
+  .more-menu-dropdown__content .components-dropdown-menu__menu:first-child .components-menu-group:first-child .components-button:last-of-type {
 	display: none;
   }
-}
-
-/* Hides the Fullscreen option from the Site Editor View modes */
-.edit-site-more-menu__content .components-menu-group:first-child > [role=group] > .components-menu-item__button:last-of-type {
-  display: none;
 }
 
 /* REVISIONS */
