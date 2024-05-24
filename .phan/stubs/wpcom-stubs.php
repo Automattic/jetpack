@@ -95,17 +95,6 @@ namespace {
         public function republicize_post($post_id, $message, $skip_connections, $check_feature = \false)
         {
         }
-
-        /**
-         * Whether the current user can manage a connection.
-         *
-         * @param array $connection_data The connection data.
-         *
-         * @return bool
-         */
-        public static function can_manage_connection( $connection_data )
-        {
-        }
     }
     /**
      * @param int $blog_id
