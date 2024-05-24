@@ -8,6 +8,7 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Backup\V0004\Jetpack_Backup;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Authorize_Json_Api;
@@ -2251,9 +2252,9 @@ class Jetpack {
 		}
 
 		$sideloaded_modules = array(
-			'backup' => array(
-				'slug' => 'jetpack-backup',
-				'file' => 'jetpack-backup/jetpack-backup.php',
+			'search' => array(
+				'slug' => 'jetpack-search',
+				'file' => 'jetpack-search/jetpack-search.php',
 			),
 		);
 
@@ -2268,6 +2269,14 @@ class Jetpack {
 				}
 			}
 		}
+
+		// Handle special situations.
+		if ( Jetpack_Backup::has_backup_plan() && ! Plugins_Installer::is_plugin_active( 'jetpack-backup/jetpack-backup.php' ) ) {
+			if ( ! Plugins_Installer::install_and_activate_plugin( 'jetpack-backup' ) ) {
+				( new Tracking() )->tracks_record_event( ( new Connection_Manager() )->get_connection_owner_id(), 'jetpack_sideload_failure' );
+			}
+		}
+
 		return array_unique( $modules );
 	}
 
