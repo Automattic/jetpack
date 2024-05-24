@@ -6,8 +6,8 @@ use Automattic\Jetpack_Boost\Lib\Super_Cache_Config_Compatibility;
 use ReflectionClass;
 
 class Super_Cache_Compatibility_Checker_Test_Case extends Base_Test_Case {
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 		// Initialize global variables to avoid undefined variable errors
 		global $wp_cache_mobile_enabled, $wp_super_cache_late_init, $wpsc_rejected_cookies, $wp_cache_preload_on, $wp_cache_no_cache_for_get, $wp_cache_not_logged_in, $cache_acceptable_files, $wp_cache_pages, $cache_rejected_uri, $cache_rejected_user_agent;
 		$wp_cache_mobile_enabled   = null;
