@@ -97,6 +97,7 @@ export function mergeConnections( freshConnections ) {
 				...defaults,
 				...prevConnection,
 				...freshConnection,
+				shared: prevConnection.shared,
 				is_healthy: freshConnection.test_success,
 			};
 			connections.push( connection );
