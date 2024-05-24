@@ -597,13 +597,16 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 */
 		public static function enqueue_scripts() {
 			Assets::register_script(
-				'jetpack-featured-content',
+				'featured-content-suggest',
 				'../build/featured-content/suggest.js',
 				__FILE__,
 				array(
-					'in_footer'  => true,
-					'enqueue'    => true,
-					'textdomain' => 'jetpack-classic-theme-helper',
+					'dependencies' => array(
+						'jquery',
+						'suggest',
+					),
+					'in_footer'    => true,
+					'enqueue'      => true,
 				)
 			);
 		}
