@@ -67,18 +67,22 @@ export class BlockHandler {
 			return;
 		}
 
-		const { updateBlockAttributes, __unstableMarkNextChangeAsNotPersistent } = dispatch(
-			'core/block-editor'
-		) as BlockEditorDispatch;
+		const { updateBlockAttributes, replaceInnerBlocks, __unstableMarkNextChangeAsNotPersistent } =
+			dispatch( 'core/block-editor' ) as BlockEditorDispatch;
 
-		if ( ! this.firstUpdate ) {
-			// Mark the change as not persistent so we can undo all the changes in one step.
-			__unstableMarkNextChangeAsNotPersistent();
-		} else {
+		// Do not mark the very first change as not persistent.
+		if ( this.firstUpdate ) {
 			this.firstUpdate = false;
+		} else {
+			// Mark all other changes as not persistent so we can undo all the changes in one step.
+			__unstableMarkNextChangeAsNotPersistent();
 		}
 
 		// Replace the original block attributes with the new block attributes.
 		updateBlockAttributes( this.clientId, newBlock.attributes );
+
+		// Replace the original block inner blocks with the new block inner blocks.
+		__unstableMarkNextChangeAsNotPersistent();
+		replaceInnerBlocks( this.clientId, newBlock.innerBlocks );
 	}
 }
