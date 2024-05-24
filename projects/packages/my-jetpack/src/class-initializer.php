@@ -582,7 +582,6 @@ class Initializer {
 				$historically_active_modules = array_diff( $historically_active_modules, array( $product_slug ) );
 			}
 		}
-		l( $historically_active_modules );
 
 		\Jetpack_Options::update_option( 'historically_active_modules', $historically_active_modules );
 	}
