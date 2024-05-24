@@ -20,6 +20,7 @@ require_once __DIR__ . '/data/admin-menu.php';
  * @covers Automattic\Jetpack\Masterbar\Atomic_Admin_Menu
  */
 class Test_Atomic_Admin_Menu extends TestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Menu data fixture.
