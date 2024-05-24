@@ -154,7 +154,7 @@ class Page_Cache_Setup {
 
 				if ( Super_Cache_Config_Compatibility::is_compatible() ) {
 					$deactivation = new Data_Sync_Actions\Deactivate_WPSC();
-					$deactivation->handle( null, null );
+					$deactivation->handle();
 					Analytics::record_user_event(
 						'switch_to_boost_cache',
 						array(

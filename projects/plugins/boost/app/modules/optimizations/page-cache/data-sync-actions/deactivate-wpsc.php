@@ -12,10 +12,10 @@ class Deactivate_WPSC implements Data_Sync_Action {
 	/**
 	 * Handles the action logic.
 	 *
-	 * @param mixed            $_data    JSON Data passed to the action.
-	 * @param \WP_REST_Request $_request The request object.
+	 * @param mixed                 $_data    JSON Data passed to the action.
+	 * @param null|\WP_REST_Request $_request The request object.
 	 */
-	public function handle( $_data, $_request ) {
+	public function handle( $_data = null, $_request = null ) {
 		// Super Cache will define WPCACHEHOME if it's active.
 		if ( ! defined( 'WPCACHEHOME' ) ) {
 			return true;
