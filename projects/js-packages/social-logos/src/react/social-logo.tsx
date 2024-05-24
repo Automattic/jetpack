@@ -2,7 +2,12 @@ import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import { SocialLogoData } from './social-logo-data';
 
-export default class SocialLogo extends PureComponent {
+export type SocialLogoProps = React.SVGAttributes< SVGSVGElement > & {
+	icon: ( typeof SocialLogoData )[ number ][ 'name' ];
+	size?: number;
+};
+
+export class SocialLogo extends PureComponent< SocialLogoProps > {
 	static defaultProps = {
 		size: 24,
 	};
