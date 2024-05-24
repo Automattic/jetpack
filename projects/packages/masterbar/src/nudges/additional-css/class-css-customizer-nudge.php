@@ -52,7 +52,7 @@ class CSS_Customizer_Nudge {
 	 * Register the assets required for the CSS nudge page from the Customizer.
 	 */
 	public function customize_controls_enqueue_scripts_nudge() {
-		$assets_base_path = '../../dist/nudges/additional-css/';
+		$assets_base_path = '../../../dist/nudges/additional-css/';
 
 		Assets::register_script(
 			'additional-css-js',

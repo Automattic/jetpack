@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Masterbar;
 
 use Automattic\RedefineExit\ExitException;
+use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -83,15 +84,16 @@ class Test_Base_Admin_Menu extends TestCase {
 	 * @after
 	 */
 	public function tear_down() {
+		wp_deregister_script( 'jetpack-admin-menu' );
+		wp_deregister_style( 'jetpack-admin-menu' );
+		wp_deregister_script( 'jetpack-admin-nav-unification' );
+		wp_deregister_style( 'jetpack-admin-nav-unification' );
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 	}
 
 	/**
 	 * Test get_instance.
-	 *
-	 * @covers ::get_instance
-	 * @covers ::__construct
 	 */
 	public function test_get_instance() {
 
@@ -108,8 +110,6 @@ class Test_Base_Admin_Menu extends TestCase {
 
 	/**
 	 * Tests add_admin_menu_separator
-	 *
-	 * @covers ::add_admin_menu_separator
 	 */
 	public function test_add_admin_menu_separator() {
 		global $menu;
@@ -132,10 +132,6 @@ class Test_Base_Admin_Menu extends TestCase {
 
 	/**
 	 * Tests preferred_view
-	 *
-	 * @covers ::set_preferred_view
-	 * @covers ::get_preferred_views
-	 * @covers ::get_preferred_view
 	 */
 	public function test_preferred_view() {
 		$this->assertSame( 'default', static::$admin_menu->get_preferred_view( 'test.php' ) );
@@ -154,8 +150,6 @@ class Test_Base_Admin_Menu extends TestCase {
 
 	/**
 	 * Tests preferred_view
-	 *
-	 * @covers ::handle_preferred_view
 	 */
 	public function test_handle_preferred_view() {
 		// @see p9dueE-3LL-p2#comment-6669
@@ -172,6 +166,53 @@ class Test_Base_Admin_Menu extends TestCase {
 		static::$admin_menu->handle_preferred_view();
 
 		$this->assertSame( 'classic', static::$admin_menu->get_preferred_view( 'test.php' ) );
+	}
+
+	/**
+	 * Tests enqueue_scripts when the user has indicated they want to use the wp-admin interface.
+	 */
+	public function test_enqueue_scripts_use_wp_admin_interface() {
+		update_option( 'wpcom_admin_interface', 'wp-admin' );
+		set_current_screen( 'edit-post' );
+
+		do_action( 'admin_enqueue_scripts' );
+		$this->assertTrue( wp_script_is( 'jetpack-admin-menu' ) );
+		$this->assertTrue( wp_style_is( 'jetpack-admin-menu' ) );
+		$this->assertFalse( wp_script_is( 'jetpack-admin-nav-unification' ) );
+		$this->assertFalse( wp_style_is( 'jetpack-admin-nav-unification' ) );
+	}
+
+	/**
+	 * Tests enqueue_scripts
+	 */
+	public function test_enqueue_scripts() {
+		set_current_screen( 'edit-post' );
+
+		do_action( 'admin_enqueue_scripts' );
+		$this->assertTrue( wp_script_is( 'jetpack-admin-menu' ) );
+		$this->assertTrue( wp_style_is( 'jetpack-admin-menu' ) );
+		$this->assertTrue( wp_script_is( 'jetpack-admin-nav-unification' ) );
+		$this->assertTrue( wp_style_is( 'jetpack-admin-nav-unification' ) );
+	}
+
+	/**
+	 * Tests enqueue_scripts with right-to-left text direction.
+	 */
+	public function test_enqueue_scripts_rtl() {
+		Functions\expect( 'is_rtl' )
+			->andReturn( true );
+
+		wp_set_current_user( static::$user_id );
+		set_current_screen( 'edit-post' );
+
+		do_action( 'admin_enqueue_scripts' );
+
+		$styles            = wp_styles();
+		$admin_menu_styles = $styles->registered['jetpack-admin-menu'];
+		$nav_unific_styles = $styles->registered['jetpack-admin-nav-unification'];
+
+		$this->assertStringContainsString( 'rtl.css', $admin_menu_styles->src );
+		$this->assertStringContainsString( 'rtl.css', $nav_unific_styles->src );
 	}
 
 	/**

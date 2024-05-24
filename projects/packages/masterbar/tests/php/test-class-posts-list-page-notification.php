@@ -79,4 +79,15 @@ class Test_Posts_List_Page_Notification extends TestCase {
 		$instance = new Posts_List_Page_Notification( '5', 'page', '5' );
 		$this->assertFalse( has_action( 'init', array( $instance, 'init_actions' ) ) );
 	}
+
+	/**
+	 * Tests enqueue_css
+	 */
+	public function test_enqueue_css() {
+		set_current_screen( 'edit-post' );
+
+		do_action( 'admin_enqueue_scripts' );
+		$this->assertTrue( wp_script_is( 'wp-posts-list' ) );
+		$this->assertTrue( wp_style_is( 'wp-posts-list' ) );
+	}
 }

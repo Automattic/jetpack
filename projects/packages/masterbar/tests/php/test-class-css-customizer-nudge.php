@@ -56,6 +56,17 @@ class Test_CSS_Customizer_Nudge extends TestCase {
 	}
 
 	/**
+	 * Tests customize_controls_enqueue_scripts_nudge
+	 */
+	public function test_customize_controls_enqueue_scripts_nudge() {
+		$nudge = new CSS_Customizer_Nudge( 'url', 'message' );
+		$nudge->customize_controls_enqueue_scripts_nudge();
+
+		$this->assertTrue( wp_script_is( 'additional-css-js' ) );
+		$this->assertTrue( wp_style_is( 'additional-css-js' ) );
+	}
+
+	/**
 	 * Check if it creates the css nudge control.
 	 */
 	public function test_if_it_creates_a_css_nudge_control() {
