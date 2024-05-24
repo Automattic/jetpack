@@ -15,7 +15,7 @@ return [
     // PhanNoopNew : 200+ occurrences
     // PhanTypeMismatchReturn : 150+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 150+ occurrences
-    // PhanDeprecatedFunction : 120+ occurrences
+    // PhanDeprecatedFunction : 130+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 95+ occurrences
     // PhanRedundantCondition : 70+ occurrences
     // PhanPossiblyUndeclaredVariable : 65+ occurrences
@@ -33,7 +33,7 @@ return [
     // PhanTypeMismatchPropertyProbablyReal : 25+ occurrences
     // PhanTypeMissingReturn : 25+ occurrences
     // PhanTypeSuspiciousNonTraversableForeach : 25+ occurrences
-    // PhanDeprecatedProperty : 20+ occurrences
+    // PhanDeprecatedProperty : 25+ occurrences
     // PhanTypeArraySuspicious : 20+ occurrences
     // PhanTypeMismatchDimFetch : 20+ occurrences
     // PhanUndeclaredFunction : 20+ occurrences
@@ -51,7 +51,7 @@ return [
     // PhanTypeMismatchProperty : 10+ occurrences
     // PhanTypeMismatchReturnNullable : 10+ occurrences
     // PhanPluginRedundantAssignment : 8 occurrences
-    // PhanDeprecatedClass : 7 occurrences
+    // PhanDeprecatedClass : 8 occurrences
     // PhanTypeMismatchArgumentInternalReal : 7 occurrences
     // PhanCommentAbstractOnInheritedMethod : 6 occurrences
     // PhanRedefineFunction : 6 occurrences
@@ -328,7 +328,7 @@ return [
         'json-endpoints/jetpack/class.wpcom-json-api-get-option-endpoint.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'json-endpoints/jetpack/class.wpcom-json-api-update-option-endpoint.php' => ['PhanTypeMismatchPropertyProbablyReal'],
         'json-endpoints/jetpack/json-api-jetpack-endpoints.php' => ['PhanNoopNew'],
-        'modules/calypsoify/class-jetpack-calypsoify.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyDefault'],
+        'modules/calypsoify/class-jetpack-calypsoify.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyDefault', 'PhanDeprecatedFunction', 'PhanDeprecatedProperty', 'PhanDeprecatedClass' ],
         'modules/carousel/jetpack-carousel.php' => ['PhanDeprecatedProperty', 'PhanNoopNew', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn'],
         'modules/comments/admin.php' => ['PhanTypeMismatchReturn', 'PhanUndeclaredProperty'],
         'modules/comments/base.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredProperty'],
