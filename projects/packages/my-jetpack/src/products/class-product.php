@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
 use Jetpack_Options;
 use WP_Error;
@@ -24,6 +25,13 @@ abstract class Product {
 	 * @var string
 	 */
 	public static $slug = null;
+
+	/**
+	 * The Jetpack module name, if any.
+	 *
+	 * @var ?string
+	 */
+	public static $module_name = null;
 
 	/**
 	 * The filename (id) of the plugin associated with this product. Can be a string with a single value or a list of possible values
@@ -83,6 +91,14 @@ abstract class Product {
 	 * @var bool
 	 */
 	public static $has_free_offering = false;
+
+	/**
+	 * Whether the product requires a plan to run
+	 * The plan could be paid or free
+	 *
+	 * @var bool
+	 */
+	public static $requires_plan = false;
 
 	/**
 	 * Get the plugin slug
@@ -153,10 +169,10 @@ abstract class Product {
 			'supported_products'        => static::get_supported_products(),
 			'wpcom_product_slug'        => static::get_wpcom_product_slug(),
 			'requires_user_connection'  => static::$requires_user_connection,
-			'has_required_plan'         => static::has_required_plan(),
+			'has_any_plan_for_product'  => static::has_any_plan_for_product(),
+			'has_free_plan_for_product' => static::has_free_plan_for_product(),
 			'has_paid_plan_for_product' => static::has_paid_plan_for_product(),
 			'has_free_offering'         => static::$has_free_offering,
-			'has_required_tier'         => static::has_required_tier(),
 			'manage_url'                => static::get_manage_url(),
 			'purchase_url'              => static::get_purchase_url(),
 			'post_activation_url'       => static::get_post_activation_url(),
@@ -342,38 +358,32 @@ abstract class Product {
 	}
 
 	/**
-	 * Checks whether the current plan (or purchases) of the site already supports the product
-	 *
-	 * Returns true if it supports. Return false if a purchase is still required.
-	 *
-	 * Free products will always return true.
-	 *
-	 * @return boolean
-	 */
-	public static function has_required_plan() {
-		return true;
-	}
-
-	/**
 	 * Checks whether the site has a paid plan for the product
 	 * This ignores free products, it only checks if there is a purchase that supports the product
 	 *
 	 * @return boolean
 	 */
 	public static function has_paid_plan_for_product() {
-		// TODO: this is not always the same.
-		// There should be checks on each individual product class for paid plans if the product has a free offering
-		// For products with no free offering, checking has_required_plan works fine
-		return static::has_required_plan();
+		return false;
 	}
 
 	/**
-	 * Checks whether the current plan (or purchases) of the site already supports the tiers
+	 * Checks whether the site has a free plan for the product
+	 * Note, this should not return true if a product does not have a WPCOM plan (ex: search free, Akismet Free, stats free)
 	 *
-	 * @return array Key/value pairs of tier slugs and whether they are supported or not.
+	 * @return false
 	 */
-	public static function has_required_tier() {
-		return array();
+	public static function has_free_plan_for_product() {
+		return false;
+	}
+
+	/**
+	 * Checks whether the site has any WPCOM plan for a product (paid or free)
+	 *
+	 * @return bool
+	 */
+	public static function has_any_plan_for_product() {
+		return static::has_paid_plan_for_product() || static::has_free_plan_for_product();
 	}
 
 	/**
@@ -443,25 +453,38 @@ abstract class Product {
 			$status = 'active';
 			// We only consider missing site & user connection an error when the Product is active.
 			if ( static::$requires_site_connection && ! ( new Connection_Manager() )->is_connected() ) {
-				$status = 'error';
-			} elseif ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
-				$status = 'error';
-			} elseif ( static::is_upgradable() ) {
-				// Upgradable plans should ignore whether or not they have the required plan.
-				$status = 'can_upgrade';
-			} elseif ( ! static::has_required_plan() ) { // We need needs_purchase here as well because some products we consider active without the required plan.
-				if ( static::has_trial_support() ) {
-					$status = 'needs_purchase_or_free';
+				// Site has never been connected before
+				if ( ! \Jetpack_Options::get_option( 'id' ) ) {
+					$status = 'needs_first_site_connection';
 				} else {
-					$status = 'needs_purchase';
+					$status = 'site_connection_error';
 				}
+			} elseif ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
+				$status = 'user_connection_error';
+			} elseif ( static::is_upgradable() ) {
+				$status = 'can_upgrade';
 			}
-		} elseif ( ! static::has_required_plan() ) {
-			if ( static::has_trial_support() ) {
-				$status = 'needs_purchase_or_free';
-			} else {
-				$status = 'needs_purchase';
+			// Check specifically for inactive modules, which will prevent a product from being active
+		} elseif ( static::$module_name && ! static::is_module_active() ) {
+			$status = 'module_disabled';
+			// If there is not a plan associated with the disabled module, encourage a plan first
+			// Getting a plan set up should help resolve any connection issues
+			// However if the standalone plugin for this product is active, then we will defer to showing errors that prevent the module from being active
+			// This is because if a standalone plugin is installed, we expect the product to not show as "inactive" on My Jetpack
+			if ( static::$requires_plan || ( ! static::has_any_plan_for_product() && static::$has_standalone_plugin && ! self::is_plugin_active() ) ) {
+				$status = static::$has_free_offering ? 'needs_purchase_or_free' : 'needs_purchase';
+			} elseif ( static::$requires_site_connection && ! ( new Connection_Manager() )->is_connected() ) {
+				// Site has never been connected before
+				if ( ! \Jetpack_Options::get_option( 'id' ) ) {
+					$status = 'needs_first_site_connection';
+				} else {
+					$status = 'site_connection_error';
+				}
+			} elseif ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
+				$status = 'user_connection_error';
 			}
+		} elseif ( ! static::has_any_plan_for_product() ) {
+			$status = static::$has_free_offering ? 'needs_purchase_or_free' : 'needs_purchase';
 		} else {
 			$status = 'inactive';
 		}
@@ -474,7 +497,7 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function is_active() {
-		return static::is_plugin_active() && static::has_required_plan();
+		return static::is_plugin_active() && ( static::has_any_plan_for_product() || ( ! static::$requires_plan && static::$has_free_offering ) );
 	}
 
 	/**
@@ -511,6 +534,18 @@ abstract class Product {
 	 */
 	public static function is_jetpack_plugin_active() {
 		return Plugins_Installer::is_plugin_active( static::get_installed_plugin_filename( 'jetpack' ) );
+	}
+
+	/**
+	 * Checks whether the Jetpack module is active only if a module_name is defined
+	 *
+	 * @return bool
+	 */
+	public static function is_module_active() {
+		if ( static::$module_name ) {
+			return ( new Modules() )->is_active( static::$module_name );
+		}
+		return true;
 	}
 
 	/**

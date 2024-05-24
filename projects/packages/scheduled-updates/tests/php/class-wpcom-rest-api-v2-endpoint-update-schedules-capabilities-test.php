@@ -24,7 +24,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities_Test extends \Wor
 	 * Set up.
 	 */
 	public function set_up() {
-		parent::set_up();
+		parent::set_up_wordbless();
+		\WorDBless\Users::init()->clear_all_users();
 
 		$this->admin_id = wp_insert_user(
 			array(

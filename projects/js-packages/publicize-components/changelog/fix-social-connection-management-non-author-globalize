@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed an issue where non-admins saw action on connection management

@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "aabdf7e6c89c547ee123802392e66866",
+	"content-hash": "28d59d58a2473bd2de9afe7b1f132040",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -1781,7 +1781,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "1fd5a6c11b2f1d4e7e8a1e8383ddd4fc85c5e2e6"
+				"reference": "155eb8f5b45531011bc7a61b238441293fad0342"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1816,7 +1816,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "4.23.x-dev"
+					"dev-trunk": "4.24.x-dev"
 				},
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-initializer.php"
@@ -2117,7 +2117,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "f1711a2e043a4ae86e9a812c951cd214f70d979b"
+				"reference": "aa81259deff0daab3082228052b5d74002c75a5f"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -2145,7 +2145,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.44.x-dev"
+					"dev-trunk": "0.45.x-dev"
 				}
 			},
 			"autoload": {
@@ -2516,7 +2516,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/status",
-				"reference": "f9ecbcc790abd2a7eaca0c926f24a1d3aa026ff0"
+				"reference": "aa6dffdf02a0285b3ce1632c4fe211693f4e79fe"
 			},
 			"require": {
 				"automattic/jetpack-constants": "@dev",
@@ -2542,7 +2542,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "3.1.x-dev"
+					"dev-trunk": "3.2.x-dev"
 				},
 				"dependencies": {
 					"test-only": [
@@ -3188,6 +3188,62 @@
 				"cli",
 				"dev",
 				"keepachangelog"
+			],
+			"transport-options": {
+				"relative": true
+			}
+		},
+		{
+			"name": "automattic/patchwork-redefine-exit",
+			"version": "dev-trunk",
+			"dist": {
+				"type": "path",
+				"url": "../../packages/patchwork-redefine-exit",
+				"reference": "14e4719ada9d517ef6d15334f583fbdb65312eab"
+			},
+			"require": {
+				"antecedent/patchwork": "^2.1",
+				"php": ">=7.0"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"yoast/phpunit-polyfills": "1.1.0"
+			},
+			"type": "library",
+			"extra": {
+				"autotagger": true,
+				"branch-alias": {
+					"dev-trunk": "1.0.x-dev"
+				},
+				"changelogger": {
+					"link-template": "https://github.com/Automattic/patchwork-redefine-exit/compare/v${old}...v${new}"
+				},
+				"mirror-repo": "Automattic/patchwork-redefine-exit"
+			},
+			"autoload": {
+				"classmap": [
+					"src"
+				]
+			},
+			"scripts": {
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"description": "Use antecedent/patchwork to redefine `exit` and `die` for more robust PHPUnit testing.",
+			"keywords": [
+				"die",
+				"exit",
+				"patchwork",
+				"phpunit",
+				"redefinition",
+				"testing"
 			],
 			"transport-options": {
 				"relative": true
@@ -5851,7 +5907,8 @@
 		"automattic/jetpack-waf": 20,
 		"automattic/jetpack-wordads": 20,
 		"automattic/woocommerce-analytics": 20,
-		"automattic/jetpack-changelogger": 20
+		"automattic/jetpack-changelogger": 20,
+		"automattic/patchwork-redefine-exit": 20
 	},
 	"prefer-stable": true,
 	"prefer-lowest": false,

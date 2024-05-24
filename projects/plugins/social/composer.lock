@@ -1021,7 +1021,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "1fd5a6c11b2f1d4e7e8a1e8383ddd4fc85c5e2e6"
+				"reference": "155eb8f5b45531011bc7a61b238441293fad0342"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1056,7 +1056,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "4.23.x-dev"
+					"dev-trunk": "4.24.x-dev"
 				},
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1357,7 +1357,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "f1711a2e043a4ae86e9a812c951cd214f70d979b"
+				"reference": "aa81259deff0daab3082228052b5d74002c75a5f"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1385,7 +1385,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.44.x-dev"
+					"dev-trunk": "0.45.x-dev"
 				}
 			},
 			"autoload": {
@@ -1537,7 +1537,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/status",
-				"reference": "f9ecbcc790abd2a7eaca0c926f24a1d3aa026ff0"
+				"reference": "aa6dffdf02a0285b3ce1632c4fe211693f4e79fe"
 			},
 			"require": {
 				"automattic/jetpack-constants": "@dev",
@@ -1563,7 +1563,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "3.1.x-dev"
+					"dev-trunk": "3.2.x-dev"
 				},
 				"dependencies": {
 					"test-only": [

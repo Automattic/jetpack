@@ -6,12 +6,14 @@ const ssoEntries = {};
 // Add all js files in the src/sso directory.
 for ( const file of glob.sync( './src/sso/*.js' ) ) {
 	const name = path.basename( file, path.extname( file ) );
-	ssoEntries[ name ] = file;
+	ssoEntries[ name ] ??= [];
+	ssoEntries[ name ].push( file );
 }
 // Add all css files as well.
 for ( const file of glob.sync( './src/sso/*.css' ) ) {
 	const name = path.basename( file, path.extname( file ) );
-	ssoEntries[ name ] = file;
+	ssoEntries[ name ] ??= [];
+	ssoEntries[ name ].push( file );
 }
 
 module.exports = [
