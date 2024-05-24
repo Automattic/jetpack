@@ -1,18 +1,28 @@
-import { Notice } from '@automattic/jetpack-components';
-import getErrorData from './lib/get-error-data';
 import { usePageCacheSetup, type PageCacheError } from '$lib/stores/page-cache';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useSingleModuleState } from '$features/module/lib/stores';
+import {
+	AdvancedCacheForSuperCacheNotice,
+	AdvancedCacheIncompatibleNotice,
+	FailedSettingsWriteNotice,
+	GenericErrorNotice,
+	NotUsingPermalinksNotice,
+	PageCacheRootDirNotWritableNotice,
+	UnableToWriteToAdvancedCacheNotice,
+	WPCacheDefinedNotTrueNotice,
+	WPConfigNotWritableNotice,
+	WpContentNotWritableNotice,
+} from './error-notices';
+
 type HealthProps = {
 	error?: PageCacheError;
-	setup?: ReturnType< typeof usePageCacheSetup >;
+	setup: ReturnType< typeof usePageCacheSetup >;
 	setError: ( error: PageCacheError ) => void;
 };
 
 const Health = ( { setup, error, setError }: HealthProps ) => {
 	const [ , setModuleState ] = useSingleModuleState( 'page_cache' );
 	// Was there a problem trying to setup cache?
-	const errorData = getErrorData( error );
 	const [ doingRevert, setDoingRevert ] = useState( false );
 
 	useEffect( () => {
@@ -28,22 +38,34 @@ const Health = ( { setup, error, setError }: HealthProps ) => {
 		}
 	}, [ doingRevert, setDoingRevert, setModuleState ] );
 
-	return (
-		<>
-			{ errorData && error && error.dismissed !== true && (
-				<Notice
-					level="warning"
-					title={ errorData.title }
-					onClose={ () => {
-						setError( { ...error, dismissed: true } );
-					} }
-					actions={ errorData.actions }
-				>
-					<p>{ errorData.message }</p>
-				</Notice>
-			) }
-		</>
-	);
+	if ( ! error || error.dismissed ) {
+		return null;
+	}
+
+	const onClose = () => {
+		setError( { ...error, dismissed: true } );
+	};
+
+	const code = typeof error === 'string' ? error : error.code;
+	const notices: { [ key: string ]: ReactNode } = {
+		'failed-settings-write': <FailedSettingsWriteNotice onClose={ onClose } />,
+		'wp-content-not-writable': <WpContentNotWritableNotice onClose={ onClose } />,
+		'not-using-permalinks': <NotUsingPermalinksNotice onClose={ onClose } />,
+		'advanced-cache-incompatible': <AdvancedCacheIncompatibleNotice onClose={ onClose } />,
+		'advanced-cache-for-super-cache': (
+			<AdvancedCacheForSuperCacheNotice pageCacheSetup={ setup } onClose={ onClose } />
+		),
+		'unable-to-write-to-advanced-cache': <UnableToWriteToAdvancedCacheNotice onClose={ onClose } />,
+		'wp-cache-defined-not-true': <WPCacheDefinedNotTrueNotice onClose={ onClose } />,
+		'page-cache-root-dir-not-writable': <PageCacheRootDirNotWritableNotice onClose={ onClose } />,
+		'wp-config-not-writable': <WPConfigNotWritableNotice onClose={ onClose } />,
+	};
+
+	if ( code in notices ) {
+		return notices[ code ];
+	}
+
+	return <GenericErrorNotice error={ error } onClose={ onClose } />;
 };
 
 export default Health;
