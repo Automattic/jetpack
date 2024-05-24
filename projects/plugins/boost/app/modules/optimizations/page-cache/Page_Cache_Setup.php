@@ -150,8 +150,11 @@ class Page_Cache_Setup {
 			$content = file_get_contents( $advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 
 			if ( strpos( $content, 'WP SUPER CACHE' ) !== false ) {
-				if ( Super_Cache_Config_Compatibility::is_compatible() && function_exists( 'wpsupercache_deactivate' ) ) {
-					wpsupercache_deactivate();
+				// advanced-cache.php is already in use by WP Super Cache.
+
+				if ( Super_Cache_Config_Compatibility::is_compatible() ) {
+					$deactivation = new Data_Sync_Actions\Deactivate_WPSC();
+					$deactivation->handle( null, null );
 					Analytics::record_user_event(
 						'boost_replaced_previous_cache',
 						array(
@@ -162,14 +165,13 @@ class Page_Cache_Setup {
 				} else {
 					return new \WP_Error( 'advanced-cache-for-super-cache' );
 				}
-			}
-
-			if ( strpos( $content, Page_Cache::ADVANCED_CACHE_SIGNATURE ) === false ) {
+			} elseif ( strpos( $content, Page_Cache::ADVANCED_CACHE_SIGNATURE ) === false ) {
+				// advanced-cache.php is in use by another plugin.
 				return new \WP_Error( 'advanced-cache-incompatible' );
 			}
 
 			if ( strpos( $content, Page_Cache::ADVANCED_CACHE_VERSION ) !== false ) {
-				// The version and signature match, nothing needed to be changed.
+				// The advanced-cache.php file belongs to current version of Boost Cache.
 				return false;
 			}
 		}
