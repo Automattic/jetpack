@@ -44,16 +44,16 @@ const sharedWebpackConfig = {
 	plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
 };
 
-const responsiveVideosFiles = {};
+const classicThemeHelperFiles = {};
 for ( const file of glob
 	.sync( 'src/**/*.js' )
 	.filter( name => ! name.endsWith( '.min.js' ) && name.indexOf( '/test/' ) < 0 ) ) {
-	responsiveVideosFiles[ file.substring( 4, file.length - 3 ) ] = './' + file;
+	classicThemeHelperFiles[ file.substring( 4, file.length - 3 ) ] = './' + file;
 }
 
 module.exports = [
 	{
 		...sharedWebpackConfig,
-		entry: responsiveVideosFiles,
+		entry: classicThemeHelperFiles,
 	},
 ];
