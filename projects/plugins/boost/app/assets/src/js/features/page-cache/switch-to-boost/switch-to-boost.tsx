@@ -1,4 +1,5 @@
 import { useAsyncSuperCacheAction } from '$lib/stores/page-cache';
+import { recordBoostEvent } from '$lib/utils/analytics';
 import { Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
@@ -13,6 +14,7 @@ const SwitchToBoost = ( { onSwitch }: Props ) => {
 	const switchToBoost = useCallback( async () => {
 		await disableSuperCache.mutateAsync();
 		onSwitch();
+		recordBoostEvent( 'switch_to_boost_cache', { type: 'confirmed' } );
 	}, [ disableSuperCache, onSwitch ] );
 
 	return (
