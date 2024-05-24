@@ -57,6 +57,8 @@ class Initializer {
 
 	const MY_JETPACK_SITE_INFO_TRANSIENT_KEY = 'my-jetpack-site-info';
 
+	const UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY = 'update-historically-active-jetpack-modules';
+
 	const MISSING_SITE_CONNECTION_NOTIFICATION_KEY = 'missing-site-connection';
 
 	/**
@@ -76,9 +78,7 @@ class Initializer {
 			return;
 		}
 
-		add_action( 'jetpack_user_authorized', array( __CLASS__, 'update_historically_active_jetpack_modules' ), 1001 );
-		add_action( 'jetpack_site_before_disconnected', array( __CLASS__, 'update_historically_active_jetpack_modules' ), 1001 );
-		add_action( 'jetpack_before_unlinking_user', array( __CLASS__, 'update_historically_active_jetpack_modules' ), 1001 );
+		self::setup_historically_active_jetpack_modules_sync();
 
 		// Extend jetpack plugins action links.
 		Products::extend_plugins_action_links();
@@ -493,6 +493,43 @@ class Initializer {
 	}
 
 	/**
+	 * Set transient to queue an update to the historically active Jetpack modules on the next wp-admin load
+	 *
+	 * @return void
+	 */
+	public static function queue_historically_active_jetpack_modules_update() {
+		set_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY, true );
+	}
+
+	/**
+	 * Hook into several connection-based actions to update the historically active Jetpack modules
+	 * If the transient that indicates the list needs to be synced, update it and delete the transient
+	 *
+	 * @return void
+	 */
+	public static function setup_historically_active_jetpack_modules_sync() {
+		if ( get_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY ) ) {
+			self::update_historically_active_jetpack_modules();
+			delete_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY );
+		}
+
+		$actions = array(
+			'jetpack_site_before_disconnected',
+			'jetpack_site_registered',
+			'jetpack_user_authorized',
+			'jetpack_before_unlinking_user',
+			'activated_plugin',
+		);
+
+		foreach ( $actions as $action ) {
+			add_action( $action, array( __CLASS__, 'queue_historically_active_jetpack_modules_update' ), 5 );
+		}
+
+		// Modules are often updated async, so we need to update them right away as there will sometimes be no page reload.
+		add_action( 'jetpack_activate_module', array( __CLASS__, 'update_historically_active_jetpack_modules' ), 5 );
+	}
+
+	/**
 	 * Update historically active Jetpack plugins
 	 * Historically active is defined as the Jetpack plugins that are installed and active with the required connections
 	 * This array will conxsist of any plugins that were active at one point in time and are still enabled on the site
@@ -523,9 +560,6 @@ class Initializer {
 		);
 
 		foreach ( $products as $product ) {
-			if ( $product['slug'] === 'social' ) {
-				l( $product );
-			}
 			$status       = $product['status'];
 			$product_slug = $product['slug'];
 			// We want to leave modules in the array if they've been active in the past
