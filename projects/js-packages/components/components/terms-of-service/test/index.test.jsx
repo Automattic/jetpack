@@ -42,11 +42,11 @@ describe( 'TermsofService', () => {
 
 	it( 'links to the data sharing document (single button)', () => {
 		render( <TermsOfService agreeButtonLabel={ 'whatever' } /> );
-		expect( screen.getByText( 'share details', { selector: 'a' } ) ).toBeInTheDocument();
+		expect( screen.getByText( "sync your site's data", { selector: 'a' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'links to the data sharing document (multiple buttons)', () => {
 		render( <TermsOfService multipleButtons /> );
-		expect( screen.getByText( 'share details', { selector: 'a' } ) ).toBeInTheDocument();
+		expect( screen.getByText( "sync your site's data", { selector: 'a' } ) ).toBeInTheDocument();
 	} );
 } );

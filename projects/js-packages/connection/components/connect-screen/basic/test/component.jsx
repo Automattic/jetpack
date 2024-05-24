@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import ConnectScreen from '../visual';
 
-const CONNECTION_BUTTON_LABEL = 'Setup Jetpack';
+const CONNECTION_BUTTON_LABEL = 'Set up Jetpack';
 const requiredProps = {
 	buttonLabel: CONNECTION_BUTTON_LABEL,
 };
@@ -44,7 +44,7 @@ describe( 'ConnectScreen', () => {
 
 	it( 'applies correct href to share', () => {
 		render( <ConnectScreen { ...requiredProps } /> );
-		const share = screen.getByRole( 'link', { name: 'share details' } );
+		const share = screen.getByRole( 'link', { name: "sync your site's data" } );
 		expect( share ).toHaveAttribute(
 			'href',
 			'https://jetpack.com/redirect/?source=jetpack-support-what-data-does-jetpack-sync'
@@ -64,7 +64,7 @@ describe( 'ConnectScreen', () => {
 		const user = userEvent.setup();
 		const handleButtonClick = jest.fn();
 		render( <ConnectScreen { ...requiredProps } handleButtonClick={ handleButtonClick } /> );
-		const button = screen.getByRole( 'button', { name: 'Setup Jetpack' } );
+		const button = screen.getByRole( 'button', { name: 'Set up Jetpack' } );
 		await user.click( button );
 		expect( handleButtonClick ).toHaveBeenCalled();
 	} );
