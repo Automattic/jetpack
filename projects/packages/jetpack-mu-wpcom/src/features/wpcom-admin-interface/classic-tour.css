@@ -51,6 +51,15 @@
 	margin-top: 0;
 }
 
+.wpcom-classic-tour-step-footer {
+	display: flex;
+	gap: 8px;
+}
+
+.wpcom-classic-tour-step-current {
+	flex-grow: 1;
+}
+
 .wpcom-classic-tour-step.is-first-step .wpcom-classic-tour-step-prev,
 .wpcom-classic-tour-step .wpcom-classic-tour-step-done,
 .wpcom-classic-tour-step.is-last-step .wpcom-classic-tour-step-next {
