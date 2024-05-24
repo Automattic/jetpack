@@ -285,19 +285,17 @@ class Publicize extends Publicize_Base {
 		$response               = Client::wpcom_json_api_request_as_user( $path, '2', array(), null, 'wpcom' );
 		$connection_results     = json_decode( wp_remote_retrieve_body( $response ), true );
 		$connection_results_map = array();
+
 		foreach ( $connection_results as $connection_result ) {
-			$connection_results_map[ $connection_result['connection_id'] ] = $connection_result['test_success'];
+			$connection_results_map[ $connection_result['connection_id'] ] = $connection_result['test_success'] ? 'ok' : 'broken';
+		}
+		foreach ( $connections as $key => $connection ) {
+			if ( isset( $connection_results_map[ $connection['connection_id'] ] ) ) {
+				$connections[ $key ]['status'] = $connection_results_map[ $connection['connection_id'] ];
+			}
 		}
 
-		return array_map(
-			function ( $connection ) use ( $connection_results_map ) {
-				if ( isset( $connection_results_map[ $connection['connection_id'] ] ) ) {
-						$connection['status'] = $connection_results_map[ $connection['connection_id'] ] ? 'ok' : 'broken';
-				}
-				return $connection;
-			},
-			$connections
-		);
+		return $connections;
 	}
 
 	/**
