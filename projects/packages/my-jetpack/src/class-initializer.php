@@ -78,6 +78,10 @@ class Initializer {
 			return;
 		}
 
+		add_action( 'jetpack_user_authorized', array( __CLASS__, 'update_historically_active_jetpack_modules' ), 1001 );
+		add_action( 'jetpack_site_before_disconnected', array( __CLASS__, 'update_historically_active_jetpack_modules' ), 1001 );
+		add_action( 'jetpack_before_unlinking_user', array( __CLASS__, 'update_historically_active_jetpack_modules' ), 1001 );
+
 		// Extend jetpack plugins action links.
 		Products::extend_plugins_action_links();
 

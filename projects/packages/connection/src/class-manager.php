@@ -920,6 +920,16 @@ class Manager {
 			return false;
 		}
 
+		/**
+		 * Fires before the current user has been unlinked from WordPress.com.
+		 *
+		 * @since 2.8.5
+		 * @since-jetpack 13.5.0
+		 *
+		 * @param int $user_id The current user's ID.
+		 */
+		do_action( 'jetpack_before_unlinking_user', $user_id );
+
 		// Attempt to disconnect the user from WordPress.com.
 		$is_disconnected_from_wpcom = $this->unlink_user_from_wpcom( $user_id );
 
