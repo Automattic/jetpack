@@ -9,11 +9,11 @@ import { ServicesList } from '../services/services-list';
 import { ConfirmationForm } from './confirmation-form';
 import styles from './style.module.scss';
 
-type AddConnectionModalProps = {
+type ManageConnectionsModalProps = {
 	onCloseModal?: VoidFunction;
 };
 
-const AddConnectionModal = ( { onCloseModal }: AddConnectionModalProps ) => {
+export const ManageConnectionsModal = ( { onCloseModal }: ManageConnectionsModalProps ) => {
 	const { keyringResult } = useSelect( select => {
 		const { getKeyringResult } = select( store );
 
@@ -58,5 +58,3 @@ const AddConnectionModal = ( { onCloseModal }: AddConnectionModalProps ) => {
 		</Modal>
 	);
 };
-
-export default AddConnectionModal;

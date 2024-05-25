@@ -10,7 +10,7 @@ import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import { store } from '../../social-store';
-import AddConnectionModal from '../add-connection-modal';
+import { ManageConnectionsModal } from '../manage-connections-modal';
 import styles from './styles.module.scss';
 
 /**
@@ -47,8 +47,8 @@ export default function PublicizeSettingsButton() {
 			<button
 				className={ styles[ 'settings-link' ] }
 				onClick={ openModal }
-				title={ __( 'Connect an account', 'jetpack' ) }
-				aria-label={ __( 'Connect an account', 'jetpack' ) }
+				title={ __( 'Manage connections', 'jetpack' ) }
+				aria-label={ __( 'Manage connections', 'jetpack' ) }
 			>
 				<svg
 					width="24"
@@ -74,7 +74,7 @@ export default function PublicizeSettingsButton() {
 					/>
 				</svg>
 			</button>
-			{ shouldModalBeOpen ? <AddConnectionModal onCloseModal={ closeModal } /> : null }
+			{ shouldModalBeOpen ? <ManageConnectionsModal onCloseModal={ closeModal } /> : null }
 		</ThemeProvider>
 	) : (
 		<OldPublicizeSettingsButton />

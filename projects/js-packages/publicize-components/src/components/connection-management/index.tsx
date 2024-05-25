@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store } from '../../social-store';
-import AddConnectionModal from '../add-connection-modal';
+import { ManageConnectionsModal } from '../manage-connections-modal';
 import { SupportedService, useSupportedServices } from '../services/use-supported-services';
 import { ConnectionInfo } from './connection-info';
 import styles from './style.module.scss';
@@ -94,7 +94,7 @@ const ConnectionManagement = ( { className = null } ) => {
 			<Button onClick={ openModal } variant={ connections.length ? 'secondary' : 'primary' }>
 				{ __( 'Connect an account', 'jetpack' ) }
 			</Button>
-			{ shouldModalBeOpen ? <AddConnectionModal onCloseModal={ closeModal } /> : null }
+			{ shouldModalBeOpen ? <ManageConnectionsModal onCloseModal={ closeModal } /> : null }
 		</div>
 	);
 };
