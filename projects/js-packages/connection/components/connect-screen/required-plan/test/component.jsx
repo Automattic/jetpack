@@ -31,7 +31,7 @@ describe( 'ConnectScreenRequiredPlan', () => {
 				( content, { textContent } ) =>
 					content !== '' && // filter out parent/wrapper elements
 					textContent.startsWith(
-						`By clicking the ${ CONNECTION_BUTTON_LABEL } button, you agree to our Terms of Service`
+						`By clicking ${ CONNECTION_BUTTON_LABEL }, you agree to our Terms of Service`
 					)
 			)
 		).toBeInTheDocument();

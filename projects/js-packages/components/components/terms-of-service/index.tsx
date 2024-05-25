@@ -37,7 +37,7 @@ const SingleButtonText = ( { agreeButtonLabel } ) =>
 		sprintf(
 			/* translators: %s is a button label */
 			__(
-				"By clicking the <strong>%s</strong> button, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site's data</shareDetailsLink> with us.",
+				"By clicking <strong>%s</strong>, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site's data</shareDetailsLink> with us.",
 				'jetpack'
 			),
 			agreeButtonLabel

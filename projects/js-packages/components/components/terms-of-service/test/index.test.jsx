@@ -24,7 +24,7 @@ describe( 'TermsofService', () => {
 				( content, { textContent } ) =>
 					content !== '' && // filter out parent/wrapper elements
 					textContent.startsWith(
-						`By clicking the ${ buttonLabel } button, you agree to our Terms of Service`
+						`By clicking ${ buttonLabel }, you agree to our Terms of Service`
 					)
 			)
 		).toBeInTheDocument();

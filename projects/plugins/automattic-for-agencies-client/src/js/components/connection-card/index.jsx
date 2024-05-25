@@ -60,7 +60,7 @@ function ConnectionContent( { onShowSharingDetailsClick } ) {
 				<div className={ styles[ 'terms-of-service' ] }>
 					{ createInterpolateElement(
 						__(
-							"By clicking the <strong>connect this site</strong> button, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site's data</shareDetailsLink> with us.",
+							"By clicking <strong>connect this site</strong>, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site's data</shareDetailsLink> with us.",
 							'automattic-for-agencies-client'
 						),
 						{
