@@ -67,7 +67,6 @@ const ConnectionManagement = ( { className = null } ) => {
 
 	return (
 		<div className={ classNames( styles.wrapper, className ) }>
-			<h3>{ __( 'My Connections', 'jetpack' ) }</h3>
 			{ connections.length ? (
 				<ul className={ styles[ 'connection-list' ] }>
 					{ connections.map( connection => {
@@ -88,9 +87,7 @@ const ConnectionManagement = ( { className = null } ) => {
 						);
 					} ) }
 				</ul>
-			) : (
-				<span>{ __( 'There are no connections added yet.', 'jetpack' ) }</span>
-			) }
+			) : null }
 			<Button onClick={ openModal } variant={ connections.length ? 'secondary' : 'primary' }>
 				{ __( 'Add connection', 'jetpack' ) }
 			</Button>
