@@ -140,15 +140,15 @@ function wpcom_render_classic_tour_templates() {
 	}
 	?>
 	<template id="wpcom-classic-tour-steps-template">
-		<div class="wpcom-classic-tour-step" data-target=".toplevel_page_wpcom-hosting-menu" data-placement="right">
+		<div class="wpcom-classic-tour-step" data-target=".toplevel_page_wpcom-hosting-menu" data-placement="right-bottom">
 			<h3><?php esc_html_e( 'Upgrades is now Hosting', 'jetpack-mu-wpcom' ); ?></h3>
 			<p><?php esc_html_e( 'The Hosting drawer contains the My Home page and all items from the Updates drawer, including Plans, Domains, Emails, and Purchases.', 'jetpack-mu-wpcom' ); ?></p>
 		</div>
-		<div class="wpcom-classic-tour-step" data-target=".toplevel_page_wpcom-hosting-menu" data-placement="right">
+		<div class="wpcom-classic-tour-step" data-target=".wpcom_site_management_widget__site-actions" data-placement="bottom">
 			<h3><?php esc_html_e( 'Hosting overview', 'jetpack-mu-wpcom' ); ?></h3>
 			<p><?php esc_html_e( 'Access the new site management panel and all developer tools such as hosting configuration, GitHub deployments, metrics, PHP logs, and server logs.', 'jetpack-mu-wpcom' ); ?></p>
 		</div>
-		<div class="wpcom-classic-tour-step" data-target=".toplevel_page_wpcom-hosting-menu" data-placement="right">
+		<div class="wpcom-classic-tour-step" data-target=".wp-admin-bar-all-sites" data-placement="bottom-right">
 			<h3><?php esc_html_e( 'All your sites', 'jetpack-mu-wpcom' ); ?></h3>
 			<p><?php esc_html_e( 'All sites consolidates all your sites, domains, notifications, help center, Reader, and more in one place.', 'jetpack-mu-wpcom' ); ?></p>
 		</div>

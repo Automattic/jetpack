@@ -11,10 +11,18 @@ const wpcomShowClassicTourStep = step => {
 	const targetPosition = target.getBoundingClientRect();
 	const placement = stepTemplate.dataset.placement;
 	switch ( placement ) {
-		case 'right':
-		default:
+		case 'right-bottom':
 			stepTemplate.style.top = `${ targetPosition.top }px`;
 			stepTemplate.style.left = `${ targetPosition.right }px`;
+			break;
+		case 'bottom-right':
+			stepTemplate.style.top = `${ targetPosition.bottom }px`;
+			stepTemplate.style.left = `${ targetPosition.left }px`;
+			break;
+		case 'bottom':
+		default:
+			stepTemplate.style.top = `${ targetPosition.bottom }px`;
+			stepTemplate.style.left = `${ targetPosition.left + targetPosition.width / 2 }px`;
 			break;
 	}
 
