@@ -156,7 +156,7 @@ function wpcom_render_classic_tour_templates() {
 	<template id="wpcom-classic-tour-step-footer-template">
 		<div class="wpcom-classic-tour-step-footer">
 			<div class="wpcom-classic-tour-step-current"><?php esc_html_e( 'Step {{currentStep}} of {{totalSteps}}', 'jetpack-mu-wpcom' ); ?></div>
-			<button class="wpcom-classic-tour-step-prev button button-link"><?php esc_html_e( 'Previous', 'jetpack-mu-wpcom' ); ?></button>
+			<button class="wpcom-classic-tour-step-prev button"><?php esc_html_e( 'Previous', 'jetpack-mu-wpcom' ); ?></button>
 			<button class="wpcom-classic-tour-step-next button button-primary"><?php esc_html_e( 'Next', 'jetpack-mu-wpcom' ); ?></button>
 			<button class="wpcom-classic-tour-step-done button button-primary"><?php esc_html_e( 'Well done!', 'jetpack-mu-wpcom' ); ?></button>
 		</div>

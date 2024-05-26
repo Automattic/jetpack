@@ -49,6 +49,7 @@
 
 .wpcom-classic-tour-step p {
 	margin-top: 0;
+	margin-bottom: 24px;
 }
 
 .wpcom-classic-tour-step-footer {
@@ -58,6 +59,12 @@
 
 .wpcom-classic-tour-step-current {
 	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	font-size: 12px;
+	line-height: 18px;
+	color: #a7aaad;
 }
 
 .wpcom-classic-tour-step.is-first-step .wpcom-classic-tour-step-prev,
@@ -68,4 +75,16 @@
 
 .wpcom-classic-tour-step.is-last-step .wpcom-classic-tour-step-done {
 	display: block;
+}
+
+.wpcom-classic-tour-step-prev.button,
+.wpcom-classic-tour-step-prev.button:hover,
+.wpcom-classic-tour-step-prev.button:active {
+	color: #fff;
+	background: none;
+	border-color: transparent;
+}
+
+.wpcom-classic-tour-step-prev.button:hover {
+	border-color: inherit;
 }
