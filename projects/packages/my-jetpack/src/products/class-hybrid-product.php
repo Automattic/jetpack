@@ -17,14 +17,6 @@ use WP_Error;
  * Hybrid products are those that may work both as a stand-alone plugin or with the Jetpack plugin.
  */
 abstract class Hybrid_Product extends Product {
-
-	/**
-	 * The Jetpack module name, if any.
-	 *
-	 * @var ?string
-	 */
-	public static $module_name = null;
-
 	/**
 	 * All hybrid products have a standalone plugin
 	 *
@@ -57,18 +49,6 @@ abstract class Hybrid_Product extends Product {
 	 */
 	public static function is_standalone_plugin_active() {
 		return parent::is_plugin_active();
-	}
-
-	/**
-	 * Checks whether the Jetpack module is active only if a module_name is defined
-	 *
-	 * @return bool
-	 */
-	public static function is_module_active() {
-		if ( static::$module_name ) {
-			return ( new Modules() )->is_active( static::$module_name );
-		}
-		return true;
 	}
 
 	/**
@@ -125,9 +105,13 @@ abstract class Hybrid_Product extends Product {
 			}
 		}
 
-		// Only activate the module if the plan supports it
-		// We don't want to throw an error for a missing plan here since we try activation before purchase
-		if ( static::has_required_plan() && static::$module_name ) {
+		if ( ! empty( static::$module_name ) ) {
+			// Only activate the module if the plan supports it
+			// We don't want to throw an error for a missing plan here since we try activation before purchase
+			if ( static::$requires_plan && ! static::has_any_plan_for_product() ) {
+				return true;
+			}
+
 			$module_activation = ( new Modules() )->activate( static::$module_name, false, false );
 
 			if ( ! $module_activation ) {
@@ -156,7 +140,7 @@ abstract class Hybrid_Product extends Product {
 		 * Activate the module as well, if the user has a plan
 		 * or the product does not require a plan to work
 		 */
-		if ( static::has_required_plan() && static::$module_name ) {
+		if ( static::has_any_plan_for_product() && isset( static::$module_name ) ) {
 			$module_activation = ( new Modules() )->activate( static::$module_name, false, false );
 
 			if ( ! $module_activation ) {

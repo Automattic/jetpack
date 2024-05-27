@@ -14,8 +14,8 @@ export function getMarkdown( html: string ) {
 	return renderMarkdownFromHTML( { content: html } );
 }
 
-export function renderContent( markdown: string, rules: RenderHTMLRules = [] ) {
-	return renderHTMLFromMarkdown( { content: markdown, rules } );
+export function renderHTMLContent( markdown: string, rules: RenderHTMLRules = [] ) {
+	return renderHTMLFromMarkdown( { content: markdown, rules, extension: true } );
 }
 
 export class BlockHandler {
@@ -41,11 +41,16 @@ export class BlockHandler {
 	}
 
 	public renderContent( markdown: string ) {
-		return renderContent( markdown, this.renderRules );
+		return renderHTMLContent( markdown, this.renderRules );
 	}
 
 	public onSuggestion( suggestion: string ): void {
-		const HTML = renderContent( suggestion );
+		// Ignore an empty suggestion
+		if ( ! suggestion ) {
+			return;
+		}
+
+		const HTML = this.renderContent( suggestion );
 
 		this.replaceBlockContent( HTML );
 	}
@@ -62,18 +67,22 @@ export class BlockHandler {
 			return;
 		}
 
-		const { updateBlockAttributes, __unstableMarkNextChangeAsNotPersistent } = dispatch(
-			'core/block-editor'
-		) as BlockEditorDispatch;
+		const { updateBlockAttributes, replaceInnerBlocks, __unstableMarkNextChangeAsNotPersistent } =
+			dispatch( 'core/block-editor' ) as BlockEditorDispatch;
 
-		if ( ! this.firstUpdate ) {
-			// Mark the change as not persistent so we can undo all the changes in one step.
-			__unstableMarkNextChangeAsNotPersistent();
-		} else {
+		// Do not mark the very first change as not persistent.
+		if ( this.firstUpdate ) {
 			this.firstUpdate = false;
+		} else {
+			// Mark all other changes as not persistent so we can undo all the changes in one step.
+			__unstableMarkNextChangeAsNotPersistent();
 		}
 
 		// Replace the original block attributes with the new block attributes.
 		updateBlockAttributes( this.clientId, newBlock.attributes );
+
+		// Replace the original block inner blocks with the new block inner blocks.
+		__unstableMarkNextChangeAsNotPersistent();
+		replaceInnerBlocks( this.clientId, newBlock.innerBlocks );
 	}
 }

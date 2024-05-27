@@ -2399,18 +2399,24 @@ class Jetpack {
 	/**
 	 * Catches PHP errors.  Must be used in conjunction with output buffering.
 	 *
+	 * @deprecated since 13.5
 	 * @param bool $catch True to start catching, False to stop.
 	 *
 	 * @static
 	 */
 	public static function catch_errors( $catch ) {
+		_deprecated_function( __METHOD__, '13.5' );
+		// @phan-suppress-next-line PhanDeprecatedClass
 		return ( new Errors() )->catch_errors( $catch );
 	}
 
 	/**
 	 * Saves any generated PHP errors in ::state( 'php_errors', {errors} )
+	 *
+	 * @deprecated since 13.5
 	 */
 	public static function catch_errors_on_shutdown() {
+		_deprecated_function( __METHOD__, '13.5' );
 		self::state( 'php_errors', self::alias_directories( ob_get_clean() ) );
 	}
 
@@ -2536,7 +2542,6 @@ class Jetpack {
 		// Check each module for fatal errors, a la wp-admin/plugins.php::activate before activating.
 		if ( $send_state_messages ) {
 			self::restate();
-			self::catch_errors( true );
 		}
 
 		$active = self::get_active_modules();
@@ -2606,8 +2611,6 @@ class Jetpack {
 			self::state( 'error', false );
 			self::state( 'module', false );
 		}
-
-		self::catch_errors( false );
 		/**
 		 * Fires when default modules are activated.
 		 *

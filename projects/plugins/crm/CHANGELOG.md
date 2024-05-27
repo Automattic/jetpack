@@ -5,6 +5,28 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.4.3] - 2024-05-23
+### Added
+- Currency: Added several new currencies to the currency dropdown. [#36897]
+- Fonts: Updated core Noto Sans, and added new CJK fonts. [#36962]
+- Readme: Adding information on how to contribute to Jetpack CRM. [#36847]
+- WooSync: Added new status mapping to avoid creating invoices and transactions from WooCommerce to Jetpack CRM. [#37276]
+
+### Changed
+- General: use wp_admin_notice function introduced in WP 6.4 to display notices. [#37051]
+- Updated package dependencies. [#36775] [#37147] [#37148] [#37348] [#37379] [#37380] [#37382]
+
+### Removed
+- Contact Form: Updated a comment reference to Grunion_Contact_Form_Plugin to be Contact_Form_Plugin. [#37157]
+
+### Fixed
+- Companies: Increased city field size from 100 to 200. [#37509]
+- Contacts: Increased city field size from 100 to 200. [#37509]
+- Invoices: Fix "image not found" logo issue in PDF invoices. [#37311]
+- Invoices: Remove the blank line below the contact name. [#37462]
+- Listviews: Invoice quick filter status fix to prevent filters not working. [#37048]
+- MailPoet Sync: Fix pending pages percentage calculation issue. [#37508]
+
 ## [6.4.2] - 2024-04-08
 ### Added
 - Dashboard: Sales Funnel now links to contact list view. [#36272]
@@ -334,6 +356,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Added a migration to remove outdated AKA lines
 
 [5.5.4-a.1]: https://github.com/Automattic/jetpack-crm/compare/v5.5.3...v5.5.4-a.1
+[6.4.3]: https://github.com/Automattic/jetpack-crm/compare/6.4.2...6.4.3
 [6.4.2]: https://github.com/Automattic/jetpack-crm/compare/6.4.1...6.4.2
 [6.4.1]: https://github.com/Automattic/jetpack-crm/compare/6.4.0...6.4.1
 [6.4.0]: https://github.com/Automattic/jetpack-crm/compare/6.3.2...6.4.0

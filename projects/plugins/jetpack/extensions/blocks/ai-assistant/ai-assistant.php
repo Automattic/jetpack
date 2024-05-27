@@ -168,7 +168,7 @@ add_action(
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
-		if ( apply_filters( 'jetpack_ai_enabled', true ) && apply_filters( 'jetpack_experimental_image_generation_enabled', false ) ) {
+		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
 			\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-experimental-image-generation-support' );
 		}
 	}

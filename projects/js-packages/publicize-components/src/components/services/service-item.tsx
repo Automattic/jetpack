@@ -1,17 +1,13 @@
 import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Panel, PanelBody } from '@wordpress/components';
-import { useCallback, useReducer } from '@wordpress/element';
+import { useReducer } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
-import { KeyringResult } from '../../social-store/types';
 import { ConnectForm } from './connect-form';
 import { ServiceItemDetails, ServicesItemDetailsProps } from './service-item-details';
 import styles from './style.module.scss';
 
-export type ServicesItemProps = ServicesItemDetailsProps & {
-	onConfirm: ( result: KeyringResult ) => void;
-	initialOpenPanel?: boolean;
-};
+export type ServicesItemProps = ServicesItemDetailsProps;
 
 /**
  * Service item component
@@ -20,24 +16,10 @@ export type ServicesItemProps = ServicesItemDetailsProps & {
  *
  * @returns {import('react').ReactNode} Service item component
  */
-export function ServiceItem( {
-	service,
-	onConfirm,
-	serviceConnections,
-	initialOpenPanel,
-}: ServicesItemProps ) {
+export function ServiceItem( { service, serviceConnections }: ServicesItemProps ) {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
-	const [ isPanelOpen, togglePanel ] = useReducer( state => ! state, initialOpenPanel ?? false );
-
-	const isMastodonAlreadyConnected = useCallback(
-		( username: string ) => {
-			return serviceConnections.some( connection => {
-				return connection.external_display === username;
-			} );
-		},
-		[ serviceConnections ]
-	);
+	const [ isPanelOpen, togglePanel ] = useReducer( state => ! state, false );
 
 	const isMastodonPanelOpen = isPanelOpen && service.ID === 'mastodon';
 
@@ -69,7 +51,6 @@ export function ServiceItem( {
 						<ConnectForm
 							service={ service }
 							isSmall={ isSmall }
-							onConfirm={ onConfirm }
 							onSubmit={ service.needsCustomInputs ? togglePanel : undefined }
 							hasConnections={ serviceConnections.length > 0 }
 						/>
@@ -93,11 +74,9 @@ export function ServiceItem( {
 					{ service.ID === 'mastodon' ? (
 						<div className={ styles[ 'connect-form-wrapper' ] }>
 							<ConnectForm
-								onConfirm={ onConfirm }
 								service={ service }
 								displayInputs
 								isSmall={ false }
-								isMastodonAlreadyConnected={ isMastodonAlreadyConnected }
 								buttonLabel={ __( 'Connect', 'jetpack' ) }
 							/>
 						</div>
