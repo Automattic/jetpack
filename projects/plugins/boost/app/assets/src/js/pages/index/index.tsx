@@ -390,6 +390,24 @@ const Index = () => {
 				>
 					{ isaState?.active && <RecommendationsMeta isCdnActive={ !! imageCdn?.active } /> }
 				</Module>
+
+				<Module
+					slug="speculative_loading"
+					title={
+						<>
+							{ __( 'Speculative Loading', 'jetpack-boost' ) }
+							<span className={ styles.beta }>Beta</span>
+						</>
+					}
+					description={
+						<p>
+							{ __(
+								'Preload pages before the user navigates to them, so they load faster when the user clicks on them.',
+								'jetpack-boost'
+							) }
+						</p>
+					}
+				/>
 			</div>
 
 			{ ! pageCache?.active && <SuperCacheInfo /> }

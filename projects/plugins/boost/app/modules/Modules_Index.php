@@ -13,6 +13,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
 use Automattic\Jetpack_Boost\Modules\Performance_History\Performance_History;
+use Automattic\Jetpack_Boost\Optimizations\Speculative_Loading\Speculative_Loading;
 
 class Modules_Index {
 	const DISABLE_MODULE_QUERY_VAR = 'jb-disable-modules';
@@ -37,6 +38,7 @@ class Modules_Index {
 		Image_CDN::class,
 		Performance_History::class,
 		Page_Cache::class,
+		Speculative_Loading::class,
 	);
 
 	/**
