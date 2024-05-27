@@ -47,7 +47,7 @@ export function ConnectionInfo( { connection, service, onConfirmReconnect }: Con
 					onClick={ togglePanel }
 					aria-label={
 						isPanelOpen
-							? _x( 'Close panel', 'Accessibility label', 'jetpack' )
+							? __( 'Close panel', 'jetpack' )
 							: _x( 'Open panel', 'Accessibility label', 'jetpack' )
 					}
 				>
