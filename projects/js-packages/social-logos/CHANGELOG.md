@@ -1,3 +1,7 @@
+## [3.0.1] - 2024-05-27
+### Added
+- Added TypeScript support. [#37528]
+
 ## [3.0.0] - 2024-05-23
 ### Added
 - CSS file with encoded inline font is now automatically generated. [#36964]
@@ -78,4 +82,5 @@
 ## 2.1.0 - 2018-01-31
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.0.1]: https://github.com/Automattic/social-logos/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/Automattic/social-logos/compare/v2.5.9...v3.0.0
