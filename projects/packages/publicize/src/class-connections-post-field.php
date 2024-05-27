@@ -216,6 +216,7 @@ class Connections_Post_Field {
 			$output_connection['connection_id'] = (string) $connection['id'];
 
 			$output_connection['can_disconnect'] = Publicize::can_manage_connection( $connection );
+			$output_connection['shared']         = $connection['global'];
 
 			$output_connections[] = $output_connection;
 		}

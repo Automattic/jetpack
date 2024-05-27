@@ -54,8 +54,8 @@ unreleasedInlineExtensions.forEach( block => {
 } );
 
 // Since the lists depend on the feature flag, we need to define the types manually.
-export type ExtendedBlockProp = 'core/paragraph' | 'core/list';
-export type ExtendedInlineBlockProp = 'core/heading';
+export type ExtendedBlockProp = 'core/list';
+export type ExtendedInlineBlockProp = 'core/heading' | 'core/paragraph';
 
 type BlockSettingsProps = {
 	supports: {
