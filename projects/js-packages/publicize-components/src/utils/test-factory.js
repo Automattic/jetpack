@@ -1,17 +1,17 @@
 import { render, renderHook } from '@testing-library/react';
 import { useSelect, useDispatch } from '@wordpress/data';
-import ConnectionManagement from '..';
-import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
-import { store } from '../../../social-store';
-import { useSupportedServices } from '../../services/use-supported-services';
-import { ConnectionManagementPageObject } from './pageObjects/ConnectionManagementPage';
+import ConnectionManagement from '../components/connection-management';
+import { ConnectionManagementPageObject } from '../components/connection-management/tests/pageObjects/ConnectionManagementPage';
+import { useSupportedServices } from '../components/services/use-supported-services';
+import useSocialMediaConnections from '../hooks/use-social-media-connections';
+import { store } from '../social-store';
 
-jest.mock( '../../../hooks/use-social-media-connections', () => ( {
+jest.mock( '../hooks/use-social-media-connections', () => ( {
 	__esModule: true,
 	default: jest.fn(),
 } ) );
 
-jest.mock( '../../services/use-supported-services', () => ( {
+jest.mock( '../components/services/use-supported-services', () => ( {
 	useSupportedServices: jest.fn(),
 } ) );
 
