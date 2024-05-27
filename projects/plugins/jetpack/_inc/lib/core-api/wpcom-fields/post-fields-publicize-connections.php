@@ -251,7 +251,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 			$output_connection['id']            = (string) $connection['unique_id'];
 			$output_connection['connection_id'] = (string) $connection['id'];
 
-			$output_connection['can_disconnect'] = Publicize::can_manage_connection( $connection );
+			$output_connection['can_disconnect'] = current_user_can( 'edit_others_posts' ) || get_current_user_id() === (int) $connection['user_id'];
 			$output_connection['shared']         = $connection['global'];
 
 			$output_connections[] = $output_connection;
