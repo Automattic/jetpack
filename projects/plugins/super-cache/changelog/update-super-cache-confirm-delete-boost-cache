@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Super Cache: add a form to delete the Boost advanced-cache.php so WPSC can be used
+Super Cache: tell user that Cache module of Boost must be deactivated to use WPSC
