@@ -132,6 +132,7 @@ class Jetpack_Subscriptions {
 		// Hide subscription messaging in Publish panel for posts that were published in the past
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
 		add_action( 'transition_post_status', array( $this, 'maybe_set_first_published_status' ), 10, 3 );
+		add_action( 'transition_post_status', array( $this, 'maybe_update_default_dont_email_sub_on_private' ), 10, 3 );
 
 		// Add Subscribers menu to Jetpack navigation.
 		add_action( 'jetpack_admin_menu', array( $this, 'add_subscribers_menu' ) );
@@ -951,6 +952,22 @@ class Jetpack_Subscriptions {
 		$was_post_ever_published = get_post_meta( $post->ID, '_jetpack_post_was_ever_published', true );
 		if ( ! $was_post_ever_published && 'publish' === $old_status && 'draft' === $new_status ) {
 			update_post_meta( $post->ID, '_jetpack_post_was_ever_published', true );
+		}
+	}
+
+	/**
+	 * Set the _jetpack_dont_email_post_to_subs to 1 when the post is set to private.
+	 *
+	 * @param string $new_status Tthe "new" post status of the transition when saved.
+	 * @param string $old_status The "old" post status of the transition when saved.
+	 * @param object $post obj The post object.
+	 */
+	public function maybe_update_default_dont_email_sub_on_private( $new_status, $old_status, $post ) {
+		if ( 'private' === $new_status ) {
+			$is_not_set = get_post_meta( $post->ID, '_jetpack_post_was_ever_published', true );
+			if ( empty( $is_not_set ) ) {
+				update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
+			}
 		}
 	}
 
