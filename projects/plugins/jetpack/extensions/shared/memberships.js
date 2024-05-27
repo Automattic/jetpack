@@ -98,6 +98,7 @@ const getTokenFromCookie = function () {
 	if ( parts.length === 2 ) {
 		return parts.pop().split( ';' ).shift();
 	}
+	return '';
 };
 
 const updateQueryStringParameter = function ( uri, key, value ) {
