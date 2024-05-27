@@ -10,6 +10,12 @@
 	z-index: 9990;
 }
 
+@media (max-width: 782px) {
+	.wpcom-classic-tour-step {
+		display: none;
+	}
+}
+
 .wpcom-classic-tour-step::after,
 .wpcom-classic-tour-step::before {
 	content: "";
