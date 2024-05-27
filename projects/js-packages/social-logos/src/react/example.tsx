@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import SocialLogo from './social-logo';
+import { SocialLogo } from './social-logo';
 import { SocialLogoData } from './social-logo-data';
 import './example.css';
 

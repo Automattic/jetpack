@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: The "release-branch-prefix" key isn't meant for packages. :^)
+
+
