@@ -964,8 +964,8 @@ class Jetpack_Subscriptions {
 	 */
 	public function maybe_update_default_dont_email_sub_on_private( $new_status, $old_status, $post ) {
 		if ( 'private' === $new_status ) {
-			$is_not_set = get_post_meta( $post->ID, '_jetpack_post_was_ever_published', true );
-			if ( empty( $is_not_set ) ) {
+			$is_not_set = get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true );
+			if ( empty( $is_not_set ) && $is_not_set !== '0' ) {
 				update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
 			}
 		}
