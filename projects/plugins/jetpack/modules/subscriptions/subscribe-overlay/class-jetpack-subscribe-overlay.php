@@ -118,7 +118,7 @@ class Jetpack_Subscribe_Overlay {
 		$group_block_name = esc_attr__( 'Subscribe overlay container', 'jetpack' );
 
 		return <<<HTML
-	<!-- wp:group {"metadata":{"name":"$group_block_name"},{"style":{"spacing":{"padding":{"top":"0","bottom":"0","left":"0","right":"0"}}},"layout":{"type":"constrained","contentSize":"400px"}} -->
+	<!-- wp:group {"metadata":{"name":"$group_block_name"},"style":{"spacing":{"padding":{"top":"0","bottom":"0","left":"0","right":"0"}}},"layout":{"type":"constrained","contentSize":"400px"}} -->
 	<div class="wp-block-group" style="padding-top:0;padding-right:0;padding-bottom:0;padding-left:0">
 		<!-- wp:site-logo {"width":90,"isLink":false,"shouldSyncIcon":true,"align":"center","className":"is-style-rounded"} /-->
 
