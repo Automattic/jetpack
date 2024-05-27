@@ -12,7 +12,7 @@ namespace Automattic\Jetpack;
  */
 class Classic_Theme_Helper {
 
-	const PACKAGE_VERSION = '0.2.0-alpha';
+	const PACKAGE_VERSION = '0.2.0';
 
 	/**
 	 * Modules to include.
@@ -72,7 +72,7 @@ class Classic_Theme_Helper {
 		 *     return $files;
 		 * }
 		 *
-		 * @since $$next-version$$
+		 * @since 0.2.0
 		 *
 		 * @param array Associative array of theme compat files to load.
 		 */
