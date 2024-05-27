@@ -395,14 +395,14 @@ const Index = () => {
 					slug="speculative_loading"
 					title={
 						<>
-							{ __( 'Speculative Loading', 'jetpack-boost' ) }
+							{ __( 'Prerender Pages', 'jetpack-boost' ) }
 							<span className={ styles.beta }>Beta</span>
 						</>
 					}
 					description={
 						<p>
 							{ __(
-								'Preload pages before the user navigates to them, so they load faster when the user clicks on them.',
+								'Preload pages that are likely to be visited next, so they load faster when the user clicks on them.',
 								'jetpack-boost'
 							) }
 						</p>
