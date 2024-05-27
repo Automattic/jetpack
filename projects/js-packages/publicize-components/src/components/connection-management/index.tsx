@@ -68,25 +68,28 @@ const ConnectionManagement = ( { className = null } ) => {
 	return (
 		<div className={ classNames( styles.wrapper, className ) }>
 			{ connections.length ? (
-				<ul className={ styles[ 'connection-list' ] }>
-					{ connections.map( connection => {
-						const isUpdatingOrDeleting =
-							updatingConnections.includes( connection.connection_id ) ||
-							deletingConnections.includes( connection.connection_id );
+				<>
+					<h3>{ __( 'Connected accounts', 'jetpack' ) }</h3>
+					<ul className={ styles[ 'connection-list' ] }>
+						{ connections.map( connection => {
+							const isUpdatingOrDeleting =
+								updatingConnections.includes( connection.connection_id ) ||
+								deletingConnections.includes( connection.connection_id );
 
-						return (
-							<li className={ styles[ 'connection-list-item' ] } key={ connection.connection_id }>
-								<Disabled isDisabled={ isUpdatingOrDeleting }>
-									<ConnectionInfo
-										connection={ connection }
-										service={ servicesByName[ connection.service_name ] }
-										onConfirmReconnect={ openModal }
-									/>
-								</Disabled>
-							</li>
-						);
-					} ) }
-				</ul>
+							return (
+								<li className={ styles[ 'connection-list-item' ] } key={ connection.connection_id }>
+									<Disabled isDisabled={ isUpdatingOrDeleting }>
+										<ConnectionInfo
+											connection={ connection }
+											service={ servicesByName[ connection.service_name ] }
+											onConfirmReconnect={ openModal }
+										/>
+									</Disabled>
+								</li>
+							);
+						} ) }
+					</ul>
+				</>
 			) : null }
 			<Button onClick={ openModal } variant={ connections.length ? 'secondary' : 'primary' }>
 				{ __( 'Add connection', 'jetpack' ) }
