@@ -10,11 +10,11 @@ export class ConnectionManagementPageObject {
 	}
 
 	get header() {
-		return this.container.getByText( 'My Connections' );
+		return this.container.queryByText( 'Connected accounts' );
 	}
 
 	get addConnectionButton() {
-		return this.container.getByRole( 'button', { name: 'Add connection' } );
+		return this.container.getByRole( 'button', { name: 'Connect an account' } );
 	}
 
 	get spinners() {

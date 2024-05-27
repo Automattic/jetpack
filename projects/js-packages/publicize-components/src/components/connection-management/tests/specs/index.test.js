@@ -12,7 +12,7 @@ describe( 'ConnectionManagement', () => {
 			setup( { connections: [] } );
 			const management = getManagementPageObject();
 
-			expect( management.header ).toBeInTheDocument();
+			expect( management.header ).not.toBeInTheDocument();
 			expect( management.addConnectionButton ).toBeInTheDocument();
 			expect( management.getConnectionByName( 'Facebook' ) ).not.toBeInTheDocument();
 			expect( management.spinners ).toHaveLength( 0 );
