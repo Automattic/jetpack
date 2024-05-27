@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+SSO: Send User custom column back in the filter to not interfere with other custom columns.
