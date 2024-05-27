@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Moved "can_manage_connection" method to Publicize_Base class
