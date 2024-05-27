@@ -114,11 +114,12 @@ class Test_Masterbar extends TestCase {
 	}
 
 	public function test_add_styles_and_scripts() {
+		// @phan-suppress-next-line PhanDeprecatedFunction -- Needed for PHP 7.0 and 7.1 CI tests. We can replace with addMethods once WP 6.7 comes out.
 		$masterbar = $this->getMockBuilder( Masterbar::class )
 			->disableOriginalConstructor()
 			->setMethodsExcept( array( 'add_styles_and_scripts' ) )
 			->getMock();
-		// @phan-suppress-next-line PhanUndeclaredMethod -- This will be resolved when we start using addMethods above .
+		// @phan-suppress-next-line PhanUndeclaredMethod -- This will be resolved when we start using addMethods above.
 		$masterbar->add_styles_and_scripts();
 
 		$this->assertTrue( wp_style_is( 'a8c-wpcom-masterbar' ) );
