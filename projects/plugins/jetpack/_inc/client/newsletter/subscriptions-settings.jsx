@@ -130,7 +130,7 @@ function SubscriptionsSettings( props ) {
 					) }
 				</p>
 				<FormFieldset>
-					<FormLegend>{ __( 'Posts', 'jetpack' ) }</FormLegend>
+					<FormLegend>{ __( 'Posts & homepage', 'jetpack' ) }</FormLegend>
 					<ToggleControl
 						checked={ isSubscriptionsActive && isSubscribePostEndEnabled }
 						disabled={ isDisabled }
