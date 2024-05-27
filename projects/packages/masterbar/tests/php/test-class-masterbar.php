@@ -89,10 +89,12 @@ class Test_Masterbar extends TestCase {
 		// Make get_user_locale() return $stored_user_locale.
 		wp_get_current_user()->locale = $stored_user_locale;
 
+		// @phan-suppress-next-line PhanDeprecatedFunction -- Needed for PHP 7.0 and 7.1 CI tests. We can replace with addMethods once WP 6.7 comes out.
 		$masterbar = $this->getMockBuilder( Masterbar::class )
-			->addMethods( array() )
 			->disableOriginalConstructor()
+			->setMethodsExcept( array( 'unload_non_default_textdomains_on_wpcom_user_locale_switch' ) )
 			->getMock();
+		// @phan-suppress-next-line PhanUndeclaredMethod -- This will be resolved when we start using addMethods above.
 		$masterbar->unload_non_default_textdomains_on_wpcom_user_locale_switch( $detected_wpcom_locale );
 
 		// Check the result.
