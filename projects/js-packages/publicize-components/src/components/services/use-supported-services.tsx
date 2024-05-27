@@ -40,7 +40,7 @@ export function useSupportedServices(): Array< SupportedService > {
 			);
 	}, [] );
 
-	return [
+	const supportedServices: Array< SupportedService > = [
 		{
 			...availableServices.facebook,
 			icon: props => <SocialServiceIcon serviceName="facebook" { ...props } />,
@@ -256,7 +256,8 @@ export function useSupportedServices(): Array< SupportedService > {
 				),
 			],
 		},
-	].filter(
+	];
+	return supportedServices.filter(
 		// Return only the ones that are present in the available services.
 		service => Boolean( service.ID )
 	);
