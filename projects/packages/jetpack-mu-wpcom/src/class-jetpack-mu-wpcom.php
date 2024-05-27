@@ -42,6 +42,7 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_block_theme_previews' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_command_palette' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_admin_interface' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_site_management_widget' ) );
 
 		// This feature runs only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -85,7 +86,6 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
-		require_once __DIR__ . '/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php';
 		require_once __DIR__ . '/features/wpcom-site-menu/wpcom-site-menu.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 		require_once __DIR__ . '/features/calypso-locale-sync/sync-wp-admin-to-calypso.php';
@@ -305,5 +305,14 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_wpcom_admin_interface() {
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
+	}
+
+	/**
+	 * Load WPCOM Site Management widget.
+	 */
+	public static function load_wpcom_site_management_widget() {
+		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
+			require_once __DIR__ . '/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php';
+		}
 	}
 }
