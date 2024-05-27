@@ -190,7 +190,7 @@ function SubscriptionsSettings( props ) {
 						}
 					/>
 				</FormFieldset>
-				<FormFieldset>
+				<FormFieldset style={ { 'margin-top': '10px' } }>
 					<FormLegend>{ __( 'Comments', 'jetpack' ) }</FormLegend>
 					<ToggleControl
 						checked={ isSubscriptionsActive && isStbEnabled }
@@ -219,8 +219,8 @@ function SubscriptionsSettings( props ) {
 					/>
 				</FormFieldset>
 				{ isSubscriptionSiteEditSupported && (
-					<FormFieldset>
-						<FormLegend>{ __( 'Comments', 'jetpack' ) }</FormLegend>
+					<FormFieldset style={ { 'margin-top': '10px' } }>
+						<FormLegend>{ __( 'Navigation', 'jetpack' ) }</FormLegend>
 						<ToggleControl
 							checked={ isSubscriptionsActive && isSubscribeNavigationEnabled }
 							disabled={ isDisabled }
