@@ -1,15 +1,15 @@
 /* global wp, wpcomClassicTour */
 
 const wpcomShowClassicTourStep = step => {
-	const stepsTemplate = document
-		.querySelector( '#wpcom-classic-tour-steps-template' )
-		.content.cloneNode( true );
-	const totalSteps = stepsTemplate.children.length;
+	const stepTemplate = document
+		.querySelector( '#wpcom-classic-tour-step-template' )
+		.content.cloneNode( true ).children[ 0 ];
+	const stepConfig = wpcomClassicTour.steps[ step - 1 ];
 
-	const stepTemplate = stepsTemplate.children[ step - 1 ];
-	const target = document.querySelector( stepTemplate.dataset.target );
+	const target = document.querySelector( stepConfig.target );
 	const targetPosition = target.getBoundingClientRect();
-	const placement = stepTemplate.dataset.placement;
+	const placement = stepConfig.placement;
+	stepTemplate.classList.add( `is-${ placement }` );
 	switch ( placement ) {
 		case 'right-bottom':
 			stepTemplate.style.top = `${ targetPosition.top }px`;
@@ -26,34 +26,35 @@ const wpcomShowClassicTourStep = step => {
 			break;
 	}
 
+	const totalSteps = wpcomClassicTour.steps.length;
 	if ( step === 1 ) {
 		stepTemplate.classList.add( 'is-first-step' );
 	} else if ( step === totalSteps ) {
 		stepTemplate.classList.add( 'is-last-step' );
 	}
 
-	const stepFooterTemplate = document
-		.querySelector( '#wpcom-classic-tour-step-footer-template' )
-		.content.cloneNode( true ).children[ 0 ];
-	stepFooterTemplate.innerHTML = stepFooterTemplate.innerHTML
+	stepTemplate.innerHTML = stepTemplate.innerHTML
+		.replace( '{{title}}', stepConfig.title )
+		.replace( '{{description}}', stepConfig.description )
 		.replace( '{{currentStep}}', step )
 		.replace( '{{totalSteps}}', totalSteps );
-	stepTemplate.appendChild( stepFooterTemplate );
 
-	stepTemplate.querySelector( '.wpcom-classic-tour-step-next' ).addEventListener( 'click', () => {
+	stepTemplate.querySelector( '[data-action="next"]' ).addEventListener( 'click', () => {
 		document.body.removeChild( stepTemplate );
 		wpcomShowClassicTourStep( step + 1 );
 	} );
 
-	stepTemplate.querySelector( '.wpcom-classic-tour-step-prev' ).addEventListener( 'click', () => {
+	stepTemplate.querySelector( '[data-action="prev"]' ).addEventListener( 'click', () => {
 		document.body.removeChild( stepTemplate );
 		wpcomShowClassicTourStep( step - 1 );
 	} );
 
-	stepTemplate.querySelector( '.wpcom-classic-tour-step-done' ).addEventListener( 'click', () => {
-		document.body.removeChild( stepTemplate );
-		wp.ajax.post( 'wpcom_dismiss_classic_tour', {
-			_ajax_nonce: wpcomClassicTour.dismissNonce,
+	stepTemplate.querySelectorAll( '[data-action="dismiss"]' ).forEach( dismissButton => {
+		dismissButton.addEventListener( 'click', () => {
+			document.body.removeChild( stepTemplate );
+			wp.ajax.post( 'wpcom_dismiss_classic_tour', {
+				_ajax_nonce: wpcomClassicTour.dismissNonce,
+			} );
 		} );
 	} );
 
