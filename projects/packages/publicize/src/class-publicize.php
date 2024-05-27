@@ -335,17 +335,6 @@ class Publicize extends Publicize_Base {
 	}
 
 	/**
-	 * Whether the current user can manage a connection.
-	 *
-	 * @param array $connection_data The connection data.
-	 *
-	 * @return bool
-	 */
-	public static function can_manage_connection( $connection_data ) {
-		return current_user_can( 'edit_others_posts' ) || get_current_user_id() === (int) $connection_data['user_id'];
-	}
-
-	/**
 	 * Get the meta of a connection.
 	 *
 	 * @param array $connection The connection.
