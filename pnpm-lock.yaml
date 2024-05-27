@@ -2189,6 +2189,9 @@ importers:
       core-js:
         specifier: 3.23.5
         version: 3.23.5
+      glob:
+        specifier: 10.3.15
+        version: 10.3.15
       postcss:
         specifier: 8.4.31
         version: 8.4.31
