@@ -2,14 +2,24 @@
 
 namespace Automattic\Jetpack_Boost\Optimizations\Speculative_Loading;
 
+use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 
-class Speculative_Loading implements Pluggable, Optimization {
+class Speculative_Loading implements Pluggable, Optimization, Changes_Page_Output {
 	public static function is_available(): bool {
-		return defined( 'JETPACK_BOOST_ALPHA_FEATURES' ) ? \JETPACK_BOOST_ALPHA_FEATURES : false;
+		if ( defined( 'JETPACK_BOOST_ALPHA_FEATURES' ) ) {
+			return \JETPACK_BOOST_ALPHA_FEATURES === true;
+		}
+
+		return false;
 	}
 
+	/**
+	 * Setup the module.
+	 *
+	 * @return void
+	 */
 	public function setup() {
 		add_action( 'wp_footer', array( $this, 'add_speculative_loading' ) );
 	}
