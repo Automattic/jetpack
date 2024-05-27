@@ -124,11 +124,11 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phan-plugins",
-                "reference": "099a7efa4db98a1ca52144eb528eabc7db49511f"
+                "reference": "17f7a7b60e88906fb6efe77474cebf2214ba6b53"
             },
             "require": {
                 "phan/phan": "^5.4",
-                "php": ">=7.2"
+                "php": ">=8.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -136,9 +136,14 @@
             },
             "type": "library",
             "extra": {
+                "autotagger": true,
                 "branch-alias": {
                     "dev-trunk": "0.1.x-dev"
-                }
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-phan-plugins/compare/v${old}...v${new}"
+                },
+                "mirror-repo": "Automattic/jetpack-phan-plugins"
             },
             "autoload": {
                 "classmap": [
