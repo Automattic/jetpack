@@ -130,7 +130,7 @@ function SubscriptionsSettings( props ) {
 					) }
 				</p>
 				<FormFieldset>
-					<FormLegend>{ __( 'Posts & homepage', 'jetpack' ) }</FormLegend>
+					<FormLegend>{ __( 'Homepage and posts', 'jetpack' ) }</FormLegend>
 					<ToggleControl
 						checked={ isSubscriptionsActive && isSubscribePostEndEnabled }
 						disabled={ isDisabled }
@@ -190,36 +190,8 @@ function SubscriptionsSettings( props ) {
 						}
 					/>
 				</FormFieldset>
-				<FormFieldset style={ { 'margin-top': '20px' } }>
-					<FormLegend>{ __( 'Comments', 'jetpack' ) }</FormLegend>
-					<ToggleControl
-						checked={ isSubscriptionsActive && isStbEnabled }
-						disabled={ isDisabled }
-						toggling={ isSavingAnyOption( [ 'stb_enabled' ] ) }
-						onChange={ handleSubscribeToBlogToggleChange }
-						label={
-							<span className="jp-form-toggle-explanation">
-								{ __( 'Enable the “subscribe to site” option on your comment form', 'jetpack' ) }
-							</span>
-						}
-					/>
-					<ToggleControl
-						checked={ isSubscriptionsActive && isStcEnabled }
-						disabled={ isDisabled }
-						toggling={ isSavingAnyOption( [ 'stc_enabled' ] ) }
-						onChange={ handleSubscribeToCommentToggleChange }
-						label={
-							<span className="jp-form-toggle-explanation">
-								{ __(
-									'Enable the “subscribe to comments” option on your comment form',
-									'jetpack'
-								) }
-							</span>
-						}
-					/>
-				</FormFieldset>
 				{ isSubscriptionSiteEditSupported && (
-					<FormFieldset style={ { 'margin-top': '20px' } }>
+					<FormFieldset style={ { 'margin-top': '24px' } }>
 						<FormLegend>{ __( 'Navigation', 'jetpack' ) }</FormLegend>
 						<ToggleControl
 							checked={ isSubscriptionsActive && isSubscribeNavigationEnabled }
@@ -263,6 +235,34 @@ function SubscriptionsSettings( props ) {
 						/>
 					</FormFieldset>
 				) }
+				<FormFieldset style={ { 'margin-top': '24px' } }>
+					<FormLegend>{ __( 'Comments', 'jetpack' ) }</FormLegend>
+					<ToggleControl
+						checked={ isSubscriptionsActive && isStbEnabled }
+						disabled={ isDisabled }
+						toggling={ isSavingAnyOption( [ 'stb_enabled' ] ) }
+						onChange={ handleSubscribeToBlogToggleChange }
+						label={
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Enable the “subscribe to site” option on your comment form', 'jetpack' ) }
+							</span>
+						}
+					/>
+					<ToggleControl
+						checked={ isSubscriptionsActive && isStcEnabled }
+						disabled={ isDisabled }
+						toggling={ isSavingAnyOption( [ 'stc_enabled' ] ) }
+						onChange={ handleSubscribeToCommentToggleChange }
+						label={
+							<span className="jp-form-toggle-explanation">
+								{ __(
+									'Enable the “subscribe to comments” option on your comment form',
+									'jetpack'
+								) }
+							</span>
+						}
+					/>
+				</FormFieldset>
 			</SettingsGroup>
 		</SettingsCard>
 	);
