@@ -28,5 +28,5 @@ export function ConnectionName( { connection }: ConnectionNameProps ) {
 			</div>
 		);
 	}
-	return <Spinner color="black" aria-label={ __( 'Loading spinner', 'jetpack' ) } />;
+	return <Spinner color="black" aria-label={ __( 'Loading account details', 'jetpack' ) } />;
 }

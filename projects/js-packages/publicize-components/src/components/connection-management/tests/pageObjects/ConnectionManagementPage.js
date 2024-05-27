@@ -18,7 +18,7 @@ export class ConnectionManagementPageObject {
 	}
 
 	get spinners() {
-		return this.container.queryAllByRole( 'presentation', { name: 'Loading spinner' } );
+		return this.container.queryAllByRole( 'presentation', { name: 'Loading account details' } );
 	}
 
 	getConnectionByName( name ) {
