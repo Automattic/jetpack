@@ -92,7 +92,7 @@ const ConnectionManagement = ( { className = null } ) => {
 				</>
 			) : null }
 			<Button onClick={ openModal } variant={ connections.length ? 'secondary' : 'primary' }>
-				{ __( 'Add connection', 'jetpack' ) }
+				{ __( 'Connect an account', 'jetpack' ) }
 			</Button>
 			{ shouldModalBeOpen ? <AddConnectionModal onCloseModal={ closeModal } /> : null }
 		</div>
