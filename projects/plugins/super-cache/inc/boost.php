@@ -15,7 +15,7 @@ function wpsc_deactivate_boost_cache_notice() {
 			<?php // translators: %s is a html link to the Boost settings page ?>
 			<li><?php printf( esc_html__( 'Deactivate the "Cache Site Pages" module of Jetpack Boost on the %s page.', 'wp-super-cache' ), '<a href="' . esc_url( admin_url( 'admin.php?page=jetpack-boost' ) ) . '">' . esc_html__( 'Boost Settings', 'wp-super-cache' ) . '</a>' ); ?></li>
 			<li><?php esc_html_e( 'Reload this page to configure WP Super Cache.', 'wp-super-cache' ); ?></li>
-			<li><?php esc_html_e( 'Activate the Jetpack Boost plugin again.', 'wp-super-cache' ); ?></li>
+			<li><?php esc_html_e( 'You can continue to use the other features of Jetpack Boost.', 'wp-super-cache' ); ?></li>
 		</ol>
 	</div>
 	<?php
