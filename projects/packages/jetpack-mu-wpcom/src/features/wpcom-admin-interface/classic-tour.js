@@ -6,6 +6,8 @@ const wpcomShowClassicTourStep = step => {
 		.content.cloneNode( true ).children[ 0 ];
 	const stepConfig = wpcomClassicTour.steps[ step - 1 ];
 
+	stepTemplate.style.position = stepConfig.position;
+
 	const target = document.querySelector( stepConfig.target );
 	const targetPosition = target.getBoundingClientRect();
 	const placement = stepConfig.placement;
