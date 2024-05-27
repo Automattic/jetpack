@@ -8,11 +8,31 @@
  * @package wpcomsh
  */
 
-/*
+/**
  * Disable all Gutenberg experiments.
+ *
  * @see https://github.com/WordPress/gutenberg/blob/e6d8284b03799136915495654e821ca6212ae6d8/lib/load.php#L22
  */
-add_filter( 'option_gutenberg-experiments', '__return_false' );
+function wpcomsh_remove_gutenberg_experiments() {
+	$jetpack_options = get_option( 'jetpack_options' );
+	if ( is_array( $jetpack_options ) && isset( $jetpack_options['id'] ) ) {
+		$blog_id = (int) $jetpack_options['id'];
+	} else {
+		$blog_id = get_current_blog_id();
+	}
+
+	$allowed_blogs = array(
+		211453162, // wpmovies.dev
+	);
+
+	if ( in_array( $blog_id, $allowed_blogs, true ) ) {
+		return;
+	}
+
+	add_filter( 'option_gutenberg-experiments', '__return_false' );
+	add_action( 'admin_menu', 'wpcomsh_remove_gutenberg_experimental_menu' );
+}
+add_action( 'init', 'wpcomsh_remove_gutenberg_experiments' );
 
 /**
  * Remove Gutenberg's Experiments submenu item.
@@ -20,7 +40,6 @@ add_filter( 'option_gutenberg-experiments', '__return_false' );
 function wpcomsh_remove_gutenberg_experimental_menu() {
 	remove_submenu_page( 'gutenberg', 'gutenberg-experiments' );
 }
-add_action( 'admin_init', 'wpcomsh_remove_gutenberg_experimental_menu' );
 
 /**
  * Adds a polyfill for DOMRect in environments which do not support it.
