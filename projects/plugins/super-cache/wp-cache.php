@@ -2302,6 +2302,7 @@ function wp_cache_create_advanced_cache() {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
 		fwrite( $fp, $file );
 		fclose( $fp );
+		do_action( 'wpsc_created_advanced_cache' );
 	} else {
 		$ret = false;
 	}
@@ -2328,7 +2329,7 @@ function wpsc_check_advanced_cache() {
 
 	if ( false == $ret ) {
 		if ( $other_advanced_cache === 'BOOST' ) {
-			wpsc_delete_boost_loader_form();
+			wpsc_deactivate_boost_cache_notice();
 		} elseif ( $other_advanced_cache ) {
 			echo '<div style="width: 50%" class="notice notice-error"><h2>' . __( 'Warning! You may not be allowed to use this plugin on your site.', 'wp-super-cache' ) . "</h2>";
 			echo '<p>' .
