@@ -42,15 +42,6 @@ class Jetpack_Subscription_Site {
 	public function handle_subscribe_block_placements() {
 		$this->handle_subscribe_block_post_end_placement();
 		$this->handle_subscribe_block_navigation_placement();
-
-		add_filter(
-			'jetpack_options_whitelist',
-			function ( $options ) {
-				$options[] = 'jetpack_subscriptions_subscribe_navigation_enabled';
-
-				return $options;
-			}
-		);
 	}
 
 	/**
