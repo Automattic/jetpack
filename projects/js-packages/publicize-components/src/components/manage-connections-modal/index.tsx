@@ -1,7 +1,7 @@
-import { useBreakpointMatch } from '@automattic/jetpack-components';
+import { ThemeProvider, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback } from '@wordpress/element';
+import { cloneElement, useCallback, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import classNames from 'classnames';
 import { store } from '../../social-store';
@@ -58,3 +58,52 @@ export const ManageConnectionsModal = ( { onCloseModal }: ManageConnectionsModal
 		</Modal>
 	);
 };
+
+export type ManageConnectionsModalWithTriggerProps = {
+	trigger: React.ReactElement;
+};
+
+/**
+ * Manage connections modal with trigger component.
+ *
+ * This component can be used to avoid dealing with modal state management.
+ *
+ * @param {ManageConnectionsModalWithTriggerProps} props - component props
+ *
+ * @returns {import('react').ReactNode} - React element
+ */
+export function ManageConnectionsModalWithTrigger( {
+	trigger,
+}: ManageConnectionsModalWithTriggerProps ) {
+	const [ isModalOpen, setIsModalOpen ] = useState( false );
+
+	const { keyringResult } = useSelect( select => {
+		return {
+			keyringResult: select( store ).getKeyringResult(),
+		};
+	}, [] );
+
+	const closeModal = useCallback( () => {
+		setIsModalOpen( false );
+	}, [] );
+	const openModal = useCallback( () => {
+		setIsModalOpen( true );
+	}, [] );
+
+	const shouldModalBeOpen =
+		isModalOpen ||
+		// It's possible that when reconnecting a connection from within the modal,
+		// the user closes the modal immediately, without waiting for the confirmation,
+		// in that case we should show the modal again when the keyringResult is set.
+		keyringResult?.ID;
+
+	// Clone trigger element and pass onClick handler to open modal
+	const triggerWithOnClick = cloneElement( trigger, { onClick: openModal } );
+
+	return (
+		<ThemeProvider targetDom={ document.body }>
+			{ triggerWithOnClick }
+			{ shouldModalBeOpen ? <ManageConnectionsModal onCloseModal={ closeModal } /> : null }
+		</ThemeProvider>
+	);
+}
