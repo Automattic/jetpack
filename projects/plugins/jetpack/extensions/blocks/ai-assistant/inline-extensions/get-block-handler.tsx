@@ -7,6 +7,8 @@ import debugFactory from 'debug';
  */
 import { BlockHandler } from './block-handler';
 import { HeadingHandler } from './heading';
+import { ListHandler } from './list';
+import { ListItemHandler } from './list-item';
 import { ParagraphHandler } from './paragraph';
 /**
  * Types
@@ -19,6 +21,8 @@ const debug = debugFactory( 'jetpack-ai-assistant:extensions:get-block-handler' 
 const handlers = {
 	'core/heading': HeadingHandler,
 	'core/paragraph': ParagraphHandler,
+	'core/list-item': ListItemHandler,
+	'core/list': ListHandler,
 };
 
 /**
