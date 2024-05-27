@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
+use Automattic\Jetpack\Constants as Jetpack_Constants;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -49,6 +50,9 @@ class Test_Masterbar extends TestCase {
 		);
 
 		wp_set_current_user( static::$user_id );
+
+		$plugin_dir = dirname( __DIR__, 4 ) . '/';
+		Jetpack_Constants::set_constant( 'JETPACK__PLUGIN_FILE', $plugin_dir . 'jetpack.php' );
 	}
 
 	/**
@@ -61,6 +65,7 @@ class Test_Masterbar extends TestCase {
 		global $l10n;
 		$l10n = $this->l10n_backup;
 
+		Jetpack_Constants::clear_constants();
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 	}
@@ -106,6 +111,22 @@ class Test_Masterbar extends TestCase {
 			// No textdomains should have been unloaded.
 			$this->assertEquals( array( 'default', 'jetpack', 'jetpack-boost' ), array_keys( $l10n ) );
 		}
+	}
+
+	public function test_add_styles_and_scripts() {
+		$masterbar = $this->getMockBuilder( Masterbar::class )
+			->disableOriginalConstructor()
+			->setMethodsExcept( array( 'add_styles_and_scripts' ) )
+			->getMock();
+		// @phan-suppress-next-line PhanUndeclaredMethod -- This will be resolved when we start using addMethods above .
+		$masterbar->add_styles_and_scripts();
+
+		$this->assertTrue( wp_style_is( 'a8c-wpcom-masterbar' ) );
+		$this->assertTrue( wp_style_is( 'a8c-wpcom-masterbar-overrides' ) );
+		$this->assertTrue( wp_script_is( 'a8c_wpcom_css_override' ) );
+		$this->assertTrue( wp_script_is( 'jetpack-accessible-focus' ) );
+		$this->assertTrue( wp_script_is( 'a8c_wpcom_masterbar_tracks_events' ) );
+		$this->assertTrue( wp_script_is( 'a8c_wpcom_masterbar_overrides' ) );
 	}
 
 	/**
