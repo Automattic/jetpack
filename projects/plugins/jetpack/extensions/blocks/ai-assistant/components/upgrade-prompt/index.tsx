@@ -38,7 +38,7 @@ const DefaultUpgradePrompt = ( {
 }: UpgradePromptProps ): ReactElement => {
 	const Nudge = useLightNudge ? LightNudge : StandardNudge;
 
-	const { checkoutUrl, autosaveAndRedirect, isRedirecting } = useAICheckout();
+	const { checkoutUrl } = useAICheckout();
 	const canUpgrade = canUserPurchasePlan();
 	const { nextTier, tierPlansEnabled, currentTier, requestsCount } = useAiFeature();
 
@@ -156,12 +156,12 @@ const DefaultUpgradePrompt = ( {
 					strong: <strong />,
 				}
 			) }
-			goToCheckoutPage={ autosaveAndRedirect }
-			isRedirecting={ isRedirecting }
+			goToCheckoutPage={ handleUpgradeClick }
 			visible={ true }
 			align={ null }
 			title={ null }
 			context={ null }
+			target="_blank"
 		/>
 	);
 };
