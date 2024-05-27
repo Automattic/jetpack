@@ -326,18 +326,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.5-a.3 - 2024-05-20
+### 13.5-a.5 - 2024-05-27
 #### Enhancements
-- AI Assistant: Enable inline Heading extension.
-- Subscribe block: Adds button-only style.
-- Subscribe block: Allow inside navigation block.
+- AI Assistant: Move Paragraph extension to production.
+- Newsletter: Add "From" name setting.
+- Newsletter: Add "Reply to" name setting.
+- Social: Add connection management to editor.
+- Social: Add width to connection management container.
 
 #### Improved compatibility
-- Block Editor: Remove External Link icon styling fix now that the change has been made in WordPress itself.
-
-#### Bug fixes
-- Slideshow: Fix className issue on frontend - ensures autoplay works properly.
-- WordAds: Prevent fatal when post content is null.
+- Change how Jetpack social connections are stored on the local site.
 
 --------
 

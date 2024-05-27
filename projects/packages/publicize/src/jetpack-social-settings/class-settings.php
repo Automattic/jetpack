@@ -203,7 +203,7 @@ class Settings {
 			);
 		}
 
-		$settings['connectionRefreshPath'] = '/jetpack/v4/publicize/connection-test-results';
+		$settings['connectionRefreshPath'] = ! empty( $settings['useAdminUiV1'] ) ? 'jetpack/v4/publicize/connections?test_connections=1' : '/jetpack/v4/publicize/connection-test-results';
 
 		return $settings;
 	}
