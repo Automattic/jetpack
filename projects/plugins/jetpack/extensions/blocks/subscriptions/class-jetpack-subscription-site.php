@@ -152,6 +152,25 @@ class Jetpack_Subscription_Site {
 			10,
 			4
 		);
+
+		add_filter(
+			'hooked_block_jetpack/subscriptions',
+			function ( $hooked_block, $hooked_block_type, $relative_position, $anchor_block ) {
+				$is_navigation_anchor_block = isset( $anchor_block['blockName'] ) && $anchor_block['blockName'] === 'core/navigation';
+
+				if ( $is_navigation_anchor_block ) {
+					$class_name = ( ! empty( $hooked_block['attrs'] ) && ! empty( $hooked_block['attrs']['className'] ) )
+						? $hooked_block['attrs']['className'] . ' is-style-button'
+						: 'is-style-button';
+
+					$hooked_block['attrs']['className'] = $class_name;
+				}
+
+				return $hooked_block;
+			},
+			10,
+			4
+		);
 	}
 
 	/**
