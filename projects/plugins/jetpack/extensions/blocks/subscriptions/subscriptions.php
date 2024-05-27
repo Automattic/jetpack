@@ -177,6 +177,7 @@ function register_block() {
 		'jetpack_options_whitelist',
 		function ( $options ) {
 			$options[] = 'jetpack_subscriptions_subscribe_post_end_enabled';
+			$options[] = 'jetpack_subscriptions_subscribe_navigation_enabled';
 
 			return $options;
 		}
